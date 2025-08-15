@@ -296,12 +296,9 @@ instance [FromJson α] : FromJson (Notification α) where
       pure $ ⟨method, param⟩
     else throw "not a notification"
 
-end Lean.JsonRpc
-
 namespace IO.FS.Stream
 
-open Lean
-open Lean.JsonRpc
+open _root_.IO Lean.JsonRpc
 
 section
   def readMessage (h : FS.Stream) (nBytes : Nat) : IO Message := do
@@ -371,4 +368,4 @@ section
     h.writeMessage e
 end
 
-end IO.FS.Stream
+end Lean.JsonRpc.IO.FS.Stream

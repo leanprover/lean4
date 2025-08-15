@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Lean.ResolveName
 public import Lean.Log
 public import Lean.Elab.Util
 public import Lean.Parser.Command
@@ -69,22 +70,22 @@ def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.
     match stx with
     | `(Parser.Command.openDecl| $nss*) =>
       for ns in nss do
-        for ns in (← resolveNamespace ns) do
+        for ns in (← resolveNamespace ns (forOpen := true)) do
           addOpenDecl (OpenDecl.simple ns [])
           activateScoped ns
     | `(Parser.Command.openDecl| scoped $nss*) =>
       for ns in nss do
-        for ns in (← resolveNamespace ns) do
+        for ns in (← resolveNamespace ns (forOpen := true)) do
           activateScoped ns
     | `(Parser.Command.openDecl| $ns ($ids*)) =>
-      let nss ← resolveNamespace ns
+      let nss ← resolveNamespace ns (forOpen := true)
       for idStx in ids do
         let declName ← resolveNameUsingNamespacesCore nss idStx
         if (← getInfoState).enabled then
           addConstInfo idStx declName
         addOpenDecl (OpenDecl.explicit idStx.getId declName)
     | `(Parser.Command.openDecl| $ns hiding $ids*) =>
-      let ns ← resolveUniqueNamespace ns
+      let ns ← resolveUniqueNamespace ns (forOpen := true)
       activateScoped ns
       for id in ids do
         let declName ← resolveId ns id
@@ -93,7 +94,7 @@ def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.
       let ids := ids.map (·.getId) |>.toList
       addOpenDecl (OpenDecl.simple ns ids)
     | `(Parser.Command.openDecl| $ns renaming $[$froms -> $tos],*) =>
-      let ns ← resolveUniqueNamespace ns
+      let ns ← resolveUniqueNamespace ns (forOpen := true)
       for («from», to) in froms.zip tos do
         let declName ← resolveId ns «from»
         if (← getInfoState).enabled then

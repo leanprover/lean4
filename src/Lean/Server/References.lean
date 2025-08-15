@@ -19,6 +19,8 @@ public section
 
 set_option linter.missingDocs true
 
+open IO
+
 namespace Lean.Server
 open Lsp Lean.Elab Std
 

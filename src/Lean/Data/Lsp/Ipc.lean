@@ -20,7 +20,7 @@ Used for testing the Lean server. -/
 
 namespace Lean.Lsp.Ipc
 
-open IO
+open _root_.IO Lean.Lsp
 open JsonRpc
 
 def ipcStdioConfig : Process.StdioConfig where

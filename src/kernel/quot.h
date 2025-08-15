@@ -56,6 +56,22 @@ template<typename WHNF> optional<expr> quot_reduce_rec(expr const & e, WHNF cons
     if (args.size() <= mk_pos)
         return none_expr();
 
+    if (const_name(fn) == *quot_consts::g_quot_lift) {
+        levels const & levels = const_levels(fn);
+        if (is_nil(levels))
+            return none_expr();
+        if (head(levels).is_zero()) {
+            expr q = mk_app(mk_const(*quot_consts::g_quot, {mk_level_zero()}), args[0], args[1]);
+            expr a = mk_app(mk_const(*quot_consts::g_quot_ind, {mk_level_zero()}), args[0], args[1]);
+            a = mk_app(a, mk_lambda("q", q, args[0]), mk_lambda("a", args[0], mk_bvar(0)), args[mk_pos]);
+            expr r = mk_app(args[arg_pos], a);
+            unsigned elim_arity = mk_pos+1;
+            if (args.size() > elim_arity)
+                r = mk_app(r, args.size() - elim_arity, args.begin() + elim_arity);
+            return some_expr(r);
+        }
+    }
+
     expr mk = whnf(args[mk_pos]);
     expr const & mk_fn = get_app_fn(mk);
     if (!is_constant(mk_fn) || const_name(mk_fn) != *quot_consts::g_quot_mk || get_app_num_args(mk) != 3)

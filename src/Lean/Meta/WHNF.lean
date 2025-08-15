@@ -255,19 +255,28 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
 -- ===========================
 
 /-- Auxiliary function for reducing `Quot.lift` and `Quot.ind` applications. -/
-private def reduceQuotRec (recVal  : QuotVal) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+private def reduceQuotRec (recVal : QuotVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let process (majorPos argPos : Nat) : MetaM α :=
     if h : majorPos < recArgs.size then do
-      let major := recArgs[majorPos]
-      let major ← whnf major
-      match major with
-      | Expr.app (Expr.app (Expr.app (Expr.const majorFn _) _) _) majorArg => do
-        let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) := (← getEnv).find? majorFn | failK ()
-        let f := recArgs[argPos]!
-        let r := mkApp f majorArg
+      if let (.lift, .zero :: _) := (recVal.kind, recLvls) then
+        let params := recArgs[:2]
+        let q := mkAppN (.const ``Quot [.zero]) params
+        let a := mkAppN (.const ``Quot.ind [.zero]) params
+        let a := mkAppN a #[.lam `q q recArgs[0] .default, .lam `a recArgs[0] (.bvar 0) .default, recArgs[majorPos]]
+        let r := mkApp recArgs[argPos]! a
         let recArity := majorPos + 1
         successK <| mkAppRange r recArity recArgs.size recArgs
-      | _ => failK ()
+      else
+        let major := recArgs[majorPos]
+        let major ← whnf major
+        match major with
+        | Expr.app (Expr.app (Expr.app (Expr.const majorFn _) _) _) majorArg => do
+          let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) := (← getEnv).find? majorFn | failK ()
+          let f := recArgs[argPos]!
+          let r := mkApp f majorArg
+          let recArity := majorPos + 1
+          successK <| mkAppRange r recArity recArgs.size recArgs
+        | _ => failK ()
     else
       failK ()
   match recVal.kind with
@@ -672,7 +681,7 @@ where
             let some cinfo := (← getEnv).find? cname | return e
             match cinfo with
             | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
-            | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+            | .quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
             | c@(.defnInfo _) => do
               if (← isAuxDef c.name) then
                 recordUnfold c.name
@@ -913,7 +922,7 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
       let some cinfo := (← getEnv).find? cname | return none
       match cinfo with
       | .recInfo «rec»  => reduceRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
-      | .quotInfo «rec» => reduceQuotRec «rec» e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
+      | .quotInfo «rec» => reduceQuotRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
       | c@(.defnInfo _) =>
         if (← isAuxDef c.name) then
           deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => pure none) (fun e => do recordUnfold c.name; pure (some e))

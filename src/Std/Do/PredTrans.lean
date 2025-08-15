@@ -131,28 +131,37 @@ instance instLawfulMonad : LawfulMonad (PredTrans ps) :=
 
 -- The interpretation of `StateT σ (PredTrans ps) α` into `PredTrans (.arg σ ps) α`.
 -- Think: modifyGetM
-def pushArg {σ : Type u} (x : StateT σ (PredTrans ps) α) : PredTrans (.arg σ ps) α :=
-  { apply := fun Q s => (x s).apply (fun (a, s) => Q.1 a s, Q.2),
-    conjunctive := by
-      intro Q₁ Q₂
-      apply SPred.bientails.of_eq
-      ext s
-      dsimp
-      rw [← ((x s).conjunctive _ _).to_eq]
-  }
+def pushArg {σ : Type u} (x : StateT σ (PredTrans ps) α) : PredTrans (.arg σ ps) α where
+  apply := fun Q s => (x s).apply (fun (a, s) => Q.1 a s, Q.2)
+  conjunctive := by
+    intro Q₁ Q₂
+    apply SPred.bientails.of_eq
+    ext s
+    dsimp
+    rw [← ((x s).conjunctive _ _).to_eq]
 
 -- The interpretation of `ExceptT ε (PredTrans ps) α` into `PredTrans (.except ε ps) α`
-def pushExcept {ps : PostShape} {α ε} (x : ExceptT ε (PredTrans ps) α) : PredTrans (.except ε ps) α :=
-  { apply Q := x.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2),
-    conjunctive := by
-      intro Q₁ Q₂
-      apply SPred.bientails.of_eq
-      dsimp
-      rw[← (x.conjunctive _ _).to_eq]
-      congr
-      ext x
-      cases x <;> simp
-  }
+def pushExcept {ps : PostShape} {α ε} (x : ExceptT ε (PredTrans ps) α) : PredTrans (.except ε ps) α where
+  apply Q := x.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2)
+  conjunctive := by
+    intro Q₁ Q₂
+    apply SPred.bientails.of_eq
+    dsimp
+    rw[← (x.conjunctive _ _).to_eq]
+    congr
+    ext x
+    cases x <;> simp
+
+def pushOption {ps : PostShape} {α} (x : OptionT (PredTrans ps) α) : PredTrans (.except PUnit ps) α where
+  apply Q := x.apply (fun | .some a => Q.1 a | .none => Q.2.1 ⟨⟩, Q.2.2)
+  conjunctive := by
+    intro Q₁ Q₂
+    apply SPred.bientails.of_eq
+    dsimp
+    rw[← (x.conjunctive _ _).to_eq]
+    congr
+    ext x
+    cases x <;> simp
 
 @[simp]
 def pushArg_apply {ps} {α σ : Type u} {Q : PostCond α (.arg σ ps)} (f : σ → PredTrans ps (α × σ)) :
@@ -161,6 +170,10 @@ def pushArg_apply {ps} {α σ : Type u} {Q : PostCond α (.arg σ ps)} (f : σ �
 @[simp]
 def pushExcept_apply {ps} {α ε : Type u} {Q : PostCond α (.except ε ps)} (x : PredTrans ps (Except ε α)) :
   (pushExcept x).apply Q = x.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2) := rfl
+
+@[simp]
+def pushOption_apply {ps} {α : Type u} {Q : PostCond α (.except PUnit ps)} (x : PredTrans ps (Option α)) :
+  (pushOption x).apply Q = x.apply (fun | .some a => Q.1 a | .none => Q.2.1 ⟨⟩, Q.2.2) := rfl
 
 def dite_apply {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : c → PredTrans ps α) (e : ¬ c → PredTrans ps α) :
   (if h : c then t h else e h).apply Q = if h : c then (t h).apply Q else (e h).apply Q := by split <;> rfl

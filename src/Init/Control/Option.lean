@@ -39,13 +39,14 @@ variable {m : Type u → Type v} [Monad m] {α β : Type u}
 Converts an action that returns an `Option` into one that might fail, with `none` indicating
 failure.
 -/
+@[always_inline, inline, expose]
 protected def mk (x : m (Option α)) : OptionT m α :=
   x
 
 /--
 Sequences two potentially-failing actions. The second action is run only if the first succeeds.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def bind (x : OptionT m α) (f : α → OptionT m β) : OptionT m β := OptionT.mk do
   match (← x) with
   | some a => f a
@@ -54,7 +55,7 @@ protected def bind (x : OptionT m α) (f : α → OptionT m β) : OptionT m β :
 /--
 Succeeds with the provided value.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def pure (a : α) : OptionT m α := OptionT.mk do
   pure (some a)
 

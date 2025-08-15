@@ -65,6 +65,7 @@ protected meta def unexpandWP : Lean.PrettyPrinter.Unexpander
     | `(wp $e) => `(wp⟦$e⟧)
     | _ => throw ()
   | _ => throw ()
+
 instance Id.instWP : WP Id .pure where
   wp x := PredTrans.pure x.run
 
@@ -76,6 +77,9 @@ instance ReaderT.instWP [WP m ps] : WP (ReaderT ρ m) (.arg ρ ps) where
 
 instance ExceptT.instWP [WP m ps] : WP (ExceptT ε m) (.except ε ps) where
   wp x := PredTrans.pushExcept (wp x)
+
+instance OptionT.instWP [WP m ps] : WP (OptionT m) (.except PUnit ps) where
+  wp x := PredTrans.pushOption (wp x)
 
 instance EStateM.instWP : WP (EStateM ε σ) (.except ε (.arg σ .pure)) where
   wp x := -- Could define as PredTrans.mkExcept (PredTrans.modifyGetM (fun s => pure (EStateM.Result.toExceptState (x s))))
@@ -96,6 +100,8 @@ instance Reader.instWP : WP (ReaderM ρ) (.arg ρ .pure) :=
   inferInstanceAs (WP (ReaderT ρ Id) (.arg ρ .pure))
 instance Except.instWP : WP (Except ε) (.except ε .pure) :=
   inferInstanceAs (WP (ExceptT ε Id) (.except ε .pure))
+instance Option.instWP : WP Option (.except PUnit .pure) :=
+  inferInstanceAs (WP (OptionT Id) (.except PUnit .pure))
 
 theorem Id.of_wp_run_eq {α : Type u} {x : α} {prog : Id α} (h : Id.run prog = x) (P : α → Prop) :
   (⊢ₛ wp⟦prog⟧ (⇓ a => ⟨P a⟩)) → P x := h ▸ (· True.intro)

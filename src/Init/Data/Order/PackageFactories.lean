@@ -611,7 +611,7 @@ public structure Packages.LinearPreorderOfOrdArgs (α : Type u) where
       let := ord; let := le; have := lawful_le; let := lt
       ∀ a b : α, a < b ↔ compare a b = .lt := by
     extract_lets
-    exact Std.compare_eq_lt.symm -- TODO: more tries
+    exact fun _ _ => Std.compare_eq_lt.symm -- TODO: more tries
   decidableLT :
       let := ord; let := lt; let := le; have := lawful_le; have := lawful_lt
       DecidableLT α := by
@@ -626,10 +626,10 @@ public structure Packages.LinearPreorderOfOrdArgs (α : Type u) where
       | infer_instance
       | exact fun _ => BEq.ofOrd _
   lawful_beq :
-      let := ord; let := le; have := lawful_le; let := lt
+      let := ord; let := le; have := lawful_le; let := beq
       ∀ a b : α, a == b ↔ compare a b = .eq := by
     extract_lets
-    exact Std.compare_eq_eq.symm -- TODO: more tries
+    exact fun _ _ => Std.compare_eq_eq.symm -- TODO: more tries
 
 @[expose]
 public def LinearPreorderPackage.ofOrd (α : Type u)

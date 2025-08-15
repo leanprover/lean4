@@ -1,6 +1,5 @@
-module
 
-import Init.Data.Order.FactoriesExtra
+import Init.Data.Order.PackageFactories
 
 open Std
 
@@ -63,12 +62,12 @@ end
 error: could not synthesize default value for field 'lawful_lt' of 'Std.Packages.PreorderOfLEArgs' using tactics
 ---
 error: Failed to automatically prove that the `OrderData` and `LT` instances are compatible.
-case refl
 α : Type u
 inst✝² : LE α
 inst✝¹ : DecidableLE α
 inst✝ : LT α
-this : LE α := inferInstance
+this✝¹ : LE α := inferInstance
+this✝ : LT α := inferInstance
 ⊢ ∀ (a b : α), a < b ↔ a ≤ b ∧ ¬b ≤ a
 -/
 #guard_msgs in
@@ -79,7 +78,7 @@ def packageOfLEOfLT1 [LE α] [DecidableLE α] [LT α] : PreorderPackage α := .o
 
 def packageOfLEOfLT2 [LE α] [DecidableLE α] [LT α] (h : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a) :
     PreorderPackage α := .ofLE α {
-  lawful_lt hi := by cases hi; exact h
+  lawful_lt := h
   le_refl := sorry
   le_trans := sorry
 }

@@ -61,7 +61,7 @@ end
 /--
 error: could not synthesize default value for field 'lawful_lt' of 'Std.Packages.PreorderOfLEArgs' using tactics
 ---
-error: Failed to automatically prove that the `OrderData` and `LT` instances are compatible.
+error: Failed to automatically prove that the `OrderData` and `LT` instances are compatible. Please ensure that a `LawfulOrderLT` instance can be synthesized or manually provide the field `lawful_lt`.
 α : Type u
 inst✝² : LE α
 inst✝¹ : DecidableLE α

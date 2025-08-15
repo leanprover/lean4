@@ -15,7 +15,7 @@ public import Std.Internal.Async.Select
 public section
 
 /-!
-This module contains the implementation of `Std.Bounded`. `Std.Bounded` provides a
+This module contains the implementation of `Std.Broadcast`. `Std.Broadcast` provides a
 broadcasting primitive for sending values to multiple consumers. It maintains a queue of
 values and supports both synchronous and asynchronous waiting.
 -/
@@ -26,7 +26,7 @@ namespace Std
 Errors that may be thrown while interacting with the broadcast channel API.
 -/
 
-inductive Error where
+inductive Broadcast.Error where
 
   /--
   Tried to send to a closed broadcast channel.
@@ -50,14 +50,14 @@ inductive Error where
 
 deriving Repr, DecidableEq, Hashable
 
-instance : ToString Error where
+instance : ToString Broadcast.Error where
   toString
     | .closed => "trying to send on an already closed channel"
     | .alreadyClosed => "trying to close an already closed broadcast channel"
     | .noSubscribers => "there are no subscribers"
     | .notSubscribed => "there channel is not subscribed."
 
-instance : MonadLift (EIO Error) IO where
+instance : MonadLift (EIO Broadcast.Error) IO where
   monadLift x := EIO.toIO (.userError <| toString ·) x
 
 /--
@@ -257,7 +257,7 @@ private def trySend (ch : Bounded α) (v : α) : BaseIO Bool := do
     else
       trySend' v
 
-private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Except Error Unit)) := do
+private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Except Broadcast.Error Unit)) := do
   ch.state.atomically do
     if (← get).closed then
       return .pure <| .error .closed
@@ -275,7 +275,7 @@ private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Except Error
         else
           return .pure <| .error .closed
 
-def close (ch : Bounded α) : EIO Error Unit := do
+def close (ch : Bounded α) : EIO Broadcast.Error Unit := do
   ch.state.atomically do
     let st ← get
 
@@ -338,7 +338,7 @@ private def unsubscribe (bd : Bounded.Receiver α) : IO Unit := do
     let st ← get
 
     let some next := st.receivers.get? bd.id
-      | return Except.error Error.noSubscribers
+      | return Except.error Broadcast.Error.noSubscribers
 
     discard <| getValueByPosition next
 

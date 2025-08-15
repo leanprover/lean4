@@ -580,81 +580,56 @@ inferred, see `LinearPreorderPackage.ofOrd`.
 public structure Packages.LinearPreorderOfOrdArgs (α : Type u) where
   ord : Ord α := by infer_instance
   transOrd  : TransOrd α := by infer_instance
-  le [i : Ord α] (hi : i = ord := by rfl) :
+  le :
+      let := ord
       LE α := by
-    intro i hi
+    extract_lets
     first
       | infer_instance
       | exact LE.ofOrd _
-  lawful_le [i : Ord α] (hi : i = ord := by rfl) [o : OrientedOrd α]
-      [il : LE α] (hil : il = le hi := by rfl) :
+  lawful_le :
+      let := ord; let := transOrd; let := le
       LawfulOrderOrd α := by
-    intro i hi o il hil
-    letI := i
-    cases hi
-    letI := il
-    cases hil
+    extract_lets
     first
       | infer_instance
-  decidableLE [i : Ord α] (hi : i = ord := by rfl) [il : LE α] (hil : il = le hi := by rfl)
-      (l : LawfulOrderOrd α) :
+  decidableLE :
+      let := ord; let := le; have := lawful_le
       DecidableLE α := by
-    intro i hi il hil
-    letI := i
-    cases hi
-    letI := il
-    cases hil
+    extract_lets
     first
       | infer_instance
       | exact DecidableLE.ofOrd _
-  lt [i : Ord α] (hi : i = ord := by rfl) :
+  lt :
+      let := ord
       LT α := by
-    intro i hi
+    extract_lets
     first
       | infer_instance
       | exact LT.ofOrd _
-  lawful_lt [i : Ord α] (hi : i = ord := by rfl)
-      [ile : LE α] (hile : ile = le hi := by rfl) (l : LawfulOrderOrd α)
-      [ilt : LT α] (hilt : ilt = lt hi := by rfl) :
+  lawful_lt :
+      let := ord; let := le; have := lawful_le; let := lt
       ∀ a b : α, a < b ↔ compare a b = .lt := by
-    intro i hi ile hile l ilt hilt a b
-    letI := i
-    cases hi
-    letI := ile
-    cases hile
-    letI := ilt
-    cases hilt
-    exact Std.compare_eq_lt.symm
-  decidableLT [i : Ord α] (hi : i = ord := by rfl) [ilt : LT α] (hilt : ilt = lt hi := by rfl)
-      [ile : LE α] (hile : ile = le hi := by rfl) (lo : LawfulOrderOrd α)
-      (l : ∀ a b : α, a < b ↔ compare a b = .lt) :
+    extract_lets
+    exact Std.compare_eq_lt.symm -- TODO: more tries
+  decidableLT :
+      let := ord; let := lt; let := le; have := lawful_le; have := lawful_lt
       DecidableLT α := by
-    intro i hi ilt hilt ile hile lo
-    letI := i
-    cases hi
-    letI := ilt
-    cases hilt
-    letI := ile
-    cases hile
+    extract_lets
     first
       | infer_instance
       | exact DecidableLT.ofOrd _
-  beq [i : Ord α] (hi : i = ord := by rfl) : BEq α := by
+  beq :
+      let := ord; BEq α := by
+    extract_lets
     first
       | infer_instance
       | exact fun _ => BEq.ofOrd _
-  lawful_beq [i : Ord α] (hi : i = ord := by rfl)
-      [ile : LE α] (hile : ile = le hi := by rfl) (l : LawfulOrderOrd α)
-      [ilt : BEq α] (hilt : ilt = beq hi := by rfl) :
+  lawful_beq :
+      let := ord; let := le; have := lawful_le; let := lt
       ∀ a b : α, a == b ↔ compare a b = .eq := by
-    intro i hi ile hile l ilt hilt a b
-    letI := i
-    cases hi
-    letI := ile
-    cases hile
-    letI := ilt
-    cases hilt
-    exact Std.compare_eq_eq.symm
+    extract_lets
+    exact Std.compare_eq_eq.symm -- TODO: more tries
 
 @[expose]
 public def LinearPreorderPackage.ofOrd (α : Type u)
@@ -662,9 +637,7 @@ public def LinearPreorderPackage.ofOrd (α : Type u)
   letI := args.ord
   haveI := args.transOrd
   letI := args.le
-  letI := args.lt
-  letI := args.beq
-  haveI : LawfulOrderOrd α := args.lawful_le
+  haveI := args.lawful_le
   { toOrd := args.ord
     toLE := args.le
     toLT := args.lt
@@ -673,12 +646,12 @@ public def LinearPreorderPackage.ofOrd (α : Type u)
     lt_iff a b := by
       cases h : compare a b
       all_goals simp [h, ← args.lawful_le.isLE_compare a _, ← args.lawful_le.isGE_compare a _,
-        args.lawful_lt (l := args.lawful_le)]
+        args.lawful_lt]
     beq_iff_le_and_ge a b := by
-      simp [args.lawful_beq (l := args.lawful_le), Ordering.eq_eq_iff_isLE_and_isGE, isLE_compare,
+      simp [args.lawful_beq, Ordering.eq_eq_iff_isLE_and_isGE, isLE_compare,
         isGE_compare]
-    decidableLE := args.decidableLE (l := args.lawful_le)
-    decidableLT := args.decidableLT (l := args.lawful_lt (l := args.lawful_le)) (lo := args.lawful_le)
+    decidableLE := args.decidableLE
+    decidableLT := args.decidableLT
     le_refl a := by simp [← isLE_compare]
     le_total a b := by cases h : compare a b <;> simp [h, ← isLE_compare (a := a), ← isGE_compare (a := a)]
     le_trans a b c := by simpa [← isLE_compare] using TransOrd.isLE_trans }
@@ -713,60 +686,46 @@ end FactoryInstances
 
 public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
     LinearPreorderOfOrdArgs α where
-  eq_of_compare [i : Ord α] (hi : i = ord := by rfl) [ile : LE α] (hile : ile = le hi) :
+  eq_of_compare :
+      let := ord; let := le
       ∀ a b : α, compare a b = .eq → a = b := by
-    intro i hi ile hile a b
-    letI := i
-    cases hi
-    letI := ile
-    cases hile
+    extract_lets
     first
     | exact LawfulEqOrd.eq_of_compare
-  min [i : Ord α] (hi : i = ord := by rfl) : Min α := by
-    intro i hi
+  min :
+      let := ord
+      Min α := by
+    extract_lets
     first
     | infer_instance
     | exact FactoryInstances.instMinOfOrd
-  max [i : Ord α] (hi : i = ord := by rfl) : Max α := by
-    intro i hi
+  max :
+      let := ord
+      Max α := by
+    extract_lets
     first
     | infer_instance
     | exact FactoryInstances.instMaxOfOrd
-  min_eq [i : Ord α] (hi : i = ord := by rfl) [ile : LE α] (hile : ile = le hi := by rfl)
-      [im : Min α] (him : im = min hi := by rfl) [LawfulOrderOrd α] :
-      letI := min hi
+  min_eq :
+      let := ord; let := le; let := min; have := lawful_le
       ∀ a b : α, Min.min a b = if (compare a b).isLE then a else b := by
-    intro i hi ile hile im him _ a b
-    letI := i
-    cases hi
-    letI := ile
-    cases hile
-    letI := im
-    cases him
+    extract_lets
     first
-      | exact Std.min_eq_if_compare_isLE (a := a) (b := b)
+      | exact fun a b => Std.min_eq_if_compare_isLE (a := a) (b := b)
       | fail "Failed to automatically prove that `min` is left-leaning. Provide `min_eq` manually."
-  max_eq [i : Ord α] (hi : i = ord := by rfl) [ile : LE α] (hile : ile = le hi := by rfl)
-      [im : Max α] (him : im = max hi := by rfl) [LawfulOrderOrd α] :
-      letI := max hi
+  max_eq :
+      let := ord; let := le; let := max; have := lawful_le
       ∀ a b : α, Max.max a b = if (compare a b).isGE then a else b := by
-    intro i hi ile hile im him _ a b
-    letI := i
-    cases hi
-    letI := ile
-    cases hile
-    letI := im
-    cases him
+    extract_lets
     first
-      | exact Std.max_eq_if_compare_isGE (a := a) (b := b)
+      | exact fun a b => Std.max_eq_if_compare_isGE (a := a) (b := b)
       | fail "Failed to automatically prove that `max` is left-leaning. Provide `max_eq` manually."
 
 @[expose]
 public def LinearOrderPackage.ofOrd (α : Type u)
     (args : Packages.LinearOrderOfOrdArgs α := by exact {}) : LinearOrderPackage α :=
-  letI := args.ord
   letI := LinearPreorderPackage.ofOrd α args.toLinearPreorderOfOrdArgs
-  haveI : LawfulEqOrd α := ⟨args.eq_of_compare rfl rfl _ _⟩
+  haveI : LawfulEqOrd α := ⟨args.eq_of_compare _ _⟩
   letI : Min α := args.min
   letI : Max α := args.max
   { toMin := args.min

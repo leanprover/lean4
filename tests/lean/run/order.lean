@@ -100,9 +100,9 @@ opaque _root_.X.instLawfulEqOrd : haveI := X.instOrd; LawfulEqOrd X := sorry
 def packageWithoutSynthesizableInstances : LinearOrderPackage X := .ofOrd X {
   ord := X.instOrd
   transOrd := X.instTransOrd
-  eq_of_compare {i} hi {ile} hile a b := by
-    cases hi
-    cases hile
+  eq_of_compare := by
+    extract_lets
+    intro a b
     letI := X.instOrd
     exact X.instLawfulEqOrd.eq_of_compare }
 

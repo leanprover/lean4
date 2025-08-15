@@ -1275,7 +1275,7 @@ def delabPProdMk : Delab := delabPProdMkCore ``PProd.mk
 def delabMProdMk : Delab := delabPProdMkCore ``MProd.mk
 
 @[builtin_delab app.Std.Range.mk]
-def delabRange : Delab := do
+def delabRange : Delab := whenPPOption getPPNotation do
   -- Std.Range.mk : (start : Nat) → (stop : Nat) → (step : Nat) → 0 < step → Std.Range
   guard <| (← getExpr).getAppNumArgs == 4
   -- `none` if the start is `0`
@@ -1298,7 +1298,7 @@ def delabRange : Delab := do
   | none,       none      => `([: $stop])
 
 @[builtin_delab app.Std.PRange.mk]
-def delabPRange : Delab := do
+def delabPRange : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
   -- Std.PRange.mk : {shape : Std.PRange.RangeShape} → {α : Type u} →
   --   (lower : Std.PRange.Bound shape.lower α) → (upper : Std.PRange.Bound shape.upper α) → Std.PRange shape α
   guard <| (← getExpr).getAppNumArgs == 4

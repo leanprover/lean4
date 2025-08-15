@@ -206,10 +206,11 @@ theorem ExceptConds.and_eq_left {ps : PostShape} {p q : ExceptConds ps} (h : p �
 A postcondition for the given predicate shape, with one `Assertion` for the terminating case and
 one `Assertion` for each `.except` layer in the predicate shape.
 ```
-example : PostCond α (.arg ρ .pure) = ((α → ρ → Prop) × Unit) := rfl
-example : PostCond α (.except ε .pure) = ((α → Prop) × (ε → Prop) × Unit) := rfl
-example : PostCond α (.arg σ (.except ε .pure)) = ((α → σ → Prop) × (ε → Prop) × Unit) := rfl
-example : PostCond α (.except ε (.arg σ .pure)) = ((α → σ → Prop) × (ε → σ → Prop) × Unit) := rfl
+variable (α σ ε : Type)
+example : PostCond α (.arg σ .pure) = ((α → σ → ULift Prop) × PUnit) := rfl
+example : PostCond α (.except ε .pure) = ((α → ULift Prop) × (ε → ULift Prop) × PUnit) := rfl
+example : PostCond α (.arg σ (.except ε .pure)) = ((α → σ → ULift Prop) × (ε → ULift Prop) × PUnit) := rfl
+example : PostCond α (.except ε (.arg σ .pure)) = ((α → σ → ULift Prop) × (ε → σ → ULift Prop) × PUnit) := rfl
 ```
 -/
 abbrev PostCond (α : Type u) (ps : PostShape.{u}) : Type u :=

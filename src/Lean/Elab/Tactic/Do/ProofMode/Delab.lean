@@ -19,7 +19,11 @@ open Lean Expr Meta PrettyPrinter Delaborator SubExpr
 @[builtin_delab app.Std.Tactic.Do.MGoalEntails]
 private partial def delabMGoal : Delab := do
   -- delaborate
-  let (_, _, hyps) ← withAppFn ∘ withAppArg <| delabHypotheses ({}, {}, #[])
+  -- FIXME: sometimes this is called on expressions which do not have two arguments.
+  -- e.g. observed in doc-gen4, `← getExpr` can be `Std.Tactic.Do.MGoalEntails.{?_uniq.32}`.
+  -- For now, we add a guard that just abandons delaboration if there aren't two arguments.
+  guard <| (← getExpr).getAppNumArgs >= 2
+  let (_, _, hyps) ← withAppFn <| withAppArg <| delabHypotheses ({}, {}, #[])
   let target ← SPred.Notation.unpack (← withAppArg <| delab)
 
   -- build syntax
@@ -58,7 +62,7 @@ where
       return (accessibles, inaccessibles, lines.push stx)
     if (parseAnd? hyps).isSome then
       let acc_rhs ← withAppArg <| delabHypotheses acc
-      let acc_lhs ← withAppFn ∘ withAppArg <| delabHypotheses acc_rhs
+      let acc_lhs ← withAppFn <| withAppArg <| delabHypotheses acc_rhs
       return acc_lhs
     else
       failure

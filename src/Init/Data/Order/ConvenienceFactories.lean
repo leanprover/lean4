@@ -205,18 +205,6 @@ public instance instLawfulOrderLeftLeaningMaxOfOrd {α : Type u} [Ord α] [LE α
   max_eq_right a b := by
     simp +contextual only [← Std.compare_isLE, max, Bool.false_eq_true, ↑reduceIte, implies_true]
 
-public theorem min_eq_of_ord {α : Type u} [Ord α] [LE α] [DecidableLE α] {_ : Min α}
-    [LawfulOrderLeftLeaningMin α] {a b : α} : min a b = if a ≤ b then a else b := by
-  split <;> rename_i h
-  · simp [LawfulOrderLeftLeaningMin.min_eq_left _ _ h]
-  · simp [LawfulOrderLeftLeaningMin.min_eq_right _ _ h]
-
-public theorem max_eq_of_ord {α : Type u} [LE α] [DecidableLE α] {_ : Max α} [LawfulOrderLeftLeaningMax α]
-    {a b : α} : max a b = if b ≤ a then a else b := by
-  split <;> rename_i h
-  · simp [LawfulOrderLeftLeaningMax.max_eq_left _ _ h]
-  · simp [LawfulOrderLeftLeaningMax.max_eq_right _ _ h]
-
 end FactoryInstances
 
 public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends

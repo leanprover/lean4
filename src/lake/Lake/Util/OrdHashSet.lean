@@ -41,10 +41,8 @@ public def appendArray (self : OrdHashSet α) (arr : Array α) :=
 
 public instance : HAppend (OrdHashSet α) (Array α) (OrdHashSet α) := ⟨OrdHashSet.appendArray⟩
 
-public section
-protected def append (self other : OrdHashSet α) :=
+public protected def append (self other : OrdHashSet α) :=
   self.appendArray other.toArray
-end
 
 public instance : Append (OrdHashSet α) := ⟨OrdHashSet.append⟩
 
@@ -72,9 +70,7 @@ public def ofArray (arr : Array α) : OrdHashSet α :=
 @[inline] public def forM [Monad m] (f : α → m PUnit) (self : OrdHashSet α) : m PUnit :=
   self.toArray.forM f
 
-public section
-@[inline] protected def forIn [Monad m] (self : OrdHashSet α) (init : β) (f : α → β → m (ForInStep β)) : m β :=
+@[inline] public protected def forIn [Monad m] (self : OrdHashSet α) (init : β) (f : α → β → m (ForInStep β)) : m β :=
   ForIn.forIn self.toArray init f
-end
 
 public instance : ForIn m (OrdHashSet α) α := ⟨OrdHashSet.forIn⟩

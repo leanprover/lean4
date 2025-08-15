@@ -28,9 +28,7 @@ public structure FacetConfig (name : Name) : Type where
   memoize : Bool := true
   deriving Inhabited
 
-public section
-protected abbrev FacetConfig.name (_ : FacetConfig name) := name
-end
+public protected abbrev FacetConfig.name (_ : FacetConfig name) := name
 
 public structure KFacetConfig (k : Name) (name : Name) extends FacetConfig name where
   kind := k
@@ -91,9 +89,9 @@ public abbrev LibraryFacetConfig := KFacetConfig LeanLib.facetKind
 /-- A library facet declaration from a configuration file. -/
 public abbrev LibraryFacetDecl := NamedConfigDecl LibraryFacetConfig
 
-instance : TypeName ModuleFacetDecl := unsafe (.mk _ ``ModuleFacetDecl)
-instance : TypeName PackageFacetDecl := unsafe (.mk _ ``PackageFacetDecl)
-instance : TypeName LibraryFacetDecl := unsafe (.mk _ ``LibraryFacetDecl)
+public instance : TypeName ModuleFacetDecl := unsafe (.mk _ ``ModuleFacetDecl)
+public instance : TypeName PackageFacetDecl := unsafe (.mk _ ``PackageFacetDecl)
+public instance : TypeName LibraryFacetDecl := unsafe (.mk _ ``LibraryFacetDecl)
 
 /-- A library facet's declarative configuration. -/
 public abbrev LeanLibFacetConfig := LibraryFacetConfig

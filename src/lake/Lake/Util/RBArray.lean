@@ -8,8 +8,6 @@ module
 prelude
 public import Std.Data.TreeMap.Basic
 
-public section
-
 namespace Lake
 
 /--
@@ -39,7 +37,7 @@ public def mkEmpty (size : Nat) : RBArray α β cmp :=
   self.toTreeMap.contains a
 
 /-- Insert `b` with the key `a`. Does nothing if the key is already present. -/
-def insert (self : RBArray α β cmp) (a : α) (b : β) : RBArray α β cmp :=
+public def insert (self : RBArray α β cmp) (a : α) (b : β) : RBArray α β cmp :=
   if self.toTreeMap.contains a then
     self
   else
@@ -66,11 +64,9 @@ def insert (self : RBArray α β cmp) (a : α) (b : β) : RBArray α β cmp :=
 @[inline] public def forM [Monad m] (f : β → m PUnit) (self : RBArray α β cmp) : m PUnit :=
   self.toArray.forM f
 
-public section
-@[inline] protected def forIn
+@[inline] public protected def forIn
   [Monad m] (self : RBArray α β cmp) (init : σ) (f : β → σ → m (ForInStep σ))
 : m σ := ForIn.forIn self.toArray init f
-end
 
 instance : ForIn m (RBArray α β cmp) β := ⟨RBArray.forIn⟩
 

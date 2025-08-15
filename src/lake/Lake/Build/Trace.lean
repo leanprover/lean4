@@ -122,10 +122,8 @@ public instance : NilTrace Hash := ⟨nil⟩
 
 public instance : MixTrace Hash := ⟨mix⟩
 
-public section
-@[inline] protected def toString (self : Hash) : String :=
+@[inline] public protected def toString (self : Hash) : String :=
   toString self.val
-end
 
 public instance : ToString Hash := ⟨Hash.toString⟩
 
@@ -142,17 +140,13 @@ public instance : ToString Hash := ⟨Hash.toString⟩
 @[inline] public def ofBool (b : Bool) :=
   mk (hash b)
 
-public section
-@[inline] protected def toJson (self : Hash) : Json :=
+@[inline] public protected def toJson (self : Hash) : Json :=
   toJson self.val
-end
 
 public instance : ToJson Hash := ⟨Hash.toJson⟩
 
-public section
-@[inline] protected def fromJson? (json : Json) : Except String Hash :=
+@[inline] public protected def fromJson? (json : Json) : Except String Hash :=
   (⟨·⟩) <$> fromJson? json
-end
 
 public instance : FromJson Hash := ⟨Hash.fromJson?⟩
 

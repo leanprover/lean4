@@ -50,10 +50,8 @@ public def SemVerCore.parse (ver : String) : Except String SemVerCore := do
   catch e =>
     throw s!"invalid version core: {e}"
 
-public section
-protected def SemVerCore.toString (ver : SemVerCore) : String :=
+public protected def SemVerCore.toString (ver : SemVerCore) : String :=
   s!"{ver.major}.{ver.minor}.{ver.patch}"
-end
 
 public instance : ToString SemVerCore := ⟨SemVerCore.toString⟩
 public instance : ToJson SemVerCore := ⟨(·.toString)⟩
@@ -79,8 +77,7 @@ public instance : Coe StdVer SemVerCore := ⟨StdVer.toSemVerCore⟩
 
 public instance : Coe SemVerCore StdVer := ⟨StdVer.ofSemVerCore⟩
 
-public section
-protected def StdVer.compare (a b : StdVer) : Ordering :=
+public protected def StdVer.compare (a b : StdVer) : Ordering :=
   match compare a.toSemVerCore b.toSemVerCore with
   | .eq =>
     match a.specialDescr, b.specialDescr with
@@ -89,7 +86,6 @@ protected def StdVer.compare (a b : StdVer) : Ordering :=
     | "",  _ => .gt
     | a, b => compare a b
   | ord => ord
-end
 
 public instance : Ord StdVer := ⟨StdVer.compare⟩
 
@@ -109,13 +105,11 @@ public def StdVer.parse (ver : String) : Except String StdVer := do
       throw "invalid version: '-' suffix cannot be empty"
     return {toSemVerCore := core, specialDescr}
 
-public section
-protected def StdVer.toString (ver : StdVer) : String :=
+public protected def StdVer.toString (ver : StdVer) : String :=
   if ver.specialDescr.isEmpty then
     ver.toSemVerCore.toString
   else
     s!"{ver.toSemVerCore}-{ver.specialDescr}"
-end
 
 public instance : ToString StdVer := ⟨StdVer.toString⟩
 public instance : ToJson StdVer := ⟨(·.toString)⟩
@@ -180,14 +174,12 @@ public def toolchainFileName : FilePath := "lean-toolchain"
 @[inline] public def ToolchainVer.ofDir? (dir : FilePath) : IO (Option ToolchainVer) :=
   ToolchainVer.ofFile? (dir / toolchainFileName)
 
-public section
-protected def ToolchainVer.toString (ver : ToolchainVer) : String :=
+public protected def ToolchainVer.toString (ver : ToolchainVer) : String :=
   match ver with
   | .release ver => s!"{defaultOrigin}:v{ver}"
   | .nightly date => s!"{defaultOrigin}:nightly-{date}"
   | .pr n => s!"{prOrigin}:pr-release-{n}"
   | .other s => s
-end
 
 public instance : ToString ToolchainVer := ⟨ToolchainVer.toString⟩
 public instance : ToJson ToolchainVer := ⟨(·.toString)⟩

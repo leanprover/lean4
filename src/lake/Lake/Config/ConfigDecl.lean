@@ -144,7 +144,7 @@ public abbrev InputFileDecl := KConfigDecl InputFile.configKind
 /-- A inpurt directory declaration from a configuration written in Lean. -/
 public abbrev InputDirDecl := KConfigDecl InputDir.configKind
 
-instance : TypeName LeanLibDecl := unsafe (.mk _ ``LeanLibDecl)
-instance : TypeName LeanExeDecl := unsafe (.mk _ ``LeanExeDecl)
-instance : TypeName InputFileDecl := unsafe (.mk _ ``InputFileDecl)
-instance : TypeName InputDirDecl := unsafe (.mk _ ``InputDirDecl)
+public instance : TypeName LeanLibDecl := unsafe (.mk _ ``LeanLibDecl)
+public instance : TypeName LeanExeDecl := unsafe (.mk _ ``LeanExeDecl)
+public instance : TypeName InputFileDecl := unsafe (.mk _ ``InputFileDecl)
+public instance : TypeName InputDirDecl := unsafe (.mk _ ``InputDirDecl)

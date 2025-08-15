@@ -30,12 +30,10 @@ public abbrev TargetArray α := Array (Target α)
 
 namespace Target
 
-public section
-protected def repr (x : Target α) (prec : Nat) : Format :=
+public protected def repr (x : Target α) (prec : Nat) : Format :=
   let indent := if prec >= max_prec then 1 else 2
   let ctor := "Lake.Target.mk" ++ Format.line ++ reprArg x.key
   Repr.addAppParen (.group (.nest indent ctor)) prec
-end
 
 public instance : Repr (Target α) := ⟨Target.repr⟩
 public instance : ToString (Target α) := ⟨(·.key.toString)⟩

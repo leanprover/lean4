@@ -95,8 +95,6 @@ public abbrev FetchM := FetchT LogIO
 
 export BuildInfo (fetch)
 
-public section
 /-- Fetch the result of this facet of a module. -/
-protected def ModuleFacet.fetch (self : ModuleFacet α) (mod : Module) : FetchM (Job α) :=
+public protected def ModuleFacet.fetch (self : ModuleFacet α) (mod : Module) : FetchM (Job α) :=
   fetch <| mod.facetCore self.name
-end

@@ -117,8 +117,7 @@ public instance : Inhabited (Job α) := ⟨{task := default, caption := default,
 
 namespace Job
 
-public section
-protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (DataType self.kind) :=
+public protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (DataType self.kind) :=
   let h := by
     match kind_eq:self.kind with
     | ⟨_, wf⟩ =>
@@ -126,20 +125,15 @@ protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (DataTyp
       simp only [OptDataKind.isAnonymous_iff_name_isAnonymous, kind_eq] at h
       rw [wf h]
   cast h self
-end
 
 @[inline] public def ofTask [OptDataKind α] (task : JobTask α) (caption := "") : Job α :=
   {task, caption}
 
-public section
-@[inline] protected def error [OptDataKind α] (log : Log := {}) (caption := "") : Job α :=
+@[inline] public protected def error [OptDataKind α] (log : Log := {}) (caption := "") : Job α :=
   .ofTask (Task.pure (.error 0 {log})) caption
-end
 
-public section
-@[inline] protected def pure [kind : OptDataKind α] (a : α) (log : Log := {}) (caption := "") : Job α :=
+@[inline] public protected def pure [kind : OptDataKind α] (a : α) (log : Log := {}) (caption := "") : Job α :=
   .ofTask (Task.pure (.ok a {log})) caption
-end
 
 instance : Pure Job := ⟨Job.pure⟩
 
@@ -181,12 +175,10 @@ Useful if the job is already known to be completed.
     | .ok a s => f a s
     | .error e s => .error e s
 
-public section
-@[inline] protected def map
+@[inline] public protected def map
   [OptDataKind β] (f : α → β) (self : Job α)
   (prio := Task.Priority.default) (sync := false)
 : Job β := self.mapResult (·.map f) prio sync
-end
 
 public instance : Functor Job where map := Job.map
 

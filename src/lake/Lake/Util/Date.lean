@@ -26,7 +26,7 @@ public def rpad (s : String) (c : Char) (len : Nat) : String :=
 public def zpad (n : Nat) (len : Nat) : String :=
   lpad (toString n) '0' len
 
-public section -- TODO: Remove when the `deriving` below works without it
+public section
 /-- A date (year-month-day). -/
 public structure Date where
   year : Nat
@@ -69,9 +69,7 @@ public def ofString? (t : String) : Option Date := do
     ofValid? (← y.toNat?) (← m.toNat?) (← d.toNat?)
   | _ => none
 
-public section
-protected def toString (d : Date) : String :=
+public protected def toString (d : Date) : String :=
   s!"{zpad d.year 4}-{zpad d.month 2}-{zpad d.day 2}"
-end
 
 public instance : ToString Date := ⟨Date.toString⟩

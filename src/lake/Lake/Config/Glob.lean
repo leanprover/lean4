@@ -44,12 +44,10 @@ end
 
 namespace Glob
 
-public section
-protected def toString : Glob → String
+public protected def toString : Glob → String
 | .one n => n.toString
 | .submodules n => n.toString ++ ".+"
 | .andSubmodules n => n.toString ++ ".*"
-end
 
 public instance : ToString Glob := ⟨Glob.toString⟩
 

@@ -95,17 +95,13 @@ namespace Workspace
 public def addPackage (pkg : Package) (self : Workspace) : Workspace :=
   {self with packages := self.packages.push pkg, packageMap := self.packageMap.insert pkg.name pkg}
 
-public section
 /-- Try to find a package within the workspace with the given name. -/
-@[inline] protected def findPackage? (name : Name) (self : Workspace) : Option (NPackage name) :=
+@[inline] public protected def findPackage? (name : Name) (self : Workspace) : Option (NPackage name) :=
   self.packageMap.get? name
-end
 
-public section
 /-- Try to find a script in the workspace with the given name. -/
-protected def findScript? (script : Name) (self : Workspace) : Option Script :=
+public protected def findScript? (script : Name) (self : Workspace) : Option Script :=
   self.packages.findSome? (·.scripts.find? script)
-end
 
 /-- Check if the module is local to any package in the workspace. -/
 public def isLocalModule (mod : Name) (self : Workspace) : Bool :=
@@ -115,11 +111,9 @@ public def isLocalModule (mod : Name) (self : Workspace) : Bool :=
 public def isBuildableModule (mod : Name) (self : Workspace) : Bool :=
   self.packages.any fun pkg => pkg.isBuildableModule mod
 
-public section
 /-- Locate the named, buildable, importable, local module in the workspace. -/
-protected def findModule? (mod : Name) (self : Workspace) : Option Module :=
+public protected def findModule? (mod : Name) (self : Workspace) : Option Module :=
   self.packages.findSome? (·.findModule? mod)
-end
 
 /-- Locate the named, buildable, but not necessarily importable, module in the workspace. -/
 public def findTargetModule? (mod : Name) (self : Workspace) : Option Module :=
@@ -129,23 +123,17 @@ public def findTargetModule? (mod : Name) (self : Workspace) : Option Module :=
 public def findModuleBySrc? (path : FilePath) (self : Workspace) : Option Module :=
   self.packages.findSome? (·.findModuleBySrc? path)
 
-public section
 /-- Try to find a Lean library in the workspace with the given name. -/
-protected def findLeanLib? (name : Name) (self : Workspace) : Option LeanLib :=
+public protected def findLeanLib? (name : Name) (self : Workspace) : Option LeanLib :=
   self.packages.findSome? fun pkg => pkg.findLeanLib? name
-end
 
-public section
 /-- Try to find a Lean executable in the workspace with the given name. -/
-protected def findLeanExe? (name : Name) (self : Workspace) : Option LeanExe :=
+public protected def findLeanExe? (name : Name) (self : Workspace) : Option LeanExe :=
   self.packages.findSome? fun pkg => pkg.findLeanExe? name
-end
 
-public section
 /-- Try to find an external library in the workspace with the given name. -/
-protected def findExternLib? (name : Name) (self : Workspace) : Option ExternLib :=
+public protected def findExternLib? (name : Name) (self : Workspace) : Option ExternLib :=
   self.packages.findSome? fun pkg => pkg.findExternLib? name
-end
 
 /-- Try to find a target configuration in the workspace with the given name. -/
 public def findTargetConfig? (name : Name) (self : Workspace) : Option ((pkg : Package) × TargetConfig pkg.name name) :=

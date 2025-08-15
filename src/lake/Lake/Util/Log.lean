@@ -109,13 +109,11 @@ public def LogLevel.ofString? (s : String) : Option LogLevel :=
   | "error" => some .error
   | _ => none
 
-public section
-protected def LogLevel.toString : LogLevel → String
+public protected def LogLevel.toString : LogLevel → String
 | .trace => "trace"
 | .info => "info"
 | .warning => "warning"
 | .error => "error"
-end
 
 instance : ToString LogLevel := ⟨LogLevel.toString⟩
 
@@ -141,15 +139,13 @@ public structure LogEntry where
   deriving Inhabited, ToJson, FromJson
 end
 
-public section
-protected def LogEntry.toString (self : LogEntry) (useAnsi := false) : String :=
+public protected def LogEntry.toString (self : LogEntry) (useAnsi := false) : String :=
   if useAnsi then
     let {level := lv, message := msg} := self
     let pre := Ansi.chalk lv.ansiColor s!"{lv.toString}:"
     s!"{pre} {msg}"
   else
     s!"{self.level}: {self.message}"
-end
 
 public instance : ToString LogEntry := ⟨LogEntry.toString⟩
 
@@ -444,33 +440,27 @@ from an `ELogT` (e.g., `LogIO`).
   unless out.isEmpty do logInfo s!"stdout/stderr:\n{out.trim}"
   return a
 
-public section
 /-- Throw with the logged error `message`. -/
-@[inline] protected def ELog.error
+@[inline] public protected def ELog.error
   [Monad m] [MonadLog m] [MonadStateOf Log m] [MonadExceptOf Log.Pos m]
   (msg : String)
 : m α := errorWithLog (logError msg)
-end
 
 /-- `MonadError` instance for monads with `Log` state and `Log.Pos` errors. -/
 public abbrev ELog.monadError
   [Monad m] [MonadLog m] [MonadStateOf Log m] [MonadExceptOf Log.Pos m]
 : MonadError m := ⟨ELog.error⟩
 
-public section
 /-- Fail without logging anything. -/
-@[inline] protected def ELog.failure
+@[inline] public protected def ELog.failure
   [Monad m] [MonadStateOf Log m] [MonadExceptOf Log.Pos m]
 : m α := do throw (← getLogPos)
-end
 
-public section
 /-- Performs `x`. If it fails, drop its log and perform `y`. -/
-@[inline] protected def ELog.orElse
+@[inline] public protected def ELog.orElse
   [Monad m] [MonadStateOf Log m] [MonadExceptOf Log.Pos m]
   (x : m α) (y : Unit → m α)
 : m α := try x catch errPos => dropLogFrom errPos; y ()
-end
 
 /-- `Alternative` instance for monads with `Log` state and `Log.Pos` errors. -/
 public abbrev ELog.alternative

@@ -49,13 +49,11 @@ public def ofString? (s : String) : Option Backend :=
   | "default" => some .default
   | _ => none
 
-public section
-protected def toString (bt : Backend) : String :=
+public protected def toString (bt : Backend) : String :=
   match bt with
   | .c => "c"
   | .llvm => "llvm"
   | .default => "default"
-end
 
 instance : ToString Backend := ⟨Backend.toString⟩
 
@@ -129,14 +127,12 @@ public def ofString? (s : String) : Option BuildType :=
   | "release" => some .release
   | _ => none
 
-public section
-protected def toString (bt : BuildType) : String :=
+public protected def toString (bt : BuildType) : String :=
   match bt with
   | .debug => "debug"
   | .relWithDebInfo => "relWithDebInfo"
   | .minSizeRel => "minSizeRel"
   | .release => "release"
-end
 
 public instance : ToString BuildType := ⟨BuildType.toString⟩
 

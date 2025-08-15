@@ -26,18 +26,14 @@ namespace JsonObject
 @[inline] public def mk (val : Std.TreeMap.Raw String Json) : JsonObject :=
   val
 
-public section
-@[inline] protected def toJson (obj : JsonObject) : Json :=
+@[inline] public protected def toJson (obj : JsonObject) : Json :=
   .obj obj
-end
 
 public instance : Coe JsonObject Json := ⟨Json.obj⟩
 public instance : ToJson JsonObject := ⟨JsonObject.toJson⟩
 
-public section
-@[inline] protected def fromJson? (json : Json) : Except String JsonObject :=
+@[inline] public protected def fromJson? (json : Json) : Except String JsonObject :=
   json.getObj?
-end
 
 instance : FromJson JsonObject := ⟨JsonObject.fromJson?⟩
 

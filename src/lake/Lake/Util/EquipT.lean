@@ -29,20 +29,16 @@ public instance [Inhabited (m α)] : Inhabited (EquipT ρ m α) where
 @[always_inline, inline] public def run (self : EquipT ρ m α) (r : ρ) : m α :=
   self r
 
-public section
 @[always_inline, inline]
-protected def map [Functor m] (f : α → β) (self : EquipT ρ m α) : EquipT ρ m β :=
+public protected def map [Functor m] (f : α → β) (self : EquipT ρ m α) : EquipT ρ m β :=
   fun r => Functor.map f (self r)
-end
 
 public instance [Functor m] : Functor (EquipT ρ m) where
   map := EquipT.map
 
-public section
 @[always_inline, inline]
-protected def pure [Pure m] (a : α) : EquipT ρ m α :=
+public protected def pure [Pure m] (a : α) : EquipT ρ m α :=
   fun _ => pure a
-end
 
 public instance [Pure m] : Pure (EquipT ρ m) where
   pure := EquipT.pure
@@ -51,22 +47,18 @@ public instance [Pure m] : Pure (EquipT ρ m) where
 public def compose (f : m α₁ → (Unit → m α₂) → m β) (x₁ : EquipT ρ m α₁) (x₂ : Unit → EquipT ρ m α₂) : EquipT ρ m β :=
   fun r => f (x₁ r) (fun _ => x₂ () r)
 
-public section
 @[always_inline, inline]
-protected def seq [Seq m] : EquipT ρ m (α → β) → (Unit → EquipT ρ m α) → EquipT ρ m β :=
+public protected def seq [Seq m] : EquipT ρ m (α → β) → (Unit → EquipT ρ m α) → EquipT ρ m β :=
   EquipT.compose Seq.seq
-end
 
 public instance [Seq m] : Seq (EquipT ρ m) where
   seq  := EquipT.seq
 
 public instance [Applicative m] : Applicative (EquipT ρ m)  := {}
 
-public section
 @[always_inline, inline]
-protected def bind [Bind m] (self : EquipT ρ m α) (f : α → EquipT ρ m β) : EquipT ρ m β :=
+public protected def bind [Bind m] (self : EquipT ρ m α) (f : α → EquipT ρ m β) : EquipT ρ m β :=
   fun r => bind (self r) fun a => f a r
-end
 
 public instance [Bind m] : Bind (EquipT ρ m) where
   bind := EquipT.bind
@@ -83,33 +75,25 @@ public instance : MonadLift m (EquipT ρ m) where
 public instance : MonadFunctor m (EquipT ρ m) where
   monadMap f x := .mk fun ctx => f (x.run ctx)
 
-public section
 @[always_inline, inline]
-protected def failure [Alternative m] : EquipT ρ m α :=
+public protected def failure [Alternative m] : EquipT ρ m α :=
   fun _ => failure
-end
 
-public section
 @[always_inline, inline]
-protected def orElse [Alternative m] : EquipT ρ m α → (Unit → EquipT ρ m α) → EquipT ρ m α :=
+public protected def orElse [Alternative m] : EquipT ρ m α → (Unit → EquipT ρ m α) → EquipT ρ m α :=
   EquipT.compose Alternative.orElse
-end
 
 public instance [Alternative m] : Alternative (EquipT ρ m) where
   failure := EquipT.failure
   orElse  := EquipT.orElse
 
-public section
 @[always_inline, inline]
-protected def throw [MonadExceptOf ε m]  (e : ε) : EquipT ρ m α  :=
+public protected def throw [MonadExceptOf ε m]  (e : ε) : EquipT ρ m α  :=
   fun _ => throw e
-end
 
-public section
 @[always_inline, inline]
-protected def tryCatch [MonadExceptOf ε m] (self : EquipT ρ m α) (c : ε → EquipT ρ m α) : EquipT ρ m α :=
+public protected def tryCatch [MonadExceptOf ε m] (self : EquipT ρ m α) (c : ε → EquipT ρ m α) : EquipT ρ m α :=
   fun f => tryCatchThe ε (self f) fun e => (c e) f
-end
 
 public instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (EquipT ρ m) where
   throw    := EquipT.throw

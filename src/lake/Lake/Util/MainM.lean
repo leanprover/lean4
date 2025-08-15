@@ -40,11 +40,9 @@ namespace MainM
 
 /-! # Exits -/
 
-public section
 /-- Exit with given return code. -/
-@[inline] protected def exit (rc : ExitCode) : MainM α :=
+@[inline] public protected def exit (rc : ExitCode) : MainM α :=
   MainM.mk <| throw rc
-end
 
 public instance : MonadExit MainM := ⟨MainM.exit⟩
 
@@ -56,17 +54,13 @@ public instance : MonadExit MainM := ⟨MainM.exit⟩
 @[inline] public def tryCatchError (f : ExitCode → MainM α) (self : MainM α) : MainM α :=
   self.tryCatchExit fun rc => if rc = 0 then exit 0 else f rc
 
-public section
 /-- Exit with a generic error code (i.e., 1). -/
-@[inline] protected def failure : MainM α :=
+@[inline] public protected def failure : MainM α :=
   exit 1
-end
 
-public section
 /-- If this exits with an error code (i.e., not 0), perform other. -/
-@[inline] protected def orElse (self : MainM α) (other : Unit → MainM α) : MainM α :=
+@[inline] public protected def orElse (self : MainM α) (other : Unit → MainM α) : MainM α :=
   self.tryCatchExit fun rc => if rc = 0 then exit 0 else other ()
-end
 
 instance : Alternative MainM where
   failure := MainM.failure
@@ -76,12 +70,10 @@ instance : Alternative MainM where
 
 public instance : MonadLog MainM := .stderr
 
-public section
 /-- Print out a error line with the given message and then exit with an error code. -/
-@[inline] protected def error (msg : String) (rc : ExitCode := 1) : MainM α := do
+@[inline] public protected def error (msg : String) (rc : ExitCode := 1) : MainM α := do
   logError msg
   exit rc
-end
 
 public instance : MonadError MainM := ⟨MainM.error⟩
 public instance : MonadLift IO MainM := ⟨MonadError.runIO⟩

@@ -32,8 +32,7 @@ public def ModuleOutputHashes.oleanHashes (hashes : ModuleOutputHashes) : Array 
     oleanHashes := oleanHashes.push hash
   return oleanHashes
 
-public section
-protected def ModuleOutputHashes.toJson (hashes : ModuleOutputHashes) : Json := Id.run do
+public protected def ModuleOutputHashes.toJson (hashes : ModuleOutputHashes) : Json := Id.run do
   let mut obj : JsonObject := {}
   obj := obj.insert "o" hashes.oleanHashes
   obj := obj.insert "i" hashes.ilean
@@ -43,12 +42,10 @@ protected def ModuleOutputHashes.toJson (hashes : ModuleOutputHashes) : Json := 
   if let some bc := hashes.bc? then
     obj := obj.insert "b" bc
   return obj
-end
 
 public instance : ToJson ModuleOutputHashes := ⟨ModuleOutputHashes.toJson⟩
 
-public section
-protected def ModuleOutputHashes.fromJson? (val : Json) : Except String ModuleOutputHashes := do
+public protected def ModuleOutputHashes.fromJson? (val : Json) : Except String ModuleOutputHashes := do
   let obj ← JsonObject.fromJson? val
   let oleanHashes : Array Hash ← obj.get "o"
   let some olean := oleanHashes[0]?
@@ -62,7 +59,6 @@ protected def ModuleOutputHashes.fromJson? (val : Json) : Except String ModuleOu
     c := ← obj.get "c"
     bc? := ← obj.get? "b"
   }
-end
 
 public instance : FromJson ModuleOutputHashes := ⟨ModuleOutputHashes.fromJson?⟩
 

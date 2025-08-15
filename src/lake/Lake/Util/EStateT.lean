@@ -67,12 +67,10 @@ public instance [Inhabited ε] [Inhabited σ] : Inhabited (EResult ε σ α) whe
 | .ok a _ => .ok a
 | .error e _ => .error e
 
-public section
 @[always_inline, inline]
-protected def map (f : α → β) : EResult ε σ α → EResult ε σ β
+public protected def map (f : α → β) : EResult ε σ α → EResult ε σ β
 | .ok a s => .ok (f a) s
 | .error e s => .error e s
-end
 
 public instance : Functor (EResult ε σ) where
   map := EResult.map
@@ -156,103 +154,83 @@ public def lift {ε σ α : Type u} [Monad m] (x : m α) : EStateT ε σ m α :=
 
 public instance {ε σ : Type u} [Monad m] : MonadLift m (EStateT ε σ m) := ⟨EStateT.lift⟩
 
-public section
 /-- The `pure` operation of the `EStateT` monad transformer. -/
 @[always_inline, inline]
-protected def pure [Pure m] (a : α) : EStateT ε σ m α := fun s =>
+public protected def pure [Pure m] (a : α) : EStateT ε σ m α := fun s =>
   pure <| .ok a s
-end
 
 public instance [Pure m] : Pure (EStateT ε σ m) where
   pure := EStateT.pure
 
-public section
 /-- The `map` operation of the `EStateT` monad transformer. -/
 @[always_inline, inline]
-protected def map [Functor m] (f : α → β) (x : EStateT ε σ m α) : EStateT ε σ m β := fun s =>
+public protected def map [Functor m] (f : α → β) (x : EStateT ε σ m α) : EStateT ε σ m β := fun s =>
   x s |> Functor.map fun
   | .ok a s    => .ok (f a) s
   | .error e s => .error e s
-end
 
 public instance [Functor m] : Functor (EStateT ε σ m) where
   map := EStateT.map
 
-public section
 /-- The `bind` operation of the `EStateT` monad transformer. -/
 @[always_inline, inline]
-protected def bind [Monad m] (x : EStateT ε σ m α) (f : α → EStateT ε σ m β) : EStateT ε σ m β := fun s => do
+public protected def bind [Monad m] (x : EStateT ε σ m α) (f : α → EStateT ε σ m β) : EStateT ε σ m β := fun s => do
   match (← x s) with
   | .ok a s    => f a s
   | .error e s => pure <| .error e s
-end
 
-public section
 /-- The `seqRight` operation of the `EStateT` monad transformer. -/
 @[always_inline, inline]
-protected def seqRight [Monad m] (x : EStateT ε σ m α) (y : Unit → EStateT ε σ m β) : EStateT ε σ m β := fun s => do
+public protected def seqRight [Monad m] (x : EStateT ε σ m α) (y : Unit → EStateT ε σ m β) : EStateT ε σ m β := fun s => do
   match (← x s) with
   | .ok _ s    => y () s
   | .error e s => pure <| .error e s
-end
 
 @[always_inline]
 public instance [Monad m] : Monad (EStateT ε σ m) where
   bind     := EStateT.bind
   seqRight := EStateT.seqRight
 
-public section
 /-- The `set` operation of the `EStateT` monad. -/
 @[always_inline, inline]
-protected def set [Pure m] (s : σ) : EStateT ε σ m PUnit.{w+1} := fun _ =>
+public protected def set [Pure m] (s : σ) : EStateT ε σ m PUnit.{w+1} := fun _ =>
   pure <| .ok ⟨⟩ s
-end
 
-public section
 /-- The `get` operation of the `EStateT` monad. -/
 @[always_inline, inline]
-protected def get [Pure m] : EStateT ε σ m σ := fun s =>
+public protected def get [Pure m] : EStateT ε σ m σ := fun s =>
   pure <| .ok s s
-end
 
-public section
 /-- The `modifyGet` operation of the `EStateT` monad transformer. -/
 @[always_inline, inline]
-protected def modifyGet [Pure m] (f : σ → Prod α σ) : EStateT ε σ m α := fun s =>
+public protected def modifyGet [Pure m] (f : σ → Prod α σ) : EStateT ε σ m α := fun s =>
   match f s with | (a, s) => pure <| .ok a s
-end
 
 public instance [Pure m] : MonadStateOf σ (EStateT ε σ m) where
   set       := EStateT.set
   get       := EStateT.get
   modifyGet := EStateT.modifyGet
 
-public section
 /-- The `throw` operation of the `EStateT` monad transformer. -/
 @[always_inline, inline]
-protected def throw [Pure m] (e : ε) : EStateT ε σ m α := fun s =>
+public protected def throw [Pure m] (e : ε) : EStateT ε σ m α := fun s =>
   pure <| .error e s
-end
 
-public section
 @[always_inline, inline]
-protected def tryCatch [Monad m] (x : EStateT ε σ m α) (handle : ε → EStateT ε σ m α) : EStateT ε σ m α := fun s => do
+public protected def tryCatch [Monad m] (x : EStateT ε σ m α) (handle : ε → EStateT ε σ m α) : EStateT ε σ m α := fun s => do
   match (← x s) with
   | .error e s => handle e s
   | ok         => pure ok
-end
 
 public instance [Monad m] : MonadExceptOf ε (EStateT ε σ m) where
   throw    := EStateT.throw
   tryCatch := EStateT.tryCatch
 
-public section
 @[always_inline, inline]
-protected def orElse [Monad m] (x₁ : EStateT ε σ m α) (x₂ : Unit → EStateT ε σ m α) : EStateT ε σ m α := fun s => do
+public protected def orElse [Monad m] (x₁ : EStateT ε σ m α) (x₂ : Unit → EStateT ε σ m α) : EStateT ε σ m α := fun s => do
   match (← x₁ s) with
   | .error _ s => x₂ () s
   | ok         => pure ok
-end
 
 public instance [Monad m] : OrElse (EStateT ε σ m α) where
   orElse := EStateT.orElse
@@ -264,9 +242,8 @@ public def adaptExcept [Functor m] (f : ε → ε') (x : EStateT ε σ m α) : E
   | .error e s => .error (f e) s
   | .ok a s    => .ok a s
 
-public section
 @[always_inline, inline]
-protected def tryFinally'
+public protected def tryFinally'
   [Monad m] (x : EStateT ε σ m α) (f : Option α → EStateT ε σ m β) : EStateT ε σ m (α × β)
 := fun s => do
   let r ← x s
@@ -277,7 +254,6 @@ protected def tryFinally'
   | .error e₁ s => match (← f none s) with
     | .ok _ s => return .error e₁ s
     | .error e₂ s => return .error e₂ s
-end
 
 @[always_inline]
 public instance [Monad m] : MonadFinally (EStateT ε σ m) where

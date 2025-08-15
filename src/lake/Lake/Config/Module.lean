@@ -206,21 +206,17 @@ public def dynlibSuffix := "-1"
 
 /-! ## Trace Helpers -/
 
-public section
-protected def getMTime (self : Module) : IO MTime := do
+public protected def getMTime (self : Module) : IO MTime := do
   return mixTrace (mixTrace (← getMTime self.oleanFile) (← getMTime self.ileanFile)) (← getMTime self.cFile)
-end
 
 instance : GetMTime Module := ⟨Module.getMTime⟩
 
-public section
-protected def checkExists (self : Module) : BaseIO Bool := do
+public protected def checkExists (self : Module) : BaseIO Bool := do
   let bcFileExists? ←
     if Lean.Internal.hasLLVMBackend () then
       checkExists self.bcFile
     else
       pure true
   return (← checkExists self.oleanFile) && (← checkExists self.ileanFile) && (← checkExists self.cFile) && bcFileExists?
-end
 
 instance : CheckExists Module := ⟨Module.checkExists⟩

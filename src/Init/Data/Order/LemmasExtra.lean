@@ -72,6 +72,22 @@ public instance [Ord α] [LE α] [LawfulOrderOrd α] :
     rw [← isLE_compare, ← isGE_compare]
     cases compare a b <;> simp
 
+public instance {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] [Antisymm (α := α) (· ≤ ·)] :
+    LawfulEqOrd α where
+  eq_of_compare := by
+    open Classical.Order in
+    simp [Ordering.eq_eq_iff_isLE_and_isGE, compare_isLE, compare_isGE, le_antisymm_iff]
+
+public instance {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] [LawfulEqOrd α] :
+     Antisymm (α := α) (· ≤ ·) where
+  antisymm a b := by
+    simp [← and_imp, ← compare_isLE (a := a), ← compare_isGE (a := a),
+      ← Ordering.eq_eq_iff_isLE_and_isGE]
+
+public theorem compare_eq_eq_iff_eq {α : Type u} [Ord α] [LawfulEqOrd α] {a b : α} :
+    compare a b = .eq ↔ a = b :=
+  LawfulEqOrd.compare_eq_iff_eq
+
 public theorem IsLinearPreorder.of_ord {α : Type u} [LE α] [Ord α] [LawfulOrderOrd α]
     [TransOrd α] : IsLinearPreorder α where
   le_refl a := by simp [← isLE_compare]

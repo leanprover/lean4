@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Ord
+public import Init.Data.Ord.Basic
 public import Init.Data.Nat.Linear
 
 public section

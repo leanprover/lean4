@@ -1277,7 +1277,6 @@ def delabMProdMk : Delab := delabPProdMkCore ``MProd.mk
 @[builtin_delab app.Std.Range.mk]
 def delabRange : Delab := do
   -- Std.Range.mk : Nat → Nat → (step : Nat) → 0 < step → Std.Range
-  guard <| (← getExpr).getAppNumArgs == 4
   let_expr Std.Range.mk start _stop step _prf := (← getExpr) | failure
   let start_zero := Lean.Expr.nat? start == some 0
   let step_one := Lean.Expr.nat? step == some 1
@@ -1296,7 +1295,6 @@ def delabRange : Delab := do
 @[builtin_delab app.Std.PRange.mk]
 def delabPRange : Delab := do
   -- Std.PRange.mk : {shape : Std.PRange.RangeShape} → {α : Type u} → Std.PRange.Bound shape.lower α → Std.PRange.Bound shape.upper α → Std.PRange shape α
-  guard <| (← getExpr).getAppNumArgs == 4
   let_expr Std.PRange.mk shape _α lower upper := (← getExpr) | failure
   let reflectBoundShape (e : Expr) : Option Std.PRange.BoundShape := match e.constName? with
     | some `Std.PRange.BoundShape.closed => Std.PRange.BoundShape.closed
@@ -1307,7 +1305,7 @@ def delabPRange : Delab := do
     let_expr Std.PRange.RangeShape.mk lower upper := e | failure
     return ⟨← reflectBoundShape lower, ← reflectBoundShape upper⟩
   let some shape := reflectRangeShape shape | failure
-  let a ← withAppArg <| withAppArg <| delab
+  let a ← withAppFn <| withAppArg <| delab
   let b ← withAppArg <| delab
   match (shape, lower.constName?, upper.constName?) with
   | (⟨.closed, .closed⟩, _, _) => `($a...=$b)

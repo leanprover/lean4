@@ -12,25 +12,25 @@ public import Init.Data.Order.Ord
 
 namespace Std
 
-theorem compare_isLE {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
+public theorem compare_isLE {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
     {a b : α} : (compare a b).isLE ↔ a ≤ b := by
   simp [← LawfulOrderOrd.compare_isLE]
 
-theorem compare_isGE {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
+public theorem compare_isGE {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
     {a b : α} : (compare a b).isGE ↔ b ≤ a := by
   simp [← LawfulOrderOrd.compare_isGE]
 
-theorem compare_eq_lt {α : Type u} [Ord α] [LT α] [LE α] [LawfulOrderOrd α] [LawfulOrderLT α]
+public theorem compare_eq_lt {α : Type u} [Ord α] [LT α] [LE α] [LawfulOrderOrd α] [LawfulOrderLT α]
     {a b : α} : compare a b = .lt ↔ a < b := by
   rw [LawfulOrderLT.lt_iff, ← LawfulOrderOrd.compare_isLE, ← LawfulOrderOrd.compare_isGE]
   cases compare a b <;> simp
 
-theorem compare_eq_gt {α : Type u} [Ord α] [LT α] [LE α] [LawfulOrderOrd α] [LawfulOrderLT α]
+public theorem compare_eq_gt {α : Type u} [Ord α] [LT α] [LE α] [LawfulOrderOrd α] [LawfulOrderLT α]
     {a b : α} : compare a b = .gt ↔ b < a := by
   rw [LawfulOrderLT.lt_iff, ← LawfulOrderOrd.compare_isGE, ← LawfulOrderOrd.compare_isLE]
   cases compare a b <;> simp
 
-theorem compare_eq_eq {α : Type u} [Ord α] [BEq α] [LE α] [LawfulOrderOrd α] [LawfulOrderBEq α]
+public theorem compare_eq_eq {α : Type u} [Ord α] [BEq α] [LE α] [LawfulOrderOrd α] [LawfulOrderBEq α]
     {a b : α} : compare a b = .eq ↔ a == b := by
   open Classical.Order in
   rw [LawfulOrderBEq.beq_iff_le_and_ge, ← compare_isLE, ← compare_isGE]

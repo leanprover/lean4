@@ -12,25 +12,25 @@ public import Init.Data.Order.Ord
 
 namespace Std
 
-theorem compare_isLE {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
+public theorem compare_isLE {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
     {a b : α} : (compare a b).isLE ↔ a ≤ b := by
   simp [← LawfulOrderOrd.compare_isLE]
 
-theorem compare_isGE {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
+public theorem compare_isGE {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
     {a b : α} : (compare a b).isGE ↔ b ≤ a := by
   simp [← LawfulOrderOrd.compare_isGE]
 
-theorem compare_eq_lt {α : Type u} [Ord α] [LT α] [LE α] [LawfulOrderOrd α] [LawfulOrderLT α]
+public theorem compare_eq_lt {α : Type u} [Ord α] [LT α] [LE α] [LawfulOrderOrd α] [LawfulOrderLT α]
     {a b : α} : compare a b = .lt ↔ a < b := by
   rw [LawfulOrderLT.lt_iff, ← LawfulOrderOrd.compare_isLE, ← LawfulOrderOrd.compare_isGE]
   cases compare a b <;> simp
 
-theorem compare_eq_gt {α : Type u} [Ord α] [LT α] [LE α] [LawfulOrderOrd α] [LawfulOrderLT α]
+public theorem compare_eq_gt {α : Type u} [Ord α] [LT α] [LE α] [LawfulOrderOrd α] [LawfulOrderLT α]
     {a b : α} : compare a b = .gt ↔ b < a := by
   rw [LawfulOrderLT.lt_iff, ← LawfulOrderOrd.compare_isGE, ← LawfulOrderOrd.compare_isLE]
   cases compare a b <;> simp
 
-theorem compare_eq_eq {α : Type u} [Ord α] [BEq α] [LE α] [LawfulOrderOrd α] [LawfulOrderBEq α]
+public theorem compare_eq_eq {α : Type u} [Ord α] [BEq α] [LE α] [LawfulOrderOrd α] [LawfulOrderBEq α]
     {a b : α} : compare a b = .eq ↔ a == b := by
   open Classical.Order in
   rw [LawfulOrderBEq.beq_iff_le_and_ge, ← compare_isLE, ← compare_isGE]
@@ -71,6 +71,22 @@ public instance [Ord α] [LE α] [LawfulOrderOrd α] :
   total a b := by
     rw [← compare_isLE, ← compare_isGE]
     cases compare a b <;> simp
+
+public instance {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] [Antisymm (α := α) (· ≤ ·)] :
+    LawfulEqOrd α where
+  eq_of_compare := by
+    open Classical.Order in
+    simp [Ordering.eq_eq_iff_isLE_and_isGE, compare_isLE, compare_isGE, le_antisymm_iff]
+
+public instance {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] [LawfulEqOrd α] :
+     Antisymm (α := α) (· ≤ ·) where
+  antisymm a b := by
+    simp [← and_imp, ← compare_isLE (a := a), ← compare_isGE (a := a),
+      ← Ordering.eq_eq_iff_isLE_and_isGE]
+
+public theorem compare_eq_eq_iff_eq {α : Type u} [Ord α] [LawfulEqOrd α] {a b : α} :
+    compare a b = .eq ↔ a = b :=
+  LawfulEqOrd.compare_eq_iff_eq
 
 public theorem IsLinearPreorder.of_ord {α : Type u} [LE α] [Ord α] [LawfulOrderOrd α]
     [TransOrd α] : IsLinearPreorder α where

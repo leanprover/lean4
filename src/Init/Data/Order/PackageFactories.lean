@@ -549,4 +549,348 @@ public def LinearOrderPackage.ofLE (α : Type u)
     letI := args.decidableLE; letI := args.max
     IsLinearPreorder.lawfulOrderMax_of_max_eq args.max_eq
 
+section LinearPreorder
+
+namespace FactoryInstances
+
+public scoped instance instLEOfOrd {α : Type u} [Ord α] :
+    LE α where
+  le a b := (compare a b).isLE
+
+public instance instLawfulOrderOrdOfOrd {α : Type u} [Ord α] [OrientedOrd α] :
+    LawfulOrderOrd α where
+  compare_isLE a b := by simp [LE.le]
+  compare_isGE a b := by simp [OrientedCmp.isGE_iff_isLE, LE.le]
+
+public scoped instance instDecidableLEOfOrd {α : Type u} [LE α] [Ord α] [LawfulOrderOrd α] :
+    DecidableLE α :=
+  fun a b => match h : (compare a b).isLE with
+    | true => isTrue (by simpa only [LawfulOrderOrd.compare_isLE] using h)
+    | false => isFalse (by simpa only [LawfulOrderOrd.compare_isLE_eq_false] using h)
+
+public theorem _root_.Std.OrientedCmp.of_gt_iff_lt {α : Type u} {cmp : α → α → Ordering}
+    (h : ∀ a b : α, cmp a b = .gt ↔ cmp b a = .lt) : OrientedCmp cmp where
+  eq_swap {a b} := by
+    cases h' : cmp a b
+    · apply Eq.symm
+      simp [h, h']
+    · cases h'' : cmp b a
+      · simp [← h, h'] at h''
+      · simp
+      · simp [h, h'] at h''
+    · apply Eq.symm
+      simp [← h, h']
+
+public scoped instance instLTOfOrd {α : Type u} [Ord α] :
+    LT α where
+  lt a b := compare a b = .lt
+
+public instance instLawfulOrderLTOfOrd {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] :
+    LawfulOrderLT α where
+  lt_iff {a b} := by
+    simp +contextual [LT.lt, ← Std.compare_isLE (a := a), ← Std.compare_isGE (a := a)]
+
+public scoped instance instDecidableLTOfOrd {α : Type u} [LT α] [Ord α] [LawfulOrderOrd α]
+    [LawfulOrderLT α] :
+    DecidableLT α :=
+  fun a b => if h : compare a b = .lt then
+      isTrue (by simpa only [compare_eq_lt] using h)
+    else
+      isFalse (by simpa only [compare_eq_lt] using h)
+
+public scoped instance instBEqOfOrd {α : Type u} [Ord α] :
+    BEq α where
+  beq a b := compare a b = .eq
+
+public instance instLawfulOrderBEqOfOrd {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] :
+    LawfulOrderBEq α where
+  beq_iff_le_and_ge {a b} := by
+    simp +contextual [BEq.beq, ← Std.compare_isLE (a := a), ← Std.compare_isGE (a := a),
+      Ordering.eq_eq_iff_isLE_and_isGE]
+
+end FactoryInstances
+
+/--
+This structure contains all the data needed to create a `LinearPreorderPackage α` instance.
+Its fields are automatically provided if possible. For the detailed rules how the fields are
+inferred, see `LinearPreorderPackage.ofOrd`.
+-/
+public structure Packages.LinearPreorderOfOrdArgs (α : Type u) where
+  ord : Ord α := by infer_instance
+  transOrd  : TransOrd α := by infer_instance
+  le :
+      let := ord
+      LE α := by
+    extract_lets
+    first
+    | infer_instance
+    | exact FactoryInstances.instLEOfOrd
+  lawful_le :
+      let := ord; let := transOrd; let := le
+      LawfulOrderOrd α := by
+    extract_lets
+    first
+    | infer_instance
+    | exact FactoryInstances.instLawfulOrderOrdOfOrd
+    | fail "Failed to automatically derive a `LawfulOrderOrd` instance. \
+            Please ensure that the instance can be synthesized or \
+            manually provide the field `lawful_le`."
+  decidableLE :
+      let := ord; let := le; have := lawful_le
+      DecidableLE α := by
+    extract_lets
+    first
+    | infer_instance
+    | exact FactoryInstances.instDecidableLEOfOrd
+    | fail "Failed to automatically derive that `LE` is decidable.\
+            Please ensure that a `DecidableLE` instance can be synthesized or \
+            manually provide the field `decidableLE`."
+  lt :
+      let := ord
+      LT α := by
+    extract_lets
+    first
+    | infer_instance
+    | exact FactoryInstances.instLTOfOrd
+  lawful_lt :
+      let := ord; let := le; have := lawful_le; let := lt
+      ∀ a b : α, a < b ↔ compare a b = .lt := by
+    extract_lets
+    first
+    | exact fun _ _ => Std.compare_eq_lt.symm
+    | fail "Failed to automatically derive that `LT` and `Ord` are compatible. \
+            Please ensure that a `LawfulOrderLT` instance can be synthesized or \
+            manually provide the field `lawful_lt`."
+  decidableLT :
+      let := ord; let := lt; let := le; have := lawful_le; have := lawful_lt
+      DecidableLT α := by
+    extract_lets
+    first
+    | infer_instance
+    | exact FactoryInstances.instDecidableLTOfOrd
+    | fail "Failed to automatically derive that `LT` is decidable. \
+            Please ensure that a `DecidableLT` instance can be synthesized or \
+            manually provide the field `decidableLT`."
+  beq :
+      let := ord; BEq α := by
+    extract_lets
+    first
+    | infer_instance
+    | exact FactoryInstances.instBEqOfOrd
+  lawful_beq :
+      let := ord; let := le; have := lawful_le; let := beq
+      ∀ a b : α, a == b ↔ compare a b = .eq := by
+    extract_lets
+    first
+    | exact fun _ _ => Std.compare_eq_eq.symm
+    | fail "Failed to automatically derive that `BEq` and `Ord` are compatible. \
+            Please ensure that a `LawfulOrderBEq` instance can be synthesized or \
+            manually provide the field `lawful_beq`."
+
+/--
+Use this factory to conveniently define a linear preorder on a type `α` and all the associated
+operations and instances given an `Ord α` instance.
+
+Creates a `LinearPreorderPackage α` instance. Such an instance entails `LE α`, `LT α`, `BEq α` and
+`Ord α` instances as well as an `IsLinearPreorder α` instance and `LawfulOrder*` instances proving
+the compatibility of the operations with the linear preorder.
+
+In the presence of `Ord α` and `TransOrd α` instances, no arguments are required and the factory can
+be used as in this example:
+
+```lean
+public instance : LinearPreorderPackage X := .ofOrd X
+```
+
+If not all of these instances are available via typeclass synthesis, it is necessary to explicitly
+provide some arguments:
+
+```lean
+public instance : LinearPreorderPackage X := .ofOrd X {
+  ord := sorry
+  transOrd := sorry }
+```
+
+It is also possible to do all of this by hand, without resorting to `LinearPreorderPackage`. This
+can be useful if, say, one wants to avoid specifying an `LT α` instance, which is not possible with
+`LinearPreorderPackage`.
+
+**How the arguments are filled**
+
+Lean tries to fill all of the fields of the `args : Packages.LinearPreorderOfOrdArgs α` parameter
+automatically. If it fails, it is necessary to provide some of the fields manually.
+
+* For the data-carrying typeclasses `LE`, `LT`, `BEq` and `Ord`, existing instances are always
+  preferred. If no existing instances can be synthesized, it is attempted to derive an instance from
+  the `Ord` instance.
+* Some proof obligations can be filled automatically if the data-carrying typeclasses have been
+  derived from the `Ord` instance. For example: If the `beq` field is omitted and no `BEq α` instance
+  can be synthesized, it is derived from the `Ord α` instance. In this case, `lawful_beq` can be
+  omitted because Lean can infer that `BEq α` and `Ord α` are compatible.
+* Other proof obligations, for example `transOrd`, can be omitted if a matching instance can be
+  synthesized.
+-/
+@[expose]
+public def LinearPreorderPackage.ofOrd (α : Type u)
+    (args : Packages.LinearPreorderOfOrdArgs α := by exact {}) : LinearPreorderPackage α :=
+  letI := args.ord
+  haveI := args.transOrd
+  letI := args.le
+  haveI := args.lawful_le
+  { toOrd := args.ord
+    toLE := args.le
+    toLT := args.lt
+    toBEq := args.beq
+    toLawfulOrderOrd := args.lawful_le
+    lt_iff a b := by
+      cases h : compare a b
+      all_goals simp [h, ← args.lawful_le.compare_isLE a _, ← args.lawful_le.compare_isGE a _,
+        args.lawful_lt]
+    beq_iff_le_and_ge a b := by
+      simp [args.lawful_beq, Ordering.eq_eq_iff_isLE_and_isGE, compare_isLE,
+        compare_isGE]
+    decidableLE := args.decidableLE
+    decidableLT := args.decidableLT
+    le_refl a := by simp [← compare_isLE]
+    le_total a b := by cases h : compare a b <;> simp [h, ← compare_isLE (a := a), ← compare_isGE (a := a)]
+    le_trans a b c := by simpa [← compare_isLE] using TransOrd.isLE_trans }
+
+end LinearPreorder
+
+section LinearOrder
+
+namespace FactoryInstances
+
+public scoped instance instMinOfOrd {α : Type u} [Ord α] :
+    Min α where
+  min a b := if (compare a b).isLE then a else b
+
+public scoped instance instMaxOfOrd {α : Type u} [Ord α] :
+    Max α where
+  max a b := if (compare b a).isLE then a else b
+
+public instance instLawfulOrderLeftLeaningMinOfOrd {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] :
+    LawfulOrderLeftLeaningMin α where
+  min_eq_left a b := by simp +contextual only [← Std.compare_isLE, min, ↑reduceIte, implies_true]
+  min_eq_right a b := by
+    simp +contextual only [← Std.compare_isLE, min, Bool.false_eq_true, ↑reduceIte, implies_true]
+
+public instance instLawfulOrderLeftLeaningMaxOfOrd {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] :
+    LawfulOrderLeftLeaningMax α where
+  max_eq_left a b := by simp +contextual only [← Std.compare_isLE, max, ↑reduceIte, implies_true]
+  max_eq_right a b := by
+    simp +contextual only [← Std.compare_isLE, max, Bool.false_eq_true, ↑reduceIte, implies_true]
+
+end FactoryInstances
+
+/--
+This structure contains all the data needed to create a `LinearOrderPackage α` instance.
+Its fields are automatically provided if possible. For the detailed rules how the fields are
+inferred, see `LinearOrderPackage.ofOrd`.
+-/
+public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
+    LinearPreorderOfOrdArgs α where
+  eq_of_compare :
+      let := ord; let := le
+      ∀ a b : α, compare a b = .eq → a = b := by
+    extract_lets
+    first
+    | exact LawfulEqOrd.eq_of_compare
+    | fail "Failed to derive a `LawfulEqOrd` instance. \
+            Please make sure that it can be synthesized or \
+            manually provide the field `eq_of_compare`."
+  min :
+      let := ord
+      Min α := by
+    extract_lets
+    first
+    | infer_instance
+    | exact FactoryInstances.instMinOfOrd
+  max :
+      let := ord
+      Max α := by
+    extract_lets
+    first
+    | infer_instance
+    | exact FactoryInstances.instMaxOfOrd
+  min_eq :
+      let := ord; let := le; let := min; have := lawful_le
+      ∀ a b : α, Min.min a b = if (compare a b).isLE then a else b := by
+    extract_lets
+    first
+    | exact fun a b => Std.min_eq_if_compare_isLE (a := a) (b := b)
+    | fail "Failed to automatically prove that `min` is left-leaning. \
+            Please ensure that a `LawfulOrderLeftLeaningMin` instance can be synthesized or \
+            manuelly provide the field `min_eq`."
+  max_eq :
+      let := ord; let := le; let := max; have := lawful_le
+      ∀ a b : α, Max.max a b = if (compare a b).isGE then a else b := by
+    extract_lets
+    first
+    | exact fun a b => Std.max_eq_if_compare_isGE (a := a) (b := b)
+    | fail "Failed to automatically prove that `max` is left-leaning. \
+            Please ensure that a `LawfulOrderLeftLeaningMax` instance can be synthesized or \
+            manually provide the field `max_eq`."
+
+/--
+Use this factory to conveniently define a linear order on a type `α` and all the associated
+operations and instances given an `Ord α` instance.
+
+Creates a `LinearOrderPackage α` instance. Such an instance entails `LE α`, `LT α`, `BEq α`,
+`Ord α`, `Min α` and `Max α` instances as well as an `IsLinearOrder α` instance and `LawfulOrder*`
+instances proving the compatibility of the operations with the linear order.
+
+In the presence of `Ord α`, `TransOrd α` and `LawfulEqOrd α` instances, no arguments are required
+and the factory can be used as in this
+example:
+
+```lean
+public instance : LinearOrderPackage X := .ofLE X
+```
+
+If not all of these instances are available via typeclass synthesis, it is necessary to explicitly
+provide some arguments:
+
+```lean
+public instance : LinearOrderPackage X := .ofLE X {
+  transOrd := sorry
+  eq_of_compare := sorry }
+```
+
+It is also possible to do all of this by hand, without resorting to `LinearOrderPackage`. This
+can be useful if, say, one wants to avoid specifying an `LT α` instance, which is not possible with
+`LinearOrderPackage`.
+
+**How the arguments are filled**
+
+Lean tries to fill all of the fields of the `args : Packages.LinearOrderOfLEArgs α` parameter
+automatically. If it fails, it is necessary to provide some of the fields manually.
+
+* For the data-carrying typeclasses `LE`, `LT`, `BEq`, `Ord`, `Min` and `Max`, existing instances
+  are always preferred. If no existing instances can be synthesized, it is attempted to derive an
+  instance from the `Ord` instance.
+* Some proof obligations can be filled automatically if the data-carrying typeclasses have been
+  derived from the `Ord` instance. For example: If the `beq` field is omitted and no `BEq α` instance
+  can be synthesized, it is derived from the `LE α` instance. In this case, `lawful_beq` can be
+  omitted because Lean can infer that `BEq α` and `Ord α` are compatible.
+* Other proof obligations, such as `transOrd`, can be omitted if matching instances can be
+  synthesized.
+-/
+@[expose]
+public def LinearOrderPackage.ofOrd (α : Type u)
+    (args : Packages.LinearOrderOfOrdArgs α := by exact {}) : LinearOrderPackage α :=
+  letI := LinearPreorderPackage.ofOrd α args.toLinearPreorderOfOrdArgs
+  haveI : LawfulEqOrd α := ⟨args.eq_of_compare _ _⟩
+  letI : Min α := args.min
+  letI : Max α := args.max
+  { toMin := args.min
+    toMax := args.max,
+    le_antisymm := Antisymm.antisymm
+    toLawfulOrderMin := IsLinearPreorder.lawfulOrderMin_of_min_eq
+        (by simpa [compare_isLE] using args.min_eq)
+    toLawfulOrderMax := IsLinearPreorder.lawfulOrderMax_of_max_eq
+        (by simpa [compare_isGE] using args.max_eq) }
+
+end LinearOrder
+
 end Std

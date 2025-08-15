@@ -1276,50 +1276,65 @@ def delabMProdMk : Delab := delabPProdMkCore ``MProd.mk
 
 @[builtin_delab app.Std.Range.mk]
 def delabRange : Delab := do
-  -- Std.Range.mk : Nat → Nat → (step : Nat) → 0 < step → Std.Range
-  let_expr Std.Range.mk start _stop step _prf := (← getExpr) | failure
-  let start_zero := Lean.Expr.nat? start == some 0
-  let step_one := Lean.Expr.nat? step == some 1
-  withAppFn do -- skip the proof
-  let step ← withAppArg delab
-  withAppFn do
-  let stop ← withAppArg delab
-  withAppFn do
-  let start ← withAppArg delab
-  match start_zero, step_one with
-  | false, false => `([$start : $stop : $step])
-  | false, true => `([$start : $stop])
-  | true, false => `([: $stop : $step])
-  | true, true => `([: $stop])
+  -- Std.Range.mk : (start : Nat) → (stop : Nat) → (step : Nat) → 0 < step → Std.Range
+  guard <| (← getExpr).getAppNumArgs == 4
+  -- `none` if the start is `0`
+  let start? ← withNaryArg 0 do
+    if Lean.Expr.nat? (← getExpr) == some 0 then
+      return none
+    else
+      some <$> delab
+  let stop ← withNaryArg 1 delab
+  -- `none` if the step is `1`
+  let step? ← withNaryArg 2 do
+    if Lean.Expr.nat? (← getExpr) == some 1 then
+      return none
+    else
+      some <$> delab
+  match start?, step? with
+  | some start, some step => `([$start : $stop : $step])
+  | some start, none      => `([$start : $stop])
+  | none,       some step => `([: $stop : $step])
+  | none,       none      => `([: $stop])
 
 @[builtin_delab app.Std.PRange.mk]
 def delabPRange : Delab := do
-  -- Std.PRange.mk : {shape : Std.PRange.RangeShape} → {α : Type u} → Std.PRange.Bound shape.lower α → Std.PRange.Bound shape.upper α → Std.PRange shape α
-  let_expr Std.PRange.mk shape _α lower upper := (← getExpr) | failure
+  -- Std.PRange.mk : {shape : Std.PRange.RangeShape} → {α : Type u} →
+  --   (lower : Std.PRange.Bound shape.lower α) → (upper : Std.PRange.Bound shape.upper α) → Std.PRange shape α
+  guard <| (← getExpr).getAppNumArgs == 4
   let reflectBoundShape (e : Expr) : Option Std.PRange.BoundShape := match e.constName? with
-    | some `Std.PRange.BoundShape.closed => Std.PRange.BoundShape.closed
-    | some `Std.PRange.BoundShape.open => Std.PRange.BoundShape.open
-    | some `Std.PRange.BoundShape.unbounded => Std.PRange.BoundShape.unbounded
+    | some ``Std.PRange.BoundShape.closed => Std.PRange.BoundShape.closed
+    | some ``Std.PRange.BoundShape.open => Std.PRange.BoundShape.open
+    | some ``Std.PRange.BoundShape.unbounded => Std.PRange.BoundShape.unbounded
     | _ => failure
   let reflectRangeShape (e : Expr) : Option Std.PRange.RangeShape := do
-    let_expr Std.PRange.RangeShape.mk lower upper := e | failure
+    -- Std.PRange.RangeShape.mk (lower upper : Std.PRange.BoundShape) : Std.PRange.RangeShape
+    guard <| e.isAppOfArity ``Std.PRange.RangeShape.mk 2
+    let lower := e.appFn!.appArg!
+    let upper := e.appArg!
     return ⟨← reflectBoundShape lower, ← reflectBoundShape upper⟩
-  let some shape := reflectRangeShape shape | failure
-  let a ← withAppFn <| withAppArg <| delab
-  let b ← withAppArg <| delab
-  match (shape, lower.constName?, upper.constName?) with
-  | (⟨.closed, .closed⟩, _, _) => `($a...=$b)
-  | (⟨.unbounded, .closed⟩, some `PUnit.unit, _) => `(*...=$b)
-  | (⟨.closed, .unbounded⟩, _, some `PUnit.unit) => `($a...*)
-  | (⟨.unbounded, .unbounded⟩, some `PUnit.unit, some `PUnit.unit) => `(*...*)
-  | (⟨.open, .closed⟩, _, _) => `($a<...=$b)
-  | (⟨.open, .unbounded⟩, _, some `PUnit.unit) => `($a<...*)
-  | (⟨.closed, .open⟩, _, _) => `($a...$b)
-  | (⟨.unbounded, .open⟩, some `PUnit.unit, _) => `(*...$b)
-  | (⟨.open, .open⟩, _, _) => `($a<...$b)
+  let some shape := reflectRangeShape ((← getExpr).getArg! 0) | failure
+  -- Lower bound
+  let (aStar, a) ← withAppFn <| withAppArg do
+    let isUnit := (← getExpr).isConstOf ``PUnit.unit
+    return (isUnit, ← delab)
+  -- Upper bound
+  let (bStar, b) ← withAppArg do
+    let isUnit := (← getExpr).isConstOf ``PUnit.unit
+    return (isUnit, ← delab)
+  match (shape, aStar, bStar) with
+  | (⟨.closed, .closed⟩,       _,    _)    => `($a...=$b)
+  | (⟨.unbounded, .closed⟩,    true, _)    => `(*...=$b)
+  | (⟨.closed, .unbounded⟩,    _,    true) => `($a...*)
+  | (⟨.unbounded, .unbounded⟩, true, true) => `(*...*)
+  | (⟨.open, .closed⟩,         _,    _)    => `($a<...=$b)
+  | (⟨.open, .unbounded⟩,      _,    true) => `($a<...*)
+  | (⟨.closed, .open⟩,         _,    _)    => `($a...$b)
+  | (⟨.unbounded, .open⟩,      true, _)    => `(*...$b)
+  | (⟨.open, .open⟩,           _,    _)    => `($a<...$b)
   -- The remaining cases are aliases for explicit `<` upper bound notation:
   -- | (⟨.closed, .open⟩, _, _) => `($a...<$b)
-  -- | (⟨.unbounded, .open⟩, some `PUnit.unit, _) => `(*...<$b)
+  -- | (⟨.unbounded, .open⟩, true, _) => `(*...<$b)
   -- | (⟨.open, .open⟩, _, _) => `($a<...<$b)
   | _ => failure
 

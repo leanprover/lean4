@@ -94,10 +94,17 @@ opaque _root_.X.instOrd : Ord X := sorry
 #guard_msgs(error, drop warning) in
 opaque _root_.X.instTransOrd : haveI := X.instOrd; TransOrd X := sorry
 
+#guard_msgs(error, drop warning) in
+opaque _root_.X.instLawfulEqOrd : haveI := X.instOrd; LawfulEqOrd X := sorry
+
 def packageWithoutSynthesizableInstances : LinearOrderPackage X := .ofOrd X {
   ord := X.instOrd
   transOrd := X.instTransOrd
-  eq_of_compare := sorry }
+  eq_of_compare {i} hi {ile} hile a b := by
+    cases hi
+    cases hile
+    letI := X.instOrd
+    exact X.instLawfulEqOrd.eq_of_compare }
 
 end
 

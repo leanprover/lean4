@@ -18,9 +18,6 @@ open Command Meta Parser Term
 private abbrev IndexSet := Std.TreeSet Nat
 private abbrev LocalInst2Index := FVarIdMap Nat
 
-private def implicitBinderF := Parser.Term.implicitBinder
-private def instBinderF     := Parser.Term.instBinder
-
 private def mkInhabitedInstanceUsing (inductiveTypeName : Name) (ctorName : Name) (addHypotheses : Bool) : CommandElabM Bool := do
   match (← liftTermElabM mkInstanceCmd?) with
   | some cmd =>
@@ -77,16 +74,21 @@ where
       if assumingParamIdxs.contains i then
         let binder ← `(bracketedBinderF| [Inhabited $arg:ident ])
         binders := binders.push binder
-    let type ← `(Inhabited (@$(mkCIdent inductiveTypeName):ident $indArgs:ident*))
+    let itype ← `(@$(mkCIdent inductiveTypeName):ident $indArgs:ident*)
+    let type ← `(Inhabited $itype)
     let mut ctorArgs := #[]
     for _ in *...ctorVal.numParams do
       ctorArgs := ctorArgs.push (← `(_))
     for _ in *...ctorVal.numFields do
       ctorArgs := ctorArgs.push (← ``(Inhabited.default))
-    let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
+    let val ← if isStructure (← getEnv) inductiveTypeName then
+      -- If it is a structure, we prefer using the default values, if present.
+      `(⟨by refine' {.. : $itype} <;> exact default⟩)
+    else
+      `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
     let vis := ctx.mkVisibilityFromTypes
     let expAttr := ctx.mkExposeAttrFromCtors
-    `(@[$expAttr] $vis:visibility instance $binders:bracketedBinder* : $type := $val)
+    `( @[$expAttr] $vis:visibility instance $binders:bracketedBinder* : $type := $val)
 
   mkInstanceCmd? : TermElabM (Option Syntax) := do
     let ctorVal ← getConstInfoCtor ctorName

@@ -132,9 +132,13 @@ where
       modifyEnv fun env => markNoConfusion env declName
 
 def mkNoConfusion (declName : Name) : MetaM Unit := do
+  withTraceNode `Meta.mkNoConfusion (fun _ => return m!"{declName}") do
   if (← isEnumType declName) then
     mkNoConfusionEnum declName
   else
     mkNoConfusionCore declName
+
+builtin_initialize
+  registerTraceClass `Meta.mkNoConfusion
 
 end Lean

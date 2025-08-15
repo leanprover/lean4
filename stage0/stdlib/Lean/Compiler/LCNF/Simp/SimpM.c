@@ -6963,6 +6963,10 @@ lean_dec_ref(x_20);
 x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
 lean_dec(x_21);
+lean_inc(x_11);
+lean_inc_ref(x_10);
+lean_inc(x_9);
+lean_inc_ref(x_8);
 x_24 = l_Lean_Compiler_LCNF_Code_internalize(x_2, x_23, x_8, x_9, x_10, x_11, x_22);
 if (lean_obj_tag(x_24) == 0)
 {
@@ -6974,6 +6978,10 @@ lean_inc(x_26);
 lean_dec_ref(x_24);
 lean_inc(x_25);
 x_27 = l_Lean_Compiler_LCNF_Simp_updateFunDeclInfo___redArg(x_25, x_4, x_6, x_8, x_9, x_10, x_11, x_26);
+lean_dec(x_11);
+lean_dec_ref(x_10);
+lean_dec(x_9);
+lean_dec_ref(x_8);
 if (lean_obj_tag(x_27) == 0)
 {
 uint8_t x_28; 
@@ -7024,6 +7032,10 @@ return x_35;
 }
 else
 {
+lean_dec(x_11);
+lean_dec_ref(x_10);
+lean_dec(x_9);
+lean_dec_ref(x_8);
 return x_24;
 }
 }
@@ -7091,10 +7103,6 @@ _start:
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_4);
 x_14 = l_Lean_Compiler_LCNF_Simp_betaReduce(x_1, x_2, x_3, x_13, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_11);
-lean_dec_ref(x_10);
-lean_dec(x_9);
-lean_dec_ref(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);

@@ -705,6 +705,11 @@ x_10 = lean_usize_dec_lt(x_2, x_1);
 if (x_10 == 0)
 {
 lean_object* x_11; 
+lean_dec(x_8);
+lean_dec_ref(x_7);
+lean_dec(x_6);
+lean_dec_ref(x_5);
+lean_dec(x_4);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_3);
 lean_ctor_set(x_11, 1, x_9);
@@ -714,6 +719,11 @@ else
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = lean_array_uget(x_3, x_2);
+lean_inc(x_8);
+lean_inc_ref(x_7);
+lean_inc(x_6);
+lean_inc_ref(x_5);
+lean_inc(x_4);
 x_13 = l_Lean_Compiler_LCNF_Internalize_internalizeParam(x_12, x_4, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -736,6 +746,11 @@ goto _start;
 else
 {
 uint8_t x_22; 
+lean_dec(x_8);
+lean_dec_ref(x_7);
+lean_dec(x_6);
+lean_dec_ref(x_5);
+lean_dec(x_4);
 lean_dec_ref(x_3);
 x_22 = !lean_is_exclusive(x_13);
 if (x_22 == 0)
@@ -765,6 +780,11 @@ _start:
 size_t x_12; size_t x_13; lean_object* x_14; 
 x_12 = lean_array_size(x_1);
 x_13 = 0;
+lean_inc(x_10);
+lean_inc_ref(x_9);
+lean_inc(x_8);
+lean_inc_ref(x_7);
+lean_inc(x_6);
 x_14 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Compiler_LCNF_LambdaLifting_0__Lean_Compiler_LCNF_LambdaLifting_mkAuxDecl_go_spec__0(x_12, x_13, x_1, x_6, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -780,6 +800,11 @@ x_18 = lean_ctor_get(x_2, 4);
 lean_inc_ref(x_18);
 lean_dec_ref(x_2);
 x_19 = lean_array_size(x_17);
+lean_inc(x_10);
+lean_inc_ref(x_9);
+lean_inc(x_8);
+lean_inc_ref(x_7);
+lean_inc(x_6);
 x_20 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Compiler_LCNF_LambdaLifting_0__Lean_Compiler_LCNF_LambdaLifting_mkAuxDecl_go_spec__0(x_19, x_13, x_17, x_6, x_7, x_8, x_9, x_10, x_16);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -789,6 +814,10 @@ lean_inc(x_21);
 x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec_ref(x_20);
+lean_inc(x_10);
+lean_inc_ref(x_9);
+lean_inc(x_8);
+lean_inc_ref(x_7);
 x_23 = l_Lean_Compiler_LCNF_Internalize_internalizeCode(x_18, x_6, x_7, x_8, x_9, x_10, x_22);
 if (lean_obj_tag(x_23) == 0)
 {
@@ -812,6 +841,10 @@ x_29 = l_Array_append___redArg(x_15, x_21);
 lean_dec(x_21);
 lean_inc_ref(x_29);
 x_30 = l_Lean_Compiler_LCNF_InferType_mkForallParams___redArg(x_29, x_27, x_7, x_8, x_9, x_10, x_28);
+lean_dec(x_10);
+lean_dec_ref(x_9);
+lean_dec(x_8);
+lean_dec_ref(x_7);
 lean_dec(x_27);
 if (lean_obj_tag(x_30) == 0)
 {
@@ -899,6 +932,10 @@ uint8_t x_50;
 lean_dec(x_24);
 lean_dec(x_21);
 lean_dec(x_15);
+lean_dec(x_10);
+lean_dec_ref(x_9);
+lean_dec(x_8);
+lean_dec_ref(x_7);
 lean_dec(x_5);
 lean_dec(x_3);
 x_50 = !lean_is_exclusive(x_26);
@@ -926,6 +963,10 @@ else
 uint8_t x_54; 
 lean_dec(x_21);
 lean_dec(x_15);
+lean_dec(x_10);
+lean_dec_ref(x_9);
+lean_dec(x_8);
+lean_dec_ref(x_7);
 lean_dec(x_5);
 lean_dec(x_3);
 x_54 = !lean_is_exclusive(x_23);
@@ -953,6 +994,11 @@ else
 uint8_t x_58; 
 lean_dec_ref(x_18);
 lean_dec(x_15);
+lean_dec(x_10);
+lean_dec_ref(x_9);
+lean_dec(x_8);
+lean_dec_ref(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_3);
 x_58 = !lean_is_exclusive(x_20);
@@ -978,6 +1024,11 @@ return x_61;
 else
 {
 uint8_t x_62; 
+lean_dec(x_10);
+lean_dec_ref(x_9);
+lean_dec(x_8);
+lean_dec_ref(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec_ref(x_2);
@@ -1011,11 +1062,6 @@ lean_dec(x_1);
 x_11 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_12 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Compiler_LCNF_LambdaLifting_0__Lean_Compiler_LCNF_LambdaLifting_mkAuxDecl_go_spec__0(x_10, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec(x_6);
-lean_dec_ref(x_5);
-lean_dec(x_4);
 return x_12;
 }
 }
@@ -1025,11 +1071,6 @@ _start:
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_4);
 x_13 = l___private_Lean_Compiler_LCNF_LambdaLifting_0__Lean_Compiler_LCNF_LambdaLifting_mkAuxDecl_go(x_1, x_2, x_3, x_12, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_10);
-lean_dec_ref(x_9);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec(x_6);
 return x_13;
 }
 }
@@ -1222,6 +1263,11 @@ lean_inc(x_80);
 lean_dec_ref(x_77);
 x_81 = lean_ctor_get_uint8(x_78, sizeof(void*)*6 + 1);
 lean_dec_ref(x_78);
+lean_inc(x_73);
+lean_inc_ref(x_72);
+lean_inc(x_71);
+lean_inc_ref(x_70);
+lean_inc(x_79);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
 x_82 = l___private_Lean_Compiler_LCNF_LambdaLifting_0__Lean_Compiler_LCNF_LambdaLifting_mkAuxDecl_go(x_1, x_2, x_65, x_81, x_67, x_79, x_70, x_71, x_72, x_73, x_80);

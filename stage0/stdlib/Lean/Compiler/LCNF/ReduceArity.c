@@ -4399,6 +4399,11 @@ x_10 = lean_usize_dec_lt(x_2, x_1);
 if (x_10 == 0)
 {
 lean_object* x_11; 
+lean_dec(x_8);
+lean_dec_ref(x_7);
+lean_dec(x_6);
+lean_dec_ref(x_5);
+lean_dec(x_4);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_3);
 lean_ctor_set(x_11, 1, x_9);
@@ -4408,6 +4413,11 @@ else
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = lean_array_uget(x_3, x_2);
+lean_inc(x_8);
+lean_inc_ref(x_7);
+lean_inc(x_6);
+lean_inc_ref(x_5);
+lean_inc(x_4);
 x_13 = l_Lean_Compiler_LCNF_Internalize_internalizeParam(x_12, x_4, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -4430,6 +4440,11 @@ goto _start;
 else
 {
 uint8_t x_22; 
+lean_dec(x_8);
+lean_dec_ref(x_7);
+lean_dec(x_6);
+lean_dec_ref(x_5);
+lean_dec(x_4);
 lean_dec_ref(x_3);
 x_22 = !lean_is_exclusive(x_13);
 if (x_22 == 0)
@@ -6281,6 +6296,11 @@ if (x_49 == 0)
 lean_object* x_50; lean_object* x_51; lean_object* x_52; 
 x_50 = lean_ctor_get(x_48, 0);
 x_51 = lean_ctor_get(x_48, 1);
+lean_inc(x_21);
+lean_inc_ref(x_24);
+lean_inc(x_28);
+lean_inc_ref(x_27);
+lean_inc(x_50);
 x_52 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_Decl_reduceArity_spec__3(x_26, x_22, x_11, x_50, x_27, x_28, x_24, x_21, x_51);
 if (lean_obj_tag(x_52) == 0)
 {
@@ -6699,6 +6719,11 @@ x_140 = lean_ctor_get(x_48, 1);
 lean_inc(x_140);
 lean_inc(x_139);
 lean_dec(x_48);
+lean_inc(x_21);
+lean_inc_ref(x_24);
+lean_inc(x_28);
+lean_inc_ref(x_27);
+lean_inc(x_139);
 x_141 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_Decl_reduceArity_spec__3(x_26, x_22, x_11, x_139, x_27, x_28, x_24, x_21, x_140);
 if (lean_obj_tag(x_141) == 0)
 {
@@ -7168,6 +7193,11 @@ if (lean_is_exclusive(x_221)) {
  lean_dec_ref(x_221);
  x_224 = lean_box(0);
 }
+lean_inc(x_21);
+lean_inc_ref(x_24);
+lean_inc(x_28);
+lean_inc_ref(x_27);
+lean_inc(x_222);
 x_225 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_Decl_reduceArity_spec__3(x_26, x_22, x_11, x_222, x_27, x_28, x_24, x_21, x_223);
 if (lean_obj_tag(x_225) == 0)
 {
@@ -7630,11 +7660,6 @@ lean_dec(x_1);
 x_11 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_12 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_Decl_reduceArity_spec__3(x_10, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec(x_6);
-lean_dec_ref(x_5);
-lean_dec(x_4);
 return x_12;
 }
 }

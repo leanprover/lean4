@@ -2121,6 +2121,29 @@ theorem not_le_of_le (ctx : Context) (p₁ p₂ : Poly) : not_le_of_le_cert p₁
   have := not_le_of_le' ctx p₁ p₂ h 0 h₁; simp at this
   simp [*]
 
+theorem natCast_sub (x y : Nat)
+    : (NatCast.natCast (x - y) : Int)
+      =
+      if (NatCast.natCast y : Int) + (-1)*NatCast.natCast x ≤ 0 then
+        (NatCast.natCast x : Int) + -1*NatCast.natCast y
+      else
+        (0 : Int) := by
+  change (↑(x - y) : Int) = if (↑y : Int) + (-1)*↑x ≤ 0 then (↑x : Int) + (-1)*↑y else 0
+  rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]
+  rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]
+  split
+  next h =>
+    replace h := Int.le_of_sub_nonpos h
+    rw [Int.ofNat_le] at h
+    rw [Int.ofNat_sub h]
+  next h =>
+    have : ¬ (↑y : Int) ≤ ↑x := by
+      intro h
+      replace h := Int.sub_nonpos_of_le h
+      contradiction
+    rw [Int.ofNat_le] at this
+    rw [Lean.Omega.Int.ofNat_sub_eq_zero this]
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

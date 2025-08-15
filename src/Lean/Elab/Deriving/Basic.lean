@@ -227,6 +227,8 @@ def applyDerivingHandlers (className : Name) (typeNames : Array Name) : CommandE
   -- When any of the types are private, the deriving handler will need access to the private scope
   -- (and should also make sure to put its outputs in the private scope).
   withoutExporting (when := typeNames.any isPrivateName) do
+  -- Deactivate some linting options that only make writing deriving handlers more painful.
+  withScope (fun sc => { sc with opts := sc.opts.setBool `warn.exposeOnPrivate false }) do
   withTraceNode `Elab.Deriving (fun _ => return m!"running deriving handlers for `{.ofConstName className}`") do
     match (← derivingHandlersRef.get).find? className with
     | some handlers =>

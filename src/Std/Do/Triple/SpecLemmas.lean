@@ -23,10 +23,6 @@ namespace Std.Range
 abbrev toList (r : Std.Range) : List Nat :=
   List.range' r.start ((r.stop - r.start + r.step - 1) / r.step) r.step
 
-theorem toList_range' (r : Std.Range) (h : r.step = 1) :
-    toList r = List.range' r.start (r.stop - r.start) := by
-  simp [toList, h]
-
 end Std.Range
 
 namespace List

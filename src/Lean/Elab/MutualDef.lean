@@ -1140,6 +1140,11 @@ private def checkAllDeclNamesDistinct (preDefs : Array PreDefinition) : TermElab
 structure AsyncBodyInfo where
 deriving TypeName
 
+register_builtin_option warn.exposeOnPrivate : Bool := {
+  defValue := true
+  descr    := "warn about uses of `@[expose]` on private declarations"
+}
+
 def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
@@ -1248,6 +1253,14 @@ where
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
   finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
     let env ← getEnv
+    if warn.exposeOnPrivate.get (← getOptions) then
+      if env.header.isModule && !env.isExporting then
+        for header in headers do
+          for attr in header.modifiers.attrs do
+            if attr.name == `expose then
+              logWarningAt attr.stx m!"Redundant `[expose]` attribute, it is meaningful on public \
+                definitions only"
+
     withExporting (isExporting :=
       headers.any (fun header =>
         header.modifiers.isInferredPublic env &&

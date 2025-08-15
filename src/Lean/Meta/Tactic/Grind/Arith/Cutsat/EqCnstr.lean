@@ -475,9 +475,17 @@ private def internalizeIntTerm (e type : Expr) (parent? : Option Expr) (k : Supp
   | .toInt => propagateToInt e
   | _ => internalizeInt e
 
+private def propagateNatSub (e : Expr) : GoalM Unit := do
+  let_expr HSub.hSub _ _ _ inst a b := e | return ()
+  unless (← isInstHSubNat inst) do return ()
+  discard <| mkNatVar a
+  discard <| mkNatVar b
+  pushNewFact <| mkApp2 (mkConst ``Int.Linear.natCast_sub) a b
+
 private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do
   if (← isNatTerm e) then return () -- already internalized
   match k with
+  | .sub => propagateNatSub e
   | .natAbs => propagateNatAbs e
   | .toNat => propagateToNat e
   | _ => pure ()

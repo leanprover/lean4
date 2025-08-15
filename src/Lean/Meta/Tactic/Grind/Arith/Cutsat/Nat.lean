@@ -77,24 +77,6 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
       return (mkIntPowNat a' k, h)
     else
       mkNatVar e
-  | HSub.hSub _ _ _ inst a b =>
-    if (← isInstHSubNat inst) then
-      let (a', h₁) ← natToInt' a
-      let (b', h₂) ← natToInt' b
-      let lhs := mkIntAdd b' (mkIntMul (mkIntLit (-1)) a')
-      let rhs := mkIntLit 0
-      let c := mkIntLE lhs rhs
-      let dec := mkApp2 (mkConst ``Int.decLe) lhs rhs
-      let r := mkApp4 intIte c dec (mkIntSub a' b') (mkIntLit 0)
-      let h := mkApp6 (mkConst ``Nat.ToInt.sub_congr) a b a' b' h₁ h₂
-      -- We need to simplify because `cutsat` expects arithmetic to be in normal form,
-      -- nested instances to be marked and canonicalized
-      let r ← simpCore r
-      let h ← if let some h' := r.proof? then mkEqTrans h h' else pure h
-      let r ← markNestedSubsingletons r.expr
-      return (r, h)
-    else
-      mkNatVar e
   | Fin.val n a =>
     let type ← shareCommon (mkApp (mkConst ``Fin) n)
     if let some (a', h) ← toInt? a type then

@@ -6,21 +6,23 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Std.Do.WP
-public import Std.Do.Triple
-public import Lean.Elab.Tactic.Simp
-public import Lean.Elab.Tactic.Do.ProofMode.Basic
-public import Lean.Elab.Tactic.Do.ProofMode.Intro
-public import Lean.Elab.Tactic.Do.ProofMode.Revert
-public import Lean.Elab.Tactic.Do.ProofMode.Cases
-public import Lean.Elab.Tactic.Do.ProofMode.Specialize
-public import Lean.Elab.Tactic.Do.ProofMode.Pure
-public import Lean.Elab.Tactic.Do.LetElim
-public import Lean.Elab.Tactic.Do.Spec
-public import Lean.Elab.Tactic.Do.Attr
-public import Lean.Elab.Tactic.Do.Syntax
+import Std.Do.WP
+import Std.Do.Triple
+import Lean.Elab.Tactic.Do.VCGen.Split
+import Lean.Elab.Tactic.Simp
+import Lean.Elab.Tactic.Do.ProofMode.Basic
+import Lean.Elab.Tactic.Do.ProofMode.Intro
+import Lean.Elab.Tactic.Do.ProofMode.Revert
+import Lean.Elab.Tactic.Do.ProofMode.Cases
+import Lean.Elab.Tactic.Do.ProofMode.Specialize
+import Lean.Elab.Tactic.Do.ProofMode.Pure
+import Lean.Elab.Tactic.Do.LetElim
+import Lean.Elab.Tactic.Do.Spec
+import Lean.Elab.Tactic.Do.Attr
+import Lean.Elab.Tactic.Do.Syntax
+import Lean.Elab.Tactic.Induction
+
 public import Lean.Elab.Tactic.Do.VCGen.Basic
-public import Lean.Elab.Tactic.Do.VCGen.Split
 
 public section
 
@@ -40,7 +42,11 @@ private def ProofMode.MGoal.withNewProg (goal : MGoal) (e : Expr) : MGoal :=
 
 namespace VCGen
 
-partial def genVCs (goal : MVarId) (ctx : Context) (fuel : Fuel) : MetaM (Array MVarId) := do
+structure Result where
+  invariants : Array MVarId
+  vcs : Array MVarId
+
+partial def genVCs (goal : MVarId) (ctx : Context) (fuel : Fuel) : MetaM Result := do
   let (mvar, goal) ← mStartMVar goal
   mvar.withContext <| withReducible do
     let (prf, state) ← StateRefT'.run (ReaderT.run (onGoal goal (← mvar.getTag)) ctx) { fuel }
@@ -51,7 +57,7 @@ partial def genVCs (goal : MVarId) (ctx : Context) (fuel : Fuel) : MetaM (Array 
     for h : idx in [:state.vcs.size] do
       let mv := state.vcs[idx]
       mv.setTag (Name.mkSimple ("vc" ++ toString (idx + 1)) ++ (← mv.getTag))
-    return state.invariants ++ state.vcs
+    return { invariants := state.invariants, vcs := state.vcs }
 where
   onFail (goal : MGoal) (name : Name) : VCGenM Expr := do
     -- trace[Elab.Tactic.Do.vcgen] "fail {goal.toExpr}"
@@ -356,6 +362,62 @@ where
 
 end VCGen
 
+def elabInvariants (stx : Syntax) (invariants : Array MVarId) : TermElabM Unit := do
+  let some stx := stx.getOptional? | return ()
+  let stx : TSyntax ``invariantAlts := ⟨stx⟩
+  match stx with
+  | `(invariantAlts| using invariants $alts*) =>
+    for alt in alts do
+      match alt with
+      | `(invariantAlt| | $ns,* => $rhs) =>
+        for ref in ns.getElems do
+          let n := ref.getNat
+          if n = 0 then
+            logErrorAt ref "Invariant index 0 is invalid. Invariant indices start at 1 just as the case labels `inv<n>`."
+            continue
+          let some mv := invariants[n-1]? | do
+            logErrorAt ref m!"Invariant index {n} is out of bounds. Invariant indices start at 1 just as the case labels `inv<n>`. There were {invariants.size} invariants."
+            continue
+          if ← mv.isAssigned then
+            logErrorAt ref m!"Invariant {n} is already assigned"
+            continue
+          mv.assign (← mv.withContext <| Term.elabTerm rhs (← mv.getType))
+      | _ => logErrorAt alt "Expected invariantAlt, got {alt}"
+  | _ => logErrorAt stx "Expected invariantAlts, got {stx}"
+
+private def patchVCAltIntoCaseTactic (alt : TSyntax ``vcAlt) : TSyntax ``case :=
+  -- syntax vcAlt := sepBy1(caseArg, " | ") " => " tacticSeq
+  -- syntax case := "case " sepBy1(caseArg, " | ") " => " tacticSeq
+  ⟨alt.raw |>.setKind ``case |>.setArg 0 (mkAtom "case")⟩
+
+partial def elabVCs (stx : Syntax) (vcs : Array MVarId) : TacticM (List MVarId) := do
+  let some stx := stx.getOptional? | return vcs.toList
+  match (⟨stx⟩ : TSyntax ``vcAlts) with
+  | `(vcAlts| with $(tactic)? $alts*) =>
+    let vcs ← applyPreTac vcs tactic
+    evalAlts vcs alts
+  | _ =>
+    logErrorAt stx "Expected inductionAlts, got {stx}"
+    return vcs.toList
+where
+  applyPreTac (vcs : Array MVarId) (tactic : Option Syntax) : TacticM (Array MVarId) := do
+    let some tactic := tactic | return vcs
+    let mut newVCs := #[]
+    for vc in vcs do
+      let vcs ← try evalTacticAt tactic vc catch _ => pure [vc]
+      newVCs := newVCs ++ vcs
+    return newVCs
+
+  evalAlts (vcs : Array MVarId) (alts : TSyntaxArray ``vcAlt) : TacticM (List MVarId) := do
+    let oldGoals ← getGoals
+    try
+      setGoals vcs.toList
+      for alt in alts do withRef alt <| evalTactic <| patchVCAltIntoCaseTactic alt
+      pruneSolvedGoals
+      getGoals
+    finally
+      setGoals oldGoals
+
 @[builtin_tactic Lean.Parser.Tactic.mvcgen]
 def elabMVCGen : Tactic := fun stx => withMainContext do
   if mvcgen.warning.get (← getOptions) then
@@ -366,10 +428,13 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
     | none => .unlimited
   let goal ← getMainGoal
   let goal ← if ctx.config.elimLets then elimLets goal else pure goal
-  let vcs ← VCGen.genVCs goal ctx fuel
+  let { invariants, vcs } ← VCGen.genVCs goal ctx fuel
   let runOnVCs (tac : TSyntax `tactic) (vcs : Array MVarId) : TermElabM (Array MVarId) :=
     vcs.flatMapM fun vc => List.toArray <$> Term.withSynthesize do
       Tactic.run vc (Tactic.evalTactic tac *> Tactic.pruneSolvedGoals)
+  let invariants ← Term.TermElabM.run' do
+    let invariants ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) invariants else pure invariants
+  elabInvariants stx[3] invariants
   let vcs ← Term.TermElabM.run' do
     let vcs ← if ctx.config.trivial then runOnVCs (← `(tactic| try mvcgen_trivial)) vcs else pure vcs
     let vcs ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) vcs else pure vcs
@@ -377,4 +442,5 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
   -- Eliminating lets here causes some metavariables in `mkFreshPair_triple` to become nonassignable
   -- so we don't do it. Presumably some weird delayed assignment thing is going on.
   -- let vcs ← if ctx.config.elimLets then liftMetaM <| vcs.mapM elimLets else pure vcs
-  replaceMainGoal vcs.toList
+  let vcs ← elabVCs stx[4] vcs
+  replaceMainGoal (invariants ++ vcs).toList

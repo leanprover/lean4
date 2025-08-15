@@ -301,6 +301,14 @@ all_goals
 macro (name := mspecNoSimp) "mspec_no_simp" spec:(ppSpace colGt term)? : tactic =>
   `(tactic| ((try with_reducible mspec_no_bind $(mkIdent ``Std.Do.Spec.bind)) <;> mspec_no_bind $[$spec]?))
 
+@[inherit_doc Lean.Parser.Tactic.mspecMacro]
+macro (name := mspec) "mspec" spec:(ppSpace colGt term)? : tactic =>
+  `(tactic| (mspec_no_simp $[$spec]?
+             all_goals ((try simp only [
+                          $(mkIdent ``Std.Do.SPred.true_intro_simp):term,
+                          $(mkIdent ``Std.Do.SPred.apply_pure):term])
+                        (try mpure_intro; trivial))))
+
 syntax "mvcgen_trivial_extensible" : tactic
 
 /--
@@ -316,17 +324,34 @@ macro "mvcgen_trivial" : tactic =>
     | try mvcgen_trivial_extensible
   )
 
-@[inherit_doc Lean.Parser.Tactic.mspecMacro]
-macro (name := mspec) "mspec" spec:(ppSpace colGt term)? : tactic =>
-  `(tactic| (mspec_no_simp $[$spec]?
-             all_goals ((try simp only [
-                          $(mkIdent ``Std.Do.SPred.true_intro_simp):term,
-                          $(mkIdent ``Std.Do.SPred.apply_pure):term])
-                        (try mpure_intro; trivial))))
+/--
+An invariant alternative of the form `| <n₁>, ..., <nₖ> => term`, where `nᵢ` are natural numbers
+referring to numbered invariant goals.
+-/
+syntax invariantAlt  := ppDedent(ppLine) withPosition("| " num,+) " => " term
+
+/--
+After `using`, there can be an optional ` invariants ` followed by a list of alternatives
+`| 1 => term | ... | <n> => term`.
+-/
+syntax invariantAlts := " using" (&" invariants " withPosition((colGe invariantAlt)*))?
+
+/--
+In induction alternative, which can have 1 or more cases on the left
+and `_`, `?_`, or a tactic sequence after the `=>`.
+-/
+syntax vcAlt := "| " sepBy1(caseArg, " | ") " => " tacticSeq -- `case` tactic has "case " instead of "| "
+
+/--
+After `with`, there is an optional tactic that runs on all branches, and
+then a list of alternatives.
+-/
+syntax vcAlts := " with" (ppSpace colGt tactic)? withPosition((colGe vcAlt)*)
 
 @[inherit_doc Lean.Parser.Tactic.mvcgenMacro]
 syntax (name := mvcgen) "mvcgen" optConfig
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
+  (invariantAlts)? (vcAlts)? : tactic
 
 /--
 Like `mvcgen`, but does not attempt to prove trivial VCs via `mpure_intro; trivial`.

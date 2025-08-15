@@ -295,9 +295,7 @@ public structure Packages.LinearPreorderOfLEArgs (α : Type u) extends
   ord :
       let := le; let := decidableLE
       Ord α := by
-    trace_state
     extract_lets
-    trace_state
     first
       | infer_instance
       | exact FactoryInstances.instOrdOfDecidableLE

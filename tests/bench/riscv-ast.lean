@@ -21,6 +21,10 @@ set_option maxRecDepth 10_000
 set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
+set_option trace.profiler true
+set_option trace.profiler.threshold 100
+set_option pp.oneline true
+
 /-- Type quantifiers: k_a : Type -/
 inductive option (k_a : Type) where
   | Some (_ : k_a)
@@ -708,9 +712,6 @@ inductive ast where
   | SHA512SIG0 (_ : (regidx × regidx))
   | SHA512SIG1 (_ : (regidx × regidx))
   | SHA512SUM0 (_ : (regidx × regidx))
-
-#exit -- inserted for benchmarking purposes
-
   | SHA512SUM1 (_ : (regidx × regidx))
   | SM3P0 (_ : (regidx × regidx))
   | SM3P1 (_ : (regidx × regidx))
@@ -845,8 +846,6 @@ inductive ast where
   | ZCMOP (_ : (BitVec 3))
   -- deriving Inhabited, BEq
   deriving Inhabited
-
-#exit -- inserted for benchmarking purposes
 
 inductive PTW_Error where
   | PTW_Invalid_Addr (_ : Unit)
@@ -1032,6 +1031,12 @@ inductive ctl_result where
   | CTL_SRET (_ : Unit)
   | CTL_MRET (_ : Unit)
   deriving Inhabited, BEq
+
+inductive Result (α : Type) (β : Type) where
+  | Ok (_ : α)
+  | Err (_ : β)
+  deriving Repr
+export Result(Ok Err)
 
 abbrev MemoryOpResult k_a := (Result k_a ExceptionType)
 
@@ -1288,7 +1293,7 @@ inductive Register : Type where
   | x1
   | nextPC
   | PC
-  deriving DecidableEq, Hashable
+  deriving DecidableEq, Hashable, Repr
 open Register
 
 abbrev RegisterType : Register → Type
@@ -1445,45 +1450,3 @@ abbrev RegisterType : Register → Type
   | .x1 => (BitVec (2 ^ 3 * 8))
   | .nextPC => (BitVec (2 ^ 3 * 8))
   | .PC => (BitVec (2 ^ 3 * 8))
-
-instance : Inhabited (RegisterRef RegisterType HartState) where
-  default := .Reg hart_state
-instance : Inhabited (RegisterRef RegisterType Privilege) where
-  default := .Reg cur_privilege
-instance : Inhabited (RegisterRef RegisterType (BitVec 1)) where
-  default := .Reg htif_cmd_write
-instance : Inhabited (RegisterRef RegisterType (BitVec 16)) where
-  default := .Reg vstart
-instance : Inhabited (RegisterRef RegisterType (BitVec 3)) where
-  default := .Reg vcsr
-instance : Inhabited (RegisterRef RegisterType (BitVec 32)) where
-  default := .Reg scounteren
-instance : Inhabited (RegisterRef RegisterType (BitVec 4)) where
-  default := .Reg htif_payload_writes
-instance : Inhabited (RegisterRef RegisterType (BitVec (2 ^ 3 * 8))) where
-  default := .Reg PC
-instance : Inhabited (RegisterRef RegisterType (BitVec 65536)) where
-  default := .Reg vr0
-instance : Inhabited (RegisterRef RegisterType Bool) where
-  default := .Reg minstret_increment
-instance : Inhabited (RegisterRef RegisterType (Vector (BitVec 64) 32)) where
-  default := .Reg mhpmevent
-instance : Inhabited (RegisterRef RegisterType (Vector (BitVec (2 ^ 3 * 8)) 64)) where
-  default := .Reg pmpaddr_n
-instance : Inhabited (RegisterRef RegisterType (Vector (BitVec 8) 64)) where
-  default := .Reg pmpcfg_n
-instance : Inhabited (RegisterRef RegisterType (Vector (Option TLB_Entry) 64)) where
-  default := .Reg tlb
-abbrev SailM := PreSailM RegisterType trivialChoiceSource exception
-
-instance : Arch where
-  va_size := 64
-  pa := (BitVec 64)
-  abort := Unit
-  translation := Unit
-  fault := Unit
-  tlb_op := Unit
-  cache_op := Unit
-  barrier := barrier_kind
-  arch_ak := RISCV_strong_access
-  sys_reg_id := Unit

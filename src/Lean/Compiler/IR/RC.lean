@@ -27,11 +27,15 @@ abbrev DerivedValMap := Std.HashMap VarId DerivedValInfo
 
 namespace CollectDerivedValInfo
 
+structure Context where
+  env : Environment
+  decls : Array Decl
+
 structure State where
   varMap : DerivedValMap := {}
   borrowedParams : VarIdSet := {}
 
-abbrev M := StateM State
+abbrev M := ReaderT Context <| StateM State
 
 private def visitParam (p : Param) : M Unit :=
   modify fun s => { s with
@@ -70,12 +74,12 @@ private partial def visitFnBody (b : FnBody) : M Unit := do
     match e with
     | .proj _ parent =>
       addDerivedValue parent x
-    | .fap ``Array.getInternal args =>
-      if let .var parent := args[1]! then
-        addDerivedValue parent x
-    | .fap ``Array.get!Internal args =>
-      if let .var parent := args[2]! then
-        addDerivedValue parent x
+    | .fap declName args =>
+      let ctx ← read
+      let decl := findEnvDecl' ctx.env declName ctx.decls |>.get!
+      if let { baseParamIndex? := some baseParamIndex } := decl.returnBorrowInfo then
+        if let .var parent := args[baseParamIndex]! then
+          addDerivedValue parent x
     | .reset _ x =>
       removeFromParent x
     | _ => pure ()
@@ -87,9 +91,9 @@ private partial def visitFnBody (b : FnBody) : M Unit := do
   | .case _ _ _ alts => alts.forM (visitFnBody ·.body)
   | _ => if !b.isTerminal then visitFnBody b.body
 
-private partial def collectDerivedValInfo (ps : Array Param) (b : FnBody)
-    : DerivedValMap × VarIdSet := Id.run do
-  let ⟨_, { varMap, borrowedParams }⟩ := go |>.run { }
+private partial def collectDerivedValInfo (env : Environment) (decls : Array Decl)
+    (ps : Array Param) (b : FnBody) : DerivedValMap × VarIdSet := Id.run do
+  let ⟨_, { varMap, borrowedParams }⟩ := go |>.run { env, decls } |>.run { }
   return ⟨varMap, borrowedParams⟩
 where go : M Unit := do
   ps.forM visitParam
@@ -355,14 +359,14 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
     | .uproj _ x | .sproj _ _ x | .unbox x =>
       .vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
     | .fap f ys =>
-      let ps := (getDecl ctx f).params
+      let decl := getDecl ctx f
+      let ps := decl.params
       let b  := addDecAfterFullApp ctx ys ps b bLiveVars
-      let v  :=
-        if f == ``Array.getInternal && bLiveVars.borrows.contains z then
-          .fap ``Array.getInternalBorrowed ys
-        else if f == ``Array.get!Internal && bLiveVars.borrows.contains z then
-          .fap ``Array.get!InternalBorrowed ys
-        else v
+      let b := if decl.returnBorrowInfo.baseParamIndex?.isSome &&
+                  (getVarInfo ctx z).isPossibleRef &&
+                  !bLiveVars.borrows.contains z then
+          addInc ctx z b
+        else b
       let b := .vdecl z t v b
       addIncBefore ctx ys ps b bLiveVars
     | .ap x ys =>
@@ -454,7 +458,7 @@ partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVars :=
 partial def visitDecl (env : Environment) (decls : Array Decl) (d : Decl) : Decl :=
   match d with
   | .fdecl (xs := xs) (body := b) .. =>
-    let ⟨derivedValMap, borrowedParams⟩ := CollectDerivedValInfo.collectDerivedValInfo xs b
+    let ⟨derivedValMap, borrowedParams⟩ := CollectDerivedValInfo.collectDerivedValInfo env decls xs b
     let ctx := updateVarInfoWithParams { env, decls, borrowedParams, derivedValMap } xs
     let ⟨b, bLiveVars⟩ := visitFnBody b ctx
     let ⟨b, _⟩ := addDecForDeadParams ctx xs b bLiveVars

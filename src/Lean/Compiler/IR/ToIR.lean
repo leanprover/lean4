@@ -315,7 +315,12 @@ def lowerDecl (d : LCNF.Decl) : M (Option Decl) := do
       addDecl (mkDummyExternDecl d.name params resultType)
       pure <| none
     else
-      pure <| some <| .extern d.name params resultType {} externAttrData
+      let baseParamIndex? := externAttrData.entries.findSome? fun entry =>
+        match entry with
+        | .standard _ "lean_array_fget_borrowed" => some 1
+        | .standard _ "lean_array_get_borrowed" => some 2
+        | _ => none
+      pure <| some <| .extern d.name params resultType { baseParamIndex? } externAttrData
 
 end ToIR
 

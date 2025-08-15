@@ -21,6 +21,10 @@ set_option maxRecDepth 10_000
 set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
+set_option trace.profiler true
+set_option trace.profiler.threshold 100
+set_option pp.oneline true
+
 /-- Type quantifiers: k_a : Type -/
 inductive option (k_a : Type) where
   | Some (_ : k_a)

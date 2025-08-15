@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Omega
 public import Init.Data.Int.DivMod.Lemmas
-public import Std.Classes.Ord.Basic
+public import Init.Data.Order.Ord
 
 @[expose] public section
 

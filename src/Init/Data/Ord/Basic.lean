@@ -204,6 +204,7 @@ instance [DecidablePred p] : Decidable (∃ o : Ordering, p o) :=
 theorem eq_eq_of_isLE_of_isLE_swap : ∀ {o : Ordering}, o.isLE → o.swap.isLE → o = .eq := by decide
 theorem eq_eq_of_isGE_of_isGE_swap : ∀ {o : Ordering}, o.isGE → o.swap.isGE → o = .eq := by decide
 theorem eq_eq_of_isLE_of_isGE : ∀ {o : Ordering}, o.isLE → o.isGE → o = .eq := by decide
+theorem eq_eq_iff_isLE_and_isGE : ∀ {o : Ordering}, o = .eq ↔ o.isLE ∧ o.isGE := by decide
 theorem eq_swap_iff_eq_eq : ∀ {o : Ordering}, o = o.swap ↔ o = .eq := by decide
 theorem eq_eq_of_eq_swap : ∀ {o : Ordering}, o = o.swap → o = .eq := eq_swap_iff_eq_eq.mp
 

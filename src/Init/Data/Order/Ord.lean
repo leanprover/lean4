@@ -6,7 +6,7 @@ Authors: Markus Himmel, Paul Reichert, Robin Arnez
 module
 
 prelude
-public import Init.Data.Ord
+public import Init.Data.Ord.Basic
 
 public section
 

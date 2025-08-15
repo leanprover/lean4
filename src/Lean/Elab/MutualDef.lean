@@ -1249,7 +1249,7 @@ where
   finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
     let env ← getEnv
     if warn.exposeOnPrivate.get (← getOptions) then
-      if !env.isExporting then
+      if env.header.isModule && !env.isExporting then
         for header in headers do
           for attr in header.modifiers.attrs do
             if attr.name == `expose then

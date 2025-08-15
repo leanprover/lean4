@@ -258,6 +258,9 @@ public class PreorderPackage (α : Type u) extends
   decidableLE : DecidableLE α
   decidableLT : DecidableLT α
 
+public instance [PreorderPackage α] : DecidableLE α := PreorderPackage.decidableLE
+public instance [PreorderPackage α] : DecidableLT α := PreorderPackage.decidableLT
+
 namespace FactoryInstances
 
 public scoped instance instBEqOfDecidableLE {α : Type u} [LE α] [DecidableLE α] :
@@ -268,6 +271,7 @@ public instance instLawfulOrderBEqOfDecidableLE {α : Type u} [LE α] [Decidable
     LawfulOrderBEq α where
   beq_iff_le_and_ge := by simp [BEq.beq]
 
+/-- If `LT` can be characterized in terms of a decidable `LE`, then `LT` is decidable either. -/
 @[expose]
 public def instDecidableLTOfLE {α : Type u} [LE α] {_ : LT α} [DecidableLE α] [LawfulOrderLT α] :
     DecidableLT α :=

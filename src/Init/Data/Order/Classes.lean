@@ -138,6 +138,9 @@ the other.
 -/
 public class LawfulOrderMin (α : Type u) [Min α] [LE α] extends MinEqOr α, LawfulOrderInf α
 
+/--
+This typeclass states that `min a b = if a ≤ b then a else b` (for any `DecidableLE α` instance).
+-/
 public class LawfulOrderLeftLeaningMin (α : Type u) [Min α] [LE α] where
   min_eq_left : ∀ a b : α, a ≤ b → min a b = a
   min_eq_right : ∀ a b : α, ¬ a ≤ b → min a b = b
@@ -179,6 +182,9 @@ the other.
 -/
 public class LawfulOrderMax (α : Type u) [Max α] [LE α] extends MaxEqOr α, LawfulOrderSup α
 
+/--
+This typeclass states that `max a b = if b ≤ a then a else b` (for any `DecidableLE α` instance).
+-/
 public class LawfulOrderLeftLeaningMax (α : Type u) [Max α] [LE α] where
   max_eq_left : ∀ a b : α, b ≤ a → max a b = a
   max_eq_right : ∀ a b : α, ¬ b ≤ a → max a b = b

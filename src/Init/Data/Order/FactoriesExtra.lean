@@ -195,18 +195,6 @@ public instance instLawfulOrderLeftLeaningMaxOfDecidableLE {α : Type u} [LE α]
   max_eq_left a b := by simp +contextual [max]
   max_eq_right a b := by simp +contextual [max]
 
-public theorem min_eq {α : Type u} [LE α] [DecidableLE α] {_ : Min α} [LawfulOrderLeftLeaningMin α]
-    {a b : α} : min a b = if a ≤ b then a else b := by
-  split <;> rename_i h
-  · simp [LawfulOrderLeftLeaningMin.min_eq_left _ _ h]
-  · simp [LawfulOrderLeftLeaningMin.min_eq_right _ _ h]
-
-public theorem max_eq {α : Type u} [LE α] [DecidableLE α] {_ : Max α} [LawfulOrderLeftLeaningMax α]
-    {a b : α} : max a b = if b ≤ a then a else b := by
-  split <;> rename_i h
-  · simp [LawfulOrderLeftLeaningMax.max_eq_left _ _ h]
-  · simp [LawfulOrderLeftLeaningMax.max_eq_right _ _ h]
-
 end FactoryInstances
 
 /--
@@ -239,7 +227,7 @@ public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
     letI := i
     cases hi
     first
-      | exact FactoryInstances.min_eq (a := a) (b := b)
+      | exact Std.min_eq_if_le (a := a) (b := b)
       | fail "Failed to automatically prove that `min` is left-leaning. Provide `min_eq` manually."
   max_eq [i : LE α] [DecidableLE α] (hi : i = le := by rfl) :
       letI := max hi
@@ -248,7 +236,7 @@ public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
     letI := i
     cases hi
     first
-      | exact FactoryInstances.max_eq (a := a) (b := b)
+      | exact Std.max_eq_if_ge (a := a) (b := b)
       | fail "Failed to automatically prove that `max` is left-leaning. Provide `max_eq` manually."
 
 public theorem IsLinearPreorder.lawfulOrderMin_of_min_eq {α : Type u} [LE α]

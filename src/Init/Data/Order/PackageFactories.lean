@@ -630,45 +630,62 @@ public structure Packages.LinearPreorderOfOrdArgs (α : Type u) where
       LawfulOrderOrd α := by
     extract_lets
     first
-      | infer_instance
-      | exact FactoryInstances.instLawfulOrderOrdOfOrd
+    | infer_instance
+    | exact FactoryInstances.instLawfulOrderOrdOfOrd
+    | fail "Failed to automatically derive a `LawfulOrderOrd` instance. \
+            Please ensure that the instance can be synthesized or \
+            manually provide the field `lawful_le`."
   decidableLE :
       let := ord; let := le; have := lawful_le
       DecidableLE α := by
     extract_lets
     first
-      | infer_instance
-      | exact FactoryInstances.instDecidableLEOfOrd
+    | infer_instance
+    | exact FactoryInstances.instDecidableLEOfOrd
+    | fail "Failed to automatically derive that `LE` is decidable.\
+            Please ensure that a `DecidableLE` instance can be synthesized or \
+            manually provide the field `decidableLE`."
   lt :
       let := ord
       LT α := by
     extract_lets
     first
-      | infer_instance
-      | exact FactoryInstances.instLTOfOrd
+    | infer_instance
+    | exact FactoryInstances.instLTOfOrd
   lawful_lt :
       let := ord; let := le; have := lawful_le; let := lt
       ∀ a b : α, a < b ↔ compare a b = .lt := by
     extract_lets
-    exact fun _ _ => Std.compare_eq_lt.symm -- TODO: more tries
+    first
+    | exact fun _ _ => Std.compare_eq_lt.symm
+    | fail "Failed to automatically derive that `LT` and `Ord` are compatible. \
+            Please ensure that a `LawfulOrderLT` instance can be synthesized or \
+            manually provide the field `lawful_lt`."
   decidableLT :
       let := ord; let := lt; let := le; have := lawful_le; have := lawful_lt
       DecidableLT α := by
     extract_lets
     first
-      | infer_instance
-      | exact FactoryInstances.instDecidableLTOfOrd
+    | infer_instance
+    | exact FactoryInstances.instDecidableLTOfOrd
+    | fail "Failed to automatically derive that `LT` is decidable. \
+            Please ensure that a `DecidableLT` instance can be synthesized or \
+            manually provide the field `decidableLT`."
   beq :
       let := ord; BEq α := by
     extract_lets
     first
-      | infer_instance
-      | exact FactoryInstances.instBEqOfOrd
+    | infer_instance
+    | exact FactoryInstances.instBEqOfOrd
   lawful_beq :
       let := ord; let := le; have := lawful_le; let := beq
       ∀ a b : α, a == b ↔ compare a b = .eq := by
     extract_lets
-    exact fun _ _ => Std.compare_eq_eq.symm -- TODO: more tries
+    first
+    | exact fun _ _ => Std.compare_eq_eq.symm
+    | fail "Failed to automatically derive that `BEq` and `Ord` are compatible. \
+            Please ensure that a `LawfulOrderBEq` instance can be synthesized or \
+            manually provide the field `lawful_beq`."
 
 @[expose]
 public def LinearPreorderPackage.ofOrd (α : Type u)
@@ -731,6 +748,9 @@ public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
     extract_lets
     first
     | exact LawfulEqOrd.eq_of_compare
+    | fail "Failed to derive a `LawfulEqOrd` instance. \
+            Please make sure that it can be synthesized or \
+            manually provide the field `eq_of_compare`."
   min :
       let := ord
       Min α := by
@@ -751,14 +771,18 @@ public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
     extract_lets
     first
       | exact fun a b => Std.min_eq_if_compare_isLE (a := a) (b := b)
-      | fail "Failed to automatically prove that `min` is left-leaning. Provide `min_eq` manually."
+      | fail "Failed to automatically prove that `min` is left-leaning. \
+              Please ensure that a `LawfulOrderLeftLeaningMin` instance can be synthesized or \
+              manuelly provide the field `min_eq`."
   max_eq :
       let := ord; let := le; let := max; have := lawful_le
       ∀ a b : α, Max.max a b = if (compare a b).isGE then a else b := by
     extract_lets
     first
       | exact fun a b => Std.max_eq_if_compare_isGE (a := a) (b := b)
-      | fail "Failed to automatically prove that `max` is left-leaning. Provide `max_eq` manually."
+      | fail "Failed to automatically prove that `max` is left-leaning. \
+              Please ensure that a `LawfulOrderLeftLeaningMax` instance can be synthesized or \
+              manually provide the field `max_eq`."
 
 @[expose]
 public def LinearOrderPackage.ofOrd (α : Type u)

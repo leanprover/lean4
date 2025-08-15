@@ -1315,28 +1315,23 @@ def delabPRange : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPEx
     return ⟨← reflectBoundShape lower, ← reflectBoundShape upper⟩
   let some shape := reflectRangeShape ((← getExpr).getArg! 0) | failure
   -- Lower bound
-  let (aStar, a) ← withAppFn <| withAppArg do
-    let isUnit := (← getExpr).isConstOf ``PUnit.unit
-    return (isUnit, ← delab)
+  let a ← withAppFn <| withAppArg delab
   -- Upper bound
-  let (bStar, b) ← withAppArg do
-    let isUnit := (← getExpr).isConstOf ``PUnit.unit
-    return (isUnit, ← delab)
-  match (shape, aStar, bStar) with
-  | (⟨.closed, .closed⟩,       _,    _)    => `($a...=$b)
-  | (⟨.unbounded, .closed⟩,    true, _)    => `(*...=$b)
-  | (⟨.closed, .unbounded⟩,    _,    true) => `($a...*)
-  | (⟨.unbounded, .unbounded⟩, true, true) => `(*...*)
-  | (⟨.open, .closed⟩,         _,    _)    => `($a<...=$b)
-  | (⟨.open, .unbounded⟩,      _,    true) => `($a<...*)
-  | (⟨.closed, .open⟩,         _,    _)    => `($a...$b)
-  | (⟨.unbounded, .open⟩,      true, _)    => `(*...$b)
-  | (⟨.open, .open⟩,           _,    _)    => `($a<...$b)
+  let b ← withAppArg delab
+  match shape with
+  | ⟨.closed, .closed⟩       => `($a...=$b)
+  | ⟨.unbounded, .closed⟩    => `(*...=$b)
+  | ⟨.closed, .unbounded⟩    => `($a...*)
+  | ⟨.unbounded, .unbounded⟩ => `(*...*)
+  | ⟨.open, .closed⟩         => `($a<...=$b)
+  | ⟨.open, .unbounded⟩      => `($a<...*)
+  | ⟨.closed, .open⟩         => `($a...$b)
+  | ⟨.unbounded, .open⟩      => `(*...$b)
+  | ⟨.open, .open⟩           => `($a<...$b)
   -- The remaining cases are aliases for explicit `<` upper bound notation:
-  -- | (⟨.closed, .open⟩, _, _) => `($a...<$b)
-  -- | (⟨.unbounded, .open⟩, true, _) => `(*...<$b)
-  -- | (⟨.open, .open⟩, _, _) => `($a<...<$b)
-  | _ => failure
+  -- | ⟨.closed, .open⟩    => `($a...<$b)
+  -- | ⟨.unbounded, .open⟩ => `(*...<$b)
+  -- | ⟨.open, .open⟩      => `($a<...<$b)
 
 partial def delabDoElems : DelabM (List Syntax) := do
   let e ← getExpr

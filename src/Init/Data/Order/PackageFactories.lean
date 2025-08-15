@@ -623,8 +623,8 @@ public structure Packages.LinearPreorderOfOrdArgs (α : Type u) where
       LE α := by
     extract_lets
     first
-      | infer_instance
-      | exact FactoryInstances.instLEOfOrd
+    | infer_instance
+    | exact FactoryInstances.instLEOfOrd
   lawful_le :
       let := ord; let := transOrd; let := le
       LawfulOrderOrd α := by
@@ -770,19 +770,19 @@ public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
       ∀ a b : α, Min.min a b = if (compare a b).isLE then a else b := by
     extract_lets
     first
-      | exact fun a b => Std.min_eq_if_compare_isLE (a := a) (b := b)
-      | fail "Failed to automatically prove that `min` is left-leaning. \
-              Please ensure that a `LawfulOrderLeftLeaningMin` instance can be synthesized or \
-              manuelly provide the field `min_eq`."
+    | exact fun a b => Std.min_eq_if_compare_isLE (a := a) (b := b)
+    | fail "Failed to automatically prove that `min` is left-leaning. \
+            Please ensure that a `LawfulOrderLeftLeaningMin` instance can be synthesized or \
+            manuelly provide the field `min_eq`."
   max_eq :
       let := ord; let := le; let := max; have := lawful_le
       ∀ a b : α, Max.max a b = if (compare a b).isGE then a else b := by
     extract_lets
     first
-      | exact fun a b => Std.max_eq_if_compare_isGE (a := a) (b := b)
-      | fail "Failed to automatically prove that `max` is left-leaning. \
-              Please ensure that a `LawfulOrderLeftLeaningMax` instance can be synthesized or \
-              manually provide the field `max_eq`."
+    | exact fun a b => Std.max_eq_if_compare_isGE (a := a) (b := b)
+    | fail "Failed to automatically prove that `max` is left-leaning. \
+            Please ensure that a `LawfulOrderLeftLeaningMax` instance can be synthesized or \
+            manually provide the field `max_eq`."
 
 @[expose]
 public def LinearOrderPackage.ofOrd (α : Type u)

@@ -135,14 +135,15 @@ def mkInjectiveTheoremNameFor (ctorName : Name) : Name :=
 private def mkInjectiveTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
   let some type ← mkInjectiveTheoremType? ctorVal
     | return ()
-  let value ← mkInjectiveTheoremValue ctorVal.name type
   let name := mkInjectiveTheoremNameFor ctorVal.name
-  addDecl <| Declaration.thmDecl {
-    name
-    levelParams := ctorVal.levelParams
-    type        := (← instantiateMVars type)
-    value       := (← instantiateMVars value)
-  }
+  realizeConst ctorVal.name name do
+    let value ← mkInjectiveTheoremValue ctorVal.name type
+    addDecl <| Declaration.thmDecl {
+      name
+      levelParams := ctorVal.levelParams
+      type        := (← instantiateMVars type)
+      value       := (← instantiateMVars value)
+    }
 
 def mkInjectiveEqTheoremNameFor (ctorName : Name) : Name :=
   ctorName ++ `injEq
@@ -166,40 +167,36 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
   let some type ← mkInjectiveEqTheoremType? ctorVal
     | return ()
-  let value ← mkInjectiveEqTheoremValue ctorVal.name type
   let name := mkInjectiveEqTheoremNameFor ctorVal.name
-  addDecl <| Declaration.thmDecl {
-    name
-    levelParams := ctorVal.levelParams
-    type        := (← instantiateMVars type)
-    value       := (← instantiateMVars value)
-  }
-  addSimpTheorem (ext := simpExtension) name (post := true) (inv := false) AttributeKind.global (prio := eval_prio default)
+  realizeConst ctorVal.name name do
+    let value ← mkInjectiveEqTheoremValue ctorVal.name type
+    addDecl <| Declaration.thmDecl {
+      name
+      levelParams := ctorVal.levelParams
+      type        := (← instantiateMVars type)
+      value       := (← instantiateMVars value)
+    }
+    -- addSimpTheorem (ext := simpExtension) name (post := true) (inv := false) AttributeKind.global (prio := eval_prio default)
 
-register_builtin_option genInjectivity : Bool := {
-  defValue := true
-  descr    := "generate injectivity theorems for inductive datatype constructors"
-}
-
-def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
-  if (← getEnv).contains ``Eq.propIntro && genInjectivity.get (← getOptions) &&  !(← isInductivePredicate declName) then
-    withTraceNode `Meta.injective (fun _ => return m!"{declName}") do
-    let info ← getConstInfoInduct declName
-    unless info.isUnsafe do
-      -- We need to reset the local context here because `solveEqOfCtorEq` uses
-      -- `assumptionCore`, which can reference "outside" free variables that
-      -- were not introduced by `mkInjective(Eq)Theorem` and are not abstracted
-      -- by `mkLambdaFVars`, thus adding a declaration with free variables.
-      -- See https://github.com/leanprover/lean4/issues/2188
-      withLCtx {} {} do
-      for ctor in info.ctors do
-        withExporting (isExporting := !isPrivateName ctor) do
-          let ctorVal ← getConstInfoCtor ctor
-          if ctorVal.numFields > 0 then
-            mkInjectiveTheorem ctorVal
-            mkInjectiveEqTheorem ctorVal
+def isInjectiveName? (env : Environment) (name : Name) : Option (ConstructorVal × String) := do
+  let mut .str ctorName s := name | failure
+  match s with
+  | "inj"
+  | "injEq" =>
+    let some (.ctorInfo info) := env.find? ctorName | failure
+    guard !info.isUnsafe
+    return (info, s)
+  | _ => failure
 
 builtin_initialize
   registerTraceClass `Meta.injective
+  registerReservedNamePredicate (isInjectiveName? · · |>.isSome)
+  registerReservedNameAction fun name => do
+    let some (ctorVal, s) := isInjectiveName? (← getEnv) name | return false
+    if s == "inj" then
+      mkInjectiveTheorem ctorVal |>.run
+    else
+      mkInjectiveEqTheorem ctorVal |>.run
+    return true
 
 end Lean.Meta

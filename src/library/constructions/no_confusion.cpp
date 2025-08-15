@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "library/suffixes.h"
 #include "library/reducible.h"
 #include "library/constants.h"
-#include "library/aux_recursors.h"
 #include "library/constructions/util.h"
 
 namespace lean {

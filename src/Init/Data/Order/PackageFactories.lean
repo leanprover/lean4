@@ -687,6 +687,49 @@ public structure Packages.LinearPreorderOfOrdArgs (α : Type u) where
             Please ensure that a `LawfulOrderBEq` instance can be synthesized or \
             manually provide the field `lawful_beq`."
 
+/--
+Use this factory to conveniently define a linear preorder on a type `α` and all the associated
+operations and instances given an `Ord α` instance.
+
+Creates a `LinearPreorderPackage α` instance. Such an instance entails `LE α`, `LT α`, `BEq α` and
+`Ord α` instances as well as an `IsLinearPreorder α` instance and `LawfulOrder*` instances proving
+the compatibility of the operations with the linear preorder.
+
+In the presence of `Ord α` and `TransOrd α` instances, no arguments are required and the factory can
+be used as in this example:
+
+```lean
+public instance : LinearPreorderPackage X := .ofOrd X
+```
+
+If not all of these instances are available via typeclass synthesis, it is necessary to explicitly
+provide some arguments:
+
+```lean
+public instance : LinearPreorderPackage X := .ofOrd X {
+  ord := sorry
+  transOrd := sorry }
+```
+
+It is also possible to do all of this by hand, without resorting to `LinearPreorderPackage`. This
+can be useful if, say, one wants to avoid specifying an `LT α` instance, which is not possible with
+`LinearPreorderPackage`.
+
+**How the arguments are filled**
+
+Lean tries to fill all of the fields of the `args : Packages.LinearPreorderOfOrdArgs α` parameter
+automatically. If it fails, it is necessary to provide some of the fields manually.
+
+* For the data-carrying typeclasses `LE`, `LT`, `BEq` and `Ord`, existing instances are always
+  preferred. If no existing instances can be synthesized, it is attempted to derive an instance from
+  the `Ord` instance.
+* Some proof obligations can be filled automatically if the data-carrying typeclasses have been
+  derived from the `Ord` instance. For example: If the `beq` field is omitted and no `BEq α` instance
+  can be synthesized, it is derived from the `Ord α` instance. In this case, `lawful_beq` can be
+  omitted because Lean can infer that `BEq α` and `Ord α` are compatible.
+* Other proof obligations, for example `transOrd`, can be omitted if a matching instance can be
+  synthesized.
+-/
 @[expose]
 public def LinearPreorderPackage.ofOrd (α : Type u)
     (args : Packages.LinearPreorderOfOrdArgs α := by exact {}) : LinearPreorderPackage α :=
@@ -740,6 +783,11 @@ public instance instLawfulOrderLeftLeaningMaxOfOrd {α : Type u} [Ord α] [LE α
 
 end FactoryInstances
 
+/--
+This structure contains all the data needed to create a `LinearOrderPackage α` instance.
+Its fields are automatically provided if possible. For the detailed rules how the fields are
+inferred, see `LinearOrderPackage.ofOrd`.
+-/
 public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
     LinearPreorderOfOrdArgs α where
   eq_of_compare :
@@ -784,6 +832,50 @@ public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
             Please ensure that a `LawfulOrderLeftLeaningMax` instance can be synthesized or \
             manually provide the field `max_eq`."
 
+/--
+Use this factory to conveniently define a linear order on a type `α` and all the associated
+operations and instances given an `Ord α` instance.
+
+Creates a `LinearOrderPackage α` instance. Such an instance entails `LE α`, `LT α`, `BEq α`,
+`Ord α`, `Min α` and `Max α` instances as well as an `IsLinearOrder α` instance and `LawfulOrder*`
+instances proving the compatibility of the operations with the linear order.
+
+In the presence of `Ord α`, `TransOrd α` and `LawfulEqOrd α` instances, no arguments are required
+and the factory can be used as in this
+example:
+
+```lean
+public instance : LinearOrderPackage X := .ofLE X
+```
+
+If not all of these instances are available via typeclass synthesis, it is necessary to explicitly
+provide some arguments:
+
+```lean
+public instance : LinearOrderPackage X := .ofLE X {
+  transOrd := sorry
+  eq_of_compare := sorry }
+```
+
+It is also possible to do all of this by hand, without resorting to `LinearOrderPackage`. This
+can be useful if, say, one wants to avoid specifying an `LT α` instance, which is not possible with
+`LinearOrderPackage`.
+
+**How the arguments are filled**
+
+Lean tries to fill all of the fields of the `args : Packages.LinearOrderOfLEArgs α` parameter
+automatically. If it fails, it is necessary to provide some of the fields manually.
+
+* For the data-carrying typeclasses `LE`, `LT`, `BEq`, `Ord`, `Min` and `Max`, existing instances
+  are always preferred. If no existing instances can be synthesized, it is attempted to derive an
+  instance from the `Ord` instance.
+* Some proof obligations can be filled automatically if the data-carrying typeclasses have been
+  derived from the `Ord` instance. For example: If the `beq` field is omitted and no `BEq α` instance
+  can be synthesized, it is derived from the `LE α` instance. In this case, `lawful_beq` can be
+  omitted because Lean can infer that `BEq α` and `Ord α` are compatible.
+* Other proof obligations, such as `transOrd`, can be omitted if matching instances can be
+  synthesized.
+-/
 @[expose]
 public def LinearOrderPackage.ofOrd (α : Type u)
     (args : Packages.LinearOrderOfOrdArgs α := by exact {}) : LinearOrderPackage α :=

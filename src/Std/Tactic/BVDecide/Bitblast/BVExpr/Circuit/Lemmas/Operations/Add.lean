@@ -24,7 +24,7 @@ open Std.Sat.AIG
 namespace BVExpr
 namespace bitblast
 
-variable [Hashable α] [DecidableEq α]
+variable [Hashable α] [BEq α] [LawfulBEq α]
 
 namespace blastAdd
 

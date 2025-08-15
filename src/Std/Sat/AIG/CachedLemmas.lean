@@ -21,7 +21,7 @@ namespace Sat
 
 namespace AIG
 
-variable {α : Type} [Hashable α] [DecidableEq α]
+variable {α : Type} [Hashable α] [BEq α] [LawfulBEq α]
 
 /--
 If we find a cached atom declaration in the AIG, denoting it is equivalent to denoting `AIG.mkAtom`.

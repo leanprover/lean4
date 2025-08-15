@@ -810,9 +810,12 @@ instance : LawfulBEq Bool where
   eq_of_beq {a b} h := by cases a <;> cases b <;> first | rfl | contradiction
   rfl {a} := by cases a <;> decide
 
-instance [DecidableEq α] : LawfulBEq α where
-  eq_of_beq := of_decide_eq_true
-  rfl := of_decide_eq_self_eq_true _
+instance [DecidableEq α] :
+    haveI : BEq α := instBEqOfDecidableEq
+    LawfulBEq α :=
+  letI : BEq α := instBEqOfDecidableEq
+  { eq_of_beq := of_decide_eq_true
+    rfl := of_decide_eq_self_eq_true _ }
 
 /--
 Non-instance for `DecidableEq` from `LawfulBEq`.
@@ -881,6 +884,36 @@ and asserts that `a` and `b` are not equal.
 macro_rules | `($x ≠ $y) => `(binrel% Ne $x $y)
 
 recommended_spelling "ne" for "≠" in [Ne, «term_≠_»]
+
+section ListLawfulBEq
+
+private theorem List.beq_self [BEq α] [ReflBEq α] {xs : List α} : xs == xs := by
+  match xs with
+  | .nil => simpa [BEq.beq, List.hasBEq] using rfl
+  | .cons x xs => simpa [BEq.beq, List.hasBEq] using beq_self (xs := xs)
+
+instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
+  rfl := by exact List.beq_self
+  eq_of_beq {xs ys} := by
+    induction xs generalizing ys with
+    | nil =>
+      match ys with
+      | .nil => intro; rfl
+      | .cons .. => intro h; cases h
+    | cons x xs ih =>
+      match ys with
+      | .nil => intro h; cases h
+      | .cons .. =>
+        intro h
+        simp [BEq.beq, List.hasBEq] at h
+        split at h
+        next heq =>
+          cases LawfulBEq.eq_of_beq heq
+          cases ih h
+          rfl
+        next => cases h
+
+end ListLawfulBEq
 
 section Ne
 variable {α : Sort u}

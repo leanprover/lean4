@@ -22,7 +22,7 @@ open Std.Sat
 
 namespace BVPred
 
-variable [Hashable α] [DecidableEq α]
+variable [Hashable α] [BEq α] [LawfulBEq α]
 
 def mkEq (aig : AIG α) (pair : AIG.BinaryRefVec aig w) : AIG.Entrypoint α :=
   let res := AIG.RefVec.zip aig pair AIG.mkBEqCached

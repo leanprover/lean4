@@ -22,7 +22,7 @@ open Std.Sat
 
 namespace BVPred
 
-variable [Hashable α] [DecidableEq α]
+variable [Hashable α] [BEq α] [LawfulBEq α]
 
 def mkUlt (aig : AIG α) (pair : AIG.BinaryRefVec aig w) : AIG.Entrypoint α :=
   let ⟨lhsRefs, rhsRefs⟩ := pair

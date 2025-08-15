@@ -17,9 +17,9 @@ namespace Sat
 namespace AIG
 namespace RefVec
 
-variable {α : Type} [Hashable α] [DecidableEq α] {aig : AIG α}
+variable {α : Type} [Hashable α] [BEq α] [LawfulBEq α] {aig : AIG α}
 
-class LawfulZipOperator (α : Type) [Hashable α] [DecidableEq α]
+class LawfulZipOperator (α : Type) [Hashable α] [BEq α] [LawfulBEq α]
     (f : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput f] : Prop
   where
   chainable : ∀ (aig : AIG α) (input1 input2 : BinaryInput aig) (h) (assign),

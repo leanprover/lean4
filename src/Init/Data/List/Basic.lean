@@ -1119,7 +1119,7 @@ protected def Subset (l₁ l₂ : List α) := ∀ ⦃a : α⦄, a ∈ l₁ → a
 
 instance : HasSubset (List α) := ⟨List.Subset⟩
 
-instance [DecidableEq α] : DecidableRel (Subset : List α → List α → Prop) :=
+instance [BEq α] [LawfulBEq α] : DecidableRel (Subset : List α → List α → Prop) :=
   fun _ _ => decidableBAll _ _
 
 /-! ### Sublist and isSublist -/

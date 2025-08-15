@@ -117,6 +117,8 @@ inductive ToolchainVer
 | other (name : String)
 deriving Repr, DecidableEq
 
+instance : BEq ToolchainVer := instBEqOfDecidableEq
+
 instance : Coe LeanVer ToolchainVer := ⟨ToolchainVer.release⟩
 
 def ToolchainVer.defaultOrigin := "leanprover/lean4"

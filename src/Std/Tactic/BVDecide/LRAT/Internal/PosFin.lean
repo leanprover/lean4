@@ -20,6 +20,9 @@ def PosFin (n : Nat) := {x : Nat // 0 < x ∧ x < n}
 instance : DecidableEq (PosFin n) :=
   inferInstanceAs (DecidableEq {x : Nat // 0 < x ∧ x < n})
 
+instance : BEq (PosFin n) :=
+  instBEqOfDecidableEq
+
 instance : CoeOut (PosFin n) Nat where
   coe p := p.val
 

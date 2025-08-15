@@ -22,7 +22,7 @@ namespace Sat
 
 namespace AIG
 
-variable {α : Type} [Hashable α] [DecidableEq α]
+variable {α : Type} [Hashable α] [BEq α] [LawfulBEq α]
 
 /--
 A version of `AIG.mkAtom` that uses the subterm cache in `AIG`. This version is meant for

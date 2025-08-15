@@ -125,7 +125,7 @@ theorem or_exists_add_one : p 0 ∨ (Exists fun n => p (n + 1)) ↔ Exists p :=
 
 instance : LawfulBEq Nat where
   eq_of_beq h := by simpa using h
-  rfl := by simp [BEq.beq]
+  rfl := by simp only [BEq.rfl, implies_true]
 
 theorem beq_eq_true_eq (a b : Nat) : ((a == b) = true) = (a = b) := by simp
 theorem not_beq_eq_true_eq (a b : Nat) : ((!(a == b)) = true) = ¬(a = b) := by simp

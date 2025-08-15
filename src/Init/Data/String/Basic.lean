@@ -717,6 +717,8 @@ structure Iterator where
   i : Pos
   deriving DecidableEq, Inhabited
 
+instance : BEq Iterator := instBEqOfDecidableEq
+
 /-- Creates an iterator at the beginning of the string. -/
 @[inline] def mkIterator (s : String) : Iterator :=
   ⟨s, 0⟩

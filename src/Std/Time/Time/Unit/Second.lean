@@ -63,6 +63,8 @@ instance : LawfulEqOrd (Ordinal leap) := inferInstanceAs <| LawfulEqOrd (Bounded
 @[expose] def Offset : Type := UnitVal 1
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
+instance : BEq Offset := instBEqOfDecidableEq
+
 instance {x y : Offset} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
 

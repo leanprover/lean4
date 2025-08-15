@@ -192,10 +192,10 @@ protected theorem le_iff_lt_or_eq [LT α]
   cases ys
   simp
 
-instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLT (Vector α n) :=
+instance [BEq α] [LawfulBEq α] [LT α] [DecidableLT α] : DecidableLT (Vector α n) :=
   fun xs ys => decidable_of_iff (lex xs ys = true) lex_eq_true_iff_lt
 
-instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLE (Vector α n) :=
+instance [BEq α] [LawfulBEq α] [LT α] [DecidableLT α] : DecidableLE (Vector α n) :=
   fun xs ys => decidable_of_iff (lex ys xs = false) lex_eq_false_iff_ge
 
 /--

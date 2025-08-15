@@ -22,7 +22,7 @@ open Std.Sat
 namespace BVExpr
 namespace bitblast
 
-variable [Hashable α] [DecidableEq α]
+variable [Hashable α] [BEq α] [LawfulBEq α]
 
 structure AppendTarget (aig : AIG α) (combined : Nat) where
   {lw : Nat}

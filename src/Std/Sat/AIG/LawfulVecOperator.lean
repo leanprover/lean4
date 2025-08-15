@@ -16,9 +16,9 @@ namespace Sat
 
 namespace AIG
 
-variable {α : Type} [Hashable α] [DecidableEq α]
+variable {α : Type} [Hashable α] [BEq α] [LawfulBEq α]
 
-class LawfulVecOperator (α : Type) [Hashable α] [DecidableEq α]
+class LawfulVecOperator (α : Type) [Hashable α] [BEq α] [LawfulBEq α]
     (β : AIG α → Nat → Type) (f : {len : Nat} → (aig : AIG α) → β aig len → RefVecEntry α len) where
   le_size : ∀ (aig : AIG α) (input : β aig len), aig.decls.size ≤ (f aig input).aig.decls.size
   decl_eq : ∀ (aig : AIG α) (input : β aig len) (idx : Nat) (h1 : idx < aig.decls.size) (h2),

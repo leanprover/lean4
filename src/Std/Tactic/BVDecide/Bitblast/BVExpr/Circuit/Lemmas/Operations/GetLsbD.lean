@@ -22,7 +22,7 @@ open Std.Sat.AIG
 
 namespace BVPred
 
-variable [Hashable α] [DecidableEq α]
+variable [Hashable α] [BEq α] [LawfulBEq α]
 
 theorem denote_getD_eq_getLsbD (aig : AIG α) (assign : α → Bool) (x : BitVec w)
     (xv : AIG.RefVec aig w) (falseRef : AIG.Ref aig)

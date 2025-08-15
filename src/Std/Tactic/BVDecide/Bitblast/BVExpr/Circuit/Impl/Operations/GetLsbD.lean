@@ -21,7 +21,7 @@ open Std.Sat
 
 namespace BVPred
 
-variable [Hashable α] [DecidableEq α]
+variable [Hashable α] [BEq α] [LawfulBEq α]
 
 structure GetLsbDTarget (aig : AIG α) where
   {w : Nat}

@@ -260,6 +260,8 @@ protected def decEq (a b : @& Int) : Decidable (a = b) :=
 @[inherit_doc Int.decEq]
 instance : DecidableEq Int := Int.decEq
 
+instance : BEq Int := instBEqOfDecidableEq
+
 set_option bootstrap.genMatcherCode false in
 /-- Decides whether an integer is negative.
 
@@ -397,8 +399,8 @@ instance : NatPow Int where
   pow := Int.pow
 
 instance : LawfulBEq Int where
-  eq_of_beq h := by simp [BEq.beq] at h; assumption
-  rfl := by simp [BEq.beq]
+  eq_of_beq h := by simp at h; assumption
+  rfl := by simp
 
 instance : Min Int := minOfLe
 

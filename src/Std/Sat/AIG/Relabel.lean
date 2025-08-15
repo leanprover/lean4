@@ -58,8 +58,8 @@ theorem relabel_gate {decls : Array (Decl α)} {r : α → β} {hidx : idx < dec
 
 end Decl
 
-variable {α : Type} [Hashable α] [DecidableEq α]
-variable {β : Type} [Hashable β] [DecidableEq β]
+variable {α : Type} [Hashable α] [BEq α] [LawfulBEq α]
+variable {β : Type} [Hashable β] [BEq β] [LawfulBEq β]
 
 def relabel (r : α → β) (aig : AIG α) : AIG β :=
   let decls := aig.decls.map (Decl.relabel r)

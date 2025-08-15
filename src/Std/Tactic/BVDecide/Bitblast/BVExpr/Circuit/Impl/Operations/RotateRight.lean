@@ -24,7 +24,7 @@ open Std.Sat
 namespace BVExpr
 namespace bitblast
 
-variable [Hashable α] [DecidableEq α]
+variable [Hashable α] [BEq α] [LawfulBEq α]
 
 def blastRotateRight (aig : AIG α) (target : AIG.ShiftTarget aig w) :
     AIG.RefVecEntry α w :=

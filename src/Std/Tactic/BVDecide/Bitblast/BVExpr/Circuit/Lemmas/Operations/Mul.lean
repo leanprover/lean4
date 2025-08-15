@@ -24,7 +24,7 @@ namespace Std.Tactic.BVDecide
 open Std.Sat
 open Std.Sat.AIG
 
-variable [Hashable α] [DecidableEq α]
+variable [Hashable α] [BEq α] [LawfulBEq α]
 
 namespace BVExpr
 

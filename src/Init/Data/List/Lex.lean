@@ -476,6 +476,7 @@ protected theorem lt_iff_exists [LT α] {l₁ l₂ : List α} :
           (∀ j, (hj : j < i) →
             l₁[j]'(Nat.lt_trans hj h₁) = l₂[j]'(Nat.lt_trans hj h₂)) ∧ l₁[i] < l₂[i]) := by
   open Classical in
+  letI : BEq α := instBEqOfDecidableEq
   rw [← lex_eq_true_iff_lt, lex_eq_true_iff_exists]
   simp
 
@@ -488,6 +489,7 @@ protected theorem le_iff_exists [LT α]
           (∀ j, (hj : j < i) →
             l₁[j]'(Nat.lt_trans hj h₁) = l₂[j]'(Nat.lt_trans hj h₂)) ∧ l₁[i] < l₂[i]) := by
   open Classical in
+  letI : BEq α := instBEqOfDecidableEq
   rw [← lex_eq_false_iff_ge, lex_eq_false_iff_exists]
   · simp only [isEqv_eq, beq_iff_eq, decide_eq_true_eq]
     simp only [eq_comm]

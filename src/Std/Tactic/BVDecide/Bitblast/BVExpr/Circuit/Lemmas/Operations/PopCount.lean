@@ -319,6 +319,18 @@ theorem blastAddVec_denote
         ⟦res.aig, (res.vec.vec.get ⟨idx1, by omega⟩).get idx2 hidx2 , assign⟧  =
           let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) (by omega) (by omega) hlenOld (by simp) (by simp)
           (bvRes.val.get ⟨idx1, by have := bvRes; omega⟩).getLsbD idx2 := by
+    intros idx1 hidx1 idx2 hidx2
+    let outpuVec : Vector (AIG.RefVec aig w) 0 := Vector.emptyWithCapacity 0
+    let outpuRefVec : RefVecVec aig w 0 := {vec := outpuVec}
+    generalize hres : blastAddVec aig 0 inputNodes oldParSum outpuRefVec (by omega) (by omega) hw hw' = res
+    unfold blastAddVec at hres
+    -- dsimp only [show 0 < inputNodes by omega, Nat.reduceAdd, Nat.reduceDiv, Nat.zero_add, hi,
+      -- Lean.Elab.WF.paramLet, BitVec.ofNat_eq_ofNat] at hres
+    split at hres
+    · case _ hres =>
+      rw [hres]
+
+      sorry
     -- let outpuVec : Vector (AIG.RefVec aig w) 0 := Vector.emptyWithCapacity 0
     -- let outpuRefVec : RefVecVec aig w 0 := {vec := outpuVec}
     -- have := blastAddVec_denote_step (aigOld := aig) (assign := assign)
@@ -327,7 +339,7 @@ theorem blastAddVec_denote
     --       (heven := by omega) (hw := by omega) (hw' := by omega) (elem := lastElem)
     --       (helem' := by sorry) (newParSumBv := newParSumBv) (elemBv := sorry)
     --       (oldParSumBv := oldParSumBv) (hlenOld := by omega) (hlenNew := by simp_all; sorry)
-    sorry
+    · sorry
 
   -- intros idx1 hidx1 idx2 hidx2
 

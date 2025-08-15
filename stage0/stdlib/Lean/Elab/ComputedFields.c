@@ -7767,6 +7767,8 @@ lean_inc(x_14);
 x_20 = l_Lean_Name_append(x_14, x_19);
 lean_inc(x_5);
 lean_inc_ref(x_4);
+lean_inc(x_3);
+lean_inc_ref(x_2);
 lean_inc(x_20);
 x_21 = l_Lean_mkCasesOn(x_20, x_2, x_3, x_4, x_5, x_18);
 if (lean_obj_tag(x_21) == 0)

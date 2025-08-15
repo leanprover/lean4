@@ -1293,7 +1293,7 @@ inductive Register : Type where
   | x1
   | nextPC
   | PC
-  deriving DecidableEq, Hashable
+  deriving DecidableEq, Hashable, Repr
 open Register
 
 abbrev RegisterType : Register → Type

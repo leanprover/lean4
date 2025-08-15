@@ -31,6 +31,7 @@ static lean_object* l___private_Lean_Compiler_LCNF_Simp_InlineCandidate_0__Lean_
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_InlineCandidate_0__Lean_Compiler_LCNF_Simp_initFn___closed__19____x40_Lean_Compiler_LCNF_Simp_InlineCandidate___hyg_1478_;
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_InlineCandidate_0__Lean_Compiler_LCNF_Simp_initFn___closed__20____x40_Lean_Compiler_LCNF_Simp_InlineCandidate___hyg_1478_;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Simp_InlineCandidate_0__Lean_Compiler_LCNF_Simp_initFn____x40_Lean_Compiler_LCNF_Simp_InlineCandidate___hyg_1478_(lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_InlineCandidate_0__Lean_Compiler_LCNF_Simp_initFn___closed__18____x40_Lean_Compiler_LCNF_Simp_InlineCandidate___hyg_1478_;
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_InlineCandidate_0__Lean_Compiler_LCNF_Simp_initFn___closed__27____x40_Lean_Compiler_LCNF_Simp_InlineCandidate___hyg_1478_;
 lean_object* l_Lean_Compiler_LCNF_Decl_instantiateTypeLevelParams(lean_object*, lean_object*);
@@ -69,7 +70,7 @@ lean_object* l_Lean_Compiler_LCNF_findLetDecl_x3f___redArg(lean_object*, lean_ob
 static lean_object* l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___lam__2___closed__0;
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_InlineCandidate_0__Lean_Compiler_LCNF_Simp_initFn___closed__21____x40_Lean_Compiler_LCNF_Simp_InlineCandidate___hyg_1478_;
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_InlineCandidate_0__Lean_Compiler_LCNF_Simp_initFn___closed__28____x40_Lean_Compiler_LCNF_Simp_InlineCandidate___hyg_1478_;
-lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_shouldInlineLocal___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_InlineCandidate_0__Lean_Compiler_LCNF_Simp_initFn___closed__1____x40_Lean_Compiler_LCNF_Simp_InlineCandidate___hyg_1478_;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -89,7 +90,6 @@ lean_object* l_Lean_Compiler_LCNF_getType(lean_object*, lean_object*, lean_objec
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_InlineCandidate_0__Lean_Compiler_LCNF_Simp_initFn___closed__0____x40_Lean_Compiler_LCNF_Simp_InlineCandidate___hyg_1478_;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___lam__2(uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_InlineCandidate_0__Lean_Compiler_LCNF_Simp_initFn___closed__4____x40_Lean_Compiler_LCNF_Simp_InlineCandidate___hyg_1478_;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_InlineCandidate_0__Lean_Compiler_LCNF_Simp_initFn___closed__8____x40_Lean_Compiler_LCNF_Simp_InlineCandidate___hyg_1478_;
@@ -563,12 +563,11 @@ else
 lean_object* x_77; lean_object* x_78; lean_object* x_79; 
 lean_dec(x_37);
 x_77 = lean_box(0);
-x_78 = lean_array_get(x_77, x_23, x_72);
+x_78 = lean_array_get_borrowed(x_77, x_23, x_72);
 lean_dec(x_72);
 x_79 = l_Lean_Compiler_LCNF_Arg_isConstructorApp___redArg(x_78, x_9, x_11, x_68);
 lean_dec(x_11);
 lean_dec(x_9);
-lean_dec(x_78);
 if (lean_obj_tag(x_79) == 0)
 {
 lean_object* x_80; uint8_t x_81; 
@@ -2066,10 +2065,11 @@ else
 {
 lean_object* x_31; lean_object* x_32; 
 x_31 = lean_unsigned_to_nat(1u);
-x_32 = lean_array_fget(x_24, x_31);
+x_32 = lean_array_fget_borrowed(x_24, x_31);
 if (lean_obj_tag(x_32) == 1)
 {
 lean_object* x_33; lean_object* x_34; 
+lean_inc_ref(x_32);
 lean_dec_ref(x_1);
 x_33 = lean_ctor_get(x_32, 0);
 lean_inc(x_33);
@@ -2163,7 +2163,6 @@ return x_50;
 }
 else
 {
-lean_dec(x_32);
 x_11 = x_2;
 x_12 = x_3;
 x_13 = x_4;

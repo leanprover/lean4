@@ -502,7 +502,7 @@ private instance : ToMessageData ExpandedFieldVal where
 private instance : ToMessageData ExpandedField where
   toMessageData field := m!"field '{field.name}' is {field.val}"
 
-abbrev ExpandedFields := NameMap ExpandedField
+private abbrev ExpandedFields := NameMap ExpandedField
 
 /--
 Normalizes and expands the field views.

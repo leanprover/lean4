@@ -85,6 +85,7 @@ static lean_object* l_Lean_Compiler_LCNF_PassManager_run___closed__6;
 static lean_object* l___private_Lean_Compiler_LCNF_Main_0__Lean_Compiler_LCNF_initFn___closed__17____x40_Lean_Compiler_LCNF_Main___hyg_2652_;
 LEAN_EXPORT lean_object* l_Lean_profileitM___at___Lean_Compiler_LCNF_PassManager_run_spec__10___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_ConstantInfo_hasValue(lean_object*, uint8_t);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static double l_Lean_withTraceNode___at___Lean_Compiler_LCNF_PassManager_run_spec__4___redArg___closed__5;
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Compiler_LCNF_Main_0__Lean_Compiler_LCNF_shouldGenerateCode_isCompIrrelevant_spec__0_spec__0_spec__0_spec__0_spec__0___lam__0___closed__0;
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Compiler_LCNF_Main_0__Lean_Compiler_LCNF_shouldGenerateCode_isCompIrrelevant_spec__0_spec__0_spec__0_spec__0_spec__0___closed__2;
@@ -274,7 +275,6 @@ static lean_object* l___private_Lean_Compiler_LCNF_Main_0__Lean_Compiler_LCNF_in
 lean_object* l_Lean_Compiler_LCNF_getDeclAt_x3f___redArg(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Main_0__Lean_Compiler_LCNF_initFn___closed__28____x40_Lean_Compiler_LCNF_Main___hyg_2652_;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_SMap_find_x3f___at___Lean_Compiler_LCNF_shouldGenerateCode_spec__0_spec__3(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_normalizeFVarIds(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_isValidMainType___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_shouldGenerateCode___closed__6;
@@ -1427,9 +1427,8 @@ return x_7;
 else
 {
 lean_object* x_8; uint8_t x_9; 
-x_8 = lean_array_fget(x_1, x_3);
+x_8 = lean_array_fget_borrowed(x_1, x_3);
 x_9 = lean_name_eq(x_4, x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -1442,8 +1441,9 @@ goto _start;
 else
 {
 lean_object* x_13; lean_object* x_14; 
-x_13 = lean_array_fget(x_2, x_3);
+x_13 = lean_array_fget_borrowed(x_2, x_3);
 lean_dec(x_3);
+lean_inc(x_13);
 x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
 return x_14;

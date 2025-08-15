@@ -82,6 +82,7 @@ lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_NoConfusionLinear_mkWithCtor___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NoConfusionLinear_maxLevels(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_filterMapM___at___Lean_NoConfusionLinear_mkNoConfusionTypeLinear_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_NoConfusionLinear_mkWithCtor_spec__1___redArg___lam__2(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_NoConfusionLinear_mkNoConfusionTypeLinear___lam__1___closed__0;
@@ -262,7 +263,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 LEAN_EXPORT lean_object* l_Lean_NoConfusionLinear_mkNoConfusionTypeLinear___lam__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NoConfusionLinear_mkNatLookupTable___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_NoConfusionLinear_mkWithCtorType_spec__0_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_NoConfusionLinear_mkWithCtorType___closed__0;
 lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
 lean_object* l_Lean_Expr_bindingDomain_x21(lean_object*);
@@ -1597,7 +1597,8 @@ lean_object* x_52; lean_object* x_53;
 lean_dec(x_4);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-x_52 = lean_array_fget(x_3, x_5);
+x_52 = lean_array_fget_borrowed(x_3, x_5);
+lean_inc_ref(x_52);
 x_53 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_53, 0, x_52);
 lean_ctor_set(x_53, 1, x_7);
@@ -6556,8 +6557,9 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_40; lean
 x_27 = lean_unsigned_to_nat(1u);
 x_28 = lean_nat_sub(x_16, x_27);
 lean_dec(x_16);
-x_40 = lean_array_fget(x_15, x_17);
+x_40 = lean_array_fget_borrowed(x_15, x_17);
 lean_inc(x_13);
+lean_inc(x_40);
 x_41 = l_Lean_Expr_const___override(x_40, x_13);
 x_42 = l_Lean_mkAppN(x_41, x_14);
 lean_inc(x_22);
@@ -9388,11 +9390,12 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_34; lean
 x_21 = lean_unsigned_to_nat(1u);
 x_22 = lean_nat_sub(x_10, x_21);
 lean_dec(x_10);
-x_34 = lean_array_fget(x_9, x_11);
+x_34 = lean_array_fget_borrowed(x_9, x_11);
 lean_inc(x_16);
 lean_inc_ref(x_15);
 lean_inc(x_14);
 lean_inc_ref(x_13);
+lean_inc_ref(x_34);
 x_35 = lean_infer_type(x_34, x_13, x_14, x_15, x_16, x_17);
 if (lean_obj_tag(x_35) == 0)
 {

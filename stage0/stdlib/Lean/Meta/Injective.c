@@ -110,6 +110,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at__
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_____private_Lean_Meta_Transform_0__Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_elimOptParam_spec__0_spec__0_spec__7___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_withTraceNode___at___Lean_Meta_mkInjectiveTheorems_spec__8___redArg___closed__2;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___Lean_withTraceNode___at___Lean_Meta_mkInjectiveTheorems_spec__8_spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_occursOrInType_go___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at___Lean_Meta_mkInjectiveTheorems_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___lam__0___closed__0;
@@ -575,7 +576,8 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_array_fget(x_3, x_2);
+x_4 = lean_array_fget_borrowed(x_3, x_2);
+lean_inc_ref(x_4);
 return x_4;
 }
 }
@@ -4229,14 +4231,13 @@ x_23 = lean_ctor_get(x_19, 2);
 lean_inc_ref(x_23);
 lean_dec_ref(x_19);
 x_24 = lean_ctor_get(x_10, 2);
-x_25 = lean_array_fget(x_3, x_6);
+x_25 = lean_array_fget_borrowed(x_3, x_6);
 lean_inc_ref(x_25);
 lean_inc_ref(x_24);
 x_26 = l_Lean_Meta_occursOrInType(x_24, x_25, x_4);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; uint8_t x_29; 
-lean_dec_ref(x_25);
 x_27 = lean_box(x_2);
 x_28 = lean_alloc_closure((void*)(l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f_mkArgs2___lam__0___boxed), 15, 9);
 lean_closure_set(x_28, 0, x_6);
@@ -4280,6 +4281,7 @@ x_36 = lean_nat_add(x_6, x_35);
 lean_dec(x_6);
 x_37 = lean_expr_instantiate1(x_23, x_25);
 lean_dec_ref(x_23);
+lean_inc_ref(x_25);
 x_38 = lean_array_push(x_8, x_25);
 x_6 = x_36;
 x_7 = x_37;

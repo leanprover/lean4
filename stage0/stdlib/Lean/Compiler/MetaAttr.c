@@ -87,7 +87,7 @@ static lean_object* _init_l_Lean_initFn___closed__3____x40_Lean_Compiler_MetaAtt
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
-x_1 = 1;
+x_1 = 0;
 x_2 = lean_alloc_ctor(3, 0, 1);
 lean_ctor_set_uint8(x_2, 0, x_1);
 return x_2;

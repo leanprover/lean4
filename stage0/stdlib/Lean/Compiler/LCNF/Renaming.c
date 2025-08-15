@@ -24,6 +24,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_applyRenaming(lean_object*, l
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Code_applyRenaming___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BasicAux_0__mapMonoMImp_go___at___Lean_Compiler_LCNF_Code_applyRenaming_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BasicAux_0__mapMonoMImp_go___at___Lean_Compiler_LCNF_Code_applyRenaming_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___Lean_Compiler_LCNF_Code_applyRenaming_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BasicAux_0__mapMonoMImp_go___at___Lean_Compiler_LCNF_Code_applyRenaming_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -46,7 +47,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_applyRenaming(lean_object*
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_Param_applyRenaming_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_Param_applyRenaming_spec__0___redArg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_LCtx_addParam(lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_applyRenaming___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_applyRenaming(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -847,7 +847,7 @@ return x_8;
 else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; uint8_t x_15; 
-x_9 = lean_array_fget(x_3, x_2);
+x_9 = lean_array_fget_borrowed(x_3, x_2);
 lean_inc_ref(x_9);
 x_10 = l_Lean_Compiler_LCNF_Param_applyRenaming___redArg(x_9, x_1, x_4, x_5);
 x_11 = lean_ctor_get(x_10, 0);
@@ -856,7 +856,6 @@ x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec_ref(x_10);
 x_13 = lean_ptr_addr(x_9);
-lean_dec_ref(x_9);
 x_14 = lean_ptr_addr(x_11);
 x_15 = lean_usize_dec_eq(x_13, x_14);
 if (x_15 == 0)
@@ -912,21 +911,21 @@ return x_11;
 else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_12 = lean_array_fget(x_3, x_2);
+x_12 = lean_array_fget_borrowed(x_3, x_2);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 x_26 = lean_ctor_get(x_12, 1);
-lean_inc_ref(x_26);
 x_27 = lean_ctor_get(x_12, 2);
-lean_inc_ref(x_27);
 x_28 = lean_unsigned_to_nat(0u);
+lean_inc_ref(x_26);
 x_29 = l___private_Init_Data_Array_BasicAux_0__mapMonoMImp_go___at___Lean_Compiler_LCNF_Code_applyRenaming_spec__1___redArg(x_1, x_28, x_26, x_5, x_8);
 x_30 = lean_ctor_get(x_29, 0);
 lean_inc(x_30);
 x_31 = lean_ctor_get(x_29, 1);
 lean_inc(x_31);
 lean_dec_ref(x_29);
+lean_inc_ref(x_27);
 x_32 = l_Lean_Compiler_LCNF_Code_applyRenaming(x_27, x_1, x_4, x_5, x_6, x_7, x_31);
 if (lean_obj_tag(x_32) == 0)
 {
@@ -946,7 +945,6 @@ else
 {
 uint8_t x_36; 
 lean_dec(x_30);
-lean_dec_ref(x_12);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 x_36 = !lean_is_exclusive(x_32);
@@ -992,7 +990,6 @@ goto block_25;
 else
 {
 uint8_t x_45; 
-lean_dec_ref(x_12);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 x_45 = !lean_is_exclusive(x_41);
@@ -1019,7 +1016,6 @@ block_25:
 {
 size_t x_15; size_t x_16; uint8_t x_17; 
 x_15 = lean_ptr_addr(x_12);
-lean_dec_ref(x_12);
 x_16 = lean_ptr_addr(x_13);
 x_17 = lean_usize_dec_eq(x_15, x_16);
 if (x_17 == 0)

@@ -113,6 +113,7 @@ lean_object* l_Lean_mkIntLit(lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpEq_x3f___lam__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Int_simpDvd_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkIntAdd(lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_Linear_Expr_norm(lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_gcdCoeffs_x27___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpRel_x3f___closed__6;
@@ -338,7 +339,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Int_simpEq_x3f___lam__0(lean_obj
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_array_get(x_1, x_2, x_3);
+x_4 = lean_array_get_borrowed(x_1, x_2, x_3);
+lean_inc_ref(x_4);
 return x_4;
 }
 }
@@ -1446,7 +1448,7 @@ lean_dec_ref(x_11);
 x_233 = lean_ctor_get(x_230, 0);
 lean_inc(x_233);
 lean_dec_ref(x_230);
-x_234 = lean_array_get(x_1, x_5, x_229);
+x_234 = lean_array_get_borrowed(x_1, x_5, x_229);
 x_235 = lean_int_neg(x_233);
 lean_dec(x_233);
 x_236 = l_Lean_Meta_Simp_Arith_Int_simpEq_x3f___lam__1___closed__3;
@@ -1469,6 +1471,7 @@ x_246 = l_Int_toNat(x_245);
 lean_dec(x_245);
 x_247 = l_Lean_instToExprInt_mkNat(x_246);
 x_248 = l_Lean_mkApp3(x_239, x_241, x_244, x_247);
+lean_inc_ref(x_234);
 x_52 = x_234;
 x_53 = x_229;
 x_54 = x_248;
@@ -1480,6 +1483,7 @@ lean_object* x_249; lean_object* x_250;
 x_249 = l_Int_toNat(x_235);
 lean_dec(x_235);
 x_250 = l_Lean_instToExprInt_mkNat(x_249);
+lean_inc_ref(x_234);
 x_52 = x_234;
 x_53 = x_229;
 x_54 = x_250;
@@ -5652,7 +5656,8 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_instInhabitedExpr;
-x_4 = lean_array_get(x_3, x_1, x_2);
+x_4 = lean_array_get_borrowed(x_3, x_1, x_2);
+lean_inc_ref(x_4);
 return x_4;
 }
 }

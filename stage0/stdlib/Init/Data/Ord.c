@@ -63,6 +63,7 @@ LEAN_EXPORT lean_object* l_leOfOrd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_compareOfLessAndEq___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ord_lex_x27___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqOrdering___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_instOrd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instOrdUInt32;
@@ -156,7 +157,6 @@ LEAN_EXPORT lean_object* l_compareOn___redArg___boxed(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_compareLex___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instOrdInt8___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_lexOrd___redArg___lam__1(lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableRelLt___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instOrdInt64___lam__0(uint64_t, uint64_t);
 LEAN_EXPORT uint8_t l_instOrdInt32___lam__0(uint32_t, uint32_t);
@@ -2410,9 +2410,11 @@ lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_9 = lean_array_fget(x_2, x_4);
-x_10 = lean_array_fget(x_3, x_4);
+x_9 = lean_array_fget_borrowed(x_2, x_4);
+x_10 = lean_array_fget_borrowed(x_3, x_4);
 lean_inc_ref(x_1);
+lean_inc(x_10);
+lean_inc(x_9);
 x_11 = lean_apply_2(x_1, x_9, x_10);
 x_12 = lean_unbox(x_11);
 if (x_12 == 1)

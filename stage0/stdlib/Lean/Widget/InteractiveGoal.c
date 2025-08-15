@@ -192,6 +192,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_withGoalCtx___redArg___lam__1(lean_object
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Widget_instRpcEncodableInteractiveGoal_dec____x40_Lean_Widget_InteractiveGoal___hyg_1172__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoals_append___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instInhabitedInteractiveHypothesisBundle___closed__2;
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_fromJson_x3f___at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal___hyg_6__spec__0___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Widget_addInteractiveHypothesisBundle_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_addInteractiveHypothesisBundle___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2102,7 +2103,8 @@ x_15 = lean_ctor_get(x_9, 0);
 lean_inc(x_15);
 lean_dec_ref(x_9);
 lean_inc(x_4);
-x_16 = lean_array_get(x_4, x_15, x_5);
+x_16 = lean_array_get_borrowed(x_4, x_15, x_5);
+lean_inc(x_16);
 x_17 = l_Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_416____at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal___hyg_6__spec__5(x_16);
 if (lean_obj_tag(x_17) == 0)
 {

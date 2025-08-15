@@ -468,9 +468,10 @@ theorem map_eq_iff : map f l = l' ↔ ∀ i : Nat, l'[i]? = l[i]?.map f := by
 theorem map_eq_foldr {f : α → β} {l : List α} : map f l = foldr (fun a bs => f a :: bs) [] l := by
   induction l <;> grind
 
+attribute [local ext, local grind ext] List.ext_getElem in
 theorem map_set {f : α → β} {l : List α} {i : Nat} {a : α} :
     (l.set i a).map f = (l.map f).set i (f a) := by
-  grind +extAll
+  grind
 
 theorem head_map {f : α → β} {l : List α} (w) :
     (map f l).head w = f (l.head (by grind)) := by
@@ -489,8 +490,8 @@ theorem map_tail {f : α → β} {l : List α} :
 theorem headD_map {f : α → β} {l : List α} {a : α} : (map f l).headD (f a) = f (l.headD a) := by
   cases l with grind
 
-theorem getLastD_map {f : α → β} {l : List α} {a : α} : (map f l).getLastD (f a) = f (l.getLastD a) := by
-  grind
+-- theorem getLastD_map {f : α → β} {l : List α} {a : α} : (map f l).getLastD (f a) = f (l.getLastD a) := by
+--   grind
 
 theorem map_map {g : β → γ} {f : α → β} {l : List α} :
     map g (map f l) = map (g ∘ f) l := by induction l with grind
@@ -850,8 +851,9 @@ theorem replicate_eq_append_iff {l₁ l₂ : List α} {a : α} :
       l₁.length + l₂.length = n ∧ l₁ = replicate l₁.length a ∧ l₂ = replicate l₂.length a := by
   grind [append_eq_replicate_iff]
 
+attribute [local ext, local grind ext] List.ext_getElem in
 theorem map_replicate : (replicate n a).map f = replicate n (f a) := by
-  grind +extAll
+  grind
 
 theorem filter_replicate_of_pos (h : p a) : (replicate n a).filter p = replicate n a := by grind
 

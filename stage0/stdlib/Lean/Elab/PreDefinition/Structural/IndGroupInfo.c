@@ -58,6 +58,7 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfoRec___at___Lean_Elab_Structural_IndG
 static lean_object* l_Array_Array_repr___at___Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_116__spec__0___closed__3;
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 static lean_object* l_panic___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__0___closed__0;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__2_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_MessageData_note(lean_object*);
@@ -147,6 +148,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Elab_St
 static lean_object* l_Array_Array_repr___at___Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_116__spec__0___closed__5;
 static lean_object* l_Lean_Elab_Structural_reprIndGroupInfo___redArg___closed__11____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_116_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 lean_object* l_Lean_mkRecName(lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
@@ -165,7 +167,6 @@ static lean_object* l_Lean_Elab_Structural_reprIndGroupInfo___redArg___closed__2
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__2_spec__2_spec__2_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_IndGroupInst_nestedTypeFormers___closed__3;
 static lean_object* l_Lean_Elab_Structural_reprIndGroupInfo___redArg___closed__5____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_116_;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_IndGroupInst_nestedTypeFormers___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_reprIndGroupInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_116_(lean_object*);
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__2_spec__2_spec__2_spec__2___redArg___closed__3;
@@ -262,11 +263,9 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
-x_8 = lean_array_fget(x_1, x_7);
-x_9 = lean_array_fget(x_2, x_7);
+x_8 = lean_array_fget_borrowed(x_1, x_7);
+x_9 = lean_array_fget_borrowed(x_2, x_7);
 x_10 = lean_name_eq(x_8, x_9);
-lean_dec(x_9);
-lean_dec(x_8);
 if (x_10 == 0)
 {
 lean_dec(x_7);
@@ -1055,7 +1054,8 @@ else
 {
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_4);
-x_12 = lean_array_fget(x_3, x_2);
+x_12 = lean_array_fget_borrowed(x_3, x_2);
+lean_inc(x_12);
 x_13 = l_Lean_mkBRecOnName(x_12);
 return x_13;
 }
@@ -3551,7 +3551,8 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 lean_inc_ref(x_10);
 x_14 = lean_box(0);
-x_15 = lean_array_get(x_14, x_10, x_12);
+x_15 = lean_array_get_borrowed(x_14, x_10, x_12);
+lean_inc(x_15);
 x_16 = l_Lean_mkRecName(x_15);
 lean_inc_ref(x_4);
 lean_inc(x_16);

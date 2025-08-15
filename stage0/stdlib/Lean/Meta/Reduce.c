@@ -30,6 +30,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reduce___closed__2;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_____private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit___lam__2___closed__2;
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at_____private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit_spec__8_spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -68,6 +69,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp(lean_ob
 static lean_object* l___private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit___lam__2___closed__5;
 static lean_object* l_Lean_Meta_reduce___closed__0;
 static lean_object* l___private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit___lam__2___closed__0;
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Core_withIncRecDepth___at_____private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit_spec__5_spec__5___redArg___closed__2;
 static lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Core_withIncRecDepth___at_____private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit_spec__5_spec__5___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_____private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit_spec__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -114,7 +116,6 @@ lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean
 static lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Core_withIncRecDepth___at_____private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit_spec__5_spec__5___redArg___closed__0;
 static lean_object* l___private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit___lam__2___closed__1;
 lean_object* lean_array_get_size(lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -202,12 +203,13 @@ goto block_22;
 else
 {
 lean_object* x_42; lean_object* x_43; 
-x_42 = lean_array_fget(x_7, x_8);
+x_42 = lean_array_fget_borrowed(x_7, x_8);
 lean_inc(x_13);
 lean_inc_ref(x_12);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
+lean_inc_ref(x_42);
 x_43 = l___private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit(x_1, x_2, x_3, x_42, x_9, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_43) == 0)
 {
@@ -266,9 +268,8 @@ else
 if (x_5 == 0)
 {
 lean_object* x_53; uint8_t x_54; 
-x_53 = lean_array_fget(x_37, x_8);
+x_53 = lean_array_fget_borrowed(x_37, x_8);
 x_54 = l_Lean_Meta_ParamInfo_isExplicit(x_53);
-lean_dec_ref(x_53);
 if (x_54 == 0)
 {
 x_15 = x_7;
@@ -330,12 +331,13 @@ goto block_22;
 else
 {
 lean_object* x_25; lean_object* x_26; 
-x_25 = lean_array_fget(x_7, x_8);
+x_25 = lean_array_fget_borrowed(x_7, x_8);
 lean_inc(x_13);
 lean_inc_ref(x_12);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
+lean_inc_ref(x_25);
 x_26 = l___private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit(x_1, x_2, x_3, x_25, x_9, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -1292,11 +1294,10 @@ else
 lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; 
 x_28 = l_Lean_instInhabitedExpr;
 x_29 = lean_unsigned_to_nat(0u);
-x_30 = lean_array_get(x_28, x_25, x_29);
+x_30 = lean_array_get_borrowed(x_28, x_25, x_29);
 x_31 = l_Lean_Expr_isRawNatLit(x_30);
 if (x_31 == 0)
 {
-lean_dec_ref(x_30);
 x_11 = x_24;
 x_12 = x_25;
 x_13 = x_26;
@@ -1305,6 +1306,7 @@ goto block_16;
 else
 {
 lean_object* x_32; 
+lean_inc_ref(x_30);
 lean_dec_ref(x_25);
 lean_dec_ref(x_24);
 x_32 = l_Lean_Expr_rawNatLit_x3f(x_30);

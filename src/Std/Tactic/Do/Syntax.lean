@@ -160,7 +160,10 @@ macro (name := mleave) "mleave" : tactic =>
               $(mkIdent ``Std.Do.ExceptConds.entails_false):term,
               $(mkIdent ``ULift.down_ite):term,
               $(mkIdent ``ULift.down_dite):term,
-              $(mkIdent ``Std.List.Zipper.pref):term,
+              $(mkIdent ``List.Cursor.prefix_at):term,
+              $(mkIdent ``List.Cursor.suffix_at):term,
+              $(mkIdent ``List.Cursor.current_at):term,
+              $(mkIdent ``List.Cursor.tail_at):term,
               $(mkIdent ``and_imp):term,
               $(mkIdent ``and_true):term,
               $(mkIdent ``dite_eq_ite):term,
@@ -296,7 +299,7 @@ all_goals
 ```
 -/
 macro (name := mspecNoSimp) "mspec_no_simp" spec:(ppSpace colGt term)? : tactic =>
-  `(tactic| ((try with_reducible mspec_no_bind $(mkIdent ``Std.Do.Spec.bind)); mspec_no_bind $[$spec]?))
+  `(tactic| ((try with_reducible mspec_no_bind $(mkIdent ``Std.Do.Spec.bind)) <;> mspec_no_bind $[$spec]?))
 
 syntax "mvcgen_trivial_extensible" : tactic
 

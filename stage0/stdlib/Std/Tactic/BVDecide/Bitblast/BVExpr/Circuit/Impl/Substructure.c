@@ -28,6 +28,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_empty___at___Std_Tactic_BVDecide_BVLogicalExpr_bitblast_spec__0___closed__4;
 static lean_object* l_Std_Sat_AIG_empty___at___Std_Tactic_BVDecide_BVLogicalExpr_bitblast_spec__0___closed__1;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Bool_toNat(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_getConstant___at___Std_Sat_AIG_mkGateCached_go___at___Std_Sat_AIG_mkGateCached___at___Std_Tactic_BVDecide_BVLogicalExpr_bitblast_go_spec__0_spec__0_spec__2___boxed(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -174,7 +175,7 @@ lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6;
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get_uint8(x_2, sizeof(void*)*1);
 x_5 = lean_ctor_get(x_1, 0);
-x_6 = lean_array_fget(x_5, x_3);
+x_6 = lean_array_fget_borrowed(x_5, x_3);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
@@ -186,7 +187,6 @@ return x_8;
 else
 {
 lean_object* x_9; 
-lean_dec(x_6);
 x_9 = lean_box(0);
 return x_9;
 }

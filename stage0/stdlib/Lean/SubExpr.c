@@ -149,6 +149,7 @@ LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_fromString_x3f(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_SubExpr_Pos_instDecidableEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_instToJson;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_instRepr;
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushLetVarType(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_instInhabited;
 static lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringCoord___closed__1;
@@ -2522,7 +2523,8 @@ lean_inc(x_15);
 lean_dec_ref(x_9);
 x_16 = lean_unsigned_to_nat(0u);
 lean_inc(x_5);
-x_17 = lean_array_get(x_5, x_15, x_16);
+x_17 = lean_array_get_borrowed(x_5, x_15, x_16);
+lean_inc(x_17);
 x_18 = l_Lean_Name_fromJson_x3f(x_17);
 if (lean_obj_tag(x_18) == 0)
 {
@@ -2714,7 +2716,8 @@ lean_inc(x_16);
 lean_dec_ref(x_10);
 x_17 = lean_unsigned_to_nat(0u);
 lean_inc(x_4);
-x_18 = lean_array_get(x_4, x_16, x_17);
+x_18 = lean_array_get_borrowed(x_4, x_16, x_17);
+lean_inc(x_18);
 x_19 = l_Lean_Name_fromJson_x3f(x_18);
 if (lean_obj_tag(x_19) == 0)
 {

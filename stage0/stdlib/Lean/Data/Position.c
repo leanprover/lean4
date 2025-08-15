@@ -42,6 +42,7 @@ LEAN_EXPORT lean_object* l_Lean_decEqPosition____x40_Lean_Data_Position___hyg_39
 static lean_object* l_Lean_reprPosition___redArg___closed__15____x40_Lean_Data_Position___hyg_184_;
 static lean_object* l_Lean_fromJsonPosition___closed__12____x40_Lean_Data_Position___hyg_294_;
 LEAN_EXPORT uint8_t l_Lean_instDecidableEqPosition(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l_Lean_Position_instToExpr___lam__0___closed__0;
 static lean_object* l_Lean_instFromJsonPosition___closed__0;
 LEAN_EXPORT lean_object* l_Lean_instDecidableEqPosition___boxed(lean_object*, lean_object*);
@@ -96,6 +97,7 @@ static lean_object* l_Lean_reprPosition___redArg___closed__16____x40_Lean_Data_P
 static lean_object* l_Lean_reprPosition___redArg___closed__7____x40_Lean_Data_Position___hyg_184_;
 static lean_object* l_Lean_fromJsonPosition___closed__5____x40_Lean_Data_Position___hyg_294_;
 static lean_object* l_Lean_fromJsonPosition___closed__0____x40_Lean_Data_Position___hyg_294_;
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Position_instToExpr___lam__0(lean_object*);
 uint8_t l_Prod_lexLtDec___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_reprPosition___redArg___closed__9____x40_Lean_Data_Position___hyg_184_;
@@ -136,7 +138,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_toJsonPosition___closed__0____x40_Lean_Data_Position___hyg_242_;
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Position_instToFormat___lam__0___closed__1;
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_reprPosition____x40_Lean_Data_Position___hyg_184__spec__0(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -1582,13 +1583,12 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14;
 x_11 = lean_nat_add(x_5, x_6);
 x_12 = lean_nat_shiftr(x_11, x_8);
 lean_dec(x_11);
-x_13 = lean_array_get(x_7, x_4, x_12);
+x_13 = lean_array_get_borrowed(x_7, x_4, x_12);
 x_14 = lean_nat_dec_eq(x_2, x_13);
 if (x_14 == 0)
 {
 uint8_t x_15; 
 x_15 = lean_nat_dec_lt(x_13, x_2);
-lean_dec(x_13);
 if (x_15 == 0)
 {
 lean_dec(x_6);
@@ -1605,7 +1605,6 @@ goto _start;
 else
 {
 lean_object* x_18; lean_object* x_19; 
-lean_dec(x_13);
 lean_dec(x_6);
 lean_dec(x_5);
 x_18 = l_Lean_FileMap_getLine(x_1, x_12);
@@ -1620,9 +1619,10 @@ else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 lean_dec(x_6);
-x_20 = lean_array_get(x_7, x_4, x_5);
+x_20 = lean_array_get_borrowed(x_7, x_4, x_5);
 x_21 = l_Lean_FileMap_getLine(x_1, x_5);
 lean_dec(x_5);
+lean_inc(x_20);
 x_22 = l___private_Lean_Data_Position_0__Lean_FileMap_toPosition_toColumn(x_2, x_3, x_20, x_7);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
@@ -1853,8 +1853,9 @@ return x_10;
 else
 {
 lean_object* x_11; 
-x_11 = lean_array_fget(x_3, x_5);
+x_11 = lean_array_fget_borrowed(x_3, x_5);
 lean_dec(x_5);
+lean_inc(x_11);
 return x_11;
 }
 }

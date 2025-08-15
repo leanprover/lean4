@@ -153,7 +153,11 @@ where
       let (prf, specHoles) ← try
         let specThm ← findSpec ctx.specThms wp
         trace[Elab.Tactic.Do.vcgen] "Candidate spec for {f.constName!}: {specThm.proof}"
-        withDefault <| collectFreshMVars <| mSpec goal (fun _wp  => return specThm) name
+        -- We eta-expand as far here as goal.σs permits.
+        -- This is so that `mSpec` can frame hypotheses involving uninstantiated loop invariants.
+        -- It is absolutely crucial that we do not lose these hypotheses in the inductive step.
+        collectFreshMVars <| mIntroForallN goal (← TypeList.length goal.σs) fun goal =>
+          withDefault <| mSpec goal (fun _wp  => return specThm) name
       catch ex =>
         trace[Elab.Tactic.Do.vcgen] "Failed to find spec for {wp}. Trying simp. Reason: {ex.toMessageData}"
         -- Last resort: Simp and try again
@@ -257,6 +261,7 @@ where
         -- the stateful hypothesis of the goal.
         let mkJoinGoal (e : Expr) :=
           let wp := mkApp5 c m ps instWP α e
+          let σs := mkApp (mkConst ``PostShape.args [uWP]) ps
           let args := args.set! 2 wp |>.take 4
           let target := mkAppN (mkConst ``PredTrans.apply [uWP]) args
           { u := uWP, σs, hyps := emptyHyp uWP σs, target : MGoal }
@@ -264,8 +269,8 @@ where
         let joinPrf ← mkLambdaFVars (joinParams.push h) (← onWPApp (mkJoinGoal (mkAppN fv joinParams)) name)
         let joinGoal ← mkForallFVars (joinParams.push h) (mkJoinGoal (zetadVal.beta joinParams)).toExpr
         -- `joinPrf : joinGoal` by zeta
+        -- checkHasType joinPrf joinGoal
         return (joinPrf, joinGoal)
-
     withLetDecl (← mkFreshUserName `joinPrf) joinGoal joinPrf (kind := .implDetail) fun joinPrf => do
       let prf ← onSplit goal info name fun idx params doGoal => do
         let altLCtxIdx := (← getLCtx).numIndices
@@ -306,21 +311,23 @@ where
       let φ := mkAndN eqs.toList
       let prf ← mkAndIntroN (← liftMetaM <| joinArgs.mapM mkEqRefl).toList
       let φ := φ.abstract newLocals
-      -- Invariant: `prf : (fun joinParams => φ) joinArgs`
+      -- Invariant: `prf : (let newLocals; φ)[joinParams↦joinArgs]`, and `joinParams` does not occur in `prf`
       let (_, φ, prf) ← newLocalDecls.foldrM (init := (newLocals, φ, prf)) fun decl (locals, φ, prf) => do
         let locals := locals.pop
         match decl.value? with
         | some v =>
-          let type := decl.type.abstract locals
-          let val := v.abstract locals
+          let type := (← instantiateMVars decl.type).abstract locals
+          let val := (← instantiateMVars v).abstract locals
           let φ := mkLet decl.userName type val φ (nondep := decl.isNondep)
           return (locals, φ, prf)
         | none =>
-          let type := decl.type.abstract locals
-          let u ← getLevel type
+          let type := (← instantiateMVars decl.type).abstract locals
+          trace[Elab.Tactic.Do.vcgen] "{decl.type} abstracted over {locals}: {type}"
+          let u ← getLevel decl.type
           let ψ := mkLambda decl.userName decl.binderInfo type φ
+          let ψPrf := mkLambda decl.userName decl.binderInfo decl.type φ
           let φ := mkApp2 (mkConst ``Exists [u]) type ψ
-          let prf := mkApp4 (mkConst ``Exists.intro [u]) type ψ decl.toExpr prf
+          let prf := mkApp4 (mkConst ``Exists.intro [u]) decl.type ψPrf decl.toExpr prf
           return (locals, φ, prf)
 
       -- Abstract φ over the altParams in order to instantiate info.hyps below
@@ -333,8 +340,10 @@ where
     info.hyps.assign φ
     let φ := φ.beta (joinArgs ++ altParams)
     let prf := prf.beta joinArgs
+    -- checkHasType prf φ
     let jumpPrf := mkAppN info.joinPrf joinArgs
     let jumpGoal ← inferType jumpPrf
+    -- checkHasType jumpPrf jumpGoal
     let .forallE _ φ' .. := jumpGoal | throwError "jumpGoal {jumpGoal} is not a forall"
     trace[Elab.Tactic.Do.vcgen] "φ applied: {φ}, prf applied: {prf}, type: {← inferType prf}"
     let rwPrf ← rwIfOrMatcher info.altIdx φ'

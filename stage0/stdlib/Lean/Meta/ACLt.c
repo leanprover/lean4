@@ -32,6 +32,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_reduce___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_ltApp(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lpo(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_ltApp___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_ltPair___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -66,11 +67,11 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_ltPai
 uint8_t l_Lean_Meta_ParamInfo_isInstImplicit(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_allChildrenLt_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lpo___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_reduce(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_main(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 static lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lexSameCtor___closed__3;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingDomain_x21(lean_object*);
 lean_object* l_Lean_Expr_letValue_x21(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_someChildGe(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -108,7 +109,6 @@ lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_allChildrenLt(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_getParamsInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isMData(lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_getParamsInfo___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lt(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bvarIdx_x21(lean_object*);
@@ -1351,8 +1351,8 @@ _start:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_14 = l_Lean_instInhabitedExpr;
-x_15 = lean_array_get(x_14, x_1, x_8);
-x_16 = lean_array_get(x_14, x_2, x_8);
+x_15 = lean_array_get_borrowed(x_14, x_1, x_8);
+x_16 = lean_array_get_borrowed(x_14, x_2, x_8);
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
@@ -1376,6 +1376,8 @@ lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
+lean_inc_ref(x_15);
+lean_inc_ref(x_16);
 x_21 = l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lt(x_3, x_16, x_15, x_9, x_10, x_11, x_12, x_20);
 if (lean_obj_tag(x_21) == 0)
 {
@@ -1523,8 +1525,6 @@ else
 {
 uint8_t x_49; 
 lean_dec(x_18);
-lean_dec_ref(x_16);
-lean_dec_ref(x_15);
 lean_dec(x_12);
 lean_dec_ref(x_11);
 lean_dec(x_10);
@@ -1568,8 +1568,6 @@ return x_58;
 else
 {
 uint8_t x_59; 
-lean_dec_ref(x_16);
-lean_dec_ref(x_15);
 lean_dec(x_12);
 lean_dec_ref(x_11);
 lean_dec(x_10);
@@ -1610,15 +1608,14 @@ _start:
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_23 = l_Lean_Meta_instInhabitedParamInfo;
-x_24 = lean_array_get(x_23, x_1, x_9);
+x_24 = lean_array_get_borrowed(x_23, x_1, x_9);
 x_25 = l_Lean_Meta_ParamInfo_isInstImplicit(x_24);
-lean_dec_ref(x_24);
 if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_26 = l_Lean_instInhabitedExpr;
-x_27 = lean_array_get(x_26, x_2, x_9);
-x_28 = lean_array_get(x_26, x_3, x_9);
+x_27 = lean_array_get_borrowed(x_26, x_2, x_9);
+x_28 = lean_array_get_borrowed(x_26, x_3, x_9);
 lean_inc(x_13);
 lean_inc_ref(x_12);
 lean_inc(x_11);
@@ -1642,6 +1639,8 @@ lean_inc(x_13);
 lean_inc_ref(x_12);
 lean_inc(x_11);
 lean_inc_ref(x_10);
+lean_inc_ref(x_27);
+lean_inc_ref(x_28);
 x_33 = l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lt(x_4, x_28, x_27, x_10, x_11, x_12, x_13, x_32);
 if (lean_obj_tag(x_33) == 0)
 {
@@ -1737,8 +1736,6 @@ else
 {
 uint8_t x_49; 
 lean_dec(x_30);
-lean_dec_ref(x_28);
-lean_dec_ref(x_27);
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_11);
@@ -1782,8 +1779,6 @@ return x_58;
 else
 {
 uint8_t x_59; 
-lean_dec_ref(x_28);
-lean_dec_ref(x_27);
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_11);
@@ -2814,12 +2809,13 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 _start:
 {
 lean_object* x_13; lean_object* x_14; 
-x_13 = lean_array_fget(x_1, x_7);
+x_13 = lean_array_fget_borrowed(x_1, x_7);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc_ref(x_3);
+lean_inc_ref(x_13);
 x_14 = l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lt(x_2, x_13, x_3, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -2979,19 +2975,19 @@ _start:
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_23; uint8_t x_24; 
 lean_inc_ref(x_1);
-x_23 = lean_array_get(x_1, x_2, x_9);
+x_23 = lean_array_get_borrowed(x_1, x_2, x_9);
 x_24 = l_Lean_Meta_ParamInfo_isInstImplicit(x_23);
-lean_dec_ref(x_23);
 if (x_24 == 0)
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_25 = l_Lean_instInhabitedExpr;
-x_26 = lean_array_get(x_25, x_3, x_9);
+x_26 = lean_array_get_borrowed(x_25, x_3, x_9);
 lean_inc(x_13);
 lean_inc_ref(x_12);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc_ref(x_5);
+lean_inc_ref(x_26);
 x_27 = l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lt(x_4, x_26, x_5, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_27) == 0)
 {

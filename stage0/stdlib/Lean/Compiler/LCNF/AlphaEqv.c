@@ -28,6 +28,7 @@ LEAN_EXPORT uint8_t l_List_beq___at___Lean_Compiler_LCNF_AlphaEqv_eqvLetValue_sp
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Compiler_LCNF_AlphaEqv_eqvArgs_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Compiler_LCNF_AlphaEqv_eqvAlts_spec__1_spec__1___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Compiler_LCNF_AlphaEqv_sortAlts_spec__0___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_AlphaEqv_eqv___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_AlphaEqv_eqvFVar_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_AlphaEqv_0__Lean_Compiler_LCNF_AlphaEqv_withParams_go___at___Lean_Compiler_LCNF_AlphaEqv_eqvAlts_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1179,25 +1180,15 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_10 = lean_array_fget(x_1, x_4);
+x_10 = lean_array_fget_borrowed(x_1, x_4);
 x_11 = lean_ctor_get(x_10, 0);
-lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 2);
-lean_inc_ref(x_12);
-lean_dec_ref(x_10);
-x_13 = lean_array_fget(x_2, x_4);
+x_13 = lean_array_fget_borrowed(x_2, x_4);
 x_14 = lean_ctor_get(x_13, 0);
-lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 2);
-lean_inc_ref(x_15);
-lean_dec_ref(x_13);
 x_16 = l_Lean_Compiler_LCNF_AlphaEqv_eqvType(x_12, x_15, x_5);
-lean_dec_ref(x_15);
-lean_dec_ref(x_12);
 if (x_16 == 0)
 {
-lean_dec(x_14);
-lean_dec(x_11);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -1209,6 +1200,8 @@ lean_object* x_17; lean_object* x_18; lean_object* x_19;
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_4, x_17);
 lean_dec(x_4);
+lean_inc(x_11);
+lean_inc(x_14);
 x_19 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_FVarIdSet_insert_spec__1___redArg(x_14, x_11, x_5);
 x_4 = x_18;
 x_5 = x_19;
@@ -1462,25 +1455,15 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_10 = lean_array_fget(x_3, x_5);
+x_10 = lean_array_fget_borrowed(x_3, x_5);
 x_11 = lean_ctor_get(x_10, 0);
-lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 2);
-lean_inc_ref(x_12);
-lean_dec_ref(x_10);
-x_13 = lean_array_fget(x_4, x_5);
+x_13 = lean_array_fget_borrowed(x_4, x_5);
 x_14 = lean_ctor_get(x_13, 0);
-lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 2);
-lean_inc_ref(x_15);
-lean_dec_ref(x_13);
 x_16 = l_Lean_Compiler_LCNF_AlphaEqv_eqvType(x_12, x_15, x_6);
-lean_dec_ref(x_15);
-lean_dec_ref(x_12);
 if (x_16 == 0)
 {
-lean_dec(x_14);
-lean_dec(x_11);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_2);
@@ -1493,6 +1476,8 @@ lean_object* x_17; lean_object* x_18; lean_object* x_19;
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_5, x_17);
 lean_dec(x_5);
+lean_inc(x_11);
+lean_inc(x_14);
 x_19 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_FVarIdSet_insert_spec__1___redArg(x_14, x_11, x_6);
 x_5 = x_18;
 x_6 = x_19;

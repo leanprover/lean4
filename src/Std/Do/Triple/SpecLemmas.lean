@@ -29,34 +29,76 @@ theorem toList_range' (r : Std.Range) (h : r.step = 1) :
 
 end Std.Range
 
-namespace Std.List
+namespace List
 
 @[ext]
-structure Zipper {α : Type u} (l : List α) : Type u where
-  rpref : List α
-  suff : List α
-  property : rpref.reverse ++ suff = l
+structure Cursor {α : Type u} (l : List α) : Type u where
+  «prefix» : List α
+  suffix : List α
+  property : «prefix» ++ suffix = l
 
-@[simp]
-abbrev Zipper.pref {α} {l : List α} (s : List.Zipper l) : List α := s.rpref.reverse
+def Cursor.at (l : List α) (n : Nat) : Cursor l := ⟨l.take n, l.drop n, by simp⟩
+abbrev Cursor.begin (l : List α) : Cursor l := .at l 0
+abbrev Cursor.end (l : List α) : Cursor l := .at l l.length
 
-abbrev Zipper.begin (l : List α) : Zipper l := ⟨[],l,rfl⟩
-abbrev Zipper.end (l : List α) : Zipper l := ⟨l.reverse,[],by simp⟩
-abbrev Zipper.tail (s : Zipper l) (h : s.suff = hd::tl) : Zipper l :=
-  { rpref := hd::s.rpref, suff := tl, property := by simp [s.property, ←h] }
+def Cursor.current {α} {l : List α} (c : Cursor l) (h : 0 < c.suffix.length := by get_elem_tactic) : α :=
+  c.suffix[0]'(by simp [h])
+
+def Cursor.tail (s : Cursor l) (h : 0 < s.suffix.length := by get_elem_tactic) : Cursor l :=
+  { «prefix» := s.prefix ++ [s.current]
+  , suffix := s.suffix.tail
+  , property := by
+      have : s.suffix ≠ [] := by simp only [List.ne_nil_iff_length_pos, h]
+      simp [current, ←List.head_eq_getElem this, s.property] }
+
+@[simp, grind =] theorem Cursor.prefix_at (l : List α) : (Cursor.at l n).prefix = l.take n := rfl
+@[simp, grind =] theorem Cursor.suffix_at (l : List α) : (Cursor.at l n).suffix = l.drop n := rfl
+@[simp, grind =] theorem Cursor.current_at (l : List α) (h : n < l.length) :
+    (Cursor.at l n).current  (by simpa using Nat.sub_lt_sub_right (Nat.le_refl n) h) = l[n] := by
+  induction n with simp_all [Cursor.current]
+@[simp, grind =] theorem Cursor.tail_at (l : List α) (h : n < l.length) :
+    (Cursor.at l n).tail (by simpa using Nat.sub_lt_sub_right (Nat.le_refl n) h) = Cursor.at l (n + 1) := by
+  simp [Cursor.tail, Cursor.at, Cursor.current]
 
 @[grind →]
-theorem range_elim : List.range' s n = xs ++ i :: ys → i = s + xs.length := by
-  intro h
-  induction xs generalizing s n
-  case nil => cases n <;> simp_all[List.range']
-  case cons head tail ih =>
-    cases n <;> simp[List.range'] at h
-    have := ih h.2
-    simp[ih h.2]
-    omega
+theorem eq_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
+    cur = s + step * xs.length := by
+  rw [range'_eq_append_iff] at h
+  obtain ⟨k, hk, hxs, hcur⟩ := h
+  have h := (range'_eq_cons_iff.mp hcur.symm).1.symm
+  have hk : k = xs.length := by simp_all [length_range']
+  simp only [h, hk, Nat.add_left_cancel_iff]
+  apply Nat.mul_comm
 
-end Std.List
+@[grind →]
+theorem length_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
+    n = xs.length + ys.length + 1 := by
+  have : n = (range' s n step).length := by simp
+  simpa [h] using this
+
+@[grind →]
+theorem mem_of_range'_eq_append_cons (h : range' s n step = xs ++ i :: ys) :
+    i ∈ range' s n step := by simp [h]
+
+@[grind →]
+theorem gt_of_range'_eq_append_cons (h : range' s n step = xs ++ i :: ys) (hstep : 0 < step) (hj : j ∈ xs) :
+    j < i := by
+  obtain ⟨nxs, _, rfl, htail⟩ := range'_eq_append_iff.mp h
+  obtain ⟨rfl, _⟩ := range'_eq_cons_iff.mp htail.symm
+  simp only [mem_range'] at hj
+  obtain ⟨i, _, rfl⟩ := hj
+  apply Nat.add_lt_add_left
+  simp [Nat.mul_comm, *]
+
+@[grind →]
+theorem lt_of_range'_eq_append_cons (h : range' s n step = xs ++ i :: ys) (hstep : 0 < step) (hj : j ∈ ys) :
+    i < j := by
+  obtain ⟨k, hk, rfl, htail⟩ := range'_eq_append_iff.mp h
+  obtain ⟨rfl, _, _, _⟩ := range'_eq_cons_iff.mp htail.symm
+  simp only [mem_range'] at hj
+  omega
+
+end List
 
 namespace Std.Do
 
@@ -308,7 +350,7 @@ theorem Spec.tryCatch_ExceptT_lift [WP m ps] [Monad m] [MonadExceptOf ε m] (Q :
 The type of loop invariants used by the specifications of `for ... in ...` loops.
 A loop invariant is a `PostCond` that takes as parameters
 
-* A `List.Zipper xs` representing the iteration state of the loop. It is parameterized by the list
+* A `List.Cursor xs` representing the iteration state of the loop. It is parameterized by the list
   of elements `xs` that the `for` loop iterates over.
 * A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
   `let mut` variables and early return.
@@ -320,7 +362,7 @@ During the induction step, the invariant holds for a suffix with head element `x
 After running the loop body, the invariant then holds after shifting `x` to the prefix.
 -/
 abbrev Invariant {α : Type u} (xs : List α) (β : Type u) (ps : PostShape) :=
-  PostCond (List.Zipper xs × β) ps
+  PostCond (List.Cursor xs × β) ps
 
 /--
 Helper definition for specifying loop invariants for loops with early return.
@@ -334,20 +376,20 @@ It is `none` as long as there was no early return and `some r` if the loop retur
 
 This function allows to specify different invariants for the loop body depending on whether the loop
 terminated early or not. When there was an early return, the loop has effectively finished, which is
-encoded by the additional `⌜xs.suff = []⌝` assertion in the invariant. This assertion is vital for
+encoded by the additional `⌜xs.suffix = []⌝` assertion in the invariant. This assertion is vital for
 successfully proving the induction step, as it contradicts with the assumption that
-`xs.suff = x::rest` of the inductive hypothesis at the start of the loop body, meaning that users
+`xs.suffix = x::rest` of the inductive hypothesis at the start of the loop body, meaning that users
 won't need to prove anything about the bogus case where the loop has returned early yet takes
 another iteration of the loop body.
 -/
 abbrev Invariant.withEarlyReturn
-  (onContinue : List.Zipper xs → β → Assertion ps)
+  (onContinue : List.Cursor xs → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
     Invariant xs (MProd (Option γ) β) ps :=
   ⟨fun ⟨xs, x, b⟩ => spred(
         (⌜x = none⌝ ∧ onContinue xs b)
-      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜xs.suff = []⌝ ∧ onReturn r b)),
+      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜xs.suffix = []⌝ ∧ onReturn r b)),
    onExcept⟩
 
 @[spec]
@@ -355,32 +397,32 @@ theorem Spec.forIn'_list {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant xs β ps)
-    (step : ∀ b rpref x (hx : x ∈ xs) suff (h : xs = rpref.reverse ++ x :: suff),
-        ⦃inv.1 (⟨rpref, x::suff, by simp [h]⟩, b)}
-        f x hx b
+    (step : ∀ pref cur suff (h : xs = pref ++ cur :: suff) b,
+        ⦃inv.1 (⟨pref, cur::suff, h.symm⟩, b)}
+        f cur (by simp [h]) b
         ⦃(fun r => match r with
-                   | .yield b' => inv.1 (⟨x::rpref, suff, by simp [h]⟩, b')
-                   | .done b' => inv.1 (⟨xs.reverse, [], by simp⟩, b'), inv.2)}) :
-    ⦃inv.1 (⟨[], xs, by simp⟩, init)} forIn' xs init f ⦃(fun b => inv.1 (⟨xs.reverse, [], by simp⟩, b), inv.2)} := by
-  suffices h : ∀ rpref suff (h : xs = rpref.reverse ++ suff),
-      ⦃inv.1 (⟨rpref, suff, by simp [h]⟩, init)}
-      forIn' (m:=m) suff init (fun a ha => f a (by simp[h,ha]))
-      ⦃(fun b => inv.1 (⟨xs.reverse, [], by simp [h]⟩, b), inv.2)}
-    from h [] xs rfl
-  intro rpref suff h
-  induction suff generalizing rpref init
-  case nil => apply Triple.pure; simp [h]
+                   | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+                   | .done b' => inv.1 (⟨xs, [], by simp⟩, b'), inv.2)}) :
+    ⦃inv.1 (⟨[], xs, rfl⟩, init)} forIn' xs init f ⦃(fun b => inv.1 (⟨xs, [], by simp⟩, b), inv.2)} := by
+  suffices h : ∀ c,
+      ⦃inv.1 (c, init)}
+      forIn' (m:=m) c.suffix init (fun a ha => f a (by simp [←c.property, ha]))
+      ⦃(fun b => inv.1 (⟨xs, [], by simp⟩, b), inv.2)}
+    from h ⟨[], xs, rfl⟩
+  rintro ⟨pref, suff, h⟩
+  induction suff generalizing pref init
+  case nil => apply Triple.pure; simp [←h]
   case cons x suff ih =>
     simp only [List.forIn'_cons]
     apply Triple.bind
-    case hx => exact step init rpref x (by simp[h]) suff h
+    case hx => exact step _ _ _ h.symm init
     case hf =>
       intro r
       split
-      next => apply Triple.pure; simp [h]
+      next => apply Triple.pure; simp
       next b =>
         simp
-        have := @ih b (x::rpref) (by simp [h])
+        have := @ih b (pref ++ [x]) (by simp [h])
         simp at this
         exact this
 
@@ -394,22 +436,22 @@ theorem Spec.forIn'_list_const_inv {α β : Type u}
         f x hx b
         ⦃(fun r => match r with | .yield b' => inv.1 b' | .done b' => inv.1 b', inv.2)}) :
     ⦃inv.1 init} forIn' xs init f ⦃inv} :=
-  Spec.forIn'_list (fun p => inv.1 p.2, inv.2) (fun b _ x hx _ _ => step x hx b)
+  Spec.forIn'_list (fun p => inv.1 p.2, inv.2) (fun _p c _s h b => step c (by simp [h]) b)
 
 @[spec]
 theorem Spec.forIn_list {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : α → β → m (ForInStep β)}
     (inv : Invariant xs β ps)
-    (step : ∀ b rpref x suff (h : xs = rpref.reverse ++ x :: suff),
-        ⦃inv.1 (⟨rpref, x::suff, by simp [h]⟩, b)}
-        f x b
+    (step : ∀ pref cur suff (h : xs = pref ++ cur :: suff) b,
+        ⦃inv.1 (⟨pref, cur::suff, h.symm⟩, b)}
+        f cur b
         ⦃(fun r => match r with
-                   | .yield b' => inv.1 (⟨x::rpref, suff, by simp [h]⟩, b')
-                   | .done b' => inv.1 (⟨xs.reverse, [], by simp⟩, b'), inv.2)}) :
-    ⦃inv.1 (⟨[], xs, by simp⟩, init)} forIn xs init f ⦃(fun b => inv.1 (⟨xs.reverse, [], by simp⟩, b), inv.2)} := by
+                   | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+                   | .done b' => inv.1 (⟨xs, [], by simp⟩, b'), inv.2)}) :
+    ⦃inv.1 (⟨[], xs, rfl⟩, init)} forIn xs init f ⦃(fun b => inv.1 (⟨xs, [], by simp⟩, b), inv.2)} := by
   simp only [← forIn'_eq_forIn]
-  exact Spec.forIn'_list inv (fun b rpref x _ suff h => step b rpref x suff h)
+  exact Spec.forIn'_list inv step
 
 -- using the postcondition as a constant invariant:
 theorem Spec.forIn_list_const_inv {α β : Type u}
@@ -421,18 +463,18 @@ theorem Spec.forIn_list_const_inv {α β : Type u}
         f hd b
         ⦃(fun r => match r with | .yield b' => inv.1 b' | .done b' => inv.1 b', inv.2)}) :
     ⦃inv.1 init} forIn xs init f ⦃inv} :=
-  Spec.forIn_list (fun p => inv.1 p.2, inv.2) (fun b _ hd _ _ => step hd b)
+  Spec.forIn_list (fun p => inv.1 p.2, inv.2) (fun _p c _s _h b => step c b)
 
 @[spec]
 theorem Spec.foldlM_list {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : β → α → m β}
     (inv : Invariant xs β ps)
-    (step : ∀ b rpref x suff (h : xs = rpref.reverse ++ x :: suff),
-        ⦃inv.1 (⟨rpref, x::suff, by simp [h]⟩, b)}
-        f b x
-        ⦃(fun b' => inv.1 (⟨x::rpref, suff, by simp [h]⟩, b'), inv.2)}) :
-    ⦃inv.1 (⟨[], xs, by simp⟩, init)} List.foldlM f init xs ⦃(fun b => inv.1 (⟨xs.reverse, [], by simp⟩, b), inv.2)} := by
+    (step : ∀ pref cur suff (h : xs = pref ++ cur :: suff) b,
+        ⦃inv.1 (⟨pref, cur::suff, h.symm⟩, b)}
+        f b cur
+        ⦃(fun b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b'), inv.2)}) :
+    ⦃inv.1 (⟨[], xs, rfl⟩, init)} List.foldlM f init xs ⦃(fun b => inv.1 (⟨xs, [], by simp⟩, b), inv.2)} := by
   have : xs.foldlM f init = forIn xs init (fun a b => .yield <$> f b a) := by
     simp only [List.forIn_yield_eq_foldlM, id_map']
   rw[this]
@@ -450,35 +492,35 @@ theorem Spec.foldlM_list_const_inv {α β : Type u}
         f b hd
         ⦃(fun b' => inv.1 b', inv.2)}) :
   ⦃inv.1 init} List.foldlM f init xs ⦃inv} :=
-    Spec.foldlM_list (fun p => inv.1 p.2, inv.2) (fun b _ hd _ _ => step hd b)
+    Spec.foldlM_list (fun p => inv.1 p.2, inv.2) (fun _p c _s _h b => step c b)
 
 @[spec]
 theorem Spec.forIn'_range {β : Type} {m : Type → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     {xs : Std.Range} {init : β} {f : (a : Nat) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
-    (step : ∀ b rpref x (hx : x ∈ xs) suff (h : xs.toList = rpref.reverse ++ x :: suff),
-        ⦃inv.1 (⟨rpref, x::suff, by simp [h]⟩, b)}
-        f x hx b
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+        ⦃inv.1 (⟨pref, cur::suff, h.symm⟩, b)}
+        f cur (by simp [Std.Range.mem_of_mem_range', h]) b
         ⦃(fun r => match r with
-                   | .yield b' => inv.1 (⟨x::rpref, suff, by simp [h]⟩, b')
-                   | .done b' => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b'), inv.2)}) :
-    ⦃inv.1 (⟨[], xs.toList, by simp⟩, init)} forIn' xs init f ⦃(fun b => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b), inv.2)} := by
+                   | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+                   | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)}) :
+    ⦃inv.1 (⟨[], xs.toList, rfl⟩, init)} forIn' xs init f ⦃(fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2)} := by
   simp only [Std.Range.forIn'_eq_forIn'_range', Std.Range.size, Std.Range.size.eq_1]
-  apply Spec.forIn'_list inv (fun b rpref x hx suff h => step b rpref x (Std.Range.mem_of_mem_range' hx) suff h)
+  apply Spec.forIn'_list inv (fun c hcur b => step c hcur b)
 
 @[spec]
 theorem Spec.forIn_range {β : Type} {m : Type → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     {xs : Std.Range} {init : β} {f : Nat → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
-    (step : ∀ b rpref x suff (h : xs.toList = rpref.reverse ++ x :: suff),
-        ⦃inv.1 (⟨rpref, x::suff, by simp [h]⟩, b)}
-        f x b
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+        ⦃inv.1 (⟨pref, cur::suff, h.symm⟩, b)}
+        f cur b
         ⦃(fun r => match r with
-                   | .yield b' => inv.1 (⟨x::rpref, suff, by simp [h]⟩, b')
-                   | .done b' => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b'), inv.2)}) :
-    ⦃inv.1 (⟨[], xs.toList, by simp⟩, init)} forIn xs init f ⦃(fun b => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b), inv.2)} := by
+                   | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+                   | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)}) :
+    ⦃inv.1 (⟨[], xs.toList, rfl⟩, init)} forIn xs init f ⦃(fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2)} := by
   simp only [Std.Range.forIn_eq_forIn_range', Std.Range.size]
   apply Spec.forIn_list inv step
 
@@ -492,15 +534,15 @@ theorem Spec.forIn'_prange {α β : Type u}
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     {xs : PRange ⟨sl, su⟩ α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
-    (step : ∀ b rpref x (hx : x ∈ xs) suff (h : xs.toList = rpref.reverse ++ x :: suff),
-        ⦃inv.1 (⟨rpref, x::suff, by simp [h]⟩, b)}
-        f x hx b
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+        ⦃inv.1 (⟨pref, cur::suff, h.symm⟩, b)}
+        f cur (by simp [←mem_toList_iff_mem, h]) b
         ⦃(fun r => match r with
-                   | .yield b' => inv.1 (⟨x::rpref, suff, by simp [h]⟩, b')
-                   | .done b' => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b'), inv.2)}) :
-    ⦃inv.1 (⟨[], xs.toList, by simp⟩, init)} forIn' xs init f ⦃(fun b => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b), inv.2)} := by
+                   | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+                   | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)}) :
+    ⦃inv.1 (⟨[], xs.toList, rfl⟩, init)} forIn' xs init f ⦃(fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2)} := by
   simp only [forIn'_eq_forIn'_toList]
-  apply Spec.forIn'_list inv (fun b rpref x hx suff h => step b rpref x (mem_toList_iff_mem.mp hx) suff h)
+  apply Spec.forIn'_list inv step
 
 open Std.PRange in
 @[spec]
@@ -512,44 +554,44 @@ theorem Spec.forIn_prange {α β : Type u}
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     {xs : PRange ⟨sl, su⟩ α} {init : β} {f : α → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
-    (step : ∀ b rpref x suff (h : xs.toList = rpref.reverse ++ x :: suff),
-        ⦃inv.1 (⟨rpref, x::suff, by simp [h]⟩, b)}
-        f x b
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+        ⦃inv.1 (⟨pref, cur::suff, h.symm⟩, b)}
+        f cur b
         ⦃(fun r => match r with
-                   | .yield b' => inv.1 (⟨x::rpref, suff, by simp [h]⟩, b')
-                   | .done b' => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b'), inv.2)}) :
-    ⦃inv.1 (⟨[], xs.toList, by simp⟩, init)} forIn xs init f ⦃(fun b => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b), inv.2)} := by
+                   | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+                   | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)}) :
+    ⦃inv.1 (⟨[], xs.toList, rfl⟩, init)} forIn xs init f ⦃(fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2)} := by
   simp only [forIn]
-  apply Spec.forIn'_prange inv (fun b rpref x _hx suff h => step b rpref x suff h)
+  apply Spec.forIn'_prange inv step
 
 @[spec]
 theorem Spec.forIn'_array {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : Array α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
-    (step : ∀ b rpref x (hx : x ∈ xs) suff (h : xs.toList = rpref.reverse ++ x :: suff),
-        ⦃inv.1 (⟨rpref, x::suff, by simp [h]⟩, b)}
-        f x hx b
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+        ⦃inv.1 (⟨pref, cur::suff, h.symm⟩, b)}
+        f cur (by simp [←Array.mem_toList_iff, h]) b
         ⦃(fun r => match r with
-                   | .yield b' => inv.1 (⟨x::rpref, suff, by simp [h]⟩, b')
-                   | .done b' => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b'), inv.2)}) :
-    ⦃inv.1 (⟨[], xs.toList, by simp⟩, init)} forIn' xs init f ⦃(fun b => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b), inv.2)} := by
+                   | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+                   | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)}) :
+    ⦃inv.1 (⟨[], xs.toList, rfl⟩, init)} forIn' xs init f ⦃(fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2)} := by
   cases xs
   simp
-  apply Spec.forIn'_list inv (fun b rpref x hx suff h => step b rpref x (by simp[hx]) suff h)
+  apply Spec.forIn'_list inv step
 
 @[spec]
 theorem Spec.forIn_array {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : Array α} {init : β} {f : α → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
-    (step : ∀ b rpref x suff (h : xs.toList = rpref.reverse ++ x :: suff),
-        ⦃inv.1 (⟨rpref, x::suff, by simp [h]⟩, b)}
-        f x b
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+        ⦃inv.1 (⟨pref, cur::suff, h.symm⟩, b)}
+        f cur b
         ⦃(fun r => match r with
-                   | .yield b' => inv.1 (⟨x::rpref, suff, by simp [h]⟩, b')
-                   | .done b' => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b'), inv.2)}) :
-    ⦃inv.1 (⟨[], xs.toList, by simp⟩, init)} forIn xs init f ⦃(fun b => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b), inv.2)} := by
+                   | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+                   | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)}) :
+    ⦃inv.1 (⟨[], xs.toList, rfl⟩, init)} forIn xs init f ⦃(fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2)} := by
   cases xs
   simp
   apply Spec.forIn_list inv step
@@ -559,11 +601,11 @@ theorem Spec.foldlM_array {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : Array α} {init : β} {f : β → α → m β}
     (inv : Invariant xs.toList β ps)
-    (step : ∀ b rpref x suff (h : xs.toList = rpref.reverse ++ x :: suff),
-        ⦃inv.1 (⟨rpref, x::suff, by simp [h]⟩, b)}
-        f b x
-        ⦃(fun b' => inv.1 (⟨x::rpref, suff, by simp [h]⟩, b'), inv.2)}) :
-    ⦃inv.1 (⟨[], xs.toList, by simp⟩, init)} Array.foldlM f init xs ⦃(fun b => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b), inv.2)} := by
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+        ⦃inv.1 (⟨pref, cur::suff, h.symm⟩, b)}
+        f b cur
+          ⦃(fun b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b'), inv.2)}) :
+    ⦃inv.1 (⟨[], xs.toList, rfl⟩, init)} Array.foldlM f init xs ⦃(fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2)} := by
   cases xs
   simp
   apply Spec.foldlM_list inv step

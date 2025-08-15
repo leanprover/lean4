@@ -59,6 +59,7 @@ LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ZoneRules_fixedOffsetZone___lam__0(
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Std_Time_TimeZone_reprZoneRules___redArg___closed__3____x40_Std_Time_Zoned_ZoneRules___hyg_550_;
 static lean_object* l_Std_Time_TimeZone_instReprTransition___closed__0;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_TimeZone_reprLocalTimeType___redArg___closed__1____x40_Std_Time_Zoned_ZoneRules___hyg_267_;
 static lean_object* l_Std_Time_TimeZone_reprTransition___redArg___closed__6____x40_Std_Time_Zoned_ZoneRules___hyg_456_;
 static lean_object* l_Std_Time_TimeZone_instInhabitedTransition___closed__0;
@@ -123,7 +124,6 @@ LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_noConfusion___redArg___lam_
 static lean_object* l_Std_Time_TimeZone_reprLocalTimeType___redArg___closed__20____x40_Std_Time_Zoned_ZoneRules___hyg_267_;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Transition_timezoneAt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instReprStdWall;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Transition_createTimeZoneFromTransition(lean_object*);
 LEAN_EXPORT lean_object* l_Array_Array_repr___at___Std_Time_TimeZone_reprZoneRules____x40_Std_Time_Zoned_ZoneRules___hyg_550__spec__0(lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
@@ -2120,8 +2120,9 @@ return x_11;
 else
 {
 lean_object* x_12; 
-x_12 = lean_array_fget(x_1, x_8);
+x_12 = lean_array_fget_borrowed(x_1, x_8);
 lean_dec(x_8);
+lean_inc_ref(x_12);
 lean_ctor_set(x_3, 0, x_12);
 return x_3;
 }
@@ -2148,8 +2149,9 @@ return x_18;
 else
 {
 lean_object* x_19; lean_object* x_20; 
-x_19 = lean_array_fget(x_1, x_15);
+x_19 = lean_array_fget_borrowed(x_1, x_15);
 lean_dec(x_15);
+lean_inc_ref(x_19);
 x_20 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_20, 0, x_19);
 return x_20;

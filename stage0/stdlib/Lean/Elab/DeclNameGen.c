@@ -79,6 +79,7 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_Elab_liftMacroM___at___
 LEAN_EXPORT lean_object* l_List_forM___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27_spec__0_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_mkInstanceName___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_mkInstanceName___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27_spec__0___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27_spec__0_spec__10___redArg___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_mkBaseNameAux_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1036,7 +1037,7 @@ if (lean_obj_tag(x_4) == 7)
 lean_object* x_13; uint8_t x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; uint8_t x_68; 
 x_13 = lean_ctor_get(x_4, 2);
 x_14 = lean_ctor_get_uint8(x_4, sizeof(void*)*3 + 8);
-x_15 = lean_array_fget(x_1, x_2);
+x_15 = lean_array_fget_borrowed(x_1, x_2);
 x_68 = l_Lean_BinderInfo_isExplicit(x_14);
 if (x_68 == 0)
 {
@@ -1071,7 +1072,6 @@ block_58:
 if (x_16 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-lean_dec_ref(x_15);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -1113,6 +1113,7 @@ lean_object* x_25; lean_object* x_26;
 x_25 = lean_ctor_get(x_22, 1);
 lean_inc(x_25);
 lean_dec_ref(x_22);
+lean_inc_ref(x_15);
 x_26 = l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_winnowExpr_visit(x_15, x_7, x_8, x_9, x_10, x_11, x_25);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -1187,7 +1188,6 @@ return x_43;
 else
 {
 uint8_t x_44; 
-lean_dec_ref(x_15);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -1236,7 +1236,6 @@ return x_53;
 else
 {
 uint8_t x_54; 
-lean_dec_ref(x_15);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -1291,7 +1290,6 @@ goto block_58;
 else
 {
 uint8_t x_63; 
-lean_dec_ref(x_15);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);

@@ -67,6 +67,7 @@ LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_Widget_diffInteractiveGoa
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_initFn___closed__6____x40_Lean_Widget_Diff___hyg_5_;
 LEAN_EXPORT lean_object* l_List_isSuffixOf_x3f___at_____private_Lean_Widget_Diff_0__Lean_Widget_exprDiffCore_piDiff_spec__0(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiff_isEmpty(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_exprDiff(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Widget_diffInteractiveGoals_spec__2(lean_object*, lean_object*, lean_object*);
@@ -6208,7 +6209,8 @@ return x_22;
 else
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_23 = lean_array_fget(x_11, x_18);
+x_23 = lean_array_fget_borrowed(x_11, x_18);
+lean_inc(x_23);
 x_24 = l_Lean_Expr_fvar___override(x_23);
 lean_inc(x_7);
 lean_inc_ref(x_6);
@@ -6416,7 +6418,8 @@ return x_61;
 else
 {
 lean_object* x_62; lean_object* x_63; lean_object* x_64; 
-x_62 = lean_array_fget(x_50, x_57);
+x_62 = lean_array_fget_borrowed(x_50, x_57);
+lean_inc(x_62);
 x_63 = l_Lean_Expr_fvar___override(x_62);
 lean_inc(x_7);
 lean_inc_ref(x_6);

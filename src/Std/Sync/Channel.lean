@@ -800,7 +800,7 @@ private partial def forIn [Monad m] [MonadLiftT BaseIO m]
 
 /-- `for msg in ch.sync do ...` receives all messages in the channel until it is closed. -/
 instance [MonadLiftT BaseIO m] : ForIn m (Sync α) α where
-  forIn ch b f := ch.forIn f b
+  forIn ch b f := private ch.forIn f b
 
 end Sync
 
@@ -927,7 +927,7 @@ private partial def forIn [Inhabited α] [Monad m] [MonadLiftT BaseIO m]
 
 /-- `for msg in ch.sync do ...` receives all messages in the channel until it is closed. -/
 instance [Inhabited α] [MonadLiftT BaseIO m] : ForIn m (Sync α) α where
-  forIn ch b f := ch.forIn f b
+  forIn ch b f := private ch.forIn f b
 
 end Sync
 

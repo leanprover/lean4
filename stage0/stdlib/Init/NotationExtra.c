@@ -176,6 +176,7 @@ static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__ter
 static lean_object* l_unexpandListToArray___closed__1;
 static lean_object* l_unexpandMkArray8___closed__0;
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*, uint8_t);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_bracketedExplicitBinders___closed__9;
 static lean_object* l_Lean_solveTactic___closed__7;
@@ -544,7 +545,6 @@ static lean_object* l_Lean_unbracketedExplicitBinders___closed__20;
 LEAN_EXPORT lean_object* l_unexpandTSyntax(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_calcSteps___closed__6;
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_solveTactic___closed__13;
 static lean_object* l_term_u2203___x2c_____closed__7;
 static lean_object* l___aux__Init__NotationExtra______macroRules__tacticFunext________1___closed__14;
@@ -1559,9 +1559,8 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_4, x_11);
 lean_dec(x_4);
-x_13 = lean_array_fget(x_2, x_12);
+x_13 = lean_array_fget_borrowed(x_2, x_12);
 x_14 = l_Lean_Syntax_getArg(x_13, x_8);
-lean_dec(x_13);
 x_15 = l_Lean_Syntax_isIdent(x_14);
 if (x_15 == 0)
 {
@@ -1826,13 +1825,12 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_sub(x_3, x_10);
 lean_dec(x_3);
-x_12 = lean_array_fget(x_2, x_11);
+x_12 = lean_array_fget_borrowed(x_2, x_11);
 x_13 = l_Lean_Syntax_getArg(x_12, x_10);
 x_14 = l_Lean_Syntax_getArgs(x_13);
 lean_dec(x_13);
 x_15 = lean_unsigned_to_nat(3u);
 x_16 = l_Lean_Syntax_getArg(x_12, x_15);
-lean_dec(x_12);
 x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
 lean_inc(x_1);

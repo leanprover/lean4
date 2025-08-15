@@ -170,6 +170,7 @@ static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownId
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_DeclarationRange_ofStringPositions(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabModifiers___at___Lean_Elab_Command_elabDeclaration_spec__0___closed__5;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_initFn___closed__15____x40_Lean_Elab_Declaration___hyg_8587_;
 LEAN_EXPORT uint8_t l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_isMutualPreambleCommand(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabAttr___at___Lean_Elab_elabAttrs___at___Lean_Elab_elabDeclAttrs___at___Lean_Elab_elabModifiers___at___Lean_Elab_Command_elabDeclaration_spec__0_spec__0_spec__0_spec__6___lam__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -544,7 +545,6 @@ static lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_setDe
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_Command_elabAttr_spec__0___closed__5;
 lean_object* l_EStateM_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_Command_elabAxiom_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabInitialize___closed__27;
 lean_object* l_Lean_Elab_Term_addAutoBoundImplicits(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_mkConstWithLevelParams___at___Lean_Elab_Command_elabAxiom_spec__0_spec__11(lean_object*, lean_object*);
@@ -15912,7 +15912,8 @@ return x_19;
 else
 {
 lean_object* x_20; uint8_t x_21; 
-x_20 = lean_array_fget(x_1, x_2);
+x_20 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc(x_20);
 x_21 = l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_isMutualPreambleCommand(x_20);
 if (x_21 == 0)
 {
@@ -20020,7 +20021,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Command_expandMutualNamespace_spec__2___closed__1;
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(379u);
+x_3 = lean_unsigned_to_nat(383u);
 x_4 = l_Lean_ensureNonAmbiguous___at___Lean_Elab_Command_elabAttr_spec__1___closed__1;
 x_5 = l_Lean_ensureNonAmbiguous___at___Lean_Elab_Command_elabAttr_spec__1___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

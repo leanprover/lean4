@@ -91,6 +91,7 @@ LEAN_EXPORT lean_object* l_Lean_instReprData;
 LEAN_EXPORT lean_object* lean_level_mk_imax(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_isExplicitSubsumedAux___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_reprLevel___closed__0____x40_Lean_Level___hyg_1009_;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_isParam___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Level_isSucc(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_PP_toResult___boxed(lean_object*, lean_object*);
@@ -220,6 +221,7 @@ LEAN_EXPORT lean_object* l_Lean_Level_geq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_isZero___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_depth___boxed(lean_object*);
 static lean_object* l_Lean_reprLevel___closed__12____x40_Lean_Level___hyg_1009_;
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instReprLevel___closed__0;
 static lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Level_normalize_spec__1___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Level_PP_Result_quote(lean_object*, lean_object*);
@@ -245,7 +247,6 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_Level_c
 static lean_object* l_Lean_Level_PP_toResult___closed__3;
 static lean_object* l___private_Lean_Level_0__Lean_Level_updateSucc_x21Impl___closed__1;
 static lean_object* l_Lean_Level_mvarId_x21___closed__0;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_reprLevelMVarId___redArg___closed__9____x40_Lean_Level___hyg_522_;
 LEAN_EXPORT lean_object* l_Lean_Level_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_getOffset(lean_object*);
@@ -357,7 +358,6 @@ LEAN_EXPORT lean_object* l_Lean_Level_format___boxed(lean_object*, lean_object*)
 static lean_object* l_Lean_Level_mvarId_x21___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Level_instBEq;
 LEAN_EXPORT lean_object* l_Lean_reprLevelMVarId____x40_Lean_Level___hyg_522____boxed(lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_simpLevelMax_x27(lean_object*, lean_object*, lean_object*);
 uint8_t lean_level_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -3922,10 +3922,9 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_11 = lean_array_fget(x_1, x_3);
+x_11 = lean_array_fget_borrowed(x_1, x_3);
 x_12 = l_Lean_Level_getLevelOffset(x_11);
 x_13 = l_Lean_Level_getOffset(x_11);
-lean_dec(x_11);
 x_14 = lean_level_eq(x_12, x_4);
 if (x_14 == 0)
 {
@@ -3982,9 +3981,8 @@ return x_2;
 else
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_array_fget(x_1, x_2);
+x_5 = lean_array_fget_borrowed(x_1, x_2);
 x_6 = l_Lean_Level_getLevelOffset(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_Level_isZero(x_6);
 lean_dec(x_6);
 if (x_7 == 0)
@@ -4027,9 +4025,8 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_6 = lean_array_fget(x_1, x_3);
+x_6 = lean_array_fget_borrowed(x_1, x_3);
 x_7 = l_Lean_Level_getOffset(x_6);
-lean_dec(x_6);
 x_8 = lean_nat_dec_le(x_2, x_7);
 lean_dec(x_7);
 if (x_8 == 0)
@@ -4072,10 +4069,9 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_box(0);
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_2, x_6);
-x_8 = lean_array_get(x_5, x_1, x_7);
+x_8 = lean_array_get_borrowed(x_5, x_1, x_7);
 lean_dec(x_7);
 x_9 = l_Lean_Level_getOffset(x_8);
-lean_dec(x_8);
 x_10 = l___private_Lean_Level_0__Lean_Level_isExplicitSubsumedAux(x_1, x_9, x_2);
 lean_dec(x_9);
 return x_10;
@@ -4314,10 +4310,9 @@ block_20:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_14 = lean_box(0);
-x_15 = lean_array_get(x_14, x_12, x_13);
+x_15 = lean_array_get_borrowed(x_14, x_12, x_13);
 x_16 = l_Lean_Level_getLevelOffset(x_15);
 x_17 = l_Lean_Level_getOffset(x_15);
-lean_dec(x_15);
 x_18 = lean_nat_add(x_13, x_11);
 lean_dec(x_13);
 x_19 = l___private_Lean_Level_0__Lean_Level_mkMaxAux(x_12, x_3, x_18, x_16, x_17, x_14);

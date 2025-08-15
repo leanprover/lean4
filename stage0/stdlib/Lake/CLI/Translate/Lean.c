@@ -184,6 +184,7 @@ lean_object* l_Lake_PackageConfig_buildArchive___proj(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_mkCommand___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lake_instToLeanPartialBuildKeyMkStr1___closed__0;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__7;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake_PartialBuildKey_toLean_mkSuffixes_spec__0(size_t, size_t, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__75;
@@ -586,7 +587,6 @@ LEAN_EXPORT lean_object* l_Lake_instToLeanArrayMkStr1___redArg___lam__1(lean_obj
 static lean_object* l_Lake_BuildType_toLean___closed__8;
 static lean_object* l_Lake_mkDeclValWhere_x3f___closed__4;
 lean_object* l_EStateM_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lake_StrPatDescr_toLean___closed__12;
 static lean_object* l_Lake_Dependency_mkRequire___closed__11;
 LEAN_EXPORT lean_object* l_Lake_instToLean_x3fArray___redArg___lam__0(lean_object*, lean_object*);
@@ -20364,11 +20364,9 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
-x_8 = lean_array_fget(x_1, x_7);
-x_9 = lean_array_fget(x_2, x_7);
+x_8 = lean_array_fget_borrowed(x_1, x_7);
+x_9 = lean_array_fget_borrowed(x_2, x_7);
 x_10 = lean_string_dec_eq(x_8, x_9);
-lean_dec_ref(x_9);
-lean_dec_ref(x_8);
 if (x_10 == 0)
 {
 lean_dec(x_7);
@@ -21783,11 +21781,9 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
-x_8 = lean_array_fget(x_1, x_7);
-x_9 = lean_array_fget(x_2, x_7);
+x_8 = lean_array_fget_borrowed(x_1, x_7);
+x_9 = lean_array_fget_borrowed(x_2, x_7);
 x_10 = l_Lake_decEqGlob____x40_Lake_Config_Glob___hyg_204_(x_8, x_9);
-lean_dec_ref(x_9);
-lean_dec_ref(x_8);
 if (x_10 == 0)
 {
 lean_dec(x_7);
@@ -26017,9 +26013,11 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
-x_8 = lean_array_fget(x_1, x_7);
-x_9 = lean_array_fget(x_2, x_7);
+x_8 = lean_array_fget_borrowed(x_1, x_7);
+x_9 = lean_array_fget_borrowed(x_2, x_7);
+lean_inc_ref(x_8);
 x_10 = l_System_FilePath_normalize(x_8);
+lean_inc_ref(x_9);
 x_11 = l_System_FilePath_normalize(x_9);
 x_12 = lean_string_dec_eq(x_10, x_11);
 lean_dec_ref(x_11);

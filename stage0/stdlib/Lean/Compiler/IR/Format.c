@@ -192,6 +192,7 @@ lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_o
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__26;
 LEAN_EXPORT lean_object* l_Lean_IR_formatFnBody(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_____private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_instToFormatIRType___private__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_instToStringExpr___lam__0(lean_object*);
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__8;
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2353,11 +2354,19 @@ return x_70;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_IR_instToFormatIRType___private__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_IR_instToFormatIRType___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_IR_instToFormatIRType___private__1), 1, 0);
 return x_1;
 }
 }

@@ -45,6 +45,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_fo
 static lean_object* l___auto___closed__11____x40_Init_Data_FloatArray_Basic___hyg_456_;
 static lean_object* l___auto___closed__2____x40_Init_Data_FloatArray_Basic___hyg_456_;
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_float_array_fset(lean_object*, lean_object*, double);
 LEAN_EXPORT lean_object* l_FloatArray_empty;
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -106,7 +107,6 @@ LEAN_EXPORT lean_object* l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40
 static lean_object* l___auto___closed__20____x40_Init_Data_FloatArray_Basic___hyg_456_;
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 double lean_float_array_uget(lean_object*, size_t);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -206,12 +206,10 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; double x_9; lean_object* x
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
-x_8 = lean_array_fget(x_1, x_7);
+x_8 = lean_array_fget_borrowed(x_1, x_7);
 x_9 = lean_unbox_float(x_8);
-lean_dec_ref(x_8);
-x_10 = lean_array_fget(x_2, x_7);
+x_10 = lean_array_fget_borrowed(x_2, x_7);
 x_11 = lean_unbox_float(x_10);
-lean_dec_ref(x_10);
 x_12 = lean_float_beq(x_9, x_11);
 if (x_12 == 0)
 {

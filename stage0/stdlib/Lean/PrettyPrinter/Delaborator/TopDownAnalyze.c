@@ -195,6 +195,7 @@ static lean_object* l_Lean_initFn___closed__0____x40_Lean_PrettyPrinter_Delabora
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Lean_PrettyPrinter_Delaborator_TopDownAnalyze_replaceLPsWithVars_spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___closed__7;
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_368_;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_analyzeFn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getPPAnalysisNeedsType___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_PrettyPrinter_Delaborator_topDownAnalyze_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -507,6 +508,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_instMon
 lean_object* l_Lean_KVMap_setBool(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_collectTrivialBottomUps_spec__0___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___at_____private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet_spec__0___redArg___closed__0;
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_isNonConstFun___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_nameNotRoundtrippable_containsNum(lean_object*);
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_408_;
@@ -8001,12 +8003,14 @@ goto block_45;
 else
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; 
-x_47 = lean_array_get(x_30, x_4, x_3);
-x_48 = lean_array_get(x_30, x_5, x_3);
+x_47 = lean_array_get_borrowed(x_30, x_4, x_3);
+x_48 = lean_array_get_borrowed(x_30, x_5, x_3);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
+lean_inc_ref(x_48);
+lean_inc_ref(x_47);
 x_49 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_47, x_48, x_6, x_7, x_8, x_9, x_10, x_11, x_23);
 if (lean_obj_tag(x_49) == 0)
 {
@@ -8038,13 +8042,11 @@ return x_49;
 block_45:
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
-x_38 = lean_array_get(x_30, x_4, x_3);
+x_38 = lean_array_get_borrowed(x_30, x_4, x_3);
 x_39 = lean_expr_instantiate1(x_28, x_38);
-lean_dec_ref(x_38);
 lean_dec_ref(x_28);
-x_40 = lean_array_get(x_30, x_5, x_3);
+x_40 = lean_array_get_borrowed(x_30, x_5, x_3);
 x_41 = lean_expr_instantiate1(x_29, x_40);
-lean_dec_ref(x_40);
 lean_dec_ref(x_29);
 x_42 = lean_unsigned_to_nat(1u);
 x_43 = lean_nat_add(x_3, x_42);
@@ -8147,12 +8149,14 @@ goto block_75;
 else
 {
 lean_object* x_77; lean_object* x_78; lean_object* x_79; 
-x_77 = lean_array_get(x_60, x_4, x_3);
-x_78 = lean_array_get(x_60, x_5, x_3);
+x_77 = lean_array_get_borrowed(x_60, x_4, x_3);
+x_78 = lean_array_get_borrowed(x_60, x_5, x_3);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
+lean_inc_ref(x_78);
+lean_inc_ref(x_77);
 x_79 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_77, x_78, x_6, x_7, x_8, x_9, x_10, x_11, x_52);
 if (lean_obj_tag(x_79) == 0)
 {
@@ -8184,13 +8188,11 @@ return x_79;
 block_75:
 {
 lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; 
-x_68 = lean_array_get(x_60, x_4, x_3);
+x_68 = lean_array_get_borrowed(x_60, x_4, x_3);
 x_69 = lean_expr_instantiate1(x_58, x_68);
-lean_dec_ref(x_68);
 lean_dec_ref(x_58);
-x_70 = lean_array_get(x_60, x_5, x_3);
+x_70 = lean_array_get_borrowed(x_60, x_5, x_3);
 x_71 = lean_expr_instantiate1(x_59, x_70);
-lean_dec_ref(x_70);
 lean_dec_ref(x_59);
 x_72 = lean_unsigned_to_nat(1u);
 x_73 = lean_nat_add(x_3, x_72);
@@ -8764,7 +8766,7 @@ _start:
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_25; lean_object* x_26; uint8_t x_27; uint8_t x_28; uint8_t x_29; 
 x_25 = lean_box(x_1);
-x_26 = lean_array_get(x_25, x_2, x_9);
+x_26 = lean_array_get_borrowed(x_25, x_2, x_9);
 x_27 = lean_unbox(x_26);
 x_28 = 3;
 x_29 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_27, x_28);
@@ -8783,7 +8785,7 @@ else
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
 lean_inc_ref(x_4);
-x_32 = lean_array_get(x_4, x_5, x_9);
+x_32 = lean_array_get_borrowed(x_4, x_5, x_9);
 x_33 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isTrivialBottomUp___redArg(x_32, x_14, x_16);
 x_34 = lean_ctor_get(x_33, 0);
 lean_inc(x_34);
@@ -8795,7 +8797,7 @@ lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_50;
 x_36 = lean_ctor_get(x_33, 1);
 lean_inc(x_36);
 lean_dec_ref(x_33);
-x_37 = lean_array_fget(x_6, x_9);
+x_37 = lean_array_fget_borrowed(x_6, x_9);
 lean_inc(x_15);
 lean_inc_ref(x_14);
 lean_inc(x_13);
@@ -8848,8 +8850,6 @@ x_40 = lean_unbox(x_39);
 if (x_40 == 0)
 {
 lean_object* x_41; 
-lean_dec_ref(x_37);
-lean_dec_ref(x_32);
 x_41 = lean_ctor_get(x_38, 1);
 lean_inc(x_41);
 lean_dec_ref(x_38);
@@ -8867,6 +8867,8 @@ lean_inc(x_15);
 lean_inc_ref(x_14);
 lean_inc(x_13);
 lean_inc_ref(x_12);
+lean_inc_ref(x_37);
+lean_inc_ref(x_32);
 x_43 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_32, x_37, x_10, x_11, x_12, x_13, x_14, x_15, x_42);
 if (lean_obj_tag(x_43) == 0)
 {
@@ -8893,8 +8895,6 @@ return x_43;
 else
 {
 uint8_t x_45; 
-lean_dec_ref(x_37);
-lean_dec_ref(x_32);
 lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
@@ -8928,11 +8928,13 @@ lean_object* x_56; lean_object* x_57; lean_object* x_58;
 x_56 = lean_ctor_get(x_33, 1);
 lean_inc(x_56);
 lean_dec_ref(x_33);
-x_57 = lean_array_fget(x_6, x_9);
+x_57 = lean_array_fget_borrowed(x_6, x_9);
 lean_inc(x_15);
 lean_inc_ref(x_14);
 lean_inc(x_13);
 lean_inc_ref(x_12);
+lean_inc_ref(x_57);
+lean_inc_ref(x_32);
 x_58 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_32, x_57, x_10, x_11, x_12, x_13, x_14, x_15, x_56);
 if (lean_obj_tag(x_58) == 0)
 {
@@ -8961,12 +8963,14 @@ else
 {
 lean_object* x_60; lean_object* x_61; lean_object* x_62; 
 lean_inc_ref(x_4);
-x_60 = lean_array_get(x_4, x_5, x_9);
-x_61 = lean_array_fget(x_6, x_9);
+x_60 = lean_array_get_borrowed(x_4, x_5, x_9);
+x_61 = lean_array_fget_borrowed(x_6, x_9);
 lean_inc(x_15);
 lean_inc_ref(x_14);
 lean_inc(x_13);
 lean_inc_ref(x_12);
+lean_inc_ref(x_61);
+lean_inc_ref(x_60);
 x_62 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_inspectOutParams(x_60, x_61, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 if (lean_obj_tag(x_62) == 0)
 {
@@ -9218,7 +9222,8 @@ goto block_86;
 else
 {
 lean_object* x_104; lean_object* x_105; lean_object* x_106; uint8_t x_107; 
-x_104 = lean_array_get(x_70, x_98, x_97);
+x_104 = lean_array_get_borrowed(x_70, x_98, x_97);
+lean_inc_ref(x_104);
 x_105 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_104, x_6, x_7, x_8, x_9, x_102);
 x_106 = lean_ctor_get(x_105, 0);
 lean_inc(x_106);
@@ -9230,7 +9235,8 @@ lean_object* x_108; lean_object* x_109; lean_object* x_110;
 x_108 = lean_ctor_get(x_105, 1);
 lean_inc(x_108);
 lean_dec_ref(x_105);
-x_109 = lean_array_get(x_70, x_98, x_100);
+x_109 = lean_array_get_borrowed(x_70, x_98, x_100);
+lean_inc_ref(x_109);
 x_110 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_109, x_6, x_7, x_8, x_9, x_108);
 x_87 = x_97;
 x_88 = x_98;
@@ -12177,7 +12183,7 @@ _start:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_28; lean_object* x_29; uint8_t x_30; uint8_t x_31; uint8_t x_32; 
 x_28 = lean_box(x_2);
-x_29 = lean_array_get(x_28, x_3, x_9);
+x_29 = lean_array_get_borrowed(x_28, x_3, x_9);
 x_30 = lean_unbox(x_29);
 x_31 = 0;
 x_32 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_30, x_31);
@@ -12192,7 +12198,7 @@ else
 {
 lean_object* x_33; lean_object* x_34; 
 lean_inc_ref(x_4);
-x_33 = lean_array_get(x_4, x_5, x_9);
+x_33 = lean_array_get_borrowed(x_4, x_5, x_9);
 lean_inc(x_16);
 lean_inc_ref(x_15);
 lean_inc(x_14);
@@ -12209,7 +12215,6 @@ lean_dec(x_35);
 if (x_36 == 0)
 {
 lean_object* x_37; 
-lean_dec_ref(x_33);
 x_37 = lean_ctor_get(x_34, 1);
 lean_inc(x_37);
 lean_dec_ref(x_34);
@@ -12224,7 +12229,7 @@ lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean
 x_38 = lean_ctor_get(x_34, 1);
 lean_inc(x_38);
 lean_dec_ref(x_34);
-x_39 = lean_array_fget(x_6, x_9);
+x_39 = lean_array_fget_borrowed(x_6, x_9);
 lean_inc_ref(x_7);
 lean_inc(x_9);
 x_40 = lean_apply_1(x_7, x_9);
@@ -12233,6 +12238,7 @@ lean_inc(x_16);
 lean_inc_ref(x_15);
 lean_inc(x_14);
 lean_inc_ref(x_13);
+lean_inc_ref(x_39);
 x_42 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_canBottomUp(x_39, x_40, x_41, x_11, x_12, x_13, x_14, x_15, x_16, x_38);
 if (lean_obj_tag(x_42) == 0)
 {
@@ -12244,7 +12250,6 @@ if (x_44 == 0)
 {
 lean_object* x_45; 
 lean_dec(x_43);
-lean_dec_ref(x_33);
 x_45 = lean_ctor_get(x_42, 1);
 lean_inc(x_45);
 lean_dec_ref(x_42);
@@ -12260,11 +12265,13 @@ x_46 = lean_ctor_get(x_42, 1);
 lean_inc(x_46);
 lean_dec_ref(x_42);
 lean_inc_ref(x_4);
-x_47 = lean_array_get(x_4, x_6, x_9);
+x_47 = lean_array_get_borrowed(x_4, x_6, x_9);
 lean_inc(x_16);
 lean_inc_ref(x_15);
 lean_inc(x_14);
 lean_inc_ref(x_13);
+lean_inc_ref(x_33);
+lean_inc_ref(x_47);
 x_48 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_47, x_33, x_11, x_12, x_13, x_14, x_15, x_16, x_46);
 if (lean_obj_tag(x_48) == 0)
 {
@@ -12347,7 +12354,6 @@ return x_63;
 else
 {
 uint8_t x_64; 
-lean_dec_ref(x_33);
 lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
@@ -12380,7 +12386,6 @@ return x_67;
 else
 {
 uint8_t x_68; 
-lean_dec_ref(x_33);
 lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
@@ -12645,7 +12650,8 @@ LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_TopDownAnaly
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_array_get(x_1, x_2, x_3);
+x_4 = lean_array_get_borrowed(x_1, x_2, x_3);
+lean_inc_ref(x_4);
 x_5 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 return x_5;
@@ -13000,7 +13006,7 @@ _start:
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_26; lean_object* x_27; uint8_t x_28; uint8_t x_29; uint8_t x_30; 
 x_26 = lean_box(x_1);
-x_27 = lean_array_get(x_26, x_2, x_7);
+x_27 = lean_array_get_borrowed(x_26, x_2, x_7);
 x_28 = lean_unbox(x_27);
 x_29 = 3;
 x_30 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_28, x_29);
@@ -13014,13 +13020,15 @@ goto block_25;
 else
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
-x_31 = lean_array_fget(x_4, x_7);
+x_31 = lean_array_fget_borrowed(x_4, x_7);
 x_32 = l_Lean_instInhabitedExpr;
-x_33 = lean_array_get(x_32, x_5, x_7);
+x_33 = lean_array_get_borrowed(x_32, x_5, x_7);
 lean_inc(x_14);
 lean_inc_ref(x_13);
 lean_inc(x_12);
 lean_inc_ref(x_11);
+lean_inc_ref(x_33);
+lean_inc_ref(x_31);
 x_34 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_inspectOutParams(x_31, x_33, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 if (lean_obj_tag(x_34) == 0)
 {
@@ -13237,7 +13245,7 @@ _start:
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_50; lean_object* x_51; uint8_t x_52; lean_object* x_53; uint8_t x_54; uint8_t x_55; uint8_t x_56; uint8_t x_58; lean_object* x_59; uint8_t x_60; uint8_t x_84; lean_object* x_109; lean_object* x_110; uint8_t x_111; uint8_t x_112; uint8_t x_113; 
 x_109 = lean_box(x_5);
-x_110 = lean_array_get(x_109, x_6, x_8);
+x_110 = lean_array_get_borrowed(x_109, x_6, x_8);
 x_111 = lean_unbox(x_110);
 x_112 = 1;
 x_113 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_111, x_112);
@@ -13419,7 +13427,7 @@ if (x_60 == 0)
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
 lean_inc_ref(x_3);
-x_61 = lean_array_get(x_3, x_4, x_8);
+x_61 = lean_array_get_borrowed(x_3, x_4, x_8);
 lean_inc_ref(x_61);
 x_62 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_61, x_12, x_13, x_14, x_15, x_59);
 x_63 = lean_ctor_get(x_62, 0);
@@ -13428,7 +13436,7 @@ x_64 = lean_ctor_get(x_62, 1);
 lean_inc(x_64);
 lean_dec_ref(x_62);
 lean_inc_ref(x_3);
-x_65 = lean_array_get(x_3, x_2, x_8);
+x_65 = lean_array_get_borrowed(x_3, x_2, x_8);
 lean_inc(x_15);
 lean_inc_ref(x_14);
 lean_inc(x_13);
@@ -13459,6 +13467,8 @@ x_74 = lean_unbox(x_70);
 lean_dec(x_70);
 x_75 = lean_unbox(x_67);
 lean_dec(x_67);
+lean_inc_ref(x_65);
+lean_inc_ref(x_61);
 x_50 = x_61;
 x_51 = x_65;
 x_52 = x_58;
@@ -13480,6 +13490,8 @@ x_77 = lean_unbox(x_70);
 lean_dec(x_70);
 x_78 = lean_unbox(x_67);
 lean_dec(x_67);
+lean_inc_ref(x_65);
+lean_inc_ref(x_61);
 x_50 = x_61;
 x_51 = x_65;
 x_52 = x_58;
@@ -13493,6 +13505,8 @@ else
 {
 lean_dec(x_70);
 lean_dec(x_67);
+lean_inc_ref(x_65);
+lean_inc_ref(x_61);
 x_27 = x_61;
 x_28 = x_58;
 x_29 = x_65;
@@ -13504,9 +13518,7 @@ goto block_49;
 else
 {
 uint8_t x_79; 
-lean_dec_ref(x_65);
 lean_dec(x_63);
-lean_dec_ref(x_61);
 lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
@@ -13554,11 +13566,12 @@ goto block_26;
 else
 {
 lean_object* x_85; lean_object* x_86; 
-x_85 = lean_array_fget(x_2, x_8);
+x_85 = lean_array_fget_borrowed(x_2, x_8);
 lean_inc(x_15);
 lean_inc_ref(x_14);
 lean_inc(x_13);
 lean_inc_ref(x_12);
+lean_inc_ref(x_85);
 x_86 = lean_infer_type(x_85, x_12, x_13, x_14, x_15, x_16);
 if (lean_obj_tag(x_86) == 0)
 {
@@ -13613,9 +13626,8 @@ else
 {
 lean_object* x_97; uint8_t x_98; uint8_t x_99; 
 lean_inc_ref(x_3);
-x_97 = lean_array_get(x_3, x_2, x_8);
+x_97 = lean_array_get_borrowed(x_3, x_2, x_8);
 x_98 = l_Lean_PrettyPrinter_Delaborator_isIdLike(x_97);
-lean_dec_ref(x_97);
 x_99 = lean_unbox(x_90);
 lean_dec(x_90);
 x_58 = x_99;
@@ -13914,7 +13926,8 @@ else
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; uint8_t x_49; 
 x_45 = lean_unsigned_to_nat(0u);
-x_46 = lean_array_get(x_18, x_10, x_45);
+x_46 = lean_array_get_borrowed(x_18, x_10, x_45);
+lean_inc_ref(x_46);
 x_47 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_46, x_5, x_6, x_7, x_8, x_13);
 x_48 = lean_ctor_get(x_47, 0);
 lean_inc(x_48);
@@ -13927,7 +13940,8 @@ x_50 = lean_ctor_get(x_47, 1);
 lean_inc(x_50);
 lean_dec_ref(x_47);
 x_51 = lean_unsigned_to_nat(1u);
-x_52 = lean_array_get(x_18, x_10, x_51);
+x_52 = lean_array_get_borrowed(x_18, x_10, x_51);
+lean_inc_ref(x_52);
 x_53 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_52, x_5, x_6, x_7, x_8, x_50);
 x_54 = lean_ctor_get(x_53, 0);
 lean_inc(x_54);
@@ -13956,9 +13970,11 @@ block_37:
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_21 = lean_unsigned_to_nat(0u);
-x_22 = lean_array_get(x_18, x_10, x_21);
+x_22 = lean_array_get_borrowed(x_18, x_10, x_21);
 x_23 = lean_unsigned_to_nat(1u);
-x_24 = lean_array_get(x_18, x_10, x_23);
+x_24 = lean_array_get_borrowed(x_18, x_10, x_23);
+lean_inc_ref(x_24);
+lean_inc_ref(x_22);
 x_25 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_22, x_24, x_3, x_4, x_5, x_6, x_7, x_8, x_20);
 lean_dec_ref(x_3);
 if (lean_obj_tag(x_25) == 0)
@@ -14088,7 +14104,7 @@ _start:
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_26; lean_object* x_27; uint8_t x_28; uint8_t x_29; uint8_t x_30; 
 x_26 = lean_box(x_2);
-x_27 = lean_array_get(x_26, x_3, x_7);
+x_27 = lean_array_get_borrowed(x_26, x_3, x_7);
 x_28 = lean_unbox(x_27);
 x_29 = 0;
 x_30 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_28, x_29);
@@ -14103,7 +14119,7 @@ else
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
 x_31 = l_Lean_instInhabitedExpr;
-x_32 = lean_array_get(x_31, x_4, x_7);
+x_32 = lean_array_get_borrowed(x_31, x_4, x_7);
 lean_inc_ref(x_32);
 x_33 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_32, x_11, x_12, x_13, x_14, x_15);
 x_34 = lean_ctor_get(x_33, 0);
@@ -14113,7 +14129,6 @@ lean_dec(x_34);
 if (x_35 == 0)
 {
 lean_object* x_36; 
-lean_dec_ref(x_32);
 x_36 = lean_ctor_get(x_33, 1);
 lean_inc(x_36);
 lean_dec_ref(x_33);
@@ -14128,9 +14143,8 @@ lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; uint
 x_37 = lean_ctor_get(x_33, 1);
 lean_inc(x_37);
 lean_dec_ref(x_33);
-x_38 = lean_array_fget(x_5, x_7);
+x_38 = lean_array_fget_borrowed(x_5, x_7);
 x_39 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isTrivialBottomUp___redArg(x_38, x_13, x_37);
-lean_dec_ref(x_38);
 x_40 = lean_ctor_get(x_39, 0);
 lean_inc(x_40);
 x_41 = lean_unbox(x_40);
@@ -14138,7 +14152,6 @@ if (x_41 == 0)
 {
 lean_object* x_42; 
 lean_dec(x_40);
-lean_dec_ref(x_32);
 x_42 = lean_ctor_get(x_39, 1);
 lean_inc(x_42);
 lean_dec_ref(x_39);
@@ -14153,11 +14166,13 @@ lean_object* x_43; lean_object* x_44; lean_object* x_45;
 x_43 = lean_ctor_get(x_39, 1);
 lean_inc(x_43);
 lean_dec_ref(x_39);
-x_44 = lean_array_get(x_31, x_5, x_7);
+x_44 = lean_array_get_borrowed(x_31, x_5, x_7);
 lean_inc(x_14);
 lean_inc_ref(x_13);
 lean_inc(x_12);
 lean_inc_ref(x_11);
+lean_inc_ref(x_32);
+lean_inc_ref(x_44);
 x_45 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_44, x_32, x_9, x_10, x_11, x_12, x_13, x_14, x_43);
 if (lean_obj_tag(x_45) == 0)
 {
@@ -14869,7 +14884,7 @@ _start:
 {
 uint8_t x_20; lean_object* x_21; lean_object* x_22; uint8_t x_31; lean_object* x_32; lean_object* x_33; lean_object* x_66; lean_object* x_67; uint8_t x_68; uint8_t x_69; uint8_t x_70; 
 x_66 = lean_box(x_4);
-x_67 = lean_array_get(x_66, x_5, x_10);
+x_67 = lean_array_get_borrowed(x_66, x_5, x_10);
 x_68 = lean_unbox(x_67);
 x_69 = 1;
 x_70 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_68, x_69);
@@ -14884,7 +14899,7 @@ else
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; uint8_t x_74; 
 lean_inc_ref(x_1);
-x_71 = lean_array_get(x_1, x_3, x_10);
+x_71 = lean_array_get_borrowed(x_1, x_3, x_10);
 lean_inc_ref(x_71);
 x_72 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_71, x_15, x_16, x_17, x_18, x_19);
 x_73 = lean_ctor_get(x_72, 0);
@@ -14894,7 +14909,6 @@ lean_dec(x_73);
 if (x_74 == 0)
 {
 lean_object* x_75; 
-lean_dec_ref(x_71);
 x_75 = lean_ctor_get(x_72, 1);
 lean_inc(x_75);
 lean_dec_ref(x_72);
@@ -14909,6 +14923,7 @@ lean_object* x_76; lean_object* x_77; lean_object* x_78;
 x_76 = lean_ctor_get(x_72, 1);
 lean_inc(x_76);
 lean_dec_ref(x_72);
+lean_inc_ref(x_71);
 lean_inc_ref(x_6);
 x_77 = lean_alloc_closure((void*)(l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_applyFunBinderHeuristic_core_spec__5___redArg___lam__0___boxed), 11, 2);
 lean_closure_set(x_77, 0, x_6);
@@ -15020,9 +15035,11 @@ x_37 = lean_ctor_get(x_35, 1);
 x_38 = lean_ctor_get(x_35, 0);
 lean_dec(x_38);
 lean_inc_ref(x_1);
-x_39 = lean_array_get(x_1, x_2, x_10);
-x_40 = lean_array_get(x_1, x_3, x_10);
+x_39 = lean_array_get_borrowed(x_1, x_2, x_10);
+x_40 = lean_array_get_borrowed(x_1, x_3, x_10);
 lean_dec(x_10);
+lean_inc_ref(x_40);
+lean_inc_ref(x_39);
 x_41 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_39, x_40, x_13, x_14, x_15, x_16, x_17, x_18, x_37);
 lean_dec(x_14);
 lean_dec_ref(x_13);
@@ -15088,9 +15105,11 @@ x_52 = lean_ctor_get(x_35, 1);
 lean_inc(x_52);
 lean_dec(x_35);
 lean_inc_ref(x_1);
-x_53 = lean_array_get(x_1, x_2, x_10);
-x_54 = lean_array_get(x_1, x_3, x_10);
+x_53 = lean_array_get_borrowed(x_1, x_2, x_10);
+x_54 = lean_array_get_borrowed(x_1, x_3, x_10);
 lean_dec(x_10);
+lean_inc_ref(x_54);
+lean_inc_ref(x_53);
 x_55 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_53, x_54, x_13, x_14, x_15, x_16, x_17, x_18, x_52);
 lean_dec(x_14);
 lean_dec_ref(x_13);
@@ -15742,7 +15761,7 @@ _start:
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_27; lean_object* x_28; uint8_t x_29; uint8_t x_30; uint8_t x_31; 
 x_27 = lean_box(x_1);
-x_28 = lean_array_get(x_27, x_2, x_7);
+x_28 = lean_array_get_borrowed(x_27, x_2, x_7);
 x_29 = lean_unbox(x_28);
 x_30 = 0;
 x_31 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_29, x_30);
@@ -15757,11 +15776,12 @@ else
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 x_32 = l_Lean_instInhabitedExpr;
-x_33 = lean_array_get(x_32, x_4, x_7);
+x_33 = lean_array_get_borrowed(x_32, x_4, x_7);
 lean_inc(x_15);
 lean_inc_ref(x_14);
 lean_inc(x_13);
 lean_inc_ref(x_12);
+lean_inc_ref(x_33);
 x_34 = lean_infer_type(x_33, x_12, x_13, x_14, x_15, x_16);
 if (lean_obj_tag(x_34) == 0)
 {
@@ -15981,7 +16001,7 @@ _start:
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_29; lean_object* x_30; uint8_t x_31; uint8_t x_32; uint8_t x_33; 
 x_29 = lean_box(x_1);
-x_30 = lean_array_get(x_29, x_2, x_9);
+x_30 = lean_array_get_borrowed(x_29, x_2, x_9);
 x_31 = lean_unbox(x_30);
 x_32 = 0;
 x_33 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_31, x_32);
@@ -15996,11 +16016,12 @@ else
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 x_34 = l_Lean_instInhabitedExpr;
-x_35 = lean_array_get(x_34, x_4, x_9);
+x_35 = lean_array_get_borrowed(x_34, x_4, x_9);
 lean_inc(x_17);
 lean_inc_ref(x_16);
 lean_inc(x_15);
 lean_inc_ref(x_14);
+lean_inc_ref(x_35);
 x_36 = lean_infer_type(x_35, x_14, x_15, x_16, x_17, x_18);
 if (lean_obj_tag(x_36) == 0)
 {
@@ -22178,7 +22199,7 @@ _start:
 uint8_t x_15; uint8_t x_46; lean_object* x_47; lean_object* x_48; uint8_t x_49; uint8_t x_50; uint8_t x_51; 
 x_46 = 0;
 x_47 = lean_box(x_46);
-x_48 = lean_array_get(x_47, x_3, x_4);
+x_48 = lean_array_get_borrowed(x_47, x_3, x_4);
 x_49 = lean_unbox(x_48);
 x_50 = 3;
 x_51 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_49, x_50);
@@ -22365,7 +22386,7 @@ lean_object* x_17; lean_object* x_67; uint8_t x_68; lean_object* x_69; lean_obje
 x_67 = lean_ctor_get(x_9, 3);
 x_68 = 0;
 x_69 = lean_box(x_68);
-x_70 = lean_array_get(x_69, x_67, x_7);
+x_70 = lean_array_get_borrowed(x_69, x_67, x_7);
 x_71 = lean_unbox(x_70);
 if (x_71 == 0)
 {
@@ -22726,7 +22747,7 @@ lean_object* x_19; lean_object* x_69; uint8_t x_70; lean_object* x_71; lean_obje
 x_69 = lean_ctor_get(x_11, 3);
 x_70 = 0;
 x_71 = lean_box(x_70);
-x_72 = lean_array_get(x_71, x_69, x_9);
+x_72 = lean_array_get_borrowed(x_71, x_69, x_9);
 x_73 = lean_unbox(x_72);
 if (x_73 == 0)
 {
@@ -23255,7 +23276,7 @@ _start:
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_36; lean_object* x_37; lean_object* x_38; uint8_t x_39; 
 x_36 = lean_ctor_get(x_7, 3);
 x_37 = lean_box(x_3);
-x_38 = lean_array_get(x_37, x_36, x_4);
+x_38 = lean_array_get_borrowed(x_37, x_36, x_4);
 x_39 = lean_unbox(x_38);
 if (x_39 == 0)
 {
@@ -23479,7 +23500,7 @@ if (x_146 == 0)
 {
 lean_object* x_230; lean_object* x_231; uint8_t x_232; 
 x_230 = lean_box(x_7);
-x_231 = lean_array_get(x_230, x_11, x_1);
+x_231 = lean_array_get_borrowed(x_230, x_11, x_1);
 x_232 = lean_unbox(x_231);
 x_150 = x_232;
 goto block_229;
@@ -23897,7 +23918,7 @@ if (x_161 == 0)
 {
 lean_object* x_162; lean_object* x_163; uint8_t x_164; 
 x_162 = lean_box(x_7);
-x_163 = lean_array_get(x_162, x_8, x_1);
+x_163 = lean_array_get_borrowed(x_162, x_8, x_1);
 x_164 = lean_unbox(x_163);
 if (x_164 == 0)
 {
@@ -24323,7 +24344,7 @@ x_223 = lean_ctor_get(x_220, 1);
 lean_inc(x_223);
 lean_dec_ref(x_220);
 x_224 = lean_box(x_7);
-x_225 = lean_array_get(x_224, x_10, x_1);
+x_225 = lean_array_get_borrowed(x_224, x_10, x_1);
 x_226 = lean_unbox(x_225);
 if (x_226 == 0)
 {
@@ -24374,7 +24395,7 @@ x_16 = lean_ctor_get(x_3, 0);
 x_17 = lean_ctor_get(x_3, 1);
 x_18 = lean_ctor_get(x_3, 2);
 x_19 = l_Lean_instInhabitedExpr;
-x_20 = lean_array_get(x_19, x_12, x_1);
+x_20 = lean_array_get_borrowed(x_19, x_12, x_1);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
@@ -24391,7 +24412,7 @@ lean_inc(x_23);
 lean_dec_ref(x_21);
 x_24 = 0;
 x_25 = 0;
-x_26 = lean_array_get(x_19, x_13, x_1);
+x_26 = lean_array_get_borrowed(x_19, x_13, x_1);
 x_27 = lean_box(x_24);
 lean_inc(x_1);
 lean_inc_ref(x_20);
@@ -24405,7 +24426,7 @@ x_29 = l_Lean_Expr_getAppNumArgs(x_11);
 x_30 = lean_nat_add(x_29, x_1);
 lean_dec(x_29);
 x_31 = lean_box(x_25);
-x_32 = lean_array_get(x_31, x_14, x_1);
+x_32 = lean_array_get_borrowed(x_31, x_14, x_1);
 x_33 = lean_unbox(x_32);
 x_34 = lean_box(x_15);
 x_35 = lean_box(x_33);
@@ -24413,6 +24434,8 @@ x_36 = lean_box(x_24);
 lean_inc_ref(x_16);
 lean_inc_ref(x_17);
 lean_inc_ref(x_18);
+lean_inc_ref(x_20);
+lean_inc_ref(x_26);
 x_37 = lean_alloc_closure((void*)(l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_analyzeArg___lam__1___boxed), 20, 11);
 lean_closure_set(x_37, 0, x_1);
 lean_closure_set(x_37, 1, x_28);
@@ -24432,7 +24455,6 @@ return x_38;
 else
 {
 uint8_t x_39; 
-lean_dec_ref(x_20);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);

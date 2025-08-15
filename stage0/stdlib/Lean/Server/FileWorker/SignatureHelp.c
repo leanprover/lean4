@@ -42,6 +42,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_no
 LEAN_EXPORT uint8_t l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__0(uint8_t, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_noConfusion___redArg___closed__0;
 lean_object* l_Lean_Syntax_getRangeWithTrailing_x3f(lean_object*, uint8_t);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_toCtorIdx___boxed(lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -88,7 +89,6 @@ static lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Ser
 static lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__20;
 uint8_t l_String_Range_contains(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp_spec__1___redArg(lean_object*, lean_object*, lean_object*);
@@ -2466,7 +2466,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 _start:
 {
 lean_object* x_11; lean_object* x_35; lean_object* x_36; lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; 
-x_35 = lean_array_fget(x_1, x_9);
+x_35 = lean_array_fget_borrowed(x_1, x_9);
 x_50 = lean_unsigned_to_nat(1u);
 x_51 = lean_nat_add(x_9, x_50);
 x_52 = lean_array_get_size(x_1);
@@ -2483,8 +2483,9 @@ goto block_49;
 else
 {
 lean_object* x_55; 
-x_55 = lean_array_fget(x_1, x_51);
+x_55 = lean_array_fget_borrowed(x_1, x_51);
 lean_dec(x_51);
+lean_inc(x_55);
 x_36 = x_55;
 goto block_49;
 }
@@ -2602,7 +2603,6 @@ lean_inc(x_38);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; uint8_t x_40; lean_object* x_41; 
-lean_dec(x_35);
 x_39 = lean_ctor_get(x_37, 1);
 lean_inc(x_39);
 lean_dec_ref(x_37);
@@ -2621,6 +2621,7 @@ lean_dec_ref(x_37);
 x_43 = lean_ctor_get(x_38, 0);
 lean_inc(x_43);
 lean_dec_ref(x_38);
+lean_inc(x_35);
 x_44 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_44, 0, x_35);
 x_45 = lean_unbox(x_43);

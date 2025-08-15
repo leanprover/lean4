@@ -1440,7 +1440,9 @@ opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (subst : @& 
 with `xs` ordered from outermost to innermost de Bruijn index.
 
 For example, `e := f x y` with `xs := #[x, y]` goes to `f #1 #0`,
-whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`. -/
+whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`.
+
+Careful, this function does not instantiate assigned meta variables. -/
 @[extern "lean_expr_abstract"]
 opaque abstract (e : @& Expr) (xs : @& Array Expr) : Expr
 

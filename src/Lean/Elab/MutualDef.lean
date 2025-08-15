@@ -284,7 +284,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
         let cancelTk? := (← readThe Core.Context).cancelTk?
         let bodySnap := {
           stx? := view.value
-          reportingRange? :=
+          reportingRange := .ofOptionInheriting <|
             if newTacTask?.isSome then
               -- Only use first line of body as range when we have incremental tactics as otherwise we
               -- would cover their progress
@@ -1239,6 +1239,11 @@ where
       processDeriving #[header]
       async.commitCheckEnv (← getEnv)
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
+    -- Also add explicit snapshot task for showing progress of kernel checking; `addDecl` does not
+    -- do this by default
+    Core.logSnapshotTask { stx? := none, cancelTk? := none, task := (← getEnv).checked.map fun _ =>
+      default
+    }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
   finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
@@ -1365,8 +1370,7 @@ private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
   let logGoalsAccomplishedTask ← BaseIO.mapTask (t := ← tree.waitAll) logGoalsAccomplishedAct
   Core.logSnapshotTask {
     stx? := none
-    -- Use first line of the mutual block to avoid covering the progress of the whole mutual block
-    reportingRange? := (← getRef).getPos?.map fun pos => ⟨pos, pos⟩
+    reportingRange := .skip
     task := logGoalsAccomplishedTask
     cancelTk? := none
   }
@@ -1386,7 +1390,9 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     let modifiers ← elabModifiers ⟨d[0]⟩
     if ds.size > 1 && modifiers.isNonrec then
       throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
-    let mut view ← mkDefView modifiers d[1]
+    let mut view ←
+      withExporting (isExporting := modifiers.visibility.isInferredPublic (← getEnv)) do
+        mkDefView modifiers d[1]
     if view.kind != .example && view.value matches `(declVal| := rfl) then
       view := view.markDefEq
     let fullHeaderRef := mkNullNode #[d[0], view.headerRef]

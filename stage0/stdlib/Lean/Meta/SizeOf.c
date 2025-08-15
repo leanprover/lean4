@@ -141,6 +141,7 @@ LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_____private_Lean_Meta_S
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at_____private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof_spec__0_spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static double l_Lean_withTraceNode___at___Lean_Meta_mkSizeOfInstances_spec__5___redArg___closed__4;
 static lean_object* l_Lean_Meta_mkSizeOfFns___closed__3;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at___Lean_Meta_mkSizeOfFn_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___lam__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at_____private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -399,6 +400,7 @@ static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_initFn___closed__4
 LEAN_EXPORT lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkSizeOfFn___lam__1___closed__4;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Meta_mkSizeOfFn_spec__8(lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Option_get___at___Lean_Meta_mkSizeOfInstances_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at_____private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at___Lean_Meta_mkSizeOfFn_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1069,7 +1071,7 @@ return x_12;
 else
 {
 lean_object* x_13; lean_object* x_14; 
-x_13 = lean_array_fget(x_1, x_3);
+x_13 = lean_array_fget_borrowed(x_1, x_3);
 lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_6);
@@ -1085,6 +1087,7 @@ x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec_ref(x_14);
 x_17 = lean_box(x_11);
+lean_inc_ref(x_13);
 x_18 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___redArg___lam__0___boxed), 9, 2);
 lean_closure_set(x_18, 0, x_13);
 lean_closure_set(x_18, 1, x_17);
@@ -1208,7 +1211,6 @@ return x_43;
 else
 {
 uint8_t x_44; 
-lean_dec_ref(x_13);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -2638,11 +2640,12 @@ return x_12;
 else
 {
 lean_object* x_13; lean_object* x_14; 
-x_13 = lean_array_fget(x_1, x_3);
+x_13 = lean_array_fget_borrowed(x_1, x_3);
 lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 lean_inc_ref(x_5);
+lean_inc_ref(x_13);
 x_14 = lean_infer_type(x_13, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -3515,12 +3518,13 @@ x_67 = lean_ctor_get(x_46, 0);
 lean_inc(x_67);
 lean_dec_ref(x_46);
 lean_inc_ref(x_3);
-x_68 = lean_array_get(x_3, x_4, x_67);
+x_68 = lean_array_get_borrowed(x_3, x_4, x_67);
 lean_dec(x_67);
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
+lean_inc_ref(x_68);
 x_69 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfRecFieldFormIH(x_68, x_9, x_10, x_11, x_12, x_66);
 if (lean_obj_tag(x_69) == 0)
 {
@@ -3927,12 +3931,13 @@ x_130 = lean_ctor_get(x_109, 0);
 lean_inc(x_130);
 lean_dec_ref(x_109);
 lean_inc_ref(x_3);
-x_131 = lean_array_get(x_3, x_4, x_130);
+x_131 = lean_array_get_borrowed(x_3, x_4, x_130);
 lean_dec(x_130);
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
+lean_inc_ref(x_131);
 x_132 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfRecFieldFormIH(x_131, x_9, x_10, x_11, x_12, x_129);
 if (lean_obj_tag(x_132) == 0)
 {
@@ -4396,12 +4401,13 @@ x_203 = lean_ctor_get(x_181, 0);
 lean_inc(x_203);
 lean_dec_ref(x_181);
 lean_inc_ref(x_3);
-x_204 = lean_array_get(x_3, x_4, x_203);
+x_204 = lean_array_get_borrowed(x_3, x_4, x_203);
 lean_dec(x_203);
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
+lean_inc_ref(x_204);
 x_205 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfRecFieldFormIH(x_204, x_9, x_10, x_11, x_12, x_202);
 if (lean_obj_tag(x_205) == 0)
 {
@@ -5103,11 +5109,12 @@ _start:
 {
 lean_object* x_16; lean_object* x_17; 
 lean_inc_ref(x_1);
-x_16 = lean_array_get(x_1, x_2, x_3);
+x_16 = lean_array_get_borrowed(x_1, x_2, x_3);
 lean_inc(x_14);
 lean_inc_ref(x_13);
 lean_inc(x_12);
 lean_inc_ref(x_11);
+lean_inc_ref(x_16);
 x_17 = lean_infer_type(x_16, x_11, x_12, x_13, x_14, x_15);
 if (lean_obj_tag(x_17) == 0)
 {
@@ -5194,11 +5201,12 @@ else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_15 = l_Lean_instInhabitedExpr;
-x_16 = lean_array_get(x_15, x_2, x_5);
+x_16 = lean_array_get_borrowed(x_15, x_2, x_5);
 lean_inc(x_10);
 lean_inc_ref(x_9);
 lean_inc(x_8);
 lean_inc_ref(x_7);
+lean_inc_ref(x_16);
 x_17 = lean_infer_type(x_16, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_17) == 0)
 {
@@ -17471,7 +17479,8 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_array_fget(x_3, x_2);
+x_4 = lean_array_fget_borrowed(x_3, x_2);
+lean_inc_ref(x_4);
 return x_4;
 }
 }
@@ -22490,11 +22499,12 @@ lean_inc(x_30);
 x_31 = lean_ctor_get(x_27, 2);
 lean_inc_ref(x_31);
 lean_dec_ref(x_27);
-x_32 = lean_array_fget(x_17, x_18);
+x_32 = lean_array_fget_borrowed(x_17, x_18);
 x_33 = lean_box(x_2);
 x_34 = lean_box(x_3);
 lean_inc(x_5);
 lean_inc_ref(x_4);
+lean_inc(x_32);
 lean_inc(x_1);
 x_35 = lean_alloc_closure((void*)(l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Meta_mkSizeOfInstances_spec__3_spec__3___redArg___lam__3___boxed), 16, 9);
 lean_closure_set(x_35, 0, x_30);
@@ -22621,11 +22631,12 @@ lean_inc(x_54);
 x_55 = lean_ctor_get(x_51, 2);
 lean_inc_ref(x_55);
 lean_dec_ref(x_51);
-x_56 = lean_array_fget(x_17, x_18);
+x_56 = lean_array_fget_borrowed(x_17, x_18);
 x_57 = lean_box(x_2);
 x_58 = lean_box(x_3);
 lean_inc(x_5);
 lean_inc_ref(x_4);
+lean_inc(x_56);
 lean_inc(x_1);
 x_59 = lean_alloc_closure((void*)(l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Meta_mkSizeOfInstances_spec__3_spec__3___redArg___lam__3___boxed), 16, 9);
 lean_closure_set(x_59, 0, x_54);
@@ -22800,11 +22811,12 @@ lean_inc(x_87);
 x_88 = lean_ctor_get(x_84, 2);
 lean_inc_ref(x_88);
 lean_dec_ref(x_84);
-x_89 = lean_array_fget(x_76, x_77);
+x_89 = lean_array_fget_borrowed(x_76, x_77);
 x_90 = lean_box(x_2);
 x_91 = lean_box(x_3);
 lean_inc(x_5);
 lean_inc_ref(x_4);
+lean_inc(x_89);
 lean_inc(x_1);
 x_92 = lean_alloc_closure((void*)(l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Meta_mkSizeOfInstances_spec__3_spec__3___redArg___lam__3___boxed), 16, 9);
 lean_closure_set(x_92, 0, x_87);
@@ -23015,11 +23027,12 @@ lean_inc(x_31);
 x_32 = lean_ctor_get(x_28, 2);
 lean_inc_ref(x_32);
 lean_dec_ref(x_28);
-x_33 = lean_array_fget(x_18, x_19);
+x_33 = lean_array_fget_borrowed(x_18, x_19);
 x_34 = lean_box(x_2);
 x_35 = lean_box(x_3);
 lean_inc(x_5);
 lean_inc_ref(x_4);
+lean_inc(x_33);
 lean_inc(x_1);
 x_36 = lean_alloc_closure((void*)(l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Meta_mkSizeOfInstances_spec__3_spec__3___redArg___lam__3___boxed), 16, 9);
 lean_closure_set(x_36, 0, x_31);
@@ -23145,11 +23158,12 @@ lean_inc(x_55);
 x_56 = lean_ctor_get(x_52, 2);
 lean_inc_ref(x_56);
 lean_dec_ref(x_52);
-x_57 = lean_array_fget(x_18, x_19);
+x_57 = lean_array_fget_borrowed(x_18, x_19);
 x_58 = lean_box(x_2);
 x_59 = lean_box(x_3);
 lean_inc(x_5);
 lean_inc_ref(x_4);
+lean_inc(x_57);
 lean_inc(x_1);
 x_60 = lean_alloc_closure((void*)(l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Meta_mkSizeOfInstances_spec__3_spec__3___redArg___lam__3___boxed), 16, 9);
 lean_closure_set(x_60, 0, x_55);
@@ -23322,11 +23336,12 @@ lean_inc(x_88);
 x_89 = lean_ctor_get(x_85, 2);
 lean_inc_ref(x_89);
 lean_dec_ref(x_85);
-x_90 = lean_array_fget(x_77, x_78);
+x_90 = lean_array_fget_borrowed(x_77, x_78);
 x_91 = lean_box(x_2);
 x_92 = lean_box(x_3);
 lean_inc(x_5);
 lean_inc_ref(x_4);
+lean_inc(x_90);
 lean_inc(x_1);
 x_93 = lean_alloc_closure((void*)(l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Meta_mkSizeOfInstances_spec__3_spec__3___redArg___lam__3___boxed), 16, 9);
 lean_closure_set(x_93, 0, x_88);

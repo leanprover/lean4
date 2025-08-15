@@ -245,6 +245,7 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Linter_List_listVaria
 static lean_object* l_Lean_Linter_List_allowedIndices___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Linter_List_bitVecWidths(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Linter_List_indexLinter_spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_List_numericalIndices___lam__2___closed__5;
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Linter_List_binders_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_addLinter(lean_object*, lean_object*);
@@ -399,7 +400,6 @@ static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Linter_List_indexLinter_spec__9_spec__9___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Linter_List_listVariablesLinter_spec__9_spec__9_spec__10_spec__10___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at_____private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_foldInfoM_go___at___Lean_Elab_InfoTree_foldInfoM___at___Lean_Elab_InfoTree_collectTermInfoM___at___Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Linter_List_listVariablesLinter_spec__1_spec__1___redArg___closed__0;
@@ -8665,7 +8665,7 @@ x_8 = lean_ctor_get(x_3, 0);
 x_9 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at_____private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_foldInfoM_go___at___Lean_Elab_InfoTree_foldInfoM___at___Lean_Elab_InfoTree_collectTermInfoM___at___Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1___redArg___closed__0;
 x_10 = lean_usize_shift_right(x_4, x_5);
 x_11 = lean_usize_to_nat(x_10);
-x_12 = lean_array_get(x_9, x_8, x_11);
+x_12 = lean_array_get_borrowed(x_9, x_8, x_11);
 x_13 = 1;
 x_14 = lean_usize_shift_left(x_13, x_5);
 x_15 = lean_usize_sub(x_14, x_13);
@@ -8675,7 +8675,6 @@ x_18 = lean_usize_sub(x_5, x_17);
 lean_inc(x_2);
 lean_inc_ref(x_1);
 x_19 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at_____private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_foldInfoM_go___at___Lean_Elab_InfoTree_foldInfoM___at___Lean_Elab_InfoTree_collectTermInfoM___at___Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1___redArg(x_1, x_2, x_12, x_16, x_18, x_6, x_7);
-lean_dec_ref(x_12);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 

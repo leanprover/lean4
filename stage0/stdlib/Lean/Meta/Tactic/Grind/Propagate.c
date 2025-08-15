@@ -82,6 +82,7 @@ lean_object* l_Lean_Meta_Grind_getRootENode___redArg(lean_object*, lean_object*,
 static lean_object* l_Lean_Meta_Grind_propagateOrUp___closed__12;
 lean_object* l_Lean_Meta_Grind_isEqBoolFalse___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateOrUp___closed__10;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateAndUp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Goal_getRoot(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
@@ -220,7 +221,6 @@ lean_object* lean_grind_mk_eq_proof(lean_object*, lean_object*, lean_object*, le
 static lean_object* l_Lean_Meta_Grind_propagateEqUp___closed__1;
 lean_object* lean_grind_mk_heq_proof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateAndUp___closed__9;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateDIte___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Propagate_0__Lean_Meta_Grind_applyCongrFun_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10103,7 +10103,7 @@ return x_34;
 else
 {
 lean_object* x_35; lean_object* x_36; 
-x_35 = lean_array_fget(x_2, x_5);
+x_35 = lean_array_fget_borrowed(x_2, x_5);
 lean_inc(x_13);
 lean_inc_ref(x_12);
 lean_inc(x_11);
@@ -10118,6 +10118,7 @@ lean_inc(x_37);
 x_38 = lean_ctor_get(x_36, 1);
 lean_inc(x_38);
 lean_dec_ref(x_36);
+lean_inc_ref(x_35);
 x_39 = l_Lean_Expr_app___override(x_3, x_35);
 x_40 = lean_unsigned_to_nat(1u);
 x_41 = lean_nat_add(x_5, x_40);
@@ -10131,7 +10132,6 @@ goto _start;
 else
 {
 uint8_t x_43; 
-lean_dec_ref(x_35);
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_11);

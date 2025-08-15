@@ -74,6 +74,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_InferType_inferType(lean_object*, 
 lean_object* l_Lean_Compiler_LCNF_mkFunDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_InferType_inferConstType___redArg___closed__0;
 lean_object* l_Lean_Compiler_LCNF_getBinderName___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkCasesResultType___lam__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldRevM_loop___at___Lean_Compiler_LCNF_InferType_mkForallFVars_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Compiler_LCNF_getLevel_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -196,6 +197,7 @@ LEAN_EXPORT lean_object* l_List_isEqv___at___Lean_Compiler_LCNF_eqvTypes_spec__0
 static lean_object* l_Lean_Compiler_LCNF_InferType_inferType___closed__0;
 static lean_object* l_Lean_Compiler_LCNF_mkCasesResultType___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_InferType_inferConstType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isErased(lean_object*);
 lean_object* l_Lean_LocalContext_mkLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
@@ -221,7 +223,6 @@ static lean_object* l_Lean_Compiler_LCNF_mkCasesResultType___closed__5;
 static lean_object* l_Lean_Compiler_LCNF_InferType_withLocalDecl___redArg___closed__3;
 static lean_object* l___private_Lean_Compiler_LCNF_InferType_0__Lean_Compiler_LCNF_isErasedCompatible_go___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_InferType_inferLitValueType___closed__5;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_InferType_inferArgType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_eqvTypes___boxed(lean_object*, lean_object*);
@@ -474,9 +475,8 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean
 x_13 = lean_unsigned_to_nat(1u);
 x_14 = lean_nat_sub(x_2, x_13);
 lean_dec(x_2);
-x_15 = lean_array_fget(x_1, x_14);
+x_15 = lean_array_fget_borrowed(x_1, x_14);
 x_16 = l_Lean_Expr_fvarId_x21(x_15);
-lean_dec_ref(x_15);
 lean_inc_ref(x_4);
 lean_inc(x_16);
 x_17 = l_Lean_Compiler_LCNF_InferType_getBinderName___redArg(x_16, x_4, x_6, x_7, x_8, x_9);
@@ -8207,7 +8207,8 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_array_fget(x_3, x_2);
+x_4 = lean_array_fget_borrowed(x_3, x_2);
+lean_inc_ref(x_4);
 return x_4;
 }
 }
@@ -8377,7 +8378,8 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = lean_unsigned_to_nat(0u);
-x_11 = lean_array_get(x_8, x_1, x_10);
+x_11 = lean_array_get_borrowed(x_8, x_1, x_10);
+lean_inc_ref(x_11);
 x_12 = l_Lean_Compiler_LCNF_Alt_inferType(x_11, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_12) == 0)
 {

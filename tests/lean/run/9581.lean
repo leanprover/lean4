@@ -26,4 +26,5 @@ theorem F_spec :
   -- Goal that could be discharged completely automatically:
   -- case post.except
   -- ⊢ (⇓x => ⌜1 < 2⌝).snd ⊢ₑ (⇓x => ⌜1 < 2⌝).snd
+  · assumption
   · mleave

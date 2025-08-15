@@ -58,6 +58,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortTactic___at___Lean_Elab_Tactic_re
 LEAN_EXPORT lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_Tactic_elabRewriteConfig_spec__0_spec__0_spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_elabRewriteConfig___redArg___closed__9;
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Rewrite_0__Lean_Elab_Tactic_evalRewriteSeq___regBuiltin_Lean_Elab_Tactic_evalRewriteSeq_declRange__3___closed__1;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -147,6 +148,7 @@ lean_object* l_Lean_Elab_Tactic_SavedState_restore___redArg(lean_object*, uint8_
 static lean_object* l_Lean_Elab_getResetInfoTrees___at___Lean_Elab_withInfoTreeContext___at___Lean_Elab_Tactic_withRWRulesSeq_spec__0_spec__0___redArg___closed__2;
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_withRWRulesSeq_spec__2_spec__2___redArg___lam__2___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_rewriteLocalDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_Tactic_elabRewriteConfig_spec__0_spec__0_spec__1___closed__2;
 static lean_object* l___private_Lean_Elab_Tactic_Rewrite_0__Lean_Elab_Tactic_evalRewriteSeq___regBuiltin_Lean_Elab_Tactic_evalRewriteSeq__1___closed__2;
 lean_object* l_Lean_Elab_Tactic_saveState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -159,7 +161,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_rewriteTarget___boxed(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_rewriteLocalDecl___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Rewrite_0__Lean_Elab_Tactic_withRWRulesSeq_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_withRWRulesSeq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_Tactic_elabRewriteConfig_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_withRWRulesSeq_spec__2_spec__2___redArg___lam__2___closed__0;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lean_Elab_Tactic_Rewrite_0__Lean_Elab_Tactic_withRWRulesSeq_go_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -210,7 +211,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_rewriteLocalDecl___lam__1___boxed(le
 static lean_object* l___private_Lean_Elab_Tactic_Rewrite_0__Lean_Elab_Tactic_evalRewriteSeq___regBuiltin_Lean_Elab_Tactic_evalRewriteSeq__1___closed__4;
 static lean_object* l___private_Lean_Elab_Tactic_Rewrite_0__Lean_Elab_Tactic_evalRewriteSeq___regBuiltin_Lean_Elab_Tactic_evalRewriteSeq_declRange__3___closed__5;
 lean_object* lean_array_get_size(lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_Tactic_elabRewriteConfig_spec__0_spec__0___redArg___closed__4;
 static lean_object* l_Lean_Elab_Tactic_elabRewriteConfig___redArg___closed__4;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -2855,7 +2855,7 @@ _start:
 lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_54; lean_object* x_66; lean_object* x_67; uint8_t x_68; 
 x_19 = lean_nat_mul(x_9, x_1);
 lean_inc(x_2);
-x_20 = lean_array_get(x_2, x_3, x_19);
+x_20 = lean_array_get_borrowed(x_2, x_3, x_19);
 x_66 = lean_nat_add(x_19, x_4);
 lean_dec(x_19);
 x_67 = lean_array_get_size(x_3);
@@ -2872,8 +2872,9 @@ goto block_65;
 else
 {
 lean_object* x_70; 
-x_70 = lean_array_fget(x_3, x_66);
+x_70 = lean_array_fget_borrowed(x_3, x_66);
 lean_dec(x_66);
+lean_inc(x_70);
 x_54 = x_70;
 goto block_65;
 }
@@ -2908,6 +2909,7 @@ x_32 = lean_box(x_31);
 x_33 = lean_box(x_22);
 lean_inc(x_4);
 lean_inc_ref(x_5);
+lean_inc(x_20);
 x_34 = lean_alloc_closure((void*)(l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_withRWRulesSeq_spec__2_spec__2___redArg___lam__3___boxed), 17, 8);
 lean_closure_set(x_34, 0, x_20);
 lean_closure_set(x_34, 1, x_32);
@@ -3023,7 +3025,6 @@ return x_35;
 else
 {
 uint8_t x_49; 
-lean_dec(x_20);
 lean_dec(x_17);
 lean_dec_ref(x_16);
 lean_dec(x_15);
@@ -3105,7 +3106,7 @@ _start:
 lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; lean_object* x_56; lean_object* x_68; lean_object* x_69; uint8_t x_70; 
 x_21 = lean_nat_mul(x_11, x_1);
 lean_inc(x_2);
-x_22 = lean_array_get(x_2, x_3, x_21);
+x_22 = lean_array_get_borrowed(x_2, x_3, x_21);
 x_68 = lean_nat_add(x_21, x_4);
 lean_dec(x_21);
 x_69 = lean_array_get_size(x_3);
@@ -3122,8 +3123,9 @@ goto block_67;
 else
 {
 lean_object* x_72; 
-x_72 = lean_array_fget(x_3, x_68);
+x_72 = lean_array_fget_borrowed(x_3, x_68);
 lean_dec(x_68);
+lean_inc(x_72);
 x_56 = x_72;
 goto block_67;
 }
@@ -3158,6 +3160,7 @@ x_34 = lean_box(x_33);
 x_35 = lean_box(x_24);
 lean_inc(x_4);
 lean_inc_ref(x_5);
+lean_inc(x_22);
 x_36 = lean_alloc_closure((void*)(l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_withRWRulesSeq_spec__2_spec__2___redArg___lam__3___boxed), 17, 8);
 lean_closure_set(x_36, 0, x_22);
 lean_closure_set(x_36, 1, x_34);
@@ -3270,7 +3273,6 @@ return x_37;
 else
 {
 uint8_t x_51; 
-lean_dec(x_22);
 lean_dec(x_19);
 lean_dec_ref(x_18);
 lean_dec(x_17);

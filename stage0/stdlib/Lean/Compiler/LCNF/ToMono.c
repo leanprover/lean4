@@ -258,6 +258,7 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_casesStringToMono___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_casesByteArrayToMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___Lean_Compiler_LCNF_Code_toMono_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_toMono;
 uint8_t l_Lean_Expr_isErased(lean_object*);
@@ -3654,7 +3655,8 @@ _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = lean_box(0);
-x_12 = lean_array_get(x_11, x_1, x_4);
+x_12 = lean_array_get_borrowed(x_11, x_1, x_4);
+lean_inc(x_12);
 x_13 = l_Lean_Compiler_LCNF_argToMono(x_12, x_5, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -4821,13 +4823,12 @@ lean_dec(x_124);
 lean_dec(x_2);
 x_307 = lean_box(0);
 x_308 = lean_unsigned_to_nat(2u);
-x_309 = lean_array_get(x_307, x_125, x_308);
+x_309 = lean_array_get_borrowed(x_307, x_125, x_308);
 if (lean_obj_tag(x_309) == 1)
 {
 lean_object* x_310; lean_object* x_311; lean_object* x_312; lean_object* x_316; lean_object* x_317; lean_object* x_318; lean_object* x_319; uint8_t x_320; 
 x_310 = lean_ctor_get(x_309, 0);
 lean_inc(x_310);
-lean_dec_ref(x_309);
 x_316 = lean_array_get_size(x_125);
 x_317 = lean_unsigned_to_nat(3u);
 x_318 = lean_nat_sub(x_316, x_317);
@@ -4909,7 +4910,6 @@ return x_314;
 else
 {
 lean_object* x_328; lean_object* x_329; 
-lean_dec(x_309);
 lean_dec_ref(x_125);
 lean_dec(x_7);
 lean_dec_ref(x_6);

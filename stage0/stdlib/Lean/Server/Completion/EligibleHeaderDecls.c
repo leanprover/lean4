@@ -28,6 +28,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Completion_eligibleHeaderDeclsRef;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_Server_Completion_allowCompletion_spec__0_spec__0___redArg___closed__0;
 static lean_object* l_Lean_Server_Completion_getEligibleHeaderDecls___closed__2;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at___Lean_Server_Completion_allowCompletion_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Server_Completion_getEligibleHeaderDecls_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Completion_getEligibleHeaderDecls___closed__7;
@@ -1192,9 +1193,8 @@ return x_5;
 else
 {
 lean_object* x_6; uint8_t x_7; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
 x_7 = lean_name_eq(x_3, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 

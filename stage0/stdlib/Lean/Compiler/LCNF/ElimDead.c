@@ -33,6 +33,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ElimDead_0__Lean_Compiler_LCNF_ElimDead_collectArgM___redArg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Compiler_LCNF_collectLocalDeclsArg_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ElimDead_0__Lean_Compiler_LCNF_ElimDead_collectLetValueM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Compiler_LCNF_collectLocalDeclsArg_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
@@ -1549,7 +1550,7 @@ return x_11;
 else
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = lean_array_fget(x_2, x_1);
+x_12 = lean_array_fget_borrowed(x_2, x_1);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_33; 
@@ -1581,7 +1582,6 @@ lean_dec_ref(x_14);
 lean_inc_ref(x_12);
 x_17 = l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_updateAltCodeImp(x_12, x_15);
 x_18 = lean_ptr_addr(x_12);
-lean_dec_ref(x_12);
 x_19 = lean_ptr_addr(x_17);
 x_20 = lean_usize_dec_eq(x_18, x_19);
 if (x_20 == 0)
@@ -1611,7 +1611,6 @@ goto _start;
 else
 {
 uint8_t x_28; 
-lean_dec_ref(x_12);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 x_28 = !lean_is_exclusive(x_14);

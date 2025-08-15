@@ -76,6 +76,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_map___redArg___lam__0(lean_objec
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_filter___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_PersistentArray_append_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_toArray___redArg___boxed(lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_all___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_PersistentArray_toArray_spec__0_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_foldlM___at___Lean_PersistentArray_toList_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -219,6 +220,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__List_toPArray_
 static lean_object* l_Lean_PersistentArray_getAux___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_mkPersistentArray(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_PersistentArray_toList_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_PersistentArray_append_spec__0_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeM_x3f___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_PersistentArray_append_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*);
@@ -1941,7 +1943,8 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_4, x_9);
 lean_dec(x_4);
-x_11 = lean_array_fget(x_3, x_10);
+x_11 = lean_array_fget_borrowed(x_3, x_10);
+lean_inc_ref(x_11);
 x_12 = l_Lean_PersistentArray_popLeaf___redArg(x_11);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
@@ -2098,7 +2101,8 @@ lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean
 x_49 = lean_unsigned_to_nat(1u);
 x_50 = lean_nat_sub(x_44, x_49);
 lean_dec(x_44);
-x_51 = lean_array_fget(x_43, x_50);
+x_51 = lean_array_fget_borrowed(x_43, x_50);
+lean_inc_ref(x_51);
 x_52 = l_Lean_PersistentArray_popLeaf___redArg(x_51);
 x_53 = lean_ctor_get(x_52, 0);
 lean_inc(x_53);
@@ -2225,9 +2229,8 @@ LEAN_EXPORT uint8_t l_Lean_PersistentArray_pop___redArg___lam__0(lean_object* x_
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = lean_array_fget(x_1, x_2);
+x_4 = lean_array_fget_borrowed(x_1, x_2);
 x_5 = l_Lean_PersistentArrayNode_isNode___redArg(x_4);
-lean_dec_ref(x_4);
 return x_5;
 }
 }
@@ -4747,7 +4750,7 @@ x_5 = lean_ctor_get(x_1, 0);
 x_6 = l_Lean_PersistentArray_getAux___redArg___closed__0;
 x_7 = lean_usize_shift_right(x_2, x_3);
 x_8 = lean_usize_to_nat(x_7);
-x_9 = lean_array_get(x_6, x_5, x_8);
+x_9 = lean_array_get_borrowed(x_6, x_5, x_8);
 x_10 = 1;
 x_11 = lean_usize_shift_left(x_10, x_3);
 x_12 = lean_usize_sub(x_11, x_10);
@@ -4755,7 +4758,6 @@ x_13 = lean_usize_land(x_2, x_12);
 x_14 = 5;
 x_15 = lean_usize_sub(x_3, x_14);
 x_16 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_PersistentArray_toArray_spec__0_spec__0___redArg(x_9, x_13, x_15, x_4);
-lean_dec_ref(x_9);
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_8, x_17);
 lean_dec(x_8);
@@ -5258,7 +5260,7 @@ x_5 = lean_ctor_get(x_1, 0);
 x_6 = l_Lean_PersistentArray_getAux___redArg___closed__0;
 x_7 = lean_usize_shift_right(x_2, x_3);
 x_8 = lean_usize_to_nat(x_7);
-x_9 = lean_array_get(x_6, x_5, x_8);
+x_9 = lean_array_get_borrowed(x_6, x_5, x_8);
 x_10 = 1;
 x_11 = lean_usize_shift_left(x_10, x_3);
 x_12 = lean_usize_sub(x_11, x_10);
@@ -5266,7 +5268,6 @@ x_13 = lean_usize_land(x_2, x_12);
 x_14 = 5;
 x_15 = lean_usize_sub(x_3, x_14);
 x_16 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_PersistentArray_append_spec__0_spec__0___redArg(x_9, x_13, x_15, x_4);
-lean_dec_ref(x_9);
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_8, x_17);
 lean_dec(x_8);
@@ -5850,7 +5851,7 @@ x_5 = lean_ctor_get(x_1, 0);
 x_6 = l_Lean_PersistentArray_getAux___redArg___closed__0;
 x_7 = lean_usize_shift_right(x_2, x_3);
 x_8 = lean_usize_to_nat(x_7);
-x_9 = lean_array_get(x_6, x_5, x_8);
+x_9 = lean_array_get_borrowed(x_6, x_5, x_8);
 x_10 = 1;
 x_11 = lean_usize_shift_left(x_10, x_3);
 x_12 = lean_usize_sub(x_11, x_10);
@@ -5858,7 +5859,6 @@ x_13 = lean_usize_land(x_2, x_12);
 x_14 = 5;
 x_15 = lean_usize_sub(x_3, x_14);
 x_16 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_PersistentArray_toList_spec__0_spec__0___redArg(x_9, x_13, x_15, x_4);
-lean_dec_ref(x_9);
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_8, x_17);
 lean_dec(x_8);

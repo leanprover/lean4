@@ -51,6 +51,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f(lean_object*, lean_obje
 lean_object* l_Lean_getConstInfo___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_extract___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__4___closed__0;
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -478,7 +479,7 @@ block_99:
 lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; uint8_t x_98; 
 lean_inc_ref(x_6);
 x_91 = l_Array_toSubarray___redArg(x_6, x_89, x_90);
-x_92 = lean_array_get(x_7, x_6, x_8);
+x_92 = lean_array_get_borrowed(x_7, x_6, x_8);
 x_93 = lean_nat_add(x_8, x_10);
 lean_dec(x_8);
 x_94 = lean_nat_add(x_93, x_9);
@@ -489,6 +490,7 @@ x_97 = lean_array_get_size(x_6);
 x_98 = lean_nat_dec_le(x_93, x_96);
 if (x_98 == 0)
 {
+lean_inc_ref(x_92);
 x_82 = x_91;
 x_83 = x_92;
 x_84 = x_97;
@@ -499,6 +501,7 @@ goto block_88;
 else
 {
 lean_dec(x_93);
+lean_inc_ref(x_92);
 x_82 = x_91;
 x_83 = x_92;
 x_84 = x_97;

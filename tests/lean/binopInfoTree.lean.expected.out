@@ -60,7 +60,8 @@ fun n m l => ↑n + (↑m + ↑l) : Nat → Nat → Nat → Int
                 • [Term] n : Nat @ ⟨7, 29⟩-⟨7, 30⟩ @ Lean.Elab.Term.elabIdent
                   • [Completion-Id] n : none @ ⟨7, 29⟩-⟨7, 30⟩
                   • [Term] n : Nat @ ⟨7, 29⟩-⟨7, 30⟩
-                • [Term] ↑m + ↑l : Int @ ⟨7, 34⟩-⟨7, 40⟩ @ «_aux_binopInfoTree___macroRules_term_+'__1»
+                • [Term] ↑m +
+                    ↑l : Int @ ⟨7, 34⟩-⟨7, 40⟩ @ _private.binopInfoTree.0.«_aux_binopInfoTree___macroRules_term_+'__1»
                   • [MacroExpansion]
                     m +' l
                     ===>

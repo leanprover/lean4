@@ -704,7 +704,7 @@ protected partial def forIn
   loop init
   .mk <| EAsync.ofETask promise.result!
 
-instance [Inhabited ε] : ForIn (EAsync ε) Lean.Loop Unit where
+instance : ForIn (EAsync ε) Lean.Loop Unit where
   forIn _ := EAsync.forIn
 
 end EAsync

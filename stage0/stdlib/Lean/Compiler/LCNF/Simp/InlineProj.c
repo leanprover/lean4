@@ -1631,6 +1631,10 @@ lean_object* x_61; lean_object* x_62; lean_object* x_63;
 lean_inc(x_33);
 x_61 = l_Lean_Compiler_LCNF_Decl_instantiateParamsLevelParams(x_52, x_33);
 x_62 = l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_Code_instantiateValueLevelParams_instCode(x_56, x_33, x_57);
+lean_inc(x_42);
+lean_inc_ref(x_41);
+lean_inc(x_40);
+lean_inc_ref(x_39);
 x_63 = l_Lean_Compiler_LCNF_Simp_betaReduce(x_61, x_62, x_34, x_60, x_36, x_37, x_38, x_39, x_40, x_41, x_42, x_55);
 lean_dec_ref(x_61);
 if (lean_obj_tag(x_63) == 0)

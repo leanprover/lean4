@@ -10,6 +10,8 @@ public import Std.Time
 public import Std.Internal.UV.Signal
 public import Std.Internal.Async.Select
 
+public section
+
 namespace Std
 namespace Internal
 namespace IO
@@ -160,7 +162,7 @@ inductive Signal
   -/
   | sigusr2
 
-deriving Repr, DecidableEq
+deriving Repr, DecidableEq, BEq
 
 namespace Signal
 
@@ -194,15 +196,65 @@ def toInt32 : Signal → Int32
   | .sigusr2 => 31
 
 /--
-Waits for a `Signal` and returns an async task that completes when the signal occurs.
+`SignalHandler` can be used to handle a specific signal once.
+-/
+structure Handler where
+  private ofNative ::
+    native : Internal.UV.Signal
+
+namespace Handler
+
+/--
+Set up a `SignalHandler` that waits for the specified `signum`.
+This function only initializes but does not yet start listening for the signal.
 -/
 @[inline]
-def wait (s : Signal) : IO (AsyncTask Unit) := do
-  let promise ← UV.Signal.waitFor s.toInt32
-  return .ofPromise promise
+def mk (signum : Signal) (repeating : Bool) : IO Signal.Handler := do
+  let native ← Internal.UV.Signal.mk signum.toInt32 repeating
+  return .ofNative native
 
-end Signal
-end Async
-end IO
-end Internal
-end Std
+/--
+If:
+- `s` is not yet running start listening and return an `AsyncTask` that will resolve once the
+   previously configured signal is received.
+- `s` is already or not anymore running return the same `AsyncTask` as the first call to `wait`.
+
+The resolved `AsyncTask` contains the signal number that was received.
+-/
+@[inline]
+def wait (s : Signal.Handler) : IO (AsyncTask Int) := do
+  let promise ← s.native.next
+  return .ofPurePromise promise
+
+/--
+If:
+- `s` is still running this stops `s` without resolving any remaining `AsyncTask`s that were created
+  through `wait`. Note that if another `AsyncTask` is binding on any of these it is going hang
+  forever without further intervention.
+- `s` is not yet or not anymore running this is a no-op.
+-/
+@[inline]
+def stop (s : Signal.Handler) : IO Unit :=
+  s.native.stop
+
+/--
+Create a `Selector` that resolves once `s` has received the signal. Note that calling this function starts `s`
+if it hasn't already started.
+-/
+def selector (s : Signal.Handler) : IO (Selector Unit) := do
+  let signalWaiter ← s.wait
+  return {
+    tryFn := do
+      if ← IO.hasFinished signalWaiter then
+        return some ()
+      else
+        return none
+
+    registerFn waiter := do
+      discard <| AsyncTask.mapIO (x := signalWaiter) fun _ => do
+        let lose := return ()
+        let win promise := promise.resolve (.ok ())
+        waiter.race lose win
+
+    unregisterFn := s.stop
+  }

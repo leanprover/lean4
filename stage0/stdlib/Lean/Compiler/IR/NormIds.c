@@ -1860,7 +1860,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_3);
-x_4 = lean_ctor_get(x_1, 3);
+x_4 = lean_ctor_get(x_1, 4);
 lean_inc(x_4);
 lean_dec_ref(x_1);
 x_5 = l_Lean_IR_UniqueIds_checkParams(x_3, x_2);
@@ -4376,7 +4376,7 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
 x_4 = lean_ctor_get(x_1, 1);
-x_5 = lean_ctor_get(x_1, 3);
+x_5 = lean_ctor_get(x_1, 4);
 x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_get_size(x_4);
 x_19 = lean_nat_dec_lt(x_17, x_18);

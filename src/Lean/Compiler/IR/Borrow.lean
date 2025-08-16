@@ -93,9 +93,28 @@ end InitParamMap
 def mkInitParamMap (env : Environment) (decls : Array Decl) : ParamMap :=
   (InitParamMap.visitDecls env decls *> get).run' {}
 
+inductive BaseValue where
+  | top
+  | var (x : VarId)
+  | bot
+  deriving Inhabited, Repr
+
+def BaseValue.join (v1 v2 : BaseValue) : BaseValue :=
+  match v1, v2 with
+  | .top, _ | _, .top => .top
+  | .var x1, .var x2 => if x1 == x2 then .var x1 else .top
+  | _, .bot => v1
+  | .bot, _ => v2
+
+abbrev RetMap := Std.HashMap FunId BaseValue
+
+def mkInitRetMap (decls : Array Decl) : RetMap :=
+  decls.foldl (init := {}) fun m d =>
+    m.insert d.name .bot
+
 /-! Apply the inferred borrow annotations stored at `ParamMap` to a block of mutually
    recursive functions. -/
-namespace ApplyParamMap
+namespace ApplyAnalysisResult
 
 partial def visitFnBody (fn : FunId) (paramMap : ParamMap) : FnBody → FnBody
   | .jdecl j _  v b =>
@@ -113,24 +132,32 @@ partial def visitFnBody (fn : FunId) (paramMap : ParamMap) : FnBody → FnBody
       let b := visitFnBody fn paramMap b
       instr.setBody b
 
-def visitDecls (decls : Array Decl) (paramMap : ParamMap) : Array Decl :=
+def visitDecls (decls : Array Decl) (paramMap : ParamMap) (retMap : RetMap) : Array Decl :=
   decls.map fun decl => match decl with
-    | .fdecl f _  ty retBorrowInfo b info =>
+    | .fdecl f _  ty _ b info =>
       let b := visitFnBody f paramMap b
       match paramMap[Key.decl f]? with
-      | some xs => .fdecl f xs ty retBorrowInfo b info
+      | some xs =>
+        let baseParamIndex? :=
+          match retMap[f]! with
+          | .var x =>
+            xs.findIdx? fun p =>
+              p.x == x && p.borrow
+          | _ => none
+        .fdecl f xs ty { baseParamIndex? } b info
       | none    => unreachable!
     | other => other
 
-end ApplyParamMap
+end ApplyAnalysisResult
 
-def applyParamMap (decls : Array Decl) (map : ParamMap) : Array Decl :=
-  ApplyParamMap.visitDecls decls map
+def applyAnalysisResult (decls : Array Decl) (paramMap : ParamMap) (retMap : RetMap) : Array Decl :=
+  ApplyAnalysisResult.visitDecls decls paramMap retMap
 
 structure BorrowInfCtx where
   env      : Environment
   decls    : Array Decl  -- block of mutually recursive functions
   currFn   : FunId    := default -- Function being analyzed.
+  fnParamSet : IndexSet := {}
   paramSet : IndexSet := {} -- Set of all function parameters in scope. This is used to implement the heuristic at `ownArgsUsingParams`
 
 structure BorrowInfState where
@@ -138,6 +165,8 @@ structure BorrowInfState where
   owned    : OwnedSet := {}
   modified : Bool     := false
   paramMap : ParamMap
+  derivedValueBaseMap : Std.HashMap VarId BaseValue := {}
+  retMap : RetMap
 
 abbrev M := ReaderT BorrowInfCtx (StateM BorrowInfState)
 
@@ -215,6 +244,19 @@ def ownParamsUsingArgs (xs : Array Arg) (ps : Array Param) : M Unit :=
     | .var x => if (← isOwned x) then ownVar p.x
     | .erased => pure ()
 
+def joinArgs (xs : Array Arg) (ps : Array Param) : M Unit :=
+  xs.size.forM fun i _ => do
+    let p := ps[i]!
+    if let .var x := xs[i] then
+      if let some baseValue := (← get).derivedValueBaseMap.get? x then
+        let baseValue := if let some existingBase := (← get).derivedValueBaseMap.get? p.x then
+          baseValue.join existingBase
+        else
+          baseValue
+        modify fun s => {s with
+          derivedValueBaseMap := s.derivedValueBaseMap.insert p.x baseValue
+        }
+
 /-- Mark `xs[i]` as owned if it is one of the parameters `ps`.
    We use this action to mark function parameters that are being "packed" inside constructors.
    This is a heuristic, and is not related with the effectiveness of the reset/reuse optimization.
@@ -260,6 +302,24 @@ def collectExpr (z : VarId) (e : Expr) : M Unit := do
     ownArgs xs
   | _ => pure ()
 
+def propagateExpr (z : VarId) (e : Expr) : M Unit := do
+  match e with
+  | .proj _ x =>
+    if let some baseParam := (← get).derivedValueBaseMap.get? x then
+      modify fun s => { s with
+        derivedValueBaseMap := s.derivedValueBaseMap.insert z baseParam
+      }
+  | .fap g xs =>
+    let ctx ← read
+    let decl := findEnvDecl' ctx.env g ctx.decls |>.get!
+    if let { baseParamIndex? := some baseParamIndex } := decl.returnBorrowInfo then
+      if let .var x := xs[baseParamIndex]! then
+        if let some baseValue := (← get).derivedValueBaseMap.get? x then
+          modify fun s => { s with
+            derivedValueBaseMap := s.derivedValueBaseMap.insert z baseValue
+          }
+  | _ => pure ()
+
 def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit := do
   let ctx ← read
   match v, b with
@@ -281,6 +341,7 @@ partial def collectFnBody (b : FnBody) : M Unit := do
     updateParamMap (.jp ctx.currFn j)
     collectFnBody b
   | .vdecl x _ v b =>
+    propagateExpr x v
     collectFnBody b
     collectExpr x v
     preserveTailCall x v b
@@ -290,11 +351,20 @@ partial def collectFnBody (b : FnBody) : M Unit := do
     ownArgsUsingParams ys ps -- for making sure the join point can reuse
     ownParamsUsingArgs ys ps  -- for making sure the tail call is preserved
   | .case _ _ _ alts => alts.forM fun alt => collectFnBody alt.body
+  | .ret (.var x) =>
+    if let some baseValue := (← get).derivedValueBaseMap.get? x then
+      let funId := (← read).currFn
+      modify fun s =>
+        { s with retMap := s.retMap.modify funId (·.join baseValue) }
   | _ => do unless b.isTerminal do collectFnBody b.body
 
 partial def collectDecl : Decl → M Unit
   | .fdecl (f := f) (xs := ys) (body := b) .. =>
     withReader (fun ctx => let ctx := updateParamSet ctx ys; { ctx with currFn := f }) do
+      modify fun s => { s with
+        derivedValueBaseMap := ys.foldl (init := {}) fun m p =>
+          m.insert p.x (.var p.x)
+      }
       collectFnBody b
       updateParamMap (.decl f)
   | _ => pure ()
@@ -309,20 +379,23 @@ partial def whileModifying (x : M Unit) : M Unit := do
   else
     pure ()
 
-def collectDecls : M ParamMap := do
+def collectDecls : M (ParamMap × RetMap) := do
   whileModifying ((← read).decls.forM collectDecl)
   let s ← get
-  pure s.paramMap
+  pure ⟨s.paramMap, s.retMap⟩
 
-def infer (env : Environment) (decls : Array Decl) : ParamMap :=
-  collectDecls { env, decls } |>.run' { paramMap := mkInitParamMap env decls }
+def infer (env : Environment) (decls : Array Decl) : ParamMap × RetMap :=
+  collectDecls { env, decls } |>.run' {
+    paramMap := mkInitParamMap env decls
+    retMap := mkInitRetMap decls
+  }
 
 end Borrow
 
 def inferBorrow (decls : Array Decl) : CompilerM (Array Decl) := do
   let env ← getEnv
-  let paramMap := Borrow.infer env decls
-  pure (Borrow.applyParamMap decls paramMap)
+  let ⟨paramMap, retMap⟩ := Borrow.infer env decls
+  pure (Borrow.applyAnalysisResult decls paramMap retMap)
 
 builtin_initialize registerTraceClass `compiler.ir.borrow (inherited := true)
 

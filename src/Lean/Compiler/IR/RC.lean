@@ -126,6 +126,7 @@ structure Context where
   env            : Environment
   decls          : Array Decl
   borrowedParams : VarIdSet
+  isRetBorrowed  : Bool
   derivedValMap  : DerivedValMap
   varMap         : VarMap := {}
   jpLiveVarMap   : JPLiveVarMap := {} -- map: join point => live variables
@@ -447,7 +448,7 @@ partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVars :=
       let info := ctx.varMap.get! x
       let liveVars := useVar ctx x liveVars
       let b :=
-        if info.isPossibleRef && liveVars.borrows.contains x then
+        if info.isPossibleRef && !ctx.isRetBorrowed && liveVars.borrows.contains x then
           addInc ctx x b
         else b
       ⟨b, liveVars⟩
@@ -457,9 +458,10 @@ partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVars :=
 
 partial def visitDecl (env : Environment) (decls : Array Decl) (d : Decl) : Decl :=
   match d with
-  | .fdecl (xs := xs) (body := b) .. =>
+  | .fdecl (xs := xs) (body := b) (returnBorrowInfo := returnBorrowInfo) .. =>
+    let isRetBorrowed := returnBorrowInfo.baseParamIndex?.isSome
     let ⟨derivedValMap, borrowedParams⟩ := CollectDerivedValInfo.collectDerivedValInfo env decls xs b
-    let ctx := updateVarInfoWithParams { env, decls, borrowedParams, derivedValMap } xs
+    let ctx := updateVarInfoWithParams { env, decls, borrowedParams, isRetBorrowed, derivedValMap } xs
     let ⟨b, bLiveVars⟩ := visitFnBody b ctx
     let ⟨b, _⟩ := addDecForDeadParams ctx xs b bLiveVars
     d.updateBody! b

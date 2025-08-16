@@ -91,7 +91,7 @@ def visitDecls (env : Environment) (decls : Array Decl) : StateM ParamMap Unit :
 end InitParamMap
 
 def mkInitParamMap (env : Environment) (decls : Array Decl) : ParamMap :=
-(InitParamMap.visitDecls env decls *> get).run' {}
+  (InitParamMap.visitDecls env decls *> get).run' {}
 
 /-! Apply the inferred borrow annotations stored at `ParamMap` to a block of mutually
    recursive functions. -/

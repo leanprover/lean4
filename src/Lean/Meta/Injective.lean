@@ -123,11 +123,64 @@ private def solveEqOfCtorEq (ctorName : Name) (mvarId : MVarId) (h : FVarId) : M
       unless (← mvarId.assumptionCore) do
         throwInjectiveTheoremFailure ctorName mvarId
 
-private def mkInjectiveTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr :=
+/--
+Helper function for `mkInjectiveTheoremValue`.
+The `type` is a big conjunction, returns the conjuncts.
+-/
+private partial def getAndArgs (type : Expr) : Array Expr :=
+  let (_, s) := go type |>.run #[]
+  s
+where
+  go (type : Expr) : StateM (Array Expr) Unit :=
+    match_expr type with
+    | And a b => go a *> go b
+    | _ => modify (·.push type)
+
+/--
+Helper function for `mkInjectiveTheoremValue`.
+It checks whether the `noConfusion` equality is the expected one, and adjusts `HEq` to `Eq` if needed.
+-/
+private def toExpectedType? (curr : Expr) (expectedType : Expr) : MetaM (Option Expr) := do
+  let currType ← inferType curr
+  match_expr expectedType with
+  | f@Eq α a b =>
+    match_expr currType with
+    | Eq _ a' b' => if a == a' && b == b' then return some curr
+    | HEq _ a' _ b' => if a == a' && b == b' then return some (mkApp4 (mkConst ``eq_of_heq f.constLevels!) α a b curr)
+    | _ => pure ()
+  | HEq _ a _ b =>
+    let_expr HEq _ a' _ b' := currType | return none
+    if a == a' && b == b' then return some curr
+  | _ => pure ()
+  return none
+
+private def mkInjectiveTheoremValue (targetType : Expr) : MetaM Expr := do
   forallTelescopeReducing targetType fun xs type => do
-    let mvar ← mkFreshExprSyntheticOpaqueMVar type
-    solveEqOfCtorEq ctorName mvar.mvarId! xs.back!.fvarId!
-    mkLambdaFVars xs mvar
+    let e ← mkNoConfusion type xs.back!
+    let types := getAndArgs type
+    -- `inferType e` returns `NoConfusionType ..` the `forallTelescopeReducing` has to perform `whnf`, and
+    -- is linear on the number of constructors
+    let r ← forallTelescopeReducing (← inferType e) fun f _ => do
+      forallTelescopeReducing (← inferType f[0]!) fun ys _ => do
+        let mut i := ys.size
+        let mut j := types.size
+        let mut r? := none
+        let mut rType? := none
+        while i > 0 && j > 0 do
+          i := i - 1
+          let y := ys[i]!
+          let expectedType := types[j-1]!
+          if let some y ← toExpectedType? y expectedType  then
+            j := j - 1
+            if let some r := r? then
+              let rType := rType?.get!
+              r? := some <| mkApp4 (mkConst ``And.intro) expectedType rType y r
+              rType? := some <| mkApp2 (mkConst ``And) expectedType rType
+            else
+              r? := some y
+              rType? := some expectedType
+        mkLambdaFVars ys r?.get!
+    mkLambdaFVars xs (mkApp e r)
 
 def mkInjectiveTheoremNameFor (ctorName : Name) : Name :=
   ctorName ++ `inj
@@ -135,7 +188,7 @@ def mkInjectiveTheoremNameFor (ctorName : Name) : Name :=
 private def mkInjectiveTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
   let some type ← mkInjectiveTheoremType? ctorVal
     | return ()
-  let value ← mkInjectiveTheoremValue ctorVal.name type
+  let value ← mkInjectiveTheoremValue type
   let name := mkInjectiveTheoremNameFor ctorVal.name
   addDecl <| Declaration.thmDecl {
     name

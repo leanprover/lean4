@@ -51,19 +51,21 @@ be a `let` or function type.
 syntax (name := intro) "intro" notFollowedBy("|") (ppSpace colGt term:max)* : tactic
 
 /--
-Introduces zero or more hypotheses, optionally naming them.
+Introduces all obvious hypotheses, optionally naming them.
 
-- `intros` is equivalent to repeatedly applying `intro`
-  until the goal is not an obvious candidate for `intro`, which is to say
-  that so long as the goal is a `let` or a pi type (e.g. an implication, function, or universal quantifier),
-  the `intros` tactic will introduce an anonymous hypothesis.
-  This tactic does not unfold definitions.
+- `intros` is equivalent to `intro _ _ _` with sufficiently many placeholders
+  to introduce all obvious `intro` candidates.
+  In other words, it is equivalent to repeatedly applying `intro` until
+  so long as the goal is an implication, universal quantifier, function, or a `let`/`have`,
+  without unfolding definitions.
+  The introduced hypotheses have inaccessible names
 
-- `intros x y ...` is equivalent to `intro x y ...`,
-  introducing hypotheses for each supplied argument and unfolding definitions as necessary.
-  Each argument can be either an identifier or a `_`.
-  An identifier indicates a name to use for the corresponding introduced hypothesis,
-  and a `_` indicates that the hypotheses should be introduced anonymously.
+- `intros x y` is equivalent to `intro x y; intros`,
+  which means that it will introduce at least two hypotheses, naming the first two `x` and `y`,
+  unfolding definitions as necessary for the supplied arguments.
+  After these hypotheses, it reverts to repeatedly applying `intro` until the goal is not an obvious candidate for it.
+  The syntax for arguments is the same as for `intro`;
+  for example, the arguments may be `_` to use inaccessible names.
 
 ## Examples
 
@@ -80,9 +82,9 @@ example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := b
      ⊢ AllEven fun k => f✝ (k + 1) -/
   sorry
 
--- Introduces exactly two hypotheses, naming only the first
+-- Introduces the two obvious hypotheses, naming only the first
 example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
-  intros g _
+  intros g
   /- Tactic state
      g : Nat → Nat
      a✝ : AllEven g
@@ -111,9 +113,9 @@ example (p q : Prop) : p → q → p := by
   assumption
 ```
 
-Let bindings:
+Let/have bindings:
 ```lean
-example : let n := 1; let k := 2; n + k = 3 := by
+example : let n := 1; have k := 2; n + k = 3 := by
   intros
   /- n✝ : Nat := 1
      k✝ : Nat := 2
@@ -121,7 +123,7 @@ example : let n := 1; let k := 2; n + k = 3 := by
   rfl
 ```
 -/
-syntax (name := intros) "intros" (ppSpace colGt (ident <|> hole))* : tactic
+syntax (name := intros) "intros" (ppSpace colGt term:max)* : tactic
 
 /--
 `rename t => x` renames the most recent hypothesis whose type matches `t`

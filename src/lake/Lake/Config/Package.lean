@@ -14,6 +14,7 @@ public import Lake.Config.ConfigDecl
 public import Lake.Config.Script
 public import Lake.Config.Cache
 public import Lake.Config.MetaClasses
+public import Lake.Util.FilePath -- use scoped instance downstream
 public import Lake.Util.OrdHashSet
 public import Lake.Util.Version
 public import Lake.Util.Name

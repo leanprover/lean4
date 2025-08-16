@@ -9,7 +9,6 @@ prelude
 public import Lean.Data.Json
 public import Lake.Build.Job.Monad
 public import Lake.Config.Monad
-public import Lake.Util.FilePath
 import Lake.Util.IO
 import Lake.Util.JsonObject
 import Lake.Build.Target.Fetch

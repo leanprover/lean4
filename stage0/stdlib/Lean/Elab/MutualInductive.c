@@ -43407,6 +43407,8 @@ lean_inc(x_43);
 lean_dec_ref(x_41);
 lean_inc(x_14);
 lean_inc_ref(x_13);
+lean_inc(x_12);
+lean_inc_ref(x_11);
 lean_inc(x_24);
 x_44 = l_Lean_mkCasesOn(x_24, x_11, x_12, x_13, x_14, x_43);
 if (lean_obj_tag(x_44) == 0)
@@ -43644,6 +43646,8 @@ lean_inc(x_45);
 lean_dec_ref(x_43);
 lean_inc(x_16);
 lean_inc_ref(x_15);
+lean_inc(x_14);
+lean_inc_ref(x_13);
 lean_inc(x_26);
 x_46 = l_Lean_mkCasesOn(x_26, x_13, x_14, x_15, x_16, x_45);
 if (lean_obj_tag(x_46) == 0)

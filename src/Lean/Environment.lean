@@ -25,6 +25,7 @@ public import Lean.PrivateName
 public import Lean.LoadDynlib
 public import Init.Dynamic
 import Init.Data.Slice
+public import Std.Sync.RecursiveMutex  -- TODO: should be `private` but breaks codegen
 
 public section
 
@@ -542,7 +543,7 @@ private structure RealizationContext where
   result (`RealizeValueResult` when called from `Lean.realizeValue`, `RealizeConstResult` from
   `Environment.realizeConst`).
   -/
-  realizeMapRef : IO.Ref (NameMap NonScalar /- PHashMap α (Task Dynamic) -/)
+  realizeMapMutex : Std.RecursiveMutex (NameMap NonScalar /- PHashMap α (Task Dynamic) -/)
 
 /--
 Elaboration-specific extension of `Kernel.Environment` that adds tracking of asynchronously
@@ -867,7 +868,7 @@ def enableRealizationsForConst (env : Environment) (opts : Options) (c : Name) :
     -- safety: `RealizationContext` is private
     env := unsafe unsafeCast env
     opts
-    realizeMapRef := (← IO.mkRef {}) } }
+    realizeMapMutex := (← Std.RecursiveMutex.new {}) } }
 
 def areRealizationsEnabledForConst (env : Environment) (c : Name) : Bool :=
   (env.base.get env |>.const2ModIdx.contains c) || env.localRealizationCtxMap.contains c
@@ -2208,7 +2209,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     -- safety: `RealizationContext` is private
     env := unsafe unsafeCast env
     opts
-    realizeMapRef := (← IO.mkRef {})
+    realizeMapMutex := (← Std.RecursiveMutex.new {})
   } }
 
 /--
@@ -2437,23 +2438,25 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forCo
     | none =>
       throw <| .userError s!"trying to realize `{TypeName.typeName α}` value but \
         `enableRealizationsForConst` must be called for '{forConst}' first"
-  let prom ← IO.Promise.new
   -- atomically check whether we are the first branch to realize `key`
-  let existingConsts? ← ctx.realizeMapRef.modifyGet fun m =>
+  let res? ← ctx.realizeMapMutex.atomically do
+    let m ← get
     -- Safety: `typeName α` should uniquely identify `PHashMap α (Task Dynamic)`; there are no other
     -- accesses to `private realizeMapRef` outside this function.
     let m' := match m.find? (TypeName.typeName α) with
       | some m' => unsafe unsafeCast (β := PHashMap α (Task Dynamic)) m'
       | none    => {}
     match m'[key] with
-    | some prom' => (some prom', m)
+    | some t => return Sum.inl t
     | none =>
+      let prom ← IO.Promise.new
       let m' := m'.insert key prom.result!
       let m := m.insert (TypeName.typeName α) (unsafe unsafeCast (β := NonScalar) m')
-      (none, m)
-  let res ← if let some t := existingConsts? then
-    pure t.get
-  else
+      set m
+      return Sum.inr prom
+  let res ← match res? with
+  | .inl t => pure t.get
+  | .inr prom =>
     -- safety: `RealizationContext` is private
     let realizeEnv : Environment := unsafe unsafeCast ctx.env
     let realizeEnv := { realizeEnv with

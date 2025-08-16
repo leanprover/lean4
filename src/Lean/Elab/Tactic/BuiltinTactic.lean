@@ -303,9 +303,13 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
       | `($h:ident) => withInfo h h do introStep h.getId
       | `(_%$h)     => withInfo h h do introStep `_
       /- Type ascription -/
-      | `(($h:ident : $type:term)) => withInfo t h do introStep h.getId type
-      /- We use `@h` at the match-discriminant to disable the implicit lambda feature -/
-      | `($pat:term) => evalTactic (← `(tactic| intro h; match @h with | $pat:term => ?_; try clear h))
+      | `(($h:ident : $[$type?:term]?)) => withInfo t h do introStep h.getId type?
+      | `((_%$h     : $[$type?:term]?)) => withInfo t h do introStep `_      type?
+      /- Pattern -/
+      | _ => withInfo t t do
+        let h := mkIdentFrom t (← mkFreshUserName `h)
+        /- We use `@h` at the match-discriminant to disable the implicit lambda feature -/
+        evalTactic (← `(tactic| intro $h:ident; match @$h:ident with | $t:term => ?_; try clear $h:ident))
   | _ => throwUnsupportedSyntax
 where
   introStep (n : Name) (typeStx? : Option Syntax := none) : TacticM Unit := do

@@ -68,13 +68,6 @@ Checks whether the declaration was originally declared as a theorem; see also
 def wasOriginallyTheorem (env : Environment) (declName : Name) : Bool :=
   getOriginalConstKind? env declName |>.map (· matches .thm) |>.getD false
 
-/-- If `warn.sorry` is set to true, then, so long as the message log does not already have any errors,
-declarations with `sorryAx` generate the "declaration uses 'sorry'" warning. -/
-register_builtin_option warn.sorry : Bool := {
-  defValue := true
-  descr    := "warn about uses of `sorry` in declarations added to the environment"
-}
-
 def addDecl (decl : Declaration) : CoreM Unit := do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task

@@ -2422,8 +2422,9 @@ def hasUnsafe (env : Environment) (e : Expr) : Bool :=
   c?.isSome
 
 /-- Plumbing function for `Lean.Meta.realizeValue`; see documentation there. -/
-def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forConst : Name) (key : α)
-    (realize : Environment → Options → BaseIO Dynamic) : IO Dynamic := do
+def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forConst : Name)
+    (key : α) (realize : Environment → Options → BaseIO Dynamic) (keyDesc := TypeName.typeName α) :
+    IO Dynamic := do
   -- the following code is inherently non-deterministic in number of heartbeats, reset them at the
   -- end
   let heartbeats ← IO.getNumHeartbeats
@@ -2435,7 +2436,7 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forCo
     match env.localRealizationCtxMap.find? forConst with
     | some ctx => pure ctx
     | none =>
-      throw <| .userError s!"trying to realize `{TypeName.typeName α}` value but \
+      throw <| .userError s!"trying to realize `{keyDesc}` value but \
         `enableRealizationsForConst` must be called for '{forConst}' first"
   let res ← (do
     -- First try checking for the key non-atomically as (de)allocating the promise is expensive.
@@ -2491,7 +2492,7 @@ deriving Nonempty, TypeName
 def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
     IO (Environment × Task (Option Kernel.Exception) × Dynamic) := do
-  let res ← env.realizeValue forConst { constName : RealizeConstKey } fun realizeEnv realizeOpts => do
+  let res ← env.realizeValue (keyDesc := constName) forConst { constName : RealizeConstKey } fun realizeEnv realizeOpts => do
     -- ensure that environment extension modifications know they are in an async context
     let realizeEnv := realizeEnv.enterAsyncRealizing constName
     -- skip kernel in `realize`, we'll re-typecheck anyway

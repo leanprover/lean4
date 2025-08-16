@@ -27,7 +27,8 @@ environment to be specifically hidden.
 -/
 namespace Lean.Meta
 
-builtin_initialize completionBlackListExt : TagDeclarationExtension ← mkTagDeclarationExtension
+builtin_initialize completionBlackListExt : TagDeclarationExtension ←
+  mkTagDeclarationExtension (asyncMode := .async .mainEnv)
 
 def addToCompletionBlackList (env : Environment) (declName : Name) : Environment :=
   completionBlackListExt.tag env declName

@@ -964,14 +964,11 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
 
 private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
   let env ← getEnv
-  let hasEq   := env.contains ``Eq
-  let hasHEq  := env.contains ``HEq
   let hasUnit := env.contains ``PUnit
   let hasProd := env.contains ``Prod
   for n in declNames do
     mkRecOn n
     if hasUnit then mkCasesOn n
-    if hasUnit && hasEq && hasHEq then mkNoConfusion n
     if hasUnit && hasProd then mkBelow n
   for n in declNames do
     if hasUnit && hasProd then mkBRecOn n
@@ -983,13 +980,14 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
   withExporting (isExporting := !isPrivateName view0.declName) do
     let res ← mkInductiveDecl vars elabs
     mkAuxConstructions (elabs.map (·.view.declName))
+    -- Call `enableRealizationsForConst` now as later constructions may need `noConfusion`
+    for e in elabs do
+      enableRealizationsForConst e.view.declName
     unless view0.isClass do
       mkSizeOfInstances view0.declName
       IndPredBelow.mkBelow view0.declName
       for e in elabs do
         mkInjectiveTheorems e.view.declName
-    for e in elabs do
-      enableRealizationsForConst e.view.declName
     return res
 
 /-- Ensures that there are no conflicts among or between the type and constructor names defined in `elabs`. -/

@@ -10,6 +10,7 @@ public import Lean.Structure
 public import Lean.Meta.SynthInstance
 public import Lean.Meta.Check
 public import Lean.Meta.DecLevel
+import Lean.ReservedNameAction
 
 public section
 
@@ -478,7 +479,9 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
     let α ← whnfD α
     matchConstInduct α.getAppFn (fun _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)) fun v us => do
       let u ← getLevel target
-      return mkAppN (mkConst (Name.mkStr v.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
+      let noConfusionName := Name.mkStr v.name "noConfusion"
+      realizeReservedName noConfusionName
+      return mkAppN (mkConst noConfusionName (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
 
 /-- Given a `monad` and `e : α`, makes `pure e`.-/
 def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=

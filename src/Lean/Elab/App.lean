@@ -1272,7 +1272,7 @@ private partial def findMethod? (structName fieldName : Name) : MetaM (Option (N
   let find? structName' : MetaM (Option (Name × Name)) := do
     let fullName := structName' ++ fieldName
     -- We do not want to make use of the current namespace for resolution.
-    let candidates := ResolveName.resolveGlobalName (← getEnv) Name.anonymous (← getOpenDecls) fullName
+    let candidates := (← withTheReader Core.Context (fun ctx => { ctx with currNamespace := .anonymous }) (realizeGlobalName fullName))
       |>.filter (fun (_, fieldList) => fieldList.isEmpty)
       |>.map Prod.fst
     match candidates with

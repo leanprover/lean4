@@ -13,7 +13,8 @@ public section
 
 namespace Lean
 
-builtin_initialize protectedExt : TagDeclarationExtension ← mkTagDeclarationExtension
+builtin_initialize protectedExt : TagDeclarationExtension ←
+  mkTagDeclarationExtension (asyncMode := .async .mainEnv)
 
 def addProtected (env : Environment) (n : Name) : Environment :=
   protectedExt.tag env n

@@ -15,7 +15,7 @@ A monad transformer that equips a monad with a value.
 This is a generalization of `ReaderT` where the value is not
 necessarily directly readable through the monad.
 -/
-public def EquipT (ρ : Type u) (m : Type v → Type w) (α : Type v) :=
+@[expose] public def EquipT (ρ : Type u) (m : Type v → Type w) (α : Type v) :=
   ρ → m α
 
 namespace EquipT

@@ -288,33 +288,41 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 
 @[builtin_tactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx => do
   match stx with
-  | `(tactic| intro)                   => introStep none `_
-  | `(tactic| intro $h:ident)          => introStep h h.getId
-  | `(tactic| intro _%$tk)             => introStep tk `_
-  /- Type ascription -/
-  | `(tactic| intro ($h:ident : $type:term)) => introStep h h.getId type
-  /- We use `@h` at the match-discriminant to disable the implicit lambda feature -/
-  | `(tactic| intro $pat:term)         => evalTactic (← `(tactic| intro h; match @h with | $pat:term => ?_; try clear h))
-  | `(tactic| intro $h:term $hs:term*) => evalTactic (← `(tactic| intro $h:term; intro $hs:term*))
+  | `(tactic| intro) =>
+    -- `intro` is implicitly `intro _`
+    introStep `_
+  | `(tactic| intro%$tk $ts:term*) =>
+    for t in ts, i in 0...* do
+      -- `tref` is ref for tactic info, `href` is ref for hypothesis
+      let withInfo (tref href : Syntax) (k : TacticM Unit) : TacticM Unit := do
+        -- Include the `intro` token with the first argument for the tactic info.
+        -- The effect is that `intro` and `intro h` have similar tactic info.
+        let ctxRef := if i = 0 then mkNullNode #[tk, tref] else tref
+        withTacticInfoContext ctxRef <| withRef href <| k
+      match t with
+      | `($h:ident) => withInfo h h do introStep h.getId
+      | `(_%$h)     => withInfo h h do introStep `_
+      /- Type ascription -/
+      | `(($h:ident : $type:term)) => withInfo t h do introStep h.getId type
+      /- We use `@h` at the match-discriminant to disable the implicit lambda feature -/
+      | `($pat:term) => evalTactic (← `(tactic| intro h; match @h with | $pat:term => ?_; try clear h))
   | _ => throwUnsupportedSyntax
 where
-  introStep (ref? : Option Syntax) (n : Name) (typeStx? : Option Syntax := none) : TacticM Unit := do
+  introStep (n : Name) (typeStx? : Option Syntax := none) : TacticM Unit := do
     let fvarId ← liftMetaTacticAux fun mvarId => do
-      let (fvarId, mvarId) ← withRef? ref? <| mvarId.intro n
+      let (fvarId, mvarId) ← mvarId.intro n
       pure (fvarId, [mvarId])
+    let fvar := mkFVar fvarId
     if let some typeStx := typeStx? then
       withMainContext do
         let type ← Term.withSynthesize (postpone := .yes) <| Term.elabType typeStx
-        let fvar := mkFVar fvarId
         let fvarType ← inferType fvar
         unless (← isDefEqGuarded type fvarType) do
-          withRef? ref? do
           throwError m!"Type mismatch: Hypothesis `{fvar}` " ++
             (← mkHasTypeButIsExpectedMsg fvarType type (trailing? := "due to the provided type annotation"))
         liftMetaTactic fun mvarId => return [← mvarId.replaceLocalDeclDefEq fvarId type]
-    if let some ref := ref? then
-      withMainContext do
-        Term.addLocalVarInfo ref (mkFVar fvarId)
+    withMainContext do
+      Term.addLocalVarInfo (← getRef) fvar
 
 @[builtin_tactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic := fun stx => do
   let matchAlts := stx[1]

@@ -48,6 +48,7 @@ example : 0 + n = n := by
 example : ∀ a b : Nat, a = b := by
   intro a b
  --^ $/lean/plainGoal
+         --^ $/lean/plainGoal
 
 example : α → α := (by
                   --^ $/lean/plainGoal

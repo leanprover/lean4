@@ -5587,7 +5587,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_7);
-x_8 = lean_ctor_get(x_1, 3);
+x_8 = lean_ctor_get(x_1, 4);
 lean_inc(x_8);
 lean_dec_ref(x_1);
 x_9 = lean_ctor_get(x_2, 0);

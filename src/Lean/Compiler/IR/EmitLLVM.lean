@@ -745,7 +745,7 @@ def emitFullApp (builder : LLVM.Builder llvmctx)
   let (__zty, zslot) ← emitLhsSlot_ z
   let decl ← getDecl f
   match decl with
-  | .fdecl .. | .extern _ _ _ { entries := [.opaque _] } =>
+  | .fdecl .. | .extern _ _ _ _ { entries := [.opaque _] } =>
     if ys.size > 0 then
         let fv ← getOrAddFunIdValue builder f
         let ys ←  ys.mapM (fun y => do
@@ -757,7 +757,7 @@ def emitFullApp (builder : LLVM.Builder llvmctx)
     else
        let zv ← getOrAddFunIdValue builder f
        LLVM.buildStore builder zv zslot
-  | Decl.extern _ ps retty extData =>
+  | Decl.extern _ ps retty _ extData =>
      let zv ← emitExternCall builder f ps extData ys retty
      LLVM.buildStore builder zv zslot
 

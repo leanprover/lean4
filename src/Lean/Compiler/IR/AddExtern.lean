@@ -33,7 +33,7 @@ def addExtern (declName : Name) (externAttrData : ExternAttrData) : CoreM Unit :
     type := b
     nextVarIndex := nextVarIndex + 1
   let irType ← toIRType type
-  let decl := .extern declName params irType externAttrData
+  let decl := .extern declName params irType {} externAttrData
   addDecl decl
   if !isPrivateName decl.name then
     modifyEnv (Compiler.LCNF.setDeclPublic · decl.name)

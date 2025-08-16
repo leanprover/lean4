@@ -130,10 +130,16 @@ partial def formatFnBody (fnBody : FnBody) (indent : Nat := 2) : Format :=
 instance : ToFormat FnBody := ⟨formatFnBody⟩
 instance : ToString FnBody := ⟨fun b => (format b).pretty⟩
 
+def formatReturnType (ps : Array Param) (ty : IRType) (baseParamIndex? : Option Nat) : Format :=
+  match baseParamIndex? with
+  | some baseParamIndex =>
+    format "@&[" ++ format ps[baseParamIndex]!.x ++ format "]" ++ " " ++ format ty
+  | none => format ty
+
 def formatDecl (decl : Decl) (indent : Nat := 2) : Format :=
   match decl with
-  | Decl.fdecl f xs ty b _  => "def " ++ format f ++ formatParams xs ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody b indent)
-  | Decl.extern f xs ty _   => "extern " ++ format f ++ formatParams xs ++ format " : " ++ format ty
+  | Decl.fdecl f xs ty { baseParamIndex? } b _  => "def " ++ format f ++ formatParams xs ++ format " : " ++ formatReturnType xs ty baseParamIndex? ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody b indent)
+  | Decl.extern f xs ty { baseParamIndex? } _   => "extern " ++ format f ++ formatParams xs ++ format " : " ++ formatReturnType xs ty baseParamIndex?
 
 instance : ToFormat Decl := ⟨formatDecl⟩
 

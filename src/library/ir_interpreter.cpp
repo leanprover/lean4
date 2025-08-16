@@ -179,7 +179,8 @@ decl_kind decl_tag(decl const & a) { return is_scalar(a.raw()) ? static_cast<dec
 fun_id const & decl_fun_id(decl const & b) { return cnstr_get_ref_t<fun_id>(b, 0); }
 array_ref<param> const & decl_params(decl const & b) { return cnstr_get_ref_t<array_ref<param>>(b, 1); }
 type decl_type(decl const & b) { return cnstr_get_type(b, 2); }
-fn_body const & decl_fun_body(decl const & b) { lean_assert(decl_tag(b) == decl_kind::Fun); return cnstr_get_ref_t<fn_body>(b, 3); }
+bool decl_return_value_borrowed(decl const & b) { return lean_obj_tag(lean_ctor_get(b.raw(), 3)) == 1; }
+fn_body const & decl_fun_body(decl const & b) { lean_assert(decl_tag(b) == decl_kind::Fun); return cnstr_get_ref_t<fn_body>(b, 4); }
 
 extern "C" object * lean_ir_find_env_decl(object * env, object * n);
 option_ref<decl> find_ir_decl(elab_environment const & env, name const & n) {
@@ -919,6 +920,9 @@ private:
                 lean_dec(o);
             } else {
                 r = o;
+                if (e.m_native.m_boxed && decl_return_value_borrowed(e.m_decl)) {
+                    lean_dec(o);
+                }
             }
         } else {
             if (decl_tag(e.m_decl) == decl_kind::Extern) {

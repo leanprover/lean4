@@ -42,7 +42,10 @@ private def N.mkFresh : N VarId :=
 
 def requiresBoxedVersion (env : Environment) (decl : Decl) : Bool :=
   let ps := decl.params
-  (ps.size > 0 && (decl.resultType.isScalar || ps.any (fun p => p.ty.isScalar || p.borrow) || isExtern env decl.name))
+  (ps.size > 0 && (decl.resultType.isScalar ||
+                   decl.returnBorrowInfo.baseParamIndex?.isSome ||
+                   ps.any (fun p => p.ty.isScalar || p.borrow) ||
+                   isExtern env decl.name))
   || ps.size > closureMaxArgs
 
 def mkBoxedVersionAux (decl : Decl) : N Decl := do
@@ -64,7 +67,8 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
     let newR ← N.mkFresh
     let newVDecls := newVDecls.push (FnBody.vdecl newR .tobject (Expr.box decl.resultType r) default)
     pure <| reshape newVDecls (FnBody.ret (.var newR))
-  return Decl.fdecl (mkBoxedName decl.name) qs decl.resultType.boxed body decl.getInfo
+  let retBorrowInfo := { baseParamIndex? := none }
+  return Decl.fdecl (mkBoxedName decl.name) qs decl.resultType.boxed retBorrowInfo body decl.getInfo
 
 def mkBoxedVersion (decl : Decl) : Decl :=
   (mkBoxedVersionAux decl).run' 1
@@ -181,7 +185,7 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
       | none   => do
         let auxName  := ctx.f ++ ((`_boxed_const).appendIndexAfter s.nextAuxId)
         let auxConst := Expr.fap auxName #[]
-        let auxDecl  := Decl.fdecl auxName #[] expectedType body {}
+        let auxDecl  := Decl.fdecl auxName #[] expectedType {} body {}
         modify fun s => { s with
           auxDecls     := s.auxDecls.push auxDecl
           auxDeclCache := s.auxDeclCache.cons body auxConst
@@ -308,7 +312,7 @@ partial def visitFnBody : FnBody → M FnBody
 def run (env : Environment) (decls : Array Decl) : Array Decl :=
   let decls := decls.foldl (init := #[]) fun newDecls decl =>
     match decl with
-    | .fdecl f xs resultType b _ =>
+    | .fdecl f xs resultType _ b _ =>
       let nextIdx  := decl.maxIndex + 1
       let (b, s)   := withParams xs (visitFnBody b) { f, resultType, decls, env } |>.run { nextIdx }
       let newDecls := newDecls ++ s.auxDecls

@@ -1163,7 +1163,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_3);
-x_4 = lean_ctor_get(x_1, 3);
+x_4 = lean_ctor_get(x_1, 4);
 lean_inc(x_4);
 lean_dec_ref(x_1);
 x_5 = lean_unsigned_to_nat(0u);
@@ -3407,7 +3407,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_3);
-x_4 = lean_ctor_get(x_1, 3);
+x_4 = lean_ctor_get(x_1, 4);
 lean_inc(x_4);
 lean_dec_ref(x_1);
 x_5 = lean_unsigned_to_nat(0u);

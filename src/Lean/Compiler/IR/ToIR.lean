@@ -307,7 +307,7 @@ def lowerDecl (d : LCNF.Decl) : M (Option Decl) := do
   match d.value with
   | .code code =>
     let body ← lowerCode code
-    pure <| some <| .fdecl d.name params resultType body {}
+    pure <| some <| .fdecl d.name params resultType {} body {}
   | .extern externAttrData =>
     if externAttrData.entries.isEmpty then
       -- TODO: This matches the behavior of the old compiler, but we should
@@ -315,7 +315,12 @@ def lowerDecl (d : LCNF.Decl) : M (Option Decl) := do
       addDecl (mkDummyExternDecl d.name params resultType)
       pure <| none
     else
-      pure <| some <| .extern d.name params resultType externAttrData
+      let baseParamIndex? := externAttrData.entries.findSome? fun entry =>
+        match entry with
+        | .standard _ "lean_array_fget_borrowed" => some 1
+        | .standard _ "lean_array_get_borrowed" => some 2
+        | _ => none
+      pure <| some <| .extern d.name params resultType { baseParamIndex? } externAttrData
 
 end ToIR
 

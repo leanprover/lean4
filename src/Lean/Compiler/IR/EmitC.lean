@@ -435,11 +435,11 @@ def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
   emitLhs z
   let decl ← getDecl f
   match decl with
-  | .fdecl .. | .extern _ _ _ { entries := [.opaque _], .. } =>
+  | .fdecl .. | .extern _ _ _ _ { entries := [.opaque _], .. } =>
     emitCName f
     if ys.size > 0 then emit "("; emitArgs ys; emit ")"
     emitLn ";"
-  | Decl.extern _ ps _ extData => emitExternCall f ps extData ys
+  | Decl.extern _ ps _ _ extData => emitExternCall f ps extData ys
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
   let decl ← getDecl f

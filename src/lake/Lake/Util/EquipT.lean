@@ -40,8 +40,7 @@ public instance [Functor m] : Functor (EquipT ρ m) where
 public protected def pure [Pure m] (a : α) : EquipT ρ m α :=
   fun _ => pure a
 
-public instance [Pure m] : Pure (EquipT ρ m) where
-  pure := EquipT.pure
+public instance [Pure m] : Pure (EquipT ρ m) := ⟨EquipT.pure⟩
 
 @[always_inline, inline]
 public def compose (f : m α₁ → (Unit → m α₂) → m β) (x₁ : EquipT ρ m α₁) (x₂ : Unit → EquipT ρ m α₂) : EquipT ρ m β :=
@@ -51,8 +50,7 @@ public def compose (f : m α₁ → (Unit → m α₂) → m β) (x₁ : EquipT 
 public protected def seq [Seq m] : EquipT ρ m (α → β) → (Unit → EquipT ρ m α) → EquipT ρ m β :=
   EquipT.compose Seq.seq
 
-public instance [Seq m] : Seq (EquipT ρ m) where
-  seq  := EquipT.seq
+public instance [Seq m] : Seq (EquipT ρ m) := ⟨EquipT.seq⟩
 
 public instance [Applicative m] : Applicative (EquipT ρ m)  := {}
 
@@ -60,8 +58,7 @@ public instance [Applicative m] : Applicative (EquipT ρ m)  := {}
 public protected def bind [Bind m] (self : EquipT ρ m α) (f : α → EquipT ρ m β) : EquipT ρ m β :=
   fun r => bind (self r) fun a => f a r
 
-public instance [Bind m] : Bind (EquipT ρ m) where
-  bind := EquipT.bind
+public instance [Bind m] : Bind (EquipT ρ m) := ⟨EquipT.bind⟩
 
 public instance [Monad m] : Monad (EquipT ρ m) := {}
 
@@ -92,13 +89,17 @@ public protected def throw [MonadExceptOf ε m]  (e : ε) : EquipT ρ m α  :=
   fun _ => throw e
 
 @[always_inline, inline]
-public protected def tryCatch [MonadExceptOf ε m] (self : EquipT ρ m α) (c : ε → EquipT ρ m α) : EquipT ρ m α :=
-  fun f => tryCatchThe ε (self f) fun e => (c e) f
+public protected def tryCatch [MonadExceptOf ε m]
+  (self : EquipT ρ m α) (c : ε → EquipT ρ m α)
+: EquipT ρ m α := fun f => tryCatchThe ε (self f) fun e => (c e) f
 
 public instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (EquipT ρ m) where
   throw    := EquipT.throw
   tryCatch := EquipT.tryCatch
 
-@[always_inline]
-instance [MonadFinally m] [Monad m] : MonadFinally (EquipT ρ m) where
-  tryFinally' x h ctx := tryFinally' (x ctx) (fun a? => h a? ctx)
+@[always_inline, inline]
+public protected def tryFinally' [MonadFinally m] [Monad m]
+  (x : EquipT ρ m α) (f : Option α → EquipT ρ m β)
+: EquipT ρ m (α × β) := fun ctx => tryFinally' (x.run ctx) (fun a? => f a? |>.run ctx)
+
+public instance [MonadFinally m] [Monad m] : MonadFinally (EquipT ρ m) := ⟨EquipT.tryFinally'⟩

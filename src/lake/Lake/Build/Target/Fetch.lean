@@ -3,9 +3,14 @@ Copyright (c) 2025 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Build.Fetch
+public import Lake.Build.Job.Basic
 import Lake.Build.Job
 import Lake.Config.Monad
+import all Lake.Build.Key
 
 open Lean
 
@@ -70,7 +75,7 @@ where
       return pkg
 
 /-- **For internal use only.** -/
-@[inline] def PartialBuildKey.fetchInCore
+@[inline] public def PartialBuildKey.fetchInCore
   (defaultPkg : Package) (self : PartialBuildKey)
 : FetchM ((key : BuildKey) × Job (BuildData key)) :=
   fetchInCoreAux defaultPkg self self true
@@ -85,7 +90,7 @@ Fetches the target specified by this key, resolving gaps as needed.
 * Package targets for non-dynamic targets (i.e., non-`target`) produce their default facet
   rather than their configuration.
 -/
-@[inline] def PartialBuildKey.fetchIn (defaultPkg : Package) (self : PartialBuildKey) : FetchM OpaqueJob :=
+@[inline] public def PartialBuildKey.fetchIn (defaultPkg : Package) (self : PartialBuildKey) : FetchM OpaqueJob :=
   (·.2.toOpaque) <$> fetchInCore defaultPkg self
 
 variable (root : BuildKey) in
@@ -116,11 +121,11 @@ private def BuildKey.fetchCore
         (job.cast h).bindM (kind := cfg.outKind) fun data =>
           fetch (.facet target kind data facetName)
 
-@[inline] protected def BuildKey.fetch
+@[inline] public protected def BuildKey.fetch
   (self : BuildKey) [FamilyOut BuildData self α] : FetchM (Job α)
 := cast (by simp) <| fetchCore self self
 
-protected def Target.fetchIn
+public protected def Target.fetchIn
   [DataKind α] (defaultPkg : Package) (self : Target α) : FetchM (Job α)
 := do
   let ⟨_, job⟩ ← self.key.fetchInCore defaultPkg
@@ -134,7 +139,7 @@ protected def Target.fetchIn
     let actual := if job.kind.name.isAnonymous then "unknown" else s!"'{job.kind.name}'"
     error s!"type mismtach in target '{self.key}': expected '{kind}', got {actual}"
 
-protected def TargetArray.fetchIn
+public protected def TargetArray.fetchIn
   [DataKind α] (defaultPkg : Package) (self : TargetArray α) (traceCaption := "<targets>")
 : FetchM (Job (Array α)) :=
   Job.collectArray (traceCaption := traceCaption) <$> self.mapM (·.fetchIn defaultPkg)

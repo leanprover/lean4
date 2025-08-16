@@ -204,7 +204,7 @@ public instance : ToString TextFilePath := ⟨(·.path.toString)⟩
 @[inline] public def computeArrayHash [ComputeHash α m] [Monad m] (as : Array α) : m Hash :=
   computeArrayTrace as
 
-instance [ComputeHash α m] [Monad m] : ComputeHash (Array α) m := ⟨computeArrayHash⟩
+public instance [ComputeHash α m] [Monad m] : ComputeHash (Array α) m := ⟨computeArrayHash⟩
 
 --------------------------------------------------------------------------------
 /-! ## Modification Time (MTime) Trace -/

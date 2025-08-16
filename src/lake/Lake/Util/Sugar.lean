@@ -6,9 +6,11 @@ Authors: Mac Malone
 module
 
 prelude
-import Init.Notation
+public import Init.Notation
 
 namespace Lake
+
+public section
 
 macro "try " x:term " else " y:term : term =>
   ``($x <|> $y)

@@ -230,8 +230,6 @@ instance {m : Type w → Type w} : ForIn m (Raw α β) (α × β) where
 
 section Unverified
 
-/-! We currently do not provide lemmas for the functions below. -/
-
 @[inline, inherit_doc DHashMap.Raw.filterMap] def filterMap {γ : Type w} (f : α → β → Option γ)
     (m : Raw α β) : Raw α γ :=
   ⟨m.inner.filterMap f⟩
@@ -248,6 +246,8 @@ section Unverified
 
 @[inline, inherit_doc DHashMap.Raw.keysArray] def keysArray (m : Raw α β) : Array α :=
   m.inner.keysArray
+
+/-! We currently do not provide lemmas for the functions below. -/
 
 @[inline, inherit_doc DHashMap.Raw.values] def values (m : Raw α β) : List β :=
 m.inner.values

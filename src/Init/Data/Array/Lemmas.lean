@@ -838,9 +838,10 @@ theorem mem_of_contains_eq_true [BEq α] [LawfulBEq α] {a : α} {as : Array α}
   cases as
   simp
 
-theorem contains_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : Array α} (h : a ∈ as) : as.contains a = true := by
+theorem contains_eq_true_of_mem [BEq α] [ReflBEq α] {a : α} {as : Array α} (h : a ∈ as) :
+    as.contains a = true := by
   cases as
-  simpa using h
+  simpa using List.elem_eq_true_of_mem (Array.mem_toList_iff.mpr h)
 
 @[simp] theorem elem_eq_contains [BEq α] {a : α} {xs : Array α} :
     elem a xs = xs.contains a := by

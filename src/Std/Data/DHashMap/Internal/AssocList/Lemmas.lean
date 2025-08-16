@@ -271,4 +271,13 @@ theorem foldr_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a
       (l.toList.map (fun p => f p.1 p.2)) ++ acc := by
   induction l generalizing acc <;> simp_all [AssocList.foldr, AssocList.foldrM]
 
+theorem foldl_push_apply {l : AssocList α β} {acc : Array δ} (f : (a : α) → β a → δ) :
+    l.foldl (fun acc k v => acc.push (f k v)) acc =
+      acc ++ (l.toList.toArray.map (fun p => f p.1 p.2)) := by
+  simp [foldl]
+  induction l generalizing acc with
+  | nil => simp [foldlM]
+  | cons k v tl ih =>
+    simp [foldlM, ih]
+
 end Std.DHashMap.Internal.AssocList

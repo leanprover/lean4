@@ -1,1 +1,8 @@
-2125.lean:7:0-9:23: error: (kernel) invalid return type for 'C.c'
+2125.lean:10:2-10:23: error: Invalid occurrence of inductive type `C`: The indices in the occurrence may not mention the inductive type itself.
+2125.lean:16:2-16:32: error: In argument #1 of constructor D.c:
+  Invalid occurrence of inductive type `D`: The indices in the occurrence may not mention the inductive type itself.
+2125.lean:25:2-25:23: error: In argument #1 of constructor E.c:
+  Invalid occurrence of inductive type `E`, parameter #1 of `Nest` is not positive.
+  
+  Note: That parameter is not positive:
+    Non-positive occurrence of parameter `G` in type of Nest.mk, in application of the parameter itself.

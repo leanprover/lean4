@@ -10,6 +10,7 @@ public import Lake.Util.Name
 public import Lake.Config.FacetConfig
 import Lake.Build.Job
 import Lake.Build.Common
+import Lake.Build.Infos
 
 /-! # Input File Build
 Build function definitions for input files and directories.

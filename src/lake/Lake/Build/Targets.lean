@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lake.Config.Monad
+public import Lake.Config.InputFile
+import Lake.Build.Infos
 
 /-! # Build Target Fetching
 Utilities for fetching package, library, module, and executable targets and facets.

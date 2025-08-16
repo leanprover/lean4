@@ -16,6 +16,7 @@ public import Lake.Build.Facets
 public import Lake.Build.Fetch
 public import Lake.Build.Index
 public import Lake.Build.Info
+public import Lake.Build.Infos
 public import Lake.Build.InitFacets
 public import Lake.Build.InputFile
 public import Lake.Build.Job

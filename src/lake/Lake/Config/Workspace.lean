@@ -7,6 +7,9 @@ module
 
 prelude
 public import Lake.Config.Env
+public import Lake.Config.Module
+public import Lake.Config.LeanExe
+public import Lake.Config.ExternLib
 public import Lake.Config.FacetConfig
 public import Lake.Config.TargetConfig
 meta import all Lake.Util.OpaqueType

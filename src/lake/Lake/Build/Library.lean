@@ -13,6 +13,7 @@ import Lake.Build.Common
 import Lake.Build.Targets
 import Lake.Build.Job.Register
 import Lake.Build.Target.Fetch
+import Lake.Build.Infos
 
 /-! # Library Facet Builds
 Build function definitions for a library's builtin facets.

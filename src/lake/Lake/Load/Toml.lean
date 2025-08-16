@@ -7,6 +7,7 @@ prelude
 import Lake.Toml.Load
 import Lake.Toml.Decode
 import Lake.Config.Package
+import Lake.Load.Config
 import Lake.Util.Log
 
 open Lean Parser

@@ -3,9 +3,11 @@ Copyright (c) 2025 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Build.Trace
-import Lake.Config.Artifact
+public import Lake.Build.Trace
+public import Lake.Config.Artifact
 import Lake.Util.JsonObject
 
 open Lean (Json ToJson FromJson)
@@ -13,7 +15,7 @@ open Lean (Json ToJson FromJson)
 namespace Lake
 
 /-- The content hashes of the output artifacts of a module build. -/
-structure ModuleOutputHashes where
+public structure ModuleOutputHashes where
   olean : Hash := .nil
   oleanServer? : Option Hash := none
   oleanPrivate? : Option Hash := none
@@ -22,7 +24,7 @@ structure ModuleOutputHashes where
   c : Hash := .nil
   bc? : Option Hash := none
 
-def ModuleOutputHashes.oleanHashes (hashes : ModuleOutputHashes) : Array Hash := Id.run do
+public def ModuleOutputHashes.oleanHashes (hashes : ModuleOutputHashes) : Array Hash := Id.run do
   let mut oleanHashes := #[hashes.olean]
   if let some hash := hashes.oleanServer? then
     oleanHashes := oleanHashes.push hash
@@ -30,7 +32,7 @@ def ModuleOutputHashes.oleanHashes (hashes : ModuleOutputHashes) : Array Hash :=
     oleanHashes := oleanHashes.push hash
   return oleanHashes
 
-protected def ModuleOutputHashes.toJson (hashes : ModuleOutputHashes) : Json := Id.run do
+public protected def ModuleOutputHashes.toJson (hashes : ModuleOutputHashes) : Json := Id.run do
   let mut obj : JsonObject := {}
   obj := obj.insert "o" hashes.oleanHashes
   obj := obj.insert "i" hashes.ilean
@@ -41,9 +43,9 @@ protected def ModuleOutputHashes.toJson (hashes : ModuleOutputHashes) : Json := 
     obj := obj.insert "b" bc
   return obj
 
-instance : ToJson ModuleOutputHashes := ⟨ModuleOutputHashes.toJson⟩
+public instance : ToJson ModuleOutputHashes := ⟨ModuleOutputHashes.toJson⟩
 
-protected def ModuleOutputHashes.fromJson? (val : Json) : Except String ModuleOutputHashes := do
+public protected def ModuleOutputHashes.fromJson? (val : Json) : Except String ModuleOutputHashes := do
   let obj ← JsonObject.fromJson? val
   let oleanHashes : Array Hash ← obj.get "o"
   let some olean := oleanHashes[0]?
@@ -58,10 +60,10 @@ protected def ModuleOutputHashes.fromJson? (val : Json) : Except String ModuleOu
     bc? := ← obj.get? "b"
   }
 
-instance : FromJson ModuleOutputHashes := ⟨ModuleOutputHashes.fromJson?⟩
+public instance : FromJson ModuleOutputHashes := ⟨ModuleOutputHashes.fromJson?⟩
 
 /-- The output artifacts of a module build. -/
-structure ModuleOutputArtifacts where
+public structure ModuleOutputArtifacts where
   olean : Artifact
   oleanServer? : Option Artifact := none
   oleanPrivate? : Option Artifact := none
@@ -71,7 +73,7 @@ structure ModuleOutputArtifacts where
   bc? : Option Artifact := none
 
 /-- Content hashes of the artifacts. -/
-def ModuleOutputArtifacts.hashes (arts : ModuleOutputArtifacts) : ModuleOutputHashes where
+public def ModuleOutputArtifacts.hashes (arts : ModuleOutputArtifacts) : ModuleOutputHashes where
   olean := arts.olean.hash
   oleanServer? := arts.oleanServer?.map (·.hash)
   oleanPrivate? := arts.oleanPrivate?.map (·.hash)

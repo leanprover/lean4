@@ -3,7 +3,10 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Mac Malone
 -/
+module
+
 prelude
+public import Init.System.IO
 import Lean.Util.Path
 import Lake.Util.Name
 
@@ -12,8 +15,9 @@ open System (FilePath)
 
 namespace Lake
 
+public section
 /-- A specification of a set of module names. -/
-inductive Glob
+public inductive Glob
   /-- Selects just the specified module name. -/
   | one : Name → Glob
   /-- Selects all submodules of the specified module, but not the module itself. -/
@@ -21,9 +25,12 @@ inductive Glob
   /-- Selects the specified module and all submodules. -/
   | andSubmodules : Name → Glob
 deriving Inhabited, Repr, DecidableEq
+end
 
-instance : Coe Name Glob := ⟨Glob.one⟩
-instance : Coe Glob (Array Glob) := ⟨Array.singleton⟩
+public instance : Coe Name Glob := ⟨Glob.one⟩
+public instance : Coe Glob (Array Glob) := ⟨Array.singleton⟩
+
+public section
 
 /-- A name glob which matches all names with the prefix, including itself. -/
 scoped macro:max n:name noWs ".*" : term =>
@@ -33,21 +40,23 @@ scoped macro:max n:name noWs ".*" : term =>
 scoped macro:max n:name noWs ".+" : term =>
   ``(Glob.submodules $(⟨Lean.mkNode `Lean.Parser.Term.quotedName #[n]⟩))
 
+end
+
 namespace Glob
 
-protected def toString : Glob → String
+public protected def toString : Glob → String
 | .one n => n.toString
 | .submodules n => n.toString ++ ".+"
 | .andSubmodules n => n.toString ++ ".*"
 
-instance : ToString Glob := ⟨Glob.toString⟩
+public instance : ToString Glob := ⟨Glob.toString⟩
 
-def «matches» (m : Name) : (self : Glob) → Bool
+public def «matches» (m : Name) : (self : Glob) → Bool
 | one n => n == m
 | submodules n => n.isPrefixOf m && n != m
 | andSubmodules n => n.isPrefixOf m
 
-@[inline] nonrec def forEachModuleIn [Monad m] [MonadLiftT IO m]
+@[inline] public nonrec def forEachModuleIn [Monad m] [MonadLiftT IO m]
 (dir : FilePath) (f : Name → m PUnit) : (self : Glob) → m PUnit
 | one n => f n
 | submodules n =>

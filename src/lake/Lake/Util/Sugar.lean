@@ -3,10 +3,14 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Init.Notation
+public import Init.Notation
 
 namespace Lake
+
+public section
 
 macro "try " x:term " else " y:term : term =>
   ``($x <|> $y)

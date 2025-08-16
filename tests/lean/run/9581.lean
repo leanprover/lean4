@@ -28,3 +28,11 @@ theorem F_spec :
   -- ⊢ (⇓x => ⌜1 < 2⌝).snd ⊢ₑ (⇓x => ⌜1 < 2⌝).snd
   · assumption
   · mleave
+
+theorem F_spec_using_with :
+   ⦃⌜True⌝⦄
+   F
+   ⦃⇓ _ => ⌜1 < 2⌝⦄ := by
+  mvcgen [F]
+  using invariants | 1 => ⇓ _ => ⌜1 < 2⌝
+  with omega

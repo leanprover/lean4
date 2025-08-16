@@ -362,7 +362,7 @@ where
 
 end VCGen
 
-def elabInvariants (stx : Syntax) (invariants : Array MVarId) : TermElabM Unit := do
+def elabInvariants (stx : Syntax) (invariants : Array MVarId) : TacticM Unit := do
   let some stx := stx.getOptional? | return ()
   let stx : TSyntax ``invariantAlts := ⟨stx⟩
   match stx with
@@ -381,7 +381,7 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) : TermElabM Unit :
           if ← mv.isAssigned then
             logErrorAt ref m!"Invariant {n} is already assigned"
             continue
-          mv.assign (← mv.withContext <| Term.elabTerm rhs (← mv.getType))
+          discard <| evalTacticAt (← `(tactic| exact $rhs)) mv
       | _ => logErrorAt alt "Expected invariantAlt, got {alt}"
   | _ => logErrorAt stx "Expected invariantAlts, got {stx}"
 

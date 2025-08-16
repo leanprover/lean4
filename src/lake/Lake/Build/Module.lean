@@ -9,6 +9,7 @@ prelude
 public import Lake.Util.Name
 public import Lake.Config.FacetConfig
 public import Lake.Build.Job.Monad
+public import Lake.Build.Infos
 import Lean.Elab.ParseImportsFast
 import Lake.Util.IO
 import Lake.Util.Proc

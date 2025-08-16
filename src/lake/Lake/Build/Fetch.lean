@@ -6,11 +6,13 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Util.Cycle
 public import Lake.Build.Info
 public import Lake.Build.Store
 public import Lake.Build.Context
+public import Lake.Config.Module
 public import Lake.Util.EquipT
+public import Lake.Util.Cycle
+import Lake.Build.Infos
 
 /-! # Recursive Building
 

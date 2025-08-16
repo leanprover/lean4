@@ -12,6 +12,7 @@ import Lake.Config.OutFormat
 import Lake.Build.Job.Register
 import Lake.Build.Target.Fetch
 import Lake.Build.Common
+import Lake.Build.Infos
 
 namespace Lake
 open System (FilePath)

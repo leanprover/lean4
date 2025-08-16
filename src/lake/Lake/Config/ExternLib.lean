@@ -36,5 +36,5 @@ That is, the package's `moreLinkArgs`.
   self.pkg.moreLinkArgs
 
 /-- The name of the package target used to build the external library's static binary. -/
-@[inline] public def staticTargetName (self : ExternLib) : Name :=
+public abbrev staticTargetName (self : ExternLib) : Name :=
   .str self.name "static"

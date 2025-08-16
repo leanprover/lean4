@@ -209,7 +209,7 @@ public def dynlibSuffix := "-1"
 public protected def getMTime (self : Module) : IO MTime := do
   return mixTrace (mixTrace (← getMTime self.oleanFile) (← getMTime self.ileanFile)) (← getMTime self.cFile)
 
-instance : GetMTime Module := ⟨Module.getMTime⟩
+public instance : GetMTime Module := ⟨Module.getMTime⟩
 
 public protected def checkExists (self : Module) : BaseIO Bool := do
   let bcFileExists? ←
@@ -219,4 +219,4 @@ public protected def checkExists (self : Module) : BaseIO Bool := do
       pure true
   return (← checkExists self.oleanFile) && (← checkExists self.ileanFile) && (← checkExists self.cFile) && bcFileExists?
 
-instance : CheckExists Module := ⟨Module.checkExists⟩
+public instance : CheckExists Module := ⟨Module.checkExists⟩

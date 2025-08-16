@@ -35,7 +35,7 @@ public instance : ToJson JsonObject := ⟨JsonObject.toJson⟩
 @[inline] public protected def fromJson? (json : Json) : Except String JsonObject :=
   json.getObj?
 
-instance : FromJson JsonObject := ⟨JsonObject.fromJson?⟩
+public instance : FromJson JsonObject := ⟨JsonObject.fromJson?⟩
 
 @[inline] public nonrec def insert [ToJson α] (obj : JsonObject) (prop : String) (val : α) : JsonObject :=
   obj.insert prop (toJson val)
@@ -59,5 +59,5 @@ public nonrec def erase (obj : JsonObject) (prop : String) : JsonObject :=
   | none => pure none
   | some val => fromJson? val |>.mapError (s!"{prop}: {·}")
 
-@[macro_inline] public def getD [FromJson α] (obj : JsonObject) (prop : String) (default : α) : Except String α := do
+@[macro_inline, expose] public def getD [FromJson α] (obj : JsonObject) (prop : String) (default : α) : Except String α := do
   return (← obj.get? prop).getD default

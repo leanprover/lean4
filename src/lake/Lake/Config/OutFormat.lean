@@ -48,14 +48,14 @@ public class QueryJson (α : Type u) where
 
 export QueryJson (queryJson)
 
-instance (priority := 0) : QueryJson α := ⟨fun _ => .null⟩
-instance (priority := low) [ToJson α] : QueryJson α := ⟨toJson⟩
-instance : QueryJson Unit := ⟨fun _ => .null⟩
+public instance (priority := 0) : QueryJson α := ⟨fun _ => .null⟩
+public instance (priority := low) [ToJson α] : QueryJson α := ⟨toJson⟩
+public instance : QueryJson Unit := ⟨fun _ => .null⟩
 
 /-- Class used to format target output for `lake query`. -/
 public class FormatQuery (α : Type u) extends QueryText α, QueryJson α
 
-instance [QueryText α] [QueryJson α] : FormatQuery α := {}
+public instance [QueryText α] [QueryJson α] : FormatQuery α := {}
 
 /-- Format function that produces "null" output. -/
 public def nullFormat (fmt : OutFormat) (_ : α) : String :=

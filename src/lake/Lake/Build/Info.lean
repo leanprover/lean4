@@ -94,7 +94,7 @@ public abbrev ExternLib.dynlibBuildKey (self : ExternLib) : BuildKey :=
 | target p t => p.targetKey t
 | facet (target := t) (facet := f) .. => .facet t f
 
-instance : ToString BuildInfo := ⟨(toString ·.key)⟩
+public instance : ToString BuildInfo := ⟨(toString ·.key)⟩
 
 /-! ### Instances for deducing data types of `BuildInfo` keys -/
 

@@ -3,7 +3,11 @@ Copyright (c) 2025 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Util.Name
+public import Lake.Config.FacetConfig
 import Lake.Build.Module
 import Lake.Build.Package
 import Lake.Build.Library
@@ -16,7 +20,7 @@ import Lake.Build.InputFile
 namespace Lake
 
 /-- The initial set of Lake facets. -/
-def initFacetConfigs : DNameMap FacetConfig :=
+public def initFacetConfigs : DNameMap FacetConfig :=
   DNameMap.empty
   |> insert Module.initFacetConfigs
   |> insert Package.initFacetConfigs

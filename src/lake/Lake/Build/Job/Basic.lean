@@ -135,7 +135,7 @@ public protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (
 @[inline] public protected def pure [kind : OptDataKind α] (a : α) (log : Log := {}) (caption := "") : Job α :=
   .ofTask (Task.pure (.ok a {log})) caption
 
-instance : Pure Job := ⟨Job.pure⟩
+public instance : Pure Job := ⟨Job.pure⟩
 
 /-- **For internal use.** -/
 @[inline] public def traceRoot (a : α) (caption := "<root>")  : Job α :=

@@ -62,13 +62,13 @@ theorem star_implies_star' (R : α → α → Prop) : ∀ a b : α, star R a b �
 
 -- More elaborate example from Xavier Leroy's compiler verification course
 theorem star_one (R : α → α → Prop)  : ∀ a b : α, R a b → star R a b := by
-  intros a b Rab
+  intro a b Rab
   apply star.star_step
   exact Rab
   apply star.star_refl
 
 theorem star_trans {α} (R : α → α → Prop) : ∀ (a b : α), star R a b → ∀ c : α, star R b c → star R a c := by
-  intros a b sab
+  intro a b sab
   intro c
   intro sbc
   induction sab

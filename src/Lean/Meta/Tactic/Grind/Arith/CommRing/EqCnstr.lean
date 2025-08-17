@@ -341,7 +341,6 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
     let p ← (ra.sub rb).toPolyM
     addNewEq (← mkEqCnstr p (.core a b ra rb))
   else if let some semiringId ← inSameSemiring? a b then SemiringM.run semiringId do
-    if (← getConfig).ringNull then return () -- TODO: remove after we add Nullstellensatz certificates for semiring adapter
     trace_goal[grind.ring.assert] "{← mkEq a b}"
     let some sa ← toSemiringExpr? a | return ()
     let some sb ← toSemiringExpr? b | return ()
@@ -405,7 +404,6 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
     }
   else if let some semiringId ← inSameSemiring? a b then SemiringM.run semiringId do
     if (← getAddRightCancelInst?).isSome then
-      if (← getConfig).ringNull then return () -- TODO: remove after we add Nullstellensatz certificates for semiring adapter
       trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
       let some sa ← toSemiringExpr? a | return ()
       let some sb ← toSemiringExpr? b | return ()

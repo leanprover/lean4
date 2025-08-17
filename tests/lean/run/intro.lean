@@ -165,7 +165,7 @@ example : 1 = 2 → False := by
   intro rfl
 
 /-!
-Error if ascription doesn't unify
+Error if type ascription doesn't unify
 -/
 /--
 error: Type mismatch: Hypothesis `n` has type
@@ -177,3 +177,24 @@ due to the provided type annotation
 #guard_msgs in
 example : ∀ (n : Nat), n = n := by
   intro (n : Int)
+
+/-!
+Error if type ascription has unsolved metavariables.
+-/
+/--
+error: don't know how to synthesize placeholder
+context:
+⊢ ?_
+---
+error: don't know how to synthesize placeholder for argument 'β'
+context:
+⊢ Sort _
+---
+error: unsolved goals
+n : Nat
+⊢ n = n
+-/
+#guard_msgs in
+set_option pp.mvars false in
+example : ∀ (n : Nat), n = n := by
+  intro (n : Function.const _ Nat _)

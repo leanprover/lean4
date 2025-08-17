@@ -196,9 +196,7 @@ where
     let h ← x
     let h ← mkRingContext h
     let h ← mkContext (← read).ctx' (← get').vars' (← get).varDecls' (← get).polyDecls' (← get).exprDecls' h
-    let h ← mkContext (← read).ctx (← get').vars (← get).varDecls (← get).polyDecls (← get).exprDecls h
-    trace[Meta.debug] "{h}"
-    return h
+    mkContext (← read).ctx (← get').vars (← get).varDecls (← get).polyDecls (← get).exprDecls h
 
 /--
 Returns a Lean expression representing the auxiliary `CommRing` variable context needed for normalizing

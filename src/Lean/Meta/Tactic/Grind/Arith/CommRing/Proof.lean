@@ -13,31 +13,40 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+public import Lean.Meta.Tactic.Grind.Arith.VarRename
+import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
 
 public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
+
+def toContextExprCore (vars : Array Expr) : RingM Expr := do
+  let ring ← getRing
+  if h : 0 < vars.size then
+    RArray.toExpr ring.type id (RArray.ofFn (vars[·]) h)
+  else
+    RArray.toExpr ring.type id (RArray.leaf (mkApp (← getNatCastFn) (toExpr 0)))
+
 /--
 Returns a context of type `RArray α` containing the variables of the given ring.
 `α` is the type of the ring.
 -/
 def toContextExpr : RingM Expr := do
-  let ring ← getRing
-  if h : 0 < ring.vars.size then
-    RArray.toExpr ring.type id (RArray.ofFn (ring.vars[·]) h)
-  else
-    RArray.toExpr ring.type id (RArray.leaf (mkApp (← getNatCastFn) (toExpr 0)))
+  toContextExprCore (← getRing).vars.toArray
 
-private def toSContextExpr' : SemiringM Expr := do
+private def toSContextExprCore' (vars : Array Expr) : SemiringM Expr := do
   let semiring ← getSemiring
-  if h : 0 < semiring.vars.size then
-    RArray.toExpr semiring.type id (RArray.ofFn (semiring.vars[·]) h)
+  if h : 0 < vars.size then
+    RArray.toExpr semiring.type id (RArray.ofFn (vars[·]) h)
   else
     RArray.toExpr semiring.type id (RArray.leaf (mkApp (← getNatCastFn') (toExpr 0)))
 
+private def toSContextExpr' : SemiringM Expr := do
+  toSContextExprCore' (← getSemiring).vars.toArray
+
 /-- Similar to `toContextExpr`, but for semirings. -/
-private def toSContextExpr (semiringId : Nat) : RingM Expr := do
-  SemiringM.run semiringId do toSContextExpr'
+private def toSContextExpr (semiringId : Nat) (vars : Array Expr) : RingM Expr := do
+  SemiringM.run semiringId do toSContextExprCore' vars
 
 def throwNoNatZeroDivisors : RingM α := do
   throwError "`grind` internal error, `NoNatZeroDivisors` instance is needed, but it is not available for{indentExpr (← getRing).type}"
@@ -319,10 +328,10 @@ the derivation.
 
 structure ProofM.State where
   cache       : Std.HashMap UInt64 Expr := {}
-  polyMap     : Std.HashMap Poly Expr := {}
-  monMap      : Std.HashMap Mon Expr := {}
-  exprMap     : Std.HashMap RingExpr Expr := {}
-  sexprMap    : Std.HashMap SemiringExpr Expr := {}
+  polyDecls   : Std.HashMap Poly Expr := {}
+  monDecls    : Std.HashMap Mon Expr := {}
+  exprDecls   : Std.HashMap RingExpr Expr := {}
+  sexprDecls  : Std.HashMap SemiringExpr Expr := {}
 
 structure ProofM.Context where
   ctx   : Expr
@@ -361,16 +370,16 @@ local macro "declare! " decls:ident a:ident : term =>
        return x)
 
 def mkPolyDecl (p : Poly) : ProofM Expr := do
-  declare! polyMap p
+  declare! polyDecls p
 
 def mkExprDecl (e : RingExpr) : ProofM Expr := do
-  declare! exprMap e
+  declare! exprDecls e
 
 def mkSExprDecl (e : SemiringExpr) : ProofM Expr := do
-  declare! sexprMap e
+  declare! sexprDecls e
 
 def mkMonDecl (m : Mon) : ProofM Expr := do
-  declare! monMap m
+  declare! monDecls m
 
 private def mkStepBasicPrefix (declName : Name) : ProofM Expr := do
   let ctx ← getContext
@@ -491,27 +500,53 @@ private def mkImpEqExprProof (lhs rhs : RingExpr) (d : PolyDerivation) : ProofM 
     pure <| mkApp2 (← mkStepPrefix ``Stepwise.imp_keq ``Stepwise.imp_keqC) nzInst (toExpr k)
   return mkApp6 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl p₀) (← mkPolyDecl d.p) eagerReflBoolTrue h₁
 
-private abbrev withSemiringContext (k : Option Expr → RingM Expr) : RingM Expr := do
-  let some semiringId := (← getRing).semiringId? | k none
-  let sctx ← toSContextExpr semiringId
+private def mkContext (h : Expr) : ProofM Expr := do
+  let usedVars     :=
+    collectMapVars (← get).monDecls (·.collectVars) >>
+    collectMapVars (← get).polyDecls (·.collectVars) >>
+    collectMapVars (← get).exprDecls (·.collectVars) <| {}
+  let vars'        := usedVars.toArray
+  let varRename    := mkVarRename vars'
+  let vars         := (← getRing).vars
+  let vars         := vars'.map fun x => vars[x]!
+  let h := mkLetOfMap (← get).polyDecls h `p (mkConst ``Grind.CommRing.Poly) fun p => toExpr <| p.renameVars varRename
+  let h := mkLetOfMap (← get).monDecls h `m (mkConst ``Grind.CommRing.Mon) fun m => toExpr <| m.renameVars varRename
+  let h := mkLetOfMap (← get).exprDecls h `e (mkConst ``Grind.CommRing.Expr) fun e => toExpr <| e.renameVars varRename
+  let h := h.abstract #[(← read).ctx]
+  if h.hasLooseBVars then
+    let ring ← getRing
+    let ctxType := mkApp (mkConst ``RArray [ring.u]) ring.type
+    let ctxVal ← toContextExprCore vars
+    return .letE `ctx ctxType ctxVal h (nondep := false)
+  else
+    return h
+
+private def mkSemiringContext (h : Expr) : ProofM Expr := do
+  let some sctx := (← read).sctx? | return h
+  let some semiringId := (← getRing).semiringId? | return h
   let semiring ← getSemiringOf
-  withLetDecl `sctx (mkApp (mkConst ``RArray [semiring.u]) semiring.type) sctx fun sctx =>
-  k (some sctx)
+  let usedVars     := collectMapVars (← get).sexprDecls (·.collectVars) {}
+  let vars'        := usedVars.toArray
+  let varRename    := mkVarRename vars'
+  let vars         := vars'.map fun x => semiring.vars[x]!
+  let h := mkLetOfMap (← get).sexprDecls h `s (mkConst ``Grind.Ring.OfSemiring.Expr) fun s => toExpr <| s.renameVars varRename
+  let h := h.abstract #[sctx]
+  if h.hasLooseBVars then
+    let ctxType := mkApp (mkConst ``RArray [semiring.u]) semiring.type
+    let ctxVal ← toSContextExpr semiringId vars
+    return .letE `sctx ctxType ctxVal h (nondep := false)
+  else
+    return h
 
 private abbrev withProofContext (x : ProofM Expr) : RingM Expr := do
-  let ring ← getRing
-  withLetDecl `ctx (mkApp (mkConst ``RArray [ring.u]) ring.type) (← toContextExpr) fun ctx =>
-  withSemiringContext fun sctx? =>
+  let ctx := mkFVar (← mkFreshFVarId)
+  let sctx? ← if (← getRing).semiringId?.isSome then pure <| some (mkFVar (← mkFreshFVarId)) else pure none
   go { ctx, sctx? } |>.run' {}
 where
   go : ProofM Expr := do
     let h ← x
-    let h := mkLetOfMap (← get).polyMap h `p (mkConst ``Grind.CommRing.Poly) toExpr
-    let h := mkLetOfMap (← get).monMap h `m (mkConst ``Grind.CommRing.Mon) toExpr
-    let h := mkLetOfMap (← get).exprMap h `e (mkConst ``Grind.CommRing.Expr) toExpr
-    let h := mkLetOfMap (← get).sexprMap h `s (mkConst ``Grind.Ring.OfSemiring.Expr) toExpr
-    let h ← if let some sctx := (← read).sctx? then mkLetFVars #[sctx] h else pure h
-    mkLetFVars #[(← getContext)] h
+    let h ← mkContext h
+    mkSemiringContext h
 
 open Lean.Grind.CommRing in
 def setEqUnsat (c : EqCnstr) : RingM Unit := do

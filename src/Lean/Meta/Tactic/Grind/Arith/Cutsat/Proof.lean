@@ -69,33 +69,24 @@ private abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
     modify fun s => { s with cache := s.cache.insert addr h }
     return h
 
+local macro "declare! " decls:ident a:ident : term =>
+  `(do if let some x := (← get).$decls[$a]? then
+         return x
+       let x := mkFVar (← mkFreshFVarId);
+       modify fun s => { s with $decls:ident := (s.$decls).insert $a x };
+       return x)
+
 private def mkPolyDecl (p : Poly) : ProofM Expr := do
-  if let some x := (← get).polyMap[p]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with polyMap := s.polyMap.insert p x }
-  return x
+  declare! polyMap p
 
 private def mkExprDecl (e : Int.Linear.Expr) : ProofM Expr := do
-  if let some x := (← get).exprMap[e]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with exprMap := s.exprMap.insert e x }
-  return x
+  declare! exprMap e
 
 private def mkRingPolyDecl (p : CommRing.Poly) : ProofM Expr := do
-  if let some x := (← get).ringPolyMap[p]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with ringPolyMap := s.ringPolyMap.insert p x }
-  return x
+  declare! ringPolyMap p
 
 private def mkRingExprDecl (e : CommRing.RingExpr) : ProofM Expr := do
-  if let some x := (← get).ringExprMap[e]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with ringExprMap := s.ringExprMap.insert e x }
-  return x
+  declare! ringExprMap e
 
 private def toContextExprCore (vars : PArray Expr) (type : Expr) : MetaM Expr :=
   if h : 0 < vars.size then

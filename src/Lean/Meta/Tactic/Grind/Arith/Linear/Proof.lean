@@ -11,6 +11,9 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 public import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
 public import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
+public import Lean.Meta.Tactic.Grind.Arith.VarRename
+import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
+import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
 
 public section
 
@@ -22,35 +25,20 @@ open CommRing (RingExpr)
 Returns a context of type `RArray α` containing the variables of the given structure, where
 `α` is `(← getStruct).type`.
 -/
-def toContextExpr : LinearM Expr := do
+def toContextExpr (vars : Array Expr) : LinearM Expr := do
   let struct ← getStruct
-  if h : 0 < struct.vars.size then
-    RArray.toExpr struct.type id (RArray.ofFn (struct.vars[·]) h)
+  if h : 0 < vars.size then
+    RArray.toExpr struct.type id (RArray.ofFn (vars[·]) h)
   else
-    RArray.toExpr struct.type id (RArray.leaf struct.zero)
-
-/--
-Similar to `toContextExpr`, but for the `CommRing` module.
-Recall that this module interfaces with the `CommRing` module and their variable contexts
-may not be necessarily identical. For example, for this module, the term `x*y` does not have an interpretation
-and we have a "variable" representing it, but it is interpreted in the `CommRing` module, and such
-variable does not exist there. On the other direction, suppose we have the inequality `z < 0`, and
-`z` does not occur in any equality or disequality. Then, the `CommRing` does not even "see" `z`, and
-`z` does not occur in its context, but it occurs in the variable context created by this module.
--/
-def toRingContextExpr : LinearM Expr := do
-  if (← isCommRing) then
-    withRingM do CommRing.toContextExpr
-  else
-    let struct ← getStruct
     RArray.toExpr struct.type id (RArray.leaf struct.zero)
 
 structure ProofM.State where
-  cache       : Std.HashMap UInt64 Expr := {}
-  polyMap     : Std.HashMap Poly Expr := {}
-  exprMap     : Std.HashMap LinExpr Expr := {}
-  ringPolyMap : Std.HashMap CommRing.Poly Expr := {}
-  ringExprMap : Std.HashMap RingExpr Expr := {}
+  cache         : Std.HashMap UInt64 Expr := {}
+  varDecls      : Std.HashMap Var Expr := {}
+  polyDecls     : Std.HashMap Poly Expr := {}
+  exprDecls     : Std.HashMap LinExpr Expr := {}
+  ringPolyDecls : Std.HashMap CommRing.Poly Expr := {}
+  ringExprDecls : Std.HashMap RingExpr Expr := {}
 
 structure ProofM.Context where
   ctx     : Expr
@@ -79,47 +67,82 @@ private abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
     modify fun s => { s with cache := s.cache.insert addr h }
     return h
 
+local macro "declare! " decls:ident a:ident : term =>
+  `(do if let some x := (← get).$decls[$a]? then
+         return x
+       let x := mkFVar (← mkFreshFVarId);
+       modify fun s => { s with $decls:ident := (s.$decls).insert $a x };
+       return x)
+
+def mkVarDecl (x : Var) : ProofM Expr := do
+  declare! varDecls x
+
 def mkPolyDecl (p : Poly) : ProofM Expr := do
-  if let some x := (← get).polyMap[p]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with polyMap := s.polyMap.insert p x }
-  return x
+  declare! polyDecls p
 
 def mkExprDecl (e : LinExpr) : ProofM Expr := do
-  if let some x := (← get).exprMap[e]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with exprMap := s.exprMap.insert e x }
-  return x
+  declare! exprDecls e
 
 def mkRingPolyDecl (p : CommRing.Poly) : ProofM Expr := do
-  if let some x := (← get).ringPolyMap[p]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with ringPolyMap := s.ringPolyMap.insert p x }
-  return x
+  declare! ringPolyDecls p
 
 def mkRingExprDecl (e : RingExpr) : ProofM Expr := do
-  if let some x := (← get).ringExprMap[e]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with ringExprMap := s.ringExprMap.insert e x }
-  return x
+  declare! ringExprDecls e
+
+private def mkContext (h : Expr) : ProofM Expr := do
+  let varDecls     := (← get).varDecls
+  let polyDecls    := (← get).polyDecls
+  let exprDecls    := (← get).exprDecls
+  let usedVars     :=
+    collectMapVars varDecls collectVar >>
+    collectMapVars polyDecls (·.collectVars) >>
+    collectMapVars exprDecls (·.collectVars) <| {}
+  let vars'        := usedVars.toArray
+  let varRename    := mkVarRename vars'
+  let vars         := (← getStruct).vars
+  let vars         := vars'.map fun x => vars[x]!
+  let varFVars     := vars'.map fun x => varDecls[x]?.getD default
+  let varIdsAsExpr := List.range vars'.size |>.toArray |>.map toExpr
+  let h := h.replaceFVars varFVars varIdsAsExpr
+  let h := mkLetOfMap exprDecls h `e (mkConst ``Grind.Linarith.Expr) fun e => toExpr <| e.renameVars varRename
+  let h := mkLetOfMap polyDecls h `p (mkConst ``Grind.Linarith.Poly) fun p => toExpr <| p.renameVars varRename
+  let h := h.abstract #[(← read).ctx]
+  if h.hasLooseBVars then
+    let struct ← getStruct
+    let ctxType := mkApp (mkConst ``RArray [struct.u]) struct.type
+    let ctxVal ← toContextExpr vars
+    return .letE `ctx ctxType ctxVal h (nondep := false)
+  else
+    return h
+
+private def mkRingContext (h : Expr) : ProofM Expr := do
+  unless (← isCommRing) do return h
+  let ring ← withRingM do CommRing.getRing
+  let vars := ring.vars
+  let usedVars     := collectMapVars (← get).ringPolyDecls (·.collectVars) >> collectMapVars (← get).ringExprDecls (·.collectVars) <| {}
+  let vars'        := usedVars.toArray
+  let varRename    := mkVarRename vars'
+  let vars         := vars'.map fun x => vars[x]!
+  let h := mkLetOfMap (← get).ringExprDecls h `re (mkConst ``Grind.CommRing.Expr) fun e => toExpr <| e.renameVars varRename
+  let h := mkLetOfMap (← get).ringPolyDecls h `rp (mkConst ``Grind.CommRing.Poly) fun p => toExpr <| p.renameVars varRename
+  let h := h.abstract #[(← read).ringCtx]
+  if h.hasLooseBVars then
+    let struct ← getStruct
+    let ctxType := mkApp (mkConst ``RArray [struct.u]) struct.type
+    let ctxVal ← toContextExpr vars
+    return .letE `rctx ctxType ctxVal h (nondep := false)
+  else
+    return h
 
 private abbrev withProofContext (x : ProofM Expr) : LinearM Expr := do
-  let struct ← getStruct
-  withLetDecl `ctx  (mkApp (mkConst ``RArray [struct.u]) struct.type) (← toContextExpr) fun ctx => do
-  withLetDecl `rctx (mkApp (mkConst ``RArray [struct.u]) struct.type) (← toRingContextExpr) fun ringCtx =>
+  let ctx := mkFVar (← mkFreshFVarId)
+  let ringCtx := mkFVar (← mkFreshFVarId)
   go { ctx, ringCtx } |>.run' {}
 where
   go : ProofM Expr := do
     let h ← x
-    let h := mkLetOfMap (← get).polyMap h `p (mkConst ``Grind.Linarith.Poly) toExpr
-    let h := mkLetOfMap (← get).exprMap h `e (mkConst ``Grind.Linarith.Expr) toExpr
-    let h := mkLetOfMap (← get).ringPolyMap h `rp (mkConst ``Grind.CommRing.Poly) toExpr
-    let h := mkLetOfMap (← get).ringExprMap h `re (mkConst ``Grind.CommRing.Expr) toExpr
-    mkLetFVars #[(← getContext), (← getRingContext)] h
+    let h ← mkRingContext h
+    mkContext h
 
 /--
 Returns the prefix of a theorem with name `declName` where the first three arguments are
@@ -273,7 +296,7 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
     return mkApp5 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (toExpr k) eagerReflBoolTrue (← c.toExprProof)
   | .subst x c₁ c₂ =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.eq_eq_subst
-    return mkApp7 h (toExpr x) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) eagerReflBoolTrue
+    return mkApp7 h (← mkVarDecl x) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) eagerReflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
 
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do

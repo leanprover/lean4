@@ -23,26 +23,23 @@ namespace Lean.Meta.Grind.Arith.CommRing
 Returns a context of type `RArray α` containing the variables `vars` where
 `α` is the type of the ring.
 -/
-private def toContextExprCore (vars : Array Expr) : RingM Expr := do
+private def toContextExpr (vars : Array Expr) : RingM Expr := do
   let ring ← getRing
   if h : 0 < vars.size then
     RArray.toExpr ring.type id (RArray.ofFn (vars[·]) h)
   else
     RArray.toExpr ring.type id (RArray.leaf (mkApp (← getNatCastFn) (toExpr 0)))
 
-private def toSContextExprCore' (vars : Array Expr) : SemiringM Expr := do
+private def toSContextExpr' (vars : Array Expr) : SemiringM Expr := do
   let semiring ← getSemiring
   if h : 0 < vars.size then
     RArray.toExpr semiring.type id (RArray.ofFn (vars[·]) h)
   else
     RArray.toExpr semiring.type id (RArray.leaf (mkApp (← getNatCastFn') (toExpr 0)))
 
-private def toSContextExpr' : SemiringM Expr := do
-  toSContextExprCore' (← getSemiring).vars.toArray
-
 /-- Similar to `toContextExpr`, but for semirings. -/
 private def toSContextExpr (semiringId : Nat) (vars : Array Expr) : RingM Expr := do
-  SemiringM.run semiringId do toSContextExprCore' vars
+  SemiringM.run semiringId do toSContextExpr' vars
 
 /-- Returns the multiplier `k` for the input polynomial. See comment at `PolyDerivation.step`. -/
 def PolyDerivation.getMultiplier (d : PolyDerivation) : Int :=
@@ -252,7 +249,7 @@ private def mkContext (h : Expr) : ProofM Expr := do
   if h.hasLooseBVars then
     let ring ← getRing
     let ctxType := mkApp (mkConst ``RArray [ring.u]) ring.type
-    let ctxVal ← toContextExprCore vars
+    let ctxVal ← toContextExpr vars
     return .letE `ctx ctxType ctxVal h (nondep := false)
   else
     return h
@@ -333,7 +330,7 @@ def setSemiringDiseqUnsat (a b : Expr) (sa sb : SemiringExpr) : SemiringM Unit :
   let vars         := vars'.map fun x => vars[x]!
   let sa           := sa.renameVars varRename
   let sb           := sb.renameVars varRename
-  let ctx          ← toSContextExprCore' vars
+  let ctx          ← toSContextExpr' vars
   let h := mkApp3 (mkConst ``Grind.Ring.OfSemiring.eq_normS [semiring.u]) semiring.type semiring.commSemiringInst ctx
   let h := mkApp3 h (toExpr sa) (toExpr sb) eagerReflBoolTrue
   closeGoal (mkApp hne h)

@@ -116,12 +116,13 @@ def _root_.Lean.MVarId.replaceLocalDeclDefEq (mvarId : MVarId) (fvarId : FVarId)
     else
       let mvarDecl ← mvarId.getDecl
       let lctxNew := (← getLCtx).modifyLocalDecl fvarId (·.setType typeNew)
-      -- `typeNew` might not be defeq to the old type at reducible transparency (e.g. a definition was unfolded)
-      -- so it might now be recognized as an instance.
-      withLocalInstances [lctxNew.get! fvarId] do
-        let mvarNew ← mkFreshExprMVarAt lctxNew (← getLocalInstances) mvarDecl.type mvarDecl.kind mvarDecl.userName
-        mvarId.assign mvarNew
-        return mvarNew.mvarId!
+      withLCtx' lctxNew do
+        -- `typeNew` might not be defeq to the old type at reducible transparency (e.g. a definition was unfolded)
+        -- so it might now be recognized as an instance.
+        withLocalInstances [lctxNew.get! fvarId] do
+          let mvarNew ← mkFreshExprMVar mvarDecl.type mvarDecl.kind mvarDecl.userName
+          mvarId.assign mvarNew
+          return mvarNew.mvarId!
 
 /--
 Replace the target type of `mvarId` with `typeNew`.

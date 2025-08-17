@@ -549,11 +549,74 @@ theorem State.unsat_iff : State.Unsat state ↔ state.cnf.Unsat := by simp [Stat
 
 end toCNF
 
+instance (aig : AIG Nat) (upper : Nat) (h : upper < aig.decls.size) (state : toCNF.State aig) :
+    Nonempty ({ out : toCNF.State aig // toCNF.State.IsExtensionBy state out upper h }) :=
+  ⟨(@Nat.lt_wfRel.wf.fix) (fun upper => ∀ h state, { out : toCNF.State aig // toCNF.State.IsExtensionBy state out upper h }) (
+    fun upper go h state =>
+      if hmarked : state.cache.marks[upper]'(by have := state.cache.hmarks; omega) then
+        ⟨state, by apply toCNF.State.IsExtensionBy_rfl <;> assumption⟩
+      else
+        let decl := aig.decls[upper]
+        match heq : decl with
+        | .false => state.addFalse upper h heq
+        | .atom _ => state.addAtom upper h heq
+        | .gate lhs rhs =>
+          have := aig.hdag h heq
+          let lstate := go lhs.gate this.1 (by omega) state
+          let rstate := go rhs.gate this.2 (by omega) lstate
+
+          have : toCNF.State.IsExtensionBy state rstate lhs.gate (by omega) := by
+            apply toCNF.State.IsExtensionBy_trans_left
+            · exact lstate.2
+            · exact rstate.2
+
+          let retstate := rstate.1.addGate upper h heq this.trueAt rstate.2.trueAt
+          ⟨
+            retstate,
+            by
+              apply toCNF.State.IsExtensionBy_trans_right
+              · exact lstate.2
+              · apply toCNF.State.IsExtensionBy_trans_right
+                · exact rstate.2
+                · exact retstate.2
+          ⟩
+  ) upper h state⟩
+
+partial def toCNF.go (aig : AIG Nat) (upper : Nat) (h : upper < aig.decls.size) (state : toCNF.State aig) :
+    { out : toCNF.State aig // toCNF.State.IsExtensionBy state out upper h } :=
+  if hmarked : state.cache.marks[upper]'(by have := state.cache.hmarks; omega) then
+    ⟨state, by apply toCNF.State.IsExtensionBy_rfl <;> assumption⟩
+  else
+    let decl := aig.decls[upper]
+    match heq : decl with
+    | .false => state.addFalse upper h heq
+    | .atom _ => state.addAtom upper h heq
+    | .gate lhs rhs =>
+      have := aig.hdag h heq
+      let ⟨lstate, hlstate⟩ := go aig lhs.gate (by omega) state
+      let ⟨rstate, hrstate⟩ := go aig rhs.gate (by omega) lstate
+
+      have : toCNF.State.IsExtensionBy state rstate lhs.gate (by omega) := by
+        apply toCNF.State.IsExtensionBy_trans_left
+        · exact hlstate
+        · exact hrstate
+
+      let ⟨ret, hretstate⟩ := rstate.addGate upper h heq this.trueAt hrstate.trueAt
+      ⟨
+        ret,
+        by
+          apply toCNF.State.IsExtensionBy_trans_right
+          · exact hlstate
+          · apply toCNF.State.IsExtensionBy_trans_right
+            · exact hrstate
+            · exact hretstate
+      ⟩
+
 /--
 Convert an AIG into CNF, starting at some entry node.
 -/
 def toCNF (entry : Entrypoint Nat) : CNF Nat :=
-  let ⟨state, _⟩ := go entry.aig entry.ref.gate entry.ref.hgate (toCNF.State.empty entry.aig)
+  let ⟨state, _⟩ := toCNF.go entry.aig entry.ref.gate entry.ref.hgate (toCNF.State.empty entry.aig)
   let cnf : CNF (CNFVar entry.aig) := [(.inr ⟨entry.ref.gate, entry.ref.hgate⟩, !entry.ref.invert)] :: state.cnf
   cnf.relabel inj
 where
@@ -561,35 +624,6 @@ where
     match var with
     | .inl var => aig.decls.size + var
     | .inr var => var.val
-  go (aig : AIG Nat) (upper : Nat) (h : upper < aig.decls.size) (state : toCNF.State aig) :
-      { out : toCNF.State aig // toCNF.State.IsExtensionBy state out upper h } :=
-    if hmarked : state.cache.marks[upper]'(by have := state.cache.hmarks; omega) then
-      ⟨state, by apply toCNF.State.IsExtensionBy_rfl <;> assumption⟩
-    else
-      let decl := aig.decls[upper]
-      match heq : decl with
-      | .false => state.addFalse upper h heq
-      | .atom _ => state.addAtom upper h heq
-      | .gate lhs rhs =>
-        have := aig.hdag h heq
-        let ⟨lstate, hlstate⟩ := go aig lhs.gate (by omega) state
-        let ⟨rstate, hrstate⟩ := go aig rhs.gate (by omega) lstate
-
-        have : toCNF.State.IsExtensionBy state rstate lhs.gate (by omega) := by
-          apply toCNF.State.IsExtensionBy_trans_left
-          · exact hlstate
-          · exact hrstate
-
-        let ⟨ret, hretstate⟩ := rstate.addGate upper h heq this.trueAt hrstate.trueAt
-        ⟨
-          ret,
-          by
-            apply toCNF.State.IsExtensionBy_trans_right
-            · exact hlstate
-            · apply toCNF.State.IsExtensionBy_trans_right
-              · exact hrstate
-              · exact hretstate
-        ⟩
 
 /--
 The function we use to convert from CNF with explicit auxiliary variables to just `Nat` variables

@@ -1241,9 +1241,9 @@ theorem isNone_idxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :
 /-! ### lookup -/
 
 section lookup
-variable [BEq α] [LawfulBEq α]
+variable [BEq α]
 
-@[simp] theorem lookup_cons_self  {k : α} : ((k,b) :: es).lookup k = some b := by
+@[simp] theorem lookup_cons_self [ReflBEq α] {k : α} : ((k,b) :: es).lookup k = some b := by
   simp [lookup_cons]
 
 @[simp] theorem lookup_singleton {a b : α} : [(a,b)].lookup c = if c == a then some b else none := by
@@ -1262,13 +1262,13 @@ theorem lookup_eq_findSome? {l : List (α × β)} {k : α} :
 
 @[simp, grind =] theorem lookup_eq_none_iff {l : List (α × β)} {k : α} :
     l.lookup k = none ↔ ∀ p ∈ l, k != p.1 := by
-  simp [lookup_eq_findSome?]
+  simp [lookup_eq_findSome?, bne]
 
 @[simp] theorem lookup_isSome_iff {l : List (α × β)} {k : α} :
     (l.lookup k).isSome ↔ ∃ p ∈ l, k == p.1 := by
   simp [lookup_eq_findSome?]
 
-theorem lookup_eq_some_iff {l : List (α × β)} {k : α} {b : β} :
+theorem lookup_eq_some_iff [LawfulBEq α] {l : List (α × β)} {k : α} {b : β} :
     l.lookup k = some b ↔ ∃ l₁ l₂, l = l₁ ++ (k, b) :: l₂ ∧ ∀ p ∈ l₁, k != p.1 := by
   simp only [lookup_eq_findSome?, findSome?_eq_some_iff]
   constructor
@@ -1298,11 +1298,11 @@ theorem lookup_replicate_of_pos {k : α} (h : 0 < n) :
     (replicate n (a, b)).lookup k = if k == a then some b else none := by
   simp [lookup_replicate, Nat.ne_of_gt h]
 
-theorem lookup_replicate_self {a : α} :
+theorem lookup_replicate_self [ReflBEq α] {a : α} :
     (replicate n (a, b)).lookup a = if n = 0 then none else some b := by
   simp [lookup_replicate]
 
-@[simp] theorem lookup_replicate_self_of_pos {a : α} (h : 0 < n) :
+@[simp] theorem lookup_replicate_self_of_pos [ReflBEq α] {a : α} (h : 0 < n) :
     (replicate n (a, b)).lookup a = some b := by
   simp [lookup_replicate_self, Nat.ne_of_gt h]
 

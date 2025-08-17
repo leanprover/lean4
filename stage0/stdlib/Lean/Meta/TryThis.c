@@ -1079,9 +1079,9 @@ lean_ctor_set(x_9, 0, x_3);
 lean_ctor_set(x_9, 1, x_8);
 x_10 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_5);
+lean_ctor_set(x_10, 1, x_6);
 x_11 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_11, 0, x_6);
+lean_ctor_set(x_11, 0, x_5);
 lean_ctor_set(x_11, 1, x_10);
 x_12 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_12, 0, x_4);
@@ -1139,8 +1139,8 @@ lean_object* x_49;
 x_49 = l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__8;
 x_3 = x_48;
 x_4 = x_17;
-x_5 = x_44;
-x_6 = x_47;
+x_5 = x_47;
+x_6 = x_44;
 x_7 = x_49;
 goto block_14;
 }
@@ -1155,8 +1155,8 @@ x_53 = l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__10;
 x_54 = lean_string_append(x_52, x_53);
 x_3 = x_48;
 x_4 = x_17;
-x_5 = x_44;
-x_6 = x_47;
+x_5 = x_47;
+x_6 = x_44;
 x_7 = x_54;
 goto block_14;
 }
@@ -1891,7 +1891,7 @@ x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_14);
 lean_ctor_set(x_20, 1, x_19);
 x_21 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_21, 0, x_17);
+lean_ctor_set(x_21, 0, x_18);
 lean_ctor_set(x_21, 1, x_20);
 if (lean_is_scalar(x_16)) {
  x_22 = lean_alloc_ctor(0, 2, 0);
@@ -1899,7 +1899,7 @@ if (lean_is_scalar(x_16)) {
  x_22 = x_16;
 }
 lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_22, 1, x_18);
+lean_ctor_set(x_22, 1, x_17);
 return x_22;
 }
 block_34:
@@ -1910,8 +1910,8 @@ if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_27; 
 x_27 = lean_box(0);
-x_17 = x_26;
-x_18 = x_25;
+x_17 = x_25;
+x_18 = x_26;
 x_19 = x_27;
 goto block_23;
 }
@@ -1926,8 +1926,8 @@ x_29 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
 x_30 = lean_apply_1(x_29, x_14);
 lean_ctor_set(x_12, 0, x_30);
-x_17 = x_26;
-x_18 = x_25;
+x_17 = x_25;
+x_18 = x_26;
 x_19 = x_12;
 goto block_23;
 }
@@ -1941,8 +1941,8 @@ lean_inc(x_14);
 x_32 = lean_apply_1(x_31, x_14);
 x_33 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_33, 0, x_32);
-x_17 = x_26;
-x_18 = x_25;
+x_17 = x_25;
+x_18 = x_26;
 x_19 = x_33;
 goto block_23;
 }

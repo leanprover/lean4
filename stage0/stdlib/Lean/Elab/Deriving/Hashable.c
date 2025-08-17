@@ -4168,13 +4168,13 @@ return x_134;
 block_153:
 {
 uint8_t x_142; 
-x_142 = lean_nat_dec_lt(x_138, x_4);
+x_142 = lean_nat_dec_lt(x_136, x_4);
 if (x_142 == 0)
 {
-lean_dec(x_138);
+lean_dec(x_136);
 lean_dec(x_8);
 lean_dec_ref(x_5);
-x_20 = x_136;
+x_20 = x_137;
 x_21 = x_140;
 x_22 = x_139;
 x_23 = x_141;
@@ -4190,7 +4190,7 @@ lean_inc(x_18);
 lean_inc_ref(x_17);
 lean_inc(x_16);
 lean_inc_ref(x_15);
-x_144 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__13___redArg(x_137, x_5, x_11, x_6, x_7, x_8, x_4, x_143, x_138, x_13, x_14, x_15, x_16, x_17, x_18, x_141);
+x_144 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__13___redArg(x_138, x_5, x_11, x_6, x_7, x_8, x_4, x_143, x_136, x_13, x_14, x_15, x_16, x_17, x_18, x_141);
 if (lean_obj_tag(x_144) == 0)
 {
 lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; 
@@ -4204,7 +4204,7 @@ lean_inc(x_147);
 x_148 = lean_ctor_get(x_145, 1);
 lean_inc(x_148);
 lean_dec(x_145);
-x_20 = x_136;
+x_20 = x_137;
 x_21 = x_147;
 x_22 = x_148;
 x_23 = x_146;
@@ -4213,7 +4213,7 @@ goto block_135;
 else
 {
 uint8_t x_149; 
-lean_dec_ref(x_136);
+lean_dec_ref(x_137);
 lean_dec(x_18);
 lean_dec_ref(x_17);
 lean_dec(x_16);
@@ -4257,9 +4257,9 @@ x_163 = l_Lean_Syntax_mkNumLit(x_161, x_162);
 x_164 = lean_nat_dec_lt(x_160, x_154);
 if (x_164 == 0)
 {
-x_136 = x_156;
-x_137 = x_154;
-x_138 = x_160;
+x_136 = x_160;
+x_137 = x_156;
+x_138 = x_154;
 x_139 = x_163;
 x_140 = x_10;
 x_141 = x_159;
@@ -4274,9 +4274,9 @@ lean_inc(x_166);
 x_167 = lean_ctor_get(x_165, 1);
 lean_inc(x_167);
 lean_dec_ref(x_165);
-x_136 = x_156;
-x_137 = x_154;
-x_138 = x_160;
+x_136 = x_160;
+x_137 = x_156;
+x_138 = x_154;
 x_139 = x_163;
 x_140 = x_166;
 x_141 = x_167;
@@ -4945,15 +4945,15 @@ return x_134;
 block_153:
 {
 uint8_t x_142; 
-x_142 = lean_nat_dec_lt(x_136, x_4);
+x_142 = lean_nat_dec_lt(x_139, x_4);
 if (x_142 == 0)
 {
-lean_dec(x_136);
+lean_dec(x_139);
 lean_dec(x_8);
 lean_dec_ref(x_5);
-x_20 = x_137;
+x_20 = x_138;
 x_21 = x_140;
-x_22 = x_139;
+x_22 = x_136;
 x_23 = x_141;
 goto block_135;
 }
@@ -4962,12 +4962,12 @@ else
 lean_object* x_143; lean_object* x_144; 
 x_143 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_143, 0, x_140);
-lean_ctor_set(x_143, 1, x_139);
+lean_ctor_set(x_143, 1, x_136);
 lean_inc(x_18);
 lean_inc_ref(x_17);
 lean_inc(x_16);
 lean_inc_ref(x_15);
-x_144 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__13___redArg(x_138, x_5, x_11, x_6, x_7, x_8, x_4, x_143, x_136, x_13, x_14, x_15, x_16, x_17, x_18, x_141);
+x_144 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_spec__13___redArg(x_137, x_5, x_11, x_6, x_7, x_8, x_4, x_143, x_139, x_13, x_14, x_15, x_16, x_17, x_18, x_141);
 if (lean_obj_tag(x_144) == 0)
 {
 lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; 
@@ -4981,7 +4981,7 @@ lean_inc(x_147);
 x_148 = lean_ctor_get(x_145, 1);
 lean_inc(x_148);
 lean_dec(x_145);
-x_20 = x_137;
+x_20 = x_138;
 x_21 = x_147;
 x_22 = x_148;
 x_23 = x_146;
@@ -4990,7 +4990,7 @@ goto block_135;
 else
 {
 uint8_t x_149; 
-lean_dec_ref(x_137);
+lean_dec_ref(x_138);
 lean_dec(x_18);
 lean_dec_ref(x_17);
 lean_dec(x_16);
@@ -5034,10 +5034,10 @@ x_163 = l_Lean_Syntax_mkNumLit(x_161, x_162);
 x_164 = lean_nat_dec_lt(x_160, x_154);
 if (x_164 == 0)
 {
-x_136 = x_160;
-x_137 = x_156;
-x_138 = x_154;
-x_139 = x_163;
+x_136 = x_163;
+x_137 = x_154;
+x_138 = x_156;
+x_139 = x_160;
 x_140 = x_10;
 x_141 = x_159;
 goto block_153;
@@ -5051,10 +5051,10 @@ lean_inc(x_166);
 x_167 = lean_ctor_get(x_165, 1);
 lean_inc(x_167);
 lean_dec_ref(x_165);
-x_136 = x_160;
-x_137 = x_156;
-x_138 = x_154;
-x_139 = x_163;
+x_136 = x_163;
+x_137 = x_154;
+x_138 = x_156;
+x_139 = x_160;
 x_140 = x_166;
 x_141 = x_167;
 goto block_153;

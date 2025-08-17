@@ -1530,20 +1530,20 @@ lean_inc(x_23);
 x_28 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_23);
-lean_inc_ref(x_19);
-x_29 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___mkRecOn_spec__9___redArg(x_18, x_28, x_19);
+lean_inc_ref(x_17);
+x_29 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___mkRecOn_spec__9___redArg(x_18, x_28, x_17);
 lean_dec_ref(x_18);
 x_30 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_30, 0, x_25);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_26);
-x_32 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___mkRecOn_spec__9___redArg(x_24, x_31, x_19);
+x_32 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___mkRecOn_spec__9___redArg(x_24, x_31, x_17);
 lean_dec_ref(x_24);
 x_33 = l_Array_append___redArg(x_29, x_32);
 lean_dec_ref(x_32);
 x_34 = lean_array_get_size(x_33);
-x_35 = l_Array_toSubarray___redArg(x_33, x_17, x_34);
+x_35 = l_Array_toSubarray___redArg(x_33, x_19, x_34);
 x_36 = l_Array_ofSubarray___redArg(x_35);
 lean_dec_ref(x_35);
 x_37 = 0;
@@ -1633,8 +1633,8 @@ x_64 = lean_nat_dec_le(x_59, x_58);
 if (x_64 == 0)
 {
 lean_dec(x_59);
-x_17 = x_61;
-x_18 = x_60;
+x_17 = x_60;
+x_18 = x_61;
 x_19 = x_62;
 x_20 = x_63;
 x_21 = x_58;
@@ -1643,8 +1643,8 @@ goto block_57;
 else
 {
 lean_dec(x_58);
-x_17 = x_61;
-x_18 = x_60;
+x_17 = x_60;
+x_18 = x_61;
 x_19 = x_62;
 x_20 = x_63;
 x_21 = x_59;
@@ -1688,9 +1688,9 @@ x_90 = lean_nat_dec_le(x_69, x_81);
 if (x_90 == 0)
 {
 x_59 = x_70;
-x_60 = x_89;
-x_61 = x_81;
-x_62 = x_82;
+x_60 = x_82;
+x_61 = x_89;
+x_62 = x_81;
 x_63 = x_69;
 goto block_65;
 }
@@ -1698,9 +1698,9 @@ else
 {
 lean_dec(x_69);
 x_59 = x_70;
-x_60 = x_89;
-x_61 = x_81;
-x_62 = x_82;
+x_60 = x_82;
+x_61 = x_89;
+x_62 = x_81;
 x_63 = x_81;
 goto block_65;
 }

@@ -1543,8 +1543,8 @@ x_15 = lean_string_append(x_13, x_14);
 lean_dec_ref(x_14);
 x_16 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_8);
-x_2 = x_9;
+lean_ctor_set(x_16, 1, x_9);
+x_2 = x_8;
 x_3 = x_16;
 goto block_7;
 }
@@ -1562,14 +1562,14 @@ goto block_17;
 block_33:
 {
 uint8_t x_32; 
-x_32 = lean_nat_dec_le(x_31, x_26);
+x_32 = lean_nat_dec_le(x_31, x_28);
 if (x_32 == 0)
 {
-lean_dec(x_26);
+lean_dec(x_28);
 lean_inc(x_31);
 x_18 = x_31;
-x_19 = x_27;
-x_20 = x_28;
+x_19 = x_26;
+x_20 = x_27;
 x_21 = x_29;
 x_22 = x_30;
 x_23 = x_31;
@@ -1578,11 +1578,11 @@ goto block_25;
 else
 {
 x_18 = x_31;
-x_19 = x_27;
-x_20 = x_28;
+x_19 = x_26;
+x_20 = x_27;
 x_21 = x_29;
 x_22 = x_30;
-x_23 = x_26;
+x_23 = x_28;
 goto block_25;
 }
 }
@@ -1607,21 +1607,21 @@ x_45 = lean_nat_dec_le(x_41, x_44);
 if (x_45 == 0)
 {
 lean_inc(x_44);
-x_26 = x_44;
-x_27 = x_37;
-x_28 = x_39;
+x_26 = x_36;
+x_27 = x_39;
+x_28 = x_44;
 x_29 = x_40;
-x_30 = x_36;
+x_30 = x_37;
 x_31 = x_44;
 goto block_33;
 }
 else
 {
-x_26 = x_44;
-x_27 = x_37;
-x_28 = x_39;
+x_26 = x_36;
+x_27 = x_39;
+x_28 = x_44;
 x_29 = x_40;
-x_30 = x_36;
+x_30 = x_37;
 x_31 = x_41;
 goto block_33;
 }
@@ -1629,8 +1629,8 @@ goto block_33;
 else
 {
 lean_dec(x_40);
-x_8 = x_37;
-x_9 = x_36;
+x_8 = x_36;
+x_9 = x_37;
 x_10 = x_39;
 goto block_17;
 }

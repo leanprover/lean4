@@ -740,15 +740,6 @@ def mkLetConfig (letConfig : Syntax) (initConfig : LetConfig) : TermElabM LetCon
   return config
 
 /--
-Runs `k` with a local context where the type annotations have been consumed.
--/
-def withoutLCtxTypeAnnotations (k : TermElabM α) : TermElabM α := do
-  let lctx := (← getLCtx).modifyTypes Expr.consumeTypeAnnotations
-  -- Note: we may want `withFreshCache` in case suprious type annotations appear in terms.
-  -- This has not appeared to have been a problem so far, from before `withoutTypeAnnotations`.
-  withLCtx' lctx k
-
-/--
 The default elaboration order is `binders`, `typeStx`, `valStx`, and `body`.
 If `config.postponeValue == true`, then we use the order `binders`, `typeStx`, `body`, and `valStx`.
 If `config.generalize == true`, then the value is abstracted from the expected type when elaborating the body.
@@ -792,16 +783,23 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       let val  ← mkFreshExprMVar type
       pure (type, val, binders)
     else
-      let val ← withoutLCtxTypeAnnotations do
+      /-
+      Elaborate the value in a context where the binders have cleaned-up annotations
+      Note: we may want `withFreshCache` in case spurious type annotations appear in terms.
+      -/
+      let lctx' := fvars.foldl (init := ← getLCtx) fun lctx fvar =>
+        lctx.modifyLocalDecl fvar.fvarId! (fun decl => decl.setType decl.type.cleanupAnnotations)
+      let val ← withLCtx' lctx' do
         let val ← elabTermEnsuringType valStx type
-        /- By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
-          in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
-          about holes such as
-          ```
-            def ex : Nat :=
-              let x := _
-              42
-          ```
+        /-
+        By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
+        in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
+        about holes such as
+        ```
+        def ex : Nat :=
+          let x := _
+          42
+        ```
         -/
         mkLambdaFVars fvars val (usedLetOnly := false)
       let type ← mkForallFVars fvars type

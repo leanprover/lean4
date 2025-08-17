@@ -25,15 +25,46 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 
 deriving instance Hashable for Int.Linear.Expr
 
+/--
+State for the cutsat proof construction monad.
+
+The final proof may reference only a small subset of the cutsat variables.
+Thus, we normalize the variables and remove any that are unused from the context.
+The variable order must be preserved, as the cutsat auxiliary theorems assume the polynomials are ordered.
+
+Another complication is that cutsat may reorder variables during the search.
+This is why we maintain two fields: `vars` and `vars'`.
+
+We create auxiliary free variables for variables, polynomials, and expressions.
+Cutsat also uses the ring solver to normalize nonlinear polynomials.
+
+Remark: after normalization variable declarations are expanded. We do not create let-declarations for them
+since they are just a numeral.
+
+Remark: if cutsat did not reorder variables during the search, then the prime variables and declarations
+are not used.
+
+Remark: recall that the `.reorder` proof objects are delimiters for indicating whether regular variables and
+declarations or the prime ones should be used.
+-/
 structure ProofM.State where
+  /-- Cache for visited cutsat proof terms. The key is the pointer address. -/
   cache         : Std.HashMap UInt64 Expr := {}
+  /-- Map from used variables to (temporary) free variable. -/
   varDecls      : Std.HashMap Var Expr := {}
+  /-- Map from used polynomials to free variable. -/
   polyDecls     : Std.HashMap Poly Expr := {}
+  /-- Map from used cutsat expressions to free variable. -/
   exprDecls     : Std.HashMap Int.Linear.Expr Expr := {}
+  /-- Map from used variables (before reordering) to (temporary) free variable. -/
   varDecls'     : Std.HashMap Var Expr := {}
+  /-- Map from used polynomials (before reordering) to free variable. -/
   polyDecls'    : Std.HashMap Poly Expr := {}
+  /-- Map from used cutsat expressions (before reordering) to free variable. -/
   exprDecls'    : Std.HashMap Int.Linear.Expr Expr := {}
+  /-- Map from used ring polynomials to free variable. -/
   ringPolyDecls : Std.HashMap CommRing.Poly Expr := {}
+  /-- Map from used ring expressions to free variable. -/
   ringExprDecls : Std.HashMap CommRing.RingExpr Expr := {}
 
 structure ProofM.Context where

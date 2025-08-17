@@ -19,7 +19,6 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
 public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
-
 /--
 Returns a context of type `RArray α` containing the variables `vars` where
 `α` is the type of the ring.
@@ -325,9 +324,16 @@ Given `a` and `b`, such that `a ≠ b` in the core and `sa` and `sb` their reifi
 terms s.t. `sa.toPoly == sb.toPoly`, close the goal.
 -/
 def setSemiringDiseqUnsat (a b : Expr) (sa sb : SemiringExpr) : SemiringM Unit := do
-  let ctx ← toSContextExpr'
   let semiring ← getSemiring
   let hne ← mkDiseqProof a b
+  let usedVars     := sa.collectVars >> sb.collectVars <| {}
+  let vars'        := usedVars.toArray
+  let varRename    := mkVarRename vars'
+  let vars         := (← getSemiring).vars
+  let vars         := vars'.map fun x => vars[x]!
+  let sa           := sa.renameVars varRename
+  let sb           := sb.renameVars varRename
+  let ctx          ← toSContextExprCore' vars
   let h := mkApp3 (mkConst ``Grind.Ring.OfSemiring.eq_normS [semiring.u]) semiring.type semiring.commSemiringInst ctx
   let h := mkApp3 h (toExpr sa) (toExpr sb) eagerReflBoolTrue
   closeGoal (mkApp hne h)

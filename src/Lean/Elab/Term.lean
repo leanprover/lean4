@@ -1188,9 +1188,8 @@ private def mkSyntheticSorryFor (expectedType? : Option Expr) : TermElabM Expr :
   elaboration step with exception `ex`.
 -/
 def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
-  let syntheticSorry ← mkSyntheticSorryFor expectedType?
   logException ex
-  pure syntheticSorry
+  mkSyntheticSorryFor expectedType?
 
 /-- If `mayPostpone == true`, throw `Exception.postpone`. -/
 def tryPostpone : TermElabM Unit := do

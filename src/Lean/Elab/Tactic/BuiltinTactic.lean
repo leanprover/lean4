@@ -333,17 +333,16 @@ where
     if let some typeStx := typeStx? then
       withMainContext do
         let mvarCounterSaved := (← getMCtx).mvarCounter
+        let fvarType ← inferType fvar
         let type ← runTermElab do
-          -- Use the context from before the hypothesis was introduced, to prevent `type` from referring to it.
-          let type ← mvarIdOrig.withContext do Term.elabType typeStx
-          let fvarType ← inferType fvar
-          -- Interleaving isDefEq and mvar synthesis, like in the `change` tactic.
-          unless (← isDefEqGuarded type fvarType) do
-            Term.synthesizeSyntheticMVars (postpone := .partial)
-            unless (← isDefEqGuarded type fvarType) do
-              throwError m!"Type mismatch: Hypothesis `{fvar}` " ++
-                (← mkHasTypeButIsExpectedMsg fvarType type (trailing? := "due to the provided type annotation"))
+          -- Use the original context, to prevent `type` from referring to the introduced hypothesis
+          let type ← mvarIdOrig.withContext <| Term.elabType typeStx
+          Term.synthesizeSyntheticMVars
+          discard <| isDefEqGuarded type fvarType
           pure type
+        unless (← isDefEqGuarded type fvarType) do
+          throwError m!"Type mismatch: Hypothesis `{fvar}` " ++
+            (← mkHasTypeButIsExpectedMsg fvarType type (trailing? := "due to the provided type annotation"))
         let type ← instantiateMVars type
         let mvars ← filterOldMVars (← getMVars type) mvarCounterSaved
         logUnassignedAndAbort mvars

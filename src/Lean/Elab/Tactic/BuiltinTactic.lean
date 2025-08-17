@@ -323,15 +323,18 @@ where
 
 @[builtin_tactic «intros»] def evalIntros : Tactic := fun stx => do
   let tk := stx[0]
-  if stx[1].getNumArgs > 0 then
-    let args : TSyntaxArray `term := .mk stx[1].getArgs
-    evalTactic <| ← `(tactic| intro%$tk $args*)
-  let fvars ← liftMetaTacticAux fun mvarId => do
-    let (fvars, mvarId) ← mvarId.intros
-    return (fvars, [mvarId])
-  withMainContext do
-    for fvar in fvars do
-      Term.addLocalVarInfo tk (mkFVar fvar)
+  let args := stx[1].getArgs
+  if args.isEmpty then
+    let fvars ← liftMetaTacticAux fun mvarId => do
+      let (fvars, mvarId) ← mvarId.intros
+      return (fvars, [mvarId])
+    withMainContext do
+      for fvar in fvars do
+        Term.addLocalVarInfo tk (mkFVar fvar)
+  else
+    let args : TSyntaxArray `term := .mk args
+    let stx' ← `(tactic| intro%$tk $args*; intros%$tk)
+    withMacroExpansion stx stx' <| evalTactic stx'
 
 @[builtin_tactic Lean.Parser.Tactic.revert] def evalRevert : Tactic := fun stx =>
   match stx with

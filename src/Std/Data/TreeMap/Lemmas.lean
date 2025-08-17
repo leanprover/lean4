@@ -3526,7 +3526,7 @@ theorem getElem?_filterMap [TransCmp cmp]
       f (t.getKey k (mem_iff_isSome_getElem?.mpr (Option.isSome_of_eq_some h'))) x) :=
   DTreeMap.Const.get?_filterMap
 
-/-- Simpler variant of `getElem?_filterMap` when `LawfulBEq` is available. -/
+/-- Simpler variant of `getElem?_filterMap` when `LawfulEqCmp` is available. -/
 @[grind =]
 theorem getElem?_filterMap' [TransCmp cmp] [LawfulEqCmp cmp]
     {f : α → β → Option γ} {k : α} :
@@ -3554,7 +3554,7 @@ theorem getElem_filterMap [TransCmp cmp]
           (isSome_apply_of_mem_filterMap h) :=
   DTreeMap.Const.get_filterMap
 
-/-- Simpler variant of `getElem_filterMap` when `LawfulBEq` is available. -/
+/-- Simpler variant of `getElem_filterMap` when `LawfulEqCmp` is available. -/
 @[grind =]
 theorem getElem_filterMap' [TransCmp cmp] [LawfulEqCmp cmp]
     {f : α → β → Option γ} {k : α} {h} :
@@ -3569,7 +3569,7 @@ theorem getElem!_filterMap [TransCmp cmp] [Inhabited γ]
         f (t.getKey k (mem_iff_isSome_getElem?.mpr (Option.isSome_of_eq_some h'))) x)).get! :=
   DTreeMap.Const.get!_filterMap
 
-/-- Simpler variant of `getElem!_filterMap` when `LawfulBEq` is available. -/
+/-- Simpler variant of `getElem!_filterMap` when `LawfulEqCmp` is available. -/
 @[grind =]
 theorem getElem!_filterMap' [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited γ]
     {f : α → β → Option γ} {k : α} :
@@ -3588,7 +3588,7 @@ theorem getD_filterMap [TransCmp cmp]
       f (t.getKey k (mem_iff_isSome_getElem?.mpr (Option.isSome_of_eq_some h'))) x)).getD fallback :=
   DTreeMap.Const.getD_filterMap
 
-/-- Simpler variant of `getD_filterMap` when `LawfulBEq` is available. -/
+/-- Simpler variant of `getD_filterMap` when `LawfulEqCmp` is available. -/
 @[grind =]
 theorem getD_filterMap' [TransCmp cmp] [LawfulEqCmp cmp]
     {f : α → β → Option γ} {k : α} {fallback : γ} :
@@ -3705,7 +3705,7 @@ theorem getElem?_filter [TransCmp cmp]
       f (t.getKey k (mem_iff_isSome_getElem?.mpr (Option.isSome_of_eq_some h'))) x) :=
   DTreeMap.Const.get?_filter
 
-/-- Simpler variant of `getElem?_filter` when `LawfulBEq` is available. -/
+/-- Simpler variant of `getElem?_filter` when `LawfulEqCmp` is available. -/
 @[grind =]
 theorem getElem?_filter' [TransCmp cmp] [LawfulEqCmp cmp]
     {f : α → β → Bool} {k : α} :
@@ -3731,7 +3731,7 @@ theorem getElem!_filter [TransCmp cmp] [Inhabited β]
       f (t.getKey k (mem_iff_isSome_getElem?.mpr (Option.isSome_of_eq_some h'))) x)).get! :=
   DTreeMap.Const.get!_filter
 
-/-- Simpler variant of `getElem!_filter` when `LawfulBEq` is available. -/
+/-- Simpler variant of `getElem!_filter` when `LawfulEqCmp` is available. -/
 @[grind =]
 theorem getElem!_filter' [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited β]
     {f : α → β → Bool} {k : α} :
@@ -3750,7 +3750,7 @@ theorem getD_filter [TransCmp cmp]
       f (t.getKey k (mem_iff_isSome_getElem?.mpr (Option.isSome_of_eq_some h'))) x)).getD fallback :=
   DTreeMap.Const.getD_filter
 
-/-- Simpler variant of `getD_filter` when `LawfulBEq` is available. -/
+/-- Simpler variant of `getD_filter` when `LawfulEqCmp` is available. -/
 @[grind =]
 theorem getD_filter' [TransCmp cmp] [LawfulEqCmp cmp]
     {f : α → β → Bool} {k : α} {fallback : β} :
@@ -3881,7 +3881,7 @@ theorem getElem?_map [TransCmp cmp] [LawfulEqCmp cmp]
     (t.map f)[k]? = t[k]?.map (f k) :=
   DTreeMap.Const.get?_map
 
-/-- Variant of `getElem?_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+/-- Variant of `getElem?_map` that holds without `LawfulEqCmp`. -/
 @[simp (low)]
 theorem getElem?_map' [TransCmp cmp]
     {f : α → β → γ} {k : α} :
@@ -3901,7 +3901,7 @@ theorem getElem_map [TransCmp cmp] [LawfulEqCmp cmp]
       f k (t[k]'(mem_of_mem_map h')) :=
   DTreeMap.Const.get_map
 
-/-- Variant of `getElem_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+/-- Variant of `getElem_map` that holds without `LawfulEqCmp`. -/
 @[simp (low)]
 theorem getElem_map' [TransCmp cmp]
     {f : α → β → γ} {k : α} {h'} :
@@ -3916,7 +3916,7 @@ theorem getElem!_map [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited γ]
       (t[k]?.map (f k)).get! :=
   DTreeMap.Const.get!_map
 
-/-- Variant of `getElem!_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+/-- Variant of `getElem!_map` that holds without `LawfulEqCmp`. -/
 theorem getElem!_map' [TransCmp cmp] [Inhabited γ]
     {f : α → β → γ} {k : α} :
     (t.map f)[k]! =
@@ -3936,7 +3936,7 @@ theorem getD_map [TransCmp cmp] [LawfulEqCmp cmp]
       (t[k]?.map (f k)).getD fallback :=
   DTreeMap.Const.getD_map
 
-/-- Variant of `getD_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+/-- Variant of `getD_map` that holds without `LawfulEqCmp`. -/
 theorem getD_map' [TransCmp cmp]
     {f : α → β → γ} {k : α} {fallback : γ} :
     (t.map f).getD k fallback =

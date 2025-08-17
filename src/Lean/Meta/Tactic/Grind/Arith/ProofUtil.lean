@@ -13,7 +13,7 @@ public section
 namespace Lean.Meta.Grind.Arith
 
 def mkLetOfMap {_ : Hashable α} {_ : BEq α} (m : Std.HashMap α Expr) (e : Expr)
-    (varPrefix : Name) (varType : Expr) (toExpr : α → Expr) : GoalM Expr := do
+    (varPrefix : Name) (varType : Expr) (toExpr : α → Expr) : Expr := Id.run do
   if m.isEmpty then
     return e
   else

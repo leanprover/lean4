@@ -17,7 +17,6 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
 public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
-
 /--
 Returns a context of type `RArray α` containing the variables of the given ring.
 `α` is the type of the ring.
@@ -354,33 +353,24 @@ private abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
     modify fun s => { s with cache := s.cache.insert addr h }
     return h
 
+local macro "declare! " decls:ident a:ident : term =>
+  `(do if let some x := (← get).$decls[$a]? then
+         return x
+       let x := mkFVar (← mkFreshFVarId);
+       modify fun s => { s with $decls:ident := (s.$decls).insert $a x };
+       return x)
+
 def mkPolyDecl (p : Poly) : ProofM Expr := do
-  if let some x := (← get).polyMap[p]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with polyMap := s.polyMap.insert p x }
-  return x
+  declare! polyMap p
 
 def mkExprDecl (e : RingExpr) : ProofM Expr := do
-  if let some x := (← get).exprMap[e]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with exprMap := s.exprMap.insert e x }
-  return x
+  declare! exprMap e
 
 def mkSExprDecl (e : SemiringExpr) : ProofM Expr := do
-  if let some x := (← get).sexprMap[e]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with sexprMap := s.sexprMap.insert e x }
-  return x
+  declare! sexprMap e
 
 def mkMonDecl (m : Mon) : ProofM Expr := do
-  if let some x := (← get).monMap[m]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with monMap := s.monMap.insert m x }
-  return x
+  declare! monMap m
 
 private def mkStepBasicPrefix (declName : Name) : ProofM Expr := do
   let ctx ← getContext
@@ -516,10 +506,10 @@ private abbrev withProofContext (x : ProofM Expr) : RingM Expr := do
 where
   go : ProofM Expr := do
     let h ← x
-    let h ← mkLetOfMap (← get).polyMap h `p (mkConst ``Grind.CommRing.Poly) toExpr
-    let h ← mkLetOfMap (← get).monMap h `m (mkConst ``Grind.CommRing.Mon) toExpr
-    let h ← mkLetOfMap (← get).exprMap h `e (mkConst ``Grind.CommRing.Expr) toExpr
-    let h ← mkLetOfMap (← get).sexprMap h `s (mkConst ``Grind.Ring.OfSemiring.Expr) toExpr
+    let h := mkLetOfMap (← get).polyMap h `p (mkConst ``Grind.CommRing.Poly) toExpr
+    let h := mkLetOfMap (← get).monMap h `m (mkConst ``Grind.CommRing.Mon) toExpr
+    let h := mkLetOfMap (← get).exprMap h `e (mkConst ``Grind.CommRing.Expr) toExpr
+    let h := mkLetOfMap (← get).sexprMap h `s (mkConst ``Grind.Ring.OfSemiring.Expr) toExpr
     let h ← if let some sctx := (← read).sctx? then mkLetFVars #[sctx] h else pure h
     mkLetFVars #[(← getContext)] h
 

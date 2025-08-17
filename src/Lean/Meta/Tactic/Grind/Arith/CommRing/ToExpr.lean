@@ -61,15 +61,6 @@ instance : ToExpr CommRing.Expr where
   toExpr := ofRingExpr
   toTypeExpr := mkConst ``CommRing.Expr
 
-def ofNullCert (nc : NullCert) : Expr :=
-  match nc with
-  | .empty => mkConst ``CommRing.NullCert.empty
-  | .add q lhs rhs nc => mkApp4 (mkConst ``CommRing.NullCert.add) (toExpr q) (toExpr lhs) (toExpr rhs) (ofNullCert nc)
-
-instance : ToExpr CommRing.NullCert where
-  toExpr := ofNullCert
-  toTypeExpr := mkConst ``CommRing.NullCert
-
 def ofSemiringExpr (e : Ring.OfSemiring.Expr) : Expr :=
   match e with
   | .num k => mkApp (mkConst ``Ring.OfSemiring.Expr.num) (toExpr k)

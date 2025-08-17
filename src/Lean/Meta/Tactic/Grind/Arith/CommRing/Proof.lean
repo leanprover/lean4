@@ -506,10 +506,10 @@ private abbrev withProofContext (x : ProofM Expr) : RingM Expr := do
 where
   go : ProofM Expr := do
     let h ← x
-    let h ← mkLetOfMap (← get).polyMap h `p (mkConst ``Grind.CommRing.Poly) toExpr
-    let h ← mkLetOfMap (← get).monMap h `m (mkConst ``Grind.CommRing.Mon) toExpr
-    let h ← mkLetOfMap (← get).exprMap h `e (mkConst ``Grind.CommRing.Expr) toExpr
-    let h ← mkLetOfMap (← get).sexprMap h `s (mkConst ``Grind.Ring.OfSemiring.Expr) toExpr
+    let h := mkLetOfMap (← get).polyMap h `p (mkConst ``Grind.CommRing.Poly) toExpr
+    let h := mkLetOfMap (← get).monMap h `m (mkConst ``Grind.CommRing.Mon) toExpr
+    let h := mkLetOfMap (← get).exprMap h `e (mkConst ``Grind.CommRing.Expr) toExpr
+    let h := mkLetOfMap (← get).sexprMap h `s (mkConst ``Grind.Ring.OfSemiring.Expr) toExpr
     let h ← if let some sctx := (← read).sctx? then mkLetFVars #[sctx] h else pure h
     mkLetFVars #[(← getContext)] h
 

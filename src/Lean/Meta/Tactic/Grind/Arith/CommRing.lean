@@ -19,6 +19,7 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
 
 public section
 

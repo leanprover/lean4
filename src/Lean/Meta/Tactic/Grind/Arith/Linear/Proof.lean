@@ -46,11 +46,11 @@ def toRingContextExpr : LinearM Expr := do
     RArray.toExpr struct.type id (RArray.leaf struct.zero)
 
 structure ProofM.State where
-  cache       : Std.HashMap UInt64 Expr := {}
-  polyMap     : Std.HashMap Poly Expr := {}
-  exprMap     : Std.HashMap LinExpr Expr := {}
-  ringPolyMap : Std.HashMap CommRing.Poly Expr := {}
-  ringExprMap : Std.HashMap RingExpr Expr := {}
+  cache         : Std.HashMap UInt64 Expr := {}
+  polyDecls     : Std.HashMap Poly Expr := {}
+  exprDecls     : Std.HashMap LinExpr Expr := {}
+  ringPolyDecls : Std.HashMap CommRing.Poly Expr := {}
+  ringExprDecls : Std.HashMap RingExpr Expr := {}
 
 structure ProofM.Context where
   ctx     : Expr
@@ -79,33 +79,24 @@ private abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
     modify fun s => { s with cache := s.cache.insert addr h }
     return h
 
+local macro "declare! " decls:ident a:ident : term =>
+  `(do if let some x := (← get).$decls[$a]? then
+         return x
+       let x := mkFVar (← mkFreshFVarId);
+       modify fun s => { s with $decls:ident := (s.$decls).insert $a x };
+       return x)
+
 def mkPolyDecl (p : Poly) : ProofM Expr := do
-  if let some x := (← get).polyMap[p]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with polyMap := s.polyMap.insert p x }
-  return x
+  declare! polyDecls p
 
 def mkExprDecl (e : LinExpr) : ProofM Expr := do
-  if let some x := (← get).exprMap[e]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with exprMap := s.exprMap.insert e x }
-  return x
+  declare! exprDecls e
 
 def mkRingPolyDecl (p : CommRing.Poly) : ProofM Expr := do
-  if let some x := (← get).ringPolyMap[p]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with ringPolyMap := s.ringPolyMap.insert p x }
-  return x
+  declare! ringPolyDecls p
 
 def mkRingExprDecl (e : RingExpr) : ProofM Expr := do
-  if let some x := (← get).ringExprMap[e]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with ringExprMap := s.ringExprMap.insert e x }
-  return x
+  declare! ringExprDecls e
 
 private abbrev withProofContext (x : ProofM Expr) : LinearM Expr := do
   let struct ← getStruct
@@ -115,10 +106,10 @@ private abbrev withProofContext (x : ProofM Expr) : LinearM Expr := do
 where
   go : ProofM Expr := do
     let h ← x
-    let h := mkLetOfMap (← get).polyMap h `p (mkConst ``Grind.Linarith.Poly) toExpr
-    let h := mkLetOfMap (← get).exprMap h `e (mkConst ``Grind.Linarith.Expr) toExpr
-    let h := mkLetOfMap (← get).ringPolyMap h `rp (mkConst ``Grind.CommRing.Poly) toExpr
-    let h := mkLetOfMap (← get).ringExprMap h `re (mkConst ``Grind.CommRing.Expr) toExpr
+    let h := mkLetOfMap (← get).polyDecls h `p (mkConst ``Grind.Linarith.Poly) toExpr
+    let h := mkLetOfMap (← get).exprDecls h `e (mkConst ``Grind.Linarith.Expr) toExpr
+    let h := mkLetOfMap (← get).ringPolyDecls h `rp (mkConst ``Grind.CommRing.Poly) toExpr
+    let h := mkLetOfMap (← get).ringExprDecls h `re (mkConst ``Grind.CommRing.Expr) toExpr
     mkLetFVars #[(← getContext), (← getRingContext)] h
 
 /--

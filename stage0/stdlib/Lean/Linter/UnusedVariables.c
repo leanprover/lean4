@@ -267,7 +267,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__21_spec__21___redArg(uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn___lam__1___closed__4____x40_Lean_Linter_UnusedVariables___hyg_1128_;
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_641__spec__3_spec__3_spec__3_spec__3_spec__3___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Term_instImpl____x40_Lean_Elab_Term___hyg_11663_;
 LEAN_EXPORT lean_object* l_Lean_Linter_logLint___at___Lean_Linter_UnusedVariables_unusedVariables_spec__23___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_UnusedVariables_hasSorry___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_unusedVariablesIgnoreFnsExt;
@@ -763,6 +762,7 @@ LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn___lam__0___closed__0____x40_Lean_Linter_UnusedVariables___hyg_974_;
 uint8_t l_List_any___redArg(lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Term_instImpl____x40_Lean_Elab_Term___hyg_11648_;
 LEAN_EXPORT lean_object* l_Lean_throwAttrDeclNotOfExpectedType___at_____private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_641__spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_UnusedVariables_initFn____x40_Lean_Linter_UnusedVariables___hyg_8645_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__21_spec__21(uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11879,7 +11879,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Term_instImpl____x40_Lean_Elab_Term___hyg_11663_;
+x_1 = l_Lean_Elab_Term_instImpl____x40_Lean_Elab_Term___hyg_11648_;
 return x_1;
 }
 }

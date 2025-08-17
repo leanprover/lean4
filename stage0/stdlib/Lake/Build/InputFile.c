@@ -46,7 +46,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Build_InputFile_0__Lake_InputDir_recFe
 lean_object* lean_string_utf8_byte_size(lean_object*);
 uint8_t lean_string_validate_utf8(lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdin___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_InputFile_0__Lake_InputFile_recFetch_spec__0_spec__0_spec__1___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at___IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeConst_realizeAndReport_spec__1_spec__3(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_InputFile_0__Lake_InputFile_recFetch___lam__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_InputFile_0__Lake_InputDir_recFetch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -77,6 +76,7 @@ lean_object* lean_get_set_stderr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_InputFile_0__Lake_InputFile_recFetch_spec__0_spec__0(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
 static lean_object* l_Lake_ensureJob___at_____private_Lake_Build_InputFile_0__Lake_InputFile_recFetch_spec__0___closed__3;
+lean_object* l_panic___at___IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__0_spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_InputFile_0__Lake_InputFile_recFetch_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdout___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_InputFile_0__Lake_InputFile_recFetch_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_InputFile_0__Lake_InputFile_recFetch_spec__0_spec__0___redArg___closed__3;
@@ -759,7 +759,7 @@ if (x_38 == 0)
 lean_object* x_39; lean_object* x_40; 
 lean_dec_ref(x_37);
 x_39 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_InputFile_0__Lake_InputFile_recFetch_spec__0_spec__0___redArg___closed__4;
-x_40 = l_panic___at___IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeConst_realizeAndReport_spec__1_spec__3(x_39);
+x_40 = l_panic___at___IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__0_spec__2(x_39);
 x_10 = x_36;
 x_11 = x_32;
 x_12 = x_33;

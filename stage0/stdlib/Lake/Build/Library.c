@@ -113,7 +113,6 @@ static lean_object* l_Lake_LeanLib_initFacetConfigs___closed__2;
 static lean_object* l_Lake_LeanLib_initFacetConfigs___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake_LeanLib_recBuildStatic___at___Lake_LeanLib_staticFacetConfig_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_buildLeanSharedLib(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at___IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeConst_realizeAndReport_spec__1_spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_recCollectLocalModules___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_LeanLib_recBuildShared_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -205,6 +204,7 @@ LEAN_EXPORT lean_object* l_Lake_ensureJob___at___Lake_LeanLib_recBuildStatic___a
 static lean_object* l_Lake_LeanLib_recBuildLean___closed__2;
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
+lean_object* l_panic___at___IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__0_spec__2(lean_object*);
 static lean_object* l_Lake_LeanLib_recCollectLocalModules___closed__5;
 LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_LeanLib_staticFacetConfig_spec__7(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ensureJob___at___Lake_LeanLib_recBuildStatic___at___Lake_LeanLib_staticFacetConfig_spec__0_spec__5___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2240,7 +2240,7 @@ if (x_38 == 0)
 lean_object* x_39; lean_object* x_40; 
 lean_dec_ref(x_37);
 x_39 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_LeanLib_recCollectLocalModules_spec__1_spec__1___redArg___closed__4;
-x_40 = l_panic___at___IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeConst_realizeAndReport_spec__1_spec__3(x_39);
+x_40 = l_panic___at___IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__0_spec__2(x_39);
 x_10 = x_36;
 x_11 = x_33;
 x_12 = x_32;

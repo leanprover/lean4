@@ -90,7 +90,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 static lean_object* l_Lake_print_x21___closed__7;
 static lean_object* l_Lake_Workspace_runFetchM___redArg___closed__5;
 lean_object* l_Nat_reprFast(lean_object*);
-lean_object* l_panic___at___IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeConst_realizeAndReport_spec__1_spec__3(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Monitor_renderProgress(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Workspace_runFetchM___redArg___closed__1;
@@ -161,6 +160,7 @@ static lean_object* l_Lake_print_x21___closed__3;
 LEAN_EXPORT lean_object* l_Lake_Monitor_spinnerFrames___closed__5___boxed__const__1;
 lean_object* lean_task_get_own(lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
+lean_object* l_panic___at___IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__0_spec__2(lean_object*);
 static lean_object* l_Lake_print_x21___closed__5;
 static lean_object* l_Lake_mkBuildContext___closed__3;
 static lean_object* l_Lake_mkBuildContext___closed__5;
@@ -5198,7 +5198,7 @@ if (x_38 == 0)
 lean_object* x_39; lean_object* x_40; 
 lean_dec_ref(x_37);
 x_39 = l_IO_FS_withIsolatedStreams___at___Lake_Workspace_runFetchM_spec__0___redArg___closed__4;
-x_40 = l_panic___at___IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeConst_realizeAndReport_spec__1_spec__3(x_39);
+x_40 = l_panic___at___IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__0_spec__2(x_39);
 x_10 = x_32;
 x_11 = x_33;
 x_12 = x_36;

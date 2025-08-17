@@ -3031,15 +3031,6 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
 
 /--
-Version of `Array.getInternal` that does not increment the reference count of its result.
-
-This is only intended for direct use by the compiler.
--/
-@[extern "lean_array_fget_borrowed"]
-unsafe opaque Array.getInternalBorrowed {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
-  a.toList.get ⟨i, h⟩
-
-/--
 Use the indexing notation `a[i]` instead.
 
 Access an element from an array without needing a runtime bounds checks,
@@ -3049,7 +3040,7 @@ This function does not use `get_elem_tactic` to automatically find the proof tha
 the index is in bounds. This is because the tactic itself needs to look up values in
 arrays.
 -/
-@[extern "lean_array_fget"]
+@[extern "lean_array_fget_borrowed"]
 def Array.getInternal {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
   a.toList.get ⟨i, h⟩
 
@@ -3069,19 +3060,11 @@ Examples:
   dite (LT.lt i a.size) (fun h => a.getInternal i h) (fun _ => v₀)
 
 /--
-Version of `Array.get!Internal` that does not increment the reference count of its result.
-
-This is only intended for direct use by the compiler.
--/
-@[extern "lean_array_get_borrowed"]
-unsafe opaque Array.get!InternalBorrowed {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α
-
-/--
 Use the indexing notation `a[i]!` instead.
 
 Access an element from an array, or panic if the index is out of bounds.
 -/
-@[extern "lean_array_get"]
+@[extern "lean_array_get_borrowed"]
 def Array.get!Internal {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
 

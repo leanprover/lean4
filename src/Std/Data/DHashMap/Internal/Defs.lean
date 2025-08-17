@@ -301,7 +301,7 @@ def insert [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Raw�
       expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩
 
 /-- Internal implementation detail of the hash map -/
-def containsThenInsert [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
+@[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
     Bool × Raw₀ α β :=
   let ⟨⟨size, buckets⟩, hm⟩ := m
   let ⟨i, h⟩ := mkIdx buckets.size hm (hash a)
@@ -315,7 +315,7 @@ def containsThenInsert [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : �
     (false, expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩)
 
 /-- Internal implementation detail of the hash map -/
-def containsThenInsertIfNew [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
+@[inline] def containsThenInsertIfNew [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
     Bool × Raw₀ α β :=
   let ⟨⟨size, buckets⟩, hm⟩ := m
   let ⟨i, h⟩ := mkIdx buckets.size hm (hash a)
@@ -340,7 +340,7 @@ def insertIfNew [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : 
     expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩
 
 /-- Internal implementation detail of the hash map -/
-def getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
+@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
     (b : β a) : Option (β a) × Raw₀ α β :=
   let ⟨⟨size, buckets⟩, hm⟩ := m
   let ⟨i, h⟩ := mkIdx buckets.size hm (hash a)
@@ -457,7 +457,7 @@ def Const.get! [BEq α] [Hashable α] [Inhabited β] (m : Raw₀ α (fun _ => β
   buckets[idx.1].get! a
 
 /-- Internal implementation detail of the hash map -/
-def Const.getThenInsertIfNew? [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α)
+@[inline] def Const.getThenInsertIfNew? [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α)
     (b : β) : Option β × Raw₀ α (fun _ => β) :=
   let ⟨⟨size, buckets⟩, hm⟩ := m
   let ⟨i, h⟩ := mkIdx buckets.size hm (hash a)

@@ -35,12 +35,14 @@ be a `let` or function type.
 * `intro` by itself introduces one anonymous hypothesis, which can be accessed
   by e.g. `assumption`. It is equivalent to `intro _`.
 * `intro x y` introduces two hypotheses and names them. Individual hypotheses
-  can be anonymized via `_`, or matched against a pattern:
+  can be anonymized via `_`, given a type ascription, or matched against a pattern:
   ```lean
   -- ... ⊢ α × β → ...
   intro (a, b)
   -- ..., a : α, b : β ⊢ ...
   ```
+* `intro rfl` is short for `intro h; subst h`, if `h` is an equality where the left-hand or right-hand side
+  is a variable.
 * Alternatively, `intro` can be combined with pattern matching much like `fun`:
   ```lean
   intro

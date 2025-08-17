@@ -290,43 +290,71 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   match stx with
   | `(tactic| intro) =>
     -- `intro` is implicitly `intro _`
-    introStep `_
+    introStep stx `_
   | `(tactic| intro%$tk $ts:term*) =>
     for t in ts, i in 0...* do
-      -- `tref` is ref for tactic info, `href` is ref for hypothesis
-      let withInfo (tref href : Syntax) (k : TacticM Unit) : TacticM Unit := do
-        -- Include the `intro` token with the first argument for the tactic info.
-        -- The effect is that `intro` and `intro h` have similar tactic info.
-        let ctxRef := if i = 0 then mkNullNode #[tk, tref] else tref
-        withTacticInfoContext ctxRef <| withRef href <| k
-      match t with
-      | `($h:ident) => withInfo h h do introStep h.getId
-      | `(_%$h)     => withInfo h h do introStep `_
-      /- Type ascription -/
-      | `(($h:ident : $[$type?:term]?)) => withInfo t h do introStep h.getId type?
-      | `((_%$h     : $[$type?:term]?)) => withInfo t h do introStep `_      type?
-      /- Pattern -/
-      | _ => withInfo t t do
-        let h := mkIdentFrom t (← mkFreshUserName `h)
-        /- We use `@h` at the match-discriminant to disable the implicit lambda feature -/
-        evalTactic (← `(tactic| intro $h:ident; match @$h:ident with | $t:term => ?_; try clear $h:ident))
+      -- We want `intro` and `intro h` to have similar tactic info so that the goal states
+      -- are similar at each position, so we include `intro` with the first argument for the tactic info range.
+      let ctxRef := if i == 0 then mkNullNode #[tk, t] else t
+      withTacticInfoContext ctxRef <| withRef t do evalArg t
   | _ => throwUnsupportedSyntax
 where
-  introStep (n : Name) (typeStx? : Option Syntax := none) : TacticM Unit := do
+  /--
+  Evaluates an `intro` argument.
+  -/
+  evalArg (t : Term) : TacticM Unit := do
+    match t with
+    | `($h:ident) => introStep h h.getId
+    | `(_%$h)     => introStep h `_
+    /- Type ascription -/
+    | `(($h:ident : $[$type?:term]?)) => introStep h h.getId type?
+    | `((_%$h     : $[$type?:term]?)) => introStep h `_      type?
+    /- Pattern -/
+    | _ =>
+      -- Using `mkIdentFrom` guarantees that errors are localized on `t`.
+      let h := mkIdentFrom t (← mkFreshUserName `h)
+      /- We use `@h` at the match-discriminant to disable the implicit lambda feature -/
+      evalTactic (← `(tactic| intro $h:ident; match @$h:ident with | $t:term => ?_; try clear $h:ident))
+  /--
+  Performs an `intro` step.
+  - `nref` is a ref for the introduced hypothesis
+  - `n` is the name to use for the introduced hypothesis, `_` means to use a hygienic name
+    and `rfl` means to use a hygienic name and `subst`
+  - `typeStx?` is used to change the type of the introduced hypothesis
+  -/
+  introStep (nref : Syntax) (n : Name) (typeStx? : Option Syntax := none) : TacticM Unit := do
+    let mvarIdOrig ← getMainGoal
+    let subst := n == `rfl
+    let n := if subst then `_ else n
     let fvarId ← liftMetaTacticAux fun mvarId => do
       let (fvarId, mvarId) ← mvarId.intro n
       pure (fvarId, [mvarId])
     let fvar := mkFVar fvarId
     if let some typeStx := typeStx? then
       withMainContext do
-        let type ← Term.withSynthesize (postpone := .yes) <| Term.elabType typeStx
-        let fvarType ← inferType fvar
-        unless (← isDefEqGuarded type fvarType) do
-          throwError m!"Type mismatch: Hypothesis `{fvar}` " ++
-            (← mkHasTypeButIsExpectedMsg fvarType type (trailing? := "due to the provided type annotation"))
-        liftMetaTactic fun mvarId => return [← mvarId.replaceLocalDeclDefEq fvarId type]
+        let mvarCounterSaved := (← getMCtx).mvarCounter
+        let type ← runTermElab do
+          -- Use the context from before the hypothesis was introduced, to prevent `type` from referring to it.
+          let type ← mvarIdOrig.withContext do Term.elabType typeStx
+          let fvarType ← inferType fvar
+          -- Interleaving isDefEq and mvar synthesis, like in the `change` tactic.
+          unless (← isDefEqGuarded type fvarType) do
+            Term.synthesizeSyntheticMVars (postpone := .partial)
+            unless (← isDefEqGuarded type fvarType) do
+              throwError m!"Type mismatch: Hypothesis `{fvar}` " ++
+                (← mkHasTypeButIsExpectedMsg fvarType type (trailing? := "due to the provided type annotation"))
+          pure type
+        let type ← instantiateMVars type
+        let mvars ← filterOldMVars (← getMVars type) mvarCounterSaved
+        logUnassignedAndAbort mvars
+        liftMetaTactic1 fun mvarId => mvarId.replaceLocalDeclDefEq fvarId type
     withMainContext do
-      Term.addLocalVarInfo (← getRef) fvar
+      if subst then
+        -- Note: the mdata prevents `rfl` from getting highlighted like a variable
+        Term.addTermInfo' nref (.mdata {} fvar)
+        liftMetaTactic1 fun mvarId => return (← substEq mvarId fvarId).2
+      else
+        Term.addLocalVarInfo nref fvar
 
 @[builtin_tactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic := fun stx => do
   let matchAlts := stx[1]

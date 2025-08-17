@@ -55,19 +55,13 @@ where
     | .step _ k₁ d .. => go d (k₁ * acc)
     | .normEq0 _ d .. => go d acc
 
-def throwNoNatZeroDivisors : RingM α := do
+private def throwNoNatZeroDivisors : RingM α := do
   throwError "`grind` internal error, `NoNatZeroDivisors` instance is needed, but it is not available for{indentExpr (← getRing).type}"
 
-def getPolyConst (p : Poly) : RingM Int := do
+private def getPolyConst (p : Poly) : RingM Int := do
   let .num k := p
     | throwError "`grind` internal error, constant polynomial expected {indentExpr (← p.denoteExpr)}"
   return k
-
-namespace Stepwise
-/-!
-Alternative proof term construction where we generate a sub-term for each step in
-the derivation.
--/
 
 structure ProofM.State where
   cache       : Std.HashMap UInt64 Expr := {}
@@ -112,16 +106,16 @@ local macro "declare! " decls:ident a:ident : term =>
        modify fun s => { s with $decls:ident := (s.$decls).insert $a x };
        return x)
 
-def mkPolyDecl (p : Poly) : ProofM Expr := do
+private def mkPolyDecl (p : Poly) : ProofM Expr := do
   declare! polyDecls p
 
-def mkExprDecl (e : RingExpr) : ProofM Expr := do
+private def mkExprDecl (e : RingExpr) : ProofM Expr := do
   declare! exprDecls e
 
-def mkSExprDecl (e : SemiringExpr) : ProofM Expr := do
+private def mkSExprDecl (e : SemiringExpr) : ProofM Expr := do
   declare! sexprDecls e
 
-def mkMonDecl (m : Mon) : ProofM Expr := do
+private def mkMonDecl (m : Mon) : ProofM Expr := do
   declare! monDecls m
 
 private def mkStepBasicPrefix (declName : Name) : ProofM Expr := do
@@ -292,7 +286,7 @@ where
     mkSemiringContext h
 
 open Lean.Grind.CommRing in
-def setEqUnsat (c : EqCnstr) : RingM Unit := do
+def EqCnstr.setUnsat  (c : EqCnstr) : RingM Unit := do
   let h ← withProofContext do
     let ring ← getRing
     if let some (charInst, char) := ring.charInst? then
@@ -308,7 +302,7 @@ def setEqUnsat (c : EqCnstr) : RingM Unit := do
       throwError "`grind ring` internal error, unexpected unsat eq proof {← c.denoteExpr}"
   closeGoal h
 
-def setDiseqUnsat (c : DiseqCnstr) : RingM Unit := do
+def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
   let h ← withProofContext do
     let heq ← mkImpEqExprProof c.rlhs c.rrhs c.d
     let hne ← if let some (sa, sb) := c.ofSemiring? then
@@ -325,17 +319,6 @@ def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Uni
   let ring ← getRing
   let eq := mkApp3 (mkConst ``Eq [.succ ring.u]) ring.type a b
   pushEq a b <| mkExpectedPropHint heq eq
-
-end Stepwise
-
-def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
-  Stepwise.setEqUnsat c
-
-def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
-  Stepwise.setDiseqUnsat c
-
-def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Unit := do
-  Stepwise.propagateEq a b ra rb d
 
 /--
 Given `a` and `b`, such that `a ≠ b` in the core and `sa` and `sb` their reified semiring

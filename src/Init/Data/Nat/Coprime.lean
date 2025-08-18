@@ -5,7 +5,10 @@ Authors: Jeremy Avigad, Leonardo de Moura, Mario Carneiro
 -/
 module
 prelude
-import Init.Data.Nat.Gcd
+
+public import Init.Data.Nat.Gcd
+
+@[expose] public section
 
 /-!
 # Definitions and properties of `coprime`

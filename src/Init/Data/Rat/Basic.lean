@@ -4,10 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
 module
+
 prelude
-import all Init.Data.Nat.Coprime
-import Init.Data.Hashable
-import Init.Data.OfScientific
+public import Init.Data.Nat.Coprime
+public import Init.Data.Hashable
+public import Init.Data.OfScientific
+
+@[expose] public section
 
 /-! # Basics for the Rational Numbers -/
 

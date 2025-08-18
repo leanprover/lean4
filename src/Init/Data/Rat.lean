@@ -5,5 +5,6 @@ Authors: Kim Morrison
 -/
 module
 prelude
-import Init.Data.Rat.Basic
-import Init.Data.Rat.Lemmas
+
+public import Init.Data.Rat.Basic
+public import Init.Data.Rat.Lemmas

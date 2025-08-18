@@ -5,7 +5,10 @@ Authors: Mario Carneiro
 -/
 module
 prelude
+
 public import Init.Data.Rat.Basic
+
+@[expose] public section
 
 /-! # Additional lemmas about the Rational Numbers -/
 

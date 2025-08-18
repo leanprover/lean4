@@ -7,8 +7,8 @@ module
 
 prelude
 import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Order
-public import Init.Data.Range.Polymorphic.Basic
+public import Init.Data.Nat.Order
+public import Init.Data.Range.Polymorphic.Instances
 public import Init.Data.Order.Classes
 import Init.Data.Order.Lemmas
 
@@ -40,23 +40,6 @@ instance : LawfulUpwardEnumerableLE Nat where
       rw [← hn]
       exact Nat.le_add_right _ _
 
-instance [LE α] [LT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulOrderLT α] :
-    LawfulUpwardEnumerableLT α where
-  lt_iff a b := by
-    simp only [LawfulOrderLT.lt_iff, LawfulUpwardEnumerableLE.le_iff]
-    constructor
-    · intro h
-      obtain ⟨n, hn⟩ := h.1
-      cases n
-      · apply h.2.elim
-        refine ⟨0, ?_⟩
-        simpa [UpwardEnumerable.succMany?_zero] using hn.symm
-      exact ⟨_, hn⟩
-    · intro h
-      constructor
-      · match h with | ⟨_, hn⟩ => exact ⟨_, hn⟩
-      · exact UpwardEnumerable.not_ge_of_lt h
-
 instance : LawfulUpwardEnumerable Nat where
   succMany?_zero := by simp [UpwardEnumerable.succMany?]
   succMany?_succ := by simp [UpwardEnumerable.succMany?, UpwardEnumerable.succ?, Nat.add_assoc]
@@ -64,96 +47,6 @@ instance : LawfulUpwardEnumerable Nat where
     have hn := hlt.choose_spec
     simp only [UpwardEnumerable.succMany?, Option.some.injEq] at hn
     omega
-
--- Forward the instance based on the privately imported `LawfulOrderLT Nat` instance
-instance : LawfulUpwardEnumerableLT Nat := by
-  infer_instance
-
-instance [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] :
-    LawfulUpwardEnumerableLowerBound .closed α where
-  isSatisfied_iff a l := by
-    simp [SupportsLowerBound.IsSatisfied, BoundedUpwardEnumerable.init?,
-      LawfulUpwardEnumerableLE.le_iff]
-
-instance : LawfulUpwardEnumerableLowerBound .closed Nat := by
-  infer_instance
-
-instance [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]:
-    LawfulUpwardEnumerableUpperBound .closed α where
-  isSatisfied_of_le u a b hub hab := by
-    simp only [SupportsUpperBound.IsSatisfied, ← LawfulUpwardEnumerableLE.le_iff] at hub hab ⊢
-    exact Trans.trans hab hub
-
-instance : LawfulUpwardEnumerableUpperBound .closed Nat := by
-  infer_instance
-
-instance [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLT α] :
-    LawfulUpwardEnumerableLowerBound .open α where
-  isSatisfied_iff a l := by
-    simp [SupportsLowerBound.IsSatisfied, BoundedUpwardEnumerable.init?,
-      LawfulUpwardEnumerableLT.lt_iff]
-    constructor
-    · rintro ⟨n, hn⟩
-      simp only [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at hn
-      cases h : UpwardEnumerable.succ? l
-      · simp [h] at hn
-      · exact ⟨_, rfl, n, by simpa [h] using hn⟩
-    · rintro ⟨init, hi, n, hn⟩
-      exact ⟨n, by simpa [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, hi] using hn⟩
-
-instance : LawfulUpwardEnumerableLowerBound .open Nat := by
-  infer_instance
-
-instance [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLT α] :
-    LawfulUpwardEnumerableUpperBound .open α where
-  isSatisfied_of_le u a b hub hab := by
-    simp only [SupportsUpperBound.IsSatisfied, LawfulUpwardEnumerableLT.lt_iff] at hub ⊢
-    exact UpwardEnumerable.lt_of_le_of_lt hab hub
-
-instance : LawfulUpwardEnumerableUpperBound .open Nat := by
-  infer_instance
-
-instance [UpwardEnumerable α] [Least? α] [LawfulUpwardEnumerableLeast? α] :
-    LawfulUpwardEnumerableLowerBound .unbounded α where
-  isSatisfied_iff a l := by
-    simpa [SupportsLowerBound.IsSatisfied, BoundedUpwardEnumerable.init?] using
-      LawfulUpwardEnumerableLeast?.eq_succMany?_least? a
-
-instance : LawfulUpwardEnumerableLowerBound .unbounded Nat := by
-  infer_instance
-
-instance [UpwardEnumerable α] : LawfulUpwardEnumerableUpperBound .unbounded α where
-  isSatisfied_of_le _ _ _ _ _ := .intro
-
-instance : LawfulUpwardEnumerableUpperBound .unbounded Nat := by
-  infer_instance
-
-instance [LE α] [Total (α := α) (· ≤ ·)] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLE α] :
-    LinearlyUpwardEnumerable α where
-  eq_of_succ?_eq a b hab := by
-    cases Total.total (α := α) (r := (· ≤ ·)) a b <;> rename_i h <;>
-      simp only [LawfulUpwardEnumerableLE.le_iff] at h
-    · obtain ⟨n, hn⟩ := h
-      cases n
-      · simpa [UpwardEnumerable.succMany?_zero] using hn
-      · exfalso
-        rw [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, hab,
-          ← LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at hn
-        exact UpwardEnumerable.lt_irrefl ⟨_, hn⟩
-    · obtain ⟨n, hn⟩ := h
-      cases n
-      · simpa [UpwardEnumerable.succMany?_zero] using hn.symm
-      · exfalso
-        rw [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, hab.symm,
-          ← LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at hn
-        exact UpwardEnumerable.lt_irrefl ⟨_, hn⟩
-
-instance : LinearlyUpwardEnumerable Nat := by
-  infer_instance
 
 instance : InfinitelyUpwardEnumerable Nat where
   isSome_succ? a := by simp [UpwardEnumerable.succ?]

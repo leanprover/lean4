@@ -86,21 +86,21 @@ private def checkEndHeader : Name → List Scope → Option Name
 
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
   match stx with
-  | `(namespace $[+localNotDelimiting%$softTk]? $n) => addNamespace n.getId softTk.isSome
+  | `(namespace $[+localNotDelimiting%$localNotDelimitingTk]? $n) => addNamespace n.getId localNotDelimitingTk.isSome
   | _               => throwUnsupportedSyntax
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
   match stx with
-  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $[+localNotDelimiting%$softTk]? $(header?)?) =>
+  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $[+localNotDelimiting%$localNotDelimitingTk]? $(header?)?) =>
     -- TODO: allow more attributes?
     let attrs ← if expTk.isSome then
       pure [← `(Parser.Term.attrInstance| expose)]
     else
       pure []
     if let some header := header? then
-      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId (localNotDelimiting := softTk.isSome)
+      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId (localNotDelimiting := localNotDelimitingTk.isSome)
     else
-      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (localNotDelimiting := softTk.isSome)
+      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (localNotDelimiting := localNotDelimitingTk.isSome)
   | _                        => throwUnsupportedSyntax
 
 /--

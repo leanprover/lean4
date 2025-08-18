@@ -817,7 +817,7 @@ It makes sure the "continuation" `?_` is the main goal after refining.
 macro "refine_lift " e:term : tactic => `(tactic| focus (refine no_implicit_lambda% $e; rotate_right))
 
 /--
-The `have` tactic is for adding opaque definitions to the local context of the main goal.
+The `have` tactic is for adding opaque definitions and hypotheses to the local context of the main goal.
 The definitions forget their associated value and cannot be unfolded, unlike definitions added by the `let` tactic.
 
 * `have h : t := e` adds the hypothesis `h : t` if `e` is a term of type `t`.
@@ -835,12 +835,13 @@ The tactic supports all the same syntax variants and options as the `have` term.
 
 ## Properties and relations
 
-* It is not possible to unfold a variable introduced using `have`, since the definition is forgotten.
+* It is not possible to unfold a variable introduced using `have`, since the definition's value is forgotten.
   The `let` tactic introduces definitions that can be unfolded.
 * The `have h : t := e` is like doing `let h : t := e; clear_value h`.
 * The `have` tactic is preferred for propositions, and `let` is preferred for non-propositions.
 * Sometimes `have` is used for non-propositions to ensure that the variable is never unfolded,
   which may be important for performance reasons.
+    Consider using the equivalent `let +nondep` to indicate the intent.
 
 -/
 syntax "have" letConfig letDecl : tactic
@@ -906,7 +907,7 @@ The tactic supports all the same syntax variants and options as the `let` term.
 * Unlike `have`, it is possible to unfold definitions introduced using `let`, using tactics
   such as `simp`, `dsimp`, `unfold`, and `subst`.
 * The `clear_value` tactic turns a `let` definition into a `have` definition after the fact.
-  The tactic might fail if the local context depends on the value of the definition.
+  The tactic might fail if the local context depends on the value of the variable.
 * The `let` tactic is preferred for data (non-propositions).
 * Sometimes `have` is used for non-propositions to ensure that the variable is never unfolded,
   which may be important for performance reasons.

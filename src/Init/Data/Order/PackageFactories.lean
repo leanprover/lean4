@@ -266,14 +266,14 @@ public scoped instance instOrdOfDecidableLE {α : Type u} [LE α] [DecidableLE �
     Ord α where
   compare a b := if a ≤ b then if b ≤ a then .eq else .lt else .gt
 
-public theorem compare_isLE {α : Type u} [LE α] [DecidableLE α] {a b : α} :
+public theorem isLE_compare {α : Type u} [LE α] [DecidableLE α] {a b : α} :
     (compare a b).isLE ↔ a ≤ b := by
   simp only [compare]
   split
   · split <;> simp_all
   · simp_all
 
-public theorem compare_isGE {α : Type u} [LE α] [DecidableLE α]
+public theorem isGE_compare {α : Type u} [LE α] [DecidableLE α]
     (le_total : ∀ a b : α, a ≤ b ∨ b ≤ a) {a b : α} :
     (compare a b).isGE ↔ b ≤ a := by
   simp only [compare]
@@ -285,8 +285,8 @@ public theorem compare_isGE {α : Type u} [LE α] [DecidableLE α]
 public instance instLawfulOrderOrdOfDecidableLE {α : Type u} [LE α] [DecidableLE α]
     [Total (α := α) (· ≤ ·)] :
     LawfulOrderOrd α where
-  compare_isLE _ _ := compare_isLE
-  compare_isGE _ _ := compare_isGE (le_total := Total.total)
+  isLE_compare _ _ := isLE_compare
+  isGE_compare _ _ := isGE_compare (le_total := Total.total)
 
 end FactoryInstances
 
@@ -319,24 +319,24 @@ public structure Packages.LinearPreorderOfLEArgs (α : Type u) extends
             Please ensure that a `Total` instance can be synthesized or \
             manually provide the field `le_total`."
   le_refl a := (by simpa using le_total a a)
-  compare_isLE :
+  isLE_compare :
       let := le; let := decidableLE; let := ord
       ∀ a b : α, (compare a b).isLE ↔ a ≤ b := by
     extract_lets
     first
-    | exact LawfulOrderOrd.compare_isLE
+    | exact LawfulOrderOrd.isLE_compare
     | fail "Failed to automatically prove that `(compare a b).isLE` is equivalent to `a ≤ b`. \
             Please ensure that a `LawfulOrderOrd` instance can be synthesized or \
-            manually provide the field `compare_isLE`."
-  compare_isGE :
+            manually provide the field `isLE_compare`."
+  isGE_compare :
       let := le; let := decidableLE; have := le_total; let := ord
       ∀ a b : α, (compare a b).isGE ↔ b ≤ a := by
     extract_lets
     first
-    | exact LawfulOrderOrd.compare_isGE
+    | exact LawfulOrderOrd.isGE_compare
     | fail "Failed to automatically prove that `(compare a b).isGE` is equivalent to `b ≤ a`. \
             Please ensure that a `LawfulOrderOrd` instance can be synthesized or \
-            manually provide the field `compare_isGE`."
+            manually provide the field `isGE_compare`."
 
 /--
 Use this factory to conveniently define a linear preorder on a type `α` and all the associated
@@ -387,8 +387,8 @@ public def LinearPreorderPackage.ofLE (α : Type u)
   toPreorderPackage := .ofLE α args.toPreorderOfLEArgs
   toOrd := letI := args.le; args.ord
   le_total := args.le_total
-  compare_isLE := args.compare_isLE
-  compare_isGE := args.compare_isGE
+  isLE_compare := args.isLE_compare
+  isGE_compare := args.isGE_compare
 
 namespace FactoryInstances
 

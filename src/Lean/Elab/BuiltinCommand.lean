@@ -128,22 +128,6 @@ private def checkEndHeader : Name → List Scope → Option Name
       addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (soft := isSoft)
   | _                        => throwUnsupportedSyntax
 
-@[builtin_command_elab «soft_section»] def elabSoftSection : CommandElab := fun stx => do
-  --let isSoft := Lean.Elab.implicit.get (←getOptions)
-  --trace[Elab] "elabSection: isSoft: {isSoft}"
-  match stx with
-  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $(header?)?) =>
-    -- TODO: allow more attributes?
-    let attrs ← if expTk.isSome then
-      pure [← `(Parser.Term.attrInstance| expose)]
-    else
-      pure []
-    if let some header := header? then
-      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId (soft := true)
-    else
-      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (soft := true)
-  | _                        => throwUnsupportedSyntax
-
 /--
 Produces a `Name` composed of the names of at most the innermost `n` scopes in `ss`, truncating if an
 empty scope is reached (so that we do not suggest names like `Foo.«».Bar`).

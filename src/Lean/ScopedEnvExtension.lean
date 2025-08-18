@@ -23,7 +23,6 @@ inductive Entry (α : Type) where
 structure State (σ : Type) where
   state        : σ
   activeScopes : NameSet := {}
-  parent : Option Name := none
   soft : Bool := false
 
 structure ScopedEntries (β : Type) where
@@ -152,11 +151,6 @@ def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Envir
 def ScopedEnvExtension.addScopedEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) (b : β) : Environment :=
   ext.ext.addEntry env (Entry.«scoped» namespaceName b)
 
-def ScopedEnvExtension.getParentName (ext : ScopedEnvExtension α β σ) (env : Environment) : Option Name :=
-  match (ext.ext.getState env).stateStack.head? with
-  | none => none
-  | some state => state.parent
-
 def stateStackSoftModify (ext : ScopedEnvExtension α β σ) (states : List (State σ)) (b : β) : List (State σ) :=
   match states with
   | [] => states
@@ -211,12 +205,6 @@ def ScopedEnvExtension.modifyState (ext : ScopedEnvExtension α β σ) (env : En
     | top :: stack => { s with stateStack := { top with state := f top.state } :: stack }
     | _ => s
 
-def ScopedEnvExtension.modifyParent (ext : ScopedEnvExtension α β σ) (env : Environment) (parent : Option Name := none) : Environment :=
-  ext.ext.modifyState env fun s =>
-    match s.stateStack with
-    | top :: stack => { s with stateStack := { top with parent := if top.parent.isNone then parent else top.parent } :: stack }
-    | _ => s
-
 def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (soft : Bool := false) : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do
     modifyEnv (ext.pushScope (soft := soft))
@@ -228,10 +216,6 @@ def popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit :=
 def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (namespaceName : Name) : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do
     modifyEnv (ext.activateScoped · namespaceName)
-
-def activateSoft  [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (parent : Option Name := none) : m Unit := do
-  for ext in (← scopedEnvExtensionsRef.get) do
-    modifyEnv (ext.modifyParent · parent)
 
 abbrev SimpleScopedEnvExtension (α : Type) (σ : Type) := ScopedEnvExtension α α σ
 

@@ -69,10 +69,10 @@ private:
     expr infer_type(expr const & e);
 
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
-    optional<expr> reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj);
+    optional<expr> reduce_recursor(expr const & e, bool cheap_proj);
     optional<expr> reduce_proj_core(expr c, unsigned idx);
-    optional<expr> reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj);
-    expr whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj);
+    optional<expr> reduce_proj(expr const & e, bool cheap_proj);
+    expr whnf_fvar(expr const & e, bool cheap_proj);
     optional<constant_info> is_delta(expr const & e) const;
     optional<expr> unfold_definition_core(expr const & e);
 
@@ -158,13 +158,9 @@ public:
     /**
        \brief Helper function for computing the weak head normal form.
        It applies all reductions but delta-reduction (unfolding definitions).
-       If `cheap_rec = true`, then it uses `whnf_core` at the major premise of recursors instead of `whnf`.
        If `cheap_proj = true`, then it uses `whnf_core` at `s` when trying to reduce projections `s.i` instead of `whnf`.
     */
-    expr whnf_core(expr const & e, bool cheap_rec = false, bool cheap_proj = false);
-    expr whnf_core_cheap(expr const & e) {
-        return whnf_core(e, true, true);
-    }
+    expr whnf_core(expr const & e, bool cheap_proj = false);
     optional<expr> unfold_definition(expr const & e);
 };
 

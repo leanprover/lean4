@@ -363,14 +363,14 @@ bool type_checker::is_prop(expr const & e) {
 
 /** \brief Apply normalizer extensions to \c e.
     If `cheap == true`, then we don't perform delta-reduction when reducing major premise. */
-optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj) {
+optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_proj) {
     if (env().is_quot_initialized()) {
         if (optional<expr> r = quot_reduce_rec(e, [&](expr const & e) { return whnf(e); })) {
             return r;
         }
     }
     if (optional<expr> r = inductive_reduce_rec(env(), e,
-                                                [&](expr const & e) { return cheap_rec ? whnf_core(e, cheap_rec, cheap_proj) : whnf(e); },
+                                                [&](expr const & e) { return whnf(e); },
                                                 [&](expr const & e) { return infer(e); },
                                                 [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); })) {
         return r;
@@ -378,11 +378,11 @@ optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, boo
     return none_expr();
 }
 
-expr type_checker::whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj) {
+expr type_checker::whnf_fvar(expr const & e, bool cheap_proj) {
     if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
         if (optional<expr> const & v = decl->get_value()) {
             /* zeta-reduction */
-            return whnf_core(*v, cheap_rec, cheap_proj);
+            return whnf_core(*v, cheap_proj);
         }
     }
     return e;
@@ -407,13 +407,13 @@ optional<expr> type_checker::reduce_proj_core(expr c, unsigned idx) {
 }
 
 /* If `cheap == true`, then we don't perform delta-reduction when reducing major premise. */
-optional<expr> type_checker::reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj) {
+optional<expr> type_checker::reduce_proj(expr const & e, bool cheap_proj) {
     if (!proj_idx(e).is_small())
         return none_expr();
     unsigned idx = proj_idx(e).get_small_value();
     expr c;
     if (cheap_proj)
-        c = whnf_core(proj_expr(e), cheap_rec, cheap_proj);
+        c = whnf_core(proj_expr(e), cheap_proj);
     else
         c = whnf(proj_expr(e));
     return reduce_proj_core(c, idx);
@@ -431,7 +431,7 @@ static bool is_let_fvar(local_ctx const & lctx, expr const & e) {
 /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions.
     If `cheap == true`, then we don't perform delta-reduction when reducing major premise of recursors and projections.
     We also do not cache results. */
-expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
+expr type_checker::whnf_core(expr const & e, bool cheap_proj) {
     check_system("type checker: whnf", /* do_check_interrupted */ true);
 
     // handle easy cases
@@ -441,7 +441,7 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
     case expr_kind::Lit:
         return e;
     case expr_kind::MData:
-        return whnf_core(mdata_expr(e), cheap_rec, cheap_proj);
+        return whnf_core(mdata_expr(e), cheap_proj);
     case expr_kind::FVar:
         if (is_let_fvar(m_lctx, e))
             break;
@@ -465,10 +465,10 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
     case expr_kind::Lit:   case expr_kind::MData:
         lean_unreachable(); // LCOV_EXCL_LINE
     case expr_kind::FVar:
-        return whnf_fvar(e, cheap_rec, cheap_proj);
+        return whnf_fvar(e, cheap_proj);
     case expr_kind::Proj: {
-        if (auto m = reduce_proj(e, cheap_rec, cheap_proj))
-            r = whnf_core(*m, cheap_rec, cheap_proj);
+        if (auto m = reduce_proj(e, cheap_proj))
+            r = whnf_core(*m, cheap_proj);
         else
             r = e;
         break;
@@ -476,7 +476,7 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
     case expr_kind::App: {
         buffer<expr> args;
         expr f0 = get_app_rev_args(e, args);
-        expr f = whnf_core(f0, cheap_rec, cheap_proj);
+        expr f = whnf_core(f0, cheap_proj);
         if (is_lambda(f)) {
             unsigned m = 1;
             unsigned num_args = args.size();
@@ -486,30 +486,30 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
             }
             lean_assert(m <= num_args);
             r = whnf_core(mk_rev_app(instantiate(binding_body(f), m, args.data() + (num_args - m)), num_args - m, args.data()),
-                          cheap_rec, cheap_proj);
+                          cheap_proj);
         } else if (f == f0) {
-            if (auto r = reduce_recursor(e, cheap_rec, cheap_proj)) {
+            if (auto r = reduce_recursor(e, cheap_proj)) {
                 if (m_diag) {
                     auto f = get_app_fn(e);
                     if (is_constant(f))
                         m_diag->record_unfold(const_name(f));
                 }
                 /* iota-reduction and quotient reduction rules */
-                return whnf_core(*r, cheap_rec, cheap_proj);
+                return whnf_core(*r, cheap_proj);
             } else {
                 return e;
             }
         } else {
-            r = whnf_core(mk_rev_app(f, args.size(), args.data()), cheap_rec, cheap_proj);
+            r = whnf_core(mk_rev_app(f, args.size(), args.data()), cheap_proj);
         }
         break;
     }
     case expr_kind::Let:
-        r = whnf_core(instantiate(let_body(e), let_value(e)), cheap_rec, cheap_proj);
+        r = whnf_core(instantiate(let_body(e), let_value(e)), cheap_proj);
         break;
     }
 
-    if (!cheap_rec && !cheap_proj) {
+    if (!cheap_proj) {
         m_st->m_whnf_core.insert(mk_pair(e, r));
     }
     return r;
@@ -922,21 +922,21 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
         if (auto s_n_new = try_unfold_proj_app(s_n)) {
             s_n = *s_n_new;
         } else {
-            t_n = whnf_core(*unfold_definition(t_n), false, true);
+            t_n = whnf_core(*unfold_definition(t_n), true);
         }
     } else if (!d_t && d_s) {
         /* If `t_n` is a projection application, we try to unfold it instead. See comment above. */
         if (auto t_n_new = try_unfold_proj_app(t_n)) {
             t_n = *t_n_new;
         } else {
-            s_n = whnf_core(*unfold_definition(s_n), false, true);
+            s_n = whnf_core(*unfold_definition(s_n), true);
         }
     } else {
         int c = compare(d_t->get_hints(), d_s->get_hints());
         if (c < 0) {
-            t_n = whnf_core(*unfold_definition(t_n), false, true);
+            t_n = whnf_core(*unfold_definition(t_n), true);
         } else if (c > 0) {
-            s_n = whnf_core(*unfold_definition(s_n), false, true);
+            s_n = whnf_core(*unfold_definition(s_n), true);
         } else {
             if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s) && d_t->get_hints().is_regular()) {
                 // Optimization:
@@ -952,8 +952,8 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
                     }
                 }
             }
-            t_n = whnf_core(*unfold_definition(t_n), false, true);
-            s_n = whnf_core(*unfold_definition(s_n), false, true);
+            t_n = whnf_core(*unfold_definition(t_n), true);
+            s_n = whnf_core(*unfold_definition(s_n), true);
         }
     }
     switch (quick_is_def_eq(t_n, s_n)) {
@@ -1100,8 +1100,8 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
       and first try `a =?= b` before reducing `a.i` and `b.i`. Recall that `whnf_core` with `cheap_proj = true` still
       reduces terms such as `{ fst := 10, snd := 20 }.1` to `10`.
     */
-    expr t_n = whnf_core(t, false, true);
-    expr s_n = whnf_core(s, false, true);
+    expr t_n = whnf_core(t, true);
+    expr s_n = whnf_core(s, true);
 
     if (!is_eqp(t_n, t) || !is_eqp(s_n, s)) {
         r = quick_is_def_eq(t_n, s_n);

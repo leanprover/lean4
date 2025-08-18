@@ -31,10 +31,10 @@ instance [Pure m] : Std.Iterators.Iterator RandomIterator m UInt64 where
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RandomIterator) m n :=
   .defaultImplementation
 
-def mkMap (seed : UInt64) (size : Nat) : Std.TreeMap UInt64 String := Id.run do
+def mkMap (seed : UInt64) (size : Nat) : Std.TreeMap UInt64 UInt64 := Id.run do
   let mut map := {}
   for val in iterRand seed |>.take size |>.allowNontermination do
-    map := map.insert val s!"{val}"
+    map := map.insert val val
   return map
 
 def timeNanos (reps : Nat) (x : IO Unit) : IO Float := do
@@ -102,7 +102,7 @@ def benchInsertIfNewHit (seed : UInt64) (size : Nat) : IO Float := do
     let mut map := map
     while todo != 0 do
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insertIfNew val s!"{val}"
+        map := map.insertIfNew val val
         if map.size != size then
           throw <| .userError "Fail"
       todo := todo - size
@@ -119,7 +119,7 @@ def benchInsertHit (seed : UInt64) (size : Nat) : IO Float := do
     let mut map := map
     while todo != 0 do
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insert val s!"{val}"
+        map := map.insert val val
         if map.size != size then
           throw <| .userError "Fail"
       todo := todo - size
@@ -187,7 +187,7 @@ def benchEraseInsert (seed : UInt64) (size : Nat) : IO Float := do
     let mut todo := checks
     while todo != 0 do
       for (eraseVal, newVal) in eraseIter.zip newIter |>.take size |>.allowNontermination do
-        map := map.erase eraseVal |>.insert newVal s!"{newVal}"
+        map := map.erase eraseVal |>.insert newVal newVal
         if map.size != size then
           throw <| .userError "Fail"
       todo := todo - size

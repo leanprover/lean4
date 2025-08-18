@@ -12,28 +12,28 @@ public import Init.Data.Order.Ord
 
 namespace Std
 
-public theorem compare_isLE {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
+public theorem isLE_compare {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
     {a b : α} : (compare a b).isLE ↔ a ≤ b := by
-  simp [← LawfulOrderOrd.compare_isLE]
+  simp [← LawfulOrderOrd.isLE_compare]
 
-public theorem compare_isGE {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
+public theorem isGE_compare {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
     {a b : α} : (compare a b).isGE ↔ b ≤ a := by
-  simp [← LawfulOrderOrd.compare_isGE]
+  simp [← LawfulOrderOrd.isGE_compare]
 
 public theorem compare_eq_lt {α : Type u} [Ord α] [LT α] [LE α] [LawfulOrderOrd α] [LawfulOrderLT α]
     {a b : α} : compare a b = .lt ↔ a < b := by
-  rw [LawfulOrderLT.lt_iff, ← LawfulOrderOrd.compare_isLE, ← LawfulOrderOrd.compare_isGE]
+  rw [LawfulOrderLT.lt_iff, ← LawfulOrderOrd.isLE_compare, ← LawfulOrderOrd.isGE_compare]
   cases compare a b <;> simp
 
 public theorem compare_eq_gt {α : Type u} [Ord α] [LT α] [LE α] [LawfulOrderOrd α] [LawfulOrderLT α]
     {a b : α} : compare a b = .gt ↔ b < a := by
-  rw [LawfulOrderLT.lt_iff, ← LawfulOrderOrd.compare_isGE, ← LawfulOrderOrd.compare_isLE]
+  rw [LawfulOrderLT.lt_iff, ← LawfulOrderOrd.isGE_compare, ← LawfulOrderOrd.isLE_compare]
   cases compare a b <;> simp
 
 public theorem compare_eq_eq {α : Type u} [Ord α] [BEq α] [LE α] [LawfulOrderOrd α] [LawfulOrderBEq α]
     {a b : α} : compare a b = .eq ↔ a == b := by
   open Classical.Order in
-  rw [LawfulOrderBEq.beq_iff_le_and_ge, ← compare_isLE, ← compare_isGE]
+  rw [LawfulOrderBEq.beq_iff_le_and_ge, ← isLE_compare, ← isGE_compare]
   cases compare a b <;> simp
 
 public instance {α : Type u} [LE α] [Ord α] [LawfulOrderOrd α] : OrientedOrd α where
@@ -51,31 +51,31 @@ public instance {α : Type u} [LE α] [Ord α] [LawfulOrderOrd α] : OrientedOrd
 
 public instance {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] [IsPreorder α] : TransOrd α where
   isLE_trans := by
-    simp only [compare_isLE]
+    simp only [isLE_compare]
     apply le_trans
 
 public instance {α : Type u} [Ord α] [BEq α] [LE α] [LawfulOrderOrd α] [LawfulOrderBEq α] :
     LawfulBEqOrd α where
   compare_eq_iff_beq := by
-    simp [Ordering.eq_eq_iff_isLE_and_isGE, compare_isLE, compare_isGE, beq_iff_le_and_ge]
+    simp [Ordering.eq_eq_iff_isLE_and_isGE, isLE_compare, isGE_compare, beq_iff_le_and_ge]
 
 public instance {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] [IsPartialOrder α] : LawfulEqOrd α where
   eq_of_compare {a b} := by
     intro h
     apply le_antisymm
-    · simp [← compare_isLE, h]
-    · simp [← compare_isGE, h]
+    · simp [← isLE_compare, h]
+    · simp [← isGE_compare, h]
 
 public instance [Ord α] [LE α] [LawfulOrderOrd α] :
     Total (α := α) (· ≤ ·) where
   total a b := by
-    rw [← compare_isLE, ← compare_isGE]
+    rw [← isLE_compare, ← isGE_compare]
     cases compare a b <;> simp
 
 public theorem IsLinearPreorder.of_ord {α : Type u} [LE α] [Ord α] [LawfulOrderOrd α]
     [TransOrd α] : IsLinearPreorder α where
-  le_refl a := by simp [← compare_isLE]
-  le_trans a b c := by simpa [← compare_isLE] using TransOrd.isLE_trans
+  le_refl a := by simp [← isLE_compare]
+  le_trans a b c := by simpa [← isLE_compare] using TransOrd.isLE_trans
   le_total a b := Total.total a b
 
 public theorem IsLinearOrder.of_ord {α : Type u} [LE α] [Ord α] [LawfulOrderOrd α]
@@ -83,8 +83,8 @@ public theorem IsLinearOrder.of_ord {α : Type u} [LE α] [Ord α] [LawfulOrderO
   toIsLinearPreorder := .of_ord
   le_antisymm a b hab hba := by
     apply LawfulEqOrd.eq_of_compare
-    rw [← compare_isLE] at hab
-    rw [← compare_isGE] at hba
+    rw [← isLE_compare] at hab
+    rw [← isGE_compare] at hba
     rw [Ordering.eq_eq_iff_isLE_and_isGE, hab, hba, and_self]
 
 /--
@@ -94,7 +94,7 @@ public instance LawfulOrderLT.of_ord (α : Type u) [Ord α] [LT α] [LE α] [Law
     (lt_iff_compare_eq_lt : ∀ a b : α, a < b ↔ compare a b = .lt) :
     LawfulOrderLT α where
   lt_iff a b := by
-    simp +contextual [lt_iff_compare_eq_lt, ← compare_isLE (a := a), ← compare_isGE (a := a)]
+    simp +contextual [lt_iff_compare_eq_lt, ← isLE_compare (a := a), ← isGE_compare (a := a)]
 
 /--
 This lemma derives a `LawfulOrderBEq α` instance from a property involving an `Ord α` instance.
@@ -103,7 +103,7 @@ public instance LawfulOrderBEq.of_ord (α : Type u) [Ord α] [BEq α] [LE α] [L
     (beq_iff_compare_eq_eq : ∀ a b : α, a == b ↔ compare a b = .eq) :
     LawfulOrderBEq α where
   beq_iff_le_and_ge := by
-    simp [beq_iff_compare_eq_eq, Ordering.eq_eq_iff_isLE_and_isGE, compare_isLE, compare_isGE]
+    simp [beq_iff_compare_eq_eq, Ordering.eq_eq_iff_isLE_and_isGE, isLE_compare, isGE_compare]
 
 /--
 This lemma derives a `LawfulOrderInf α` instance from a property involving an `Ord α` instance.
@@ -112,7 +112,7 @@ public instance LawfulOrderInf.of_ord (α : Type u) [Ord α] [Min α] [LE α] [L
     (compare_min_isLE_iff : ∀ a b c : α,
         (compare a (min b c)).isLE ↔ (compare a b).isLE ∧ (compare a c).isLE) :
     LawfulOrderInf α where
-  le_min_iff := by simpa [compare_isLE] using compare_min_isLE_iff
+  le_min_iff := by simpa [isLE_compare] using compare_min_isLE_iff
 
 /--
 This lemma derives a `LawfulOrderMin α` instance from a property involving an `Ord α` instance.
@@ -132,7 +132,7 @@ public instance LawfulOrderSup.of_ord (α : Type u) [Ord α] [Max α] [LE α] [L
     (compare_max_isLE_iff : ∀ a b c : α,
         (compare (max a b) c).isLE ↔ (compare a c).isLE ∧ (compare b c).isLE) :
     LawfulOrderSup α where
-  max_le_iff := by simpa [compare_isLE] using compare_max_isLE_iff
+  max_le_iff := by simpa [isLE_compare] using compare_max_isLE_iff
 
 /--
 This lemma derives a `LawfulOrderMax α` instance from a property involving an `Ord α` instance.
@@ -161,13 +161,13 @@ public noncomputable scoped instance instOrd {α : Type u} [LE α] :
 public instance instLawfulOrderOrd {α : Type u} [LE α]
     [Total (α := α) (· ≤ ·)] :
     LawfulOrderOrd α where
-  compare_isLE a b := by
+  isLE_compare a b := by
     simp only [compare]
     by_cases a ≤ b <;> rename_i h
     · simp only [h, ↓reduceIte, iff_true]
       split <;> simp
     · simp [h]
-  compare_isGE a b := by
+  isGE_compare a b := by
     simp only [compare]
     cases Total.total (r := (· ≤ ·)) a b <;> rename_i h
     · simp only [h, ↓reduceIte]

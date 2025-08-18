@@ -28,7 +28,7 @@ public instance LawfulOrderOrd.of_ord (α : Type u) [Ord α] [OrientedOrd α] :
     haveI := LE.ofOrd α
     LawfulOrderOrd α :=
   letI := LE.ofOrd α
-  { compare_isLE := by simp [LE.ofOrd]
-    compare_isGE := by simp [LE.ofOrd, OrientedCmp.isGE_eq_isLE] }
+  { isLE_compare := by simp [LE.ofOrd]
+    isGE_compare := by simp [LE.ofOrd, OrientedCmp.isGE_eq_isLE] }
 
 end Std

@@ -25,7 +25,7 @@ and that `LE α` is total.
 `Ord α` and `LE α` mutually determine each other in the presence of `LawfulOrderOrd α`.
 -/
 public class LawfulOrderOrd (α : Type u) [Ord α] [LE α] where
-  compare_isLE : ∀ a b : α, (compare a b).isLE ↔ a ≤ b
-  compare_isGE : ∀ a b : α, (compare a b).isGE ↔ b ≤ a
+  isLE_compare : ∀ a b : α, (compare a b).isLE ↔ a ≤ b
+  isGE_compare : ∀ a b : α, (compare a b).isGE ↔ b ≤ a
 
 end Std

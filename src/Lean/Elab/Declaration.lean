@@ -12,7 +12,6 @@ public import Lean.Elab.DefView
 public import Lean.Elab.MutualDef
 public import Lean.Elab.MutualInductive
 public import Lean.Elab.DeclarationRange
-public import Lean.Elab.BuiltinCommand
 import Lean.Parser.Command
 
 public section
@@ -163,19 +162,20 @@ def elabDeclaration : CommandElab := fun stx => do
   let modifiers : TSyntax ``Parser.Command.declModifiers := ⟨stx[0]⟩
   let decl     := stx[1]
   let declKind := decl.getKind
-    if isDefLike decl then
-        elabMutualDef #[stx]
-    else withoutCommandIncrementality true do
-      let modifiers ← elabModifiers modifiers
-      withExporting (isExporting := modifiers.isInferredPublic (← getEnv)) do
-        if declKind == ``Lean.Parser.Command.«axiom» then
+  if isDefLike decl then
+    -- only case implementing incrementality currently
+    elabMutualDef #[stx]
+  else withoutCommandIncrementality true do
+    let modifiers ← elabModifiers modifiers
+    withExporting (isExporting := modifiers.isInferredPublic (← getEnv)) do
+      if declKind == ``Lean.Parser.Command.«axiom» then
         elabAxiom modifiers decl
-        else if declKind == ``Lean.Parser.Command.«inductive»
-            || declKind == ``Lean.Parser.Command.classInductive
-            || declKind == ``Lean.Parser.Command.«structure» then
-          do elabInductive modifiers decl
-        else
-          throwError "unexpected declaration"
+      else if declKind == ``Lean.Parser.Command.«inductive»
+          || declKind == ``Lean.Parser.Command.classInductive
+          || declKind == ``Lean.Parser.Command.«structure» then
+        elabInductive modifiers decl
+      else
+        throwError "unexpected declaration"
 
 /-- Return true if all elements of the mutual-block are definitions/theorems/abbrevs. -/
 private def isMutualDef (stx : Syntax) : Bool :=

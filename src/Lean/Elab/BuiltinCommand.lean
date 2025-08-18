@@ -84,7 +84,7 @@ private def checkEndHeader : Name → List Scope → Option Name
       some <| .mkSimple h
   | _, _ => some .anonymous -- should not happen
 
-@[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx => do
+@[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
   match stx with
   | `(namespace $[+soft%$softTk]? $n) => addNamespace n.getId softTk.isSome
   | _               => throwUnsupportedSyntax

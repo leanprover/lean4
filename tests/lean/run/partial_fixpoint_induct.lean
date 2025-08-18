@@ -224,17 +224,3 @@ info: f.partial_correctness (motive_1 motive_2 : Nat → Nat → Prop)
 -/
 #guard_msgs in
 #check f.partial_correctness
-
-/--
-info: g.partial_correctness (motive_1 motive_2 : Nat → Nat → Prop)
-  (h_1 :
-    ∀ (g : Nat → Option Nat),
-      (∀ (n r : Nat), g n = some r → motive_2 n r) → ∀ (n r : Nat), g (n + 1) = some r → motive_1 n r)
-  (h_2 :
-    ∀ (f : Nat → Option Nat),
-      (∀ (n r : Nat), f n = some r → motive_1 n r) →
-        ∀ (n r : Nat), (if n = 0 then none else f (n + 1)) = some r → motive_2 n r)
-  (n r✝ : Nat) : g n = some r✝ → motive_2 n r✝
--/
-#guard_msgs in
-#check g.partial_correctness

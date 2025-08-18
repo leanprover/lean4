@@ -867,6 +867,7 @@ builtin_initialize
   register_parser_alias                                                 optDeclSig
   register_parser_alias                                                 openDecl
   register_parser_alias                                                 docComment
+  register_parser_alias                                                 visibility
 
 /--
 Registers an error explanation.

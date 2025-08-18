@@ -153,7 +153,7 @@ def expandNamespacedDeclaration : Macro := fun stx => do
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
     let declTk := stx[1][0]
     let ns := mkIdentFrom declTk ns
-    withRef declTk `(namespace +soft $ns $(⟨newStx⟩) end $ns)
+    withRef declTk `(namespace +localNotDelimiting $ns $(⟨newStx⟩) end $ns)
   | none => Macro.throwUnsupported
 
 @[builtin_command_elab declaration, builtin_incremental]

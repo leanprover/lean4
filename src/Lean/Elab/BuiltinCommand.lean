@@ -31,7 +31,7 @@ namespace Lean.Elab.Command
   | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
-    (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (localNonDelimiting : Bool := false) :
+    (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (localNotDelimiting : Bool := false) :
     CommandElabM Unit := do
   modify fun s => { s with
     env    := s.env.registerNamespace newNamespace,
@@ -42,26 +42,26 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
       attrs := s.scopes.head!.attrs ++ attrs
     } :: s.scopes
   }
-  pushScope localNonDelimiting
+  pushScope localNotDelimiting
   if isNewNamespace then
     activateScoped newNamespace
 
 private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic : Bool := false)
-    (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (localNonDelimiting : Bool := false) : CommandElabM Unit :=
+    (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (localNotDelimiting : Bool := false) : CommandElabM Unit :=
   go header
 where go
   | .anonymous => pure ()
   | .str p header => do
     go p
     let currNamespace ← getCurrNamespace
-    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic attrs (localNonDelimiting := localNonDelimiting)
+    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic attrs (localNotDelimiting := localNotDelimiting)
   | _ => throwError "invalid scope"
 
-private def addNamespace (header : Name) (localNonDelimiting : Bool := false) : CommandElabM Unit := do
-  addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header (localNonDelimiting := localNonDelimiting)
+private def addNamespace (header : Name) (localNotDelimiting : Bool := false) : CommandElabM Unit := do
+  addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header (localNotDelimiting := localNotDelimiting)
 
-def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) (localNonDelimiting : Bool := false) : CommandElabM α := do
-  addNamespace ns localNonDelimiting
+def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) (localNotDelimiting : Bool := false) : CommandElabM α := do
+  addNamespace ns localNotDelimiting
   let a ← elabFn
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }
   pure a
@@ -86,21 +86,21 @@ private def checkEndHeader : Name → List Scope → Option Name
 
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
   match stx with
-  | `(namespace $[+soft%$softTk]? $n) => addNamespace n.getId softTk.isSome
+  | `(namespace $[+localNotDelimiting%$softTk]? $n) => addNamespace n.getId softTk.isSome
   | _               => throwUnsupportedSyntax
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
   match stx with
-  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $[+soft%$softTk]? $(header?)?) =>
+  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $[+localNotDelimiting%$softTk]? $(header?)?) =>
     -- TODO: allow more attributes?
     let attrs ← if expTk.isSome then
       pure [← `(Parser.Term.attrInstance| expose)]
     else
       pure []
     if let some header := header? then
-      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId (localNonDelimiting := softTk.isSome)
+      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId (localNotDelimiting := softTk.isSome)
     else
-      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (localNonDelimiting := softTk.isSome)
+      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (localNotDelimiting := softTk.isSome)
   | _                        => throwUnsupportedSyntax
 
 /--
@@ -487,7 +487,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(section +soft $cmd₁:command $cmd₂ end)
+    withRef tk `(section +localNotDelimiting $cmd₁:command $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do

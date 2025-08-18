@@ -55,10 +55,3 @@ info: f.mutual_induct (motive_1 : A → Prop) (motive_2 : B → Prop) (adm_1 : a
 -/
 #guard_msgs in
 #check f.mutual_induct
-/--
-info: g.mutual_induct (motive_1 : A → Prop) (motive_2 : B → Prop) (adm_1 : admissible motive_1) (adm_2 : admissible motive_2)
-  (h_1 : ∀ (g : B), motive_2 g → motive_1 g.toA) (h_2 : ∀ (f : A), motive_1 f → motive_2 f.toB) :
-  motive_1 f ∧ motive_2 g
--/
-#guard_msgs in
-#check g.mutual_induct

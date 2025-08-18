@@ -24,12 +24,7 @@ namespace MutualCoinduction
   -/
   #guard_msgs in
   #check MutualCoinduction.g.coinduct
-  /--
-    info: MutualCoinduction.g.mutual_induct (pred_1 pred_2 : Prop) (hyp_1 : pred_1 → pred_2) (hyp_2 : pred_2 → pred_1) :
-  (pred_1 → f) ∧ (pred_2 → g)
-  -/
-  #guard_msgs in
-  #check MutualCoinduction.g.mutual_induct
+
 end MutualCoinduction
 
 namespace MutualInduction

@@ -313,7 +313,7 @@ def isInductName (env : Environment) (name : Name) : Bool := Id.run do
     return false
   | "mutual_induct" =>
     if let some eqnInfo := eqnInfoExt.find? env p then
-      return eqnInfo.declNames.size > 1
+      return eqnInfo.declNames[0]! == p && eqnInfo.declNames.size > 1
     return false
   | _ => return false
 

@@ -147,7 +147,11 @@ theorem min?_replicate [Min α] [Std.IdempotentOp (min : α → α → α)] {n :
   simp [min?_replicate, Nat.ne_of_gt h]
 
 /--
-Requirements are satisfied for `[OrderData α] [Min α] [IsLinearOrder α] [LawfulOrderMin α]`
+This lemma is also applicable given the following instances:
+
+```
+[LE α] [Min α] [IsLinearOrder α] [LawfulOrderMin α]
+```
 -/
 theorem foldl_min [Min α] [Std.IdempotentOp (min : α → α → α)] [Std.Associative (min : α → α → α)]
     {l : List α} {a : α} : l.foldl (init := a) min = min a (l.min?.getD a) := by
@@ -284,7 +288,11 @@ theorem max?_replicate [Max α] [Std.IdempotentOp (max : α → α → α)] {n :
   simp [max?_replicate, Nat.ne_of_gt h]
 
 /--
-Requirements are satisfied for `[OrderData α] [Max α] [LinearOrder α] [LawfulOrderMax α]`
+This lemma is also applicable given the following instances:
+
+```
+[LE α] [Min α] [IsLinearOrder α] [LawfulOrderMax α]
+```
 -/
 theorem foldl_max [Max α] [Std.IdempotentOp (max : α → α → α)] [Std.Associative (max : α → α → α)]
     {l : List α} {a : α} : l.foldl (init := a) max = max a (l.max?.getD a) := by

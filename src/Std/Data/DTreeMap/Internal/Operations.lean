@@ -9,7 +9,6 @@ prelude
 public import Init.Data.Nat.Compare
 public import Std.Data.DTreeMap.Internal.Balancing
 public import Std.Data.DTreeMap.Internal.Queries
-public import Std.Classes.Ord.Basic
 
 @[expose] public section
 

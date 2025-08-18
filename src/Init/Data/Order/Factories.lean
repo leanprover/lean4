@@ -66,14 +66,18 @@ public theorem IsLinearOrder.of_le {α : Type u} [LE α]
   le_antisymm := le_antisymm.antisymm
 
 /--
-Returns a `LawfulOrderLT α` instance given certain properties.
-
-If an `OrderData α` instance is compatible with an `LE α` instance, then this lemma derives
-a `LawfulOrderLT α` instance from a property relating the `LE α` and `LT α` instances.
+This lemma derives a `LawfulOrderLT α` instance from a property involving an `LE α` instance.
 -/
 public theorem LawfulOrderLT.of_le {α : Type u} [LT α] [LE α]
     (lt_iff : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a) : LawfulOrderLT α where
   lt_iff := lt_iff
+
+/--
+This lemma derives a `LawfulOrderBEq α` instance from a property involving an `LE α` instance.
+-/
+public theorem LawfulOrderBEq.of_le {α : Type u} [BEq α] [LE α]
+    (beq_iff : ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a) : LawfulOrderBEq α where
+  beq_iff_le_and_ge := by simp [beq_iff]
 
 /--
 This lemma characterizes in terms of `LE α` when a `Min α` instance "behaves like an infimum
@@ -188,7 +192,7 @@ public theorem LawfulOrderInf.of_lt {α : Type u} [Min α] [LT α]
       simpa [Decidable.imp_iff_not_or] using min_lt_iff a b c }
 
 /--
-Derives a `LawfulOrderMin α` instance for `OrderData.ofLT` from two properties involving
+Derives a `LawfulOrderMin α` instance for `LE.ofLT` from two properties involving
 `LT α` and `Min α` instances.
 
 The produced instance entails `LawfulOrderInf α` and `MinEqOr α`.
@@ -204,7 +208,7 @@ public theorem LawfulOrderMin.of_lt {α : Type u} [Min α] [LT α]
 
 /--
 This lemma characterizes in terms of `LT α` when a `Max α` instance
-"behaves like an supremum operator" with respect to `OrderData.ofLT α`.
+"behaves like an supremum operator" with respect to `LE.ofLT α`.
 -/
 public def LawfulOrderSup.of_lt {α : Type u} [Max α] [LT α]
     (lt_max_iff : ∀ a b c : α, c < max a b ↔ c < a ∨ c < b) :
@@ -217,7 +221,7 @@ public def LawfulOrderSup.of_lt {α : Type u} [Max α] [LT α]
       simpa [Decidable.imp_iff_not_or] using lt_max_iff a b c }
 
 /--
-Derives a `LawfulOrderMax α` instance for `OrderData.ofLT` from two properties involving `LT α` and
+Derives a `LawfulOrderMax α` instance for `LE.ofLT` from two properties involving `LT α` and
 `Max α` instances.
 
 The produced instance entails `LawfulOrderSup α` and `MaxEqOr α`.

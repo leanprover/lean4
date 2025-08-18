@@ -9,7 +9,8 @@ prelude
 public import Init.Data.Order.Classes
 public import Init.Data.Order.Factories
 import Init.SimpLemmas
-import Init.Classical
+public import Init.Classical
+public import Init.Data.BEq
 
 namespace Std
 
@@ -35,7 +36,7 @@ public theorem Asymm.total_not {r : α → α → Prop} [i : Asymm r] : Total (�
     · exact Or.inl hab
 
 public instance {α : Type u} [LE α] [IsPartialOrder α] :
-    Std.Antisymm (α := α) (· ≤ ·) where
+    Antisymm (α := α) (· ≤ ·) where
   antisymm := IsPartialOrder.le_antisymm
 
 public instance {α : Type u} [LE α] [IsPreorder α] :
@@ -43,12 +44,12 @@ public instance {α : Type u} [LE α] [IsPreorder α] :
       trans := IsPreorder.le_trans _ _ _
 
 public instance {α : Type u} [LE α] [IsPreorder α] :
-    Std.Refl (α := α) (· ≤ ·) where
-  refl a := IsPreorder.le_refl a
+    Refl (α := α) (· ≤ ·) where
+  refl := IsPreorder.le_refl
 
 public instance {α : Type u} [LE α] [IsLinearPreorder α] :
-    Std.Total (α := α) (· ≤ ·) where
-  total a b := IsLinearPreorder.le_total a b
+    Total (α := α) (· ≤ ·) where
+  total := IsLinearPreorder.le_total
 
 end AxiomaticInstances
 
@@ -59,7 +60,7 @@ public theorem le_refl {α : Type u} [LE α] [Refl (α := α) (· ≤ ·)] (a : 
 
 public theorem le_antisymm {α : Type u} [LE α] [Std.Antisymm (α := α) (· ≤ ·)] {a b : α}
     (hab : a ≤ b) (hba : b ≤ a) : a = b :=
-  Std.Antisymm.antisymm _ _ hab hba
+  Antisymm.antisymm _ _ hab hba
 
 public theorem le_trans {α : Type u} [LE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] {a b c : α}
     (hab : a ≤ b) (hbc : b ≤ c) : a ≤ c :=
@@ -68,22 +69,6 @@ public theorem le_trans {α : Type u} [LE α] [Trans (α := α) (· ≤ ·) (· 
 public theorem le_total {α : Type u} [LE α] [Std.Total (α := α) (· ≤ ·)] {a b : α} :
     a ≤ b ∨ b ≤ a :=
   Std.Total.total a b
-
-public instance {α : Type u} [LE α] [IsPreorder α] :
-    Refl (α := α) (· ≤ ·) where
-  refl := IsPreorder.le_refl
-
-public instance {α : Type u} [LE α] [IsPreorder α] :
-    Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where
-  trans := IsPreorder.le_trans _ _ _
-
-public instance {α : Type u} [LE α] [IsLinearPreorder α] :
-    Total (α := α) (· ≤ ·) where
-  total := IsLinearPreorder.le_total
-
-public instance {α : Type u} [LE α] [IsPartialOrder α] :
-    Antisymm (α := α) (· ≤ ·) where
-  antisymm := IsPartialOrder.le_antisymm
 
 end LE
 
@@ -111,9 +96,8 @@ public instance {α : Type u} [LT α] [LE α] [LawfulOrderLT α] :
 public instance {α : Type u} [LT α] [LE α] [IsPreorder α] [LawfulOrderLT α] :
     Std.Irrefl (α := α) (· < ·) := inferInstance
 
-public instance {α : Type u} [LT α] [LE α]
-    [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) ] [LawfulOrderLT α] :
-    Trans (α := α) (· < ·) (· < ·) (· < ·) where
+public instance {α : Type u} [LT α] [LE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) ]
+    [LawfulOrderLT α] : Trans (α := α) (· < ·) (· < ·) (· < ·) where
   trans {a b c} hab hbc := by
     simp only [lt_iff_le_and_not_ge] at hab hbc ⊢
     apply And.intro
@@ -173,6 +157,45 @@ public instance instLawfulOrderLT {α : Type u} [LE α] :
 end Classical.Order
 
 namespace Std
+section BEq
+
+public theorem beq_iff_le_and_ge {α : Type u} [BEq α] [LE α] [LawfulOrderBEq α]
+    {a b : α} : a == b ↔ a ≤ b ∧ b ≤ a := by
+  simp [LawfulOrderBEq.beq_iff_le_and_ge]
+
+public instance {α : Type u} [BEq α] [LE α] [LawfulOrderBEq α] :
+    Symm (α := α) (· == ·) where
+  symm := by simp_all [beq_iff_le_and_ge]
+
+public instance {α : Type u} [BEq α] [LE α] [LawfulOrderBEq α] [IsPreorder α] : EquivBEq α where
+  rfl := by simp [beq_iff_le_and_ge, le_refl]
+  symm := Symm.symm (r := (· == ·)) _ _
+  trans hab hbc := by
+    simp only [beq_iff_le_and_ge] at hab hbc ⊢
+    exact ⟨le_trans hab.1 hbc.1, le_trans hbc.2 hab.2⟩
+
+public instance {α : Type u} [BEq α] [LE α] [LawfulOrderBEq α] [IsPartialOrder α] :
+    LawfulBEq α where
+  eq_of_beq := by
+    simp only [beq_iff_le_and_ge, and_imp]
+    apply le_antisymm
+
+end BEq
+end Std
+
+namespace Classical.Order
+open Std
+
+public noncomputable scoped instance instBEq {α : Type u} [LE α] : BEq α where
+  beq a b := a ≤ b ∧ b ≤ a
+
+public instance instLawfulOrderBEq {α : Type u} [LE α] :
+    LawfulOrderBEq α where
+  beq_iff_le_and_ge a b := by simp [BEq.beq]
+
+end Classical.Order
+
+namespace Std
 section Min
 
 public theorem min_self {α : Type u} [Min α] [Std.IdempotentOp (min : α → α → α)] {a : α} :
@@ -205,7 +228,6 @@ public theorem min_eq_or {α : Type u} [Min α] [MinEqOr α] {a b : α} :
 public instance {α : Type u} [LE α] [Min α] [IsLinearOrder α] [LawfulOrderInf α] :
     MinEqOr α where
   min_eq_or a b := by
-    open Classical.Order in
     cases le_total (a := a) (b := b)
     · apply Or.inl
       apply le_antisymm
@@ -246,7 +268,6 @@ public instance {α : Type u} [Min α] [MinEqOr α] :
     Std.IdempotentOp (min : α → α → α) where
   idempotent a := by cases MinEqOr.min_eq_or a a <;> assumption
 
-open Classical.Order in
 public instance {α : Type u} [LE α] [Min α] [IsLinearOrder α] [LawfulOrderMin α] :
     Std.Associative (min : α → α → α) where
   assoc a b c := by apply le_antisymm <;> simp [min_le, le_min_iff, le_refl]
@@ -284,7 +305,6 @@ public theorem max_eq_or {α : Type u} [Max α] [MaxEqOr α] {a b : α} :
 public instance {α : Type u} [LE α] [Max α] [IsLinearOrder α] [LawfulOrderSup α] :
     MaxEqOr α where
   max_eq_or a b := by
-    open Classical.Order in
     cases le_total (a := a) (b := b)
     · apply Or.inr
       apply le_antisymm
@@ -328,7 +348,6 @@ public instance {α : Type u} [Max α] [MaxEqOr α] :
     Std.IdempotentOp (max : α → α → α) where
   idempotent a := by cases MaxEqOr.max_eq_or a a <;> assumption
 
-open Classical.Order in
 public instance {α : Type u} [LE α] [Max α] [IsLinearOrder α] [LawfulOrderMax α] :
     Std.Associative (max : α → α → α) where
   assoc a b c := by

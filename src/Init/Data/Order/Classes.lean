@@ -96,6 +96,13 @@ public class LawfulOrderLT (α : Type u) [LT α] [LE α] where
 
 end LT
 
+section BEq
+
+public class LawfulOrderBEq (α : Type u) [BEq α] [LE α] where
+  beq_iff_le_and_ge : ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a
+
+end BEq
+
 section Min
 
 /--

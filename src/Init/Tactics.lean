@@ -54,7 +54,7 @@ syntax (name := intro) "intro" notFollowedBy("|") (ppSpace colGt term:max)* : ta
 Introduces zero or more hypotheses, optionally naming and/or pattern-matching them,
 until the goal is no longer a *binding expression* (i.e., a universal quantifier, function type, implication, or `have`/`let`).
 
-- `intros` repeatedly applies `intro` so long as the goal is a binding expression,
+- `intros` repeatedly applies `intro` until the goal is no longer a binding expression,
   *without* performing any definitional reductions (e.g. unfolding definitions).
   The introduced hypotheses receive inaccessible (hygienic) names.
 
@@ -64,11 +64,14 @@ until the goal is no longer a *binding expression* (i.e., a universal quantifier
 
 ## Properties and relations
 
+- `intros` succeeds even when it introduces no hypotheses.
+
 - `intros x y` is equivalent to `intro x y; intros`.
+  It succeeds if and only if `intro x y` succeeds.
 
 - `intros x y` is also equivalent to `intro x y _ _ … _`,
-  with the fewest `_` placeholders needed for the goal not to be a binding expression.
-  The introductions for these placeholders do not perform any definitional reductions.
+  with the fewest trailing `_` placeholders needed so that the goal is no longer a binding expression.
+  The trailing introductions do not perform any definitional reductions.
 
 ## Examples
 

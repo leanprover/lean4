@@ -6,7 +6,6 @@ Authors: Sebastian Graf
 module
 
 prelude
-import Std.Do.WP
 import Std.Do.Triple
 import Lean.Elab.Tactic.Do.VCGen.Split
 import Lean.Elab.Tactic.Simp
@@ -21,8 +20,10 @@ import Lean.Elab.Tactic.Do.Spec
 import Lean.Elab.Tactic.Do.Attr
 import Lean.Elab.Tactic.Do.Syntax
 import Lean.Elab.Tactic.Induction
+import Lean.Meta.Tactic.TryThis
 
 public import Lean.Elab.Tactic.Do.VCGen.Basic
+import Lean.Elab.Tactic.Do.VCGen.SuggestInvariant
 
 public section
 
@@ -362,14 +363,14 @@ where
 
 end VCGen
 
-def elabInvariants (stx : Syntax) (invariants : Array MVarId) : TacticM Unit := do
+def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant : MVarId → TacticM Term) : TacticM Unit := do
   let some stx := stx.getOptional? | return ()
   let stx : TSyntax ``invariantAlts := ⟨stx⟩
   withRef stx do
   match stx with
-  | `(invariantAlts| invariants $alts*) =>
+  | `(invariantAlts| $invariantsKW $alts*) =>
     let invariants ← invariants.filterM (not <$> ·.isAssigned)
-    for h : n in [0:alts.size] do
+    for h : n in 0...alts.size do
       let alt := alts[n]
       match alt with
       | `(invariantAlt| · $rhs) =>
@@ -378,9 +379,25 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) : TacticM Unit := 
           continue
         discard <| evalTacticAt (← `(tactic| exact $rhs)) mv
       | _ => logErrorAt alt m!"Expected invariantAlt, got {alt}"
-    if alts.size < invariants.size then
-      let missingTypes ← invariants[alts.size:].toArray.mapM (·.getType)
-      throwErrorAt stx m!"Lacking definitions for the following invariants.\n{toMessageList missingTypes}"
+    if let `(invariantsKW| invariants) := invariantsKW then
+      if alts.size < invariants.size then
+        let missingTypes ← invariants[alts.size:].toArray.mapM (·.getType)
+        throwErrorAt stx m!"Lacking definitions for the following invariants.\n{toMessageList missingTypes}"
+    else
+      -- Otherwise, we have `invariants?`. Suggest missing invariants.
+      let mut suggestions := #[]
+      for i in 0...invariants.size do
+        let mv := invariants[i]!
+        if ← mv.isAssigned then
+          continue
+        let invariant ← suggestInvariant mv
+        suggestions := suggestions.push (← `(invariantAlt| · $invariant))
+      let alts' := alts ++ suggestions
+      let stx' ← `(invariantAlts|invariants $alts'*)
+      if suggestions.size > 0 then
+        Lean.Meta.Tactic.TryThis.addSuggestion stx stx'
+      else
+        logInfoAt stx m!"There were no suggestions for missing invariants."
   | _ => logErrorAt stx m!"Expected invariantAlts, got {stx}"
 
 private def patchVCAltIntoCaseTactic (alt : TSyntax ``vcAlt) : TSyntax ``case :=
@@ -432,7 +449,7 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
       Tactic.run vc (Tactic.evalTactic tac *> Tactic.pruneSolvedGoals)
   let invariants ← Term.TermElabM.run' do
     let invariants ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) invariants else pure invariants
-  elabInvariants stx[3] invariants
+  elabInvariants stx[3] invariants (suggestInvariant vcs)
   let vcs ← Term.TermElabM.run' do
     let vcs ← if ctx.config.trivial then runOnVCs (← `(tactic| try mvcgen_trivial)) vcs else pure vcs
     let vcs ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) vcs else pure vcs

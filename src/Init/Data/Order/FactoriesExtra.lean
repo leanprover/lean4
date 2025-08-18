@@ -80,6 +80,8 @@ public def _root_.DecidableLT.ofOrd (α : Type u) [LE α] [LT α] [Ord α] [Lawf
     else
       isFalse (by simpa only [compare_eq_lt] using h)
 
+/--
+Creates a `BEq α` instance from an `Ord α` instance. -/
 @[inline, expose]
 public def _root_.BEq.ofOrd (α : Type u) [Ord α] :
     BEq α where
@@ -97,12 +99,20 @@ public instance instLawfulOrderOrd_ofOrd (α : Type u) [Ord α] [OrientedOrd α]
     isGE_compare := by simp [LE.ofOrd, OrientedCmp.isGE_eq_isLE] }
 
 attribute [local instance] LT.ofOrd in
+/--
+The `LT α` instance obtained from an `Ord α` instance is compatible with the `LE α` instance
+instance if `Ord α` is compatible with it.
+-/
 public instance instLawfulOrderLT_ofOrd {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] :
     LawfulOrderLT α where
   lt_iff {a b} := by
     simp +contextual [LT.lt, ← Std.isLE_compare (a := a), ← Std.isGE_compare (a := a)]
 
 attribute [local instance] BEq.ofOrd in
+/--
+The `BEq α` instance obtained from an `Ord α` instance is compatible with the `LE α` instance
+instance if `Ord α` is compatible with it.
+-/
 public instance instLawfulOrderBEq_ofOrd {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] :
     LawfulOrderBEq α where
   beq_iff_le_and_ge {a b} := by

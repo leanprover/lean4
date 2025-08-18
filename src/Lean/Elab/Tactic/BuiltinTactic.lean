@@ -360,19 +360,20 @@ where
   let stxNew ← liftMacroM <| Term.expandMatchAltsIntoMatchTactic stx matchAlts
   withMacroExpansion stx stxNew <| evalTactic stxNew
 
-@[builtin_tactic «intros»] def evalIntros : Tactic := fun stx =>
-  match stx with
-  | `(tactic| intros) => liftMetaTactic fun mvarId => do
-    let (_, mvarId) ← mvarId.intros
-    return [mvarId]
-  | `(tactic| intros $ids*) => do
+@[builtin_tactic «intros»] def evalIntros : Tactic := fun stx => do
+  let tk := stx[0]
+  let args := stx[1].getArgs
+  if args.isEmpty then
     let fvars ← liftMetaTacticAux fun mvarId => do
-      let (fvars, mvarId) ← mvarId.introN ids.size (ids.map getNameOfIdent').toList
+      let (fvars, mvarId) ← mvarId.intros
       return (fvars, [mvarId])
     withMainContext do
-      for stx in ids, fvar in fvars do
-        Term.addLocalVarInfo stx (mkFVar fvar)
-  | _ => throwUnsupportedSyntax
+      for fvar in fvars do
+        Term.addLocalVarInfo tk (mkFVar fvar)
+  else
+    let args : TSyntaxArray `term := .mk args
+    let stx' ← `(tactic| intro%$tk $args*; intros%$tk)
+    withMacroExpansion stx stx' <| evalTactic stx'
 
 @[builtin_tactic Lean.Parser.Tactic.revert] def evalRevert : Tactic := fun stx =>
   match stx with

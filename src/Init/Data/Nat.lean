@@ -10,6 +10,7 @@ public import Init.Data.Nat.Basic
 public import Init.Data.Nat.Div
 public import Init.Data.Nat.Dvd
 public import Init.Data.Nat.Gcd
+public import Init.Data.Nat.Coprime
 public import Init.Data.Nat.MinMax
 public import Init.Data.Nat.Order
 public import Init.Data.Nat.Bitwise

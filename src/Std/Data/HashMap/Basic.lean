@@ -247,6 +247,13 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
     {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
   ⟨DHashMap.Const.insertManyIfNewUnit m.inner l⟩
 
+@[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :
+    Array (α × β) :=
+  DHashMap.Const.toArray m.inner
+
+@[inline, inherit_doc DHashMap.keysArray] def keysArray (m : HashMap α β) :
+    Array α :=
+  m.inner.keysArray
 
 section Unverified
 
@@ -256,14 +263,6 @@ section Unverified
     (m : HashMap α β) : HashMap α β × HashMap α β :=
   let ⟨l, r⟩ := m.inner.partition f
   ⟨⟨l⟩, ⟨r⟩⟩
-
-@[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :
-    Array (α × β) :=
-  DHashMap.Const.toArray m.inner
-
-@[inline, inherit_doc DHashMap.keysArray] def keysArray (m : HashMap α β) :
-    Array α :=
-  m.inner.keysArray
 
 @[inline, inherit_doc DHashMap.values] def values (m : HashMap α β) : List β :=
   m.inner.values

@@ -102,26 +102,22 @@ private def checkEndHeader : Name → List Scope → Option Name
   | _, _ => some .anonymous -- should not happen
 
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx => do
-  let isSoft := Lean.Elab.implicit.get (←getOptions)
-  trace[Elab] "elabNamespace: isSoft: {isSoft}"
   match stx with
-  | `(namespace $n) => addNamespace n.getId isSoft
+  | `(namespace $[+soft%$softTk]? $n) => addNamespace n.getId softTk.isSome
   | _               => throwUnsupportedSyntax
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
-  let localNonDelimiting := Lean.Elab.implicit.get (←getOptions)
-  trace[Elab] "elabSection: localNonDelimiting: {localNonDelimiting}"
   match stx with
-  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $(header?)?) =>
+  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $[+soft%$softTk]? $(header?)?) =>
     -- TODO: allow more attributes?
     let attrs ← if expTk.isSome then
       pure [← `(Parser.Term.attrInstance| expose)]
     else
       pure []
     if let some header := header? then
-      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId (localNonDelimiting := localNonDelimiting)
+      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId (localNonDelimiting := softTk.isSome)
     else
-      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (localNonDelimiting := localNonDelimiting)
+      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (localNonDelimiting := softTk.isSome)
   | _                        => throwUnsupportedSyntax
 
 /--
@@ -508,7 +504,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(set_option Lean.Elab.implicit true section $cmd₁:command $cmd₂ end set_option Lean.Elab.implicit false)
+    withRef tk `(section +soft $cmd₁:command $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do

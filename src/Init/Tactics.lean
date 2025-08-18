@@ -32,7 +32,7 @@ Introduces one or more hypotheses, optionally naming and/or pattern-matching the
 For each hypothesis to be introduced, the remaining main goal's target type must
 be a `let` or function type.
 
-* `intro` by itself introduces one anonymous hypothesis, which can be accessed
+* `intro` by itself introduces one inaccessible (anonymous) hypothesis, which can be accessed
   by e.g. `assumption`.
 * `intro x y` introduces two hypotheses and names them. Individual hypotheses
   can be anonymized via `_`, or matched against a pattern:
@@ -51,56 +51,26 @@ be a `let` or function type.
 syntax (name := intro) "intro" notFollowedBy("|") (ppSpace colGt term:max)* : tactic
 
 /--
-Introduces all obvious hypotheses, optionally naming them.
+Introduces zero or more hypotheses, optionally naming and/or pattern-matching them,
+until the goal is no longer a *binding expression* (i.e., a universal quantifier, function type, implication, or `have`/`let`).
 
-- `intros` is equivalent to `intro _ _ _` with sufficiently many placeholders
-  to introduce all obvious `intro` candidates.
-  In other words, it is equivalent to repeatedly applying `intro` until
-  so long as the goal is an implication, universal quantifier, or a `let`/`have`,
-  without unfolding definitions.
-  The introduced hypotheses have inaccessible names
+- `intros` repeatedly applies `intro` so long as the goal is a binding expression,
+  *without* performing any definitional reductions (e.g. unfolding definitions).
+  The introduced hypotheses receive inaccessible (hygienic) names.
 
-- `intros x y` is equivalent to `intro x y; intros`,
-  which means that it will introduce at least two hypotheses, naming the first two `x` and `y`,
-  unfolding definitions as necessary for the supplied arguments.
-  After introducing these hypotheses, it continues with introducing obvious `intro` candidates.
-  The syntax for arguments is the same as for `intro`;
-  for example, the arguments may be `_` to use inaccessible names.
+- `intros x y` is similar but uses the names `x` and `y` for the first two introduced hypotheses,
+  performing whatever definitional reductions are necessary for `intro` to expose those binders.
+  The tactic accepts the same argument syntax as `intro` (identifiers, `_` placeholders, type ascriptions, and patterns).
+
+## Properties and relations
+
+- `intros x y` is equivalent to `intro x y; intros`.
+
+- `intros x y` is also equivalent to `intro x y _ _ … _`,
+  with the fewest `_` placeholders needed for the goal not to be a binding expression.
+  The introductions for these placeholders do not perform any definitional reductions.
 
 ## Examples
-
-Basic properties:
-```lean
-def AllEven (f : Nat → Nat) := ∀ n, f n % 2 = 0
-
--- Introduces the two obvious hypotheses automatically
-example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
-  intros
-  /- Tactic state
-     f✝ : Nat → Nat
-     a✝ : AllEven f✝
-     ⊢ AllEven fun k => f✝ (k + 1) -/
-  sorry
-
--- Introduces the two obvious hypotheses, naming only the first
-example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
-  intros g
-  /- Tactic state
-     g : Nat → Nat
-     a✝ : AllEven g
-     ⊢ AllEven fun k => g (k + 1) -/
-  sorry
-
--- Introduces exactly three hypotheses, which requires unfolding `AllEven`
-example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
-  intros f h n
-  /- Tactic state
-     f : Nat → Nat
-     h : AllEven f
-     n : Nat
-     ⊢ (fun k => f (k + 1)) n % 2 = 0 -/
-  apply h
-```
 
 Implications:
 ```lean
@@ -112,6 +82,25 @@ example (p q : Prop) : p → q → p := by
      ⊢ p      -/
   assumption
 ```
+Note: the inaccessible (hygienic) names can later be renamed with `rename_i`.
+
+Avoids unfolding:
+```lean
+example : ∀ (n : Nat), 0 < n → ¬ n = 0 := by
+  intros
+  /- Tactic state
+     n✝ : Nat
+     a✝ : 0 < n✝
+     ⊢ ¬n✝ = 0 -/
+  intro
+  /- Tactic state
+     n✝ : Nat
+     a✝¹ : 0 < n✝
+     a✝ : n✝ = 0
+     ⊢ False -/
+  subst_vars; simp at *
+```
+(The `Not` would be unfolded if it were `intros _ _ _`.)
 
 Let/have bindings:
 ```lean
@@ -121,6 +110,35 @@ example : let n := 1; have k := 2; n + k = 3 := by
      k✝ : Nat := 2
      ⊢ n✝ + k✝ = 3 -/
   rfl
+```
+
+Definition-unfolding properties:
+```lean
+def Injective (f : Nat → Nat) := ∀ m n, f m = f n → m = n
+
+-- Introduces the two obvious hypotheses, naming only the first
+example : ∀ (f : Nat → Nat), Injective f → Injective (fun k => f (k + 1)) := by
+  intros g
+  /- Tactic state
+     g : Nat → Nat
+     a✝ : Injective g
+     ⊢ Injective fun k => g (k + 1) -/
+  sorry
+
+-- Introduces five hypotheses, naming the first three.
+-- After unfolding `Injective` to expose a `∀` to introduce `m`,
+-- `intros` continues introducing two more hypotheses.
+example : ∀ (f : Nat → Nat), Injective f → Injective (fun k => f (k + 1)) := by
+  intros f h m
+  /- Tactic state
+     f : Nat → Nat
+     h : Injective f
+     m n✝ : Nat
+     a✝ : (fun k => f (k + 1)) m = (fun k => f (k + 1)) n✝
+     ⊢ m = n✝ -/
+  rw [← Nat.succ_inj]
+  apply h
+  assumption
 ```
 -/
 syntax (name := intros) "intros" (ppSpace colGt term:max)* : tactic

@@ -58,7 +58,7 @@ theorem pairwise_lt_range' {s n} (step := 1) (pos : 0 < step := by simp) :
   | s, n + 1, step, pos => by
     simp only [range'_succ, pairwise_cons]
     constructor
-    · intros n m
+    · intro n m
       rw [mem_range'] at m
       omega
     · exact pairwise_lt_range' (s := s + step) step pos
@@ -70,7 +70,7 @@ theorem pairwise_le_range' {s n} (step := 1) :
   | s, n + 1, step => by
     simp only [range'_succ, pairwise_cons]
     constructor
-    · intros n m
+    · intro n m
       rw [mem_range'] at m
       omega
     · exact pairwise_le_range' (s := s + step) step

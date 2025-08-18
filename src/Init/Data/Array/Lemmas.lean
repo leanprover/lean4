@@ -312,7 +312,7 @@ theorem eq_push_pop_back!_of_size_ne_zero [Inhabited α] {xs : Array α} (h : xs
     xs = xs.pop.push xs.back! := by
   apply ext
   · simp [Nat.sub_add_cancel (Nat.zero_lt_of_ne_zero h)]
-  · intros i h h'
+  · intro i h h'
     if hlt : i < xs.pop.size then
       rw [getElem_push_lt (h:=hlt), getElem_pop]
     else
@@ -2954,7 +2954,7 @@ theorem getElem?_extract {xs : Array α} {start stop : Nat} :
   apply List.ext_getElem
   · simp only [length_toList, size_extract, List.length_take, List.length_drop]
     omega
-  · intros n h₁ h₂
+  · intro n h₁ h₂
     simp
 
 @[simp] theorem extract_size {xs : Array α} : xs.extract 0 xs.size = xs := by

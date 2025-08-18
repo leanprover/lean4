@@ -45,5 +45,6 @@ builtin_initialize registerTraceClass `grind.debug.cutsat.internalize
 builtin_initialize registerTraceClass `grind.debug.cutsat.toInt
 builtin_initialize registerTraceClass `grind.debug.cutsat.search.cnstrs
 builtin_initialize registerTraceClass `grind.debug.cutsat.search.reorder
+builtin_initialize registerTraceClass `grind.debug.cutsat.elimEq
 
 end Lean

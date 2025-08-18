@@ -122,7 +122,7 @@ theorem extractAndExtendPopulate_decl_eq (aig : AIG α) (x : AIG.RefVec aig w) (
   · simp [← hres]
 
 /-- Given a vector of references belonging to the same AIG `oldParSum`, we create a node to add the `curr`-th couple of elements and push the add node to `newParSum` -/
-def blastAddVec (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : RefVecVec aig w inputNodes) (newParSum : RefVecVec aig w (currNode/2)) (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes) : RefVecEntryVec α w ((inputNodes + 1)/2) :=
+def blastAddVec (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : RefVecVec aig w inputNodes) (newParSum : RefVecVec aig w newLen) (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes) (hnewLen : newLen = (currNode/2) ) : RefVecEntryVec α w ((inputNodes + 1)/2) :=
     if hc1 : currNode < inputNodes then
       let nextCurr := currNode + 2
       have hcast : currNode / 2 + 1 = nextCurr/2 := by omega
@@ -135,7 +135,7 @@ def blastAddVec (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : RefVecVec
         let oldParSum := oldParSum.cast (aig2 := res.aig) this
         let newParSum := newParSum.cast (aig2 := res.aig) this -- this should be redundant because when the new element is pushed casting occurs, but we'll leave it there for now
         let newVec := newParSum.push add (by omega) -- now we don't need hypotheses in the push because the aigs have been cast already :) and omega suffices
-        blastAddVec aig nextCurr inputNodes oldParSum (hcast▸newVec) (by omega) (by omega) hw hw'
+        blastAddVec aig nextCurr inputNodes oldParSum (newVec) (by omega) (by omega) hw hw' (by omega)
       else
         let zero := blastConst aig (w := w) 0
         let res := blastAdd aig ⟨oldParSum.vec.get ⟨currNode, hc1⟩, zero⟩
@@ -145,14 +145,14 @@ def blastAddVec (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : RefVecVec
         let oldParSum := oldParSum.cast (aig2 := res.aig) this
         let newParSum := newParSum.cast (aig2 := res.aig) this -- this should be redundant because when the new element is pushed casting occurs, but we'll leave it there for now
         let newVec := newParSum.push add (by omega) -- now we don't need hypotheses in the push because the aigs have been cast already :) and omega suffices
-        blastAddVec aig (currNode := nextCurr) (inputNodes := inputNodes) (oldParSum := oldParSum) (newParSum := hcast▸newVec) (by omega) (by omega) hw hw'
+        blastAddVec aig (currNode := nextCurr) (inputNodes := inputNodes) (oldParSum := oldParSum) (newParSum := newVec) (by omega) (by omega) hw hw' (by omega)
     else
-      have hcast : currNode / 2 = (inputNodes + 1)/2 := by
+      have hcast : newLen = (inputNodes + 1)/2 := by
         by_cases heven' : inputNodes % 2 = 0 <;> omega
       ⟨aig, hcast▸newParSum⟩
 
-theorem addVec_le_size (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : RefVecVec aig w inputNodes) (newParSum : RefVecVec aig w (currNode/2)) (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes) :
-    aig.decls.size ≤ (blastAddVec aig currNode inputNodes oldParSum newParSum heven hle hw hw').aig.decls.size := by
+theorem addVec_le_size (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : RefVecVec aig w inputNodes) (newParSum : RefVecVec aig w newLen) (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes) (hnewlen : newLen = currNode/2) :
+    aig.decls.size ≤ (blastAddVec aig currNode inputNodes oldParSum newParSum heven hle hw hw' hnewlen).aig.decls.size := by
   unfold blastAddVec
   dsimp only
   split
@@ -160,10 +160,10 @@ theorem addVec_le_size (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : Re
     <;> (refine Nat.le_trans ?_ (by apply addVec_le_size); apply AIG.LawfulVecOperator.le_size)
   · simp
 
-theorem addVec_decl_eq (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : RefVecVec aig w inputNodes) (newParSum : RefVecVec aig w (currNode/2)) (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes) :
+theorem addVec_decl_eq (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : RefVecVec aig w inputNodes) (newParSum : RefVecVec aig w newLen) (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes) (hnewlen : newLen = currNode/2):
     ∀ (idx : Nat) (h1) (h2),
-        (blastAddVec aig currNode inputNodes oldParSum newParSum heven hle hw hw').aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
-  generalize hres : blastAddVec aig currNode inputNodes oldParSum newParSum heven hle hw hw' = res
+        (blastAddVec aig currNode inputNodes oldParSum newParSum heven hle hw hw' hnewlen).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+  generalize hres : blastAddVec aig currNode inputNodes oldParSum newParSum heven hle hw hw' hnewlen = res
   unfold blastAddVec at hres
   dsimp only at hres
   split at hres
@@ -201,7 +201,7 @@ where
     let outpuVec : Vector (AIG.RefVec aig w) 0 := Vector.emptyWithCapacity 0
     let outpuRefVec : RefVecVec aig w 0 := {vec := outpuVec}
     -- inputNodes = 2^n, 2^n-1, ...
-    let res := blastAddVec aig (currNode := 0) (inputNodes := inputNodes) (oldParSum := parSum) (newParSum := outpuRefVec) (by omega) (by omega) (by omega) (by omega)
+    let res := blastAddVec aig (currNode := 0) (inputNodes := inputNodes) (oldParSum := parSum) (newParSum := outpuRefVec) (by omega) (by omega) (by omega) (by omega) (by omega)
     let aig := res.aig
     let addNodesVec := res.vec
     go aig w ((inputNodes + 1)/2) addNodesVec hw (by omega) (by omega)
@@ -243,17 +243,17 @@ theorem go_decl_eq (w inputNodes: Nat) (aig : AIG α) (parSum : RefVecVec aig w 
   · rw [← hgo]
     intros
     rw [go_decl_eq]
-    · have := addVec_decl_eq aig 0 inputNodes parSum
+    · have := addVec_decl_eq aig 0 inputNodes parSum (newLen := 0)
       (expose_names;
         refine
           this { vec := Vector.emptyWithCapacity 0 } (_proof_2 w inputNodes)
-            (_proof_4 w inputNodes h) hw' h idx ?_ h2)
-    · have := addVec_le_size aig 0 inputNodes parSum
+            (_proof_4 w inputNodes h) hw' h (_proof_6 w inputNodes) idx ?_ h2)
+    · have := addVec_le_size aig 0 inputNodes parSum (newLen := 0)
       (expose_names;
         exact
           Nat.lt_of_lt_of_le h2
             (this { vec := Vector.emptyWithCapacity 0 } (_proof_2 w inputNodes)
-              (_proof_4 w inputNodes h) hw' h))
+              (_proof_4 w inputNodes h) hw' h (_proof_6 w inputNodes)))
   · simp [← hgo]
 
 instance : AIG.LawfulVecOperator α AIG.RefVec blastPopCount where
@@ -272,8 +272,8 @@ instance : AIG.LawfulVecOperator α AIG.RefVec blastPopCount where
     · have := extractAndExtendPopulate_decl_eq aig (start := 0) input
       have := extractAndExtendPopulate_le_size aig (start := 0) input
       rw [go_decl_eq]
-      (expose_names; refine this_1 { vec := Vector.emptyWithCapacity 0 } (_proof_12 h) idx h1 ?_)
-      exact Nat.lt_of_lt_of_le h1 (this { vec := Vector.emptyWithCapacity 0 } (_proof_12 h))
+      (expose_names; refine this_1 { vec := Vector.emptyWithCapacity 0 } (_proof_14 h) idx h1 ?_)
+      exact Nat.lt_of_lt_of_le h1 (this { vec := Vector.emptyWithCapacity 0 } (_proof_14 h))
     · simp
 
 end blastPopCount

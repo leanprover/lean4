@@ -358,11 +358,16 @@ def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
       }
       let preInfo := suggestion.preInfo?.getD ""
       let postInfo := suggestion.postInfo?.getD ""
+      let diffString :=
+        if suggestion.diffGranularity matches .none then
+          edits.foldl (· ++ ·.2) ""
+        else
+          mkDiffString edits
       let widget := MessageData.ofWidget {
           id := ``tryThisDiffWidget
           javascriptHash := tryThisDiffWidget.javascriptHash
           props := return json
-        } (suggestion.messageData?.getD (mkDiffString edits))
+        } diffString
       let widgetMsg := m!"{preInfo}{widget}{postInfo}"
       let suggestionMsg := if suggestions.size == 1 && !forceList then
         m!"\n{widgetMsg}"

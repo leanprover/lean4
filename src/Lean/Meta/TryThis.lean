@@ -171,11 +171,11 @@ structure Suggestion where
   deriving Inhabited
 
 attribute [deprecated "The `style?` property is not used anymore." (since := "2025-08-14")] Suggestion.style?
+attribute [deprecated "The `messageData?` property is not used anymore." (since := "2025-08-14")] Suggestion.messageData?
 
-/- If `messageData?` is specified, we use that; otherwise (by default), we use `toMessageData` of
-the suggestion text. -/
+/- Use `toMessageData` of the suggestion text. -/
 instance : ToMessageData Suggestion where
-  toMessageData s := s.messageData?.getD (toMessageData s.suggestion)
+  toMessageData s := toMessageData s.suggestion
 
 instance : Coe SuggestionText Suggestion where
   coe t := { suggestion := t }

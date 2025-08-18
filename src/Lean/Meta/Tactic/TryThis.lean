@@ -87,9 +87,6 @@ The parameters are:
     message (only)
   * `postInfo?`: an optional string shown immediately after the replacement text in the widget
     message (only)
-  * `messageData?`: an optional message to display in place of `suggestion` in the info diagnostic
-    (only). The widget message uses only `suggestion`. If `messageData?` is `none`, we simply use
-    `suggestion` instead.
   * `toCodeActionTitle?`: an optional function `String → String` describing how to transform the
     pretty-printed suggestion text into the code action text which appears in the lightbulb menu.
     If `none`, we simply prepend `"Try This: "` to the suggestion text.
@@ -125,17 +122,13 @@ The parameters are:
     message (only)
   * `postInfo?`: an optional string shown immediately after the replacement text in the widget
     message (only)
-  * `_style?` (**deprecated**): unused.
-  * `messageData?`: an optional message to display in place of `suggestion` in the info diagnostic
-    (only). The widget message uses only `suggestion`. If `messageData?` is `none`, we simply use
-    `suggestion` instead.
   * `toCodeActionTitle?`: an optional function `String → String` describing how to transform the
     pretty-printed suggestion text into the code action text which appears in the lightbulb menu.
     If `none`, we simply prepend `"Try This: "` to the suggestion text.
 * `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
   If not provided it defaults to `ref`.
 * `header`: a string that precedes the list. By default, it is `"Try these:"`.
-* `style?`: a default style for all suggestions which do not have a custom `style?` set.
+* `_style?` (**deprecated**): unused.
 * `codeActionPrefix?`: an optional string to be used as the prefix of the replacement text for all
   suggestions which do not have a custom `toCodeActionTitle?`. If not provided, `"Try this: "` is
   used.

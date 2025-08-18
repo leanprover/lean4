@@ -120,7 +120,7 @@ def benchInsertMissEmpty (seed : UInt64) (size : Nat) : IO Float := do
     while todo != 0 do
       let mut map : Lean.PersistentHashMap _ _ := {}
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insert val s!"{val}"
+        map := map.insert val val
         if map.isEmpty then
           throw <| .userError "Fail"
       todo := todo - size
@@ -137,7 +137,7 @@ def benchInsertMissEmptyShared (seed : UInt64) (size : Nat) : IO Float := do
       let mut map : Lean.PersistentHashMap _ _ := {}
       let mut maps := Array.emptyWithCapacity size
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insert val s!"{val}"
+        map := map.insert val val
         if map.isEmpty then
           throw <| .userError "Fail"
         maps := maps.push map

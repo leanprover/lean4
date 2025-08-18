@@ -134,7 +134,7 @@ def benchInsertRandomMissEmpty (seed : UInt64) (size : Nat) : IO Float := do
     while todo != 0 do
       let mut map : Std.TreeMap UInt64 _ := {}
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insert val s!"{val}"
+        map := map.insert val val
         if map.size > size then
           throw <| .userError "Fail"
       todo := todo - size
@@ -149,7 +149,7 @@ def benchInsertSequentialMissEmpty (_seed : UInt64) (size : Nat) : IO Float := d
     while todo != 0 do
       let mut map : Std.TreeMap UInt64 _ := {}
       for val in [0:size] do
-        map := map.insert val.toUInt64 s!"{val}"
+        map := map.insert val.toUInt64 val
         if map.size > size then
           throw <| .userError "Fail"
       todo := todo - size
@@ -166,7 +166,7 @@ def benchInsertRandomMissEmptyShared (seed : UInt64) (size : Nat) : IO Float := 
       let mut map : Std.TreeMap UInt64 _ := {}
       let mut maps := Array.emptyWithCapacity size
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insert val s!"{val}"
+        map := map.insert val val
         if map.isEmpty then
           throw <| .userError "Fail"
         maps := maps.push map

@@ -137,7 +137,7 @@ def benchInsertMissEmpty (seed : UInt64) (size : Nat) : IO Float := do
     while todo != 0 do
       let mut map : Std.HashMap _ _ := {}
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insert val s!"{val}"
+        map := map.insert val val
         if map.size > size then
           throw <| .userError "Fail"
       todo := todo - size
@@ -152,7 +152,7 @@ def benchInsertMissEmptyWithCapacity (seed : UInt64) (size : Nat) : IO Float := 
     while todo != 0 do
       let mut map := Std.HashMap.emptyWithCapacity size
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insert val s!"{val}"
+        map := map.insert val val
         if map.size > size then
           throw <| .userError "Fail"
       todo := todo - size

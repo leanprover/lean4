@@ -2893,14 +2893,14 @@ theorem getElem_extract_loop_ge_aux {xs ys : Array α} {size start : Nat} (hge :
   exact Nat.sub_lt_left_of_lt_add hge h
 
 theorem getElem_extract_loop_ge {xs ys : Array α} {size start : Nat} (hge : i ≥ ys.size)
-    (h : i < (extract.loop xs size start ys).size)
-    (h' := getElem_extract_loop_ge_aux hge h) :
-    (extract.loop xs size start ys)[i] = xs[start + i - ys.size] := by
+    (h : i < (extract.loop xs size start ys).size) :
+    (extract.loop xs size start ys)[i] = xs[start + i - ys.size]'(getElem_extract_loop_ge_aux hge h) := by
   induction size using Nat.recAux generalizing start ys with
   | zero =>
     rw [size_extract_loop, Nat.zero_min, Nat.add_zero] at h
     omega
   | succ size ih =>
+    have h' : start + i - ys.size < xs.size := getElem_extract_loop_ge_aux hge h
     have : start < xs.size := by
       apply Nat.lt_of_le_of_lt (Nat.le_add_right start (i - ys.size))
       rwa [← Nat.add_sub_assoc hge]

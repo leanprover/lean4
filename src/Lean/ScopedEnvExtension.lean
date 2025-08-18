@@ -23,7 +23,7 @@ inductive Entry (α : Type) where
 structure State (σ : Type) where
   state        : σ
   activeScopes : NameSet := {}
-  soft : Bool := false
+  localNonDelimiting : Bool := false
 
 structure ScopedEntries (β : Type) where
   map : SMap Name (PArray β) := {}
@@ -133,11 +133,11 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
 @[implemented_by registerScopedEnvExtensionUnsafe]
 opaque registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
 
-def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) (soft : Bool := false) : Environment :=
+def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) (localNonDelimiting : Bool := false) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
     match s.stateStack with
     | [] => s
-    | state :: stack => { s with stateStack := {state with soft := soft}  :: state :: stack }
+    | state :: stack => { s with stateStack := {state with localNonDelimiting := localNonDelimiting}  :: state :: stack }
 
 def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
@@ -151,17 +151,17 @@ def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Envir
 def ScopedEnvExtension.addScopedEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) (b : β) : Environment :=
   ext.ext.addEntry env (Entry.«scoped» namespaceName b)
 
-def stateStackSoftModify (ext : ScopedEnvExtension α β σ) (states : List (State σ)) (b : β) : List (State σ) :=
+def stateStackModify (ext : ScopedEnvExtension α β σ) (states : List (State σ)) (b : β) : List (State σ) :=
   match states with
   | [] => states
   | top :: states =>
     let top := { top with state := ext.descr.addEntry top.state b }
-    let bot := if top.soft then stateStackSoftModify ext states b else states
+    let bot := if top.localNonDelimiting then stateStackModify ext states b else states
     top :: bot
 
 def ScopedEnvExtension.addLocalEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
-    {s with stateStack := stateStackSoftModify ext s.stateStack b}
+    {s with stateStack := stateStackModify ext s.stateStack b}
 
 def ScopedEnvExtension.addCore (env : Environment) (ext : ScopedEnvExtension α β σ) (b : β) (kind : AttributeKind) (namespaceName : Name) : Environment :=
   match kind with
@@ -205,9 +205,9 @@ def ScopedEnvExtension.modifyState (ext : ScopedEnvExtension α β σ) (env : En
     | top :: stack => { s with stateStack := { top with state := f top.state } :: stack }
     | _ => s
 
-def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (soft : Bool := false) : m Unit := do
+def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (localNonDelimiting : Bool := false) : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do
-    modifyEnv (ext.pushScope (soft := soft))
+    modifyEnv (ext.pushScope (localNonDelimiting := localNonDelimiting))
 
 def popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do

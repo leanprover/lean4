@@ -38,9 +38,9 @@ private def getParent (scopes : List Scope) : Name :=
 scopes.head!.currNamespace
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
-    (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (soft : Bool := false) :
+    (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (localNonDelimiting : Bool := false) :
     CommandElabM Unit := do
-  trace[Elab] "adding scope, isNewNamespace: {isNewNamespace}, header: {header}, newNamespace: {newNamespace}, isNoncomputable: {isNoncomputable}, isPublic: {isPublic}, attrs: {attrs}, isSoft: {soft}"
+  trace[Elab] "adding scope, isNewNamespace: {isNewNamespace}, header: {header}, newNamespace: {newNamespace}, isNoncomputable: {isNoncomputable}, isPublic: {isPublic}, attrs: {attrs}, isSoft: {localNonDelimiting}"
   modify fun s => { s with
     env    := s.env.registerNamespace newNamespace,
     scopes := { s.scopes.head! with
@@ -51,7 +51,7 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
     } :: s.scopes,
   }
   -- here I would pass the flag
-  pushScope (soft := soft)
+  pushScope (localNonDelimiting := localNonDelimiting)
   if isNewNamespace then
     activateScoped newNamespace
   -- if soft then
@@ -62,30 +62,26 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
 
 
 private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic : Bool := false)
-    (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (soft : Bool := false) : CommandElabM Unit :=
+    (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (localNonDelimiting : Bool := false) : CommandElabM Unit :=
   go header
 where go
   | .anonymous => pure ()
   | .str p header => do
     go p
     let currNamespace ← getCurrNamespace
-    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic attrs (soft := soft)
+    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic attrs (localNonDelimiting := localNonDelimiting)
   | _ => throwError "invalid scope"
 
-private def addNamespace (header : Name) (soft : Bool := false) : CommandElabM Unit := do
-  trace[Elab] "addNamespace: header: {header}, soft: {soft} "
-  addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header (soft := soft)
+private def addNamespace (header : Name) (localNonDelimiting : Bool := false) : CommandElabM Unit := do
+  trace[Elab] "addNamespace: header: {header}, soft: {localNonDelimiting} "
+  addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header (localNonDelimiting := localNonDelimiting)
 
-def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) (soft : Bool := false) : CommandElabM α := do
-  trace[Elab] "withNamespace ns: {ns}, soft: {soft}"
-  addNamespace ns soft
+def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) (localNonDelimiting : Bool := false) : CommandElabM α := do
+  trace[Elab] "withNamespace ns: {ns}, soft: {localNonDelimiting}"
+  addNamespace ns localNonDelimiting
   let a ← elabFn
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }
   pure a
-
--- def withSoftNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
---   trace[Elab] "ns: {ns}, ns.isAnonymous: {ns.isAnonymous}"
---   if ns.isAnonymous then elabFn else withNamespace ns elabFn (soft := true)
 
 private def popScopes (numScopes : Nat) : CommandElabM Unit :=
   for _ in *...numScopes do
@@ -113,8 +109,8 @@ private def checkEndHeader : Name → List Scope → Option Name
   | _               => throwUnsupportedSyntax
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
-  let isSoft := Lean.Elab.implicit.get (←getOptions)
-  trace[Elab] "elabSection: isSoft: {isSoft}"
+  let localNonDelimiting := Lean.Elab.implicit.get (←getOptions)
+  trace[Elab] "elabSection: localNonDelimiting: {localNonDelimiting}"
   match stx with
   | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $(header?)?) =>
     -- TODO: allow more attributes?
@@ -123,9 +119,9 @@ private def checkEndHeader : Name → List Scope → Option Name
     else
       pure []
     if let some header := header? then
-      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId (soft := isSoft)
+      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId (localNonDelimiting := localNonDelimiting)
     else
-      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (soft := isSoft)
+      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (localNonDelimiting := localNonDelimiting)
   | _                        => throwUnsupportedSyntax
 
 /--

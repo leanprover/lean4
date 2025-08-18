@@ -339,7 +339,7 @@ and all functions are defined using the `CCPO` instance for `Option`.
 -/
 def isOptionFixpoint (env : Environment) (name : Name) : Bool := Option.isSome do
   let eqnInfo ← eqnInfoExt.find? env name
-  --guard <| name == eqnInfo.declNames[0]!
+  guard <| name == eqnInfo.declNames[0]!
   let defnInfo ← env.find? eqnInfo.declNameNonRec
   assert! defnInfo.hasValue
   let mut value := defnInfo.value!

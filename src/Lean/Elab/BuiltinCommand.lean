@@ -30,17 +30,9 @@ namespace Lean.Elab.Command
     modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
   | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
-register_option Lean.Elab.implicit : Bool := {
-  defValue := false
-}
-
-private def getParent (scopes : List Scope) : Name :=
-scopes.head!.currNamespace
-
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
     (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (localNonDelimiting : Bool := false) :
     CommandElabM Unit := do
-  trace[Elab] "adding scope, isNewNamespace: {isNewNamespace}, header: {header}, newNamespace: {newNamespace}, isNoncomputable: {isNoncomputable}, isPublic: {isPublic}, attrs: {attrs}, isSoft: {localNonDelimiting}"
   modify fun s => { s with
     env    := s.env.registerNamespace newNamespace,
     scopes := { s.scopes.head! with
@@ -48,18 +40,11 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
       isNoncomputable := s.scopes.head!.isNoncomputable || isNoncomputable
       isPublic := s.scopes.head!.isPublic || isPublic
       attrs := s.scopes.head!.attrs ++ attrs
-    } :: s.scopes,
+    } :: s.scopes
   }
-  -- here I would pass the flag
-  pushScope (localNonDelimiting := localNonDelimiting)
+  pushScope localNonDelimiting
   if isNewNamespace then
     activateScoped newNamespace
-  -- if soft then
-  --   let parent := getParent (← get).scopes
-  --   trace[Elab] "parent: {parent}, parent.prefix: {parent.getPrefix}"
-  --   let parent := if isNewNamespace then parent.getPrefix else parent
-  --   activateSoft parent
-
 
 private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic : Bool := false)
     (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (localNonDelimiting : Bool := false) : CommandElabM Unit :=
@@ -73,11 +58,9 @@ where go
   | _ => throwError "invalid scope"
 
 private def addNamespace (header : Name) (localNonDelimiting : Bool := false) : CommandElabM Unit := do
-  trace[Elab] "addNamespace: header: {header}, soft: {localNonDelimiting} "
   addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header (localNonDelimiting := localNonDelimiting)
 
 def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) (localNonDelimiting : Bool := false) : CommandElabM α := do
-  trace[Elab] "withNamespace ns: {ns}, soft: {localNonDelimiting}"
   addNamespace ns localNonDelimiting
   let a ← elabFn
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }

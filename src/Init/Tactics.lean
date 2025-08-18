@@ -56,14 +56,14 @@ Introduces all obvious hypotheses, optionally naming them.
 - `intros` is equivalent to `intro _ _ _` with sufficiently many placeholders
   to introduce all obvious `intro` candidates.
   In other words, it is equivalent to repeatedly applying `intro` until
-  so long as the goal is an implication, universal quantifier, function, or a `let`/`have`,
+  so long as the goal is an implication, universal quantifier, or a `let`/`have`,
   without unfolding definitions.
   The introduced hypotheses have inaccessible names
 
 - `intros x y` is equivalent to `intro x y; intros`,
   which means that it will introduce at least two hypotheses, naming the first two `x` and `y`,
   unfolding definitions as necessary for the supplied arguments.
-  After these hypotheses, it reverts to repeatedly applying `intro` until the goal is not an obvious candidate for it.
+  After introducing these hypotheses, it continues with introducing obvious `intro` candidates.
   The syntax for arguments is the same as for `intro`;
   for example, the arguments may be `_` to use inaccessible names.
 

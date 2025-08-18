@@ -129,6 +129,7 @@ def getInductionPrinciplePostfix (name : Name) (isMutual : Bool) : MetaM Name :=
   | .partialFixpoint, false => return `fixpoint_induct
   | .inductiveFixpoint, false => return `induct
   | .coinductiveFixpoint, false => return `coinduct
+  | .partialFixpoint, true => return `mutual_fixpoint_induct
   | _, true => return `mutual_induct
 
 def deriveInduction (name : Name) (isMutual : Bool) : MetaM Unit := do
@@ -313,7 +314,11 @@ def isInductName (env : Environment) (name : Name) : Bool := Id.run do
     return false
   | "mutual_induct" =>
     if let some eqnInfo := eqnInfoExt.find? env p then
-      return eqnInfo.declNames[0]! == p && eqnInfo.declNames.size > 1
+      return eqnInfo.declNames[0]! == p && eqnInfo.declNames.size > 1 && eqnInfo.fixpointType.all isLatticeTheoretic
+    return false
+  | "mutual_fixpoint_induct" =>
+    if let some eqnInfo := eqnInfoExt.find? env p then
+      return eqnInfo.declNames[0]! == p && eqnInfo.declNames.size > 1 && eqnInfo.fixpointType.all isPartialFixpoint
     return false
   | _ => return false
 
@@ -323,7 +328,7 @@ builtin_initialize
   registerReservedNameAction fun name => do
     if isInductName (← getEnv) name then
       let .str p s := name | return false
-      let isMutual := s.endsWith "mutual_induct"
+      let isMutual := s.endsWith "mutual_induct" || s.endsWith "mutual_fixpoint_induct"
       MetaM.run' <| deriveInduction p isMutual
       return true
     return false
@@ -354,7 +359,7 @@ def isPartialCorrectnessName (env : Environment) (name : Name) : Bool := Id.run 
   | "partial_correctness" => return isOptionFixpoint env p
   | "mutual_partial_correctness" =>
     if let some eqnInfo := eqnInfoExt.find? env p then
-      return isOptionFixpoint env p && eqnInfo.declNames.size > 1
+      return eqnInfo.declNames[0]! == p && isOptionFixpoint env p && eqnInfo.declNames.size > 1
     return false
   | _ => return false
 
@@ -379,7 +384,7 @@ def mkOptionAdm (motive : Expr) : MetaM Expr := do
 def derivePartialCorrectness (name : Name) (isConclusionMutual : Bool) : MetaM Unit := do
   let inductName := name ++ if isConclusionMutual then `mutual_partial_correctness else `partial_correctness
   realizeConst name inductName do
-  let fixpointInductThm := name ++ if isConclusionMutual then `mutual_induct else `fixpoint_induct
+  let fixpointInductThm := name ++ if isConclusionMutual then `mutual_fixpoint_induct else `fixpoint_induct
   unless (← getEnv).contains fixpointInductThm do
     deriveInduction name isConclusionMutual
 

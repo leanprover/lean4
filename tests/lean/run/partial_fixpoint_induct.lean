@@ -72,7 +72,7 @@ partial_fixpoint
 end
 
 /--
-info: dependent2''a.mutual_induct (m : Nat) (b : Bool) (motive_1 : (Nat → if b = true then Nat else Bool) → Prop)
+info: dependent2''a.mutual_fixpoint_induct (m : Nat) (b : Bool) (motive_1 : (Nat → if b = true then Nat else Bool) → Prop)
   (motive_2 : (Nat → Nat → if b = true then Nat else Bool) → Prop)
   (motive_3 : (Fin (m + 1) → Nat → if b = true then Nat else Bool) → Prop) (adm_1 : Lean.Order.admissible motive_1)
   (adm_2 : Lean.Order.admissible motive_2) (adm_3 : Lean.Order.admissible motive_3)
@@ -96,7 +96,7 @@ info: dependent2''a.mutual_induct (m : Nat) (b : Bool) (motive_1 : (Nat → if b
   (motive_1 fun n => dependent2''a m n b) ∧
     (motive_2 fun k n => dependent2''b m k n b) ∧ motive_3 fun i n => dependent2''c m i n b
 -/
-#guard_msgs in #check dependent2''a.mutual_induct
+#guard_msgs in #check dependent2''a.mutual_fixpoint_induct
 
 mutual
 def dependent3''a (m n : Nat) (b : Bool) : Option (if b then Nat else Bool) :=
@@ -210,20 +210,6 @@ info: f.mutual_partial_correctness (motive_1 motive_2 : Nat → Nat → Prop)
 -/
 #guard_msgs in
 #check f.mutual_partial_correctness
-
-/--
-info: g.mutual_partial_correctness (motive_1 motive_2 : Nat → Nat → Prop)
-  (h_1 :
-    ∀ (g : Nat → Option Nat),
-      (∀ (n r : Nat), g n = some r → motive_2 n r) → ∀ (n r : Nat), g (n + 1) = some r → motive_1 n r)
-  (h_2 :
-    ∀ (f : Nat → Option Nat),
-      (∀ (n r : Nat), f n = some r → motive_1 n r) →
-        ∀ (n r : Nat), (if n = 0 then none else f (n + 1)) = some r → motive_2 n r) :
-  (∀ (n r : Nat), f n = some r → motive_1 n r) ∧ ∀ (n r : Nat), g n = some r → motive_2 n r
--/
-#guard_msgs in
-#check g.mutual_partial_correctness
 
 /--
 info: f.partial_correctness (motive_1 motive_2 : Nat → Nat → Prop)

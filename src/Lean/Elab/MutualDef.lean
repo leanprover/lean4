@@ -523,7 +523,8 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← declValToTerm header.value header.type
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
-      forallBoundedTelescope header.type header.numParams fun xs type => do
+      withLCtx' ((← getLCtx).modifyLocalDecls fun decl => decl.setType decl.type.cleanupAnnotations) do
+      forallBoundedTelescope header.type header.numParams (cleanupAnnotations := true) fun xs type => do
         -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
         for h : i in *...header.binderIds.size do
           -- skip auto-bound prefix in `xs`

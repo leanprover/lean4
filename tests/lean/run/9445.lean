@@ -1,6 +1,3 @@
-set_option trace.Elab true
-set_option pp.rawOnError true
-
 axiom A : Prop
 
 @[simp] def Foo.T := True
@@ -15,16 +12,16 @@ end ex0
 namespace ex1
 set_option linter.unusedVariables false in
 @[local simp] def a : A ↔ True := ax
-example : A := by simp -- fails
+example : A := by simp
 end ex1
 
 namespace ex2
 open Nat in
 @[local simp] def a : A ↔ True := ax
-example : A := by simp -- fails
+example : A := by simp
 end ex2
 
 namespace ex3
 @[local simp] axiom test.a : A ↔ True
-example : A := by simp -- fails
+example : A := by simp
 end ex3

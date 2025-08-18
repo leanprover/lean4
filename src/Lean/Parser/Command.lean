@@ -259,7 +259,7 @@ def sectionHeader := leading_parser
   optional ("public ") >>
   optional ("noncomputable ")
 /--
-A `section`/`end` pair delimits the scope of `variable`, `include, `open`, `set_option`, and `local`
+A `section`/`end` pair delimits the scope of `variable`, `include`, `open`, `set_option`, and `local`
 commands. Sections can be nested. `section <id>` provides a label to the section that has to appear
 with the matching `end`. In either case, the `end` can be omitted, in which case the section is
 closed at the end of the file.

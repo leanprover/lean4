@@ -125,7 +125,10 @@ def mkUnknownIdentifierMessage [Monad m] [MonadEnv m] [MonadError m] (msg : Mess
   if !declHint.isAnonymous && env.isExporting && (env.setExporting false).contains declHint then
     let c := .withContext {
       env := env.setExporting false, opts := {}, mctx := {}, lctx := {} } <| .ofConstName declHint
-    msg := msg ++ .note m!"A private declaration `{c}` exists but is not accessible in the current context."
+    let mod := match env.getModuleIdxFor? declHint with
+      | none     => "this module"
+      | some idx => m!"`{env.header.moduleNames[idx]!}`"
+    msg := msg ++ .note m!"A private declaration `{c}` (from {mod}) exists but is not accessible in the current context."
   return MessageData.tagged unknownIdentifierMessageTag msg
 
 /--

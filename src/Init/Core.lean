@@ -101,6 +101,7 @@ instance : DecidableEq Empty := fun a => a.elim
 /-- Decidable equality for PEmpty -/
 instance : DecidableEq PEmpty := fun a => a.elim
 
+set_option genToCtorIdx false in
 /--
 Delays evaluation. The delayed code is evaluated at most once.
 
@@ -170,6 +171,8 @@ instance thunkCoe : CoeTail α (Thunk α) where
 /-- A variation on `Eq.ndrec` with the equality argument first. -/
 abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : a = b) (m : motive a) : motive b :=
   Eq.ndrec m h
+
+gen_withCtor% Thunk
 
 /-! # definitions  -/
 
@@ -616,6 +619,7 @@ class Sep (α : outParam <| Type u) (γ : Type v) where
   /-- Computes `{ a ∈ c | p a }`. -/
   sep : (α → Prop) → γ → γ
 
+set_option genToCtorIdx false in
 /--
 `Task α` is a primitive for asynchronous computation.
 It represents a computation that will resolve to a value of type `α`,
@@ -719,6 +723,8 @@ done when executing `f` is cheap and non-blocking.
 protected def bind (x : Task α) (f : α → Task β) (prio := Priority.default) (sync := false) :
     Task β :=
   ⟨(f x.get).get⟩
+
+gen_withCtor% Task
 
 end Task
 

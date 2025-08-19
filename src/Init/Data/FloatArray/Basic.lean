@@ -15,6 +15,7 @@ public import Init.Data.Array.DecidableEq
 public section
 universe u
 
+set_option genToCtorIdx false in
 structure FloatArray where
   data : Array Float
 

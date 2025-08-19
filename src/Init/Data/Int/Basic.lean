@@ -31,6 +31,7 @@ This file defines the `Int` type as well as
 Division and modulus operations are defined in `Init.Data.Int.DivMod.Basic`.
 -/
 
+set_option genToCtorIdx false in
 /--
 The integers.
 

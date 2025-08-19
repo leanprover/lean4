@@ -69,8 +69,8 @@ structure Power where
   deriving BEq, Repr, Inhabited, Hashable
 
 instance : LawfulBEq Power where
-  eq_of_beq {a} := by cases a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
-  rfl := by intro a; cases a <;> simp! [BEq.beq]
+  eq_of_beq {a} := by cases a <;> intro b <;> cases b <;> simp [BEq.beq, Lean.Grind.CommRing.Power._beq ]
+  rfl := by intro a; cases a <;> simp [BEq.beq, Lean.Grind.CommRing.Power._beq ]
 
 protected noncomputable def Power.beq' (pw₁ pw₂ : Power) : Bool :=
   Power.rec (fun x₁ k₁ => Power.rec (fun x₂ k₂ => Nat.beq x₁ x₂ && Nat.beq k₁ k₂) pw₂) pw₁
@@ -97,13 +97,13 @@ inductive Mon where
 
 instance : LawfulBEq Mon where
   eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
+    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq, Lean.Grind.CommRing.Power._beq ]
     next p₁ m₁ p₂ m₂ ih =>
       cases p₁ <;> cases p₂ <;> simp <;> intros <;> simp [*]
       next h => exact ih h
   rfl := by
     intro a
-    induction a <;> simp! [BEq.beq]
+    induction a <;> simp! [BEq.beq, Lean.Grind.CommRing.Power._beq]
     assumption
 
 protected noncomputable def Mon.beq' (m₁ : Mon) : Mon → Bool :=

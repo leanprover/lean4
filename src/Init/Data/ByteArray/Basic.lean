@@ -15,6 +15,7 @@ public import Init.Data.Option.Basic
 @[expose] public section
 universe u
 
+set_option genToCtorIdx false in
 structure ByteArray where
   data : Array UInt8
 

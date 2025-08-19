@@ -30,6 +30,7 @@ opaque floatSpec : FloatSpec := {
   decLe := fun _ _ => inferInstanceAs (Decidable True)
 }
 
+set_option genToCtorIdx false in
 /--
 64-bit floating-point numbers.
 

@@ -11,7 +11,6 @@ public import Lean.Elab.Command
 public import Lean.Elab.DeclarationRange
 public import Lean.Elab.DeclNameGen
 public meta import Lean.Parser.Command
-import Lean.Elab.BuiltinCommand
 
 public section
 
@@ -230,8 +229,6 @@ def applyDerivingHandlers (className : Name) (typeNames : Array Name) : CommandE
   withoutExporting (when := typeNames.any isPrivateName) do
   -- Deactivate some linting options that only make writing deriving handlers more painful.
   withScope (fun sc => { sc with opts := sc.opts.setBool `warn.exposeOnPrivate false }) do
-  -- Exit all namespaces
-  withNamespace .anonymous do
   withTraceNode `Elab.Deriving (fun _ => return m!"running deriving handlers for `{.ofConstName className}`") do
     match (← derivingHandlersRef.get).find? className with
     | some handlers =>

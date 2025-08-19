@@ -133,11 +133,11 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
 @[implemented_by registerScopedEnvExtensionUnsafe]
 opaque registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
 
-def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) (delimitsLocal : Bool := true) : Environment :=
+def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
     match s.stateStack with
     | [] => s
-    | state :: stack => { s with stateStack := {state with delimitsLocal := delimitsLocal}  :: state :: stack }
+    | state :: stack => { s with stateStack := state :: state :: stack }
 
 def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
@@ -211,9 +211,9 @@ def ScopedEnvExtension.modifyState (ext : ScopedEnvExtension α β σ) (env : En
     | top :: stack => { s with stateStack := { top with state := f top.state } :: stack }
     | _ => s
 
-def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (delimitsLocal : Bool := true) : m Unit := do
+def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do
-    modifyEnv (ext.pushScope · delimitsLocal)
+    modifyEnv (ext.pushScope ·)
 
 def popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do

@@ -30,9 +30,8 @@ namespace Lean.Elab.Command
   | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
-    (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (delimitsLocal : Bool := true) :
+    (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) :
     CommandElabM Unit := do
-  trace[Elab] "called addScope, isSoft: {!delimitsLocal}"
   modify fun s => { s with
     env    := s.env.registerNamespace newNamespace,
     scopes := { s.scopes.head! with
@@ -42,7 +41,7 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
       attrs := s.scopes.head!.attrs ++ attrs
     } :: s.scopes
   }
-  pushScope delimitsLocal
+  pushScope
   if isNewNamespace then
     activateScoped newNamespace
 
@@ -50,21 +49,21 @@ private def setScopeDelimitsLocal (delimitsLocal : Bool) : CommandElabM Unit := 
   setDelimitsLocal delimitsLocal
 
 private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic : Bool := false)
-    (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (delimitsLocal : Bool := true) : CommandElabM Unit :=
+    (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) : CommandElabM Unit :=
   go header
 where go
   | .anonymous => pure ()
   | .str p header => do
     go p
     let currNamespace ← getCurrNamespace
-    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic attrs (delimitsLocal := delimitsLocal)
+    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic attrs
   | _ => throwError "invalid scope"
 
-private def addNamespace (header : Name) (delimitsLocal : Bool := true) : CommandElabM Unit := do
-  addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header (delimitsLocal := delimitsLocal)
+private def addNamespace (header : Name) : CommandElabM Unit := do
+  addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header
 
-def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) (delimitsLocal : Bool := true) : CommandElabM α := do
-  addNamespace ns delimitsLocal
+def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
+  addNamespace ns
   let a ← elabFn
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }
   pure a

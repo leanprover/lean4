@@ -1330,7 +1330,7 @@ def emptyRelation {α : Sort u} (_ _ : α) : Prop :=
 `Subrelation q r` means that `q ⊆ r` or `∀ x y, q x y → r x y`.
 It is the analogue of the subset relation on relations.
 -/
-def Subrelation {α : Sort u} (q r : α → α → Prop) :=
+abbrev Subrelation {α : Sort u} (q r : α → α → Prop) :=
   ∀ {x y}, q x y → r x y
 
 /--

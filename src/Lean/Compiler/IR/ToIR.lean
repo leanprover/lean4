@@ -24,14 +24,9 @@ open Lean.Compiler (LCNF.Alt LCNF.Arg LCNF.Code LCNF.Decl LCNF.DeclValue LCNF.LC
 
 namespace ToIR
 
-inductive FVarClassification where
-  | var (id : VarId)
-  | joinPoint (id : JoinPointId)
-  | erased
-  deriving Inhabited
-
 structure BuilderState where
-  fvars : Std.HashMap FVarId FVarClassification := {}
+  vars : Std.HashMap FVarId Arg := {}
+  joinPoints : Std.HashMap FVarId JoinPointId := {}
   nextId : Nat := 1
 
 abbrev M := StateRefT BuilderState CoreM
@@ -39,17 +34,20 @@ abbrev M := StateRefT BuilderState CoreM
 def M.run (x : M α) : CoreM α := do
   x.run' {}
 
-def getFVarValue (fvarId : FVarId) : M FVarClassification := do
-  return (← get).fvars.get! fvarId
+def getFVarValue (fvarId : FVarId) : M Arg := do
+  return (← get).vars.get! fvarId
+
+def getJoinPointValue (fvarId : FVarId) : M JoinPointId := do
+  return (← get).joinPoints.get! fvarId
 
 def bindVar (fvarId : FVarId) : M VarId := do
   modifyGet fun s =>
     let varId := { idx := s.nextId }
-    ⟨varId, { s with fvars := s.fvars.insertIfNew fvarId (.var varId),
+    ⟨varId, { s with vars := s.vars.insertIfNew fvarId (.var varId),
                      nextId := s.nextId + 1 }⟩
 
 def bindVarToVarId (fvarId : FVarId) (varId : VarId) : M Unit := do
-  modify fun s => { s with fvars := s.fvars.insertIfNew fvarId (.var varId) }
+  modify fun s => { s with vars := s.vars.insertIfNew fvarId (.var varId) }
 
 def newVar : M VarId := do
   modifyGet fun s =>
@@ -59,11 +57,11 @@ def newVar : M VarId := do
 def bindJoinPoint (fvarId : FVarId) : M JoinPointId := do
   modifyGet fun s =>
     let joinPointId := { idx := s.nextId }
-    ⟨joinPointId, { s with fvars := s.fvars.insertIfNew fvarId (.joinPoint joinPointId),
+    ⟨joinPointId, { s with joinPoints := s.joinPoints.insertIfNew fvarId joinPointId,
                            nextId := s.nextId + 1 }⟩
 
 def bindErased (fvarId : FVarId) : M Unit := do
-  modify fun s => { s with fvars := s.fvars.insertIfNew fvarId .erased }
+  modify fun s => { s with vars := s.vars.insertIfNew fvarId .erased }
 
 def findDecl (n : Name) : M (Option Decl) :=
   return findEnvDecl (← Lean.getEnv) n
@@ -85,11 +83,7 @@ def lowerLitValue (v : LCNF.LitValue) : LitVal × IRType :=
 
 def lowerArg (a : LCNF.Arg) : M Arg := do
   match a with
-  | .fvar fvarId =>
-    match (← getFVarValue fvarId) with
-    | .var varId => return .var varId
-    | .erased => return .erased
-    | .joinPoint .. => panic! "unexpected value"
+  | .fvar fvarId => getFVarValue fvarId
   | .erased | .type .. => return .erased
 
 inductive TranslatedProj where
@@ -120,10 +114,8 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
     let body ← lowerCode decl.value
     return .jdecl joinPoint params body (← lowerCode k)
   | .jmp fvarId args =>
-    match (← getFVarValue fvarId) with
-    | .joinPoint joinPointId =>
-      return .jmp joinPointId (← args.mapM lowerArg)
-    | .var .. | .erased => panic! "unexpected value"
+    let joinPointId ← getJoinPointValue fvarId
+    return .jmp joinPointId (← args.mapM lowerArg)
   | .cases cases =>
     match (← getFVarValue cases.discr) with
     | .var varId =>
@@ -139,13 +131,8 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
         lowerCode code
       | .default code =>
         lowerCode code
-    | .joinPoint .. => panic! "unexpected value"
   | .return fvarId =>
-    let arg := match (← getFVarValue fvarId) with
-    | .var varId => .var varId
-    | .erased => .erased
-    | .joinPoint .. => panic! "unexpected value"
-    return .ret arg
+    return .ret (← getFVarValue fvarId)
   | .unreach .. => return .unreachable
   | .fun .. => panic! "all local functions should be λ-lifted"
 
@@ -172,7 +159,6 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     | .erased =>
       bindErased decl.fvarId
       lowerCode k
-    | .joinPoint .. => panic! "unexpected value"
   | .const name _ args =>
     let irArgs ← args.mapM lowerArg
     if let some code ← tryIrDecl? name irArgs then
@@ -228,7 +214,6 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       let irArgs ← args.mapM lowerArg
       mkAp id irArgs
     | .erased => mkErased ()
-    | .joinPoint .. => panic! "unexpected value"
   | .erased => mkErased ()
 where
   mkVar (v : VarId) : M FnBody := do

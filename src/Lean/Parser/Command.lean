@@ -265,7 +265,7 @@ with the matching `end`. In either case, the `end` can be omitted, in which case
 closed at the end of the file.
 -/
 @[builtin_command_parser] def «section»      := leading_parser
-  sectionHeader >> "section" >> optional (ppSpace >> "+localNotDelimiting ") >> optional (ppSpace >> checkColGt >> ident)
+  sectionHeader >> "section" >> optional (ppSpace >> checkColGt >> ident)
 
 /--
 `namespace <id>` opens a section with label `<id>` that influences naming and name resolution inside
@@ -284,7 +284,7 @@ corresponding `end <id>` or the end of the file.
 `namespace` also acts like `section` in delimiting the scope of `variable`, `open`, and other scoped commands.
 -/
 @[builtin_command_parser] def «namespace»    := leading_parser
-  "namespace " >> optional (ppSpace >> "+localNotDelimiting ") >> checkColGt >> ident
+  "namespace " >> checkColGt >> ident
 /--
 `end` closes a `section` or `namespace` scope. If the scope is named `<id>`, it has to be closed
 with `end <id>`. The `end` command is optional at the end of a file.

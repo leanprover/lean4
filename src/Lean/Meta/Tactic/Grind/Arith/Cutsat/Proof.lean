@@ -210,6 +210,14 @@ private def DvdCnstr.get_d_a (c : DvdCnstr) : GoalM (Int × Int) := do
   let .add a _ _ := c.p | c.throwUnexpected
   return (d, a)
 
+/--
+Similar to `denoteExpr'`, but takes into account the `unordered` flag in the `ProofM` context.
+Recall that if `unordered` is `true`, we should use `vars'`
+-/
+private def _root_.Int.Linear.Poly.denoteExprUsingCurrVars (p : Poly) : ProofM Expr := do
+  let vars ← if (← read).unordered then pure (← get').vars' else getVars
+  return (← p.denoteExpr (vars[·]!))
+
 mutual
 partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
@@ -378,7 +386,7 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
   | .ofDiseqSplit c₁ fvarId h _ =>
     let p₂ := c₁.p.addConst 1
     let hFalse ← h.toExprProofCore
-    let hNot := mkLambda `h .default (mkIntLE (← p₂.denoteExpr') (mkIntLit 0)) (hFalse.abstract #[mkFVar fvarId])
+    let hNot := mkLambda `h .default (mkIntLE (← p₂.denoteExprUsingCurrVars) (mkIntLit 0)) (hFalse.abstract #[mkFVar fvarId])
     return mkApp7 (mkConst ``Int.Linear.diseq_split_resolve)
       (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c₁.toExprProof) hNot
   | .cooper s =>

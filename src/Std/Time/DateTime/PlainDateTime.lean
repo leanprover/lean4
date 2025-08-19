@@ -72,8 +72,8 @@ def ofTimestampAssumingUTC (stamp : Timestamp) : PlainDateTime := Id.run do
   let daysPer4Y := 365 * 4 + 1
 
   let nanos := stamp.toNanosecondsSinceUnixEpoch
-  let secs : Second.Offset := nanos.ediv 1000000000
-  let daysSinceEpoch : Day.Offset := secs.tdiv 86400
+  let secs : Second.Offset := nanos.toSeconds
+  let daysSinceEpoch : Day.Offset := secs.toDays
   let boundedDaysSinceEpoch := daysSinceEpoch
 
   let mut rawDays := boundedDaysSinceEpoch - leapYearEpoch

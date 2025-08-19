@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Rat
 public import Std.Time.Date.Unit.Day
 
 public section
@@ -133,77 +132,77 @@ Convert `Week.Offset` into `Millisecond.Offset`.
 -/
 @[inline]
 def toMilliseconds (weeks : Week.Offset) : Millisecond.Offset :=
-  weeks.mul 604800000
+  weeks.mul 604800000 |>.cast (by decide +kernel)
 
 /--
 Convert `Millisecond.Offset` into `Week.Offset`.
 -/
 @[inline]
 def ofMilliseconds (millis : Millisecond.Offset) : Week.Offset :=
-  millis.ediv 604800000
+  millis.ediv 604800000 |>.cast (by decide +kernel)
 
 /--
 Convert `Week.Offset` into `Nanosecond.Offset`.
 -/
 @[inline]
 def toNanoseconds (weeks : Week.Offset) : Nanosecond.Offset :=
-  weeks.mul 604800000000000
+  weeks.mul 604800000000000 |>.cast (by decide +kernel)
 
 /--
 Convert `Nanosecond.Offset` into `Week.Offset`.
 -/
 @[inline]
 def ofNanoseconds (nanos : Nanosecond.Offset) : Week.Offset :=
-  nanos.ediv 604800000000000
+  nanos.ediv 604800000000000 |>.cast (by decide +kernel)
 
 /--
 Convert `Week.Offset` into `Second.Offset`.
 -/
 @[inline]
 def toSeconds (weeks : Week.Offset) : Second.Offset :=
-  weeks.mul 604800
+  weeks.mul 604800 |>.cast (by decide +kernel)
 
 /--
 Convert `Second.Offset` into `Week.Offset`.
 -/
 @[inline]
 def ofSeconds (secs : Second.Offset) : Week.Offset :=
-  secs.ediv 604800
+  secs.ediv 604800 |>.cast (by decide +kernel)
 
 /--
 Convert `Week.Offset` into `Minute.Offset`.
 -/
 @[inline]
 def toMinutes (weeks : Week.Offset) : Minute.Offset :=
-  weeks.mul 10080
+  weeks.mul 10080 |>.cast (by decide +kernel)
 
 /--
 Convert `Minute.Offset` into `Week.Offset`.
 -/
 @[inline]
 def ofMinutes (minutes : Minute.Offset) : Week.Offset :=
-  minutes.ediv 10080
+  minutes.ediv 10080 |>.cast (by decide +kernel)
 
 /--
 Convert `Week.Offset` into `Hour.Offset`.
 -/
 @[inline]
 def toHours (weeks : Week.Offset) : Hour.Offset :=
-  weeks.mul 168
+  weeks.mul 168 |>.cast (by decide +kernel)
 
 /--
 Convert `Hour.Offset` into `Week.Offset`.
 -/
 @[inline]
 def ofHours (hours : Hour.Offset) : Week.Offset :=
-  hours.ediv 168
+  hours.ediv 168 |>.cast (by decide +kernel)
 
 /--
 Convert `Week.Offset` into `Day.Offset`.
 -/
 @[inline]
 def toDays (weeks : Week.Offset) : Day.Offset :=
-  weeks.mul 7
+  weeks.mul 7 |>.cast (by decide +kernel)
 
 /--
 Convert `Day.Offset` into `Week.Offset`.

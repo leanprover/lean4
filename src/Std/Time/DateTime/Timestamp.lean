@@ -80,14 +80,14 @@ Converts a `Timestamp` to minutes as `Minute.Offset`.
 -/
 @[inline]
 def toMinutes (tm : Timestamp) : Minute.Offset :=
-  tm.val.second.ediv 60
+  tm.val.second.toMinutes
 
 /--
 Converts a `Timestamp` to days as `Day.Offset`.
 -/
 @[inline]
 def toDays (tm : Timestamp) : Day.Offset :=
-  tm.val.second.ediv 86400
+  tm.val.second.toDays
 
 /--
 Creates a `Timestamp` from a `Second.Offset` since the Unix epoch.

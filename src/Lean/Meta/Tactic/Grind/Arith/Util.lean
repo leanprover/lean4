@@ -9,7 +9,7 @@ prelude
 public import Init.Grind.Ring.Basic
 public import Lean.Meta.SynthInstance
 public import Lean.Meta.Basic
-public import Std.Internal.Rat
+public import Init.Data.Rat.Basic
 
 public section
 
@@ -99,8 +99,6 @@ partial def gcdExt (a b : Int) : Int × Int × Int :=
   else
     let (g, α, β) := gcdExt b (a % b)
     (g, β, α - (a / b) * β)
-
-open Std.Internal
 
 -- TODO: PArray.shrink and PArray.resize
 partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=

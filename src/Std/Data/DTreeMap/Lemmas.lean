@@ -6,7 +6,7 @@ Authors: Markus Himmel, Paul Reichert
 module
 
 prelude
-public import Std.Data.DTreeMap.Internal.Lemmas
+import Std.Data.DTreeMap.Internal.Lemmas
 public import Std.Data.DTreeMap.Basic
 public import Std.Data.DTreeMap.AdditionalOperations
 

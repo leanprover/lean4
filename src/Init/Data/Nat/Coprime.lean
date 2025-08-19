@@ -8,7 +8,7 @@ prelude
 
 public import Init.Data.Nat.Gcd
 
-@[expose] public section
+public section
 
 /-!
 # Definitions and properties of `coprime`
@@ -18,12 +18,10 @@ namespace Nat
 
 /-!
 ### `coprime`
-
-See also `nat.coprime_of_dvd` and `nat.coprime_of_dvd'` to prove `nat.Coprime m n`.
 -/
 
 /-- `m` and `n` are coprime, or relatively prime, if their `gcd` is 1. -/
-@[reducible] def Coprime (m n : Nat) : Prop := gcd m n = 1
+@[reducible, expose] def Coprime (m n : Nat) : Prop := gcd m n = 1
 
 -- if we don't inline this, then the compiler computes the GCD even if it already has it
 @[inline] instance (m n : Nat) : Decidable (Coprime m n) := inferInstanceAs (Decidable (_ = 1))
@@ -87,7 +85,6 @@ theorem exists_coprime' (H : 0 < gcd m n) :
 
 theorem Coprime.mul_left (H1 : Coprime m k) (H2 : Coprime n k) : Coprime (m * n) k :=
   (H1.gcd_mul_left_cancel n).trans H2
-
 
 theorem Coprime.mul_right (H1 : Coprime k m) (H2 : Coprime k n) : Coprime k (m * n) :=
   (H1.symm.mul_left H2.symm).symm

@@ -12,7 +12,7 @@ theorem odd_iff.extracted_1_4 {n : Nat} (m : Nat)
     @HMul.hMul _ _ _ (@instHMul Nat instDistrib.toMul)
       2 m + 1) :
     n % 2 = 1 := by
-  grind -- fails, where omega succeeds
+  grind
 
 end Nat
 
@@ -32,6 +32,6 @@ theorem four_dvd_add_or_sub_of_odd.extracted_1_1 (m n : Int) :
           2 m) + 1) -
         ((@HMul.hMul Int Int Int (@instHMul Int Int.instDistrib.toMul)
           2 n) + 1) := by
-  grind -- fails, where omega succeeds
+  grind
 
 end Int

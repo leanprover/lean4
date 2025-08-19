@@ -127,7 +127,15 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
                    varId
                    (← nameToIRType cases.typeName)
                    (← cases.alts.mapM (lowerAlt varId))
-    | some (.joinPoint ..) | some .erased | none => panic! "unexpected value"
+    | some .erased =>
+      let #[alt] := cases.alts | panic! "erased inductive should only have one case"
+      match alt with
+      | .alt _ params code =>
+        params.forM (bindErased ·.fvarId)
+        lowerCode code
+      | .default code =>
+        lowerCode code
+    | some (.joinPoint ..) | none => panic! "unexpected value"
   | .return fvarId =>
     let arg := match (← get).fvars[fvarId]? with
     | some (.var varId) => .var varId

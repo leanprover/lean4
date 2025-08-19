@@ -50,5 +50,6 @@ public import Init.Data.Iterators
 public import Init.Data.Range.Polymorphic
 public import Init.Data.Slice
 public import Init.Data.Order
+public import Init.Data.Rat
 
 public section

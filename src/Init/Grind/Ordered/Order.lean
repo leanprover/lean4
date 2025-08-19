@@ -13,18 +13,17 @@ public section
 namespace Lean.Grind
 
 /-- A preorder is a reflexive, transitive relation `≤` with `a < b` defined in the obvious way. -/
-class Preorder (α : Type u) extends LE α, LT α where
+class Preorder (α : Type u) [LE α] [LT α] where
   /-- The less-than-or-equal relation is reflexive. -/
   le_refl : ∀ a : α, a ≤ a
   /-- The less-than-or-equal relation is transitive. -/
   le_trans : ∀ {a b c : α}, a ≤ b → b ≤ c → a ≤ c
-  lt := fun a b => a ≤ b ∧ ¬b ≤ a
   /-- The less-than relation is determined by the less-than-or-equal relation. -/
   lt_iff_le_not_le : ∀ {a b : α}, a < b ↔ a ≤ b ∧ ¬b ≤ a := by intros; rfl
 
 namespace Preorder
 
-variable {α : Type u} [Preorder α]
+variable {α : Type u} [LE α] [LT α] [Preorder α]
 
 theorem le_of_lt {a b : α} (h : a < b) : a ≤ b := (lt_iff_le_not_le.mp h).1
 
@@ -58,13 +57,13 @@ theorem not_gt_of_lt {a b : α} (h : a < b) : ¬a > b :=
 end Preorder
 
 /-- A partial order is a preorder with the additional property that `a ≤ b` and `b ≤ a` implies `a = b`. -/
-class PartialOrder (α : Type u) extends Preorder α where
+class PartialOrder (α : Type u) [LE α] [LT α] extends Preorder α where
   /-- The less-than-or-equal relation is antisymmetric. -/
   le_antisymm : ∀ {a b : α}, a ≤ b → b ≤ a → a = b
 
 namespace PartialOrder
 
-variable {α : Type u} [PartialOrder α]
+variable {α : Type u} [LE α] [LT α] [PartialOrder α]
 
 theorem le_iff_lt_or_eq {a b : α} : a ≤ b ↔ a < b ∨ a = b := by
   constructor
@@ -79,13 +78,13 @@ theorem le_iff_lt_or_eq {a b : α} : a ≤ b ↔ a < b ∨ a = b := by
 end PartialOrder
 
 /-- A linear order is a partial order with the additional property that every pair of elements is comparable. -/
-class LinearOrder (α : Type u) extends PartialOrder α where
+class LinearOrder (α : Type u) [LE α] [LT α] extends PartialOrder α where
   /-- For every two elements `a` and `b`, either `a ≤ b` or `b ≤ a`. -/
   le_total : ∀ a b : α, a ≤ b ∨ b ≤ a
 
 namespace LinearOrder
 
-variable {α : Type u} [LinearOrder α]
+variable {α : Type u} [LE α] [LT α] [LinearOrder α]
 
 theorem trichotomy (a b : α) : a < b ∨ a = b ∨ b < a := by
   cases LinearOrder.le_total a b with
@@ -100,12 +99,12 @@ theorem trichotomy (a b : α) : a < b ∨ a = b ∨ b < a := by
     | inl h => right; right; exact h
     | inr h => right; left; exact h.symm
 
-theorem le_of_not_lt {α} [LinearOrder α] {a b : α} (h : ¬ a < b) : b ≤ a := by
+theorem le_of_not_lt {a b : α} (h : ¬ a < b) : b ≤ a := by
   cases LinearOrder.trichotomy a b
   next => contradiction
   next h => apply PartialOrder.le_iff_lt_or_eq.mpr; cases h <;> simp [*]
 
-theorem lt_of_not_le {α} [LinearOrder α] {a b : α} (h : ¬ a ≤ b) : b < a := by
+theorem lt_of_not_le {a b : α} (h : ¬ a ≤ b) : b < a := by
   cases LinearOrder.trichotomy a b
   next h₁ h₂ => have := Preorder.lt_iff_le_not_le.mp h₂; simp [h] at this
   next h =>

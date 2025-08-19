@@ -67,6 +67,7 @@ private def pow (p : Poly) (k : Nat) : RingM Poly := withIncRecDepth do
 
 private def toPoly (e : RingExpr) : RingM Poly := do
   match e with
+  | .intCast n | .natCast n
   | .num n   => return .num (← applyChar n)
   | .var x   => return .ofVar x
   | .add a b => combine (← toPoly a) (← toPoly b)

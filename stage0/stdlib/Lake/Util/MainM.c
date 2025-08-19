@@ -27,6 +27,7 @@ LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lake_MainM_mk(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_MainM_runLogIO___redArg___closed__0;
+lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_LogIO_toBaseIO_replay_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___redArg___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lake_MainM_toEIO___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_exit___redArg___boxed(lean_object*, lean_object*);
@@ -47,7 +48,6 @@ LEAN_EXPORT lean_object* l_Lake_MainM_tryCatchExit(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lake_instMonadMainM;
 LEAN_EXPORT lean_object* l_Lake_instMonadFinallyMainM;
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadError___lam__0___boxed__const__1;
-lean_object* l_Array_foldlMUnsafe_fold___at___Lake_LogIO_toBaseIO_replay_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Lake_MainM_instAlternative___closed__0;
 lean_object* l_instMonadEIO(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadError___lam__0(lean_object*, lean_object*, lean_object*);
@@ -1277,7 +1277,7 @@ size_t x_11; size_t x_12; lean_object* x_13;
 x_11 = 0;
 x_12 = lean_usize_of_nat(x_5);
 lean_dec(x_5);
-x_13 = l_Array_foldlMUnsafe_fold___at___Lake_LogIO_toBaseIO_replay_spec__0(x_2, x_1, x_11, x_12, x_6, x_3);
+x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_LogIO_toBaseIO_replay_spec__0(x_2, x_1, x_11, x_12, x_6, x_3);
 return x_13;
 }
 }

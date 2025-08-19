@@ -9,7 +9,7 @@ prelude
 public import Init.System.IO
 public import Init.System.Promise
 
-@[expose] public section
+public section
 
 namespace Std
 namespace Internal
@@ -30,7 +30,7 @@ of all functions on `Timer`s.
 -/
 def Timer : Type := TimerImpl.type
 
-instance : Nonempty Timer := TimerImpl.property
+instance : Nonempty Timer := by exact TimerImpl.property
 
 namespace Timer
 

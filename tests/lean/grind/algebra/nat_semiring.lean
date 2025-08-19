@@ -1,3 +1,4 @@
+-- Remark: we need some support for nonlinear in `cutsat`
 
 example {a b c d : Nat} (h : a = b + c * d) (w : 1 ≤ d) : a ≥ c := by
   -- grind -- fails, but would be lovely

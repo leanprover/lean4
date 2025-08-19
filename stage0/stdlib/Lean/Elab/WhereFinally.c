@@ -29,7 +29,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedWhereFinallyView;
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwErrorAt___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Elab_instInhabitedWhereFinallyView___closed__0() {
 _start:
@@ -176,12 +175,9 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc_ref(x_6);
-lean_dec_ref(x_4);
 x_7 = lean_unsigned_to_nat(2u);
 x_8 = l_Lean_Syntax_getArg(x_3, x_7);
 x_9 = lean_unsigned_to_nat(0u);
@@ -191,9 +187,10 @@ x_11 = l_Lean_Syntax_isMissing(x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_inc_ref(x_5);
 lean_inc_ref(x_6);
 lean_inc(x_10);
-x_12 = lean_alloc_closure((void*)(l_Lean_Elab_mkWhereFinallyView___redArg___lam__0___boxed), 3, 2);
+x_12 = lean_alloc_closure((void*)(l_Lean_Elab_mkWhereFinallyView___redArg___lam__0), 3, 2);
 lean_closure_set(x_12, 0, x_10);
 lean_closure_set(x_12, 1, x_6);
 x_13 = lean_alloc_closure((void*)(l_Lean_Elab_mkWhereFinallyView___redArg___lam__1), 2, 1);
@@ -223,7 +220,6 @@ else
 {
 uint8_t x_19; 
 lean_dec(x_10);
-lean_dec_ref(x_5);
 lean_dec_ref(x_2);
 x_19 = !lean_is_exclusive(x_1);
 if (x_19 == 0)
@@ -259,14 +255,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_mkWhereFinallyView___redArg(x_2, x_3, x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Elab_mkWhereFinallyView___redArg___lam__0(x_1, x_2, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {

@@ -491,7 +491,7 @@ def initPkg
     try
       download mathToolchainBlobUrl toolchainFile
     catch errPos =>
-      logError "failed to download mathlib 'lean-toolchain' file; \
+      logError s!"failed to download mathlib 'lean-toolchain' file; \
         you can manually copy it from:\n  {mathToolchainUrl}"
       throw errPos
     -- Create a manifest file based on the dependencies.

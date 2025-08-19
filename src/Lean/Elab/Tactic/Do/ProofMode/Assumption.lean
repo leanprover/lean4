@@ -10,6 +10,7 @@ public import Std.Tactic.Do.Syntax
 public import Lean.Elab.Tactic.Do.ProofMode.Basic
 public import Lean.Elab.Tactic.Do.ProofMode.Exact
 public import Lean.Elab.Tactic.Do.ProofMode.Focus
+import Lean.Meta.Tactic.Assumption
 
 public section
 

@@ -143,7 +143,7 @@ theorem Iter.mem_toList_iff_isPlausibleIndirectOutput {α β} [Iterator α Id β
     [LawfulIteratorCollect α Id Id] [LawfulDeterministicIterator α Id]
     {it : Iter (α := α) β} {out : β} :
     out ∈ it.toList ↔ it.IsPlausibleIndirectOutput out := by
-  induction it using Iter.inductSteps with | step it ihy ihs =>
+  induction it using Iter.inductSteps with | step it ihy ihs
   rw [toList_eq_match_step]
   constructor
   · intro h
@@ -194,7 +194,7 @@ theorem Iter.forIn'_toList {α β : Type w} [Iterator α Id β]
     {f : (out : β) → _ → γ → m (ForInStep γ)} :
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
     ForIn'.forIn' it.toList init f = ForIn'.forIn' it init (fun out h acc => f out (Iter.mem_toList_iff_isPlausibleIndirectOutput.mpr h) acc) := by
-  induction it using Iter.inductSteps generalizing init with case step it ihy ihs =>
+  induction it using Iter.inductSteps generalizing init with | step it ihy ihs
   have := it.toList_eq_match_step
   generalize hs : it.step = step at this
   rw [forIn'_toList.aux this]
@@ -239,7 +239,7 @@ theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
     {f : β → γ → m (ForInStep γ)} :
     ForIn.forIn it.toList init f = ForIn.forIn it init f := by
   rw [List.forIn_eq_foldlM]
-  induction it using Iter.inductSteps generalizing init with case step it ihy ihs =>
+  induction it using Iter.inductSteps generalizing init with | step it ihy ihs
   rw [forIn_eq_match_step, Iter.toList_eq_match_step]
   simp only [map_eq_pure_bind]
   generalize it.step = step

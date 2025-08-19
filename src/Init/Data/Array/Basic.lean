@@ -163,7 +163,7 @@ representation of arrays. While this is not provable, `Array.usize` always retur
 the array since the implementation only supports arrays of size less than `USize.size`.
 -/
 @[extern "lean_array_size", simp]
-def usize (a : @& Array α) : USize := a.size.toUSize
+def usize (xs : @& Array α) : USize := xs.size.toUSize
 
 /--
 Low-level indexing operator which is as fast as a C array read.
@@ -171,8 +171,8 @@ Low-level indexing operator which is as fast as a C array read.
 This avoids overhead due to unboxing a `Nat` used as an index.
 -/
 @[extern "lean_array_uget", simp, expose]
-def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
-  a[i.toNat]
+def uget (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
+  xs[i.toNat]
 
 /--
 Low-level modification operator which is as fast as a C array write. The modification is performed
@@ -1165,7 +1165,7 @@ Examples:
 def zipIdx (xs : Array α) (start := 0) : Array (α × Nat) :=
   xs.mapIdx fun i a => (a, start + i)
 
-@[deprecated zipIdx (since := "2025-01-21")] abbrev zipWithIndex := @zipIdx
+
 
 /--
 Returns the first element of the array for which the predicate `p` returns `true`, or `none` if no
@@ -1285,7 +1285,7 @@ def findFinIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option (Fin as
     decreasing_by simp_wf; decreasing_trivial_pre_omega
   loop 0
 
-theorem findIdx?_loop_eq_map_findFinIdx?_loop_val {xs : Array α} {p : α → Bool} {j} :
+private theorem findIdx?_loop_eq_map_findFinIdx?_loop_val {xs : Array α} {p : α → Bool} {j} :
     findIdx?.loop p xs j = (findFinIdx?.loop p xs j).map (·.val) := by
   unfold findIdx?.loop
   unfold findFinIdx?.loop
@@ -1322,8 +1322,7 @@ def idxOfAux [BEq α] (xs : Array α) (v : α) (i : Nat) : Option (Fin xs.size) 
   else none
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-@[deprecated idxOfAux (since := "2025-01-29")]
-abbrev indexOfAux := @idxOfAux
+
 
 /--
 Returns the index of the first element equal to `a`, or the size of the array if no element is equal
@@ -1338,8 +1337,7 @@ Examples:
 def finIdxOf? [BEq α] (xs : Array α) (v : α) : Option (Fin xs.size) :=
   idxOfAux xs v 0
 
-@[deprecated "`Array.indexOf?` has been deprecated, use `idxOf?` or `finIdxOf?` instead." (since := "2025-01-29")]
-abbrev indexOf? := @finIdxOf?
+
 
 /--
 Returns the index of the first element equal to `a`, or the size of the array if no element is equal

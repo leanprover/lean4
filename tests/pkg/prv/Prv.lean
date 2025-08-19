@@ -22,7 +22,7 @@ error: overloaded, errors ⏎
 #guard_msgs in
 def m1 : Name "hello" := {}
 
-/-- error: invalid ⟨...⟩ notation, constructor for `Name` is marked as private -/
+/-- error: Invalid `⟨...⟩` notation: Constructor for `Name` is marked as private -/
 #guard_msgs in
 def m2 : Name "hello" := ⟨"hello"⟩
 

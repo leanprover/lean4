@@ -342,7 +342,7 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN List.partition.loop
 #testDelabN StateT.modifyGet
 #testDelabN Nat.gcd_one_left
-#testDelabN List.hasDecidableLt
+#testDelabN List.decidableLT
 #testDelabN Lean.Xml.parse
 #testDelabN Add.noConfusionType
 #testDelabN List.filterMapM.loop

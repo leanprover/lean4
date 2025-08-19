@@ -115,7 +115,7 @@ grind_pattern hThm1 => plus a c, plus a b
 
 /--
 error: invalid pattern, (non-forbidden) application expected
-  #4 ∧ #3
+  And #4 #3
 -/
 #guard_msgs (error) in
 grind_pattern And.imp_left => a ∧ b

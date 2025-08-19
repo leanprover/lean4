@@ -205,7 +205,7 @@ jobs:
         id: test
         run: |
           ulimit -c unlimited  # coredumps
-          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/$TARGET_STAGE -j$NPROC --output-junit test-results.xml ${{ matrix.CTARGET_OPTIONS }}
+          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/$TARGET_STAGE -j$NPROC --output-junit test-results.xml
         if: (matrix.wasm || !matrix.cross) && (inputs.check-level >= 1 || matrix.test)
       - name: Test Summary
         uses: test-summary/action@v2
@@ -235,9 +235,13 @@ jobs:
         if: matrix.test-speedcenter
       - name: Check rebootstrap
         run: |
+          set -e
           # clean rebuild in case of Makefile changes/Lake does not detect uncommited stage 0
           # changes yet
-          make -C build update-stage0 && make -C build/stage1 clean-stdlib && make -C build -j$NPROC
+          make -C build update-stage0
+          make -C build/stage1 clean-stdlib
+          time make -C build -j$NPROC
+          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC
         if: matrix.check-rebootstrap
       - name: CCache stats
         if: always()

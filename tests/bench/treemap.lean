@@ -31,24 +31,24 @@ instance [Pure m] : Std.Iterators.Iterator RandomIterator m UInt64 where
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RandomIterator) m n :=
   .defaultImplementation
 
-def mkMap (seed : UInt64) (size : Nat) : Std.TreeMap UInt64 String := Id.run do
+def mkMap (seed : UInt64) (size : Nat) : Std.TreeMap UInt64 UInt64 := Id.run do
   let mut map := {}
   for val in iterRand seed |>.take size |>.allowNontermination do
-    map := map.insert val s!"{val}"
+    map := map.insert val val
   return map
 
-def timeNanos (reps : Nat) (x : IO Unit) : IO Nat := do
+def timeNanos (reps : Nat) (x : IO Unit) : IO Float := do
   let startTime ← IO.monoNanosNow
   x
   let endTime ← IO.monoNanosNow
-  return (endTime - startTime) / reps
+  return (endTime - startTime).toFloat / reps.toFloat
 
 def REP : Nat := 100
 
 /-
 Return the average time it takes to check that a treemap `contains` an element that is contained.
 -/
-def benchContainsHit (seed : UInt64) (size : Nat) : IO Nat := do
+def benchContainsHit (seed : UInt64) (size : Nat) : IO Float := do
   let map := mkMap seed size
   let checks := size * REP
   timeNanos checks do
@@ -62,7 +62,7 @@ def benchContainsHit (seed : UInt64) (size : Nat) : IO Nat := do
 /-
 Return the average time it takes to check that a treemap `contains` an element that is not contained.
 -/
-def benchContainsMiss (seed : UInt64) (size : Nat) : IO Nat := do
+def benchContainsMiss (seed : UInt64) (size : Nat) : IO Float := do
   let map := mkMap seed size
   let checks := size * REP
   let iter := iterRand seed |>.drop size
@@ -77,7 +77,7 @@ def benchContainsMiss (seed : UInt64) (size : Nat) : IO Nat := do
 /-
 Return the average time it takes to read an element from a treemap during iteration.
 -/
-def benchIterate (seed : UInt64) (size : Nat) : IO Nat := do
+def benchIterate (seed : UInt64) (size : Nat) : IO Float := do
   let map := mkMap seed size
   let checks := size * REP
   timeNanos checks do
@@ -94,7 +94,7 @@ def benchIterate (seed : UInt64) (size : Nat) : IO Nat := do
 Return the average time it takes to `insertIfNew` an element that is contained in the treemap.
 This value should be close to `benchContainsHit`
 -/
-def benchInsertIfNewHit (seed : UInt64) (size : Nat) : IO Nat := do
+def benchInsertIfNewHit (seed : UInt64) (size : Nat) : IO Float := do
   let map := mkMap seed size
   let checks := size * REP
   timeNanos checks do
@@ -102,7 +102,7 @@ def benchInsertIfNewHit (seed : UInt64) (size : Nat) : IO Nat := do
     let mut map := map
     while todo != 0 do
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insertIfNew val s!"{val}"
+        map := map.insertIfNew val val
         if map.size != size then
           throw <| .userError "Fail"
       todo := todo - size
@@ -111,7 +111,7 @@ def benchInsertIfNewHit (seed : UInt64) (size : Nat) : IO Nat := do
 Return the average time it takes to unconditionally `insert` (or rather, update) an element that is
 contained in the treemap.
 -/
-def benchInsertHit (seed : UInt64) (size : Nat) : IO Nat := do
+def benchInsertHit (seed : UInt64) (size : Nat) : IO Float := do
   let map := mkMap seed size
   let checks := size * REP
   timeNanos checks do
@@ -119,7 +119,7 @@ def benchInsertHit (seed : UInt64) (size : Nat) : IO Nat := do
     let mut map := map
     while todo != 0 do
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insert val s!"{val}"
+        map := map.insert val val
         if map.size != size then
           throw <| .userError "Fail"
       todo := todo - size
@@ -127,14 +127,14 @@ def benchInsertHit (seed : UInt64) (size : Nat) : IO Nat := do
 /--
 Return the average time it takes to `insert` a new random element into a treemap.
 -/
-def benchInsertRandomMissEmpty (seed : UInt64) (size : Nat) : IO Nat := do
+def benchInsertRandomMissEmpty (seed : UInt64) (size : Nat) : IO Float := do
   let checks := size * REP
   timeNanos checks do
     let mut todo := checks
     while todo != 0 do
       let mut map : Std.TreeMap UInt64 _ := {}
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insert val s!"{val}"
+        map := map.insert val val
         if map.size > size then
           throw <| .userError "Fail"
       todo := todo - size
@@ -142,14 +142,14 @@ def benchInsertRandomMissEmpty (seed : UInt64) (size : Nat) : IO Nat := do
 /--
 Return the average time it takes to `insert` a new sequential element into a treemap.
 -/
-def benchInsertSequentialMissEmpty (_seed : UInt64) (size : Nat) : IO Nat := do
+def benchInsertSequentialMissEmpty (_seed : UInt64) (size : Nat) : IO Float := do
   let checks := size * REP
   timeNanos checks do
     let mut todo := checks
     while todo != 0 do
       let mut map : Std.TreeMap UInt64 _ := {}
       for val in [0:size] do
-        map := map.insert val.toUInt64 s!"{val}"
+        map := map.insert val.toUInt64 val
         if map.size > size then
           throw <| .userError "Fail"
       todo := todo - size
@@ -158,7 +158,7 @@ def benchInsertSequentialMissEmpty (_seed : UInt64) (size : Nat) : IO Nat := do
 Return the average time it takes to `insert` a new element into a treemap that is being used in a
 non linear fashion.
 -/
-def benchInsertRandomMissEmptyShared (seed : UInt64) (size : Nat) : IO Nat := do
+def benchInsertRandomMissEmptyShared (seed : UInt64) (size : Nat) : IO Float := do
   let checks := size * REP
   timeNanos checks do
     let mut todo := checks
@@ -166,7 +166,7 @@ def benchInsertRandomMissEmptyShared (seed : UInt64) (size : Nat) : IO Nat := do
       let mut map : Std.TreeMap UInt64 _ := {}
       let mut maps := Array.emptyWithCapacity size
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insert val s!"{val}"
+        map := map.insert val val
         if map.isEmpty then
           throw <| .userError "Fail"
         maps := maps.push map
@@ -177,7 +177,7 @@ def benchInsertRandomMissEmptyShared (seed : UInt64) (size : Nat) : IO Nat := do
 /--
 Return the average time it takes to `erase` an existing and `insert` a new element into a treemap.
 -/
-def benchEraseInsert (seed : UInt64) (size : Nat) : IO Nat := do
+def benchEraseInsert (seed : UInt64) (size : Nat) : IO Float := do
   let map := mkMap seed size
   let checks := size * REP
   let eraseIter := iterRand seed
@@ -187,7 +187,7 @@ def benchEraseInsert (seed : UInt64) (size : Nat) : IO Nat := do
     let mut todo := checks
     while todo != 0 do
       for (eraseVal, newVal) in eraseIter.zip newIter |>.take size |>.allowNontermination do
-        map := map.erase eraseVal |>.insert newVal s!"{newVal}"
+        map := map.erase eraseVal |>.insert newVal newVal
         if map.size != size then
           throw <| .userError "Fail"
       todo := todo - size

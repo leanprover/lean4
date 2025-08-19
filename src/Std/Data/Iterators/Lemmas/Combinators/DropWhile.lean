@@ -82,7 +82,7 @@ theorem Iter.toList_intermediateDropWhile_of_finite {α β} [Iterator α Id β] 
     {it : Iter (α := α) β} :
     (Intermediate.dropWhile P dropping it).toList =
       if dropping = true then it.toList.dropWhile P else it.toList := by
-  induction it using Iter.inductSteps generalizing dropping with | step it ihy ihs =>
+  induction it using Iter.inductSteps generalizing dropping with | step it ihy ihs
   rw [toList_eq_match_step, toList_eq_match_step, step_intermediateDropWhile]
   cases it.step using PlausibleIterStep.casesOn
   · rename_i hp

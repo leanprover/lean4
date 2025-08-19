@@ -32,6 +32,7 @@ of matcher applications.
 -/
 def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCasesOn := false) :
     m (Option MatcherApp) := do
+  unless e.isApp do return none
   if let .const declName declLevels := e.getAppFn then
     if let some info ← getMatcherInfo? declName then
       let args := e.getAppArgs
@@ -73,6 +74,13 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCases
       }
 
   return none
+
+def MatcherApp.toMatcherInfo (matcherApp : MatcherApp) : MatcherInfo where
+  uElimPos?     := matcherApp.uElimPos?
+  discrInfos    := matcherApp.discrInfos
+  numParams     := matcherApp.params.size
+  numDiscrs     := matcherApp.discrs.size
+  altNumParams  := matcherApp.altNumParams
 
 def MatcherApp.toExpr (matcherApp : MatcherApp) : Expr :=
   let result := mkAppN (mkConst matcherApp.matcherName matcherApp.matcherLevels.toList) matcherApp.params

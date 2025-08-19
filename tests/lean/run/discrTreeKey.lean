@@ -60,7 +60,7 @@ open Nat List
 #discr_tree_simp_key singleton_append
 
 #check append_nil
-#discr_tree_simp_key append_eq_nil
+#discr_tree_simp_key append_eq_nil_iff
 
 #check mapM_nil
 #discr_tree_simp_key mapM_nil

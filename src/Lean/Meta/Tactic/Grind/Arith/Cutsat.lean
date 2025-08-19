@@ -21,6 +21,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.MBTC
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.VarRename
 
 public section
 
@@ -44,5 +45,6 @@ builtin_initialize registerTraceClass `grind.debug.cutsat.internalize
 builtin_initialize registerTraceClass `grind.debug.cutsat.toInt
 builtin_initialize registerTraceClass `grind.debug.cutsat.search.cnstrs
 builtin_initialize registerTraceClass `grind.debug.cutsat.search.reorder
+builtin_initialize registerTraceClass `grind.debug.cutsat.elimEq
 
 end Lean

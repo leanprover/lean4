@@ -127,7 +127,6 @@ else
 {
 lean_object* x_5; 
 x_5 = lean_ctor_get(x_2, 0);
-lean_inc(x_5);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; 
@@ -140,6 +139,7 @@ goto _start;
 else
 {
 lean_object* x_8; lean_object* x_9; 
+lean_inc_ref(x_5);
 x_8 = lean_ctor_get(x_2, 1);
 lean_inc(x_8);
 lean_dec_ref(x_2);
@@ -150,9 +150,7 @@ if (lean_obj_tag(x_9) == 2)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_13 = lean_ctor_get(x_9, 1);
-lean_inc(x_13);
 x_14 = lean_ctor_get(x_9, 2);
-lean_inc_ref(x_14);
 x_15 = lean_alloc_closure((void*)(l_List_filterMapTR_go___at___Std_Tactic_BVDecide_LRAT_check_spec__1___lam__0___boxed), 2, 0);
 lean_inc(x_1);
 x_16 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___boxed), 3, 1);
@@ -164,6 +162,8 @@ lean_closure_set(x_18, 0, x_15);
 x_19 = lean_alloc_closure((void*)(l_instBEqProd___redArg___lam__0___boxed), 4, 2);
 lean_closure_set(x_19, 0, x_17);
 lean_closure_set(x_19, 1, x_18);
+lean_inc(x_13);
+lean_inc_ref(x_14);
 x_20 = l_List_elem___redArg(x_19, x_14, x_13);
 if (x_20 == 0)
 {

@@ -7,8 +7,10 @@ invoked `eq_refl`, which more aggressively unfolds. This checks that this still 
 def Foo (a b : Nat) : Prop := a = b
 
 /--
-error: Tactic `rfl` failed: no @[refl] lemma registered for relation
+error: Tactic `rfl` failed: No `[refl]` lemma registered for relation
   Foo
+
+Hint: Add the `[refl]` attribute to reflexivity lemmas for `Foo` to use this tactic
 
 ⊢ Foo 1 1
 -/

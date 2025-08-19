@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Int.Lemmas
 public import Init.Data.Int.DivMod
 public import Init.Data.Int.Linear
+public import Init.GrindInstances.ToInt
 public import Init.Data.RArray
 
 public section
@@ -82,6 +83,10 @@ theorem div_congr {a b : Nat} {a' b' : Int}
 theorem mod_congr {a b : Nat} {a' b' : Int}
     (h₁ : NatCast.natCast a = a') (h₂ : NatCast.natCast b = b') : NatCast.natCast (a % b) = a' % b' := by
   simp_all [Int.natCast_emod]
+
+theorem finVal {n : Nat} {a : Fin n} {a' : Int}
+    (h₁ : Lean.Grind.ToInt.toInt a = a') : NatCast.natCast (a.val) = a' := by
+  rw [← h₁, Lean.Grind.ToInt.toInt, Lean.Grind.instToIntFinCoOfNatIntCast]
 
 end Nat.ToInt
 

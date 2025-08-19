@@ -818,6 +818,10 @@ static inline lean_obj_res lean_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
     return lean_array_uget(a, lean_unbox(i));
 }
 
+static inline lean_obj_res lean_array_fget_borrowed(b_lean_obj_arg a, b_lean_obj_arg i) {
+    return lean_array_get_core(a, lean_unbox(i));
+}
+
 LEAN_EXPORT lean_obj_res lean_array_get_panic(lean_obj_arg def_val);
 
 static inline lean_object * lean_array_get(lean_obj_arg def_val, b_lean_obj_arg a, b_lean_obj_arg i) {
@@ -826,6 +830,21 @@ static inline lean_object * lean_array_get(lean_obj_arg def_val, b_lean_obj_arg 
         if (idx < lean_array_size(a)) {
             lean_dec(def_val);
             return lean_array_uget(a, idx);
+        }
+    }
+    /* Recall that if `i` is not a scalar, then it must be out of bounds because
+       i > LEAN_MAX_SMALL_NAT == MAX_UNSIGNED >> 1
+       but each array entry is 8 bytes in 64-bit machines and 4 in 32-bit ones.
+       In both cases, we would be out-of-memory. */
+    return lean_array_get_panic(def_val);
+}
+
+static inline lean_object * lean_array_get_borrowed(lean_obj_arg def_val, b_lean_obj_arg a, b_lean_obj_arg i) {
+    if (lean_is_scalar(i)) {
+        size_t idx = lean_unbox(i);
+        if (idx < lean_array_size(a)) {
+            lean_dec(def_val);
+            return lean_array_get_core(a, idx);
         }
     }
     /* Recall that if `i` is not a scalar, then it must be out of bounds because
@@ -1203,8 +1222,6 @@ LEAN_EXPORT bool lean_io_check_canceled_core(void);
 LEAN_EXPORT void lean_io_cancel_core(b_lean_obj_arg t);
 /* primitive for implementing `IO.getTaskState : Task a -> IO TaskState` */
 LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_lean_obj_arg t);
-/* primitive for implementing `IO.waitAny : List (Task a) -> IO (Task a)` */
-LEAN_EXPORT b_lean_obj_res lean_io_wait_any_core(b_lean_obj_arg task_list);
 
 /* External objects */
 

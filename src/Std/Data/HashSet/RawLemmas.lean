@@ -269,6 +269,10 @@ theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α
     (m.get? a).isSome ↔ a ∈ m :=
   (mem_iff_isSome_get? h).symm
 
+theorem mem_of_get?_eq_some [EquivBEq α] [LawfulHashable α] (h : m.WF) {a a' : α} :
+    m.get? a = some a' → a' ∈ m :=
+  HashMap.Raw.mem_of_getKey?_eq_some h.out
+
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.contains a = false → m.get? a = none :=
   HashMap.Raw.getKey?_eq_none_of_contains_eq_false h.out
@@ -498,13 +502,57 @@ theorem contains_toList [EquivBEq α] [LawfulHashable α] {k : α} (h : m.WF) :
   HashMap.Raw.contains_keys h.1
 
 @[simp, grind =]
-theorem mem_toList [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+theorem mem_toList [LawfulBEq α] (h : m.WF) {k : α} :
     k ∈ m.toList ↔ k ∈ m :=
   HashMap.Raw.mem_keys h.1
+
+theorem mem_of_mem_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    k ∈ m.toList → k ∈ m :=
+  HashMap.Raw.mem_of_mem_keys h.1
 
 theorem distinct_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.Pairwise (fun a b => (a == b) = false) :=
   HashMap.Raw.distinct_keys h.1
+
+@[simp]
+theorem toArray_toList (h : m.WF) :
+    m.toList.toArray = m.toArray :=
+  HashMap.Raw.toArray_keys h.out
+
+@[simp]
+theorem toList_toArray (h : m.WF) :
+    m.toArray.toList = m.toList :=
+  HashMap.Raw.toList_keysArray h.out
+
+@[simp]
+theorem size_toArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toArray.size = m.size :=
+  HashMap.Raw.size_keysArray h.out
+
+@[simp]
+theorem isEmpty_toArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toArray.isEmpty = m.isEmpty :=
+  HashMap.Raw.isEmpty_keysArray h.out
+
+@[simp]
+theorem contains_toArray [EquivBEq α] [LawfulHashable α]
+    {k : α} (h : m.WF) :
+    m.toArray.contains k = m.contains k :=
+  HashMap.Raw.contains_keysArray h.out
+
+@[simp]
+theorem mem_toArray [LawfulBEq α] {k : α} (h : m.WF) :
+    k ∈ m.toArray ↔ k ∈ m :=
+  HashMap.Raw.mem_keysArray h.out
+
+theorem forall_mem_toArray_iff_forall_mem_get [EquivBEq α] [LawfulHashable α]
+    {p : α → Prop} (h : m.WF) :
+    (∀ k ∈ m.toArray, p k) ↔ ∀ (k : α) (h : k ∈ m), p (m.get k h) :=
+  HashMap.Raw.forall_mem_keysArray_iff_forall_mem_getKey h.out
+
+theorem contains_of_mem_toArray [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α}
+    (h' : k ∈ m.toArray) : m.contains k :=
+  HashMap.Raw.contains_of_mem_keysArray h.out h'
 
 section monadic
 
@@ -538,6 +586,24 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : α → δ → m' (ForInStep δ)} {init : δ} :
     ForIn.forIn m init f = ForIn.forIn m.toList init f :=
   HashMap.Raw.forIn_eq_forIn_keys h.out
+
+theorem foldM_eq_foldlM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → α → m' δ} {init : δ} (h : m.WF) :
+    m.foldM (fun d a => f d a) init = m.toArray.foldlM f init :=
+  HashMap.Raw.foldM_eq_foldlM_keysArray h.out
+
+theorem fold_eq_foldl_toArray {f : δ → α → δ} {init : δ} (h : m.WF) :
+    m.fold (fun d a => f d a) init = m.toArray.foldl f init :=
+  HashMap.Raw.fold_eq_foldl_keysArray h.out
+
+theorem forM_eq_forM_toArray [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} (h : m.WF) :
+    m.forM (fun a => f a) = m.toArray.forM f :=
+  HashMap.Raw.forM_eq_forM_keysArray h.out
+
+theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} (h : m.WF) :
+    m.forIn (fun a d => f a d) init = ForIn.forIn m.toArray init f :=
+  HashMap.Raw.forIn_eq_forIn_keysArray h.out
 
 end monadic
 

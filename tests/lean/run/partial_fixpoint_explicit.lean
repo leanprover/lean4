@@ -28,7 +28,7 @@ partial_fixpoint monotonicity fun _ _ a _ => a _
 -- Type error
 
 /--
-error: type mismatch
+error: Type mismatch
   ()
 has type
   Unit

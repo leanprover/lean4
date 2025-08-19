@@ -288,7 +288,7 @@ def normLtAux : Level → Nat → Level → Nat → Bool
 def normLt (l₁ l₂ : Level) : Bool :=
   normLtAux l₁ 0 l₂ 0
 
-private def isAlreadyNormalizedCheap : Level → Bool
+def isAlreadyNormalizedCheap : Level → Bool
   | zero    => true
   | param _ => true
   | mvar _  => true

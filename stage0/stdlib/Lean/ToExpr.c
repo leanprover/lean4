@@ -167,7 +167,6 @@ static lean_object* l_Lean_instToExprISize_mkNat___closed__1;
 static lean_object* l_Lean_instToExprInt___lam__0___closed__3;
 LEAN_EXPORT lean_object* l_Lean_instToExprInt32___lam__0___boxed(lean_object*);
 static lean_object* l_Lean_instToExprUInt32___lam__0___closed__3;
-LEAN_EXPORT lean_object* l_Lean_instToExprUnit___lam__0___boxed(lean_object*);
 static lean_object* l_Lean_instToExprUnit___lam__0___closed__2;
 static lean_object* l_Lean_instToExprChar___closed__1;
 static lean_object* l_Lean_instToExprUInt64___lam__0___closed__3;
@@ -2333,20 +2332,12 @@ static lean_object* _init_l_Lean_instToExprUnit() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_alloc_closure((void*)(l_Lean_instToExprUnit___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_instToExprUnit___lam__0), 1, 0);
 x_2 = l_Lean_instToExprUnit___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_instToExprUnit___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_instToExprUnit___lam__0(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_instToExprFilePath___lam__0___closed__0() {

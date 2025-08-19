@@ -255,32 +255,6 @@ end IdCompletionUtils
 
 section DotCompletionUtils
 
-  /-- Return `true` if `e` is a `declName`-application, or can be unfolded (delta-reduced) to one. -/
-  private partial def isDefEqToAppOf (e : Expr) (declName : Name) : MetaM Bool := do
-    let isConstOf := match e.getAppFn with
-      | .const name .. => (privateToUserName? name).getD name == declName
-      | _ => false
-    if isConstOf then
-      return true
-    let some e ← unfoldDefinitionGuarded? e | return false
-    isDefEqToAppOf e declName
-
-  private def isDotCompletionMethod (typeName : Name) (info : ConstantInfo) : MetaM Bool :=
-    forallTelescopeReducing info.type fun xs _ => do
-      for x in xs do
-        let localDecl ← x.fvarId!.getDecl
-        let type := localDecl.type.consumeMData
-        if (← isDefEqToAppOf type typeName) then
-          return true
-      return false
-
-  /--
-  Checks whether the expected type of `info.type` can be reduced to an application of `typeName`.
-  -/
-  private def isDotIdCompletionMethod (typeName : Name) (info : ConstantInfo) : MetaM Bool := do
-    forallTelescopeReducing info.type fun _ type =>
-      isDefEqToAppOf type.consumeMData typeName
-
   /--
   Converts `n` to `Name.anonymous` if `n` is a private prefix (see `Lean.isPrivatePrefix`).
   -/
@@ -320,8 +294,11 @@ section DotCompletionUtils
   -/
   private def NameSetModPrivate := Std.TreeSet Name cmpModPrivate
 
+  private def NameSetModPrivate.ofArray (names : Array Name) : NameSetModPrivate :=
+    Std.TreeSet.ofArray names cmpModPrivate
+
   /--
-    Given a type, try to extract relevant type names for dot notation field completion.
+    Given a type, try to extract relevant type names for dot notation field completion (for `s.f x₁ ... xₙ`).
     We extract the type name, parent struct names, and unfold the type.
     The process mimics the dot notation elaboration procedure at `App.lean` -/
   private def getDotCompletionTypeNameSet (type : Expr) : MetaM NameSetModPrivate := do
@@ -329,6 +306,45 @@ section DotCompletionUtils
     for typeName in ← getDotCompletionTypeNames type do
       set := set.insert typeName
     return set
+
+  /-- Return `true` if `e` is a `declName`-application, or can be unfolded (delta-reduced) to one. -/
+  private partial def isDefEqToAppOf (e : Expr) (declName : Name) : MetaM Bool := do
+    let isConstOf := match e.getAppFn with
+      | .const name .. => (privateToUserName? name).getD name == declName
+      | _ => false
+    if isConstOf then
+      return true
+    let some e ← unfoldDefinitionGuarded? e | return false
+    isDefEqToAppOf e declName
+
+  private def isDotCompletionMethod (typeName : Name) (info : ConstantInfo) : MetaM Bool :=
+    forallTelescopeReducing info.type fun xs _ => do
+      for x in xs do
+        let localDecl ← x.fvarId!.getDecl
+        let type := localDecl.type.consumeMData
+        if (← isDefEqToAppOf type typeName) then
+          return true
+      return false
+
+  /--
+  Checks whether the type of `info.type` returns one of the type names in `typeNameSet`, for dot ident notation completion.
+  The process mimics the dotted identifier notation elaboration procedure at `Lean.Elab.App`.
+  -/
+  private partial def isDotIdCompletionMethod (typeNameSet : NameSetModPrivate) (info : ConstantInfo) : MetaM Bool := do
+    let rec visit (type : Expr) : MetaM Bool := do
+      let type ← try whnfCoreUnfoldingAnnotations type catch _ => pure type
+      if type.isForall then
+        forallTelescope type fun _ type => visit type
+      else
+        let type ← instantiateMVars type
+        let .const typeName _ := type.getAppFn | return false
+        if typeNameSet.contains typeName then
+          return true
+        else if let some type' ← unfoldDefinitionGuarded? type then
+          visit type'
+        else
+          return false
+    visit info.type
 
 end DotCompletionUtils
 
@@ -459,14 +475,11 @@ def dotIdCompletion
     let some expectedType := expectedType?
       | return ()
 
-    let resultTypeFn := (← instantiateMVars expectedType).cleanupAnnotations.getAppFn.cleanupAnnotations
-    let .const .. := resultTypeFn
-      | return ()
+    let typeNames ← getDotIdCompletionTypeNames expectedType
+    if typeNames.isEmpty then
+      return ()
 
-    let nameSet ← try
-      getDotCompletionTypeNameSet resultTypeFn
-    catch _ =>
-      pure Std.TreeSet.empty
+    let nameSet := NameSetModPrivate.ofArray typeNames
 
     forEligibleDeclsWithCancellationM fun declName c => do
       let unnormedTypeName := declName.getPrefix
@@ -476,8 +489,7 @@ def dotIdCompletion
       let some declName ← normPrivateName? declName
         | return
 
-      let typeName := declName.getPrefix
-      if ! (← isDotIdCompletionMethod typeName c) then
+      if ! (← isDotIdCompletionMethod nameSet c) then
         return
 
       let completionKind ← getCompletionKindForDecl c
@@ -486,7 +498,7 @@ def dotIdCompletion
         addUnresolvedCompletionItem (.mkSimple c.name.getString!) (.const c.name) completionKind
         return
 
-      let some label ← matchDecl? typeName id (danglingDot := false) declName | pure ()
+      let some label ← matchDecl? declName.getPrefix id (danglingDot := false) declName | pure ()
       addUnresolvedCompletionItem label (.const c.name) completionKind
 
 def fieldIdCompletion

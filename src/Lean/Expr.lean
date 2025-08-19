@@ -1440,7 +1440,9 @@ opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (subst : @& 
 with `xs` ordered from outermost to innermost de Bruijn index.
 
 For example, `e := f x y` with `xs := #[x, y]` goes to `f #1 #0`,
-whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`. -/
+whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`.
+
+Careful, this function does not instantiate assigned meta variables. -/
 @[extern "lean_expr_abstract"]
 opaque abstract (e : @& Expr) (xs : @& Array Expr) : Expr
 
@@ -1663,6 +1665,13 @@ def isOptParam (e : Expr) : Bool :=
 /-- Return `true` if `e` is of the form `autoParam _ _` -/
 def isAutoParam (e : Expr) : Bool :=
   e.isAppOfArity ``autoParam 2
+
+/-- Returns `true` if `e` is an application of one of the type annotation gadgets. This does not check that the application has the correct arity. -/
+def isTypeAnnotation (e : Expr) : Bool :=
+  if let .const c _ := e.getAppFn then
+    c == ``outParam || c == ``semiOutParam || c == ``optParam || c == ``autoParam
+  else
+    false
 
 /--
 Remove `outParam`, `optParam`, and `autoParam` applications/annotations from `e`.
@@ -1949,7 +1958,7 @@ def setPPFunBinderTypes (e : Expr) (flag : Bool) :=
   e.setOption `pp.funBinderTypes flag
 
 /--
-Annotate `e` with `pp.explicit := flag`
+Annotate `e` with `pp.numericTypes := flag`
 The delaborator uses `pp` options.
 -/
 def setPPNumericTypes (e : Expr) (flag : Bool) :=
@@ -2373,5 +2382,14 @@ def mkIntLit (n : Int) : Expr :=
 
 def reflBoolTrue : Expr :=
   mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
+
+def reflBoolFalse : Expr :=
+  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.false)
+
+def eagerReflBoolTrue : Expr :=
+  mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.true) (mkConst ``Bool.true)) reflBoolTrue
+
+def eagerReflBoolFalse : Expr :=
+  mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.false) (mkConst ``Bool.false)) reflBoolFalse
 
 end Lean

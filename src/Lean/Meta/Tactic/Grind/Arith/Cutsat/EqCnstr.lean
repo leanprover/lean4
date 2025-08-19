@@ -169,6 +169,16 @@ private def updateDiseqs (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Uni
     c₂.assert
     if (← inconsistent) then return ()
 
+private def updateElimEqs (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+  if (← inconsistent) then return ()
+  assert! x != y
+  let some c₂ := (← get').elimEqs[y]! | return ()
+  let b := c₂.p.coeff x
+  if b == 0 then return ()
+  let c₂ := { p := c₂.p.mul a |>.combine (c.p.mul (-b)), h := .subst x c₂ c : EqCnstr }
+  trace[grind.debug.cutsat.elimEq] "updated: {← getVar y}, {← c₂.pp}"
+  modify' fun s => { s with elimEqs := s.elimEqs.set y (some c₂) }
+
 private def updateOccsAt (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
   updateDvdCnstr k x c y
   updateLowers k x c y
@@ -181,6 +191,29 @@ private def updateOccs (k : Int) (x : Var) (c : EqCnstr) : GoalM Unit := do
   updateOccsAt k x c x
   for y in ys do
     updateOccsAt k x c y
+    updateElimEqs k x c y
+
+/--
+Similar to `updateOccs`, but does not assume first variable is `p`s "owner".
+Recall that when eliminating equalities we do not necessarily eliminate the
+maximal variable, but the one with unit coefficient.
+Remark: we keep occurrences for equations in `elimEqs` because we want to maintain them
+in solved form. Consider the following scenario:
+1- Asserted `a + 2*b + 1 = 0`, and eliminated `a`
+2- Asserted `b + 1 = 0`, and eliminated `b`.
+
+At step 2, we want to substitute `b` at `a + 2*b + 1` to ensure `cutsat` knows
+`a` is forced to be equal to a constant value. This is relevant for linearizing
+nonlinear terms.
+
+Remark: `x` is the variable that was eliminated using `p`.
+-/
+partial def _root_.Int.Linear.Poly.updateOccsForElimEq (p : Poly) (x : Var) : GoalM Unit := do
+  let rec go (p : Poly) : GoalM Unit := do
+    let .add _ y p := p | return ()
+    unless x == y do addOcc y x
+    go p
+  go p
 
 @[export lean_grind_cutsat_assert_eq]
 def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
@@ -205,11 +238,13 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
   let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
   trace[grind.debug.cutsat.subst] ">> {← getVar x}, {← c.pp}"
   trace[grind.cutsat.assert.store] "{← c.pp}"
+  trace[grind.debug.cutsat.elimEq] "{← getVar x}, {← c.pp}"
   modify' fun s => { s with
     elimEqs := s.elimEqs.set x (some c)
     elimStack := x :: s.elimStack
   }
   updateOccs k x c
+  c.p.updateOccsForElimEq x
   if (← inconsistent) then return ()
   -- assert a divisibility constraint IF `|k| != 1`
   if k.natAbs != 1 then
@@ -341,7 +376,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
-  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg
+  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg | toInt | finVal
   deriving BEq, Repr
 
 private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
@@ -359,6 +394,8 @@ private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   | Int.natAbs _ => some (.natAbs, Nat.mkType)
   | Int.toNat _ => some (.toNat, Nat.mkType)
   | NatCast.natCast α _ _ => some (.natCast, α)
+  | Fin.val _ _ => some (.finVal, Nat.mkType)
+  | Grind.ToInt.toInt _ _ _ _ => some (.toInt, Int.mkType)
   | _ => none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
@@ -367,7 +404,7 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   -- TODO: document `NatCast.natCast` case.
   -- Remark: we added it to prevent natCast_sub from being expanded twice.
   if declName == ``NatCast.natCast then return true
-  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast then return false
+  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast | .toInt | .finVal then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false
@@ -394,15 +431,36 @@ private def internalizeInt (e : Expr) : GoalM Unit := do
     c.assert
 
 private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
-  if b == 0 || b == 1 || b == -1 then
-    throwError "`grind` internal error, found non-normalized div/mod by {b}"
   if (← get').divMod.contains (a, b) then return ()
   modify' fun s => { s with divMod := s.divMod.insert (a, b) }
-  let n : Int := 1 - b.natAbs
-  let b := mkIntLit b
-  pushNewFact <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b
-  pushNewFact <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b reflBoolTrue
-  pushNewFact <| mkApp4 (mkConst ``Int.Linear.emod_le) a b (toExpr n) reflBoolTrue
+  let b' ← shareCommon (mkIntLit b)
+  if b == 0 || b == 1 || b == -1 then
+    /-
+    We cannot assume terms have been normalized.
+    Recall that terms may not be normalized because of dependencies.
+    -/
+    let gen ← getGeneration a
+    internalize b' gen
+    let ediv ← shareCommon (mkIntDiv a b'); internalize ediv gen
+    let emod ← shareCommon (mkIntMod a b'); internalize emod gen
+    if b == 0 then
+      pushEq emod a <| mkApp (mkConst ``Int.emod_zero) a
+      pushEq ediv b' <| mkApp (mkConst ``Int.ediv_zero) a
+    else if b == 1 then
+      let zero ← shareCommon (mkIntLit 0); internalize zero gen
+      pushEq emod zero <| mkApp (mkConst ``Int.emod_one) a
+      pushEq ediv a <| mkApp (mkConst ``Int.ediv_one) a
+    else
+      assert! b == -1
+      let zero ← shareCommon (mkIntLit 0); internalize zero gen
+      let neg_a ← shareCommon (mkIntNeg a); internalize neg_a gen
+      pushEq emod zero <| mkApp (mkConst ``Int.emod_minus_one) a
+      pushEq ediv neg_a <| mkApp (mkConst ``Int.ediv_minus_one) a
+  else
+    let n : Int := 1 - b.natAbs
+    pushNewFact <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b'
+    pushNewFact <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b' eagerReflBoolTrue
+    pushNewFact <| mkApp4 (mkConst ``Int.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
 
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()
@@ -416,6 +474,18 @@ private def propagateMod (e : Expr) : GoalM Unit := do
   if (← isInstHModInt inst) then
     let some b ← getIntValue? b | return ()
     expandDivMod a b
+
+private def propagateToInt (e : Expr) : GoalM Unit := do
+  let_expr Grind.ToInt.toInt α _ _ a := e | return ()
+  if (← isToIntTerm a) then return ()
+  let some (eToInt, he) ← toInt? a α | return ()
+  discard <| mkVar e
+  if isSameExpr e eToInt then return ()
+  modify' fun s => { s with
+    toIntTermMap := s.toIntTermMap.insert { expr := a } { eToInt, he, α }
+  }
+  let prop := mkIntEq e eToInt
+  pushNewFact <| mkExpectedPropHint he prop
 
 private def propagateNatAbs (e : Expr) : GoalM Unit := do
   let_expr Int.natAbs a := e | return ()
@@ -437,11 +507,20 @@ private def internalizeIntTerm (e type : Expr) (parent? : Option Expr) (k : Supp
   match k with
   | .div => propagateDiv e
   | .mod => propagateMod e
+  | .toInt => propagateToInt e
   | _ => internalizeInt e
+
+private def propagateNatSub (e : Expr) : GoalM Unit := do
+  let_expr HSub.hSub _ _ _ inst a b := e | return ()
+  unless (← isInstHSubNat inst) do return ()
+  discard <| mkNatVar a
+  discard <| mkNatVar b
+  pushNewFact <| mkApp2 (mkConst ``Int.Linear.natCast_sub) a b
 
 private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do
   if (← isNatTerm e) then return () -- already internalized
   match k with
+  | .sub => propagateNatSub e
   | .natAbs => propagateNatAbs e
   | .toNat => propagateToNat e
   | _ => pure ()

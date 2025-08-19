@@ -56,11 +56,6 @@ def processHeaderCore
   else
     .private
   let (env, messages) ← try
-    for i in imports do
-      if !isModule && i.importAll then
-        throw <| .userError "cannot use `import all` without `module`"
-      if i.importAll && mainModule.getRoot != i.module.getRoot then
-        throw <| .userError "cannot use `import all` across module path roots"
     let env ←
       importModules (leakEnv := leakEnv) (loadExts := true) (level := level)
         imports opts trustLevel plugins arts

@@ -29,6 +29,8 @@ is valid only if `leap` is `true`.
 instance : Inhabited (ValidDate l) where
   default := ⟨⟨1, 1⟩, (by cases l <;> decide)⟩
 
+attribute [local instance] lexOrd
+
 instance : DecidableEq (ValidDate leap) := Subtype.instDecidableEq
 
 instance : Ord (ValidDate leap) where

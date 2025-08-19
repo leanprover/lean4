@@ -890,6 +890,27 @@ instance [Inhabited α] : Inhabited (ULift α) where
   default := ULift.up default
 
 /--
+Lifts a type or proposition to a higher universe level.
+
+`PULift α` wraps a value of type `α`. It is a generalization of
+`PLift` that allows lifting values who's type may live in `Sort s`.
+It also subsumes `PLift`.
+-/
+-- The universe variable `r` is written first so that `ULift.{r} α` can be used
+-- when `s` can be inferred from the type of `α`.
+structure PULift.{r, s} (α : Sort s) : Sort (max s r 1) where
+  /-- Wraps a value to increase its type's universe level. -/
+  up ::
+  /-- Extracts a wrapped value from a universe-lifted type. -/
+  down : α
+
+/-- Bijection between `α` and `PULift.{v} α` -/
+theorem PULift.up_down {α : Sort u} (b : PULift.{v} α) : Eq (up (down b)) b := rfl
+
+/-- Bijection between `α` and `PULift.{v} α` -/
+theorem PULift.down_up {α : Sort u} (a : α) : Eq (down (up.{v} a)) a := rfl
+
+/--
 Either a proof that `p` is true or a proof that `p` is false. This is equivalent to a `Bool` paired
 with a proof that the `Bool` is `true` if and only if `p` is true.
 
@@ -1564,7 +1585,7 @@ class AndOp (α : Type u) where
   and : α → α → α
 
 /-- The homogeneous version of `HXor`: `a ^^^ b : α` where `a b : α`. -/
-class Xor (α : Type u) where
+class XorOp (α : Type u) where
   /-- The implementation of `a ^^^ b : α`. See `HXor`. -/
   xor : α → α → α
 
@@ -1647,8 +1668,8 @@ instance [AndOp α] : HAnd α α α where
   hAnd a b := AndOp.and a b
 
 @[default_instance]
-instance [Xor α] : HXor α α α where
-  hXor a b := Xor.xor a b
+instance [XorOp α] : HXor α α α where
+  hXor a b := XorOp.xor a b
 
 @[default_instance]
 instance [OrOp α] : HOr α α α where
@@ -2812,33 +2833,6 @@ where
    | .nil       => 0
    | .cons c cs => hAdd (go cs) c.utf8Size
 
-instance : HAdd String.Pos String.Pos String.Pos where
-  hAdd p₁ p₂ := { byteIdx := hAdd p₁.byteIdx p₂.byteIdx }
-
-instance : HSub String.Pos String.Pos String.Pos where
-  hSub p₁ p₂ := { byteIdx := HSub.hSub p₁.byteIdx p₂.byteIdx }
-
-instance : HAdd String.Pos Char String.Pos where
-  hAdd p c := { byteIdx := hAdd p.byteIdx c.utf8Size }
-
-instance : HAdd String.Pos String String.Pos where
-  hAdd p s := { byteIdx := hAdd p.byteIdx s.utf8ByteSize }
-
-instance : LE String.Pos where
-  le p₁ p₂ := LE.le p₁.byteIdx p₂.byteIdx
-
-instance : LT String.Pos where
-  lt p₁ p₂ := LT.lt p₁.byteIdx p₂.byteIdx
-
-instance (p₁ p₂ : String.Pos) : Decidable (LE.le p₁ p₂) :=
-  inferInstanceAs (Decidable (LE.le p₁.byteIdx p₂.byteIdx))
-
-instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
-  inferInstanceAs (Decidable (LT.lt p₁.byteIdx p₂.byteIdx))
-
-instance : Min String.Pos := minOfLe
-instance : Max String.Pos := maxOfLe
-
 /--
 A UTF-8 byte position that points at the end of a string, just after the last character.
 
@@ -3010,6 +3004,15 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
 
 /--
+Version of `Array.getInternal` that does not increment the reference count of its result.
+
+This is only intended for direct use by the compiler.
+-/
+@[extern "lean_array_fget_borrowed"]
+unsafe opaque Array.getInternalBorrowed {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
+  a.toList.get ⟨i, h⟩
+
+/--
 Use the indexing notation `a[i]` instead.
 
 Access an element from an array without needing a runtime bounds checks,
@@ -3037,6 +3040,14 @@ Examples:
 -/
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
   dite (LT.lt i a.size) (fun h => a.getInternal i h) (fun _ => v₀)
+
+/--
+Version of `Array.get!Internal` that does not increment the reference count of its result.
+
+This is only intended for direct use by the compiler.
+-/
+@[extern "lean_array_get_borrowed"]
+unsafe opaque Array.get!InternalBorrowed {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α
 
 /--
 Use the indexing notation `a[i]!` instead.

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Omega.MinNatAbs
-// Imports: Init.BinderPredicates Init.Data.Int.Order Init.Data.List.MinMax Init.Data.Nat.MinMax Init.Data.Option.Lemmas
+// Imports: Init.BinderPredicates Init.Data.Int.Order Init.Data.List.MinMax Init.Data.Nat.Order Init.Data.Option.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -349,7 +349,7 @@ return x_2;
 lean_object* initialize_Init_BinderPredicates(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_MinMax(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_MinMax(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Order(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Omega_MinNatAbs(uint8_t builtin, lean_object* w) {
@@ -365,7 +365,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_MinMax(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_MinMax(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Nat_Order(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Option_Lemmas(builtin, lean_io_mk_world());

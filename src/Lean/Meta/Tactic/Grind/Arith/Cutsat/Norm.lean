@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+import Lean.Meta.IntInstTesters
 
 public section
 

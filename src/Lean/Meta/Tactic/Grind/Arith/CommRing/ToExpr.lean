@@ -48,6 +48,8 @@ open Lean.Grind
 def ofRingExpr (e : CommRing.Expr) : Expr :=
   match e with
   | .num k => mkApp (mkConst ``CommRing.Expr.num) (toExpr k)
+  | .intCast k => mkApp (mkConst ``CommRing.Expr.intCast) (toExpr k)
+  | .natCast k => mkApp (mkConst ``CommRing.Expr.natCast) (toExpr k)
   | .var x => mkApp (mkConst ``CommRing.Expr.var) (toExpr x)
   | .add a b => mkApp2 (mkConst ``CommRing.Expr.add) (ofRingExpr a) (ofRingExpr b)
   | .mul a b => mkApp2 (mkConst ``CommRing.Expr.mul) (ofRingExpr a) (ofRingExpr b)
@@ -58,15 +60,6 @@ def ofRingExpr (e : CommRing.Expr) : Expr :=
 instance : ToExpr CommRing.Expr where
   toExpr := ofRingExpr
   toTypeExpr := mkConst ``CommRing.Expr
-
-def ofNullCert (nc : NullCert) : Expr :=
-  match nc with
-  | .empty => mkConst ``CommRing.NullCert.empty
-  | .add q lhs rhs nc => mkApp4 (mkConst ``CommRing.NullCert.add) (toExpr q) (toExpr lhs) (toExpr rhs) (ofNullCert nc)
-
-instance : ToExpr CommRing.NullCert where
-  toExpr := ofNullCert
-  toTypeExpr := mkConst ``CommRing.NullCert
 
 def ofSemiringExpr (e : Ring.OfSemiring.Expr) : Expr :=
   match e with

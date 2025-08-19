@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Meta.Reduce
 public import Lean.Meta.Tactic.Assert
+public import Lean.Meta.DiscrTree
+import Lean.Meta.AppBuilder
 
 public section
 
@@ -60,7 +62,7 @@ namespace Lean.Expr
 /-- Return the symmetry lemmas that match the target type. -/
 def getSymmLems (tgt : Expr) : MetaM (Array Name) := do
   let .app (.app rel _) _ := tgt
-    | throwError "symmetry lemmas only apply to binary relations, not{indentExpr tgt}"
+    | throwError "Symmetry lemmas only apply to binary relations, not{indentExpr tgt}"
   (symmExt.getState (← getEnv)).getMatch rel
 
 /-- Given a term `e : a ~ b`, construct a term in `b ~ a` using `@[symm]` lemmas. -/
@@ -75,7 +77,8 @@ def applySymm (e : Expr) : MetaM Expr := do
         let .true ← isDefEq args.back! e | failure
         mkExpectedTypeHint (mkAppN lem args) (← instantiateMVars body)
   lems.toList.firstM act
-    <|> throwError m!"no applicable symmetry lemma found for {indentExpr tgt}"
+    <|> throwError m!"No applicable symmetry lemma found for{indentExpr tgt}"
+          ++ .note m!"Additional symmetry lemmas can be registered using the `[symm]` attribute"
 
 end Lean.Expr
 
@@ -98,7 +101,8 @@ def applySymm (g : MVarId) : MetaM MVarId := do
         g'.setTag (← g.getTag)
         pure g'
   lems.toList.firstM act
-    <|> throwError m!"no applicable symmetry lemma found for {indentExpr tgt}"
+    <|> throwError m!"No applicable symmetry lemma found for{indentExpr tgt}"
+          ++ .note m!"Additional symmetry lemmas can be registered using the `[symm]` attribute"
 
 /-- Use a symmetry lemma (i.e. marked with `@[symm]`) to replace a hypothesis in a goal. -/
 def applySymmAt (h : FVarId) (g : MVarId) : MetaM MVarId := do

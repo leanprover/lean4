@@ -998,7 +998,7 @@ def applyAttributes (declName : Name) (attrs : Array Attribute) : TermElabM Unit
 def mkTypeMismatchError (header? : Option MessageData) (e : Expr) (eType : Expr) (expectedType : Expr) : MetaM MessageData := do
   let header : MessageData := match header? with
     | some header => m!"{header} "
-    | none        => m!"type mismatch{indentExpr e}\n"
+    | none        => m!"Type mismatch{indentExpr e}\n"
   return m!"{header}{← mkHasTypeButIsExpectedMsg eType expectedType}"
 
 def throwTypeMismatchError (header? : Option MessageData) (expectedType : Expr) (eType : Expr) (e : Expr)
@@ -1188,9 +1188,8 @@ private def mkSyntheticSorryFor (expectedType? : Option Expr) : TermElabM Expr :
   elaboration step with exception `ex`.
 -/
 def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
-  let syntheticSorry ← mkSyntheticSorryFor expectedType?
   logException ex
-  pure syntheticSorry
+  mkSyntheticSorryFor expectedType?
 
 /-- If `mayPostpone == true`, throw `Exception.postpone`. -/
 def tryPostpone : TermElabM Unit := do
@@ -1995,9 +1994,12 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
 where
   process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
     if candidates.isEmpty then
+      let env ← getEnv
       if (← read).autoBoundImplicit &&
            !(← read).autoBoundImplicitForbidden n &&
-           isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
+           isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) &&
+           -- do not turn a scope error into an auto implicit
+           !(env.isExporting && (env.setExporting false).contains n) then
         throwAutoBoundImplicitLocal n
       else
         throwUnknownIdentifierAt (declHint := n) stx m!"Unknown identifier `{.ofConstName n}`"

@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instPreorderQOfOrderedAdd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instLTQOfOrderedAdd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_zsmul___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instLEQOfOrderedAdd(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instLEQOfOrderedAdd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_sub(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_intCast___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Q_liftOn_u2082___redArg(lean_object*, lean_object*, lean_object*);
@@ -27,6 +27,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_zsmul___redArg___boxed(lea
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_OfCommSemiring_toQUnexpander(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ring_Envelope_0__Lean_Grind_Ring_OfSemiring_r_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instLTQOfOrderedAdd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Q_mk___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_npow___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Q_mk___boxed(lean_object*, lean_object*, lean_object*);
@@ -42,7 +43,6 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Q_liftOn_u2082(lean_object
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_mul___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommRing_OfCommSemiring_toQUnexpander___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_npow(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Ring_OfSemiring_instPreorderQOfOrderedAdd___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Q_mk(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommRing_OfCommSemiring_toQUnexpander___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_intCast___redArg___boxed(lean_object*, lean_object*);
@@ -63,7 +63,7 @@ static lean_object* l_Lean_Grind_CommRing_OfCommSemiring_toQUnexpander___closed_
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_ofSemiring___redArg___lam__0(lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_natCast(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instLEQOfOrderedAdd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instLEQOfOrderedAdd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_sub___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_OfCommSemiring_ofCommSemiring(lean_object*, lean_object*);
@@ -79,7 +79,6 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_neg___redArg(lean_object*)
 static lean_object* l_Lean_Grind_CommRing_OfCommSemiring_toQUnexpander___closed__5;
 static lean_object* l_Lean_Grind_CommRing_OfCommSemiring_toQUnexpander___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Q_mk___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instPreorderQOfOrderedAdd(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_OfCommSemiring_ofCommSemiring___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_mul(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ring_Envelope_0__Lean_Grind_Ring_OfSemiring_r_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -696,52 +695,38 @@ x_4 = l_Lean_Grind_Ring_OfSemiring_toQ___redArg(x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instLEQOfOrderedAdd(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instLEQOfOrderedAdd(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_5; 
-x_5 = lean_box(0);
-return x_5;
+lean_object* x_7; 
+x_7 = lean_box(0);
+return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instLEQOfOrderedAdd___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instLEQOfOrderedAdd___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_5; 
-x_5 = l_Lean_Grind_Ring_OfSemiring_instLEQOfOrderedAdd(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_3);
+lean_object* x_7; 
+x_7 = l_Lean_Grind_Ring_OfSemiring_instLEQOfOrderedAdd(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec_ref(x_2);
-return x_5;
+return x_7;
 }
 }
-static lean_object* _init_l_Lean_Grind_Ring_OfSemiring_instPreorderQOfOrderedAdd___closed__0() {
+LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instLTQOfOrderedAdd(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
+lean_object* x_7; 
+x_7 = lean_box(0);
+return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instPreorderQOfOrderedAdd(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instLTQOfOrderedAdd___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_5; 
-x_5 = l_Lean_Grind_Ring_OfSemiring_instPreorderQOfOrderedAdd___closed__0;
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_instPreorderQOfOrderedAdd___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Grind_Ring_OfSemiring_instPreorderQOfOrderedAdd(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_3);
+lean_object* x_7; 
+x_7 = l_Lean_Grind_Ring_OfSemiring_instLTQOfOrderedAdd(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec_ref(x_2);
-return x_5;
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_OfCommSemiring_ofCommSemiring___redArg(lean_object* x_1) {
@@ -915,8 +900,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_Ring_OfSemiring_intCast___redArg___closed__0 = _init_l_Lean_Grind_Ring_OfSemiring_intCast___redArg___closed__0();
 lean_mark_persistent(l_Lean_Grind_Ring_OfSemiring_intCast___redArg___closed__0);
-l_Lean_Grind_Ring_OfSemiring_instPreorderQOfOrderedAdd___closed__0 = _init_l_Lean_Grind_Ring_OfSemiring_instPreorderQOfOrderedAdd___closed__0();
-lean_mark_persistent(l_Lean_Grind_Ring_OfSemiring_instPreorderQOfOrderedAdd___closed__0);
 l_Lean_Grind_CommRing_OfCommSemiring_toQUnexpander___closed__0 = _init_l_Lean_Grind_CommRing_OfCommSemiring_toQUnexpander___closed__0();
 lean_mark_persistent(l_Lean_Grind_CommRing_OfCommSemiring_toQUnexpander___closed__0);
 l_Lean_Grind_CommRing_OfCommSemiring_toQUnexpander___closed__1 = _init_l_Lean_Grind_CommRing_OfCommSemiring_toQUnexpander___closed__1();

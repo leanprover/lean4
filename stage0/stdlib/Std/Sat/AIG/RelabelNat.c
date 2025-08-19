@@ -26,6 +26,7 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_Entrypoint_relabelNat_x27(lean_object*, l
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat_x27___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat_x27(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIGAux_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addAtom(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_replace___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -46,13 +47,13 @@ static lean_object* l_Std_Sat_AIG_RelabelNat_State_empty___closed__5;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIG___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat_x27___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat_x27___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RelabelNat_0__Std_Sat_AIG_RelabelNat_State_ofAIGAux_go_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIGAux(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RelabelNat_0__Std_Sat_AIG_relabelNat_x27_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_RelabelNat_State_empty___closed__0;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIG(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addAtom___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addFalse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_RelabelNat_State_empty___closed__4;
@@ -61,6 +62,7 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addGate___redArg(lean_ob
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RelabelNat_0__Std_Sat_AIG_relabelNat_x27_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat___redArg(lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RelabelNat_0__Std_Sat_AIG_RelabelNat_State_ofAIGAux_go_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -172,9 +174,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_ctor_get(x_3, 1);
 x_7 = lean_ctor_get(x_3, 0);
 x_8 = lean_ctor_get(x_6, 0);
-lean_inc(x_8);
 x_9 = lean_ctor_get(x_6, 1);
-lean_inc_ref(x_9);
 x_10 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
 lean_closure_set(x_10, 0, x_1);
 x_11 = lean_array_get_size(x_9);
@@ -204,6 +204,8 @@ x_27 = l_Std_DHashMap_Internal_AssocList_get_x3f___redArg(x_10, x_4, x_26);
 if (lean_obj_tag(x_27) == 0)
 {
 uint8_t x_28; 
+lean_inc_ref(x_9);
+lean_inc(x_8);
 x_28 = !lean_is_exclusive(x_6);
 if (x_28 == 0)
 {
@@ -344,8 +346,6 @@ else
 lean_dec_ref(x_27);
 lean_dec(x_26);
 lean_dec_ref(x_10);
-lean_dec_ref(x_9);
-lean_dec(x_8);
 lean_dec(x_4);
 lean_dec_ref(x_2);
 return x_3;
@@ -360,9 +360,7 @@ lean_inc(x_68);
 lean_inc(x_69);
 lean_dec(x_3);
 x_70 = lean_ctor_get(x_68, 0);
-lean_inc(x_70);
 x_71 = lean_ctor_get(x_68, 1);
-lean_inc_ref(x_71);
 x_72 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
 lean_closure_set(x_72, 0, x_1);
 x_73 = lean_array_get_size(x_71);
@@ -392,6 +390,8 @@ x_89 = l_Std_DHashMap_Internal_AssocList_get_x3f___redArg(x_72, x_4, x_88);
 if (lean_obj_tag(x_89) == 0)
 {
 lean_object* x_90; lean_object* x_91; lean_object* x_92; uint8_t x_93; 
+lean_inc_ref(x_71);
+lean_inc(x_70);
 if (lean_is_exclusive(x_68)) {
  lean_ctor_release(x_68, 0);
  lean_ctor_release(x_68, 1);
@@ -486,8 +486,6 @@ lean_object* x_114;
 lean_dec_ref(x_89);
 lean_dec(x_88);
 lean_dec_ref(x_72);
-lean_dec_ref(x_71);
-lean_dec(x_70);
 lean_dec(x_4);
 lean_dec_ref(x_2);
 x_114 = lean_alloc_ctor(0, 2, 0);
@@ -623,7 +621,7 @@ return x_5;
 else
 {
 lean_object* x_8; 
-x_8 = lean_array_fget(x_3, x_4);
+x_8 = lean_array_fget_borrowed(x_3, x_4);
 switch (lean_obj_tag(x_8)) {
 case 0:
 {
@@ -640,11 +638,10 @@ case 1:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_13 = lean_ctor_get(x_8, 0);
-lean_inc(x_13);
-lean_dec_ref(x_8);
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_add(x_4, x_14);
 lean_dec(x_4);
+lean_inc(x_13);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
 x_16 = l_Std_Sat_AIG_RelabelNat_State_addAtom___redArg(x_1, x_2, x_5, x_13);
@@ -655,7 +652,6 @@ goto _start;
 default: 
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-lean_dec_ref(x_8);
 x_18 = lean_unsigned_to_nat(1u);
 x_19 = lean_nat_add(x_4, x_18);
 lean_dec(x_4);
@@ -691,6 +687,53 @@ _start:
 lean_object* x_7; 
 x_7 = l_Std_Sat_AIG_RelabelNat_State_ofAIGAux_go(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec_ref(x_4);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RelabelNat_0__Std_Sat_AIG_RelabelNat_State_ofAIGAux_go_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_5; 
+lean_dec_ref(x_4);
+lean_dec_ref(x_2);
+x_5 = lean_apply_1(x_3, lean_box(0));
+return x_5;
+}
+case 1:
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec_ref(x_1);
+x_7 = lean_apply_2(x_2, x_6, lean_box(0));
+return x_7;
+}
+default: 
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_1, 1);
+lean_inc(x_9);
+lean_dec_ref(x_1);
+x_10 = lean_apply_3(x_4, x_8, x_9, lean_box(0));
+return x_10;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RelabelNat_0__Std_Sat_AIG_RelabelNat_State_ofAIGAux_go_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l___private_Std_Sat_AIG_RelabelNat_0__Std_Sat_AIG_RelabelNat_State_ofAIGAux_go_match__1_splitter___redArg(x_3, x_4, x_5, x_6);
 return x_7;
 }
 }

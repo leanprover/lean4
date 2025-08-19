@@ -12,8 +12,8 @@ public import Lean.Meta.Tactic.Apply
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.Cases
 public import Lean.Meta.Tactic.Subst
-public import Lean.Meta.Tactic.Simp.Types
 public import Lean.Meta.Tactic.Assumption
+import Lean.Meta.Tactic.Simp.Main
 
 public section
 
@@ -183,6 +183,7 @@ register_builtin_option genInjectivity : Bool := {
 
 def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
   if (← getEnv).contains ``Eq.propIntro && genInjectivity.get (← getOptions) &&  !(← isInductivePredicate declName) then
+    withTraceNode `Meta.injective (fun _ => return m!"{declName}") do
     let info ← getConstInfoInduct declName
     unless info.isUnsafe do
       -- We need to reset the local context here because `solveEqOfCtorEq` uses
@@ -193,7 +194,6 @@ def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
       withLCtx {} {} do
       for ctor in info.ctors do
         withExporting (isExporting := !isPrivateName ctor) do
-        withTraceNode `Meta.injective (fun _ => return m!"{ctor}") do
           let ctorVal ← getConstInfoCtor ctor
           if ctorVal.numFields > 0 then
             mkInjectiveTheorem ctorVal

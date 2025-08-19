@@ -178,7 +178,6 @@ LEAN_EXPORT lean_object* lean_mk_io_error_eof(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-lean_dec(x_1);
 x_2 = lean_box(17);
 return x_2;
 }
@@ -1184,7 +1183,6 @@ case 13:
 {
 lean_object* x_90; 
 x_90 = lean_ctor_get(x_1, 0);
-lean_inc(x_90);
 if (lean_obj_tag(x_90) == 0)
 {
 uint32_t x_91; lean_object* x_92; 
@@ -1199,6 +1197,7 @@ goto block_6;
 else
 {
 uint32_t x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; 
+lean_inc_ref(x_90);
 x_93 = lean_ctor_get_uint32(x_1, sizeof(void*)*2);
 x_94 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_94);

@@ -24,12 +24,10 @@ static lean_object* l_Lean_Grind_instCommSemiringNat___closed__8;
 static lean_object* l_Lean_Grind_instCommSemiringNat___closed__6;
 lean_object* l_Nat_mul___boxed(lean_object*, lean_object*);
 lean_object* l_instOfNatNat___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_instPreorderNat;
 lean_object* l_Nat_add___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_instCommSemiringNat___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommSemiringNat;
 static lean_object* l_Lean_Grind_instCommSemiringNat___closed__5;
-static lean_object* l_Lean_Grind_instPreorderNat___closed__0;
 lean_object* l_instNatCastNat___lam__0___boxed(lean_object*);
 lean_object* l_Nat_pow___boxed(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Grind_instCommSemiringNat___closed__0() {
@@ -130,26 +128,6 @@ x_1 = l_Lean_Grind_instCommSemiringNat___closed__8;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_instPreorderNat___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Grind_instPreorderNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Grind_instPreorderNat___closed__0;
-return x_1;
-}
-}
 lean_object* initialize_Init_Grind_Ordered_Ring(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -183,10 +161,6 @@ l_Lean_Grind_instCommSemiringNat___closed__8 = _init_l_Lean_Grind_instCommSemiri
 lean_mark_persistent(l_Lean_Grind_instCommSemiringNat___closed__8);
 l_Lean_Grind_instCommSemiringNat = _init_l_Lean_Grind_instCommSemiringNat();
 lean_mark_persistent(l_Lean_Grind_instCommSemiringNat);
-l_Lean_Grind_instPreorderNat___closed__0 = _init_l_Lean_Grind_instPreorderNat___closed__0();
-lean_mark_persistent(l_Lean_Grind_instPreorderNat___closed__0);
-l_Lean_Grind_instPreorderNat = _init_l_Lean_Grind_instPreorderNat();
-lean_mark_persistent(l_Lean_Grind_instPreorderNat);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

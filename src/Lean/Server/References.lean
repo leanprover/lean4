@@ -90,7 +90,12 @@ def toLspRefInfo (i : RefInfo) : BaseIO Lsp.RefInfo := do
     let .ok parentDeclRanges? ← EIO.toBaseIO <| ref.ci.runCoreM do
         let some parentDeclName := parentDeclName?
           | return none
-        findDeclarationRanges? parentDeclName
+        -- Use `local` as it avoids unnecessary blocking, which is especially important when called
+        -- from the snapshot reporter. Specifically, if `ref` is from a tactic of an async theorem,
+        -- `parentDeclName` will not be available in the current environment and we would block only
+        -- to return `none` in the end anyway. At the end of elaboration, we rerun this function on
+        -- the full info tree with the main environment, so the access will succeed immediately.
+        return declRangeExt.find? (asyncMode := .local) (← getEnv) parentDeclName
       -- we only use `CoreM` to get access to a `MonadEnv`, but these are currently all `IO`
       | unreachable!
     return {

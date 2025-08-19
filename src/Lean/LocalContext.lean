@@ -431,15 +431,30 @@ def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : Loc
         auxDeclToFullName }
 
 /--
-  Low-level function for updating the local context.
-  Assumptions about `f`, the resulting nested expressions must be definitionally equal to their original values,
-  the `index` nor `fvarId` are modified.  -/
+Low-level function for updating the local context.
+Assumptions about `f`, the resulting nested expressions must be definitionally equal to their original values,
+and neither the `index` nor `fvarId` are modified.
+-/
 @[inline] def modifyLocalDecl (lctx : LocalContext) (fvarId : FVarId) (f : LocalDecl → LocalDecl) : LocalContext :=
   match lctx with
   | { fvarIdToDecl := map, decls := decls, auxDeclToFullName } =>
     match lctx.find? fvarId with
     | none      => lctx
     | some decl =>
+      let decl := f decl
+      { fvarIdToDecl := map.insert decl.fvarId decl
+        decls        := decls.set decl.index decl
+        auxDeclToFullName }
+
+/--
+Low-level function for updating every declaration in the local context.
+Assumptions about `f`, the resulting nested expressions must be definitionally equal to their original values,
+and neither the `index` nor `fvarId` are modified.
+-/
+def modifyLocalDecls (lctx : LocalContext) (f : LocalDecl → LocalDecl) : LocalContext :=
+  lctx.decls.foldl (init := lctx) fun
+    | lctx, none => lctx
+    | { fvarIdToDecl := map, decls := decls, auxDeclToFullName }, some decl =>
       let decl := f decl
       { fvarIdToDecl := map.insert decl.fvarId decl
         decls        := decls.set decl.index decl

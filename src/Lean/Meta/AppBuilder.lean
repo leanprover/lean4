@@ -716,6 +716,20 @@ def mkIffOfEq (h : Expr) : MetaM Expr := do
   else
     mkAppM ``Iff.of_eq #[h]
 
+/--
+Given proofs `hᵢ : pᵢ`, returns a proof for `p₁ ∧ ... ∧ pₙ`.
+Roughly, `mkAndIntroN hs : mkAndN (← hs.mapM inferType)`.
+-/
+def mkAndIntroN (hs : List Expr) : MetaM Expr := (·.1) <$> go hs
+  where
+    go : List Expr → MetaM (Expr × Expr)
+      | [] => return (mkConst ``True.intro, mkConst ``True)
+      | [h] => return (h, ← inferType h)
+      | h :: hs => do
+        let (h', p') ← go hs
+        let p ← inferType h
+        return (mkApp4 (mkConst ``And.intro) p p' h h', mkApp2 (mkConst ``And) p p')
+
 builtin_initialize do
   registerTraceClass `Meta.appBuilder
   registerTraceClass `Meta.appBuilder.result (inherited := true)

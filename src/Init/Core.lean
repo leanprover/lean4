@@ -30,6 +30,29 @@ theorem id_def {α : Sort u} (a : α) : id a = a := rfl
 attribute [grind] id
 
 /--
+A helper gadget for instructing the kernel to eagerly reduce terms.
+
+When the gadget wraps the argument of an application, then when checking that
+the expected and inferred type of the argument match, the kernel will evaluate terms more eagerly.
+It is often used to wrap `Eq.refl true` proof terms as `eagerReduce (Eq.refl true)`
+when using proof by reflection.
+As an example, consider the theorem:
+```
+theorem eq_norm (ctx : Context) (p₁ p₂ : Poly) (h : (p₁.norm == p₂) = true) :
+  p₁.denote ctx = 0 → p₂.denote ctx = 0
+```
+The argument `h : (p₁.norm == p₂) = true` is a candidate for `eagerReduce`.
+When applying this theorem, we would write:
+
+```
+eq_norm ctx p q (eagerReduce (Eq.refl true)) h
+```
+to instruct the kernel to use eager reduction when establishing that `(p.norm == q) = true` is
+definitionally equal to `true = true`.
+-/
+@[expose] def eagerReduce {α : Sort u} (a : α) : α := a
+
+/--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,
 since it can sometimes be used to avoid introducing variables.
 For example, `(·<·)` is the less-than relation,
@@ -1573,6 +1596,7 @@ gen_injective_theorems% MProd
 gen_injective_theorems% NonScalar
 gen_injective_theorems% Option
 gen_injective_theorems% PLift
+gen_injective_theorems% PULift
 gen_injective_theorems% PNonScalar
 gen_injective_theorems% PProd
 gen_injective_theorems% Prod
@@ -2517,3 +2541,7 @@ class Irrefl (r : α → α → Prop) : Prop where
   irrefl : ∀ a, ¬r a a
 
 end Std
+
+/-- Deprecated alias for `XorOp`. -/
+@[deprecated XorOp (since := "2025-07-30")]
+abbrev Xor := XorOp

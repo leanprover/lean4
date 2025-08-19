@@ -14,8 +14,8 @@ namespace Lean
 
 private opaque DynlibImpl : NonemptyType.{0}
 /-- A dynamic library handle. -/
-@[expose] def Dynlib := DynlibImpl.type
-instance : Nonempty Dynlib := DynlibImpl.property
+def Dynlib := DynlibImpl.type
+instance : Nonempty Dynlib := by exact DynlibImpl.property
 
 private opaque Dynlib.SymbolImpl (dynlib : Dynlib) : NonemptyType.{0}
 /-- A reference to a symbol within a dynamic library. -/

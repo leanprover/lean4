@@ -46,7 +46,7 @@ theorem finRange_succ_last {n} :
       getElem_map, Fin.castSucc_mk, getElem_singleton]
     split
     · rfl
-    · next h => exact Fin.eq_last_of_not_lt h
+    next h => exact Fin.eq_last_of_not_lt h
 
 @[grind _=_]
 theorem finRange_reverse {n} : (finRange n).reverse = (finRange n).map Fin.rev := by

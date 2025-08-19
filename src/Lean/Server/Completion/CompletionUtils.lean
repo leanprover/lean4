@@ -73,6 +73,7 @@ where
 def unfoldDefinitionGuarded? (e : Expr) : MetaM (Option Expr) :=
   try Lean.Meta.unfoldDefinition? e catch _ => pure none
 
+/-- Get type names for resolving `id` in `s.id x₁ ... xₙ` notation. -/
 partial def getDotCompletionTypeNames (type : Expr) : MetaM (Array Name) :=
   return (← visit type |>.run #[]).2
 where
@@ -84,5 +85,27 @@ where
         modify fun s => s.push parentName
     let some type ← unfoldDefinitionGuarded? type | return ()
     visit type
+
+/--
+Gets type names for resolving `id` in `.id x₁ ... xₙ` notation.
+The process mimics the dotted indentifier notation elaboration procedure at `Lean.Elab.App`.
+Catches and ignores all errors, so no need to run this within `try`/`catch`.
+-/
+partial def getDotIdCompletionTypeNames (type : Expr) : MetaM (Array Name) :=
+  return (← visit type |>.run #[]).2
+where
+  visit (type : Expr) : StateRefT (Array Name) MetaM Unit := do
+    try
+      let type ← try Meta.whnfCoreUnfoldingAnnotations type catch _ => pure type
+      if type.isForall then
+        Meta.forallTelescope type fun _ type => visit type
+      else
+        let type ← instantiateMVars type
+        let .const typeName _ := type.getAppFn | return ()
+        modify fun s => s.push typeName
+        if let some type' ← unfoldDefinitionGuarded? type then
+          visit type'
+    catch _ =>
+      pure ()
 
 end Lean.Server.Completion

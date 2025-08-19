@@ -110,11 +110,12 @@ return x_18;
 }
 default: 
 {
-lean_object* x_19; 
+lean_object* x_19; lean_object* x_20; 
 lean_dec(x_3);
 lean_dec(x_1);
-x_19 = lean_apply_2(x_2, lean_box(0), x_4);
-return x_19;
+x_19 = lean_box(2);
+x_20 = lean_apply_2(x_2, lean_box(0), x_19);
+return x_20;
 }
 }
 }
@@ -204,12 +205,13 @@ return x_27;
 }
 default: 
 {
-lean_object* x_28; 
+lean_object* x_28; lean_object* x_29; 
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-x_28 = lean_apply_2(x_3, lean_box(0), x_5);
-return x_28;
+x_28 = lean_box(2);
+x_29 = lean_apply_2(x_3, lean_box(0), x_28);
+return x_29;
 }
 }
 }

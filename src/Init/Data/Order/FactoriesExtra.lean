@@ -25,11 +25,11 @@ public def _root_.LE.ofOrd (α : Type u) [Ord α] : LE α where
 Creates an `DecidableLE α` instance using a well-behaved `Ord α` instance.
 -/
 @[inline, expose]
-public def _root_DecidableLE.ofOrd (α : Type u) [LE α] [Ord α] [LawfulOrderOrd α] :
+public def _root_.DecidableLE.ofOrd (α : Type u) [LE α] [Ord α] [LawfulOrderOrd α] :
     DecidableLE α :=
   fun a b => match h : (compare a b).isLE with
     | true => isTrue (by simpa only [LawfulOrderOrd.isLE_compare] using h)
-    | false => isFalse (by simpa only [LawfulOrderOrd.compare_isLE_eq_false] using h)
+    | false => isFalse (by simpa only [LawfulOrderOrd.isLE_compare_eq_false] using h)
 
 /--
 Creates an `LT α` instance from an `Ord α` instance.

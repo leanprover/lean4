@@ -613,7 +613,7 @@ public structure Packages.LinearPreorderOfOrdArgs (α : Type u) where
     first
     | infer_instance
     | exact LT.ofOrd _
-  lawful_lt :
+  lt_iff :
       let := ord; let := le; have := lawful_le; let := lt
       ∀ a b : α, a < b ↔ compare a b = .lt := by
     extract_lets
@@ -621,9 +621,9 @@ public structure Packages.LinearPreorderOfOrdArgs (α : Type u) where
     | exact fun _ _ => Std.compare_eq_lt.symm
     | fail "Failed to automatically derive that `LT` and `Ord` are compatible. \
             Please ensure that a `LawfulOrderLT` instance can be synthesized or \
-            manually provide the field `lawful_lt`."
+            manually provide the field `lt_iff`."
   decidableLT :
-      let := ord; let := lt; let := le; have := lawful_le; have := lawful_lt
+      let := ord; let := lt; let := le; have := lawful_le; have := lt_iff
       DecidableLT α := by
     extract_lets
     first
@@ -638,7 +638,7 @@ public structure Packages.LinearPreorderOfOrdArgs (α : Type u) where
     first
     | infer_instance
     | exact BEq.ofOrd _
-  lawful_beq :
+  beq_iff :
       let := ord; let := le; have := lawful_le; let := beq
       ∀ a b : α, a == b ↔ compare a b = .eq := by
     extract_lets
@@ -646,7 +646,7 @@ public structure Packages.LinearPreorderOfOrdArgs (α : Type u) where
     | exact fun _ _ => Std.compare_eq_eq.symm
     | fail "Failed to automatically derive that `BEq` and `Ord` are compatible. \
             Please ensure that a `LawfulOrderBEq` instance can be synthesized or \
-            manually provide the field `lawful_beq`."
+            manually provide the field `beq_iff`."
 
 /--
 Use this factory to conveniently define a linear preorder on a type `α` and all the associated
@@ -686,8 +686,8 @@ automatically. If it fails, it is necessary to provide some of the fields manual
   the `Ord` instance.
 * Some proof obligations can be filled automatically if the data-carrying typeclasses have been
   derived from the `Ord` instance. For example: If the `beq` field is omitted and no `BEq α` instance
-  can be synthesized, it is derived from the `Ord α` instance. In this case, `lawful_beq` can be
-  omitted because Lean can infer that `BEq α` and `Ord α` are compatible.
+  can be synthesized, it is derived from the `Ord α` instance. In this case, `beq_iff`
+  can be omitted because Lean can infer that `BEq α` and `Ord α` are compatible.
 * Other proof obligations, for example `transOrd`, can be omitted if a matching instance can be
   synthesized.
 -/
@@ -706,9 +706,9 @@ public def LinearPreorderPackage.ofOrd (α : Type u)
     lt_iff a b := by
       cases h : compare a b
       all_goals simp [h, ← args.lawful_le.isLE_compare a _, ← args.lawful_le.isGE_compare a _,
-        args.lawful_lt]
+        args.lt_iff]
     beq_iff_le_and_ge a b := by
-      simp [args.lawful_beq, Ordering.eq_eq_iff_isLE_and_isGE, isLE_compare,
+      simp [args.beq_iff, Ordering.eq_eq_iff_isLE_and_isGE, isLE_compare,
         isGE_compare]
     decidableLE := args.decidableLE
     decidableLT := args.decidableLT
@@ -779,7 +779,7 @@ public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
       ∀ a b : α, Min.min a b = if (compare a b).isLE then a else b := by
     extract_lets
     first
-    | exact fun a b => Std.min_eq_if_compare_isLE (a := a) (b := b)
+    | exact fun a b => Std.min_eq_if_isLE_compare (a := a) (b := b)
     | fail "Failed to automatically prove that `min` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMin` instance can be synthesized or \
             manuelly provide the field `min_eq`."
@@ -788,7 +788,7 @@ public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
       ∀ a b : α, Max.max a b = if (compare a b).isGE then a else b := by
     extract_lets
     first
-    | exact fun a b => Std.max_eq_if_compare_isGE (a := a) (b := b)
+    | exact fun a b => Std.max_eq_if_isGE_compare (a := a) (b := b)
     | fail "Failed to automatically prove that `max` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMax` instance can be synthesized or \
             manually provide the field `max_eq`."
@@ -832,8 +832,8 @@ automatically. If it fails, it is necessary to provide some of the fields manual
   instance from the `Ord` instance.
 * Some proof obligations can be filled automatically if the data-carrying typeclasses have been
   derived from the `Ord` instance. For example: If the `beq` field is omitted and no `BEq α` instance
-  can be synthesized, it is derived from the `LE α` instance. In this case, `lawful_beq` can be
-  omitted because Lean can infer that `BEq α` and `Ord α` are compatible.
+  can be synthesized, it is derived from the `LE α` instance. In this case, `beq_iff`
+  can be omitted because Lean can infer that `BEq α` and `Ord α` are compatible.
 * Other proof obligations, such as `transOrd`, can be omitted if matching instances can be
   synthesized.
 -/

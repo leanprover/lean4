@@ -69,13 +69,6 @@ def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) (delimitsLocal : B
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }
   pure a
 
-def withSection {α} (elabFn : CommandElabM α) (delimitsLocal : Bool := true) : CommandElabM α := do
-  addScope (isNewNamespace := false) (isNoncomputable := false) (isPublic := false) (attrs := []) "" (← getCurrNamespace) (delimitsLocal := delimitsLocal)
-  let a ← elabFn
-  modify fun s => { s with scopes := s.scopes.drop 1 }
-  popScope
-  pure a
-
 private def popScopes (numScopes : Nat) : CommandElabM Unit :=
   for _ in *...numScopes do
     popScope
@@ -96,21 +89,21 @@ private def checkEndHeader : Name → List Scope → Option Name
 
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
   match stx with
-  | `(namespace $[+localNotDelimiting%$localNotDelimitingTk]? $n) => addNamespace n.getId localNotDelimitingTk.isNone
+  | `(namespace $n) => addNamespace n.getId
   | _               => throwUnsupportedSyntax
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
   match stx with
-  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $[+localNotDelimiting%$localNotDelimitingTk]? $(header?)?) =>
+  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $(header?)?) =>
     -- TODO: allow more attributes?
     let attrs ← if expTk.isSome then
       pure [← `(Parser.Term.attrInstance| expose)]
     else
       pure []
     if let some header := header? then
-      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId (delimitsLocal := localNotDelimitingTk.isNone)
+      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId
     else
-      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (delimitsLocal := localNotDelimitingTk.isNone)
+      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace)
   | _                        => throwUnsupportedSyntax
 
 @[builtin_command_elab «end_local_scope»] def elabEndLocalScope : CommandElab := fun _ => do

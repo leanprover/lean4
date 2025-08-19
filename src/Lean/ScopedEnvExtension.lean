@@ -23,12 +23,11 @@ inductive Entry (α : Type) where
 structure State (σ : Type) where
   state        : σ
   activeScopes : NameSet := {}
-  delimitsLocal : Bool := true
+  delimitsLocal : Bool := true -- used for implementing `end_local_scope`.
 
 structure ScopedEntries (β : Type) where
   map : SMap Name (PArray β) := {}
   deriving Inhabited
-
 structure StateStack (α : Type) (β : Type) (σ : Type) where
   stateStack    : List (State σ) := {}
   scopedEntries : ScopedEntries β := {}
@@ -145,6 +144,8 @@ def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Envir
     | _      :: state₂ :: stack => { s with stateStack := state₂ :: stack }
     | _ => s
 
+/-- Modifier for the `delimitsLocal` flag, that is used to control the behaviour of delimiting of local entries.
+-/
 def ScopedEnvExtension.setDelimitsLocal (ext : ScopedEnvExtension α β σ) (env : Environment) (delimitsLocal : Bool) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
     match s.stateStack with
@@ -157,6 +158,12 @@ def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Envir
 def ScopedEnvExtension.addScopedEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) (b : β) : Environment :=
   ext.ext.addEntry env (Entry.«scoped» namespaceName b)
 
+/-- The following function is used to implement `end_local_scope` command.
+
+By default, all states have `delimitsLocal` set to `true`, and the following code modifies only the top element of the stack.
+If the top element’s `delimitsLocal` is `false`, the function instead traverses down the stack until it reaches the first state where `delimitsLocal` is `true`.
+Intuitively, `delimitsLocal` of each `State` determines whether local entries are delimited. When set to false, it allows traversal through implicit scopes where local entries are not delimited.
+-/
 def stateStackModify (ext : ScopedEnvExtension α β σ) (states : List (State σ)) (b : β) : List (State σ) :=
   match states with
   | [] => states
@@ -219,6 +226,8 @@ def popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit :=
   for ext in (← scopedEnvExtensionsRef.get) do
     modifyEnv ext.popScope
 
+/-- Used to implement `end_local_scope` command, that disables delimiting local entries of ScopedEnvExtension in a current scope.
+-/
 def setDelimitsLocal [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (delimitsLocal : Bool := true) : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do
     modifyEnv (ext.setDelimitsLocal · delimitsLocal)

@@ -163,7 +163,7 @@ theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} {l : AssocLis
   suffices ∀ l l', Perm (filterMap.go f l l').toList
       (l.toList ++ l'.toList.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) by
     simpa using this .nil l
-  intros l l'
+  intro l l'
   induction l' generalizing l
   · simp [filterMap.go]
   next k v t ih =>
@@ -181,7 +181,7 @@ theorem toList_map {f : (a : α) → β a → γ a} {l : AssocList α β} :
   suffices ∀ l l', Perm (map.go f l l').toList
       (l.toList ++ l'.toList.map fun p => ⟨p.1, f p.1 p.2⟩) by
     simpa using this .nil l
-  intros l l'
+  intro l l'
   induction l' generalizing l
   · simp [map.go]
   next k v t ih =>
@@ -195,7 +195,7 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
   suffices ∀ l l', Perm (filter.go f l l').toList
       (l.toList ++ l'.toList.filter fun p => f p.1 p.2) by
     simpa using this .nil l
-  intros l l'
+  intro l l'
   induction l' generalizing l
   · simp [filter.go]
   next k v t ih =>

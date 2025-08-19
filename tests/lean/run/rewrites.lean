@@ -26,7 +26,7 @@ example (h : Int) (hyp : g * 1 = h) : g = h := by
 
 #guard_msgs(drop info) in
 example : ∀ (x y : Nat), x ≤ y := by
-  intros x y
+  intro x y
   rw? -- Used to be an error here https://leanprover.zulipchat.com/#narrow/stream/287929-mathlib4/topic/panic.20and.20error.20with.20rw.3F/near/370495531
   exact test_sorry
 

@@ -4,22 +4,22 @@
 set_option trace.Elab.Deriving.decEq true
 
 mutual
-inductive Tree : Type :=
+inductive Tree : Type where
   | node : ListTree → Tree
 
-inductive ListTree : Type :=
+inductive ListTree : Type where
   | nil : ListTree
   | cons : Tree → ListTree → ListTree
   deriving DecidableEq
 end
 
 mutual
-inductive Foo₁ : Type :=
+inductive Foo₁ : Type where
   | foo₁₁ : Foo₁
   | foo₁₂ : Foo₂ → Foo₁
 deriving DecidableEq
 
-inductive Foo₂ : Type :=
+inductive Foo₂ : Type where
   | foo₂ : Foo₃ → Foo₂
 
 inductive Foo₃ : Type :=

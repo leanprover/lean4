@@ -153,7 +153,7 @@ deriving Repr
 
 /--
 info: @[expose] def instReprPublic : Repr Public :=
-{ reprPrec := reprPublic✝ }
+{ reprPrec := Public._repr }
 -/
 #guard_msgs in
 #with_exporting

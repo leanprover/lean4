@@ -145,7 +145,7 @@ def mkBEqInstance (declName : Name) : CommandElabM Unit := do
       if (← isEnumType declName) then
         mkBEqEnumCmd declName
       else
-         mkBEqInstanceCmds declName
+        mkBEqInstanceCmds declName
     cmds.forM elabCommand
 
 def mkBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do

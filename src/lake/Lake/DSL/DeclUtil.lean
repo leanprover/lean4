@@ -3,36 +3,38 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Util.Binder
-import Lake.Util.Name
-import Lake.Config.Meta
-import Lean.Parser.Command
-import Lean.Elab.Command
+public import Lake.Util.Binder
+public import Lake.Config.MetaClasses
+public import Lean.Elab.Command
 
 open Lean Parser Command
 
 namespace Lake.DSL
 
 /-- The name given to the definition created by the `package` syntax. -/
-def packageDeclName := `_package
+public def packageDeclName := `_package
 
 ---
 
-abbrev DocComment := TSyntax ``docComment
-abbrev Attributes := TSyntax ``Term.attributes
-abbrev AttrInstance := TSyntax ``Term.attrInstance
-abbrev WhereDecls := TSyntax ``Term.whereDecls
+public abbrev DocComment := TSyntax ``docComment
+public abbrev Attributes := TSyntax ``Term.attributes
+public abbrev AttrInstance := TSyntax ``Term.attrInstance
+public abbrev WhereDecls := TSyntax ``Term.whereDecls
 
 ---
 
-def expandAttrs (attrs? : Option Attributes) : Array AttrInstance :=
+public def expandAttrs (attrs? : Option Attributes) : Array AttrInstance :=
   if let some attrs := attrs? then
     match attrs with
     | `(Term.attributes| @[$attrs,*]) => attrs
     | _ => #[]
   else
     #[]
+
+public section
 
 syntax identOrStr :=
   ident <|> str
@@ -81,8 +83,9 @@ syntax simpleBinder :=
   ident <|> bracketedSimpleBinder
 
 abbrev SimpleBinder := TSyntax ``simpleBinder
+
 open Lean.Parser.Term in
-def expandOptSimpleBinder (stx? : Option SimpleBinder) : MacroM FunBinder := do
+public def expandOptSimpleBinder (stx? : Option SimpleBinder) : MacroM FunBinder := do
   match stx? with
   | some stx =>
     match stx with
@@ -93,6 +96,8 @@ def expandOptSimpleBinder (stx? : Option SimpleBinder) : MacroM FunBinder := do
       `(funBinder| ($id : $ty))
     | _ => `(funBinder| _)
   | none => `(funBinder| _)
+
+end
 
 structure Field where
   ref : Syntax
@@ -124,12 +129,12 @@ def mkConfigFields
     return a.push fieldStx
   return mkNode ``Term.structInstFields #[mkSep fs mkNullNode]
 
-def mkConfigDeclIdent (stx? : Option IdentOrStr) : CommandElabM Ident := do
+public def mkConfigDeclIdent (stx? : Option IdentOrStr) : CommandElabM Ident := do
   match stx? with
   | some stx => return expandIdentOrStrAsIdent stx
   | none => Elab.Term.mkFreshIdent (← getRef)
 
-def elabConfig
+public def elabConfig
   (tyName : Name) [info : ConfigInfo tyName]
   (id : Ident) (ty : Term) (config : TSyntax ``optConfig)
 : CommandElabM PUnit := do

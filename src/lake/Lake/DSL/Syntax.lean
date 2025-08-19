@@ -3,13 +3,14 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.DSL.DeclUtil
-import Lean.Parser.Term
+public import Lake.DSL.DeclUtil
 
 open Lean Parser Elab Command
 
-open System (FilePath)
+public section -- `public` is not supported on individual `syntax`
 
 /-!
 This module defines the syntax of the Lake DSL. The syntax is defined separately from the elaborator
@@ -32,7 +33,7 @@ if the option has not been set) during the Lakefile's elaboration.
 Configuration arguments are set either via the Lake CLI (by the `-K` option)
 or via the `with` clause in a `require` statement.
 -/
-scoped syntax (name := getConfig) "get_config? " ident :term
+scoped syntax (name := getConfig) "get_config? " ident : term
 
 /-!
 # Package Declarations
@@ -52,7 +53,8 @@ There can only be one `package` declaration per Lake configuration file.
 The defined package configuration will be available for reference as `_package`.
 -/
 scoped syntax (name := packageCommand)
-(docComment)? (Term.attributes)? "package " (identOrStr)? optConfig : command
+  (docComment)? (Term.attributes)? "package " (identOrStr)? optConfig
+: command
 
 /--
 Declare a post-`lake update` hook for the package.
@@ -77,8 +79,8 @@ post_update pkg do
 ```
 -/
 scoped syntax (name := postUpdateDecl)
-optional(docComment) optional(Term.attributes)
-"post_update " (ppSpace simpleBinder)? (declValSimple <|> declValDo)
+  optional(docComment) optional(Term.attributes)
+  "post_update " (ppSpace simpleBinder)? (declValSimple <|> declValDo)
 : command
 
 
@@ -171,7 +173,8 @@ used to configure the dependency. This is equivalent to passing `-K`
 options to the dependency on the command line.
 -/
 scoped syntax (name := requireDecl)
-(docComment)? "require " depSpec : command
+  (docComment)? "require " depSpec
+: command
 
 
 /-!
@@ -197,7 +200,8 @@ module_facet «facet-name» (mod : Module) : α :=
 The `mod` parameter (and its type specifier) is optional.
 -/
 scoped syntax (name := moduleFacetDecl)
-(docComment)? (Term.attributes)? "module_facet " buildDeclSig : command
+  (docComment)? (Term.attributes)? "module_facet " buildDeclSig
+: command
 
 /--
 Define a new package facet. Has one form:
@@ -210,7 +214,8 @@ package_facet «facet-name» (pkg : Package) : α :=
 The `pkg` parameter (and its type specifier) is optional.
 -/
 scoped syntax (name := packageFacetDecl)
-(docComment)? (Term.attributes)? "package_facet " buildDeclSig : command
+  (docComment)? (Term.attributes)? "package_facet " buildDeclSig
+: command
 
 /--
 Define a new library facet. Has one form:
@@ -223,7 +228,8 @@ library_facet «facet-name» (lib : LeanLib) : α :=
 The `lib` parameter (and its type specifier) is optional.
 -/
 scoped syntax (name := libraryFacetDecl)
-(docComment)? (Term.attributes)? "library_facet " buildDeclSig : command
+  (docComment)? (Term.attributes)? "library_facet " buildDeclSig
+: command
 
 
 /-!
@@ -243,7 +249,8 @@ It is of type `NPackage _package.name` to provably demonstrate the package
 provided is the package in which the target is defined.
 -/
 scoped syntax (name := targetCommand)
-(docComment)? (Term.attributes)? "target " buildDeclSig : command
+  (docComment)? (Term.attributes)? "target " buildDeclSig
+: command
 
 
 /-!
@@ -262,7 +269,8 @@ lean_lib «target-name» where /- config opts -/
 ```
 -/
 scoped syntax (name := leanLibCommand)
-(docComment)? (Term.attributes)? "lean_lib " (identOrStr)? optConfig : command
+  (docComment)? (Term.attributes)? "lean_lib " (identOrStr)? optConfig
+: command
 
 /--
 Define a new Lean binary executable target for the package.
@@ -276,21 +284,24 @@ lean_exe «target-name» where /- config opts -/
 ```
 -/
 scoped syntax (name := leanExeCommand)
-(docComment)? (Term.attributes)? "lean_exe " (identOrStr)? optConfig : command
+  (docComment)? (Term.attributes)? "lean_exe " (identOrStr)? optConfig
+: command
 
 /--
 Define a new input file target for the package.
 Can optionally be provided with a configuration of type `InputFileConfig`.
 -/
 scoped syntax (name := inputFileCommand)
-(docComment)? (Term.attributes)? "input_file " (identOrStr)? optConfig : command
+  (docComment)? (Term.attributes)? "input_file " (identOrStr)? optConfig
+: command
 
 /--
 Define a new input directory target for the package.
 Can optionally be provided with a configuration of type `InputDirConfig`.
 -/
 scoped syntax (name := inputDirCommand)
-(docComment)? (Term.attributes)? "input_dir " (identOrStr)? optConfig : command
+  (docComment)? (Term.attributes)? "input_dir " (identOrStr)? optConfig
+: command
 
 /-!
 ## External Library Target Declaration
@@ -314,7 +325,8 @@ provided is the package in which the target is defined.
 The term should build the external library's **static** library.
 -/
 scoped syntax (name := externLibCommand)
-(docComment)? (Term.attributes)? "extern_lib " externLibDeclSpec : command
+  (docComment)? (Term.attributes)? "extern_lib " externLibDeclSpec
+: command
 
 /-!
 # Script Declarations
@@ -341,7 +353,8 @@ script «script-name» (args) do
 ```
 -/
 scoped syntax (name := scriptDecl)
-(docComment)? optional(Term.attributes) "script " scriptDeclSpec : command
+  (docComment)? optional(Term.attributes) "script " scriptDeclSpec
+: command
 
 end DSL
 
@@ -352,7 +365,9 @@ Defines the `v!"<ver>"` syntax for version literals.
 -/
 
 /-- A Lake version literal. -/
-scoped syntax:max (name := verLit) "v!" noWs interpolatedStr(term) : term
+scoped syntax:max (name := verLit)
+  "v!" noWs interpolatedStr(term)
+: term
 
 namespace DSL
 
@@ -366,11 +381,14 @@ syntax facetSuffix := atomic(":" noWs) ident
 syntax packageTargetLit := atomic("+" noWs)? ident
 
 /-- A module target key literal (with optional facet). -/
-scoped syntax:max "`+" noWs ident facetSuffix* : term
+scoped syntax:max (name := moduleTargetKeyLit)
+  "`+" noWs ident facetSuffix*
+: term
 
 /-- A package target key literal (with optional facet). -/
-scoped syntax:max "`@" (noWs ident)?
-  (atomic(noWs "/" noWs) packageTargetLit)? (noWs facetSuffix)* : term
+scoped syntax:max (name := packageTargetKeyLit)
+  "`@" (noWs ident)?  (atomic(noWs "/" noWs) packageTargetLit)? (noWs facetSuffix)*
+: term
 
 /-!
 # Elaboration-Time Control Flow
@@ -410,7 +428,8 @@ extern_lib linuxOnlyLib := ...
 ```
 -/
 scoped syntax (name := metaIf)
-"meta " "if " term " then " cmdDo (" else " cmdDo)? : command
+  "meta " "if " term " then " cmdDo (" else " cmdDo)?
+: command
 
 /--
 Executes a term of type `IO α` at elaboration-time

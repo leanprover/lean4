@@ -291,7 +291,7 @@ with `end <id>`. The `end` command is optional at the end of a file.
 @[builtin_command_parser] def «end»          := leading_parser
   "end" >> optional (ppSpace >> checkColGt >> ident)
 
-@[builtin_command_parser] def «end_local_scope»      := leading_parser "end_local_scope "
+@[builtin_command_parser] def «end_local_scope»      := leading_parser "end_local_scope"
 
 /-- Declares one or more typed variables, or modifies whether already-declared variables are
   implicit.

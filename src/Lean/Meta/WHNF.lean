@@ -169,7 +169,8 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
   let env ← getEnv
   if !isStructureLike env inductName then
     return major
-  else if let some _ ← isConstructorApp? major then
+  let major ← whnfAtMostI major
+  if let some _ ← isConstructorApp? major then
     return major
   else
     let majorType ← inferType major
@@ -217,6 +218,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
     let major := recArgs[majorIdx]
+    let major ← toCtorWhenStructure recVal.getMajorInduct major
     let mut major ← if isWFRec recVal.name && (← getTransparency) == .default then
       -- If recursor is `Acc.rec` or `WellFounded.rec` and transparency is default,
       -- then we bump transparency to .all to make sure we can unfold defs defined by WellFounded recursion.
@@ -229,7 +231,6 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       major ← toCtorWhenK recVal major
     major := major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
-    major ← toCtorWhenStructure recVal.getMajorInduct major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs

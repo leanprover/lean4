@@ -1123,8 +1123,10 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         return true;
 
     if (is_proj(t_n) && is_proj(s_n) && proj_idx(t_n) == proj_idx(s_n)) {
-        expr t_c = proj_expr(t_n);
-        expr s_c = proj_expr(s_n);
+        expr t_c = whnf_core(proj_expr(t_n), false, true);
+        expr s_c = whnf_core(proj_expr(s_n), false, true);
+        if (quick_is_def_eq(t_c, s_c) == l_true)
+            return true;
         if (lazy_delta_proj_reduction(t_c, s_c, proj_idx(t_n)))
             return true;
     }

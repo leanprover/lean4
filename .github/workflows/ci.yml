@@ -195,13 +195,6 @@ jobs:
                 "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
               },
               {
-                "name": "Linux Lake (cached)",
-                "os": "ubuntu-latest",
-                "check-level": (isPr || isPushToMaster) ? 0 : 2,
-                "secondary": true,
-                "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
-              },
-              {
                 "name": "Linux Reldebug",
                 "os": "ubuntu-latest",
                 "check-level": 2,

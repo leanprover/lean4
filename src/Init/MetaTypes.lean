@@ -94,7 +94,7 @@ structure Config where
   -/
   decide            : Bool := false
   /--
-  When `true` (default: `false`), enables unfolding of definitions with smart unfolding annotations and match definitions.
+  When `true` (default: `false`), unfolds applications of functions defined by pattern matching, when one of the patterns applies.
   This can be enabled using the `simp!` syntax.
   -/
   autoUnfold        : Bool := false
@@ -208,7 +208,7 @@ structure Config where
   /--  When `true` (default: `false`), simplifies simple arithmetic expressions. -/
   arith             : Bool := false
   /--
-  When `true` (default: `false`), enables unfolding of definitions with smart unfolding annotations and match definitions.
+  When `true` (default: `false`), unfolds applications of functions defined by pattern matching, when one of the patterns applies.
   This can be enabled using the `simp!` syntax.
   -/
   autoUnfold        : Bool := false

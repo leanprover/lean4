@@ -62,9 +62,9 @@ def packageWithoutSynthesizableInstances' : LinearOrderPackage X := .ofLE X {
 end
 
 /--
-error: could not synthesize default value for field 'lawful_lt' of 'Std.Packages.PreorderOfLEArgs' using tactics
+error: could not synthesize default value for field 'lt_iff' of 'Std.Packages.PreorderOfLEArgs' using tactics
 ---
-error: Failed to automatically prove that the `LE` and `LT` instances are compatible. Please ensure that a `LawfulOrderLT` instance can be synthesized or manually provide the field `lawful_lt`.
+error: Failed to automatically prove that the `LE` and `LT` instances are compatible. Please ensure that a `LawfulOrderLT` instance can be synthesized or manually provide the field `lt_iff`.
 α : Type u
 inst✝² : LE α
 inst✝¹ : DecidableLE α
@@ -81,7 +81,7 @@ def packageOfLEOfLT1 [LE α] [DecidableLE α] [LT α] : PreorderPackage α := .o
 
 def packageOfLEOfLT2 [LE α] [DecidableLE α] [LT α] (h : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a) :
     PreorderPackage α := .ofLE α {
-  lawful_lt := h
+  lt_iff := h
   le_refl := sorry
   le_trans := sorry
 }

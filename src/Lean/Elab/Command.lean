@@ -101,6 +101,8 @@ structure Scope where
   so all sections and namespaces nested within a `noncomputable` section also have this flag set.
   -/
   isNoncomputable : Bool := false
+  /-- If true (default: false), then this scope does not push/pop the scoped environment extensions and all changes should be preserved. -/
+  isWeak          : Bool := false
   scopeRestriction : ScopeRestriction := .none
   deriving Inhabited
 

@@ -199,8 +199,8 @@ def expandNamespacedDeclaration : Macro := fun stx => do
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
     let declTk := stx[1][0]
     let ns := mkIdentFrom declTk ns
-    -- It can come as a surprise that this is within a new scope, so add a restriction to raise warnings for local attributes.
-    withRef declTk `(namespace $ns with_global_scope_restriction% $(⟨newStx⟩) end $ns)
+    -- Enter the namespace without scope manipulation
+    withRef declTk `(weak_namespace $ns $(⟨newStx⟩) end $ns)
   | none => Macro.throwUnsupported
 
 @[builtin_command_elab declaration, builtin_incremental]

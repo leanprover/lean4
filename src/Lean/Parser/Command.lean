@@ -270,9 +270,8 @@ corresponding `end <id>` or the end of the file.
 @[builtin_command_parser] def «namespace»    := leading_parser
   "namespace " >> checkColGt >> ident
 /--
-`weak_namespace <id>` is similar to `namespace`, but any local changes to attributes persist,
-and scoped attributes associated to the namespaces are not activated.
-This is not meant to be used in user code.
+`weak_namespace <id>` is similar to `namespace`, but it effectively does not open a new section.
+Any local changes to attributes persist, and scoped attributes associated to the namespaces are not activated.
 -/
 @[builtin_command_parser] def weakNamespace  := leading_parser
   "weak_namespace " >> checkColGt >> ident

@@ -89,17 +89,11 @@ macro_rules
   | `(tactic| get_elem_tactic_extensible) =>
     `(tactic|
       first
-        | rw [Std.PRange.mem_iff_isSatisfied] at *
-          dsimp +zetaDelta only [Std.PRange.SupportsLowerBound.IsSatisfied, Std.PRange.SupportsUpperBound.IsSatisfied,
-            -- `Vector.size` needs to be unfolded because for `xs : Vector α n`, one needs to prove
-            -- `i < n` instead of `i < xs.size`. Although `Vector.size` is reducible, this is
-            -- not enough for `omega`.
-            Vector.size] at *
-          omega
-        -- Fallback to a less syntactical heuristic if `omega` does not succeed.
-        -- This can happen if reductions would are necessary to prove the goal.
-        -- For `Vector` itself, we have special handling (see above) to enable the use of `omega`,
-        -- but if this happens with another type, we need this fallback.
+        -- This is a relatively rigid check. See `Init.Data.Range.Polymorphic.GetElemTactic`
+        -- for a second one that is more flexible.
+        -- Note: This one is not *strictly* inferior. This one is better able to look under
+        -- reducible terms. The other tactic needs special handling for `Vector.size` to work
+        -- around that fact that `omega` does not reduce terms.
         | apply Std.PRange.Internal.get_elem_helper_upper_open ‹_› (by trivial)
         | done)
 

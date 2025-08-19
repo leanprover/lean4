@@ -352,7 +352,7 @@ where go : ∀ (i : Nat) (l : List α),
     rw [merge_stable]
     · rw [go, go]
     · simp only [mem_mergeSort, Prod.forall]
-      intros j x k y mx my
+      intro j x k y mx my
       have := mem_zipIdx mx
       have := mem_zipIdx my
       simp_all

@@ -8,7 +8,7 @@ set_option pp.mvars false
 Auto-bound implicit appears in dot notation in the type, for a variable that appears later.
 -/
 example : n.succ = 1 → n = 0 := by
-  intros h; injection h
+  intro h; injection h
 
 /-!
 Auto-bound implicit appears in dot notation in a binder, for a variable that appears later.

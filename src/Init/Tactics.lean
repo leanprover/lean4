@@ -53,54 +53,27 @@ be a `let` or function type.
 syntax (name := intro) "intro" notFollowedBy("|") (ppSpace colGt term:max)* : tactic
 
 /--
-Introduces zero or more hypotheses, optionally naming them.
+`intros` repeatedly applies `intro` to introduce zero or more hypotheses
+until the goal is no longer a *binding expression*
+(i.e., a universal quantifier, function type, implication, or `have`/`let`),
+without performing any definitional reductions (no unfolding, beta, eta, etc.).
+The introduced hypotheses receive inaccessible (hygienic) names.
 
-- `intros` is equivalent to repeatedly applying `intro`
-  until the goal is not an obvious candidate for `intro`, which is to say
-  that so long as the goal is a `let` or a pi type (e.g. an implication, function, or universal quantifier),
-  the `intros` tactic will introduce an anonymous hypothesis.
-  This tactic does not unfold definitions.
+`intros x y z` is equivalent to `intro x y z` and exists only for historical reasons.
+The `intro` tactic should be preferred in this case.
 
-- `intros x y ...` is equivalent to `intro x y ...`,
-  introducing hypotheses for each supplied argument and unfolding definitions as necessary.
-  Each argument can be either an identifier or a `_`.
-  An identifier indicates a name to use for the corresponding introduced hypothesis,
-  and a `_` indicates that the hypotheses should be introduced anonymously.
+## Properties and relations
+
+- `intros` succeeds even when it introduces no hypotheses.
+
+- `repeat intro` is like `intros`, but it performs definitional reductions
+  to expose binders, and as such it may introduce more hypotheses than `intros`.
+
+- `intros` is equivalent to `intro _ _ … _`,
+  with the fewest trailing `_` placeholders needed so that the goal is no longer a binding expression.
+  The trailing introductions do not perform any definitional reductions.
 
 ## Examples
-
-Basic properties:
-```lean
-def AllEven (f : Nat → Nat) := ∀ n, f n % 2 = 0
-
--- Introduces the two obvious hypotheses automatically
-example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
-  intros
-  /- Tactic state
-     f✝ : Nat → Nat
-     a✝ : AllEven f✝
-     ⊢ AllEven fun k => f✝ (k + 1) -/
-  sorry
-
--- Introduces exactly two hypotheses, naming only the first
-example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
-  intros g _
-  /- Tactic state
-     g : Nat → Nat
-     a✝ : AllEven g
-     ⊢ AllEven fun k => g (k + 1) -/
-  sorry
-
--- Introduces exactly three hypotheses, which requires unfolding `AllEven`
-example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
-  intros f h n
-  /- Tactic state
-     f : Nat → Nat
-     h : AllEven f
-     n : Nat
-     ⊢ (fun k => f (k + 1)) n % 2 = 0 -/
-  apply h
-```
 
 Implications:
 ```lean
@@ -113,7 +86,7 @@ example (p q : Prop) : p → q → p := by
   assumption
 ```
 
-Let bindings:
+Let-bindings:
 ```lean
 example : let n := 1; let k := 2; n + k = 3 := by
   intros
@@ -121,6 +94,19 @@ example : let n := 1; let k := 2; n + k = 3 := by
      k✝ : Nat := 2
      ⊢ n✝ + k✝ = 3 -/
   rfl
+```
+
+Does not unfold definitions:
+```lean
+def AllEven (f : Nat → Nat) := ∀ n, f n % 2 = 0
+
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros
+  /- Tactic state
+     f✝ : Nat → Nat
+     a✝ : AllEven f✝
+     ⊢ AllEven fun k => f✝ (k + 1) -/
+  sorry
 ```
 -/
 syntax (name := intros) "intros" (ppSpace colGt (ident <|> hole))* : tactic

@@ -47,7 +47,7 @@ theorem numConsts_replaceConst (a b : String) (e : Term) : numConsts (replaceCon
   case case1 => intro c h; guard_hyp h :ₛ (a == c) = true; simp [replaceConst, numConsts, *]
   case case2 => intro c h; guard_hyp h :ₛ ¬(a == c) = true; simp [replaceConst, numConsts, *]
   case case3 =>
-    intros f cs ih
+    intro f cs ih
     guard_hyp ih :ₛnumConstsLst (replaceConstLst a b cs) = numConstsLst cs
     simp [replaceConst, numConsts, *]
   case case4 => simp [replaceConstLst, numConstsLst, *]

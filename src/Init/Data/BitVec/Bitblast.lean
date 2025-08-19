@@ -338,11 +338,11 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
   · rfl
   · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false,
     Prod.mk.injEq, and_eq_false_imp]
-    intros i
+    intro i
     replace h : (x &&& y).getLsbD i = (0#w).getLsbD i := by rw [h]
     simp only [getLsbD_and, getLsbD_zero, and_eq_false_imp] at h
     constructor
-    · intros hx
+    · intro hx
       simp_all
     · by_cases hx : x.getLsbD i <;> simp_all
 
@@ -1666,7 +1666,7 @@ private theorem neg_udiv_eq_intMin_iff_eq_intMin_eq_one_of_msb_eq_true
     {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = false) :
     -x / y = intMin w ↔ (x = intMin w ∧ y = 1#w) := by
   constructor
-  · intros h
+  · intro h
     rcases w with _ | w; decide +revert
     have : (-x / y).msb = true := by simp [h, msb_intMin]
     rw [msb_udiv] at this
@@ -1742,7 +1742,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
         Bool.and_self, ne_zero_of_msb_true, decide_false, Bool.and_true, Bool.true_and, Bool.not_true,
         Bool.false_and, Bool.or_false, bool_to_prop]
       have : x / -y ≠ intMin (w + 1) := by
-        intros h
+        intro h
         have : (x / -y).msb = (intMin (w + 1)).msb := by simp only [h]
         simp only [msb_udiv, msb_intMin, show 0 < w + 1 by omega, decide_true, and_eq_true, beq_iff_eq] at this
         obtain ⟨hcontra, _⟩ := this
@@ -1871,7 +1871,7 @@ theorem toInt_dvd_toInt_iff {x y : BitVec w} :
     y.toInt ∣ x.toInt ↔ (if x.msb then -x else x) % (if y.msb then -y else y) = 0#w := by
   constructor
   <;> by_cases hxmsb : x.msb <;> by_cases hymsb: y.msb
-  <;> intros h
+  <;> intro h
   <;> simp only [hxmsb, hymsb, reduceIte, false_eq_true, toNat_eq, toNat_umod, toNat_ofNat,
         zero_mod, toInt_eq_neg_toNat_neg_of_msb_true, Int.dvd_neg, Int.neg_dvd,
         toInt_eq_toNat_of_msb] at h
@@ -2141,7 +2141,7 @@ theorem add_shiftLeft_eq_or_shiftLeft {x y : BitVec w} :
   ext i hi
   simp only [shiftLeft_eq', getElem_and, getElem_shiftLeft, getElem_zero, and_eq_false_imp,
     not_eq_eq_eq_not, Bool.not_true, decide_eq_false_iff_not, Nat.not_lt]
-  intros hxi hxval
+  intro hxi hxval
   have : 2^i ≤ x.toNat := two_pow_le_toNat_of_getElem_eq_true hi hxi
   have : i < 2^i := by exact Nat.lt_two_pow_self
   omega

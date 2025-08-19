@@ -46,9 +46,6 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
   if isNewNamespace then
     activateScoped newNamespace
 
-private def setScopeDelimitsLocal (delimitsLocal : Bool) : CommandElabM Unit := do
-  setDelimitsLocal delimitsLocal
-
 private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic : Bool := false)
     (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) : CommandElabM Unit :=
   go header

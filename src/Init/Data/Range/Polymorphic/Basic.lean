@@ -60,6 +60,11 @@ def isEmpty {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsUpperBound su α] (r : PRange ⟨sl, su⟩ α) : Bool :=
   (BoundedUpwardEnumerable.init? r.lower).all (! SupportsUpperBound.IsSatisfied r.upper ·)
 
+theorem mem_iff_isSatisfied [SupportsLowerBound sl α] [SupportsUpperBound su α]
+    {x : α} {r : Std.PRange ⟨sl, su⟩ α} :
+    x ∈ r ↔ SupportsLowerBound.IsSatisfied r.lower x ∧ SupportsUpperBound.IsSatisfied r.upper x := by
+  simp [Membership.mem]
+
 theorem le_upper_of_mem {sl α} [LE α] [DecidableLE α] [SupportsLowerBound sl α]
     {a : α} {r : PRange ⟨sl, .closed⟩ α} (h : a ∈ r) : a ≤ r.upper :=
   h.2
@@ -84,6 +89,17 @@ macro_rules
   | `(tactic| get_elem_tactic_extensible) =>
     `(tactic|
       first
+        | rw [Std.PRange.mem_iff_isSatisfied] at *
+          dsimp +zetaDelta only [Std.PRange.SupportsLowerBound.IsSatisfied, Std.PRange.SupportsUpperBound.IsSatisfied,
+            -- `Vector.size` needs to be unfolded because for `xs : Vector α n`, one needs to prove
+            -- `i < n` instead of `i < xs.size`. Although `Vector.size` is reducible, this is
+            -- not enough for `omega`.
+            Vector.size] at *
+          omega
+        -- Fallback to a less syntactical heuristic if `omega` does not succeed.
+        -- This can happen if reductions would are necessary to prove the goal.
+        -- For `Vector` itself, we have special handling (see above) to enable the use of `omega`,
+        -- but if this happens with another type, we need this fallback.
         | apply Std.PRange.Internal.get_elem_helper_upper_open ‹_› (by trivial)
         | done)
 

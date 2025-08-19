@@ -1,4 +1,3 @@
-import Init.Data.Range.Polymorphic
 import Std.Data.Iterators
 
 open Std.Iterators
@@ -56,6 +55,27 @@ def g (xs : Array Nat) : Nat := Id.run do
 def h (n : Nat) : IO Unit := do
   for i in *...n, j in 2...* do
     IO.println s!"i={i}, j={j}"
+
+example (xs : Vector Nat 16) : Id Unit := do
+  let mut x := 0
+  for _h : i in *...<(12 : Nat) do
+    x := x + xs[i]
+
+example (xs : List Nat) (h : xs.length = 16) : Id Unit := do
+  let mut x := 0
+  for _h : i in *...<(12 : Nat) do
+    x := x + xs[i]
+
+example (xs : Array Nat) : Id Unit := do
+  let mut x := 0
+  for _h : i in *...<(xs.size - 5 : Nat) do
+    x := x + xs[i]
+
+example (xs : Array Nat) : Id Unit := do
+  let mut x := 0
+  for _h : i in *...=xs.size do
+    for _h' : i' in *...<i do
+      x := x + xs[i']
 
 /--
 info: i=0, j=2

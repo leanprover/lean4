@@ -60,7 +60,7 @@ where go
     addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic attrs
   | _ => throwError "invalid scope"
 
-private def addNamespace (header : Name) : CommandElabM Unit := do
+private def addNamespace (header : Name) : CommandElabM Unit :=
   addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header
 
 def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
@@ -489,7 +489,6 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
   let options ← Elab.elabSetOption stx[1] stx[3]
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
-
 
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>

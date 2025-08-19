@@ -555,14 +555,34 @@ where
     etaIfUnderApplied e casesInfo.arity do
       let args := e.getAppArgs
       let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...casesInfo.arity]))
+      let typeName := casesInfo.declName.getPrefix
+      let .inductInfo indVal ← getConstInfo typeName | unreachable!
       if casesInfo.numAlts == 0 then
         /- `casesOn` of an empty type. -/
         mkUnreachable resultType
+      else if isPredicateType indVal.type then
+        assert! casesInfo.numAlts == 1
+        let numParams := indVal.numParams
+        let numIndices := indVal.numIndices
+        let .ctorInfo ctorVal ← getConstInfo indVal.ctors[0]! | unreachable!
+        let numCtorFields := casesInfo.altNumParams[0]!
+        let fieldArgs : Array Expr ←
+          Meta.MetaM.run' <| Meta.forallTelescope ctorVal.type fun params indApp => do
+            let ⟨indAppF, indAppArgs⟩ := indApp.getAppFnArgs
+            assert! indAppF == typeName
+            let mut fieldArgs := .emptyWithCapacity numCtorFields
+            for i in *...numCtorFields do
+              let p := params[numParams + i]!
+              let .fvar fvarId := p | unreachable!
+              let decl ← fvarId.getDecl
+              fieldArgs := fieldArgs.push (mkLcProof decl.type)
+            return fieldArgs
+        let f := args[casesInfo.altsRange.lower]!
+        let result ← visit (mkAppN f fieldArgs)
+        mkOverApplication result args casesInfo.arity
       else
         let mut alts := #[]
-        let typeName := casesInfo.declName.getPrefix
         let discr ← visitAppArg args[casesInfo.discrPos]!
-        let .inductInfo indVal ← getConstInfo typeName | unreachable!
         let discrFVarId ← match discr with
           | .fvar discrFVarId => pure discrFVarId
           | .erased | .type .. => mkAuxLetDecl .erased

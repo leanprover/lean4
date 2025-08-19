@@ -17,7 +17,7 @@ public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 @[extern "lean_cutsat_propagate_nonlinear"]
-opaque propagateNonlinearTerm (y : Var) (x : Var) : GoalM Unit
+opaque propagateNonlinearTerm (y : Var) (x : Var) : GoalM Bool
 
 private def isNonlinearTerm (e : Expr) : MetaM Bool := do
   match_expr e with
@@ -29,7 +29,7 @@ private def isNonlinearTerm (e : Expr) : MetaM Bool := do
 private def registerNonlinearOcc (arg : Expr) (x : Var) : GoalM Unit := do
   if let some y := (← get').varMap.find? { expr := arg } then
     if (← get').elimEqs[y]!.isSome then
-      propagateNonlinearTerm y x
+    if (← propagateNonlinearTerm y x) then
       return ()
   let occs := (← get').nonlinearOccs.find? { expr := arg } |>.getD []
   unless x ∈ occs do

@@ -169,6 +169,19 @@ private def updateDiseqs (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Uni
     c₂.assert
     if (← inconsistent) then return ()
 
+@[export lean_cutsat_propagate_nonlinear]
+def propagateNonlinearTermImpl (y : Var) (x : Var) : GoalM Bool := do
+  let some c := (← get').elimEqs[y]! | return false
+  let .add k₁ _ (.num k₂) := c.p | return false
+  unless k₁.natAbs == 1 do return false
+  trace[grind.cutsat.nonlinear] "propagate: {← getVar y} := {- k₂/k₁} @ {← getVar x}"
+  return true
+
+def propagateNonlinearTerms (y : Var) : GoalM Unit := do
+  let some occs := (← get').nonlinearOccs.find? { expr := (← getVar y) } | return ()
+  for x in occs do
+    discard <| propagateNonlinearTermImpl y x
+
 private def updateElimEqs (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
   if (← inconsistent) then return ()
   assert! x != y
@@ -178,6 +191,7 @@ private def updateElimEqs (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Un
   let c₂ := { p := c₂.p.mul a |>.combine (c.p.mul (-b)), h := .subst x c₂ c : EqCnstr }
   trace[grind.debug.cutsat.elimEq] "updated: {← getVar y}, {← c₂.pp}"
   modify' fun s => { s with elimEqs := s.elimEqs.set y (some c₂) }
+  propagateNonlinearTerms y
 
 private def updateOccsAt (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
   updateDvdCnstr k x c y
@@ -214,16 +228,6 @@ partial def _root_.Int.Linear.Poly.updateOccsForElimEq (p : Poly) (x : Var) : Go
     unless x == y do addOcc y x
     go p
   go p
-
-@[export lean_cutsat_propagate_nonlinear]
-def propagateNonlinearTermImpl (y : Var) (x : Var) : GoalM Unit := do
-  let some c := (← get').elimEqs[y]! | return ()
-  trace[grind.cutsat.nonlinear] "propagate: {← c.pp} ===> {← getVar x}"
-
-def propagateNonlinearTerms (y : Var) : GoalM Unit := do
-  let some occs := (← get').nonlinearOccs.find? { expr := (← getVar y) } | return ()
-  for x in occs do
-    propagateNonlinearTermImpl y x
 
 @[export lean_grind_cutsat_assert_eq]
 def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do

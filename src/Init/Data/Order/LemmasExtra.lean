@@ -145,6 +145,16 @@ public instance LawfulOrderMax.of_ord (α : Type u) [Ord α] [Max α] [LE α] [L
   toLawfulOrderSup := .of_ord α compare_max_isLE_iff
   max_eq_or := max_eq_or
 
+public theorem min_eq_if_isLE_compare {α : Type u} [Ord α] [LE α] {_ : Min α}
+    [LawfulOrderOrd α] [LawfulOrderLeftLeaningMin α] {a b : α} :
+    min a b = if (compare a b).isLE then a else b := by
+  open Classical in simp [min_eq_if, isLE_compare]
+
+public theorem max_eq_if_isGE_compare {α : Type u} [Ord α] [LE α] {_ : Max α}
+    [LawfulOrderOrd α] [LawfulOrderLeftLeaningMax α]
+    {a b : α} : max a b = if (compare a b).isGE then a else b := by
+  open Classical in simp [max_eq_if, isGE_compare]
+
 end Std
 
 namespace Classical.Order

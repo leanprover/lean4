@@ -35,7 +35,7 @@ public instance [PreorderPackage α] : DecidableLT α := PreorderPackage.decidab
 
 namespace FactoryInstances
 
-public scoped instance instBEqOfDecidableLE {α : Type u} [LE α] [DecidableLE α] :
+public scoped instance beqOfDecidableLE {α : Type u} [LE α] [DecidableLE α] :
     BEq α where
   beq a b := a ≤ b ∧ b ≤ a
 
@@ -45,7 +45,7 @@ public instance instLawfulOrderBEqOfDecidableLE {α : Type u} [LE α] [Decidable
 
 /-- If `LT` can be characterized in terms of a decidable `LE`, then `LT` is decidable either. -/
 @[expose]
-public def instDecidableLTOfLE {α : Type u} [LE α] {_ : LT α} [DecidableLE α] [LawfulOrderLT α] :
+public def decidableLTOfLE {α : Type u} [LE α] {_ : LT α} [DecidableLE α] [LawfulOrderLT α] :
     DecidableLT α :=
   fun a b =>
     haveI := iff_iff_eq.mp <| LawfulOrderLT.lt_iff a b
@@ -74,14 +74,14 @@ public structure Packages.PreorderOfLEArgs (α : Type u) where
     extract_lets
     first
     | infer_instance
-    | exact FactoryInstances.instBEqOfDecidableLE
+    | exact FactoryInstances.beqOfDecidableLE
   lawful_lt :
       let := le; let := lt
       ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
     extract_lets
     first
     | exact LawfulOrderLT.lt_iff
-    | fail "Failed to automatically prove that the `OrderData` and `LT` instances are compatible. \
+    | fail "Failed to automatically prove that the `LE` and `LT` instances are compatible. \
             Please ensure that a `LawfulOrderLT` instance can be synthesized or \
             manually provide the field `lawful_lt`."
   decidableLT :
@@ -92,7 +92,7 @@ public structure Packages.PreorderOfLEArgs (α : Type u) where
     haveI := @LawfulOrderLT.mk (lt_iff := by assumption) ..
     first
     | infer_instance
-    | exact FactoryInstances.instDecidableLTOfLE
+    | exact FactoryInstances.decidableLTOfLE
     | fail "Failed to automatically derive that `LT` is decidable. \
             Please ensure that a `DecidableLT` instance can be synthesized or \
             manually provide the field `decidableLT`."
@@ -102,7 +102,7 @@ public structure Packages.PreorderOfLEArgs (α : Type u) where
     extract_lets
     first
       | exact LawfulOrderBEq.beq_iff_le_and_ge
-      | fail "Failed to automatically prove that the `OrderData` and `BEq` instances are compatible. \
+      | fail "Failed to automatically prove that the `LE` and `BEq` instances are compatible. \
               Please ensure that a `LawfulOrderBEq` instance can be synthesized or \
               manually provide the field `lawful_beq`."
   le_refl :
@@ -266,14 +266,14 @@ public scoped instance instOrdOfDecidableLE {α : Type u} [LE α] [DecidableLE �
     Ord α where
   compare a b := if a ≤ b then if b ≤ a then .eq else .lt else .gt
 
-public theorem isLE_compare {α : Type u} [LE α] [DecidableLE α] {a b : α} :
+theorem isLE_compare {α : Type u} [LE α] [DecidableLE α] {a b : α} :
     (compare a b).isLE ↔ a ≤ b := by
   simp only [compare]
   split
   · split <;> simp_all
   · simp_all
 
-public theorem isGE_compare {α : Type u} [LE α] [DecidableLE α]
+theorem isGE_compare {α : Type u} [LE α] [DecidableLE α]
     (le_total : ∀ a b : α, a ≤ b ∨ b ≤ a) {a b : α} :
     (compare a b).isGE ↔ b ≤ a := by
   simp only [compare]
@@ -285,8 +285,8 @@ public theorem isGE_compare {α : Type u} [LE α] [DecidableLE α]
 public instance instLawfulOrderOrdOfDecidableLE {α : Type u} [LE α] [DecidableLE α]
     [Total (α := α) (· ≤ ·)] :
     LawfulOrderOrd α where
-  isLE_compare _ _ := isLE_compare
-  isGE_compare _ _ := isGE_compare (le_total := Total.total)
+  isLE_compare _ _ := by exact isLE_compare
+  isGE_compare _ _ := by exact isGE_compare (le_total := Total.total)
 
 end FactoryInstances
 
@@ -444,7 +444,7 @@ public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
       ∀ a b : α, Min.min a b = if a ≤ b then a else b := by
     extract_lets
     first
-    | exact fun a b => Std.min_eq_if_le (a := a) (b := b)
+    | exact fun a b => Std.min_eq_if (a := a) (b := b)
     | fail "Failed to automatically prove that `min` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMin` instance can be synthesized or \
             manually provide the field `min_eq`."
@@ -453,7 +453,7 @@ public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
       ∀ a b : α, Max.max a b = if b ≤ a then a else b := by
     extract_lets
     first
-    | exact fun a b => Std.max_eq_if_ge (a := a) (b := b)
+    | exact fun a b => Std.max_eq_if (a := a) (b := b)
     | fail "Failed to automatically prove that `max` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMax` instance can be synthesized or \
             manually provide the field `max_eq`."

@@ -70,6 +70,11 @@ public theorem le_total {α : Type u} [LE α] [Std.Total (α := α) (· ≤ ·)]
     a ≤ b ∨ b ≤ a :=
   Std.Total.total a b
 
+public theorem le_of_not_ge {α : Type u} [LE α] [Std.Total (α := α) (· ≤ ·)] {a b : α} :
+    ¬ b ≤ a → a ≤ b := by
+  intro h
+  simpa [h] using Std.Total.total a b (r := (· ≤ ·))
+
 end LE
 
 section LT
@@ -272,19 +277,30 @@ public instance {α : Type u} [LE α] [Min α] [IsLinearOrder α] [LawfulOrderMi
     Std.Associative (min : α → α → α) where
   assoc a b c := by apply le_antisymm <;> simp [min_le, le_min_iff, le_refl]
 
-public theorem min_eq_if_le {α : Type u} [LE α] [DecidableLE α] {_ : Min α}
+public theorem min_eq_if {α : Type u} [LE α] [DecidableLE α] {_ : Min α}
     [LawfulOrderLeftLeaningMin α] {a b : α} :
     min a b = if a ≤ b then a else b := by
   split <;> rename_i h
   · simp [LawfulOrderLeftLeaningMin.min_eq_left _ _ h]
   · simp [LawfulOrderLeftLeaningMin.min_eq_right _ _ h]
 
-public theorem max_eq_if_ge {α : Type u} [LE α] [DecidableLE α] {_ : Max α}
+public theorem max_eq_if {α : Type u} [LE α] [DecidableLE α] {_ : Max α}
     [LawfulOrderLeftLeaningMax α] {a b : α} :
     max a b = if b ≤ a then a else b := by
   split <;> rename_i h
   · simp [LawfulOrderLeftLeaningMax.max_eq_left _ _ h]
   · simp [LawfulOrderLeftLeaningMax.max_eq_right _ _ h]
+
+public instance {α : Type u} [LE α] [Min α] [IsLinearOrder α] [LawfulOrderInf α] :
+    LawfulOrderLeftLeaningMin α where
+  min_eq_left a b hab := by
+    apply le_antisymm
+    · apply min_le_left
+    · simp [le_min_iff, le_refl, hab]
+  min_eq_right a b hab := by
+    apply le_antisymm
+    · apply min_le_right
+    · simp [le_min_iff, le_refl, le_of_not_ge hab]
 
 end Min
 
@@ -369,6 +385,17 @@ public instance {α : Type u} [LE α] [Max α] [IsLinearOrder α] [LawfulOrderMa
     all_goals
       simp only [max_le_iff]
       simp [le_max, le_refl]
+
+public instance {α : Type u} [LE α] [Max α] [IsLinearOrder α] [LawfulOrderSup α] :
+    LawfulOrderLeftLeaningMax α where
+  max_eq_left a b hab := by
+    apply le_antisymm
+    · simp [max_le_iff, le_refl, hab]
+    · apply left_le_max
+  max_eq_right a b hab := by
+    apply le_antisymm
+    · simp [max_le_iff, le_refl, le_of_not_ge hab]
+    · apply right_le_max
 
 end Max
 

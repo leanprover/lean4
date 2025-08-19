@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Option.List
 public import Init.Data.Array.Bootstrap
-public import Std.Classes.Ord.Basic
 public import Std.Data.DTreeMap.Internal.Model
 public import Std.Data.Internal.Cut
 import all Std.Data.Internal.List.Associative
@@ -1475,7 +1474,7 @@ end Const
 
 theorem WF.ordered [Ord α] [TransOrd α] {l : Impl α β} (h : WF l) : l.Ordered := by
   induction h
-  · next h => exact h
+  next h => exact h
   · exact ordered_empty
   · exact ordered_insert ‹_› ‹_›
   · exact ordered_insertIfNew ‹_› ‹_›
@@ -1810,7 +1809,7 @@ theorem WF.filter! {_ : Ord α} {t : Impl α β} {f : (a : α) → β a → Bool
 theorem toListModel_map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} :
     (t.map f).toListModel = t.toListModel.map fun x => ⟨x.1, f x.1 x.2⟩ := by
   induction t
-  · next ihl ihr =>
+  next ihl ihr =>
     simp [map, ihl, ihr]
   · rfl
 
@@ -1820,7 +1819,7 @@ theorem sameKeys_map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} 
   | inner => apply SameKeys.inner <;> assumption
 
 @[simp]
-theorem size_map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} : (t.map f).size = t.size :=
+theorem size_map {instOrd : Ord α} {t : Impl α β} {f : (a : α) → β a → γ a} : (t.map f).size = t.size :=
   sameKeys_map.size_eq
 
 theorem WF.map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} (h : t.WF) : (t.map f).WF :=

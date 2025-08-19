@@ -35,6 +35,7 @@ LEAN_EXPORT uint8_t l_Array_lex___redArg(lean_object*, lean_object*, lean_object
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l___auto___closed__60____x40_Init_Data_Array_Lex_Basic___hyg_18_;
 static lean_object* l___auto___closed__30____x40_Init_Data_Array_Lex_Basic___hyg_18_;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l_Array_lex___redArg___closed__4;
 static lean_object* l___auto___closed__10____x40_Init_Data_Array_Lex_Basic___hyg_18_;
 static lean_object* l___auto___closed__36____x40_Init_Data_Array_Lex_Basic___hyg_18_;
@@ -86,7 +87,6 @@ static lean_object* l___auto___closed__29____x40_Init_Data_Array_Lex_Basic___hyg
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Array_Lex_Basic___hyg_18_;
 static lean_object* l___auto___closed__50____x40_Init_Data_Array_Lex_Basic___hyg_18_;
 static lean_object* l_Array_lex___redArg___closed__10;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_lex___redArg___closed__1;
 static lean_object* l_Array_lex___redArg___closed__2;
@@ -748,8 +748,8 @@ LEAN_EXPORT lean_object* l_Array_lex___redArg___lam__0(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_18; 
-x_11 = lean_array_fget(x_1, x_7);
-x_12 = lean_array_fget(x_2, x_7);
+x_11 = lean_array_fget_borrowed(x_1, x_7);
+x_12 = lean_array_fget_borrowed(x_2, x_7);
 lean_inc(x_12);
 lean_inc(x_11);
 x_13 = lean_apply_2(x_3, x_11, x_12);
@@ -757,6 +757,8 @@ x_18 = lean_unbox(x_13);
 if (x_18 == 0)
 {
 lean_object* x_19; uint8_t x_20; 
+lean_inc(x_12);
+lean_inc(x_11);
 x_19 = lean_apply_2(x_5, x_11, x_12);
 x_20 = lean_unbox(x_19);
 if (x_20 == 0)
@@ -785,8 +787,6 @@ goto block_17;
 else
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-lean_dec(x_12);
-lean_dec(x_11);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 x_23 = lean_alloc_ctor(1, 1, 0);

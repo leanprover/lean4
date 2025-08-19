@@ -67,17 +67,6 @@ structure BinderView where
   type : Syntax
   bi   : BinderInfo
 
-/--
-Determines the local declaration kind depending on the variable name.
-
-The `__x` in `let __x := 42; body` gets kind `.implDetail`.
--/
-def kindOfBinderName (binderName : Name) : LocalDeclKind :=
-  if binderName.isImplementationDetail then
-    .implDetail
-  else
-    .default
-
 partial def quoteAutoTactic : Syntax → CoreM Expr
   | .ident _ _ val preresolved =>
     return mkApp4 (.const ``Syntax.ident [])
@@ -235,8 +224,7 @@ private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Ar
           throwErrorAt binderView.type (m!"invalid binder annotation, type is not a class instance{indentExpr type}" ++ .note "Use the command `set_option checkBinderAnnotations false` to disable the check")
         withRef binderView.type <| checkLocalInstanceParameters type
       let id := binderView.id.getId
-      let kind := kindOfBinderName id
-      withLocalDecl id binderView.bi type (kind := kind) fun fvar => do
+      withLocalDecl id binderView.bi type (kind := .ofBinderName id) fun fvar => do
         addLocalVarInfo binderView.ref fvar
         loop (i+1) (fvars.push (binderView.id, fvar))
     else
@@ -428,7 +416,7 @@ private def propagateExpectedType (fvar : Expr) (fvarType : Expr) (s : State) : 
     let expectedType ← whnfForall expectedType
     match expectedType with
     | .forallE _ d b _ =>
-      discard <| isDefEq fvarType d
+      discard <| isDefEq fvarType d.cleanupAnnotations
       let b := b.instantiate1 fvar
       return { s with expectedType? := some b }
     | _ =>
@@ -445,7 +433,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
       let fvar  := mkFVar fvarId
       let s     := { s with fvars := s.fvars.push fvar }
       let id    := binderView.id.getId
-      let kind  := kindOfBinderName id
+      let kind  := .ofBinderName id
       /-
         We do **not** want to support default and auto arguments in lambda abstractions.
         Example: `fun (x : Nat := 10) => x+1`.
@@ -795,20 +783,28 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       let val  ← mkFreshExprMVar type
       pure (type, val, binders)
     else
-      let val  ← elabTermEnsuringType valStx type
+      /-
+      Elaborate the value in a context where the binders have cleaned-up annotations
+      Note: we may want `withFreshCache` in case spurious type annotations appear in terms.
+      -/
+      let lctx' := fvars.foldl (init := ← getLCtx) fun lctx fvar =>
+        lctx.modifyLocalDecl fvar.fvarId! (fun decl => decl.setType decl.type.cleanupAnnotations)
+      let val ← withLCtx' lctx' do
+        let val ← elabTermEnsuringType valStx type
+        /-
+        By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
+        in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
+        about holes such as
+        ```
+        def ex : Nat :=
+          let x := _
+          42
+        ```
+        -/
+        mkLambdaFVars fvars val (usedLetOnly := false)
       let type ← mkForallFVars fvars type
-      /- By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
-         in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
-         about holes such as
-         ```
-          def ex : Nat :=
-            let x := _
-            42
-         ```
-       -/
-      let val  ← mkLambdaFVars fvars val (usedLetOnly := false)
       pure (type, val, binders)
-  let kind := kindOfBinderName id.getId
+  let kind := .ofBinderName id.getId
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
   let result ←
     withLetDecl id.getId (kind := kind) type val (nondep := config.nondep) fun x => do
@@ -852,7 +848,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
           else
             mkLetFVars #[x, h'] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
   if config.postponeValue then
-    forallBoundedTelescope type binders.size fun xs type => do
+    forallBoundedTelescope type binders.size (cleanupAnnotations := true) fun xs type => do
       -- the original `fvars` from above are gone, so add back info manually
       for b in binders, x in xs do
         addLocalVarInfo b x

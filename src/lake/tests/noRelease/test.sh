@@ -35,7 +35,7 @@ echo "# TEST: Direct fetch"
 test_err_diff <(cat << EOF
 ✖ [2/2] Running dep:release
 error: failed to fetch GitHub release (run with '-v' for details)
-Some required builds logged failures:
+Some required targets logged failures:
 - dep:release
 error: build failed
 EOF
@@ -46,11 +46,8 @@ echo "# TEST: Indirect fetch"
 test_out_diff <(cat << EOF
 ⚠ [3/6] Ran dep:extraDep
 warning: building from source; failed to fetch GitHub release (run with '-v' for details)
-✔ [4/6] Built Dep
-✔ [5/6] Built Test
-Build completed successfully (6 jobs).
 EOF
-) build Test
+) build Test -q
 
 # Test download failure
 echo "# TEST: Download failure"

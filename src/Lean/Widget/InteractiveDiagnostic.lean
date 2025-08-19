@@ -7,11 +7,11 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Linter.UnusedVariables
 public import Lean.Server.Utils
 public import Lean.Widget.InteractiveGoal
 public import Init.Data.Slice.Array.Basic
 public import Init.Data.Array.Subarray.Split
+import Lean.Linter.UnusedVariables
 
 public section
 

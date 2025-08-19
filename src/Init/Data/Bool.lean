@@ -699,13 +699,13 @@ but may be used locally.
 
 /-! ### Proof by reflection support  -/
 
-protected noncomputable def Bool.and' (a b : Bool) : Bool :=
+@[expose] protected noncomputable def Bool.and' (a b : Bool) : Bool :=
   Bool.rec false b a
 
-protected noncomputable def Bool.or' (a b : Bool) : Bool :=
+@[expose] protected noncomputable def Bool.or' (a b : Bool) : Bool :=
   Bool.rec b true a
 
-protected noncomputable def Bool.not' (a : Bool) : Bool :=
+@[expose] protected noncomputable def Bool.not' (a : Bool) : Bool :=
   Bool.rec true false a
 
 @[simp] theorem Bool.and'_eq_and (a b : Bool) : a.and' b = a.and b := by

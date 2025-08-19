@@ -88,6 +88,25 @@ def parseHeader (inputCtx : InputContext) : IO (TSyntax ``Module.header × Modul
   let mut messages : MessageLog := {}
   for (pos, stk, err) in s.allErrors do
     messages := messages.add <| mkErrorMessage inputCtx pos stk err
+  if let `(Module.header| $[module%$moduleTk?]? $[prelude]? $importsStx*) := stx then
+    if moduleTk?.isNone then
+      let mkError ref msg : Message :=
+        let pos := ref.getPos?.getD 0
+        {
+          fileName := inputCtx.fileName
+          pos := inputCtx.fileMap.toPosition pos
+          endPos := inputCtx.fileMap.toPosition <| ref.getTailPos?.getD pos
+          keepFullRange := true
+          data := msg
+        }
+      for stx in importsStx do
+        if let `(Module.import| $[public%$pubTk?]? $[meta%$metaTk?]? import $[all%$allTk?]? $_) := stx then
+          if let some tk := pubTk? then
+            messages := messages.add <| mkError tk "cannot use 'public import' without 'module'"
+          if let some tk := metaTk? then
+            messages := messages.add <| mkError tk "cannot use 'meta import' without 'module'"
+          if let some tk := allTk? then
+            messages := messages.add <| mkError tk "cannot use 'import all' without 'module'"
   pure (⟨stx⟩, {pos := s.pos, recovering := s.hasError}, messages)
 
 private def mkEOI (pos : String.Pos) : Syntax :=

@@ -104,6 +104,10 @@ private def containsDeclOrReserved (env : Environment) (declName : Name) : Bool 
   env.containsOnBranch declName || isReservedName env declName || env.contains declName
 
 private partial def resolvePrivateName (env : Environment) (declName : Name) : Option Name := do
+  -- No point in checking private names when exporting. This is an optimization but also necessary
+  -- for correct visibility checking while we still carry some private names (e.g. kernel-generated
+  -- from `inductive`) in the public env.
+  guard !env.isExporting
   if containsDeclOrReserved env (mkPrivateName env declName) then
     return mkPrivateName env declName
   -- Under the module system, we assume there are at most a few `import all`s and we can just test

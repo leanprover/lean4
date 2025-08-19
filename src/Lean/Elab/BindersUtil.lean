@@ -11,6 +11,17 @@ meta import Lean.Parser.Term
 
 public section
 
+/--
+Determines the local declaration kind of a binder using its name.
+
+Names that begin with `__` are implementation details (`.implDetail`).
+-/
+def Lean.LocalDeclKind.ofBinderName (binderName : Name) : LocalDeclKind :=
+  if binderName.isImplementationDetail then
+    .implDetail
+  else
+    .default
+
 namespace Lean.Elab.Term
 /--
   Recall that

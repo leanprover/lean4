@@ -61,8 +61,8 @@ theorem getElem?_take_eq_none {l : List α} {i j : Nat} (h : i ≤ j) :
 @[grind =] theorem getElem?_take {l : List α} {i j : Nat} :
     (l.take i)[j]? = if j < i then l[j]? else none := by
   split
-  · next h => exact getElem?_take_of_lt h
-  · next h => exact getElem?_take_eq_none (Nat.le_of_not_lt h)
+  next h => exact getElem?_take_of_lt h
+  next h => exact getElem?_take_eq_none (Nat.le_of_not_lt h)
 
 theorem head?_take {l : List α} {i : Nat} :
     (l.take i).head? = if i = 0 then none else l.head? := by
@@ -114,7 +114,7 @@ theorem take_set_of_le {a : α} {i j : Nat} {l : List α} (h : j ≤ i) :
   List.ext_getElem? fun i => by
     rw [getElem?_take, getElem?_take]
     split
-    · next h' => rw [getElem?_set_ne (by omega)]
+    next h' => rw [getElem?_set_ne (by omega)]
     · rfl
 
 @[deprecated take_set_of_le (since := "2025-02-04")]
@@ -384,7 +384,7 @@ theorem take_reverse {α} {xs : List α} {i : Nat} :
   by_cases h : i ≤ xs.length
   · induction xs generalizing i <;>
       simp only [reverse_cons, drop, reverse_nil, Nat.zero_sub, length, take_nil]
-    next hd tl xs_ih =>
+    rename_i hd tl xs_ih
     cases Nat.lt_or_eq_of_le h with
     | inl h' =>
       have h' := Nat.le_of_succ_le_succ h'

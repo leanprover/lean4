@@ -105,7 +105,7 @@ theorem formula_performRatCheck {n : Nat} (f : DefaultFormula n)
     (performRatCheck f p ratHint).1 = f := by
   simp only [performRatCheck, Bool.or_eq_true, Bool.not_eq_true']
   split
-  · next c _ =>
+  next c _ =>
     split
     · rw [clear_insertRat f hf]
     · let fc := (insertRatUnits f (negate (DefaultClause.delete c p))).1
@@ -154,7 +154,7 @@ theorem ratAdd_result {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (p 
         · grind
         · split at ratAddSuccess
           · grind
-          · next performRatCheck_fold_success =>
+          next performRatCheck_fold_success =>
             simp only [Bool.not_eq_false] at performRatCheck_fold_success
             let fc := (insertRupUnits f (negate c)).1
             have fc_assignments_size : (insertRupUnits f (negate c)).1.assignments.size = n := by

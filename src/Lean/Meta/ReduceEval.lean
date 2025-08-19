@@ -61,6 +61,6 @@ private partial def evalName (e : Expr) : MetaM Name := do
     throwFailedToEval e
 
 instance : ReduceEval Name where
-  reduceEval := evalName
+  reduceEval := private evalName
 
 end Lean.Meta

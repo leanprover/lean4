@@ -42,7 +42,7 @@ decreasing_by exact log2_terminates _ ‹_›
 
 theorem log2_le_self (n : Nat) : Nat.log2 n ≤ n := by
   unfold Nat.log2; split
-  · next h =>
+  next h =>
     have := log2_le_self (n / 2)
     exact Nat.lt_of_le_of_lt this (Nat.div_lt_self (Nat.le_of_lt h) (by decide))
   · apply Nat.zero_le

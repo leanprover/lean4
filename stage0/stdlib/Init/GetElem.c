@@ -67,6 +67,7 @@ static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__61;
 static lean_object* l_term_____x5b___x5d___x21___closed__4;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__8;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__31;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x21__def___autoParam___closed__26;
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__43;
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__15;
@@ -190,6 +191,7 @@ static lean_object* l_term_____x5b___x5d___closed__16;
 LEAN_EXPORT lean_object* l_Array_instGetElemNatLtSize(lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__17;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x21__1___closed__3;
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__72;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__12;
 LEAN_EXPORT lean_object* l_Fin_instGetElemFinVal___redArg(lean_object*);
@@ -204,7 +206,6 @@ static lean_object* l_term_____x5b___x5d___closed__9;
 LEAN_EXPORT lean_object* l_outOfBounds___redArg(lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__45;
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__27;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x21__def___autoParam___closed__13;
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__26;
 static lean_object* l_term_____x5b___x5d___x3f___closed__9;
@@ -302,7 +303,6 @@ static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem_
 LEAN_EXPORT lean_object* l___private_Init_GetElem_0__GetElem_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__2;
 lean_object* l_Lean_mkAtom(lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__42;
 static lean_object* l_LawfulGetElem_getElem_x21__def___autoParam___closed__11;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x21__1___closed__2;
@@ -3627,7 +3627,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 lean_dec(x_3);
 x_4 = l_outOfBounds___redArg___closed__0;
 x_5 = l_List_get_x21Internal___redArg___closed__0;
-x_6 = lean_unsigned_to_nat(327u);
+x_6 = lean_unsigned_to_nat(326u);
 x_7 = lean_unsigned_to_nat(18u);
 x_8 = l_List_get_x21Internal___redArg___closed__1;
 x_9 = l_mkPanicMessageWithDecl(x_4, x_5, x_6, x_7, x_8);
@@ -3747,7 +3747,8 @@ LEAN_EXPORT lean_object* l_Array_instGetElemNatLtSize___lam__0(lean_object* x_1,
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_array_fget(x_1, x_2);
+x_4 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc(x_4);
 return x_4;
 }
 }
@@ -3785,7 +3786,8 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc(x_6);
 x_7 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
@@ -3796,7 +3798,8 @@ LEAN_EXPORT lean_object* l_Array_instGetElem_x3fNatLtSize___lam__1(lean_object* 
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_array_get(x_1, x_2, x_3);
+x_4 = lean_array_get_borrowed(x_1, x_2, x_3);
+lean_inc(x_4);
 return x_4;
 }
 }

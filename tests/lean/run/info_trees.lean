@@ -61,13 +61,13 @@ info: • [Command] @ ⟨83, 0⟩-⟨83, 40⟩ @ Lean.Elab.Command.elabDeclarati
                   ⊢ 0 ≤ n
                   after no goals
                   • [Term] Nat.zero_le n : 0 ≤ n @ ⟨1, 1⟩†-⟨1, 1⟩† @ Lean.Elab.Term.elabApp
-                    • [Completion-Id] Nat.zero_le : some LE.le.{0} Nat instLENat (OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)) _uniq.42 @ ⟨1, 0⟩†-⟨1, 0⟩†
+                    • [Completion-Id] Nat.zero_le : some LE.le.{0} Nat instLENat (OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)) _uniq.37 @ ⟨1, 0⟩†-⟨1, 0⟩†
                     • [Term] Nat.zero_le : ∀ (n : Nat), 0 ≤ n @ ⟨1, 0⟩†-⟨1, 0⟩†
                     • [Term] n : Nat @ ⟨1, 5⟩†-⟨1, 5⟩† @ Lean.Elab.Term.elabIdent
                       • [Completion-Id] n : some Nat @ ⟨1, 5⟩†-⟨1, 5⟩†
                       • [Term] n : Nat @ ⟨1, 5⟩†-⟨1, 5⟩†
                 • [CustomInfo(Lean.Meta.Tactic.TryThis.TryThisInfo)]
-                • [UserWidget] Lean.Meta.Tactic.TryThis.tryThisWidget
+                • [UserWidget] _private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisWidget
                   {"suggestions": [{"suggestion": "exact Nat.zero_le n"}],
                    "style": null,
                    "range":

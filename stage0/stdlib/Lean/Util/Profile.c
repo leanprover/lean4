@@ -62,7 +62,6 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l___private_Lean_Util_Profile_0__Lean_get__profiler___closed__0;
 LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profiler_threshold;
-LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___redArg___lam__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profiler_threshold_getSecs___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_Profile___hyg_6__spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
@@ -613,7 +612,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_alloc_closure((void*)(l_Lean_profileitIOUnsafe___redArg___lam__0), 2, 1);
 lean_closure_set(x_6, 0, x_3);
-x_7 = lean_alloc_closure((void*)(l_Lean_profileitIOUnsafe___redArg___lam__1___boxed), 2, 1);
+x_7 = lean_alloc_closure((void*)(l_Lean_profileitIOUnsafe___redArg___lam__1), 2, 1);
 lean_closure_set(x_7, 0, x_6);
 x_8 = lean_profileit(x_1, x_2, x_7, x_4);
 if (lean_obj_tag(x_8) == 0)
@@ -646,14 +645,6 @@ _start:
 lean_object* x_8; 
 x_8 = l_Lean_profileitIOUnsafe___redArg(x_3, x_4, x_5, x_6, x_7);
 return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_profileitIOUnsafe___redArg___lam__1(x_1, x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

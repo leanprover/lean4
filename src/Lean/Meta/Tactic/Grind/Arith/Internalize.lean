@@ -7,9 +7,9 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Offset
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Internalize
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Internalize
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Internalize
+import Lean.Meta.Tactic.Grind.Arith.Linear.Internalize
 
 public section
 

@@ -149,7 +149,6 @@ x_34 = lean_ctor_get(x_32, 1);
 lean_inc(x_34);
 lean_dec_ref(x_32);
 x_35 = l_Lake_busyAcquireLockFile_busyLoop___lam__0(x_1, x_33, x_34);
-lean_dec(x_33);
 x_11 = x_35;
 goto block_27;
 }
@@ -182,10 +181,8 @@ else
 {
 lean_object* x_12; 
 x_12 = lean_ctor_get(x_11, 0);
-lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
-lean_dec_ref(x_12);
 if (x_2 == 0)
 {
 lean_object* x_13; 
@@ -246,7 +243,6 @@ return x_22;
 }
 else
 {
-lean_dec(x_12);
 return x_11;
 }
 }

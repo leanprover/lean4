@@ -14,10 +14,6 @@ public import Lean.Meta.Constructions.NoConfusionLinear
 public section
 
 
-register_builtin_option backwards.linearNoConfusionType : Bool := {
-  defValue := true
-  descr    := "use the linear-size construction for the `noConfusionType` declaration of an inductive type. Set to false to use the previous, simpler but quadratic-size construction. "
-}
 
 namespace Lean
 
@@ -32,11 +28,7 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   let recInfo ← getConstInfo (mkRecName declName)
   unless recInfo.levelParams.length > indVal.levelParams.length do return
 
-  let useLinear ←
-    if backwards.linearNoConfusionType.get (← getOptions) then
-      NoConfusionLinear.deps.allM (hasConst · (skipRealize := true))
-    else
-      pure false
+  let useLinear ← NoConfusionLinear.canUse
 
   if useLinear then
     NoConfusionLinear.mkWithCtorType declName
@@ -140,9 +132,13 @@ where
       modifyEnv fun env => markNoConfusion env declName
 
 def mkNoConfusion (declName : Name) : MetaM Unit := do
+  withTraceNode `Meta.mkNoConfusion (fun _ => return m!"{declName}") do
   if (← isEnumType declName) then
     mkNoConfusionEnum declName
   else
     mkNoConfusionCore declName
+
+builtin_initialize
+  registerTraceClass `Meta.mkNoConfusion
 
 end Lean

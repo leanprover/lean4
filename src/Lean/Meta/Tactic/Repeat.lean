@@ -63,7 +63,7 @@ Fails if `f` does not succeed at least once.
 -/
 def repeat1' [Monad m] [MonadError m] [MonadExcept ε m] [MonadBacktrack s m] [MonadMCtx m]
     (f : MVarId → m (List MVarId)) (goals : List MVarId) (maxIters := 100000) : m (List MVarId) := do
-  let (.true, goals) ← repeat'Core f goals maxIters | throwError "repeat1' made no progress"
+  let (.true, goals) ← repeat'Core f goals maxIters | throwError "`repeat1'` made no progress"
   pure goals
 
 end Lean.Meta

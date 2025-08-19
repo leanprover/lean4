@@ -70,7 +70,7 @@ def tooMany₃ : Foo → Foo → Prop
   | .foo, .foo, f => True
 
 /--
-error: type mismatch
+error: Type mismatch
   True
 has type
   Prop
@@ -193,7 +193,7 @@ set_option pp.mvars false in
 error: Not enough patterns in match alternative: Expected 2, but found 1:
   .(_)
 ---
-error: type mismatch
+error: Type mismatch
   fun b => True
 has type
   ?_ → Prop

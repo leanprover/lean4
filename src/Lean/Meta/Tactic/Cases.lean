@@ -19,7 +19,7 @@ public section
 namespace Lean.Meta
 
 private def throwInductiveTypeExpected (type : Expr) : MetaM α := do
-  throwError "failed to compile pattern matching, inductive type expected{indentExpr type}"
+  throwError "Failed to compile pattern matching: Expected an inductive type, but found{indentExpr type}"
 
 def getInductiveUniverseAndParams (type : Expr) : MetaM (List Level × Array Expr) := do
   let type ← whnfD type
@@ -53,7 +53,7 @@ def generalizeTargetsEq (mvarId : MVarId) (motiveType : Expr) (targets : Array E
     let (typeNew, eqRefls) ←
       forallTelescopeReducing motiveType fun targetsNew _ => do
         unless targetsNew.size ≥ targets.size do
-          throwError "invalid number of targets #{targets.size}, motive only takes #{targetsNew.size}"
+          throwError "Invalid number of targets: {targets.size} targets provided, but motive only takes {targetsNew.size}"
         let targetsNewAtomic := targetsNew[*...targets.size]
         withNewEqs targets targetsNewAtomic fun eqs eqRefls => do
           let typeNew ← mvarId.getType
@@ -336,7 +336,7 @@ structure ByCasesSubgoal where
   fvarId : FVarId
 
 private def toByCasesSubgoal (s : CasesSubgoal) : MetaM ByCasesSubgoal :=  do
-    let #[Expr.fvar fvarId ..] ← pure s.fields | throwError "'byCases' tactic failed, unexpected new hypothesis"
+    let #[Expr.fvar fvarId ..] ← pure s.fields | throwError "Tactic `byCases` failed: Unexpected new hypothesis"
     return { mvarId := s.mvarId, fvarId }
 
 /--
@@ -346,7 +346,7 @@ def _root_.Lean.MVarId.byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h)
   let mvarId ← mvarId.assert `hByCases (mkOr p (mkNot p)) (mkEM p)
   let (fvarId, mvarId) ← mvarId.intro1
   let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
-    throwError "'byCases' tactic failed, unexpected number of subgoals"
+    throwError "Tactic `byCases` failed: Casing on{inlineExpr p}unexpectedly did not yield two subgoals"
   return ((← toByCasesSubgoal s₁), (← toByCasesSubgoal s₂))
 
 /--
@@ -356,7 +356,7 @@ def _root_.Lean.MVarId.byCasesDec (mvarId : MVarId) (p : Expr) (dec : Expr) (hNa
   let mvarId ← mvarId.assert `hByCases (mkApp (mkConst ``Decidable) p) dec
   let (fvarId, mvarId) ← mvarId.intro1
   let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
-    throwError "'byCasesDec' tactic failed, unexpected number of subgoals"
+    throwError "Tactic `byCasesDec` failed: Casing on{inlineExpr p}unexpectedly did not yield two subgoals"
   -- We flip `s₁` and `s₂` because `isFalse` is the first constructor.
   return ((← toByCasesSubgoal s₂), (← toByCasesSubgoal s₁))
 

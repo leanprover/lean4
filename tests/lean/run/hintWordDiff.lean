@@ -1,4 +1,6 @@
-import Lean.Meta.Hint
+module
+
+import all Lean.Meta.Hint
 
 /-! # Word-level diffs in hint suggestions
 
@@ -9,14 +11,6 @@ word-level diff generator to ensure that it is reasonable.
 -/
 
 open Lean Meta Hint
-
--- We reproduce this function here because it is private in `Lean.Meta.Hint`
-private def mkDiffString (ds : Array (Diff.Action × String)) : String :=
-  let rangeStrs := ds.map fun
-    | (.insert, s) => String.mk (s.data.flatMap ([·, '\u0332'])) -- U+0332 Combining Low Line
-    | (.delete, s) => String.mk (s.data.flatMap ([·, '\u0335'])) -- U+0335 Combining Short Stroke Overlay
-    | (.skip  , s) => s
-  rangeStrs.foldl (· ++ ·) ""
 
 /-! ## Test Word Diff Behavior -/
 

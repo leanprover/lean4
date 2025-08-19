@@ -514,9 +514,7 @@ if (lean_is_exclusive(x_5)) {
  x_10 = lean_box(0);
 }
 x_11 = lean_ctor_get(x_6, 0);
-lean_inc(x_11);
 x_12 = lean_ctor_get(x_6, 1);
-lean_inc_ref(x_12);
 x_13 = lean_box(0);
 x_18 = lean_array_get_size(x_12);
 lean_inc_ref(x_2);
@@ -545,8 +543,6 @@ x_34 = l_Std_DHashMap_Internal_AssocList_get_x3f___redArg(x_1, x_3, x_33);
 if (lean_obj_tag(x_34) == 0)
 {
 lean_dec(x_33);
-lean_dec_ref(x_12);
-lean_dec(x_11);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
@@ -557,6 +553,8 @@ goto block_17;
 else
 {
 uint8_t x_35; 
+lean_inc_ref(x_12);
+lean_inc(x_11);
 x_35 = !lean_is_exclusive(x_6);
 if (x_35 == 0)
 {
@@ -773,7 +771,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_ctor_get(x_2, 1);
-lean_inc(x_3);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -804,26 +801,20 @@ else
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_dec_ref(x_3);
 return x_2;
 }
 else
 {
 lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_9 = lean_ctor_get(x_2, 0);
-lean_inc(x_9);
 x_10 = lean_ctor_get_uint8(x_2, sizeof(void*)*2);
 x_11 = lean_ctor_get(x_3, 0);
-lean_inc(x_11);
-lean_dec_ref(x_3);
 x_12 = lean_ctor_get(x_1, 0);
-lean_inc(x_12);
 x_13 = lean_nat_dec_lt(x_11, x_12);
-lean_dec(x_12);
-lean_dec(x_11);
 if (x_13 == 0)
 {
 uint8_t x_14; 
+lean_inc(x_9);
 x_14 = !lean_is_exclusive(x_2);
 if (x_14 == 0)
 {
@@ -848,7 +839,6 @@ return x_17;
 }
 else
 {
-lean_dec(x_9);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -1722,17 +1712,16 @@ return x_3;
 static lean_object* _init_l_Lean_SCC_scc___redArg___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = lean_box(0);
-x_2 = l_Lean_SCC_scc___redArg___closed__4;
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = lean_box(0);
-x_5 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set(x_5, 2, x_2);
-lean_ctor_set(x_5, 3, x_1);
-return x_5;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_SCC_scc___redArg___closed__4;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_box(0);
+x_4 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_1);
+lean_ctor_set(x_4, 3, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_SCC_scc___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

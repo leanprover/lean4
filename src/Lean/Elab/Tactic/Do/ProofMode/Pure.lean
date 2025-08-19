@@ -9,6 +9,7 @@ prelude
 public import Std.Tactic.Do.Syntax
 public import Lean.Elab.Tactic.Do.ProofMode.MGoal
 public import Lean.Elab.Tactic.Do.ProofMode.Focus
+public import Lean.Elab.Tactic.Meta
 
 public section
 
@@ -32,7 +33,7 @@ def mPureCore (σs : Expr) (hyp : Expr) (name : TSyntax ``binderIdent)
     let (a, goal, prf /- : goal.toExpr -/) ← k φ h
     let prf ← mkLambdaFVars #[h] prf
     let prf := mkApp7 (mkConst ``Pure.thm [u]) σs goal.hyps hyp goal.target φ inst prf
-    let goal := { goal with hyps := mkAnd! u σs goal.hyps hyp }
+    let goal := { goal with hyps := SPred.mkAnd! u σs goal.hyps hyp }
     return (a, goal, prf)
 
 @[builtin_tactic Lean.Parser.Tactic.mpure]
@@ -52,4 +53,8 @@ def elabMPure : Tactic
     replaceMainGoal [m.mvarId!]
   | _ => throwUnsupportedSyntax
 
-macro "mpure_intro" : tactic => `(tactic| apply Pure.intro)
+def MGoal.triviallyPure (goal : MGoal) : OptionT MetaM Expr := do
+  let mv ← mkFreshExprMVar goal.toExpr
+  let ([], _) ← try runTactic mv.mvarId! (← `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro); trivial)) catch _ => failure
+    | failure
+  return mv

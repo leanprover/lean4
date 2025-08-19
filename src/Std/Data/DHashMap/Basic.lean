@@ -298,6 +298,18 @@ This function ensures that the value is used linearly.
   ⟨(Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).1,
    (Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insertIfNew₀ m.2⟩
 
+@[inline, inherit_doc Raw.toArray] def toArray (m : DHashMap α β) :
+    Array ((a : α) × β a) :=
+  m.1.toArray
+
+@[inline, inherit_doc Raw.Const.toArray] def Const.toArray {β : Type v}
+    (m : DHashMap α (fun _ => β)) : Array (α × β) :=
+  Raw.Const.toArray m.1
+
+@[inline, inherit_doc Raw.keysArray] def keysArray (m : DHashMap α β) :
+    Array α :=
+  m.1.keysArray
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -310,18 +322,6 @@ section Unverified
       (l.insert a b, r)
     else
       (l, r.insert a b)
-
-@[inline, inherit_doc Raw.toArray] def toArray (m : DHashMap α β) :
-    Array ((a : α) × β a) :=
-  m.1.toArray
-
-@[inline, inherit_doc Raw.Const.toArray] def Const.toArray {β : Type v}
-    (m : DHashMap α (fun _ => β)) : Array (α × β) :=
-  Raw.Const.toArray m.1
-
-@[inline, inherit_doc Raw.keysArray] def keysArray (m : DHashMap α β) :
-    Array α :=
-  m.1.keysArray
 
 @[inline, inherit_doc Raw.values] def values {β : Type v}
     (m : DHashMap α (fun _ => β)) : List β :=

@@ -68,11 +68,12 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
     let letDecls ← mkLocalInstanceLetDecls ctx `Hashable header.argNames
     body ← mkLet letDecls body
   let binders    := header.binders
+  let vis := ctx.mkVisibilityFromTypes
   if ctx.usePartial then
     -- TODO(Dany): Get rid of this code branch altogether once we have well-founded recursion
-    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
+    `($vis:visibility partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
   else
-    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
+    `(@[no_expose] $vis:visibility def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
 
 def mkHashFuncs (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
@@ -87,6 +88,7 @@ private def mkHashableInstanceCmds (declName : Name) : TermElabM (Array Syntax) 
   return cmds
 
 def mkHashableHandler (declNames : Array Name) : CommandElabM Bool := do
+  withoutExporting do  -- This deriving handler handles visibility of generated decls syntactically
   if (← declNames.allM isInductive)  then
     for declName in declNames do
       let cmds ← liftTermElabM <| mkHashableInstanceCmds declName

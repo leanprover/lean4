@@ -49,9 +49,7 @@ theorem IsEmpty.forall_iff [IsEmpty α] {p : α → Prop} : (∀ a, p a) ↔ Tru
 @[simp] theorem not_and'' : ¬(a ∧ b) ↔ (a → ¬b) := and_imp'
 
 set_option tactic.skipAssignedInstances false in
-/--
-error: simp made no progress
--/
+/-- error: `simp` made no progress -/
 #guard_msgs in
 example [Preorder α] {a : α} {p : α → Prop} : ∀ (a_1 : α), a ≤ a_1 ∧ p a_1 → a ≤ a_1 := by
   simp only [isEmpty_Prop, not_and'',  forall_swap, le_of_subsingleton, IsEmpty.forall_iff] -- should not loop

@@ -2048,10 +2048,8 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = l_Lake_loadPackage___closed__0;
 x_6 = l_Lake_Env_leanSearchPath(x_4);
-lean_dec_ref(x_4);
 x_7 = lean_st_ref_set(x_5, x_6, x_3);
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
@@ -2206,10 +2204,7 @@ if (x_113 == 0)
 {
 lean_object* x_116; lean_object* x_117; 
 x_116 = lean_ctor_get(x_2, 3);
-lean_inc_ref(x_116);
 x_117 = lean_ctor_get(x_116, 25);
-lean_inc(x_117);
-lean_dec_ref(x_116);
 if (lean_obj_tag(x_117) == 0)
 {
 x_114 = x_8;
@@ -2219,10 +2214,7 @@ else
 {
 lean_object* x_118; uint8_t x_119; 
 x_118 = lean_ctor_get(x_117, 0);
-lean_inc(x_118);
-lean_dec_ref(x_117);
 x_119 = lean_unbox(x_118);
-lean_dec(x_118);
 x_114 = x_119;
 goto block_115;
 }

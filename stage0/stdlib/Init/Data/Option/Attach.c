@@ -18,13 +18,11 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Option_Attach_0__Option_attachWit
 LEAN_EXPORT lean_object* l_Option_attach___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_attach___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Option_attach(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_unattach___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_unattach(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_attach___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Option_unattach___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Attach_0__Option_attachWithImpl___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Attach_0__Option_attachWithImpl(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_unattach___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Attach_0__Option_attachWithImpl___redArg(lean_object* x_1) {
 _start:
 {
@@ -92,32 +90,38 @@ return x_3;
 LEAN_EXPORT lean_object* l_Option_unattach___redArg(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_2; 
+x_2 = lean_box(0);
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_1);
+if (x_3 == 0)
+{
 return x_1;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_5, 0, x_4);
+return x_5;
+}
+}
 }
 }
 LEAN_EXPORT lean_object* l_Option_unattach(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_inc(x_3);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Option_unattach___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Option_unattach___redArg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Option_unattach___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
 lean_object* x_4; 
-x_4 = l_Option_unattach(x_1, x_2, x_3);
-lean_dec(x_3);
+x_4 = l_Option_unattach___redArg(x_3);
 return x_4;
 }
 }

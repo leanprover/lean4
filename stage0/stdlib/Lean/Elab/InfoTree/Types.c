@@ -18,7 +18,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedElabInfo;
 LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTreeOfMonadLift___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__6;
-static lean_object* l_Lean_Elab_instInhabitedInfoState___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedMacroExpansionInfo;
 static lean_object* l_Lean_Elab_instInhabitedFieldInfo___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedTermInfo;
@@ -32,7 +31,6 @@ static lean_object* l_Lean_Elab_instInhabitedTacticInfo___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedPartialTermInfo;
 static lean_object* l_Lean_Elab_instInhabitedElabInfo___closed__0;
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__0;
-static lean_object* l_Lean_Elab_instInhabitedTacticInfo___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedInfoState;
 LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___redArg___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedInfoState___closed__0;
@@ -45,11 +43,9 @@ LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedFieldInfo;
 static size_t l_Lean_Elab_instInhabitedTermInfo___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedTacticInfo;
-static lean_object* l_Lean_Elab_instInhabitedTacticInfo___closed__6;
 static lean_object* l_Lean_Elab_instInhabitedInfo___closed__0;
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTreeOfMonadLift___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_instInhabitedTacticInfo___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedCommandInfo;
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___redArg___lam__0___boxed(lean_object*, lean_object*);
@@ -58,9 +54,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTreeOfMonadLift(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedInfo;
 static lean_object* l_Lean_Elab_instInhabitedInfoState___closed__1;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_instInhabitedTacticInfo___closed__5;
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__9;
-static lean_object* l_Lean_Elab_instInhabitedTacticInfo___closed__7;
 static lean_object* l_Lean_Elab_instInhabitedInfoTree___closed__3;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__5;
@@ -293,83 +287,28 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_instInhabitedTacticInfo___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_instInhabitedTacticInfo___closed__0;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Elab_instInhabitedTacticInfo___closed__1;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 9, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 2, x_2);
+lean_ctor_set(x_3, 3, x_1);
+lean_ctor_set(x_3, 4, x_1);
+lean_ctor_set(x_3, 5, x_1);
+lean_ctor_set(x_3, 6, x_1);
+lean_ctor_set(x_3, 7, x_1);
+lean_ctor_set(x_3, 8, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Elab_instInhabitedTacticInfo___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_instInhabitedTacticInfo___closed__0;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_instInhabitedTacticInfo___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_instInhabitedTacticInfo___closed__0;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_instInhabitedTacticInfo___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_instInhabitedTacticInfo___closed__0;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_instInhabitedTacticInfo___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_instInhabitedTacticInfo___closed__0;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_instInhabitedTacticInfo___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_1 = l_Lean_Elab_instInhabitedTacticInfo___closed__6;
-x_2 = l_Lean_Elab_instInhabitedTacticInfo___closed__5;
-x_3 = l_Lean_Elab_instInhabitedTacticInfo___closed__4;
-x_4 = l_Lean_Elab_instInhabitedTacticInfo___closed__3;
-x_5 = l_Lean_Elab_instInhabitedTacticInfo___closed__2;
-x_6 = l_Lean_Elab_instInhabitedTacticInfo___closed__1;
-x_7 = lean_unsigned_to_nat(0u);
-x_8 = lean_alloc_ctor(0, 9, 0);
-lean_ctor_set(x_8, 0, x_7);
-lean_ctor_set(x_8, 1, x_7);
-lean_ctor_set(x_8, 2, x_7);
-lean_ctor_set(x_8, 3, x_6);
-lean_ctor_set(x_8, 4, x_5);
-lean_ctor_set(x_8, 5, x_4);
-lean_ctor_set(x_8, 6, x_3);
-lean_ctor_set(x_8, 7, x_2);
-lean_ctor_set(x_8, 8, x_1);
-return x_8;
-}
-}
-static lean_object* _init_l_Lean_Elab_instInhabitedTacticInfo___closed__8() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Elab_instInhabitedTacticInfo___closed__7;
+x_2 = l_Lean_Elab_instInhabitedTacticInfo___closed__2;
 x_3 = l_Lean_Elab_instInhabitedElabInfo___closed__0;
 x_4 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -384,7 +323,7 @@ static lean_object* _init_l_Lean_Elab_instInhabitedTacticInfo() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_instInhabitedTacticInfo___closed__8;
+x_1 = l_Lean_Elab_instInhabitedTacticInfo___closed__3;
 return x_1;
 }
 }
@@ -413,7 +352,7 @@ static lean_object* _init_l_Lean_Elab_instInhabitedInfo___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_instInhabitedTacticInfo___closed__8;
+x_1 = l_Lean_Elab_instInhabitedTacticInfo___closed__3;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -503,34 +442,23 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_instInhabitedInfoState___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_instInhabitedInfoState___closed__0;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_instInhabitedInfoState___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_1 = l_Lean_Elab_instInhabitedInfoTree___closed__2;
-x_2 = l_Lean_Elab_instInhabitedInfoState___closed__2;
-x_3 = l_Lean_Elab_instInhabitedInfoState___closed__1;
-x_4 = 0;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_3);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_1);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_4);
-return x_5;
+x_2 = l_Lean_Elab_instInhabitedInfoState___closed__1;
+x_3 = 0;
+x_4 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_1);
+lean_ctor_set_uint8(x_4, sizeof(void*)*3, x_3);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Elab_instInhabitedInfoState() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_instInhabitedInfoState___closed__3;
+x_1 = l_Lean_Elab_instInhabitedInfoState___closed__2;
 return x_1;
 }
 }
@@ -706,16 +634,6 @@ l_Lean_Elab_instInhabitedTacticInfo___closed__2 = _init_l_Lean_Elab_instInhabite
 lean_mark_persistent(l_Lean_Elab_instInhabitedTacticInfo___closed__2);
 l_Lean_Elab_instInhabitedTacticInfo___closed__3 = _init_l_Lean_Elab_instInhabitedTacticInfo___closed__3();
 lean_mark_persistent(l_Lean_Elab_instInhabitedTacticInfo___closed__3);
-l_Lean_Elab_instInhabitedTacticInfo___closed__4 = _init_l_Lean_Elab_instInhabitedTacticInfo___closed__4();
-lean_mark_persistent(l_Lean_Elab_instInhabitedTacticInfo___closed__4);
-l_Lean_Elab_instInhabitedTacticInfo___closed__5 = _init_l_Lean_Elab_instInhabitedTacticInfo___closed__5();
-lean_mark_persistent(l_Lean_Elab_instInhabitedTacticInfo___closed__5);
-l_Lean_Elab_instInhabitedTacticInfo___closed__6 = _init_l_Lean_Elab_instInhabitedTacticInfo___closed__6();
-lean_mark_persistent(l_Lean_Elab_instInhabitedTacticInfo___closed__6);
-l_Lean_Elab_instInhabitedTacticInfo___closed__7 = _init_l_Lean_Elab_instInhabitedTacticInfo___closed__7();
-lean_mark_persistent(l_Lean_Elab_instInhabitedTacticInfo___closed__7);
-l_Lean_Elab_instInhabitedTacticInfo___closed__8 = _init_l_Lean_Elab_instInhabitedTacticInfo___closed__8();
-lean_mark_persistent(l_Lean_Elab_instInhabitedTacticInfo___closed__8);
 l_Lean_Elab_instInhabitedTacticInfo = _init_l_Lean_Elab_instInhabitedTacticInfo();
 lean_mark_persistent(l_Lean_Elab_instInhabitedTacticInfo);
 l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__0 = _init_l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__0();
@@ -742,8 +660,6 @@ l_Lean_Elab_instInhabitedInfoState___closed__1 = _init_l_Lean_Elab_instInhabited
 lean_mark_persistent(l_Lean_Elab_instInhabitedInfoState___closed__1);
 l_Lean_Elab_instInhabitedInfoState___closed__2 = _init_l_Lean_Elab_instInhabitedInfoState___closed__2();
 lean_mark_persistent(l_Lean_Elab_instInhabitedInfoState___closed__2);
-l_Lean_Elab_instInhabitedInfoState___closed__3 = _init_l_Lean_Elab_instInhabitedInfoState___closed__3();
-lean_mark_persistent(l_Lean_Elab_instInhabitedInfoState___closed__3);
 l_Lean_Elab_instInhabitedInfoState = _init_l_Lean_Elab_instInhabitedInfoState();
 lean_mark_persistent(l_Lean_Elab_instInhabitedInfoState);
 return lean_io_result_mk_ok(lean_box(0));

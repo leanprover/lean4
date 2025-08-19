@@ -1,6 +1,3 @@
-import Std.Internal.Rat
-
-open Std.Internal
 
 /-- info: 1 -/
 #guard_msgs in

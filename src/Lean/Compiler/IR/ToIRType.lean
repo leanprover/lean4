@@ -79,6 +79,12 @@ where fillCache : CoreM IRType := do
       else
         return .tobject
 
+private def isAnyProducingType (type : Lean.Expr) : Bool :=
+  match type with
+  | .const ``lcAny _ => true
+  | .forallE _ _ b _ => isAnyProducingType b
+  | _ => false
+
 def toIRType (type : Lean.Expr) : CoreM IRType := do
   match type with
   | .const name _ => nameToIRType name
@@ -86,7 +92,15 @@ def toIRType (type : Lean.Expr) : CoreM IRType := do
     -- All mono types are in headBeta form.
     let .const name _ := type.getAppFn | unreachable!
     nameToIRType name
-  | .forallE .. => return .object
+  | .forallE _ _ b _ =>
+    -- Type formers are erased, but can be used polymorphically as
+    -- an arrow type producing `lcAny`. The runtime representation of
+    -- erased values is a tagged scalar, so this means that any such
+    -- polymorphic type must be represented as `.tobject`.
+    if isAnyProducingType b then
+      return .tobject
+    else
+      return .object
   | .mdata _ b => toIRType b
   | _ => unreachable!
 

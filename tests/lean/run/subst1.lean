@@ -3,12 +3,12 @@
 set_option trace.Meta.Tactic.subst true
 
 theorem tst1 (x y z : Nat) : y = z → x = x → x = y → x = z := by
-  intros h1 h2 h3
+  intro h1 h2 h3
   subst x
   assumption
 
 theorem tst2 (x y z : Nat) : y = z → x = z + y → x = z + z := by
-  intros h1 h2
+  intro h1 h2
   subst h1
   subst h2
   exact rfl

@@ -33,14 +33,16 @@ For each hypothesis to be introduced, the remaining main goal's target type must
 be a `let` or function type.
 
 * `intro` by itself introduces one anonymous hypothesis, which can be accessed
-  by e.g. `assumption`.
+  by e.g. `assumption`. It is equivalent to `intro _`.
 * `intro x y` introduces two hypotheses and names them. Individual hypotheses
-  can be anonymized via `_`, or matched against a pattern:
+  can be anonymized via `_`, given a type ascription, or matched against a pattern:
   ```lean
   -- ... ⊢ α × β → ...
   intro (a, b)
   -- ..., a : α, b : β ⊢ ...
   ```
+* `intro rfl` is short for `intro h; subst h`, if `h` is an equality where the left-hand or right-hand side
+  is a variable.
 * Alternatively, `intro` can be combined with pattern matching much like `fun`:
   ```lean
   intro
@@ -51,54 +53,27 @@ be a `let` or function type.
 syntax (name := intro) "intro" notFollowedBy("|") (ppSpace colGt term:max)* : tactic
 
 /--
-Introduces zero or more hypotheses, optionally naming them.
+`intros` repeatedly applies `intro` to introduce zero or more hypotheses
+until the goal is no longer a *binding expression*
+(i.e., a universal quantifier, function type, implication, or `have`/`let`),
+without performing any definitional reductions (no unfolding, beta, eta, etc.).
+The introduced hypotheses receive inaccessible (hygienic) names.
 
-- `intros` is equivalent to repeatedly applying `intro`
-  until the goal is not an obvious candidate for `intro`, which is to say
-  that so long as the goal is a `let` or a pi type (e.g. an implication, function, or universal quantifier),
-  the `intros` tactic will introduce an anonymous hypothesis.
-  This tactic does not unfold definitions.
+`intros x y z` is equivalent to `intro x y z` and exists only for historical reasons.
+The `intro` tactic should be preferred in this case.
 
-- `intros x y ...` is equivalent to `intro x y ...`,
-  introducing hypotheses for each supplied argument and unfolding definitions as necessary.
-  Each argument can be either an identifier or a `_`.
-  An identifier indicates a name to use for the corresponding introduced hypothesis,
-  and a `_` indicates that the hypotheses should be introduced anonymously.
+## Properties and relations
+
+- `intros` succeeds even when it introduces no hypotheses.
+
+- `repeat intro` is like `intros`, but it performs definitional reductions
+  to expose binders, and as such it may introduce more hypotheses than `intros`.
+
+- `intros` is equivalent to `intro _ _ … _`,
+  with the fewest trailing `_` placeholders needed so that the goal is no longer a binding expression.
+  The trailing introductions do not perform any definitional reductions.
 
 ## Examples
-
-Basic properties:
-```lean
-def AllEven (f : Nat → Nat) := ∀ n, f n % 2 = 0
-
--- Introduces the two obvious hypotheses automatically
-example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
-  intros
-  /- Tactic state
-     f✝ : Nat → Nat
-     a✝ : AllEven f✝
-     ⊢ AllEven fun k => f✝ (k + 1) -/
-  sorry
-
--- Introduces exactly two hypotheses, naming only the first
-example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
-  intros g _
-  /- Tactic state
-     g : Nat → Nat
-     a✝ : AllEven g
-     ⊢ AllEven fun k => g (k + 1) -/
-  sorry
-
--- Introduces exactly three hypotheses, which requires unfolding `AllEven`
-example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
-  intros f h n
-  /- Tactic state
-     f : Nat → Nat
-     h : AllEven f
-     n : Nat
-     ⊢ (fun k => f (k + 1)) n % 2 = 0 -/
-  apply h
-```
 
 Implications:
 ```lean
@@ -111,7 +86,7 @@ example (p q : Prop) : p → q → p := by
   assumption
 ```
 
-Let bindings:
+Let-bindings:
 ```lean
 example : let n := 1; let k := 2; n + k = 3 := by
   intros
@@ -119,6 +94,19 @@ example : let n := 1; let k := 2; n + k = 3 := by
      k✝ : Nat := 2
      ⊢ n✝ + k✝ = 3 -/
   rfl
+```
+
+Does not unfold definitions:
+```lean
+def AllEven (f : Nat → Nat) := ∀ n, f n % 2 = 0
+
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros
+  /- Tactic state
+     f✝ : Nat → Nat
+     a✝ : AllEven f✝
+     ⊢ AllEven fun k => f✝ (k + 1) -/
+  sorry
 ```
 -/
 syntax (name := intros) "intros" (ppSpace colGt (ident <|> hole))* : tactic
@@ -713,7 +701,7 @@ A `simpArg` is either a `*`, `-lemma` or a simp lemma specification
 meta def simpArg := simpStar.binary `orelse (simpErase.binary `orelse simpLemma)
 
 /-- A simp args list is a list of `simpArg`. This is the main argument to `simp`. -/
-syntax simpArgs := " [" simpArg,* "]"
+syntax simpArgs := " [" simpArg,*,? "]"
 
 /--
 A `dsimpArg` is similar to `simpArg`, but it does not have the `simpStar` form
@@ -722,7 +710,7 @@ because it does not make sense to use hypotheses in `dsimp`.
 meta def dsimpArg := simpErase.binary `orelse simpLemma
 
 /-- A dsimp args list is a list of `dsimpArg`. This is the main argument to `dsimp`. -/
-syntax dsimpArgs := " [" dsimpArg,* "]"
+syntax dsimpArgs := " [" dsimpArg,*,? "]"
 
 /-- The common arguments of `simp?` and `simp?!`. -/
 syntax simpTraceArgsRest := optConfig (discharger)? (&" only")? (simpArgs)? (ppSpace location)?
@@ -817,7 +805,9 @@ It makes sure the "continuation" `?_` is the main goal after refining.
 macro "refine_lift " e:term : tactic => `(tactic| focus (refine no_implicit_lambda% $e; rotate_right))
 
 /--
-The `have` tactic is for adding hypotheses to the local context of the main goal.
+The `have` tactic is for adding opaque definitions and hypotheses to the local context of the main goal.
+The definitions forget their associated value and cannot be unfolded, unlike definitions added by the `let` tactic.
+
 * `have h : t := e` adds the hypothesis `h : t` if `e` is a term of type `t`.
 * `have h := e` uses the type of `e` for `t`.
 * `have : t := e` and `have := e` use `this` for the name of the hypothesis.
@@ -830,6 +820,17 @@ The `have` tactic is for adding hypotheses to the local context of the main goal
   which adds the equation `h : e = pat` to the local context.
 
 The tactic supports all the same syntax variants and options as the `have` term.
+
+## Properties and relations
+
+* It is not possible to unfold a variable introduced using `have`, since the definition's value is forgotten.
+  The `let` tactic introduces definitions that can be unfolded.
+* The `have h : t := e` is like doing `let h : t := e; clear_value h`.
+* The `have` tactic is preferred for propositions, and `let` is preferred for non-propositions.
+* Sometimes `have` is used for non-propositions to ensure that the variable is never unfolded,
+  which may be important for performance reasons.
+    Consider using the equivalent `let +nondep` to indicate the intent.
+
 -/
 syntax "have" letConfig letDecl : tactic
 macro_rules
@@ -874,6 +875,8 @@ macro "suffices " d:sufficesDecl : tactic => `(tactic| refine_lift suffices $d; 
 
 /--
 The `let` tactic is for adding definitions to the local context of the main goal.
+The definition can be unfolded, unlike definitions introduced by `have`.
+
 * `let x : t := e` adds the definition `x : t := e` if `e` is a term of type `t`.
 * `let x := e` uses the type of `e` for `t`.
 * `let : t := e` and `let := e` use `this` for the name of the hypothesis.
@@ -886,6 +889,16 @@ The `let` tactic is for adding definitions to the local context of the main goal
   which adds the equation `h : e = pat` to the local context.
 
 The tactic supports all the same syntax variants and options as the `let` term.
+
+## Properties and relations
+
+* Unlike `have`, it is possible to unfold definitions introduced using `let`, using tactics
+  such as `simp`, `dsimp`, `unfold`, and `subst`.
+* The `clear_value` tactic turns a `let` definition into a `have` definition after the fact.
+  The tactic might fail if the local context depends on the value of the variable.
+* The `let` tactic is preferred for data (non-propositions).
+* Sometimes `have` is used for non-propositions to ensure that the variable is never unfolded,
+  which may be important for performance reasons.
 -/
 macro "let" c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
 
@@ -2128,7 +2141,7 @@ macro (name := mintroMacro) (priority:=low) "mintro" : tactic =>
 `mspec` is an `apply`-like tactic that applies a Hoare triple specification to the target of the
 stateful goal.
 
-Given a stateful goal `H ⊢ₛ wp⟦prog⟧.apply Q'`, `mspec foo_spec` will instantiate
+Given a stateful goal `H ⊢ₛ wp⟦prog⟧ Q'`, `mspec foo_spec` will instantiate
 `foo_spec : ... → ⦃P⦄ foo ⦃Q⦄`, match `foo` against `prog` and produce subgoals for
 the verification conditions `?pre : H ⊢ₛ P` and `?post : Q ⊢ₚ Q'`.
 
@@ -2137,11 +2150,12 @@ the verification conditions `?pre : H ⊢ₛ P` and `?post : Q ⊢ₚ Q'`.
 * If `?pre` or `?post` follow by `.rfl`, then they are discharged automatically.
 * `?post` is automatically simplified into constituent `⊢ₛ` entailments on
   success and failure continuations.
-* `?pre` and `?post.*` goals introduce their stateful hypothesis as `h`.
+* `?pre` and `?post.*` goals introduce their stateful hypothesis under an inaccessible name.
+  You can give it a name with the `mrename_i` tactic.
 * Any uninstantiated MVar arising from instantiation of `foo_spec` becomes a new subgoal.
 * If the target of the stateful goal looks like `fun s => _` then `mspec` will first `mintro ∀s`.
 * If `P` has schematic variables that can be instantiated by doing `mintro ∀s`, for example
-  `foo_spec : ∀(n:Nat), ⦃⌜n = ‹Nat›ₛ⌝⦄ foo ⦃Q⦄`, then `mspec` will do `mintro ∀s` first to
+  `foo_spec : ∀(n:Nat), ⦃fun s => ⌜n = s⌝⦄ foo ⦃Q⦄`, then `mspec` will do `mintro ∀s` first to
   instantiate `n = s`.
 * Right before applying the spec, the `mframe` tactic is used, which has the following effect:
   Any hypothesis `Hᵢ` in the goal `h₁:H₁, h₂:H₂, ..., hₙ:Hₙ ⊢ₛ T` that is

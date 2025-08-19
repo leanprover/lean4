@@ -71,10 +71,11 @@ def classifyType (ty : Expr) : MetaM Label :=
     let (lhs, rhs) ←
       if ty.isAppOfArity ``Eq 3 then pure (ty.getArg! 1, ty.getArg! 2)
       else if ty.isAppOfArity ``Iff 2 then pure (ty.getArg! 0, ty.getArg! 1)
-      else throwError "norm_cast: lemma must be = or ↔, but is{indentExpr ty}"
+      else throwError "Invalid `norm_cast` lemma: Expected an equality or iff, but found{indentExpr ty}"
     let lhsCoes ← countCoes lhs
+    let coeFnNote := MessageData.note m!"coe functions are registered using the `[coe]` attribute"
     if lhsCoes = 0 then
-      throwError "norm_cast: badly shaped lemma, lhs must contain at least one coe{indentExpr lhs}"
+      throwError m!"Invalid `norm_cast` lemma: At least one coe function must appear in the left-hand side{indentExpr lhs}" ++ coeFnNote
     let lhsHeadCoes ← countHeadCoes lhs
     let rhsHeadCoes ← countHeadCoes rhs
     let rhsInternalCoes ← countInternalCoes rhs
@@ -82,7 +83,7 @@ def classifyType (ty : Expr) : MetaM Label :=
       return Label.elim
     else if lhsHeadCoes = 1 then do
       unless rhsHeadCoes = 0 do
-        throwError "norm_cast: badly shaped lemma, rhs can't start with coe{indentExpr rhs}"
+        throwError m!"Invalid `norm_cast` lemma: The right-hand side cannot start with a coe function{indentExpr rhs}" ++ coeFnNote
       if rhsInternalCoes = 0 then
         return Label.squash
       else
@@ -90,9 +91,9 @@ def classifyType (ty : Expr) : MetaM Label :=
     else if rhsHeadCoes < lhsHeadCoes then do
       return Label.squash
     else do
-      throwError "\
-        norm_cast: badly shaped shaped squash lemma, \
-        rhs must have fewer head coes than lhs{indentExpr ty}"
+      throwError m!"\
+        Invalid `norm_cast` squash lemma: \
+        The right-hand side must have fewer coe functions in head position than the left-hand side{indentExpr ty}" ++ coeFnNote
 
 /-- The `push_cast` simp attribute. -/
 builtin_initialize pushCastExt : SimpExtension ←

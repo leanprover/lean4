@@ -120,6 +120,44 @@ theorem with_proof (H : A → B) (P Q : SPred σs) : P ⊢ₛ Q → ⌜A⌝ → 
 
 end pureintro
 
+namespace emptyhyp
+
+/--
+trace: σs : List Type
+⊢ ⏎
+  h : ⌜True⌝
+  ⊢ₛ ⌜True⌝
+-/
+#guard_msgs in
+theorem true_named : ⊢ₛ (⌜True⌝ : SPred σs) → ⌜True⌝ := by
+  mintro h
+  trace_state
+  mexact h
+
+/--
+trace: σs : List Type
+⊢ ⏎
+  ⊢ₛ ⌜True⌝
+-/
+#guard_msgs in
+theorem true_unnamed_hidden : ⊢ₛ (⌜True⌝ : SPred σs) → ⌜True⌝ := by
+  mintro _
+  trace_state
+  mpure_intro
+  exact True.intro
+
+theorem or : ⊢ₛ ⌜True⌝ ∨ (⌜False⌝ : SPred σs) := by
+  mpure_intro
+  left
+  exact True.intro
+
+theorem with_proof (H : A → B) (P Q : SPred σs) : P ⊢ₛ Q → ⌜A⌝ → ⌜B⌝ := by
+  mintro _HP _HQ
+  mpure_intro
+  exact H
+
+end emptyhyp
+
 namespace frame
 
 theorem move (P Q : SPred σs) : ⊢ₛ ⌜p⌝ ∧ Q ∧ ⌜q⌝ ∧ ⌜r⌝ ∧ P ∧ ⌜s⌝ ∧ ⌜t⌝ → Q := by
@@ -135,6 +173,12 @@ theorem move_multiple (P Q : SPred σs) : ⊢ₛ ⌜p⌝ ∧ Q ∧ ⌜q⌝ ∧ �
   mframe
   mexact hQ
 
+theorem move_all : ⊢ₛ ⌜p⌝ ∧ ⌜q⌝ ∧ ⌜r⌝ ∧ ⌜s⌝ ∧ ⌜t⌝ → (⌜t⌝ : SPred []) := by
+  mintro h
+  mframe
+  mpure_intro
+  grind
+
 end frame
 
 theorem revert (P Q R : SPred σs) : P ∧ Q ∧ R ⊢ₛ R := by
@@ -144,6 +188,13 @@ theorem revert (P Q R : SPred σs) : P ∧ Q ∧ R ⊢ₛ R := by
   mintro HP'
   mintro HR'
   mexact HR'
+
+theorem revert_forall (H : SPred σs) (T : SPred (α::β::σs))
+    (h : (fun _ _ => H) ∧ (fun s₁ s₂ => ⌜s₁ = e₁ ∧ s₂ = e₂⌝) ⊢ₛ T) :
+    H ⊢ₛ T e₁ e₂ := by
+  mintro h
+  mrevert ∀2
+  exact h
 
 namespace constructor
 

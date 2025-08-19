@@ -75,7 +75,7 @@ public structure Packages.PreorderOfLEArgs (α : Type u) where
     first
     | infer_instance
     | exact FactoryInstances.beqOfDecidableLE
-  lawful_lt :
+  lt_iff :
       let := le; let := lt
       ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
     extract_lets
@@ -83,10 +83,10 @@ public structure Packages.PreorderOfLEArgs (α : Type u) where
     | exact LawfulOrderLT.lt_iff
     | fail "Failed to automatically prove that the `LE` and `LT` instances are compatible. \
             Please ensure that a `LawfulOrderLT` instance can be synthesized or \
-            manually provide the field `lawful_lt`."
+            manually provide the field `lt_iff`."
   decidableLT :
-      let := le; let := decidableLE; let := lt; haveI := lawful_lt
-      have := lawful_lt
+      let := le; let := decidableLE; let := lt; haveI := lt_iff
+      have := lt_iff
       DecidableLT α := by
     extract_lets
     haveI := @LawfulOrderLT.mk (lt_iff := by assumption) ..
@@ -96,7 +96,7 @@ public structure Packages.PreorderOfLEArgs (α : Type u) where
     | fail "Failed to automatically derive that `LT` is decidable. \
             Please ensure that a `DecidableLT` instance can be synthesized or \
             manually provide the field `decidableLT`."
-  lawful_beq :
+  beq_iff_le_and_ge :
       let := le; let := decidableLE; let := beq
       ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a := by
     extract_lets
@@ -104,7 +104,7 @@ public structure Packages.PreorderOfLEArgs (α : Type u) where
       | exact LawfulOrderBEq.beq_iff_le_and_ge
       | fail "Failed to automatically prove that the `LE` and `BEq` instances are compatible. \
               Please ensure that a `LawfulOrderBEq` instance can be synthesized or \
-              manually provide the field `lawful_beq`."
+              manually provide the field `beq_iff_le_and_ge`."
   le_refl :
       let := le
       ∀ a : α, a ≤ a := by
@@ -162,8 +162,8 @@ automatically. If it fails, it is necessary to provide some of the fields manual
   instance.
 * Some proof obligations can be filled automatically if the data-carrying typeclasses have been
   derived from the `LE` instance. For example: If the `beq` field is omitted and no `BEq α` instance
-  can be synthesized, it is derived from the `LE α` instance. In this case, `lawful_beq` can be
-  omitted because Lean can infer that `BEq α` and `LE α` are compatible.
+  can be synthesized, it is derived from the `LE α` instance. In this case, `beq_iff_le_and_ge` can
+  be omitted because Lean can infer that `BEq α` and `LE α` are compatible.
 * Other proof obligations, namely `le_refl` and `le_trans`, can be omitted if `Refl` and `Trans`
   instances can be synthesized.
 -/
@@ -174,9 +174,9 @@ public def PreorderPackage.ofLE (α : Type u)
   decidableLE := args.decidableLE
   toLT := args.lt
   toBEq := args.beq
-  toLawfulOrderLT := @LawfulOrderLT.mk (lt_iff := args.lawful_lt)
+  toLawfulOrderLT := @LawfulOrderLT.mk (lt_iff := args.lt_iff)
   decidableLT := args.decidableLT
-  toLawfulOrderBEq := @LawfulOrderBEq.mk (beq_iff_le_and_ge := args.lawful_beq)
+  toLawfulOrderBEq := @LawfulOrderBEq.mk (beq_iff_le_and_ge := args.beq_iff_le_and_ge)
   le_refl := args.le_refl
   le_trans := args.le_trans
 
@@ -247,7 +247,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
   instance.
 * Some proof obligations can be filled automatically if the data-carrying typeclasses have been
   derived from the `LE` instance. For example: If the `beq` field is omitted and no `BEq α` instance
-  can be synthesized, it is derived from the `LE α` instance. In this case, `lawful_beq` can be
+  can be synthesized, it is derived from the `LE α` instance. In this case, `beq_iff_le_and_ge` can be
   omitted because Lean can infer that `BEq α` and `LE α` are compatible.
 * Other proof obligations, namely `le_refl`, `le_trans` and `le_antisymm`, can be omitted if `Refl`,
   `Trans` and `Antisymm` instances can be synthesized.
@@ -376,7 +376,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
   the `LE` instance.
 * Some proof obligations can be filled automatically if the data-carrying typeclasses have been
   derived from the `LE` instance. For example: If the `beq` field is omitted and no `BEq α` instance
-  can be synthesized, it is derived from the `LE α` instance. In this case, `lawful_beq` can be
+  can be synthesized, it is derived from the `LE α` instance. In this case, `beq_iff_le_and_ge` can be
   omitted because Lean can infer that `BEq α` and `LE α` are compatible.
 * Other proof obligations, namely `le_total` and `le_trans`, can be omitted if `Total` and `Trans`
   instances can be synthesized.
@@ -528,7 +528,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
   instance from the `LE` instance.
 * Some proof obligations can be filled automatically if the data-carrying typeclasses have been
   derived from the `LE` instance. For example: If the `beq` field is omitted and no `BEq α` instance
-  can be synthesized, it is derived from the `LE α` instance. In this case, `lawful_beq` can be
+  can be synthesized, it is derived from the `LE α` instance. In this case, `beq_iff_le_and_ge` can be
   omitted because Lean can infer that `BEq α` and `LE α` are compatible.
 * Other proof obligations, namely `le_total`, `le_trans` and `le_antisymm`, can be omitted if
   `Total`, `Trans` and `Antisymm` instances can be synthesized.

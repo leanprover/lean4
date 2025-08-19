@@ -9,7 +9,7 @@ instance {α : Type u} {β : α → Type v} [(a : α) → Preorder (β a)] : Pre
 
 -- In Lean 3, we defined `monotone` using the strict implicit notation `{{ ... }}`.
 -- Implicit lambdas in Lean 4 allow us to use the regular `{...}`
-def Monotone [Preorder α] [Preorder β] (f : α → β) :=
+abbrev Monotone [Preorder α] [Preorder β] (f : α → β) :=
   ∀ {a b}, a ≤ b → f a ≤ f b
 
 theorem monotone_id [Preorder α] : Monotone (α := α) id :=

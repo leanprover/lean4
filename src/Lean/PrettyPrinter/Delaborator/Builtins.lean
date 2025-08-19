@@ -187,14 +187,14 @@ This function properly handles "overapplied" functions.
 For example, while `id` takes one explicit argument, it can take more than one explicit
 argument when its arguments are specialized to function types, like in `id id 2`.
 -/
-def getParamKinds (f : Expr) (args : Array Expr) : MetaM (Array ParamKind) := do
+def getParamKinds (f : Expr) (args : Array Expr) : MetaM (Array ParamKind) := withInferTypeConfig do
   try
     let mut result : Array ParamKind := Array.mkEmpty args.size
     let mut fnType ← inferType f
     let mut j := 0
     for i in *...args.size do
       unless fnType.isForall do
-        fnType ← withTransparency .all <| whnf (fnType.instantiateRevRange j i args)
+        fnType ← whnf (fnType.instantiateRevRange j i args)
         j := i
       let .forallE n t b bi := fnType | failure
       let defVal := t.getOptParamDefault? |>.map (·.instantiateRevRange j i args)
@@ -202,7 +202,9 @@ def getParamKinds (f : Expr) (args : Array Expr) : MetaM (Array ParamKind) := do
       fnType := b
     fnType := fnType.instantiateRevRange j args.size args
     -- We still want to consider parameters past the ones for the supplied arguments for analysis.
-    forallTelescopeReducing fnType fun xs _ => do
+    -- Only reducible transparency is needed — the app elaborator uses reducible transparency when looking for
+    -- dangling implicit parameters, opt-params, and auto-params.
+    withReducible <| forallTelescopeReducing fnType fun xs _ => do
       xs.foldlM (init := result) fun result x => do
         let l ← x.fvarId!.getDecl
         -- Warning: the defVal might refer to fvars that are only valid in this context

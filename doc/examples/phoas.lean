@@ -65,7 +65,7 @@ open Ty (nat fn)
 
 namespace FirstTry
 
-def Term (ty : Ty) := (rep : Ty → Type) → Term' rep ty
+abbrev Term (ty : Ty) := (rep : Ty → Type) → Term' rep ty
 
 /-!
 In the next two example, note how each is written as a function over a `rep` choice,
@@ -86,7 +86,7 @@ we do not even need to name the `rep` argument! By using Lean implicit arguments
 we can completely hide `rep` in these examples.
 -/
 
-def Term (ty : Ty) := {rep : Ty → Type} → Term' rep ty
+abbrev Term (ty : Ty) := {rep : Ty → Type} → Term' rep ty
 
 def add : Term (fn nat (fn nat nat)) :=
   .lam fun x => .lam fun y => .plus (.var x) (.var y)
@@ -161,7 +161,7 @@ def squash : Term' (Term' rep) ty → Term' rep ty
 To define the final substitution function over terms with single free variables, we define
 `Term1`, an analogue to Term that we defined before for closed terms.
 -/
-def Term1 (ty1 ty2 : Ty) := {rep : Ty → Type} → rep ty1 → Term' rep ty2
+abbrev Term1 (ty1 ty2 : Ty) := {rep : Ty → Type} → rep ty1 → Term' rep ty2
 
 /-!
 Substitution is defined by (1) instantiating a `Term1` to tag variables with terms and (2)
@@ -237,3 +237,10 @@ theorem constFold_sound (e : Term' Ty.denote ty) : denote (constFold e) = denote
     split
     next he₁ he₂ => simp [← iha, ← ihb, he₁, he₂]
     next => simp [iha, ihb]
+
+/-!
+We can also prove the correctness of `constFold` by using the induction principle that follows its definition.
+The `simp_all` tactic instructs the term simplifier to use all hypotheses as simplification rules.
+-/
+theorem constFold_sound' (e : Term' Ty.denote ty) : denote (constFold e) = denote e := by
+  fun_induction constFold with simp_all

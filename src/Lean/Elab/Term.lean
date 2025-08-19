@@ -1568,7 +1568,7 @@ private def useImplicitLambda (stx : Syntax) (expectedType? : Option Expr) : Ter
   let some expectedType := expectedType? | return .no
   if hasNoImplicitLambdaAnnotation expectedType then
     return .no
-  let expectedType ← whnfForall expectedType
+  let expectedType ← withReducibleAndInstances <| whnfForall expectedType
   let .forallE _ _ _ c := expectedType | return .no
   unless c.isImplicit || c.isInstImplicit do
     return .no
@@ -1629,7 +1629,7 @@ private partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) (
   loop type #[]
 where
   loop (type : Expr) (fvars : Array Expr) : TermElabM Expr := do
-    match (← whnfForall type) with
+    match (← withReducibleAndInstances <| whnfForall type) with
     | .forallE n d b c =>
       if c.isExplicit then
         elabImplicitLambdaAux stx catchExPostpone type fvars

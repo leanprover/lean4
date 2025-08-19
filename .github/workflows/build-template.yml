@@ -169,7 +169,7 @@ jobs:
       # Should be done as early as possible and in particular *before* "Check rebootstrap" which
       # changes the state of stage1/
       - name: Save Cache
-        if: always() && steps.restore-cache.outputs.cache-hit != 'true'
+        if: steps.restore-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
           # NOTE: must be in sync with `restore` above

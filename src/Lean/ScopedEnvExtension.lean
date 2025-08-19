@@ -145,6 +145,12 @@ def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Envir
     | _      :: state₂ :: stack => { s with stateStack := state₂ :: stack }
     | _ => s
 
+def ScopedEnvExtension.setDelimitsLocal (ext : ScopedEnvExtension α β σ) (env : Environment) (delimitsLocal : Bool) : Environment :=
+  ext.ext.modifyState (asyncMode := .local) env fun s =>
+    match s.stateStack with
+    | [] => s
+    | state :: stack => {s with stateStack := {state with delimitsLocal := delimitsLocal} :: stack}
+
 def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
   ext.ext.addEntry env (Entry.global b)
 
@@ -212,6 +218,10 @@ def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (delimitsL
 def popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do
     modifyEnv ext.popScope
+
+def setDelimitsLocal [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (delimitsLocal : Bool := true) : m Unit := do
+  for ext in (← scopedEnvExtensionsRef.get) do
+    modifyEnv (ext.setDelimitsLocal · delimitsLocal)
 
 def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (namespaceName : Name) : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do

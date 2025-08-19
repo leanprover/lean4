@@ -16,7 +16,6 @@ public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Init.System.Platform
 public import Lean.Meta.Hint
-
 public section
 
 namespace Lean.Elab.Command
@@ -33,6 +32,7 @@ namespace Lean.Elab.Command
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
     (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (delimitsLocal : Bool := true) :
     CommandElabM Unit := do
+  trace[Elab] "called addScope, isSoft: {!delimitsLocal}"
   modify fun s => { s with
     env    := s.env.registerNamespace newNamespace,
     scopes := { s.scopes.head! with
@@ -45,6 +45,9 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
   pushScope delimitsLocal
   if isNewNamespace then
     activateScoped newNamespace
+
+private def setScopeDelimitsLocal (delimitsLocal : Bool) : CommandElabM Unit := do
+  setDelimitsLocal delimitsLocal
 
 private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic : Bool := false)
     (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (delimitsLocal : Bool := true) : CommandElabM Unit :=
@@ -60,10 +63,17 @@ where go
 private def addNamespace (header : Name) (delimitsLocal : Bool := true) : CommandElabM Unit := do
   addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header (delimitsLocal := delimitsLocal)
 
-def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) (delimitsLocal : Bool := false) : CommandElabM α := do
+def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) (delimitsLocal : Bool := true) : CommandElabM α := do
   addNamespace ns delimitsLocal
   let a ← elabFn
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }
+  pure a
+
+def withSection {α} (elabFn : CommandElabM α) (delimitsLocal : Bool := true) : CommandElabM α := do
+  addScope (isNewNamespace := false) (isNoncomputable := false) (isPublic := false) (attrs := []) "" (← getCurrNamespace) (delimitsLocal := delimitsLocal)
+  let a ← elabFn
+  modify fun s => { s with scopes := s.scopes.drop 1 }
+  popScope
   pure a
 
 private def popScopes (numScopes : Nat) : CommandElabM Unit :=
@@ -86,7 +96,7 @@ private def checkEndHeader : Name → List Scope → Option Name
 
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
   match stx with
-  | `(namespace $[+localNotDelimiting%$localNotDelimitingTk]? $n) => addNamespace n.getId localNotDelimitingTk.isSome
+  | `(namespace $[+localNotDelimiting%$localNotDelimitingTk]? $n) => addNamespace n.getId localNotDelimitingTk.isNone
   | _               => throwUnsupportedSyntax
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
@@ -102,6 +112,9 @@ private def checkEndHeader : Name → List Scope → Option Name
     else
       addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (delimitsLocal := localNotDelimitingTk.isNone)
   | _                        => throwUnsupportedSyntax
+
+@[builtin_command_elab «end_local_scope»] def elabEndLocalScope : CommandElab := fun _ => do
+  setDelimitsLocal false
 
 /--
 Produces a `Name` composed of the names of at most the innermost `n` scopes in `ss`, truncating if an
@@ -484,11 +497,22 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 
+
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(section +localNotDelimiting $cmd₁:command $cmd₂ end)
+    withRef tk `(section $cmd₁:command $cmd₂ end)
   | _                 => Macro.throwUnsupported
+
+-- @[builtin_command_elab Lean.Parser.Command.«in»] def expandInCmd : CommandElab
+--  | `($cmd₁ in%$tk $cmd₂) =>
+--   withRef tk (do
+--     withSection do
+--       elabCommand cmd₁
+--       setDelimitsLocal false
+--       elabCommand cmd₂
+--     )
+--  | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
   match stx with

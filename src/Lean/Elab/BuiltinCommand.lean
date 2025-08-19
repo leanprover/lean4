@@ -16,6 +16,7 @@ public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Init.System.Platform
 public import Lean.Meta.Hint
+
 public section
 
 namespace Lean.Elab.Command
@@ -495,16 +496,6 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
     withRef tk `(section $cmd₁:command $cmd₂ end)
   | _                 => Macro.throwUnsupported
-
--- @[builtin_command_elab Lean.Parser.Command.«in»] def expandInCmd : CommandElab
---  | `($cmd₁ in%$tk $cmd₂) =>
---   withRef tk (do
---     withSection do
---       elabCommand cmd₁
---       setDelimitsLocal false
---       elabCommand cmd₂
---     )
---  | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
   match stx with

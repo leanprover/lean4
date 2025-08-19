@@ -190,7 +190,7 @@ def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env :
     match s.stateStack with
     | top :: stack =>
       if top.activeScopes.contains namespaceName then
-        {s with stateStack := top :: stack }
+        s
       else
         let activeScopes := top.activeScopes.insert namespaceName
         let top :=
@@ -213,7 +213,7 @@ def ScopedEnvExtension.modifyState (ext : ScopedEnvExtension α β σ) (env : En
 
 def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do
-    modifyEnv (ext.pushScope ·)
+    modifyEnv ext.pushScope
 
 def popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do

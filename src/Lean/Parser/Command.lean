@@ -266,7 +266,6 @@ closed at the end of the file.
 -/
 @[builtin_command_parser] def «section»      := leading_parser
   sectionHeader >> "section" >> optional (ppSpace >> checkColGt >> ident)
-
 /--
 `namespace <id>` opens a section with label `<id>` that influences naming and name resolution inside
 the section:

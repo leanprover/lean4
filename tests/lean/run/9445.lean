@@ -11,6 +11,7 @@ end ex1
 namespace ex2
 namespace foo
 @[local simp] axiom bar : A ↔ true
+end_local_scope
 end foo
 /--
   error: unsolved goals

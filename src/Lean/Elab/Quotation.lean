@@ -243,7 +243,7 @@ def mkSyntaxQuotation (stx : Syntax) (kind : Name) : TermElabM Syntax := do
      including it literally in a syntax quotation. -/
   `(Bind.bind MonadRef.mkInfoFromRefPos (fun info =>
       Bind.bind getCurrMacroScope (fun scp =>
-        Bind.bind getMainModule (fun mainModule => Pure.pure (@TSyntax.mk $(quote kind) $stx)))))
+        Bind.bind MonadQuotation.getMainModule (fun mainModule => Pure.pure (@TSyntax.mk $(quote kind) $stx)))))
   /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
      capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
      note that the syntax quotation above enjoys the same hygiene guarantees as

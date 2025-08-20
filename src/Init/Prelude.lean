@@ -4952,7 +4952,7 @@ class MonadQuotation (m : Type → Type) extends MonadRef m where
   -/
   withFreshMacroScope {α : Type} : m α → m α
 
-export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
+export MonadQuotation (getCurrMacroScope withFreshMacroScope)
 
 /-- Construct a synthetic `SourceInfo` from the `ref` in the monad state. -/
 @[inline]
@@ -4961,7 +4961,7 @@ def MonadRef.mkInfoFromRefPos [Monad m] [MonadRef m] : m SourceInfo :=
 
 instance [MonadFunctor m n] [MonadLift m n] [MonadQuotation m] : MonadQuotation n where
   getCurrMacroScope   := liftM (m := m) getCurrMacroScope
-  getMainModule       := liftM (m := m) getMainModule
+  getMainModule       := liftM (m := m) MonadQuotation.getMainModule
   withFreshMacroScope := monadMap (m := m) withFreshMacroScope
 
 /-!
@@ -4975,7 +4975,7 @@ foo.bla._@.Init.Data.List.Basic._hyg.2.5
 ```
 
 We may have to combine scopes from different files/modules.
-The main modules being processed is always the right-most one.
+The main module being processed is always the right-most one.
 This situation may happen when we execute a macro generated in
 an imported file in the current file.
 ```

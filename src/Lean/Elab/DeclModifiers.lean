@@ -167,7 +167,7 @@ section Methods
 variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadFinally m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
 
 /-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `protected`, `unsafe`, `meta`, `noncomputable`, doc string)-/
-def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers := do
+def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) (isImplicit : Bool := false): m Modifiers := do
   let docCommentStx := stx.raw[0]
   let attrsStx      := stx.raw[1]
   let visibilityStx := stx.raw[2]
@@ -198,7 +198,7 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
   let isProtected := !protectedStx.isNone
   let attrs ← match attrsStx.getOptional? with
     | none       => pure #[]
-    | some attrs => elabDeclAttrs attrs
+    | some attrs => elabDeclAttrs attrs (isImplicit := isImplicit)
   return {
     stx, docString?, visibility, isProtected, computeKind, recKind, attrs,
     isUnsafe        := !unsafeStx.isNone

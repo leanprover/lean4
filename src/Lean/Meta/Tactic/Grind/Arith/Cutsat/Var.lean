@@ -39,8 +39,8 @@ private def registerNonlinearOcc (arg : Expr) (x : Var) : GoalM Unit := do
 private partial def registerNonlinearOccsAt (e : Expr) (x : Var) : GoalM Unit := do
   match_expr e with
   | HMul.hMul _ _ _ _ a b => go a; go b
-  | HDiv.hDiv _ _ _ _ a b => registerNonlinearOcc a x; registerNonlinearOcc b x
-  | HMod.hMod _ _ _ _ a b => registerNonlinearOcc a x; registerNonlinearOcc b x
+  | HDiv.hDiv _ _ _ _ _ b => registerNonlinearOcc b x
+  | HMod.hMod _ _ _ _ _ b => registerNonlinearOcc b x
   | _ => return ()
 where
   go (e : Expr) : GoalM Unit := do

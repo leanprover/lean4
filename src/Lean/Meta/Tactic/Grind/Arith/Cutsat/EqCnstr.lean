@@ -220,11 +220,27 @@ where
       goVar e
 
 private def propagateNonlinearDiv (x : Var) : GoalM Bool := do
-  trace[Meta.debug] "{← getVar x}" -- TODO
+  let e ← getVar x
+  let_expr HDiv.hDiv _ _ _ i a b := e | return false
+  unless (← isInstHDivInt i) do return false
+  let some (k, c) ← isExprEqConst? b | return false
+  let div' ← shareCommon (mkIntDiv a (mkIntLit k))
+  internalize div' (← getGeneration e)
+  let y ← mkVar div'
+  let c' := { p := .add 1 x (.add (-1) y (.num 0)), h := .div k y c : EqCnstr }
+  c'.assert
   return true
 
 private def propagateNonlinearMod (x : Var) : GoalM Bool := do
-  trace[Meta.debug] "{← getVar x}" -- TODO
+  let e ← getVar x
+  let_expr HMod.hMod _ _ _ i a b := e | return false
+  unless (← isInstHModInt i) do return false
+  let some (k, c) ← isExprEqConst? b | return false
+  let mod' ← shareCommon (mkIntMod a (mkIntLit k))
+  internalize mod' (← getGeneration e)
+  let y ← mkVar mod'
+  let c' := { p := .add 1 x (.add (-1) y (.num 0)), h := .mod k y c : EqCnstr }
+  c'.assert
   return true
 
 @[export lean_cutsat_propagate_nonlinear]
@@ -540,15 +556,19 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()
   if (← isInstHDivInt inst) then
-    let some b ← getIntValue? b | return ()
-    -- Remark: we currently do not consider the case where `b` is in the equivalence class of a numeral.
-    expandDivMod a b
+    if let some b ← getIntValue? b then
+      expandDivMod a b
+    else
+      discard <| mkVar e
+
 
 private def propagateMod (e : Expr) : GoalM Unit := do
   let_expr HMod.hMod _ _ _ inst a b ← e | return ()
   if (← isInstHModInt inst) then
-    let some b ← getIntValue? b | return ()
-    expandDivMod a b
+    if let some b ← getIntValue? b then
+      expandDivMod a b
+    else
+      discard <| mkVar e
 
 private def propagateToInt (e : Expr) : GoalM Unit := do
   let_expr Grind.ToInt.toInt α _ _ a := e | return ()

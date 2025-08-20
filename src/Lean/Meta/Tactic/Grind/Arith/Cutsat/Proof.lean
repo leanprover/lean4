@@ -281,6 +281,20 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   | .mul a? cs =>
     let .add _ x _ := c'.p | c'.throwUnexpected
     mkMulEqProof x a? cs c'
+  | .div k y c =>
+    let .add _ x _ := c'.p | c'.throwUnexpected
+    let_expr HDiv.hDiv _ _ _ _ a b := (← getCurrVars)[x]! | c'.throwUnexpected
+    let bVar ← getVarOf b
+    let h := mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl bVar) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
+    let h := mkApp4 (mkConst ``Int.Linear.div_eq) a b (toExpr k) h
+    return mkApp6 (mkConst ``Int.Linear.of_var_eq_var) (← getContext) (← mkVarDecl x) (← mkVarDecl y) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+  | .mod k y c =>
+    let .add _ x _ := c'.p | c'.throwUnexpected
+    let_expr HMod.hMod _ _ _ _ a b := (← getCurrVars)[x]! | c'.throwUnexpected
+    let bVar ← getVarOf b
+    let h := mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl bVar) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
+    let h := mkApp4 (mkConst ``Int.Linear.mod_eq) a b (toExpr k) h
+    return mkApp6 (mkConst ``Int.Linear.of_var_eq_var) (← getContext) (← mkVarDecl x) (← mkVarDecl y) (← mkPolyDecl c'.p) eagerReflBoolTrue h
 
 partial def mkMulEqProof (x : Var) (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr)) (c' : EqCnstr) : ProofM Expr := do
   let h ← go (← getCurrVars)[x]!
@@ -580,7 +594,7 @@ partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do u
   match c'.h with
   | .core0 .. | .core .. | .defn .. | .defnNat ..
   | .defnCommRing .. | .defnNatCommRing .. | .coreToInt .. => return () -- Equalities coming from the core never contain cutsat decision variables
-  | .commRingNorm c .. | .reorder c | .norm c | .divCoeffs c => c.collectDecVars
+  | .commRingNorm c .. | .reorder c | .norm c | .divCoeffs c | .div _ _ c | .mod _ _ c => c.collectDecVars
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
   | .mul _ cs => cs.forM fun (_, _, c) => c.collectDecVars
 

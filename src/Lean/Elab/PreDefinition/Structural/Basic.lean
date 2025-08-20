@@ -71,13 +71,13 @@ def Positions.numIndices (positions : Positions) : Nat :=
     positions.foldl (fun s poss => s + poss.size) 0
 
 /--
-`positions.inverse[k] = i` means that function `i` has type k
+`positions.inverse[k] = (i, j)` means that function `k` is the `j`th function of type `i`.
 -/
-def Positions.inverse (positions : Positions) : Array Nat := Id.run do
-  let mut r := .replicate positions.numIndices 0
+def Positions.inverse (positions : Positions) : Array (Nat × Nat) := Id.run do
+  let mut r := .replicate positions.numIndices (0, 0)
   for _h : i in *...positions.size do
-    for k in positions[i] do
-      r := r.set! k i
+    for _h : j in *...positions[i].size do
+      r := r.set! positions[i][j] (i, j)
   return r
 
 /--

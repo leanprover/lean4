@@ -117,12 +117,6 @@ info: OddDist.brecOn {motive_1 : (a a_1 : Nat) → EvenDist a a_1 → Prop} {mot
 
 /- mutual recursion not supported yet -/
 
-/--
-error: failed to infer structural recursion:
-Cannot use parameters h of OddDist.recTest and h of EvenDist.recTest:
-  structural mutual recursion over inductive predicates is not supported
--/
-#guard_msgs in
 mutual
 
 theorem OddDist.recTest {a b} (h : OddDist b a) : True :=
@@ -148,25 +142,26 @@ inductive Test (p : Nat → Prop) : Nat → Prop
   | zero : Test p 0
   | one (h : Test p 3 ∧ p 2) : Test p 1
 
--- Note: recursion doesn't work yet
-/--
-error: failed to infer structural recursion:
-Cannot use parameter h:
-  Application type mismatch: The argument
-    n
-  has type
-    Nat
-  but is expected to have type
-    Test p 3 ∧ p 2 → Prop
-  in the application
-    @brecOn p (fun {n} h => funType h) n
--/
-#guard_msgs in
 theorem Test.recTest (h : Test p n) : True :=
   match h with
   | .zero => trivial
   | .one ⟨h, h'⟩ => recTest h
 termination_by structural h
+
+mutual
+
+theorem Test.recTest3 (h : Test p 3 ∧ p 2) : True :=
+  match h with
+  | ⟨h, h'⟩ => recTest2 h
+termination_by structural h
+
+theorem Test.recTest2 (h : Test p n) : True :=
+  match h with
+  | .zero => trivial
+  | .one h => recTest3 h
+termination_by structural h
+
+end
 
 /--
 info: Test.brecOn {p : Nat → Prop} {motive_1 : (a : Nat) → Test p a → Prop} {motive_2 : Test p 3 ∧ p 2 → Prop} {a✝ : Nat}
@@ -225,3 +220,17 @@ info: Test'.brecOn {p : Nat → Prop} {motive_1 : (a : Nat) → Test' p a → Pr
 -/
 #guard_msgs in
 #check Test'.brecOn
+
+mutual
+
+def testMe (x : Nat) : Nat :=
+  match x with
+  | 0 => 123
+  | k + 1 => testMe2 k
+
+def testMe2 (x : Nat) : Nat :=
+  match x with
+  | 0 => 241
+  | k + 1 => testMe k
+
+end

@@ -6,6 +6,7 @@ Authors: Dany Fabian
 module
 
 prelude
+public import Lean.Util.HasConstCache
 public import Lean.Meta.IndPredBelow
 public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Structural.Basic
@@ -16,7 +17,7 @@ public section
 namespace Lean.Elab.Structural
 open Meta
 
-private def replaceIndPredRecApp (fixedParamPerm : FixedParamPerm) (funType : Expr) (e : Expr) : M Expr := do
+private def replaceIndPredRecApp (fixedParamPerm : FixedParamPerm) (funType : Expr) (_i : Nat) (e : Expr) : M Expr := do
   withoutProofIrrelevance do
   withTraceNode `Elab.definition.structural (fun _ => pure m!"eliminating recursive call {e}") do
     -- We want to replace `e` with an expression of the same type
@@ -46,38 +47,47 @@ private def replaceIndPredRecApp (fixedParamPerm : FixedParamPerm) (funType : Ex
       throwError "Could not eliminate recursive call {e} at {main.mvarId!}"
     instantiateMVars main
 
-private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : Expr)
-    (params : Array Expr) (e : Expr) : M Expr := do
-  let rec loop (e : Expr) : M Expr := do
+private partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
+    (funTypes : Array Expr) (params : Array Expr) (e : Expr) : M Expr := do
+  let recFnNames := recArgInfos.map (·.fnName)
+  let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnNames) M Bool :=
+    modifyGet (·.contains e)
+  let inv := positions.inverse
+  let rec loop (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr := do
+    unless ← containsRecFn e do
+      return e
     match e with
-    | Expr.lam n d b c =>
+    | .lam n d b c =>
       withLocalDecl n c (← loop d) fun x => do
         mkLambdaFVars #[x] (← loop (b.instantiate1 x))
-    | Expr.forallE n d b c =>
+    | .forallE n d b c =>
       withLocalDecl n c (← loop d) fun x => do
         mkForallFVars #[x] (← loop (b.instantiate1 x))
-    | Expr.letE n type val body nondep =>
+    | .letE n type val body nondep =>
       mapLetDecl n (← loop type) (← loop val) (nondep := nondep) fun x => do
         loop (body.instantiate1 x)
-    | Expr.mdata d b => do
+    | .mdata _ b => do
       if let some stx := getRecAppSyntax? e then
         withRef stx <| loop b
       else
-        return mkMData d (← loop b)
-    | Expr.proj n i e    => return mkProj n i (← loop e)
-    | Expr.app _ _ =>
-      let processApp (e : Expr) : M Expr := do
+        return e.updateMData! (← loop b)
+    | .proj _ _ e' => return e.updateProj! (← loop e')
+    | .app _ _ =>
+      let processApp (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr := do
         e.withApp fun f args => do
-          if f.isConstOf recArgInfo.fnName then
-            replaceIndPredRecApp recArgInfo.fixedParamPerm funType e
-          else
-            return mkAppN (← loop f) (← args.mapM loop)
+          let args ← args.mapM loop
+          if let .const c _ := f then
+            if let some fidx := recFnNames.idxOf? c then
+              let info := recArgInfos[fidx]!
+              let (ind, i) := inv[fidx]!
+              return ← replaceIndPredRecApp info.fixedParamPerm funTypes[ind]! i (mkAppN f args)
+          return mkAppN (← loop f) args
       let some matcherApp ← matchMatcherApp? e | processApp e
-      unless recArgHasLooseBVarsAt recArgInfo.fnName recArgInfo.recArgPos e do
+      if recArgInfos.all (fun i => !recArgHasLooseBVarsAt i.fnName i.recArgPos e) then
         return ← processApp e
       trace[Elab.definition.structural] "matcherApp before adding below transformation:\n{matcherApp.toExpr}"
       if let some (newApp, addMatcher) ← IndPredBelow.mkBelowMatcher matcherApp params then
-        modify fun s => { s with addMatchers := s.addMatchers.push addMatcher }
+        modifyThe State fun s => { s with addMatchers := s.addMatchers.push addMatcher }
         let some _newApp ← matchMatcherApp? newApp | throwError "not a matcherApp: {newApp}"
         trace[Elab.definition.structural] "modified matcher:\n{newApp}"
         processApp newApp
@@ -85,17 +95,79 @@ private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : E
         -- Note: `recArgHasLooseBVarsAt` has false positives, so sometimes everything might stay
         -- the same
         processApp e
-    | e =>
-      ensureNoRecFn #[recArgInfo.fnName] e
+    | _ =>
+      ensureNoRecFn recFnNames e
       pure e
-  loop e
+  loop e |>.run' {}
 
+/-
+def withFunTypes (motives : Array Expr) (k : Array Expr → M α) : M α :=
+  go 0 #[]
+where
+  go (i : Nat) (vars : Array Expr) : M α := do
+    if h : i < motives.size then
+      let funType := motives[i]
+      withLetDecl ((`funType).appendIndexAfter (i + 1)) (← inferType funType) funType fun funType => do
+        go (i + 1) (vars.push funType)
+    else
+      k vars
+  termination_by motives.size - i
+-/
+
+/--
+Turns `fun a b => x` into `let funType := fun a b => α` (where `x : α`).
+The continuation is the called with all `funType`s corresponding to the values.
+-/
+def withFunTypes (values : Array Expr) (k : Array Expr → M α) : M α := do
+  go 0 #[]
+where
+  go (i : Nat) (res : Array Expr) : M α :=
+    if h : i < values.size then
+      lambdaTelescope values[i] fun xs value => do
+        let type := (← inferType value).headBeta
+        let funType ← mkLambdaFVars xs type
+        withLetDecl ((`funType).appendIndexAfter (i + 1)) (← inferType funType) funType
+          fun funType => go (i + 1) (res.push funType)
+    else
+      k res
+  termination_by values.size - i
+
+/--
+Calculates the `.brecOn` motive corresponding to one structural recursive function.
+The `value` is the function with (only) the fixed parameters moved into the context.
+-/
+def mkIndPredBRecOnMotive (recArgInfo : RecArgInfo) (value funType : Expr) : M Expr := do
+  lambdaTelescope value fun xs _ => do
+    let type := mkAppN funType xs
+    let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
+    let motive ← mkForallFVars otherArgs type
+    mkLambdaFVars indexMajorArgs motive
+
+/--
+Calculates the `.brecOn` functional argument corresponding to one structural recursive function.
+The `value` is the function with (only) the fixed parameters moved into the context,
+The `FType` is the expected type of the argument.
+The `recArgInfos` is used to transform the body of the function to replace recursive calls with
+uses of the `below` induction hypothesis.
+-/
+def mkIndPredBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
+    (recArgInfo : RecArgInfo) (value : Expr) (FType : Expr) (funTypes params : Array Expr) : M Expr := do
+  lambdaTelescope value fun xs value => do
+    let (indicesMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
+    let FType ← instantiateForall FType indicesMajorArgs
+    forallBoundedTelescope FType (some 1) fun below _ => do
+      let below := below[0]!
+      let valueNew ← replaceIndPredRecApps recArgInfos positions funTypes params value
+      mkLambdaFVars (indicesMajorArgs ++ #[below] ++ otherArgs) valueNew
+/-
 /--
 Transform the body of a recursive function into a non-recursive one.
 
 The `value` is the function with (only) the fixed parameters instantiated.
 -/
-def mkIndPredBRecOn (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
+def mkIndPredBRecOn (recArgInfos : Array RecArgInfo) (value : Array Expr) : M Expr := do
+  let indInfo := recArgInfos[0]!.indGroupInst
+  let pos : Positions := .groupAndSort (·.indIdx) recArgInfos (Array.range indInfo.numTypeFormers)
   lambdaTelescope value fun ys value => do
     let type  := (← inferType value).headBeta
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor ys
@@ -132,5 +204,5 @@ def mkIndPredBRecOn (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
         let brecOn       := mkAppN brecOn otherArgs
         let brecOn       ← mkLetFVars #[funType] brecOn
         mkLambdaFVars ys brecOn
-
+-/
 end Lean.Elab.Structural

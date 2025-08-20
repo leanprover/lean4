@@ -55,7 +55,7 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
   match stx with
   | `(for_in'% $col $init $body) =>
         tryPostponeIfNoneOrMVar expectedType?
-        let colE ← elabTerm col none
+        let colE ← withSynthesizeLight (elabTerm col none)
         let m ← getMonadForIn expectedType?
         let colType ← inferType colE
         let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
@@ -65,6 +65,7 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
             mkAppM ``ForIn' #[m, colType, elemType, memType]
           catch _ =>
             tryPostpone; throwError "failed to construct `ForIn'` instance for collection{indentExpr colType}\nand monad{indentExpr m}"
+        synthesizeSyntheticMVarsUsingDefault
         match (← trySynthInstance forInInstance) with
         | .some inst  =>
           let forInFn ← mkConst ``forIn'

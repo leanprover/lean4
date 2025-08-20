@@ -57,6 +57,10 @@ def h (n : Nat) : IO Unit := do
   for i in *...n, j in 2...* do
     IO.println s!"i={i}, j={j}"
 
+example : Unit := Id.run do
+  for _h : _i in 4...<12 do
+    pure .unit
+
 /--
 info: i=0, j=2
 i=1, j=3

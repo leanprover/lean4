@@ -9,7 +9,7 @@ You should not edit the `stage0` directory except using the commands described i
 ## Development Setup
 
 You can use any of the [supported editors](../setup.md) for editing the Lean source code.
-If you set up `elan` as below, opening `src/` as a *workspace folder* should ensure that stage 0 (i.e. the stage that first compiles `src/`) will be used for files in that directory.
+Please see below for specific instructions for VS Code.
 
 ### Dev setup using elan
 
@@ -67,6 +67,9 @@ You should always load it when working on Lean, such as by invoking
 code lean.code-workspace
 ```
 on the command line.
+
+You can use the `Refresh File Dependencies` command as in other projects to rebuild modules from inside VS Code but be aware that this does not trigger any non-Lake build targets.
+In particular, after updating `stage0/` (or fetching an update to it), you will want to invoke `make` directly to rebuild `stage0/bin/lean` as described in [building Lean](../make/index.md).
 
 ### `ccache`
 

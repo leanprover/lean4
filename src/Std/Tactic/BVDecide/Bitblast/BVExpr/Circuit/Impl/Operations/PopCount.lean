@@ -139,6 +139,13 @@ def blastAddVec (aig : AIG α) (usedNodes validNodes : Nat) (oldParSum : RefVecV
     else
       ⟨aig, newParSum⟩
 
+/--
+  .     .     .     .     .     .     .     .
+  .     .     .     .
+  .     .
+  .
+-/
+
 theorem addVec_le_size (aig : AIG α) (usedNodes validNodes: Nat) (oldParSum : RefVecVec aig w w) (newParSum : RefVecVec aig w w)
               (hvalid : validNodes ≤ w) :
     aig.decls.size ≤ (blastAddVec aig usedNodes validNodes oldParSum newParSum hvalid).aig.decls.size := by

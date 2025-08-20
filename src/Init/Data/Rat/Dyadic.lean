@@ -31,8 +31,11 @@ example : trailingZeros 2 = 1 := by native_decide
 example : trailingZeros 3 = 0 := by native_decide
 example : trailingZeros 4 = 2 := by native_decide
 
-theorem trailingZeros_two_mul_add_one (i : Int) : Int.trailingZeros (2 * i + 1) = 0 := sorry
-theorem trailingZeros_two_mul (i : Int) : Int.trailingZeros (2 * i) = Int.trailingZeros i + 1 := sorry
+theorem trailingZeros_two_mul_add_one (i : Int) : Int.trailingZeros (2 * i + 1) = 0 := by
+  unfold trailingZeros trailingZeros.aux
+  have h : (2 * i + 1) % 2 = 1 := by simp
+  split <;> simp_all
+theorem trailingZeros_two_mul {i : Int} (h : i ≠ 0) : Int.trailingZeros (2 * i) = Int.trailingZeros i + 1 := sorry
 
 /-- The unique representation of an integer as either zero, or an odd number times a power of two. -/
 def toDyadic (i : Int) : Option (Int × Nat) :=
@@ -120,9 +123,11 @@ def toRat (x : Dyadic) : Rat :=
   match x with
   | .zero => 0
   | .of n (k : Nat) =>
-    ⟨2 * n + 1, 2 ^ k, sorry, sorry⟩
+    have reduced : (2 * n + 1).natAbs.Coprime (2 ^ k) := by
+      sorry
+    ⟨2 * n + 1, 2 ^ k, Nat.ne_of_gt (Nat.pow_pos (by decide)), reduced⟩
   | .of n (-((k : Nat) + 1)) =>
-    ⟨(2 * n + 1) * 2 ^ (k + 1), 1, sorry, sorry⟩
+    ⟨(2 * n + 1) * 2 ^ (k + 1), 1, by decide, Nat.coprime_one_right _⟩
 
 example : (Dyadic.of 1 2).add (.of 1 2) = .of 1 1 := by native_decide -- 3/4 + 3/4 = 3/2
 example : (Dyadic.of 3 3).add (.of 0 3) = .of 0 0 := by native_decide -- 7/8 + 1/8 = 1

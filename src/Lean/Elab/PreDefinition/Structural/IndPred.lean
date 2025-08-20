@@ -27,6 +27,7 @@ private def replaceIndPredRecApp (fixedParamPerm : FixedParamPerm) (funType : Ex
     let r ← lctx.anyM fun localDecl => do
       if localDecl.isAuxDecl then return false
       let (mvars, _, t) ← forallMetaTelescope localDecl.type -- NB: do not reduce, we want to see the `funType`
+      let t := t.headBeta
       unless t.getAppFn == funType do return false
       withTraceNodeBefore `Elab.definition.structural (do pure m!"trying {mkFVar localDecl.fvarId} : {localDecl.type}") do
         if ys.size < t.getAppNumArgs then
@@ -42,10 +43,11 @@ private def replaceIndPredRecApp (fixedParamPerm : FixedParamPerm) (funType : Ex
         trace[Elab.definition.structural] "Arguments do not match"
         return false
     unless r do
-      throwError "Could not eliminate recursive call {e}"
+      throwError "Could not eliminate recursive call {e} at {main.mvarId!}"
     instantiateMVars main
 
-private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : Expr) (motive : Expr) (e : Expr) : M Expr := do
+private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : Expr)
+    (params : Array Expr) (e : Expr) : M Expr := do
   let rec loop (e : Expr) : M Expr := do
     match e with
     | Expr.lam n d b c =>
@@ -70,27 +72,19 @@ private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : E
             replaceIndPredRecApp recArgInfo.fixedParamPerm funType e
           else
             return mkAppN (← loop f) (← args.mapM loop)
-      match (← matchMatcherApp? e) with
-      | some matcherApp =>
-        if !recArgHasLooseBVarsAt recArgInfo.fnName recArgInfo.recArgPos e then
-          processApp e
-        else
-          trace[Elab.definition.structural] "matcherApp before adding below transformation:\n{matcherApp.toExpr}"
-          let rec addBelow (matcherApp : MatcherApp) : M Expr := do
-            if let some (t, idx) ← IndPredBelow.findBelowIdx matcherApp.discrs motive then
-              let (newApp, addMatcher) ← IndPredBelow.mkBelowMatcher matcherApp motive t idx
-              modify fun s => { s with addMatchers := s.addMatchers.push addMatcher }
-              let some newApp ← matchMatcherApp? newApp | throwError "not a matcherApp: {newApp}"
-              addBelow newApp
-            else pure matcherApp.toExpr
-
-          let newApp ← addBelow matcherApp
-          if newApp == matcherApp.toExpr then
-            throwError "could not add below discriminant"
-          else
-            trace[Elab.definition.structural] "modified matcher:\n{newApp}"
-            processApp newApp
-      | none => processApp e
+      let some matcherApp ← matchMatcherApp? e | processApp e
+      unless recArgHasLooseBVarsAt recArgInfo.fnName recArgInfo.recArgPos e do
+        return ← processApp e
+      trace[Elab.definition.structural] "matcherApp before adding below transformation:\n{matcherApp.toExpr}"
+      if let some (newApp, addMatcher) ← IndPredBelow.mkBelowMatcher matcherApp params then
+        modify fun s => { s with addMatchers := s.addMatchers.push addMatcher }
+        let some _newApp ← matchMatcherApp? newApp | throwError "not a matcherApp: {newApp}"
+        trace[Elab.definition.structural] "modified matcher:\n{newApp}"
+        processApp newApp
+      else
+        -- Note: `recArgHasLooseBVarsAt` has false positives, so sometimes everything might stay
+        -- the same
+        processApp e
     | e =>
       ensureNoRecFn #[recArgInfo.fnName] e
       pure e
@@ -131,7 +125,8 @@ def mkIndPredBRecOn (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
         instantiateForall FType indexMajorArgs
       forallBoundedTelescope FType (some 1) fun below _ => do
         let below := below[0]!
-        let valueNew     ← replaceIndPredRecApps recArgInfo funType motive value
+        let valueNew     ← replaceIndPredRecApps recArgInfo funType
+          (recArgInfo.indGroupInst.params.push motive) value
         let Farg         ← mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew
         let brecOn       := mkApp brecOn Farg
         let brecOn       := mkAppN brecOn otherArgs

@@ -33,8 +33,6 @@ namespace bitblast
 structure RefVecVec {α : Type} [DecidableEq α] [Hashable α] [DecidableEq α] (aig : AIG α) (w : Nat) (n : Nat) where
   vec : Vector (AIG.RefVec aig w) n
 
-def RefVecVecNew {α : Type} [DecidableEq α] [Hashable α] [DecidableEq α] (aig : AIG α) (w : Nat) (n : Nat) := Vector (AIG.RefVec aig w) n
-
 /-- A vector of `AIG.RefVec aig w` (vec) pointing to the same AIG (aig)-/
 structure RefVecEntryVec (α : Type) [DecidableEq α] [Hashable α] [DecidableEq α] (w : Nat) (n : Nat) where
   aig : AIG α
@@ -125,8 +123,8 @@ theorem extractAndExtendPopulate_decl_eq (idx' : Nat) (aig : AIG α) (x : AIG.Re
   · simp [← hres]
 
 /-- Given a vector of references belonging to the same AIG `oldParSum`, we create a node to add the `curr`-th couple of elements and push the add node to `newParSum` -/
-def blastAddVec (aig : AIG α) (usedNodes validNodes : Nat) (oldParSum : RefVecVec aig w w)
-      (newParSum : RefVecVec aig w w) (hval : validNodes ≤ w) :
+def blastAddVec (aig : AIG α) (usedNodes validNodes : Nat) (oldParSum : RefVecVec aig1 w w)
+      (newParSum : RefVecVec aig2 w w) (hval : validNodes ≤ w) :
     RefVecEntryVec α w w :=
     if hc1 : usedNodes < validNodes then
       let rhs := if h : usedNodes + 1 < validNodes then
@@ -140,7 +138,6 @@ def blastAddVec (aig : AIG α) (usedNodes validNodes : Nat) (oldParSum : RefVecV
       blastAddVec aig (usedNodes + 2) validNodes oldParSum newVec hval
     else
       ⟨aig, newParSum⟩
-
 
 
 theorem addVec_le_size (aig : AIG α) (usedNodes validNodes: Nat) (oldParSum : RefVecVec aig w w) (newParSum : RefVecVec aig w w)

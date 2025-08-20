@@ -441,11 +441,10 @@ theorem denote_blastAddVec
     ∀ (i : Nat) (hlt : i < w) (hge : usedNodes/2 ≤ i),
       newParSumBv[i] = oldParSumBv[i])
   -- each element in newParSum denotes to the corresponding element in newParSumBv
-    -- (hold :
-    -- ∀ (i1 : Nat) (h1 : i1 < w),
-    --   ∀ (i2 : Nat) (h2 : i2 < w),
-    --     ∀ (newAig : AIG α) (haig : aig.decls.size ≤ newAig.decls.size),
-    --     ⟦newAig, ((oldParSum.cast haig).vec[i1]).get i2 h2, assign⟧ = oldParSumBv[i1].getLsbD i2)
+  (hold :
+    ∀ (i1 : Nat) (h1 : i1 < w),
+      ∀ (i2 : Nat) (h2 : i2 < w),
+        ⟦aig, (oldParSum.vec[i1]).get i2 h2, assign⟧ = oldParSumBv[i1].getLsbD i2)
 
   (hold :
     ∀ (i1 : Nat) (h1 : i1 < w),
@@ -527,7 +526,7 @@ theorem denote_blastAddVec
                     rhs})
         let res := (blastAddVec add.aig
             (usedNodes + 2) validNodes (oldParSum.cast (by apply AIG.LawfulVecOperator.le_size (f := blastAdd) .. ))
-            (RefVecVec.set ((usedNodes + 1) / 2) newParSum add.vec
+            (RefVecVec.set ((usedNodes + 1) / 2) newP~arSum add.vec
               (by apply AIG.LawfulVecOperator.le_size (f := blastAdd) .. ) (by omega))) (by omega)
         have := denote_blastAddVec
                     (aig := add.aig)
@@ -557,7 +556,12 @@ theorem denote_blastAddVec
           simp only [ne_eq, show ¬(usedNodes + 1) / 2 = j by omega,
             not_false_eq_true, List.getElem_set_ne]
           exact hbvGt
-        · sorry
+        · intros
+          simp [add]
+
+          sorry
+        ·
+          sorry
       · have : usedNodes + 1 = validNodes := by omega
         rw [← this] at *
         simp_all

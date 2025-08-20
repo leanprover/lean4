@@ -33,6 +33,8 @@ namespace bitblast
 structure RefVecVec {α : Type} [DecidableEq α] [Hashable α] [DecidableEq α] (aig : AIG α) (w : Nat) (n : Nat) where
   vec : Vector (AIG.RefVec aig w) n
 
+def RefVecVecNew {α : Type} [DecidableEq α] [Hashable α] [DecidableEq α] (aig : AIG α) (w : Nat) (n : Nat) := Vector (AIG.RefVec aig w) n
+
 /-- A vector of `AIG.RefVec aig w` (vec) pointing to the same AIG (aig)-/
 structure RefVecEntryVec (α : Type) [DecidableEq α] [Hashable α] [DecidableEq α] (w : Nat) (n : Nat) where
   aig : AIG α
@@ -139,12 +141,7 @@ def blastAddVec (aig : AIG α) (usedNodes validNodes : Nat) (oldParSum : RefVecV
     else
       ⟨aig, newParSum⟩
 
-/--
-  .     .     .     .     .     .     .     .
-  .     .     .     .
-  .     .
-  .
--/
+
 
 theorem addVec_le_size (aig : AIG α) (usedNodes validNodes: Nat) (oldParSum : RefVecVec aig w w) (newParSum : RefVecVec aig w w)
               (hvalid : validNodes ≤ w) :

@@ -50,15 +50,15 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   | DefinitionSafety.partial => m := m ++ "partial "
   | DefinitionSafety.safe    => pure ()
 
-  if isProtected (← getEnv) id then
-    m := m ++ "protected "
-
   let id' ← match privateToUserName? id with
     | some id' =>
       m := m ++ "private "
       pure id'
     | none =>
       pure id
+
+  if isProtected (← getEnv) id then
+    m := m ++ "protected "
 
   if sig then
     return m!"{m}{kind} {id'}{levelParamsToMessageData levelParams} : {type}"

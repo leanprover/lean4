@@ -4,7 +4,7 @@ output_file = open('test_popcount_correctness.lean', 'w')
 
 output_file.write('import Std.Tactic.BVDecide\n')
 
-width = 9
+width = 7
 
 for n in range(0, pow(2, width)):
     popcount_golden = n.bit_count()

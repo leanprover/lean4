@@ -906,84 +906,81 @@ def extractAndExtendPopulateAux (start : Nat) (x : BitVec w) (acc : List (BitVec
       extractAndExtendPopulateAux (start + 1) x newAcc proof (by omega) this
 
 /-- Given a list of `BitVec w`, we recursively construct the parallel prefix sum for each couple of elements in the initial input. -/
--- def addVecAux (currNode inputNodes: Nat) (oldParSum : List (BitVec w)) (newParSum : List (BitVec w)) (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes) (hlen : oldParSum.length = inputNodes) (hlen' : newParSum.length = currNode/2) : ListWithLen w ((inputNodes + 1)/2) :=
-def addVecAux (currNode inputNodes: Nat) (oldParSum : List (BitVec w)) (newParSum : List (BitVec w)) (heven : currNode % 2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes) (hlen : oldParSum.length = inputNodes)
-(hlen' : newParSum.length = currNode/2)
-(hacc :
-  (∀ i (hi : i < newParSum.length) (hl : newParSum.length = currNode/2),
-        if hc : i*2 + 1 < oldParSum.length then
-          newParSum.get ⟨i, by simp [hl]; omega⟩ = oldParSum.get ⟨i*2, by omega⟩ + oldParSum.get ⟨i*2 + 1, by omega⟩
-        else
-          newParSum.get ⟨i, by simp [hl]; omega⟩ = oldParSum.get ⟨i*2, by omega⟩)) :
-  {l : List (BitVec w) // (l.length = (inputNodes + 1)/2) ∧
-       (∀ i (hi : i < l.length) (hl : l.length = (inputNodes + 1)/2),
-        if hc : i*2 + 1 < oldParSum.length then
-          l.get ⟨i, by simp [hl]; omega⟩ = oldParSum.get ⟨i*2, by omega⟩ + oldParSum.get ⟨i*2 + 1, by omega⟩
-        else
-          l.get ⟨i, by simp [hl]; omega⟩ = oldParSum.get ⟨i*2, by omega⟩)
-        } :=
-  match h : inputNodes - currNode with
-  | 0 =>
-    ⟨newParSum, by
-                  and_intros
-                  · omega
-                  · intros i hi hl
-                    specialize hacc i hi (by omega)
-                    exact hacc
-                    ⟩
+-- def addVecAux (usedNodes validNodes: Nat) (oldParSum : List (BitVec w)) (newParSum : List (BitVec w)) (heven : usedNodes %2 = 0) (hle : usedNodes ≤ validNodes + 1) (hw : validNodes ≤ w) (hw' : 1 < validNodes) (hlen : oldParSum.length = validNodes) (hlen' : newParSum.length = usedNodes/2) : ListWithLen w ((validNodes + 1)/2) :=
+def addVecAux (usedNodes validNodes: Nat) (oldParSum : List (BitVec w)) (newParSum : List (BitVec w))
+      (heven : usedNodes % 2 = 0) (hin : 1 < inputNodes) (hval : validNodes ≤ inputNodes)
+      (hlen : oldParSum.length = inputNodes)
+      (hlen' : newParSum.length = inputNodes) : List (BitVec w)
+-- (hacc :
+--   (∀ i (hi : i < newParSum.length) (hl : newParSum.length = usedNodes/2),
+--         if hc : i*2 + 1 < oldParSum.length then
+--           newParSum.get ⟨i, by simp [hl]; omega⟩ = oldParSum.get ⟨i*2, by omega⟩ + oldParSum.get ⟨i*2 + 1, by omega⟩
+--         else
+--           newParSum.get ⟨i, by simp [hl]; omega⟩ = oldParSum.get ⟨i*2, by omega⟩)) :
+--   {l : List (BitVec w) // (l.length = (validNodes + 1)/2) ∧
+--        (∀ i (hi : i < l.length) (hl : l.length = (validNodes + 1)/2),
+--         if hc : i*2 + 1 < oldParSum.length then
+--           l.get ⟨i, by simp [hl]; omega⟩ = oldParSum.get ⟨i*2, by omega⟩ + oldParSum.get ⟨i*2 + 1, by omega⟩
+--         else
+--           l.get ⟨i, by simp [hl]; omega⟩ = oldParSum.get ⟨i*2, by omega⟩)
+--         }
+  :=
+  match h : validNodes - usedNodes with
+  | 0 => newParSum
   | n + 1 =>
-      have hcast : currNode / 2 + 1 = (currNode + 2)/2 := by omega
-      if h : currNode + 1 < inputNodes then
-        let add := oldParSum.get ⟨currNode, by omega⟩ + oldParSum.get ⟨currNode + 1, by omega⟩
-        let newVec := newParSum.concat add
-        have : newVec.length = newParSum.length + 1 := by
-          have := List.length_concat (as := newParSum) (a := add)
-          simp only [List.concat_eq_append, List.length_append, List.length_cons, List.length_nil,
-            Nat.zero_add, newVec]
-        addVecAux (currNode + 2) inputNodes oldParSum newVec (by omega) (by omega) hw hw' hlen (by omega)
-            (by
-              intros i hi hl
-              by_cases hlast : i = newVec.length - 1
-              · simp [newVec, hlast]
-                simp [add]
-                split
-                · case _ hl' => congr <;> omega
-                · case _ hl' => congr <;> omega
-              · simp [newVec]
-                have := List.getElem_append_left (as := newParSum) (bs := [add]) (i := i) (h := by omega) (h' := by simp; omega)
-                rw [this]
-                specialize hacc i (by omega) (by omega)
-                exact hacc
-                )
+      if h : usedNodes + 1 < validNodes then
+        let add := oldParSum.get ⟨usedNodes, by omega⟩ + oldParSum.get ⟨usedNodes + 1, by omega⟩
+        let newVec := newParSum.set ((usedNodes + 1)/2) add
+        -- have : newVec.length = newParSum.length + 1 := by
+        --   have := List.length_concat (as := newParSum) (a := add)
+        --   simp only [List.concat_eq_append, List.length_append, List.length_cons, List.length_nil,
+        --     Nat.zero_add, newVec]
+        addVecAux (usedNodes + 2) validNodes oldParSum newVec (by omega) hin hval hlen (by simp [newVec]; omega)
+            -- (by
+            --   intros i hi hl
+            --   by_cases hlast : i = newVec.length - 1
+            --   · simp [newVec, hlast]
+            --     simp [add]
+            --     split
+            --     · case _ hl' => congr <;> omega
+            --     · case _ hl' => congr <;> omega
+            --   · simp [newVec]
+            --     have := List.getElem_append_left (as := newParSum) (bs := [add]) (i := i) (h := by omega) (h' := by simp; omega)
+            --     rw [this]
+            --     specialize hacc i (by omega) (by omega)
+            --     exact hacc
+            --     )
       else
-        let newVec := newParSum.concat (oldParSum.get ⟨currNode, by omega⟩)
-        have : newVec.length = newParSum.length + 1 := by
-          have := List.length_concat (as := newParSum) (a := (oldParSum.get ⟨currNode, by omega⟩))
-          simp only [List.concat_eq_append, List.get_eq_getElem, List.length_append,
-            List.length_cons, List.length_nil, Nat.zero_add, newVec]
-        addVecAux (currNode + 2) inputNodes oldParSum newVec (by omega) (by omega) hw hw' hlen (by omega)
-          (by
-            intros i hi hl
-            by_cases hlast : i = newVec.length - 1
-            · simp [newVec, hlast]
-              split
-              · case _ hl' => congr <;> omega
-              · case _ hl' => congr <;> omega
-            · simp [newVec]
-              have := List.getElem_append_left (as := newParSum) (bs := [oldParSum[currNode]]) (i := i) (h := by omega) (h' := by simp; omega)
-              rw [this]
-              specialize hacc i (by omega) (by omega)
-              exact hacc
-            )
-        -- addVecAux (currNode + 2) inputNodes oldParSum newVec (by omega) (by omega) hw hw' hlen (by omega) (by sorry)
+        let add := oldParSum.get ⟨usedNodes, by omega⟩
+        let newVec := newParSum.set ((usedNodes + 1)/2) add
+        addVecAux (usedNodes + 2) validNodes oldParSum newVec (by omega) hin hval hlen (by simp [newVec]; omega)
+          -- (by
+          --   intros i hi hl
+          --   by_cases hlast : i = newVec.length - 1
+          --   · simp [newVec, hlast]
+          --     split
+          --     · case _ hl' => congr <;> omega
+          --     · case _ hl' => congr <;> omega
+          --   · simp [newVec]
+          --     have := List.getElem_append_left (as := newParSum) (bs := [oldParSum[usedNodes]]) (i := i) (h := by omega) (h' := by simp; omega)
+          --     rw [this]
+          --     specialize hacc i (by omega) (by omega)
+          --     exact hacc
+          --   )
+        -- addVecAux (usedNodes + 2) validNodes oldParSum newVec (by omega) (by omega) hw hw' hlen (by omega) (by sorry)
+termination_by (validNodes - usedNodes)
 
 /-- Tail-recursive definition of parrallel sum prefix. At each iteration, we construct a new vector containing the results of summing each couple of elements in the initial vector. -/
-def parPrefixSum (w inputNodes: Nat) (input : List (BitVec w)) (hw : NeZero w) (hw' : inputNodes ≤ w) (hw'' : 0 < inputNodes) (hlen : input.length = inputNodes): BitVec w :=
-  match h : inputNodes - 1 with
-  | 0 => input.get ⟨0, by omega⟩
+def parPrefixSum
+      (w validNodes inputNodes : Nat) (extBits : List (BitVec w))
+      (hin : 1 < inputNodes) (hval : validNodes ≤ inputNodes)
+      (hlen' : extBits.length = inputNodes) : BitVec w :=
+  match h : validNodes - 1 with
+  | 0 => extBits.get ⟨0, by omega⟩
   | n' + 1 =>
-    let res := addVecAux (currNode := 0) (inputNodes := inputNodes) (w := w) (oldParSum := input) (newParSum := []) (by omega) (by omega) (by omega) (by omega) (by omega) (by simp) (by intros i hi hl; simp at hi)
-    parPrefixSum w ((inputNodes + 1)/2) res.val hw (by omega) (by omega) (by omega)
+    let res := addVecAux 0 validNodes extBits extBits (by omega) (by sorry) (by sorry) (by sorry)
+    -- parPrefixSum w (validNodes := (validNodes + 1)/2)
+    sorry
 
 /-- We express `popCount` as the result of parallel prefix sum. -/
 def popCountParSum {x : BitVec w} : BitVec w :=
@@ -991,14 +988,15 @@ def popCountParSum {x : BitVec w} : BitVec w :=
   else
     if hw' : w = 1 then x
     else
-      let res := extractAndExtendPopulateAux 0 x [] (by simp) (by simp) (by simp)
-      parPrefixSum (w := w) (inputNodes := w) (input := res.val) (by constructor; omega) (by omega) (by omega)
-        (by have := res.property; omega)
+      let extBits := extractAndExtendPopulateAux 0 x [] (by simp) (by simp) (by simp)
+      have ⟨hlen, hproof⟩ := extBits.property
+
+      sorry
+      -- parPrefixSum (w := w) (validNodes := w) (extBits := extBits.val) (by sorry) (by omega)
 
 /-- Tail-recursive definition of popcount.
-  The bitwidth of `x` explictly boundspop the number of recursions, thus bounding the depth of the circuit as well
-  correctness of def -/
-
+ The bitwidth of `x` explictly boundspop the number of recursions, thus bounding the depth of the circuit as well
+ correctness of def -/
 def popCountAuxRec (x r : BitVec w) (n : Nat) :=
   match h : (w - n) with
   | 0 => r
@@ -1006,6 +1004,9 @@ def popCountAuxRec (x r : BitVec w) (n : Nat) :=
 termination_by (w - n)
 
 /-- Count the number of bits with value one in a bitvec -/
-def popCount{w : Nat} (x : BitVec w) : BitVec w := popCountAuxRec x 0 0
+def popCount {w : Nat} (x : BitVec w) : BitVec w := popCountAuxRec x 0 0
+
+theorem correctness (x r n : BitVec w) :
+  x.popCount =
 
 end BitVec

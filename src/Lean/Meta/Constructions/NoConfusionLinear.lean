@@ -71,9 +71,10 @@ where
 /--
 Takes the max of the levels of the given expressions.
 -/
-def maxLevels (es : Array Expr) (default : Expr) : MetaM Level := do
-  let mut maxLevel ← getLevel default
-  for e in es do
+def maxLevels (es : Array Expr) : MetaM Level := do
+  assert! es.size > 0
+  let mut maxLevel ← getLevel es[0]!
+  for e in es[1...*] do
     let l ← getLevel e
     maxLevel := mkLevelMax' maxLevel l
   return reassocMax maxLevel.normalize
@@ -99,12 +100,11 @@ private def mkPULiftDown (e : Expr) : MetaM Expr := do
   else
     throwError "mkULiftDown: expected ULift type, got {t}"
 
-def mkNatLookupTableLifting (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
-  let u ← maxLevels es default
-  let default ← mkPULift u default
+def mkNatLookupTableLifting (n : Expr) (es : Array Expr) : MetaM Expr := do
+  let u ← maxLevels es
   let u' := reassocMax (mkLevelMax' u 1).normalize
   let es ← es.mapM (mkPULift u)
-  mkNatLookupTable n (.sort u') es default
+  mkNatLookupTable n (.sort u') es
 
 def mkWithCtorTypeName (indName : Name) : Name :=
   Name.str indName "noConfusionType" |>.str "withCtorType"
@@ -130,7 +130,7 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
         let ctorType ← inferType ctor
         forallTelescope ctorType fun ys _ =>
           mkForallFVars ys P
-      let e ← mkNatLookupTableLifting ctorIdx es P
+      let e ← mkNatLookupTableLifting ctorIdx es
       mkLambdaFVars ((xs.push P).push ctorIdx) e
 
   let declName := mkWithCtorTypeName indName

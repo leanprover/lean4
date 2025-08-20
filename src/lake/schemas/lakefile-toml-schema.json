@@ -8,9 +8,13 @@
             "type": [
                 "string",
                 "boolean",
-                "integer"
+                "integer",
+                "object"
             ],
             "minimum": 0,
+            "additionalProperties": {
+                "$ref": "#/definitions/leanOptionValue"
+            },
             "description": "A `set_option` string / boolean / natural number configuration value."
         },
         "leanConfig": {

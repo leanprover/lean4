@@ -26,6 +26,33 @@ def List.asString (s : List Char) : String :=
 
 namespace String
 
+instance : HAdd String.Pos String.Pos String.Pos where
+  hAdd p₁ p₂ := { byteIdx := p₁.byteIdx + p₂.byteIdx }
+
+instance : HSub String.Pos String.Pos String.Pos where
+  hSub p₁ p₂ := { byteIdx :=  p₁.byteIdx - p₂.byteIdx }
+
+instance : HAdd String.Pos Char String.Pos where
+  hAdd p c := { byteIdx := p.byteIdx + c.utf8Size }
+
+instance : HAdd String.Pos String String.Pos where
+  hAdd p s := { byteIdx := p.byteIdx + s.utf8ByteSize }
+
+instance : LE String.Pos where
+  le p₁ p₂ := p₁.byteIdx ≤ p₂.byteIdx
+
+instance : LT String.Pos where
+  lt p₁ p₂ := p₁.byteIdx < p₂.byteIdx
+
+instance (p₁ p₂ : String.Pos) : Decidable (LE.le p₁ p₂) :=
+  inferInstanceAs (Decidable (p₁.byteIdx ≤ p₂.byteIdx))
+
+instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
+  inferInstanceAs (Decidable (p₁.byteIdx < p₂.byteIdx))
+
+instance : Min String.Pos := minOfLe
+instance : Max String.Pos := maxOfLe
+
 instance : OfNat String.Pos (nat_lit 0) where
   ofNat := {}
 

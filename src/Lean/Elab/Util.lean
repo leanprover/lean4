@@ -79,8 +79,13 @@ def addMacroStack {m} [Monad m] [MonadOptions m] (msgData : MessageData) (macroS
       msgData
 
 def checkSyntaxNodeKind [Monad m] [MonadEnv m] [MonadError m] (k : Name) : m Name := do
-  if Parser.isValidSyntaxNodeKind (← getEnv) k then pure k
-  else throwError "failed"
+  if Parser.isValidSyntaxNodeKind (← getEnv) k then
+    return k
+  if !(← getEnv).isExporting && !isPrivateName k then
+    let k := mkPrivateName (← getEnv) k
+    if Parser.isValidSyntaxNodeKind (← getEnv) k then
+      return k
+  throwError "failed"
 
 def checkSyntaxNodeKindAtNamespaces [Monad m] [MonadEnv m] [MonadError m] (k : Name) : Name → m Name
   | n@(.str p _) => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespaces k p

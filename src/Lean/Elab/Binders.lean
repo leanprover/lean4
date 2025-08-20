@@ -416,7 +416,7 @@ private def propagateExpectedType (fvar : Expr) (fvarType : Expr) (s : State) : 
     let expectedType ← whnfForall expectedType
     match expectedType with
     | .forallE _ d b _ =>
-      discard <| isDefEq fvarType d
+      discard <| isDefEq fvarType d.cleanupAnnotations
       let b := b.instantiate1 fvar
       return { s with expectedType? := some b }
     | _ =>
@@ -783,18 +783,26 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       let val  ← mkFreshExprMVar type
       pure (type, val, binders)
     else
-      let val  ← elabTermEnsuringType valStx type
+      /-
+      Elaborate the value in a context where the binders have cleaned-up annotations
+      Note: we may want `withFreshCache` in case spurious type annotations appear in terms.
+      -/
+      let lctx' := fvars.foldl (init := ← getLCtx) fun lctx fvar =>
+        lctx.modifyLocalDecl fvar.fvarId! (fun decl => decl.setType decl.type.cleanupAnnotations)
+      let val ← withLCtx' lctx' do
+        let val ← elabTermEnsuringType valStx type
+        /-
+        By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
+        in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
+        about holes such as
+        ```
+        def ex : Nat :=
+          let x := _
+          42
+        ```
+        -/
+        mkLambdaFVars fvars val (usedLetOnly := false)
       let type ← mkForallFVars fvars type
-      /- By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
-         in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
-         about holes such as
-         ```
-          def ex : Nat :=
-            let x := _
-            42
-         ```
-       -/
-      let val  ← mkLambdaFVars fvars val (usedLetOnly := false)
       pure (type, val, binders)
   let kind := .ofBinderName id.getId
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
@@ -840,7 +848,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
           else
             mkLetFVars #[x, h'] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
   if config.postponeValue then
-    forallBoundedTelescope type binders.size fun xs type => do
+    forallBoundedTelescope type binders.size (cleanupAnnotations := true) fun xs type => do
       -- the original `fvars` from above are gone, so add back info manually
       for b in binders, x in xs do
         addLocalVarInfo b x

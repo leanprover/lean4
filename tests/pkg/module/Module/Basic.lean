@@ -38,6 +38,17 @@ info: @[reducible, expose] def fabbrev : Nat :=
 /-- A theorem. -/
 public theorem t : f = 1 := testSorry
 
+/-- A private definition. -/
+def fpriv := 1
+
+/--
+error: Unknown identifier `fpriv`
+
+Note: A private declaration `fpriv` (from this module) exists but is not accessible in the current context.
+-/
+#guard_msgs in
+public theorem tpriv : fpriv = 1 := rfl
+
 public class X
 
 /-- A local instance of a public class. -/
@@ -130,7 +141,11 @@ def priv := 2
 
 /-! Private decls should not be accessible in exported contexts. -/
 
-/-- error: Unknown identifier `priv` -/
+/--
+error: Unknown identifier `priv`
+
+Note: A private declaration `priv` (from this module) exists but is not accessible in the current context.
+-/
 #guard_msgs in
 public abbrev h := priv
 

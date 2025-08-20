@@ -241,11 +241,11 @@ theorem eq_of_getLsbD_eq_iff {w : Nat} {x y : BitVec w} :
     x = y ↔ ∀ (i : Nat), i < w → x.getLsbD i = y.getLsbD i := by
   have iff := @BitVec.eq_of_getElem_eq_iff w x y
   constructor
-  · intros heq i lt
+  · intro heq i lt
     have hext := iff.mp heq i lt
     simp only [← getLsbD_eq_getElem] at hext
     exact hext
-  · intros heq
+  · intro heq
     exact iff.mpr heq
 
 theorem eq_of_getMsbD_eq {x y : BitVec w}
@@ -821,14 +821,14 @@ its most significant bit is true.
 theorem slt_zero_iff_msb_cond {x : BitVec w} : x.slt 0#w ↔ x.msb = true := by
   have := toInt_eq_msb_cond x
   constructor
-  · intros h
+  · intro h
     apply Classical.byContradiction
-    intros hmsb
+    intro hmsb
     simp only [Bool.not_eq_true] at hmsb
     simp only [hmsb, Bool.false_eq_true, ↓reduceIte] at this
     simp only [BitVec.slt, toInt_zero, decide_eq_true_eq] at h
     omega /- Can't have `x.toInt` which is equal to `x.toNat` be strictly less than zero -/
-  · intros h
+  · intro h
     simp only [h, ↓reduceIte] at this
     simp only [BitVec.slt, this, toInt_zero, decide_eq_true_eq]
     omega
@@ -2097,7 +2097,7 @@ theorem toInt_ushiftRight_of_lt {x : BitVec w} {n : Nat} (hn : 0 < n) :
     (x >>> n).toInt = x.toNat >>> n := by
   rw [toInt_eq_toNat_cond]
   simp only [toNat_ushiftRight, ite_eq_left_iff, Nat.not_lt]
-  intros h
+  intro h
   by_cases hn : n ≤ w
   · have h1 := Nat.mul_lt_mul_of_pos_left (toNat_ushiftRight_lt x n hn) Nat.two_pos
     simp only [toNat_ushiftRight, Nat.zero_lt_succ, Nat.mul_lt_mul_left] at h1
@@ -2235,7 +2235,7 @@ theorem getLsbD_sshiftRight (x : BitVec w) (s i : Nat) :
       omega
     · simp only [hi, decide_false, Bool.not_false, Bool.true_and, Bool.eq_and_self,
         decide_eq_true_eq]
-      intros hlsb
+      intro hlsb
       apply BitVec.lt_of_getLsbD hlsb
   · by_cases hi : i ≥ w
     · simp [hi]
@@ -2289,7 +2289,7 @@ theorem msb_sshiftRight {n : Nat} {x : BitVec w} :
   · simp [hw₀]
   · simp only [show ¬(w ≤ w - 1) by omega, decide_false, Bool.not_false, Bool.true_and,
       ite_eq_right_iff]
-    intros h
+    intro h
     simp [show n = 0 by omega]
 
 @[simp] theorem sshiftRight_zero {x : BitVec w} : x.sshiftRight 0 = x := by
@@ -2777,7 +2777,7 @@ theorem toInt_append {x : BitVec n} {y : BitVec m} :
     (x ++ 0#m).toInt = (2 ^ m) * x.toInt := by
   simp only [toInt_append, beq_iff_eq, toInt_zero, toNat_ofNat, Nat.zero_mod, Int.cast_ofNat_Int, Int.add_zero,
     ite_eq_right_iff]
-  intros h
+  intro h
   subst h
   simp [BitVec.eq_nil x]
 
@@ -2961,7 +2961,7 @@ theorem extractLsb'_append_extractLsb'_eq_extractLsb' {x : BitVec w} (h : start�
   ext i h
   simp only [getElem_append, getElem_extractLsb', dite_eq_ite, getElem_cast, ite_eq_left_iff,
     Nat.not_lt]
-  intros hi
+  intro hi
   congr 1
   omega
 
@@ -2988,7 +2988,7 @@ theorem signExtend_eq_append_extractLsb' {w v : Nat} {x : BitVec w} :
   · simp only [hx, signExtend_eq_setWidth_of_msb_false, getElem_setWidth, Bool.false_eq_true,
       ↓reduceIte, getElem_append, getElem_extractLsb', Nat.zero_add, getElem_zero, dite_eq_ite,
       Bool.if_false_right, Bool.eq_and_self, decide_eq_true_eq]
-    intros hi
+    intro hi
     have hw : i < w := lt_of_getLsbD hi
     omega
   · simp [signExtend_eq_not_setWidth_not_of_msb_true hx, getElem_append, Nat.lt_min, hi]
@@ -3036,7 +3036,7 @@ theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start
     · simp only [hlen, ↓reduceDIte]
       ext i hi
       simp only [getElem_extractLsb', getLsbD_append, ite_eq_left_iff, Nat.not_lt]
-      intros hcontra
+      intro hcontra
       omega
     · simp only [hlen, ↓reduceDIte]
       ext i hi
@@ -3483,7 +3483,7 @@ theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
     have := two_mul_toInt_lt (x := y)
     simp only [Nat.add_one_sub_one]
     constructor
-    · intros h
+    · intro h
       rw_mod_cast [← Int.add_bmod_right, Int.bmod_eq_of_le]
       <;> omega
     · have := Int.bmod_neg_iff (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
@@ -3499,7 +3499,7 @@ theorem twoPow_le_toInt_sub_toInt_iff {x y : BitVec w} :
     have := le_two_mul_toInt (x := y); have := two_mul_toInt_lt (x := y)
     simp only [Nat.add_one_sub_one]
     constructor
-    · intros h
+    · intro h
       simp only [show 0 ≤ x.toInt by omega, show y.toInt < 0 by omega, _root_.true_and]
       rw_mod_cast [← Int.sub_bmod_right, Int.bmod_eq_of_le (by omega) (by omega)]
       omega

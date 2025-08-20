@@ -96,6 +96,13 @@ public class LawfulOrderLT (α : Type u) [LT α] [LE α] where
 
 end LT
 
+section BEq
+
+public class LawfulOrderBEq (α : Type u) [BEq α] [LE α] where
+  beq_iff_le_and_ge : ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a
+
+end BEq
+
 section Min
 
 /--
@@ -130,6 +137,13 @@ As long as `α` is a preorder (see `IsPreorder α`), this typeclass implies that
 the other.
 -/
 public class LawfulOrderMin (α : Type u) [Min α] [LE α] extends MinEqOr α, LawfulOrderInf α
+
+/--
+This typeclass states that `min a b = if a ≤ b then a else b` (for any `DecidableLE α` instance).
+-/
+public class LawfulOrderLeftLeaningMin (α : Type u) [Min α] [LE α] where
+  min_eq_left : ∀ a b : α, a ≤ b → min a b = a
+  min_eq_right : ∀ a b : α, ¬ a ≤ b → min a b = b
 
 end Min
 
@@ -167,6 +181,13 @@ As long as `α` is a preorder (see `IsPreorder α`), this typeclass implies that
 the other.
 -/
 public class LawfulOrderMax (α : Type u) [Max α] [LE α] extends MaxEqOr α, LawfulOrderSup α
+
+/--
+This typeclass states that `max a b = if b ≤ a then a else b` (for any `DecidableLE α` instance).
+-/
+public class LawfulOrderLeftLeaningMax (α : Type u) [Max α] [LE α] where
+  max_eq_left : ∀ a b : α, b ≤ a → max a b = a
+  max_eq_right : ∀ a b : α, ¬ b ≤ a → max a b = b
 
 end Max
 

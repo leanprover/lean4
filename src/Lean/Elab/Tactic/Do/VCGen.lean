@@ -365,25 +365,23 @@ end VCGen
 def elabInvariants (stx : Syntax) (invariants : Array MVarId) : TacticM Unit := do
   let some stx := stx.getOptional? | return ()
   let stx : TSyntax ``invariantAlts := ⟨stx⟩
+  withRef stx do
   match stx with
-  | `(invariantAlts| using invariants $alts*) =>
-    for alt in alts do
+  | `(invariantAlts| invariants $alts*) =>
+    let invariants ← invariants.filterM (not <$> ·.isAssigned)
+    for h : n in [0:alts.size] do
+      let alt := alts[n]
       match alt with
-      | `(invariantAlt| | $ns,* => $rhs) =>
-        for ref in ns.getElems do
-          let n := ref.getNat
-          if n = 0 then
-            logErrorAt ref "Invariant index 0 is invalid. Invariant indices start at 1 just as the case labels `inv<n>`."
-            continue
-          let some mv := invariants[n-1]? | do
-            logErrorAt ref m!"Invariant index {n} is out of bounds. Invariant indices start at 1 just as the case labels `inv<n>`. There were {invariants.size} invariants."
-            continue
-          if ← mv.isAssigned then
-            logErrorAt ref m!"Invariant {n} is already assigned"
-            continue
-          discard <| evalTacticAt (← `(tactic| exact $rhs)) mv
-      | _ => logErrorAt alt "Expected invariantAlt, got {alt}"
-  | _ => logErrorAt stx "Expected invariantAlts, got {stx}"
+      | `(invariantAlt| · $rhs) =>
+        let some mv := invariants[n]? | do
+          logErrorAt rhs m!"More invariants have been defined ({alts.size}) than there were unassigned invariants goals `inv<n>` ({invariants.size})."
+          continue
+        discard <| evalTacticAt (← `(tactic| exact $rhs)) mv
+      | _ => logErrorAt alt m!"Expected invariantAlt, got {alt}"
+    if alts.size < invariants.size then
+      let missingTypes ← invariants[alts.size:].toArray.mapM (·.getType)
+      throwErrorAt stx m!"Lacking definitions for the following invariants.\n{toMessageList missingTypes}"
+  | _ => logErrorAt stx m!"Expected invariantAlts, got {stx}"
 
 private def patchVCAltIntoCaseTactic (alt : TSyntax ``vcAlt) : TSyntax ``case :=
   -- syntax vcAlt := sepBy1(caseArg, " | ") " => " tacticSeq
@@ -397,7 +395,7 @@ partial def elabVCs (stx : Syntax) (vcs : Array MVarId) : TacticM (List MVarId) 
     let vcs ← applyPreTac vcs tactic
     evalAlts vcs alts
   | _ =>
-    logErrorAt stx "Expected inductionAlts, got {stx}"
+    logErrorAt stx m!"Expected inductionAlts, got {stx}"
     return vcs.toList
 where
   applyPreTac (vcs : Array MVarId) (tactic : Option Syntax) : TacticM (Array MVarId) := do

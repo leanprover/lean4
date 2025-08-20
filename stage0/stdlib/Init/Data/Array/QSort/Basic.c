@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.QSort.Basic
-// Imports: Init.Data.Vector.Basic Init.Data.Ord
+// Imports: Init.Data.Vector.Basic Init.Data.Ord.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1578,7 +1578,7 @@ return x_7;
 }
 }
 lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Ord(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Array_QSort_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1587,7 +1587,7 @@ _G_initialized = true;
 res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___auto___closed__0____x40_Init_Data_Array_QSort_Basic___hyg_21_ = _init_l___auto___closed__0____x40_Init_Data_Array_QSort_Basic___hyg_21_();

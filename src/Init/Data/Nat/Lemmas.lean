@@ -1164,7 +1164,7 @@ protected theorem pow_le_pow_iff_right {a n m : Nat} (h : 1 < a) :
     a ^ n ≤ a ^ m ↔ n ≤ m := by
   constructor
   · apply Decidable.by_contra
-    intros w
+    intro w
     simp at w
     apply Nat.lt_irrefl (a ^ n)
     exact Nat.lt_of_le_of_lt w.1 (Nat.pow_lt_pow_of_lt h w.2)
@@ -1177,7 +1177,7 @@ protected theorem pow_lt_pow_iff_right {a n m : Nat} (h : 1 < a) :
     a ^ n < a ^ m ↔ n < m := by
   constructor
   · apply Decidable.by_contra
-    intros w
+    intro w
     simp at w
     apply Nat.lt_irrefl (a ^ n)
     exact Nat.lt_of_lt_of_le w.1 (Nat.pow_le_pow_of_le h w.2)

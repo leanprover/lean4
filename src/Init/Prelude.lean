@@ -2833,33 +2833,6 @@ where
    | .nil       => 0
    | .cons c cs => hAdd (go cs) c.utf8Size
 
-instance : HAdd String.Pos String.Pos String.Pos where
-  hAdd p₁ p₂ := { byteIdx := hAdd p₁.byteIdx p₂.byteIdx }
-
-instance : HSub String.Pos String.Pos String.Pos where
-  hSub p₁ p₂ := { byteIdx := HSub.hSub p₁.byteIdx p₂.byteIdx }
-
-instance : HAdd String.Pos Char String.Pos where
-  hAdd p c := { byteIdx := hAdd p.byteIdx c.utf8Size }
-
-instance : HAdd String.Pos String String.Pos where
-  hAdd p s := { byteIdx := hAdd p.byteIdx s.utf8ByteSize }
-
-instance : LE String.Pos where
-  le p₁ p₂ := LE.le p₁.byteIdx p₂.byteIdx
-
-instance : LT String.Pos where
-  lt p₁ p₂ := LT.lt p₁.byteIdx p₂.byteIdx
-
-instance (p₁ p₂ : String.Pos) : Decidable (LE.le p₁ p₂) :=
-  inferInstanceAs (Decidable (LE.le p₁.byteIdx p₂.byteIdx))
-
-instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
-  inferInstanceAs (Decidable (LT.lt p₁.byteIdx p₂.byteIdx))
-
-instance : Min String.Pos := minOfLe
-instance : Max String.Pos := maxOfLe
-
 /--
 A UTF-8 byte position that points at the end of a string, just after the last character.
 

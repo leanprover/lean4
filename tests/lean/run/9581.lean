@@ -34,5 +34,5 @@ theorem F_spec_using_with :
    F
    ⦃⇓ _ => ⌜1 < 2⌝⦄ := by
   mvcgen [F]
-  using invariants | 1 => ⇓ _ => ⌜1 < 2⌝
+  invariants · ⇓ _ => ⌜1 < 2⌝
   with omega

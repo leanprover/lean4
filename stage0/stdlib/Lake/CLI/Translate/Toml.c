@@ -3024,25 +3024,25 @@ return x_8;
 }
 block_28:
 {
-if (lean_obj_tag(x_19) == 0)
+if (lean_obj_tag(x_20) == 0)
 {
-lean_dec(x_20);
+lean_dec(x_19);
 x_8 = x_21;
 goto block_18;
 }
 else
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_22 = lean_ctor_get(x_19, 0);
+x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
-lean_dec_ref(x_19);
+lean_dec_ref(x_20);
 x_23 = l_Lake_mkRelPathString(x_22);
 x_24 = lean_box(0);
 x_25 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set(x_25, 1, x_23);
 x_26 = l_Lake_instInsertFieldOfEncodeFieldOfBEqOfConfigField___redArg___lam__0___closed__0;
-x_27 = l_Lake_Toml_RBDict_insert___redArg(x_26, x_20, x_25, x_21);
+x_27 = l_Lake_Toml_RBDict_insert___redArg(x_26, x_19, x_25, x_21);
 x_8 = x_27;
 goto block_18;
 }
@@ -3097,8 +3097,8 @@ lean_ctor_set(x_45, 1, x_38);
 x_46 = l_Lake_Toml_RBDict_insert___redArg(x_43, x_42, x_45, x_29);
 if (lean_obj_tag(x_39) == 0)
 {
-x_19 = x_40;
-x_20 = x_41;
+x_19 = x_41;
+x_20 = x_40;
 x_21 = x_46;
 goto block_28;
 }
@@ -3113,8 +3113,8 @@ x_49 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_49, 0, x_44);
 lean_ctor_set(x_49, 1, x_47);
 x_50 = l_Lake_Toml_RBDict_insert___redArg(x_43, x_48, x_49, x_46);
-x_19 = x_40;
-x_20 = x_41;
+x_19 = x_41;
+x_20 = x_40;
 x_21 = x_50;
 goto block_28;
 }

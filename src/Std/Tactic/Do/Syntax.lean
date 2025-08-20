@@ -325,16 +325,15 @@ macro "mvcgen_trivial" : tactic =>
   )
 
 /--
-An invariant alternative of the form `| <n₁>, ..., <nₖ> => term`, where `nᵢ` are natural numbers
-referring to numbered invariant goals.
+An invariant alternative of the form `· term`, one per invariant goal.
 -/
-syntax invariantAlt  := ppDedent(ppLine) withPosition("| " num,+) " => " term
+syntax invariantAlt  := ppDedent(ppLine) cdotTk (colGe term)
 
 /--
-After `using`, there can be an optional ` invariants ` followed by a list of alternatives
-`| 1 => term | ... | <n> => term`.
+After `mvcgen [...]`, there can be an optional `invariants` followed by a bulleted list of
+invariants `· term; · term`.
 -/
-syntax invariantAlts := " using" (&" invariants " withPosition((colGe invariantAlt)*))?
+syntax invariantAlts := &" invariants" withPosition((colGe invariantAlt)*)
 
 /--
 In induction alternative, which can have 1 or more cases on the left

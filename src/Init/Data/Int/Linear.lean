@@ -1280,7 +1280,7 @@ noncomputable def diseq_eq_subst_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p�
 theorem eq_diseq_subst (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
     : diseq_eq_subst_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx ≠ 0 → p₃.denote' ctx ≠ 0 := by
   simp [diseq_eq_subst_cert]
-  intros _ _; subst p₃
+  intro _ _; subst p₃
   intro h₁ h₂
   simp [*]
 

@@ -167,13 +167,12 @@ private partial def Dmain (x : VarId) (c : CtorInfo) (e : FnBody) : M (FnBody ×
         return (e, true)
       else
         let (b, found) ← Dmain x c b
-        if !found && instr matches .vdecl _ _ (.fap ..) _ && instr.hasFreeVar x then
+        if found then
           return (instr.setBody b, true)
-        /- Remark: it is fine to use `hasFreeVar` instead of `hasLiveVar`
-           since `instr` is not a `FnBody.jmp` (it is not a terminal) nor
-           it is a `FnBody.jdecl`. -/
-        if found || !instr.hasFreeVar x then
-          return (instr.setBody b, found)
+        else if !instr.hasFreeVar x then
+          return (instr.setBody b, false)
+        else if instr matches .vdecl _ _ (.fap ..) _ then
+          return (instr.setBody b, true)
         else
           let b ← tryS x c b
           return (instr.setBody b, true)

@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.Int.DivMod.Basic
 public import Init.Data.Nat.Log2
-public import Init.Data.Rat.Basic
+public import Init.Data.Rat.Lemmas
 meta import Lean.Elab.Tactic.Omega
 
 @[expose] public section
@@ -85,6 +85,11 @@ deriving DecidableEq
 
 namespace Dyadic
 
+instance (n : Nat) : OfNat Dyadic n where
+  ofNat := match toDyadic n with
+  | none => .zero
+  | some (n, k) => .of n (-k)
+
 /--
 Addition of dyadic rationals.
 ```
@@ -93,6 +98,7 @@ Addition of dyadic rationals.
 -/
 def add (x y : Dyadic) : Dyadic :=
   match x, y with
+  | .zero, .zero => .zero
   | .zero, _ => y
   | _, .zero => x
   | .of n (k : Nat), .of m (l : Nat) =>
@@ -158,7 +164,30 @@ example : (Dyadic.of 1 (-2)).add (.of 1 1) = .of 13 1 := by native_decide -- 12 
 example : (Dyadic.of 1 1).add (.of 1 (-2)) = .of 13 1 := by native_decide -- 3/2 + 12 = 27/2 = (2 * 13 + 1)/2^1
 example : (Dyadic.of 1 (-2)).add (.of 1 (-2)) = .of 1 (-3) := by native_decide -- 12 + 12 = 24
 
-theorem toRat_add (x y : Dyadic) : toRat (x + y) = toRat x + toRat y := sorry
+theorem toRat_add (x y : Dyadic) : toRat (x + y) = toRat x + toRat y := by
+  match x, y with
+  | .zero, .zero =>
+    conv => lhs; simp [instHAdd, instAdd, add, toRat]
+    conv => rhs; simp [toRat, Rat.add_zero]
+  | .zero, .of m l =>
+    conv => lhs; simp [instHAdd, instAdd, add]
+    conv => rhs; congr; simp [toRat]
+    simp [Rat.zero_add]
+  | .of n k, .zero =>
+    conv => lhs; simp [instHAdd, instAdd, add]
+    conv => rhs; congr; rfl; simp [toRat]
+    simp [Rat.add_zero]
+  | .of n k, .of m l =>
+    match k, l with
+    | (k : Nat), (l : Nat) =>
+      sorry
+    | (k : Nat), (-((l : Nat) + 1)) =>
+      sorry
+    | (-((k : Nat) + 1)), (l : Nat) =>
+      sorry
+    | (-((k : Nat) + 1)), (-((l : Nat) + 1)) =>
+      sorry
+
 theorem toRat_mul (x y : Dyadic) : toRat (x * y) = toRat x * toRat y := sorry
 theorem toRat_neg (x : Dyadic) : toRat (-x) = - toRat x := sorry
 

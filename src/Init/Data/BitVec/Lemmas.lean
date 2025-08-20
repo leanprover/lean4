@@ -6141,7 +6141,7 @@ theorem getLsbD_true_of_eq_clzAuxRec_of_ne_zero {x : BitVec w} (hx : ¬ x = 0#w)
         · specialize hn j (by omega)
           exact hn
 
-theorem getLsbD_true_of_clz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
+theorem getLsbD_true_clz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
     x.getLsbD (w - 1 - (clz x).toNat) = true := by
   unfold clz
   apply getLsbD_true_of_eq_clzAuxRec_of_ne_zero (x := x) (n := w - 1) (by omega)
@@ -6149,18 +6149,18 @@ theorem getLsbD_true_of_clz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0
   simp [show w ≤ i by omega]
 
 /-- A nonzero bitvector is lower-bounded by its leading zeroes. -/
-theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
+theorem two_pow_sub_clz_le_toNat_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
     2 ^ (w - 1 - (clz x).toNat) ≤ x.toNat := by
   by_cases hc0 : x.clz.toNat  = 0
   · simp [hc0, ← clz_eq_zero_iff (x := x) hw]
-  · have hclz := getLsbD_true_of_clz_of_ne_zero (x := x) hw hx
+  · have hclz := getLsbD_true_clz_of_ne_zero (x := x) hw hx
     rw [getLsbD_eq_getElem (by omega)] at hclz
     have hge := Nat.ge_two_pow_of_testBit hclz
     push_cast at hge
     exact hge
 
 /-- A bitvector is upper bounded by the number of leading zeroes. -/
-theorem toNat_lt_of_clz {x : BitVec w} :
+theorem toNat_lt_two_pow_sub_clz {x : BitVec w} :
     x.toNat < 2 ^ (w - (clz x).toNat) := by
   rcases w with _|w
   · simp [of_length_zero]

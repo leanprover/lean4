@@ -2312,11 +2312,11 @@ theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hx : x ≠ 0#w) (hy : y 
   · have := clz_lt_iff_ne_zero.mpr (by omega)
     omega
   · simp only [hw0, reduceDIte, and_eq_true,
-      getLsbD_true_of_clz_of_ne_zero (x := y) (by omega) (by omega), getElem_of_getLsbD_eq_true,
+      getLsbD_true_clz_of_ne_zero (x := y) (by omega) (by omega), getElem_of_getLsbD_eq_true,
       uppcRec_true_iff, show w - 1 - (w - 1 - y.clz.toNat - 1) = y.clz.toNat + 1 by omega,
       _root_.true_and]
     exact Nat.le_trans (Nat.pow_le_pow_of_le (a := 2) (n := y.clz.toNat + 1) (m := w - 1 - x.clz.toNat) (by omega) (by omega))
-          (BitVec.toNat_le_of_clz (x := x) (by omega) (by omega))
+          (BitVec.two_pow_sub_clz_le_toNat_of_ne_zero (x := x) (by omega) (by omega))
 
 /--
   Complete fast overflow detection circuit for unsigned multiplication
@@ -2346,8 +2346,8 @@ theorem fastUmulOverflow (x y : BitVec w) :
         · simp [hsw]
         · simp only [hsw, false_eq_true, _root_.false_or]
           have := Nat.two_pow_pos (w := w + 1 + 1)
-          have hltx := BitVec.toNat_lt_of_clz (x := x)
-          have hlty := BitVec.toNat_lt_of_clz (x := y)
+          have hltx := BitVec.toNat_lt_two_pow_sub_clz (x := x)
+          have hlty := BitVec.toNat_lt_two_pow_sub_clz (x := y)
           have := Nat.mul_ne_zero_iff (m := y.toNat) (n := x.toNat)
           simp only [ne_eq, show ¬x.toNat * y.toNat = 0 by omega, not_false_eq_true,
             true_iff] at this

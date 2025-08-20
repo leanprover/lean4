@@ -140,7 +140,27 @@ inductive UseClassification where
 
 private def classifyUse (b : FnBody) (x : VarId) : M UseClassification := do
   match b with
-  | .vdecl _ _ e@(.fap ..) _ | .vdecl _ _ e@(.pap ..) _ | .vdecl _ _ e@(.ap ..) _ =>
+  | .vdecl _ _ e@(.fap f args) _ =>
+    if let some decl := findEnvDecl (← read).env f then
+      let mut result := .none
+      for arg in args, param in decl.params do
+        match arg with
+        | .var y =>
+          if y == x then
+            result := match result, param.borrow with
+              | .ownedArg, true => .other
+              | .ownedArg, false => .ownedArg
+              | .other, _ => .other
+              | .none, true => .other
+              | .none, false => .ownedArg
+        | .erased => pure ()
+      return result
+    else
+      if e.hasFreeVar x then
+        return .ownedArg
+      else
+        return .none
+  | .vdecl _ _ e@(.pap ..) _ | .vdecl _ _ e@(.ap ..) _ =>
     if e.hasFreeVar x then
       return .ownedArg
     else

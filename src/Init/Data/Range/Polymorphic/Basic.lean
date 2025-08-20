@@ -60,6 +60,11 @@ def isEmpty {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsUpperBound su α] (r : PRange ⟨sl, su⟩ α) : Bool :=
   (BoundedUpwardEnumerable.init? r.lower).all (! SupportsUpperBound.IsSatisfied r.upper ·)
 
+theorem mem_iff_isSatisfied [SupportsLowerBound sl α] [SupportsUpperBound su α]
+    {x : α} {r : Std.PRange ⟨sl, su⟩ α} :
+    x ∈ r ↔ SupportsLowerBound.IsSatisfied r.lower x ∧ SupportsUpperBound.IsSatisfied r.upper x := by
+  simp [Membership.mem]
+
 theorem le_upper_of_mem {sl α} [LE α] [DecidableLE α] [SupportsLowerBound sl α]
     {a : α} {r : PRange ⟨sl, .closed⟩ α} (h : a ∈ r) : a ≤ r.upper :=
   h.2
@@ -84,6 +89,11 @@ macro_rules
   | `(tactic| get_elem_tactic_extensible) =>
     `(tactic|
       first
+        -- This is a relatively rigid check. See `Init.Data.Range.Polymorphic.GetElemTactic`
+        -- for a second one that is more flexible.
+        -- Note: This one is not *strictly* inferior. This one is better able to look under
+        -- reducible terms. The other tactic needs special handling for `Vector.size` to work
+        -- around that fact that `omega` does not reduce terms.
         | apply Std.PRange.Internal.get_elem_helper_upper_open ‹_› (by trivial)
         | done)
 

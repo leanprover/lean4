@@ -3678,7 +3678,7 @@ class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) where
 export MonadReader (read)
 
 /--
-Retrieves the local value whose type is `ρ`.  This is useful when a monad supports reading more that
+Retrieves the local value whose type is `ρ`.  This is useful when a monad supports reading more than
 one type of value.
 
 Use `read` for a version that expects the type `ρ` to be inferred from `m`.

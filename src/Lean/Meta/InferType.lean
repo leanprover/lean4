@@ -17,15 +17,16 @@ namespace Lean
 Auxiliary function for instantiating the loose bound variables in `e` with `args[start...stop]`.
 This function is similar to `instantiateRevRange`, but it applies beta-reduction when
 we instantiate a bound variable with a lambda expression.
+
 Example: Given the term `#0 a`, and `start := 0, stop := 1, args := #[fun x => x]` the result is
 `a` instead of `(fun x => x) a`.
 This reduction is useful when we are inferring the type of eliminator-like applications.
 For example, given `(n m : Nat) (f : Nat → Nat) (h : m = n)`,
 the type of `Eq.subst (motive := fun x => f m = f x) h rfl`
-is `motive n` which is `(fun (x : Nat) => f m = f x) n`
-This function reduces the new application to `f m = f n`
+is `motive n` which is `(fun (x : Nat) => f m = f x) n`.
+This function reduces the new application to `f m = f n`.
 
-We use it to implement `inferAppType`
+We use this to implement `inferAppType`.
 -/
 partial def Expr.instantiateBetaRevRange (e : Expr) (start : Nat) (stop : Nat) (args : Array Expr) : Expr :=
   if e.hasLooseBVars && stop > start then
@@ -187,7 +188,7 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
 Ensure `MetaM` configuration is strong enough for inferring/checking types.
 For example, `beta := true` is essential when type checking.
 
-Remark: we previously use the default configuration here, but this is problematic
+Remark: we previously used the default configuration here, but this is problematic
 because it overrides unrelated configurations.
 -/
 @[inline] def withInferTypeConfig (x : MetaM α) : MetaM α :=
@@ -218,8 +219,10 @@ def inferTypeImp (e : Expr) : MetaM Expr :=
   withIncRecDepth <| withInferTypeConfig (infer e)
 
 /--
-  Return `LBool.true` if given level is always equivalent to universe level zero.
-  It is used to implement `isProp`. -/
+Return `LBool.true` if given level is always equivalent to universe level zero.
+
+This is used to implement `isProp`.
+-/
 private def isAlwaysZero : Level → Bool
   | .zero ..    => true
   | .mvar ..    => false
@@ -230,8 +233,10 @@ private def isAlwaysZero : Level → Bool
 
 /--
 `isArrowProp type n` is an "approximate" predicate which returns `LBool.true`
- if `type` is of the form `A_1 -> ... -> A_n -> Prop`.
- Remark: `type` can be a dependent arrow. -/
+if `type` is of the form `A_1 → ... → A_n → Prop`.
+
+Remark: `type` can be a dependent arrow.
+-/
 private partial def isArrowProp : Expr → Nat → MetaM LBool
   | .sort u,          0   => return isAlwaysZero (← instantiateLevelMVars u) |>.toLBool
   | .forallE ..,      0   => return LBool.false
@@ -241,8 +246,9 @@ private partial def isArrowProp : Expr → Nat → MetaM LBool
   | _,                _   => return LBool.undef
 
 /--
-  `isPropQuickApp f n` is an "approximate" predicate which returns `LBool.true`
-   if `f` applied to `n` arguments is a proposition. -/
+`isPropQuickApp f n` is an "approximate" predicate which returns `LBool.true`
+if `f` applied to `n` arguments is a proposition.
+-/
 private partial def isPropQuickApp : Expr → Nat → MetaM LBool
   | .const c lvls,   arity   => do let constType ← inferConstType c lvls; isArrowProp constType arity
   | .fvar fvarId,    arity   => do let fvarType  ← inferFVarType fvarId;  isArrowProp fvarType arity
@@ -255,8 +261,9 @@ private partial def isPropQuickApp : Expr → Nat → MetaM LBool
   | _,               _       => return LBool.undef
 
 /--
-  `isPropQuick e` is an "approximate" predicate which returns `LBool.true`
-  if `e` is a proposition. -/
+`isPropQuick e` is an "approximate" predicate which returns `LBool.true`
+if `e` is a proposition.
+-/
 partial def isPropQuick : Expr → MetaM LBool
   | .bvar ..          => return LBool.undef
   | .lit ..           => return LBool.false
@@ -273,10 +280,10 @@ partial def isPropQuick : Expr → MetaM LBool
 
 /--
 `isProp e` returns `true` if `e` is a proposition.
-If `e` contains metavariables, it may not be possible
-to decide whether is a proposition or not. We return `false` in this
-case. We considered using `LBool` and retuning `LBool.undef`, but
-we have no applications for it.
+
+If `e` contains metavariables, it may not be possible to decide whether it is a proposition or not.
+We return `false` in this case. We considered using `LBool` and returning `LBool.undef`, but we
+have no applications for it.
 -/
 def isProp (e : Expr) : MetaM Bool := do
   match (← isPropQuick e) with
@@ -360,16 +367,18 @@ where
 
 /--
 `isArrowProposition type n` is an "approximate" predicate which returns `LBool.true`
- if `type` is of the form `A_1 -> ... -> A_n -> B`, where `B` is a proposition.
- Remark: `type` can be a dependent arrow.
+if `type` is of the form `A_1 → ... → A_n → B`, where `B` is a proposition.
+
+Remark: `type` can be a dependent arrow.
 -/
 private def isArrowProposition (e : Expr) (n : Nat) : MetaM LBool :=
   return (← isArrowProposition' e n).toLBool
 
 mutual
 /--
-`isProofQuickApp f n` is an "approximate" predicate which returns `LBool.true`
-if `f` applied to `n` arguments is a proof. -/
+`isProofQuickApp f n` is an "approximate" predicate which returns `LBool.true` if `f` applied to
+`n` arguments is a proof.
+-/
 private partial def isProofQuickApp : Expr → Nat → MetaM LBool
   | .const c lvls,   arity   => do let constType ← inferConstType c lvls; isArrowProposition constType arity
   | .fvar fvarId,    arity   => do let fvarType  ← inferFVarType fvarId;  isArrowProposition fvarType arity
@@ -382,8 +391,8 @@ private partial def isProofQuickApp : Expr → Nat → MetaM LBool
   | _,               _       => return LBool.undef
 
 /--
-`isProofQuick e` is an "approximate" predicate which returns `LBool.true`
-if `e` is a proof. -/
+`isProofQuick e` is an "approximate" predicate which returns `LBool.true` if `e` is a proof.
+-/
 partial def isProofQuick : Expr → MetaM LBool
   | .bvar ..          => return LBool.undef
   | .lit ..           => return LBool.false
@@ -407,9 +416,10 @@ def isProof (e : Expr) : MetaM Bool := do
   | .undef => Meta.isProp (← inferType e)
 
 /--
-  `isArrowType type n` is an "approximate" predicate which returns `LBool.true`
-   if `type` is of the form `A_1 -> ... -> A_n -> Sort _`.
-   Remark: `type` can be a dependent arrow. -/
+`isArrowType type n` is an "approximate" predicate which returns `LBool.true` if `type` is of the
+form `A_1 → ... → A_n → Sort _`.
+
+Remark: `type` can be a dependent arrow. -/
 private partial def isArrowType : Expr → Nat → MetaM LBool
   | .sort ..,         0   => return LBool.true
   | .forallE ..,      0   => return LBool.false
@@ -419,8 +429,9 @@ private partial def isArrowType : Expr → Nat → MetaM LBool
   | _,                _   => return LBool.undef
 
 /--
-`isTypeQuickApp f n` is an "approximate" predicate which returns `LBool.true`
- if `f` applied to `n` arguments is a type. -/
+`isTypeQuickApp f n` is an "approximate" predicate which returns `LBool.true` if `f` applied to
+`n` arguments is a type.
+-/
 private partial def isTypeQuickApp : Expr → Nat → MetaM LBool
   | .const c lvls,   arity   => do let constType ← inferConstType c lvls; isArrowType constType arity
   | .fvar fvarId,    arity   => do let fvarType  ← inferFVarType fvarId;  isArrowType fvarType arity
@@ -433,8 +444,8 @@ private partial def isTypeQuickApp : Expr → Nat → MetaM LBool
   | _,               _       => return LBool.undef
 
 /--
-`isTypeQuick e` is an "approximate" predicate which returns `LBool.true`
-if `e` is a type. -/
+`isTypeQuick e` is an "approximate" predicate which returns `LBool.true` if `e` is a type.
+-/
 partial def isTypeQuick : Expr → MetaM LBool
   | .bvar ..          => return LBool.undef
   | .lit ..           => return LBool.false

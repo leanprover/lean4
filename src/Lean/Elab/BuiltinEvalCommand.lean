@@ -217,15 +217,16 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
       -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
       -- we don't pollute the environment with auxiliary declarations.
       let act : EvalAction ← liftTermElabM do Term.withDeclName declName do withoutModifyingEnv do
-        let e ← elabTermForEval term expectedType?
-        -- If there is an elaboration error, don't evaluate!
-        if e.hasSyntheticSorry then throwAbortTerm
-        -- We want `#eval` to work even in the core library, so if `ofFormat` isn't available,
-        -- we fall back on a `Format`-based approach.
-        if (← getEnv).contains ``Lean.MessageData.ofFormat then
-          mkAct id (mkMessageData ·) e
-        else
-          mkAct Lean.MessageData.ofFormat (mkFormat ·) e
+        withSaveInfoContext do -- save the environment post-elaboration (for matchers, let rec, etc.)
+          let e ← elabTermForEval term expectedType?
+          -- If there is an elaboration error, don't evaluate!
+          if e.hasSyntheticSorry then throwAbortTerm
+          -- We want `#eval` to work even in the core library, so if `ofFormat` isn't available,
+          -- we fall back on a `Format`-based approach.
+          if (← getEnv).contains ``Lean.MessageData.ofFormat then
+            mkAct id (mkMessageData ·) e
+          else
+            mkAct Lean.MessageData.ofFormat (mkFormat ·) e
       let res ← act.eval
       return Sum.inr (res, act.printVal)
     catch ex =>

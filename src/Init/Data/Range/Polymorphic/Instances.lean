@@ -11,6 +11,12 @@ public import Init.Data.Range.Polymorphic.Basic
 import Init.Data.Nat.Lemmas
 import Init.Data.Order.Lemmas
 
+/-!
+This module provides instances that reduce the amount of code necessary to make a type compatible
+with the polymorphic ranges. For an example of the required work, take a look at
+`Init.Data.Range.Polymorphic.Nat`.
+-/
+
 public section
 
 namespace Std.PRange

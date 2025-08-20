@@ -95,6 +95,11 @@ public theorem not_gt_of_lt {α : Type u} [LT α] [i : Std.Asymm (α := α) (· 
     (h : a < b) : ¬ b < a :=
   i.asymm a b h
 
+public theorem le_of_lt {α : Type u} [LT α] [LE α] [LawfulOrderLT α] {a b : α} (h : a < b) :
+    a ≤ b := by
+  simp only [LawfulOrderLT.lt_iff] at h
+  exact h.1
+
 public instance {α : Type u} [LT α] [LE α] [LawfulOrderLT α] :
     Std.Asymm (α := α) (· < ·) where
   asymm a b := by
@@ -140,6 +145,15 @@ public theorem lt_of_le_of_lt {α : Type u} [LE α] [LT α]
   · exact le_trans hab hbc.1
   · intro hca
     exact hbc.2.elim (le_trans hca hab)
+
+public theorem lt_of_lt_of_le {α : Type u} [LE α] [LT α]
+    [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] [LawfulOrderLT α] {a b c : α} (hab : a < b)
+    (hbc : b ≤ c) : a < c := by
+  simp only [lt_iff_le_and_not_ge] at hab ⊢
+  apply And.intro
+  · exact le_trans hab.1 hbc
+  · intro hca
+    exact hab.2.elim (le_trans hbc hca)
 
 public theorem lt_of_le_of_ne {α : Type u} [LE α] [LT α]
     [Std.Antisymm (α := α) (· ≤ ·)] [LawfulOrderLT α] {a b : α}

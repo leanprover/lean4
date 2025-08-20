@@ -232,36 +232,51 @@ private def List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a 
 private def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α] [HasFiniteRanges su α] :
     FinitenessRelation (RangeIterator su α) Id where
-  rel :=
-    open Classical in
-    InvImage WellFoundedRelation.rel
-      (fun it => (HasFiniteRanges.mem_of_satisfiesUpperBound it.internalState.upperBound).choose
-        |>.filter (∃ a, it.internalState.next = some a ∧ UpwardEnumerable.LE a ·)
-        |>.length)
-  wf := InvImage.wf _ WellFoundedRelation.wf
-  subrelation {it it'} h := by
-    simp_wf
-    rw [Monadic.isPlausibleSuccessorOf_iff] at h
-    obtain ⟨a, hn, hu, hn', hu'⟩ := h
-    rw [hu']
-    apply List.length_filter_strict_mono (a := a)
-    · intro u h
-      simp only [decide_eq_true_eq] at ⊢ h
-      obtain ⟨a', ha', hle⟩ := h
-      refine ⟨a, hn, UpwardEnumerable.le_trans ⟨1, ?_⟩ hle⟩
-      rw [ha'] at hn'
-      rw [UpwardEnumerable.succMany?_succ, LawfulUpwardEnumerable.succMany?_zero,
-        Option.bind_some, hn']
-    · exact (HasFiniteRanges.mem_of_satisfiesUpperBound _).choose_spec _ hu
-    · intro h
-      simp only [decide_eq_true_eq] at h
-      obtain ⟨x, hx, h⟩ := h
-      rw [hx] at hn'
-      have hlt : UpwardEnumerable.LT a x :=
-        ⟨0, by simp [UpwardEnumerable.succMany?_succ, UpwardEnumerable.succMany?_zero, hn']⟩
-      exact UpwardEnumerable.not_gt_of_le h hlt
-    · simp only [decide_eq_true_eq]
-      exact ⟨a, hn, UpwardEnumerable.le_refl _⟩
+  rel it' it := it'.IsPlausibleSuccessorOf it
+  wf := by
+    constructor
+    intro it
+    match it with
+    | ⟨⟨none, _⟩⟩ =>
+      constructor
+      intro it' ⟨step, hs₁, hs₂⟩
+      simp [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step] at hs₂
+      simp [hs₂, IterStep.successor] at hs₁
+    | ⟨⟨some init, bound⟩⟩ =>
+      obtain ⟨n, hn⟩ := HasFiniteRanges.finite init bound
+      induction n generalizing init with
+      | zero =>
+        simp [UpwardEnumerable.succMany?_zero] at hn
+        constructor
+        rintro it' ⟨step, hs₁, hs₂⟩
+        simp [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step, hn] at hs₂
+        simp [hs₂, IterStep.successor] at hs₁
+      | succ n ih =>
+        constructor
+        rintro it' ⟨step, hs₁, hs₂⟩
+        simp [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at hn
+        match hs : UpwardEnumerable.succ? init with
+        | none =>
+          simp [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step, hs] at hs₂
+          split at hs₂
+          · rename_i h
+            simp [hs₂, IterStep.successor] at hs₁
+            cases hs₁
+            constructor
+            intro it' ⟨step, hs₁, hs₂⟩
+            simp [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step] at hs₂
+            simp [hs₂, IterStep.successor] at hs₁
+          · simp [hs₂, IterStep.successor] at hs₁
+        | some a =>
+          simp [hs] at hn
+          specialize ih _ hn
+          simp [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step] at hs₂
+          split at hs₂
+          · simp [hs₂, IterStep.successor, hs] at hs₁
+            cases hs₁
+            exact ih
+          · simp [hs₂, IterStep.successor] at hs₁
+  subrelation := id
 
 @[no_expose]
 instance RangeIterator.instFinite {su} [UpwardEnumerable α] [SupportsUpperBound su α]

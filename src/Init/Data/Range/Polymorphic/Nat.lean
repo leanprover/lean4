@@ -51,44 +51,13 @@ instance : LawfulUpwardEnumerable Nat where
 instance : InfinitelyUpwardEnumerable Nat where
   isSome_succ? a := by simp [UpwardEnumerable.succ?]
 
-private def rangeRev (k : Nat) :=
-  match k with
-  | 0 => []
-  | k + 1 => k :: rangeRev k
-
-private theorem mem_rangeRev {k l : Nat} (h : l < k) : l ∈ rangeRev k := by
-  induction k
-  case zero => cases h
-  case succ k ih =>
-    rw [rangeRev]
-    by_cases hl : l = k
-    · simp [hl]
-    · apply List.mem_cons_of_mem
-      exact ih (Nat.lt_of_le_of_ne (Nat.le_of_lt_succ h) hl)
-
-@[no_expose]
-instance : HasFiniteRanges .closed Nat where
-  mem_of_satisfiesUpperBound upperBound := by
-    refine ⟨rangeRev (upperBound + 1), fun a h => ?_⟩
-    simp only [SupportsUpperBound.IsSatisfied] at h
-    exact mem_rangeRev (Nat.lt_succ_of_le h)
-
-@[no_expose]
-instance : HasFiniteRanges .open Nat where
-  mem_of_satisfiesUpperBound upperBound := by
-    refine ⟨rangeRev (upperBound + 1), fun a h => ?_⟩
-    simp only [SupportsUpperBound.IsSatisfied] at h
-    apply mem_rangeRev
-    exact Nat.lt_succ_of_lt h
-
 instance : RangeSize .closed Nat where
   size bound a := bound + 1 - a
 
-instance : RangeSize .open Nat where
-  size bound a := bound - a
+instance : RangeSize .open Nat := .openOfClosed
 
 instance : LawfulRangeSize .closed Nat where
-  size_eq_zero_of_not_satisfied upperBound init hu := by
+  size_eq_zero_of_not_isSatisfied upperBound init hu := by
     simp only [SupportsUpperBound.IsSatisfied, RangeSize.size] at hu ⊢
     omega
   size_eq_one_of_succ?_eq_none upperBound init hu h := by
@@ -99,17 +68,10 @@ instance : LawfulRangeSize .closed Nat where
       Option.some.injEq] at hu h ⊢
     omega
 
-instance : LawfulRangeSize .open Nat where
-  size_eq_zero_of_not_satisfied upperBound init hu := by
-    simp only [SupportsUpperBound.IsSatisfied, RangeSize.size] at hu ⊢
-    omega
-  size_eq_one_of_succ?_eq_none upperBound init hu h := by
-    simp only [UpwardEnumerable.succ?] at h
-    cases h
-  size_eq_succ_of_succ?_eq_some upperBound init hu h := by
-    simp only [SupportsUpperBound.IsSatisfied, RangeSize.size, UpwardEnumerable.succ?,
-      Option.some.injEq] at hu h ⊢
-    omega
+/-!
+The following instances are used for the implementation of array slices a.k.a. `Subarray`.
+See also `Init.Data.Slice.Array`.
+-/
 
 instance : ClosedOpenIntersection ⟨.open, .open⟩ Nat where
   intersection r s := PRange.mk (max (r.lower + 1) s.lower) (min r.upper s.upper)

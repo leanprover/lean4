@@ -283,7 +283,7 @@ partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) 
   let motive ← lambdaTelescope matcherApp.motive fun vars body =>
     addVars 0 vars (mkLambdaFVars · body)
 
-  let matcherName ← mkAuxDeclName `match
+  let matcherName ← mkFreshUserName input.matcherName
   let res ← Match.mkMatcher { input with matcherName }
   res.addMatcher
   -- if a wrong index is picked, the resulting matcher can be type-incorrect (really?).

@@ -31,7 +31,7 @@ public inductive DependencySrc where
 | git (url : String) (rev : Option String) (subDir : Option FilePath)
 deriving Inhabited, Repr
 
-
+public section
 /--
 A `Dependency` of a package.
 It specifies a package which another package depends on.
@@ -66,6 +66,7 @@ public structure Dependency where
   -/
   opts : NameMap String
   deriving Inhabited, TypeName
+end
 
 /-- The full name of a dependency (i.e., `<scope>/<name>`)-/
 public def Dependency.fullName (dep : Dependency) : String :=

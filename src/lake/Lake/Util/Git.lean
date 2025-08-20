@@ -62,25 +62,25 @@ public def cwd : GitRepo := ⟨"."⟩
 @[inline] public def testGit (args : Array String) (repo : GitRepo) : BaseIO Bool :=
   testProc {cmd := "git", args, cwd := repo.dir}
 
-@[inline] public def clone (url : String) (repo : GitRepo) : LogIO PUnit  :=
+public def clone (url : String) (repo : GitRepo) : LogIO PUnit  :=
   proc {cmd := "git", args := #["clone", url, repo.dir.toString]} (quiet := true)
 
-@[inline] public def quietInit (repo : GitRepo) : LogIO PUnit  :=
+public def quietInit (repo : GitRepo) : LogIO PUnit  :=
   repo.execGit #["init", "-q"]
 
-@[inline] public def insideWorkTree (repo : GitRepo) : BaseIO Bool := do
+public def insideWorkTree (repo : GitRepo) : BaseIO Bool := do
   repo.testGit #["rev-parse", "--is-inside-work-tree"]
 
-@[inline] public def fetch (repo : GitRepo) (remote := Git.defaultRemote) : LogIO PUnit  :=
+public def fetch (repo : GitRepo) (remote := Git.defaultRemote) : LogIO PUnit  :=
   repo.execGit #["fetch", "--tags", "--force", remote]
 
-@[inline] public def checkoutBranch (branch : String) (repo : GitRepo) : LogIO PUnit :=
+public def checkoutBranch (branch : String) (repo : GitRepo) : LogIO PUnit :=
   repo.execGit #["checkout", "-B", branch]
 
-@[inline] public def checkoutDetach (hash : String) (repo : GitRepo) : LogIO PUnit  :=
+public def checkoutDetach (hash : String) (repo : GitRepo) : LogIO PUnit  :=
   repo.execGit #["checkout", "--detach", hash, "--"]
 
-@[inline] public def resolveRevision? (rev : String) (repo : GitRepo) : BaseIO (Option String) := do
+public def resolveRevision? (rev : String) (repo : GitRepo) : BaseIO (Option String) := do
   repo.captureGit? #["rev-parse", "--verify", "--end-of-options", rev]
 
 @[inline] public def getHeadRevision? (repo : GitRepo) : BaseIO (Option String) :=
@@ -100,20 +100,20 @@ public def resolveRemoteRevision (rev : String) (remote := Git.defaultRemote) (r
 public def findRemoteRevision (repo : GitRepo) (rev? : Option String := none) (remote := Git.defaultRemote) : LogIO String := do
   repo.fetch remote; repo.resolveRemoteRevision (rev?.getD Git.upstreamBranch) remote
 
-@[inline] public def branchExists (rev : String) (repo : GitRepo) : BaseIO Bool := do
+public def branchExists (rev : String) (repo : GitRepo) : BaseIO Bool := do
   repo.testGit #["show-ref", "--verify", s!"refs/heads/{rev}"]
 
-@[inline] public def revisionExists (rev : String) (repo : GitRepo) : BaseIO Bool := do
+public def revisionExists (rev : String) (repo : GitRepo) : BaseIO Bool := do
   repo.testGit #["rev-parse", "--verify", rev ++ "^{commit}"]
 
-@[inline] public def getTags (repo : GitRepo) : BaseIO (List String) := do
+public def getTags (repo : GitRepo) : BaseIO (List String) := do
   let some out ← repo.captureGit? #["tag"] | return []
   return out.split (· == '\n')
 
-@[inline] public def findTag? (rev : String := "HEAD") (repo : GitRepo) : BaseIO (Option String) := do
+public def findTag? (rev : String := "HEAD") (repo : GitRepo) : BaseIO (Option String) := do
   repo.captureGit? #["describe", "--tags", "--exact-match", rev]
 
-@[inline] public def getRemoteUrl?
+public def getRemoteUrl?
   (remote := Git.defaultRemote) (repo : GitRepo)
 : BaseIO (Option String) := do repo.captureGit? #["remote", "get-url", remote]
 
@@ -121,7 +121,7 @@ public def getFilteredRemoteUrl?
   (remote := Git.defaultRemote) (repo : GitRepo)
 : BaseIO (Option String) := OptionT.run do Git.filterUrl? (← repo.getRemoteUrl? remote)
 
-@[inline] public def hasNoDiff (repo : GitRepo) : BaseIO Bool := do
+public def hasNoDiff (repo : GitRepo) : BaseIO Bool := do
   repo.testGit #["diff", "--exit-code"]
 
 @[inline] public def hasDiff (repo : GitRepo) : BaseIO Bool := do

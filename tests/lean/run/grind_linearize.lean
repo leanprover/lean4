@@ -30,3 +30,36 @@ example (a : Nat) (ha : a < 8) (b : Nat) (hb : b = 2) : a * b < 8 * b := by
 
 example (a : Nat) (ha : a < 8) (b c : Nat) : 2 ≤ b → c = 1 → b ≤ c + 1 → a * b < 8 * b := by
   grind -ring
+
+example (h : s = 4) : 4 < s - 1 + (s - 1) * (s - 1 - 1) / 2 := by
+  grind
+
+example (a b : Int) : a / b = 0 → b = 2 → a = 0 ∨ a = 1 := by
+  grind
+
+example (a b : Int) : b = 2 → a / b = 0 → a = 0 ∨ a = 1 := by
+  grind
+
+example (a b : Int) : b > 0 → b = 2 → a / b = 0 → a = 0 ∨ a = 1 := by
+  grind
+
+example (a b : Nat) : b > 0 → b = 2 → a / b = 0 → a = 0 ∨ a = 1 := by
+  grind
+
+example (a b c : Int) : a % b = 1 → b = 2 → a = 2 * c → False := by
+  grind
+
+example (a b c : Int) : b = 2 → a % b = 1 → a = 2 * c → False := by
+  grind
+
+example (a b c : Int) : b > 0 → b = 2 → a % b = 1 → a = 2 * c → False := by
+  grind
+
+example (a b c : Nat) : b > 0 → b = 2 → a % b = 1 → a = 2 * c → False := by
+  grind
+
+example (a b c d : Nat) : b > 0 → d = 1 → b = d + 1 → a % b = 1 → a = 2 * c → False := by
+  grind
+
+example (a b c d : Nat) : b > 1 → d = 1 → b ≤ d + 1 → a % b = 1 → a = 2 * c → False := by
+  grind

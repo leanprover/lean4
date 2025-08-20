@@ -103,6 +103,8 @@ inductive EqCnstrProof where
   | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
   | defnNatCommRing (h : Expr) (x : Var) (e' : Int.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
   | mul (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr))
+  | div (k : Int) (y : Var) (c : EqCnstr)
+  | mod (k : Int) (y : Var) (c : EqCnstr)
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where

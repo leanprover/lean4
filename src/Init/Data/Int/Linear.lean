@@ -2167,6 +2167,13 @@ theorem of_var_eq_mul (ctx : Context) (x : Var) (k : Int) (y : Var) (p : Poly) :
   simp [of_var_eq_mul_cert]; intro _ h; subst p; simp [h]
   rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.sub_self]
 
+@[expose] noncomputable def of_var_eq_var_cert (x : Var) (y : Var) (p : Poly) : Bool :=
+  p.beq' (.add 1 x (.add (-1) y (.num 0)))
+
+theorem of_var_eq_var (ctx : Context) (x : Var) (y : Var) (p : Poly) : of_var_eq_var_cert x y p → x.denote ctx = y.denote ctx → p.denote' ctx = 0 := by
+  simp [of_var_eq_var_cert]; intro _ h; subst p; simp [h]
+  rw [← Int.sub_eq_add_neg, Int.sub_self]
+
 @[expose] noncomputable def of_var_eq_cert (x : Var) (k : Int) (p : Poly) : Bool :=
   p.beq' (.add 1 x (.num (-k)))
 
@@ -2182,6 +2189,9 @@ theorem mul_eq_kxk (a b k₁ c k₂ k : Int) (h₁ : a = k₁*c) (h₂ : b = k�
   simp at h₃; rw [h₁, h₂, Int.mul_comm, ← Int.mul_assoc, Int.mul_comm k₂, h₃]
 theorem mul_eq_zero_left (a b : Int) (h : a = 0) : a*b = 0 := by simp [*]
 theorem mul_eq_zero_right (a b : Int) (h : b = 0) : a*b = 0 := by simp [*]
+
+theorem div_eq (a b k : Int) (h : b = k) : a / b = a / k := by simp [*]
+theorem mod_eq (a b k : Int) (h : b = k) : a % b = a % k := by simp [*]
 
 end Int.Linear
 

@@ -1,6 +1,6 @@
 # Lean Build Bootstrapping
 
-Since version 4, Lean is a bootstrapped program: the
+Lean is a bootstrapped program: the
 frontend and compiler are written in Lean itself and thus need to be built before
 building Lean itself - which is needed to again build those parts. This cycle is
 broken by using pre-built C files checked into the repository (which ultimately

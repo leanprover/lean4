@@ -47,7 +47,7 @@ theorem Power2.mul : Power2 n → Power2 m → Power2 (n*m) := by
   | ind h2 ih => exact mul_left_comm .. ▸ ind ih
 
 /- The following example fails because the structural recursion cannot be performed on the `Nat`s and
-   the `brecOn` construction doesn't work for inductive predicates -/
+   the `brecOn` construction doesn't work for inductive predicates (?????) -/
 set_option trace.Elab.definition.structural true in
 set_option trace.Meta.IndPredBelow.match true in
 set_option pp.explicit true in

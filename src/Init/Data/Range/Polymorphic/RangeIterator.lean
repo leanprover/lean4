@@ -236,46 +236,44 @@ private def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [Supports
   wf := by
     constructor
     intro it
-    match it with
-    | ⟨⟨none, _⟩⟩ =>
+    have hnone : ∀ bound, Acc (fun it' it : IterM (α := RangeIterator su α) Id α => it'.IsPlausibleSuccessorOf it)
+        ⟨⟨none, bound⟩⟩ := by
+      intro bound
       constructor
       intro it' ⟨step, hs₁, hs₂⟩
-      simp [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step] at hs₂
+      simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step] at hs₂
       simp [hs₂, IterStep.successor] at hs₁
+    simp only [IterM.IsPlausibleSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
+      Monadic.step, exists_eq_right] at hnone ⊢
+    match it with
+    | ⟨⟨none, _⟩⟩ => apply hnone
     | ⟨⟨some init, bound⟩⟩ =>
       obtain ⟨n, hn⟩ := HasFiniteRanges.finite init bound
       induction n generalizing init with
       | zero =>
-        simp [UpwardEnumerable.succMany?_zero] at hn
+        simp only [UpwardEnumerable.succMany?_zero, Option.elim_some] at hn
         constructor
-        rintro it' ⟨step, hs₁, hs₂⟩
-        simp [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step, hn] at hs₂
-        simp [hs₂, IterStep.successor] at hs₁
+        simp [hn, IterStep.successor]
       | succ n ih =>
         constructor
-        rintro it' ⟨step, hs₁, hs₂⟩
-        simp [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at hn
+        rintro it'
+        simp only [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at hn
         match hs : UpwardEnumerable.succ? init with
         | none =>
-          simp [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step, hs] at hs₂
-          split at hs₂
-          · rename_i h
-            simp [hs₂, IterStep.successor] at hs₁
-            cases hs₁
-            constructor
-            intro it' ⟨step, hs₁, hs₂⟩
-            simp [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step] at hs₂
-            simp [hs₂, IterStep.successor] at hs₁
-          · simp [hs₂, IterStep.successor] at hs₁
+          simp only [hs]
+          intro h
+          split at h
+          · cases h
+            apply hnone
+          · cases h
         | some a =>
-          simp [hs] at hn
+          intro h
+          simp only [hs] at h hn
           specialize ih _ hn
-          simp [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step] at hs₂
-          split at hs₂
-          · simp [hs₂, IterStep.successor, hs] at hs₁
-            cases hs₁
+          split at h
+          · cases h
             exact ih
-          · simp [hs₂, IterStep.successor] at hs₁
+          · cases h
   subrelation := id
 
 @[no_expose]

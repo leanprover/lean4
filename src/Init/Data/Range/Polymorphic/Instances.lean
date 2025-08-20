@@ -49,7 +49,7 @@ instance [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable 
     [LawfulUpwardEnumerableLT α] :
     LawfulUpwardEnumerableLowerBound .open α where
   isSatisfied_iff a l := by
-    simp [SupportsLowerBound.IsSatisfied, BoundedUpwardEnumerable.init?,
+    simp only [SupportsLowerBound.IsSatisfied, BoundedUpwardEnumerable.init?,
       LawfulUpwardEnumerableLT.lt_iff]
     constructor
     · rintro ⟨n, hn⟩
@@ -97,6 +97,11 @@ instance [LE α] [Total (α := α) (· ≤ ·)] [UpwardEnumerable α] [LawfulUpw
 instance [UpwardEnumerable α] : LawfulUpwardEnumerableUpperBound .unbounded α where
   isSatisfied_of_le _ _ _ _ _ := .intro
 
+/--
+Creates a `RangeSize .open α` from a `RangeSize .closed α` instance. If the latter is lawful
+and certain other conditions hold, then the former is also lawful by
+`LawfulRangeSize.open_of_closed`.
+-/
 @[inline]
 abbrev RangeSize.openOfClosed [RangeSize .closed α] : RangeSize .open α where
   size bound a := RangeSize.size (shape := .closed) bound a - 1
@@ -108,8 +113,8 @@ instance LawfulRangeSize.open_of_closed [UpwardEnumerable α] [LE α] [Decidable
     [RangeSize .closed α] [LawfulRangeSize .closed α] :
     LawfulRangeSize .open α where
   size_eq_zero_of_not_isSatisfied bound a h := by
-    simp [SupportsUpperBound.IsSatisfied] at h
-    simp [RangeSize.size]
+    simp only [SupportsUpperBound.IsSatisfied] at h
+    simp only [RangeSize.size]
     by_cases h' : a ≤ bound
     · match hs : UpwardEnumerable.succ? a with
       | none => rw [LawfulRangeSize.size_eq_one_of_succ?_eq_none (h := h') (h' := by omega)]
@@ -126,16 +131,16 @@ instance LawfulRangeSize.open_of_closed [UpwardEnumerable α] [LE α] [Decidable
       exact LawfulRangeSize.size_eq_zero_of_not_isSatisfied _ _ h'
   size_eq_one_of_succ?_eq_none bound a h h' := by
     exfalso
-    simp [SupportsUpperBound.IsSatisfied, LawfulUpwardEnumerableLT.lt_iff] at h
+    simp only [SupportsUpperBound.IsSatisfied, LawfulUpwardEnumerableLT.lt_iff] at h
     obtain ⟨n, hn⟩ := h
     simp [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, h'] at hn
   size_eq_succ_of_succ?_eq_some bound a a' h h' := by
-    simp [SupportsUpperBound.IsSatisfied] at h
-    simp [RangeSize.size]
+    simp only [SupportsUpperBound.IsSatisfied] at h
+    simp only [RangeSize.size, Nat.pred_eq_succ_iff]
     rw [LawfulRangeSize.size_eq_succ_of_succ?_eq_some (h := le_of_lt h) (h' := h')]
     rw [← Nat.sub_add_comm]
     · omega
-    · simp [Nat.succ_le_iff, LawfulRangeSize.size_pos_iff_isSatisfied,
+    · simp only [Nat.succ_le_iff, LawfulRangeSize.size_pos_iff_isSatisfied,
         SupportsUpperBound.IsSatisfied]
       rw [LawfulUpwardEnumerableLE.le_iff]
       rw [LawfulUpwardEnumerableLT.lt_iff] at h
@@ -143,8 +148,7 @@ instance LawfulRangeSize.open_of_closed [UpwardEnumerable α] [LE α] [Decidable
       simpa [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, h'] using h.choose_spec
 
 instance LawfulRangeSize.instHasFiniteRanges [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [RangeSize su α]
-    [SupportsUpperBound su α] [LawfulRangeSize su α] : HasFiniteRanges su α where
+    [RangeSize su α] [SupportsUpperBound su α] [LawfulRangeSize su α] : HasFiniteRanges su α where
   finite init bound := by
     refine ⟨RangeSize.size bound init, ?_⟩
     generalize hn : RangeSize.size bound init = n

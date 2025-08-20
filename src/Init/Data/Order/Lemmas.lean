@@ -62,6 +62,10 @@ public theorem le_antisymm {α : Type u} [LE α] [Std.Antisymm (α := α) (· �
     (hab : a ≤ b) (hba : b ≤ a) : a = b :=
   Antisymm.antisymm _ _ hab hba
 
+public theorem le_antisymm_iff {α : Type u} [LE α] [Antisymm (α := α) (· ≤ ·)]
+    [Refl (α := α) (· ≤ ·)] {a b : α} : a ≤ b ∧ b ≤ a ↔ a = b :=
+  ⟨fun | ⟨hab, hba⟩ => le_antisymm hab hba, by simp +contextual [le_refl]⟩
+
 public theorem le_trans {α : Type u} [LE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] {a b c : α}
     (hab : a ≤ b) (hbc : b ≤ c) : a ≤ c :=
   Trans.trans hab hbc

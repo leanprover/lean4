@@ -76,12 +76,36 @@ this✝ : LT α := inferInstance
 #guard_msgs in
 def packageOfLEOfLT1 [LE α] [DecidableLE α] [LT α] : PreorderPackage α := .ofLE α {
   le_refl := sorry
-  le_trans := sorry
-}
+  le_trans := sorry }
 
 def packageOfLEOfLT2 [LE α] [DecidableLE α] [LT α] (h : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a) :
     PreorderPackage α := .ofLE α {
   lt_iff := h
   le_refl := sorry
-  le_trans := sorry
-}
+  le_trans := sorry }
+
+namespace OrdTests
+
+section
+
+#guard_msgs(error, drop warning) in
+opaque _root_.X.instOrd : Ord X := sorry
+
+#guard_msgs(error, drop warning) in
+opaque _root_.X.instTransOrd : haveI := X.instOrd; TransOrd X := sorry
+
+#guard_msgs(error, drop warning) in
+opaque _root_.X.instLawfulEqOrd : haveI := X.instOrd; LawfulEqOrd X := sorry
+
+def packageWithoutSynthesizableInstances : LinearOrderPackage X := .ofOrd X {
+  ord := X.instOrd
+  transOrd := X.instTransOrd
+  eq_of_compare := by
+    extract_lets
+    intro a b
+    letI := X.instOrd
+    exact X.instLawfulEqOrd.eq_of_compare }
+
+end
+
+end OrdTests

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.LiveVars
 public import Lean.Compiler.IR.Format
 
@@ -71,6 +72,7 @@ where
       instr.setBody (go b)
 
 structure Context where
+  env       : Environment
   lctx      : LocalContext := {}
   /--
   Contains all variables in `cases` statements in the current path
@@ -243,17 +245,17 @@ end ResetReuse
 open ResetReuse
 
 
-def Decl.insertResetReuseCore (d : Decl) (relaxedReuse : Bool) : Decl :=
+def Decl.insertResetReuseCore (env : Environment) (d : Decl) (relaxedReuse : Bool) : Decl :=
   match d with
   | .fdecl (body := b) .. =>
     let nextIndex := d.maxIndex + 1
     -- First time we execute `insertResetReuseCore`, `relaxedReuse := false`.
     let alreadyFound : PHashSet VarId := if relaxedReuse then (collectResets b *> get).run' {} else {}
-    let bNew := R b { relaxedReuse, alreadyFound } |>.run' nextIndex
+    let bNew := R b { env, relaxedReuse, alreadyFound } |>.run' nextIndex
     d.updateBody! bNew
   | other => other
 
-def Decl.insertResetReuse (d : Decl) : Decl :=
+def Decl.insertResetReuse (env : Environment) (d : Decl) : Decl :=
   /-
   We execute the reset/reuse algorithm twice. The first time, we only reuse memory cells
   between identical constructor memory cells. That is, we do not reuse a `PSigma.mk` memory cell
@@ -264,8 +266,8 @@ def Decl.insertResetReuse (d : Decl) : Decl :=
 
   The second pass addresses issue #4089.
   -/
-  d.insertResetReuseCore (relaxedReuse := false)
-  |>.insertResetReuseCore (relaxedReuse := true)
+  d.insertResetReuseCore env (relaxedReuse := false)
+  |>.insertResetReuseCore env (relaxedReuse := true)
 
 builtin_initialize registerTraceClass `compiler.ir.reset_reuse (inherited := true)
 

@@ -16,6 +16,42 @@ public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+@[extern "lean_cutsat_propagate_nonlinear"]
+opaque propagateNonlinearTerm (y : Var) (x : Var) : GoalM Bool
+
+private def isNonlinearTerm (e : Expr) : MetaM Bool := do
+  match_expr e with
+  | HMul.hMul _ _ _ i _ _ => isInstHMulInt i
+  | HDiv.hDiv _ _ _ i _ b => pure (← getIntValue? b).isNone <&&> isInstHDivInt i
+  | HMod.hMod _ _ _ i _ b => pure (← getIntValue? b).isNone <&&> isInstHModInt i
+  | _ => return false
+
+private def registerNonlinearOcc (arg : Expr) (x : Var) : GoalM Unit := do
+  let y ← mkVar arg
+  if (← get').elimEqs[y]!.isSome then
+    if (← propagateNonlinearTerm y x) then
+      return ()
+  let y ← mkVar arg
+  let occs := (← get').nonlinearOccs.find? y |>.getD []
+  unless x ∈ occs do
+  modify' fun s => { s with nonlinearOccs := s.nonlinearOccs.insert y (x::occs) }
+
+private partial def registerNonlinearOccsAt (e : Expr) (x : Var) : GoalM Unit := do
+  match_expr e with
+  | HMul.hMul _ _ _ _ a b => go a; go b
+  | HDiv.hDiv _ _ _ _ a b => registerNonlinearOcc a x; registerNonlinearOcc b x
+  | HMod.hMod _ _ _ _ a b => registerNonlinearOcc a x; registerNonlinearOcc b x
+  | _ => return ()
+where
+  go (e : Expr) : GoalM Unit := do
+    match_expr e with
+    | HMul.hMul _ _ _ i a b =>
+      if (← isInstHMulInt i) then
+        go a; go b
+      else
+        registerNonlinearOcc e x
+    | _ => registerNonlinearOcc e x
+
 @[export lean_grind_cutsat_mk_var]
 def mkVarImpl (expr : Expr) : GoalM Var := do
   if let some var := (← get').varMap.find? { expr } then
@@ -36,6 +72,8 @@ def mkVarImpl (expr : Expr) : GoalM Var := do
   assertNatCast expr var
   assertNonneg expr var
   assertToIntBounds expr var
+  if (← isNonlinearTerm expr) then
+    registerNonlinearOccsAt expr var
   return var
 
 def isInt (e : Expr) : GoalM Bool := do

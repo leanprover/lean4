@@ -351,9 +351,10 @@ where
       let type ← varId.getType
       let type ← whnf type
       type.withApp fun f args => do
-        let .const _ us := f | throwError "expected constant application at {type}"
+        let .const nm us := f | throwError "expected constant application at {type}"
+        let ind ← getConstInfoInduct nm
         let tgtType := mkAppN (.const belowIndName us) belowParams
-        let tgtType := mkAppN tgtType args
+        let tgtType := mkAppN tgtType (args.extract ind.numParams)
         let tgtType := .app tgtType (.fvar varId)
         withLocalDeclD (← mkFreshUserName `h) tgtType fun h => do
           let localDecl ← getFVarLocalDecl h
@@ -412,7 +413,7 @@ def mkBelow (indName : Name) : MetaM Unit :=
   withTraceNode `Meta.IndPredBelow (fun _ => return m!"{indName}") do
   unless (← isInductivePredicate indName) do return
   let indVal ← getConstInfoInduct indName
-  unless indVal.isRec do return
+  if indVal.isUnsafe || !indVal.isRec then return
   let recVal ← getConstInfoRec (indName ++ `rec)
   let largeElim := recVal.levelParams.length > indVal.levelParams.length
   let t := if largeElim then recVal.instantiateTypeLevelParams [.zero] else recVal.type

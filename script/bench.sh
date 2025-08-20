@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-cmake --preset release 1>&2
+cmake --preset release -DUSE_LAKE=ON 1>&2
 
 # We benchmark against stage2/bin to test new optimizations.
 timeout -s KILL 1h time make -C build/release -j$(nproc) stage3 1>&2

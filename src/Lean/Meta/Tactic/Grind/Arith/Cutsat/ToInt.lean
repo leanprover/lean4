@@ -190,12 +190,12 @@ private def mkBinOpThms (opBaseName : Name) (thmName : Name) : ToIntM ToIntThms 
     some <| mkApp6 (mkConst cwwName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst eagerReflBoolTrue
   else
     none
-  let c_wl? := if info.range.isFinite && info.range.nonEmpty && env.contains cwwName then -- TODO: nonEmpty may be unknown if symbolic bounds
-    some <| mkApp7 (mkConst cwlName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst eagerReflBoolTrue eagerReflBoolTrue
+  let c_wl? := if info.range.isFinite && env.contains cwlName then
+    some <| mkApp6 (mkConst cwlName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst eagerReflBoolTrue
   else
     none
-  let c_wr? := if info.range.isFinite && info.range.nonEmpty && env.contains cwwName then -- TODO: nonEmpty may be unknown if symbolic bounds
-    some <| mkApp7 (mkConst cwrName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst eagerReflBoolTrue eagerReflBoolTrue
+  let c_wr? := if info.range.isFinite && env.contains cwrName then
+    some <| mkApp6 (mkConst cwrName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst eagerReflBoolTrue
   else
     none
   return { c? := some c, c_ww?, c_wl?, c_wr? }

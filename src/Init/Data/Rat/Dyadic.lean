@@ -13,6 +13,8 @@ meta import Lean.Elab.Tactic.Omega
 
 @[expose] public section
 
+open Nat
+
 namespace Int
 
 /-- The number of trailing zeros in the binary representation of `i`. -/
@@ -31,11 +33,27 @@ example : trailingZeros 2 = 1 := by native_decide
 example : trailingZeros 3 = 0 := by native_decide
 example : trailingZeros 4 = 2 := by native_decide
 
-theorem trailingZeros_two_mul_add_one (i : Int) : Int.trailingZeros (2 * i + 1) = 0 := by
+private theorem trailingZeros_aux_succ :
+    trailingZeros.aux k i (acc + 1) = trailingZeros.aux k i acc + 1 := by
+  unfold trailingZeros.aux
+  split
+  · rfl
+  · rw [trailingZeros_aux_succ]
+    split <;> rfl
+
+theorem trailingZeros_two_mul_add_one (i : Int) :
+    Int.trailingZeros (2 * i + 1) = 0 := by
   unfold trailingZeros trailingZeros.aux
   have h : (2 * i + 1) % 2 = 1 := by simp
   split <;> simp_all
-theorem trailingZeros_two_mul {i : Int} (h : i ≠ 0) : Int.trailingZeros (2 * i) = Int.trailingZeros i + 1 := sorry
+theorem trailingZeros_two_mul {i : Int} (h : i ≠ 0) :
+    Int.trailingZeros (2 * i) = Int.trailingZeros i + 1 := by
+  rw [trailingZeros, trailingZeros.aux.eq_def]
+  rw [natAbs_mul, show natAbs 2 = 2 by decide, log2_two_mul (by simpa)]
+  dsimp
+  rw [mul_emod_right, if_neg (by decide),
+    Int.mul_ediv_cancel_left _ (by decide), trailingZeros_aux_succ,
+    trailingZeros]
 
 /-- The unique representation of an integer as either zero, or an odd number times a power of two. -/
 def toDyadic (i : Int) : Option (Int × Nat) :=
@@ -119,12 +137,17 @@ def sub (x y : Dyadic) : Dyadic := x + (- y)
 
 instance : Sub Dyadic := ⟨Dyadic.sub⟩
 
+@[simp]
+theorem _root_.Int.emod_two_natAbs (i : Int) : i.natAbs % 2 = (i % 2).natAbs := by omega
+
 def toRat (x : Dyadic) : Rat :=
   match x with
   | .zero => 0
   | .of n (k : Nat) =>
     have reduced : (2 * n + 1).natAbs.Coprime (2 ^ k) := by
-      sorry
+      apply Coprime.pow_right
+      rw [coprime_iff_gcd_eq_one, Nat.gcd_comm, Nat.gcd_def]
+      simp
     ⟨2 * n + 1, 2 ^ k, Nat.ne_of_gt (Nat.pow_pos (by decide)), reduced⟩
   | .of n (-((k : Nat) + 1)) =>
     ⟨(2 * n + 1) * 2 ^ (k + 1), 1, by decide, Nat.coprime_one_right _⟩

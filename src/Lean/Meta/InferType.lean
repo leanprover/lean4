@@ -371,12 +371,8 @@ if `type` is of the form `A_1 → ... → A_n → B`, where `B` is a proposition
 
 Remark: `type` can be a dependent arrow.
 -/
-private partial def isArrowProposition : Expr → Nat → MetaM LBool
-  | .forallE _ _ b _, n+1 => isArrowProposition b n
-  | .letE _ _ _ b _,  n   => isArrowProposition b n
-  | .mdata _ e,       n   => isArrowProposition e n
-  | type,             0   => isPropQuick type
-  | _,                _   => return LBool.undef
+private def isArrowProposition (e : Expr) (n : Nat) : MetaM LBool :=
+  return (← isArrowProposition' e n).toLBool
 
 mutual
 /--

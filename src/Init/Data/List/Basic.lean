@@ -2360,6 +2360,7 @@ where
 Splits a list into the longest segments in which each pair of adjacent elements are related by `R`.
 
 `O(|l|)`.
+
 Examples:
 * `[1, 1, 2, 2, 2, 3, 2].splitBy (· == ·) = [[1, 1], [2, 2, 2], [3], [2]]`
 * `[1, 2, 5, 4, 5, 1, 4].splitBy (· < ·) = [[1, 2, 5], [4, 5], [1, 4]]`
@@ -2372,6 +2373,7 @@ Examples:
 where
   /--
   The arguments of `splitBy.loop l b g gs` represent the following:
+
   - `l : List α` are the elements which we still need to split.
   - `b : α` is the previous element for which a comparison was performed.
   - `r : List α` is the group currently being assembled, in **reverse order**.

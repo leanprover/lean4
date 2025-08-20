@@ -169,18 +169,73 @@ private def updateDiseqs (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Uni
     c₂.assert
     if (← inconsistent) then return ()
 
-@[export lean_cutsat_propagate_nonlinear]
-def propagateNonlinearTermImpl (y : Var) (x : Var) : GoalM Bool := do
-  let some c := (← get').elimEqs[y]! | return false
-  let .add k₁ _ (.num k₂) := c.p | return false
-  unless k₁.natAbs == 1 do return false
-  trace[grind.cutsat.nonlinear] "propagate: {← getVar y} := {- k₂/k₁} @ {← getVar x}"
+/-- Returns `some k` if the given variable has been eliminate with equality `y = k` -/
+private def isVarEqConst? (y : Var) : GoalM (Option (Int × EqCnstr)) := do
+  let some c := (← get').elimEqs[y]! | return none
+  let .add k₁ _ (.num k₂) := c.p | return none
+  if k₂ % k₁ != 0 then return none
+  return some (- k₂/k₁, c)
+
+/-- Returns `some k` if `e` is represented by a variable `y` that has been eliminate with equality `y = k` -/
+private def isExprEqConst? (e : Expr) : GoalM (Option (Int × EqCnstr)) := do
+  let some x := (← get').varMap.find? { expr := e } | return none
+  isVarEqConst? x
+
+structure PropagateMul.State where
+  a? : Option Expr := none
+  k  : Int := 1
+  cs : Array (Expr × Int × EqCnstr) := #[]
+
+private partial def propagateNonlinearMul (x : Var) : GoalM Bool := do
+  let e ← getVar x
+  let some (_, { a?, k, cs }) ← go e |>.run {} |>.run | return false
+  if let some a := a? then
+    -- x = k*a
+    let y ← mkVar a
+    let c := { p := .add 1 x (.add (-k) y (.num 0)), h := .mul a? cs : EqCnstr }
+    c.assert
+    return true
+  else
+    -- x = k
+    let c := { p := .add 1 x (.num (-k)), h := .mul none cs : EqCnstr }
+    c.assert
+    return true
+where
+  goVar (e : Expr) : StateT PropagateMul.State (OptionT GoalM) Unit := do
+    if let some (k', c) ← isExprEqConst? e then
+      modify fun { a?, k, cs } => { a?, k := k*k', cs := cs.push (e, k', c) }
+    else
+      guard (← get).a?.isNone
+      modify fun { k, cs, .. } => { a? := some e, k, cs }
+
+  go (e : Expr) : StateT PropagateMul.State (OptionT GoalM) Unit := do
+    let_expr HMul.hMul _ _ _ i a b := e | goVar e
+    if (← isInstHMulInt i) then
+      go a; go b
+    else
+      goVar e
+
+private def propagateNonlinearDiv (x : Var) : GoalM Bool := do
+  trace[Meta.debug] "{← getVar x}" -- TODO
   return true
 
+private def propagateNonlinearMod (x : Var) : GoalM Bool := do
+  trace[Meta.debug] "{← getVar x}" -- TODO
+  return true
+
+@[export lean_cutsat_propagate_nonlinear]
+def propagateNonlinearTermImpl (y : Var) (x : Var) : GoalM Bool := do
+  unless (← isVarEqConst? y).isSome do return false
+  match_expr (← getVar x) with
+  | HMul.hMul _ _ _ _ _ _ => propagateNonlinearMul x
+  | HDiv.hDiv _ _ _ _ _ _ => propagateNonlinearDiv x
+  | HMod.hMod _ _ _ _ _ _ => propagateNonlinearMod x
+  | _ => return false
+
 def propagateNonlinearTerms (y : Var) : GoalM Unit := do
-  let some occs := (← get').nonlinearOccs.find? { expr := (← getVar y) } | return ()
-  for x in occs do
-    discard <| propagateNonlinearTermImpl y x
+  let some occs := (← get').nonlinearOccs.find? y | return ()
+  let occs ← occs.filterM fun x => return !(← propagateNonlinearTermImpl y x)
+  modify' fun s => { s with nonlinearOccs := s.nonlinearOccs.insert y occs }
 
 private def updateElimEqs (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
   if (← inconsistent) then return ()

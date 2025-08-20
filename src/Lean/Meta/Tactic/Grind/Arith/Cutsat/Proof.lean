@@ -102,6 +102,10 @@ private def getVarMap : ProofM (PHashMap ExprPtr Var) := do
   else
     return (← get').varMap
 
+private def getVarOf (e : Expr) : ProofM Var := do
+  let some x := (← getVarMap).find? { expr := e } | throwError "`grind` internal error, missing cutsat variable{indentExpr e}"
+  return x
+
 private abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
   let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
   if let some h := (← get).cache[addr]? then
@@ -212,13 +216,20 @@ private def DvdCnstr.get_d_a (c : DvdCnstr) : GoalM (Int × Int) := do
   let .add a _ _ := c.p | c.throwUnexpected
   return (d, a)
 
+private def getCurrVars : ProofM (PArray Expr) := do
+  if (← read).unordered then pure (← get').vars' else getVars
+
 /--
 Similar to `denoteExpr'`, but takes into account the `unordered` flag in the `ProofM` context.
 Recall that if `unordered` is `true`, we should use `vars'`
 -/
 private def _root_.Int.Linear.Poly.denoteExprUsingCurrVars (p : Poly) : ProofM Expr := do
-  let vars ← if (← read).unordered then pure (← get').vars' else getVars
+  let vars ← getCurrVars
   return (← p.denoteExpr (vars[·]!))
+
+inductive MulEqProof where
+  | const (k : Int) (h : Expr)
+  | mulVar (k : Int) (a : Expr) (h : Expr)
 
 mutual
 partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
@@ -233,7 +244,7 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
     let h := mkApp toIntThm (← mkEqProof a b)
     return mkApp6 (mkConst ``Int.Linear.eq_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .defn e p =>
-    let some x := (← getVarMap).find? { expr := e } | throwError "`grind` internal error, missing cutsat variable{indentExpr e}"
+    let x ← getVarOf e
     return mkApp6 (mkConst ``Int.Linear.eq_def) (← getContext) (← mkVarDecl x) (← mkPolyDecl p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqRefl e)
   | .defnNat h x e =>
     return mkApp6 (mkConst ``Int.Linear.eq_def') (← getContext) (← mkVarDecl x) (← mkExprDecl e) (← mkPolyDecl c'.p) eagerReflBoolTrue h
@@ -258,7 +269,7 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
     return mkApp5 (mkConst ``Int.Linear.eq_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
   | .defnCommRing e p re rp p' =>
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) eagerReflBoolTrue
-    let some x := (← getVarMap).find? { expr := e } | throwError "`grind` internal error, missing cutsat variable{indentExpr e}"
+    let x ← getVarOf e
     return mkApp8 (mkConst ``Int.Linear.eq_def_norm) (← getContext)
       (← mkVarDecl x) (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p)
       eagerReflBoolTrue (← mkEqRefl e) h
@@ -266,6 +277,49 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
     let h₂ := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) eagerReflBoolTrue
     return mkApp9 (mkConst ``Int.Linear.eq_def'_norm) (← getContext) (← mkVarDecl x) (← mkExprDecl e')
       (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p) eagerReflBoolTrue h₁ h₂
+  | .mul a? cs =>
+    let .add _ x _ := c'.p | c'.throwUnexpected
+    mkMulEqProof x a? cs c'
+
+partial def mkMulEqProof (x : Var) (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr)) (c' : EqCnstr) : ProofM Expr := do
+  let h ← go (← getCurrVars)[x]!
+  match h with
+  | .const k h =>
+    return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+  | .mulVar k a h =>
+    assert! a? == some a
+    let y ← getVarOf a
+    trace[Meta.debug] "a: {a}, y: {y}"
+    return mkApp7 (mkConst ``Int.Linear.of_var_eq_mul) (← getContext) (← mkVarDecl x) (toExpr k) (← mkVarDecl y) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+where
+  goVar (e : Expr) : ProofM MulEqProof := do
+    if some e == a? then
+      return .mulVar 1 e (mkApp (mkConst ``Int.Linear.eq_one_mul) e)
+    else
+      let some (_, k, c) := cs.find? fun (e', _, _) => e' == e | throwError "`grind` internal error, proof not found for{indentExpr e}"
+      let x ← getVarOf e
+      let h := mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
+      return .const k h
+
+  go (e : Expr) : ProofM MulEqProof := do
+    let_expr HMul.hMul _ _ _ i a b := e | goVar e
+    if !(← isInstHMulInt i) then goVar e else
+    let ha ← go a
+    let hb ← go b
+    match ha, hb with
+    | .const k₁ h₁, .const k₂ h₂ =>
+      let k := k₁*k₂
+      let h := mkApp8 (mkConst ``Int.Linear.mul_eq_kk) a b (toExpr k₁) (toExpr k₂) (toExpr k) h₁ h₂ eagerReflBoolTrue
+      return .const k h
+    | .const k₁ h₁, .mulVar k₂ c h₂ =>
+      let k := k₁*k₂
+      let h := mkApp9 (mkConst ``Int.Linear.mul_eq_kkx) a b (toExpr k₁) (toExpr k₂) c (toExpr k) h₁ h₂ eagerReflBoolTrue
+      return .mulVar k c h
+    | .mulVar k₁ c h₁, .const k₂ h₂ =>
+      let k := k₁*k₂
+      let h := mkApp9 (mkConst ``Int.Linear.mul_eq_kxk) a b (toExpr k₁) c (toExpr k₂) (toExpr k) h₁ h₂ eagerReflBoolTrue
+      return .mulVar k c h
+    | _, _ => throwError "`grind` internal error, unexpected multiplication `{e}` in cutsat"
 
 partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
@@ -522,6 +576,7 @@ partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do u
   | .defnCommRing .. | .defnNatCommRing .. | .coreToInt .. => return () -- Equalities coming from the core never contain cutsat decision variables
   | .commRingNorm c .. | .reorder c | .norm c | .divCoeffs c => c.collectDecVars
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
+  | .mul _ cs => cs.forM fun (_, _, c) => c.collectDecVars
 
 partial def CooperSplit.collectDecVars (s : CooperSplit) : CollectDecVarsM Unit := do unless (← alreadyVisited s) do
   s.pred.c₁.collectDecVars

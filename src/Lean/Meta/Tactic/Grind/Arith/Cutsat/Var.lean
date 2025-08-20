@@ -21,19 +21,20 @@ opaque propagateNonlinearTerm (y : Var) (x : Var) : GoalM Bool
 
 private def isNonlinearTerm (e : Expr) : MetaM Bool := do
   match_expr e with
-  | HMul.hMul _ _ _ _ _ _ => return true
-  | HDiv.hDiv _ _ _ _ _ b => return (← getIntValue? b).isNone
-  | HMod.hMod _ _ _ _ _ b => return (← getIntValue? b).isNone
+  | HMul.hMul _ _ _ i _ _ => isInstHMulInt i
+  | HDiv.hDiv _ _ _ i _ b => pure (← getIntValue? b).isNone <&&> isInstHDivInt i
+  | HMod.hMod _ _ _ i _ b => pure (← getIntValue? b).isNone <&&> isInstHModInt i
   | _ => return false
 
 private def registerNonlinearOcc (arg : Expr) (x : Var) : GoalM Unit := do
-  if let some y := (← get').varMap.find? { expr := arg } then
-    if (← get').elimEqs[y]!.isSome then
+  let y ← mkVar arg
+  if (← get').elimEqs[y]!.isSome then
     if (← propagateNonlinearTerm y x) then
       return ()
-  let occs := (← get').nonlinearOccs.find? { expr := arg } |>.getD []
+  let y ← mkVar arg
+  let occs := (← get').nonlinearOccs.find? y |>.getD []
   unless x ∈ occs do
-  modify' fun s => { s with nonlinearOccs := s.nonlinearOccs.insert { expr := arg } (x::occs) }
+  modify' fun s => { s with nonlinearOccs := s.nonlinearOccs.insert y (x::occs) }
 
 private partial def registerNonlinearOccsAt (e : Expr) (x : Var) : GoalM Unit := do
   match_expr e with
@@ -44,7 +45,11 @@ private partial def registerNonlinearOccsAt (e : Expr) (x : Var) : GoalM Unit :=
 where
   go (e : Expr) : GoalM Unit := do
     match_expr e with
-    | HMul.hMul _ _ _ _ a b => go a; go b
+    | HMul.hMul _ _ _ i a b =>
+      if (← isInstHMulInt i) then
+        go a; go b
+      else
+        registerNonlinearOcc e x
     | _ => registerNonlinearOcc e x
 
 @[export lean_grind_cutsat_mk_var]

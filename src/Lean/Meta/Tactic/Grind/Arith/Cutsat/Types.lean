@@ -102,6 +102,7 @@ inductive EqCnstrProof where
   | commRingNorm (c : EqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
   | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
   | defnNatCommRing (h : Expr) (x : Var) (e' : Int.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | mul (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr))
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where
@@ -352,7 +353,7 @@ structure State where
   - `c ↦ [x]`
   - `d ↦ [y]`
   -/
-  nonlinearOccs : PHashMap ExprPtr (List Var) := {}
+  nonlinearOccs : PHashMap Var (List Var) := {}
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

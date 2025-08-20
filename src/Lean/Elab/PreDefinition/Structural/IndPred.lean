@@ -17,7 +17,26 @@ public section
 namespace Lean.Elab.Structural
 open Meta
 
-private def replaceIndPredRecApp (fixedParamPerm : FixedParamPerm) (funType : Expr) (_i : Nat) (e : Expr) : M Expr := do
+/--
+Given `t = a ∧ b ∧ c ∧ ...`, return the `i`th type (of `n` total) or `none` if `n ≤ i` or there
+aren't enough `And`s to get the `i`th one.
+-/
+def andProjType (i n : Nat) (t : Expr) : Option Expr :=
+  match i, n, t with
+  | 0, 1, t => some t
+  | 0, _ + 1, mkApp2 (.const ``And _) a _ => some a
+  | i + 1, k + 1, mkApp2 (.const ``And _) _ b => andProjType i k b
+  | _, _, _ => none
+
+/-- Return the `i`th projection of the type `e` where `e` has `n` Ands. -/
+def andProj (i n : Nat) (e : Expr) : Expr :=
+  match i, n with
+  | 0, 1 => e
+  | 0, _ + 1 => .proj ``And 0 e
+  | i + 1, k + 1 => andProj i k (.proj ``And 1 e)
+  | _, _ => e
+
+private def replaceIndPredRecApp (fixedParamPerm : FixedParamPerm) (funType : Expr) (i n : Nat) (e : Expr) : M Expr := do
   withoutProofIrrelevance do
   withTraceNode `Elab.definition.structural (fun _ => pure m!"eliminating recursive call {e}") do
     -- We want to replace `e` with an expression of the same type
@@ -29,13 +48,16 @@ private def replaceIndPredRecApp (fixedParamPerm : FixedParamPerm) (funType : Ex
       if localDecl.isAuxDecl then return false
       let (mvars, _, t) ← forallMetaTelescope localDecl.type -- NB: do not reduce, we want to see the `funType`
       let t := t.headBeta
+      let some t := andProjType i n t | return false
       unless t.getAppFn == funType do return false
       withTraceNodeBefore `Elab.definition.structural (do pure m!"trying {mkFVar localDecl.fvarId} : {localDecl.type}") do
         if ys.size < t.getAppNumArgs then
           trace[Elab.definition.structural] "too few arguments, expected {t.getAppNumArgs}, found {ys.size}. Underapplied recursive call?"
           return false
         if (← (t.getAppArgs.zip ys).allM (fun (t,s) => isDefEq t s)) then
-          main.mvarId!.assign (mkAppN (mkAppN localDecl.toExpr mvars) ys[t.getAppNumArgs...*])
+          let recApp := mkAppN (mkAppN localDecl.toExpr mvars) ys[t.getAppNumArgs...*]
+          let recApp := andProj i n recApp
+          main.mvarId!.assign recApp
           return ← mvars.allM fun v => do
             unless (← v.mvarId!.isAssigned) do
               trace[Elab.definition.structural] "Cannot use {mkFVar localDecl.fvarId}: parameter {v} remains unassigned"
@@ -80,13 +102,15 @@ private partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (posi
             if let some fidx := recFnNames.idxOf? c then
               let info := recArgInfos[fidx]!
               let (ind, i) := inv[fidx]!
-              return ← replaceIndPredRecApp info.fixedParamPerm funTypes[ind]! i (mkAppN f args)
+              let j := positions[ind]!.size
+              return ← replaceIndPredRecApp info.fixedParamPerm funTypes[fidx]! i j (mkAppN f args)
           return mkAppN (← loop f) args
       let some matcherApp ← matchMatcherApp? e | processApp e
       if recArgInfos.all (fun i => !recArgHasLooseBVarsAt i.fnName i.recArgPos e) then
         return ← processApp e
       trace[Elab.definition.structural] "matcherApp before adding below transformation:\n{matcherApp.toExpr}"
-      if let some (newApp, addMatcher) ← IndPredBelow.mkBelowMatcher matcherApp params then
+      let nrealParams := recArgInfos[0]!.indGroupInst.params.size
+      if let some (newApp, addMatcher) ← IndPredBelow.mkBelowMatcher matcherApp params nrealParams then
         modifyThe State fun s => { s with addMatchers := s.addMatchers.push addMatcher }
         let some _newApp ← matchMatcherApp? newApp | throwError "not a matcherApp: {newApp}"
         trace[Elab.definition.structural] "modified matcher:\n{newApp}"

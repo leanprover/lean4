@@ -228,10 +228,8 @@ return the indices of the fields corresponding to recursive calls.
 def belowRecIndices (val : ConstructorVal) (paramCount : Nat) : MetaM (Array Nat) := do
   forallTelescope val.type fun vars _ => do
     let motives := vars.extract paramCount val.numParams
-    trace[Meta.IndPredBelow.match] "motives {motives}"
     vars.filterMapM (start := val.numParams) fun e => do
       let type ← inferType e
-      trace[Meta.IndPredBelow.match] "check {e} : {type}"
       let .app f a := type.getForallBody | return none
       let a@(.fvar _) := a.getAppFn | return none
       let f@(.fvar _) := f.getAppFn | return none
@@ -244,8 +242,10 @@ open Match
 This function adds an additional `below` discriminant to a matcher application.
 It is used for modifying the patterns, such that the structural recursion can use the new
 `below` predicate instead of the original one and thus be used prove structural recursion.
+`belowParams` are the parameters for the `below` applications where the first `nrealParams` are
+actual parameters and the remaining are motives.
 -/
-partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) :
+partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) (nrealParams : Nat) :
     MetaM (Option (Expr × MetaM Unit)) :=
   withTraceNode `Meta.IndPredBelow (return m!"{exceptEmoji ·} {matcherApp.toExpr} and {belowParams}") do
   let mut input ← getMkMatcherInputInContext matcherApp
@@ -360,7 +360,7 @@ where
           modify fun decls => decls.push localDecl
           return .var h.fvarId!
     | .ctor ctorName us params fields =>
-      withTraceNode `Meta.IndPredBelow.match (return m!"{exceptEmoji ·} pattern {← originalPattern.toExpr}") do
+      withTraceNode `Meta.IndPredBelow.match (return m!"{exceptEmoji ·} pattern {← originalPattern.toExpr} to {belowIndName}") do
       let ctorInfo ← getConstInfoCtor ctorName
       let shortCtorName := ctorName.replacePrefix ctorInfo.induct .anonymous
       let belowCtor ← getConstInfoCtor (belowIndName ++ shortCtorName)
@@ -369,7 +369,7 @@ where
       trace[Meta.IndPredBelow.match] "instantiate {type} with {belowParams} {fieldExprs}}"
       let type ← instantiateForall type belowParams
       let type ← instantiateForall type fieldExprs
-      let recIdxs ← belowRecIndices belowCtor ctorInfo.numParams
+      let recIdxs ← belowRecIndices belowCtor nrealParams
       trace[Meta.IndPredBelow.match] "rec indices {.ofConstName belowCtor.name} {recIdxs}"
       forallTelescope type fun vars _ => do
         -- even var indices are `below`s, odd indices `motive`s

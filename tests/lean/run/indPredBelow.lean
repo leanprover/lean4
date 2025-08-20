@@ -115,8 +115,6 @@ info: OddDist.brecOn {motive_1 : (a a_1 : Nat) → EvenDist a a_1 → Prop} {mot
 #guard_msgs in
 #check OddDist.brecOn
 
-/- mutual recursion not supported yet -/
-
 mutual
 
 theorem OddDist.recTest {a b} (h : OddDist b a) : True :=
@@ -142,27 +140,6 @@ inductive Test (p : Nat → Prop) : Nat → Prop
   | zero : Test p 0
   | one (h : Test p 3 ∧ p 2) : Test p 1
 
-theorem Test.recTest (h : Test p n) : True :=
-  match h with
-  | .zero => trivial
-  | .one ⟨h, h'⟩ => recTest h
-termination_by structural h
-
-mutual
-
-theorem Test.recTest3 (h : Test p 3 ∧ p 2) : True :=
-  match h with
-  | ⟨h, h'⟩ => recTest2 h
-termination_by structural h
-
-theorem Test.recTest2 (h : Test p n) : True :=
-  match h with
-  | .zero => trivial
-  | .one h => recTest3 h
-termination_by structural h
-
-end
-
 /--
 info: Test.brecOn {p : Nat → Prop} {motive_1 : (a : Nat) → Test p a → Prop} {motive_2 : Test p 3 ∧ p 2 → Prop} {a✝ : Nat}
   (t : Test p a✝) (F_1 : ∀ (a : Nat) (t : Test p a), t.below → motive_1 a t)
@@ -178,6 +155,29 @@ info: Test.brecOn_1 {p : Nat → Prop} {motive_1 : (a : Nat) → Test p a → Pr
 -/
 #guard_msgs in
 #check Test.brecOn_1
+
+-- nested recursion
+theorem Test.recTest (h : Test p n) : True :=
+  match h with
+  | .zero => trivial
+  | .one ⟨h, h'⟩ => recTest h
+termination_by structural h
+
+-- mutual nested recursion
+mutual
+
+theorem Test.recTest2 (h : Test p n) : True :=
+  match h with
+  | .zero => trivial
+  | .one h => recTest3 h
+termination_by structural h
+
+theorem Test.recTest3 (h : Test p 3 ∧ p 2) : True :=
+  match h with
+  | ⟨h, _⟩ => recTest2 h
+termination_by structural h
+
+end
 
 /-!
 Reflexive inductives
@@ -210,7 +210,7 @@ inductive And2 (p : Prop) : (q : Prop) → Prop where
 
 inductive Test' (p : Nat → Prop) : Nat → Prop where
   | zero : Test' p 0
-  | succ (h : And2 (Test' p 2) (p 3)) : Test' p 1
+  | one (h : And2 (Test' p 2) (p 3)) : Test' p 1
 
 /--
 info: Test'.brecOn {p : Nat → Prop} {motive_1 : (a : Nat) → Test' p a → Prop}
@@ -221,16 +221,8 @@ info: Test'.brecOn {p : Nat → Prop} {motive_1 : (a : Nat) → Test' p a → Pr
 #guard_msgs in
 #check Test'.brecOn
 
-mutual
-
-def testMe (x : Nat) : Nat :=
-  match x with
-  | 0 => 123
-  | k + 1 => testMe2 k
-
-def testMe2 (x : Nat) : Nat :=
-  match x with
-  | 0 => 241
-  | k + 1 => testMe k
-
-end
+theorem Test'.recTest (h : Test p n) : True :=
+  match h with
+  | .zero => trivial
+  | .one ⟨h, h'⟩ => recTest h
+termination_by structural h

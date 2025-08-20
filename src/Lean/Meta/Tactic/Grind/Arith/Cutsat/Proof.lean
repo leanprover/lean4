@@ -230,6 +230,7 @@ private def _root_.Int.Linear.Poly.denoteExprUsingCurrVars (p : Poly) : ProofM E
 inductive MulEqProof where
   | const (k : Int) (h : Expr)
   | mulVar (k : Int) (a : Expr) (h : Expr)
+  | none
 
 mutual
 partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
@@ -289,14 +290,15 @@ partial def mkMulEqProof (x : Var) (a? : Option Expr) (cs : Array (Expr × Int �
   | .mulVar k a h =>
     assert! a? == some a
     let y ← getVarOf a
-    trace[Meta.debug] "a: {a}, y: {y}"
     return mkApp7 (mkConst ``Int.Linear.of_var_eq_mul) (← getContext) (← mkVarDecl x) (toExpr k) (← mkVarDecl y) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+  | .none =>
+    throwError "`grind` internal error, cutsat failed to construct proof for multiplication equality"
 where
   goVar (e : Expr) : ProofM MulEqProof := do
     if some e == a? then
       return .mulVar 1 e (mkApp (mkConst ``Int.Linear.eq_one_mul) e)
     else
-      let some (_, k, c) := cs.find? fun (e', _, _) => e' == e | throwError "`grind` internal error, proof not found for{indentExpr e}"
+      let some (_, k, c) := cs.find? fun (e', _, _) => e' == e | return .none
       let x ← getVarOf e
       let h := mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
       return .const k h
@@ -305,7 +307,11 @@ where
     let_expr HMul.hMul _ _ _ i a b := e | goVar e
     if !(← isInstHMulInt i) then goVar e else
     let ha ← go a
+    if let .const 0 h := ha then
+      return .const 0 (mkApp3 (mkConst ``Int.Linear.mul_eq_zero_left) a b h)
     let hb ← go b
+    if let .const 0 h := hb then
+      return .const 0 (mkApp3 (mkConst ``Int.Linear.mul_eq_zero_right) a b h)
     match ha, hb with
     | .const k₁ h₁, .const k₂ h₂ =>
       let k := k₁*k₂
@@ -319,7 +325,7 @@ where
       let k := k₁*k₂
       let h := mkApp9 (mkConst ``Int.Linear.mul_eq_kxk) a b (toExpr k₁) c (toExpr k₂) (toExpr k) h₁ h₂ eagerReflBoolTrue
       return .mulVar k c h
-    | _, _ => throwError "`grind` internal error, unexpected multiplication `{e}` in cutsat"
+    | _, _ => return .none
 
 partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"

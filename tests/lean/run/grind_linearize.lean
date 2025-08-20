@@ -4,6 +4,9 @@ example (x y z w : Int) : z * x * y = 4 → x = z + w → z = 1 → w = 2 → Fa
 example (x y z w : Int) : y * z * x = 4 → x = z + w → z = 1 → w = 2 → False := by
   grind -ring
 
+example (x y z w : Int) : y * z * x * w = 4 → x = 0 → False := by
+  grind -ring
+
 example (x y z w : Int) : x = z + w → z = 1 → w = 2 → z * x * y = 4 → False := by
   grind -ring
 
@@ -23,7 +26,7 @@ example (x y : Int) : 1 ≤ x → x ≤ 1 → 2 ≤ y → y ≤ 2 → x * y = 2 
   grind -ring
 
 example (a : Nat) (ha : a < 8) (b : Nat) (hb : b = 2) : a * b < 8 * b := by
-  grind
+  grind -ring
 
 example (a : Nat) (ha : a < 8) (b c : Nat) : 2 ≤ b → c = 1 → b ≤ c + 1 → a * b < 8 * b := by
-  grind
+  grind -ring

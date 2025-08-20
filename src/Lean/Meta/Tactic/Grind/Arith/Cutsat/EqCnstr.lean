@@ -185,30 +185,34 @@ structure PropagateMul.State where
   a? : Option Expr := none
   k  : Int := 1
   cs : Array (Expr × Int × EqCnstr) := #[]
+  n  : Nat := 0 -- num unknowns
 
 private partial def propagateNonlinearMul (x : Var) : GoalM Bool := do
   let e ← getVar x
-  let some (_, { a?, k, cs }) ← go e |>.run {} |>.run | return false
-  if let some a := a? then
+  let (_, { a?, k, cs, n }) ← go e |>.run {}
+  if k == 0 || n == 0 then
+    let c := { p := .add 1 x (.num (-k)), h := .mul none cs : EqCnstr }
+    c.assert
+    return true
+  else if n > 1 then
+    return false
+  else
+    let some a := a? | unreachable!
     -- x = k*a
     let y ← mkVar a
     let c := { p := .add 1 x (.add (-k) y (.num 0)), h := .mul a? cs : EqCnstr }
     c.assert
     return true
-  else
-    -- x = k
-    let c := { p := .add 1 x (.num (-k)), h := .mul none cs : EqCnstr }
-    c.assert
-    return true
 where
-  goVar (e : Expr) : StateT PropagateMul.State (OptionT GoalM) Unit := do
+  goVar (e : Expr) : StateT PropagateMul.State GoalM Unit := do
     if let some (k', c) ← isExprEqConst? e then
-      modify fun { a?, k, cs } => { a?, k := k*k', cs := cs.push (e, k', c) }
+      modify fun { a?, k, cs, n } => { a?, k := k*k', cs := cs.push (e, k', c), n }
+    else if (← get).n == 0 then
+      modify fun { k, cs, .. } => { a? := some e, k, cs, n := 1 }
     else
-      guard (← get).a?.isNone
-      modify fun { k, cs, .. } => { a? := some e, k, cs }
+      modify fun { k, cs, a?, n } => { a?, k, cs, n := n + 1 }
 
-  go (e : Expr) : StateT PropagateMul.State (OptionT GoalM) Unit := do
+  go (e : Expr) : StateT PropagateMul.State GoalM Unit := do
     let_expr HMul.hMul _ _ _ i a b := e | goVar e
     if (← isInstHMulInt i) then
       go a; go b

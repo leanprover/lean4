@@ -9,8 +9,7 @@ prelude
 public import Lean.AddDecl
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.CompletionName
-
-public section
+import Lean.Meta.NatTable
 
 /-!
 This module produces a construction for the `noConfusionType` that is linear in size in the number of
@@ -57,21 +56,6 @@ def canUse : MetaM Bool := do
   unless backwards.linearNoConfusionType.get (← getOptions) do return false
   unless (← NoConfusionLinear.deps.allM (hasConst · (skipRealize := true))) do return false
   return true
-
-def mkNatLookupTable (n : Expr) (type : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
-  let u ← getLevel type
-  let rec go (start stop : Nat) (hstart : start < stop := by omega) (hstop : stop ≤ es.size := by omega) : MetaM Expr := do
-    if h : start + 1 = stop then
-      return es[start]
-    else
-      let mid := (start + stop) / 2
-      let low ← go start mid
-      let high ← go mid stop
-      return mkApp4 (mkConst ``cond [u]) type (mkApp2 (mkConst ``Nat.blt) n (mkRawNatLit mid)) low high
-  if h : es.size = 0 then
-    pure default
-  else
-    go 0 es.size
 
 -- Right-associates the top-most `max`s to work around #5695 for prettier code
 private def reassocMax (l : Level) : Level :=

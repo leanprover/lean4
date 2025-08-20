@@ -226,3 +226,25 @@ theorem Test'.recTest (h : Test p n) : True :=
   | .zero => trivial
   | .one ⟨h, h'⟩ => recTest h
 termination_by structural h
+
+/-!
+Recursion with the same inductive twice
+-/
+
+inductive NatProp : Prop where
+  | zero
+  | succ (k : NatProp) : NatProp
+
+mutual
+
+theorem NatProp.recTest1 (x : NatProp) : True :=
+  match x with
+  | .zero => trivial
+  | .succ k => k.recTest2
+
+theorem NatProp.recTest2 (x : NatProp) : True :=
+  match x with
+  | .zero => trivial
+  | .succ k => k.recTest1
+
+end

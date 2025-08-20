@@ -70,7 +70,7 @@ jobs:
         restore-keys: |
           Linux Lake-build-v3
     - if: env.should_update_stage0 == 'yes'
-      run: cmake --preset release
+      run: cmake --preset release -DUSE_LAKE=ON
       shell: 'nix develop -c bash -euxo pipefail {0}'
     - if: env.should_update_stage0 == 'yes'
       run: make -j$NPROC -C build/release  update-stage0-commit

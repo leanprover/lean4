@@ -53,6 +53,11 @@ There are also two alternative presets that combine some of these options you ca
   Select the C/C++ compilers to use. Official Lean releases currently use Clang;
   see also `.github/workflows/ci.yml` for the CI config.
 
+* `-DUSE_LAKE=ON`\
+  Experimental option to build the core libraries using Lake instead of `lean.mk`.  Caveats:
+  * As native code compilation is still handled by cmake, changes to stage0/ (such as from `git pull`) are picked up only when invoking the build via `make`, not via `Refresh Dependencies` in the editor.
+  * `USE_LAKE` is not yet compatible with `LAKE_ARTIFACT_CACHE`
+
 Lean will automatically use [CCache](https://ccache.dev/) if available to avoid
 redundant builds, especially after stage 0 has been updated.
 

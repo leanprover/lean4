@@ -131,6 +131,24 @@ private def isCtorUsing (b : FnBody) (x : VarId) : Bool :=
   | .vdecl _ _ (.ctor _ ys) _ => argsContainsVar ys x
   | _ => false
 
+inductive UseClassification where
+  | ownedArg
+  | other
+  | none
+
+private def classifyUse (b : FnBody) (x : VarId) : M UseClassification := do
+  match b with
+  | .vdecl _ _ e@(.fap ..) _ | .vdecl _ _ e@(.pap ..) _ | .vdecl _ _ e@(.ap ..) _ =>
+    if e.hasFreeVar x then
+      return .ownedArg
+    else
+      return .none
+  | _ =>
+    if b.hasFreeVar x then
+      return .other
+    else
+      return .none
+
 /--
 Given `Dmain b`, the resulting pair `(new_b, flag)` contains the new body `new_b`,
 and `flag == true` if `x` is live in `b`.
@@ -169,13 +187,15 @@ private partial def Dmain (x : VarId) (c : CtorInfo) (e : FnBody) : M (FnBody ×
         let (b, found) ← Dmain x c b
         if found then
           return (instr.setBody b, true)
-        else if !instr.hasFreeVar x then
-          return (instr.setBody b, false)
-        else if instr matches .vdecl _ _ (.fap ..) _ then
-          return (instr.setBody b, true)
         else
-          let b ← tryS x c b
-          return (instr.setBody b, true)
+          match (← classifyUse instr x) with
+          | .ownedArg =>
+            return (instr.setBody b, true)
+          | .other =>
+            let b ← tryS x c b
+            return (instr.setBody b, true)
+          | .none =>
+            return (instr.setBody b, false)
 
 private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
   Dmain x c b >>= Dfinalize x c

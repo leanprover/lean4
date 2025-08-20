@@ -25,17 +25,17 @@ def MacroScopesView.format (view : MacroScopesView) (mainModule : Name) : Format
   Std.format <|
     if view.scopes.isEmpty then
       view.name
-    else if view.mainModule == mainModule then
+    else if view.ctx == mainModule then
       view.scopes.foldl Name.mkNum (view.name ++ view.imported)
     else
-      view.scopes.foldl Name.mkNum (view.name ++ view.imported ++ view.mainModule)
+      view.scopes.foldl Name.mkNum (view.name ++ view.imported ++ view.ctx)
 
 /--
 Two names are from the same lexical scope if their scoping information modulo `MacroScopesView.name`
 is equal.
 -/
 def MacroScopesView.equalScope (a b : MacroScopesView) : Bool :=
-  a.scopes == b.scopes && a.mainModule == b.mainModule && a.imported == b.imported
+  a.scopes == b.scopes && a.ctx == b.ctx && a.imported == b.imported
 
 namespace Elab
 

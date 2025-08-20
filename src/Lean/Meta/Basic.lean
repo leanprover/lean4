@@ -1053,7 +1053,7 @@ def getFVarFromUserName (userName : Name) : MetaM Expr := do
 Lift a `MkBindingM` monadic action `x` to `MetaM`.
 -/
 @[inline] def liftMkBindingM (x : MetavarContext.MkBindingM α) : MetaM α := do
-  match x { lctx := (← getLCtx), mainModule := (← getEnv).mainModule } { mctx := (← getMCtx), ngen := (← getNGen), nextMacroScope := (← getThe Core.State).nextMacroScope } with
+  match x { lctx := (← getLCtx), quotContext := (← readThe Core.Context).quotContext } { mctx := (← getMCtx), ngen := (← getNGen), nextMacroScope := (← getThe Core.State).nextMacroScope } with
   | .ok e sNew => do
     setMCtx sNew.mctx
     modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }

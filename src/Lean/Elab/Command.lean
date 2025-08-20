@@ -107,6 +107,7 @@ structure Context where
   currRecDepth   : Nat := 0
   cmdPos         : String.Pos := 0
   macroStack     : MacroStack := []
+  quotContext?   : Option Name := none
   currMacroScope : MacroScope := firstFrontendMacroScope
   ref            : Syntax := Syntax.missing
   /--
@@ -217,6 +218,18 @@ instance : MonadDeclNameGenerator CommandElabM where
   getDeclNGen := return (← get).auxDeclNGen
   setDeclNGen ngen := modify fun s => { s with auxDeclNGen := ngen }
 
+protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
+protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
+
+protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
+  let fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
+  withReader (fun ctx => { ctx with currMacroScope := fresh }) x
+
+instance : MonadQuotation CommandElabM where
+  getCurrMacroScope   := Command.getCurrMacroScope
+  getContext          := do (← read).quotContext?.getDM getMainModule
+  withFreshMacroScope := Command.withFreshMacroScope
+
 private def runCore (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
@@ -232,6 +245,7 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     currNamespace      := scope.currNamespace
     openDecls          := scope.openDecls
     initHeartbeats     := heartbeats
+    quotContext        := (← MonadQuotation.getMainModule)
     currMacroScope     := ctx.currMacroScope
     options            := scope.opts
     cancelTk?          := ctx.cancelTk?
@@ -410,18 +424,6 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
     BaseIO.mapTask (t := treeTask) fun _ =>
       lintAct infoSt
   logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
-
-protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
-protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
-
-protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
-  let fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
-  withReader (fun ctx => { ctx with currMacroScope := fresh }) x
-
-instance : MonadQuotation CommandElabM where
-  getCurrMacroScope   := Command.getCurrMacroScope
-  getMainModule       := Command.getMainModule
-  withFreshMacroScope := Command.withFreshMacroScope
 
 /--
 Registers a command elaborator for the given syntax node kind.

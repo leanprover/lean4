@@ -127,26 +127,17 @@ def blastAddVec (aig : AIG α) (usedNodes validNodes : Nat) (oldParSum : RefVecV
       (newParSum : RefVecVec aig w w) (hval : validNodes ≤ w) :
     RefVecEntryVec α w w :=
     if hc1 : usedNodes < validNodes then
-      if hc2 : usedNodes + 1 < validNodes then
-        let res := blastAdd aig ⟨oldParSum.vec.get ⟨usedNodes, by omega⟩, oldParSum.vec.get ⟨usedNodes + 1, by omega⟩⟩
-        let aig := res.aig
-        let add := res.vec
-        have := AIG.LawfulVecOperator.le_size (f := blastAdd) ..
-        let oldParSum := oldParSum.cast (aig2 := aig) this
-        let newVec := newParSum.set ((usedNodes + 1)/ 2) add (by omega) (by omega) -- set also includes casting
-        blastAddVec aig (usedNodes + 2) validNodes oldParSum newVec hval
-      else
-        let zero := blastConst aig (w := w) 0
-        let res := blastAdd aig ⟨oldParSum.vec.get ⟨usedNodes, by omega⟩, zero⟩
-        let aig := res.aig
-        let add := res.vec
-        have := AIG.LawfulVecOperator.le_size (f := blastAdd) ..
-        let oldParSum := oldParSum.cast (aig2 := aig) this
-        let newVec := newParSum.set ((usedNodes + 1)/ 2) add (by omega) (by omega) -- set also includes casting
-        blastAddVec aig (usedNodes + 2) validNodes oldParSum newVec hval
+      let rhs := if h : usedNodes + 1 < validNodes then
+        oldParSum.vec.get ⟨usedNodes + 1, by omega⟩ else blastConst aig (w := w) 0
+      let res := blastAdd aig ⟨oldParSum.vec.get ⟨usedNodes, by omega⟩, rhs⟩
+      let aig := res.aig
+      let add := res.vec
+      have := AIG.LawfulVecOperator.le_size (f := blastAdd) ..
+      let oldParSum := oldParSum.cast (aig2 := aig) this
+      let newVec := newParSum.set ((usedNodes + 1)/ 2) add this (by omega) -- set also includes casting
+      blastAddVec aig (usedNodes + 2) validNodes oldParSum newVec hval
     else
       ⟨aig, newParSum⟩
-
 
 theorem addVec_le_size (aig : AIG α) (usedNodes validNodes: Nat) (oldParSum : RefVecVec aig w w) (newParSum : RefVecVec aig w w)
               (hvalid : validNodes ≤ w) :
@@ -154,7 +145,7 @@ theorem addVec_le_size (aig : AIG α) (usedNodes validNodes: Nat) (oldParSum : R
   unfold blastAddVec
   dsimp only
   split
-  · split
+  · simp
     <;> (refine Nat.le_trans ?_ (by apply addVec_le_size); apply AIG.LawfulVecOperator.le_size)
   · simp
 
@@ -166,13 +157,7 @@ theorem addVec_decl_eq (aig : AIG α) (usedNodes validNodes: Nat) (oldParSum : R
   unfold blastAddVec at hres
   dsimp only at hres
   split at hres
-  · split at hres
-    · rw [← hres]
-      intros
-      rw [addVec_decl_eq]
-      · apply AIG.LawfulVecOperator.decl_eq (f := blastAdd)
-      · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastAdd)
-        assumption
+  · simp at hres
     · rw [← hres]
       intros
       rw [addVec_decl_eq]

@@ -99,9 +99,6 @@ example (p : Nat) (heq : p = 0) (n : Fin (p + 1)) : n = 0 := by
   grind
 
 example (p : Nat) (heq : p = 1) (n : Fin (p + 1)) : n = 0 ∨ n = 1 := by
-  set_option trace.grind.assert true in
-  set_option trace.grind.simp true in
-  set_option trace.grind.cutsat.assert true in
   grind
 
 example (s : Nat)
@@ -112,4 +109,7 @@ example {n : Nat} (j : Fin (n + 1)) : j ≤ j := by
   grind
 
 example {n : Nat} (x y : Fin ((n + 1) + 1)) (h₂ : ¬x = y) (h : ¬x < y) : y < x := by
+  grind
+
+example (p : Nat) (n : BitVec p) : 1 ≤ p → p ≤ 1 → n = 0 ∨ n = 1 := by
   grind

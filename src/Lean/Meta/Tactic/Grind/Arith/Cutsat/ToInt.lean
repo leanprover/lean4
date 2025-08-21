@@ -26,22 +26,24 @@ private def checkDecl (declName : Name) : MetaM Unit := do
   unless (← getEnv).contains declName do
     throwMissingDecl declName
 
-private def normalizeBound (bound : Expr) : GrindM Expr := do
+private def normalizeBound (bound : Expr) : GrindM SymbolicBound := do
   if let some bound ← evalInt? bound then
-    return mkIntLit bound
+    return { val := mkIntLit bound, ival? := some bound }
   else
-    return bound
+    return { val := bound, ival? := none }
 
-private def isZeroInt (e : Expr) : MetaM Bool := do
-  let some val ← getIntValue? e | return false
-  return val == 0
+def SymbolicBound.isZero (b : SymbolicBound) : Bool :=
+  if let some b := b.ival? then
+    b == 0
+  else
+    false
 
-/-- Given an integer expression `e`, returns `-e + 1` -/
-private def mkIntNegSucc (e : Expr) : MetaM Expr := do
-  if let some val ← getIntValue? e then
+/-- Given a symbolic bound `b`, returns `-b + 1` -/
+def SymbolicBound.mkIntNegSucc (b : SymbolicBound) : MetaM Expr := do
+  if let some val := b.ival? then
     return mkIntLit (-val + 1)
   else
-    return mkIntAdd (mkIntNeg e) (mkIntLit 1)
+    return mkIntAdd (mkIntNeg b.val) (mkIntLit 1)
 
 def getToIntId? (type : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').toIntIds.find? { expr := type } then
@@ -76,30 +78,30 @@ where
     let toInt := mkApp3 (mkConst ``Grind.ToInt.toInt [u]) type rangeExpr toIntInst
     let wrap := mkApp (mkConst ``Grind.IntInterval.wrap) rangeExpr
     let ofWrap0? ← if let .co lo hi := range then
-      if (← isZeroInt lo) then
-        pure <| some <| mkApp3 (mkConst ``Grind.ToInt.of_eq_wrap_co_0) rangeExpr hi (← mkEqRefl rangeExpr)
+      if lo.isZero then
+        pure <| some <| mkApp3 (mkConst ``Grind.ToInt.of_eq_wrap_co_0) rangeExpr hi.val (← mkEqRefl rangeExpr)
       else pure none
       else pure none
     let ofEq := mkApp3 (mkConst ``Grind.ToInt.of_eq [u]) type rangeExpr toIntInst
     let ofDiseq := mkApp3 (mkConst ``Grind.ToInt.of_diseq [u]) type rangeExpr toIntInst
     let lowerThm? ← if let some lo := range.lo? then
-      if let some lo' ← getIntValue? lo then
+      if let some lo' := lo.ival? then
         if lo' == 0 then
           pure <| some <| mkApp4 (mkConst ``Grind.ToInt.ge_lower0 [u]) type rangeExpr toIntInst eagerReflBoolTrue
         else
-          pure <| some <| mkApp5 (mkConst ``Grind.ToInt.ge_lower [u]) type rangeExpr toIntInst lo eagerReflBoolTrue
+          pure <| some <| mkApp5 (mkConst ``Grind.ToInt.ge_lower [u]) type rangeExpr toIntInst lo.val eagerReflBoolTrue
       else
         -- Symbolic case
-        let some_lo ← mkSome Int.mkType lo
-        pure <| some <| mkApp5 (mkConst ``Grind.ToInt.ge_lower' [u]) type rangeExpr toIntInst lo (← mkEqRefl some_lo)
+        let some_lo ← mkSome Int.mkType lo.val
+        pure <| some <| mkApp5 (mkConst ``Grind.ToInt.ge_lower' [u]) type rangeExpr toIntInst lo.val (← mkEqRefl some_lo)
     else pure none
     let upperThm? ← if let some hi := range.hi? then
-      if let some _ ← getIntValue? hi then
-        pure <| some <| mkApp5 (mkConst ``Grind.ToInt.le_upper [u]) type rangeExpr toIntInst (← mkIntNegSucc hi) eagerReflBoolTrue
+      if hi.isNumeral then
+        pure <| some <| mkApp5 (mkConst ``Grind.ToInt.le_upper [u]) type rangeExpr toIntInst (← hi.mkIntNegSucc) eagerReflBoolTrue
       else
         -- Symbolic case
-        let some_hi ← mkSome Int.mkType hi
-        pure <| some <| mkApp5 (mkConst ``Grind.ToInt.le_upper' [u]) type rangeExpr toIntInst hi (← mkEqRefl some_hi)
+        let some_hi ← mkSome Int.mkType hi.val
+        pure <| some <| mkApp5 (mkConst ``Grind.ToInt.le_upper' [u]) type rangeExpr toIntInst hi.val (← mkEqRefl some_hi)
     else pure none
     trace[grind.debug.cutsat.toInt] "registered toInt: {type}"
     let id := (← get').toIntInfos.size
@@ -320,7 +322,7 @@ private def hasNumericLoHi : ToIntM Bool := do
   let info ← getInfo
   let some lo := info.range.lo? | return false
   let some hi := info.range.hi? | return false
-  return (← getIntValue? lo).isSome && (← getIntValue? hi).isSome
+  return lo.isNumeral && hi.isNumeral
 
 /--
 Given `h : toInt a = i.wrap b`, return `(b', h)` where
@@ -331,11 +333,11 @@ private def expandWrap (a b : Expr) (h : Expr) : ToIntM (Expr × Expr) := do
   match range with
   | .ii => return (b, h)
   | .co lo hi =>
-    if (← isZeroInt lo) then
-      let b' := mkIntMod b hi
+    if lo.isZero then
+      let b' := mkIntMod b hi.val
       let toA := mkApp (← getInfo).toInt a
       let h := mkApp3 (← getInfo).ofWrap0?.get! toA b h
-      if (← getIntValue? hi).isSome then
+      if hi.isNumeral then
         return (b', h)
       else
         -- We must preprocess `b'` because `hi` has not been normalized and may interact with `%`
@@ -493,7 +495,7 @@ def assertToIntBounds (e : Expr) (x : Var) : GoalM Unit := do
   let i := info.range
   if let some lo := i.lo? then
     let some thm := info.lowerThm? | unreachable!
-    if let some lo ← getIntValue? lo then
+    if let some lo := lo.ival? then
       let p := .add (-1) x (.num lo)
       let c := { p, h := .bound (mkApp thm a) : LeCnstr }
       c.assert
@@ -501,7 +503,7 @@ def assertToIntBounds (e : Expr) (x : Var) : GoalM Unit := do
       pushNewFact <| mkApp thm a
   if let some hi := i.hi? then
     let some thm := info.upperThm? | unreachable!
-    if let some hi ← getIntValue? hi then
+    if let some hi := hi.ival? then
       let p := .add 1 x (.num (-hi + 1))
       let c := { p, h := .bound (mkApp thm a) : LeCnstr }
       c.assert

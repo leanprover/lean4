@@ -49,11 +49,20 @@ structure ToIntThms where
   c_wr? : Option Expr := none
   deriving Inhabited
 
+structure SymbolicBound where
+  val : Expr
+  -- cached int value if `val` is a numeric
+  ival? : Option Int
+  deriving Inhabited
+
+def SymbolicBound.isNumeral (b : SymbolicBound) : Bool :=
+  b.ival?.isSome
+
 /-- Similar to `IntInterval`, but with symbolic bounds. -/
 inductive SymbolicIntInterval : Type where
-  | co (lo hi : Expr)
-  | ci (lo : Expr)
-  | io (hi : Expr)
+  | co (lo hi : SymbolicBound)
+  | ci (lo : SymbolicBound)
+  | io (hi : SymbolicBound)
   | ii
   deriving Inhabited
 
@@ -62,12 +71,12 @@ def SymbolicIntInterval.isFinite (i : SymbolicIntInterval) : Bool :=
   | .co _ _ => true
   | .ci _ | .io _ | .ii => false
 
-def SymbolicIntInterval.lo? (i : SymbolicIntInterval) : Option Expr :=
+def SymbolicIntInterval.lo? (i : SymbolicIntInterval) : Option SymbolicBound :=
   match i with
   | .co lo _ | .ci lo => some lo
   | .io _ | .ii => none
 
-def SymbolicIntInterval.hi? (i : SymbolicIntInterval) : Option Expr :=
+def SymbolicIntInterval.hi? (i : SymbolicIntInterval) : Option SymbolicBound :=
   match i with
   | .co _ hi | .io hi => some hi
   | .ci _ | .ii => none
@@ -75,17 +84,17 @@ def SymbolicIntInterval.hi? (i : SymbolicIntInterval) : Option Expr :=
 def SymbolicIntInterval.wrap (i : SymbolicIntInterval) (x : Expr) : MetaM Expr := do
   match i with
   | .co lo hi =>
-    if let some lo' ← getIntValue? lo then
-      if let some hi' ← getIntValue? hi then
+    if let some lo' := lo.ival? then
+      if let some hi' := hi.ival? then
         if let some x ← getIntValue? x then
           return mkIntLit ((x - lo') % (hi' - lo') + lo')
         else if lo' == 0 then
-          return mkIntMod x hi
+          return mkIntMod x hi.val
         else
-          return mkIntAdd (mkIntMod (mkIntSub x lo) (mkIntLit (hi' - lo'))) lo
+          return mkIntAdd (mkIntMod (mkIntSub x (mkIntLit lo')) (mkIntLit (hi' - lo'))) (mkIntLit lo')
       if lo' == 0 then
-        return mkIntMod x hi
-    return mkIntAdd (mkIntMod (mkIntSub x lo) (mkIntSub hi lo)) lo
+        return mkIntMod x hi.val
+    return mkIntAdd (mkIntMod (mkIntSub x lo.val) (mkIntSub hi.val lo.val)) lo.val
   | .ci _ => throwError "`grind` internal error, `.ci` interval support has not been implemented yet"
   | .io _ => throwError "`grind` internal error, `.io` interval support has not been implemented yet"
   | .ii => return x

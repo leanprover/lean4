@@ -85,19 +85,17 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
     if !(← MonadLog.hasErrors) && decl.hasSorry then
       -- Find an actual sorry expression to use for 'sorry'.
       -- That way the user can hover over it to see its type and use "go to definition" if it is a labeled sorry.
-      let sorryRef : IO.Ref (Array (Bool × MessageData)) ← IO.mkRef #[]
-      let findSorry : MetaM Unit := decl.forEachSorryM fun s => do
+      let findSorry : StateRefT (Array (Bool × MessageData)) MetaM Unit := decl.forEachSorryM fun s => do
         let s' ← addMessageContext s
-        sorryRef.modify fun arr => arr.push (s.isSyntheticSorry, s')
-      findSorry.run'
-      let sorries ← sorryRef.get
+        modify fun arr => arr.push (s.isSyntheticSorry, s')
+      let (_, sorries) ← findSorry |>.run #[] |>.run'
       -- Prefer reporting a synthetic sorry.
       -- These can appear without logged errors if `decl` is referring to declarations with elaboration errors;
       -- that's where a user should direct their focus.
       if let some (_, s) := sorries.find? (·.1) <|> sorries[0]? then
         logWarning <| .tagged `hasSorry m!"declaration uses '{s}'"
       else
-        -- This case should not happen, but it's a safeguard to make sure a warning is logged.
+        -- This case should not happen, but it ensures a warning will get logged no matter what.
         logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
 
 def addDecl (decl : Declaration) : CoreM Unit := do

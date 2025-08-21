@@ -1,3 +1,4 @@
+module
 open Lean.Grind
 
 #synth ToInt.Add Nat (.ci 0)

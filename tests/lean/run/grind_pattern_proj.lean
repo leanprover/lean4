@@ -1,3 +1,4 @@
+module
 universe v v₁ v₂ u u₁ u₂
 
 namespace CategoryTheory

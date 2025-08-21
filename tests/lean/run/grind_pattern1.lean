@@ -1,3 +1,6 @@
+module
+@[expose] public section -- TODO: remove after we fix congr_eq
+
 set_option trace.grind.ematch.pattern true
 
 /--

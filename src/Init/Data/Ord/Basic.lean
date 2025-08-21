@@ -96,7 +96,7 @@ Ordering.lt
   | a => a
 
 /-- Version of `Ordering.then'` for proof by reflection. -/
-noncomputable def then' (a b : Ordering) : Ordering :=
+@[expose] noncomputable def then' (a b : Ordering) : Ordering :=
   Ordering.rec a b a a
 
 /--

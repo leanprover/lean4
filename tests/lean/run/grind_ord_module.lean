@@ -1,3 +1,4 @@
+module
 open Lean.Grind
 
 variable (R : Type u) [IntModule R] [LE R] [LT R] [LinearOrder R] [OrderedAdd R]

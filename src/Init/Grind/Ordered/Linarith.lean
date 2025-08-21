@@ -12,7 +12,7 @@ public import all Init.Data.Ord.Basic
 public import all Init.Data.AC
 public import Init.Data.RArray
 
-public section
+@[expose] public section
 
 /-!
 Support for the linear arithmetic module for `IntModule` in `grind`

@@ -1,3 +1,4 @@
+module
 example (x y z w : Int) : z * x * y = 4 → x = z + w → z = 1 → w = 2 → False := by
   grind -ring
 

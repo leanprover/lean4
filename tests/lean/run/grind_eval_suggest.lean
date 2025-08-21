@@ -1,5 +1,7 @@
-import Lean.Elab.Tactic.Try
-import Std.Tactic.BVDecide
+module
+public meta import Lean.Elab.Tactic
+public import Lean.Elab.Tactic.Try
+public import Std.Tactic.BVDecide
 
 open Lean Elab Tactic Try
 elab tk:"eval_suggest" tac:tactic : tactic => do

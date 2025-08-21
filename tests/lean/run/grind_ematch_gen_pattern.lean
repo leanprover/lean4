@@ -1,3 +1,4 @@
+module
 def f (x : Option Nat) (h : x ≠ none) : Nat :=
   match x with
   | none => by contradiction

@@ -1,3 +1,4 @@
+module
 open Lean Grind
 
 example [IntModule α] (x y : α) : x - y ≠ 0 - 2*y → x + y = 0 → False := by

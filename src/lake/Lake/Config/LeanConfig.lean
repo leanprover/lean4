@@ -20,6 +20,7 @@ namespace Lake
 -- 2025-06-08: `LeanOption` was moved to the `Lean` namespace
 export Lean (LeanOption)
 
+public section -- for public `BEq` from `DecidableEq`
 /--
 Compiler backend with which to compile Lean.
 -/
@@ -37,6 +38,7 @@ public inductive Backend
   -/
   | default
 deriving Repr, DecidableEq
+end
 
 namespace Backend
 

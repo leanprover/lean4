@@ -332,6 +332,7 @@ private def expandWrap (a b : Expr) (h : Expr) : ToIntM (Expr × Expr) := do
       if (← getIntValue? hi).isSome then
         return (b', h)
       else
+        -- We must preprocess `b'` because `hi` has not been normalized and may interact with `%`
         let r ← preprocess b'
         let h ← mkEqTrans h (← r.getProof)
         let b' := r.expr
@@ -339,8 +340,16 @@ private def expandWrap (a b : Expr) (h : Expr) : ToIntM (Expr × Expr) := do
         return (b', h)
     else
       let b' ← range.wrap b
-      -- TODO: symbolic case
-      return (b', h)
+      if (← getIntValue? lo).isSome && (← getIntValue? hi).isSome then
+        return (b', h)
+      else
+        -- We must preprocess `b'` because `lo` and/or `hi` are symbolic values that may
+        -- interact with the wrap operations and have not been normalized yet.
+        let r ← preprocess b'
+        let h ← mkEqTrans h (← r.getProof)
+        let b' := r.expr
+        internalize b' (← getGeneration b)
+        return (b', h)
   | _ => throwError "`grind cutsat`, `ToInt` interval not supported yet"
 
 /--

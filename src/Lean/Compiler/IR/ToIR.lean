@@ -176,6 +176,11 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
 
       let ⟨ctorInfo, fields⟩ ← getCtorLayout name
       let irArgs := irArgs.extract (start := ctorVal.numParams)
+      if irArgs.size != fields.size then
+        -- An overapplied constructor arises from compiler
+        -- transformations on unreachable code
+        return .unreachable
+
       let objArgs : Array Arg ← do
         let mut result : Array Arg := #[]
         for h : i in *...fields.size do

@@ -312,6 +312,10 @@ public theorem LawfulOrderLeftLeaningMin.of_eq {α : Type u} [LE α] [Min α] [D
   min_eq_left a b := by simp +contextual [min_eq]
   min_eq_right a b := by simp +contextual [min_eq]
 
+attribute [local instance] Min.leftLeaningOfLE
+public instance [LE α] [DecidableLE α] : LawfulOrderLeftLeaningMin α :=
+  .of_eq (fun a b => by simp [min])
+
 public instance {α : Type u} [LE α] [Min α] [LawfulOrderLeftLeaningMin α] :
     MinEqOr α where
   min_eq_or a b := by
@@ -341,11 +345,8 @@ end Std
 namespace Classical.Order
 open Std
 
-public noncomputable scoped instance instMin {α : Type u} [LE α] : Min α where
-  min a b := if a ≤ b then a else b
-
-public instance instLawfulOrderLeftLeaningMin {α : Type u} [LE α] :
-    LawfulOrderLeftLeaningMin α := .of_eq (by simp [min])
+public noncomputable scoped instance instMin {α : Type u} [LE α] : Min α :=
+  .leftLeaningOfLE α
 
 end Classical.Order
 
@@ -448,10 +449,6 @@ public theorem LawfulOrderLeftLeaningMax.of_eq {α : Type u} [LE α] [Max α] [D
   max_eq_left a b := by simp +contextual [min_eq]
   max_eq_right a b := by simp +contextual [min_eq]
 
-attribute [local instance] Min.leftLeaningOfLE
-public instance [LE α] [DecidableLE α] : LawfulOrderLeftLeaningMin α :=
-  .of_eq (fun a b => by simp [min])
-
 attribute [local instance] Max.leftLeaningOfLE
 public instance [LE α] [DecidableLE α] : LawfulOrderLeftLeaningMax α :=
   .of_eq (fun a b => by simp [max])
@@ -485,14 +482,7 @@ end Std
 namespace Classical.Order
 open Std
 
-public noncomputable scoped instance instMax {α : Type u} [LE α] : Max α where
-  max a b := if b ≤ a then a else b
-
-public instance instLawfulOrderLeftLeaningMax {α : Type u} [LE α] :
-    LawfulOrderLeftLeaningMax α := .of_eq (by simp [max])
+public noncomputable scoped instance instMax {α : Type u} [LE α] : Max α :=
+  .leftLeaningOfLE α
 
 end Classical.Order
-
-namespace Std
-
-end Std

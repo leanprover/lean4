@@ -17,10 +17,22 @@ This module provides utilities for the creation of order-related typeclass insta
 
 section OfLE
 
+/--
+Creates a `Min α` instance from `LE α` and `DecidableLE α` so that `min a b` is either `a` or `b`,
+preferring `a` over `b` when in doubt.
+
+Has a `LawfulOrderLeftLeaningMin α` instance.
+-/
 @[inline]
 public def _root_.Min.leftLeaningOfLE (α : Type u) [LE α] [DecidableLE α] : Min α where
   min a b := if a ≤ b then a else b
 
+/--
+Creates a `Max α` instance from `LE α` and `DecidableLE α` so that `max a b` is either `a` or `b`,
+preferring `a` over `b` when in doubt.
+
+Has a `LawfulOrderLeftLeaningMax α` instance.
+-/
 @[inline]
 public def _root_.Max.leftLeaningOfLE (α : Type u) [LE α] [DecidableLE α] : Max α where
   max a b := if b ≤ a then a else b

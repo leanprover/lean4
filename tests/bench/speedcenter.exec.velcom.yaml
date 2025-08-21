@@ -442,6 +442,18 @@
     <<: *time
     cmd: lean big_match.lean
 - attributes:
+    description: big_beq
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean big_beq.lean
+- attributes:
+    description: big_beq_rec
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean big_beq_rec.lean
+- attributes:
     description: nat_repr
     tags: [fast, suite]
   run_config:

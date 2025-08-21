@@ -570,12 +570,20 @@ where
           Meta.MetaM.run' <| Meta.forallTelescope ctorVal.type fun params indApp => do
             let ⟨indAppF, indAppArgs⟩ := indApp.getAppFnArgs
             assert! indAppF == typeName
+            -- TODO: We only use `toArray` so that we get access to `findIdx?`. Remove
+            -- this when that changes.
+            let indexArgs := indAppArgs[numParams...*].toArray
+
             let mut fieldArgs := .emptyWithCapacity numCtorFields
             for i in *...numCtorFields do
               let p := params[numParams + i]!
-              let .fvar fvarId := p | unreachable!
-              let decl ← fvarId.getDecl
-              fieldArgs := fieldArgs.push (mkLcProof decl.type)
+              let fieldArg ← if let some indexIdx := indexArgs.findIdx? (· == p) then
+                pure args[numParams + 1 + indexIdx]!
+              else
+                let .fvar fvarId := p | unreachable!
+                let decl ← fvarId.getDecl
+                pure <| mkLcProof decl.type
+              fieldArgs := fieldArgs.push fieldArg
             return fieldArgs
         let f := args[casesInfo.altsRange.lower]!
         let result ← visit (mkAppN f fieldArgs)

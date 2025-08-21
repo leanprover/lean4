@@ -253,6 +253,11 @@ theorem toRat_neg (x : Dyadic) : toRat (-x) = - toRat x := by
   · simp [Dyadic.neg, Rat.neg_mkRat, Int.neg_mul, toRat_of_eq_mkRat]
 
 @[simp]
+theorem toRat_sub (x y : Dyadic) : toRat (x - y) = toRat x - toRat y := by
+  change toRat (x + -y) = _
+  simp [Rat.sub_eq_add_neg]
+
+@[simp]
 theorem toRat_mul (x y : Dyadic) : toRat (x * y) = toRat x * toRat y := by
   match x, y with
   | .zero, _ => simp
@@ -345,6 +350,7 @@ theorem toRat_inj {x y : Dyadic} : x.toRat = y.toRat ↔ x = y := by
   · rename_i n₁ k₁ hn₁ n₂ k₂ hn₂
     replace h := congrArg (·.toDyadic (max k₁ k₂)) h
     simpa [toDyadic_toRat, precision, Int.le_max_left, Int.le_max_right] using h
+
 
 -- Define `blt` and `ble`, check they are compatible with `toRat`, and hence that we have `IsLinearOrder` and `IsOrderedRing`.
 

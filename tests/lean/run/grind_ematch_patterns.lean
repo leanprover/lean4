@@ -1,5 +1,4 @@
 module
-public section -- TODO: Fix error messages with private names.
 def replicate : (n : Nat) → (a : α) → List α
   | 0,   _ => []
   | n+1, a => a :: replicate n a

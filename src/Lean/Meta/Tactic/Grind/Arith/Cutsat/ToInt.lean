@@ -20,7 +20,7 @@ private def reportMissingToIntAdapter (type : Expr) (instType : Expr) : MetaM Un
   trace[grind.debug.cutsat.debug] "`ToInt` initialization failure, failed to synthesize{indentExpr instType}\nfor type{indentExpr type}"
 
 private def throwMissingDecl (declName : Name) : MetaM Unit :=
-  throwError "`grind cutsat`, unexpected missing declaration {declName}"
+  throwError "`grind cutsat`, unexpected missing declaration {.ofConstName declName}"
 
 private def checkDecl (declName : Name) : MetaM Unit := do
   unless (← getEnv).contains declName do

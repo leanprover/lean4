@@ -92,6 +92,7 @@ structure State where
   env            : Environment
   messages       : MessageLog := {}
   scopes         : List Scope := [{ header := "" }]
+  usedQuotCtxts  : NameSet := {}
   nextMacroScope : Nat := firstFrontendMacroScope + 1
   maxRecDepth    : Nat
   ngen           : NameGenerator := {}
@@ -613,12 +614,52 @@ builtin_initialize
   registerTraceClass `Elab.snapshotTree
 
 /--
+If `hint?` is `some hint`, establishes a new context for macro scope naming and runs `act` in it,
+otherwise runs `act` directly without changes.
+
+Context names as documented in Note `Macro Scope Representation` help with avoiding rebuilds and
+`prefer_native` lookup misses from macro scopes in declaration names and other exported information.
+This function establishes a new context with a globally unique name by combining the name of the
+current module with `hint` while also checking for previously used `hint`s in the same module.
+Thus `hint` does not need to be unique but ensuring it is usually unique helps with keeping the
+context name stable.
+
+In the current implementation, we call `withInitQuotContext` once in `elabCommandTopLevel` using the
+source input of the command as the hint. This helps with keeping macro scopes stable on changes to
+other parts of the file but not on changes to the command itself. Thus in each *declaration*
+elaborator we call `withInitQuotContext` again with the declaration name(s) as a hint so that
+changes to any other part of the declaration do not change the context name.
+-/
+def withInitQuotContext (hint? : Option UInt64) (act : CommandElabM Unit) : CommandElabM Unit := do
+  let some hint := hint?
+    | act
+  let mut idx := hint.toUInt32.toNat
+  while (← get).usedQuotCtxts.contains ((← getMainModule) ++ `_hygCtx |>.appendIndexAfter idx) do
+    idx := idx + 1
+  let quotCtx := (← getMainModule) ++ `_hygCtx |>.appendIndexAfter idx
+  let nextMacroScope := (← get).nextMacroScope
+  try
+    modify fun st => { st with
+      usedQuotCtxts  := st.usedQuotCtxts.insert quotCtx
+      nextMacroScope := firstFrontendMacroScope + 1
+    }
+    withReader (fun ctx => { ctx with
+      quotContext?   := some quotCtx
+      currMacroScope := firstFrontendMacroScope
+    }) act
+  finally
+    modify ({ · with nextMacroScope })
+
+/--
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
 macro expansion etc.
 -/
 def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do profileitM Exception "elaboration" (← getOptions) do
   withReader ({ · with suppressElabErrors :=
     stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
+  -- initialize quotation context using hash of input string
+  let ss? := stx.getSubstring? (withLeading := false) (withTrailing := false)
+  withInitQuotContext (ss?.map (hash ·.toString.trim)) do
   let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   let initInfoTrees ← getResetInfoTrees
   try

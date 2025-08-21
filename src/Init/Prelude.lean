@@ -4989,6 +4989,18 @@ foo.bla._@.Init.Data.List.Basic.2.1.Init.Lean.Expr._hyg.4
 ```
 
 The delimiter `_hyg` is used just to improve the `hasMacroScopes` performance.
+In practice, we further specify the context name down to be unique per declaration so that the
+numeric scopes are not influenced by the elaboration of preceding declarations. This helps both with
+ensuring declaration names are more stable so that `prefer_native` can find the correct native
+symbol as well as making exported information in general more stable, avoiding rebuilds under the
+module system. Thus the actual encoding of the context name in the current implementation is
+```
+<main module>._hygCtx_<uniq>
+```
+where `<uniq>` is an identifier unique within the current module, set by
+`Command.withInitQuotContext`; see there for details. Thus we can assume the full context name to be
+unique throughout all modules and reset the numeric scopes whenever establishing a fresh context
+name.
 -/
 
 /-- Does this name have hygienic macro scopes? -/

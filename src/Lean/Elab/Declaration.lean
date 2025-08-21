@@ -166,6 +166,9 @@ def elabDeclaration : CommandElab := fun stx => do
     -- only case implementing incrementality currently
     elabMutualDef #[stx]
   else withoutCommandIncrementality true do
+    -- use hash of declaration name, if any, as stable quot context; `elabMutualDef` has its own
+    -- handling
+    withInitQuotContext (getDeclName? stx |>.map hash) do
     let modifiers ← elabModifiers modifiers
     withExporting (isExporting := modifiers.isInferredPublic (← getEnv)) do
       if declKind == ``Lean.Parser.Command.«axiom» then

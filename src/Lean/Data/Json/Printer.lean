@@ -117,25 +117,55 @@ protected inductive CompressWorkItem
 
 open Json.CompressWorkItem in
 partial def compress (j : Json) : String :=
-  go "" [json j]
-where go (acc : String) : List Json.CompressWorkItem → String
-  | []               => acc
-  | json j :: is =>
-    match j with
-    | null       => go (acc ++ "null") is
-    | bool true  => go (acc ++ "true") is
-    | bool false => go (acc ++ "false") is
-    | num s      => go (acc ++ s.toString) is
-    | str s      => go (renderString s acc) is
-    | arr elems  => go (acc ++ "[") ((elems.map arrayElem).toListAppend (arrayEnd :: is))
-    | obj kvs    => go (acc ++ "{") (kvs.foldl (init := []) (fun acc k j => objectField k j :: acc) ++ [objectEnd] ++ is)
-  | arrayElem j :: arrayEnd :: is      => go acc (json j :: arrayEnd :: is)
-  | arrayElem j :: is                  => go acc (json j :: comma :: is)
-  | arrayEnd :: is                     => go (acc ++ "]") is
-  | objectField k j :: objectEnd :: is => go (renderString k acc ++ ":") (json j :: objectEnd :: is)
-  | objectField k j :: is              => go (renderString k acc ++ ":") (json j :: comma :: is)
-  | objectEnd :: is                    => go (acc ++ "}") is
-  | comma :: is                        => go (acc ++ ",") is
+  go "" #[json j]
+where
+  go (acc : String) (workItems : Array Json.CompressWorkItem) : String :=
+    if h : workItems.size = 0 then
+      acc
+    else
+      let workItem := workItems[workItems.size - 1]
+      let workItems := workItems.pop
+      match workItem with
+      | json j =>
+        match j with
+        | null =>
+          go (acc ++ "null") workItems
+        | bool b =>
+          go (acc ++ toString b) workItems
+        | num n =>
+          go (acc ++ toString n) workItems
+        | str s =>
+          go (renderString s acc) workItems
+        | arr elems =>
+          go (acc ++ "[") (workItems.push arrayEnd ++ elems.reverse.map arrayElem)
+        | obj kvs =>
+          let workItems := workItems.push objectEnd
+          go (acc ++ "{") (kvs.foldr (init := workItems) fun k j acc => acc.push (objectField k j))
+      | arrayElem j =>
+        if h : workItems.size = 0 then
+          go acc #[comma, json j]
+        else
+          let workItem := workItems[workItems.size - 1]
+          if workItem matches arrayEnd then
+            go acc (workItems.pop ++ #[arrayEnd, json j])
+          else
+            go acc (workItems ++ #[comma, json j])
+      | arrayEnd =>
+        go (acc ++ "]") workItems
+      | objectField k j =>
+        if h : workItems.size = 0 then
+          go (renderString k acc ++ ":") #[comma, json j]
+        else
+          let workItem := workItems[workItems.size - 1]
+          if workItem matches objectEnd then
+            go (renderString k acc ++ ":") (workItems.pop ++ #[objectEnd, json j])
+          else
+            go (renderString k acc ++ ":") (workItems ++ #[comma, json j])
+      | objectEnd =>
+        go (acc ++ "}") workItems
+      | comma =>
+        go (acc ++ ",") workItems
+
 
 instance : ToFormat Json := ⟨render⟩
 instance : ToString Json := ⟨pretty⟩

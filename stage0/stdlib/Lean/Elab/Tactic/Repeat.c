@@ -1652,7 +1652,7 @@ return x_19;
 else
 {
 uint8_t x_20; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_20 = !lean_is_exclusive(x_12);
 if (x_20 == 0)
 {

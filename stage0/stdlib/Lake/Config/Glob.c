@@ -1363,7 +1363,7 @@ case 0:
 {
 lean_object* x_6; lean_object* x_7; 
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_dec_ref(x_1);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
@@ -1393,11 +1393,11 @@ default:
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_13 = lean_ctor_get(x_1, 0);
 x_14 = lean_ctor_get(x_13, 4);
-lean_inc_ref(x_14);
+lean_inc(x_14);
 x_15 = lean_ctor_get(x_5, 0);
 lean_inc(x_15);
 lean_dec_ref(x_5);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 lean_inc(x_15);
 x_16 = lean_alloc_closure((void*)(l_Lake_Glob_forEachModuleIn___redArg___lam__0), 3, 2);
 lean_closure_set(x_16, 0, x_15);
@@ -1424,7 +1424,7 @@ case 0:
 {
 lean_object* x_7; lean_object* x_8; 
 lean_dec_ref(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 lean_dec_ref(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
@@ -1454,11 +1454,11 @@ default:
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_14 = lean_ctor_get(x_2, 0);
 x_15 = lean_ctor_get(x_14, 4);
-lean_inc_ref(x_15);
+lean_inc(x_15);
 x_16 = lean_ctor_get(x_6, 0);
 lean_inc(x_16);
 lean_dec_ref(x_6);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_inc(x_16);
 x_17 = lean_alloc_closure((void*)(l_Lake_Glob_forEachModuleIn___redArg___lam__0), 3, 2);
 lean_closure_set(x_17, 0, x_16);

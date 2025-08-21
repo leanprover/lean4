@@ -1019,11 +1019,11 @@ lean_dec(x_8);
 x_70 = lean_ctor_get(x_69, 0);
 lean_inc_ref(x_70);
 x_71 = lean_ctor_get(x_69, 2);
-lean_inc_ref(x_71);
+lean_inc(x_71);
 x_72 = lean_ctor_get(x_69, 3);
-lean_inc_ref(x_72);
+lean_inc(x_72);
 x_73 = lean_ctor_get(x_69, 4);
-lean_inc_ref(x_73);
+lean_inc(x_73);
 if (lean_is_exclusive(x_69)) {
  lean_ctor_release(x_69, 0);
  lean_ctor_release(x_69, 1);

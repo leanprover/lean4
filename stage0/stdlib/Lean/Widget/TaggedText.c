@@ -1631,7 +1631,7 @@ uint8_t x_5;
 x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_4;
 }
 else
@@ -1640,7 +1640,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x
 x_6 = lean_array_uget(x_4, x_3);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_9 = l_Lean_Widget_TaggedText_map___redArg(x_1, x_6);
 x_10 = 1;
 x_11 = lean_usize_add(x_3, x_10);
@@ -1666,7 +1666,7 @@ switch (lean_obj_tag(x_2)) {
 case 0:
 {
 uint8_t x_3; 
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_3 = !lean_is_exclusive(x_2);
 if (x_3 == 0)
 {
@@ -1720,7 +1720,7 @@ if (x_16 == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_17 = lean_ctor_get(x_2, 0);
 x_18 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_19 = lean_apply_1(x_1, x_17);
 x_20 = l_Lean_Widget_TaggedText_map___redArg(x_1, x_18);
 lean_ctor_set(x_2, 1, x_20);
@@ -1735,7 +1735,7 @@ x_22 = lean_ctor_get(x_2, 1);
 lean_inc(x_22);
 lean_inc(x_21);
 lean_dec(x_2);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_23 = lean_apply_1(x_1, x_21);
 x_24 = l_Lean_Widget_TaggedText_map___redArg(x_1, x_22);
 x_25 = lean_alloc_ctor(2, 2, 0);
@@ -1821,10 +1821,10 @@ case 0:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_dec_ref(x_1);
 x_5 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_4);
 x_6 = !lean_is_exclusive(x_3);
 if (x_6 == 0)
@@ -1850,12 +1850,12 @@ case 1:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; 
 x_11 = lean_ctor_get(x_1, 0);
 x_12 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_12);
+lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 x_14 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_14);
 lean_dec_ref(x_3);
-lean_inc_ref(x_13);
+lean_inc(x_13);
 x_15 = lean_alloc_closure((void*)(l_Lean_Widget_TaggedText_mapM___redArg___lam__0), 2, 1);
 lean_closure_set(x_15, 0, x_13);
 lean_inc_ref(x_1);
@@ -1873,16 +1873,16 @@ default:
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_21 = lean_ctor_get(x_1, 0);
 x_22 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_22);
+lean_inc(x_22);
 x_23 = lean_ctor_get(x_21, 1);
-lean_inc_ref(x_23);
+lean_inc(x_23);
 x_24 = lean_ctor_get(x_3, 0);
 lean_inc(x_24);
 x_25 = lean_ctor_get(x_3, 1);
 lean_inc_ref(x_25);
 lean_dec_ref(x_3);
-lean_inc_ref(x_22);
-lean_inc_ref(x_2);
+lean_inc(x_22);
+lean_inc(x_2);
 x_26 = lean_alloc_closure((void*)(l_Lean_Widget_TaggedText_mapM___redArg___lam__2), 6, 5);
 lean_closure_set(x_26, 0, x_23);
 lean_closure_set(x_26, 1, x_1);
@@ -2046,10 +2046,10 @@ case 0:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_dec_ref(x_1);
 x_5 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_4);
 x_6 = !lean_is_exclusive(x_3);
 if (x_6 == 0)
@@ -2075,12 +2075,12 @@ case 1:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; 
 x_11 = lean_ctor_get(x_1, 0);
 x_12 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_12);
+lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 x_14 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_14);
 lean_dec_ref(x_3);
-lean_inc_ref(x_13);
+lean_inc(x_13);
 x_15 = lean_alloc_closure((void*)(l_Lean_Widget_TaggedText_mapM___redArg___lam__0), 2, 1);
 lean_closure_set(x_15, 0, x_13);
 lean_inc_ref(x_1);

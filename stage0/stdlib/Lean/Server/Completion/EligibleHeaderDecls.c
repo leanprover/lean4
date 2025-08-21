@@ -1015,9 +1015,9 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 lean_dec_ref(x_5);
 lean_dec(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_7 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_7);
+lean_inc(x_7);
 lean_dec_ref(x_2);
 x_8 = lean_box(0);
 x_9 = lean_apply_2(x_7, lean_box(0), x_8);
@@ -1060,10 +1060,10 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec(x_9);
 lean_dec_ref(x_7);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 lean_dec_ref(x_4);
 x_12 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_12);
+lean_inc(x_12);
 lean_dec_ref(x_1);
 x_13 = lean_apply_2(x_12, lean_box(0), x_10);
 x_14 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_13, x_3);
@@ -1078,10 +1078,10 @@ if (x_15 == 0)
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 lean_dec(x_9);
 lean_dec_ref(x_7);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 lean_dec_ref(x_4);
 x_16 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_16);
+lean_inc(x_16);
 lean_dec_ref(x_1);
 x_17 = lean_apply_2(x_16, lean_box(0), x_10);
 x_18 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_17, x_3);
@@ -1117,7 +1117,7 @@ x_9 = lean_alloc_closure((void*)(l_Lean_Server_Completion_forEligibleDeclsM___re
 lean_closure_set(x_9, 0, x_7);
 lean_closure_set(x_9, 1, x_3);
 lean_closure_set(x_9, 2, x_8);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_10 = lean_alloc_closure((void*)(l_Lean_Server_Completion_forEligibleDeclsM___redArg___lam__4), 6, 5);
 lean_closure_set(x_10, 0, x_1);
 lean_closure_set(x_10, 1, x_4);
@@ -1138,18 +1138,18 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
 lean_dec_ref(x_2);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_8 = lean_alloc_closure((void*)(l_Lean_Server_Completion_forEligibleDeclsM___redArg___lam__0), 4, 1);
 lean_closure_set(x_8, 0, x_4);
 lean_inc_ref(x_1);
 x_9 = lean_alloc_closure((void*)(l_Lean_Server_Completion_forEligibleDeclsM___redArg___lam__1), 4, 2);
 lean_closure_set(x_9, 0, x_1);
 lean_closure_set(x_9, 1, x_8);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_10 = lean_alloc_closure((void*)(l_Lean_Server_Completion_forEligibleDeclsM___redArg___lam__5), 7, 6);
 lean_closure_set(x_10, 0, x_5);
 lean_closure_set(x_10, 1, x_4);
@@ -1174,7 +1174,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Server_Completion_forEligibleDeclsM(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 return x_7;
 }
 }

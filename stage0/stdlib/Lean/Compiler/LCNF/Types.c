@@ -3580,7 +3580,7 @@ _start:
 if (lean_obj_tag(x_1) == 7)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
@@ -3596,7 +3596,7 @@ return x_9;
 else
 {
 lean_object* x_10; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_10 = lean_apply_2(x_3, x_1, lean_box(0));
 return x_10;
 }

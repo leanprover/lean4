@@ -352,13 +352,10 @@ return x_1;
 static lean_object* _init_l_Lean_Elab_Command_aux__def___closed__21() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Command_aux__def___closed__20;
-x_2 = l_Lean_Elab_Command_aux__def___closed__2;
-x_3 = l_Lean_Elab_Command_aux__def___closed__13;
-x_4 = l_Lean_Elab_Command_aux__def___closed__0;
-x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
-return x_5;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Elab_Command_aux__def___closed__22() {
@@ -366,7 +363,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Command_aux__def___closed__21;
-x_2 = lean_alloc_ctor(8, 1, 0);
+x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }

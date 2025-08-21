@@ -30,6 +30,7 @@ static lean_object* l_Std_Time_reprTimeZone___redArg___closed__7____x40_Std_Time
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_reprTimeZone____x40_Std_Time_Zoned_TimeZone___hyg_61__spec__0(lean_object*);
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__0____x40_Std_Time_Zoned_TimeZone___hyg_61_;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
+lean_object* l_Std_Time_TimeZone_reprOffset___redArg____x40_Std_Time_Zoned_Offset___hyg_189_(lean_object*);
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__9____x40_Std_Time_Zoned_TimeZone___hyg_61_;
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__22____x40_Std_Time_Zoned_TimeZone___hyg_61_;
 lean_object* lean_nat_to_int(lean_object*);
@@ -50,7 +51,6 @@ static lean_object* l_Std_Time_reprTimeZone___redArg___closed__6____x40_Std_Time
 LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqTimeZone___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__10____x40_Std_Time_Zoned_TimeZone___hyg_61_;
 LEAN_EXPORT lean_object* l_Std_Time_decEqTimeZone____x40_Std_Time_Zoned_TimeZone___hyg_159____boxed(lean_object*, lean_object*);
-lean_object* l_Std_Time_TimeZone_reprOffset___redArg____x40_Std_Time_Zoned_Offset___hyg_190_(lean_object*);
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__12____x40_Std_Time_Zoned_TimeZone___hyg_61_;
 static lean_object* l_Std_Time_instInhabitedTimeZone___closed__2;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ofHours(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -345,7 +345,7 @@ x_5 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
 x_6 = l_Std_Time_reprTimeZone___redArg___closed__5____x40_Std_Time_Zoned_TimeZone___hyg_61_;
 x_7 = l_Std_Time_reprTimeZone___redArg___closed__6____x40_Std_Time_Zoned_TimeZone___hyg_61_;
 x_8 = l_Std_Time_reprTimeZone___redArg___closed__7____x40_Std_Time_Zoned_TimeZone___hyg_61_;
-x_9 = l_Std_Time_TimeZone_reprOffset___redArg____x40_Std_Time_Zoned_Offset___hyg_190_(x_2);
+x_9 = l_Std_Time_TimeZone_reprOffset___redArg____x40_Std_Time_Zoned_Offset___hyg_189_(x_2);
 x_10 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_10, 0, x_8);
 lean_ctor_set(x_10, 1, x_9);

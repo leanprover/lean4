@@ -490,7 +490,7 @@ x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_box(0);
 x_6 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___closed__9;
 x_7 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___closed__7;
-x_8 = lean_alloc_ctor(0, 21, 2);
+x_8 = lean_alloc_ctor(0, 22, 2);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_6);
 lean_ctor_set(x_8, 2, x_7);
@@ -512,8 +512,9 @@ lean_ctor_set(x_8, 17, x_1);
 lean_ctor_set(x_8, 18, x_6);
 lean_ctor_set(x_8, 19, x_7);
 lean_ctor_set(x_8, 20, x_6);
-lean_ctor_set_uint8(x_8, sizeof(void*)*21, x_3);
-lean_ctor_set_uint8(x_8, sizeof(void*)*21 + 1, x_3);
+lean_ctor_set(x_8, 21, x_6);
+lean_ctor_set_uint8(x_8, sizeof(void*)*22, x_3);
+lean_ctor_set_uint8(x_8, sizeof(void*)*22 + 1, x_3);
 return x_8;
 }
 }

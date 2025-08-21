@@ -1453,7 +1453,7 @@ if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_6; 
 lean_dec(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_dec_ref(x_1);
 x_6 = l_List_reverse___redArg(x_5);
 return x_6;
@@ -1468,7 +1468,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_8 = lean_ctor_get(x_4, 0);
 x_9 = lean_ctor_get(x_4, 1);
 lean_inc(x_3);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 lean_inc_ref(x_1);
 x_10 = l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___Lean_Server_FileWorker_handleHover_spec__1_spec__6___redArg(x_1, x_2, x_3, x_8);
 lean_ctor_set(x_4, 1, x_5);
@@ -1490,7 +1490,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_4);
 lean_inc(x_3);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 lean_inc_ref(x_1);
 x_14 = l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___Lean_Server_FileWorker_handleHover_spec__1_spec__6___redArg(x_1, x_2, x_3, x_12);
 x_15 = lean_alloc_ctor(1, 2, 0);
@@ -1572,7 +1572,7 @@ case 1:
 {
 lean_object* x_13; lean_object* x_14; 
 lean_dec_ref(x_4);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_dec_ref(x_1);
 x_13 = l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___Lean_Server_FileWorker_handleHover_spec__1_spec__6___redArg___closed__3;
 x_14 = l_panic___at_____private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___Lean_Server_FileWorker_handleHover_spec__1_spec__6_spec__6___redArg(x_13);
@@ -1582,7 +1582,7 @@ default:
 {
 lean_object* x_15; 
 lean_dec_ref(x_4);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_dec_ref(x_1);
 x_15 = lean_box(0);
 return x_15;
@@ -1660,7 +1660,7 @@ x_32 = lean_ctor_get(x_3, 0);
 lean_dec(x_32);
 x_33 = l_Lean_PersistentArray_toList___redArg(x_20);
 x_34 = lean_box(0);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 x_35 = l_List_mapM_loop___at_____private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___Lean_Server_FileWorker_handleHover_spec__1_spec__6_spec__7___redArg(x_1, x_2, x_30, x_33, x_34);
 x_36 = lean_apply_4(x_2, x_18, x_19, x_20, x_35);
 lean_ctor_set(x_3, 0, x_36);
@@ -1672,7 +1672,7 @@ lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean
 lean_dec(x_3);
 x_37 = l_Lean_PersistentArray_toList___redArg(x_20);
 x_38 = lean_box(0);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 x_39 = l_List_mapM_loop___at_____private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___Lean_Server_FileWorker_handleHover_spec__1_spec__6_spec__7___redArg(x_1, x_2, x_30, x_37, x_38);
 x_40 = lean_apply_4(x_2, x_18, x_19, x_20, x_39);
 x_41 = lean_alloc_ctor(1, 1, 0);
@@ -1686,7 +1686,7 @@ default:
 lean_object* x_42; 
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_dec_ref(x_1);
 x_42 = lean_box(0);
 return x_42;

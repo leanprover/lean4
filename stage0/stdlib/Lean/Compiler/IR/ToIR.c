@@ -2722,11 +2722,11 @@ lean_dec(x_7);
 x_49 = lean_ctor_get(x_48, 0);
 lean_inc_ref(x_49);
 x_50 = lean_ctor_get(x_48, 2);
-lean_inc_ref(x_50);
+lean_inc(x_50);
 x_51 = lean_ctor_get(x_48, 3);
-lean_inc_ref(x_51);
+lean_inc(x_51);
 x_52 = lean_ctor_get(x_48, 4);
-lean_inc_ref(x_52);
+lean_inc(x_52);
 if (lean_is_exclusive(x_48)) {
  lean_ctor_release(x_48, 0);
  lean_ctor_release(x_48, 1);

@@ -530,7 +530,7 @@ if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_6; 
 lean_dec(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_dec_ref(x_1);
 x_6 = l_List_reverse___redArg(x_5);
 return x_6;
@@ -545,7 +545,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_8 = lean_ctor_get(x_4, 0);
 x_9 = lean_ctor_get(x_4, 1);
 lean_inc(x_3);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 lean_inc_ref(x_1);
 x_10 = l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at_____private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findBest_x3f_spec__0___redArg(x_1, x_2, x_3, x_8);
 lean_ctor_set(x_4, 1, x_5);
@@ -567,7 +567,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_4);
 lean_inc(x_3);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 lean_inc_ref(x_1);
 x_14 = l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at_____private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findBest_x3f_spec__0___redArg(x_1, x_2, x_3, x_12);
 x_15 = lean_alloc_ctor(1, 2, 0);
@@ -649,7 +649,7 @@ case 1:
 {
 lean_object* x_13; lean_object* x_14; 
 lean_dec_ref(x_4);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_dec_ref(x_1);
 x_13 = l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at_____private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findBest_x3f_spec__0___redArg___closed__3;
 x_14 = l_panic___at_____private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at_____private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findBest_x3f_spec__0_spec__0___redArg(x_13);
@@ -659,7 +659,7 @@ default:
 {
 lean_object* x_15; 
 lean_dec_ref(x_4);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_dec_ref(x_1);
 x_15 = lean_box(0);
 return x_15;
@@ -737,7 +737,7 @@ x_32 = lean_ctor_get(x_3, 0);
 lean_dec(x_32);
 x_33 = l_Lean_PersistentArray_toList___redArg(x_20);
 x_34 = lean_box(0);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 x_35 = l_List_mapM_loop___at_____private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at_____private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findBest_x3f_spec__0_spec__1___redArg(x_1, x_2, x_30, x_33, x_34);
 x_36 = lean_apply_4(x_2, x_18, x_19, x_20, x_35);
 lean_ctor_set(x_3, 0, x_36);
@@ -749,7 +749,7 @@ lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean
 lean_dec(x_3);
 x_37 = l_Lean_PersistentArray_toList___redArg(x_20);
 x_38 = lean_box(0);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 x_39 = l_List_mapM_loop___at_____private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at_____private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findBest_x3f_spec__0_spec__1___redArg(x_1, x_2, x_30, x_37, x_38);
 x_40 = lean_apply_4(x_2, x_18, x_19, x_20, x_39);
 x_41 = lean_alloc_ctor(1, 1, 0);
@@ -763,7 +763,7 @@ default:
 lean_object* x_42; 
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_dec_ref(x_1);
 x_42 = lean_box(0);
 return x_42;
@@ -3349,7 +3349,7 @@ lean_ctor_set(x_13, 4, x_10);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_11);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 lean_inc(x_4);
 lean_inc(x_2);
 x_15 = lean_apply_3(x_1, x_3, x_2, x_4);
@@ -3359,7 +3359,7 @@ case 0:
 lean_object* x_16; lean_object* x_17; 
 lean_dec_ref(x_14);
 lean_dec(x_2);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_16 = lean_box(0);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_16);
@@ -3411,7 +3411,7 @@ default:
 lean_object* x_31; lean_object* x_32; 
 lean_dec_ref(x_14);
 lean_dec(x_2);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_31 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_31, 0, x_4);
 x_32 = lean_alloc_ctor(0, 2, 0);

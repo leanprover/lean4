@@ -308,7 +308,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 lean_dec_ref(x_1);
 x_5 = lean_apply_1(x_4, x_2);
 return x_5;
@@ -325,10 +325,10 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_7);
+lean_inc(x_7);
 lean_dec_ref(x_1);
 x_8 = lean_ctor_get(x_6, 1);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 lean_dec_ref(x_6);
 x_9 = lean_alloc_closure((void*)(l_Lean_addDeclarationRanges___redArg___lam__0), 3, 2);
 lean_closure_set(x_9, 0, x_3);
@@ -351,7 +351,7 @@ x_14 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_14);
 lean_dec_ref(x_1);
 x_15 = lean_ctor_get(x_14, 1);
-lean_inc_ref(x_15);
+lean_inc(x_15);
 lean_dec_ref(x_14);
 x_16 = lean_box(0);
 x_17 = lean_apply_2(x_15, lean_box(0), x_16);
@@ -422,17 +422,17 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_1);
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
 lean_dec_ref(x_2);
 x_7 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_7);
+lean_inc(x_7);
 lean_dec_ref(x_4);
 x_8 = l_Lean_instInhabitedDeclarationRanges;
 lean_inc(x_6);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 x_9 = lean_alloc_closure((void*)(l_Lean_findDeclarationRangesCore_x3f___redArg___lam__1), 6, 5);
 lean_closure_set(x_9, 0, x_8);
 lean_closure_set(x_9, 1, x_3);
@@ -474,7 +474,7 @@ _start:
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = l_Lean_addBuiltinDeclarationRanges___closed__0;
 x_7 = lean_alloc_closure((void*)(l_Lean_findDeclarationRanges_x3f___redArg___lam__1___boxed), 2, 1);
 lean_closure_set(x_7, 0, x_6);
@@ -485,9 +485,9 @@ return x_9;
 else
 {
 lean_object* x_10; 
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
 x_10 = lean_apply_2(x_4, lean_box(0), x_5);
 return x_10;
 }
@@ -553,20 +553,20 @@ if (x_15 == 0)
 if (x_8 == 0)
 {
 lean_object* x_16; lean_object* x_17; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_16 = l_Lean_findDeclarationRangesCore_x3f___redArg(x_1, x_2, x_5);
 x_17 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_16, x_6);
 return x_17;
 }
 else
 {
-lean_dec_ref(x_6);
+lean_dec(x_6);
 goto block_14;
 }
 }
 else
 {
-lean_dec_ref(x_6);
+lean_dec(x_6);
 goto block_14;
 }
 }
@@ -577,7 +577,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 lean_inc(x_5);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
 x_8 = lean_alloc_closure((void*)(l_Lean_findDeclarationRanges_x3f___redArg___lam__5___boxed), 8, 7);
@@ -599,17 +599,17 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 lean_inc(x_4);
 x_9 = lean_alloc_closure((void*)(l_Lean_findDeclarationRanges_x3f___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(x_9, 0, x_4);
 lean_closure_set(x_9, 1, x_8);
-lean_inc_ref(x_8);
-lean_inc_ref(x_6);
+lean_inc(x_8);
+lean_inc(x_6);
 x_10 = lean_alloc_closure((void*)(l_Lean_findDeclarationRanges_x3f___redArg___lam__2), 5, 4);
 lean_closure_set(x_10, 0, x_3);
 lean_closure_set(x_10, 1, x_6);
@@ -618,7 +618,7 @@ lean_closure_set(x_10, 3, x_8);
 x_11 = lean_alloc_closure((void*)(l_Lean_findDeclarationRanges_x3f___redArg___lam__3), 2, 1);
 lean_closure_set(x_11, 0, x_10);
 lean_inc_ref(x_11);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_12 = lean_alloc_closure((void*)(l_Lean_findDeclarationRanges_x3f___redArg___lam__4), 7, 6);
 lean_closure_set(x_12, 0, x_1);
 lean_closure_set(x_12, 1, x_2);

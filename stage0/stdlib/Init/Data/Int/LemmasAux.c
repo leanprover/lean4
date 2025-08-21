@@ -40,7 +40,7 @@ x_5 = lean_int_dec_lt(x_1, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_6 = lean_nat_abs(x_1);
 x_7 = lean_apply_1(x_2, x_6);
 return x_7;
@@ -48,7 +48,7 @@ return x_7;
 else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_8 = lean_nat_abs(x_1);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_8, x_9);

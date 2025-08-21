@@ -19702,12 +19702,12 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_6 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 lean_dec_ref(x_2);
 x_7 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_7);
+lean_inc(x_7);
 x_8 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 lean_dec_ref(x_1);
 x_9 = lean_alloc_closure((void*)(l_Lean_Elab_FixedParamPerm_forallTelescope___redArg___lam__1), 9, 3);
 lean_closure_set(x_9, 0, x_5);

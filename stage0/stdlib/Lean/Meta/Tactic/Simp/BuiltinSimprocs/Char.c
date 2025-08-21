@@ -489,7 +489,7 @@ lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 lean_dec_ref(x_1);
 x_12 = l_Char_reduceUnary___redArg___closed__0;
 x_13 = lean_alloc_ctor(0, 2, 0);
@@ -510,7 +510,7 @@ lean_inc(x_16);
 if (lean_obj_tag(x_16) == 0)
 {
 uint8_t x_17; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 lean_dec_ref(x_1);
 x_17 = !lean_is_exclusive(x_15);
 if (x_17 == 0)
@@ -612,7 +612,7 @@ return x_42;
 else
 {
 uint8_t x_43; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 lean_dec_ref(x_1);
 x_43 = !lean_is_exclusive(x_15);
 if (x_43 == 0)
@@ -648,7 +648,7 @@ lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_11);
 lean_dec_ref(x_10);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_dec_ref(x_2);
 x_16 = l_Char_reduceUnary___redArg___closed__0;
 x_17 = lean_alloc_ctor(0, 2, 0);
@@ -669,7 +669,7 @@ lean_inc(x_20);
 if (lean_obj_tag(x_20) == 0)
 {
 uint8_t x_21; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_dec_ref(x_2);
 x_21 = !lean_is_exclusive(x_19);
 if (x_21 == 0)
@@ -771,7 +771,7 @@ return x_46;
 else
 {
 uint8_t x_47; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_dec_ref(x_2);
 x_47 = !lean_is_exclusive(x_19);
 if (x_47 == 0)

@@ -366,12 +366,12 @@ x_13 = lean_box_uint32(x_12);
 x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
 x_15 = lean_box_uint32(x_11);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_16 = lean_apply_3(x_1, x_10, x_15, x_14);
 x_17 = lean_array_push(x_9, x_16);
 x_18 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_iterateLookaround___redArg___closed__9;
 x_19 = lean_unsigned_to_nat(2u);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 lean_inc_ref(x_2);
 x_20 = lean_alloc_closure((void*)(l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_iterateLookaround___redArg___lam__0___boxed), 7, 4);
 lean_closure_set(x_20, 0, x_19);
@@ -418,7 +418,7 @@ else
 {
 lean_object* x_38; 
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_38 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_iterateLookaround___redArg___closed__11;
 return x_38;
 }

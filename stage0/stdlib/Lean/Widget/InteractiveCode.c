@@ -1627,12 +1627,12 @@ x_7 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___redArg(x_1, x_2, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_8 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_8);
 lean_dec_ref(x_3);
 x_9 = lean_ctor_get(x_8, 1);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 lean_dec_ref(x_8);
 x_10 = lean_apply_2(x_9, lean_box(0), x_5);
 return x_10;
@@ -1668,12 +1668,12 @@ return x_7;
 else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_8);
 lean_dec_ref(x_1);
 x_9 = lean_ctor_get(x_8, 1);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 lean_dec_ref(x_8);
 x_10 = lean_apply_2(x_9, lean_box(0), x_4);
 return x_10;

@@ -405,7 +405,7 @@ x_38 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_38);
 lean_dec_ref(x_6);
 x_39 = lean_ctor_get(x_2, 3);
-lean_inc_ref(x_39);
+lean_inc(x_39);
 x_40 = lean_apply_2(x_39, x_3, x_38);
 x_3 = x_40;
 x_4 = x_37;

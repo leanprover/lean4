@@ -71,6 +71,7 @@ static lean_object* l_Array_Array_repr___at___Std_Time_TimeZone_reprZoneRules___
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ZoneRules_UTC;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instReprLocalTimeType;
+lean_object* l_Std_Time_TimeZone_reprOffset___redArg____x40_Std_Time_Zoned_Offset___hyg_189_(lean_object*);
 static lean_object* l_Std_Time_TimeZone_reprZoneRules___redArg___closed__2____x40_Std_Time_Zoned_ZoneRules___hyg_550_;
 static lean_object* l_Std_Time_TimeZone_reprStdWall___closed__0____x40_Std_Time_Zoned_ZoneRules___hyg_114_;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ZoneRules_timezoneAt___boxed(lean_object*, lean_object*);
@@ -115,7 +116,6 @@ static lean_object* l_Std_Time_TimeZone_instReprLocalTimeType___closed__0;
 static lean_object* l_Std_Time_TimeZone_instInhabitedLocalTimeType___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Transition_apply___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ZoneRules_fixedOffsetZone(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Time_TimeZone_reprOffset___redArg____x40_Std_Time_Zoned_Offset___hyg_190_(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_noConfusion___redArg(uint8_t, uint8_t);
 static lean_object* l_Std_Time_TimeZone_reprStdWall___closed__1____x40_Std_Time_Zoned_ZoneRules___hyg_114_;
 static lean_object* l_Std_Time_TimeZone_instReprUTLocal___closed__0;
@@ -916,7 +916,7 @@ x_8 = l_Std_Time_TimeZone_reprLocalTimeType___redArg___closed__5____x40_Std_Time
 x_9 = l_Std_Time_TimeZone_reprLocalTimeType___redArg___closed__6____x40_Std_Time_Zoned_ZoneRules___hyg_267_;
 x_10 = l_Std_Time_TimeZone_reprLocalTimeType___redArg___closed__7____x40_Std_Time_Zoned_ZoneRules___hyg_267_;
 x_11 = lean_unsigned_to_nat(0u);
-x_12 = l_Std_Time_TimeZone_reprOffset___redArg____x40_Std_Time_Zoned_Offset___hyg_190_(x_2);
+x_12 = l_Std_Time_TimeZone_reprOffset___redArg____x40_Std_Time_Zoned_Offset___hyg_189_(x_2);
 x_13 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_13, 0, x_10);
 lean_ctor_set(x_13, 1, x_12);

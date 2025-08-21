@@ -747,6 +747,15 @@ protected def ofAsyncTask (task : AsyncTask α) : Async α := do
   pure (f := BaseIO) (MaybeTask.ofTask task)
 
 /--
+Converts a `Task` to a `Async`.
+-/
+@[inline]
+protected def ofTask (task : IO (Task α)) : Async α := do
+  match ← task.toBaseIO with
+  | .ok data => .ofAsyncTask (data.map Except.ok)
+  | .error err => pure (f := BaseIO) (MaybeTask.pure (.error err))
+
+/--
 Converts a pure `Promise` to a `Async`.
 -/
 @[inline]

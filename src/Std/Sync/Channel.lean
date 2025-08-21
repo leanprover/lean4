@@ -10,8 +10,11 @@ public import Init.System.Promise
 public import Init.Data.Queue
 public import Std.Sync.Mutex
 public import Std.Internal.Async.Select
+public import Std.Internal.Async.IO
 
 public section
+
+open Std.Internal.Async.IO
 
 /-!
 This module contains the implementation of `Std.Channel`. `Std.Channel` is a multi-producer
@@ -894,6 +897,15 @@ partial def forAsync [Inhabited α] (f : α → BaseIO Unit) (ch : Channel α)
 
 @[inherit_doc CloseableChannel.sync, inline]
 def sync (ch : Channel α) : Channel.Sync α := ch
+
+instance [Inhabited α] : AsyncStream (Channel α) α where
+  next channel := channel.recvSelector
+
+instance [Inhabited α] : AsyncRead (Channel α) α where
+  read receiver := Internal.IO.Async.Async.ofTask receiver.recv
+
+instance [Inhabited α] : AsyncWrite (Channel α) α where
+  write receiver x := Internal.IO.Async.Async.ofTask (receiver.send x)
 
 namespace Sync
 

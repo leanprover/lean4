@@ -11,13 +11,17 @@ public import Init.System.Promise
 public import Init.Data.Queue
 public import Std.Sync.Mutex
 public import Std.Internal.Async.Select
+public import Std.Internal.Async.IO
 
 public section
+
+open Std.Internal.Async.IO
 
 /-!
 This module contains the implementation of `Std.Broadcast`. `Std.Broadcast` provides a
 broadcasting primitive for sending values to multiple consumers. It maintains a queue of
-values and supports both synchronous and asynchronous waiting.
+values and supports both synchronous and asynchronous waiting. It's heavily inspired in the `Std.Sync.Channel` module and by
+https://github.com/tokio-rs/tokio/blob/master/tokio/src/sync/broadcast.rs
 -/
 
 namespace Std
@@ -50,27 +54,27 @@ inductive Broadcast.Error where
 
 deriving Repr, DecidableEq, Hashable
 
-instance : ToString Broadcast.Error where
+instance instToStringBroadcastError : ToString Broadcast.Error where
   toString
     | .closed => "trying to send on an already closed channel"
     | .alreadyClosed => "trying to close an already closed broadcast channel"
     | .noSubscribers => "there are no subscribers"
     | .notSubscribed => "there channel is not subscribed."
 
-instance : MonadLift (EIO Broadcast.Error) IO where
+instance instMonadLiftBroadcastIO : MonadLift (EIO Broadcast.Error) IO where
   monadLift x := EIO.toIO (.userError <| toString ·) x
 
 /--
 A consumer waiting to receive a broadcast message.
 -/
-private structure Consumer (α : Type) where
+private structure Broadcast.Consumer (α : Type) where
   promise : IO.Promise Bool
   waiter : Option (Internal.IO.Async.Waiter (Option α))
 
 /--
 Resolves a consumer's promise with the given boolean result.
 -/
-private def Consumer.resolve (c : Consumer α) (b : Bool) : BaseIO Unit :=
+private def Broadcast.Consumer.resolve (c : Broadcast.Consumer α) (b : Bool) : BaseIO Unit :=
   c.promise.resolve b
 
 /--
@@ -95,7 +99,7 @@ private structure Bounded.State (α : Type) where
   /--
   Queue of consumers blocked waiting for new messages to be broadcast.
   -/
-  waiters : Std.Queue (Consumer α)
+  waiters : Std.Queue (Broadcast.Consumer α)
 
   /--
   Maximum number of messages that can be buffered before producers block.
@@ -257,14 +261,14 @@ private def trySend (ch : Bounded α) (v : α) : BaseIO Bool := do
     else
       trySend' v
 
-private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Except Broadcast.Error Unit)) := do
+private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Except Broadcast.Error Nat)) := do
   ch.state.atomically do
     if (← get).closed then
       return .pure <| .error .closed
     else if (← get).receivers.isEmpty then
       return .pure <| .error .noSubscribers
     else if ← trySend' v then
-      return .pure <| .ok ()
+      return .pure <| .ok (← get).receivers.size
     else
       let promise ← IO.Promise.new
       modify fun st => { st with producers := st.producers.enqueue promise }
@@ -275,7 +279,7 @@ private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Except Broad
         else
           return .pure <| .error .closed
 
-def close (ch : Bounded α) : EIO Broadcast.Error Unit := do
+private def close (ch : Bounded α) : EIO Broadcast.Error Unit := do
   ch.state.atomically do
     let st ← get
 
@@ -288,10 +292,9 @@ def close (ch : Bounded α) : EIO Broadcast.Error Unit := do
     set { st with waiters := ∅, closed := true }
     return ()
 
-def isClosed (ch : Bounded α) : BaseIO Bool :=
+private def isClosed (ch : Bounded α) : BaseIO Bool :=
   ch.state.atomically do
     return (← get).closed
-
 
 namespace Receiver
 
@@ -331,7 +334,7 @@ private def getValueByPosition
     return some val
 
 /--
-Subscribes a new `Receiver` in the `Bounded` channel.
+Unsubscribes a `Receiver` from the `Bounded` channel.
 -/
 private def unsubscribe (bd : Bounded.Receiver α) : IO Unit := do
   let id ← bd.state.atomically do
@@ -496,14 +499,21 @@ def trySend (ch : Broadcast α) (v : α) : BaseIO Bool :=
   ch.inner.trySend v
 
 /--
+Subscribes a new `Receiver` from the `Broadcast` channel.
+-/
+@[inline]
+def subscribe (ch : Broadcast α) : IO (Broadcast.Receiver α) := do
+  Broadcast.Receiver.mk <$> ch.inner.subscribe
+
+/--
 Send a value through the broadcast channel, returning a task that will resolve once the transmission
 could be completed.
 -/
 @[inline]
-def send (ch : Broadcast α) (v : α) : BaseIO (Task Unit) := do
+def send (ch : Broadcast α) (v : α) : BaseIO (Task Nat) := do
   BaseIO.bindTask (sync := true) (← ch.inner.send v)
     fun
-      | .ok .. => return .pure ()
+      | .ok res => return .pure res
       | .error .. => unreachable!
 
 namespace Receiver
@@ -526,13 +536,36 @@ def recv [Inhabited α] (ch : Broadcast.Receiver α) : BaseIO (Task α) := do
       | some val => return .pure val
       | none => unreachable!
 
+/--
+Unsubscribes a `Receiver` from the `Broadcast` channel.
+-/
+@[inline]
+def unsubscribe (ch : Broadcast.Receiver α) : IO Unit := do
+  ch.inner.unsubscribe
+
 open Internal.IO.Async in
 
 /--
 Creates a `Selector` that resolves once the broadcast channel `ch` has data available and provides that that data.
 -/
-def recvSelector [Inhabited α] (ch : Broadcast.Receiver α) : Selector (Option α) :=
-  ch.inner.recvSelector
+def recvSelector [Inhabited α] (ch : Broadcast.Receiver α) : Selector α :=
+  let sel := Bounded.Receiver.recvSelector ch.inner
+  {
+    tryFn := ch.tryRecv
+    registerFn waiter := do
+      let original := waiter.promise
+      let intermediate ← IO.Promise.new
+      let waiter := waiter.withPromise intermediate
+      sel.registerFn waiter
+      IO.chainTask (sync := true) intermediate.result?
+        fun
+          | none => return ()
+          | some res =>
+            -- `res` can only be `.err` or `.ok some` as we are in a non closeable channel.
+            original.resolve (res.map Option.get!)
+
+    unregisterFn := sel.unregisterFn
+  }
 
 /--
 `ch.forAsync f` calls `f` for every message received on `ch`.
@@ -544,6 +577,16 @@ partial def forAsync (f : α → BaseIO Unit) (ch : Broadcast.Receiver α)
     ch.inner.forAsync f prio
 
 end Receiver
+
+instance [Inhabited α] : AsyncStream (Broadcast.Receiver α) α where
+  next receiver := receiver.recvSelector
+
+instance [Inhabited α] : AsyncRead (Broadcast.Receiver α) α where
+  read receiver := Internal.IO.Async.Async.ofTask receiver.recv
+
+instance [Inhabited α] : AsyncWrite (Broadcast α) α where
+  write receiver x := Internal.IO.Async.Async.ofTask (Task.map (Function.const _ ()) <$> receiver.send x)
+
 
 /--
 A multi-subscriber broadcast that delivers each message to all current subscribers.
@@ -577,7 +620,7 @@ def trySend (ch : Sync α) (v : α) : BaseIO Bool :=
 Send a value through the channel, blocking until the transmission could be completed.
 -/
 @[inline]
-def send (ch : Sync α) (v : α) : BaseIO Unit := do
+def send (ch : Sync α) (v : α) : BaseIO Nat := do
   IO.wait (← Broadcast.send ch v)
 
 namespace Receiver
@@ -591,7 +634,7 @@ Receive a value from the channel, blocking until the transmission could be compl
 def recv [Inhabited α] (ch : Sync.Receiver α) : BaseIO α := do
   IO.wait (← Broadcast.Receiver.recv ch)
 
-private partial def forIn [Inhabited α] [Monad m] [MonadLiftT BaseIO m]
+partial def forIn [Inhabited α] [Monad m] [MonadLiftT BaseIO m]
     (ch : Sync.Receiver α) (f : α → β → m (ForInStep β)) : β → m β := fun b => do
   let a ← ch.recv
   match ← f a b with
@@ -600,7 +643,7 @@ private partial def forIn [Inhabited α] [Monad m] [MonadLiftT BaseIO m]
 
 /-- `for msg in ch.sync do ...` receives all messages in the channel until it is closed. -/
 instance [Inhabited α] [MonadLiftT BaseIO m] : ForIn m (Sync.Receiver α) α where
-  forIn ch b f := ch.forIn f b
+  forIn ch b f := Receiver.forIn ch f b
 
 end Receiver
 end Sync

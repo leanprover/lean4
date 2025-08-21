@@ -434,8 +434,6 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
   | .ofNatNonneg a =>
     return mkApp (mkConst ``Nat.ToInt.toNat_nonneg) a
   | .bound h => return h
-  | .bound' h lhs rhs =>
-    return mkApp6 (mkConst ``Int.Linear.le_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .dec h =>
     return mkFVar h
   | .norm c =>
@@ -632,7 +630,7 @@ partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do
 
 partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core .. | .coreNeg .. | .coreToInt .. | .ofNatNonneg .. | .bound .. | .bound' .. => return ()
+  | .core .. | .coreNeg .. | .coreToInt .. | .ofNatNonneg .. | .bound .. => return ()
   | .dec h => markAsFound h
   | .commRingNorm c .. | .reorder c | .cooper c
   | .norm c | .divCoeffs c => c.collectDecVars

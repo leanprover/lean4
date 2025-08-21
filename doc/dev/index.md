@@ -70,6 +70,7 @@ on the command line.
 
 You can use the `Refresh File Dependencies` command as in other projects to rebuild modules from inside VS Code but be aware that this does not trigger any non-Lake build targets.
 In particular, after updating `stage0/` (or fetching an update to it), you will want to invoke `make` directly to rebuild `stage0/bin/lean` as described in [building Lean](../make/index.md).
+You should then run the `Restart Server` command to update all open files and the server watchdog process as well.
 
 ### `ccache`
 

@@ -117,20 +117,12 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
     let joinPointId ← getJoinPointValue fvarId
     return .jmp joinPointId (← args.mapM lowerArg)
   | .cases cases =>
-    match (← getFVarValue cases.discr) with
-    | .var varId =>
-      return .case cases.typeName
-                   varId
-                   (← nameToIRType cases.typeName)
-                   (← cases.alts.mapM (lowerAlt varId))
-    | .erased =>
-      let #[alt] := cases.alts | panic! "erased inductive should only have one case"
-      match alt with
-      | .alt _ params code =>
-        params.forM (bindErased ·.fvarId)
-        lowerCode code
-      | .default code =>
-        lowerCode code
+    -- `casesOn` for inductive predicates should have already been expanded.
+    let .var varId := (← getFVarValue cases.discr) | unreachable!
+    return .case cases.typeName
+                 varId
+                 (← nameToIRType cases.typeName)
+                 (← cases.alts.mapM (lowerAlt varId))
   | .return fvarId =>
     return .ret (← getFVarValue fvarId)
   | .unreach .. => return .unreachable

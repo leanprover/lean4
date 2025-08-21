@@ -10,6 +10,7 @@ public import Lean.Meta.Transform
 public import Lean.Meta.Inductive
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.Deriving.Util
+import Lean.Meta.NatTable
 
 public section
 
@@ -137,21 +138,10 @@ partial def mkEnumOfNat (declName : Name) : MetaM Unit := do
   let indVal ← getConstInfoInduct declName
   let levels := indVal.levelParams.map Level.param
   let enumType := mkConst declName levels
-  let u ← getLevel enumType
   let ctors := indVal.ctors.toArray.map (mkConst · levels)
   withLocalDeclD `n (mkConst ``Nat) fun n => do
-    let cond := mkConst ``cond [u]
-    let rec mkDecTree (low high : Nat) : Expr :=
-      if low + 1 == high then
-        ctors[low]!
-      else if low + 2 == high then
-        mkApp4 cond enumType (mkApp2 (mkConst ``Nat.beq) n (mkRawNatLit low)) ctors[low]! ctors[low+1]!
-      else
-        let mid := (low + high)/2
-        let lowBranch := mkDecTree low mid
-        let highBranch := mkDecTree mid high
-        mkApp4 cond enumType (mkApp2 (mkConst ``Nat.ble) (mkRawNatLit mid) n) highBranch lowBranch
-    let value ← mkLambdaFVars #[n] (mkDecTree 0 ctors.size)
+    let value ← mkNatLookupTable n enumType ctors
+    let value ← mkLambdaFVars #[n] value
     let type ← mkArrow (mkConst ``Nat) enumType
     addAndCompile <| Declaration.defnDecl {
       name := Name.mkStr declName "ofNat"

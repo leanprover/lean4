@@ -17,6 +17,14 @@ This module provides utilities for the creation of order-related typeclass insta
 
 section OfLE
 
+@[inline]
+public def _root_.Min.leftLeaningOfLE (α : Type u) [LE α] [DecidableLE α] : Min α where
+  min a b := if a ≤ b then a else b
+
+@[inline]
+public def _root_.Max.leftLeaningOfLE (α : Type u) [LE α] [DecidableLE α] : Max α where
+  max a b := if b ≤ a then a else b
+
 /--
 This instance is only publicly defined in `Init.Data.Order.Lemmas`.
 -/
@@ -132,7 +140,8 @@ Creates a *total* `LE α` instance from an `LT α` instance.
 
 This only makes sense for asymmetric `LT α` instances (see `Std.Asymm`).
 -/
-public def LE.ofLT (α : Type u) [LT α] : LE α where
+@[inline]
+public def _root_.LE.ofLT (α : Type u) [LT α] : LE α where
   le a b := ¬ b < a
 
 /--

@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Order.Classes
 public import Init.Data.Order.Factories
+import all Init.Data.Order.Factories
 import Init.SimpLemmas
 public import Init.Classical
 public import Init.Data.BEq
@@ -306,8 +307,49 @@ public instance {α : Type u} [LE α] [Min α] [IsLinearOrder α] [LawfulOrderIn
     · apply min_le_right
     · simp [le_min_iff, le_refl, le_of_not_ge hab]
 
-end Min
+public theorem LawfulOrderLeftLeaningMin.of_eq {α : Type u} [LE α] [Min α] [DecidableLE α]
+    (min_eq : ∀ a b : α, min a b = if a ≤ b then a else b) : LawfulOrderLeftLeaningMin α where
+  min_eq_left a b := by simp +contextual [min_eq]
+  min_eq_right a b := by simp +contextual [min_eq]
 
+public instance {α : Type u} [LE α] [Min α] [LawfulOrderLeftLeaningMin α] :
+    MinEqOr α where
+  min_eq_or a b := by
+    open scoped Classical in
+    suffices min_eq : min a b = if a ≤ b then a else b by
+      rw [min_eq]
+      split <;> simp
+    split <;> simp [*, LawfulOrderLeftLeaningMin.min_eq_left, LawfulOrderLeftLeaningMin.min_eq_right]
+
+public instance {α : Type u} [LE α] [Min α] [IsLinearPreorder α] [LawfulOrderLeftLeaningMin α] :
+    LawfulOrderMin α where
+  toMinEqOr := inferInstance
+  le_min_iff a b c := by
+    open scoped Classical in
+    suffices min_eq : min b c = if b ≤ c then b else c by
+      rw [min_eq]
+      split <;> rename_i hbc
+      · simp only [iff_self_and]
+        exact fun hab => le_trans hab hbc
+      · simp only [iff_and_self]
+        exact fun hac => le_trans hac (by simpa [hbc] using Std.le_total (a := b) (b := c))
+    split <;> simp [*, LawfulOrderLeftLeaningMin.min_eq_left, LawfulOrderLeftLeaningMin.min_eq_right]
+
+end Min
+end Std
+
+namespace Classical.Order
+open Std
+
+public noncomputable scoped instance instMin {α : Type u} [LE α] : Min α where
+  min a b := if a ≤ b then a else b
+
+public instance instLawfulOrderLeftLeaningMin {α : Type u} [LE α] :
+    LawfulOrderLeftLeaningMin α := .of_eq (by simp [min])
+
+end Classical.Order
+
+namespace Std
 section Max
 
 public theorem max_self {α : Type u} [Max α] [Std.IdempotentOp (max : α → α → α)] {a : α} :
@@ -401,6 +443,56 @@ public instance {α : Type u} [LE α] [Max α] [IsLinearOrder α] [LawfulOrderSu
     · simp [max_le_iff, le_refl, le_of_not_ge hab]
     · apply right_le_max
 
+public theorem LawfulOrderLeftLeaningMax.of_eq {α : Type u} [LE α] [Max α] [DecidableLE α]
+    (min_eq : ∀ a b : α, max a b = if b ≤ a then a else b) : LawfulOrderLeftLeaningMax α where
+  max_eq_left a b := by simp +contextual [min_eq]
+  max_eq_right a b := by simp +contextual [min_eq]
+
+attribute [local instance] Min.leftLeaningOfLE
+public instance [LE α] [DecidableLE α] : LawfulOrderLeftLeaningMin α :=
+  .of_eq (fun a b => by simp [min])
+
+attribute [local instance] Max.leftLeaningOfLE
+public instance [LE α] [DecidableLE α] : LawfulOrderLeftLeaningMax α :=
+  .of_eq (fun a b => by simp [max])
+
+public instance {α : Type u} [LE α] [Max α] [LawfulOrderLeftLeaningMax α] :
+    MaxEqOr α where
+  max_eq_or a b := by
+    open scoped Classical in
+    suffices min_eq : max a b = if b ≤ a then a else b by
+      rw [min_eq]
+      split <;> simp
+    split <;> simp [*, LawfulOrderLeftLeaningMax.max_eq_left, LawfulOrderLeftLeaningMax.max_eq_right]
+
+public instance {α : Type u} [LE α] [Max α] [IsLinearPreorder α] [LawfulOrderLeftLeaningMax α] :
+    LawfulOrderMax α where
+  toMaxEqOr := inferInstance
+  max_le_iff a b c := by
+    open scoped Classical in
+    suffices max_eq : max a b = if b ≤ a then a else b by
+      rw [max_eq]
+      split <;> rename_i hba
+      · simp only [iff_self_and]
+        exact fun hac => le_trans hba hac
+      · simp only [iff_and_self]
+        exact fun hbc => le_trans (by simpa [hba] using Std.le_total (a := b) (b := a)) hbc
+    split <;> simp [*, LawfulOrderLeftLeaningMax.max_eq_left, LawfulOrderLeftLeaningMax.max_eq_right]
+
 end Max
+end Std
+
+namespace Classical.Order
+open Std
+
+public noncomputable scoped instance instMax {α : Type u} [LE α] : Max α where
+  max a b := if b ≤ a then a else b
+
+public instance instLawfulOrderLeftLeaningMax {α : Type u} [LE α] :
+    LawfulOrderLeftLeaningMax α := .of_eq (by simp [max])
+
+end Classical.Order
+
+namespace Std
 
 end Std

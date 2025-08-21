@@ -1,3 +1,4 @@
+module
 def Set (α : Type) := α → Bool
 
 def insertElem [DecidableEq α] (s : Set α) (a : α) : Set α :=

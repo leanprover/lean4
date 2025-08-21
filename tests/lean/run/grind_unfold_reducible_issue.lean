@@ -1,3 +1,4 @@
+module
 import Std.Do
 
 /--

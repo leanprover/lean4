@@ -1,3 +1,4 @@
+module
 -- Tests for `grind` as solver for linear equations in an `IntModule` or `RatModule`.
 
 open Lean.Grind

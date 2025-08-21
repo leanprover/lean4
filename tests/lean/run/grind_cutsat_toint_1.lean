@@ -1,3 +1,4 @@
+module
 example (a b c : Fin 11) : a ≤ b → b ≤ c → a ≤ c := by
   grind
 

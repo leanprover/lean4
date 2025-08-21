@@ -1,5 +1,6 @@
-import Std
-
+module
+public import Std.Data.ExtTreeMap
+public section
 open Std
 
 /--
@@ -53,7 +54,7 @@ instance : EmptyCollection (TreeMapD α β d) :=
 instance : Inhabited (TreeMapD α β d) :=
   ⟨empty⟩
 
-@[grind =] theorem getElem_empty (a : α) : (∅ : TreeMapD α β d)[a] = d := rfl
+@[grind =] theorem getElem_empty (a : α) : (∅ : TreeMapD α β d)[a] = d := (rfl)
 
 variable [DecidableEq β]
 

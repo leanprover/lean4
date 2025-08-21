@@ -1,4 +1,6 @@
+module
 reset_grind_attrs%
+@[expose] public section -- TODO: remove after we fix congr_eq
 
 attribute [grind cases] Or
 attribute [grind =] List.length_nil List.length_cons Option.getD

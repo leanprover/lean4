@@ -1,3 +1,4 @@
+module
 opaque g : Nat → Nat
 
 set_option trace.Meta.debug true

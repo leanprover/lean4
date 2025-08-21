@@ -1,3 +1,4 @@
+module
 -- This file uses `#guard_msgs` to check which lemmas `grind` is using.
 -- This may prove fragile, so remember it is okay to update the expected output if appropriate!
 -- Hopefully these will act as regression tests against `grind` activating irrelevant lemmas.

@@ -1,3 +1,4 @@
+module
 import Std.Data.HashMap
 import Std.Data.DHashMap
 import Std.Data.ExtHashMap

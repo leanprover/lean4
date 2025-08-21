@@ -1,5 +1,6 @@
+module
 reset_grind_attrs%
-
+public section -- TODO: workaround for private declaration + dot-notation issue
 attribute [grind] List.append_assoc List.cons_append List.nil_append
 
 inductive Tree (β : Type v) where

@@ -1,3 +1,4 @@
+module
 set_option trace.grind.eqc true
 set_option trace.grind.internalize true
 

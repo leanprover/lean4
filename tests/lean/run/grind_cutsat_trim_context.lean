@@ -1,3 +1,4 @@
+module
 /--
 trace: [grind.debug.proof] fun h h_1 h_2 h_3 h_4 h_5 h_6 h_7 h_8 =>
       let ctx := RArray.leaf (f 2);

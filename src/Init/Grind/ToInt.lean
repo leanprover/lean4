@@ -46,9 +46,9 @@ instance : LawfulBEq IntInterval where
 namespace IntInterval
 
 /-- The interval `[0, 2^n)`. -/
-abbrev uint (n : Nat) := IntInterval.co 0 (2 ^ n)
+@[expose] abbrev uint (n : Nat) := IntInterval.co 0 (2 ^ n)
 /-- The interval `[-2^(n-1), 2^(n-1))`. -/
-abbrev sint (n : Nat) := IntInterval.co (-(2 ^ (n - 1))) (2 ^ (n - 1))
+@[expose] abbrev sint (n : Nat) := IntInterval.co (-(2 ^ (n - 1))) (2 ^ (n - 1))
 
 /-- The lower bound of the interval, if finite. -/
 @[expose] def lo? (i : IntInterval) : Option Int :=
@@ -98,7 +98,7 @@ instance : Membership Int IntInterval where
 theorem nonEmpty_of_mem {x : Int} {i : IntInterval} (h : x ∈ i) : i.nonEmpty := by
   cases i <;> simp_all <;> omega
 
-@[simp]
+@[simp, expose]
 def wrap (i : IntInterval) (x : Int) : Int :=
   match i with
   | co lo hi => (x - lo) % (hi - lo) + lo

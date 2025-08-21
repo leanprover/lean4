@@ -1,4 +1,6 @@
-import Lean
+module
+public import Lean
+public meta import Lean.Elab.Tactic
 
 open Lean Meta Grind Elab Tactic in
 elab "cases' " e:term : tactic => withMainContext do

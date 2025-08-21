@@ -1,3 +1,4 @@
+module
 reset_grind_attrs%
 
 attribute [grind =] List.length_cons
@@ -47,7 +48,7 @@ theorem map_replicate' : (List.replicate n a).map f = List.replicate n (f a) := 
 theorem mem_of_getLast?_eq_some' {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by
   grind?
 
-def f : Nat → Nat
+@[expose] public def f : Nat → Nat
   | 0 => 1
   | _ => 2
 

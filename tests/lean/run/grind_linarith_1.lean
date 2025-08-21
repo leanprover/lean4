@@ -1,3 +1,4 @@
+module
 open Lean.Grind
 set_option grind.debug true
 

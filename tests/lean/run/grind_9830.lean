@@ -1,3 +1,4 @@
+module
 abbrev F : Fin 3 → Nat
 | 0 => 0
 | 1 => 1

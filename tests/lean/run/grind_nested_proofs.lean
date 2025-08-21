@@ -1,3 +1,4 @@
+module
 import Lean.Meta.Tactic.Grind
 
 def f (α : Type) [Add α] (a : α) := a + a + a

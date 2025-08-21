@@ -1,3 +1,4 @@
+module
 example (a b : Fin 2) (n : Nat) : n = 1 → ↑(a + b) ≠ n → a ≠ 0 → b = 0 → False := by
   grind -ring
 

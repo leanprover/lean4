@@ -1,3 +1,4 @@
+module
 open Lean.Grind
 
 variable [CommRing R] [LE R] [LT R] [LinearOrder R] [OrderedRing R]

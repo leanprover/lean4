@@ -1,3 +1,4 @@
+module
 set_option linter.unusedSimpArgs false
 
 open BitVec

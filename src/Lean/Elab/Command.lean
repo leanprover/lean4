@@ -479,7 +479,6 @@ def withMacroExpansion (beforeStx afterStx : Syntax) (x : CommandElabM α) : Com
     withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 instance : MonadMacroAdapter CommandElabM where
-  getCurrMacroScope := getCurrMacroScope
   getNextMacroScope := return (← get).nextMacroScope
   setNextMacroScope next := modify fun s => { s with nextMacroScope := next }
 

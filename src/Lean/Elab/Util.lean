@@ -161,14 +161,12 @@ def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Ex
       | ex                                => return (e.declName, Except.error ex)
   return none
 
-class MonadMacroAdapter (m : Type → Type) where
-  getCurrMacroScope                  : m MacroScope
+class MonadMacroAdapter (m : Type → Type) extends MonadQuotation m where
   getNextMacroScope                  : m MacroScope
   setNextMacroScope                  : MacroScope → m Unit
 
 @[always_inline]
-instance (m n) [MonadLift m n] [MonadMacroAdapter m] : MonadMacroAdapter n := {
-  getCurrMacroScope := liftM (MonadMacroAdapter.getCurrMacroScope : m _)
+instance (m n) [MonadLift m n] [MonadQuotation n] [MonadMacroAdapter m] : MonadMacroAdapter n := {
   getNextMacroScope := liftM (MonadMacroAdapter.getNextMacroScope : m _)
   setNextMacroScope := fun s => liftM (MonadMacroAdapter.setNextMacroScope s : m _)
 }
@@ -190,8 +188,8 @@ def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [M
   }
   match x { methods        := methods
             ref            := ← getRef
-            currMacroScope := ← MonadMacroAdapter.getCurrMacroScope
-            mainModule     := env.mainModule
+            currMacroScope := ← MonadQuotation.getCurrMacroScope
+            quotContext    := ← MonadQuotation.getContext
             currRecDepth   := ← MonadRecDepth.getRecDepth
             maxRecDepth    := ← MonadRecDepth.getMaxRecDepth
           } { macroScope := (← MonadMacroAdapter.getNextMacroScope) } with

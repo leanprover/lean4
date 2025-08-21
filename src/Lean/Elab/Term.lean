@@ -1484,7 +1484,6 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   | elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
 
 instance : MonadMacroAdapter TermElabM where
-  getCurrMacroScope := getCurrMacroScope
   getNextMacroScope := return (← getThe Core.State).nextMacroScope
   setNextMacroScope next := modifyThe Core.State fun s => { s with nextMacroScope := next }
 

@@ -26,10 +26,10 @@ Returns `true` if `n` is `≤ exponentiation.threshold`. Otherwise,
 reports a warning and returns `false`.
 This method ensures there is at most one warning message of this kind in the message log.
 -/
-def checkExponent (n : Nat) : CoreM Bool := do
+def checkExponent (n : Nat) (warning := true) : CoreM Bool := do
   let threshold := exponentiation.threshold.get (← getOptions)
   if n > threshold then
-    if (← logMessageKind `unsafe.exponentiation) then
+    if (← pure warning <&&> logMessageKind `unsafe.exponentiation) then
       logWarning s!"exponent {n} exceeds the threshold {threshold}, exponentiation operation was not evaluated, use `set_option {exponentiation.threshold.name} <num>` to set a new threshold"
     return false
   else

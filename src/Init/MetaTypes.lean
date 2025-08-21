@@ -286,6 +286,10 @@ structure Config where
   bitvector literals.
   -/
   bitVecOfNat : Bool := true
+  /--
+  When `true` (default: `true`), the `^` simprocs generate an warning it the exponents are too big.
+  -/
+  warnExponents : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

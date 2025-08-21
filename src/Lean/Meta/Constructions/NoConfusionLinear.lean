@@ -119,6 +119,7 @@ def mkNoConfusionTypeName (indName : Name) : Name :=
 
 def mkWithCtorType (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
+  if info.numCtors = 0 then return
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstVal casesOnName
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
@@ -149,6 +150,7 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
 
 def mkWithCtor (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
+  if info.numCtors = 0 then return
   let withCtorTypeName := mkWithCtorTypeName indName
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstVal casesOnName

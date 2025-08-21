@@ -299,9 +299,9 @@ namespace InternalSyntax
   accessible beyond those implicit scopes, even though they would normally be hidden from the user.
   -/
   scoped syntax (name := end_local_scope) "end_local_scope" : command
-end InternalSyntax
 
-def endLocalScopeSyntax : TSyntax `command := ⟨.node .none ``Command.InternalSyntax.end_local_scope #[]⟩
+  def endLocalScopeSyntax : Command := Unhygienic.run `(end_local_scope)
+end InternalSyntax
 
 /-- Declares one or more typed variables, or modifies whether already-declared variables are
   implicit.

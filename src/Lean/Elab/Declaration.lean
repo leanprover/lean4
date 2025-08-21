@@ -142,8 +142,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
         if isExtern (← getEnv) declName then
           compileDecl decl
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
-
---def cmdStx : TSyntax `command := ⟨.node .none ``Lean.Parser.Command.InternalSyntax.end_local_scop #[]⟩
+open Lean.Parser.Command.InternalSyntax in
 /--
 Macro that expands a declaration with a complex name into an explicit `namespace` block.
 Implementing this step as a macro means that reuse checking is handled by `elabCommand`.
@@ -155,7 +154,7 @@ def expandNamespacedDeclaration : Macro := fun stx => do
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
     let declTk := stx[1][0]
     let ns := mkIdentFrom declTk ns
-    withRef declTk `(namespace $ns $Lean.Parser.Command.endLocalScopeSyntax:command $(⟨newStx⟩) end $ns)
+    withRef declTk `(namespace $ns $endLocalScopeSyntax:command $(⟨newStx⟩) end $ns)
   | none => Macro.throwUnsupported
 
 @[builtin_command_elab declaration, builtin_incremental]

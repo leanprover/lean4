@@ -490,10 +490,11 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 
+open Lean.Parser.Command.InternalSyntax in
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(section $cmd₁:command $Lean.Parser.Command.endLocalScopeSyntax:command  $cmd₂ end)
+    withRef tk `(section $cmd₁:command $endLocalScopeSyntax:command  $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do

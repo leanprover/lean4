@@ -125,7 +125,7 @@ void set_max_memory_megabyte(unsigned max) {
 }
 
 // separate definition to allow breakpoint in debugger
-void throw_memory_exception(char const * component_name) {
+[[noreturn]] void throw_memory_exception(char const * component_name) {
     throw memory_exception(component_name);
 }
 

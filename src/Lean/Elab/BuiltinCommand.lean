@@ -43,6 +43,7 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
       attrs := s.scopes.head!.attrs ++ attrs
     } :: s.scopes
   }
+  -- We ensure that we delimit local entries by default
   setDelimitsLocal true
   pushScope
   if isNewNamespace then
@@ -107,7 +108,6 @@ private def checkEndHeader : Name → List Scope → Option Name
 
 @[builtin_command_elab InternalSyntax.end_local_scope] def elabEndLocalScope : CommandElab := fun _ => do
   setDelimitsLocal false
-
 
 /--
 Produces a `Name` composed of the names of at most the innermost `n` scopes in `ss`, truncating if an
@@ -494,7 +494,7 @@ open Lean.Parser.Command.InternalSyntax in
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(section $cmd₁:command $endLocalScopeSyntax:command  $cmd₂ end)
+    withRef tk `(section $cmd₁:command $endLocalScopeSyntax:command $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do

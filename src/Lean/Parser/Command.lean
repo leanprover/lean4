@@ -291,7 +291,6 @@ with `end <id>`. The `end` command is optional at the end of a file.
 @[builtin_command_parser] def «end»          := leading_parser
   "end" >> optional (ppSpace >> checkColGt >> ident)
 
-
 namespace InternalSyntax
   /-- Disable delimiting of local entries in ScopedEnvExtension within the current scope.
   This command is for internal use only. It is intended for macros that implicitly introduce new

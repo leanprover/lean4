@@ -154,4 +154,14 @@ theorem le_upper {α i} [ToInt α i] (hi' : Int) (h : i.hi? == some (-hi' + 1)) 
   have h' := ToInt.toInt_mem a
   revert h h'; cases i <;> simp [IntInterval.hi?] <;> intro h <;> subst h <;> intros <;> omega
 
+theorem ge_lower' {α i} [ToInt α i] (lo : Int) (h : i.lo? = some lo) (a : α) : lo ≤ toInt a := by
+  have h' := ToInt.toInt_mem a
+  revert h h'; cases i <;> simp [IntInterval.lo?] <;> intro h <;> subst h <;> intros <;> assumption
+
+theorem le_upper' {α i} [ToInt α i] (hi : Int) (h : i.hi? = some hi) (a : α) : toInt a + 1 ≤ hi := by
+  have h' := ToInt.toInt_mem a
+  revert h h'; cases i <;> simp [IntInterval.hi?] <;> intro h <;> subst h <;> intros
+  next h => exact Int.add_one_le_of_lt h
+  next h => exact Int.add_one_le_of_lt h
+
 end Lean.Grind.ToInt

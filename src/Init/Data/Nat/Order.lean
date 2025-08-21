@@ -25,14 +25,14 @@ public instance : LawfulOrderLT Nat := by
   simp [Nat.lt_iff_le_and_ne]
 
 public instance : LawfulOrderMin Nat := by
-  apply LawfulOrderMin.of_le
+  apply LawfulOrderMin.of_le_min_iff
   · apply Nat.le_min
   · intro a b
     simp only [Nat.min_def]
     split <;> simp
 
 public instance : LawfulOrderMax Nat := by
-  apply LawfulOrderMax.of_le
+  apply LawfulOrderMax.of_max_le_iff
   · apply Nat.max_le
   · intro a b
     simp only [Nat.max_def]

@@ -115,11 +115,33 @@ instances.
 
 The produced instance entails `LawfulOrderInf α` and `MinEqOr α`.
 -/
-public theorem LawfulOrderMin.of_le {α : Type u} [Min α] [LE α]
-    (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c)
-    (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b) : LawfulOrderMin α where
+public theorem LawfulOrderMin.of_le_min_iff {α : Type u} [Min α] [LE α]
+    (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c := by exact LawfulOrderInf.le_min_iff)
+    (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b := by exact MinEqOr.min_eq_or) :
+    LawfulOrderMin α where
   toLawfulOrderInf := .of_le le_min_iff
   toMinEqOr := ⟨min_eq_or⟩
+
+/--
+Returns a `LawfulOrderMin α` instance given that `max a b` returns either `a` or `b` and that
+it is less than or equal to both of them. The `≤` relation needs to be transitive.
+
+The produced instance entails `LawfulOrderInf α` and `MinEqOr α`.
+-/
+public theorem LawfulOrderMin.of_min_le {α : Type u} [Min α] [LE α]
+    [i : Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
+    (min_le_left : ∀ a b : α, min a b ≤ a) (min_le_right : ∀ a b : α, min a b ≤ b)
+    (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b := by exact MinEqOr.min_eq_or) :
+    LawfulOrderMin α := by
+  apply LawfulOrderMin.of_le_min_iff
+  · simp [autoParam]
+    intro a b c
+    constructor
+    · intro h
+      exact ⟨i.trans h (min_le_left b c), i.trans h (min_le_right b c)⟩
+    · intro h
+      cases min_eq_or b c <;> simp [*]
+  · exact min_eq_or
 
 /--
 This lemma characterizes in terms of `LE α` when a `Max α` instance "behaves like a supremum
@@ -137,11 +159,33 @@ instances.
 
 The produced instance entails `LawfulOrderSup α` and `MaxEqOr α`.
 -/
-public def LawfulOrderMax.of_le {α : Type u} [Max α] [LE α]
-    (max_le_iff : ∀ a b c : α, max a b ≤ c ↔ a ≤ c ∧ b ≤ c)
-    (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b) : LawfulOrderMax α where
+public def LawfulOrderMax.of_max_le_iff {α : Type u} [Max α] [LE α]
+    (max_le_iff : ∀ a b c : α, max a b ≤ c ↔ a ≤ c ∧ b ≤ c := by exact LawfulOrderInf.le_min_iff)
+    (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b := by exact MaxEqOr.max_eq_or) :
+    LawfulOrderMax α where
   toLawfulOrderSup := .of_le max_le_iff
   toMaxEqOr := ⟨max_eq_or⟩
+
+/--
+Returns a `LawfulOrderMax α` instance given that `max a b` returns either `a` or `b` and that
+it is larger than or equal to both of them. The `≤` relation needs to be transitive.
+
+The produced instance entails `LawfulOrderSup α` and `MaxEqOr α`.
+-/
+public theorem LawfulOrderMax.of_le_max {α : Type u} [Max α] [LE α]
+    [i : Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
+    (left_le_max : ∀ a b : α, a ≤ max a b) (right_le_max : ∀ a b : α, b ≤ max a b)
+    (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b := by exact MaxEqOr.max_eq_or) :
+    LawfulOrderMax α := by
+  apply LawfulOrderMax.of_max_le_iff
+  · simp [autoParam]
+    intro a b c
+    constructor
+    · intro h
+      exact ⟨i.trans (left_le_max a b) h, i.trans (right_le_max a b) h⟩
+    · intro h
+      cases max_eq_or a b <;> simp [*]
+  · exact max_eq_or
 
 end OfLE
 

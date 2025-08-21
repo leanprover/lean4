@@ -16,6 +16,7 @@ public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Init.System.Platform
 public import Lean.Meta.Hint
+public import Lean.Parser.Command
 
 public section
 
@@ -42,6 +43,7 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
       attrs := s.scopes.head!.attrs ++ attrs
     } :: s.scopes
   }
+  setDelimitsLocal true
   pushScope
   if isNewNamespace then
     activateScoped newNamespace
@@ -103,8 +105,9 @@ private def checkEndHeader : Name → List Scope → Option Name
       addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace)
   | _                        => throwUnsupportedSyntax
 
-@[builtin_command_elab «end_local_scope»] def elabEndLocalScope : CommandElab := fun _ => do
+@[builtin_command_elab InternalSyntax.end_local_scope] def elabEndLocalScope : CommandElab := fun _ => do
   setDelimitsLocal false
+
 
 /--
 Produces a `Name` composed of the names of at most the innermost `n` scopes in `ss`, truncating if an
@@ -490,7 +493,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(section $cmd₁:command $cmd₂ end)
+    withRef tk `(section $cmd₁:command $Lean.Parser.Command.endLocalScopeSyntax:command  $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do

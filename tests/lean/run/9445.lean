@@ -1,22 +1,33 @@
 axiom A : Prop
-namespace ex1
-namespace foo
-end_local_scope
-@[local simp] axiom bar : A ↔ true
-end foo
 
-theorem baz : A ↔ true := by simp
+@[simp] def Foo.T := True
+@[simp] def Bar.T := True
+
+namespace ex0
+@[local simp] axiom a : A ↔ True
+example : A := by simp
+end ex0
+
+namespace ex1
+set_option linter.unusedVariables false in
+@[local simp] axiom a : A ↔ True
+example : A := by simp
 end ex1
 
 namespace ex2
-namespace foo
-@[local simp] axiom bar : A ↔ true
-end_local_scope
-end foo
-/--
-  error: unsolved goals
-⊢ A
--/
-#guard_msgs in
-theorem baz : A ↔ true := by simp
-end ex2
+open Nat in
+@[local simp] axiom a : A ↔ True
+example : A := by simp
+
+namespace ex3
+@[local simp] axiom Foo.a : A ↔ True
+example : A := by simp
+end ex3
+
+axiom A : Prop
+namespace ex
+axiom test.a : A ↔ True
+set_option pp.mvars true in
+attribute [local simp] test.a
+example : A := by simp
+end ex

@@ -12,6 +12,7 @@ public import Lean.Elab.DefView
 public import Lean.Elab.MutualDef
 public import Lean.Elab.MutualInductive
 public import Lean.Elab.DeclarationRange
+public import Lean.Parser.Command
 import Lean.Parser.Command
 
 public section
@@ -142,6 +143,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
           compileDecl decl
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
+--def cmdStx : TSyntax `command := ⟨.node .none ``Lean.Parser.Command.InternalSyntax.end_local_scop #[]⟩
 /--
 Macro that expands a declaration with a complex name into an explicit `namespace` block.
 Implementing this step as a macro means that reuse checking is handled by `elabCommand`.
@@ -153,7 +155,7 @@ def expandNamespacedDeclaration : Macro := fun stx => do
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
     let declTk := stx[1][0]
     let ns := mkIdentFrom declTk ns
-    withRef declTk `(namespace $ns $(⟨newStx⟩) end $ns)
+    withRef declTk `(namespace $ns $Lean.Parser.Command.endLocalScopeSyntax:command $(⟨newStx⟩) end $ns)
   | none => Macro.throwUnsupported
 
 @[builtin_command_elab declaration, builtin_incremental]

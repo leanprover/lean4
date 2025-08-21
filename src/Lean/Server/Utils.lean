@@ -97,10 +97,11 @@ structure DocumentMeta where
   deriving Inhabited
 
 /-- Extracts an `InputContext` from `doc`. -/
-def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext where
-  input    := doc.text.source
-  fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString
-  fileMap  := doc.text
+def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext :=
+  .mk
+    (input := doc.text.source)
+    (fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString)
+    (fileMap  := doc.text)
 
 /--
 Replaces the range `r` (using LSP UTF-16 positions) in `text` (using UTF-8 positions)

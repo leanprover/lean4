@@ -14,7 +14,7 @@ namespace Lean.Grind.ToInt
 
 /-! Wrap -/
 
-theorem of_eq_wrap_co_0 (i : IntInterval) (hi : Int) (h : i == .co 0 hi) {a b : Int} : a = i.wrap b → a = b % hi := by
+theorem of_eq_wrap_co_0 (i : IntInterval) (hi : Int) (h : i = .co 0 hi) {a b : Int} : a = i.wrap b → a = b % hi := by
   revert h
   cases i <;> simp
   intro h₁ h₂; subst h₁ h₂; simp

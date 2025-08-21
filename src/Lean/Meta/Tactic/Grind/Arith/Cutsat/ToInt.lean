@@ -77,7 +77,7 @@ where
     let wrap := mkApp (mkConst ``Grind.IntInterval.wrap) rangeExpr
     let ofWrap0? ← if let .co lo hi := range then
       if (← isZeroInt lo) then
-        pure <| some <| mkApp3 (mkConst ``Grind.ToInt.of_eq_wrap_co_0) rangeExpr hi eagerReflBoolTrue
+        pure <| some <| mkApp3 (mkConst ``Grind.ToInt.of_eq_wrap_co_0) rangeExpr hi (← mkEqRefl rangeExpr)
       else pure none
       else pure none
     let ofEq := mkApp3 (mkConst ``Grind.ToInt.of_eq [u]) type rangeExpr toIntInst
@@ -316,6 +316,12 @@ private def isWrap (e : Expr) : Option Expr :=
   | Grind.IntInterval.wrap _ a => some a
   | _ => none
 
+private def hasNumericLoHi : ToIntM Bool := do
+  let info ← getInfo
+  let some lo := info.range.lo? | return false
+  let some hi := info.range.hi? | return false
+  return (← getIntValue? lo).isSome && (← getIntValue? hi).isSome
+
 /--
 Given `h : toInt a = i.wrap b`, return `(b', h)` where
 `b'` is the expanded form of `i.wrap b`, and `h : toInt a = b'`
@@ -340,7 +346,7 @@ private def expandWrap (a b : Expr) (h : Expr) : ToIntM (Expr × Expr) := do
         return (b', h)
     else
       let b' ← range.wrap b
-      if (← getIntValue? lo).isSome && (← getIntValue? hi).isSome then
+      if (← hasNumericLoHi) then
         return (b', h)
       else
         -- We must preprocess `b'` because `lo` and/or `hi` are symbolic values that may
@@ -407,9 +413,12 @@ private partial def toInt' (e : Expr) : ToIntM (Expr × Expr) := do
   | OfNat.ofNat _ n _ =>
     let some thm ← getOfNatThm? | mkToIntVar e
     let some n ← getNatValue? n | mkToIntVar e
-    let r ← (← getInfo).range.wrap (mkIntLit n)
     let h := mkApp thm (toExpr n)
-    return (r, h)
+    if (← hasNumericLoHi) then
+      let r ← (← getInfo).range.wrap (mkIntLit n)
+      return (r, h)
+    else
+      expandWrap e (mkIntLit n) h
   | _ => mkToIntVar e
 where
   toIntBin (toIntOp : ToIntThms) (mkBinOp : Expr → Expr → Expr) (a b : Expr) : ToIntM (Expr × Expr) := do

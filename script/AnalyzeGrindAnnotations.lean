@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 import Lean
 
 namespace Lean.Meta.Grind.Analyzer
+
+
 /-!
 A simple E-matching annotation analyzer.
 For each theorem annotated as an E-matching candidate, it creates an artificial goal, executes `grind` and shows the
@@ -72,16 +74,28 @@ def analyzeEMatchTheorem (declName : Name) (c : Config) : MetaM Unit := do
   if s > c.detailed then
     logInfo m!"{declName}\n{← thmsToMessageData thms}"
 
+-- Not sure why this is failing: `down_pure` perhaps has an unnecessary universe parameter?
+run_meta analyzeEMatchTheorem ``Std.Do.SPred.down_pure {}
+
 /-- Analyzes all theorems in the standard library marked as E-matching theorems. -/
 def analyzeEMatchTheorems (c : Config := {}) : MetaM Unit := do
   let origins := (← getEMatchTheorems).getOrigins
-  for o in origins do
-    let .decl declName := o | pure ()
-    analyzeEMatchTheorem declName c
+  let decls := origins.filterMap fun | .decl declName => some declName | _ => none
+  for declName in decls.mergeSort Name.lt do
+    try
+      analyzeEMatchTheorem declName c
+    catch e =>
+      logError m!"{declName} failed with {e.toMessageData}"
+  logInfo m!"Finished analyzing {decls.length} theorems"
 
-set_option maxHeartbeats 5000000
-run_meta analyzeEMatchTheorems
+/-- Macro for analyzing E-match theorems with unlimited heartbeats -/
+macro "#analyzeEMatchTheorems" : command => `(
+  set_option maxHeartbeats 0 in
+  run_meta analyzeEMatchTheorems
+)
 
--- We can analyze specific theorems using commands such as
+#analyzeEMatchTheorems
+
+-- -- We can analyze specific theorems using commands such as
 set_option trace.grind.ematch.instance true in
 run_meta analyzeEMatchTheorem ``List.filterMap_some {}

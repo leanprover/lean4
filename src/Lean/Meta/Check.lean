@@ -307,6 +307,7 @@ where
 
 /--
 Throw an exception if `e` is not type correct.
+Assumption: `e` has had its metavariables instantiated.
 -/
 def check (e : Expr) : MetaM Unit :=
   withTraceNode `Meta.check (fun res =>
@@ -319,6 +320,7 @@ def check (e : Expr) : MetaM Unit :=
 
 /--
 Return true if `e` is type correct.
+Assumption: `e` has had its metavariables instantiated.
 -/
 def isTypeCorrect (e : Expr) : MetaM Bool := do
   try
@@ -329,5 +331,38 @@ def isTypeCorrect (e : Expr) : MetaM Bool := do
 
 builtin_initialize
   registerTraceClass `Meta.check
+
+/-!
+### Consistency checks
+
+These are variants that check type correctness, for consistency checks.
+They avoid assigning metavariables or doing any other side effects.
+-/
+
+/--
+Consistency check: validates that `e` is type correct, without assigning metavariables.
+If the expected type is provided, verifies that `e` has that type.
+-/
+def validateTypeCorrect (e : Expr) (expectedType? : Option Expr := none) : MetaM Unit :=
+  withNewMCtxDepth do
+    prependError "validateTypeCorrect: expression is not type correct{indentExpr e}\nerror:" do
+      check (← instantiateMVars e)
+    if let some expectedType := expectedType? then
+      let ty ← prependError m!"validateTypeCorrect: could not infer type of{indentExpr e}\nerror:" do
+        inferType e
+      let b ← prependError m!"validateTypeCorrect: error when checking that type of{indentExpr e}\nis{indentExpr expectedType}\nerror:" do
+        isDefEq ty expectedType
+      unless b do
+        throwError "validateTypeCorrect: expression{indentExpr e}\n{← mkHasTypeButIsExpectedMsg ty expectedType}"
+
+/--
+Consistency check: validates that `e` is a sort. Does not validate type correctness.
+-/
+def validateIsSort (e : Expr) : MetaM Unit :=
+  withNewMCtxDepth do
+    let b ← prependError "validateIsSort: expression is not type correct{indentExpr e}\nerror:" do
+      Meta.isType e
+    unless b do
+      throwError "validateIsSort: expression is not a sort{indentExpr e}"
 
 end Lean.Meta

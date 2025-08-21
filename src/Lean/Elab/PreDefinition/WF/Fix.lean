@@ -21,10 +21,9 @@ public section
 namespace Lean.Elab.WF
 open Meta
 
-register_builtin_option debug.definition.wf.replaceRecApps : Bool := {
-    defValue := false
-    descr    := "Type check every step of the well-founded definition translation"
-  }
+builtin_initialize
+  registerDebugClass `definition.wf.replaceRecApps
+    "Type check every step of the well-founded definition translation"
 
 /-
 Creates a subgoal for a recursive call, as an unsolved `MVar`. The goal is cleaned up, and
@@ -67,7 +66,7 @@ where
 
   loop (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     let e' ← loopGo F e
-    if (debug.definition.wf.replaceRecApps.get (← getOptions)) then
+    debug[definition.wf.replaceRecApps] do
       withTransparency .all do withNewMCtxDepth do
         unless (← isTypeCorrect e') do
           throwError "Type error introduced when transforming{indentExpr e}\nto{indentExpr e'}"

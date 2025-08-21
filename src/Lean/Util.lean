@@ -21,6 +21,7 @@ public import Lean.Util.RecDepth
 public import Lean.Util.ShareCommon
 public import Lean.Util.Sorry
 public import Lean.Util.Trace
+public import Lean.Util.Debug
 public import Lean.Util.FindExpr
 public import Lean.Util.ReplaceExpr
 public import Lean.Util.ForEachExpr

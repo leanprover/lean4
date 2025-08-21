@@ -45,12 +45,11 @@ register_builtin_option backward.dsimp.useDefEqAttr : Bool := {
     can be used in `dsimp` or with `implicitDefEqProofs`."
 }
 
-register_builtin_option debug.tactic.simp.checkDefEqAttr : Bool := {
-  defValue := false
-  descr    := "If true, whenever `dsimp` fails to apply a rewrite rule because it is not marked as \
-    `defeq`, check whether it would have been considered as a rfl theorem before the introduction \
-    of the `defeq` attribute, and warn if it was. Note that this is a costly check."
-}
+builtin_initialize
+  registerDebugClass `tactic.simp.check.defEqAttr
+    "If true, whenever `dsimp` fails to apply a rewrite rule because it is not marked as \
+     `defeq`, check whether it would have been considered as a rfl theorem before the introduction \
+     of the `defeq` attribute, and warn if it was. Note that this is a costly check."
 
 /--
 An `Origin` is an identifier for simp theorems which indicates roughly

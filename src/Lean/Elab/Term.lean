@@ -1274,11 +1274,8 @@ private def postponeElabTermCore (stx : Syntax) (expectedType? : Option Expr) : 
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
   return (← get).syntheticMVars.get? mvarId
 
-register_builtin_option debug.byAsSorry : Bool := {
-  defValue := false
-  group    := "debug"
-  descr    := "replace `by ..` blocks with `sorry` IF the expected type is a proposition"
-}
+builtin_initialize
+  registerDebugClass `byAsSorry "replace `by ..` blocks with `sorry` IF the expected type is a proposition"
 
 /--
 Creates a new metavariable of type `type` that will be synthesized using the tactic code.
@@ -1286,14 +1283,13 @@ The `tacticCode` syntax is the full `by ..` syntax.
 -/
 def mkTacticMVar (type : Expr) (tacticCode : Syntax) (kind : TacticMVarKind)
     (delayOnMVars := false) : TermElabM Expr := do
-  if ← pure (debug.byAsSorry.get (← getOptions)) <&&> isProp type then
-    withRef tacticCode <| mkLabeledSorry type false (unique := true)
-  else
-    let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
-    let mvarId := mvar.mvarId!
-    let ref ← getRef
-    registerSyntheticMVar ref mvarId <| .tactic tacticCode (← saveContext) kind delayOnMVars
-    return mvar
+  debug[byAsSorry] if ← isProp type then
+    return ← withRef tacticCode <| mkLabeledSorry type false (unique := true)
+  let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
+  let mvarId := mvar.mvarId!
+  let ref ← getRef
+  registerSyntheticMVar ref mvarId <| .tactic tacticCode (← saveContext) kind delayOnMVars
+  return mvar
 
 /--
   Create an auxiliary annotation to make sure we create an `Info` even if `e` is a metavariable.

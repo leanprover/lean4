@@ -63,3 +63,33 @@ example (a b c d : Nat) : b > 0 → d = 1 → b = d + 1 → a % b = 1 → a = 2 
 
 example (a b c d : Nat) : b > 1 → d = 1 → b ≤ d + 1 → a % b = 1 → a = 2 * c → False := by
   grind
+
+example (b : Int) : 4 % b = 1 → b = 2 → False := by
+  grind
+
+example (b : Int) : b = 2 → 4 % b = 1 → False := by
+  grind
+
+example (b : Nat) : 4 % b = 1 → b = 2 → False := by
+  grind
+
+example (b : Int) : 4 / b = 1 → b = 2 → False := by
+  grind
+
+example (b : Nat) : 4 / b = 1 → b = 2 → False := by
+  grind
+
+example (b : Int) : 4 % b = 1 → b ≤ 2 → 2 ≤ b → False := by
+  grind
+
+example (b : Int) : b ≤ 2 → 2 ≤ b → 4 % b = 1 → False := by
+  grind
+
+example (b : Nat) : 4 % b = 1 → b ≤ 2 → 2 ≤ b → False := by
+  grind
+
+example (b : Int) : 4 / b = 1 → b ≤ 2 → 2 ≤ b → False := by
+  grind
+
+example (b : Nat) : 4 / b = 1 → b ≤ 2 → 2 ≤ b → False := by
+  grind

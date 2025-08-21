@@ -2193,6 +2193,9 @@ theorem mul_eq_zero_right (a b : Int) (h : b = 0) : a*b = 0 := by simp [*]
 theorem div_eq (a b k : Int) (h : b = k) : a / b = a / k := by simp [*]
 theorem mod_eq (a b k : Int) (h : b = k) : a % b = a % k := by simp [*]
 
+theorem div_eq' (a b b' k : Int) (h₁ : b = b') (h₂ : k == a/b') : a / b = k := by simp_all
+theorem mod_eq' (a b b' k : Int) (h₁ : b = b') (h₂ : k == a%b') : a % b = k := by simp_all
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

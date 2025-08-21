@@ -103,8 +103,18 @@ inductive EqCnstrProof where
   | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
   | defnNatCommRing (h : Expr) (x : Var) (e' : Int.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
   | mul (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr))
-  | div (k : Int) (y : Var) (c : EqCnstr)
-  | mod (k : Int) (y : Var) (c : EqCnstr)
+  | /--
+    Linearization proof for `/`
+    - If `?y = some y`, then it is a proof for `a / b = y / k` where `c` is a proof that `b = k`
+    - If `?y = none`, then it is a proof for `a / b = a/k` where `c` is a proof that `b = k`. `a` is a numeral in this case.
+    -/
+    div (k : Int) (y? : Option Var) (c : EqCnstr)
+  | /--
+    Linearization proof for `%`
+    - If `?y = some y`, then it is a proof for `a % b = y%k` where `c` is a proof that `b = k`
+    - If `?y = none`, then it is a proof for `a % b = a%k` where `c` is a proof that `b = k`. `a` is a numeral in this case.
+    -/
+    mod (k : Int) (y? : Option Var) (c : EqCnstr)
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where

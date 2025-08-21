@@ -224,10 +224,13 @@ private def propagateNonlinearDiv (x : Var) : GoalM Bool := do
   let_expr HDiv.hDiv _ _ _ i a b := e | return false
   unless (← isInstHDivInt i) do return false
   let some (k, c) ← isExprEqConst? b | return false
-  let div' ← shareCommon (mkIntDiv a (mkIntLit k))
-  internalize div' (← getGeneration e)
-  let y ← mkVar div'
-  let c' := { p := .add 1 x (.add (-1) y (.num 0)), h := .div k y c : EqCnstr }
+  let c' ← if let some a ← getIntValue? a then
+    pure { p := .add 1 x (.num (-(a/k))), h := .div k none c : EqCnstr }
+  else
+    let div' ← shareCommon (mkIntDiv a (mkIntLit k))
+    internalize div' (← getGeneration e)
+    let y ← mkVar div'
+    pure { p := .add 1 x (.add (-1) y (.num 0)), h := .div k (some y) c : EqCnstr }
   c'.assert
   return true
 
@@ -236,10 +239,13 @@ private def propagateNonlinearMod (x : Var) : GoalM Bool := do
   let_expr HMod.hMod _ _ _ i a b := e | return false
   unless (← isInstHModInt i) do return false
   let some (k, c) ← isExprEqConst? b | return false
-  let mod' ← shareCommon (mkIntMod a (mkIntLit k))
-  internalize mod' (← getGeneration e)
-  let y ← mkVar mod'
-  let c' := { p := .add 1 x (.add (-1) y (.num 0)), h := .mod k y c : EqCnstr }
+  let c' ← if let some a ← getIntValue? a then
+    pure { p := .add 1 x (.num (-(a%k))), h := .mod k none c : EqCnstr }
+  else
+    let mod' ← shareCommon (mkIntMod a (mkIntLit k))
+    internalize mod' (← getGeneration e)
+    let y ← mkVar mod'
+    pure { p := .add 1 x (.add (-1) y (.num 0)), h := .mod k (some y) c : EqCnstr }
   c'.assert
   return true
 

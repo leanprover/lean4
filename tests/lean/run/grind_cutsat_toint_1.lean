@@ -94,3 +94,22 @@ example (a b : Fin 3) : a > 0 → a ≠ b → a + b ≠ 0 → a + b ≠ 1 → Fa
 set_option trace.grind.debug.ring.basis true in
 example (a b : Fin 3) : a > 0 → a ≠ b → a + b ≠ 0 → a + b ≠ 1 → False := by
   grind
+
+example (p : Nat) (heq : p = 0) (n : Fin (p + 1)) : n = 0 := by
+  grind
+
+example (p : Nat) (heq : p = 1) (n : Fin (p + 1)) : n = 0 ∨ n = 1 := by
+  grind
+
+example (p d : Nat) (n : Fin (p + 1)) : 2 ≤ p → p ≤ d + 1 → d = 1 → n = 0 ∨ n = 1 ∨ n = 2 := by
+  grind
+
+example (s : Nat)
+  (i j : Fin (s + 1)) (hn : i ≠ j) (hl : ¬i < j) : j < i := by
+  grind
+
+example {n : Nat} (j : Fin (n + 1)) : j ≤ j := by
+  grind
+
+example {n : Nat} (x y : Fin ((n + 1) + 1)) (h₂ : ¬x = y) (h : ¬x < y) : y < x := by
+  grind

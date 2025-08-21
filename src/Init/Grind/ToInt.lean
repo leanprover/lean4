@@ -51,7 +51,7 @@ abbrev uint (n : Nat) := IntInterval.co 0 (2 ^ n)
 abbrev sint (n : Nat) := IntInterval.co (-(2 ^ (n - 1))) (2 ^ (n - 1))
 
 /-- The lower bound of the interval, if finite. -/
-def lo? (i : IntInterval) : Option Int :=
+@[expose] def lo? (i : IntInterval) : Option Int :=
   match i with
   | co lo _ => some lo
   | ci lo => some lo
@@ -59,23 +59,21 @@ def lo? (i : IntInterval) : Option Int :=
   | ii => none
 
 /-- The upper bound of the interval, if finite. -/
-def hi? (i : IntInterval) : Option Int :=
+@[expose] def hi? (i : IntInterval) : Option Int :=
   match i with
   | co _ hi => some hi
   | ci _ => none
   | io hi => some hi
   | ii => none
 
-@[simp]
-def nonEmpty (i : IntInterval) : Bool :=
+@[simp, expose] def nonEmpty (i : IntInterval) : Bool :=
   match i with
   | co lo hi => lo < hi
   | ci _ => true
   | io _ => true
   | ii => true
 
-@[simp]
-def isFinite (i : IntInterval) : Bool :=
+@[simp, expose] def isFinite (i : IntInterval) : Bool :=
   match i with
   | co _ _ => true
   | ci _

@@ -1,8 +1,5 @@
 axiom A : Prop
 
-@[simp] def Foo.T := True
-@[simp] def Bar.T := True
-
 namespace ex0
 @[local simp] axiom a : A ↔ True
 example : A := by simp

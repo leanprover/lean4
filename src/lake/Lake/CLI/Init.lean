@@ -9,7 +9,6 @@ prelude
 public import Lake.Config.Env
 public import Lake.Config.Lang
 import Lake.Util.Git
-import Lake.Util.Sugar
 import Lake.Util.Version
 import Lake.Config.Package
 import Lake.Config.Workspace
@@ -475,7 +474,7 @@ def initPkg
       repo.quietInit
       unless upstreamBranch = "master" do
         repo.checkoutBranch upstreamBranch
-    else
+    catch _ =>
       logWarning "failed to initialize git repository"
 
   -- update `.gitignore` with additional entries for Lake

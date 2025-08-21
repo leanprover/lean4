@@ -76,12 +76,11 @@ def ofTimestampAssumingUTC (stamp : Timestamp) : PlainDateTime := Id.run do
   let secs : Second.Offset := nanos.toSeconds
   let remNano := Bounded.LE.byMod nanos.val 1000000000 (by decide)
 
-  let (remNano, secs) : (Bounded.LE 0 999999999 × Second.Offset) :=
+  let (remNano, secs) :=
     if h : remNano.val < 0 then
       (remNano.truncateTop (Int.le_sub_one_of_lt h) |>.add 1000000000 |>.expandBottom (by decide), secs - 1)
     else
-      let n := remNano.truncateBottom (Int.not_lt.mp h)
-      (n, secs)
+      (remNano.truncateBottom (Int.not_lt.mp h), secs)
 
   let daysSinceEpoch : Day.Offset := secs.toDays
   let boundedDaysSinceEpoch := daysSinceEpoch

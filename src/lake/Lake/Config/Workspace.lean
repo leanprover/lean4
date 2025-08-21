@@ -41,6 +41,10 @@ hydrate_opaque_type OpaqueWorkspace Workspace
 
 namespace Workspace
 
+/-- **For internal use.** Whether this workspace is Lean itself.  -/
+@[inline] def bootstrap (ws : Workspace) : Bool :=
+  ws.root.bootstrap
+
 /-- The Lake cache. May be disabled. -/
 @[inline] def lakeCache (ws : Workspace) : Cache :=
   ws.lakeEnv.lakeCache
@@ -234,13 +238,15 @@ def augmentedSharedLibPath (self : Workspace) : SearchPath :=
   self.lakeEnv.lean.sharedLibPath ++ self.sharedLibPath ++ self.lakeEnv.initSharedLibPath
 
 /--
-The detected environment augmented with Lake's and the workspace's paths.
+The detected environment augmented with Lake's and the workspace's configuration.
 These are the settings use by `lake env` / `Lake.env` to run executables.
 -/
 def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
   let vars := self.lakeEnv.baseVars ++ #[
     ("LEAN_PATH", some self.augmentedLeanPath.toString),
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
+    -- Allow the Lean version to change dynamically within core
+    ("LEAN_GITHASH", if self.bootstrap then none else some self.lakeEnv.leanGithash),
     ("PATH", some self.augmentedPath.toString)
   ]
   if Platform.isWindows then

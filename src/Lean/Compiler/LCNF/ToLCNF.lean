@@ -560,7 +560,7 @@ where
       if casesInfo.numAlts == 0 then
         /- `casesOn` of an empty type. -/
         mkUnreachable resultType
-      else if isPredicateType indVal.type then
+      else if ← Meta.MetaM.run' <| Meta.isInductivePredicateVal indVal then
         assert! casesInfo.numAlts == 1
         let numParams := indVal.numParams
         let numIndices := indVal.numIndices

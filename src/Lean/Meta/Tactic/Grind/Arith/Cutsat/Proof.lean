@@ -281,20 +281,34 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   | .mul a? cs =>
     let .add _ x _ := c'.p | c'.throwUnexpected
     mkMulEqProof x a? cs c'
-  | .div k y c =>
+  | .div k y? c =>
     let .add _ x _ := c'.p | c'.throwUnexpected
     let_expr HDiv.hDiv _ _ _ _ a b := (← getCurrVars)[x]! | c'.throwUnexpected
     let bVar ← getVarOf b
     let h := mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl bVar) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
-    let h := mkApp4 (mkConst ``Int.Linear.div_eq) a b (toExpr k) h
-    return mkApp6 (mkConst ``Int.Linear.of_var_eq_var) (← getContext) (← mkVarDecl x) (← mkVarDecl y) (← mkPolyDecl c'.p) eagerReflBoolTrue h
-  | .mod k y c =>
+    if let some y := y? then
+      let h := mkApp4 (mkConst ``Int.Linear.div_eq) a b (toExpr k) h
+      return mkApp6 (mkConst ``Int.Linear.of_var_eq_var) (← getContext) (← mkVarDecl x) (← mkVarDecl y) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+    else
+      let b' := k
+      let some aVal ← getIntValue? a | unreachable!
+      let k := aVal / b'
+      let h := mkApp6 (mkConst ``Int.Linear.div_eq') a b (toExpr b') (toExpr k) h eagerReflBoolTrue
+      return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+  | .mod k y? c =>
     let .add _ x _ := c'.p | c'.throwUnexpected
     let_expr HMod.hMod _ _ _ _ a b := (← getCurrVars)[x]! | c'.throwUnexpected
     let bVar ← getVarOf b
     let h := mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl bVar) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
-    let h := mkApp4 (mkConst ``Int.Linear.mod_eq) a b (toExpr k) h
-    return mkApp6 (mkConst ``Int.Linear.of_var_eq_var) (← getContext) (← mkVarDecl x) (← mkVarDecl y) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+    if let some y := y? then
+      let h := mkApp4 (mkConst ``Int.Linear.mod_eq) a b (toExpr k) h
+      return mkApp6 (mkConst ``Int.Linear.of_var_eq_var) (← getContext) (← mkVarDecl x) (← mkVarDecl y) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+    else
+      let b' := k
+      let some aVal ← getIntValue? a | unreachable!
+      let k := aVal % b'
+      let h := mkApp6 (mkConst ``Int.Linear.mod_eq') a b (toExpr b') (toExpr k) h eagerReflBoolTrue
+      return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
 
 partial def mkMulEqProof (x : Var) (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr)) (c' : EqCnstr) : ProofM Expr := do
   let h ← go (← getCurrVars)[x]!

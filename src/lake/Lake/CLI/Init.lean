@@ -339,12 +339,10 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 "
 
-public section
 /-- Lake package template identifier. -/
 public inductive InitTemplate
 | std | exe | lib | mathLax | math
 deriving Repr, DecidableEq
-end
 
 public instance : Inhabited InitTemplate := ⟨.std⟩
 

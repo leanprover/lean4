@@ -34,14 +34,14 @@ public def expandAttrs (attrs? : Option Attributes) : Array AttrInstance :=
   else
     #[]
 
-public section
+public section -- for `syntax ... := ...`
 
 syntax identOrStr :=
   ident <|> str
 
-abbrev IdentOrStr := TSyntax ``identOrStr
+public abbrev IdentOrStr := TSyntax ``identOrStr
 
-def expandIdentOrStrAsIdent (stx : IdentOrStr) : Ident :=
+public def expandIdentOrStrAsIdent (stx : IdentOrStr) : Ident :=
   match stx with
   | `(identOrStr|$x:ident) => x
   | `(identOrStr|$x:str) => mkIdentFrom x (Name.mkSimple x.getString)
@@ -51,7 +51,8 @@ def expandIdentOrStrAsIdent (stx : IdentOrStr) : Ident :=
 syntax declField :=
   ident " := " term
 
-@[inherit_doc declField] abbrev DeclField := TSyntax ``declField
+@[inherit_doc declField]
+public abbrev DeclField := TSyntax ``declField
 
 syntax structVal :=
   "{" structInstFields(sepByIndentSemicolon(declField)) "}"
@@ -68,13 +69,10 @@ syntax declValWhere :=
 syntax simpleDeclSig :=
   ident Term.typeSpec declValSimple
 
--- syntax structDeclSig :=
---   ((identOrStr)? (declValWhere <|> declValStruct)?) <|> identOrStr
-
 syntax optConfig :=
   (declValWhere <|> declValStruct)?
 
-abbrev OptConfig := TSyntax ``optConfig
+public abbrev OptConfig := TSyntax ``optConfig
 
 syntax bracketedSimpleBinder :=
   "(" ident (" : " term)? ")"
@@ -82,7 +80,9 @@ syntax bracketedSimpleBinder :=
 syntax simpleBinder :=
   ident <|> bracketedSimpleBinder
 
-abbrev SimpleBinder := TSyntax ``simpleBinder
+public abbrev SimpleBinder := TSyntax ``simpleBinder
+
+end
 
 open Lean.Parser.Term in
 public def expandOptSimpleBinder (stx? : Option SimpleBinder) : MacroM FunBinder := do
@@ -97,15 +97,13 @@ public def expandOptSimpleBinder (stx? : Option SimpleBinder) : MacroM FunBinder
     | _ => `(funBinder| _)
   | none => `(funBinder| _)
 
-end
-
 structure Field where
   ref : Syntax
   val : Term
 
 open Syntax Elab Command
 
-def mkConfigFields
+private def mkConfigFields
   (tyName : Name) (infos : NameMap ConfigFieldInfo) (fs : Array DeclField)
 : CommandElabM (TSyntax ``Term.structInstFields) := do
   let mut m := mkNameMap Field

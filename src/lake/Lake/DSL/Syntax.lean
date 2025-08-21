@@ -10,7 +10,7 @@ public import Lake.DSL.DeclUtil
 
 open Lean Parser Elab Command
 
-public section -- `public` is not supported on individual `syntax`
+public section -- for `syntax ... := ...`
 
 /-!
 This module defines the syntax of the Lake DSL. The syntax is defined separately from the elaborator

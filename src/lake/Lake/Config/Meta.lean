@@ -16,10 +16,10 @@ open Lean Syntax Parser Command
 
 namespace Lake
 
-public section
-
+public section -- for `syntax .. := ...`
 syntax configField :=
   atomic(nestedDeclModifiers ident,+) declSig (" := " term)?
+end
 
 /--
 An tailored `structure` command for producing Lake configuration data types.
@@ -35,8 +35,6 @@ scoped syntax (name := configDecl)
   ((" := " <|> " where ") (structCtor)? manyIndent(ppLine colGe ppGroup(configField)))?
   optDeriving
 : command
-
-end
 
 instance : Coe Ident (TSyntax ``Term.structInstLVal) where
   coe stx := Unhygienic.run `(Term.structInstLVal| $stx:ident)

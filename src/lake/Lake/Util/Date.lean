@@ -26,7 +26,7 @@ public def rpad (s : String) (c : Char) (len : Nat) : String :=
 public def zpad (n : Nat) (len : Nat) : String :=
   lpad (toString n) '0' len
 
-public section
+public section -- for `DecidableEq`, `Ord`
 /-- A date (year-month-day). -/
 public structure Date where
   year : Nat

@@ -20,8 +20,6 @@ non-opaque type has been defined.
 namespace Lake
 open Lean Parser Command
 
-public section
-
 macro (name := nonemptyTypeCmd)
   doc?:optional(docComment) vis?:optional(visibility)
   "nonempty_type " id:ident bs:binder*

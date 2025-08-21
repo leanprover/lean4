@@ -19,7 +19,7 @@ open Lean
 
 namespace Lake
 
-public section
+public section -- for `Ord`
 public inductive Verbosity
 | quiet
 | normal
@@ -75,7 +75,7 @@ public def OutStream.get : OutStream → BaseIO IO.FS.Stream
 public instance : Coe IO.FS.Stream OutStream := ⟨.stream⟩
 public instance : Coe IO.FS.Handle OutStream := ⟨fun h => .stream (.ofHandle h)⟩
 
-public section
+public section -- for `Ord`, `ToJson`, `FromJson`
 public inductive LogLevel
 | trace
 | info
@@ -132,7 +132,7 @@ public def Verbosity.minLogLv : Verbosity → LogLevel
 | .normal =>  .info
 | .verbose => .trace
 
-public section
+public section -- for `ToJson`, `FromJson`
 public structure LogEntry where
   level : LogLevel
   message : String
@@ -283,7 +283,7 @@ public structure Log where
 public instance : ToJson Log := ⟨(toJson ·.entries)⟩
 public instance : FromJson Log := ⟨(Log.mk <$> fromJson? ·)⟩
 
-public section
+public section -- for `DecidableEq`
 /-- A position in a `Log` (i.e., an array index). Can be past the log's end. -/
 public structure Log.Pos where
   val : Nat

@@ -54,7 +54,7 @@ and will be rebuilt on different host platforms.
   [ToString α] [ComputeHash α Id] (a : α) (caption := "pure")
 : JobM PUnit := addTrace <| .ofHash (pureHash a) s!"{caption}: {toString a}"
 
-public section
+public section -- for `ToJson`
 /--
 The build trace file format,
 which stores information about a (successful) build.

@@ -26,7 +26,7 @@ optionally left out, creating four distinct variants.
 
 namespace Lake.Toml
 
-public section
+public section -- for `DecidableEq`
 /--
 A TOML time (hour:minute:second.fraction).
 
@@ -87,7 +87,7 @@ public instance : ToString Time := ⟨Time.toString⟩
 
 end Time
 
-public section
+public section -- for `DecidableEq`
 /-- A TOML date-time. -/
 public inductive DateTime
 | offsetDateTime (date : Date) (time : Time) (offset? : Option (Bool × Time) := none)

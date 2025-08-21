@@ -15,7 +15,7 @@ open System (FilePath)
 
 namespace Lake
 
-public section
+public section -- for `DecidableEq`
 /-- A specification of a set of module names. -/
 public inductive Glob
   /-- Selects just the specified module name. -/
@@ -30,8 +30,6 @@ end
 public instance : Coe Name Glob := ⟨Glob.one⟩
 public instance : Coe Glob (Array Glob) := ⟨Array.singleton⟩
 
-public section
-
 /-- A name glob which matches all names with the prefix, including itself. -/
 scoped macro:max n:name noWs ".*" : term =>
   ``(Glob.andSubmodules $(⟨Lean.mkNode `Lean.Parser.Term.quotedName #[n]⟩))
@@ -39,8 +37,6 @@ scoped macro:max n:name noWs ".*" : term =>
 /-- A name glob which matches all names with the prefix, but not the prefix itself. -/
 scoped macro:max n:name noWs ".+" : term =>
   ``(Glob.submodules $(⟨Lean.mkNode `Lean.Parser.Term.quotedName #[n]⟩))
-
-end
 
 namespace Glob
 

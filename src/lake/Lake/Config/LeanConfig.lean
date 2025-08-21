@@ -70,7 +70,7 @@ public def orPreferLeft : Backend → Backend → Backend
 
 end Backend
 
-public section
+public section -- for `Ord`
 /--
 Lake equivalent of CMake's
 [`CMAKE_BUILD_TYPE`](https://stackoverflow.com/a/59314670).

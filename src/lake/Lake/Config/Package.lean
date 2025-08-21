@@ -320,7 +320,7 @@ deriving Inhabited
 /-- The package's name. -/
 public abbrev PackageConfig.name (_ : PackageConfig n) := n
 
-public section
+public section -- for `TypeName`
 /-- A package declaration from a configuration written in Lean. -/
 public structure PackageDecl where
   name : Name
@@ -423,7 +423,7 @@ public structure PostUpdateHook (pkgName : Name) where
 
 public hydrate_opaque_type OpaquePostUpdateHook PostUpdateHook name
 
-public section
+public section -- for `TypeName`
 public structure PostUpdateHookDecl where
   pkg : Name
   fn : PostUpdateFn pkg

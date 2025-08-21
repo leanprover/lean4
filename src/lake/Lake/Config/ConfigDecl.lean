@@ -30,7 +30,7 @@ public abbrev ConfigType (kind : Name) (pkgName name : Name) : Type :=
 /-- Forward declared `ConfigTarget` to work around recursion issues (e.g., with `Package`). -/
 public opaque OpaqueConfigTarget (kind : Name) : Type
 
-public section
+public section -- for `TypeName`
 public structure ConfigDecl where
   pkg : Name
   name : Name

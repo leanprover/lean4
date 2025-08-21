@@ -14,7 +14,6 @@ open Lean (Name)
 
 namespace Lake
 
-public section
 public inductive CliError
 /- CLI Errors -/
 | missingCommand
@@ -55,7 +54,6 @@ public inductive CliError
 | invalidEnv (msg : String)
 | missingRootDir (path :  System.FilePath)
 deriving Inhabited, Repr
-end
 
 namespace CliError
 

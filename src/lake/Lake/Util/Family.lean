@@ -173,7 +173,6 @@ public instance : FamilyDef (fun _ => b) a b where
 @[macro_inline, expose] public def ofFamily [FamilyOut F a β] (b : F a) : β :=
   cast FamilyOut.fam_eq b
 
-public section
 open Lean in
 /--
 The syntax:
@@ -198,4 +197,3 @@ scoped macro (name := familyDef)
     public instance : FamilyDef $fam $idx $val := ⟨$axm⟩)
   else
     Macro.throwErrorAt fam s!"unknown family '{tid}'"
-end

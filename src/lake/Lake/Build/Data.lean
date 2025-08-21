@@ -184,7 +184,6 @@ public instance [FamilyOut DataType Package.facetKind α]
 /-! ## Macros for Declaring Build Data                                        -/
 --------------------------------------------------------------------------------
 
-public section
 open Parser Command
 
 /-- Macro for declaring a new `DataType`. -/

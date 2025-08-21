@@ -19,7 +19,7 @@ open System Lean
 
 namespace Lake
 
-public section
+public section -- for `DecidableEq`, `Ord`
 /-- The major-minor-patch triple of a [SemVer](https://semver.org/). -/
 public structure SemVerCore where
   major : Nat := 0
@@ -57,7 +57,7 @@ public instance : ToString SemVerCore := ⟨SemVerCore.toString⟩
 public instance : ToJson SemVerCore := ⟨(·.toString)⟩
 public instance : FromJson SemVerCore := ⟨(do SemVerCore.parse <| ← fromJson? ·)⟩
 
-public section
+public section -- for `DecidableEq`
 /--
 A Lean-style semantic version.
 A major-minor-patch triple with an optional arbitrary `-` suffix.
@@ -115,7 +115,7 @@ public instance : ToString StdVer := ⟨StdVer.toString⟩
 public instance : ToJson StdVer := ⟨(·.toString)⟩
 public instance : FromJson StdVer := ⟨(do StdVer.parse <| ← fromJson? ·)⟩
 
-public section
+public section -- for `DecidableEq`
 /-- A Lean toolchain version. -/
 public inductive ToolchainVer
 | release (ver : LeanVer)

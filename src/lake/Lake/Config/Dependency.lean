@@ -31,7 +31,7 @@ public inductive DependencySrc where
 | git (url : String) (rev : Option String) (subDir : Option FilePath)
 deriving Inhabited, Repr
 
-public section
+public section -- for `TypeName`
 /--
 A `Dependency` of a package.
 It specifies a package which another package depends on.

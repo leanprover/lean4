@@ -25,7 +25,7 @@ namespace Lake
 
 /-! ## JobAction -/
 
-public section
+public section -- for `Ord`
 /-- Information on what this job did. -/
 public inductive JobAction
 /-- No information about this job's action is available. -/

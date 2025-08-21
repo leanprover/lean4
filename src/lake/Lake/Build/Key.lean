@@ -14,7 +14,7 @@ import Lake.Config.Kinds
 namespace Lake
 open Lean (Name)
 
-public section
+public section -- for `DecidableEq`
 /-- The type of keys in the Lake build store. -/
 public inductive BuildKey
 | module (module : Name)

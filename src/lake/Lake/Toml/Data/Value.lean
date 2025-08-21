@@ -18,7 +18,7 @@ open Lean
 
 namespace Lake.Toml
 
-public section
+public section -- for `BEq`
 /-- A TOML value with optional source info. -/
 public inductive Value
 | string (ref : Syntax) (s : String)

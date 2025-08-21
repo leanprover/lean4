@@ -20,20 +20,18 @@ public class IsPattern (α : Type u) (β : outParam $ Type v) where
   /-- Returns whether the value matches the pattern. -/
   satisfies (pat : α) (val : β) : Bool
 
-public section
 @[inherit_doc] scoped infix:50 " =~ " => IsPattern.satisfies
-end
 
 /-! ## Abstract Patterns -/
 
-public section
+public section -- for `mutual`
 mutual
 
 /--
 A pattern. Matches some subset of the values of a type.
 May also include a declarative description.
 -/
-structure Pattern (α : Type u) (β : Type v) where
+public structure Pattern (α : Type u) (β : Type v) where
   /-- Returns whether the value matches the pattern. -/
   filter : α → Bool
    /-- An optional name for the filter. -/
@@ -46,7 +44,7 @@ structure Pattern (α : Type u) (β : Type v) where
 An abstract declarative pattern.
 Augments another pattern description `β` with logical connectives.
 -/
-inductive PatternDescr (α : Type u) (β : Type v)
+public inductive PatternDescr (α : Type u) (β : Type v)
 /-- Matches a value that does not satisfy the pattern. -/
 | not (p : Pattern α β)
 /-- Matches a value that satisfies every pattern. Short-circuits. -/

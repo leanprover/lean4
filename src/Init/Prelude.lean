@@ -4995,7 +4995,7 @@ ensuring declaration names are more stable so that `prefer_native` can find the 
 symbol as well as making exported information in general more stable, avoiding rebuilds under the
 module system. Thus the actual encoding of the context name in the current implementation is
 ```
-<main module>._hygCtx_<uniq>
+<main module>.<uniq>._hygCtx
 ```
 where `<uniq>` is an identifier unique within the current module, set by
 `Command.withInitQuotContext`; see there for details. Thus we can assume the full context name to be

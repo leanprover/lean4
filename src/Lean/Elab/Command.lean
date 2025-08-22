@@ -634,9 +634,9 @@ def withInitQuotContext (hint? : Option UInt64) (act : CommandElabM Unit) : Comm
   let some hint := hint?
     | act
   let mut idx := hint.toUInt32.toNat
-  while (← get).usedQuotCtxts.contains ((← getMainModule) ++ `_hygCtx |>.appendIndexAfter idx) do
+  while (← get).usedQuotCtxts.contains ((← getMainModule).num idx |>.str "_hygCtx") do
     idx := idx + 1
-  let quotCtx := (← getMainModule) ++ `_hygCtx |>.appendIndexAfter idx
+  let quotCtx := (← getMainModule).num idx |>.str "_hygCtx"
   let nextMacroScope := (← get).nextMacroScope
   try
     modify fun st => { st with

@@ -586,7 +586,7 @@ if (x_112 == 0)
 {
 lean_dec(x_110);
 lean_dec(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 return x_4;
 }
 else

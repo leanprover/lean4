@@ -98,7 +98,7 @@ private def registerGrindAttr (showInfo : Bool) : IO Unit :=
           for ctor in info.ctors do
             addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (showInfo := showInfo)
         else
-          throwError "invalid `[grind intro]`, `{declName}` is not an inductive predicate"
+          throwError "invalid `[grind intro]`, `{.ofConstName declName}` is not an inductive predicate"
       | .ext => addExtAttr declName attrKind
       | .infer =>
         if let some declName ← isCasesAttrCandidate? declName false then

@@ -22,7 +22,7 @@ fun α P ctorIdx =>
 /--
 info: @[reducible] protected def Vec.noConfusionType.withCtorType.{u_1, u} : Type → Type u_1 → Nat → Type (max u u_1) :=
 fun α P ctorIdx =>
-  bif Nat.blt ctorIdx 1 then PULift.{max (u + 1) (u_1 + 1), u_1 + 1} P
+  bif Nat.ble ctorIdx 0 then PULift.{max (u + 1) (u_1 + 1), u_1 + 1} P
   else PULift.{max (u + 1) (u_1 + 1), max (u + 1) (u_1 + 1)} ({n : Nat} → α → Vec.{u} α n → P)
 -/
 #guard_msgs in

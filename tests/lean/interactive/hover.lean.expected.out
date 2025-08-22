@@ -650,3 +650,9 @@
  {"value":
   "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} : List α → List β → List (α × β)\n```\n***\nCombines two lists into a list of pairs in which the first and second components are the\ncorresponding elements of each list. The resulting list is the length of the shorter of the input\nlists.\n\n`O(min |xs| |ys|)`.\n\nExamples:\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2, 3] = [(\"Mon\", 1), (\"Tue\", 2), (\"Wed\", 3)]`\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2] = [(\"Mon\", 1), (\"Tue\", 2)]`\n* `[x₁, x₂, x₃].zip [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
   "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 306, "character": 24}}
+{"range":
+ {"start": {"line": 306, "character": 6},
+  "end": {"line": 306, "character": 38}},
+ "contents": {"value": "```lean\nBool\n```", "kind": "markdown"}}

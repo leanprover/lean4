@@ -1,3 +1,4 @@
+module
 import Std.Data.HashSet
 
 open Std

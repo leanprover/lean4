@@ -139,7 +139,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_inc(x_4);
 return x_4;
 }
@@ -151,7 +151,7 @@ lean_inc(x_5);
 lean_dec_ref(x_1);
 if (lean_obj_tag(x_5) == 0)
 {
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_inc(x_3);
 return x_3;
 }
@@ -202,13 +202,13 @@ _start:
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_inc(x_2);
 return x_2;
 }
 case 1:
 {
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_inc(x_3);
 return x_3;
 }
@@ -228,7 +228,7 @@ return x_9;
 }
 default: 
 {
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_inc(x_5);
 return x_5;
 }

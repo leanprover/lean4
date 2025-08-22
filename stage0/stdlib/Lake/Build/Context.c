@@ -186,7 +186,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_dec_ref(x_1);
 x_4 = lean_alloc_closure((void*)(l_Lake_getLeanTrace___redArg___lam__0___boxed), 1, 0);
 x_5 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_2);
@@ -198,7 +198,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_alloc_closure((void*)(l_Lake_getLeanTrace___redArg___lam__0___boxed), 1, 0);
 x_6 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_3);
@@ -228,7 +228,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_dec_ref(x_1);
 x_4 = lean_alloc_closure((void*)(l_Lake_getBuildConfig___redArg___lam__0___boxed), 1, 0);
 x_5 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_2);
@@ -240,7 +240,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_alloc_closure((void*)(l_Lake_getBuildConfig___redArg___lam__0___boxed), 1, 0);
 x_6 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_3);
@@ -277,11 +277,11 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_dec_ref(x_1);
 x_4 = lean_alloc_closure((void*)(l_Lake_getIsOldMode___redArg___lam__0___boxed), 1, 0);
 x_5 = l_Lake_getIsOldMode___redArg___closed__0;
-lean_inc_ref(x_3);
+lean_inc(x_3);
 x_6 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_5, x_2);
 x_7 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_6);
 return x_7;
@@ -292,11 +292,11 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_alloc_closure((void*)(l_Lake_getIsOldMode___redArg___lam__0___boxed), 1, 0);
 x_6 = l_Lake_getIsOldMode___redArg___closed__0;
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_6, x_3);
 x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_7);
 return x_8;
@@ -325,11 +325,11 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_dec_ref(x_1);
 x_4 = lean_alloc_closure((void*)(l_Lake_getTrustHash___redArg___lam__0___boxed), 1, 0);
 x_5 = l_Lake_getIsOldMode___redArg___closed__0;
-lean_inc_ref(x_3);
+lean_inc(x_3);
 x_6 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_5, x_2);
 x_7 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_6);
 return x_7;
@@ -340,11 +340,11 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_alloc_closure((void*)(l_Lake_getTrustHash___redArg___lam__0___boxed), 1, 0);
 x_6 = l_Lake_getIsOldMode___redArg___closed__0;
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_6, x_3);
 x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_7);
 return x_8;
@@ -373,11 +373,11 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_dec_ref(x_1);
 x_4 = lean_alloc_closure((void*)(l_Lake_getNoBuild___redArg___lam__0___boxed), 1, 0);
 x_5 = l_Lake_getIsOldMode___redArg___closed__0;
-lean_inc_ref(x_3);
+lean_inc(x_3);
 x_6 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_5, x_2);
 x_7 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_6);
 return x_7;
@@ -388,11 +388,11 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_alloc_closure((void*)(l_Lake_getNoBuild___redArg___lam__0___boxed), 1, 0);
 x_6 = l_Lake_getIsOldMode___redArg___closed__0;
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_6, x_3);
 x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_7);
 return x_8;
@@ -421,11 +421,11 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_dec_ref(x_1);
 x_4 = lean_alloc_closure((void*)(l_Lake_getVerbosity___redArg___lam__0___boxed), 1, 0);
 x_5 = l_Lake_getIsOldMode___redArg___closed__0;
-lean_inc_ref(x_3);
+lean_inc(x_3);
 x_6 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_5, x_2);
 x_7 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_6);
 return x_7;
@@ -436,11 +436,11 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_alloc_closure((void*)(l_Lake_getVerbosity___redArg___lam__0___boxed), 1, 0);
 x_6 = l_Lake_getIsOldMode___redArg___closed__0;
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_6, x_3);
 x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_7);
 return x_8;
@@ -478,14 +478,14 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_dec_ref(x_1);
 x_4 = lean_alloc_closure((void*)(l_Lake_getIsVerbose___redArg___lam__0___boxed), 1, 0);
 x_5 = l_Lake_getIsVerbose___redArg___closed__0;
 x_6 = l_Lake_getIsOldMode___redArg___closed__0;
-lean_inc_ref(x_3);
+lean_inc(x_3);
 x_7 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_6, x_2);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 x_8 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_5, x_7);
 x_9 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_8);
 return x_9;
@@ -496,14 +496,14 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_alloc_closure((void*)(l_Lake_getIsVerbose___redArg___lam__0___boxed), 1, 0);
 x_6 = l_Lake_getIsVerbose___redArg___closed__0;
 x_7 = l_Lake_getIsOldMode___redArg___closed__0;
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_7, x_3);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_9 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_6, x_8);
 x_10 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_9);
 return x_10;
@@ -533,14 +533,14 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_dec_ref(x_1);
 x_4 = lean_alloc_closure((void*)(l_Lake_getIsQuiet___redArg___lam__0___boxed), 1, 0);
 x_5 = l_Lake_getIsVerbose___redArg___closed__0;
 x_6 = l_Lake_getIsOldMode___redArg___closed__0;
-lean_inc_ref(x_3);
+lean_inc(x_3);
 x_7 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_6, x_2);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 x_8 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_5, x_7);
 x_9 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_8);
 return x_9;
@@ -551,14 +551,14 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_alloc_closure((void*)(l_Lake_getIsQuiet___redArg___lam__0___boxed), 1, 0);
 x_6 = l_Lake_getIsVerbose___redArg___closed__0;
 x_7 = l_Lake_getIsOldMode___redArg___closed__0;
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_7, x_3);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_9 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_6, x_8);
 x_10 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_9);
 return x_10;

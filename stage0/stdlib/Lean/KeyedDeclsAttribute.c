@@ -4673,7 +4673,7 @@ _start:
 {
 if (lean_obj_tag(x_3) == 0)
 {
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_2;
 }
 else
@@ -4686,7 +4686,7 @@ lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 2);
 lean_inc(x_6);
 lean_dec_ref(x_3);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_7 = lean_apply_3(x_1, x_2, x_4, x_5);
 x_2 = x_7;
 x_3 = x_6;
@@ -4720,7 +4720,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec_ref(x_12);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_15 = lean_apply_3(x_1, x_5, x_13, x_14);
 x_6 = x_15;
 goto block_10;
@@ -4731,7 +4731,7 @@ lean_object* x_16; lean_object* x_17;
 x_16 = lean_ctor_get(x_12, 0);
 lean_inc(x_16);
 lean_dec_ref(x_12);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_17 = l_Lean_PersistentHashMap_foldlMAux___at___Lean_PersistentHashMap_foldlM___at___Lean_PersistentHashMap_foldl___at___Lean_SMap_fold___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__2_spec__3_spec__3_spec__3___redArg(x_1, x_16, x_5);
 lean_dec(x_16);
 x_6 = x_17;
@@ -4746,7 +4746,7 @@ goto block_10;
 }
 else
 {
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_5;
 }
 block_10:
@@ -4778,7 +4778,7 @@ lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_5;
 }
 else
@@ -4786,7 +4786,7 @@ else
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = lean_array_fget_borrowed(x_2, x_4);
 x_9 = lean_array_fget_borrowed(x_3, x_4);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 lean_inc(x_9);
 lean_inc(x_8);
 x_10 = lean_apply_3(x_1, x_5, x_8, x_9);
@@ -4820,7 +4820,7 @@ x_7 = lean_nat_dec_lt(x_5, x_6);
 if (x_7 == 0)
 {
 lean_dec(x_6);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_3;
 }
 else
@@ -4830,7 +4830,7 @@ x_8 = lean_nat_dec_le(x_6, x_6);
 if (x_8 == 0)
 {
 lean_dec(x_6);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_3;
 }
 else
@@ -4914,7 +4914,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
 x_7 = lean_array_uget(x_2, x_3);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_8 = l_Std_DHashMap_Internal_AssocList_foldlM___at___Lean_SMap_fold___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__2_spec__2___redArg(x_1, x_5, x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_3, x_9);
@@ -4924,7 +4924,7 @@ goto _start;
 }
 else
 {
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -4971,7 +4971,7 @@ size_t x_13; size_t x_14; lean_object* x_15; lean_object* x_16;
 x_13 = 0;
 x_14 = lean_usize_of_nat(x_8);
 lean_dec(x_8);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_15 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_SMap_fold___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__2_spec__8___redArg(x_1, x_6, x_13, x_14, x_2);
 x_16 = l_Lean_PersistentHashMap_foldl___at___Lean_SMap_fold___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__2_spec__3___redArg(x_5, x_1, x_15);
 return x_16;

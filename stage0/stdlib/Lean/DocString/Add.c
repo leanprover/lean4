@@ -103,7 +103,7 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 lean_dec(x_13);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_14 = lean_ctor_get(x_10, 1);
 lean_inc(x_14);
 lean_dec_ref(x_10);
@@ -117,7 +117,7 @@ return x_18;
 else
 {
 lean_object* x_19; uint8_t x_20; 
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_19 = lean_ctor_get(x_10, 1);
 lean_inc(x_19);
 lean_dec_ref(x_10);
@@ -245,12 +245,12 @@ x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec_ref(x_9);
 x_11 = lean_box(0);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_12 = lean_alloc_closure((void*)(l_Lean_validateDocComment___redArg___lam__1), 3, 2);
 lean_closure_set(x_12, 0, x_11);
 lean_closure_set(x_12, 1, x_1);
 lean_inc_ref(x_12);
-lean_inc_ref(x_7);
+lean_inc(x_7);
 lean_inc_ref(x_3);
 x_13 = lean_alloc_closure((void*)(l_Lean_validateDocComment___redArg___lam__3___boxed), 12, 9);
 lean_closure_set(x_13, 0, x_2);
@@ -278,9 +278,9 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_7 = lean_ctor_get(x_1, 0);
 x_8 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 x_10 = l_Lean_TSyntax_getDocString(x_6);
 lean_inc_ref(x_10);
 x_11 = lean_alloc_closure((void*)(l_Lean_validateDocComment___redArg___lam__0), 2, 1);
@@ -311,7 +311,7 @@ goto block_16;
 block_16:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_13 = lean_alloc_closure((void*)(l_Lean_validateDocComment___redArg___lam__4), 9, 8);
 lean_closure_set(x_13, 0, x_9);
 lean_closure_set(x_13, 1, x_12);
@@ -441,12 +441,12 @@ x_9 = l_Lean_Environment_getModuleIdxFor_x3f(x_8, x_1);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_dec_ref(x_7);
+lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_1);
 x_10 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_10);
+lean_inc(x_10);
 lean_dec_ref(x_2);
 x_11 = lean_box(0);
 x_12 = lean_apply_2(x_10, lean_box(0), x_11);
@@ -456,7 +456,7 @@ return x_13;
 else
 {
 uint8_t x_14; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_dec_ref(x_2);
 x_14 = !lean_is_exclusive(x_9);
 if (x_14 == 0)
@@ -506,17 +506,17 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_11);
+lean_inc(x_11);
 x_12 = lean_ctor_get(x_3, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_13);
+lean_inc(x_13);
 lean_dec_ref(x_3);
 lean_inc(x_8);
 x_14 = lean_alloc_closure((void*)(l_Lean_addDocString___redArg___lam__1), 3, 2);
 lean_closure_set(x_14, 0, x_8);
 lean_closure_set(x_14, 1, x_13);
-lean_inc_ref(x_11);
+lean_inc(x_11);
 lean_inc(x_9);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
@@ -526,7 +526,7 @@ lean_closure_set(x_15, 1, x_2);
 lean_closure_set(x_15, 2, x_9);
 lean_closure_set(x_15, 3, x_11);
 lean_closure_set(x_15, 4, x_14);
-lean_inc_ref(x_11);
+lean_inc(x_11);
 lean_inc_ref(x_1);
 x_16 = lean_alloc_closure((void*)(l_Lean_addDocString___redArg___lam__3___boxed), 9, 8);
 lean_closure_set(x_16, 0, x_1);
@@ -540,7 +540,7 @@ lean_closure_set(x_16, 7, x_15);
 x_17 = lean_alloc_closure((void*)(l_Lean_addDocString___redArg___lam__4), 2, 1);
 lean_closure_set(x_17, 0, x_16);
 lean_inc_ref(x_17);
-lean_inc_ref(x_11);
+lean_inc(x_11);
 x_18 = lean_alloc_closure((void*)(l_Lean_addDocString___redArg___lam__6___boxed), 8, 7);
 lean_closure_set(x_18, 0, x_8);
 lean_closure_set(x_18, 1, x_10);
@@ -588,15 +588,15 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13;
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_10);
 lean_dec(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 lean_dec(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_11 = lean_ctor_get(x_10, 1);
-lean_inc_ref(x_11);
+lean_inc(x_11);
 lean_dec_ref(x_10);
 x_12 = lean_box(0);
 x_13 = lean_apply_2(x_11, lean_box(0), x_12);

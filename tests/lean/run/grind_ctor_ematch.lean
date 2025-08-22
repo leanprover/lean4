@@ -1,3 +1,4 @@
+module
 inductive Even : Nat → Prop
   | zero : Even 0
   | plus_two {n} : Even n → Even (n + 2)

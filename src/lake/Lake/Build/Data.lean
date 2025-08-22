@@ -128,7 +128,7 @@ as needed (via `custom_data`).
 opaque CustomOut (target : Name × Name) : Type
 
 /--
-The open type family which maps a custom package targetto its output type.
+The open type family which maps a custom package target to its output type.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `custom_data`).
@@ -174,7 +174,7 @@ instance [FamilyOut DataType Package.facetKind α]
 
 open Parser Command
 
-/-- Macro for declaring new `DatayType`. -/
+/-- Macro for declaring a new `DataType`. -/
 scoped macro (name := dataTypeDecl)
   doc?:optional(docComment) "data_type " kind:ident " : " ty:term
 : command => do

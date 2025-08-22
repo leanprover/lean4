@@ -5037,7 +5037,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_3; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_3 = lean_box(0);
 return x_3;
 }

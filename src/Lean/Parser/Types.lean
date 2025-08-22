@@ -218,7 +218,7 @@ def stackSize (s : ParserState) : Nat :=
 def restore (s : ParserState) (iniStackSz : Nat) (iniPos : String.Pos) : ParserState :=
   { s with stxStack := s.stxStack.shrink iniStackSz, errorMsg := none, pos := iniPos }
 
-def setPos (s : ParserState) (pos : String.Pos) : ParserState :=
+@[expose] def setPos (s : ParserState) (pos : String.Pos) : ParserState :=
   { s with pos := pos }
 
 def setCache (s : ParserState) (cache : ParserCache) : ParserState :=

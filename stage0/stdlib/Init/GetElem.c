@@ -1223,7 +1223,7 @@ if (x_4 == 0)
 lean_object* x_5; 
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_5 = lean_box(0);
 return x_5;
 }
@@ -1245,7 +1245,7 @@ if (x_8 == 0)
 lean_object* x_9; 
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_9 = lean_box(0);
 return x_9;
 }
@@ -1765,7 +1765,7 @@ if (x_6 == 0)
 lean_object* x_7; 
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_7 = lean_box(0);
 return x_7;
 }
@@ -1805,7 +1805,7 @@ LEAN_EXPORT lean_object* l_instGetElem_x3fOfGetElemOfDecidable___redArg(lean_obj
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_3 = lean_alloc_closure((void*)(l_instGetElem_x3fOfGetElemOfDecidable___redArg___lam__0), 4, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);
@@ -3043,7 +3043,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_inc(x_3);
 return x_3;
 }

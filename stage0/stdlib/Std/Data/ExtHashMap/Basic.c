@@ -4532,7 +4532,7 @@ x_24 = l_Std_DHashMap_Internal_AssocList_contains___redArg(x_1, x_4, x_23);
 if (x_24 == 0)
 {
 lean_dec(x_23);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_1);
 return x_3;
@@ -4605,7 +4605,7 @@ x_28 = l_Std_DHashMap_Internal_AssocList_contains___redArg(x_3, x_8, x_27);
 if (x_28 == 0)
 {
 lean_dec(x_27);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_3);
 return x_7;

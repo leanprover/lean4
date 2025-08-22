@@ -14,7 +14,7 @@ namespace Lean.Grind.ToInt
 
 /-! Wrap -/
 
-theorem of_eq_wrap_co_0 (i : IntInterval) (hi : Int) (h : i == .co 0 hi) {a b : Int} : a = i.wrap b → a = b % hi := by
+theorem of_eq_wrap_co_0 (i : IntInterval) (hi : Int) (h : i = .co 0 hi) {a b : Int} : a = i.wrap b → a = b % hi := by
   revert h
   cases i <;> simp
   intro h₁ h₂; subst h₁ h₂; simp
@@ -51,6 +51,10 @@ theorem of_not_lt {α i} [ToInt α i] [_root_.LT α] [ToInt.LT α i] {a b : α} 
   intro h; have h' := ToInt.LT.lt_iff a b
   simp [h, h₁, h₂] at h'; assumption
 
+private theorem isNonempty {α i} [ToInt α i] (a : α) : i.nonEmpty = true := by
+  have := ToInt.toInt_mem a; simp; split <;> simp
+  simp at this; omega
+
 /-! Addition -/
 
 theorem add_congr {α i} [ToInt α i] [_root_.Add α] [ToInt.Add α i] {a b : α} {a' b' : Int}
@@ -61,13 +65,15 @@ theorem add_congr.ww {α i} [ToInt α i] [_root_.Add α] [ToInt.Add α i] (h : i
     (h₁ : toInt a = i.wrap a') (h₂ : toInt b = i.wrap b') : toInt (a + b) = i.wrap (a' + b') := by
   rw [add_congr h₁ h₂, ← i.wrap_add h]
 
-theorem add_congr.wr {α i} [ToInt α i] [_root_.Add α] [ToInt.Add α i] (h : i.isFinite) (h' : i.nonEmpty) {a b : α} {a' b' : Int}
+theorem add_congr.wr {α i} [ToInt α i] [_root_.Add α] [ToInt.Add α i] (h : i.isFinite) {a b : α} {a' b' : Int}
     (h₁ : toInt a = a') (h₂ : toInt b = i.wrap b') : toInt (a + b) = i.wrap (a' + b') := by
+  have h' := isNonempty a
   have := i.wrap_eq_self_iff h' _ |>.mpr (ToInt.toInt_mem a)
   rw [h₁] at this; rw [← this] at h₁; apply add_congr.ww h h₁ h₂
 
-theorem add_congr.wl {α i} [ToInt α i] [_root_.Add α] [ToInt.Add α i] (h : i.isFinite) (h' : i.nonEmpty) {a b : α} {a' b' : Int}
+theorem add_congr.wl {α i} [ToInt α i] [_root_.Add α] [ToInt.Add α i] (h : i.isFinite) {a b : α} {a' b' : Int}
     (h₁ : toInt a = i.wrap a') (h₂ : toInt b = b') : toInt (a + b) = i.wrap (a' + b') := by
+  have h' := isNonempty a
   have := i.wrap_eq_self_iff h' _ |>.mpr (ToInt.toInt_mem b)
   rw [h₂] at this; rw [← this] at h₂; apply add_congr.ww h h₁ h₂
 
@@ -81,13 +87,15 @@ theorem mul_congr.ww {α i} [ToInt α i] [_root_.Mul α] [ToInt.Mul α i] (h : i
     (h₁ : toInt a = i.wrap a') (h₂ : toInt b = i.wrap b') : toInt (a * b) = i.wrap (a' * b') := by
   rw [ToInt.Mul.toInt_mul, h₁, h₂, ← i.wrap_mul]; apply h
 
-theorem mul_congr.wr {α i} [ToInt α i] [_root_.Mul α] [ToInt.Mul α i] (h : i.isFinite) (h' : i.nonEmpty) {a b : α} {a' b' : Int}
+theorem mul_congr.wr {α i} [ToInt α i] [_root_.Mul α] [ToInt.Mul α i] (h : i.isFinite) {a b : α} {a' b' : Int}
     (h₁ : toInt a = a') (h₂ : toInt b = i.wrap b') : toInt (a * b) = i.wrap (a' * b') := by
+  have h' := isNonempty a
   have := i.wrap_eq_self_iff h' _ |>.mpr (ToInt.toInt_mem a)
   rw [h₁] at this; rw [← this] at h₁; apply mul_congr.ww h h₁ h₂
 
-theorem mul_congr.wl {α i} [ToInt α i] [_root_.Mul α] [ToInt.Mul α i] (h : i.isFinite) (h' : i.nonEmpty) {a b : α} {a' b' : Int}
+theorem mul_congr.wl {α i} [ToInt α i] [_root_.Mul α] [ToInt.Mul α i] (h : i.isFinite) {a b : α} {a' b' : Int}
     (h₁ : toInt a = i.wrap a') (h₂ : toInt b = b') : toInt (a * b) = i.wrap (a' * b') := by
+  have h' := isNonempty a
   have := i.wrap_eq_self_iff h' _ |>.mpr (ToInt.toInt_mem b)
   rw [h₂] at this; rw [← this] at h₂; apply mul_congr.ww h h₁ h₂
 
@@ -145,5 +153,15 @@ theorem ge_lower0 {α i} [ToInt α i] (h : i.lo? == some 0) (a : α) : -1 * toIn
 theorem le_upper {α i} [ToInt α i] (hi' : Int) (h : i.hi? == some (-hi' + 1)) (a : α) : toInt a + hi' ≤ 0 := by
   have h' := ToInt.toInt_mem a
   revert h h'; cases i <;> simp [IntInterval.hi?] <;> intro h <;> subst h <;> intros <;> omega
+
+theorem ge_lower' {α i} [ToInt α i] (lo : Int) (h : i.lo? = some lo) (a : α) : lo ≤ toInt a := by
+  have h' := ToInt.toInt_mem a
+  revert h h'; cases i <;> simp [IntInterval.lo?] <;> intro h <;> subst h <;> intros <;> assumption
+
+theorem le_upper' {α i} [ToInt α i] (hi : Int) (h : i.hi? = some hi) (a : α) : toInt a + 1 ≤ hi := by
+  have h' := ToInt.toInt_mem a
+  revert h h'; cases i <;> simp [IntInterval.hi?] <;> intro h <;> subst h <;> intros
+  next h => exact Int.add_one_le_of_lt h
+  next h => exact Int.add_one_le_of_lt h
 
 end Lean.Grind.ToInt

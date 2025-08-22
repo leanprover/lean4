@@ -442,6 +442,18 @@
     <<: *time
     cmd: lean big_match.lean
 - attributes:
+    description: big_beq
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean big_beq.lean
+- attributes:
+    description: big_beq_rec
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean big_beq_rec.lean
+- attributes:
     description: nat_repr
     tags: [fast, suite]
   run_config:
@@ -587,16 +599,16 @@
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean ../lean/run/grind_bitvec2.lean
+    cmd: lean -Dexperimental.module=true ../lean/run/grind_bitvec2.lean
 - attributes:
     description: grind_list2.lean
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean ../lean/run/grind_list2.lean
+    cmd: lean -Dexperimental.module=true ../lean/run/grind_list2.lean
 - attributes:
     description: grind_ring_5.lean
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean ../lean/run/grind_ring_5.lean
+    cmd: lean -Dexperimental.module=true ../lean/run/grind_ring_5.lean

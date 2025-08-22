@@ -1,3 +1,4 @@
+module
 example (p : Nat → Prop) (h₁ : x < n) (h₂ : ¬ p x) : ∃ i, i < n ∧ ¬ p i := by
   grind
 

@@ -1,3 +1,4 @@
+module
 class Distrib (R : Type _) extends Mul R where
 
 namespace Nat

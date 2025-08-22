@@ -571,11 +571,11 @@ lean_dec(x_29);
 x_71 = lean_ctor_get(x_70, 0);
 lean_inc_ref(x_71);
 x_72 = lean_ctor_get(x_70, 2);
-lean_inc_ref(x_72);
+lean_inc(x_72);
 x_73 = lean_ctor_get(x_70, 3);
-lean_inc_ref(x_73);
+lean_inc(x_73);
 x_74 = lean_ctor_get(x_70, 4);
-lean_inc_ref(x_74);
+lean_inc(x_74);
 if (lean_is_exclusive(x_70)) {
  lean_ctor_release(x_70, 0);
  lean_ctor_release(x_70, 1);
@@ -674,11 +674,11 @@ if (lean_is_exclusive(x_104)) {
 x_107 = lean_ctor_get(x_105, 0);
 lean_inc_ref(x_107);
 x_108 = lean_ctor_get(x_105, 2);
-lean_inc_ref(x_108);
+lean_inc(x_108);
 x_109 = lean_ctor_get(x_105, 3);
-lean_inc_ref(x_109);
+lean_inc(x_109);
 x_110 = lean_ctor_get(x_105, 4);
-lean_inc_ref(x_110);
+lean_inc(x_110);
 if (lean_is_exclusive(x_105)) {
  lean_ctor_release(x_105, 0);
  lean_ctor_release(x_105, 1);
@@ -740,11 +740,11 @@ lean_dec(x_11);
 x_128 = lean_ctor_get(x_127, 0);
 lean_inc_ref(x_128);
 x_129 = lean_ctor_get(x_127, 2);
-lean_inc_ref(x_129);
+lean_inc(x_129);
 x_130 = lean_ctor_get(x_127, 3);
-lean_inc_ref(x_130);
+lean_inc(x_130);
 x_131 = lean_ctor_get(x_127, 4);
-lean_inc_ref(x_131);
+lean_inc(x_131);
 if (lean_is_exclusive(x_127)) {
  lean_ctor_release(x_127, 0);
  lean_ctor_release(x_127, 1);
@@ -799,11 +799,11 @@ if (lean_is_exclusive(x_143)) {
 x_146 = lean_ctor_get(x_144, 0);
 lean_inc_ref(x_146);
 x_147 = lean_ctor_get(x_144, 2);
-lean_inc_ref(x_147);
+lean_inc(x_147);
 x_148 = lean_ctor_get(x_144, 3);
-lean_inc_ref(x_148);
+lean_inc(x_148);
 x_149 = lean_ctor_get(x_144, 4);
-lean_inc_ref(x_149);
+lean_inc(x_149);
 if (lean_is_exclusive(x_144)) {
  lean_ctor_release(x_144, 0);
  lean_ctor_release(x_144, 1);

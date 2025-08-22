@@ -4170,7 +4170,7 @@ x_7 = lean_array_uget(x_2, x_3);
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
 lean_dec_ref(x_7);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_9 = l_Lean_Meta_DiscrTree_Trie_foldValuesM___at___Lean_Meta_Ext_ExtTheorems_contains_spec__0___redArg(x_1, x_5, x_8);
 lean_dec(x_8);
 x_10 = 1;
@@ -4181,7 +4181,7 @@ goto _start;
 }
 else
 {
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -4203,7 +4203,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
 x_7 = lean_array_uget(x_2, x_3);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_8 = lean_apply_2(x_1, x_5, x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_3, x_9);
@@ -4213,7 +4213,7 @@ goto _start;
 }
 else
 {
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -4235,7 +4235,7 @@ x_6 = lean_nat_dec_lt(x_2, x_5);
 if (x_6 == 0)
 {
 lean_dec(x_5);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_4;
 }
 else
@@ -4245,7 +4245,7 @@ x_7 = lean_nat_dec_le(x_5, x_5);
 if (x_7 == 0)
 {
 lean_dec(x_5);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_4;
 }
 else
@@ -4278,7 +4278,7 @@ x_10 = lean_nat_dec_lt(x_6, x_9);
 if (x_10 == 0)
 {
 lean_dec(x_9);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_2;
 }
 else
@@ -4288,7 +4288,7 @@ x_11 = lean_nat_dec_le(x_9, x_9);
 if (x_11 == 0)
 {
 lean_dec(x_9);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_2;
 }
 else
@@ -4319,7 +4319,7 @@ size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20;
 x_17 = 0;
 x_18 = lean_usize_of_nat(x_7);
 lean_dec(x_7);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_19 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Meta_DiscrTree_Trie_foldValuesM___at___Lean_Meta_Ext_ExtTheorems_contains_spec__0_spec__1___redArg(x_1, x_4, x_17, x_18, x_2);
 x_20 = l_Lean_Meta_DiscrTree_Trie_foldValuesM___at___Lean_Meta_Ext_ExtTheorems_contains_spec__0___redArg___lam__0(x_5, x_6, x_1, x_19);
 return x_20;
@@ -4353,7 +4353,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec_ref(x_12);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_15 = lean_apply_3(x_1, x_5, x_13, x_14);
 x_6 = x_15;
 goto block_10;
@@ -4364,7 +4364,7 @@ lean_object* x_16; lean_object* x_17;
 x_16 = lean_ctor_get(x_12, 0);
 lean_inc(x_16);
 lean_dec_ref(x_12);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_17 = l_Lean_PersistentHashMap_foldlMAux___at___Lean_PersistentHashMap_foldlM___at___Lean_Meta_Ext_ExtTheorems_contains_spec__3_spec__3___redArg(x_1, x_16, x_5);
 lean_dec(x_16);
 x_6 = x_17;
@@ -4379,7 +4379,7 @@ goto block_10;
 }
 else
 {
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_5;
 }
 block_10:
@@ -4411,7 +4411,7 @@ lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_5;
 }
 else
@@ -4419,7 +4419,7 @@ else
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = lean_array_fget_borrowed(x_2, x_4);
 x_9 = lean_array_fget_borrowed(x_3, x_4);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 lean_inc(x_9);
 lean_inc(x_8);
 x_10 = lean_apply_3(x_1, x_5, x_8, x_9);
@@ -4453,7 +4453,7 @@ x_7 = lean_nat_dec_lt(x_5, x_6);
 if (x_7 == 0)
 {
 lean_dec(x_6);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_3;
 }
 else
@@ -4463,7 +4463,7 @@ x_8 = lean_nat_dec_le(x_6, x_6);
 if (x_8 == 0)
 {
 lean_dec(x_6);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_3;
 }
 else
@@ -5120,9 +5120,9 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_7);
+lean_inc(x_7);
 lean_inc(x_4);
 lean_inc_ref(x_3);
 x_8 = lean_alloc_closure((void*)(l_Lean_Meta_Ext_ExtTheorems_erase___redArg___lam__0), 4, 3);
@@ -5152,7 +5152,7 @@ return x_17;
 else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-lean_inc_ref(x_7);
+lean_inc(x_7);
 lean_dec(x_4);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);

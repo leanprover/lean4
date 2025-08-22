@@ -1778,9 +1778,9 @@ return x_194;
 block_216:
 {
 lean_object* x_209; lean_object* x_210; lean_object* x_211; lean_object* x_212; lean_object* x_213; lean_object* x_214; lean_object* x_215; 
-lean_dec(x_204);
-lean_dec_ref(x_200);
-lean_dec(x_196);
+lean_dec(x_207);
+lean_dec(x_200);
+lean_dec_ref(x_197);
 x_209 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_209, 0, x_208);
 x_210 = l_Lean_MessageData_ofFormat(x_209);
@@ -1790,23 +1790,23 @@ if (lean_is_scalar(x_34)) {
  x_211 = x_34;
  lean_ctor_set_tag(x_211, 7);
 }
-lean_ctor_set(x_211, 0, x_199);
+lean_ctor_set(x_211, 0, x_198);
 lean_ctor_set(x_211, 1, x_210);
 x_212 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_RingId_0__Lean_Meta_Grind_Arith_CommRing_getRingId_x3f_go_x3f___closed__21;
 x_213 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_213, 0, x_211);
 lean_ctor_set(x_213, 1, x_212);
-x_214 = l_Lean_addTrace___at_____private_Lean_Meta_Tactic_Grind_Arith_CommRing_RingId_0__Lean_Meta_Grind_Arith_CommRing_getRingId_x3f_go_x3f_spec__2___redArg(x_30, x_213, x_198, x_202, x_206, x_203, x_201);
+x_214 = l_Lean_addTrace___at_____private_Lean_Meta_Tactic_Grind_Arith_CommRing_RingId_0__Lean_Meta_Grind_Arith_CommRing_getRingId_x3f_go_x3f_spec__2___redArg(x_30, x_213, x_204, x_203, x_206, x_199, x_196);
 x_215 = lean_ctor_get(x_214, 1);
 lean_inc(x_215);
 lean_dec_ref(x_214);
-x_44 = x_197;
+x_44 = x_201;
 x_45 = x_205;
-x_46 = x_207;
-x_47 = x_198;
-x_48 = x_202;
+x_46 = x_202;
+x_47 = x_204;
+x_48 = x_203;
 x_49 = x_206;
-x_50 = x_203;
+x_50 = x_199;
 x_51 = x_215;
 goto block_195;
 }
@@ -1891,18 +1891,18 @@ if (lean_obj_tag(x_230) == 0)
 {
 lean_object* x_240; 
 x_240 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_RingId_0__Lean_Meta_Grind_Arith_CommRing_getRingId_x3f_go_x3f___closed__24;
-x_196 = x_220;
-x_197 = x_227;
-x_198 = x_221;
-x_199 = x_239;
-x_200 = x_219;
-x_201 = x_238;
-x_202 = x_222;
-x_203 = x_224;
-x_204 = x_218;
+x_196 = x_238;
+x_197 = x_219;
+x_198 = x_239;
+x_199 = x_224;
+x_200 = x_218;
+x_201 = x_227;
+x_202 = x_217;
+x_203 = x_222;
+x_204 = x_221;
 x_205 = x_230;
 x_206 = x_223;
-x_207 = x_217;
+x_207 = x_220;
 x_208 = x_240;
 goto block_216;
 }
@@ -1910,18 +1910,18 @@ else
 {
 lean_object* x_241; 
 x_241 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_RingId_0__Lean_Meta_Grind_Arith_CommRing_getRingId_x3f_go_x3f___closed__25;
-x_196 = x_220;
-x_197 = x_227;
-x_198 = x_221;
-x_199 = x_239;
-x_200 = x_219;
-x_201 = x_238;
-x_202 = x_222;
-x_203 = x_224;
-x_204 = x_218;
+x_196 = x_238;
+x_197 = x_219;
+x_198 = x_239;
+x_199 = x_224;
+x_200 = x_218;
+x_201 = x_227;
+x_202 = x_217;
+x_203 = x_222;
+x_204 = x_221;
 x_205 = x_230;
 x_206 = x_223;
-x_207 = x_217;
+x_207 = x_220;
 x_208 = x_241;
 goto block_216;
 }

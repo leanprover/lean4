@@ -135,7 +135,7 @@ namespace Job
 : SpawnM (Job α) := fun fetch pkg? stack store ctx => .ofTask (caption := caption) <$> do
   BaseIO.asTask (prio := prio) do (withLoggedIO act) fetch pkg? stack store ctx {}
 
-/-- Wait a the job to complete and return the result. -/
+/-- Wait for a job to complete and return the result. -/
 @[inline] protected def wait (self : Job α) : BaseIO (JobResult α) := do
   IO.wait self.task
 

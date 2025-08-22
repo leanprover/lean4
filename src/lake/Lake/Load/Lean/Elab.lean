@@ -21,8 +21,6 @@ open System Lean
 
 namespace Lake
 
-deriving instance BEq, Hashable for Import
-
 /- Cache for the imported header environment of Lake configuration files. -/
 builtin_initialize importEnvCache : IO.Ref (Std.HashMap (Array Import) Environment) ← IO.mkRef {}
 

@@ -7754,9 +7754,9 @@ if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 lean_dec(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 lean_dec_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_10 = l_Lean_Widget_withGoalCtx___redArg___lam__1___closed__1;
 x_11 = l_Lean_MessageData_ofName(x_1);
 x_12 = lean_alloc_ctor(7, 2, 0);
@@ -7792,11 +7792,11 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_9 = lean_ctor_get(x_5, 0);
 lean_inc(x_9);
 lean_dec_ref(x_5);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_10 = lean_alloc_closure((void*)(l_Lean_Widget_withGoalCtx___redArg___lam__1), 8, 7);
 lean_closure_set(x_10, 0, x_6);
 lean_closure_set(x_10, 1, x_2);

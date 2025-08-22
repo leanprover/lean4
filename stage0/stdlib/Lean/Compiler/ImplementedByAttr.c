@@ -2975,7 +2975,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
 x_8 = lean_alloc_closure((void*)(l_Lean_setImplementedBy___redArg___lam__0), 6, 5);

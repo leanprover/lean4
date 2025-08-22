@@ -1,3 +1,4 @@
+module
 opaque q : Nat → Prop
 opaque p : Nat → Prop
 

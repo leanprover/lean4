@@ -1966,11 +1966,11 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec(x_7);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 x_10 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_10);
+lean_inc(x_10);
 lean_dec_ref(x_2);
 x_11 = lean_apply_2(x_10, lean_box(0), x_8);
 return x_11;
@@ -1983,11 +1983,11 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
 lean_dec(x_7);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 x_13 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_13);
+lean_inc(x_13);
 lean_dec_ref(x_2);
 x_14 = lean_apply_2(x_13, lean_box(0), x_8);
 return x_14;
@@ -2012,13 +2012,13 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_7);
 lean_dec_ref(x_2);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_inc_ref(x_1);
 x_8 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_forM___redArg___lam__0), 4, 2);
 lean_closure_set(x_8, 0, x_1);
@@ -2061,11 +2061,11 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
 lean_dec(x_7);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 x_9 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 lean_dec_ref(x_2);
 x_10 = lean_apply_2(x_9, lean_box(0), x_5);
 return x_10;
@@ -2078,11 +2078,11 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_7);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 x_12 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_12);
+lean_inc(x_12);
 lean_dec_ref(x_2);
 x_13 = lean_apply_2(x_12, lean_box(0), x_5);
 return x_13;
@@ -2107,13 +2107,13 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_8);
 lean_dec_ref(x_2);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_inc_ref(x_1);
 x_9 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_foldM___redArg___lam__0), 4, 2);
 lean_closure_set(x_9, 0, x_1);
@@ -3664,7 +3664,7 @@ if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
 lean_dec_ref(x_3);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {

@@ -344,12 +344,12 @@ else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 lean_dec(x_5);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_15 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_15);
 lean_dec_ref(x_3);
 x_16 = lean_ctor_get(x_15, 1);
-lean_inc_ref(x_16);
+lean_inc(x_16);
 lean_dec_ref(x_15);
 x_17 = lean_box(0);
 x_18 = lean_apply_2(x_16, lean_box(0), x_17);
@@ -383,7 +383,7 @@ x_5 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_5);
 lean_dec_ref(x_2);
 lean_inc_ref(x_1);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 x_6 = lean_alloc_closure((void*)(l_Lake_logOutput___redArg___lam__0___boxed), 4, 3);
 lean_closure_set(x_6, 0, x_5);
 lean_closure_set(x_6, 1, x_3);
@@ -395,7 +395,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_10 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_10);
+lean_inc(x_10);
 lean_dec_ref(x_1);
 x_11 = lean_alloc_closure((void*)(l_Lake_logOutput___redArg___lam__1), 2, 1);
 lean_closure_set(x_11, 0, x_6);
@@ -418,14 +418,14 @@ else
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_dec(x_7);
 lean_dec_ref(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_20 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_20);
 x_21 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_21);
+lean_inc(x_21);
 lean_dec_ref(x_1);
 x_22 = lean_ctor_get(x_20, 1);
-lean_inc_ref(x_22);
+lean_inc(x_22);
 lean_dec_ref(x_20);
 x_23 = lean_alloc_closure((void*)(l_Lake_logOutput___redArg___lam__1), 2, 1);
 lean_closure_set(x_23, 0, x_6);
@@ -446,7 +446,7 @@ x_6 = lean_ctor_get(x_3, 1);
 lean_inc_ref(x_6);
 lean_dec_ref(x_3);
 lean_inc_ref(x_2);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_7 = lean_alloc_closure((void*)(l_Lake_logOutput___redArg___lam__0___boxed), 4, 3);
 lean_closure_set(x_7, 0, x_6);
 lean_closure_set(x_7, 1, x_4);
@@ -458,7 +458,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_11 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_11);
+lean_inc(x_11);
 lean_dec_ref(x_2);
 x_12 = lean_alloc_closure((void*)(l_Lake_logOutput___redArg___lam__1), 2, 1);
 lean_closure_set(x_12, 0, x_7);
@@ -481,14 +481,14 @@ else
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 lean_dec(x_8);
 lean_dec_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_21 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_21);
 x_22 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_22);
+lean_inc(x_22);
 lean_dec_ref(x_2);
 x_23 = lean_ctor_get(x_21, 1);
-lean_inc_ref(x_23);
+lean_inc(x_23);
 lean_dec_ref(x_21);
 x_24 = lean_alloc_closure((void*)(l_Lake_logOutput___redArg___lam__1), 2, 1);
 lean_closure_set(x_24, 0, x_7);

@@ -1,3 +1,4 @@
+module
 example (z : Int) : z + (Int.cast (R := Int) (-2)) = z - 2 := by grind
 
 attribute [local instance] Lean.Grind.Semiring.natCast Lean.Grind.Ring.intCast

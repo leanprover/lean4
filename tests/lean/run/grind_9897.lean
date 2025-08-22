@@ -1,3 +1,4 @@
+module
 def Set' (α : Type u) := α → Prop
 
 namespace Set'

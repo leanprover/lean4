@@ -1,3 +1,4 @@
+module
 structure T where
   upper_bound : Nat
 

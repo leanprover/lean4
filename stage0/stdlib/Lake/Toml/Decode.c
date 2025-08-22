@@ -1222,7 +1222,7 @@ else
 {
 uint8_t x_16; 
 lean_dec(x_6);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_16 = !lean_is_exclusive(x_8);
 if (x_16 == 0)
 {
@@ -1250,7 +1250,7 @@ return x_21;
 else
 {
 uint8_t x_22; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 lean_dec_ref(x_2);
 x_22 = !lean_is_exclusive(x_5);
 if (x_22 == 0)

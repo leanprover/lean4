@@ -1,3 +1,4 @@
+module
 opaque g : Nat → Nat
 
 @[simp] def f (a : Nat) :=

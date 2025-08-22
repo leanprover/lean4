@@ -1,3 +1,4 @@
+module
 inductive T (a:Type) where
   | constuctor1: T a
   | constuctor2: T a

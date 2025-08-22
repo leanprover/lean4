@@ -7741,9 +7741,9 @@ _start:
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = lean_array_push(x_1, x_2);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 x_8 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_dedup___redArg___lam__1), 3, 2);
 lean_closure_set(x_8, 0, x_7);
 lean_closure_set(x_8, 1, x_3);
@@ -7776,13 +7776,13 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_FindRecA
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-lean_inc_ref(x_1);
+lean_inc(x_1);
 lean_inc_ref(x_8);
 x_9 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_dedup___redArg___lam__0), 3, 2);
 lean_closure_set(x_9, 0, x_8);
 lean_closure_set(x_9, 1, x_1);
-lean_inc_ref(x_2);
-lean_inc_ref(x_1);
+lean_inc(x_2);
+lean_inc(x_1);
 lean_inc(x_6);
 lean_inc_ref(x_8);
 x_10 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_dedup___redArg___lam__2___boxed), 6, 5);
@@ -7800,7 +7800,7 @@ lean_dec(x_11);
 lean_dec_ref(x_8);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_13 = lean_box(x_12);
 x_14 = lean_apply_2(x_1, lean_box(0), x_13);
 x_15 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_14, x_10);
@@ -7815,7 +7815,7 @@ lean_dec(x_11);
 lean_dec_ref(x_8);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_16 = lean_box(x_12);
 x_17 = lean_apply_2(x_1, lean_box(0), x_16);
 x_18 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_17, x_10);
@@ -7824,7 +7824,7 @@ return x_18;
 else
 {
 lean_object* x_19; size_t x_20; size_t x_21; lean_object* x_22; lean_object* x_23; 
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_19 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_dedup___redArg___lam__3), 3, 2);
 lean_closure_set(x_19, 0, x_4);
 lean_closure_set(x_19, 1, x_6);
@@ -7861,20 +7861,20 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; lean_object* x_14; 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = l___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_dedup___redArg___closed__0;
 lean_inc_ref(x_1);
-lean_inc_ref(x_5);
-lean_inc_ref(x_6);
+lean_inc(x_5);
+lean_inc(x_6);
 x_9 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_dedup___redArg___lam__4___boxed), 8, 5);
 lean_closure_set(x_9, 0, x_6);
 lean_closure_set(x_9, 1, x_5);
 lean_closure_set(x_9, 2, x_7);
 lean_closure_set(x_9, 3, x_2);
 lean_closure_set(x_9, 4, x_1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_10 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_dedup___redArg___lam__5), 2, 1);
 lean_closure_set(x_10, 0, x_6);
 x_11 = lean_array_size(x_3);

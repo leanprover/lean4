@@ -1420,11 +1420,11 @@ lean_dec(x_6);
 x_46 = lean_ctor_get(x_45, 0);
 lean_inc_ref(x_46);
 x_47 = lean_ctor_get(x_45, 2);
-lean_inc_ref(x_47);
+lean_inc(x_47);
 x_48 = lean_ctor_get(x_45, 3);
-lean_inc_ref(x_48);
+lean_inc(x_48);
 x_49 = lean_ctor_get(x_45, 4);
-lean_inc_ref(x_49);
+lean_inc(x_49);
 if (lean_is_exclusive(x_45)) {
  lean_ctor_release(x_45, 0);
  lean_ctor_release(x_45, 1);

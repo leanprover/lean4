@@ -410,8 +410,8 @@ if (x_12 == 0)
 lean_object* x_13; 
 lean_dec(x_11);
 lean_dec_ref(x_8);
-lean_inc_ref(x_7);
-lean_dec_ref(x_4);
+lean_inc(x_7);
+lean_dec(x_4);
 lean_dec_ref(x_3);
 x_13 = lean_apply_2(x_7, lean_box(0), x_9);
 return x_13;
@@ -425,8 +425,8 @@ if (x_14 == 0)
 lean_object* x_15; 
 lean_dec(x_11);
 lean_dec_ref(x_8);
-lean_inc_ref(x_7);
-lean_dec_ref(x_4);
+lean_inc(x_7);
+lean_dec(x_4);
 lean_dec_ref(x_3);
 x_15 = lean_apply_2(x_7, lean_box(0), x_9);
 return x_15;
@@ -434,8 +434,8 @@ return x_15;
 else
 {
 lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; 
-lean_inc_ref(x_6);
-lean_inc_ref(x_7);
+lean_inc(x_6);
+lean_inc(x_7);
 x_16 = lean_alloc_closure((void*)(l_Lake_mkDTagMap___redArg___lam__1), 5, 3);
 lean_closure_set(x_16, 0, x_7);
 lean_closure_set(x_16, 1, x_4);
@@ -515,8 +515,8 @@ if (x_12 == 0)
 lean_object* x_13; 
 lean_dec(x_11);
 lean_dec_ref(x_8);
-lean_inc_ref(x_7);
-lean_dec_ref(x_4);
+lean_inc(x_7);
+lean_dec(x_4);
 lean_dec_ref(x_3);
 x_13 = lean_apply_2(x_7, lean_box(0), x_9);
 return x_13;
@@ -530,8 +530,8 @@ if (x_14 == 0)
 lean_object* x_15; 
 lean_dec(x_11);
 lean_dec_ref(x_8);
-lean_inc_ref(x_7);
-lean_dec_ref(x_4);
+lean_inc(x_7);
+lean_dec(x_4);
 lean_dec_ref(x_3);
 x_15 = lean_apply_2(x_7, lean_box(0), x_9);
 return x_15;
@@ -539,8 +539,8 @@ return x_15;
 else
 {
 lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; 
-lean_inc_ref(x_6);
-lean_inc_ref(x_7);
+lean_inc(x_6);
+lean_inc(x_7);
 x_16 = lean_alloc_closure((void*)(l_Lake_mkTagMap___redArg___lam__1), 5, 3);
 lean_closure_set(x_16, 0, x_7);
 lean_closure_set(x_16, 1, x_4);
@@ -621,8 +621,8 @@ if (x_12 == 0)
 lean_object* x_13; 
 lean_dec(x_9);
 lean_dec_ref(x_8);
-lean_inc_ref(x_7);
-lean_dec_ref(x_4);
+lean_inc(x_7);
+lean_dec(x_4);
 lean_dec_ref(x_3);
 x_13 = lean_apply_2(x_7, lean_box(0), x_10);
 return x_13;
@@ -636,8 +636,8 @@ if (x_14 == 0)
 lean_object* x_15; 
 lean_dec(x_9);
 lean_dec_ref(x_8);
-lean_inc_ref(x_7);
-lean_dec_ref(x_4);
+lean_inc(x_7);
+lean_dec(x_4);
 lean_dec_ref(x_3);
 x_15 = lean_apply_2(x_7, lean_box(0), x_10);
 return x_15;
@@ -645,8 +645,8 @@ return x_15;
 else
 {
 lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; 
-lean_inc_ref(x_6);
-lean_inc_ref(x_7);
+lean_inc(x_6);
+lean_inc(x_7);
 x_16 = lean_alloc_closure((void*)(l_Lake_mkOrdTagMap___redArg___lam__1), 5, 3);
 lean_closure_set(x_16, 0, x_7);
 lean_closure_set(x_16, 1, x_4);

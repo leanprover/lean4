@@ -1,3 +1,4 @@
+module
 /-!
 This is a `grind` regression reported by David Renshaw:
 the following proof works in v4.22.0 but not in v4.23.0-rc2. (Increasing the splits threshold does not help.)

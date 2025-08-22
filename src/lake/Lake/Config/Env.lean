@@ -215,7 +215,6 @@ def baseVars (env : Env) : Array (String × Option String)  :=
     ("LAKE_ARTIFACT_CACHE", toString env.enableArtifactCache),
     ("LAKE_CACHE_DIR", if env.lakeCache.isDisabled then none else env.lakeCache.dir.toString),
     ("LEAN", env.lean.lean.toString),
-    ("LEAN_GITHASH", env.leanGithash),
     ("LEAN_SYSROOT", env.lean.sysroot.toString),
     ("LEAN_AR", env.lean.ar.toString),
     ("LEAN_CC", env.lean.leanCc?)
@@ -226,6 +225,7 @@ def vars (env : Env) : Array (String × Option String)  :=
   let vars := env.baseVars ++ #[
     ("LEAN_PATH", some env.leanPath.toString),
     ("LEAN_SRC_PATH", some env.leanSrcPath.toString),
+    ("LEAN_GITHASH", env.leanGithash),
     ("PATH", some env.path.toString)
   ]
   if Platform.isWindows then

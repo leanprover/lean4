@@ -48,7 +48,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 return x_2;
 }
 }
@@ -57,7 +57,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 return x_4;
 }
 }

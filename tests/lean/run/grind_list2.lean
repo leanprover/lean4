@@ -1,3 +1,4 @@
+module
 -- Note that `grind_list.lean` uses `reset_grind_attrs%` to clear the grind attributes.
 -- This file does not: it is testing the grind attributes in the library.
 
@@ -9,7 +10,7 @@
 -- This file only contains those theorems that can be proved "effortlessly" with `grind`.
 -- `tests/lean/grind/experiments/list.lean` contains everything from `Data/List/Lemmas.lean`
 -- that still resists `grind`!
-
+@[expose] public section -- TODO: remove after congr_eq has been fixed
 open List Nat
 
 namespace Hidden

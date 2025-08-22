@@ -30,7 +30,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_inc_ref(x_4);
 x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_4);
@@ -77,7 +77,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 lean_dec_ref(x_1);
 x_3 = lean_alloc_closure((void*)(l_Lean_Grind_NatModule_instSMulNat___redArg___lam__0), 3, 1);
 lean_closure_set(x_3, 0, x_2);
@@ -105,7 +105,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_ctor_get(x_1, 2);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 lean_dec_ref(x_1);
 x_3 = lean_alloc_closure((void*)(l_Lean_Grind_IntModule_instSMulInt___redArg___lam__0), 3, 1);
 lean_closure_set(x_3, 0, x_2);

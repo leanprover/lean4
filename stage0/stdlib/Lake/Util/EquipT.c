@@ -138,7 +138,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_1);
 x_6 = lean_apply_1(x_3, x_4);
 x_7 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_2, x_6);
@@ -150,7 +150,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 lean_dec_ref(x_3);
 x_10 = lean_apply_1(x_7, x_8);
 x_11 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_6, x_10);
@@ -162,7 +162,7 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_7);
+lean_inc(x_7);
 lean_dec_ref(x_1);
 x_8 = lean_alloc_closure((void*)(l_Function_const___boxed), 4, 3);
 lean_closure_set(x_8, 0, lean_box(0));
@@ -361,7 +361,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_8 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 lean_dec_ref(x_1);
 lean_inc(x_7);
 x_9 = lean_alloc_closure((void*)(l_Lake_EquipT_instApplicative___redArg___lam__0), 3, 2);
@@ -400,7 +400,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_8 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 lean_dec_ref(x_1);
 lean_inc(x_7);
 x_9 = lean_alloc_closure((void*)(l_Lake_EquipT_instApplicative___redArg___lam__0), 3, 2);
@@ -428,12 +428,12 @@ x_6 = lean_ctor_get(x_1, 4);
 lean_dec(x_6);
 x_7 = lean_ctor_get(x_1, 3);
 lean_dec(x_7);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_inc_ref(x_3);
 x_8 = lean_alloc_closure((void*)(l_Lake_EquipT_instApplicative___redArg___lam__1), 7, 2);
 lean_closure_set(x_8, 0, x_3);
 lean_closure_set(x_8, 1, x_5);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_inc_ref(x_3);
 x_9 = lean_alloc_closure((void*)(l_Lake_EquipT_instApplicative___redArg___lam__3), 7, 2);
 lean_closure_set(x_9, 0, x_3);
@@ -464,12 +464,12 @@ lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_dec(x_1);
-lean_inc_ref(x_15);
+lean_inc(x_15);
 lean_inc_ref(x_13);
 x_16 = lean_alloc_closure((void*)(l_Lake_EquipT_instApplicative___redArg___lam__1), 7, 2);
 lean_closure_set(x_16, 0, x_13);
 lean_closure_set(x_16, 1, x_15);
-lean_inc_ref(x_15);
+lean_inc(x_15);
 lean_inc_ref(x_13);
 x_17 = lean_alloc_closure((void*)(l_Lake_EquipT_instApplicative___redArg___lam__3), 7, 2);
 lean_closure_set(x_17, 0, x_13);
@@ -677,7 +677,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 lean_dec_ref(x_1);
 x_3 = lean_apply_1(x_2, lean_box(0));
 return x_3;
@@ -688,7 +688,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 lean_dec_ref(x_3);
 x_7 = lean_apply_1(x_6, lean_box(0));
 return x_7;
@@ -708,7 +708,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_ctor_get(x_1, 2);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_1);
 lean_inc(x_4);
 x_6 = lean_alloc_closure((void*)(l_Lake_EquipT_seq___redArg___lam__0), 3, 2);
@@ -724,7 +724,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = lean_ctor_get(x_3, 2);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 lean_dec_ref(x_3);
 lean_inc(x_7);
 x_9 = lean_alloc_closure((void*)(l_Lake_EquipT_seq___redArg___lam__0), 3, 2);
@@ -792,7 +792,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_dec_ref(x_1);
 x_4 = lean_apply_2(x_3, lean_box(0), x_2);
 return x_4;
@@ -803,7 +803,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 lean_dec_ref(x_4);
 x_9 = lean_apply_2(x_8, lean_box(0), x_6);
 return x_9;
@@ -831,7 +831,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_1);
 lean_inc(x_4);
 x_6 = lean_alloc_closure((void*)(l_Lake_EquipT_tryCatch___redArg___lam__0), 3, 2);
@@ -847,7 +847,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 lean_dec_ref(x_4);
 lean_inc(x_8);
 x_10 = lean_alloc_closure((void*)(l_Lake_EquipT_tryCatch___redArg___lam__0), 3, 2);

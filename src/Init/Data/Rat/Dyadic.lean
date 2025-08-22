@@ -1,12 +1,20 @@
 /-
 Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kim Morrison
+Authors: Kim Morrison, Robin Arnez
 -/
 module
 
 prelude
 public import Init.Data.Rat.Lemmas
+
+/-!
+# The dyadic rationals
+
+Constructs the dyadic rationals as an ordered ring, equipped with a compatible embedding into the rationals.
+-/
+
+set_option linter.missingDocs true
 
 @[expose] public section
 
@@ -27,6 +35,8 @@ where
     | k + 1, _ =>
       if h : i % 2 = 0 then aux k (i / 2) (by omega) (by omega) (acc + 1)
       else acc
+
+-- TODO: check performance of `trailingZeros` in the kernel and VM.
 
 private theorem trailingZeros_aux_irrel (hi : i ≠ 0) (hk : i.natAbs ≤ k) (hk' : i.natAbs ≤ k') :
     trailingZeros.aux k i hi hk acc = trailingZeros.aux k' i hi hk' acc := by
@@ -167,6 +177,7 @@ instance : HShiftRight Dyadic Int Dyadic := ⟨Dyadic.shiftRight⟩
 instance : HShiftLeft Dyadic Nat Dyadic := ⟨fun x y => x <<< (y : Int)⟩
 instance : HShiftRight Dyadic Nat Dyadic := ⟨fun x y => x >>> (y : Int)⟩
 
+-- TODO: move this
 theorem _root_.Int.natAbs_emod_two (i : Int) : i.natAbs % 2 = (i % 2).natAbs := by omega
 
 def toRat (x : Dyadic) : Rat :=
@@ -351,7 +362,8 @@ theorem toRat_inj {x y : Dyadic} : x.toRat = y.toRat ↔ x = y := by
     replace h := congrArg (·.toDyadic (max k₁ k₂)) h
     simpa [toDyadic_toRat, precision, Int.le_max_left, Int.le_max_right] using h
 
-
--- Define `blt` and `ble`, check they are compatible with `toRat`, and hence that we have `IsLinearOrder` and `IsOrderedRing`.
+-- TODO: Define `roundUp : (x : Dyadic) → (prec : Int) → Dyadic` as the closest dyadic ≥ `x` with precision is at most `prec`, and theorems about this. Similarly `roundDown`.
+-- TODO: Prove the ring axioms via injectivity of `toRat`, and construct a `Lean.Grind.CommRing` instance.
+-- TODO: Define `blt` and `ble`, check they are compatible with `toRat`, and hence that we have `IsLinearOrder` and `IsOrderedRing`.
 
 end Dyadic

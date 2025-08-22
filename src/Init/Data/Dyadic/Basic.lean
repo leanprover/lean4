@@ -329,26 +329,6 @@ def _root_.Rat.toDyadic (x : Rat) (prec : Int) : Dyadic :=
   | (n : Nat) => .ofIntWithPrec ((x.num <<< n) / x.den) prec
   | -(n + 1 : Nat) => .ofIntWithPrec (x.num / (x.den <<< (n + 1))) prec
 
-private theorem _root_.Int.ediv_ediv_of_pos {x y z : Int} (hy : 0 < y) (hz : 0 < z) :
-    x / y / z = x / (y * z) := by
-  rw [eq_comm, Int.ediv_eq_iff_of_pos (Int.mul_pos hy hz)]
-  constructor
-  · rw [Int.mul_comm y, ← Int.mul_assoc]
-    exact Int.le_trans
-      (Int.mul_le_mul_of_nonneg_right (Int.ediv_mul_le _ (Int.ne_of_gt hz)) (Int.le_of_lt hy))
-      (Int.ediv_mul_le x (Int.ne_of_gt hy))
-  · rw [Int.mul_comm y, ← Int.mul_assoc, ← Int.add_mul, Int.mul_comm _ z]
-    exact Int.lt_mul_of_ediv_lt hy (Int.lt_mul_ediv_self_add hz)
-
-theorem _root_.Int.ediv_ediv {x y z : Int} (hy : 0 ≤ y) : x / y / z = x / (y * z) := by
-  rcases y with (_ | a) | a
-  · simp
-  · rcases z with (_ | b) | b
-    · simp
-    · simp [Int.ediv_ediv_of_pos]
-    · simp [Int.negSucc_eq, Int.mul_neg, Int.ediv_ediv_of_pos]
-  · simp at hy
-
 theorem _root_.Rat.toDyadic_mkRat (a : Int) (b : Nat) (prec : Int) :
     Rat.toDyadic (mkRat a b) prec =
       .ofIntWithPrec ((a <<< prec.toNat) / (b <<< (-prec).toNat)) prec := by

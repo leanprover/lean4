@@ -109,13 +109,13 @@ inductive Dyadic where
   /-- The dyadic number `0`. -/
   | zero
   /-- The dyadic number `n * 2^(-k)` for some odd `n` and integer `k`. -/
-  | of (n : Int) (k : Int) (hn : n % 2 = 1)
+  | ofOdd (n : Int) (k : Int) (hn : n % 2 = 1)
 deriving DecidableEq
 
 /-- Returns the dyadic number representation of `i * 2 ^ (-exp)`. -/
 def Dyadic.ofIntWithPrec (i : Int) (prec : Int) : Dyadic :=
   if h : i = 0 then .zero
-  else .of (i >>> i.trailingZeros) (prec - i.trailingZeros) (Int.shiftRight_trailingZeros_mod_two h)
+  else .ofOdd (i >>> i.trailingZeros) (prec - i.trailingZeros) (Int.shiftRight_trailingZeros_mod_two h)
 
 /-- Convert an integer to a dyadic number (which will necessarily have non-positive precision). -/
 def Dyadic.ofInt (i : Int) : Dyadic :=
@@ -131,11 +131,11 @@ protected def add (x y : Dyadic) : Dyadic :=
   match x, y with
   | .zero, y => y
   | x, .zero => x
-  | .of n₁ k₁ hn₁, .of n₂ k₂ hn₂ =>
+  | .ofOdd n₁ k₁ hn₁, .ofOdd n₂ k₂ hn₂ =>
     match k₁ - k₂ with
     | 0 => .ofIntWithPrec (n₁ + n₂) k₁
-    | (d@hd:(d' + 1) : Nat) => .of (n₁ + (n₂ <<< d)) k₁ ?_
-    | -(d + 1 : Nat) => .of (n₁ <<< (d + 1) + n₂) k₂ ?_
+    | (d@hd:(d' + 1) : Nat) => .ofOdd (n₁ + (n₂ <<< d)) k₁ ?_
+    | -(d + 1 : Nat) => .ofOdd (n₁ <<< (d + 1) + n₂) k₂ ?_
 where finally all_goals simp_all [Int.shiftLeft_eq, Int.pow_succ, ← Int.mul_assoc]
 
 instance : Add Dyadic := ⟨Dyadic.add⟩
@@ -145,8 +145,8 @@ protected def mul (x y : Dyadic) : Dyadic :=
   match x, y with
   | .zero, _ => .zero
   | _, .zero => .zero
-  | .of n₁ k₁ hn₁, .of n₂ k₂ hn₂ =>
-    .of (n₁ * n₂) (k₁ + k₂) (by rw [Int.mul_emod, hn₁, hn₂]; rfl)
+  | .ofOdd n₁ k₁ hn₁, .ofOdd n₂ k₂ hn₂ =>
+    .ofOdd (n₁ * n₂) (k₁ + k₂) (by rw [Int.mul_emod, hn₁, hn₂]; rfl)
 
 instance : Mul Dyadic := ⟨Dyadic.mul⟩
 
@@ -154,7 +154,7 @@ instance : Mul Dyadic := ⟨Dyadic.mul⟩
 protected def neg (x : Dyadic) : Dyadic :=
   match x with
   | .zero => .zero
-  | .of n k hn => .of (-n) k (by rwa [Int.neg_emod_two])
+  | .ofOdd n k hn => .ofOdd (-n) k (by rwa [Int.neg_emod_two])
 
 instance : Neg Dyadic := ⟨Dyadic.neg⟩
 
@@ -167,13 +167,13 @@ instance : Sub Dyadic := ⟨Dyadic.sub⟩
 protected def shiftLeft (x : Dyadic) (i : Int) : Dyadic :=
   match x with
   | .zero => .zero
-  | .of n k hn => .of n (k - i) hn
+  | .ofOdd n k hn => .ofOdd n (k - i) hn
 
 /-- Shift a dyadic number right by `i` bits. -/
 protected def shiftRight (x : Dyadic) (i : Int) : Dyadic :=
   match x with
   | .zero => .zero
-  | .of n k hn => .of n (k + i) hn
+  | .ofOdd n k hn => .ofOdd n (k + i) hn
 
 instance : HShiftLeft Dyadic Int Dyadic := ⟨Dyadic.shiftLeft⟩
 instance : HShiftRight Dyadic Int Dyadic := ⟨Dyadic.shiftRight⟩
@@ -188,13 +188,13 @@ theorem _root_.Int.natAbs_emod_two (i : Int) : i.natAbs % 2 = (i % 2).natAbs := 
 def toRat (x : Dyadic) : Rat :=
   match x with
   | .zero => 0
-  | .of n (k : Nat) hn =>
+  | .ofOdd n (k : Nat) hn =>
     have reduced : n.natAbs.Coprime (2 ^ k) := by
       apply Coprime.pow_right
       rw [coprime_iff_gcd_eq_one, Nat.gcd_comm, Nat.gcd_def]
       simp [hn, Int.natAbs_emod_two]
     ⟨n, 2 ^ k, Nat.ne_of_gt (Nat.pow_pos (by decide)), reduced⟩
-  | .of n (-((k : Nat) + 1)) hn =>
+  | .ofOdd n (-((k : Nat) + 1)) hn =>
     (n * (2 ^ (k + 1) : Nat) : Int)
 
 @[simp] protected theorem zero_eq : Dyadic.zero = 0 := rfl
@@ -209,8 +209,8 @@ def toRat (x : Dyadic) : Rat :=
 theorem _root_.Rat.mkRat_one (x : Int) : mkRat x 1 = x := by
   rw [← Rat.mk_den_one, Rat.mk_eq_mkRat]
 
-theorem toRat_of_eq_mkRat :
-    toRat (.of n k hn) = mkRat (n <<< (-k).toNat) (1 <<< k.toNat) := by
+theorem toRat_ofOdd_eq_mkRat :
+    toRat (.ofOdd n k hn) = mkRat (n <<< (-k).toNat) (1 <<< k.toNat) := by
   cases k
   · simp [toRat, Rat.mk_eq_mkRat, Int.shiftLeft_eq, Nat.shiftLeft_eq]
   · simp [toRat, Int.neg_negSucc, Rat.mkRat_one, Int.shiftLeft_eq]
@@ -220,7 +220,7 @@ theorem toRat_ofIntWithPrec_eq_mkRat :
   simp only [ofIntWithPrec]
   split
   · simp_all
-  rw [toRat_of_eq_mkRat, Rat.mkRat_eq_iff (NeZero.ne _) (NeZero.ne _)]
+  rw [toRat_ofOdd_eq_mkRat, Rat.mkRat_eq_iff (NeZero.ne _) (NeZero.ne _)]
   simp only [Int.natCast_shiftLeft, Int.cast_ofNat_Int, Int.shiftLeft_mul_shiftLeft, Int.mul_one]
   have : (-(k - n.trailingZeros) : Int).toNat + k.toNat =
       n.trailingZeros + ((-k).toNat + (k - n.trailingZeros).toNat) := by omega
@@ -238,9 +238,9 @@ theorem toRat_add (x y : Dyadic) : toRat (x + y) = toRat x + toRat y := by
   match x, y with
   | .zero, _ => simp [toRat, Rat.zero_add]
   | _, .zero => simp [toRat, Rat.add_zero]
-  | .of n₁ k₁ hn₁, .of n₂ k₂ hn₂ =>
+  | .ofOdd n₁ k₁ hn₁, .ofOdd n₂ k₂ hn₂ =>
     change (Dyadic.add _ _).toRat = _
-    rw [Dyadic.add, toRat_of_eq_mkRat, toRat_of_eq_mkRat]
+    rw [Dyadic.add, toRat_ofOdd_eq_mkRat, toRat_ofOdd_eq_mkRat]
     rw [Rat.mkRat_add_mkRat _ _ (NeZero.ne _) (NeZero.ne _)]
     split
     · rename_i h
@@ -249,13 +249,13 @@ theorem toRat_add (x y : Dyadic) : toRat (x + y) = toRat x + toRat y := by
       simp [Int.shiftLeft_mul_shiftLeft, Int.add_shiftLeft, Int.add_mul, Nat.add_assoc]
     · rename_i h
       cases Int.sub_eq_iff_eq_add.mp h
-      rw [toRat_of_eq_mkRat, Rat.mkRat_eq_iff (NeZero.ne _) (NeZero.ne _)]
+      rw [toRat_ofOdd_eq_mkRat, Rat.mkRat_eq_iff (NeZero.ne _) (NeZero.ne _)]
       simp only [succ_eq_add_one, Int.ofNat_eq_coe, Int.add_shiftLeft, ← Int.shiftLeft_add,
         Int.natCast_mul, Int.natCast_shiftLeft, Int.shiftLeft_mul_shiftLeft, Int.add_mul]
       congr 2 <;> omega
     · rename_i h
       cases Int.sub_eq_iff_eq_add.mp h
-      rw [toRat_of_eq_mkRat, Rat.mkRat_eq_iff (NeZero.ne _) (NeZero.ne _)]
+      rw [toRat_ofOdd_eq_mkRat, Rat.mkRat_eq_iff (NeZero.ne _) (NeZero.ne _)]
       simp only [Int.add_shiftLeft, ← Int.shiftLeft_add, Int.natCast_mul, Int.natCast_shiftLeft,
         Int.cast_ofNat_Int, Int.shiftLeft_mul_shiftLeft, Int.mul_one, Int.add_mul]
       congr 2 <;> omega
@@ -265,7 +265,7 @@ theorem toRat_neg (x : Dyadic) : toRat (-x) = - toRat x := by
   change x.neg.toRat = _
   cases x
   · rfl
-  · simp [Dyadic.neg, Rat.neg_mkRat, Int.neg_shiftLeft, toRat_of_eq_mkRat]
+  · simp [Dyadic.neg, Rat.neg_mkRat, Int.neg_shiftLeft, toRat_ofOdd_eq_mkRat]
 
 @[simp]
 theorem toRat_sub (x y : Dyadic) : toRat (x - y) = toRat x - toRat y := by
@@ -277,28 +277,28 @@ theorem toRat_mul (x y : Dyadic) : toRat (x * y) = toRat x * toRat y := by
   match x, y with
   | .zero, _ => simp
   | _, .zero => simp
-  | .of n₁ k₁ hn₁, .of n₂ k₂ hn₂ =>
+  | .ofOdd n₁ k₁ hn₁, .ofOdd n₂ k₂ hn₂ =>
     change (Dyadic.mul _ _).toRat = _
-    rw [Dyadic.mul, toRat_of_eq_mkRat, toRat_of_eq_mkRat, toRat_of_eq_mkRat, Rat.mkRat_mul_mkRat,
-      Rat.mkRat_eq_iff (NeZero.ne _) (NeZero.ne _)]
+    rw [Dyadic.mul, toRat_ofOdd_eq_mkRat, toRat_ofOdd_eq_mkRat, toRat_ofOdd_eq_mkRat,
+      Rat.mkRat_mul_mkRat, Rat.mkRat_eq_iff (NeZero.ne _) (NeZero.ne _)]
     simp only [Int.natCast_mul, Int.natCast_shiftLeft, Int.cast_ofNat_Int,
       Int.shiftLeft_mul_shiftLeft, Int.mul_one]
     congr 1; omega
 
-@[simp] theorem of_ne_zero : of n k hn ≠ 0 := Dyadic.noConfusion
-@[simp] theorem zero_ne_of : 0 ≠ of n k hn := Dyadic.noConfusion
+@[simp] theorem of_ne_zero : ofOdd n k hn ≠ 0 := Dyadic.noConfusion
+@[simp] theorem zero_ne_of : 0 ≠ ofOdd n k hn := Dyadic.noConfusion
 
 @[simp]
 theorem toRat_eq_zero_iff {x : Dyadic} : x.toRat = 0 ↔ x = 0 := by
   refine ⟨fun h => ?_, fun h => h ▸ rfl⟩
   cases x
   · rfl
-  · simp only [toRat_of_eq_mkRat, ne_eq, shiftLeft_eq_zero_iff, succ_ne_self, not_false_eq_true,
+  · simp only [toRat_ofOdd_eq_mkRat, ne_eq, shiftLeft_eq_zero_iff, succ_ne_self, not_false_eq_true,
       Rat.mkRat_eq_zero, Int.shiftLeft_eq_zero_iff] at h
     cases h
     contradiction
 
-theorem of_eq_ofIntWithPrec : of n k hn = ofIntWithPrec n k := by
+theorem ofOdd_eq_ofIntWithPrec : ofOdd n k hn = ofIntWithPrec n k := by
   simp only [ofIntWithPrec, Dyadic.zero_eq, Int.trailingZeros_eq_zero_of_mod_eq hn,
     Int.shiftRight_zero, Int.cast_ofNat_Int, Int.sub_zero, right_eq_dite_iff, of_ne_zero, imp_false]
   intro rfl; contradiction
@@ -318,7 +318,7 @@ theorem ofIntWithPrec_shiftLeft_add {n : Nat} :
 /-- The "precision" of a dyadic number, i.e. in `n * 2^(-p)` with `n` odd the precision is `p`. -/
 def precision : Dyadic → Int
   | .zero => 0
-  | .of _ p _ => p
+  | .ofOdd _ p _ => p
 
 /--
 Convert a rational number `x` to the greatest dyadic number with precision at most `prec`
@@ -353,7 +353,7 @@ which is less than or equal to `x`.
 def roundDown (x : Dyadic) (prec : Int) : Dyadic :=
   match x with
   | .zero => .zero
-  | .of n k _ =>
+  | .ofOdd n k _ =>
     match k - prec with
     | .ofNat l => .ofIntWithPrec (n >>> l) prec
     | .negSucc _ => x
@@ -365,7 +365,7 @@ theorem roundDown_eq_self_of_le {x : Dyadic} {prec : Int} (h : x.precision ≤ p
   · simp only [precision] at h
     obtain ⟨a, rfl⟩ := h.dest
     rcases a with _ | a
-    · simp [roundDown, of_eq_ofIntWithPrec]
+    · simp [roundDown, ofOdd_eq_ofIntWithPrec]
     · have : k - (k + (a + 1 : Nat)) = Int.negSucc a := by omega
       simp only [roundDown, this]
 
@@ -374,7 +374,7 @@ theorem toDyadic_toRat (x : Dyadic) (prec : Int) :
     x.toRat.toDyadic prec = x.roundDown prec := by
   rcases x with _ | ⟨n, k, hn⟩
   · cases prec <;> simp [Rat.toDyadic, roundDown]
-  · simp only [toRat_of_eq_mkRat, roundDown]
+  · simp only [toRat_ofOdd_eq_mkRat, roundDown]
     rw [Rat.toDyadic_mkRat]
     simp only [← Int.shiftLeft_add, Int.natCast_shiftLeft, Int.cast_ofNat_Int]
     rw [Int.shiftLeft_eq' 1, Int.one_mul, ← Int.shiftRight_eq_div_pow]
@@ -387,7 +387,7 @@ theorem toDyadic_toRat (x : Dyadic) (prec : Int) :
     · simp
       rw [Int.negSucc_eq, Int.eq_neg_comm, Int.neg_sub, eq_comm, Int.sub_eq_iff_eq_add] at h
       simp only [Int.neg_negSucc, h, ← Int.natCast_add_one, Int.add_comm _ k,
-        Nat.succ_eq_add_one, Int.toNat_natCast, ofIntWithPrec_shiftLeft_add, of_eq_ofIntWithPrec]
+        Nat.succ_eq_add_one, Int.toNat_natCast, ofIntWithPrec_shiftLeft_add, ofOdd_eq_ofIntWithPrec]
 
 theorem toRat_inj {x y : Dyadic} : x.toRat = y.toRat ↔ x = y := by
   refine ⟨fun h => ?_, fun h => h ▸ rfl⟩
@@ -425,9 +425,9 @@ theorem one_mul (x : Dyadic) : 1 * x = x := by
 def blt (x y : Dyadic) : Bool :=
   match x, y with
   | .zero, .zero => false
-  | .zero, .of n₂ _ _ => 0 < n₂
-  | .of n₁ _ _, .zero => n₁ < 0
-  | .of n₁ k₁ _, .of n₂ k₂ _ =>
+  | .zero, .ofOdd n₂ _ _ => 0 < n₂
+  | .ofOdd n₁ _ _, .zero => n₁ < 0
+  | .ofOdd n₁ k₁ _, .ofOdd n₂ k₂ _ =>
     match k₂ - k₁ with
     | (l : Nat) => (n₁ <<< l) < n₂
     | -((l+1 : Nat)) => n₁ < (n₂ <<< l + 1)
@@ -436,9 +436,9 @@ def blt (x y : Dyadic) : Bool :=
 def ble (x y : Dyadic) : Bool :=
   match x, y with
   | .zero, .zero => true
-  | .zero, .of n₂ _ _ => 0 ≤ n₂
-  | .of n₁ _ _, .zero => n₁ ≤ 0
-  | .of n₁ k₁ _, .of n₂ k₂ _ =>
+  | .zero, .ofOdd n₂ _ _ => 0 ≤ n₂
+  | .ofOdd n₁ _ _, .zero => n₁ ≤ 0
+  | .ofOdd n₁ k₁ _, .ofOdd n₂ k₂ _ =>
     match k₂ - k₁ with
     | (l : Nat) => (n₁ <<< l) ≤ n₂
     | -((l+1 : Nat)) => n₁ ≤ (n₂ <<< l + 1)
@@ -495,7 +495,7 @@ instance : Std.IsLinearOrder Dyadic where
 theorem roundDown_le {x : Dyadic} {prec : Int} : roundDown x prec ≤ x :=
   match x with
   | .zero => le_refl _
-  | .of n k _ => by
+  | .ofOdd n k _ => by
     unfold roundDown
     dsimp
     split
@@ -510,7 +510,7 @@ theorem le_roundDown {x y : Dyadic} {prec : Int} (h : y.precision ≤ prec) (h' 
 def roundUp (x : Dyadic) (prec : Int) : Dyadic :=
   match x with
   | .zero => .zero
-  | .of n k _ =>
+  | .ofOdd n k _ =>
     match k - prec with
     | .ofNat l => .ofIntWithPrec (n + 1 >>> l) prec
     | .negSucc _ => x
@@ -518,7 +518,7 @@ def roundUp (x : Dyadic) (prec : Int) : Dyadic :=
 theorem le_roundUp {x : Dyadic} {prec : Int} : x ≤ roundUp x prec :=
   match x with
   | .zero => le_refl _
-  | .of n k _ => by
+  | .ofOdd n k _ => by
     unfold roundUp
     dsimp
     split

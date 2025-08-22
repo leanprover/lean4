@@ -3,22 +3,28 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Init.Data.Order
+public import Init.Data.ToString.Basic
 import Lake.Util.Name
 import Lake.Config.Kinds
 
 namespace Lake
 open Lean (Name)
 
+public section
 /-- The type of keys in the Lake build store. -/
-inductive BuildKey
+public inductive BuildKey
 | module (module : Name)
 | package (package : Name)
 | packageTarget (package target : Name)
 | facet (target : BuildKey) (facet : Name)
 deriving Inhabited, Repr, DecidableEq, Hashable
+end
 
-def PartialBuildKey.moduleTargetIndicator := `«_+»
+public def PartialBuildKey.moduleTargetIndicator := `«_+»
 
 /--
 A build key with some missing info.
@@ -29,16 +35,25 @@ A build key with some missing info.
 * Module package targets are supported via a fake `packageTarget` with
   a target name ending in `moduleTargetIndicator`.
 -/
-def PartialBuildKey := BuildKey
+public def PartialBuildKey := BuildKey
+
+namespace PartialBuildKey
 
 /-- Cast a `BuildKey` to a `PartialBuildKey`. -/
-@[inline] def PartialBuildKey.mk (key : BuildKey) : PartialBuildKey := key
+@[inline] public def mk (key : BuildKey) : PartialBuildKey := key
+
+public instance : Coe BuildKey PartialBuildKey := ⟨mk⟩
+
+public instance : Repr PartialBuildKey :=
+  private_decl% (@id (Repr PartialBuildKey) (inferInstanceAs (Repr BuildKey)))
+
+public instance : Inhabited PartialBuildKey := ⟨mk <| .package .anonymous⟩
 
 /--
 Parses a `PartialBuildKey` from a `String`.
 Uses the same syntax as the `lake build` / `lake query` CLI.
 -/
-def PartialBuildKey.parse (s : String) : Except String PartialBuildKey := do
+public def parse (s : String) : Except String PartialBuildKey := do
   if s.isEmpty then
     throw "ill-formed target: empty string"
   match s.splitOn ":" with
@@ -87,7 +102,7 @@ where
       let target := stringToLegalOrSimpleName target
       return .packageTarget pkg target
 
-def PartialBuildKey.toString : (self : PartialBuildKey) → String
+public def toString : (self : PartialBuildKey) → String
 | .module m => s!"+{m}"
 | .package p => if p.isAnonymous then "" else s!"@{p}"
 | .packageTarget p t =>
@@ -98,39 +113,40 @@ def PartialBuildKey.toString : (self : PartialBuildKey) → String
   if p.isAnonymous then t else s!"{p}/{t}"
 | .facet t f => if f.isAnonymous then toString t else s!"{toString t}:{f}"
 
-instance : ToString PartialBuildKey := ⟨PartialBuildKey.toString⟩
-instance : Repr PartialBuildKey := inferInstanceAs (Repr BuildKey)
+public instance : ToString PartialBuildKey := ⟨PartialBuildKey.toString⟩
+
+end PartialBuildKey
 
 namespace BuildKey
 
-@[match_pattern] abbrev moduleFacet (module facet : Name) : BuildKey :=
+@[match_pattern] public abbrev moduleFacet (module facet : Name) : BuildKey :=
   .facet (.module module) facet
 
-@[match_pattern] abbrev packageFacet (package facet : Name) : BuildKey :=
+@[match_pattern] public abbrev packageFacet (package facet : Name) : BuildKey :=
   .facet (.package package) facet
 
-@[match_pattern] abbrev targetFacet (package target facet : Name) : BuildKey :=
+@[match_pattern] public abbrev targetFacet (package target facet : Name) : BuildKey :=
   .facet (.packageTarget package target) facet
 
-@[match_pattern] abbrev customTarget (package target : Name) : BuildKey :=
+@[match_pattern] public abbrev customTarget (package target : Name) : BuildKey :=
   .packageTarget package target
 
-def toString : (self : BuildKey) → String
+public def toString : (self : BuildKey) → String
 | module m => s!"+{m}"
 | package p => s!"@{p}"
 | packageTarget p t => s!"{p}/{t}"
 | facet t f => s!"{toString t}:{Name.eraseHead f}"
 
 /-- Like the default `toString`, but without disambiguation markers. -/
-def toSimpleString : (self : BuildKey) → String
+public def toSimpleString : (self : BuildKey) → String
 | module m => s!"{m}"
 | package p => s!"{p}"
 | packageTarget p t => s!"{p}/{t}"
 | facet t f => s!"{toSimpleString t}:{Name.eraseHead f}"
 
-instance : ToString BuildKey := ⟨(·.toString)⟩
+public instance : ToString BuildKey := ⟨(·.toString)⟩
 
-def quickCmp (k k' : BuildKey) : Ordering :=
+public def quickCmp (k k' : BuildKey) : Ordering :=
   match k with
   | module m =>
     match k' with
@@ -157,7 +173,7 @@ def quickCmp (k k' : BuildKey) : Ordering :=
       | ord => ord
     | _ => .gt
 
-theorem eq_of_quickCmp :
+public theorem eq_of_quickCmp :
   quickCmp k k' = Ordering.eq → k = k'
 := by
   revert k'
@@ -189,7 +205,7 @@ theorem eq_of_quickCmp :
       next => intro; contradiction
     all_goals (intro; contradiction)
 
-instance : Std.LawfulEqCmp quickCmp where
+public instance : Std.LawfulEqCmp quickCmp where
   eq_of_compare := eq_of_quickCmp
   compare_self {k} := by
     induction k

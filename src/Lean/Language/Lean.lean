@@ -488,7 +488,7 @@ where
       let startTime := (← IO.monoNanosNow).toFloat / 1000000000
       let mut opts := setup.opts
       -- HACK: no better way to enable in core with `USE_LAKE` off
-      if setup.mainModuleName.getRoot ∈ [`Init, `Std, `Lean, `Lake] then
+      if setup.mainModuleName.getRoot ∈ [`Init, `Std, `Lean, `Lake, `LakeMain] then
         opts := experimental.module.setIfNotSet opts true
       if !stx.raw[0].isNone && !experimental.module.get opts then
         throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"

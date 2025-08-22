@@ -14,6 +14,7 @@ meta import all Lake.Config.Kinds
 meta import Lake.Util.Name
 
 open Lean
+
 namespace Lake
 
 --------------------------------------------------------------------------------
@@ -183,8 +184,6 @@ public instance [FamilyOut DataType Package.facetKind α]
 --------------------------------------------------------------------------------
 /-! ## Macros for Declaring Build Data                                        -/
 --------------------------------------------------------------------------------
-
-open Parser Command
 
 /-- Macro for declaring a new `DataType`. -/
 scoped macro (name := dataTypeDecl)

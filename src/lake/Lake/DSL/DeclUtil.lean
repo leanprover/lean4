@@ -134,7 +134,7 @@ public def mkConfigDeclIdent (stx? : Option IdentOrStr) : CommandElabM Ident := 
 
 public def elabConfig
   (tyName : Name) [info : ConfigInfo tyName]
-  (id : Ident) (ty : Term) (config : TSyntax ``optConfig)
+  (id : Ident) (ty : Term) (config : OptConfig)
 : CommandElabM PUnit := do
   let mkCmd (whereInfo : SourceInfo) (fs : TSyntaxArray ``declField) wds? := do
     /-

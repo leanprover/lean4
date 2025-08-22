@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Prelude
 meta import Lake.Util.Binder
-meta import Lean.Parser.Command
 
 /-!
 This module provides utilities for defining simple opaque types
@@ -17,8 +16,9 @@ and then later filled in with `hydrate_opaque_type` once the corresponding
 non-opaque type has been defined.
 -/
 
+open Lean
+
 namespace Lake
-open Lean Parser Command
 
 macro (name := nonemptyTypeCmd)
   doc?:optional(docComment) vis?:optional(visibility)

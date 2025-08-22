@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lake.DSL.Syntax
-import Lean.Parser.Command
 import Lake.Config.Dependency
 import Lake.DSL.Extensions
 import Lake.DSL.DeclUtil

@@ -2084,6 +2084,11 @@ theorem le_iff {i₁ i₂ : Pos} : i₁ ≤ i₂ ↔ i₁.byteIdx ≤ i₂.byteI
 
 @[simp] theorem mk_le_mk {i₁ i₂ : Nat} : Pos.mk i₁ ≤ Pos.mk i₂ ↔ i₁ ≤ i₂ := .rfl
 
+@[simp] theorem le_refl {p : Pos} : p ≤ p := mk_le_mk.mpr (Nat.le_refl _)
+
+@[simp] theorem le_trans {p1 p2 p3 : Pos} : p1 ≤ p2 → p2 ≤ p3 → p1 ≤ p3 := fun h1 h2 =>
+  mk_le_mk.mpr <| Nat.le_trans (mk_le_mk.mp h1) (mk_le_mk.mp h2)
+
 theorem lt_iff {i₁ i₂ : Pos} : i₁ < i₂ ↔ i₁.byteIdx < i₂.byteIdx := .rfl
 
 @[simp] theorem mk_lt_mk {i₁ i₂ : Nat} : Pos.mk i₁ < Pos.mk i₂ ↔ i₁ < i₂ := .rfl

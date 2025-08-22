@@ -26,6 +26,10 @@ namespace Int
 
 @[simp high] theorem natCast_eq_zero {n : Nat} : (n : Int) = 0 ↔ n = 0 := by omega
 
+instance {n : Nat} [NeZero n] : NeZero (n : Int) := ⟨mt Int.natCast_eq_zero.mp (NeZero.ne _)⟩
+instance {n : Nat} [NeZero n] : NeZero (no_index (OfNat.ofNat n) : Int) :=
+  ⟨mt Int.natCast_eq_zero.mp (NeZero.ne _)⟩
+
 protected theorem exists_add_of_le {a b : Int} (h : a ≤ b) : ∃ (c : Nat), b = a + c :=
   ⟨(b - a).toNat, by omega⟩
 
@@ -1217,6 +1221,26 @@ theorem not_dvd_iff_lt_mul_succ (m : Int) (hn : 0 < n) :
     replace h2k := lt_of_mul_lt_mul_left h2k (by omega)
     rw [Int.lt_add_one_iff, ← Int.not_lt] at h2k
     exact h2k h1k
+
+private theorem ediv_ediv_of_pos {x y z : Int} (hy : 0 < y) (hz : 0 < z) :
+    x / y / z = x / (y * z) := by
+  rw [eq_comm, Int.ediv_eq_iff_of_pos (Int.mul_pos hy hz)]
+  constructor
+  · rw [Int.mul_comm y, ← Int.mul_assoc]
+    exact Int.le_trans
+      (Int.mul_le_mul_of_nonneg_right (Int.ediv_mul_le _ (Int.ne_of_gt hz)) (Int.le_of_lt hy))
+      (Int.ediv_mul_le x (Int.ne_of_gt hy))
+  · rw [Int.mul_comm y, ← Int.mul_assoc, ← Int.add_mul, Int.mul_comm _ z]
+    exact Int.lt_mul_of_ediv_lt hy (Int.lt_mul_ediv_self_add hz)
+
+theorem ediv_ediv {x y z : Int} (hy : 0 ≤ y) : x / y / z = x / (y * z) := by
+  rcases y with (_ | a) | a
+  · simp
+  · rcases z with (_ | b) | b
+    · simp
+    · simp [ediv_ediv_of_pos]
+    · simp [Int.negSucc_eq, Int.mul_neg, ediv_ediv_of_pos]
+  · simp at hy
 
 /-! ### tdiv -/
 

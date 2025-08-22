@@ -1313,13 +1313,13 @@ theorem pow_eq_self_iff {a b : Nat} (ha : 1 < a) : a ^ b = a ↔ b = 1 := by
 
 @[simp]
 theorem log2_zero : Nat.log2 0 = 0 := by
-  simp [Nat.log2]
+  simp [Nat.log2_def]
 
 theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
   match k with
   | 0 => simp [show 1 ≤ n from Nat.pos_of_ne_zero h]
   | k+1 =>
-    rw [log2]; split
+    rw [log2_def]; split
     · have n0 : 0 < n / 2 := (Nat.le_div_iff_mul_le (by decide)).2 ‹_›
       simp only [Nat.add_le_add_iff_right, le_log2 (Nat.ne_of_gt n0),
         Nat.pow_succ]

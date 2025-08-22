@@ -34,7 +34,7 @@ example : f 0 > 0 := by simp!
 
 
 -- NB: simp! disables all warnings, not just for declarations to unfold
--- Mild bug, but not a regresion.
+-- Mild bug, but not a regression.
 
 /--
 error: unsolved goals

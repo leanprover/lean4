@@ -12,7 +12,7 @@ import Lean.Meta.InferType
 open Lean Meta
 
 /-!
-This module provies builder for efficient `Nat → …` functions based on binary decision trees.
+This module provides builder for efficient `Nat → …` functions based on binary decision trees.
 -/
 
 /--

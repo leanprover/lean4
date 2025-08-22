@@ -14,8 +14,6 @@ public import Init.Data.Rat.Lemmas
 Constructs the dyadic rationals as an ordered ring, equipped with a compatible embedding into the rationals.
 -/
 
--- TODO replace all `· * 2 ^ k` with `· <<< k` (in definitions)
-
 set_option linter.missingDocs true
 
 @[expose] public section
@@ -432,8 +430,47 @@ instance : LT Dyadic where
 instance : LE Dyadic where
   le x y := ble x y
 
--- TODO: Define `roundUp : (x : Dyadic) → (prec : Int) → Dyadic` as the closest dyadic ≥ `x` with precision is at most `prec`, and theorems about this. Similarly `roundDown`.
+theorem lt_iff_toRat {x y : Dyadic} : x < y ↔ x.toRat < y.toRat := by
+  rw [← blt_iff_toRat]
+  exact Iff.rfl
+theorem le_iff_toRat {x y : Dyadic} : x ≤ y ↔ x.toRat ≤ y.toRat := by
+  rw [← ble_iff_toRat]
+  exact Iff.rfl
 
+theorem lt_iff (x y : Dyadic) : x < y ↔ x ≤ y ∧ ¬y ≤ x := sorry
+
+theorem le_refl (x : Dyadic) : x ≤ x := by
+  rw [le_iff_toRat]
+  -- We can't yet prove theorems about the order by pulling back from `Rat`,
+  -- because we don't have the order instances there!
+  sorry
+
+theorem le_trans (x y z : Dyadic) (h : x ≤ y) (h' : y ≤ z) : x ≤ z := by
+  rw [le_iff_toRat] at h h'
+  sorry
+
+theorem le_antisymm (x y : Dyadic) (h : x ≤ y) (h' : y ≤ x) : x = y := by
+  rw [le_iff_toRat] at h h'
+  sorry
+
+theorem le_total (x y : Dyadic) : x ≤ y ∨ y ≤ x := sorry
+
+instance : Std.LawfulOrderLT Dyadic where
+  lt_iff := lt_iff
+
+instance : Std.IsPreorder Dyadic where
+  le_refl := le_refl
+  le_trans := le_trans
+
+instance : Std.IsPartialOrder Dyadic where
+  le_antisymm := le_antisymm
+
+instance : Std.IsLinearPreorder Dyadic where
+  le_total := le_total
+
+instance : Std.IsLinearOrder Dyadic where
+
+/-- `roundDown x prec` is the greatest dyadic number with precision at most `prec` which is less than or equal to `x`. -/
 def roundDown (x : Dyadic) (prec : Int) : Dyadic :=
   match x with
   | .zero => .zero
@@ -442,35 +479,41 @@ def roundDown (x : Dyadic) (prec : Int) : Dyadic :=
     | .ofNat l => .ofIntWithPrec (n >>> l) prec
     | .negSucc _ => x
 
-theorem roundDown_le {x : Dyadic} {prec : Int} : roundDown x prec ≤ x := sorry
+theorem roundDown_le {x : Dyadic} {prec : Int} : roundDown x prec ≤ x :=
+  match x with
+  | .zero => le_refl _
+  | .of n k _ => by
+    unfold roundDown
+    dsimp
+    split
+    · sorry
+    · apply le_refl
 
 theorem precision_roundDown {x : Dyadic} {prec : Int} : (roundDown x prec).precision ≤ prec := sorry
 
--- TODO: another theorem here...
+theorem le_roundDown {x y : Dyadic} {prec : Int} (h : y.precision ≤ prec) (h' : y ≤ x) : y ≤ x.roundDown prec := sorry
 
-theorem lt_iff_toRat {x y : Dyadic} : x < y ↔ x.toRat < y.toRat := by
-  rw [← blt_iff_toRat]
-  exact Iff.rfl
-theorem le_iff_toRat {x y : Dyadic} : x ≤ y ↔ x.toRat ≤ y.toRat := by
-  rw [← ble_iff_toRat]
-  exact Iff.rfl
+/-- `roundUp x prec` is the least dyadic number with precision at most `prec` which is greater than or equal to `x`. -/
+def roundUp (x : Dyadic) (prec : Int) : Dyadic :=
+  match x with
+  | .zero => .zero
+  | .of n k _ =>
+    match k - prec with
+    | .ofNat l => .ofIntWithPrec (n + 1 >>> l) prec
+    | .negSucc _ => x
 
-instance : Std.LawfulOrderLT Dyadic where
-  lt_iff := sorry
+theorem le_roundUp {x : Dyadic} {prec : Int} : x ≤ roundUp x prec :=
+  match x with
+  | .zero => le_refl _
+  | .of n k _ => by
+    unfold roundUp
+    dsimp
+    split
+    · sorry
+    · apply le_refl
 
-instance : Std.IsPartialOrder Dyadic where
-  le_refl x := by
-    rw [le_iff_toRat]
-    -- Oops, can't do this yet because we don't have the order instances on `Rat` itself
-    sorry
-  le_trans := by sorry
-  le_antisymm := by sorry
+theorem precision_roundUp {x : Dyadic} {prec : Int} : (roundUp x prec).precision ≤ prec := sorry
 
-instance : Std.IsLinearPreorder Dyadic where
-  le_total := by sorry
-
-instance : Std.IsLinearOrder Dyadic where
-
--- TODO: show Dyadic is an IsOrderedRing
+theorem roundUp_le {x y : Dyadic} {prec : Int} (h : y.precision ≤ prec) (h' : x ≤ y) : x.roundUp prec ≤ y:= sorry
 
 end Dyadic

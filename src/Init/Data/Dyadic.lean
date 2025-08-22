@@ -6,5 +6,5 @@ Authors: Kim Morrison
 module
 prelude
 
-public import Init.Data.Rat.Basic
-public import Init.Data.Rat.Lemmas
+public import Init.Data.Dyadic.Basic
+public import Init.Data.Dyadic.Instances

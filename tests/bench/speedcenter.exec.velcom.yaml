@@ -599,16 +599,16 @@
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean ../lean/run/grind_bitvec2.lean
+    cmd: lean -Dexperimental.module=true ../lean/run/grind_bitvec2.lean
 - attributes:
     description: grind_list2.lean
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean ../lean/run/grind_list2.lean
+    cmd: lean -Dexperimental.module=true ../lean/run/grind_list2.lean
 - attributes:
     description: grind_ring_5.lean
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean ../lean/run/grind_ring_5.lean
+    cmd: lean -Dexperimental.module=true ../lean/run/grind_ring_5.lean

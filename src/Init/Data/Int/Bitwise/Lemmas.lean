@@ -16,8 +16,8 @@ namespace Int
 
 theorem shiftRight_eq (n : Int) (s : Nat) : n >>> s = Int.shiftRight n s := rfl
 
-@[simp]
-theorem natCast_shiftRight (n s : Nat) : (n : Int) >>> s = n >>> s := rfl
+@[simp, norm_cast]
+theorem natCast_shiftRight (n s : Nat) : n >>> s = (n : Int) >>> s := rfl
 
 @[simp]
 theorem negSucc_shiftRight (m n : Nat) :
@@ -67,7 +67,7 @@ theorem shiftRight_le_of_nonneg {n : Int} {s : Nat} (h : 0 ≤ n) : n >>> s ≤ 
     by_cases hm : m = 0
     · simp [hm]
     · have := Nat.shiftRight_le m s
-      simp
+      rw [ofNat_eq_coe]
       omega
   case _ _ _ m =>
     omega
@@ -88,6 +88,9 @@ theorem shiftRight_le_of_nonpos {n : Int} {s : Nat} (h : n ≤ 0) : (n >>> s) �
     have rl : n / 2 ^ s ≤ 0 := Int.ediv_nonpos_of_nonpos_of_neg (by omega) (by norm_cast at *; omega)
     norm_cast at *
 
+@[simp, norm_cast]
+theorem natCast_shiftLeft (n s : Nat) : n <<< s = (n : Int) <<< s := rfl
+
 @[simp, grind =]
 theorem zero_shiftLeft (n : Nat) : (0 : Int) <<< n = 0 := by
   change ((0 <<< n : Nat) : Int) = 0
@@ -104,10 +107,10 @@ theorem shiftLeft_succ (m : Int) (n : Nat) : m <<< (n + 1) = (m <<< n) * 2 := by
   change Int.shiftLeft _ _ = Int.shiftLeft _ _ * 2
   match m with
   | (m : Nat) =>
-    dsimp [Int.shiftLeft]
+    dsimp only [Int.shiftLeft, Int.ofNat_eq_coe]
     rw [Nat.shiftLeft_succ, Nat.mul_comm, natCast_mul, ofNat_two]
   | Int.negSucc m =>
-    dsimp [Int.shiftLeft]
+    dsimp only [Int.shiftLeft]
     rw [Nat.shiftLeft_succ, Nat.mul_comm, Int.negSucc_eq]
     have := Nat.le_shiftLeft (a := m + 1) (b := n)
     omega
@@ -142,8 +145,21 @@ theorem shiftLeft_shiftRight_eq_shiftRight_of_le {b c : Nat} (h : b ≤ c) (a : 
   obtain ⟨c, rfl⟩ := h.dest
   simp [shiftRight_add]
 
+theorem shiftLeft_shiftRight_eq (a : Int) (b c : Nat) :
+    a <<< b >>> c = a <<< (b - c) >>> (c - b) := by
+  rcases Nat.le_total b c with h | h
+  · simp [shiftLeft_shiftRight_eq_shiftRight_of_le h, Nat.sub_eq_zero_of_le h]
+  · simp [shiftLeft_shiftRight_eq_shiftLeft_of_le h, Nat.sub_eq_zero_of_le h]
+
+@[simp]
+theorem shiftRight_shiftLeft_cancel {a : Int} {b : Nat} (h : 2 ^ b ∣ a) : a >>> b <<< b = a := by
+  simp [shiftLeft_eq, shiftRight_eq_div_pow, Int.ediv_mul_cancel h]
+
 theorem add_shiftLeft (a b : Int) (n : Nat) : (a + b) <<< n = a <<< n + b <<< n := by
   simp [shiftLeft_eq, Int.add_mul]
+
+theorem neg_shiftLeft (a : Int) (n : Nat) : (-a) <<< n = -a <<< n := by
+  simp [Int.shiftLeft_eq, Int.neg_mul]
 
 theorem shiftLeft_mul (a b : Int) (n : Nat) : a <<< n * b = (a * b) <<< n := by
   simp [shiftLeft_eq, Int.mul_right_comm]

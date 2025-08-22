@@ -844,6 +844,12 @@ theorem shiftLeft_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
   rw [shiftLeft_eq, Nat.mul_comm]
   rw [two_pow_add_eq_or_of_lt b_lt]
 
+@[simp]
+theorem shiftLeft_eq_zero_iff {a n : Nat} : a <<< n = 0 ↔ a = 0 := by
+  simp [shiftLeft_eq, mul_eq_zero]
+
+instance {a n : Nat} [NeZero a] : NeZero (a <<< n) := ⟨mt shiftLeft_eq_zero_iff.mp (NeZero.ne _)⟩
+
 /-! ### le -/
 
 theorem le_of_testBit {n m : Nat} (h : ∀ i, n.testBit i = true → m.testBit i = true) : n ≤ m := by

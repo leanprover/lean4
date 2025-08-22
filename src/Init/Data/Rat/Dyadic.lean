@@ -14,6 +14,8 @@ public import Init.Data.Rat.Lemmas
 Constructs the dyadic rationals as an ordered ring, equipped with a compatible embedding into the rationals.
 -/
 
+-- TODO replace all `· * 2 ^ k` with `· <<< k` (in definitions)
+
 set_option linter.missingDocs true
 
 @[expose] public section
@@ -136,9 +138,9 @@ protected def add (x y : Dyadic) : Dyadic :=
   | .of n₁ k₁ hn₁, .of n₂ k₂ hn₂ =>
     match k₁ - k₂ with
     | 0 => .ofIntWithPrec (n₁ + n₂) k₁
-    | (d@hd:(d' + 1) : Nat) => .of (n₁ + n₂ * (2 ^ d : Nat)) k₁ ?_
-    | -(d + 1 : Nat) => .of (n₁ * (2 ^ (d + 1) : Nat) + n₂) k₂ ?_
-where finally all_goals simp_all [Int.pow_succ, ← Int.mul_assoc]
+    | (d@hd:(d' + 1) : Nat) => .of (n₁ + (n₂ <<< d)) k₁ ?_
+    | -(d + 1 : Nat) => .of (n₁ <<< (d + 1) + n₂) k₂ ?_
+where finally all_goals simp_all [Int.shiftLeft_eq, Int.pow_succ, ← Int.mul_assoc]
 
 instance : Add Dyadic := ⟨Dyadic.add⟩
 
@@ -248,13 +250,13 @@ theorem toRat_add (x y : Dyadic) : toRat (x + y) = toRat x + toRat y := by
     · rename_i h
       cases Int.sub_eq_iff_eq_add.mp h
       rw [toRat_of_eq_mkRat, Rat.mkRat_eq_iff (NeZero.ne _) (NeZero.ne _)]
-      simp only [Int.add_mul, Int.mul_assoc, ← Int.natCast_mul, ← Nat.pow_add,
+      simp only [Int.shiftLeft_eq', Int.add_mul, Int.mul_assoc, ← Int.natCast_mul, ← Nat.pow_add,
         Int.ofNat_eq_coe]
       congr 4 <;> omega
     · rename_i h
       cases Int.sub_eq_iff_eq_add.mp h
       rw [toRat_of_eq_mkRat, Rat.mkRat_eq_iff (NeZero.ne _) (NeZero.ne _)]
-      simp only [Int.add_mul, Int.mul_assoc, ← Int.natCast_mul, ← Nat.pow_add]
+      simp only [Int.shiftLeft_eq', Int.add_mul, Int.mul_assoc, ← Int.natCast_mul, ← Nat.pow_add]
       congr 4 <;> omega
 
 @[simp]
@@ -300,8 +302,8 @@ def precision : Dyadic → Int
 
 def _root_.Rat.toDyadic (x : Rat) (prec : Int) : Dyadic :=
   match prec with
-  | (n : Nat) => .ofIntWithPrec (x.num * (2 ^ n : Nat) / x.den) prec
-  | -(n + 1 : Nat) => .ofIntWithPrec (x.num / (x.den * (2 ^ (n + 1)) : Nat)) prec
+  | (n : Nat) => .ofIntWithPrec ((x.num <<< n) / x.den) prec
+  | -(n + 1 : Nat) => .ofIntWithPrec (x.num / (x.den <<< (n + 1))) prec
 
 theorem of_eq_ofIntWithPrec : of n k hn = ofIntWithPrec n k := by
   simp only [ofIntWithPrec, Dyadic.zero_eq, Int.trailingZeros_eq_zero_of_mod_eq hn,
@@ -326,12 +328,12 @@ theorem toDyadic_toRat {x : Dyadic} {prec : Int} (h : x.precision ≤ prec) :
   rcases x with _ | ⟨n, k, hn⟩
   · simp only [precision] at h
     rcases h.dest with ⟨a, rfl⟩
-    simp [Rat.toDyadic, ofIntWithPrec]
+    simp [Rat.toDyadic, ofIntWithPrec, Int.shiftLeft_eq']
   · simp only [precision] at h
     rcases h.dest with ⟨a, rfl⟩
     rcases k with b | b
     · simp only [toRat, Rat.toDyadic, Int.ofNat_eq_coe, ← Int.natCast_add, Nat.pow_add,
-        Int.natCast_mul]
+        Int.natCast_mul, Int.shiftLeft_eq']
       rw [Int.mul_comm, Int.mul_assoc, Int.mul_ediv_cancel_left _ (NeZero.ne _)]
       rw [Int.natCast_pow, Int.cast_ofNat_Int, Int.natCast_add, ofIntWithPrec_two_pow_mul_add]
       rw [of_eq_ofIntWithPrec]
@@ -342,10 +344,10 @@ theorem toDyadic_toRat {x : Dyadic} {prec : Int} (h : x.precision ≤ prec) :
         rw [Int.negSucc_eq, Int.add_comm, Int.add_neg_eq_sub, Int.sub_eq_iff_eq_add',
           Int.ofNat_eq_coe] at h
         norm_cast at h
-        simp only [Int.mul_assoc, ← Int.natCast_mul, ← Nat.pow_add, h]
+        simp only [Int.shiftLeft_eq', Int.mul_assoc, ← Int.natCast_mul, ← Nat.pow_add, h]
         rw [Int.natCast_pow, Int.cast_ofNat_Int, Int.mul_comm]
         rw [ofIntWithPrec_two_pow_mul_add, of_eq_ofIntWithPrec]
-      · simp only [← Rat.mk_den_one, Nat.one_mul]
+      · simp only [← Rat.mk_den_one, Nat.shiftLeft_eq, Nat.one_mul]
         rename_i c h
         have : b = a + c := by omega
         cases this
@@ -396,8 +398,8 @@ def blt (x y : Dyadic) : Bool :=
   | .of n₁ _ _, .zero => n₁ < 0
   | .of n₁ k₁ _, .of n₂ k₂ _ =>
     match k₂ - k₁ with
-    | (l : Nat) => n₁ * 2^l < n₂
-    | -((l+1 : Nat)) => n₁ < n₂ * 2^(l + 1)
+    | (l : Nat) => (n₁ <<< l) < n₂
+    | -((l+1 : Nat)) => n₁ < (n₂ <<< l + 1)
 
 /-- Determine if a dyadic rational is less than or equal to another. -/
 def ble (x y : Dyadic) : Bool :=
@@ -407,8 +409,8 @@ def ble (x y : Dyadic) : Bool :=
   | .of n₁ _ _, .zero => n₁ ≤ 0
   | .of n₁ k₁ _, .of n₂ k₂ _ =>
     match k₂ - k₁ with
-    | (l : Nat) => n₁ * 2^l ≤ n₂
-    | -((l+1 : Nat)) => n₁ ≤ n₂ * 2^(l + 1)
+    | (l : Nat) => (n₁ <<< l) ≤ n₂
+    | -((l+1 : Nat)) => n₁ ≤ (n₂ <<< l + 1)
 
 theorem blt_iff_toRat : blt x y ↔ x.toRat < y.toRat := sorry
 theorem ble_iff_toRat : ble x y ↔ x.toRat ≤ y.toRat := sorry

@@ -21,6 +21,11 @@ protected theorem pow_succ (b : Int) (e : Nat) : b ^ (e+1) = (b ^ e) * b := rfl
 protected theorem pow_succ' (b : Int) (e : Nat) : b ^ (e+1) = b * (b ^ e) := by
   rw [Int.mul_comm, Int.pow_succ]
 
+protected theorem pow_add (a : Int) (m n : Nat) : a ^ (m + n) = a ^ m * a ^ n := by
+  induction n with
+  | zero => rw [Nat.add_zero, Int.pow_zero, Int.mul_one]
+  | succ _ ih => rw [Nat.add_succ, Int.pow_succ, Int.pow_succ, ih, Int.mul_assoc]
+
 protected theorem zero_pow {n : Nat} (h : n ≠ 0) : (0 : Int) ^ n = 0 := by
   match n, h with
   | n + 1, _ => simp [Int.pow_succ]

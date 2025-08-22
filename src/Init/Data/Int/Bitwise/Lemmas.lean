@@ -37,11 +37,11 @@ theorem shiftRight_eq_div_pow (m : Int) (n : Nat) :
   · rw [negSucc_ediv _ (by norm_cast; exact Nat.pow_pos (Nat.zero_lt_two))]
     rfl
 
-@[simp]
+@[simp, grind =]
 theorem zero_shiftRight (n : Nat) : (0 : Int) >>> n = 0 := by
   simp [Int.shiftRight_eq_div_pow]
 
-@[simp]
+@[simp, grind =]
 theorem shiftRight_zero (n : Int) : n >>> 0 = n := by
   simp [Int.shiftRight_eq_div_pow]
 
@@ -87,5 +87,33 @@ theorem shiftRight_le_of_nonpos {n : Int} {s : Nat} (h : n ≤ 0) : (n >>> s) �
   · have : 1 < 2 ^ s := Nat.one_lt_two_pow (by omega)
     have rl : n / 2 ^ s ≤ 0 := Int.ediv_nonpos_of_nonpos_of_neg (by omega) (by norm_cast at *; omega)
     norm_cast at *
+
+@[simp, grind =]
+theorem shiftLeft_zero (n : Int) : n <<< 0 = n := by
+  change Int.shiftLeft _ _ = _
+  match n with
+  | Int.ofNat n
+  | Int.negSucc n => simp [Int.shiftLeft]
+
+theorem shiftLeft_succ (m : Int) (n : Nat) : m <<< (n + 1) = (m <<< n) * 2 := by
+  change Int.shiftLeft _ _ = Int.shiftLeft _ _ * 2
+  match m with
+  | (m : Nat) =>
+    dsimp [Int.shiftLeft]
+    rw [Nat.shiftLeft_succ, Nat.mul_comm, natCast_mul, ofNat_two]
+  | Int.negSucc m =>
+    dsimp [Int.shiftLeft]
+    rw [Nat.shiftLeft_succ, Nat.mul_comm, Int.negSucc_eq]
+    have := Nat.le_shiftLeft (a := m + 1) (b := n)
+    omega
+
+theorem shiftLeft_eq (a : Int) (b : Nat) : a <<< b = a * 2 ^ b := by
+  induction b with
+  | zero => simp
+  | succ b ih =>
+    rw [shiftLeft_succ, ih, Int.pow_succ, Int.mul_assoc]
+
+theorem shiftLeft_eq' (a : Int) (b : Nat) : a <<< b = a * (2 ^ b : Nat) := by
+  simp [shiftLeft_eq]
 
 end Int

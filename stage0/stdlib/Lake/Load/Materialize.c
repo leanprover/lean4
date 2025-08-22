@@ -54,7 +54,6 @@ lean_object* l_Lake_GitRepo_resolveRemoteRevision(lean_object*, lean_object*, le
 static lean_object* l_Lake_updateGitPkg___closed__4;
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lake_updateGitPkg___closed__1;
-uint8_t l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_captureProc_x3f(lean_object*, lean_object*);
 static lean_object* l_Lake_pkgNotIndexed___closed__6;
 static lean_object* l_Lake_Dependency_materialize___closed__1;
@@ -117,6 +116,7 @@ static lean_object* l_Lake_Dependency_materialize___closed__4;
 lean_object* l_Lake_RegistryPkg_gitSrc_x3f(lean_object*);
 static lean_object* l_Lake_updateGitRepo___closed__6;
 LEAN_EXPORT lean_object* l_Lake_Dependency_materialize_mkDep___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic_3093634434____hygCtx___hyg_3_(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Dependency_materialize___closed__2;
 LEAN_EXPORT lean_object* l_Lake_MaterializedDep_scope___boxed(lean_object*);
 lean_object* lean_io_realpath(lean_object*, lean_object*);
@@ -6397,7 +6397,7 @@ lean_inc_ref(x_20);
 x_85 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_85, 0, x_20);
 lean_inc_ref(x_85);
-x_86 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(x_84, x_82, x_85);
+x_86 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic_3093634434____hygCtx___hyg_3_(x_84, x_82, x_85);
 if (x_86 == 0)
 {
 lean_object* x_87; lean_object* x_88; 

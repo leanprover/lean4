@@ -17,10 +17,14 @@ static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logWarning___at___L
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_checkExponent_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_checkExponent_spec__1_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_initFn___closed__4____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_checkExponent_spec__1_spec__1_spec__1___lam__0___closed__2;
 static lean_object* l_Lean_checkExponent___closed__5;
+static lean_object* l_Lean_initFn___closed__6____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_checkExponent_spec__1_spec__1_spec__1(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_9_(uint8_t, uint8_t);
+static lean_object* l_Lean_initFn___closed__7____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_log___at___Lean_logWarning___at___Lean_checkExponent_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -33,7 +37,6 @@ static lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lea
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_checkExponent_spec__1_spec__1_spec__1_spec__1___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_checkExponent___closed__2;
-static lean_object* l_Lean_initFn___closed__5____x40_Lean_Util_SafeExponentiation___hyg_6_;
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_checkExponent_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_checkExponent_spec__1_spec__1_spec__1_spec__1___closed__2;
 static lean_object* l_Lean_checkExponent___closed__3;
@@ -41,14 +44,16 @@ LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_logAt___at___Lean_log___a
 LEAN_EXPORT lean_object* l_Lean_checkExponent(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_initFn___closed__4____x40_Lean_Util_SafeExponentiation___hyg_6_;
+LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_initFn___closed__5____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
+LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_initFn___closed__2____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_6__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_checkExponent___closed__1;
-uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_187_(uint8_t, uint8_t);
 uint8_t l_Lean_MessageData_hasTag(lean_object*, lean_object*);
+static lean_object* l_Lean_initFn___closed__1____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_checkExponent_spec__1_spec__1_spec__1___closed__0;
 extern lean_object* l_Lean_warningAsError;
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_checkExponent_spec__1_spec__1_spec__1_spec__1___closed__6;
@@ -66,28 +71,23 @@ lean_object* l_Lean_logMessageKind___redArg(lean_object*, lean_object*, lean_obj
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_checkExponent_spec__1_spec__1_spec__1_spec__1___closed__3;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+static lean_object* l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_checkExponent_spec__1_spec__1_spec__1___lam__0___closed__0;
-static lean_object* l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation___hyg_6_;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-static lean_object* l_Lean_initFn___closed__2____x40_Lean_Util_SafeExponentiation___hyg_6_;
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_checkExponent_spec__1_spec__1_spec__1_spec__1___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_6__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
 lean_object* lean_string_append(lean_object*, lean_object*);
-static lean_object* l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation___hyg_6_;
 LEAN_EXPORT lean_object* l_Lean_checkExponent___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_initFn___closed__1____x40_Lean_Util_SafeExponentiation___hyg_6_;
 static lean_object* l_Lean_checkExponent___closed__4;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_(lean_object*);
 static lean_object* l_Lean_checkExponent___closed__6;
 LEAN_EXPORT lean_object* l_Lean_logWarning___at___Lean_checkExponent_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_6_(lean_object*);
-static lean_object* l_Lean_initFn___closed__6____x40_Lean_Util_SafeExponentiation___hyg_6_;
 LEAN_EXPORT lean_object* l_Lean_log___at___Lean_logWarning___at___Lean_checkExponent_spec__1_spec__1(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_exponentiation_threshold;
-static lean_object* l_Lean_initFn___closed__7____x40_Lean_Util_SafeExponentiation___hyg_6_;
-LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_6__spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4__spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -163,7 +163,7 @@ return x_20;
 }
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation___hyg_6_() {
+static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_() {
 _start:
 {
 lean_object* x_1; 
@@ -171,7 +171,7 @@ x_1 = lean_mk_string_unchecked("exponentiation", 14, 14);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__1____x40_Lean_Util_SafeExponentiation___hyg_6_() {
+static lean_object* _init_l_Lean_initFn___closed__1____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_() {
 _start:
 {
 lean_object* x_1; 
@@ -179,17 +179,17 @@ x_1 = lean_mk_string_unchecked("threshold", 9, 9);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__2____x40_Lean_Util_SafeExponentiation___hyg_6_() {
+static lean_object* _init_l_Lean_initFn___closed__2____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_initFn___closed__1____x40_Lean_Util_SafeExponentiation___hyg_6_;
-x_2 = l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation___hyg_6_;
+x_1 = l_Lean_initFn___closed__1____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
+x_2 = l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
 x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation___hyg_6_() {
+static lean_object* _init_l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_() {
 _start:
 {
 lean_object* x_1; 
@@ -197,7 +197,7 @@ x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__4____x40_Lean_Util_SafeExponentiation___hyg_6_() {
+static lean_object* _init_l_Lean_initFn___closed__4____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_() {
 _start:
 {
 lean_object* x_1; 
@@ -205,12 +205,12 @@ x_1 = lean_mk_string_unchecked("maximum value for which exponentiation operation
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__5____x40_Lean_Util_SafeExponentiation___hyg_6_() {
+static lean_object* _init_l_Lean_initFn___closed__5____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_initFn___closed__4____x40_Lean_Util_SafeExponentiation___hyg_6_;
-x_2 = l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation___hyg_6_;
+x_1 = l_Lean_initFn___closed__4____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
+x_2 = l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
 x_3 = lean_unsigned_to_nat(256u);
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -219,7 +219,7 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__6____x40_Lean_Util_SafeExponentiation___hyg_6_() {
+static lean_object* _init_l_Lean_initFn___closed__6____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_() {
 _start:
 {
 lean_object* x_1; 
@@ -227,33 +227,33 @@ x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__7____x40_Lean_Util_SafeExponentiation___hyg_6_() {
+static lean_object* _init_l_Lean_initFn___closed__7____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_initFn___closed__1____x40_Lean_Util_SafeExponentiation___hyg_6_;
-x_2 = l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation___hyg_6_;
-x_3 = l_Lean_initFn___closed__6____x40_Lean_Util_SafeExponentiation___hyg_6_;
+x_1 = l_Lean_initFn___closed__1____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
+x_2 = l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
+x_3 = l_Lean_initFn___closed__6____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
 x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_6_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_initFn___closed__2____x40_Lean_Util_SafeExponentiation___hyg_6_;
-x_3 = l_Lean_initFn___closed__5____x40_Lean_Util_SafeExponentiation___hyg_6_;
-x_4 = l_Lean_initFn___closed__7____x40_Lean_Util_SafeExponentiation___hyg_6_;
-x_5 = l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_6__spec__0(x_2, x_3, x_4, x_1);
+x_2 = l_Lean_initFn___closed__2____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
+x_3 = l_Lean_initFn___closed__5____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
+x_4 = l_Lean_initFn___closed__7____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
+x_5 = l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4__spec__0(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_6__spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4__spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_6__spec__0(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4__spec__0(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_2);
 return x_5;
 }
@@ -617,7 +617,7 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_79; uint8_t x_80; uint8_t x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; uint8_t x_85; lean_object* x_86; lean_object* x_108; lean_object* x_109; uint8_t x_110; uint8_t x_111; lean_object* x_112; lean_object* x_113; uint8_t x_114; lean_object* x_115; lean_object* x_119; uint8_t x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; uint8_t x_124; uint8_t x_125; uint8_t x_131; uint8_t x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; uint8_t x_137; uint8_t x_138; uint8_t x_140; uint8_t x_156; 
 x_131 = 2;
-x_156 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_187_(x_3, x_131);
+x_156 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_9_(x_3, x_131);
 if (x_156 == 0)
 {
 x_140 = x_156;
@@ -876,7 +876,7 @@ x_93 = l_Lean_FileMap_toPosition(x_82, x_86);
 lean_dec(x_86);
 x_94 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_94, 0, x_93);
-x_95 = l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation___hyg_6_;
+x_95 = l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
 if (x_80 == 0)
 {
 lean_free_object(x_88);
@@ -942,7 +942,7 @@ x_101 = l_Lean_FileMap_toPosition(x_82, x_86);
 lean_dec(x_86);
 x_102 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_102, 0, x_101);
-x_103 = l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation___hyg_6_;
+x_103 = l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
 if (x_80 == 0)
 {
 lean_dec_ref(x_79);
@@ -1107,7 +1107,7 @@ x_148 = lean_alloc_closure((void*)(l_Lean_logAt___at___Lean_log___at___Lean_logW
 lean_closure_set(x_148, 0, x_146);
 lean_closure_set(x_148, 1, x_147);
 x_149 = 1;
-x_150 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_187_(x_3, x_149);
+x_150 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_9_(x_3, x_149);
 if (x_150 == 0)
 {
 lean_inc_ref(x_141);
@@ -1195,7 +1195,7 @@ static lean_object* _init_l_Lean_checkExponent___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation___hyg_6_;
+x_1 = l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_;
 x_2 = l_Lean_checkExponent___closed__1;
 x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
@@ -1440,23 +1440,23 @@ _G_initialized = true;
 res = initialize_Lean_CoreM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation___hyg_6_ = _init_l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation___hyg_6_();
-lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation___hyg_6_);
-l_Lean_initFn___closed__1____x40_Lean_Util_SafeExponentiation___hyg_6_ = _init_l_Lean_initFn___closed__1____x40_Lean_Util_SafeExponentiation___hyg_6_();
-lean_mark_persistent(l_Lean_initFn___closed__1____x40_Lean_Util_SafeExponentiation___hyg_6_);
-l_Lean_initFn___closed__2____x40_Lean_Util_SafeExponentiation___hyg_6_ = _init_l_Lean_initFn___closed__2____x40_Lean_Util_SafeExponentiation___hyg_6_();
-lean_mark_persistent(l_Lean_initFn___closed__2____x40_Lean_Util_SafeExponentiation___hyg_6_);
-l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation___hyg_6_ = _init_l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation___hyg_6_();
-lean_mark_persistent(l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation___hyg_6_);
-l_Lean_initFn___closed__4____x40_Lean_Util_SafeExponentiation___hyg_6_ = _init_l_Lean_initFn___closed__4____x40_Lean_Util_SafeExponentiation___hyg_6_();
-lean_mark_persistent(l_Lean_initFn___closed__4____x40_Lean_Util_SafeExponentiation___hyg_6_);
-l_Lean_initFn___closed__5____x40_Lean_Util_SafeExponentiation___hyg_6_ = _init_l_Lean_initFn___closed__5____x40_Lean_Util_SafeExponentiation___hyg_6_();
-lean_mark_persistent(l_Lean_initFn___closed__5____x40_Lean_Util_SafeExponentiation___hyg_6_);
-l_Lean_initFn___closed__6____x40_Lean_Util_SafeExponentiation___hyg_6_ = _init_l_Lean_initFn___closed__6____x40_Lean_Util_SafeExponentiation___hyg_6_();
-lean_mark_persistent(l_Lean_initFn___closed__6____x40_Lean_Util_SafeExponentiation___hyg_6_);
-l_Lean_initFn___closed__7____x40_Lean_Util_SafeExponentiation___hyg_6_ = _init_l_Lean_initFn___closed__7____x40_Lean_Util_SafeExponentiation___hyg_6_();
-lean_mark_persistent(l_Lean_initFn___closed__7____x40_Lean_Util_SafeExponentiation___hyg_6_);
-if (builtin) {res = l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_6_(lean_io_mk_world());
+l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_();
+lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_);
+l_Lean_initFn___closed__1____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__1____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_();
+lean_mark_persistent(l_Lean_initFn___closed__1____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_);
+l_Lean_initFn___closed__2____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__2____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_();
+lean_mark_persistent(l_Lean_initFn___closed__2____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_);
+l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_();
+lean_mark_persistent(l_Lean_initFn___closed__3____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_);
+l_Lean_initFn___closed__4____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__4____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_();
+lean_mark_persistent(l_Lean_initFn___closed__4____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_);
+l_Lean_initFn___closed__5____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__5____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_();
+lean_mark_persistent(l_Lean_initFn___closed__5____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_);
+l_Lean_initFn___closed__6____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__6____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_();
+lean_mark_persistent(l_Lean_initFn___closed__6____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_);
+l_Lean_initFn___closed__7____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__7____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_();
+lean_mark_persistent(l_Lean_initFn___closed__7____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_);
+if (builtin) {res = l_Lean_initFn____x40_Lean_Util_SafeExponentiation_3025597618____hygCtx___hyg_4_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_exponentiation_threshold = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_exponentiation_threshold);

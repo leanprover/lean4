@@ -40,6 +40,7 @@ lean_object* l_Lean_PersistentHashMap_insert___redArg(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Elab_realizeGlobalNameWithInfos_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_CompletionInfo_format___closed__0;
 lean_object* l_Lean_Core_getMaxHeartbeats(lean_object*);
+uint64_t l_Lean_hashMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_34_(lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_addConstInfo___at___Lean_Elab_realizeGlobalConstNoOverloadWithInfo_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Elab_withInfoTreeContext___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStx(lean_object*, lean_object*, uint8_t);
@@ -169,6 +170,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_enableInfoTree___redArg(lean_object*, uint8
 static lean_object* l_Lean_Elab_instToFormatCustomInfo___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_withSavedPartialInfoContext___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Elab_realizeGlobalConstWithInfos_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_17____boxed(lean_object*, lean_object*);
 static lean_object* l_Option_format___at___Lean_Elab_CompletionInfo_format_spec__0___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_withEnableInfoTree___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_FVarAliasInfo_format___closed__1;
@@ -180,7 +182,6 @@ lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Option_repr___at___Lean_Elab_DelabTermInfo_format_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withInfoContext_x27___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_runMetaM___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_hashMVarId____x40_Lean_Expr___hyg_1873____boxed(lean_object*);
 static lean_object* l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange_fmtPos___closed__6;
 uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___Lean_Elab_PartialContextInfo_mergeIntoOuter_x3f_spec__0(lean_object*);
@@ -302,7 +303,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addCompletionInfo(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_substitute(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_realizeGlobalConstNoOverloadWithInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withEnableInfoTree___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1873_(lean_object*);
 static lean_object* l_Lean_Elab_TacticInfo_format___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_FVarAliasInfo_format(lean_object*);
 static lean_object* l_Lean_Elab_FieldInfo_format___lam__0___closed__0;
@@ -449,7 +449,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoTree___redArg___lam__1(lean_object*
 static lean_object* l_Lean_Elab_CustomInfo_format___closed__0;
 LEAN_EXPORT lean_object* l_Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_addConstInfo___at___Lean_Elab_realizeGlobalConstNoOverloadWithInfo_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
-lean_object* l_Lean_beqMVarId____x40_Lean_Expr___hyg_1815____boxed(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withInfoHole___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withInfoTreeContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -570,6 +569,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_withInfoContext_x27___redArg(lean_object*, 
 lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_addConstInfo___at___Lean_Elab_realizeGlobalConstNoOverloadWithInfo_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_hashMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_34____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_toElabInfo_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withInfoContext_x27___redArg___lam__3(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_FieldRedeclInfo_format___closed__0;
@@ -2044,7 +2044,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Elab_Info
 _start:
 {
 uint64_t x_3; size_t x_4; lean_object* x_5; 
-x_3 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1873_(x_2);
+x_3 = l_Lean_hashMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_34_(x_2);
 x_4 = lean_uint64_to_usize(x_3);
 x_5 = l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Elab_InfoTree_substitute_spec__4_spec__4___redArg(x_1, x_4, x_2);
 return x_5;
@@ -13244,7 +13244,7 @@ static lean_object* _init_l_Lean_Elab_getInfoHoleIdAssignment_x3f___redArg___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_beqMVarId____x40_Lean_Expr___hyg_1815____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_17____boxed), 2, 0);
 return x_1;
 }
 }
@@ -13252,7 +13252,7 @@ static lean_object* _init_l_Lean_Elab_getInfoHoleIdAssignment_x3f___redArg___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_hashMVarId____x40_Lean_Expr___hyg_1873____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_hashMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_34____boxed), 1, 0);
 return x_1;
 }
 }
@@ -13340,7 +13340,7 @@ static lean_object* _init_l_Lean_Elab_assignInfoHoleId___redArg___lam__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Elab.InfoTree.Main._hyg.4735.0 ).isNone\n  ", 83, 83);
+x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Elab.InfoTree.Main.2379084842._hygCtx._hyg.20.0 ).isNone\n  ", 100, 100);
 return x_1;
 }
 }

@@ -66,7 +66,6 @@ uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Environment_Replay_checkPostponedRecursors_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Environment_replay_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadEIO(lean_object*);
-uint8_t l_Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3550_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_Replay_addDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Environment_Replay_replayConstant_spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Environment_Replay_checkPostponedConstructors_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -96,6 +95,7 @@ lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lea
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_Environment_Replay_replayConstant_spec__6_spec__6___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___List_mapM_loop___at___Lean_Environment_Replay_replayConstant_spec__4_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Environment_Replay_replayConstant_spec__10___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqConstructorVal____x40_Lean_Declaration_96378508____hygCtx___hyg_62_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x21___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x21___at___Lean_Environment_Replay_replayConstant_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_Environment_Replay_replayConstant_spec__6_spec__6___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___Lean_Environment_Replay_replayConstant_spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -107,7 +107,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Environment_Replay_replayConstant_spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Kernel_Exception_toMessageData(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_Replay_isTodo___redArg(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqConstructorVal____x40_Lean_Declaration___hyg_3102_(lean_object*, lean_object*);
+uint8_t l_Lean_beqRecursorVal____x40_Lean_Declaration_1522597704____hygCtx___hyg_91_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_Replay_throwKernelException___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Environment_Replay_checkPostponedConstructors_spec__0___closed__1;
 uint64_t l_Lean_Name_hash___override(lean_object*);
@@ -5479,7 +5479,7 @@ if (x_31 == 0)
 {
 lean_object* x_32; uint8_t x_33; 
 x_32 = lean_ctor_get(x_30, 0);
-x_33 = l_Lean_beqConstructorVal____x40_Lean_Declaration___hyg_3102_(x_28, x_32);
+x_33 = l_Lean_beqConstructorVal____x40_Lean_Declaration_96378508____hygCtx___hyg_62_(x_28, x_32);
 lean_dec_ref(x_32);
 lean_dec_ref(x_28);
 if (x_33 == 0)
@@ -5519,7 +5519,7 @@ lean_object* x_39; uint8_t x_40;
 x_39 = lean_ctor_get(x_30, 0);
 lean_inc(x_39);
 lean_dec(x_30);
-x_40 = l_Lean_beqConstructorVal____x40_Lean_Declaration___hyg_3102_(x_28, x_39);
+x_40 = l_Lean_beqConstructorVal____x40_Lean_Declaration_96378508____hygCtx___hyg_62_(x_28, x_39);
 lean_dec_ref(x_39);
 lean_dec_ref(x_28);
 if (x_40 == 0)
@@ -5632,7 +5632,7 @@ if (lean_is_exclusive(x_55)) {
  lean_dec_ref(x_55);
  x_57 = lean_box(0);
 }
-x_58 = l_Lean_beqConstructorVal____x40_Lean_Declaration___hyg_3102_(x_53, x_56);
+x_58 = l_Lean_beqConstructorVal____x40_Lean_Declaration_96378508____hygCtx___hyg_62_(x_53, x_56);
 lean_dec_ref(x_56);
 lean_dec_ref(x_53);
 if (x_58 == 0)
@@ -5899,7 +5899,7 @@ if (x_31 == 0)
 {
 lean_object* x_32; uint8_t x_33; 
 x_32 = lean_ctor_get(x_30, 0);
-x_33 = l_Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3550_(x_28, x_32);
+x_33 = l_Lean_beqRecursorVal____x40_Lean_Declaration_1522597704____hygCtx___hyg_91_(x_28, x_32);
 lean_dec_ref(x_32);
 lean_dec_ref(x_28);
 if (x_33 == 0)
@@ -5939,7 +5939,7 @@ lean_object* x_39; uint8_t x_40;
 x_39 = lean_ctor_get(x_30, 0);
 lean_inc(x_39);
 lean_dec(x_30);
-x_40 = l_Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3550_(x_28, x_39);
+x_40 = l_Lean_beqRecursorVal____x40_Lean_Declaration_1522597704____hygCtx___hyg_91_(x_28, x_39);
 lean_dec_ref(x_39);
 lean_dec_ref(x_28);
 if (x_40 == 0)
@@ -6052,7 +6052,7 @@ if (lean_is_exclusive(x_55)) {
  lean_dec_ref(x_55);
  x_57 = lean_box(0);
 }
-x_58 = l_Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3550_(x_53, x_56);
+x_58 = l_Lean_beqRecursorVal____x40_Lean_Declaration_1522597704____hygCtx___hyg_91_(x_53, x_56);
 lean_dec_ref(x_56);
 lean_dec_ref(x_53);
 if (x_58 == 0)

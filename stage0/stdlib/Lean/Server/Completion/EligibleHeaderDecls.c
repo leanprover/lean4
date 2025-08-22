@@ -90,6 +90,7 @@ LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentH
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_forEligibleDeclsM___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
+LEAN_EXPORT lean_object* l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion_EligibleHeaderDecls_82413800____hygCtx___hyg_2_(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_forM___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -107,9 +108,8 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Server_Completion_getEligibleHeaderDecls_spec__0_spec__1_spec__1_spec__1___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_hash___override___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion_EligibleHeaderDecls___hyg_11_(lean_object*);
 size_t lean_usize_land(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion_EligibleHeaderDecls___hyg_11_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion_EligibleHeaderDecls_82413800____hygCtx___hyg_2_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
@@ -1388,7 +1388,7 @@ _G_initialized = true;
 res = initialize_Lean_Meta_CompletionName(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion_EligibleHeaderDecls___hyg_11_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion_EligibleHeaderDecls_82413800____hygCtx___hyg_2_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Server_Completion_eligibleHeaderDeclsRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Server_Completion_eligibleHeaderDeclsRef);

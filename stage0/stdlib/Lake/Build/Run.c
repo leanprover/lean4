@@ -22,6 +22,7 @@ LEAN_EXPORT lean_object* l_Lake_MonitorM_run(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lake_Workspace_runFetchM___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at___Lake_Workspace_runFetchM_spec__0___redArg___closed__3;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+uint8_t l_Lake_ordJobAction____x40_Lake_Build_Job_Basic_1212199115____hygCtx___hyg_21_(uint8_t, uint8_t);
 lean_object* l_Lake_CacheMap_save(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonitorM_run___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Monitor_renderProgress___redArg___closed__0;
@@ -59,7 +60,6 @@ static lean_object* l_Lake_Monitor_renderProgress___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lake_Monitor_flush(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Monitor_sleep(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_mkBuildContext___closed__2;
-uint8_t l_Lake_ordLogLevel____x40_Lake_Util_Log___hyg_757_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_print_x21(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Monitor_reportJob___closed__3;
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
@@ -94,7 +94,6 @@ size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Monitor_renderProgress(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Workspace_runFetchM___redArg___closed__1;
 static lean_object* l_Lake_Workspace_runFetchM___redArg___closed__19;
-uint8_t l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_267_(uint8_t, uint8_t);
 lean_object* lean_io_mono_ms_now(lean_object*);
 static lean_object* l_Lake_Workspace_runFetchM___redArg___closed__3;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -132,6 +131,7 @@ lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 uint8_t l_Lake_Cache_isDisabled(lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdin___at___IO_FS_withIsolatedStreams___at___Lake_Workspace_runFetchM_spec__0_spec__1___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Monitor_reportJob___closed__2;
+uint8_t l_Lake_ordLogLevel____x40_Lake_Util_Log_328358094____hygCtx___hyg_21_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_Monitor_loop(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Workspace_runFetchM___redArg___closed__23;
 static lean_object* l_Lake_Workspace_runFetchM___redArg___closed__9;
@@ -2633,7 +2633,7 @@ goto block_314;
 block_348:
 {
 uint8_t x_345; 
-x_345 = l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_267_(x_38, x_343);
+x_345 = l_Lake_ordJobAction____x40_Lake_Build_Job_Basic_1212199115____hygCtx___hyg_21_(x_38, x_343);
 if (x_345 == 2)
 {
 uint8_t x_346; 
@@ -2671,7 +2671,7 @@ block_361:
 {
 uint8_t x_357; uint8_t x_358; 
 x_357 = lean_strict_and(x_350, x_356);
-x_358 = l_Lake_ordLogLevel____x40_Lake_Util_Log___hyg_757_(x_36, x_349);
+x_358 = l_Lake_ordLogLevel____x40_Lake_Util_Log_328358094____hygCtx___hyg_21_(x_36, x_349);
 if (x_358 == 2)
 {
 uint8_t x_359; 
@@ -2717,7 +2717,7 @@ x_367 = lean_array_get_size(x_363);
 x_368 = lean_unsigned_to_nat(0u);
 x_369 = lean_nat_dec_eq(x_367, x_368);
 x_370 = l_instDecidableNot___redArg(x_369);
-x_371 = l_Lake_ordLogLevel____x40_Lake_Util_Log___hyg_757_(x_37, x_366);
+x_371 = l_Lake_ordLogLevel____x40_Lake_Util_Log_328358094____hygCtx___hyg_21_(x_37, x_366);
 if (x_371 == 2)
 {
 uint8_t x_372; 

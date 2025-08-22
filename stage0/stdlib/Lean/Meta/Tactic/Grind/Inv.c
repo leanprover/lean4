@@ -859,7 +859,7 @@ static lean_object* _init_l___private_Init_While_0__Lean_Loop_forIn_loop___at___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: isSameExpr ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv._hyg.18.0 ) root.self\n    -- Check congruence root\n    ", 129, 129);
+x_1 = lean_mk_string_unchecked("assertion violation: isSameExpr ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv.684779629._hygCtx._hyg.13.0 ) root.self\n    -- Check congruence root\n    ", 147, 147);
 return x_1;
 }
 }
@@ -901,7 +901,7 @@ static lean_object* _init_l___private_Init_While_0__Lean_Loop_forIn_loop___at___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv._hyg.37.0 )\n    -- Starting at `curr`, following the `target\?` field leads to `root`.\n    ", 153, 153);
+x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv.684779629._hygCtx._hyg.32.0 )\n    -- Starting at `curr`, following the `target\?` field leads to `root`.\n    ", 171, 171);
 return x_1;
 }
 }
@@ -922,7 +922,7 @@ static lean_object* _init_l___private_Init_While_0__Lean_Loop_forIn_loop___at___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv._hyg.35.0 )\n    -- If the equivalence class does not have HEq proofs, then the types must be definitionally equal.\n    ", 182, 182);
+x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv.684779629._hygCtx._hyg.30.0 )\n    -- If the equivalence class does not have HEq proofs, then the types must be definitionally equal.\n    ", 200, 200);
 return x_1;
 }
 }
@@ -943,7 +943,7 @@ static lean_object* _init_l___private_Init_While_0__Lean_Loop_forIn_loop___at___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: isSameExpr e ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv._hyg.32.0 )\n      ", 94, 94);
+x_1 = lean_mk_string_unchecked("assertion violation: isSameExpr e ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv.684779629._hygCtx._hyg.27.0 )\n      ", 112, 112);
 return x_1;
 }
 }
@@ -4731,7 +4731,7 @@ static lean_object* _init_l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTre
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv._hyg.1514.0 )\n  ", 79, 79);
+x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv.3145645808._hygCtx._hyg.46.0 )\n  ", 96, 96);
 return x_1;
 }
 }
@@ -5019,7 +5019,7 @@ static lean_object* _init_l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTre
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv._hyg.1486.0 )\n      ", 83, 83);
+x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv.3145645808._hygCtx._hyg.18.0 )\n      ", 100, 100);
 return x_1;
 }
 }
@@ -6995,7 +6995,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Gr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv._hyg.1557.0 ).isEmpty\n\n", 86, 86);
+x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv.3145645808._hygCtx._hyg.89.0 ).isEmpty\n\n", 103, 103);
 return x_1;
 }
 }

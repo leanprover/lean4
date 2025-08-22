@@ -101,6 +101,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 static lean_object* l_panic___at___Lean_Compiler_LCNF_NormLevelParam_normLevel_spec__8___closed__5;
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___Lean_Compiler_LCNF_NormLevelParam_normExpr_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitType(lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_9_(uint8_t, uint8_t);
 lean_object* l_Lean_CollectLevelParams_visitExpr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitParam(lean_object*, lean_object*);
 lean_object* lean_name_append_index_after(lean_object*, lean_object*);
@@ -148,7 +149,6 @@ lean_object* l_StateT_map(lean_object*, lean_object*, lean_object*, lean_object*
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 lean_object* l_StateT_instMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 lean_object* l_StateT_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1652,7 +1652,7 @@ return x_70;
 else
 {
 uint8_t x_71; 
-x_71 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_60, x_60);
+x_71 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_9_(x_60, x_60);
 if (x_71 == 0)
 {
 lean_object* x_72; lean_object* x_73; 
@@ -1750,7 +1750,7 @@ return x_95;
 else
 {
 uint8_t x_96; 
-x_96 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_85, x_85);
+x_96 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_9_(x_85, x_85);
 if (x_96 == 0)
 {
 lean_object* x_97; lean_object* x_98; 

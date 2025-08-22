@@ -1144,10 +1144,10 @@ block_15:
 lean_object* x_13; lean_object* x_14; 
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_10);
+lean_ctor_set(x_13, 1, x_11);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_11);
+lean_ctor_set(x_14, 1, x_10);
 return x_14;
 }
 block_42:
@@ -1183,8 +1183,8 @@ lean_object* x_35; lean_object* x_36;
 lean_dec_ref(x_33);
 x_35 = l_IO_FS_withIsolatedStreams___at___Lake_DSL_elabRunIO_spec__0___redArg___closed__4;
 x_36 = l_panic___at_____private_Lean_Elab_MacroArgUtil_0__Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat_spec__1(x_35);
-x_10 = x_28;
-x_11 = x_32;
+x_10 = x_32;
+x_11 = x_28;
 x_12 = x_36;
 goto block_15;
 }
@@ -1193,8 +1193,8 @@ else
 lean_object* x_37; 
 x_37 = lean_string_from_utf8_unchecked(x_33);
 lean_dec_ref(x_33);
-x_10 = x_28;
-x_11 = x_32;
+x_10 = x_32;
+x_11 = x_28;
 x_12 = x_37;
 goto block_15;
 }

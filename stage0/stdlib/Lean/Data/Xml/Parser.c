@@ -29793,16 +29793,16 @@ goto block_34;
 block_13:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
-x_6 = l_Array_append___redArg(x_4, x_5);
+x_6 = l_Array_append___redArg(x_3, x_5);
 lean_dec_ref(x_5);
 x_7 = lean_array_get_size(x_6);
-x_8 = l_Array_filterMapM___at___Lean_Xml_Parser_content_spec__1(x_6, x_3, x_7);
+x_8 = l_Array_filterMapM___at___Lean_Xml_Parser_content_spec__1(x_6, x_2, x_7);
 lean_dec(x_7);
 lean_dec_ref(x_6);
-x_9 = lean_mk_empty_array_with_capacity(x_3);
+x_9 = lean_mk_empty_array_with_capacity(x_2);
 x_10 = lean_array_size(x_8);
 x_11 = 0;
-x_12 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Xml_Parser_content_spec__3(x_3, x_8, x_10, x_11, x_9, x_2);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Xml_Parser_content_spec__3(x_2, x_8, x_10, x_11, x_9, x_4);
 lean_dec_ref(x_8);
 return x_12;
 }
@@ -29829,9 +29829,9 @@ if (x_25 == 0)
 {
 lean_dec(x_24);
 lean_dec(x_20);
-x_2 = x_19;
-x_3 = x_16;
-x_4 = x_22;
+x_2 = x_16;
+x_3 = x_22;
+x_4 = x_19;
 x_5 = x_23;
 goto block_13;
 }
@@ -29843,9 +29843,9 @@ if (x_26 == 0)
 {
 lean_dec(x_24);
 lean_dec(x_20);
-x_2 = x_19;
-x_3 = x_16;
-x_4 = x_22;
+x_2 = x_16;
+x_3 = x_22;
+x_4 = x_19;
 x_5 = x_23;
 goto block_13;
 }
@@ -29857,9 +29857,9 @@ x_28 = lean_usize_of_nat(x_24);
 lean_dec(x_24);
 x_29 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Xml_Parser_content_spec__4(x_20, x_27, x_28, x_23);
 lean_dec(x_20);
-x_2 = x_19;
-x_3 = x_16;
-x_4 = x_22;
+x_2 = x_16;
+x_3 = x_22;
+x_4 = x_19;
 x_5 = x_29;
 goto block_13;
 }

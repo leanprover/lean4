@@ -48,6 +48,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DH
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore___closed__1;
+lean_object* l_Lake_beqHash____x40_Lake_Build_Trace_3490929866____hygCtx___hyg_14____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheMap_insert___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop_spec__1_spec__1___redArg(uint64_t, lean_object*);
@@ -141,7 +142,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Lake_Ca
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l_Lake_beqHash____x40_Lake_Build_Trace___hyg_476____boxed(lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_rewind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Cache_inputsDir(lean_object*);
 size_t lean_usize_land(size_t, size_t);
@@ -1846,7 +1846,7 @@ static lean_object* _init_l_Lake_CacheMap_save___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_beqHash____x40_Lake_Build_Trace___hyg_476____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_beqHash____x40_Lake_Build_Trace_3490929866____hygCtx___hyg_14____boxed), 2, 0);
 return x_1;
 }
 }

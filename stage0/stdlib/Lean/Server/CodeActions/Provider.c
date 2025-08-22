@@ -62,6 +62,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_CodeAction_cmdCodeActionProvider_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forIn___at___Lean_CodeAction_findInfoTree_x3f_spec__0_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_String_beqRange____x40_Lean_Syntax_2413389941____hygCtx___hyg_34_(lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lam__0___closed__5;
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lam__0___closed__1;
 lean_object* l_Array_empty(lean_object*);
@@ -81,7 +82,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_CodeAction_fin
 static lean_object* l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_go___closed__7;
 static lean_object* l_Lean_CodeAction_cmdCodeActionProvider___closed__0;
 lean_object* l_EStateM_instInhabited___redArg___lam__0(lean_object*, lean_object*);
-uint8_t l_String_beqRange____x40_Lean_Syntax___hyg_100_(lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___closed__0;
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_CodeAction_findInfoTree_x3f_spec__0_spec__0_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -4048,7 +4048,7 @@ goto block_29;
 else
 {
 uint8_t x_35; 
-x_35 = l_String_beqRange____x40_Lean_Syntax___hyg_100_(x_32, x_2);
+x_35 = l_String_beqRange____x40_Lean_Syntax_2413389941____hygCtx___hyg_34_(x_32, x_2);
 lean_dec(x_32);
 x_21 = x_35;
 goto block_29;

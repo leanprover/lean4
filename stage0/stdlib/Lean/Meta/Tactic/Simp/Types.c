@@ -63,7 +63,6 @@ static lean_object* l_Lean_Meta_Simp_instInhabitedMethods___lam__1___closed__0;
 static lean_object* l_Lean_Meta_Simp_instInhabitedUsedSimps___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_recordCongrTheorem(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Meta_Simp_mkCongrSimp_x3f_spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Meta_beqCongrArgKind____x40_Lean_Meta_CongrTheorems___hyg_232_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_congrArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Types_0__Lean_Meta_Simp_updateArith___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_SimpM_run___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -390,6 +389,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_Persist
 static lean_object* l_Lean_addTrace___at___Lean_Meta_Simp_congrArgs_spec__1___redArg___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_tryAutoCongrTheorem_x3f_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_9_(uint8_t, uint8_t);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_Simp_UsedSimps_toArray_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instInhabitedSimprocs;
@@ -613,6 +613,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_Persiste
 static lean_object* l_Lean_PersistentHashMap_toArray___at___Lean_Meta_Simp_UsedSimps_toArray_spec__1___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_recordTheoremWithBadKeys___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___closed__3;
+uint8_t l_Lean_Meta_beqCongrArgKind____x40_Lean_Meta_CongrTheorems_4010364229____hygCtx___hyg_17_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_isMatcher___at___Lean_Meta_Simp_mkCongrSimp_x3f_spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_SimpM_run___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Simp_removeUnnecessaryCasts_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -673,7 +674,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_Meta_Simp_U
 static lean_object* l_Lean_Meta_Simp_instInhabitedDiagnostics___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_toArray___at___Lean_Meta_Simp_UsedSimps_toArray_spec__1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Types_0__Lean_Meta_Simp_mkMetaConfig(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_Simp_instInhabitedDiagnostics___closed__1;
 lean_object* lean_simp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_hash___override___boxed(lean_object*);
@@ -15283,7 +15283,7 @@ goto block_57;
 else
 {
 uint8_t x_66; 
-x_66 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_61, x_61);
+x_66 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_9_(x_61, x_61);
 if (x_66 == 0)
 {
 lean_object* x_67; 
@@ -21529,7 +21529,7 @@ x_8 = lean_array_fget_borrowed(x_1, x_7);
 x_9 = lean_unbox(x_8);
 x_10 = lean_array_fget_borrowed(x_2, x_7);
 x_11 = lean_unbox(x_10);
-x_12 = l_Lean_Meta_beqCongrArgKind____x40_Lean_Meta_CongrTheorems___hyg_232_(x_9, x_11);
+x_12 = l_Lean_Meta_beqCongrArgKind____x40_Lean_Meta_CongrTheorems_4010364229____hygCtx___hyg_17_(x_9, x_11);
 if (x_12 == 0)
 {
 lean_dec(x_7);

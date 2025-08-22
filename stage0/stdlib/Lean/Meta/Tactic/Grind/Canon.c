@@ -214,6 +214,7 @@ static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Meta_Grind_Canon_canonElemCore_spec__16_spec__16___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___Lean_Meta_Grind_Canon_canonElemCore_spec__14___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Canon_canon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_9_(uint8_t, uint8_t);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_Grind_Canon_canon_visit_spec__0_spec__1_spec__1_spec__1___redArg(lean_object*, lean_object*);
 static lean_object* l_panic___at_____private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_Grind_Canon_canon_visit_spec__14___closed__1;
@@ -364,7 +365,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_ReaderT_instMonadLift___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instMonadMetaM___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_____private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_Grind_Canon_canon_visit_spec__14___closed__4;
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 static uint64_t l___private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_Grind_Canon_isDefEqBounded___lam__0___closed__0;
 uint64_t l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Meta_Grind_Canon_canonElemCore_spec__18(lean_object*, lean_object*, lean_object*);
@@ -18452,7 +18452,7 @@ return x_28;
 else
 {
 uint8_t x_29; 
-x_29 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_17, x_17);
+x_29 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_9_(x_17, x_17);
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; 

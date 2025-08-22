@@ -3319,16 +3319,16 @@ block_24:
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_12, 0, x_9);
+lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
-lean_ctor_set(x_12, 2, x_7);
+lean_ctor_set(x_12, 2, x_8);
 x_13 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage_lastTrailing(x_3);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; 
 x_14 = lean_box(0);
-x_15 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___lam__0(x_1, x_12, x_8, x_10, x_14);
-lean_dec(x_10);
+x_15 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___lam__0(x_1, x_12, x_7, x_9, x_14);
+lean_dec(x_9);
 return x_15;
 }
 else
@@ -3342,23 +3342,23 @@ lean_inc(x_17);
 x_18 = lean_ctor_get(x_16, 2);
 lean_inc(x_18);
 lean_dec(x_16);
-x_19 = lean_nat_dec_eq(x_18, x_10);
+x_19 = lean_nat_dec_eq(x_18, x_9);
 lean_dec(x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; 
 lean_dec(x_17);
 x_20 = lean_box(0);
-x_21 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___lam__0(x_1, x_12, x_8, x_10, x_20);
-lean_dec(x_10);
+x_21 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___lam__0(x_1, x_12, x_7, x_9, x_20);
+lean_dec(x_9);
 return x_21;
 }
 else
 {
 lean_object* x_22; lean_object* x_23; 
-lean_dec(x_10);
+lean_dec(x_9);
 x_22 = lean_box(0);
-x_23 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___lam__0(x_1, x_12, x_8, x_17, x_22);
+x_23 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___lam__0(x_1, x_12, x_7, x_17, x_22);
 lean_dec(x_17);
 return x_23;
 }
@@ -3375,10 +3375,10 @@ x_30 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___closed__0;
 x_31 = lean_string_append(x_30, x_29);
 x_32 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___closed__1;
 x_33 = lean_string_append(x_31, x_32);
-x_7 = x_26;
-x_8 = x_27;
-x_9 = x_25;
-x_10 = x_28;
+x_7 = x_27;
+x_8 = x_26;
+x_9 = x_28;
+x_10 = x_25;
 x_11 = x_33;
 goto block_24;
 }
@@ -3386,10 +3386,10 @@ case 3:
 {
 lean_object* x_34; 
 x_34 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___closed__2;
-x_7 = x_26;
-x_8 = x_27;
-x_9 = x_25;
-x_10 = x_28;
+x_7 = x_27;
+x_8 = x_26;
+x_9 = x_28;
+x_10 = x_25;
 x_11 = x_34;
 goto block_24;
 }
@@ -3397,10 +3397,10 @@ default:
 {
 lean_object* x_35; 
 x_35 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___closed__3;
-x_7 = x_26;
-x_8 = x_27;
-x_9 = x_25;
-x_10 = x_28;
+x_7 = x_27;
+x_8 = x_26;
+x_9 = x_28;
+x_10 = x_25;
 x_11 = x_35;
 goto block_24;
 }

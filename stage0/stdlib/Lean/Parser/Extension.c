@@ -207,6 +207,7 @@ static lean_object* l_Lean_Parser_parserOfStackFn___closed__4;
 lean_object* l_Lean_Parser_ParserState_stackSize(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Parser_addLeadingParser_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_initFn___closed__0____x40_Lean_Parser_Extension_3896994716____hygCtx___hyg_2_;
+lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Parser_ParserFn_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_ParserExtension_addEntryImpl___closed__2;
 static lean_object* l_Lean_ScopedEnvExtension_add___at___Lean_Parser_addToken_spec__1___redArg___closed__0;
@@ -10244,26 +10245,28 @@ lean_object* x_4;
 if (x_3 == 0)
 {
 x_4 = x_1;
-goto block_7;
+goto block_8;
 }
 else
 {
-lean_object* x_8; 
-x_8 = l_String_crlfToLf(x_1);
+lean_object* x_9; 
+x_9 = l_String_crlfToLf(x_1);
 lean_dec_ref(x_1);
-x_4 = x_8;
-goto block_7;
+x_4 = x_9;
+goto block_8;
 }
-block_7:
+block_8:
 {
-lean_object* x_5; lean_object* x_6; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 lean_inc_ref(x_4);
 x_5 = l_Lean_FileMap_ofString(x_4);
-x_6 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_6, 0, x_4);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set(x_6, 2, x_5);
-return x_6;
+x_6 = lean_string_utf8_byte_size(x_4);
+x_7 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_7, 0, x_4);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_5);
+lean_ctor_set(x_7, 3, x_6);
+return x_7;
 }
 }
 }

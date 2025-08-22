@@ -26,7 +26,6 @@ optionally left out, creating four distinct variants.
 
 namespace Lake.Toml
 
-public section -- for `DecidableEq`
 /--
 A TOML time (hour:minute:second.fraction).
 
@@ -40,7 +39,6 @@ public structure Time where
   fracExponent : Nat := 0
   fracMantissa : Nat := 0
   deriving Inhabited, DecidableEq
-end
 
 namespace Time
 
@@ -87,7 +85,6 @@ public instance : ToString Time := ⟨Time.toString⟩
 
 end Time
 
-public section -- for `DecidableEq`
 /-- A TOML date-time. -/
 public inductive DateTime
 | offsetDateTime (date : Date) (time : Time) (offset? : Option (Bool × Time) := none)
@@ -95,7 +92,6 @@ public inductive DateTime
 | localDate (date : Date)
 | localTime (time : Time)
 deriving Inhabited, DecidableEq
-end
 
 public instance : Coe Date DateTime := ⟨DateTime.localDate⟩
 public instance : Coe Time DateTime := ⟨DateTime.localTime⟩

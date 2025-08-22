@@ -283,12 +283,10 @@ public structure Log where
 public instance : ToJson Log := ⟨(toJson ·.entries)⟩
 public instance : FromJson Log := ⟨(Log.mk <$> fromJson? ·)⟩
 
-public section -- for `DecidableEq`
 /-- A position in a `Log` (i.e., an array index). Can be past the log's end. -/
 public structure Log.Pos where
   val : Nat
   deriving Inhabited, DecidableEq
-end
 
 public instance : OfNat Log.Pos (nat_lit 0) := ⟨⟨0⟩⟩
 public instance : Ord Log.Pos := ⟨(compare ·.val ·.val)⟩

@@ -91,13 +91,11 @@ end
 /-! ## Hash Trace -/
 --------------------------------------------------------------------------------
 
-public section -- for `DecidableEq`
 /-- A content hash. -/
 -- TODO: Use a secure hash rather than the builtin Lean hash function.
 public structure Hash where
   val : UInt64
   deriving Repr, DecidableEq
-end
 
 namespace Hash
 

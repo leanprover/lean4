@@ -14,7 +14,6 @@ import Lake.Config.Kinds
 namespace Lake
 open Lean (Name)
 
-public section -- for `DecidableEq`
 /-- The type of keys in the Lake build store. -/
 public inductive BuildKey
 | module (module : Name)
@@ -22,7 +21,6 @@ public inductive BuildKey
 | packageTarget (package target : Name)
 | facet (target : BuildKey) (facet : Name)
 deriving Inhabited, Repr, DecidableEq, Hashable
-end
 
 public def PartialBuildKey.moduleTargetIndicator := `«_+»
 

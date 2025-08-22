@@ -15,7 +15,6 @@ open System (FilePath)
 
 namespace Lake
 
-public section -- for `DecidableEq`
 /-- A specification of a set of module names. -/
 public inductive Glob
   /-- Selects just the specified module name. -/
@@ -25,7 +24,6 @@ public inductive Glob
   /-- Selects the specified module and all submodules. -/
   | andSubmodules : Name → Glob
 deriving Inhabited, Repr, DecidableEq
-end
 
 public instance : Coe Name Glob := ⟨Glob.one⟩
 public instance : Coe Glob (Array Glob) := ⟨Array.singleton⟩

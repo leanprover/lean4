@@ -380,8 +380,6 @@ theorem toRat_inj {x y : Dyadic} : x.toRat = y.toRat ↔ x = y := by
     replace h := congrArg (·.toDyadic (max k₁ k₂)) h
     simpa [toDyadic_toRat, precision, Int.le_max_left, Int.le_max_right] using h
 
--- TODO: Define `roundUp : (x : Dyadic) → (prec : Int) → Dyadic` as the closest dyadic ≥ `x` with precision is at most `prec`, and theorems about this. Similarly `roundDown`.
-
 theorem add_comm (x y : Dyadic) : x + y = y + x := by
   rw [← toRat_inj, toRat_add, toRat_add]
   sorry
@@ -433,6 +431,22 @@ instance : LT Dyadic where
 
 instance : LE Dyadic where
   le x y := ble x y
+
+-- TODO: Define `roundUp : (x : Dyadic) → (prec : Int) → Dyadic` as the closest dyadic ≥ `x` with precision is at most `prec`, and theorems about this. Similarly `roundDown`.
+
+def roundDown (x : Dyadic) (prec : Int) : Dyadic :=
+  match x with
+  | .zero => .zero
+  | .of n k _ =>
+    match k - prec with
+    | .ofNat l => .ofIntWithPrec (n >>> l) prec
+    | .negSucc _ => x
+
+theorem roundDown_le {x : Dyadic} {prec : Int} : roundDown x prec ≤ x := sorry
+
+theorem precision_roundDown {x : Dyadic} {prec : Int} : (roundDown x prec).precision ≤ prec := sorry
+
+-- TODO: another theorem here...
 
 theorem lt_iff_toRat {x y : Dyadic} : x < y ↔ x.toRat < y.toRat := by
   rw [← blt_iff_toRat]

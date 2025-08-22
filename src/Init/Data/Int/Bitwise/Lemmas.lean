@@ -112,6 +112,9 @@ theorem shiftLeft_succ (m : Int) (n : Nat) : m <<< (n + 1) = (m <<< n) * 2 := by
     have := Nat.le_shiftLeft (a := m + 1) (b := n)
     omega
 
+theorem shiftLeft_succ' (m : Int) (n : Nat) : m <<< (n + 1) = 2 * (m <<< n) := by
+  rw [shiftLeft_succ, Int.mul_comm]
+
 theorem shiftLeft_eq (a : Int) (b : Nat) : a <<< b = a * 2 ^ b := by
   induction b with
   | zero => simp
@@ -151,5 +154,12 @@ theorem mul_shiftLeft (a b : Int) (n : Nat) : a * b <<< n = (a * b) <<< n := by
 theorem shiftLeft_mul_shiftLeft (a b : Int) (m n : Nat) :
     a <<< m * b <<< n = (a * b) <<< (m + n) := by
   simp [shiftLeft_mul, mul_shiftLeft, shiftLeft_add]
+
+@[simp]
+theorem shiftLeft_eq_zero_iff {a : Int} {n : Nat} : a <<< n = 0 ↔ a = 0 := by
+  simp [shiftLeft_eq, Int.mul_eq_zero, NeZero.ne]
+
+instance {a : Int} {n : Nat} [NeZero a] : NeZero (a <<< n) :=
+  ⟨mt shiftLeft_eq_zero_iff.mp (NeZero.ne _)⟩
 
 end Int

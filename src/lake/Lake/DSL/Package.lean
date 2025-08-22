@@ -36,12 +36,6 @@ def elabPackageCommand : CommandElab := fun stx => do
   let cmd ← `($[$doc?]? @[$attrs,*] abbrev $id : PackageDecl := $decl)
   withMacroExpansion stx cmd <| elabCommand cmd
 
-@[inherit_doc packageCommand]
-public abbrev PackageCommand := TSyntax ``packageCommand
-
-public instance : Coe PackageCommand Command where
-  coe x := ⟨x.raw⟩
-
 @[builtin_macro postUpdateDecl]
 def expandPostUpdateDecl : Macro := fun stx => do
   match stx with

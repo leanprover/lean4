@@ -56,6 +56,12 @@ scoped syntax (name := packageCommand)
   (docComment)? (Term.attributes)? "package " (identOrStr)? optConfig
 : command
 
+@[inherit_doc packageCommand]
+public abbrev PackageCommand := TSyntax ``packageCommand
+
+public instance : Coe PackageCommand Command where
+  coe x := ⟨x.raw⟩
+
 /--
 Declare a post-`lake update` hook for the package.
 Runs the monadic action is after a successful `lake update` execution
@@ -176,6 +182,11 @@ scoped syntax (name := requireDecl)
   (docComment)? "require " depSpec
 : command
 
+@[inherit_doc requireDecl]
+public abbrev RequireDecl := TSyntax ``requireDecl
+
+public instance : Coe RequireDecl Command where
+  coe x := ⟨x.raw⟩
 
 /-!
 # DSL for Targets & Facets
@@ -272,6 +283,12 @@ scoped syntax (name := leanLibCommand)
   (docComment)? (Term.attributes)? "lean_lib " (identOrStr)? optConfig
 : command
 
+@[inherit_doc leanLibCommand]
+public abbrev LeanLibCommand := TSyntax ``leanLibCommand
+
+public instance : Coe LeanLibCommand Command where
+  coe x := ⟨x.raw⟩
+
 /--
 Define a new Lean binary executable target for the package.
 Can optionally be provided with a configuration of type `LeanExeConfig`.
@@ -287,6 +304,12 @@ scoped syntax (name := leanExeCommand)
   (docComment)? (Term.attributes)? "lean_exe " (identOrStr)? optConfig
 : command
 
+@[inherit_doc leanExeCommand]
+public abbrev LeanExeCommand := TSyntax ``leanExeCommand
+
+public instance : Coe LeanExeCommand Command where
+  coe x := ⟨x.raw⟩
+
 /--
 Define a new input file target for the package.
 Can optionally be provided with a configuration of type `InputFileConfig`.
@@ -295,6 +318,12 @@ scoped syntax (name := inputFileCommand)
   (docComment)? (Term.attributes)? "input_file " (identOrStr)? optConfig
 : command
 
+@[inherit_doc inputFileCommand]
+public abbrev InputFileCommand := TSyntax ``inputFileCommand
+
+public instance : Coe InputFileCommand Command where
+  coe x := ⟨x.raw⟩
+
 /--
 Define a new input directory target for the package.
 Can optionally be provided with a configuration of type `InputDirConfig`.
@@ -302,6 +331,13 @@ Can optionally be provided with a configuration of type `InputDirConfig`.
 scoped syntax (name := inputDirCommand)
   (docComment)? (Term.attributes)? "input_dir " (identOrStr)? optConfig
 : command
+
+@[inherit_doc inputDirCommand]
+public abbrev InputDirCommand := TSyntax ``inputDirCommand
+
+public instance : Coe InputDirCommand Command where
+  coe x := ⟨x.raw⟩
+
 
 /-!
 ## External Library Target Declaration

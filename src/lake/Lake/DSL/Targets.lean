@@ -182,12 +182,6 @@ def elabLeanLibCommand : CommandElab := fun stx => do
   let cmd ← mkConfigDeclDef ``LeanLibConfig LeanLib.keyword LeanLib.configKind doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
 
-@[inherit_doc leanLibCommand]
-public abbrev LeanLibCommand := TSyntax ``leanLibCommand
-
-public instance : Coe LeanLibCommand Command where
-  coe x := ⟨x.raw⟩
-
 @[builtin_command_elab leanExeCommand]
 def elabLeanExeCommand : CommandElab := fun stx => do
   let `(leanExeCommand|$(doc?)? $(attrs?)? lean_exe%$kw $(nameStx?)? $cfg) := stx
@@ -195,12 +189,6 @@ def elabLeanExeCommand : CommandElab := fun stx => do
   withRef kw do
   let cmd ← mkConfigDeclDef ``LeanExeConfig LeanExe.keyword LeanExe.configKind doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
-
-@[inherit_doc leanExeCommand]
-public abbrev LeanExeCommand := TSyntax ``leanExeCommand
-
-public instance : Coe LeanExeCommand Command where
-  coe x := ⟨x.raw⟩
 
 @[builtin_command_elab inputFileCommand]
 def elabInputfileCommand : CommandElab := fun stx => do
@@ -210,12 +198,6 @@ def elabInputfileCommand : CommandElab := fun stx => do
   let cmd ← mkConfigDeclDef ``InputFileConfig InputFile.keyword InputFile.configKind doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
 
-@[inherit_doc inputFileCommand]
-public abbrev InputFileCommand := TSyntax ``inputFileCommand
-
-public instance : Coe InputFileCommand Command where
-  coe x := ⟨x.raw⟩
-
 @[builtin_command_elab inputDirCommand]
 def elabInputDirCommand : CommandElab := fun stx => do
   let `(inputDirCommand|$(doc?)? $(attrs?)? input_dir%$kw $(nameStx?)? $cfg) := stx
@@ -223,12 +205,6 @@ def elabInputDirCommand : CommandElab := fun stx => do
   withRef kw do
   let cmd ← mkConfigDeclDef ``InputDirConfig InputDir.keyword InputDir.configKind doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
-
-@[inherit_doc inputDirCommand]
-public abbrev InputDirCommand := TSyntax ``inputDirCommand
-
-public instance : Coe InputDirCommand Command where
-  coe x := ⟨x.raw⟩
 
 --------------------------------------------------------------------------------
 /-! ## External Library Target Declaration                                    -/

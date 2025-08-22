@@ -64,9 +64,3 @@ def expandRequireDecl : Macro := fun stx => do
   let `(requireDecl|$(doc?)? require%$kw $spec) := stx
     | Macro.throwErrorAt stx "ill-formed require declaration"
   withRef kw do expandDepSpec spec doc?
-
-@[inherit_doc requireDecl]
-public abbrev RequireDecl := TSyntax ``requireDecl
-
-public instance : Coe RequireDecl Command where
-  coe x := ⟨x.raw⟩

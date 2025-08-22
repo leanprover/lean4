@@ -18,17 +18,16 @@ open Elab
 
 private def filterDuplicateCompletionItems
     (items : Array CompletionItem)
-    : Array CompletionItem :=
-  let duplicationGroups := items.groupByKey fun i => (
-      i.label,
-      i.textEdit?,
-      i.detail?,
-      i.kind?,
-      i.tags?,
-      i.documentation?,
-    )
-  duplicationGroups.map (fun _ duplicateItems => duplicateItems[0]!)
-    |>.valuesArray
+    : Array CompletionItem := Id.run do
+  let mut r : Array CompletionItem := #[]
+  let mut index : Std.HashSet (String × Option InsertReplaceEdit) := ∅
+  for i in items do
+    let key := (i.label, i.textEdit?)
+    let (isDup, index') := index.containsThenInsert key
+    index := index'
+    if ! isDup then
+      r := r.push i
+  return r
 
 partial def find?
     (params   : CompletionParams)

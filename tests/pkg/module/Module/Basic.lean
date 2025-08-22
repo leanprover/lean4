@@ -38,6 +38,17 @@ info: @[reducible, expose] def fabbrev : Nat :=
 /-- A theorem. -/
 public theorem t : f = 1 := testSorry
 
+/-- A private definition. -/
+def fpriv := 1
+
+/--
+error: Unknown identifier `fpriv`
+
+Note: A private declaration `fpriv` (from this module) exists but is not accessible in the current context.
+-/
+#guard_msgs in
+public theorem tpriv : fpriv = 1 := rfl
+
 public class X
 
 /-- A local instance of a public class. -/
@@ -130,7 +141,11 @@ def priv := 2
 
 /-! Private decls should not be accessible in exported contexts. -/
 
-/-- error: Unknown identifier `priv` -/
+/--
+error: Unknown identifier `priv`
+
+Note: A private declaration `priv` (from this module) exists but is not accessible in the current context.
+-/
 #guard_msgs in
 public abbrev h := priv
 
@@ -307,4 +322,40 @@ private def foo : Nat := 0
 #guard_msgs in
 private def foo : Nat := 0
 
+end
+
+/-! Check visibility of auto params. -/
+
+public structure OptParamStruct where
+  private pauto : Nat := by exact 0
+  auto : Nat := by exact 0
+
+/--
+info: structure OptParamStruct : Type
+number of parameters: 0
+fields:
+  private OptParamStruct.pauto : Nat := by
+    exact 0
+  OptParamStruct.auto : Nat := by
+    exact 0
+constructor:
+  private OptParamStruct.mk (pauto : Nat := by exact 0) (auto : Nat := by exact 0) : OptParamStruct
+-/
+#guard_msgs in
+#print OptParamStruct
+
+section
+set_option pp.oneline true
+/--
+info: private def OptParamStruct.pauto._autoParam : Lean.Syntax :=
+Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
+-/
+#guard_msgs in
+#print OptParamStruct.pauto._autoParam
+/--
+info: @[expose] def OptParamStruct.auto._autoParam : Lean.Syntax :=
+Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
+-/
+#guard_msgs in
+#print OptParamStruct.auto._autoParam
 end

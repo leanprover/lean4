@@ -158,7 +158,7 @@ def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
     -- `meta import/import all` and server `#eval`
-    -- This case is important even for codegen because it needs to see IR via `import all` (beause
+    -- This case is important even for codegen because it needs to see IR via `import all` (because
     -- it can also see the LCNF)
     findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
     -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second

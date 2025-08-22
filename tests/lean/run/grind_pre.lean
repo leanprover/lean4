@@ -1,3 +1,4 @@
+module
 abbrev f (a : α) := a
 set_option grind.debug true
 set_option grind.debug.proofs true

@@ -51,7 +51,11 @@ structure InputContext where
   input    : String
   fileName : String
   fileMap  : FileMap
-  deriving Inhabited
+  endPos   : String.Pos := input.endPos
+  endPos_valid : endPos ≤ input.endPos := by simp
+
+instance : Inhabited InputContext where
+  default := ⟨"", default, default, "".endPos, String.Pos.mk_le_mk.mpr (Nat.le_refl _)⟩
 
 /-- Input context derived from elaboration of previous commands. -/
 structure ParserModuleContext where
@@ -218,7 +222,7 @@ def stackSize (s : ParserState) : Nat :=
 def restore (s : ParserState) (iniStackSz : Nat) (iniPos : String.Pos) : ParserState :=
   { s with stxStack := s.stxStack.shrink iniStackSz, errorMsg := none, pos := iniPos }
 
-def setPos (s : ParserState) (pos : String.Pos) : ParserState :=
+@[expose] def setPos (s : ParserState) (pos : String.Pos) : ParserState :=
   { s with pos := pos }
 
 def setCache (s : ParserState) (cache : ParserCache) : ParserState :=

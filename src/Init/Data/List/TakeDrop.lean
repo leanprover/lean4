@@ -6,7 +6,8 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import all Init.Data.List.Basic
+public import Init.Data.List.Basic
+import all Init.Data.List.Basic
 public import Init.Data.List.Lemmas
 
 public section

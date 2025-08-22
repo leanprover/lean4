@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat
-// Imports: Init.Data.Nat.Basic Init.Data.Nat.Div Init.Data.Nat.Dvd Init.Data.Nat.Gcd Init.Data.Nat.MinMax Init.Data.Nat.Order Init.Data.Nat.Bitwise Init.Data.Nat.Control Init.Data.Nat.Log2 Init.Data.Nat.Power2 Init.Data.Nat.Linear Init.Data.Nat.SOM Init.Data.Nat.Lemmas Init.Data.Nat.Mod Init.Data.Nat.Lcm Init.Data.Nat.Compare Init.Data.Nat.Simproc Init.Data.Nat.Fold Init.Data.Nat.Order
+// Imports: Init.Data.Nat.Basic Init.Data.Nat.Div Init.Data.Nat.Dvd Init.Data.Nat.Gcd Init.Data.Nat.Coprime Init.Data.Nat.MinMax Init.Data.Nat.Order Init.Data.Nat.Bitwise Init.Data.Nat.Control Init.Data.Nat.Log2 Init.Data.Nat.Power2 Init.Data.Nat.Linear Init.Data.Nat.SOM Init.Data.Nat.Lemmas Init.Data.Nat.Mod Init.Data.Nat.Lcm Init.Data.Nat.Compare Init.Data.Nat.Simproc Init.Data.Nat.Fold Init.Data.Nat.Order
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Div(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Dvd(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Gcd(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Coprime(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_MinMax(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Order(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Bitwise(uint8_t builtin, lean_object*);
@@ -47,6 +48,9 @@ res = initialize_Init_Data_Nat_Dvd(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Gcd(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Coprime(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_MinMax(builtin, lean_io_mk_world());

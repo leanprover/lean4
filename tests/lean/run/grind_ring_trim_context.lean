@@ -1,3 +1,4 @@
+module
 /--
 trace: [grind.debug.proof] fun h h_1 h_2 h_3 =>
       Classical.byContradiction fun h_4 =>

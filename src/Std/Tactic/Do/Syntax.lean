@@ -32,7 +32,7 @@ structure Config where
   -/
   elimLets : Bool := true
   /--
-  If `false` (the default), then we aggresively split `if` and `match` statements and inline join
+  If `false` (the default), then we aggressively split `if` and `match` statements and inline join
   points unconditionally. For some programs this causes exponential blowup of VCs.
   Set this flag to choose a more conservative (but slightly lossy) encoding that traverses
   every join point only once and yields a formula the size of which is linear in the number of
@@ -325,16 +325,15 @@ macro "mvcgen_trivial" : tactic =>
   )
 
 /--
-An invariant alternative of the form `| <n₁>, ..., <nₖ> => term`, where `nᵢ` are natural numbers
-referring to numbered invariant goals.
+An invariant alternative of the form `· term`, one per invariant goal.
 -/
-syntax invariantAlt  := ppDedent(ppLine) withPosition("| " num,+) " => " term
+syntax invariantAlt  := ppDedent(ppLine) cdotTk (colGe term)
 
 /--
-After `using`, there can be an optional ` invariants ` followed by a list of alternatives
-`| 1 => term | ... | <n> => term`.
+After `mvcgen [...]`, there can be an optional `invariants` followed by a bulleted list of
+invariants `· term; · term`.
 -/
-syntax invariantAlts := " using" (&" invariants " withPosition((colGe invariantAlt)*))?
+syntax invariantAlts := &" invariants" withPosition((colGe invariantAlt)*)
 
 /--
 In induction alternative, which can have 1 or more cases on the left

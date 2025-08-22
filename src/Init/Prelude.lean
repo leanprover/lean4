@@ -3678,7 +3678,7 @@ class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) where
 export MonadReader (read)
 
 /--
-Retrieves the local value whose type is `ρ`.  This is useful when a monad supports reading more that
+Retrieves the local value whose type is `ρ`.  This is useful when a monad supports reading more than
 one type of value.
 
 Use `read` for a version that expects the type `ρ` to be inferred from `m`.
@@ -4243,7 +4243,7 @@ instance : BEq Name where
 This function does not have special support for macro scopes.
 See `Name.append`.
 -/
-def appendCore : Name → Name → Name
+@[expose] def appendCore : Name → Name → Name
   | n, .anonymous => n
   | n, .str p s => .str (appendCore n p) s
   | n, .num p d => .num (appendCore n p) d
@@ -4934,9 +4934,8 @@ def withRef? [Monad m] [MonadRef m] {α} (ref? : Option Syntax) (x : m α) : m �
 class MonadQuotation (m : Type → Type) extends MonadRef m where
   /-- Get the fresh scope of the current macro invocation -/
   getCurrMacroScope : m MacroScope
-  /-- Get the module name of the current file. This is used to ensure that
-  hygienic names don't clash across multiple files. -/
-  getMainModule     : m Name
+  /-- Get the context name used in Note `Macro Scope Representation`. -/
+  getContext        : m Name
   /--
   Execute action in a new macro invocation context. This transformer should be
   used at all places that morally qualify as the beginning of a "macro call",
@@ -4952,7 +4951,11 @@ class MonadQuotation (m : Type → Type) extends MonadRef m where
   -/
   withFreshMacroScope {α : Type} : m α → m α
 
-export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
+export MonadQuotation (getCurrMacroScope withFreshMacroScope)
+
+-- TODO: delete after rebootstrap
+@[inherit_doc MonadQuotation.getContext]
+abbrev MonadQuotation.getMainModule := @MonadQuotation.getContext
 
 /-- Construct a synthetic `SourceInfo` from the `ref` in the monad state. -/
 @[inline]
@@ -4961,32 +4964,47 @@ def MonadRef.mkInfoFromRefPos [Monad m] [MonadRef m] : m SourceInfo :=
 
 instance [MonadFunctor m n] [MonadLift m n] [MonadQuotation m] : MonadQuotation n where
   getCurrMacroScope   := liftM (m := m) getCurrMacroScope
-  getMainModule       := liftM (m := m) getMainModule
+  getContext          := liftM (m := m) MonadQuotation.getContext
   withFreshMacroScope := monadMap (m := m) withFreshMacroScope
 
 /-!
+# Note [Macro Scope Representation]
+
 We represent a name with macro scopes as
 ```
-<actual name>._@.(<module_name>.<scopes>)*.<module_name>._hyg.<scopes>
+<actual name>._@.(<ctx>.<scopes>)*.<ctx>._hyg.<scopes>
 ```
-Example: suppose the module name is `Init.Data.List.Basic`, and name is `foo.bla`, and macroscopes [2, 5]
+Example: suppose the context name is `Init.Data.List.Basic`, and name is `foo.bla`, and macroscopes [2, 5]
 ```
 foo.bla._@.Init.Data.List.Basic._hyg.2.5
 ```
+The delimiter `_hyg` is used just to improve the `hasMacroScopes` performance.
 
-We may have to combine scopes from different files/modules.
-The main modules being processed is always the right-most one.
-This situation may happen when we execute a macro generated in
-an imported file in the current file.
+The primary purpose of the context name is to differentiate macro scopes from different files as the
+numeric scopes are reset in each file. The current scope is always the right-most one. Scopes from
+multiple files may be collected when we execute a macro generated in an imported file in the current
+file.
 ```
 foo.bla._@.Init.Data.List.Basic.2.1.Init.Lean.Expr._hyg.4
 ```
 
 The delimiter `_hyg` is used just to improve the `hasMacroScopes` performance.
+In practice, we further specify the context name down to be unique per declaration so that the
+numeric scopes are not influenced by the elaboration of preceding declarations. This helps both with
+ensuring declaration names are more stable so that `prefer_native` can find the correct native
+symbol as well as making exported information in general more stable, avoiding rebuilds under the
+module system. Thus the actual encoding of the context name in the current implementation is
+```
+<main module>.<uniq>._hygCtx
+```
+where `<uniq>` is an identifier unique within the current module, set by
+`Command.withInitQuotContext`; see there for details. Thus we can assume the full context name to be
+unique throughout all modules and reset the numeric scopes whenever establishing a fresh context
+name.
 -/
 
 /-- Does this name have hygienic macro scopes? -/
-def Name.hasMacroScopes : Name → Bool
+@[expose] def Name.hasMacroScopes : Name → Bool
   | str _ s => beq s "_hyg"
   | num p _ => hasMacroScopes p
   | _       => false
@@ -5030,8 +5048,8 @@ structure MacroScopesView where
   /-- All the name components `(<module_name>.<scopes>)*` from the imports
   concatenated together. -/
   imported   : Name
-  /-- The main module in which this identifier was parsed. -/
-  mainModule : Name
+  /-- The context name, a globally unique prefix. -/
+  ctx        : Name
   /-- The list of macro scopes. -/
   scopes     : List MacroScope
 
@@ -5043,7 +5061,7 @@ def MacroScopesView.review (view : MacroScopesView) : Name :=
   match view.scopes with
   | List.nil      => view.name
   | List.cons _ _ =>
-    let base := (Name.mkStr (Name.appendCore (Name.appendCore (Name.mkStr view.name "_@") view.imported) view.mainModule) "_hyg")
+    let base := (Name.mkStr (Name.appendCore (Name.appendCore (Name.mkStr view.name "_@") view.imported) view.ctx) "_hyg")
     view.scopes.foldl Name.mkNum base
 
 private def assembleParts : List Name → Name → Name
@@ -5055,7 +5073,7 @@ private def assembleParts : List Name → Name → Name
 private def extractImported (scps : List MacroScope) (mainModule : Name) : Name → List Name → MacroScopesView
   | n@(Name.str p str), parts =>
     match beq str "_@" with
-    | true  => { name := p, mainModule := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
+    | true  => { name := p, ctx := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
     | false => extractImported scps mainModule p (List.cons n parts)
   | n@(Name.num p _), parts => extractImported scps mainModule p (List.cons n parts)
   | _,                    _     => panic "Error: unreachable @ extractImported"
@@ -5063,7 +5081,7 @@ private def extractImported (scps : List MacroScope) (mainModule : Name) : Name 
 private def extractMainModule (scps : List MacroScope) : Name → List Name → MacroScopesView
   | n@(Name.str p str), parts =>
     match beq str "_@" with
-    | true  => { name := p, mainModule := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
+    | true  => { name := p, ctx := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
     | false => extractMainModule scps p (List.cons n parts)
   | n@(Name.num _ _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
   | _,                    _   => panic "Error: unreachable @ extractMainModule"
@@ -5080,23 +5098,23 @@ private def extractMacroScopesAux : Name → List MacroScope → MacroScopesView
 def extractMacroScopes (n : Name) : MacroScopesView :=
   match n.hasMacroScopes with
   | true  => extractMacroScopesAux n List.nil
-  | false => { name := n, scopes := List.nil, imported := Name.anonymous, mainModule := Name.anonymous }
+  | false => { name := n, scopes := List.nil, imported := Name.anonymous, ctx := Name.anonymous }
 
-/-- Add a new macro scope onto the name `n`, in the given `mainModule`. -/
-def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
+/-- Add a new macro scope onto the name `n`, in the given `ctx`. -/
+def addMacroScope (ctx : Name) (n : Name) (scp : MacroScope) : Name :=
   match n.hasMacroScopes with
   | true =>
     let view := extractMacroScopes n
-    match beq view.mainModule mainModule with
+    match beq view.ctx ctx with
     | true  => Name.mkNum n scp
     | false =>
       { view with
-        imported   := view.scopes.foldl Name.mkNum (Name.appendCore view.imported view.mainModule)
-        mainModule := mainModule
+        imported   := view.scopes.foldl Name.mkNum (Name.appendCore view.imported view.ctx)
+        ctx := ctx
         scopes     := List.cons scp List.nil
       }.review
   | false =>
-    Name.mkNum (Name.mkStr (Name.appendCore (Name.mkStr n "_@") mainModule) "_hyg") scp
+    Name.mkNum (Name.mkStr (Name.appendCore (Name.mkStr n "_@") ctx) "_hyg") scp
 
 /--
 Appends two names `a` and `b`, propagating macro scopes from `a` or `b`, if any, to the result.
@@ -5107,7 +5125,7 @@ This function is used for the `Append Name` instance.
 See also `Lean.Name.appendCore`, which appends names without any consideration for macro scopes.
 Also consider `Lean.Name.eraseMacroScopes` to erase macro scopes before appending, if appropriate.
 -/
-def Name.append (a b : Name) : Name :=
+@[expose] def Name.append (a b : Name) : Name :=
   match a.hasMacroScopes, b.hasMacroScopes with
   | true, true  =>
     panic "Error: invalid `Name.append`, both arguments have macro scopes, consider using `eraseMacroScopes`"
@@ -5127,9 +5145,9 @@ Add a new macro scope onto the name `n`, using the monad state to supply the
 main module and current macro scope.
 -/
 @[inline] def MonadQuotation.addMacroScope {m : Type → Type} [MonadQuotation m] [Monad m] (n : Name) : m Name :=
-  bind getMainModule     fun mainModule =>
+  bind MonadQuotation.getContext fun ctx =>
   bind getCurrMacroScope fun scp =>
-  pure (Lean.addMacroScope mainModule n scp)
+  pure (Lean.addMacroScope ctx n scp)
 
 namespace Syntax
 
@@ -5174,8 +5192,8 @@ structure Context where
   /-- An opaque reference to the `Methods` object. This is done to break a
   dependency cycle: the `Methods` involve `MacroM` which has not been defined yet. -/
   methods        : MethodsRef
-  /-- The currently parsing module. -/
-  mainModule     : Name
+  /-- The quotation context name for `MonadQuotation.getContext`. -/
+  quotContext    : Name
   /-- The current macro scope. -/
   currMacroScope : MacroScope
   /-- The current recursion depth. -/
@@ -5230,11 +5248,6 @@ instance : MonadRef MacroM where
   getRef     := bind read fun ctx => pure ctx.ref
   withRef    := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x
 
-/-- Add a new macro scope to the name `n`. -/
-def addMacroScope (n : Name) : MacroM Name :=
-  bind read fun ctx =>
-  pure (Lean.addMacroScope ctx.mainModule n ctx.currMacroScope)
-
 /-- Throw an `unsupportedSyntax` exception. -/
 def throwUnsupported {α} : MacroM α :=
   throw Exception.unsupportedSyntax
@@ -5268,8 +5281,12 @@ scope is fresh.
 
 instance : MonadQuotation MacroM where
   getCurrMacroScope ctx := pure ctx.currMacroScope
-  getMainModule     ctx := pure ctx.mainModule
+  getContext        ctx := pure ctx.quotContext
   withFreshMacroScope   := Macro.withFreshMacroScope
+
+/-- Add a new macro scope to the name `n`. -/
+def addMacroScope (n : Name) : MacroM Name :=
+  MonadQuotation.addMacroScope n
 
 /-- The opaque methods that are available to `MacroM`. -/
 structure Methods where
@@ -5368,7 +5385,7 @@ instance : MonadQuotation UnexpandM where
   withRef ref x       := withReader (fun _ => ref) x
   -- unexpanders should not need to introduce new names
   getCurrMacroScope   := pure 0
-  getMainModule       := pure `_fakeMod
+  getContext          := pure `_fakeMod
   withFreshMacroScope := id
 
 end PrettyPrinter

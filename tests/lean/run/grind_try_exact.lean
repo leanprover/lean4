@@ -1,3 +1,5 @@
+module
+public section -- TODO: `try?` fails if theorems are private
 opaque P : Nat → Prop
 opaque Q : Nat → Prop
 

@@ -6,8 +6,10 @@ Authors: Mario Carneiro
 module
 
 prelude
-public import all Init.Data.Option.BasicAux
-public import all Init.Data.Option.Instances
+public import Init.Data.Option.BasicAux
+import all Init.Data.Option.BasicAux
+public import Init.Data.Option.Instances
+import all Init.Data.Option.Instances
 public import Init.Data.BEq
 public import Init.Classical
 public import Init.Ext
@@ -345,7 +347,7 @@ theorem map_id' {x : Option α} : (x.map fun a => a) = x := congrFun map_id x
 @[simp] theorem map_id_fun' {α : Type u} : Option.map (fun (a : α) => a) = id := by
   funext; simp [map_id']
 
-@[grind =] theorem map_id_apply' {α : Type u} {x : Option α} : Option.map (fun (a : α) => a) x = x := by simp
+theorem map_id_apply' {α : Type u} {x : Option α} : Option.map (fun (a : α) => a) x = x := by simp
 
 @[simp, grind =] theorem get_map {f : α → β} {o : Option α} {h : (o.map f).isSome} :
     (o.map f).get h = f (o.get (by simpa using h)) := by

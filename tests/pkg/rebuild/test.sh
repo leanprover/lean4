@@ -16,6 +16,13 @@ set_option compiler.small 0
 public def hello := "world"
 
 public def testSpec (xs : List Nat) : List Nat := xs.map (fun x => x + 1)
+
+-- Public macro scopes such as from unnamed parameters and deriving handlers should not cause
+-- rebuilds on changes above.
+public def macroScopes : Nat -> Nat := id
+
+public inductive Foo
+deriving Repr
 EOF
 
 lake build

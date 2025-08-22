@@ -7,8 +7,10 @@ module
 
 prelude
 public import Init.Data.Bool
-public import all Init.Data.BitVec.Basic
-public import all Init.Data.BitVec.BasicAux
+public import Init.Data.BitVec.Basic
+import all Init.Data.BitVec.Basic
+public import Init.Data.BitVec.BasicAux
+import all Init.Data.BitVec.BasicAux
 public import Init.Data.Fin.Lemmas
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Div.Lemmas

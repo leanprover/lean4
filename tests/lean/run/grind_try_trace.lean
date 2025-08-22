@@ -1,3 +1,5 @@
+module
+@[expose] public section -- TODO: remove after we fix congr_eq
 reset_grind_attrs%
 
 /--
@@ -41,7 +43,7 @@ info: Try these:
 example (f : Nat → Nat) : f a = b → a = c → f c = b := by
   try?
 
-def f : Nat → Nat
+public def f : Nat → Nat
   | 0 => 1
   | _ => 2
 

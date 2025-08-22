@@ -1484,7 +1484,6 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   | elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
 
 instance : MonadMacroAdapter TermElabM where
-  getCurrMacroScope := getCurrMacroScope
   getNextMacroScope := return (← getThe Core.State).nextMacroScope
   setNextMacroScope next := modifyThe Core.State fun s => { s with nextMacroScope := next }
 
@@ -1993,17 +1992,18 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
     process preresolved
 where
   process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
-    if candidates.isEmpty then
-      let env ← getEnv
-      if (← read).autoBoundImplicit &&
-           !(← read).autoBoundImplicitForbidden n &&
-           isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) &&
-           -- do not turn a scope error into an auto implicit
-           !(env.isExporting && (env.setExporting false).contains n) then
-        throwAutoBoundImplicitLocal n
-      else
-        throwUnknownIdentifierAt (declHint := n) stx m!"Unknown identifier `{.ofConstName n}`"
-    mkConsts candidates explicitLevels
+    if !candidates.isEmpty then
+      return (← mkConsts candidates explicitLevels)
+    let env ← getEnv
+    -- check for scope errors before trying auto implicits
+    if env.isExporting then
+      if let [(npriv, _)] ← withEnv (env.setExporting false) <| resolveGlobalName n then
+        throwUnknownIdentifierAt (declHint := npriv) stx m!"Unknown identifier `{.ofConstName n}`"
+    if (← read).autoBoundImplicit &&
+          !(← read).autoBoundImplicitForbidden n &&
+          isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
+      throwAutoBoundImplicitLocal n
+    throwUnknownIdentifierAt (declHint := n) stx m!"Unknown identifier `{.ofConstName n}`"
 
 /--
   Similar to `resolveName`, but creates identifiers for the main part and each projection with position information derived from `ident`.

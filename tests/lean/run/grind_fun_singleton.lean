@@ -1,3 +1,4 @@
+module
 example (h : (fun (_ : Unit) => x = 1) = (fun _ => True)) : x = 1 := by
   grind
 

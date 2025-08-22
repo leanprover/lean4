@@ -1,3 +1,4 @@
+module
 class Shelf (α : Type u) where
   act : α → α → α
   self_distrib : ∀ {x y z : α}, act x (act y z) = act (act x y) (act x z)

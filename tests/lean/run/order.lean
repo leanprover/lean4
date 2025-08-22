@@ -25,7 +25,7 @@ attribute [scoped instance] instLE
 #guard_msgs(error, drop warning) in
 @[instance] opaque instTrans : Trans (α := X) (· ≤ ·) (· ≤ ·) (· ≤ ·) := sorry
 
-namespace Package
+namespace LinearOrderPackage
 
 scoped instance packageOfLE : LinearOrderPackage X := .ofLE X
 
@@ -38,7 +38,25 @@ example : LawfulOrderMax X := inferInstance
 example : LawfulOrderLeftLeaningMin X := inferInstance
 example : LawfulOrderLeftLeaningMax X := inferInstance
 
-end Package
+end LinearOrderPackage
+
+namespace LinearPreorderPackage
+
+scoped instance packageOfLE : LinearPreorderPackage X := .ofLE X
+
+scoped instance instMin : Min X := .leftLeaningOfLE X
+scoped instance instMax : Max X := .leftLeaningOfLE X
+
+example : instLE = (inferInstanceAs (LinearPreorderPackage X)).toLE := rfl
+example : IsLinearPreorder X := inferInstance
+example : LawfulOrderLT X := inferInstance
+example : LawfulOrderOrd X := inferInstance
+example : LawfulOrderMin X := inferInstance
+example : LawfulOrderMax X := inferInstance
+example : LawfulOrderLeftLeaningMin X := inferInstance
+example : LawfulOrderLeftLeaningMax X := inferInstance
+
+end LinearPreorderPackage
 
 end X
 
@@ -52,7 +70,7 @@ end
 
 section
 
-attribute [local instance] X.Package.packageOfLE
+attribute [local instance] X.LinearOrderPackage.packageOfLE
 
 def packageWithoutSynthesizableInstances' : LinearOrderPackage X := .ofLE X {
   le := X.instLE
@@ -76,12 +94,36 @@ this✝ : LT α := inferInstance
 #guard_msgs in
 def packageOfLEOfLT1 [LE α] [DecidableLE α] [LT α] : PreorderPackage α := .ofLE α {
   le_refl := sorry
-  le_trans := sorry
-}
+  le_trans := sorry }
 
 def packageOfLEOfLT2 [LE α] [DecidableLE α] [LT α] (h : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a) :
     PreorderPackage α := .ofLE α {
   lt_iff := h
   le_refl := sorry
-  le_trans := sorry
-}
+  le_trans := sorry }
+
+namespace OrdTests
+
+section
+
+#guard_msgs(error, drop warning) in
+opaque _root_.X.instOrd : Ord X := sorry
+
+#guard_msgs(error, drop warning) in
+opaque _root_.X.instTransOrd : haveI := X.instOrd; TransOrd X := sorry
+
+#guard_msgs(error, drop warning) in
+opaque _root_.X.instLawfulEqOrd : haveI := X.instOrd; LawfulEqOrd X := sorry
+
+def packageWithoutSynthesizableInstances : LinearOrderPackage X := .ofOrd X {
+  ord := X.instOrd
+  transOrd := X.instTransOrd
+  eq_of_compare := by
+    extract_lets
+    intro a b
+    letI := X.instOrd
+    exact X.instLawfulEqOrd.eq_of_compare }
+
+end
+
+end OrdTests

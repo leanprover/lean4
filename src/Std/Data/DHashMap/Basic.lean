@@ -6,7 +6,8 @@ Authors: Markus Himmel
 module
 
 prelude
-public import all Std.Data.DHashMap.Raw
+public import Std.Data.DHashMap.Raw
+import all Std.Data.DHashMap.Raw
 
 public section
 

@@ -9,7 +9,8 @@ prelude
 public import Init.Data.String.Basic
 public import Init.Data.Array.Basic
 public import Init.Data.SInt.Basic
-public import all Init.Data.Vector.Basic
+public import Init.Data.Vector.Basic
+import all Init.Data.Vector.Basic
 
 public section
 
@@ -96,7 +97,7 @@ Ordering.lt
   | a => a
 
 /-- Version of `Ordering.then'` for proof by reflection. -/
-noncomputable def then' (a b : Ordering) : Ordering :=
+@[expose] noncomputable def then' (a b : Ordering) : Ordering :=
   Ordering.rec a b a a
 
 /--

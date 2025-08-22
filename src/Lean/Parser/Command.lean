@@ -867,6 +867,7 @@ builtin_initialize
   register_parser_alias                                                 optDeclSig
   register_parser_alias                                                 openDecl
   register_parser_alias                                                 docComment
+  register_parser_alias                                                 visibility
 
 /--
 Registers an error explanation.
@@ -883,6 +884,12 @@ used to generate visibility syntax for declarations that is independent of the p
 -/
 def visibility.ofBool (isPublic : Bool) : TSyntax ``visibility :=
   Unhygienic.run <| if isPublic then `(visibility| public) else `(visibility| private)
+
+/--
+Returns syntax for `private` if `attrKind` is `local` and `public` otherwise.
+-/
+def visibility.ofAttrKind (attrKind : TSyntax ``Term.attrKind) : TSyntax ``visibility :=
+  visibility.ofBool <| !attrKind matches `(attrKind| local)
 
 end Command
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Module.Envelope
-// Imports: Init.Grind.Ordered.Module Init.Data.AC
+// Imports: Init.Grind.Ordered.Module Init.Data.AC Init.Data.AC
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -138,7 +138,7 @@ _start:
 {
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 lean_dec_ref(x_1);
 x_5 = !lean_is_exclusive(x_3);
 if (x_5 == 0)
@@ -146,7 +146,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_ctor_get(x_3, 0);
 x_7 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 lean_inc(x_2);
 x_8 = lean_apply_2(x_4, x_2, x_6);
 x_9 = lean_apply_2(x_4, x_2, x_7);
@@ -162,7 +162,7 @@ x_11 = lean_ctor_get(x_3, 1);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_3);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 lean_inc(x_2);
 x_12 = lean_apply_2(x_4, x_2, x_10);
 x_13 = lean_apply_2(x_4, x_2, x_11);
@@ -206,10 +206,10 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 lean_dec_ref(x_1);
 x_10 = lean_nat_abs(x_2);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 lean_inc(x_10);
 x_11 = lean_apply_2(x_9, x_10, x_5);
 x_12 = lean_apply_2(x_9, x_10, x_6);
@@ -221,10 +221,10 @@ else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_13 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_13);
+lean_inc(x_13);
 lean_dec_ref(x_1);
 x_14 = lean_nat_abs(x_2);
-lean_inc_ref(x_13);
+lean_inc(x_13);
 lean_inc(x_14);
 x_15 = lean_apply_2(x_13, x_14, x_6);
 x_16 = lean_apply_2(x_13, x_14, x_5);
@@ -247,10 +247,10 @@ if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_21 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_21);
+lean_inc(x_21);
 lean_dec_ref(x_1);
 x_22 = lean_nat_abs(x_2);
-lean_inc_ref(x_21);
+lean_inc(x_21);
 lean_inc(x_22);
 x_23 = lean_apply_2(x_21, x_22, x_17);
 x_24 = lean_apply_2(x_21, x_22, x_18);
@@ -263,10 +263,10 @@ else
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_26 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_26);
+lean_inc(x_26);
 lean_dec_ref(x_1);
 x_27 = lean_nat_abs(x_2);
-lean_inc_ref(x_26);
+lean_inc(x_26);
 lean_inc(x_27);
 x_28 = lean_apply_2(x_26, x_27, x_18);
 x_29 = lean_apply_2(x_26, x_27, x_17);
@@ -312,7 +312,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_4);
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
@@ -325,7 +325,7 @@ if (x_8 == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_ctor_get(x_3, 0);
 x_10 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 x_11 = lean_apply_2(x_5, x_6, x_10);
 x_12 = lean_apply_2(x_5, x_9, x_7);
 lean_ctor_set(x_3, 1, x_12);
@@ -340,7 +340,7 @@ x_14 = lean_ctor_get(x_3, 1);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_dec(x_3);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 x_15 = lean_apply_2(x_5, x_6, x_14);
 x_16 = lean_apply_2(x_5, x_13, x_7);
 x_17 = lean_alloc_ctor(0, 2, 0);
@@ -366,7 +366,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_4);
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
@@ -379,7 +379,7 @@ if (x_8 == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_ctor_get(x_3, 0);
 x_10 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 x_11 = lean_apply_2(x_5, x_6, x_9);
 x_12 = lean_apply_2(x_5, x_7, x_10);
 lean_ctor_set(x_3, 1, x_12);
@@ -394,7 +394,7 @@ x_14 = lean_ctor_get(x_3, 1);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_dec(x_3);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 x_15 = lean_apply_2(x_5, x_6, x_13);
 x_16 = lean_apply_2(x_5, x_7, x_14);
 x_17 = lean_alloc_ctor(0, 2, 0);
@@ -620,12 +620,16 @@ return x_7;
 }
 lean_object* initialize_Init_Grind_Ordered_Module(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Module_Envelope(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Grind_Ordered_Module(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_AC(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_AC(builtin, lean_io_mk_world());

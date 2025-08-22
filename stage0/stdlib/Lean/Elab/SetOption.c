@@ -889,10 +889,10 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_7 = lean_ctor_get(x_1, 0);
 x_8 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 x_10 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 lean_inc_ref(x_6);
 lean_inc(x_4);
 x_11 = lean_alloc_closure((void*)(l___private_Lean_Elab_SetOption_0__Lean_Elab_elabSetOption_setOption___redArg___lam__0), 4, 3);
@@ -903,7 +903,7 @@ x_12 = l_Lean_DataValue_sameCtor(x_10, x_6);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_13 = lean_alloc_closure((void*)(l___private_Lean_Elab_SetOption_0__Lean_Elab_elabSetOption_setOption___redArg___lam__1), 4, 3);
 lean_closure_set(x_13, 0, x_8);
 lean_closure_set(x_13, 1, x_2);
@@ -915,12 +915,12 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-lean_inc_ref(x_9);
+lean_inc(x_9);
 lean_dec_ref(x_6);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_16 = lean_alloc_closure((void*)(l___private_Lean_Elab_SetOption_0__Lean_Elab_elabSetOption_setOption___redArg___lam__1), 4, 3);
 lean_closure_set(x_16, 0, x_8);
 lean_closure_set(x_16, 1, x_2);
@@ -1193,7 +1193,7 @@ _start:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_11 = l_Lean_Syntax_getId(x_1);
 x_12 = lean_erase_macro_scopes(x_11);
-lean_inc_ref(x_7);
+lean_inc(x_7);
 lean_inc(x_12);
 x_13 = lean_alloc_closure((void*)(l_Lean_Elab_elabSetOption___redArg___lam__2), 9, 8);
 lean_closure_set(x_13, 0, x_2);
@@ -1223,7 +1223,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 lean_inc(x_9);
 x_10 = lean_alloc_closure((void*)(l_Lean_Elab_elabSetOption___redArg___lam__0), 2, 1);
 lean_closure_set(x_10, 0, x_9);
-lean_inc_ref(x_7);
+lean_inc(x_7);
 lean_inc_ref(x_6);
 lean_inc_ref(x_3);
 x_11 = lean_alloc_closure((void*)(l_Lean_Elab_elabSetOption___redArg___lam__3), 10, 9);
@@ -1275,10 +1275,10 @@ _start:
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = lean_ctor_get(x_3, 1);
 x_9 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 x_11 = lean_alloc_closure((void*)(l_Lean_Elab_elabSetOption___redArg___lam__4), 9, 8);
 lean_closure_set(x_11, 0, x_6);
 lean_closure_set(x_11, 1, x_7);

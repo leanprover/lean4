@@ -1,3 +1,4 @@
+module
 open Lean.Grind
 
 -- `grind linarith` currently does not support negation of linear constraints.

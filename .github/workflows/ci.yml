@@ -181,7 +181,9 @@ jobs:
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 // foreign code may be linked against more recent glibc
-                "CTEST_OPTIONS": "-E 'foreign'"
+                "CTEST_OPTIONS": "-E 'foreign'",
+                // not compatible with `prepare-llvm` currently
+                "CMAKE_OPTIONS": "-DUSE_LAKE=OFF",
               },
               {
                 "name": "Linux Lake",
@@ -192,13 +194,7 @@ jobs:
                 "check-stage3": level >= 2,
                 // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
                 "test-speedcenter": large && level >= 2,
-                "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
-              },
-              {
-                "name": "Linux Lake (cached)",
-                "os": "ubuntu-latest",
-                "check-level": (isPr || isPushToMaster) ? 0 : 2,
-                "secondary": true,
+                // made explicit until it can be assumed to have propagated to PRs
                 "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
               },
               {
@@ -228,7 +224,9 @@ jobs:
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
-                "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
+                "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
+                // not compatible with `prepare-llvm` currently
+                "CMAKE_OPTIONS": "-DUSE_LAKE=OFF",
               },
               {
                 "name": "macOS aarch64",
@@ -244,6 +242,8 @@ jobs:
                 // See "Linux release" for release job levels; Grove is not a concern here
                 "check-level": isPr ? 0 : 2,
                 "secondary": isPr,
+                // not compatible with `prepare-llvm` currently
+                "CMAKE_OPTIONS": "-DUSE_LAKE=OFF",
               },
               {
                 "name": "Windows",
@@ -256,7 +256,9 @@ jobs:
                 "CTEST_OPTIONS": "--repeat until-pass:2",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
-                "binary-check": "ldd"
+                "binary-check": "ldd",
+                // not compatible with `prepare-llvm` currently
+                "CMAKE_OPTIONS": "-DUSE_LAKE=OFF",
               },
               {
                 "name": "Linux aarch64",
@@ -266,7 +268,9 @@ jobs:
                 "check-level": 2,
                 "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*"
+                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
+                // not compatible with `prepare-llvm` currently
+                "CMAKE_OPTIONS": "-DUSE_LAKE=OFF",
               },
               // Started running out of memory building expensive modules, a 2GB heap is just not that much even before fragmentation
               //{

@@ -26,10 +26,9 @@ class RangeSize (shape : BoundShape) (α : Type u) where
 This typeclass ensures that a `RangeSize` instance returns the correct size for all ranges.
 -/
 class LawfulRangeSize (su : BoundShape) (α : Type u) [UpwardEnumerable α]
-    [SupportsUpperBound su α] [RangeSize su α]
-    [LawfulUpwardEnumerable α] [HasFiniteRanges su α] where
+    [SupportsUpperBound su α] [RangeSize su α] where
   /-- If the smallest value in the range is beyond the upper bound, the size is zero. -/
-  size_eq_zero_of_not_satisfied (upperBound : Bound su α) (init : α)
+  size_eq_zero_of_not_isSatisfied (upperBound : Bound su α) (init : α)
       (h : ¬ SupportsUpperBound.IsSatisfied upperBound init) :
       RangeSize.size upperBound init = 0
   /--
@@ -43,10 +42,37 @@ class LawfulRangeSize (su : BoundShape) (α : Type u) [UpwardEnumerable α]
   /--
   If the smallest value in the range satisfies the upper bound and has a successor, the size is
   one larger than the size of the range starting at the successor. -/
-  size_eq_succ_of_succ?_eq_some (upperBound : Bound su α) (init : α)
+  size_eq_succ_of_succ?_eq_some (upperBound : Bound su α) (init a : α)
       (h : SupportsUpperBound.IsSatisfied upperBound init)
       (h' : UpwardEnumerable.succ? init = some a) :
       RangeSize.size upperBound init = RangeSize.size upperBound a + 1
+
+theorem LawfulRangeSize.size_eq_zero_iff_not_isSatisfied {su : BoundShape} {α : Type u}
+    [UpwardEnumerable α] [SupportsUpperBound su α] [RangeSize su α] [LawfulRangeSize su α]
+    {bound : Bound su α} {init : α} :
+    RangeSize.size bound init = 0 ↔ ¬ SupportsUpperBound.IsSatisfied bound init := by
+  match h : decide (SupportsUpperBound.IsSatisfied bound init) with
+  | true =>
+    simp only [decide_eq_true_eq] at h
+    match hs : UpwardEnumerable.succ? init with
+    | none => simp [h, LawfulRangeSize.size_eq_one_of_succ?_eq_none (h := h) (h' := hs)]
+    | some b => simp [h, LawfulRangeSize.size_eq_succ_of_succ?_eq_some (h := h) (h' := hs)]
+  | false =>
+    simp only [decide_eq_false_iff_not] at h
+    simp [h, LawfulRangeSize.size_eq_zero_of_not_isSatisfied]
+
+theorem LawfulRangeSize.size_pos_iff_isSatisfied {su : BoundShape} {α : Type u}
+    [UpwardEnumerable α] [SupportsUpperBound su α] [RangeSize su α] [LawfulRangeSize su α]
+    {bound : Bound su α} {init : α} :
+    0 < RangeSize.size bound init ↔ SupportsUpperBound.IsSatisfied bound init := by
+  have := size_eq_zero_iff_not_isSatisfied (bound := bound) (init := init)
+  match h : decide (SupportsUpperBound.IsSatisfied bound init) with
+  | true =>
+    simp only [decide_eq_true_eq] at h
+    simp_all [Nat.pos_iff_ne_zero]
+  | false =>
+    simp only [decide_eq_false_iff_not] at h
+    simp_all
 
 /--
 Checks whether the range contains any value.
@@ -59,6 +85,11 @@ and for all range types that satisfy the properties encoded in the `LawfulUpward
 def isEmpty {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsUpperBound su α] (r : PRange ⟨sl, su⟩ α) : Bool :=
   (BoundedUpwardEnumerable.init? r.lower).all (! SupportsUpperBound.IsSatisfied r.upper ·)
+
+theorem mem_iff_isSatisfied [SupportsLowerBound sl α] [SupportsUpperBound su α]
+    {x : α} {r : Std.PRange ⟨sl, su⟩ α} :
+    x ∈ r ↔ SupportsLowerBound.IsSatisfied r.lower x ∧ SupportsUpperBound.IsSatisfied r.upper x := by
+  simp [Membership.mem]
 
 theorem le_upper_of_mem {sl α} [LE α] [DecidableLE α] [SupportsLowerBound sl α]
     {a : α} {r : PRange ⟨sl, .closed⟩ α} (h : a ∈ r) : a ≤ r.upper :=
@@ -84,6 +115,11 @@ macro_rules
   | `(tactic| get_elem_tactic_extensible) =>
     `(tactic|
       first
+        -- This is a relatively rigid check. See `Init.Data.Range.Polymorphic.GetElemTactic`
+        -- for a second one that is more flexible.
+        -- Note: This one is not *strictly* inferior. This one is better able to look under
+        -- reducible terms. The other tactic needs special handling for `Vector.size` to work
+        -- around that fact that `omega` does not reduce terms.
         | apply Std.PRange.Internal.get_elem_helper_upper_open ‹_› (by trivial)
         | done)
 

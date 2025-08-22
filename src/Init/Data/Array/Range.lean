@@ -7,8 +7,10 @@ module
 
 prelude
 public import Init.Data.Array.Lemmas
-public import all Init.Data.Array.Basic
-public import all Init.Data.Array.OfFn
+public import Init.Data.Array.Basic
+import all Init.Data.Array.Basic
+public import Init.Data.Array.OfFn
+import all Init.Data.Array.OfFn
 public import Init.Data.Array.MapIdx
 public import Init.Data.Array.Zip
 public import Init.Data.List.Nat.Range

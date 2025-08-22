@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Lex
-// Imports: Init.Data.Vector.Basic Init.Data.Vector.Lemmas Init.Data.Array.Lex.Basic Init.Data.Array.Lex.Lemmas Init.Data.Range.Polymorphic.Lemmas Init.Data.Order.Lemmas
+// Imports: Init.Data.Vector.Basic Init.Data.Vector.Basic Init.Data.Vector.Lemmas Init.Data.Array.Lex.Basic Init.Data.Array.Lex.Basic Init.Data.Array.Lex.Lemmas Init.Data.Range.Polymorphic.Lemmas Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -42,7 +42,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_dec_ref(x_3);
+lean_dec(x_3);
 lean_inc(x_2);
 return x_2;
 }
@@ -88,7 +88,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_dec_ref(x_3);
+lean_dec(x_3);
 lean_inc(x_2);
 return x_2;
 }
@@ -265,7 +265,9 @@ return x_9;
 }
 }
 lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Lex_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic_Lemmas(uint8_t builtin, lean_object*);
@@ -278,7 +280,13 @@ _G_initialized = true;
 res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Lex_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Lex_Basic(builtin, lean_io_mk_world());

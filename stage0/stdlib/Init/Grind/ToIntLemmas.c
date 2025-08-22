@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.ToIntLemmas
-// Imports: Init.Grind.ToInt
+// Imports: Init.Grind.ToInt Init.Grind.ToInt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,8 +24,8 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec_ref(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_4);
+lean_dec(x_3);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_1, 1);
@@ -37,8 +37,8 @@ return x_8;
 case 1:
 {
 lean_object* x_9; lean_object* x_10; 
-lean_dec_ref(x_4);
-lean_dec_ref(x_2);
+lean_dec(x_4);
+lean_dec(x_2);
 x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 lean_dec_ref(x_1);
@@ -48,8 +48,8 @@ return x_10;
 case 2:
 {
 lean_object* x_11; lean_object* x_12; 
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_3);
+lean_dec(x_2);
 x_11 = lean_ctor_get(x_1, 0);
 lean_inc(x_11);
 lean_dec_ref(x_1);
@@ -58,9 +58,9 @@ return x_12;
 }
 default: 
 {
-lean_dec_ref(x_4);
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
 lean_inc(x_5);
 return x_5;
 }
@@ -94,11 +94,15 @@ return x_7;
 }
 }
 lean_object* initialize_Init_Grind_ToInt(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_ToInt(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_ToIntLemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Grind_ToInt(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Grind_ToInt(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -17,7 +17,6 @@ static lean_object* l_Lean_TagDeclarationExtension_isTagged___closed__0;
 LEAN_EXPORT uint8_t l_Array_binSearchAux___at___Lean_TagDeclarationExtension_isTagged_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthTR___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MapDeclarationExtension_find_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___auto____x40_Lean_EnvExtension___hyg_801_;
 lean_object* l_Lean_Name_quickLt___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedMapDeclarationExtension___lam__2___boxed(lean_object*, lean_object*);
@@ -36,7 +35,6 @@ static lean_object* l_Lean_registerSimplePersistentEnvExtension___redArg___close
 static lean_object* l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___closed__4;
 LEAN_EXPORT lean_object* l_Lean_MapDeclarationExtension_find_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedMapDeclarationExtension___lam__0___closed__0;
-LEAN_EXPORT lean_object* l___auto____x40_Lean_EnvExtension___hyg_597_;
 LEAN_EXPORT lean_object* l_Lean_registerSimplePersistentEnvExtension___redArg___lam__3___boxed(lean_object*);
 lean_object* l_Array_qpartition___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -119,6 +117,7 @@ static lean_object* l_Lean_instInhabitedMapDeclarationExtension___lam__3___close
 static lean_object* l_Lean_mkStateFromImportedEntries___redArg___lam__1___closed__8;
 static lean_object* l_Lean_mkMapDeclarationExtension___redArg___closed__0;
 static lean_object* l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___closed__17;
+LEAN_EXPORT lean_object* l___auto____x40_Lean_EnvExtension_3165065012____hygCtx___hyg_2_;
 lean_object* l___private_Init_Data_List_Impl_0__List_takeTR_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_TagDeclarationExtension_tag___closed__2;
 LEAN_EXPORT lean_object* l_Lean_mkTagDeclarationExtension___lam__2(lean_object*);
@@ -172,6 +171,7 @@ lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_o
 uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkMapDeclarationExtension___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Lean_EnvExtension_1081646885____hygCtx___hyg_16_;
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -340,7 +340,7 @@ if (x_7 == 0)
 {
 lean_dec(x_5);
 lean_dec_ref(x_3);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_2;
 }
 else
@@ -351,7 +351,7 @@ if (x_8 == 0)
 {
 lean_dec(x_5);
 lean_dec_ref(x_3);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_2;
 }
 else
@@ -378,7 +378,7 @@ if (x_7 == 0)
 {
 lean_dec(x_5);
 lean_dec_ref(x_3);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_2;
 }
 else
@@ -389,7 +389,7 @@ if (x_8 == 0)
 {
 lean_dec(x_5);
 lean_dec_ref(x_3);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_2;
 }
 else
@@ -804,7 +804,7 @@ _start:
 {
 if (lean_obj_tag(x_3) == 0)
 {
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_2;
 }
 else
@@ -815,7 +815,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec_ref(x_3);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_6 = lean_apply_2(x_1, x_2, x_4);
 x_2 = x_6;
 x_3 = x_5;
@@ -1092,9 +1092,9 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 2);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 x_6 = lean_ctor_get(x_1, 3);
 lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_1, 4);
@@ -1112,7 +1112,7 @@ lean_closure_set(x_11, 1, x_6);
 x_12 = lean_alloc_closure((void*)(l_Lean_registerSimplePersistentEnvExtension___redArg___lam__2), 1, 0);
 x_13 = lean_alloc_closure((void*)(l_Lean_registerSimplePersistentEnvExtension___redArg___lam__3___boxed), 1, 0);
 x_14 = lean_box(0);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 x_15 = lean_alloc_closure((void*)(l_Lean_registerSimplePersistentEnvExtension___redArg___lam__4___boxed), 5, 2);
 lean_closure_set(x_15, 0, x_5);
 lean_closure_set(x_15, 1, x_14);
@@ -1274,7 +1274,7 @@ x_8 = lean_box(0);
 x_9 = l_Lean_PersistentEnvExtension_getState___redArg(x_7, x_2, x_3, x_5, x_8);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 return x_10;
 }
 }
@@ -1315,7 +1315,7 @@ lean_ctor_set(x_7, 1, x_1);
 x_8 = l_Lean_PersistentEnvExtension_getState___redArg(x_7, x_2, x_3, x_4, x_5);
 x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 return x_9;
 }
 }
@@ -1446,7 +1446,7 @@ x_6 = l_Lean_SimplePersistentEnvExtension_modifyState___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_EnvExtension___hyg_597_() {
+static lean_object* _init_l___auto____x40_Lean_EnvExtension_3165065012____hygCtx___hyg_2_() {
 _start:
 {
 lean_object* x_1; 
@@ -2085,7 +2085,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_EnvExtension___hyg_801_() {
+static lean_object* _init_l___auto____x40_Lean_EnvExtension_1081646885____hygCtx___hyg_16_() {
 _start:
 {
 lean_object* x_1; 
@@ -2660,7 +2660,6 @@ x_22 = l_Lean_MapDeclarationExtension_contains___redArg___closed__1;
 x_23 = l_Array_binSearchAux___redArg(x_20, x_22, x_13, x_21, x_14, x_18);
 lean_dec_ref(x_13);
 x_24 = lean_unbox(x_23);
-lean_dec(x_23);
 return x_24;
 }
 }
@@ -2792,8 +2791,8 @@ l_Lean_registerSimplePersistentEnvExtension___redArg___lam__3___closed__0 = _ini
 lean_mark_persistent(l_Lean_registerSimplePersistentEnvExtension___redArg___lam__3___closed__0);
 l_Lean_registerSimplePersistentEnvExtension___redArg___closed__0 = _init_l_Lean_registerSimplePersistentEnvExtension___redArg___closed__0();
 lean_mark_persistent(l_Lean_registerSimplePersistentEnvExtension___redArg___closed__0);
-l___auto____x40_Lean_EnvExtension___hyg_597_ = _init_l___auto____x40_Lean_EnvExtension___hyg_597_();
-lean_mark_persistent(l___auto____x40_Lean_EnvExtension___hyg_597_);
+l___auto____x40_Lean_EnvExtension_3165065012____hygCtx___hyg_2_ = _init_l___auto____x40_Lean_EnvExtension_3165065012____hygCtx___hyg_2_();
+lean_mark_persistent(l___auto____x40_Lean_EnvExtension_3165065012____hygCtx___hyg_2_);
 l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_mkTagDeclarationExtension_spec__0___redArg___closed__0 = _init_l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_mkTagDeclarationExtension_spec__0___redArg___closed__0();
 lean_mark_persistent(l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_mkTagDeclarationExtension_spec__0___redArg___closed__0);
 l_Lean_TagDeclarationExtension_instInhabited___closed__0 = _init_l_Lean_TagDeclarationExtension_instInhabited___closed__0();
@@ -2816,8 +2815,8 @@ l_Lean_instInhabitedMapDeclarationExtension___lam__0___closed__1 = _init_l_Lean_
 lean_mark_persistent(l_Lean_instInhabitedMapDeclarationExtension___lam__0___closed__1);
 l_Lean_instInhabitedMapDeclarationExtension___lam__3___closed__0 = _init_l_Lean_instInhabitedMapDeclarationExtension___lam__3___closed__0();
 lean_mark_persistent(l_Lean_instInhabitedMapDeclarationExtension___lam__3___closed__0);
-l___auto____x40_Lean_EnvExtension___hyg_801_ = _init_l___auto____x40_Lean_EnvExtension___hyg_801_();
-lean_mark_persistent(l___auto____x40_Lean_EnvExtension___hyg_801_);
+l___auto____x40_Lean_EnvExtension_1081646885____hygCtx___hyg_16_ = _init_l___auto____x40_Lean_EnvExtension_1081646885____hygCtx___hyg_16_();
+lean_mark_persistent(l___auto____x40_Lean_EnvExtension_1081646885____hygCtx___hyg_16_);
 l_Lean_mkMapDeclarationExtension___redArg___closed__0 = _init_l_Lean_mkMapDeclarationExtension___redArg___closed__0();
 lean_mark_persistent(l_Lean_mkMapDeclarationExtension___redArg___closed__0);
 l_Lean_MapDeclarationExtension_insert___redArg___closed__0 = _init_l_Lean_MapDeclarationExtension_insert___redArg___closed__0();

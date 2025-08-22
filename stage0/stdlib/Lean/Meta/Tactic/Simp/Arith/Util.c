@@ -676,6 +676,8 @@ if (x_99 == 0)
 lean_object* x_100; lean_object* x_101; 
 lean_inc_ref(x_98);
 x_100 = l___private_Lean_Meta_Tactic_Simp_Arith_Util_0__Lean_Meta_Simp_Arith_withAbstractAtoms_go___closed__1;
+lean_inc(x_11);
+lean_inc_ref(x_10);
 x_101 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_100, x_10, x_11, x_12);
 if (lean_obj_tag(x_101) == 0)
 {
@@ -783,14 +785,14 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_4 = lean_apply_2(x_3, x_1, lean_box(0));
 return x_4;
 }
 else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec_ref(x_1);

@@ -9,7 +9,7 @@ This is the repository for **Lean 4**.
 - [Documentation Overview](https://lean-lang.org/documentation/)
 - [Language Reference](https://lean-lang.org/doc/reference/latest/)
 - [Release notes](RELEASES.md) starting at v4.0.0-m3
-- [Examples](https://lean-lang.org/documentation/examples/)
+- [Examples](https://lean-lang.org/lean4/doc/examples.html)
 - [External Contribution Guidelines](CONTRIBUTING.md)
 
 # Installation

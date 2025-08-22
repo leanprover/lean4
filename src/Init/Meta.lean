@@ -8,7 +8,8 @@ Additional goodies for writing macros
 module
 
 prelude
-public import all Init.Prelude  -- for unfolding `Name.beq`
+public import Init.Prelude  -- for unfolding `Name.beq`
+import all Init.Prelude  -- for unfolding `Name.beq`
 public import Init.MetaTypes
 public import Init.Syntax
 public import Init.Data.Array.GetLit

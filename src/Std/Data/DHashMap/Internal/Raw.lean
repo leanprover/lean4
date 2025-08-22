@@ -6,7 +6,8 @@ Authors: Markus Himmel
 module
 
 prelude
-public import all Std.Data.DHashMap.Basic
+public import Std.Data.DHashMap.Basic
+import all Std.Data.DHashMap.Basic
 
 public section
 

@@ -6,9 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-public import all Init.Data.Vector.Basic
+public import Init.Data.Vector.Basic
+import all Init.Data.Vector.Basic
 public import Init.Data.Vector.Lemmas
-public import all Init.Data.Array.Lex.Basic
+public import Init.Data.Array.Lex.Basic
+import all Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lex.Lemmas
 import Init.Data.Range.Polymorphic.Lemmas
 import Init.Data.Order.Lemmas

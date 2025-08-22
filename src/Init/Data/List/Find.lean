@@ -11,7 +11,8 @@ public import Init.Data.List.Lemmas
 public import Init.Data.List.Sublist
 public import Init.Data.List.Range
 public import Init.Data.List.Impl
-public import all Init.Data.List.Attach
+public import Init.Data.List.Attach
+import all Init.Data.List.Attach
 public import Init.Data.Fin.Lemmas
 
 public section

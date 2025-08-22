@@ -6,8 +6,10 @@ Authors: Shreyas Srinivas, Francois Dorais, Kim Morrison
 module
 
 prelude
-public import all Init.Data.Array.Basic
-public import all Init.Data.Vector.Basic
+public import Init.Data.Array.Basic
+import all Init.Data.Array.Basic
+public import Init.Data.Vector.Basic
+import all Init.Data.Vector.Basic
 public import Init.Data.Array.Attach
 public import Init.Data.Array.Find
 

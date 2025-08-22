@@ -6,11 +6,16 @@ Authors: Paul Reichert
 module
 
 prelude
-public import all Init.Data.Array.Subarray
-public import all Init.Data.Slice.Array.Basic
-public import all Init.Data.Slice.Array.Iterator
-public import all Init.Data.Slice.Operations
-public import all Init.Data.Range.Polymorphic.Iterators
+public import Init.Data.Array.Subarray
+import all Init.Data.Array.Subarray
+public import Init.Data.Slice.Array.Basic
+import all Init.Data.Slice.Array.Basic
+public import Init.Data.Slice.Array.Iterator
+import all Init.Data.Slice.Array.Iterator
+public import Init.Data.Slice.Operations
+import all Init.Data.Slice.Operations
+public import Init.Data.Range.Polymorphic.Iterators
+import all Init.Data.Range.Polymorphic.Iterators
 public import Init.Data.Range.Polymorphic.Lemmas
 public import Init.Data.Slice.Lemmas
 public import Init.Data.Iterators.Lemmas

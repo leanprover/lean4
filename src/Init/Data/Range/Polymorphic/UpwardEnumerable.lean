@@ -40,6 +40,8 @@ class UpwardEnumerable (α : Type u) where
   -/
   succMany? (n : Nat) (a : α) : Option α := Nat.repeat (· >>= succ?) n (some a)
 
+attribute [simp] UpwardEnumerable.succ? UpwardEnumerable.succMany?
+
 /--
 According to `UpwardEnumerable.LE`, `a` is less than or equal to `b` if `b` is `a` or a transitive
 successor of `a`.
@@ -76,6 +78,8 @@ class Least? (α : Type u) where
   the value of `least?` should be the smallest element according to the order on `α`.
   -/
   least? : Option α
+
+attribute [simp] Least?.least?
 
 /--
 This typeclass ensures that an `UpwardEnumerable α` instance is well-behaved.

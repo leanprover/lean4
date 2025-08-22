@@ -3,11 +3,14 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Build.Data
-import Lake.Build.Job.Basic
-import Lake.Build.ModuleArtifacts
-import Lake.Config.Dynlib
+public import Lake.Build.Data
+public import Lake.Build.Job.Basic
+public import Lake.Build.ModuleArtifacts
+public import Lake.Config.Dynlib
+meta import all Lake.Build.Data
 
 /-!
 # Simple Builtin Facet Declarations
@@ -26,17 +29,17 @@ namespace Lake
 /-! ## Module Facets -/
 
 /-- A module facet name along with proof of its data type. -/
-structure ModuleFacet (α) where
+public structure ModuleFacet (α) where
   /-- The name of the module facet. -/
   name : Name
   /-- Proof that module's facet build result is of type α. -/
   data_eq : FacetOut name = α
   deriving Repr
 
-instance (facet : ModuleFacet α) : FamilyDef FacetOut facet.name α :=
+public instance (facet : ModuleFacet α) : FamilyDef FacetOut facet.name α :=
   ⟨facet.data_eq⟩
 
-instance [FamilyOut FacetOut facet α] : CoeDep Name facet (ModuleFacet α) :=
+public instance [FamilyOut FacetOut facet α] : CoeDep Name facet (ModuleFacet α) :=
   ⟨facet, FamilyOut.fam_eq⟩
 
 /-- The module's Lean source file. -/
@@ -60,7 +63,7 @@ including transitive imports, plugins, and those specified by `needs`.
 builtin_facet deps : Module => Opaque
 
 /-- Information about the imports of a module. -/
-structure ModuleImportInfo where
+public structure ModuleImportInfo where
   /-- Artifacts directly needed for the imports of the module. -/
   directArts : NameMap ImportArtifacts
   /-- The trace produced by mixing the traces of `directArts` with their transitive imports. -/
@@ -78,7 +81,7 @@ structure ModuleImportInfo where
 builtin_facet importInfo : Module => ModuleImportInfo
 
 /-- Information useful to importers of a module. -/
-structure ModuleExportInfo where
+public structure ModuleExportInfo where
   /-- Artifacts directly needed for an `import` of the module with the module system enabled. -/
   arts : ImportArtifacts
   /-- The trace of the module's public olean. -/

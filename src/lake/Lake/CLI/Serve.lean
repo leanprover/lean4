@@ -3,10 +3,19 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Load
-import Lake.Build
+public import Lake.Load.Config
+public import Lake.Build.Context
+public import Lake.Util.MainM
+import Lake.Build.Run
+import Lake.Build.Module
+import Lake.Load.Package
+import Lake.Load.Lean.Elab
+import Lake.Load.Workspace
 import Lake.Util.MainM
+import Lake.Util.IO
 
 open Lean
 open System (FilePath)
@@ -14,13 +23,13 @@ open System (FilePath)
 namespace Lake
 
 /-- Exit code to return if `setup-file` cannot find the config file. -/
-def noConfigFileCode : ExitCode := 2
+public def noConfigFileCode : ExitCode := 2
 
 /--
 Environment variable that is set when `lake serve` cannot parse the Lake configuration file
 and falls back to plain `lean --server`.
 -/
-def invalidConfigEnvVar := "LAKE_INVALID_CONFIG"
+public def invalidConfigEnvVar := "LAKE_INVALID_CONFIG"
 
 /--
 Build the dependencies of a Lean file and print the computed module's setup as JSON.
@@ -32,7 +41,7 @@ will exit silently with `noConfigFileCode` (i.e, 2).
 
 The `setup-file` command is used internally by the Lean server.
 -/
-def setupFile
+public def setupFile
   (loadConfig : LoadConfig) (leanFile : FilePath)
   (header? : Option ModuleHeader := none) (buildConfig : BuildConfig := {})
 : MainM PUnit := do
@@ -61,7 +70,7 @@ def setupFile
 Start the Lean LSP for the `Workspace` loaded from `config`
 with the given additional `args`.
 -/
-def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
+public def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
   let (extraEnv, moreServerArgs) ← do
     let (ws?, log) ← (loadWorkspace config).captureLog
     log.replay (logger := MonadLog.stderr)

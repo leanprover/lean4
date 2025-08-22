@@ -15,9 +15,6 @@ import Init.Data.Order.Lemmas
 public section
 
 namespace Std.PRange
-open Std
-
--- induce LawfulUpwardEnumerable from antisymmetry and transitivity?
 
 instance : UpwardEnumerable Nat where
   succ? n := some (n + 1)

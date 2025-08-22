@@ -22,6 +22,7 @@ open Nat
 
 namespace Int
 
+-- TODO: move these instances, or make them local to this file.
 instance [NeZero n] : NeZero ((n : Int) ^ m) := ⟨Int.pow_ne_zero (NeZero.ne _)⟩
 instance [NeZero (n : Nat)] : NeZero (n : Int) := ⟨mt Int.natCast_eq_zero.mp (NeZero.ne _)⟩
 instance [NeZero (n : Nat)] : NeZero (no_index (OfNat.ofNat n : Int)) := ⟨mt Int.natCast_eq_zero.mp (NeZero.ne _)⟩
@@ -116,12 +117,12 @@ inductive Dyadic where
 deriving DecidableEq
 
 /-- Returns the dyadic number representation of `i * 2 ^ (-exp)`. -/
-def Dyadic.ofIntWithExp (i : Int) (exp : Int) : Dyadic :=
+def Dyadic.ofIntWithPrec (i : Int) (prec : Int) : Dyadic :=
   if h : i = 0 then .zero
-  else .of (i >>> i.trailingZeros) (exp - i.trailingZeros) (Int.shiftRight_trailingZeros_mod_two h)
+  else .of (i >>> i.trailingZeros) (prec - i.trailingZeros) (Int.shiftRight_trailingZeros_mod_two h)
 
 def Dyadic.ofInt (i : Int) : Dyadic :=
-  Dyadic.ofIntWithExp i 0
+  Dyadic.ofIntWithPrec i 0
 
 namespace Dyadic
 
@@ -134,7 +135,7 @@ protected def add (x y : Dyadic) : Dyadic :=
   | x, .zero => x
   | .of n₁ k₁ hn₁, .of n₂ k₂ hn₂ =>
     match k₁ - k₂ with
-    | 0 => .ofIntWithExp (n₁ + n₂) k₁
+    | 0 => .ofIntWithPrec (n₁ + n₂) k₁
     | (d@hd:(d' + 1) : Nat) => .of (n₁ + n₂ * (2 ^ d : Nat)) k₁ ?_
     | -(d + 1 : Nat) => .of (n₁ * (2 ^ (d + 1) : Nat) + n₂) k₂ ?_
 where finally all_goals simp_all [Int.pow_succ, ← Int.mul_assoc]
@@ -210,9 +211,9 @@ theorem toRat_of_eq_mkRat :
   · simp [toRat, Rat.mk_eq_mkRat]
   · simp [toRat, Int.neg_negSucc, Rat.mkRat_one]
 
-theorem toRat_ofIntWithExp_eq_mkRat :
-    toRat (.ofIntWithExp n k) = mkRat (n * (2 ^ (-k).toNat : Nat)) (2 ^ k.toNat : Nat) := by
-  simp only [ofIntWithExp]
+theorem toRat_ofIntWithPrec_eq_mkRat :
+    toRat (.ofIntWithPrec n k) = mkRat (n * (2 ^ (-k).toNat : Nat)) (2 ^ k.toNat : Nat) := by
+  simp only [ofIntWithPrec]
   split
   · simp_all
   rw [toRat_of_eq_mkRat, Rat.mkRat_eq_iff (NeZero.ne _) (NeZero.ne _)]
@@ -242,7 +243,7 @@ theorem toRat_add (x y : Dyadic) : toRat (x + y) = toRat x + toRat y := by
     split
     · rename_i h
       cases Int.sub_eq_zero.mp h
-      rw [toRat_ofIntWithExp_eq_mkRat, Rat.mkRat_eq_iff (NeZero.ne _) (NeZero.ne _)]
+      rw [toRat_ofIntWithPrec_eq_mkRat, Rat.mkRat_eq_iff (NeZero.ne _) (NeZero.ne _)]
       simp [Int.add_mul, Int.mul_assoc]
     · rename_i h
       cases Int.sub_eq_iff_eq_add.mp h
@@ -299,17 +300,17 @@ def precision : Dyadic → Int
 
 def _root_.Rat.toDyadic (x : Rat) (prec : Int) : Dyadic :=
   match prec with
-  | (n : Nat) => .ofIntWithExp (x.num * (2 ^ n : Nat) / x.den) prec
-  | -(n + 1 : Nat) => .ofIntWithExp (x.num / (x.den * (2 ^ (n + 1)) : Nat)) prec
+  | (n : Nat) => .ofIntWithPrec (x.num * (2 ^ n : Nat) / x.den) prec
+  | -(n + 1 : Nat) => .ofIntWithPrec (x.num / (x.den * (2 ^ (n + 1)) : Nat)) prec
 
-theorem of_eq_ofIntWithExp : of n k hn = ofIntWithExp n k := by
-  simp only [ofIntWithExp, Dyadic.zero_eq, Int.trailingZeros_eq_zero_of_mod_eq hn,
+theorem of_eq_ofIntWithPrec : of n k hn = ofIntWithPrec n k := by
+  simp only [ofIntWithPrec, Dyadic.zero_eq, Int.trailingZeros_eq_zero_of_mod_eq hn,
     Int.shiftRight_zero, Int.cast_ofNat_Int, Int.sub_zero, right_eq_dite_iff, of_ne_zero, imp_false]
   intro rfl; contradiction
 
-theorem ofIntWithExp_two_pow_mul_add {n : Nat} :
-    ofIntWithExp (2 ^ n * x) (i + n) = ofIntWithExp x i := by
-  rw [ofIntWithExp, ofIntWithExp]
+theorem ofIntWithPrec_two_pow_mul_add {n : Nat} :
+    ofIntWithPrec (2 ^ n * x) (i + n) = ofIntWithPrec x i := by
+  rw [ofIntWithPrec, ofIntWithPrec]
   simp only [Int.mul_eq_zero, ne_eq, Int.reduceEq, not_false_eq_true, Int.pow_ne_zero, false_or,
     Dyadic.zero_eq]
   split
@@ -325,15 +326,15 @@ theorem toDyadic_toRat {x : Dyadic} {prec : Int} (h : x.precision ≤ prec) :
   rcases x with _ | ⟨n, k, hn⟩
   · simp only [precision] at h
     rcases h.dest with ⟨a, rfl⟩
-    simp [Rat.toDyadic, ofIntWithExp]
+    simp [Rat.toDyadic, ofIntWithPrec]
   · simp only [precision] at h
     rcases h.dest with ⟨a, rfl⟩
     rcases k with b | b
     · simp only [toRat, Rat.toDyadic, Int.ofNat_eq_coe, ← Int.natCast_add, Nat.pow_add,
         Int.natCast_mul]
       rw [Int.mul_comm, Int.mul_assoc, Int.mul_ediv_cancel_left _ (NeZero.ne _)]
-      rw [Int.natCast_pow, Int.cast_ofNat_Int, Int.natCast_add, ofIntWithExp_two_pow_mul_add]
-      rw [of_eq_ofIntWithExp]
+      rw [Int.natCast_pow, Int.cast_ofNat_Int, Int.natCast_add, ofIntWithPrec_two_pow_mul_add]
+      rw [of_eq_ofIntWithPrec]
     · simp only [toRat, Rat.toDyadic]
       split
       · simp only [← Rat.mk_den_one, Int.cast_ofNat_Int, Int.ediv_one]
@@ -343,14 +344,14 @@ theorem toDyadic_toRat {x : Dyadic} {prec : Int} (h : x.precision ≤ prec) :
         norm_cast at h
         simp only [Int.mul_assoc, ← Int.natCast_mul, ← Nat.pow_add, h]
         rw [Int.natCast_pow, Int.cast_ofNat_Int, Int.mul_comm]
-        rw [ofIntWithExp_two_pow_mul_add, of_eq_ofIntWithExp]
+        rw [ofIntWithPrec_two_pow_mul_add, of_eq_ofIntWithPrec]
       · simp only [← Rat.mk_den_one, Nat.one_mul]
         rename_i c h
         have : b = a + c := by omega
         cases this
         rw [Nat.add_assoc, Nat.pow_add, Int.natCast_mul, ← Int.mul_assoc,
           Int.mul_ediv_cancel _ (NeZero.ne _), Int.mul_comm, Int.natCast_pow,
-          Int.cast_ofNat_Int, ofIntWithExp_two_pow_mul_add, of_eq_ofIntWithExp]
+          Int.cast_ofNat_Int, ofIntWithPrec_two_pow_mul_add, of_eq_ofIntWithPrec]
 
 theorem toRat_inj {x y : Dyadic} : x.toRat = y.toRat ↔ x = y := by
   refine ⟨fun h => ?_, fun h => h ▸ rfl⟩

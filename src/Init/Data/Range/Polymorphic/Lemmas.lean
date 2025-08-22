@@ -376,7 +376,7 @@ instance {su} [UpwardEnumerable α] [SupportsUpperBound su α] [RangeSize su α]
           cases hn : UpwardEnumerable.succ? next
           · have := LawfulRangeSize.size_eq_one_of_succ?_eq_none _ _ h hn
             simp [*] at this
-          · have := LawfulRangeSize.size_eq_succ_of_succ?_eq_some _ _ h hn
+          · have := LawfulRangeSize.size_eq_succ_of_succ?_eq_some _ _ _ h hn
             simp [*] at this
         · simp [h]
       · rename_i ih
@@ -389,11 +389,11 @@ instance {su} [UpwardEnumerable α] [SupportsUpperBound su α] [RangeSize su α]
             simp only [RangeIterator.step, Array.size_empty]
             simp_all [LawfulRangeSize.size_eq_one_of_succ?_eq_none _ _ h' hn]
           · rename_i next'
-            have := LawfulRangeSize.size_eq_succ_of_succ?_eq_some _ _ h' hn
+            have := LawfulRangeSize.size_eq_succ_of_succ?_eq_some _ _ _ h' hn
             simp only [this, Nat.add_right_cancel_iff] at h
             specialize ih (it := ⟨⟨some next', it.internalState.upperBound⟩⟩) next' rfl h
             rw [ih, Nat.add_comm]
-        · have := LawfulRangeSize.size_eq_zero_of_not_satisfied _ _ h'
+        · have := LawfulRangeSize.size_eq_zero_of_not_isSatisfied _ _ h'
           simp [*] at this
 
 theorem isEmpty_iff_forall_not_mem {sl su} [UpwardEnumerable α] [LawfulUpwardEnumerable α]

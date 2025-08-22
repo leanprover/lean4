@@ -114,7 +114,9 @@ A dyadic rational is either zero or of the form `n * 2^(-k)` for some (unique) `
 where `n` is odd.
 -/
 inductive Dyadic where
+  /-- The dyadic number `0`. -/
   | zero
+  /-- The dyadic number `n * 2^(-k)` for some odd `n` and integer `k`. -/
   | of (n : Int) (k : Int) (hn : n % 2 = 1)
 deriving DecidableEq
 
@@ -123,6 +125,7 @@ def Dyadic.ofIntWithPrec (i : Int) (prec : Int) : Dyadic :=
   if h : i = 0 then .zero
   else .of (i >>> i.trailingZeros) (prec - i.trailingZeros) (Int.shiftRight_trailingZeros_mod_two h)
 
+/-- Convert an integer to a dyadic number (which will necessarily have non-positive precision). -/
 def Dyadic.ofInt (i : Int) : Dyadic :=
   Dyadic.ofIntWithPrec i 0
 
@@ -131,6 +134,7 @@ namespace Dyadic
 instance (n : Nat) : OfNat Dyadic n where
   ofNat := Dyadic.ofInt n
 
+/-- Add two dyadic numbers. -/
 protected def add (x y : Dyadic) : Dyadic :=
   match x, y with
   | .zero, y => y
@@ -144,6 +148,7 @@ where finally all_goals simp_all [Int.shiftLeft_eq, Int.pow_succ, ← Int.mul_as
 
 instance : Add Dyadic := ⟨Dyadic.add⟩
 
+/-- Multiply two dyadic numbers. -/
 protected def mul (x y : Dyadic) : Dyadic :=
   match x, y with
   | .zero, _ => .zero
@@ -153,6 +158,7 @@ protected def mul (x y : Dyadic) : Dyadic :=
 
 instance : Mul Dyadic := ⟨Dyadic.mul⟩
 
+/-- Negate a dyadic number. -/
 protected def neg (x : Dyadic) : Dyadic :=
   match x with
   | .zero => .zero
@@ -160,15 +166,18 @@ protected def neg (x : Dyadic) : Dyadic :=
 
 instance : Neg Dyadic := ⟨Dyadic.neg⟩
 
+/-- Subtract two dyadic numbers. -/
 protected def sub (x y : Dyadic) : Dyadic := x + (- y)
 
 instance : Sub Dyadic := ⟨Dyadic.sub⟩
 
+/-- Shift a dyadic number left by `i` bits. -/
 protected def shiftLeft (x : Dyadic) (i : Int) : Dyadic :=
   match x with
   | .zero => .zero
   | .of n k hn => .of n (k - i) hn
 
+/-- Shift a dyadic number right by `i` bits. -/
 protected def shiftRight (x : Dyadic) (i : Int) : Dyadic :=
   match x with
   | .zero => .zero
@@ -183,6 +192,7 @@ instance : HShiftRight Dyadic Nat Dyadic := ⟨fun x y => x >>> (y : Int)⟩
 -- TODO: move this
 theorem _root_.Int.natAbs_emod_two (i : Int) : i.natAbs % 2 = (i % 2).natAbs := by omega
 
+/-- Convert a dyadic number to a rational number. -/
 def toRat (x : Dyadic) : Rat :=
   match x with
   | .zero => 0
@@ -296,10 +306,15 @@ theorem toRat_eq_zero_iff {x : Dyadic} : x.toRat = 0 ↔ x = 0 := by
     cases h
     contradiction
 
+/-- The "precision" of a dyadic number, i.e. in `n * 2^(-p)` with `n` odd the precision is `p`. -/
 def precision : Dyadic → Int
   | .zero => 0
   | .of _ p _ => p
 
+/--
+Convert a rational number `x` to the greatest dyadic number with precision at most `prec`
+which is less than or equal to `x`.
+-/
 def _root_.Rat.toDyadic (x : Rat) (prec : Int) : Dyadic :=
   match prec with
   | (n : Nat) => .ofIntWithPrec ((x.num <<< n) / x.den) prec

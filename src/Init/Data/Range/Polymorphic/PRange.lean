@@ -159,6 +159,8 @@ class SupportsLowerBound (shape : BoundShape) (α : Type u) where
   IsSatisfied : Bound shape α → α → Prop
   decidableSatisfiesLowerBound : DecidableRel IsSatisfied := by infer_instance
 
+attribute [simp] SupportsLowerBound.IsSatisfied
+
 instance : SupportsLowerBound .unbounded α where
   IsSatisfied _ _ := True
 
@@ -174,6 +176,8 @@ Instances are automatically provided in the following cases:
 class SupportsUpperBound (shape : BoundShape) (α : Type u) where
   IsSatisfied : Bound shape α → α → Prop
   decidableSatisfiesUpperBound : DecidableRel IsSatisfied := by infer_instance
+
+attribute [simp] SupportsUpperBound.IsSatisfied
 
 instance {α} : SupportsUpperBound .unbounded α where
   IsSatisfied _ _ := True
@@ -212,6 +216,8 @@ Instances are automatically generated in the following cases:
 -/
 class BoundedUpwardEnumerable (lowerBoundShape : BoundShape) (α : Type u) where
   init? : Bound lowerBoundShape α → Option α
+
+attribute [simp] BoundedUpwardEnumerable.init?
 
 /--
 This typeclass ensures that the lower bound predicate from `SupportsLowerBound sl α`

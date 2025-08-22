@@ -6,7 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import all Init.Grind.ToInt
+public import Init.Grind.ToInt
+import all Init.Grind.ToInt
 public import Init.Grind.Module.Basic
 public import Init.Grind.Ring.ToInt
 public import Init.Data.Int.DivMod.Basic

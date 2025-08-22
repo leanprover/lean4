@@ -13,7 +13,8 @@ import Init.Data.Iterators.Combinators.FilterMap
 import Init.Data.Iterators.Combinators.ULift
 public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Loop
-public import all Init.Data.Range.Polymorphic.Basic
+public import Init.Data.Range.Polymorphic.Basic
+import all Init.Data.Range.Polymorphic.Basic
 public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.Range.Polymorphic.Iterators
 public import Init.Data.Slice.Operations

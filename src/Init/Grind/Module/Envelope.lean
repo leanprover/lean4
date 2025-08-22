@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.Grind.Ordered.Module
-public import all Init.Data.AC
+public import Init.Data.AC
+import all Init.Data.AC
 
 public section
 

@@ -9,7 +9,8 @@ module
 prelude
 public import Init.Data.Bool
 public import Init.Data.Int.Pow
-public import all Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.Bitwise.Basic
+import all Init.Data.Nat.Bitwise.Basic
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Simproc
 public import Init.TacticsExtra

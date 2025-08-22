@@ -6,7 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import all Init.Data.Array.Basic
+public import Init.Data.Array.Basic
+import all Init.Data.Array.Basic
 public import Init.Data.Array.Lemmas
 public import Init.Data.List.Nat.Erase
 public import Init.Data.List.Nat.Basic

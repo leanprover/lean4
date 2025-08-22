@@ -6,8 +6,10 @@ Authors: Mario Carneiro
 module
 
 prelude
-public import all Init.Data.Option.BasicAux
-public import all Init.Data.Option.Instances
+public import Init.Data.Option.BasicAux
+import all Init.Data.Option.BasicAux
+public import Init.Data.Option.Instances
+import all Init.Data.Option.Instances
 public import Init.Data.BEq
 public import Init.Classical
 public import Init.Ext

@@ -8,7 +8,8 @@ module
 prelude
 public import Init.Data.Array.Lemmas
 public import Init.Data.Iterators.Lemmas.Monadic.Basic
-public import all Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+import all Init.Data.Iterators.Consumers.Monadic.Collect
 
 public section
 

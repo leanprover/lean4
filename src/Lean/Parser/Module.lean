@@ -89,24 +89,32 @@ def parseHeader (inputCtx : InputContext) : IO (TSyntax ``Module.header × Modul
   for (pos, stk, err) in s.allErrors do
     messages := messages.add <| mkErrorMessage inputCtx pos stk err
   if let `(Module.header| $[module%$moduleTk?]? $[prelude]? $importsStx*) := stx then
-    if moduleTk?.isNone then
-      let mkError ref msg : Message :=
-        let pos := ref.getPos?.getD 0
-        {
-          fileName := inputCtx.fileName
-          pos := inputCtx.fileMap.toPosition pos
-          endPos := inputCtx.fileMap.toPosition <| ref.getTailPos?.getD pos
-          keepFullRange := true
-          data := msg
-        }
-      for stx in importsStx do
-        if let `(Module.import| $[public%$pubTk?]? $[meta%$metaTk?]? import $[all%$allTk?]? $_) := stx then
+    let mkError ref msg : Message :=
+      let pos := ref.getPos?.getD 0
+      {
+        fileName := inputCtx.fileName
+        pos := inputCtx.fileMap.toPosition pos
+        endPos := inputCtx.fileMap.toPosition <| ref.getTailPos?.getD pos
+        keepFullRange := true
+        data := msg
+      }
+    for stx in importsStx do
+      if let `(Module.import| $[public%$pubTk?]? $[meta%$metaTk?]? import $[all%$allTk?]? $mod) := stx then
+        let mod := mod.getId
+        if moduleTk?.isNone then
           if let some tk := pubTk? then
-            messages := messages.add <| mkError tk "cannot use 'public import' without 'module'"
+            messages := messages.add <| mkError tk "cannot use `public import` without `module`"
           if let some tk := metaTk? then
-            messages := messages.add <| mkError tk "cannot use 'meta import' without 'module'"
+            messages := messages.add <| mkError tk "cannot use `meta import` without `module`"
           if let some tk := allTk? then
-            messages := messages.add <| mkError tk "cannot use 'import all' without 'module'"
+            messages := messages.add <| mkError tk "cannot use `import all` without `module`"
+        else
+          if let some tk := allTk? then
+            if pubTk?.isSome then
+              messages := messages.add <| mkError tk s!"cannot use `all` with `public import`; \
+                consider using separate `public import {mod}` and `import all {mod}` directives \
+                in order to import public data into the public scope and private data into the \
+                private scope."
   pure (⟨stx⟩, {pos := s.pos, recovering := s.hasError}, messages)
 
 private def mkEOI (pos : String.Pos) : Syntax :=

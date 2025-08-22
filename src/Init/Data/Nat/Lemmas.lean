@@ -6,9 +6,11 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro, Floris van Doorn
 module
 
 prelude
-public import all Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.Bitwise.Basic
+import all Init.Data.Nat.Bitwise.Basic
 public import Init.Data.Nat.MinMax
-public import all Init.Data.Nat.Log2
+public import Init.Data.Nat.Log2
+import all Init.Data.Nat.Log2
 public import Init.Data.Nat.Power2
 public import Init.Data.Nat.Mod
 

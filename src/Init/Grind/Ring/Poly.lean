@@ -9,7 +9,8 @@ prelude
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Int.LemmasAux
 public import Init.Data.Hashable
-public import all Init.Data.Ord.Basic
+public import Init.Data.Ord.Basic
+import all Init.Data.Ord.Basic
 public import Init.Data.RArray
 public import Init.Grind.Ring.Basic
 public import Init.Grind.Ring.Field

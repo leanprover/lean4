@@ -9,8 +9,10 @@ module
 prelude
 public import Init.Data.Bool
 public import Init.Data.Option.Lemmas
-public import all Init.Data.List.BasicAux
-public import all Init.Data.List.Control
+public import Init.Data.List.BasicAux
+import all Init.Data.List.BasicAux
+public import Init.Data.List.Control
+import all Init.Data.List.Control
 public import Init.Control.Lawful.Basic
 public import Init.BinderPredicates
 

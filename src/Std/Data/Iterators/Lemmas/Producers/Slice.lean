@@ -6,7 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import all Std.Data.Iterators.Producers.Slice
+public import Std.Data.Iterators.Producers.Slice
+import all Std.Data.Iterators.Producers.Slice
 public import Init.Data.Slice.Lemmas
 
 @[expose] public section

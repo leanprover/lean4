@@ -53,13 +53,13 @@ A range of elements of some type `α`. It is characterized by its upper and lowe
 may be inclusive, exclusive or absent.
 
 * `a...=b` is the range of elements greater than or equal to `a` and less than or equal to `b`.
-* `a<...=b` is the range of elements greater than `a` and less than or equal to `b`.
 * `a...b` or `a...<b` is the range of elements greater than or equal to `a` and less than `b`.
+* `a...*` is the range of elements greater than or equal to `a`.
+* `a<...=b` is the range of elements greater than `a` and less than or equal to `b`.
 * `a<...b` or `a<...<b` is the range of elements greater than `a` and less than `b`.
+* `a<...*` is the range of elements greater than `a`.
 * `*...=b` is the range of elements less than or equal to `b`.
 * `*...b` or `*...<b` is the range of elements less than `b`.
-* `a...*` is the range of elements greater than or equal to `a`.
-* `a<...*` is the range of elements greater than `a`.
 * `*...*` contains all elements of `α`.
 -/
 structure _root_.Std.PRange (shape : RangeShape) (α : Type u) where
@@ -124,6 +124,27 @@ macro_rules
   | `(*...$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.open) PUnit.unit $b)
   | `($a<...<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
   | `($a<...$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
+
+recommended_spelling "Rcc" for "a...=b" in [PRange, «term_...=_»]
+recommended_spelling "Rco" for "a...b" in [PRange, «term_..._», «term_...<_»]
+recommended_spelling "Rco" for "a...<b" in [«term_...<_»]
+recommended_spelling "Rci" for "a...*" in [PRange, «term_...*»]
+recommended_spelling "Roc" for "a<...=b" in [PRange, «term_<...=_»]
+recommended_spelling "Roo" for "a<...b" in [PRange, «term_<..._», «term_<...<_»]
+recommended_spelling "Roo" for "a<...<b" in [«term_<...<_»]
+recommended_spelling "Roi" for "a<...*" in [PRange, «term_<...*»]
+recommended_spelling "Ric" for "*...=b" in [PRange, «term*...=_»]
+recommended_spelling "Rio" for "*...b" in [PRange, «term*..._», «term*...<_»]
+recommended_spelling "Rio" for "*...<b" in [«term*...<_»]
+recommended_spelling "Rii" for "*...*" in [PRange, «term*...*»]
+
+recommended_spelling "Rcx" for "PRange.mk .closed ub" in [PRange]
+recommended_spelling "Rox" for "PRange.mk .open ub" in [PRange]
+recommended_spelling "Rix" for "PRange.mk .unbounded ub" in [PRange]
+recommended_spelling "Rxc" for "PRange.mk lb .closed" in [PRange]
+recommended_spelling "Rxo" for "PRange.mk lb .open" in [PRange]
+recommended_spelling "Rxi" for "PRange.mk lb .unbounded" in [PRange]
+recommended_spelling "Rxx" for "PRange.mk lb ub" in [PRange]
 
 /--
 This typeclass provides decidable lower bound checks of the given shape.

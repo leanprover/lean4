@@ -96,14 +96,6 @@ instance (priority := low) : MonadStateOf SubExpr.HoleIterator DelabM where
     let (ret, holeIter') := f s.holeIter
     (ret, { s with holeIter := holeIter' })
 
--- Macro scopes in the delaborator output are ultimately ignored by the pretty printer,
--- so give a trivial implementation.
-instance : MonadQuotation DelabM := {
-  getCurrMacroScope   := pure default
-  getMainModule       := pure default
-  withFreshMacroScope := fun x => x
-}
-
 /--
 Registers a delaborator.
 

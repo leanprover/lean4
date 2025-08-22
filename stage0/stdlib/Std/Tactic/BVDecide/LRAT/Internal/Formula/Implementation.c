@@ -1093,20 +1093,18 @@ x_14 = lean_unbox(x_9);
 x_15 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_hasAssignment(x_14, x_13);
 if (x_15 == 0)
 {
-uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_25; lean_object* x_31; uint8_t x_32; 
+lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_25; lean_object* x_31; uint8_t x_32; 
 lean_inc(x_4);
-lean_dec_ref(x_1);
-x_16 = 1;
-lean_inc_ref(x_2);
-x_17 = lean_array_push(x_4, x_2);
-if (lean_is_exclusive(x_2)) {
- lean_ctor_release(x_2, 0);
- lean_ctor_release(x_2, 1);
- x_18 = x_2;
+if (lean_is_exclusive(x_1)) {
+ lean_ctor_release(x_1, 0);
+ lean_ctor_release(x_1, 1);
+ x_16 = x_1;
 } else {
- lean_dec_ref(x_2);
- x_18 = lean_box(0);
+ lean_dec_ref(x_1);
+ x_16 = lean_box(0);
 }
+x_17 = 1;
+x_18 = lean_array_push(x_4, x_2);
 x_31 = lean_array_get_size(x_5);
 x_32 = lean_nat_dec_lt(x_8, x_31);
 lean_dec(x_31);
@@ -1137,19 +1135,19 @@ block_24:
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_21 = lean_box(x_20);
-if (lean_is_scalar(x_18)) {
+if (lean_is_scalar(x_7)) {
  x_22 = lean_alloc_ctor(0, 2, 0);
 } else {
- x_22 = x_18;
+ x_22 = x_7;
 }
 lean_ctor_set(x_22, 0, x_19);
 lean_ctor_set(x_22, 1, x_21);
-if (lean_is_scalar(x_7)) {
+if (lean_is_scalar(x_16)) {
  x_23 = lean_alloc_ctor(0, 2, 0);
 } else {
- x_23 = x_7;
+ x_23 = x_16;
 }
-lean_ctor_set(x_23, 0, x_17);
+lean_ctor_set(x_23, 0, x_18);
 lean_ctor_set(x_23, 1, x_22);
 return x_23;
 }
@@ -1166,7 +1164,7 @@ if (x_28 == 0)
 {
 lean_dec(x_6);
 x_19 = x_25;
-x_20 = x_16;
+x_20 = x_17;
 goto block_24;
 }
 else
@@ -1183,7 +1181,7 @@ else
 {
 lean_dec(x_6);
 x_19 = x_25;
-x_20 = x_16;
+x_20 = x_17;
 goto block_24;
 }
 }

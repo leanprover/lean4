@@ -32,7 +32,7 @@ structure Config where
   -/
   elimLets : Bool := true
   /--
-  If `false` (the default), then we aggresively split `if` and `match` statements and inline join
+  If `false` (the default), then we aggressively split `if` and `match` statements and inline join
   points unconditionally. For some programs this causes exponential blowup of VCs.
   Set this flag to choose a more conservative (but slightly lossy) encoding that traverses
   every join point only once and yields a formula the size of which is linear in the number of

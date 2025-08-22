@@ -73,7 +73,7 @@ macro_rules
   | `(spred(∃ $xs:explicitBinders, $P)) => do expandExplicitBinders ``SPred.exists xs (← `(spred($P)))
   | `(⊢ₛ $P) => ``(SPred.entails ⌜True⌝ spred($P))
   | `($P ⊣⊢ₛ $Q) => ``(SPred.bientails spred($P) spred($Q))
-  -- Sadly, ∀ does not resently use expandExplicitBinders...
+  -- Sadly, ∀ does not presently use expandExplicitBinders...
   | `(spred(∀ _%$tk, $P)) => ``(SPred.forall (fun _%$tk => spred($P)))
   | `(spred(∀ _%$tk : $ty, $P)) => ``(SPred.forall (fun _%$tk : $ty => spred($P)))
   | `(spred(∀ (_%$tk $xs* : $ty), $P)) => ``(SPred.forall (fun _%$tk : $ty => spred(∀ ($xs* : $ty), $P)))

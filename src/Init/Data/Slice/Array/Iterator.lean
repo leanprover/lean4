@@ -17,6 +17,7 @@ public import all Init.Data.Range.Polymorphic.Basic
 public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.Range.Polymorphic.Iterators
 public import Init.Data.Slice.Operations
+import Init.Omega
 
 public section
 

@@ -568,52 +568,23 @@ return x_2;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_3 = l_List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_178__spec__0___redArg___closed__5;
-lean_inc_ref(x_1);
 x_4 = l_Std_Format_joinSep___at___List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_178__spec__0_spec__0(x_1, x_3);
-x_5 = !lean_is_exclusive(x_1);
-if (x_5 == 0)
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_6 = lean_ctor_get(x_1, 1);
-lean_dec(x_6);
-x_7 = lean_ctor_get(x_1, 0);
-lean_dec(x_7);
-x_8 = l_List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_178__spec__0___redArg___closed__7;
-x_9 = l_List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_178__spec__0___redArg___closed__8;
-lean_ctor_set_tag(x_1, 5);
-lean_ctor_set(x_1, 1, x_4);
-lean_ctor_set(x_1, 0, x_9);
-x_10 = l_List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_178__spec__0___redArg___closed__9;
-x_11 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_11, 0, x_1);
-lean_ctor_set(x_11, 1, x_10);
-x_12 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_12, 0, x_8);
-lean_ctor_set(x_12, 1, x_11);
-x_13 = l_Std_Format_fill(x_12);
-return x_13;
-}
-else
-{
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-lean_dec(x_1);
-x_14 = l_List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_178__spec__0___redArg___closed__7;
-x_15 = l_List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_178__spec__0___redArg___closed__8;
-x_16 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_4);
-x_17 = l_List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_178__spec__0___redArg___closed__9;
-x_18 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_18, 0, x_16);
-lean_ctor_set(x_18, 1, x_17);
-x_19 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_19, 0, x_14);
-lean_ctor_set(x_19, 1, x_18);
-x_20 = l_Std_Format_fill(x_19);
-return x_20;
-}
+x_5 = l_List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_178__spec__0___redArg___closed__7;
+x_6 = l_List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_178__spec__0___redArg___closed__8;
+x_7 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_4);
+x_8 = l_List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_178__spec__0___redArg___closed__9;
+x_9 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_9, 0, x_7);
+lean_ctor_set(x_9, 1, x_8);
+x_10 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_10, 0, x_5);
+lean_ctor_set(x_10, 1, x_9);
+x_11 = l_Std_Format_fill(x_10);
+return x_11;
 }
 }
 }
@@ -1553,48 +1524,23 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_mul(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_inc_ref(x_1);
 x_5 = l_Lean_Omega_LinearCombo_smul(x_1, x_3);
-x_6 = !lean_is_exclusive(x_1);
-if (x_6 == 0)
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_7 = lean_ctor_get(x_1, 1);
-lean_dec(x_7);
-x_8 = lean_ctor_get(x_1, 0);
-lean_dec(x_8);
-x_9 = l_Lean_Omega_LinearCombo_smul(x_2, x_4);
-x_10 = l_Lean_Omega_LinearCombo_add(x_5, x_9);
-x_11 = lean_int_mul(x_4, x_3);
+x_6 = l_Lean_Omega_LinearCombo_smul(x_2, x_4);
+x_7 = l_Lean_Omega_LinearCombo_add(x_5, x_6);
+x_8 = lean_int_mul(x_4, x_3);
 lean_dec(x_3);
 lean_dec(x_4);
-x_12 = lean_box(0);
-lean_ctor_set(x_1, 1, x_12);
-lean_ctor_set(x_1, 0, x_11);
-x_13 = l_Lean_Omega_LinearCombo_sub(x_10, x_1);
-return x_13;
-}
-else
-{
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-lean_dec(x_1);
-x_14 = l_Lean_Omega_LinearCombo_smul(x_2, x_4);
-x_15 = l_Lean_Omega_LinearCombo_add(x_5, x_14);
-x_16 = lean_int_mul(x_4, x_3);
-lean_dec(x_3);
-lean_dec(x_4);
-x_17 = lean_box(0);
-x_18 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_18, 0, x_16);
-lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_Omega_LinearCombo_sub(x_15, x_18);
-return x_19;
-}
+x_9 = lean_box(0);
+x_10 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_10, 0, x_8);
+lean_ctor_set(x_10, 1, x_9);
+x_11 = l_Lean_Omega_LinearCombo_sub(x_7, x_10);
+return x_11;
 }
 }
 lean_object* initialize_Init_Omega_Coeffs(uint8_t builtin, lean_object*);

@@ -40,7 +40,7 @@ Preprocesses the expressions to improve the effectiveness of `elimRecursion`.
     | i+1 => (f x) i
   ```
 
-* Unfold auxillary definitions abstracting over the function call
+* Unfold auxiliary definitions abstracting over the function call
   (typically abstracted) proofs.
 
 -/

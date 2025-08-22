@@ -89,6 +89,11 @@ theorem shiftRight_le_of_nonpos {n : Int} {s : Nat} (h : n ≤ 0) : (n >>> s) �
     norm_cast at *
 
 @[simp, grind =]
+theorem zero_shiftLeft (n : Nat) : (0 : Int) <<< n = 0 := by
+  change ((0 <<< n : Nat) : Int) = 0
+  simp
+
+@[simp, grind =]
 theorem shiftLeft_zero (n : Int) : n <<< 0 = n := by
   change Int.shiftLeft _ _ = _
   match n with
@@ -115,5 +120,36 @@ theorem shiftLeft_eq (a : Int) (b : Nat) : a <<< b = a * 2 ^ b := by
 
 theorem shiftLeft_eq' (a : Int) (b : Nat) : a <<< b = a * (2 ^ b : Nat) := by
   simp [shiftLeft_eq]
+
+theorem shiftLeft_add (a : Int) (b c : Nat) : a <<< (b + c) = a <<< b <<< c := by
+  simp [shiftLeft_eq, Int.pow_add, Int.mul_assoc]
+
+@[simp]
+theorem shiftLeft_shiftRight_cancel (a : Int) (b : Nat) : a <<< b >>> b = a := by
+  simp [shiftLeft_eq, shiftRight_eq_div_pow, mul_ediv_cancel _ (NeZero.ne _)]
+
+theorem shiftLeft_shiftRight_eq_shiftLeft_of_le {b c : Nat} (h : c ≤ b) (a : Int) :
+    a <<< b >>> c = a <<< (b - c) := by
+  obtain ⟨b, rfl⟩ := h.dest
+  simp [shiftLeft_eq, Int.pow_add, shiftRight_eq_div_pow, Int.mul_left_comm a,
+    Int.mul_ediv_cancel_left _ (NeZero.ne _)]
+
+theorem shiftLeft_shiftRight_eq_shiftRight_of_le {b c : Nat} (h : b ≤ c) (a : Int) :
+    a <<< b >>> c = a >>> (c - b) := by
+  obtain ⟨c, rfl⟩ := h.dest
+  simp [shiftRight_add]
+
+theorem add_shiftLeft (a b : Int) (n : Nat) : (a + b) <<< n = a <<< n + b <<< n := by
+  simp [shiftLeft_eq, Int.add_mul]
+
+theorem shiftLeft_mul (a b : Int) (n : Nat) : a <<< n * b = (a * b) <<< n := by
+  simp [shiftLeft_eq, Int.mul_right_comm]
+
+theorem mul_shiftLeft (a b : Int) (n : Nat) : a * b <<< n = (a * b) <<< n := by
+  simp [shiftLeft_eq, Int.mul_assoc]
+
+theorem shiftLeft_mul_shiftLeft (a b : Int) (m n : Nat) :
+    a <<< m * b <<< n = (a * b) <<< (m + n) := by
+  simp [shiftLeft_mul, mul_shiftLeft, shiftLeft_add]
 
 end Int

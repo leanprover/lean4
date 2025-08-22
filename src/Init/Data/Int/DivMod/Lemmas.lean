@@ -26,6 +26,10 @@ namespace Int
 
 @[simp high] theorem natCast_eq_zero {n : Nat} : (n : Int) = 0 ↔ n = 0 := by omega
 
+instance {n : Nat} [NeZero n] : NeZero (n : Int) := ⟨mt Int.natCast_eq_zero.mp (NeZero.ne _)⟩
+instance {n : Nat} [NeZero n] : NeZero (no_index (OfNat.ofNat n) : Int) :=
+  ⟨mt Int.natCast_eq_zero.mp (NeZero.ne _)⟩
+
 protected theorem exists_add_of_le {a b : Int} (h : a ≤ b) : ∃ (c : Nat), b = a + c :=
   ⟨(b - a).toNat, by omega⟩
 

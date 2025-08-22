@@ -1,6 +1,7 @@
 module
 
-public import all Module.Basic
+public import Module.Basic
+import all Module.Basic
 import Lean.CoreM
 
 /-! `import all` should import private information, privately. -/

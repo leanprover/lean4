@@ -12,9 +12,11 @@ public import Init.Data.Int.Lemmas
 public import Init.Data.Int.LemmasAux
 public import Init.Data.Int.DivMod.Bootstrap
 public import Init.Data.Int.Cooper
-public import all Init.Data.Int.Gcd
+public import Init.Data.Int.Gcd
+import all Init.Data.Int.Gcd
 public import Init.Data.RArray
-public import all Init.Data.AC
+public import Init.Data.AC
+import all Init.Data.AC
 
 public section
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Find
-// Imports: Init.Data.Array.Basic Init.Data.Vector.Basic Init.Data.Vector.Lemmas Init.Data.Vector.Attach Init.Data.Vector.Range Init.Data.Array.Find
+// Imports: Init.Data.Array.Basic Init.Data.Array.Basic Init.Data.Vector.Basic Init.Data.Vector.Basic Init.Data.Vector.Lemmas Init.Data.Vector.Attach Init.Data.Vector.Range Init.Data.Array.Find
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,8 @@
 extern "C" {
 #endif
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Attach(uint8_t builtin, lean_object*);
@@ -25,6 +27,12 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());

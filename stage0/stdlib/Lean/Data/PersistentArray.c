@@ -266,6 +266,7 @@ static lean_object* l_Lean_PersistentArray_mkNewTail___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_mkPersistentArray___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_mkNewPath___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_isEmpty___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PersistentArray_any___redArg___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_mapM___redArg___lam__1(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_get_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -305,7 +306,7 @@ LEAN_EXPORT size_t l_Lean_PersistentArray_mod2Shift(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_PersistentArray_collectStats_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_instInhabitedPersistentArrayNode___closed__1;
 LEAN_EXPORT lean_object* l_Array_toPArray_x27(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PersistentArray_any___redArg(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_PersistentArray_any___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_insertNewLeaf___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lean_mkPersistentArray_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_PersistentArray_append_spec__0_spec__0_spec__0_spec__1___redArg(lean_object*, size_t, size_t, lean_object*);
@@ -6539,15 +6540,16 @@ x_4 = lean_unbox(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_PersistentArray_any___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_PersistentArray_any___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_alloc_closure((void*)(l_Lean_PersistentArray_any___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_3, 0, x_2);
 x_4 = l_Lean_PersistentArray_foldl___redArg___closed__9;
 x_5 = l_Lean_PersistentArray_anyM___redArg(x_4, x_1, x_3);
-return x_5;
+x_6 = lean_unbox(x_5);
+return x_6;
 }
 }
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_any(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -6559,7 +6561,6 @@ lean_closure_set(x_4, 0, x_3);
 x_5 = l_Lean_PersistentArray_foldl___redArg___closed__9;
 x_6 = l_Lean_PersistentArray_anyM___redArg(x_5, x_2, x_4);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 return x_7;
 }
 }
@@ -6568,6 +6569,15 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_PersistentArray_any___redArg___lam__0(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PersistentArray_any___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_PersistentArray_any___redArg(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -6610,7 +6620,6 @@ lean_closure_set(x_3, 0, x_2);
 x_4 = l_Lean_PersistentArray_foldl___redArg___closed__9;
 x_5 = l_Lean_PersistentArray_anyM___redArg(x_4, x_1, x_3);
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 uint8_t x_7; 
@@ -6634,7 +6643,6 @@ lean_closure_set(x_4, 0, x_3);
 x_5 = l_Lean_PersistentArray_foldl___redArg___closed__9;
 x_6 = l_Lean_PersistentArray_anyM___redArg(x_5, x_2, x_4);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 uint8_t x_8; 

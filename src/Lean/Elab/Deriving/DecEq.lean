@@ -102,7 +102,8 @@ def mkAuxFunction (ctx : Context) (auxFunName : Name) (indVal : InductiveVal): T
     then `(Parser.Termination.suffix|termination_by structural $target₁)
     else `(Parser.Termination.suffix|)
   let type    ← `(Decidable ($target₁ = $target₂))
-  `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
+  let vis := ctx.mkVisibilityFromTypes
+  `(@[expose] $vis:visibility def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
     $termSuffix:suffix)
 
 def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do
@@ -177,19 +178,20 @@ def mkEnumOfNatThm (declName : Name) : MetaM Unit := do
     }
 
 def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
-  liftTermElabM <| mkEnumOfNat declName
-  liftTermElabM <| mkEnumOfNatThm declName
-  let ofNatIdent  := mkIdent (Name.mkStr declName "ofNat")
-  let auxThmIdent := mkIdent (Name.mkStr declName "ofNat_toCtorIdx")
-  let cmd ← `(
-    instance : DecidableEq $(mkCIdent declName) :=
-      fun x y =>
-        if h : x.toCtorIdx = y.toCtorIdx then
-          -- We use `rfl` in the following proof because the first script fails for unit-like datatypes due to etaStruct.
-          isTrue (by first | have aux := congrArg $ofNatIdent h; rw [$auxThmIdent:ident, $auxThmIdent:ident] at aux; assumption | rfl)
-        else
-          isFalse fun h => by subst h; contradiction
-  )
+  let cmd ← liftTermElabM do
+    let ctx ← mkContext "decEq" declName
+    mkEnumOfNat declName
+    mkEnumOfNatThm declName
+    let ofNatIdent  := mkIdent (Name.mkStr declName "ofNat")
+    let auxThmIdent := mkIdent (Name.mkStr declName "ofNat_toCtorIdx")
+    let vis := ctx.mkVisibilityFromTypes
+    `($vis:visibility instance : DecidableEq $(mkCIdent declName) :=
+        fun x y =>
+          if h : x.toCtorIdx = y.toCtorIdx then
+            -- We use `rfl` in the following proof because the first script fails for unit-like datatypes due to etaStruct.
+            isTrue (by first | have aux := congrArg $ofNatIdent h; rw [$auxThmIdent:ident, $auxThmIdent:ident] at aux; assumption | rfl)
+          else
+            isFalse fun h => by subst h; contradiction)
   trace[Elab.Deriving.decEq] "\n{cmd}"
   elabCommand cmd
 

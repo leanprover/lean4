@@ -1391,6 +1391,7 @@ x_6 = l_Lean_Syntax_isOfKind(x_1, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; 
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_7 = l_Lean_Elab_throwUnsupportedSyntax___at___elabTestExtern_spec__0___redArg(x_4);
 return x_7;
@@ -1509,7 +1510,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_elabTestExtern(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec_ref(x_2);
 return x_5;
 }
 }

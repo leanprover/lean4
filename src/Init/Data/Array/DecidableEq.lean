@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import all Init.Data.Array.Basic
+public import Init.Data.Array.Basic
+import all Init.Data.Array.Basic
 public import Init.Data.BEq
 public import Init.Data.List.Nat.BEq
 public import Init.ByCases

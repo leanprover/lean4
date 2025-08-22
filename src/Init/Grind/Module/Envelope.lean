@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.Grind.Ordered.Module
-public import all Init.Data.AC
+public import Init.Data.AC
+import all Init.Data.AC
 
 public section
 
@@ -220,6 +221,12 @@ attribute [instance] ofNatModule
 
 theorem toQ_add (a b : α) : toQ (a + b) = toQ a + toQ b := by
   simp; apply Quot.sound; simp
+
+theorem toQ_zero : toQ (0 : α) = 0 := by
+  simp; apply Quot.sound; simp
+
+theorem toQ_smul (n : Nat) (a : α) : toQ (n • a) = (↑n : Int) • toQ a := by
+  simp; apply Quot.sound; simp; exists 0
 
 /-!
 Helper definitions and theorems for proving `toQ` is injective when

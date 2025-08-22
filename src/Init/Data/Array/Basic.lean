@@ -13,8 +13,10 @@ public import Init.Data.UInt.BasicAux
 public import Init.Data.Repr
 public import Init.Data.ToString.Basic
 public import Init.GetElem
-public import all Init.Data.List.ToArrayImpl
-public import all Init.Data.Array.Set
+public import Init.Data.List.ToArrayImpl
+import all Init.Data.List.ToArrayImpl
+public import Init.Data.Array.Set
+import all Init.Data.Array.Set
 
 public section
 

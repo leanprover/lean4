@@ -451,7 +451,6 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = l_Array_binSearchContains___redArg___closed__0;
 x_9 = l_Array_binSearchAux___redArg(x_3, x_8, x_1, x_2, x_4, x_6);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 return x_10;
 }
 }
@@ -511,7 +510,6 @@ lean_object* x_9; lean_object* x_10; uint8_t x_11;
 x_9 = l_Array_binSearchContains___redArg___closed__0;
 x_10 = l_Array_binSearchAux___redArg(x_4, x_9, x_2, x_3, x_5, x_7);
 x_11 = lean_unbox(x_10);
-lean_dec(x_10);
 return x_11;
 }
 }

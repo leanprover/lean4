@@ -9,7 +9,8 @@ prelude
 
 public import Init.ByCases
 public import Init.RCases
-public import all Init.Control.Except  -- for `MonoBind` instance
+public import Init.Control.Except  -- for `MonoBind` instance
+import all Init.Control.Except  -- for `MonoBind` instance
 
 public section
 

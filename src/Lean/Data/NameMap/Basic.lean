@@ -109,13 +109,13 @@ end NameHashSet
 def MacroScopesView.isPrefixOf (v₁ v₂ : MacroScopesView) : Bool :=
   v₁.name.isPrefixOf v₂.name &&
   v₁.scopes == v₂.scopes &&
-  v₁.mainModule == v₂.mainModule &&
+  v₁.ctx == v₂.ctx &&
   v₁.imported == v₂.imported
 
 def MacroScopesView.isSuffixOf (v₁ v₂ : MacroScopesView) : Bool :=
   v₁.name.isSuffixOf v₂.name &&
   v₁.scopes == v₂.scopes &&
-  v₁.mainModule == v₂.mainModule &&
+  v₁.ctx == v₂.ctx &&
   v₁.imported == v₂.imported
 
 end Lean

@@ -45,7 +45,7 @@ Optimizations, present and future:
   however checking for `let`s is O(n), so we only try this for expressions with a small `approxDepth`.
   (We can consider precomputing this somehow.)
   - The cache is currently responsible for the check.
-  - We also do it before entering telescopes, to avoid unnecesasry fvar overhead.
+  - We also do it before entering telescopes, to avoid unnecessary fvar overhead.
 - If we are not currently inside a `let`, then we do not need to do full typechecking.
 - We try to reuse Exprs to promote subexpression sharing.
 - We might consider not transforming lets to haves if we are in a proof that is not inside a `let`.

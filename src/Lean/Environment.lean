@@ -2182,7 +2182,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     serverBaseExts := (← setImportedEntries privateBase.extensions serverData)
   }
   if leakEnv then
-    /- Mark persistent a first time before `finalizePersistenExtensions`, which
+    /- Mark persistent a first time before `finalizePersistentExtensions`, which
        avoids costly MT markings when e.g. an interpreter closure (which
        contains the environment) is put in an `IO.Ref`. This can happen in e.g.
        initializers of user environment extensions and is wasteful because the

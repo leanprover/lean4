@@ -93,7 +93,7 @@ You can use `TSyntax.getId` to extract the name from the resulting syntax object
   withAntiquot (mkAntiquot "ident" identKind) rawIdentNoAntiquot
 
 /--
-The parser `hygieneInfo` parses no text, but creates a `hygineInfoKind` node
+The parser `hygieneInfo` parses no text, but creates a `hygieneInfoKind` node
 containing an anonymous identifier as if it were parsed at the current position.
 This identifier is modified by syntax quotations to add macro scopes like a regular identifier.
 

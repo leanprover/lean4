@@ -75,7 +75,7 @@ The github repository will automatically update stage0 on `master` once
 
 NOTE: A full rebuild of stage 1 will only be triggered when the *committed* contents of `stage0/` are changed.
 Thus if you change files in it manually instead of through `update-stage0-commit` (see below) or fetching updates from git, you either need to commit those changes first or run `make -C build/release clean-stdlib`.
-The same is true for further stages except that a rebuild of them is retriggered on any commited change, not just to a specific directory.
+The same is true for further stages except that a rebuild of them is retriggered on any committed change, not just to a specific directory.
 Thus when debugging e.g. stage 2 failures, you can resume the build from these failures on but may want to explicitly call `clean-stdlib` to either observe changes from `.olean` files of modules that built successfully or to check that you did not break modules that built successfully at some prior point.
 
 If you have write access to the lean4 repository, you can also manually

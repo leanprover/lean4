@@ -69,7 +69,7 @@ instance : ToToml (Array LeanOption) where
 mutual
 
 partial def Pattern.toToml? [ToToml? β] (p : Pattern α β) : Option Value :=
-  have : ToToml? (PatternDescr α β) := ⟨PattternDescr.toToml?⟩
+  have : ToToml? (PatternDescr α β) := ⟨PatternDescr.toToml?⟩
   match p.name with
   | .anonymous =>
     p.descr?.bind toToml?
@@ -80,7 +80,7 @@ partial def Pattern.toToml? [ToToml? β] (p : Pattern α β) : Option Value :=
   | n =>
     toToml <| Table.empty.insert `preset n
 
-partial def PattternDescr.toToml?
+partial def PatternDescr.toToml?
   [ToToml? β] (p : PatternDescr α β) : Option Value
 :=
   have : ToToml? (Pattern α β) := ⟨Pattern.toToml?⟩
@@ -93,7 +93,7 @@ partial def PattternDescr.toToml?
 end
 
 instance [ToToml? β] : ToToml? (Pattern α β) := ⟨Pattern.toToml?⟩
-instance [ToToml? β] : ToToml? (PatternDescr α β) := ⟨PattternDescr.toToml?⟩
+instance [ToToml? β] : ToToml? (PatternDescr α β) := ⟨PatternDescr.toToml?⟩
 
 protected def StrPatDescr.toToml (p : StrPatDescr) : Value :=
   match p with

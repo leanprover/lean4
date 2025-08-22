@@ -782,7 +782,7 @@ public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
     | exact fun a b => Std.min_eq_if_isLE_compare (a := a) (b := b)
     | fail "Failed to automatically prove that `min` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMin` instance can be synthesized or \
-            manuelly provide the field `min_eq`."
+            manually provide the field `min_eq`."
   max_eq :
       let := ord; let := le; let := max; have := lawful_le
       ∀ a b : α, Max.max a b = if (compare a b).isGE then a else b := by

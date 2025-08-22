@@ -6,13 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
-public import Lean.Meta.Inductive
-public import Lean.Elab.Deriving.Basic
-public import Lean.Elab.Deriving.Util
+import Lean.Meta.Transform
+import Lean.Meta.Inductive
+import Lean.Elab.Deriving.Basic
+import Lean.Elab.Deriving.Util
 import Lean.Meta.NatTable
-
-public section
+import Lean.Meta.Constructions.ToCtorIdx
 
 namespace Lean.Elab.Deriving.DecEq
 open Lean.Parser.Term
@@ -154,7 +153,7 @@ partial def mkEnumOfNat (declName : Name) : MetaM Unit := do
 def mkEnumOfNatThm (declName : Name) : MetaM Unit := do
   let indVal ← getConstInfoInduct declName
   let levels := indVal.levelParams.map Level.param
-  let toCtorIdx := mkConst (Name.mkStr declName "toCtorIdx") levels
+  let toCtorIdx := mkConst (mkToCtorIdxName declName) levels
   let ofNat     := mkConst (Name.mkStr declName "ofNat") levels
   let enumType  := mkConst declName levels
   let u ← getLevel enumType

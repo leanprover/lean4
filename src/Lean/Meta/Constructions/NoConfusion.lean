@@ -72,7 +72,7 @@ where
         if info.numCtors = 1 then
           mkLambdaFVars #[P, x, y] (← mkArrow P P)
         else
-          let toCtorIdx := mkConst (Name.mkStr enumName "toCtorIdx") us
+          let toCtorIdx := mkConst (mkToCtorIdxName enumName) us
           mkLambdaFVars #[P, x, y] (← mkAppM ``noConfusionTypeEnum #[toCtorIdx, P, x, y])
       let declName  := Name.mkStr enumName "noConfusionType"
       addAndCompile <| Declaration.defnDecl {
@@ -91,7 +91,7 @@ where
     let v ← mkFreshUserName `v
     let enumType := mkConst enumName us
     let sortV := mkSort (mkLevelParam v)
-    let toCtorIdx := mkConst (Name.mkStr enumName "toCtorIdx") us
+    let toCtorIdx := mkConst (mkToCtorIdxName enumName) us
     let noConfusionType := mkConst (Name.mkStr enumName "noConfusionType") (mkLevelParam v :: us)
     withLocalDecl `P BinderInfo.implicit sortV fun P =>
     withLocalDecl `x BinderInfo.implicit enumType fun x =>

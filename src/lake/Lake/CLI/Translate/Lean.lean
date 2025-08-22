@@ -178,15 +178,15 @@ protected def Pattern.toLean? [ToLean? (PatternDescr α β)] (p : Pattern α β)
 
 instance [ToLean? (PatternDescr α β)] : ToLean? (Pattern α β) := ⟨Pattern.toLean?⟩
 
-protected partial def PattternDescr.toLean? [ToLean? β] (p : PatternDescr α β) : Option Term :=
-  have : ToLean? (PatternDescr α β) := ⟨PattternDescr.toLean?⟩
+protected partial def PatternDescr.toLean? [ToLean? β] (p : PatternDescr α β) : Option Term :=
+  have : ToLean? (PatternDescr α β) := ⟨PatternDescr.toLean?⟩
   match p with
   | .not p => quoteSingleton? `not p
   | .any p => quoteSingleton? `any p
   | .all p => quoteSingleton? `all p
   | .coe p => toLean? p
 
-instance [ToLean? β] : ToLean? (PatternDescr α β) := ⟨PattternDescr.toLean?⟩
+instance [ToLean? β] : ToLean? (PatternDescr α β) := ⟨PatternDescr.toLean?⟩
 
 protected def StrPatDescr.toLean (pat : StrPatDescr) : Term :=
   match pat with

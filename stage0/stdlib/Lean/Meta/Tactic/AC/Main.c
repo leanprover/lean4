@@ -5316,47 +5316,22 @@ return x_2;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-lean_inc_ref(x_2);
 x_4 = l_Lean_Data_AC_removeNeutrals_loop___at___Lean_Data_AC_removeNeutrals___at___Lean_Data_AC_norm___at___Lean_Meta_AC_buildNormProof_spec__2_spec__2_spec__2(x_1, x_2);
-x_5 = !lean_is_exclusive(x_2);
-if (x_5 == 0)
-{
-lean_object* x_6; lean_object* x_7; 
-x_6 = lean_ctor_get(x_2, 1);
-lean_dec(x_6);
-x_7 = lean_ctor_get(x_2, 0);
-lean_dec(x_7);
 if (lean_obj_tag(x_4) == 0)
 {
-lean_ctor_set(x_2, 1, x_4);
-return x_2;
-}
-else
-{
-lean_free_object(x_2);
-lean_dec(x_3);
-return x_4;
-}
-}
-else
-{
-lean_dec(x_2);
-if (lean_obj_tag(x_4) == 0)
-{
-lean_object* x_8; 
-x_8 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_8, 0, x_3);
-lean_ctor_set(x_8, 1, x_4);
-return x_8;
+lean_object* x_5; 
+x_5 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_4);
+return x_5;
 }
 else
 {
 lean_dec(x_3);
 return x_4;
-}
 }
 }
 }
@@ -5410,7 +5385,6 @@ else
 {
 lean_object* x_3; 
 x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; 
@@ -5423,34 +5397,35 @@ return x_5;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec_ref(x_1);
-x_7 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_7, 0, x_6);
+uint8_t x_6; 
 lean_inc_ref(x_3);
-x_8 = l_Lean_Data_AC_evalList___at___Lean_Meta_AC_buildNormProof_spec__5___redArg(x_3);
-x_9 = !lean_is_exclusive(x_3);
-if (x_9 == 0)
+x_6 = !lean_is_exclusive(x_1);
+if (x_6 == 0)
 {
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_ctor_get(x_3, 1);
-lean_dec(x_10);
-x_11 = lean_ctor_get(x_3, 0);
-lean_dec(x_11);
-lean_ctor_set(x_3, 1, x_8);
-lean_ctor_set(x_3, 0, x_7);
-return x_3;
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = lean_ctor_get(x_1, 0);
+x_8 = lean_ctor_get(x_1, 1);
+lean_dec(x_8);
+x_9 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_9, 0, x_7);
+x_10 = l_Lean_Data_AC_evalList___at___Lean_Meta_AC_buildNormProof_spec__5___redArg(x_3);
+lean_ctor_set(x_1, 1, x_10);
+lean_ctor_set(x_1, 0, x_9);
+return x_1;
 }
 else
 {
-lean_object* x_12; 
-lean_dec(x_3);
-x_12 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_12, 0, x_7);
-lean_ctor_set(x_12, 1, x_8);
-return x_12;
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_11 = lean_ctor_get(x_1, 0);
+lean_inc(x_11);
+lean_dec(x_1);
+x_12 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_12, 0, x_11);
+x_13 = l_Lean_Data_AC_evalList___at___Lean_Meta_AC_buildNormProof_spec__5___redArg(x_3);
+x_14 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_14, 0, x_12);
+lean_ctor_set(x_14, 1, x_13);
+return x_14;
 }
 }
 }
@@ -9794,15 +9769,15 @@ x_33 = l_Lean_Syntax_getArg(x_29, x_14);
 lean_dec(x_29);
 x_34 = l_Lean_Elab_Tactic_expandLocation(x_33);
 lean_dec(x_33);
-x_15 = x_4;
-x_16 = x_5;
-x_17 = x_3;
+x_15 = x_6;
+x_16 = x_4;
+x_17 = x_9;
 x_18 = x_10;
-x_19 = x_7;
-x_20 = x_6;
-x_21 = x_9;
-x_22 = x_8;
-x_23 = x_2;
+x_19 = x_5;
+x_20 = x_2;
+x_21 = x_7;
+x_22 = x_3;
+x_23 = x_8;
 x_24 = x_34;
 goto block_27;
 }
@@ -9815,15 +9790,15 @@ x_35 = l_Lean_Meta_AC_evalNf0___closed__2;
 x_36 = lean_alloc_ctor(1, 1, 1);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set_uint8(x_36, sizeof(void*)*1, x_12);
-x_15 = x_4;
-x_16 = x_5;
-x_17 = x_3;
+x_15 = x_6;
+x_16 = x_4;
+x_17 = x_9;
 x_18 = x_10;
-x_19 = x_7;
-x_20 = x_6;
-x_21 = x_9;
-x_22 = x_8;
-x_23 = x_2;
+x_19 = x_5;
+x_20 = x_2;
+x_21 = x_7;
+x_22 = x_3;
+x_23 = x_8;
 x_24 = x_36;
 goto block_27;
 }
@@ -9833,7 +9808,7 @@ lean_object* x_25; lean_object* x_26;
 x_25 = lean_alloc_closure((void*)(l_Lean_Meta_AC_evalNf0___lam__0___boxed), 11, 2);
 lean_closure_set(x_25, 0, x_24);
 lean_closure_set(x_25, 1, x_14);
-x_26 = l_Lean_Elab_Tactic_withMainContext___redArg(x_25, x_23, x_17, x_15, x_16, x_20, x_19, x_22, x_21, x_18);
+x_26 = l_Lean_Elab_Tactic_withMainContext___redArg(x_25, x_20, x_22, x_16, x_19, x_15, x_21, x_23, x_17, x_18);
 return x_26;
 }
 }

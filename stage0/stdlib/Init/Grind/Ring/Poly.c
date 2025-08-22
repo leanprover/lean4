@@ -3104,34 +3104,33 @@ return x_40;
 }
 else
 {
-lean_object* x_41; uint8_t x_42; 
+uint8_t x_41; 
 lean_dec_ref(x_9);
 lean_inc(x_8);
 lean_inc_ref(x_7);
-lean_dec_ref(x_2);
-lean_inc_ref(x_3);
-x_41 = l_Lean_Grind_CommRing_Mon_mul_go(x_12, x_8, x_3);
-lean_dec(x_12);
-x_42 = !lean_is_exclusive(x_3);
-if (x_42 == 0)
+x_41 = !lean_is_exclusive(x_2);
+if (x_41 == 0)
 {
-lean_object* x_43; lean_object* x_44; 
-x_43 = lean_ctor_get(x_3, 1);
+lean_object* x_42; lean_object* x_43; lean_object* x_44; 
+x_42 = lean_ctor_get(x_2, 1);
+lean_dec(x_42);
+x_43 = lean_ctor_get(x_2, 0);
 lean_dec(x_43);
-x_44 = lean_ctor_get(x_3, 0);
-lean_dec(x_44);
-lean_ctor_set(x_3, 1, x_41);
-lean_ctor_set(x_3, 0, x_7);
-return x_3;
+x_44 = l_Lean_Grind_CommRing_Mon_mul_go(x_12, x_8, x_3);
+lean_dec(x_12);
+lean_ctor_set(x_2, 1, x_44);
+return x_2;
 }
 else
 {
-lean_object* x_45; 
-lean_dec(x_3);
-x_45 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_45, 0, x_7);
-lean_ctor_set(x_45, 1, x_41);
-return x_45;
+lean_object* x_45; lean_object* x_46; 
+lean_dec(x_2);
+x_45 = l_Lean_Grind_CommRing_Mon_mul_go(x_12, x_8, x_3);
+lean_dec(x_12);
+x_46 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_46, 0, x_7);
+lean_ctor_set(x_46, 1, x_45);
+return x_46;
 }
 }
 }
@@ -5392,37 +5391,34 @@ goto _start;
 }
 default: 
 {
-lean_object* x_49; uint8_t x_50; 
+uint8_t x_49; 
 lean_inc_ref(x_20);
 lean_inc(x_19);
 lean_inc(x_18);
-lean_dec_ref(x_2);
-lean_inc_ref(x_3);
-x_49 = l_Lean_Grind_CommRing_Poly_combine_go(x_25, x_20, x_3);
-x_50 = !lean_is_exclusive(x_3);
-if (x_50 == 0)
+x_49 = !lean_is_exclusive(x_2);
+if (x_49 == 0)
 {
-lean_object* x_51; lean_object* x_52; lean_object* x_53; 
-x_51 = lean_ctor_get(x_3, 2);
+lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
+x_50 = lean_ctor_get(x_2, 2);
+lean_dec(x_50);
+x_51 = lean_ctor_get(x_2, 1);
 lean_dec(x_51);
-x_52 = lean_ctor_get(x_3, 1);
+x_52 = lean_ctor_get(x_2, 0);
 lean_dec(x_52);
-x_53 = lean_ctor_get(x_3, 0);
-lean_dec(x_53);
-lean_ctor_set(x_3, 2, x_49);
-lean_ctor_set(x_3, 1, x_19);
-lean_ctor_set(x_3, 0, x_18);
-return x_3;
+x_53 = l_Lean_Grind_CommRing_Poly_combine_go(x_25, x_20, x_3);
+lean_ctor_set(x_2, 2, x_53);
+return x_2;
 }
 else
 {
-lean_object* x_54; 
-lean_dec(x_3);
-x_54 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_54, 0, x_18);
-lean_ctor_set(x_54, 1, x_19);
-lean_ctor_set(x_54, 2, x_49);
-return x_54;
+lean_object* x_54; lean_object* x_55; 
+lean_dec(x_2);
+x_54 = l_Lean_Grind_CommRing_Poly_combine_go(x_25, x_20, x_3);
+x_55 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_55, 0, x_18);
+lean_ctor_set(x_55, 1, x_19);
+lean_ctor_set(x_55, 2, x_54);
+return x_55;
 }
 }
 }
@@ -7210,37 +7206,34 @@ goto _start;
 }
 default: 
 {
-lean_object* x_58; uint8_t x_59; 
+uint8_t x_58; 
 lean_inc_ref(x_25);
 lean_inc(x_24);
 lean_inc(x_23);
-lean_dec_ref(x_3);
-lean_inc_ref(x_4);
-x_58 = l_Lean_Grind_CommRing_Poly_combineC_go(x_1, x_30, x_25, x_4);
-x_59 = !lean_is_exclusive(x_4);
-if (x_59 == 0)
+x_58 = !lean_is_exclusive(x_3);
+if (x_58 == 0)
 {
-lean_object* x_60; lean_object* x_61; lean_object* x_62; 
-x_60 = lean_ctor_get(x_4, 2);
+lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
+x_59 = lean_ctor_get(x_3, 2);
+lean_dec(x_59);
+x_60 = lean_ctor_get(x_3, 1);
 lean_dec(x_60);
-x_61 = lean_ctor_get(x_4, 1);
+x_61 = lean_ctor_get(x_3, 0);
 lean_dec(x_61);
-x_62 = lean_ctor_get(x_4, 0);
-lean_dec(x_62);
-lean_ctor_set(x_4, 2, x_58);
-lean_ctor_set(x_4, 1, x_24);
-lean_ctor_set(x_4, 0, x_23);
-return x_4;
+x_62 = l_Lean_Grind_CommRing_Poly_combineC_go(x_1, x_30, x_25, x_4);
+lean_ctor_set(x_3, 2, x_62);
+return x_3;
 }
 else
 {
-lean_object* x_63; 
-lean_dec(x_4);
-x_63 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_63, 0, x_23);
-lean_ctor_set(x_63, 1, x_24);
-lean_ctor_set(x_63, 2, x_58);
-return x_63;
+lean_object* x_63; lean_object* x_64; 
+lean_dec(x_3);
+x_63 = l_Lean_Grind_CommRing_Poly_combineC_go(x_1, x_30, x_25, x_4);
+x_64 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_64, 0, x_23);
+lean_ctor_set(x_64, 1, x_24);
+lean_ctor_set(x_64, 2, x_63);
+return x_64;
 }
 }
 }

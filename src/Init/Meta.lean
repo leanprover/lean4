@@ -146,7 +146,7 @@ variable (sep : String) (escape : Bool) in
 Uses the separator `sep` (usually `"."`) to combine the components of the `Name` into a string.
 See the documentation for `Name.toStringWithToken` for an explanation of `escape` and `isToken`.
 -/
-@[specialize isToken] -- explicit annotation because isToken is overriden in recursive call
+@[specialize isToken] -- explicit annotation because isToken is overridden in recursive call
 def toStringWithSep (n : Name) (isToken : String → Bool := fun _ => false) : String :=
   match n with
   | anonymous       => "[anonymous]"

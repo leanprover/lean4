@@ -303,7 +303,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
         -- abstraction.
 
         -- To collect the IHs, we collect them in each branch, and combine
-        -- them to a type-leve match
+        -- them to a type-level match
         let ihMatcherApp' ← liftM <| matcherApp.transform
           (onParams := fun e => M.eval <| foldAndCollect oldIH newIH isRecCall e)
           (onMotive := fun xs _body => do

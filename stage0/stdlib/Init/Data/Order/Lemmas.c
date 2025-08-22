@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Order.Lemmas
-// Imports: Init.Data.Order.Classes Init.Data.Order.Factories Init.SimpLemmas Init.Classical Init.Data.BEq
+// Imports: Init.Data.Order.Classes Init.Data.Order.Factories Init.Data.Order.Factories Init.SimpLemmas Init.Classical Init.Data.BEq
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -73,6 +73,7 @@ return x_5;
 }
 lean_object* initialize_Init_Data_Order_Classes(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_SimpLemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Classical(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BEq(uint8_t builtin, lean_object*);
@@ -82,6 +83,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Order_Classes(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_Factories(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Order_Factories(builtin, lean_io_mk_world());

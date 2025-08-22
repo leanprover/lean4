@@ -131,7 +131,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lake_Module_importsFacetConfig___closed__0;
 static lean_object* l___private_Lake_Build_Module_0__Lake_collectImportsAux___closed__8;
 LEAN_EXPORT lean_object* l_Lake_ensureJob___at___Lake_Module_recComputeTransImports_spec__1___lam__0(lean_object*, lean_object*);
-lean_object* l_Array_toJson___at___Lean_NameMap_toJson___at___Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_2294__spec__1_spec__1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_Module_fetchLocalArtifacts___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Module_computeExportInfo___lam__0___closed__8;
 static lean_object* l_Lake_Module_clearOutputHashes___closed__2;
@@ -144,7 +143,6 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold
 LEAN_EXPORT lean_object* l_Lake_Module_transImportsFacetConfig;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_Module_depsFacetConfig___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_2294_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake_Module_recFetchInput_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_SavedTrace_replayOrFetch(lean_object*, uint64_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
@@ -335,6 +333,7 @@ LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_setupExternalModu
 static lean_object* l_Lake_Module_initFacetConfigs___closed__2;
 lean_object* l_Lake_Module_getMTime(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Module_0__Lake_computeTransImportsAux___closed__3;
+lean_object* l_Array_toJson___at___Lean_NameMap_toJson___at___Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_2459__spec__1_spec__1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_Module_buildLean___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_ModuleImportInfo_nil(lean_object*);
 static lean_object* l_Lake_Module_recFetchInput___closed__2;
@@ -537,6 +536,7 @@ lean_object* lean_get_set_stderr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_coFacetConfig;
 static lean_object* l_Lake_Module_recBuildLeanCToOExport___closed__2;
 static lean_object* l_Array_Array_repr___at_____private_Lake_Build_Module_0__Lake_reprModuleDeps____x40_Lake_Build_Module___hyg_1976__spec__0___closed__4;
+lean_object* l_Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_2459_(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_mapM___at___Lake_Module_recFetchSetup_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_mapM___at___Lake_Module_recFetchSetup_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_oleanServerFacetConfig___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -559,7 +559,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 static lean_object* l___private_Lake_Build_Module_0__Lake_fetchTransImportArts___closed__0;
 LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_Module_importsFacetConfig_spec__0(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ensureJob___at___Lake_Module_recBuildLeanCToOExport_spec__0___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_toJsonModuleHeader____x40_Lean_Setup___hyg_547_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lake_Build_Module_0__Lake_computeTransImportsAux_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Build_Module_0__Lake_computeTransImportsAux_spec__3___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_ModuleImportInfo_addImport(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -736,6 +735,7 @@ uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec_
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_Module_recComputeTransImports_spec__1_spec__1___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_appendArray___at_____private_Lake_Build_Module_0__Lake_computeTransImportsAux_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lake_prepareLeanCommand___closed__0;
+lean_object* l_Lean_toJsonModuleHeader____x40_Lean_Setup___hyg_712_(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_recFetchSetup___lam__0___boxed(lean_object**);
 static lean_object* l_Lake_Module_setupFacetConfig___closed__0;
 static lean_object* l_Lake_Module_computeExportInfo___lam__0___closed__3;
@@ -3192,7 +3192,7 @@ return x_3;
 else
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_toJsonModuleHeader____x40_Lean_Setup___hyg_547_(x_2);
+x_4 = l_Lean_toJsonModuleHeader____x40_Lean_Setup___hyg_712_(x_2);
 x_5 = l_Lean_Json_compress(x_4);
 return x_5;
 }
@@ -18583,7 +18583,7 @@ return x_3;
 else
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_Array_toJson___at___Lean_NameMap_toJson___at___Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_2294__spec__1_spec__1(x_2);
+x_4 = l_Array_toJson___at___Lean_NameMap_toJson___at___Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_2459__spec__1_spec__1(x_2);
 x_5 = l_Lean_Json_compress(x_4);
 return x_5;
 }
@@ -24036,7 +24036,7 @@ return x_3;
 else
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_2294_(x_2);
+x_4 = l_Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_2459_(x_2);
 x_5 = l_Lean_Json_compress(x_4);
 return x_5;
 }
@@ -47606,7 +47606,7 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_12 = lean_ctor_get(x_9, 0);
 x_13 = lean_ctor_get(x_9, 1);
-x_14 = l_Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_2294_(x_2);
+x_14 = l_Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_2459_(x_2);
 x_15 = l_Lean_Json_compress(x_14);
 x_16 = l_Lake_prepareLeanCommand_mkArgs___redArg___closed__0;
 x_17 = lean_string_append(x_16, x_15);
@@ -47718,7 +47718,7 @@ x_50 = lean_ctor_get(x_9, 1);
 lean_inc(x_50);
 lean_inc(x_49);
 lean_dec(x_9);
-x_51 = l_Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_2294_(x_2);
+x_51 = l_Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_2459_(x_2);
 x_52 = l_Lean_Json_compress(x_51);
 x_53 = l_Lake_prepareLeanCommand_mkArgs___redArg___closed__0;
 x_54 = lean_string_append(x_53, x_52);
@@ -47886,7 +47886,7 @@ if (lean_is_exclusive(x_99)) {
  lean_dec_ref(x_99);
  x_103 = lean_box(0);
 }
-x_104 = l_Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_2294_(x_2);
+x_104 = l_Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_2459_(x_2);
 x_105 = l_Lean_Json_compress(x_104);
 x_106 = l_Lake_prepareLeanCommand_mkArgs___redArg___closed__0;
 x_107 = lean_string_append(x_106, x_105);

@@ -25,7 +25,7 @@ public import Init.Data.SInt
 public import Init.Data.Float
 public import Init.Data.Float32
 public import Init.Data.Option
-public import Init.Data.OrdRoot
+public import Init.Data.Ord
 public import Init.Data.Random
 public import Init.Data.ToString
 public import Init.Data.Range
@@ -51,5 +51,6 @@ public import Init.Data.Range.Polymorphic
 public import Init.Data.Slice
 public import Init.Data.Order
 public import Init.Data.Rat
+public import Init.Data.Dyadic
 
 public section

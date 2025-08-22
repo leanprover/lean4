@@ -4597,7 +4597,6 @@ else
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; 
@@ -4610,69 +4609,37 @@ return x_5;
 else
 {
 uint8_t x_6; 
+lean_inc_ref(x_4);
 x_6 = !lean_is_exclusive(x_1);
 if (x_6 == 0)
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = lean_ctor_get(x_1, 1);
 lean_dec(x_7);
 lean_inc_ref(x_2);
 lean_ctor_set_tag(x_1, 7);
 lean_ctor_set(x_1, 1, x_2);
-lean_inc_ref(x_4);
 x_8 = l_Lean_MessageData_joinSep(x_4, x_2);
-x_9 = !lean_is_exclusive(x_4);
-if (x_9 == 0)
-{
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_ctor_get(x_4, 1);
-lean_dec(x_10);
-x_11 = lean_ctor_get(x_4, 0);
-lean_dec(x_11);
-lean_ctor_set_tag(x_4, 7);
-lean_ctor_set(x_4, 1, x_8);
-lean_ctor_set(x_4, 0, x_1);
-return x_4;
+x_9 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_9, 0, x_1);
+lean_ctor_set(x_9, 1, x_8);
+return x_9;
 }
 else
 {
-lean_object* x_12; 
-lean_dec(x_4);
-x_12 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_12, 0, x_1);
-lean_ctor_set(x_12, 1, x_8);
-return x_12;
-}
-}
-else
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_13 = lean_ctor_get(x_1, 0);
-lean_inc(x_13);
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_1, 0);
+lean_inc(x_10);
 lean_dec(x_1);
 lean_inc_ref(x_2);
-x_14 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_2);
-lean_inc_ref(x_4);
-x_15 = l_Lean_MessageData_joinSep(x_4, x_2);
-if (lean_is_exclusive(x_4)) {
- lean_ctor_release(x_4, 0);
- lean_ctor_release(x_4, 1);
- x_16 = x_4;
-} else {
- lean_dec_ref(x_4);
- x_16 = lean_box(0);
-}
-if (lean_is_scalar(x_16)) {
- x_17 = lean_alloc_ctor(7, 2, 0);
-} else {
- x_17 = x_16;
- lean_ctor_set_tag(x_17, 7);
-}
-lean_ctor_set(x_17, 0, x_14);
-lean_ctor_set(x_17, 1, x_15);
-return x_17;
+x_11 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_11, 0, x_10);
+lean_ctor_set(x_11, 1, x_2);
+x_12 = l_Lean_MessageData_joinSep(x_4, x_2);
+x_13 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_13, 0, x_11);
+lean_ctor_set(x_13, 1, x_12);
+return x_13;
 }
 }
 }

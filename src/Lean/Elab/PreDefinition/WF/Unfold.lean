@@ -182,7 +182,7 @@ builtin_simproc_decl matcherPushArg (_) := fun e => do
     mkLambdaFVars xs (.lam motiveBodyArg.bindingName! motiveBodyArg.bindingDomain! motiveBodyArg.bindingBody!.bindingDomain! .default)
 
   let argPusher ← mkMatchArgPusher matcherApp.matcherName matcherApp.toMatcherInfo
-  -- Let's infer the level paramters:
+  -- Let's infer the level parameters:
   let proof ← withTransparency .all <| mkAppOptM
     argPusher ((matcherApp.params ++ #[motive', alpha, beta, fExpr, rel] ++ matcherApp.discrs ++ matcherApp.alts).map some)
   let some (_, _, rhs) := (← inferType proof).eq? | throwError "matcherPushArg: expected equality:{indentExpr (← inferType proof)}"

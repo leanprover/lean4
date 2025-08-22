@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data
-// Imports: Init.Data.Basic Init.Data.Nat Init.Data.Bool Init.Data.BitVec Init.Data.Cast Init.Data.Char Init.Data.String Init.Data.List Init.Data.Int Init.Data.Array Init.Data.Array.Subarray.Split Init.Data.ByteArray Init.Data.FloatArray Init.Data.Fin Init.Data.UInt Init.Data.SInt Init.Data.Float Init.Data.Float32 Init.Data.Option Init.Data.OrdRoot Init.Data.Random Init.Data.ToString Init.Data.Range Init.Data.Hashable Init.Data.OfScientific Init.Data.Format Init.Data.Stream Init.Data.Prod Init.Data.AC Init.Data.Queue Init.Data.Sum Init.Data.BEq Init.Data.Subtype Init.Data.ULift Init.Data.PLift Init.Data.Zero Init.Data.NeZero Init.Data.Function Init.Data.RArray Init.Data.Vector Init.Data.Iterators Init.Data.Range.Polymorphic Init.Data.Slice Init.Data.Order Init.Data.Rat
+// Imports: Init.Data.Basic Init.Data.Nat Init.Data.Bool Init.Data.BitVec Init.Data.Cast Init.Data.Char Init.Data.String Init.Data.List Init.Data.Int Init.Data.Array Init.Data.Array.Subarray.Split Init.Data.ByteArray Init.Data.FloatArray Init.Data.Fin Init.Data.UInt Init.Data.SInt Init.Data.Float Init.Data.Float32 Init.Data.Option Init.Data.Ord Init.Data.Random Init.Data.ToString Init.Data.Range Init.Data.Hashable Init.Data.OfScientific Init.Data.Format Init.Data.Stream Init.Data.Prod Init.Data.AC Init.Data.Queue Init.Data.Sum Init.Data.BEq Init.Data.Subtype Init.Data.ULift Init.Data.PLift Init.Data.Zero Init.Data.NeZero Init.Data.Function Init.Data.RArray Init.Data.Vector Init.Data.Iterators Init.Data.Range.Polymorphic Init.Data.Slice Init.Data.Order Init.Data.Rat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -32,7 +32,7 @@ lean_object* initialize_Init_Data_SInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Float(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Float32(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_OrdRoot(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Ord(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Random(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ToString(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range(uint8_t builtin, lean_object*);
@@ -120,7 +120,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Option(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_OrdRoot(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Random(builtin, lean_io_mk_world());

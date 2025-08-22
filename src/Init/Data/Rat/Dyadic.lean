@@ -382,8 +382,6 @@ theorem toRat_inj {x y : Dyadic} : x.toRat = y.toRat ↔ x = y := by
 
 -- TODO: Define `roundUp : (x : Dyadic) → (prec : Int) → Dyadic` as the closest dyadic ≥ `x` with precision is at most `prec`, and theorems about this. Similarly `roundDown`.
 
--- TODO: Prove the ring axioms via injectivity of `toRat`, and construct a `Lean.Grind.CommRing` instance.
-
 theorem add_comm (x y : Dyadic) : x + y = y + x := by
   rw [← toRat_inj, toRat_add, toRat_add]
   sorry
@@ -403,7 +401,7 @@ theorem one_mul (x : Dyadic) : 1 * x = x := by
   rw [← toRat_inj, toRat_mul]
   sorry
 
--- etc
+-- etc, then construct a `Lean.Grind.CommRing` instance
 
 /-- Determine if a dyadic rational is strictly less than another. -/
 def blt (x y : Dyadic) : Bool :=

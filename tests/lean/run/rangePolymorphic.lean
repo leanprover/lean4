@@ -86,3 +86,9 @@ i=4, j=6
 -/
 #guard_msgs in
 #eval h 5
+
+section Int
+
+example : ((-5)...3).toList = [-5, -4, -3, -2, -1, 0, 1, 2] := by native_decide
+
+end Int

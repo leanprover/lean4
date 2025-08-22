@@ -2213,7 +2213,7 @@ theorem uppcRec_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
       · intro h'
         by_cases hbit: x[w - s]
         · simp [hbit]
-        · have := BitVec.le_toNat_iff (x := x) (i := w - s) (by omega)
+        · have := BitVec.le_toNat_iff_getLsbD_eq_true (x := x) (i := w - s) (by omega)
           simp only [h', true_iff] at this
           obtain ⟨k, hk⟩ := this
           by_cases hwk : w - s + k < w + 1
@@ -2238,7 +2238,7 @@ def aandRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) : Bool :=
 -/
 def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) (hw : 1 < w) : Bool :=
   match hs0 : s with
-  | 0 => (show False by omega).elim
+  | 0 => by omega
   | s' + 1 =>
     match hs' : s' with
     | 0 => aandRec x y 1 (by omega) (by omega)
@@ -2319,11 +2319,11 @@ theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hx : x ≠ 0#w) (hy : y 
           (BitVec.two_pow_sub_clz_le_toNat_of_ne_zero (x := x) (by omega) (by omega))
 
 /--
-  Complete fast overflow detection circuit for unsigned multiplication
+  Complete fast overflow detection circuit for unsigned multiplication.
 -/
 theorem fastUmulOverflow (x y : BitVec w) :
     umulOverflow x y = if hw : w ≤ 1 then false
-      else (setWidth (w + 1) x * setWidth (w + 1) y)[w] || x.resRec y (w - 1) (by omega) (by omega) (by omega):= by
+      else (setWidth (w + 1) x * setWidth (w + 1) y)[w] || x.resRec y (w - 1) (by omega) (by omega) (by omega) := by
   rcases w with _|_|w
   · simp [of_length_zero, umulOverflow]
   · have hx : x.toNat ≤ 1 := by omega
@@ -2335,7 +2335,7 @@ theorem fastUmulOverflow (x y : BitVec w) :
     · simp only [h, Nat.reduceLeDiff, reduceDIte, Nat.add_one_sub_one, true_eq, or_eq_true]
       simp only [umulOverflow, ge_iff_le, decide_eq_true_eq] at h
       by_cases h' : x.toNat * y.toNat < 2 ^ (w + 1 + 1 + 1)
-      · have hlt := BitVec.getElem_of_lt_of_le
+      · have hlt := BitVec.getElem_eq_true_of_lt_of_le
           (x := (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y))
           (k := w + 1 + 1)  (by omega)
         simp only [toNat_mul, toNat_setWidth, Nat.lt_add_one, toNat_mod_cancel_of_lt,

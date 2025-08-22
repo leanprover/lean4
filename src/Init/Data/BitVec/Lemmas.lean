@@ -511,7 +511,7 @@ theorem getElem_ofBool {b : Bool} {h : i < 1}: (ofBool b)[i] = b := by
   rw [← one_eq_zero_iff, eq_comm]
 
 /-- A bitvector is equal to 0#w if and only if all bits are `false` -/
-theorem zero_iff_forall {x: BitVec w} :
+theorem zero_iff_eq_false {x: BitVec w} :
     x = 0#w ↔ ∀ i, x.getLsbD i = false := by
   rcases w with _|w
   · simp [of_length_zero]
@@ -5829,7 +5829,7 @@ theorem sle_eq_ule_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) : x.sle y = x.
 
 /-- A bitvector interpreted as a natural number is greater than or equal to `2 ^ i` if and only if
   there exists at least one bit with `true` value at position `i` or higher. -/
-theorem le_toNat_iff {x : BitVec w} (hi : i < w ) :
+theorem le_toNat_iff_getLsbD_eq_true {x : BitVec w} (hi : i < w ) :
     (2 ^ i ≤ x.toNat) ↔ (∃ k, x.getLsbD (i + k) = true) := by
   rcases w with _|w
   · simp [of_length_zero]
@@ -5875,7 +5875,7 @@ theorem le_toNat_iff {x : BitVec w} (hi : i < w ) :
 
 /-- A bitvector interpreted as a natural number is strictly smaller than `2 ^ i` if and only if
   all bits at position `i` or higher are false. -/
-theorem toNat_lt_iff {x : BitVec w} (i : Nat) (hi : i < w) :
+theorem toNat_lt_iff_getLsbD_eq_false {x : BitVec w} (i : Nat) (hi : i < w) :
     x.toNat < 2 ^ i ↔ (∀ k, x.getLsbD (i + k) = false) := by
   constructor
   · intro h
@@ -5891,13 +5891,13 @@ theorem toNat_lt_iff {x : BitVec w} (i : Nat) (hi : i < w) :
   · intro h
     apply Classical.byContradiction
     intro hcontra
-    simp [BitVec.le_toNat_iff (x := x) (i := i) hi, h] at hcontra
+    simp [BitVec.le_toNat_iff_getLsbD_eq_true (x := x) (i := i) hi, h] at hcontra
 
 /-- If a bitvector interpreted as a natural number is strictly smaller than `2 ^ (k + 1)` and greater than or
   equal to 2 ^ k, then the bit at position `k` must be `true` -/
-theorem getElem_of_lt_of_le {x : BitVec w} (hk' : k < w) (hlt: x.toNat < 2 ^ (k + 1)) (hle : 2 ^ k ≤ x.toNat) :
+theorem getElem_eq_true_of_lt_of_le {x : BitVec w} (hk' : k < w) (hlt: x.toNat < 2 ^ (k + 1)) (hle : 2 ^ k ≤ x.toNat) :
     x[k] = true := by
-  have := le_toNat_iff (x := x) (i := k) hk'
+  have := le_toNat_iff_getLsbD_eq_true (x := x) (i := k) hk'
   simp only [hle, true_iff] at this
   obtain ⟨k',hk'⟩ := this
   by_cases hkk' : k + k' < w
@@ -6008,7 +6008,7 @@ theorem clz_eq_iff_eq_zero {x : BitVec w} :
     clz x = w ↔ x = 0#w := by
   rcases w with _|w
   · simp [clz, of_length_zero]
-  · simp only [clz, Nat.add_one_sub_one, natCast_eq_ofNat, zero_iff_forall]
+  · simp only [clz, Nat.add_one_sub_one, natCast_eq_ofNat, zero_iff_eq_false]
     rw [clzAuxRec_eq_iff_of_getLsbD_false (x := x) (n := w) (w := w + 1) (by intros i hi; simp [show w + 1 ≤ i by omega])]
     constructor
     · intro h i
@@ -6121,7 +6121,7 @@ theorem getLsbD_true_of_eq_clzAuxRec_of_ne_zero {x : BitVec w} (hx : ¬ x = 0#w)
       by_cases hx0 : x[0]
       · simp only [Nat.add_one_sub_one, clzAuxRec_zero, Nat.zero_lt_succ, getLsbD_eq_getElem, hx0,
           reduceIte, toNat_ofNat, Nat.mod_eq_of_lt (a := w) (b := 2 ^(w + 1)) (by omega), show w - w = 0 by omega]
-      · simp only [zero_iff_forall, Classical.not_forall, Bool.not_eq_false] at hx
+      · simp only [zero_iff_eq_false, Classical.not_forall, Bool.not_eq_false] at hx
         obtain ⟨m,hm⟩ := hx
         specialize hn m
         by_cases hm0 : m = 0
@@ -6165,7 +6165,7 @@ theorem toNat_lt_two_pow_sub_clz {x : BitVec w} :
   rcases w with _|w
   · simp [of_length_zero]
   · unfold clz
-    have hlt := toNat_lt_iff (x := x)
+    have hlt := toNat_lt_iff_getLsbD_eq_false (x := x)
     have hzero := clzAuxRec_eq_zero_iff (x := x) (n := w) (by intro i hi; simp [show w + 1 ≤ i by omega]) (by omega)
     simp only [Nat.add_one_sub_one] at hzero
     by_cases hxw : x[w]

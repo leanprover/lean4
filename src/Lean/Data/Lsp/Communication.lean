@@ -75,6 +75,13 @@ section
     catch e =>
       throw $ userError s!"Cannot read LSP message: {e}"
 
+  def readLspMessageAsString (h : FS.Stream) : IO String := do
+    try
+      let nBytes ← readLspHeader h
+      h.readUTF8 nBytes
+    catch e =>
+      throw $ userError s!"Cannot read LSP message: {e}"
+
   def readLspRequestAs (h : FS.Stream) (expectedMethod : String) (α) [FromJson α] : IO (Request α) := do
     try
       let nBytes ← readLspHeader h

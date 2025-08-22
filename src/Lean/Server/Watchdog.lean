@@ -654,40 +654,72 @@ section ServerM
         definitions := definitions.push definitionLocation
     return definitions
 
-  def handleResponseSpecialCases (req : JsonRpc.Request Json) (resp : JsonRpc.Response Json) :
-      ServerM (JsonRpc.Response Json) := do
+  def parseRequestParams? (α : Type) [FromJson α] (request : String) : Except String α := do
+    let j ← Json.parse request
+    let msg : JsonRpc.Message ← fromJson? j
+    match msg with
+    | .request _ _ params =>
+      fromJson? (toJson params)
+    | _ =>
+      Except.error "Got message that isn't a request in `parseRequestParams?`."
+
+  def parseNotificationParams? (α : Type) [FromJson α] (notification : String) : Except String α := do
+    let j ← Json.parse notification
+    let msg : JsonRpc.Message ← fromJson? j
+    match msg with
+    | .notification _ params =>
+      fromJson? (toJson params)
+    | _ =>
+      Except.error "Got message that isn't a notification in `parseNotificationParams?`."
+
+  def parseResponseResult? (α : Type) [FromJson α] (response : String) : Except String α := do
+    let j ← Json.parse response
+    let msg : JsonRpc.Message ← fromJson? j
+    match msg with
+    | .response _ result =>
+      fromJson? result
+    | _ =>
+      Except.error "Got message that isn't a response in `parseResponseResult?`."
+
+  def bendLocationLinks (req : JsonRpc.Request Json) (r : Array LeanLocationLink) :
+      ServerM Json := do
+    let refs ← getReferences
+    let r : Array LeanLocationLink := r.filterMap fun ll => Id.run do
+      let some ident := ll.ident?
+        | return ll
+      let ident : RefIdent := .const ident.module.toString ident.decl.toString
+      let some definitionInfo := refs.definitionOf? ident
+        | return ll
+      let newTargetRange := definitionInfo.location.range
+      return some {
+        ll with toLocationLink := {
+          originSelectionRange? := ll.originSelectionRange?
+          targetUri := definitionInfo.location.uri
+          targetRange := newTargetRange
+          targetSelectionRange := newTargetRange
+        }
+      }
+    if r.all (·.isDefault) then
+      -- The file worker produced fallback location links.
+      -- Let's see if we can obtain better ones using the .ileans, just to be safe.
+      let params' ← parseParams TextDocumentPositionParams req.param
+      let definitions ← findDefinitions params'
+      if ! definitions.isEmpty then
+        return toJson definitions
+    return toJson <| r.map (·.toLocationLink)
+
+  def handleResponseSpecialCases (req : JsonRpc.Request Json) (resp : String) :
+      ServerM String := do
     match req.method with
     | "textDocument/definition"
     | "textDocument/declaration"
     | "textDocument/typeDefinition" =>
-      let r : Array LeanLocationLink :=
-        match fromJson? resp.result with
-        | .ok r => r
-        | .error e => panic! s!"Expected `LeanLocationLink` in file worker response to definition request. Error: {e}. Got: {resp.result.compress}."
-      let refs ← getReferences
-      let r : Array LeanLocationLink := r.filterMap fun ll => Id.run do
-        let some ident := ll.ident?
-          | return ll
-        let ident : RefIdent := .const ident.module.toString ident.decl.toString
-        let some definitionInfo := refs.definitionOf? ident
-          | return ll
-        let newTargetRange := definitionInfo.location.range
-        return some {
-          ll with toLocationLink := {
-            originSelectionRange? := ll.originSelectionRange?
-            targetUri :=  definitionInfo.location.uri
-            targetRange := newTargetRange
-            targetSelectionRange := newTargetRange
-          }
-        }
-      if r.all (·.isDefault) then
-        -- The file worker produced fallback location links.
-        -- Let's see if we can obtain better ones using the .ileans, just to be safe.
-        let params' ← parseParams TextDocumentPositionParams req.param
-        let definitions ← findDefinitions params'
-        if ! definitions.isEmpty then
-          return { resp with result := toJson definitions }
-      return { resp with result := toJson <| r.map (·.toLocationLink) }
+      match parseResponseResult? (Array LeanLocationLink) resp with
+      | .ok r =>
+        let result ← bendLocationLinks req r
+        return JsonRpc.Message.response req.id result |> toJson |>.compress
+      | .error _ =>
+        return resp
     | _ =>
       return resp
 
@@ -704,7 +736,7 @@ section ServerM
       while true do
         let msg ←
           try
-            fw.stdout.readLspMessage
+            fw.stdout.readLspMessageAsString
           catch _ =>
             let exitCode ← fw.waitForProc
             -- Remove surviving descendant processes, if any, such as from nested builds.
@@ -715,18 +747,21 @@ section ServerM
               | 0 => return .terminated
               | 2 => return .importsChanged
               | _ => return .crashed exitCode
+        let .ok metaData := parseMessageMetaData msg
+          | continue
 
         let (_, pendingWorkerToWatchdogRequests') ←
-          StateT.run (s := pendingWorkerToWatchdogRequests) <| handleMessage msg
+          StateT.run (s := pendingWorkerToWatchdogRequests) <| handleMessage msg metaData
 
         pendingWorkerToWatchdogRequests := ∅
         for (id, task, cancelTk) in pendingWorkerToWatchdogRequests' do
           if ← task.hasFinished then
             continue
           pendingWorkerToWatchdogRequests := pendingWorkerToWatchdogRequests.insert id (task, cancelTk)
+
       return .terminated
 
-    handleMessage (msg : JsonRpc.Message)
+    handleMessage (msg : String) (metaData : MessageMetaData)
         : StateT (Std.TreeMap RequestID (ServerTask Unit × CancelToken)) ServerM Unit :=
       -- When the file worker is terminated by the main thread, the client can immediately launch
       -- another file worker using `didOpen`. In this case, even when this task and the old file
@@ -740,8 +775,8 @@ section ServerM
           return
         -- Re. `o.writeLspMessage msg`:
         -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
-        match msg with
-        | Message.response id result => do
+        match metaData with
+        | .response id => do
           let req? ← eraseGetPendingRequest uri id
           -- In the rare scenario that we detect a file worker crash on the main thread and this task
           -- still has a response to process, it could theoretically happen that we restart the file
@@ -749,44 +784,40 @@ section ServerM
           -- This ensures that this scenario can't occur, and we only emit responses for requests
           -- that were still pending.
           if let some req := req? then
-            let resp ← handleResponseSpecialCases req { id, result }
-            o.writeLspMessage resp
-        | Message.responseError id code _ _ => do
+            let resp ← handleResponseSpecialCases req msg
+            o.writeSerializedLspMessage resp
+        | .responseError id code _ _ => do
           let wasPending ← erasePendingRequest uri id
           if code matches .requestCancelled then
             let pendingWorkerToWatchdogRequests ← getThe (Std.TreeMap RequestID (ServerTask Unit × CancelToken))
             if let some (_, cancelTk) := pendingWorkerToWatchdogRequests.get? id then
               cancelTk.set
           if wasPending then
-            o.writeLspMessage msg
-        | Message.request id method params? =>
+            o.writeSerializedLspMessage msg
+        | .request id method =>
           if method == "$/lean/queryModule" then
-            if let some params := params? then
-              if let .ok (params : LeanQueryModuleParams) := fromJson? <| toJson params then
-                let (task, cancelTk) ← handleQueryModule fw id params
-                modifyThe (Std.TreeMap RequestID (ServerTask Unit × CancelToken)) (·.insert params.sourceRequestID (task, cancelTk))
+            if let .ok params := parseRequestParams? LeanQueryModuleParams msg then
+              let (task, cancelTk) ← handleQueryModule fw id params
+              modifyThe (Std.TreeMap RequestID (ServerTask Unit × CancelToken)) (·.insert params.sourceRequestID (task, cancelTk))
           else
-            let globalID ← (← read).serverRequestData.modifyGet
-              (·.trackOutboundRequest fw.doc.uri id)
-            o.writeLspMessage (Message.request globalID method params?)
-        | Message.notification "$/lean/ileanHeaderInfo" params =>
-          if let some params := params then
-            if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
-              handleILeanHeaderInfo fw params
-        | Message.notification "$/lean/ileanInfoUpdate" params =>
-          if let some params := params then
-            if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
-              handleIleanInfoUpdate fw params
-        | Message.notification "$/lean/ileanInfoFinal" params =>
-          if let some params := params then
-            if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
-              handleIleanInfoFinal fw params
-        | Message.notification "$/lean/importClosure" params =>
-          if let some params := params then
-            if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
-              handleImportClosure fw params
+            if let .ok params? := parseRequestParams? (Option Json.Structured) msg then
+              let globalID ← (← read).serverRequestData.modifyGet
+                (·.trackOutboundRequest fw.doc.uri id)
+              o.writeLspMessage (Message.request globalID method params?)
+        | .notification "$/lean/ileanHeaderInfo" =>
+          if let .ok params := parseNotificationParams? LeanILeanHeaderInfoParams msg then
+            handleILeanHeaderInfo fw params
+        | .notification "$/lean/ileanInfoUpdate" =>
+          if let .ok params := parseNotificationParams? LeanIleanInfoParams msg then
+            handleIleanInfoUpdate fw params
+        | .notification "$/lean/ileanInfoFinal" =>
+          if let .ok params := parseNotificationParams? LeanIleanInfoParams msg then
+            handleIleanInfoFinal fw params
+        | .notification "$/lean/importClosure" =>
+          if let .ok params := parseNotificationParams? LeanImportClosureParams msg then
+            handleImportClosure fw params
         | _ =>
-          o.writeLspMessage msg
+          o.writeSerializedLspMessage msg
 
   def startFileWorker (m : DocumentMeta) : ServerM Unit := do
     let st ← read

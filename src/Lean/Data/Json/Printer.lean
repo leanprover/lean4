@@ -137,7 +137,8 @@ where
         | str s =>
           go (renderString s acc) workItems
         | arr elems =>
-          go (acc ++ "[") (workItems.push arrayEnd ++ elems.reverse.map arrayElem)
+          let workItems := workItems.push arrayEnd
+          go (acc ++ "[") (elems.foldr (init := workItems) fun e acc => acc.push (arrayElem e))
         | obj kvs =>
           let workItems := workItems.push objectEnd
           go (acc ++ "{") (kvs.foldr (init := workItems) fun k j acc => acc.push (objectField k j))
@@ -147,9 +148,9 @@ where
         else
           let workItem := workItems[workItems.size - 1]
           if workItem matches arrayEnd then
-            go acc (workItems.pop ++ #[arrayEnd, json j])
+            go acc (workItems.pop.push arrayEnd |>.push (json j))
           else
-            go acc (workItems ++ #[comma, json j])
+            go acc (workItems.push comma |>.push (json j))
       | arrayEnd =>
         go (acc ++ "]") workItems
       | objectField k j =>
@@ -158,9 +159,9 @@ where
         else
           let workItem := workItems[workItems.size - 1]
           if workItem matches objectEnd then
-            go (renderString k acc ++ ":") (workItems.pop ++ #[objectEnd, json j])
+            go (renderString k acc ++ ":") (workItems.pop.push objectEnd |>.push (json j))
           else
-            go (renderString k acc ++ ":") (workItems ++ #[comma, json j])
+            go (renderString k acc ++ ":") (workItems.push comma |>.push (json j))
       | objectEnd =>
         go (acc ++ "}") workItems
       | comma =>

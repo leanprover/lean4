@@ -5786,9 +5786,6 @@ theorem clzAuxRec_eq_clzAuxRec_of_getLsbD_false {x : BitVec w} (h : ∀ i, n < i
     · simp only [hxn, Bool.false_eq_true, ↓reduceIte]
       exact ihk
 
-/-! ### PopCount -/
-
-
 /-! ### Inequalities (le / lt) -/
 
 theorem ule_eq_not_ult (x y : BitVec w) : x.ule y = !y.ult x := by

@@ -1378,9 +1378,8 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressAtPosNotification(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_4 = lean_ctor_get(x_1, 3);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_4);
 x_6 = l_Lean_FileMap_utf8PosToLspPos(x_4, x_2);
@@ -1388,41 +1387,17 @@ x_7 = lean_string_utf8_byte_size(x_5);
 lean_inc_ref(x_4);
 x_8 = l_Lean_FileMap_utf8PosToLspPos(x_4, x_7);
 lean_dec(x_7);
-x_9 = !lean_is_exclusive(x_4);
-if (x_9 == 0)
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_10 = lean_ctor_get(x_4, 1);
-lean_dec(x_10);
-x_11 = lean_ctor_get(x_4, 0);
-lean_dec(x_11);
-lean_ctor_set(x_4, 1, x_8);
-lean_ctor_set(x_4, 0, x_6);
-x_12 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_12, 0, x_4);
-lean_ctor_set_uint8(x_12, sizeof(void*)*1, x_3);
-x_13 = l_Lean_Server_mkFileProgressAtPosNotification___closed__0;
-x_14 = lean_array_push(x_13, x_12);
-x_15 = l_Lean_Server_mkFileProgressNotification(x_1, x_14);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_6);
+lean_ctor_set(x_9, 1, x_8);
+x_10 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_10, 0, x_9);
+lean_ctor_set_uint8(x_10, sizeof(void*)*1, x_3);
+x_11 = l_Lean_Server_mkFileProgressAtPosNotification___closed__0;
+x_12 = lean_array_push(x_11, x_10);
+x_13 = l_Lean_Server_mkFileProgressNotification(x_1, x_12);
 lean_dec_ref(x_1);
-return x_15;
-}
-else
-{
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-lean_dec(x_4);
-x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_6);
-lean_ctor_set(x_16, 1, x_8);
-x_17 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_17, 0, x_16);
-lean_ctor_set_uint8(x_17, sizeof(void*)*1, x_3);
-x_18 = l_Lean_Server_mkFileProgressAtPosNotification___closed__0;
-x_19 = lean_array_push(x_18, x_17);
-x_20 = l_Lean_Server_mkFileProgressNotification(x_1, x_19);
-lean_dec_ref(x_1);
-return x_20;
-}
+return x_13;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressAtPosNotification___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

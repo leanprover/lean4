@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Slice.Array.Iterator
-// Imports: Init.Core Init.Data.Slice.Array.Basic Init.Data.Iterators.Combinators.Attach Init.Data.Iterators.Combinators.FilterMap Init.Data.Iterators.Combinators.ULift Init.Data.Iterators.Consumers.Collect Init.Data.Iterators.Consumers.Loop Init.Data.Range.Polymorphic.Basic Init.Data.Range.Polymorphic.Nat Init.Data.Range.Polymorphic.Iterators Init.Data.Slice.Operations
+// Imports: Init.Core Init.Data.Slice.Array.Basic Init.Data.Iterators.Combinators.Attach Init.Data.Iterators.Combinators.FilterMap Init.Data.Iterators.Combinators.ULift Init.Data.Iterators.Consumers.Collect Init.Data.Iterators.Consumers.Loop Init.Data.Range.Polymorphic.Basic Init.Data.Range.Polymorphic.Nat Init.Data.Range.Polymorphic.Iterators Init.Data.Slice.Operations Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1444,6 +1444,7 @@ lean_object* initialize_Init_Data_Range_Polymorphic_Basic(uint8_t builtin, lean_
 lean_object* initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Slice_Operations(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Slice_Array_Iterator(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1480,6 +1481,9 @@ res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin, lean_io_mk_world
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Slice_Operations(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instIteratorStateSubarrayId___redArg___closed__0 = _init_l_instIteratorStateSubarrayId___redArg___closed__0();

@@ -136,7 +136,6 @@ static lean_object* l_Lake_LakeOptions_getLeanInstall___closed__0;
 static lean_object* l_Lake_lakeLongOption___closed__28;
 LEAN_EXPORT lean_object* l_Lake_lake_init___lam__1___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lake_collectArgs___at___Lake_lake_script_list_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_fromJsonModuleHeader____x40_Lean_Setup___hyg_599_(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_lake_setupFile(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_lake_lean(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_lakeCli___closed__23;
@@ -328,6 +327,7 @@ LEAN_EXPORT lean_object* l_Lake_lake_upload___lam__3(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lake_lake_script_run_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_lake_setupFile___lam__1___closed__0;
 LEAN_EXPORT lean_object* l_Lake_lake_resolveDeps___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_fromJsonModuleHeader____x40_Lean_Setup___hyg_764_(lean_object*);
 static lean_object* l_Lake_lakeShortOption___closed__6;
 lean_object* l_Lake_Package_uploadRelease(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_lakeShortOption___closed__1;
@@ -23504,7 +23504,7 @@ lean_object* x_22; lean_object* x_23;
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec_ref(x_20);
-x_23 = l_Lean_fromJsonModuleHeader____x40_Lean_Setup___hyg_599_(x_22);
+x_23 = l_Lean_fromJsonModuleHeader____x40_Lean_Setup___hyg_764_(x_22);
 if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; 

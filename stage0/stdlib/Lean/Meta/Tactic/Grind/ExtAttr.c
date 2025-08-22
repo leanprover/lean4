@@ -87,6 +87,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___Lean_Persis
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_Meta_Grind_validateExtAttr_spec__0_spec__0___closed__4;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_ExtAttr_0__Lean_Meta_Grind_eraseDecl___closed__1;
 lean_object* lean_usize_to_nat(size_t);
+lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isExtTheorem___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_addExtAttr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_ExtAttr_0__Lean_Meta_Grind_eraseDecl___closed__3;
@@ -152,7 +153,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_Persist
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_ExtAttr___hyg_10__spec__0_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isExtTheorem___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___at_____private_Lean_Meta_Tactic_Grind_ExtAttr_0__Lean_Meta_Grind_eraseDecl_spec__3___redArg___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_empty___at___Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_ExtAttr___hyg_10__spec__5(lean_object*);
 lean_object* l_Lean_Name_hash___override___boxed(lean_object*);
 size_t lean_usize_land(size_t, size_t);
@@ -1082,7 +1082,7 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 lean_free_object(x_9);
 x_15 = l_Lean_Meta_Grind_validateExtAttr___closed__1;
-x_16 = l_Lean_MessageData_ofName(x_1);
+x_16 = l_Lean_MessageData_ofConstName(x_1, x_14);
 x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
@@ -1119,7 +1119,7 @@ if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_26 = l_Lean_Meta_Grind_validateExtAttr___closed__1;
-x_27 = l_Lean_MessageData_ofName(x_1);
+x_27 = l_Lean_MessageData_ofConstName(x_1, x_25);
 x_28 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
@@ -1993,7 +1993,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 lean_dec_ref(x_1);
 x_7 = l___private_Lean_Meta_Tactic_Grind_ExtAttr_0__Lean_Meta_Grind_eraseDecl___closed__1;
-x_8 = l_Lean_MessageData_ofName(x_2);
+x_8 = l_Lean_MessageData_ofConstName(x_2, x_6);
 x_9 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_9, 0, x_7);
 lean_ctor_set(x_9, 1, x_8);

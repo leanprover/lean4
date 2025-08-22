@@ -3359,7 +3359,7 @@ return x_15;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forIn___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
@@ -3395,60 +3395,28 @@ lean_ctor_set(x_14, 1, x_13);
 lean_ctor_set(x_14, 2, x_8);
 lean_ctor_set(x_14, 3, x_9);
 lean_ctor_set(x_14, 4, x_10);
-lean_inc_ref(x_1);
 x_15 = lean_alloc_closure((void*)(l_ExceptT_bind), 7, 3);
 lean_closure_set(x_15, 0, lean_box(0));
 lean_closure_set(x_15, 1, lean_box(0));
 lean_closure_set(x_15, 2, x_1);
-x_16 = !lean_is_exclusive(x_1);
-if (x_16 == 0)
-{
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_17 = lean_ctor_get(x_1, 1);
-lean_dec(x_17);
-x_18 = lean_ctor_get(x_1, 0);
-lean_dec(x_18);
-lean_ctor_set(x_1, 1, x_15);
-lean_ctor_set(x_1, 0, x_14);
-x_19 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_19);
-x_20 = lean_ctor_get(x_5, 1);
-lean_inc(x_20);
+x_16 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_16, 0, x_14);
+lean_ctor_set(x_16, 1, x_15);
+x_17 = lean_ctor_get(x_5, 0);
+lean_inc_ref(x_17);
+x_18 = lean_ctor_get(x_5, 1);
+lean_inc(x_18);
 lean_dec_ref(x_5);
-x_21 = lean_alloc_closure((void*)(l_Lean_PersistentHashMap_forIn___redArg___lam__0), 1, 0);
-x_22 = lean_alloc_closure((void*)(l_Lean_PersistentHashMap_forIn___redArg___lam__1), 2, 1);
-lean_closure_set(x_22, 0, x_20);
-x_23 = lean_alloc_closure((void*)(l_Lean_PersistentHashMap_forIn___redArg___lam__2), 6, 3);
-lean_closure_set(x_23, 0, x_19);
-lean_closure_set(x_23, 1, x_4);
-lean_closure_set(x_23, 2, x_21);
-x_24 = l_Lean_PersistentHashMap_foldlMAux___redArg(x_1, x_23, x_2, x_3);
-x_25 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_24, x_22);
-return x_25;
-}
-else
-{
-lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-lean_dec(x_1);
-x_26 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_26, 0, x_14);
-lean_ctor_set(x_26, 1, x_15);
-x_27 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_27);
-x_28 = lean_ctor_get(x_5, 1);
-lean_inc(x_28);
-lean_dec_ref(x_5);
-x_29 = lean_alloc_closure((void*)(l_Lean_PersistentHashMap_forIn___redArg___lam__0), 1, 0);
-x_30 = lean_alloc_closure((void*)(l_Lean_PersistentHashMap_forIn___redArg___lam__1), 2, 1);
-lean_closure_set(x_30, 0, x_28);
-x_31 = lean_alloc_closure((void*)(l_Lean_PersistentHashMap_forIn___redArg___lam__2), 6, 3);
-lean_closure_set(x_31, 0, x_27);
-lean_closure_set(x_31, 1, x_4);
-lean_closure_set(x_31, 2, x_29);
-x_32 = l_Lean_PersistentHashMap_foldlMAux___redArg(x_26, x_31, x_2, x_3);
-x_33 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_32, x_30);
-return x_33;
-}
+x_19 = lean_alloc_closure((void*)(l_Lean_PersistentHashMap_forIn___redArg___lam__0), 1, 0);
+x_20 = lean_alloc_closure((void*)(l_Lean_PersistentHashMap_forIn___redArg___lam__1), 2, 1);
+lean_closure_set(x_20, 0, x_18);
+x_21 = lean_alloc_closure((void*)(l_Lean_PersistentHashMap_forIn___redArg___lam__2), 6, 3);
+lean_closure_set(x_21, 0, x_17);
+lean_closure_set(x_21, 1, x_4);
+lean_closure_set(x_21, 2, x_19);
+x_22 = l_Lean_PersistentHashMap_foldlMAux___redArg(x_16, x_21, x_2, x_3);
+x_23 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_22, x_20);
+return x_23;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forIn(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {

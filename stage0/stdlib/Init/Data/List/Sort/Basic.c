@@ -780,32 +780,30 @@ return x_15;
 }
 else
 {
-lean_object* x_16; uint8_t x_17; 
+uint8_t x_16; 
 lean_inc(x_5);
 lean_inc(x_4);
-lean_dec_ref(x_1);
-lean_inc_ref(x_2);
-x_16 = l_List_merge___redArg(x_5, x_2, x_3);
-x_17 = !lean_is_exclusive(x_2);
-if (x_17 == 0)
+x_16 = !lean_is_exclusive(x_1);
+if (x_16 == 0)
 {
-lean_object* x_18; lean_object* x_19; 
-x_18 = lean_ctor_get(x_2, 1);
+lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_17 = lean_ctor_get(x_1, 1);
+lean_dec(x_17);
+x_18 = lean_ctor_get(x_1, 0);
 lean_dec(x_18);
-x_19 = lean_ctor_get(x_2, 0);
-lean_dec(x_19);
-lean_ctor_set(x_2, 1, x_16);
-lean_ctor_set(x_2, 0, x_4);
-return x_2;
+x_19 = l_List_merge___redArg(x_5, x_2, x_3);
+lean_ctor_set(x_1, 1, x_19);
+return x_1;
 }
 else
 {
-lean_object* x_20; 
-lean_dec(x_2);
-x_20 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_20, 0, x_4);
-lean_ctor_set(x_20, 1, x_16);
-return x_20;
+lean_object* x_20; lean_object* x_21; 
+lean_dec(x_1);
+x_20 = l_List_merge___redArg(x_5, x_2, x_3);
+x_21 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_21, 0, x_4);
+lean_ctor_set(x_21, 1, x_20);
+return x_21;
 }
 }
 }

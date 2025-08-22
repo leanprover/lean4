@@ -3,26 +3,11 @@
 {"items":
  [{"label": "f2",
    "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionIStr.lean"},
-     "position": {"line": 5, "character": 34}},
-    "id": {"const": {"declName": "C.f2"}},
-    "cPos": 1}},
+   "data": ["file:///completionIStr.lean", 5, 34, 1, "cC.f2"]},
   {"label": "b1",
    "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionIStr.lean"},
-     "position": {"line": 5, "character": 34}},
-    "id": {"const": {"declName": "C.b1"}},
-    "cPos": 1}},
+   "data": ["file:///completionIStr.lean", 5, 34, 1, "cC.b1"]},
   {"label": "f1",
    "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionIStr.lean"},
-     "position": {"line": 5, "character": 34}},
-    "id": {"const": {"declName": "C.f1"}},
-    "cPos": 1}}],
+   "data": ["file:///completionIStr.lean", 5, 34, 1, "cC.f1"]}],
  "isIncomplete": false}

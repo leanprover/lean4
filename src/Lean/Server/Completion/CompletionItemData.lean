@@ -15,7 +15,30 @@ namespace Lean.Lsp
 /-- Used in `CompletionItem.data?`. -/
 structure CompletionItemData where
   params : CompletionParams
-  deriving FromJson, ToJson
+
+instance : ToJson CompletionItemData where
+  toJson d :=
+    Json.arr #[
+      d.params.textDocument.uri,
+      d.params.position.line,
+      d.params.position.character,
+    ]
+
+instance : FromJson CompletionItemData where
+  fromJson?
+  | .arr elems => do
+    if elems.size < 3 then
+      .error "Expected array of size 3 in `FromJson` instance of `CompletionItemData"
+    let uri : String ← fromJson? elems[0]!
+    let line : Nat ← fromJson? elems[1]!
+    let character : Nat ← fromJson? elems[2]!
+    return {
+      params := {
+        textDocument := ⟨uri⟩
+        position := { line, character }
+      }
+    }
+  | _ => .error "Expected array in `FromJson` instance of `CompletionItemData`"
 
 /--
 Yields the file source of `item` by attempting to parse `item.data?` to `CompletionItemData` and

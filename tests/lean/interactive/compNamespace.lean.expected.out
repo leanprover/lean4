@@ -4,11 +4,7 @@
  [{"label": "LongNamespaceExample",
    "kind": 9,
    "detail": "namespace",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 5, "character": 14}},
-    "cPos": 0}}],
+   "data": ["file:///compNamespace.lean", 5, 14, 0]}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 9, "character": 14}}
@@ -16,11 +12,7 @@
  [{"label": "LongNamespaceExample",
    "kind": 9,
    "detail": "namespace",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 9, "character": 14}},
-    "cPos": 0}}],
+   "data": ["file:///compNamespace.lean", 9, 14, 0]}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 13, "character": 11}}
@@ -28,11 +20,7 @@
  [{"label": "LongNamespaceExample",
    "kind": 9,
    "detail": "namespace",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 13, "character": 11}},
-    "cPos": 0}}],
+   "data": ["file:///compNamespace.lean", 13, 11, 0]}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 16, "character": 16}}
@@ -40,11 +28,7 @@
  [{"label": "LongNamespaceExample",
    "kind": 9,
    "detail": "namespace",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 16, "character": 16}},
-    "cPos": 0}}],
+   "data": ["file:///compNamespace.lean", 16, 16, 0]}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 20, "character": 14}}
@@ -52,9 +36,5 @@
  [{"label": "LongNamespaceExample",
    "kind": 9,
    "detail": "namespace",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 20, "character": 14}},
-    "cPos": 0}}],
+   "data": ["file:///compNamespace.lean", 20, 14, 0]}],
  "isIncomplete": false}

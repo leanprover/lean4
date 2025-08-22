@@ -4,51 +4,26 @@
  [{"label": "binop_lazy%",
    "kind": 14,
    "detail": "keyword",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 10}},
-    "cPos": 0}},
+   "data": ["file:///keywordCompletion.lean", 4, 10, 0]},
   {"label": "bin",
    "kind": 21,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 10}},
-    "id": {"const": {"declName": "bin"}},
-    "cPos": 0}},
+   "data": ["file:///keywordCompletion.lean", 4, 10, 0, "cbin"]},
   {"label": "binrel_no_prop%",
    "kind": 14,
    "detail": "keyword",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 10}},
-    "cPos": 0}},
+   "data": ["file:///keywordCompletion.lean", 4, 10, 0]},
   {"label": "binrel%",
    "kind": 14,
    "detail": "keyword",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 10}},
-    "cPos": 0}},
+   "data": ["file:///keywordCompletion.lean", 4, 10, 0]},
   {"label": "binder_predicate",
    "kind": 14,
    "detail": "keyword",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 10}},
-    "cPos": 0}},
+   "data": ["file:///keywordCompletion.lean", 4, 10, 0]},
   {"label": "binop%",
    "kind": 14,
    "detail": "keyword",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 10}},
-    "cPos": 0}}],
+   "data": ["file:///keywordCompletion.lean", 4, 10, 0]}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///keywordCompletion.lean"},
  "position": {"line": 4, "character": 13}}
@@ -56,9 +31,5 @@
  [{"label": "binop_lazy%",
    "kind": 14,
    "detail": "keyword",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 13}},
-    "cPos": 0}}],
+   "data": ["file:///keywordCompletion.lean", 4, 13, 0]}],
  "isIncomplete": false}

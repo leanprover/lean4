@@ -3,54 +3,24 @@
 {"items":
  [{"label": "gfxacc",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
-     "position": {"line": 6, "character": 11}},
-    "id": {"const": {"declName": "gfxacc"}},
-    "cPos": 0}},
+   "data": ["file:///inWordCompletion.lean", 6, 11, 0, "cgfxacc"]},
   {"label": "gfxabc",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
-     "position": {"line": 6, "character": 11}},
-    "id": {"const": {"declName": "gfxabc"}},
-    "cPos": 0}},
+   "data": ["file:///inWordCompletion.lean", 6, 11, 0, "cgfxabc"]},
   {"label": "gfxadc",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
-     "position": {"line": 6, "character": 11}},
-    "id": {"const": {"declName": "gfxadc"}},
-    "cPos": 0}}],
+   "data": ["file:///inWordCompletion.lean", 6, 11, 0, "cgfxadc"]}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///inWordCompletion.lean"},
  "position": {"line": 14, "character": 15}}
 {"items":
  [{"label": "gfxacc",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
-     "position": {"line": 14, "character": 15}},
-    "id": {"const": {"declName": "Boo.gfxacc"}},
-    "cPos": 0}},
+   "data": ["file:///inWordCompletion.lean", 14, 15, 0, "cBoo.gfxacc"]},
   {"label": "gfxabc",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
-     "position": {"line": 14, "character": 15}},
-    "id": {"const": {"declName": "Boo.gfxabc"}},
-    "cPos": 0}},
+   "data": ["file:///inWordCompletion.lean", 14, 15, 0, "cBoo.gfxabc"]},
   {"label": "gfxadc",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
-     "position": {"line": 14, "character": 15}},
-    "id": {"const": {"declName": "Boo.gfxadc"}},
-    "cPos": 0}}],
+   "data": ["file:///inWordCompletion.lean", 14, 15, 0, "cBoo.gfxadc"]}],
  "isIncomplete": false}

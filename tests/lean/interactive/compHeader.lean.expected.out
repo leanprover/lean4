@@ -3,18 +3,8 @@
 {"items":
  [{"label": "veryLongNameForCompletion",
    "kind": 21,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///compHeader.lean"},
-     "position": {"line": 2, "character": 22}},
-    "id": {"const": {"declName": "veryLongNameForCompletion"}},
-    "cPos": 0}},
+   "data": ["file:///compHeader.lean", 2, 22, 0, "cveryLongNameForCompletion"]},
   {"label": "veryLongNam",
    "kind": 6,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///compHeader.lean"},
-     "position": {"line": 2, "character": 22}},
-    "id": {"fvar": {"id": "_uniq.7"}},
-    "cPos": 0}}],
+   "data": ["file:///compHeader.lean", 2, 22, 0, "f_uniq.7"]}],
  "isIncomplete": false}

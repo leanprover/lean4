@@ -33,6 +33,8 @@ public def mkToCtorIdx (indName : Name) : MetaM Unit := do
   prependError m!"failed to construct `T.toCtorIdx` for `{.ofConstName indName}`:" do
     unless genToCtorIdx.get (← getOptions) do return
     unless genInjectivity.get (← getOptions)  do return
+    let declName := mkToCtorIdxName indName
+    if (← hasConst declName) then return
     let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
     if (← isPropFormerType info.type) then return
     let casesOnName := mkCasesOnName indName
@@ -40,7 +42,6 @@ public def mkToCtorIdx (indName : Name) : MetaM Unit := do
     unless casesOnInfo.levelParams.length > info.levelParams.length do return
 
     let us := info.levelParams.map mkLevelParam
-    let declName := mkToCtorIdxName indName
     forallBoundedTelescope info.type (info.numParams + info.numIndices) fun xs _ => do
       withNewBinderInfos (xs.map (⟨·.fvarId!, .implicit⟩)) do
       let params : Array Expr := xs[:info.numParams]

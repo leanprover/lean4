@@ -823,8 +823,9 @@ identifier names chosen in the docstring for consistency.
     "[" >> sepBy1 ident ", " >> "]"
 
 /--
-  This is an auxiliary command for generation constructor injectivity theorems for
+  This is an auxiliary command to generate constructor injectivity theorems for
   inductive types defined at `Prelude.lean`.
+  Temporarily also controls the generation of the `toCtorIdx` definition.
   It is meant for bootstrapping purposes only. -/
 @[builtin_command_parser] def genInjectiveTheorems := leading_parser
   "gen_injective_theorems% " >> ident

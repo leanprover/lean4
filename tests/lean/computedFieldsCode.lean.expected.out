@@ -1,4 +1,32 @@
 [Compiler.IR] [result]
+    def Exp.toCtorIdx (x_1 : @& tobj) : tobj :=
+      case x_1 : tobj of
+      Exp.var →
+        let x_2 : tagged := 0;
+        ret x_2
+      Exp.app →
+        let x_3 : tagged := 1;
+        ret x_3
+      Exp.a1 →
+        let x_4 : tagged := 2;
+        ret x_4
+      Exp.a2 →
+        let x_5 : tagged := 3;
+        ret x_5
+      Exp.a3 →
+        let x_6 : tagged := 4;
+        ret x_6
+      Exp.a4 →
+        let x_7 : tagged := 5;
+        ret x_7
+      Exp.a5 →
+        let x_8 : tagged := 6;
+        ret x_8
+    def Exp.toCtorIdx._boxed (x_1 : tobj) : tobj :=
+      let x_2 : tobj := Exp.toCtorIdx x_1;
+      dec x_1;
+      ret x_2
+[Compiler.IR] [result]
     def Exp.casesOn._override._redArg (x_1 : tobj) (x_2 : tobj) (x_3 : tobj) (x_4 : @& tobj) (x_5 : @& tobj) (x_6 : @& tobj) (x_7 : @& tobj) (x_8 : @& tobj) : tobj :=
       case x_1 : tobj of
       Exp.var._impl →

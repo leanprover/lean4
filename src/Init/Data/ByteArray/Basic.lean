@@ -15,11 +15,14 @@ public import Init.Data.Option.Basic
 @[expose] public section
 universe u
 
+set_option genInjectivity false in
 structure ByteArray where
   data : Array UInt8
 
 attribute [extern "lean_byte_array_mk"] ByteArray.mk
 attribute [extern "lean_byte_array_data"] ByteArray.data
+
+gen_injective_theorems% ByteArray
 
 namespace ByteArray
 

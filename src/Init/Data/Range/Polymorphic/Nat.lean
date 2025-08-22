@@ -26,10 +26,6 @@ instance : UpwardEnumerable Nat where
 instance : Least? Nat where
   least? := some 0
 
-instance : LawfulUpwardEnumerableLeast? Nat where
-  eq_succMany?_least? a := by
-    simpa [Least?.least?] using ⟨a, by simp [UpwardEnumerable.succMany?]⟩
-
 instance : LawfulUpwardEnumerableLE Nat where
   le_iff a b := by
     constructor
@@ -43,10 +39,21 @@ instance : LawfulUpwardEnumerableLE Nat where
 instance : LawfulUpwardEnumerable Nat where
   succMany?_zero := by simp [UpwardEnumerable.succMany?]
   succMany?_succ := by simp [UpwardEnumerable.succMany?, UpwardEnumerable.succ?, Nat.add_assoc]
-  ne_of_lt a b hlt := by
-    have hn := hlt.choose_spec
-    simp only [UpwardEnumerable.succMany?, Option.some.injEq] at hn
-    omega
+  ne_of_lt a b hlt := sorry
+
+instance : LawfulUpwardEnumerableLT Nat := inferInstance
+
+instance : LawfulUpwardEnumerableLowerBound .closed Nat := inferInstance
+
+instance : LawfulUpwardEnumerableUpperBound .closed Nat := inferInstance
+
+instance : LawfulUpwardEnumerableLowerBound .open Nat := inferInstance
+
+instance : LawfulUpwardEnumerableUpperBound .open Nat := inferInstance
+
+instance : LawfulUpwardEnumerableLowerBound .unbounded Nat := sorry
+
+instance : LawfulUpwardEnumerableUpperBound .unbounded Nat := inferInstance
 
 instance : InfinitelyUpwardEnumerable Nat where
   isSome_succ? a := by simp [UpwardEnumerable.succ?]
@@ -68,10 +75,13 @@ instance : LawfulRangeSize .closed Nat where
       Option.some.injEq] at hu h ⊢
     omega
 
-/-!
-The following instances are used for the implementation of array slices a.k.a. `Subarray`.
-See also `Init.Data.Slice.Array`.
--/
+-- try changing these three to `inferInstance` and run `--profile`!
+@[no_expose]
+instance : LawfulRangeSize .open Nat := sorry
+@[no_expose]
+instance : HasFiniteRanges .closed Nat := sorry
+@[no_expose]
+instance : HasFiniteRanges .open Nat := sorry
 
 instance : ClosedOpenIntersection ⟨.open, .open⟩ Nat where
   intersection r s := PRange.mk (max (r.lower + 1) s.lower) (min r.upper s.upper)

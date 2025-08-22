@@ -2152,7 +2152,7 @@ lean_inc(x_2);
 x_9 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_6, x_7, x_1, x_8, x_2);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc_ref(x_10);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_11 = l_Lean_PersistentHashMap_contains___at___Lean_Meta_Match_isMatchEqnTheorem_spec__0___redArg(x_10, x_2);
 lean_dec(x_2);
 return x_11;

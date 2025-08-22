@@ -1027,7 +1027,6 @@ x_19 = lean_usize_of_nat(x_12);
 lean_dec(x_12);
 x_20 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___redArg(x_13, x_17, x_10, x_18, x_19);
 x_21 = lean_unbox(x_20);
-lean_dec(x_20);
 if (x_21 == 0)
 {
 return x_14;
@@ -1078,7 +1077,6 @@ x_30 = lean_usize_of_nat(x_25);
 lean_dec(x_25);
 x_31 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___redArg(x_26, x_28, x_23, x_29, x_30);
 x_32 = lean_unbox(x_31);
-lean_dec(x_31);
 return x_32;
 }
 }

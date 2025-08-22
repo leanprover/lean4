@@ -3144,7 +3144,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12;
 x_10 = lean_array_uget(x_4, x_5);
 x_11 = l_Lean_Language_SnapshotTask_get___redArg(x_10);
 x_12 = l_Lean_Language_SnapshotTree_foldM___at___Lean_Language_SnapshotTree_runAndReport_spec__0(x_1, x_2, x_3, x_11, x_7, x_8);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; size_t x_15; size_t x_16; uint8_t x_17; 

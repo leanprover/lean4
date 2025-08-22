@@ -16,12 +16,12 @@ extern "C" {
 static lean_object* l_Lake_reprConfigLang___closed__3____x40_Lake_Config_Lang___hyg_9_;
 LEAN_EXPORT lean_object* l_Lake_ConfigLang_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lake_reprConfigLang___closed__0____x40_Lake_Config_Lang___hyg_9_;
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instDecidableEqConfigLang___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_ConfigLang_ofNat(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_reprConfigLang___closed__5____x40_Lake_Config_Lang___hyg_9_;
 static lean_object* l_Lake_instToStringConfigLang___closed__0;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lake_ConfigLang_ofString_x3f___closed__0;
 static lean_object* l_Lake_reprConfigLang___closed__1____x40_Lake_Config_Lang___hyg_9_;
@@ -290,7 +290,7 @@ _start:
 {
 lean_object* x_2; uint8_t x_3; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_nat_dec_eq(x_1, x_2);
+x_3 = lean_nat_dec_le(x_1, x_2);
 if (x_3 == 0)
 {
 uint8_t x_4; 

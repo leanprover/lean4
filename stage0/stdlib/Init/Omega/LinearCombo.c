@@ -1030,7 +1030,7 @@ x_10 = l_List_mapTR_loop___redArg(x_1, x_8, x_9);
 x_11 = l_Lean_Omega_LinearCombo_instToString___lam__2___closed__0;
 x_12 = l_List_foldl___redArg(x_2, x_11, x_10);
 x_13 = lean_string_append(x_6, x_12);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 return x_13;
 }
 }

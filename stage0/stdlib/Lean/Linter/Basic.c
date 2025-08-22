@@ -1291,7 +1291,7 @@ if (x_12 == 0)
 {
 uint8_t x_13; 
 lean_dec(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_13 = lean_unbox(x_4);
 x_5 = x_13;
 goto block_8;
@@ -1302,7 +1302,7 @@ if (x_12 == 0)
 {
 uint8_t x_14; 
 lean_dec(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_14 = lean_unbox(x_4);
 x_5 = x_14;
 goto block_8;
@@ -1314,7 +1314,7 @@ x_15 = 0;
 x_16 = lean_usize_of_nat(x_11);
 lean_dec(x_11);
 x_17 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Linter_getLinterValue_spec__2(x_2, x_9, x_15, x_16);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 if (x_17 == 0)
 {
 uint8_t x_18; 

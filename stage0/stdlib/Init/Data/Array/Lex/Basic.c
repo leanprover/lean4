@@ -994,7 +994,7 @@ lean_closure_set(x_16, 5, x_15);
 x_17 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___redArg(x_6, x_7, x_5, x_11, x_15, x_16, x_8);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 if (lean_obj_tag(x_18) == 0)
 {
 return x_12;

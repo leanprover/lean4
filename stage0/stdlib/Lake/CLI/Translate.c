@@ -49,6 +49,7 @@ lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__12;
 static lean_object* l_Lake_Package_mkConfigString___closed__14;
 static lean_object* l_Lake_Package_mkConfigString___closed__32;
+uint8_t l_Lean_Option_get___at___Lean_Firefox_Profile_export_spec__10(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__16;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -91,7 +92,6 @@ lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lake_Package_mkConfigString___closed__19;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeSyntax(lean_object*);
-uint8_t l_Lean_Option_get___at___Lean_Firefox_Profile_export_spec__9(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__18;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeTSyntax___boxed(lean_object*, lean_object*);
@@ -510,7 +510,7 @@ _start:
 lean_object* x_1; lean_object* x_2; uint8_t x_3; 
 x_1 = l_Lake_Package_mkConfigString___closed__25;
 x_2 = lean_box(0);
-x_3 = l_Lean_Option_get___at___Lean_Firefox_Profile_export_spec__9(x_2, x_1);
+x_3 = l_Lean_Option_get___at___Lean_Firefox_Profile_export_spec__10(x_2, x_1);
 return x_3;
 }
 }
@@ -668,7 +668,7 @@ block_115:
 {
 lean_object* x_60; lean_object* x_61; lean_object* x_62; 
 x_60 = l_Lake_Package_mkConfigString___closed__28;
-x_61 = lean_alloc_ctor(0, 13, 2);
+x_61 = lean_alloc_ctor(0, 14, 2);
 lean_ctor_set(x_61, 0, x_52);
 lean_ctor_set(x_61, 1, x_53);
 lean_ctor_set(x_61, 2, x_20);
@@ -679,11 +679,12 @@ lean_ctor_set(x_61, 6, x_29);
 lean_ctor_set(x_61, 7, x_20);
 lean_ctor_set(x_61, 8, x_26);
 lean_ctor_set(x_61, 9, x_55);
-lean_ctor_set(x_61, 10, x_18);
-lean_ctor_set(x_61, 11, x_56);
-lean_ctor_set(x_61, 12, x_44);
-lean_ctor_set_uint8(x_61, sizeof(void*)*13, x_57);
-lean_ctor_set_uint8(x_61, sizeof(void*)*13 + 1, x_17);
+lean_ctor_set(x_61, 10, x_29);
+lean_ctor_set(x_61, 11, x_18);
+lean_ctor_set(x_61, 12, x_56);
+lean_ctor_set(x_61, 13, x_44);
+lean_ctor_set_uint8(x_61, sizeof(void*)*14, x_57);
+lean_ctor_set_uint8(x_61, sizeof(void*)*14 + 1, x_17);
 x_62 = l_Lean_PrettyPrinter_ppModule(x_51, x_61, x_58, x_59);
 if (lean_obj_tag(x_62) == 0)
 {

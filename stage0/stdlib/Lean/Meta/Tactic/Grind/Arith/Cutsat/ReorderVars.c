@@ -2233,7 +2233,7 @@ goto block_67;
 block_57:
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; uint8_t x_54; 
-x_48 = l_Lean_PersistentArray_forIn___at_____private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_collectVarInfo_go_spec__0(x_1, x_47, x_1, x_45, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_46);
+x_48 = l_Lean_PersistentArray_forIn___at_____private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_collectVarInfo_go_spec__0(x_1, x_47, x_1, x_46, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_45);
 x_49 = lean_ctor_get(x_48, 0);
 lean_inc(x_49);
 x_50 = lean_ctor_get(x_48, 1);
@@ -2282,8 +2282,8 @@ if (x_64 == 0)
 {
 lean_object* x_65; 
 x_65 = l_outOfBounds___redArg(x_58);
-x_45 = x_63;
-x_46 = x_62;
+x_45 = x_62;
+x_46 = x_63;
 x_47 = x_65;
 goto block_57;
 }
@@ -2292,8 +2292,8 @@ else
 lean_object* x_66; 
 lean_inc_ref(x_44);
 x_66 = l_Lean_PersistentArray_get_x21___redArg(x_58, x_44, x_5);
-x_45 = x_63;
-x_46 = x_62;
+x_45 = x_62;
+x_46 = x_63;
 x_47 = x_66;
 goto block_57;
 }
@@ -7436,7 +7436,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 2);
-x_5 = lean_ctor_get(x_2, 12);
+x_5 = lean_ctor_get(x_2, 13);
 x_6 = l_Lean_checkTraceOption(x_5, x_4, x_1);
 x_7 = lean_box(x_6);
 x_8 = lean_alloc_ctor(0, 2, 0);

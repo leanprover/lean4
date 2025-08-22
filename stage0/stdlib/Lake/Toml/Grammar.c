@@ -4487,14 +4487,14 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lake_Toml_decNumeralAuxFn(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; uint32_t x_6; uint8_t x_7; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+lean_object* x_4; uint32_t x_5; lean_object* x_6; uint8_t x_7; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_12 = lean_ctor_get(x_2, 0);
 x_13 = lean_ctor_get(x_12, 0);
 x_14 = lean_ctor_get(x_3, 2);
 x_15 = lean_string_utf8_at_end(x_13, x_14);
 if (x_15 == 0)
 {
-lean_object* x_16; lean_object* x_17; uint8_t x_18; uint32_t x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; uint32_t x_46; lean_object* x_47; lean_object* x_48; uint8_t x_49; lean_object* x_63; uint8_t x_64; uint32_t x_68; lean_object* x_69; uint8_t x_70; uint32_t x_91; uint8_t x_92; 
+lean_object* x_16; lean_object* x_17; uint8_t x_18; uint32_t x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_46; lean_object* x_47; uint32_t x_48; uint8_t x_49; lean_object* x_63; uint8_t x_64; uint32_t x_68; lean_object* x_69; uint8_t x_70; uint32_t x_91; uint8_t x_92; 
 x_16 = l_Lake_Toml_decNumberTailAuxFn___closed__0;
 x_68 = lean_string_utf8_get_fast(x_13, x_14);
 x_69 = lean_string_utf8_next_fast(x_13, x_14);
@@ -4562,8 +4562,8 @@ x_35 = lean_uint32_dec_le(x_34, x_30);
 if (x_35 == 0)
 {
 x_4 = x_31;
-x_5 = x_27;
-x_6 = x_30;
+x_5 = x_30;
+x_6 = x_27;
 x_7 = x_35;
 goto block_11;
 }
@@ -4573,8 +4573,8 @@ uint32_t x_36; uint8_t x_37;
 x_36 = 57;
 x_37 = lean_uint32_dec_le(x_30, x_36);
 x_4 = x_31;
-x_5 = x_27;
-x_6 = x_30;
+x_5 = x_30;
+x_6 = x_27;
 x_7 = x_37;
 goto block_11;
 }
@@ -4616,13 +4616,13 @@ block_62:
 if (x_49 == 0)
 {
 lean_object* x_50; 
-x_50 = l_Lake_Toml_decNumberSepFn(x_1, x_46, x_48, x_2, x_47);
+x_50 = l_Lake_Toml_decNumberSepFn(x_1, x_48, x_47, x_2, x_46);
 return x_50;
 }
 else
 {
 lean_object* x_51; lean_object* x_52; uint8_t x_53; 
-x_51 = l_Lean_Parser_ParserState_setPos(x_47, x_48);
+x_51 = l_Lean_Parser_ParserState_setPos(x_46, x_47);
 x_52 = lean_ctor_get(x_51, 2);
 lean_inc(x_52);
 x_53 = lean_string_utf8_at_end(x_13, x_52);
@@ -4710,9 +4710,9 @@ x_79 = 48;
 x_80 = lean_uint32_dec_le(x_79, x_75);
 if (x_80 == 0)
 {
-x_46 = x_75;
-x_47 = x_72;
-x_48 = x_76;
+x_46 = x_72;
+x_47 = x_76;
+x_48 = x_75;
 x_49 = x_80;
 goto block_62;
 }
@@ -4721,9 +4721,9 @@ else
 uint32_t x_81; uint8_t x_82; 
 x_81 = 57;
 x_82 = lean_uint32_dec_le(x_75, x_81);
-x_46 = x_75;
-x_47 = x_72;
-x_48 = x_76;
+x_46 = x_72;
+x_47 = x_76;
+x_48 = x_75;
 x_49 = x_82;
 goto block_62;
 }
@@ -4776,13 +4776,13 @@ block_11:
 if (x_7 == 0)
 {
 lean_object* x_8; 
-x_8 = l_Lake_Toml_decNumberSepFn(x_1, x_6, x_4, x_2, x_5);
+x_8 = l_Lake_Toml_decNumberSepFn(x_1, x_5, x_4, x_2, x_6);
 return x_8;
 }
 else
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = l_Lean_Parser_ParserState_setPos(x_5, x_4);
+x_9 = l_Lean_Parser_ParserState_setPos(x_6, x_4);
 x_10 = l_Lake_Toml_decNumberAuxFn(x_1, x_2, x_9);
 return x_10;
 }

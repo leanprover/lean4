@@ -1240,7 +1240,7 @@ x_13 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg
 lean_dec(x_10);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc_ref(x_14);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 lean_inc_ref(x_2);
 x_15 = lean_apply_3(x_14, x_1, x_2, x_3);
 if (lean_obj_tag(x_15) == 0)
@@ -1508,7 +1508,7 @@ x_10 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg
 lean_dec(x_7);
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc_ref(x_11);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 lean_inc(x_2);
 x_12 = lean_apply_3(x_11, x_1, x_2, x_3);
 if (lean_obj_tag(x_12) == 0)
@@ -1719,7 +1719,7 @@ x_12 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg
 lean_dec(x_9);
 x_13 = lean_ctor_get(x_12, 2);
 lean_inc_ref(x_13);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 lean_inc(x_2);
 lean_inc_ref(x_1);
 x_14 = lean_apply_3(x_13, x_1, x_2, x_3);
@@ -1890,7 +1890,7 @@ x_9 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(
 lean_dec(x_6);
 x_10 = lean_ctor_get(x_9, 3);
 lean_inc_ref(x_10);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_11 = lean_apply_3(x_10, x_1, x_2, x_3);
 return x_11;
 }
@@ -1948,7 +1948,7 @@ x_10 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg
 lean_dec(x_7);
 x_11 = lean_ctor_get(x_10, 4);
 lean_inc_ref(x_11);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 lean_inc(x_2);
 x_12 = lean_apply_3(x_11, x_1, x_2, x_3);
 if (lean_obj_tag(x_12) == 0)

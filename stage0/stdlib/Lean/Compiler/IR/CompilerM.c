@@ -2064,7 +2064,7 @@ x_8 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(
 lean_dec(x_5);
 x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_10 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(x_3, x_9);
 lean_dec(x_9);
 return x_10;
@@ -2206,8 +2206,8 @@ x_27 = l_Lean_getExportNameFor_x3f(x_1, x_24);
 if (lean_obj_tag(x_27) == 0)
 {
 x_11 = x_26;
-x_12 = x_24;
-x_13 = x_25;
+x_12 = x_25;
+x_13 = x_24;
 goto block_19;
 }
 else
@@ -2243,8 +2243,8 @@ else
 {
 lean_dec(x_28);
 x_11 = x_26;
-x_12 = x_24;
-x_13 = x_25;
+x_12 = x_25;
+x_13 = x_24;
 goto block_19;
 }
 }
@@ -2298,16 +2298,16 @@ goto _start;
 block_19:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_inc(x_12);
+lean_inc(x_13);
 x_14 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_14, 0, x_12);
+lean_ctor_set(x_14, 0, x_13);
 x_15 = lean_box(0);
 x_16 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
 x_17 = lean_alloc_ctor(1, 4, 0);
-lean_ctor_set(x_17, 0, x_12);
-lean_ctor_set(x_17, 1, x_13);
+lean_ctor_set(x_17, 0, x_13);
+lean_ctor_set(x_17, 1, x_12);
 lean_ctor_set(x_17, 2, x_11);
 lean_ctor_set(x_17, 3, x_16);
 x_18 = lean_array_push(x_5, x_17);

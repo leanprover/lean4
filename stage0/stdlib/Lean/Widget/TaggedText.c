@@ -1456,7 +1456,7 @@ return x_2;
 else
 {
 lean_object* x_27; lean_object* x_28; 
-lean_dec(x_12);
+lean_dec_ref(x_12);
 lean_ctor_set_tag(x_2, 0);
 lean_ctor_set(x_2, 0, x_1);
 x_27 = lean_array_push(x_10, x_2);
@@ -1506,7 +1506,7 @@ return x_40;
 else
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
-lean_dec(x_31);
+lean_dec_ref(x_31);
 x_41 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_41, 0, x_1);
 x_42 = lean_array_push(x_29, x_41);

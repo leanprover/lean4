@@ -926,7 +926,6 @@ x_26 = l_Lean_KVMap_instValueBool;
 x_27 = l_Lean_logAt___redArg___lam__4___closed__0;
 x_28 = l_Lean_Option_get___redArg(x_26, x_10, x_27);
 x_29 = lean_unbox(x_28);
-lean_dec(x_28);
 x_22 = x_29;
 goto block_23;
 }

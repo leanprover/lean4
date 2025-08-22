@@ -11437,7 +11437,7 @@ lean_object* x_31; lean_object* x_32; uint8_t x_33;
 x_31 = l_Lean_instInhabitedExpr;
 x_32 = l_Lean_PersistentArray_get_x21___redArg(x_31, x_1, x_21);
 x_33 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_20, x_32);
-lean_dec(x_32);
+lean_dec_ref(x_32);
 if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; 

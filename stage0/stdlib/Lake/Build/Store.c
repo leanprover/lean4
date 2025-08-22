@@ -269,7 +269,7 @@ x_5 = l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10;
 x_6 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_4, x_3, x_5, x_1);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_7;
 }
 }
@@ -388,7 +388,7 @@ x_5 = lean_box(1);
 x_6 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_4, x_3, x_5, x_1);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_7;
 }
 }
@@ -502,7 +502,7 @@ x_5 = l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10;
 x_6 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_4, x_3, x_5, x_1);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_7;
 }
 }
@@ -582,7 +582,7 @@ x_5 = l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10;
 x_6 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_4, x_3, x_5, x_1);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_7;
 }
 }

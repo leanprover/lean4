@@ -495,6 +495,8 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Lean_Elab_Tactic_Do_ProofMode_Frame_0__Lean_Elab_Tactic_Do_ProofMode_transferHypNames_label_spec__1___closed__1;
+lean_inc(x_8);
+lean_inc_ref(x_7);
 x_11 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_10, x_7, x_8, x_9);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -2420,8 +2422,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___redArg___lam__5(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 return x_7;
@@ -3226,6 +3226,8 @@ x_52 = lean_ctor_get(x_50, 1);
 lean_inc(x_52);
 lean_dec_ref(x_50);
 x_53 = l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Lean_Elab_Tactic_Do_ProofMode_Frame_0__Lean_Elab_Tactic_Do_ProofMode_transferHypNames_label_spec__1___closed__1;
+lean_inc(x_11);
+lean_inc_ref(x_10);
 x_54 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_53, x_10, x_11, x_52);
 if (lean_obj_tag(x_54) == 0)
 {
@@ -3566,6 +3568,8 @@ x_105 = lean_ctor_get(x_103, 1);
 lean_inc(x_105);
 lean_dec_ref(x_103);
 x_106 = l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Lean_Elab_Tactic_Do_ProofMode_Frame_0__Lean_Elab_Tactic_Do_ProofMode_transferHypNames_label_spec__1___closed__1;
+lean_inc(x_11);
+lean_inc_ref(x_10);
 x_107 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_106, x_10, x_11, x_105);
 if (lean_obj_tag(x_107) == 0)
 {
@@ -3962,6 +3966,8 @@ x_167 = lean_ctor_get(x_165, 1);
 lean_inc(x_167);
 lean_dec_ref(x_165);
 x_168 = l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Lean_Elab_Tactic_Do_ProofMode_Frame_0__Lean_Elab_Tactic_Do_ProofMode_transferHypNames_label_spec__1___closed__1;
+lean_inc(x_11);
+lean_inc_ref(x_10);
 x_169 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_168, x_10, x_11, x_167);
 if (lean_obj_tag(x_169) == 0)
 {

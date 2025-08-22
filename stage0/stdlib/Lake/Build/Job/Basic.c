@@ -56,7 +56,6 @@ lean_object* lean_task_pure(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_map___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_Job_mapResult___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lake_reprJobAction___closed__0____x40_Lake_Build_Job_Basic___hyg_22_;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_reprJobAction___closed__3____x40_Lake_Build_Job_Basic___hyg_22_;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Array_empty(lean_object*);
@@ -514,41 +513,42 @@ LEAN_EXPORT uint8_t l_Lake_JobAction_ofNat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_nat_dec_le(x_2, x_1);
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = lean_nat_dec_le(x_1, x_2);
 if (x_3 == 0)
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_nat_dec_eq(x_1, x_4);
+x_4 = lean_unsigned_to_nat(2u);
+x_5 = lean_nat_dec_le(x_1, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
-x_6 = 1;
+x_6 = 3;
 return x_6;
 }
 else
 {
 uint8_t x_7; 
-x_7 = 0;
+x_7 = 2;
 return x_7;
 }
 }
 else
 {
-uint8_t x_8; 
-x_8 = lean_nat_dec_eq(x_1, x_2);
-if (x_8 == 0)
+lean_object* x_8; uint8_t x_9; 
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = lean_nat_dec_le(x_1, x_8);
+if (x_9 == 0)
 {
-uint8_t x_9; 
-x_9 = 3;
-return x_9;
+uint8_t x_10; 
+x_10 = 1;
+return x_10;
 }
 else
 {
-uint8_t x_10; 
-x_10 = 2;
-return x_10;
+uint8_t x_11; 
+x_11 = 0;
+return x_11;
 }
 }
 }

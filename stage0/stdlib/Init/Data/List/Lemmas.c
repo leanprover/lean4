@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Lemmas
-// Imports: Init.Data.Bool Init.Data.Option.Lemmas Init.Data.List.BasicAux Init.Data.List.Control Init.Control.Lawful.Basic Init.BinderPredicates
+// Imports: Init.Data.Bool Init.Data.Option.Lemmas Init.Data.List.BasicAux Init.Data.List.BasicAux Init.Data.List.Control Init.Data.List.Control Init.Control.Lawful.Basic Init.BinderPredicates
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -991,6 +991,8 @@ return x_7;
 lean_object* initialize_Init_Data_Bool(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Control_Lawful_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_BinderPredicates(uint8_t builtin, lean_object*);
@@ -1006,6 +1008,12 @@ res = initialize_Init_Data_Option_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_BasicAux(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_BasicAux(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Ordered.Linarith
-// Imports: Init.Grind.Ordered.Module Init.Grind.Ordered.Ring Init.Grind.Ring.Field Init.Data.Ord.Basic Init.Data.AC Init.Data.RArray
+// Imports: Init.Grind.Ordered.Module Init.Grind.Ordered.Ring Init.Grind.Ring.Field Init.Data.Ord.Basic Init.Data.Ord.Basic Init.Data.AC Init.Data.AC Init.Data.RArray
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -954,11 +954,11 @@ if (lean_is_scalar(x_107)) {
  x_113 = x_107;
  lean_ctor_set_tag(x_113, 5);
 }
-lean_ctor_set(x_113, 0, x_110);
+lean_ctor_set(x_113, 0, x_111);
 lean_ctor_set(x_113, 1, x_112);
 x_114 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_114, 0, x_113);
-lean_ctor_set(x_114, 1, x_111);
+lean_ctor_set(x_114, 1, x_110);
 x_115 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_407_(x_106, x_108);
 x_116 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_116, 0, x_114);
@@ -988,8 +988,8 @@ lean_dec(x_105);
 x_128 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_128, 0, x_127);
 x_109 = x_122;
-x_110 = x_124;
-x_111 = x_123;
+x_110 = x_123;
+x_111 = x_124;
 x_112 = x_128;
 goto block_121;
 }
@@ -1002,8 +1002,8 @@ x_130 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_130, 0, x_129);
 x_131 = l_Repr_addAppParen(x_130, x_108);
 x_109 = x_122;
-x_110 = x_124;
-x_111 = x_123;
+x_110 = x_123;
+x_111 = x_124;
 x_112 = x_131;
 goto block_121;
 }
@@ -1419,12 +1419,12 @@ block_34:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; lean_object* x_32; lean_object* x_33; 
 x_22 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_22, 0, x_19);
+lean_ctor_set(x_22, 0, x_18);
 lean_ctor_set(x_22, 1, x_21);
-lean_inc(x_18);
+lean_inc(x_19);
 x_23 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
-lean_ctor_set(x_23, 1, x_18);
+lean_ctor_set(x_23, 1, x_19);
 x_24 = l_Nat_reprFast(x_15);
 x_25 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
@@ -1433,7 +1433,7 @@ lean_ctor_set(x_26, 0, x_23);
 lean_ctor_set(x_26, 1, x_25);
 x_27 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
-lean_ctor_set(x_27, 1, x_18);
+lean_ctor_set(x_27, 1, x_19);
 x_28 = l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1060_(x_16, x_17);
 x_29 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
@@ -1462,8 +1462,8 @@ x_40 = l_Int_repr(x_14);
 lean_dec(x_14);
 x_41 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_41, 0, x_40);
-x_18 = x_36;
-x_19 = x_37;
+x_18 = x_37;
+x_19 = x_36;
 x_20 = x_35;
 x_21 = x_41;
 goto block_34;
@@ -1476,8 +1476,8 @@ lean_dec(x_14);
 x_43 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_43, 0, x_42);
 x_44 = l_Repr_addAppParen(x_43, x_17);
-x_18 = x_36;
-x_19 = x_37;
+x_18 = x_37;
+x_19 = x_36;
 x_20 = x_35;
 x_21 = x_44;
 goto block_34;
@@ -3380,6 +3380,8 @@ lean_object* initialize_Init_Grind_Ordered_Module(uint8_t builtin, lean_object*)
 lean_object* initialize_Init_Grind_Ordered_Ring(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ring_Field(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_RArray(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -3397,6 +3399,12 @@ res = initialize_Init_Grind_Ring_Field(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_AC(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_AC(builtin, lean_io_mk_world());

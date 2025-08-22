@@ -1233,7 +1233,7 @@ x_9 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(
 lean_dec_ref(x_4);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc___hyg_39__spec__4_spec__4___closed__0;
 x_12 = lean_array_size(x_10);
 x_13 = 0;

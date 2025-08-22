@@ -804,7 +804,7 @@ x_11 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg
 lean_dec(x_9);
 x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_13 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(x_7, x_12);
 lean_dec(x_12);
 return x_13;
@@ -914,7 +914,7 @@ lean_dec(x_8);
 lean_dec_ref(x_7);
 x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_13 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(x_3, x_12);
 lean_dec(x_12);
 return x_13;
@@ -5098,7 +5098,7 @@ x_20 = l_Lean_PersistentEnvExtension_getState___redArg(x_11, x_15, x_9, x_18, x_
 lean_dec(x_18);
 lean_dec_ref(x_15);
 x_21 = l_Lean_PersistentHashMap_forM___at___Lean_Compiler_LCNF_forEachDecl_spec__0___redArg(x_20, x_10, x_3, x_4, x_16);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 return x_21;
 }
 }
@@ -5733,7 +5733,7 @@ x_16 = l_Lean_PersistentEnvExtension_getState___redArg(x_14, x_10, x_9, x_12, x_
 lean_dec(x_12);
 lean_dec_ref(x_10);
 x_17 = l_Lean_PersistentHashMap_forM___at___Lean_Compiler_LCNF_forEachDecl_spec__0___redArg(x_16, x_13, x_3, x_4, x_8);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 return x_17;
 }
 }

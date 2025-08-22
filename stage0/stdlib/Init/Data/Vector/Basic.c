@@ -4777,7 +4777,7 @@ lean_ctor_set(x_6, 0, x_3);
 lean_ctor_set(x_6, 1, x_1);
 x_7 = l_Vector_swapAt_x21___redArg___closed__0;
 x_8 = l_Vector_swapAt_x21___redArg___closed__1;
-x_9 = lean_unsigned_to_nat(444u);
+x_9 = lean_unsigned_to_nat(446u);
 x_10 = lean_unsigned_to_nat(4u);
 x_11 = l_Vector_swapAt_x21___redArg___closed__2;
 x_12 = l_Nat_reprFast(x_2);
@@ -4835,7 +4835,7 @@ lean_ctor_set(x_8, 0, x_5);
 lean_ctor_set(x_8, 1, x_3);
 x_9 = l_Vector_swapAt_x21___redArg___closed__0;
 x_10 = l_Vector_swapAt_x21___redArg___closed__1;
-x_11 = lean_unsigned_to_nat(444u);
+x_11 = lean_unsigned_to_nat(446u);
 x_12 = lean_unsigned_to_nat(4u);
 x_13 = l_Vector_swapAt_x21___redArg___closed__2;
 x_14 = l_Nat_reprFast(x_4);
@@ -8107,7 +8107,7 @@ lean_closure_set(x_13, 5, x_11);
 x_14 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___redArg(x_7, x_12, x_6, x_1, x_11, x_13, x_8);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 if (lean_obj_tag(x_15) == 0)
 {
 uint8_t x_16; 

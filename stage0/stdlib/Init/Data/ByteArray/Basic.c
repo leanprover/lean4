@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ByteArray.Basic
-// Imports: Init.Data.Array.Basic Init.Data.Array.DecidableEq Init.Data.UInt.Basic Init.Data.UInt.BasicAux Init.Data.Option.Basic
+// Imports: Init.Data.Array.Basic Init.Data.Array.DecidableEq Init.Data.UInt.Basic Init.Data.UInt.BasicAux Init.Data.UInt.BasicAux Init.Data.Option.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2683,7 +2683,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_ByteArray_toUInt64LE_x21___closed__2;
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(366u);
+x_3 = lean_unsigned_to_nat(367u);
 x_4 = l_ByteArray_toUInt64LE_x21___closed__1;
 x_5 = l_ByteArray_toUInt64LE_x21___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2790,7 +2790,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_ByteArray_toUInt64LE_x21___closed__2;
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(378u);
+x_3 = lean_unsigned_to_nat(379u);
 x_4 = l_ByteArray_toUInt64BE_x21___closed__0;
 x_5 = l_ByteArray_toUInt64LE_x21___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2878,6 +2878,7 @@ lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_DecidableEq(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin, lean_object* w) {
@@ -2891,6 +2892,9 @@ res = initialize_Init_Data_Array_DecidableEq(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_BasicAux(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_UInt_BasicAux(builtin, lean_io_mk_world());

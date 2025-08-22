@@ -230,7 +230,6 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instOrdPos___lam__0___boxed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OutStream_getLogger___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftIOLoggerIO;
 LEAN_EXPORT uint8_t l_Lake_Log_hasEntries(lean_object*);
 lean_object* l_Lake_EStateT_instFunctor___redArg(lean_object*);
@@ -917,18 +916,13 @@ LEAN_EXPORT uint8_t l_Lake_Verbosity_ofNat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = lean_unsigned_to_nat(1u);
-x_3 = lean_nat_dec_le(x_2, x_1);
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_nat_dec_le(x_1, x_2);
 if (x_3 == 0)
 {
-uint8_t x_4; 
-x_4 = 0;
-return x_4;
-}
-else
-{
-uint8_t x_5; 
-x_5 = lean_nat_dec_eq(x_1, x_2);
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = lean_nat_dec_le(x_1, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
@@ -941,6 +935,12 @@ uint8_t x_7;
 x_7 = 1;
 return x_7;
 }
+}
+else
+{
+uint8_t x_8; 
+x_8 = 0;
+return x_8;
 }
 }
 }
@@ -1732,41 +1732,42 @@ LEAN_EXPORT uint8_t l_Lake_LogLevel_ofNat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_nat_dec_le(x_2, x_1);
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = lean_nat_dec_le(x_1, x_2);
 if (x_3 == 0)
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_nat_dec_eq(x_1, x_4);
+x_4 = lean_unsigned_to_nat(2u);
+x_5 = lean_nat_dec_le(x_1, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
-x_6 = 1;
+x_6 = 3;
 return x_6;
 }
 else
 {
 uint8_t x_7; 
-x_7 = 0;
+x_7 = 2;
 return x_7;
 }
 }
 else
 {
-uint8_t x_8; 
-x_8 = lean_nat_dec_eq(x_1, x_2);
-if (x_8 == 0)
+lean_object* x_8; uint8_t x_9; 
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = lean_nat_dec_le(x_1, x_8);
+if (x_9 == 0)
 {
-uint8_t x_9; 
-x_9 = 3;
-return x_9;
+uint8_t x_10; 
+x_10 = 1;
+return x_10;
 }
 else
 {
-uint8_t x_10; 
-x_10 = 2;
-return x_10;
+uint8_t x_11; 
+x_11 = 0;
+return x_11;
 }
 }
 }
@@ -5650,7 +5651,6 @@ x_9 = lean_usize_of_nat(x_4);
 lean_dec(x_4);
 x_10 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___redArg(x_5, x_7, x_2, x_8, x_9);
 x_11 = lean_unbox(x_10);
-lean_dec(x_10);
 return x_11;
 }
 }

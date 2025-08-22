@@ -1299,7 +1299,7 @@ x_8 = lean_ctor_get(x_7, 2);
 x_9 = lean_box(0);
 x_10 = l_Lean_PersistentEnvExtension_getState___redArg(x_4, x_6, x_2, x_8, x_9);
 x_11 = l_Array_contains___at___Lean_registerInternalExceptionId_spec__0(x_10, x_3);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 return x_11;
 }
 else
@@ -1440,7 +1440,7 @@ block_13:
 lean_object* x_11; lean_object* x_12; 
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_12 = l_Array_append___redArg(x_10, x_11);
 lean_dec(x_11);
 return x_12;

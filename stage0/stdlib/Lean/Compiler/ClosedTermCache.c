@@ -1236,7 +1236,7 @@ x_7 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(
 lean_dec(x_4);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_9 = l_Lean_PersistentHashMap_find_x3f___at___Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69__spec__5___redArg(x_8, x_2);
 return x_9;
 }
@@ -1263,7 +1263,7 @@ x_7 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(
 lean_dec(x_4);
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_9 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(x_2, x_8);
 lean_dec(x_8);
 return x_9;

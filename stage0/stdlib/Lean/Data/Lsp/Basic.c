@@ -113,6 +113,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_Tre
 LEAN_EXPORT lean_object* l_Lean_Lsp_MarkupKind_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Lsp_MarkupKind_ofNat(lean_object*);
 lean_object* l_Lean_Lsp_fromJsonPosition____x40_Lean_Data_Lsp_BasicAux___hyg_277_(lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_fromJsonTextDocumentPositionParams___closed__1____x40_Lean_Data_Lsp_Basic___hyg_4438_;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonWorkDoneProgressReport;
@@ -298,7 +299,6 @@ static lean_object* l_Lean_Lsp_fromJsonChangeAnnotation___closed__6____x40_Lean_
 static lean_object* l_Lean_Lsp_fromJsonApplyWorkspaceEditParams___closed__0____x40_Lean_Data_Lsp_Basic___hyg_3952_;
 static lean_object* l_Lean_Lsp_toJsonLocationLink___closed__1____x40_Lean_Data_Lsp_Basic___hyg_381_;
 static lean_object* l_Lean_Lsp_fromJsonSnippetString___closed__5____x40_Lean_Data_Lsp_Basic___hyg_925_;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_fromJsonTextDocumentIdentifier___closed__1____x40_Lean_Data_Lsp_Basic___hyg_1405_;
 static lean_object* l_Lean_Lsp_fromJsonResolveSupport___closed__5____x40_Lean_Data_Lsp_Basic___hyg_6351_;
 static lean_object* l_Lean_Lsp_fromJsonTextDocumentItem___closed__1____x40_Lean_Data_Lsp_Basic___hyg_4179_;
@@ -13690,7 +13690,7 @@ _start:
 {
 lean_object* x_2; uint8_t x_3; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_nat_dec_eq(x_1, x_2);
+x_3 = lean_nat_dec_le(x_1, x_2);
 if (x_3 == 0)
 {
 uint8_t x_4; 

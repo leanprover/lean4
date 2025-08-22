@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Find
-// Imports: Init.Data.List.Lemmas Init.Data.List.Sublist Init.Data.List.Range Init.Data.List.Impl Init.Data.List.Attach Init.Data.Fin.Lemmas
+// Imports: Init.Data.List.Lemmas Init.Data.List.Sublist Init.Data.List.Range Init.Data.List.Impl Init.Data.List.Attach Init.Data.List.Attach Init.Data.Fin.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -344,6 +344,7 @@ lean_object* initialize_Init_Data_List_Sublist(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Range(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Impl(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Attach(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Find(uint8_t builtin, lean_object* w) {
@@ -360,6 +361,9 @@ res = initialize_Init_Data_List_Range(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Impl(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Attach(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Attach(builtin, lean_io_mk_world());

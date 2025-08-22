@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Linear
-// Imports: Init.ByCases Init.Data.Prod Init.Data.Int.Lemmas Init.Data.Int.LemmasAux Init.Data.Int.DivMod.Bootstrap Init.Data.Int.Cooper Init.Data.Int.Gcd Init.Data.RArray Init.Data.AC
+// Imports: Init.ByCases Init.Data.Prod Init.Data.Int.Lemmas Init.Data.Int.LemmasAux Init.Data.Int.DivMod.Bootstrap Init.Data.Int.Cooper Init.Data.Int.Gcd Init.Data.Int.Gcd Init.Data.RArray Init.Data.AC Init.Data.AC
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3000,7 +3000,9 @@ lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_DivMod_Bootstrap(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Cooper(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Gcd(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_Gcd(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_RArray(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_Linear(uint8_t builtin, lean_object* w) {
@@ -3028,7 +3030,13 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Int_Gcd(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Int_Gcd(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_RArray(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_AC(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_AC(builtin, lean_io_mk_world());

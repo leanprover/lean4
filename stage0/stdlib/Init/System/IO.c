@@ -265,7 +265,6 @@ static lean_object* l_IO_instToStringTaskState___closed__0;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* lean_io_allocprof(lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_reprTaskState___closed__0____x40_Init_System_IO___hyg_1437_;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_bindTask___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l_IO_FS_Stream_readToEnd___closed__0;
 lean_object* lean_io_set_heartbeats(lean_object*, lean_object*);
@@ -3354,18 +3353,13 @@ LEAN_EXPORT uint8_t l_IO_TaskState_ofNat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = lean_unsigned_to_nat(1u);
-x_3 = lean_nat_dec_le(x_2, x_1);
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_nat_dec_le(x_1, x_2);
 if (x_3 == 0)
 {
-uint8_t x_4; 
-x_4 = 0;
-return x_4;
-}
-else
-{
-uint8_t x_5; 
-x_5 = lean_nat_dec_eq(x_1, x_2);
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = lean_nat_dec_le(x_1, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
@@ -3378,6 +3372,12 @@ uint8_t x_7;
 x_7 = 1;
 return x_7;
 }
+}
+else
+{
+uint8_t x_8; 
+x_8 = 0;
+return x_8;
 }
 }
 }
@@ -9589,8 +9589,8 @@ goto block_19;
 block_7:
 {
 uint32_t x_5; uint32_t x_6; 
-x_5 = lean_uint32_lor(x_2, x_4);
-x_6 = lean_uint32_lor(x_3, x_5);
+x_5 = lean_uint32_lor(x_3, x_4);
+x_6 = lean_uint32_lor(x_2, x_5);
 return x_6;
 }
 block_15:
@@ -9599,8 +9599,8 @@ if (x_10 == 0)
 {
 uint32_t x_13; 
 x_13 = 0;
-x_2 = x_12;
-x_3 = x_11;
+x_2 = x_11;
+x_3 = x_12;
 x_4 = x_13;
 goto block_7;
 }
@@ -9608,8 +9608,8 @@ else
 {
 uint32_t x_14; 
 x_14 = 1;
-x_2 = x_12;
-x_3 = x_11;
+x_2 = x_11;
+x_3 = x_12;
 x_4 = x_14;
 goto block_7;
 }
@@ -10916,7 +10916,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_IO_FS_withIsolatedStreams___redArg___lam__1___closed__3;
 x_2 = lean_unsigned_to_nat(47u);
-x_3 = lean_unsigned_to_nat(131u);
+x_3 = lean_unsigned_to_nat(133u);
 x_4 = l_IO_FS_withIsolatedStreams___redArg___lam__1___closed__2;
 x_5 = l_IO_FS_withIsolatedStreams___redArg___lam__1___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

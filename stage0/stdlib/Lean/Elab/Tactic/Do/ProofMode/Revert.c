@@ -2333,8 +2333,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Elab_Tactic_Do_ProofMode_mRevertForallN___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 return x_7;
@@ -2354,8 +2352,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Elab_Tactic_Do_ProofMode_mRevertForallN___redArg___lam__3(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 return x_7;
@@ -2724,6 +2720,8 @@ x_9 = lean_nat_dec_eq(x_2, x_8);
 if (x_9 == 1)
 {
 lean_object* x_10; 
+lean_dec(x_6);
+lean_dec_ref(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
 x_10 = lean_alloc_ctor(0, 2, 0);
@@ -2735,6 +2733,8 @@ else
 {
 lean_object* x_11; lean_object* x_12; 
 x_11 = l_Lean_Elab_Tactic_Do_ProofMode_mRevertForallN___redArg___lam__4___closed__1;
+lean_inc(x_6);
+lean_inc_ref(x_5);
 x_12 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_11, x_5, x_6, x_7);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -2766,6 +2766,8 @@ goto _start;
 else
 {
 uint8_t x_23; 
+lean_dec(x_6);
+lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -5616,6 +5618,8 @@ lean_inc(x_21);
 x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec_ref(x_20);
+lean_inc(x_15);
+lean_inc_ref(x_14);
 lean_inc(x_2);
 x_23 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_2, x_14, x_15, x_22);
 if (lean_obj_tag(x_23) == 0)
@@ -5828,6 +5832,8 @@ lean_inc(x_27);
 lean_dec_ref(x_25);
 x_28 = lean_array_get_size(x_26);
 x_29 = lean_mk_empty_array_with_capacity(x_28);
+lean_inc(x_21);
+lean_inc_ref(x_20);
 lean_inc(x_2);
 lean_inc(x_28);
 x_30 = l_Array_mapFinIdxM_map___at___Lean_Elab_Tactic_Do_ProofMode_mRevertForallN___at___Lean_Elab_Tactic_Do_ProofMode_elabMRevert_spec__1_spec__3___redArg(x_26, x_28, x_2, x_29, x_20, x_21, x_27);
@@ -7599,6 +7605,8 @@ x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec_ref(x_14);
 x_17 = l_Lean_Elab_Tactic_Do_ProofMode_elabMRevert___lam__1___closed__1;
+lean_inc(x_12);
+lean_inc_ref(x_11);
 x_18 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_17, x_11, x_12, x_16);
 if (lean_obj_tag(x_18) == 0)
 {
@@ -8220,15 +8228,15 @@ lean_inc(x_48);
 lean_dec(x_45);
 x_11 = x_47;
 x_12 = x_48;
-x_13 = x_32;
-x_14 = x_46;
-x_15 = x_34;
-x_16 = x_36;
-x_17 = x_38;
-x_18 = x_39;
-x_19 = x_35;
-x_20 = x_37;
-x_21 = x_33;
+x_13 = x_33;
+x_14 = x_39;
+x_15 = x_36;
+x_16 = x_35;
+x_17 = x_46;
+x_18 = x_32;
+x_19 = x_38;
+x_20 = x_34;
+x_21 = x_37;
 x_22 = x_30;
 goto block_26;
 }
@@ -8250,15 +8258,15 @@ x_53 = l_Lean_TSyntax_getNat(x_52);
 lean_dec(x_52);
 x_11 = x_50;
 x_12 = x_51;
-x_13 = x_32;
-x_14 = x_49;
-x_15 = x_34;
-x_16 = x_36;
-x_17 = x_38;
-x_18 = x_39;
-x_19 = x_35;
-x_20 = x_37;
-x_21 = x_33;
+x_13 = x_33;
+x_14 = x_39;
+x_15 = x_36;
+x_16 = x_35;
+x_17 = x_49;
+x_18 = x_32;
+x_19 = x_38;
+x_20 = x_34;
+x_21 = x_37;
 x_22 = x_53;
 goto block_26;
 }
@@ -8338,7 +8346,7 @@ lean_closure_set(x_24, 0, x_23);
 lean_closure_set(x_24, 1, x_12);
 lean_closure_set(x_24, 2, x_22);
 lean_closure_set(x_24, 3, x_11);
-x_25 = l_Lean_MVarId_withContext___at___Lean_Elab_Tactic_Do_ProofMode_elabMRevert_spec__22___redArg(x_11, x_24, x_13, x_21, x_15, x_19, x_16, x_20, x_17, x_18, x_14);
+x_25 = l_Lean_MVarId_withContext___at___Lean_Elab_Tactic_Do_ProofMode_elabMRevert_spec__22___redArg(x_11, x_24, x_18, x_13, x_20, x_16, x_15, x_21, x_19, x_14, x_17);
 return x_25;
 }
 }
@@ -8404,8 +8412,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Array_mapFinIdxM_map___at___Lean_Elab_Tactic_Do_ProofMode_mRevertForallN___at___Lean_Elab_Tactic_Do_ProofMode_elabMRevert_spec__1_spec__3___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
-lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 return x_8;
 }
@@ -8415,8 +8421,6 @@ _start:
 {
 lean_object* x_15; 
 x_15 = l_Array_mapFinIdxM_map___at___Lean_Elab_Tactic_Do_ProofMode_mRevertForallN___at___Lean_Elab_Tactic_Do_ProofMode_elabMRevert_spec__1_spec__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
-lean_dec(x_13);
-lean_dec_ref(x_12);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);

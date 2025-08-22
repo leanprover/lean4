@@ -3525,16 +3525,16 @@ return x_226;
 block_19:
 {
 lean_object* x_16; uint8_t x_17; 
-lean_dec_ref(x_12);
-lean_dec(x_11);
-lean_dec_ref(x_10);
-lean_dec(x_9);
+lean_dec(x_12);
+lean_dec(x_10);
+lean_dec_ref(x_9);
+lean_dec_ref(x_8);
 x_16 = lean_unsigned_to_nat(0u);
-x_17 = lean_nat_dec_lt(x_16, x_8);
+x_17 = lean_nat_dec_lt(x_16, x_11);
 if (x_17 == 0)
 {
 lean_dec_ref(x_14);
-lean_dec(x_8);
+lean_dec(x_11);
 lean_dec_ref(x_1);
 return x_13;
 }
@@ -3542,8 +3542,8 @@ else
 {
 lean_object* x_18; 
 lean_dec_ref(x_13);
-x_18 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Widget_Diff_0__Lean_Widget_exprDiffCore_piDiff_spec__2___redArg(x_1, x_8, x_14, x_16, x_15);
-lean_dec(x_8);
+x_18 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Widget_Diff_0__Lean_Widget_exprDiffCore_piDiff_spec__2___redArg(x_1, x_11, x_14, x_16, x_15);
+lean_dec(x_11);
 return x_18;
 }
 }
@@ -3552,9 +3552,9 @@ block_41:
 if (x_28 == 0)
 {
 lean_object* x_29; 
+lean_dec_ref(x_22);
+x_29 = l_Lean_Meta_SavedState_restore___redArg(x_27, x_26, x_24, x_25);
 lean_dec_ref(x_27);
-x_29 = l_Lean_Meta_SavedState_restore___redArg(x_20, x_25, x_22, x_24);
-lean_dec_ref(x_20);
 if (lean_obj_tag(x_29) == 0)
 {
 uint8_t x_30; 
@@ -3568,10 +3568,10 @@ lean_dec(x_32);
 x_33 = l___private_Lean_Widget_Diff_0__Lean_Widget_instEmptyCollectionExprDiff___closed__0;
 lean_inc(x_31);
 lean_ctor_set(x_29, 0, x_33);
-x_8 = x_21;
-x_9 = x_22;
-x_10 = x_23;
-x_11 = x_25;
+x_8 = x_20;
+x_9 = x_21;
+x_10 = x_24;
+x_11 = x_23;
 x_12 = x_26;
 x_13 = x_29;
 x_14 = x_33;
@@ -3589,10 +3589,10 @@ lean_inc(x_34);
 x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set(x_36, 1, x_34);
-x_8 = x_21;
-x_9 = x_22;
-x_10 = x_23;
-x_11 = x_25;
+x_8 = x_20;
+x_9 = x_21;
+x_10 = x_24;
+x_11 = x_23;
 x_12 = x_26;
 x_13 = x_36;
 x_14 = x_35;
@@ -3603,11 +3603,11 @@ goto block_19;
 else
 {
 uint8_t x_37; 
-lean_dec_ref(x_26);
-lean_dec(x_25);
-lean_dec_ref(x_23);
-lean_dec(x_22);
-lean_dec(x_21);
+lean_dec(x_26);
+lean_dec(x_24);
+lean_dec(x_23);
+lean_dec_ref(x_21);
+lean_dec_ref(x_20);
 lean_dec_ref(x_1);
 x_37 = !lean_is_exclusive(x_29);
 if (x_37 == 0)
@@ -3631,14 +3631,14 @@ return x_40;
 }
 else
 {
-lean_dec_ref(x_26);
-lean_dec(x_25);
-lean_dec_ref(x_23);
-lean_dec(x_22);
-lean_dec(x_21);
+lean_dec_ref(x_27);
+lean_dec(x_26);
+lean_dec(x_24);
+lean_dec(x_23);
+lean_dec_ref(x_21);
 lean_dec_ref(x_20);
 lean_dec_ref(x_1);
-return x_27;
+return x_22;
 }
 }
 block_53:
@@ -3652,12 +3652,12 @@ x_52 = l_Lean_Exception_isRuntime(x_49);
 lean_dec_ref(x_49);
 x_20 = x_42;
 x_21 = x_43;
-x_22 = x_44;
+x_22 = x_48;
 x_23 = x_45;
-x_24 = x_50;
-x_25 = x_46;
-x_26 = x_47;
-x_27 = x_48;
+x_24 = x_44;
+x_25 = x_50;
+x_26 = x_46;
+x_27 = x_47;
 x_28 = x_52;
 goto block_41;
 }
@@ -3666,12 +3666,12 @@ else
 lean_dec_ref(x_49);
 x_20 = x_42;
 x_21 = x_43;
-x_22 = x_44;
+x_22 = x_48;
 x_23 = x_45;
-x_24 = x_50;
-x_25 = x_46;
-x_26 = x_47;
-x_27 = x_48;
+x_24 = x_44;
+x_25 = x_50;
+x_26 = x_46;
+x_27 = x_47;
 x_28 = x_51;
 goto block_41;
 }
@@ -3724,11 +3724,11 @@ x_76 = lean_ctor_get(x_75, 0);
 lean_inc(x_76);
 x_77 = lean_ctor_get(x_75, 1);
 lean_inc(x_77);
-x_8 = x_65;
-x_9 = x_60;
-x_10 = x_57;
-x_11 = x_58;
-x_12 = x_59;
+x_8 = x_57;
+x_9 = x_59;
+x_10 = x_60;
+x_11 = x_65;
+x_12 = x_58;
 x_13 = x_75;
 x_14 = x_76;
 x_15 = x_77;
@@ -3741,12 +3741,12 @@ x_78 = lean_ctor_get(x_75, 0);
 lean_inc(x_78);
 x_79 = lean_ctor_get(x_75, 1);
 lean_inc(x_79);
-x_42 = x_63;
-x_43 = x_65;
+x_42 = x_57;
+x_43 = x_59;
 x_44 = x_60;
-x_45 = x_57;
+x_45 = x_65;
 x_46 = x_58;
-x_47 = x_59;
+x_47 = x_63;
 x_48 = x_75;
 x_49 = x_78;
 x_50 = x_79;
@@ -3765,12 +3765,12 @@ x_81 = lean_ctor_get(x_67, 0);
 x_82 = lean_ctor_get(x_67, 1);
 lean_inc(x_82);
 lean_inc(x_81);
-x_42 = x_63;
-x_43 = x_65;
+x_42 = x_57;
+x_43 = x_59;
 x_44 = x_60;
-x_45 = x_57;
+x_45 = x_65;
 x_46 = x_58;
-x_47 = x_59;
+x_47 = x_63;
 x_48 = x_67;
 x_49 = x_81;
 x_50 = x_82;
@@ -3789,12 +3789,12 @@ lean_inc(x_83);
 x_85 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_85, 0, x_83);
 lean_ctor_set(x_85, 1, x_84);
-x_42 = x_63;
-x_43 = x_65;
+x_42 = x_57;
+x_43 = x_59;
 x_44 = x_60;
-x_45 = x_57;
+x_45 = x_65;
 x_46 = x_58;
-x_47 = x_59;
+x_47 = x_63;
 x_48 = x_85;
 x_49 = x_83;
 x_50 = x_84;

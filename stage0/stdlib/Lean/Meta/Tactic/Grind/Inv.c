@@ -7433,7 +7433,7 @@ if (x_40 == 0)
 {
 uint8_t x_41; 
 x_41 = lean_expr_equal(x_3, x_39);
-lean_dec(x_39);
+lean_dec_ref(x_39);
 if (x_41 == 0)
 {
 x_16 = x_4;
@@ -7460,7 +7460,7 @@ goto block_38;
 else
 {
 lean_object* x_44; lean_object* x_45; 
-lean_dec(x_39);
+lean_dec_ref(x_39);
 x_44 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkPtrEqImpliesStructEq_spec__0_spec__0___redArg___closed__4;
 lean_inc(x_14);
 lean_inc_ref(x_13);
@@ -7625,7 +7625,7 @@ if (x_42 == 0)
 {
 uint8_t x_43; 
 x_43 = lean_expr_equal(x_3, x_41);
-lean_dec(x_41);
+lean_dec_ref(x_41);
 if (x_43 == 0)
 {
 x_18 = x_4;
@@ -7652,7 +7652,7 @@ goto block_40;
 else
 {
 lean_object* x_46; lean_object* x_47; 
-lean_dec(x_41);
+lean_dec_ref(x_41);
 x_46 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkPtrEqImpliesStructEq_spec__0_spec__0___redArg___closed__4;
 lean_inc(x_16);
 lean_inc_ref(x_15);
@@ -7834,7 +7834,7 @@ lean_inc_ref(x_5);
 lean_inc_ref(x_4);
 x_29 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkPtrEqImpliesStructEq_spec__0___redArg(x_4, x_5, x_28, x_1, x_2, x_3, x_26, x_26, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_26);
-lean_dec(x_28);
+lean_dec_ref(x_28);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; 
@@ -7936,7 +7936,7 @@ lean_inc_ref(x_5);
 lean_inc_ref(x_4);
 x_31 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkPtrEqImpliesStructEq_spec__0___redArg(x_4, x_5, x_30, x_1, x_2, x_3, x_28, x_28, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18);
 lean_dec(x_28);
-lean_dec(x_30);
+lean_dec_ref(x_30);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; 
@@ -8409,7 +8409,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 2);
-x_5 = lean_ctor_get(x_2, 12);
+x_5 = lean_ctor_get(x_2, 13);
 x_6 = l_Lean_checkTraceOption(x_5, x_4, x_1);
 x_7 = lean_box(x_6);
 x_8 = lean_alloc_ctor(0, 2, 0);

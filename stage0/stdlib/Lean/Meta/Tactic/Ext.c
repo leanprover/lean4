@@ -3371,7 +3371,7 @@ _start:
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = lean_ctor_get(x_5, 0);
 lean_inc(x_7);
 x_8 = l_Lean_PersistentHashMap_contains___redArg(x_2, x_3, x_6, x_7);
@@ -3547,7 +3547,7 @@ if (x_34 == 0)
 {
 lean_dec(x_31);
 lean_dec(x_19);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 x_23 = x_32;
 goto block_29;
 }
@@ -3559,7 +3559,7 @@ if (x_35 == 0)
 {
 lean_dec(x_31);
 lean_dec(x_19);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 x_23 = x_32;
 goto block_29;
 }
@@ -3599,7 +3599,7 @@ return x_28;
 }
 else
 {
-lean_dec(x_16);
+lean_dec_ref(x_16);
 return x_18;
 }
 }

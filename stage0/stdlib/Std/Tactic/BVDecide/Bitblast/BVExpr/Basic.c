@@ -95,7 +95,6 @@ uint64_t l_BitVec_hash(lean_object*, lean_object*);
 uint8_t l_Std_Tactic_BVDecide_BoolExpr_eval___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_instToStringBVBit___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVBinPred_toString___boxed(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_BVBinPred_toString___closed__1;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_casesOn___override___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic_0__Std_Tactic_BVDecide_BVExpr_toString_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -908,75 +907,78 @@ LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_BVBinOp_ofNat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = lean_unsigned_to_nat(3u);
-x_3 = lean_nat_dec_le(x_2, x_1);
+x_2 = lean_unsigned_to_nat(2u);
+x_3 = lean_nat_dec_le(x_1, x_2);
 if (x_3 == 0)
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = lean_unsigned_to_nat(1u);
-x_5 = lean_nat_dec_le(x_4, x_1);
+x_4 = lean_unsigned_to_nat(4u);
+x_5 = lean_nat_dec_le(x_1, x_4);
 if (x_5 == 0)
 {
-uint8_t x_6; 
-x_6 = 0;
-return x_6;
-}
-else
-{
-uint8_t x_7; 
-x_7 = lean_nat_dec_eq(x_1, x_4);
+lean_object* x_6; uint8_t x_7; 
+x_6 = lean_unsigned_to_nat(5u);
+x_7 = lean_nat_dec_le(x_1, x_6);
 if (x_7 == 0)
 {
 uint8_t x_8; 
-x_8 = 2;
+x_8 = 6;
 return x_8;
 }
 else
 {
 uint8_t x_9; 
-x_9 = 1;
+x_9 = 5;
 return x_9;
-}
 }
 }
 else
 {
 lean_object* x_10; uint8_t x_11; 
-x_10 = lean_unsigned_to_nat(5u);
-x_11 = lean_nat_dec_le(x_10, x_1);
+x_10 = lean_unsigned_to_nat(3u);
+x_11 = lean_nat_dec_le(x_1, x_10);
 if (x_11 == 0)
 {
 uint8_t x_12; 
-x_12 = lean_nat_dec_eq(x_1, x_2);
-if (x_12 == 0)
+x_12 = 4;
+return x_12;
+}
+else
 {
 uint8_t x_13; 
-x_13 = 4;
+x_13 = 3;
 return x_13;
 }
-else
-{
-uint8_t x_14; 
-x_14 = 3;
-return x_14;
 }
 }
 else
 {
-uint8_t x_15; 
-x_15 = lean_nat_dec_eq(x_1, x_10);
+lean_object* x_14; uint8_t x_15; 
+x_14 = lean_unsigned_to_nat(0u);
+x_15 = lean_nat_dec_le(x_1, x_14);
 if (x_15 == 0)
 {
-uint8_t x_16; 
-x_16 = 6;
-return x_16;
+lean_object* x_16; uint8_t x_17; 
+x_16 = lean_unsigned_to_nat(1u);
+x_17 = lean_nat_dec_le(x_1, x_16);
+if (x_17 == 0)
+{
+uint8_t x_18; 
+x_18 = 2;
+return x_18;
 }
 else
 {
-uint8_t x_17; 
-x_17 = 5;
-return x_17;
+uint8_t x_19; 
+x_19 = 1;
+return x_19;
 }
+}
+else
+{
+uint8_t x_20; 
+x_20 = 0;
+return x_20;
 }
 }
 }
@@ -4054,7 +4056,7 @@ x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_8 = lean_nat_dec_eq(x_6, x_1);
 if (x_8 == 0)
 {

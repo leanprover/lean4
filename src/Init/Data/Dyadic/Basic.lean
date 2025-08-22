@@ -99,6 +99,18 @@ theorem trailingZeros_shiftLeft {x : Int} (hx : x ≠ 0) (n : Nat) :
   have : NeZero x := ⟨hx⟩
   induction n <;> simp [Int.shiftLeft_succ', trailingZeros_two_mul (NeZero.ne _), *, Nat.add_assoc]
 
+@[simp]
+theorem trailingZeros_neg (x : Int) : trailingZeros (-x) = x.trailingZeros := by
+  by_cases hx : x = 0
+  · simp [hx]
+  rcases x.emod_two_eq with h | h
+  · rcases Int.dvd_of_emod_eq_zero h with ⟨a, rfl⟩
+    simp only [Int.mul_ne_zero_iff, ne_eq, Int.reduceEq, not_false_eq_true, true_and] at hx
+    rw [← Int.mul_neg, trailingZeros_two_mul hx, trailingZeros_two_mul (Int.neg_ne_zero.mpr hx)]
+    rw [trailingZeros_neg]
+  · simp [trailingZeros_eq_zero_of_mod_eq, h]
+termination_by x.natAbs
+
 end Int
 
 /--
@@ -200,7 +212,7 @@ def toRat (x : Dyadic) : Rat :=
 @[simp] protected theorem zero_eq : Dyadic.zero = 0 := rfl
 @[simp] protected theorem add_zero (x : Dyadic) : x + 0 = x := by cases x <;> rfl
 @[simp] protected theorem zero_add (x : Dyadic) : 0 + x = x := by cases x <;> rfl
-@[simp] protected theorem neg_zero : -0 = 0 := rfl
+@[simp] protected theorem neg_zero : (-0 : Dyadic) = 0 := rfl
 @[simp] protected theorem mul_zero (x : Dyadic) : x * 0 = 0 := by cases x <;> rfl
 @[simp] protected theorem zero_mul (x : Dyadic) : 0 * x = 0 := by cases x <;> rfl
 
@@ -305,6 +317,21 @@ theorem ofOdd_eq_ofIntWithPrec : ofOdd n k hn = ofIntWithPrec n k := by
 
 @[simp]
 theorem ofIntWithPrec_zero {i : Int} : ofIntWithPrec 0 i = 0 := rfl
+
+@[simp]
+theorem neg_ofOdd : -ofOdd n k hn = ofOdd (-n) k (by simpa using hn) := rfl
+
+@[simp]
+theorem neg_ofIntWithPrec {i prec : Int} : -ofIntWithPrec i prec = ofIntWithPrec (-i) prec := by
+  rw [ofIntWithPrec, ofIntWithPrec]
+  simp only [Dyadic.zero_eq, Int.neg_eq_zero, Int.trailingZeros_neg]
+  split
+  · rfl
+  · obtain ⟨a, h⟩ := Int.two_pow_trailingZeros_dvd ‹_›
+    rw [Int.mul_comm, ← Int.shiftLeft_eq] at h
+    conv => enter [1, 1, 1, 1]; rw [h]
+    conv => enter [2, 1, 1]; rw [h]
+    simp only [Int.shiftLeft_shiftRight_cancel, neg_ofOdd, ← Int.neg_shiftLeft]
 
 theorem ofIntWithPrec_shiftLeft_add {n : Nat} :
     ofIntWithPrec ((x : Int) <<< n) (i + n) = ofIntWithPrec x i := by
@@ -512,8 +539,16 @@ def roundUp (x : Dyadic) (prec : Int) : Dyadic :=
   | .zero => .zero
   | .ofOdd n k _ =>
     match k - prec with
-    | .ofNat l => .ofIntWithPrec (n + 1 >>> l) prec
+    | .ofNat l => .ofIntWithPrec (-((-n) >>> l)) prec
     | .negSucc _ => x
+
+theorem roundUp_eq_neg_roundDown_neg (x : Dyadic) (prec : Int) :
+    x.roundUp prec = -((-x).roundDown prec) := by
+  rcases x with _ | ⟨n, k, hn⟩
+  · rfl
+  · change _ = -(ofOdd ..).roundDown prec
+    rw [roundDown, roundUp]
+    split <;> simp
 
 theorem le_roundUp {x : Dyadic} {prec : Int} : x ≤ roundUp x prec :=
   match x with

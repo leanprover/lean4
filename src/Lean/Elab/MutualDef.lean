@@ -1441,6 +1441,8 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     -- no non-fatal diagnostics at this point
     snap.new.resolve <| .ofTyped defsParsedSnap
   let sc ← getScope
+  -- use hash of all names as stable quot context
+  withInitQuotContext (some (hash (views.map (·.declId[0].getId)))) do
   runTermElabM fun vars => do
     Term.elabMutualDef vars sc views
     Term.logGoalsAccomplishedSnapshotTask views defsParsedSnap

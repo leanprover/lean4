@@ -364,7 +364,84 @@ theorem toRat_inj {x y : Dyadic} : x.toRat = y.toRat ↔ x = y := by
     simpa [toDyadic_toRat, precision, Int.le_max_left, Int.le_max_right] using h
 
 -- TODO: Define `roundUp : (x : Dyadic) → (prec : Int) → Dyadic` as the closest dyadic ≥ `x` with precision is at most `prec`, and theorems about this. Similarly `roundDown`.
+
 -- TODO: Prove the ring axioms via injectivity of `toRat`, and construct a `Lean.Grind.CommRing` instance.
--- TODO: Define `blt` and `ble`, check they are compatible with `toRat`, and hence that we have `IsLinearOrder` and `IsOrderedRing`.
+
+theorem add_comm (x y : Dyadic) : x + y = y + x := by
+  rw [← toRat_inj, toRat_add, toRat_add]
+  sorry
+theorem add_assoc (x y z : Dyadic) : (x + y) + z = x + (y + z) := by
+  rw [← toRat_inj, toRat_add, toRat_add, toRat_add, toRat_add]
+  sorry
+theorem mul_comm (x y : Dyadic) : x * y = y * x := by
+  rw [← toRat_inj, toRat_mul, toRat_mul]
+  sorry
+theorem mul_assoc (x y z : Dyadic) : (x * y) * z = x * (y * z) := by
+  rw [← toRat_inj, toRat_mul, toRat_mul, toRat_mul, toRat_mul]
+  sorry
+theorem mul_one (x : Dyadic) : x * 1 = x := by
+  rw [← toRat_inj, toRat_mul]
+  sorry
+theorem one_mul (x : Dyadic) : 1 * x = x := by
+  rw [← toRat_inj, toRat_mul]
+  sorry
+
+-- etc
+
+/-- Determine if a dyadic rational is strictly less than another. -/
+def blt (x y : Dyadic) : Bool :=
+  match x, y with
+  | .zero, .zero => false
+  | .zero, .of n₂ _ _ => 0 < n₂
+  | .of n₁ _ _, .zero => n₁ < 0
+  | .of n₁ k₁ _, .of n₂ k₂ _ =>
+    match k₂ - k₁ with
+    | (l : Nat) => n₁ * 2^l < n₂
+    | -((l+1 : Nat)) => n₁ < n₂ * 2^(l + 1)
+
+/-- Determine if a dyadic rational is less than or equal to another. -/
+def ble (x y : Dyadic) : Bool :=
+  match x, y with
+  | .zero, .zero => true
+  | .zero, .of n₂ _ _ => 0 ≤ n₂
+  | .of n₁ _ _, .zero => n₁ ≤ 0
+  | .of n₁ k₁ _, .of n₂ k₂ _ =>
+    match k₂ - k₁ with
+    | (l : Nat) => n₁ * 2^l ≤ n₂
+    | -((l+1 : Nat)) => n₁ ≤ n₂ * 2^(l + 1)
+
+theorem blt_iff_toRat : blt x y ↔ x.toRat < y.toRat := sorry
+theorem ble_iff_toRat : ble x y ↔ x.toRat ≤ y.toRat := sorry
+
+instance : LT Dyadic where
+  lt x y := blt x y
+
+instance : LE Dyadic where
+  le x y := ble x y
+
+theorem lt_iff_toRat {x y : Dyadic} : x < y ↔ x.toRat < y.toRat := by
+  rw [← blt_iff_toRat]
+  exact Iff.rfl
+theorem le_iff_toRat {x y : Dyadic} : x ≤ y ↔ x.toRat ≤ y.toRat := by
+  rw [← ble_iff_toRat]
+  exact Iff.rfl
+
+instance : Std.LawfulOrderLT Dyadic where
+  lt_iff := sorry
+
+instance : Std.IsPartialOrder Dyadic where
+  le_refl x := by
+    rw [le_iff_toRat]
+    -- Oops, can't do this yet because we don't have the order instances on `Rat` itself
+    sorry
+  le_trans := by sorry
+  le_antisymm := by sorry
+
+instance : Std.IsLinearPreorder Dyadic where
+  le_total := by sorry
+
+instance : Std.IsLinearOrder Dyadic where
+
+-- TODO: show Dyadic is an IsOrderedRing
 
 end Dyadic

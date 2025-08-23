@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2025 Lean FRO, LLC. or its affiliates. All Rights Reserved.
+Copyright (c) 2025 Robin Arnez. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kim Morrison
+Authors: Robin Arnez
 -/
 module
 

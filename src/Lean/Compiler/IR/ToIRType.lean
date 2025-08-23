@@ -63,7 +63,7 @@ where fillCache : CoreM IRType := do
       for ctorName in ctorNames do
         let some (.ctorInfo ctorInfo) := env.find? ctorName | unreachable!
         let hasRelevantField ← Meta.MetaM.run' <|
-                               Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
+                               Meta.forallTelescope ctorInfo.type fun params _ => do
           for field in params[ctorInfo.numParams...*] do
             let fieldType ← field.fvarId!.getType
             let lcnfFieldType ← LCNF.toLCNFType fieldType

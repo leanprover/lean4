@@ -63,7 +63,7 @@ globs = [
   # Lake API imported by configuration files
   "Lake",
   # API only imported by `LakeMain` and the `lake` CLI
-  "Lake.CLI",
+  "Lake.CLI", "Lake.Load",
 ]
 libName = "${LAKE_LIB_PREFIX}Lake"
 defaultFacets = ["static", "static.export"]

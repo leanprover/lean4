@@ -115,6 +115,7 @@ inductive EqCnstrProof where
     - If `?y = none`, then it is a proof for `a % b = a%k` where `c` is a proof that `b = k`. `a` is a numeral in this case.
     -/
     mod (k : Int) (y? : Option Var) (c : EqCnstr)
+  | pow (ka : Int) (ca? : Option EqCnstr) (kb : Nat) (cb? : Option EqCnstr)
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where

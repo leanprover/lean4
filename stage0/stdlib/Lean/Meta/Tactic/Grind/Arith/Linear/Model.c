@@ -68,6 +68,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Meta_Grind_Arith_Linear_getAssignment_x3f_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_getAssignment_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Meta_Grind_Arith_Linear_getAssignment_x3f_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_instInhabitedRat;
 lean_object* l_Lean_Meta_Grind_Arith_finalizeModel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_mkModel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -76,7 +77,6 @@ lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forIn___at___Lean_Meta_Grind_Arith_Linear_mkModel_spec__0_spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Internal_instInhabitedRat;
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
@@ -370,7 +370,7 @@ return x_11;
 else
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = l_Std_Internal_instInhabitedRat;
+x_12 = l_instInhabitedRat;
 x_13 = l_Lean_PersistentArray_get_x21___redArg(x_12, x_4, x_8);
 lean_dec(x_8);
 lean_ctor_set(x_5, 0, x_13);
@@ -396,7 +396,7 @@ return x_17;
 else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_18 = l_Std_Internal_instInhabitedRat;
+x_18 = l_instInhabitedRat;
 x_19 = l_Lean_PersistentArray_get_x21___redArg(x_18, x_4, x_14);
 lean_dec(x_14);
 x_20 = lean_alloc_ctor(1, 1, 0);

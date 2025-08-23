@@ -58,6 +58,7 @@ static lean_object* l_Std_Time_PlainTime_instHAddOffset__3___closed__0;
 static lean_object* l_Std_Time_reprPlainTime___redArg___closed__8____x40_Std_Time_Time_PlainTime_905586295____hygCtx___hyg_401_;
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_instHAddOffset;
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_instHAddOffset__3;
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_PlainTime_toMilliseconds_spec__0(lean_object*);
 lean_object* l_compareOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Time_Internal_Bounded_instRepr___lam__0(lean_object*, lean_object*);
 static lean_object* l_Std_Time_PlainTime_toNanoseconds___closed__2;
@@ -121,6 +122,7 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainTime_instHSubOffset__4;
 static lean_object* l_Std_Time_PlainTime_toMilliseconds___closed__2;
 LEAN_EXPORT lean_object* l_Std_Time_reprPlainTime___redArg____x40_Std_Time_Time_PlainTime_905586295____hygCtx___hyg_401____boxed(lean_object*);
 static lean_object* l_Std_Time_instInhabitedPlainTime___closed__5;
+LEAN_EXPORT lean_object* l_Int_cast___at___Std_Time_PlainTime_toMilliseconds_spec__1(lean_object*);
 lean_object* l_Std_Time_Second_instOfNatOrdinal(uint8_t, lean_object*);
 static lean_object* l_Std_Time_instInhabitedPlainTime___closed__15;
 static lean_object* l_Std_Time_PlainTime_toSeconds___closed__1;
@@ -165,6 +167,7 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainTime_withMilliseconds(lean_object*, lea
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 lean_object* lean_int_ediv(lean_object*, lean_object*);
 static lean_object* l_Std_Time_PlainTime_instHSubOffset__4___closed__0;
+lean_object* l_Rat_ofInt(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instInhabitedPlainTime;
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_ofHours___boxed(lean_object*);
@@ -1065,6 +1068,23 @@ lean_ctor_set(x_5, 1, x_2);
 lean_ctor_set(x_5, 2, x_3);
 lean_ctor_set(x_5, 3, x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_PlainTime_toMilliseconds_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_nat_to_int(x_1);
+x_3 = l_Rat_ofInt(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Int_cast___at___Std_Time_PlainTime_toMilliseconds_spec__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Rat_ofInt(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_PlainTime_toMilliseconds___closed__0() {

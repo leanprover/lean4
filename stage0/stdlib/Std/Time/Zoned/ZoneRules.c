@@ -77,6 +77,7 @@ static lean_object* l_Std_Time_TimeZone_reprLocalTimeType___redArg___closed__14_
 static lean_object* l_Std_Time_TimeZone_reprStdWall___closed__0____x40_Std_Time_Zoned_ZoneRules_4059430234____hygCtx___hyg_6_;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_reprStdWall____x40_Std_Time_Zoned_ZoneRules_4059430234____hygCtx___hyg_6____boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_TimeZone_instInhabitedLocalTimeType___closed__0;
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_TimeZone_Transition_apply_spec__0(lean_object*);
 static lean_object* l_Std_Time_TimeZone_reprLocalTimeType___redArg___closed__8____x40_Std_Time_Zoned_ZoneRules_3730225678____hygCtx___hyg_59_;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 static lean_object* l_Std_Time_TimeZone_reprTransition___redArg___closed__3____x40_Std_Time_Zoned_ZoneRules_1935811662____hygCtx___hyg_23_;
@@ -172,6 +173,7 @@ LEAN_EXPORT lean_object* l_Std_Time_TimeZone_reprTransition____x40_Std_Time_Zone
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Std_Time_TimeZone_reprLocalTimeType___redArg___closed__13____x40_Std_Time_Zoned_ZoneRules_3730225678____hygCtx___hyg_59_;
 static lean_object* l_Std_Time_TimeZone_reprLocalTimeType___redArg___closed__25____x40_Std_Time_Zoned_ZoneRules_3730225678____hygCtx___hyg_59_;
+lean_object* l_Rat_ofInt(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Std_Time_TimeZone_reprUTLocal___closed__1____x40_Std_Time_Zoned_ZoneRules_445719458____hygCtx___hyg_6_;
 static lean_object* l_Std_Time_TimeZone_reprUTLocal___closed__4____x40_Std_Time_Zoned_ZoneRules_445719458____hygCtx___hyg_6_;
@@ -1994,6 +1996,15 @@ lean_object* x_2;
 x_2 = l_Std_Time_TimeZone_Transition_createTimeZoneFromTransition(x_1);
 lean_dec_ref(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_TimeZone_Transition_apply_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_nat_to_int(x_1);
+x_3 = l_Rat_ofInt(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Std_Time_TimeZone_Transition_apply___closed__0() {

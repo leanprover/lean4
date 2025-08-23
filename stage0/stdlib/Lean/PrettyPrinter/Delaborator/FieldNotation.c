@@ -4531,9 +4531,9 @@ x_80 = lean_ctor_get(x_78, 1);
 lean_inc(x_80);
 lean_dec_ref(x_78);
 x_9 = x_70;
-x_10 = x_71;
-x_11 = x_80;
-x_12 = x_79;
+x_10 = x_79;
+x_11 = x_71;
+x_12 = x_80;
 x_13 = x_55;
 goto block_35;
 }
@@ -4549,9 +4549,9 @@ x_83 = lean_ctor_get(x_55, 0);
 lean_inc(x_83);
 lean_dec(x_55);
 x_9 = x_70;
-x_10 = x_71;
-x_11 = x_82;
-x_12 = x_81;
+x_10 = x_81;
+x_11 = x_71;
+x_12 = x_82;
 x_13 = x_83;
 goto block_35;
 }
@@ -4913,7 +4913,7 @@ return x_142;
 block_35:
 {
 lean_object* x_14; 
-x_14 = l___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_testAppOf(x_12, x_13, x_4, x_5, x_6, x_7, x_11);
+x_14 = l___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_testAppOf(x_10, x_13, x_4, x_5, x_6, x_7, x_12);
 lean_dec(x_13);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -4925,7 +4925,7 @@ lean_dec(x_15);
 if (x_16 == 0)
 {
 uint8_t x_17; 
-lean_dec(x_10);
+lean_dec(x_11);
 lean_dec(x_9);
 x_17 = !lean_is_exclusive(x_14);
 if (x_17 == 0)
@@ -4961,7 +4961,7 @@ x_24 = lean_ctor_get(x_14, 0);
 lean_dec(x_24);
 x_25 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_25, 0, x_9);
-lean_ctor_set(x_25, 1, x_10);
+lean_ctor_set(x_25, 1, x_11);
 x_26 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_14, 0, x_26);
@@ -4975,7 +4975,7 @@ lean_inc(x_27);
 lean_dec(x_14);
 x_28 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_28, 0, x_9);
-lean_ctor_set(x_28, 1, x_10);
+lean_ctor_set(x_28, 1, x_11);
 x_29 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_29, 0, x_28);
 x_30 = lean_alloc_ctor(0, 2, 0);
@@ -4988,7 +4988,7 @@ return x_30;
 else
 {
 uint8_t x_31; 
-lean_dec(x_10);
+lean_dec(x_11);
 lean_dec(x_9);
 x_31 = !lean_is_exclusive(x_14);
 if (x_31 == 0)

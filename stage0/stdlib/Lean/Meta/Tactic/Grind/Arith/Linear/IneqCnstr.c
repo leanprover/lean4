@@ -2072,7 +2072,6 @@ lean_dec_ref(x_31);
 lean_dec(x_30);
 lean_dec_ref(x_29);
 lean_dec(x_28);
-lean_dec_ref(x_1);
 if (lean_obj_tag(x_36) == 0)
 {
 uint8_t x_37; 

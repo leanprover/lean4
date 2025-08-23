@@ -16,14 +16,41 @@ open Lean.Grind
 
 namespace Dyadic
 
-instance : AddCommMonoid Dyadic := sorry
+instance : CommRing Dyadic where
+  nsmul := ⟨(· * ·)⟩
+  zsmul := ⟨(· * ·)⟩
+  add_zero := Dyadic.add_zero
+  add_comm := Dyadic.add_comm
+  add_assoc := Dyadic.add_assoc
+  mul_assoc := Dyadic.mul_assoc
+  mul_one := Dyadic.mul_one
+  one_mul := Dyadic.one_mul
+  zero_mul := Dyadic.zero_mul
+  mul_zero := Dyadic.mul_zero
+  mul_comm := Dyadic.mul_comm
+  pow_zero := Dyadic.pow_zero
+  pow_succ := Dyadic.pow_succ
+  sub_eq_add_neg _ _ := rfl
+  neg_add_cancel _ := by simp [← toRat_inj, Rat.neg_add_cancel]
+  neg_zsmul _ _ := by simp [← toRat_inj, Rat.neg_mul]
+  left_distrib _ _ _ := by simp [← toRat_inj, Rat.mul_add]
+  right_distrib _ _ _ := by simp [← toRat_inj, Rat.add_mul]
+  intCast_neg _ := by simp [← toRat_inj]
+  ofNat_succ n := by
+    change ((n + 1 : Int) : Dyadic) = ((n : Int) : Dyadic) + 1
+    simp [← toRat_inj, Rat.intCast_add]; rfl
 
-instance : AddCommGroup Dyadic := sorry
+instance : LinearOrder Dyadic where
+  le_refl := Dyadic.le_refl
+  le_trans := Dyadic.le_trans
+  le_antisymm := Dyadic.le_antisymm
+  le_total := Dyadic.le_total
+  lt_iff_le_not_le := Std.LawfulOrderLT.lt_iff _ _
 
-instance : CommRing Dyadic := sorry
-
-instance : Preorder Dyadic := sorry
-
-instance : OrderedRing Dyadic := sorry
+instance : OrderedRing Dyadic where
+  zero_lt_one := by decide
+  add_le_left_iff _ := by simp [le_iff_toRat, Rat.add_le_add_right]
+  mul_lt_mul_of_pos_left {_ _ _} := by simpa [lt_iff_toRat] using Rat.mul_lt_mul_of_pos_left
+  mul_lt_mul_of_pos_right {_ _ _} := by simpa [lt_iff_toRat] using Rat.mul_lt_mul_of_pos_right
 
 end Dyadic

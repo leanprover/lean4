@@ -124,19 +124,22 @@ inductive Dyadic where
   | ofOdd (n : Int) (k : Int) (hn : n % 2 = 1)
 deriving DecidableEq
 
+namespace Dyadic
+
 /-- Returns the dyadic number representation of `i * 2 ^ (-exp)`. -/
-def Dyadic.ofIntWithPrec (i : Int) (prec : Int) : Dyadic :=
+def ofIntWithPrec (i : Int) (prec : Int) : Dyadic :=
   if h : i = 0 then .zero
   else .ofOdd (i >>> i.trailingZeros) (prec - i.trailingZeros) (Int.shiftRight_trailingZeros_mod_two h)
 
 /-- Convert an integer to a dyadic number (which will necessarily have non-positive precision). -/
-def Dyadic.ofInt (i : Int) : Dyadic :=
+def ofInt (i : Int) : Dyadic :=
   Dyadic.ofIntWithPrec i 0
-
-namespace Dyadic
 
 instance (n : Nat) : OfNat Dyadic n where
   ofNat := Dyadic.ofInt n
+
+instance : IntCast Dyadic := ⟨ofInt⟩
+instance : NatCast Dyadic := ⟨fun x => ofInt x⟩
 
 /-- Add two dyadic numbers. -/
 protected def add (x y : Dyadic) : Dyadic :=
@@ -161,6 +164,15 @@ protected def mul (x y : Dyadic) : Dyadic :=
     .ofOdd (n₁ * n₂) (k₁ + k₂) (by rw [Int.mul_emod, hn₁, hn₂]; rfl)
 
 instance : Mul Dyadic := ⟨Dyadic.mul⟩
+
+/-- Multiply two dyadic numbers. -/
+protected def pow (x : Dyadic) (i : Nat) : Dyadic :=
+  match x with
+  | .zero => if i = 0 then 1 else 0
+  | .ofOdd n k hn =>
+    .ofOdd (n ^ i) (k * i) (by induction i <;> simp [Int.pow_succ, Int.mul_emod, *])
+
+instance : Pow Dyadic Nat := ⟨Dyadic.pow⟩
 
 /-- Negate a dyadic number. -/
 protected def neg (x : Dyadic) : Dyadic :=
@@ -239,6 +251,16 @@ theorem toRat_ofIntWithPrec_eq_mkRat :
   rw [this, Int.shiftLeft_add, Int.shiftRight_shiftLeft_cancel]
   exact Int.two_pow_trailingZeros_dvd ‹_›
 
+theorem toRat_ofIntWithPrec_eq_mul_two_pow : toRat (.ofIntWithPrec n k) = n * 2 ^ (-k) := by
+  rw [toRat_ofIntWithPrec_eq_mkRat, Rat.zpow_neg, Int.shiftLeft_eq, Nat.one_shiftLeft]
+  rw [Rat.mkRat_eq_div, Rat.div_def]
+  have : ((2 : Int) : Rat) ≠ 0 := by decide
+  simp only [Rat.intCast_mul, Rat.intCast_pow, ← Rat.zpow_natCast, ← Rat.intCast_natCast,
+    Int.natCast_pow, Int.cast_ofNat_Int, ← Rat.zpow_neg, Rat.mul_assoc, ne_eq,
+    Rat.intCast_eq_zero_iff, Int.reduceEq, not_false_eq_true, ← Rat.zpow_add]
+  rw [Int.add_neg_eq_sub, ← Int.neg_sub, Int.toNat_sub_toNat_neg]
+  rfl
+
 example : ((3 : Dyadic) >>> 2) + ((3 : Dyadic) >>> 2) = ((3 : Dyadic) >>> 1) := rfl -- 3/4 + 3/4 = 3/2
 example : ((7 : Dyadic) >>> 3) + ((1 : Dyadic) >>> 3) = 1 := rfl -- 7/8 + 1/8 = 1
 example : (12 : Dyadic) + ((3 : Dyadic) >>> 1) = (27 : Dyadic) >>> 1 := rfl -- 12 + 3/2 = 27/2 = (2 * 13 + 1)/2^1
@@ -297,6 +319,34 @@ theorem toRat_mul (x y : Dyadic) : toRat (x * y) = toRat x * toRat y := by
       Int.shiftLeft_mul_shiftLeft, Int.mul_one]
     congr 1; omega
 
+@[simp]
+protected theorem pow_zero (x : Dyadic) : x ^ 0 = 1 := by
+  change x.pow 0 = 1
+  cases x <;> simp [Dyadic.pow] <;> rfl
+
+protected theorem pow_succ (x : Dyadic) (n : Nat) : x ^ (n + 1) = x ^ n * x := by
+  change x.pow (n + 1) = x.pow n * x
+  cases x
+  · simp [Dyadic.pow]
+  · change _ = Dyadic.mul _ _
+    simp [Dyadic.pow, Dyadic.mul, Int.pow_succ, Int.mul_add]
+
+@[simp]
+theorem toRat_pow (x : Dyadic) (n : Nat) : toRat (x ^ n) = toRat x ^ n := by
+  induction n with
+  | zero => simp; rfl
+  | succ k ih => simp [Dyadic.pow_succ, Rat.pow_succ, ih]
+
+@[simp]
+theorem toRat_intCast (x : Int) : (x : Dyadic).toRat = x := by
+  change (ofInt x).toRat = x
+  simp [ofInt, toRat_ofIntWithPrec_eq_mul_two_pow]
+
+@[simp]
+theorem toRat_natCast (x : Nat) : (x : Dyadic).toRat = x := by
+  change (ofInt x).toRat = x
+  simp [ofInt, toRat_ofIntWithPrec_eq_mul_two_pow, Rat.intCast_natCast]
+
 @[simp] theorem of_ne_zero : ofOdd n k hn ≠ 0 := Dyadic.noConfusion
 @[simp] theorem zero_ne_of : 0 ≠ ofOdd n k hn := Dyadic.noConfusion
 
@@ -314,6 +364,9 @@ theorem ofOdd_eq_ofIntWithPrec : ofOdd n k hn = ofIntWithPrec n k := by
   simp only [ofIntWithPrec, Dyadic.zero_eq, Int.trailingZeros_eq_zero_of_mod_eq hn,
     Int.shiftRight_zero, Int.cast_ofNat_Int, Int.sub_zero, right_eq_dite_iff, of_ne_zero, imp_false]
   intro rfl; contradiction
+
+theorem toRat_ofOdd_eq_mul_two_pow : toRat (.ofOdd n k hn) = n * 2 ^ (-k) := by
+  rw [ofOdd_eq_ofIntWithPrec, toRat_ofIntWithPrec_eq_mul_two_pow]
 
 @[simp]
 theorem ofIntWithPrec_zero {i : Int} : ofIntWithPrec 0 i = 0 := rfl
@@ -428,23 +481,24 @@ theorem toRat_inj {x y : Dyadic} : x.toRat = y.toRat ↔ x = y := by
       using h
 
 theorem add_comm (x y : Dyadic) : x + y = y + x := by
-  rw [← toRat_inj, toRat_add, toRat_add]
-  sorry
+  rw [← toRat_inj, toRat_add, toRat_add, Rat.add_comm]
+
 theorem add_assoc (x y z : Dyadic) : (x + y) + z = x + (y + z) := by
-  rw [← toRat_inj, toRat_add, toRat_add, toRat_add, toRat_add]
-  sorry
+  rw [← toRat_inj, toRat_add, toRat_add, toRat_add, toRat_add, Rat.add_assoc]
+
 theorem mul_comm (x y : Dyadic) : x * y = y * x := by
-  rw [← toRat_inj, toRat_mul, toRat_mul]
-  sorry
+  rw [← toRat_inj, toRat_mul, toRat_mul, Rat.mul_comm]
+
 theorem mul_assoc (x y z : Dyadic) : (x * y) * z = x * (y * z) := by
-  rw [← toRat_inj, toRat_mul, toRat_mul, toRat_mul, toRat_mul]
-  sorry
+  rw [← toRat_inj, toRat_mul, toRat_mul, toRat_mul, toRat_mul, Rat.mul_assoc]
+
 theorem mul_one (x : Dyadic) : x * 1 = x := by
   rw [← toRat_inj, toRat_mul]
-  sorry
+  exact Rat.mul_one x.toRat
+
 theorem one_mul (x : Dyadic) : 1 * x = x := by
   rw [← toRat_inj, toRat_mul]
-  sorry
+  exact Rat.one_mul x.toRat
 
 -- etc, then construct a `Lean.Grind.CommRing` instance
 
@@ -457,7 +511,7 @@ def blt (x y : Dyadic) : Bool :=
   | .ofOdd n₁ k₁ _, .ofOdd n₂ k₂ _ =>
     match k₂ - k₁ with
     | (l : Nat) => (n₁ <<< l) < n₂
-    | -((l+1 : Nat)) => n₁ < (n₂ <<< l + 1)
+    | -((l+1 : Nat)) => n₁ < (n₂ <<< (l + 1))
 
 /-- Determine if a dyadic rational is less than or equal to another. -/
 def ble (x y : Dyadic) : Bool :=
@@ -468,10 +522,43 @@ def ble (x y : Dyadic) : Bool :=
   | .ofOdd n₁ k₁ _, .ofOdd n₂ k₂ _ =>
     match k₂ - k₁ with
     | (l : Nat) => (n₁ <<< l) ≤ n₂
-    | -((l+1 : Nat)) => n₁ ≤ (n₂ <<< l + 1)
+    | -((l+1 : Nat)) => n₁ ≤ (n₂ <<< (l + 1))
 
-theorem blt_iff_toRat : blt x y ↔ x.toRat < y.toRat := sorry
-theorem ble_iff_toRat : ble x y ↔ x.toRat ≤ y.toRat := sorry
+theorem blt_iff_toRat {x y : Dyadic} : blt x y ↔ x.toRat < y.toRat := by
+  rcases x with _ | ⟨n₁, k₁, hn₁⟩ <;> rcases y with _ | ⟨n₂, k₂, hn₂⟩
+  · decide
+  · simp only [blt, decide_eq_true_eq, Dyadic.zero_eq, toRat_zero, toRat_ofOdd_eq_mul_two_pow,
+      Rat.mul_pos_iff_of_pos_right (Rat.zpow_pos (by decide : (0 : Rat) < 2)), Rat.intCast_pos]
+  · simp only [blt, decide_eq_true_eq, Dyadic.zero_eq, toRat_zero, toRat_ofOdd_eq_mul_two_pow,
+      Rat.mul_neg_iff_of_pos_right (Rat.zpow_pos (by decide : (0 : Rat) < 2)), Rat.intCast_neg_iff]
+  · simp only [blt, toRat_ofOdd_eq_mul_two_pow,
+      ← Rat.div_lt_iff (Rat.zpow_pos (by decide : (0 : Rat) < 2)), Rat.div_def, ← Rat.zpow_neg,
+      Int.neg_neg, Rat.mul_assoc, ne_eq, Rat.ofNat_eq_ofNat, reduceCtorEq, not_false_eq_true,
+      ← Rat.zpow_add, Int.shiftLeft_eq]
+    rw [Int.add_comm, Int.add_neg_eq_sub]
+    split
+    · simp [decide_eq_true_eq, ← Rat.intCast_lt_intCast, Rat.zpow_natCast, *]
+    · simp only [decide_eq_true_eq, Int.negSucc_eq, *]
+      rw [Rat.zpow_neg, ← Rat.div_def, Rat.div_lt_iff (Rat.zpow_pos (by decide))]
+      simp [← Rat.intCast_lt_intCast, ← Rat.zpow_natCast, *]
+
+theorem blt_eq_false_iff : blt x y = false ↔ ble y x = true := by
+  cases x <;> cases y
+  · simp [ble, blt]
+  · simp [ble, blt]
+  · simp [ble, blt]
+  · rename_i n₁ k₁ hn₁ n₂ k₂ hn₂
+    simp only [blt, ble]
+    rw [← Int.neg_sub]
+    rcases k₁ - k₂ with (_ | _) | _
+    · simp
+    · simp [← Int.negSucc_eq]
+    · simp only [Int.neg_negSucc, succ_eq_add_one, decide_eq_false_iff_not, Int.not_lt,
+        decide_eq_true_eq]
+
+theorem ble_iff_toRat : ble x y ↔ x.toRat ≤ y.toRat := by
+  rw [← blt_eq_false_iff, Bool.eq_false_iff]
+  simp only [ne_eq, blt_iff_toRat, Rat.not_lt]
 
 instance : LT Dyadic where
   lt x y := blt x y
@@ -479,55 +566,63 @@ instance : LT Dyadic where
 instance : LE Dyadic where
   le x y := ble x y
 
-theorem lt_iff_toRat {x y : Dyadic} : x < y ↔ x.toRat < y.toRat := by
-  rw [← blt_iff_toRat]
-  exact Iff.rfl
-theorem le_iff_toRat {x y : Dyadic} : x ≤ y ↔ x.toRat ≤ y.toRat := by
-  rw [← ble_iff_toRat]
-  exact Iff.rfl
+instance : DecidableLT Dyadic := fun _ _ => inferInstanceAs (Decidable (_ = true))
+instance : DecidableLE Dyadic := fun _ _ => inferInstanceAs (Decidable (_ = true))
 
-theorem lt_iff (x y : Dyadic) : x < y ↔ x ≤ y ∧ ¬y ≤ x := sorry
+theorem lt_iff_toRat {x y : Dyadic} : x < y ↔ x.toRat < y.toRat := blt_iff_toRat
 
-theorem le_refl (x : Dyadic) : x ≤ x := by
+theorem le_iff_toRat {x y : Dyadic} : x ≤ y ↔ x.toRat ≤ y.toRat := ble_iff_toRat
+
+@[simp]
+protected theorem not_le {x y : Dyadic} : ¬x < y ↔ y ≤ x := by
+  simp only [· ≤ ·, · < ·, Bool.not_eq_true, blt_eq_false_iff]
+
+@[simp]
+protected theorem not_lt {x y : Dyadic} : ¬x ≤ y ↔ y < x := by
+  rw [← Dyadic.not_le, Decidable.not_not]
+
+@[simp]
+protected theorem le_refl (x : Dyadic) : x ≤ x := by
   rw [le_iff_toRat]
-  -- We can't yet prove theorems about the order by pulling back from `Rat`,
-  -- because we don't have the order instances there!
-  sorry
+  exact Rat.le_refl
 
-theorem le_trans (x y z : Dyadic) (h : x ≤ y) (h' : y ≤ z) : x ≤ z := by
+protected theorem le_trans {x y z : Dyadic} (h : x ≤ y) (h' : y ≤ z) : x ≤ z := by
+  rw [le_iff_toRat] at h h' ⊢
+  exact Rat.le_trans h h'
+
+protected theorem le_antisymm {x y : Dyadic} (h : x ≤ y) (h' : y ≤ x) : x = y := by
   rw [le_iff_toRat] at h h'
-  sorry
+  rw [← toRat_inj]
+  exact Rat.le_antisymm h h'
 
-theorem le_antisymm (x y : Dyadic) (h : x ≤ y) (h' : y ≤ x) : x = y := by
-  rw [le_iff_toRat] at h h'
-  sorry
-
-theorem le_total (x y : Dyadic) : x ≤ y ∨ y ≤ x := sorry
+protected theorem le_total (x y : Dyadic) : x ≤ y ∨ y ≤ x := by
+  rw [le_iff_toRat, le_iff_toRat]
+  exact Rat.le_total
 
 instance : Std.LawfulOrderLT Dyadic where
-  lt_iff := lt_iff
+  lt_iff a b := by rw [← Dyadic.not_lt, iff_and_self]; exact (Dyadic.le_total _ _).resolve_left
 
 instance : Std.IsPreorder Dyadic where
-  le_refl := le_refl
-  le_trans := le_trans
+  le_refl := Dyadic.le_refl
+  le_trans _ _ _ := Dyadic.le_trans
 
 instance : Std.IsPartialOrder Dyadic where
-  le_antisymm := le_antisymm
+  le_antisymm _ _ := Dyadic.le_antisymm
 
 instance : Std.IsLinearPreorder Dyadic where
-  le_total := le_total
+  le_total := Dyadic.le_total
 
 instance : Std.IsLinearOrder Dyadic where
 
 theorem roundDown_le {x : Dyadic} {prec : Int} : roundDown x prec ≤ x :=
   match x with
-  | .zero => le_refl _
+  | .zero => Dyadic.le_refl _
   | .ofOdd n k _ => by
     unfold roundDown
     dsimp
     split
     · sorry
-    · apply le_refl
+    · apply Dyadic.le_refl
 
 theorem precision_roundDown {x : Dyadic} {prec : Int} : (roundDown x prec).precision ≤ prec := sorry
 
@@ -552,13 +647,13 @@ theorem roundUp_eq_neg_roundDown_neg (x : Dyadic) (prec : Int) :
 
 theorem le_roundUp {x : Dyadic} {prec : Int} : x ≤ roundUp x prec :=
   match x with
-  | .zero => le_refl _
+  | .zero => Dyadic.le_refl _
   | .ofOdd n k _ => by
     unfold roundUp
     dsimp
     split
     · sorry
-    · apply le_refl
+    · apply Dyadic.le_refl
 
 theorem precision_roundUp {x : Dyadic} {prec : Int} : (roundUp x prec).precision ≤ prec := sorry
 

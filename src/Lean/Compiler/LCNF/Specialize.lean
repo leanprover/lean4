@@ -63,7 +63,6 @@ structure Context where
   Set of let-declarations in scope that do not depend on parameters.
   -/
   ground : FVarIdSet := {}
-  underApplied : FVarIdSet := {}
   /--
   Name of the declaration being processed
   -/
@@ -82,31 +81,31 @@ instance : MonadScope SpecializeM where
 Return `true` if `e` is a ground term. That is,
 it contains only free variables tagged as ground
 -/
-def isGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
+def allFVarsAreGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
   let s := (← read).ground
   return allFVar (s.contains ·) e
 
+def isUnderApplied (value : LetValue) : CompilerM Bool := do
+  match value with
+  | .const fnName _ args =>
+    match ← getDecl? fnName with
+    -- This ascription to `Bool` is required to avoid this being inferred as `Prop`,
+    -- even with a type specified on the `let` binding.
+    | some { params, .. } => pure ((args.size < params.size) : Bool)
+    | none => pure false
+  | .fvar fnFVarId args =>
+    match ← findFunDecl? fnFVarId with
+    -- This ascription to `Bool` is required to avoid this being inferred as `Prop`,
+    -- even with a type specified on the `let` binding.
+    | some { params, .. } => pure ((args.size < params.size) : Bool)
+    | none => pure false
+  | _ => pure false
+
 @[inline] def withLetDecl (decl : LetDecl) (x : SpecializeM α) : SpecializeM α := do
-  let grd ← isGround decl.value
-  let isUnderApplied ←
-    match decl.value with
-    | .const fnName _ args =>
-      match ← getDecl? fnName with
-      -- This ascription to `Bool` is required to avoid this being inferred as `Prop`,
-      -- even with a type specified on the `let` binding.
-      | some { params, .. } => pure ((args.size < params.size) : Bool)
-      | none => pure false
-    | .fvar fnFVarId args =>
-      match ← findFunDecl? fnFVarId with
-      -- This ascription to `Bool` is required to avoid this being inferred as `Prop`,
-      -- even with a type specified on the `let` binding.
-      | some { params, .. } => pure ((args.size < params.size) : Bool)
-      | none => pure false
-    | _ => pure false
+  let grd ← allFVarsAreGround decl.value <||> isUnderApplied decl.value
   let fvarId := decl.fvarId
   withReader (x := x) fun ctx => { ctx with
     scope := ctx.scope.insert fvarId
-    underApplied := if isUnderApplied then ctx.underApplied.insert fvarId else ctx.underApplied
     ground := if grd then ctx.ground.insert fvarId else ctx.ground
   }
 
@@ -184,7 +183,6 @@ def collect (paramsInfo : Array SpecParamInfo) (args : Array Arg) : SpecializeM 
   let abstract (fvarId : FVarId) : Bool :=
     -- We convert let-declarations that are not ground into parameters
     !lctx.funDecls.contains fvarId &&
-    !ctx.underApplied.contains fvarId &&
     !ctx.ground.contains fvarId
   Closure.run (inScope := ctx.scope.contains) (abstract := abstract) do
     let mut argMask := #[]
@@ -207,7 +205,7 @@ def shouldSpecialize (paramsInfo : Array SpecParamInfo) (args : Array Arg) : Spe
     match paramInfo with
     | .other => pure ()
     | .fixedNeutral => pure () -- If we want to monomorphize types such as `Array`, we need to change here
-    | .fixedInst | .user => if (← isGround arg) then return true
+    | .fixedInst | .user => if (← allFVarsAreGround arg) then return true
     | .fixedHO => return true -- TODO: check whether this is too aggressive
   return false
 

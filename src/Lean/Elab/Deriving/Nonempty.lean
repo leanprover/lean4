@@ -30,9 +30,9 @@ private def mkNonemptyInstance (declName : Name) : TermElabM Syntax.Command := d
   let ctorTacs ← indVal.ctors.toArray.mapM fun ctor =>
     `(tactic| apply @$(mkCIdent ctor) <;> exact Classical.ofNonempty)
   let vis := ctx.mkVisibilityFromTypes
-  let expAttr := ctx.mkExposeAttrFromCtors
+  let expAttr := ctx.mkNoExposeAttrFromCtors
   `(command| variable $binders* in
-    @[$expAttr] $vis:visibility instance : Nonempty (@$(mkCIdent declName) $indArgs*) :=
+    @[$[$expAttr],*] $vis:visibility instance : Nonempty (@$(mkCIdent declName) $indArgs*) :=
       by constructor; first $[| $ctorTacs:tactic]*)
 
 def mkNonemptyInstanceHandler (declNames : Array Name) : CommandElabM Bool := do

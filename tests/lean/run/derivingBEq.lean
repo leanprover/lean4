@@ -4,7 +4,7 @@ public section
 
 inductive Foo
   | mk1 | mk2 | mk3
-  deriving BEq
+  deriving @[expose] BEq
 
 namespace Foo
 theorem ex1 : (mk1 == mk2) = false :=
@@ -22,7 +22,7 @@ end Foo
 inductive Vec (α : Type u) : Nat → Type u
   | nil  : Vec α 0
   | cons : α → {n : Nat} → Vec α n → Vec α (n+1)
-  deriving BEq
+  deriving @[expose] BEq
 
 namespace Vec
 theorem ex1 : (cons 10 Vec.nil == cons 20 Vec.nil) = false :=

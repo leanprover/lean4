@@ -580,9 +580,7 @@ where
               let fieldArg ← if let some indexIdx := indexArgs.findIdx? (· == p) then
                 pure args[numParams + 1 + indexIdx]!
               else
-                let .fvar fvarId := p | unreachable!
-                let decl ← fvarId.getDecl
-                pure <| mkLcProof decl.type
+                pure <| mkLcProof (← p.fvarId!.getType)
               fieldArgs := fieldArgs.push fieldArg
             return fieldArgs
         let f := args[casesInfo.altsRange.lower]!

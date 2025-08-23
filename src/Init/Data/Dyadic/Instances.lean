@@ -40,6 +40,11 @@ instance : CommRing Dyadic where
     change ((n + 1 : Int) : Dyadic) = ((n : Int) : Dyadic) + 1
     simp [← toRat_inj, Rat.intCast_add]; rfl
 
+instance : IsCharP Dyadic 0 := IsCharP.mk' _ _
+  (ofNat_eq_zero_iff := fun x => by
+    change (x : Dyadic) = 0 ↔ _
+    simp [← Rat.natCast_inj, ← toRat_inj])
+
 instance : LinearOrder Dyadic where
   le_refl := Dyadic.le_refl
   le_trans := Dyadic.le_trans

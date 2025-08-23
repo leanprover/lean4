@@ -31,10 +31,10 @@ instance : CommRing Dyadic where
   pow_zero := Dyadic.pow_zero
   pow_succ := Dyadic.pow_succ
   sub_eq_add_neg _ _ := rfl
-  neg_add_cancel _ := by simp [← toRat_inj, Rat.neg_add_cancel]
+  neg_add_cancel := Dyadic.neg_add_cancel
   neg_zsmul _ _ := by simp [← toRat_inj, Rat.neg_mul]
-  left_distrib _ _ _ := by simp [← toRat_inj, Rat.mul_add]
-  right_distrib _ _ _ := by simp [← toRat_inj, Rat.add_mul]
+  left_distrib := Dyadic.mul_add
+  right_distrib := Dyadic.add_mul
   intCast_neg _ := by simp [← toRat_inj]
   ofNat_succ n := by
     change ((n + 1 : Int) : Dyadic) = ((n : Int) : Dyadic) + 1

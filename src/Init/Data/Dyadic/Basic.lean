@@ -500,7 +500,17 @@ theorem one_mul (x : Dyadic) : 1 * x = x := by
   rw [← toRat_inj, toRat_mul]
   exact Rat.one_mul x.toRat
 
--- etc, then construct a `Lean.Grind.CommRing` instance
+theorem add_mul (x y z : Dyadic) : (x + y) * z = x * z + y * z := by
+  simp [← toRat_inj, Rat.add_mul]
+
+theorem mul_add (x y z : Dyadic) : x * (y + z) = x * y + x * z := by
+  simp [← toRat_inj, Rat.mul_add]
+
+theorem neg_add_cancel (x : Dyadic) : -x + x = 0 := by
+  simp [← toRat_inj, Rat.neg_add_cancel]
+
+theorem neg_mul (x y : Dyadic) : -x * y = -(x * y) := by
+  simp [← toRat_inj, Rat.neg_mul]
 
 /-- Determine if a dyadic rational is strictly less than another. -/
 def blt (x y : Dyadic) : Bool :=

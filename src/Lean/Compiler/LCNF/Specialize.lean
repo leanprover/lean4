@@ -64,6 +64,7 @@ structure Context where
   -/
   ground : FVarIdSet := {}
   underApplied : FVarIdSet := {}
+  instances : FVarIdSet := {}
   /--
   Name of the declaration being processed
   -/
@@ -88,6 +89,7 @@ def isGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
 
 @[inline] def withLetDecl (decl : LetDecl) (x : SpecializeM α) : SpecializeM α := do
   let grd ← isGround decl.value
+  let isInstance := (← isArrowClass? decl.type).isSome
   let isUnderApplied ←
     match decl.value with
     | .const fnName _ args =>
@@ -106,6 +108,7 @@ def isGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
   let fvarId := decl.fvarId
   withReader (x := x) fun ctx => { ctx with
     scope := ctx.scope.insert fvarId
+    instances := if isInstance then ctx.instances.insert fvarId else ctx.instances
     underApplied := if isUnderApplied then ctx.underApplied.insert fvarId else ctx.underApplied
     ground := if grd then ctx.ground.insert fvarId else ctx.ground
   }
@@ -185,6 +188,7 @@ def collect (paramsInfo : Array SpecParamInfo) (args : Array Arg) : SpecializeM 
     -- We convert let-declarations that are not ground into parameters
     !lctx.funDecls.contains fvarId &&
     !ctx.underApplied.contains fvarId &&
+    !ctx.instances.contains fvarId &&
     !ctx.ground.contains fvarId
   Closure.run (inScope := ctx.scope.contains) (abstract := abstract) do
     let mut argMask := #[]

@@ -677,7 +677,11 @@ where
         if lhsCtorVal.name == rhsCtorVal.name then
           etaIfUnderApplied e (arity+1) do
             let major := args[arity]!
-            let major ← expandNoConfusionMajor major lhsCtorVal.numFields
+            let numNonPropFields ← liftMetaM <| Meta.forallTelescope lhsCtorVal.type fun params _ =>
+              params[lhsCtorVal.numParams...*].foldlM (init := 0) fun n param => do
+                let type ← param.fvarId!.getType
+                return if !(← Meta.isProp type) then n + 1 else n
+            let major ← expandNoConfusionMajor major numNonPropFields
             let major := mkAppN major args[(arity+1)...*]
             visit major
         else

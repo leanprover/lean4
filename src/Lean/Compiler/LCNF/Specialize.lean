@@ -63,7 +63,7 @@ structure Context where
   Set of let-declarations in scope that do not depend on parameters.
   -/
   ground : FVarIdSet := {}
-  underApplied : FVarIdSet := {}
+  higherOrder : FVarIdSet := {}
   /--
   Name of the declaration being processed
   -/
@@ -106,7 +106,7 @@ def isGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
   let fvarId := decl.fvarId
   withReader (x := x) fun ctx => { ctx with
     scope := ctx.scope.insert fvarId
-    underApplied := if isUnderApplied then ctx.underApplied.insert fvarId else ctx.underApplied
+    higherOrder := if isUnderApplied then ctx.higherOrder.insert fvarId else ctx.higherOrder
     ground := if grd then ctx.ground.insert fvarId else ctx.ground
   }
 
@@ -184,7 +184,7 @@ def collect (paramsInfo : Array SpecParamInfo) (args : Array Arg) : SpecializeM 
   let abstract (fvarId : FVarId) : Bool :=
     -- We convert let-declarations that are not ground into parameters
     !lctx.funDecls.contains fvarId &&
-    !ctx.underApplied.contains fvarId &&
+    !ctx.higherOrder.contains fvarId &&
     !ctx.ground.contains fvarId
   Closure.run (inScope := ctx.scope.contains) (abstract := abstract) do
     let mut argMask := #[]

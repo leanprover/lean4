@@ -48,6 +48,8 @@ protected theorem pow_ne_zero {n : Int} {m : Nat} : n ≠ 0 → n ^ m ≠ 0 := b
   | zero => simp
   | succ m ih => exact fun h => Int.mul_ne_zero (ih h) h
 
+instance {n : Int} {m : Nat} [NeZero n] : NeZero (n ^ m) := ⟨Int.pow_ne_zero (NeZero.ne _)⟩
+
 @[deprecated Nat.pow_le_pow_left (since := "2025-02-17")]
 abbrev pow_le_pow_of_le_left := @Nat.pow_le_pow_left
 

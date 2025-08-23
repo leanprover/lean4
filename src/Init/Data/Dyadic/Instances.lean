@@ -41,9 +41,13 @@ instance : CommRing Dyadic where
     simp [← toRat_inj, Rat.intCast_add]; rfl
 
 instance : IsCharP Dyadic 0 := IsCharP.mk' _ _
-  (ofNat_eq_zero_iff := fun x => by
-    change (x : Dyadic) = 0 ↔ _
-    simp [← Rat.natCast_inj, ← toRat_inj])
+  (ofNat_eq_zero_iff := fun x => by change (x : Dyadic) = 0 ↔ _; simp [← toRat_inj])
+
+instance : NoNatZeroDivisors Dyadic where
+  no_nat_zero_divisors k a b h₁ h₂ := by
+    change k * a = k * b at h₂
+    simp only [← toRat_inj, toRat_mul, toRat_natCast] at h₂ ⊢
+    simpa [← Rat.mul_assoc, Rat.inv_mul_cancel, h₁] using congrArg ((k : Rat)⁻¹ * ·) h₂
 
 instance : LinearOrder Dyadic where
   le_refl := Dyadic.le_refl

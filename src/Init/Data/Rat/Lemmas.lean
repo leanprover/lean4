@@ -804,7 +804,7 @@ The following lemmas are later subsumed by e.g. `Int.cast_add` and `Int.cast_mul
 but it is convenient to have these earlier, for users who only need `Int` and `Rat`.
 -/
 
-theorem intCast_natCast (n : Nat) : ((n : Int) : Rat) = n := rfl
+@[norm_cast] theorem intCast_natCast (n : Nat) : ((n : Int) : Rat) = n := rfl
 
 @[simp, norm_cast] theorem intCast_inj {a b : Int} : (a : Rat) = (b : Rat) ↔ a = b := by
   constructor
@@ -819,14 +819,19 @@ theorem intCast_natCast (n : Nat) : ((n : Int) : Rat) = n := rfl
 @[simp, norm_cast] theorem intCast_eq_zero_iff {a : Int} : (a : Rat) = 0 ↔ a = 0 :=
   intCast_inj
 
+@[simp, norm_cast] theorem natCast_eq_zero_iff {a : Nat} : (a : Rat) = 0 ↔ a = 0 :=
+  natCast_inj
+
 @[simp] theorem ofNat_eq_ofNat {a b : Nat} :
     no_index (OfNat.ofNat a : Rat) = no_index (OfNat.ofNat b : Rat) ↔ a = b :=
   natCast_inj
 
-@[simp] theorem intCast_ofNat {a : Nat} : (no_index (OfNat.ofNat a : Int) : Rat) = OfNat.ofNat a :=
+@[simp, norm_cast] theorem intCast_ofNat {a : Nat} :
+    (no_index (OfNat.ofNat a : Int) : Rat) = OfNat.ofNat a :=
   rfl
 
-@[simp] theorem natCast_ofNat {a : Nat} : (no_index (OfNat.ofNat a : Nat) : Rat) = OfNat.ofNat a :=
+@[simp, norm_cast] theorem natCast_ofNat {a : Nat} :
+    (no_index (OfNat.ofNat a : Nat) : Rat) = OfNat.ofNat a :=
   rfl
 
 theorem intCast_zero : ((0 : Int) : Rat) = (0 : Rat) := rfl
@@ -837,6 +842,10 @@ theorem intCast_one : ((1 : Int) : Rat) = (1 : Rat) := rfl
     ((a + b : Int) : Rat) = (a : Rat) + (b : Rat) := by
   rw [add_def]
   simp [normalize_eq]
+
+@[simp, norm_cast] theorem natCast_add (a b : Nat) :
+    ((a + b : Nat) : Rat) = (a : Rat) + (b : Rat) := by
+  simp [← intCast_natCast]
 
 @[simp, norm_cast] theorem intCast_neg (a : Int) : ((-a : Int) : Rat) = -(a : Rat) := rfl
 
@@ -850,30 +859,55 @@ theorem intCast_one : ((1 : Int) : Rat) = (1 : Rat) := rfl
   rw [mul_def]
   simp [normalize_eq]
 
+@[simp, norm_cast] theorem natCast_mul (a b : Nat) :
+    ((a * b : Nat) : Rat) = (a : Rat) * (b : Rat) := by
+  simp [← intCast_natCast]
+
 @[simp, norm_cast] theorem intCast_pow (a : Int) (n : Nat) :
     ((a ^ n : Int) : Rat) = (a : Rat) ^ n := by
   simp [pow_def]
 
-protected theorem intCast_le_intCast {a b : Int} :
+@[simp, norm_cast] theorem natCast_pow (a b : Nat) :
+    ((a ^ b : Nat) : Rat) = (a : Rat) ^ b := by
+  simp [← intCast_natCast]
+
+@[norm_cast]
+theorem intCast_le_intCast {a b : Int} :
     (a : Rat) ≤ (b : Rat) ↔ a ≤ b := by
   simp [Rat.le_iff]
 
-protected theorem intCast_lt_intCast {a b : Int} :
+@[norm_cast]
+theorem intCast_lt_intCast {a b : Int} :
     (a : Rat) < (b : Rat) ↔ a < b := by
   simp [Rat.lt_iff]
 
-protected theorem intCast_nonneg {a : Int} :
+@[norm_cast]
+theorem natCast_le_natCast {a b : Nat} :
+    (a : Rat) ≤ (b : Rat) ↔ a ≤ b := by
+  simp [← intCast_natCast, intCast_le_intCast]
+
+@[norm_cast]
+theorem natCast_lt_natCast {a b : Nat} :
+    (a : Rat) < (b : Rat) ↔ a < b := by
+  simp [← intCast_natCast, intCast_lt_intCast]
+
+theorem intCast_nonneg {a : Int} :
     0 ≤ (a : Rat) ↔ 0 ≤ a :=
   Rat.intCast_le_intCast
 
-protected theorem intCast_pos {a : Int} :
-    0 < (a : Rat) ↔ 0 < a :=
+theorem natCast_nonneg {a : Nat} : 0 ≤ (a : Rat) :=
+  Rat.intCast_nonneg.mpr (Int.natCast_nonneg _)
+
+theorem intCast_pos {a : Int} : 0 < (a : Rat) ↔ 0 < a :=
   Rat.intCast_lt_intCast
 
-protected theorem intCast_nonpos {a : Int} :
+theorem natCast_pos {a : Nat} : 0 < (a : Rat) ↔ 0 < a :=
+  intCast_pos.trans Int.natCast_pos
+
+theorem intCast_nonpos {a : Int} :
     (a : Rat) ≤ 0 ↔ a ≤ 0 :=
   Rat.intCast_le_intCast
 
-protected theorem intCast_neg_iff {a : Int} :
+theorem intCast_neg_iff {a : Int} :
     (a : Rat) < 0 ↔ a < 0 :=
   Rat.intCast_lt_intCast

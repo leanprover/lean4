@@ -133,4 +133,10 @@ def Decl.etaExpand (decl : Decl) : CompilerM Decl := do
     return { decl with params, value := .code newCode}
   | .extern .. => return decl
 
+def etaExpand (phase : Phase := .mono) (occurrence := 0) : Pass :=
+  .mkPerDeclaration `etaExpand Decl.etaExpand phase occurrence
+
+builtin_initialize
+  registerTraceClass `Compiler.etaExpand (inherited := true)
+
 end Lean.Compiler.LCNF

@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.LCNF.PassManager
 public import Lean.Compiler.LCNF.PullLetDecls
+public import Lean.Compiler.LCNF.Bind
 public import Lean.Compiler.LCNF.CSE
 public import Lean.Compiler.LCNF.Simp
 public import Lean.Compiler.LCNF.PullFunDecls
@@ -102,6 +103,7 @@ def builtinPassManager : PassManager := {
     floatLetIn (phase := .mono) (occurrence := 1),
     reduceArity,
     commonJoinPointArgs,
+    etaExpand,
     simp (occurrence := 4) (phase := .mono),
     floatLetIn (phase := .mono) (occurrence := 2),
     elimDeadBranches,

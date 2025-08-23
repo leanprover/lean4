@@ -207,7 +207,12 @@ def shouldSpecialize (paramsInfo : Array SpecParamInfo) (args : Array Arg) : Spe
     match paramInfo with
     | .other => pure ()
     | .fixedNeutral => pure () -- If we want to monomorphize types such as `Array`, we need to change here
-    | .fixedInst | .user => if (← isGround arg) then return true
+    | .fixedInst | .user =>
+      match arg with
+      | .fvar fvarId =>
+        let ctx ← read
+        return ctx.ground.contains fvarId || ctx.higherOrder.contains fvarId
+      | .erased | .type _ => return false
     | .fixedHO => return true -- TODO: check whether this is too aggressive
   return false
 

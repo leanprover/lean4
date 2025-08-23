@@ -27,7 +27,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
   let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers
   let (binders, type?) := expandOptDeclSig decl[2]
   let declId           := decl[1]
-  let ⟨name, declName, levelNames⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
+  let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
   addDeclarationRangesForBuiltin declName modifiers.stx decl
   let ctors      ← decl[4].getArgs.mapM fun ctor => withRef ctor do
     /-
@@ -40,7 +40,8 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
     if let some leadingDocComment := ctor[0].getOptional? then
       if ctorModifiers.docString?.isSome then
         logErrorAt leadingDocComment "Duplicate doc string"
-      ctorModifiers := { ctorModifiers with docString? := some ⟨leadingDocComment⟩ }
+      ctorModifiers := { ctorModifiers with
+        docString? := some (⟨leadingDocComment⟩, doc.verso.get (← getOptions)) }
     if ctorModifiers.isPrivate && modifiers.isPrivate then
       let hint ← do
         let .original .. := modifiersStx.getHeadInfo | pure .nil
@@ -62,7 +63,6 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
     let ctorName := declName ++ ctorName
     let ctorName ← withRef ctor[3] <| applyVisibility ctorModifiers ctorName
     let (binders, type?) := expandOptDeclSig ctor[4]
-    addDocString' ctorName ctorModifiers.docString?
     addDeclarationRangesFromSyntax ctorName ctor ctor[3]
     return { ref := ctor, declId := ctor[3], modifiers := ctorModifiers, declName := ctorName, binders := binders, type? := type? : CtorView }
   let computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
@@ -81,6 +81,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
     declId, modifiers, isClass, declName, levelNames
     binders, type?, ctors
     computedFields
+    docString?
   }
 
 private def isInductiveFamily (numParams : Nat) (indFVar : Expr) : TermElabM Bool := do

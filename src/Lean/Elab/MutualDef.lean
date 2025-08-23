@@ -206,7 +206,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
     -- Can we reuse the result for a body? For starters, all headers (even those below the body)
     -- must be reusable
     let mut reuseBody := views.all (·.headerSnap?.any (·.old?.isSome))
-    for view in views, ⟨shortDeclName, declName, levelNames⟩ in expandedDeclIds,
+    for view in views, ⟨shortDeclName, declName, levelNames, docString?⟩ in expandedDeclIds,
         tacPromise in tacPromises, bodyPromise in bodyPromises do
       let mut reusableResult? := none
       let mut oldBodySnap? := none
@@ -1181,6 +1181,7 @@ where
   elabSync headers := do
     finishElab headers
     processDeriving headers
+    addDocs headers
   elabAsync header view declId := do
     assert! view.kind.isTheorem
     let env ← getEnv
@@ -1251,6 +1252,8 @@ where
       default
     }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
+    if let some (doc, isVerso) := view.modifiers.docString? then
+      addDocStringOf isVerso declId.declName doc
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
   finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
     let env ← getEnv
@@ -1341,7 +1344,10 @@ where
             lambdaTelescope info.value! fun xs _ => do
               let decl := mkAppN (.const header.declName (info.levelParams.map mkLevelParam)) xs
               processDefDeriving view decl
-
+  addDocs (headers : Array DefViewElabHeader) := do
+    for header in headers, view in views do
+      if let some (doc, isVerso) := view.modifiers.docString? then
+        addDocStringOf isVerso header.declName doc
 /--
 Logs a snapshot task that waits for the entire snapshot tree in `defsParsedSnap` and then logs a
 `goalsAccomplished` silent message for theorems and `Prop`-typed examples if the entire mutual block

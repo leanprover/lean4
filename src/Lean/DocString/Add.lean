@@ -10,14 +10,22 @@ prelude
 public import Lean.Environment
 public import Lean.Exception
 public import Lean.Log
+public import Lean.Elab.DocString
 public import Lean.DocString.Extension
 public import Lean.DocString.Links
+public import Lean.Parser.Types
+public import Lean.DocString.Parser
+public import Lean.ResolveName
+public import Lean.Elab.Term.TermElabM
+import Std.Data.HashMap
 
 public section
 
 set_option linter.missingDocs true
 
 namespace Lean
+
+open Lean.Elab.Term (TermElabM)
 
 /--
 Validates all links to the Lean reference manual in `docstring`.
@@ -26,9 +34,8 @@ This is intended to be used before saving a docstring that is later subject to r
 `rewriteManualLinks`.
 -/
 def validateDocComment
-    [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m]
     (docstring : TSyntax `Lean.Parser.Command.docComment) :
-    m Unit := do
+    TermElabM Unit := do
   let str := docstring.getDocString
   let pos? := docstring.raw[1].getHeadInfo? >>= (·.getPos?)
 
@@ -42,12 +49,63 @@ def validateDocComment
     else
       logError err
 
+
+open Lean.Doc in
+open Parser in
 /--
-Adds a docstring to the environment, validating documentation links.
+Adds a Verso docstring to the specified declaration, which should already be present in the
+environment.
 -/
-def addDocString
-    [Monad m] [MonadError m] [MonadEnv m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m]
-    (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) : m Unit := do
+def versoDocString
+    (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) :
+    TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) := do
+
+  let text ← getFileMap
+  -- TODO fallback to string version without nice interactivity
+  let some startPos := docComment.raw[1].getPos? (canonicalOnly := true)
+    | throwErrorAt docComment m!"Documentation comment has no source location, cannot parse"
+  let some endPos := docComment.raw[1].getTailPos? (canonicalOnly := true)
+    | throwErrorAt docComment m!"Documentation comment has no source location, cannot parse"
+
+  -- Skip trailing `-/`
+  let endPos := text.source.prev <| text.source.prev endPos
+  let endPos := if endPos ≤ text.source.endPos then endPos else text.source.endPos
+  have endPos_valid : endPos ≤ text.source.endPos := by
+    unfold endPos
+    split <;> simp [*]
+
+  let env ← getEnv
+  let ictx : InputContext :=
+    .mk text.source (← getFileName) (fileMap := text)
+      (endPos := endPos) (endPos_valid := endPos_valid)
+  let pmctx : ParserModuleContext := {
+    env,
+    options := ← getOptions,
+    currNamespace := (← getCurrNamespace),
+    openDecls := (← getOpenDecls)
+  }
+  let s := mkParserState text.source |>.setPos startPos
+  -- TODO parse one block at a time for error recovery purposes
+  let s := (Doc.Parser.document).run ictx pmctx (getTokenTable env) s
+
+  if !s.allErrors.isEmpty then
+    for (pos, _, err) in s.allErrors do
+      logMessage {
+        fileName := (← getFileName),
+        pos := text.toPosition pos,
+        -- TODO end position
+        data := err.toString
+      }
+    return (#[], #[])
+  else
+    let stx := s.stxStack.back
+    let stx := stx.getArgs
+    Doc.elabBlocks (stx.map (⟨·⟩)) |>.exec declName
+
+/--
+Adds a Markdown docstring to the environment, validating documentation links.
+-/
+def addMarkdownDocString (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) : TermElabM Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
   validateDocComment docComment
@@ -55,11 +113,40 @@ def addDocString
   modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
 
 /--
+Adds a Verso docstring to the environment.
+-/
+def addVersoDocString (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) : TermElabM Unit := do
+  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
+    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
+  let (blocks, parts) ← versoDocString declName docComment
+  modifyEnv fun env => versoDocStringExt.insert env declName ⟨blocks, parts⟩
+
+/--
+Adds a docstring to the environment. If `isVerso` is `false`, then the docstring is interpreted as
+Markdown.
+-/
+def addDocStringOf (isVerso : Bool) (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) : TermElabM Unit := do
+  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
+    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
+  if isVerso then
+    let (blocks, parts) ← versoDocString declName docComment
+    modifyEnv fun env => versoDocStringExt.insert env declName ⟨blocks, parts⟩
+  else
+    validateDocComment docComment
+    let docString : String ← getDocStringText docComment
+    modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
+
+/--
+Adds a docstring to the environment, validating documentation links.
+-/
+def addDocString (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) : TermElabM Unit := do
+  addDocStringOf (doc.verso.get (← getOptions)) declName docComment
+
+/--
 Adds a docstring to the environment, validating documentation links.
 -/
 def addDocString'
-    [Monad m] [MonadError m] [MonadEnv m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m]
-    (declName : Name) (docString? : Option (TSyntax `Lean.Parser.Command.docComment)) : m Unit :=
+    (declName : Name) (docString? : Option (TSyntax `Lean.Parser.Command.docComment)) : TermElabM Unit :=
   match docString? with
   | some docString => addDocString declName docString
   | none => return ()

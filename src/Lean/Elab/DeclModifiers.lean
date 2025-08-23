@@ -85,7 +85,7 @@ inductive ComputeKind where
 structure Modifiers where
   /-- Input syntax, used for adjusting declaration range (unless missing) -/
   stx             : TSyntax ``Parser.Command.declModifiers := ⟨.missing⟩
-  docString?      : Option (TSyntax ``Parser.Command.docComment) := none
+  docString?      : Option (TSyntax ``Parser.Command.docComment × Bool) := none
   visibility      : Visibility := Visibility.regular
   isProtected     : Bool := false
   computeKind     : ComputeKind := .regular
@@ -187,7 +187,7 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
       RecKind.partial
     else
       RecKind.nonrec
-  let docString? := docCommentStx.getOptional?.map TSyntax.mk
+  let docString? := docCommentStx.getOptional?.map (TSyntax.mk ·, doc.verso.get (← getOptions))
   let visibility ← match visibilityStx.getOptional? with
     | none   => pure .regular
     | some v =>
@@ -276,6 +276,10 @@ structure ExpandDeclIdResult where
   declName   : Name
   /-- Universe parameter names provided using the `universe` command and `.{...}` notation. -/
   levelNames : List Name
+  /-- The docstring, and whether it's Verso -/
+  docString? : Option (TSyntax ``Parser.Command.docComment × Bool)
+
+open Lean.Elab.Term (TermElabM)
 
 /--
 Given a declaration identifier (e.g., `ident (".{" ident,+ "}")?`) that may contain explicit universe parameters
@@ -287,7 +291,7 @@ The result also contains the universe parameters provided using `universe` comma
 
 This commands also stores the doc string stored in `modifiers`.
 -/
-def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : m ExpandDeclIdResult := do
+def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : TermElabM ExpandDeclIdResult := do
   -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
   let (shortName, optUnivDeclStx) := expandDeclIdCore declId
   let levelNames ← if optUnivDeclStx.isNone then
@@ -303,8 +307,8 @@ def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : S
           pure (id :: levelNames))
       currLevelNames
   let (declName, shortName) ← withRef declId <| mkDeclName currNamespace modifiers shortName
-  addDocString' declName modifiers.docString?
-  return { shortName := shortName, declName := declName, levelNames := levelNames }
+  let docString? := modifiers.docString?
+  return { shortName, declName, levelNames, docString? }
 
 end Methods
 

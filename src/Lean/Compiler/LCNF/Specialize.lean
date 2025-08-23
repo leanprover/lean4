@@ -102,7 +102,9 @@ def isUnderApplied (value : LetValue) : CompilerM Bool := do
   | _ => pure false
 
 @[inline] def withLetDecl (decl : LetDecl) (x : SpecializeM α) : SpecializeM α := do
-  let grd ← allFVarsAreGround decl.value <||> isUnderApplied decl.value
+  let grd ← allFVarsAreGround decl.value <||>
+            isUnderApplied decl.value <||>
+            (pure (← isArrowClass? decl.type).isSome)
   let fvarId := decl.fvarId
   withReader (x := x) fun ctx => { ctx with
     scope := ctx.scope.insert fvarId

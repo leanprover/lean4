@@ -3,13 +3,15 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-prelude
-import Lake.DSL.DeclUtil
-import Lake.DSL.Syntax
-import Lake.Config.FacetConfig
-import Lake.Config.TargetConfig
-import Lake.Build.Job
+module
 
+prelude
+public import Lake.DSL.Syntax
+public import Lake.Config.TargetConfig
+public import Lake.Config.FacetConfig
+public import Lake.Build.Job.Register
+public import Lake.Build.Infos
+import Lake.DSL.DeclUtil
 
 /-! # DSL for Targets & Facets
 Macros for declaring Lake targets and facets.
@@ -25,7 +27,7 @@ namespace Lake.DSL
 /-! ## Facet Declarations                                                      -/
 --------------------------------------------------------------------------------
 
-abbrev mkModuleFacetDecl
+public abbrev mkModuleFacetDecl
   (α) (facet : Name)
   [OptDataKind α] [FormatQuery α] [FamilyDef ModuleData facet α]
   (f : Module → FetchM (Job α))
@@ -51,7 +53,7 @@ def expandModuleFacetDecl : Macro := fun stx => do
       Lake.DSL.mkModuleFacetDecl $ty $facet (fun $mod => $defn)
     $[$wds?:whereDecls]?)
 
-abbrev mkPackageFacetDecl
+public abbrev mkPackageFacetDecl
   (α) (facet : Name)
   [OptDataKind α] [FormatQuery α] [FamilyDef PackageData facet α]
   (f : Package → FetchM (Job α))
@@ -77,7 +79,7 @@ def expandPackageFacetDecl : Macro := fun stx => do
       Lake.DSL.mkPackageFacetDecl $ty $facet (fun $pkg => $defn)
     $[$wds?:whereDecls]?)
 
-abbrev mkLibraryFacetDecl
+public abbrev mkLibraryFacetDecl
   (α) (facet : Name)
   [OptDataKind α] [FormatQuery α] [FamilyDef LibraryData facet α]
   (f : LeanLib → FetchM (Job α))
@@ -108,7 +110,7 @@ def expandLibraryFacetDecl : Macro := fun stx => do
 /-! ## Custom Target Declaration                                              -/
 --------------------------------------------------------------------------------
 
-abbrev mkTargetDecl
+public abbrev mkTargetDecl
   (α) (pkgName «target» : Name)
   [OptDataKind α] [FormatQuery α] [FamilyDef (CustomData pkgName) «target» α]
   (f : NPackage pkgName → FetchM (Job α))
@@ -116,7 +118,7 @@ abbrev mkTargetDecl
   let cfg := mkTargetJobConfig fun pkg => do
     withRegisterJob (pkg.target «target» |>.key.toSimpleString) do
       f pkg
-  .mk (.mk pkgName «target» .anonymous (.mk cfg) (by simp [Name.isAnonymous])) rfl
+  .mk (.mk pkgName «target» .anonymous (.mk cfg) (by simp [Name.isAnonymous_iff_eq_anonymous])) rfl
 
 @[builtin_macro targetCommand]
 def expandTargetCommand : Macro := fun stx => do
@@ -140,7 +142,7 @@ def expandTargetCommand : Macro := fun stx => do
 /-! ## Lean Library & Executable Target Declarations -/
 --------------------------------------------------------------------------------
 
-abbrev mkConfigDecl
+public abbrev mkConfigDecl
   (pkg name kind : Name)
   (config : ConfigType kind pkg name)
   [FamilyDef (CustomData pkg) name (ConfigTarget kind)]
@@ -180,11 +182,6 @@ def elabLeanLibCommand : CommandElab := fun stx => do
   let cmd ← mkConfigDeclDef ``LeanLibConfig LeanLib.keyword LeanLib.configKind doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
 
-@[inherit_doc leanLibCommand] abbrev LeanLibCommand := TSyntax ``leanLibCommand
-
-instance : Coe LeanLibCommand Command where
-  coe x := ⟨x.raw⟩
-
 @[builtin_command_elab leanExeCommand]
 def elabLeanExeCommand : CommandElab := fun stx => do
   let `(leanExeCommand|$(doc?)? $(attrs?)? lean_exe%$kw $(nameStx?)? $cfg) := stx
@@ -192,11 +189,6 @@ def elabLeanExeCommand : CommandElab := fun stx => do
   withRef kw do
   let cmd ← mkConfigDeclDef ``LeanExeConfig LeanExe.keyword LeanExe.configKind doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
-
-@[inherit_doc leanExeCommand] abbrev LeanExeCommand := TSyntax ``leanExeCommand
-
-instance : Coe LeanExeCommand Command where
-  coe x := ⟨x.raw⟩
 
 @[builtin_command_elab inputFileCommand]
 def elabInputfileCommand : CommandElab := fun stx => do
@@ -206,11 +198,6 @@ def elabInputfileCommand : CommandElab := fun stx => do
   let cmd ← mkConfigDeclDef ``InputFileConfig InputFile.keyword InputFile.configKind doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
 
-@[inherit_doc inputFileCommand] abbrev InputFileCommand := TSyntax ``inputFileCommand
-
-instance : Coe InputFileCommand Command where
-  coe x := ⟨x.raw⟩
-
 @[builtin_command_elab inputDirCommand]
 def elabInputDirCommand : CommandElab := fun stx => do
   let `(inputDirCommand|$(doc?)? $(attrs?)? input_dir%$kw $(nameStx?)? $cfg) := stx
@@ -219,16 +206,11 @@ def elabInputDirCommand : CommandElab := fun stx => do
   let cmd ← mkConfigDeclDef ``InputDirConfig InputDir.keyword InputDir.configKind doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
 
-@[inherit_doc inputDirCommand] abbrev InputDirCommand := TSyntax ``inputDirCommand
-
-instance : Coe InputDirCommand Command where
-  coe x := ⟨x.raw⟩
-
 --------------------------------------------------------------------------------
 /-! ## External Library Target Declaration                                    -/
 --------------------------------------------------------------------------------
 
-abbrev mkExternLibDecl
+public abbrev mkExternLibDecl
   (pkgName name : Name)
   [FamilyDef (CustomData pkgName) (.str name "static") FilePath]
   [FamilyDef (CustomData pkgName) name (ConfigTarget ExternLib.configKind)]

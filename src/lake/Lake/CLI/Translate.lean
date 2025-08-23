@@ -3,9 +3,12 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Config.Lang
-import Lake.Config.Package
+public import Lake.Config.Lang
+public import Lake.Config.Package
+import Lean.PrettyPrinter
 import Lake.CLI.Translate.Toml
 import Lake.CLI.Translate.Lean
 import Lake.Load.Lean.Elab
@@ -22,7 +25,7 @@ private partial def descopeSyntax : Syntax → Syntax
 private def descopeTSyntax (stx : TSyntax k) : TSyntax k :=
   ⟨descopeSyntax stx.raw⟩
 
-def Package.mkConfigString (pkg : Package) (lang : ConfigLang) : LogIO String := do
+public def Package.mkConfigString (pkg : Package) (lang : ConfigLang) : LogIO String := do
   match lang with
   | .toml => pure <| ppTable pkg.mkTomlConfig
   | .lean => do

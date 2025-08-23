@@ -3,8 +3,12 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lean.Parser.Types
 import Lake.Toml.ParserUtil
+import Lean.Parser
 
 /-!
 # TOML Grammar
@@ -22,7 +26,7 @@ namespace Lake.Toml
 open Lean Parser
 
 /-- Is it a TOML control character? (excludes tabs and spaces) -/
-def isControlChar (c : Char) :=
+public def isControlChar (c : Char) : Bool :=
   c = '\x7F' || (c < '\x20' && c != '\t')
 
 --------------------------------------------------------------------------------
@@ -30,7 +34,7 @@ def isControlChar (c : Char) :=
 --------------------------------------------------------------------------------
 
 /-- Consume optional horizontal whitespace (i.e., tab or space). -/
-def wsFn : ParserFn :=
+public def wsFn : ParserFn :=
   takeWhileFn fun c => c = ' ' || c = '\t'
 
 /-- Consumes the LF following a CR in a CRLF newline. -/
@@ -47,7 +51,7 @@ def crlfAuxFn : ParserFn := fun c s =>
       s.mkUnexpectedError errMsg
 
 /-- Consume a newline. -/
-def newlineFn : ParserFn := fun c s =>
+public def newlineFn : ParserFn := fun c s =>
   let input := c.input
   if h : input.atEnd s.pos then
     s.mkEOIError ["newline"]
@@ -63,15 +67,15 @@ def newlineFn : ParserFn := fun c s =>
 /-- Consumes the body of a comment. -/
 def commentBodyFn : ParserFn :=
   -- While the v1.0.0 TOML ABNF grammar permits a `DEL`, the test suite does not.
-  -- We forbid it because it the omission seems likely to be an error
+  -- We forbid it because it the omission seems likely to be an error.
   takeUntilFn isControlChar
 
 /-- Consumes a line comment. -/
-def commentFn : ParserFn :=
+public def commentFn : ParserFn :=
   chFn '#' ["comment"] >> commentBodyFn
 
 /-- Consume optional whitespace (space, tab, or newline). -/
-partial def wsNewlineFn : ParserFn := fun c s =>
+public partial def wsNewlineFn : ParserFn := fun c s =>
   let input := c.input
   if h : input.atEnd s.pos then
     s
@@ -85,7 +89,7 @@ partial def wsNewlineFn : ParserFn := fun c s =>
       s
 
 /-- Consume optional sequence of whitespace / newline(s) / comment (s). -/
-partial def trailingFn : ParserFn := fun c s =>
+public partial def trailingFn : ParserFn := fun c s =>
   let input := c.input
   if h : input.atEnd s.pos then
     s
@@ -105,7 +109,7 @@ partial def trailingFn : ParserFn := fun c s =>
 --------------------------------------------------------------------------------
 
 /-- A TOML character escape. -/
-def isEscapeChar (c : Char) : Bool :=
+public def isEscapeChar (c : Char) : Bool :=
   c == 'b' || c == 't' || c == 'n' || c == 'f' || c == 'r' || c == '\"' || c == '\\'
 
 /-- Consumes a TOML string escape sequence after a `\`. -/
@@ -151,7 +155,7 @@ partial def basicStringAuxFn (startPos : String.Pos) : ParserFn := fun c s =>
     else
       basicStringAuxFn startPos c (s.next' input s.pos h)
 
-def basicStringFn : ParserFn := usePosFn fun startPos =>
+public def basicStringFn : ParserFn := usePosFn fun startPos =>
   chFn '\"' ["basic string"] >> basicStringAuxFn startPos
 
 partial def literalStringAuxFn (startPos : String.Pos) : ParserFn := fun c s =>
@@ -167,7 +171,7 @@ partial def literalStringAuxFn (startPos : String.Pos) : ParserFn := fun c s =>
     else
       literalStringAuxFn startPos c (s.next' input s.pos h)
 
-def literalStringFn : ParserFn := usePosFn fun startPos =>
+public def literalStringFn : ParserFn := usePosFn fun startPos =>
   chFn '\'' ["literal string"] >> literalStringAuxFn startPos
 
 partial def mlLiteralStringAuxFn (startPos : String.Pos) (quoteDepth : Nat)  : ParserFn := fun c s =>
@@ -196,11 +200,11 @@ partial def mlLiteralStringAuxFn (startPos : String.Pos) (quoteDepth : Nat)  : P
     else
       mlLiteralStringAuxFn startPos 0 c (s.next' input s.pos h)
 
-def mlLiteralStringFn : ParserFn := usePosFn fun startPos =>
+public def mlLiteralStringFn : ParserFn := usePosFn fun startPos =>
   atomicFn (repeatFn 3 (chFn '\'' ["multi-line literal string"])) >>
   mlLiteralStringAuxFn startPos 0
 
-partial def mlBasicStringAuxFn (startPos : String.Pos) (quoteDepth : Nat)  : ParserFn := fun c s =>
+partial def mlBasicStringAuxFn (startPos : String.Pos) (quoteDepth : Nat) : ParserFn := fun c s =>
   let input := c.input
   if h : input.atEnd s.pos then
     if quoteDepth ≥ 3 then
@@ -228,7 +232,7 @@ partial def mlBasicStringAuxFn (startPos : String.Pos) (quoteDepth : Nat)  : Par
     else
       mlBasicStringAuxFn startPos 0 c (s.next' input s.pos h)
 
-def mlBasicStringFn : ParserFn := usePosFn fun startPos =>
+public def mlBasicStringFn : ParserFn := usePosFn fun startPos =>
   atomicFn (repeatFn 3 (chFn '\"' ["multi-line basic string"])) >>
   mlBasicStringAuxFn startPos 0
 
@@ -268,7 +272,7 @@ def timeAuxFn (allowOffset : Bool) : ParserFn :=
   digitPairFn ["minute digit"] >> chFn ':' >>
   digitPairFn ["second digit"] >> timeTailFn allowOffset
 
-def timeFn (allowOffset := false) : ParserFn :=
+public def timeFn (allowOffset := false) : ParserFn :=
   digitPairFn ["hour"] >> chFn ':' >> timeAuxFn allowOffset
 
 def optTimeFn : ParserFn := fun c s =>
@@ -291,11 +295,8 @@ def dateTimeAuxFn : ParserFn :=
   digitPairFn ["month digit"] >> chFn '-' >>
   digitPairFn ["day digit"] >> optTimeFn
 
-def dateTimeFn : ParserFn :=
+public def dateTimeFn : ParserFn :=
   repeatFn 4 (digitFn ["year digit"]) >> chFn '-' >> dateTimeAuxFn
-
-def dateTimeLitFn : ParserFn :=
-  litFn `Lake.Toml.dateTime dateTimeFn
 
 def decExpFn : ParserFn := fun c s =>
   let input := c.input
@@ -458,7 +459,7 @@ def decNumeralAuxFn (startPos : String.Pos) : ParserFn := fun c s =>
     else
       decNumberSepFn startPos curr nextPos c s
 
-def numeralFn : ParserFn := atomicFn fun c s =>
+public def numeralFn : ParserFn := atomicFn fun c s =>
   let input := c.input
   let startPos := s.pos
   let expected := ["integer", "float", "date-time"]
@@ -509,89 +510,96 @@ def numeralFn : ParserFn := atomicFn fun c s =>
 /-! ## Parsers -/
 --------------------------------------------------------------------------------
 
-def trailingWs : Parser :=
+public def trailingWs : Parser :=
   trailing wsFn
 
-def trailingSep : Parser :=
+public def trailingSep : Parser :=
   trailing trailingFn
 
-def unquotedKeyFn : ParserFn :=
+public def unquotedKeyFn : ParserFn :=
   takeWhile1Fn (fun c => c.isAlphanum || c == '_' || c == '-') ["unquoted key"]
 
-def unquotedKey : Parser :=
+public def unquotedKey : Parser :=
   litWithAntiquot "unquotedKey" `Lake.Toml.unquotedKey unquotedKeyFn
 
-def basicString : Parser :=
+public def basicString : Parser :=
   litWithAntiquot "basicString" `Lake.Toml.basicString basicStringFn
 
-def literalString : Parser :=
+public def literalString : Parser :=
   litWithAntiquot "literalString" `Lake.Toml.literalString literalStringFn
 
-def mlBasicString : Parser :=
+public def mlBasicString : Parser :=
   litWithAntiquot "mlBasicString" `Lake.Toml.mlBasicString mlBasicStringFn
 
-def mlLiteralString : Parser :=
+public def mlLiteralString : Parser :=
   litWithAntiquot "mlLiteralString" `Lake.Toml.mlLiteralString mlLiteralStringFn
 
-def quotedKey : Parser :=
+public def quotedKey : Parser :=
   basicString <|> literalString
 
-def simpleKey : Parser := nodeWithAntiquot "simpleKey" `Lake.Toml.simpleKey (anonymous := true) $
+public def simpleKey : Parser :=
+  nodeWithAntiquot "simpleKey" `Lake.Toml.simpleKey (anonymous := true) $
   unquotedKey <|> quotedKey
 
-def key : Parser := nodeWithAntiquot "key" `Lake.Toml.key (anonymous := true)  $ setExpected ["key"]  $
+public def key : Parser :=
+  nodeWithAntiquot "key" `Lake.Toml.key (anonymous := true)  $ setExpected ["key"]  $
   sepBy1 simpleKey "." (trailingWs >> chAtom '.' >> trailingWs)
 
-def stdTable : Parser := nodeWithAntiquot "stdTable" `Lake.Toml.stdTable $
+public def stdTable : Parser :=
+  nodeWithAntiquot "stdTable" `Lake.Toml.stdTable $
   atomic (chAtom '[' ["table"] >> notFollowedBy (chAtom '[') "'['") >>
   trailingWs >> key >> trailingWs >> chAtom ']'
 
-def arrayTable : Parser := nodeWithAntiquot "arrayTable" `Lake.Toml.arrayTable $
+public def arrayTable : Parser :=
+  nodeWithAntiquot "arrayTable" `Lake.Toml.arrayTable $
   atomic (chAtom '[' ["table"] >> chAtom '[' ) >>
   trailingWs >> key >> trailingWs >> chAtom ']' >> chAtom ']'
 
-def table :=
+public def table :=
   stdTable <|> arrayTable
 
-def keyvalCore (val : Parser) : Parser := nodeWithAntiquot "keyval" `Lake.Toml.keyval (anonymous := true) $
+def keyvalCore (val : Parser) : Parser :=
+  nodeWithAntiquot "keyval" `Lake.Toml.keyval (anonymous := true) $
   key >> trailingWs >> chAtom '=' >> trailingWs >> val
 
 def expressionCore (val : Parser) : Parser :=
   withAntiquot (mkAntiquot "expression" `Lake.Toml.expression (isPseudoKind := true)) $
   keyvalCore val <|> table
 
-def header : Parser :=
+public def header : Parser :=
   litWithAntiquot "header" `Lake.Toml.header skipFn trailingFn
 
 def tomlCore (val : Parser) : Parser :=
   nodeWithAntiquot "toml" `Lake.Toml.toml (anonymous := true) $
   header >> sepByLinebreak (expressionCore val >> trailingSep)
 
-def inlineTableCore (val : Parser) : Parser := nodeWithAntiquot "inlineTable" `Lake.Toml.inlineTable $
+def inlineTableCore (val : Parser) : Parser :=
+  nodeWithAntiquot "inlineTable" `Lake.Toml.inlineTable $
   chAtom '{' ["inline-table"] (trailingFn := trailingFn) >>
   sepBy (keyvalCore val >> trailingWs) "," (chAtom ',' (trailingFn := wsFn)) false >>
   chAtom '}'
 
-def arrayCore (val : Parser) : Parser := nodeWithAntiquot "array" `Lake.Toml.array $
+def arrayCore (val : Parser) : Parser :=
+  nodeWithAntiquot "array" `Lake.Toml.array $
   chAtom '[' ["array"] (trailingFn := trailingFn) >>
   sepBy (val >> trailingSep) "," (chAtom ',' (trailingFn := trailingFn)) true >>
   chAtom ']'
 
-def string : Parser :=
+public def string : Parser :=
   nodeWithAntiquot "string" `Lake.Toml.string $ setExpected ["string"] $
   mlBasicString <|> basicString <|> mlLiteralString <|> literalString
 
-protected def true : Parser :=
+public protected def true : Parser :=
   lit `Lake.Toml.true $ strFn "true"
 
-protected def false : Parser :=
+public protected def false : Parser :=
   lit `Lake.Toml.false $ strFn "false"
 
-def boolean : Parser :=
+public def boolean : Parser :=
   nodeWithAntiquot "boolean" `Lake.Toml.boolean $
   Toml.true <|> Toml.false
 
-def numeralAntiquot :=
+public def numeralAntiquot :=
   mkAntiquot "float" `Lake.Toml.float (anonymous := false) <|>
   mkAntiquot "decInt" `Lake.Toml.decInt (anonymous := false) <|>
   mkAntiquot "binNum" `Lake.Toml.binNum (anonymous := false) <|>
@@ -601,48 +609,48 @@ def numeralAntiquot :=
   mkAntiquot "numeral" `Lake.Toml.numeral (isPseudoKind := true)
 
 /- A value starting with a numeral. Either a TOML date-time, float, or integer. -/
-def numeral : Parser :=
+public def numeral : Parser :=
   withAntiquot numeralAntiquot $ dynamicNode numeralFn
 
-def numeralOfKind (name : String) (kind : SyntaxNodeKind) : Parser :=
+public def numeralOfKind (name : String) (kind : SyntaxNodeKind) : Parser :=
   numeral >> setExpected [name] (checkStackTop (·.isOfKind kind) "illegal numeral kind")
 
-def float : Parser :=
+public def float : Parser :=
   numeralOfKind "float" `Lake.Toml.float
 
-def decInt : Parser :=
+public def decInt : Parser :=
   numeralOfKind "decimal integer" `Lake.Toml.decInt
 
-def binNum : Parser :=
+public def binNum : Parser :=
   numeralOfKind "binary number" `Lake.Toml.binNum
 
-def octNum : Parser :=
+public def octNum : Parser :=
   numeralOfKind "octal number" `Lake.Toml.octNum
 
-def hexNum : Parser :=
+public def hexNum : Parser :=
   numeralOfKind "hexadecimal number" `Lake.Toml.hexNum
 
-def dateTime : Parser :=
+public def dateTime : Parser :=
   numeralOfKind "date-time" `Lake.Toml.dateTime
 
 def valCore (val : Parser) : Parser :=
   string <|> boolean <|> numeral <|>
   arrayCore val <|> inlineTableCore val
 
-def val : Parser :=
+public def val : Parser :=
   recNodeWithAntiquot "val" `Lake.Toml.val valCore (anonymous := true)
 
-def array : Parser :=
+public def array : Parser :=
   arrayCore val
 
-def inlineTable : Parser :=
+public def inlineTable : Parser :=
   inlineTableCore val
 
-def keyval : Parser :=
+public def keyval : Parser :=
   keyvalCore val
 
-def expression : Parser :=
+public def expression : Parser :=
   expressionCore val
 
-@[run_parser_attribute_hooks] def toml : Parser :=
+@[run_parser_attribute_hooks] public def toml : Parser :=
   withCache `Lake.Toml.toml $ tomlCore val

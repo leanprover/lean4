@@ -1285,11 +1285,13 @@ Creates a new metavariable of type `type` that will be synthesized using the tac
 The `tacticCode` syntax is the full `by ..` syntax.
 -/
 def mkTacticMVar (type : Expr) (tacticCode : Syntax) (kind : TacticMVarKind)
-    (delayOnMVars := false) : TermElabM Expr := do
+    (delayOnMVars := false) (mvarKind : MetavarKind := .syntheticOpaque) : TermElabM Expr := do
   if ← pure (debug.byAsSorry.get (← getOptions)) <&&> isProp type then
     withRef tacticCode <| mkLabeledSorry type false (unique := true)
   else
-    let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
+    -- The tactic metavariable begins as a metavariable of kind `mvarKind`.
+    -- Later, during tactic execution, it will be converted to `syntheticOpaque` to initialize the goal list.
+    let mvar ← mkFreshExprMVar type mvarKind
     let mvarId := mvar.mvarId!
     let ref ← getRef
     registerSyntheticMVar ref mvarId <| .tactic tacticCode (← saveContext) kind delayOnMVars

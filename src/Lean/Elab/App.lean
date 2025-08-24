@@ -671,7 +671,7 @@ mutual
           -/
           let info := (← getRef).getHeadInfo.nonCanonicalSynthetic
           let tacticBlock := tacticBlock.raw.rewriteBottomUp (·.setInfo info)
-          let mvar ← mkTacticMVar argType.consumeTypeAnnotations tacticBlock (.autoParam argName)
+          let mvar ← mkTacticMVar argType.consumeTypeAnnotations tacticBlock (.autoParam argName) (mvarKind := .synthetic)
           -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticBlock`.
           -- We should look into removing this since terminfo for synthetic syntax is suspect,
           -- but we noted it was necessary to preserve the behavior of the unused variable linter.

@@ -414,41 +414,55 @@ builtin_initialize registerReservedNamePredicate fun env n =>
   | .str p s => (isHCongrReservedNameSuffix s || s == congrSimpSuffix) && env.isSafeDefinition p
   | _ => false
 
+-- `realizeConst` is expected to always realize the given name, use a dummy to signal missing
+-- congr theorems.
+private def noCongrType : Expr := .const `True []
+
+private def mkDummy (name : Name) : MetaM Unit :=
+  addDecl <| Declaration.thmDecl {
+    name, type := noCongrType, value := .const `True.intro []
+    levelParams := []
+  }
+
 builtin_initialize
   registerReservedNameAction fun name => do
     let .str p s := name | return false
     unless (← getEnv).isSafeDefinition p do return false
     if isHCongrReservedNameSuffix s then
       let numArgs := (s.drop 7).toNat!
-      try MetaM.run' do
-        let info ← getConstInfo p
-        let f := mkConst p (info.levelParams.map mkLevelParam)
-        let congrThm ← mkHCongrWithArity f numArgs
-        realizeConst p name do
+      MetaM.run' do realizeConst p name do
+        try
+          let info ← getConstInfo p
+          let f := mkConst p (info.levelParams.map mkLevelParam)
+          let congrThm ← mkHCongrWithArity f numArgs
           addDecl <| Declaration.thmDecl {
             name, type := congrThm.type, value := congrThm.proof
             levelParams := info.levelParams
           }
           trace[congr.thm] "declared `{name}`"
           modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
-        return true
-      catch _ => return false
+        catch _ => mkDummy name
+      -- The constant may be a dummy at this point, but it definitely exists and so we should return
+      -- true and leave further distinction to the caller.
+      return true
     else if s == congrSimpSuffix then
-      try MetaM.run' do
-        let cinfo ← getConstInfo p
-        let f := mkConst p (cinfo.levelParams.map mkLevelParam)
-        let info ← getFunInfo f
-        let some congrThm ← mkCongrSimpCore? f info (← getCongrSimpKinds f info)
-          | return false
-        realizeConst p name do
+      MetaM.run' do realizeConst p name do
+        try
+          let cinfo ← getConstInfo p
+          let f := mkConst p (cinfo.levelParams.map mkLevelParam)
+          let info ← getFunInfo f
+          let some congrThm ← mkCongrSimpCore? f info (← getCongrSimpKinds f info)
+            | mkDummy name
           addDecl <| Declaration.thmDecl {
             name, type := congrThm.type, value := congrThm.proof
             levelParams := cinfo.levelParams
           }
           trace[congr.thm] "declared `{name}`"
           modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
-        return true
-      catch _ => return false
+        catch _ => mkDummy name
+      -- The constant may be a dummy at this point, but it definitely exists and so we should return
+      -- true and leave further distinction to the caller.
+      return true
     else
       return false
 
@@ -462,6 +476,8 @@ def mkHCongrWithArityForConst? (declName : Name) (levels : List Level) (numArgs 
     let thmName := Name.str declName suffix
     unless (← getEnv).containsOnBranch thmName do
       let _ ← executeReservedNameAction thmName
+    if (← getEnv).find? thmName |>.any (·.type == noCongrType) then
+      return none
     let proof := mkConst thmName levels
     let type ← inferType proof
     let some argKinds := congrKindsExt.find? (← getEnv) thmName
@@ -479,6 +495,8 @@ def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option
   try
     unless (← getEnv).containsOnBranch thmName do
       let _ ← executeReservedNameAction thmName
+    if (← getEnv).find? thmName |>.any (·.type == noCongrType) then
+      return none
     let proof := mkConst thmName levels
     let type ← inferType proof
     let some argKinds := congrKindsExt.find? (← getEnv) thmName

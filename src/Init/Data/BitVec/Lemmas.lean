@@ -5767,6 +5767,13 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
   simp only [BitVec.msb, getMsbD_replicate, Nat.zero_mod]
   cases n <;> cases w <;> simp
 
+@[simp]
+theorem reverse_reverse {x : BitVec w} :
+    x.reverse.reverse = x := by
+  ext i
+  simp [getElem_reverse, getMsbD_reverse]
+  congr
+
 /-! ### Count leading zeros -/
 
 theorem clzAuxRec_zero (x : BitVec w) :
@@ -5799,7 +5806,6 @@ theorem clzAuxRec_eq_clzAuxRec_of_getLsbD_false {x : BitVec w} (h : ∀ i, n < i
       contradiction
     · simp only [hxn, Bool.false_eq_true, ↓reduceIte]
       exact ihk
-
 
 /-! ### Inequalities (le / lt) -/
 

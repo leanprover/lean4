@@ -69,25 +69,25 @@ def Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α)
   Quot.ind mk q
 
 @[local simp] def nsmul (n : Nat) (q : Q α) : (Q α) :=
-  q.liftOn (fun (a, b) => Q.mk (n * a, n * b))
+  q.liftOn (fun (a, b) => Q.mk (n • a, n • b))
     (by intro (a₁, b₁) (a₂, b₂)
         simp; intro k h; apply Quot.sound; simp
-        refine ⟨n * k, ?_⟩
-        replace h := congrArg (fun x : α => n * x) h
+        refine ⟨n • k, ?_⟩
+        replace h := congrArg (fun x : α => n • x) h
         simpa [NatModule.nsmul_add] using h)
 
 @[local simp] def zsmul (n : Int) (q : Q α) : (Q α) :=
-  q.liftOn (fun (a, b) => if n < 0 then Q.mk (n.natAbs * b, n.natAbs * a) else Q.mk (n.natAbs * a, n.natAbs * b))
+  q.liftOn (fun (a, b) => if n < 0 then Q.mk (n.natAbs • b, n.natAbs • a) else Q.mk (n.natAbs • a, n.natAbs • b))
     (by intro (a₁, b₁) (a₂, b₂)
         simp; intro k h;
         split
         · apply Quot.sound; simp
-          refine ⟨n.natAbs * k, ?_⟩
-          replace h := congrArg (fun x : α => n.natAbs * x) h
+          refine ⟨n.natAbs • k, ?_⟩
+          replace h := congrArg (fun x : α => n.natAbs • x) h
           simpa [NatModule.nsmul_add] using h.symm
         · apply Quot.sound; simp
-          refine ⟨n.natAbs * k, ?_⟩
-          replace h := congrArg (fun x : α => n.natAbs * x) h
+          refine ⟨n.natAbs • k, ?_⟩
+          replace h := congrArg (fun x : α => n.natAbs • x) h
           simpa [NatModule.nsmul_add] using h)
 
 @[local simp] def sub (q₁ q₂ : Q α) : Q α :=
@@ -168,12 +168,12 @@ theorem add_zsmul (a b : Int) (c : Q α) : zsmul (a + b) c = add (zsmul a c) (zs
       ac_rfl
     · split
       · apply Quot.sound
-        refine ⟨a.natAbs * c₁ + a.natAbs * c₂, ?_⟩
+        refine ⟨a.natAbs • c₁ + a.natAbs • c₂, ?_⟩
         have : (a + b).natAbs + a.natAbs = b.natAbs := by omega
         simp [← this]
         ac_rfl
       · apply Quot.sound
-        refine ⟨b.natAbs * c₁ + b.natAbs * c₂, ?_⟩
+        refine ⟨b.natAbs • c₁ + b.natAbs • c₂, ?_⟩
         have : (a + b).natAbs + b.natAbs = a.natAbs := by omega
         simp [← this]
         ac_rfl
@@ -181,12 +181,12 @@ theorem add_zsmul (a b : Int) (c : Q α) : zsmul (a + b) c = add (zsmul a c) (zs
     by_cases ha : a < 0
     · split
       · apply Quot.sound
-        refine ⟨a.natAbs * c₁ + a.natAbs * c₂, ?_⟩
+        refine ⟨a.natAbs • c₁ + a.natAbs • c₂, ?_⟩
         have : (a + b).natAbs + b.natAbs = a.natAbs := by omega
         simp [← this]
         ac_rfl
       · apply Quot.sound
-        refine ⟨b.natAbs * c₁ + b.natAbs * c₂, ?_⟩
+        refine ⟨b.natAbs • c₁ + b.natAbs • c₂, ?_⟩
         have : (a + b).natAbs + a.natAbs = b.natAbs := by omega
         simp [← this]
         ac_rfl
@@ -226,7 +226,7 @@ theorem toQ_zero : toQ (0 : α) = 0 := by
   simp; apply Quot.sound; simp
 
 theorem toQ_smul (n : Nat) (a : α) : toQ (n • a) = (↑n : Int) • toQ a := by
-  simp; apply Quot.sound; simp; exists 0
+  simp; apply Quot.sound; simp
 
 /-!
 Helper definitions and theorems for proving `toQ` is injective when
@@ -263,7 +263,7 @@ theorem toQ_inj [AddRightCancel α] {a b : α} : toQ a = toQ b → a = b := by
 instance [NatModule α] [AddRightCancel α] [NoNatZeroDivisors α] : NoNatZeroDivisors (OfNatModule.Q α) where
   no_nat_zero_divisors := by
     intro k a b h₁ h₂
-    replace h₂ : k * a = k * b := h₂
+    replace h₂ : k • a = k • b := h₂
     obtain ⟨⟨a₁, a₂⟩⟩ := a
     obtain ⟨⟨b₁, b₂⟩⟩ := b
     replace h₂ := Q.exact h₂

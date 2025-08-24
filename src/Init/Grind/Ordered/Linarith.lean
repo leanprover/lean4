@@ -46,8 +46,8 @@ def Expr.denote {α} [IntModule α] (ctx : Context α) : Expr → α
   | .var v    => v.denote ctx
   | .add a b  => denote ctx a + denote ctx b
   | .sub a b  => denote ctx a - denote ctx b
-  | .natMul k a  => k * denote ctx a
-  | .intMul k a  => k * denote ctx a
+  | .natMul k a  => k • denote ctx a
+  | .intMul k a  => k • denote ctx a
   | .neg a    => -denote ctx a
 
 inductive Poly where
@@ -58,7 +58,7 @@ inductive Poly where
 def Poly.denote {α} [IntModule α] (ctx : Context α) (p : Poly) : α :=
   match p with
   | .nil => 0
-  | .add k v p => k * v.denote ctx + denote ctx p
+  | .add k v p => k • v.denote ctx + denote ctx p
 
 /--
 Similar to `Poly.denote`, but produces a denotation better for normalization.
@@ -67,13 +67,13 @@ def Poly.denote' {α} [IntModule α] (ctx : Context α) (p : Poly) : α :=
   match p with
   | .nil => 0
   | .add 1 v p => go (v.denote ctx) p
-  | .add k v p => go (k * v.denote ctx) p
+  | .add k v p => go (k • v.denote ctx) p
 where
   go (r : α)  (p : Poly) : α :=
     match p with
     | .nil => r
     | .add 1 v p => go (r + v.denote ctx) p
-    | .add k v p => go (r + k * v.denote ctx) p
+    | .add k v p => go (r + k • v.denote ctx) p
 
 -- Helper instance for `ac_rfl`
 local instance {α} [IntModule α] : Std.Associative (· + · : α → α → α) where
@@ -172,7 +172,7 @@ def Poly.mul (p : Poly) (k : Int) : Poly :=
   else
     p.mul' k
 
-@[simp] theorem Poly.denote_mul {α} [IntModule α] (ctx : Context α) (p : Poly) (k : Int) : (p.mul k).denote ctx = k * p.denote ctx := by
+@[simp] theorem Poly.denote_mul {α} [IntModule α] (ctx : Context α) (p : Poly) (k : Int) : (p.mul k).denote ctx = k • p.denote ctx := by
   simp [mul]
   split
   next => simp [*, denote]
@@ -181,7 +181,7 @@ def Poly.mul (p : Poly) (k : Int) : Poly :=
     rw [mul_zsmul, zsmul_add]
 
 theorem Poly.denote_insert {α} [IntModule α] (ctx : Context α) (k : Int) (v : Var) (p : Poly) :
-    (p.insert k v).denote ctx = p.denote ctx + k * v.denote ctx := by
+    (p.insert k v).denote ctx = p.denote ctx + k • v.denote ctx := by
   fun_induction p.insert k v <;> simp [denote]
   next => ac_rfl
   next h₁ h₂ h₃ =>
@@ -217,7 +217,7 @@ theorem Poly.denote_combine {α} [IntModule α] (ctx : Context α) (p₁ p₂ : 
 attribute [local simp] Poly.denote_combine
 
 private theorem Expr.denote_toPoly'_go {α} [IntModule α] {k p} (ctx : Context α) (e : Expr)
-    : (toPoly'.go k e p).denote ctx = k * e.denote ctx + p.denote ctx := by
+    : (toPoly'.go k e p).denote ctx = k • e.denote ctx + p.denote ctx := by
   induction k, e using Expr.toPoly'.go.induct generalizing p <;> simp [toPoly'.go, denote, Poly.denote, *, zsmul_add]
   next => ac_rfl
   next => rw [sub_eq_add_neg, neg_zsmul, zsmul_add, zsmul_neg]; ac_rfl
@@ -520,8 +520,8 @@ theorem eq_diseq_subst {α} [IntModule α] [NoNatZeroDivisors α] (ctx : Context
     : eq_diseq_subst_cert k₁ k₂ p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx ≠ 0 → p₃.denote' ctx ≠ 0 := by
   simp [eq_diseq_subst_cert, - Int.natAbs_eq_zero, -Int.natCast_eq_zero]; intro hne _ h₁ h₂; subst p₃
   simp [h₁]; intro h₃
-  have :  k₁.natAbs * Poly.denote ctx p₂ = 0 := by
-    have : (k₁.natAbs : Int) * Poly.denote ctx p₂ = 0 := by
+  have :  k₁.natAbs • Poly.denote ctx p₂ = 0 := by
+    have : (k₁.natAbs : Int) • Poly.denote ctx p₂ = 0 := by
       cases Int.natAbs_eq_iff.mp (Eq.refl k₁.natAbs)
       next h => rw [← h]; assumption
       next h => replace h := congrArg (- ·) h; simp at h; rw [← h, neg_zsmul, h₃, neg_zero]

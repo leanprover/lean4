@@ -75,14 +75,14 @@ section
 
 variable {M : Type u} [LE M] [LT M] [Preorder M] [NatModule M] [OrderedAdd M]
 
-theorem nsmul_le_nsmul {k : Nat} {a b : M} (h : a ≤ b) : k * a ≤ k * b := by
+theorem nsmul_le_nsmul {k : Nat} {a b : M} (h : a ≤ b) : k • a ≤ k • b := by
   induction k with
   | zero => simp [zero_nsmul, Preorder.le_refl]
   | succ k ih =>
     rw [add_nsmul, one_nsmul, add_nsmul, one_nsmul]
-    exact Preorder.le_trans ((add_le_left_iff a).mp ih) ((add_le_right_iff (k * b)).mp h)
+    exact Preorder.le_trans ((add_le_left_iff a).mp ih) ((add_le_right_iff (k • b)).mp h)
 
-theorem nsmul_lt_nsmul_iff (k : Nat) {a b : M} (h : a < b) : k * a < k * b ↔ 0 < k := by
+theorem nsmul_lt_nsmul_iff (k : Nat) {a b : M} (h : a < b) : k • a < k • b ↔ 0 < k := by
   induction k with
   | zero => simp [zero_nsmul, Preorder.lt_irrefl]
   | succ k ih =>
@@ -90,24 +90,24 @@ theorem nsmul_lt_nsmul_iff (k : Nat) {a b : M} (h : a < b) : k * a < k * b ↔ 0
     simp only [Nat.zero_lt_succ, iff_true]
     by_cases hk : 0 < k
     · simp only [hk, iff_true] at ih
-      exact Preorder.lt_trans ((add_lt_left_iff a).mp ih) ((add_lt_right_iff (k * b)).mp h)
+      exact Preorder.lt_trans ((add_lt_left_iff a).mp ih) ((add_lt_right_iff (k • b)).mp h)
     · simp [Nat.eq_zero_of_not_pos hk, zero_nsmul, zero_add, h]
 
-theorem nsmul_pos_iff {k : Nat} {a : M} (h : 0 < a) : 0 < k * a ↔ 0 < k:= by
+theorem nsmul_pos_iff {k : Nat} {a : M} (h : 0 < a) : 0 < k • a ↔ 0 < k:= by
   rw [← nsmul_lt_nsmul_iff k h, nsmul_zero]
 
-theorem nsmul_nonneg {k : Nat} {a : M} (h : 0 ≤ a) : 0 ≤ k * a := by
+theorem nsmul_nonneg {k : Nat} {a : M} (h : 0 ≤ a) : 0 ≤ k • a := by
   have := nsmul_le_nsmul (k := k) h
   rwa [nsmul_zero] at this
 
 theorem nsmul_le_nsmul_of_le_of_le_of_nonneg
     {k₁ k₂ : Nat} {x y : M} (hk : k₁ ≤ k₂) (h : x ≤ y) (w : 0 ≤ x) :
-    k₁ * x ≤ k₂ * y := by
+    k₁ • x ≤ k₂ • y := by
   apply Preorder.le_trans
-  · change k₁ * x ≤ k₂ * x
+  · change k₁ • x ≤ k₂ • x
     obtain ⟨k', rfl⟩ := Nat.exists_eq_add_of_le hk
     rw [add_nsmul]
-    conv => lhs; rw [← add_zero (k₁ * x)]
+    conv => lhs; rw [← add_zero (k₁ • x)]
     rw [← add_le_right_iff]
     exact nsmul_nonneg w
   · exact nsmul_le_nsmul h
@@ -130,7 +130,7 @@ section
 variable {M : Type u} [LE M] [LT M] [Preorder M] [IntModule M] [OrderedAdd M]
 open AddCommGroup IntModule
 
-theorem zsmul_pos_iff (k : Int) {x : M} (h : 0 < x) : 0 < k * x ↔ 0 < k :=
+theorem zsmul_pos_iff (k : Int) {x : M} (h : 0 < x) : 0 < k • x ↔ 0 < k :=
   match k with
   | (k + 1 : Nat) => by
     simpa [zsmul_zero, ← zsmul_natCast_eq_nsmul] using nsmul_lt_nsmul_iff (k := k + 1) h
@@ -146,7 +146,7 @@ theorem zsmul_pos_iff (k : Int) {x : M} (h : 0 < x) : 0 < k * x ↔ 0 < k :=
     simpa [zsmul_zero, ← zsmul_natCast_eq_nsmul] using
       nsmul_le_nsmul (k := k + 1) (Preorder.le_of_lt h)
 
-theorem zsmul_nonneg {k : Int} {x : M} (h : 0 ≤ k) (hx : 0 ≤ x) : 0 ≤ k * x :=
+theorem zsmul_nonneg {k : Int} {x : M} (h : 0 ≤ k) (hx : 0 ≤ x) : 0 ≤ k • x :=
   match k, h with
   | (k : Nat), _ => by
     simpa [zsmul_natCast_eq_nsmul] using nsmul_nonneg hx
@@ -189,25 +189,25 @@ section
 variable {M : Type u} [LE M] [LT M] [Preorder M] [IntModule M] [OrderedAdd M]
 open IntModule
 
-theorem zsmul_neg_iff (k : Int) {a : M} (h : a < 0) : k * a < 0 ↔ 0 < k := by
+theorem zsmul_neg_iff (k : Int) {a : M} (h : a < 0) : k • a < 0 ↔ 0 < k := by
   simpa [IntModule.zsmul_neg, neg_pos_iff] using zsmul_pos_iff k (neg_pos_iff.mpr h)
 
-theorem zsmul_nonpos {k : Int} {a : M} (hk : 0 ≤ k) (ha : a ≤ 0) : k * a ≤ 0 := by
+theorem zsmul_nonpos {k : Int} {a : M} (hk : 0 ≤ k) (ha : a ≤ 0) : k • a ≤ 0 := by
   simpa [IntModule.zsmul_neg, neg_nonneg_iff] using zsmul_nonneg hk (neg_nonneg_iff.mpr ha)
 
-theorem zsmul_le_zsmul {a b : M} {k : Int} (hk : 0 ≤ k) (h : a ≤ b) : k * a ≤ k * b := by
+theorem zsmul_le_zsmul {a b : M} {k : Int} (hk : 0 ≤ k) (h : a ≤ b) : k • a ≤ k • b := by
   simpa [zsmul_sub, sub_nonneg_iff] using zsmul_nonneg hk (sub_nonneg_iff.mpr h)
 
-theorem zsmul_lt_zsmul_iff (k : Int) {a b : M} (h : a < b) : k * a < k * b ↔ 0 < k := by
+theorem zsmul_lt_zsmul_iff (k : Int) {a b : M} (h : a < b) : k • a < k • b ↔ 0 < k := by
   simpa [zsmul_sub, sub_pos_iff] using zsmul_pos_iff k (sub_pos_iff.mpr h)
 
 theorem zsmul_le_zsmul_of_le_of_le_of_nonneg_of_nonneg
     {k₁ k₂ : Int} {x y : M} (hk : k₁ ≤ k₂) (h : x ≤ y) (w : 0 ≤ k₁) (w' : 0 ≤ x) :
-    k₁ * x ≤ k₂ * y := by
+    k₁ • x ≤ k₂ • y := by
   apply Preorder.le_trans
-  · have : 0 ≤ k₁ * (y - x) := zsmul_nonneg w (sub_nonneg_iff.mpr h)
+  · have : 0 ≤ k₁ • (y - x) := zsmul_nonneg w (sub_nonneg_iff.mpr h)
     rwa [IntModule.zsmul_sub, sub_nonneg_iff] at this
-  · have : 0 ≤ (k₂ - k₁) * y := zsmul_nonneg (Int.sub_nonneg.mpr hk) (Preorder.le_trans w' h)
+  · have : 0 ≤ (k₂ - k₁) • y := zsmul_nonneg (Int.sub_nonneg.mpr hk) (Preorder.le_trans w' h)
     rwa [IntModule.sub_zsmul, sub_nonneg_iff] at this
 
 end

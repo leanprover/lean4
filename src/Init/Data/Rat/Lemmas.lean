@@ -216,7 +216,7 @@ def numDenCasesOn''.{u} {C : Rat → Sort u} (a : Rat)
     (H : ∀ (n : Int) (d : Nat) (nz red), C (mk' n d nz red)) : C a :=
   numDenCasesOn a fun n d h h' ↦ by rw [← mk_eq_divInt _ _ (Nat.ne_of_gt h) h']; exact H n d (Nat.ne_of_gt h) _
 
-@[simp] theorem ofInt_ofNat : ofInt (OfNat.ofNat n) = OfNat.ofNat n := rfl
+@[simp] protected theorem ofInt_ofNat : ofInt (OfNat.ofNat n) = OfNat.ofNat n := rfl
 
 @[simp] theorem ofInt_num : (ofInt n : Rat).num = n := rfl
 @[simp] theorem ofInt_den : (ofInt n : Rat).den = 1 := rfl
@@ -247,8 +247,8 @@ theorem add_def (a b : Rat) :
 theorem add_def' (a b : Rat) : a + b = mkRat (a.num * b.den + b.num * a.den) (a.den * b.den) := by
   rw [add_def, normalize_eq_mkRat]
 
-theorem add_zero (a : Rat) : a + 0 = a := by simp [add_def', mkRat_self]
-theorem zero_add (a : Rat) : 0 + a = a := by simp [add_def', mkRat_self]
+protected theorem add_zero (a : Rat) : a + 0 = a := by simp [add_def', mkRat_self]
+protected theorem zero_add (a : Rat) : 0 + a = a := by simp [add_def', mkRat_self]
 
 theorem normalize_add_normalize (n₁ n₂) {d₁ d₂} (z₁ z₂) :
     normalize n₁ d₁ z₁ + normalize n₂ d₂ z₂ =
@@ -406,33 +406,28 @@ abbrev intCast_den := @den_intCast
 @[deprecated num_intCast (since := "2025-08-22")]
 abbrev intCast_num := @num_intCast
 
-/-!
-The following lemmas are later subsumed by e.g. `Int.cast_add` and `Int.cast_mul` in Mathlib
-but it is convenient to have these earlier, for users who only need `Int` and `Rat`.
--/
-
 @[simp, norm_cast] theorem intCast_inj {a b : Int} : (a : Rat) = (b : Rat) ↔ a = b := by
   constructor
   · rintro ⟨⟩; rfl
   · simp_all
 
-theorem intCast_zero : ((0 : Int) : Rat) = (0 : Rat) := rfl
+protected theorem intCast_zero : ((0 : Int) : Rat) = (0 : Rat) := rfl
 
-theorem intCast_one : ((1 : Int) : Rat) = (1 : Rat) := rfl
+protected theorem intCast_one : ((1 : Int) : Rat) = (1 : Rat) := rfl
 
-@[simp, norm_cast] theorem intCast_add (a b : Int) :
+@[simp, norm_cast] protected theorem intCast_add (a b : Int) :
     ((a + b : Int) : Rat) = (a : Rat) + (b : Rat) := by
   rw [add_def]
   simp [normalize_eq]
 
-@[simp, norm_cast] theorem intCast_neg (a : Int) : ((-a : Int) : Rat) = -(a : Rat) := rfl
+@[simp, norm_cast] protected theorem intCast_neg (a : Int) : ((-a : Int) : Rat) = -(a : Rat) := rfl
 
-@[simp, norm_cast] theorem intCast_sub (a b : Int) :
+@[simp, norm_cast] protected theorem intCast_sub (a b : Int) :
     ((a - b : Int) : Rat) = (a : Rat) - (b : Rat) := by
   rw [sub_def]
   simp [normalize_eq]
 
-@[simp, norm_cast] theorem intCast_mul (a b : Int) :
+@[simp, norm_cast] protected theorem intCast_mul (a b : Int) :
     ((a * b : Int) : Rat) = (a : Rat) * (b : Rat) := by
   rw [mul_def]
   simp [normalize_eq]

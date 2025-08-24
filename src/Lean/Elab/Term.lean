@@ -24,6 +24,12 @@ public meta import Lean.Parser.Term
 
 public section
 
+/-- Internal option to suppress deprecation warnings when elaborating inside a deprecated declaration (issue #8942) -/
+register_builtin_option diagnostics.suppressDeprecationWarnings : Bool := {
+  defValue := false
+  descr := "(internal) suppress deprecation warnings when elaborating inside a deprecated declaration"
+}
+
 namespace Lean.Elab
 
 namespace Term
@@ -640,6 +646,23 @@ def withDeclName (name : Name) (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with declName? := name }) do
   withSaveParentDeclInfoContext do
   withDeclNameForAuxNaming name do
+    x
+
+/--
+Check if the given modifiers contain a deprecated attribute.
+-/
+def hasDeprecatedAttr (modifiers : Modifiers) : Bool :=
+  modifiers.attrs.any fun attr => attr.name == `deprecated
+
+/--
+Executes `x` with deprecation status set based on modifiers.
+-/
+def withModifiers (modifiers : Modifiers) (x : TermElabM α) : TermElabM α := do
+  let isDeprecated := hasDeprecatedAttr modifiers
+  let alreadySuppressed := diagnostics.suppressDeprecationWarnings.get (← getOptions)
+  if isDeprecated || alreadySuppressed then
+    withOptions (fun opts => opts.setBool `diagnostics.suppressDeprecationWarnings true) x
+  else
     x
 
 /-- Update the universe level parameter names. -/
@@ -1934,6 +1957,11 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
 
 private def checkDeprecatedCore (constName : Name) : TermElabM Unit := do
   if (← read).checkDeprecated then
+    -- Suppress deprecation warnings when inside a deprecated declaration (issue #8942)
+    let suppressWarnings := diagnostics.suppressDeprecationWarnings.get (← getOptions)
+
+    if suppressWarnings then
+      return
     Linter.checkDeprecated constName
 
 /--

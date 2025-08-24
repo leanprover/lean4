@@ -1542,12 +1542,12 @@ private def isAssigned : Expr → MetaM Bool
   | .mvar mvarId => mvarId.isAssigned
   | _            => pure false
 
-private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
+private def expandDelayedAssigned? (t : Expr) : MetaM (Option (Expr × Option LocalContext)) := do
   let tFn := t.getAppFn
   if !tFn.isMVar then return none
   let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? tFn.mvarId! | return none
   let tNew ← instantiateMVars t
-  if tNew != t then return some tNew
+  if tNew != t then return some (tNew, none)
   /-
     If `assignSyntheticOpaque` is true, we must follow the delayed assignment.
     Recall a delayed assignment `mvarId [xs] := mvarIdPending` is morally an assignment
@@ -1569,7 +1569,26 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
   unless (← getConfig).assignSyntheticOpaque do return none
   let tArgs := t.getAppArgs
   if tArgs.size < fvars.size then return none
-  return some (mkAppRange (mkMVar mvarIdPending) fvars.size tArgs.size tArgs)
+  let declPending := (← mvarIdPending.getDecl)
+  let lctx ← getLCtx
+  let lctx ← withLCtx declPending.lctx declPending.localInstances <| do
+    let mut lctx := lctx
+    -- logInfo m!"fvars: {fvars}, {fvars.size}; tArgs: {tArgs}, {tArgs.size}"
+    for i in [:fvars.size] do
+      let fvar := fvars[i]!
+      -- logInfo m!"{i} fvar: {fvar}"
+      let decl ← fvar.fvarId!.getDecl
+      let tArg := tArgs[i]!
+      -- logInfo m!"{i} tArg: {tArg}"
+      -- if decl.isLet then throwError "{fvar} = fvars[{i}] is unexpectedly a let decl"
+      let decl := match decl with
+        | d@(.ldecl _ _ _ _ _ _ _) => d
+        | .cdecl i fvarId n type _ kind =>
+          .ldecl i fvarId n type tArg false kind
+      lctx := lctx.addDecl decl
+    pure lctx
+  let e := mkAppRange (.mvar mvarIdPending) fvars.size tArgs.size tArgs
+  return some (e, lctx)
 
 private def isAssignable : Expr → MetaM Bool
   | .mvar mvarId => do let b ← mvarId.isReadOnlyOrSyntheticOpaque; pure (!b)
@@ -1722,10 +1741,16 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
     else if (← isAssigned sFn) then
       let s ← instantiateMVars s
       isDefEqQuick t s
-    else if let some t ← expandDelayedAssigned? t then
-      isDefEqQuick t s
-    else if let some s ← expandDelayedAssigned? s then
-      isDefEqQuick t s
+    else if let some (t, lctx?) ← expandDelayedAssigned? t then
+      if let some lctx := lctx? then
+        withLCtx lctx (← getLocalInstances) <| isDefEqQuick t s
+      else
+        isDefEqQuick t s
+    else if let some (s, lctx?) ← expandDelayedAssigned? s then
+      if let some lctx := lctx? then
+        withLCtx lctx (← getLocalInstances) <| isDefEqQuick t s
+      else
+        isDefEqQuick t s
     /- Remark: we do not eagerly synthesize synthetic metavariables when the constraint is not stuck.
        Reason: we may fail to solve a constraint of the form `?x =?= A` when the synthesized instance
        is not definitionally equal to `A`. We left the code here as a reminder of this issue. -/

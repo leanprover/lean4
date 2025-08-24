@@ -91,3 +91,4 @@ version clang to your path.
 Make sure `/clang64/bin` is in your PATH environment.  If it is not then
 check you launched the MSYS2 CLANG64 shell from the start menu.
 (The one that runs `clang64.exe`).
+If you are already in a msys2 you can switch to the clang64 without quitting enviroment using the `source shell clang64` command.

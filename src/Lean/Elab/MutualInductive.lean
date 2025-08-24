@@ -986,8 +986,6 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
     unless view0.isClass do
       mkSizeOfInstances view0.declName
       IndPredBelow.mkBelow view0.declName
-      for e in elabs do
-        mkInjectiveTheorems e.view.declName
     for e in elabs do
       enableRealizationsForConst e.view.declName
     return res

@@ -3,25 +3,25 @@ open Lean.Grind
 set_option grind.debug true
 
 example [IntModule α] [LE α] [LT α] [Preorder α] [OrderedAdd α] (a b : α)
-    : (2:Int)*a + b < b + a + a → False := by
+    : (2:Int) • a + b < b + a + a → False := by
   grind
 
 example [IntModule α] [LE α] [LT α] [LinearOrder α] [OrderedAdd α] (a b : α)
-    : (2:Int)*a + b < b + a + a → False := by
+    : (2:Int) • a + b < b + a + a → False := by
   grind
 
 example [IntModule α] [LE α] [LT α] [Preorder α] [OrderedAdd α] (a b : α)
-    : (2:Int)*a + b < b + a + a → False := by
+    : (2:Int) • a + b < b + a + a → False := by
   fail_if_success grind -linarith
   grind
 
 example [IntModule α] [LE α] [LT α] [LinearOrder α] [OrderedAdd α] (a b : α)
-    : (2:Int)*a + b ≥ b + a + a := by
+    : (2:Int) • a + b ≥ b + a + a := by
   grind
 
 #guard_msgs (drop error) in
 example [IntModule α] [LE α] [LT α] [Preorder α] [OrderedAdd α] (a b : α)
-    : (2:Int)*a + b ≥ b + a + a := by
+    : (2:Int) • a + b ≥ b + a + a := by
   fail_if_success grind
 
 example [CommRing α] [LE α] [LT α] [Preorder α] [OrderedRing α] (a b : α)
@@ -97,7 +97,7 @@ example [IntModule α] [LE α] [LT α] [Preorder α] [OrderedAdd α] (a b c d : 
   grind
 
 example [IntModule α] [LE α] [LT α] [Preorder α] [OrderedAdd α] (a b c d : α)
-    : a + d < c → b = a + (2:Int)*d → b - d > c → False := by
+    : a + d < c → b = a + (2:Int) • d → b - d > c → False := by
   grind
 
 example [CommRing α] [LE α] [LT α] [Preorder α] [OrderedRing α] (a b : α)

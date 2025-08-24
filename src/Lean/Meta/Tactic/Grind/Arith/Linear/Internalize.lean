@@ -24,7 +24,7 @@ private def getType? (e : Expr) : Option Expr :=
   | HAdd.hAdd _ _ α _ _ _ => some α
   | HSub.hSub _ _ α _ _ _ => some α
   | HMul.hMul _ _ α _ _ _ => some α
-  | HSMul.hSMul _ _ α _ _ _ => some α
+  | SMul.smul _ α _ _ _ => some α
   | Neg.neg α _ _ => some α
   | Zero.zero α _ => some α
   | One.one α _ => some α
@@ -55,12 +55,6 @@ partial def markVars (e : Expr) : LinearM Unit := do
     if isAddInst (← getStruct) i then markVars a; markVars b else markVar e
   | HSub.hSub _ _ _ i a b => if isSubInst (← getStruct) i then markVars a; markVars b else markVar e
   | HMul.hMul _ _ _ i a b =>
-    if isHMulIntInst (← getStruct) i then
-      if (← getIntValue? a).isSome then
-        return (← markVar b)
-    if isHMulNatInst (← getStruct) i then
-      if (← getNatValue? a).isSome then
-        return (← markVar b)
     if isHomoMulInst (← getStruct) i then
       if isNumeral a then
         return (← markVar b)
@@ -70,11 +64,11 @@ partial def markVars (e : Expr) : LinearM Unit := do
         markVar a; markVar b; markVar e
         return
     markVar e
-  | HSMul.hSMul _ _ _ i a b =>
-    if isHSMulIntInst (← getStruct) i then
+  | SMul.smul _ _ i a b =>
+    if isSMulIntInst (← getStruct) i then
       if (← getIntValue? a).isSome then
         return (← markVar b)
-    if isHSMulNatInst (← getStruct) i then
+    if isSMulNatInst (← getStruct) i then
       if (← getNatValue? a).isSome then
         return (← markVar b)
     markVar e

@@ -327,9 +327,12 @@ def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
   let mut msg := m!""
   for suggestion in suggestions do
     if let some range := (suggestion.span?.getD ref).getRange? then
-      let { info, suggestions := suggestionArr, range := lspRange } ←
+      let { info, infoRef, suggestions := suggestionArr, range := lspRange } ←
         processSuggestions ref range #[suggestion.toTryThisSuggestion] codeActionPrefix?
-      pushInfoLeaf info
+      pushInfoLeaf <| .ofCustomInfo {
+        stx := infoRef
+        value := Dynamic.mk info
+      }
       -- The following access is safe because
       -- `suggestionsArr = #[suggestion.toTryThisSuggestion].map ...` (see `processSuggestions`)
       let suggestionText := suggestionArr[0]!.2.1
@@ -387,3 +390,42 @@ def _root_.Lean.MessageData.hint (hint : MessageData)
   let ref := ref?.getD (← getRef)
   let suggs ← mkSuggestionsMessage suggestions ref codeActionPrefix? forceList
   return .tagged `hint (m!"\n\nHint: " ++ hint ++ suggs)
+
+/--
+Parameters for lazy message data. See the descriptions of the same-named parameters of
+`MessageData.hint`.
+-/
+structure LazyHintConfig where
+  msg : MessageData
+  suggestions : Array Suggestion
+  codeActionPrefix? : Option String := none
+
+/--
+Creates a *lazy* hint message with associated code action suggestions. The generated message data is
+lazy and the generated suggestion *set* (but not the code actions themselves) is lazily computed.
+`mkHint` should produce values analogous to the parameters of `MessageData.hint`. The parameter `es`
+is the same as the eponymous parameter of `MessageData.ofLazyM`.
+-/
+def _root_.Lean.MessageData.lazyHint (mkHint : MetaM LazyHintConfig) (ref? : Option Syntax := none) (es : Array Expr := #[]) : MetaM MessageData := do
+  let ref := ref?.getD (← getRef)
+  let fileMap ← getFileMap
+  let withFileMap {α} : MetaM α → MetaM α :=
+    withTheReader Core.Context (fun ctx => { ctx with fileMap })
+  let codeAction : LazyTryThisInfo := {
+    info := withFileMap do
+      let { suggestions, codeActionPrefix?, .. } ← mkHint
+      suggestions.filterMapM fun suggestion => do
+        if let some range := (suggestion.span?.getD ref).getRange? then
+          let { info, .. } ← processSuggestions ref range #[suggestion.toTryThisSuggestion] codeActionPrefix?
+          pure <| some info
+        else pure none
+    ppCtx := { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions),
+               currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls) }
+  }
+  pushInfoLeaf <| .ofCustomInfo {
+    stx := ref
+    value := .mk codeAction
+  }
+  return .tagged `hint <| .ofLazyM (es := es) <| withFileMap do
+    let { msg, suggestions, codeActionPrefix? } ← mkHint
+    MessageData.hint msg suggestions ref codeActionPrefix?

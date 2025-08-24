@@ -97,32 +97,55 @@ attribute [builtin_widget_module] Hint.tryThisDiffWidget
 
 /-! # Code action -/
 
+/-- Converts "try this" info into an array of (eager) code actions. -/
+private def codeActionsOfInfo (info : TryThisInfo) (stx : Syntax) (doc : FileWorker.EditableDocument)
+      (params : Lsp.CodeActionParams) : Array LazyCodeAction := Id.run do
+  let { range, suggestionTexts, codeActionPrefix? } := info
+  let some stxRange := stx.getRange? | return #[]
+  let stxRange := doc.meta.text.utf8RangeToLspRange stxRange
+  unless stxRange.start.line ≤ params.range.end.line do return #[]
+  unless params.range.start.line ≤ stxRange.end.line do return #[]
+  let mut result := #[]
+  for h : i in  *...suggestionTexts.size do
+    let (newText, title?) := suggestionTexts[i]
+    let title := title?.getD <| (codeActionPrefix?.getD "Try this: ") ++ newText
+    result := result.push {
+      eager.title := title
+      eager.kind? := "quickfix"
+      -- Only make the first option preferred
+      eager.isPreferred? := if i = 0 then true else none
+      eager.edit? := some <| .ofTextEdit doc.versionedIdentifier { range, newText }
+    }
+  return result
+
 /--
 This is a code action provider that looks for `TryThisInfo` nodes and supplies a code action to
 apply the replacement.
 -/
 @[builtin_code_action_provider] private def tryThisProvider : CodeActionProvider := fun params snap => do
   let doc ← readDoc
-  pure <| snap.infoTree.foldInfo (init := #[]) fun _ctx info result => Id.run do
+  pure <| .eager <| snap.infoTree.foldInfo (init := #[]) fun _ctx info result => Id.run do
     let .ofCustomInfo { stx, value } := info | result
-    let some { range, suggestionTexts, codeActionPrefix? } :=
-      value.get? TryThisInfo | result
-    let some stxRange := stx.getRange? | result
-    let stxRange := doc.meta.text.utf8RangeToLspRange stxRange
-    unless stxRange.start.line ≤ params.range.end.line do return result
-    unless params.range.start.line ≤ stxRange.end.line do return result
+    let some info := value.get? TryThisInfo | result
     let mut result := result
-    for h : i in *...suggestionTexts.size do
-      let (newText, title?) := suggestionTexts[i]
-      let title := title?.getD <| (codeActionPrefix?.getD "Try this: ") ++ newText
-      result := result.push {
-        eager.title := title
-        eager.kind? := "quickfix"
-        -- Only make the first option preferred
-        eager.isPreferred? := if i = 0 then true else none
-        eager.edit? := some <| .ofTextEdit doc.versionedIdentifier { range, newText }
-      }
-    result
+    result ++ codeActionsOfInfo info stx doc params
+
+/--
+A code action provider analogous to `tryThisProvider`, except that it looks for `LazyTryThisInfo`
+nodes and uses them to generate lazy code action sets.
+-/
+@[builtin_code_action_provider] def lazyTryThisProvider : CodeActionProvider := fun params snap => do
+  let doc ← readDoc
+  return .lazy <| snap.infoTree.foldInfo (α := IO (Array LazyCodeAction)) (init := pure #[]) fun _ctx info result => Id.run do
+    let .ofCustomInfo { stx, value } := info | pure result
+    let some { info, ppCtx } := value.get? LazyTryThisInfo | pure result
+    let mkActions : IO _ := do
+      let infos ← ppCtx.runMetaM info
+      let mut codeActions := #[]
+      for info in infos do
+        codeActions := codeActions ++ codeActionsOfInfo info stx doc params
+      pure <| (← result) ++ codeActions
+    return mkActions
 
 /-! # Formatting -/
 
@@ -141,7 +164,7 @@ private def addSuggestionCore (ref : Syntax) (suggestions : Array Suggestion)
     (style? : Option SuggestionStyle := none)
     (codeActionPrefix? : Option String := none) : CoreM Unit := do
   if let some range := (origSpan?.getD ref).getRange? then
-    let { suggestions, info, range } ← processSuggestions ref range suggestions codeActionPrefix?
+    let { suggestions, info, range, infoRef } ← processSuggestions ref range suggestions codeActionPrefix?
     let suggestions := suggestions.map (·.1)
     let json := json% {
       suggestions: $suggestions,
@@ -150,7 +173,10 @@ private def addSuggestionCore (ref : Syntax) (suggestions : Array Suggestion)
       isInline: $isInline,
       style: $style?
     }
-    pushInfoLeaf info
+    pushInfoLeaf <| .ofCustomInfo {
+      stx := infoRef
+      value := Dynamic.mk info
+    }
     Widget.savePanelWidgetInfo tryThisWidget.javascriptHash ref (props := return json)
 
 /-- Add a "try this" suggestion. This has three effects:

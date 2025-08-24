@@ -28,6 +28,31 @@ structure LazyCodeAction where
   eager : CodeAction
   lazy? : Option (IO CodeAction) := none
 
+/--
+A collection of code actions. This can either be a fixed array of code actions known in advance or
+a lazy computation of code actions that will be determined when the server requests them.
+
+Note that whether the *set* of code actions is eager or lazy is independent of whether any code
+action it contains is eager or lazy. The eagerness or laziness of a `CodeActionSet` simply indicates
+whether the set of possible actions (regardless of what edits those may entail) is precomputed or is
+computed upon *server request*; the laziness of the contained code actions determines whether the
+actual edit that will be applied to the file is known in advance or is computed upon
+*user application* of the action (note that this comes after the server request). It is therefore
+possible to have, e.g., a lazily computed set of eager actions, an eager set of lazy actions, or an
+eager or lazy set containing a mix of eager and lazy actions.
+-/
+inductive CodeActionSet where
+  | eager : Array LazyCodeAction → CodeActionSet
+  | lazy  : IO (Array LazyCodeAction) → CodeActionSet
+
+-- Improve backwards compatibility:
+instance : Coe (Array LazyCodeAction) CodeActionSet where
+  coe lcas := .eager lcas
+
+def CodeActionSet.toArray : CodeActionSet → IO (Array LazyCodeAction)
+  | .eager lcas  => return lcas
+  | .lazy mkLcas => mkLcas
+
 /-- Passed as the `data?` field of `Lsp.CodeAction` to recover the context of the code action. -/
 structure CodeActionResolveData where
   params : CodeActionParams
@@ -69,7 +94,7 @@ When implementing your own `CodeActionProvider`, we assume that no long-running 
 If you need to create a code-action with a long-running computation, you can use the `lazy?` field on `LazyCodeAction`
 to perform the computation after the user has clicked on the code action in their editor.
 -/
-@[expose] def CodeActionProvider := CodeActionParams → Snapshot → RequestM (Array LazyCodeAction)
+@[expose] def CodeActionProvider := CodeActionParams → Snapshot → RequestM CodeActionSet
 deriving instance Inhabited for CodeActionProvider
 
 private builtin_initialize builtinCodeActionProviders : IO.Ref (NameMap CodeActionProvider) ←
@@ -131,7 +156,7 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
         return (← builtinCodeActionProviders.get).toList.toArray ++ Array.zip names caps
       caps.flatMapM fun (providerName, cap) => do
         RequestM.checkCancelled
-        let cas ← cap params snap
+        let cas ← (← cap params snap).toArray
         cas.mapIdxM fun i lca => do
           if lca.lazy?.isNone then return lca.eager
           let data : CodeActionResolveData := {
@@ -160,7 +185,7 @@ def handleCodeActionResolve (param : CodeAction) : RequestM (RequestTask CodeAct
       let cap ← match (← builtinCodeActionProviders.get).find? data.providerName with
         | some cap => pure cap
         | none     => RequestM.runCoreM snap <| evalCodeActionProvider data.providerName
-      let cas ← cap data.params snap
+      let cas ← (← cap data.params snap).toArray
       let some ca := cas[data.providerResultIndex]?
         | throw <| RequestError.internalError s!"Failed to resolve code action index {data.providerResultIndex}."
       let some lazy := ca.lazy?

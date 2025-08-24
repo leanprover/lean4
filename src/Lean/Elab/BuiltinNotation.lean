@@ -546,7 +546,8 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
   return DiscrTree.mkNoindexAnnotation e
 
 @[builtin_term_elab «unsafe»]
-def elabUnsafe : TermElab := fun stx expectedType? =>
+def elabUnsafe : TermElab := fun stx expectedType? => do
+  throwErrorIfUnsafe
   match stx with
   | `(unsafe $t) => do
     let t ← elabTermAndSynthesize t expectedType?

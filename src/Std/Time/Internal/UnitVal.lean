@@ -135,8 +135,6 @@ instance : OfNat (UnitVal α) n where ofNat := ⟨Int.ofNat n⟩
 
 instance : Repr (UnitVal α) where reprPrec x p := reprPrec x.val p
 
-instance : LE (UnitVal α) where le x y := x.val ≤ y.val
-
 instance : LT (UnitVal α) where lt x y := x.val < y.val
 
 instance : Add (UnitVal α) where add := UnitVal.add

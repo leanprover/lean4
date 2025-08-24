@@ -29,7 +29,6 @@ abbrev ST (σ : Type) := EST Empty σ
 instance (ε σ : Type) : Monad (EST ε σ) := inferInstanceAs (Monad (EStateM _ _))
 instance (ε σ : Type) : MonadExceptOf ε (EST ε σ) := inferInstanceAs (MonadExceptOf ε (EStateM _ _))
 instance {ε σ : Type} {α : Type} [Inhabited ε] : Inhabited (EST ε σ α) := inferInstanceAs (Inhabited (EStateM _ _ _))
-instance (σ : Type) : Monad (ST σ) := inferInstanceAs (Monad (EST _ _))
 
 /--
 An auxiliary class used to infer the “state” of `EST` and `ST` monads.

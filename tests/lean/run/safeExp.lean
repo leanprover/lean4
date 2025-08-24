@@ -24,8 +24,6 @@ h : k = 2008 ^ 2 + 2 ^ 2008
 ⊢ ((4032064 + 2 ^ 2008) ^ 2 + 2 ^ (4032064 + 2 ^ 2008)) % 10 = 6
 ---
 warning: declaration uses 'sorry'
----
-error: (kernel) deep recursion detected
 -/
 #guard_msgs in
 example (k : Nat) (h : k = 2008^2 + 2^2008) : (k^2 + 2^k)%10 = 6 := by

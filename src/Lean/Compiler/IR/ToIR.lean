@@ -159,7 +159,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     match env.find? name with
     | some (.ctorInfo ctorVal) =>
       if isExtern env name then
-        return (← mkFap name irArgs)
+        return (← mkFap name (← toIRType decl.type) irArgs)
 
       let type ← nameToIRType ctorVal.induct
       if type.isScalar then
@@ -199,7 +199,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
         loop 0
       return .vdecl objVar ctorInfo.type (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())
     | some (.defnInfo ..) | some (.opaqueInfo ..) =>
-      mkFap name irArgs
+      mkFap name (← toIRType decl.type) irArgs
     | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>
       throwNamedError lean.dependsOnNoncomputable f!"'{name}' not supported by code generator; consider marking definition as 'noncomputable'"
     | some (.recInfo ..) =>
@@ -221,9 +221,8 @@ where
     bindErased decl.fvarId
     lowerCode k
 
-  mkFap (name : Name) (args : Array Arg) : M FnBody := do
+  mkFap (name : Name) (type : IRType) (args : Array Arg) : M FnBody := do
     let var ← bindVar decl.fvarId
-    let type ← toIRType decl.type
     return .vdecl var type (.fap name args) (← lowerCode k)
 
   mkPap (name : Name) (args : Array Arg) : M FnBody := do
@@ -245,13 +244,18 @@ where
            .vdecl var type (.ap tmpVar restArgs) (← lowerCode k)
 
   tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
+    let letDecl := decl
     if let some decl ← LCNF.getMonoDecl? name then
       let numArgs := args.size
       let numParams := decl.params.size
       if numArgs < numParams then
         return some (← mkPap name args)
       else if numArgs == numParams then
-        return some (← mkFap name args)
+        let type ← if let some irDecl ← findDecl name then
+            pure irDecl.resultType
+          else
+            toIRType letDecl.type
+        return some (← mkFap name type args)
       else
         return some (← mkOverApplication name numParams args)
     else

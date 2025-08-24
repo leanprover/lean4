@@ -17,6 +17,11 @@ public section
 namespace Lean.Elab
 open Command
 
+structure DerivingClassView where
+  ref : Syntax
+  hasExpose : Bool
+  cls : Term
+
 namespace Term
 open Meta
 
@@ -154,7 +159,8 @@ We prevent `classStx` from referring to these local variables; instead it's expe
 This function can handle being run from within a nontrivial local context,
 and it uses `mkValueTypeClosure` to construct the final instance.
 -/
-def processDefDeriving (classStx : Syntax) (decl : Expr) : TermElabM Unit := do
+def processDefDeriving (view : DerivingClassView) (decl : Expr) : TermElabM Unit := do
+  let { cls := classStx, hasExpose := _ /- todo? -/, .. } := view
   let decl ← whnfCore decl
   let .const declName _ := decl.getAppFn
     | throwError "Failed to delta derive instance, expecting a term of the form `C ...` where `C` is a constant, given{indentExpr decl}"
@@ -239,11 +245,29 @@ def applyDerivingHandlers (className : Name) (typeNames : Array Name) : CommandE
         {.andList <| typeNames.toList.map (m!"`{.ofConstName ·}`")}"
     | none => throwError "No deriving handlers have been implemented for class `{.ofConstName className}`"
 
-private def applyDefHandler (classStx : Syntax) (declExpr : Expr) : TermElabM Unit :=
-  withTraceNode `Elab.Deriving (fun _ => return m!"running delta deriving handler for `{classStx}` and definition `{declExpr}`") do
-    Term.processDefDeriving classStx declExpr
+open Parser.Command
 
-private def elabDefDeriving (classes decls : Array Syntax) :
+def DerivingClassView.getClassName (view : DerivingClassView) : CoreM Name :=
+  realizeGlobalConstNoOverloadWithInfo view.cls
+
+def DerivingClassView.ofSyntax : TSyntax ``derivingClass → CoreM DerivingClassView
+  | `(Parser.Command.derivingClass| $[@[expose%$expTk?]]? $cls:term) => do
+    return { ref := cls, cls, hasExpose := expTk?.isSome }
+  | _ => throwUnsupportedSyntax
+
+def getOptDerivingClasses (optDeriving : Syntax) : CoreM (Array DerivingClassView) := do
+  match optDeriving with
+  | `(Parser.Command.optDeriving| deriving $[$classes],*) => classes.mapM DerivingClassView.ofSyntax
+  | _ => return #[]
+
+def DerivingClassView.applyHandlers (view : DerivingClassView) (declNames : Array Name) : CommandElabM Unit :=
+  withRef view.ref do
+    (if view.hasExpose then withScope fun sc =>
+      { sc with attrs := Unhygienic.run `(Parser.Term.attrInstance| expose) :: sc.attrs }
+     else id) do
+      applyDerivingHandlers (← liftCoreM <| view.getClassName) declNames
+
+private def elabDefDeriving (classes : Array DerivingClassView) (decls : Array Syntax) :
     CommandElabM Unit := runTermElabM fun _ => do
   for decl in decls do
     withRef decl <| withLogging do
@@ -260,11 +284,15 @@ private def elabDefDeriving (classes decls : Array Syntax) :
           mkConstWithLevelParams declName
         else
           Term.elabTermAndSynthesize decl none
-      for classStx in classes do
-        withLogging <| applyDefHandler classStx declExpr
+      for cls in classes do
+        withLogging do
+        withTraceNode `Elab.Deriving (fun _ => return m!"running delta deriving handler for `{cls.cls}` and definition `{declExpr}`") do
+          Term.processDefDeriving cls declExpr
+
 
 @[builtin_command_elab «deriving»] def elabDeriving : CommandElab
   | `(deriving instance $[$classes],* for $[$decls],*) => do
+    let classes ← liftCoreM <| classes.mapM DerivingClassView.ofSyntax
     let decls : Array Syntax := decls
     if decls.all Syntax.isIdent then
       let declNames ← liftCoreM <| decls.mapM (realizeGlobalConstNoOverloadWithInfo ·)
@@ -274,29 +302,11 @@ private def elabDefDeriving (classes decls : Array Syntax) :
         elabDefDeriving classes decls
       else
         -- Otherwise, we commit to using deriving handlers.
-        let classNames ← liftCoreM <| classes.mapM (realizeGlobalConstNoOverloadWithInfo ·)
-        for className in classNames, classIdent in classes do
-          withRef classIdent <| withLogging <| applyDerivingHandlers className declNames
+        for cls in classes do
+          cls.applyHandlers declNames
     else
       elabDefDeriving classes decls
   | _ => throwUnsupportedSyntax
-
-structure DerivingClassView where
-  ref : Syntax
-  className : Name
-
-def getOptDerivingClasses (optDeriving : Syntax) : CoreM (Array DerivingClassView) := do
-  match optDeriving with
-  | `(Parser.Command.optDeriving| deriving $[$classes],*) =>
-    let mut ret := #[]
-    for cls in classes do
-      let className ← realizeGlobalConstNoOverloadWithInfo cls
-      ret := ret.push { ref := cls, className := className }
-    return ret
-  | _ => return #[]
-
-def DerivingClassView.applyHandlers (view : DerivingClassView) (declNames : Array Name) : CommandElabM Unit :=
-  withRef view.ref do applyDerivingHandlers view.className declNames
 
 builtin_initialize
   registerTraceClass `Elab.Deriving

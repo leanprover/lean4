@@ -24,10 +24,10 @@ public def loadToml (ictx : InputContext) : EIO MessageLog Table := do
     | .ok env => pure env
     | .error e => throw <| MessageLog.empty.add <| mkMessageNoPos ictx <|
       m!"failed to initialize TOML environment: {e}"
-  let s := toml.fn.run ictx { env, options := {} } {} (mkParserState ictx.input)
+  let s := toml.fn.run ictx { env, options := {} } {} (mkParserState ictx.inputString)
   if let some errorMsg := s.errorMsg then
     throw <|  MessageLog.empty.add <| mkParserErrorMessage ictx s errorMsg
-  else if ictx.input.atEnd s.pos then
+  else if ictx.atEnd s.pos then
     let act := elabToml ⟨s.stxStack.back⟩
     match (← act.run {fileName := ictx.fileName, fileMap := ictx.fileMap} {env} |>.toBaseIO) with
     | .ok (t, s) =>

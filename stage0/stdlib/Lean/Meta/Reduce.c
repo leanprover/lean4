@@ -1463,8 +1463,8 @@ return x_135;
 block_16:
 {
 lean_object* x_14; lean_object* x_15; 
-x_14 = l_Lean_mkAppN(x_12, x_13);
-lean_dec_ref(x_13);
+x_14 = l_Lean_mkAppN(x_13, x_12);
+lean_dec_ref(x_12);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
 lean_ctor_set(x_15, 1, x_11);
@@ -1496,7 +1496,7 @@ else
 lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; 
 x_28 = l_Lean_instInhabitedExpr;
 x_29 = lean_unsigned_to_nat(0u);
-x_30 = lean_array_get_borrowed(x_28, x_26, x_29);
+x_30 = lean_array_get_borrowed(x_28, x_25, x_29);
 x_31 = l_Lean_Expr_isRawNatLit(x_30);
 if (x_31 == 0)
 {
@@ -1542,8 +1542,8 @@ x_41 = l_Lean_Expr_isConstOf(x_37, x_40);
 if (x_41 == 0)
 {
 x_24 = x_39;
-x_25 = x_37;
-x_26 = x_38;
+x_25 = x_38;
+x_26 = x_37;
 x_27 = x_41;
 goto block_36;
 }
@@ -1555,8 +1555,8 @@ x_43 = lean_unsigned_to_nat(1u);
 x_44 = lean_nat_dec_eq(x_42, x_43);
 lean_dec(x_42);
 x_24 = x_39;
-x_25 = x_37;
-x_26 = x_38;
+x_25 = x_38;
+x_26 = x_37;
 x_27 = x_44;
 goto block_36;
 }

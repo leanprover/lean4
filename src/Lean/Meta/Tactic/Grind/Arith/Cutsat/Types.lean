@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Int.Linear
-public import Std.Internal.Rat
 public import Lean.Data.PersistentArray
 public import Lean.Meta.Tactic.Grind.ExprPtr
 public import Lean.Meta.Tactic.Grind.Arith.Util
@@ -19,7 +18,6 @@ public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 export Int.Linear (Var Poly)
-export Std.Internal (Rat)
 
 deriving instance Hashable for Poly
 

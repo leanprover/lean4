@@ -87,7 +87,7 @@ def isGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
   return allFVar (s.contains ·) e
 
 @[inline] def withLetDecl (decl : LetDecl) (x : SpecializeM α) : SpecializeM α := do
-  let grd ← isGround decl.value
+  let grd ← isGround decl.value <||> (pure (← isArrowClass? decl.type).isSome)
   let isUnderApplied ←
     match decl.value with
     | .const fnName _ args =>

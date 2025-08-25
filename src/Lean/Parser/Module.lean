@@ -83,7 +83,7 @@ def parseHeader (inputCtx : InputContext) : IO (TSyntax ``Module.header × Modul
   let dummyEnv ← mkEmptyEnvironment
   let p   := andthenFn whitespace Module.header.fn
   let tokens := Module.updateTokens (getTokenTable dummyEnv)
-  let s   := p.run inputCtx { env := dummyEnv, options := {} } tokens (mkParserState inputCtx.input)
+  let s   := p.run inputCtx { env := dummyEnv, options := {} } tokens (mkParserState inputCtx.inputString)
   let stx := if s.stxStack.isEmpty then .missing else s.stxStack.back
   let mut messages : MessageLog := {}
   for (pos, stk, err) in s.allErrors do
@@ -125,7 +125,7 @@ def isTerminalCommand (s : Syntax) : Bool :=
   s.isOfKind ``Command.exit || s.isOfKind ``Command.import || s.isOfKind ``Command.eoi
 
 private def consumeInput (inputCtx : InputContext) (pmctx : ParserModuleContext) (pos : String.Pos) : String.Pos :=
-  let s : ParserState := { cache := initCacheForInput inputCtx.input, pos := pos }
+  let s : ParserState := { cache := initCacheForInput inputCtx.inputString, pos := pos }
   let s := tokenFn [] |>.run inputCtx pmctx (getTokenTable pmctx.env) s
   match s.errorMsg with
   | some _ => pos + ' '
@@ -140,12 +140,12 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
   let mut messages := messages
   let mut stx := Syntax.missing  -- will always be assigned below
   repeat
-    if inputCtx.input.atEnd pos then
+    if inputCtx.atEnd pos then
       stx := mkEOI pos
       break
     let pos' := pos
     let p := andthenFn whitespace topLevelCommandParserFn
-    let s := p.run inputCtx pmctx (getTokenTable pmctx.env) { cache := initCacheForInput inputCtx.input, pos }
+    let s := p.run inputCtx pmctx (getTokenTable pmctx.env) { cache := initCacheForInput inputCtx.inputString, pos }
     -- save errors from sub-recoveries
     for (rpos, rstk, recovered) in s.recoveredErrors do
       messages := messages.add <| mkErrorMessage inputCtx rpos rstk recovered

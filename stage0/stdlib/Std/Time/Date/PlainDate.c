@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Date.PlainDate
-// Imports: Std.Time.Internal Std.Time.Date.Basic Std.Internal.Rat Std.Time.Date.Unit.Month Std.Time.Date.Unit.Year
+// Imports: Std.Time.Internal Std.Time.Date.Basic Std.Time.Date.Unit.Month Std.Time.Date.Unit.Year
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1410,14 +1410,14 @@ return x_9;
 block_27:
 {
 lean_object* x_20; uint8_t x_21; 
-x_20 = lean_int_mod(x_14, x_16);
-lean_dec(x_16);
+x_20 = lean_int_mod(x_14, x_17);
+lean_dec(x_17);
 x_21 = lean_int_dec_eq(x_20, x_13);
 lean_dec(x_20);
 if (x_21 == 0)
 {
 lean_dec(x_18);
-lean_dec(x_17);
+lean_dec(x_16);
 x_2 = x_14;
 x_3 = x_15;
 x_4 = x_19;
@@ -1427,16 +1427,16 @@ goto block_10;
 else
 {
 lean_object* x_22; uint8_t x_23; uint8_t x_24; 
-x_22 = lean_int_mod(x_14, x_18);
-lean_dec(x_18);
+x_22 = lean_int_mod(x_14, x_16);
+lean_dec(x_16);
 x_23 = lean_int_dec_eq(x_22, x_13);
 lean_dec(x_22);
 x_24 = l_instDecidableNot___redArg(x_23);
 if (x_24 == 0)
 {
 lean_object* x_25; uint8_t x_26; 
-x_25 = lean_int_mod(x_14, x_17);
-lean_dec(x_17);
+x_25 = lean_int_mod(x_14, x_18);
+lean_dec(x_18);
 x_26 = lean_int_dec_eq(x_25, x_13);
 lean_dec(x_25);
 x_2 = x_14;
@@ -1447,7 +1447,7 @@ goto block_10;
 }
 else
 {
-lean_dec(x_17);
+lean_dec(x_18);
 x_2 = x_14;
 x_3 = x_15;
 x_4 = x_19;
@@ -1459,30 +1459,30 @@ goto block_10;
 block_38:
 {
 uint8_t x_35; 
-x_35 = lean_int_dec_le(x_29, x_31);
+x_35 = lean_int_dec_le(x_31, x_30);
 if (x_35 == 0)
 {
-lean_dec(x_31);
+lean_dec(x_30);
 x_14 = x_28;
 x_15 = x_34;
-x_16 = x_30;
+x_16 = x_29;
 x_17 = x_32;
 x_18 = x_33;
-x_19 = x_29;
+x_19 = x_31;
 goto block_27;
 }
 else
 {
 lean_object* x_36; uint8_t x_37; 
-lean_dec(x_29);
+lean_dec(x_31);
 x_36 = l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch___closed__1;
-x_37 = lean_int_dec_le(x_31, x_36);
+x_37 = lean_int_dec_le(x_30, x_36);
 if (x_37 == 0)
 {
-lean_dec(x_31);
+lean_dec(x_30);
 x_14 = x_28;
 x_15 = x_34;
-x_16 = x_30;
+x_16 = x_29;
 x_17 = x_32;
 x_18 = x_33;
 x_19 = x_36;
@@ -1492,10 +1492,10 @@ else
 {
 x_14 = x_28;
 x_15 = x_34;
-x_16 = x_30;
+x_16 = x_29;
 x_17 = x_32;
 x_18 = x_33;
-x_19 = x_31;
+x_19 = x_30;
 goto block_27;
 }
 }
@@ -1503,49 +1503,49 @@ goto block_27;
 block_51:
 {
 lean_object* x_47; uint8_t x_48; 
-x_47 = lean_int_add(x_41, x_46);
+x_47 = lean_int_add(x_43, x_46);
 lean_dec(x_46);
-lean_dec(x_41);
-x_48 = lean_int_dec_le(x_40, x_42);
+lean_dec(x_43);
+x_48 = lean_int_dec_le(x_41, x_45);
 if (x_48 == 0)
 {
-lean_dec(x_42);
-lean_inc(x_40);
+lean_dec(x_45);
+lean_inc(x_41);
 x_28 = x_47;
-x_29 = x_40;
-x_30 = x_39;
-x_31 = x_43;
-x_32 = x_44;
-x_33 = x_45;
-x_34 = x_40;
+x_29 = x_39;
+x_30 = x_42;
+x_31 = x_41;
+x_32 = x_40;
+x_33 = x_44;
+x_34 = x_41;
 goto block_38;
 }
 else
 {
 lean_object* x_49; uint8_t x_50; 
 x_49 = l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch___closed__2;
-x_50 = lean_int_dec_le(x_42, x_49);
+x_50 = lean_int_dec_le(x_45, x_49);
 if (x_50 == 0)
 {
-lean_dec(x_42);
+lean_dec(x_45);
 x_28 = x_47;
-x_29 = x_40;
-x_30 = x_39;
-x_31 = x_43;
-x_32 = x_44;
-x_33 = x_45;
+x_29 = x_39;
+x_30 = x_42;
+x_31 = x_41;
+x_32 = x_40;
+x_33 = x_44;
 x_34 = x_49;
 goto block_38;
 }
 else
 {
 x_28 = x_47;
-x_29 = x_40;
-x_30 = x_39;
-x_31 = x_43;
-x_32 = x_44;
-x_33 = x_45;
-x_34 = x_42;
+x_29 = x_39;
+x_30 = x_42;
+x_31 = x_41;
+x_32 = x_40;
+x_33 = x_44;
+x_34 = x_45;
 goto block_38;
 }
 }
@@ -1556,31 +1556,31 @@ lean_object* x_61; uint8_t x_62;
 x_61 = lean_int_add(x_52, x_60);
 lean_dec(x_60);
 lean_dec(x_52);
-x_62 = lean_int_dec_le(x_61, x_56);
-lean_dec(x_56);
+x_62 = lean_int_dec_le(x_61, x_58);
+lean_dec(x_58);
 if (x_62 == 0)
 {
-x_39 = x_55;
-x_40 = x_54;
-x_41 = x_53;
-x_42 = x_61;
-x_43 = x_57;
-x_44 = x_58;
-x_45 = x_59;
+x_39 = x_53;
+x_40 = x_57;
+x_41 = x_56;
+x_42 = x_55;
+x_43 = x_54;
+x_44 = x_59;
+x_45 = x_61;
 x_46 = x_13;
 goto block_51;
 }
 else
 {
-lean_inc(x_54);
-x_39 = x_55;
-x_40 = x_54;
-x_41 = x_53;
-x_42 = x_61;
-x_43 = x_57;
-x_44 = x_58;
-x_45 = x_59;
-x_46 = x_54;
+lean_inc(x_56);
+x_39 = x_53;
+x_40 = x_57;
+x_41 = x_56;
+x_42 = x_55;
+x_43 = x_54;
+x_44 = x_59;
+x_45 = x_61;
+x_46 = x_56;
 goto block_51;
 }
 }
@@ -1657,13 +1657,13 @@ if (x_104 == 0)
 lean_object* x_105; 
 x_105 = l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch___closed__11;
 x_52 = x_96;
-x_53 = x_82;
-x_54 = x_101;
-x_55 = x_84;
-x_56 = x_93;
-x_57 = x_102;
-x_58 = x_80;
-x_59 = x_87;
+x_53 = x_87;
+x_54 = x_82;
+x_55 = x_102;
+x_56 = x_101;
+x_57 = x_84;
+x_58 = x_93;
+x_59 = x_80;
 x_60 = x_105;
 goto block_63;
 }
@@ -1672,13 +1672,13 @@ else
 lean_object* x_106; 
 x_106 = l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch___closed__12;
 x_52 = x_96;
-x_53 = x_82;
-x_54 = x_101;
-x_55 = x_84;
-x_56 = x_93;
-x_57 = x_102;
-x_58 = x_80;
-x_59 = x_87;
+x_53 = x_87;
+x_54 = x_82;
+x_55 = x_102;
+x_56 = x_101;
+x_57 = x_84;
+x_58 = x_93;
+x_59 = x_80;
 x_60 = x_106;
 goto block_63;
 }
@@ -3258,7 +3258,6 @@ return x_1;
 }
 lean_object* initialize_Std_Time_Internal(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Date_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Internal_Rat(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Date_Unit_Month(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Date_Unit_Year(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -3270,9 +3269,6 @@ res = initialize_Std_Time_Internal(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Time_Date_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Internal_Rat(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Time_Date_Unit_Month(builtin, lean_io_mk_world());

@@ -59,12 +59,12 @@ public def mkUnexpectedCharError (s : ParserState) (c : Char)  (expected : List 
 
 @[inline] public def satisfyFn (p : Char → Bool) (expected : List String := [])  : ParserFn := fun c s =>
   let i := s.pos
-  if h : c.input.atEnd i then
+  if h : c.atEnd i then
     s.mkEOIError expected
   else
-    let curr := c.input.get' i h
+    let curr := c.get' i h
     if p curr then
-      s.next' c.input i h
+      s.next' c i h
     else
       mkUnexpectedCharError s curr expected
 
@@ -98,26 +98,24 @@ mutual
 
 public partial def sepByChar1AuxFn (p : Char → Bool) (sep : Char) (expected : List String := []) : ParserFn := fun c s =>
   let i := s.pos
-  let input := c.input
-  if h : input.atEnd i then
+  if h : c.atEnd i then
     s
   else
-    let curr := input.get' i h
+    let curr := c.get' i h
     if p curr then
-      sepByChar1AuxFn p sep expected c (s.next' input i h)
+      sepByChar1AuxFn p sep expected c (s.next' c i h)
     else if curr == sep then
-      sepByChar1Fn p sep expected c (s.next' input i h)
+      sepByChar1Fn p sep expected c (s.next' c i h)
     else
       s
 
 public partial def sepByChar1Fn (p : Char → Bool) (sep : Char) (expected : List String := []) : ParserFn := fun c s =>
   let i := s.pos
-  let input := c.input
-  if h : input.atEnd i then
+  if h : c.atEnd i then
     s
   else
-    let curr := input.get' i h
-    let s := s.next' input i h
+    let curr := c.get' i h
+    let s := s.next' c i h
     if p curr then
       sepByChar1AuxFn p sep expected c s
     else if curr == sep then
@@ -129,13 +127,12 @@ end
 
 /-- Push a new atom onto the syntax stack. -/
 public def pushAtom (startPos : String.Pos) (trailingFn := skipFn) : ParserFn := fun c s =>
-  let input    := c.input
   let stopPos  := s.pos
-  let leading  := mkEmptySubstringAt input startPos
-  let val      := input.extract startPos stopPos
+  let leading  := c.mkEmptySubstringAt startPos
+  let val      := c.extract startPos stopPos
   let s        := trailingFn c s
   let stopPos' := s.pos
-  let trailing := { str := input, startPos := stopPos, stopPos := stopPos' : Substring }
+  let trailing := c.substring (startPos := stopPos) (stopPos := stopPos')
   let atom     := mkAtom (SourceInfo.original leading startPos trailing (startPos + val)) val
   s.pushSyntax atom
 
@@ -188,13 +185,12 @@ public def strAtom.parenthesizer (_ : String) (_  : List String) (_ : ParserFn) 
 
 /-- Push `(Syntax.node kind <new-atom>)` onto the syntax stack. -/
 public def pushLit (kind : SyntaxNodeKind) (startPos : String.Pos) (trailingFn := skipFn) : ParserFn := fun c s =>
-  let input     := c.input
   let stopPos   := s.pos
-  let leading   := mkEmptySubstringAt input startPos
-  let val       := input.extract startPos stopPos
+  let leading   := c.mkEmptySubstringAt startPos
+  let val       := c.extract startPos stopPos
   let s         := trailingFn c s
   let wsStopPos := s.pos
-  let trailing  := { str := input, startPos := stopPos, stopPos := wsStopPos : Substring }
+  let trailing  := c.substring (startPos := stopPos) (stopPos := wsStopPos)
   let info      := SourceInfo.original leading startPos trailing stopPos
   s.pushSyntax (Syntax.mkLit kind val info)
 

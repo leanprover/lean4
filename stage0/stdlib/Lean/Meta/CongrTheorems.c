@@ -9621,7 +9621,7 @@ block_40:
 {
 uint8_t x_38; lean_object* x_39; 
 x_38 = 0;
-x_39 = l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at_____private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkHCongrWithArity_withNewEqs_loop_spec__0_spec__0___redArg(x_35, x_36, x_37, x_34, x_38, x_10, x_11, x_12, x_13, x_33);
+x_39 = l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at_____private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkHCongrWithArity_withNewEqs_loop_spec__0_spec__0___redArg(x_34, x_36, x_37, x_35, x_38, x_10, x_11, x_12, x_13, x_33);
 return x_39;
 }
 block_46:
@@ -9645,8 +9645,8 @@ x_44 = l_Lean_LocalDecl_binderInfo(x_32);
 x_45 = lean_ctor_get(x_32, 3);
 lean_inc_ref(x_45);
 lean_dec(x_32);
-x_34 = x_43;
-x_35 = x_41;
+x_34 = x_41;
+x_35 = x_43;
 x_36 = x_44;
 x_37 = x_45;
 goto block_40;
@@ -13155,7 +13155,7 @@ block_147:
 if (x_143 == 0)
 {
 lean_object* x_144; lean_object* x_145; 
-lean_dec_ref(x_142);
+lean_dec_ref(x_141);
 x_144 = lean_box(x_140);
 if (lean_is_scalar(x_139)) {
  x_145 = lean_alloc_ctor(0, 2, 0);
@@ -13163,7 +13163,7 @@ if (lean_is_scalar(x_139)) {
  x_145 = x_139;
 }
 lean_ctor_set(x_145, 0, x_144);
-lean_ctor_set(x_145, 1, x_141);
+lean_ctor_set(x_145, 1, x_142);
 return x_145;
 }
 else
@@ -13175,8 +13175,8 @@ if (lean_is_scalar(x_139)) {
  x_146 = x_139;
  lean_ctor_set_tag(x_146, 1);
 }
-lean_ctor_set(x_146, 0, x_142);
-lean_ctor_set(x_146, 1, x_141);
+lean_ctor_set(x_146, 0, x_141);
+lean_ctor_set(x_146, 1, x_142);
 return x_146;
 }
 }
@@ -13188,15 +13188,15 @@ if (x_150 == 0)
 {
 uint8_t x_151; 
 x_151 = l_Lean_Exception_isRuntime(x_148);
-x_141 = x_149;
-x_142 = x_148;
+x_141 = x_148;
+x_142 = x_149;
 x_143 = x_151;
 goto block_147;
 }
 else
 {
-x_141 = x_149;
-x_142 = x_148;
+x_141 = x_148;
+x_142 = x_149;
 x_143 = x_150;
 goto block_147;
 }
@@ -13727,19 +13727,19 @@ block_15:
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
-lean_dec_ref(x_9);
+lean_dec_ref(x_10);
 x_12 = lean_box(0);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_10);
+lean_ctor_set(x_13, 1, x_9);
 return x_13;
 }
 else
 {
 lean_object* x_14; 
 x_14 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_14, 0, x_9);
-lean_ctor_set(x_14, 1, x_10);
+lean_ctor_set(x_14, 0, x_10);
+lean_ctor_set(x_14, 1, x_9);
 return x_14;
 }
 }
@@ -13751,15 +13751,15 @@ if (x_18 == 0)
 {
 uint8_t x_19; 
 x_19 = l_Lean_Exception_isRuntime(x_16);
-x_9 = x_16;
-x_10 = x_17;
+x_9 = x_17;
+x_10 = x_16;
 x_11 = x_19;
 goto block_15;
 }
 else
 {
-x_9 = x_16;
-x_10 = x_17;
+x_9 = x_17;
+x_10 = x_16;
 x_11 = x_18;
 goto block_15;
 }

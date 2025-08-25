@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.WorkspaceConfig
-// Imports: Lake.Config.Meta Lake.Config.Defaults
+// Imports: Lake.Config.Defaults Lake.Config.MetaClasses Lake.Config.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,7 +18,6 @@ static lean_object* l_Lake_WorkspaceConfig_instConfigMeta___closed__12;
 LEAN_EXPORT lean_object* l_Lake_reprWorkspaceConfig___redArg____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_20____boxed(lean_object*);
 static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__12____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_20_;
 LEAN_EXPORT lean_object* l_Lake_reprWorkspaceConfig___redArg____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_20_(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instEmptyCollectionWorkspaceConfig;
 static lean_object* l_Lake_instReprWorkspaceConfig___closed__0;
 static lean_object* l_Lake_WorkspaceConfig_instConfigMeta___closed__6;
 static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__6____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_20_;
@@ -33,6 +32,7 @@ static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__8____x40_Lake_
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedWorkspaceConfig;
+static lean_object* l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0;
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___proj;
 static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__1____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_20_;
 LEAN_EXPORT lean_object* l_Lake_reprWorkspaceConfig____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_20____boxed(lean_object*, lean_object*);
@@ -42,7 +42,6 @@ static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__11____x40_Lake
 static lean_object* l_Lake_WorkspaceConfig_instConfigMeta___closed__5;
 lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__7____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_20_;
-lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_WorkspaceConfig_instConfigMeta___closed__1;
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_WorkspaceConfig___fields___closed__1;
@@ -70,6 +69,9 @@ LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___proj___lam__3(lean
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprWorkspaceConfig;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_instEmptyCollection;
+LEAN_EXPORT lean_object* l_Nat_cast___at___Lake_reprWorkspaceConfig____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_20__spec__0(lean_object*);
 static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__4____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_20_;
 static lean_object* l_Lake_instInhabitedWorkspaceConfig___closed__0;
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -102,6 +104,14 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lake_instInhabitedWorkspaceConfig___closed__0;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___Lake_reprWorkspaceConfig____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_20__spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_reprWorkspaceConfig___redArg___closed__0____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_20_() {
@@ -344,11 +354,19 @@ x_3 = lean_apply_1(x_1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lake_defaultPackagesDir;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___proj___lam__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lake_defaultPackagesDir;
+x_2 = l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0;
 return x_2;
 }
 }
@@ -649,7 +667,7 @@ lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12;
 x_8 = lean_alloc_closure((void*)(l_Lake_WorkspaceConfig_instConfigMeta___lam__0), 2, 0);
 x_9 = 0;
 x_10 = l_Lake_WorkspaceConfig_instConfigMeta___closed__14;
-x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_3, x_8, x_1, x_9, x_10, x_2);
+x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_3, x_8, x_1, x_9, x_10, x_2);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_1);
 lean_ctor_set(x_12, 1, x_11);
@@ -658,25 +676,29 @@ return x_12;
 }
 }
 }
-static lean_object* _init_l_Lake_instEmptyCollectionWorkspaceConfig() {
+static lean_object* _init_l_Lake_WorkspaceConfig_instEmptyCollection() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_defaultPackagesDir;
+x_1 = l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0;
 return x_1;
 }
 }
-lean_object* initialize_Lake_Config_Meta(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Defaults(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Config_MetaClasses(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Config_Meta(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_WorkspaceConfig(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Config_Meta(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_Defaults(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_Defaults(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_MetaClasses(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Config_Meta(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instInhabitedWorkspaceConfig___closed__0 = _init_l_Lake_instInhabitedWorkspaceConfig___closed__0();
@@ -715,6 +737,8 @@ l_Lake_instReprWorkspaceConfig___closed__0 = _init_l_Lake_instReprWorkspaceConfi
 lean_mark_persistent(l_Lake_instReprWorkspaceConfig___closed__0);
 l_Lake_instReprWorkspaceConfig = _init_l_Lake_instReprWorkspaceConfig();
 lean_mark_persistent(l_Lake_instReprWorkspaceConfig);
+l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0 = _init_l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0();
+lean_mark_persistent(l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0);
 l_Lake_WorkspaceConfig_packagesDir___proj = _init_l_Lake_WorkspaceConfig_packagesDir___proj();
 lean_mark_persistent(l_Lake_WorkspaceConfig_packagesDir___proj);
 l_Lake_WorkspaceConfig_packagesDir_instConfigField = _init_l_Lake_WorkspaceConfig_packagesDir_instConfigField();
@@ -760,8 +784,8 @@ l_Lake_WorkspaceConfig_instConfigMeta___closed__13 = _init_l_Lake_WorkspaceConfi
 l_Lake_WorkspaceConfig_instConfigMeta___closed__14 = _init_l_Lake_WorkspaceConfig_instConfigMeta___closed__14();
 l_Lake_WorkspaceConfig_instConfigMeta = _init_l_Lake_WorkspaceConfig_instConfigMeta();
 lean_mark_persistent(l_Lake_WorkspaceConfig_instConfigMeta);
-l_Lake_instEmptyCollectionWorkspaceConfig = _init_l_Lake_instEmptyCollectionWorkspaceConfig();
-lean_mark_persistent(l_Lake_instEmptyCollectionWorkspaceConfig);
+l_Lake_WorkspaceConfig_instEmptyCollection = _init_l_Lake_WorkspaceConfig_instEmptyCollection();
+lean_mark_persistent(l_Lake_WorkspaceConfig_instEmptyCollection);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

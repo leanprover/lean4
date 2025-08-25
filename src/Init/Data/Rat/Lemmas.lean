@@ -219,7 +219,7 @@ def numDenCasesOn''.{u} {C : Rat → Sort u} (a : Rat)
     (H : ∀ (n : Int) (d : Nat) (nz red), C (mk' n d nz red)) : C a :=
   numDenCasesOn a fun n d h h' ↦ by rw [← mk_eq_divInt _ _ (Nat.ne_of_gt h) h']; exact H n d (Nat.ne_of_gt h) _
 
-@[simp] theorem ofInt_ofNat : ofInt (OfNat.ofNat n) = OfNat.ofNat n := rfl
+@[simp] protected theorem ofInt_ofNat : ofInt (OfNat.ofNat n) = OfNat.ofNat n := rfl
 
 @[simp] theorem ofInt_num : (ofInt n : Rat).num = n := rfl
 @[simp] theorem ofInt_den : (ofInt n : Rat).den = 1 := rfl
@@ -282,13 +282,22 @@ protected theorem add_assoc (a b c : Rat) : a + b + c = a + (b + c) :=
     simp only [ne_eq, Int.natCast_eq_zero, h₁, not_false_eq_true, h₂, divInt_add_divInt,
       Int.mul_eq_zero, or_self, h₃]
     rw [Int.mul_assoc, Int.add_mul, Int.add_mul, Int.mul_assoc, Int.add_assoc]
+<<<<<<< HEAD
     simp [Int.mul_assoc, Int.mul_comm, Int.mul_left_comm]
 
 protected theorem add_left_comm (a b c : Rat) : a + (b + c) = b + (a + c) := by
   rw [← Rat.add_assoc, Rat.add_comm a, Rat.add_assoc]
+=======
+    congr 2
+    rw [Int.mul_right_comm, Int.mul_comm d₁ d₂, ← Int.mul_assoc]
+>>>>>>> master
 
 @[simp] theorem neg_num (a : Rat) : (-a).num = -a.num := rfl
 @[simp] theorem neg_den (a : Rat) : (-a).den = a.den := rfl
+
+protected theorem neg_add_cancel (a : Rat) : -a + a = 0 := by
+  simp only [add_def, neg_num, Int.neg_mul, neg_den, Int.add_comm, ← Int.sub_eq_add_neg,
+    Int.sub_self, normalize_eq_mkRat, zero_mkRat]
 
 theorem neg_normalize (n d z) : -normalize n d z = normalize (-n) d z := by
   simp only [normalize, maybeNormalize_eq, Int.divExact_eq_tdiv, Int.natAbs_neg, Int.neg_tdiv]
@@ -506,33 +515,28 @@ abbrev intCast_den := @den_intCast
 @[deprecated num_intCast (since := "2025-08-22")]
 abbrev intCast_num := @num_intCast
 
-/-!
-The following lemmas are later subsumed by e.g. `Int.cast_add` and `Int.cast_mul` in Mathlib
-but it is convenient to have these earlier, for users who only need `Int` and `Rat`.
--/
-
 @[simp, norm_cast] theorem intCast_inj {a b : Int} : (a : Rat) = (b : Rat) ↔ a = b := by
   constructor
   · rintro ⟨⟩; rfl
   · simp_all
 
-theorem intCast_zero : ((0 : Int) : Rat) = (0 : Rat) := rfl
+protected theorem intCast_zero : ((0 : Int) : Rat) = (0 : Rat) := rfl
 
-theorem intCast_one : ((1 : Int) : Rat) = (1 : Rat) := rfl
+protected theorem intCast_one : ((1 : Int) : Rat) = (1 : Rat) := rfl
 
-@[simp, norm_cast] theorem intCast_add (a b : Int) :
+@[simp, norm_cast] protected theorem intCast_add (a b : Int) :
     ((a + b : Int) : Rat) = (a : Rat) + (b : Rat) := by
   rw [add_def]
   simp [normalize_eq]
 
-@[simp, norm_cast] theorem intCast_neg (a : Int) : ((-a : Int) : Rat) = -(a : Rat) := rfl
+@[simp, norm_cast] protected theorem intCast_neg (a : Int) : ((-a : Int) : Rat) = -(a : Rat) := rfl
 
-@[simp, norm_cast] theorem intCast_sub (a b : Int) :
+@[simp, norm_cast] protected theorem intCast_sub (a b : Int) :
     ((a - b : Int) : Rat) = (a : Rat) - (b : Rat) := by
   rw [sub_def]
   simp [normalize_eq]
 
-@[simp, norm_cast] theorem intCast_mul (a b : Int) :
+@[simp, norm_cast] protected theorem intCast_mul (a b : Int) :
     ((a * b : Int) : Rat) = (a : Rat) * (b : Rat) := by
   rw [mul_def]
   simp [normalize_eq]

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Date.Unit.Year
-// Imports: Std.Time.Internal Std.Internal.Rat Std.Time.Date.Unit.Day Std.Time.Date.Unit.Month
+// Imports: Std.Time.Internal Std.Time.Date.Unit.Day Std.Time.Date.Unit.Month
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1105,7 +1105,6 @@ return x_2;
 }
 }
 lean_object* initialize_Std_Time_Internal(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Internal_Rat(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Date_Unit_Day(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Date_Unit_Month(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1114,9 +1113,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Time_Internal(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Internal_Rat(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Time_Date_Unit_Day(builtin, lean_io_mk_world());

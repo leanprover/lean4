@@ -9,5 +9,6 @@ prelude
 public import Init.GrindInstances.ToInt
 public import Init.GrindInstances.Ring
 public import Init.GrindInstances.Nat
+public import Init.GrindInstances.Rat
 
 public section

@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_Std_Time_HourMarker_toAbsolute___closed__0;
+LEAN_EXPORT lean_object* l_Or_by__cases___at___Std_Time_HourMarker_toRelative_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_HourMarker_toRelative___closed__1;
 static lean_object* l_Std_Time_HourMarker_toAbsolute___closed__3;
 static lean_object* l_Std_Time_HourMarker_toAbsolute___closed__6;
@@ -23,6 +24,7 @@ LEAN_EXPORT uint8_t l_Std_Time_HourMarker_ofNat(lean_object*);
 static lean_object* l_Std_Time_reprHourMarker___closed__3____x40_Std_Time_Time_HourMarker_3439900154____hygCtx___hyg_6_;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Std_Time_reprHourMarker___closed__4____x40_Std_Time_Time_HourMarker_3439900154____hygCtx___hyg_6_;
+LEAN_EXPORT lean_object* l_Or_by__cases___at___Std_Time_HourMarker_toRelative_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_int_emod(lean_object*, lean_object*);
 static lean_object* l_Std_Time_HourMarker_toAbsolute___closed__15;
 static lean_object* l_Std_Time_HourMarker_toAbsolute___closed__14;
@@ -50,6 +52,7 @@ static lean_object* l_Std_Time_instReprHourMarker___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_instOrdHourMarker___lam__0(uint8_t, uint8_t);
 static lean_object* l_Std_Time_HourMarker_toAbsolute___closed__5;
+LEAN_EXPORT lean_object* l_Or_by__cases___at___Std_Time_HourMarker_toRelative_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_HourMarker_toAbsolute___closed__8;
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toRelative___lam__1(lean_object*, lean_object*);
@@ -60,7 +63,6 @@ LEAN_EXPORT lean_object* l_Std_Time_HourMarker_noConfusion___redArg___boxed(lean
 static lean_object* l_Std_Time_HourMarker_toAbsolute___closed__11;
 static lean_object* l_Std_Time_reprHourMarker___closed__5____x40_Std_Time_Time_HourMarker_3439900154____hygCtx___hyg_6_;
 static lean_object* l_Std_Time_HourMarker_toRelative___closed__0;
-lean_object* l_Or_by__cases___redArg(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_instDecidableEqHourMarker(uint8_t, uint8_t);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toRelative___lam__0(lean_object*);
@@ -68,6 +70,7 @@ static lean_object* l_Std_Time_HourMarker_toAbsolute___closed__2;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_HourMarker_toAbsolute_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Or_by__cases___at___Std_Time_HourMarker_toRelative_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_HourMarker_ofOrdinal(lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
@@ -674,6 +677,36 @@ lean_dec(x_2);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Or_by__cases___at___Std_Time_HourMarker_toRelative_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = l_Std_Time_HourMarker_toAbsolute___closed__0;
+x_5 = lean_int_dec_lt(x_1, x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+lean_dec(x_2);
+x_6 = lean_apply_1(x_3, lean_box(0));
+return x_6;
+}
+else
+{
+lean_object* x_7; 
+lean_dec(x_3);
+x_7 = lean_apply_1(x_2, lean_box(0));
+return x_7;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Or_by__cases___at___Std_Time_HourMarker_toRelative_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Or_by__cases___at___Std_Time_HourMarker_toRelative_spec__0___redArg(x_1, x_6, x_7);
+return x_8;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toRelative___lam__0(lean_object* x_1) {
 _start:
 {
@@ -757,32 +790,49 @@ uint8_t x_11;
 x_11 = lean_int_dec_eq(x_1, x_4);
 if (x_11 == 0)
 {
-lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; 
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_alloc_closure((void*)(l_Std_Time_HourMarker_toRelative___lam__0), 1, 0);
 lean_inc(x_1);
 x_13 = lean_alloc_closure((void*)(l_Std_Time_HourMarker_toRelative___lam__1), 2, 1);
 lean_closure_set(x_13, 0, x_1);
-x_14 = lean_int_dec_lt(x_1, x_2);
+x_14 = l_Or_by__cases___at___Std_Time_HourMarker_toRelative_spec__0___redArg(x_1, x_12, x_13);
 lean_dec(x_1);
-x_15 = l_Or_by__cases___redArg(x_14, x_12, x_13);
+return x_14;
+}
+else
+{
+lean_object* x_15; 
+lean_dec(x_1);
+x_15 = l_Std_Time_HourMarker_toRelative___closed__1;
 return x_15;
+}
+}
 }
 else
 {
 lean_object* x_16; 
 lean_dec(x_1);
-x_16 = l_Std_Time_HourMarker_toRelative___closed__1;
+x_16 = l_Std_Time_HourMarker_toRelative___closed__2;
 return x_16;
 }
 }
 }
-else
+LEAN_EXPORT lean_object* l_Or_by__cases___at___Std_Time_HourMarker_toRelative_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
 {
-lean_object* x_17; 
+lean_object* x_4; 
+x_4 = l_Or_by__cases___at___Std_Time_HourMarker_toRelative_spec__0___redArg(x_1, x_2, x_3);
 lean_dec(x_1);
-x_17 = l_Std_Time_HourMarker_toRelative___closed__2;
-return x_17;
+return x_4;
 }
+}
+LEAN_EXPORT lean_object* l_Or_by__cases___at___Std_Time_HourMarker_toRelative_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Or_by__cases___at___Std_Time_HourMarker_toRelative_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_1);
+return x_8;
 }
 }
 lean_object* initialize_Std_Time_Time_Basic(uint8_t builtin, lean_object*);

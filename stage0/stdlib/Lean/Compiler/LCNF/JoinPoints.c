@@ -15740,11 +15740,8 @@ x_128 = lean_ctor_get(x_126, 1);
 lean_inc(x_128);
 lean_dec_ref(x_126);
 x_129 = 0;
-lean_inc(x_6);
-lean_inc_ref(x_5);
-lean_inc(x_4);
-lean_inc_ref(x_3);
 x_130 = l_Lean_Compiler_LCNF_normCodeImp(x_129, x_127, x_121, x_3, x_4, x_5, x_6, x_128);
+lean_dec(x_121);
 if (lean_obj_tag(x_130) == 0)
 {
 lean_object* x_131; lean_object* x_132; lean_object* x_133; uint8_t x_134; 

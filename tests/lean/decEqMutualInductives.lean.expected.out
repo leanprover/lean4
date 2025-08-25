@@ -1,6 +1,5 @@
 [Elab.Deriving.decEq] 
     [mutual
-       @[expose✝]
        public def decEqTree✝ (x✝ : @Tree✝) (x✝¹ : @Tree✝) : Decidable✝ (x✝ = x✝¹) :=
          match x✝, x✝¹ with
          | @Tree.node a✝, @Tree.node b✝ =>
@@ -8,7 +7,6 @@
            if h✝ : @a✝ = @b✝ then by subst h✝; exact isTrue✝ rfl✝
            else isFalse✝ (by intro n✝; injection n✝; apply h✝ _; assumption)
        termination_by structural x✝
-       @[expose✝]
        public def decEqListTree✝ (x✝² : @ListTree✝) (x✝³ : @ListTree✝) : Decidable✝ (x✝² = x✝³) :=
          match x✝², x✝³ with
          | @ListTree.nil, @ListTree.nil => isTrue✝¹ rfl✝¹
@@ -24,12 +22,11 @@
            else isFalse✝³ (by intro n✝²; injection n✝²; apply h✝² _; assumption)
        termination_by structural x✝²
      end,
-     @[expose✝]
+     @[]
      public instance : DecidableEq✝ (@ListTree✝) :=
        decEqListTree✝]
 [Elab.Deriving.decEq] 
     [mutual
-       @[expose✝]
        public def decEqFoo₁✝ (x✝ : @Foo₁✝) (x✝¹ : @Foo₁✝) : Decidable✝ (x✝ = x✝¹) :=
          match x✝, x✝¹ with
          | @Foo₁.foo₁₁, @Foo₁.foo₁₁ => isTrue✝ rfl✝
@@ -40,7 +37,6 @@
            if h✝¹ : @a✝ = @b✝ then by subst h✝¹; exact isTrue✝¹ rfl✝¹
            else isFalse✝¹ (by intro n✝; injection n✝; apply h✝¹ _; assumption)
        termination_by structural x✝
-       @[expose✝]
        public def decEqFoo₂✝ (x✝² : @Foo₂✝) (x✝³ : @Foo₂✝) : Decidable✝ (x✝² = x✝³) :=
          match x✝², x✝³ with
          | @Foo₂.foo₂ a✝¹, @Foo₂.foo₂ b✝¹ =>
@@ -48,7 +44,6 @@
            if h✝² : @a✝¹ = @b✝¹ then by subst h✝²; exact isTrue✝² rfl✝²
            else isFalse✝² (by intro n✝¹; injection n✝¹; apply h✝² _; assumption)
        termination_by structural x✝²
-       @[expose✝]
        public def decEqFoo₃✝ (x✝⁴ : @Foo₃✝) (x✝⁵ : @Foo₃✝) : Decidable✝ (x✝⁴ = x✝⁵) :=
          match x✝⁴, x✝⁵ with
          | @Foo₃.foo₃ a✝², @Foo₃.foo₃ b✝² =>
@@ -57,6 +52,6 @@
            else isFalse✝³ (by intro n✝²; injection n✝²; apply h✝³ _; assumption)
        termination_by structural x✝⁴
      end,
-     @[expose✝]
+     @[]
      public instance : DecidableEq✝ (@Foo₁✝) :=
        decEqFoo₁✝]

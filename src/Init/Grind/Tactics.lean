@@ -111,6 +111,10 @@ structure Config where
   -/
   cutsat := true
   /--
+  When `true` (default: `true`), uses procedure for handling associative (and commutative) operators.
+  -/
+  ac := true
+  /--
   Maximum exponent eagerly evaluated while computing bounds for `ToInt` and
   the characteristic of a ring.
   -/

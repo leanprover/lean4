@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_instGetElem_x3fOfGetElemOfDecidable(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__extensible__1___closed__7;
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__extensible__1___closed__11;
+LEAN_EXPORT lean_object* l_GetElem_x3f_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__36;
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__extensible__1___closed__3;
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__extensible__1___closed__10;
@@ -56,6 +57,7 @@ LEAN_EXPORT lean_object* l_List_get_x3fInternal___redArg(lean_object*, lean_obje
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__35;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x3f__1___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_GetElem_toCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LawfulGetElem_getElem_x21__def___autoParam;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__20;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__4;
@@ -96,6 +98,7 @@ static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__67;
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__21;
 LEAN_EXPORT lean_object* l_Array_instGetElemNatLtSize___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_GetElem_x3f_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__65;
 LEAN_EXPORT lean_object* l_instGetElem_x3fOfGetElemOfDecidable___redArg(lean_object*, lean_object*);
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__extensible__1___closed__13;
@@ -174,6 +177,7 @@ LEAN_EXPORT lean_object* l_List_instGetElem_x3fNatLtLength___lam__0(lean_object*
 LEAN_EXPORT lean_object* l_instGetElem_x3fOfGetElemOfDecidable___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_____x5b___x5d___x21___closed__3;
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_GetElem_x3f_toCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__23;
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__7;
 static lean_object* l_term_____x5b___x5d___closed__10;
@@ -181,6 +185,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instGetElemNatTrue___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__16;
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__18;
+LEAN_EXPORT lean_object* l_GetElem_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__51;
 static lean_object* l_term_____x5b___x5d___closed__19;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__18;
@@ -211,6 +216,7 @@ static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__26;
 static lean_object* l_term_____x5b___x5d___x3f___closed__9;
 static lean_object* l_term_____x5b___x5d_x27_____closed__5;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x21__1___closed__0;
+LEAN_EXPORT lean_object* l_GetElem_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__34;
 static lean_object* l_LawfulGetElem_getElem_x21__def___autoParam___closed__9;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x3f__1___closed__3;
@@ -264,6 +270,7 @@ static lean_object* l_term_____x5b___x5d___closed__17;
 LEAN_EXPORT lean_object* l_term_____x5b___x5d_x27__;
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__50;
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__22;
+LEAN_EXPORT lean_object* l_GetElem_x3f_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__31;
 static lean_object* l_List_get_x21Internal___redArg___closed__0;
 static lean_object* l_term_____x5b___x5d___closed__12;
@@ -294,6 +301,7 @@ static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__extensible__1___closed__6;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x3f__1___closed__5;
 LEAN_EXPORT lean_object* l_decidableGetElem_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_GetElem_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_____x5b___x5d___closed__15;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_List_instGetElemNatLtLength___lam__0(lean_object*, lean_object*, lean_object*);
@@ -378,6 +386,40 @@ _start:
 lean_object* x_3; 
 x_3 = l_outOfBounds___redArg(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_GetElem_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_unsigned_to_nat(0u);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_GetElem_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_GetElem_ctorIdx(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_GetElem_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_unsigned_to_nat(0u);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_GetElem_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_GetElem_toCtorIdx(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
+return x_6;
 }
 }
 static lean_object* _init_l_term_____x5b___x5d___closed__0() {
@@ -1275,6 +1317,40 @@ uint8_t x_9; lean_object* x_10;
 x_9 = lean_unbox(x_8);
 x_10 = l_decidableGetElem_x3f(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_9);
 return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_GetElem_x3f_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_unsigned_to_nat(0u);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_GetElem_x3f_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_GetElem_x3f_ctorIdx(x_1, x_2, x_3, x_4, x_5);
+lean_dec_ref(x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_GetElem_x3f_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_unsigned_to_nat(0u);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_GetElem_x3f_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_GetElem_x3f_toCtorIdx(x_1, x_2, x_3, x_4, x_5);
+lean_dec_ref(x_5);
+return x_6;
 }
 }
 static lean_object* _init_l_term_____x5b___x5d___x3f___closed__0() {

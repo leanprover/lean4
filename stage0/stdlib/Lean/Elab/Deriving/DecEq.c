@@ -14908,7 +14908,7 @@ static lean_object* _init_l___private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("x.toCtorIdx", 11, 11);
+x_1 = lean_mk_string_unchecked("x.ctorIdx", 9, 9);
 return x_1;
 }
 }
@@ -14925,7 +14925,7 @@ static lean_object* _init_l___private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("toCtorIdx", 9, 9);
+x_1 = lean_mk_string_unchecked("ctorIdx", 7, 7);
 return x_1;
 }
 }
@@ -14943,7 +14943,7 @@ static lean_object* _init_l___private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("y.toCtorIdx", 11, 11);
+x_1 = lean_mk_string_unchecked("y.ctorIdx", 9, 9);
 return x_1;
 }
 }

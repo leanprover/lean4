@@ -144,6 +144,7 @@ LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instForIn(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_size(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_getGT_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_size___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instDecidableMem___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_get_x3f___redArg(lean_object*, lean_object*, lean_object*);
@@ -172,6 +173,7 @@ LEAN_EXPORT lean_object* l___auto____x40_Std_Data_TreeSet_Raw_Basic_3909766596__
 static lean_object* l_Std_TreeSet_Raw_term___x7em_____closed__4;
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_revFold___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_TreeSet_Raw_toArray___redArg___closed__0;
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_eraseMany___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instForIn___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_getGE_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -215,6 +217,7 @@ LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instForM___lam__1(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_get___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_max_x21___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instSingleton___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_toCtorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_min_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_getKeyLE_x3f_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_eraseMany(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -353,6 +356,7 @@ LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_getLTD___boxed(lean_object*, lean_obj
 static lean_object* l___auto___closed__9____x40_Std_Data_TreeSet_Raw_Basic_3909766596____hygCtx___hyg_9_;
 static lean_object* l_Std_TreeSet_Raw_term___x7em_____closed__10;
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_fromArray___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instInsert___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_merge___redArg___lam__0___boxed(lean_object*, lean_object*);
@@ -647,6 +651,42 @@ _start:
 lean_object* x_1; 
 x_1 = l___auto___closed__26____x40_Std_Data_TreeSet_Raw_Basic_3909766596____hygCtx___hyg_9_;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(0u);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_TreeSet_Raw_ctorIdx(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec_ref(x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(0u);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_TreeSet_Raw_toCtorIdx(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec_ref(x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instCoeWFWFUnitInner(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

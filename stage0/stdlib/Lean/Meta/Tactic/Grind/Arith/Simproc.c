@@ -4196,7 +4196,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(6u);
 x_2 = l_Lean_Meta_Grind_Arith_expandPowAdd___redArg___closed__3;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -4225,7 +4225,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandPowAdd_declare__8___closed__6____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1685476361____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -4235,7 +4235,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandPowAdd_declare__8___closed__7____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1685476361____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -4245,7 +4245,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandPowAdd_declare__8___closed__8____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1685476361____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -4255,7 +4255,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandPowAdd_declare__8___closed__9____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1685476361____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -4265,7 +4265,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandPowAdd_declare__8___closed__10____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1685476361____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -4275,7 +4275,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandPowAdd_declare__8___closed__11____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1685476361____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6613,7 +6613,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(6u);
 x_2 = l_Lean_Meta_Grind_Arith_expandDiv___redArg___closed__14;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -6633,7 +6633,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandDiv_declare__19___closed__3____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_2348362565____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6643,7 +6643,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandDiv_declare__19___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_2348362565____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6653,7 +6653,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandDiv_declare__19___closed__5____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_2348362565____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6663,7 +6663,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandDiv_declare__19___closed__6____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_2348362565____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6673,7 +6673,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandDiv_declare__19___closed__7____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_2348362565____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6683,7 +6683,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandDiv_declare__19___closed__8____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_2348362565____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6989,7 +6989,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(6u);
 x_2 = l_Lean_Meta_Grind_Arith_expandPowAdd___redArg___closed__8;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -7001,7 +7001,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_Meta_Grind_Arith_expandPowAdd___redArg___closed__5;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -7051,7 +7051,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatAddInst_declare__28___closed__7____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_114900174____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7061,7 +7061,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatAddInst_declare__28___closed__8____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_114900174____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7071,7 +7071,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatAddInst_declare__28___closed__9____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_114900174____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7144,7 +7144,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(6u);
 x_2 = l_Lean_Meta_Grind_Arith_expandDiv___redArg___closed__7;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -7194,7 +7194,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatMulInst_declare__33___closed__6____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1721448607____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7204,7 +7204,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatMulInst_declare__33___closed__7____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1721448607____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7214,7 +7214,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatMulInst_declare__33___closed__8____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1721448607____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7313,7 +7313,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(6u);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatSubInst_declare__38___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1219453224____hygCtx___hyg_16_;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -7363,7 +7363,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatSubInst_declare__38___closed__9____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1219453224____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7373,7 +7373,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatSubInst_declare__38___closed__10____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1219453224____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7383,7 +7383,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatSubInst_declare__38___closed__11____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1219453224____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7484,7 +7484,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatDivInst_declare__43___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3299992319____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7494,7 +7494,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatDivInst_declare__43___closed__5____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3299992319____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7504,7 +7504,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatDivInst_declare__43___closed__6____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3299992319____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7603,7 +7603,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(6u);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatModInst_declare__48___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_692861617____hygCtx___hyg_16_;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -7653,7 +7653,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatModInst_declare__48___closed__9____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_692861617____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7663,7 +7663,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatModInst_declare__48___closed__10____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_692861617____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7673,7 +7673,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatModInst_declare__48___closed__11____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_692861617____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7754,7 +7754,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatPowInst_declare__53___closed__2____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_4112346720____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7774,7 +7774,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatPowInst_declare__53___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_4112346720____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7784,7 +7784,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatPowInst_declare__53___closed__5____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_4112346720____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7794,7 +7794,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatPowInst_declare__53___closed__6____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_4112346720____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8199,7 +8199,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(3u);
 x_2 = l_Lean_Meta_Grind_Arith_normNatOfNatInst___redArg___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -8238,7 +8238,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatOfNatInst_declare__61___closed__5____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1661358275____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8248,7 +8248,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatOfNatInst_declare__61___closed__6____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1661358275____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8347,7 +8347,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(3u);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntNegInst_declare__66___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_687522244____hygCtx___hyg_15_;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -8359,7 +8359,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0__Lean_Meta_Grind_Arith_notField___closed__6;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -8389,7 +8389,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntNegInst_declare__66___closed__8____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_687522244____hygCtx___hyg_15_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8399,7 +8399,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntNegInst_declare__66___closed__9____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_687522244____hygCtx___hyg_15_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8500,7 +8500,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntAddInst_declare__71___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3522364415____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8510,7 +8510,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntAddInst_declare__71___closed__5____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3522364415____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8520,7 +8520,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntAddInst_declare__71___closed__6____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3522364415____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8621,7 +8621,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntMulInst_declare__76___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3205577538____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8631,7 +8631,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntMulInst_declare__76___closed__5____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3205577538____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8641,7 +8641,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntMulInst_declare__76___closed__6____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3205577538____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8742,7 +8742,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntSubInst_declare__81___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3607485820____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8752,7 +8752,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntSubInst_declare__81___closed__5____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3607485820____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8762,7 +8762,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntSubInst_declare__81___closed__6____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3607485820____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8863,7 +8863,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntDivInst_declare__86___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_4859482____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8873,7 +8873,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntDivInst_declare__86___closed__5____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_4859482____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8883,7 +8883,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntDivInst_declare__86___closed__6____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_4859482____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8984,7 +8984,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntModInst_declare__91___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_807206037____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8994,7 +8994,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntModInst_declare__91___closed__5____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_807206037____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -9004,7 +9004,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntModInst_declare__91___closed__6____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_807206037____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -9085,7 +9085,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntPowInst_declare__96___closed__2____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1870397832____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -9105,7 +9105,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntPowInst_declare__96___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1870397832____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -9115,7 +9115,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntPowInst_declare__96___closed__5____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1870397832____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -9125,7 +9125,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntPowInst_declare__96___closed__6____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1870397832____hygCtx___hyg_16_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -9514,7 +9514,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntOfNatInst_declare__104___closed__2____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_906398933____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -9524,7 +9524,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntOfNatInst_declare__104___closed__3____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_906398933____hygCtx___hyg_13_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -10226,7 +10226,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(3u);
 x_2 = l_Lean_Meta_Grind_Arith_normNatCastNum___redArg___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -10246,7 +10246,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatCastNum_declare__109___closed__3____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3573978164____hygCtx___hyg_10_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -10256,7 +10256,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatCastNum_declare__109___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3573978164____hygCtx___hyg_10_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -10266,7 +10266,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normNatCastNum_declare__109___closed__5____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_3573978164____hygCtx___hyg_10_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -11676,7 +11676,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(3u);
 x_2 = l_Lean_Meta_Grind_Arith_normIntCastNum___redArg___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -11696,7 +11696,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntCastNum_declare__114___closed__3____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1083665832____hygCtx___hyg_10_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -11706,7 +11706,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntCastNum_declare__114___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1083665832____hygCtx___hyg_10_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -11716,7 +11716,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntCastNum_declare__114___closed__5____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1083665832____hygCtx___hyg_10_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;

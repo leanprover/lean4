@@ -33,8 +33,10 @@ static lean_object* l_Lean_Elab_Structural_instInhabitedM___closed__8;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Basic_0__initFn___closed__5____x40_Lean_Elab_PreDefinition_Structural_Basic_2093547783____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Structural_Positions_inverse_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_instInhabitedM___closed__15;
+LEAN_EXPORT lean_object* l_Lean_Elab_Structural_State_ctorIdx(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_Structural_Positions_groupAndSort___redArg___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_Positions_groupAndSort___redArg___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Elab_Structural_State_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Structural_Positions_groupAndSort___redArg___lam__2___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Structural_Positions_inverse_spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -80,6 +82,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Structural_Positions_numIndices___boxed(lea
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_instInhabitedM___closed__11;
 lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Structural_State_toCtorIdx(lean_object*);
 lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_Positions_numIndices(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_Positions_groupAndSort(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -88,6 +91,7 @@ lean_object* l_Lean_throwError___redArg(lean_object*, lean_object*, lean_object*
 lean_object* l_instMonadEIO(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_Structural_recArgHasLooseBVarsAt(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Structural_State_ctorIdx___boxed(lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Basic_0__initFn___closed__14____x40_Lean_Elab_PreDefinition_Structural_Basic_2093547783____hygCtx___hyg_2_;
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
@@ -204,6 +208,40 @@ lean_object* l_Lean_Meta_instMonadMetaM___lam__1(lean_object*, lean_object*, lea
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_instInhabitedM___closed__2;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Basic_0__initFn___closed__16____x40_Lean_Elab_PreDefinition_Structural_Basic_2093547783____hygCtx___hyg_2_;
+LEAN_EXPORT lean_object* l_Lean_Elab_Structural_State_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Structural_State_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_Structural_State_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Structural_State_toCtorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Structural_State_toCtorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_Structural_State_toCtorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Elab_Structural_instInhabitedM___closed__0() {
 _start:
 {
@@ -1785,14 +1823,14 @@ goto block_23;
 block_37:
 {
 uint8_t x_36; 
-x_36 = lean_nat_dec_le(x_35, x_32);
+x_36 = lean_nat_dec_le(x_35, x_34);
 if (x_36 == 0)
 {
-lean_dec(x_32);
+lean_dec(x_34);
 lean_inc(x_35);
 x_24 = x_31;
-x_25 = x_33;
-x_26 = x_34;
+x_25 = x_32;
+x_26 = x_33;
 x_27 = x_35;
 x_28 = x_35;
 goto block_30;
@@ -1800,10 +1838,10 @@ goto block_30;
 else
 {
 x_24 = x_31;
-x_25 = x_33;
-x_26 = x_34;
+x_25 = x_32;
+x_26 = x_33;
 x_27 = x_35;
-x_28 = x_32;
+x_28 = x_34;
 goto block_30;
 }
 }
@@ -1824,18 +1862,18 @@ if (x_45 == 0)
 {
 lean_inc(x_44);
 x_31 = x_39;
-x_32 = x_44;
-x_33 = x_42;
-x_34 = x_38;
+x_32 = x_42;
+x_33 = x_38;
+x_34 = x_44;
 x_35 = x_44;
 goto block_37;
 }
 else
 {
 x_31 = x_39;
-x_32 = x_44;
-x_33 = x_42;
-x_34 = x_38;
+x_32 = x_42;
+x_33 = x_38;
+x_34 = x_44;
 x_35 = x_40;
 goto block_37;
 }

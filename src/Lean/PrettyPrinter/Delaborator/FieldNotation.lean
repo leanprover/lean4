@@ -45,15 +45,31 @@ private def projInfo (c : Name) : MetaM (Option (Name × Nat × Bool × Bool × 
     return none
 
 /--
+Checks that `e` is an application of a constant that equals `baseName`, taking into consideration private name mangling.
+
+Intended logic:
+- If the constant is public, then we check it's equal to the unmangled `baseName`.
+- If the constant is private, then we check it's equal to `baseName` exactly.
+  We only use delaborate with dot notation for private declarations from the same module.
+-/
+private def isAppOfBaseName (e : Expr) (baseName : Name) (baseName' := privateToUserName baseName) : Bool :=
+  if let some c := e.cleanupAnnotations.getAppFn.constName? then
+    -- if c is public, then just need to check equality with `baseName'`.
+    -- if c is private, then `c == baseName'` is false, and we check equality with `baseName`.
+    c == baseName || c == baseName'
+  else
+    false
+
+/--
 Like `Lean.Elab.Term.typeMatchesBaseName` but does not use `Function` for pi types.
 -/
-private partial def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := do
+private partial def typeMatchesBaseName (type : Expr) (baseName : Name) (baseName' := privateToUserName baseName) : MetaM Bool := do
   withReducibleAndInstances do
-    if type.cleanupAnnotations.isAppOf baseName then
+    if isAppOfBaseName type baseName baseName' then
       return true
     else
       let type ← whnfCore type
-      if type.isAppOf baseName then
+      if isAppOfBaseName type baseName baseName' then
         return true
       else
         match ← unfoldDefinition? type with
@@ -66,12 +82,12 @@ returns the field name and the index for the argument to be used as the object o
 Otherwise it fails.
 -/
 private def generalizedFieldInfo (c : Name) (args : Array Expr) : MetaM (Name × Nat) := do
-  let .str _ field := c | failure
+  let .str baseName field := c | failure
+  let baseName' := privateToUserName baseName
+  guard <| !baseName'.isAnonymous
   let field := Name.mkSimple field
-  let baseName := c.getPrefix
-  guard <| !baseName.isAnonymous
   -- Disallow `Function` since it is used for pi types.
-  guard <| baseName != `Function
+  guard <| baseName' != `Function
   let info ← getConstInfo c
   -- Search for the first argument that could be used for field notation
   -- and make sure it is the first explicit argument.
@@ -82,12 +98,12 @@ private def generalizedFieldInfo (c : Name) (args : Array Expr) : MetaM (Name ×
       -- Plus, recursors tend to be riskier when using dot notation.
       if (← fvarId.getUserName) == `motive then
         failure
-      if (← typeMatchesBaseName (← fvarId.getType) baseName) then
+      if (← typeMatchesBaseName (← fvarId.getType) baseName baseName') then
         guard (← fvarId.getBinderInfo).isExplicit
         -- We require an exact match for the base name.
         -- While `Lean.Elab.Term.resolveLValLoop` is able to unfold the type and iterate, we do not attempt to exploit this feature.
         -- (To get it right, we would need to check that each relevant namespace does not contain a declaration named `field`.)
-        guard <| (← instantiateMVars <| ← inferType args[i]!).consumeMData.isAppOf baseName
+        guard <| isAppOfBaseName (← instantiateMVars <| ← inferType args[i]!) baseName baseName'
         return (field, i)
       else
         -- We only use the first explicit argument for field notation.

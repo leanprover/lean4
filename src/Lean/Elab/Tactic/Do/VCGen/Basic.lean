@@ -68,8 +68,11 @@ structure State where
   fuel : Fuel := .unlimited
   simpState : Simp.State := {}
   /--
+  Holes of type `Invariant` that have been generated so far.
+  -/
+  invariants : Array MVarId := #[]
+  /--
   The verification conditions that have been generated so far.
-  Includes `Type`-valued goals arising from instantiation of specifications.
   -/
   vcs : Array MVarId := #[]
 
@@ -88,14 +91,18 @@ def ifOutOfFuel (x : VCGenM α) (k : VCGenM α) : VCGenM α := do
   | Fuel.limited 0 => x
   | _ => k
 
+def addSubGoalAsVC (goal : MVarId) : VCGenM PUnit := do
+  let ty ← goal.getType
+  if ty.isAppOf ``Std.Do.Invariant then
+    modify fun s => { s with invariants := s.invariants.push goal }
+  else
+    modify fun s => { s with vcs := s.vcs.push goal }
+
 def emitVC (subGoal : Expr) (name : Name) : VCGenM Expr := do
   withFreshUserNamesSinceIdx (← read).initialCtxSize do
     let m ← liftM <| mkFreshExprSyntheticOpaqueMVar subGoal (tag := name)
-    modify fun s => { s with vcs := s.vcs.push m.mvarId! }
+    addSubGoalAsVC m.mvarId!
     return m
-
-def addSubGoalAsVC (goal : MVarId) : VCGenM PUnit := do
-  modify fun s => { s with vcs := s.vcs.push goal }
 
 def liftSimpM (x : SimpM α) : VCGenM α := do
   let ctx ← read

@@ -10,6 +10,7 @@ public import Lean.AddDecl
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.CompletionName
 public import Lean.Meta.Constructions.NoConfusionLinear
+import Lean.Meta.Constructions.CtorIdx
 
 public section
 
@@ -51,49 +52,28 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
 
 def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do
   if (← getEnv).contains ``noConfusionEnum then
-    mkToCtorIdx
     mkNoConfusionType
     mkNoConfusion
   else
     -- `noConfusionEnum` was not defined yet, so we use `mkNoConfusionCore`
     mkNoConfusionCore enumName
 where
-  mkToCtorIdx : MetaM Unit := do
-    let ConstantInfo.inductInfo info ← getConstInfo enumName | unreachable!
-    let us := info.levelParams.map mkLevelParam
-    let numCtors := info.ctors.length
-    let declName := Name.mkStr enumName "toCtorIdx"
-    let enumType := mkConst enumName us
-    let natType  := mkConst ``Nat
-    let declType ← mkArrow enumType natType
-    let mut minors := #[]
-    for i in *...numCtors do
-      minors := minors.push <| mkNatLit i
-    withLocalDeclD `x enumType fun x => do
-      let motive ← mkLambdaFVars #[x] natType
-      let declValue ← mkLambdaFVars #[x] <| mkAppN (mkApp2 (mkConst (mkCasesOnName enumName) (levelOne::us)) motive x) minors
-      addAndCompile <| Declaration.defnDecl {
-        name        := declName
-        levelParams := info.levelParams
-        type        := declType
-        value       := declValue
-        safety      := DefinitionSafety.safe
-        hints       := ReducibilityHints.abbrev
-      }
-      setReducibleAttribute declName
-
   mkNoConfusionType : MetaM Unit := do
     let ConstantInfo.inductInfo info ← getConstInfo enumName | unreachable!
     let us := info.levelParams.map mkLevelParam
     let v ← mkFreshUserName `v
     let enumType := mkConst enumName us
     let sortV := mkSort (mkLevelParam v)
-    let toCtorIdx := mkConst (Name.mkStr enumName "toCtorIdx") us
     withLocalDeclD `P sortV fun P =>
     withLocalDeclD `x enumType fun x =>
     withLocalDeclD `y enumType fun y => do
       let declType  ← mkForallFVars #[P, x, y] sortV
-      let declValue ← mkLambdaFVars #[P, x, y] (← mkAppM ``noConfusionTypeEnum #[toCtorIdx, P, x, y])
+      let declValue ←
+        if info.numCtors = 1 then
+          mkLambdaFVars #[P, x, y] (← mkArrow P P)
+        else
+          let ctorIdx := mkConst (mkCtorIdxName enumName) us
+          mkLambdaFVars #[P, x, y] (← mkAppM ``noConfusionTypeEnum #[ctorIdx, P, x, y])
       let declName  := Name.mkStr enumName "noConfusionType"
       addAndCompile <| Declaration.defnDecl {
         name        := declName
@@ -111,14 +91,18 @@ where
     let v ← mkFreshUserName `v
     let enumType := mkConst enumName us
     let sortV := mkSort (mkLevelParam v)
-    let toCtorIdx := mkConst (Name.mkStr enumName "toCtorIdx") us
+    let ctorIdx := mkConst (mkCtorIdxName enumName) us
     let noConfusionType := mkConst (Name.mkStr enumName "noConfusionType") (mkLevelParam v :: us)
     withLocalDecl `P BinderInfo.implicit sortV fun P =>
     withLocalDecl `x BinderInfo.implicit enumType fun x =>
     withLocalDecl `y BinderInfo.implicit enumType fun y => do
     withLocalDeclD `h (← mkEq x y) fun h => do
       let declType  ← mkForallFVars #[P, x, y, h] (mkApp3 noConfusionType P x y)
-      let declValue ← mkLambdaFVars #[P, x, y, h] (← mkAppOptM ``noConfusionEnum #[none, none, none, toCtorIdx, P, x, y, h])
+      let declValue ← mkLambdaFVars #[P, x, y, h] <| ← do
+        if info.numCtors = 1 then
+          withLocalDeclD `p P fun p => mkLambdaFVars #[p] p
+        else
+          mkAppOptM ``noConfusionEnum #[none, none, none, ctorIdx, P, x, y, h]
       let declName  := Name.mkStr enumName "noConfusion"
       addAndCompile <| Declaration.defnDecl {
         name        := declName
@@ -132,9 +116,13 @@ where
       modifyEnv fun env => markNoConfusion env declName
 
 def mkNoConfusion (declName : Name) : MetaM Unit := do
+  withTraceNode `Meta.mkNoConfusion (fun _ => return m!"{declName}") do
   if (← isEnumType declName) then
     mkNoConfusionEnum declName
   else
     mkNoConfusionCore declName
+
+builtin_initialize
+  registerTraceClass `Meta.mkNoConfusion
 
 end Lean

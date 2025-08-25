@@ -178,11 +178,14 @@ private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
 
 register_builtin_option genInjectivity : Bool := {
   defValue := true
-  descr    := "generate injectivity theorems for inductive datatype constructors"
+  descr    := "generate injectivity theorems for inductive datatype constructors. \
+    Temporarily (for bootstrapping reasons) also controls the generation of the
+    `ctorIdx` definition."
 }
 
 def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
   if (← getEnv).contains ``Eq.propIntro && genInjectivity.get (← getOptions) &&  !(← isInductivePredicate declName) then
+    withTraceNode `Meta.injective (fun _ => return m!"{declName}") do
     let info ← getConstInfoInduct declName
     unless info.isUnsafe do
       -- We need to reset the local context here because `solveEqOfCtorEq` uses
@@ -193,7 +196,6 @@ def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
       withLCtx {} {} do
       for ctor in info.ctors do
         withExporting (isExporting := !isPrivateName ctor) do
-        withTraceNode `Meta.injective (fun _ => return m!"{ctor}") do
           let ctorVal ← getConstInfoCtor ctor
           if ctorVal.numFields > 0 then
             mkInjectiveTheorem ctorVal

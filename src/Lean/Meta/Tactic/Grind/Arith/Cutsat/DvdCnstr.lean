@@ -107,7 +107,7 @@ def propagateIntDvd (e : Expr) : GoalM Unit := do
     let c := { d, p, h := .core e : DvdCnstr }
     c.assertCore
   else if (← isEqFalse e) then
-    pushNewFact <| mkApp4 (mkConst ``Int.Linear.of_not_dvd) a b reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+    pushNewFact <| mkApp4 (mkConst ``Int.Linear.of_not_dvd) a b eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
 
 def propagateNatDvd (e : Expr) : GoalM Unit := do
   let_expr Dvd.dvd _ inst d₀ a := e | return ()

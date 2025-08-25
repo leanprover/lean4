@@ -380,10 +380,12 @@ register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
   descr    := "(Lean bootstrapping) use parsers from the current stage inside quotations"
 }
 
-/-- Run `declName` if possible and inside a quotation, or else `p`. The `ParserInfo` will always be taken from `p`. -/
+/-- Interpret `declName` if possible and inside a quotation, or else run `p`. The `ParserInfo` will always be taken from `p`. -/
 def evalInsideQuot (declName : Name) : Parser → Parser := withFn fun f c s =>
   if c.quotDepth > 0 && !c.suppressInsideQuot && internal.parseQuotWithCurrentStage.get c.options && c.env.contains declName then
-    evalParserConst declName c s
+    adaptUncacheableContextFn (fun ctx =>
+      { ctx with options := ctx.options.setBool `interpreter.prefer_native false })
+      (evalParserConst declName) c s
   else
     f c s
 
@@ -441,12 +443,27 @@ def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind :=
 def getTokenTable (env : Environment) : TokenTable :=
   (parserExtension.getState env).tokens
 
+set_option linter.unusedVariables.funArgs false in
 -- Note: `crlfToLf` preserves logical line and column numbers for each character.
-def mkInputContext (input : String) (fileName : String) (normalizeLineEndings := true) : InputContext :=
-  let input' := if normalizeLineEndings then input.crlfToLf else input
-  { input    := input',
-    fileName := fileName,
-    fileMap  := input'.toFileMap }
+def mkInputContext (input : String) (fileName : String)
+    (normalizeLineEndings := true)
+    (endPos := input.endPos)
+    (endPos_valid : endPos ≤ input.endPos := by simp) :
+    InputContext :=
+  let text := FileMap.ofString input
+  let next := if normalizeLineEndings then
+    -- Convert the stop position to a line/column position so crlf translation doesn't invalidate it
+    let endPos' := text.toPosition endPos
+    let text := FileMap.ofString text.source.crlfToLf
+    (text, text.ofPosition endPos')
+  else
+    (text, endPos)
+  let text := next.1
+  let endPos' := next.2
+  if h : endPos' ≤ text.source.endPos then
+    .mk text.source fileName (fileMap := text) (endPos := endPos') (endPos_valid := h)
+  else
+    .mk text.source fileName (fileMap := text)
 
 def mkParserState (input : String) : ParserState :=
   { cache := initCacheForInput input }
@@ -458,7 +475,7 @@ def runParserCategory (env : Environment) (catName : Name) (input : String) (fil
   let s := p.run ictx { env, options := {} } (getTokenTable env) (mkParserState input)
   if !s.allErrors.isEmpty  then
     Except.error (s.toErrorMsg ictx)
-  else if ictx.input.atEnd s.pos then
+  else if ictx.atEnd s.pos then
     Except.ok s.stxStack.back
   else
     Except.error ((s.mkError "end of input").toErrorMsg ictx)
@@ -695,11 +712,10 @@ def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
       categoryParserFn cat ctx s
     | [.parser parserName _] =>
       adaptUncacheableContextFn (fun ctx =>
-        if !internal.parseQuotWithCurrentStage.get ctx.options then
-          -- static quotations such as `(e) do not use the interpreter unless the above option is set,
-          -- so for consistency neither should dynamic quotations using this function
-          { ctx with options := ctx.options.setBool `interpreter.prefer_native true }
-        else ctx) (evalParserConst parserName) ctx s
+        -- static quotations such as `(e) do not use the interpreter unless the above option is set,
+        -- so for consistency neither should dynamic quotations using this function
+        { ctx with options := ctx.options.setBool `interpreter.prefer_native (!internal.parseQuotWithCurrentStage.get ctx.options) })
+        (evalParserConst parserName) ctx s
     | [.alias alias] =>
       match alias with
       | .const p => p.fn ctx s

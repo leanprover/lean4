@@ -3,35 +3,48 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Config.Workspace
 import Lake.Build.Run
+import Lake.Build.Actions
 import Lake.Build.Targets
 import Lake.Build.Module
 import Lake.CLI.Build
+import Lake.Util.Proc
 
 namespace Lake
 open Lean (Name)
 open System (FilePath)
 
-def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
+public def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
   IO.Process.spawn {cmd, args, env := ← getAugmentedEnv} >>= (·.wait)
 
-def exe (name : Name) (args  : Array String := #[]) (buildConfig : BuildConfig := {}) : LakeT IO UInt32 := do
+public def exe
+  (name : Name) (args  : Array String := #[]) (buildConfig : BuildConfig := {})
+: LakeT IO UInt32 := do
   let ws ← getWorkspace
   let some exe := ws.findLeanExe? name
     | error s!"unknown executable `{name}`"
   let exeFile ← ws.runBuild exe.fetch buildConfig
   env exeFile.toString args
 
-def Package.pack (pkg : Package) (file : FilePath := pkg.buildArchiveFile) : LogIO Unit := do
+public def Package.pack
+  (pkg : Package) (file : FilePath := pkg.buildArchiveFile)
+: LogIO Unit := do
   logInfo s!"packing {file}"
   tar pkg.buildDir file
 
-def Package.unpack (pkg : Package) (file : FilePath := pkg.buildArchiveFile) : LogIO Unit := do
+public def Package.unpack
+  (pkg : Package) (file : FilePath := pkg.buildArchiveFile)
+: LogIO Unit := do
   logInfo s!"unpacking {file}"
   untar file pkg.buildDir
 
-def Package.uploadRelease (pkg : Package) (tag : String) : LogIO Unit := do
+public def Package.uploadRelease
+  (pkg : Package) (tag : String)
+: LogIO Unit := do
   pkg.pack
   logInfo s!"uploading {tag}:{pkg.buildArchive}"
   let mut args :=
@@ -40,7 +53,7 @@ def Package.uploadRelease (pkg : Package) (tag : String) : LogIO Unit := do
     args := args.append #["-R", repo]
   proc {cmd := "gh", args}
 
-def Package.resolveDriver
+public def Package.resolveDriver
   (pkg : Package) (kind : String) (driver : String)
 : LakeT IO (Package × String) := do
   let pkgName := pkg.name.toString (escape := false)
@@ -57,7 +70,9 @@ def Package.resolveDriver
     | _ =>
       error s!"{pkgName}: invalid {kind} driver '{driver}' (too many '/')"
 
-def Package.test (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {}) : LakeT IO UInt32 := do
+public def Package.test
+  (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {})
+: LakeT IO UInt32 := do
   let cfgArgs := pkg.testDriverArgs
   let (pkg, driver) ← pkg.resolveDriver "test" pkg.testDriver
   let pkgName := pkg.name.toString (escape := false)
@@ -78,7 +93,9 @@ def Package.test (pkg : Package) (args : List String := []) (buildConfig : Build
   else
     error s!"{pkgName}: invalid test driver: unknown script, executable, or library '{driver}'"
 
-def Package.lint (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {}) : LakeT IO UInt32 := do
+public def Package.lint
+  (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {})
+: LakeT IO UInt32 := do
   let cfgArgs := pkg.lintDriverArgs
   let (pkg, driver) ← pkg.resolveDriver "lint" pkg.lintDriver
   if let some script := pkg.scripts.find? driver.toName then
@@ -96,7 +113,7 @@ Run `lean` on file using configuration from the workspace.
 Additional arguments can be passed to `lean` via `moreArgs` and the
 building of dependencies can be further configured via `buildConfig`.
 -/
-def Workspace.evalLeanFile
+public def Workspace.evalLeanFile
   (ws : Workspace) (leanFile : FilePath)
   (moreArgs : Array String := #[]) (buildConfig : BuildConfig := {})
 : IO UInt32 := do

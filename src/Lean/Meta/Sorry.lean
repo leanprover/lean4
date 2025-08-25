@@ -38,6 +38,9 @@ Returns `sorryAx type synthetic`. Recall that `synthetic` is true if this sorry 
 See also `Lean.Meta.mkLabeledSorry`, for creating a `sorry` that is labeled or unique.
 -/
 def mkSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
+  if !(← hasConst ``sorryAx) then
+    -- Abort if we are not ready yet to generate `sorry`s in bootstrapping contexts.
+    Elab.throwAbortCommand
   let u ← getLevel type
   return mkApp2 (mkConst ``sorryAx [u]) type (toExpr synthetic)
 
@@ -77,6 +80,9 @@ Constructs a `sorryAx`.
 * If `unique` is true, the `sorry` is unique, in the sense that it is not defeq to any other `sorry` created by `mkLabeledSorry`.
 -/
 def mkLabeledSorry (type : Expr) (synthetic : Bool) (unique : Bool) : MetaM Expr := do
+  if !(← hasConst ``Lean.Name) then
+    -- Abort if we are not ready yet to generate `sorry`s in bootstrapping contexts.
+    Elab.throwAbortCommand
   let tag ←
     if let (some startSPos, some endSPos) := ((← getRef).getPos?, (← getRef).getTailPos?) then
       let fileMap ← getFileMap

@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Std_Time_Database_defaultGetZoneRules_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_defaultGetZoneRules___closed__3;
 static lean_object* l_Std_Time_Database_defaultGetZoneRules___closed__8;
 static lean_object* l_Std_Time_Database_defaultGetLocalZoneRules___closed__0;
@@ -22,6 +21,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_defaultGetZoneRules___closed__14;
 static uint64_t l_Std_Time_Database_defaultGetLocalZoneRules___closed__2;
 static size_t l_Std_Time_Database_defaultGetZoneRules___closed__12;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Std_Time_Database_defaultGetZoneRules_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* lean_io_getenv(lean_object*, lean_object*);
 lean_object* l_Std_Time_Database_TZdb_localRules(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_defaultGetLocalZoneRules(lean_object*);
@@ -36,13 +36,13 @@ static uint8_t l_Std_Time_Database_defaultGetZoneRules___closed__0;
 static lean_object* l_Std_Time_Database_defaultGetZoneRules___closed__11;
 uint64_t lean_int64_of_nat(lean_object*);
 static lean_object* l_Std_Time_Database_defaultGetZoneRules___closed__9;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Std_Time_Database_defaultGetZoneRules_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_windows_local_timezone_id_at(uint64_t, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Std_Time_Database_defaultGetZoneRules___closed__2;
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 lean_object* l_Std_Time_Database_TZdb_readRulesFromDisk(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Std_Time_Database_defaultGetZoneRules_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_defaultGetZoneRules___closed__7;
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -51,7 +51,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Database_defaultGetZoneRules(lean_object*, l
 extern uint8_t l_System_Platform_isWindows;
 static uint64_t l_Std_Time_Database_defaultGetLocalZoneRules___closed__1;
 lean_object* l_Std_Time_Database_Windows_getZoneRules(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Std_Time_Database_defaultGetZoneRules_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, size_t x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Std_Time_Database_defaultGetZoneRules_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, size_t x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 uint8_t x_9; 
@@ -388,7 +388,7 @@ x_10 = l_Std_Time_Database_defaultGetZoneRules___closed__11;
 x_11 = l_Std_Time_Database_defaultGetZoneRules___closed__12;
 x_12 = 0;
 lean_inc_ref(x_1);
-x_13 = l_Array_forIn_x27Unsafe_loop___at___Std_Time_Database_defaultGetZoneRules_spec__0(x_10, x_1, x_9, x_8, x_11, x_12, x_10, x_7);
+x_13 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Std_Time_Database_defaultGetZoneRules_spec__0(x_10, x_1, x_9, x_8, x_11, x_12, x_10, x_7);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -514,7 +514,7 @@ return x_43;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Std_Time_Database_defaultGetZoneRules_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Std_Time_Database_defaultGetZoneRules_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 size_t x_9; size_t x_10; lean_object* x_11; 
@@ -522,7 +522,7 @@ x_9 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_10 = lean_unbox_usize(x_6);
 lean_dec(x_6);
-x_11 = l_Array_forIn_x27Unsafe_loop___at___Std_Time_Database_defaultGetZoneRules_spec__0(x_1, x_2, x_3, x_4, x_9, x_10, x_7, x_8);
+x_11 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Std_Time_Database_defaultGetZoneRules_spec__0(x_1, x_2, x_3, x_4, x_9, x_10, x_7, x_8);
 lean_dec_ref(x_4);
 return x_11;
 }

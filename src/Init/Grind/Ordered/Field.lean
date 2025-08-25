@@ -15,7 +15,7 @@ namespace Lean.Grind
 
 namespace Field.IsOrdered
 
-variable {R : Type u} [Field R] [LinearOrder R] [OrderedRing R]
+variable {R : Type u} [Field R] [LE R] [LT R] [LinearOrder R] [OrderedRing R]
 
 open OrderedAdd
 open OrderedRing

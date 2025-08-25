@@ -187,9 +187,13 @@ protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
   thms ← addDeclToUnfold thms ``Ne
   Simp.mkContext
     (config :=
-      { arith := true, zeta := config.zeta,
-        zetaDelta := config.zetaDelta,
-        catchRuntime := false,
+      { arith := true
+        zeta := config.zeta
+        zetaDelta := config.zetaDelta
+        -- Use `OfNat.ofNat` and `Neg.neg` for representing bitvec literals
+        bitVecOfNat := false
+        catchRuntime := false
+        warnExponents := false
         -- `implicitDefEqProofs := true` a recurrent source of performance problems in the kernel
         implicitDefEqProofs := false })
     (simpTheorems := #[thms])

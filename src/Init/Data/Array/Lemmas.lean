@@ -312,7 +312,7 @@ theorem eq_push_pop_back!_of_size_ne_zero [Inhabited α] {xs : Array α} (h : xs
     xs = xs.pop.push xs.back! := by
   apply ext
   · simp [Nat.sub_add_cancel (Nat.zero_lt_of_ne_zero h)]
-  · intros i h h'
+  · intro i h h'
     if hlt : i < xs.pop.size then
       rw [getElem_push_lt (h:=hlt), getElem_pop]
     else
@@ -838,9 +838,10 @@ theorem mem_of_contains_eq_true [BEq α] [LawfulBEq α] {a : α} {as : Array α}
   cases as
   simp
 
-theorem contains_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : Array α} (h : a ∈ as) : as.contains a = true := by
+theorem contains_eq_true_of_mem [BEq α] [ReflBEq α] {a : α} {as : Array α} (h : a ∈ as) :
+    as.contains a = true := by
   cases as
-  simpa using h
+  simpa using List.elem_eq_true_of_mem (Array.mem_toList_iff.mpr h)
 
 @[simp] theorem elem_eq_contains [BEq α] {a : α} {xs : Array α} :
     elem a xs = xs.contains a := by
@@ -2893,14 +2894,14 @@ theorem getElem_extract_loop_ge_aux {xs ys : Array α} {size start : Nat} (hge :
   exact Nat.sub_lt_left_of_lt_add hge h
 
 theorem getElem_extract_loop_ge {xs ys : Array α} {size start : Nat} (hge : i ≥ ys.size)
-    (h : i < (extract.loop xs size start ys).size)
-    (h' := getElem_extract_loop_ge_aux hge h) :
-    (extract.loop xs size start ys)[i] = xs[start + i - ys.size] := by
+    (h : i < (extract.loop xs size start ys).size) :
+    (extract.loop xs size start ys)[i] = xs[start + i - ys.size]'(getElem_extract_loop_ge_aux hge h) := by
   induction size using Nat.recAux generalizing start ys with
   | zero =>
     rw [size_extract_loop, Nat.zero_min, Nat.add_zero] at h
     omega
   | succ size ih =>
+    have h' : start + i - ys.size < xs.size := getElem_extract_loop_ge_aux hge h
     have : start < xs.size := by
       apply Nat.lt_of_le_of_lt (Nat.le_add_right start (i - ys.size))
       rwa [← Nat.add_sub_assoc hge]
@@ -2954,7 +2955,7 @@ theorem getElem?_extract {xs : Array α} {start stop : Nat} :
   apply List.ext_getElem
   · simp only [length_toList, size_extract, List.length_take, List.length_drop]
     omega
-  · intros n h₁ h₂
+  · intro n h₁ h₂
     simp
 
 @[simp] theorem extract_size {xs : Array α} : xs.extract 0 xs.size = xs := by

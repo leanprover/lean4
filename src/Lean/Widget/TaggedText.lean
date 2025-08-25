@@ -78,12 +78,12 @@ private structure TaggedState where
   column   : Nat                                 := 0
   deriving Inhabited
 
-instance : Std.Format.MonadPrettyFormat (StateM TaggedState) where
-  pushOutput s       := private modify fun ⟨out, ts, col⟩ => ⟨out.appendText s, ts, col + s.length⟩
-  pushNewline indent := private modify fun ⟨out, ts, _⟩ => ⟨out.appendText ("\n".pushn ' ' indent), ts, indent⟩
-  currColumn         := private return (←get).column
-  startTag n         := private modify fun ⟨out, ts, col⟩ => ⟨TaggedText.text "", (n, col, out) :: ts, col⟩
-  endTags n          := private modify fun ⟨out, ts, col⟩ =>
+private instance : Std.Format.MonadPrettyFormat (StateM TaggedState) where
+  pushOutput s       := modify fun ⟨out, ts, col⟩ => ⟨out.appendText s, ts, col + s.length⟩
+  pushNewline indent := modify fun ⟨out, ts, _⟩ => ⟨out.appendText ("\n".pushn ' ' indent), ts, indent⟩
+  currColumn         := return (←get).column
+  startTag n         := modify fun ⟨out, ts, col⟩ => ⟨TaggedText.text "", (n, col, out) :: ts, col⟩
+  endTags n          := modify fun ⟨out, ts, col⟩ =>
     let (ended, left) := (ts.take n, ts.drop n)
     let out' := ended.foldl (init := out) fun acc (n, col', top) => top.appendTag (n, col') acc
     ⟨out', left, col⟩

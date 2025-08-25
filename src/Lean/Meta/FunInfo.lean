@@ -13,12 +13,28 @@ public section
 
 namespace Lean.Meta
 
+private structure FunInfoEnvCacheKey where
+  c : Name
+  ls : List Level
+  maxArgs? : Option Nat
+deriving BEq, Hashable, TypeName
+
 @[inline] private def checkFunInfoCache (fn : Expr) (maxArgs? : Option Nat) (k : MetaM FunInfo) : MetaM FunInfo := do
   let key ← mkInfoCacheKey fn maxArgs?
   match (← get).cache.funInfo.find? key with
   | some finfo => return finfo
   | none       => do
-    let finfo ← k
+    let finfo ← match fn with
+      | .const c ls =>
+        -- If `fn` is only a single constant, we can share the result with any thread that can see `c`
+        -- as well.
+        if ls.any (·.hasMVar) then
+          -- However, if any level mvars are present, other threads should not be able to encounter
+          -- the same `fn` and sharing would just waste time.
+          k
+        else
+          realizeValue c { c, ls, maxArgs? : FunInfoEnvCacheKey } k
+      | _ => k
     modify fun s => { s with cache := { s.cache with funInfo := s.cache.funInfo.insert key finfo } }
     return finfo
 

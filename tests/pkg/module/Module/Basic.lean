@@ -38,6 +38,17 @@ info: @[reducible, expose] def fabbrev : Nat :=
 /-- A theorem. -/
 public theorem t : f = 1 := testSorry
 
+/-- A private definition. -/
+def fpriv := 1
+
+/--
+error: Unknown identifier `fpriv`
+
+Note: A private declaration `fpriv` (from this module) exists but is not accessible in the current context.
+-/
+#guard_msgs in
+public theorem tpriv : fpriv = 1 := rfl
+
 public class X
 
 /-- A local instance of a public class. -/
@@ -130,7 +141,11 @@ def priv := 2
 
 /-! Private decls should not be accessible in exported contexts. -/
 
-/-- error: Unknown identifier `priv` -/
+/--
+error: Unknown identifier `priv`
+
+Note: A private declaration `priv` (from this module) exists but is not accessible in the current context.
+-/
 #guard_msgs in
 public abbrev h := priv
 
@@ -239,16 +254,18 @@ info: theorem f_exp_wfrec.eq_unfold : f_exp_wfrec = fun x x_1 =>
 
 /-! Private fields should force private ctors. -/
 
+abbrev Priv := Nat
+
 public structure StructWithPrivateField where
-  private x : Nat
+  private x : Priv
 
 /--
 info: structure StructWithPrivateField : Type
 number of parameters: 0
 fields:
-  private StructWithPrivateField.x : Nat
+  private StructWithPrivateField.x : Priv
 constructor:
-  private StructWithPrivateField.mk (x : Nat) : StructWithPrivateField
+  private StructWithPrivateField.mk (x : Priv) : StructWithPrivateField
 -/
 #guard_msgs in
 #print StructWithPrivateField
@@ -260,6 +277,43 @@ constructor:
 #with_exporting
 #check { x := 1 : StructWithPrivateField }
 
+#check StructWithPrivateField.x
+
+/-- error: Unknown constant `StructWithPrivateField.x` -/
+#guard_msgs in
+#with_exporting
+#check StructWithPrivateField.x
+
+/-! Private constructors should be compatible with public fields. -/
+
+public structure StructWithPrivateCtor where private mk ::
+  x : Nat
+
+/--
+info: structure StructWithPrivateCtor : Type
+number of parameters: 0
+fields:
+  StructWithPrivateCtor.x : Nat
+constructor:
+  private StructWithPrivateCtor.mk (x : Nat) : StructWithPrivateCtor
+-/
+#guard_msgs in
+#print StructWithPrivateCtor
+
+/-- error: invalid {...} notation, constructor for 'StructWithPrivateCtor' is marked as private -/
+#guard_msgs in
+#with_exporting
+#check { x := 1 : StructWithPrivateCtor }
+
+#with_exporting
+#check StructWithPrivateCtor.x
+
+#check StructWithPrivateCtor.mk
+
+/-- error: Unknown constant `StructWithPrivateCtor.mk` -/
+#guard_msgs in
+#with_exporting
+#check StructWithPrivateCtor.mk
 
 /-! Private duplicate in public section should not panic. -/
 
@@ -270,4 +324,40 @@ private def foo : Nat := 0
 #guard_msgs in
 private def foo : Nat := 0
 
+end
+
+/-! Check visibility of auto params. -/
+
+public structure OptParamStruct where
+  private pauto : Nat := by exact 0
+  auto : Nat := by exact 0
+
+/--
+info: structure OptParamStruct : Type
+number of parameters: 0
+fields:
+  private OptParamStruct.pauto : Nat := by
+    exact 0
+  OptParamStruct.auto : Nat := by
+    exact 0
+constructor:
+  private OptParamStruct.mk (pauto : Nat := by exact 0) (auto : Nat := by exact 0) : OptParamStruct
+-/
+#guard_msgs in
+#print OptParamStruct
+
+section
+set_option pp.oneline true
+/--
+info: private def OptParamStruct.pauto._autoParam : Lean.Syntax :=
+Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
+-/
+#guard_msgs in
+#print OptParamStruct.pauto._autoParam
+/--
+info: @[expose] def OptParamStruct.auto._autoParam : Lean.Syntax :=
+Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
+-/
+#guard_msgs in
+#print OptParamStruct.auto._autoParam
 end

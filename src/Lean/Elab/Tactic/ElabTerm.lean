@@ -24,7 +24,8 @@ open Meta
 /-! # `elabTerm` for Tactics and basic tactics that use it. -/
 
 /--
-Runs a term elaborator inside a tactic.
+Runs a term elaborator inside a tactic, finalizing elaboration with `Term.synthesizeSyntheticMVars`.
+- `mayPostpone` controls the postponement behavior of `Term.synthesizeSyntheticMVars`.
 
 This function ensures that term elaboration fails when backtracking,
 i.e., in `first| tac term | other`.

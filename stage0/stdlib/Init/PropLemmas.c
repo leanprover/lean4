@@ -55,14 +55,14 @@ _start:
 if (x_1 == 0)
 {
 lean_object* x_4; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_4 = lean_apply_1(x_3, lean_box(0));
 return x_4;
 }
 else
 {
 lean_object* x_5; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_5 = lean_apply_1(x_2, lean_box(0));
 return x_5;
 }
@@ -100,14 +100,14 @@ _start:
 if (x_1 == 0)
 {
 lean_object* x_4; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_4 = lean_apply_1(x_2, lean_box(0));
 return x_4;
 }
 else
 {
 lean_object* x_5; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_5 = lean_apply_1(x_3, lean_box(0));
 return x_5;
 }

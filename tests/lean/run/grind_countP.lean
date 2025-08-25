@@ -1,3 +1,4 @@
+module
 variable {α : Type u} {l : List α} {P Q : α → Bool}
 
 attribute [grind] List.countP_nil List.countP_cons

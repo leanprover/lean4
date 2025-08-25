@@ -116,9 +116,13 @@ def _root_.Lean.MVarId.replaceLocalDeclDefEq (mvarId : MVarId) (fvarId : FVarId)
     else
       let mvarDecl ← mvarId.getDecl
       let lctxNew := (← getLCtx).modifyLocalDecl fvarId (·.setType typeNew)
-      let mvarNew ← mkFreshExprMVarAt lctxNew (← getLocalInstances) mvarDecl.type mvarDecl.kind mvarDecl.userName
-      mvarId.assign mvarNew
-      return mvarNew.mvarId!
+      withLCtx' lctxNew do
+        -- `typeNew` might not be defeq to the old type at reducible transparency (e.g. a definition was unfolded)
+        -- so it might now be recognized as an instance.
+        withLocalInstances [lctxNew.get! fvarId] do
+          let mvarNew ← mkFreshExprMVar mvarDecl.type mvarDecl.kind mvarDecl.userName
+          mvarId.assign mvarNew
+          return mvarNew.mvarId!
 
 /--
 Replace the target type of `mvarId` with `typeNew`.
@@ -194,9 +198,6 @@ Replaces the type of the free variable `fvarId` with `typeNew`.
 If `checkDefEq` is `true` then an error is thrown if `typeNew` is not definitionally
 equal to the type of `fvarId`. Otherwise this function assumes `typeNew` and the type
 of `fvarId` are definitionally equal.
-
-This function is the same as `Lean.MVarId.changeLocalDecl` but makes sure to push substitution
-information into the info tree.
 -/
 def _root_.Lean.MVarId.changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr)
     (checkDefEq := true) : MetaM MVarId := do

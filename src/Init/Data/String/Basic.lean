@@ -26,6 +26,33 @@ def List.asString (s : List Char) : String :=
 
 namespace String
 
+instance : HAdd String.Pos String.Pos String.Pos where
+  hAdd p₁ p₂ := { byteIdx := p₁.byteIdx + p₂.byteIdx }
+
+instance : HSub String.Pos String.Pos String.Pos where
+  hSub p₁ p₂ := { byteIdx :=  p₁.byteIdx - p₂.byteIdx }
+
+instance : HAdd String.Pos Char String.Pos where
+  hAdd p c := { byteIdx := p.byteIdx + c.utf8Size }
+
+instance : HAdd String.Pos String String.Pos where
+  hAdd p s := { byteIdx := p.byteIdx + s.utf8ByteSize }
+
+instance : LE String.Pos where
+  le p₁ p₂ := p₁.byteIdx ≤ p₂.byteIdx
+
+instance : LT String.Pos where
+  lt p₁ p₂ := p₁.byteIdx < p₂.byteIdx
+
+instance (p₁ p₂ : String.Pos) : Decidable (LE.le p₁ p₂) :=
+  inferInstanceAs (Decidable (p₁.byteIdx ≤ p₂.byteIdx))
+
+instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
+  inferInstanceAs (Decidable (p₁.byteIdx < p₂.byteIdx))
+
+instance : Min String.Pos := minOfLe
+instance : Max String.Pos := maxOfLe
+
 instance : OfNat String.Pos (nat_lit 0) where
   ofNat := {}
 
@@ -2056,6 +2083,11 @@ theorem zero_addString_eq (s : String) : (0 : Pos) + s = ⟨s.utf8ByteSize⟩ :=
 theorem le_iff {i₁ i₂ : Pos} : i₁ ≤ i₂ ↔ i₁.byteIdx ≤ i₂.byteIdx := .rfl
 
 @[simp] theorem mk_le_mk {i₁ i₂ : Nat} : Pos.mk i₁ ≤ Pos.mk i₂ ↔ i₁ ≤ i₂ := .rfl
+
+@[simp] theorem le_refl {p : Pos} : p ≤ p := mk_le_mk.mpr (Nat.le_refl _)
+
+@[simp] theorem le_trans {p1 p2 p3 : Pos} : p1 ≤ p2 → p2 ≤ p3 → p1 ≤ p3 := fun h1 h2 =>
+  mk_le_mk.mpr <| Nat.le_trans (mk_le_mk.mp h1) (mk_le_mk.mp h2)
 
 theorem lt_iff {i₁ i₂ : Pos} : i₁ < i₂ ↔ i₁.byteIdx < i₂.byteIdx := .rfl
 

@@ -13,42 +13,41 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lake_facetKindForNamespace___closed__6;
+static lean_object* l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__4;
+static lean_object* l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__2;
 LEAN_EXPORT lean_object* l_Lake_InputFile_keyword;
+static lean_object* l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__1;
 static lean_object* l_Lake_Module_keyword___closed__1;
 static lean_object* l_Lake_InputDir_keyword___closed__1;
 LEAN_EXPORT lean_object* l_Lake_LeanLib_keyword;
+static lean_object* l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__7;
 static lean_object* l_Lake_LeanLib_keyword___closed__0;
 static lean_object* l_Lake_LeanLib_keyword___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Package_keyword;
 static lean_object* l_Lake_ExternLib_keyword___closed__1;
-LEAN_EXPORT lean_object* l_Lake_facetKindForNamespace(lean_object*);
 static lean_object* l_Lake_InputDir_keyword___closed__0;
+LEAN_EXPORT lean_object* l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___boxed(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-static lean_object* l_Lake_facetKindForNamespace___closed__4;
 static lean_object* l_Lake_LeanExe_keyword___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Package_facetKind;
-static lean_object* l_Lake_facetKindForNamespace___closed__2;
+static lean_object* l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__3;
 static lean_object* l_Lake_Package_keyword___closed__0;
 LEAN_EXPORT lean_object* l_Lake_InputDir_configKind;
-static lean_object* l_Lake_facetKindForNamespace___closed__0;
 LEAN_EXPORT lean_object* l_Lake_LeanExe_configKind;
 static lean_object* l_Lake_ExternLib_keyword___closed__0;
+LEAN_EXPORT lean_object* l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace(lean_object*);
 static lean_object* l_Lake_LeanExe_keyword___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Module_facetKind;
 LEAN_EXPORT lean_object* l_Lake_LeanExe_facetKind;
-LEAN_EXPORT lean_object* l_Lake_facetKindForNamespace___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ExternLib_configKind;
-static lean_object* l_Lake_facetKindForNamespace___closed__3;
 static lean_object* l_Lake_Module_keyword___closed__0;
-static lean_object* l_Lake_facetKindForNamespace___closed__1;
-static lean_object* l_Lake_facetKindForNamespace___closed__5;
+static lean_object* l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__5;
 LEAN_EXPORT lean_object* l_Lake_LeanLib_facetKind;
 static lean_object* l_Lake_InputFile_keyword___closed__0;
 LEAN_EXPORT lean_object* l_Lake_InputDir_facetKind;
 static lean_object* l_Lake_InputFile_keyword___closed__1;
-static lean_object* l_Lake_facetKindForNamespace___closed__7;
 static lean_object* l_Lake_Package_keyword___closed__1;
+static lean_object* l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__6;
 LEAN_EXPORT lean_object* l_Lake_InputFile_configKind;
 LEAN_EXPORT lean_object* l_Lake_ExternLib_facetKind;
 LEAN_EXPORT lean_object* l_Lake_Module_keyword;
@@ -56,6 +55,7 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputDir_keyword;
 LEAN_EXPORT lean_object* l_Lake_LeanLib_configKind;
 LEAN_EXPORT lean_object* l_Lake_LeanExe_keyword;
+static lean_object* l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__0;
 LEAN_EXPORT lean_object* l_Lake_InputFile_facetKind;
 LEAN_EXPORT lean_object* l_Lake_ExternLib_keyword;
 static lean_object* _init_l_Lake_Package_keyword___closed__0() {
@@ -329,7 +329,7 @@ x_1 = l_Lake_InputDir_keyword;
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_facetKindForNamespace___closed__0() {
+static lean_object* _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -337,7 +337,7 @@ x_1 = lean_mk_string_unchecked("Lake", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_facetKindForNamespace___closed__1() {
+static lean_object* _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -345,7 +345,7 @@ x_1 = lean_mk_string_unchecked("Package", 7, 7);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_facetKindForNamespace___closed__2() {
+static lean_object* _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -353,7 +353,7 @@ x_1 = lean_mk_string_unchecked("Module", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_facetKindForNamespace___closed__3() {
+static lean_object* _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -361,7 +361,7 @@ x_1 = lean_mk_string_unchecked("LeanLib", 7, 7);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_facetKindForNamespace___closed__4() {
+static lean_object* _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -369,7 +369,7 @@ x_1 = lean_mk_string_unchecked("LeanExe", 7, 7);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_facetKindForNamespace___closed__5() {
+static lean_object* _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -377,7 +377,7 @@ x_1 = lean_mk_string_unchecked("ExternLib", 9, 9);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_facetKindForNamespace___closed__6() {
+static lean_object* _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -385,7 +385,7 @@ x_1 = lean_mk_string_unchecked("InputFile", 9, 9);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_facetKindForNamespace___closed__7() {
+static lean_object* _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -393,7 +393,7 @@ x_1 = lean_mk_string_unchecked("InputDir", 8, 8);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_facetKindForNamespace(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace(lean_object* x_1) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -419,7 +419,7 @@ if (lean_obj_tag(x_3) == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = l_Lake_facetKindForNamespace___closed__0;
+x_6 = l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__0;
 x_7 = lean_string_dec_eq(x_5, x_6);
 if (x_7 == 0)
 {
@@ -428,37 +428,37 @@ return x_3;
 else
 {
 lean_object* x_8; uint8_t x_9; 
-x_8 = l_Lake_facetKindForNamespace___closed__1;
+x_8 = l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__1;
 x_9 = lean_string_dec_eq(x_4, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; uint8_t x_11; 
-x_10 = l_Lake_facetKindForNamespace___closed__2;
+x_10 = l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__2;
 x_11 = lean_string_dec_eq(x_4, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
-x_12 = l_Lake_facetKindForNamespace___closed__3;
+x_12 = l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__3;
 x_13 = lean_string_dec_eq(x_4, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; uint8_t x_15; 
-x_14 = l_Lake_facetKindForNamespace___closed__4;
+x_14 = l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__4;
 x_15 = lean_string_dec_eq(x_4, x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; uint8_t x_17; 
-x_16 = l_Lake_facetKindForNamespace___closed__5;
+x_16 = l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__5;
 x_17 = lean_string_dec_eq(x_4, x_16);
 if (x_17 == 0)
 {
 lean_object* x_18; uint8_t x_19; 
-x_18 = l_Lake_facetKindForNamespace___closed__6;
+x_18 = l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__6;
 x_19 = lean_string_dec_eq(x_4, x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; uint8_t x_21; 
-x_20 = l_Lake_facetKindForNamespace___closed__7;
+x_20 = l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__7;
 x_21 = lean_string_dec_eq(x_4, x_20);
 if (x_21 == 0)
 {
@@ -538,11 +538,11 @@ return x_31;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_facetKindForNamespace___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lake_facetKindForNamespace(x_1);
+x_2 = l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -622,22 +622,22 @@ l_Lake_InputDir_facetKind = _init_l_Lake_InputDir_facetKind();
 lean_mark_persistent(l_Lake_InputDir_facetKind);
 l_Lake_InputDir_configKind = _init_l_Lake_InputDir_configKind();
 lean_mark_persistent(l_Lake_InputDir_configKind);
-l_Lake_facetKindForNamespace___closed__0 = _init_l_Lake_facetKindForNamespace___closed__0();
-lean_mark_persistent(l_Lake_facetKindForNamespace___closed__0);
-l_Lake_facetKindForNamespace___closed__1 = _init_l_Lake_facetKindForNamespace___closed__1();
-lean_mark_persistent(l_Lake_facetKindForNamespace___closed__1);
-l_Lake_facetKindForNamespace___closed__2 = _init_l_Lake_facetKindForNamespace___closed__2();
-lean_mark_persistent(l_Lake_facetKindForNamespace___closed__2);
-l_Lake_facetKindForNamespace___closed__3 = _init_l_Lake_facetKindForNamespace___closed__3();
-lean_mark_persistent(l_Lake_facetKindForNamespace___closed__3);
-l_Lake_facetKindForNamespace___closed__4 = _init_l_Lake_facetKindForNamespace___closed__4();
-lean_mark_persistent(l_Lake_facetKindForNamespace___closed__4);
-l_Lake_facetKindForNamespace___closed__5 = _init_l_Lake_facetKindForNamespace___closed__5();
-lean_mark_persistent(l_Lake_facetKindForNamespace___closed__5);
-l_Lake_facetKindForNamespace___closed__6 = _init_l_Lake_facetKindForNamespace___closed__6();
-lean_mark_persistent(l_Lake_facetKindForNamespace___closed__6);
-l_Lake_facetKindForNamespace___closed__7 = _init_l_Lake_facetKindForNamespace___closed__7();
-lean_mark_persistent(l_Lake_facetKindForNamespace___closed__7);
+l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__0 = _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__0();
+lean_mark_persistent(l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__0);
+l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__1 = _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__1();
+lean_mark_persistent(l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__1);
+l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__2 = _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__2();
+lean_mark_persistent(l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__2);
+l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__3 = _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__3();
+lean_mark_persistent(l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__3);
+l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__4 = _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__4();
+lean_mark_persistent(l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__4);
+l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__5 = _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__5();
+lean_mark_persistent(l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__5);
+l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__6 = _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__6();
+lean_mark_persistent(l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__6);
+l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__7 = _init_l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__7();
+lean_mark_persistent(l___private_Lake_Config_Kinds_0__Lake_facetKindForNamespace___closed__7);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

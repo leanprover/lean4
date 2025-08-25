@@ -1,3 +1,4 @@
+module
 reset_grind_attrs%
 
 attribute [grind =] Array.size_set Array.getElem_set_self Array.getElem_set_ne

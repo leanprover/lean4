@@ -69,7 +69,7 @@ end Pass
 open Pass
 
 def builtinPassManager : PassManager := {
-  passes := #[
+  basePasses := #[
     init,
     pullInstances,
     cse (shouldElimFunDecls := false),
@@ -93,6 +93,8 @@ def builtinPassManager : PassManager := {
     -- pass must be run for each phase; see `base/monoTransparentDeclsExt`
     inferVisibility (phase := .base),
     toMono,
+  ]
+  monoPasses := #[
     simp (occurrence := 3) (phase := .mono),
     reduceJpArity (phase := .mono),
     structProjCases,

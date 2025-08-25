@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.Data.Int.Order
-public import all Init.Grind.ToInt
+public import Init.Grind.ToInt
+import all Init.Grind.ToInt
 
 public section
 
@@ -20,6 +21,9 @@ class AddRightCancel (M : Type u) [Add M] where
   /-- Addition is right-cancellative. -/
   add_right_cancel : ∀ a b c : M, a + c = b + c → a = b
 
+/-- A type with zero and addition,
+where addition is commutative and associative,
+and the zero is the right identity for addition. -/
 class AddCommMonoid (M : Type u) extends Zero M, Add M where
   /-- Zero is the right identity for addition. -/
   add_zero : ∀ a : M, a + 0 = a
@@ -30,6 +34,9 @@ class AddCommMonoid (M : Type u) extends Zero M, Add M where
 
 attribute [instance 100] AddCommMonoid.toZero AddCommMonoid.toAdd
 
+/-- A type with zero, addition, negation, and subtraction,
+where addition is commutative and associative,
+and negation is the left inverse of addition. -/
 class AddCommGroup (M : Type u) extends AddCommMonoid M, Neg M, Sub M where
   /-- Negation is the left inverse of addition. -/
   neg_add_cancel : ∀ a : M, -a + a = 0

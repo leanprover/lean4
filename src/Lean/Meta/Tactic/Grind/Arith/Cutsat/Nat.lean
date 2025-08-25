@@ -16,10 +16,11 @@ public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+/-- Given `e`, returns `(NatCast.natCast e, rfl)` -/
 def mkNatVar (e : Expr) : GoalM (Expr × Expr) := do
   if let some p := (← get').natToIntMap.find? { expr := e } then
     return p
-  let e' := mkIntNatCast e
+  let e' ← shareCommon (mkIntNatCast e)
   let he := mkApp (mkApp (mkConst ``Eq.refl [1]) Int.mkType) e'
   let r := (e', he)
   modify' fun s => { s with
@@ -75,24 +76,6 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
       let (a', h₁) ← natToInt' a
       let h := mkApp4 (mkConst ``Nat.ToInt.pow_congr) a k a' h₁
       return (mkIntPowNat a' k, h)
-    else
-      mkNatVar e
-  | HSub.hSub _ _ _ inst a b =>
-    if (← isInstHSubNat inst) then
-      let (a', h₁) ← natToInt' a
-      let (b', h₂) ← natToInt' b
-      let lhs := mkIntAdd b' (mkIntMul (mkIntLit (-1)) a')
-      let rhs := mkIntLit 0
-      let c := mkIntLE lhs rhs
-      let dec := mkApp2 (mkConst ``Int.decLe) lhs rhs
-      let r := mkApp4 intIte c dec (mkIntSub a' b') (mkIntLit 0)
-      let h := mkApp6 (mkConst ``Nat.ToInt.sub_congr) a b a' b' h₁ h₂
-      -- We need to simplify because `cutsat` expects arithmetic to be in normal form,
-      -- nested instances to be marked and canonicalized
-      let r ← simpCore r
-      let h ← if let some h' := r.proof? then mkEqTrans h h' else pure h
-      let r ← markNestedSubsingletons r.expr
-      return (r, h)
     else
       mkNatVar e
   | Fin.val n a =>
@@ -156,7 +139,7 @@ partial def mkNonnegThm? (e : Expr) : GoalM (Option Expr) := do
 where
   go (e : Expr) : MetaM Expr := do
     match_expr e with
-    | OfNat.ofNat _ _ _ => return mkApp2 (mkConst ``Int.Nonneg.num) e reflBoolTrue
+    | OfNat.ofNat _ _ _ => return mkApp2 (mkConst ``Int.Nonneg.num) e eagerReflBoolTrue
     | HAdd.hAdd _ _ _ _ a b => return mkApp4 (mkConst ``Int.Nonneg.add) a b (← go a) (← go b)
     | HMul.hMul _ _ _ _ a b => return mkApp4 (mkConst ``Int.Nonneg.mul) a b (← go a) (← go b)
     | HDiv.hDiv _ _ _ _ a b => return mkApp4 (mkConst ``Int.Nonneg.div) a b (← go a) (← go b)

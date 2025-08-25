@@ -6,21 +6,23 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Std.Do.WP
-public import Std.Do.Triple
-public import Lean.Elab.Tactic.Simp
-public import Lean.Elab.Tactic.Do.ProofMode.Basic
-public import Lean.Elab.Tactic.Do.ProofMode.Intro
-public import Lean.Elab.Tactic.Do.ProofMode.Revert
-public import Lean.Elab.Tactic.Do.ProofMode.Cases
-public import Lean.Elab.Tactic.Do.ProofMode.Specialize
-public import Lean.Elab.Tactic.Do.ProofMode.Pure
-public import Lean.Elab.Tactic.Do.LetElim
-public import Lean.Elab.Tactic.Do.Spec
-public import Lean.Elab.Tactic.Do.Attr
-public import Lean.Elab.Tactic.Do.Syntax
+import Std.Do.WP
+import Std.Do.Triple
+import Lean.Elab.Tactic.Do.VCGen.Split
+import Lean.Elab.Tactic.Simp
+import Lean.Elab.Tactic.Do.ProofMode.Basic
+import Lean.Elab.Tactic.Do.ProofMode.Intro
+import Lean.Elab.Tactic.Do.ProofMode.Revert
+import Lean.Elab.Tactic.Do.ProofMode.Cases
+import Lean.Elab.Tactic.Do.ProofMode.Specialize
+import Lean.Elab.Tactic.Do.ProofMode.Pure
+import Lean.Elab.Tactic.Do.LetElim
+import Lean.Elab.Tactic.Do.Spec
+import Lean.Elab.Tactic.Do.Attr
+import Lean.Elab.Tactic.Do.Syntax
+import Lean.Elab.Tactic.Induction
+
 public import Lean.Elab.Tactic.Do.VCGen.Basic
-public import Lean.Elab.Tactic.Do.VCGen.Split
 
 public section
 
@@ -40,12 +42,22 @@ private def ProofMode.MGoal.withNewProg (goal : MGoal) (e : Expr) : MGoal :=
 
 namespace VCGen
 
-partial def genVCs (goal : MVarId) (ctx : Context) (fuel : Fuel) : MetaM (Array MVarId) := do
+structure Result where
+  invariants : Array MVarId
+  vcs : Array MVarId
+
+partial def genVCs (goal : MVarId) (ctx : Context) (fuel : Fuel) : MetaM Result := do
   let (mvar, goal) ← mStartMVar goal
   mvar.withContext <| withReducible do
     let (prf, state) ← StateRefT'.run (ReaderT.run (onGoal goal (← mvar.getTag)) ctx) { fuel }
     mvar.assign prf
-    return state.vcs
+    for h : idx in [:state.invariants.size] do
+      let mv := state.invariants[idx]
+      mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))
+    for h : idx in [:state.vcs.size] do
+      let mv := state.vcs[idx]
+      mv.setTag (Name.mkSimple ("vc" ++ toString (idx + 1)) ++ (← mv.getTag))
+    return { invariants := state.invariants, vcs := state.vcs }
 where
   onFail (goal : MGoal) (name : Name) : VCGenM Expr := do
     -- trace[Elab.Tactic.Do.vcgen] "fail {goal.toExpr}"
@@ -70,15 +82,20 @@ where
       mvar.withContext <| do
       -- trace[Elab.Tactic.Do.vcgen] "assignMVars {← mvar.getTag}, isDelayedAssigned: {← mvar.isDelayedAssigned},\n{mvar}"
       let ty ← mvar.getType
-      if (← isProp ty) || ty.isAppOf ``PostCond || ty.isAppOf ``SPred then
-        -- This code path will re-introduce `mvar` as a synthetic opaque goal upon discharge failure.
-        -- This is the right call for (previously natural) holes such as loop invariants, which
-        -- would otherwise lead to spurious instantiations.
-        -- But it's wrong for, e.g., schematic variables. The latter should never be PostConds or
-        -- SPreds, hence the condition.
+      if ← isProp ty then
+        -- Might contain more `P ⊢ₛ wp⟦prog⟧ Q` apps. Try and prove it!
         mvar.assign (← tryGoal ty (← mvar.getTag))
-      else
-        addSubGoalAsVC mvar
+        return
+
+      if ty.isAppOf ``PostCond || ty.isAppOf ``Invariant || ty.isAppOf ``SPred then
+        -- Here we make `mvar` a synthetic opaque goal upon discharge failure.
+        -- This is the right call for (previously natural) holes such as loop invariants, which
+        -- would otherwise lead to spurious instantiations and unwanted renamings (when leaving the
+        -- scope of a local).
+        -- But it's wrong for, e.g., schematic variables. The latter should never be PostConds,
+        -- Invariants or SPreds, hence the condition.
+        mvar.setKind .syntheticOpaque
+      addSubGoalAsVC mvar
 
   onGoal goal name : VCGenM Expr := do
     let T := goal.target
@@ -100,9 +117,8 @@ where
     let args := goal.target.getAppArgs
     let trans := args[2]!
     -- logInfo m!"trans: {trans}"
-    let Q := args[3]!
     let wp ← instantiateMVarsIfMVarApp trans
-    let_expr c@WP.wp m ps instWP α e := wp | onFail goal name
+    let_expr WP.wp m _ps _instWP α e := wp | onFail goal name
     -- NB: e here is a monadic expression, in the "object language"
     let e ← instantiateMVarsIfMVarApp e
     let e := e.headBeta
@@ -143,20 +159,24 @@ where
       let (prf, specHoles) ← try
         let specThm ← findSpec ctx.specThms wp
         trace[Elab.Tactic.Do.vcgen] "Candidate spec for {f.constName!}: {specThm.proof}"
-        withDefault <| collectFreshMVars <| mSpec goal (fun _wp  => return specThm) name
+        -- We eta-expand as far here as goal.σs permits.
+        -- This is so that `mSpec` can frame hypotheses involving uninstantiated loop invariants.
+        -- It is absolutely crucial that we do not lose these hypotheses in the inductive step.
+        collectFreshMVars <| mIntroForallN goal (← TypeList.length goal.σs) fun goal =>
+          withDefault <| mSpec goal (fun _wp  => return specThm) name
       catch ex =>
         trace[Elab.Tactic.Do.vcgen] "Failed to find spec for {wp}. Trying simp. Reason: {ex.toMessageData}"
         -- Last resort: Simp and try again
         let res ← Simp.simp e
         unless res.expr != e do return ← onFail goal name
         burnOne
-        if let .some heq := res.proof? then
-          trace[Elab.Tactic.Do.vcgen] "Simplified"
-          let prf ← onWPApp (goal.withNewProg res.expr) name
-          let prf := mkApp10 (mkConst ``Triple.rewrite_program c.constLevels!) m ps α goal.hyps Q instWP e res.expr heq prf
-          return prf
-        else
-          return ← onWPApp (goal.withNewProg res.expr) name
+        trace[Elab.Tactic.Do.vcgen] "Simplified program to {res.expr}"
+        let prf ← onWPApp (goal.withNewProg res.expr) name
+        -- context = fun e => H ⊢ₛ wp⟦e⟧ Q
+        let context ← withLocalDecl `e .default (mkApp m α) fun e => do
+          mkLambdaFVars #[e] (goal.withNewProg e).toExpr
+        let res ← Simp.mkCongrArg context res
+        return ← res.mkEqMPR prf
       assignMVars specHoles.toList
       return prf
     return ← onFail goal name
@@ -166,18 +186,17 @@ where
   onSplit (goal : MGoal) (info : SplitInfo) (name : Name)
       (withAltCtx : Nat → Array Expr → VCGenM Expr → VCGenM Expr := fun _ _ k => k) : VCGenM Expr := do
     let args := goal.target.getAppArgs
-    let Q := args[3]!
-    let_expr c@WP.wp m ps instWP α e := args[2]! | throwError "Expected wp⟦e⟧ Q in goal.target, got {goal.target}"
+    let_expr WP.wp m _ps _instWP α e := args[2]! | throwError "Expected wp⟦e⟧ Q in goal.target, got {goal.target}"
     -- Bring into simp NF
     let e ← -- returns/continues only if old e is defeq to new e
       if let .some res ← info.simpDiscrs? e then
         burnOne
-        if let .some heq := res.proof? then
-          let prf ← onWPApp (goal.withNewProg res.expr) name
-          let prf := mkApp10 (mkConst ``Triple.rewrite_program c.constLevels!) m ps α goal.hyps Q instWP e res.expr heq prf
-          return prf
-        else
-          pure res.expr
+        let prf ← onWPApp (goal.withNewProg res.expr) name
+        -- context = fun e => H ⊢ₛ wp⟦e⟧ Q
+        let context ← withLocalDecl `e .default (mkApp m α) fun e => do
+          mkLambdaFVars #[e] (goal.withNewProg e).toExpr
+        let res ← Simp.mkCongrArg context res
+        res.mkEqMPR prf
       else
         pure e
     -- Try reduce the matcher
@@ -248,6 +267,7 @@ where
         -- the stateful hypothesis of the goal.
         let mkJoinGoal (e : Expr) :=
           let wp := mkApp5 c m ps instWP α e
+          let σs := mkApp (mkConst ``PostShape.args [uWP]) ps
           let args := args.set! 2 wp |>.take 4
           let target := mkAppN (mkConst ``PredTrans.apply [uWP]) args
           { u := uWP, σs, hyps := emptyHyp uWP σs, target : MGoal }
@@ -255,8 +275,8 @@ where
         let joinPrf ← mkLambdaFVars (joinParams.push h) (← onWPApp (mkJoinGoal (mkAppN fv joinParams)) name)
         let joinGoal ← mkForallFVars (joinParams.push h) (mkJoinGoal (zetadVal.beta joinParams)).toExpr
         -- `joinPrf : joinGoal` by zeta
+        -- checkHasType joinPrf joinGoal
         return (joinPrf, joinGoal)
-
     withLetDecl (← mkFreshUserName `joinPrf) joinGoal joinPrf (kind := .implDetail) fun joinPrf => do
       let prf ← onSplit goal info name fun idx params doGoal => do
         let altLCtxIdx := (← getLCtx).numIndices
@@ -297,21 +317,23 @@ where
       let φ := mkAndN eqs.toList
       let prf ← mkAndIntroN (← liftMetaM <| joinArgs.mapM mkEqRefl).toList
       let φ := φ.abstract newLocals
-      -- Invariant: `prf : (fun joinParams => φ) joinArgs`
+      -- Invariant: `prf : (let newLocals; φ)[joinParams↦joinArgs]`, and `joinParams` does not occur in `prf`
       let (_, φ, prf) ← newLocalDecls.foldrM (init := (newLocals, φ, prf)) fun decl (locals, φ, prf) => do
         let locals := locals.pop
         match decl.value? with
         | some v =>
-          let type := decl.type.abstract locals
-          let val := v.abstract locals
+          let type := (← instantiateMVars decl.type).abstract locals
+          let val := (← instantiateMVars v).abstract locals
           let φ := mkLet decl.userName type val φ (nondep := decl.isNondep)
           return (locals, φ, prf)
         | none =>
-          let type := decl.type.abstract locals
-          let u ← getLevel type
+          let type := (← instantiateMVars decl.type).abstract locals
+          trace[Elab.Tactic.Do.vcgen] "{decl.type} abstracted over {locals}: {type}"
+          let u ← getLevel decl.type
           let ψ := mkLambda decl.userName decl.binderInfo type φ
+          let ψPrf := mkLambda decl.userName decl.binderInfo decl.type φ
           let φ := mkApp2 (mkConst ``Exists [u]) type ψ
-          let prf := mkApp4 (mkConst ``Exists.intro [u]) type ψ decl.toExpr prf
+          let prf := mkApp4 (mkConst ``Exists.intro [u]) decl.type ψPrf decl.toExpr prf
           return (locals, φ, prf)
 
       -- Abstract φ over the altParams in order to instantiate info.hyps below
@@ -324,8 +346,10 @@ where
     info.hyps.assign φ
     let φ := φ.beta (joinArgs ++ altParams)
     let prf := prf.beta joinArgs
+    -- checkHasType prf φ
     let jumpPrf := mkAppN info.joinPrf joinArgs
     let jumpGoal ← inferType jumpPrf
+    -- checkHasType jumpPrf jumpGoal
     let .forallE _ φ' .. := jumpGoal | throwError "jumpGoal {jumpGoal} is not a forall"
     trace[Elab.Tactic.Do.vcgen] "φ applied: {φ}, prf applied: {prf}, type: {← inferType prf}"
     let rwPrf ← rwIfOrMatcher info.altIdx φ'
@@ -338,6 +362,60 @@ where
 
 end VCGen
 
+def elabInvariants (stx : Syntax) (invariants : Array MVarId) : TacticM Unit := do
+  let some stx := stx.getOptional? | return ()
+  let stx : TSyntax ``invariantAlts := ⟨stx⟩
+  withRef stx do
+  match stx with
+  | `(invariantAlts| invariants $alts*) =>
+    let invariants ← invariants.filterM (not <$> ·.isAssigned)
+    for h : n in [0:alts.size] do
+      let alt := alts[n]
+      match alt with
+      | `(invariantAlt| · $rhs) =>
+        let some mv := invariants[n]? | do
+          logErrorAt rhs m!"More invariants have been defined ({alts.size}) than there were unassigned invariants goals `inv<n>` ({invariants.size})."
+          continue
+        discard <| evalTacticAt (← `(tactic| exact $rhs)) mv
+      | _ => logErrorAt alt m!"Expected invariantAlt, got {alt}"
+    if alts.size < invariants.size then
+      let missingTypes ← invariants[alts.size:].toArray.mapM (·.getType)
+      throwErrorAt stx m!"Lacking definitions for the following invariants.\n{toMessageList missingTypes}"
+  | _ => logErrorAt stx m!"Expected invariantAlts, got {stx}"
+
+private def patchVCAltIntoCaseTactic (alt : TSyntax ``vcAlt) : TSyntax ``case :=
+  -- syntax vcAlt := sepBy1(caseArg, " | ") " => " tacticSeq
+  -- syntax case := "case " sepBy1(caseArg, " | ") " => " tacticSeq
+  ⟨alt.raw |>.setKind ``case |>.setArg 0 (mkAtom "case")⟩
+
+partial def elabVCs (stx : Syntax) (vcs : Array MVarId) : TacticM (List MVarId) := do
+  let some stx := stx.getOptional? | return vcs.toList
+  match (⟨stx⟩ : TSyntax ``vcAlts) with
+  | `(vcAlts| with $(tactic)? $alts*) =>
+    let vcs ← applyPreTac vcs tactic
+    evalAlts vcs alts
+  | _ =>
+    logErrorAt stx m!"Expected inductionAlts, got {stx}"
+    return vcs.toList
+where
+  applyPreTac (vcs : Array MVarId) (tactic : Option Syntax) : TacticM (Array MVarId) := do
+    let some tactic := tactic | return vcs
+    let mut newVCs := #[]
+    for vc in vcs do
+      let vcs ← try evalTacticAt tactic vc catch _ => pure [vc]
+      newVCs := newVCs ++ vcs
+    return newVCs
+
+  evalAlts (vcs : Array MVarId) (alts : TSyntaxArray ``vcAlt) : TacticM (List MVarId) := do
+    let oldGoals ← getGoals
+    try
+      setGoals vcs.toList
+      for alt in alts do withRef alt <| evalTactic <| patchVCAltIntoCaseTactic alt
+      pruneSolvedGoals
+      getGoals
+    finally
+      setGoals oldGoals
+
 @[builtin_tactic Lean.Parser.Tactic.mvcgen]
 def elabMVCGen : Tactic := fun stx => withMainContext do
   if mvcgen.warning.get (← getOptions) then
@@ -348,10 +426,13 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
     | none => .unlimited
   let goal ← getMainGoal
   let goal ← if ctx.config.elimLets then elimLets goal else pure goal
-  let vcs ← VCGen.genVCs goal ctx fuel
+  let { invariants, vcs } ← VCGen.genVCs goal ctx fuel
   let runOnVCs (tac : TSyntax `tactic) (vcs : Array MVarId) : TermElabM (Array MVarId) :=
     vcs.flatMapM fun vc => List.toArray <$> Term.withSynthesize do
       Tactic.run vc (Tactic.evalTactic tac *> Tactic.pruneSolvedGoals)
+  let invariants ← Term.TermElabM.run' do
+    let invariants ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) invariants else pure invariants
+  elabInvariants stx[3] invariants
   let vcs ← Term.TermElabM.run' do
     let vcs ← if ctx.config.trivial then runOnVCs (← `(tactic| try mvcgen_trivial)) vcs else pure vcs
     let vcs ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) vcs else pure vcs
@@ -359,4 +440,5 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
   -- Eliminating lets here causes some metavariables in `mkFreshPair_triple` to become nonassignable
   -- so we don't do it. Presumably some weird delayed assignment thing is going on.
   -- let vcs ← if ctx.config.elimLets then liftMetaM <| vcs.mapM elimLets else pure vcs
-  replaceMainGoal vcs.toList
+  let vcs ← elabVCs stx[4] vcs
+  replaceMainGoal (invariants ++ vcs).toList

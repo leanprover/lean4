@@ -9,7 +9,8 @@ prelude
 
 public import Init.ByCases
 public import Init.RCases
-public import all Init.Control.Except  -- for `MonoBind` instance
+public import Init.Control.Except  -- for `MonoBind` instance
+import all Init.Control.Except  -- for `MonoBind` instance
 
 public section
 
@@ -356,7 +357,7 @@ inductive iterates (f : α → α) : α → Prop where
   | sup {c : α → Prop} (hc : chain c) (hi : ∀ x, c x → iterates f x) : iterates f (csup c)
 
 theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) := by
-  intros x y hx hy
+  intro x y hx hy
   induction hx generalizing y
   case step x hx ih =>
     induction hy
@@ -921,7 +922,7 @@ instance ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseIm
       exact l
       exact cy
     case mpr =>
-      intros h y cy ccy
+      intro h y cy ccy
       apply h
       exact ccy
       exact y

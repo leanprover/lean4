@@ -75,7 +75,7 @@ where
         let some decl ← getDecl? declName | failure
         match decl.value with
         | .code code =>
-          guard (decl.getArity == args.size)
+          guard (!decl.recursive && decl.getArity == args.size)
           let params := decl.instantiateParamsLevelParams us
           let code := code.instantiateValueLevelParams decl.levelParams us
           let code ← betaReduce params code args (mustInline := true)

@@ -1,3 +1,4 @@
+module
 variable (G : Type)
 
 structure G' where p : G

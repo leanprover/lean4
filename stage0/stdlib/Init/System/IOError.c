@@ -45,6 +45,7 @@ LEAN_EXPORT lean_object* lean_mk_io_error_no_such_thing_file(lean_object*, uint3
 LEAN_EXPORT lean_object* l_instCoeStringError;
 static lean_object* l_instInhabitedError___closed__0;
 LEAN_EXPORT lean_object* l_IO_Error_mkResourceExhaustedFile___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_Error_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_mkTimeExpired___boxed(lean_object*, lean_object*);
 static lean_object* l_IO_Error_toString___closed__6;
 LEAN_EXPORT lean_object* lean_mk_io_error_eof(lean_object*);
@@ -88,18 +89,168 @@ LEAN_EXPORT lean_object* lean_mk_io_error_resource_exhausted_file(lean_object*, 
 static lean_object* l_IO_Error_toString___closed__12;
 static lean_object* l_IO_Error_otherErrorToString___closed__0;
 LEAN_EXPORT lean_object* l_IO_Error_mkResourceBusy___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_Error_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_already_exists_file(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_illegal_operation(uint32_t, lean_object*);
+LEAN_EXPORT lean_object* l_IO_Error_toCtorIdx___boxed(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_mkInappropriateTypeFile___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_permission_denied_file(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_mkUnsatisfiedConstraints___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_mkInterrupted___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_Error_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_mkProtocolError___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_interrupted(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_inappropriate_type_file(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_mkResourceExhausted___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_Error_ctorIdx(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+case 1:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(1u);
+return x_3;
+}
+case 2:
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(2u);
+return x_4;
+}
+case 3:
+{
+lean_object* x_5; 
+x_5 = lean_unsigned_to_nat(3u);
+return x_5;
+}
+case 4:
+{
+lean_object* x_6; 
+x_6 = lean_unsigned_to_nat(4u);
+return x_6;
+}
+case 5:
+{
+lean_object* x_7; 
+x_7 = lean_unsigned_to_nat(5u);
+return x_7;
+}
+case 6:
+{
+lean_object* x_8; 
+x_8 = lean_unsigned_to_nat(6u);
+return x_8;
+}
+case 7:
+{
+lean_object* x_9; 
+x_9 = lean_unsigned_to_nat(7u);
+return x_9;
+}
+case 8:
+{
+lean_object* x_10; 
+x_10 = lean_unsigned_to_nat(8u);
+return x_10;
+}
+case 9:
+{
+lean_object* x_11; 
+x_11 = lean_unsigned_to_nat(9u);
+return x_11;
+}
+case 10:
+{
+lean_object* x_12; 
+x_12 = lean_unsigned_to_nat(10u);
+return x_12;
+}
+case 11:
+{
+lean_object* x_13; 
+x_13 = lean_unsigned_to_nat(11u);
+return x_13;
+}
+case 12:
+{
+lean_object* x_14; 
+x_14 = lean_unsigned_to_nat(12u);
+return x_14;
+}
+case 13:
+{
+lean_object* x_15; 
+x_15 = lean_unsigned_to_nat(13u);
+return x_15;
+}
+case 14:
+{
+lean_object* x_16; 
+x_16 = lean_unsigned_to_nat(14u);
+return x_16;
+}
+case 15:
+{
+lean_object* x_17; 
+x_17 = lean_unsigned_to_nat(15u);
+return x_17;
+}
+case 16:
+{
+lean_object* x_18; 
+x_18 = lean_unsigned_to_nat(16u);
+return x_18;
+}
+case 17:
+{
+lean_object* x_19; 
+x_19 = lean_unsigned_to_nat(17u);
+return x_19;
+}
+default: 
+{
+lean_object* x_20; 
+x_20 = lean_unsigned_to_nat(18u);
+return x_20;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_IO_Error_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_IO_Error_ctorIdx(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_IO_Error_toCtorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_IO_Error_ctorIdx(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_IO_Error_toCtorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_IO_Error_toCtorIdx(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_instInhabitedError___closed__0() {
 _start:
 {
@@ -178,7 +329,6 @@ LEAN_EXPORT lean_object* lean_mk_io_error_eof(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-lean_dec(x_1);
 x_2 = lean_box(17);
 return x_2;
 }
@@ -1184,7 +1334,6 @@ case 13:
 {
 lean_object* x_90; 
 x_90 = lean_ctor_get(x_1, 0);
-lean_inc(x_90);
 if (lean_obj_tag(x_90) == 0)
 {
 uint32_t x_91; lean_object* x_92; 
@@ -1199,6 +1348,7 @@ goto block_6;
 else
 {
 uint32_t x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; 
+lean_inc_ref(x_90);
 x_93 = lean_ctor_get_uint32(x_1, sizeof(void*)*2);
 x_94 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_94);

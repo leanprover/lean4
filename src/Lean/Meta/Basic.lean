@@ -295,6 +295,7 @@ structure FunInfo where
     That is, the (0-indexed) position of parameters that the result type depends on.
   -/
   resultDeps : Array Nat       := #[]
+deriving TypeName
 
 /--
 Key for the function information cache.
@@ -1052,7 +1053,7 @@ def getFVarFromUserName (userName : Name) : MetaM Expr := do
 Lift a `MkBindingM` monadic action `x` to `MetaM`.
 -/
 @[inline] def liftMkBindingM (x : MetavarContext.MkBindingM α) : MetaM α := do
-  match x { lctx := (← getLCtx), mainModule := (← getEnv).mainModule } { mctx := (← getMCtx), ngen := (← getNGen), nextMacroScope := (← getThe Core.State).nextMacroScope } with
+  match x { lctx := (← getLCtx), quotContext := (← readThe Core.Context).quotContext } { mctx := (← getMCtx), ngen := (← getNGen), nextMacroScope := (← getThe Core.State).nextMacroScope } with
   | .ok e sNew => do
     setMCtx sNew.mctx
     modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }
@@ -2230,16 +2231,25 @@ def sortFVarIds (fvarIds : Array FVarId) : MetaM (Array FVarId) := do
 end Methods
 
 /--
+Return `true` if `indVal` is an inductive predicate. That is, `inductive` type in `Prop`.
+-/
+def isInductivePredicateVal (indVal : InductiveVal) : MetaM Bool := do
+  forallTelescopeReducing indVal.type fun _ type => do
+    match (← whnfD type) with
+    | .sort u .. => return u == levelZero
+    | _ => return false
+
+/--
 Return `some info` if `declName` is an inductive predicate where `info : InductiveVal`.
 That is, `inductive` type in `Prop`.
 -/
 def isInductivePredicate? (declName : Name) : MetaM (Option InductiveVal) := do
   match (← getEnv).find? declName with
   | some (.inductInfo info) =>
-    forallTelescopeReducing info.type fun _ type => do
-      match (← whnfD type) with
-      | .sort u .. => if u == levelZero then return some info else return none
-      | _ => return none
+    if (← isInductivePredicateVal info) then
+      return some info
+    else
+      return none
   | _ => return none
 
 /-- Return `true` if `declName` is an inductive predicate. That is, `inductive` type in `Prop`. -/
@@ -2469,8 +2479,86 @@ private partial def setAllDiagRanges (snap : Language.SnapshotTree) (pos endPos 
 
 open Language
 
+private structure RealizeValueResult where
+  res?   : Except Exception Dynamic
+  snap?  : Option SnapshotTree
+deriving TypeName
+
+/--
+Realizes and caches a value for a given key with all environment objects derived from calling
+`enableRealizationsForConst forConst` (fails if not called yet). If
+this is the first environment branch passing the specific `key`, `realize` is called with the
+environment and options at the time of calling `enableRealizationsForConst` if `forConst` is from
+the current module and the state just after importing  otherwise, thus helping achieve deterministic
+results despite the non-deterministic choice of which thread is tasked with realization. In other
+words, the result of `realizeValue` is *as if* `realize` had been called immediately after
+`enableRealizationsForConst forConst`, with most effects but the return value discarded (see below).
+Whether two calls of `realizeValue` with different `forConst`s but the same `key` share the result
+is undefined; in practice, the key should usually uniquely determine `forConst` by e.g. including it
+as a field.
+
+`realizeValue` cannot check what other data is captured in the `realize` closure,
+so it is best practice to extract it into a separate function and pass only arguments uniquely
+determined by `key`. Traces, diagnostics, and raw std stream
+output of `realize` are reported at all callers via `Core.logSnapshotTask` (so that the location of
+generated diagnostics is deterministic). Note that, as `realize` is run using the options at
+declaration time of `forConst`, trace options must be set prior to that (or, for imported constants,
+on the cmdline) in order to be active. If `realize` throws an exception, it is rethrown at all
+callers.
+-/
+def realizeValue [BEq α] [Hashable α] [TypeName α] [TypeName β] (forConst : Name) (key : α) (realize : MetaM β) :
+    MetaM β := do
+  let env ← getEnv
+  if !env.areRealizationsEnabledForConst forConst then
+    return (← realize)
+  let coreCtx ← readThe Core.Context
+  let coreCtx := {
+    -- these fields should be invariant throughout the file
+    fileName := coreCtx.fileName, fileMap := coreCtx.fileMap
+    -- heartbeat limits inside `realizeAndReport` should be measured from this point on
+    initHeartbeats := (← IO.getNumHeartbeats)
+  }
+  let res ← env.realizeValue forConst key (realizeAndReport (.mk <$> realize) coreCtx)
+  let some res := res.get? RealizeValueResult | unreachable!
+  if let some snap := res.snap? then
+    let mut snap := snap
+    -- localize diagnostics
+    if let some range := (← getRef).getRange? then
+      let fileMap ← getFileMap
+      snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
+    Core.logSnapshotTask <| .finished (stx? := none) snap
+  match res.res? with
+  | .ok dyn => dyn.get? β |>.getDM (unreachable!)
+  | .error e => throw e
+where
+  -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
+  realizeAndReport (realize : MetaM Dynamic) (coreCtx : Core.Context) env opts := do
+    let coreCtx := { coreCtx with options := opts }
+    let act :=
+      IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) (do
+        -- catch all exceptions
+        let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
+        observing do
+          realize)
+        <* addTraceAsMessages
+    let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
+    let res ← match res? with
+      | .ok ((output, res?), st) => pure {
+        snap? := (← Core.mkSnapshot? output coreCtx st)
+        res?
+        : RealizeValueResult
+      }
+      | _ =>
+        let _ : Inhabited RealizeValueResult := ⟨{
+          snap? := (← Core.mkSnapshot? "" coreCtx { env })
+          res?  := default
+          : RealizeValueResult
+        }⟩
+        unreachable!
+    return .mk (α := RealizeValueResult) res
+
 private structure RealizeConstantResult where
-  snap       : SnapshotTree
+  snap?  : Option SnapshotTree
   error? : Option Exception
 deriving TypeName
 
@@ -2527,12 +2615,13 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
       cancelTk? := none
     }
     if let some res := dyn.get? RealizeConstantResult then
-      let mut snap := res.snap
-      -- localize diagnostics
-      if let some range := (← getRef).getRange? then
-        let fileMap ← getFileMap
-        snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
-      Core.logSnapshotTask <| .finished (stx? := none) snap
+      if let some snap := res.snap? then
+        let mut snap := snap
+        -- localize diagnostics
+        if let some range := (← getRef).getRange? then
+          let fileMap ← getFileMap
+          snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
+        Core.logSnapshotTask <| .finished (stx? := none) snap
       if let some e := res.error? then
         throw e
     setEnv env
@@ -2555,7 +2644,7 @@ where
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
     match res? with
     | .ok ((output, err?), st) => pure (st.env, .mk {
-      snap := (← Core.mkSnapshot output coreCtx st)
+      snap?  := (← Core.mkSnapshot? output coreCtx st)
       error? := match err? with
         | .ok ()   => none
         | .error e => some e
@@ -2563,7 +2652,7 @@ where
     })
     | _ =>
       let _ : Inhabited (Environment × Dynamic) := ⟨env, .mk {
-        snap := (← Core.mkSnapshot "" coreCtx { env })
+        snap?  := (← Core.mkSnapshot? "" coreCtx { env })
         error? := none
         : RealizeConstantResult
       }⟩

@@ -1,7 +1,8 @@
+module
 open Lean.Grind
 
 -- `grind linarith` currently does not support negation of linear constraints.
-variable (R : Type u) [IntModule R] [Preorder R] [OrderedAdd R]
+variable (R : Type u) [IntModule R] [LE R] [LT R] [Preorder R] [OrderedAdd R]
 
 example (a b : R) (_ : a < b) (_ : b < a) : False := by grind
 example (a b : R) (_ : a < b ∧ b < a) : False := by grind

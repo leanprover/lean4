@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Bitwise.Lemmas
-// Imports: Init.Data.Nat.Bitwise.Lemmas Init.Data.Int.Bitwise.Basic Init.Data.Int.DivMod.Lemmas
+// Imports: Init.Data.Nat.Bitwise.Lemmas Init.Data.Int.Bitwise.Basic Init.Data.Int.Bitwise.Basic Init.Data.Int.DivMod.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -40,7 +40,7 @@ x_6 = lean_int_dec_lt(x_1, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_7 = lean_nat_abs(x_1);
 x_8 = lean_apply_2(x_3, x_7, x_2);
 return x_8;
@@ -48,7 +48,7 @@ return x_8;
 else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_9 = lean_nat_abs(x_1);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_sub(x_9, x_10);
@@ -86,6 +86,7 @@ return x_6;
 }
 lean_object* initialize_Init_Data_Nat_Bitwise_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Bitwise_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_Bitwise_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_Bitwise_Lemmas(uint8_t builtin, lean_object* w) {
@@ -93,6 +94,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Nat_Bitwise_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Bitwise_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_Bitwise_Basic(builtin, lean_io_mk_world());

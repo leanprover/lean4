@@ -7,8 +7,10 @@ module
 
 prelude
 public import Init.Data.Bool
-public import all Init.Data.BitVec.Basic
-public import all Init.Data.BitVec.BasicAux
+public import Init.Data.BitVec.Basic
+import all Init.Data.BitVec.Basic
+public import Init.Data.BitVec.BasicAux
+import all Init.Data.BitVec.BasicAux
 public import Init.Data.Fin.Lemmas
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Div.Lemmas
@@ -19,8 +21,11 @@ public import Init.Data.Int.LemmasAux
 public import Init.Data.Int.Pow
 public import Init.Data.Int.LemmasAux
 public import Init.Data.BitVec.Bootstrap
+public import Init.Data.Order.Factories
 
 public section
+
+open Std
 
 set_option linter.missingDocs true
 
@@ -238,11 +243,11 @@ theorem eq_of_getLsbD_eq_iff {w : Nat} {x y : BitVec w} :
     x = y ↔ ∀ (i : Nat), i < w → x.getLsbD i = y.getLsbD i := by
   have iff := @BitVec.eq_of_getElem_eq_iff w x y
   constructor
-  · intros heq i lt
+  · intro heq i lt
     have hext := iff.mp heq i lt
     simp only [← getLsbD_eq_getElem] at hext
     exact hext
-  · intros heq
+  · intro heq
     exact iff.mpr heq
 
 theorem eq_of_getMsbD_eq {x y : BitVec w}
@@ -818,14 +823,14 @@ its most significant bit is true.
 theorem slt_zero_iff_msb_cond {x : BitVec w} : x.slt 0#w ↔ x.msb = true := by
   have := toInt_eq_msb_cond x
   constructor
-  · intros h
+  · intro h
     apply Classical.byContradiction
-    intros hmsb
+    intro hmsb
     simp only [Bool.not_eq_true] at hmsb
     simp only [hmsb, Bool.false_eq_true, ↓reduceIte] at this
     simp only [BitVec.slt, toInt_zero, decide_eq_true_eq] at h
     omega /- Can't have `x.toInt` which is equal to `x.toNat` be strictly less than zero -/
-  · intros h
+  · intro h
     simp only [h, ↓reduceIte] at this
     simp only [BitVec.slt, this, toInt_zero, decide_eq_true_eq]
     omega
@@ -2094,7 +2099,7 @@ theorem toInt_ushiftRight_of_lt {x : BitVec w} {n : Nat} (hn : 0 < n) :
     (x >>> n).toInt = x.toNat >>> n := by
   rw [toInt_eq_toNat_cond]
   simp only [toNat_ushiftRight, ite_eq_left_iff, Nat.not_lt]
-  intros h
+  intro h
   by_cases hn : n ≤ w
   · have h1 := Nat.mul_lt_mul_of_pos_left (toNat_ushiftRight_lt x n hn) Nat.two_pos
     simp only [toNat_ushiftRight, Nat.zero_lt_succ, Nat.mul_lt_mul_left] at h1
@@ -2189,8 +2194,7 @@ theorem sshiftRight_eq_of_msb_false {x : BitVec w} {s : Nat} (h : x.msb = false)
   apply BitVec.eq_of_toNat_eq
   rw [BitVec.sshiftRight_eq, BitVec.toInt_eq_toNat_cond]
   have hxbound : 2 * x.toNat < 2 ^ w := BitVec.msb_eq_false_iff_two_mul_lt.mp h
-  simp only [hxbound, ↓reduceIte, Int.natCast_shiftRight, ofInt_natCast,
-    toNat_ofNat, toNat_ushiftRight]
+  simp only [hxbound, ↓reduceIte, toNat_ushiftRight]
   replace hxbound : x.toNat >>> s < 2 ^ w := by
     rw [Nat.shiftRight_eq_div_pow]
     exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) x.isLt
@@ -2232,7 +2236,7 @@ theorem getLsbD_sshiftRight (x : BitVec w) (s i : Nat) :
       omega
     · simp only [hi, decide_false, Bool.not_false, Bool.true_and, Bool.eq_and_self,
         decide_eq_true_eq]
-      intros hlsb
+      intro hlsb
       apply BitVec.lt_of_getLsbD hlsb
   · by_cases hi : i ≥ w
     · simp [hi]
@@ -2286,7 +2290,7 @@ theorem msb_sshiftRight {n : Nat} {x : BitVec w} :
   · simp [hw₀]
   · simp only [show ¬(w ≤ w - 1) by omega, decide_false, Bool.not_false, Bool.true_and,
       ite_eq_right_iff]
-    intros h
+    intro h
     simp [show n = 0 by omega]
 
 @[simp] theorem sshiftRight_zero {x : BitVec w} : x.sshiftRight 0 = x := by
@@ -2774,7 +2778,7 @@ theorem toInt_append {x : BitVec n} {y : BitVec m} :
     (x ++ 0#m).toInt = (2 ^ m) * x.toInt := by
   simp only [toInt_append, beq_iff_eq, toInt_zero, toNat_ofNat, Nat.zero_mod, Int.cast_ofNat_Int, Int.add_zero,
     ite_eq_right_iff]
-  intros h
+  intro h
   subst h
   simp [BitVec.eq_nil x]
 
@@ -2958,7 +2962,7 @@ theorem extractLsb'_append_extractLsb'_eq_extractLsb' {x : BitVec w} (h : start�
   ext i h
   simp only [getElem_append, getElem_extractLsb', dite_eq_ite, getElem_cast, ite_eq_left_iff,
     Nat.not_lt]
-  intros hi
+  intro hi
   congr 1
   omega
 
@@ -2985,7 +2989,7 @@ theorem signExtend_eq_append_extractLsb' {w v : Nat} {x : BitVec w} :
   · simp only [hx, signExtend_eq_setWidth_of_msb_false, getElem_setWidth, Bool.false_eq_true,
       ↓reduceIte, getElem_append, getElem_extractLsb', Nat.zero_add, getElem_zero, dite_eq_ite,
       Bool.if_false_right, Bool.eq_and_self, decide_eq_true_eq]
-    intros hi
+    intro hi
     have hw : i < w := lt_of_getLsbD hi
     omega
   · simp [signExtend_eq_not_setWidth_not_of_msb_true hx, getElem_append, Nat.lt_min, hi]
@@ -3033,7 +3037,7 @@ theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start
     · simp only [hlen, ↓reduceDIte]
       ext i hi
       simp only [getElem_extractLsb', getLsbD_append, ite_eq_left_iff, Nat.not_lt]
-      intros hcontra
+      intro hcontra
       omega
     · simp only [hlen, ↓reduceDIte]
       ext i hi
@@ -3480,7 +3484,7 @@ theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
     have := two_mul_toInt_lt (x := y)
     simp only [Nat.add_one_sub_one]
     constructor
-    · intros h
+    · intro h
       rw_mod_cast [← Int.add_bmod_right, Int.bmod_eq_of_le]
       <;> omega
     · have := Int.bmod_neg_iff (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
@@ -3496,7 +3500,7 @@ theorem twoPow_le_toInt_sub_toInt_iff {x y : BitVec w} :
     have := le_two_mul_toInt (x := y); have := two_mul_toInt_lt (x := y)
     simp only [Nat.add_one_sub_one]
     constructor
-    · intros h
+    · intro h
       simp only [show 0 ≤ x.toInt by omega, show y.toInt < 0 by omega, _root_.true_and]
       rw_mod_cast [← Int.sub_bmod_right, Int.bmod_eq_of_le (by omega) (by omega)]
       omega
@@ -4014,6 +4018,16 @@ protected theorem lt_of_le_ne {x y : BitVec n} : x ≤ y → ¬ x = y → x < y 
 protected theorem ne_of_lt {x y : BitVec n} : x < y → x ≠ y := by
   simp only [lt_def, ne_eq, toNat_eq]
   apply Nat.ne_of_lt
+
+instance instIsLinearOrder : IsLinearOrder (BitVec n) := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply BitVec.le_antisymm
+  case le_trans => constructor; apply BitVec.le_trans
+  case le_total => constructor; apply BitVec.le_total
+
+instance instLawfulOrderLT : LawfulOrderLT (BitVec n) := by
+  apply LawfulOrderLT.of_le
+  simpa using fun _ _ => BitVec.lt_asymm
 
 protected theorem umod_lt (x : BitVec n) {y : BitVec n} : 0 < y → x % y < y := by
   simp only [ofNat_eq_ofNat, lt_def, toNat_ofNat, Nat.zero_mod]

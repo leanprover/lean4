@@ -132,7 +132,7 @@ private inductive ShouldCanonResult where
     visit
   deriving Inhabited
 
-instance : Repr ShouldCanonResult where
+private instance : Repr ShouldCanonResult where
   reprPrec r _ := private match r with
     | .canonType => "canonType"
     | .canonInst => "canonInst"
@@ -142,7 +142,7 @@ instance : Repr ShouldCanonResult where
 /--
 See comments at `ShouldCanonResult`.
 -/
-def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM ShouldCanonResult := do
+private def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM ShouldCanonResult := do
   if h : i < pinfos.size then
     let pinfo := pinfos[i]
     if pinfo.isInstImplicit then
@@ -202,7 +202,6 @@ partial def canon (e : Expr) : GoalM Expr := do profileitM Exception "grind cano
 where
   visit (e : Expr) : StateRefT (Std.HashMap ExprPtr Expr) GoalM Expr := do
     unless e.isApp || e.isForall do return e
-    if (← inShareCommon e) then return e
     -- Check whether it is cached
     if let some r := (← get).get? { expr := e } then
       return r

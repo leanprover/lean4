@@ -284,7 +284,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
         let cancelTk? := (← readThe Core.Context).cancelTk?
         let bodySnap := {
           stx? := view.value
-          reportingRange? :=
+          reportingRange := .ofOptionInheriting <|
             if newTacTask?.isSome then
               -- Only use first line of body as range when we have incremental tactics as otherwise we
               -- would cover their progress
@@ -523,7 +523,8 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← declValToTerm header.value header.type
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
-      forallBoundedTelescope header.type header.numParams fun xs type => do
+      withLCtx' ((← getLCtx).modifyLocalDecls fun decl => decl.setType decl.type.cleanupAnnotations) do
+      forallBoundedTelescope header.type header.numParams (cleanupAnnotations := true) fun xs type => do
         -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
         for h : i in *...header.binderIds.size do
           -- skip auto-bound prefix in `xs`
@@ -1140,6 +1141,11 @@ private def checkAllDeclNamesDistinct (preDefs : Array PreDefinition) : TermElab
 structure AsyncBodyInfo where
 deriving TypeName
 
+register_builtin_option warn.exposeOnPrivate : Bool := {
+  defValue := true
+  descr    := "warn about uses of `@[expose]` on private declarations"
+}
+
 def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
@@ -1239,10 +1245,23 @@ where
       processDeriving #[header]
       async.commitCheckEnv (← getEnv)
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
+    -- Also add explicit snapshot task for showing progress of kernel checking; `addDecl` does not
+    -- do this by default
+    Core.logSnapshotTask { stx? := none, cancelTk? := none, task := (← getEnv).checked.map fun _ =>
+      default
+    }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
   finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
     let env ← getEnv
+    if warn.exposeOnPrivate.get (← getOptions) then
+      if env.header.isModule && !env.isExporting then
+        for header in headers do
+          for attr in header.modifiers.attrs do
+            if attr.name == `expose then
+              logWarningAt attr.stx m!"Redundant `[expose]` attribute, it is meaningful on public \
+                definitions only"
+
     withExporting (isExporting :=
       headers.any (fun header =>
         header.modifiers.isInferredPublic env &&
@@ -1303,12 +1322,25 @@ where
       addPreDefinitions preDefs
   processDeriving (headers : Array DefViewElabHeader) := do
     for header in headers, view in views do
-      if let some classNamesStx := view.deriving? then
-        for classNameStx in classNamesStx do
-          let className ← realizeGlobalConstNoOverload classNameStx
-          withRef classNameStx do
-            unless (← processDefDeriving className header.declName) do
-              throwError "failed to synthesize instance '{className}' for '{header.declName}'"
+      if let some classStxs := view.deriving? then
+        for classStx in classStxs do
+          let view ← DerivingClassView.ofSyntax ⟨classStx⟩
+          withRef classStx <| withLogging <| withLCtx {} {} do
+            /-
+            Assumption: users intend delta deriving to apply to the body of a definition, even if in the source code
+            the function is written as a lambda expression.
+            Furthermore, we don't use `forallTelescope` because users want to derive instances for monads.
+
+            We enter the local context of this body, which is where `classStx` will be elaborated.
+
+            Small complication: we don't know the correlation between the section variables
+            and the parameters in the declaration, so for now we do not allow `classStx`
+            to refer to section variables that were not included.
+            -/
+            let info ← getConstInfo header.declName
+            lambdaTelescope info.value! fun xs _ => do
+              let decl := mkAppN (.const header.declName (info.levelParams.map mkLevelParam)) xs
+              processDefDeriving view decl
 
 /--
 Logs a snapshot task that waits for the entire snapshot tree in `defsParsedSnap` and then logs a
@@ -1353,8 +1385,7 @@ private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
   let logGoalsAccomplishedTask ← BaseIO.mapTask (t := ← tree.waitAll) logGoalsAccomplishedAct
   Core.logSnapshotTask {
     stx? := none
-    -- Use first line of the mutual block to avoid covering the progress of the whole mutual block
-    reportingRange? := (← getRef).getPos?.map fun pos => ⟨pos, pos⟩
+    reportingRange := .skip
     task := logGoalsAccomplishedTask
     cancelTk? := none
   }
@@ -1374,7 +1405,9 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     let modifiers ← elabModifiers ⟨d[0]⟩
     if ds.size > 1 && modifiers.isNonrec then
       throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
-    let mut view ← mkDefView modifiers d[1]
+    let mut view ←
+      withExporting (isExporting := modifiers.visibility.isInferredPublic (← getEnv)) do
+        mkDefView modifiers d[1]
     if view.kind != .example && view.value matches `(declVal| := rfl) then
       view := view.markDefEq
     let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
@@ -1409,6 +1442,8 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     -- no non-fatal diagnostics at this point
     snap.new.resolve <| .ofTyped defsParsedSnap
   let sc ← getScope
+  -- use hash of all names as stable quot context
+  withInitQuotContext (some (hash (views.map (·.declId[0].getId)))) do
   runTermElabM fun vars => do
     Term.elabMutualDef vars sc views
     Term.logGoalsAccomplishedSnapshotTask views defsParsedSnap

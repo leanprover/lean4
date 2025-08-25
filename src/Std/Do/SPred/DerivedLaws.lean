@@ -79,10 +79,6 @@ theorem forall_congr {Φ Ψ : α → SPred σs} (h : ∀ a, Φ a ⊣⊢ₛ Ψ a)
 theorem exists_mono {Φ Ψ : α → SPred σs} (h : ∀ a, Φ a ⊢ₛ Ψ a) : (∃ a, Φ a) ⊢ₛ ∃ a, Ψ a := exists_elim fun a => (h a).trans (exists_intro a)
 theorem exists_congr {Φ Ψ : α → SPred σs} (h : ∀ a, Φ a ⊣⊢ₛ Ψ a) : (∃ a, Φ a) ⊣⊢ₛ ∃ a, Ψ a := bientails.iff.mpr ⟨exists_mono fun a => (h a).mp, exists_mono fun a => (h a).mpr⟩
 
-theorem and_imp (hp : P₁ ⊢ₛ P₂) (hq : Q₁ ⊢ₛ Q₂) : (P₁ ∧ Q₁) ⊢ₛ (P₂ ∧ Q₂) := and_intro (and_elim_l' hp) (and_elim_r' hq)
-theorem or_imp_left (hleft : P₁ ⊢ₛ P₂) : (P₁ ∨ Q) ⊢ₛ (P₂ ∨ Q) := or_elim (or_intro_l' hleft) or_intro_r
-theorem or_imp_right (hright : Q₁ ⊢ₛ Q₂) : (P ∨ Q₁) ⊢ₛ (P ∨ Q₂) := or_elim or_intro_l (or_intro_r' hright)
-
 /-! # Boolean algebra -/
 
 theorem and_self : P ∧ P ⊣⊢ₛ P := bientails.iff.mpr ⟨and_elim_l, and_intro .rfl .rfl⟩
@@ -100,7 +96,7 @@ theorem and_or_left : P ∧ (Q ∨ R) ⊣⊢ₛ (P ∧ Q) ∨ (P ∧ R) :=
   bientails.iff.mpr ⟨and_or_elim_r or_intro_l or_intro_r,
                      or_elim (and_intro and_elim_l (or_intro_l' and_elim_r)) (and_intro and_elim_l (or_intro_r' and_elim_r))⟩
 theorem or_and_left : P ∨ (Q ∧ R) ⊣⊢ₛ (P ∨ Q) ∧ (P ∨ R) :=
-  bientails.iff.mpr ⟨or_elim (and_intro or_intro_l or_intro_l) (and_imp or_intro_r or_intro_r),
+  bientails.iff.mpr ⟨or_elim (and_intro or_intro_l or_intro_l) (and_mono or_intro_r or_intro_r),
                      and_or_elim_l (or_intro_l' and_elim_l) (and_or_elim_r (or_intro_l' and_elim_r) or_intro_r)⟩
 theorem or_and_right : (P ∨ Q) ∧ R ⊣⊢ₛ (P ∧ R) ∨ (Q ∧ R) := and_comm.trans (and_or_left.trans (or_congr and_comm and_comm))
 theorem and_or_right : (P ∧ Q) ∨ R ⊣⊢ₛ (P ∨ R) ∧ (Q ∨ R) := or_comm.trans (or_and_left.trans (and_congr or_comm or_comm))
@@ -119,6 +115,10 @@ theorem imp_self : Q ⊢ₛ P → P := imp_intro and_elim_r
 theorem imp_self_simp : (Q ⊢ₛ P → P) ↔ True := iff_true_intro imp_self
 theorem imp_trans : (P → Q) ∧ (Q → R) ⊢ₛ P → R := imp_intro' <| and_assoc.mpr.trans <| (and_mono_l imp_elim_r).trans imp_elim_r
 theorem false_imp : (⌜False⌝ → P) ⊣⊢ₛ ⌜True⌝ := bientails.iff.mpr ⟨true_intro, imp_intro <| and_elim_r.trans false_elim⟩
+
+-- Sort-of modus ponens:
+theorem and_imp : P' ∧ (P' → Q') ⊢ₛ P' ∧ Q' := and_intro and_elim_l (and_comm.mp.trans (imp_elim .rfl))
+theorem of_and_imp (hp : P ⊢ₛ P') (hq : Q ⊢ₛ (P' → Q')) : P ∧ Q ⊢ₛ P' ∧ Q' := (and_mono hp hq).trans and_imp
 
 /-! # Pure -/
 
@@ -166,9 +166,14 @@ theorem and_right_comm : (P ∧ Q) ∧ R ⊣⊢ₛ (P ∧ R) ∧ Q := and_assoc.
 theorem entails_pure_intro (P Q : Prop) (h : P → Q) : entails ⌜P⌝ (σs := σs) ⌜Q⌝ := pure_elim' fun hp => pure_intro (h hp)
 
 -- NB: We cannot currently make the following lemma @[grind =]; we are blocked on #9623.
--- However, the stronger SPred.entails_cons is already @[grind =].
-@[simp] theorem entails_pure_elim_cons {σ : Type u} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝ := by simp [entails]
-@[simp, grind =] theorem entails_true_intro (P Q : SPred σs) : (⊢ₛ P → Q) = (P ⊢ₛ Q) := propext <| Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
+theorem entails_pure_elim_cons {σ : Type u} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝ := by simp [entails]
+@[simp] theorem entails_true_intro (P Q : SPred σs) : (⊢ₛ P → Q) = (P ⊢ₛ Q) := propext <| Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
+-- The following lemmas work around a DefEq incompleteness that would be fixed by #9015.
+@[simp] theorem entails_1 {P Q : SPred [σ]} : SPred.entails P Q = (∀ s, (P s).down → (Q s).down) := rfl
+@[simp] theorem entails_2 {P Q : SPred [σ₁, σ₂]} : SPred.entails P Q = (∀ s₁ s₂, (P s₁ s₂).down → (Q s₁ s₂).down) := rfl
+@[simp] theorem entails_3 {P Q : SPred [σ₁, σ₂, σ₃]} : SPred.entails P Q = (∀ s₁ s₂ s₃, (P s₁ s₂ s₃).down → (Q s₁ s₂ s₃).down) := rfl
+@[simp] theorem entails_4 {P Q : SPred [σ₁, σ₂, σ₃, σ₄]} : SPred.entails P Q = (∀ s₁ s₂ s₃ s₄, (P s₁ s₂ s₃ s₄).down → (Q s₁ s₂ s₃ s₄).down) := rfl
+@[simp] theorem entails_5 {P Q : SPred [σ₁, σ₂, σ₃, σ₄, σ₅]} : SPred.entails P Q = (∀ s₁ s₂ s₃ s₄ s₅, (P s₁ s₂ s₃ s₄ s₅).down → (Q s₁ s₂ s₃ s₄ s₅).down) := rfl
 
 /-! # Tactic support -/
 
@@ -191,6 +196,7 @@ instance (σs) : IsPure (σs:=σs) spred(⌜φ⌝ ∨ ⌜ψ⌝) (φ ∨ ψ) wher
 instance (σs) (P : α → Prop) : IsPure (σs:=σs) spred(∃ x, ⌜P x⌝) (∃ x, P x) where to_pure := pure_exists
 instance (σs) (P : α → Prop) : IsPure (σs:=σs) spred(∀ x, ⌜P x⌝) (∀ x, P x) where to_pure := pure_forall
 instance (σs) (P : SPred (σ::σs)) [inst : IsPure P φ] : IsPure (σs:=σs) spred(P s) φ where to_pure := (iff_of_eq bientails_cons).mp inst.to_pure s
+instance (σs) (P : SPred σs) [inst : IsPure P φ] : IsPure (σs:=σ::σs) (fun _ => P) φ where to_pure := (iff_of_eq bientails_cons).mpr (fun _ => inst.to_pure)
 instance (φ : Prop) : IsPure (σs:=[]) ⌜φ⌝ φ where to_pure := Iff.rfl
 instance (P : SPred []) : IsPure (σs:=[]) P P.down where to_pure := Iff.rfl
 
@@ -262,6 +268,7 @@ class HasFrame (P : SPred σs) (P' : outParam (SPred σs)) (φ : outParam Prop) 
   reassoc : P ⊣⊢ₛ P' ∧ ⌜φ⌝
 instance (σs) (P P' Q QP : SPred σs) [HasFrame P Q φ] [SimpAnd Q P' QP]: HasFrame (σs:=σs) spred(P ∧ P') QP φ where reassoc := ((and_congr_l HasFrame.reassoc).trans and_right_comm).trans (and_congr_l SimpAnd.simp_and)
 instance (σs) (P P' Q' PQ : SPred σs) [HasFrame P' Q' φ] [SimpAnd P Q' PQ]: HasFrame (σs:=σs) spred(P ∧ P') PQ φ where reassoc := ((and_congr_r HasFrame.reassoc).trans and_assoc.symm).trans (and_congr_l SimpAnd.simp_and)
+instance (σs) (P P' : Prop) (Q : SPred σs) [HasFrame spred(⌜P⌝ ∧ ⌜P'⌝) Q φ] : HasFrame (σs:=σs) ⌜P ∧ P'⌝ Q φ where reassoc := and_pure.symm.trans HasFrame.reassoc
 instance (σs) (P P' : SVal.StateTuple σs → Prop) (Q : SPred σs) [HasFrame spred(SVal.curry (fun t => ⟨P t⟩) ∧ SVal.curry (fun t => ⟨P' t⟩)) Q φ] : HasFrame (σs:=σs) (SVal.curry fun t => ⟨P t ∧ P' t⟩) Q φ where reassoc := and_curry.symm.trans HasFrame.reassoc
 instance (σs) (P : SPred σs) : HasFrame (σs:=σs) spred(⌜φ⌝ ∧ P) P φ where reassoc := and_comm
 instance (σs) (P : SPred σs) : HasFrame (σs:=σs) spred(P ∧ ⌜φ⌝) P φ where reassoc := .rfl

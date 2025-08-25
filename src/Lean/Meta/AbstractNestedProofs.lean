@@ -70,7 +70,7 @@ partial def visit (e : Expr) : M Expr := do
         lctx := lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
     checkCache { val := e : ExprStructEq } fun _ => do
-      if (← withoutExporting do isNonTrivialProof e) then
+      if (← isNonTrivialProof e) then
         /- Ensure proofs nested in type are also abstracted -/
         abstractProof e (← read).cache visit
       else match e with

@@ -22,6 +22,7 @@ public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.ExtAttr
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.Arith.Types
+public import Lean.Meta.Tactic.Grind.AC.Types
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
 meta import Lean.Parser.Do
 import Lean.Meta.Match.MatchEqsExt
@@ -333,16 +334,6 @@ def shareCommon (e : Expr) : GrindM Expr := do
   let (e, scState) := shareCommonAlpha e scState
   modify fun s => { s with scState }
   return e
-
-/--
-Returns `true` if `e` has already been hash-consed.
-Recall that we use `shareCommon` as the last step of the preprocessing
-function `preprocess`.
-Later, we create terms using new terms that have already been preprocessed,
-and we skip preprocessing steps by checking whether `inShareCommon` returns `true`
--/
-def inShareCommon (e : Expr) : GrindM Bool := do
-  return (← get).scState.map.contains { expr := e }
 
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=
@@ -774,6 +765,8 @@ structure Goal where
   split        : Split.State := {}
   /-- State of arithmetic procedures. -/
   arith        : Arith.State := {}
+  /-- State of the ac solver. -/
+  ac           : AC.State := {}
   /-- State of the clean name generator. -/
   clean        : Clean.State := {}
   deriving Inhabited

@@ -44,7 +44,6 @@ partial def markNestedSubsingletons (e : Expr) : GrindM Expr := do profileitM Ex
   visit e |>.run' {}
 where
   visit (e : Expr) : M Expr := do
-    if (← inShareCommon e) then return e
     if isMarkedSubsingletonApp e then
       return e -- `e` is already marked
     -- check whether result is cached

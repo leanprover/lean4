@@ -97,7 +97,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
       | none =>
         if (← mvarId.isDelayedAssigned) then
           -- We can try to improve this case if needed.
-          throwError "synthetic hole has already beend defined and delayed assigned with an incompatible local context"
+          throwError "synthetic hole has already been defined and delayed-assigned with an incompatible local context"
         else if lctx.isSubPrefixOf mvarDecl.lctx then
           let mvarNew ← mkNewHole ()
           mvarId.assign mvarNew
@@ -238,7 +238,8 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | none     => throwIllFormedSyntax
 
 @[builtin_term_elab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ =>
-  return toExpr (← realizeGlobalConstNoOverloadWithInfo stx[2])
+  -- Always allow quoting private names.
+  return toExpr (← withoutExporting <| realizeGlobalConstNoOverloadWithInfo stx[2])
 
 @[builtin_term_elab declName] def elabDeclName : TermElab := adaptExpander fun _ => do
   let some declName ← getDeclName?

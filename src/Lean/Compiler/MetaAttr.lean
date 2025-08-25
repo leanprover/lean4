@@ -13,8 +13,9 @@ public section
 namespace Lean
 
 builtin_initialize metaExt : TagDeclarationExtension ←
-  -- set by `addPreDefinitions`
-  mkTagDeclarationExtension (asyncMode := .async .asyncEnv)
+  -- set by `addPreDefinitions`; if we ever make `def` elaboration async, it should be moved to
+  -- remain on the main environment branch
+  mkTagDeclarationExtension (asyncMode := .async .mainEnv)
 
 /-- Marks in the environment extension that the given declaration has been declared by the user as `meta`. -/
 def addMeta (env : Environment) (declName : Name) : Environment :=
@@ -38,7 +39,7 @@ def getIRPhases (env : Environment) (declName : Name) : IRPhases := Id.run do
       .comptime
     else
       env.header.modules[idx.toNat]?.map (·.irPhases) |>.get!
-  -- Allow `meta`->non-`meta` acesses in the same module
+  -- Allow `meta`->non-`meta` accesses in the same module
   | none => if isMeta env declName then .comptime else .all
 
 end Lean

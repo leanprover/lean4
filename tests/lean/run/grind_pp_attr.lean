@@ -1,3 +1,4 @@
+module
 import Lean.Elab.Command
 
 open Lean Elab Command

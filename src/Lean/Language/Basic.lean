@@ -70,12 +70,30 @@ structure Snapshot where
   isFatal := false
 deriving Inhabited
 
+/-- Range that is marked as being processed by the server while a task is running. -/
+inductive SnapshotTask.ReportingRange where
+  /-- Inherit range from outer task if any, or else the entire file. -/
+  | inherit
+  /-- Use given range. -/
+  | protected some (range : String.Range)
+  /-- Do not mark as being processed. Child nodes are still visited. -/
+  | skip
+deriving Inhabited
+
+/--
+Constructs a reporting range by replacing a missing range with `inherit`, which is a reasonable
+default to ensure that a range is shown in all cases.
+-/
+def SnapshotTask.ReportingRange.ofOptionInheriting : Option String.Range → SnapshotTask.ReportingRange
+  | some range => .some range
+  | none       => .inherit
+
 /--
 Yields the default reporting range of a `Syntax`, which is just the `canonicalOnly` range
-of the syntax.
+of the syntax if any, or `inherit` otherwise.
 -/
-def SnapshotTask.defaultReportingRange? (stx? : Option Syntax) : Option String.Range :=
-  stx?.bind (·.getRange? (canonicalOnly := true))
+def SnapshotTask.defaultReportingRange (stx? : Option Syntax) : ReportingRange :=
+  .ofOptionInheriting <| stx?.bind (·.getRange? (canonicalOnly := true))
 
 /-- A task producing some snapshot type (usually a subclass of `Snapshot`). -/
 -- Longer-term TODO: Give the server more control over the priority of tasks, depending on e.g. the
@@ -94,11 +112,8 @@ structure SnapshotTask (α : Type) where
   contain message log information.
   -/
   stx? : Option Syntax
-  /--
-  Range that is marked as being processed by the server while the task is running. If `none`,
-  the range of the outer task if some or else the entire file is reported.
-  -/
-  reportingRange? : Option String.Range := SnapshotTask.defaultReportingRange? stx?
+  /-- Range that is marked as being processed by the server while the task is running. -/
+  reportingRange : SnapshotTask.ReportingRange := SnapshotTask.defaultReportingRange stx?
   /--
   Cancellation token that can be set by the server to cancel the task when it detects the results
   are not needed anymore.
@@ -110,10 +125,10 @@ deriving Nonempty, Inhabited
 
 /-- Creates a snapshot task from the syntax processed by the task and a `BaseIO` action. -/
 def SnapshotTask.ofIO (stx? : Option Syntax) (cancelTk? : Option IO.CancelToken)
-    (reportingRange? : Option String.Range := defaultReportingRange? stx?) (act : BaseIO α) :
+    (reportingRange : SnapshotTask.ReportingRange := SnapshotTask.defaultReportingRange stx?) (act : BaseIO α) :
     BaseIO (SnapshotTask α) := do
   return {
-    stx?, reportingRange?, cancelTk?
+    stx?, reportingRange, cancelTk?
     task := (← BaseIO.asTask act)
   }
 
@@ -121,14 +136,14 @@ def SnapshotTask.ofIO (stx? : Option Syntax) (cancelTk? : Option IO.CancelToken)
 def SnapshotTask.finished (stx? : Option Syntax) (a : α) : SnapshotTask α where
   stx?
   -- irrelevant when already finished
-  reportingRange? := none
+  reportingRange := .skip
   task := .pure a
   cancelTk? := none
 
 /-- Transforms a task's output without changing the processed syntax. -/
 def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (stx? : Option Syntax := t.stx?)
-    (reportingRange? : Option String.Range := t.reportingRange?) (sync := false) : SnapshotTask β :=
-  { stx?, cancelTk? := t.cancelTk?, reportingRange?, task := t.task.map (sync := sync) f }
+    (reportingRange : SnapshotTask.ReportingRange := t.reportingRange) (sync := false) : SnapshotTask β :=
+  { stx?, cancelTk? := t.cancelTk?, reportingRange, task := t.task.map (sync := sync) f }
 
 /--
   Chains two snapshot tasks. The processed syntax and the reporting range are taken from the first
@@ -136,10 +151,10 @@ def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (stx? : Option Syntax
   discarded. The cancellation tokens of both tasks are discarded. They are replaced with the given
   token if any. -/
 def SnapshotTask.bindIO (t : SnapshotTask α) (act : α → BaseIO (SnapshotTask β))
-    (stx? : Option Syntax := t.stx?) (reportingRange? : Option String.Range := t.reportingRange?)
+    (stx? : Option Syntax := t.stx?) (reportingRange : SnapshotTask.ReportingRange := t.reportingRange)
     (cancelTk? : Option IO.CancelToken) (sync := false) : BaseIO (SnapshotTask β) := do
   return {
-    stx?, reportingRange?, cancelTk?
+    stx?, reportingRange, cancelTk?
     task := (← BaseIO.bindTask (sync := sync) t.task fun a => (·.task) <$> (act a))
   }
 

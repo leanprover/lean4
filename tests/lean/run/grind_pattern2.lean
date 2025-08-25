@@ -1,3 +1,4 @@
+module
 def Set (α : Type) := α → Bool
 
 def insertElem [DecidableEq α] (s : Set α) (a : α) : Set α :=
@@ -40,17 +41,17 @@ grind_pattern fooThm => foo x [a, b]
 
 
 /--
-trace: [grind.internalize] foo x y
-[grind.internalize] [a, b]
-[grind.internalize] Nat
-[grind.internalize] a
-[grind.internalize] [b]
-[grind.internalize] b
-[grind.internalize] []
+trace: [grind.internalize] [0] foo x y
+[grind.internalize] [0] [a, b]
+[grind.internalize] [0] Nat
+[grind.internalize] [0] a
+[grind.internalize] [0] [b]
+[grind.internalize] [0] b
+[grind.internalize] [0] []
 [grind.ematch] activated `fooThm`, [foo #0 `[[a, b]]]
-[grind.internalize] x
-[grind.internalize] y
-[grind.internalize] z
+[grind.internalize] [0] x
+[grind.internalize] [0] y
+[grind.internalize] [0] z
 -/
 #guard_msgs (trace) in
 set_option trace.grind.internalize true in

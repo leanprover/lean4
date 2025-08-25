@@ -76,7 +76,7 @@ private partial def formatIRType : IRType → Format
     let _ : ToFormat IRType := ⟨formatIRType⟩
     "union " ++ Format.bracket "{" (Format.joinSep  tys.toList ", ") "}"
 
-instance : ToFormat IRType := ⟨formatIRType⟩
+instance : ToFormat IRType := ⟨private_decl% formatIRType⟩
 instance : ToString IRType := ⟨toString ∘ format⟩
 
 private def formatParam : Param → Format

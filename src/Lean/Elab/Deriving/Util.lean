@@ -81,12 +81,13 @@ def Context.mkVisibilityFromTypes (ctx : Context) : TSyntax ``visibility :=
 
 open Parser.Term in
 /--
-Returns `no_expose` or `expose` depending on whether any types with private constructors are
-referenced in the `deriving` clause.
+Returns `no_expose` if any types with private constructors are referenced in the `deriving` clause.
+`expose` is assumed to be specified explicitly by the user.
 -/
-def Context.mkExposeAttrFromCtors (ctx : Context) : TSyntax ``attrInstance :=
-  Unhygienic.run <|
-    if ctx.typeInfos.any (·.ctors.any isPrivateName) then `(attrInstance| no_expose) else `(attrInstance| expose)
+def Context.mkNoExposeAttrFromCtors (ctx : Context) : Array (TSyntax ``attrInstance) :=
+  if ctx.typeInfos.any (·.ctors.any isPrivateName) then
+    #[Unhygienic.run <| `(attrInstance| no_expose)]
+  else #[]
 
 def mkContext (fnPrefix : String) (typeName : Name) : TermElabM Context := do
   let indVal ← getConstInfoInduct typeName
@@ -144,8 +145,8 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (
       if useAnonCtor then
         val ← `(⟨$val⟩)
       let vis := ctx.mkVisibilityFromTypes
-      let expAttr := ctx.mkExposeAttrFromCtors
-      let instCmd ← `(@[$expAttr] $vis:visibility instance $binders:implicitBinder* : $type := $val)
+      let expAttr := ctx.mkNoExposeAttrFromCtors
+      let instCmd ← `(@[$[$expAttr],*] $vis:visibility instance $binders:implicitBinder* : $type := $val)
       instances := instances.push instCmd
   return instances
 

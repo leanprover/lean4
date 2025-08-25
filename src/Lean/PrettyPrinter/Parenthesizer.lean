@@ -219,7 +219,7 @@ def visitArgs (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
 -- so give a trivial implementation.
 instance : MonadQuotation ParenthesizerM := {
   getCurrMacroScope   := pure default
-  getMainModule       := pure default
+  getContext          := pure default
   withFreshMacroScope := fun x => x
 }
 

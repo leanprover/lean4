@@ -87,12 +87,14 @@ LEAN_EXPORT uint64_t l_instHashableChar___lam__0(uint32_t);
 LEAN_EXPORT uint64_t l_instHashableUSize___lam__0(size_t);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 static lean_object* l_instHashableArray___redArg___lam__1___closed__2;
 LEAN_EXPORT lean_object* l_instHashablePEmpty;
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableChar;
 LEAN_EXPORT lean_object* l_instHashableList___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_instHashableList___redArg___lam__1___boxed(lean_object*, lean_object*);
 static lean_object* l_instHashableArray___redArg___lam__1___closed__0;
 LEAN_EXPORT lean_object* l_instHashableOption(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_hash64(uint64_t);
@@ -101,7 +103,7 @@ LEAN_EXPORT lean_object* l_instHashableUInt64;
 LEAN_EXPORT lean_object* l_instHashableProd___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashablePUnit;
 LEAN_EXPORT uint64_t l_instHashableArray___redArg___lam__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instHashableList___redArg___lam__1(lean_object*, lean_object*);
+LEAN_EXPORT uint64_t l_instHashableList___redArg___lam__1(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -110,7 +112,6 @@ LEAN_EXPORT uint64_t l_instHashableFin___lam__0(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableArray___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableList___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableList(lean_object*, lean_object*);
@@ -368,13 +369,15 @@ x_2 = lean_box_uint64(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instHashableList___redArg___lam__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint64_t l_instHashableList___redArg___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
+lean_object* x_3; lean_object* x_4; uint64_t x_5; 
 x_3 = l_instHashableList___redArg___lam__1___boxed__const__1;
 x_4 = l_List_foldl___redArg(x_1, x_3, x_2);
-return x_4;
+x_5 = lean_unbox_uint64(x_4);
+lean_dec(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_instHashableList___redArg(lean_object* x_1) {
@@ -383,7 +386,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_alloc_closure((void*)(l_instHashableList___redArg___lam__0___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
-x_3 = lean_alloc_closure((void*)(l_instHashableList___redArg___lam__1), 2, 1);
+x_3 = lean_alloc_closure((void*)(l_instHashableList___redArg___lam__1___boxed), 2, 1);
 lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
@@ -405,6 +408,15 @@ lean_dec(x_2);
 x_5 = l_instHashableList___redArg___lam__0(x_1, x_4, x_3);
 x_6 = lean_box_uint64(x_5);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_instHashableList___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint64_t x_3; lean_object* x_4; 
+x_3 = l_instHashableList___redArg___lam__1(x_1, x_2);
+x_4 = lean_box_uint64(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT uint64_t l_instHashableArray___redArg___lam__0(lean_object* x_1, uint64_t x_2, lean_object* x_3) {
@@ -559,7 +571,7 @@ x_9 = 0;
 x_10 = lean_usize_of_nat(x_5);
 lean_dec(x_5);
 x_11 = l_instHashableArray___redArg___lam__1___boxed__const__1;
-x_12 = l_Array_foldlMUnsafe_fold___redArg(x_6, x_1, x_2, x_9, x_10, x_11);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_1, x_2, x_9, x_10, x_11);
 x_13 = lean_unbox_uint64(x_12);
 lean_dec(x_12);
 return x_13;

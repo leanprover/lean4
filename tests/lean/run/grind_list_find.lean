@@ -1,3 +1,4 @@
+module
 open List
 
 theorem findSome?_eq_none_iff : findSome? p l = none ↔ ∀ x ∈ l, p x = none := by

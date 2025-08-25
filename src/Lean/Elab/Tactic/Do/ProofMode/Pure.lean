@@ -9,6 +9,7 @@ prelude
 public import Std.Tactic.Do.Syntax
 public import Lean.Elab.Tactic.Do.ProofMode.MGoal
 public import Lean.Elab.Tactic.Do.ProofMode.Focus
+public import Lean.Elab.Tactic.Meta
 
 public section
 
@@ -52,4 +53,8 @@ def elabMPure : Tactic
     replaceMainGoal [m.mvarId!]
   | _ => throwUnsupportedSyntax
 
-macro "mpure_intro" : tactic => `(tactic| apply Pure.intro)
+def MGoal.triviallyPure (goal : MGoal) : OptionT MetaM Expr := do
+  let mv ← mkFreshExprMVar goal.toExpr
+  let ([], _) ← try runTactic mv.mvarId! (← `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro); trivial)) catch _ => failure
+    | failure
+  return mv

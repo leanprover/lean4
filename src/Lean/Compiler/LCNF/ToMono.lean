@@ -71,6 +71,24 @@ def argsToMonoWithFnType (resultFVar : FVarId) (args : Array Arg) (type : Expr)
     result := result.push monoArg
   return result
 
+def argsToMonoRedArg (resultFVar : FVarId) (args : Array Arg) (params : Array Param)
+    (redArgs : Array Arg) : ToMonoM (Array Arg) := do
+  let mut result := #[]
+  let mut argIdx := 0
+  for redArg in redArgs do
+    match redArg with
+    | .fvar fvarId =>
+      while params[argIdx]!.fvarId != fvarId do
+        argIdx := argIdx + 1
+      let arg ← argToMonoDeferredCheck resultFVar args[argIdx]!
+      argIdx := argIdx + 1
+      result := result.push arg
+    | .erased | .type _ => pure ()
+  for arg in args[params.size...*] do
+    let arg ← argToMonoDeferredCheck resultFVar arg
+    result := result.push arg
+  return result
+
 def ctorAppToMono (resultFVar : FVarId) (ctorInfo : ConstructorVal) (args : Array Arg)
     : ToMonoM LetValue := do
   let argsNewParams : Array Arg := .replicate ctorInfo.numParams .erased
@@ -90,8 +108,18 @@ partial def LetValue.toMono (e : LetValue) (resultFVar : FVarId) : ToMonoM LetVa
       -- Decidable.decide is the identity function since Decidable
       -- and Bool have the same runtime representation.
       return args[1]!.toLetValue
-    else if declName == ``Quot.mk || declName == ``Quot.lcInv then
+    else if declName == ``Quot.mk then
       return args[2]!.toLetValue
+    else if declName == ``Quot.lcInv then
+      match args[2]! with
+      | .fvar fvarId =>
+        let mut extraArgs : Array Arg := .emptyWithCapacity (args.size - 3)
+        for i in 3...args.size do
+          let arg ← argToMono args[i]!
+          extraArgs := extraArgs.push arg
+        return .fvar fvarId extraArgs
+      | .erased | .type _ =>
+        return .erased
     else if declName == ``Nat.zero then
       return .lit (.nat 0)
     else if declName == ``Nat.succ then
@@ -106,11 +134,19 @@ partial def LetValue.toMono (e : LetValue) (resultFVar : FVarId) : ToMonoM LetVa
       let env ← getEnv
       if isNoncomputable env declName && !(isExtern env declName) then
         modify fun s => { s with noncomputableVars := s.noncomputableVars.insert resultFVar declName }
-      let args ← if let some monoDecl ← getMonoDecl? declName then
-        argsToMonoWithFnType resultFVar args monoDecl.type
+      if let some monoDecl ← getMonoDecl? declName then
+        if args.size >= monoDecl.params.size then
+          if let .code (.let { fvarId := resultFVar, value := .const callName _ callArgs, .. }
+                             (.return retFVar)) := monoDecl.value then
+            let redArgDeclName := declName ++ `_redArg
+            if callName == redArgDeclName && retFVar == resultFVar then
+              let args ← argsToMonoRedArg resultFVar args monoDecl.params callArgs
+              return .const redArgDeclName [] args
+        let args ← argsToMonoWithFnType resultFVar args monoDecl.type
+        return .const declName [] args
       else
-        args.mapM (argToMonoDeferredCheck resultFVar)
-      return .const declName [] args
+        let args ← args.mapM (argToMonoDeferredCheck resultFVar)
+        return .const declName [] args
   | .fvar fvarId args =>
     if (← get).typeParams.contains fvarId then
       return .erased

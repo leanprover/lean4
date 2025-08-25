@@ -47,7 +47,7 @@ def PredTrans.Conjunctive (t : PostCond α ps → Assertion ps) : Prop :=
 /-- Any predicate transformer that is conjunctive is also monotonic. -/
 def PredTrans.Conjunctive.mono (t : PostCond α ps → Assertion ps) (h : PredTrans.Conjunctive t) : PredTrans.Monotonic t := by
   intro Q₁ Q₂ hq
-  replace hq : Q₁ = (Q₁ ∧ₚ Q₂) := PostCond.and_eq_left hq
+  replace hq : Q₁ = (Q₁ ∧ₚ Q₂) := PostCond.and_left_of_entails hq
   rw [hq, (h Q₁ Q₂).to_eq]
   exact SPred.and_elim_r
 
@@ -137,7 +137,7 @@ def pushArg {σ : Type u} (x : StateT σ (PredTrans ps) α) : PredTrans (.arg σ
       intro Q₁ Q₂
       apply SPred.bientails.of_eq
       ext s
-      dsimp
+      dsimp only [SPred.and_cons, ExceptConds.and]
       rw [← ((x s).conjunctive _ _).to_eq]
   }
 

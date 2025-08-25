@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.UInt.Bitwise
-// Imports: Init.Data.BitVec.Basic Init.Data.UInt.Basic Init.Data.UInt.Lemmas Init.Data.Fin.Bitwise
+// Imports: Init.Data.BitVec.Basic Init.Data.BitVec.Basic Init.Data.UInt.Basic Init.Data.UInt.Basic Init.Data.UInt.Lemmas Init.Data.Fin.Bitwise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -178,6 +178,7 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__UInt__Bitwise______macroRules__commandDeclare__bitwise__uint__theorems______1___closed__38;
 static lean_object* l___aux__Init__Data__UInt__Bitwise______macroRules__commandDeclare__bitwise__uint__theorems______1___closed__66;
 static lean_object* l___aux__Init__Data__UInt__Bitwise______macroRules__commandDeclare__bitwise__uint__theorems______1___closed__176;
+lean_object* l_Lean_Syntax_node7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__UInt__Bitwise______macroRules__commandDeclare__bitwise__uint__theorems______1___closed__148;
 static lean_object* l___aux__Init__Data__UInt__Bitwise______macroRules__commandDeclare__bitwise__uint__theorems______1___closed__56;
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
@@ -2106,9 +2107,9 @@ x_52 = l_Lean_Syntax_node1(x_14, x_50, x_51);
 lean_inc(x_14);
 x_53 = l_Lean_Syntax_node1(x_14, x_15, x_52);
 lean_inc(x_53);
-lean_inc_ref_n(x_23, 4);
+lean_inc_ref_n(x_23, 5);
 lean_inc(x_14);
-x_54 = l_Lean_Syntax_node6(x_14, x_21, x_23, x_48, x_53, x_23, x_23, x_23);
+x_54 = l_Lean_Syntax_node7(x_14, x_21, x_23, x_48, x_23, x_53, x_23, x_23, x_23);
 x_55 = l___aux__Init__Data__UInt__Bitwise______macroRules__commandDeclare__bitwise__uint__theorems______1___closed__32;
 x_56 = l___aux__Init__Data__UInt__Bitwise______macroRules__commandDeclare__bitwise__uint__theorems______1___closed__33;
 lean_inc(x_14);
@@ -2583,9 +2584,9 @@ lean_inc(x_14);
 x_221 = l_Lean_Syntax_node3(x_14, x_24, x_26, x_220, x_46);
 lean_inc(x_14);
 x_222 = l_Lean_Syntax_node1(x_14, x_15, x_221);
-lean_inc_ref_n(x_23, 4);
+lean_inc_ref_n(x_23, 5);
 lean_inc(x_14);
-x_223 = l_Lean_Syntax_node6(x_14, x_21, x_23, x_222, x_53, x_23, x_23, x_23);
+x_223 = l_Lean_Syntax_node7(x_14, x_21, x_23, x_222, x_23, x_53, x_23, x_23, x_23);
 x_224 = l___aux__Init__Data__UInt__Bitwise______macroRules__commandDeclare__bitwise__uint__theorems______1___closed__127;
 x_225 = l___aux__Init__Data__UInt__Bitwise______macroRules__commandDeclare__bitwise__uint__theorems______1___closed__128;
 lean_inc(x_14);
@@ -2900,6 +2901,8 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Fin_Bitwise(uint8_t builtin, lean_object*);
@@ -2909,6 +2912,12 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());

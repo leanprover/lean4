@@ -126,8 +126,10 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     let cancelTk ← IO.CancelToken.new
     let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => doAddAndCommit
     let t ← BaseIO.mapTask checkAct env.checked
-    let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-    Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+    -- Do not display reporting range; most uses of `addDecl` are for registering auxiliary decls
+    -- users should not worry about and other callers can add a separate task with ranges
+    -- themselves, see `MutualDef`.
+    Core.logSnapshotTask { stx? := none, reportingRange := .skip, task := t, cancelTk? := cancelTk }
   else
     try
       doAddAndCommit
@@ -177,8 +179,8 @@ where
       catch _ => pure ()
 
 
-def addAndCompile (decl : Declaration) : CoreM Unit := do
+def addAndCompile (decl : Declaration) (logCompileErrors : Bool := true) : CoreM Unit := do
   addDecl decl
-  compileDecl decl
+  compileDecl decl (logErrors := logCompileErrors)
 
 end Lean

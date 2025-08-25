@@ -1,5 +1,6 @@
+module
 reset_grind_attrs%
-
+public section
 set_option trace.grind.ematch.pattern true
 
 attribute [grind =] Array.size_set
@@ -77,7 +78,7 @@ namespace using_grind_fwd
 opaque S : Nat → Nat → Prop
 
 /--
-error: `@[grind →] theorem using_grind_fwd.StransBad` failed to find patterns in the antecedents of the theorem, consider using different options or the `grind_pattern` command
+error: `@[grind →] theorem StransBad` failed to find patterns in the antecedents of the theorem, consider using different options or the `grind_pattern` command
 -/
 #guard_msgs (error) in
 @[grind→] theorem StransBad (a b c d : Nat) : S a b ∨ R a b → S b c → S a c ∧ S b d := sorry
@@ -142,7 +143,7 @@ opaque Q : Nat → Prop
 opaque f : Nat → Nat → Nat
 
 /--
-error: `@[grind →] theorem using_grind_fwd2.pqfBad` failed to find patterns in the antecedents of the theorem, consider using different options or the `grind_pattern` command
+error: `@[grind →] theorem pqfBad` failed to find patterns in the antecedents of the theorem, consider using different options or the `grind_pattern` command
 -/
 #guard_msgs (error) in
 @[grind→] theorem pqfBad : Q x → P (f x y) := sorry
@@ -171,13 +172,13 @@ opaque P : Nat → Nat → Prop
 opaque Q : Nat → Nat → Prop
 
 /--
-error: `@[grind →] theorem using_grind_mixed.pqBad1` failed to find patterns in the antecedents of the theorem, consider using different options or the `grind_pattern` command
+error: `@[grind →] theorem pqBad1` failed to find patterns in the antecedents of the theorem, consider using different options or the `grind_pattern` command
 -/
 #guard_msgs (error) in
 @[grind→] theorem pqBad1 : P x y → Q x z := sorry
 
 /--
-error: `@[grind ←] theorem using_grind_mixed.pqBad2` failed to find patterns in the theorem's conclusion, consider using different options or the `grind_pattern` command
+error: `@[grind ←] theorem pqBad2` failed to find patterns in the theorem's conclusion, consider using different options or the `grind_pattern` command
 -/
 #guard_msgs (error) in
 @[grind←] theorem pqBad2 : P x y → Q x z := sorry

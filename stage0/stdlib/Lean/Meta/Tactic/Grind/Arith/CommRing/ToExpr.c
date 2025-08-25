@@ -23,7 +23,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprPoly;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprExpr__1___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofMon___closed__5;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__8;
-static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__0;
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprPoly___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPower___closed__5;
@@ -33,7 +32,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofMon(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__7;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofMon___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprExpr___closed__3;
-static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__3;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprExpr___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPoly___closed__19;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofSemiringExpr___closed__5;
@@ -41,8 +39,6 @@ static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__17;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprPower___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPoly___closed__3;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPower___closed__0;
-static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__0;
-static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__23;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__13;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofMon___closed__3;
@@ -50,8 +46,6 @@ lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_o
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprPoly___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprExpr__1___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPoly___closed__12;
-static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__3;
-lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPoly___closed__8;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofSemiringExpr___closed__4;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__1;
@@ -59,11 +53,9 @@ static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPoly___closed__18;
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPoly___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofSemiringExpr___closed__11;
-static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__1;
 lean_object* l_Lean_Level_ofNat(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofSemiringExpr___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPoly___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofNullCert(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__22;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofSemiringExpr___closed__10;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprExpr___closed__2;
@@ -73,7 +65,6 @@ lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__21;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofSemiringExpr___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPower___closed__3;
-static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPoly___closed__15;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__11;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__16;
@@ -82,7 +73,6 @@ static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPoly___closed__5;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprPoly___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPoly___closed__10;
-static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__5;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__18;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPower___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofMon___closed__0;
@@ -92,7 +82,6 @@ static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__3;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprMon___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprExpr__1;
-static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__4;
 lean_object* l_Lean_Name_mkStr6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPoly___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__6;
@@ -102,7 +91,6 @@ static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofSemiringExpr___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprMon;
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__2;
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprExpr___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPoly(lean_object*);
@@ -135,7 +123,6 @@ static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__19;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPower(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprPoly___closed__3;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPoly___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instToExprMon___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofPoly___closed__6;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr___closed__9;
@@ -1220,149 +1207,6 @@ x_1 = l_Lean_Meta_Grind_Arith_CommRing_instToExprExpr___closed__3;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("NullCert", 8, 8);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("empty", 5, 5);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__1;
-x_2 = l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__0;
-x_3 = l_Lean_Meta_Grind_Arith_CommRing_ofPower___closed__2;
-x_4 = l_Lean_Meta_Grind_Arith_CommRing_ofPower___closed__1;
-x_5 = l_Lean_Meta_Grind_Arith_CommRing_ofPower___closed__0;
-x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
-return x_6;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__2;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Meta_Grind_Arith_CommRing_ofPoly___closed__17;
-x_2 = l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__0;
-x_3 = l_Lean_Meta_Grind_Arith_CommRing_ofPower___closed__2;
-x_4 = l_Lean_Meta_Grind_Arith_CommRing_ofPower___closed__1;
-x_5 = l_Lean_Meta_Grind_Arith_CommRing_ofPower___closed__0;
-x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
-return x_6;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__4;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_ofNullCert(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__3;
-return x_2;
-}
-else
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_4);
-x_5 = lean_ctor_get(x_1, 2);
-lean_inc_ref(x_5);
-x_6 = lean_ctor_get(x_1, 3);
-lean_inc(x_6);
-lean_dec_ref(x_1);
-x_7 = l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__5;
-x_8 = l_Lean_Meta_Grind_Arith_CommRing_ofPoly(x_3);
-x_9 = l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr(x_4);
-x_10 = l_Lean_Meta_Grind_Arith_CommRing_ofRingExpr(x_5);
-x_11 = l_Lean_Meta_Grind_Arith_CommRing_ofNullCert(x_6);
-x_12 = l_Lean_mkApp4(x_7, x_8, x_9, x_10, x_11);
-return x_12;
-}
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_CommRing_ofNullCert), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__0;
-x_2 = l_Lean_Meta_Grind_Arith_CommRing_ofPower___closed__2;
-x_3 = l_Lean_Meta_Grind_Arith_CommRing_ofPower___closed__1;
-x_4 = l_Lean_Meta_Grind_Arith_CommRing_ofPower___closed__0;
-x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
-return x_5;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__1;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__2;
-x_2 = l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__0;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__3;
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_ofSemiringExpr___closed__0() {
 _start:
 {
@@ -1796,28 +1640,6 @@ l_Lean_Meta_Grind_Arith_CommRing_instToExprExpr___closed__3 = _init_l_Lean_Meta_
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_instToExprExpr___closed__3);
 l_Lean_Meta_Grind_Arith_CommRing_instToExprExpr = _init_l_Lean_Meta_Grind_Arith_CommRing_instToExprExpr();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_instToExprExpr);
-l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__0 = _init_l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__0();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__0);
-l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__1 = _init_l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__1();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__1);
-l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__2 = _init_l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__2);
-l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__3 = _init_l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__3();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__3);
-l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__4 = _init_l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__4();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__4);
-l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__5 = _init_l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__5();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_ofNullCert___closed__5);
-l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__0 = _init_l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__0();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__0);
-l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__1 = _init_l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__1();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__1);
-l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__2 = _init_l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__2);
-l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__3 = _init_l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__3();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert___closed__3);
-l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert = _init_l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_instToExprNullCert);
 l_Lean_Meta_Grind_Arith_CommRing_ofSemiringExpr___closed__0 = _init_l_Lean_Meta_Grind_Arith_CommRing_ofSemiringExpr___closed__0();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_ofSemiringExpr___closed__0);
 l_Lean_Meta_Grind_Arith_CommRing_ofSemiringExpr___closed__1 = _init_l_Lean_Meta_Grind_Arith_CommRing_ofSemiringExpr___closed__1();

@@ -556,13 +556,12 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
     let .const unsafeFn unsafeLvls .. := t.getAppFn | unreachable!
     let .defnInfo unsafeDefn ← getConstInfo unsafeFn | unreachable!
     let implName ← mkAuxName `unsafe_impl
-    addDecl <| Declaration.defnDecl {
+    addDecl <| Declaration.opaqueDecl {
       name        := implName
       type        := unsafeDefn.type
       levelParams := unsafeDefn.levelParams
       value       := (← mkOfNonempty unsafeDefn.type)
-      hints       := .opaque
-      safety      := .safe
+      isUnsafe    := false
     }
     setImplementedBy implName unsafeFn
     return mkAppN (Lean.mkConst implName unsafeLvls) t.getAppArgs

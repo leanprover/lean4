@@ -124,6 +124,16 @@ def getNoNatDivInst : LinearM Expr := do
     | throwError "`grind linarith` internal error, structure does not implement `NoNatZeroDivisors`"
   return inst
 
+def getLEInst : LinearM Expr := do
+  let some inst := (← getStruct).leInst?
+    | throwError "`grind linarith` internal error, structure does not support LE"
+  return inst
+
+def getLTInst : LinearM Expr := do
+  let some inst := (← getStruct).ltInst?
+    | throwError "`grind linarith` internal error, structure does not support LT"
+  return inst
+
 def getPreorderInst : LinearM Expr := do
   let some inst := (← getStruct).preorderInst?
     | throwError "`grind linarith` internal error, structure is not a preorder"

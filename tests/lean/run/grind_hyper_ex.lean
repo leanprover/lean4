@@ -1,3 +1,4 @@
+module
 abbrev ℕ :=  Nat
 
 def hyperoperation : ℕ → ℕ → ℕ → ℕ

@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Hashable
-public import Init.Data.Int
+public import Init.Data.Int.Basic
 public import Lean.Data.KVMap
 public import Lean.Data.SMap
 public import Lean.Level
@@ -1440,7 +1440,9 @@ opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (subst : @& 
 with `xs` ordered from outermost to innermost de Bruijn index.
 
 For example, `e := f x y` with `xs := #[x, y]` goes to `f #1 #0`,
-whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`. -/
+whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`.
+
+Careful, this function does not instantiate assigned meta variables. -/
 @[extern "lean_expr_abstract"]
 opaque abstract (e : @& Expr) (xs : @& Array Expr) : Expr
 
@@ -2380,5 +2382,14 @@ def mkIntLit (n : Int) : Expr :=
 
 def reflBoolTrue : Expr :=
   mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
+
+def reflBoolFalse : Expr :=
+  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.false)
+
+def eagerReflBoolTrue : Expr :=
+  mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.true) (mkConst ``Bool.true)) reflBoolTrue
+
+def eagerReflBoolFalse : Expr :=
+  mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.false) (mkConst ``Bool.false)) reflBoolFalse
 
 end Lean

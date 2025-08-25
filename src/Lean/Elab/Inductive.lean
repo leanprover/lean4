@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.MutualInductive
+import Lean.Linter.Basic
 
 public section
 
@@ -60,7 +61,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
     checkValidCtorModifier ctorModifiers
     let ctorName := ctor.getIdAt 3
     let ctorName := declName ++ ctorName
-    let ctorName ← withRef ctor[3] <| applyVisibility ctorModifiers.visibility ctorName
+    let ctorName ← withRef ctor[3] <| applyVisibility ctorModifiers ctorName
     let (binders, type?) := expandOptDeclSig ctor[4]
     addDocString' ctorName ctorModifiers.docString?
     addDeclarationRangesFromSyntax ctorName ctor ctor[3]

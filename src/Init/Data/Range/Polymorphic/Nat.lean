@@ -104,18 +104,18 @@ private theorem mem_rangeRev {k l : Nat} (h : l < k) : l ∈ rangeRev k := by
 
 @[no_expose]
 instance : HasFiniteRanges .closed Nat where
-  mem_of_satisfiesUpperBound upperBound := by
-    refine ⟨rangeRev (upperBound + 1), fun a h => ?_⟩
-    simp only [SupportsUpperBound.IsSatisfied] at h
-    exact mem_rangeRev (Nat.lt_succ_of_le h)
+  finite init u := by
+    refine ⟨u - init + 1, ?_⟩
+    simp only [UpwardEnumerable.succMany?, SupportsUpperBound.IsSatisfied, Nat.not_le,
+      Option.elim_some]
+    omega
 
 @[no_expose]
 instance : HasFiniteRanges .open Nat where
-  mem_of_satisfiesUpperBound upperBound := by
-    refine ⟨rangeRev (upperBound + 1), fun a h => ?_⟩
-    simp only [SupportsUpperBound.IsSatisfied] at h
-    apply mem_rangeRev
-    exact Nat.lt_succ_of_lt h
+  finite init u := by
+    refine ⟨u - init, ?_⟩
+    simp only [UpwardEnumerable.succMany?, SupportsUpperBound.IsSatisfied, Option.elim_some]
+    omega
 
 instance : RangeSize .closed Nat where
   size bound a := bound + 1 - a
@@ -124,7 +124,7 @@ instance : RangeSize .open Nat where
   size bound a := bound - a
 
 instance : LawfulRangeSize .closed Nat where
-  size_eq_zero_of_not_satisfied upperBound init hu := by
+  size_eq_zero_of_not_isSatisfied upperBound init hu := by
     simp only [SupportsUpperBound.IsSatisfied, RangeSize.size] at hu ⊢
     omega
   size_eq_one_of_succ?_eq_none upperBound init hu h := by
@@ -136,7 +136,7 @@ instance : LawfulRangeSize .closed Nat where
     omega
 
 instance : LawfulRangeSize .open Nat where
-  size_eq_zero_of_not_satisfied upperBound init hu := by
+  size_eq_zero_of_not_isSatisfied upperBound init hu := by
     simp only [SupportsUpperBound.IsSatisfied, RangeSize.size] at hu ⊢
     omega
   size_eq_one_of_succ?_eq_none upperBound init hu h := by

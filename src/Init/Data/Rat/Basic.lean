@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Nat.Coprime
 public import Init.Data.Hashable
 public import Init.Data.OfScientific
+import Init.Data.Int.Bitwise
 
 @[expose] public section
 

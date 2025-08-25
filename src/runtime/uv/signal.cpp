@@ -71,7 +71,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
     int signum = (int)(int32_t)signum_obj;
 
     lean_uv_signal_object * signal = (lean_uv_signal_object*)malloc(sizeof(lean_uv_signal_object));
-    signal->m_signum = signum;
+    signal->m_signum = (int32_t) signum;
     signal->m_repeating = repeating;
     signal->m_state = SIGNAL_STATE_INITIAL;
     signal->m_promise = NULL;
@@ -193,9 +193,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj, obj_arg /
         lean_assert(signal->m_promise != NULL);
 
         event_loop_lock(&global_ev);
-
-        uv_signal_stop(signal->m_uv_signal);
-
+        int result = uv_signal_stop(signal->m_uv_signal);
         event_loop_unlock(&global_ev);
 
         signal->m_state = SIGNAL_STATE_FINISHED;
@@ -203,7 +201,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj, obj_arg /
         // The loop does not need to keep the signal alive anymore.
         lean_dec(obj);
 
-        return lean_io_result_mk_ok(lean_box(0));
+        if (result != 0) {
+            return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+        } else {
+            return lean_io_result_mk_ok(lean_box(0));
+        }
     } else {
         return lean_io_result_mk_ok(lean_box(0));
     }
@@ -211,6 +213,27 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj, obj_arg /
 
 
 #else
+
+/* Std.Internal.UV.Signal.mk (signum : Int32) (repeating : Bool) : IO Signal */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8_t repeating, obj_arg /* w */) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+
+/* Std.Internal.UV.Signal.next (signal : @& Signal) : IO (IO.Promise Int) */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg signal, obj_arg /* w */) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+
+/* Std.Internal.UV.Signal.stop (signal : @& Signal) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg signal, obj_arg /* w */) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
 
 #endif
 

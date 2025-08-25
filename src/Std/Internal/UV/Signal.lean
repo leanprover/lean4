@@ -11,7 +11,7 @@ public import Init.System.Promise
 public import Init.Data.SInt
 public import Std.Net
 
-@[expose] public section
+public section
 
 namespace Std
 namespace Internal
@@ -32,7 +32,7 @@ of all functions on `Signal`s.
 -/
 def Signal : Type := SignalImpl.type
 
-instance : Nonempty Signal := SignalImpl.property
+instance : Nonempty Signal := by exact SignalImpl.property
 
 namespace Signal
 

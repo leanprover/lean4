@@ -196,20 +196,20 @@ def toInt32 : Signal → Int32
   | .sigusr2 => 31
 
 /--
-`SignalHandler` can be used to handle a specific signal once.
+`Signal.Waiter` can be used to handle a specific signal once.
 -/
-structure Handler where
+structure Waiter where
   private ofNative ::
     native : Internal.UV.Signal
 
-namespace Handler
+namespace Waiter
 
 /--
-Set up a `SignalHandler` that waits for the specified `signum`.
+Set up a `Signal.Waiter` that waits for the specified `signum`.
 This function only initializes but does not yet start listening for the signal.
 -/
 @[inline]
-def mk (signum : Signal) (repeating : Bool) : IO Signal.Handler := do
+def mk (signum : Signal) (repeating : Bool) : IO Signal.Waiter := do
   let native ← Internal.UV.Signal.mk signum.toInt32 repeating
   return .ofNative native
 
@@ -222,7 +222,7 @@ If:
 The resolved `AsyncTask` contains the signal number that was received.
 -/
 @[inline]
-def wait (s : Signal.Handler) : IO (AsyncTask Int) := do
+def wait (s : Signal.Waiter) : IO (AsyncTask Int) := do
   let promise ← s.native.next
   return .ofPurePromise promise
 
@@ -234,14 +234,14 @@ If:
 - `s` is not yet or not anymore running this is a no-op.
 -/
 @[inline]
-def stop (s : Signal.Handler) : IO Unit :=
+def stop (s : Signal.Waiter) : IO Unit :=
   s.native.stop
 
 /--
 Create a `Selector` that resolves once `s` has received the signal. Note that calling this function starts `s`
 if it hasn't already started.
 -/
-def selector (s : Signal.Handler) : IO (Selector Unit) := do
+def selector (s : Signal.Waiter) : IO (Selector Unit) := do
   let signalWaiter ← s.wait
   return {
     tryFn := do

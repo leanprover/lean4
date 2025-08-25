@@ -10,10 +10,10 @@ def assertBEq [BEq α] [Repr α] (actual expected : α) : IO Unit := do
       s!"expected '{repr expected}', got '{repr actual}'"
 
 def select : Async Signal := do
-  let signal1 ← Signal.Handler.mk Signal.sigint false
-  let signal2 ← Signal.Handler.mk Signal.sighup false
-  let signal3 ← Signal.Handler.mk Signal.sigquit false
-  let signal4 ← Signal.Handler.mk Signal.sigusr1 false
+  let signal1 ← Signal.Waiter.mk Signal.sigint false
+  let signal2 ← Signal.Waiter.mk Signal.sighup false
+  let signal3 ← Signal.Waiter.mk Signal.sigquit false
+  let signal4 ← Signal.Waiter.mk Signal.sigusr1 false
 
   let t ← Selectable.one #[
     .case (← signal1.selector) (fun _ => pure (Task.pure (.ok Signal.sigint))),
@@ -21,6 +21,8 @@ def select : Async Signal := do
     .case (← signal3.selector) (fun _ => pure (Task.pure (.ok Signal.sigquit))),
     .case (← signal4.selector) (fun _ => pure (Task.pure (.ok Signal.sigusr1))),
   ]
+
+  IO.println s!"Waiting for a signal"
 
   let signal ← await t
 

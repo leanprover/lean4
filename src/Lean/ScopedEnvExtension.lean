@@ -136,7 +136,7 @@ def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Envi
   ext.ext.modifyState (asyncMode := .local) env fun s =>
     match s.stateStack with
     | [] => s
-    | state :: stack => { s with stateStack := state :: state :: stack }
+    | state :: stack => { s with stateStack := { state with delimitsLocal := true } :: state :: stack }
 
 def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
@@ -144,13 +144,13 @@ def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Envir
     | _      :: state₂ :: stack => { s with stateStack := state₂ :: stack }
     | _ => s
 
-/-- Modifier for the `delimitsLocal` flag, that is used to control the behaviour of delimiting of local entries.
+/-- Modifies `delimitsLocal` flag to `false` to turn off delimiting of local entries.
 -/
-def ScopedEnvExtension.setDelimitsLocal (ext : ScopedEnvExtension α β σ) (env : Environment) (delimitsLocal : Bool) : Environment :=
+def ScopedEnvExtension.setDelimitsLocal (ext : ScopedEnvExtension α β σ) (env : Environment)  : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
     match s.stateStack with
     | [] => s
-    | state :: stack => {s with stateStack := {state with delimitsLocal := delimitsLocal} :: stack}
+    | state :: stack => {s with stateStack := {state with delimitsLocal := false} :: stack}
 
 def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
   ext.ext.addEntry env (Entry.global b)
@@ -228,9 +228,9 @@ def popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit :=
 
 /-- Used to implement `end_local_scope` command, that disables delimiting local entries of ScopedEnvExtension in a current scope.
 -/
-def setDelimitsLocal [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (delimitsLocal : Bool := true) : m Unit := do
+def setDelimitsLocal [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do
-    modifyEnv (ext.setDelimitsLocal · delimitsLocal)
+    modifyEnv (ext.setDelimitsLocal ·)
 
 def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (namespaceName : Name) : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do

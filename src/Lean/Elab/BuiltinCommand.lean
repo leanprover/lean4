@@ -43,8 +43,6 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
       attrs := s.scopes.head!.attrs ++ attrs
     } :: s.scopes
   }
-  -- We ensure that we delimit local entries by default
-  setDelimitsLocal true
   pushScope
   if isNewNamespace then
     activateScoped newNamespace
@@ -107,7 +105,7 @@ private def checkEndHeader : Name → List Scope → Option Name
   | _                        => throwUnsupportedSyntax
 
 @[builtin_command_elab InternalSyntax.end_local_scope] def elabEndLocalScope : CommandElab := fun _ => do
-  setDelimitsLocal false
+  setDelimitsLocal
 
 /--
 Produces a `Name` composed of the names of at most the innermost `n` scopes in `ss`, truncating if an

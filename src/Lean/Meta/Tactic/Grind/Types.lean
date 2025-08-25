@@ -22,6 +22,7 @@ public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.ExtAttr
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.Arith.Types
+public import Lean.Meta.Tactic.Grind.AC.Types
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
 meta import Lean.Parser.Do
 import Lean.Meta.Match.MatchEqsExt
@@ -764,6 +765,8 @@ structure Goal where
   split        : Split.State := {}
   /-- State of arithmetic procedures. -/
   arith        : Arith.State := {}
+  /-- State of the ac solver. -/
+  ac           : AC.State := {}
   /-- State of the clean name generator. -/
   clean        : Clean.State := {}
   deriving Inhabited

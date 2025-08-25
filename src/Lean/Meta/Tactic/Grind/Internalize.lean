@@ -19,6 +19,7 @@ public import Lean.Meta.Tactic.Grind.Canon
 public import Lean.Meta.Tactic.Grind.Beta
 public import Lean.Meta.Tactic.Grind.MatchCond
 public import Lean.Meta.Tactic.Grind.Arith.Internalize
+public import Lean.Meta.Tactic.Grind.AC.Internalize
 
 public section
 
@@ -361,6 +362,10 @@ private def tryEta (e : Expr) (generation : Nat) : GoalM Unit := do
     internalize e' generation
     pushEq e e' (← mkEqRefl e)
 
+private def internalizeTheories (e : Expr) (parent? : Option Expr := none) : GoalM Unit := do
+  Arith.internalize e parent?
+  AC.internalize e parent?
+
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
@@ -373,7 +378,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     Later, if we try to internalize `f 1`, the arithmetic module must create a node for `1`.
     Otherwise, it will not be able to propagate that `a + 1 = 1` when `a = 0`
     -/
-    Arith.internalize e parent?
+    internalizeTheories e parent?
   else
     go
     propagateEtaStruct e generation
@@ -422,7 +427,7 @@ where
       if (← isLitValue e) then
         -- We do not want to internalize the components of a literal value.
         mkENode e generation
-        Arith.internalize e parent?
+        internalizeTheories e parent?
       else if e.isAppOfArity ``Grind.MatchCond 1 then
         internalizeMatchCond e generation
       else e.withApp fun f args => do
@@ -459,7 +464,7 @@ where
             internalize arg generation e
             registerParent e arg
         addCongrTable e
-        Arith.internalize e parent?
+        internalizeTheories e parent?
         propagateUp e
         propagateBetaForNewApp e
 

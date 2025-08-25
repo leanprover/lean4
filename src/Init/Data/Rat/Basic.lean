@@ -186,6 +186,23 @@ because you don't want to unfold it. Use `Rat.inv_def` instead.)
   else
     a
 
+instance : Inv Rat := ⟨Rat.inv⟩
+
+protected def pow (q : Rat) (n : Nat) : Rat :=
+  ⟨q.num ^ n, q.den ^ n, by simp [q.den_nz], by
+    rw [Int.natAbs_pow]; exact q.reduced.pow _ _⟩
+
+instance : Pow Rat Nat where
+  pow := Rat.pow
+
+protected def zpow (q : Rat) (i : Int) : Rat :=
+  match i with
+  | .ofNat n => q ^ n
+  | .negSucc n => (q ^ (n + 1))⁻¹
+
+instance : Pow Rat Int where
+  pow := Rat.zpow
+
 /-- Division of rational numbers. Note: `div a 0 = 0`. -/
 protected def div : Rat → Rat → Rat := (· * ·.inv)
 

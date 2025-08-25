@@ -97,7 +97,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_CtorInfo_isRef___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___at___Lean_IR_reprIRType____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_86__spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_reprArg___closed__2____x40_Lean_Compiler_IR_Basic_2209090454____hygCtx___hyg_35_;
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
-lean_object* l_panic___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_reprVarId___redArg___closed__5____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_43_;
 static lean_object* l_Lean_IR_reprCtorInfo___redArg___closed__6____x40_Lean_Compiler_IR_Basic_3867985991____hygCtx___hyg_78_;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_IR_addParamsRename_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -270,6 +269,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_instToStringJoinPointId;
 LEAN_EXPORT lean_object* l_Lean_IR_Alt_isDefault___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_modifyJPs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_mkIf(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___Lean_IR_reshapeAux_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_reprIRType___closed__17____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_86_;
 LEAN_EXPORT lean_object* l_Lean_IR_FnBody_isTerminal___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Decl_resultType___boxed(lean_object*);
@@ -4868,6 +4868,14 @@ x_3 = l_Lean_IR_flattenAux(x_1, x_2);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_panic___at___Lean_IR_reshapeAux_spec__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_panic_fn(x_1, x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_IR_reshapeAux___closed__0() {
 _start:
 {
@@ -4935,7 +4943,7 @@ x_24 = l_Lean_IR_reshapeAux___closed__3;
 x_25 = lean_string_append(x_23, x_24);
 x_26 = l_mkPanicMessageWithDecl(x_17, x_18, x_19, x_20, x_25);
 lean_dec_ref(x_25);
-x_27 = l_panic___redArg(x_16, x_26);
+x_27 = l_panic___at___Lean_IR_reshapeAux_spec__0(x_16, x_26);
 x_28 = lean_ctor_get(x_27, 0);
 lean_inc(x_28);
 x_29 = lean_ctor_get(x_27, 1);

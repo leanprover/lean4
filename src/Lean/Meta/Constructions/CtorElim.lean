@@ -236,10 +236,11 @@ def mkConstructorElim (indName : Name) : MetaM Unit := do
           let lhs := mkAppN lhs (params ++ #[motive] ++ indices ++ #[ctorApp])
           forallBoundedTelescope (← inferType lhs) (some 2) fun h_and_alt _ => do
             let alt := h_and_alt[1]!
-            let lhs := mkAppN lhs h_and_alt
+            let lhs := mkApp lhs (← mkEqRefl (mkRawNatLit i))
+            let lhs := mkApp lhs alt
             let rhs := mkAppN alt ys
             let t ← mkEq lhs rhs
-            mkForallFVars (xs ++ ys ++ h_and_alt) t
+            mkForallFVars (xs ++ ys ++ #[alt]) t
       let thmVal ← forallTelescope thmType fun xs r => do mkLambdaFVars xs (← mkEqRefl r.appArg!)
       addDecl (.thmDecl {
         name        := thmName

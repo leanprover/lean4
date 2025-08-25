@@ -41040,7 +41040,7 @@ static lean_object* _init_l___private_Lean_Parser_Command_0__Lean_Parser_Command
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("This is an auxiliary command for generation constructor injectivity theorems for\ninductive types defined at `Prelude.lean`.\nIt is meant for bootstrapping purposes only. ", 169, 169);
+x_1 = lean_mk_string_unchecked("This is an auxiliary command to generate constructor injectivity theorems for\ninductive types defined at `Prelude.lean`.\nTemporarily also controls the generation of the `ctorIdx` definition.\nIt is meant for bootstrapping purposes only. ", 236, 236);
 return x_1;
 }
 }

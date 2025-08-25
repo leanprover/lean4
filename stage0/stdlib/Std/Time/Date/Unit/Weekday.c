@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Weekday_noConfusion___redArg___boxed(lean_ob
 static lean_object* l_Std_Time_Weekday_toOrdinal___closed__13;
 static lean_object* l_Std_Time_Weekday_toOrdinal___closed__20;
 static lean_object* l_Std_Time_reprWeekday___closed__7____x40_Std_Time_Date_Unit_Weekday_829067970____hygCtx___hyg_6_;
+LEAN_EXPORT lean_object* l_Std_Time_Weekday_ctorIdx___boxed(lean_object*);
 static lean_object* l_Std_Time_Weekday_toOrdinal___closed__17;
 LEAN_EXPORT uint8_t l_Std_Time_Weekday_ofOrdinal(lean_object*);
 static lean_object* l_Std_Time_instReprWeekday___closed__0;
@@ -70,6 +71,7 @@ static lean_object* l_Std_Time_Weekday_toOrdinal___closed__33;
 static lean_object* l_Std_Time_reprWeekday___closed__4____x40_Std_Time_Date_Unit_Weekday_829067970____hygCtx___hyg_6_;
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_instOrdOrdinal;
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_Weekday_ctorIdx(uint8_t);
 lean_object* l_Std_Time_Internal_Bounded_LE_instOfNatHAddIntCast(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Time_Date_Unit_Weekday_0__Std_Time_reprWeekday_match__1_splitter____x40_Std_Time_Date_Unit_Weekday_829067970____hygCtx___hyg_6____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_instLTOrdinal;
@@ -159,7 +161,7 @@ static lean_object* l_Std_Time_Weekday_toOrdinal___closed__28;
 static lean_object* l_Std_Time_Weekday_toOrdinal___closed__7;
 static lean_object* l_Std_Time_Weekday_toOrdinal___closed__18;
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_instReprOrdinal;
-LEAN_EXPORT lean_object* l_Std_Time_Weekday_toCtorIdx(uint8_t x_1) {
+LEAN_EXPORT lean_object* l_Std_Time_Weekday_ctorIdx(uint8_t x_1) {
 _start:
 {
 switch (x_1) {
@@ -206,6 +208,23 @@ x_8 = lean_unsigned_to_nat(6u);
 return x_8;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Weekday_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_unbox(x_1);
+x_3 = l_Std_Time_Weekday_ctorIdx(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Weekday_toCtorIdx(uint8_t x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Time_Weekday_ctorIdx(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_toCtorIdx___boxed(lean_object* x_1) {
@@ -787,8 +806,8 @@ LEAN_EXPORT uint8_t l_Std_Time_instDecidableEqWeekday(uint8_t x_1, uint8_t x_2) 
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Std_Time_Weekday_toCtorIdx(x_1);
-x_4 = l_Std_Time_Weekday_toCtorIdx(x_2);
+x_3 = l_Std_Time_Weekday_ctorIdx(x_1);
+x_4 = l_Std_Time_Weekday_ctorIdx(x_2);
 x_5 = lean_nat_dec_eq(x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);

@@ -64,8 +64,10 @@ LEAN_EXPORT lean_object* l_Std_Time_Year_Offset_toInt(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_instDecidableLeOffset___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Year_instDecidableLeOffset(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Year_Offset_days___closed__5;
+LEAN_EXPORT lean_object* l_Std_Time_Year_Era_ctorIdx(uint8_t);
 static lean_object* l_Std_Time_Year_reprEra___closed__1____x40_Std_Time_Date_Unit_Year_2464685117____hygCtx___hyg_6_;
 static lean_object* l_Std_Time_Year_reprEra___closed__3____x40_Std_Time_Date_Unit_Year_2464685117____hygCtx___hyg_6_;
+LEAN_EXPORT lean_object* l_Std_Time_Year_Era_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_instToStringEra___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_Offset_ofNat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_instReprEra;
@@ -119,7 +121,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Year_Offset_days___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_Offset_days(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_instToStringEra;
 LEAN_EXPORT lean_object* l_Std_Time_Year_instSubOffset;
-LEAN_EXPORT lean_object* l_Std_Time_Year_Era_toCtorIdx(uint8_t x_1) {
+LEAN_EXPORT lean_object* l_Std_Time_Year_Era_ctorIdx(uint8_t x_1) {
 _start:
 {
 if (x_1 == 0)
@@ -134,6 +136,23 @@ lean_object* x_3;
 x_3 = lean_unsigned_to_nat(1u);
 return x_3;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Year_Era_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_unbox(x_1);
+x_3 = l_Std_Time_Year_Era_ctorIdx(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Year_Era_toCtorIdx(uint8_t x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Time_Year_Era_ctorIdx(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_Year_Era_toCtorIdx___boxed(lean_object* x_1) {

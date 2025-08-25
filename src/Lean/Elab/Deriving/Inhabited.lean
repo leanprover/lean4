@@ -85,8 +85,8 @@ where
       ctorArgs := ctorArgs.push (← ``(Inhabited.default))
     let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
     let vis := ctx.mkVisibilityFromTypes
-    let expAttr := ctx.mkExposeAttrFromCtors
-    `(@[$expAttr] $vis:visibility instance $binders:bracketedBinder* : $type := $val)
+    let expAttr := ctx.mkNoExposeAttrFromCtors
+    `(@[$[$expAttr],*] $vis:visibility instance $binders:bracketedBinder* : $type := $val)
 
   mkInstanceCmd? : TermElabM (Option Syntax) := do
     let ctorVal ← getConstInfoCtor ctorName

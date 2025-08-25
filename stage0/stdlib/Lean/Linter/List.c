@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.List
-// Imports: Lean.Elab.Command Lean.Server.InfoUtils
+// Imports: Lean.Elab.Command Lean.Server.InfoUtils Lean.Linter.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13546,6 +13546,7 @@ return x_3;
 }
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Linter_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Linter_List(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -13555,6 +13556,9 @@ res = initialize_Lean_Elab_Command(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_InfoUtils(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Linter_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Linter_List_initFn___closed__0____x40_Lean_Linter_List_95049808____hygCtx___hyg_4_ = _init_l_Lean_Linter_List_initFn___closed__0____x40_Lean_Linter_List_95049808____hygCtx___hyg_4_();

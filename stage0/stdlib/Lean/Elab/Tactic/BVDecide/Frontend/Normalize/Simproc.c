@@ -1842,7 +1842,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(6u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and___redArg___closed__3;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -1854,7 +1854,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(1u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and___redArg___closed__5;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -1893,7 +1893,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and_declare__10___closed__9____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2333692423____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1913,7 +1913,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and_declare__10___closed__11____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2333692423____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1923,7 +1923,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and_declare__10___closed__12____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2333692423____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1933,7 +1933,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and_declare__10___closed__13____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2333692423____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1943,7 +1943,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and_declare__10___closed__14____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2333692423____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1953,7 +1953,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and_declare__10___closed__15____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2333692423____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -4335,13 +4335,13 @@ block_495:
 if (x_475 == 0)
 {
 lean_object* x_476; uint8_t x_477; 
-x_476 = l_Lean_Expr_cleanupAnnotations(x_472);
+x_476 = l_Lean_Expr_cleanupAnnotations(x_474);
 x_477 = l_Lean_Expr_isApp(x_476);
 if (x_477 == 0)
 {
 lean_object* x_478; lean_object* x_479; 
 lean_dec_ref(x_476);
-lean_dec(x_474);
+lean_dec(x_472);
 lean_dec(x_85);
 lean_dec(x_84);
 lean_dec(x_83);
@@ -4362,7 +4362,7 @@ if (x_482 == 0)
 lean_object* x_483; lean_object* x_484; 
 lean_dec_ref(x_481);
 lean_dec_ref(x_480);
-lean_dec(x_474);
+lean_dec(x_472);
 lean_dec(x_85);
 lean_dec(x_84);
 lean_dec(x_83);
@@ -4381,7 +4381,7 @@ if (x_486 == 0)
 lean_object* x_487; lean_object* x_488; 
 lean_dec_ref(x_485);
 lean_dec_ref(x_480);
-lean_dec(x_474);
+lean_dec(x_472);
 lean_dec(x_85);
 lean_dec(x_84);
 lean_dec(x_83);
@@ -4401,7 +4401,7 @@ if (x_491 == 0)
 {
 lean_object* x_492; lean_object* x_493; 
 lean_dec_ref(x_480);
-lean_dec(x_474);
+lean_dec(x_472);
 lean_dec(x_85);
 lean_dec(x_84);
 lean_dec(x_83);
@@ -4419,7 +4419,7 @@ if (x_494 == 0)
 {
 if (x_45 == 0)
 {
-lean_dec(x_474);
+lean_dec(x_472);
 lean_dec_ref(x_180);
 lean_dec_ref(x_115);
 lean_dec_ref(x_27);
@@ -4435,14 +4435,14 @@ else
 lean_dec(x_85);
 lean_dec(x_84);
 lean_dec(x_83);
-x_465 = x_474;
+x_465 = x_472;
 x_466 = x_473;
 goto block_467;
 }
 }
 else
 {
-lean_dec(x_474);
+lean_dec(x_472);
 lean_dec_ref(x_180);
 lean_dec_ref(x_115);
 lean_dec_ref(x_27);
@@ -4460,8 +4460,8 @@ goto block_99;
 }
 else
 {
-lean_dec(x_474);
-lean_dec_ref(x_472);
+lean_dec_ref(x_474);
+lean_dec(x_472);
 lean_dec(x_85);
 lean_dec(x_84);
 lean_dec(x_83);
@@ -4656,17 +4656,17 @@ lean_dec(x_534);
 lean_dec(x_532);
 if (x_535 == 0)
 {
-x_472 = x_505;
+x_472 = x_496;
 x_473 = x_530;
-x_474 = x_496;
+x_474 = x_505;
 x_475 = x_45;
 goto block_495;
 }
 else
 {
-x_472 = x_505;
+x_472 = x_496;
 x_473 = x_530;
-x_474 = x_496;
+x_474 = x_505;
 x_475 = x_114;
 goto block_495;
 }
@@ -4739,15 +4739,15 @@ block_571:
 if (x_551 == 0)
 {
 lean_object* x_552; uint8_t x_553; 
-x_552 = l_Lean_Expr_cleanupAnnotations(x_548);
+x_552 = l_Lean_Expr_cleanupAnnotations(x_549);
 x_553 = l_Lean_Expr_isApp(x_552);
 if (x_553 == 0)
 {
 lean_object* x_554; lean_object* x_555; 
 lean_dec_ref(x_552);
-lean_dec(x_549);
+lean_dec(x_550);
 x_554 = lean_box(0);
-x_555 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add___redArg___lam__0(x_554, x_2, x_3, x_4, x_5, x_550);
+x_555 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add___redArg___lam__0(x_554, x_2, x_3, x_4, x_5, x_548);
 x_544 = x_555;
 goto block_547;
 }
@@ -4763,9 +4763,9 @@ if (x_558 == 0)
 lean_object* x_559; lean_object* x_560; 
 lean_dec_ref(x_557);
 lean_dec_ref(x_556);
-lean_dec(x_549);
+lean_dec(x_550);
 x_559 = lean_box(0);
-x_560 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add___redArg___lam__0(x_559, x_2, x_3, x_4, x_5, x_550);
+x_560 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add___redArg___lam__0(x_559, x_2, x_3, x_4, x_5, x_548);
 x_544 = x_560;
 goto block_547;
 }
@@ -4779,9 +4779,9 @@ if (x_562 == 0)
 lean_object* x_563; lean_object* x_564; 
 lean_dec_ref(x_561);
 lean_dec_ref(x_556);
-lean_dec(x_549);
+lean_dec(x_550);
 x_563 = lean_box(0);
-x_564 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add___redArg___lam__0(x_563, x_2, x_3, x_4, x_5, x_550);
+x_564 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add___redArg___lam__0(x_563, x_2, x_3, x_4, x_5, x_548);
 x_544 = x_564;
 goto block_547;
 }
@@ -4796,9 +4796,9 @@ if (x_567 == 0)
 {
 lean_object* x_568; lean_object* x_569; 
 lean_dec_ref(x_556);
-lean_dec(x_549);
+lean_dec(x_550);
 x_568 = lean_box(0);
-x_569 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add___redArg___lam__0(x_568, x_2, x_3, x_4, x_5, x_550);
+x_569 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add___redArg___lam__0(x_568, x_2, x_3, x_4, x_5, x_548);
 x_544 = x_569;
 goto block_547;
 }
@@ -4811,7 +4811,7 @@ if (x_570 == 0)
 {
 if (x_45 == 0)
 {
-lean_dec(x_549);
+lean_dec(x_550);
 lean_dec_ref(x_180);
 lean_dec_ref(x_115);
 lean_dec(x_85);
@@ -4821,19 +4821,19 @@ lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-x_100 = x_550;
+x_100 = x_548;
 goto block_113;
 }
 else
 {
-x_541 = x_549;
-x_542 = x_550;
+x_541 = x_550;
+x_542 = x_548;
 goto block_543;
 }
 }
 else
 {
-lean_dec(x_549);
+lean_dec(x_550);
 lean_dec_ref(x_180);
 lean_dec_ref(x_115);
 lean_dec(x_85);
@@ -4843,7 +4843,7 @@ lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-x_100 = x_550;
+x_100 = x_548;
 goto block_113;
 }
 }
@@ -4853,9 +4853,9 @@ goto block_113;
 }
 else
 {
-lean_dec_ref(x_548);
-x_496 = x_549;
-x_497 = x_550;
+lean_dec_ref(x_549);
+x_496 = x_550;
+x_497 = x_548;
 goto block_540;
 }
 }
@@ -5022,17 +5022,17 @@ lean_dec(x_610);
 lean_dec(x_608);
 if (x_611 == 0)
 {
-x_548 = x_581;
-x_549 = x_572;
-x_550 = x_606;
+x_548 = x_606;
+x_549 = x_581;
+x_550 = x_572;
 x_551 = x_45;
 goto block_571;
 }
 else
 {
-x_548 = x_581;
-x_549 = x_572;
-x_550 = x_606;
+x_548 = x_606;
+x_549 = x_581;
+x_550 = x_572;
 x_551 = x_114;
 goto block_571;
 }
@@ -5659,7 +5659,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(6u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add___redArg___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -5689,7 +5689,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add_declare__15___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_415701650____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -5709,7 +5709,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add_declare__15___closed__6____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_415701650____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -5719,7 +5719,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add_declare__15___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_415701650____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -5729,7 +5729,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add_declare__15___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_415701650____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -5739,7 +5739,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add_declare__15___closed__9____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_415701650____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -5749,7 +5749,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add_declare__15___closed__10____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_415701650____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6231,7 +6231,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(6u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shiftRight__self___redArg___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -6270,7 +6270,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shiftRight__self_declare__20___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3860159261____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6290,7 +6290,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shiftRight__self_declare__20___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3860159261____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6310,7 +6310,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shiftRight__self_declare__20___closed__9____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3860159261____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6320,7 +6320,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shiftRight__self_declare__20___closed__10____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3860159261____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6330,7 +6330,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shiftRight__self_declare__20___closed__11____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3860159261____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6340,7 +6340,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shiftRight__self_declare__20___closed__12____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3860159261____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7254,7 +7254,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(4u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__full___redArg___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -7283,7 +7283,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__full_declare__25___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2671153904____hygCtx___hyg_15_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7293,7 +7293,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__full_declare__25___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2671153904____hygCtx___hyg_15_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7303,7 +7303,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__full_declare__25___closed__6____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2671153904____hygCtx___hyg_15_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7313,7 +7313,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__full_declare__25___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2671153904____hygCtx___hyg_15_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7653,7 +7653,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(3u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_eqSelfProc___redArg___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -7683,7 +7683,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__eq__self_declare__33___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_964024151____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7693,7 +7693,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__eq__self_declare__33___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_964024151____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7703,7 +7703,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__eq__self_declare__33___closed__6____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_964024151____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7841,7 +7841,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__eq__self_declare__38___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_716624576____hygCtx___hyg_24_;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -7880,7 +7880,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__eq__self_declare__38___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_716624576____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7890,7 +7890,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__eq__self_declare__38___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_716624576____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8689,7 +8689,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(2u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__and___redArg___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -8718,7 +8718,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__and_declare__43___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_700078842____hygCtx___hyg_22_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8728,7 +8728,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__and_declare__43___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_700078842____hygCtx___hyg_22_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -9092,7 +9092,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(4u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__beq__self___redArg___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -9131,7 +9131,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__beq__self_declare__48___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2732376631____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -9141,7 +9141,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__beq__self_declare__48___closed__6____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2732376631____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -9151,7 +9151,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__beq__self_declare__48___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2732376631____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -9161,7 +9161,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__beq__self_declare__48___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2732376631____hygCtx___hyg_26_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -9570,15 +9570,15 @@ x_67 = lean_expr_eqv(x_20, x_49);
 lean_dec_ref(x_49);
 if (x_67 == 0)
 {
-x_31 = x_46;
-x_32 = x_54;
+x_31 = x_54;
+x_32 = x_46;
 x_33 = x_64;
 goto block_40;
 }
 else
 {
-x_31 = x_46;
-x_32 = x_54;
+x_31 = x_54;
+x_32 = x_46;
 x_33 = x_41;
 goto block_40;
 }
@@ -9960,26 +9960,26 @@ if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 x_34 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__beq___redArg___closed__2;
-lean_inc_ref(x_32);
-x_35 = l_Lean_mkAppB(x_34, x_32, x_20);
+lean_inc_ref(x_31);
+x_35 = l_Lean_mkAppB(x_34, x_31, x_20);
 x_36 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_36, 0, x_35);
 x_37 = lean_alloc_ctor(0, 2, 1);
-lean_ctor_set(x_37, 0, x_32);
+lean_ctor_set(x_37, 0, x_31);
 lean_ctor_set(x_37, 1, x_36);
 lean_ctor_set_uint8(x_37, sizeof(void*)*2, x_30);
 x_38 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
 x_39 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
-lean_ctor_set(x_39, 1, x_31);
+lean_ctor_set(x_39, 1, x_32);
 return x_39;
 }
 else
 {
-lean_dec_ref(x_32);
+lean_dec_ref(x_31);
 lean_dec_ref(x_20);
-x_11 = x_31;
+x_11 = x_32;
 goto block_14;
 }
 }
@@ -10082,7 +10082,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__beq_declare__53___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3978914167____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -10092,7 +10092,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__beq_declare__53___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3978914167____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -10102,7 +10102,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__beq_declare__53___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3978914167____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -10792,7 +10792,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(4u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_reduceCond___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -10812,7 +10812,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_reduceCond_declare__59___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2639185890____hygCtx___hyg_15_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -10822,7 +10822,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_reduceCond_declare__59___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2639185890____hygCtx___hyg_15_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -10832,7 +10832,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_reduceCond_declare__59___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2639185890____hygCtx___hyg_15_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -10842,7 +10842,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_reduceCond_declare__59___closed__6____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2639185890____hygCtx___hyg_15_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -11800,7 +11800,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(2u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and___redArg___closed__14;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -11839,7 +11839,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andOnes_declare__69___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2849709395____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -11859,7 +11859,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andOnes_declare__69___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2849709395____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -11869,7 +11869,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andOnes_declare__69___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2849709395____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -11879,7 +11879,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andOnes_declare__69___closed__9____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2849709395____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -11889,7 +11889,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andOnes_declare__69___closed__10____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2849709395____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -11909,7 +11909,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andOnes_declare__69___closed__12____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2849709395____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -11919,7 +11919,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andOnes_declare__69___closed__13____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2849709395____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -12420,7 +12420,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_onesAnd_declare__74___closed__2____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2155504181____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -12430,7 +12430,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_onesAnd_declare__74___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2155504181____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -12440,7 +12440,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_onesAnd_declare__74___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2155504181____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -12897,7 +12897,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(3u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_maxUlt___redArg___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -12917,7 +12917,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_maxUlt_declare__79___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3428383610____hygCtx___hyg_22_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -12937,7 +12937,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_maxUlt_declare__79___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3428383610____hygCtx___hyg_22_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -12947,7 +12947,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_maxUlt_declare__79___closed__6____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3428383610____hygCtx___hyg_22_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -12957,7 +12957,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_maxUlt_declare__79___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3428383610____hygCtx___hyg_22_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -13722,7 +13722,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(3u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_neg__eq__not__add___redArg___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -13752,7 +13752,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_neg__eq__not__add_declare__84___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1680154240____hygCtx___hyg_20_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -13762,7 +13762,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_neg__eq__not__add_declare__84___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1680154240____hygCtx___hyg_20_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -13772,7 +13772,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_neg__eq__not__add_declare__84___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1680154240____hygCtx___hyg_20_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -15821,7 +15821,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(6u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow___redArg___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -15860,7 +15860,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow_declare__95___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3934891525____hygCtx___hyg_27_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -15880,7 +15880,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow_declare__95___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3934891525____hygCtx___hyg_27_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -15900,7 +15900,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow_declare__95___closed__9____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3934891525____hygCtx___hyg_27_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -15910,7 +15910,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow_declare__95___closed__10____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3934891525____hygCtx___hyg_27_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -15920,7 +15920,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow_declare__95___closed__11____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3934891525____hygCtx___hyg_27_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -15940,7 +15940,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow_declare__95___closed__13____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3934891525____hygCtx___hyg_27_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -15950,7 +15950,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow_declare__95___closed__14____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3934891525____hygCtx___hyg_27_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -16612,7 +16612,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(3u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and___redArg___lam__0___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -16642,7 +16642,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_declare__100___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3249303671____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -16652,7 +16652,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_declare__100___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3249303671____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -16682,7 +16682,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_declare__100___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3249303671____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -16692,7 +16692,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_declare__100___closed__9____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3249303671____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -16702,7 +16702,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_declare__100___closed__10____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3249303671____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -16722,7 +16722,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_declare__100___closed__12____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3249303671____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -16732,7 +16732,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_declare__100___closed__13____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3249303671____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -17402,7 +17402,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_x27_declare__105___closed__2____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3029810110____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -17412,7 +17412,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_x27_declare__105___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3029810110____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -17442,7 +17442,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_x27_declare__105___closed__6____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3029810110____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -17452,7 +17452,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_x27_declare__105___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3029810110____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -17462,7 +17462,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_x27_declare__105___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3029810110____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -18476,7 +18476,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes_declare__110___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1054245347____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -18486,7 +18486,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes_declare__110___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1054245347____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -18516,7 +18516,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes_declare__110___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1054245347____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -18536,7 +18536,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes_declare__110___closed__10____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1054245347____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -18556,7 +18556,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes_declare__110___closed__12____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1054245347____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -18566,7 +18566,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes_declare__110___closed__13____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1054245347____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -18576,7 +18576,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes_declare__110___closed__14____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1054245347____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -18586,7 +18586,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes_declare__110___closed__15____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1054245347____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -18606,7 +18606,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes_declare__110___closed__17____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1054245347____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -18616,7 +18616,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes_declare__110___closed__18____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1054245347____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -19611,7 +19611,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and_declare__115___closed__2____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1333012033____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -19621,7 +19621,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and_declare__115___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1333012033____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -19651,7 +19651,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and_declare__115___closed__6____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1333012033____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -19671,7 +19671,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and_declare__115___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1333012033____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -19691,7 +19691,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and_declare__115___closed__10____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1333012033____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -19701,7 +19701,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and_declare__115___closed__11____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1333012033____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -19711,7 +19711,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and_declare__115___closed__12____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1333012033____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -19721,7 +19721,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and_declare__115___closed__13____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1333012033____hygCtx___hyg_30_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -21048,7 +21048,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extractLsb_x27__not_declare__120___closed__2____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2701143808____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -21058,7 +21058,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extractLsb_x27__not_declare__120___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2701143808____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -21068,7 +21068,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extractLsb_x27__not_declare__120___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2701143808____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -21098,7 +21098,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extractLsb_x27__not_declare__120___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2701143808____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -21108,7 +21108,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extractLsb_x27__not_declare__120___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2701143808____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -21118,7 +21118,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extractLsb_x27__not_declare__120___closed__9____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2701143808____hygCtx___hyg_24_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -21981,7 +21981,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(6u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add___redArg___closed__24;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -22011,7 +22011,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__twoPow__mul_declare__137___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1362341560____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -22031,7 +22031,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__twoPow__mul_declare__137___closed__6____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1362341560____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -22041,7 +22041,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__twoPow__mul_declare__137___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1362341560____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -22051,7 +22051,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__twoPow__mul_declare__137___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1362341560____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -22071,7 +22071,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__twoPow__mul_declare__137___closed__10____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1362341560____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -22081,7 +22081,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__twoPow__mul_declare__137___closed__11____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1362341560____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -22091,7 +22091,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__twoPow__mul_declare__137___closed__12____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1362341560____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -22871,7 +22871,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__twoPow__mul_declare__137___closed__9____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1362341560____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -22891,7 +22891,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__mul__twoPow_declare__142___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2744291237____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -22901,7 +22901,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__mul__twoPow_declare__142___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2744291237____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -25923,7 +25923,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__ushiftRight__const_declare__157___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3079645278____hygCtx___hyg_23_;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -25953,7 +25953,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__ushiftRight__const_declare__157___closed__6____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3079645278____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -25983,7 +25983,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__ushiftRight__const_declare__157___closed__9____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3079645278____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -25993,7 +25993,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__ushiftRight__const_declare__157___closed__10____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3079645278____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -26003,7 +26003,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__ushiftRight__const_declare__157___closed__11____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3079645278____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -26013,7 +26013,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__ushiftRight__const_declare__157___closed__12____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3079645278____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -27797,7 +27797,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(6u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add___redArg___closed__18;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -27827,7 +27827,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__shiftLeft__const_declare__162___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3082314818____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -27857,7 +27857,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__shiftLeft__const_declare__162___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3082314818____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -27867,7 +27867,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__shiftLeft__const_declare__162___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3082314818____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -27877,7 +27877,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__shiftLeft__const_declare__162___closed__9____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3082314818____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -27887,7 +27887,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__shiftLeft__const_declare__162___closed__10____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3082314818____hygCtx___hyg_23_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -29409,7 +29409,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(6u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__ushiftRight__const___redArg___closed__5;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -29448,7 +29448,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__167___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3999245363____hygCtx___hyg_41_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -29468,7 +29468,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__167___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3999245363____hygCtx___hyg_41_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -29488,7 +29488,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__167___closed__9____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3999245363____hygCtx___hyg_41_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -29498,7 +29498,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__167___closed__10____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3999245363____hygCtx___hyg_41_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -29518,7 +29518,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__167___closed__12____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3999245363____hygCtx___hyg_41_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -29528,7 +29528,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__167___closed__13____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3999245363____hygCtx___hyg_41_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -29538,7 +29538,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__167___closed__14____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3999245363____hygCtx___hyg_41_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -29548,7 +29548,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__167___closed__15____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3999245363____hygCtx___hyg_41_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -29568,7 +29568,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__167___closed__17____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3999245363____hygCtx___hyg_41_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -29578,7 +29578,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__167___closed__18____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3999245363____hygCtx___hyg_41_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -29588,7 +29588,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__167___closed__19____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3999245363____hygCtx___hyg_41_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -29598,7 +29598,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__167___closed__20____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3999245363____hygCtx___hyg_41_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31414,7 +31414,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31434,7 +31434,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__6____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31454,7 +31454,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31464,7 +31464,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__9____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31494,7 +31494,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__12____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31504,7 +31504,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__13____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31524,7 +31524,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__15____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31534,7 +31534,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__16____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31544,7 +31544,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__17____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31554,7 +31554,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__18____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31584,7 +31584,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__21____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31594,7 +31594,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__22____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31614,7 +31614,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__24____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31624,7 +31624,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__25____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31634,7 +31634,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__26____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -31644,7 +31644,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__172___closed__27____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_531131314____hygCtx___hyg_57_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -33261,7 +33261,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(3u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__setWidth___redArg___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -33281,7 +33281,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__setWidth_declare__177___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_434609143____hygCtx___hyg_14_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -33291,7 +33291,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__setWidth_declare__177___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_434609143____hygCtx___hyg_14_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -33301,7 +33301,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__setWidth_declare__177___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_434609143____hygCtx___hyg_14_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -35028,7 +35028,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(3u);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__signExtend___redArg___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -35048,7 +35048,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__signExtend_declare__182___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3406619922____hygCtx___hyg_14_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -35058,7 +35058,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__signExtend_declare__182___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3406619922____hygCtx___hyg_14_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -35068,7 +35068,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__signExtend_declare__182___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3406619922____hygCtx___hyg_14_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -35650,7 +35650,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_maxUlt_declare__79___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_3428383610____hygCtx___hyg_22_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -35670,7 +35670,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__lt__allOnes__iff_declare__187___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2476566433____hygCtx___hyg_18_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -35680,7 +35680,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__lt__allOnes__iff_declare__187___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2476566433____hygCtx___hyg_18_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -37863,7 +37863,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat_declare__192___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1584093666____hygCtx___hyg_32_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -37873,7 +37873,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat_declare__192___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1584093666____hygCtx___hyg_32_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -37883,7 +37883,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat_declare__192___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1584093666____hygCtx___hyg_32_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -37913,7 +37913,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat_declare__192___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1584093666____hygCtx___hyg_32_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -37933,7 +37933,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat_declare__192___closed__10____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1584093666____hygCtx___hyg_32_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -37953,7 +37953,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat_declare__192___closed__12____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1584093666____hygCtx___hyg_32_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -37963,7 +37963,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat_declare__192___closed__13____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1584093666____hygCtx___hyg_32_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -37973,7 +37973,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat_declare__192___closed__14____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1584093666____hygCtx___hyg_32_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -37983,7 +37983,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat_declare__192___closed__15____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_1584093666____hygCtx___hyg_32_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -39278,7 +39278,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__add_declare__197___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2000575275____hygCtx___hyg_31_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -39298,7 +39298,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__add_declare__197___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2000575275____hygCtx___hyg_31_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -39318,7 +39318,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__add_declare__197___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2000575275____hygCtx___hyg_31_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -39328,7 +39328,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__add_declare__197___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2000575275____hygCtx___hyg_31_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -39338,7 +39338,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__add_declare__197___closed__9____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2000575275____hygCtx___hyg_31_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -39348,7 +39348,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__add_declare__197___closed__10____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2000575275____hygCtx___hyg_31_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -40643,7 +40643,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__mul_declare__202___closed__3____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2859458845____hygCtx___hyg_31_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -40663,7 +40663,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__mul_declare__202___closed__5____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2859458845____hygCtx___hyg_31_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -40683,7 +40683,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__mul_declare__202___closed__7____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2859458845____hygCtx___hyg_31_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -40693,7 +40693,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__mul_declare__202___closed__8____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2859458845____hygCtx___hyg_31_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -40703,7 +40703,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__mul_declare__202___closed__9____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2859458845____hygCtx___hyg_31_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -40713,7 +40713,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__mul_declare__202___closed__10____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_2859458845____hygCtx___hyg_31_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;

@@ -178,7 +178,9 @@ private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
 
 register_builtin_option genInjectivity : Bool := {
   defValue := true
-  descr    := "generate injectivity theorems for inductive datatype constructors"
+  descr    := "generate injectivity theorems for inductive datatype constructors. \
+    Temporarily (for bootstrapping reasons) also controls the generation of the
+    `ctorIdx` definition."
 }
 
 def mkInjectiveTheorems (declName : Name) : MetaM Unit := do

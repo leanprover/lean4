@@ -10,7 +10,7 @@ public import Init.Data.ByteArray.Basic
 import all Init.Data.ByteArray.Basic
 public import Init.Data.String.Basic
 import all Init.Data.String.Basic
-public import Init.Data.UInt.Lemmas
+import Init.Data.UInt.Lemmas
 
 public section
 

@@ -23,8 +23,10 @@ LEAN_EXPORT lean_object* l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygC
 LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_toLBoolM___redArg___lam__0(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_toLBoolM(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LBool_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_LBool_and(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_LBool_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_instInhabitedLBool;
 LEAN_EXPORT uint8_t l_Lean_LBool_neg(uint8_t);
 LEAN_EXPORT uint8_t l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_9_(uint8_t, uint8_t);
@@ -44,7 +46,7 @@ LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_toLBoolM___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_toLBoolM___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqLBool;
-LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx(uint8_t x_1) {
+LEAN_EXPORT lean_object* l_Lean_LBool_ctorIdx(uint8_t x_1) {
 _start:
 {
 switch (x_1) {
@@ -67,6 +69,23 @@ x_4 = lean_unsigned_to_nat(2u);
 return x_4;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_LBool_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_unbox(x_1);
+x_3 = l_Lean_LBool_ctorIdx(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx(uint8_t x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_LBool_ctorIdx(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx___boxed(lean_object* x_1) {
@@ -142,8 +161,8 @@ LEAN_EXPORT uint8_t l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Lean_LBool_toCtorIdx(x_1);
-x_4 = l_Lean_LBool_toCtorIdx(x_2);
+x_3 = l_Lean_LBool_ctorIdx(x_1);
+x_4 = l_Lean_LBool_ctorIdx(x_2);
 x_5 = lean_nat_dec_eq(x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);

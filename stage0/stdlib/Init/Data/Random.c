@@ -13,18 +13,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_StdGen_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_mkStdGen___boxed(lean_object*);
 static lean_object* l_stdNext___closed__9;
 static lean_object* l_stdRange___closed__0;
 LEAN_EXPORT lean_object* l_IO_setRandSeed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_randNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_RandomGen_toCtorIdx___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_StdGen_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_randNat___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_RandomGen_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_IO_setRandSeed___closed__0;
 static lean_object* l_stdNext___closed__6;
 LEAN_EXPORT lean_object* l_IO_rand(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instInhabitedStdGen___closed__0;
+LEAN_EXPORT lean_object* l_StdGen_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_RandomGen_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_rand___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_stdNext___closed__3;
+LEAN_EXPORT lean_object* l_StdGen_ctorIdx(lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_IO_stdGenRef;
 LEAN_EXPORT lean_object* l___private_Init_Data_Random_0__randNatAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -36,6 +43,7 @@ lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_stdNext___closed__8;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 static lean_object* l_stdNext___closed__1;
+LEAN_EXPORT lean_object* l_RandomGen_ctorIdx___boxed(lean_object*, lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
 LEAN_EXPORT lean_object* l_instReprStdGen;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -87,6 +95,74 @@ LEAN_EXPORT lean_object* l_mkStdGen(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_io_get_random_bytes(size_t, lean_object*);
 static lean_object* l_stdNext___closed__0;
+LEAN_EXPORT lean_object* l_RandomGen_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_RandomGen_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_RandomGen_ctorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_RandomGen_toCtorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_RandomGen_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_RandomGen_toCtorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_StdGen_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_StdGen_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_StdGen_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_StdGen_toCtorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_StdGen_toCtorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_StdGen_toCtorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_mkStdGen(lean_object* x_1) {
 _start:
 {
@@ -458,8 +534,8 @@ block_7:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_5, 0, x_2);
-lean_ctor_set(x_5, 1, x_3);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_2);
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_4);
 lean_ctor_set(x_6, 1, x_5);
@@ -485,8 +561,8 @@ lean_dec(x_12);
 x_16 = lean_unsigned_to_nat(2147483562u);
 x_17 = lean_nat_mod(x_15, x_16);
 lean_dec(x_15);
-x_2 = x_8;
-x_3 = x_9;
+x_2 = x_9;
+x_3 = x_8;
 x_4 = x_17;
 goto block_7;
 }
@@ -498,8 +574,8 @@ x_19 = lean_int_add(x_12, x_18);
 lean_dec(x_12);
 x_20 = l_Int_toNat(x_19);
 lean_dec(x_19);
-x_2 = x_8;
-x_3 = x_9;
+x_2 = x_9;
+x_3 = x_8;
 x_4 = x_20;
 goto block_7;
 }

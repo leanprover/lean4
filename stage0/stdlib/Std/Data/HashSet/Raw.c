@@ -54,6 +54,7 @@ lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_fold___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_HashSet_Raw_instEmptyCollection___closed__3;
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_ofList(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_HashSet_Raw_toList___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_isEmpty___boxed(lean_object*, lean_object*);
@@ -128,6 +129,7 @@ static lean_object* l_Std_HashSet_Raw_term___x7em_____closed__11;
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_get_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_repr___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_foldM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_HashSet_Raw_instSingletonOfBEqOfHashable___redArg___lam__0___closed__0;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_ofArray(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -156,6 +158,7 @@ static lean_object* l_Std_HashSet_Raw_term___x7em_____closed__4;
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_union___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_instInsertOfBEqOfHashable(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_HashSet_Raw_isEmpty___redArg(lean_object*);
 static lean_object* l_Std_HashSet_Raw_ofList___redArg___closed__0;
@@ -239,6 +242,7 @@ static lean_object* l_Std_HashSet_Raw___aux__Std__Data__HashSet__Raw______macroR
 static lean_object* l_Std_HashSet_Raw_term___x7em_____closed__2;
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_getKeyD___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_filter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_term___x7em__;
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_instInsertOfBEqOfHashable___redArg(lean_object*, lean_object*);
 lean_object* l_String_toSubstring_x27(lean_object*);
@@ -259,6 +263,40 @@ LEAN_EXPORT lean_object* l_Std_HashSet_Raw_erase(lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_ofList___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_emptyWithCapacity___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_Internal_numBuckets___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_HashSet_Raw_ctorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_toCtorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_HashSet_Raw_toCtorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_emptyWithCapacity___redArg(lean_object* x_1) {
 _start:
 {

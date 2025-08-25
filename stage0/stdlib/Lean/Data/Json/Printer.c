@@ -34,6 +34,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__137;
 lean_object* l_Lean_JsonNumber_toString(lean_object*);
 uint8_t lean_byte_array_fget(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Json_CompressWorkItem_toCtorIdx___boxed(lean_object*);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__219;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__242;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__183;
@@ -98,6 +99,7 @@ lean_object* lean_string_push(lean_object*, uint32_t);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__224;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__186;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__24;
+LEAN_EXPORT lean_object* l_Lean_Json_CompressWorkItem_ctorIdx(lean_object*);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__101;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Data_Json_Printer_0__Lean_Json_compress_go_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Json_render___closed__6;
@@ -253,6 +255,7 @@ static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable_
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__244;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__191;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__139;
+LEAN_EXPORT lean_object* l_Lean_Json_CompressWorkItem_toCtorIdx(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__122;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
@@ -288,6 +291,7 @@ static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable_
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__49;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__115;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__146;
+LEAN_EXPORT lean_object* l_Lean_Json_CompressWorkItem_ctorIdx___boxed(lean_object*);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__149;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__80;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__145;
@@ -4067,6 +4071,75 @@ x_3 = l_Lean_Json_render(x_1);
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_format_pretty(x_3, x_2, x_4, x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Json_CompressWorkItem_ctorIdx(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+case 1:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(1u);
+return x_3;
+}
+case 2:
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(2u);
+return x_4;
+}
+case 3:
+{
+lean_object* x_5; 
+x_5 = lean_unsigned_to_nat(3u);
+return x_5;
+}
+case 4:
+{
+lean_object* x_6; 
+x_6 = lean_unsigned_to_nat(4u);
+return x_6;
+}
+default: 
+{
+lean_object* x_7; 
+x_7 = lean_unsigned_to_nat(5u);
+return x_7;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Json_CompressWorkItem_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Json_CompressWorkItem_ctorIdx(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Json_CompressWorkItem_toCtorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Json_CompressWorkItem_ctorIdx(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Json_CompressWorkItem_toCtorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Json_CompressWorkItem_toCtorIdx(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Data_Json_Printer_0__Lean_Json_compress_go_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {

@@ -3356,7 +3356,7 @@ x_19 = l___private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBasicStringCore___close
 x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l_Lean_throwError___at___Lean_throwErrorAt___at_____private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBoolean_spec__0_spec__0___redArg(x_20, x_9, x_8, x_7);
+x_21 = l_Lean_throwError___at___Lean_throwErrorAt___at_____private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBoolean_spec__0_spec__0___redArg(x_20, x_7, x_8, x_9);
 return x_21;
 }
 block_32:
@@ -3370,9 +3370,9 @@ lean_dec(x_24);
 x_30 = lean_string_push(x_3, x_29);
 x_2 = x_28;
 x_3 = x_30;
-x_4 = x_26;
+x_4 = x_23;
 x_5 = x_25;
-x_6 = x_23;
+x_6 = x_26;
 goto _start;
 }
 block_44:
@@ -3392,9 +3392,9 @@ if (x_41 == 0)
 lean_dec(x_37);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
-x_7 = x_36;
+x_7 = x_34;
 x_8 = x_35;
-x_9 = x_34;
+x_9 = x_36;
 x_10 = x_33;
 goto block_22;
 }
@@ -3408,18 +3408,18 @@ if (x_43 == 0)
 lean_dec(x_37);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
-x_7 = x_36;
+x_7 = x_34;
 x_8 = x_35;
-x_9 = x_34;
+x_9 = x_36;
 x_10 = x_33;
 goto block_22;
 }
 else
 {
-x_23 = x_36;
+x_23 = x_34;
 x_24 = x_37;
 x_25 = x_35;
-x_26 = x_34;
+x_26 = x_36;
 x_27 = x_33;
 goto block_32;
 }
@@ -3427,10 +3427,10 @@ goto block_32;
 }
 else
 {
-x_23 = x_36;
+x_23 = x_34;
 x_24 = x_37;
 x_25 = x_35;
-x_26 = x_34;
+x_26 = x_36;
 x_27 = x_33;
 goto block_32;
 }

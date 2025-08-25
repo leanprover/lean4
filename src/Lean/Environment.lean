@@ -1913,7 +1913,7 @@ private def ImportedModule.publicModule? (self : ImportedModule) : Option Module
 private def ImportedModule.getData? (self : ImportedModule) (level : OLeanLevel) : Option ModuleData := do
   -- Without the module system, we only have the exported level.
   let level := if (← self.publicModule?).isModule then level else .exported
-  self.parts[level.toCtorIdx]?.map (·.1)
+  self.parts[level.ctorIdx]?.map (·.1)
 
 /-- The main module data that will eventually be used to construct the kernel environment. -/
 private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleData :=

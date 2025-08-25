@@ -186,7 +186,7 @@ def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
     let vis := ctx.mkVisibilityFromTypes
     `($vis:visibility instance : DecidableEq $(mkCIdent declName) :=
         fun x y =>
-          if h : x.toCtorIdx = y.toCtorIdx then
+          if h : x.ctorIdx = y.ctorIdx then
             -- We use `rfl` in the following proof because the first script fails for unit-like datatypes due to etaStruct.
             isTrue (by first | have aux := congrArg $ofNatIdent h; rw [$auxThmIdent:ident, $auxThmIdent:ident] at aux; assumption | rfl)
           else

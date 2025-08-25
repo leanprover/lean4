@@ -686,7 +686,7 @@ where
           let type ← toLCNFType (← liftMetaM <| Meta.inferType e)
           mkUnreachable type
       | _, _ =>
-        throwError "code generator failed, unsupported occurrence of `{declName}`"
+        throwError "code generator failed, unsupported occurrence of `{.ofConstName declName}`"
 
   expandNoConfusionMajor (major : Expr) (numFields : Nat) : M Expr := do
     match numFields with

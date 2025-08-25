@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Parser.Basic
 public import Lean.ScopedEnvExtension
+import Lean.PrivateName
 import Lean.BuiltinDocAttr
 
 public section
@@ -153,7 +154,7 @@ private def updateBuiltinTokens (info : ParserInfo) (declName : Name) : IO Unit 
   let tokenTable ← builtinTokenTable.swap {}
   match addParserTokens tokenTable info with
   | Except.ok tokenTable => builtinTokenTable.set tokenTable
-  | Except.error msg     => throw (IO.userError s!"invalid builtin parser '{declName}', {msg}")
+  | Except.error msg     => throw (IO.userError s!"invalid builtin parser `{privateToUserName declName}`, {msg}")
 
 def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
   match e with
@@ -509,7 +510,7 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
   | Expr.const `Lean.Parser.Parser _ =>
     declareLeadingBuiltinParser catName declName prio
   | _ => throwError "Unexpected type for parser declaration: Parsers must have type `Parser` or \
-    `TrailingParser`, but `{declName}` has type{indentExpr decl.type}"
+    `TrailingParser`, but `{.ofConstName declName}` has type{indentExpr decl.type}"
   declareBuiltinDocStringAndRanges declName
   runParserAttributeHooks catName declName (builtin := true)
 
@@ -542,7 +543,7 @@ private def ParserAttribute.add (_attrName : Name) (catName : Name) (declName : 
     try
       addToken token attrKind
     catch
-      | Exception.error _   msg => throwError "invalid parser '{declName}', {msg}"
+      | Exception.error _   msg => throwError "invalid parser '{.ofConstName declName}', {msg}"
       | ex => throw ex
   let kinds := parser.info.collectKinds {}
   kinds.forM fun kind _ => modifyEnv fun env => addSyntaxNodeKind env kind

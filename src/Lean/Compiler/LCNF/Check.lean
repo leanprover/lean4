@@ -200,7 +200,7 @@ partial def checkFunDeclCore (declName : Name) (params : Array Param) (type : Ex
     if (← checkTypes) then
       let valueType ← mkForallParams params (← value.inferType)
       unless (← InferType.compatibleTypes type valueType) do
-        throwError "type mismatch at `{declName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr type}"
+        throwError "type mismatch at `{.ofConstName declName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr type}"
 
 partial def checkFunDecl (funDecl : FunDecl) : CheckM Unit := do
   checkFunDeclCore funDecl.binderName funDecl.params funDecl.type funDecl.value

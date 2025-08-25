@@ -76,10 +76,10 @@ builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
         s!"Cannot add attribute `[{kind.toAttrString}]`: {e}"
       if kind matches .macroInline then
         unless (← isValidMacroInline declName) do
-          throwError "Cannot add `[macro_inline]` attribute to `{declName}`: This attribute does not support this kind of declaration; only non-recursive definitions are supported"
+          throwError "Cannot add `[macro_inline]` attribute to `{.ofConstName declName}`: This attribute does not support this kind of declaration; only non-recursive definitions are supported"
         withExporting (isExporting := !isPrivateName declName) do
           if !(← getConstInfo declName).isDefinition then
-            throwError "invalid `[macro_inline]` attribute, '{declName}' must be an exposed definition"
+            throwError "invalid `[macro_inline]` attribute, '{.ofConstName declName}' must be an exposed definition"
 
 def setInlineAttribute (env : Environment) (declName : Name) (kind : InlineAttributeKind) : Except String Environment :=
   inlineAttrs.setValue env declName kind

@@ -23,6 +23,7 @@ opaque float32Spec : FloatSpec := {
   decLe := fun _ _ => inferInstanceAs (Decidable True)
 }
 
+set_option genInjectivity false in
 /--
 32-bit floating-point numbers.
 
@@ -513,3 +514,5 @@ This may lose precision.
 This function does not reduce in the kernel.
 -/
 @[extern "lean_float_to_float32"] opaque Float.toFloat32 : Float → Float32
+
+gen_injective_theorems% Float32

@@ -290,10 +290,6 @@ protected theorem add_left_comm (a b c : Rat) : a + (b + c) = b + (a + c) := by
 @[simp] theorem neg_num (a : Rat) : (-a).num = -a.num := rfl
 @[simp] theorem neg_den (a : Rat) : (-a).den = a.den := rfl
 
-protected theorem neg_add_cancel (a : Rat) : -a + a = 0 := by
-  simp only [add_def, neg_num, Int.neg_mul, neg_den, Int.add_comm, ← Int.sub_eq_add_neg,
-    Int.sub_self, normalize_eq_mkRat, zero_mkRat]
-
 theorem neg_normalize (n d z) : -normalize n d z = normalize (-n) d z := by
   simp only [normalize, maybeNormalize_eq, Int.divExact_eq_tdiv, Int.natAbs_neg, Int.neg_tdiv]
   rfl

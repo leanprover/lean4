@@ -7,9 +7,10 @@ Authors: Joachim Breitner
 module
 
 prelude
-public import Lean.AddDecl
-public import Lean.Meta.AppBuilder
-public import Lean.Meta.CompletionName
+public import Lean.Meta.Basic
+import Lean.AddDecl
+import Lean.Meta.AppBuilder
+import Lean.Meta.CompletionName
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.NatTable
 import Lean.Elab.App

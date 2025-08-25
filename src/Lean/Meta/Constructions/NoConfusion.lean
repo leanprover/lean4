@@ -10,7 +10,7 @@ public import Lean.AddDecl
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.CompletionName
 public import Lean.Meta.Constructions.NoConfusionLinear
-import Lean.Meta.Constructions.ToCtorIdx
+import Lean.Meta.Constructions.CtorIdx
 
 public section
 
@@ -72,8 +72,8 @@ where
         if info.numCtors = 1 then
           mkLambdaFVars #[P, x, y] (← mkArrow P P)
         else
-          let toCtorIdx := mkConst (mkToCtorIdxName enumName) us
-          mkLambdaFVars #[P, x, y] (← mkAppM ``noConfusionTypeEnum #[toCtorIdx, P, x, y])
+          let ctorIdx := mkConst (mkCtorIdxName enumName) us
+          mkLambdaFVars #[P, x, y] (← mkAppM ``noConfusionTypeEnum #[ctorIdx, P, x, y])
       let declName  := Name.mkStr enumName "noConfusionType"
       addAndCompile <| Declaration.defnDecl {
         name        := declName
@@ -91,7 +91,7 @@ where
     let v ← mkFreshUserName `v
     let enumType := mkConst enumName us
     let sortV := mkSort (mkLevelParam v)
-    let toCtorIdx := mkConst (mkToCtorIdxName enumName) us
+    let ctorIdx := mkConst (mkCtorIdxName enumName) us
     let noConfusionType := mkConst (Name.mkStr enumName "noConfusionType") (mkLevelParam v :: us)
     withLocalDecl `P BinderInfo.implicit sortV fun P =>
     withLocalDecl `x BinderInfo.implicit enumType fun x =>
@@ -102,7 +102,7 @@ where
         if info.numCtors = 1 then
           withLocalDeclD `p P fun p => mkLambdaFVars #[p] p
         else
-          mkAppOptM ``noConfusionEnum #[none, none, none, toCtorIdx, P, x, y, h]
+          mkAppOptM ``noConfusionEnum #[none, none, none, ctorIdx, P, x, y, h]
       let declName  := Name.mkStr enumName "noConfusion"
       addAndCompile <| Declaration.defnDecl {
         name        := declName

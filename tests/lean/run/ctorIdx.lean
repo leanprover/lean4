@@ -2,20 +2,20 @@ inductive Enum where | a1 | a2 | a3 | a4 | a5
 deriving DecidableEq
 
 /--
-info: @[reducible] protected def Enum.toCtorIdx : Enum → Nat :=
+info: @[reducible] protected def Enum.ctorIdx : Enum → Nat :=
 fun x => Enum.casesOn x 0 1 2 3 4
 -/
 #guard_msgs in
-#print Enum.toCtorIdx
+#print Enum.ctorIdx
 
 inductive NonRec where | a1 (u : Unit) | a2 (i : Int) | a3 (n : Nat) (f : Fin n) | a4 (s : String) (b : Bool) | a5
 
 /--
-info: @[reducible] protected def NonRec.toCtorIdx : NonRec → Nat :=
+info: @[reducible] protected def NonRec.ctorIdx : NonRec → Nat :=
 fun x => NonRec.casesOn x (fun u => 0) (fun i => 1) (fun n f => 2) (fun s b => 3) 4
 -/
 #guard_msgs in
-#print NonRec.toCtorIdx
+#print NonRec.ctorIdx
 
 
 inductive Nested (α : Type) where
@@ -24,11 +24,11 @@ inductive Nested (α : Type) where
   | a3 (z : List (Nested α))
 
 /--
-info: @[reducible] protected def Nested.toCtorIdx : {α : Type} → Nested α → Nat :=
+info: @[reducible] protected def Nested.ctorIdx : {α : Type} → Nested α → Nat :=
 fun {α} x => x.casesOn (fun x => 0) (fun y => 1) fun z => 2
 -/
 #guard_msgs in
-#print Nested.toCtorIdx
+#print Nested.ctorIdx
 
 mutual
 inductive A (m : Nat) : Nat → Type
@@ -42,30 +42,30 @@ inductive B (m : Nat) : Nat → Type
 end
 
 /--
-info: @[reducible] protected def A.toCtorIdx : {m a : Nat} → A m a → Nat :=
+info: @[reducible] protected def A.ctorIdx : {m a : Nat} → A m a → Nat :=
 fun {m a} x => x.casesOn (fun {n} a => 0) (fun {n} a => 1) 2
 -/
 #guard_msgs in
-#print A.toCtorIdx
+#print A.ctorIdx
 /--
-info: @[reducible] protected def B.toCtorIdx : {m a : Nat} → B m a → Nat :=
+info: @[reducible] protected def B.ctorIdx : {m a : Nat} → B m a → Nat :=
 fun {m a} x => x.casesOn (fun {n} a => 0) (fun {n} a => 1) 2
 -/
 #guard_msgs in
-#print B.toCtorIdx
+#print B.ctorIdx
 
 
 unsafe inductive U : Type | mk : (U → U) → U
 /--
-info: @[reducible] unsafe protected def U.toCtorIdx : U → Nat :=
+info: @[reducible] unsafe protected def U.ctorIdx : U → Nat :=
 fun x => U.casesOn x fun a => 0
 -/
 #guard_msgs in
-#print U.toCtorIdx
+#print U.ctorIdx
 
--- This should not get a toCtorIdx, only types should
+-- This should not get a ctorIdx, only types should
 
 inductive Eq' : α → α → Prop where | refl (a : α) : Eq' a a
-/-- error: Unknown constant `Eq'.toCtorIdx` -/
+/-- error: Unknown constant `Eq'.ctorIdx` -/
 #guard_msgs in
-#print Eq'.toCtorIdx
+#print Eq'.ctorIdx

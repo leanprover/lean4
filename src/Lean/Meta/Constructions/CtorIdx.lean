@@ -15,25 +15,28 @@ import Lean.Meta.Injective
 
 open Lean Meta
 
-register_builtin_option genToCtorIdx : Bool := {
+register_builtin_option genCtorIdx : Bool := {
   defValue := true
-  descr    := "generate the `toCtorIdx` functions for inductive datatypes"
+  descr    := "generate the `CtorIdx` functions for inductive datatypes"
 }
 
 public def mkToCtorIdxName (indName : Name) : Name :=
   Name.mkStr indName "toCtorIdx"
 
+public def mkCtorIdxName (indName : Name) : Name :=
+  Name.mkStr indName "ctorIdx"
+
 /--
-For an inductive type `T` with more than one function builds a function `T.toCtorIdx : T → Nat` that
+For an inductive type `T` with more than one function builds a function `T.ctorIdx : T → Nat` that
 returns the constructor index of the given value.
 Does nothing if `T` does not eliminate into `Type` or if `T` is unsafe.
 Assumes `T.casesOn` to be defined already.
 -/
-public def mkToCtorIdx (indName : Name) : MetaM Unit := do
-  prependError m!"failed to construct `T.toCtorIdx` for `{.ofConstName indName}`:" do
-    unless genToCtorIdx.get (← getOptions) do return
+public def mkCtorIdx (indName : Name) : MetaM Unit := do
+  prependError m!"failed to construct `T.ctorIdx` for `{.ofConstName indName}`:" do
+    unless genCtorIdx.get (← getOptions) do return
     unless genInjectivity.get (← getOptions)  do return
-    let declName := mkToCtorIdxName indName
+    let declName := mkCtorIdxName indName
     if (← hasConst declName) then return
     let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
     if (← isPropFormerType info.type) then return
@@ -74,3 +77,17 @@ public def mkToCtorIdx (indName : Name) : MetaM Unit := do
       modifyEnv fun env => addToCompletionBlackList env declName
       modifyEnv fun env => addProtected env declName
       setReducibleAttribute declName
+
+      -- Deprecated alias
+      -- (Add deprecation attribute after stage0 update)
+      let aliasName := mkToCtorIdxName indName
+      addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+        (name        := aliasName)
+        (levelParams := info.levelParams)
+        (type        := declType)
+        (value       := mkConst declName us)
+        (hints       := ReducibilityHints.abbrev)
+      ))
+      modifyEnv fun env => addToCompletionBlackList env aliasName
+      modifyEnv fun env => addProtected env aliasName
+      setReducibleAttribute aliasName

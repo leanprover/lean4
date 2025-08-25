@@ -21,7 +21,7 @@ public import Lean.Elab.DeclUtil
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.DeclarationRange
 import Lean.Elab.ComputedFields
-import Lean.Meta.Constructions.ToCtorIdx
+import Lean.Meta.Constructions.CtorIdx
 
 public section
 
@@ -973,7 +973,7 @@ private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
   for n in declNames do
     mkRecOn n
     if hasUnit then mkCasesOn n
-    if hasNat then mkToCtorIdx n
+    if hasNat then mkCtorIdx n
     if hasUnit && hasEq && hasHEq then mkNoConfusion n
     if hasUnit && hasProd then mkBelow n
   for n in declNames do

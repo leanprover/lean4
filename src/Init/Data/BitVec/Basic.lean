@@ -9,7 +9,7 @@ prelude
 public import Init.Data.Fin.Basic
 public import Init.Data.Nat.Bitwise.Lemmas
 public import Init.Data.Nat.Power2
-public import Init.Data.Int.Bitwise
+public import Init.Data.Int.Bitwise.Basic
 public import Init.Data.BitVec.BasicAux
 
 @[expose] public section

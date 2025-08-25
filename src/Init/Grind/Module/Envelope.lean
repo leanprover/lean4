@@ -12,6 +12,8 @@ import all Init.Data.AC
 
 public section
 
+open Std
+
 namespace Lean.Grind.IntModule
 
 namespace OfNatModule
@@ -274,7 +276,7 @@ instance [NatModule α] [AddRightCancel α] [NoNatZeroDivisors α] : NoNatZeroDi
     replace h₂ := NoNatZeroDivisors.no_nat_zero_divisors k (a₁ + b₂) (a₂ + b₁) h₁ h₂
     apply Quot.sound; simp [r]; exists 0; simp [h₂]
 
-instance [LE α] [LT α] [Preorder α] [OrderedAdd α] : LE (OfNatModule.Q α) where
+instance [LE α] [IsPreorder α] [OrderedAdd α] : LE (OfNatModule.Q α) where
   le a b := Q.liftOn₂ a b (fun (a, b) (c, d) => a + d ≤ b + c)
     (by intro (a₁, b₁) (a₂, b₂) (a₃, b₃) (a₄, b₄)
         simp; intro k₁ h₁ k₂ h₂
@@ -290,19 +292,19 @@ instance [LE α] [LT α] [Preorder α] [OrderedAdd α] : LE (OfNatModule.Q α) w
         rw [this]; clear this
         rw [← OrderedAdd.add_le_left_iff])
 
-instance [LE α] [LT α] [Preorder α] [OrderedAdd α] : LT (OfNatModule.Q α) where
+instance [LE α] [IsPreorder α] [OrderedAdd α] : LT (OfNatModule.Q α) where
   lt a b := a ≤ b ∧ ¬b ≤ a
 
-@[local simp] theorem mk_le_mk [LE α] [LT α] [Preorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
+@[local simp] theorem mk_le_mk [LE α] [IsPreorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
     Q.mk (a₁, a₂) ≤ Q.mk (b₁, b₂) ↔ a₁ + b₂ ≤ a₂ + b₁ := by
   rfl
 
-instance [LE α] [LT α] [Preorder α] [OrderedAdd α] : Preorder (OfNatModule.Q α) where
+instance [LE α] [IsPreorder α] [OrderedAdd α] : IsPreorder (OfNatModule.Q α) where
   le_refl a := by
     obtain ⟨⟨a₁, a₂⟩⟩ := a
     change Q.mk _ ≤ Q.mk _
     simp only [mk_le_mk]
-    simp [AddCommMonoid.add_comm]; exact Preorder.le_refl (a₁ + a₂)
+    simp [AddCommMonoid.add_comm]; exact le_refl (a₁ + a₂)
   le_trans {a b c} h₁ h₂ := by
     induction a using Q.ind with | _ a
     induction b using Q.ind with | _ b
@@ -318,24 +320,26 @@ instance [LE α] [LT α] [Preorder α] [OrderedAdd α] : Preorder (OfNatModule.Q
 
 attribute [-simp] Q.mk
 
-@[local simp] private theorem mk_lt_mk [LE α] [LT α] [Preorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
+@[local simp] private theorem mk_lt_mk
+    [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
     Q.mk (a₁, a₂) < Q.mk (b₁, b₂) ↔ a₁ + b₂ < a₂ + b₁ := by
-  simp [Preorder.lt_iff_le_not_le, AddCommMonoid.add_comm]
+  simp [lt_iff_le_and_not_ge, AddCommMonoid.add_comm]
 
-@[local simp] private theorem mk_pos [LE α] [LT α] [Preorder α] [OrderedAdd α] {a₁ a₂ : α} :
+@[local simp] private theorem mk_pos
+    [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] {a₁ a₂ : α} :
     0 < Q.mk (a₁, a₂) ↔ a₂ < a₁ := by
   change Q.mk (0,0) < _ ↔ _
   simp [mk_lt_mk, AddCommMonoid.zero_add]
 
 @[local simp]
-theorem toQ_le [LE α] [LT α] [Preorder α] [OrderedAdd α] {a b : α} : toQ a ≤ toQ b ↔ a ≤ b := by
+theorem toQ_le [LE α] [IsPreorder α] [OrderedAdd α] {a b : α} : toQ a ≤ toQ b ↔ a ≤ b := by
   simp
 
 @[local simp]
-theorem toQ_lt [LE α] [LT α] [Preorder α] [OrderedAdd α] {a b : α} : toQ a < toQ b ↔ a < b := by
-  simp [Preorder.lt_iff_le_not_le]
+theorem toQ_lt [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] {a b : α} : toQ a < toQ b ↔ a < b := by
+  simp [lt_iff_le_and_not_ge]
 
-instance [LE α] [LT α] [Preorder α] [OrderedAdd α] : OrderedAdd (OfNatModule.Q α) where
+instance [LE α] [IsPreorder α] [OrderedAdd α] : OrderedAdd (OfNatModule.Q α) where
   add_le_left_iff := by
     intro a b c
     obtain ⟨⟨a₁, a₂⟩⟩ := a

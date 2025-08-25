@@ -18,11 +18,3 @@ info: @[reducible] protected def Vec.cons.elim.{u} : {α : Type} →
 -/
 #guard_msgs in
 #print sig Vec.cons.elim
-
-/--
-info: @[defeq] theorem Vec.cons.elim.eq.{u} : ∀ {α : Type} {motive : (a : Nat) → Vec α a → Sort u} {n : Nat} (a : α)
-  (a_1 : Vec α n) (cons : {n : Nat} → (a : α) → (a_2 : Vec α n) → motive (n + 1) (Vec.cons a a_2)),
-  Vec.cons.elim (Vec.cons a a_1) ⋯ cons = cons a a_1
--/
-#guard_msgs in
-#print sig Vec.cons.elim.eq

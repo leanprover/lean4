@@ -12,6 +12,7 @@ import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
 import Lean.Meta.Injective
+import Lean.Linter.Deprecated
 
 open Lean Meta
 
@@ -91,3 +92,4 @@ public def mkCtorIdx (indName : Name) : MetaM Unit := do
       modifyEnv fun env => addToCompletionBlackList env aliasName
       modifyEnv fun env => addProtected env aliasName
       setReducibleAttribute aliasName
+      Lean.Linter.setDeprecated aliasName { newName? := some declName, since? := "2025-08-25" }

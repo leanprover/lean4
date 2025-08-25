@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.MutualInductive
+import Lean.Linter.Basic
 
 public section
 

@@ -6,11 +6,18 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
-public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.Deriving.Util
+public import Lean.Elab.Command
+import Lean.Meta.Transform
+import Lean.Elab.Deriving.Basic
+import Lean.Meta.Constructions.CtorIdx
+import Lean.Meta.Constructions.CtorElim
 
-public section
+register_builtin_option deriving.beq.avoid_match_threshold : Nat := {
+  defValue := 50
+  descr := "Avoid using match expressions in `BEq` instances when the number of constructors \
+    exceeds this threshold. When and if that construction compiles as efficiently as the one \
+    using parallel match statements, this option may go away." }
 
 namespace Lean.Elab.Deriving.BEq
 open Lean.Parser.Term
@@ -19,7 +26,7 @@ open Meta
 def mkBEqHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `BEq 2 indVal
 
-def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
+def mkMatchOld (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
@@ -95,6 +102,78 @@ where
     alts := alts.push (← mkElseAlt)
     return alts
 
+
+def mkMatchNew (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
+  let casesOnName := mkCasesOnName indVal.name
+  let alts ← mkAlts
+  let x1:= mkIdent header.targetNames[0]!
+  `($(mkCIdent casesOnName) $x1:term $alts:term*)
+where
+  mkAlts : TermElabM (Array Term) := do
+    let mut alts := #[]
+    for ctorName in indVal.ctors, ctorIdx in *...indVal.numCtors do
+      let ctorInfo ← getConstInfoCtor ctorName
+      let alt ← forallTelescopeReducing ctorInfo.type fun xs _type => do
+        let mut ctorArgs1 : Array Term := #[]
+        let mut ctorArgs2 : Array Term := #[]
+        let mut rhs ← `(true)
+        let mut rhs_empty := true
+        for i in *...ctorInfo.numFields do
+          let pos := indVal.numParams + ctorInfo.numFields - i - 1
+          let x := xs[pos]!
+          let a := mkIdent (← mkFreshUserName `a)
+          let b := mkIdent (← mkFreshUserName `b)
+          ctorArgs1 := ctorArgs1.push a
+          ctorArgs2 := ctorArgs2.push b
+          let xType ← inferType x
+          if (← isProp xType) then
+            continue
+          if xType.isAppOf indVal.name then
+            if rhs_empty then
+              rhs ← `($(mkIdent auxFunName):ident $a:ident $b:ident)
+              rhs_empty := false
+            else
+              rhs ← `($(mkIdent auxFunName):ident $a:ident $b:ident && $rhs)
+          /- If `x` appears in the type of another field, use `eq_of_beq` to
+              unify the types of the subsequent variables -/
+          else if ← xs[(pos+1)...*].anyM
+              (fun fvar => (Expr.containsFVar · x.fvarId!) <$> (inferType fvar)) then
+            rhs ← `(if h : $a:ident == $b:ident then by
+                      cases (eq_of_beq h)
+                      exact $rhs
+                    else false)
+            rhs_empty := false
+          else
+            if rhs_empty then
+              rhs ← `($a:ident == $b:ident)
+              rhs_empty := false
+            else
+              rhs ← `($a:ident == $b:ident && $rhs)
+        let x2:= mkIdent header.targetNames[1]!
+        if indVal.numCtors > 1 then
+          let ctorIdxName := mkCtorIdxName indVal.name
+          let withName := mkConstructorElimName indVal.name ctorName
+          rhs ← `(
+            if h : $(mkCIdent ctorIdxName) $x2:ident = $(quote ctorIdx):num then
+              $(mkIdent withName) $x2:term h (@fun $ctorArgs2.reverse:term* => $rhs:term)
+            else
+              false
+          )
+        else
+          let casesOnName := mkCasesOnName indVal.name
+          rhs ← `(
+            $(mkCIdent casesOnName) $x2:term (@fun $ctorArgs2.reverse:term* => $rhs:term)
+          )
+        `(@fun $ctorArgs1.reverse:term* => $rhs:term)
+      alts := alts.push alt
+    return alts
+
+def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
+  if indVal.numCtors ≥ deriving.beq.avoid_match_threshold.get (← getOptions) then
+    mkMatchNew header indVal auxFunName
+  else
+    mkMatchOld header indVal auxFunName
+
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let auxFunName := ctx.auxFunNames[i]!
   let indVal     := ctx.typeInfos[i]!
@@ -130,7 +209,10 @@ private def mkBEqEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
   let auxFunName := ctx.auxFunNames[0]!
   let vis := ctx.mkVisibilityFromTypes
   let expAttr := ctx.mkExposeAttrFromCtors
-  `(@[$expAttr] $vis:visibility def $(mkIdent auxFunName):ident  (x y : $(mkCIdent name)) : Bool := x.toCtorIdx == y.toCtorIdx)
+  if ctx.typeInfos[0]!.numCtors > 1 then
+    `(@[$expAttr] $vis:visibility def $(mkIdent auxFunName):ident  (x y : $(mkCIdent name)) : Bool := x.toCtorIdx == y.toCtorIdx)
+  else
+    `(@[$expAttr] $vis:visibility def $(mkIdent auxFunName):ident  (x y : $(mkCIdent name)) : Bool := true)
 
 private def mkBEqEnumCmd (name : Name): TermElabM (Array Syntax) := do
   let ctx ← mkContext "beq" name
@@ -145,7 +227,7 @@ def mkBEqInstance (declName : Name) : CommandElabM Unit := do
       if (← isEnumType declName) then
         mkBEqEnumCmd declName
       else
-         mkBEqInstanceCmds declName
+        mkBEqInstanceCmds declName
     cmds.forM elabCommand
 
 def mkBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do

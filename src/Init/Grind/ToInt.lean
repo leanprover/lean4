@@ -40,8 +40,23 @@ inductive IntInterval : Type where
   deriving BEq, DecidableEq, Inhabited
 
 instance : LawfulBEq IntInterval where
-   rfl := by intro a; cases a <;> simp_all! [BEq.beq]
-   eq_of_beq := by intro a b; cases a <;> cases b <;> simp_all! [BEq.beq]
+  -- These proofs are ugly mostly because the `_beq` function is not accessible
+  -- and we cannot tell `simp` to unfold them. Hopefully ony a problem until
+  -- we can derive LawfulBEq
+  rfl := by
+    intro a
+    cases a
+    · show _ && _; simp
+    · show ((_ : Int) == _); simp
+    · show ((_ : Int) == _); simp
+    · rfl
+  eq_of_beq := by
+    intro a b
+    cases a <;> cases b
+    all_goals try intro h; cases h
+    all_goals try show (_ && _) → _; simp
+    all_goals try show ((_ : Int) == _) → _; simp
+    all_goals try rfl
 
 namespace IntInterval
 

@@ -70,8 +70,19 @@ structure Power where
   deriving BEq, Repr, Inhabited, Hashable
 
 instance : LawfulBEq Power where
-  eq_of_beq {a} := by cases a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
-  rfl := by intro a; cases a <;> simp! [BEq.beq]
+  -- These proofs are ugly mostly because the `_beq` function is not accessible
+  -- and we cannot tell `simp` to unfold them. Hopefully ony a problem until
+  -- we can derive LawfulBEq
+  rfl := by
+    intro a
+    cases a
+    · show _ && _; simp
+  eq_of_beq := by
+    intro a b
+    cases a <;> cases b
+    all_goals try intro h; cases h
+    all_goals try show (_ && _) → _; simp
+    all_goals try rfl
 
 protected noncomputable def Power.beq' (pw₁ pw₂ : Power) : Bool :=
   Power.rec (fun x₁ k₁ => Power.rec (fun x₂ k₂ => Nat.beq x₁ x₂ && Nat.beq k₁ k₂) pw₂) pw₁
@@ -97,15 +108,27 @@ inductive Mon where
   deriving BEq, Repr, Inhabited, Hashable
 
 instance : LawfulBEq Mon where
-  eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
-    next p₁ m₁ p₂ m₂ ih =>
-      cases p₁ <;> cases p₂ <;> simp <;> intros <;> simp [*]
-      next h => exact ih h
+  -- These proofs are ugly mostly because the `_beq` function is not accessible
+  -- and we cannot tell `simp` to unfold them. Hopefully ony a problem until
+  -- we can derive LawfulBEq
   rfl := by
     intro a
-    induction a <;> simp! [BEq.beq]
-    assumption
+    induction a
+    · rfl
+    · show _ && _
+      simp [*]
+      assumption
+  eq_of_beq := by
+    intro a b
+    induction a generalizing b <;> cases b
+    · intro; rfl
+    · intro h; cases h
+    · intro h; cases h
+    next ih _ _ =>
+      change (_ &&_ ) → _
+      simp_all
+      intro h
+      exact ih
 
 protected noncomputable def Mon.beq' (m₁ : Mon) : Mon → Bool :=
   Mon.rec

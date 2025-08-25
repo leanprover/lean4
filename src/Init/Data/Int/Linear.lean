@@ -39,7 +39,7 @@ inductive Expr where
   | neg (a : Expr)
   | mulL (k : Int) (a : Expr)
   | mulR (a : Expr) (k : Int)
-  deriving Inhabited, BEq
+  deriving Inhabited, @[expose] BEq
 
 @[expose]
 def Expr.denote (ctx : Context) : Expr → Int
@@ -54,7 +54,7 @@ def Expr.denote (ctx : Context) : Expr → Int
 inductive Poly where
   | num (k : Int)
   | add (k : Int) (v : Var) (p : Poly)
-  deriving BEq
+  deriving @[expose] BEq
 
 @[expose]
 protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=

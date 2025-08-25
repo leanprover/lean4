@@ -1,29 +1,48 @@
 #!/usr/bin/env bash
 
 rm -rf .lake/build
-
-# Run the process in the background
 lake build release
-.lake/build/bin/release &
+
+# Create a named pipe for communication
+PIPE=$(mktemp -u)
+mkfifo "$PIPE"
+
+# Run release in the background, redirect stdout to the pipe
+.lake/build/bin/release > "$PIPE" &
 PID=$!
 
-sleep 1
+echo "Started process with PID: $PID"
 
-# Send SIGUSR1 4
-kill -s USR1 "$PID"
-sleep 0.2
+# Read the first line from the pipe
+{
+    if read -r first_line < "$PIPE"; then
+        echo "Received first line: $first_line"
 
-# Send SIGHUP 2
-kill -s HUP "$PID"
-sleep 0.2
+        sleep 1
 
-# Send SIGQUIT 3
-kill -s QUIT "$PID"
-sleep 0.2
+        echo "Sending USR1 signal..."
+        kill -USR1 "$PID" 2>/dev/null || echo "Failed to send USR1"
 
-# Send SIGINT 1
-kill -s INT "$PID"
-sleep 0.2
+        echo "Sending HUP signal..."
+        kill -HUP "$PID" 2>/dev/null || echo "Failed to send HUP"
 
-# Wait for the process to handle the signal
-wait "$PID"
+        echo "Sending QUIT signal..."
+        kill -QUIT "$PID" 2>/dev/null || echo "Failed to send QUIT"
+
+        echo "Sending INT signal..."
+        kill -INT "$PID" 2>/dev/null || echo "Failed to send INT"
+    else
+        echo "Failed to read first line"
+    fi
+}
+
+# Clean up the pipe
+rm -f "$PIPE"
+
+# Wait for process to finish
+echo "Waiting for process $PID to finish..."
+if wait "$PID"; then
+    echo "Process completed successfully"
+else
+    echo "Process exited with code $?"
+fi

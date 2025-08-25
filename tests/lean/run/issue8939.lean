@@ -43,8 +43,8 @@ end Test3
 
 namespace Test4
 
--- This checks that when unfolding abstraced proofs, we do not unfold function calls
--- that were actuallly there, like the one to `Function.cons` below
+-- This checks that when unfolding abstracted proofs, we do not unfold function calls
+-- that were actually there, like the one to `Function.cons` below
 
 /--
 error: failed to infer structural recursion:

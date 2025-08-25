@@ -323,3 +323,39 @@ private def foo : Nat := 0
 private def foo : Nat := 0
 
 end
+
+/-! Check visibility of auto params. -/
+
+public structure OptParamStruct where
+  private pauto : Nat := by exact 0
+  auto : Nat := by exact 0
+
+/--
+info: structure OptParamStruct : Type
+number of parameters: 0
+fields:
+  private OptParamStruct.pauto : Nat := by
+    exact 0
+  OptParamStruct.auto : Nat := by
+    exact 0
+constructor:
+  private OptParamStruct.mk (pauto : Nat := by exact 0) (auto : Nat := by exact 0) : OptParamStruct
+-/
+#guard_msgs in
+#print OptParamStruct
+
+section
+set_option pp.oneline true
+/--
+info: private def OptParamStruct.pauto._autoParam : Lean.Syntax :=
+Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
+-/
+#guard_msgs in
+#print OptParamStruct.pauto._autoParam
+/--
+info: @[expose] def OptParamStruct.auto._autoParam : Lean.Syntax :=
+Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
+-/
+#guard_msgs in
+#print OptParamStruct.auto._autoParam
+end

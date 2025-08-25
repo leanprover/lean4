@@ -3,10 +3,15 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.DSL
+public import Lake.Config.Package
+import Lake.DSL.Syntax
 import Lake.Config.Package
-import Lean.Parser.Module
+meta import Lean.Parser.Module
+meta import Lake.Config.Package
+import all Lake.Build.Key
 
 open System Lean Syntax Parser Module
 
@@ -27,7 +32,10 @@ private local instance : BEq FilePath where
 class ToLean (α : Type u) (k : SyntaxNodeKind := `term) where
   toLean : α → TSyntax k
 
-export ToLean (toLean)
+-- TODO: Remove once no longer needed for the `export` below to work
+namespace ToLean end ToLean
+
+open ToLean (toLean)
 
 instance (priority := low) [Quote α k] : ToLean α k where
   toLean := quote
@@ -43,6 +51,9 @@ instance : ToLean Bool where
 
 class ToLean? (α : Type u) where
   toLean? : α → Option Term
+
+-- TODO: Remove once no longer needed for the `export` below to work
+namespace ToLean? end ToLean?
 
 export ToLean? (toLean?)
 
@@ -98,6 +109,9 @@ instance [ToLean α] [field : ConfigField σ name (Option α)] : AddDeclField σ
 
 class MkDeclFields (α : Type u) where
   mkDeclFields : α → Array DeclField
+
+-- TODO: Remove once no longer needed for the `export` below to work
+namespace MkDeclFields end MkDeclFields
 
 export MkDeclFields (mkDeclFields)
 
@@ -178,15 +192,15 @@ protected def Pattern.toLean? [ToLean? (PatternDescr α β)] (p : Pattern α β)
 
 instance [ToLean? (PatternDescr α β)] : ToLean? (Pattern α β) := ⟨Pattern.toLean?⟩
 
-protected partial def PattternDescr.toLean? [ToLean? β] (p : PatternDescr α β) : Option Term :=
-  have : ToLean? (PatternDescr α β) := ⟨PattternDescr.toLean?⟩
+protected partial def PatternDescr.toLean? [ToLean? β] (p : PatternDescr α β) : Option Term :=
+  have : ToLean? (PatternDescr α β) := ⟨PatternDescr.toLean?⟩
   match p with
   | .not p => quoteSingleton? `not p
   | .any p => quoteSingleton? `any p
   | .all p => quoteSingleton? `all p
   | .coe p => toLean? p
 
-instance [ToLean? β] : ToLean? (PatternDescr α β) := ⟨PattternDescr.toLean?⟩
+instance [ToLean? β] : ToLean? (PatternDescr α β) := ⟨PatternDescr.toLean?⟩
 
 protected def StrPatDescr.toLean (pat : StrPatDescr) : Term :=
   match pat with
@@ -337,7 +351,7 @@ protected def InputDirConfig.mkCommand
 /-! ## Root Encoder -/
 
 /-- Create a Lean module that encodes the declarative configuration of the package. -/
-def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic.run do
+public def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic.run do
   let pkgConfig : PackageConfig pkg.name :=
     {pkg.config with testDriver := pkg.testDriver, lintDriver := pkg.lintDriver}
   let defaultTargets := pkg.defaultTargets.foldl NameSet.insert NameSet.empty

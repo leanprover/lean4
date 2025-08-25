@@ -6,7 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import all Init.Data.Iterators.Combinators.Monadic.Attach
+public import Init.Data.Iterators.Combinators.Monadic.Attach
+import all Init.Data.Iterators.Combinators.Monadic.Attach
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 
 public section

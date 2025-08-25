@@ -9,7 +9,8 @@ module
 prelude
 public import Init.Data.Bool
 public import Init.Data.Int.Pow
-public import all Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.Bitwise.Basic
+import all Init.Data.Nat.Bitwise.Basic
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Simproc
 public import Init.TacticsExtra
@@ -843,6 +844,12 @@ theorem shiftLeft_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
     a <<< i + b = a <<< i ||| b := by
   rw [shiftLeft_eq, Nat.mul_comm]
   rw [two_pow_add_eq_or_of_lt b_lt]
+
+@[simp]
+theorem shiftLeft_eq_zero_iff {a n : Nat} : a <<< n = 0 ↔ a = 0 := by
+  simp [shiftLeft_eq, mul_eq_zero]
+
+instance {a n : Nat} [NeZero a] : NeZero (a <<< n) := ⟨mt shiftLeft_eq_zero_iff.mp (NeZero.ne _)⟩
 
 /-! ### le -/
 

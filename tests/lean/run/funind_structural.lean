@@ -61,7 +61,7 @@ info: zip.induct.{u_1, u_2} {α : Type u_1} {β : Type u_2} (motive : List α �
 #guard_msgs in
 #check zip.induct
 
-/-- Lets try ot use it! -/
+/-- Let's try to use it! -/
 theorem zip_length {α β} (xs : List α) (ys : List β) :
     (zip xs ys).length = xs.length.min ys.length := by
   induction xs, ys using zip.induct

@@ -40,6 +40,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertTransition(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_Time_TimeZone_convertTZifV1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Nat_cast___at___Std_Time_TimeZone_convertLocalTimeType_spec__0_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_Time_TimeZone_convertTZifV1_spec__0(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern uint8_t l_instInhabitedUInt8;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -51,6 +52,7 @@ LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertWall___boxed(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertLocalTimeType___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Rat_ofInt(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertUt___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertTZif___boxed(lean_object*, lean_object*);
@@ -112,12 +114,21 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_TimeZone_convertLocalTimeType_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___Nat_cast___at___Std_Time_TimeZone_convertLocalTimeType_spec__0_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = lean_nat_to_int(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_TimeZone_convertLocalTimeType_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_nat_to_int(x_1);
+x_3 = l_Rat_ofInt(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertLocalTimeType(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -302,7 +302,11 @@ open Lean.Elab.Term.Quotation in
     -- elaborate independently from each other
     let dom ← elabType dom
     let rng ← elabType rng
-    return mkForall (← MonadQuotation.addMacroScope `a) BinderInfo.default dom rng
+    -- We use a non-variable macro scope as collisions are not an issue here (we've already
+    -- elaborated the subterm). The delaborator will eventually renumber macro scopes if the
+    -- binding is shown at all.
+    let n := addMacroScope `_internal `a reservedMacroScope
+    return mkForall n BinderInfo.default dom rng
   | _                    => throwUnsupportedSyntax
 
 /--

@@ -24,6 +24,9 @@ private def isNonlinearTerm (e : Expr) : MetaM Bool := do
   | HMul.hMul _ _ _ i _ _ => isInstHMulInt i
   | HDiv.hDiv _ _ _ i _ b => pure (← getIntValue? b).isNone <&&> isInstHDivInt i
   | HMod.hMod _ _ _ i _ b => pure (← getIntValue? b).isNone <&&> isInstHModInt i
+  | HPow.hPow _ _ _ i a b =>
+    unless (← isInstHPowInt i) do return false
+    return (← getIntValue? a).isNone || (← getIntValue? b).isNone
   | _ => return false
 
 private def registerNonlinearOcc (arg : Expr) (x : Var) : GoalM Unit := do
@@ -31,7 +34,6 @@ private def registerNonlinearOcc (arg : Expr) (x : Var) : GoalM Unit := do
   if (← get').elimEqs[y]!.isSome then
     if (← propagateNonlinearTerm y x) then
       return ()
-  let y ← mkVar arg
   let occs := (← get').nonlinearOccs.find? y |>.getD []
   unless x ∈ occs do
   modify' fun s => { s with nonlinearOccs := s.nonlinearOccs.insert y (x::occs) }
@@ -41,6 +43,14 @@ private partial def registerNonlinearOccsAt (e : Expr) (x : Var) : GoalM Unit :=
   | HMul.hMul _ _ _ _ a b => go a; go b
   | HDiv.hDiv _ _ _ _ _ b => registerNonlinearOcc b x
   | HMod.hMod _ _ _ _ _ b => registerNonlinearOcc b x
+  | HPow.hPow _ _ _ _ a b =>
+    if (← getIntValue? a).isNone then
+      registerNonlinearOcc a x
+    if (← getIntValue? b).isNone then
+      -- Recall that `b : Nat`, we must create `NatCast.natCast b` and watch it.
+      let (b', _) ← mkNatVar b
+      internalize b' (← getGeneration b)
+      registerNonlinearOcc b' x
   | _ => return ()
 where
   go (e : Expr) : GoalM Unit := do

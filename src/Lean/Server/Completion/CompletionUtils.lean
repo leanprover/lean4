@@ -88,7 +88,7 @@ where
 
 /--
 Gets type names for resolving `id` in `.id x₁ ... xₙ` notation.
-The process mimics the dotted indentifier notation elaboration procedure at `Lean.Elab.App`.
+The process mimics the dotted identifier notation elaboration procedure at `Lean.Elab.App`.
 Catches and ignores all errors, so no need to run this within `try`/`catch`.
 -/
 partial def getDotIdCompletionTypeNames (type : Expr) : MetaM (Array Name) :=

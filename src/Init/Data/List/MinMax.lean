@@ -272,7 +272,7 @@ theorem max?_eq_some_iff_legacy [Max α] [LE α] [anti : Std.Antisymm (· ≤ ·
     (max_le_iff : ∀ a b c : α, max b c ≤ a ↔ b ≤ a ∧ c ≤ a) {xs : List α} :
     xs.max? = some a ↔ a ∈ xs ∧ ∀ b ∈ xs, b ≤ a := by
   haveI : MaxEqOr α := ⟨max_eq_or⟩
-  haveI : LawfulOrderMax α := .of_le (fun _ _ _ => max_le_iff _ _ _) max_eq_or
+  haveI : LawfulOrderMax α := .of_max_le_iff (fun _ _ _ => max_le_iff _ _ _) max_eq_or
   haveI : Refl (α := α) (· ≤ ·) := ⟨le_refl⟩
   haveI : IsLinearOrder α := .of_refl_of_antisymm_of_lawfulOrderMax
   apply max?_eq_some_iff

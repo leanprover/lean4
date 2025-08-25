@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Name
-// Imports: Init.Data.Ord.String Init.Data.Ord.UInt Lean.Data.Json Lean.Data.NameMap.Basic Lake.Util.RBArray
+// Imports: Lean.Data.Json Lean.Data.NameMap.Basic Lake.Util.RBArray Init.Data.Ord.String Init.Data.Ord.UInt Init.Prelude Lean.Data.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,6 +23,7 @@ LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__1_sp
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Name_quoteFrom___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_isAnonymous_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lake_instCoeTreeMapNameQuickCmpNameMap__lake(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__3_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_appendCore_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_id___boxed(lean_object*, lean_object*);
@@ -40,9 +41,9 @@ lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Name_eraseHead(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_appendCore_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_instCoeTreeMapNameQuickCmpNameMap__lake___closed__0;
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_isAnonymous_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lake_Util_Name_0__Lake_instCoeTreeMapNameQuickCmpNameMap__lake___closed__0;
 static lean_object* l_Lake_OrdNameMap_empty___closed__0;
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_isAnonymous_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_RBArray_empty(lean_object*, lean_object*, lean_object*);
@@ -51,7 +52,6 @@ lean_object* l_String_toName(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_isAnonymous_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdNameMap_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Name_quoteFrom(lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Lake_instCoeTreeMapNameQuickCmpNameMap__lake(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_stringToLegalOrSimpleName(lean_object* x_1) {
 _start:
 {
@@ -82,7 +82,7 @@ x_2 = lean_box(1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_instCoeTreeMapNameQuickCmpNameMap__lake___closed__0() {
+static lean_object* _init_l___private_Lake_Util_Name_0__Lake_instCoeTreeMapNameQuickCmpNameMap__lake___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -91,11 +91,11 @@ lean_closure_set(x_1, 0, lean_box(0));
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instCoeTreeMapNameQuickCmpNameMap__lake(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lake_instCoeTreeMapNameQuickCmpNameMap__lake(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lake_instCoeTreeMapNameQuickCmpNameMap__lake___closed__0;
+x_2 = l___private_Lake_Util_Name_0__Lake_instCoeTreeMapNameQuickCmpNameMap__lake___closed__0;
 return x_2;
 }
 }
@@ -558,22 +558,18 @@ x_5 = l_Lake_Name_quoteFrom(x_1, x_2, x_4);
 return x_5;
 }
 }
-lean_object* initialize_Init_Data_Ord_String(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_NameMap_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_RBArray(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Ord_String(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Prelude(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Name(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_Name(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Ord_String(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Ord_UInt(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Json(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -583,8 +579,20 @@ lean_dec_ref(res);
 res = initialize_Lake_Util_RBArray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_instCoeTreeMapNameQuickCmpNameMap__lake___closed__0 = _init_l_Lake_instCoeTreeMapNameQuickCmpNameMap__lake___closed__0();
-lean_mark_persistent(l_Lake_instCoeTreeMapNameQuickCmpNameMap__lake___closed__0);
+res = initialize_Init_Data_Ord_String(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Ord_UInt(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Prelude(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Name(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l___private_Lake_Util_Name_0__Lake_instCoeTreeMapNameQuickCmpNameMap__lake___closed__0 = _init_l___private_Lake_Util_Name_0__Lake_instCoeTreeMapNameQuickCmpNameMap__lake___closed__0();
+lean_mark_persistent(l___private_Lake_Util_Name_0__Lake_instCoeTreeMapNameQuickCmpNameMap__lake___closed__0);
 l_Lake_OrdNameMap_empty___closed__0 = _init_l_Lake_OrdNameMap_empty___closed__0();
 lean_mark_persistent(l_Lake_OrdNameMap_empty___closed__0);
 l_Lake_OrdNameMap_empty___closed__1 = _init_l_Lake_OrdNameMap_empty___closed__1();

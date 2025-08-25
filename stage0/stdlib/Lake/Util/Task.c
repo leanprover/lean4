@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Task
-// Imports: Init.Control.Option
+// Imports: Init.Core Init.Control.Option Init.Control.Except
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -245,13 +245,21 @@ x_2 = l_Lake_instInhabitedOptionIOTask___closed__0;
 return x_2;
 }
 }
+lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Control_Option(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_Task(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Core(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Control_Option(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Except(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instMonadTask__lake = _init_l_Lake_instMonadTask__lake();

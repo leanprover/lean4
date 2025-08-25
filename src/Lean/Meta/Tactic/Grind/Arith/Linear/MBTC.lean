@@ -27,7 +27,7 @@ private partial def toRatValue? (a : Expr) : Option Rat :=
   else if a.isAppOfArity ``HDiv.hDiv 6 then
     (· / ·) <$> toRatValue? a.appFn!.appArg! <*> toRatValue? a.appArg!
   else if let .lit (.natVal n) := a then
-    some (Std.Internal.mkRat n 1)
+    some (mkRat n 1)
   else
     none
 

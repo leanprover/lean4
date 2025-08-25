@@ -26,7 +26,7 @@ x_4 = lean_ctor_get(x_2, 2);
 x_5 = l_Lean_RArray_getImpl___redArg(x_1, x_3);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = l_Nat_testBit(x_6, x_4);
 lean_dec(x_6);
 return x_7;

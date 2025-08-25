@@ -6,7 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import all Init.Data.Slice.Operations
+public import Init.Data.Slice.Operations
+import all Init.Data.Slice.Operations
 import Init.Data.Iterators.Lemmas.Consumers
 
 public section

@@ -29,8 +29,8 @@ fun P x1 x2 =>
 info: @[reducible] protected def Vec.noConfusionType.{u_1, u} : {α : Type} →
   {a : Nat} → Sort u_1 → Vec α a → Vec α a → Sort u_1 :=
 fun {α} {a} P x1 x2 =>
-  Vec.casesOn x1 (if h : x2.toCtorIdx = 0 then Vec.nil.elim x2 h (P → P) else P) fun {n} a_1 a_2 =>
-    if h : x2.toCtorIdx = 1 then Vec.cons.elim x2 h fun {n_1} a a_3 => (n = n_1 → a_1 = a → a_2 ≍ a_3 → P) → P else P
+  Vec.casesOn x1 (if h : x2.ctorIdx = 0 then Vec.nil.elim x2 h (P → P) else P) fun {n} a_1 a_2 =>
+    if h : x2.ctorIdx = 1 then Vec.cons.elim x2 h fun {n_1} a a_3 => (n = n_1 → a_1 = a → a_2 ≍ a_3 → P) → P else P
 -/
 #guard_msgs in
 #print Vec.noConfusionType

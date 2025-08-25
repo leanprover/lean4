@@ -175,9 +175,9 @@ instance {sl su α a} [SupportsLowerBound sl α] [SupportsUpperBound su α] (r :
 This typeclass ensures that ranges with the given shape of upper bounds are always finite.
 This is a prerequisite for many functions and instances, such as `PRange.toList` or `ForIn'`.
 -/
-class HasFiniteRanges (shape α) [SupportsUpperBound shape α] : Prop where
-  mem_of_satisfiesUpperBound (u : Bound shape α) :
-    ∃ enumeration : List α, (a : α) → SupportsUpperBound.IsSatisfied u a → a ∈ enumeration
+class HasFiniteRanges (shape α) [UpwardEnumerable α] [SupportsUpperBound shape α] : Prop where
+  finite (init : α) (u : Bound shape α) :
+    ∃ n, (UpwardEnumerable.succMany? n init).elim True (¬ SupportsUpperBound.IsSatisfied u ·)
 
 /--
 This typeclass will usually be used together with `UpwardEnumerable α`. It provides the starting

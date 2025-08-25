@@ -9,7 +9,8 @@ prelude
 public import Init.Data.Array.Basic
 public import Init.Data.Array.DecidableEq
 public import Init.Data.UInt.Basic
-public import all Init.Data.UInt.BasicAux
+public import Init.Data.UInt.BasicAux
+import all Init.Data.UInt.BasicAux
 public import Init.Data.Option.Basic
 
 @[expose] public section

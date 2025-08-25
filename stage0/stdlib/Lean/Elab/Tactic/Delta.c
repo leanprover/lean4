@@ -363,10 +363,10 @@ lean_ctor_set(x_60, 1, x_59);
 x_61 = lean_ctor_get(x_44, 2);
 lean_inc(x_61);
 lean_dec(x_44);
-x_30 = x_52;
-x_31 = x_49;
-x_32 = x_60;
-x_33 = x_50;
+x_30 = x_60;
+x_31 = x_50;
+x_32 = x_49;
+x_33 = x_52;
 x_34 = x_61;
 goto block_42;
 }
@@ -492,7 +492,7 @@ block_42:
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 x_35 = l_Lean_MessageData_ofName(x_34);
 x_36 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_36, 0, x_32);
+lean_ctor_set(x_36, 0, x_30);
 lean_ctor_set(x_36, 1, x_35);
 x_37 = l_Lean_Elab_Tactic_deltaLocalDecl___redArg___closed__1;
 x_38 = lean_alloc_ctor(7, 2, 0);
@@ -501,14 +501,14 @@ lean_ctor_set(x_38, 1, x_37);
 x_39 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_39, 0, x_38);
 lean_inc(x_10);
-x_40 = l_Lean_Meta_throwTacticEx___redArg(x_30, x_10, x_39, x_4, x_5, x_6, x_7, x_33);
+x_40 = l_Lean_Meta_throwTacticEx___redArg(x_33, x_10, x_39, x_4, x_5, x_6, x_7, x_31);
 if (lean_obj_tag(x_40) == 0)
 {
 lean_object* x_41; 
 x_41 = lean_ctor_get(x_40, 1);
 lean_inc(x_41);
 lean_dec_ref(x_40);
-x_12 = x_31;
+x_12 = x_32;
 x_13 = x_3;
 x_14 = x_4;
 x_15 = x_5;
@@ -519,7 +519,7 @@ goto block_29;
 }
 else
 {
-lean_dec_ref(x_31);
+lean_dec_ref(x_32);
 lean_dec(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);

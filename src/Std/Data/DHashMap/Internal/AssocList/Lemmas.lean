@@ -6,7 +6,8 @@ Authors: Markus Himmel
 module
 
 prelude
-public import all Std.Data.DHashMap.Internal.AssocList.Basic
+public import Std.Data.DHashMap.Internal.AssocList.Basic
+import all Std.Data.DHashMap.Internal.AssocList.Basic
 public import Std.Data.Internal.List.Associative
 
 public section

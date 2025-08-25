@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.Data.Vector.Lemmas
-public import all Init.Data.Array.Attach
+public import Init.Data.Array.Attach
+import all Init.Data.Array.Attach
 
 public section
 

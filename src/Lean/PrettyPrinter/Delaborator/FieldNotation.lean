@@ -123,6 +123,8 @@ returns the field name to use and the argument index for the object of the field
 def fieldNotationCandidate? (f : Expr) (args : Array Expr) (useGeneralizedFieldNotation : Bool) : MetaM (Option (Name × Nat)) := do
   let env ← getEnv
   let .const c .. := f.consumeMData | return none
+  if isInaccessiblePrivateName (← getEnv) c then
+    return none
   if c.getPrefix.isAnonymous then return none
   -- If there is `pp_nodot` on this function, then don't use field notation for it.
   if hasPPNoDotAttribute env c then

@@ -12,7 +12,7 @@ l : List Nat
 h :
   ¬List.Pairwise
       (fun x y =>
-        List.Disjoint (if x ^ i ≤ n then List.map (fun m => x :: m) (f x) else [])
+        (if x ^ i ≤ n then List.map (fun m => x :: m) (f x) else []).Disjoint
           (if y ^ i ≤ n then List.map (fun m => y :: m) (f y) else []))
       l
 ⊢ False
@@ -20,13 +20,13 @@ h :
   [facts] Asserted facts
     [prop] ¬List.Pairwise
             (fun x y =>
-              List.Disjoint (if x ^ i ≤ n then List.map (fun m => x :: m) (f x) else [])
+              (if x ^ i ≤ n then List.map (fun m => x :: m) (f x) else []).Disjoint
                 (if y ^ i ≤ n then List.map (fun m => y :: m) (f y) else []))
             l
   [eqc] False propositions
     [prop] List.Pairwise
           (fun x y =>
-            List.Disjoint (if x ^ i ≤ n then List.map (fun m => x :: m) (f x) else [])
+            (if x ^ i ≤ n then List.map (fun m => x :: m) (f x) else []).Disjoint
               (if y ^ i ≤ n then List.map (fun m => y :: m) (f y) else []))
           l
 -/

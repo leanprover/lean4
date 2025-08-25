@@ -267,7 +267,6 @@ private def propagateNonlinearPow (x : Var) : GoalM Bool := do
       pure (kb.toNat, some cb)
     else
       return false
-  trace[Meta.debug] ">> e: {e}, k: {ka^kb}"
   let c' ← pure { p := .add 1 x (.num (-(ka^kb))), h := .pow ka ca? kb cb? : EqCnstr }
   c'.assert
   return true

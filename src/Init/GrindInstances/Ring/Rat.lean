@@ -51,7 +51,13 @@ instance : IsCharP Rat 0 := IsCharP.mk' _ _
 
 instance : NoNatZeroDivisors Rat where
   no_nat_zero_divisors k a b h₁ h₂ := by
+<<<<<<< HEAD
     change k * a = k * b at h₂
     simpa [← Rat.mul_assoc, Rat.inv_mul_cancel, h₁] using congrArg ((k : Rat)⁻¹ * ·) h₂
+=======
+    replace h₁ : (k : Rat) ≠ 0 := by change ((k : Int) : Rat) ≠ ((0 : Int) : Rat); simp [h₁]
+    replace h₂ : (k : Rat)⁻¹ * (k * a) = (k : Rat)⁻¹ * (k * b) := congrArg (_ * ·) h₂
+    simpa only [← Rat.mul_assoc, Rat.inv_mul_cancel _ h₁, Rat.one_mul] using h₂
+>>>>>>> master
 
 end Lean.Grind

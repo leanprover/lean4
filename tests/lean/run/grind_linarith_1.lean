@@ -156,11 +156,11 @@ example [CommRing α] [LE α] [LT α] [LinearOrder α] [OrderedRing α] (a b c d
   grind
 
 /--
-trace: [grind.linarith.assert] -3 * y + 2 * x + One.one ≤ 0
-[grind.linarith.assert] 2 * z + -4 * x + One.one ≤ 0
-[grind.linarith.assert] -1 * z + 3 * y + One.one ≤ 0
-[grind.linarith.assert] 6 * y + -4 * x + 3 * One.one ≤ 0
-[grind.linarith.assert] 15 * One.one ≤ 0
+trace: [grind.linarith.assert] -3 • y + 2 • x + One.one ≤ 0
+[grind.linarith.assert] 2 • z + -4 • x + One.one ≤ 0
+[grind.linarith.assert] -1 • z + 3 • y + One.one ≤ 0
+[grind.linarith.assert] 6 • y + -4 • x + 3 • One.one ≤ 0
+[grind.linarith.assert] 15 • One.one ≤ 0
 [grind.linarith.assert] Zero.zero < 0
 -/
 #guard_msgs (trace) in

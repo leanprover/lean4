@@ -24,7 +24,7 @@ private def getType? (e : Expr) : Option Expr :=
   | HAdd.hAdd _ _ α _ _ _ => some α
   | HSub.hSub _ _ α _ _ _ => some α
   | HMul.hMul _ _ α _ _ _ => some α
-  | SMul.smul _ α _ _ _ => some α
+  | HSMul.hSMul _ _ α _ _ _ => some α
   | Neg.neg α _ _ => some α
   | Zero.zero α _ => some α
   | One.one α _ => some α
@@ -64,7 +64,7 @@ partial def markVars (e : Expr) : LinearM Unit := do
         markVar a; markVar b; markVar e
         return
     markVar e
-  | SMul.smul _ _ i a b =>
+  | HSMul.hSMul _ _ _ i a b =>
     if isSMulIntInst (← getStruct) i then
       if (← getIntValue? a).isSome then
         return (← markVar b)

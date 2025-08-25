@@ -21,7 +21,7 @@ private def getType? (e : Expr) : Option Expr :=
   | HAdd.hAdd α _ _ _ _ _ => some α
   | HSub.hSub α _ _ _ _ _ => some α
   | HMul.hMul α _ _ _ _ _ => some α
-  | SMul.smul α β _ _ _ _ =>
+  | HSMul.hSMul α β _ _ _ _ =>
     match_expr α with
     | Nat => some β
     | Int => some β

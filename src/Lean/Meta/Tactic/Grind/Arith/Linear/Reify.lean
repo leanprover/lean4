@@ -47,7 +47,7 @@ partial def reify? (e : Expr) (skipVar : Bool) : LinearM (Option LinExpr) := do
     if isAddInst (← getStruct  ) i then return some (.add (← go a) (← go b)) else asTopVar e
   | HSub.hSub _ _ _ i a b =>
     if isSubInst (← getStruct  ) i then return some (.sub (← go a) (← go b)) else asTopVar e
-  | SMul.smul _ _ i a b =>
+  | HSMul.hSMul _ _ _ i a b =>
     let some r ← processSMul i a b | asTopVar e
     return some r
   | Neg.neg _ i a =>
@@ -89,7 +89,7 @@ where
       if isAddInst (← getStruct) i then return .add (← go a) (← go b) else asVar e
     | HSub.hSub _ _ _ i a b =>
       if isSubInst (← getStruct) i then return .sub (← go a) (← go b) else asVar e
-    | SMul.smul _ _ i a b =>
+    | HSMul.hSMul _ _ _ i a b =>
       let some r ← processSMul i a b | asVar e
       return r
     | Neg.neg _ i a =>

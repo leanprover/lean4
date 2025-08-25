@@ -11,7 +11,6 @@ public section
 set_option linter.missingDocs true -- keep it documented
 @[expose] section  -- Expose all defs
 
-
 /-!
 # Init.Prelude
 

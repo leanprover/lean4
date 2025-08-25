@@ -703,6 +703,13 @@ public:
     recursor_rules mk_rec_rules(unsigned d_idx, buffer<expr> const & Cs, buffer<expr> const & minors, unsigned & minor_idx) {
         inductive_type const & d = m_ind_types[d_idx];
         levels lvls = get_rec_levels();
+        buffer<expr> rec_apps;
+        for (auto ind_type : m_ind_types) {
+            name rec_name = mk_rec_name(ind_type.get_name());
+            expr rec_app = mk_constant(rec_name, lvls);
+            rec_app = mk_app(mk_app(mk_app(rec_app, m_params), Cs), minors);
+            rec_apps.push_back(rec_app);
+        }
         buffer<recursor_rule> rules;
         for (constructor const & cnstr : d.get_cnstrs()) {
             buffer<expr> b_u;
@@ -733,9 +740,7 @@ public:
                 }
                 buffer<expr> it_indices;
                 unsigned it_idx = get_I_indices(u_i_ty, it_indices);
-                name rec_name   = mk_rec_name(m_ind_types[it_idx].get_name());
-                expr rec_app    = mk_constant(rec_name, lvls);
-                rec_app         = mk_app(mk_app(mk_app(mk_app(mk_app(rec_app, m_params), Cs), minors), it_indices), mk_app(u_i, xs));
+                expr rec_app = mk_app(mk_app(rec_apps[it_idx], it_indices), mk_app(u_i, xs));
                 v.push_back(mk_lambda(xs, rec_app));
             }
             expr e_app    = mk_app(mk_app(minors[minor_idx], b_u), v);

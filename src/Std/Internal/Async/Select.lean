@@ -199,6 +199,27 @@ def Selectable.combine (selectables : Array (Selectable α)) : Selector α := {
       selectable.selector.unregisterFn
 }
 
+/--
+Creates a `Selector` from an `IO.Promise`. This allows promises to be used in multiplexing
+operations with `Selectable.one`.
+-/
+def promiseSelector (promise : IO.Promise α) : Selector α := {
+  tryFn := do
+    if ← promise.isResolved then
+      return promise.result?.get
+    else
+      return none
+
+  registerFn := fun waiter => do
+    IO.chainTask (t := promise.result?) fun res? => do
+      match res? with
+      | none => return ()
+      | some res => waiter.race (return ()) (·.resolve (.ok res))
+
+  unregisterFn := do
+    return ()
+}
+
 end Async
 end IO
 end Internal

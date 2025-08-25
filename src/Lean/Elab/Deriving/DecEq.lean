@@ -103,7 +103,7 @@ def mkAuxFunction (ctx : Context) (auxFunName : Name) (indVal : InductiveVal): T
     else `(Parser.Termination.suffix|)
   let type    ← `(Decidable ($target₁ = $target₂))
   let vis := ctx.mkVisibilityFromTypes
-  `(@[expose] $vis:visibility def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
+  `($vis:visibility def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
     $termSuffix:suffix)
 
 def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do

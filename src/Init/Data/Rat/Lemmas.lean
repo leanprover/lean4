@@ -271,8 +271,23 @@ theorem divInt_add_divInt (n₁ n₂ : Int) {d₁ d₂} (z₁ : d₁ ≠ 0) (z�
   simp_all [← Int.natCast_mul, Int.neg_eq_zero, divInt_neg', Int.mul_neg,
     Int.neg_add, Int.neg_mul, mkRat_add_mkRat]
 
+protected theorem add_comm (a b : Rat) : a + b = b + a := by
+  simp [add_def, Int.add_comm, Nat.mul_comm]
+
+protected theorem add_assoc (a b c : Rat) : a + b + c = a + (b + c) :=
+  numDenCasesOn' a fun n₁ d₁ h₁ ↦ numDenCasesOn' b fun n₂ d₂ h₂ ↦ numDenCasesOn' c fun n₃ d₃ h₃ ↦ by
+    simp only [ne_eq, Int.natCast_eq_zero, h₁, not_false_eq_true, h₂, divInt_add_divInt,
+      Int.mul_eq_zero, or_self, h₃]
+    rw [Int.mul_assoc, Int.add_mul, Int.add_mul, Int.mul_assoc, Int.add_assoc]
+    congr 2
+    rw [Int.mul_right_comm, Int.mul_comm d₁ d₂, ← Int.mul_assoc]
+
 @[simp] theorem neg_num (a : Rat) : (-a).num = -a.num := rfl
 @[simp] theorem neg_den (a : Rat) : (-a).den = a.den := rfl
+
+protected theorem neg_add_cancel (a : Rat) : -a + a = 0 := by
+  simp only [add_def, neg_num, Int.neg_mul, neg_den, Int.add_comm, ← Int.sub_eq_add_neg,
+    Int.sub_self, normalize_eq_mkRat, zero_mkRat]
 
 theorem neg_normalize (n d z) : -normalize n d z = normalize (-n) d z := by
   simp only [normalize, maybeNormalize_eq, Int.divExact_eq_tdiv, Int.natAbs_neg, Int.neg_tdiv]

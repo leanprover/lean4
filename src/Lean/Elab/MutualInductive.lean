@@ -68,6 +68,12 @@ register_builtin_option bootstrap.inductiveCheckResultingUniverse : Bool := {
     This option may be deleted in the future after we improve the validator"
 }
 
+register_builtin_option debug.inductiveCheckPositivity : Bool := {
+  defValue := true
+  descr    := "Run elaborator checks for positivity of inductive types. Disabling this can be \
+    useful for debugging the elaborator or when stress-testing the kernel with invalid inductive types."
+}
+
 /-- View of a constructor. Only `ref`, `modifiers`, `declName`, and `declId` are required by the mutual inductive elaborator itself. -/
 structure CtorView where
   /-- Syntax for the whole constructor. -/
@@ -780,6 +786,84 @@ where
         /- Underconstrained, but not an error. -/
         pure ()
 
+
+structure PositivityExtState where
+  map : PHashMap (Name × Nat) (Except Exception Unit) := {}
+  deriving Inhabited
+
+/- Simple local extension for caching/memoization -/
+builtin_initialize positivityExt : EnvExtension PositivityExtState ←
+  -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
+  -- The resulting state can still be accessed on the generated declarations using `findStateAsync`;
+  -- see below
+  registerEnvExtension (pure {}) (asyncMode := .local)
+
+private def positivityExt.getOrSet (key : Name × Nat) (act : CoreM Unit) := do
+  match (positivityExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := key.1) (← getEnv)).map.find? key with
+  | some r =>
+    liftExcept r
+  | none =>
+    let r ← observing act
+    modifyEnv fun env =>
+      positivityExt.modifyState env (fun s => { s with map := s.map.insert key r })
+    liftExcept r
+
+/--
+Throws an exception unless the `i`th parameter of the inductive type only occurrs in
+positive position.
+-/
+partial def isIndParamPositive (info : InductiveVal) (i : Nat) : CoreM Unit := do
+  -- Consistently use the info of the first inductive in the group
+  if info.name != info.all[0]! then
+    return (← isIndParamPositive (← getConstInfoInduct info.all[0]!) i)
+
+  positivityExt.getOrSet (info.name, i) do MetaM.run' do
+    trace[Elab.inductive] "checking positivity of #{i+1} in {.ofConstName info.name}"
+    for indName in info.all do
+      let info ← getConstInfoInduct indName
+      for con in info.ctors do
+        let con ← getConstInfoCtor con
+        forallTelescopeReducing con.type fun xs _t => do
+          -- TODO: Check for occurrences in the indices of t?
+          let params := xs[0...info.numParams]
+          let p := params[i]!.fvarId!
+          for conArg in xs[info.numParams...*] do
+            forallTelescopeReducing (← inferType conArg) fun conArgArgs conArgRes => do
+              for conArgArg in conArgArgs do
+                if (← inferType conArgArg).hasAnyFVar (· == p) then
+                  throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}"
+              let conArgRes ← whnf conArgRes
+              if conArgRes.hasAnyFVar (· == p) then
+                  conArgRes.withApp fun fn args => do
+                    if fn == mkFVar p then
+                      for arg in args do
+                        if arg.hasAnyFVar (· == p) then
+                          throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
+                            in application of the parameter itself."
+                    else if let some fn := fn.constName? then
+                      if info.all.contains fn then
+                        -- Recursive occurrence of an inductive type of this group.
+                        -- Params must match by construction but check indices
+                        for idxArg in args[info.numParams...*] do
+                          if idxArg.hasAnyFVar (· == p) then
+                            throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
+                              in index of {.ofConstName fn}"
+                      else if (← isInductive fn) then
+                        let info' ← getConstInfoInduct fn
+                        for i in 0...info'.numParams, pe in args[0...info'.numParams] do
+                          if pe.hasAnyFVar (· == p) then
+                            try
+                              isIndParamPositive info' i
+                            catch _ =>
+                              throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
+                                in parameter #{i+1} of {.ofConstName fn}"
+                      else
+                        throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
+                          cannot nest through {.ofConstName fn}"
+                    else
+                      throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
+                        cannot nest through {fn}"
+
 /-- Checks the universe constraints for each constructor. -/
 private def checkResultingUniverses (views : Array InductiveView) (elabs' : Array InductiveElabStep2)
     (numParams : Nat) (indTypes : List InductiveType) : TermElabM Unit := do
@@ -803,6 +887,84 @@ private def checkResultingUniverses (views : Array InductiveView) (elabs' : Arra
               at universe level{indentD v}\n\
               which is not less than or equal to the inductive type's resulting universe level{indentD u}"
             withCtorRef views ctor.name <| throwError msg
+
+private partial def checkPositivity (views : Array InductiveView) (indFVars : Array Expr) (numParams : Nat) (indTypes : List InductiveType) : TermElabM Unit := do
+  unless debug.inductiveCheckPositivity.get (← getOptions) do return
+  for h : i in *...indTypes.length do
+    let view := views[i]!
+    let indType := indTypes[i]
+    for ctor in indType.ctors do
+      withCtorRef views ctor.name do
+        forallTelescopeReducing ctor.type fun xs retTy  => do
+          let params := xs[*...numParams]
+          for x in xs, i in *...xs.size do
+            prependError m!"In argument #{i+1} of constructor {ctor.name}:" do
+              go params (← inferType x)
+          isValidIndApp retTy
+where
+  hasIndOcc (t : Expr) : Option Expr :=
+    indFVars.find? (fun indFVar => t.hasAnyFVar (· == indFVar.fvarId!))
+
+  -- cf. is_valid_ind_app in inductive.cpp
+  isValidIndApp (e : Expr) : TermElabM Unit := do
+    e.withApp fun fn args => do
+      if let some i := indFVars.findIdx? (fun indFVar => fn == indFVar) then
+        -- The parameters are already checked in `checkParamOccs`
+        for arg in args[numParams...*] do
+          if let some indFVar := hasIndOcc arg then
+            throwError "Invalid occurrence of inductive type `{indFVar}`: The indices in the \
+              occurrence may not mention the inductive type itself."
+      else
+        throwError "Non-positive occurrence of the inductive type in constructor argument:{inlineExpr e}"
+
+  -- cf. check_positivity in inductive.cpp
+  go (params : Array Expr) (t : Expr) : TermElabM Unit := do
+    let t ← instantiateMVars (← whnf t)
+    if let some indFVar := hasIndOcc t then
+      -- Argument has recursive occurrences
+      forallTelescopeReducing t fun xs t => do
+        for x in xs do
+          if let some indFVar := hasIndOcc (← inferType x) then
+            throwError "Non-positive occurrence of inductive type `{indFVar}`"
+        let t ← whnf t
+        t.withApp fun fn args => do
+          if let some fn := fn.constName? then
+            -- Check for valid nested induction
+            unless (← isInductive fn) do
+              throwError "Non-positive occurrence of inductive type `{indFVar}`: \
+                Nested occurrences can only occur in inductive types, not in `{.ofConstName fn}`."
+            let info ← getConstInfoInduct fn
+            unless args.size = info.numParams + info.numIndices do
+              throwError "Non-positive occurrence of inductive type `{indFVar}`: \
+                Invalid occurrence of {indFVar} in unsaturated call of {.ofConstName fn}."
+            for i in 0...info.numParams, pe in args[0...info.numParams] do
+              if let some indFVar := hasIndOcc pe then
+                try isIndParamPositive info i
+                catch e =>
+                  let msg := m!"Invalid occurrence of inductive type `{indFVar}`, parameter #{i+1} of \
+                    `{.ofConstName fn}` is not positive."
+                  let msg := msg ++ .note m!"That parameter is not positive:{indentD e.toMessageData}"
+                  throwError msg
+                -- Here, we allow lambdas in parameters. The kernel actually substitutes these while
+                -- doing the transformation for nested inductives, and may reduce these lambdas away.
+                -- We approximate this behavior for now. See `lean/run/nestedInductiveUniverse.lean`
+                -- for an example
+                lambdaTelescope pe fun _xs pe => do
+                  -- We do not consider the domains of the lambda-bound variables
+                  -- as negative occurrences, as they will be reduced away.
+                  go params pe
+
+              -- The kernel admits no local variables in the parameters (#1964)
+              -- so check for any fvar that isn't one of the indFVars or params
+              if let some e := pe.find? (fun e => e.isFVar && !indFVars.contains e && !params.contains e) then
+                throwError "Nested inductive datatype parameters cannot contain local variable `{e}`."
+            for ie in args[info.numParams...args.size] do
+              if let some indFVar := hasIndOcc ie then
+                throwError "Invalid occurrence of inductive type `{indFVar}`, must not occur in \
+                  index of `{.ofConstName fn}`"
+          else
+            isValidIndApp t
+
 
 private def collectUsed (indTypes : List InductiveType) : StateRefT CollectFVars.State MetaM Unit := do
   indTypes.forM fun indType => do
@@ -912,6 +1074,8 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
             propagateUniversesToConstructors numParams indTypes
             levelMVarToParam indTypes none
         checkResultingUniverses views elabs' numParams indTypes
+        unless isUnsafe do
+          checkPositivity views indFVars numParams indTypes
         elabs'.forM fun elab' => elab'.finalizeTermElab
         let usedLevelNames := collectLevelParamsInInductive indTypes
         match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with

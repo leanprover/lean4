@@ -143,7 +143,7 @@ private def resolveUsingNamespace (env : Environment) (id : Name) : Name → Lis
 private def resolveExact (env : Environment) (id : Name) : Option Name :=
   if id.isAtomic then none
   else
-    let resolvedId := id.replacePrefix rootNamespace Name.anonymous
+    let resolvedId := id.removeRoot
     if containsDeclOrReserved env resolvedId then some resolvedId
     else
       -- We also allow `_root_` when accessing private declarations.
@@ -207,24 +207,30 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
 /-! # Namespace resolution -/
 
 def resolveNamespaceUsingScope? (env : Environment) (n : Name) (ns : Name) : Option Name :=
-  match ns with
-  | .str p _ =>
-    if env.isNamespace (ns ++ n) then
-      some (ns ++ n)
-    else
-      resolveNamespaceUsingScope? env n p
-  | .anonymous =>
-    let n := n.replacePrefix rootNamespace .anonymous
+  if let some n := n.removeRoot? then
     if env.isNamespace n then some n else none
-  | _ => unreachable!
+  else
+    let rec go (ns : Name) : Option Name :=
+      match ns with
+      | .str p _ =>
+        if env.isNamespace (ns ++ n) then
+          some (ns ++ n)
+        else
+          go p
+      | .anonymous =>
+        if env.isNamespace n then some n else none
+      | _ => unreachable!
+    go ns
 
 def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → List Name
   | [] => []
   | OpenDecl.simple ns exs :: ds =>
-    if env.isNamespace (ns ++ n) && !exs.contains n then
-      (ns ++ n) :: resolveNamespaceUsingOpenDecls env n ds
+    let nss := resolveNamespaceUsingOpenDecls env n ds
+    let n' := ns ++ n
+    if env.isNamespace n' && !exs.contains n && !nss.contains n' then
+      n' :: nss
     else
-      resolveNamespaceUsingOpenDecls env n ds
+      nss
   | _ :: ds => resolveNamespaceUsingOpenDecls env n ds
 
 /--
@@ -239,9 +245,23 @@ Given a name `id` try to find namespaces it may refer to. The resolution procedu
 3- Finally, for each command `open N`, include in the result `N ++ n` if it is the name of an existing namespace.
    We only consider simple `open` commands. -/
 def resolveNamespace (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : List Name :=
+  let nss := resolveNamespaceUsingOpenDecls env id openDecls
   match resolveNamespaceUsingScope? env id ns with
-  | some ns => ns :: resolveNamespaceUsingOpenDecls env id openDecls
-  | none => resolveNamespaceUsingOpenDecls env id openDecls
+  | some ns' => if nss.contains ns' then ns' :: nss else nss
+  | none => nss
+
+/--
+Like `resolveNamespace`, but selects a namespace that isn't a prefix of `ns`.
+-/
+def resolveNamespaceForOpen (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : List Name :=
+  match ns with
+  | .anonymous => resolveNamespace env .anonymous openDecls id
+  | .str p _ =>
+    let nss := resolveNamespaceForOpen env p openDecls id
+    match resolveNamespaceUsingScope? env id ns with
+    | some ns' => if nss.contains ns' then nss else ns' :: nss
+    | none => nss
+  | _ => unreachable!
 
 end ResolveName
 
@@ -285,27 +305,31 @@ def resolveGlobalName [Monad m] [MonadResolveName m] [MonadEnv m] (id : Name) : 
 Given a namespace name, return a list of possible interpretations.
 Names extracted from syntax should be passed to `resolveNamespace` instead.
 -/
-def resolveNamespaceCore [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) (allowEmpty := false) : m (List Name) := do
-  let nss := ResolveName.resolveNamespace (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
+def resolveNamespaceCore [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) (allowEmpty := false) (forOpen : Bool := false) : m (List Name) := do
+  let nss ←
+    if forOpen then
+      pure <| ResolveName.resolveNamespaceForOpen (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
+    else
+      pure <| ResolveName.resolveNamespace (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
   if !allowEmpty && nss.isEmpty then
     throwError s!"unknown namespace '{id}'"
   return nss
 
 /-- Given a namespace identifier, return a list of possible interpretations. -/
-def resolveNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] : Ident → m (List Name)
-  | stx@⟨Syntax.ident _ _ n pre⟩ => do
-    let pre := pre.filterMap fun
-      | .namespace ns => some ns
-      | _             => none
-    if pre.isEmpty then
-      withRef stx <| resolveNamespaceCore n
-    else
-      return pre
-  | stx => throwErrorAt stx s!"expected identifier"
+def resolveNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] : Ident → (forOpen : Bool := false) → m (List Name)
+  | stx@⟨Syntax.ident _ _ n _pre⟩, forOpen => do
+    -- let pre := pre.filterMap fun
+    --   | .namespace ns => some ns
+    --   | _             => none
+    -- if pre.isEmpty then
+    withRef stx <| resolveNamespaceCore n (forOpen := forOpen)
+    -- else
+    --   return pre
+  | stx, _ => throwErrorAt stx s!"expected identifier"
 
 /-- Given a namespace identifier, return the unique interpretation or else fail. -/
-def resolveUniqueNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Ident) : m Name := do
-  match (← resolveNamespace id) with
+def resolveUniqueNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Ident) (forOpen : Bool := false) : m Name := do
+  match (← resolveNamespace id (forOpen := forOpen)) with
   | [ns] => return ns
   | nss => throwError s!"ambiguous namespace '{id.getId}', possible interpretations: '{nss}'"
 

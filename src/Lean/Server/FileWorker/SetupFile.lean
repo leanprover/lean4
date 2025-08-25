@@ -16,7 +16,7 @@ public section
 
 namespace Lean.Server.FileWorker
 
-open IO
+open _root_.IO
 
 structure LakeSetupFileOutput where
     spawnArgs : Process.SpawnArgs

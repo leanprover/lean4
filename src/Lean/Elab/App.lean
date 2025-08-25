@@ -1270,9 +1270,10 @@ If it resolves to `name`, returns `(S', name)`.
 private partial def findMethod? (structName fieldName : Name) : MetaM (Option (Name × Name)) := do
   let env ← getEnv
   let find? structName' : MetaM (Option (Name × Name)) := do
-    let fullName := structName' ++ fieldName
-    -- We do not want to make use of the current namespace for resolution.
-    let candidates := ResolveName.resolveGlobalName (← getEnv) Name.anonymous (← getOpenDecls) fullName
+    -- Recall that the namespace associated to a struct is a non-private name
+    let ns := privateToUserName structName
+    let fullName := ns ++ fieldName
+    let candidates := ResolveName.resolveGlobalName env (← getCurrNamespace) (← getOpenDecls) fullName
       |>.filter (fun (_, fieldList) => fieldList.isEmpty)
       |>.map Prod.fst
     match candidates with
@@ -1280,7 +1281,7 @@ private partial def findMethod? (structName fieldName : Name) : MetaM (Option (N
     | [fullName'] => return some (structName', fullName')
     | _ =>
       let candidates := MessageData.joinSep (candidates.map (m!"`{.ofConstName ·}`")) ", "
-      throwError "Field name `{fieldName}` is ambiguous: `{fullName}` has possible interpretations {candidates}"
+      throwError "Field name `{fieldName}` is ambiguous: `{ns ++ fieldName}` has possible interpretations {candidates}"
   -- Optimization: the first element of the resolution order is `structName`,
   -- so we can skip computing the resolution order in the common case
   -- of the name resolving in the `structName` namespace.

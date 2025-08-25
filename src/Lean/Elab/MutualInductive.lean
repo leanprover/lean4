@@ -905,13 +905,16 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
         let numVars   := vars.size
         let numParams := numVars + numExplicitParams
         let indTypes ← updateParams vars indTypes
+        -- allow general access to private data for steps that do no elaboration
         let indTypes ←
-          if let some univToInfer := univToInfer? then
-            updateResultingUniverse views numParams (← levelMVarToParam indTypes univToInfer)
-          else
-            propagateUniversesToConstructors numParams indTypes
-            levelMVarToParam indTypes none
-        checkResultingUniverses views elabs' numParams indTypes
+          withoutExporting do
+            if let some univToInfer := univToInfer? then
+              updateResultingUniverse views numParams (← levelMVarToParam indTypes univToInfer)
+            else
+              propagateUniversesToConstructors numParams indTypes
+              levelMVarToParam indTypes none
+        withoutExporting do
+          checkResultingUniverses views elabs' numParams indTypes
         elabs'.forM fun elab' => elab'.finalizeTermElab
         let usedLevelNames := collectLevelParamsInInductive indTypes
         match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
@@ -985,12 +988,14 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
   Term.withDeclName view0.declName do withRef ref do
   withExporting (isExporting := !isPrivateName view0.declName) do
     let res ← mkInductiveDecl vars elabs
-    mkAuxConstructions (elabs.map (·.view.declName))
-    unless view0.isClass do
-      mkSizeOfInstances view0.declName
-      IndPredBelow.mkBelow view0.declName
-      for e in elabs do
-        mkInjectiveTheorems e.view.declName
+    -- This might be too coarse, consider reconsidering on construction-by-construction basis
+    withoutExporting (when := view0.ctors.any (isPrivateName ·.declName)) do
+      mkAuxConstructions (elabs.map (·.view.declName))
+      unless view0.isClass do
+        mkSizeOfInstances view0.declName
+        IndPredBelow.mkBelow view0.declName
+        for e in elabs do
+          mkInjectiveTheorems e.view.declName
     for e in elabs do
       enableRealizationsForConst e.view.declName
     return res

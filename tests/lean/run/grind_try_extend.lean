@@ -1,4 +1,6 @@
-import Lean
+module
+public import Lean
+public meta import Lean.Elab.Tactic
 
 open Lean Meta Elab Tactic Try
 

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Int.Linear
-public import Std.Internal.Rat
 public import Lean.Data.PersistentArray
 public import Lean.Meta.Tactic.Grind.ExprPtr
 public import Lean.Meta.Tactic.Grind.Arith.Util
@@ -19,7 +18,6 @@ public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 export Int.Linear (Var Poly)
-export Std.Internal (Rat)
 
 deriving instance Hashable for Poly
 
@@ -115,6 +113,7 @@ inductive EqCnstrProof where
     - If `?y = none`, then it is a proof for `a % b = a%k` where `c` is a proof that `b = k`. `a` is a numeral in this case.
     -/
     mod (k : Int) (y? : Option Var) (c : EqCnstr)
+  | pow (ka : Int) (ca? : Option EqCnstr) (kb : Nat) (cb? : Option EqCnstr)
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where

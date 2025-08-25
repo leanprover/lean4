@@ -1,3 +1,4 @@
+module
 structure DepThing {α : Type u} (l : List α) : Type u where
   suffix : List α
   property : suffix = l

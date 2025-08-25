@@ -3,8 +3,12 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Toml.Elab.Value
+public import Lake.Toml.Grammar
+public import Lake.Toml.Elab.Value
+meta import all Lake.Toml.Grammar
 
 /-!
 # TOML Expression Elaboration
@@ -36,7 +40,7 @@ protected def KeyTy.toString (ty : KeyTy) :=
   | .stdTable => "table"
   | .array => "array"
   | .dottedPrefix => "dotted"
-  | .headerPrefix => "dotted"
+  | .headerPrefix => "header"
 
 instance : ToString KeyTy := ⟨KeyTy.toString⟩
 
@@ -214,11 +218,11 @@ where
       else
         .table kRef <| insert {} kRef k' ks newV
 
-nonrec def TomlElabM.run (x : TomlElabM Unit) : CoreM Table := do
+@[inline] nonrec def TomlElabM.run (x : TomlElabM Unit) : CoreM Table := do
   let (_,s) ← x.run {}
   return mkSimpleTable s.items
 
-def elabToml (x : TSyntax ``toml) : CoreM Table := do
+public def elabToml (x : TSyntax ``toml) : CoreM Table := do
   let `(toml|$xs*) := x
     | throwErrorAt x "ill-formed TOML syntax"
   TomlElabM.run do

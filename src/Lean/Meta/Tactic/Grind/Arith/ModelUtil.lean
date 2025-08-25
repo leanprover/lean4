@@ -6,13 +6,13 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Std.Internal.Rat
 public import Lean.Meta.Tactic.Grind.Types
+public import Init.Data.Rat.Basic
 
 public section
 
 namespace Lean.Meta.Grind.Arith
-open Std.Internal
+
 /-!
 Helper functions for constructing counterexamples in the `linarith` and `cutsat` modules
 -/

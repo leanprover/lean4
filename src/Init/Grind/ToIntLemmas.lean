@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import all Init.Grind.ToInt
+public import Init.Grind.ToInt
+import all Init.Grind.ToInt
 
 public section
 
@@ -14,7 +15,7 @@ namespace Lean.Grind.ToInt
 
 /-! Wrap -/
 
-theorem of_eq_wrap_co_0 (i : IntInterval) (hi : Int) (h : i == .co 0 hi) {a b : Int} : a = i.wrap b → a = b % hi := by
+theorem of_eq_wrap_co_0 (i : IntInterval) (hi : Int) (h : i = .co 0 hi) {a b : Int} : a = i.wrap b → a = b % hi := by
   revert h
   cases i <;> simp
   intro h₁ h₂; subst h₁ h₂; simp
@@ -153,5 +154,15 @@ theorem ge_lower0 {α i} [ToInt α i] (h : i.lo? == some 0) (a : α) : -1 * toIn
 theorem le_upper {α i} [ToInt α i] (hi' : Int) (h : i.hi? == some (-hi' + 1)) (a : α) : toInt a + hi' ≤ 0 := by
   have h' := ToInt.toInt_mem a
   revert h h'; cases i <;> simp [IntInterval.hi?] <;> intro h <;> subst h <;> intros <;> omega
+
+theorem ge_lower' {α i} [ToInt α i] (lo : Int) (h : i.lo? = some lo) (a : α) : lo ≤ toInt a := by
+  have h' := ToInt.toInt_mem a
+  revert h h'; cases i <;> simp [IntInterval.lo?] <;> intro h <;> subst h <;> intros <;> assumption
+
+theorem le_upper' {α i} [ToInt α i] (hi : Int) (h : i.hi? = some hi) (a : α) : toInt a + 1 ≤ hi := by
+  have h' := ToInt.toInt_mem a
+  revert h h'; cases i <;> simp [IntInterval.hi?] <;> intro h <;> subst h <;> intros
+  next h => exact Int.add_one_le_of_lt h
+  next h => exact Int.add_one_le_of_lt h
 
 end Lean.Grind.ToInt

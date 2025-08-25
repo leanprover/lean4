@@ -15,16 +15,15 @@ def isQuotableCharForStrInterpolant (c : Char) : Bool :=
   c == '{' || isQuotableCharDefault c
 
 partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
-  let input     := c.input
   let stackSize := s.stackSize
   let rec parse (startPos : String.Pos) (c : ParserContext) (s : ParserState) : ParserState :=
-    let i     := s.pos
-    if input.atEnd i then
+    let i := s.pos
+    if c.atEnd i then
       let s := s.mkError "unterminated string literal"
       s.mkNode interpolatedStrKind stackSize
     else
-      let curr := input.get i
-      let s    := s.setPos (input.next i)
+      let curr := c.get i
+      let s    := s.setPos (c.next i)
       if curr == '\"' then
         let s := mkNodeToken interpolatedStrLitKind startPos c s
         s.mkNode interpolatedStrKind stackSize
@@ -36,9 +35,9 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
         if s.hasError then s
         else
           let i := s.pos
-          let curr := input.get i
+          let curr := c.get i
           if curr == '}' then
-            let s := s.setPos (input.next i)
+            let s := s.setPos (c.next i)
             parse i c s
           else
             let s := s.mkError "'}'"
@@ -46,14 +45,14 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
       else
         parse startPos c s
   let startPos := s.pos
-  if input.atEnd startPos then
+  if c.atEnd startPos then
     s.mkEOIError
   else
-    let curr  := input.get s.pos;
+    let curr  := c.get s.pos;
     if curr != '\"' then
       s.mkError "interpolated string"
     else
-      let s := s.next input startPos
+      let s := s.next c startPos
       parse startPos c s
 
 @[inline] def interpolatedStrNoAntiquot (p : Parser) : Parser := {

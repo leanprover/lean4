@@ -1,4 +1,6 @@
+module
 reset_grind_attrs%
+public section
 set_option warn.sorry false
 
 attribute [grind =] Array.size_set

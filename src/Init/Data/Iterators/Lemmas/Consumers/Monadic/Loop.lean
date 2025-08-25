@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
-public import all Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Data.Iterators.Consumers.Monadic.Loop
+import all Init.Data.Iterators.Consumers.Monadic.Loop
 
 public section
 

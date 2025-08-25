@@ -1,3 +1,4 @@
+module
 namespace List
 -- Should not panic
 #guard_msgs (drop error) in

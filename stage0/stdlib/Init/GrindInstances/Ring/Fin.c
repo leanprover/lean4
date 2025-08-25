@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances.Ring.Fin
-// Imports: Init.Data.Zero Init.Grind.Ring.Basic Init.GrindInstances.ToInt Init.Data.Fin.Lemmas
+// Imports: Init.Data.Zero Init.Data.Zero Init.Grind.Ring.Basic Init.GrindInstances.ToInt Init.GrindInstances.ToInt Init.Data.Fin.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -27,16 +27,12 @@ lean_object* l_Fin_intCast___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_intCast___redArg(lean_object*, lean_object*);
 lean_object* l_Fin_sub___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_add___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_Ring_Fin_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__0(lean_object*, lean_object*);
 lean_object* l_Fin_mul(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_Ring_Fin_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_mul___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_Ring_Fin_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_Ring_Fin_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_npowRec___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instHPowFinNatOfNeZero___redArg(lean_object*);
@@ -241,84 +237,10 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_Ring_Fin_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-switch (lean_obj_tag(x_1)) {
-case 0:
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
-lean_dec_ref(x_1);
-x_8 = lean_apply_2(x_2, x_6, x_7);
-return x_8;
-}
-case 1:
-{
-lean_object* x_9; lean_object* x_10; 
-lean_dec(x_4);
-lean_dec(x_2);
-x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
-lean_dec_ref(x_1);
-x_10 = lean_apply_1(x_3, x_9);
-return x_10;
-}
-case 2:
-{
-lean_object* x_11; lean_object* x_12; 
-lean_dec(x_3);
-lean_dec(x_2);
-x_11 = lean_ctor_get(x_1, 0);
-lean_inc(x_11);
-lean_dec_ref(x_1);
-x_12 = lean_apply_1(x_4, x_11);
-return x_12;
-}
-default: 
-{
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_inc(x_5);
-return x_5;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_Ring_Fin_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l___private_Init_GrindInstances_Ring_Fin_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg(x_2, x_3, x_4, x_5, x_6);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_Ring_Fin_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Init_GrindInstances_Ring_Fin_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_Ring_Fin_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l___private_Init_GrindInstances_Ring_Fin_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
-return x_7;
-}
-}
+lean_object* initialize_Init_Data_Zero(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Zero(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -329,7 +251,13 @@ _G_initialized = true;
 res = initialize_Init_Data_Zero(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Zero(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Grind_Ring_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_GrindInstances_ToInt(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_GrindInstances_ToInt(builtin, lean_io_mk_world());

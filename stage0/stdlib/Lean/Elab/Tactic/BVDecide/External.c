@@ -3093,7 +3093,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_External_0__Lean_
 _start:
 {
 lean_object* x_6; 
-x_6 = lean_ctor_get(x_3, 11);
+x_6 = lean_ctor_get(x_3, 12);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; 

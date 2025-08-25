@@ -230,6 +230,7 @@ structure Context where
   openDecls      : List OpenDecl := []
   initHeartbeats : Nat := 0
   maxHeartbeats  : Nat := getMaxHeartbeats options
+  quotContext    : Name := .anonymous
   currMacroScope : MacroScope := firstFrontendMacroScope
   /--
   If `diag := true`, different parts of the system collect diagnostics.
@@ -322,7 +323,7 @@ protected def withFreshMacroScope (x : CoreM α) : CoreM α := do
 
 instance : MonadQuotation CoreM where
   getCurrMacroScope   := return (← read).currMacroScope
-  getMainModule       := return (← getEnv).mainModule
+  getContext          := return (← read).quotContext
   withFreshMacroScope := Core.withFreshMacroScope
 
 instance : Elab.MonadInfoTree CoreM where
@@ -410,8 +411,8 @@ def SavedState.restore (b : SavedState) : CoreM Unit :=
   modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
-  let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
-  return addMacroScope (← getEnv).mainModule n fresh
+  withFreshMacroScope do
+    MonadQuotation.addMacroScope n
 
 /--
 Creates a name from `n` that is guaranteed to be unique.

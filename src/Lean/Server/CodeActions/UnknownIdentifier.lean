@@ -238,7 +238,7 @@ def handleUnknownIdentifierCodeAction
     | none => { line := 0, character := 0 }
   let importInsertionRange : Lsp.Range := ⟨importInsertionPos, importInsertionPos⟩
   let mut unknownIdentifierCodeActions := #[]
-  let mut hasUnambigiousImportCodeAction := false
+  let mut hasUnambiguousImportCodeAction := false
   let some result := response.queryResults[0]?
     | return #[]
   for query in queries, result in response.queryResults do
@@ -264,7 +264,7 @@ def handleUnknownIdentifierCodeAction
           }
         }
         if isExactMatch then
-          hasUnambigiousImportCodeAction := true
+          hasUnambiguousImportCodeAction := true
       else
         unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
           title := s!"Change to {insertion.fullName}"
@@ -274,7 +274,7 @@ def handleUnknownIdentifierCodeAction
             edits := #[insertion.edit]
           }
         }
-  if hasUnambigiousImportCodeAction then
+  if hasUnambiguousImportCodeAction then
     unknownIdentifierCodeActions := unknownIdentifierCodeActions.push <|
       importAllUnknownIdentifiersCodeAction params "quickfix"
   return unknownIdentifierCodeActions

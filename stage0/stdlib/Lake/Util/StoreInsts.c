@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.StoreInsts
-// Imports: Lake.Util.RBArray Lake.Util.Family Lake.Util.Store
+// Imports: Init.Data.Order Lean.Data.NameMap.Basic Lake.Util.RBArray Lake.Util.Family Lake.Util.Store
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -846,42 +846,13 @@ return x_12;
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfOfMonadDStoreOfFamilyOut(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-uint8_t x_8; 
-x_8 = !lean_is_exclusive(x_6);
-if (x_8 == 0)
-{
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_9 = lean_ctor_get(x_6, 0);
-x_10 = lean_ctor_get(x_6, 1);
-lean_inc(x_4);
-x_11 = lean_alloc_closure((void*)(l_Lake_instMonadStore1OfOfMonadDStoreOfFamilyOut___redArg___lam__0), 3, 2);
-lean_closure_set(x_11, 0, x_10);
-lean_closure_set(x_11, 1, x_4);
-x_12 = lean_apply_1(x_9, x_4);
-lean_ctor_set(x_6, 1, x_11);
-lean_ctor_set(x_6, 0, x_12);
-return x_6;
-}
-else
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_13 = lean_ctor_get(x_6, 0);
-x_14 = lean_ctor_get(x_6, 1);
-lean_inc(x_14);
-lean_inc(x_13);
-lean_dec(x_6);
-lean_inc(x_4);
-x_15 = lean_alloc_closure((void*)(l_Lake_instMonadStore1OfOfMonadDStoreOfFamilyOut___redArg___lam__0), 3, 2);
-lean_closure_set(x_15, 0, x_14);
-lean_closure_set(x_15, 1, x_4);
-x_16 = lean_apply_1(x_13, x_4);
-x_17 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_17, 0, x_16);
-lean_ctor_set(x_17, 1, x_15);
-return x_17;
+lean_object* x_8; 
+x_8 = l_Lake_instMonadStore1OfOfMonadDStoreOfFamilyOut___redArg(x_4, x_6);
+return x_8;
 }
 }
-}
+lean_object* initialize_Init_Data_Order(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_NameMap_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_RBArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Family(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Store(uint8_t builtin, lean_object*);
@@ -890,6 +861,12 @@ LEAN_EXPORT lean_object* initialize_Lake_Util_StoreInsts(uint8_t builtin, lean_o
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_Order(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_NameMap_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lake_Util_RBArray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

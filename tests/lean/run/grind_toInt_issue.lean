@@ -1,3 +1,4 @@
+module
 open Lean Grind
 
 example (x : Fin 2) : ToInt.toInt x ≠ 0 → ToInt.toInt x ≠ 1 → False := by

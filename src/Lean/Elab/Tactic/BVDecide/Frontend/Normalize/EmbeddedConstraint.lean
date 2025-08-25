@@ -28,7 +28,7 @@ them to substitute occurrences of `x` within other hypotheses. Additionally this
 redundant top level hypotheses.
 -/
 def embeddedConstraintPass : Pass where
-  name := `embeddedConstraintSubsitution
+  name := `embeddedConstraintSubstitution
   run' goal := do
     goal.withContext do
       let hyps ← getPropHyps

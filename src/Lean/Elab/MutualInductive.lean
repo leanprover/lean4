@@ -1043,12 +1043,12 @@ private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM U
   let mut processed : NameSet := {}
   for view in views do
     for classView in view.derivingClasses do
-      let className := classView.className
+      let className ← liftCoreM <| classView.getClassName
       unless processed.contains className do
         processed := processed.insert className
         let mut declNames := #[]
         for view in views do
-          if view.derivingClasses.any fun classView => classView.className == className then
+          if view.derivingClasses.any fun classView' => classView'.cls == classView.cls then
             declNames := declNames.push view.declName
         classView.applyHandlers declNames
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Attach
-// Imports: Init.Data.List.Lemmas Init.Data.List.Count Init.Data.Subtype.Basic Init.BinderNameHint
+// Imports: Init.Data.List.Lemmas Init.Data.List.Lemmas Init.Data.List.Count Init.Data.Subtype.Basic Init.BinderNameHint
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -439,6 +439,7 @@ return x_6;
 }
 }
 lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Count(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Subtype_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_BinderNameHint(uint8_t builtin, lean_object*);
@@ -447,6 +448,9 @@ LEAN_EXPORT lean_object* initialize_Init_Data_List_Attach(uint8_t builtin, lean_
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_List_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_List_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

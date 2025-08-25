@@ -290,13 +290,17 @@ macro "right" : conv => `(conv| rhs)
 /-- `intro` traverses into binders. Synonym for `ext`. -/
 macro "intro" xs:(ppSpace colGt binderIdent)* : conv => `(conv| ext $xs*)
 
-syntax enterArg := binderIdent <|> argArg
+syntax enterPattern := "in " (occs)? term
+
+syntax enterArg := binderIdent <|> argArg <|> enterPattern
 
 /-- `enter [arg, ...]` is a compact way to describe a path to a subterm.
 It is a shorthand for other conv tactics as follows:
 * `enter [i]` is equivalent to `arg i`.
 * `enter [@i]` is equivalent to `arg @i`.
 * `enter [x]` (where `x` is an identifier) is equivalent to `ext x`.
+* `enter [in e]` (where `e` is a term) is equivalent to `pattern e`.
+  Occurrences can be specified with `enter [in (occs := ...) e]`.
 For example, given the target `f (g a (fun x => x b))`, `enter [1, 2, x, 1]`
 will traverse to the subterm `b`. -/
 syntax (name := enter) "enter" " [" withoutPosition(enterArg,+) "]" : conv

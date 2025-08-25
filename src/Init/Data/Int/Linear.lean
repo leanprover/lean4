@@ -12,9 +12,11 @@ public import Init.Data.Int.Lemmas
 public import Init.Data.Int.LemmasAux
 public import Init.Data.Int.DivMod.Bootstrap
 public import Init.Data.Int.Cooper
-public import all Init.Data.Int.Gcd
+public import Init.Data.Int.Gcd
+import all Init.Data.Int.Gcd
 public import Init.Data.RArray
-public import all Init.Data.AC
+public import Init.Data.AC
+import all Init.Data.AC
 
 public section
 
@@ -2195,6 +2197,9 @@ theorem mod_eq (a b k : Int) (h : b = k) : a % b = a % k := by simp [*]
 
 theorem div_eq' (a b b' k : Int) (h₁ : b = b') (h₂ : k == a/b') : a / b = k := by simp_all
 theorem mod_eq' (a b b' k : Int) (h₁ : b = b') (h₂ : k == a%b') : a % b = k := by simp_all
+
+theorem pow_eq (a : Int) (b : Nat) (a' b' k : Int) (h₁ : a = a') (h₂ : ↑b = b') (h₃ : k == a'^b'.toNat) : a^b = k := by
+  simp [← h₁, ← h₂] at h₃; simp [h₃]
 
 end Int.Linear
 

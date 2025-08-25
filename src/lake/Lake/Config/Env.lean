@@ -3,11 +3,11 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Util.Name
-import Lake.Util.NativeLib
-import Lake.Config.InstallPath
-import Lake.Config.Cache
+public import Lake.Config.Cache
+public import Lake.Config.InstallPath
 
 open System
 open Lean hiding SearchPath
@@ -21,7 +21,7 @@ user-specified CLI options and the process environment.
 namespace Lake
 
 /-- A Lake environment. -/
-structure Env where
+public structure Env where
   /-- The Lake installation of the environment. -/
   lake : LakeInstall
   /-- The Lean installation of the environment. -/
@@ -62,7 +62,7 @@ structure Env where
   deriving Inhabited
 
 /-- Returns the home directory of the current user (if possible). -/
-def getUserHome? : BaseIO (Option FilePath) := do
+public def getUserHome? : BaseIO (Option FilePath) := do
   if System.Platform.isWindows then
     let some drive ← IO.getEnv "HOMEDRIVE"
       | return none
@@ -75,7 +75,7 @@ def getUserHome? : BaseIO (Option FilePath) := do
     return none
 
 /-- Returns the system directory that can be used to store caches (if one exists). -/
-def getSystemCacheHome? : BaseIO (Option FilePath) := do
+public def getSystemCacheHome? : BaseIO (Option FilePath) := do
   if let some cacheHome ← IO.getEnv "XDG_CACHE_HOME" then
     return FilePath.mk cacheHome
   else if let some userHome ← getUserHome? then
@@ -86,11 +86,11 @@ def getSystemCacheHome? : BaseIO (Option FilePath) := do
 namespace Env
 
 /-- Compute the Lean toolchain string used by Lake from the process environment. -/
-def computeToolchain : BaseIO String := do
+public def computeToolchain : BaseIO String := do
   return (← IO.getEnv "ELAN_TOOLCHAIN").getD Lean.toolchain
 
 /-- Compute the cache location used by Lake from the process environment. May be disabled. -/
-def computeCache (elan? : Option ElanInstall) (toolchain : String) : BaseIO Cache := do
+public def computeCache (elan? : Option ElanInstall) (toolchain : String) : BaseIO Cache := do
   if let some cacheDir ← IO.getEnv "LAKE_CACHE_DIR" then
     return ⟨cacheDir⟩
   else if let some elan := elan? then
@@ -104,7 +104,7 @@ def computeCache (elan? : Option ElanInstall) (toolchain : String) : BaseIO Cach
 Compute a `Lake.Env` object from the given installs
 and the set environment variables.
 -/
-def compute
+public def compute
   (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstall)
   (noCache : Option Bool := none)
 : EIO String Env := do
@@ -147,14 +147,14 @@ The override allows one to replace the Lean version used by a library
 (e.g., Mathlib) without completely rebuilding it, which is useful for testing
 custom builds of Lean.
 -/
-def leanGithash (env : Env) : String :=
+public def leanGithash (env : Env) : String :=
   if env.githashOverride.isEmpty then env.lean.githash else env.githashOverride
 
 /--
 The binary search path of the environment (i.e., `PATH`).
 Combines the initial path of the environment with that of the Lake installation.
 -/
-def path (env : Env) : SearchPath :=
+public def path (env : Env) : SearchPath :=
   if env.lake.binDir = env.lean.binDir then
     env.lean.binDir :: env.initPath
   else
@@ -171,7 +171,7 @@ instance is.
 The Lean library search path of the environment (i.e., `LEAN_PATH`).
 Combines the initial path of the environment with that of the Lake installation.
 -/
-def leanPath (env : Env) : SearchPath :=
+public def leanPath (env : Env) : SearchPath :=
   env.lake.libDir :: env.initLeanPath
 
 /--
@@ -179,18 +179,18 @@ The Lean source search path of the environment (i.e., `LEAN_SRC_PATH`).
 Combines the initial path of the environment with that of the Lake and Lean
 installations.
 -/
-def leanSrcPath (env : Env) : SearchPath :=
+public def leanSrcPath (env : Env) : SearchPath :=
   env.lake.srcDir :: env.initLeanSrcPath
 
 /--
 The shared library search path of the environment.
 Combines the initial path of the environment with that of the Lean installation.
 -/
-def sharedLibPath (env : Env) : SearchPath :=
+public def sharedLibPath (env : Env) : SearchPath :=
   env.lean.sharedLibPath ++ env.initSharedLibPath
 
 /-- Unset toolchain-specific environment variables. -/
-def noToolchainVars : Array (String × Option String) :=
+public def noToolchainVars : Array (String × Option String) :=
   #[
     ("ELAN_TOOLCHAIN", none),
     ("LAKE", none),
@@ -203,7 +203,7 @@ def noToolchainVars : Array (String × Option String) :=
   ]
 
 /-- Environment variable settings that are not augmented by a Lake workspace. -/
-def baseVars (env : Env) : Array (String × Option String)  :=
+public def baseVars (env : Env) : Array (String × Option String)  :=
   #[
     ("ELAN", env.elan?.map (·.elan.toString)),
     ("ELAN_HOME", env.elan?.map (·.home.toString)),
@@ -221,7 +221,7 @@ def baseVars (env : Env) : Array (String × Option String)  :=
   ]
 
 /-- Environment variable settings for the `Lake.Env`. -/
-def vars (env : Env) : Array (String × Option String)  :=
+public def vars (env : Env) : Array (String × Option String)  :=
   let vars := env.baseVars ++ #[
     ("LEAN_PATH", some env.leanPath.toString),
     ("LEAN_SRC_PATH", some env.leanSrcPath.toString),
@@ -253,5 +253,5 @@ directories. If everything is configured as expected, the user will not
 need to augment `LEAN_PATH`. Otherwise, they will need to provide Lake
 with more information (either through `LEAN_PATH` or through other options).
 -/
-def leanSearchPath (env : Lake.Env) : SearchPath :=
+public def leanSearchPath (env : Lake.Env) : SearchPath :=
   env.lake.libDir :: env.lean.leanLibDir :: env.leanPath

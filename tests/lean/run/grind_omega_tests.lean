@@ -1,3 +1,4 @@
+module
 class SubNegMonoid (G : Type u) extends Neg G where
 
 instance Int.instSubNegMonoid : SubNegMonoid Int where

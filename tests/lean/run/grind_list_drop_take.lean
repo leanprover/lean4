@@ -1,3 +1,4 @@
+module
 example : (List.range' 1 n).drop (List.range' 1 n).length = [] := by grind -- solves
 example : [].sum = 0 := by grind -- solves
 example : ((List.range' 1 n).drop (List.range' 1 n).length).sum = 0 := by grind -- solves

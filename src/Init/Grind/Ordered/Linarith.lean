@@ -8,11 +8,13 @@ prelude
 public import Init.Grind.Ordered.Module
 public import Init.Grind.Ordered.Ring
 public import Init.Grind.Ring.Field
-public import all Init.Data.Ord.Basic
-public import all Init.Data.AC
+public import Init.Data.Ord.Basic
+import all Init.Data.Ord.Basic
+public import Init.Data.AC
+import all Init.Data.AC
 public import Init.Data.RArray
 
-public section
+@[expose] public section
 
 /-!
 Support for the linear arithmetic module for `IntModule` in `grind`

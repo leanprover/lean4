@@ -6,9 +6,9 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Rat
 public import Std.Time.Date.Unit.Day
-public import all Std.Time.Date.Unit.Month
+public import Std.Time.Date.Unit.Month
+import all Std.Time.Date.Unit.Month
 
 public section
 

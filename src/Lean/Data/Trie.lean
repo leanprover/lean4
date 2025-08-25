@@ -166,14 +166,16 @@ partial def findPrefix (t : Trie α) (pre : String) : Array α := go t 0
 
 /-- Find the longest _key_ in the trie that is contained in the given string `s` at position `i`,
 and return the associated value. -/
-partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : Option α :=
+partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos)
+    (endByte := s.utf8ByteSize)
+    (endByte_valid : endByte ≤ s.utf8ByteSize := by simp) : Option α :=
   let rec loop
     | leaf v, _, res =>
       if v.isSome then v else res
     | node1 v c' t', i, res =>
       let res := if v.isSome then v else res
-      if h : i < s.utf8ByteSize then
-        let c := s.getUtf8Byte i h
+      if h : i < endByte then
+        let c := s.getUtf8Byte i (by omega)
         if c == c'
         then loop t' (i + 1) res
         else res
@@ -181,8 +183,8 @@ partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : Option α 
         res
     | node v cs ts, i, res =>
       let res := if v.isSome then v else res
-      if h : i < s.utf8ByteSize then
-        let c := s.getUtf8Byte i h
+      if h : i < endByte then
+        let c := s.getUtf8Byte i (by omega)
         match cs.findIdx? (· == c) with
         | none => res
         | some idx => loop ts[idx]! (i + 1) res

@@ -86,3 +86,13 @@ i=4, j=6
 -/
 #guard_msgs in
 #eval h 5
+
+section Int
+
+example : ((-2)...3).toList = [-2, -1, 0, 1, 2] := by native_decide
+example : ((-2)...=3).toList = [-2, -1, 0, 1, 2, 3] := by native_decide
+
+example : Std.PRange.LawfulRangeSize .closed Int := inferInstance
+example : Std.PRange.LawfulRangeSize .open Int := inferInstance
+
+end Int

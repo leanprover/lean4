@@ -107,6 +107,7 @@ def ctorSuggestion1 (pair : MyProd) : Nat :=
 error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
 Hint: These are similar:
+  'Lean.Grind.AC.Seq.cons',
   'List.Lex.below.cons',
   'List.Lex.cons',
   'List.Pairwise.below.cons',
@@ -136,6 +137,7 @@ inductive StringList : Type where
 error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
 Hint: These are similar:
+  'Lean.Grind.AC.Seq.cons',
   'List.Lex.below.cons',
   'List.Lex.cons',
   'List.Pairwise.below.cons',
@@ -145,7 +147,7 @@ Hint: These are similar:
   'List.Sublist.below.cons',
   'List.Sublist.cons',
   'List.cons',
-  'StringList.cons'
+   (or 1 others)
 ---
 warning: Local variable 'nil' resembles constructor 'List.nil' - write '.nil' (with a dot) or 'List.nil' to use the constructor.
 

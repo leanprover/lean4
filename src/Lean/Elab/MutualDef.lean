@@ -1324,6 +1324,7 @@ where
     for header in headers, view in views do
       if let some classStxs := view.deriving? then
         for classStx in classStxs do
+          let view ← DerivingClassView.ofSyntax ⟨classStx⟩
           withRef classStx <| withLogging <| withLCtx {} {} do
             /-
             Assumption: users intend delta deriving to apply to the body of a definition, even if in the source code
@@ -1339,7 +1340,7 @@ where
             let info ← getConstInfo header.declName
             lambdaTelescope info.value! fun xs _ => do
               let decl := mkAppN (.const header.declName (info.levelParams.map mkLevelParam)) xs
-              processDefDeriving classStx decl
+              processDefDeriving view decl
 
 /--
 Logs a snapshot task that waits for the entire snapshot tree in `defsParsedSnap` and then logs a
@@ -1441,6 +1442,8 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     -- no non-fatal diagnostics at this point
     snap.new.resolve <| .ofTyped defsParsedSnap
   let sc ← getScope
+  -- use hash of all names as stable quot context
+  withInitQuotContext (some (hash (views.map (·.declId[0].getId)))) do
   runTermElabM fun vars => do
     Term.elabMutualDef vars sc views
     Term.logGoalsAccomplishedSnapshotTask views defsParsedSnap

@@ -1,3 +1,4 @@
+module
 import Lean.Meta.Tactic.Grind
 
 def g (s : Type) := s

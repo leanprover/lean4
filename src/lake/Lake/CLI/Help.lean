@@ -3,12 +3,15 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+module
+
 prelude
+public import Init.Data.ToString
 import Lake.Version
 
 namespace Lake
 
-def usage :=
+public def usage :=
 uiVersionString ++ "
 
 USAGE:
@@ -420,13 +423,13 @@ already exists, Lake will error.
 Translation is lossy. It does not preserve comments or formatting and
 non-declarative configuration will be discarded."
 
-def helpScript : (cmd : String) → String
+public def helpScript : (cmd : String) → String
 | "list"                => helpScriptList
 | "run"                 => helpScriptRun
 | "doc"                 => helpScriptDoc
 | _                     => helpScriptCli
 
-def help : (cmd : String) → String
+public def help : (cmd : String) → String
 | "new"                 => helpNew
 | "init"                => helpInit
 | "build"               => helpBuild

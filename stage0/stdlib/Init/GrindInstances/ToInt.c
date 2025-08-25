@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances.ToInt
-// Imports: Init.Grind.ToInt Init.Grind.Module.Basic Init.Grind.Ring.ToInt Init.Data.Int.DivMod.Basic Init.Data.Int.Lemmas Init.Data.Int.Order Init.Data.Fin.Lemmas Init.Data.UInt.Lemmas Init.Data.SInt.Lemmas
+// Imports: Init.Grind.ToInt Init.Grind.ToInt Init.Grind.Module.Basic Init.Grind.Ring.ToInt Init.Data.Int.DivMod.Basic Init.Data.Int.Lemmas Init.Data.Int.Order Init.Data.Fin.Lemmas Init.Data.UInt.Lemmas Init.Data.SInt.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -30,11 +30,9 @@ static lean_object* l_Lean_Grind_instToIntBitVecUint___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt16SintOfNatNat;
 lean_object* l_id___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntNatCiOfNatInt;
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecUint(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntFinCoOfNatIntCast___boxed(lean_object*);
 lean_object* l_instNatCastInt___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_int8_to_int(uint8_t);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt64UintOfNatNat___lam__0(uint64_t);
@@ -56,13 +54,11 @@ LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt8SintOfNatNat;
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt8UintOfNatNat;
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt32UintOfNatNat___lam__0(uint32_t);
 lean_object* lean_usize_to_nat(size_t);
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUSizeUintNumBits;
 lean_object* lean_int16_to_int(uint16_t);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntISizeSintNumBits___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt64SintOfNatNat___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt16SintOfNatNat___lam__0(uint16_t);
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uint16_to_nat(uint16_t);
 static lean_object* l_Lean_Grind_instToIntIntIi___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntFinCoOfNatIntCast___lam__0(lean_object*);
@@ -299,82 +295,6 @@ x_3 = l_Lean_Grind_instToIntInt8SintOfNatNat___lam__0(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-switch (lean_obj_tag(x_1)) {
-case 0:
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
-lean_dec_ref(x_1);
-x_8 = lean_apply_2(x_2, x_6, x_7);
-return x_8;
-}
-case 1:
-{
-lean_object* x_9; lean_object* x_10; 
-lean_dec(x_4);
-lean_dec(x_2);
-x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
-lean_dec_ref(x_1);
-x_10 = lean_apply_1(x_3, x_9);
-return x_10;
-}
-case 2:
-{
-lean_object* x_11; lean_object* x_12; 
-lean_dec(x_3);
-lean_dec(x_2);
-x_11 = lean_ctor_get(x_1, 0);
-lean_inc(x_11);
-lean_dec_ref(x_1);
-x_12 = lean_apply_1(x_4, x_11);
-return x_12;
-}
-default: 
-{
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_inc(x_5);
-return x_5;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l___private_Init_GrindInstances_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg(x_2, x_3, x_4, x_5, x_6);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Init_GrindInstances_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_GrindInstances_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l___private_Init_GrindInstances_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
-return x_7;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt16SintOfNatNat___lam__0(uint16_t x_1) {
 _start:
 {
@@ -504,6 +424,7 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Grind_ToInt(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_ToInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Module_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ring_ToInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin, lean_object*);
@@ -517,6 +438,9 @@ LEAN_EXPORT lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin, l
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Grind_ToInt(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Grind_ToInt(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

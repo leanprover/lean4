@@ -1,3 +1,4 @@
+module
 set_option grind.debug true
 
 open Lean.Grind
@@ -65,7 +66,7 @@ example [CommRing α] [IsCharP α 8] (x : α) : (x + 1)*(x - 1) = x^2 → False 
 #guard_msgs (trace) in
 set_option trace.grind.ring.assert.queue true in
 example (x y : Int) : x + 16*y^2 - 7*x^2 = 0 → False := by
-  fail_if_success grind
+  fail_if_success grind -cutsat
   sorry
 
 /--

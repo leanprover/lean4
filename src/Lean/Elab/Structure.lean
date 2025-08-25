@@ -995,15 +995,14 @@ private def elabFieldTypeValue (structParams : Array Expr) (view : StructFieldVi
       match view.default? with
       | none => return (none, paramInfoOverrides, none)
       | some (.optParam valStx) =>
-        withoutExporting (when := view.modifiers.isPrivate) do
-          Term.synthesizeSyntheticMVarsNoPostponing
-          let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
-          let value ← Term.withoutAutoBoundImplicit <| Term.elabTerm valStx none
-          let value ← runStructElabM (init := state) <| solveParentMVars value
-          registerFailedToInferFieldType view.name (← inferType value) view.nameId
-          registerFailedToInferDefaultValue view.name value valStx
-          let value ← mkLambdaFVars params value
-          return (none, paramInfoOverrides, StructFieldDefault.optParam value)
+        Term.synthesizeSyntheticMVarsNoPostponing
+        let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
+        let value ← Term.withoutAutoBoundImplicit <| Term.elabTerm valStx none
+        let value ← runStructElabM (init := state) <| solveParentMVars value
+        registerFailedToInferFieldType view.name (← inferType value) view.nameId
+        registerFailedToInferDefaultValue view.name value valStx
+        let value ← mkLambdaFVars params value
+        return (none, paramInfoOverrides, StructFieldDefault.optParam value)
       | some (.autoParam tacticStx) =>
         throwErrorAt tacticStx "Invalid field declaration: Type must be provided when auto-param tactic is used"
     | some typeStx =>
@@ -1017,14 +1016,13 @@ private def elabFieldTypeValue (structParams : Array Expr) (view : StructFieldVi
         let type ← mkForallFVars params type
         return (type, paramInfoOverrides, none)
       | some (.optParam valStx) =>
-        withoutExporting (when := view.modifiers.isPrivate) do
-          let value ← Term.withoutAutoBoundImplicit <| Term.elabTermEnsuringType valStx type
-          let value ← runStructElabM (init := state) <| solveParentMVars value
-          registerFailedToInferDefaultValue view.name value valStx
-          Term.synthesizeSyntheticMVarsNoPostponing
-          let type  ← mkForallFVars params type
-          let value ← mkLambdaFVars params value
-          return (type, paramInfoOverrides, StructFieldDefault.optParam value)
+        let value ← Term.withoutAutoBoundImplicit <| Term.elabTermEnsuringType valStx type
+        let value ← runStructElabM (init := state) <| solveParentMVars value
+        registerFailedToInferDefaultValue view.name value valStx
+        Term.synthesizeSyntheticMVarsNoPostponing
+        let type  ← mkForallFVars params type
+        let value ← mkLambdaFVars params value
+        return (type, paramInfoOverrides, StructFieldDefault.optParam value)
       | some (.autoParam tacticStx) =>
         let name := mkAutoParamFnOfProjFn view.declName
         discard <| Term.declareTacticSyntax tacticStx name
@@ -1224,13 +1222,14 @@ private partial def mkFlatCtor (levelParams : List Name) (params : Array Expr) (
     StructElabM Unit := do
   let env ← getEnv
   let ctor := getStructureCtor env structName
-  let val ← mkFlatCtorExpr levelParams params ctor replaceIndFVars
-  withLCtx {} {} do trace[Elab.structure] "created flat constructor:{indentExpr val}"
-  -- Note: flatCtorName will be private if the constructor is private
-  let flatCtorName := mkFlatCtorOfStructCtorName ctor.name
-  let valType ← replaceIndFVars (← instantiateMVars (← inferType val))
-  let valType := valType.inferImplicit params.size true
-  addDecl <| Declaration.defnDecl (← mkDefinitionValInferringUnsafe flatCtorName levelParams valType val .abbrev)
+  withoutExporting (when := isPrivateName ctor.name) do
+    let val ← mkFlatCtorExpr levelParams params ctor replaceIndFVars
+    withLCtx {} {} do trace[Elab.structure] "created flat constructor:{indentExpr val}"
+    -- Note: flatCtorName will be private if the constructor is private
+    let flatCtorName := mkFlatCtorOfStructCtorName ctor.name
+    let valType ← replaceIndFVars (← instantiateMVars (← inferType val))
+    let valType := valType.inferImplicit params.size true
+    addDecl <| Declaration.defnDecl (← mkDefinitionValInferringUnsafe flatCtorName levelParams valType val .abbrev)
 
 private partial def checkResultingUniversesForFields (fieldInfos : Array StructFieldInfo) (u : Level) : TermElabM Unit := do
   for info in fieldInfos do

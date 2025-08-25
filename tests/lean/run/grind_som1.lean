@@ -1,4 +1,6 @@
+module
 import Lean
+public meta import Lean.Elab.Tactic
 
 open Lean.Grind
 open Lean.Grind.CommRing

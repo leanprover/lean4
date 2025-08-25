@@ -1,3 +1,6 @@
+module
+@[expose] public section -- TODO: remove after we fix congr_eq
+
 def g (a : α) (as : List α) : List α :=
   match as with
   | [] => [a]

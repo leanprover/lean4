@@ -1,5 +1,6 @@
+module
 -- In the following test, the first 8 case-splits are irrelevant,
--- and non-choronological backtracking is used to avoid searching
+-- and non-chronological backtracking is used to avoid searching
 -- (2^8 - 1) irrelevant branches
 /--
 trace: [grind.split] p8 ∨ q8, generation: 0

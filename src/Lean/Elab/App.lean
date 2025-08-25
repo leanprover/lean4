@@ -1481,9 +1481,10 @@ Remark: `fullName` is the name of the resolved "field" access function. It is us
 -/
 private partial def addLValArg (baseName : Name) (e : Expr) (args : Array Arg) (namedArgs : Array NamedArg) (f : Expr) (explicit : Bool) :
     MetaM (Array Arg × Array NamedArg) := do
-  withoutModifyingState <| go f (← inferType f) 0 namedArgs (namedArgs.map (·.name)) true
+  withoutModifyingState <| go none f (← inferType f) 0 namedArgs (namedArgs.map (·.name)) true
 where
   /--
+  * `fPreCoercion?` keeps track of what `f` was originally, if there was a coercion. For error reporting.
   * `argIdx` is the position into `args` for the next place an explicit argument can be inserted.
   * `remainingNamedArgs` keeps track of named arguments that haven't been visited yet,
     for handling the case where multiple parameters have the same name.
@@ -1492,7 +1493,7 @@ where
     Disabled after using `CoeFun` since those parameter names unlikely to be meaningful,
     and otherwise whether dot notation works or not could feel random.
   -/
-  go (f fType : Expr) (argIdx : Nat) (remainingNamedArgs : Array NamedArg) (unusableNamedArgs : Array Name) (allowNamed : Bool) := withIncRecDepth do
+  go (fPreCoercion? : Option Expr) (f fType : Expr) (argIdx : Nat) (remainingNamedArgs : Array NamedArg) (unusableNamedArgs : Array Name) (allowNamed : Bool) := withIncRecDepth do
     /- Use metavariables (rather than `forallTelescope`) to prevent `coerceToFunction?` from succeeding when multiple instances could apply -/
     let (xs, bInfos, fType') ← forallMetaTelescope fType
     let mut argIdx := argIdx
@@ -1515,7 +1516,7 @@ where
             /- If we can't add `e` to `args`, we try to add it using a named argument, but this is only possible
                if there isn't an argument with the same name occurring before it. -/
             if !allowNamed || unusableNamedArgs.contains xDecl.userName then
-              throwUnusableParameter f allowNamed xDecl
+              throwUnusableParameter fPreCoercion? f allowNamed xDecl
             else
               return (args, namedArgs.push { name := xDecl.userName, val := Arg.expr e })
         /- Advance `argIdx` and update seen named arguments. -/
@@ -1526,26 +1527,42 @@ where
        Otherwise, we can abort now. -/
     if allowNamed || argIdx ≤ args.size then
       if let fType'@(.forallE ..) ← whnf fType' then
-        return ← go (mkAppN f xs) fType' argIdx remainingNamedArgs unusableNamedArgs allowNamed
+        return ← go fPreCoercion? (mkAppN f xs) fType' argIdx remainingNamedArgs unusableNamedArgs allowNamed
       if let some f' ← coerceToFunction? (mkAppN f xs) then
-        return ← go f' (← inferType f') argIdx remainingNamedArgs unusableNamedArgs false
+        return ← go (fPreCoercion?.getD f) f' (← inferType f') argIdx remainingNamedArgs unusableNamedArgs false
     let tyCtorMsg := MessageData.ofLazyM do
       let some decl := (← getEnv).find? baseName | return .ofConstName baseName
       if decl.type.isForall then
         return m!"{.ofConstName baseName} ..."
       else
         return .ofConstName baseName
-    throwError m!"Invalid field notation: Function `{f.getAppFn}` does not have a usable \
+    throwError m!"Invalid field notation: Function {funMsg fPreCoercion? f} does not have a usable \
       parameter of type `{tyCtorMsg}` for which to substitute{inlineExprTrailing e}"
       ++ .note m!"Such a parameter must be explicit, or implicit with a unique name, to be used by field notation"
 
-  throwUnusableParameter (f : Expr) (allowNamed : Bool) (xDecl : MetavarDecl) :=
+  funMsg (fPreCoercion? : Option Expr) (f : Expr) : MessageData :=
+    let msg (e : Expr) : MessageData :=
+      -- Eta reduce since often coercions are written with lambdas.
+      -- This might be somewhat misleading, since the lambda can rephrase parameters.
+      let e := e.getAppFn.eta
+      if let .const c .. := e then
+        -- avoid `@`
+        m!"`{.ofConstName c}`"
+      else
+        m!"`{e}`"
+    if let some fPreCoercion := fPreCoercion? then
+      m!"{msg f} (coerced from {msg fPreCoercion})"
+    else
+      msg f
+
+  throwUnusableParameter (fPreCoercion? : Option Expr) (f : Expr) (allowNamed : Bool) (xDecl : MetavarDecl) :=
+    let fmsg := funMsg fPreCoercion? f
     let note : MessageData := if !allowNamed && !xDecl.userName.hasMacroScopes then
-      .note m!"Field notation cannot refer to parameter `{xDecl.userName}` of `{f.getAppFn}` \
+      .note m!"Field notation cannot refer to parameter `{xDecl.userName}` \
         by name because that constant was coerced to a function"
     else if allowNamed then
       let param := if xDecl.userName.hasMacroScopes then .nil else m!" `{xDecl.userName}`"
-      .note m!"The parameter{param} of `{f.getAppFn}` cannot be referred to by name \
+      .note m!"The parameter{param} cannot be referred to by name \
          because that function has a preceding parameter of the same name"
     else .nil
     -- Transforming field notation into direct application is too involved to offer a confident
@@ -1553,9 +1570,9 @@ where
     let hint := MessageData.hint' <|
       m!"Consider rewriting this application without field notation (e.g., `C.f x` instead of `x.f`)" ++
       if allowNamed then
-        m!" or changing the parameter names of `{f.getAppFn}` to avoid this conflict"
+        m!" or changing the parameter names of the function to avoid this conflict"
       else .nil
-    throwError m!"Invalid field notation: `{f.getAppFn}` has a parameter with \
+    throwError m!"Invalid field notation: {fmsg} has a parameter with \
       expected type{indentExpr xDecl.type}\nbut it cannot be used" ++ note ++ hint
 
 /-- Adds the `TermInfo` for the field of a projection. See `Lean.Parser.Term.identProjKind`. -/

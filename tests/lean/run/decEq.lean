@@ -26,7 +26,7 @@ trace: [Elab.Deriving.decEq] ⏎
         isTrue✝
           (by
             first
-            | have aux✝ := congrArg✝ PubEnum.ofNat h✝; rw [PubEnum.ofNat_toCtorIdx, PubEnum.ofNat_toCtorIdx] at aux✝;
+            | have aux✝ := congrArg✝ PubEnum.ofNat h✝; rw [PubEnum.ofNat_ctorIdx, PubEnum.ofNat_ctorIdx] at aux✝;
               assumption
             | rfl)
       else isFalse✝ fun h✝ => by subst h✝; contradiction

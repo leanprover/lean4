@@ -245,11 +245,11 @@ where
     let rec getHSMulFn? : GoalM (Option Expr) := do
       let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Int.mkType type type
       let some smulInst ← synthInstance? smulType | return none
-      internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type smulInst smulInst
+      internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type type smulInst
     let rec getHSMulNatFn? : GoalM (Option Expr) := do
       let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Nat.mkType type type
       let some smulInst ← synthInstance? smulType | return none
-      internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type smulInst smulInst
+      internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type type smulInst
     let zsmulFn? ← getHSMulFn?
     let nsmulFn? ← getHSMulNatFn?
     let homomulFn? ← if commRingInst?.isSome then

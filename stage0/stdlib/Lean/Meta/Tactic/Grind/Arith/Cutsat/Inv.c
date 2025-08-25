@@ -807,7 +807,7 @@ static lean_object* _init_l_Int_Linear_Poly_checkNoElimVars___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: !( __do_lift._@.Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv._hyg.77.0 )\n  ", 91, 91);
+x_1 = lean_mk_string_unchecked("assertion violation: !( __do_lift._@.Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv.3550241989._hygCtx._hyg.14.0 )\n  ", 110, 110);
 return x_1;
 }
 }
@@ -978,7 +978,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Inv_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv._hyg.204.0 ).contains y\n    ", 104, 104);
+x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv.24756299._hygCtx._hyg.46.0 ).contains y\n    ", 120, 120);
 return x_1;
 }
 }
@@ -11437,7 +11437,7 @@ lean_object* x_31; lean_object* x_32; uint8_t x_33;
 x_31 = l_Lean_instInhabitedExpr;
 x_32 = l_Lean_PersistentArray_get_x21___redArg(x_31, x_1, x_21);
 x_33 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_20, x_32);
-lean_dec(x_32);
+lean_dec_ref(x_32);
 if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; 
@@ -14313,7 +14313,7 @@ static lean_object* _init_l_List_forIn_x27_loop___at___List_forIn_x27_loop___at_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv._hyg.1726.0 )\n\n", 91, 91);
+x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv.109525974._hygCtx._hyg.13.0 )\n\n", 107, 107);
 return x_1;
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Monadic
-// Imports: Init.Data.List.TakeDrop Init.Data.List.Attach Init.Data.List.OfFn Init.Data.Array.Bootstrap Init.Data.List.Control
+// Imports: Init.Data.List.TakeDrop Init.Data.List.Attach Init.Data.List.OfFn Init.Data.Array.Bootstrap Init.Data.List.Control Init.Data.List.Control
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -956,6 +956,7 @@ lean_object* initialize_Init_Data_List_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_OfFn(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -971,6 +972,9 @@ res = initialize_Init_Data_List_OfFn(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Bootstrap(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());

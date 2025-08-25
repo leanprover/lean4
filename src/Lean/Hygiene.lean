@@ -39,7 +39,7 @@ instance : MonadQuotation Unhygienic where
   getRef              := return (← read).ref
   withRef             := fun ref => withReader ({ · with ref := ref })
   getCurrMacroScope   := return (← read).scope
-  getMainModule       := pure `UnhygienicMain
+  getContext          := pure `UnhygienicMain
   withFreshMacroScope := fun x => do
     let fresh ← modifyGet fun n => (n, n + 1)
     withReader ({ · with scope := fresh}) x

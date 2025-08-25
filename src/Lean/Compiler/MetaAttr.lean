@@ -39,7 +39,7 @@ def getIRPhases (env : Environment) (declName : Name) : IRPhases := Id.run do
       .comptime
     else
       env.header.modules[idx.toNat]?.map (·.irPhases) |>.get!
-  -- Allow `meta`->non-`meta` acesses in the same module
+  -- Allow `meta`->non-`meta` accesses in the same module
   | none => if isMeta env declName then .comptime else .all
 
 end Lean

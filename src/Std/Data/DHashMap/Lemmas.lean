@@ -9,7 +9,8 @@ prelude
 public import Std.Data.DHashMap.Internal.Raw
 public import Std.Data.DHashMap.Internal.RawLemmas
 import all Std.Data.DHashMap.Basic
-public import all Std.Data.DHashMap.AdditionalOperations
+public import Std.Data.DHashMap.AdditionalOperations
+import all Std.Data.DHashMap.AdditionalOperations
 
 public section
 

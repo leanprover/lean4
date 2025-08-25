@@ -182,8 +182,6 @@ jobs:
                 "binary-check": "ldd -v",
                 // foreign code may be linked against more recent glibc
                 "CTEST_OPTIONS": "-E 'foreign'",
-                // not compatible with `prepare-llvm` currently
-                "CMAKE_OPTIONS": "-DUSE_LAKE=OFF",
               },
               {
                 "name": "Linux Lake",
@@ -225,8 +223,6 @@ jobs:
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
-                // not compatible with `prepare-llvm` currently
-                "CMAKE_OPTIONS": "-DUSE_LAKE=OFF",
               },
               {
                 "name": "macOS aarch64",
@@ -242,8 +238,6 @@ jobs:
                 // See "Linux release" for release job levels; Grove is not a concern here
                 "check-level": isPr ? 0 : 2,
                 "secondary": isPr,
-                // not compatible with `prepare-llvm` currently
-                "CMAKE_OPTIONS": "-DUSE_LAKE=OFF",
               },
               {
                 "name": "Windows",
@@ -257,8 +251,6 @@ jobs:
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
                 "binary-check": "ldd",
-                // not compatible with `prepare-llvm` currently
-                "CMAKE_OPTIONS": "-DUSE_LAKE=OFF",
               },
               {
                 "name": "Linux aarch64",
@@ -269,8 +261,6 @@ jobs:
                 "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
-                // not compatible with `prepare-llvm` currently
-                "CMAKE_OPTIONS": "-DUSE_LAKE=OFF",
               },
               // Started running out of memory building expensive modules, a 2GB heap is just not that much even before fragmentation
               //{
@@ -299,6 +289,12 @@ jobs:
               //   "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_tempfile.lean\\.|leanruntest_libuv\\.lean\""
               // }
             ];
+            for (const job of matrix) {
+              if (job["prepare-llvm"]) {
+                // `USE_LAKE` is not compatible with `prepare-llvm` currently
+                job["CMAKE_OPTIONS"] = (job["CMAKE_OPTIONS"] ? job["CMAKE_OPTIONS"] + " " : "") + "-DUSE_LAKE=OFF";
+              }
+            }
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`);
             matrix = matrix.filter((job) => level >= job["check-level"]);
             core.setOutput('matrix', matrix.filter((job) => !job["secondary"]));

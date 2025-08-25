@@ -7,8 +7,10 @@ module
 
 prelude
 public import Init.Data.Bool
-public import all Init.Data.BitVec.Basic
-public import all Init.Data.BitVec.BasicAux
+public import Init.Data.BitVec.Basic
+import all Init.Data.BitVec.Basic
+public import Init.Data.BitVec.BasicAux
+import all Init.Data.BitVec.BasicAux
 public import Init.Data.Fin.Lemmas
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Div.Lemmas
@@ -2192,8 +2194,7 @@ theorem sshiftRight_eq_of_msb_false {x : BitVec w} {s : Nat} (h : x.msb = false)
   apply BitVec.eq_of_toNat_eq
   rw [BitVec.sshiftRight_eq, BitVec.toInt_eq_toNat_cond]
   have hxbound : 2 * x.toNat < 2 ^ w := BitVec.msb_eq_false_iff_two_mul_lt.mp h
-  simp only [hxbound, ↓reduceIte, Int.natCast_shiftRight, ofInt_natCast,
-    toNat_ofNat, toNat_ushiftRight]
+  simp only [hxbound, ↓reduceIte, toNat_ushiftRight]
   replace hxbound : x.toNat >>> s < 2 ^ w := by
     rw [Nat.shiftRight_eq_div_pow]
     exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) x.isLt

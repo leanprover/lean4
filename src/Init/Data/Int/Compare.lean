@@ -6,7 +6,8 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro, Paul Reichert
 module
 
 prelude
-public import all Init.Data.Ord.Basic
+public import Init.Data.Ord.Basic
+import all Init.Data.Ord.Basic
 public import Init.Data.Int.Order
 
 public section

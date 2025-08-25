@@ -272,34 +272,30 @@ return x_22;
 }
 else
 {
-lean_object* x_23; lean_object* x_24; uint8_t x_25; 
-x_23 = lean_ctor_get(x_19, 0);
-lean_inc(x_23);
-lean_dec_ref(x_19);
-lean_inc_ref(x_21);
-x_24 = l_String_intercalate(x_15, x_21);
-x_25 = !lean_is_exclusive(x_21);
-if (x_25 == 0)
+uint8_t x_23; 
+x_23 = !lean_is_exclusive(x_19);
+if (x_23 == 0)
 {
-lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-x_26 = lean_ctor_get(x_21, 1);
-lean_dec(x_26);
-x_27 = lean_ctor_get(x_21, 0);
-lean_dec(x_27);
-lean_ctor_set_tag(x_21, 0);
-lean_ctor_set(x_21, 1, x_24);
-lean_ctor_set(x_21, 0, x_23);
-x_28 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_28, 0, x_21);
-return x_28;
+lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+x_24 = lean_ctor_get(x_19, 1);
+lean_dec(x_24);
+x_25 = l_String_intercalate(x_15, x_21);
+lean_ctor_set_tag(x_19, 0);
+lean_ctor_set(x_19, 1, x_25);
+x_26 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_26, 0, x_19);
+return x_26;
 }
 else
 {
-lean_object* x_29; lean_object* x_30; 
-lean_dec(x_21);
+lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+x_27 = lean_ctor_get(x_19, 0);
+lean_inc(x_27);
+lean_dec(x_19);
+x_28 = l_String_intercalate(x_15, x_21);
 x_29 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_29, 0, x_23);
-lean_ctor_set(x_29, 1, x_24);
+lean_ctor_set(x_29, 0, x_27);
+lean_ctor_set(x_29, 1, x_28);
 x_30 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_30, 0, x_29);
 return x_30;

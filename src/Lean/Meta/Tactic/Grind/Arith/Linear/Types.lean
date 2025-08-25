@@ -6,17 +6,17 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Std.Internal.Rat
 public import Init.Grind.Ring.Poly
 public import Init.Grind.Ordered.Linarith
 public import Lean.Data.PersistentArray
 public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Init.Data.Rat.Basic
 
 public section
 
 namespace Lean.Meta.Grind.Arith.Linear
 export Lean.Grind.Linarith (Var Poly)
-export Std.Internal (Rat)
+
 abbrev LinExpr := Lean.Grind.Linarith.Expr
 
 deriving instance Hashable for Poly

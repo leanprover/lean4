@@ -177,7 +177,7 @@ def deriveInduction (name : Name) (isMutual : Bool) : MetaM Unit := do
         let motives ← forallTelescope eTyp fun args _ => do
           let motives ← unfoldPredRelMutual eqnInfo (←inferType args[1]!) (reduceConclusion := true)
           motives.mapM (fun x => mkForallFVars #[args[0]!] x)
-        -- For each predicate in the mutual group we generate an approprate candidate predicate
+        -- For each predicate in the mutual group we generate an appropriate candidate predicate
         let predicates := (numberNames infos.size "pred").zip <| ← PProdN.unpack α infos.size
         -- Then we make the induction principle more readable, by currying the hypotheses and projecting the conclusion
         withLocalDeclsDND predicates fun predVars => do

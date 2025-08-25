@@ -13,7 +13,8 @@ public import Init.Data.List.Perm
 public import Init.Data.List.Find
 public import Init.Data.List.MinMax
 public import Init.Data.List.Monadic
-public import all Std.Data.Internal.List.Defs
+public import Std.Data.Internal.List.Defs
+import all Std.Data.Internal.List.Defs
 public import Init.Data.Order.Ord
 import Init.Data.Subtype.Order
 import Init.Data.Order.Lemmas
@@ -5559,7 +5560,8 @@ private theorem antisymm_subtype [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd �
 theorem minEntry?_eq_some_iff [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (a : (a : α) × β a)
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
     minEntry? l = some a ↔ a ∈ l ∧ ∀ b : α, containsKey b l → (compare a.fst b).isLE := by
-  haveI : LawfulOrderMin ((a : α) × β a) := .of_le (fun _ _ _ => le_min_iff) (fun _ _ => min_eq_or)
+  haveI : LawfulOrderMin ((a : α) × β a) := .of_le_min_iff
+    (fun _ _ _ => le_min_iff) (fun _ _ => min_eq_or)
   haveI : Refl (α := (a : α) × β a) (· ≤ ·) := ⟨fun _ => ReflCmp.isLE_rfl⟩
   haveI : Antisymm (α := Subtype (· ∈ l)) (· ≤ ·) := antisymm_subtype hd
   haveI : IsLinearOrder (Subtype (· ∈ l)) := IsLinearOrder.of_refl_of_antisymm_of_lawfulOrderMin

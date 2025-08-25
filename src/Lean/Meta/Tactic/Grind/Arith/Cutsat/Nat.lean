@@ -16,10 +16,11 @@ public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+/-- Given `e`, returns `(NatCast.natCast e, rfl)` -/
 def mkNatVar (e : Expr) : GoalM (Expr × Expr) := do
   if let some p := (← get').natToIntMap.find? { expr := e } then
     return p
-  let e' := mkIntNatCast e
+  let e' ← shareCommon (mkIntNatCast e)
   let he := mkApp (mkApp (mkConst ``Eq.refl [1]) Int.mkType) e'
   let r := (e', he)
   modify' fun s => { s with

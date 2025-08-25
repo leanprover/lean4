@@ -3,9 +3,11 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lean.Data.Json
-import Lake.Util.Date
+public import Lean.Data.Json
+public import Lake.Util.Date
 
 /-! # Version
 
@@ -17,19 +19,21 @@ open System Lean
 
 namespace Lake
 
+public section -- for `Ord`
 /-- The major-minor-patch triple of a [SemVer](https://semver.org/). -/
-structure SemVerCore where
+public structure SemVerCore where
   major : Nat := 0
   minor : Nat := 0
   patch : Nat := 0
   deriving Inhabited, Repr, DecidableEq, Ord
+end
 
-instance : LT SemVerCore := ltOfOrd
-instance : LE SemVerCore := leOfOrd
-instance : Min SemVerCore := minOfLe
-instance : Max SemVerCore := maxOfLe
+public instance : LT SemVerCore := ltOfOrd
+public instance : LE SemVerCore := leOfOrd
+public instance : Min SemVerCore := minOfLe
+public instance : Max SemVerCore := maxOfLe
 
-def SemVerCore.parse (ver : String) : Except String SemVerCore := do
+public def SemVerCore.parse (ver : String) : Except String SemVerCore := do
   try
     match ver.split (· == '.') with
     | [major, minor, patch] =>
@@ -46,32 +50,32 @@ def SemVerCore.parse (ver : String) : Except String SemVerCore := do
   catch e =>
     throw s!"invalid version core: {e}"
 
-protected def SemVerCore.toString (ver : SemVerCore) : String :=
+public protected def SemVerCore.toString (ver : SemVerCore) : String :=
   s!"{ver.major}.{ver.minor}.{ver.patch}"
 
-instance : ToString SemVerCore := ⟨SemVerCore.toString⟩
-instance : ToJson SemVerCore := ⟨(·.toString)⟩
-instance : FromJson SemVerCore := ⟨(do SemVerCore.parse <| ← fromJson? ·)⟩
+public instance : ToString SemVerCore := ⟨SemVerCore.toString⟩
+public instance : ToJson SemVerCore := ⟨(·.toString)⟩
+public instance : FromJson SemVerCore := ⟨(do SemVerCore.parse <| ← fromJson? ·)⟩
 
 /--
 A Lean-style semantic version.
 A major-minor-patch triple with an optional arbitrary `-` suffix.
 -/
-structure StdVer extends SemVerCore where
+public structure StdVer extends SemVerCore where
   specialDescr : String := ""
   deriving Inhabited, Repr, DecidableEq
 
 /-- A Lean version. -/
-abbrev LeanVer := StdVer
+public abbrev LeanVer := StdVer
 
-instance : Coe StdVer SemVerCore := ⟨StdVer.toSemVerCore⟩
+public instance : Coe StdVer SemVerCore := ⟨StdVer.toSemVerCore⟩
 
-@[inline] protected def StdVer.ofSemVerCore (ver : SemVerCore) : StdVer :=
+@[inline] public def StdVer.ofSemVerCore (ver : SemVerCore) : StdVer :=
   {toSemVerCore := ver, specialDescr := ""}
 
-instance : Coe SemVerCore StdVer := ⟨StdVer.ofSemVerCore⟩
+public instance : Coe SemVerCore StdVer := ⟨StdVer.ofSemVerCore⟩
 
-protected def StdVer.compare (a b : StdVer) : Ordering :=
+public protected def StdVer.compare (a b : StdVer) : Ordering :=
   match compare a.toSemVerCore b.toSemVerCore with
   | .eq =>
     match a.specialDescr, b.specialDescr with
@@ -81,14 +85,14 @@ protected def StdVer.compare (a b : StdVer) : Ordering :=
     | a, b => compare a b
   | ord => ord
 
-instance : Ord StdVer := ⟨StdVer.compare⟩
+public instance : Ord StdVer := ⟨StdVer.compare⟩
 
-instance : LT StdVer := ltOfOrd
-instance : LE StdVer := leOfOrd
-instance : Min StdVer := minOfLe
-instance : Max StdVer := maxOfLe
+public instance : LT StdVer := ltOfOrd
+public instance : LE StdVer := leOfOrd
+public instance : Min StdVer := minOfLe
+public instance : Max StdVer := maxOfLe
 
-def StdVer.parse (ver : String) : Except String StdVer := do
+public def StdVer.parse (ver : String) : Except String StdVer := do
   let sepPos := ver.find (· == '-')
   if h : ver.atEnd sepPos then
     SemVerCore.parse ver
@@ -99,30 +103,30 @@ def StdVer.parse (ver : String) : Except String StdVer := do
       throw "invalid version: '-' suffix cannot be empty"
     return {toSemVerCore := core, specialDescr}
 
-protected def StdVer.toString (ver : StdVer) : String :=
+public protected def StdVer.toString (ver : StdVer) : String :=
   if ver.specialDescr.isEmpty then
     ver.toSemVerCore.toString
   else
     s!"{ver.toSemVerCore}-{ver.specialDescr}"
 
-instance : ToString StdVer := ⟨StdVer.toString⟩
-instance : ToJson StdVer := ⟨(·.toString)⟩
-instance : FromJson StdVer := ⟨(do StdVer.parse <| ← fromJson? ·)⟩
+public instance : ToString StdVer := ⟨StdVer.toString⟩
+public instance : ToJson StdVer := ⟨(·.toString)⟩
+public instance : FromJson StdVer := ⟨(do StdVer.parse <| ← fromJson? ·)⟩
 
 /-- A Lean toolchain version. -/
-inductive ToolchainVer
+public inductive ToolchainVer
 | release (ver : LeanVer)
 | nightly (date : Date)
 | pr (no : Nat)
 | other (name : String)
 deriving Repr, DecidableEq
 
-instance : Coe LeanVer ToolchainVer := ⟨ToolchainVer.release⟩
+public instance : Coe LeanVer ToolchainVer := ⟨ToolchainVer.release⟩
 
-def ToolchainVer.defaultOrigin := "leanprover/lean4"
-def ToolchainVer.prOrigin := "leanprover/lean4-pr-releases"
+public def ToolchainVer.defaultOrigin := "leanprover/lean4"
+public def ToolchainVer.prOrigin := "leanprover/lean4-pr-releases"
 
-def ToolchainVer.ofString (ver : String) : ToolchainVer := Id.run do
+public def ToolchainVer.ofString (ver : String) : ToolchainVer := Id.run do
   let colonPos := ver.posOf ':'
   let (origin, tag) :=
     if h : colonPos < ver.endPos then
@@ -150,7 +154,7 @@ def ToolchainVer.ofString (ver : String) : ToolchainVer := Id.run do
   return .other ver
 
 /-- Parse a toolchain from a `lean-toolchain` file. -/
-def ToolchainVer.ofFile? (toolchainFile : FilePath) : IO (Option ToolchainVer) := do
+public def ToolchainVer.ofFile? (toolchainFile : FilePath) : IO (Option ToolchainVer) := do
   try
     let toolchainString ← IO.FS.readFile toolchainFile
     return some <| ToolchainVer.ofString toolchainString.trim
@@ -160,32 +164,32 @@ def ToolchainVer.ofFile? (toolchainFile : FilePath) : IO (Option ToolchainVer) :
     | e => throw e
 
 /-- The `elan` toolchain file name (i.e., `lean-toolchain`). -/
-def toolchainFileName : FilePath := "lean-toolchain"
+public def toolchainFileName : FilePath := "lean-toolchain"
 
 /-- Parse a toolchain from the `lean-toolchain` file of the directory `dir`. -/
-@[inline] def ToolchainVer.ofDir? (dir : FilePath) : IO (Option ToolchainVer) :=
+@[inline] public def ToolchainVer.ofDir? (dir : FilePath) : IO (Option ToolchainVer) :=
   ToolchainVer.ofFile? (dir / toolchainFileName)
 
-protected def ToolchainVer.toString (ver : ToolchainVer) : String :=
+public protected def ToolchainVer.toString (ver : ToolchainVer) : String :=
   match ver with
   | .release ver => s!"{defaultOrigin}:v{ver}"
   | .nightly date => s!"{defaultOrigin}:nightly-{date}"
   | .pr n => s!"{prOrigin}:pr-release-{n}"
   | .other s => s
 
-instance : ToString ToolchainVer := ⟨ToolchainVer.toString⟩
-instance : ToJson ToolchainVer := ⟨(·.toString)⟩
-instance : FromJson ToolchainVer := ⟨(ToolchainVer.ofString <$> fromJson? ·)⟩
+public instance : ToString ToolchainVer := ⟨ToolchainVer.toString⟩
+public instance : ToJson ToolchainVer := ⟨(·.toString)⟩
+public instance : FromJson ToolchainVer := ⟨(ToolchainVer.ofString <$> fromJson? ·)⟩
 
-protected def ToolchainVer.lt (a b : ToolchainVer) : Prop :=
+@[expose] public def ToolchainVer.lt (a b : ToolchainVer) : Prop :=
   match a, b with
   | .release v1, .release v2 => v1 < v2
   | .nightly d1, .nightly d2 => d1 < d2
   | _, _ => False
 
-instance : LT ToolchainVer := ⟨ToolchainVer.lt⟩
+public instance : LT ToolchainVer := ⟨ToolchainVer.lt⟩
 
-instance ToolchainVer.decLt (a b : ToolchainVer) : Decidable (a < b) :=
+public instance ToolchainVer.decLt (a b : ToolchainVer) : Decidable (a < b) :=
   match a, b with
   | .release v1, .release v2 => inferInstanceAs (Decidable (v1 < v2))
   | .nightly d1, .nightly d2 => inferInstanceAs (Decidable (d1 < d2))
@@ -193,7 +197,7 @@ instance ToolchainVer.decLt (a b : ToolchainVer) : Decidable (a < b) :=
   | .nightly _, .release _ | .nightly _, .pr _ | .nightly _, .other _
   | .pr _, _ | .other _, _ => .isFalse (by simp [LT.lt, ToolchainVer.lt])
 
-protected def ToolchainVer.le (a b : ToolchainVer) : Prop :=
+@[expose] public def ToolchainVer.le (a b : ToolchainVer) : Prop :=
   match a, b with
   | .release v1, .release v2 => v1 ≤ v2
   | .nightly d1, .nightly d2 => d1 ≤ d2
@@ -201,9 +205,9 @@ protected def ToolchainVer.le (a b : ToolchainVer) : Prop :=
   | .other v1, .other v2 => v1 = v2
   | _, _ => False
 
-instance : LE ToolchainVer := ⟨ToolchainVer.le⟩
+public instance : LE ToolchainVer := ⟨ToolchainVer.le⟩
 
-instance ToolchainVer.decLe (a b : ToolchainVer) : Decidable (a ≤ b) :=
+public instance ToolchainVer.decLe (a b : ToolchainVer) : Decidable (a ≤ b) :=
   match a, b with
   | .release v1, .release v2 => inferInstanceAs (Decidable (v1 ≤ v2))
   | .nightly d1, .nightly d2 => inferInstanceAs (Decidable (d1 ≤ d2))
@@ -216,11 +220,11 @@ instance ToolchainVer.decLe (a b : ToolchainVer) : Decidable (a ≤ b) :=
     .isFalse (by simp [LE.le, ToolchainVer.le])
 
 /-- Parses a version from a string. -/
-class DecodeVersion (α : Type u) where
+public class DecodeVersion (α : Type u) where
   decodeVersion : String → Except String α
 
 export DecodeVersion (decodeVersion)
 
-instance : DecodeVersion SemVerCore := ⟨SemVerCore.parse⟩
-@[default_instance] instance : DecodeVersion StdVer := ⟨StdVer.parse⟩
-instance : DecodeVersion ToolchainVer := ⟨(pure <| ToolchainVer.ofString ·)⟩
+public instance : DecodeVersion SemVerCore := ⟨SemVerCore.parse⟩
+@[default_instance] public instance : DecodeVersion StdVer := ⟨StdVer.parse⟩
+public instance : DecodeVersion ToolchainVer := ⟨(pure <| ToolchainVer.ofString ·)⟩

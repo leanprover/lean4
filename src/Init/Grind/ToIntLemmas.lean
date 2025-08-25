@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import all Init.Grind.ToInt
+public import Init.Grind.ToInt
+import all Init.Grind.ToInt
 
 public section
 

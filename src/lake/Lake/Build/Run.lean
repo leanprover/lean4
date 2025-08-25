@@ -3,10 +3,13 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lake.Util.Lock
+public import Lake.Config.Workspace
+import Lake.Config.Monad
+import Lake.Build.Job.Monad
 import Lake.Build.Index
-import Lake.Build.Job
 
 /-! # Build Runner
 
@@ -19,7 +22,7 @@ open System
 namespace Lake
 
 /-- Create a fresh build context from a workspace and a build configuration. -/
-def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext := do
+public def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext := do
   return {
     opaqueWs := ws,
     toBuildConfig := config,
@@ -29,11 +32,11 @@ def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext
   }
 
 /-- Unicode icons that make up the spinner in animation order. -/
-def Monitor.spinnerFrames :=
+private def Monitor.spinnerFrames :=
   #['⣾','⣷','⣯','⣟','⡿','⢿','⣻','⣽']
 
 /-- Context of the Lake build monitor. -/
-structure MonitorContext where
+private structure MonitorContext where
   jobs : IO.Ref (Array OpaqueJob)
   out : IO.FS.Stream
   outLv : LogLevel
@@ -47,7 +50,7 @@ structure MonitorContext where
   updateFrequency : Nat
 
 /-- State of the Lake build monitor. -/
-structure MonitorState where
+private structure MonitorState where
   jobNo : Nat := 0
   totalJobs : Nat := 0
   didBuild : Bool := false
@@ -57,9 +60,9 @@ structure MonitorState where
   spinnerIdx : Fin Monitor.spinnerFrames.size := ⟨0, by decide⟩
 
 /-- Monad of the Lake build monitor. -/
-abbrev MonitorM := ReaderT MonitorContext <| StateT MonitorState BaseIO
+private abbrev MonitorM := ReaderT MonitorContext <| StateT MonitorState BaseIO
 
-@[inline] def MonitorM.run
+@[inline] private def MonitorM.run
   (ctx : MonitorContext) (s : MonitorState) (self : MonitorM α)
 : BaseIO (α × MonitorState) :=
   self ctx s
@@ -72,23 +75,23 @@ def Ansi.resetLine : String :=
   "\x1B[2K\r"
 
 /-- Like `IO.FS.Stream.flush`, but ignores errors. -/
-@[inline] def flush (out : IO.FS.Stream) : BaseIO PUnit :=
+@[inline] private def flush (out : IO.FS.Stream) : BaseIO PUnit :=
   out.flush |>.catchExceptions fun _ => pure ()
 
 /-- Like `IO.FS.Stream.putStr`, but panics on errors. -/
-@[inline] def print! (out : IO.FS.Stream) (s : String) : BaseIO PUnit :=
+@[inline] private def print! (out : IO.FS.Stream) (s : String) : BaseIO PUnit :=
   out.putStr s |>.catchExceptions fun e =>
     panic! s!"[{decl_name%} failed: {e}] {repr s}"
 
 namespace Monitor
 
-@[inline] def print (s : String) : MonitorM PUnit := do
+@[inline] private def print (s : String) : MonitorM PUnit := do
   print! (← read).out s
 
-@[inline] nonrec def flush : MonitorM PUnit := do
+@[inline] private nonrec def flush : MonitorM PUnit := do
   flush (← read).out
 
-def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.size) : MonitorM PUnit := do
+private def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.size) : MonitorM PUnit := do
   let {jobNo, totalJobs, ..} ← get
   let {useAnsi, showProgress, ..} ← read
   if showProgress ∧ useAnsi then
@@ -106,9 +109,7 @@ def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.si
     print s!"{resetCtrl}{spinnerIcon} [{jobNo}/{totalJobs}] {caption}"
     flush
 
-
-
-def reportJob (job : OpaqueJob) : MonitorM PUnit := do
+private def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   let {jobNo, totalJobs, didBuild, ..} ← get
   let {failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, showTime, ..} ← read
   let {task, caption, optional, ..} := job
@@ -147,7 +148,7 @@ where
     else if ms > 1000 then s!"{(ms) / 1000}.{(ms+50) / 100 % 10}s"
     else s!"{ms}ms"
 
-def poll (unfinished : Array OpaqueJob) : MonitorM (Array OpaqueJob × Array OpaqueJob) := do
+private def poll (unfinished : Array OpaqueJob) : MonitorM (Array OpaqueJob × Array OpaqueJob) := do
   let newJobs ← (← read).jobs.modifyGet ((·, #[]))
   modify fun s => {s with totalJobs := s.totalJobs + newJobs.size}
   let pollJobs := fun (running, unfinished) job => do
@@ -163,7 +164,7 @@ def poll (unfinished : Array OpaqueJob) : MonitorM (Array OpaqueJob × Array Opa
   let r ← unfinished.foldlM pollJobs (#[], #[])
   newJobs.foldlM pollJobs r
 
-def sleep : MonitorM PUnit := do
+private def sleep : MonitorM PUnit := do
   let now ← IO.monoMsNow
   let lastUpdate := (← get).lastUpdate
   let sleepTime : Nat := (← read).updateFrequency - (now - lastUpdate)
@@ -172,14 +173,14 @@ def sleep : MonitorM PUnit := do
   let now ← IO.monoMsNow
   modify fun s => {s with lastUpdate := now}
 
-partial def loop (unfinished : Array OpaqueJob) : MonitorM PUnit := do
+private  partial def loop (unfinished : Array OpaqueJob) : MonitorM PUnit := do
   let (running, unfinished) ← poll unfinished
   if h : 0 < unfinished.size then
     renderProgress running unfinished h
     sleep
     loop unfinished
 
-def main (init : Array OpaqueJob) : MonitorM PUnit := do
+private def main (init : Array OpaqueJob) : MonitorM PUnit := do
   loop init
   let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := ""})
   unless resetCtrl.isEmpty do
@@ -188,13 +189,13 @@ def main (init : Array OpaqueJob) : MonitorM PUnit := do
 
 end Monitor
 
-structure MonitorResult where
+public structure MonitorResult where
   didBuild : Bool
   failures : Array String
   numJobs : Nat
 
 /-- The job monitor function. An auxiliary definition for `runFetchM`. -/
-def monitorJobs
+public def monitorJobs
   (initJobs : Array OpaqueJob)
   (jobs : IO.Ref (Array OpaqueJob))
   (out : IO.FS.Stream)
@@ -222,7 +223,7 @@ def monitorJobs
   }
 
 /-- Save input mappings to the local Lake artifact cache (if enabled). -/
-def Workspace.saveInputs (ws : Workspace) : LogIO Unit := do
+public def Workspace.saveInputs (ws : Workspace) : LogIO Unit := do
   unless ws.lakeCache.isDisabled do
     ws.packages.forM fun pkg => do
       if let some ref := pkg.cacheRef? then
@@ -230,14 +231,14 @@ def Workspace.saveInputs (ws : Workspace) : LogIO Unit := do
         (← ref.get).save inputsFile
 
 /-- Exit code to return if `--no-build` is set and a build is required. -/
-def noBuildCode : ExitCode := 3
+public def noBuildCode : ExitCode := 3
 
 /--
 Run a build function in the Workspace's context using the provided configuration.
 Reports incremental build progress and build logs. In quiet mode, only reports
 failing build jobs (e.g., when using `-q` or non-verbose `--no-build`).
 -/
-def Workspace.runFetchM
+public def Workspace.runFetchM
   (ws : Workspace) (build : FetchM α) (cfg : BuildConfig := {})
 : IO α := do
   -- Configure
@@ -260,7 +261,7 @@ def Workspace.runFetchM
   let {failures, numJobs, didBuild} ← monitorJobs #[job] ctx.registeredJobs
     out failLv outLv minAction showOptional useAnsi showProgress showTime
   -- Save input mappings to cache
-  match (← ws.saveInputs {}) with
+  match (← ws.saveInputs.run {}) with
   | .ok _ log =>
     if !log.isEmpty && isVerbose then
       print! out "There were issues saving input mappings to the local artifact cache:\n"
@@ -291,7 +292,7 @@ def Workspace.runFetchM
       error "build failed"
 
 /-- Run a build function in the Workspace's context and await the result. -/
-@[inline] def Workspace.runBuild
+@[inline] public def Workspace.runBuild
   (ws : Workspace) (build : FetchM (Job α)) (cfg : BuildConfig := {})
 : IO α := do
   let job ← ws.runFetchM build cfg
@@ -299,7 +300,7 @@ def Workspace.runFetchM
   return a
 
 /-- Produce a build job in the Lake monad's workspace and await the result. -/
-@[inline] def runBuild
+@[inline] public def runBuild
   (build : FetchM (Job α)) (cfg : BuildConfig := {})
 : LakeT IO α := do
   (← getWorkspace).runBuild build cfg

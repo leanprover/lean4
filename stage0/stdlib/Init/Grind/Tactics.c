@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT uint8_t l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics_3081449384____hygCtx___hyg_256_(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_grind___closed__11;
 static lean_object* l_Lean_Parser_Tactic_grindLemma___closed__13;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__7;
@@ -24,10 +25,8 @@ static lean_object* l_Lean_Parser_Tactic_grindTrace___closed__2;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__11;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__24;
 static lean_object* l_Lean_Parser_Tactic_grindParam___closed__5;
-LEAN_EXPORT uint8_t l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_295_(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_grindLemma___closed__4;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_295____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_grindParam___closed__1;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__8;
 static lean_object* l_Lean_Parser_Tactic_grindTrace___closed__6;
@@ -103,6 +102,7 @@ static lean_object* l_Lean_Parser_Tactic_grindErase___closed__10;
 static lean_object* l_Lean_Parser_Tactic_grindLemma___closed__0;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__22;
 static lean_object* l_Lean_Parser_Tactic_grindLemma___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics_3081449384____hygCtx___hyg_256____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_grindLemma___closed__5;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__16;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__12;
@@ -152,7 +152,7 @@ x_1 = l_Lean_Grind_instInhabitedConfig___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_295_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics_3081449384____hygCtx___hyg_256_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; uint8_t x_10; uint8_t x_11; uint8_t x_12; lean_object* x_13; uint8_t x_14; uint8_t x_15; uint8_t x_16; uint8_t x_17; uint8_t x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; lean_object* x_26; uint8_t x_27; uint8_t x_28; lean_object* x_29; uint8_t x_30; uint8_t x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; uint8_t x_37; uint8_t x_38; uint8_t x_39; uint8_t x_40; lean_object* x_41; uint8_t x_42; uint8_t x_43; uint8_t x_44; uint8_t x_45; uint8_t x_46; uint8_t x_47; uint8_t x_48; uint8_t x_49; uint8_t x_50; uint8_t x_51; uint8_t x_52; uint8_t x_53; lean_object* x_54; uint8_t x_55; uint8_t x_56; lean_object* x_57; uint8_t x_58; uint8_t x_61; uint8_t x_75; uint8_t x_82; 
@@ -798,11 +798,11 @@ goto block_83;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_295____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics_3081449384____hygCtx___hyg_256____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_295_(x_1, x_2);
+x_3 = l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics_3081449384____hygCtx___hyg_256_(x_1, x_2);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
@@ -813,7 +813,7 @@ static lean_object* _init_l_Lean_Grind_instBEqConfig___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_295____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics_3081449384____hygCtx___hyg_256____boxed), 2, 0);
 return x_1;
 }
 }

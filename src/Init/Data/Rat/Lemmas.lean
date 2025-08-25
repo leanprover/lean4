@@ -282,15 +282,10 @@ protected theorem add_assoc (a b c : Rat) : a + b + c = a + (b + c) :=
     simp only [ne_eq, Int.natCast_eq_zero, h₁, not_false_eq_true, h₂, divInt_add_divInt,
       Int.mul_eq_zero, or_self, h₃]
     rw [Int.mul_assoc, Int.add_mul, Int.add_mul, Int.mul_assoc, Int.add_assoc]
-<<<<<<< HEAD
     simp [Int.mul_assoc, Int.mul_comm, Int.mul_left_comm]
 
 protected theorem add_left_comm (a b c : Rat) : a + (b + c) = b + (a + c) := by
   rw [← Rat.add_assoc, Rat.add_comm a, Rat.add_assoc]
-=======
-    congr 2
-    rw [Int.mul_right_comm, Int.mul_comm d₁ d₂, ← Int.mul_assoc]
->>>>>>> master
 
 @[simp] theorem neg_num (a : Rat) : (-a).num = -a.num := rfl
 @[simp] theorem neg_den (a : Rat) : (-a).den = a.den := rfl

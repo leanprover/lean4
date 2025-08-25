@@ -27,7 +27,6 @@ builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExten
 def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
   auxRecExt.tag env declName
 
-@[export lean_is_aux_recursor]
 def isAuxRecursor (env : Environment) (declName : Name) : Bool :=
   auxRecExt.isTagged env declName
   -- TODO: use `markAuxRecursor` when they are defined
@@ -49,12 +48,12 @@ def isRecOnRecursor (env : Environment) (declName : Name) : Bool :=
 def isBRecOnRecursor (env : Environment) (declName : Name) : Bool :=
   isAuxRecursorWithSuffix env declName brecOnSuffix
 
-builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension
+builtin_initialize noConfusionExt : TagDeclarationExtension ←
+  mkTagDeclarationExtension (asyncMode := .async .mainEnv)
 
 def markNoConfusion (env : Environment) (n : Name) : Environment :=
   noConfusionExt.tag env n
 
-@[export lean_is_no_confusion]
 def isNoConfusion (env : Environment) (n : Name) : Bool :=
   noConfusionExt.isTagged env n
 

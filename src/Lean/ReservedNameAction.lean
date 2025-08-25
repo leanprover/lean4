@@ -39,6 +39,10 @@ def executeReservedNameAction (name : Name) : CoreM Unit := do
     withTraceNode `ReservedNameAction (pure m!"{exceptBoolEmoji ·} executeReservedNameAction for {name}") do
       (← reservedNameActionsRef.get).anyM (· name)
 
+def realizeReservedName (n : Name) : CoreM Unit := do
+  if !(← getEnv).containsOnBranch n then
+    executeReservedNameAction n
+
 /--
 Similar to `resolveGlobalName`, but also executes reserved name actions.
 -/

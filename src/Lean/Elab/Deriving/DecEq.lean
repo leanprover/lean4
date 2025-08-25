@@ -155,6 +155,7 @@ partial def mkEnumOfNat (declName : Name) : MetaM Unit := do
 def mkEnumOfNatThm (declName : Name) : MetaM Unit := do
   let indVal ← getConstInfoInduct declName
   let levels := indVal.levelParams.map Level.param
+  realizeReservedName (Name.mkStr declName "toCtorIdx")
   let toCtorIdx := mkConst (Name.mkStr declName "toCtorIdx") levels
   let ofNat     := mkConst (Name.mkStr declName "ofNat") levels
   let enumType  := mkConst declName levels

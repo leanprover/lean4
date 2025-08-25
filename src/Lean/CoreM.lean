@@ -62,6 +62,13 @@ register_builtin_option internal.cmdlineSnapshots : Bool := {
     for the cmdline driver: diagnostics per command and final full snapshot"
 }
 
+/-- If `warn.sorry` is set to true, then, so long as the message log does not already have any errors,
+declarations with `sorryAx` generate the "declaration uses 'sorry'" warning. -/
+register_builtin_option warn.sorry : Bool := {
+  defValue := true
+  descr    := "warn about uses of `sorry` in declarations added to the environment"
+}
+
 /--
 If the `diagnostics` option is not already set, gives a message explaining this option.
 Begins with a `\n\n`, so an error message can look like `m!"some error occurred{useDiagnosticMsg}"`.
@@ -810,7 +817,10 @@ def logMessageKind (kind : Name) : CoreM Bool := do
 
 @[inherit_doc Environment.enableRealizationsForConst]
 def enableRealizationsForConst (n : Name) : CoreM Unit := do
-  let env ← (← getEnv).enableRealizationsForConst (← getOptions) n
+  let mut opts ← getOptions
+  if (← MonadLog.hasErrors) then
+    opts := warn.sorry.set opts false
+  let env ← (← getEnv).enableRealizationsForConst opts n
   setEnv env
 
 builtin_initialize

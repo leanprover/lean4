@@ -25,18 +25,18 @@ def ReducibilityStatus.toAttrString : ReducibilityStatus → String
   | .irreducible => "[irreducible]"
   | .semireducible => "[semireducible]"
 
-builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × ReducibilityStatus) (Name × ReducibilityStatus) (NameMap ReducibilityStatus) ←
-  registerPersistentEnvExtension {
+builtin_initialize reducibilityCoreExt : SimplePersistentEnvExtension (Name × ReducibilityStatus) (NameMap ReducibilityStatus) ←
+  let addEntryFn := fun (s : NameMap ReducibilityStatus) (p : Name × ReducibilityStatus) => s.insert p.1 p.2
+  registerSimplePersistentEnvExtension {
     name            := `reducibilityCore
-    mkInitial       := pure {}
-    addImportedFn   := fun _ _ => pure {}
-    addEntryFn      := fun (s : NameMap ReducibilityStatus) (p : Name × ReducibilityStatus) => s.insert p.1 p.2
-    exportEntriesFn := fun m =>
-      let r : Array (Name × ReducibilityStatus) := m.foldl (fun a n p => a.push (n, p)) #[]
-      r.qsort (fun a b => Name.quickLt a.1 b.1)
-    statsFn         := fun s => "reducibility attribute core extension" ++ Format.line ++ "number of local entries: " ++ format s.size
+    addImportedFn   := fun _ => {}
+    addEntryFn
+    toArrayFn := fun m =>
+      m.toArray.qsort (fun a b => Name.quickLt a.1 b.1)
     -- attribute is set by `addPreDefinitions`
     asyncMode       := .async .asyncEnv
+    replay?         := some <|
+      SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) addEntryFn
   }
 
 builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × ReducibilityStatus) (SMap Name ReducibilityStatus) ←

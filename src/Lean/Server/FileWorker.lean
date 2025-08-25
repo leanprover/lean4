@@ -464,7 +464,7 @@ section Initialization
     let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor doc.mkInputContext
     let _ ← ServerTask.IO.asTask do
-      let importClosure := getImportClosure? initSnap
+      let importClosure ← IO.lazyPure fun _ => getImportClosure? initSnap
       let importClosure ← importClosure.filterMapM (documentUriFromModule? ·)
       chanOut.send <| mkImportClosureNotification importClosure
     let ctx := {

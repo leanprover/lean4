@@ -39,6 +39,7 @@ Interface for asynchronous streaming with selector-based iteration
 -/
 class AsyncStream (α : Type) (β : outParam Type) where
   next : α → Selector β
+  close? : Option (α → IO Unit) := none
 
 /--
 Buffered reader that batches read operations for improved performance

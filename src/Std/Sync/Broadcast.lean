@@ -258,6 +258,8 @@ private def trySend (ch : Bounded α) (v : α) : BaseIO Bool := do
   ch.state.atomically do
     if (← get).closed then
       return false
+    else if (← get).receivers.isEmpty then
+      return false
     else
       trySend' v
 
@@ -266,7 +268,7 @@ private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Except Broad
     if (← get).closed then
       return .pure <| .error .closed
     else if (← get).receivers.isEmpty then
-      return .pure <| .error .noSubscribers
+      return .pure <| .ok 0
     else if ← trySend' v then
       return .pure <| .ok (← get).receivers.size
     else
@@ -510,11 +512,11 @@ Send a value through the broadcast channel, returning a task that will resolve o
 could be completed.
 -/
 @[inline]
-def send (ch : Broadcast α) (v : α) : BaseIO (Task Nat) := do
+def send (ch : Broadcast α) (v : α) : BaseIO (Task (Except IO.Error Nat)) := do
   BaseIO.bindTask (sync := true) (← ch.inner.send v)
     fun
-      | .ok res => return .pure res
-      | .error .. => unreachable!
+      | .ok res => return .pure <| .ok res
+      | .error err => return .pure <| .error (toString err)
 
 namespace Receiver
 
@@ -535,13 +537,6 @@ def recv [Inhabited α] (ch : Broadcast.Receiver α) : BaseIO (Task α) := do
     fun
       | some val => return .pure val
       | none => unreachable!
-
-/--
-Unsubscribes a `Receiver` from the `Broadcast` channel.
--/
-@[inline]
-def unsubscribe (ch : Broadcast.Receiver α) : IO Unit := do
-  ch.inner.unsubscribe
 
 open Internal.IO.Async in
 
@@ -566,6 +561,12 @@ def recvSelector [Inhabited α] (ch : Broadcast.Receiver α) : Selector α :=
 
     unregisterFn := sel.unregisterFn
   }
+/--
+Unsubscribes a `Receiver` from the `Broadcast` channel.
+-/
+@[inline]
+def unsubscribe (ch : Broadcast.Receiver α) : IO Unit := do
+  ch.inner.unsubscribe
 
 /--
 `ch.forAsync f` calls `f` for every message received on `ch`.
@@ -580,12 +581,13 @@ end Receiver
 
 instance [Inhabited α] : AsyncStream (Broadcast.Receiver α) α where
   next receiver := receiver.recvSelector
+  close? := some (Broadcast.Receiver.unsubscribe)
 
 instance [Inhabited α] : AsyncRead (Broadcast.Receiver α) α where
-  read receiver := Internal.IO.Async.Async.ofTask receiver.recv
+  read receiver := Internal.IO.Async.Async.ofIOTask receiver.recv
 
 instance [Inhabited α] : AsyncWrite (Broadcast α) α where
-  write receiver x := Internal.IO.Async.Async.ofTask (Task.map (Function.const _ ()) <$> receiver.send x)
+  write receiver x := Internal.IO.Async.Async.ofIOTask (Task.map (Function.const _ ()) <$> receiver.send x)
 
 
 /--
@@ -620,8 +622,8 @@ def trySend (ch : Sync α) (v : α) : BaseIO Bool :=
 Send a value through the channel, blocking until the transmission could be completed.
 -/
 @[inline]
-def send (ch : Sync α) (v : α) : BaseIO Nat := do
-  IO.wait (← Broadcast.send ch v)
+def send (ch : Sync α) (v : α) : IO Nat := do
+  IO.ofExcept =<< IO.wait (← Broadcast.send ch v)
 
 namespace Receiver
 

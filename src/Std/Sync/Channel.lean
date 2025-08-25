@@ -902,10 +902,10 @@ instance [Inhabited α] : AsyncStream (Channel α) α where
   next channel := channel.recvSelector
 
 instance [Inhabited α] : AsyncRead (Channel α) α where
-  read receiver := Internal.IO.Async.Async.ofTask receiver.recv
+  read receiver := Internal.IO.Async.Async.ofIOTask receiver.recv
 
 instance [Inhabited α] : AsyncWrite (Channel α) α where
-  write receiver x := Internal.IO.Async.Async.ofTask (receiver.send x)
+  write receiver x := Internal.IO.Async.Async.ofIOTask (receiver.send x)
 
 namespace Sync
 

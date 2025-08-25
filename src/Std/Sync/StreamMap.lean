@@ -36,8 +36,8 @@ with `CoeHead` so it's easier and we keep StreamMap on `Type 0`.
 inductive AnyAsyncStream (α : Type) where
   | mk : {t : Type} → [AsyncStream t α] → t → AnyAsyncStream α
 
-def AnyAsyncStream.getSelector : AnyAsyncStream α → Selector α
-  | AnyAsyncStream.mk stream => AsyncStream.next stream
+def AnyAsyncStream.getSelector : AnyAsyncStream α → Selector α × Option (IO Unit)
+  | AnyAsyncStream.mk stream => (AsyncStream.next stream, AsyncStream.close?.map (· stream))
 
 instance [AsyncStream t α] : CoeHead t (AnyAsyncStream α) where
   coe := AnyAsyncStream.mk
@@ -48,7 +48,7 @@ Provides operations for adding, removing, and selecting from multiple streams.
 -/
 structure StreamMap (α : Type) where
   private mk ::
-  private streams : Array (String × Selector α)
+  private streams : Array (String × Selector α × Option (IO Unit))
 
 namespace StreamMap
 
@@ -64,7 +64,7 @@ Register a new async stream with the given name
 def register [AsyncStream t α] (sm : StreamMap α) (name : String) (reader : t) : StreamMap α :=
   let newSelector := AsyncStream.next reader
   let filteredStreams := sm.streams.filter (fun (n, _) => n != name)
-  { sm with streams := filteredStreams.push (name, newSelector) }
+  { sm with streams := filteredStreams.push (name, newSelector, AsyncStream.close?.map (· reader)) }
 
 /--
 Create a StreamMap from an array of named streams
@@ -77,7 +77,7 @@ def ofArray {α} (streams : Array (String × AnyAsyncStream α)) : StreamMap α 
 Get a combined selector that returns the stream name and value
 -/
 def selector (stream : StreamMap α) : Selector (String × α) :=
-  let selectables := stream.streams.map fun (name, selector) => Selectable.case selector (fun x => pure (Task.pure (.ok (name, x))))
+  let selectables := stream.streams.map fun (name, selector) => Selectable.case selector.fst (fun x => pure (Task.pure (.ok (name, x))))
   Selectable.combine selectables
 
 /--
@@ -114,7 +114,7 @@ def keys (sm : StreamMap α) : Array String :=
 Get a specific stream selector by name
 -/
 def get? (sm : StreamMap α) (name : String) : Option (Selector α) :=
-  sm.streams.find? (fun (n, _) => n == name) |>.map (·.2)
+  sm.streams.find? (fun (n, _) => n == name) |>.map (·.2.1)
 
 /--
 Filter streams based on their names
@@ -126,6 +126,12 @@ def filterByName (sm : StreamMap α) (pred : String → Bool) : StreamMap α :=
 Convert to array of name-selector pairs
 -/
 def toArray (sm : StreamMap α) : Array (String × Selector α) :=
-  sm.streams
+  sm.streams.map (fun (n, s, _) => (n, s))
+
+/--
+Cleanup function
+-/
+def close (sm : StreamMap α) : IO Unit :=
+  sm.streams.forM (fun (_, _, cleanup) => cleanup.getD (pure ()))
 
 end StreamMap

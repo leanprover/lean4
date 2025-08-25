@@ -172,24 +172,27 @@ def Selectable.combine (selectables : Array (Selectable α)) : Selector α := {
     return none
 
   registerFn := fun waiter => do
-    let finished ← IO.mkRef false
     for selectable in selectables do
       let waiterPromise ← IO.Promise.new
-      let derivedWaiter := Waiter.mk finished waiterPromise
+      let derivedWaiter := Waiter.mk waiter.finished waiterPromise
       selectable.selector.registerFn derivedWaiter
 
       IO.chainTask (t := waiterPromise.result?) fun res? => do
         match res? with
         | none => return ()
         | some res =>
-          waiter.race (do IO.println s!"failedd {← waiter.checkFinished} {← waiter.finished.get}"; return ()) fun mainPromise => do
-            try
-              let val ← IO.ofExcept res
-              let asyncTask ← selectable.cont val
-              let result ← IO.ofExcept asyncTask.get
-              mainPromise.resolve (.ok result)
-            catch e =>
-              mainPromise.resolve (.error e)
+          let mainPromise := waiter.promise
+
+          for selectable in selectables do
+            selectable.selector.unregisterFn
+
+          try
+            let val ← IO.ofExcept res
+            let asyncTask ← selectable.cont val
+            let result ← IO.ofExcept asyncTask.get
+            mainPromise.resolve (.ok result)
+          catch e =>
+            mainPromise.resolve (.error e)
 
   unregisterFn := do
     for selectable in selectables do

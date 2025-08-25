@@ -44,11 +44,11 @@ structure State where
   -/
   structs : Array Struct := {}
   /--
-  Mapping from operators to its "structure id". We cache failures using `none`.
+  Mapping from operators to its "operator id". We cache failures using `none`.
   `opIdOf[op]` is `some id`, then `id < structs.size`. -/
   opIdOf : PHashMap ExprPtr (Option Nat) := {}
-  /- Mapping from expressions/terms to their structure ids. -/
-  exprToStructId : PHashMap ExprPtr Nat := {}
+  -- Remark: a term may be argument of different associative operators.
+  -- TODO: add mappings
   deriving Inhabited
 
 end Lean.Meta.Grind.AC

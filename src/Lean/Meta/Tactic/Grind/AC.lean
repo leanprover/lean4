@@ -6,3 +6,14 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.AC.Types
+public import Lean.Meta.Tactic.Grind.AC.Util
+public import Lean.Meta.Tactic.Grind.AC.Var
+public import Lean.Meta.Tactic.Grind.AC.Internalize
+public section
+namespace Lean
+builtin_initialize registerTraceClass `grind.ac
+builtin_initialize registerTraceClass `grind.ac.assert
+builtin_initialize registerTraceClass `grind.ac.internalize
+
+builtin_initialize registerTraceClass `grind.debug.ac.op
+end Lean

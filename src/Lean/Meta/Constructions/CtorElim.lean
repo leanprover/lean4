@@ -221,36 +221,6 @@ def mkConstructorElim (indName : Name) : MetaM Unit := do
     Elab.Term.elabAsElim.setTag declName
     setReducibleAttribute declName
 
-    -- Also prove the  dsimp theorem
-    unless info.isUnsafe do
-      let thmName := declName.str "eq"
-      let thmType ← forallBoundedTelescope declType (some (info.numParams + 1)) fun xs _ => do
-        let params : Array Expr := xs[:info.numParams]
-        let motive := xs[info.numParams]!
-        let ctorInfo ← getConstInfoCtor info.ctors[i]!
-        let ctorType ← instantiateForall ctorInfo.type params
-        forallBoundedTelescope ctorType ctorInfo.numFields fun ys ctorResult => do
-          let ctorApp := mkAppN (mkConst info.ctors[i]! us) (params ++ ys)
-          let indices := (← whnf ctorResult).getAppArgs[info.numParams:]
-          let lhs := mkConst declName (v :: us)
-          let lhs := mkAppN lhs (params ++ #[motive] ++ indices ++ #[ctorApp])
-          forallBoundedTelescope (← inferType lhs) (some 2) fun h_and_alt _ => do
-            let alt := h_and_alt[1]!
-            let lhs := mkApp lhs (← mkEqRefl (mkRawNatLit i))
-            let lhs := mkApp lhs alt
-            let rhs := mkAppN alt ys
-            let t ← mkEq lhs rhs
-            mkForallFVars (xs ++ ys ++ #[alt]) t
-      let thmVal ← forallTelescope thmType fun xs r => do mkLambdaFVars xs (← mkEqRefl r.appArg!)
-      addDecl (.thmDecl {
-        name        := thmName
-        levelParams := casesOnInfo.levelParams
-        type        := thmType
-        value       := thmVal
-      })
-      defeqAttr.setTag thmName
-      addSimpTheorem (ext := simpExtension) thmName (post := true) (inv := false) AttributeKind.global (prio := eval_prio default)
-
 public def mkCtorElim (indName : Name) : MetaM Unit := do
   unless (← getEnv).contains (indName.str "toCtorIdx") do return
   let .inductInfo indVal ← getConstInfo indName | return

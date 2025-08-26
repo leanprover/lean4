@@ -6,7 +6,7 @@ This file contains tests for typical mistakes one might do when using `inductive
 -/
 
 /--
-error: `coinductive_fixpoint` can be only used to define predicates
+error: Predicates must be `Prop`-valued
 -/
 #guard_msgs in
 def f (x : Nat) : Nat :=
@@ -14,7 +14,7 @@ def f (x : Nat) : Nat :=
 coinductive_fixpoint
 
 /--
-error: `inductive_fixpoint` can be only used to define predicates
+error: Predicates must be `Prop`-valued
 -/
 #guard_msgs in
 def g (x : Nat) : Nat :=

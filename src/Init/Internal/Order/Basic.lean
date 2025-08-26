@@ -527,6 +527,8 @@ instance instCompleteLatticePi [∀ x, CompleteLattice (β x)] : CompleteLattice
       subst y
       apply h z hz
 
+def instCompleteLatticeND [CompleteLattice x] := @instCompleteLatticePi α (fun _ => x) _
+
 def admissible_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (x : α)
   (hadm : admissible (P x)) : admissible (fun (f : ∀ x, β x) => P x (f x)) := by
   intro c hchain h

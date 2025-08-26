@@ -91,3 +91,17 @@ def mkPackedPPRodInstance (insts : Array Expr) : MetaM Expr := do
     PProdN.genMk mkInstCompleteLatticePProd insts
   else
     throwError "mkPackedPPRoodInstance: unexpected types {types} of {insts}"
+
+/--
+Given an expression representing the type `α → β ... → Prop` and an expression containing
+an instance of the `CompleteOrder` over `Prop`, constructs an instance of
+`CompleteOrder (α → β ... → Prop)`.
+-/
+def mkPropCompleteLatticeND (type : Expr) (orderInstance : Expr) : MetaM Expr :=
+  forallTelescope type fun args body => do
+    unless body.isProp do
+      throwError "Predicates must be `Prop`-valued"
+    let mut res := orderInstance
+    for arg in args do
+      res ← mkAppOptM ``instCompleteLatticeND #[←inferType arg, none, res]
+    return res

@@ -95,15 +95,9 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       let inst ←
         match hints[i]!.fixpointType with
         | .coinductiveFixpoint =>
-          forallTelescope type fun args body => do
-            trace[Elab.definition.partialFixpoint] "args: {args}, body: {body}"
-          unless type.isProp do
-            throwError "`coinductive_fixpoint` can be only used to define predicates"
-          pure (mkConst ``ReverseImplicationOrder.instCompleteLattice)
+            mkPropCompleteLatticeND type (mkConst ``ReverseImplicationOrder.instCompleteLattice)
         | .inductiveFixpoint =>
-          unless type.isProp do
-            throwError "`inductive_fixpoint` can be only used to define predicates"
-          pure (mkConst ``ImplicationOrder.instCompleteLattice)
+            mkPropCompleteLatticeND type (mkConst ``ImplicationOrder.instCompleteLattice)
         | .partialFixpoint => try
             synthInstance (← mkAppM ``CCPO #[type])
           catch _ =>

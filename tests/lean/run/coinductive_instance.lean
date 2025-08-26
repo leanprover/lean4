@@ -1,6 +1,3 @@
-import Init.Internal.Order
-open Lean.Order
-
 def DefFunctor (r : α → α → Prop) (infSeq : α → Prop) : α → Prop :=
    λ x : α => ∃ y, r x y ∧ infSeq y
 

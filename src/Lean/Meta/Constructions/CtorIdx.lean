@@ -72,31 +72,35 @@ public def mkCtorIdx (indName : Name) : MetaM Unit := do
             value := mkApp value alt
           pure value
         mkLambdaFVars (xs.push x) value
-      addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+      let decl := .defnDecl (← mkDefinitionValInferringUnsafe
         (name        := declName)
         (levelParams := info.levelParams)
         (type        := declType)
         (value       := declValue)
         (hints       := ReducibilityHints.abbrev)
-      ))
+      )
+      addDecl decl
+      if info.numCtors = 1 then
+        setInlineAttribute declName .macroInline
+      compileDecl decl
       modifyEnv fun env => addToCompletionBlackList env declName
       modifyEnv fun env => addProtected env declName
       setReducibleAttribute declName
-      if info.numCtors = 1 then
-        setInlineAttribute declName .macroInline
 
       -- Deprecated alias for enumeration types (which used to have `toCtorIdx`)
       if (← isEnumType indName) then
         let aliasName := mkToCtorIdxName indName
-        addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+        let decl := .defnDecl (← mkDefinitionValInferringUnsafe
           (name        := aliasName)
           (levelParams := info.levelParams)
           (type        := declType)
           (value       := mkConst declName us)
           (hints       := ReducibilityHints.abbrev)
-        ))
+        )
+        addDecl decl
+        setInlineAttribute aliasName .macroInline
+        compileDecl decl
         modifyEnv fun env => addToCompletionBlackList env aliasName
         modifyEnv fun env => addProtected env aliasName
         setReducibleAttribute aliasName
         Lean.Linter.setDeprecated aliasName { newName? := some declName, since? := "2025-08-25" }
-        setInlineAttribute aliasName .macroInline

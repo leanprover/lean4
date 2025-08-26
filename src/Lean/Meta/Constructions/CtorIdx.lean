@@ -99,3 +99,4 @@ public def mkCtorIdx (indName : Name) : MetaM Unit := do
         modifyEnv fun env => addProtected env aliasName
         setReducibleAttribute aliasName
         Lean.Linter.setDeprecated aliasName { newName? := some declName, since? := "2025-08-25" }
+        setInlineAttribute aliasName .macroInline

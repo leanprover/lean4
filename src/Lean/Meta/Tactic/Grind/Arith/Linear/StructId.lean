@@ -97,30 +97,36 @@ private def mkOne? (u : Level) (type : Expr) : GoalM (Option Expr) := do
   unless (← isDefEqD one one') do reportIssue! (← mkExpectedDefEqMsg one one')
   return some one
 
-private def mkPreorderInst? (u : Level) (type : Expr) (leInst? ltInst? : Option Expr) : GoalM (Option Expr) := do
-  let some leInst := leInst? | return none
+private def mkLawfulOrderLTInst? (u : Level) (type : Expr) (ltInst? leInst? : Option Expr) : GoalM (Option Expr) := do
   let some ltInst := ltInst? | return none
-  let preorderType := mkApp3 (mkConst ``Grind.Preorder [u]) type leInst ltInst
-  let some inst ← synthInstance? preorderType
-    | reportIssue! "type has `LE` and `LT`, but is not a preorder, failed to synthesize{indentExpr preorderType}"
+  let some leInst := leInst? | return none
+  let lawfulOrderLTType := mkApp3 (mkConst ``Std.LawfulOrderLT [u]) type ltInst leInst
+  let some inst ← synthInstance? lawfulOrderLTType
+    | reportIssue! "type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize{indentExpr lawfulOrderLTType}"
       return none
   return some inst
 
-private def mkPartialOrderInst? (u : Level) (type : Expr) (leInst? ltInst? : Option Expr) : GoalM (Option Expr) := do
+private def mkIsPreorderInst? (u : Level) (type : Expr) (leInst? : Option Expr) : GoalM (Option Expr) := do
   let some leInst := leInst? | return none
-  let some ltInst := ltInst? | return none
-  let partialOrderType := mkApp3 (mkConst ``Grind.PartialOrder [u]) type leInst ltInst
-  let some inst ← synthInstance? partialOrderType
-    | reportIssue! "type has `LE` and `LT`, but is not a partial order, failed to synthesize{indentExpr partialOrderType}"
+  let isPreorderType := mkApp2 (mkConst ``Std.IsPreorder [u]) type leInst
+  let some inst ← synthInstance? isPreorderType
+    | reportIssue! "type has `LE`, but is not a preorder, failed to synthesize{indentExpr isPreorderType}"
       return none
   return some inst
 
-private def mkLinearOrderInst? (u : Level) (type : Expr) (leInst? ltInst? : Option Expr) : GoalM (Option Expr) := do
+private def mkIsPartialOrderInst? (u : Level) (type : Expr) (leInst? : Option Expr) : GoalM (Option Expr) := do
   let some leInst := leInst? | return none
-  let some ltInst := ltInst? | return none
-  let linearOrderType := mkApp3 (mkConst ``Grind.LinearOrder [u]) type leInst ltInst
-  let some inst ← synthInstance? linearOrderType
-    | reportIssue! "type has `LE` and `LT`, but is not a linear order, failed to synthesize{indentExpr linearOrderType}"
+  let isPartialOrderType := mkApp2 (mkConst ``Std.IsPartialOrder [u]) type leInst
+  let some inst ← synthInstance? isPartialOrderType
+    | reportIssue! "type has `LE`, but is not a partial order, failed to synthesize{indentExpr isPartialOrderType}"
+      return none
+  return some inst
+
+private def mkIsLinearOrderInst? (u : Level) (type : Expr) (leInst?  : Option Expr) : GoalM (Option Expr) := do
+  let some leInst := leInst? | return none
+  let isLinearOrderType := mkApp2 (mkConst ``Std.IsLinearOrder [u]) type leInst
+  let some inst ← synthInstance? isLinearOrderType
+    | reportIssue! "type has `LE`, but is not a linear order, failed to synthesize{indentExpr isLinearOrderType}"
       return none
   return some inst
 
@@ -162,12 +168,11 @@ where
       synthInstance <| mkApp3 (mkConst ``HSMul [0, u, u]) Int.mkType type type
     let rec getHSMulNatInst : GoalM Expr := do
       synthInstance <| mkApp3 (mkConst ``HSMul [0, u, u]) Nat.mkType type type
-    let rec checkToFieldDefEq? (leInst? ltInst? parentInst? childInst? : Option Expr) (toFieldName : Name) : GoalM (Option Expr) := do
+    let rec checkToFieldDefEq? (leInst? parentInst? childInst? : Option Expr) (toFieldName : Name) : GoalM (Option Expr) := do
       let some leInst := leInst? | return none
-      let some ltInst := ltInst? | return none
       let some parentInst := parentInst? | return none
       let some childInst := childInst? | return none
-      let toField := mkApp4 (mkConst toFieldName [u]) type leInst ltInst childInst
+      let toField := mkApp3 (mkConst toFieldName [u]) type leInst childInst
       unless (← isDefEqD parentInst toField) do
         reportIssue! (← mkExpectedDefEqMsg parentInst toField)
         return none
@@ -186,10 +191,11 @@ where
     let ringId? ← CommRing.getRingId? type
     let leInst? ← getInst? ``LE
     let ltInst? ← getInst? ``LT
-    let preorderInst? ← mkPreorderInst? u type leInst? ltInst?
-    let partialInst? ← mkPartialOrderInst? u type leInst? ltInst?
-    let linearInst? ← mkLinearOrderInst? u type leInst? ltInst?
-    if (← getConfig).ring && ringId?.isSome && preorderInst?.isNone then
+    let lawfulOrderLTInst? ← mkLawfulOrderLTInst? u type ltInst? leInst?
+    let isPreorderInst? ← mkIsPreorderInst? u type leInst?
+    let isPartialInst? ← mkIsPartialOrderInst? u type leInst?
+    let isLinearInst? ← mkIsLinearOrderInst? u type leInst?
+    if (← getConfig).ring && ringId?.isSome && isPreorderInst?.isNone then
       -- If `type` is a `CommRing`, but it is not even a preorder, there is no point in use this module.
       -- `ring` module should handle it.
       return none
@@ -198,22 +204,22 @@ where
     let some intModuleInst ← mkIntModuleInst? u type ringInst? | return none
     let addInst ← getBinHomoInst ``HAdd
     let addFn ← internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type addInst
-    let orderedAddInst? ← match leInst?, ltInst?, preorderInst? with
-      | some leInst, some ltInst, some preorderInst =>
-        synthInstance? <| mkApp5 (mkConst ``Grind.OrderedAdd [u]) type addInst leInst ltInst preorderInst
-      | _, _, _ => pure none
-    let preorderInst? := if orderedAddInst?.isNone then none else preorderInst?
+    let orderedAddInst? ← match leInst?, isPreorderInst? with
+      | some leInst, some isPreorderInst =>
+        synthInstance? <| mkApp4 (mkConst ``Grind.OrderedAdd [u]) type addInst leInst isPreorderInst
+      | _, _ => pure none
+    let isPreorderInst? := if orderedAddInst?.isNone then none else isPreorderInst?
     -- preorderInst? may have been reset, check again whether this module is needed.
-    if (← getConfig).ring && ringId?.isSome && preorderInst?.isNone then
+    if (← getConfig).ring && ringId?.isSome && isPreorderInst?.isNone then
       return none
-    let partialInst? ← checkToFieldDefEq? leInst? ltInst? preorderInst? partialInst? ``Grind.PartialOrder.toPreorder
-    let linearInst? ← checkToFieldDefEq? leInst? ltInst? partialInst? linearInst? ``Grind.LinearOrder.toPartialOrder
+    let isPartialInst? ← checkToFieldDefEq? leInst? isPreorderInst? isPartialInst? ``Std.IsPartialOrder.toIsPreorder
+    let isLinearInst? ← checkToFieldDefEq? leInst? isPartialInst? isLinearInst? ``Std.IsLinearOrder.toIsPartialOrder
     let addCommGroupInst := mkApp2 (mkConst ``Grind.IntModule.toAddCommGroup [u]) type intModuleInst
     let addCommMonoidInst := mkApp2 (mkConst ``Grind.AddCommGroup.toAddCommMonoid [u]) type addCommGroupInst
     let semiringInst? ← mkSemiringInst? u type ringInst?
     let fieldInst? ← getInst? ``Grind.Field
     let one? ← mkOne? u type -- One must be created eagerly
-    let orderedRingInst? ← mkOrderedRingInst? u type semiringInst? leInst? ltInst? preorderInst?
+    let orderedRingInst? ← mkOrderedRingInst? u type semiringInst? leInst? ltInst? isPreorderInst?
     let charInst? ← if let some semiringInst := semiringInst? then getIsCharInst? u type semiringInst else pure none
     let noNatDivInst? ← mkNoNatZeroDivInst? u type
     -- TODO: generate the remaining fields on demand
@@ -263,7 +269,7 @@ where
       pure none
     let id := (← get').structs.size
     let struct : Struct := {
-      id, type, u, intModuleInst, leInst?, ltInst?, preorderInst?, orderedAddInst?, partialInst?, linearInst?, noNatDivInst?
+      id, type, u, intModuleInst, leInst?, ltInst?, lawfulOrderLTInst?, isPreorderInst?, orderedAddInst?, isPartialInst?, isLinearInst?, noNatDivInst?
       leFn?, ltFn?, addFn, subFn, negFn, zsmulFn, nsmulFn, zsmulFn?, nsmulFn?, zero, one?
       ringInst?, commRingInst?, orderedRingInst?, charInst?, ringId?, fieldInst?, ofNatZero, homomulFn?
     }

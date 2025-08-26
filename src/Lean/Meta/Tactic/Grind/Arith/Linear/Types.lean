@@ -101,14 +101,16 @@ structure Struct where
   leInst?          : Option Expr
   /-- `LT` instance if available -/
   ltInst?          : Option Expr
-  /-- `Preorder` instance if available -/
-  preorderInst?    : Option Expr
-  /-- `OrderedAdd` instance with `Preorder` if available -/
+  /-- `LawfulOrderLT` instance if available -/
+  lawfulOrderLTInst?    : Option Expr
+  /-- `IsPreorder` instance if available -/
+  isPreorderInst?    : Option Expr
+  /-- `OrderedAdd` instance with `IsPreorder` if available -/
   orderedAddInst?       : Option Expr
-  /-- `PartialOrder` instance if available -/
-  partialInst?     : Option Expr
-  /-- `LinearOrder` instance if available -/
-  linearInst?      : Option Expr
+  /-- `IsPartialOrder` instance if available -/
+  isPartialInst?     : Option Expr
+  /-- `IsLinearOrder` instance if available -/
+  isLinearInst?      : Option Expr
   /-- `NoNatZeroDivisors` -/
   noNatDivInst?    : Option Expr
   /-- `Ring` instance -/

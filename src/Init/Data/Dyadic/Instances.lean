@@ -51,13 +51,6 @@ instance : NoNatZeroDivisors Dyadic where
     simp only [← toRat_inj, toRat_mul, toRat_natCast] at h₂ ⊢
     simpa [← Rat.mul_assoc, Rat.inv_mul_cancel, h₁] using congrArg ((k : Rat)⁻¹ * ·) h₂
 
-instance : LinearOrder Dyadic where
-  le_refl := Dyadic.le_refl
-  le_trans := Dyadic.le_trans
-  le_antisymm := Dyadic.le_antisymm
-  le_total := Dyadic.le_total
-  lt_iff_le_not_le := Std.LawfulOrderLT.lt_iff _ _
-
 instance : OrderedRing Dyadic where
   zero_lt_one := by decide
   add_le_left_iff _ := by simp [le_iff_toRat, Rat.add_le_add_right]

@@ -28,9 +28,10 @@ register_builtin_option guard_msgs.diff : Bool := {
 
 namespace Lean.Elab.Tactic.GuardMsgs
 
-/-- Gives a string representation of a message without source position information.
-Ensures the message ends with a '\n'. -/
-private def messageToStringWithoutPos (msg : Message) : BaseIO String := do
+/-- Gives a string representation of a message with optional position information. If
+`reportPos? := some line` is provided, the range of `msg` is reported relative to `line`.  -/
+private def messageToString (msg : Message) (reportPos? : Option Nat) :
+    BaseIO String := do
   let mut str ← msg.data.toString
   unless msg.caption == "" do
     str := msg.caption ++ ":\n" ++ str
@@ -42,6 +43,10 @@ private def messageToStringWithoutPos (msg : Message) : BaseIO String := do
     | MessageSeverity.information => str := "info:" ++ str
     | MessageSeverity.warning     => str := "warning:" ++ str
     | MessageSeverity.error       => str := "error:" ++ str
+  let showRelPos (line : Nat) (pos : Position) := s!"+{pos.line - line}:{pos.column}"
+  if let some line := reportPos? then
+    let showEndPos := msg.endPos.elim "*" (showRelPos line)
+    str := s!"@ {showRelPos line msg.pos}...{showEndPos}\n" ++ str
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str
@@ -71,6 +76,9 @@ inductive MessageOrdering
   /-- Sort the produced messages. -/
   | sorted
 
+/-- Whether to report position information; `abbrev` for `Bool`. -/
+abbrev ReportPositions := Bool
+
 def parseGuardMsgsFilterAction (action? : Option (TSyntax ``guardMsgsFilterAction)) :
     CommandElabM SpecResult := do
   if let some action := action? then
@@ -94,7 +102,7 @@ def parseGuardMsgsFilterSeverity : TSyntax ``guardMsgsFilterSeverity → Command
 - No specification: check everything.
 - With a specification: interpret the spec, and if nothing applies pass it through. -/
 def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) :
-    CommandElabM (WhitespaceMode × MessageOrdering × (Message → SpecResult)) := do
+    CommandElabM (WhitespaceMode × MessageOrdering × (Message → SpecResult) × ReportPositions) := do
   let elts ←
     if let some spec := spec? then
       match spec with
@@ -105,6 +113,7 @@ def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) :
   let mut whitespace : WhitespaceMode := .normalized
   let mut ordering : MessageOrdering := .exact
   let mut p? : Option (Message → SpecResult) := none
+  let mut reportPositions : ReportPositions := false
   let pushP (action : SpecResult) (msgP : Message → Bool) (p? : Option (Message → SpecResult))
       (msg : Message) : SpecResult :=
     if msgP msg then
@@ -119,9 +128,11 @@ def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) :
     | `(guardMsgsSpecElt| whitespace := lax)        => whitespace := .lax
     | `(guardMsgsSpecElt| ordering := exact)        => ordering := .exact
     | `(guardMsgsSpecElt| ordering := sorted)       => ordering := .sorted
+    | `(guardMsgsSpecElt| positions := true)        => reportPositions := true
+    | `(guardMsgsSpecElt| positions := false)       => reportPositions := false
     | _ => throwUnsupportedSyntax
   let defaultP := fun _ => .check
-  return (whitespace, ordering, p?.getD defaultP)
+  return (whitespace, ordering, p?.getD defaultP, reportPositions)
 
 /-- An info tree node corresponding to a failed `#guard_msgs` invocation,
 used for code action support. -/
@@ -163,7 +174,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
   | `(command| $[$dc?:docComment]? #guard_msgs%$tk $(spec?)? in $cmd) => do
     let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
         |>.trim |> removeTrailingWhitespaceMarker
-    let (whitespace, ordering, specFn) ← parseGuardMsgsSpec spec?
+    let (whitespace, ordering, specFn, reportPositions) ← parseGuardMsgsSpec spec?
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     -- do not forward snapshot as we don't want messages assigned to it to leak outside
     withReader ({ · with snap? := none }) do
@@ -183,7 +194,14 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
       | .check       => toCheck := toCheck.add msg
       | .drop        => pure ()
       | pass => toPassthrough := toPassthrough.add msg
-    let strings ← toCheck.toList.mapM (messageToStringWithoutPos ·)
+    let map ← getFileMap
+    let reportPos? :=
+      if (reportPositions : Bool) then
+        if let some pos := tk.getPos? then
+          some (map.toPosition pos).line
+        else none
+      else none
+    let strings ← toCheck.toList.mapM (messageToString · reportPos?)
     let strings := ordering.apply strings
     let res := "---\n".intercalate strings |>.trim
     if whitespace.apply expected == whitespace.apply res then

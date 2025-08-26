@@ -26,8 +26,8 @@ trace: [grind.debug.proof] fun h h_1 h_2 h_3 h_4 h_5 h_6 h_7 h_8 =>
           (zero_lt_one ctx p_5 (eagerReduce (Eq.refl true)) (Eq.refl One.one)))
 -/
 #guard_msgs in
-open Lean Grind Linarith in
+open Std Lean Grind Linarith in
 set_option trace.grind.debug.proof true in -- Context should contain only `f 2` and `One`
-example [CommRing α] [LE α] [LT α] [LinearOrder α] [OrderedRing α] (f : Nat → α) :
+example [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α] (f : Nat → α) :
     f 1 <= 0 → f 2 <= 0 → f 3 <= 0 → f 4 <= 0 → f 5 <= 0 → f 6 <= 0 → f 7 <= 0 → f 8 <= 0 → -1 * f 2 + 1 <= 0 → False := by
   grind

@@ -186,7 +186,9 @@ instance : CommRing UInt8 where
   ofNat_succ x := UInt8.ofNat_add x 1
   intCast_neg := UInt8.ofInt_neg
   intCast_ofNat := UInt8.intCast_ofNat
-  neg_zsmul i a := by simp [UInt8.intCast_neg, UInt8.neg_mul]
+  neg_zsmul i a := by
+    change (-i : Int) * a = - (i * a)
+    simp [UInt8.intCast_neg, UInt8.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (UInt8.intCast_ofNat _)
 
 instance : IsCharP UInt8 256 := IsCharP.mk' _ _
@@ -223,7 +225,9 @@ instance : CommRing UInt16 where
   ofNat_succ x := UInt16.ofNat_add x 1
   intCast_neg := UInt16.ofInt_neg
   intCast_ofNat := UInt16.intCast_ofNat
-  neg_zsmul i a := by simp [UInt16.intCast_neg, UInt16.neg_mul]
+  neg_zsmul i a := by
+    change (-i : Int) * a = - (i * a)
+    simp [UInt16.intCast_neg, UInt16.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (UInt16.intCast_ofNat _)
 
 instance : IsCharP UInt16 65536 := IsCharP.mk' _ _
@@ -260,7 +264,9 @@ instance : CommRing UInt32 where
   ofNat_succ x := UInt32.ofNat_add x 1
   intCast_neg := UInt32.ofInt_neg
   intCast_ofNat := UInt32.intCast_ofNat
-  neg_zsmul i a := by simp [UInt32.intCast_neg, UInt32.neg_mul]
+  neg_zsmul i a := by
+    change (-i : Int) * a = - (i * a)
+    simp [UInt32.intCast_neg, UInt32.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (UInt32.intCast_ofNat _)
 
 instance : IsCharP UInt32 4294967296 := IsCharP.mk' _ _
@@ -297,7 +303,9 @@ instance : CommRing UInt64 where
   ofNat_succ x := UInt64.ofNat_add x 1
   intCast_neg := UInt64.ofInt_neg
   intCast_ofNat := UInt64.intCast_ofNat
-  neg_zsmul i a := by simp [UInt64.intCast_neg, UInt64.neg_mul]
+  neg_zsmul i a := by
+    change (-i : Int) * a = - (i * a)
+    simp [UInt64.intCast_neg, UInt64.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (UInt64.intCast_ofNat _)
 
 instance : IsCharP UInt64 18446744073709551616 := IsCharP.mk' _ _
@@ -334,7 +342,9 @@ instance : CommRing USize where
   ofNat_succ x := USize.ofNat_add x 1
   intCast_neg := USize.ofInt_neg
   intCast_ofNat := USize.intCast_ofNat
-  neg_zsmul i a := by simp [USize.intCast_neg, USize.neg_mul]
+  neg_zsmul i a := by
+    change (-i : Int) * a = - (i * a)
+    simp [USize.intCast_neg, USize.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (USize.intCast_ofNat _)
 
 open System.Platform

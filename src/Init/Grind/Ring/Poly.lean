@@ -362,7 +362,7 @@ instance : LawfulBEq Poly where
 def Poly.denote [Ring α] (ctx : Context α) (p : Poly) : α :=
   match p with
   | .num k => Int.cast k
-  | .add k m p => HMul.hMul (α := Int) k (m.denote ctx) + denote ctx p
+  | .add k m p => k • (m.denote ctx) + denote ctx p
 
 @[expose]
 def Poly.denote' [Ring α] (ctx : Context α) (p : Poly) : α :=
@@ -374,7 +374,7 @@ where
     bif k == 1 then
       m.denote' ctx
     else
-      HMul.hMul (α := Int) k (m.denote' ctx)
+      k • m.denote' ctx
 
   go (p : Poly) (acc : α) : α :=
     match p with
@@ -1411,8 +1411,8 @@ where
 @[expose]
 def Poly.denoteAsIntModule [CommRing α] (ctx : Context α) (p : Poly) : α :=
   match p with
-  | .num k => HMul.hMul (α := Int) k (One.one : α)
-  | .add k m p => HMul.hMul (α := Int) k (m.denoteAsIntModule ctx) + denoteAsIntModule ctx p
+  | .num k => k • (One.one : α)
+  | .add k m p => k • (m.denoteAsIntModule ctx) + denoteAsIntModule ctx p
 
 theorem Mon.denoteAsIntModule_go_eq_denote {α} [CommRing α] (ctx : Context α) (m : Mon) (acc : α)
     : denoteAsIntModule.go ctx m acc = acc * m.denote ctx := by

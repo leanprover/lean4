@@ -158,10 +158,10 @@ where
       synthInstance <| mkApp (mkConst declName [u]) type
     let rec getBinHomoInst (declName : Name) : GoalM Expr := do
       synthInstance <| mkApp3 (mkConst declName [u, u, u]) type type type
-    let rec getHMulIntInst : GoalM Expr := do
-      synthInstance <| mkApp3 (mkConst ``HMul [0, u, u]) Int.mkType type type
-    let rec getHMulNatInst : GoalM Expr := do
-      synthInstance <| mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
+    let rec getHSMulIntInst : GoalM Expr := do
+      synthInstance <| mkApp3 (mkConst ``HSMul [0, u, u]) Int.mkType type type
+    let rec getHSMulNatInst : GoalM Expr := do
+      synthInstance <| mkApp3 (mkConst ``HSMul [0, u, u]) Nat.mkType type type
     let rec checkToFieldDefEq? (leInst? ltInst? parentInst? childInst? : Option Expr) (toFieldName : Name) : GoalM (Option Expr) := do
       let some leInst := leInst? | return none
       let some ltInst := ltInst? | return none
@@ -175,9 +175,13 @@ where
     let rec ensureToFieldDefEq (parentInst : Expr) (inst : Expr) (toFieldName : Name) : GoalM Unit := do
       let toField := mkApp2 (mkConst toFieldName [u]) type inst
       ensureDefEq parentInst toField
-    let rec ensureToHomoFieldDefEq (parentInst : Expr) (inst : Expr) (toFieldName : Name) (toHeteroName : Name) : GoalM Unit := do
+    let rec ensureToHomoFieldDefEq (parentInst : Expr) (inst : Expr) (toFieldName : Name)
+        (toHeteroName : Name) (extraType? : Option Expr := none) : GoalM Unit := do
       let toField := mkApp2 (mkConst toFieldName [u]) type inst
-      let heteroToField := mkApp2 (mkConst toHeteroName [u]) type toField
+      let heteroToField :=
+        match extraType? with
+        | none => mkApp2 (mkConst toHeteroName [u]) type toField
+        | some extraType => mkApp3 (mkConst toHeteroName [0, u]) extraType type toField
       ensureDefEq parentInst heteroToField
     let ringId? ← CommRing.getRingId? type
     let leInst? ← getInst? ``LE
@@ -224,16 +228,16 @@ where
     let subFn ← internalizeFn <| mkApp4 (mkConst ``HSub.hSub [u, u, u]) type type type subInst
     let negInst ← getInst ``Neg
     let negFn ← internalizeFn <| mkApp2 (mkConst ``Neg.neg [u]) type negInst
-    let zsmulInst ← getHMulIntInst
-    let zsmulFn ← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [0, u, u]) Int.mkType type type zsmulInst
-    let nsmulInst ← getHMulNatInst
-    let nsmulFn ← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [0, u, u]) Nat.mkType type type nsmulInst
+    let zsmulInst ← getHSMulIntInst
+    let zsmulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type type zsmulInst
+    let nsmulInst ← getHSMulNatInst
+    let nsmulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type type nsmulInst
     ensureToFieldDefEq zeroInst addCommMonoidInst ``Grind.AddCommMonoid.toZero
     ensureToHomoFieldDefEq addInst addCommMonoidInst ``Grind.AddCommMonoid.toAdd ``instHAdd
     ensureToHomoFieldDefEq subInst addCommGroupInst ``Grind.AddCommGroup.toSub ``instHSub
     ensureToFieldDefEq negInst addCommGroupInst ``Grind.AddCommGroup.toNeg
-    ensureToFieldDefEq zsmulInst intModuleInst ``Grind.IntModule.zsmul
-    ensureToFieldDefEq nsmulInst intModuleInst ``Grind.IntModule.nsmul
+    ensureToHomoFieldDefEq zsmulInst intModuleInst ``Grind.IntModule.zsmul ``instHSMul (some Int.mkType)
+    ensureToHomoFieldDefEq nsmulInst intModuleInst ``Grind.IntModule.nsmul ``instHSMul (some Nat.mkType)
     let leFn? ← if let some leInst := leInst? then
       some <$> (internalizeFn <| mkApp2 (mkConst ``LE.le [u]) type leInst)
     else
@@ -242,7 +246,7 @@ where
       some <$> (internalizeFn <| mkApp2 (mkConst ``LT.lt [u]) type ltInst)
     else
       pure none
-    let rec getHSMulFn? : GoalM (Option Expr) := do
+    let rec getHSMulIntFn? : GoalM (Option Expr) := do
       let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Int.mkType type type
       let some smulInst ← synthInstance? smulType | return none
       internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type type smulInst
@@ -250,7 +254,7 @@ where
       let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Nat.mkType type type
       let some smulInst ← synthInstance? smulType | return none
       internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type type smulInst
-    let zsmulFn? ← getHSMulFn?
+    let zsmulFn? ← getHSMulIntFn?
     let nsmulFn? ← getHSMulNatFn?
     let homomulFn? ← if commRingInst?.isSome then
       let mulInst ← getBinHomoInst ``HMul

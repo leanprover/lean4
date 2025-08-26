@@ -99,7 +99,7 @@ def isOrderedCommRing : LinearM Bool := do
   return (← isCommRing) && (← getStruct).orderedRingInst?.isSome
 
 def isLinearOrder : LinearM Bool :=
-  return (← getStruct).linearInst?.isSome
+  return (← getStruct).isLinearInst?.isSome
 
 def hasNoNatZeroDivisors : LinearM Bool :=
   return (← getStruct).noNatDivInst?.isSome
@@ -134,8 +134,13 @@ def getLTInst : LinearM Expr := do
     | throwError "`grind linarith` internal error, structure does not support LT"
   return inst
 
-def getPreorderInst : LinearM Expr := do
-  let some inst := (← getStruct).preorderInst?
+def getLawfulOrderLTInst : LinearM Expr := do
+  let some inst := (← getStruct).lawfulOrderLTInst?
+    | throwError "`grind linarith` internal error, structure does not have a lawful LT instance"
+  return inst
+
+def getIsPreorderInst : LinearM Expr := do
+  let some inst := (← getStruct).isPreorderInst?
     | throwError "`grind linarith` internal error, structure is not a preorder"
   return inst
 
@@ -157,8 +162,8 @@ def getLeFn [Monad m] [MonadError m] [MonadGetStruct m] : m Expr := do
     | throwError "`grind linarith` internal error, structure is not an ordered int module"
   return le
 
-def getLinearOrderInst : LinearM Expr := do
-  let some inst := (← getStruct).linearInst?
+def getIsLinearOrderInst : LinearM Expr := do
+  let some inst := (← getStruct).isLinearInst?
     | throwError "`grind linarith` internal error, structure is not a linear order"
   return inst
 

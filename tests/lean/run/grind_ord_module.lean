@@ -1,7 +1,7 @@
 module
-open Lean.Grind
+open Std Lean.Grind
 
-variable (R : Type u) [IntModule R] [LE R] [LT R] [LinearOrder R] [OrderedAdd R]
+variable (R : Type u) [IntModule R] [LE R] [LT R] [LawfulOrderLT R] [IsLinearOrder R] [OrderedAdd R]
 
 example (a b c : R) (h : a < b) : a + c < b + c := by grind
 example (a b c : R) (h : a < b) : c + a < c + b := by grind

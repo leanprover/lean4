@@ -354,7 +354,7 @@ section Positions
 open Lean
 
 /--
-@ +1:0...+1:7
+@ +1:0...7
 info: foo
 -/
 #guard_msgs (positions := true) in
@@ -368,13 +368,13 @@ elab_rules : command
 | `(#log $tk:logRange) => logInfoAt tk "foo"
 
 /--
-@ +0:40...+0:44
+@ +0:40...44
 info: foo
 -/
 #guard_msgs (positions := true) in #log here
 
 /--
-@ +3:7...+3:11
+@ +3:7...11
 info: foo
 -/
 #guard_msgs (positions := true) in

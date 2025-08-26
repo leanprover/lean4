@@ -43,9 +43,11 @@ private def messageToString (msg : Message) (reportPos? : Option Nat) :
     | MessageSeverity.information => str := "info:" ++ str
     | MessageSeverity.warning     => str := "warning:" ++ str
     | MessageSeverity.error       => str := "error:" ++ str
-  let showRelPos (line : Nat) (pos : Position) := s!"+{pos.line - line}:{pos.column}"
   if let some line := reportPos? then
-    let showEndPos := msg.endPos.elim "*" (showRelPos line)
+    let showRelPos (line : Nat) (pos : Position) := s!"+{pos.line - line}:{pos.column}"
+    let showEndPos := msg.endPos.elim "*" fun endPos =>
+      -- Omit ending line if the same as starting line:
+      if endPos.line = msg.pos.line then s!"{endPos.column}" else showRelPos line endPos
     str := s!"@ {showRelPos line msg.pos}...{showEndPos}\n" ++ str
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"

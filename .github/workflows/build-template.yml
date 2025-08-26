@@ -175,7 +175,9 @@ jobs:
       # Should be done as early as possible and in particular *before* "Check rebootstrap" which
       # changes the state of stage1/
       - name: Save Cache
-        if: steps.restore-cache.outputs.cache-hit != 'true'
+        # Caching on cancellation created some mysterious issues perhaps related to improper build
+        # shutdown
+        if: steps.restore-cache.outputs.cache-hit != 'true' && !cancelled()
         uses: actions/cache/save@v4
         with:
           # NOTE: must be in sync with `restore` above

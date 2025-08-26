@@ -31,9 +31,9 @@ macro "gen_mutual" : command =>
    end)
 
 /--
-error: unknown universe level 'u✝'
+error: unknown universe level `u✝`
 ---
-error: unknown universe level 'u✝'
+error: unknown universe level `u✝`
 ---
 error: Invalid mutually inductive types: Parameter names `β✝` and `α✝` differ but were expected to match
 -/

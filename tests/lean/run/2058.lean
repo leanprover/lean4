@@ -10,12 +10,12 @@ Test: now reports "don't know how to synthesize implicit argument" rather than a
 -/
 
 /--
-error: don't know how to synthesize implicit argument 'α'
+error: don't know how to synthesize implicit argument `α`
   @none ?_
 context:
 ⊢ Type _
 ---
-error: failed to infer 'let' declaration type
+error: failed to infer `let` declaration type
 -/
 #guard_msgs in
 example : IO Unit := do
@@ -28,7 +28,7 @@ Test: now reports that the universe levels are not assigned at the 'let' rather 
 -/
 
 /--
-error: failed to infer universe levels in 'let' declaration type
+error: failed to infer universe levels in `let` declaration type
   PUnit.{_}
 -/
 #guard_msgs in
@@ -50,7 +50,7 @@ Test: Works for `have` too.
 -/
 
 /--
-error: failed to infer universe levels in 'have' declaration type
+error: failed to infer universe levels in `have` declaration type
   PUnit.{_}
 -/
 #guard_msgs in
@@ -78,7 +78,7 @@ the def elaborator would turn all metavariables into parameters before this anal
 -/
 
 /--
-error: declaration '_example' contains universe level metavariables at the expression
+error: declaration `_example` contains universe level metavariables at the expression
   Function.const ({α : Sort _} → α → α) 2 @id.{_}
 in the declaration body
   Function.const ({α : Sort _} → α → α) 2 @id.{_}

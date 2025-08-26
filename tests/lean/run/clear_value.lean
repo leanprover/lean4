@@ -182,7 +182,7 @@ example : let x := 22; 0 ≤ x := by
 Error if unification does not solve all metavariables.
 -/
 /--
-error: don't know how to synthesize placeholder for argument 'e'
+error: don't know how to synthesize placeholder for argument `e`
 context:
 x : Nat := ⋯
 ⊢ Nat

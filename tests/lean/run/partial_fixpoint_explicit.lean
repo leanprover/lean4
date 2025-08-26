@@ -11,7 +11,7 @@ partial_fixpoint monotonicity sorry
 
 set_option pp.mvars.anonymous false in
 /--
-error: don't know how to synthesize placeholder for argument 'a'
+error: don't know how to synthesize placeholder for argument `a`
 context:
 ⊢ Lean.Order.monotone fun f x => f (x + 1)
 -/

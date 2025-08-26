@@ -55,18 +55,22 @@ public def mkCtorIdx (indName : Name) : MetaM Unit := do
       let declType ← mkArrow indType natType
       let declType ← mkForallFVars xs declType
       let declValue ← withLocalDeclD `x indType fun x => do
-        let motive ← mkLambdaFVars (indices.push x) natType
-        let mut value := mkConst casesOnName (levelOne::us)
-        value := mkAppN value params
-        value := mkApp value motive
-        value := mkAppN value indices
-        value := mkApp value x
-        for c in info.ctors do
-          let cInfo ← getConstInfoCtor c
-          let cType ← instantiateForall cInfo.type params
-          let alt ← forallBoundedTelescope cType cInfo.numFields fun ys _ =>
-            mkLambdaFVars ys <| mkRawNatLit cInfo.cidx
-          value := mkApp value alt
+        let value ← if info.numCtors = 1 then
+          pure (mkRawNatLit 0)
+        else
+          let motive ← mkLambdaFVars (indices.push x) natType
+          let mut value := mkConst casesOnName (levelOne::us)
+          value := mkAppN value params
+          value := mkApp value motive
+          value := mkAppN value indices
+          value := mkApp value x
+          for c in info.ctors do
+            let cInfo ← getConstInfoCtor c
+            let cType ← instantiateForall cInfo.type params
+            let alt ← forallBoundedTelescope cType cInfo.numFields fun ys _ =>
+              mkLambdaFVars ys <| mkRawNatLit cInfo.cidx
+            value := mkApp value alt
+          pure value
         mkLambdaFVars (xs.push x) value
       addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
         (name        := declName)
@@ -78,6 +82,8 @@ public def mkCtorIdx (indName : Name) : MetaM Unit := do
       modifyEnv fun env => addToCompletionBlackList env declName
       modifyEnv fun env => addProtected env declName
       setReducibleAttribute declName
+      if info.numCtors = 1 then
+        setInlineAttribute declName .macroInline
 
       -- Deprecated alias
       -- (Add deprecation attribute after stage0 update)

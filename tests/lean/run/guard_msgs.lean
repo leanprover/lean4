@@ -360,7 +360,12 @@ info: foo
 #guard_msgs (positions := true) in
 run_cmd logInfo m!"foo"
 
-elab "#log" tk:&"here" : command => logInfoAt tk "foo"
+syntax logRange := &"from_here" &"to_here"
+syntax "#log" (&"here" <|> logRange) : command
+
+elab_rules : command
+| `(#log here%$tk)     => logInfoAt tk "foo"
+| `(#log $tk:logRange) => logInfoAt tk "foo"
 
 /--
 @ +0:40...+0:44
@@ -376,6 +381,16 @@ info: foo
 
 
 #log   here
+
+/--
+@ +3:7...+4:9
+info: foo
+-/
+#guard_msgs (positions := true) in
+
+
+#log   from_here
+  to_here
 
 /--
 info: foo

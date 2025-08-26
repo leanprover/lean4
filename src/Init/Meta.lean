@@ -95,7 +95,14 @@ def isLetterLike (c : Char) : Bool :=
   (0x2100 ≤ c.val && c.val ≤ 0x214f) ||                                     -- Letter like block
   (0x1d49c ≤ c.val && c.val ≤ 0x1d59f) ||                                   -- Latin letters, Script, Double-struck, Fractur
   (0x00c0 ≤ c.val && c.val ≤ 0x00ff && c.val ≠ 0x00d7 && c.val ≠ 0x00f7) || -- Latin-1 supplement letters but × and ÷
-  (0x0100 ≤ c.val && c.val ≤ 0x017f)                                        -- Latin Extended-A
+  (0x0100 ≤ c.val && c.val ≤ 0x017f) ||                                     -- Latin Extended-A
+  (0x4E00 ≤ c.val && c.val ≤ 0x9FFF) ||                                     -- CJK Unified Ideographs (Chinese, Japanese, Korean)
+  (0x3400 ≤ c.val && c.val ≤ 0x4DBF) ||                                     -- CJK Extension A
+  (0xF900 ≤ c.val && c.val ≤ 0xFAFF) ||                                     -- CJK Compatibility Ideographs
+  (0x20000 ≤ c.val && c.val ≤ 0x2CEAF) ||                                   -- CJK Extensions B-G
+  (0x3040 ≤ c.val && c.val ≤ 0x309F) ||                                     -- Hiragana
+  (0x30A0 ≤ c.val && c.val ≤ 0x30FF) ||                                     -- Katakana
+  (0xAC00 ≤ c.val && c.val ≤ 0xD7AF)                                        -- Hangul Syllables (Korean)
 
 @[inline] def isNumericSubscript (c : Char) : Bool :=
   0x2080 ≤ c.val && c.val ≤ 0x2089

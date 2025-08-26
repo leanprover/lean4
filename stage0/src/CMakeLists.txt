@@ -469,6 +469,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND CMAKE_CXX_FLAGS " -ftls-model=initial-exec")
   string(APPEND INIT_SHARED_LINKER_FLAGS " -install_name @rpath/libInit_shared.dylib")
   string(APPEND LEANSHARED_1_LINKER_FLAGS " -install_name @rpath/libleanshared_1.dylib")
+  string(APPEND LEANSHARED_2_LINKER_FLAGS " -install_name @rpath/libleanshared_2.dylib")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
   string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -install_name @rpath/libLake_shared.dylib")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
@@ -502,7 +503,7 @@ endif()
 # are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   # import libraries created by the stdlib.make targets
-  string(APPEND LEANC_SHARED_LINKER_FLAGS " -lInit_shared -lleanshared_1 -lleanshared")
+  string(APPEND LEANC_SHARED_LINKER_FLAGS " -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared")
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
   # The second flag is necessary to even *load* dylibs without resolved symbols, as can happen
   # if a Lake `extern_lib` depends on a symbols defined by the Lean library but is loaded even
@@ -589,7 +590,7 @@ endif()
 
 add_subdirectory(initialize)
 add_subdirectory(shell)
-# to be included in `leanshared` but not the smaller `leanshared_1` (as it would pull
+# to be included in `leanshared` but not the smaller `leanshared_*` (as it would pull
 # in the world)
 add_library(leaninitialize STATIC $<TARGET_OBJECTS:initialize>)
 set_target_properties(leaninitialize PROPERTIES
@@ -714,6 +715,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   )
   add_custom_target(leanshared ALL
     DEPENDS Init_shared leancpp
+    COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_2${CMAKE_SHARED_LIBRARY_SUFFIX}
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX}
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
@@ -734,7 +736,7 @@ else()
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared
     VERBATIM)
 
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared_1 -lleanshared")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared")
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")

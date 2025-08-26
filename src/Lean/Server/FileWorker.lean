@@ -1063,7 +1063,6 @@ where
       severity? := DiagnosticSeverity.error
       message := err.toString }]
 
-@[export lean_server_worker_main]
 def workerMain (opts : Options) : IO UInt32 := do
   let i ← IO.getStdin
   let o ← IO.getStdout

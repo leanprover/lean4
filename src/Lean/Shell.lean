@@ -6,11 +6,11 @@ Authors: Leonardo de Moura, Mac Malone
 module
 
 prelude
-public import Lean.Elab.Frontend
-public import Lean.Elab.ParseImportsFast
-public import Lean.Compiler.IR.EmitC
-
-public section
+import Lean.Elab.Frontend
+import Lean.Elab.ParseImportsFast
+import Lean.Server.Watchdog
+import Lean.Server.FileWorker
+import Lean.Compiler.IR.EmitC
 
 /-  Lean companion to  `shell.cpp` -/
 
@@ -27,48 +27,70 @@ This is used instead of the standard `String` functions because Lean is expected
 abort on files with invalid UTF-8.
 -/
 @[extern "lean_decode_lossy_utf8"]
-private opaque decodeLossyUTF8 (a : @& ByteArray) : String
+opaque decodeLossyUTF8 (a : @& ByteArray) : String
 
 /- Runs the `main` function of the module with `args` using the Lean interpreter. -/
 @[extern "lean_run_main"]
-private opaque runMain (env : @& Environment) (opts : @& Options) (args : @& List String) : BaseIO UInt32
+opaque runMain (env : @& Environment) (opts : @& Options) (args : @& List String) : BaseIO UInt32
 
 /--
 Initializes the LLVM subsystem.
 If Lean lacks LLVM support, this function will fail with an assertion violation.
 -/
 @[extern "lean_init_llvm"]
-private opaque initLLVM : IO Unit
+opaque initLLVM : IO Unit
 
 /--
 Emits LLVM bitcode for the module.
 Before calling this function, the LLVM subsystem must first be successfully initialized.
 -/
 @[extern "lean_emit_llvm"]
-private opaque emitLLVM (env : Environment) (modName : Name) (filepath : FilePath) : IO Unit
+opaque emitLLVM (env : Environment) (modName : Name) (filepath : FilePath) : IO Unit
 
 /-- Print all profiling times (if any) to standard error. -/
 @[extern "lean_display_cumulative_profiling_times"]
-private opaque displayCumulativeProfilingTimes : BaseIO Unit
+opaque displayCumulativeProfilingTimes : BaseIO Unit
 
 /-- Whether Lean was built with an address sanitizer enabled. -/
 @[extern "lean_internal_has_address_sanitizer"]
-private opaque Internal.hasAddressSanitizer (_ : Unit) : Bool
+opaque Internal.hasAddressSanitizer (_ : Unit) : Bool
 
 /-- Whether Lean was built with multithread support. -/
 @[extern "lean_internal_is_multi_thread"]
-private opaque Internal.isMultiThread (_ : Unit) : Bool
+opaque Internal.isMultiThread (_ : Unit) : Bool
 
 /-- Whether Lean was built in debug mode. -/
 @[extern "lean_internal_is_debug"]
-private opaque Internal.isDebug (_ : Unit) : Bool
+opaque Internal.isDebug (_ : Unit) : Bool
 
-/-- The mode Lean was built in. -/
+/-- Returns the mode Lean was built in. -/
 @[extern "lean_internal_get_build_type"]
-private opaque Internal.getBuildType (_ : Unit) : String
+opaque Internal.getBuildType (_ : Unit) : String
+
+/--
+Returns the default max memory (in megabytes) Lean was built with
+(i.e., `LEAN_DEFAULT_MAX_MEMORY`).
+-/
+@[extern "lean_internal_get_default_max_memory"]
+opaque Internal.getDefaultMaxMemory (_ : Unit) : Nat
+
+/-- Sets Lean's internal maximum memory (in bytes) for the C runtime. -/
+@[extern "lean_internal_set_max_memory"]
+opaque Internal.setMaxMemory (max : USize) : BaseIO Unit
+
+/--
+Returns the default max heartbeats (in thousands) Lean was built with
+(i.e., `LEAN_DEFAULT_MAX_HEARTBEAT`).
+-/
+@[extern "lean_internal_get_default_max_heartbeat"]
+opaque Internal.getDefaultMaxHeartbeat (_ : Unit) : Nat
+
+/-- Sets Lean's internal maximum heartbeats for the C runtime. -/
+@[extern "lean_internal_set_max_heartbeat"]
+opaque Internal.setMaxHeartbeat (max : USize) : BaseIO Unit
 
 /-- Lean equivalent of `LEAN_VERSION_STRING` / `g_short_version_string` -/
-private def shortVersionString : String :=
+def shortVersionString : String :=
   if version.specialDesc ≠ "" then
     s!"{versionStringCore}-{version.specialDesc}"
   else if !version.isRelease then
@@ -77,7 +99,7 @@ private def shortVersionString : String :=
     versionStringCore
 
 /-- The full Lean version header (i.e, what is printed by `lean --version`). -/
-private def versionHeader : String := Id.run do
+def versionHeader : String := Id.run do
   let mut ver := shortVersionString
   if Platform.target ≠ "" then
     ver := s!"{ver}, {Platform.target}"
@@ -87,12 +109,12 @@ private def versionHeader : String := Id.run do
 
 /-- Print the Lean version header. -/
 @[export lean_display_header]
-private def displayHeader : IO Unit := do
+def displayHeader : IO Unit := do
   IO.println versionHeader
 
 /-- Print the Lean CLI help message. -/
 @[export lean_display_help]
-private def displayHelp (useStderr : Bool) : IO Unit := do
+def displayHelp (useStderr : Bool) : IO Unit := do
   let out ← if useStderr then IO.getStderr else IO.getStdout
   out.putStrLn    versionHeader
   out.putStrLn    "Miscellaneous"
@@ -137,9 +159,24 @@ private def displayHelp (useStderr : Bool) : IO Unit := do
     out.putStrLn  "      --debug=tag        enable assertions with the given tag"
   out.putStrLn    "      -D name=value      set a configuration option (see set_option command)"
 
+inductive ShellComponent
+| frontend
+| watchdog
+| worker
+
+private builtin_initialize maxMemory : Lean.Option Nat ←
+  Lean.Option.register `max_memory {defValue := Internal.getDefaultMaxMemory ()}
+
+private builtin_initialize timeout : Lean.Option Nat ←
+  Lean.Option.register `timeout {defValue := Internal.getDefaultMaxHeartbeat ()}
+
 @[export lean_shell_main]
-private def shellMain
+def shellMain
     (args : List String)
+    (forwardedArgs : List String)
+    (component : ShellComponent := .frontend)
+    (printPrefix : Bool := false)
+    (printLibDir : Bool := false)
     (useStdin : Bool := false)
     (onlyDeps : Bool := false)
     (onlySrcDeps : Bool := false)
@@ -157,6 +194,25 @@ private def shellMain
     (printStats : Bool := false)
     (run : Bool := false)
     : IO UInt32 := do
+  if printPrefix then
+    IO.println (← getBuildDir)
+    return 0
+  if printLibDir then
+    IO.println (← getLibDir (← getBuildDir))
+    return 0
+  let maxMemory := maxMemory.get opts
+  if maxMemory != 0 then
+    Internal.setMaxMemory (maxMemory.toUSize * 1024 * 1024)
+  let timeout := timeout.get opts
+  if timeout != 0 then
+    Internal.setMaxHeartbeat (timeout.toUSize * 1000)
+  match component with
+  | .frontend =>
+    pure ()
+  | .watchdog =>
+    return ← Server.Watchdog.watchdogMain forwardedArgs
+  | .worker =>
+    return ← Server.FileWorker.workerMain opts
   if onlyDeps && depsJson then
     let fns ←
       if useStdin then
@@ -214,7 +270,7 @@ private def shellMain
       pure setup.name
     else if let some fileName := fileName? then
       try moduleNameOfFileName fileName rootDir? catch e =>
-        if oleanFileName?.isNone && ileanFileName?.isNone then
+        if oleanFileName?.isNone && cFileName?.isNone then
           pure `_stdin
         else
           throw e

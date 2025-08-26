@@ -69,3 +69,14 @@ inductive Eq' : α → α → Prop where | refl (a : α) : Eq' a a
 /-- error: Unknown constant `Eq'.ctorIdx` -/
 #guard_msgs in
 #print Eq'.ctorIdx
+
+
+set_option linter.deprecated true
+
+-- Enumeration types get a deprecated alias, other types dont
+/-- info: Enum.toCtorIdx : Enum → Nat -/
+#guard_msgs in #check Enum.toCtorIdx
+/-- warning: `Enum.toCtorIdx` has been deprecated: Use `Enum.ctorIdx` instead -/
+#guard_msgs in example := Enum.toCtorIdx
+/-- error: Unknown identifier `Nonrec.toCtorIdx` -/
+#guard_msgs in #check Nonrec.toCtorIdx

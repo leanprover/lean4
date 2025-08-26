@@ -834,15 +834,6 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       let result := { eqnNames, splitterName, splitterAltNumParams }
       registerMatchEqns matchDeclName result
 
-def congrEqnThmSuffixBase := "congr_eq"
-def congrEqnThmSuffixBasePrefix := congrEqnThmSuffixBase ++ "_"
-def congrEqn1ThmSuffix := congrEqnThmSuffixBasePrefix ++ "1"
-example : congrEqn1ThmSuffix = "congr_eq_1" := rfl
-
-/-- Returns `true` if `s` is of the form `congr_eq_<idx>` -/
-def isCongrEqnReservedNameSuffix (s : String) : Bool :=
-  congrEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop congrEqnThmSuffixBasePrefix.length).isNat
-
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/
 builtin_initialize matchCongrEqnsExt : EnvExtension (PHashMap Name (Array Name)) ←
   -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.

@@ -68,7 +68,6 @@ LEAN_EXPORT lean_object* l_Option_beqOption____x40_Init_Data_Option_Basic_300009
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_mk(lean_object*, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_DocumentMeta_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__1(lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -108,7 +107,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressDoneNotification(lean_objec
 LEAN_EXPORT lean_object* l_Lean_Server_moduleFromDocumentUri(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight(lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Server_DocumentMeta_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_DocumentMeta_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_maybeTee(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0;
@@ -876,23 +874,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_DocumentMeta_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_DocumentMeta_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_DocumentMeta_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_DocumentMeta_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

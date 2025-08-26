@@ -17,19 +17,15 @@ lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_AC_instInhabitedStruct___closed__2;
 static lean_object* l_Lean_Meta_Grind_AC_instInhabitedState___closed__0;
 static lean_object* l_Lean_Meta_Grind_AC_instInhabitedState___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_Struct_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_AC_instInhabitedStruct___closed__0;
 lean_object* l_Array_empty(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_State_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Meta_Grind_AC_instInhabitedStruct___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_Struct_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_AC_instInhabitedStruct___closed__9;
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Meta_Grind_AC_instInhabitedStruct___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_Struct_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_instInhabitedStruct;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_State_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_State_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_State_ctorIdx___boxed(lean_object*);
 static size_t l_Lean_Meta_Grind_AC_instInhabitedStruct___closed__5;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
@@ -55,23 +51,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_Grind_AC_Struct_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_Struct_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_Struct_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_AC_Struct_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -211,23 +190,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_Grind_AC_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_State_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_State_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_AC_State_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

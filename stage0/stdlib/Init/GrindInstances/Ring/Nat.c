@@ -28,6 +28,7 @@ lean_object* l_Nat_add___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_instCommSemiringNat___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommSemiringNat;
 static lean_object* l_Lean_Grind_instCommSemiringNat___closed__5;
+lean_object* l_instSMulOfMul___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_instNatCastNat___lam__0___boxed(lean_object*);
 lean_object* l_Nat_pow___boxed(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Grind_instCommSemiringNat___closed__0() {
@@ -59,7 +60,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommSemiringNat___closed__1;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_instSMulOfMul___redArg___lam__0), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

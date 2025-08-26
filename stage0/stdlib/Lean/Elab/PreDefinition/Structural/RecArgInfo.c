@@ -39,7 +39,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_ctorIdx(lean_object*)
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Structural_RecArgInfo_pickIndicesMajor_spec__3_spec__3___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Option_repr___at___Array_Array_repr___at___Lean_Elab_Structural_reprRecArgInfo____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_64__spec__0_spec__0___closed__1;
 lean_object* lean_mk_array(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_toCtorIdx(lean_object*);
 static lean_object* l_Array_Array_repr___at___Lean_Elab_Structural_reprRecArgInfo____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_64__spec__0___closed__3;
 static lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__0;
 static lean_object* l_Lean_Elab_Structural_reprRecArgInfo___redArg___closed__3____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_64_;
@@ -86,7 +85,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_indName_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___at___Array_Array_repr___at___Lean_Elab_Structural_reprRecArgInfo____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_64__spec__0_spec__0___boxed(lean_object*, lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__3;
 static lean_object* l_Lean_Elab_Structural_reprRecArgInfo___redArg___closed__16____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_64_;
 static lean_object* l_Lean_Elab_Structural_reprRecArgInfo___redArg___closed__22____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_64_;
@@ -142,23 +140,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_Structural_RecArgInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Structural_RecArgInfo_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

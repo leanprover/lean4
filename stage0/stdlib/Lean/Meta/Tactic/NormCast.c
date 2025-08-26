@@ -88,7 +88,6 @@ static lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lam__8
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_NormCast_classifyType_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_classifyType___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_NormCastExtension_toCtorIdx(lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Meta_NormCast_addInfer_spec__0_spec__0_spec__0_spec__0_spec__0___closed__10;
 static lean_object* l___private_Lean_Meta_Tactic_NormCast_0__Lean_Meta_NormCast_initFn___lam__0___closed__1____x40_Lean_Meta_Tactic_NormCast_1115639401____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lam__6(lean_object*, lean_object*, lean_object*);
@@ -147,7 +146,6 @@ static lean_object* l_Lean_Meta_NormCast_classifyType___lam__0___closed__6;
 static lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lam__2___closed__2;
 static lean_object* l_Lean_Meta_NormCast_initFn___closed__0____x40_Lean_Meta_Tactic_NormCast_1498661328____hygCtx___hyg_2_;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_NormCastExtension_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_NormCast_classifyType_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_NormCast_classifyType___lam__0___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lam__9___boxed(lean_object*);
@@ -3274,23 +3272,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_NormCast_NormCastExtension_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_NormCastExtension_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_NormCastExtension_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_NormCast_NormCastExtension_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

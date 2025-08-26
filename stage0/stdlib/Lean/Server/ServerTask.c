@@ -20,7 +20,6 @@ lean_object* lean_io_cancel(lean_object*, lean_object*);
 static lean_object* l___auto___closed__9____x40_Lean_Server_ServerTask_2118130630____hygCtx___hyg_12_;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_mapTaskCheap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l___auto___closed__37____x40_Lean_Server_ServerTask_2118130630____hygCtx___hyg_12_;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_cancel___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCheap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -69,7 +68,6 @@ lean_object* l_IO_waitAny___redArg(lean_object*, lean_object*);
 static lean_object* l___auto___closed__15____x40_Lean_Server_ServerTask_2118130630____hygCtx___hyg_12_;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_join___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_mapTaskCostly___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Task_asServerTask___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Server_ServerTask_waitAny_spec__0___redArg(lean_object*, lean_object*);
 lean_object* lean_io_map_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
@@ -180,23 +178,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Server_ServerTask_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Server_ServerTask_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

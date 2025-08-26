@@ -55,7 +55,6 @@ lean_object* lean_nat_abs(lean_object*);
 static lean_object* l_Std_Time_TimeZone_Offset_toIsoString___closed__3;
 static lean_object* l_Std_Time_TimeZone_Offset_toIsoString___closed__5;
 lean_object* lean_int_mul(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_zero;
 LEAN_EXPORT uint8_t l_Std_Time_TimeZone_decEqOffset____x40_Std_Time_Zoned_Offset_4279387111____hygCtx___hyg_190_(lean_object*, lean_object*);
@@ -63,7 +62,6 @@ LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_ofHours___boxed(lean_object*
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_ofHoursAndMinutes___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instDecidableEqOffset___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instInhabitedOffset;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_toIsoString___boxed(lean_object*, lean_object*);
@@ -93,23 +91,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Time_TimeZone_Offset_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_TimeZone_Offset_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }

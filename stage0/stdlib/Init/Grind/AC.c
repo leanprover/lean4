@@ -26,15 +26,12 @@ LEAN_EXPORT lean_object* l_Lean_Grind_AC_Expr_toSeq_x27___boxed(lean_object*, le
 static lean_object* l_Lean_Grind_AC_reprSeq___closed__3____x40_Init_Grind_AC_2148618080____hygCtx___hyg_38_;
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_Expr_toSeq(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_Seq_sort_x27(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_AC_Context_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_beqExpr____x40_Init_Grind_AC_3091913453____hygCtx___hyg_49____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_Seq_eraseDup(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_AC_beqExpr____x40_Init_Grind_AC_3091913453____hygCtx___hyg_49_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_AC_0__Lean_Grind_AC_Seq_combineFuel_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_AC_Expr_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_instInhabitedSeq;
 static lean_object* l_Lean_Grind_AC_reprExpr___closed__5____x40_Init_Grind_AC_3091913453____hygCtx___hyg_38_;
-LEAN_EXPORT lean_object* l_Lean_Grind_AC_Seq_toCtorIdx(lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_Context_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_beqSeq____x40_Init_Grind_AC_2148618080____hygCtx___hyg_49____boxed(lean_object*, lean_object*);
@@ -48,8 +45,6 @@ LEAN_EXPORT lean_object* l_Lean_Grind_AC_Seq_combineFuel___boxed(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_instReprExpr;
 static lean_object* l_Lean_Grind_AC_instBEqSeq___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_Seq_erase0(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_AC_Context_toCtorIdx___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_AC_Expr_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Grind_AC_instInhabitedExpr___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_reprExpr____x40_Init_Grind_AC_3091913453____hygCtx___hyg_38_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_AC_0__Lean_Grind_AC_Expr_toSeq_x27_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
@@ -63,7 +58,6 @@ LEAN_EXPORT lean_object* l___private_Init_Grind_AC_0__Lean_Grind_AC_Seq_combineF
 LEAN_EXPORT lean_object* l___private_Init_Grind_AC_0__Lean_Grind_AC_Seq_erase0_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_AC_reprExpr___closed__1____x40_Init_Grind_AC_3091913453____hygCtx___hyg_38_;
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_Expr_toSeq_x27(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_AC_Seq_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_instBEqExpr;
 static lean_object* l_Lean_Grind_AC_reprSeq___closed__2____x40_Init_Grind_AC_2148618080____hygCtx___hyg_38_;
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_reprExpr____x40_Init_Grind_AC_3091913453____hygCtx___hyg_38____boxed(lean_object*, lean_object*);
@@ -107,23 +101,6 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_AC_Context_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_AC_Context_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Grind_AC_Context_toCtorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Grind_AC_Expr_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -146,23 +123,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Grind_AC_Expr_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_AC_Expr_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_AC_Expr_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_AC_Expr_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_AC_Expr_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -509,23 +469,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Grind_AC_Seq_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_AC_Seq_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_AC_Seq_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_AC_Seq_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_AC_Seq_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

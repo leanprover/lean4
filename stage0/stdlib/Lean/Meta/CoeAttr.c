@@ -76,7 +76,6 @@ static lean_object* l_Lean_Meta_instToExprCoeFnType___lam__0___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Meta_reprCoeFnInfo___redArg____x40_Lean_Meta_CoeAttr_681591064____hygCtx___hyg_36_(lean_object*);
 static lean_object* l_Lean_Meta_reprCoeFnInfo___redArg___closed__4____x40_Lean_Meta_CoeAttr_681591064____hygCtx___hyg_36_;
 static lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_initFn___closed__4____x40_Lean_Meta_CoeAttr_3842861879____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_Meta_CoeFnInfo_toCtorIdx(lean_object*);
 static lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_initFn___closed__0____x40_Lean_Meta_CoeAttr_3842861879____hygCtx___hyg_2_;
 static lean_object* l_Lean_Meta_reprCoeFnInfo___redArg___closed__15____x40_Lean_Meta_CoeAttr_681591064____hygCtx___hyg_36_;
 lean_object* l_Nat_reprFast(lean_object*);
@@ -267,7 +266,6 @@ static lean_object* l_Lean_Meta_instToExprCoeFnType___lam__0___closed__9;
 static lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_initFn___lam__2___closed__2____x40_Lean_Meta_CoeAttr_3842861879____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_registerCoercion_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_CoeFnInfo_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_initFn____x40_Lean_Meta_CoeAttr_3842861879____hygCtx___hyg_2_(lean_object*);
 static lean_object* l_Lean_Meta_reprCoeFnInfo___redArg___closed__16____x40_Lean_Meta_CoeAttr_681591064____hygCtx___hyg_36_;
 LEAN_EXPORT lean_object* l_Lean_Meta_instToExprCoeFnType___lam__0(uint8_t);
@@ -856,23 +854,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_CoeFnInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_CoeFnInfo_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_CoeFnInfo_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_CoeFnInfo_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

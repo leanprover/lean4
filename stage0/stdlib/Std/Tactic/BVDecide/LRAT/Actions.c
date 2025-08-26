@@ -18,7 +18,6 @@ static lean_object* l_Std_Tactic_BVDecide_LRAT_reprAction___redArg___closed__1__
 static lean_object* l_Std_Tactic_BVDecide_LRAT_reprAction___redArg___closed__15____x40_Std_Tactic_BVDecide_LRAT_Actions_2880791090____hygCtx___hyg_186_;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toString___redArg___closed__15;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_reprAction____x40_Std_Tactic_BVDecide_LRAT_Actions_2880791090____hygCtx___hyg_186_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toCtorIdx___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_beqAction___redArg____x40_Std_Tactic_BVDecide_LRAT_Actions_2880791090____hygCtx___hyg_145____boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_beqAction____x40_Std_Tactic_BVDecide_LRAT_Actions_2880791090____hygCtx___hyg_145____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_reprAction___redArg___closed__13____x40_Std_Tactic_BVDecide_LRAT_Actions_2880791090____hygCtx___hyg_186_;
@@ -65,7 +64,6 @@ static lean_object* l_Std_Tactic_BVDecide_LRAT_reprAction___redArg___closed__10_
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toString___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_instReprAction(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toString___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toCtorIdx___redArg___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_beqAction___redArg___lam__3____x40_Std_Tactic_BVDecide_LRAT_Actions_2880791090____hygCtx___hyg_145_(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_instToStringAction(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_instBEqAction___redArg(lean_object*, lean_object*);
@@ -96,9 +94,7 @@ static lean_object* l_Std_Tactic_BVDecide_LRAT_reprAction___redArg___closed__12_
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Action_ctorIdx___redArg(lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_reprAction___redArg___closed__9____x40_Std_Tactic_BVDecide_LRAT_Actions_2880791090____hygCtx___hyg_186_;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toString___redArg___closed__9;
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toString___redArg___closed__4;
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toCtorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_beqAction___redArg___lam__3____x40_Std_Tactic_BVDecide_LRAT_Actions_2880791090____hygCtx___hyg_145____boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Action_ctorIdx___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_instInhabitedAction(lean_object*, lean_object*);
@@ -157,40 +153,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Tactic_BVDecide_LRAT_Action_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toCtorIdx___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Tactic_BVDecide_LRAT_Action_ctorIdx___redArg(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Tactic_BVDecide_LRAT_Action_ctorIdx___redArg(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toCtorIdx___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Tactic_BVDecide_LRAT_Action_toCtorIdx___redArg(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Tactic_BVDecide_LRAT_Action_toCtorIdx(x_1, x_2, x_3);
 lean_dec_ref(x_3);
 return x_4;
 }

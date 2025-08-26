@@ -145,7 +145,6 @@ uint8_t l_Lean_Parser_beqError____x40_Lean_Parser_Types_2111619821____hygCtx___h
 lean_object* l_Lean_Parser_mkAntiquot_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isAntiquot(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Parser_ModuleParserState_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Parser_parseCommand_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Parser_Module_prelude_parenthesizer___closed__2;
 static lean_object* l___private_Lean_Parser_Module_0__Lean_Parser_Module_module___regBuiltin_Lean_Parser_Module_public_formatter__11___closed__0;
@@ -427,7 +426,6 @@ static lean_object* l_Lean_Parser_parseHeader___closed__3;
 static lean_object* l_Lean_Parser_Module_import___closed__11;
 lean_object* l_Lean_Parser_SyntaxStack_back(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Module_prelude;
-LEAN_EXPORT lean_object* l_Lean_Parser_ModuleParserState_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Parser_Module_module___closed__6;
 static lean_object* l_Lean_Parser_Module_moduleTk___closed__2;
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
@@ -3048,23 +3046,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Parser_ModuleParserState_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Parser_ModuleParserState_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Parser_ModuleParserState_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Parser_ModuleParserState_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

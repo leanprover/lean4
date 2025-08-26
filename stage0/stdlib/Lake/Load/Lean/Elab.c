@@ -239,7 +239,6 @@ static lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_fromJsonConfigTrace_
 lean_object* l_Lean_Elab_IO_processCommands(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Env_leanGithash(lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_ConfigTrace_toCtorIdx(lean_object*);
 static lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_importConfigFileCore_lakeExts___closed__9;
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_NameMap_toJson___at_____private_Lake_Load_Lean_Elab_0__Lake_toJsonConfigTrace____x40_Lake_Load_Lean_Elab_1220000929____hygCtx___hyg_43__spec__0_spec__0___redArg___closed__5;
 static lean_object* l_Lake_importConfigFile___closed__3;
@@ -320,7 +319,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_toJsonConfigTrace___closed__3____x40_Lake_Load_Lean_Elab_1220000929____hygCtx___hyg_43_;
 static lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_importConfigFileCore_lakeExts___closed__35;
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_NameMap_toJson___at_____private_Lake_Load_Lean_Elab_0__Lake_toJsonConfigTrace____x40_Lake_Load_Lean_Elab_1220000929____hygCtx___hyg_43__spec__0_spec__0___redArg___closed__8;
-LEAN_EXPORT lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_ConfigTrace_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_importModules(lean_object*, lean_object*, uint32_t, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at_____private_Lake_Load_Lean_Elab_0__Lake_importConfigFileCore_spec__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
@@ -4349,23 +4347,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lake_Load_Lean_Elab_0__Lake_ConfigTrace_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_ConfigTrace_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_ConfigTrace_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Lake_Load_Lean_Elab_0__Lake_ConfigTrace_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

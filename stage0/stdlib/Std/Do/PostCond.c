@@ -91,7 +91,6 @@ static lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__
 static lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__term___u2192_u2091____1___closed__6;
 LEAN_EXPORT lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__term___u2192_u2091____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__term___u21d3___x3d_x3e____1___closed__11;
-LEAN_EXPORT lean_object* l_Std_Do_PostShape_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do_termPost_u27e8___x2c_x2c_u27e9___closed__12;
 static lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__term___u2227_u2091____1___closed__1;
@@ -276,7 +275,6 @@ size_t lean_array_size(lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__termPost_u27e8___x2c_x2c_u27e9__1___closed__21;
 LEAN_EXPORT lean_object* l_Std_Do_term___u2227_u209a__;
 static lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__term___u22a2_u2091____1___closed__0;
-LEAN_EXPORT lean_object* l_Std_Do_PostShape_toCtorIdx(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__term___u22a2_u209a____1(lean_object*, lean_object*, lean_object*);
@@ -340,23 +338,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Do_PostShape_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_PostShape_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Do_PostShape_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_PostShape_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Do_PostShape_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }

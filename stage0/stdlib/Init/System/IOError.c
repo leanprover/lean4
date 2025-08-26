@@ -93,13 +93,11 @@ LEAN_EXPORT lean_object* l_IO_Error_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_already_exists_file(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_illegal_operation(uint32_t, lean_object*);
-LEAN_EXPORT lean_object* l_IO_Error_toCtorIdx___boxed(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_mkInappropriateTypeFile___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_permission_denied_file(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_mkUnsatisfiedConstraints___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_mkInterrupted___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_Error_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_mkProtocolError___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_interrupted(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_inappropriate_type_file(lean_object*, uint32_t, lean_object*);
@@ -230,23 +228,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_IO_Error_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_IO_Error_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_IO_Error_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_IO_Error_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_IO_Error_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }

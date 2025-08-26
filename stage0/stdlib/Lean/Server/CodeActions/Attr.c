@@ -228,12 +228,10 @@ lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_initFn___closed__1____x40_Lean_Server_CodeActions_Attr_665834039____hygCtx___hyg_2_;
 lean_object* l___private_Lean_ToExpr_0__Lean_Name_toExprAux(lean_object*);
 static lean_object* l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_initFn___closed__6____x40_Lean_Server_CodeActions_Attr_738491327____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_CodeAction_CommandCodeActions_toCtorIdx(lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_initFn___closed__19____x40_Lean_Server_CodeActions_Attr_665834039____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at_____private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr_665834039____hygCtx___hyg_2__spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_CodeAction_CommandCodeActions_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_____private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_addBuiltin_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
@@ -245,7 +243,6 @@ lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr_145477870____hygCtx___hyg_2_(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_CodeAction_CommandCodeActionEntry_toCtorIdx___boxed(lean_object*);
 static lean_object* l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_initFn___closed__25____x40_Lean_Server_CodeActions_Attr_665834039____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_throwAttrMustBeGlobal___at_____private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr_665834039____hygCtx___hyg_2__spec__2___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_mkCommandCodeAction_unsafe__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -257,7 +254,6 @@ static lean_object* l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_initFn___lam__1___closed__2____x40_Lean_Server_CodeActions_Attr_665834039____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_CodeAction_CommandCodeActionEntry_toCtorIdx(lean_object*);
 static lean_object* l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_initFn___closed__4____x40_Lean_Server_CodeActions_Attr_738491327____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_CommandCodeActionEntry_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_instInhabitedCommandCodeActions;
@@ -2635,23 +2631,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_CodeAction_CommandCodeActionEntry_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_CodeAction_CommandCodeActionEntry_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_CodeAction_CommandCodeActionEntry_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_CodeAction_instInhabitedCommandCodeActionEntry___closed__0() {
 _start:
 {
@@ -2693,23 +2672,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_CodeAction_CommandCodeActions_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_CodeAction_CommandCodeActions_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_CodeAction_CommandCodeActions_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_CodeAction_CommandCodeActions_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

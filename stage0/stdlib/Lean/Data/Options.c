@@ -53,14 +53,12 @@ LEAN_EXPORT lean_object* l_Lean_Option_get_x3f___redArg___boxed(lean_object*, le
 static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__27;
 LEAN_EXPORT lean_object* l_Lean_instMonadWithOptionsOfMonadFunctor(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadWithOptions_ctorIdx___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_MonadOptions_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_registerOption;
 LEAN_EXPORT lean_object* l_Lean_instMonadOptionsOfMonadLift___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__11;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__4;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__18;
-LEAN_EXPORT lean_object* l_Lean_MonadWithOptions_toCtorIdx___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__15;
@@ -71,7 +69,6 @@ static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Option_set(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mkArray0(lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Option_Decl_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToStringOptions;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__8;
 static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__19;
@@ -83,7 +80,6 @@ static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__8;
 LEAN_EXPORT lean_object* l_Lean_instMonadOptionsOfMonadLift(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mkArray1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instForInOptionsProdNameDataValue(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Option_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_registerBuiltinOption;
 LEAN_EXPORT lean_object* l_Lean_Option_set___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__23;
@@ -98,7 +94,6 @@ lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__23;
 static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__7;
 static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__14;
-LEAN_EXPORT lean_object* l_Lean_Option_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__16;
 LEAN_EXPORT lean_object* l_Lean_getNatOption(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__18;
@@ -115,12 +110,10 @@ lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__20;
 LEAN_EXPORT lean_object* l_Lean_getOptionDecls(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_OptionDecl_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Option_Decl_ctorIdx(lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__26;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Option_Decl_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getBoolOption(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -141,12 +134,10 @@ static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__10;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__29;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedOptionDecls;
 static lean_object* l_Lean_Option_registerOption___closed__5;
-LEAN_EXPORT lean_object* l_Lean_MonadWithOptions_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Lean_registerOption___closed__2;
 static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Options_0__Lean_initFn____x40_Lean_Data_Options_2861175937____hygCtx___hyg_2_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withInPattern(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_OptionDecl_toCtorIdx(lean_object*);
 lean_object* l_Lean_KVMap_setBool(lean_object*, lean_object*, uint8_t);
 extern lean_object* l_Lean_KVMap_instToString;
 LEAN_EXPORT lean_object* l_Lean_withInPattern___redArg(lean_object*, lean_object*);
@@ -154,7 +145,6 @@ static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Le
 LEAN_EXPORT lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Lean_MonadOptions_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__22;
@@ -620,23 +610,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_OptionDecl_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_OptionDecl_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_OptionDecl_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_OptionDecl_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -1295,23 +1268,6 @@ lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_MonadOptions_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_MonadOptions_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_MonadOptions_toCtorIdx(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_instMonadOptionsOfMonadLift___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1461,23 +1417,6 @@ lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_MonadWithOptions_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_MonadWithOptions_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_MonadWithOptions_toCtorIdx(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_instMonadWithOptionsOfMonadFunctor___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1596,23 +1535,6 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Option_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Option_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Option_toCtorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_instInhabitedOption___redArg(lean_object* x_1) {
 _start:
 {
@@ -1645,23 +1567,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Option_Decl_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Option_Decl_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Option_Decl_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Option_Decl_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

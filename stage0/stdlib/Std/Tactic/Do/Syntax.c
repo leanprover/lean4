@@ -239,7 +239,6 @@ static lean_object* l_Lean_Parser_Tactic_mspecNoSimp___closed__0;
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_u27e8___u27e9___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_vcAlt;
 static lean_object* l_Lean_Parser_Tactic_reprMRefinePat___closed__5____x40_Std_Tactic_Do_Syntax_1555635132____hygCtx___hyg_64_;
-LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_MCasesPat_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_mhave;
 static lean_object* l_Lean_Parser_Tactic_mvcgen___closed__19;
 LEAN_EXPORT lean_object* l_Lean_Parser_Category_mrefinePat;
@@ -249,7 +248,6 @@ static lean_object* l_List_repr___at___Lean_Parser_Tactic_reprMCasesPat____x40_S
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__134;
 static lean_object* l_Lean_Parser_Tactic_mrefinePat_x23_____closed__0;
 static lean_object* l_Lean_Parser_Tactic_reprMRefinePat___closed__10____x40_Std_Tactic_Do_Syntax_1555635132____hygCtx___hyg_64_;
-LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_MRefinePat_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mrefinePat_x28___x29___closed__4;
 LEAN_EXPORT lean_object* l_List_foldl___at___List_foldl___at___Std_Format_joinSep___at___List_repr___at___Lean_Parser_Tactic_reprMRefinePat____x40_Std_Tactic_Do_Syntax_1555635132____hygCtx___hyg_64__spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_MCasesPat_parse_go___closed__3;
@@ -293,7 +291,6 @@ static lean_object* l_Lean_Parser_Tactic_vcAlt___closed__6;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__97;
 static lean_object* l_Lean_Parser_Tactic_tacticMvcgen__trivial__extensible___closed__4;
 static lean_object* l_Lean_Parser_Tactic_mhave___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_VCGen_Config_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mrevertPat_u2200_____closed__7;
 static lean_object* l_Lean_Parser_Attr_spec___closed__33;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__111;
@@ -641,7 +638,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_mpure;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__20;
 static lean_object* l_Lean_Parser_Attr_spec___closed__23;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tacticMvcgen__trivial;
-LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_MRefinePat_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mrevertPat_____closed__0;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mspec__1___closed__8;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__40;
@@ -674,7 +670,6 @@ static lean_object* l_Lean_Parser_Tactic_instInhabitedMRefinePat___closed__0;
 static lean_object* l_Lean_Parser_Tactic_mrefinePat_x23_____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_mrevert;
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_quot___closed__6;
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_VCGen_Config_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mspec__1___closed__2;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__160;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_mclear;
@@ -703,7 +698,6 @@ static lean_object* l_Lean_Parser_Tactic_invariantAlts___closed__3;
 static lean_object* l_Lean_Parser_Tactic_invariantAlt___closed__7;
 static lean_object* l_Lean_Parser_Attr_spec___closed__26;
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_u27e8___u27e9___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_MCasesPat_toCtorIdx(lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__38;
 static lean_object* l_Lean_Parser_Tactic_mrenameI___closed__6;
@@ -974,23 +968,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_Tactic_Do_VCGen_Config_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_VCGen_Config_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_VCGen_Config_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Tactic_Do_VCGen_Config_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -6334,23 +6311,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_MCasesPat_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Parser_Tactic_MCasesPat_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_MCasesPat_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Parser_Tactic_MCasesPat_toCtorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_List_foldl___at___List_foldl___at___Std_Format_joinSep___at___List_repr___at___Lean_Parser_Tactic_reprMCasesPat____x40_Std_Tactic_Do_Syntax_3470021093____hygCtx___hyg_65__spec__0_spec__0_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -8790,23 +8750,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Parser_Tactic_MRefinePat_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_MRefinePat_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Parser_Tactic_MRefinePat_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_MRefinePat_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Parser_Tactic_MRefinePat_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -24,7 +24,6 @@ static lean_object* l_Std_Do___aux__Std__Do__WP__Basic______macroRules__Std__Do_
 static lean_object* l_Std_Do_unexpandWP___closed__0;
 LEAN_EXPORT lean_object* l_Std_Do_StateT_instWP___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__WP__Basic______macroRules__Std__Do__termWp_u27e6___x3a___u27e7__1___closed__25;
-LEAN_EXPORT lean_object* l_Std_Do_WP_toCtorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_Except_instWP(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_unexpandWP(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_EStateM_instWP(lean_object*, lean_object*);
@@ -117,7 +116,6 @@ lean_object* l_Std_Do_PredTrans_pure___boxed(lean_object*, lean_object*, lean_ob
 static lean_object* l_Std_Do_termWp_u27e6___x3a___u27e7___closed__19;
 LEAN_EXPORT lean_object* l_Std_Do_ExceptT_instWP(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Do_PredTrans_pushArg___redArg___lam__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_WP_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do_termWp_u27e6___x3a___u27e7___closed__14;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -151,24 +149,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Do_WP_ctorIdx(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_WP_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_WP_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Do_WP_toCtorIdx(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_4;

@@ -152,7 +152,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_solveByElim___lam__0___boxed(le
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_withTraceNode___at___Lean_Meta_SolveByElim_applyTactics_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_testPartialSolutions(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_toCtorIdx___boxed(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SolveByElim_mkAssumptionSet___closed__21;
 static lean_object* l_Lean_Meta_SolveByElim_mkAssumptionSet___closed__6;
@@ -206,7 +205,6 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_isAssigned___at_____private_Lean_Meta_Tac
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_SolveByElim_SolveByElimConfig_synthInstance_spec__0_spec__0_spec__0_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_SolveByElim_elabContextLemmas___lam__1(uint8_t, lean_object*);
 static lean_object* l_Lean_Meta_SolveByElim_mkAssumptionSet___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_instCoeBacktrackConfig___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Meta_SolveByElim_mkAssumptionSet_spec__4(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -268,7 +266,6 @@ LEAN_EXPORT lean_object* l_List_mapM_loop___at___Lean_Meta_SolveByElim_SolveByEl
 LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_mainGoalProc___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___Lean_withTraceNode___at___Lean_Meta_SolveByElim_applyTactics_spec__1_spec__2___redArg___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_ApplyRulesConfig_toCtorIdx(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_withDischarge(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_intros(lean_object*);
@@ -333,7 +330,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_SolveByElim_SolveByElimConfig_synthInstance_spec__0_spec__0_spec__0___redArg___closed__2;
 size_t lean_array_size(lean_object*);
 static lean_object* l_Lean_Meta_SolveByElim_initFn___closed__0____x40_Lean_Meta_Tactic_SolveByElim_1979843508____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_ApplyRulesConfig_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_getLocalHyps___at___Lean_MVarId_applyRules_spec__0_spec__0_spec__0_spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_trace_profiler;
 static lean_object* l_Lean_Meta_SolveByElim_applyTactics___redArg___lam__0___closed__2;
@@ -3535,23 +3531,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_ApplyRulesConfig_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_ApplyRulesConfig_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_SolveByElim_ApplyRulesConfig_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -3565,23 +3544,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_SolveByElim_SolveByElimConfig_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_SolveByElim_SolveByElimConfig_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

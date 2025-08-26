@@ -84,7 +84,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_Context_ctorIdx(size_t, lean_object*
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_builderAppendBasicBlock___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_emitDeclInit___closed__7;
 LEAN_EXPORT lean_object* l_List_forM___at___Lean_IR_EmitLLVM_emitInitFn_spec__0(size_t, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_State_toCtorIdx(size_t, lean_object*);
 lean_object* lean_llvm_position_builder_before(size_t, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitJp___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_callLeanIOMarkEndInitialization___redArg___closed__0;
@@ -432,7 +431,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitLit(size_t, size_t, lean_object*
 lean_object* l_List_replicateTR___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_emitCase___closed__0;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_constIntUnsigned___redArg(size_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_Context_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_IR_EmitLLVM_addVarToState_spec__0_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitDel(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -725,7 +723,6 @@ lean_object* l_Lean_IR_getDecls(lean_object*);
 uint8_t l_Lean_IR_isTailCallTo(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitFnArgs(size_t, size_t, uint8_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanIsExclusive(size_t, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_Context_toCtorIdx(size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_IR_EmitLLVM_emitSimpleExternalCall_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_emitApp___closed__1;
 uint8_t l_Lean_IR_ExplicitBoxing_isBoxedName(lean_object*);
@@ -1001,7 +998,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitDecl___boxed(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitOffset___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitSetTag(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_callLeanIOResultMKOk___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_State_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitMainFnIfNeeded(size_t, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_llvm_get_next_global(size_t, size_t, lean_object*);
 static lean_object* _init_l_Lean_IR_leanMainFn___closed__0() {
@@ -1254,25 +1250,6 @@ lean_dec_ref(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_Context_toCtorIdx(size_t x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_Context_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-size_t x_3; lean_object* x_4; 
-x_3 = lean_unbox_usize(x_1);
-lean_dec(x_1);
-x_4 = l_Lean_IR_EmitLLVM_Context_toCtorIdx(x_3, x_2);
-lean_dec_ref(x_2);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_State_ctorIdx(size_t x_1, lean_object* x_2) {
 _start:
 {
@@ -1288,25 +1265,6 @@ size_t x_3; lean_object* x_4;
 x_3 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_4 = l_Lean_IR_EmitLLVM_State_ctorIdx(x_3, x_2);
-lean_dec_ref(x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_State_toCtorIdx(size_t x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_State_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-size_t x_3; lean_object* x_4; 
-x_3 = lean_unbox_usize(x_1);
-lean_dec(x_1);
-x_4 = l_Lean_IR_EmitLLVM_State_toCtorIdx(x_3, x_2);
 lean_dec_ref(x_2);
 return x_4;
 }

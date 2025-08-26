@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
 static lean_object* l_instFromJsonMessageType___lam__0___closed__6;
-LEAN_EXPORT lean_object* l_ShowMessageParams_toCtorIdx(lean_object*);
 static lean_object* l_fromJsonShowMessageRequestParams___closed__0____x40_Lean_Data_Lsp_Window_1686740090____hygCtx___hyg_37_;
 static lean_object* l_fromJsonShowMessageRequestParams___closed__2____x40_Lean_Data_Lsp_Window_1686740090____hygCtx___hyg_37_;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -29,9 +28,7 @@ LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___fromJsonShowMessageP
 static lean_object* l_instFromJsonMessageType___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_MessageType_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_MessageType_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_ShowMessageParams_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___fromJsonShowMessageRequestParams____x40_Lean_Data_Lsp_Window_1686740090____hygCtx___hyg_37__spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_MessageActionItem_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_fromJson_x3f___at___Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___fromJsonShowMessageRequestParams____x40_Lean_Data_Lsp_Window_1686740090____hygCtx___hyg_37__spec__0_spec__0_spec__0(lean_object*);
 static lean_object* l_fromJsonShowMessageRequestParams___closed__5____x40_Lean_Data_Lsp_Window_1686740090____hygCtx___hyg_37_;
 static lean_object* l_fromJsonShowMessageParams___closed__13____x40_Lean_Data_Lsp_Window_1065416220____hygCtx___hyg_24_;
@@ -48,7 +45,6 @@ LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___fromJsonShowMessageP
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___fromJsonShowMessageParams____x40_Lean_Data_Lsp_Window_1065416220____hygCtx___hyg_24__spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_List_foldl___at___Array_appendList_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instFromJsonMessageActionItem;
-LEAN_EXPORT lean_object* l_ShowMessageRequestParams_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ShowMessageParams_ctorIdx___boxed(lean_object*);
 static lean_object* l_instToJsonShowMessageResponse___closed__0;
 static lean_object* l_instToJsonShowMessageRequestParams___closed__0;
@@ -61,7 +57,6 @@ static lean_object* l_fromJsonShowMessageRequestParams___closed__6____x40_Lean_D
 static lean_object* l_fromJsonShowMessageParams___closed__5____x40_Lean_Data_Lsp_Window_1065416220____hygCtx___hyg_24_;
 static lean_object* l_instToJsonShowMessageParams___closed__0;
 LEAN_EXPORT lean_object* l_MessageType_toCtorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_MessageActionItem_toCtorIdx(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_instToJsonMessageType___lam__0___closed__4;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___fromJsonShowMessageRequestParams____x40_Lean_Data_Lsp_Window_1686740090____hygCtx___hyg_37__spec__0_spec__0_spec__0_spec__0(size_t, size_t, lean_object*);
@@ -72,7 +67,6 @@ lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 static lean_object* l_fromJsonShowMessageParams___closed__11____x40_Lean_Data_Lsp_Window_1065416220____hygCtx___hyg_24_;
 LEAN_EXPORT lean_object* l_instFromJsonShowMessageRequestParams;
 LEAN_EXPORT lean_object* l_MessageActionItem_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_ShowMessageRequestParams_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___fromJsonShowMessageRequestParams____x40_Lean_Data_Lsp_Window_1686740090____hygCtx___hyg_37__spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Array_toJson___at___Lean_Json_opt___at___toJsonShowMessageRequestParams____x40_Lean_Data_Lsp_Window_1686740090____hygCtx___hyg_46__spec__0_spec__0(lean_object*);
@@ -615,23 +609,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_ShowMessageParams_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_ShowMessageParams_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_ShowMessageParams_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_ShowMessageParams_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -1265,23 +1242,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_MessageActionItem_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_MessageActionItem_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_MessageActionItem_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_fromJsonMessageActionItem___closed__0____x40_Lean_Data_Lsp_Window_334680705____hygCtx___hyg_15_() {
 _start:
 {
@@ -1512,23 +1472,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_ShowMessageRequestParams_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_ShowMessageRequestParams_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_ShowMessageRequestParams_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_ShowMessageRequestParams_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

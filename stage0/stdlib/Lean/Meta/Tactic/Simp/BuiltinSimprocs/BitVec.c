@@ -392,7 +392,6 @@ LEAN_EXPORT lean_object* l_BitVec_reduceNot___boxed(lean_object*, lean_object*, 
 static lean_object* l_BitVec_toExpr_x27___redArg___closed__5;
 LEAN_EXPORT uint8_t l_BitVec_decEqLiteral____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_566217582____hygCtx___hyg_27_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceShiftLeft_declare__158___closed__6____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1981601135____hygCtx___hyg_14_;
-LEAN_EXPORT lean_object* l_BitVec_Literal_toCtorIdx___boxed(lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_BitVec_reduceUShiftRight___redArg___closed__0;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceRotateRight_declare__198___closed__6____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3861451550____hygCtx___hyg_14_;
@@ -940,7 +939,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0__
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0__BitVec_reduceNe___regBuiltin_BitVec_reduceNe_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2237023881____hygCtx___hyg_25_(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSLT_declare__283___closed__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1265938610____hygCtx___hyg_14_;
-LEAN_EXPORT lean_object* l_BitVec_Literal_toCtorIdx(lean_object*);
 static lean_object* l_BitVec_reduceCast___redArg___closed__0;
 static lean_object* l_BitVec_reduceMod___redArg___closed__0;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceLT_declare__253___closed__3____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_402749205____hygCtx___hyg_21_;
@@ -1359,23 +1357,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_BitVec_Literal_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_BitVec_Literal_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_BitVec_Literal_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_BitVec_Literal_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

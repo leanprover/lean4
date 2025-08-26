@@ -63,9 +63,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Expr_denote___redArg___box
 lean_object* l_Lean_Grind_CommRing_Poly_ofMon(lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_denoteSInt___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Expr_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Expr_denote___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Expr_toCtorIdx(lean_object*);
 lean_object* l_Lean_Grind_Ring_OfSemiring_add___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Expr_denoteAsRing(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_Ring_OfSemiring_instBEqExpr___closed__0;
@@ -120,23 +118,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Grind_Ring_OfSemiring_Expr_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Expr_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_Ring_OfSemiring_Expr_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Expr_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_Ring_OfSemiring_Expr_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

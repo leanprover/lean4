@@ -308,7 +308,6 @@ LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashM
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_simprocCore_spec__3_spec__3___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Simp_Simprocs_addCore_spec__0_spec__0_spec__0___redArg(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_TransformStep_toStep(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_BuiltinSimprocs_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_dsimprocCore(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSimprocs___redArg___boxed(lean_object*, lean_object*);
@@ -396,7 +395,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_SimprocDecl_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Array_idxOfAux___at___Array_finIdxOf_x3f___at___Lean_PersistentHashMap_eraseAux___at___Lean_PersistentHashMap_erase___at___Lean_Meta_Simp_Simprocs_erase_spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__22____x40_Lean_Meta_Tactic_Simp_Simproc_1692936712____hygCtx___hyg_2_;
 static lean_object* l_Lean_Meta_Simp_initFn___closed__1____x40_Lean_Meta_Tactic_Simp_Simproc_3132623482____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_SimprocDeclExtState_toCtorIdx___boxed(lean_object*);
 static lean_object* l___auto___closed__20____x40_Lean_Meta_Tactic_Simp_Simproc_1692936712____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta_Simp_addBuiltin___closed__6;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -441,9 +439,7 @@ lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Simp_SimprocEntry_try_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_SimprocDeclExtState_ctorIdx___boxed(lean_object*);
 static lean_object* l___auto___closed__8____x40_Lean_Meta_Tactic_Simp_Simproc_1692936712____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_SimprocDecl_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_Meta_Simp_isBuiltinSimproc_spec__0_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_SimprocDecl_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Simp_Simprocs_addCore_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_eraseAux___at___Lean_PersistentHashMap_erase___at___Lean_Meta_Simp_Simprocs_erase_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_Meta_Simp_isBuiltinSimproc_spec__0(lean_object*, lean_object*, lean_object*);
@@ -463,7 +459,6 @@ static lean_object* l___auto___closed__4____x40_Lean_Meta_Tactic_Simp_Simproc_16
 lean_object* lean_usize_to_nat(size_t);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta_Simp_initFn___closed__13____x40_Lean_Meta_Tactic_Simp_Simproc_1616411946____hygCtx___hyg_2_;
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_BuiltinSimprocs_toCtorIdx(lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_instInhabitedSimprocDecl___closed__0;
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
@@ -578,7 +573,6 @@ static lean_object* l_Lean_Meta_Simp_initFn___closed__0____x40_Lean_Meta_Tactic_
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at___Lean_Meta_Simp_getSimprocDeclKeys_x3f_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_BuiltinSimprocs_ctorIdx(lean_object*);
 lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_SimprocDeclExtState_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_Simp_SimprocsArray_erase_spec__0(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Simp_SimprocsArray_isErased(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_Simp_registerSimproc_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -810,23 +804,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_BuiltinSimprocs_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_BuiltinSimprocs_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Simp_BuiltinSimprocs_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Meta_Simp_instInhabitedBuiltinSimprocs___closed__0() {
 _start:
 {
@@ -940,23 +917,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_SimprocDecl_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_SimprocDecl_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Simp_SimprocDecl_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Meta_Simp_instInhabitedSimprocDecl___closed__0() {
 _start:
 {
@@ -998,23 +958,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_Simp_SimprocDeclExtState_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_SimprocDeclExtState_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_SimprocDeclExtState_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Simp_SimprocDeclExtState_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -146,7 +146,6 @@ LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_nativeFacets___proj___lam__0(lean_
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_instConfigMeta___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLibConfig_extraDepTargets___proj___lam__3___closed__0;
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_nativeFacets___proj___lam__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_toLeanConfig___proj___lam__3(lean_object*);
 static lean_object* l_Lake_LeanLibConfig___fields___closed__14;
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_name(lean_object*, lean_object*);
@@ -178,7 +177,6 @@ LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_defaultFacets_instConfigField___bo
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_extraDepTargets___proj___lam__3(lean_object*);
 static lean_object* l_Lake_LeanLibConfig___fields___closed__5;
 static lean_object* l_Lake_LeanLibConfig___fields___closed__15;
-LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLibConfig_instConfigMeta___closed__10;
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_extraDepTargets___proj___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_globs_instConfigField(lean_object*);
@@ -276,24 +274,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_LeanLibConfig_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_LeanLibConfig_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;

@@ -117,7 +117,6 @@ static lean_object* l_Lake_DSL_expandOptSimpleBinder___closed__6;
 lean_object* l_ReaderT_instMonad___redArg(lean_object*);
 static lean_object* l_Lake_DSL_bracketedSimpleBinder___closed__9;
 static lean_object* l_Lake_DSL_expandOptSimpleBinder___closed__27;
-LEAN_EXPORT lean_object* l___private_Lake_DSL_DeclUtil_0__Lake_DSL_Field_toCtorIdx(lean_object*);
 static lean_object* l___private_Lake_DSL_DeclUtil_0__Lake_DSL_mkConfigFields___closed__1;
 static lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at_____private_Lake_DSL_DeclUtil_0__Lake_DSL_mkConfigFields_spec__0_spec__0_spec__1_spec__2___closed__0;
 static lean_object* l_Lake_DSL_structVal___closed__11;
@@ -391,7 +390,6 @@ static lean_object* l_Lake_DSL_identOrStr___closed__10;
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 lean_object* l_Lean_throwErrorAt___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_expandOptSimpleBinder___closed__13;
-LEAN_EXPORT lean_object* l___private_Lake_DSL_DeclUtil_0__Lake_DSL_Field_toCtorIdx___boxed(lean_object*);
 static lean_object* _init_l_Lake_DSL_packageDeclName___closed__0() {
 _start:
 {
@@ -2299,23 +2297,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lake_DSL_DeclUtil_0__Lake_DSL_Field_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lake_DSL_DeclUtil_0__Lake_DSL_Field_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lake_DSL_DeclUtil_0__Lake_DSL_Field_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Lake_DSL_DeclUtil_0__Lake_DSL_Field_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

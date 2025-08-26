@@ -30,18 +30,14 @@ static lean_object* l_Lake_getIsVerbose___redArg___closed__0;
 LEAN_EXPORT uint8_t l_Lake_getIsOldMode___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getVerbosity___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getVerbosity___redArg___lam__0___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_BuildContext_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getBuildContext___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanTrace___redArg___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_BuildContext_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getIsVerbose___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getBuildContext(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getVerbosity(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getIsVerbose___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_getVerbosity___redArg___lam__0(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_getIsQuiet___redArg___lam__0(uint8_t);
-LEAN_EXPORT lean_object* l_Lake_BuildConfig_toCtorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_BuildConfig_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_BuildConfig_showProgress(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getBuildConfig___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getIsVerbose(lean_object*, lean_object*, lean_object*);
@@ -78,23 +74,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_BuildConfig_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_BuildConfig_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_BuildConfig_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_BuildConfig_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -166,23 +145,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_BuildContext_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_BuildContext_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_BuildContext_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_BuildContext_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

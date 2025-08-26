@@ -35,8 +35,6 @@ LEAN_EXPORT float l_Float32_ofScientific(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT double l_Float_ofBinaryScientific(lean_object*, lean_object*);
 LEAN_EXPORT double lean_float_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_instOfScientificFloat;
-LEAN_EXPORT lean_object* l_OfScientific_toCtorIdx(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_OfScientific_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float32_ofNat___boxed(lean_object*);
 LEAN_EXPORT float lean_float32_of_nat(lean_object*);
 float lean_uint64_to_float32(uint64_t);
@@ -84,23 +82,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_OfScientific_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_OfScientific_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_OfScientific_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_OfScientific_toCtorIdx(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }

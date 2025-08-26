@@ -28,7 +28,6 @@ static lean_object* l_Lean_Diff_instToStringAction___lam__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Diff_instHashableAction;
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_Entry_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_lcs___redArg___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_hashAction____x40_Lean_Util_Diff_2880791090____hygCtx___hyg_19____boxed(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -39,7 +38,6 @@ static lean_object* l_Lean_Diff_reprAction___closed__0____x40_Lean_Util_Diff_288
 LEAN_EXPORT lean_object* l_Lean_Diff_instToStringAction___lam__0(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Diff_diff___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Diff_diff___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_Entry_toCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l_Lean_Diff_instToStringAction___lam__0___closed__1;
 LEAN_EXPORT uint64_t l_Lean_Diff_hashAction____x40_Lean_Util_Diff_2880791090____hygCtx___hyg_19_(uint8_t);
@@ -717,25 +715,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Diff_Histogram_Entry_ctorIdx(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_Entry_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_unsigned_to_nat(0u);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_Entry_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Diff_Histogram_Entry_toCtorIdx(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_2);

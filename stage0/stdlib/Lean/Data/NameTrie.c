@@ -23,7 +23,6 @@ LEAN_EXPORT lean_object* l_Lean_NameTrie_find_x3f___redArg___boxed(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_NameTrie_toArray(lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_____private_Lean_Data_PrefixTree_0__Lean_PrefixTreeNode_insert_loop___at___Lean_NameTrie_insert_spec__0_spec__0___redArg___closed__3;
 lean_object* l_Lean_PrefixTreeNode_empty(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_NamePart_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instEmptyCollectionNameTrie(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedNameTrie(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PrefixTree_0__Lean_PrefixTreeNode_find_x3f_loop___at___Lean_NameTrie_find_x3f_spec__0___redArg___boxed(lean_object*, lean_object*);
@@ -61,7 +60,6 @@ static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_____private_Lea
 LEAN_EXPORT lean_object* l___private_Lean_Data_PrefixTree_0__Lean_PrefixTreeNode_foldMatchingM_fold___at_____private_Lean_Data_PrefixTree_0__Lean_PrefixTreeNode_foldMatchingM_find___at___Lean_NameTrie_matchingToArray_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NamePart_cmp___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PrefixTree_0__Lean_PrefixTreeNode_insert_loop___at___Lean_NameTrie_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_NamePart_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_matchingToArray___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___Std_DTreeMap_Internal_Impl_insert_x21___at_____private_Lean_Data_PrefixTree_0__Lean_PrefixTreeNode_insert_loop___at___Lean_NameTrie_insert_spec__0_spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_forMatchingM___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -135,23 +133,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_NamePart_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_NamePart_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_NamePart_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_NamePart_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_NamePart_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

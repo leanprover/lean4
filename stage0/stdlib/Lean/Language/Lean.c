@@ -170,7 +170,6 @@ static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHea
 static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_process_parseCmd___lam__9___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_processCommands(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_____private_Lean_Language_Lean_0__Lean_Language_Lean_process_doElab_spec__9(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Language_Lean_SetupImportsResult_toCtorIdx___boxed(lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___Lean_Language_Lean_reparseOptions_spec__0___redArg___closed__9;
 static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_process_processHeader___lam__1___closed__34;
 lean_object* l_Lean_Language_SnapshotTree_waitAll(lean_object*, lean_object*);
@@ -232,7 +231,6 @@ static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_process
 LEAN_EXPORT lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_process_processHeader(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getRoot(lean_object*);
 lean_object* lean_io_mono_nanos_now(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Language_Lean_LeanProcessingContext_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_Language_SnapshotTask_ofIO___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_process_processHeader___lam__1___closed__33;
 static lean_object* l_Lean_Language_Lean_initFn___closed__3____x40_Lean_Language_Lean_1425344694____hygCtx___hyg_4_;
@@ -253,7 +251,6 @@ extern lean_object* l_Lean_warningAsError;
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_____private_Lean_Language_Lean_0__Lean_Language_Lean_process_doElab_spec__9___redArg(lean_object*, uint8_t, lean_object*, lean_object*);
 extern lean_object* l_Lean_MessageLog_empty;
 LEAN_EXPORT lean_object* l_Lean_logErrorAt___at___Lean_Elab_logException___at___Lean_Elab_withLogging___at_____private_Lean_Language_Lean_0__Lean_Language_Lean_process_doElab_spec__2_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Language_Lean_LeanProcessingContext_toCtorIdx(lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_logErrorAt___at___Lean_Elab_logException___at___Lean_Elab_withLogging___at_____private_Lean_Language_Lean_0__Lean_Language_Lean_process_doElab_spec__2_spec__2_spec__2_spec__2_spec__2___redArg___closed__5;
 static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Option_setIfNotSet___at_____private_Lean_Language_Lean_0__Lean_Language_Lean_process_processHeader_spec__2(lean_object*, lean_object*, uint8_t);
@@ -408,7 +405,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_pr
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at_____private_Lean_Language_Lean_0__Lean_Language_Lean_process_parseCmd_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_Lean_trace_profiler_output;
-LEAN_EXPORT lean_object* l_Lean_Language_Lean_SetupImportsResult_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_ofTyped___at_____private_Lean_Language_Lean_0__Lean_Language_Lean_process_doElab_spec__14(lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___Lean_Language_Lean_reparseOptions_spec__0___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Option_setIfNotSet___at_____private_Lean_Language_Lean_0__Lean_Language_Lean_process_processHeader_spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -462,23 +458,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Language_Lean_LeanProcessingContext_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Language_Lean_LeanProcessingContext_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Language_Lean_LeanProcessingContext_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Language_Lean_LeanProcessingContext_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -967,23 +946,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Language_Lean_SetupImportsResult_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Language_Lean_SetupImportsResult_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Language_Lean_SetupImportsResult_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Language_Lean_SetupImportsResult_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

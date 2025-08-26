@@ -59,7 +59,7 @@ structure Std.Slice.Internal.ByteSliceData where
   The ending index is exclusive. If it is equal to the size of the byte array, then the last byte of
   the byte array is in the byte slice.
   -/
-  stop_le_bytearray_size : stop ≤ byteArray.size
+  stop_le_size_byteArray : stop ≤ byteArray.size
 
 open Std.Slice
 
@@ -93,9 +93,9 @@ def stop (xs : @& ByteSlice) : Nat :=
 theorem start_le_stop (xs : ByteSlice) : xs.start ≤ xs.stop :=
   xs.internalRepresentation.start_le_stop
 
-@[inherit_doc Internal.ByteSliceData.stop_le_bytearray_size]
-theorem stop_le_bytearray_size (xs : ByteSlice) : xs.stop ≤ xs.byteArray.size :=
-  xs.internalRepresentation.stop_le_bytearray_size
+@[inherit_doc Internal.ByteSliceData.stop_le_size_byteArray]
+theorem stop_le_size_byteArray (xs : ByteSlice) : xs.stop ≤ xs.byteArray.size :=
+  xs.internalRepresentation.stop_le_size_byteArray
 
 /--
 Computes the size of the byte slice.
@@ -104,7 +104,7 @@ def size (s : @& ByteSlice) : Nat :=
   s.stop - s.start
 
 theorem size_le_size_byteArray {s : ByteSlice} : s.size ≤ s.byteArray.size := by
-  let ⟨{byteArray, start, stop, start_le_stop, stop_le_bytearray_size}⟩ := s
+  let ⟨{byteArray, start, stop, start_le_stop, stop_le_size_byteArray}⟩ := s
   simp only [size, ge_iff_le]
   apply Nat.le_trans (Nat.sub_le stop start)
   assumption
@@ -116,7 +116,7 @@ The index is relative to the start of the byte slice, rather than the underlying
 -/
 def get (s : @& ByteSlice) (i : Fin s.size) : UInt8 :=
   have : s.start + i.val < s.byteArray.size := by
-   apply Nat.lt_of_lt_of_le _ s.stop_le_bytearray_size
+   apply Nat.lt_of_lt_of_le _ s.stop_le_size_byteArray
    have := i.isLt
    simp only [size] at this
    rw [Nat.add_comm]
@@ -154,7 +154,7 @@ protected def empty : ByteSlice := ⟨{
     start := 0
     stop := 0
     start_le_stop := Nat.le_refl 0
-    stop_le_bytearray_size := Nat.le_refl 0
+    stop_le_size_byteArray := Nat.le_refl 0
   }⟩
 
 instance : EmptyCollection (ByteSlice) :=
@@ -250,19 +250,19 @@ def slice (s : ByteSlice) (start : Nat := 0) (stop : Nat := s.size) : ByteSlice 
          start := actualStart,
          stop := actualStop,
          start_le_stop := h₁,
-         stop_le_bytearray_size := h₂ }⟩
+         stop_le_size_byteArray := h₂ }⟩
     else
       ⟨{ byteArray := s.byteArray,
          start := actualStop,
          stop := actualStop,
          start_le_stop := Nat.le_refl _,
-         stop_le_bytearray_size := h₂ }⟩
+         stop_le_size_byteArray := h₂ }⟩
   else
     ⟨{ byteArray := s.byteArray,
        start := s.start,
        stop := s.start,
        start_le_stop := Nat.le_refl _,
-       stop_le_bytearray_size := Nat.le_trans (Nat.le_refl _) (Nat.le_trans s.start_le_stop s.stop_le_bytearray_size) }⟩
+       stop_le_size_byteArray := Nat.le_trans (Nat.le_refl _) (Nat.le_trans s.start_le_stop s.stop_le_size_byteArray) }⟩
 
 /--
 Checks if the byte slice contains a specific byte value.
@@ -292,23 +292,23 @@ def toByteSlice (as : ByteArray) (start : Nat := 0) (stop : Nat := as.size) : By
   if h₂ : stop ≤ as.size then
     if h₁ : start ≤ stop then
       ⟨{ byteArray := as, start := start, stop := stop,
-         start_le_stop := h₁, stop_le_bytearray_size := h₂ }⟩
+         start_le_stop := h₁, stop_le_size_byteArray := h₂ }⟩
     else
       ⟨{ byteArray := as, start := stop, stop := stop,
-         start_le_stop := Nat.le_refl _, stop_le_bytearray_size := h₂ }⟩
+         start_le_stop := Nat.le_refl _, stop_le_size_byteArray := h₂ }⟩
   else
     if h₁ : start ≤ as.size then
       ⟨{ byteArray := as,
          start := start,
          stop := as.size,
          start_le_stop := h₁,
-         stop_le_bytearray_size := Nat.le_refl _ }⟩
+         stop_le_size_byteArray := Nat.le_refl _ }⟩
     else
       ⟨{ byteArray := as,
          start := as.size,
          stop := as.size,
          start_le_stop := Nat.le_refl _,
-         stop_le_bytearray_size := Nat.le_refl _ }⟩
+         stop_le_size_byteArray := Nat.le_refl _ }⟩
 
 end ByteArray
 

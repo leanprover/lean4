@@ -17,12 +17,16 @@ public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Util
 public import Lean.Meta.Tactic.Grind.Beta
 public import Lean.Meta.Tactic.Grind.MatchCond
-public import Lean.Meta.Tactic.Grind.Arith.Internalize
-public import Lean.Meta.Tactic.Grind.AC.Internalize
 
 public section
 
 namespace Lean.Meta.Grind
+
+@[extern "lean_grind_ac_internalize"] -- forward definition
+opaque AC.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit
+@[extern "lean_grind_arith_internalize"] -- forward definition
+opaque Arith.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit
+
 /-- Adds `e` to congruence table. -/
 def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then

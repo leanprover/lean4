@@ -627,4 +627,54 @@ instance : Std.IsLinearPreorder Dyadic where
 
 instance : Std.IsLinearOrder Dyadic where
 
+/-!
+Theorems about `roundUp` and `roundDown`
+-/
+
+/-- `roundUp x prec` is the least dyadic number with precision at most `prec` which is greater than or equal to `x`. -/
+def roundUp (x : Dyadic) (prec : Int) : Dyadic :=
+  match x with
+  | .zero => .zero
+  | .ofOdd n k _ =>
+    match k - prec with
+    | .ofNat l => .ofIntWithPrec (-((-n) >>> l)) prec
+    | .negSucc _ => x
+
+theorem roundUp_eq_neg_roundDown_neg (x : Dyadic) (prec : Int) :
+    x.roundUp prec = -((-x).roundDown prec) := by
+  rcases x with _ | ⟨n, k, hn⟩
+  · rfl
+  · change _ = -(ofOdd ..).roundDown prec
+    rw [roundDown, roundUp]
+    split <;> simp
+
+theorem roundDown_le {x : Dyadic} {prec : Int} : roundDown x prec ≤ x :=
+  match x with
+  | .zero => Dyadic.le_refl _
+  | .ofOdd n k _ => by
+    unfold roundDown
+    dsimp
+    split
+    · sorry
+    · apply Dyadic.le_refl
+
+theorem precision_roundDown {x : Dyadic} {prec : Int} : (roundDown x prec).precision ≤ prec := sorry
+
+theorem le_roundDown {x y : Dyadic} {prec : Int} (h : y.precision ≤ prec) (h' : y ≤ x) : y ≤ x.roundDown prec := sorry
+
+theorem le_roundUp {x : Dyadic} {prec : Int} : x ≤ roundUp x prec :=
+  match x with
+  | .zero => Dyadic.le_refl _
+  | .ofOdd n k _ => by
+    unfold roundUp
+    dsimp
+    split
+    · sorry
+    · apply Dyadic.le_refl
+
+theorem precision_roundUp {x : Dyadic} {prec : Int} : (roundUp x prec).precision ≤ prec := sorry
+
+theorem roundUp_le {x y : Dyadic} {prec : Int} (h : y.precision ≤ prec) (h' : x ≤ y) : x.roundUp prec ≤ y:= sorry
+
+
 end Dyadic

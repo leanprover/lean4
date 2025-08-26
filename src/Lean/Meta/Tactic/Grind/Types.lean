@@ -10,12 +10,7 @@ public import Init.Grind.Tactics
 public import Init.Data.Queue
 public import Std.Data.TreeSet.Basic
 public import Lean.HeadIndex
-public import Lean.Meta.Basic
-public import Lean.Meta.CongrTheorems
-public import Lean.Meta.AbstractNestedProofs
 public import Lean.Meta.Tactic.Simp.Types
-public import Lean.Meta.Tactic.Util
-public import Lean.Meta.Tactic.Ext
 public import Lean.Meta.Tactic.Grind.ExprPtr
 public import Lean.Meta.Tactic.Grind.AlphaShareCommon
 public import Lean.Meta.Tactic.Grind.Attr

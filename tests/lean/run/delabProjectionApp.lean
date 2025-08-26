@@ -212,9 +212,8 @@ private def Char'.MyIsA (_ : Char') : Prop := true
 
 /-!
 Public definition on private type.
-Does not make sense to do, does not pretty print with field notation.
 -/
 def Char'.MyIsA' (_ : Char') : Prop := true
 
-/-- info: ∀ (c : Char'), Char'.MyIsA' c : Prop -/
-#guard_msgs in #check ∀ (c : Char'), Char'.MyIsA' c
+/-- info: ∀ (c : Char'), c.MyIsA' : Prop -/
+#guard_msgs in #check ∀ (c : Char'), c.MyIsA'

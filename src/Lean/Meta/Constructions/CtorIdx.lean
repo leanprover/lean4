@@ -79,17 +79,17 @@ public def mkCtorIdx (indName : Name) : MetaM Unit := do
       modifyEnv fun env => addProtected env declName
       setReducibleAttribute declName
 
-      -- Deprecated alias
-      -- (Add deprecation attribute after stage0 update)
-      let aliasName := mkToCtorIdxName indName
-      addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
-        (name        := aliasName)
-        (levelParams := info.levelParams)
-        (type        := declType)
-        (value       := mkConst declName us)
-        (hints       := ReducibilityHints.abbrev)
-      ))
-      modifyEnv fun env => addToCompletionBlackList env aliasName
-      modifyEnv fun env => addProtected env aliasName
-      setReducibleAttribute aliasName
-      Lean.Linter.setDeprecated aliasName { newName? := some declName, since? := "2025-08-25" }
+      -- Deprecated alias for enumeration types (which used to have `toCtorIdx`)
+      if (← isEnumType indName) then
+        let aliasName := mkToCtorIdxName indName
+        addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+          (name        := aliasName)
+          (levelParams := info.levelParams)
+          (type        := declType)
+          (value       := mkConst declName us)
+          (hints       := ReducibilityHints.abbrev)
+        ))
+        modifyEnv fun env => addToCompletionBlackList env aliasName
+        modifyEnv fun env => addProtected env aliasName
+        setReducibleAttribute aliasName
+        Lean.Linter.setDeprecated aliasName { newName? := some declName, since? := "2025-08-25" }

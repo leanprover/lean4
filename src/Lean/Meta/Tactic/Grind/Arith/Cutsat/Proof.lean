@@ -86,7 +86,7 @@ private def getContext : ProofM Expr := do
 Execute `k` with `unordered := true`, and the unordered variable context.
 We use this combinator to process `.reorder c` justifications.
 -/
-private abbrev withUnordered (k : ProofM α) : ProofM α := do
+private def withUnordered (k : ProofM α) : ProofM α := do
   withReader (fun c => { c with ctx := c.ctx', unordered := true }) k
 
 /--
@@ -103,7 +103,7 @@ private def getVarOf (e : Expr) : ProofM Var := do
   let some x := (← getVarMap).find? { expr := e } | throwError "`grind` internal error, missing cutsat variable{indentExpr e}"
   return x
 
-private abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
+private def caching (c : α) (k : ProofM Expr) : ProofM Expr := do
   let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
   if let some h := (← get).cache[addr]? then
     return h
@@ -189,7 +189,7 @@ private def mkRingContext (h : Expr) : ProofM Expr := do
   else
     return h
 
-private abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
+private def withProofContext (x : ProofM Expr) : GoalM Expr := do
   let ctx := mkFVar (← mkFreshFVarId)
   let ctx' := mkFVar (← mkFreshFVarId)
   let ringCtx := mkFVar (← mkFreshFVarId)
@@ -205,7 +205,7 @@ where
 Returns a Lean expression representing the auxiliary `CommRing` variable context needed for normalizing
 nonlinear polynomials.
 -/
-private abbrev getRingContext : ProofM Expr := do
+private def getRingContext : ProofM Expr := do
   return (← read).ringCtx
 
 private def DvdCnstr.get_d_a (c : DvdCnstr) : GoalM (Int × Int) := do
@@ -230,7 +230,7 @@ inductive MulEqProof where
   | none
 
 mutual
-partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
+private partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
   match c'.h with
   | .core0 a zero =>
@@ -323,7 +323,7 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
     let h := mkApp8 (mkConst ``Int.Linear.pow_eq) a b (toExpr ka) (toExpr kbInt) (toExpr k) h₁ h₂ eagerReflBoolTrue
     return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
 
-partial def mkMulEqProof (x : Var) (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr)) (c' : EqCnstr) : ProofM Expr := do
+private partial def mkMulEqProof (x : Var) (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr)) (c' : EqCnstr) : ProofM Expr := do
   let h ← go (← getCurrVars)[x]!
   match h with
   | .const k h =>
@@ -368,7 +368,7 @@ where
       return .mulVar k c h
     | _, _ => return .none
 
-partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
+private partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
   match c'.h with
   | .core e =>
@@ -432,7 +432,7 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp6 (mkConst ``Int.Linear.dvd_norm_poly) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
 
-partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
+private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
   match c'.h with
   | .core e =>
@@ -511,7 +511,7 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp5 (mkConst ``Int.Linear.le_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
 
-partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
+private partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .core0 a zero =>
     mkDiseqProof a zero
@@ -537,7 +537,7 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c'
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp5 (mkConst ``Int.Linear.diseq_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
 
-partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s do
+private partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s do
   match s.h with
   | .dec h => return mkFVar h
   | .last hs _ =>
@@ -576,7 +576,7 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
     -- `result` is now a proof of `p 0`
     return result
 
-partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
+private partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
   match h with
   | .le c =>
     return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)

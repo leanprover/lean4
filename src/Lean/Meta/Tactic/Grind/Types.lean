@@ -20,7 +20,6 @@ public import Lean.Meta.Tactic.Grind.ExprPtr
 public import Lean.Meta.Tactic.Grind.AlphaShareCommon
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.ExtAttr
-public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.Arith.Types
 public import Lean.Meta.Tactic.Grind.AC.Types
 public import Lean.Meta.Tactic.Grind.EMatchTheorem

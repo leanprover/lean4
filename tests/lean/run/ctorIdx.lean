@@ -71,6 +71,7 @@ inductive Eq' : α → α → Prop where | refl (a : α) : Eq' a a
 #print Eq'.ctorIdx
 
 
+set_option linter.deprecated true
 
 -- Enumeration types get a deprecated alias, other types dont
 /-- info: Enum.toCtorIdx : Enum → Nat -/

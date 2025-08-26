@@ -48,6 +48,9 @@ Adds a docstring to the environment, validating documentation links.
 def addDocString
     [Monad m] [MonadError m] [MonadEnv m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m]
     (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) : m Unit := do
+  if declName.isAnonymous then
+    -- This case might happen on partial elaboration; ignore instead of triggering any panics below
+    return
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError "invalid doc string, declaration '{.ofConstName declName}' is in an imported module"
   validateDocComment docComment

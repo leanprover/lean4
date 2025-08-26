@@ -1123,17 +1123,19 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
 
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none)
     (mkErrorMsg? : Option (MVarId → (expectedType e : Expr) → MetaM MessageData) := none)
-    (mkImmedErrorMsg? : Option ((errorMsg? : Option MessageData) → (expectedType e : Expr) → MetaM MessageData) := none) : TermElabM Expr := do
+    (mkImmedErrorMsg? : Option ((errorMsg? : Option MessageData) → (expectedType e : Expr) → MetaM MessageData) := none)
+    (stuckDefEq : Bool := false) : TermElabM Expr := do
   withTraceNode `Elab.coe (fun _ => return m!"adding coercion for {e} : {← inferType e} =?= {expectedType}") do
   try
     withoutMacroStackAtErr do
-      match ← coerce? e expectedType with
-      | .some eNew => return eNew
-      | .none => failure
-      | .undef =>
+      let mkCoeMVar := do
         let mvarAux ← mkFreshExprMVar expectedType MetavarKind.syntheticOpaque
         registerSyntheticMVarWithCurrRef mvarAux.mvarId! (.coe errorMsgHeader? expectedType e f? mkErrorMsg?)
         return mvarAux
+      match ← coerce? e expectedType with
+      | .some eNew => return eNew
+      | .none => if stuckDefEq then mkCoeMVar else failure
+      | .undef => mkCoeMVar
   catch
     | .error _ msg =>
       if let some mkImmedErrorMsg := mkImmedErrorMsg? then
@@ -1159,10 +1161,20 @@ Argument `f?` is used only for generating error messages when inserting coercion
 def ensureHasType (expectedType? : Option Expr) (e : Expr)
     (errorMsgHeader? : Option String := none) (f? : Option Expr := none) : TermElabM Expr := do
   let some expectedType := expectedType? | return e
-  if (← isDefEq (← inferType e) expectedType) then
-    return e
-  else
-    mkCoe expectedType e f? errorMsgHeader?
+  let defeqResult ←
+    withConfig (fun config => { config with isDefEqStuckEx := true }) do
+      catchInternalId isDefEqStuckExceptionId
+        (do some <$> isDefEq (← inferType e) expectedType)
+        (fun _ => pure none)
+  match defeqResult with
+  | some true => return e
+  | none =>
+    mkCoe expectedType e f? errorMsgHeader? (stuckDefEq := true)
+  | some false =>
+    let e ← instantiateMVars e
+    let f? ← f?.mapM instantiateMVars
+    let hasMVars := e.hasExprMVar || (f?.map Expr.hasExprMVar).getD false
+    mkCoe expectedType e f? errorMsgHeader? (stuckDefEq := hasMVars)
 
 def ensureHasTypeWithErrorMsgs (expectedType? : Option Expr) (e : Expr)
     (mkImmedErrorMsg : (errorMsg? : Option MessageData) → (expectedType e : Expr) → MetaM MessageData)

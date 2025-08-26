@@ -105,7 +105,7 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
     else if isClosedTermName env decl.name then emit "static "
     else emit "LEAN_EXPORT "
   else
-    if !isExternal then emit "LEAN_EXPORT "
+    if !isExternal && Compiler.LCNF.isDeclPublic env decl.name then emit "LEAN_EXPORT "
   emit (toCType decl.resultType ++ " " ++ cppBaseName)
   unless ps.isEmpty do
     emit "("

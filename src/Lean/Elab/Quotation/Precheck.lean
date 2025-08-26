@@ -69,7 +69,7 @@ partial def precheck : Precheck := fun stx => do
   if let some stx' ← liftMacroM <| expandMacro? stx then
     precheck stx'
     return
-  throwErrorAt stx "no macro or `[quot_precheck]` instance for syntax kind '{stx.getKind}' found{indentD stx}
+  throwErrorAt stx "no macro or `[quot_precheck]` instance for syntax kind `{stx.getKind}` found{indentD stx}
 This means we cannot eagerly check your notation/quotation for unbound identifiers; you can use `set_option quotPrecheck false` to disable this check."
 where
   hasQuotedIdent

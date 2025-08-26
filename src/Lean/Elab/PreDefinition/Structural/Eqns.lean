@@ -74,7 +74,7 @@ where
             trace[Elab.definition.structural.eqns] "splitTarget? succeeded"
             mvarIds.forM go
           else
-            throwError "failed to generate equational theorem for '{.ofConstName declName}'\n{MessageData.ofGoal mvarId}"
+            throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
 
 def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do

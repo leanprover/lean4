@@ -172,11 +172,11 @@ termination_by n => n
   | none   => none
 
 
-/-- error: 'f.eq_def' is a reserved name -/
+/-- error: `f.eq_def` is a reserved name -/
 #guard_msgs in
 public def f.eq_def := 1
 
-/-- error: 'fexp.eq_def' is a reserved name -/
+/-- error: `fexp.eq_def` is a reserved name -/
 #guard_msgs in
 public def fexp.eq_def := 1
 
@@ -272,7 +272,7 @@ constructor:
 
 #check { x := 1 : StructWithPrivateField }
 
-/-- error: invalid {...} notation, constructor for 'StructWithPrivateField' is marked as private -/
+/-- error: invalid {...} notation, constructor for `StructWithPrivateField` is marked as private -/
 #guard_msgs in
 #with_exporting
 #check { x := 1 : StructWithPrivateField }
@@ -300,7 +300,7 @@ constructor:
 #guard_msgs in
 #print StructWithPrivateCtor
 
-/-- error: invalid {...} notation, constructor for 'StructWithPrivateCtor' is marked as private -/
+/-- error: invalid {...} notation, constructor for `StructWithPrivateCtor` is marked as private -/
 #guard_msgs in
 #with_exporting
 #check { x := 1 : StructWithPrivateCtor }
@@ -320,7 +320,7 @@ constructor:
 public section
 
 private def foo : Nat := 0
-/-- error: private declaration 'foo' has already been declared -/
+/-- error: private declaration `foo` has already been declared -/
 #guard_msgs in
 private def foo : Nat := 0
 

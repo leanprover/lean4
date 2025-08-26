@@ -97,18 +97,18 @@ where
         for h : i in ctorVal.numParams...xs.size do
           let x := xs[i]
           let instType ← mkAppM `Inhabited #[(← inferType x)]
-          trace[Elab.Deriving.inhabited] "checking {instType} for '{ctorName}'"
+          trace[Elab.Deriving.inhabited] "checking {instType} for `{ctorName}`"
           match (← trySynthInstance instType) with
           | LOption.some e =>
             usedInstIdxs := collectUsedLocalsInsts usedInstIdxs localInst2Index e
           | _ =>
-            trace[Elab.Deriving.inhabited] "failed to generate instance using '{ctorName}' {if addHypotheses then "(assuming parameters are inhabited)" else ""} because of field with type{indentExpr (← inferType x)}"
+            trace[Elab.Deriving.inhabited] "failed to generate instance using `{ctorName}` {if addHypotheses then "(assuming parameters are inhabited)" else ""} because of field with type{indentExpr (← inferType x)}"
             ok := false
             break
         if !ok then
           return none
         else
-          trace[Elab.Deriving.inhabited] "inhabited instance using '{ctorName}' {if addHypotheses then "(assuming parameters are inhabited)" else ""} {usedInstIdxs.toList}"
+          trace[Elab.Deriving.inhabited] "inhabited instance using `{ctorName}` {if addHypotheses then "(assuming parameters are inhabited)" else ""} {usedInstIdxs.toList}"
           let cmd ← mkInstanceCmdWith usedInstIdxs
           trace[Elab.Deriving.inhabited] "\n{cmd}"
           return some cmd
@@ -121,7 +121,7 @@ private def mkInhabitedInstance (declName : Name) : CommandElabM Unit := do
         return true
     return false
   unless (← doIt false <||> doIt true) do
-    throwError "failed to generate 'Inhabited' instance for '{.ofConstName declName}'"
+    throwError "failed to generate `Inhabited` instance for `{.ofConstName declName}`"
 
 def mkInhabitedInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then

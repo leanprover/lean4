@@ -7,14 +7,14 @@ axiom elimEx (motive : Nat → Nat → Sort u) (x y : Nat)
   : motive y x
 
 /--
-error: Invalid alternative name 'lower2': Expected 'lower'
+error: Invalid alternative name `lower2`: Expected `lower`
 ---
 error: unsolved goals
 case upper.h
 q d : Nat
 ⊢ q + d.succ > q
 ---
-error: Alternative 'lower' has not been provided
+error: Alternative `lower` has not been provided
 -/
 #guard_msgs in
 theorem invalidAlt (p: Nat) : p ≤ q ∨ p > q := by
@@ -24,9 +24,9 @@ theorem invalidAlt (p: Nat) : p ≤ q ∨ p > q := by
   | diag    => apply Or.inl; apply Nat.le_refl
 
 /--
-error: Invalid alternative name 'lower2': Expected 'lower'
+error: Invalid alternative name `lower2`: Expected `lower`
 ---
-error: Alternative 'lower' has not been provided
+error: Alternative `lower` has not been provided
 -/
 #guard_msgs in
 theorem oneMissingAlt (p: Nat) : p ≤ q ∨ p > q := by
@@ -36,9 +36,9 @@ theorem oneMissingAlt (p: Nat) : p ≤ q ∨ p > q := by
   | lower2  /- error -/ => apply Or.inr
 
 /--
-error: Duplicate alternative name 'upper'
+error: Duplicate alternative name `upper`
 ---
-error: Alternative 'lower' has not been provided
+error: Alternative `lower` has not been provided
 -/
 #guard_msgs in
 theorem doubleAlt (p: Nat) : p ≤ q ∨ p > q := by
@@ -59,7 +59,7 @@ theorem invalidWildCard (p: Nat) : p ≤ q ∨ p > q := by
 
 
 /--
-error: Invalid alternative name 'lower2': There are no unhandled alternatives
+error: Invalid alternative name `lower2`: There are no unhandled alternatives
 ---
 error: unsolved goals
 case lower.h

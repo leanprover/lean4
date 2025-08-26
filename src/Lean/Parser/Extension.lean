@@ -38,7 +38,7 @@ builtin_initialize
 builtin_initialize builtinParserCategoriesRef : IO.Ref ParserCategories ← IO.mkRef {}
 
 private def throwParserCategoryAlreadyDefined {α} (catName : Name) : ExceptT String Id α :=
-  throw s!"parser category '{catName}' has already been defined"
+  throw s!"parser category `{catName}` has already been defined"
 
 private def addParserCategoryCore (categories : ParserCategories) (catName : Name) (initial : ParserCategory) : Except String ParserCategories :=
   if categories.contains catName then
@@ -99,7 +99,7 @@ private def addTokenConfig (tokens : TokenTable) (tk : Token) : Except String To
     | some _ => pure tokens
 
 def throwUnknownParserCategory {α} (catName : Name) : ExceptT String Id α :=
-  throw s!"unknown parser category '{catName}'"
+  throw s!"unknown parser category `{catName}`"
 
 abbrev getCategory (categories : ParserCategories) (catName : Name) : Option ParserCategory :=
   categories.find? catName
@@ -184,7 +184,7 @@ abbrev AliasTable (α) := NameMap (AliasValue α)
 def registerAliasCore {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) (value : AliasValue α) : IO Unit := do
   unless (← initializing) do throw ↑"aliases can only be registered during initialization"
   if (← mapRef.get).contains aliasName then
-    throw ↑s!"alias '{aliasName}' has already been declared"
+    throw ↑s!"alias `{aliasName}` has already been declared"
   mapRef.modify (·.insert aliasName value)
 
 def getAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (Option (AliasValue α)) := do
@@ -193,21 +193,21 @@ def getAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (Opt
 def getConstAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO α := do
   match (← getAlias mapRef aliasName) with
   | some (AliasValue.const v)  => pure v
-  | some (AliasValue.unary _)  => throw ↑s!"parser '{aliasName}' is not a constant, it takes one argument"
-  | some (AliasValue.binary _) => throw ↑s!"parser '{aliasName}' is not a constant, it takes two arguments"
-  | none   => throw ↑s!"parser '{aliasName}' was not found"
+  | some (AliasValue.unary _)  => throw ↑s!"parser `{aliasName}` is not a constant, it takes one argument"
+  | some (AliasValue.binary _) => throw ↑s!"parser `{aliasName}` is not a constant, it takes two arguments"
+  | none   => throw ↑s!"parser `{aliasName}` was not found"
 
 def getUnaryAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (α → α) := do
   match (← getAlias mapRef aliasName) with
   | some (AliasValue.unary v) => pure v
-  | some _ => throw ↑s!"parser '{aliasName}' does not take one argument"
-  | none   => throw ↑s!"parser '{aliasName}' was not found"
+  | some _ => throw ↑s!"parser `{aliasName}` does not take one argument"
+  | none   => throw ↑s!"parser `{aliasName}` was not found"
 
 def getBinaryAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (α → α → α) := do
   match (← getAlias mapRef aliasName) with
   | some (AliasValue.binary v) => pure v
-  | some _ => throw ↑s!"parser '{aliasName}' does not take two arguments"
-  | none   => throw ↑s!"parser '{aliasName}' was not found"
+  | some _ => throw ↑s!"parser `{aliasName}` does not take two arguments"
+  | none   => throw ↑s!"parser `{aliasName}` was not found"
 
 abbrev ParserAliasValue := AliasValue Parser
 
@@ -274,7 +274,7 @@ unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : Par
       let d ← IO.ofExcept $ env.evalConst TrailingParserDescr opts constName
       let p ← compileParserDescr d
       pure ⟨false, p⟩
-    | _ => throw ↑s!"unexpected parser type at '{constName}' (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected)"
+    | _ => throw ↑s!"unexpected parser type at `{constName}` (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected)"
 
 @[implemented_by mkParserOfConstantUnsafe]
 opaque mkParserOfConstantAux (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)
@@ -543,7 +543,7 @@ private def ParserAttribute.add (_attrName : Name) (catName : Name) (declName : 
     try
       addToken token attrKind
     catch
-      | Exception.error _   msg => throwError "invalid parser '{.ofConstName declName}', {msg}"
+      | Exception.error _   msg => throwError "invalid parser `{.ofConstName declName}`, {msg}"
       | ex => throw ex
   let kinds := parser.info.collectKinds {}
   kinds.forM fun kind _ => modifyEnv fun env => addSyntaxNodeKind env kind

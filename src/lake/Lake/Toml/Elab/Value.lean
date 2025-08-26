@@ -144,7 +144,7 @@ partial def elabBasicStringCore (lit : String) (i : String.Pos := 0) (out := "")
             let ch := Char.ofNatAux val h
             elabBasicStringCore lit escape.stopPos (out.push ch)
           else
-            throwError "invalid unicode escape '{escape}'"
+            throwError "invalid unicode escape `{escape}`"
         match curr with
         | 'b'  => elabBasicStringCore lit (lit.next' i h) (out.push '\x08')
         | 't'  => elabBasicStringCore lit (lit.next' i h) (out.push '\t')
@@ -221,13 +221,13 @@ def elabInlineTable (x : TSyntax ``inlineTable) (elabVal : TSyntax ``val → Cor
     let (k, t) ← StateT.run (s := t) <| ks.pop.foldlM (init := Name.anonymous) fun k p => do
       let k ← k.str <$> elabSimpleKey p
       if let some v := t.find? k then
-        unless v.isNone do throwErrorAt p m!"cannot redefine key '{k}'"
+        unless v.isNone do throwErrorAt p m!"cannot redefine key `{k}`"
       else
         modify fun t => t.push k none
       return k
     let k ← k.str <$> elabSimpleKey tailKey
     if t.contains k then
-      throwErrorAt tailKey m!"cannot redefine key '{k}'"
+      throwErrorAt tailKey m!"cannot redefine key `{k}`"
     else
       return t.push k (← elabVal v)
   return t.filterMap fun _ v => v

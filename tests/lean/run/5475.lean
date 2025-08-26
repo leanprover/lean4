@@ -11,7 +11,7 @@ Formerly, argument `x` appeared as `_fvar.123`
 
 def f {α β : Type} (x: α) (y: β) : α := x
 /--
-error: don't know how to synthesize implicit argument 'α'
+error: don't know how to synthesize implicit argument `α`
   @f ?_ Nat x Nat.zero
 context:
 ⊢ Type

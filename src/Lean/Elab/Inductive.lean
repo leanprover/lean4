@@ -196,7 +196,7 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
           match ctorView.type? with
           | none          =>
             if indFamily then
-              throwError "Missing resulting type for constructor '{ctorView.declName}': \
+              throwError "Missing resulting type for constructor `{ctorView.declName}`: \
                 Its resulting type must be specified because it is part of an inductive family declaration"
             return mkAppN indFVar params
           | some ctorType =>
@@ -265,7 +265,7 @@ where
             let (arg, param) ← addPPExplicitToExposeDiff arg param
             let msg := m!"Mismatched inductive type parameter in{indentExpr e}\nThe provided argument\
               {indentExpr arg}\nis not definitionally equal to the expected parameter{indentExpr param}"
-            let noteMsg := m!"The value of parameter '{param}' must be fixed throughout the inductive \
+            let noteMsg := m!"The value of parameter `{param}` must be fixed throughout the inductive \
               declaration. Consider making this parameter an index if it must vary."
             throwNamedError lean.inductiveParamMismatch (msg ++ .note noteMsg)
           args := args.set! i param
@@ -295,14 +295,14 @@ where
           if (← whnfD decl.type).isForall then
             return m!" an application of"
       return m!""
-    throwNamedErrorAt ctorType lean.ctorResultingTypeMismatch "Unexpected resulting type for constructor '{declName}': \
+    throwNamedErrorAt ctorType lean.ctorResultingTypeMismatch "Unexpected resulting type for constructor `{declName}`: \
       Expected{lazyAppMsg}{indentExpr indFVar}\nbut found{indentExpr resultingType}"
 
   throwUnexpectedResultingTypeNotType (resultingType : Expr) (declName : Name) (ctorType : Syntax) := do
     let lazyMsg := MessageData.ofLazyM do
       let resultingTypeType ← inferType resultingType
       return indentExpr resultingTypeType
-    throwNamedErrorAt ctorType lean.ctorResultingTypeMismatch "Unexpected resulting type for constructor '{declName}': \
+    throwNamedErrorAt ctorType lean.ctorResultingTypeMismatch "Unexpected resulting type for constructor `{declName}`: \
       Expected a type, but found{indentExpr resultingType}\nof type{lazyMsg}"
 
 @[builtin_inductive_elab Lean.Parser.Command.inductive, builtin_inductive_elab Lean.Parser.Command.classInductive]

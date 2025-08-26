@@ -1,5 +1,5 @@
-799.lean:3:0-3:5: error: invalid declaration name 'p', there is a section variable with the same name
+799.lean:3:0-3:5: error: invalid declaration name `p`, there is a section variable with the same name
 p : Prop
-799.lean:7:0-7:5: error: invalid declaration name 'p', there is a section variable with the same name
+799.lean:7:0-7:5: error: invalid declaration name `p`, there is a section variable with the same name
 p : Prop
 p : Nat

@@ -52,7 +52,7 @@ def addDocString
     -- This case might happen on partial elaboration; ignore instead of triggering any panics below
     return
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
-    throwError "invalid doc string, declaration '{.ofConstName declName}' is in an imported module"
+    throwError "invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
   validateDocComment docComment
   let docString : String ← getDocStringText docComment
   modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces

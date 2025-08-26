@@ -310,12 +310,12 @@ def Origin.key : Origin → Name
   | .stx id _      => id
   | .local id      => id
 
-def Origin.pp [Monad m] [MonadEnv m] [MonadError m] (o : Origin) : m MessageData := do
+def Origin.pp (o : Origin) : MessageData :=
   match o with
-  | .decl declName => return MessageData.ofConstName declName
-  | .fvar fvarId   => return mkFVar fvarId
-  | .stx _ ref     => return ref
-  | .local id      => return id
+  | .decl declName => MessageData.ofConstName declName
+  | .fvar fvarId   => mkFVar fvarId
+  | .stx _ ref     => ref
+  | .local id      => id
 
 instance : BEq Origin where
   beq a b := a.key == b.key
@@ -872,7 +872,7 @@ private def ppParamsAt (proof : Expr) (numParams : Nat) (paramPos : List Nat) : 
 
 private def logPatternWhen (showInfo : Bool) (origin : Origin) (patterns : List Expr) : MetaM Unit := do
   if showInfo then
-    logInfo m!"{← origin.pp}: {patterns.map ppPattern}"
+    logInfo m!"{origin.pp}: {patterns.map ppPattern}"
 
 /--
 Creates an E-matching theorem for a theorem with proof `proof`, `numParams` parameters, and the given set of patterns.
@@ -883,11 +883,11 @@ def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams 
   -- the patterns have already been selected, there is no point in using priorities here
   let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns (← getGlobalSymbolPriorities) (minPrio := 1)
   if symbols.isEmpty then
-    throwError "invalid pattern for `{← origin.pp}`{indentD (patterns.map ppPattern)}\nthe pattern does not contain constant symbols for indexing"
-  trace[grind.ematch.pattern] "{← origin.pp}: {patterns.map ppPattern}"
+    throwError "invalid pattern for `{origin.pp}`{indentD (patterns.map ppPattern)}\nthe pattern does not contain constant symbols for indexing"
+  trace[grind.ematch.pattern] "{origin.pp}: {patterns.map ppPattern}"
   if let .missing pos ← checkCoverage proof numParams bvarFound then
      let pats : MessageData := m!"{patterns.map ppPattern}"
-     throwError "invalid pattern(s) for `{← origin.pp}`{indentD pats}\nthe following theorem parameters cannot be instantiated:{indentD (← ppParamsAt proof numParams pos)}"
+     throwError "invalid pattern(s) for `{origin.pp}`{indentD pats}\nthe following theorem parameters cannot be instantiated:{indentD (← ppParamsAt proof numParams pos)}"
   logPatternWhen showInfo origin patterns
   return {
     proof, patterns, numParams, symbols
@@ -924,7 +924,7 @@ def mkEMatchEqTheoremCore (origin : Origin) (levelParams : Array Name) (proof : 
       | HEq _ lhs _ rhs => pure (lhs, rhs)
       | _ => throwError "invalid E-matching equality theorem, conclusion must be an equality{indentExpr type}"
     let pat := if useLhs then lhs else rhs
-    trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: origin: {← origin.pp}, pat: {pat}, useLhs: {useLhs}"
+    trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: origin: {origin.pp}, pat: {pat}, useLhs: {useLhs}"
     let pat ← preprocessPattern pat normalizePattern
     trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: after preprocessing: {pat}, {← normalize pat normConfig}"
     let pats := splitWhileForbidden (pat.abstract xs)
@@ -1257,7 +1257,7 @@ def mkEMatchTheoremWithKind?
       | .fwd =>
         let ps ← getPropTypes xs
         if ps.isEmpty then
-          throwError "invalid `grind` forward theorem, theorem `{← origin.pp}` does not have propositional hypotheses"
+          throwError "invalid `grind` forward theorem, theorem `{origin.pp}` does not have propositional hypotheses"
         pure ps
       | .bwd _ => pure #[type]
       | .leftRight => pure <| (← getPropTypes xs).push type
@@ -1279,7 +1279,7 @@ where
   go (xs : Array Expr) (searchPlaces : Array Expr) : MetaM (Option EMatchTheorem) := do
     let some (patterns, symbols) ← collect xs searchPlaces | return none
     let numParams := xs.size
-    trace[grind.ematch.pattern] "{← origin.pp}: {patterns.map ppPattern}"
+    trace[grind.ematch.pattern] "{origin.pp}: {patterns.map ppPattern}"
     logPatternWhen showInfo origin patterns
     return some {
       proof, patterns, numParams, symbols

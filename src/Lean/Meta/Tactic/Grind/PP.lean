@@ -112,7 +112,7 @@ private def ppEqcs : M Unit := do
      pushMsg <| .trace { cls := `eqc } "Equivalence classes" otherEqcs
 
 private def ppEMatchTheorem (thm : EMatchTheorem) : MetaM MessageData := do
-  let m := m!"{← thm.origin.pp}: {thm.patterns.map ppPattern}"
+  let m := m!"{thm.origin.pp}: {thm.patterns.map ppPattern}"
   return .trace { cls := `thm } m #[]
 
 private def ppActiveTheoremPatterns : M Unit := do
@@ -185,7 +185,7 @@ private def ppCasesTrace : M Unit := do
     let mut msgs := #[]
     for { expr, i , num, source } in goal.split.trace.reverse do
       msgs := msgs.push <| .trace { cls := `cases } m!"[{i+1}/{num}]: {expr}" #[
-        .trace { cls := `cases } m!"source: {← source.toMessageData}" #[]
+        .trace { cls := `cases } m!"source: {source.toMessageData}" #[]
       ]
     pushMsg <| .trace { cls := `cases } "Case analyses" msgs
 

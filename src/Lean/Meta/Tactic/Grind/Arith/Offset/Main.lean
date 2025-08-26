@@ -246,7 +246,7 @@ def checkInvariants : GoalM Unit := do
       let p ← mkProofForPath u v
       trace[grind.debug.offset.proof] "{p} : {← inferType p}"
       check p
-      unless (← withDefault <| isDefEq (← inferType p) (← Cnstr.toExpr c)) do
+      unless (← isDefEqD (← inferType p) (← Cnstr.toExpr c)) do
         throwError "`grind` internal error in the offset constraint module, constraint{indentExpr (← Cnstr.toExpr c)}\nis not definitionally equal to type of its proof{indentExpr (← inferType p)}"
 
 /--

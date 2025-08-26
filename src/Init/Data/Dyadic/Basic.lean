@@ -151,9 +151,10 @@ protected def add (x y : Dyadic) : Dyadic :=
   | .ofOdd n₁ k₁ hn₁, .ofOdd n₂ k₂ hn₂ =>
     match k₁ - k₂ with
     | 0 => .ofIntWithPrec (n₁ + n₂) k₁
-    | (d@hd:(d' + 1) : Nat) => .ofOdd (n₁ + (n₂ <<< d)) k₁ ?_
-    | -(d + 1 : Nat) => .ofOdd (n₁ <<< (d + 1) + n₂) k₂ ?_
-where finally all_goals simp_all [Int.shiftLeft_eq, Int.pow_succ, ← Int.mul_assoc]
+    -- TODO: these `simp_all` calls where previously factored out into a `where finally` clause,
+    -- but there is apparently a bad interaction with the module system.
+    | (d@hd:(d' + 1) : Nat) => .ofOdd (n₁ + (n₂ <<< d)) k₁ (by simp_all [Int.shiftLeft_eq, Int.pow_succ, ← Int.mul_assoc])
+    | -(d + 1 : Nat) => .ofOdd (n₁ <<< (d + 1) + n₂) k₂ (by simp_all [Int.shiftLeft_eq, Int.pow_succ, ← Int.mul_assoc])
 
 instance : Add Dyadic := ⟨Dyadic.add⟩
 

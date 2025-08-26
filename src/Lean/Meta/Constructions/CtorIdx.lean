@@ -80,7 +80,7 @@ public def mkCtorIdx (indName : Name) : MetaM Unit := do
       setReducibleAttribute declName
 
       -- Deprecated alias for enumeration types (which used to have `toCtorIdx`)
-      if (← isEnumType indName) do
+      if (← isEnumType indName) then
         let aliasName := mkToCtorIdxName indName
         addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
           (name        := aliasName)

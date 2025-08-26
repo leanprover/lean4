@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedElabInfo;
 LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTreeOfMonadLift___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState(lean_object*, lean_object*, lean_object*);
@@ -30,6 +31,7 @@ lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTacticInfo___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedPartialTermInfo;
 static lean_object* l_Lean_Elab_instInhabitedElabInfo___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Elab_PartialContextInfo_ctorIdx(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedInfoState;
 LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___redArg___lam__0(lean_object*, lean_object*);
@@ -44,24 +46,56 @@ static size_t l_Lean_Elab_instInhabitedTermInfo___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedTacticInfo;
 static lean_object* l_Lean_Elab_instInhabitedInfo___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_ctorIdx___boxed(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTreeOfMonadLift___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_CompletionInfo_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedCommandInfo;
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___redArg___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__7;
+LEAN_EXPORT lean_object* l_Lean_Elab_Info_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTreeOfMonadLift(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedInfo;
 static lean_object* l_Lean_Elab_instInhabitedInfoState___closed__1;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Info_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__9;
 static lean_object* l_Lean_Elab_instInhabitedInfoTree___closed__3;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__5;
 static lean_object* l_Lean_Elab_instInhabitedTacticInfo___closed__2;
 static lean_object* l_Lean_Elab_instInhabitedInfoTree___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Elab_CompletionInfo_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Elab_PartialContextInfo_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Elab_PartialContextInfo_ctorIdx(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+else
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(1u);
+return x_3;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_PartialContextInfo_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_PartialContextInfo_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Elab_instInhabitedElabInfo___closed__0() {
 _start:
 {
@@ -241,6 +275,76 @@ x_1 = l_Lean_Elab_instInhabitedElabInfo___closed__0;
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Elab_CompletionInfo_ctorIdx(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+case 1:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(1u);
+return x_3;
+}
+case 2:
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(2u);
+return x_4;
+}
+case 3:
+{
+lean_object* x_5; 
+x_5 = lean_unsigned_to_nat(3u);
+return x_5;
+}
+case 4:
+{
+lean_object* x_6; 
+x_6 = lean_unsigned_to_nat(4u);
+return x_6;
+}
+case 5:
+{
+lean_object* x_7; 
+x_7 = lean_unsigned_to_nat(5u);
+return x_7;
+}
+case 6:
+{
+lean_object* x_8; 
+x_8 = lean_unsigned_to_nat(6u);
+return x_8;
+}
+case 7:
+{
+lean_object* x_9; 
+x_9 = lean_unsigned_to_nat(7u);
+return x_9;
+}
+default: 
+{
+lean_object* x_10; 
+x_10 = lean_unsigned_to_nat(8u);
+return x_10;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_CompletionInfo_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_CompletionInfo_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Elab_instInhabitedFieldInfo___closed__0() {
 _start:
 {
@@ -348,6 +452,112 @@ x_1 = l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__0;
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Elab_Info_ctorIdx(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+case 1:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(1u);
+return x_3;
+}
+case 2:
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(2u);
+return x_4;
+}
+case 3:
+{
+lean_object* x_5; 
+x_5 = lean_unsigned_to_nat(3u);
+return x_5;
+}
+case 4:
+{
+lean_object* x_6; 
+x_6 = lean_unsigned_to_nat(4u);
+return x_6;
+}
+case 5:
+{
+lean_object* x_7; 
+x_7 = lean_unsigned_to_nat(5u);
+return x_7;
+}
+case 6:
+{
+lean_object* x_8; 
+x_8 = lean_unsigned_to_nat(6u);
+return x_8;
+}
+case 7:
+{
+lean_object* x_9; 
+x_9 = lean_unsigned_to_nat(7u);
+return x_9;
+}
+case 8:
+{
+lean_object* x_10; 
+x_10 = lean_unsigned_to_nat(8u);
+return x_10;
+}
+case 9:
+{
+lean_object* x_11; 
+x_11 = lean_unsigned_to_nat(9u);
+return x_11;
+}
+case 10:
+{
+lean_object* x_12; 
+x_12 = lean_unsigned_to_nat(10u);
+return x_12;
+}
+case 11:
+{
+lean_object* x_13; 
+x_13 = lean_unsigned_to_nat(11u);
+return x_13;
+}
+case 12:
+{
+lean_object* x_14; 
+x_14 = lean_unsigned_to_nat(12u);
+return x_14;
+}
+case 13:
+{
+lean_object* x_15; 
+x_15 = lean_unsigned_to_nat(13u);
+return x_15;
+}
+default: 
+{
+lean_object* x_16; 
+x_16 = lean_unsigned_to_nat(14u);
+return x_16;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Info_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_Info_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Elab_instInhabitedInfo___closed__0() {
 _start:
 {
@@ -364,6 +574,40 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Elab_instInhabitedInfo___closed__0;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_ctorIdx(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+case 1:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(1u);
+return x_3;
+}
+default: 
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(2u);
+return x_4;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_InfoTree_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Elab_instInhabitedInfoTree___closed__0() {

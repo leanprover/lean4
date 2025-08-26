@@ -13,8 +13,10 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
 public import Lean.Meta.Tactic.Grind.Arith.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 
 public section
 

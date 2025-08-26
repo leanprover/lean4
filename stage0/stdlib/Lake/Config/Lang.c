@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_Lake_reprConfigLang___closed__3____x40_Lake_Config_Lang_225997385____hygCtx___hyg_6_;
-LEAN_EXPORT lean_object* l_Lake_ConfigLang_toCtorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorIdx___boxed(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instDecidableEqConfigLang___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_ConfigLang_ofNat(lean_object*);
@@ -41,11 +41,11 @@ LEAN_EXPORT lean_object* l_Lake_ConfigLang_fileExtension(uint8_t);
 static lean_object* l_Lake_reprConfigLang___closed__5____x40_Lake_Config_Lang_225997385____hygCtx___hyg_6_;
 static lean_object* l_Lake_ConfigLang_ofString_x3f___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_ConfigLang_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_ConfigLang_noConfusion___redArg___boxed(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l_Lake_ConfigLang_ofString_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lake_ConfigLang_noConfusion___redArg(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_ConfigLang_fileExtension___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_reprConfigLang____x40_Lake_Config_Lang_225997385____hygCtx___hyg_6_(uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_ConfigLang_default;
@@ -53,7 +53,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprConfigLang;
 static lean_object* l_Lake_instReprConfigLang___closed__0;
 LEAN_EXPORT lean_object* l_Lake_ConfigLang_noConfusion___redArg___lam__0___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_ConfigLang_toCtorIdx(uint8_t x_1) {
+LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorIdx(uint8_t x_1) {
 _start:
 {
 if (x_1 == 0)
@@ -70,12 +70,12 @@ return x_3;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_ConfigLang_toCtorIdx___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorIdx___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-x_3 = l_Lake_ConfigLang_toCtorIdx(x_2);
+x_3 = l_Lake_ConfigLang_ctorIdx(x_2);
 return x_3;
 }
 }
@@ -319,8 +319,8 @@ LEAN_EXPORT uint8_t l_Lake_instDecidableEqConfigLang(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Lake_ConfigLang_toCtorIdx(x_1);
-x_4 = l_Lake_ConfigLang_toCtorIdx(x_2);
+x_3 = l_Lake_ConfigLang_ctorIdx(x_1);
+x_4 = l_Lake_ConfigLang_ctorIdx(x_2);
 x_5 = lean_nat_dec_eq(x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);

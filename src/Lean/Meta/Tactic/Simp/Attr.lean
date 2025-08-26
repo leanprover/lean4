@@ -36,7 +36,7 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
             addSimpTheorem ext declName post (inv := inv) attrKind prio
           else if info.kind matches .defn then
             if inv then
-              throwError m!"Invalid `←` modifier: `{declName}` is a declaration name to be unfolded"
+              throwError m!"Invalid `←` modifier: `{.ofConstName declName}` is a declaration name to be unfolded"
                 ++ .note m!"The simplifier will automatically unfold definitions marked with the `[simp]` \
                             attribute, but it will not \"refold\" them"
             if (← Simp.ignoreEquations declName) then
@@ -50,7 +50,7 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
             else
               ext.add (SimpEntry.toUnfold declName) attrKind
           else
-            throwError m!"Cannot add `simp` attribute to `{declName}`: It is not a proposition nor a definition (to unfold)"
+            throwError m!"Cannot add `simp` attribute to `{.ofConstName declName}`: It is not a proposition nor a definition (to unfold)"
               ++ .note m!"The `[simp]` attribute can be added to lemmas that should be automatically used by the simplifier \
                           and to definitions that the simplifier should automatically unfold"
         discard <| go.run {} {}

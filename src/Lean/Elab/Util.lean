@@ -102,7 +102,7 @@ def syntaxNodeKindOfAttrParam (defaultParserNamespace : Name) (stx : Syntax) : A
   <|>
   checkSyntaxNodeKind (defaultParserNamespace ++ k)
   <|>
-  throwError "invalid syntax node kind '{k}'"
+  throwError "invalid syntax node kind `{k}`"
 
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
   env.evalConstCheck Syntax opts `Lean.Syntax constName

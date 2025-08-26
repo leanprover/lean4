@@ -22,5 +22,4 @@ public import Init.Grind.ToInt
 public import Init.Grind.ToIntLemmas
 public import Init.Grind.Attr
 public import Init.Data.Int.OfNat -- This may not have otherwise been imported, breaking `grind` proofs.
-
-public section
+public import Init.Grind.AC

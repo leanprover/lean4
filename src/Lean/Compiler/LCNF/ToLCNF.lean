@@ -580,9 +580,7 @@ where
               let fieldArg ← if let some indexIdx := indexArgs.findIdx? (· == p) then
                 pure args[numParams + 1 + indexIdx]!
               else
-                let .fvar fvarId := p | unreachable!
-                let decl ← fvarId.getDecl
-                pure <| mkLcProof decl.type
+                pure <| mkLcProof (← p.fvarId!.getType)
               fieldArgs := fieldArgs.push fieldArg
             return fieldArgs
         let f := args[casesInfo.altsRange.lower]!
@@ -677,14 +675,18 @@ where
         if lhsCtorVal.name == rhsCtorVal.name then
           etaIfUnderApplied e (arity+1) do
             let major := args[arity]!
-            let major ← expandNoConfusionMajor major lhsCtorVal.numFields
+            let numNonPropFields ← liftMetaM <| Meta.forallTelescope lhsCtorVal.type fun params _ =>
+              params[lhsCtorVal.numParams...*].foldlM (init := 0) fun n param => do
+                let type ← param.fvarId!.getType
+                return if !(← Meta.isProp type) then n + 1 else n
+            let major ← expandNoConfusionMajor major numNonPropFields
             let major := mkAppN major args[(arity+1)...*]
             visit major
         else
           let type ← toLCNFType (← liftMetaM <| Meta.inferType e)
           mkUnreachable type
       | _, _ =>
-        throwError "code generator failed, unsupported occurrence of `{declName}`"
+        throwError "code generator failed, unsupported occurrence of `{.ofConstName declName}`"
 
   expandNoConfusionMajor (major : Expr) (numFields : Nat) : M Expr := do
     match numFields with

@@ -83,6 +83,7 @@ interesting fields:
 
 /-- Style as an error. By default, decorates the text with an undersquiggle; providing the argument
 `decorated := false` turns this off. -/
+@[deprecated "`SuggestionStyle` is not used anymore." (since := "2025-08-14")]
 def SuggestionStyle.error (decorated := true) : SuggestionStyle :=
   let style := if decorated then
     json% {
@@ -95,6 +96,7 @@ def SuggestionStyle.error (decorated := true) : SuggestionStyle :=
 
 /-- Style as a warning. By default, decorates the text with an undersquiggle; providing the
 argument `decorated := false` turns this off. -/
+@[deprecated "`SuggestionStyle` is not used anymore." (since := "2025-08-14")]
 def SuggestionStyle.warning (decorated := true) : SuggestionStyle :=
   if decorated then
     json% {
@@ -105,15 +107,18 @@ def SuggestionStyle.warning (decorated := true) : SuggestionStyle :=
   else json% { className: "gold pointer dim" }
 
 /-- Style as a success. -/
+@[deprecated "`SuggestionStyle` is not used anymore." (since := "2025-08-14")]
 def SuggestionStyle.success : SuggestionStyle :=
   -- The `.information` CSS class, which the infoview uses on successes.
   json% { className: "information pointer dim" }
 
 /-- Style the same way as a hypothesis appearing in the infoview. -/
+@[deprecated "`SuggestionStyle` is not used anymore." (since := "2025-08-14")]
 def SuggestionStyle.asHypothesis : SuggestionStyle :=
   json% { className: "goal-hyp pointer dim" }
 
 /-- Style the same way as an inaccessible hypothesis appearing in the infoview. -/
+@[deprecated "`SuggestionStyle` is not used anymore." (since := "2025-08-14")]
 def SuggestionStyle.asInaccessible : SuggestionStyle :=
   json% { className: "goal-inaccessible pointer dim" }
 
@@ -122,6 +127,7 @@ green at `1.0`. Values outside the range `[0.0, 1.0]` are clipped to lie within 
 
 With `showValueInHoverText := true` (the default), the value `t` will be included in the `title` of
 the HTML element (which appears on hover). -/
+@[deprecated "`SuggestionStyle` is not used anymore." (since := "2025-08-14")]
 def SuggestionStyle.value (t : Float) (showValueInHoverText := true) : SuggestionStyle :=
   let t := min (max t 0) 1
   json% {
@@ -164,10 +170,12 @@ structure Suggestion where
   toCodeActionTitle? : Option (String → String) := none
   deriving Inhabited
 
-/- If `messageData?` is specified, we use that; otherwise (by default), we use `toMessageData` of
-the suggestion text. -/
+attribute [deprecated "The `style?` property is not used anymore." (since := "2025-08-14")] Suggestion.style?
+attribute [deprecated "The `messageData?` property is not used anymore." (since := "2025-08-14")] Suggestion.messageData?
+
+/- Use `toMessageData` of the suggestion text. -/
 instance : ToMessageData Suggestion where
-  toMessageData s := s.messageData?.getD (toMessageData s.suggestion)
+  toMessageData s := toMessageData s.suggestion
 
 instance : Coe SuggestionText Suggestion where
   coe t := { suggestion := t }
@@ -231,7 +239,6 @@ def Suggestion.toJsonAndInfoM (s : Suggestion) (w : Option Nat := none) (indent 
   let mut json := [("suggestion", (text : Json))]
   if let some preInfo := s.preInfo? then json := ("preInfo", preInfo) :: json
   if let some postInfo := s.postInfo? then json := ("postInfo", postInfo) :: json
-  if let some style := s.style? then json := ("style", toJson style) :: json
   return (Json.mkObj json, text, s.toCodeActionTitle?.map (· text))
 
 /--

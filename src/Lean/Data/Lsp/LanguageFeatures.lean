@@ -33,7 +33,7 @@ inductive CompletionItemKind where
   deriving Inhabited, DecidableEq, Repr, Hashable
 
 instance : ToJson CompletionItemKind where
-  toJson a := toJson (a.toCtorIdx + 1)
+  toJson a := toJson (a.ctorIdx + 1)
 
 instance : FromJson CompletionItemKind where
   fromJson? v := do
@@ -51,7 +51,7 @@ inductive CompletionItemTag where
   deriving Inhabited, DecidableEq, Repr, Hashable
 
 instance : ToJson CompletionItemTag where
-  toJson t := toJson (t.toCtorIdx + 1)
+  toJson t := toJson (t.ctorIdx + 1)
 
 instance : FromJson CompletionItemTag where
   fromJson? v := do
@@ -352,7 +352,7 @@ def SemanticTokenType.names : Array String :=
     "regexp", "operator", "decorator", "leanSorryLike"]
 
 def SemanticTokenType.toNat (tokenType : SemanticTokenType) : Nat :=
-  tokenType.toCtorIdx
+  tokenType.ctorIdx
 
 -- sanity check
 example {v : SemanticTokenType} : open SemanticTokenType in
@@ -383,7 +383,7 @@ def SemanticTokenModifier.names : Array String :=
     "async", "modification", "documentation", "defaultLibrary"]
 
 def SemanticTokenModifier.toNat (modifier : SemanticTokenModifier) : Nat :=
-  modifier.toCtorIdx
+  modifier.ctorIdx
 
 -- sanity check
 example {v : SemanticTokenModifier} : open SemanticTokenModifier in

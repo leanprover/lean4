@@ -3,14 +3,16 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.DSL.AttributesCore
+public import Lake.DSL.AttributesCore
 
 open Lean
 
 namespace Lake
 
-builtin_initialize
+public builtin_initialize
   registerBuiltinAttribute {
     ref             := by exact decl_name%
     name            := `test_runner

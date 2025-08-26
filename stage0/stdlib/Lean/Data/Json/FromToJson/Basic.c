@@ -46,6 +46,7 @@ LEAN_EXPORT lean_object* l_Lean_instFromJsonString;
 LEAN_EXPORT lean_object* l_Array_toJson___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonJsonNumber;
 static lean_object* l_USize_fromJson_x3f___closed__0;
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonFloat;
 LEAN_EXPORT lean_object* l_Option_toJson(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_fromJson_x3f___redArg(lean_object*, lean_object*);
@@ -1842,7 +1843,7 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = 1;
-x_7 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_4, x_6);
+x_7 = l_Lean_Name_toString(x_4, x_6);
 x_8 = lean_apply_1(x_1, x_5);
 x_9 = l_Std_DTreeMap_Internal_Impl_insert_x21___redArg(x_2, x_7, x_8, x_3);
 return x_9;

@@ -24,6 +24,7 @@ LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_Compiler_NeverExtrac
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___closed__4;
 uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_getPrefix(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_hasNeverExtractAttribute(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___closed__2;
@@ -280,19 +281,11 @@ return x_5;
 }
 else
 {
-if (lean_obj_tag(x_2) == 0)
-{
-goto _start;
-}
-else
-{
-lean_object* x_7; 
-x_7 = lean_ctor_get(x_2, 0);
-lean_inc(x_7);
+lean_object* x_6; 
+x_6 = l_Lean_Name_getPrefix(x_2);
 lean_dec(x_2);
-x_2 = x_7;
+x_2 = x_6;
 goto _start;
-}
 }
 }
 else

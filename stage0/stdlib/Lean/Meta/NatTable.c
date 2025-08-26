@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l___auto___closed__25____x40_Lean_Meta_NatTable_2895864950____hygCtx___hyg_65_;
 static lean_object* l_mkNatLookupTable___closed__1;
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
@@ -40,6 +39,7 @@ static lean_object* l___auto___closed__15____x40_Lean_Meta_NatTable_2895864950__
 static lean_object* l___auto___closed__26____x40_Lean_Meta_NatTable_2895864950____hygCtx___hyg_65_;
 static lean_object* l___auto___closed__19____x40_Lean_Meta_NatTable_2895864950____hygCtx___hyg_65_;
 static lean_object* l___auto___closed__24____x40_Lean_Meta_NatTable_2895864950____hygCtx___hyg_65_;
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Lean_Meta_NatTable_2895864950____hygCtx___hyg_65_;
 static lean_object* l___auto___closed__10____x40_Lean_Meta_NatTable_2895864950____hygCtx___hyg_65_;
 static lean_object* l___auto___closed__12____x40_Lean_Meta_NatTable_2895864950____hygCtx___hyg_65_;
@@ -427,7 +427,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__4;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -469,7 +469,7 @@ x_21 = lean_box(0);
 lean_ctor_set_tag(x_13, 1);
 lean_ctor_set(x_13, 1, x_21);
 lean_ctor_set(x_13, 0, x_4);
-x_22 = l_Lean_Expr_const___override(x_20, x_13);
+x_22 = l_Lean_mkConst(x_20, x_13);
 x_23 = l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__5;
 x_24 = lean_nat_sub(x_12, x_8);
 lean_dec(x_12);
@@ -492,7 +492,7 @@ x_31 = lean_box(0);
 lean_ctor_set_tag(x_13, 1);
 lean_ctor_set(x_13, 1, x_31);
 lean_ctor_set(x_13, 0, x_4);
-x_32 = l_Lean_Expr_const___override(x_30, x_13);
+x_32 = l_Lean_mkConst(x_30, x_13);
 x_33 = l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__5;
 x_34 = lean_nat_sub(x_12, x_8);
 lean_dec(x_12);
@@ -534,7 +534,7 @@ x_46 = lean_box(0);
 x_47 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_47, 0, x_4);
 lean_ctor_set(x_47, 1, x_46);
-x_48 = l_Lean_Expr_const___override(x_45, x_47);
+x_48 = l_Lean_mkConst(x_45, x_47);
 x_49 = l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg___closed__5;
 x_50 = lean_nat_sub(x_12, x_8);
 lean_dec(x_12);

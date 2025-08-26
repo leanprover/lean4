@@ -9,7 +9,7 @@ prelude
 public import Init.Grind.Ring.Basic
 public import Lean.Meta.SynthInstance
 public import Lean.Meta.Basic
-public import Std.Internal.Rat
+public import Init.Data.Rat.Basic
 
 public section
 
@@ -78,6 +78,7 @@ def isArithTerm (e : Expr) : Bool :=
   | HDiv.hDiv _ _ _ _ _ _ => true
   | HMod.hMod _ _ _ _ _ _ => true
   | HPow.hPow _ _ _ _ _ _ => true
+  | HSMul.hSMul _ _ _ _ _ _ => true
   | Neg.neg _ _ _ => true
   | OfNat.ofNat _ _ _ => true
   | _ => false
@@ -99,8 +100,6 @@ partial def gcdExt (a b : Int) : Int × Int × Int :=
   else
     let (g, α, β) := gcdExt b (a % b)
     (g, β, α - (a / b) * β)
-
-open Std.Internal
 
 -- TODO: PArray.shrink and PArray.resize
 partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
@@ -146,7 +145,7 @@ internalizing auxiliary expressions created by `toIntModuleExpr`.
 The function `toIntModuleExpr` converts a `CommRing` polynomial into
 a `IntModule` expression. We don't want this auxiliary expression to be
 internalized by the `CommRing` module since it uses a nonstandard encoding
-with `@HMul.hMul Int α α`, a virtual `One.one` constant, etc.
+with `@HSMul.hSMul Int α α`, a virtual `One.one` constant, etc.
  -/
 def getIntModuleVirtualParent : Expr :=
   mkConst ``____intModuleMarker____

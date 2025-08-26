@@ -1,6 +1,6 @@
 scopedInstanceOutsideNamespace.lean:1:0-2:38: error: Scoped attributes must be used inside namespaces
 "true"
 scopedInstanceOutsideNamespace.lean:6:0-6:30: error: Scoped attributes must be used inside namespaces
-scopedInstanceOutsideNamespace.lean:6:0-6:30: error: invalid syntax node kind '«term_+__1»'
+scopedInstanceOutsideNamespace.lean:6:0-6:30: error: invalid syntax node kind `«term_+__1»`
 scopedInstanceOutsideNamespace.lean:6:0-6:30: error: Scoped attributes must be used inside namespaces
 scopedInstanceOutsideNamespace.lean:8:2-8:17: error: Scoped attributes must be used inside namespaces

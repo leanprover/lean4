@@ -114,7 +114,6 @@ static lean_object* l_Lean_doElemWhile___x3a__Do_____closed__16;
 static lean_object* l_Lean_doElemWhile___x3a__Do_____closed__12;
 static lean_object* l_Lean_doElemWhile__Do_____closed__5;
 static lean_object* l_Lean_doElemRepeat_____closed__7;
-LEAN_EXPORT lean_object* l_Lean_Loop_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_doElemRepeat__;
 static lean_object* l_Lean_doElemRepeat_____closed__3;
 static lean_object* l_Lean_doElemRepeat____Until_____closed__0;
@@ -149,14 +148,6 @@ static lean_object* l_Lean_doElemRepeat____Until_____closed__14;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__0;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Loop_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Loop_noConfusion___redArg(lean_object* x_1) {
 _start:
 {

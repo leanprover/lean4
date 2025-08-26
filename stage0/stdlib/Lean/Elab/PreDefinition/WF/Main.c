@@ -48,6 +48,7 @@ LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Elab_wfRecursion_spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at___Lean_withEnv___at___Lean_Elab_wfRecursion_spec__14_spec__14___redArg___closed__2;
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Main_0__Lean_Elab_initFn___closed__22____x40_Lean_Elab_PreDefinition_WF_Main_1197449596____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Main_0__Lean_Elab_initFn___closed__15____x40_Lean_Elab_PreDefinition_WF_Main_1197449596____hygCtx___hyg_2_;
@@ -202,7 +203,6 @@ size_t lean_usize_add(size_t, size_t);
 static double l_Lean_addTrace___at___Lean_Elab_wfRecursion_spec__19___redArg___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_wfRecursion_spec__18___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Main_0__Lean_Elab_initFn___closed__26____x40_Lean_Elab_PreDefinition_WF_Main_1197449596____hygCtx___hyg_2_;
-lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 static lean_object* l_Lean_Elab_wfRecursion___closed__1;
@@ -448,7 +448,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
+x_5 = l_Lean_KVMap_find(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
@@ -5765,11 +5765,11 @@ x_177 = 1;
 x_106 = x_171;
 x_107 = x_174;
 x_108 = x_167;
-x_109 = x_169;
+x_109 = x_168;
 x_110 = x_170;
 x_111 = x_172;
 x_112 = x_173;
-x_113 = x_168;
+x_113 = x_169;
 x_114 = x_175;
 x_115 = x_176;
 x_116 = x_177;
@@ -5785,8 +5785,8 @@ if (x_191 == 0)
 {
 lean_dec(x_190);
 x_167 = x_186;
-x_168 = x_180;
-x_169 = x_185;
+x_168 = x_185;
+x_169 = x_180;
 x_170 = x_187;
 x_171 = x_181;
 x_172 = x_183;
@@ -5802,8 +5802,8 @@ if (x_191 == 0)
 {
 lean_dec(x_190);
 x_167 = x_186;
-x_168 = x_180;
-x_169 = x_185;
+x_168 = x_185;
+x_169 = x_180;
 x_170 = x_187;
 x_171 = x_181;
 x_172 = x_183;
@@ -5822,8 +5822,8 @@ x_193 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_El
 if (x_193 == 0)
 {
 x_167 = x_186;
-x_168 = x_180;
-x_169 = x_185;
+x_168 = x_185;
+x_169 = x_180;
 x_170 = x_187;
 x_171 = x_181;
 x_172 = x_183;

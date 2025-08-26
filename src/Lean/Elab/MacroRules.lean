@@ -35,13 +35,13 @@ def elabMacroRulesAux (doc? : Option (TSyntax ``docComment))
         pure alt
       else if k' == choiceKind then
          match quoted.getArgs.find? fun quotAlt => checkRuleKind quotAlt.getKind k with
-         | none        => throwErrorAt alt "invalid macro_rules alternative, expected syntax node kind '{k}'"
+         | none        => throwErrorAt alt "invalid macro_rules alternative, expected syntax node kind `{k}`"
          | some quoted =>
            let pat := pat.setArg 1 quoted
            let pats := pats.elemsAndSeps.set! 0 pat
            `(matchAltExpr| | $(⟨pats⟩),* => $rhs)
       else
-        throwErrorAt alt "invalid macro_rules alternative, unexpected syntax node kind '{k'}'"
+        throwErrorAt alt "invalid macro_rules alternative, unexpected syntax node kind `{k'}`"
     | _ => throwUnsupportedSyntax
   let attr ← `(attrInstance| $attrKind macro $(Lean.mkIdent k))
   let attrs := match attrs? with

@@ -531,7 +531,7 @@ instance [Ord α] : Ord (Option α) where
   | some x, some y => compare x y
 
 instance : Ord Ordering where
-  compare := compareOn (·.toCtorIdx)
+  compare := compareOn (·.ctorIdx)
 
 namespace List
 

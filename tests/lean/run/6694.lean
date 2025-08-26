@@ -8,9 +8,9 @@ failing or producing invalid entries in the environment.
 -/
 
 /--
-error: 'mutual' block contains two declarations of the same name 'foo'
+error: `mutual` block contains two declarations of the same name `foo`
 ---
-error: 'mutual' block contains two declarations of the same name 'foo'
+error: `mutual` block contains two declarations of the same name `foo`
 -/
 #guard_msgs in
 mutual
@@ -22,9 +22,9 @@ end
 #guard_msgs in #check foo
 
 /--
-error: 'mutual' block contains two declarations of the same name 'foo'
+error: `mutual` block contains two declarations of the same name `foo`
 ---
-error: 'mutual' block contains two declarations of the same name 'foo'
+error: `mutual` block contains two declarations of the same name `foo`
 -/
 #guard_msgs in
 mutual
@@ -36,9 +36,9 @@ end
 #guard_msgs in #check foo
 
 /--
-error: 'mutual' block contains two declarations of the same name 'y.z'
+error: `mutual` block contains two declarations of the same name `y.z`
 ---
-error: 'mutual' block contains two declarations of the same name 'y.z'
+error: `mutual` block contains two declarations of the same name `y.z`
 -/
 #guard_msgs in
 mutual
@@ -54,9 +54,9 @@ end
 #guard_msgs in #check y.z
 
 /--
-error: 'mutual' block contains two declarations of the same name 'a.b'
+error: `mutual` block contains two declarations of the same name `a.b`
 ---
-error: 'mutual' block contains two declarations of the same name 'a.b'
+error: `mutual` block contains two declarations of the same name `a.b`
 -/
 #guard_msgs in
 mutual

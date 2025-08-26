@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Date.Unit.Year
-// Imports: Std.Time.Internal Std.Internal.Rat Std.Time.Date.Unit.Day Std.Time.Date.Unit.Month
+// Imports: Std.Time.Internal Std.Time.Date.Unit.Day Std.Time.Date.Unit.Month
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,7 +20,6 @@ static lean_object* l_Std_Time_Year_Offset_toMonths___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Year_instNegOffset;
 extern lean_object* l_Int_instInhabited;
 static lean_object* l_Std_Time_Year_Offset_weeks___lam__0___closed__0;
-LEAN_EXPORT lean_object* l_Std_Time_Year_Era_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_Year_Era_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_Era_noConfusion___redArg___boxed(lean_object*, lean_object*);
 lean_object* l_Int_add___boxed(lean_object*, lean_object*);
@@ -39,7 +38,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Year_Offset_ofInt(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_instAddOffset;
 LEAN_EXPORT lean_object* l_Std_Time_Year_Era_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instReprInt___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_Year_Era_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Std_Time_Year_instSubOffset___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Year_reprEra____x40_Std_Time_Date_Unit_Year_2464685117____hygCtx___hyg_6____boxed(lean_object*, lean_object*);
 lean_object* l_Int_sub___boxed(lean_object*, lean_object*);
@@ -64,8 +62,10 @@ LEAN_EXPORT lean_object* l_Std_Time_Year_Offset_toInt(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_instDecidableLeOffset___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Year_instDecidableLeOffset(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Year_Offset_days___closed__5;
+LEAN_EXPORT lean_object* l_Std_Time_Year_Era_ctorIdx(uint8_t);
 static lean_object* l_Std_Time_Year_reprEra___closed__1____x40_Std_Time_Date_Unit_Year_2464685117____hygCtx___hyg_6_;
 static lean_object* l_Std_Time_Year_reprEra___closed__3____x40_Std_Time_Date_Unit_Year_2464685117____hygCtx___hyg_6_;
+LEAN_EXPORT lean_object* l_Std_Time_Year_Era_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_instToStringEra___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_Offset_ofNat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_instReprEra;
@@ -119,7 +119,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Year_Offset_days___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_Offset_days(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_instToStringEra;
 LEAN_EXPORT lean_object* l_Std_Time_Year_instSubOffset;
-LEAN_EXPORT lean_object* l_Std_Time_Year_Era_toCtorIdx(uint8_t x_1) {
+LEAN_EXPORT lean_object* l_Std_Time_Year_Era_ctorIdx(uint8_t x_1) {
 _start:
 {
 if (x_1 == 0)
@@ -136,12 +136,12 @@ return x_3;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Year_Era_toCtorIdx___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Time_Year_Era_ctorIdx___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-x_3 = l_Std_Time_Year_Era_toCtorIdx(x_2);
+x_3 = l_Std_Time_Year_Era_ctorIdx(x_2);
 return x_3;
 }
 }
@@ -1105,7 +1105,6 @@ return x_2;
 }
 }
 lean_object* initialize_Std_Time_Internal(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Internal_Rat(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Date_Unit_Day(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Date_Unit_Month(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1114,9 +1113,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Time_Internal(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Internal_Rat(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Time_Date_Unit_Day(builtin, lean_io_mk_world());

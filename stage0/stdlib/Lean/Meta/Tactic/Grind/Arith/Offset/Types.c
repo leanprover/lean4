@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ToPropagate_ctorIdx(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedToPropagate;
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -32,6 +33,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId_
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo___closed__4;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ToPropagate_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo___closed__3;
@@ -173,6 +175,40 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo___closed__4;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ToPropagate_ctorIdx(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+case 1:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(1u);
+return x_3;
+}
+default: 
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(2u);
+return x_4;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ToPropagate_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_Grind_Arith_Offset_ToPropagate_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_instInhabitedToPropagate___closed__0() {

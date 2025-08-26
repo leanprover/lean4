@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Simp
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
@@ -12,7 +11,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
-
+import Lean.Meta.NatInstTesters
 public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -249,6 +248,28 @@ private def propagateNonlinearMod (x : Var) : GoalM Bool := do
   c'.assert
   return true
 
+private def propagateNonlinearPow (x : Var) : GoalM Bool := do
+  let e ← getVar x
+  let_expr HPow.hPow _ _ _ i a b := e | return false
+  unless (← isInstHPowInt i) do return false
+  let (ka, ca?) ← if let some ka ← getIntValue? a then
+    pure (ka, none)
+  else if let some (ka, ca) ← isExprEqConst? a then
+    pure (ka, some ca)
+  else
+    return false
+  let (kb, cb?) ← if let some kb ← getNatValue? b then
+    pure (kb, none)
+  else
+    let (b', _) ← mkNatVar b
+    if let some (kb, cb) ← isExprEqConst? b' then
+      pure (kb.toNat, some cb)
+    else
+      return false
+  let c' ← pure { p := .add 1 x (.num (-(ka^kb))), h := .pow ka ca? kb cb? : EqCnstr }
+  c'.assert
+  return true
+
 @[export lean_cutsat_propagate_nonlinear]
 def propagateNonlinearTermImpl (y : Var) (x : Var) : GoalM Bool := do
   unless (← isVarEqConst? y).isSome do return false
@@ -256,6 +277,7 @@ def propagateNonlinearTermImpl (y : Var) (x : Var) : GoalM Bool := do
   | HMul.hMul _ _ _ _ _ _ => propagateNonlinearMul x
   | HDiv.hDiv _ _ _ _ _ _ => propagateNonlinearDiv x
   | HMod.hMod _ _ _ _ _ _ => propagateNonlinearMod x
+  | HPow.hPow _ _ _ _ _ _ => propagateNonlinearPow x
   | _ => return false
 
 def propagateNonlinearTerms (y : Var) : GoalM Unit := do

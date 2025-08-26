@@ -25,7 +25,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27Core___redArg___lam__2___boxed(le
 static lean_object* l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__1;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27___redArg___lam__0___boxed(lean_object*);
-lean_object* l_List_foldl___at___Array_appendList_spec__0(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_foldl___at___Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27___redArg___lam__0(lean_object*);
@@ -129,7 +129,7 @@ lean_dec_ref(x_8);
 lean_dec(x_1);
 x_17 = l___private_Lean_Meta_Tactic_Repeat_0__Lean_Meta_repeat_x27Core_go___redArg___lam__1___closed__0;
 x_18 = lean_array_push(x_2, x_3);
-x_19 = l_List_foldl___at___Array_appendList_spec__0(lean_box(0), x_18, x_4);
+x_19 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_18, x_4);
 x_20 = l_List_foldl___redArg(x_17, x_19, x_5);
 x_21 = lean_box(x_6);
 x_22 = lean_alloc_ctor(0, 2, 0);

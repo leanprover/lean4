@@ -201,9 +201,9 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     | some (.defnInfo ..) | some (.opaqueInfo ..) =>
       mkFap name irArgs
     | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>
-      throwNamedError lean.dependsOnNoncomputable f!"'{name}' not supported by code generator; consider marking definition as 'noncomputable'"
+      throwNamedError lean.dependsOnNoncomputable f!"`{name}` not supported by code generator; consider marking definition as `noncomputable`"
     | some (.recInfo ..) =>
-      throwError f!"code generator does not support recursor '{name}' yet, consider using 'match ... with' and/or structural recursion"
+      throwError f!"code generator does not support recursor `{name}` yet, consider using 'match ... with' and/or structural recursion"
     | none => panic! "reference to unbound name"
   | .fvar fvarId args =>
     match (← getFVarValue fvarId) with

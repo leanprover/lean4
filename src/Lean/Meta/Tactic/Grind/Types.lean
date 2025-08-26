@@ -10,18 +10,13 @@ public import Init.Grind.Tactics
 public import Init.Data.Queue
 public import Std.Data.TreeSet.Basic
 public import Lean.HeadIndex
-public import Lean.Meta.Basic
-public import Lean.Meta.CongrTheorems
-public import Lean.Meta.AbstractNestedProofs
 public import Lean.Meta.Tactic.Simp.Types
-public import Lean.Meta.Tactic.Util
-public import Lean.Meta.Tactic.Ext
 public import Lean.Meta.Tactic.Grind.ExprPtr
 public import Lean.Meta.Tactic.Grind.AlphaShareCommon
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.ExtAttr
-public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.Arith.Types
+public import Lean.Meta.Tactic.Grind.AC.Types
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
 meta import Lean.Parser.Do
 import Lean.Meta.Match.MatchEqsExt
@@ -33,6 +28,10 @@ namespace Lean.Meta.Grind
 
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
 def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
+
+/-- Similar to `isDefEq`, but ensures default transparency is used. -/
+def isDefEqD (t s : Expr) : MetaM Bool :=
+  withDefault <| isDefEq t s
 
 /--
 Returns `true` if `e` is `True`, `False`, or a literal value.
@@ -81,14 +80,14 @@ inductive SplitSource where
     input
   deriving Inhabited
 
-def SplitSource.toMessageData : SplitSource → MetaM MessageData
-  | .ematch origin => return m!"E-matching {← origin.pp}"
-  | .ext declName => return m!"Extensionality {declName}"
-  | .mbtc a b i => return m!"Model-based theory combination at argument #{i} of{indentExpr a}\nand{indentExpr b}"
-  | .beta e => return m!"Beta-reduction of{indentExpr e}"
-  | .forallProp e => return m!"Forall propagation at{indentExpr e}"
-  | .existsProp e => return m!"Exists propagation at{indentExpr e}"
-  | .input => return m!"Initial goal"
+def SplitSource.toMessageData : SplitSource → MessageData
+  | .ematch origin => m!"E-matching {origin.pp}"
+  | .ext declName => m!"Extensionality {declName}"
+  | .mbtc a b i => m!"Model-based theory combination at argument #{i} of{indentExpr a}\nand{indentExpr b}"
+  | .beta e => m!"Beta-reduction of{indentExpr e}"
+  | .forallProp e => m!"Forall propagation at{indentExpr e}"
+  | .existsProp e => m!"Exists propagation at{indentExpr e}"
+  | .input => "Initial goal"
 
 /-- Context for `GrindM` monad. -/
 structure Context where
@@ -764,6 +763,8 @@ structure Goal where
   split        : Split.State := {}
   /-- State of arithmetic procedures. -/
   arith        : Arith.State := {}
+  /-- State of the ac solver. -/
+  ac           : AC.State := {}
   /-- State of the clean name generator. -/
   clean        : Clean.State := {}
   deriving Inhabited
@@ -977,8 +978,8 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   modify fun s => { s with newFacts := s.newFacts.push <| .eq lhs rhs proof isHEq }
 
 /-- Return `true` if `a` and `b` have the same type. -/
-def hasSameType (a b : Expr) : MetaM Bool :=
-  withDefault do isDefEq (← inferType a) (← inferType b)
+def hasSameType (a b : Expr) : MetaM Bool := do
+  isDefEqD (← inferType a) (← inferType b)
 
 @[inline] def pushEqHEq (lhs rhs proof : Expr) : GoalM Unit := do
   if (← hasSameType lhs rhs) then
@@ -1137,8 +1138,8 @@ def isNum (e : Expr) : Bool :=
 /--
 Returns `true` if type of `t` is definitionally equal to `α`
 -/
-def hasType (t α : Expr) : MetaM Bool :=
-  withDefault do isDefEq (← inferType t) α
+def hasType (t α : Expr) : MetaM Bool := do
+  isDefEqD (← inferType t) α
 
 /--
 For each equality `b = c` in `parents`, executes `k b c` IF
@@ -1575,5 +1576,9 @@ def withoutModifyingState (x : GoalM α) : GoalM α := do
     x
   finally
     set saved
+
+/-- Canonicalizes nested types, type formers, and instances in `e`. -/
+@[extern "lean_grind_canon"] -- Forward definition
+opaque canon (e : Expr) : GoalM Expr
 
 end Lean.Meta.Grind

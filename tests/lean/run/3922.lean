@@ -18,7 +18,10 @@ axiom r.symm {a b : Nat} : r a b → r b a
 axiom r.trans {a b c : Nat} : r a b → r b c → r a c
 
 /--
-info: Try this: refine r.symm ?_
+info: Try this:
+  refine r.symm ?_
+  -- Remaining subgoals:
+  -- ⊢ r a c
 ---
 info: found a partial proof, but the corresponding tactic failed:
   (expose_names; refine r.trans ?_ ?_)
@@ -34,7 +37,10 @@ example (a b c : Nat) (h₁ : r b a) (h₂ : r b c) : r c a := by
 -- now attach the `symm` attribute to `r.symm`
 attribute [symm] r.symm
 
-/-- info: Try this: exact r.trans (id (r.symm h₂)) h₁ -/
+/--
+info: Try this:
+  exact r.trans (id (r.symm h₂)) h₁
+-/
 #guard_msgs in
 example (a b c : Nat) (h₁ : r b a) (h₂ : r b c) : r c a := by
   apply?

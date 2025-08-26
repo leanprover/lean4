@@ -140,13 +140,13 @@ private def mkFormat (e : Expr) : MetaM Expr := do
     if eval.derive.repr.get (← getOptions) then
       if let .const name _ := (← whnf (← inferType e)).getAppFn then
         try
-          trace[Elab.eval] "Attempting to derive a 'Repr' instance for '{.ofConstName name}'"
+          trace[Elab.eval] "Attempting to derive a `Repr` instance for `{.ofConstName name}`"
           liftCommandElabM do applyDerivingHandlers ``Repr #[name]
           resetSynthInstanceCache
           return ← mkRepr e
         catch ex =>
-          trace[Elab.eval] "Failed to use derived 'Repr' instance. Exception: {ex.toMessageData}"
-    throwError m!"could not synthesize a 'Repr' or 'ToString' instance for type{indentExpr (← inferType e)}"
+          trace[Elab.eval] "Failed to use derived `Repr` instance. Exception: {ex.toMessageData}"
+    throwError m!"could not synthesize a `Repr` or `ToString` instance for type{indentExpr (← inferType e)}"
 
 /--
 Returns a representation of `e` using `MessageData`, or else fails.
@@ -155,7 +155,7 @@ Tries `mkFormat` if a `ToExpr` instance can't be synthesized.
 private def mkMessageData (e : Expr) : MetaM Expr := do
   (do guard <| eval.pp.get (← getOptions); mkAppM ``MessageData.ofExpr #[← mkToExpr e])
   <|> (return mkApp (mkConst ``MessageData.ofFormat) (← mkFormat e))
-  <|> do throwError m!"could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type{indentExpr (← inferType e)}"
+  <|> do throwError m!"could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type{indentExpr (← inferType e)}"
 
 private structure EvalAction where
   eval : CommandElabM MessageData
@@ -205,9 +205,9 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
           discard <| withLocalDeclD `x ty fun x => mkT x
         catch _ =>
           throw ex
-        throwError m!"unable to synthesize '{.ofConstName ``MonadEval}' instance \
+        throwError m!"unable to synthesize `{.ofConstName ``MonadEval}` instance \
           to adapt{indentExpr (← inferType e)}\n\
-          to '{.ofConstName ``IO}' or '{.ofConstName ``CommandElabM}'."
+          to `{.ofConstName ``IO}` or `{.ofConstName ``CommandElabM}`."
       addAndCompileExprForEval declName r (allowSorry := bang)
       -- `evalConst` may emit IO, but this is collected by `withIsolatedStreams` below.
       let r ← toMessageData <$> evalConst t declName (checkMeta := !Elab.inServer.get (← getOptions))

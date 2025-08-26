@@ -39,7 +39,7 @@ inductive Expr where
   | neg (a : Expr)
   | mulL (k : Int) (a : Expr)
   | mulR (a : Expr) (k : Int)
-  deriving Inhabited, BEq
+  deriving Inhabited, @[expose] BEq
 
 @[expose]
 def Expr.denote (ctx : Context) : Expr → Int
@@ -54,7 +54,7 @@ def Expr.denote (ctx : Context) : Expr → Int
 inductive Poly where
   | num (k : Int)
   | add (k : Int) (v : Var) (p : Poly)
-  deriving BEq
+  deriving @[expose] BEq
 
 @[expose]
 protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
@@ -2197,6 +2197,9 @@ theorem mod_eq (a b k : Int) (h : b = k) : a % b = a % k := by simp [*]
 
 theorem div_eq' (a b b' k : Int) (h₁ : b = b') (h₂ : k == a/b') : a / b = k := by simp_all
 theorem mod_eq' (a b b' k : Int) (h₁ : b = b') (h₂ : k == a%b') : a % b = k := by simp_all
+
+theorem pow_eq (a : Int) (b : Nat) (a' b' k : Int) (h₁ : a = a') (h₂ : ↑b = b') (h₃ : k == a'^b'.toNat) : a^b = k := by
+  simp [← h₁, ← h₂] at h₃; simp [h₃]
 
 end Int.Linear
 

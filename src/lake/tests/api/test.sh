@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 source ../common.sh
 
-# Run Lean tests
-test_run env lean keys.lean
+./clean.sh
+
+# Run DSK tests
+test_run -f keys.lean resolve-deps

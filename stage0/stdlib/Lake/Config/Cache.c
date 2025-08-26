@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Cache
-// Imports: Lake.Util.Log Lake.Config.Artifact Lake.Build.Trace
+// Imports: Lake.Util.Log Lake.Config.Artifact Lake.Build.Trace Lake.Util.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -48,7 +48,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DH
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore___closed__1;
-lean_object* l_Lake_beqHash____x40_Lake_Build_Trace_3490929866____hygCtx___hyg_14____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheMap_insert___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop_spec__1_spec__1___redArg(uint64_t, lean_object*);
@@ -61,7 +60,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_UInt64_fromJson_x3f(lean_object*);
 lean_object* l_Lake_createParentDirs(lean_object*, lean_object*);
-lean_object* l_Lake_instHashableHash___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop_spec__1_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lake_CacheMap_get_x3f_spec__0_spec__0(lean_object*, uint64_t, lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
@@ -77,7 +75,9 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DH
 LEAN_EXPORT uint8_t l_Lake_Cache_isDisabled(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Cache_getArtifact_x3f(lean_object*, uint64_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop_spec__1_spec__2___redArg(lean_object*);
+lean_object* l_Lake_Hash_instHashable___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheMap_get_x3f(uint64_t, lean_object*);
+lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 static lean_object* l_Lake_Cache_artifactDir___closed__0;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lake_CacheMap_get_x3f_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -134,6 +134,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore___closed__3;
 lean_object* l_Lean_Json_parse(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Lake_instDecidableEqHash___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Cache_isDisabled___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop_spec__1_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1846,16 +1847,17 @@ static lean_object* _init_l_Lake_CacheMap_save___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_beqHash____x40_Lake_Build_Trace_3490929866____hygCtx___hyg_14____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_Hash_instHashable___lam__0___boxed), 1, 0);
 return x_1;
 }
 }
 static lean_object* _init_l_Lake_CacheMap_save___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_instHashableHash___lam__0___boxed), 1, 0);
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_alloc_closure((void*)(l_Lake_instDecidableEqHash___boxed), 2, 0);
+x_2 = l_instBEqOfDecidableEq___redArg(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_CacheMap_save(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -1946,7 +1948,7 @@ x_77 = l_Lake_CacheMap_save___closed__1;
 x_78 = 0;
 x_79 = lean_usize_of_nat(x_73);
 lean_dec(x_73);
-x_80 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_CacheMap_save_spec__4(x_76, x_77, x_72, x_78, x_79, x_23);
+x_80 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_CacheMap_save_spec__4(x_77, x_76, x_72, x_78, x_79, x_23);
 x_26 = x_80;
 goto block_71;
 }
@@ -2768,6 +2770,7 @@ return x_8;
 lean_object* initialize_Lake_Util_Log(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Artifact(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Trace(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Util_IO(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_Cache(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -2780,6 +2783,9 @@ res = initialize_Lake_Config_Artifact(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Build_Trace(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Util_IO(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instInhabitedCache___closed__0 = _init_l_Lake_instInhabitedCache___closed__0();

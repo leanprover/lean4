@@ -32,13 +32,13 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
         pure alt
       else if k' == choiceKind then
          match quoted.getArgs.find? fun quotAlt => checkRuleKind quotAlt.getKind k with
-         | none        => throwErrorAt alt "invalid elab_rules alternative, expected syntax node kind '{k}'"
+         | none        => throwErrorAt alt "invalid elab_rules alternative, expected syntax node kind `{k}`"
          | some quoted =>
            let pat := pat.setArg 1 quoted
            let pats := ⟨pats.elemsAndSeps.set! 0 pat⟩
            `(matchAltExpr| | $pats,* => $rhs)
       else
-        throwErrorAt alt "invalid elab_rules alternative, unexpected syntax node kind '{k'}'"
+        throwErrorAt alt "invalid elab_rules alternative, unexpected syntax node kind `{k'}`"
     | _ => throwUnsupportedSyntax
   let catName ← match cat?, expty? with
     | some cat, _ => pure cat.getId
@@ -58,7 +58,7 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
         fun stx expectedType? => Lean.Elab.Term.withExpectedType expectedType? fun $expId => match stx with
           $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
     else
-      throwErrorAt expId "syntax category '{catName}' does not support expected type specification"
+      throwErrorAt expId "syntax category `{catName}` does not support expected type specification"
   else if catName == `term then
     `($[$doc?:docComment]? @[$(← mkAttrs `term_elab),*] $vis:visibility
       aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
@@ -75,7 +75,7 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
   else
     -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
     -- If users want this feature, they add their own `elab_rules` macro that uses this one as a fallback.
-    throwError "unsupported syntax category '{catName}'"
+    throwError "unsupported syntax category `{catName}`"
 
 @[builtin_command_elab «elab_rules»] def elabElabRules : CommandElab :=
   adaptExpander fun stx => match stx with

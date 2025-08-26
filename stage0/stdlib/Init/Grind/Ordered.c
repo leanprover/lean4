@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Ordered
-// Imports: Init.Grind.Ordered.Order Init.Grind.Ordered.Module Init.Grind.Ordered.Ring Init.Grind.Ordered.Field Init.Grind.Ordered.Int Init.Grind.Ordered.Linarith
+// Imports: Init.Grind.Ordered.Order Init.Grind.Ordered.Module Init.Grind.Ordered.Ring Init.Grind.Ordered.Field Init.Grind.Ordered.Int Init.Grind.Ordered.Rat Init.Grind.Ordered.Linarith
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ lean_object* initialize_Init_Grind_Ordered_Module(uint8_t builtin, lean_object*)
 lean_object* initialize_Init_Grind_Ordered_Ring(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ordered_Field(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ordered_Int(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Ordered_Rat(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ordered_Linarith(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Ordered(uint8_t builtin, lean_object* w) {
@@ -37,6 +38,9 @@ res = initialize_Init_Grind_Ordered_Field(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Ordered_Int(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Ordered_Rat(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Ordered_Linarith(builtin, lean_io_mk_world());

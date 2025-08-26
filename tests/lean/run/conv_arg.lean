@@ -66,14 +66,14 @@ Out of bounds errors.
 -/
 
 /--
-error: invalid 'arg' tactic, application has 1 explicit argument(s) but the index is out of bounds
+error: invalid `arg` tactic, application has 1 explicit argument(s) but the index is out of bounds
 -/
 #guard_msgs in
 example (f : {_ : Nat} → Nat → Nat) (h : m = m') : @f n m = @f n m' := by
   conv =>
     enter [1, 6]
 
-/-- error: invalid 'arg' tactic, application has 2 argument(s) but the index is out of bounds -/
+/-- error: invalid `arg` tactic, application has 2 argument(s) but the index is out of bounds -/
 #guard_msgs in
 example (f : {_ : Nat} → Nat → Nat) (h : m = m') : @f n m = @f n m' := by
   conv =>

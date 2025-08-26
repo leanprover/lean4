@@ -52,7 +52,7 @@ private def messageToString (msg : Message) (reportPos? : Option Nat) :
   return str
 
 /-- The decision made by a specification for a message. -/
-inductive SpecResult
+inductive FilterSpec
   /-- Capture the message and check it matches the docstring. -/
   | check
   /-- Drop the message and delete it. -/
@@ -76,11 +76,20 @@ inductive MessageOrdering
   /-- Sort the produced messages. -/
   | sorted
 
-/-- Whether to report position information; `abbrev` for `Bool`. -/
-abbrev ReportPositions := Bool
+/-- The specification options for `#guard_msgs`. The default field values provide the default
+behavior of `#guard_msgs`. -/
+structure GuardMsgsSpec where
+  /-- Method for deciding whether and how to filter messages; see `FilterSpec`. -/
+  filterFn : Message → FilterSpec := fun _ => .check
+  /-- Method to use when normalizing whitespace, after trimming; see `WhitespaceMode`. -/
+  whitespace : WhitespaceMode := .normalized
+  /-- Method to use when combining multiple messages; see `MessageOrdering`. -/
+  ordering : MessageOrdering := .exact
+  /-- Whether to report position information. -/
+  reportPositions : Bool := false
 
 def parseGuardMsgsFilterAction (action? : Option (TSyntax ``guardMsgsFilterAction)) :
-    CommandElabM SpecResult := do
+    CommandElabM FilterSpec := do
   if let some action := action? then
     match action with
     | `(guardMsgsFilterAction| check) => pure .check
@@ -98,24 +107,20 @@ def parseGuardMsgsFilterSeverity : TSyntax ``guardMsgsFilterSeverity → Command
   | `(guardMsgsFilterSeverity| all)   => pure fun _ => true
   | _ => throwUnsupportedSyntax
 
-/-- Parses a `guardMsgsSpec`.
+/-- Parses a `GuardMsgsSpec`.
 - No specification: check everything.
 - With a specification: interpret the spec, and if nothing applies pass it through. -/
-def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) :
-    CommandElabM (WhitespaceMode × MessageOrdering × (Message → SpecResult) × ReportPositions) := do
-  let elts ←
-    if let some spec := spec? then
-      match spec with
-      | `(guardMsgsSpec| ($[$elts:guardMsgsSpecElt],*)) => pure elts
-      | _ => throwUnsupportedSyntax
-    else
-      pure #[]
-  let mut whitespace : WhitespaceMode := .normalized
-  let mut ordering : MessageOrdering := .exact
-  let mut p? : Option (Message → SpecResult) := none
-  let mut reportPositions : ReportPositions := false
-  let pushP (action : SpecResult) (msgP : Message → Bool) (p? : Option (Message → SpecResult))
-      (msg : Message) : SpecResult :=
+def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) : CommandElabM GuardMsgsSpec := do
+  let cfg : GuardMsgsSpec := {}
+  let some spec := spec? | return cfg
+  let elts ← match spec with
+    | `(guardMsgsSpec| ($[$elts:guardMsgsSpecElt],*)) => pure elts
+    | _ => throwUnsupportedSyntax
+  let defaultFilterFn := cfg.filterFn
+  let mut { whitespace, ordering, reportPositions .. } := cfg
+  let mut p? : Option (Message → FilterSpec) := none
+  let pushP (action : FilterSpec) (msgP : Message → Bool) (p? : Option (Message → FilterSpec))
+      (msg : Message) : FilterSpec :=
     if msgP msg then
       action
     else
@@ -131,8 +136,8 @@ def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) :
     | `(guardMsgsSpecElt| positions := true)        => reportPositions := true
     | `(guardMsgsSpecElt| positions := false)       => reportPositions := false
     | _ => throwUnsupportedSyntax
-  let defaultP := fun _ => .check
-  return (whitespace, ordering, p?.getD defaultP, reportPositions)
+  let filterFn := p?.getD defaultFilterFn
+  return { filterFn, whitespace, ordering, reportPositions }
 
 /-- An info tree node corresponding to a failed `#guard_msgs` invocation,
 used for code action support. -/
@@ -174,7 +179,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
   | `(command| $[$dc?:docComment]? #guard_msgs%$tk $(spec?)? in $cmd) => do
     let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
         |>.trim |> removeTrailingWhitespaceMarker
-    let (whitespace, ordering, specFn, reportPositions) ← parseGuardMsgsSpec spec?
+    let { whitespace, ordering, filterFn, reportPositions } ← parseGuardMsgsSpec spec?
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     -- do not forward snapshot as we don't want messages assigned to it to leak outside
     withReader ({ · with snap? := none }) do
@@ -190,16 +195,14 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
     for msg in msgs.toList do
       if msg.isSilent then
         continue
-      match specFn msg with
+      match filterFn msg with
       | .check       => toCheck := toCheck.add msg
       | .drop        => pure ()
       | pass => toPassthrough := toPassthrough.add msg
     let map ← getFileMap
     let reportPos? :=
-      if (reportPositions : Bool) then
-        if let some pos := tk.getPos? then
-          some (map.toPosition pos).line
-        else none
+      if reportPositions then
+        tk.getPos?.map (map.toPosition · |>.line)
       else none
     let strings ← toCheck.toList.mapM (messageToString · reportPos?)
     let strings := ordering.apply strings

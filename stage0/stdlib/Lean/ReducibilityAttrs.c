@@ -91,6 +91,7 @@ static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_getReducibilityStatusCore___closed__4;
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_initFn___closed__10____x40_Lean_ReducibilityAttrs_562565324____hygCtx___hyg_2_;
+LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_ctorIdx___boxed(lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1_spec__1_spec__1_spec__1_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__2____x40_Lean_ReducibilityAttrs_3594401460____hygCtx___hyg_2_;
@@ -270,6 +271,7 @@ LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_noConfusion___redArg___lam__0
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__19;
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__34;
 static lean_object* l_Lean_initFn___closed__8____x40_Lean_ReducibilityAttrs_3557922905____hygCtx___hyg_2_;
+LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_ctorIdx(uint8_t);
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_initFn___closed__0____x40_Lean_ReducibilityAttrs_2994861043____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_SMap_find_x3f___at___Lean_getReducibilityStatusCore_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__12;
@@ -429,7 +431,7 @@ static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_initFn___closed__
 LEAN_EXPORT lean_object* l_Lean_beqReducibilityStatus____x40_Lean_ReducibilityAttrs_2627855240____hygCtx___hyg_17____boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_initFn___closed__9____x40_Lean_ReducibilityAttrs_2994861043____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_getReducibilityStatus(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_toCtorIdx(uint8_t x_1) {
+LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_ctorIdx(uint8_t x_1) {
 _start:
 {
 switch (x_1) {
@@ -452,6 +454,23 @@ x_4 = lean_unsigned_to_nat(2u);
 return x_4;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_unbox(x_1);
+x_3 = l_Lean_ReducibilityStatus_ctorIdx(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_toCtorIdx(uint8_t x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_ReducibilityStatus_ctorIdx(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_toCtorIdx___boxed(lean_object* x_1) {
@@ -735,8 +754,8 @@ LEAN_EXPORT uint8_t l_Lean_beqReducibilityStatus____x40_Lean_ReducibilityAttrs_2
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Lean_ReducibilityStatus_toCtorIdx(x_1);
-x_4 = l_Lean_ReducibilityStatus_toCtorIdx(x_2);
+x_3 = l_Lean_ReducibilityStatus_ctorIdx(x_1);
+x_4 = l_Lean_ReducibilityStatus_ctorIdx(x_2);
 x_5 = lean_nat_dec_eq(x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);

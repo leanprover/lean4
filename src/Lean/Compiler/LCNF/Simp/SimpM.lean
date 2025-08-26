@@ -135,12 +135,12 @@ Otherwise, do not change the `inlineStack`.
     x
 where
   check (declName : Name) : SimpM Nat := do
-    trace[Compiler.simp.inline] "{declName}"
+    trace[Compiler.simp.inline] "{.ofConstName declName}"
     let numOccs := (← read).inlineStackOccs.find? declName |>.getD 0
     let numOccs := numOccs + 1
     let inlineIfReduce ← if let some decl ← getDecl? declName then pure decl.inlineIfReduceAttr else pure false
     if recursive && inlineIfReduce && numOccs > (← getConfig).maxRecInlineIfReduce then
-      throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInlineIfReduce}, consider removing the attribute `[inline_if_reduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`"
+      throwError "function `{.ofConstName declName}` has been recursively inlined more than #{(← getConfig).maxRecInlineIfReduce}, consider removing the attribute `[inline_if_reduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`"
     return numOccs
 
 /--
@@ -158,7 +158,7 @@ where
     match (← read).inlineStack with
     | [] => throwError maxRecDepthErrorMessage
     | declName :: stack =>
-      let mut fmt  := f!"{declName}\n"
+      let mut fmt  := m!"{.ofConstName declName}\n"
       let mut prev := declName
       let mut ellipsis := false
       for declName in stack do
@@ -167,7 +167,7 @@ where
             ellipsis := true
             fmt := fmt ++ "...\n"
         else
-          fmt := fmt ++ f!"{declName}\n"
+          fmt := fmt ++ m!"{.ofConstName declName}\n"
           prev := declName
           ellipsis := false
       throwError "maximum recursion depth reached in the code generator\nfunction inline stack:\n{fmt}"

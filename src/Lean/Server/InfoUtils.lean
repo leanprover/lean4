@@ -251,6 +251,8 @@ structure HoverableInfoPrio where
   size : Nat
   -- Prefer results for constants over variables (which overlap at declaration names)
   isVariableInfo : Bool
+  -- Prefer non-partial infos over partial infos
+  isPartialTermInfo : Bool
   deriving BEq
 
 instance : Ord HoverableInfoPrio where
@@ -266,6 +268,10 @@ instance : Ord HoverableInfoPrio where
     if i1.isVariableInfo && ! i2.isVariableInfo then
       return .lt
     if ! i1.isVariableInfo && i2.isVariableInfo then
+      return .gt
+    if i1.isPartialTermInfo && ! i2.isPartialTermInfo then
+      return .lt
+    if ! i1.isPartialTermInfo && i2.isPartialTermInfo then
       return .gt
     return .eq
 
@@ -300,6 +306,7 @@ partial def InfoTree.hoverableInfoAtM? [Monad m] (t : InfoTree) (hoverPos : Stri
       isHoverPosOnStop := r.stop == hoverPos
       size := (r.stop - r.start).byteIdx
       isVariableInfo := info matches .ofTermInfo { expr := .fvar .., .. }
+      isPartialTermInfo := info matches .ofPartialTermInfo ..
     }
     let result := { ctx, info, children }
     return some (priority, result)

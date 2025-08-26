@@ -36,13 +36,13 @@ where
 def unfoldTarget (mvarId : MVarId) (declName : Name) : MetaM MVarId := mvarId.withContext do
   let target ← instantiateMVars (← mvarId.getType)
   let r ← unfold target declName
-  if r.expr == target then throwError "Tactic `unfold` failed to unfold `{declName}` in{indentExpr target}"
+  if r.expr == target then throwError "Tactic `unfold` failed to unfold `{.ofConstName declName}` in{indentExpr target}"
   applySimpResultToTarget mvarId target r
 
 def unfoldLocalDecl (mvarId : MVarId) (fvarId : FVarId) (declName : Name) : MetaM MVarId := mvarId.withContext do
   let type ← fvarId.getType
   let r ← unfold (← instantiateMVars type) declName
-  if r.expr == type then throwError "Tactic `unfold` failed to unfold `{declName}` in{indentExpr type}"
+  if r.expr == type then throwError "Tactic `unfold` failed to unfold `{.ofConstName declName}` in{indentExpr type}"
   let some (_, mvarId) ← applySimpResultToLocalDecl mvarId fvarId r (mayCloseGoal := false) | unreachable!
   return mvarId
 

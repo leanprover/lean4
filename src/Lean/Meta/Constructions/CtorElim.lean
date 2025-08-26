@@ -222,7 +222,7 @@ def mkConstructorElim (indName : Name) : MetaM Unit := do
     setReducibleAttribute declName
 
 public def mkCtorElim (indName : Name) : MetaM Unit := do
-  unless (← getEnv).contains (indName.str "toCtorIdx") do return
+  unless (← getEnv).contains (mkCtorIdxName indName) do return
   let .inductInfo indVal ← getConstInfo indName | return
   -- Do not do anything if there are no constructors
   if indVal.numCtors = 0 then return

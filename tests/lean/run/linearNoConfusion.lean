@@ -18,10 +18,10 @@ inductive Vec.{u} (α : Type) : Nat → Type u where
   {a : Nat} → Sort u_1 → Vec.{u} α a → Vec α a → Sort u_1 :=
 fun P x1 x2 =>
   Vec.casesOn x1
-    (if h : x2.toCtorIdx = 0 then
+    (if h : x2.ctorIdx = 0 then
       Vec.nil.elim (motive := fun _ _ => Sort u_1) x2 h (P → P)
     else P)
-    (fun {n} a_1 a_2 => if h : x2.toCtorIdx = 1 then
+    (fun {n} a_1 a_2 => if h : x2.ctorIdx = 1 then
       Vec.cons.elim (motive := fun _ _ => Sort u_1) x2 h fun {n_1} a a_3 => (n = n_1 → a_1 = a → a_2 ≍ a_3 → P) → P
      else P)
 

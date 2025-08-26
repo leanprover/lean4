@@ -47,7 +47,6 @@ static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at_
 static lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_SMap_insert___at___Lean_ClassState_addEntry_spec__0_spec__0_spec__0___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_SMap_contains___at___Lean_isClass_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_SMap_contains___at___Lean_isClass_spec__0_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ClassState_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lean_Class_0__Lean_init_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at___Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_SMap_contains___at___Lean_isClass_spec__0_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -87,7 +86,6 @@ static lean_object* l_Lean_throwAttrMustBeGlobal___at_____private_Lean_Class_0__
 static lean_object* l_Lean_addClass___closed__7;
 LEAN_EXPORT uint8_t l_Array_contains___at_____private_Lean_Class_0__Lean_checkOutParam_spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ClassEntry_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_throwAttrMustBeGlobal___at_____private_Lean_Class_0__Lean_init_spec__4___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Lean_hasOutParams___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedClassState;
@@ -103,7 +101,6 @@ size_t lean_ptr_addr(lean_object*);
 static lean_object* l_Lean_instInhabitedClassState___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_SMap_insert___at___Lean_ClassState_addEntry_spec__0_spec__0_spec__0_spec__2___redArg(size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ClassEntry_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_mkStateFromImportedEntries___at___Lean_initFn____x40_Lean_Class_903839608____hygCtx___hyg_2__spec__1_spec__1(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_SMap_contains___at___Lean_isClass_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addClass___closed__9;
@@ -237,7 +234,6 @@ LEAN_EXPORT lean_object* l_Lean_ClassEntry_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_Class_903839608____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_Expr_hasAnyFVar_visit___at_____private_Lean_Class_0__Lean_checkOutParam_spec__2___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Class_0__Lean_init___regBuiltin___private_Lean_Class_0__Lean_init_docString__1___closed__7;
-LEAN_EXPORT lean_object* l_Lean_ClassState_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwAttrMustBeGlobal___at_____private_Lean_Class_0__Lean_init_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Class_0__Lean_init___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -328,23 +324,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_ClassEntry_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ClassEntry_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_ClassEntry_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT uint8_t l_Lean_ClassEntry_lt(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -379,23 +358,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_ClassState_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ClassState_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ClassState_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_ClassState_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

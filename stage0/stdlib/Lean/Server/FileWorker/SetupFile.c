@@ -15,17 +15,14 @@ extern "C" {
 #endif
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_determineLakePath(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResultKind_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_setupFile___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupFile(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_compress(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResultKind_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_FileSetupResult_ofNoLakefile___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_runLakeSetupFile(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_LakeSetupFileOutput_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResult_ofError___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -52,10 +49,8 @@ lean_object* l_Lean_fromJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx__
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResult_ctorIdx(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResult_ofNoLakefile___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResult_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Lean_Server_FileWorker_runLakeSetupFile_spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_process_spawn(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_LakeSetupFileOutput_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_SetupFile_0__Lean_Server_FileWorker_runLakeSetupFile_processStderr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Server_FileWorker_setupFile_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResult_ofSuccess(lean_object*, lean_object*);
@@ -91,7 +86,6 @@ static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___closed__6;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_load_dynlib(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResult_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Lean_Server_FileWorker_runLakeSetupFile_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___closed__1;
@@ -113,23 +107,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_FileWorker_LakeSetupFileOutput_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_LakeSetupFileOutput_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_LakeSetupFileOutput_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_FileWorker_LakeSetupFileOutput_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -1008,23 +985,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResultKind_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_FileWorker_FileSetupResultKind_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResultKind_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_FileWorker_FileSetupResultKind_toCtorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResult_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -1038,23 +998,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_FileWorker_FileSetupResult_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResult_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResult_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_FileWorker_FileSetupResult_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

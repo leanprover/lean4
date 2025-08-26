@@ -17,7 +17,6 @@ lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_x27(
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_reprTaggedText___redArg___closed__1____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_100_;
 LEAN_EXPORT lean_object* l_Lean_Widget_instInhabitedTaggedText(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_TaggedState_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Widget_TaggedText_rewrite_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_rewriteM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Widget_TaggedText_map_spec__0___redArg(lean_object*, size_t, size_t, lean_object*);
@@ -33,7 +32,6 @@ static lean_object* l_Lean_Widget_TaggedText_instRpcEncodable___redArg___closed_
 static lean_object* l_Lean_Widget_fromJsonTaggedText___redArg___lam__1___closed__0____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_116_;
 lean_object* l_StateT_instMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_TaggedText_instRpcEncodable___redArg___closed__1;
 lean_object* l_Array_reverse___redArg(lean_object*);
 lean_object* l_StateT_get(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -82,7 +80,6 @@ lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 static lean_object* l_Lean_Widget_TaggedText_instRpcEncodable___redArg___closed__30;
 static lean_object* l_Lean_Widget_TaggedText_instRpcEncodable___redArg___closed__14;
 static lean_object* l_Lean_Widget_TaggedText_instRpcEncodable___redArg___closed__6;
-LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_toCtorIdx___redArg___boxed(lean_object*);
 static lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_instMonadPrettyFormatStateMTaggedState___lam__2___boxed__const__1;
 static lean_object* l_Lean_Widget_TaggedText_instRpcEncodable___redArg___closed__25;
 static lean_object* l_Lean_Widget_reprTaggedText___redArg___closed__0____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_100_;
@@ -128,7 +125,6 @@ static lean_object* l_Lean_Widget_TaggedText_instRpcEncodable___redArg___closed_
 static lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_instMonadPrettyFormatStateMTaggedState;
 lean_object* l_String_posOfAux(lean_object*, uint32_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_TaggedText_instRpcEncodable___redArg___closed__16;
-LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_toCtorIdx___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonTaggedText___redArg____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_116_(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Lean_Widget_TaggedText_prettyTagged_spec__0_spec__1___closed__1;
 static lean_object* l_Lean_Widget_TaggedText_instRpcEncodable___redArg___closed__19;
@@ -165,7 +161,6 @@ uint8_t l_Std_Format_FlattenAllowability_shouldFlatten(lean_object*);
 static lean_object* l_Lean_Widget_reprTaggedText___redArg___closed__3____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_100_;
 static lean_object* l_Lean_Widget_fromJsonTaggedText___redArg___closed__0____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_116_;
 lean_object* l_Lean_Json_parseTagged(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_TaggedState_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instReprTaggedText(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_reprTaggedText___redArg____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_100____boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -203,7 +198,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonTaggedText___redArg___lam__0____x
 LEAN_EXPORT lean_object* l_Lean_Widget_instFromJsonTaggedText(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_TaggedText_instRpcEncodable___redArg___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_TaggedState_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_toCtorIdx(lean_object*, lean_object*);
 lean_object* l_ExceptT_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_ctorIdx___boxed(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -298,40 +292,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Widget_TaggedText_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_toCtorIdx___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Widget_TaggedText_ctorIdx___redArg(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Widget_TaggedText_ctorIdx___redArg(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_toCtorIdx___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Widget_TaggedText_toCtorIdx___redArg(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Widget_TaggedText_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
@@ -2693,23 +2653,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_TaggedState_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_TaggedState_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_TaggedState_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_TaggedState_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

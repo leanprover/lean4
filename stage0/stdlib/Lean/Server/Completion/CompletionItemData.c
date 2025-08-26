@@ -23,7 +23,6 @@ lean_object* l_Lean_Lsp_fromJsonCompletionParams____x40_Lean_Data_Lsp_LanguageFe
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceCompletionItem;
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__12____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15_;
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__2____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15_;
-LEAN_EXPORT lean_object* l_Lean_Lsp_CompletionItemData_toCtorIdx___boxed(lean_object*);
 lean_object* l_List_foldl___at___Array_appendList_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__2;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -39,7 +38,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_CompletionItemData_ctorIdx___boxed(lean_obje
 lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__3____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15_;
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__6____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15_;
-LEAN_EXPORT lean_object* l_Lean_Lsp_CompletionItemData_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__9____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15_;
 lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Lsp_CompletionItemData_ctorIdx(lean_object*);
@@ -74,23 +72,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Lsp_CompletionItemData_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_CompletionItemData_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_CompletionItemData_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Lsp_CompletionItemData_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

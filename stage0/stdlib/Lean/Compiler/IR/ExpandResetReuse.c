@@ -99,7 +99,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_IR
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__12____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__26____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_Context_toCtorIdx(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__16____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_main(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_IR_ExpandResetReuse_isSelfSet(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -186,7 +185,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_isSelfSet___boxed(lean_objec
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__30____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_Context_toCtorIdx___boxed(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__24____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_;
 size_t lean_usize_land(size_t, size_t);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__29____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_;
@@ -1016,23 +1014,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_IR_ExpandResetReuse_Context_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_Context_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_Context_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_IR_ExpandResetReuse_Context_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

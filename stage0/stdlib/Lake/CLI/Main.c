@@ -84,7 +84,6 @@ lean_object* l_Lake_BuildInfo_key(lean_object*);
 static lean_object* l___private_Lake_CLI_Main_0__Lake_lake_unpack___lam__3___boxed__const__1;
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___List_mapM_loop___at_____private_Lake_CLI_Main_0__Lake_lake_clean_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_loadPackage(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_CLI_Main_0__Lake_lake_ReservoirConfig_toCtorIdx___boxed(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Main_0__Lake_lake_help(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Main_0__Lake_lakeCli___closed__0;
@@ -216,7 +215,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 static lean_object* l___private_Lake_CLI_Main_0__Lake_lakeCli___closed__26;
 static lean_object* l___private_Lake_CLI_Main_0__Lake_lake_setupFile___lam__1___closed__0;
 static lean_object* l___private_Lake_CLI_Main_0__Lake_lake_new___lam__1___boxed__const__1;
-LEAN_EXPORT lean_object* l_Lake_LakeOptions_toCtorIdx(lean_object*);
 static lean_object* l___private_Lake_CLI_Main_0__Lake_lake_ReservoirConfig_currentSchemaVersion;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Main_0__Lake_lake_reservoirConfig(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___at_____private_Lake_CLI_Main_0__Lake_verifyInstall_spec__4(lean_object*, lean_object*);
@@ -262,7 +260,6 @@ lean_object* l_Lake_loadWorkspace(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Main_0__Lake_lakeLongOption___closed__1;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_CLI_Main_0__Lake_lake_env_spec__0___boxed__const__1;
 lean_object* l_Lake_BuildKey_toSimpleString(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_LakeOptions_toCtorIdx___boxed(lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 lean_object* lean_io_process_spawn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at_____private_Lake_CLI_Main_0__Lake_lakeOption_spec__0(lean_object*, lean_object*, lean_object*);
@@ -310,7 +307,6 @@ static lean_object* l___private_Lake_CLI_Main_0__Lake_lakeCli___closed__6;
 lean_object* l_Lake_Job_renew___redArg(lean_object*);
 static lean_object* l___private_Lake_CLI_Main_0__Lake_lake_lint___boxed__const__1;
 LEAN_EXPORT lean_object* l_Option_repr___at_____private_Lake_CLI_Main_0__Lake_verifyInstall_spec__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_CLI_Main_0__Lake_lake_ReservoirConfig_toCtorIdx(lean_object*);
 static lean_object* l___private_Lake_CLI_Main_0__Lake_CliM_run___redArg___boxed__const__2;
 static lean_object* l___private_Lake_CLI_Main_0__Lake_lakeLongOption___closed__24;
 static lean_object* l___private_Lake_CLI_Main_0__Lake_lake_env___boxed__const__2;
@@ -541,23 +537,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_LakeOptions_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_LakeOptions_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_LakeOptions_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_LakeOptions_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -32100,23 +32079,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lake_CLI_Main_0__Lake_lake_ReservoirConfig_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lake_CLI_Main_0__Lake_lake_ReservoirConfig_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lake_CLI_Main_0__Lake_lake_ReservoirConfig_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Lake_CLI_Main_0__Lake_lake_ReservoirConfig_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

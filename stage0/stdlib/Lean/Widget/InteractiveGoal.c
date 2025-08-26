@@ -18,7 +18,6 @@ LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Widget_fromJson
 LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveTermGoal_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Widget_addInteractiveHypothesisBundle_spec__2___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_toJsonRpcEncodablePacket___closed__0____x40_Lean_Widget_InteractiveGoal_1924226853____hygCtx___hyg_92_;
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoalCore_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instFromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_2427803292____hygCtx___hyg_62_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Widget_instRpcEncodableInteractiveGoals_enc____x40_Lean_Widget_InteractiveGoal_1490754142____hygCtx___hyg_1__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_CommandContextInfo_saveNoFileMap___at___Lean_Elab_CommandContextInfo_save___at___Lean_Widget_goalToInteractive_spec__9_spec__9___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -43,7 +42,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoal_ctorIdx___boxed(lean_obje
 lean_object* l_Lean_Json_mkObj(lean_object*);
 static lean_object* l_Lean_Widget_fromJsonRpcEncodablePacket___closed__1____x40_Lean_Widget_InteractiveGoal_2427803292____hygCtx___hyg_51_;
 static lean_object* l_Lean_Widget_instFromJsonRpcEncodablePacket___closed__0____x40_Lean_Widget_InteractiveGoal_1056429149____hygCtx___hyg_92_;
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoal_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_mapM___at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__8___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableInteractiveGoals___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Widget_TaggedText_mapM___at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_enc____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__2_spec__2___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -53,28 +51,22 @@ static lean_object* l_Lean_Widget_instRpcEncodableInteractiveGoal___closed__2;
 uint8_t l_Array_isEmpty___redArg(lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_addInteractiveHypothesisBundle_ppLetValueExprTagged___closed__1;
 static lean_object* l_Lean_Widget_fromJsonRpcEncodablePacket___closed__0____x40_Lean_Widget_InteractiveGoal_1924226853____hygCtx___hyg_83_;
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoal_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__2_spec__2_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_goalToInteractive___lam__0___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoals_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_addInteractiveHypothesisBundle(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_fromJsonRpcEncodablePacket___closed__4____x40_Lean_Widget_InteractiveGoal_1924226853____hygCtx___hyg_83_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableInteractiveGoals___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__2_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__toCtorIdx___boxed(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Widget_instRpcEncodableSubexprInfo_dec____x40_Lean_Widget_InteractiveCode_3233133395____hygCtx___hyg_1_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_addInteractiveHypothesisBundle_ppLetValueExprTagged___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__2_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_mapM___at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_enc____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__2___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_116____at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__5___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoalCore_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_1490754142____hygCtx___hyg_1__ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__3___redArg(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Widget_instToJsonRpcEncodablePacket___closed__0____x40_Lean_Widget_InteractiveGoal_2032952811____hygCtx___hyg_36_;
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_1490754142____hygCtx___hyg_1__toCtorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_3114798910____hygCtx___hyg_1__toCtorIdx(lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableInteractiveHypothesisBundle___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLCtx___at___Lean_Widget_withGoalCtx___at___Lean_Widget_goalToInteractive_spec__11_spec__11___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_CommandContextInfo_saveNoFileMap___at___Lean_Elab_CommandContextInfo_save___at___Lean_Widget_goalToInteractive_spec__9_spec__9___redArg___closed__0;
@@ -133,10 +125,8 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 static lean_object* l_Lean_Widget_instInhabitedInteractiveHypothesisBundle___closed__0;
 extern lean_object* l_Lean_Meta_pp_implementationDetailHyps;
 LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoal_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveHypothesisBundle_toCtorIdx(lean_object*);
 uint8_t l_Lean_Expr_isSort(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_1924226853____hygCtx___hyg_92____boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveHypothesisBundle_toCtorIdx___boxed(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Widget_InteractiveGoalCore_pretty_spec__1___closed__4;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Widget_InteractiveGoalCore_pretty_spec__1___closed__3;
@@ -146,10 +136,8 @@ uint8_t lean_expr_eqv(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instToJsonRpcEncodablePacket___closed__0____x40_Lean_Widget_InteractiveGoal_2427803292____hygCtx___hyg_72_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Widget_instRpcEncodableInteractiveGoal_enc____x40_Lean_Widget_InteractiveGoal_3114798910____hygCtx___hyg_1__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_goalToInteractive___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_2553565095____hygCtx___hyg_1__toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__2_spec__2_spec__3(lean_object*, uint8_t, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__toCtorIdx(lean_object*);
 lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableInteractiveGoal_dec____x40_Lean_Widget_InteractiveGoal_3114798910____hygCtx___hyg_1_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_addInteractiveHypothesisBundle_ppLetValueExprTagged___closed__0;
@@ -193,7 +181,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_Widget_goalToI
 LEAN_EXPORT lean_object* l_Lean_Widget_instAppendInteractiveGoals;
 static lean_object* l_Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_1924226853____hygCtx___hyg_83__spec__1_spec__1___closed__0;
 static lean_object* l_Lean_Widget_fromJsonRpcEncodablePacket___closed__1____x40_Lean_Widget_InteractiveGoal_1924226853____hygCtx___hyg_83_;
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveTermGoal_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_Meta_withLCtx___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_enc____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Widget_addInteractiveHypothesisBundle_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -214,7 +201,6 @@ static lean_object* l_Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Widget_InteractiveGoalCore_pretty_spec__1___closed__9;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__2_spec__2_spec__2(lean_object*, uint8_t, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_2553565095____hygCtx___hyg_1__toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_116____at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__5___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_1924226853____hygCtx___hyg_83__spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_withGoalCtx___redArg___lam__1___closed__0;
@@ -224,11 +210,9 @@ uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableInteractiveGoal___closed__1;
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_fromJson_x3f___at___Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_116____at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__5_spec__5(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoals_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_withGoalCtx___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoals_append___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instInhabitedInteractiveHypothesisBundle___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_1490754142____hygCtx___hyg_1__toCtorIdx___boxed(lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_138____at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_enc____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__6___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveTermGoal_ctorIdx(lean_object*);
@@ -254,7 +238,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_toJsonTaggedText____x40_Lean_Widget_Tagge
 lean_object* l_Lean_Json_parseTagged(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__3(size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Array_fromJson_x3f___at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__0___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_3114798910____hygCtx___hyg_1__toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_1924226853____hygCtx___hyg_83__spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec___closed__0____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1_;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -297,7 +280,6 @@ lean_object* l_String_intercalate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_enc____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1_(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isClass_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveTermGoal_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Widget_instFromJsonRpcEncodablePacket___closed__0____x40_Lean_Widget_InteractiveGoal_2032952811____hygCtx___hyg_26_;
 LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_3114798910____hygCtx___hyg_1__ctorIdx___boxed(lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -382,23 +364,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveHypothesisBundle_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveHypothesisBundle_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Widget_InteractiveHypothesisBundle_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Widget_instInhabitedInteractiveHypothesisBundle___closed__0() {
 _start:
 {
@@ -465,23 +430,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -3980,23 +3928,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoalCore_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoalCore_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Widget_InteractiveGoalCore_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoal_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -4014,23 +3945,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoal_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoal_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Widget_InteractiveGoal_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_3114798910____hygCtx___hyg_1__ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -4044,23 +3958,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_3114798910____hygCtx___hyg_1__ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_3114798910____hygCtx___hyg_1__toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_3114798910____hygCtx___hyg_1__toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_3114798910____hygCtx___hyg_1__toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -5381,23 +5278,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveTermGoal_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveTermGoal_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Widget_InteractiveTermGoal_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_2553565095____hygCtx___hyg_1__ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -5411,23 +5291,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_2553565095____hygCtx___hyg_1__ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_2553565095____hygCtx___hyg_1__toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_2553565095____hygCtx___hyg_1__toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_2553565095____hygCtx___hyg_1__toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -6639,23 +6502,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoals_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoals_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Widget_InteractiveGoals_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_1490754142____hygCtx___hyg_1__ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -6669,23 +6515,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_1490754142____hygCtx___hyg_1__ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_1490754142____hygCtx___hyg_1__toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_1490754142____hygCtx___hyg_1__toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Widget_RpcEncodablePacket____x40_Lean_Widget_InteractiveGoal_1490754142____hygCtx___hyg_1__toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }

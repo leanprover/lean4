@@ -90,7 +90,6 @@ LEAN_EXPORT lean_object* l_FloatArray_data___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_float_array_uset(lean_object*, size_t, double);
 LEAN_EXPORT lean_object* l_FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_mkEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemNatFloatLtSize___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -114,7 +113,6 @@ LEAN_EXPORT lean_object* l_FloatArray_instGetElemUSizeFloatLtNatToNatSize___lam_
 LEAN_EXPORT lean_object* l_FloatArray_toList___boxed(lean_object*);
 static lean_object* l___auto___closed__20____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3__spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -206,23 +204,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_FloatArray_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_FloatArray_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_FloatArray_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_FloatArray_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

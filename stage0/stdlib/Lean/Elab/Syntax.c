@@ -87,7 +87,6 @@ static lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____pr
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Elab_Command_expandNoKindMacroRulesAux_spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_processNonReserved___redArg___closed__25;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__22;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_ToParserDescrContext_toCtorIdx(lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom___closed__0;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__7;
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Elab_liftMacroM___at_____private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_process_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*);
@@ -559,7 +558,6 @@ static lean_object* l_panic___at_____private_Lean_Elab_Syntax_0__Lean_Elab_Term_
 LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Elab_liftMacroM___at_____private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_process_spec__0_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_initFn___closed__9____x40_Lean_Elab_Syntax_2578068214____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_processSepBy1___closed__10;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_ToParserDescrContext_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabSyntax___closed__1;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__85;
 static lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____private_Lean_Elab_Syntax_0__Lean_Elab_Term_mkParserSeq_spec__0___redArg___closed__13;
@@ -1920,23 +1918,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_Term_ToParserDescrContext_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_ToParserDescrContext_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_ToParserDescrContext_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Term_ToParserDescrContext_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -70,7 +70,6 @@ LEAN_EXPORT lean_object* l_String_splitAux___boxed(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_String_trim___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_hasNext___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_revPosOf___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Iterator_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_set___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l_String_Iterator_curr_x27(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_mkIterator(lean_object*);
@@ -295,7 +294,6 @@ LEAN_EXPORT lean_object* l_String_toLower(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_replace_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Iterator_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_String_prev___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_String_Basic_0__String_substrEq_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
@@ -2148,23 +2146,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_String_Iterator_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_String_Iterator_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_String_Iterator_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_String_Iterator_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

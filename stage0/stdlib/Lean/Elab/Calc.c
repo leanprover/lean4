@@ -214,7 +214,6 @@ static lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_thro
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_getCalcRelation_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at___Lean_logErrorAt___at___Lean_Elab_Term_throwCalcFailure_spec__2_spec__2___lam__0___closed__2;
 static lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_Elab_Term_elabCalcSteps_spec__0_spec__0_spec__0___redArg___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_CalcStepView_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Term_mkCalcFirstStepView___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_Term_elabCalcSteps_spec__5(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -261,7 +260,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_Term_mkCalcFirstStepView_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Calc_0__Lean_Elab_Term_elabCalc___regBuiltin_Lean_Elab_Term_elabCalc_docString__3___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_CalcStepView_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Elab_Term_mkCalcTrans___closed__10;
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_Term_mkCalcFirstStepView_spec__0___redArg___closed__0;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -12265,23 +12263,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_Term_CalcStepView_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_CalcStepView_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_CalcStepView_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Term_CalcStepView_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

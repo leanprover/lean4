@@ -101,7 +101,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_handleCodeAction___lam__0___boxed(lean_ob
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 static lean_object* l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn___lam__2___closed__16____x40_Lean_Server_CodeActions_Basic_3900562821____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_Server_initFn___lam__2____x40_Lean_Server_CodeActions_Basic_454587247____hygCtx___hyg_2_(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_LazyCodeAction_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_Attribute_Builtin_ensureNoArgs(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwAttrMustBeGlobal___at_____private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic_3900562821____hygCtx___hyg_2__spec__10(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic_275661449____hygCtx___hyg_2__spec__0___closed__1;
@@ -149,7 +148,6 @@ LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at___Lean_Server_registe
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic_3900562821____hygCtx___hyg_2__spec__3_spec__3_spec__3_spec__3_spec__3___lam__0___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Server_handleCodeAction_spec__7(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic_454587247____hygCtx___hyg_2__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_CodeActionResolveData_toCtorIdx(lean_object*);
 static lean_object* l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn___lam__2___closed__22____x40_Lean_Server_CodeActions_Basic_3900562821____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_Server_parseRequestParams___at___Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic_1161087171____hygCtx___hyg_2__spec__0_spec__0(lean_object*);
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
@@ -226,7 +224,6 @@ static lean_object* l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_ini
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn___lam__2___closed__4____x40_Lean_Server_CodeActions_Basic_3900562821____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_Server_handleCodeAction(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_CodeActionResolveData_toCtorIdx___boxed(lean_object*);
 static lean_object* l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn___lam__2___closed__19____x40_Lean_Server_CodeActions_Basic_3900562821____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn___lam__2___closed__20____x40_Lean_Server_CodeActions_Basic_3900562821____hygCtx___hyg_2_;
 static lean_object* l_Lean_throwAttrDeclNotOfExpectedType___at_____private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic_3900562821____hygCtx___hyg_2__spec__9___redArg___closed__5;
@@ -306,7 +303,6 @@ static lean_object* l_Lean_throwAttrDeclNotOfExpectedType___at_____private_Lean_
 LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic_3900562821____hygCtx___hyg_2__spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic_454587247____hygCtx___hyg_2__spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn___lam__2___closed__9____x40_Lean_Server_CodeActions_Basic_3900562821____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_Server_LazyCodeAction_toCtorIdx(lean_object*);
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic_3900562821____hygCtx___hyg_2__spec__3_spec__3_spec__3___redArg___closed__0;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -466,23 +462,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_LazyCodeAction_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_LazyCodeAction_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_LazyCodeAction_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_CodeActionResolveData_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -496,23 +475,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_CodeActionResolveData_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_CodeActionResolveData_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_CodeActionResolveData_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_CodeActionResolveData_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

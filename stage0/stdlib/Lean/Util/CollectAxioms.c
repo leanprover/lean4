@@ -26,7 +26,6 @@ LEAN_EXPORT lean_object* l_Lean_CollectAxioms_collect___lam__0(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_collectAxioms___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 lean_object* lean_task_get_own(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_ctorIdx___boxed(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
@@ -39,7 +38,6 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Expr_getUsedConstants(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forM___at___Lean_CollectAxioms_collect_spec__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_collectAxioms(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_ctorIdx(lean_object* x_1) {
 _start:
@@ -54,23 +52,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_CollectAxioms_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_CollectAxioms_State_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -15,10 +15,8 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_ShareCommonT_monadShareCommon(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommon_StateFactoryBuilder_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_ShareCommon_StateFactoryBuilder_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommon_Object_ptrEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommon_State_shareCommon___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ShareCommon_StateFactoryImpl_toCtorIdx(lean_object*);
 static lean_object* l_ShareCommon_StateFactory_mkImpl___lam__2___closed__0;
 lean_object* lean_sharecommon_quick(lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommonT_monadShareCommon___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -32,14 +30,12 @@ LEAN_EXPORT lean_object* l_ShareCommonT_run___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_MonadShareCommon_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommon_StateFactoryImpl_ctorIdx(lean_object*);
 LEAN_EXPORT uint64_t l_ShareCommon_StateFactory_mkImpl___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_MonadShareCommon_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommonT_withShareCommon___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_usize_to_uint64(size_t);
 LEAN_EXPORT lean_object* l_ShareCommonM_run(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommon_StateFactory_get___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommon_StateFactoryImpl_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_withShareCommon(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_MonadShareCommon_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withShareCommon___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadShareCommon_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_shareCommonM(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -50,7 +46,6 @@ LEAN_EXPORT lean_object* l_ShareCommon_StateFactoryBuilder_ctorIdx___boxed(lean_
 LEAN_EXPORT lean_object* l_ShareCommonM_run___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommon_StateFactory_mkImpl(lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommonT_monadShareCommon___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ShareCommon_StateFactoryBuilder_toCtorIdx___boxed(lean_object*);
 uint64_t lean_sharecommon_hash(lean_object*);
 LEAN_EXPORT lean_object* l_shareCommonM___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommon_StatePointed(lean_object*);
@@ -67,7 +62,6 @@ uint8_t lean_sharecommon_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommon_StateFactory_get(lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommonT_run___redArg___lam__0___boxed(lean_object*);
 lean_object* lean_state_sharecommon(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ShareCommon_StateFactoryImpl_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommonT_withShareCommon___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommon_StatePointed___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ShareCommonT_monadShareCommon___redArg(lean_object*, lean_object*);
@@ -129,23 +123,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_ShareCommon_StateFactoryImpl_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_ShareCommon_StateFactoryImpl_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_ShareCommon_StateFactoryImpl_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_ShareCommon_StateFactoryPointed() {
 _start:
 {
@@ -186,23 +163,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_ShareCommon_StateFactoryBuilder_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_ShareCommon_StateFactoryBuilder_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_ShareCommon_StateFactoryBuilder_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_ShareCommon_StateFactoryBuilder_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -379,23 +339,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_MonadShareCommon_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_MonadShareCommon_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_MonadShareCommon_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_MonadShareCommon_toCtorIdx(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }

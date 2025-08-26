@@ -40,9 +40,7 @@ static lean_object* l___auto___closed__7____x40_Std_Do_Triple_SpecLemmas_1480799
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
 static lean_object* l___auto___closed__9____x40_Std_Do_Triple_SpecLemmas_1480799163____hygCtx___hyg_7_;
-LEAN_EXPORT lean_object* l_List_Cursor_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_WP_monadMap__ExceptT_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_Cursor_toCtorIdx(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__21____x40_Std_Do_Triple_SpecLemmas_1480799163____hygCtx___hyg_7_;
 static lean_object* l___auto___closed__19____x40_Std_Do_Triple_SpecLemmas_1480799163____hygCtx___hyg_7_;
 static lean_object* l___auto___closed__2____x40_Std_Do_Triple_SpecLemmas_1480799163____hygCtx___hyg_7_;
@@ -139,24 +137,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_List_Cursor_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_List_Cursor_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_List_Cursor_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_Cursor_toCtorIdx(x_1, x_2, x_3);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 return x_4;

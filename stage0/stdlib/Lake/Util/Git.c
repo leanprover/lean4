@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l_Lake_GitRepo_testGit(lean_object*, lean_object*, lean
 static lean_object* l_Lake_GitRepo_checkoutBranch___closed__3;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_GitRepo_toCtorIdx(lean_object*);
 static lean_object* l_Lake_GitRepo_resolveRevision_x3f___closed__4;
 static lean_object* l_Lake_GitRepo_revisionExists___closed__1;
 LEAN_EXPORT lean_object* l_Lake_instToStringGitRepo;
@@ -52,7 +51,6 @@ static lean_object* l_Lake_GitRepo_quietInit___closed__3;
 static lean_object* l_Lake_Git_upstreamBranch___closed__0;
 static lean_object* l_Lake_GitRepo_clone___closed__0;
 lean_object* l_Lake_captureProc_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_GitRepo_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lake_GitRepo_clone___closed__2;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_anyAux___at___Lake_Git_isFullObjectName_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -464,23 +462,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_GitRepo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_GitRepo_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_GitRepo_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_GitRepo_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

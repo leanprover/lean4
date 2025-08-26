@@ -26,7 +26,6 @@ static lean_object* l_Lean_Omega_Constraint_instToString___lam__0___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Omega_reprConstraint____x40_Init_Omega_Constraint_671019870____hygCtx___hyg_58_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_isImpossible___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_toCtorIdx(lean_object*);
 lean_object* l_List_mapTR_loop___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Omega_reprConstraint___redArg___closed__15____x40_Init_Omega_Constraint_671019870____hygCtx___hyg_58_;
 LEAN_EXPORT lean_object* l_Lean_Omega_LowerBound_sat___boxed(lean_object*, lean_object*);
@@ -52,7 +51,6 @@ LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_flip(lean_object*);
 static lean_object* l_Lean_Omega_Constraint_instToString___lam__0___closed__3;
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Omega_positivize_x3f___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Omega_reprConstraint___redArg___closed__11____x40_Init_Omega_Constraint_671019870____hygCtx___hyg_58_;
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_translate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_instReprConstraint;
@@ -229,23 +227,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Omega_Constraint_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Omega_Constraint_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

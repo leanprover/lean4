@@ -46,7 +46,6 @@ static lean_object* l_Lean_Meta_appendSection___closed__1;
 static lean_object* l_Lean_Meta_reportDiag___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Meta_collectAboveThreshold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_9_(uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Meta_DiagSummary_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_Environment_findConstVal_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_qpartition___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_collectAboveThreshold___redArg___closed__0;
@@ -233,7 +232,6 @@ LEAN_EXPORT lean_object* l_Lean_mkConstWithLevelParams___at___Lean_Meta_mkDiagSu
 static lean_object* l_Lean_Meta_collectAboveThreshold___at___Lean_Meta_mkDiagSummary_spec__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_logInfo___at___Lean_Meta_reportDiag_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_mkDiagSummary_spec__8_spec__8_spec__8_spec__8_spec__8_spec__8___closed__7;
-LEAN_EXPORT lean_object* l_Lean_Meta_DiagSummary_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_subCounters___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_mkDiagSummary_spec__8_spec__8_spec__8_spec__8_spec__8_spec__8___closed__17;
 LEAN_EXPORT lean_object* l_Lean_Meta_reportDiag___lam__0___boxed(lean_object*, lean_object*);
@@ -696,23 +694,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_DiagSummary_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_DiagSummary_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_DiagSummary_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_DiagSummary_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

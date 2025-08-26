@@ -115,13 +115,11 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_PremiseS
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_registerPremiseSelector___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_PremiseSelection_select_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_evalSuggestPremises___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PremiseSelection_Config_toCtorIdx(lean_object*);
 extern lean_object* l_Lean_warningAsError;
 extern lean_object* l_Lean_Elab_pp_macroStack;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Lean_PremiseSelection_random_spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_PremiseSelection_random___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logInfo___at___Lean_PremiseSelection_evalSuggestPremises_spec__2_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PremiseSelection_Config_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logInfo___at___Lean_PremiseSelection_evalSuggestPremises_spec__2_spec__2_spec__2___lam__0___closed__2;
 static lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector___lam__0___closed__3;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -198,7 +196,6 @@ extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_evalSuggestPremises(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_PremiseSelection_0__Lean_PremiseSelection_elabSetPremiseSelector___regBuiltin_Lean_PremiseSelection_elabSetPremiseSelector_docString__3(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PremiseSelection_Suggestion_toCtorIdx(lean_object*);
 static lean_object* l___private_Lean_PremiseSelection_0__Lean_PremiseSelection_elabSetPremiseSelector___regBuiltin_Lean_PremiseSelection_elabSetPremiseSelector__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_PremiseSelection_elabSetPremiseSelector_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
@@ -209,7 +206,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_PremiseSelection_random_spec__2(lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PremiseSelection_Suggestion_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 static lean_object* l___private_Lean_PremiseSelection_0__Lean_PremiseSelection_elabSetPremiseSelector_unsafe__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_Suggestion_ctorIdx(lean_object* x_1) {
@@ -229,23 +225,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_PremiseSelection_Suggestion_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PremiseSelection_Suggestion_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_PremiseSelection_Suggestion_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_Config_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -259,23 +238,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_PremiseSelection_Config_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PremiseSelection_Config_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PremiseSelection_Config_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_PremiseSelection_Config_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

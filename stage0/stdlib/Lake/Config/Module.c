@@ -105,7 +105,6 @@ LEAN_EXPORT lean_object* l_Lake_Package_findModule_x3f(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lake_Module_nativeFacets___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_System_FilePath_components(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Module_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lake_LeanLib_findModuleBySrc_x3f___closed__2;
 static lean_object* l_Lake_Module_bcFile___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Module_oleanFile(lean_object*);
@@ -191,7 +190,6 @@ LEAN_EXPORT lean_object* l_Lake_Module_ctorIdx___boxed(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_modToFilePath(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Module_toCtorIdx(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_name_mangle(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_forEachModuleInDir___at___Lake_LeanLib_getModuleArray_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -226,23 +224,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_Module_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Module_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Module_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Module_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -291,7 +291,6 @@ LEAN_EXPORT lean_object* l_Fin_reduceAddNat(lean_object*, lean_object*, lean_obj
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_0__Fin_isValue___regBuiltin_Fin_isValue_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_1995562176____hygCtx___hyg_19_(lean_object*);
 static lean_object* l_Fin_reduceGE___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Fin_reduceFinMk(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_Value_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_reduceBin(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_reduceNe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_0__Fin_reduceLT___regBuiltin_Fin_reduceLT_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_3323300974____hygCtx___hyg_23_(lean_object*);
@@ -404,7 +403,6 @@ static lean_object* l_Fin_reduceNatAdd___redArg___closed__0;
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_0____regBuiltin_Fin_reduceNe_declare__126___closed__3____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_875503241____hygCtx___hyg_21_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_0__Fin_reduceLast___regBuiltin_Fin_reduceLast_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_2044807937____hygCtx___hyg_17_(lean_object*);
-LEAN_EXPORT lean_object* l_Fin_Value_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_reduceCastLT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_0____regBuiltin_Fin_reduceDiv_declare__66___closed__0____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_3721631082____hygCtx___hyg_20_;
 static lean_object* l_Fin_reduceXor___redArg___closed__2;
@@ -764,23 +762,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Fin_Value_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Fin_Value_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Fin_Value_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Fin_Value_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -162,7 +162,6 @@ lean_object* lean_int_mul(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Duration_fromComponents___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_Duration_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Std_Time_Duration_instHSubOffset___closed__0;
 static lean_object* l_Std_Time_Duration_subSeconds___closed__0;
 lean_object* l_compareLex___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -185,7 +184,6 @@ static lean_object* l_Std_Time_reprDuration___redArg___closed__15____x40_Std_Tim
 LEAN_EXPORT lean_object* l_Std_Time_Duration_instHSubOffset__5;
 static lean_object* l_Std_Time_reprDuration___redArg___closed__5____x40_Std_Time_Duration_4137264884____hygCtx___hyg_292_;
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_reprDuration____x40_Std_Time_Duration_4137264884____hygCtx___hyg_292__spec__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_Duration_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Duration_subMilliseconds(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instToStringDuration_leftPad(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Duration_toMilliseconds___boxed(lean_object*);
@@ -248,23 +246,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Time_Duration_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Duration_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Duration_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_Duration_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

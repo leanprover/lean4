@@ -24,7 +24,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_getElimExprInfo(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Array_Array_repr___at___Lean_Meta_reprElimInfo____x40_Lean_Meta_Tactic_ElimInfo_3133126096____hygCtx___hyg_74__spec__4(lean_object*);
 static lean_object* l_Lean_Meta_reprCustomEliminator___redArg___closed__1____x40_Lean_Meta_Tactic_ElimInfo_261894777____hygCtx___hyg_37_;
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Meta_getElimExprInfo_spec__12___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_CustomEliminators_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Array_Array_repr___at___Lean_Meta_reprElimInfo____x40_Lean_Meta_Tactic_ElimInfo_3133126096____hygCtx___hyg_74__spec__0(lean_object*);
 static lean_object* l_Array_Array_repr___at___Lean_Meta_reprElimInfo____x40_Lean_Meta_Tactic_ElimInfo_3133126096____hygCtx___hyg_74__spec__0___closed__0;
 static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_initFn___closed__0____x40_Lean_Meta_Tactic_ElimInfo_913872705____hygCtx___hyg_2_;
@@ -128,7 +127,6 @@ LEAN_EXPORT lean_object* l_Lean_SMap_switch___at___Lean_Meta_initFn____x40_Lean_
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Array_idxOfAux___at___Array_finIdxOf_x3f___at___Array_idxOf_x3f___at___Lean_Meta_getElimExprInfo_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at___Lean_Meta_getElimExprInfo_spec__3_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_CustomEliminator_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at___Lean_PersistentHashMap_foldl___at___Lean_SMap_fold___at___Lean_SMap_toList___at___Lean_Meta_reprCustomEliminators____x40_Lean_Meta_Tactic_ElimInfo_1120288191____hygCtx___hyg_34__spec__0_spec__0_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getCustomEliminator_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Meta_addImplicitTargets_spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -274,7 +272,6 @@ static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_initFn___
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_getElimExprInfo_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_toList___at___Lean_Meta_reprCustomEliminators____x40_Lean_Meta_Tactic_ElimInfo_1120288191____hygCtx___hyg_34__spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_initFn___regBuiltin___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_initFn_docString__1___closed__17____x40_Lean_Meta_Tactic_ElimInfo_2729305610____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_Meta_ElimInfo_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_reprCustomEliminator___redArg___closed__6____x40_Lean_Meta_Tactic_ElimInfo_261894777____hygCtx___hyg_37_;
 static lean_object* l_Lean_Meta_reprElimAltInfo___redArg___closed__14____x40_Lean_Meta_Tactic_ElimInfo_282956329____hygCtx___hyg_43_;
 static lean_object* l_Lean_Meta_instReprElimInfo___closed__0;
@@ -376,7 +373,6 @@ LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___a
 static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_initFn___regBuiltin___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_initFn_docString__1___closed__1____x40_Lean_Meta_Tactic_ElimInfo_913872705____hygCtx___hyg_2_;
 static lean_object* l_Lean_Meta_reprCustomEliminator___redArg___closed__5____x40_Lean_Meta_Tactic_ElimInfo_261894777____hygCtx___hyg_37_;
 static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_initFn___regBuiltin___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_initFn_docString__1___closed__7____x40_Lean_Meta_Tactic_ElimInfo_2729305610____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_Meta_ElimInfo_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___at___Lean_Meta_reprElimAltInfo____x40_Lean_Meta_Tactic_ElimInfo_282956329____hygCtx___hyg_43__spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_SMap_insert___at___Lean_Meta_addCustomEliminatorEntry_spec__0_spec__7_spec__8_spec__8_spec__8___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedElimInfo;
@@ -402,7 +398,6 @@ LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnkn
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_SMap_find_x3f___at___Lean_Meta_getCustomEliminator_x3f_spec__1_spec__4___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_isAssigned___at___Lean_Meta_addImplicitTargets_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_CustomEliminator_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_finIdxOf_x3f___at___Array_idxOf_x3f___at___Lean_Meta_getElimExprInfo_spec__0_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_mkCustomEliminator_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
@@ -514,7 +509,6 @@ static lean_object* l_Lean_Meta_instInhabitedElimAltInfo___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_addImplicitTargets_spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_repr___at___List_repr___at___Lean_Meta_reprCustomEliminators____x40_Lean_Meta_Tactic_ElimInfo_1120288191____hygCtx___hyg_34__spec__9_spec__9___redArg(lean_object*);
 static lean_object* l_Lean_Meta_reprCustomEliminators___redArg___closed__2____x40_Lean_Meta_Tactic_ElimInfo_1120288191____hygCtx___hyg_34_;
-LEAN_EXPORT lean_object* l_Lean_Meta_ElimAltInfo_toCtorIdx(lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
 LEAN_EXPORT lean_object* l_Prod_repr___at___Prod_repr___at___List_repr___at___Lean_Meta_reprCustomEliminators____x40_Lean_Meta_Tactic_ElimInfo_1120288191____hygCtx___hyg_34__spec__9_spec__9_spec__9___redArg(lean_object*);
@@ -646,7 +640,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find
 LEAN_EXPORT lean_object* l_Lean_Meta_reprElimAltInfo____x40_Lean_Meta_Tactic_ElimInfo_282956329____hygCtx___hyg_43_(lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Meta_mkCustomEliminator_spec__4_spec__4_spec__4_spec__4_spec__4___closed__13;
 LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___Array_Array_repr___at___Lean_Meta_reprCustomEliminator____x40_Lean_Meta_Tactic_ElimInfo_261894777____hygCtx___hyg_37__spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_CustomEliminators_toCtorIdx___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_exprDependsOn___at___Lean_Meta_mkCustomEliminator_spec__0___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_SMap_insert___at___Lean_Meta_addCustomEliminatorEntry_spec__0_spec__7_spec__7___redArg___boxed(lean_object*, lean_object*);
@@ -668,7 +661,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_initFn___lam__0____x40_Lean_Meta_Tactic_ElimInfo_913872705____hygCtx___hyg_2_(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_ElimAltInfo_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Meta_mkCustomEliminator_spec__4_spec__4_spec__4_spec__4_spec__4___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reprElimInfo____x40_Lean_Meta_Tactic_ElimInfo_3133126096____hygCtx___hyg_74____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reprElimInfo___redArg___closed__11____x40_Lean_Meta_Tactic_ElimInfo_3133126096____hygCtx___hyg_74_;
@@ -701,23 +693,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_ElimAltInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_ElimAltInfo_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_ElimAltInfo_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_ElimAltInfo_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -1195,23 +1170,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_ElimInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_ElimInfo_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_ElimInfo_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_ElimInfo_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -6822,23 +6780,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_CustomEliminator_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_CustomEliminator_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_CustomEliminator_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Meta_instInhabitedCustomEliminator___closed__0() {
 _start:
 {
@@ -7268,23 +7209,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_CustomEliminators_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_CustomEliminators_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_CustomEliminators_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_CustomEliminators_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

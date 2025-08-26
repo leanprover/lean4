@@ -162,7 +162,6 @@ uint8_t lean_is_no_confusion(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksFromCommandInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_locationLinksDefault_defaultDeclNames___redArg___closed__4;
 static lean_object* l_Lean_Server_instFromJsonGoToKind___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Server_GoToContext_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksFromCommandInfo___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_fromJsonGoToKind___closed__2____x40_Lean_Server_GoTo_1461473286____hygCtx___hyg_21_;
 static lean_object* l_Lean_Server_locationLinksFromImport___redArg___closed__11;
@@ -261,7 +260,6 @@ static lean_object* l_Lean_Server_toJsonGoToKind___closed__3____x40_Lean_Server_
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_locationLinksFromTermInfo_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_locationLinksFromTermInfo_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_GoToContext_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_Elab_Info_range_x3f(lean_object*);
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
@@ -3786,23 +3784,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_GoToContext_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_GoToContext_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_GoToContext_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_GoToContext_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

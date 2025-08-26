@@ -179,7 +179,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls_spec__4_spec__4___closed__53;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls_spec__4_spec__4___closed__42;
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Meta_0__Lake_FieldView_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_expandConfigDecl___lam__1___boxed(lean_object**);
 lean_object* l_Array_empty(lean_object*);
 static lean_object* l___private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls___lam__4___closed__0;
@@ -199,7 +198,6 @@ static lean_object* l___private_Lake_Config_Meta_0__Lake_mkFieldView___closed__3
 static lean_object* l_Lake_configDecl___closed__49;
 static lean_object* l_Lake_configDecl___closed__12;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls_spec__2_spec__2___closed__6;
-LEAN_EXPORT lean_object* l___private_Lake_Config_Meta_0__Lake_FieldMetadata_toCtorIdx(lean_object*);
 static lean_object* l___private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls___closed__45;
 lean_object* l_Lean_Syntax_TSepArray_getElems___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_Meta_0__Lake_mkParentFieldView(lean_object*, lean_object*, lean_object*);
@@ -360,7 +358,6 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls_spec__2_spec__2___closed__32;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls_spec__1___closed__0;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Meta_0__Lake_FieldMetadata_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls_spec__4_spec__4___lam__0(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls_spec__4_spec__4___closed__50;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls_spec__4_spec__4___closed__5;
@@ -415,7 +412,6 @@ static lean_object* l_Lake_configDecl___closed__25;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls_spec__4_spec__4___closed__47;
 static lean_object* l___private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls___closed__8;
 lean_object* l_Lean_mkCIdent(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Meta_0__Lake_FieldView_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_configDecl___closed__39;
 static lean_object* l_Lake_configField___closed__15;
@@ -1733,23 +1729,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Config_Meta_0__Lake_FieldView_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lake_Config_Meta_0__Lake_FieldView_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Lake_Config_Meta_0__Lake_FieldView_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lake_Config_Meta_0__Lake_FieldMetadata_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -1763,23 +1742,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lake_Config_Meta_0__Lake_FieldMetadata_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lake_Config_Meta_0__Lake_FieldMetadata_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lake_Config_Meta_0__Lake_FieldMetadata_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Lake_Config_Meta_0__Lake_FieldMetadata_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

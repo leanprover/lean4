@@ -21,7 +21,6 @@ LEAN_EXPORT uint8_t l_Lean_Meta_FVarSubst_isEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_empty;
 LEAN_EXPORT lean_object* l_Lean_LocalDecl_applyFVarSubst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_insert(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_find_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_erase___at___Lean_Meta_FVarSubst_erase_spec__0(lean_object*, lean_object*, lean_object*);
@@ -35,7 +34,6 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at___Lean_Meta_FVarSubst_fi
 lean_object* lean_replace_expr(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at___Lean_Meta_FVarSubst_contains_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at___Lean_Meta_FVarSubst_find_x3f_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_erase___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_any___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_erase___at___Lean_Meta_FVarSubst_erase_spec__0___redArg___boxed(lean_object*, lean_object*);
@@ -80,23 +78,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_FVarSubst_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_FVarSubst_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }

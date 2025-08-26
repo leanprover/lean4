@@ -286,7 +286,6 @@ lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstNoOverload(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_resolveLocalName___redArg___lam__4___closed__7;
-LEAN_EXPORT lean_object* l_Lean_MonadResolveName_toCtorIdx___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_filterFieldList___redArg___lam__1(lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
@@ -315,7 +314,6 @@ static lean_object* l_Lean_initFn___lam__1___closed__0____x40_Lean_ResolveName_1
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find_x3f___at___Lean_addAliasEntry_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_SMap_insert___at___Lean_addAliasEntry_spec__6_spec__6_spec__6_spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_MonadResolveName_toCtorIdx(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Name_instToString___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ResolveName_2351709485____hygCtx___hyg_2_(lean_object*);
@@ -4859,23 +4857,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_MonadResolveName_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_MonadResolveName_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_MonadResolveName_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_MonadResolveName_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

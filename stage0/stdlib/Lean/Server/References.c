@@ -20,7 +20,6 @@ lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
 lean_object* l_Lean_Lsp_RefIdent_toJson(lean_object*);
 static lean_object* l_Lean_Server_fromJsonIlean___closed__13____x40_Lean_Server_References_2180042548____hygCtx___hyg_44_;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at_____private_Lean_Server_References_0__Lean_Server_combineIdents_buildIdMap_spec__4___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_Reference_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_Json_getObj_x3f(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_visitM_x27___at___Lean_Server_findReferences_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_fromJsonIlean___closed__17____x40_Lean_Server_References_2180042548____hygCtx___hyg_44_;
@@ -166,7 +165,6 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Server_References_allRefs_spec__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHashMap_Internal_AssocList_forInStep_go___at_____private_Lean_Server_References_0__Lean_Server_combineIdents_useConstRepresentatives_spec__16___redArg___lam__0___closed__4;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Server_combineIdents_spec__0___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_References_MatchedDefinition_toCtorIdx(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_groupByKey___at___Lean_Server_DirectImports_convertImportInfos_spec__4___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_findReferences(lean_object*, lean_object*);
@@ -206,7 +204,6 @@ static lean_object* l_Lean_Server_combineIdents___closed__1;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_contains___at_____private_Lean_Server_References_0__Lean_Server_combineIdents_findCanonicalRepresentative_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_fromJsonIlean____x40_Lean_Server_References_2180042548____hygCtx___hyg_44_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_References_getDirectImports_x3f___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_LoadedILean_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_Const_alter___at___Array_groupByKey___at___Lean_Server_DirectImports_convertImportInfos_spec__4_spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_ModuleRefs_findAt(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Server_combineIdents_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -225,7 +222,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_ModuleImport_ctorIdx(lean_object*);
 lean_object* l_Lean_Server_documentUriFromModule_x3f(lean_object*, lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Server_fromJsonIlean____x40_Lean_Server_References_2180042548____hygCtx___hyg_44__spec__5_spec__11_spec__11(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_ModuleImport_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_collectImports(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Server_References_allRefs_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_References_allDirectImports___closed__0;
@@ -273,7 +269,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____priva
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Server_References_updateWorkerImports_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_filterMapM___at___Lean_Server_DirectImports_convertImportInfos_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_References_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at_____private_Lean_Server_References_0__Lean_Server_combineIdents_useConstRepresentatives_spec__4___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_instFromJsonIlean___closed__0;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Server_dedupReferences_spec__4_spec__5_spec__5_spec__5___redArg(lean_object*, lean_object*);
@@ -310,7 +305,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_References_updateWorkerImports___boxed(le
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Array_groupByKey___at___Lean_Server_DirectImports_convertImportInfos_spec__4_spec__10_spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_DirectImports_convertImportInfos___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Server_References_allRefsFor_spec__3_spec__3(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_DirectImports_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Server_fromJsonIlean___closed__18____x40_Lean_Server_References_2180042548____hygCtx___hyg_44_;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Lsp_ModuleRefs_findRange_x3f_spec__0___lam__0(lean_object*);
 static lean_object* l_Lean_Server_ModuleRefs_toLspModuleRefs___closed__0;
@@ -337,9 +331,7 @@ static lean_object* l_Lean_Server_fromJsonIlean___closed__9____x40_Lean_Server_R
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Server_References_allRefs_spec__0_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_dedupReferences_spec__10___redArg(uint8_t, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at_____private_Lean_Server_References_0__Lean_Server_combineIdents_buildIdMap_spec__4___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_References_DocumentRefInfo_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Server_ModuleRefs_toLspModuleRefs_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_References_DocumentRefInfo_toCtorIdx___boxed(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_minView___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_combineIdents_spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_x27___at___Lean_Server_findReferences_spec__0___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -347,7 +339,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_erase___at_____privat
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_combineIdents_spec__7___closed__0;
 uint8_t l_Lean_Lsp_ordRefIdent____x40_Lean_Data_Lsp_Internal_4125393781____hygCtx___hyg_84_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_findReferences_spec__4___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_Ilean_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Server_fromJsonIlean___closed__3____x40_Lean_Server_References_2180042548____hygCtx___hyg_44_;
 LEAN_EXPORT lean_object* l_Lean_Server_References_referringTo(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Server_References_allRefsFor_spec__3_spec__3___boxed(lean_object*, lean_object*);
@@ -363,18 +354,15 @@ lean_object* l_StateT_instMonad___redArg___lam__9(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_References_referringTo_spec__1(uint8_t, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Server_fromJsonIlean___closed__0____x40_Lean_Server_References_2180042548____hygCtx___hyg_44_;
 uint64_t l_Lean_Lsp_hashRefIdent____x40_Lean_Data_Lsp_Internal_4125393781____hygCtx___hyg_69_(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_Reference_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Array_groupByKey___at___Lean_Server_DirectImports_convertImportInfos_spec__4_spec__10_spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Ilean_load(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_References_allRefsFor___closed__1;
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Server_combineIdents_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Server_References_importedBy_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_References_MatchedDefinition_toCtorIdx___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_RefIdent_fromJson_x3f(lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Server_References_importedBy_spec__1_spec__1___closed__3;
 static lean_object* l_Lean_Lsp_RefInfo_empty___closed__1;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Server_References_allDirectImports_spec__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RefInfo_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_erase___at___Lean_Server_References_removeIlean_spec__0___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_fromJsonIlean___closed__19____x40_Lean_Server_References_2180042548____hygCtx___hyg_44_;
 lean_object* l_StateT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -386,7 +374,6 @@ LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_AssocList_Basic_
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_Server_dedupReferences_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Server_References_allRefs_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_visitM_x27___at___Lean_Server_findReferences_spec__0_spec__0___redArg___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Server_Ilean_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Server_fromJsonIlean___closed__16____x40_Lean_Server_References_2180042548____hygCtx___hyg_44_;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Server_fromJsonIlean____x40_Lean_Server_References_2180042548____hygCtx___hyg_44__spec__5___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_toJsonIlean____x40_Lean_Server_References_2180042548____hygCtx___hyg_53_(lean_object*);
@@ -406,7 +393,6 @@ lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_getModuleContainingDecl_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_HeaderSyntax_imports(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Server_References_allRefs_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_ModuleImport_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Server_References_importedBy_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Server_fromJsonIlean____x40_Lean_Server_References_2180042548____hygCtx___hyg_44__spec__5_spec__5_spec__5_spec__7___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_References_definitionsMatching___redArg___closed__0;
@@ -467,7 +453,6 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Server_RefInfo_toLspRefInfo_spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_findReferences_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_RefInfo_findReferenceLocation_x3f___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Server_TransientWorkerILean_toCtorIdx___boxed(lean_object*);
 static lean_object* l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHashMap_Internal_AssocList_forInStep_go___at_____private_Lean_Server_References_0__Lean_Server_combineIdents_useConstRepresentatives_spec__16___redArg___lam__0___closed__2;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Server_fromJsonIlean____x40_Lean_Server_References_2180042548____hygCtx___hyg_44__spec__2_spec__2_spec__2___closed__1;
 lean_object* l_Lean_Lsp_hashRefIdent____x40_Lean_Data_Lsp_Internal_4125393781____hygCtx___hyg_69____boxed(lean_object*);
@@ -503,7 +488,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Server_References_updateWorkerRefs_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Server_References_0__Lean_Server_combineIdents_useConstRepresentatives_spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_allImportedModuleNames(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_DirectImports_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Server_fromJsonIlean____x40_Lean_Server_References_2180042548____hygCtx___hyg_44__spec__2_spec__2_spec__2(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Server_ModuleRefs_toLspModuleRefs_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get___at___Std_DHashMap_Internal_Raw_u2080_Const_get___at_____private_Lean_Server_References_0__Lean_Server_combineIdents_findCanonicalRepresentative_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -523,7 +507,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___
 LEAN_EXPORT lean_object* l_Lean_Server_ModuleImport_collapseIdenticalImports_x3f(lean_object*);
 static lean_object* l_Lean_Server_instEmptyCollectionDirectImports___closed__0;
 lean_object* l_String_toName(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_TransientWorkerILean_toCtorIdx(lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHashMap_Internal_AssocList_forInStep_go___at_____private_Lean_Server_References_0__Lean_Server_combineIdents_useConstRepresentatives_spec__16___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_dedupReferences___closed__1;
@@ -548,7 +531,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_erase___at___Std_DHas
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Server_References_allDirectImports_spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_ordRange____x40_Lean_Data_Lsp_BasicAux_2413389941____hygCtx___hyg_75____boxed(lean_object*, lean_object*);
 static lean_object* l_panic___at_____private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_visitM_x27___at___Lean_Server_findReferences_spec__0_spec__0_spec__0___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Server_RefInfo_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_getD___at_____private_Lean_Server_References_0__Lean_Server_combineIdents_useConstRepresentatives_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_maxView___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_getNat_x3f(lean_object*);
@@ -594,7 +576,6 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Ser
 static lean_object* l_Lean_Server_fromJsonIlean___closed__21____x40_Lean_Server_References_2180042548____hygCtx___hyg_44_;
 static lean_object* l_panic___at_____private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_visitM_x27___at___Lean_Server_findReferences_spec__0_spec__0_spec__0___redArg___closed__2;
 static lean_object* l_Lean_Server_fromJsonIlean___closed__6____x40_Lean_Server_References_2180042548____hygCtx___hyg_44_;
-LEAN_EXPORT lean_object* l_Lean_Server_References_toCtorIdx___boxed(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Json_getObjValAs_x3f___at___Lean_Server_fromJsonIlean____x40_Lean_Server_References_2180042548____hygCtx___hyg_44__spec__5_spec__10(lean_object*, size_t, size_t, lean_object*);
@@ -656,7 +637,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_erase___at_____privat
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Lsp_ModuleRefs_findAt___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Server_DirectImports_convertImportInfos_spec__14(lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_LoadedILean_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_getD___at_____private_Lean_Server_References_0__Lean_Server_combineIdents_useConstRepresentatives_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_dedupReferences___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insertIfNew___at_____private_Lean_Server_References_0__Lean_Server_combineIdents_useConstRepresentatives_spec__4_spec__4_spec__4___redArg(lean_object*, lean_object*, lean_object*);
@@ -858,23 +838,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_Reference_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_Reference_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_Reference_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_RefInfo_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -888,23 +851,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_RefInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RefInfo_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RefInfo_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_RefInfo_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -3469,23 +3415,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_Ilean_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_Ilean_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_Ilean_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_Ilean_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -19335,23 +19264,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_ModuleImport_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_ModuleImport_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_ModuleImport_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Server_instInhabitedModuleImport___closed__0() {
 _start:
 {
@@ -19652,23 +19564,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_DirectImports_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_DirectImports_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_DirectImports_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_DirectImports_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -21789,23 +21684,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_LoadedILean_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_LoadedILean_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_LoadedILean_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_TransientWorkerILean_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -21823,23 +21701,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_TransientWorkerILean_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_TransientWorkerILean_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_TransientWorkerILean_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_References_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -21853,23 +21714,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_References_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_References_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_References_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_References_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -27494,23 +27338,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_References_DocumentRefInfo_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_References_DocumentRefInfo_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_References_DocumentRefInfo_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_References_referringTo_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
 _start:
 {
@@ -28139,23 +27966,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Server_References_MatchedDefinition_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_References_MatchedDefinition_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_References_MatchedDefinition_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Server_References_MatchedDefinition_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

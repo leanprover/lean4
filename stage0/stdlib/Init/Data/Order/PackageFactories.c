@@ -54,7 +54,6 @@ static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___cl
 static lean_object* l___auto___closed__31____x40_Init_Data_Order_PackageFactories_1237053799____hygCtx___hyg_3_;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__11;
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__15;
-LEAN_EXPORT lean_object* l_Std_LinearPreorderPackage_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__31;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__13;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__112;
@@ -78,7 +77,6 @@ LEAN_EXPORT lean_object* l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__9;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__49;
 static lean_object* l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__23;
-LEAN_EXPORT lean_object* l_Std_Packages_PreorderOfLEArgs_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__20;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__9;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__20;
@@ -173,7 +171,6 @@ static lean_object* l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__28;
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__3;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__25;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__8;
-LEAN_EXPORT lean_object* l_Std_Packages_PartialOrderOfLEArgs_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__23;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__46;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__33;
@@ -361,11 +358,9 @@ static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoPar
 static lean_object* l___auto___closed__5____x40_Init_Data_Order_PackageFactories_1237053799____hygCtx___hyg_3_;
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__26;
 static lean_object* l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__11;
-LEAN_EXPORT lean_object* l_Std_Packages_LinearPreorderOfLEArgs_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__19;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__45;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__0;
-LEAN_EXPORT lean_object* l_Std_PreorderPackage_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__18;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__32;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__31;
@@ -511,7 +506,6 @@ static lean_object* l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___close
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__6;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__10;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__23;
-LEAN_EXPORT lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__26;
 LEAN_EXPORT lean_object* l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__35;
@@ -634,7 +628,6 @@ static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___auto
 static lean_object* l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__32;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__25;
 static lean_object* l___auto___closed__21____x40_Init_Data_Order_PackageFactories_1237053799____hygCtx___hyg_3_;
-LEAN_EXPORT lean_object* l_Std_Packages_LinearPreorderOfLEArgs_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__76;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__101;
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__12;
@@ -741,7 +734,6 @@ static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoPa
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__44;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__37;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__16;
-LEAN_EXPORT lean_object* l_Std_Packages_PartialOrderOfLEArgs_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__20;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__0;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__48;
@@ -945,7 +937,6 @@ static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoPa
 LEAN_EXPORT lean_object* l_Std_instDecidableLT___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__8;
 static lean_object* l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__6;
-LEAN_EXPORT lean_object* l_Std_LinearPreorderPackage_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__27;
 static lean_object* l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__7;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__46;
@@ -984,7 +975,6 @@ static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___cl
 static lean_object* l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__12;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__17;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__28;
-LEAN_EXPORT lean_object* l_Std_Packages_LinearOrderOfLEArgs_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__8;
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__7;
 static lean_object* l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__36;
@@ -1029,7 +1019,6 @@ static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam__
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__42;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__18;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__29;
-LEAN_EXPORT lean_object* l_Std_Packages_PreorderOfLEArgs_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__5;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__26;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__26;
@@ -1145,7 +1134,6 @@ static lean_object* l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___clos
 static lean_object* l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__83;
 LEAN_EXPORT lean_object* l_Std_PartialOrderPackage_ofLE___redArg(lean_object*);
 static lean_object* l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__33;
-LEAN_EXPORT lean_object* l_Std_LinearOrderPackage_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__4;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__0;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__93;
@@ -1164,7 +1152,6 @@ static lean_object* l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed
 static lean_object* l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__49;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__9;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__68;
-LEAN_EXPORT lean_object* l_Std_Packages_LinearOrderOfOrdArgs_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__21;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__41;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__22;
@@ -1230,7 +1217,6 @@ LEAN_EXPORT lean_object* l_Std_LinearPreorderPackage_ofLE___redArg(lean_object*)
 static lean_object* l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__24;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__18;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__6;
-LEAN_EXPORT lean_object* l_Std_PartialOrderPackage_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__36;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__123;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__50;
@@ -1276,7 +1262,6 @@ static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___clos
 LEAN_EXPORT lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__8;
 static lean_object* l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__8;
-LEAN_EXPORT lean_object* l_Std_PreorderPackage_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__116;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__11;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__26;
@@ -1312,7 +1297,6 @@ static lean_object* l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoPa
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__8;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__36;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__22;
-LEAN_EXPORT lean_object* l_Std_Packages_LinearOrderOfLEArgs_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__10;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__117;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__29;
@@ -1359,7 +1343,6 @@ static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___clo
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__78;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__129;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Packages_LinearOrderOfOrdArgs_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__22;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__30;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__70;
@@ -1390,7 +1373,6 @@ static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___clo
 static lean_object* l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__28;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__14;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__2;
-LEAN_EXPORT lean_object* l_Std_PartialOrderPackage_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__11;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__68;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__4;
@@ -1407,7 +1389,6 @@ static lean_object* l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam_
 static lean_object* l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__44;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__141;
 static lean_object* l___auto___closed__19____x40_Init_Data_Order_PackageFactories_1237053799____hygCtx___hyg_3_;
-LEAN_EXPORT lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_instDecidableLT___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__20;
 static lean_object* l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__40;
@@ -1564,7 +1545,6 @@ static lean_object* l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoPa
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__42;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__15;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__3;
-LEAN_EXPORT lean_object* l_Std_LinearOrderPackage_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__42;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__24;
 static lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__13;
@@ -1582,23 +1562,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_PreorderPackage_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_PreorderPackage_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_PreorderPackage_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_PreorderPackage_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
@@ -7845,23 +7808,6 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Packages_PreorderOfLEArgs_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Packages_PreorderOfLEArgs_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Packages_PreorderOfLEArgs_toCtorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 static lean_object* _init_l___auto___closed__0____x40_Init_Data_Order_PackageFactories_1237053799____hygCtx___hyg_3_() {
 _start:
 {
@@ -8315,23 +8261,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_PartialOrderPackage_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_PartialOrderPackage_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_PartialOrderPackage_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_PartialOrderPackage_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
@@ -8869,23 +8798,6 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Packages_PartialOrderOfLEArgs_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Packages_PartialOrderOfLEArgs_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Packages_PartialOrderOfLEArgs_toCtorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 static lean_object* _init_l___auto____x40_Init_Data_Order_PackageFactories_1237053800____hygCtx___hyg_3_() {
 _start:
 {
@@ -8987,23 +8899,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_LinearPreorderPackage_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_LinearPreorderPackage_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_LinearPreorderPackage_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_LinearPreorderPackage_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
@@ -10878,23 +10773,6 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Packages_LinearPreorderOfLEArgs_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Packages_LinearPreorderOfLEArgs_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Packages_LinearPreorderOfLEArgs_toCtorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 static lean_object* _init_l___auto____x40_Init_Data_Order_PackageFactories_1237053801____hygCtx___hyg_3_() {
 _start:
 {
@@ -10953,23 +10831,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_LinearOrderPackage_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_LinearOrderPackage_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_LinearOrderPackage_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_LinearOrderPackage_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
@@ -13237,23 +13098,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Packages_LinearOrderOfLEArgs_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Packages_LinearOrderOfLEArgs_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Packages_LinearOrderOfLEArgs_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Packages_LinearOrderOfLEArgs_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
@@ -16802,23 +16646,6 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Packages_LinearPreorderOfOrdArgs_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Packages_LinearPreorderOfOrdArgs_toCtorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 static lean_object* _init_l___auto____x40_Init_Data_Order_PackageFactories_3831552915____hygCtx___hyg_3_() {
 _start:
 {
@@ -18918,23 +18745,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Packages_LinearOrderOfOrdArgs_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Packages_LinearOrderOfOrdArgs_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Packages_LinearOrderOfOrdArgs_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Packages_LinearOrderOfOrdArgs_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

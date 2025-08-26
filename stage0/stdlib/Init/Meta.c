@@ -117,7 +117,6 @@ static lean_object* l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init
 static lean_object* l_Lean_Parser_Tactic_simpAutoUnfold___closed__25;
 LEAN_EXPORT lean_object* l___private_Init_Meta_0__Lean_version_getMajor___boxed(lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___lam__2___closed__42;
-LEAN_EXPORT lean_object* l_Lean_Quote_toCtorIdx(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reprConfig___redArg___closed__27____x40_Init_Meta_3676166311____hygCtx___hyg_19_;
 LEAN_EXPORT lean_object* l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta_2398338311____hygCtx___hyg_3__spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___lam__2___closed__51;
@@ -194,7 +193,6 @@ static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw________1_spec__0(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___lam__2___closed__5;
 static lean_object* l_Lean_Parser_Tactic_simpArithBang___closed__7;
-LEAN_EXPORT lean_object* l_Lean_Meta_ApplyConfig_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_hasQuote(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameGenerator_curr(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_simpAllArithBang___closed__0;
@@ -368,7 +366,6 @@ static lean_object* l_Lean_Parser_Tactic_declareSimpLikeTactic___closed__3;
 static lean_object* l_Lean_instQuoteBoolMkStr1___lam__0___closed__3;
 LEAN_EXPORT lean_object* l_Lean___aux__Init__Meta______macroRules__Lean__Parser__Syntax__subPrec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_MonadNameGenerator_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reprConfig___redArg___closed__14____x40_Init_Meta_3676166311____hygCtx___hyg_19_;
 static lean_object* l_Lean_Parser_Tactic_simpAutoUnfold___closed__19;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_simpArithBang;
@@ -390,7 +387,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_ApplyNewGoals_noConfusion___redArg___lam__0
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lean_Syntax_getTailInfo_x3f_spec__0___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reprConfig___redArg___closed__22____x40_Init_Meta_3676166311____hygCtx___hyg_19_;
 LEAN_EXPORT lean_object* l_Lean_mkFreshId(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Omega_OmegaConfig_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_decodeStrLitAux(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___lam__2___closed__2;
 static lean_object* l_Lean_Syntax_reprPreresolved___closed__2____x40_Init_Meta_2398338311____hygCtx___hyg_3_;
@@ -584,7 +580,6 @@ LEAN_EXPORT lean_object* l___private_Init_Meta_0__Lean_Syntax_decodeDecimalLitAu
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___lam__2___closed__77;
 static lean_object* l_Lean_termEval__prec_____closed__6;
 LEAN_EXPORT lean_object* l_Lean_TSyntax_expandInterpolatedStr___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Omega_OmegaConfig_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_reprConfig___redArg___closed__20____x40_Init_Meta_3676166311____hygCtx___hyg_19_;
 static lean_object* l_Lean_Meta_reprConfig___redArg___closed__5____x40_Init_Meta_3676166311____hygCtx___hyg_27_;
 static lean_object* l_Lean_Syntax_reprTSyntax___redArg___closed__0____x40_Init_Meta_3996216684____hygCtx___hyg_3_;
@@ -602,7 +597,6 @@ static lean_object* l_Lean___aux__Init__Meta______macroRules__Lean__Parser__Synt
 LEAN_EXPORT lean_object* l_Lean_instQuoteProdMkStr1___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Meta_0__Array_filterSepElemsMAux___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_mkCharLit___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Rewrite_Config_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_dsimpKind___closed__1;
 static lean_object* l_Lean_Syntax_reprTSyntax___redArg___closed__7____x40_Init_Meta_3996216684____hygCtx___hyg_3_;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___lam__2___closed__65;
@@ -713,7 +707,6 @@ LEAN_EXPORT lean_object* l_List_elem___at___Lean_Meta_Occurrences_contains_spec_
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_TSyntax_expandInterpolatedStrChunks_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Meta_0__Lean_Name_beq_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_TSepArray_ofElems___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_MonadNameGenerator_toCtorIdx___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_extractMacroScopes(lean_object*);
 static lean_object* l_Lean_TSyntax_expandInterpolatedStr___closed__8;
 static lean_object* l_Lean_Syntax_reprSyntax___closed__0____x40_Init_Meta_3175268309____hygCtx___hyg_3_;
@@ -730,7 +723,6 @@ static lean_object* l_Lean_Parser_Tactic_simpAutoUnfold___closed__20;
 static lean_object* l_Lean_Parser_Tactic_simpAutoUnfold___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Syntax_TSepArray_push___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_reprSyntax___closed__1____x40_Init_Meta_3175268309____hygCtx___hyg_3_;
-LEAN_EXPORT lean_object* l_Lean_Meta_Rewrite_Config_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Meta_0__Lean_Syntax_updateFirst___at___Lean_Syntax_setHeadInfoAux_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkCIdentFromRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -987,7 +979,6 @@ LEAN_EXPORT lean_object* l___private_Init_Meta_0__Lean_Syntax_decodeInterpStrLit
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___closed__54;
 LEAN_EXPORT lean_object* l_Lean_Syntax_SepArray_ofElems(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadNameGenerator_ctorIdx(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Quote_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_declareSimpLikeTactic___closed__28;
 static lean_object* l_Lean_termEval__prio_____closed__8;
 static lean_object* l_Lean_Meta_reprTransparencyMode___closed__5____x40_Init_Meta_3676166311____hygCtx___hyg_3_;
@@ -1246,7 +1237,6 @@ LEAN_EXPORT lean_object* l_Lean_instQuoteProdMkStr1(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_mkCIdent(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_simpAllArithBang___closed__8;
 static lean_object* l_Lean_quoteNameMk___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Meta_ApplyConfig_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Meta_reprConfig___redArg___closed__23____x40_Init_Meta_3676166311____hygCtx___hyg_19_;
 LEAN_EXPORT lean_object* l_Lean_TSyntax_instCoeConsSyntaxNodeKindNil(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_simpArithBang___closed__4;
@@ -5046,23 +5036,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_MonadNameGenerator_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_MonadNameGenerator_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_MonadNameGenerator_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_MonadNameGenerator_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
@@ -15461,24 +15434,6 @@ lean_dec(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Quote_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Quote_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Quote_toCtorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_instQuoteOfCoeHTCTTSyntaxConsSyntaxNodeKindNil___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -22945,23 +22900,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_ApplyConfig_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_ApplyConfig_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_ApplyConfig_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Rewrite_Config_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -22979,23 +22917,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Rewrite_Config_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Rewrite_Config_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Rewrite_Config_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Omega_OmegaConfig_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -23009,23 +22930,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_Omega_OmegaConfig_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Omega_OmegaConfig_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Omega_OmegaConfig_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Omega_OmegaConfig_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

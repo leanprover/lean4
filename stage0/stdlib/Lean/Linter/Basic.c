@@ -56,7 +56,6 @@ size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__1____x40_Lean_Linter_Basic_3413348210____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_get___at___Lean_Linter_getLinterAll_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_get___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_toCtorIdx(lean_object*);
 lean_object* l_Lean_logWarningAt___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Options_toLinterOptions___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_logLint___redArg___closed__0;
@@ -73,7 +72,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_getLinterOptions(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_getLinterAll___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__4____x40_Lean_Linter_Basic_3413348210____hygCtx___hyg_4_;
 LEAN_EXPORT uint8_t l_Lean_Linter_getLinterAll(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -596,23 +594,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Linter_LinterOptions_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Linter_LinterOptions_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

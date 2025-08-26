@@ -26,7 +26,6 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorCollectListIteratorOfMonad(
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorListIteratorOfPure___redArg___lam__0(lean_object*, lean_object*);
 static lean_object* l_Std_Iterators_instIteratorCollectListIteratorOfMonad___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Producers_Monadic_List_0__Std_Iterators_ListIterator_finitenessRelation(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_ListIterator_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ListIterator_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorCollectPartialListIteratorOfMonad___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorListIteratorOfPure___redArg(lean_object*);
@@ -41,7 +40,6 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorLoopPartialListIteratorOfMo
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorCollectPartialListIteratorOfMonad(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ListIterator_ctorIdx___boxed(lean_object*, lean_object*);
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_ListIterator_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorSizeListIterator___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorLoopPartialListIteratorOfMonad___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorLoopListIteratorOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -62,23 +60,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Iterators_ListIterator_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_ListIterator_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_ListIterator_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Iterators_ListIterator_toCtorIdx(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }

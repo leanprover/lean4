@@ -484,7 +484,6 @@ static lean_object* l_Lean_IR_EmitC_emitLit___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_throwUnknownVar(lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_IR_hashJoinPointId____x40_Lean_Compiler_IR_Basic_3731510614____hygCtx___hyg_35_(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___closed__21;
-LEAN_EXPORT lean_object* l_Lean_IR_EmitC_Context_toCtorIdx(lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 static lean_object* l_Lean_IR_EmitC_emitInitFn___closed__6;
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___Lean_IR_EmitC_emitTailCall_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -663,7 +662,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitCtorScalarSize___boxed(lean_object*
 static lean_object* l_Lean_IR_EmitC_emitSSet___redArg___closed__0;
 LEAN_EXPORT lean_object* l_panic___at___Lean_IR_EmitC_toCType_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_getDecl(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_EmitC_Context_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitMainFnIfNeeded(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__7;
 static lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___Lean_IR_EmitC_emitDeclAux_spec__0___redArg___closed__2;
@@ -720,23 +718,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_IR_EmitC_Context_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_IR_EmitC_Context_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_IR_EmitC_Context_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_IR_EmitC_Context_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

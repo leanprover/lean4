@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 static lean_object* l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn___lam__0___closed__7____x40_Lean_Linter_UnusedVariables_1110682914____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_FVarDefinition_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Linter_Util_0__Lean_Linter_collectMacroExpansions_x3f_go___at___Lean_Linter_collectMacroExpansions_x3f___at___Lean_Linter_UnusedVariables_unusedVariables_spec__8_spec__8___lam__0___closed__0;
 lean_object* l_Lean_beqFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_18____boxed(lean_object*, lean_object*);
@@ -412,7 +411,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DH
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyMAux___at___Lean_PersistentArray_anyM___at_____private_Lean_Linter_UnusedVariables_0__Lean_Linter_UnusedVariables_collectReferences_go_spec__15_spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwAttrMustBeGlobal___at_____private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables_1681096836____hygCtx___hyg_2__spec__10___redArg___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_References_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at_____private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Linter_UnusedVariables_unusedVariables_spec__23_spec__23___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_UnusedVariables_visitAssignments_visitNode___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn___closed__2____x40_Lean_Linter_UnusedVariables_1681096836____hygCtx___hyg_2_;
@@ -665,7 +663,6 @@ LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHas
 static lean_object* l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn___lam__2___closed__22____x40_Lean_Linter_UnusedVariables_1681096836____hygCtx___hyg_2_;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_____private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at_____private_Lean_Linter_Util_0__Lean_Linter_collectMacroExpansions_x3f_go___at___Lean_Linter_collectMacroExpansions_x3f___at___Lean_Linter_UnusedVariables_unusedVariables_spec__8_spec__8_spec__10_spec__11___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_References_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables_1681096836____hygCtx___hyg_2__spec__3_spec__3_spec__3_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ForEachExpr_visit___at_____private_Lean_Linter_UnusedVariables_0__Lean_Linter_UnusedVariables_visitAssignments_visitExpr_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___redArg(lean_object*, lean_object*);
@@ -807,7 +804,6 @@ static lean_object* l_Lean_throwAttrMustBeGlobal___at_____private_Lean_Linter_Un
 LEAN_EXPORT lean_object* l_Lean_throwAttrDeclNotOfExpectedType___at_____private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables_1681096836____hygCtx___hyg_2__spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_getLinterUnusedVariablesPatternVars___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_FVarDefinition_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_Linter_UnusedVariables_insertObjImpl_spec__2_spec__2_spec__2_spec__2___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn___lam__1___closed__2____x40_Lean_Linter_UnusedVariables_1582690914____hygCtx___hyg_2_;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -10091,23 +10087,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_FVarDefinition_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_FVarDefinition_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Linter_UnusedVariables_FVarDefinition_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_References_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -10121,23 +10100,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Linter_UnusedVariables_References_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_References_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_References_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Linter_UnusedVariables_References_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

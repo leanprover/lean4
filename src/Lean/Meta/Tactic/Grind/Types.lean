@@ -82,14 +82,14 @@ inductive SplitSource where
     input
   deriving Inhabited
 
-def SplitSource.toMessageData : SplitSource → MetaM MessageData
-  | .ematch origin => return m!"E-matching {← origin.pp}"
-  | .ext declName => return m!"Extensionality {declName}"
-  | .mbtc a b i => return m!"Model-based theory combination at argument #{i} of{indentExpr a}\nand{indentExpr b}"
-  | .beta e => return m!"Beta-reduction of{indentExpr e}"
-  | .forallProp e => return m!"Forall propagation at{indentExpr e}"
-  | .existsProp e => return m!"Exists propagation at{indentExpr e}"
-  | .input => return m!"Initial goal"
+def SplitSource.toMessageData : SplitSource → MessageData
+  | .ematch origin => m!"E-matching {origin.pp}"
+  | .ext declName => m!"Extensionality {declName}"
+  | .mbtc a b i => m!"Model-based theory combination at argument #{i} of{indentExpr a}\nand{indentExpr b}"
+  | .beta e => m!"Beta-reduction of{indentExpr e}"
+  | .forallProp e => m!"Forall propagation at{indentExpr e}"
+  | .existsProp e => m!"Exists propagation at{indentExpr e}"
+  | .input => "Initial goal"
 
 /-- Context for `GrindM` monad. -/
 structure Context where

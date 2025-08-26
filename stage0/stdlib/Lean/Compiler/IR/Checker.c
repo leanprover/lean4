@@ -45,6 +45,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_IR_Checker_throwCheckerEr
 lean_object* lean_get_max_ctor_tag(lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Checker_checkFullApp___closed__1;
+lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_IR_Checker_throwCheckerError_spec__0_spec__0___closed__6;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_Checker_checkFnBody_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkExpr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -75,6 +76,7 @@ static lean_object* l_Lean_IR_Checker_checkExpr___closed__3;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkFullApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_LocalContext_isJP(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_IR_Checker_throwCheckerError___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_markJP(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Checker_throwCheckerError___redArg___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_Checker_checkFnBody_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -82,7 +84,6 @@ static lean_object* l_Lean_IR_Checker_checkObjType___closed__0;
 static lean_object* l_Lean_IR_Checker_checkType___closed__1;
 lean_object* l_instMonadEIO(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkJP___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_IR_LocalContext_addParam(lean_object*, lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Checker_checkPartialApp___closed__1;
@@ -108,9 +109,11 @@ LEAN_EXPORT lean_object* l_Lean_IR_Checker_getMaxCtorFields___boxed(lean_object*
 uint8_t l_Lean_IR_beqIRType____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_63_(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Checker_checkPartialApp___closed__0;
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_IR_Checker_throwCheckerError_spec__0_spec__0___closed__3;
+static lean_object* l_Lean_IR_Checker_throwCheckerError___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_checkDecls(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_LocalContext_isParam(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_CheckerState_toCtorIdx(lean_object*);
+lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 static lean_object* l_Lean_IR_Checker_checkVar___closed__1;
 static lean_object* l_Lean_IR_Checker_maxCtorTag___closed__0;
 lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
@@ -122,6 +125,7 @@ static lean_object* l_Lean_IR_Checker_markIndex___closed__1;
 static lean_object* l_Lean_IR_Checker_checkExpr___closed__5;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_markIndex(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Checker_checkFullApp___closed__3;
+static lean_object* l_Lean_IR_Checker_throwCheckerError___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkFullApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_maxCtorTag;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_Checker_markIndex_spec__0___redArg___boxed(lean_object*, lean_object*);
@@ -134,6 +138,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_IR_Checker_throwCheckerEr
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_IR_Checker_throwCheckerError_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkPartialApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_IR_Checker_throwCheckerError___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_markIndex___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkEqTypes(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -559,46 +564,88 @@ static lean_object* _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to compile definition, compiler IR check failed at '", 59, 59);
+x_1 = lean_mk_string_unchecked("failed to compile definition, compiler IR check failed at `", 59, 59);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__1() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_IR_Checker_throwCheckerError___redArg___closed__0;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__2() {
+_start:
+{
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'. Error: ", 10, 10);
+x_1 = lean_mk_string_unchecked("`. Error: ", 10, 10);
 return x_1;
+}
+}
+static lean_object* _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_IR_Checker_throwCheckerError___redArg___closed__2;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("", 0, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_IR_Checker_throwCheckerError___redArg___closed__4;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_throwCheckerError___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_19; lean_object* x_20; 
-x_19 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_19);
+lean_object* x_7; lean_object* x_20; lean_object* x_21; 
+x_20 = lean_ctor_get(x_2, 1);
+lean_inc_ref(x_20);
 lean_dec_ref(x_2);
-x_20 = lean_ctor_get(x_19, 0);
-lean_inc(x_20);
-lean_dec_ref(x_19);
-x_7 = x_20;
-goto block_18;
-block_18:
+x_21 = lean_ctor_get(x_20, 0);
+lean_inc(x_21);
+lean_dec_ref(x_20);
+x_7 = x_21;
+goto block_19;
+block_19:
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_8 = l_Lean_IR_Checker_throwCheckerError___redArg___closed__0;
-x_9 = 1;
-x_10 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_7, x_9);
-x_11 = lean_string_append(x_8, x_10);
-lean_dec_ref(x_10);
-x_12 = l_Lean_IR_Checker_throwCheckerError___redArg___closed__1;
-x_13 = lean_string_append(x_11, x_12);
-x_14 = lean_string_append(x_13, x_1);
-x_15 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_15, 0, x_14);
-x_16 = l_Lean_MessageData_ofFormat(x_15);
-x_17 = l_Lean_throwError___at___Lean_IR_Checker_throwCheckerError_spec__0___redArg(x_16, x_4, x_5, x_6);
-return x_17;
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_8 = l_Lean_IR_Checker_throwCheckerError___redArg___closed__1;
+x_9 = 0;
+x_10 = l_Lean_MessageData_ofConstName(x_7, x_9);
+x_11 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_11, 0, x_8);
+lean_ctor_set(x_11, 1, x_10);
+x_12 = l_Lean_IR_Checker_throwCheckerError___redArg___closed__3;
+x_13 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_13, 0, x_11);
+lean_ctor_set(x_13, 1, x_12);
+x_14 = l_Lean_stringToMessageData(x_1);
+x_15 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_15, 0, x_13);
+lean_ctor_set(x_15, 1, x_14);
+x_16 = l_Lean_IR_Checker_throwCheckerError___redArg___closed__5;
+x_17 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_17, 0, x_15);
+lean_ctor_set(x_17, 1, x_16);
+x_18 = l_Lean_throwError___at___Lean_IR_Checker_throwCheckerError_spec__0___redArg(x_17, x_4, x_5, x_6);
+return x_18;
 }
 }
 }
@@ -854,9 +901,9 @@ goto block_52;
 block_45:
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; 
-x_42 = lean_nat_add(x_39, x_41);
+x_42 = lean_nat_add(x_40, x_41);
 lean_dec(x_41);
-lean_dec(x_39);
+lean_dec(x_40);
 if (lean_is_scalar(x_36)) {
  x_43 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -875,7 +922,7 @@ if (lean_is_scalar(x_26)) {
 lean_ctor_set(x_44, 0, x_38);
 lean_ctor_set(x_44, 1, x_28);
 lean_ctor_set(x_44, 2, x_29);
-lean_ctor_set(x_44, 3, x_40);
+lean_ctor_set(x_44, 3, x_39);
 lean_ctor_set(x_44, 4, x_43);
 return x_44;
 }
@@ -901,8 +948,8 @@ if (lean_obj_tag(x_31) == 0)
 lean_object* x_50; 
 x_50 = lean_ctor_get(x_31, 0);
 lean_inc(x_50);
-x_39 = x_49;
-x_40 = x_48;
+x_39 = x_48;
+x_40 = x_49;
 x_41 = x_50;
 goto block_45;
 }
@@ -910,8 +957,8 @@ else
 {
 lean_object* x_51; 
 x_51 = lean_unsigned_to_nat(0u);
-x_39 = x_49;
-x_40 = x_48;
+x_39 = x_48;
+x_40 = x_49;
 x_41 = x_51;
 goto block_45;
 }
@@ -1327,9 +1374,9 @@ goto block_152;
 block_144:
 {
 lean_object* x_141; lean_object* x_142; lean_object* x_143; 
-x_141 = lean_nat_add(x_139, x_140);
+x_141 = lean_nat_add(x_138, x_140);
 lean_dec(x_140);
-lean_dec(x_139);
+lean_dec(x_138);
 if (lean_is_scalar(x_135)) {
  x_142 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -1348,7 +1395,7 @@ if (lean_is_scalar(x_125)) {
 lean_ctor_set(x_143, 0, x_137);
 lean_ctor_set(x_143, 1, x_128);
 lean_ctor_set(x_143, 2, x_129);
-lean_ctor_set(x_143, 3, x_138);
+lean_ctor_set(x_143, 3, x_139);
 lean_ctor_set(x_143, 4, x_142);
 return x_143;
 }
@@ -1374,8 +1421,8 @@ if (lean_obj_tag(x_131) == 0)
 lean_object* x_150; 
 x_150 = lean_ctor_get(x_131, 0);
 lean_inc(x_150);
-x_138 = x_148;
-x_139 = x_149;
+x_138 = x_149;
+x_139 = x_148;
 x_140 = x_150;
 goto block_144;
 }
@@ -1383,8 +1430,8 @@ else
 {
 lean_object* x_151; 
 x_151 = lean_unsigned_to_nat(0u);
-x_138 = x_148;
-x_139 = x_149;
+x_138 = x_149;
+x_139 = x_148;
 x_140 = x_151;
 goto block_144;
 }
@@ -1742,8 +1789,8 @@ if (x_25 == 0)
 lean_object* x_26; 
 x_26 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_IR_Checker_markIndex_spec__1___redArg(x_1, x_24, x_22);
 x_7 = x_23;
-x_8 = x_3;
-x_9 = x_24;
+x_8 = x_24;
+x_9 = x_3;
 x_10 = x_26;
 goto block_16;
 }
@@ -1751,8 +1798,8 @@ else
 {
 lean_dec(x_1);
 x_7 = x_23;
-x_8 = x_3;
-x_9 = x_24;
+x_8 = x_24;
+x_9 = x_3;
 x_10 = x_22;
 goto block_16;
 }
@@ -1773,14 +1820,14 @@ return x_32;
 block_16:
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = lean_st_ref_set(x_8, x_10, x_7);
+x_11 = lean_st_ref_set(x_9, x_10, x_7);
 x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; 
 x_13 = lean_ctor_get(x_11, 0);
 lean_dec(x_13);
-lean_ctor_set(x_11, 0, x_9);
+lean_ctor_set(x_11, 0, x_8);
 return x_11;
 }
 else
@@ -1790,7 +1837,7 @@ x_14 = lean_ctor_get(x_11, 1);
 lean_inc(x_14);
 lean_dec(x_11);
 x_15 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_15, 0, x_9);
+lean_ctor_set(x_15, 0, x_8);
 lean_ctor_set(x_15, 1, x_14);
 return x_15;
 }
@@ -6089,6 +6136,14 @@ l_Lean_IR_Checker_throwCheckerError___redArg___closed__0 = _init_l_Lean_IR_Check
 lean_mark_persistent(l_Lean_IR_Checker_throwCheckerError___redArg___closed__0);
 l_Lean_IR_Checker_throwCheckerError___redArg___closed__1 = _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__1();
 lean_mark_persistent(l_Lean_IR_Checker_throwCheckerError___redArg___closed__1);
+l_Lean_IR_Checker_throwCheckerError___redArg___closed__2 = _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__2();
+lean_mark_persistent(l_Lean_IR_Checker_throwCheckerError___redArg___closed__2);
+l_Lean_IR_Checker_throwCheckerError___redArg___closed__3 = _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__3();
+lean_mark_persistent(l_Lean_IR_Checker_throwCheckerError___redArg___closed__3);
+l_Lean_IR_Checker_throwCheckerError___redArg___closed__4 = _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__4();
+lean_mark_persistent(l_Lean_IR_Checker_throwCheckerError___redArg___closed__4);
+l_Lean_IR_Checker_throwCheckerError___redArg___closed__5 = _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__5();
+lean_mark_persistent(l_Lean_IR_Checker_throwCheckerError___redArg___closed__5);
 l_Lean_IR_Checker_markIndex___closed__0 = _init_l_Lean_IR_Checker_markIndex___closed__0();
 lean_mark_persistent(l_Lean_IR_Checker_markIndex___closed__0);
 l_Lean_IR_Checker_markIndex___closed__1 = _init_l_Lean_IR_Checker_markIndex___closed__1();

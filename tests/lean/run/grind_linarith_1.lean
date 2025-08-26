@@ -3,25 +3,25 @@ open Std Lean.Grind
 set_option grind.debug true
 
 example [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] (a b : α)
-    : (2:Int)*a + b < b + a + a → False := by
+    : (2:Int) • a + b < b + a + a → False := by
   grind
 
 example [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedAdd α] (a b : α)
-    : (2:Int)*a + b < b + a + a → False := by
+    : (2:Int) • a + b < b + a + a → False := by
   grind
 
 example [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] (a b : α)
-    : (2:Int)*a + b < b + a + a → False := by
+    : (2:Int) • a + b < b + a + a → False := by
   fail_if_success grind -linarith
   grind
 
 example [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedAdd α] (a b : α)
-    : (2:Int)*a + b ≥ b + a + a := by
+    : (2:Int) • a + b ≥ b + a + a := by
   grind
 
 #guard_msgs (drop error) in
 example [IntModule α] [LE α] [LT α] [IsPreorder α] [OrderedAdd α] (a b : α)
-    : (2:Int)*a + b ≥ b + a + a := by
+    : (2:Int) • a + b ≥ b + a + a := by
   fail_if_success grind
 
 example [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (a b : α)
@@ -99,7 +99,7 @@ example [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [Order
   grind
 
 example [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] (a b c d : α)
-    : a + d < c → b = a + (2:Int)*d → b - d > c → False := by
+    : a + d < c → b = a + (2:Int) • d → b - d > c → False := by
   grind
 
 example [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (a b : α)
@@ -158,11 +158,11 @@ example [CommRing α] [LE α] [LT α] [IsLinearOrder α] [OrderedRing α] (a b c
   grind
 
 /--
-trace: [grind.linarith.assert] -3 * y + 2 * x + One.one ≤ 0
-[grind.linarith.assert] 2 * z + -4 * x + One.one ≤ 0
-[grind.linarith.assert] -1 * z + 3 * y + One.one ≤ 0
-[grind.linarith.assert] 6 * y + -4 * x + 3 * One.one ≤ 0
-[grind.linarith.assert] 15 * One.one ≤ 0
+trace: [grind.linarith.assert] -3 • y + 2 • x + One.one ≤ 0
+[grind.linarith.assert] 2 • z + -4 • x + One.one ≤ 0
+[grind.linarith.assert] -1 • z + 3 • y + One.one ≤ 0
+[grind.linarith.assert] 6 • y + -4 • x + 3 • One.one ≤ 0
+[grind.linarith.assert] 15 • One.one ≤ 0
 [grind.linarith.assert] Zero.zero < 0
 -/
 #guard_msgs (trace) in

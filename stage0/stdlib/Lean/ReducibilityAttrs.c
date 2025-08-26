@@ -4997,7 +4997,7 @@ if (x_17 == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 
 x_51 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__11;
-x_52 = l_Lean_MessageData_ofName(x_1);
+x_52 = l_Lean_MessageData_ofConstName(x_1, x_17);
 x_53 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_53, 0, x_51);
 lean_ctor_set(x_53, 1, x_52);
@@ -5039,7 +5039,7 @@ case 1:
 {
 lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; 
 x_65 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__15;
-x_66 = l_Lean_MessageData_ofName(x_1);
+x_66 = l_Lean_MessageData_ofConstName(x_1, x_17);
 x_67 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_67, 0, x_65);
 lean_ctor_set(x_67, 1, x_66);
@@ -5073,7 +5073,7 @@ if (x_17 == 0)
 {
 lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; 
 x_74 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__19;
-x_75 = l_Lean_MessageData_ofName(x_1);
+x_75 = l_Lean_MessageData_ofConstName(x_1, x_17);
 x_76 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_76, 0, x_74);
 lean_ctor_set(x_76, 1, x_75);
@@ -5127,7 +5127,7 @@ block_48:
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
 x_39 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__6;
-x_40 = l_Lean_MessageData_ofName(x_1);
+x_40 = l_Lean_MessageData_ofConstName(x_1, x_17);
 if (lean_is_scalar(x_38)) {
  x_41 = lean_alloc_ctor(7, 2, 0);
 } else {
@@ -5161,7 +5161,7 @@ lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean
 lean_dec(x_26);
 lean_dec(x_21);
 x_88 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__21;
-x_89 = l_Lean_MessageData_ofName(x_1);
+x_89 = l_Lean_MessageData_ofConstName(x_1, x_17);
 x_90 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_90, 0, x_88);
 lean_ctor_set(x_90, 1, x_89);
@@ -5196,7 +5196,7 @@ if (x_17 == 0)
 lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; 
 lean_dec(x_26);
 x_97 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__25;
-x_98 = l_Lean_MessageData_ofName(x_1);
+x_98 = l_Lean_MessageData_ofConstName(x_1, x_17);
 x_99 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_99, 0, x_97);
 lean_ctor_set(x_99, 1, x_98);
@@ -5249,7 +5249,7 @@ if (x_17 == 0)
 lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; 
 lean_dec(x_21);
 x_111 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__31;
-x_112 = l_Lean_MessageData_ofName(x_1);
+x_112 = l_Lean_MessageData_ofConstName(x_1, x_17);
 x_113 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_113, 0, x_111);
 lean_ctor_set(x_113, 1, x_112);
@@ -5294,7 +5294,7 @@ lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; 
 lean_dec(x_26);
 lean_dec(x_21);
 x_125 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__35;
-x_126 = l_Lean_MessageData_ofName(x_1);
+x_126 = l_Lean_MessageData_ofConstName(x_1, x_17);
 x_127 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_127, 0, x_125);
 lean_ctor_set(x_127, 1, x_126);
@@ -5347,7 +5347,7 @@ lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; 
 lean_dec(x_21);
 lean_dec(x_19);
 x_134 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__6;
-x_135 = l_Lean_MessageData_ofName(x_1);
+x_135 = l_Lean_MessageData_ofConstName(x_1, x_17);
 x_136 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_136, 0, x_134);
 lean_ctor_set(x_136, 1, x_135);

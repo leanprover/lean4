@@ -12892,7 +12892,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 lean_dec_ref(x_1);
 x_7 = l_Lean_Meta_Ext_ExtTheorems_erase___at_____private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext_1707651249____hygCtx___hyg_2__spec__0___closed__1;
-x_8 = l_Lean_MessageData_ofName(x_2);
+x_8 = l_Lean_MessageData_ofConstName(x_2, x_6);
 x_9 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_9, 0, x_7);
 lean_ctor_set(x_9, 1, x_8);

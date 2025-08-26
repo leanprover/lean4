@@ -27,14 +27,6 @@
       dec x_1;
       ret x_2
 [Compiler.IR] [result]
-    def Exp.toCtorIdx (x_1 : @& tobj) : tobj :=
-      let x_2 : tobj := Exp.ctorIdx x_1;
-      ret x_2
-    def Exp.toCtorIdx._boxed (x_1 : tobj) : tobj :=
-      let x_2 : tobj := Exp.toCtorIdx x_1;
-      dec x_1;
-      ret x_2
-[Compiler.IR] [result]
     def Exp.casesOn._override._redArg (x_1 : tobj) (x_2 : tobj) (x_3 : tobj) (x_4 : @& tobj) (x_5 : @& tobj) (x_6 : @& tobj) (x_7 : @& tobj) (x_8 : @& tobj) : tobj :=
       case x_1 : tobj of
       Exp.var._impl →

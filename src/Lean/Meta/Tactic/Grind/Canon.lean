@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Util
 public import Lean.Meta.Basic
@@ -14,9 +13,8 @@ public import Lean.Util.PtrSet
 public import Lean.Util.FVarSubset
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.IntInstTesters
-
+import Lean.Meta.NatInstTesters
 public section
-
 namespace Lean.Meta.Grind
 namespace Canon
 

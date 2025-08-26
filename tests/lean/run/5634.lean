@@ -86,11 +86,17 @@ example (p : Prop) (h : p) : ∀ {_ : Nat}, p := by
 Regression test: make sure `simpa?` reports lemmas for both the goal and the `using` clause
 -/
 
-/-- info: Try this: simpa only [id] using h -/
+/--
+info: Try this:
+  simpa only [id] using h
+-/
 #guard_msgs in example (p : Prop) (h : p) : id p := by
   simpa? only [id] using h
 
-/-- info: Try this: simpa only [id] using h -/
+/--
+info: Try this:
+  simpa only [id] using h
+-/
 #guard_msgs in example (p : Prop) (h : id p) : p := by
   simpa? only [id] using h
 

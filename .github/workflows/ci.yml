@@ -185,7 +185,7 @@ jobs:
               },
               {
                 "name": "Linux Lake",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "check-level": 0,
                 "test": true,
                 "check-rebootstrap": level >= 1,

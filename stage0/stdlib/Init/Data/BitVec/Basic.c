@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.BitVec.Basic
-// Imports: Init.Data.Fin.Basic Init.Data.Nat.Bitwise.Lemmas Init.Data.Nat.Power2 Init.Data.Int.Bitwise Init.Data.BitVec.BasicAux
+// Imports: Init.Data.Fin.Basic Init.Data.Nat.Bitwise.Lemmas Init.Data.Nat.Power2 Init.Data.Int.Bitwise.Basic Init.Data.BitVec.BasicAux
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4392,7 +4392,7 @@ return x_3;
 lean_object* initialize_Init_Data_Fin_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Bitwise_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Power2(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_Bitwise(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_Bitwise_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_BasicAux(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object* w) {
@@ -4408,7 +4408,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Power2(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Bitwise(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Int_Bitwise_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_BasicAux(builtin, lean_io_mk_world());

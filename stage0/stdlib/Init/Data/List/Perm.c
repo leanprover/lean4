@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Perm
-// Imports: Init.Data.List.Pairwise Init.Data.List.Erase Init.Data.List.Find Init.Data.List.Attach
+// Imports: Init.Data.List.Pairwise Init.Data.List.Erase Init.Data.List.Find Init.Data.List.Attach Init.Data.List.Attach
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -49,14 +49,14 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_5; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_5 = lean_apply_1(x_3, x_1);
 return x_5;
 }
 else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_2, 1);
@@ -81,14 +81,14 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_5; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_5 = lean_apply_1(x_3, x_2);
 return x_5;
 }
 else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_1, 1);
@@ -112,7 +112,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_dec_ref(x_3);
+lean_dec(x_3);
 lean_inc(x_2);
 return x_2;
 }
@@ -195,6 +195,7 @@ lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Erase(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Find(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Attach(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Attach(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Perm(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -207,6 +208,9 @@ res = initialize_Init_Data_List_Erase(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Find(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Attach(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Attach(builtin, lean_io_mk_world());

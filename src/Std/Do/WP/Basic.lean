@@ -97,25 +97,28 @@ instance Reader.instWP : WP (ReaderM ρ) (.arg ρ .pure) :=
 instance Except.instWP : WP (Except ε) (.except ε .pure) :=
   inferInstanceAs (WP (ExceptT ε Id) (.except ε .pure))
 
-theorem Id.by_wp {α : Type u} {x : α} {prog : Id α} (h : Id.run prog = x) (P : α → Prop) :
-  (⊢ₛ wp⟦prog⟧ (PostCond.noThrow (fun a => ⟨P a⟩))) → P x := h ▸ (· True.intro)
+theorem Id.of_wp_run_eq {α : Type u} {x : α} {prog : Id α} (h : Id.run prog = x) (P : α → Prop) :
+  (⊢ₛ wp⟦prog⟧ (⇓ a => ⟨P a⟩)) → P x := h ▸ (· True.intro)
 
-theorem StateM.by_wp {α} {x : α × σ} {prog : StateM σ α} (h : StateT.run prog s = x) (P : α × σ → Prop) :
-  (⊢ₛ wp⟦prog⟧ (PostCond.noThrow (fun a s' => ⟨P (a, s')⟩)) s) → P x := h ▸ (· True.intro)
+theorem StateM.of_wp_run_eq {α} {x : α × σ} {prog : StateM σ α} (h : StateT.run prog s = x) (P : α × σ → Prop) :
+  (⊢ₛ wp⟦prog⟧ (⇓ a s' => ⌜P (a, s')⌝) s) → P x := h ▸ (· True.intro)
 
-theorem ReaderM.by_wp {α} {x : α} {prog : ReaderM ρ α} (h : ReaderT.run prog r = x) (P : α → Prop) :
-  (⊢ₛ wp⟦prog⟧ (PostCond.noThrow (fun a _ => ⟨P a⟩)) r) → P x := h ▸ (· True.intro)
+theorem StateM.of_wp_run'_eq {α} {x : α} {prog : StateM σ α} (h : StateT.run' prog s = x) (P : α → Prop) :
+  (⊢ₛ wp⟦prog⟧ (⇓ a => ⌜P a⌝) s) → P x := h ▸ (· True.intro)
 
-theorem Except.by_wp {α} {x : Except ε α} (P : Except ε α → Prop) :
-  (⊢ₛ wp⟦x⟧ post⟨fun a => ⟨P (.ok a)⟩, fun e => ⟨P (.error e)⟩⟩) → P x := by
+theorem ReaderM.of_wp_run_eq {α} {x : α} {prog : ReaderM ρ α} (h : ReaderT.run prog r = x) (P : α → Prop) :
+  (⊢ₛ wp⟦prog⟧ (⇓ a _ => ⌜P a⌝) r) → P x := h ▸ (· True.intro)
+
+theorem Except.of_wp {α} {x : Except ε α} (P : Except ε α → Prop) :
+  (⊢ₛ wp⟦x⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.error e)⌝⟩) → P x := by
     intro hspec
     simp only [wp, PredTrans.pushExcept_apply, PredTrans.pure_apply] at hspec
     split at hspec
     case h_1 a s' heq => rw[← heq] at hspec; exact hspec True.intro
     case h_2 e s' heq => rw[← heq] at hspec; exact hspec True.intro
 
-theorem EStateM.by_wp {α} {x : EStateM.Result ε σ α} {prog : EStateM ε σ α} (h : EStateM.run prog s = x) (P : EStateM.Result ε σ α → Prop) :
-  (⊢ₛ wp⟦prog⟧ post⟨fun a s' => ⟨P (EStateM.Result.ok a s')⟩, fun e s' => ⟨P (EStateM.Result.error e s')⟩⟩ s) → P x := by
+theorem EStateM.of_wp_run_eq {α} {x : EStateM.Result ε σ α} {prog : EStateM ε σ α} (h : EStateM.run prog s = x) (P : EStateM.Result ε σ α → Prop) :
+  (⊢ₛ wp⟦prog⟧ post⟨fun a s' => ⌜P (EStateM.Result.ok a s')⌝, fun e s' => ⌜P (EStateM.Result.error e s')⌝⟩ s) → P x := by
     intro hspec
     simp only [wp] at hspec
     split at hspec

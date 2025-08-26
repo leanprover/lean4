@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.Canon
 public import Lean.Meta.Tactic.Grind.MBTC
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Model
 public import Lean.Meta.Tactic.Grind.Arith.Linear.PropagateEq
@@ -27,7 +25,7 @@ private partial def toRatValue? (a : Expr) : Option Rat :=
   else if a.isAppOfArity ``HDiv.hDiv 6 then
     (· / ·) <$> toRatValue? a.appFn!.appArg! <*> toRatValue? a.appArg!
   else if let .lit (.natVal n) := a then
-    some (Std.Internal.mkRat n 1)
+    some (mkRat n 1)
   else
     none
 

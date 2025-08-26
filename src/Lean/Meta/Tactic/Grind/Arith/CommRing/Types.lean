@@ -187,6 +187,8 @@ structure Ring where
   varMap         : PHashMap ExprPtr Var := {}
   /-- Mapping from Lean expressions to their representations as `RingExpr` -/
   denote         : PHashMap ExprPtr RingExpr := {}
+  /-- `denoteEntries` is `denote` as a `PArray` for deterministic traversal. -/
+  denoteEntries  : PArray (Expr × RingExpr) := {}
   /-- Next unique id for `EqCnstr`s. -/
   nextId         : Nat := 0
   /-- Number of "steps": simplification and superposition. -/

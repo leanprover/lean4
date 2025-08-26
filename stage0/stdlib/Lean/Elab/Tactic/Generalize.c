@@ -34,6 +34,7 @@ lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalGeneralize___closed__0;
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalGeneralize___boxed__const__1;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_evalGeneralize___regBuiltin_Lean_Elab_Tactic_evalGeneralize_declRange__3___closed__5;
 LEAN_EXPORT lean_object* l_Lean_getLocalHyps___at___Lean_Elab_Tactic_evalGeneralize_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getFVarIds(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -77,7 +78,6 @@ static lean_object* l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_getLocalHyps___at___Lean_Elab_Tactic_evalGeneralize_spec__3_spec__3_spec__3_spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_isImplementationDetail(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_getLocalHyps___at___Lean_Elab_Tactic_evalGeneralize_spec__3_spec__3_spec__3_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_evalGeneralize___regBuiltin_Lean_Elab_Tactic_evalGeneralize__1___closed__8;
 lean_object* l_Lean_Elab_Term_addLocalVarInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_evalGeneralize___regBuiltin_Lean_Elab_Tactic_evalGeneralize__1___closed__7;
@@ -334,18 +334,12 @@ else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_14 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_14);
 x_15 = lean_ctor_get(x_4, 1);
-lean_inc(x_15);
 x_16 = lean_ctor_get(x_4, 2);
-lean_inc(x_16);
 x_17 = lean_nat_dec_lt(x_15, x_16);
 if (x_17 == 0)
 {
 lean_object* x_18; 
-lean_dec(x_16);
-lean_dec(x_15);
-lean_dec_ref(x_14);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
@@ -360,6 +354,9 @@ return x_18;
 else
 {
 uint8_t x_19; 
+lean_inc(x_16);
+lean_inc(x_15);
+lean_inc_ref(x_14);
 x_19 = !lean_is_exclusive(x_4);
 if (x_19 == 0)
 {
@@ -371,7 +368,7 @@ lean_dec(x_21);
 x_22 = lean_ctor_get(x_4, 0);
 lean_dec(x_22);
 x_23 = lean_array_uget(x_1, x_3);
-x_24 = lean_array_fget(x_14, x_15);
+x_24 = lean_array_fget_borrowed(x_14, x_15);
 x_25 = l_Lean_Expr_fvar___override(x_23);
 lean_inc(x_10);
 lean_inc_ref(x_9);
@@ -379,6 +376,7 @@ lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 lean_inc_ref(x_5);
+lean_inc(x_24);
 x_26 = l_Lean_Elab_Term_addLocalVarInfo(x_24, x_25, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -434,7 +432,7 @@ else
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 lean_dec(x_4);
 x_37 = lean_array_uget(x_1, x_3);
-x_38 = lean_array_fget(x_14, x_15);
+x_38 = lean_array_fget_borrowed(x_14, x_15);
 x_39 = l_Lean_Expr_fvar___override(x_37);
 lean_inc(x_10);
 lean_inc_ref(x_9);
@@ -442,6 +440,7 @@ lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 lean_inc_ref(x_5);
+lean_inc(x_38);
 x_40 = l_Lean_Elab_Term_addLocalVarInfo(x_38, x_39, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_40) == 0)
 {
@@ -872,7 +871,6 @@ lean_dec_ref(x_14);
 x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_20, 0);
-lean_inc(x_21);
 if (lean_obj_tag(x_21) == 0)
 {
 uint8_t x_22; 
@@ -910,6 +908,7 @@ return x_27;
 else
 {
 uint8_t x_28; 
+lean_inc_ref(x_21);
 lean_dec(x_20);
 lean_free_object(x_2);
 x_28 = !lean_is_exclusive(x_19);
@@ -957,7 +956,6 @@ lean_dec_ref(x_34);
 x_40 = lean_ctor_get(x_39, 0);
 lean_inc(x_40);
 x_41 = lean_ctor_get(x_40, 0);
-lean_inc(x_41);
 if (lean_obj_tag(x_41) == 0)
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
@@ -988,6 +986,7 @@ return x_46;
 else
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
+lean_inc_ref(x_41);
 lean_dec(x_40);
 x_47 = lean_ctor_get(x_39, 1);
 lean_inc(x_47);
@@ -1032,7 +1031,6 @@ lean_dec_ref(x_52);
 x_58 = lean_ctor_get(x_57, 0);
 lean_inc(x_58);
 x_59 = lean_ctor_get(x_58, 0);
-lean_inc(x_59);
 if (lean_obj_tag(x_59) == 0)
 {
 uint8_t x_60; 
@@ -1068,6 +1066,7 @@ return x_65;
 else
 {
 uint8_t x_66; 
+lean_inc_ref(x_59);
 lean_dec(x_58);
 lean_free_object(x_2);
 x_66 = !lean_is_exclusive(x_57);
@@ -1115,7 +1114,6 @@ lean_dec_ref(x_72);
 x_78 = lean_ctor_get(x_77, 0);
 lean_inc(x_78);
 x_79 = lean_ctor_get(x_78, 0);
-lean_inc(x_79);
 if (lean_obj_tag(x_79) == 0)
 {
 lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; 
@@ -1146,6 +1144,7 @@ return x_84;
 else
 {
 lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; 
+lean_inc_ref(x_79);
 lean_dec(x_78);
 x_85 = lean_ctor_get(x_77, 1);
 lean_inc(x_85);
@@ -1380,7 +1379,6 @@ lean_dec_ref(x_13);
 x_29 = lean_ctor_get(x_28, 0);
 lean_inc(x_29);
 x_30 = lean_ctor_get(x_29, 0);
-lean_inc(x_30);
 if (lean_obj_tag(x_30) == 0)
 {
 uint8_t x_31; 
@@ -1414,6 +1412,7 @@ return x_36;
 else
 {
 uint8_t x_37; 
+lean_inc_ref(x_30);
 lean_dec(x_29);
 x_37 = !lean_is_exclusive(x_28);
 if (x_37 == 0)
@@ -1459,10 +1458,8 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = lean_ctor_get(x_5, 2);
-lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc_ref(x_11);
-lean_dec_ref(x_10);
 x_12 = l_Lean_getLocalHyps___at___Lean_Elab_Tactic_evalGeneralize_spec__3___closed__0;
 x_13 = l_Lean_PersistentArray_forIn___at___Lean_getLocalHyps___at___Lean_Elab_Tactic_evalGeneralize_spec__3_spec__3(x_11, x_12, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec_ref(x_5);

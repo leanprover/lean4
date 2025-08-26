@@ -13,8 +13,11 @@ public import Init.Data.List.Perm
 public import Init.Data.List.Find
 public import Init.Data.List.MinMax
 public import Init.Data.List.Monadic
-public import all Std.Data.Internal.List.Defs
-public import Std.Classes.Ord.Basic
+public import Std.Data.Internal.List.Defs
+import all Std.Data.Internal.List.Defs
+public import Init.Data.Order.Ord
+import Init.Data.Subtype.Order
+import Init.Data.Order.Lemmas
 
 public section
 
@@ -5545,22 +5548,32 @@ private theorem le_min_iff [Ord α] [TransOrd α] {a b c : (a : α) × β a} :
   · simp only [Bool.not_eq_true, Ordering.isLE_eq_false, OrientedCmp.gt_iff_lt, iff_and_self] at *
     exact fun h => Ordering.isLE_of_eq_lt <| TransCmp.lt_of_isLE_of_lt h ‹_›
 
-theorem minEntry?_eq_some_iff [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (a : (a : α) × β a) {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
+private theorem antisymm_subtype [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
+    Antisymm (α := Subtype (· ∈ l)) (· ≤ ·) where
+  antisymm a b hab hba := by
+    exact Subtype.ext
+      <| hd.eq_of_mem_of_beq a.property b.property
+      <| compare_eq_iff_beq.mp
+      <| OrientedCmp.isLE_antisymm hab hba
+
+theorem minEntry?_eq_some_iff [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (a : (a : α) × β a)
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
     minEntry? l = some a ↔ a ∈ l ∧ ∀ b : α, containsKey b l → (compare a.fst b).isLE := by
-  rw [minEntry?, List.min?_eq_some_iff _ _ _ _]
-  · simp only [and_congr_right_iff]
-    intro hm
-    apply Iff.intro
-    · intro h k hk
-      obtain ⟨e, hel, hek⟩ := containsKey_eq_true_iff_exists_mem.mp hk
-      exact TransCmp.isLE_trans (h _ hel) <| Ordering.isLE_of_eq_eq <| compare_eq_iff_beq.mpr hek
-    · intro h e he
-      exact h _ <| containsKey_of_mem he
-  · exact fun _ => ReflCmp.isLE_rfl
-  · exact fun _ _ => min_eq_or
-  · exact fun a b c => le_min_iff
-  · intro e e' he he' hee' he'e
-    exact hd.eq_of_mem_of_beq he he' <| compare_eq_iff_beq.mp <| OrientedCmp.isLE_antisymm hee' he'e
+  haveI : LawfulOrderMin ((a : α) × β a) := .of_le_min_iff
+    (fun _ _ _ => le_min_iff) (fun _ _ => min_eq_or)
+  haveI : Refl (α := (a : α) × β a) (· ≤ ·) := ⟨fun _ => ReflCmp.isLE_rfl⟩
+  haveI : Antisymm (α := Subtype (· ∈ l)) (· ≤ ·) := antisymm_subtype hd
+  haveI : IsLinearOrder (Subtype (· ∈ l)) := IsLinearOrder.of_refl_of_antisymm_of_lawfulOrderMin
+  rw [minEntry?, List.min?_eq_some_iff_subtype]
+  simp only [and_congr_right_iff]
+  intro hm
+  apply Iff.intro
+  · intro h k hk
+    obtain ⟨e, hel, hek⟩ := containsKey_eq_true_iff_exists_mem.mp hk
+    exact TransCmp.isLE_trans (h _ hel) <| Ordering.isLE_of_eq_eq <| compare_eq_iff_beq.mpr hek
+  · intro h e he
+    exact h _ <| containsKey_of_mem he
 
 theorem minKey?_eq_some_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {k} {l : List ((a : α) × β a)} (hd : DistinctKeys l) :

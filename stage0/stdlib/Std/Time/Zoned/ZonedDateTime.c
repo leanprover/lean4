@@ -65,6 +65,7 @@ static lean_object* l_Std_Time_ZonedDateTime_addWeeks___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubOffset__6;
 static lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0___closed__12;
 static lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___closed__3;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subNanoseconds___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_withMilliseconds___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofDaysSinceUNIXEpoch(lean_object*, lean_object*, lean_object*);
@@ -75,6 +76,7 @@ LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubDuration__1___lam__0(l
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subMilliseconds___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addMilliseconds___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toTimestamp(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofTimestamp___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_millisecond___boxed(lean_object*);
@@ -120,6 +122,7 @@ LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_offset(lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_instHAddOffset__2___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subWeeks(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTimeAssumingUTC(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_dayOfYear___closed__2;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addHours___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subSeconds(lean_object*, lean_object*);
@@ -142,7 +145,7 @@ static lean_object* l_Std_Time_ZonedDateTime_ofTimestamp___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_convertZoneRules___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_instHAddOffset__3___closed__0;
 lean_object* lean_thunk_get_own(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addMinutes(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_era___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toPlainDateTime___boxed(lean_object*);
@@ -278,10 +281,45 @@ LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubOffset;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_quarter___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_withNanoseconds(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0___closed__7;
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubOffset__4;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toDaysSinceUNIXEpoch___boxed(lean_object*);
 static lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0___closed__21;
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Time_ZonedDateTime_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toCtorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toCtorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Time_ZonedDateTime_toCtorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0___closed__0() {
 _start:
 {
@@ -771,7 +809,7 @@ static lean_object* _init_l_Std_Time_instInhabitedZonedDateTime___private__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0), 1, 0);
 x_2 = lean_mk_thunk(x_1);
 x_3 = l_Std_Time_instInhabitedZonedDateTime___private__1___closed__0;
 x_4 = l_Std_Time_instInhabitedZonedDateTime___private__1___closed__4;
@@ -782,14 +820,6 @@ lean_ctor_set(x_6, 1, x_3);
 lean_ctor_set(x_6, 2, x_4);
 lean_ctor_set(x_6, 3, x_5);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_instInhabitedZonedDateTime() {
@@ -854,25 +884,20 @@ _start:
 {
 lean_object* x_3; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_9);
 lean_inc_ref(x_1);
 x_10 = l_Std_Time_TimeZone_Transition_timezoneAt(x_9, x_1);
-lean_dec_ref(x_9);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; 
 lean_dec_ref(x_10);
 x_11 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_8);
-lean_dec_ref(x_8);
 x_3 = x_11;
 goto block_7;
 }
 else
 {
 lean_object* x_12; 
-lean_dec_ref(x_8);
 x_12 = lean_ctor_get(x_10, 0);
 lean_inc(x_12);
 lean_dec_ref(x_10);
@@ -970,9 +995,7 @@ x_3 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_1);
 x_25 = lean_ctor_get(x_3, 0);
 lean_inc(x_25);
 x_26 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_26);
 x_27 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_27);
 lean_inc(x_25);
 x_28 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_28, 0, x_25);
@@ -983,16 +1006,15 @@ if (lean_obj_tag(x_30) == 0)
 lean_object* x_31; 
 lean_dec(x_25);
 x_31 = l_Array_back_x3f___redArg(x_27);
-lean_dec_ref(x_27);
 if (lean_obj_tag(x_31) == 0)
 {
+lean_inc_ref(x_26);
 x_4 = x_26;
 goto block_21;
 }
 else
 {
 lean_object* x_32; 
-lean_dec_ref(x_26);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
 lean_dec_ref(x_31);
@@ -1003,42 +1025,34 @@ goto block_24;
 else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
-lean_dec_ref(x_26);
 x_33 = lean_ctor_get(x_30, 0);
 lean_inc(x_33);
 lean_dec_ref(x_30);
-x_34 = lean_array_fget(x_27, x_33);
+x_34 = lean_array_fget_borrowed(x_27, x_33);
 x_35 = lean_ctor_get(x_34, 0);
-lean_inc(x_35);
 x_36 = lean_unsigned_to_nat(1u);
 x_37 = lean_nat_sub(x_33, x_36);
 lean_dec(x_33);
-x_38 = lean_array_fget(x_27, x_37);
+x_38 = lean_array_fget_borrowed(x_27, x_37);
 lean_dec(x_37);
-lean_dec_ref(x_27);
 x_39 = lean_ctor_get(x_38, 1);
-lean_inc_ref(x_39);
 x_40 = lean_ctor_get(x_39, 0);
-lean_inc(x_40);
-lean_dec_ref(x_39);
 x_41 = lean_nat_abs(x_40);
-lean_dec(x_40);
 x_42 = lean_nat_to_int(x_41);
 x_43 = lean_int_sub(x_35, x_42);
 lean_dec(x_42);
-lean_dec(x_35);
 x_44 = lean_int_dec_lt(x_25, x_43);
 lean_dec(x_43);
 lean_dec(x_25);
 if (x_44 == 0)
 {
-lean_dec_ref(x_38);
+lean_inc_ref(x_34);
 x_22 = x_34;
 goto block_24;
 }
 else
 {
-lean_dec_ref(x_34);
+lean_inc_ref(x_38);
 x_22 = x_38;
 goto block_24;
 }
@@ -1270,23 +1284,17 @@ lean_inc(x_40);
 lean_dec_ref(x_37);
 x_41 = lean_array_fget(x_13, x_40);
 x_42 = lean_ctor_get(x_41, 0);
-lean_inc(x_42);
 x_43 = lean_unsigned_to_nat(1u);
 x_44 = lean_nat_sub(x_40, x_43);
 lean_dec(x_40);
 x_45 = lean_array_fget(x_13, x_44);
 lean_dec(x_44);
 x_46 = lean_ctor_get(x_45, 1);
-lean_inc_ref(x_46);
 x_47 = lean_ctor_get(x_46, 0);
-lean_inc(x_47);
-lean_dec_ref(x_46);
 x_48 = lean_nat_abs(x_47);
-lean_dec(x_47);
 x_49 = lean_nat_to_int(x_48);
 x_50 = lean_int_sub(x_42, x_49);
 lean_dec(x_49);
-lean_dec(x_42);
 x_51 = lean_int_dec_lt(x_8, x_50);
 lean_dec(x_50);
 lean_dec(x_8);
@@ -1440,25 +1448,20 @@ if (lean_is_exclusive(x_1)) {
  x_4 = lean_box(0);
 }
 x_10 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_11);
 lean_inc_ref(x_3);
 x_12 = l_Std_Time_TimeZone_Transition_timezoneAt(x_11, x_3);
-lean_dec_ref(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; 
 lean_dec_ref(x_12);
 x_13 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_10);
-lean_dec_ref(x_10);
 x_5 = x_13;
 goto block_9;
 }
 else
 {
 lean_object* x_14; 
-lean_dec_ref(x_10);
 x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
 lean_dec_ref(x_12);
@@ -1541,26 +1544,21 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_11; 
 x_3 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_4);
 x_5 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_1);
 lean_inc_ref(x_5);
 x_11 = l_Std_Time_TimeZone_Transition_timezoneAt(x_4, x_5);
-lean_dec_ref(x_4);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; 
 lean_dec_ref(x_11);
 x_12 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_3);
-lean_dec_ref(x_3);
 x_6 = x_12;
 goto block_10;
 }
 else
 {
 lean_object* x_13; 
-lean_dec_ref(x_3);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec_ref(x_11);
@@ -2188,9 +2186,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_20; 
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_10);
 x_11 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_8);
 x_12 = lean_int_add(x_11, x_2);
 lean_dec(x_11);
@@ -2200,20 +2196,17 @@ lean_ctor_set(x_6, 0, x_13);
 x_14 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 lean_inc_ref(x_14);
 x_20 = l_Std_Time_TimeZone_Transition_timezoneAt(x_10, x_14);
-lean_dec_ref(x_10);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; 
 lean_dec_ref(x_20);
 x_21 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_9);
-lean_dec_ref(x_9);
 x_15 = x_21;
 goto block_19;
 }
 else
 {
 lean_object* x_22; 
-lean_dec_ref(x_9);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec_ref(x_20);
@@ -2250,9 +2243,7 @@ lean_inc(x_24);
 lean_inc(x_23);
 lean_dec(x_6);
 x_25 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_25);
 x_26 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_26);
 x_27 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_23);
 x_28 = lean_int_add(x_27, x_2);
 lean_dec(x_27);
@@ -2264,20 +2255,17 @@ lean_ctor_set(x_30, 1, x_24);
 x_31 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_30);
 lean_inc_ref(x_31);
 x_37 = l_Std_Time_TimeZone_Transition_timezoneAt(x_26, x_31);
-lean_dec_ref(x_26);
 if (lean_obj_tag(x_37) == 0)
 {
 lean_object* x_38; 
 lean_dec_ref(x_37);
 x_38 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_25);
-lean_dec_ref(x_25);
 x_32 = x_38;
 goto block_36;
 }
 else
 {
 lean_object* x_39; 
-lean_dec_ref(x_25);
 x_39 = lean_ctor_get(x_37, 0);
 lean_inc(x_39);
 lean_dec_ref(x_37);
@@ -2341,9 +2329,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_21; 
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_10);
 x_11 = lean_int_neg(x_2);
 x_12 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_8);
 x_13 = lean_int_add(x_12, x_11);
@@ -2355,20 +2341,17 @@ lean_ctor_set(x_6, 0, x_14);
 x_15 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 lean_inc_ref(x_15);
 x_21 = l_Std_Time_TimeZone_Transition_timezoneAt(x_10, x_15);
-lean_dec_ref(x_10);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; 
 lean_dec_ref(x_21);
 x_22 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_9);
-lean_dec_ref(x_9);
 x_16 = x_22;
 goto block_20;
 }
 else
 {
 lean_object* x_23; 
-lean_dec_ref(x_9);
 x_23 = lean_ctor_get(x_21, 0);
 lean_inc(x_23);
 lean_dec_ref(x_21);
@@ -2405,9 +2388,7 @@ lean_inc(x_25);
 lean_inc(x_24);
 lean_dec(x_6);
 x_26 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_26);
 x_27 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_27);
 x_28 = lean_int_neg(x_2);
 x_29 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_24);
 x_30 = lean_int_add(x_29, x_28);
@@ -2421,20 +2402,17 @@ lean_ctor_set(x_32, 1, x_25);
 x_33 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_32);
 lean_inc_ref(x_33);
 x_39 = l_Std_Time_TimeZone_Transition_timezoneAt(x_27, x_33);
-lean_dec_ref(x_27);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; 
 lean_dec_ref(x_39);
 x_40 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_26);
-lean_dec_ref(x_26);
 x_34 = x_40;
 goto block_38;
 }
 else
 {
 lean_object* x_41; 
-lean_dec_ref(x_26);
 x_41 = lean_ctor_get(x_39, 0);
 lean_inc(x_41);
 lean_dec_ref(x_39);
@@ -2507,9 +2485,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_22; 
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_10);
 x_11 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_8);
 x_12 = l_Std_Time_ZonedDateTime_addWeeks___closed__0;
 x_13 = lean_int_mul(x_2, x_12);
@@ -2522,20 +2498,17 @@ lean_ctor_set(x_6, 0, x_15);
 x_16 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 lean_inc_ref(x_16);
 x_22 = l_Std_Time_TimeZone_Transition_timezoneAt(x_10, x_16);
-lean_dec_ref(x_10);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; 
 lean_dec_ref(x_22);
 x_23 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_9);
-lean_dec_ref(x_9);
 x_17 = x_23;
 goto block_21;
 }
 else
 {
 lean_object* x_24; 
-lean_dec_ref(x_9);
 x_24 = lean_ctor_get(x_22, 0);
 lean_inc(x_24);
 lean_dec_ref(x_22);
@@ -2572,9 +2545,7 @@ lean_inc(x_26);
 lean_inc(x_25);
 lean_dec(x_6);
 x_27 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_27);
 x_28 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_28);
 x_29 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_25);
 x_30 = l_Std_Time_ZonedDateTime_addWeeks___closed__0;
 x_31 = lean_int_mul(x_2, x_30);
@@ -2589,20 +2560,17 @@ lean_ctor_set(x_34, 1, x_26);
 x_35 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_34);
 lean_inc_ref(x_35);
 x_41 = l_Std_Time_TimeZone_Transition_timezoneAt(x_28, x_35);
-lean_dec_ref(x_28);
 if (lean_obj_tag(x_41) == 0)
 {
 lean_object* x_42; 
 lean_dec_ref(x_41);
 x_42 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_27);
-lean_dec_ref(x_27);
 x_36 = x_42;
 goto block_40;
 }
 else
 {
 lean_object* x_43; 
-lean_dec_ref(x_27);
 x_43 = lean_ctor_get(x_41, 0);
 lean_inc(x_43);
 lean_dec_ref(x_41);
@@ -2666,9 +2634,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_23; 
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_10);
 x_11 = lean_int_neg(x_2);
 x_12 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_8);
 x_13 = l_Std_Time_ZonedDateTime_addWeeks___closed__0;
@@ -2683,20 +2649,17 @@ lean_ctor_set(x_6, 0, x_16);
 x_17 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 lean_inc_ref(x_17);
 x_23 = l_Std_Time_TimeZone_Transition_timezoneAt(x_10, x_17);
-lean_dec_ref(x_10);
 if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; 
 lean_dec_ref(x_23);
 x_24 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_9);
-lean_dec_ref(x_9);
 x_18 = x_24;
 goto block_22;
 }
 else
 {
 lean_object* x_25; 
-lean_dec_ref(x_9);
 x_25 = lean_ctor_get(x_23, 0);
 lean_inc(x_25);
 lean_dec_ref(x_23);
@@ -2733,9 +2696,7 @@ lean_inc(x_27);
 lean_inc(x_26);
 lean_dec(x_6);
 x_28 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_28);
 x_29 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_29);
 x_30 = lean_int_neg(x_2);
 x_31 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_26);
 x_32 = l_Std_Time_ZonedDateTime_addWeeks___closed__0;
@@ -2752,20 +2713,17 @@ lean_ctor_set(x_36, 1, x_27);
 x_37 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_36);
 lean_inc_ref(x_37);
 x_43 = l_Std_Time_TimeZone_Transition_timezoneAt(x_29, x_37);
-lean_dec_ref(x_29);
 if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_44; 
 lean_dec_ref(x_43);
 x_44 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_28);
-lean_dec_ref(x_28);
 x_38 = x_44;
 goto block_42;
 }
 else
 {
 lean_object* x_45; 
-lean_dec_ref(x_28);
 x_45 = lean_ctor_get(x_43, 0);
 lean_inc(x_45);
 lean_dec_ref(x_43);
@@ -2823,28 +2781,23 @@ if (lean_is_exclusive(x_1)) {
  x_5 = lean_box(0);
 }
 x_6 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_7);
 x_8 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_4);
 x_9 = l_Std_Time_PlainDateTime_addMonthsClip(x_8, x_2);
 x_10 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_9);
 lean_inc_ref(x_10);
 x_16 = l_Std_Time_TimeZone_Transition_timezoneAt(x_7, x_10);
-lean_dec_ref(x_7);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; 
 lean_dec_ref(x_16);
 x_17 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_6);
-lean_dec_ref(x_6);
 x_11 = x_17;
 goto block_15;
 }
 else
 {
 lean_object* x_18; 
-lean_dec_ref(x_6);
 x_18 = lean_ctor_get(x_16, 0);
 lean_inc(x_18);
 lean_dec_ref(x_16);
@@ -2907,9 +2860,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_19; 
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_10);
 x_11 = lean_int_neg(x_2);
 x_12 = l_Std_Time_PlainDate_addMonthsClip(x_8, x_11);
 lean_dec(x_11);
@@ -2917,20 +2868,17 @@ lean_ctor_set(x_6, 0, x_12);
 x_13 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 lean_inc_ref(x_13);
 x_19 = l_Std_Time_TimeZone_Transition_timezoneAt(x_10, x_13);
-lean_dec_ref(x_10);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; 
 lean_dec_ref(x_19);
 x_20 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_9);
-lean_dec_ref(x_9);
 x_14 = x_20;
 goto block_18;
 }
 else
 {
 lean_object* x_21; 
-lean_dec_ref(x_9);
 x_21 = lean_ctor_get(x_19, 0);
 lean_inc(x_21);
 lean_dec_ref(x_19);
@@ -2967,9 +2915,7 @@ lean_inc(x_23);
 lean_inc(x_22);
 lean_dec(x_6);
 x_24 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_24);
 x_25 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_25);
 x_26 = lean_int_neg(x_2);
 x_27 = l_Std_Time_PlainDate_addMonthsClip(x_22, x_26);
 lean_dec(x_26);
@@ -2979,20 +2925,17 @@ lean_ctor_set(x_28, 1, x_23);
 x_29 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_28);
 lean_inc_ref(x_29);
 x_35 = l_Std_Time_TimeZone_Transition_timezoneAt(x_25, x_29);
-lean_dec_ref(x_25);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; 
 lean_dec_ref(x_35);
 x_36 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_24);
-lean_dec_ref(x_24);
 x_30 = x_36;
 goto block_34;
 }
 else
 {
 lean_object* x_37; 
-lean_dec_ref(x_24);
 x_37 = lean_ctor_get(x_35, 0);
 lean_inc(x_37);
 lean_dec_ref(x_35);
@@ -3050,28 +2993,23 @@ if (lean_is_exclusive(x_1)) {
  x_5 = lean_box(0);
 }
 x_6 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_7);
 x_8 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_4);
 x_9 = l_Std_Time_PlainDateTime_addMonthsRollOver(x_8, x_2);
 x_10 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_9);
 lean_inc_ref(x_10);
 x_16 = l_Std_Time_TimeZone_Transition_timezoneAt(x_7, x_10);
-lean_dec_ref(x_7);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; 
 lean_dec_ref(x_16);
 x_17 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_6);
-lean_dec_ref(x_6);
 x_11 = x_17;
 goto block_15;
 }
 else
 {
 lean_object* x_18; 
-lean_dec_ref(x_6);
 x_18 = lean_ctor_get(x_16, 0);
 lean_inc(x_18);
 lean_dec_ref(x_16);
@@ -3134,9 +3072,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_19; 
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_10);
 x_11 = lean_int_neg(x_2);
 x_12 = l_Std_Time_PlainDate_addMonthsRollOver(x_8, x_11);
 lean_dec(x_11);
@@ -3144,20 +3080,17 @@ lean_ctor_set(x_6, 0, x_12);
 x_13 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 lean_inc_ref(x_13);
 x_19 = l_Std_Time_TimeZone_Transition_timezoneAt(x_10, x_13);
-lean_dec_ref(x_10);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; 
 lean_dec_ref(x_19);
 x_20 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_9);
-lean_dec_ref(x_9);
 x_14 = x_20;
 goto block_18;
 }
 else
 {
 lean_object* x_21; 
-lean_dec_ref(x_9);
 x_21 = lean_ctor_get(x_19, 0);
 lean_inc(x_21);
 lean_dec_ref(x_19);
@@ -3194,9 +3127,7 @@ lean_inc(x_23);
 lean_inc(x_22);
 lean_dec(x_6);
 x_24 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_24);
 x_25 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_25);
 x_26 = lean_int_neg(x_2);
 x_27 = l_Std_Time_PlainDate_addMonthsRollOver(x_22, x_26);
 lean_dec(x_26);
@@ -3206,20 +3137,17 @@ lean_ctor_set(x_28, 1, x_23);
 x_29 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_28);
 lean_inc_ref(x_29);
 x_35 = l_Std_Time_TimeZone_Transition_timezoneAt(x_25, x_29);
-lean_dec_ref(x_25);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; 
 lean_dec_ref(x_35);
 x_36 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_24);
-lean_dec_ref(x_24);
 x_30 = x_36;
 goto block_34;
 }
 else
 {
 lean_object* x_37; 
-lean_dec_ref(x_24);
 x_37 = lean_ctor_get(x_35, 0);
 lean_inc(x_37);
 lean_dec_ref(x_35);
@@ -3292,9 +3220,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_20; 
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_10);
 x_11 = l_Std_Time_ZonedDateTime_addYearsRollOver___closed__0;
 x_12 = lean_int_mul(x_2, x_11);
 x_13 = l_Std_Time_PlainDate_addMonthsRollOver(x_8, x_12);
@@ -3303,20 +3229,17 @@ lean_ctor_set(x_6, 0, x_13);
 x_14 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 lean_inc_ref(x_14);
 x_20 = l_Std_Time_TimeZone_Transition_timezoneAt(x_10, x_14);
-lean_dec_ref(x_10);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; 
 lean_dec_ref(x_20);
 x_21 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_9);
-lean_dec_ref(x_9);
 x_15 = x_21;
 goto block_19;
 }
 else
 {
 lean_object* x_22; 
-lean_dec_ref(x_9);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec_ref(x_20);
@@ -3353,9 +3276,7 @@ lean_inc(x_24);
 lean_inc(x_23);
 lean_dec(x_6);
 x_25 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_25);
 x_26 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_26);
 x_27 = l_Std_Time_ZonedDateTime_addYearsRollOver___closed__0;
 x_28 = lean_int_mul(x_2, x_27);
 x_29 = l_Std_Time_PlainDate_addMonthsRollOver(x_23, x_28);
@@ -3366,20 +3287,17 @@ lean_ctor_set(x_30, 1, x_24);
 x_31 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_30);
 lean_inc_ref(x_31);
 x_37 = l_Std_Time_TimeZone_Transition_timezoneAt(x_26, x_31);
-lean_dec_ref(x_26);
 if (lean_obj_tag(x_37) == 0)
 {
 lean_object* x_38; 
 lean_dec_ref(x_37);
 x_38 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_25);
-lean_dec_ref(x_25);
 x_32 = x_38;
 goto block_36;
 }
 else
 {
 lean_object* x_39; 
-lean_dec_ref(x_25);
 x_39 = lean_ctor_get(x_37, 0);
 lean_inc(x_39);
 lean_dec_ref(x_37);
@@ -3443,9 +3361,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_20; 
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_10);
 x_11 = l_Std_Time_ZonedDateTime_addYearsRollOver___closed__0;
 x_12 = lean_int_mul(x_2, x_11);
 x_13 = l_Std_Time_PlainDate_addMonthsClip(x_8, x_12);
@@ -3454,20 +3370,17 @@ lean_ctor_set(x_6, 0, x_13);
 x_14 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 lean_inc_ref(x_14);
 x_20 = l_Std_Time_TimeZone_Transition_timezoneAt(x_10, x_14);
-lean_dec_ref(x_10);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; 
 lean_dec_ref(x_20);
 x_21 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_9);
-lean_dec_ref(x_9);
 x_15 = x_21;
 goto block_19;
 }
 else
 {
 lean_object* x_22; 
-lean_dec_ref(x_9);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec_ref(x_20);
@@ -3504,9 +3417,7 @@ lean_inc(x_24);
 lean_inc(x_23);
 lean_dec(x_6);
 x_25 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_25);
 x_26 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_26);
 x_27 = l_Std_Time_ZonedDateTime_addYearsRollOver___closed__0;
 x_28 = lean_int_mul(x_2, x_27);
 x_29 = l_Std_Time_PlainDate_addMonthsClip(x_23, x_28);
@@ -3517,20 +3428,17 @@ lean_ctor_set(x_30, 1, x_24);
 x_31 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_30);
 lean_inc_ref(x_31);
 x_37 = l_Std_Time_TimeZone_Transition_timezoneAt(x_26, x_31);
-lean_dec_ref(x_26);
 if (lean_obj_tag(x_37) == 0)
 {
 lean_object* x_38; 
 lean_dec_ref(x_37);
 x_38 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_25);
-lean_dec_ref(x_25);
 x_32 = x_38;
 goto block_36;
 }
 else
 {
 lean_object* x_39; 
-lean_dec_ref(x_25);
 x_39 = lean_ctor_get(x_37, 0);
 lean_inc(x_39);
 lean_dec_ref(x_37);
@@ -3594,9 +3502,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_21; 
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_10);
 x_11 = l_Std_Time_ZonedDateTime_addYearsRollOver___closed__0;
 x_12 = lean_int_mul(x_2, x_11);
 x_13 = lean_int_neg(x_12);
@@ -3607,20 +3513,17 @@ lean_ctor_set(x_6, 0, x_14);
 x_15 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 lean_inc_ref(x_15);
 x_21 = l_Std_Time_TimeZone_Transition_timezoneAt(x_10, x_15);
-lean_dec_ref(x_10);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; 
 lean_dec_ref(x_21);
 x_22 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_9);
-lean_dec_ref(x_9);
 x_16 = x_22;
 goto block_20;
 }
 else
 {
 lean_object* x_23; 
-lean_dec_ref(x_9);
 x_23 = lean_ctor_get(x_21, 0);
 lean_inc(x_23);
 lean_dec_ref(x_21);
@@ -3657,9 +3560,7 @@ lean_inc(x_25);
 lean_inc(x_24);
 lean_dec(x_6);
 x_26 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_26);
 x_27 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_27);
 x_28 = l_Std_Time_ZonedDateTime_addYearsRollOver___closed__0;
 x_29 = lean_int_mul(x_2, x_28);
 x_30 = lean_int_neg(x_29);
@@ -3672,20 +3573,17 @@ lean_ctor_set(x_32, 1, x_25);
 x_33 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_32);
 lean_inc_ref(x_33);
 x_39 = l_Std_Time_TimeZone_Transition_timezoneAt(x_27, x_33);
-lean_dec_ref(x_27);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; 
 lean_dec_ref(x_39);
 x_40 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_26);
-lean_dec_ref(x_26);
 x_34 = x_40;
 goto block_38;
 }
 else
 {
 lean_object* x_41; 
-lean_dec_ref(x_26);
 x_41 = lean_ctor_get(x_39, 0);
 lean_inc(x_41);
 lean_dec_ref(x_39);
@@ -3749,9 +3647,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_21; 
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_10);
 x_11 = l_Std_Time_ZonedDateTime_addYearsRollOver___closed__0;
 x_12 = lean_int_mul(x_2, x_11);
 x_13 = lean_int_neg(x_12);
@@ -3762,20 +3658,17 @@ lean_ctor_set(x_6, 0, x_14);
 x_15 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 lean_inc_ref(x_15);
 x_21 = l_Std_Time_TimeZone_Transition_timezoneAt(x_10, x_15);
-lean_dec_ref(x_10);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; 
 lean_dec_ref(x_21);
 x_22 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_9);
-lean_dec_ref(x_9);
 x_16 = x_22;
 goto block_20;
 }
 else
 {
 lean_object* x_23; 
-lean_dec_ref(x_9);
 x_23 = lean_ctor_get(x_21, 0);
 lean_inc(x_23);
 lean_dec_ref(x_21);
@@ -3812,9 +3705,7 @@ lean_inc(x_25);
 lean_inc(x_24);
 lean_dec(x_6);
 x_26 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_26);
 x_27 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_27);
 x_28 = l_Std_Time_ZonedDateTime_addYearsRollOver___closed__0;
 x_29 = lean_int_mul(x_2, x_28);
 x_30 = lean_int_neg(x_29);
@@ -3827,20 +3718,17 @@ lean_ctor_set(x_32, 1, x_25);
 x_33 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_32);
 lean_inc_ref(x_33);
 x_39 = l_Std_Time_TimeZone_Transition_timezoneAt(x_27, x_33);
-lean_dec_ref(x_27);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; 
 lean_dec_ref(x_39);
 x_40 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_26);
-lean_dec_ref(x_26);
 x_34 = x_40;
 goto block_38;
 }
 else
 {
 lean_object* x_41; 
-lean_dec_ref(x_26);
 x_41 = lean_ctor_get(x_39, 0);
 lean_inc(x_41);
 lean_dec_ref(x_39);
@@ -3962,9 +3850,7 @@ x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec_ref(x_12);
 x_15 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_15);
 x_16 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_16);
 x_17 = l_Std_Time_ZonedDateTime_ofTimestamp___lam__0___closed__0;
 x_18 = lean_int_mul(x_8, x_17);
 lean_dec(x_8);
@@ -3985,20 +3871,17 @@ x_24 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_23);
 x_25 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_24);
 lean_inc_ref(x_25);
 x_31 = l_Std_Time_TimeZone_Transition_timezoneAt(x_16, x_25);
-lean_dec_ref(x_16);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; 
 lean_dec_ref(x_31);
 x_32 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_15);
-lean_dec_ref(x_15);
 x_26 = x_32;
 goto block_30;
 }
 else
 {
 lean_object* x_33; 
-lean_dec_ref(x_15);
 x_33 = lean_ctor_get(x_31, 0);
 lean_inc(x_33);
 lean_dec_ref(x_31);
@@ -4084,9 +3967,7 @@ x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec_ref(x_13);
 x_16 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_16);
 x_17 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_17);
 x_18 = l_Std_Time_ZonedDateTime_ofTimestamp___lam__0___closed__0;
 x_19 = lean_int_mul(x_8, x_18);
 lean_dec(x_8);
@@ -4107,20 +3988,17 @@ x_25 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_24);
 x_26 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_25);
 lean_inc_ref(x_26);
 x_32 = l_Std_Time_TimeZone_Transition_timezoneAt(x_17, x_26);
-lean_dec_ref(x_17);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; 
 lean_dec_ref(x_32);
 x_33 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_16);
-lean_dec_ref(x_16);
 x_27 = x_33;
 goto block_31;
 }
 else
 {
 lean_object* x_34; 
-lean_dec_ref(x_16);
 x_34 = lean_ctor_get(x_32, 0);
 lean_inc(x_34);
 lean_dec_ref(x_32);
@@ -4203,9 +4081,7 @@ x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec_ref(x_12);
 x_15 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_15);
 x_16 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_16);
 x_17 = l_Std_Time_ZonedDateTime_ofTimestamp___lam__0___closed__0;
 x_18 = lean_int_mul(x_8, x_17);
 lean_dec(x_8);
@@ -4226,20 +4102,17 @@ x_24 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_23);
 x_25 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_24);
 lean_inc_ref(x_25);
 x_31 = l_Std_Time_TimeZone_Transition_timezoneAt(x_16, x_25);
-lean_dec_ref(x_16);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; 
 lean_dec_ref(x_31);
 x_32 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_15);
-lean_dec_ref(x_15);
 x_26 = x_32;
 goto block_30;
 }
 else
 {
 lean_object* x_33; 
-lean_dec_ref(x_15);
 x_33 = lean_ctor_get(x_31, 0);
 lean_inc(x_33);
 lean_dec_ref(x_31);
@@ -4315,9 +4188,7 @@ x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec_ref(x_13);
 x_16 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_16);
 x_17 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_17);
 x_18 = l_Std_Time_ZonedDateTime_ofTimestamp___lam__0___closed__0;
 x_19 = lean_int_mul(x_8, x_18);
 lean_dec(x_8);
@@ -4338,20 +4209,17 @@ x_25 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_24);
 x_26 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_25);
 lean_inc_ref(x_26);
 x_32 = l_Std_Time_TimeZone_Transition_timezoneAt(x_17, x_26);
-lean_dec_ref(x_17);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; 
 lean_dec_ref(x_32);
 x_33 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_16);
-lean_dec_ref(x_16);
 x_27 = x_33;
 goto block_31;
 }
 else
 {
 lean_object* x_34; 
-lean_dec_ref(x_16);
 x_34 = lean_ctor_get(x_32, 0);
 lean_inc(x_34);
 lean_dec_ref(x_32);
@@ -4425,9 +4293,7 @@ x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec_ref(x_12);
 x_15 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_15);
 x_16 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_16);
 x_17 = l_Std_Time_ZonedDateTime_ofTimestamp___lam__0___closed__0;
 x_18 = lean_int_mul(x_8, x_17);
 lean_dec(x_8);
@@ -4448,20 +4314,17 @@ x_24 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_23);
 x_25 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_24);
 lean_inc_ref(x_25);
 x_31 = l_Std_Time_TimeZone_Transition_timezoneAt(x_16, x_25);
-lean_dec_ref(x_16);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; 
 lean_dec_ref(x_31);
 x_32 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_15);
-lean_dec_ref(x_15);
 x_26 = x_32;
 goto block_30;
 }
 else
 {
 lean_object* x_33; 
-lean_dec_ref(x_15);
 x_33 = lean_ctor_get(x_31, 0);
 lean_inc(x_33);
 lean_dec_ref(x_31);
@@ -4537,9 +4400,7 @@ x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec_ref(x_13);
 x_16 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_16);
 x_17 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_17);
 x_18 = l_Std_Time_ZonedDateTime_ofTimestamp___lam__0___closed__0;
 x_19 = lean_int_mul(x_8, x_18);
 lean_dec(x_8);
@@ -4560,20 +4421,17 @@ x_25 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_24);
 x_26 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_25);
 lean_inc_ref(x_26);
 x_32 = l_Std_Time_TimeZone_Transition_timezoneAt(x_17, x_26);
-lean_dec_ref(x_17);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; 
 lean_dec_ref(x_32);
 x_33 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_16);
-lean_dec_ref(x_16);
 x_27 = x_33;
 goto block_31;
 }
 else
 {
 lean_object* x_34; 
-lean_dec_ref(x_16);
 x_34 = lean_ctor_get(x_32, 0);
 lean_inc(x_34);
 lean_dec_ref(x_32);
@@ -4647,9 +4505,7 @@ x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec_ref(x_12);
 x_15 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_15);
 x_16 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_16);
 x_17 = lean_int_mul(x_8, x_10);
 lean_dec(x_8);
 x_18 = lean_int_add(x_17, x_9);
@@ -4669,20 +4525,17 @@ x_23 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_22);
 x_24 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_23);
 lean_inc_ref(x_24);
 x_30 = l_Std_Time_TimeZone_Transition_timezoneAt(x_16, x_24);
-lean_dec_ref(x_16);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; 
 lean_dec_ref(x_30);
 x_31 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_15);
-lean_dec_ref(x_15);
 x_25 = x_31;
 goto block_29;
 }
 else
 {
 lean_object* x_32; 
-lean_dec_ref(x_15);
 x_32 = lean_ctor_get(x_30, 0);
 lean_inc(x_32);
 lean_dec_ref(x_30);
@@ -4758,9 +4611,7 @@ x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec_ref(x_13);
 x_16 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_16);
 x_17 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_17);
 x_18 = lean_int_mul(x_8, x_11);
 lean_dec(x_8);
 x_19 = lean_int_add(x_18, x_9);
@@ -4780,20 +4631,17 @@ x_24 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_23);
 x_25 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_24);
 lean_inc_ref(x_25);
 x_31 = l_Std_Time_TimeZone_Transition_timezoneAt(x_17, x_25);
-lean_dec_ref(x_17);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; 
 lean_dec_ref(x_31);
 x_32 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_16);
-lean_dec_ref(x_16);
 x_26 = x_32;
 goto block_30;
 }
 else
 {
 lean_object* x_33; 
-lean_dec_ref(x_16);
 x_33 = lean_ctor_get(x_31, 0);
 lean_inc(x_33);
 lean_dec_ref(x_31);
@@ -4864,9 +4712,7 @@ x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec_ref(x_10);
 x_13 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_13);
 x_14 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_14);
 x_15 = l_Std_Time_ZonedDateTime_ofTimestamp___lam__0___closed__0;
 x_16 = lean_int_mul(x_8, x_15);
 lean_dec(x_8);
@@ -4887,20 +4733,17 @@ x_22 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_21);
 x_23 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_22);
 lean_inc_ref(x_23);
 x_29 = l_Std_Time_TimeZone_Transition_timezoneAt(x_14, x_23);
-lean_dec_ref(x_14);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; 
 lean_dec_ref(x_29);
 x_30 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_13);
-lean_dec_ref(x_13);
 x_24 = x_30;
 goto block_28;
 }
 else
 {
 lean_object* x_31; 
-lean_dec_ref(x_13);
 x_31 = lean_ctor_get(x_29, 0);
 lean_inc(x_31);
 lean_dec_ref(x_29);
@@ -4973,9 +4816,7 @@ x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec_ref(x_11);
 x_14 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_14);
 x_15 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_15);
 x_16 = l_Std_Time_ZonedDateTime_ofTimestamp___lam__0___closed__0;
 x_17 = lean_int_mul(x_8, x_16);
 lean_dec(x_8);
@@ -4996,20 +4837,17 @@ x_23 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_22);
 x_24 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_23);
 lean_inc_ref(x_24);
 x_30 = l_Std_Time_TimeZone_Transition_timezoneAt(x_15, x_24);
-lean_dec_ref(x_15);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; 
 lean_dec_ref(x_30);
 x_31 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_14);
-lean_dec_ref(x_14);
 x_25 = x_31;
 goto block_29;
 }
 else
 {
 lean_object* x_32; 
-lean_dec_ref(x_14);
 x_32 = lean_ctor_get(x_30, 0);
 lean_inc(x_32);
 lean_dec_ref(x_30);
@@ -5100,9 +4938,7 @@ x_8 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_7);
 x_30 = lean_ctor_get(x_8, 0);
 lean_inc(x_30);
 x_31 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_31);
 x_32 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_32);
 lean_inc(x_30);
 x_33 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_33, 0, x_30);
@@ -5113,16 +4949,15 @@ if (lean_obj_tag(x_35) == 0)
 lean_object* x_36; 
 lean_dec(x_30);
 x_36 = l_Array_back_x3f___redArg(x_32);
-lean_dec_ref(x_32);
 if (lean_obj_tag(x_36) == 0)
 {
+lean_inc_ref(x_31);
 x_9 = x_31;
 goto block_26;
 }
 else
 {
 lean_object* x_37; 
-lean_dec_ref(x_31);
 x_37 = lean_ctor_get(x_36, 0);
 lean_inc(x_37);
 lean_dec_ref(x_36);
@@ -5133,42 +4968,34 @@ goto block_29;
 else
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; uint8_t x_49; 
-lean_dec_ref(x_31);
 x_38 = lean_ctor_get(x_35, 0);
 lean_inc(x_38);
 lean_dec_ref(x_35);
-x_39 = lean_array_fget(x_32, x_38);
+x_39 = lean_array_fget_borrowed(x_32, x_38);
 x_40 = lean_ctor_get(x_39, 0);
-lean_inc(x_40);
 x_41 = lean_unsigned_to_nat(1u);
 x_42 = lean_nat_sub(x_38, x_41);
 lean_dec(x_38);
-x_43 = lean_array_fget(x_32, x_42);
+x_43 = lean_array_fget_borrowed(x_32, x_42);
 lean_dec(x_42);
-lean_dec_ref(x_32);
 x_44 = lean_ctor_get(x_43, 1);
-lean_inc_ref(x_44);
 x_45 = lean_ctor_get(x_44, 0);
-lean_inc(x_45);
-lean_dec_ref(x_44);
 x_46 = lean_nat_abs(x_45);
-lean_dec(x_45);
 x_47 = lean_nat_to_int(x_46);
 x_48 = lean_int_sub(x_40, x_47);
 lean_dec(x_47);
-lean_dec(x_40);
 x_49 = lean_int_dec_lt(x_30, x_48);
 lean_dec(x_48);
 lean_dec(x_30);
 if (x_49 == 0)
 {
-lean_dec_ref(x_43);
+lean_inc_ref(x_39);
 x_27 = x_39;
 goto block_29;
 }
 else
 {
-lean_dec_ref(x_39);
+lean_inc_ref(x_43);
 x_27 = x_43;
 goto block_29;
 }
@@ -5378,9 +5205,7 @@ x_33 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_29);
 x_34 = lean_ctor_get(x_33, 0);
 lean_inc(x_34);
 x_35 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_35);
 x_36 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_36);
 lean_inc(x_34);
 x_37 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_37, 0, x_34);
@@ -5391,9 +5216,9 @@ if (lean_obj_tag(x_39) == 0)
 lean_object* x_40; 
 lean_dec(x_34);
 x_40 = l_Array_back_x3f___redArg(x_36);
-lean_dec_ref(x_36);
 if (lean_obj_tag(x_40) == 0)
 {
+lean_inc_ref(x_35);
 x_6 = x_33;
 x_7 = x_35;
 goto block_24;
@@ -5401,7 +5226,6 @@ goto block_24;
 else
 {
 lean_object* x_41; 
-lean_dec_ref(x_35);
 x_41 = lean_ctor_get(x_40, 0);
 lean_inc(x_41);
 lean_dec_ref(x_40);
@@ -5413,43 +5237,35 @@ goto block_28;
 else
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; 
-lean_dec_ref(x_35);
 x_42 = lean_ctor_get(x_39, 0);
 lean_inc(x_42);
 lean_dec_ref(x_39);
-x_43 = lean_array_fget(x_36, x_42);
+x_43 = lean_array_fget_borrowed(x_36, x_42);
 x_44 = lean_ctor_get(x_43, 0);
-lean_inc(x_44);
 x_45 = lean_unsigned_to_nat(1u);
 x_46 = lean_nat_sub(x_42, x_45);
 lean_dec(x_42);
-x_47 = lean_array_fget(x_36, x_46);
+x_47 = lean_array_fget_borrowed(x_36, x_46);
 lean_dec(x_46);
-lean_dec_ref(x_36);
 x_48 = lean_ctor_get(x_47, 1);
-lean_inc_ref(x_48);
 x_49 = lean_ctor_get(x_48, 0);
-lean_inc(x_49);
-lean_dec_ref(x_48);
 x_50 = lean_nat_abs(x_49);
-lean_dec(x_49);
 x_51 = lean_nat_to_int(x_50);
 x_52 = lean_int_sub(x_44, x_51);
 lean_dec(x_51);
-lean_dec(x_44);
 x_53 = lean_int_dec_lt(x_34, x_52);
 lean_dec(x_52);
 lean_dec(x_34);
 if (x_53 == 0)
 {
-lean_dec_ref(x_47);
+lean_inc_ref(x_43);
 x_25 = x_33;
 x_26 = x_43;
 goto block_28;
 }
 else
 {
-lean_dec_ref(x_43);
+lean_inc_ref(x_47);
 x_25 = x_33;
 x_26 = x_47;
 goto block_28;
@@ -5469,9 +5285,7 @@ x_56 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_55);
 x_57 = lean_ctor_get(x_56, 0);
 lean_inc(x_57);
 x_58 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_58);
 x_59 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_59);
 lean_inc(x_57);
 x_60 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_60, 0, x_57);
@@ -5482,9 +5296,9 @@ if (lean_obj_tag(x_62) == 0)
 lean_object* x_63; 
 lean_dec(x_57);
 x_63 = l_Array_back_x3f___redArg(x_59);
-lean_dec_ref(x_59);
 if (lean_obj_tag(x_63) == 0)
 {
+lean_inc_ref(x_58);
 x_6 = x_56;
 x_7 = x_58;
 goto block_24;
@@ -5492,7 +5306,6 @@ goto block_24;
 else
 {
 lean_object* x_64; 
-lean_dec_ref(x_58);
 x_64 = lean_ctor_get(x_63, 0);
 lean_inc(x_64);
 lean_dec_ref(x_63);
@@ -5504,43 +5317,35 @@ goto block_28;
 else
 {
 lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; uint8_t x_76; 
-lean_dec_ref(x_58);
 x_65 = lean_ctor_get(x_62, 0);
 lean_inc(x_65);
 lean_dec_ref(x_62);
-x_66 = lean_array_fget(x_59, x_65);
+x_66 = lean_array_fget_borrowed(x_59, x_65);
 x_67 = lean_ctor_get(x_66, 0);
-lean_inc(x_67);
 x_68 = lean_unsigned_to_nat(1u);
 x_69 = lean_nat_sub(x_65, x_68);
 lean_dec(x_65);
-x_70 = lean_array_fget(x_59, x_69);
+x_70 = lean_array_fget_borrowed(x_59, x_69);
 lean_dec(x_69);
-lean_dec_ref(x_59);
 x_71 = lean_ctor_get(x_70, 1);
-lean_inc_ref(x_71);
 x_72 = lean_ctor_get(x_71, 0);
-lean_inc(x_72);
-lean_dec_ref(x_71);
 x_73 = lean_nat_abs(x_72);
-lean_dec(x_72);
 x_74 = lean_nat_to_int(x_73);
 x_75 = lean_int_sub(x_67, x_74);
 lean_dec(x_74);
-lean_dec(x_67);
 x_76 = lean_int_dec_lt(x_57, x_75);
 lean_dec(x_75);
 lean_dec(x_57);
 if (x_76 == 0)
 {
-lean_dec_ref(x_70);
+lean_inc_ref(x_66);
 x_25 = x_56;
 x_26 = x_66;
 goto block_28;
 }
 else
 {
-lean_dec_ref(x_66);
+lean_inc_ref(x_70);
 x_25 = x_56;
 x_26 = x_70;
 goto block_28;
@@ -5622,9 +5427,7 @@ x_12 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 x_34 = lean_ctor_get(x_12, 0);
 lean_inc(x_34);
 x_35 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_35);
 x_36 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_36);
 lean_inc(x_34);
 x_37 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_37, 0, x_34);
@@ -5635,16 +5438,15 @@ if (lean_obj_tag(x_39) == 0)
 lean_object* x_40; 
 lean_dec(x_34);
 x_40 = l_Array_back_x3f___redArg(x_36);
-lean_dec_ref(x_36);
 if (lean_obj_tag(x_40) == 0)
 {
+lean_inc_ref(x_35);
 x_13 = x_35;
 goto block_30;
 }
 else
 {
 lean_object* x_41; 
-lean_dec_ref(x_35);
 x_41 = lean_ctor_get(x_40, 0);
 lean_inc(x_41);
 lean_dec_ref(x_40);
@@ -5655,42 +5457,34 @@ goto block_33;
 else
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; 
-lean_dec_ref(x_35);
 x_42 = lean_ctor_get(x_39, 0);
 lean_inc(x_42);
 lean_dec_ref(x_39);
-x_43 = lean_array_fget(x_36, x_42);
+x_43 = lean_array_fget_borrowed(x_36, x_42);
 x_44 = lean_ctor_get(x_43, 0);
-lean_inc(x_44);
 x_45 = lean_unsigned_to_nat(1u);
 x_46 = lean_nat_sub(x_42, x_45);
 lean_dec(x_42);
-x_47 = lean_array_fget(x_36, x_46);
+x_47 = lean_array_fget_borrowed(x_36, x_46);
 lean_dec(x_46);
-lean_dec_ref(x_36);
 x_48 = lean_ctor_get(x_47, 1);
-lean_inc_ref(x_48);
 x_49 = lean_ctor_get(x_48, 0);
-lean_inc(x_49);
-lean_dec_ref(x_48);
 x_50 = lean_nat_abs(x_49);
-lean_dec(x_49);
 x_51 = lean_nat_to_int(x_50);
 x_52 = lean_int_sub(x_44, x_51);
 lean_dec(x_51);
-lean_dec(x_44);
 x_53 = lean_int_dec_lt(x_34, x_52);
 lean_dec(x_52);
 lean_dec(x_34);
 if (x_53 == 0)
 {
-lean_dec_ref(x_47);
+lean_inc_ref(x_43);
 x_31 = x_43;
 goto block_33;
 }
 else
 {
-lean_dec_ref(x_43);
+lean_inc_ref(x_47);
 x_31 = x_47;
 goto block_33;
 }
@@ -5772,9 +5566,7 @@ x_60 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_59);
 x_82 = lean_ctor_get(x_60, 0);
 lean_inc(x_82);
 x_83 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_83);
 x_84 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_84);
 lean_inc(x_82);
 x_85 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_85, 0, x_82);
@@ -5785,16 +5577,15 @@ if (lean_obj_tag(x_87) == 0)
 lean_object* x_88; 
 lean_dec(x_82);
 x_88 = l_Array_back_x3f___redArg(x_84);
-lean_dec_ref(x_84);
 if (lean_obj_tag(x_88) == 0)
 {
+lean_inc_ref(x_83);
 x_61 = x_83;
 goto block_78;
 }
 else
 {
 lean_object* x_89; 
-lean_dec_ref(x_83);
 x_89 = lean_ctor_get(x_88, 0);
 lean_inc(x_89);
 lean_dec_ref(x_88);
@@ -5805,42 +5596,34 @@ goto block_81;
 else
 {
 lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; uint8_t x_101; 
-lean_dec_ref(x_83);
 x_90 = lean_ctor_get(x_87, 0);
 lean_inc(x_90);
 lean_dec_ref(x_87);
-x_91 = lean_array_fget(x_84, x_90);
+x_91 = lean_array_fget_borrowed(x_84, x_90);
 x_92 = lean_ctor_get(x_91, 0);
-lean_inc(x_92);
 x_93 = lean_unsigned_to_nat(1u);
 x_94 = lean_nat_sub(x_90, x_93);
 lean_dec(x_90);
-x_95 = lean_array_fget(x_84, x_94);
+x_95 = lean_array_fget_borrowed(x_84, x_94);
 lean_dec(x_94);
-lean_dec_ref(x_84);
 x_96 = lean_ctor_get(x_95, 1);
-lean_inc_ref(x_96);
 x_97 = lean_ctor_get(x_96, 0);
-lean_inc(x_97);
-lean_dec_ref(x_96);
 x_98 = lean_nat_abs(x_97);
-lean_dec(x_97);
 x_99 = lean_nat_to_int(x_98);
 x_100 = lean_int_sub(x_92, x_99);
 lean_dec(x_99);
-lean_dec(x_92);
 x_101 = lean_int_dec_lt(x_82, x_100);
 lean_dec(x_100);
 lean_dec(x_82);
 if (x_101 == 0)
 {
-lean_dec_ref(x_95);
+lean_inc_ref(x_91);
 x_79 = x_91;
 goto block_81;
 }
 else
 {
-lean_dec_ref(x_91);
+lean_inc_ref(x_95);
 x_79 = x_95;
 goto block_81;
 }
@@ -6051,9 +5834,7 @@ x_33 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_29);
 x_34 = lean_ctor_get(x_33, 0);
 lean_inc(x_34);
 x_35 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_35);
 x_36 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_36);
 lean_inc(x_34);
 x_37 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_37, 0, x_34);
@@ -6064,9 +5845,9 @@ if (lean_obj_tag(x_39) == 0)
 lean_object* x_40; 
 lean_dec(x_34);
 x_40 = l_Array_back_x3f___redArg(x_36);
-lean_dec_ref(x_36);
 if (lean_obj_tag(x_40) == 0)
 {
+lean_inc_ref(x_35);
 x_6 = x_33;
 x_7 = x_35;
 goto block_24;
@@ -6074,7 +5855,6 @@ goto block_24;
 else
 {
 lean_object* x_41; 
-lean_dec_ref(x_35);
 x_41 = lean_ctor_get(x_40, 0);
 lean_inc(x_41);
 lean_dec_ref(x_40);
@@ -6086,43 +5866,35 @@ goto block_28;
 else
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; 
-lean_dec_ref(x_35);
 x_42 = lean_ctor_get(x_39, 0);
 lean_inc(x_42);
 lean_dec_ref(x_39);
-x_43 = lean_array_fget(x_36, x_42);
+x_43 = lean_array_fget_borrowed(x_36, x_42);
 x_44 = lean_ctor_get(x_43, 0);
-lean_inc(x_44);
 x_45 = lean_unsigned_to_nat(1u);
 x_46 = lean_nat_sub(x_42, x_45);
 lean_dec(x_42);
-x_47 = lean_array_fget(x_36, x_46);
+x_47 = lean_array_fget_borrowed(x_36, x_46);
 lean_dec(x_46);
-lean_dec_ref(x_36);
 x_48 = lean_ctor_get(x_47, 1);
-lean_inc_ref(x_48);
 x_49 = lean_ctor_get(x_48, 0);
-lean_inc(x_49);
-lean_dec_ref(x_48);
 x_50 = lean_nat_abs(x_49);
-lean_dec(x_49);
 x_51 = lean_nat_to_int(x_50);
 x_52 = lean_int_sub(x_44, x_51);
 lean_dec(x_51);
-lean_dec(x_44);
 x_53 = lean_int_dec_lt(x_34, x_52);
 lean_dec(x_52);
 lean_dec(x_34);
 if (x_53 == 0)
 {
-lean_dec_ref(x_47);
+lean_inc_ref(x_43);
 x_25 = x_33;
 x_26 = x_43;
 goto block_28;
 }
 else
 {
-lean_dec_ref(x_43);
+lean_inc_ref(x_47);
 x_25 = x_33;
 x_26 = x_47;
 goto block_28;
@@ -6142,9 +5914,7 @@ x_56 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_55);
 x_57 = lean_ctor_get(x_56, 0);
 lean_inc(x_57);
 x_58 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_58);
 x_59 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_59);
 lean_inc(x_57);
 x_60 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_60, 0, x_57);
@@ -6155,9 +5925,9 @@ if (lean_obj_tag(x_62) == 0)
 lean_object* x_63; 
 lean_dec(x_57);
 x_63 = l_Array_back_x3f___redArg(x_59);
-lean_dec_ref(x_59);
 if (lean_obj_tag(x_63) == 0)
 {
+lean_inc_ref(x_58);
 x_6 = x_56;
 x_7 = x_58;
 goto block_24;
@@ -6165,7 +5935,6 @@ goto block_24;
 else
 {
 lean_object* x_64; 
-lean_dec_ref(x_58);
 x_64 = lean_ctor_get(x_63, 0);
 lean_inc(x_64);
 lean_dec_ref(x_63);
@@ -6177,43 +5946,35 @@ goto block_28;
 else
 {
 lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; uint8_t x_76; 
-lean_dec_ref(x_58);
 x_65 = lean_ctor_get(x_62, 0);
 lean_inc(x_65);
 lean_dec_ref(x_62);
-x_66 = lean_array_fget(x_59, x_65);
+x_66 = lean_array_fget_borrowed(x_59, x_65);
 x_67 = lean_ctor_get(x_66, 0);
-lean_inc(x_67);
 x_68 = lean_unsigned_to_nat(1u);
 x_69 = lean_nat_sub(x_65, x_68);
 lean_dec(x_65);
-x_70 = lean_array_fget(x_59, x_69);
+x_70 = lean_array_fget_borrowed(x_59, x_69);
 lean_dec(x_69);
-lean_dec_ref(x_59);
 x_71 = lean_ctor_get(x_70, 1);
-lean_inc_ref(x_71);
 x_72 = lean_ctor_get(x_71, 0);
-lean_inc(x_72);
-lean_dec_ref(x_71);
 x_73 = lean_nat_abs(x_72);
-lean_dec(x_72);
 x_74 = lean_nat_to_int(x_73);
 x_75 = lean_int_sub(x_67, x_74);
 lean_dec(x_74);
-lean_dec(x_67);
 x_76 = lean_int_dec_lt(x_57, x_75);
 lean_dec(x_75);
 lean_dec(x_57);
 if (x_76 == 0)
 {
-lean_dec_ref(x_70);
+lean_inc_ref(x_66);
 x_25 = x_56;
 x_26 = x_66;
 goto block_28;
 }
 else
 {
-lean_dec_ref(x_66);
+lean_inc_ref(x_70);
 x_25 = x_56;
 x_26 = x_70;
 goto block_28;
@@ -6296,9 +6057,7 @@ x_12 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 x_34 = lean_ctor_get(x_12, 0);
 lean_inc(x_34);
 x_35 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_35);
 x_36 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_36);
 lean_inc(x_34);
 x_37 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_37, 0, x_34);
@@ -6309,16 +6068,15 @@ if (lean_obj_tag(x_39) == 0)
 lean_object* x_40; 
 lean_dec(x_34);
 x_40 = l_Array_back_x3f___redArg(x_36);
-lean_dec_ref(x_36);
 if (lean_obj_tag(x_40) == 0)
 {
+lean_inc_ref(x_35);
 x_13 = x_35;
 goto block_30;
 }
 else
 {
 lean_object* x_41; 
-lean_dec_ref(x_35);
 x_41 = lean_ctor_get(x_40, 0);
 lean_inc(x_41);
 lean_dec_ref(x_40);
@@ -6329,42 +6087,34 @@ goto block_33;
 else
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; 
-lean_dec_ref(x_35);
 x_42 = lean_ctor_get(x_39, 0);
 lean_inc(x_42);
 lean_dec_ref(x_39);
-x_43 = lean_array_fget(x_36, x_42);
+x_43 = lean_array_fget_borrowed(x_36, x_42);
 x_44 = lean_ctor_get(x_43, 0);
-lean_inc(x_44);
 x_45 = lean_unsigned_to_nat(1u);
 x_46 = lean_nat_sub(x_42, x_45);
 lean_dec(x_42);
-x_47 = lean_array_fget(x_36, x_46);
+x_47 = lean_array_fget_borrowed(x_36, x_46);
 lean_dec(x_46);
-lean_dec_ref(x_36);
 x_48 = lean_ctor_get(x_47, 1);
-lean_inc_ref(x_48);
 x_49 = lean_ctor_get(x_48, 0);
-lean_inc(x_49);
-lean_dec_ref(x_48);
 x_50 = lean_nat_abs(x_49);
-lean_dec(x_49);
 x_51 = lean_nat_to_int(x_50);
 x_52 = lean_int_sub(x_44, x_51);
 lean_dec(x_51);
-lean_dec(x_44);
 x_53 = lean_int_dec_lt(x_34, x_52);
 lean_dec(x_52);
 lean_dec(x_34);
 if (x_53 == 0)
 {
-lean_dec_ref(x_47);
+lean_inc_ref(x_43);
 x_31 = x_43;
 goto block_33;
 }
 else
 {
-lean_dec_ref(x_43);
+lean_inc_ref(x_47);
 x_31 = x_47;
 goto block_33;
 }
@@ -6447,9 +6197,7 @@ x_60 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_59);
 x_82 = lean_ctor_get(x_60, 0);
 lean_inc(x_82);
 x_83 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_83);
 x_84 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_84);
 lean_inc(x_82);
 x_85 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_85, 0, x_82);
@@ -6460,16 +6208,15 @@ if (lean_obj_tag(x_87) == 0)
 lean_object* x_88; 
 lean_dec(x_82);
 x_88 = l_Array_back_x3f___redArg(x_84);
-lean_dec_ref(x_84);
 if (lean_obj_tag(x_88) == 0)
 {
+lean_inc_ref(x_83);
 x_61 = x_83;
 goto block_78;
 }
 else
 {
 lean_object* x_89; 
-lean_dec_ref(x_83);
 x_89 = lean_ctor_get(x_88, 0);
 lean_inc(x_89);
 lean_dec_ref(x_88);
@@ -6480,42 +6227,34 @@ goto block_81;
 else
 {
 lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; uint8_t x_101; 
-lean_dec_ref(x_83);
 x_90 = lean_ctor_get(x_87, 0);
 lean_inc(x_90);
 lean_dec_ref(x_87);
-x_91 = lean_array_fget(x_84, x_90);
+x_91 = lean_array_fget_borrowed(x_84, x_90);
 x_92 = lean_ctor_get(x_91, 0);
-lean_inc(x_92);
 x_93 = lean_unsigned_to_nat(1u);
 x_94 = lean_nat_sub(x_90, x_93);
 lean_dec(x_90);
-x_95 = lean_array_fget(x_84, x_94);
+x_95 = lean_array_fget_borrowed(x_84, x_94);
 lean_dec(x_94);
-lean_dec_ref(x_84);
 x_96 = lean_ctor_get(x_95, 1);
-lean_inc_ref(x_96);
 x_97 = lean_ctor_get(x_96, 0);
-lean_inc(x_97);
-lean_dec_ref(x_96);
 x_98 = lean_nat_abs(x_97);
-lean_dec(x_97);
 x_99 = lean_nat_to_int(x_98);
 x_100 = lean_int_sub(x_92, x_99);
 lean_dec(x_99);
-lean_dec(x_92);
 x_101 = lean_int_dec_lt(x_82, x_100);
 lean_dec(x_100);
 lean_dec(x_82);
 if (x_101 == 0)
 {
-lean_dec_ref(x_95);
+lean_inc_ref(x_91);
 x_79 = x_91;
 goto block_81;
 }
 else
 {
-lean_dec_ref(x_91);
+lean_inc_ref(x_95);
 x_79 = x_95;
 goto block_81;
 }
@@ -6717,9 +6456,7 @@ x_33 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_29);
 x_34 = lean_ctor_get(x_33, 0);
 lean_inc(x_34);
 x_35 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_35);
 x_36 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_36);
 lean_inc(x_34);
 x_37 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_37, 0, x_34);
@@ -6730,9 +6467,9 @@ if (lean_obj_tag(x_39) == 0)
 lean_object* x_40; 
 lean_dec(x_34);
 x_40 = l_Array_back_x3f___redArg(x_36);
-lean_dec_ref(x_36);
 if (lean_obj_tag(x_40) == 0)
 {
+lean_inc_ref(x_35);
 x_6 = x_33;
 x_7 = x_35;
 goto block_24;
@@ -6740,7 +6477,6 @@ goto block_24;
 else
 {
 lean_object* x_41; 
-lean_dec_ref(x_35);
 x_41 = lean_ctor_get(x_40, 0);
 lean_inc(x_41);
 lean_dec_ref(x_40);
@@ -6752,43 +6488,35 @@ goto block_28;
 else
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; 
-lean_dec_ref(x_35);
 x_42 = lean_ctor_get(x_39, 0);
 lean_inc(x_42);
 lean_dec_ref(x_39);
-x_43 = lean_array_fget(x_36, x_42);
+x_43 = lean_array_fget_borrowed(x_36, x_42);
 x_44 = lean_ctor_get(x_43, 0);
-lean_inc(x_44);
 x_45 = lean_unsigned_to_nat(1u);
 x_46 = lean_nat_sub(x_42, x_45);
 lean_dec(x_42);
-x_47 = lean_array_fget(x_36, x_46);
+x_47 = lean_array_fget_borrowed(x_36, x_46);
 lean_dec(x_46);
-lean_dec_ref(x_36);
 x_48 = lean_ctor_get(x_47, 1);
-lean_inc_ref(x_48);
 x_49 = lean_ctor_get(x_48, 0);
-lean_inc(x_49);
-lean_dec_ref(x_48);
 x_50 = lean_nat_abs(x_49);
-lean_dec(x_49);
 x_51 = lean_nat_to_int(x_50);
 x_52 = lean_int_sub(x_44, x_51);
 lean_dec(x_51);
-lean_dec(x_44);
 x_53 = lean_int_dec_lt(x_34, x_52);
 lean_dec(x_52);
 lean_dec(x_34);
 if (x_53 == 0)
 {
-lean_dec_ref(x_47);
+lean_inc_ref(x_43);
 x_25 = x_33;
 x_26 = x_43;
 goto block_28;
 }
 else
 {
-lean_dec_ref(x_43);
+lean_inc_ref(x_47);
 x_25 = x_33;
 x_26 = x_47;
 goto block_28;
@@ -6808,9 +6536,7 @@ x_56 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_55);
 x_57 = lean_ctor_get(x_56, 0);
 lean_inc(x_57);
 x_58 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_58);
 x_59 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_59);
 lean_inc(x_57);
 x_60 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_60, 0, x_57);
@@ -6821,9 +6547,9 @@ if (lean_obj_tag(x_62) == 0)
 lean_object* x_63; 
 lean_dec(x_57);
 x_63 = l_Array_back_x3f___redArg(x_59);
-lean_dec_ref(x_59);
 if (lean_obj_tag(x_63) == 0)
 {
+lean_inc_ref(x_58);
 x_6 = x_56;
 x_7 = x_58;
 goto block_24;
@@ -6831,7 +6557,6 @@ goto block_24;
 else
 {
 lean_object* x_64; 
-lean_dec_ref(x_58);
 x_64 = lean_ctor_get(x_63, 0);
 lean_inc(x_64);
 lean_dec_ref(x_63);
@@ -6843,43 +6568,35 @@ goto block_28;
 else
 {
 lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; uint8_t x_76; 
-lean_dec_ref(x_58);
 x_65 = lean_ctor_get(x_62, 0);
 lean_inc(x_65);
 lean_dec_ref(x_62);
-x_66 = lean_array_fget(x_59, x_65);
+x_66 = lean_array_fget_borrowed(x_59, x_65);
 x_67 = lean_ctor_get(x_66, 0);
-lean_inc(x_67);
 x_68 = lean_unsigned_to_nat(1u);
 x_69 = lean_nat_sub(x_65, x_68);
 lean_dec(x_65);
-x_70 = lean_array_fget(x_59, x_69);
+x_70 = lean_array_fget_borrowed(x_59, x_69);
 lean_dec(x_69);
-lean_dec_ref(x_59);
 x_71 = lean_ctor_get(x_70, 1);
-lean_inc_ref(x_71);
 x_72 = lean_ctor_get(x_71, 0);
-lean_inc(x_72);
-lean_dec_ref(x_71);
 x_73 = lean_nat_abs(x_72);
-lean_dec(x_72);
 x_74 = lean_nat_to_int(x_73);
 x_75 = lean_int_sub(x_67, x_74);
 lean_dec(x_74);
-lean_dec(x_67);
 x_76 = lean_int_dec_lt(x_57, x_75);
 lean_dec(x_75);
 lean_dec(x_57);
 if (x_76 == 0)
 {
-lean_dec_ref(x_70);
+lean_inc_ref(x_66);
 x_25 = x_56;
 x_26 = x_66;
 goto block_28;
 }
 else
 {
-lean_dec_ref(x_66);
+lean_inc_ref(x_70);
 x_25 = x_56;
 x_26 = x_70;
 goto block_28;
@@ -6962,9 +6679,7 @@ x_12 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 x_34 = lean_ctor_get(x_12, 0);
 lean_inc(x_34);
 x_35 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_35);
 x_36 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_36);
 lean_inc(x_34);
 x_37 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_37, 0, x_34);
@@ -6975,16 +6690,15 @@ if (lean_obj_tag(x_39) == 0)
 lean_object* x_40; 
 lean_dec(x_34);
 x_40 = l_Array_back_x3f___redArg(x_36);
-lean_dec_ref(x_36);
 if (lean_obj_tag(x_40) == 0)
 {
+lean_inc_ref(x_35);
 x_13 = x_35;
 goto block_30;
 }
 else
 {
 lean_object* x_41; 
-lean_dec_ref(x_35);
 x_41 = lean_ctor_get(x_40, 0);
 lean_inc(x_41);
 lean_dec_ref(x_40);
@@ -6995,42 +6709,34 @@ goto block_33;
 else
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; 
-lean_dec_ref(x_35);
 x_42 = lean_ctor_get(x_39, 0);
 lean_inc(x_42);
 lean_dec_ref(x_39);
-x_43 = lean_array_fget(x_36, x_42);
+x_43 = lean_array_fget_borrowed(x_36, x_42);
 x_44 = lean_ctor_get(x_43, 0);
-lean_inc(x_44);
 x_45 = lean_unsigned_to_nat(1u);
 x_46 = lean_nat_sub(x_42, x_45);
 lean_dec(x_42);
-x_47 = lean_array_fget(x_36, x_46);
+x_47 = lean_array_fget_borrowed(x_36, x_46);
 lean_dec(x_46);
-lean_dec_ref(x_36);
 x_48 = lean_ctor_get(x_47, 1);
-lean_inc_ref(x_48);
 x_49 = lean_ctor_get(x_48, 0);
-lean_inc(x_49);
-lean_dec_ref(x_48);
 x_50 = lean_nat_abs(x_49);
-lean_dec(x_49);
 x_51 = lean_nat_to_int(x_50);
 x_52 = lean_int_sub(x_44, x_51);
 lean_dec(x_51);
-lean_dec(x_44);
 x_53 = lean_int_dec_lt(x_34, x_52);
 lean_dec(x_52);
 lean_dec(x_34);
 if (x_53 == 0)
 {
-lean_dec_ref(x_47);
+lean_inc_ref(x_43);
 x_31 = x_43;
 goto block_33;
 }
 else
 {
-lean_dec_ref(x_43);
+lean_inc_ref(x_47);
 x_31 = x_47;
 goto block_33;
 }
@@ -7113,9 +6819,7 @@ x_60 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_59);
 x_82 = lean_ctor_get(x_60, 0);
 lean_inc(x_82);
 x_83 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_83);
 x_84 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_84);
 lean_inc(x_82);
 x_85 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_85, 0, x_82);
@@ -7126,16 +6830,15 @@ if (lean_obj_tag(x_87) == 0)
 lean_object* x_88; 
 lean_dec(x_82);
 x_88 = l_Array_back_x3f___redArg(x_84);
-lean_dec_ref(x_84);
 if (lean_obj_tag(x_88) == 0)
 {
+lean_inc_ref(x_83);
 x_61 = x_83;
 goto block_78;
 }
 else
 {
 lean_object* x_89; 
-lean_dec_ref(x_83);
 x_89 = lean_ctor_get(x_88, 0);
 lean_inc(x_89);
 lean_dec_ref(x_88);
@@ -7146,42 +6849,34 @@ goto block_81;
 else
 {
 lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; uint8_t x_101; 
-lean_dec_ref(x_83);
 x_90 = lean_ctor_get(x_87, 0);
 lean_inc(x_90);
 lean_dec_ref(x_87);
-x_91 = lean_array_fget(x_84, x_90);
+x_91 = lean_array_fget_borrowed(x_84, x_90);
 x_92 = lean_ctor_get(x_91, 0);
-lean_inc(x_92);
 x_93 = lean_unsigned_to_nat(1u);
 x_94 = lean_nat_sub(x_90, x_93);
 lean_dec(x_90);
-x_95 = lean_array_fget(x_84, x_94);
+x_95 = lean_array_fget_borrowed(x_84, x_94);
 lean_dec(x_94);
-lean_dec_ref(x_84);
 x_96 = lean_ctor_get(x_95, 1);
-lean_inc_ref(x_96);
 x_97 = lean_ctor_get(x_96, 0);
-lean_inc(x_97);
-lean_dec_ref(x_96);
 x_98 = lean_nat_abs(x_97);
-lean_dec(x_97);
 x_99 = lean_nat_to_int(x_98);
 x_100 = lean_int_sub(x_92, x_99);
 lean_dec(x_99);
-lean_dec(x_92);
 x_101 = lean_int_dec_lt(x_82, x_100);
 lean_dec(x_100);
 lean_dec(x_82);
 if (x_101 == 0)
 {
-lean_dec_ref(x_95);
+lean_inc_ref(x_91);
 x_79 = x_91;
 goto block_81;
 }
 else
 {
-lean_dec_ref(x_91);
+lean_inc_ref(x_95);
 x_79 = x_95;
 goto block_81;
 }
@@ -7280,9 +6975,7 @@ x_11 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 x_33 = lean_ctor_get(x_11, 0);
 lean_inc(x_33);
 x_34 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_34);
 x_35 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_35);
 lean_inc(x_33);
 x_36 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_36, 0, x_33);
@@ -7293,16 +6986,15 @@ if (lean_obj_tag(x_38) == 0)
 lean_object* x_39; 
 lean_dec(x_33);
 x_39 = l_Array_back_x3f___redArg(x_35);
-lean_dec_ref(x_35);
 if (lean_obj_tag(x_39) == 0)
 {
+lean_inc_ref(x_34);
 x_12 = x_34;
 goto block_29;
 }
 else
 {
 lean_object* x_40; 
-lean_dec_ref(x_34);
 x_40 = lean_ctor_get(x_39, 0);
 lean_inc(x_40);
 lean_dec_ref(x_39);
@@ -7313,42 +7005,34 @@ goto block_32;
 else
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52; 
-lean_dec_ref(x_34);
 x_41 = lean_ctor_get(x_38, 0);
 lean_inc(x_41);
 lean_dec_ref(x_38);
-x_42 = lean_array_fget(x_35, x_41);
+x_42 = lean_array_fget_borrowed(x_35, x_41);
 x_43 = lean_ctor_get(x_42, 0);
-lean_inc(x_43);
 x_44 = lean_unsigned_to_nat(1u);
 x_45 = lean_nat_sub(x_41, x_44);
 lean_dec(x_41);
-x_46 = lean_array_fget(x_35, x_45);
+x_46 = lean_array_fget_borrowed(x_35, x_45);
 lean_dec(x_45);
-lean_dec_ref(x_35);
 x_47 = lean_ctor_get(x_46, 1);
-lean_inc_ref(x_47);
 x_48 = lean_ctor_get(x_47, 0);
-lean_inc(x_48);
-lean_dec_ref(x_47);
 x_49 = lean_nat_abs(x_48);
-lean_dec(x_48);
 x_50 = lean_nat_to_int(x_49);
 x_51 = lean_int_sub(x_43, x_50);
 lean_dec(x_50);
-lean_dec(x_43);
 x_52 = lean_int_dec_lt(x_33, x_51);
 lean_dec(x_51);
 lean_dec(x_33);
 if (x_52 == 0)
 {
-lean_dec_ref(x_46);
+lean_inc_ref(x_42);
 x_30 = x_42;
 goto block_32;
 }
 else
 {
-lean_dec_ref(x_42);
+lean_inc_ref(x_46);
 x_30 = x_46;
 goto block_32;
 }
@@ -7429,9 +7113,7 @@ x_57 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 x_79 = lean_ctor_get(x_57, 0);
 lean_inc(x_79);
 x_80 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_80);
 x_81 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_81);
 lean_inc(x_79);
 x_82 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_82, 0, x_79);
@@ -7442,16 +7124,15 @@ if (lean_obj_tag(x_84) == 0)
 lean_object* x_85; 
 lean_dec(x_79);
 x_85 = l_Array_back_x3f___redArg(x_81);
-lean_dec_ref(x_81);
 if (lean_obj_tag(x_85) == 0)
 {
+lean_inc_ref(x_80);
 x_58 = x_80;
 goto block_75;
 }
 else
 {
 lean_object* x_86; 
-lean_dec_ref(x_80);
 x_86 = lean_ctor_get(x_85, 0);
 lean_inc(x_86);
 lean_dec_ref(x_85);
@@ -7462,42 +7143,34 @@ goto block_78;
 else
 {
 lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; uint8_t x_98; 
-lean_dec_ref(x_80);
 x_87 = lean_ctor_get(x_84, 0);
 lean_inc(x_87);
 lean_dec_ref(x_84);
-x_88 = lean_array_fget(x_81, x_87);
+x_88 = lean_array_fget_borrowed(x_81, x_87);
 x_89 = lean_ctor_get(x_88, 0);
-lean_inc(x_89);
 x_90 = lean_unsigned_to_nat(1u);
 x_91 = lean_nat_sub(x_87, x_90);
 lean_dec(x_87);
-x_92 = lean_array_fget(x_81, x_91);
+x_92 = lean_array_fget_borrowed(x_81, x_91);
 lean_dec(x_91);
-lean_dec_ref(x_81);
 x_93 = lean_ctor_get(x_92, 1);
-lean_inc_ref(x_93);
 x_94 = lean_ctor_get(x_93, 0);
-lean_inc(x_94);
-lean_dec_ref(x_93);
 x_95 = lean_nat_abs(x_94);
-lean_dec(x_94);
 x_96 = lean_nat_to_int(x_95);
 x_97 = lean_int_sub(x_89, x_96);
 lean_dec(x_96);
-lean_dec(x_89);
 x_98 = lean_int_dec_lt(x_79, x_97);
 lean_dec(x_97);
 lean_dec(x_79);
 if (x_98 == 0)
 {
-lean_dec_ref(x_92);
+lean_inc_ref(x_88);
 x_76 = x_88;
 goto block_78;
 }
 else
 {
-lean_dec_ref(x_88);
+lean_inc_ref(x_92);
 x_76 = x_92;
 goto block_78;
 }
@@ -7599,9 +7272,7 @@ x_107 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_106);
 x_129 = lean_ctor_get(x_107, 0);
 lean_inc(x_129);
 x_130 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_130);
 x_131 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_131);
 lean_inc(x_129);
 x_132 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_132, 0, x_129);
@@ -7612,16 +7283,15 @@ if (lean_obj_tag(x_134) == 0)
 lean_object* x_135; 
 lean_dec(x_129);
 x_135 = l_Array_back_x3f___redArg(x_131);
-lean_dec_ref(x_131);
 if (lean_obj_tag(x_135) == 0)
 {
+lean_inc_ref(x_130);
 x_108 = x_130;
 goto block_125;
 }
 else
 {
 lean_object* x_136; 
-lean_dec_ref(x_130);
 x_136 = lean_ctor_get(x_135, 0);
 lean_inc(x_136);
 lean_dec_ref(x_135);
@@ -7632,42 +7302,34 @@ goto block_128;
 else
 {
 lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; uint8_t x_148; 
-lean_dec_ref(x_130);
 x_137 = lean_ctor_get(x_134, 0);
 lean_inc(x_137);
 lean_dec_ref(x_134);
-x_138 = lean_array_fget(x_131, x_137);
+x_138 = lean_array_fget_borrowed(x_131, x_137);
 x_139 = lean_ctor_get(x_138, 0);
-lean_inc(x_139);
 x_140 = lean_unsigned_to_nat(1u);
 x_141 = lean_nat_sub(x_137, x_140);
 lean_dec(x_137);
-x_142 = lean_array_fget(x_131, x_141);
+x_142 = lean_array_fget_borrowed(x_131, x_141);
 lean_dec(x_141);
-lean_dec_ref(x_131);
 x_143 = lean_ctor_get(x_142, 1);
-lean_inc_ref(x_143);
 x_144 = lean_ctor_get(x_143, 0);
-lean_inc(x_144);
-lean_dec_ref(x_143);
 x_145 = lean_nat_abs(x_144);
-lean_dec(x_144);
 x_146 = lean_nat_to_int(x_145);
 x_147 = lean_int_sub(x_139, x_146);
 lean_dec(x_146);
-lean_dec(x_139);
 x_148 = lean_int_dec_lt(x_129, x_147);
 lean_dec(x_147);
 lean_dec(x_129);
 if (x_148 == 0)
 {
-lean_dec_ref(x_142);
+lean_inc_ref(x_138);
 x_126 = x_138;
 goto block_128;
 }
 else
 {
-lean_dec_ref(x_138);
+lean_inc_ref(x_142);
 x_126 = x_142;
 goto block_128;
 }
@@ -7766,9 +7428,7 @@ x_11 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 x_33 = lean_ctor_get(x_11, 0);
 lean_inc(x_33);
 x_34 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_34);
 x_35 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_35);
 lean_inc(x_33);
 x_36 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_36, 0, x_33);
@@ -7779,16 +7439,15 @@ if (lean_obj_tag(x_38) == 0)
 lean_object* x_39; 
 lean_dec(x_33);
 x_39 = l_Array_back_x3f___redArg(x_35);
-lean_dec_ref(x_35);
 if (lean_obj_tag(x_39) == 0)
 {
+lean_inc_ref(x_34);
 x_12 = x_34;
 goto block_29;
 }
 else
 {
 lean_object* x_40; 
-lean_dec_ref(x_34);
 x_40 = lean_ctor_get(x_39, 0);
 lean_inc(x_40);
 lean_dec_ref(x_39);
@@ -7799,42 +7458,34 @@ goto block_32;
 else
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52; 
-lean_dec_ref(x_34);
 x_41 = lean_ctor_get(x_38, 0);
 lean_inc(x_41);
 lean_dec_ref(x_38);
-x_42 = lean_array_fget(x_35, x_41);
+x_42 = lean_array_fget_borrowed(x_35, x_41);
 x_43 = lean_ctor_get(x_42, 0);
-lean_inc(x_43);
 x_44 = lean_unsigned_to_nat(1u);
 x_45 = lean_nat_sub(x_41, x_44);
 lean_dec(x_41);
-x_46 = lean_array_fget(x_35, x_45);
+x_46 = lean_array_fget_borrowed(x_35, x_45);
 lean_dec(x_45);
-lean_dec_ref(x_35);
 x_47 = lean_ctor_get(x_46, 1);
-lean_inc_ref(x_47);
 x_48 = lean_ctor_get(x_47, 0);
-lean_inc(x_48);
-lean_dec_ref(x_47);
 x_49 = lean_nat_abs(x_48);
-lean_dec(x_48);
 x_50 = lean_nat_to_int(x_49);
 x_51 = lean_int_sub(x_43, x_50);
 lean_dec(x_50);
-lean_dec(x_43);
 x_52 = lean_int_dec_lt(x_33, x_51);
 lean_dec(x_51);
 lean_dec(x_33);
 if (x_52 == 0)
 {
-lean_dec_ref(x_46);
+lean_inc_ref(x_42);
 x_30 = x_42;
 goto block_32;
 }
 else
 {
-lean_dec_ref(x_42);
+lean_inc_ref(x_46);
 x_30 = x_46;
 goto block_32;
 }
@@ -7915,9 +7566,7 @@ x_57 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 x_79 = lean_ctor_get(x_57, 0);
 lean_inc(x_79);
 x_80 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_80);
 x_81 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_81);
 lean_inc(x_79);
 x_82 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_82, 0, x_79);
@@ -7928,16 +7577,15 @@ if (lean_obj_tag(x_84) == 0)
 lean_object* x_85; 
 lean_dec(x_79);
 x_85 = l_Array_back_x3f___redArg(x_81);
-lean_dec_ref(x_81);
 if (lean_obj_tag(x_85) == 0)
 {
+lean_inc_ref(x_80);
 x_58 = x_80;
 goto block_75;
 }
 else
 {
 lean_object* x_86; 
-lean_dec_ref(x_80);
 x_86 = lean_ctor_get(x_85, 0);
 lean_inc(x_86);
 lean_dec_ref(x_85);
@@ -7948,42 +7596,34 @@ goto block_78;
 else
 {
 lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; uint8_t x_98; 
-lean_dec_ref(x_80);
 x_87 = lean_ctor_get(x_84, 0);
 lean_inc(x_87);
 lean_dec_ref(x_84);
-x_88 = lean_array_fget(x_81, x_87);
+x_88 = lean_array_fget_borrowed(x_81, x_87);
 x_89 = lean_ctor_get(x_88, 0);
-lean_inc(x_89);
 x_90 = lean_unsigned_to_nat(1u);
 x_91 = lean_nat_sub(x_87, x_90);
 lean_dec(x_87);
-x_92 = lean_array_fget(x_81, x_91);
+x_92 = lean_array_fget_borrowed(x_81, x_91);
 lean_dec(x_91);
-lean_dec_ref(x_81);
 x_93 = lean_ctor_get(x_92, 1);
-lean_inc_ref(x_93);
 x_94 = lean_ctor_get(x_93, 0);
-lean_inc(x_94);
-lean_dec_ref(x_93);
 x_95 = lean_nat_abs(x_94);
-lean_dec(x_94);
 x_96 = lean_nat_to_int(x_95);
 x_97 = lean_int_sub(x_89, x_96);
 lean_dec(x_96);
-lean_dec(x_89);
 x_98 = lean_int_dec_lt(x_79, x_97);
 lean_dec(x_97);
 lean_dec(x_79);
 if (x_98 == 0)
 {
-lean_dec_ref(x_92);
+lean_inc_ref(x_88);
 x_76 = x_88;
 goto block_78;
 }
 else
 {
-lean_dec_ref(x_88);
+lean_inc_ref(x_92);
 x_76 = x_92;
 goto block_78;
 }
@@ -8085,9 +7725,7 @@ x_107 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_106);
 x_129 = lean_ctor_get(x_107, 0);
 lean_inc(x_129);
 x_130 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_130);
 x_131 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_131);
 lean_inc(x_129);
 x_132 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_132, 0, x_129);
@@ -8098,16 +7736,15 @@ if (lean_obj_tag(x_134) == 0)
 lean_object* x_135; 
 lean_dec(x_129);
 x_135 = l_Array_back_x3f___redArg(x_131);
-lean_dec_ref(x_131);
 if (lean_obj_tag(x_135) == 0)
 {
+lean_inc_ref(x_130);
 x_108 = x_130;
 goto block_125;
 }
 else
 {
 lean_object* x_136; 
-lean_dec_ref(x_130);
 x_136 = lean_ctor_get(x_135, 0);
 lean_inc(x_136);
 lean_dec_ref(x_135);
@@ -8118,42 +7755,34 @@ goto block_128;
 else
 {
 lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; uint8_t x_148; 
-lean_dec_ref(x_130);
 x_137 = lean_ctor_get(x_134, 0);
 lean_inc(x_137);
 lean_dec_ref(x_134);
-x_138 = lean_array_fget(x_131, x_137);
+x_138 = lean_array_fget_borrowed(x_131, x_137);
 x_139 = lean_ctor_get(x_138, 0);
-lean_inc(x_139);
 x_140 = lean_unsigned_to_nat(1u);
 x_141 = lean_nat_sub(x_137, x_140);
 lean_dec(x_137);
-x_142 = lean_array_fget(x_131, x_141);
+x_142 = lean_array_fget_borrowed(x_131, x_141);
 lean_dec(x_141);
-lean_dec_ref(x_131);
 x_143 = lean_ctor_get(x_142, 1);
-lean_inc_ref(x_143);
 x_144 = lean_ctor_get(x_143, 0);
-lean_inc(x_144);
-lean_dec_ref(x_143);
 x_145 = lean_nat_abs(x_144);
-lean_dec(x_144);
 x_146 = lean_nat_to_int(x_145);
 x_147 = lean_int_sub(x_139, x_146);
 lean_dec(x_146);
-lean_dec(x_139);
 x_148 = lean_int_dec_lt(x_129, x_147);
 lean_dec(x_147);
 lean_dec(x_129);
 if (x_148 == 0)
 {
-lean_dec_ref(x_142);
+lean_inc_ref(x_138);
 x_126 = x_138;
 goto block_128;
 }
 else
 {
-lean_dec_ref(x_138);
+lean_inc_ref(x_142);
 x_126 = x_142;
 goto block_128;
 }
@@ -8252,9 +7881,7 @@ x_11 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 x_33 = lean_ctor_get(x_11, 0);
 lean_inc(x_33);
 x_34 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_34);
 x_35 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_35);
 lean_inc(x_33);
 x_36 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_36, 0, x_33);
@@ -8265,16 +7892,15 @@ if (lean_obj_tag(x_38) == 0)
 lean_object* x_39; 
 lean_dec(x_33);
 x_39 = l_Array_back_x3f___redArg(x_35);
-lean_dec_ref(x_35);
 if (lean_obj_tag(x_39) == 0)
 {
+lean_inc_ref(x_34);
 x_12 = x_34;
 goto block_29;
 }
 else
 {
 lean_object* x_40; 
-lean_dec_ref(x_34);
 x_40 = lean_ctor_get(x_39, 0);
 lean_inc(x_40);
 lean_dec_ref(x_39);
@@ -8285,42 +7911,34 @@ goto block_32;
 else
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52; 
-lean_dec_ref(x_34);
 x_41 = lean_ctor_get(x_38, 0);
 lean_inc(x_41);
 lean_dec_ref(x_38);
-x_42 = lean_array_fget(x_35, x_41);
+x_42 = lean_array_fget_borrowed(x_35, x_41);
 x_43 = lean_ctor_get(x_42, 0);
-lean_inc(x_43);
 x_44 = lean_unsigned_to_nat(1u);
 x_45 = lean_nat_sub(x_41, x_44);
 lean_dec(x_41);
-x_46 = lean_array_fget(x_35, x_45);
+x_46 = lean_array_fget_borrowed(x_35, x_45);
 lean_dec(x_45);
-lean_dec_ref(x_35);
 x_47 = lean_ctor_get(x_46, 1);
-lean_inc_ref(x_47);
 x_48 = lean_ctor_get(x_47, 0);
-lean_inc(x_48);
-lean_dec_ref(x_47);
 x_49 = lean_nat_abs(x_48);
-lean_dec(x_48);
 x_50 = lean_nat_to_int(x_49);
 x_51 = lean_int_sub(x_43, x_50);
 lean_dec(x_50);
-lean_dec(x_43);
 x_52 = lean_int_dec_lt(x_33, x_51);
 lean_dec(x_51);
 lean_dec(x_33);
 if (x_52 == 0)
 {
-lean_dec_ref(x_46);
+lean_inc_ref(x_42);
 x_30 = x_42;
 goto block_32;
 }
 else
 {
-lean_dec_ref(x_42);
+lean_inc_ref(x_46);
 x_30 = x_46;
 goto block_32;
 }
@@ -8401,9 +8019,7 @@ x_57 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 x_79 = lean_ctor_get(x_57, 0);
 lean_inc(x_79);
 x_80 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_80);
 x_81 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_81);
 lean_inc(x_79);
 x_82 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_82, 0, x_79);
@@ -8414,16 +8030,15 @@ if (lean_obj_tag(x_84) == 0)
 lean_object* x_85; 
 lean_dec(x_79);
 x_85 = l_Array_back_x3f___redArg(x_81);
-lean_dec_ref(x_81);
 if (lean_obj_tag(x_85) == 0)
 {
+lean_inc_ref(x_80);
 x_58 = x_80;
 goto block_75;
 }
 else
 {
 lean_object* x_86; 
-lean_dec_ref(x_80);
 x_86 = lean_ctor_get(x_85, 0);
 lean_inc(x_86);
 lean_dec_ref(x_85);
@@ -8434,42 +8049,34 @@ goto block_78;
 else
 {
 lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; uint8_t x_98; 
-lean_dec_ref(x_80);
 x_87 = lean_ctor_get(x_84, 0);
 lean_inc(x_87);
 lean_dec_ref(x_84);
-x_88 = lean_array_fget(x_81, x_87);
+x_88 = lean_array_fget_borrowed(x_81, x_87);
 x_89 = lean_ctor_get(x_88, 0);
-lean_inc(x_89);
 x_90 = lean_unsigned_to_nat(1u);
 x_91 = lean_nat_sub(x_87, x_90);
 lean_dec(x_87);
-x_92 = lean_array_fget(x_81, x_91);
+x_92 = lean_array_fget_borrowed(x_81, x_91);
 lean_dec(x_91);
-lean_dec_ref(x_81);
 x_93 = lean_ctor_get(x_92, 1);
-lean_inc_ref(x_93);
 x_94 = lean_ctor_get(x_93, 0);
-lean_inc(x_94);
-lean_dec_ref(x_93);
 x_95 = lean_nat_abs(x_94);
-lean_dec(x_94);
 x_96 = lean_nat_to_int(x_95);
 x_97 = lean_int_sub(x_89, x_96);
 lean_dec(x_96);
-lean_dec(x_89);
 x_98 = lean_int_dec_lt(x_79, x_97);
 lean_dec(x_97);
 lean_dec(x_79);
 if (x_98 == 0)
 {
-lean_dec_ref(x_92);
+lean_inc_ref(x_88);
 x_76 = x_88;
 goto block_78;
 }
 else
 {
-lean_dec_ref(x_88);
+lean_inc_ref(x_92);
 x_76 = x_92;
 goto block_78;
 }
@@ -8571,9 +8178,7 @@ x_107 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_106);
 x_129 = lean_ctor_get(x_107, 0);
 lean_inc(x_129);
 x_130 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_130);
 x_131 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_131);
 lean_inc(x_129);
 x_132 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_132, 0, x_129);
@@ -8584,16 +8189,15 @@ if (lean_obj_tag(x_134) == 0)
 lean_object* x_135; 
 lean_dec(x_129);
 x_135 = l_Array_back_x3f___redArg(x_131);
-lean_dec_ref(x_131);
 if (lean_obj_tag(x_135) == 0)
 {
+lean_inc_ref(x_130);
 x_108 = x_130;
 goto block_125;
 }
 else
 {
 lean_object* x_136; 
-lean_dec_ref(x_130);
 x_136 = lean_ctor_get(x_135, 0);
 lean_inc(x_136);
 lean_dec_ref(x_135);
@@ -8604,42 +8208,34 @@ goto block_128;
 else
 {
 lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; uint8_t x_148; 
-lean_dec_ref(x_130);
 x_137 = lean_ctor_get(x_134, 0);
 lean_inc(x_137);
 lean_dec_ref(x_134);
-x_138 = lean_array_fget(x_131, x_137);
+x_138 = lean_array_fget_borrowed(x_131, x_137);
 x_139 = lean_ctor_get(x_138, 0);
-lean_inc(x_139);
 x_140 = lean_unsigned_to_nat(1u);
 x_141 = lean_nat_sub(x_137, x_140);
 lean_dec(x_137);
-x_142 = lean_array_fget(x_131, x_141);
+x_142 = lean_array_fget_borrowed(x_131, x_141);
 lean_dec(x_141);
-lean_dec_ref(x_131);
 x_143 = lean_ctor_get(x_142, 1);
-lean_inc_ref(x_143);
 x_144 = lean_ctor_get(x_143, 0);
-lean_inc(x_144);
-lean_dec_ref(x_143);
 x_145 = lean_nat_abs(x_144);
-lean_dec(x_144);
 x_146 = lean_nat_to_int(x_145);
 x_147 = lean_int_sub(x_139, x_146);
 lean_dec(x_146);
-lean_dec(x_139);
 x_148 = lean_int_dec_lt(x_129, x_147);
 lean_dec(x_147);
 lean_dec(x_129);
 if (x_148 == 0)
 {
-lean_dec_ref(x_142);
+lean_inc_ref(x_138);
 x_126 = x_138;
 goto block_128;
 }
 else
 {
-lean_dec_ref(x_138);
+lean_inc_ref(x_142);
 x_126 = x_142;
 goto block_128;
 }
@@ -8754,9 +8350,7 @@ x_16 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 x_38 = lean_ctor_get(x_16, 0);
 lean_inc(x_38);
 x_39 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_39);
 x_40 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_40);
 lean_inc(x_38);
 x_41 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_41, 0, x_38);
@@ -8767,16 +8361,15 @@ if (lean_obj_tag(x_43) == 0)
 lean_object* x_44; 
 lean_dec(x_38);
 x_44 = l_Array_back_x3f___redArg(x_40);
-lean_dec_ref(x_40);
 if (lean_obj_tag(x_44) == 0)
 {
+lean_inc_ref(x_39);
 x_17 = x_39;
 goto block_34;
 }
 else
 {
 lean_object* x_45; 
-lean_dec_ref(x_39);
 x_45 = lean_ctor_get(x_44, 0);
 lean_inc(x_45);
 lean_dec_ref(x_44);
@@ -8787,42 +8380,34 @@ goto block_37;
 else
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; 
-lean_dec_ref(x_39);
 x_46 = lean_ctor_get(x_43, 0);
 lean_inc(x_46);
 lean_dec_ref(x_43);
-x_47 = lean_array_fget(x_40, x_46);
+x_47 = lean_array_fget_borrowed(x_40, x_46);
 x_48 = lean_ctor_get(x_47, 0);
-lean_inc(x_48);
 x_49 = lean_unsigned_to_nat(1u);
 x_50 = lean_nat_sub(x_46, x_49);
 lean_dec(x_46);
-x_51 = lean_array_fget(x_40, x_50);
+x_51 = lean_array_fget_borrowed(x_40, x_50);
 lean_dec(x_50);
-lean_dec_ref(x_40);
 x_52 = lean_ctor_get(x_51, 1);
-lean_inc_ref(x_52);
 x_53 = lean_ctor_get(x_52, 0);
-lean_inc(x_53);
-lean_dec_ref(x_52);
 x_54 = lean_nat_abs(x_53);
-lean_dec(x_53);
 x_55 = lean_nat_to_int(x_54);
 x_56 = lean_int_sub(x_48, x_55);
 lean_dec(x_55);
-lean_dec(x_48);
 x_57 = lean_int_dec_lt(x_38, x_56);
 lean_dec(x_56);
 lean_dec(x_38);
 if (x_57 == 0)
 {
-lean_dec_ref(x_51);
+lean_inc_ref(x_47);
 x_35 = x_47;
 goto block_37;
 }
 else
 {
-lean_dec_ref(x_47);
+lean_inc_ref(x_51);
 x_35 = x_51;
 goto block_37;
 }
@@ -8913,9 +8498,7 @@ x_68 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 x_90 = lean_ctor_get(x_68, 0);
 lean_inc(x_90);
 x_91 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_91);
 x_92 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_92);
 lean_inc(x_90);
 x_93 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_93, 0, x_90);
@@ -8926,16 +8509,15 @@ if (lean_obj_tag(x_95) == 0)
 lean_object* x_96; 
 lean_dec(x_90);
 x_96 = l_Array_back_x3f___redArg(x_92);
-lean_dec_ref(x_92);
 if (lean_obj_tag(x_96) == 0)
 {
+lean_inc_ref(x_91);
 x_69 = x_91;
 goto block_86;
 }
 else
 {
 lean_object* x_97; 
-lean_dec_ref(x_91);
 x_97 = lean_ctor_get(x_96, 0);
 lean_inc(x_97);
 lean_dec_ref(x_96);
@@ -8946,42 +8528,34 @@ goto block_89;
 else
 {
 lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; uint8_t x_109; 
-lean_dec_ref(x_91);
 x_98 = lean_ctor_get(x_95, 0);
 lean_inc(x_98);
 lean_dec_ref(x_95);
-x_99 = lean_array_fget(x_92, x_98);
+x_99 = lean_array_fget_borrowed(x_92, x_98);
 x_100 = lean_ctor_get(x_99, 0);
-lean_inc(x_100);
 x_101 = lean_unsigned_to_nat(1u);
 x_102 = lean_nat_sub(x_98, x_101);
 lean_dec(x_98);
-x_103 = lean_array_fget(x_92, x_102);
+x_103 = lean_array_fget_borrowed(x_92, x_102);
 lean_dec(x_102);
-lean_dec_ref(x_92);
 x_104 = lean_ctor_get(x_103, 1);
-lean_inc_ref(x_104);
 x_105 = lean_ctor_get(x_104, 0);
-lean_inc(x_105);
-lean_dec_ref(x_104);
 x_106 = lean_nat_abs(x_105);
-lean_dec(x_105);
 x_107 = lean_nat_to_int(x_106);
 x_108 = lean_int_sub(x_100, x_107);
 lean_dec(x_107);
-lean_dec(x_100);
 x_109 = lean_int_dec_lt(x_90, x_108);
 lean_dec(x_108);
 lean_dec(x_90);
 if (x_109 == 0)
 {
-lean_dec_ref(x_103);
+lean_inc_ref(x_99);
 x_87 = x_99;
 goto block_89;
 }
 else
 {
-lean_dec_ref(x_99);
+lean_inc_ref(x_103);
 x_87 = x_103;
 goto block_89;
 }
@@ -9093,9 +8667,7 @@ x_124 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_123);
 x_146 = lean_ctor_get(x_124, 0);
 lean_inc(x_146);
 x_147 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_147);
 x_148 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_148);
 lean_inc(x_146);
 x_149 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_149, 0, x_146);
@@ -9106,16 +8678,15 @@ if (lean_obj_tag(x_151) == 0)
 lean_object* x_152; 
 lean_dec(x_146);
 x_152 = l_Array_back_x3f___redArg(x_148);
-lean_dec_ref(x_148);
 if (lean_obj_tag(x_152) == 0)
 {
+lean_inc_ref(x_147);
 x_125 = x_147;
 goto block_142;
 }
 else
 {
 lean_object* x_153; 
-lean_dec_ref(x_147);
 x_153 = lean_ctor_get(x_152, 0);
 lean_inc(x_153);
 lean_dec_ref(x_152);
@@ -9126,42 +8697,34 @@ goto block_145;
 else
 {
 lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; lean_object* x_164; uint8_t x_165; 
-lean_dec_ref(x_147);
 x_154 = lean_ctor_get(x_151, 0);
 lean_inc(x_154);
 lean_dec_ref(x_151);
-x_155 = lean_array_fget(x_148, x_154);
+x_155 = lean_array_fget_borrowed(x_148, x_154);
 x_156 = lean_ctor_get(x_155, 0);
-lean_inc(x_156);
 x_157 = lean_unsigned_to_nat(1u);
 x_158 = lean_nat_sub(x_154, x_157);
 lean_dec(x_154);
-x_159 = lean_array_fget(x_148, x_158);
+x_159 = lean_array_fget_borrowed(x_148, x_158);
 lean_dec(x_158);
-lean_dec_ref(x_148);
 x_160 = lean_ctor_get(x_159, 1);
-lean_inc_ref(x_160);
 x_161 = lean_ctor_get(x_160, 0);
-lean_inc(x_161);
-lean_dec_ref(x_160);
 x_162 = lean_nat_abs(x_161);
-lean_dec(x_161);
 x_163 = lean_nat_to_int(x_162);
 x_164 = lean_int_sub(x_156, x_163);
 lean_dec(x_163);
-lean_dec(x_156);
 x_165 = lean_int_dec_lt(x_146, x_164);
 lean_dec(x_164);
 lean_dec(x_146);
 if (x_165 == 0)
 {
-lean_dec_ref(x_159);
+lean_inc_ref(x_155);
 x_143 = x_155;
 goto block_145;
 }
 else
 {
-lean_dec_ref(x_155);
+lean_inc_ref(x_159);
 x_143 = x_159;
 goto block_145;
 }
@@ -9269,9 +8832,7 @@ x_11 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 x_33 = lean_ctor_get(x_11, 0);
 lean_inc(x_33);
 x_34 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_34);
 x_35 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_35);
 lean_inc(x_33);
 x_36 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_36, 0, x_33);
@@ -9282,16 +8843,15 @@ if (lean_obj_tag(x_38) == 0)
 lean_object* x_39; 
 lean_dec(x_33);
 x_39 = l_Array_back_x3f___redArg(x_35);
-lean_dec_ref(x_35);
 if (lean_obj_tag(x_39) == 0)
 {
+lean_inc_ref(x_34);
 x_12 = x_34;
 goto block_29;
 }
 else
 {
 lean_object* x_40; 
-lean_dec_ref(x_34);
 x_40 = lean_ctor_get(x_39, 0);
 lean_inc(x_40);
 lean_dec_ref(x_39);
@@ -9302,42 +8862,34 @@ goto block_32;
 else
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52; 
-lean_dec_ref(x_34);
 x_41 = lean_ctor_get(x_38, 0);
 lean_inc(x_41);
 lean_dec_ref(x_38);
-x_42 = lean_array_fget(x_35, x_41);
+x_42 = lean_array_fget_borrowed(x_35, x_41);
 x_43 = lean_ctor_get(x_42, 0);
-lean_inc(x_43);
 x_44 = lean_unsigned_to_nat(1u);
 x_45 = lean_nat_sub(x_41, x_44);
 lean_dec(x_41);
-x_46 = lean_array_fget(x_35, x_45);
+x_46 = lean_array_fget_borrowed(x_35, x_45);
 lean_dec(x_45);
-lean_dec_ref(x_35);
 x_47 = lean_ctor_get(x_46, 1);
-lean_inc_ref(x_47);
 x_48 = lean_ctor_get(x_47, 0);
-lean_inc(x_48);
-lean_dec_ref(x_47);
 x_49 = lean_nat_abs(x_48);
-lean_dec(x_48);
 x_50 = lean_nat_to_int(x_49);
 x_51 = lean_int_sub(x_43, x_50);
 lean_dec(x_50);
-lean_dec(x_43);
 x_52 = lean_int_dec_lt(x_33, x_51);
 lean_dec(x_51);
 lean_dec(x_33);
 if (x_52 == 0)
 {
-lean_dec_ref(x_46);
+lean_inc_ref(x_42);
 x_30 = x_42;
 goto block_32;
 }
 else
 {
-lean_dec_ref(x_42);
+lean_inc_ref(x_46);
 x_30 = x_46;
 goto block_32;
 }
@@ -9418,9 +8970,7 @@ x_57 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_6);
 x_79 = lean_ctor_get(x_57, 0);
 lean_inc(x_79);
 x_80 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_80);
 x_81 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_81);
 lean_inc(x_79);
 x_82 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_82, 0, x_79);
@@ -9431,16 +8981,15 @@ if (lean_obj_tag(x_84) == 0)
 lean_object* x_85; 
 lean_dec(x_79);
 x_85 = l_Array_back_x3f___redArg(x_81);
-lean_dec_ref(x_81);
 if (lean_obj_tag(x_85) == 0)
 {
+lean_inc_ref(x_80);
 x_58 = x_80;
 goto block_75;
 }
 else
 {
 lean_object* x_86; 
-lean_dec_ref(x_80);
 x_86 = lean_ctor_get(x_85, 0);
 lean_inc(x_86);
 lean_dec_ref(x_85);
@@ -9451,42 +9000,34 @@ goto block_78;
 else
 {
 lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; uint8_t x_98; 
-lean_dec_ref(x_80);
 x_87 = lean_ctor_get(x_84, 0);
 lean_inc(x_87);
 lean_dec_ref(x_84);
-x_88 = lean_array_fget(x_81, x_87);
+x_88 = lean_array_fget_borrowed(x_81, x_87);
 x_89 = lean_ctor_get(x_88, 0);
-lean_inc(x_89);
 x_90 = lean_unsigned_to_nat(1u);
 x_91 = lean_nat_sub(x_87, x_90);
 lean_dec(x_87);
-x_92 = lean_array_fget(x_81, x_91);
+x_92 = lean_array_fget_borrowed(x_81, x_91);
 lean_dec(x_91);
-lean_dec_ref(x_81);
 x_93 = lean_ctor_get(x_92, 1);
-lean_inc_ref(x_93);
 x_94 = lean_ctor_get(x_93, 0);
-lean_inc(x_94);
-lean_dec_ref(x_93);
 x_95 = lean_nat_abs(x_94);
-lean_dec(x_94);
 x_96 = lean_nat_to_int(x_95);
 x_97 = lean_int_sub(x_89, x_96);
 lean_dec(x_96);
-lean_dec(x_89);
 x_98 = lean_int_dec_lt(x_79, x_97);
 lean_dec(x_97);
 lean_dec(x_79);
 if (x_98 == 0)
 {
-lean_dec_ref(x_92);
+lean_inc_ref(x_88);
 x_76 = x_88;
 goto block_78;
 }
 else
 {
-lean_dec_ref(x_88);
+lean_inc_ref(x_92);
 x_76 = x_92;
 goto block_78;
 }
@@ -9588,9 +9129,7 @@ x_107 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_106);
 x_129 = lean_ctor_get(x_107, 0);
 lean_inc(x_129);
 x_130 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_130);
 x_131 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_131);
 lean_inc(x_129);
 x_132 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_132, 0, x_129);
@@ -9601,16 +9140,15 @@ if (lean_obj_tag(x_134) == 0)
 lean_object* x_135; 
 lean_dec(x_129);
 x_135 = l_Array_back_x3f___redArg(x_131);
-lean_dec_ref(x_131);
 if (lean_obj_tag(x_135) == 0)
 {
+lean_inc_ref(x_130);
 x_108 = x_130;
 goto block_125;
 }
 else
 {
 lean_object* x_136; 
-lean_dec_ref(x_130);
 x_136 = lean_ctor_get(x_135, 0);
 lean_inc(x_136);
 lean_dec_ref(x_135);
@@ -9621,42 +9159,34 @@ goto block_128;
 else
 {
 lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; uint8_t x_148; 
-lean_dec_ref(x_130);
 x_137 = lean_ctor_get(x_134, 0);
 lean_inc(x_137);
 lean_dec_ref(x_134);
-x_138 = lean_array_fget(x_131, x_137);
+x_138 = lean_array_fget_borrowed(x_131, x_137);
 x_139 = lean_ctor_get(x_138, 0);
-lean_inc(x_139);
 x_140 = lean_unsigned_to_nat(1u);
 x_141 = lean_nat_sub(x_137, x_140);
 lean_dec(x_137);
-x_142 = lean_array_fget(x_131, x_141);
+x_142 = lean_array_fget_borrowed(x_131, x_141);
 lean_dec(x_141);
-lean_dec_ref(x_131);
 x_143 = lean_ctor_get(x_142, 1);
-lean_inc_ref(x_143);
 x_144 = lean_ctor_get(x_143, 0);
-lean_inc(x_144);
-lean_dec_ref(x_143);
 x_145 = lean_nat_abs(x_144);
-lean_dec(x_144);
 x_146 = lean_nat_to_int(x_145);
 x_147 = lean_int_sub(x_139, x_146);
 lean_dec(x_146);
-lean_dec(x_139);
 x_148 = lean_int_dec_lt(x_129, x_147);
 lean_dec(x_147);
 lean_dec(x_129);
 if (x_148 == 0)
 {
-lean_dec_ref(x_142);
+lean_inc_ref(x_138);
 x_126 = x_138;
 goto block_128;
 }
 else
 {
-lean_dec_ref(x_138);
+lean_inc_ref(x_142);
 x_126 = x_142;
 goto block_128;
 }
@@ -9811,9 +9341,7 @@ x_6 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_5);
 x_28 = lean_ctor_get(x_6, 0);
 lean_inc(x_28);
 x_29 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_29);
 x_30 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_30);
 lean_inc(x_28);
 x_31 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_31, 0, x_28);
@@ -9824,16 +9352,15 @@ if (lean_obj_tag(x_33) == 0)
 lean_object* x_34; 
 lean_dec(x_28);
 x_34 = l_Array_back_x3f___redArg(x_30);
-lean_dec_ref(x_30);
 if (lean_obj_tag(x_34) == 0)
 {
+lean_inc_ref(x_29);
 x_7 = x_29;
 goto block_24;
 }
 else
 {
 lean_object* x_35; 
-lean_dec_ref(x_29);
 x_35 = lean_ctor_get(x_34, 0);
 lean_inc(x_35);
 lean_dec_ref(x_34);
@@ -9844,42 +9371,34 @@ goto block_27;
 else
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; uint8_t x_47; 
-lean_dec_ref(x_29);
 x_36 = lean_ctor_get(x_33, 0);
 lean_inc(x_36);
 lean_dec_ref(x_33);
-x_37 = lean_array_fget(x_30, x_36);
+x_37 = lean_array_fget_borrowed(x_30, x_36);
 x_38 = lean_ctor_get(x_37, 0);
-lean_inc(x_38);
 x_39 = lean_unsigned_to_nat(1u);
 x_40 = lean_nat_sub(x_36, x_39);
 lean_dec(x_36);
-x_41 = lean_array_fget(x_30, x_40);
+x_41 = lean_array_fget_borrowed(x_30, x_40);
 lean_dec(x_40);
-lean_dec_ref(x_30);
 x_42 = lean_ctor_get(x_41, 1);
-lean_inc_ref(x_42);
 x_43 = lean_ctor_get(x_42, 0);
-lean_inc(x_43);
-lean_dec_ref(x_42);
 x_44 = lean_nat_abs(x_43);
-lean_dec(x_43);
 x_45 = lean_nat_to_int(x_44);
 x_46 = lean_int_sub(x_38, x_45);
 lean_dec(x_45);
-lean_dec(x_38);
 x_47 = lean_int_dec_lt(x_28, x_46);
 lean_dec(x_46);
 lean_dec(x_28);
 if (x_47 == 0)
 {
-lean_dec_ref(x_41);
+lean_inc_ref(x_37);
 x_25 = x_37;
 goto block_27;
 }
 else
 {
-lean_dec_ref(x_37);
+lean_inc_ref(x_41);
 x_25 = x_41;
 goto block_27;
 }

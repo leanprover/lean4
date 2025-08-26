@@ -957,7 +957,6 @@ if (lean_obj_tag(x_1) == 3)
 {
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_12 = lean_ctor_get(x_1, 0);
-lean_inc(x_12);
 x_13 = lean_st_ref_get(x_6, x_7);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
@@ -969,6 +968,7 @@ x_17 = lean_ctor_get(x_15, 0);
 lean_inc_ref(x_17);
 lean_dec(x_15);
 x_18 = 0;
+lean_inc(x_12);
 x_19 = l_Lean_Environment_find_x3f(x_17, x_12, x_18);
 if (lean_obj_tag(x_19) == 0)
 {
@@ -1146,6 +1146,7 @@ x_50 = lean_ctor_get(x_48, 0);
 lean_inc_ref(x_50);
 lean_dec(x_48);
 x_51 = 0;
+lean_inc(x_12);
 x_52 = l_Lean_Environment_find_x3f(x_50, x_12, x_51);
 if (lean_obj_tag(x_52) == 0)
 {

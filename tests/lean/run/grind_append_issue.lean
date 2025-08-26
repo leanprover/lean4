@@ -1,3 +1,4 @@
+module
 reset_grind_attrs%
 attribute [grind] List.length_cons List.length_nil List.length_append
 attribute [grind] List.nil_append List.getElem_cons

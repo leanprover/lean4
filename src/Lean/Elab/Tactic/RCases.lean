@@ -248,34 +248,6 @@ def processConstructors (ref : Syntax) (params : Nat) (altVarNames : Array AltVa
 
 open Elab Tactic
 
--- TODO(Mario): this belongs in core
-/-- Like `Lean.Meta.subst`, but preserves the `FVarSubst`. -/
-def subst' (goal : MVarId) (hFVarId : FVarId)
-    (fvarSubst : FVarSubst := {}) : MetaM (FVarSubst × MVarId) := do
-  let hLocalDecl ← hFVarId.getDecl
-  let error {α} _ : MetaM α := throwTacticEx `subst goal
-    m!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr hLocalDecl.type}"
-  let some (_, lhs, rhs) ← matchEq? hLocalDecl.type | error ()
-  let substReduced (newType : Expr) (symm : Bool) : MetaM (FVarSubst × MVarId) := do
-    let goal ← goal.assert hLocalDecl.userName newType (mkFVar hFVarId)
-    let (hFVarId', goal) ← goal.intro1P
-    let goal ← goal.clear hFVarId
-    substCore goal hFVarId' (symm := symm) (tryToSkip := true) (fvarSubst := fvarSubst)
-  let rhs' ← whnf rhs
-  if rhs'.isFVar then
-    if rhs != rhs' then
-      substReduced (← mkEq lhs rhs') true
-    else
-      substCore goal hFVarId (symm := true) (tryToSkip := true) (fvarSubst := fvarSubst)
-  else
-    let lhs' ← whnf lhs
-    if lhs'.isFVar then
-      if lhs != lhs' then
-        substReduced (← mkEq lhs' rhs) false
-      else
-        substCore goal hFVarId (symm := false) (tryToSkip := true) (fvarSubst := fvarSubst)
-    else error ()
-
 mutual
 
 /--
@@ -304,7 +276,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
     Term.synthesizeSyntheticMVarsNoPostponing
     -- Note: the mdata prevents the span from getting highlighted like a variable
     Term.addTermInfo' ref (.mdata {} e)
-    let (fs, g) ← subst' g (← asFVar (fs.apply e)) fs
+    let (fs, g) ← substEq g (← asFVar (fs.apply e)) fs
     cont g fs clears a
   | .one ref _ =>
     if e.isFVar then

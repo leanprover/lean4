@@ -7,8 +7,10 @@ module
 
 prelude
 public import Init.Grind.Ring.Basic
-public import all Init.GrindInstances.ToInt
-public import all Init.Data.UInt.Basic
+public import Init.GrindInstances.ToInt
+import all Init.GrindInstances.ToInt
+public import Init.Data.UInt.Basic
+import all Init.Data.UInt.Basic
 public import Init.Data.UInt.Lemmas
 
 public section

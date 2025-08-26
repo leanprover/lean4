@@ -10,7 +10,7 @@ public import Init.System.IO
 public import Init.System.Promise
 public import Std.Net
 
-@[expose] public section
+public section
 
 namespace Std
 namespace Internal
@@ -26,7 +26,7 @@ Represents a UDP socket.
 -/
 def Socket : Type := SocketImpl.type
 
-instance : Nonempty Socket := SocketImpl.property
+instance : Nonempty Socket := by exact SocketImpl.property
 
 namespace Socket
 

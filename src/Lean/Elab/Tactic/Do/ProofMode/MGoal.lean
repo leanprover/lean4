@@ -88,10 +88,16 @@ def SPred.mkAnd (u : Level) (σs lhs rhs : Expr) : Expr × Expr :=
 def TypeList.mkType (u : Level) : Expr := mkApp (mkConst ``List [.succ u]) (mkSort (.succ u))
 def TypeList.mkNil (u : Level) : Expr := mkApp (mkConst ``List.nil [.succ u]) (mkSort (.succ u))
 def TypeList.mkCons (u : Level) (hd tl : Expr) : Expr := mkApp3 (mkConst ``List.cons [.succ u]) (mkSort (.succ u)) hd tl
+def TypeList.length (σs : Expr) : MetaM Nat := do
+  let mut σs ← whnfR σs
+  let mut n := 0
+  while σs.isAppOfArity ``List.cons 3 do
+    n := n+1
+    σs ← whnfR (σs.getArg! 2)
+  return n
 
 def parseAnd? (e : Expr) : Option (Level × Expr × Expr × Expr) :=
-      (e.getAppFn.constLevels![0]!, ·) <$> e.app3? ``SPred.and
-  <|> (0, TypeList.mkNil 0, ·) <$> e.app2? ``And
+  (e.getAppFn.constLevels![0]!, ·) <$> e.app3? ``SPred.and
 
 structure MGoal where
   u : Level
@@ -136,13 +142,20 @@ partial def MGoal.findHyp? (goal : MGoal) (name : Name) : Option (SubExpr.Pos ×
       else
         panic! "MGoal.findHyp?: hypothesis without proper metadata: {e}"
 
-def MGoal.checkProof (goal : MGoal) (prf : Expr) (suppressWarning : Bool := false) : MetaM Unit := do
-  check prf
-  let prf_type ← inferType prf
-  unless ← isDefEq goal.toExpr prf_type do
-    throwError "MGoal.checkProof: the proof and its supposed type did not match.\ngoal:  {goal.toExpr}\nproof: {prf_type}"
+def checkHasType (expr : Expr) (expectedType : Expr) (suppressWarning : Bool := false) : MetaM Unit := do
+  check expr
+  check expectedType
+  let exprType ← inferType expr
+  unless ← isDefEqGuarded exprType expectedType do
+    throwError "checkHasType: the expression's inferred type and its expected type did not match.\n
+      expr: {indentExpr expr}\n
+      has inferred type: {indentExpr exprType}\n
+      but the expected type was: {indentExpr expectedType}"
   unless suppressWarning do
-    logWarning m!"stray MGoal.checkProof {prf_type} {goal.toExpr}"
+    logWarning m!"stray checkHasType {expr} : {expectedType}"
+
+def MGoal.checkProof (goal : MGoal) (prf : Expr) (suppressWarning : Bool := false) : MetaM Unit := do
+  checkHasType prf goal.toExpr suppressWarning
 
 def getFreshHypName : TSyntax ``binderIdent → CoreM (Name × Syntax)
   | `(binderIdent| $name:ident) => pure (name.getId, name)

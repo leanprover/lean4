@@ -104,7 +104,7 @@ jobs:
           # NOTE: must be in sync with `save` below and with `restore-cache` in `update-stage0.yml`
           path: |
             .ccache
-            ${{ matrix.name == 'Linux Lake (cached)' && 'build/stage1/**/*.trace
+            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
             build/stage1/**/*.olean*
             build/stage1/**/*.ilean
             build/stage1/**/*.ir
@@ -166,6 +166,22 @@ jobs:
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
           time make $TARGET_STAGE -j$NPROC
+      # Should be done as early as possible and in particular *before* "Check rebootstrap" which
+      # changes the state of stage1/
+      - name: Save Cache
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          # NOTE: must be in sync with `restore` above
+          path: |
+            .ccache
+            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
+            build/stage1/**/*.olean*
+            build/stage1/**/*.ilean
+            build/stage1/**/*.ir
+            build/stage1/**/*.c
+            build/stage1/**/*.c.o*' || '' }}
+          key: ${{ steps.restore-cache.outputs.cache-primary-key }}
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install
@@ -199,7 +215,7 @@ jobs:
           path: pack/*
       - name: Lean stats
         run: |
-          build/stage1/bin/lean --stats src/Lean.lean -Dexperimental.module=true
+          build/$TARGET_STAGE/bin/lean --stats src/Lean.lean -Dexperimental.module=true
         if: ${{ !matrix.cross }}
       - name: Test
         id: test
@@ -253,22 +269,3 @@ jobs:
             progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"
             echo bt | $GDB/bin/gdb -q $progbin $c || true
           done
-      - name: Save Cache
-        if: always() && steps.restore-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          # NOTE: must be in sync with `restore` above
-          path: |
-            .ccache
-            ${{ matrix.name == 'Linux Lake (cached)' && 'build/stage1/**/*.trace
-            build/stage1/**/*.olean*
-            build/stage1/**/*.ilean
-            build/stage1/**/*.ir
-            build/stage1/**/*.c
-            build/stage1/**/*.c.o*' || '' }}
-          key: ${{ steps.restore-cache.outputs.cache-primary-key }}
-      - name: Upload Build Artifact
-        if: always() && matrix.name == 'Linux Lake (cached)'
-        uses: actions/upload-artifact@v4
-        with:
-          path: build

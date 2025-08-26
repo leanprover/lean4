@@ -1,3 +1,4 @@
+module
 example (f : Bool → Nat) : (x = y ↔ q) → ¬ q → y = false → f x = 0 → f true = 0 := by
   grind (splits := 0)
 

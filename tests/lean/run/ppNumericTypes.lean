@@ -1,5 +1,3 @@
-import Std.Internal.Rat
-open Std.Internal
 
 /-!
 Tests for `pp.numericTypes` and `pp.natLit`

@@ -50,25 +50,26 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
     pure <| match attrs? with
       | some attrs => attrs.getElems.push attr
       | none => #[attr]
+  let vis := Parser.Command.visibility.ofAttrKind attrKind
   if let some expId := expty? then
     if catName == `term then
-      `($[$doc?:docComment]? @[$(← mkAttrs `term_elab),*]
+      `($[$doc?:docComment]? @[$(← mkAttrs `term_elab),*] $vis:visibility
         aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
         fun stx expectedType? => Lean.Elab.Term.withExpectedType expectedType? fun $expId => match stx with
           $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
     else
       throwErrorAt expId "syntax category '{catName}' does not support expected type specification"
   else if catName == `term then
-    `($[$doc?:docComment]? @[$(← mkAttrs `term_elab),*]
+    `($[$doc?:docComment]? @[$(← mkAttrs `term_elab),*] $vis:visibility
       aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
       fun stx _ => match stx with
         $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else if catName == `command then
-    `($[$doc?:docComment]? @[$(← mkAttrs `command_elab),*]
+    `($[$doc?:docComment]? @[$(← mkAttrs `command_elab),*] $vis:visibility
       aux_def elabRules $(mkIdent k) : Lean.Elab.Command.CommandElab :=
       fun $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else if catName == `tactic || catName == `conv then
-    `($[$doc?:docComment]? @[$(← mkAttrs `tactic),*]
+    `($[$doc?:docComment]? @[$(← mkAttrs `tactic),*] $vis:visibility
       aux_def elabRules $(mkIdent k) : Lean.Elab.Tactic.Tactic :=
       fun $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else
@@ -92,15 +93,11 @@ def elabElab : CommandElab
       $cat $[<= $expectedType?]? => $rhs) => do
     let prio    ← liftMacroM <| evalOptPrio prio?
     let (stxParts, patArgs) := (← args.mapM expandMacroArg).unzip
-    -- name
-    let name ← match name? with
-      | some name => pure name.getId
-      | none => addMacroScopeIfLocal (← liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)) attrKind
-    let nameId := name?.getD (mkIdentFrom tk name (canonical := true))
-    let pat := ⟨mkNode ((← getCurrNamespace) ++ name) patArgs⟩
-    elabCommand <|← `(
+    let kind ← elabSyntax <|← `(
       $[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
-      syntax%$tk$[:$prec?]? (name := $nameId) (priority := $(quote prio):num) $[$stxParts]* : $cat
+      syntax%$tk$[:$prec?]? $[(name := $name?)]? (priority := $(quote prio):num) $[$stxParts]* : $cat)
+    let pat := ⟨mkNode kind patArgs⟩
+    elabCommand <|← `(
       $[$doc?:docComment]? elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs)
   | _ => throwUnsupportedSyntax
 

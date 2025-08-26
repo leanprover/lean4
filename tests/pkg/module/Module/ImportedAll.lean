@@ -1,6 +1,7 @@
 module
 
-public import all Module.Basic
+public import Module.Basic
+import all Module.Basic
 import Lean.CoreM
 
 /-! `import all` should import private information, privately. -/
@@ -133,6 +134,10 @@ info: theorem f_exp_wfrec.induct_unfolding : ∀ (motive : Nat → Nat → Nat �
 
 public def pub := priv
 
-/-- error: Unknown identifier `priv` -/
+/--
+error: Unknown identifier `priv`
+
+Note: A private declaration `priv✝` (from `Module.Basic`) exists but is not accessible in the current context.
+-/
 #guard_msgs in
 @[expose] public def pub' := priv

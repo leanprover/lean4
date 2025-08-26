@@ -6,17 +6,24 @@ Authors: Markus Himmel
 module
 
 prelude
-public import all Init.Data.Nat.Bitwise.Basic
-public import all Init.Data.SInt.Basic
-public import all Init.Data.BitVec.Basic
+public import Init.Data.Nat.Bitwise.Basic
+import all Init.Data.Nat.Bitwise.Basic
+public import Init.Data.SInt.Basic
+import all Init.Data.SInt.Basic
+public import Init.Data.BitVec.Basic
+import all Init.Data.BitVec.Basic
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.BitVec.Bitblast
 public import Init.Data.Int.LemmasAux
-public import all Init.Data.UInt.Basic
+public import Init.Data.UInt.Basic
+import all Init.Data.UInt.Basic
 public import Init.Data.UInt.Lemmas
 public import Init.System.Platform
+import Init.Data.Order.Lemmas
 
 public section
+
+open Std
 
 open Lean in
 set_option hygiene false in
@@ -3024,6 +3031,56 @@ protected theorem Int64.lt_asymm {a b : Int64} : a < b → ¬b < a :=
   fun hab hba => Int64.lt_irrefl (Int64.lt_trans hab hba)
 protected theorem ISize.lt_asymm {a b : ISize} : a < b → ¬b < a :=
   fun hab hba => ISize.lt_irrefl (ISize.lt_trans hab hba)
+
+instance Int8.instIsLinearOrder : IsLinearOrder Int8 := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply Int8.le_antisymm
+  case le_total => constructor; apply Int8.le_total
+  case le_trans => constructor; apply Int8.le_trans
+
+instance : LawfulOrderLT Int8 where
+  lt_iff := by
+    simp [← Int8.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+
+instance Int16.instIsLinearOrder : IsLinearOrder Int16 := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply Int16.le_antisymm
+  case le_total => constructor; apply Int16.le_total
+  case le_trans => constructor; apply Int16.le_trans
+
+instance : LawfulOrderLT Int16 where
+  lt_iff := by
+    simp [← Int16.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+
+instance Int32.instIsLinearOrder : IsLinearOrder Int32 := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply Int32.le_antisymm
+  case le_total => constructor; apply Int32.le_total
+  case le_trans => constructor; apply Int32.le_trans
+
+instance : LawfulOrderLT Int32 where
+  lt_iff := by
+    simp [← Int32.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+
+instance Int64.instIsLinearOrder : IsLinearOrder Int64 := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply Int64.le_antisymm
+  case le_total => constructor; apply Int64.le_total
+  case le_trans => constructor; apply Int64.le_trans
+
+instance : LawfulOrderLT Int64 where
+  lt_iff := by
+    simp [← Int64.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+
+instance ISize.instIsLinearOrder : IsLinearOrder ISize := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply ISize.le_antisymm
+  case le_total => constructor; apply ISize.le_total
+  case le_trans => constructor; apply ISize.le_trans
+
+instance : LawfulOrderLT ISize where
+  lt_iff := by
+    simp [← ISize.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
 protected theorem Int8.add_neg_eq_sub {a b : Int8} : a + -b = a - b := Int8.toBitVec_inj.1 BitVec.add_neg_eq_sub
 protected theorem Int16.add_neg_eq_sub {a b : Int16} : a + -b = a - b := Int16.toBitVec_inj.1 BitVec.add_neg_eq_sub

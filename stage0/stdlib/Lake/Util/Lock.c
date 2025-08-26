@@ -24,34 +24,34 @@ lean_object* l_instToStringString___lam__0___boxed(lean_object*);
 lean_object* l_IO_FS_createDirAll(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withLockFile___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_busyAcquireLockFile_busyLoop___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withLockFile___redArg___lam__3___boxed(lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_putStrLn(lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___closed__0;
 LEAN_EXPORT lean_object* l_Lake_busyAcquireLockFile(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withLockFile___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_sleep(uint32_t, lean_object*);
 lean_object* l_System_FilePath_parent(lean_object*);
 lean_object* lean_get_stderr(lean_object*);
 static lean_object* l_Lake_withLockFile___redArg___lam__2___closed__0;
 lean_object* l_EStateM_tryCatch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_busyAcquireLockFile_busyLoop___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_busyAcquireLockFile___boxed(lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_mk(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lake_withLockFile___redArg___lam__2___closed__1;
 LEAN_EXPORT lean_object* l_Lake_withLockFile(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withLockFile___redArg___lam__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withLockFile___redArg___lam__0___boxed(lean_object*, lean_object*);
-static lean_object* l_Lake_busyAcquireLockFile_busyLoop___closed__0;
-LEAN_EXPORT lean_object* l_Lake_busyAcquireLockFile_busyLoop___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withLockFile___redArg___lam__1___boxed(lean_object*);
 lean_object* l_IO_FS_Stream_putStrLn(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-static lean_object* l_Lake_busyAcquireLockFile_busyLoop___closed__1;
-LEAN_EXPORT lean_object* l_Lake_busyAcquireLockFile_busyLoop(lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop(lean_object*, uint8_t, lean_object*);
 lean_object* lean_io_process_get_pid(lean_object*);
+static lean_object* l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___closed__1;
 lean_object* l_EStateM_nonBacktrackable(lean_object*);
 static lean_object* l_Lake_withLockFile___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Lake_busyAcquireLockFile_busyLoop___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; lean_object* x_5; 
@@ -103,7 +103,7 @@ return x_18;
 }
 }
 }
-static lean_object* _init_l_Lake_busyAcquireLockFile_busyLoop___closed__0() {
+static lean_object* _init_l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -111,7 +111,7 @@ x_1 = lean_mk_string_unchecked("warning: waiting for prior `lake build` invocati
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_busyAcquireLockFile_busyLoop___closed__1() {
+static lean_object* _init_l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -119,7 +119,7 @@ x_1 = lean_mk_string_unchecked("' if stuck)", 11, 11);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_busyAcquireLockFile_busyLoop(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_11; lean_object* x_28; 
@@ -128,7 +128,7 @@ if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; lean_object* x_30; 
 x_29 = lean_box(0);
-x_30 = l_Lake_busyAcquireLockFile_busyLoop___lam__0(x_1, x_29, x_3);
+x_30 = l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___lam__0(x_1, x_29, x_3);
 x_11 = x_30;
 goto block_27;
 }
@@ -148,8 +148,7 @@ lean_inc(x_33);
 x_34 = lean_ctor_get(x_32, 1);
 lean_inc(x_34);
 lean_dec_ref(x_32);
-x_35 = l_Lake_busyAcquireLockFile_busyLoop___lam__0(x_1, x_33, x_34);
-lean_dec(x_33);
+x_35 = l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___lam__0(x_1, x_33, x_34);
 x_11 = x_35;
 goto block_27;
 }
@@ -182,10 +181,8 @@ else
 {
 lean_object* x_12; 
 x_12 = lean_ctor_get(x_11, 0);
-lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
-lean_dec_ref(x_12);
 if (x_2 == 0)
 {
 lean_object* x_13; 
@@ -207,9 +204,9 @@ lean_inc(x_16);
 x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
 lean_dec_ref(x_15);
-x_18 = l_Lake_busyAcquireLockFile_busyLoop___closed__0;
+x_18 = l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___closed__0;
 x_19 = lean_string_append(x_18, x_1);
-x_20 = l_Lake_busyAcquireLockFile_busyLoop___closed__1;
+x_20 = l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___closed__1;
 x_21 = lean_string_append(x_19, x_20);
 lean_inc(x_16);
 x_22 = l_IO_FS_Stream_putStrLn(x_16, x_21, x_17);
@@ -246,28 +243,27 @@ return x_22;
 }
 else
 {
-lean_dec(x_12);
 return x_11;
 }
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_busyAcquireLockFile_busyLoop___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lake_busyAcquireLockFile_busyLoop___lam__0(x_1, x_2, x_3);
+x_4 = l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___lam__0(x_1, x_2, x_3);
 lean_dec_ref(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_busyAcquireLockFile_busyLoop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-x_5 = l_Lake_busyAcquireLockFile_busyLoop(x_1, x_4, x_3);
+x_5 = l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop(x_1, x_4, x_3);
 lean_dec_ref(x_1);
 return x_5;
 }
@@ -277,7 +273,7 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = 1;
-x_4 = l_Lake_busyAcquireLockFile_busyLoop(x_1, x_3, x_2);
+x_4 = l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop(x_1, x_3, x_2);
 return x_4;
 }
 }
@@ -377,14 +373,14 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_7);
+lean_inc(x_7);
 lean_dec_ref(x_1);
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_8);
 lean_dec_ref(x_6);
 x_9 = l_Lake_withLockFile___redArg___closed__0;
 x_10 = lean_ctor_get(x_8, 0);
-lean_inc_ref(x_10);
+lean_inc(x_10);
 lean_dec_ref(x_8);
 x_11 = lean_alloc_closure((void*)(l_Lake_withLockFile___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_11, 0, x_5);
@@ -397,7 +393,7 @@ lean_closure_set(x_14, 1, x_13);
 lean_inc_ref(x_4);
 x_15 = lean_alloc_closure((void*)(l_Lake_busyAcquireLockFile___boxed), 2, 1);
 lean_closure_set(x_15, 0, x_4);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 x_16 = lean_apply_2(x_3, lean_box(0), x_15);
 x_17 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_16, x_11);
 x_18 = lean_alloc_closure((void*)(l_IO_FS_removeFile___boxed), 2, 1);
@@ -425,14 +421,14 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_o
 x_8 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 lean_dec_ref(x_3);
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_10);
 lean_dec_ref(x_8);
 x_11 = l_Lake_withLockFile___redArg___closed__0;
 x_12 = lean_ctor_get(x_10, 0);
-lean_inc_ref(x_12);
+lean_inc(x_12);
 lean_dec_ref(x_10);
 x_13 = lean_alloc_closure((void*)(l_Lake_withLockFile___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_13, 0, x_7);
@@ -445,7 +441,7 @@ lean_closure_set(x_16, 1, x_15);
 lean_inc_ref(x_6);
 x_17 = lean_alloc_closure((void*)(l_Lake_busyAcquireLockFile___boxed), 2, 1);
 lean_closure_set(x_17, 0, x_6);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 x_18 = lean_apply_2(x_5, lean_box(0), x_17);
 x_19 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_18, x_13);
 x_20 = lean_alloc_closure((void*)(l_IO_FS_removeFile___boxed), 2, 1);
@@ -512,10 +508,10 @@ _G_initialized = true;
 res = initialize_Init_System_IO(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_busyAcquireLockFile_busyLoop___closed__0 = _init_l_Lake_busyAcquireLockFile_busyLoop___closed__0();
-lean_mark_persistent(l_Lake_busyAcquireLockFile_busyLoop___closed__0);
-l_Lake_busyAcquireLockFile_busyLoop___closed__1 = _init_l_Lake_busyAcquireLockFile_busyLoop___closed__1();
-lean_mark_persistent(l_Lake_busyAcquireLockFile_busyLoop___closed__1);
+l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___closed__0 = _init_l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___closed__0();
+lean_mark_persistent(l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___closed__0);
+l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___closed__1 = _init_l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___closed__1();
+lean_mark_persistent(l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___closed__1);
 l_Lake_withLockFile___redArg___lam__2___closed__0 = _init_l_Lake_withLockFile___redArg___lam__2___closed__0();
 lean_mark_persistent(l_Lake_withLockFile___redArg___lam__2___closed__0);
 l_Lake_withLockFile___redArg___lam__2___closed__1 = _init_l_Lake_withLockFile___redArg___lam__2___closed__1();

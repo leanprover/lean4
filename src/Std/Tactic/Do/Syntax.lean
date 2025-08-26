@@ -32,7 +32,7 @@ structure Config where
   -/
   elimLets : Bool := true
   /--
-  If `false` (the default), then we aggresively split `if` and `match` statements and inline join
+  If `false` (the default), then we aggressively split `if` and `match` statements and inline join
   points unconditionally. For some programs this causes exponential blowup of VCs.
   Set this flag to choose a more conservative (but slightly lossy) encoding that traverses
   every join point only once and yields a formula the size of which is linear in the number of
@@ -160,7 +160,10 @@ macro (name := mleave) "mleave" : tactic =>
               $(mkIdent ``Std.Do.ExceptConds.entails_false):term,
               $(mkIdent ``ULift.down_ite):term,
               $(mkIdent ``ULift.down_dite):term,
-              $(mkIdent ``Std.List.Zipper.pref):term,
+              $(mkIdent ``List.Cursor.prefix_at):term,
+              $(mkIdent ``List.Cursor.suffix_at):term,
+              $(mkIdent ``List.Cursor.current_at):term,
+              $(mkIdent ``List.Cursor.tail_at):term,
               $(mkIdent ``and_imp):term,
               $(mkIdent ``and_true):term,
               $(mkIdent ``dite_eq_ite):term,
@@ -296,7 +299,15 @@ all_goals
 ```
 -/
 macro (name := mspecNoSimp) "mspec_no_simp" spec:(ppSpace colGt term)? : tactic =>
-  `(tactic| ((try with_reducible mspec_no_bind $(mkIdent ``Std.Do.Spec.bind)); mspec_no_bind $[$spec]?))
+  `(tactic| ((try with_reducible mspec_no_bind $(mkIdent ``Std.Do.Spec.bind)) <;> mspec_no_bind $[$spec]?))
+
+@[inherit_doc Lean.Parser.Tactic.mspecMacro]
+macro (name := mspec) "mspec" spec:(ppSpace colGt term)? : tactic =>
+  `(tactic| (mspec_no_simp $[$spec]?
+             all_goals ((try simp only [
+                          $(mkIdent ``Std.Do.SPred.true_intro_simp):term,
+                          $(mkIdent ``Std.Do.SPred.apply_pure):term])
+                        (try mpure_intro; trivial))))
 
 syntax "mvcgen_trivial_extensible" : tactic
 
@@ -313,17 +324,33 @@ macro "mvcgen_trivial" : tactic =>
     | try mvcgen_trivial_extensible
   )
 
-@[inherit_doc Lean.Parser.Tactic.mspecMacro]
-macro (name := mspec) "mspec" spec:(ppSpace colGt term)? : tactic =>
-  `(tactic| (mspec_no_simp $[$spec]?
-             all_goals ((try simp only [
-                          $(mkIdent ``Std.Do.SPred.true_intro_simp):term,
-                          $(mkIdent ``Std.Do.SPred.apply_pure):term])
-                        (try mpure_intro; trivial))))
+/--
+An invariant alternative of the form `· term`, one per invariant goal.
+-/
+syntax invariantAlt  := ppDedent(ppLine) cdotTk (colGe term)
+
+/--
+After `mvcgen [...]`, there can be an optional `invariants` followed by a bulleted list of
+invariants `· term; · term`.
+-/
+syntax invariantAlts := &" invariants" withPosition((colGe invariantAlt)*)
+
+/--
+In induction alternative, which can have 1 or more cases on the left
+and `_`, `?_`, or a tactic sequence after the `=>`.
+-/
+syntax vcAlt := "| " sepBy1(caseArg, " | ") " => " tacticSeq -- `case` tactic has "case " instead of "| "
+
+/--
+After `with`, there is an optional tactic that runs on all branches, and
+then a list of alternatives.
+-/
+syntax vcAlts := " with" (ppSpace colGt tactic)? withPosition((colGe vcAlt)*)
 
 @[inherit_doc Lean.Parser.Tactic.mvcgenMacro]
 syntax (name := mvcgen) "mvcgen" optConfig
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
+  (invariantAlts)? (vcAlts)? : tactic
 
 /--
 Like `mvcgen`, but does not attempt to prove trivial VCs via `mpure_intro; trivial`.

@@ -6,12 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
-public import Lean.Meta.Inductive
-public import Lean.Elab.Deriving.Basic
-public import Lean.Elab.Deriving.Util
-
-public section
+import Lean.Meta.Transform
+import Lean.Meta.Inductive
+import Lean.Elab.Deriving.Basic
+import Lean.Elab.Deriving.Util
+import Lean.Meta.NatTable
+import Lean.Meta.Constructions.CtorIdx
 
 namespace Lean.Elab.Deriving.DecEq
 open Lean.Parser.Term
@@ -101,7 +101,8 @@ def mkAuxFunction (ctx : Context) (auxFunName : Name) (indVal : InductiveVal): T
     then `(Parser.Termination.suffix|termination_by structural $target₁)
     else `(Parser.Termination.suffix|)
   let type    ← `(Decidable ($target₁ = $target₂))
-  `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
+  let vis := ctx.mkVisibilityFromTypes
+  `($vis:visibility def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
     $termSuffix:suffix)
 
 def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do
@@ -137,21 +138,10 @@ partial def mkEnumOfNat (declName : Name) : MetaM Unit := do
   let indVal ← getConstInfoInduct declName
   let levels := indVal.levelParams.map Level.param
   let enumType := mkConst declName levels
-  let u ← getLevel enumType
   let ctors := indVal.ctors.toArray.map (mkConst · levels)
   withLocalDeclD `n (mkConst ``Nat) fun n => do
-    let cond := mkConst ``cond [u]
-    let rec mkDecTree (low high : Nat) : Expr :=
-      if low + 1 == high then
-        ctors[low]!
-      else if low + 2 == high then
-        mkApp4 cond enumType (mkApp2 (mkConst ``Nat.beq) n (mkRawNatLit low)) ctors[low]! ctors[low+1]!
-      else
-        let mid := (low + high)/2
-        let lowBranch := mkDecTree low mid
-        let highBranch := mkDecTree mid high
-        mkApp4 cond enumType (mkApp2 (mkConst ``Nat.ble) (mkRawNatLit mid) n) highBranch lowBranch
-    let value ← mkLambdaFVars #[n] (mkDecTree 0 ctors.size)
+    let value ← mkNatLookupTable n enumType ctors
+    let value ← mkLambdaFVars #[n] value
     let type ← mkArrow (mkConst ``Nat) enumType
     addAndCompile <| Declaration.defnDecl {
       name := Name.mkStr declName "ofNat"
@@ -164,7 +154,7 @@ partial def mkEnumOfNat (declName : Name) : MetaM Unit := do
 def mkEnumOfNatThm (declName : Name) : MetaM Unit := do
   let indVal ← getConstInfoInduct declName
   let levels := indVal.levelParams.map Level.param
-  let toCtorIdx := mkConst (Name.mkStr declName "toCtorIdx") levels
+  let ctorIdx := mkConst (mkCtorIdxName declName) levels
   let ofNat     := mkConst (Name.mkStr declName "ofNat") levels
   let enumType  := mkConst declName levels
   let u ← getLevel enumType
@@ -172,7 +162,7 @@ def mkEnumOfNatThm (declName : Name) : MetaM Unit := do
   let rflEnum   := mkApp (mkConst ``Eq.refl [u]) enumType
   let ctors := indVal.ctors
   withLocalDeclD `x enumType fun x => do
-    let resultType := mkApp2 eqEnum (mkApp ofNat (mkApp toCtorIdx x)) x
+    let resultType := mkApp2 eqEnum (mkApp ofNat (mkApp ctorIdx x)) x
     let motive     ← mkLambdaFVars #[x] resultType
     let casesOn    := mkConst (mkCasesOnName declName) (levelZero :: levels)
     let mut value  := mkApp2 casesOn motive x
@@ -181,25 +171,26 @@ def mkEnumOfNatThm (declName : Name) : MetaM Unit := do
     value ← mkLambdaFVars #[x] value
     let type ← mkForallFVars #[x] resultType
     addAndCompile <| Declaration.thmDecl {
-      name := Name.mkStr declName "ofNat_toCtorIdx"
+      name := Name.mkStr declName "ofNat_ctorIdx"
       levelParams := indVal.levelParams
       value, type
     }
 
 def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
-  liftTermElabM <| mkEnumOfNat declName
-  liftTermElabM <| mkEnumOfNatThm declName
-  let ofNatIdent  := mkIdent (Name.mkStr declName "ofNat")
-  let auxThmIdent := mkIdent (Name.mkStr declName "ofNat_toCtorIdx")
-  let cmd ← `(
-    instance : DecidableEq $(mkCIdent declName) :=
-      fun x y =>
-        if h : x.toCtorIdx = y.toCtorIdx then
-          -- We use `rfl` in the following proof because the first script fails for unit-like datatypes due to etaStruct.
-          isTrue (by first | have aux := congrArg $ofNatIdent h; rw [$auxThmIdent:ident, $auxThmIdent:ident] at aux; assumption | rfl)
-        else
-          isFalse fun h => by subst h; contradiction
-  )
+  let cmd ← liftTermElabM do
+    let ctx ← mkContext "decEq" declName
+    mkEnumOfNat declName
+    mkEnumOfNatThm declName
+    let ofNatIdent  := mkIdent (Name.mkStr declName "ofNat")
+    let auxThmIdent := mkIdent (Name.mkStr declName "ofNat_ctorIdx")
+    let vis := ctx.mkVisibilityFromTypes
+    `($vis:visibility instance : DecidableEq $(mkCIdent declName) :=
+        fun x y =>
+          if h : x.ctorIdx = y.ctorIdx then
+            -- We use `rfl` in the following proof because the first script fails for unit-like datatypes due to etaStruct.
+            isTrue (by first | have aux := congrArg $ofNatIdent h; rw [$auxThmIdent:ident, $auxThmIdent:ident] at aux; assumption | rfl)
+          else
+            isFalse fun h => by subst h; contradiction)
   trace[Elab.Deriving.decEq] "\n{cmd}"
   elabCommand cmd
 

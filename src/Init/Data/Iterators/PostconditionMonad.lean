@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Control.Lawful.Basic
-public import Init.Data.Subtype
+public import Init.Data.Subtype.Basic
 public import Init.PropLemmas
 
 public section

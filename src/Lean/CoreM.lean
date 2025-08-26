@@ -230,6 +230,7 @@ structure Context where
   openDecls      : List OpenDecl := []
   initHeartbeats : Nat := 0
   maxHeartbeats  : Nat := getMaxHeartbeats options
+  quotContext    : Name := .anonymous
   currMacroScope : MacroScope := firstFrontendMacroScope
   /--
   If `diag := true`, different parts of the system collect diagnostics.
@@ -322,7 +323,7 @@ protected def withFreshMacroScope (x : CoreM α) : CoreM α := do
 
 instance : MonadQuotation CoreM where
   getCurrMacroScope   := return (← read).currMacroScope
-  getMainModule       := return (← getEnv).mainModule
+  getContext          := return (← read).quotContext
   withFreshMacroScope := Core.withFreshMacroScope
 
 instance : Elab.MonadInfoTree CoreM where
@@ -410,8 +411,8 @@ def SavedState.restore (b : SavedState) : CoreM Unit :=
   modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
-  let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
-  return addMacroScope (← getEnv).mainModule n fresh
+  withFreshMacroScope do
+    MonadQuotation.addMacroScope n
 
 /--
 Creates a name from `n` that is guaranteed to be unique.
@@ -673,7 +674,7 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
         && !supportedRecursors.contains declName
       | _ => false
     match unsupportedRecursor? with
-    | some (Expr.const declName ..) => throwError "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
+    | some (Expr.const declName ..) => throwError "code generator does not support recursor '{.ofConstName declName}' yet, consider using 'match ... with' and/or structural recursion"
     | _ => pure ()
 
 /--
@@ -709,8 +710,10 @@ partial def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit :
     finally
       res.commitChecked (← getEnv)
   let t ← BaseIO.mapTask checkAct env.checked
-  let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+  -- Do not display reporting range; most uses of `addDecl` are for registering auxiliary decls
+  -- users should not worry about and other callers can add a separate task with ranges
+  -- themselves, see `MutualDef`.
+  Core.logSnapshotTask { stx? := none, reportingRange := .skip, task := t, cancelTk? := cancelTk }
 where doCompile := do
   -- don't compile if kernel errored; should be converted into a task dependency when compilation
   -- is made async as well

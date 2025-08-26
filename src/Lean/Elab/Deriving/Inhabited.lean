@@ -85,8 +85,8 @@ where
       ctorArgs := ctorArgs.push (← ``(Inhabited.default))
     let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
     let vis := ctx.mkVisibilityFromTypes
-    let expAttr := ctx.mkExposeAttrFromCtors
-    `(@[$expAttr] $vis:visibility instance $binders:bracketedBinder* : $type := $val)
+    let expAttr := ctx.mkNoExposeAttrFromCtors
+    `(@[$[$expAttr],*] $vis:visibility instance $binders:bracketedBinder* : $type := $val)
 
   mkInstanceCmd? : TermElabM (Option Syntax) := do
     let ctorVal ← getConstInfoCtor ctorName
@@ -121,7 +121,7 @@ private def mkInhabitedInstance (declName : Name) : CommandElabM Unit := do
         return true
     return false
   unless (← doIt false <||> doIt true) do
-    throwError "failed to generate 'Inhabited' instance for '{declName}'"
+    throwError "failed to generate 'Inhabited' instance for '{.ofConstName declName}'"
 
 def mkInhabitedInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then

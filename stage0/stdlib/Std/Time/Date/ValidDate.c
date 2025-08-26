@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Date.ValidDate
-// Imports: Std.Internal.Rat Std.Time.Date.Unit.Day Std.Time.Date.Unit.Month
+// Imports: Std.Time.Date.Unit.Day Std.Time.Date.Unit.Month Std.Time.Date.Unit.Month
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -37,6 +37,7 @@ LEAN_EXPORT uint8_t l_Std_Time_instOrdValidDate___lam__0(lean_object*, lean_obje
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instOrdValidDate___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ValidDate_dayOfYear(uint8_t, lean_object*);
+lean_object* l_Std_Time_Day_instDecidableEqOrdinal___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instInhabitedValidDate___closed__13;
 LEAN_EXPORT uint8_t l_Std_Time_instDecidableEqValidDate___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instInhabitedValidDate___closed__15;
@@ -49,7 +50,6 @@ static lean_object* l_Std_Time_instInhabitedValidDate___closed__0;
 static lean_object* l_Std_Time_instInhabitedValidDate___closed__11;
 static lean_object* l_Std_Time_instInhabitedValidDate___closed__12;
 LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqValidDate___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Time_Month_instOrdinalDecidableEq___boxed(lean_object*, lean_object*);
 lean_object* l_Std_Time_Month_Ordinal_cumulativeDays(uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_instDecidableEqValidDate(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -57,13 +57,13 @@ static lean_object* l_Std_Time_instInhabitedValidDate___closed__14;
 static lean_object* l_Std_Time_instInhabitedValidDate___closed__7;
 static lean_object* l_Std_Time_instInhabitedValidDate___closed__6;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-lean_object* l_Std_Time_Day_instOrdinalDecidableEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instOrdValidDate___boxed(lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
 static lean_object* l_Std_Time_instInhabitedValidDate___closed__17;
 LEAN_EXPORT lean_object* l_Std_Time_instInhabitedValidDate(uint8_t);
+lean_object* l_Std_Time_Month_instDecidableEqOrdinal___boxed(lean_object*, lean_object*);
 static lean_object* _init_l_Std_Time_instInhabitedValidDate___closed__0() {
 _start:
 {
@@ -273,8 +273,8 @@ LEAN_EXPORT uint8_t l_Std_Time_instDecidableEqValidDate___redArg(lean_object* x_
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_alloc_closure((void*)(l_Std_Time_Month_instOrdinalDecidableEq___boxed), 2, 0);
-x_4 = lean_alloc_closure((void*)(l_Std_Time_Day_instOrdinalDecidableEq___boxed), 2, 0);
+x_3 = lean_alloc_closure((void*)(l_Std_Time_Month_instDecidableEqOrdinal___boxed), 2, 0);
+x_4 = lean_alloc_closure((void*)(l_Std_Time_Day_instDecidableEqOrdinal___boxed), 2, 0);
 x_5 = l_instDecidableEqProd___redArg(x_3, x_4, x_1, x_2);
 return x_5;
 }
@@ -503,18 +503,18 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Std_Internal_Rat(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Date_Unit_Day(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Time_Date_Unit_Month(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Date_Unit_Month(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Time_Date_ValidDate(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Internal_Rat(builtin, lean_io_mk_world());
+res = initialize_Std_Time_Date_Unit_Day(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Time_Date_Unit_Day(builtin, lean_io_mk_world());
+res = initialize_Std_Time_Date_Unit_Month(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Time_Date_Unit_Month(builtin, lean_io_mk_world());

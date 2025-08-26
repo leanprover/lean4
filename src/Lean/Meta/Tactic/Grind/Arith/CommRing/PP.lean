@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-
+public import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
+import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public section
-
 namespace Lean.Meta.Grind.Arith.CommRing
 
 private abbrev M := StateT Ring MetaM

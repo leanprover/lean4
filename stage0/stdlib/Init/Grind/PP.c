@@ -24,6 +24,7 @@ static lean_object* l_Lean_Grind_nodeDefUnexpander___redArg___closed__0;
 static lean_object* l_Lean_Grind_NodeDefUnexpander___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_noConfusion(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Grind_nodeDefUnexpander___redArg___closed__3;
@@ -41,14 +42,13 @@ LEAN_EXPORT lean_object* l_Lean_Grind_NodeDefUnexpander(lean_object*, lean_objec
 lean_object* l_Lean_TSyntax_getNat(lean_object*);
 static lean_object* l_Lean_Grind_nodeDefUnexpander___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Grind_nodeDefUnexpander___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Grind_nodeDefUnexpander___redArg___closed__2;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_NodeDefUnexpander___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_node__def___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_toCtorIdx(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_ctorIdx(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -56,11 +56,11 @@ x_2 = lean_unsigned_to_nat(0u);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_toCtorIdx___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_toCtorIdx(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Grind_NodeDef_toCtorIdx(x_1);
+x_2 = lean_unsigned_to_nat(0u);
 return x_2;
 }
 }

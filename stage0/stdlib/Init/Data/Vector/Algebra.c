@@ -736,9 +736,9 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_2, 2);
-lean_inc_ref(x_4);
+lean_inc(x_4);
+lean_inc_ref(x_3);
 lean_inc(x_1);
 x_5 = l_Vector_instAddCommGroup___redArg(x_1, x_3);
 x_6 = l_Lean_Grind_IntModule_toNatModule___redArg(x_2);
@@ -753,7 +753,7 @@ lean_dec(x_9);
 x_10 = lean_ctor_get(x_2, 0);
 lean_dec(x_10);
 x_11 = lean_ctor_get(x_6, 1);
-lean_inc_ref(x_11);
+lean_inc(x_11);
 lean_dec_ref(x_6);
 lean_inc(x_1);
 x_12 = lean_alloc_closure((void*)(l_Vector_hmul___boxed), 7, 5);
@@ -778,7 +778,7 @@ else
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 lean_dec(x_2);
 x_14 = lean_ctor_get(x_6, 1);
-lean_inc_ref(x_14);
+lean_inc(x_14);
 lean_dec_ref(x_6);
 lean_inc(x_1);
 x_15 = lean_alloc_closure((void*)(l_Vector_hmul___boxed), 7, 5);

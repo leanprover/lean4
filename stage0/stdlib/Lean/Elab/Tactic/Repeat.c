@@ -34,6 +34,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 static size_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_MVarId_isAssigned___at_____private_Lean_Meta_Tactic_Repeat_0__Lean_Meta_repeat_x27Core_go___at___Lean_Meta_repeat_x27Core___at___Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__1___lam__0(lean_object*);
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Meta_repeat_x27Core___at___Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__1_spec__1_spec__8(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -87,7 +88,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalRepeat1_x27(lean_object*, lean_o
 static lean_object* l___private_Lean_Elab_Tactic_Repeat_0__Lean_Elab_Tactic_evalRepeat_x27___regBuiltin_Lean_Elab_Tactic_evalRepeat_x27_declRange__3___closed__5;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at___Lean_Meta_repeat1_x27___at___Lean_Elab_Tactic_evalRepeat1_x27_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at___Lean_MVarId_isAssigned___at_____private_Lean_Meta_Tactic_Repeat_0__Lean_Meta_repeat_x27Core_go___at___Lean_Meta_repeat_x27Core___at___Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__1_spec__1_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_Tactic_evalRepeat_x27_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_repeat1_x27___at___Lean_Elab_Tactic_evalRepeat1_x27_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalTacticAtRaw(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -110,6 +110,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_repeat1_x27___at___Lean_Elab_Tactic_evalRep
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_MVarId_isAssigned___at_____private_Lean_Meta_Tactic_Repeat_0__Lean_Meta_repeat_x27Core_go___at___Lean_Meta_repeat_x27Core___at___Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1___redArg(lean_object*, size_t, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 static size_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_MVarId_isAssigned___at_____private_Lean_Meta_Tactic_Repeat_0__Lean_Meta_repeat_x27Core_go___at___Lean_Meta_repeat_x27Core___at___Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1___redArg___closed__1;
+uint64_t l_Lean_hashMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_35_(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Elab_Tactic_evalRepeat_x27___closed__6;
 static lean_object* l___private_Lean_Elab_Tactic_Repeat_0__Lean_Elab_Tactic_evalRepeat_x27___regBuiltin_Lean_Elab_Tactic_evalRepeat_x27__1___closed__1;
@@ -118,7 +119,6 @@ static lean_object* l___private_Lean_Elab_Tactic_Repeat_0__Lean_Elab_Tactic_eval
 static lean_object* l___private_Lean_Elab_Tactic_Repeat_0__Lean_Elab_Tactic_evalRepeat_x27___regBuiltin_Lean_Elab_Tactic_evalRepeat_x27_declRange__3___closed__0;
 size_t lean_usize_shift_left(size_t, size_t);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
-uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1869_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_isAssigned___at_____private_Lean_Meta_Tactic_Repeat_0__Lean_Meta_repeat_x27Core_go___at___Lean_Meta_repeat_x27Core___at___Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__1_spec__1_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_MVarId_isAssigned___at_____private_Lean_Meta_Tactic_Repeat_0__Lean_Meta_repeat_x27Core_go___at___Lean_Meta_repeat_x27Core___at___Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1(lean_object*, lean_object*, size_t, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -191,9 +191,8 @@ return x_5;
 else
 {
 lean_object* x_6; uint8_t x_7; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
 x_7 = lean_name_eq(x_3, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
@@ -311,7 +310,7 @@ LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at___Lean_MVarId_isAssig
 _start:
 {
 uint64_t x_3; size_t x_4; uint8_t x_5; 
-x_3 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1869_(x_2);
+x_3 = l_Lean_hashMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_35_(x_2);
 x_4 = lean_uint64_to_usize(x_3);
 x_5 = l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_MVarId_isAssigned___at_____private_Lean_Meta_Tactic_Repeat_0__Lean_Meta_repeat_x27Core_go___at___Lean_Meta_repeat_x27Core___at___Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1___redArg(x_1, x_4, x_2);
 return x_5;
@@ -1653,7 +1652,7 @@ return x_19;
 else
 {
 uint8_t x_20; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_20 = !lean_is_exclusive(x_12);
 if (x_20 == 0)
 {
@@ -2414,9 +2413,7 @@ lean_object* x_14; lean_object* x_15; uint8_t x_16;
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_14, 0);
-lean_inc(x_15);
 x_16 = lean_unbox(x_15);
-lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 

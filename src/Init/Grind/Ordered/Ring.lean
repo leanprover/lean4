@@ -17,7 +17,7 @@ namespace Lean.Grind
 A ring which is also equipped with a preorder is considered a strict ordered ring if addition, negation,
 and multiplication are compatible with the preorder, and `0 < 1`.
 -/
-class OrderedRing (R : Type u) [Semiring R] [Preorder R] extends OrderedAdd R where
+class OrderedRing (R : Type u) [Semiring R] [LE R] [LT R] [Preorder R] extends OrderedAdd R where
   /-- In a strict ordered semiring, we have `0 < 1`. -/
   zero_lt_one : (0 : R) < 1
   /-- In a strict ordered semiring, we can multiply an inequality `a < b` on the left
@@ -33,7 +33,7 @@ variable {R : Type u} [Ring R]
 
 section Preorder
 
-variable [Preorder R] [OrderedRing R]
+variable [LE R] [LT R] [Preorder R] [OrderedRing R]
 
 theorem neg_one_lt_zero : (-1 : R) < 0 := by
   have h := zero_lt_one (R := R)
@@ -52,7 +52,7 @@ theorem ofNat_nonneg (x : Nat) : (OfNat.ofNat x : R) ≥ 0 := by
     have := Preorder.lt_of_lt_of_le this ih
     exact Preorder.le_of_lt this
 
-instance [Ring α] [Preorder α] [OrderedRing α] : IsCharP α 0 := IsCharP.mk' _ _ <| by
+instance [Ring R] [LE R] [LT R] [Preorder R] [OrderedRing R] : IsCharP R 0 := IsCharP.mk' _ _ <| by
   intro x
   simp only [Nat.mod_zero]; constructor
   next =>
@@ -64,11 +64,11 @@ instance [Ring α] [Preorder α] [OrderedRing α] : IsCharP α 0 := IsCharP.mk' 
       replace h := congrArg (· - 1) h; simp at h
       rw [Ring.sub_eq_add_neg, Semiring.add_assoc, AddCommGroup.add_neg_cancel,
           Ring.sub_eq_add_neg, AddCommMonoid.zero_add, Semiring.add_zero] at h
-      have h₁ : (OfNat.ofNat x : α) < 0 := by
-        have := OrderedRing.neg_one_lt_zero (R := α)
+      have h₁ : (OfNat.ofNat x : R) < 0 := by
+        have := OrderedRing.neg_one_lt_zero (R := R)
         rw [h]; assumption
-      have h₂ := OrderedRing.ofNat_nonneg (R := α) x
-      have : (0 : α) < 0 := Preorder.lt_of_le_of_lt h₂ h₁
+      have h₂ := OrderedRing.ofNat_nonneg (R := R) x
+      have : (0 : R) < 0 := Preorder.lt_of_le_of_lt h₂ h₁
       simp
       exact (Preorder.lt_irrefl 0) this
   next => intro h; rw [OfNat.ofNat, h]; rfl
@@ -77,7 +77,7 @@ end Preorder
 
 section PartialOrder
 
-variable [PartialOrder R] [OrderedRing R]
+variable [LE R] [LT R] [PartialOrder R] [OrderedRing R]
 
 theorem zero_le_one : (0 : R) ≤ 1 := Preorder.le_of_lt zero_lt_one
 
@@ -158,7 +158,7 @@ end PartialOrder
 
 section LinearOrder
 
-variable [LinearOrder R] [OrderedRing R]
+variable [LE R] [LT R] [LinearOrder R] [OrderedRing R]
 
 theorem mul_nonneg_iff {a b : R} : 0 ≤ a * b ↔ 0 ≤ a ∧ 0 ≤ b ∨ a ≤ 0 ∧ b ≤ 0 := by
   rcases LinearOrder.trichotomy 0 a with (ha | rfl | ha)

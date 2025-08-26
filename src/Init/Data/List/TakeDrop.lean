@@ -6,7 +6,8 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import all Init.Data.List.Basic
+public import Init.Data.List.Basic
+import all Init.Data.List.Basic
 public import Init.Data.List.Lemmas
 
 public section
@@ -68,9 +69,9 @@ theorem take_of_length_le {l : List α} (h : l.length ≤ i) : take i l = l := b
 theorem lt_length_of_take_ne_self {l : List α} {i} (h : l.take i ≠ l) : i < l.length :=
   gt_of_not_le (mt take_of_length_le h)
 
-@[simp] theorem drop_length {l : List α} : l.drop l.length = [] := drop_of_length_le (Nat.le_refl _)
+@[simp, grind =] theorem drop_length {l : List α} : l.drop l.length = [] := drop_of_length_le (Nat.le_refl _)
 
-@[simp] theorem take_length {l : List α} : l.take l.length = l := take_of_length_le (Nat.le_refl _)
+@[simp, grind =] theorem take_length {l : List α} : l.take l.length = l := take_of_length_le (Nat.le_refl _)
 
 @[simp]
 theorem getElem_cons_drop : ∀ {l : List α} {i : Nat} (h : i < l.length),

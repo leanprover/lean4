@@ -19,12 +19,15 @@ LEAN_EXPORT lean_object* l_Lean_CollectAxioms_collect(lean_object*, lean_object*
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_environment_find(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_ctorIdx(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_collectAxioms___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_CollectAxioms_collect___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_collectAxioms___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 lean_object* lean_task_get_own(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_toCtorIdx(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_ctorIdx___boxed(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_CollectAxioms_collect_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -36,7 +39,42 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Expr_getUsedConstants(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forM___at___Lean_CollectAxioms_collect_spec__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_collectAxioms(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_CollectAxioms_State_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_toCtorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_CollectAxioms_State_toCtorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_CollectAxioms_State_toCtorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_CollectAxioms_collect_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -156,13 +194,13 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_5);
 x_6 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(x_1, x_4);
 if (x_6 == 0)
 {
 uint8_t x_7; 
+lean_inc_ref(x_5);
+lean_inc(x_4);
 x_7 = !lean_is_exclusive(x_3);
 if (x_7 == 0)
 {
@@ -172,12 +210,12 @@ lean_dec(x_8);
 x_9 = lean_ctor_get(x_3, 0);
 lean_dec(x_9);
 x_10 = lean_ctor_get(x_2, 2);
-lean_inc_ref(x_10);
 lean_inc(x_1);
 x_11 = l_Lean_NameSet_insert(x_4, x_1);
 lean_inc_ref(x_5);
 lean_inc(x_11);
 lean_ctor_set(x_3, 0, x_11);
+lean_inc_ref(x_10);
 x_12 = lean_task_get_own(x_10);
 lean_inc(x_1);
 x_13 = lean_environment_find(x_12, x_1);
@@ -329,7 +367,6 @@ else
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 lean_dec(x_3);
 x_47 = lean_ctor_get(x_2, 2);
-lean_inc_ref(x_47);
 lean_inc(x_1);
 x_48 = l_Lean_NameSet_insert(x_4, x_1);
 lean_inc_ref(x_5);
@@ -337,6 +374,7 @@ lean_inc(x_48);
 x_49 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_49, 0, x_48);
 lean_ctor_set(x_49, 1, x_5);
+lean_inc_ref(x_47);
 x_50 = lean_task_get_own(x_47);
 lean_inc(x_1);
 x_51 = lean_environment_find(x_50, x_1);
@@ -487,8 +525,6 @@ return x_84;
 else
 {
 lean_object* x_85; lean_object* x_86; 
-lean_dec_ref(x_5);
-lean_dec(x_4);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 x_85 = lean_box(0);
@@ -556,13 +592,13 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_1);
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
 lean_dec_ref(x_2);
 x_7 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_7);
+lean_inc(x_7);
 lean_dec_ref(x_4);
 x_8 = lean_alloc_closure((void*)(l_Lean_collectAxioms___redArg___lam__0), 3, 2);
 lean_closure_set(x_8, 0, x_3);

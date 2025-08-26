@@ -163,8 +163,8 @@ private def addSuggestionCore (ref : Syntax) (suggestions : Array Suggestion)
 The parameters are:
 * `ref`: the span of the info diagnostic
 * `s`: a `Suggestion`, which contains
-  * `suggestion`: the replacement text;
-  * `preInfo?`: an optional string shown immediately after the replacement text in the widget
+  * `suggestion`: the replacement text
+  * `preInfo?`: an optional string shown immediately before the replacement text in the widget
     message (only)
   * `postInfo?`: an optional string shown immediately after the replacement text in the widget
     message (only)
@@ -198,8 +198,8 @@ def addSuggestion (ref : Syntax) (s : Suggestion) (origSpan? : Option Syntax := 
 The parameters are:
 * `ref`: the span of the info diagnostic
 * `suggestions`: an array of `Suggestion`s, which each contain
-  * `suggestion`: the replacement text;
-  * `preInfo?`: an optional string shown immediately after the replacement text in the widget
+  * `suggestion`: the replacement text
+  * `preInfo?`: an optional string shown immediately before the replacement text in the widget
     message (only)
   * `postInfo?`: an optional string shown immediately after the replacement text in the widget
     message (only)

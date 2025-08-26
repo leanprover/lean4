@@ -177,7 +177,7 @@ def litToCtor (e : Expr) : MetaM Expr := do
     let p := mkApp4 (mkConst ``LT.lt [0]) (mkConst ``Nat) (mkConst ``instLTNat) i n
     let h := mkApp3 (mkConst ``of_decide_eq_true) p
       (mkApp2 (mkConst ``Nat.decLt) i n)
-      (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``true))
+      eagerReflBoolTrue
     return mkApp3 (mkConst ``Fin.mk) n i h
   return e
 

@@ -1,3 +1,4 @@
+module
 example {n} (x y : BitVec n) : x * y = y * x := by
   grind
 

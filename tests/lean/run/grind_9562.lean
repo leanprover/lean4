@@ -1,3 +1,4 @@
+module
 axiom A : Type
 axiom angle (x y z : A) : Int
 axiom pi : Int

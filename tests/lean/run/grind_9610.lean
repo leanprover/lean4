@@ -1,3 +1,4 @@
+module
 set_option warn.sorry false
 abbrev sixteen : UInt32 := 16
 

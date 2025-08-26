@@ -66,4 +66,7 @@ theorem bind [Monad m] [WPMonad m ps] {α β : Type u} {P : Assertion ps} {Q : �
 theorem and [WP m ps] (x : m α) (h₁ : Triple x P₁ Q₁) (h₂ : Triple x P₂ Q₂) : Triple x spred(P₁ ∧ P₂) (Q₁ ∧ₚ Q₂) :=
   (SPred.and_mono h₁ h₂).trans ((wp x).conjunctive Q₁ Q₂).mpr
 
+theorem mp [WP m ps] (x : m α) (h₁ : Triple x P₁ Q₁) (h₂ : Triple x P₂ (Q₁ →ₚ Q₂)) : Triple x spred(P₁ ∧ P₂) (Q₁ ∧ₚ Q₂) :=
+  SPred.and_mono h₁ h₂ |>.trans ((wp x).conjunctive Q₁ (Q₁ →ₚ Q₂)).mpr |>.trans ((wp x).mono _ _ PostCond.and_imp)
+
 end Triple

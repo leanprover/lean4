@@ -6,9 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Linter.Basic
-public import Lean.Attributes
-public import Lean.Elab.InfoTree.Main
+public import Lean.Meta.Basic
+import Lean.Linter.Basic
+import Lean.Elab.InfoTree.Main
 
 public section
 
@@ -41,6 +41,12 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
         logWarning "`[deprecated]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := \"...\")`"
       return { newName?, text?, since? }
   }
+
+def setDeprecated {m} [Monad m] [MonadEnv m] [MonadError m] (declName : Name) (entry : DeprecationEntry) : m Unit := do
+  let env ← getEnv
+  match deprecatedAttr.setParam env declName entry with
+  | Except.ok env   => setEnv env
+  | Except.error ex => throwError ex
 
 def isDeprecated (env : Environment) (declName : Name) : Bool :=
   Option.isSome <| deprecatedAttr.getParam? env declName

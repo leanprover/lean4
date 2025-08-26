@@ -67,15 +67,15 @@ def pairsSumToZero (l : List Int) : Bool := Id.run do
 
 theorem pairsSumToZero_correct (l : List Int) : pairsSumToZero l ↔ l.ExistsPair (fun a b => a + b = 0) := by
   generalize h : pairsSumToZero l = r
-  apply Id.by_wp h
+  apply Id.of_wp_run_eq h
 
   mvcgen
 
-  case inv =>
+  case inv1 =>
     exact Invariant.withEarlyReturn
       (onReturn := fun r b => ⌜r = true ∧ l.ExistsPair (fun a b => a + b = 0)⌝)
       (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.rpref) ∧ ¬traversalState.pref.ExistsPair (fun a b => a + b = 0)⌝)
+        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ ¬traversalState.prefix.ExistsPair (fun a b => a + b = 0)⌝)
 
   all_goals simp_all <;> grind
 

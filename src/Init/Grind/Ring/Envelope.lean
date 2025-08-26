@@ -8,7 +8,8 @@ module
 prelude
 public import Init.Grind.Ring.Basic
 public import Init.Grind.Ordered.Ring
-public import all Init.Data.AC
+public import Init.Data.AC
+import all Init.Data.AC
 
 @[expose] public section
 
@@ -359,7 +360,7 @@ instance {p} [Semiring α] [AddRightCancel α] [IsCharP α p] : IsCharP (OfSemir
       apply Quot.sound
       exists 0; simp [← Semiring.ofNat_eq_natCast, this]
 
-instance [Preorder α] [OrderedAdd α] : LE (OfSemiring.Q α) where
+instance [LE α] [LT α] [Preorder α] [OrderedAdd α] : LE (OfSemiring.Q α) where
   le a b := Q.liftOn₂ a b (fun (a, b) (c, d) => a + d ≤ b + c)
     (by intro (a₁, b₁) (a₂, b₂) (a₃, b₃) (a₄, b₄)
         simp; intro k₁ h₁ k₂ h₂
@@ -375,11 +376,14 @@ instance [Preorder α] [OrderedAdd α] : LE (OfSemiring.Q α) where
         rw [this]; clear this
         rw [← OrderedAdd.add_le_left_iff])
 
-@[local simp] theorem mk_le_mk [Preorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
+instance [LE α] [LT α] [Preorder α] [OrderedAdd α] : LT (OfSemiring.Q α) where
+  lt a b := a ≤ b ∧ ¬b ≤ a
+
+@[local simp] theorem mk_le_mk [LE α] [LT α] [Preorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
     Q.mk (a₁, a₂) ≤ Q.mk (b₁, b₂) ↔ a₁ + b₂ ≤ a₂ + b₁ := by
   rfl
 
-instance [Preorder α] [OrderedAdd α] : Preorder (OfSemiring.Q α) where
+instance [LE α] [LT α] [Preorder α] [OrderedAdd α] : Preorder (OfSemiring.Q α) where
   le_refl a := by
     obtain ⟨⟨a₁, a₂⟩⟩ := a
     change Q.mk _ ≤ Q.mk _
@@ -398,23 +402,23 @@ instance [Preorder α] [OrderedAdd α] : Preorder (OfSemiring.Q α) where
     rw [this]; clear this
     exact OrderedAdd.add_le_add h₁ h₂
 
-@[local simp] private theorem mk_lt_mk [Preorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
+@[local simp] private theorem mk_lt_mk [LE α] [LT α] [Preorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
     Q.mk (a₁, a₂) < Q.mk (b₁, b₂) ↔ a₁ + b₂ < a₂ + b₁ := by
   simp [Preorder.lt_iff_le_not_le, Semiring.add_comm]
 
-@[local simp] private theorem mk_pos [Preorder α] [OrderedAdd α] {a₁ a₂ : α} :
+@[local simp] private theorem mk_pos [LE α] [LT α] [Preorder α] [OrderedAdd α] {a₁ a₂ : α} :
     0 < Q.mk (a₁, a₂) ↔ a₂ < a₁ := by
   simp [← toQ_ofNat, toQ, mk_lt_mk, AddCommMonoid.zero_add]
 
 @[local simp]
-theorem toQ_le [Preorder α] [OrderedAdd α] {a b : α} : toQ a ≤ toQ b ↔ a ≤ b := by
+theorem toQ_le [LE α] [LT α] [Preorder α] [OrderedAdd α] {a b : α} : toQ a ≤ toQ b ↔ a ≤ b := by
   simp
 
 @[local simp]
-theorem toQ_lt [Preorder α] [OrderedAdd α] {a b : α} : toQ a < toQ b ↔ a < b := by
+theorem toQ_lt [LE α] [LT α] [Preorder α] [OrderedAdd α] {a b : α} : toQ a < toQ b ↔ a < b := by
   simp [Preorder.lt_iff_le_not_le]
 
-instance [Preorder α] [OrderedAdd α] : OrderedAdd (OfSemiring.Q α) where
+instance [LE α] [LT α] [Preorder α] [OrderedAdd α] : OrderedAdd (OfSemiring.Q α) where
   add_le_left_iff := by
     intro a b c
     obtain ⟨⟨a₁, a₂⟩⟩ := a
@@ -428,7 +432,7 @@ instance [Preorder α] [OrderedAdd α] : OrderedAdd (OfSemiring.Q α) where
     rw [← OrderedAdd.add_le_left_iff]
 
 -- This perhaps works in more generality than `ExistsAddOfLT`?
-instance [Preorder α] [OrderedRing α] [ExistsAddOfLT α] : OrderedRing (OfSemiring.Q α) where
+instance [LE α] [LT α] [Preorder α] [OrderedRing α] [ExistsAddOfLT α] : OrderedRing (OfSemiring.Q α) where
   zero_lt_one := by
     rw [← toQ_ofNat, ← toQ_ofNat, toQ_lt]
     exact OrderedRing.zero_lt_one

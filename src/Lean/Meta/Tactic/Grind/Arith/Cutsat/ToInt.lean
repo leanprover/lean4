@@ -11,7 +11,7 @@ public import Lean.Meta.Tactic.Grind.SynthInstance
 public import Lean.Meta.Tactic.Grind.Simp
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 public import Lean.Meta.Tactic.Grind.Arith.EvalNum
-
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -20,11 +20,30 @@ private def reportMissingToIntAdapter (type : Expr) (instType : Expr) : MetaM Un
   trace[grind.debug.cutsat.debug] "`ToInt` initialization failure, failed to synthesize{indentExpr instType}\nfor type{indentExpr type}"
 
 private def throwMissingDecl (declName : Name) : MetaM Unit :=
-  throwError "`grind cutsat`, unexpected missing declaration {declName}"
+  throwError "`grind cutsat`, unexpected missing declaration {.ofConstName declName}"
 
 private def checkDecl (declName : Name) : MetaM Unit := do
   unless (← getEnv).contains declName do
     throwMissingDecl declName
+
+private def normalizeBound (bound : Expr) : GrindM SymbolicBound := do
+  if let some bound ← evalInt? bound then
+    return { val := mkIntLit bound, ival? := some bound }
+  else
+    return { val := bound, ival? := none }
+
+def SymbolicBound.isZero (b : SymbolicBound) : Bool :=
+  if let some b := b.ival? then
+    b == 0
+  else
+    false
+
+/-- Given a symbolic bound `b`, returns `-b + 1` -/
+def SymbolicBound.mkIntNegSucc (b : SymbolicBound) : MetaM Expr := do
+  if let some val := b.ival? then
+    return mkIntLit (-val + 1)
+  else
+    return mkIntAdd (mkIntNeg b.val) (mkIntLit 1)
 
 def getToIntId? (type : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').toIntIds.find? { expr := type } then
@@ -35,16 +54,12 @@ def getToIntId? (type : Expr) : GoalM (Option Nat) := do
       toIntIds := s.toIntIds.insert { expr := type } id? }
     return id?
 where
-  toIntInterval? (rangeExpr : Expr) : GoalM (Option Grind.IntInterval) := do
+  toIntInterval? (rangeExpr : Expr) : GoalM (Option SymbolicIntInterval) := do
     let rangeExpr ← whnfD rangeExpr
     match_expr rangeExpr with
     | Grind.IntInterval.co lo hi =>
-      let some lo ← evalInt? lo
-        | trace[grind.debug.cutsat.toInt] "`ToInt` lower bound could not be reduced to an integer{indentExpr (← whnfD lo)}\nfor type{indentExpr type}"
-          return none
-      let some hi ← evalInt? hi
-        | trace[grind.debug.cutsat.toInt] "`ToInt` upper bound could not be reduced to an integer{indentExpr hi}\nfor type{indentExpr type}"
-          return none
+      let lo ← normalizeBound lo
+      let hi ← normalizeBound hi
       return some (.co lo hi)
     | _ =>
       trace[grind.debug.cutsat.toInt] "unsupported `ToInt` interval{indentExpr rangeExpr}\nfor type{indentExpr type}"
@@ -62,21 +77,32 @@ where
     let some range ← toIntInterval? rangeExpr | return none
     let toInt := mkApp3 (mkConst ``Grind.ToInt.toInt [u]) type rangeExpr toIntInst
     let wrap := mkApp (mkConst ``Grind.IntInterval.wrap) rangeExpr
-    let ofWrap0? := if let .co 0 hi := range then
-      some <| mkApp3 (mkConst ``Grind.ToInt.of_eq_wrap_co_0) rangeExpr (toExpr hi) reflBoolTrue
-    else
-      none
+    let ofWrap0? ← if let .co lo hi := range then
+      if lo.isZero then
+        pure <| some <| mkApp3 (mkConst ``Grind.ToInt.of_eq_wrap_co_0) rangeExpr hi.val (← mkEqRefl rangeExpr)
+      else pure none
+      else pure none
     let ofEq := mkApp3 (mkConst ``Grind.ToInt.of_eq [u]) type rangeExpr toIntInst
     let ofDiseq := mkApp3 (mkConst ``Grind.ToInt.of_diseq [u]) type rangeExpr toIntInst
-    let lowerThm? := if let some lo := range.lo? then
-      if lo == 0 then
-        some <| mkApp4 (mkConst ``Grind.ToInt.ge_lower0 [u]) type rangeExpr toIntInst reflBoolTrue
+    let lowerThm? ← if let some lo := range.lo? then
+      if let some lo' := lo.ival? then
+        if lo' == 0 then
+          pure <| some <| mkApp4 (mkConst ``Grind.ToInt.ge_lower0 [u]) type rangeExpr toIntInst eagerReflBoolTrue
+        else
+          pure <| some <| mkApp5 (mkConst ``Grind.ToInt.ge_lower [u]) type rangeExpr toIntInst lo.val eagerReflBoolTrue
       else
-        some <| mkApp5 (mkConst ``Grind.ToInt.ge_lower [u]) type rangeExpr toIntInst (toExpr lo) reflBoolTrue
-    else none
-    let upperThm? := if let some hi := range.hi? then
-      some <| mkApp5 (mkConst ``Grind.ToInt.le_upper [u]) type rangeExpr toIntInst (toExpr (-hi + 1)) reflBoolTrue
-    else none
+        -- Symbolic case
+        let some_lo ← mkSome Int.mkType lo.val
+        pure <| some <| mkApp5 (mkConst ``Grind.ToInt.ge_lower' [u]) type rangeExpr toIntInst lo.val (← mkEqRefl some_lo)
+    else pure none
+    let upperThm? ← if let some hi := range.hi? then
+      if hi.isNumeral then
+        pure <| some <| mkApp5 (mkConst ``Grind.ToInt.le_upper [u]) type rangeExpr toIntInst (← hi.mkIntNegSucc) eagerReflBoolTrue
+      else
+        -- Symbolic case
+        let some_hi ← mkSome Int.mkType hi.val
+        pure <| some <| mkApp5 (mkConst ``Grind.ToInt.le_upper' [u]) type rangeExpr toIntInst hi.val (← mkEqRefl some_hi)
+    else pure none
     trace[grind.debug.cutsat.toInt] "registered toInt: {type}"
     let id := (← get').toIntInfos.size
     modify' fun s => { s with toIntInfos := s.toIntInfos.push { id, type, u, toIntInst, rangeExpr, range, toInt, wrap, ofWrap0?, ofEq, ofDiseq, lowerThm?, upperThm? } }
@@ -187,15 +213,15 @@ private def mkBinOpThms (opBaseName : Name) (thmName : Name) : ToIntM ToIntThms 
   let cwrName := thmName ++ `wr
   let info ← getInfo
   let c_ww? := if info.range.isFinite && env.contains cwwName then
-    some <| mkApp6 (mkConst cwwName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst reflBoolTrue
+    some <| mkApp6 (mkConst cwwName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst eagerReflBoolTrue
   else
     none
-  let c_wl? := if info.range.isFinite && info.range.nonEmpty && env.contains cwwName then
-    some <| mkApp7 (mkConst cwlName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst reflBoolTrue reflBoolTrue
+  let c_wl? := if info.range.isFinite && env.contains cwlName then
+    some <| mkApp6 (mkConst cwlName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst eagerReflBoolTrue
   else
     none
-  let c_wr? := if info.range.isFinite && info.range.nonEmpty && env.contains cwwName then
-    some <| mkApp7 (mkConst cwrName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst reflBoolTrue reflBoolTrue
+  let c_wr? := if info.range.isFinite && env.contains cwrName then
+    some <| mkApp6 (mkConst cwrName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst eagerReflBoolTrue
   else
     none
   return { c? := some c, c_ww?, c_wl?, c_wr? }
@@ -292,21 +318,46 @@ private def isWrap (e : Expr) : Option Expr :=
   | Grind.IntInterval.wrap _ a => some a
   | _ => none
 
+private def hasNumericLoHi : ToIntM Bool := do
+  let info ← getInfo
+  let some lo := info.range.lo? | return false
+  let some hi := info.range.hi? | return false
+  return lo.isNumeral && hi.isNumeral
+
 /--
 Given `h : toInt a = i.wrap b`, return `(b', h)` where
 `b'` is the expanded form of `i.wrap b`, and `h : toInt a = b'`
 -/
 private def expandWrap (a b : Expr) (h : Expr) : ToIntM (Expr × Expr) := do
-  match (← getInfo).range with
+  let range := (← getInfo).range
+  match range with
   | .ii => return (b, h)
-  | .co 0 hi =>
-    let b' := mkIntMod b (toExpr hi)
-    let toA := mkApp (← getInfo).toInt a
-    let h := mkApp3 (← getInfo).ofWrap0?.get! toA b h
-    return (b', h)
   | .co lo hi =>
-    let b' := mkIntAdd (mkIntMod (mkIntSub b (toExpr lo)) (toExpr (hi - lo))) (toExpr lo)
-    return (b', h)
+    if lo.isZero then
+      let b' := mkIntMod b hi.val
+      let toA := mkApp (← getInfo).toInt a
+      let h := mkApp3 (← getInfo).ofWrap0?.get! toA b h
+      if hi.isNumeral then
+        return (b', h)
+      else
+        -- We must preprocess `b'` because `hi` has not been normalized and may interact with `%`
+        let r ← preprocess b'
+        let h ← mkEqTrans h (← r.getProof)
+        let b' := r.expr
+        internalize b' (← getGeneration b)
+        return (b', h)
+    else
+      let b' ← range.wrap b
+      if (← hasNumericLoHi) then
+        return (b', h)
+      else
+        -- We must preprocess `b'` because `lo` and/or `hi` are symbolic values that may
+        -- interact with the wrap operations and have not been normalized yet.
+        let r ← preprocess b'
+        let h ← mkEqTrans h (← r.getProof)
+        let b' := r.expr
+        internalize b' (← getGeneration b)
+        return (b', h)
   | _ => throwError "`grind cutsat`, `ToInt` interval not supported yet"
 
 /--
@@ -364,9 +415,12 @@ private partial def toInt' (e : Expr) : ToIntM (Expr × Expr) := do
   | OfNat.ofNat _ n _ =>
     let some thm ← getOfNatThm? | mkToIntVar e
     let some n ← getNatValue? n | mkToIntVar e
-    let r := mkIntLit ((← getInfo).range.wrap n)
     let h := mkApp thm (toExpr n)
-    return (r, h)
+    if (← hasNumericLoHi) then
+      let r ← (← getInfo).range.wrap (mkIntLit n)
+      return (r, h)
+    else
+      expandWrap e (mkIntLit n) h
   | _ => mkToIntVar e
 where
   toIntBin (toIntOp : ToIntThms) (mkBinOp : Expr → Expr → Expr) (a b : Expr) : ToIntM (Expr × Expr) := do
@@ -441,13 +495,19 @@ def assertToIntBounds (e : Expr) (x : Var) : GoalM Unit := do
   let i := info.range
   if let some lo := i.lo? then
     let some thm := info.lowerThm? | unreachable!
-    let p := .add (-1) x (.num lo)
-    let c := { p, h := .bound (mkApp thm a) : LeCnstr }
-    c.assert
+    if let some lo := lo.ival? then
+      let p := .add (-1) x (.num lo)
+      let c := { p, h := .bound (mkApp thm a) : LeCnstr }
+      c.assert
+    else
+      pushNewFact <| mkApp thm a
   if let some hi := i.hi? then
     let some thm := info.upperThm? | unreachable!
-    let p := .add 1 x (.num (-hi + 1))
-    let c := { p, h := .bound (mkApp thm a) : LeCnstr }
-    c.assert
+    if let some hi := hi.ival? then
+      let p := .add 1 x (.num (-hi + 1))
+      let c := { p, h := .bound (mkApp thm a) : LeCnstr }
+      c.assert
+    else
+      pushNewFact <| mkApp thm a
 
 end Lean.Meta.Grind.Arith.Cutsat

@@ -3,11 +3,14 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+module
+
 prelude
+public import Lake.Config.Env
+public import Lake.Load.Manifest
+public import Lake.Config.Package
 import Lake.Util.Git
-import Lake.Load.Manifest
 import Lake.Config.Dependency
-import Lake.Config.Package
 import Lake.Reservoir
 
 open System Lean
@@ -79,7 +82,7 @@ def materializeGitRepo
   else
     cloneGitPkg name repo url rev?
 
-structure MaterializedDep where
+public structure MaterializedDep where
   /-- Path to the materialized package relative to the workspace's root directory. -/
   relPkgDir : FilePath
   /--
@@ -91,19 +94,23 @@ structure MaterializedDep where
   manifestEntry : PackageEntry
   deriving Inhabited
 
-@[inline] def MaterializedDep.name (self : MaterializedDep) :=
+namespace MaterializedDep
+
+@[inline] public def name (self : MaterializedDep) :=
   self.manifestEntry.name
 
-@[inline] def MaterializedDep.scope (self : MaterializedDep) :=
+@[inline] public def scope (self : MaterializedDep) :=
   self.manifestEntry.scope
 
 /-- Path to the dependency's configuration file (relative to `relPkgDir`). -/
-@[inline] def MaterializedDep.manifestFile? (self : MaterializedDep) :=
+@[inline] public def manifestFile? (self : MaterializedDep) :=
   self.manifestEntry.manifestFile?
 
 /-- Path to the dependency's configuration file (relative to `relPkgDir`). -/
-@[inline] def MaterializedDep.configFile (self : MaterializedDep) :=
+@[inline] public def configFile (self : MaterializedDep) :=
   self.manifestEntry.configFile
+
+end MaterializedDep
 
 def pkgNotIndexed (scope name : String) (rev? : Option String := none) : String :=
   let (leanRev, tomlRev) :=
@@ -128,7 +135,7 @@ s!"{scope}/{name}: package not found on Reservoir.
 Materializes a configuration dependency.
 For Git dependencies, updates it to the latest input revision.
 -/
-def Dependency.materialize
+public def Dependency.materialize
   (dep : Dependency) (inherited : Bool)
   (lakeEnv : Env) (wsDir relPkgsDir relParentDir : FilePath)
 : LoggerIO MaterializedDep := do
@@ -180,7 +187,7 @@ where
 /--
 Materializes a manifest package entry, cloning and/or checking it out as necessary.
 -/
-def PackageEntry.materialize
+public def PackageEntry.materialize
   (manifestEntry : PackageEntry)
   (lakeEnv : Env) (wsDir relPkgsDir : FilePath)
 : LoggerIO MaterializedDep :=

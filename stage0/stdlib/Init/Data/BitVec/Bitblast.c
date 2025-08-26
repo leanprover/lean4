@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.BitVec.Bitblast
-// Imports: Init.Data.Nat.Bitwise.Basic Init.Data.Nat.Mod Init.Data.Int.DivMod Init.Data.Int.LemmasAux Init.Data.BitVec.Basic Init.Data.BitVec.Decidable Init.Data.BitVec.Lemmas Init.Data.BitVec.Folds
+// Imports: Init.Data.Nat.Bitwise.Basic Init.Data.Nat.Bitwise.Basic Init.Data.Nat.Mod Init.Data.Int.DivMod Init.Data.Int.DivMod Init.Data.Int.LemmasAux Init.Data.BitVec.Basic Init.Data.BitVec.Basic Init.Data.BitVec.Decidable Init.Data.BitVec.Lemmas Init.Data.BitVec.Folds
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -28,6 +28,10 @@ lean_object* l_Bool_toNat(uint8_t);
 lean_object* l_BitVec_shiftLeft(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Bitblast_0__BitVec_mulRec_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_DivModArgs_toCtorIdx___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_DivModState_toCtorIdx(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_DivModState_toCtorIdx___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_DivModState_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_divRec(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_carry___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_shiftLeftRec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -50,6 +54,7 @@ LEAN_EXPORT uint8_t l_BitVec_carry(lean_object*, lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Bitblast_0__BitVec_mulRec_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_sshiftRight(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_atLeastTwo___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_DivModArgs_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_divRec___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_twoPow(lean_object*, lean_object*);
 uint8_t l_Nat_testBit(lean_object*, lean_object*);
@@ -57,11 +62,14 @@ lean_object* lean_nat_pow(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_DivModArgs_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_adc___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Bitblast_0__BitVec_getElem__sdiv_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Bitblast_0__BitVec_sdiv_match__1_splitter___redArg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Bool_atLeastTwo(uint8_t, uint8_t, uint8_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_DivModArgs_toCtorIdx(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_DivModState_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Bitblast_0__BitVec_sdiv__eq_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_adc___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_divSubtractShift(lean_object*, lean_object*, lean_object*);
@@ -472,7 +480,7 @@ x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_nat_dec_eq(x_1, x_4);
 if (x_5 == 1)
 {
-lean_dec_ref(x_3);
+lean_dec(x_3);
 lean_inc(x_2);
 return x_2;
 }
@@ -555,6 +563,78 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_DivModState_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_DivModState_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_BitVec_DivModState_ctorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_DivModState_toCtorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_DivModState_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_BitVec_DivModState_toCtorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_DivModArgs_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_DivModArgs_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_BitVec_DivModArgs_ctorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_DivModArgs_toCtorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_DivModArgs_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_BitVec_DivModArgs_toCtorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_BitVec_DivModState_init(lean_object* x_1) {
@@ -1056,9 +1136,12 @@ return x_10;
 }
 }
 lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Mod(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_DivMod(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_DivMod(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Decidable(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin, lean_object*);
@@ -1071,13 +1154,22 @@ _G_initialized = true;
 res = initialize_Init_Data_Nat_Bitwise_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Bitwise_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Mod(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_DivMod(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Int_DivMod(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Int_LemmasAux(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());

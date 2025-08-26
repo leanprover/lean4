@@ -3,11 +3,13 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.DSL.Syntax
 import Lake.Config.Package
 import Lake.DSL.Attributes
 import Lake.DSL.DeclUtil
-import Lake.DSL.Syntax
 
 open Lean Parser Elab Command
 
@@ -33,11 +35,6 @@ def elabPackageCommand : CommandElab := fun stx => do
   let decl ← `({name := $name, config := $configId})
   let cmd ← `($[$doc?]? @[$attrs,*] abbrev $id : PackageDecl := $decl)
   withMacroExpansion stx cmd <| elabCommand cmd
-
-abbrev PackageCommand := TSyntax ``packageCommand
-
-instance : Coe PackageCommand Command where
-  coe x := ⟨x.raw⟩
 
 @[builtin_macro postUpdateDecl]
 def expandPostUpdateDecl : Macro := fun stx => do

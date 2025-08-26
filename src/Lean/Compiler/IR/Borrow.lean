@@ -46,8 +46,8 @@ abbrev ParamMap := Std.HashMap Key (Array Param)
 def ParamMap.fmt (map : ParamMap) : Format :=
   let fmts := map.fold (fun fmt k ps =>
     let k := match k with
-      | ParamMap.Key.decl n  => format n
-      | ParamMap.Key.jp n id => format n ++ ":" ++ format id
+      | .decl n  => format n
+      | .jp n id => format n ++ ":" ++ format id
     fmt ++ Format.line ++ k ++ " -> " ++ formatParams ps)
    Format.nil
   "{" ++ (Format.nest 1 fmts) ++ "}"
@@ -70,41 +70,42 @@ def initBorrow (ps : Array Param) : Array Param :=
 def initBorrowIfNotExported (exported : Bool) (ps : Array Param) : Array Param :=
   if exported then ps else initBorrow ps
 
-partial def visitFnBody (fnid : FunId) : FnBody → StateM ParamMap Unit
-  | FnBody.jdecl j xs v b  => do
-    modify fun m => m.insert (ParamMap.Key.jp fnid j) (initBorrow xs)
+partial def visitFnBody (fnid : FunId) (b : FnBody) : StateM ParamMap Unit := do
+  match b with
+  | .jdecl j xs v b  =>
+    modify fun m => m.insert (.jp fnid j) (initBorrow xs)
     visitFnBody fnid v
     visitFnBody fnid b
-  | FnBody.case _ _ _ alts => alts.forM fun alt => visitFnBody fnid alt.body
-  | e => do
-    unless e.isTerminal do
-      visitFnBody fnid e.body
+  | .case _ _ _ alts => alts.forM fun alt => visitFnBody fnid alt.body
+  | _ => do
+    unless b.isTerminal do
+      visitFnBody fnid b.body
 
 def visitDecls (env : Environment) (decls : Array Decl) : StateM ParamMap Unit :=
   decls.forM fun decl => match decl with
     | .fdecl (f := f) (xs := xs) (body := b) .. => do
       let exported := isExport env f
-      modify fun m => m.insert (ParamMap.Key.decl f) (initBorrowIfNotExported exported xs)
+      modify fun m => m.insert (.decl f) (initBorrowIfNotExported exported xs)
       visitFnBody f b
     | _ => pure ()
 end InitParamMap
 
 def mkInitParamMap (env : Environment) (decls : Array Decl) : ParamMap :=
-(InitParamMap.visitDecls env decls *> get).run' {}
+  (InitParamMap.visitDecls env decls *> get).run' {}
 
 /-! Apply the inferred borrow annotations stored at `ParamMap` to a block of mutually
    recursive functions. -/
 namespace ApplyParamMap
 
 partial def visitFnBody (fn : FunId) (paramMap : ParamMap) : FnBody → FnBody
-  | FnBody.jdecl j _  v b =>
+  | .jdecl j _  v b =>
     let v := visitFnBody fn paramMap v
     let b := visitFnBody fn paramMap b
-    match paramMap[ParamMap.Key.jp fn j]? with
-    | some ys => FnBody.jdecl j ys v b
+    match paramMap[Key.jp fn j]? with
+    | some ys => .jdecl j ys v b
     | none    => unreachable!
-  | FnBody.case tid x xType alts =>
-    FnBody.case tid x xType <| alts.map fun alt => alt.modifyBody (visitFnBody fn paramMap)
+  | .case tid x xType alts =>
+    .case tid x xType <| alts.map fun alt => alt.modifyBody (visitFnBody fn paramMap)
   | e =>
     if e.isTerminal then e
     else
@@ -114,10 +115,10 @@ partial def visitFnBody (fn : FunId) (paramMap : ParamMap) : FnBody → FnBody
 
 def visitDecls (decls : Array Decl) (paramMap : ParamMap) : Array Decl :=
   decls.map fun decl => match decl with
-    | Decl.fdecl f _  ty b info =>
+    | .fdecl f _  ty b info =>
       let b := visitFnBody f paramMap b
-      match paramMap[ParamMap.Key.decl f]? with
-      | some xs => Decl.fdecl f xs ty b info
+      match paramMap[Key.decl f]? with
+      | some xs => .fdecl f xs ty b info
       | none    => unreachable!
     | other => other
 
@@ -187,7 +188,7 @@ def getParamInfo (k : ParamMap.Key) : M (Array Param) := do
   | some ps => pure ps
   | none    =>
     match k with
-    | ParamMap.Key.decl fn => do
+    | .decl fn => do
       let ctx ← read
       match findEnvDecl ctx.env fn with
       | some decl => pure decl.params
@@ -231,53 +232,71 @@ def ownArgsIfParam (xs : Array Arg) : M Unit := do
     | .var x => if ctx.paramSet.contains x.idx then ownVar x
     | .erased => pure ()
 
-def collectExpr (z : VarId) : Expr → M Unit
-  | Expr.reset _ x      => ownVar z *> ownVar x
-  | Expr.reuse x _ _ ys => ownVar z *> ownVar x *> ownArgsIfParam ys
-  | Expr.ctor _ xs      => ownVar z *> ownArgsIfParam xs
-  | Expr.proj _ x       => do
+def collectExpr (z : VarId) (e : Expr) : M Unit := do
+  match e with
+  | .reset _ x =>
+    ownVar z
+    ownVar x
+  | .reuse x _ _ ys =>
+    ownVar z
+    ownVar x
+    ownArgsIfParam ys
+  | .ctor _ xs =>
+    ownVar z
+    ownArgsIfParam xs
+  | .proj _ x =>
     if (← isOwned x) then ownVar z
     if (← isOwned z) then ownVar x
-  | Expr.fap g xs       => do
-    let ps ← getParamInfo (ParamMap.Key.decl g)
-    ownVar z *> ownArgsUsingParams xs ps
-  | Expr.ap x ys        => ownVar z *> ownVar x *> ownArgs ys
-  | Expr.pap _ xs       => ownVar z *> ownArgs xs
-  | _                   => pure ()
+  | .fap g xs =>
+    let ps ← getParamInfo (.decl g)
+    ownVar z
+    ownArgsUsingParams xs ps
+  | .ap x ys =>
+    ownVar z
+    ownVar x
+    ownArgs ys
+  | .pap _ xs =>
+    ownVar z
+    ownArgs xs
+  | _ => pure ()
 
 def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit := do
   let ctx ← read
   match v, b with
-  | (Expr.fap g ys), (FnBody.ret (.var z)) =>
+  | (.fap g ys), (.ret (.var z)) =>
     -- NOTE: we currently support TCO for self-calls only
     if ctx.currFn == g && x == z then
-      let ps ← getParamInfo (ParamMap.Key.decl g)
+      let ps ← getParamInfo (.decl g)
       ownParamsUsingArgs ys ps
   | _, _ => pure ()
 
 def updateParamSet (ctx : BorrowInfCtx) (ps : Array Param) : BorrowInfCtx :=
   { ctx with paramSet := ps.foldl (fun s p => s.insert p.x.idx) ctx.paramSet }
 
-partial def collectFnBody : FnBody → M Unit
-  | FnBody.jdecl j ys v b => do
+partial def collectFnBody (b : FnBody) : M Unit := do
+  match b with
+  | .jdecl j ys v b =>
     withReader (fun ctx => updateParamSet ctx ys) (collectFnBody v)
     let ctx ← read
-    updateParamMap (ParamMap.Key.jp ctx.currFn j)
+    updateParamMap (.jp ctx.currFn j)
     collectFnBody b
-  | FnBody.vdecl x _ v b => collectFnBody b *> collectExpr x v *> preserveTailCall x v b
-  | FnBody.jmp j ys      => do
+  | .vdecl x _ v b =>
+    collectFnBody b
+    collectExpr x v
+    preserveTailCall x v b
+  | .jmp j ys =>
     let ctx ← read
-    let ps ← getParamInfo (ParamMap.Key.jp ctx.currFn j)
+    let ps ← getParamInfo (.jp ctx.currFn j)
     ownArgsUsingParams ys ps -- for making sure the join point can reuse
     ownParamsUsingArgs ys ps  -- for making sure the tail call is preserved
-  | FnBody.case _ _ _ alts => alts.forM fun alt => collectFnBody alt.body
-  | e                      => do unless e.isTerminal do collectFnBody e.body
+  | .case _ _ _ alts => alts.forM fun alt => collectFnBody alt.body
+  | _ => do unless b.isTerminal do collectFnBody b.body
 
 partial def collectDecl : Decl → M Unit
   | .fdecl (f := f) (xs := ys) (body := b) .. =>
     withReader (fun ctx => let ctx := updateParamSet ctx ys; { ctx with currFn := f }) do
       collectFnBody b
-      updateParamMap (ParamMap.Key.decl f)
+      updateParamMap (.decl f)
   | _ => pure ()
 
 /-- Keep executing `x` until it reaches a fixpoint -/

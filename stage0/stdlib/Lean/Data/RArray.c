@@ -17,6 +17,7 @@ lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_RArray_toExpr___redArg___closed__5;
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0__Lean_RArray_getImpl_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getDecLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
@@ -40,7 +41,6 @@ LEAN_EXPORT lean_object* l_Lean_RArray_ofFn___redArg___boxed(lean_object*, lean_
 LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0__Lean_RArray_toExpr_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0__Lean_RArray_getImpl_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_RArray_toExpr___redArg___closed__2;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_mkRawNatLit(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0__Lean_RArray_ofFn_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -63,7 +63,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_nat_add(x_2, x_3);
 x_8 = lean_nat_shiftr(x_7, x_4);
 lean_dec(x_7);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_9 = l___private_Lean_Data_RArray_0__Lean_RArray_ofFn_go___redArg(x_1, x_2, x_8);
 lean_inc(x_8);
 x_10 = l___private_Lean_Data_RArray_0__Lean_RArray_ofFn_go___redArg(x_1, x_8, x_3);
@@ -149,7 +149,8 @@ LEAN_EXPORT lean_object* l_Lean_RArray_ofArray___redArg___lam__0(lean_object* x_
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_array_fget(x_1, x_2);
+x_3 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc(x_3);
 return x_3;
 }
 }
@@ -191,7 +192,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; lean_object* x_5; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec_ref(x_1);
@@ -201,7 +202,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_1, 1);

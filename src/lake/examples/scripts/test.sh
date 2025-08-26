@@ -15,7 +15,7 @@ $LAKE script run greet --me | tee -a produced.out
 $LAKE script doc greet | tee -a produced.out
 $LAKE script run hello | tee -a produced.out
 $LAKE script run dep/hello | tee -a produced.out
-# Test that non-indentifier names work
+# Test that non-identifier names work
 # https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Running.20.60lake.60.20scripts.20from.20the.20command.20line/near/446944450
 $LAKE script run say-goodbye | tee -a produced.out
 ($LAKE script run nonexistent 2>&1 | tee -a produced.out) && exit 1 || true

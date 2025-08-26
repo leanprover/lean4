@@ -1,3 +1,4 @@
+module
 example : ∀ x : Int, x > 7 → 2 * x > 14 := by
   grind
 

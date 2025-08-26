@@ -25,7 +25,7 @@ builtin_initialize extTheoremsExt : SimpleScopedEnvExtension Name ExtTheorems �
 def validateExtAttr (declName : Name) : CoreM Unit := do
   if !(← Ext.isExtTheorem declName) then
   if !(isStructure (← getEnv) declName) then
-    throwError "invalid `[grind ext]`, `{declName}` is neither tagged with `[ext]` nor is a structure"
+    throwError "invalid `[grind ext]`, `{.ofConstName declName}` is neither tagged with `[ext]` nor is a structure"
 
 def addExtAttr (declName : Name) (attrKind : AttributeKind) : CoreM Unit := do
   validateExtAttr declName
@@ -35,7 +35,7 @@ private def eraseDecl (s : ExtTheorems) (declName : Name) : CoreM ExtTheorems :=
   if s.contains declName then
     return s.erase declName
   else
-    throwError "`{declName}` is not marked with the `[grind ext]` attribute"
+    throwError "`{.ofConstName declName}` is not marked with the `[grind ext]` attribute"
 
 def eraseExtAttr (declName : Name) : CoreM Unit := do
   let s := extTheoremsExt.getState (← getEnv)

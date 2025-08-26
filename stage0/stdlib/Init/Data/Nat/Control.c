@@ -76,19 +76,17 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_7);
-lean_dec_ref(x_5);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_nat_dec_eq(x_4, x_8);
 if (x_9 == 1)
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_6);
-lean_dec_ref(x_3);
+lean_inc(x_7);
+lean_dec(x_6);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_10 = lean_box(0);
@@ -98,11 +96,10 @@ return x_11;
 else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec_ref(x_7);
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_nat_sub(x_4, x_12);
 lean_inc(x_13);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_inc(x_2);
 x_14 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg___lam__0___boxed), 5, 4);
 lean_closure_set(x_14, 0, x_1);
@@ -188,19 +185,17 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_6);
-lean_dec_ref(x_4);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_nat_dec_eq(x_3, x_7);
 if (x_8 == 1)
 {
 lean_object* x_9; lean_object* x_10; 
-lean_dec_ref(x_5);
-lean_dec_ref(x_2);
+lean_inc(x_6);
+lean_dec(x_5);
+lean_dec(x_2);
 lean_dec_ref(x_1);
 x_9 = lean_box(0);
 x_10 = lean_apply_2(x_6, lean_box(0), x_9);
@@ -209,11 +204,10 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec_ref(x_6);
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_3, x_11);
 lean_inc(x_12);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 x_13 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___redArg___lam__0___boxed), 4, 3);
 lean_closure_set(x_13, 0, x_1);
 lean_closure_set(x_13, 1, x_2);
@@ -299,19 +293,17 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_7);
+lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
-lean_inc_ref(x_8);
-lean_dec_ref(x_6);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_nat_dec_eq(x_4, x_9);
 if (x_10 == 1)
 {
 lean_object* x_11; 
-lean_dec_ref(x_7);
-lean_dec_ref(x_3);
+lean_inc(x_8);
+lean_dec(x_7);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_11 = lean_apply_2(x_8, lean_box(0), x_5);
@@ -320,13 +312,12 @@ return x_11;
 else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec_ref(x_8);
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_nat_sub(x_4, x_12);
 x_14 = lean_nat_sub(x_2, x_13);
 x_15 = lean_nat_sub(x_14, x_12);
 lean_dec(x_14);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 x_16 = lean_apply_3(x_3, x_15, lean_box(0), x_5);
 x_17 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___redArg___boxed), 5, 4);
 lean_closure_set(x_17, 0, x_1);
@@ -389,19 +380,17 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_7);
-lean_dec_ref(x_5);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_nat_dec_eq(x_3, x_8);
 if (x_9 == 1)
 {
 lean_object* x_10; 
-lean_dec_ref(x_6);
-lean_dec_ref(x_2);
+lean_inc(x_7);
+lean_dec(x_6);
+lean_dec(x_2);
 lean_dec_ref(x_1);
 x_10 = lean_apply_2(x_7, lean_box(0), x_4);
 return x_10;
@@ -409,10 +398,9 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec_ref(x_7);
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_3, x_11);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 lean_inc(x_12);
 x_13 = lean_apply_3(x_2, x_12, lean_box(0), x_4);
 x_14 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Control_0__Nat_foldRevM_loop___redArg___boxed), 4, 3);
@@ -491,7 +479,7 @@ _start:
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 x_7 = lean_box(x_6);
@@ -501,7 +489,7 @@ return x_8;
 else
 {
 lean_object* x_9; 
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_9 = l___private_Init_Data_Nat_Control_0__Nat_allM_loop___redArg(x_2, x_3, x_4, x_5);
 return x_9;
 }
@@ -512,19 +500,17 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_7);
-lean_dec_ref(x_5);
+lean_inc(x_7);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_nat_dec_eq(x_4, x_8);
 if (x_9 == 1)
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_6);
-lean_dec_ref(x_3);
+lean_dec(x_6);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_10 = lean_box(x_9);
@@ -537,7 +523,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_nat_sub(x_4, x_12);
 lean_inc(x_13);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_inc(x_2);
 x_14 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Control_0__Nat_allM_loop___redArg___lam__0___boxed), 6, 5);
 lean_closure_set(x_14, 0, x_7);
@@ -618,14 +604,14 @@ _start:
 if (x_6 == 0)
 {
 lean_object* x_7; 
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = l___private_Init_Data_Nat_Control_0__Nat_anyM_loop___redArg(x_1, x_2, x_3, x_4);
 return x_7;
 }
 else
 {
 lean_object* x_8; lean_object* x_9; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_8 = lean_box(x_6);
@@ -639,19 +625,17 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_7);
-lean_dec_ref(x_5);
+lean_inc(x_7);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_nat_dec_eq(x_4, x_8);
 if (x_9 == 1)
 {
 uint8_t x_10; lean_object* x_11; lean_object* x_12; 
-lean_dec_ref(x_6);
-lean_dec_ref(x_3);
+lean_dec(x_6);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_10 = 0;
@@ -665,7 +649,7 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean
 x_13 = lean_unsigned_to_nat(1u);
 x_14 = lean_nat_sub(x_4, x_13);
 lean_inc(x_14);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_inc(x_2);
 x_15 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Control_0__Nat_anyM_loop___redArg___lam__0___boxed), 6, 5);
 lean_closure_set(x_15, 0, x_1);

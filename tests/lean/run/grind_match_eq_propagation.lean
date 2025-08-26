@@ -1,3 +1,5 @@
+module
+@[expose] public section -- TODO: remove after we fix congr_eq
 set_option grind.debug true
 inductive S where
   | mk1 (n : Nat)

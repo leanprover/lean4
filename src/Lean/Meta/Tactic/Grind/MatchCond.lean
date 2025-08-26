@@ -363,7 +363,7 @@ partial def tryToProveFalse (e : Expr) : GoalM Unit := do
           | return none
         let lhs' ← go lhs
         trace[grind.debug.matchCond.proveFalse] "{lhs'} =?= {rhs}"
-        unless (← withDefault <| isDefEq lhs' rhs) do
+        unless (← isDefEqD lhs' rhs) do
           return none
         let isHEq := α?.isSome
         let some lhsEqLhs' ← if isHEq then proveHEq? lhs lhs' else proveEq? lhs lhs'

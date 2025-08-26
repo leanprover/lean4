@@ -22,17 +22,21 @@ static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__5;
 lean_object* l_instHashableInt___lam__0___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__10;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__4;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__15;
 lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__17;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__16;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_ctorIdx___boxed(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_instBEqProd___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_instDecidableEq___boxed(lean_object*, lean_object*);
 static size_t l_Lean_Meta_Grind_Arith_instInhabitedState___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__13;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__3;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__7;
@@ -43,6 +47,40 @@ lean_object* l_instHashableProd___redArg___lam__0___boxed(lean_object*, lean_obj
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__6;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__14;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__12;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_Grind_Arith_State_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_toCtorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_toCtorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_Grind_Arith_State_toCtorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState___closed__0() {
 _start:
 {
@@ -203,7 +241,7 @@ x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_box(0);
 x_6 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__5;
 x_7 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__3;
-x_8 = lean_alloc_ctor(0, 21, 2);
+x_8 = lean_alloc_ctor(0, 22, 2);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_6);
 lean_ctor_set(x_8, 2, x_7);
@@ -225,8 +263,9 @@ lean_ctor_set(x_8, 17, x_1);
 lean_ctor_set(x_8, 18, x_6);
 lean_ctor_set(x_8, 19, x_7);
 lean_ctor_set(x_8, 20, x_6);
-lean_ctor_set_uint8(x_8, sizeof(void*)*21, x_3);
-lean_ctor_set_uint8(x_8, sizeof(void*)*21 + 1, x_3);
+lean_ctor_set(x_8, 21, x_6);
+lean_ctor_set_uint8(x_8, sizeof(void*)*22, x_3);
+lean_ctor_set_uint8(x_8, sizeof(void*)*22 + 1, x_3);
 return x_8;
 }
 }

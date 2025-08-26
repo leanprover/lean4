@@ -102,11 +102,6 @@ structure Config where
   ring := true
   ringSteps := 10000
   /--
-  When `true` (default: `false`), the commutative ring procedure in `grind` constructs stepwise
-  proof terms, instead of a single-step Nullstellensatz certificate
-  -/
-  ringNull := false
-  /--
   When `true` (default: `true`), uses procedure for handling linear arithmetic for `IntModule`, and
   `CommRing`.
   -/
@@ -115,6 +110,10 @@ structure Config where
   When `true` (default: `true`), uses procedure for handling linear integer arithmetic for `Int` and `Nat`.
   -/
   cutsat := true
+  /--
+  When `true` (default: `true`), uses procedure for handling associative (and commutative) operators.
+  -/
+  ac := true
   /--
   Maximum exponent eagerly evaluated while computing bounds for `ToInt` and
   the characteristic of a ring.

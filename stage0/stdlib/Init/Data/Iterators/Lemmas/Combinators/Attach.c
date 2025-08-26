@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Lemmas.Combinators.Attach
-// Imports: Init.Data.Iterators.Combinators.Attach Init.Data.Iterators.Combinators.Monadic.Attach Init.Data.Iterators.Lemmas.Combinators.Monadic.Attach Init.Data.Iterators.Lemmas.Consumers.Collect Init.Data.Array.Attach
+// Imports: Init.Data.Iterators.Combinators.Attach Init.Data.Iterators.Combinators.Attach Init.Data.Iterators.Combinators.Monadic.Attach Init.Data.Iterators.Combinators.Monadic.Attach Init.Data.Iterators.Lemmas.Combinators.Monadic.Attach Init.Data.Iterators.Lemmas.Consumers.Collect Init.Data.Array.Attach
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,8 @@
 extern "C" {
 #endif
 lean_object* initialize_Init_Data_Iterators_Combinators_Attach(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Combinators_Attach(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Combinators_Monadic_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Combinators_Monadic_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(uint8_t builtin, lean_object*);
@@ -24,6 +26,12 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Iterators_Combinators_Attach(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Combinators_Attach(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Combinators_Monadic_Attach(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Combinators_Monadic_Attach(builtin, lean_io_mk_world());

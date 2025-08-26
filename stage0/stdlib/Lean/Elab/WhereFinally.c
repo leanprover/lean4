@@ -13,8 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_none;
 static lean_object* l_Lean_Elab_instInhabitedWhereFinallyView___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_ctorIdx(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_ctorIdx___boxed(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_isNone___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_WhereFinallyView_isNone(lean_object*);
@@ -27,10 +30,44 @@ LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___boxe
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedWhereFinallyView;
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwErrorAt___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_WhereFinallyView_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_toCtorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_toCtorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_WhereFinallyView_toCtorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Elab_instInhabitedWhereFinallyView___closed__0() {
 _start:
 {
@@ -136,8 +173,8 @@ x_19 = l_Lean_Syntax_isMissing(x_18);
 lean_dec(x_18);
 if (x_19 == 0)
 {
-lean_dec_ref(x_11);
-lean_dec_ref(x_10);
+lean_dec(x_11);
+lean_dec(x_10);
 goto block_16;
 }
 else
@@ -145,7 +182,7 @@ else
 if (x_9 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-lean_dec_ref(x_5);
+lean_dec(x_5);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -156,8 +193,8 @@ return x_22;
 }
 else
 {
-lean_dec_ref(x_11);
-lean_dec_ref(x_10);
+lean_dec(x_11);
+lean_dec(x_10);
 goto block_16;
 }
 }
@@ -176,12 +213,9 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_6);
-lean_dec_ref(x_4);
+lean_inc(x_6);
 x_7 = lean_unsigned_to_nat(2u);
 x_8 = l_Lean_Syntax_getArg(x_3, x_7);
 x_9 = lean_unsigned_to_nat(0u);
@@ -191,17 +225,18 @@ x_11 = l_Lean_Syntax_isMissing(x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_inc_ref(x_6);
+lean_inc(x_5);
+lean_inc(x_6);
 lean_inc(x_10);
-x_12 = lean_alloc_closure((void*)(l_Lean_Elab_mkWhereFinallyView___redArg___lam__0___boxed), 3, 2);
+x_12 = lean_alloc_closure((void*)(l_Lean_Elab_mkWhereFinallyView___redArg___lam__0), 3, 2);
 lean_closure_set(x_12, 0, x_10);
 lean_closure_set(x_12, 1, x_6);
 x_13 = lean_alloc_closure((void*)(l_Lean_Elab_mkWhereFinallyView___redArg___lam__1), 2, 1);
 lean_closure_set(x_13, 0, x_12);
 x_14 = lean_box(x_11);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 lean_inc_ref(x_13);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 x_15 = lean_alloc_closure((void*)(l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___boxed), 12, 11);
 lean_closure_set(x_15, 0, x_1);
 lean_closure_set(x_15, 1, x_2);
@@ -223,7 +258,6 @@ else
 {
 uint8_t x_19; 
 lean_dec(x_10);
-lean_dec_ref(x_5);
 lean_dec_ref(x_2);
 x_19 = !lean_is_exclusive(x_1);
 if (x_19 == 0)
@@ -259,14 +293,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_mkWhereFinallyView___redArg(x_2, x_3, x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Elab_mkWhereFinallyView___redArg___lam__0(x_1, x_2, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {

@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_fold_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_fold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_fold___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -23,7 +24,6 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_fold___redArg___boxed(lean_object*
 lean_object* lean_nat_land(lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_RefVec_fold___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_fold_go___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_fold_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -46,11 +46,10 @@ return x_17;
 else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
-x_18 = lean_array_fget(x_5, x_3);
+x_18 = lean_array_fget_borrowed(x_5, x_3);
 x_19 = lean_unsigned_to_nat(1u);
 x_20 = lean_nat_shiftr(x_18, x_19);
 x_21 = lean_nat_land(x_19, x_18);
-lean_dec(x_18);
 x_22 = lean_unsigned_to_nat(0u);
 x_23 = lean_nat_dec_eq(x_21, x_22);
 lean_dec(x_21);

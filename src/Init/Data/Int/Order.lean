@@ -8,8 +8,12 @@ module
 prelude
 public import Init.Data.Int.Lemmas
 public import Init.ByCases
+public import Init.Data.Order.Factories
+import Init.Data.Order.Lemmas
 
 public section
+
+open Std
 
 /-!
 # Results about the order properties of the integers, and the integers as an ordered ring.
@@ -1414,5 +1418,15 @@ theorem natAbs_eq_iff_mul_eq_zero : natAbs a = n ↔ (a - n) * (a + n) = 0 := by
 
 @[deprecated natAbs_eq_iff_mul_eq_zero (since := "2025-03-11")]
 abbrev eq_natAbs_iff_mul_eq_zero := @natAbs_eq_iff_mul_eq_zero
+
+instance instIsLinearOrder : IsLinearOrder Int := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply Int.le_antisymm
+  case le_total => constructor; apply Int.le_total
+  case le_trans => constructor; apply Int.le_trans
+
+instance : LawfulOrderLT Int where
+  lt_iff := by
+    simp [← Int.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
 end Int

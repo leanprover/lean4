@@ -13,8 +13,10 @@ public import Init.Data.UInt.BasicAux
 public import Init.Data.Repr
 public import Init.Data.ToString.Basic
 public import Init.GetElem
-public import all Init.Data.List.ToArrayImpl
-public import all Init.Data.Array.Set
+public import Init.Data.List.ToArrayImpl
+import all Init.Data.List.ToArrayImpl
+public import Init.Data.Array.Set
+import all Init.Data.Array.Set
 
 public section
 
@@ -163,7 +165,7 @@ representation of arrays. While this is not provable, `Array.usize` always retur
 the array since the implementation only supports arrays of size less than `USize.size`.
 -/
 @[extern "lean_array_size", simp]
-def usize (a : @& Array α) : USize := a.size.toUSize
+def usize (xs : @& Array α) : USize := xs.size.toUSize
 
 /--
 Low-level indexing operator which is as fast as a C array read.
@@ -171,8 +173,8 @@ Low-level indexing operator which is as fast as a C array read.
 This avoids overhead due to unboxing a `Nat` used as an index.
 -/
 @[extern "lean_array_uget", simp, expose]
-def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
-  a[i.toNat]
+def uget (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
+  xs[i.toNat]
 
 /--
 Low-level modification operator which is as fast as a C array write. The modification is performed

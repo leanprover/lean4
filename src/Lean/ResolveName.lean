@@ -25,7 +25,7 @@ For example, give a definition `foo`, we flag `foo.def` as reserved symbol.
 -/
 
 def throwReservedNameNotAvailable [Monad m] [MonadError m] (declName : Name) (reservedName : Name) : m Unit := do
-  throwError "failed to declare `{declName}` because `{.ofConstName reservedName true}` has already been declared"
+  throwError "failed to declare `{.ofConstName declName}` because `{.ofConstName reservedName true}` has already been declared"
 
 def ensureReservedNameAvailable [Monad m] [MonadEnv m] [MonadError m] (declName : Name) (suffix : String) : m Unit := do
   let reservedName := .str declName suffix
@@ -104,6 +104,10 @@ private def containsDeclOrReserved (env : Environment) (declName : Name) : Bool 
   env.containsOnBranch declName || isReservedName env declName || env.contains declName
 
 private partial def resolvePrivateName (env : Environment) (declName : Name) : Option Name := do
+  -- No point in checking private names when exporting. This is an optimization but also necessary
+  -- for correct visibility checking while we still carry some private names (e.g. kernel-generated
+  -- from `inductive`) in the public env.
+  guard !env.isExporting
   if containsDeclOrReserved env (mkPrivateName env declName) then
     return mkPrivateName env declName
   -- Under the module system, we assume there are at most a few `import all`s and we can just test

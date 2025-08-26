@@ -136,17 +136,10 @@ def dischargeMGoal (goal : MGoal) (goalTag : Name) : n Expr := do
   liftMetaM <| do trace[Elab.Tactic.Do.spec] "proof: {prf}"
   return prf
 
-def mkPreTag (goalTag : Name) : Name := Id.run do
-  let dflt := goalTag ++ `pre1
-  let .str p s := goalTag | return dflt
-  unless "pre".isPrefixOf s do return dflt
-  let some n := (s.toSubstring.drop 3).toString.toNat? | return dflt
-  return .str p ("pre" ++ toString (n + 1))
-
 /--
   Returns the proof and the list of new unassigned MVars.
 -/
-def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name) (mkPreTag := mkPreTag) : n Expr := do
+def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name) : n Expr := do
   -- First instantiate `fun s => ...` in the target via repeated `mintro ∀s`.
   mIntroForallN goal goal.target.consumeMData.getNumHeadLambdas fun goal => do
   -- Elaborate the spec for the wp⟦e⟧ app in the target
@@ -198,7 +191,7 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
   if !HPRfl then
     -- let P := (← reduceProjBeta? P).getD P
     -- Try to avoid creating a longer name if the postcondition does not need to create a goal
-    let tag := if !QQ'Rfl then mkPreTag goalTag else goalTag
+    let tag := if !QQ'Rfl then goalTag ++ `pre else goalTag
     let HPPrf ← dischargeMGoal { goal with target := P } tag
     prePrf := mkApp6 (mkConst ``SPred.entails.trans [u]) goal.σs goal.hyps P goal.target HPPrf
 

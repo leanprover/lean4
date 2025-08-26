@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Fin.Lemmas
-// Imports: Init.Data.Nat.Lemmas Init.Data.Int.DivMod.Lemmas Init.Ext Init.ByCases Init.Conv Init.Omega
+// Imports: Init.Data.Nat.Lemmas Init.Data.Int.DivMod.Lemmas Init.Ext Init.ByCases Init.Conv Init.Omega Init.Data.Order.Factories Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -210,7 +210,7 @@ x_8 = lean_nat_dec_eq(x_4, x_5);
 if (x_8 == 1)
 {
 lean_object* x_9; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_9 = lean_apply_1(x_1, x_7);
 return x_9;
 }
@@ -218,7 +218,7 @@ else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = lean_nat_sub(x_4, x_6);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 x_11 = l_Fin_succRec___redArg(x_1, x_2, x_7, x_10);
 x_12 = lean_apply_3(x_2, x_7, x_10, x_11);
 return x_12;
@@ -297,7 +297,7 @@ x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_nat_dec_eq(x_3, x_4);
 if (x_5 == 1)
 {
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_inc(x_1);
 return x_1;
 }
@@ -306,7 +306,7 @@ else
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
-lean_inc_ref(x_2);
+lean_inc(x_2);
 x_8 = l_Fin_induction_go___redArg(x_1, x_2, x_7);
 x_9 = lean_apply_2(x_2, x_7, x_8);
 return x_9;
@@ -483,7 +483,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 lean_inc(x_7);
 x_8 = lean_apply_2(x_1, x_7, x_4);
 x_3 = x_7;
@@ -493,7 +493,7 @@ goto _start;
 else
 {
 lean_dec(x_3);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_4;
 }
 }
@@ -568,14 +568,14 @@ x_6 = lean_nat_dec_eq(x_1, x_5);
 if (x_6 == 1)
 {
 lean_object* x_7; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_7 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_2, lean_box(0));
 return x_7;
 }
 else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_1, x_8);
 x_10 = lean_apply_5(x_4, x_9, lean_box(0), lean_box(0), x_2, lean_box(0));
@@ -672,7 +672,7 @@ x_5 = lean_nat_dec_lt(x_4, x_1);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_6 = lean_nat_sub(x_4, x_1);
 lean_dec(x_4);
 x_7 = lean_apply_1(x_3, x_6);
@@ -681,7 +681,7 @@ return x_7;
 else
 {
 lean_object* x_8; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_8 = lean_apply_1(x_2, x_4);
 return x_8;
 }
@@ -720,6 +720,8 @@ lean_object* initialize_Init_Ext(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_ByCases(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Conv(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -741,6 +743,12 @@ res = initialize_Init_Conv(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_Factories(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Fin_intCast___redArg___closed__0 = _init_l_Fin_intCast___redArg___closed__0();

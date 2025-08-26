@@ -24,6 +24,7 @@ namespace lean {
 static name * g_kernel_fresh = nullptr;
 static expr * g_dont_care    = nullptr;
 static name * g_bool_true    = nullptr;
+static name * g_eager_reduce = nullptr;
 static expr * g_nat_zero     = nullptr;
 static expr * g_nat_succ     = nullptr;
 static expr * g_nat_add      = nullptr;
@@ -154,12 +155,23 @@ expr type_checker::infer_pi(expr const & _e, bool infer_only) {
     return mk_sort(r);
 }
 
+/* Returns `true` if `e` is of the form `eagerReduce _ _` */
+static bool is_eager_reduce(expr const & e) {
+    return is_const(get_app_fn(e), *g_eager_reduce) && get_app_num_args(e) == 2;
+}
+
 expr type_checker::infer_app(expr const & e, bool infer_only) {
     if (!infer_only) {
         expr f_type = ensure_pi_core(infer_type_core(app_fn(e), infer_only), e);
         expr a_type = infer_type_core(app_arg(e), infer_only);
         expr d_type = binding_domain(f_type);
-        if (!is_def_eq(a_type, d_type)) {
+        if (is_eager_reduce(app_arg(e))) {
+            // If argument is of the form `eagerReduce`, set m_eager_reduction mode
+            flet<bool> scope(m_eager_reduce, true);
+            if (!is_def_eq(a_type, d_type)) {
+                throw app_type_mismatch_exception(env(), m_lctx, e, f_type, a_type);
+            }
+        } else if (!is_def_eq(a_type, d_type)) {
             throw app_type_mismatch_exception(env(), m_lctx, e, f_type, a_type);
         }
         return instantiate(binding_body(f_type), app_arg(e));
@@ -987,7 +999,7 @@ lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
         lbool r = is_def_eq_offset(t_n, s_n);
         if (r != l_undef) return r;
 
-        if (!has_fvar(t_n) && !has_fvar(s_n)) {
+        if ((!has_fvar(t_n) && !has_fvar(s_n)) || m_eager_reduce) {
             if (auto t_v = reduce_nat(t_n)) {
                 return to_lbool(is_def_eq_core(*t_v, s_n));
             } else if (auto s_v = reduce_nat(s_n)) {
@@ -1075,7 +1087,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     // we fully reduce `t` and check whether result is `s`.
     // This code path is taken in particular when using the `decide` tactic, which produces
     // proof terms of the form `Eq.refl true : decide p = true`.
-    if (!has_fvar(t) && is_constant(s, *g_bool_true)) {
+    if ((!has_fvar(t) || m_eager_reduce) && is_constant(s, *g_bool_true)) {
         if (is_constant(whnf(t), *g_bool_true)) {
             return true;
         }
@@ -1204,6 +1216,7 @@ void initialize_type_checker() {
     mark_persistent(g_kernel_fresh->raw());
     g_bool_true    = new name{"Bool", "true"};
     mark_persistent(g_bool_true->raw());
+    g_eager_reduce = new name{"eagerReduce"};
     g_dont_care    = new_persistent_expr_const("dontcare");
     g_nat_zero     = new_persistent_expr_const({"Nat", "zero"});
     g_nat_succ     = new_persistent_expr_const({"Nat", "succ"});
@@ -1230,6 +1243,7 @@ void initialize_type_checker() {
 void finalize_type_checker() {
     delete g_kernel_fresh;
     delete g_bool_true;
+    delete g_eager_reduce;
     delete g_dont_care;
     delete g_nat_succ;
     delete g_nat_zero;

@@ -1,5 +1,6 @@
-import Lean.Meta.Tactic.Grind
-
+module
+public import Lean.Meta.Tactic.Grind
+public section
 set_option grind.debug true
 
 class Semigroup (α : Type u) extends Mul α where

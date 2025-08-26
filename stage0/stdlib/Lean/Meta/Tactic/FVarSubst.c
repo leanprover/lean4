@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_apply(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at___Lean_Meta_FVarSubst_domain_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_contains___at___Lean_Meta_FVarSubst_contains_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -20,6 +21,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_FVarSubst_isEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_empty;
 LEAN_EXPORT lean_object* l_Lean_LocalDecl_applyFVarSubst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_insert(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_find_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_erase___at___Lean_Meta_FVarSubst_erase_spec__0(lean_object*, lean_object*, lean_object*);
@@ -33,6 +35,7 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at___Lean_Meta_FVarSubst_fi
 lean_object* lean_replace_expr(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at___Lean_Meta_FVarSubst_contains_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at___Lean_Meta_FVarSubst_find_x3f_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_erase___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_any___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_erase___at___Lean_Meta_FVarSubst_erase_spec__0___redArg___boxed(lean_object*, lean_object*);
@@ -44,6 +47,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_apply___lam__0___boxed(lean_objec
 uint8_t l_Lean_AssocList_isEmpty___redArg(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at___Lean_Meta_FVarSubst_contains_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_get___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_apply___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_insert___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -63,6 +67,40 @@ LEAN_EXPORT uint8_t l_Lean_Meta_FVarSubst_any(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at___Lean_Meta_FVarSubst_domain_spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_AssocList_mapVal___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_erase___at___Lean_Meta_FVarSubst_erase_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_FVarSubst_ctorIdx(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_toCtorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_toCtorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_FVarSubst_toCtorIdx(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Meta_instInhabitedFVarSubst() {
 _start:
 {
@@ -442,9 +480,7 @@ if (lean_obj_tag(x_2) == 1)
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
 x_4 = l_Lean_AssocList_find_x3f___at___Lean_Meta_FVarSubst_find_x3f_spec__0___redArg(x_3, x_1);
-lean_dec(x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; 

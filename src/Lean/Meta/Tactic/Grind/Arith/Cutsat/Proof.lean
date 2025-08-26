@@ -7,18 +7,15 @@ module
 
 prelude
 public import Init.Grind.Ring.Poly
-public import Lean.Meta.Tactic.Grind.Diseq
-public import Lean.Meta.Tactic.Grind.Arith.Util
-public import Lean.Meta.Tactic.Grind.Arith.ProofUtil
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
-public import Lean.Meta.Tactic.Grind.Arith.VarRename
+public import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Diseq
+import Lean.Meta.Tactic.Grind.Arith.ProofUtil
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
+import Lean.Meta.Tactic.Grind.Arith.VarRename
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
-
+import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
 public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
 
 public section
 

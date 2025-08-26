@@ -44,7 +44,7 @@ are not used.
 Remark: recall that the `.reorder` proof objects are delimiters for indicating whether regular variables and
 declarations or the prime ones should be used.
 -/
-structure ProofM.State where
+private structure ProofM.State where
   /-- Cache for visited cutsat proof terms. The key is the pointer address. -/
   cache         : Std.HashMap UInt64 Expr := {}
   /-- Map from used variables to (temporary) free variable. -/
@@ -64,7 +64,7 @@ structure ProofM.State where
   /-- Map from used ring expressions to free variable. -/
   ringExprDecls : Std.HashMap CommRing.RingExpr Expr := {}
 
-structure ProofM.Context where
+private structure ProofM.Context where
   ctx       : Expr
   /-- Variables before reordering -/
   ctx'      : Expr
@@ -76,7 +76,7 @@ structure ProofM.Context where
   unordered : Bool := false
 
 /-- Auxiliary monad for constructing cutsat proofs. -/
-abbrev ProofM := ReaderT ProofM.Context (StateRefT ProofM.State GoalM)
+private abbrev ProofM := ReaderT ProofM.Context (StateRefT ProofM.State GoalM)
 
 /-- Returns a Lean expression representing the variable context used to construct cutsat proofs. -/
 private def getContext : ProofM Expr := do
@@ -224,13 +224,109 @@ private def _root_.Int.Linear.Poly.denoteExprUsingCurrVars (p : Poly) : ProofM E
   let vars ← getCurrVars
   return (← p.denoteExpr (vars[·]!))
 
-inductive MulEqProof where
+private inductive MulEqProof where
   | const (k : Int) (h : Expr)
   | mulVar (k : Int) (a : Expr) (h : Expr)
   | none
 
+@[extern "lean_cutsat_eq_cnstr_to_proof"] -- forward definition
+private opaque EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr
+
+private partial def mkMulEqProof (x : Var) (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr)) (c' : EqCnstr) : ProofM Expr := do
+  let h ← go (← getCurrVars)[x]!
+  match h with
+  | .const k h =>
+    return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+  | .mulVar k a h =>
+    assert! a? == some a
+    let y ← getVarOf a
+    return mkApp7 (mkConst ``Int.Linear.of_var_eq_mul) (← getContext) (← mkVarDecl x) (toExpr k) (← mkVarDecl y) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+  | .none =>
+    throwError "`grind` internal error, cutsat failed to construct proof for multiplication equality"
+where
+  goVar (e : Expr) : ProofM MulEqProof := do
+    if some e == a? then
+      return .mulVar 1 e (mkApp (mkConst ``Int.Linear.eq_one_mul) e)
+    else
+      let some (_, k, c) := cs.find? fun (e', _, _) => e' == e | return .none
+      let x ← getVarOf e
+      let h := mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
+      return .const k h
+
+  go (e : Expr) : ProofM MulEqProof := do
+    let_expr HMul.hMul _ _ _ i a b := e | goVar e
+    if !(← isInstHMulInt i) then goVar e else
+    let ha ← go a
+    if let .const 0 h := ha then
+      return .const 0 (mkApp3 (mkConst ``Int.Linear.mul_eq_zero_left) a b h)
+    let hb ← go b
+    if let .const 0 h := hb then
+      return .const 0 (mkApp3 (mkConst ``Int.Linear.mul_eq_zero_right) a b h)
+    match ha, hb with
+    | .const k₁ h₁, .const k₂ h₂ =>
+      let k := k₁*k₂
+      let h := mkApp8 (mkConst ``Int.Linear.mul_eq_kk) a b (toExpr k₁) (toExpr k₂) (toExpr k) h₁ h₂ eagerReflBoolTrue
+      return .const k h
+    | .const k₁ h₁, .mulVar k₂ c h₂ =>
+      let k := k₁*k₂
+      let h := mkApp9 (mkConst ``Int.Linear.mul_eq_kkx) a b (toExpr k₁) (toExpr k₂) c (toExpr k) h₁ h₂ eagerReflBoolTrue
+      return .mulVar k c h
+    | .mulVar k₁ c h₁, .const k₂ h₂ =>
+      let k := k₁*k₂
+      let h := mkApp9 (mkConst ``Int.Linear.mul_eq_kxk) a b (toExpr k₁) c (toExpr k₂) (toExpr k) h₁ h₂ eagerReflBoolTrue
+      return .mulVar k c h
+    | _, _ => return .none
+
+private def mkDivEqProof (k : Int) (y? : Option Var) (c : EqCnstr) (c' : EqCnstr) : ProofM Expr := do
+  let .add _ x _ := c'.p | c'.throwUnexpected
+  let_expr HDiv.hDiv _ _ _ _ a b := (← getCurrVars)[x]! | c'.throwUnexpected
+  let bVar ← getVarOf b
+  let h := mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl bVar) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
+  if let some y := y? then
+    let h := mkApp4 (mkConst ``Int.Linear.div_eq) a b (toExpr k) h
+    return mkApp6 (mkConst ``Int.Linear.of_var_eq_var) (← getContext) (← mkVarDecl x) (← mkVarDecl y) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+  else
+    let b' := k
+    let some aVal ← getIntValue? a | unreachable!
+    let k := aVal / b'
+    let h := mkApp6 (mkConst ``Int.Linear.div_eq') a b (toExpr b') (toExpr k) h eagerReflBoolTrue
+    return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+
+private def mkModEqProof (k : Int) (y? : Option Var) (c : EqCnstr) (c' : EqCnstr) : ProofM Expr := do
+  let .add _ x _ := c'.p | c'.throwUnexpected
+  let_expr HMod.hMod _ _ _ _ a b := (← getCurrVars)[x]! | c'.throwUnexpected
+  let bVar ← getVarOf b
+  let h := mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl bVar) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
+  if let some y := y? then
+    let h := mkApp4 (mkConst ``Int.Linear.mod_eq) a b (toExpr k) h
+    return mkApp6 (mkConst ``Int.Linear.of_var_eq_var) (← getContext) (← mkVarDecl x) (← mkVarDecl y) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+  else
+    let b' := k
+    let some aVal ← getIntValue? a | unreachable!
+    let k := aVal % b'
+    let h := mkApp6 (mkConst ``Int.Linear.mod_eq') a b (toExpr b') (toExpr k) h eagerReflBoolTrue
+    return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+
+private def mkPowEqProof (ka : Int) (ca? : Option EqCnstr) (kb : Nat) (cb? : Option EqCnstr) (c' : EqCnstr) : ProofM Expr := do
+  let .add _ x _ := c'.p | c'.throwUnexpected
+  let_expr HPow.hPow _ _ _ _ a b := (← getCurrVars)[x]! | c'.throwUnexpected
+  let h₁ ← if let some ca := ca? then
+    pure <| mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl (← getVarOf a)) (toExpr ka) (← mkPolyDecl ca.p) eagerReflBoolTrue (← ca.toExprProof)
+  else
+    pure <| mkApp2 (mkConst ``Eq.refl [1]) Int.mkType (mkIntLit ka)
+  let kbInt := Int.ofNat kb
+  let h₂ ← if let some cb := cb? then
+    let (b', _) ← mkNatVar b
+    pure <| mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl (← getVarOf b')) (toExpr kbInt) (← mkPolyDecl cb.p) eagerReflBoolTrue (← cb.toExprProof)
+  else
+    pure <| mkApp2 (mkConst ``Eq.refl [1]) Int.mkType (mkIntLit kb)
+  let k := ka^kb
+  let h := mkApp8 (mkConst ``Int.Linear.pow_eq) a b (toExpr ka) (toExpr kbInt) (toExpr k) h₁ h₂ eagerReflBoolTrue
+  return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+
 mutual
-private partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
+@[export lean_cutsat_eq_cnstr_to_proof]
+private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
   match c'.h with
   | .core0 a zero =>
@@ -278,95 +374,9 @@ private partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching 
   | .mul a? cs =>
     let .add _ x _ := c'.p | c'.throwUnexpected
     mkMulEqProof x a? cs c'
-  | .div k y? c =>
-    let .add _ x _ := c'.p | c'.throwUnexpected
-    let_expr HDiv.hDiv _ _ _ _ a b := (← getCurrVars)[x]! | c'.throwUnexpected
-    let bVar ← getVarOf b
-    let h := mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl bVar) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
-    if let some y := y? then
-      let h := mkApp4 (mkConst ``Int.Linear.div_eq) a b (toExpr k) h
-      return mkApp6 (mkConst ``Int.Linear.of_var_eq_var) (← getContext) (← mkVarDecl x) (← mkVarDecl y) (← mkPolyDecl c'.p) eagerReflBoolTrue h
-    else
-      let b' := k
-      let some aVal ← getIntValue? a | unreachable!
-      let k := aVal / b'
-      let h := mkApp6 (mkConst ``Int.Linear.div_eq') a b (toExpr b') (toExpr k) h eagerReflBoolTrue
-      return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
-  | .mod k y? c =>
-    let .add _ x _ := c'.p | c'.throwUnexpected
-    let_expr HMod.hMod _ _ _ _ a b := (← getCurrVars)[x]! | c'.throwUnexpected
-    let bVar ← getVarOf b
-    let h := mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl bVar) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
-    if let some y := y? then
-      let h := mkApp4 (mkConst ``Int.Linear.mod_eq) a b (toExpr k) h
-      return mkApp6 (mkConst ``Int.Linear.of_var_eq_var) (← getContext) (← mkVarDecl x) (← mkVarDecl y) (← mkPolyDecl c'.p) eagerReflBoolTrue h
-    else
-      let b' := k
-      let some aVal ← getIntValue? a | unreachable!
-      let k := aVal % b'
-      let h := mkApp6 (mkConst ``Int.Linear.mod_eq') a b (toExpr b') (toExpr k) h eagerReflBoolTrue
-      return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
-  | .pow ka ca? kb cb? =>
-    let .add _ x _ := c'.p | c'.throwUnexpected
-    let_expr HPow.hPow _ _ _ _ a b := (← getCurrVars)[x]! | c'.throwUnexpected
-    let h₁ ← if let some ca := ca? then
-      pure <| mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl (← getVarOf a)) (toExpr ka) (← mkPolyDecl ca.p) eagerReflBoolTrue (← ca.toExprProof)
-    else
-      pure <| mkApp2 (mkConst ``Eq.refl [1]) Int.mkType (mkIntLit ka)
-    let kbInt := Int.ofNat kb
-    let h₂ ← if let some cb := cb? then
-      let (b', _) ← mkNatVar b
-      pure <| mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl (← getVarOf b')) (toExpr kbInt) (← mkPolyDecl cb.p) eagerReflBoolTrue (← cb.toExprProof)
-    else
-      pure <| mkApp2 (mkConst ``Eq.refl [1]) Int.mkType (mkIntLit kb)
-    let k := ka^kb
-    let h := mkApp8 (mkConst ``Int.Linear.pow_eq) a b (toExpr ka) (toExpr kbInt) (toExpr k) h₁ h₂ eagerReflBoolTrue
-    return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
-
-private partial def mkMulEqProof (x : Var) (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr)) (c' : EqCnstr) : ProofM Expr := do
-  let h ← go (← getCurrVars)[x]!
-  match h with
-  | .const k h =>
-    return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
-  | .mulVar k a h =>
-    assert! a? == some a
-    let y ← getVarOf a
-    return mkApp7 (mkConst ``Int.Linear.of_var_eq_mul) (← getContext) (← mkVarDecl x) (toExpr k) (← mkVarDecl y) (← mkPolyDecl c'.p) eagerReflBoolTrue h
-  | .none =>
-    throwError "`grind` internal error, cutsat failed to construct proof for multiplication equality"
-where
-  goVar (e : Expr) : ProofM MulEqProof := do
-    if some e == a? then
-      return .mulVar 1 e (mkApp (mkConst ``Int.Linear.eq_one_mul) e)
-    else
-      let some (_, k, c) := cs.find? fun (e', _, _) => e' == e | return .none
-      let x ← getVarOf e
-      let h := mkApp6 (mkConst ``Int.Linear.var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
-      return .const k h
-
-  go (e : Expr) : ProofM MulEqProof := do
-    let_expr HMul.hMul _ _ _ i a b := e | goVar e
-    if !(← isInstHMulInt i) then goVar e else
-    let ha ← go a
-    if let .const 0 h := ha then
-      return .const 0 (mkApp3 (mkConst ``Int.Linear.mul_eq_zero_left) a b h)
-    let hb ← go b
-    if let .const 0 h := hb then
-      return .const 0 (mkApp3 (mkConst ``Int.Linear.mul_eq_zero_right) a b h)
-    match ha, hb with
-    | .const k₁ h₁, .const k₂ h₂ =>
-      let k := k₁*k₂
-      let h := mkApp8 (mkConst ``Int.Linear.mul_eq_kk) a b (toExpr k₁) (toExpr k₂) (toExpr k) h₁ h₂ eagerReflBoolTrue
-      return .const k h
-    | .const k₁ h₁, .mulVar k₂ c h₂ =>
-      let k := k₁*k₂
-      let h := mkApp9 (mkConst ``Int.Linear.mul_eq_kkx) a b (toExpr k₁) (toExpr k₂) c (toExpr k) h₁ h₂ eagerReflBoolTrue
-      return .mulVar k c h
-    | .mulVar k₁ c h₁, .const k₂ h₂ =>
-      let k := k₁*k₂
-      let h := mkApp9 (mkConst ``Int.Linear.mul_eq_kxk) a b (toExpr k₁) c (toExpr k₂) (toExpr k) h₁ h₂ eagerReflBoolTrue
-      return .mulVar k c h
-    | _, _ => return .none
+  | .div k y? c => mkDivEqProof k y? c c'
+  | .mod k y? c => mkModEqProof k y? c c'
+  | .pow ka ca? kb cb? => mkPowEqProof ka ca? kb cb? c'
 
 private partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"

@@ -13,12 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lake_ExternLibConfig_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedExternLibConfig___lam__0___closed__5;
 static lean_object* l_Lake_instInhabitedExternLibConfig___lam__0___closed__3;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig(lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_ExternLibConfig_ctorIdx(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedExternLibConfig___lam__0___closed__6;
 lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lake_instInhabitedExternLibConfig___lam__0___closed__4;
@@ -30,25 +28,6 @@ static lean_object* l_Lake_instInhabitedExternLibConfig___lam__0___closed__2;
 static lean_object* l_Lake_instInhabitedExternLibConfig___lam__0___closed__7;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig___lam__0(lean_object*);
 static lean_object* l_Lake_instInhabitedExternLibConfig___lam__0___closed__1;
-LEAN_EXPORT lean_object* l_Lake_ExternLibConfig_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ExternLibConfig_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_ExternLibConfig_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedExternLibConfig___lam__0___closed__0() {
 _start:
 {

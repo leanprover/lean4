@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__1___closed__4;
@@ -30,6 +29,7 @@ lean_object* l_Lean_Meta_getSimpCongrTheorems___redArg(lean_object*, lean_object
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__1___closed__9;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__1___closed__7;
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__1___closed__2;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__1___closed__10;
 lean_object* l_Lean_Meta_getPropHyps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -184,7 +184,7 @@ lean_ctor_set(x_27, 0, x_26);
 lean_ctor_set_uint8(x_27, sizeof(void*)*1, x_5);
 lean_ctor_set_uint8(x_27, sizeof(void*)*1 + 1, x_6);
 x_28 = l_Lean_Name_mkStr6(x_7, x_8, x_9, x_10, x_11, x_25);
-x_29 = l_Lean_Expr_const___override(x_28, x_12);
+x_29 = l_Lean_mkConst(x_28, x_12);
 lean_inc(x_20);
 lean_inc_ref(x_19);
 lean_inc(x_18);
@@ -668,7 +668,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__1___closed__9;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }

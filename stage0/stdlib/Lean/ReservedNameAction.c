@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ReservedNameAction_0__Lean_initFn___closed__14____x40_Lean_ReservedNameAction_3863082579____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_registerReservedNameAction(lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -48,6 +47,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 extern lean_object* l_Lean_unknownIdentifierMessageTag;
 LEAN_EXPORT lean_object* l_Lean_realizeGlobalConst(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_ReaderT_instFunctorOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
@@ -101,6 +101,7 @@ LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknow
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___closed__6;
 static double l_Lean_withTraceNode___at___Lean_executeReservedNameAction_spec__1___redArg___closed__6;
 LEAN_EXPORT lean_object* l_List_filterAuxM___at___Lean_realizeGlobalName_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__6;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at_____private_Lean_Util_Trace_0__Lean_addTraceNode___at___Lean_withTraceNode___at___Lean_executeReservedNameAction_spec__1_spec__4_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_List_filterAuxM___at___List_filterAuxM___at___Lean_realizeGlobalName_spec__4_spec__4___closed__3;
@@ -145,11 +146,13 @@ static lean_object* l___private_Lean_ReservedNameAction_0__Lean_initFn___closed_
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* lean_io_mono_nanos_now(lean_object*);
 static lean_object* l___private_Lean_ReservedNameAction_0__Lean_initFn___closed__17____x40_Lean_ReservedNameAction_3863082579____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__3_spec__3___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_withTraceNode___at___Lean_executeReservedNameAction_spec__1_spec__8(lean_object*, lean_object*);
+lean_object* lean_mk_io_user_error(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ReservedNameAction_0__Lean_reservedNameActionsRef;
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2___redArg___closed__1;
@@ -172,6 +175,7 @@ static lean_object* l_Lean_ensureNoOverload___at___Lean_realizeGlobalConstNoOver
 static lean_object* l___private_Lean_ReservedNameAction_0__Lean_initFn___closed__1____x40_Lean_ReservedNameAction_3863082579____hygCtx___hyg_2_;
 static lean_object* l_Lean_addMessageContextPartial___at_____private_Lean_Util_Trace_0__Lean_addTraceNode___at___Lean_withTraceNode___at___Lean_executeReservedNameAction_spec__1_spec__4_spec__5___closed__3;
 LEAN_EXPORT lean_object* l_Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_List_toString___at___Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0_spec__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___Lean_withTraceNode___at___Lean_executeReservedNameAction_spec__1_spec__2___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at_____private_Lean_Util_Trace_0__Lean_addTraceNode___at___Lean_withTraceNode___at___Lean_executeReservedNameAction_spec__1_spec__4_spec__5___closed__5;
@@ -245,7 +249,6 @@ LEAN_EXPORT lean_object* l_Lean_logError___at___Lean_realizeGlobalName_spec__0(l
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__0;
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___closed__10;
-lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___Lean_withTraceNode___at___Lean_executeReservedNameAction_spec__1_spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -337,8 +340,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_registerReservedNameAction___closed__0;
-x_2 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = lean_mk_io_user_error(x_1);
 return x_2;
 }
 }
@@ -763,7 +765,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
+x_5 = l_Lean_KVMap_find(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
@@ -1479,7 +1481,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
+x_5 = l_Lean_KVMap_find(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_inc(x_4);
@@ -5123,7 +5125,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = lean_box(0);
-x_8 = l_Lean_Expr_const___override(x_5, x_7);
+x_8 = l_Lean_mkConst(x_5, x_7);
 lean_ctor_set(x_1, 1, x_2);
 lean_ctor_set(x_1, 0, x_8);
 {
@@ -5143,7 +5145,7 @@ lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_1);
 x_12 = lean_box(0);
-x_13 = l_Lean_Expr_const___override(x_10, x_12);
+x_13 = l_Lean_mkConst(x_10, x_12);
 x_14 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_2);
@@ -5975,6 +5977,14 @@ static lean_object* _init_l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalCon
 _start:
 {
 lean_object* x_1; 
+x_1 = l_Std_Format_defWidth;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__6() {
+_start:
+{
+lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("', possible interpretations: ", 29, 29);
 return x_1;
 }
@@ -6030,12 +6040,12 @@ x_14 = lean_box(0);
 x_15 = 0;
 lean_inc(x_1);
 x_16 = l_Lean_Syntax_formatStx(x_1, x_14, x_15);
-x_17 = lean_unsigned_to_nat(120u);
+x_17 = l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__5;
 x_18 = lean_unsigned_to_nat(0u);
 x_19 = lean_format_pretty(x_16, x_17, x_18, x_18);
 x_20 = lean_string_append(x_13, x_19);
 lean_dec_ref(x_19);
-x_21 = l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__5;
+x_21 = l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__6;
 x_22 = lean_string_append(x_20, x_21);
 x_23 = lean_box(0);
 x_24 = l_List_mapTR_loop___at___Lean_ensureNoOverload___at___Lean_realizeGlobalConstNoOverloadCore_spec__0_spec__0(x_2, x_23);
@@ -6466,6 +6476,8 @@ l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___clo
 lean_mark_persistent(l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__4);
 l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__5 = _init_l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__5();
 lean_mark_persistent(l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__5);
+l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__6 = _init_l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__6();
+lean_mark_persistent(l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__6);
 l___private_Lean_ReservedNameAction_0__Lean_initFn___closed__0____x40_Lean_ReservedNameAction_3863082579____hygCtx___hyg_2_ = _init_l___private_Lean_ReservedNameAction_0__Lean_initFn___closed__0____x40_Lean_ReservedNameAction_3863082579____hygCtx___hyg_2_();
 lean_mark_persistent(l___private_Lean_ReservedNameAction_0__Lean_initFn___closed__0____x40_Lean_ReservedNameAction_3863082579____hygCtx___hyg_2_);
 l___private_Lean_ReservedNameAction_0__Lean_initFn___closed__1____x40_Lean_ReservedNameAction_3863082579____hygCtx___hyg_2_ = _init_l___private_Lean_ReservedNameAction_0__Lean_initFn___closed__1____x40_Lean_ReservedNameAction_3863082579____hygCtx___hyg_2_();

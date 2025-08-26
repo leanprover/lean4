@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_mkStdGen___boxed(lean_object*);
 static lean_object* l_stdNext___closed__9;
+static lean_object* l_stdNext___closed__10;
 static lean_object* l_stdRange___closed__0;
 LEAN_EXPORT lean_object* l_IO_setRandSeed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_randNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -23,12 +24,10 @@ static lean_object* l_IO_setRandSeed___closed__0;
 static lean_object* l_stdNext___closed__6;
 LEAN_EXPORT lean_object* l_IO_rand(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instInhabitedStdGen___closed__0;
-LEAN_EXPORT lean_object* l_StdGen_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_RandomGen_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_rand___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_stdNext___closed__3;
-LEAN_EXPORT lean_object* l_StdGen_ctorIdx(lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
+lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_IO_stdGenRef;
 LEAN_EXPORT lean_object* l___private_Init_Data_Random_0__randNatAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_randBool(lean_object*, lean_object*, lean_object*);
@@ -39,7 +38,6 @@ lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_stdNext___closed__8;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 static lean_object* l_stdNext___closed__1;
-LEAN_EXPORT lean_object* l_RandomGen_ctorIdx___boxed(lean_object*, lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
 LEAN_EXPORT lean_object* l_instReprStdGen;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -91,40 +89,6 @@ LEAN_EXPORT lean_object* l_mkStdGen(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_io_get_random_bytes(size_t, lean_object*);
 static lean_object* l_stdNext___closed__0;
-LEAN_EXPORT lean_object* l_RandomGen_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_RandomGen_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_RandomGen_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_StdGen_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_StdGen_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_StdGen_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_mkStdGen(lean_object* x_1) {
 _start:
 {
@@ -231,7 +195,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 return x_2;
 }
 }
@@ -358,7 +322,7 @@ static lean_object* _init_l_stdNext___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(2147483562u);
+x_1 = lean_unsigned_to_nat(1u);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -367,7 +331,7 @@ static lean_object* _init_l_stdNext___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(40014u);
+x_1 = lean_unsigned_to_nat(2147483562u);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -376,7 +340,7 @@ static lean_object* _init_l_stdNext___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(53668u);
+x_1 = lean_unsigned_to_nat(40014u);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -385,7 +349,7 @@ static lean_object* _init_l_stdNext___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(12211u);
+x_1 = lean_unsigned_to_nat(53668u);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -394,7 +358,7 @@ static lean_object* _init_l_stdNext___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
+x_1 = lean_unsigned_to_nat(12211u);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -403,7 +367,7 @@ static lean_object* _init_l_stdNext___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(40692u);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -412,7 +376,7 @@ static lean_object* _init_l_stdNext___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(52774u);
+x_1 = lean_unsigned_to_nat(40692u);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -421,7 +385,7 @@ static lean_object* _init_l_stdNext___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(3791u);
+x_1 = lean_unsigned_to_nat(52774u);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -430,12 +394,21 @@ static lean_object* _init_l_stdNext___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(2147483399u);
+x_1 = lean_unsigned_to_nat(3791u);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
 static lean_object* _init_l_stdNext___closed__9() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(2147483399u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_stdNext___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -456,22 +429,22 @@ lean_dec_ref(x_1);
 x_24 = lean_unsigned_to_nat(53668u);
 x_25 = lean_nat_div(x_22, x_24);
 x_26 = lean_nat_to_int(x_25);
-x_27 = l_stdNext___closed__1;
+x_27 = l_stdNext___closed__2;
 x_28 = lean_nat_to_int(x_22);
-x_29 = l_stdNext___closed__2;
+x_29 = l_stdNext___closed__3;
 x_30 = lean_int_mul(x_26, x_29);
 x_31 = lean_int_sub(x_28, x_30);
 lean_dec(x_30);
 lean_dec(x_28);
 x_32 = lean_int_mul(x_27, x_31);
 lean_dec(x_31);
-x_33 = l_stdNext___closed__3;
+x_33 = l_stdNext___closed__4;
 x_34 = lean_int_mul(x_26, x_33);
 lean_dec(x_26);
 x_35 = lean_int_sub(x_32, x_34);
 lean_dec(x_34);
 lean_dec(x_32);
-x_36 = l_stdNext___closed__4;
+x_36 = l_stdNext___closed__5;
 x_56 = lean_int_dec_lt(x_35, x_36);
 if (x_56 == 0)
 {
@@ -484,7 +457,7 @@ goto block_55;
 else
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; 
-x_58 = l_stdNext___closed__9;
+x_58 = l_stdNext___closed__10;
 x_59 = lean_int_add(x_35, x_58);
 lean_dec(x_35);
 x_60 = l_Int_toNat(x_59);
@@ -513,7 +486,7 @@ x_11 = lean_nat_to_int(x_9);
 x_12 = lean_int_sub(x_10, x_11);
 lean_dec(x_11);
 lean_dec(x_10);
-x_13 = l_instReprStdGen___lam__0___closed__4;
+x_13 = l_stdNext___closed__0;
 x_14 = lean_int_dec_lt(x_12, x_13);
 if (x_14 == 0)
 {
@@ -531,7 +504,7 @@ goto block_7;
 else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_18 = l_stdNext___closed__0;
+x_18 = l_stdNext___closed__1;
 x_19 = lean_int_add(x_12, x_18);
 lean_dec(x_12);
 x_20 = l_Int_toNat(x_19);
@@ -548,16 +521,16 @@ lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean
 x_38 = lean_unsigned_to_nat(52774u);
 x_39 = lean_nat_div(x_23, x_38);
 x_40 = lean_nat_to_int(x_39);
-x_41 = l_stdNext___closed__5;
+x_41 = l_stdNext___closed__6;
 x_42 = lean_nat_to_int(x_23);
-x_43 = l_stdNext___closed__6;
+x_43 = l_stdNext___closed__7;
 x_44 = lean_int_mul(x_40, x_43);
 x_45 = lean_int_sub(x_42, x_44);
 lean_dec(x_44);
 lean_dec(x_42);
 x_46 = lean_int_mul(x_41, x_45);
 lean_dec(x_45);
-x_47 = l_stdNext___closed__7;
+x_47 = l_stdNext___closed__8;
 x_48 = lean_int_mul(x_40, x_47);
 lean_dec(x_40);
 x_49 = lean_int_sub(x_46, x_48);
@@ -576,7 +549,7 @@ goto block_21;
 else
 {
 lean_object* x_52; lean_object* x_53; lean_object* x_54; 
-x_52 = l_stdNext___closed__8;
+x_52 = l_stdNext___closed__9;
 x_53 = lean_int_add(x_49, x_52);
 lean_dec(x_49);
 x_54 = l_Int_toNat(x_53);
@@ -1506,6 +1479,8 @@ l_stdNext___closed__8 = _init_l_stdNext___closed__8();
 lean_mark_persistent(l_stdNext___closed__8);
 l_stdNext___closed__9 = _init_l_stdNext___closed__9();
 lean_mark_persistent(l_stdNext___closed__9);
+l_stdNext___closed__10 = _init_l_stdNext___closed__10();
+lean_mark_persistent(l_stdNext___closed__10);
 l_instRandomGenStdGen___closed__0 = _init_l_instRandomGenStdGen___closed__0();
 lean_mark_persistent(l_instRandomGenStdGen___closed__0);
 l_instRandomGenStdGen___closed__1 = _init_l_instRandomGenStdGen___closed__1();

@@ -46,6 +46,7 @@ LEAN_EXPORT lean_object* l_Lean_instFromJsonString;
 LEAN_EXPORT lean_object* l_Array_toJson___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonJsonNumber;
 static lean_object* l_USize_fromJson_x3f___closed__0;
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonFloat;
 LEAN_EXPORT lean_object* l_Option_toJson(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_fromJson_x3f___redArg(lean_object*, lean_object*);
@@ -91,13 +92,11 @@ LEAN_EXPORT lean_object* l_USize_fromJson_x3f(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Name_fromJson_x3f___closed__1;
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ToJson_ctorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_parseTagged___closed__0;
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Except_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_FromJson_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonNameMap___redArg(lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToJsonString;
@@ -159,7 +158,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 static lean_object* l_Float_fromJson_x3f___closed__3;
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_decodeNatLitVal_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_FromJson_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToJsonArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_bignumFromJson_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Array_toJson(lean_object*, lean_object*, lean_object*);
@@ -180,7 +178,6 @@ lean_object* l_Lean_Json_getBool_x3f___boxed(lean_object*);
 double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_Structured_toJson(lean_object*);
 static lean_object* l_Array_fromJson_x3f___redArg___closed__11;
-LEAN_EXPORT lean_object* l_Lean_ToJson_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_fromJson_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_toJson___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameMap_toJson___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -257,40 +254,6 @@ LEAN_EXPORT lean_object* l_Lean_instToJsonOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToJsonNameMap(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getInt_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToJsonProd___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_FromJson_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_FromJson_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_FromJson_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ToJson_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ToJson_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_ToJson_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_instFromJsonJson___lam__0(lean_object* x_1) {
 _start:
 {
@@ -1880,7 +1843,7 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = 1;
-x_7 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_4, x_6);
+x_7 = l_Lean_Name_toString(x_4, x_6);
 x_8 = lean_apply_1(x_1, x_5);
 x_9 = l_Std_DTreeMap_Internal_Impl_insert_x21___redArg(x_2, x_7, x_8, x_3);
 return x_9;

@@ -18,6 +18,7 @@ lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___mkRecOn_spec__9___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_mkRecOn___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setReducibleAttribute___at___mkRecOn_spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___mkRecOn_spec__9___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___mkRecOn_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___mkRecOn_spec__12_spec__12___redArg___closed__3;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -30,6 +31,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at___mkRecOn_spec__11___r
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___mkRecOn_spec__0_spec__0_spec__0_spec__0_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___mkRecOn_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___mkRecOn_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
+lean_object* l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at___mkRecOn_spec__11___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_unknownIdentifierMessageTag;
@@ -95,7 +98,6 @@ LEAN_EXPORT lean_object* l_Lean_setReducibleAttribute___at___mkRecOn_spec__12___
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstInfo___at___mkRecOn_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_mkRecOn___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkDefinitionValInferringUnsafe___at___mkRecOn_spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___mkRecOn_spec__12_spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___mkRecOn_spec__12_spec__12___redArg___closed__2;
 lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
@@ -1061,6 +1063,14 @@ goto _start;
 }
 }
 }
+static lean_object* _init_l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___mkRecOn_spec__9___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Nat_decLt___boxed), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___mkRecOn_spec__9___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1085,10 +1095,15 @@ lean_dec(x_7);
 x_8 = !lean_is_exclusive(x_4);
 if (x_8 == 0)
 {
-lean_object* x_9; uint8_t x_10; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_9 = lean_ctor_get(x_4, 0);
-x_10 = lean_nat_dec_lt(x_9, x_6);
-if (x_10 == 0)
+x_10 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___mkRecOn_spec__9___redArg___closed__0;
+x_11 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_10);
+lean_inc(x_9);
+lean_inc(x_6);
+x_12 = lean_apply_2(x_11, x_6, x_9);
+x_13 = lean_unbox(x_12);
+if (x_13 == 0)
 {
 lean_free_object(x_4);
 lean_dec(x_9);
@@ -1098,95 +1113,105 @@ return x_3;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_11 = lean_ctor_get(x_1, 0);
-x_12 = lean_unsigned_to_nat(1u);
-x_13 = lean_nat_add(x_9, x_12);
-lean_ctor_set(x_4, 0, x_13);
-x_14 = lean_array_fget_borrowed(x_11, x_9);
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_14 = lean_ctor_get(x_1, 0);
+x_15 = lean_unsigned_to_nat(1u);
+x_16 = lean_nat_add(x_9, x_15);
+lean_ctor_set(x_4, 0, x_16);
+x_17 = lean_array_fget_borrowed(x_14, x_9);
 lean_dec(x_9);
-lean_inc_ref(x_14);
-x_15 = lean_array_push(x_3, x_14);
-x_3 = x_15;
+lean_inc_ref(x_17);
+x_18 = lean_array_push(x_3, x_17);
+x_3 = x_18;
 goto _start;
 }
 }
 else
 {
-lean_object* x_17; uint8_t x_18; 
-x_17 = lean_ctor_get(x_4, 0);
-lean_inc(x_17);
+lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
+x_20 = lean_ctor_get(x_4, 0);
+lean_inc(x_20);
 lean_dec(x_4);
-x_18 = lean_nat_dec_lt(x_17, x_6);
-if (x_18 == 0)
+x_21 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___mkRecOn_spec__9___redArg___closed__0;
+x_22 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_21);
+lean_inc(x_20);
+lean_inc(x_6);
+x_23 = lean_apply_2(x_22, x_6, x_20);
+x_24 = lean_unbox(x_23);
+if (x_24 == 0)
 {
-lean_dec(x_17);
+lean_dec(x_20);
 lean_free_object(x_2);
 lean_dec(x_6);
 return x_3;
 }
 else
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_19 = lean_ctor_get(x_1, 0);
-x_20 = lean_unsigned_to_nat(1u);
-x_21 = lean_nat_add(x_17, x_20);
-x_22 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_2, 0, x_22);
-x_23 = lean_array_fget_borrowed(x_19, x_17);
-lean_dec(x_17);
-lean_inc_ref(x_23);
-x_24 = lean_array_push(x_3, x_23);
-x_3 = x_24;
+lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+x_25 = lean_ctor_get(x_1, 0);
+x_26 = lean_unsigned_to_nat(1u);
+x_27 = lean_nat_add(x_20, x_26);
+x_28 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_28, 0, x_27);
+lean_ctor_set(x_2, 0, x_28);
+x_29 = lean_array_fget_borrowed(x_25, x_20);
+lean_dec(x_20);
+lean_inc_ref(x_29);
+x_30 = lean_array_push(x_3, x_29);
+x_3 = x_30;
 goto _start;
 }
 }
 }
 else
 {
-lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; 
-x_26 = lean_ctor_get(x_2, 1);
-lean_inc(x_26);
+lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; 
+x_32 = lean_ctor_get(x_2, 1);
+lean_inc(x_32);
 lean_dec(x_2);
-x_27 = lean_ctor_get(x_4, 0);
-lean_inc(x_27);
+x_33 = lean_ctor_get(x_4, 0);
+lean_inc(x_33);
 if (lean_is_exclusive(x_4)) {
  lean_ctor_release(x_4, 0);
- x_28 = x_4;
+ x_34 = x_4;
 } else {
  lean_dec_ref(x_4);
- x_28 = lean_box(0);
+ x_34 = lean_box(0);
 }
-x_29 = lean_nat_dec_lt(x_27, x_26);
-if (x_29 == 0)
+x_35 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___mkRecOn_spec__9___redArg___closed__0;
+x_36 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_35);
+lean_inc(x_33);
+lean_inc(x_32);
+x_37 = lean_apply_2(x_36, x_32, x_33);
+x_38 = lean_unbox(x_37);
+if (x_38 == 0)
 {
-lean_dec(x_28);
-lean_dec(x_27);
-lean_dec(x_26);
+lean_dec(x_34);
+lean_dec(x_33);
+lean_dec(x_32);
 return x_3;
 }
 else
 {
-lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-x_30 = lean_ctor_get(x_1, 0);
-x_31 = lean_unsigned_to_nat(1u);
-x_32 = lean_nat_add(x_27, x_31);
-if (lean_is_scalar(x_28)) {
- x_33 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
+x_39 = lean_ctor_get(x_1, 0);
+x_40 = lean_unsigned_to_nat(1u);
+x_41 = lean_nat_add(x_33, x_40);
+if (lean_is_scalar(x_34)) {
+ x_42 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_33 = x_28;
+ x_42 = x_34;
 }
-lean_ctor_set(x_33, 0, x_32);
-x_34 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_34, 0, x_33);
-lean_ctor_set(x_34, 1, x_26);
-x_35 = lean_array_fget_borrowed(x_30, x_27);
-lean_dec(x_27);
-lean_inc_ref(x_35);
-x_36 = lean_array_push(x_3, x_35);
-x_2 = x_34;
-x_3 = x_36;
+lean_ctor_set(x_42, 0, x_41);
+x_43 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_43, 0, x_42);
+lean_ctor_set(x_43, 1, x_32);
+x_44 = lean_array_fget_borrowed(x_39, x_33);
+lean_dec(x_33);
+lean_inc_ref(x_44);
+x_45 = lean_array_push(x_3, x_44);
+x_2 = x_43;
+x_3 = x_45;
 goto _start;
 }
 }
@@ -3343,6 +3368,8 @@ l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getCo
 lean_mark_persistent(l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___mkRecOn_spec__0_spec__0_spec__0___redArg___closed__0);
 l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___mkRecOn_spec__0_spec__0_spec__0___redArg___closed__1 = _init_l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___mkRecOn_spec__0_spec__0_spec__0___redArg___closed__1();
 lean_mark_persistent(l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___mkRecOn_spec__0_spec__0_spec__0___redArg___closed__1);
+l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___mkRecOn_spec__9___redArg___closed__0 = _init_l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___mkRecOn_spec__9___redArg___closed__0();
+lean_mark_persistent(l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___mkRecOn_spec__9___redArg___closed__0);
 l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___mkRecOn_spec__12_spec__12___redArg___closed__0 = _init_l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___mkRecOn_spec__12_spec__12___redArg___closed__0();
 lean_mark_persistent(l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___mkRecOn_spec__12_spec__12___redArg___closed__0);
 l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___mkRecOn_spec__12_spec__12___redArg___closed__1 = _init_l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___mkRecOn_spec__12_spec__12___redArg___closed__1();

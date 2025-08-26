@@ -30,13 +30,13 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lake_parseTargetSpecs_spec
 static lean_object* l_Lake_formatQuery___at_____private_Lake_CLI_Build_0__Lake_resolveModuleTarget_spec__0___redArg___closed__0;
 static lean_object* l_Lake_parseTargetSpec___closed__0;
 static lean_object* l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___closed__0;
-LEAN_EXPORT lean_object* l_Lake_BuildSpec_ctorIdx(lean_object*);
 uint8_t l_Array_isEmpty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_parsePackageSpec_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Build_0__Lake_resolveExternLibTarget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Build_0__Lake_resolveLibTarget_resolveFacet___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake_buildSpecs_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_CLI_Build_0__Lake_resolveDefaultPackageTarget_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Lake_BuildInfo_key(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_parsePackageSpec_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake_querySpecs_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -114,7 +114,6 @@ LEAN_EXPORT lean_object* l_Lake_resolveLibTarget___boxed(lean_object*, lean_obje
 static uint8_t l_Lake_parseTargetSpec___closed__1;
 lean_object* l_Lake_Workspace_findLeanExe_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Build_0__Lake_resolvePackageTarget___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
 lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Build_0__Lake_mkBuildSpec(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Build_0__Lake_resolveDefaultPackageTarget___closed__0;
@@ -158,7 +157,6 @@ static lean_object* l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___c
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l___private_Lake_CLI_Build_0__Lake_resolveDefaultPackageTarget___closed__1;
 static lean_object* l___private_Lake_CLI_Build_0__Lake_resolveLibTarget_resolveFacet___closed__1;
-LEAN_EXPORT lean_object* l_Lake_BuildSpec_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Build_0__Lake_resolveConfigDeclTarget___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint8_t l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___closed__1;
 LEAN_EXPORT lean_object* l_Lake_buildSpecs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -180,23 +178,6 @@ extern lean_object* l_Lake_ExternLib_keyword;
 static lean_object* l___private_Lake_CLI_Build_0__Lake_resolveConfigDeclTarget___closed__2;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Build_0__Lake_resolvePackageTarget(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_buildSpecs___closed__0;
-LEAN_EXPORT lean_object* l_Lake_BuildSpec_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_BuildSpec_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_BuildSpec_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Build_0__Lake_mkBuildSpec___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2718,7 +2699,7 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_6);
 lean_dec_ref(x_2);
-x_15 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_7, x_11);
+x_15 = l_Lean_Name_toString(x_7, x_11);
 x_16 = lean_alloc_ctor(14, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_12);
@@ -3443,7 +3424,7 @@ x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
 lean_dec_ref(x_2);
 x_8 = 0;
-x_9 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_3, x_8);
+x_9 = l_Lean_Name_toString(x_3, x_8);
 x_10 = lean_alloc_ctor(17, 2, 0);
 lean_ctor_set(x_10, 0, x_7);
 lean_ctor_set(x_10, 1, x_9);

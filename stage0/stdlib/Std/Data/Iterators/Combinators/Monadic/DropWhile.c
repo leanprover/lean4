@@ -50,13 +50,11 @@ LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Combinators_Monadic_Drop
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorSizePartialDropWhileOfIteratorLoopPartial___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorSizeDropWhileOfFiniteOfIteratorLoop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_DropWhile_instIteratorLoop___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_DropWhile_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_DropWhile_instIterator___redArg___lam__0(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_dropWhileWithPostcondition___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Intermediate_dropWhileWithPostcondition(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_dropWhileM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Intermediate_dropWhileM___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_DropWhile_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_DropWhile_instIteratorCollectPartial(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_DropWhile_instIteratorLoop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -71,24 +69,6 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorSizePartialDropWhileOfItera
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_dropWhile(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_dropWhileWithPostcondition___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Intermediate_dropWhileM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_DropWhile_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = lean_unsigned_to_nat(0u);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_DropWhile_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Std_Iterators_DropWhile_ctorIdx(x_1, x_2, x_3, x_4, x_5);
-lean_dec_ref(x_5);
-lean_dec(x_4);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Intermediate_dropWhileWithPostcondition___redArg(uint8_t x_1, lean_object* x_2) {
 _start:
 {

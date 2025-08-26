@@ -21,7 +21,6 @@ lean_object* lean_uv_os_getpriority(uint64_t, lean_object*);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__48____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_setPriority(uint64_t, uint64_t, lean_object*);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__21____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_PId_ctorIdx___boxed(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__12____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__41____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_getParentId(lean_object*);
@@ -33,7 +32,6 @@ uint8_t lean_uint64_dec_lt(uint64_t, uint64_t);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__31____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
 static lean_object* l_Std_Internal_IO_Process_instOrdPId___closed__0;
 extern lean_object* l_Std_Time_Millisecond_instInhabitedOffset;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_ResourceUsageStats_ctorIdx(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__43____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
 lean_object* lean_uv_os_getpid(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_constrainedMemory(lean_object*);
@@ -51,9 +49,9 @@ LEAN_EXPORT uint8_t l_Std_Internal_IO_Process_decEqPId____x40_Std_Internal_Async
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__18____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__42____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
 lean_object* lean_uv_get_process_title(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_ResourceUsageStats_ctorIdx___boxed(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__15____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
 lean_object* l_Nat_reprFast(lean_object*);
+lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__38____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__9____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__23____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
@@ -107,7 +105,6 @@ static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_instDecidableEqPId___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_getCwd(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150____boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_PId_ctorIdx(uint64_t);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__25____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats;
@@ -141,23 +138,6 @@ static lean_object* l_Std_Internal_IO_Process_instReprPId___lam__0___closed__0;
 lean_object* lean_uv_os_getppid(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__7____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__29____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150_;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_ResourceUsageStats_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_ResourceUsageStats_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Process_ResourceUsageStats_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Internal_IO_Process_reprResourceUsageStats____x40_Std_Internal_Async_Process_2227095517____hygCtx___hyg_150__spec__0(lean_object* x_1) {
 _start:
 {
@@ -1196,24 +1176,6 @@ x_1 = l_Std_Internal_IO_Process_instInhabitedResourceUsageStats___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_PId_ctorIdx(uint64_t x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_PId_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-uint64_t x_2; lean_object* x_3; 
-x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
-x_3 = l_Std_Internal_IO_Process_PId_ctorIdx(x_2);
-return x_3;
-}
-}
 static uint64_t _init_l_Std_Internal_IO_Process_instInhabitedPId() {
 _start:
 {
@@ -1621,9 +1583,9 @@ x_15 = lean_ctor_get_uint64(x_1, 104);
 x_16 = lean_ctor_get_uint64(x_1, 112);
 x_17 = lean_ctor_get_uint64(x_1, 120);
 x_18 = lean_uint64_to_nat(x_2);
-x_19 = lean_nat_to_int(x_18);
+x_19 = l_instNatCastInt___lam__0(x_18);
 x_20 = lean_uint64_to_nat(x_3);
-x_21 = lean_nat_to_int(x_20);
+x_21 = l_instNatCastInt___lam__0(x_20);
 x_22 = lean_alloc_ctor(0, 2, 112);
 lean_ctor_set(x_22, 0, x_19);
 lean_ctor_set(x_22, 1, x_21);

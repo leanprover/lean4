@@ -47,6 +47,7 @@ lean_object* l_Lake_loadWorkspace(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_process_spawn(lean_object*, lean_object*);
 static lean_object* l_Lake_setupFile___boxed__const__2;
 lean_object* lean_get_stderr(lean_object*);
+lean_object* lean_mk_io_user_error(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_setupFile(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_OutStream_logEntry(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_setupFile___lam__0(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
@@ -177,8 +178,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_setupFile___closed__0;
-x_2 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = lean_mk_io_user_error(x_1);
 return x_2;
 }
 }

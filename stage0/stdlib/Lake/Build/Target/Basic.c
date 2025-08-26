@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l_Lake_Target_repr___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Target_instRepr(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Target_ctorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_Target_repr___redArg___closed__0;
 static lean_object* l_Lake_Target_repr___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lake_Target_instCoePartialBuildKey___lam__0___boxed(lean_object*);
@@ -29,30 +28,12 @@ static lean_object* l_Lake_Target_repr___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Target_repr___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Target_instRepr___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Target_instToString___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Target_ctorIdx(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_instCoePartialBuildKey___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_instToString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_repr___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_repr___redArg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Target_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Target_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_Target_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 static lean_object* _init_l_Lake_Target_repr___redArg___closed__0() {
 _start:
 {

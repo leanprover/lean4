@@ -19,7 +19,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___boxed(lean_
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst;
 lean_object* lean_int64_to_int_sint(uint64_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_ctorIdx(lean_object*);
 static lean_object* l_Std_Time_Database_Windows_getZoneRules___closed__3;
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -31,10 +30,10 @@ static uint64_t l_Std_Time_Database_Windows_getZoneRules___closed__0;
 lean_object* lean_nat_to_int(lean_object*);
 uint64_t lean_int64_neg(uint64_t);
 uint8_t lean_int64_dec_le(uint64_t, uint64_t);
+lean_object* lean_mk_io_user_error(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___redArg___boxed(lean_object*);
 static uint64_t l_Std_Time_Database_Windows_getZoneRules___closed__1;
 lean_object* lean_windows_get_next_transition(lean_object*, uint64_t, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_Windows_getNextTransition___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -647,8 +646,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Time_Database_Windows_getZoneRules___closed__2;
-x_2 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = lean_mk_io_user_error(x_1);
 return x_2;
 }
 }
@@ -882,22 +880,6 @@ lean_object* x_3;
 x_3 = l_Std_Time_Database_Windows_getZoneRules(x_1, x_2);
 lean_dec_ref(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___redArg(lean_object* x_1) {

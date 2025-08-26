@@ -61,7 +61,6 @@ LEAN_EXPORT lean_object* l_Lake_rpad___boxed(lean_object*, lean_object*, lean_ob
 static lean_object* l_Lake_reprDate___redArg___closed__16____x40_Lake_Util_Date_3979656006____hygCtx___hyg_75_;
 static lean_object* l_Lake_reprDate___redArg___closed__0____x40_Lake_Util_Date_3979656006____hygCtx___hyg_75_;
 static lean_object* l_Lake_reprDate___redArg___closed__11____x40_Lake_Util_Date_3979656006____hygCtx___hyg_75_;
-LEAN_EXPORT lean_object* l_Lake_Date_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lake_lpad___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Date_instMin___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprDate___closed__0;
@@ -91,7 +90,6 @@ LEAN_EXPORT lean_object* l_Lake_lpad___boxed(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lake_instOrdDate;
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___Lake_lpad_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Date_maxDay___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Date_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___Lake_lpad_spec__0(uint32_t, lean_object*, lean_object*);
 static lean_object* l_Lake_reprDate___redArg___closed__1____x40_Lake_Util_Date_3979656006____hygCtx___hyg_75_;
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -207,23 +205,6 @@ lean_object* x_3;
 x_3 = l_Lake_zpad(x_1, x_2);
 lean_dec(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Date_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Date_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Date_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedDate___closed__0() {

@@ -91,7 +91,6 @@ static lean_object* l_Lean_Compiler_initFn___lam__1___closed__12____x40_Lean_Com
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_InlineAttributeKind_toAttrString___boxed(lean_object*);
 static lean_object* l_Lean_Compiler_initFn___lam__1___closed__10____x40_Lean_Compiler_InlineAttrs_4064433739____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline_spec__0_spec__0_spec__0_spec__0_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn___lam__1___closed__2____x40_Lean_Compiler_InlineAttrs_4064433739____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline_spec__0_spec__0_spec__0_spec__0_spec__0___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -213,7 +212,6 @@ static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownId
 static lean_object* l_Lean_Compiler_initFn___closed__7____x40_Lean_Compiler_InlineAttrs_4064433739____hygCtx___hyg_2_;
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Compiler_hasInlineAttribute(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_noConfusion___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_ctorIdx(uint8_t x_1) {
@@ -259,23 +257,6 @@ _start:
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
 x_3 = l_Lean_Compiler_InlineAttributeKind_ctorIdx(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_toCtorIdx(uint8_t x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Compiler_InlineAttributeKind_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = lean_unbox(x_1);
-x_3 = l_Lean_Compiler_InlineAttributeKind_toCtorIdx(x_2);
 return x_3;
 }
 }

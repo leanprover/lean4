@@ -41,7 +41,6 @@ lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* lean_mk_projection_info(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_reprProjectionFunctionInfo___redArg___closed__18____x40_Lean_ProjFns_3839163711____hygCtx___hyg_45_;
 static lean_object* l_Lean_reprProjectionFunctionInfo___redArg___closed__17____x40_Lean_ProjFns_3839163711____hygCtx___hyg_45_;
-LEAN_EXPORT lean_object* l_Lean_ProjectionFunctionInfo_ctorIdx(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_isProjectionFn___boxed(lean_object*, lean_object*);
@@ -53,7 +52,6 @@ static lean_object* l_Lean_reprProjectionFunctionInfo___redArg___closed__19____x
 static lean_object* l_Lean_reprProjectionFunctionInfo___redArg___closed__6____x40_Lean_ProjFns_3839163711____hygCtx___hyg_45_;
 static lean_object* l_Lean_reprProjectionFunctionInfo___redArg___closed__7____x40_Lean_ProjFns_3839163711____hygCtx___hyg_45_;
 LEAN_EXPORT uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ProjectionFunctionInfo_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_reprProjectionFunctionInfo___redArg___closed__9____x40_Lean_ProjFns_3839163711____hygCtx___hyg_45_;
 static lean_object* l_Lean_initFn___closed__3____x40_Lean_ProjFns_2268652983____hygCtx___hyg_2_;
 static lean_object* l_Lean_reprProjectionFunctionInfo___redArg___closed__12____x40_Lean_ProjFns_3839163711____hygCtx___hyg_45_;
@@ -87,23 +85,6 @@ LEAN_EXPORT lean_object* l_Lean_reprProjectionFunctionInfo___redArg____x40_Lean_
 LEAN_EXPORT lean_object* lean_get_projection_info(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkProjectionInfoEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_reprProjectionFunctionInfo___redArg___closed__13____x40_Lean_ProjFns_3839163711____hygCtx___hyg_45_;
-LEAN_EXPORT lean_object* l_Lean_ProjectionFunctionInfo_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ProjectionFunctionInfo_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_ProjectionFunctionInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_instInhabitedProjectionFunctionInfo___closed__0() {
 _start:
 {

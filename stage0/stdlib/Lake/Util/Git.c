@@ -79,7 +79,6 @@ LEAN_EXPORT lean_object* l_Lake_GitRepo_clone(lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lake_GitRepo_resolveRevision_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_split___at___Lake_GitRepo_getTags_spec__0___boxed(lean_object*);
 static lean_object* l_Lake_GitRepo_findTag_x3f___closed__4;
-LEAN_EXPORT lean_object* l_Lake_GitRepo_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_GitRepo_dirExists(lean_object*, lean_object*);
 static lean_object* l_Lake_GitRepo_branchExists___closed__1;
 LEAN_EXPORT lean_object* l_Lake_GitRepo_findRemoteRevision(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -149,7 +148,6 @@ static lean_object* l_Lake_instToStringGitRepo___closed__0;
 LEAN_EXPORT lean_object* l_Lake_GitRepo_insideWorkTree(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___Lake_GitRepo_getTags_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Git_upstreamBranch;
-LEAN_EXPORT lean_object* l_Lake_GitRepo_ctorIdx(lean_object*);
 static lean_object* _init_l_Lake_Git_defaultRemote___closed__0() {
 _start:
 {
@@ -447,23 +445,6 @@ x_2 = l_Lake_Git_isFullObjectName(x_1);
 lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_GitRepo_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_GitRepo_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_GitRepo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instCoeFilePathGitRepo___lam__0(lean_object* x_1) {

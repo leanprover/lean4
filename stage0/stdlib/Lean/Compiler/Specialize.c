@@ -150,7 +150,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_getSpecializationArgs_x3f(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Compiler_SpecializeAttributeKind_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_hasSpecializeAttribute___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_SpecializeAttributeKind_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn___lam__0____x40_Lean_Compiler_Specialize_149776412____hygCtx___hyg_2_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs_spec__12_spec__12_spec__12_spec__12_spec__12___closed__5;
 lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -246,7 +245,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs_spec__12_spec__12_spec__12_spec__12_spec__12___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize_149776412____hygCtx___hyg_2_(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_SpecializeAttributeKind_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at_____private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs_spec__17___redArg(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs_spec__12_spec__12_spec__12_spec__12_spec__12___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Compiler_SpecializeAttributeKind_ctorIdx(uint8_t x_1) {
@@ -272,23 +270,6 @@ _start:
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
 x_3 = l_Lean_Compiler_SpecializeAttributeKind_ctorIdx(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_SpecializeAttributeKind_toCtorIdx(uint8_t x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Compiler_SpecializeAttributeKind_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_SpecializeAttributeKind_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = lean_unbox(x_1);
-x_3 = l_Lean_Compiler_SpecializeAttributeKind_toCtorIdx(x_2);
 return x_3;
 }
 }

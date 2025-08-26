@@ -16,7 +16,6 @@ extern "C" {
 static lean_object* l_Lean_ForEachExprWhere_visit___redArg___closed__0;
 static size_t l_Lean_ForEachExprWhere_cacheSize___closed__0;
 lean_object* l_Lean_Expr_eqv___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_State_ctorIdx(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -57,7 +56,6 @@ LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_visited___redArg(lean_object*, 
 LEAN_EXPORT lean_object* l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___redArg___lam__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_checked(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_State_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_visit___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_notAnExpr___closed__0;
 LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -129,23 +127,6 @@ _start:
 lean_object* x_1; 
 x_1 = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_notAnExpr___closed__0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_State_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_State_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_ForEachExprWhere_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_ForEachExprWhere_initCache___closed__0() {

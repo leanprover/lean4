@@ -52,7 +52,6 @@ static lean_object* l_Lake_instCoeStringStrPat___closed__0;
 static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__4;
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_ctorIdx(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedPatternDescr___closed__1;
-LEAN_EXPORT lean_object* l_Lake_IsPattern_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PatternDescr_matches___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_matches___redArg___lam__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_PatternDescr_matches(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -60,7 +59,6 @@ uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedStrPatDescr___closed__1;
 static lean_object* l_Lake_Pattern_empty___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Pattern_matches___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_IsPattern_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeArrayStringStrPat;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instEmptyCollectionPattern(lean_object*, lean_object*);
@@ -213,7 +211,6 @@ LEAN_EXPORT uint8_t l_Lake_PatternDescr_matches___redArg___lam__1(lean_object*, 
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lake_instCoeArrayStringStrPatDescr___lam__0(lean_object*);
 static lean_object* l_Lake_instInhabitedPatternDescr___closed__2;
-LEAN_EXPORT lean_object* l_Lake_Pattern_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__12;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -249,24 +246,6 @@ LEAN_EXPORT uint8_t l_Lake_instCoePatternDescrPatternOfIsPattern___redArg___lam_
 LEAN_EXPORT lean_object* l_Lake_instIsPatternStrPatDescrString;
 static lean_object* l_Lake_term___x3d_x7e_____closed__1;
 LEAN_EXPORT uint8_t l_Array_contains___at___Lake_StrPatDescr_matches_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Pattern_ctorIdx(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_IsPattern_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_IsPattern_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_IsPattern_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
-}
-}
 static lean_object* _init_l_Lake_term___x3d_x7e_____closed__0() {
 _start:
 {
@@ -698,23 +677,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lake___aux__Lake__Config__Pattern______unexpand__Lake__IsPattern__satisfies__1(x_1, x_2, x_3);
 lean_dec(x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Pattern_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Pattern_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_Pattern_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
 return x_4;
 }
 }
@@ -2856,9 +2818,9 @@ goto block_52;
 block_44:
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
-x_41 = lean_nat_add(x_38, x_40);
+x_41 = lean_nat_add(x_39, x_40);
 lean_dec(x_40);
-lean_dec(x_38);
+lean_dec(x_39);
 if (lean_is_scalar(x_35)) {
  x_42 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -2877,7 +2839,7 @@ if (lean_is_scalar(x_25)) {
 lean_ctor_set(x_43, 0, x_37);
 lean_ctor_set(x_43, 1, x_28);
 lean_ctor_set(x_43, 2, x_29);
-lean_ctor_set(x_43, 3, x_39);
+lean_ctor_set(x_43, 3, x_38);
 lean_ctor_set(x_43, 4, x_42);
 return x_43;
 }
@@ -2903,8 +2865,8 @@ if (lean_obj_tag(x_31) == 0)
 lean_object* x_50; 
 x_50 = lean_ctor_get(x_31, 0);
 lean_inc(x_50);
-x_38 = x_49;
-x_39 = x_48;
+x_38 = x_48;
+x_39 = x_49;
 x_40 = x_50;
 goto block_44;
 }
@@ -2912,8 +2874,8 @@ else
 {
 lean_object* x_51; 
 x_51 = lean_unsigned_to_nat(0u);
-x_38 = x_49;
-x_39 = x_48;
+x_38 = x_48;
+x_39 = x_49;
 x_40 = x_51;
 goto block_44;
 }

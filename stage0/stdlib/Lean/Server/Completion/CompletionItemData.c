@@ -23,8 +23,8 @@ lean_object* l_Lean_Lsp_fromJsonCompletionParams____x40_Lean_Data_Lsp_LanguageFe
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceCompletionItem;
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__12____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15_;
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__2____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15_;
-lean_object* l_List_foldl___at___Array_appendList_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__2;
+lean_object* l_List_foldl___at___Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15__spec__0___boxed(lean_object*, lean_object*);
@@ -34,13 +34,11 @@ lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 static lean_object* l_panic___at___Lean_Lsp_CompletionItem_getFileSource_x21_spec__0___closed__0;
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__10____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15_;
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__5____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15_;
-LEAN_EXPORT lean_object* l_Lean_Lsp_CompletionItemData_ctorIdx___boxed(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__3____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15_;
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__6____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15_;
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__9____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15_;
 lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Lsp_CompletionItemData_ctorIdx(lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonCompletionItemData___closed__0;
 static lean_object* l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__1;
 static lean_object* l_Lean_Lsp_instFromJsonCompletionItemData___closed__0;
@@ -59,23 +57,6 @@ LEAN_EXPORT lean_object* l_panic___at___Lean_Lsp_CompletionItem_getFileSource_x2
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_24__spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__7____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15_;
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__4____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15_;
-LEAN_EXPORT lean_object* l_Lean_Lsp_CompletionItemData_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_CompletionItemData_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Lsp_CompletionItemData_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_15__spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -323,7 +304,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec_ref(x_1);
-x_6 = l_List_foldl___at___Array_appendList_spec__0(lean_box(0), x_2, x_4);
+x_6 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_2, x_4);
 x_1 = x_5;
 x_2 = x_6;
 goto _start;

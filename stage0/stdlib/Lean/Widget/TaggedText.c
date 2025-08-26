@@ -60,7 +60,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___
 static lean_object* l_Lean_Widget_TaggedText_instRpcEncodable___redArg___closed__11;
 LEAN_EXPORT lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_instMonadPrettyFormatStateMTaggedState___lam__6(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_TaggedText_instRpcEncodable___redArg___closed__8;
-LEAN_EXPORT lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_TaggedState_ctorIdx(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instToJsonTaggedText(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -197,7 +196,6 @@ lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonTaggedText___redArg___lam__0____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_116_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instFromJsonTaggedText(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_TaggedText_instRpcEncodable___redArg___closed__3;
-LEAN_EXPORT lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_TaggedState_ctorIdx___boxed(lean_object*);
 lean_object* l_ExceptT_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_ctorIdx___boxed(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -2638,23 +2636,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Widget_TaggedText_instRpcEncodable___redArg(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_TaggedState_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_TaggedState_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_TaggedState_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l___private_Lean_Widget_TaggedText_0__Lean_Widget_TaggedText_instInhabitedTaggedState___closed__0() {

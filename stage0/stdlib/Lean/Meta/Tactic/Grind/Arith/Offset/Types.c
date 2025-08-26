@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedToPropagate
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__6;
 lean_object* l_Nat_reprFast(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ProofInfo_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo___closed__0;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Array_empty(lean_object*);
@@ -34,7 +33,6 @@ static lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId_
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo___closed__4;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_State_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ToPropagate_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__0;
@@ -42,12 +40,10 @@ static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo___clos
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_State_ctorIdx(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedToPropagate___closed__0;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedState;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ProofInfo_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo;
 lean_object* l_Lean_Meta_Grind_Arith_Offset_toMessageData___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__2;
@@ -120,23 +116,6 @@ lean_object* x_1; lean_object* x_2;
 x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0), 1, 0);
 x_2 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__1), 2, 1);
 lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ProofInfo_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ProofInfo_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_Arith_Offset_ProofInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -254,23 +233,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedToPropagate___closed__0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_State_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_State_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_Arith_Offset_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__0() {

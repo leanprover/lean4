@@ -27,7 +27,7 @@ lean_object* l_Dyadic_mul___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Dyadic_Instances_0__Dyadic_instCommRing___closed__3;
 static lean_object* l___private_Init_Data_Dyadic_Instances_0__Dyadic_instCommRing___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Instances_0__Dyadic_instCommRing___lam__1(lean_object*, lean_object*);
-lean_object* l_instHAdd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+lean_object* l_instHPow___redArg(lean_object*);
 static lean_object* l___private_Init_Data_Dyadic_Instances_0__Dyadic_instCommRing___closed__1;
 lean_object* l_Dyadic_mul(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Dyadic_Instances_0__Dyadic_instCommRing___closed__6;
@@ -92,8 +92,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Init_Data_Dyadic_Instances_0__Dyadic_instCommRing___closed__3;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instHPow___redArg(x_1);
 return x_2;
 }
 }

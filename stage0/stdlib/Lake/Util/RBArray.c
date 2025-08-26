@@ -43,7 +43,6 @@ LEAN_EXPORT lean_object* l_Lake_RBArray_foldl___boxed(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l___private_Lake_Util_RBArray_0__Lake_RBArray_instEmptyCollection(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_insert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_RBArray_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_RBArray_all___redArg___closed__6;
 lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_RBArray_foldlM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -95,7 +94,6 @@ static lean_object* l_Lake_RBArray_all___redArg___closed__9;
 LEAN_EXPORT lean_object* l_Lake_RBArray_empty___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 static lean_object* l_Lake_RBArray_all___redArg___closed__4;
-LEAN_EXPORT lean_object* l_Lake_RBArray_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_RBArray_any(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -114,24 +112,6 @@ lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lake_RBArray_contains___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_foldr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_RBArray_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_unsigned_to_nat(0u);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_RBArray_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_RBArray_ctorIdx(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_4);
-lean_dec_ref(x_3);
-return x_5;
-}
-}
 static lean_object* _init_l_Lake_RBArray_empty___closed__0() {
 _start:
 {
@@ -984,9 +964,9 @@ goto block_156;
 block_149:
 {
 lean_object* x_146; lean_object* x_147; lean_object* x_148; 
-x_146 = lean_nat_add(x_143, x_145);
+x_146 = lean_nat_add(x_144, x_145);
 lean_dec(x_145);
-lean_dec(x_143);
+lean_dec(x_144);
 if (lean_is_scalar(x_140)) {
  x_147 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -1005,7 +985,7 @@ if (lean_is_scalar(x_130)) {
 lean_ctor_set(x_148, 0, x_142);
 lean_ctor_set(x_148, 1, x_132);
 lean_ctor_set(x_148, 2, x_133);
-lean_ctor_set(x_148, 3, x_144);
+lean_ctor_set(x_148, 3, x_143);
 lean_ctor_set(x_148, 4, x_147);
 return x_148;
 }
@@ -1031,8 +1011,8 @@ if (lean_obj_tag(x_135) == 0)
 lean_object* x_154; 
 x_154 = lean_ctor_get(x_135, 0);
 lean_inc(x_154);
-x_143 = x_153;
-x_144 = x_152;
+x_143 = x_152;
+x_144 = x_153;
 x_145 = x_154;
 goto block_149;
 }
@@ -1040,8 +1020,8 @@ else
 {
 lean_object* x_155; 
 x_155 = lean_unsigned_to_nat(0u);
-x_143 = x_153;
-x_144 = x_152;
+x_143 = x_152;
+x_144 = x_153;
 x_145 = x_155;
 goto block_149;
 }

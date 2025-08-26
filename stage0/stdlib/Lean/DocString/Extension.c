@@ -59,7 +59,6 @@ static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___closed
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___closed__2____x40_Lean_DocString_Extension_733393053____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___lam__3___closed__0____x40_Lean_DocString_Extension_733393053____hygCtx___hyg_2_;
 lean_object* l_Lean_throwError___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ModuleDoc_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMainModuleDoc(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addDocStringCore___redArg___lam__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -99,7 +98,6 @@ lean_object* l_Lean_MapDeclarationExtension_insert___redArg(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_addDocStringCore___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_find_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_DocString_Extension_3115648137____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_ModuleDoc_ctorIdx___boxed(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
@@ -591,23 +589,6 @@ uint8_t x_5; lean_object* x_6;
 x_5 = lean_unbox(x_3);
 x_6 = l_Lean_findSimpleDocString_x3f(x_1, x_2, x_5, x_4);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ModuleDoc_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ModuleDoc_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_ModuleDoc_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l___private_Lean_DocString_Extension_0__Lean_initFn___lam__0___closed__0____x40_Lean_DocString_Extension_733393053____hygCtx___hyg_2_() {

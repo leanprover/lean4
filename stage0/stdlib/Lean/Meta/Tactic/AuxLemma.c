@@ -35,8 +35,6 @@ LEAN_EXPORT lean_object* l_Lean_mkAuxDeclName___at___Lean_Meta_mkAuxLemma_spec__
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Meta_mkAuxLemma_spec__1_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_inferDefEqAttr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_AuxLemmas_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_AuxLemmaKey_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Meta_mkAuxLemma_spec__6_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedAuxLemmas;
 LEAN_EXPORT lean_object* l_Lean_Meta_mkAuxLemma(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -44,8 +42,6 @@ static lean_object* l_Lean_Meta_mkAuxLemma___lam__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_hashAuxLemmaKey____x40_Lean_Meta_Tactic_AuxLemma_667446730____hygCtx___hyg_43____boxed(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_AuxLemmaKey_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_AuxLemmas_ctorIdx(lean_object*);
 lean_object* l_Lean_EnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_instBEqAuxLemmaKey___closed__0;
 static lean_object* l_Lean_Meta_instHashableAuxLemmaKey___closed__0;
@@ -114,23 +110,6 @@ static size_t l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_i
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Meta_mkAuxLemma_spec__1_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_Meta_AuxLemmaKey_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_AuxLemmaKey_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_AuxLemmaKey_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT uint8_t l_Lean_Meta_beqAuxLemmaKey____x40_Lean_Meta_Tactic_AuxLemma_667446730____hygCtx___hyg_24_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -240,23 +219,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Meta_instHashableAuxLemmaKey___closed__0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_AuxLemmas_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_AuxLemmas_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_AuxLemmas_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_instInhabitedAuxLemmas___closed__0() {

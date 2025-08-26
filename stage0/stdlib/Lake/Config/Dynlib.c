@@ -40,7 +40,6 @@ lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_reprDynlib____x40_Lake_Config_Dynlib_1270700162____hygCtx___hyg_52_(lean_object*, lean_object*);
 lean_object* l_System_FilePath_parent(lean_object*);
 static lean_object* l_Lake_reprDynlib___redArg___closed__17____x40_Lake_Config_Dynlib_1270700162____hygCtx___hyg_52_;
-LEAN_EXPORT lean_object* l_Lake_Dynlib_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___Array_Array_repr___at___Lake_reprDynlib____x40_Lake_Config_Dynlib_1270700162____hygCtx___hyg_52__spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Dynlib_instToJson___lam__0(lean_object*);
 static lean_object* l_Lake_reprDynlib___redArg___closed__7____x40_Lake_Config_Dynlib_1270700162____hygCtx___hyg_52_;
@@ -67,7 +66,6 @@ static lean_object* l_Lake_reprDynlib___redArg___closed__16____x40_Lake_Config_D
 static lean_object* l_Array_Array_repr___at___Lake_reprDynlib____x40_Lake_Config_Dynlib_1270700162____hygCtx___hyg_52__spec__0___closed__0;
 static lean_object* l_Lake_reprDynlib___redArg___closed__4____x40_Lake_Config_Dynlib_1270700162____hygCtx___hyg_52_;
 LEAN_EXPORT lean_object* l_Lake_Dynlib_dir_x3f___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Dynlib_ctorIdx(lean_object*);
 static lean_object* l_Array_Array_repr___at___Lake_reprDynlib____x40_Lake_Config_Dynlib_1270700162____hygCtx___hyg_52__spec__0___closed__2;
 static lean_object* l_Lake_reprDynlib___redArg___closed__8____x40_Lake_Config_Dynlib_1270700162____hygCtx___hyg_52_;
 LEAN_EXPORT lean_object* l_Array_Array_repr___at___Lake_reprDynlib____x40_Lake_Config_Dynlib_1270700162____hygCtx___hyg_52__spec__0(lean_object*);
@@ -79,23 +77,6 @@ LEAN_EXPORT lean_object* l_Nat_cast___at___Array_Array_repr___at___Lake_reprDynl
 static lean_object* l_Lake_reprDynlib___redArg___closed__12____x40_Lake_Config_Dynlib_1270700162____hygCtx___hyg_52_;
 static lean_object* l_Lake_reprDynlib___redArg___closed__10____x40_Lake_Config_Dynlib_1270700162____hygCtx___hyg_52_;
 LEAN_EXPORT lean_object* l_Lake_Dynlib_instToJson;
-LEAN_EXPORT lean_object* l_Lake_Dynlib_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Dynlib_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Dynlib_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedDynlib___closed__0() {
 _start:
 {

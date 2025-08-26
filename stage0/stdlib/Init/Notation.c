@@ -797,7 +797,6 @@ static lean_object* l_Lean_Parser_commandSeal_______closed__6;
 static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__7;
 static lean_object* l___aux__Init__Notation______macroRules__term___u207b_xb9__1___closed__1;
 static lean_object* l_term___x2f_____closed__1;
-LEAN_EXPORT lean_object* l_Lean_Parser_Category_toCtorIdx(lean_object*);
 static lean_object* l_term___x7c_x7c_x7c_____closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a_x3e____1___closed__9;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e____1(lean_object*, lean_object*, lean_object*);
@@ -971,7 +970,6 @@ LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__prec_x28___x29
 LEAN_EXPORT lean_object* l_precMax;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HOr__hOr__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__14;
-LEAN_EXPORT lean_object* l_Lean_Parser_Category_ctorIdx(lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___u2022____1___closed__5;
 static lean_object* l_stx___x3c_x7c_x3e_____closed__3;
 static lean_object* l_term_x7b___x3a___x2f_x2f___x7d___closed__16;
@@ -1785,22 +1783,6 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x5c_x2f____1
 LEAN_EXPORT lean_object* l_precMin1;
 static lean_object* l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__17;
 LEAN_EXPORT lean_object* l_Lean_Parser_Category_doElem;
-LEAN_EXPORT lean_object* l_Lean_Parser_Category_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Parser_Category_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Parser_Category_command() {
 _start:
 {

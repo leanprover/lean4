@@ -14,28 +14,9 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_configure___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_Options_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_Options_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_alive___boxed(lean_object*);
 lean_object* lean_uv_event_loop_configure(lean_object*, lean_object*);
 lean_object* lean_uv_event_loop_alive(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_Options_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_Options_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_UV_Loop_Options_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_configure___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {

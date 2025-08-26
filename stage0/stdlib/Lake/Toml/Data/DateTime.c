@@ -99,26 +99,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Time_instToString;
 LEAN_EXPORT lean_object* l_Lake_Toml_Time_ofString_x3f___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_Time_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_Time_ctorIdx(lean_object*);
 static lean_object* l_Lake_Toml_instInhabitedTime___closed__0;
-LEAN_EXPORT lean_object* l_Lake_Toml_Time_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Toml_Time_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Toml_Time_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_Toml_instInhabitedTime___closed__0() {
 _start:
 {

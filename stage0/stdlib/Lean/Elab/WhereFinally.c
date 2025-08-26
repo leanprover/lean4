@@ -15,8 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_none;
 static lean_object* l_Lean_Elab_instInhabitedWhereFinallyView___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_ctorIdx___boxed(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_isNone___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_WhereFinallyView_isNone(lean_object*);
@@ -32,23 +30,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__1(lean_object*, lean_object*);
 lean_object* l_Lean_throwErrorAt___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_WhereFinallyView_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Elab_instInhabitedWhereFinallyView___closed__0() {
 _start:
 {

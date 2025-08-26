@@ -50,6 +50,7 @@ static lean_object* l_Lean_validateDefEqAttr___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_validateDefEqAttr_spec__3_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_unknownIdentifierMessageTag;
 static lean_object* l_Lean_validateDefEqAttr___lam__1___closed__4;
+lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -83,7 +84,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_
 extern lean_object* l_Lean_maxRecDepth;
 static lean_object* l___private_Lean_DefEqAttrib_0__Lean_defeqAttr___regBuiltin_Lean_defeqAttr_declRange__3___closed__4;
 static lean_object* l_Lean_throwAttrNotInAsyncCtx___at___Lean_TagAttribute_setTag___at___Lean_inferDefEqAttr_spec__0_spec__0___redArg___closed__8;
-lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_validateDefEqAttr_spec__3_spec__3_spec__3_spec__3_spec__3___closed__4;
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_validateDefEqAttr_spec__3_spec__3_spec__3___redArg___closed__1;
@@ -237,6 +237,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_validat
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_validateDefEqAttr_spec__11___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_validateDefEqAttr_spec__3_spec__3___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_KVMap_insert(lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_shift_left(uint64_t, uint64_t);
 uint8_t l_Lean_isPrivateName(lean_object*);
 static lean_object* l_Lean_throwAttrNotInAsyncCtx___at___Lean_TagAttribute_setTag___at___Lean_inferDefEqAttr_spec__0_spec__0___redArg___closed__4;
@@ -258,7 +259,6 @@ static lean_object* l_Lean_validateDefEqAttr___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_validateDefEqAttr_spec__3_spec__3_spec__3_spec__3_spec__4_spec__4___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at_____private_Lean_DefEqAttrib_0__Lean_isDefEqCareful_spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_TagAttribute_setTag___at___Lean_inferDefEqAttr_spec__0___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 static lean_object* l_Lean_throwAttrNotInAsyncCtx___at___Lean_TagAttribute_setTag___at___Lean_inferDefEqAttr_spec__0_spec__0___redArg___closed__7;
 static lean_object* l_Lean_inferDefEqAttr___lam__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_inferDefEqAttr_spec__6_spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -313,7 +313,7 @@ lean_inc(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_alloc_ctor(1, 0, 1);
 lean_ctor_set_uint8(x_5, 0, x_3);
-x_6 = l_Lean_KVMap_insertCore(x_1, x_4, x_5);
+x_6 = l_Lean_KVMap_insert(x_1, x_4, x_5);
 return x_6;
 }
 }
@@ -323,7 +323,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
+x_5 = l_Lean_KVMap_find(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
@@ -359,7 +359,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
+x_5 = l_Lean_KVMap_find(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_inc(x_4);

@@ -15,24 +15,23 @@ extern "C" {
 #endif
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__9;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__11;
-lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_eqv___boxed(lean_object*, lean_object*);
+lean_object* l_instHashableProd___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__8;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__5;
 lean_object* l_instHashableInt___lam__0___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__10;
+lean_object* l_instBEqProd___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__4;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__15;
 lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__17;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__0;
+lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__16;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_ctorIdx___boxed(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-lean_object* l_instBEqProd___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_instDecidableEq___boxed(lean_object*, lean_object*);
 static size_t l_Lean_Meta_Grind_Arith_instInhabitedState___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__13;
@@ -41,27 +40,9 @@ static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__7;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_empty(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hash___boxed(lean_object*);
-lean_object* l_instHashableProd___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__6;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__14;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__12;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_Arith_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState___closed__0() {
 _start:
 {
@@ -173,9 +154,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__9;
 x_2 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__8;
-x_3 = lean_alloc_closure((void*)(l_instHashableProd___redArg___lam__0___boxed), 3, 2);
-lean_closure_set(x_3, 0, x_2);
-lean_closure_set(x_3, 1, x_1);
+x_3 = l_instHashableProd___redArg(x_2, x_1);
 return x_3;
 }
 }
@@ -184,8 +163,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_alloc_closure((void*)(l_Int_instDecidableEq___boxed), 2, 0);
-x_2 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instBEqOfDecidableEq___redArg(x_1);
 return x_2;
 }
 }
@@ -195,9 +173,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__11;
 x_2 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__7;
-x_3 = lean_alloc_closure((void*)(l_instBEqProd___redArg___lam__0___boxed), 4, 2);
-lean_closure_set(x_3, 0, x_2);
-lean_closure_set(x_3, 1, x_1);
+x_3 = l_instBEqProd___redArg(x_2, x_1);
 return x_3;
 }
 }

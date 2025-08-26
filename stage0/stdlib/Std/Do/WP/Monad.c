@@ -21,7 +21,6 @@ lean_object* l_Std_Do_StateT_instWP___redArg___lam__1(lean_object*, lean_object*
 lean_object* l_Std_Do_Except_instWP(lean_object*);
 lean_object* l_Std_Do_EStateM_instWP(lean_object*, lean_object*);
 lean_object* l_Std_Do_ReaderT_instWP___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_WPMonad_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_Id_instWPMonad;
 static lean_object* l_Std_Do_State_instWPMonad___closed__0;
 LEAN_EXPORT lean_object* l_Std_Do_StateT_instWPMonad(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -31,7 +30,6 @@ lean_object* l_Std_Do_Id_instWP___lam__0(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Std_Do_ReaderT_instWPMonad___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_WP_Monad_0__ExceptT_bindCont_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Do_ExceptT_instWP___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_WPMonad_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_ExceptT_instWPMonad___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_WP_Monad_0__EStateM_bind_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_StateT_instWPMonad___redArg(lean_object*);
@@ -48,25 +46,6 @@ static lean_object* l_Std_Do_EStateM_instWPMonad___closed__0;
 LEAN_EXPORT lean_object* l___private_Std_Do_WP_Monad_0__Std_Do_EStateM_instWP_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_ExceptT_instWPMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_State_instWPMonad(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_WPMonad_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_unsigned_to_nat(0u);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_WPMonad_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Do_WPMonad_ctorIdx(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-return x_5;
-}
-}
 static lean_object* _init_l_Std_Do_Id_instWPMonad___closed__0() {
 _start:
 {

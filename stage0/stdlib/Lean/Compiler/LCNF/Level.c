@@ -41,13 +41,11 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_NormLevelParam_State_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitArgs___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__5;
 static lean_object* l_Lean_Compiler_LCNF_normLevelParams___closed__4;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Compiler_LCNF_CollectLevelParams_visitArgs_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_NormLevelParam_State_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Compiler_LCNF_CollectLevelParams_visitArgs_spec__0(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -133,6 +131,7 @@ lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, l
 lean_object* l_Lean_mkLevelIMax_x27(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Compiler_LCNF_NormLevelParam_normLevel_spec__2_spec__3_spec__3___redArg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
+lean_object* l_Lean_CollectLevelParams_visitLevels(lean_object*, lean_object*);
 lean_object* l_Lean_Level_param___override(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -144,7 +143,6 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_simpLevelMax_x27(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* l_List_foldl___at___Lean_CollectLevelParams_visitLevels_spec__0(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_panic___at___Lean_Compiler_LCNF_NormLevelParam_normLevel_spec__8___closed__2;
 lean_object* l_StateT_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -155,23 +153,6 @@ lean_object* l_StateT_instMonad___redArg___lam__1(lean_object*, lean_object*, le
 size_t lean_usize_land(size_t, size_t);
 lean_object* l_StateT_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_Compiler_LCNF_NormLevelParam_normLevel_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_NormLevelParam_State_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_NormLevelParam_State_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Compiler_LCNF_NormLevelParam_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_Compiler_LCNF_NormLevelParam_normLevel_spec__0_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2287,7 +2268,7 @@ lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = l_Lean_Compiler_LCNF_CollectLevelParams_visitArgs(x_4, x_2);
 lean_dec_ref(x_4);
-x_6 = l_List_foldl___at___Lean_CollectLevelParams_visitLevels_spec__0(x_5, x_3);
+x_6 = l_Lean_CollectLevelParams_visitLevels(x_3, x_5);
 return x_6;
 }
 case 4:

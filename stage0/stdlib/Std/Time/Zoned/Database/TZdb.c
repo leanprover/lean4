@@ -17,7 +17,6 @@ lean_object* l_Std_Time_TimeZone_TZif_parse(lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Std_Time_Database_TZdb_idFromPath_spec__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_ctorIdx___boxed(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_inst___lam__2___closed__2;
@@ -50,6 +49,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__0(lean_object*, le
 lean_object* l_System_FilePath_components(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_parseTZIfFromDisk___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_default___closed__10;
+lean_object* lean_mk_io_user_error(lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_parseTZif___closed__0;
 static lean_object* l_Std_Time_Database_TZdb_default___closed__7;
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
@@ -76,7 +76,6 @@ size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_readRulesFromDisk(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_ofExcept___at___Std_Time_Database_TZdb_parseTZIfFromDisk_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_default___closed__3;
-LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_ctorIdx(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_default___closed__6;
@@ -84,23 +83,6 @@ lean_object* l_IO_FS_readBinFile(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Std_Time_Database_TZdb_idFromPath_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_idFromPath___closed__1;
-LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_Database_TZdb_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Std_Time_Database_TZdb_default___closed__0() {
 _start:
 {
@@ -261,41 +243,26 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-uint8_t x_3; 
-x_3 = !lean_is_exclusive(x_1);
-if (x_3 == 0)
-{
-lean_object* x_4; 
-lean_ctor_set_tag(x_1, 18);
-x_4 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-return x_4;
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec_ref(x_1);
+x_4 = lean_mk_io_user_error(x_3);
+x_5 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_5, 0, x_4);
+lean_ctor_set(x_5, 1, x_2);
+return x_5;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_6, 0, x_5);
-x_7 = lean_alloc_ctor(1, 2, 0);
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec_ref(x_1);
+x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_2);
 return x_7;
-}
-}
-else
-{
-lean_object* x_8; lean_object* x_9; 
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
-lean_dec_ref(x_1);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_2);
-return x_9;
 }
 }
 }
@@ -392,8 +359,7 @@ x_18 = lean_string_append(x_16, x_17);
 x_19 = lean_string_append(x_18, x_1);
 x_20 = l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__2;
 x_21 = lean_string_append(x_19, x_20);
-x_22 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_22, 0, x_21);
+x_22 = lean_mk_io_user_error(x_21);
 lean_ctor_set(x_4, 0, x_22);
 return x_4;
 }
@@ -411,8 +377,7 @@ x_27 = lean_string_append(x_25, x_26);
 x_28 = lean_string_append(x_27, x_1);
 x_29 = l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__2;
 x_30 = lean_string_append(x_28, x_29);
-x_31 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_31, 0, x_30);
+x_31 = lean_mk_io_user_error(x_30);
 x_32 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_23);
@@ -720,8 +685,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Time_Database_TZdb_localRules___closed__0;
-x_2 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = lean_mk_io_user_error(x_1);
 return x_2;
 }
 }
@@ -1036,8 +1000,7 @@ x_22 = lean_string_append(x_21, x_3);
 lean_dec_ref(x_3);
 x_23 = l_Std_Time_Database_TZdb_inst___lam__2___closed__3;
 x_24 = lean_string_append(x_22, x_23);
-x_25 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_25, 0, x_24);
+x_25 = lean_mk_io_user_error(x_24);
 lean_ctor_set_tag(x_16, 1);
 lean_ctor_set(x_16, 0, x_25);
 return x_16;
@@ -1053,8 +1016,7 @@ x_28 = lean_string_append(x_27, x_3);
 lean_dec_ref(x_3);
 x_29 = l_Std_Time_Database_TZdb_inst___lam__2___closed__3;
 x_30 = lean_string_append(x_28, x_29);
-x_31 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_31, 0, x_30);
+x_31 = lean_mk_io_user_error(x_30);
 x_32 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_26);

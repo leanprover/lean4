@@ -90,7 +90,6 @@ LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_isAtom___boxed(lean_object*);
 lean_object* l_Int_instDecidableEq___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Omega_reprLinearCombo___redArg___closed__5____x40_Init_Omega_LinearCombo_1632279903____hygCtx___hyg_43_;
-LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_instAdd;
 LEAN_EXPORT lean_object* l_Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo_1632279903____hygCtx___hyg_43_(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
@@ -106,7 +105,6 @@ LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_instNeg;
 LEAN_EXPORT lean_object* l_List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo_1632279903____hygCtx___hyg_43__spec__0___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_instInhabited;
 lean_object* lean_int_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_ctorIdx___boxed(lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_coordinate___boxed(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -125,23 +123,6 @@ lean_object* l_Lean_Omega_IntList_dot(lean_object*, lean_object*);
 static lean_object* l_Lean_Omega_reprLinearCombo___redArg___closed__7____x40_Init_Omega_LinearCombo_1632279903____hygCtx___hyg_43_;
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_instToString___lam__1___boxed(lean_object*);
 static lean_object* l_List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo_1632279903____hygCtx___hyg_43__spec__0___redArg___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Omega_LinearCombo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT uint8_t l_Lean_Omega_decEqLinearCombo____x40_Init_Omega_LinearCombo_1632279903____hygCtx___hyg_28_(lean_object* x_1, lean_object* x_2) {
 _start:
 {

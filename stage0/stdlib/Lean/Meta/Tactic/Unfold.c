@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Meta_unfold___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_zetaDeltaTarget___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__0;
 lean_object* l_Lean_MVarId_replaceTargetDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Meta_Context_configKey(lean_object*);
@@ -61,6 +60,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_unfold___lam__4___boxed(lean_object*, lean_
 lean_object* l_Lean_Meta_zetaDeltaFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceMatcher_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_unfoldTarget_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_unfoldTarget___lam__0___closed__0;
 static lean_object* l_Lean_Meta_unfoldLocalDecl___lam__0___closed__0;
@@ -331,7 +331,7 @@ x_87 = lean_ctor_get_uint8(x_6, sizeof(void*)*7 + 2);
 x_88 = l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_unfold_pre___closed__0;
 x_89 = lean_box(0);
 lean_inc(x_1);
-x_90 = l_Lean_Expr_const___override(x_1, x_89);
+x_90 = l_Lean_mkConst(x_1, x_89);
 x_91 = lean_unsigned_to_nat(1000u);
 x_92 = 1;
 x_93 = 0;
@@ -470,7 +470,7 @@ x_141 = lean_ctor_get_uint8(x_6, sizeof(void*)*7 + 2);
 x_142 = l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_unfold_pre___closed__0;
 x_143 = lean_box(0);
 lean_inc(x_1);
-x_144 = l_Lean_Expr_const___override(x_1, x_143);
+x_144 = l_Lean_mkConst(x_1, x_143);
 x_145 = lean_unsigned_to_nat(1000u);
 x_146 = 1;
 x_147 = 0;

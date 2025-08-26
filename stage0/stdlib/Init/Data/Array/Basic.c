@@ -241,6 +241,7 @@ LEAN_EXPORT lean_object* l_Array_foldr___boxed(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Array_instBEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_findSomeM_x3f___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Array_get_x3f___redArg(lean_object*, lean_object*);
+lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Array_findIdx_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_rightpad___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -278,7 +279,6 @@ static lean_object* l___auto___closed__11____x40_Init_Data_Array_Basic_260567358
 LEAN_EXPORT lean_object* l_Array_allM___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_idxOfAux___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
-lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlM_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__7____x40_Init_Data_Array_Basic_2605673588____hygCtx___hyg_9_;
 LEAN_EXPORT lean_object* l_Array_anyM_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11683,7 +11683,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(2u);
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 return x_2;
 }
 }

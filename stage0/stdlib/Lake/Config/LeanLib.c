@@ -47,7 +47,6 @@ LEAN_EXPORT lean_object* l_Lake_LeanLib_nativeFacets(lean_object*, uint8_t);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_leanArgs(lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_LeanOptions_append_spec__1_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_staticLibFile(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_isLocalModule___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_leanArgs___boxed(lean_object*);
@@ -57,6 +56,7 @@ LEAN_EXPORT uint8_t l_Lake_LeanLib_libPrefixOnWindows(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lake_Package_leanLibs___closed__2;
 LEAN_EXPORT lean_object* l_Lake_LeanLib_isBuildableModule___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_LeanOptions_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_serverOptions___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_leanOptions(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_moreLinkObjs(lean_object*);
@@ -92,6 +92,7 @@ LEAN_EXPORT lean_object* l_Lake_LeanLib_backend___boxed(lean_object*);
 static lean_object* l_Lake_Package_leanLibs___closed__8;
 static lean_object* l_Lake_Package_leanLibs___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+uint8_t l_Lake_Backend_orPreferLeft(uint8_t, uint8_t);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_extraDepTargets___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_LeanLib_precompileModules(lean_object*);
@@ -1180,10 +1181,10 @@ block_22:
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_15 = l_Lake_BuildType_leanOptions(x_14);
-x_16 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_LeanOptions_append_spec__1_spec__1(x_13, x_15);
+x_16 = l_Lean_LeanOptions_append(x_13, x_15);
 x_17 = l_Lean_LeanOptions_ofArray(x_8);
 x_18 = l_Lean_LeanOptions_appendArray(x_17, x_9);
-x_19 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_LeanOptions_append_spec__1_spec__1(x_16, x_18);
+x_19 = l_Lean_LeanOptions_append(x_16, x_18);
 x_20 = l_Lean_LeanOptions_appendArray(x_19, x_11);
 x_21 = l_Lean_LeanOptions_appendArray(x_20, x_12);
 return x_21;
@@ -1202,23 +1203,16 @@ return x_2;
 LEAN_EXPORT uint8_t l_Lake_LeanLib_backend(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; uint8_t x_9; 
 x_2 = lean_ctor_get(x_1, 2);
 x_3 = lean_ctor_get(x_2, 0);
-x_4 = lean_ctor_get_uint8(x_3, sizeof(void*)*13 + 1);
-if (x_4 == 2)
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_5 = lean_ctor_get(x_1, 0);
-x_6 = lean_ctor_get(x_5, 3);
-x_7 = lean_ctor_get(x_6, 1);
-x_8 = lean_ctor_get_uint8(x_7, sizeof(void*)*13 + 1);
-return x_8;
-}
-else
-{
-return x_4;
-}
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_4, 3);
+x_6 = lean_ctor_get(x_5, 1);
+x_7 = lean_ctor_get_uint8(x_3, sizeof(void*)*13 + 1);
+x_8 = lean_ctor_get_uint8(x_6, sizeof(void*)*13 + 1);
+x_9 = l_Lake_Backend_orPreferLeft(x_7, x_8);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_LeanLib_backend___boxed(lean_object* x_1) {
@@ -1310,7 +1304,7 @@ block_16:
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = l_Lake_BuildType_leanOptions(x_11);
 x_13 = l_Lean_LeanOptions_ofArray(x_8);
-x_14 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_LeanOptions_append_spec__1_spec__1(x_12, x_13);
+x_14 = l_Lean_LeanOptions_append(x_12, x_13);
 x_15 = l_Lean_LeanOptions_appendArray(x_14, x_10);
 return x_15;
 }

@@ -18,7 +18,6 @@ static lean_object* l_Std_Internal_IO_Async_System_instInhabitedEnvironment___cl
 LEAN_EXPORT uint8_t l_Std_Internal_IO_Async_System_instDecidableEqUserId(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_reprSystemUser___redArg___closed__0____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82_;
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Internal_IO_Async_System_getCPUInfo_spec__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_CPUTimes_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Array_Array_repr___at___Std_Internal_IO_Async_System_reprGroupInfo____x40_Std_Internal_Async_System_2362698343____hygCtx___hyg_34__spec__0(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Internal_IO_Async_System_decEqCPUInfo____x40_Std_Internal_Async_System_2422316114____hygCtx___hyg_36_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Std_Internal_IO_Async_System_getCPUInfo_spec__1_spec__1(size_t, size_t, lean_object*);
@@ -29,15 +28,12 @@ static lean_object* l_Std_Internal_IO_Async_System_reprEnvironment___redArg___cl
 LEAN_EXPORT uint8_t l_Std_Internal_IO_Async_System_decEqGroupId____x40_Std_Internal_Async_System_1736783821____hygCtx___hyg_18_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___Std_Internal_IO_Async_System_reprEnvironment____x40_Std_Internal_Async_System_3544285676____hygCtx___hyg_20__spec__8(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_decEqCPUTimes____x40_Std_Internal_Async_System_4094374725____hygCtx___hyg_54____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_GroupId_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_ordUserId____x40_Std_Internal_Async_System_2941963293____hygCtx___hyg_30____boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_reprCPUTimes___redArg___closed__10____x40_Std_Internal_Async_System_4094374725____hygCtx___hyg_78_;
 static lean_object* l_Std_Internal_IO_Async_System_Environment_get_x3f___closed__1;
 static lean_object* l_Std_Internal_IO_Async_System_reprCPUTimes___redArg___closed__5____x40_Std_Internal_Async_System_4094374725____hygCtx___hyg_78_;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprUserId___lam__0(lean_object*, lean_object*);
-lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_instInhabitedGroupInfo___closed__0;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_Environment_ctorIdx___boxed(lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_reprSystemUser___redArg___closed__13____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82_;
 static lean_object* l_Std_Internal_IO_Async_System_reprCPUInfo___redArg___closed__0____x40_Std_Internal_Async_System_2422316114____hygCtx___hyg_54_;
 static lean_object* l_Std_Internal_IO_Async_System_reprSystemUser___redArg___closed__8____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82_;
@@ -48,9 +44,7 @@ static lean_object* l_Array_Array_repr___at___Std_Internal_IO_Async_System_reprG
 static lean_object* l_List_repr___at___Std_Internal_IO_Async_System_reprEnvironment____x40_Std_Internal_Async_System_3544285676____hygCtx___hyg_20__spec__0___redArg___closed__3;
 static lean_object* l_Std_Internal_IO_Async_System_reprSystemUser___redArg___closed__7____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82_;
 static lean_object* l_Std_Internal_IO_Async_System_reprGroupInfo___redArg___closed__1____x40_Std_Internal_Async_System_2362698343____hygCtx___hyg_34_;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_Environment_ctorIdx(lean_object*);
 lean_object* l_String_quote(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_SystemUser_ctorIdx___boxed(lean_object*);
 static lean_object* l_Option_repr___at___Std_Internal_IO_Async_System_reprSystemUser____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82__spec__0___closed__2;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getGroup___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instInhabitedOSInfo;
@@ -108,6 +102,7 @@ static lean_object* l_Option_repr___at___Std_Internal_IO_Async_System_reprSystem
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprCPUTimes;
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* lean_uv_cpu_info(lean_object*);
+lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_reprSystemUser___redArg___closed__9____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82_;
 LEAN_EXPORT lean_object* l_Option_repr___at___Std_Internal_IO_Async_System_reprSystemUser____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Internal_IO_Async_System_instDecidableEqCPUInfo(lean_object*, lean_object*);
@@ -129,7 +124,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_reprOSInfo___redArg____x
 static lean_object* l_Std_Internal_IO_Async_System_reprCPUTimes___redArg___closed__12____x40_Std_Internal_Async_System_4094374725____hygCtx___hyg_78_;
 static lean_object* l_Std_Internal_IO_Async_System_reprOSInfo___redArg___closed__1____x40_Std_Internal_Async_System_1293269310____hygCtx___hyg_42_;
 static lean_object* l_Std_Internal_IO_Async_System_reprSystemUser___redArg___closed__4____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82_;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_UserId_ctorIdx___boxed(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
@@ -159,6 +153,7 @@ static lean_object* l_Std_Internal_IO_Async_System_reprSystemUser___redArg___clo
 static lean_object* l_Option_repr___at___Std_Internal_IO_Async_System_reprSystemUser____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82__spec__3___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprGroupId___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Prod_repr___at___List_repr___at___Std_Internal_IO_Async_System_reprEnvironment____x40_Std_Internal_Async_System_3544285676____hygCtx___hyg_20__spec__0_spec__0___redArg___closed__4;
+lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Std_Internal_IO_Async_System_getCPUInfo_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_instInhabitedEnvironment___closed__3;
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -166,7 +161,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getEnvVar(lean_object*, 
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getCurrentUser(lean_object*);
 static lean_object* l_Prod_repr___at___List_repr___at___Std_Internal_IO_Async_System_reprEnvironment____x40_Std_Internal_Async_System_3544285676____hygCtx___hyg_20__spec__0_spec__0___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Internal_IO_Async_System_reprSystemUser____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82__spec__4(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_CPUInfo_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_unsetEnvVar(lean_object*, lean_object*);
 static lean_object* l_Option_repr___at___Std_Internal_IO_Async_System_reprSystemUser____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82__spec__0___closed__0;
 static lean_object* l_Option_repr___at___Std_Internal_IO_Async_System_reprSystemUser____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82__spec__0___closed__3;
@@ -174,9 +168,7 @@ lean_object* lean_uv_os_gethostname(lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_reprCPUInfo___redArg___closed__2____x40_Std_Internal_Async_System_2422316114____hygCtx___hyg_54_;
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_insertMany___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_instInhabitedSystemUser___closed__1;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_GroupInfo_ctorIdx(lean_object*);
 lean_object* lean_uv_os_tmpdir(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_GroupInfo_ctorIdx___boxed(lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_instReprCPUInfo___closed__0;
 static lean_object* l_Std_Internal_IO_Async_System_instReprGroupInfo___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprUserId;
@@ -189,9 +181,7 @@ static lean_object* l_Std_Internal_IO_Async_System_reprSystemUser___redArg___clo
 LEAN_EXPORT lean_object* l_Functor_mapRev___at___Std_Internal_IO_Async_System_getGroup_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getGroup___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Functor_mapRev___at___Std_Internal_IO_Async_System_getGroup_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_SystemUser_ctorIdx(lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_reprGroupInfo___redArg___closed__4____x40_Std_Internal_Async_System_2362698343____hygCtx___hyg_34_;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_GroupId_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___at___Std_Internal_IO_Async_System_reprSystemUser____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82__spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_reprEnvironment____x40_Std_Internal_Async_System_3544285676____hygCtx___hyg_20____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprGroupInfo;
@@ -223,13 +213,13 @@ LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___Prod_repr
 lean_object* l_String_hash___boxed(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Internal_IO_Async_System_decEqUserId____x40_Std_Internal_Async_System_2941963293____hygCtx___hyg_18_(lean_object*, lean_object*);
+lean_object* l_instForInOfForIn_x27___redArg(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Internal_IO_Async_System_decEqCPUTimes____x40_Std_Internal_Async_System_4094374725____hygCtx___hyg_54_(lean_object*, lean_object*);
 uint8_t l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic_3093634434____hygCtx___hyg_3_(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_Array_repr___at___Std_Internal_IO_Async_System_reprGroupInfo____x40_Std_Internal_Async_System_2362698343____hygCtx___hyg_34__spec__0___closed__3;
 lean_object* lean_uv_uptime(lean_object*);
 lean_object* lean_uv_os_get_group(uint64_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getEnv(lean_object*);
-lean_object* l_instForInOfForIn_x27___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Array_Array_repr___at___Std_Internal_IO_Async_System_reprGroupInfo____x40_Std_Internal_Async_System_2362698343____hygCtx___hyg_34__spec__0_spec__0___lam__0___boxed(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___Array_Array_repr___at___Std_Internal_IO_Async_System_reprGroupInfo____x40_Std_Internal_Async_System_2362698343____hygCtx___hyg_34__spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
@@ -264,7 +254,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instInhabitedCPUTimes;
 static lean_object* l_Std_Internal_IO_Async_System_reprOSInfo___redArg___closed__10____x40_Std_Internal_Async_System_1293269310____hygCtx___hyg_42_;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instOrdUserId;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_OSInfo_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instDecidableEqUserId___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___Std_Internal_IO_Async_System_reprEnvironment____x40_Std_Internal_Async_System_3544285676____hygCtx___hyg_20__spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Internal_IO_Async_System_instDecidableEqCPUTimes(lean_object*, lean_object*);
@@ -289,10 +278,8 @@ static lean_object* l_Std_Internal_IO_Async_System_instOrdUserId___closed__0;
 static lean_object* l_Std_Internal_IO_Async_System_instInhabitedCPUTimes___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getCPUInfo(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_reprSystemUser____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_OSInfo_ctorIdx(lean_object*);
 lean_object* l_Rat_ofInt(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instInhabitedGroupInfo;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_CPUTimes_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getUpTime(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instDecidableEqSystemUser___boxed(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -300,7 +287,6 @@ static lean_object* l_Std_Internal_IO_Async_System_reprCPUTimes___redArg___close
 static lean_object* l_Std_Internal_IO_Async_System_instReprUserId___lam__0___closed__1;
 static lean_object* l_Std_Internal_IO_Async_System_reprOSInfo___redArg___closed__7____x40_Std_Internal_Async_System_1293269310____hygCtx___hyg_42_;
 static lean_object* l_Std_Internal_IO_Async_System_reprSystemUser___redArg___closed__6____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_82_;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_CPUInfo_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Prod_repr___at___List_repr___at___Std_Internal_IO_Async_System_reprEnvironment____x40_Std_Internal_Async_System_3544285676____hygCtx___hyg_20__spec__0_spec__0(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_reprCPUInfo___redArg___closed__5____x40_Std_Internal_Async_System_2422316114____hygCtx___hyg_54_;
 static lean_object* l_List_repr___at___Std_Internal_IO_Async_System_reprEnvironment____x40_Std_Internal_Async_System_3544285676____hygCtx___hyg_20__spec__0___redArg___closed__1;
@@ -313,7 +299,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprUserId___lam__0_
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_reprOSInfo___redArg___closed__2____x40_Std_Internal_Async_System_1293269310____hygCtx___hyg_42_;
 LEAN_EXPORT uint8_t l_Std_Internal_IO_Async_System_decEqSystemUser____x40_Std_Internal_Async_System_2619822594____hygCtx___hyg_58_(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_UserId_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getSystemInfo(lean_object*);
 LEAN_EXPORT lean_object* l_List_repr___at___Std_Internal_IO_Async_System_reprEnvironment____x40_Std_Internal_Async_System_3544285676____hygCtx___hyg_20__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprEnvironment;
@@ -323,23 +308,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getHostName(lean_object*
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_Environment_get_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getHomeDir(lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_instReprCPUTimes___closed__0;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_GroupId_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_GroupId_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_System_GroupId_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedGroupId() {
 _start:
 {
@@ -493,23 +461,6 @@ lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_UserId_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_UserId_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_System_UserId_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedUserId() {
 _start:
 {
@@ -661,23 +612,6 @@ lean_object* x_3;
 x_3 = l_Std_Internal_IO_Async_System_instReprUserId___lam__0(x_1, x_2);
 lean_dec(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_SystemUser_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_SystemUser_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_System_SystemUser_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedSystemUser___closed__0() {
@@ -1563,23 +1497,6 @@ x_1 = l_Std_Internal_IO_Async_System_instReprSystemUser___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_GroupInfo_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_GroupInfo_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_System_GroupInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_List_foldl___at___List_foldl___at___Std_Format_joinSep___at___Array_Array_repr___at___Std_Internal_IO_Async_System_reprGroupInfo____x40_Std_Internal_Async_System_2362698343____hygCtx___hyg_34__spec__0_spec__0_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2092,23 +2009,6 @@ x_1 = l_Std_Internal_IO_Async_System_instInhabitedGroupInfo___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_CPUTimes_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_CPUTimes_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_System_CPUTimes_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedCPUTimes___closed__0() {
 _start:
 {
@@ -2528,23 +2428,6 @@ x_1 = l_Std_Internal_IO_Async_System_instReprCPUTimes___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_CPUInfo_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_CPUInfo_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_System_CPUInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedCPUInfo___closed__0() {
 _start:
 {
@@ -2837,23 +2720,6 @@ x_1 = l_Std_Internal_IO_Async_System_instReprCPUInfo___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_OSInfo_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_OSInfo_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_System_OSInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Std_Internal_IO_Async_System_reprOSInfo___redArg___closed__0____x40_Std_Internal_Async_System_1293269310____hygCtx___hyg_42_() {
 _start:
 {
@@ -3141,23 +3007,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Std_Internal_IO_Async_System_instInhabitedOSInfo___closed__0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_Environment_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_Environment_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_System_Environment_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedEnvironment___closed__0() {
@@ -3947,8 +3796,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_alloc_closure((void*)(l_instDecidableEqString___boxed), 2, 0);
-x_2 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instBEqOfDecidableEq___redArg(x_1);
 return x_2;
 }
 }
@@ -4297,7 +4145,7 @@ x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_unbox_uint64(x_4);
 lean_dec(x_4);
 x_6 = lean_uint64_to_nat(x_5);
-x_7 = lean_nat_to_int(x_6);
+x_7 = l_instNatCastInt___lam__0(x_6);
 lean_ctor_set(x_2, 0, x_7);
 return x_2;
 }
@@ -4312,7 +4160,7 @@ lean_dec(x_2);
 x_10 = lean_unbox_uint64(x_8);
 lean_dec(x_8);
 x_11 = lean_uint64_to_nat(x_10);
-x_12 = lean_nat_to_int(x_11);
+x_12 = l_instNatCastInt___lam__0(x_11);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_9);
@@ -4359,7 +4207,7 @@ x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_unbox_uint64(x_4);
 lean_dec(x_4);
 x_6 = lean_uint64_to_nat(x_5);
-x_7 = lean_nat_to_int(x_6);
+x_7 = l_instNatCastInt___lam__0(x_6);
 lean_ctor_set(x_2, 0, x_7);
 return x_2;
 }
@@ -4374,7 +4222,7 @@ lean_dec(x_2);
 x_10 = lean_unbox_uint64(x_8);
 lean_dec(x_8);
 x_11 = lean_uint64_to_nat(x_10);
-x_12 = lean_nat_to_int(x_11);
+x_12 = l_instNatCastInt___lam__0(x_11);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_9);
@@ -4450,8 +4298,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Internal_IO_Async_System_getEnv___closed__0;
-x_2 = lean_alloc_closure((void*)(l_instForInOfForIn_x27___redArg___lam__1), 6, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instForInOfForIn_x27___redArg(x_1);
 return x_2;
 }
 }

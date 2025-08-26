@@ -79,12 +79,10 @@ LEAN_EXPORT lean_object* l_Lake_BuildInfo_sharedExternLib(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ConfigTarget_key(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_deps(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ExternLib_dynlib(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_ModuleImport_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_oExport(lean_object*);
 static lean_object* l_Lake_instDataKindExternLib___closed__0;
 static lean_object* l_Lake_instDataKindModule___closed__1;
 LEAN_EXPORT lean_object* l_Lake_ConfigTarget_buildKey___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_ModuleImport_ctorIdx___boxed(lean_object*);
 extern lean_object* l_Lake_LeanLib_leanArtsFacet;
 extern lean_object* l_Lake_Module_leanArtsFacet;
 LEAN_EXPORT lean_object* l_Lake_Module_coNoExport(lean_object*);
@@ -115,7 +113,6 @@ static lean_object* l_Lake_instDataKindInputFile___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Module_buildKey(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ConfigTarget_buildKey___redArg___boxed(lean_object*);
 static lean_object* l_Lake_Module_dynlibFacet___closed__0;
-LEAN_EXPORT lean_object* l_Lake_ModuleInput_ctorIdx(lean_object*);
 extern lean_object* l_Lake_LeanLib_staticFacet;
 LEAN_EXPORT lean_object* l_Lake_ConfigTarget_facetBuildKey___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_target(lean_object*, lean_object*);
@@ -161,7 +158,6 @@ LEAN_EXPORT lean_object* l_Lake_ExternLib_staticBuildKey(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ConfigTarget_key___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFile_facetCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_dynlib(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_ModuleInput_ctorIdx___boxed(lean_object*);
 extern lean_object* l_Lake_Module_oleanPrivateFacet;
 extern lean_object* l_Lake_Module_irFacet;
 LEAN_EXPORT lean_object* l_Lake_LeanLib_extraDep(lean_object*);
@@ -706,40 +702,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lake_instDataKindInputDir___closed__1;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ModuleImport_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ModuleImport_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_ModuleImport_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ModuleInput_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ModuleInput_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_ModuleInput_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lake_Module_inputFacet___closed__0() {

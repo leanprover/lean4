@@ -29,6 +29,7 @@ static lean_object* l___private_Lake_Build_Key_0__Lake_PartialBuildKey_parse_par
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 static lean_object* l_Lake_reprBuildKey___closed__13____x40_Lake_Build_Key_961682309____hygCtx___hyg_69_;
 static lean_object* l_Lake_reprBuildKey___closed__2____x40_Lake_Build_Key_961682309____hygCtx___hyg_69_;
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_panic___at___Lake_PartialBuildKey_parse_spec__1(lean_object*);
 static lean_object* l___private_Lake_Build_Key_0__Lake_PartialBuildKey_parse_parseTarget___closed__1;
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
@@ -1625,7 +1626,7 @@ if (lean_obj_tag(x_22) == 0)
 {
 uint8_t x_23; lean_object* x_24; 
 x_23 = 1;
-x_24 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_12, x_23);
+x_24 = l_Lean_Name_toString(x_12, x_23);
 x_13 = x_24;
 goto block_20;
 }

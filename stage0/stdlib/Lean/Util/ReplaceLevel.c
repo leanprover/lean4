@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 uint8_t l_ptrEqList___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_State_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_____private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM(lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Level_succ___override(lean_object*);
@@ -28,7 +27,6 @@ LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_cache___boxed(lean_object*
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_State_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_replace(lean_object*, lean_object*);
@@ -143,23 +141,6 @@ _start:
 size_t x_1; 
 x_1 = l_Lean_Expr_ReplaceLevelImpl_cacheSize___closed__0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_State_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_State_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Expr_ReplaceLevelImpl_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_cache(size_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

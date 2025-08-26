@@ -22,7 +22,6 @@ static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRul
 static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__48;
 static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__4;
 static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__30;
-LEAN_EXPORT lean_object* l_Std_Slice_Sliceable_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__50;
 static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__24;
 static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__21;
@@ -35,7 +34,6 @@ static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRul
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__39;
 static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__35;
-LEAN_EXPORT lean_object* l_Std_Slice_Sliceable_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__20;
 static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__11;
 static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__51;
@@ -81,24 +79,6 @@ lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__10;
 static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__9;
 static lean_object* l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__47;
-LEAN_EXPORT lean_object* l_Std_Slice_Sliceable_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = lean_unsigned_to_nat(0u);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Slice_Sliceable_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Std_Slice_Sliceable_ctorIdx(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-lean_dec_ref(x_1);
-return x_6;
-}
-}
 static lean_object* _init_l_Std_Slice___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__0() {
 _start:
 {

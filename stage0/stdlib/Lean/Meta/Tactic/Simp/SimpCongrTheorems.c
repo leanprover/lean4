@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__11(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find_x3f___at___Lean_Meta_SimpCongrTheorems_get_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_repr___at___List_repr___at___Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_2176519478____hygCtx___hyg_30__spec__9_spec__9___redArg(lean_object*);
-lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15_spec__15___lam__0___closed__8;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_foldlMAux_traverse___at___Lean_PersistentHashMap_foldlMAux___at___Lean_PersistentHashMap_foldlM___at___Lean_PersistentHashMap_foldl___at___Lean_SMap_fold___at___Lean_SMap_toList___at___Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_2176519478____hygCtx___hyg_30__spec__0_spec__0_spec__1_spec__1_spec__1_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___Prod_repr___at___List_repr___at___Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_2176519478____hygCtx___hyg_30__spec__9_spec__9_spec__13_spec__13(lean_object*, lean_object*, lean_object*);
@@ -194,6 +193,7 @@ LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstVal___a
 LEAN_EXPORT lean_object* l_Lean_Meta_reprSimpCongrTheorem___redArg____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_1925118298____hygCtx___hyg_46_(lean_object*);
 static lean_object* l_Lean_Meta_reprSimpCongrTheorem___redArg___closed__10____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_1925118298____hygCtx___hyg_46_;
 static lean_object* l_Lean_Meta_instInhabitedSimpCongrTheorems___closed__4;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__12___closed__3;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at___Lean_Meta_addSimpCongrTheorem_spec__0___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -230,6 +230,7 @@ LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___List_repr___at___Prod_repr_
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_mkSimpCongrTheorem_onlyMVarsAt___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_mkSimpCongrTheorem_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1___closed__15;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_collectMVars(lean_object*, lean_object*);
 static lean_object* l_Array_Array_repr___at___Lean_Meta_reprSimpCongrTheorem____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_1925118298____hygCtx___hyg_46__spec__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_mkSimpCongrTheorem_spec__14___redArg(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_Array_repr___at___Lean_Meta_reprSimpCongrTheorem____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_1925118298____hygCtx___hyg_46__spec__0(lean_object*);
@@ -247,6 +248,7 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_l
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_mkSimpCongrTheorem_spec__1_spec__1_spec__1_spec__1___redArg___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3428004144____hygCtx___hyg_2_(lean_object*);
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_initFn___lam__1___closed__2____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3428004144____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_SMap_toList___at___Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_2176519478____hygCtx___hyg_30__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldl___at___Lean_SMap_fold___at___Lean_SMap_toList___at___Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_2176519478____hygCtx___hyg_30__spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -276,7 +278,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHa
 LEAN_EXPORT lean_object* l_Lean_SMap_find_x3f___at___Lean_Meta_SimpCongrTheorems_get_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_SMap_insert___at___Lean_Meta_addSimpCongrTheoremEntry_spec__0_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_find_x3f___at___Lean_Meta_SimpCongrTheorems_get_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_SimpCongrTheorem_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkConstWithLevelParams___at___Lean_Meta_mkSimpCongrTheorem_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_SMap_find_x3f___at___Lean_Meta_SimpCongrTheorems_get_spec__0_spec__3___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_initFn___lam__0___closed__0____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3428004144____hygCtx___hyg_2_;
@@ -336,7 +337,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_mk
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15_spec__15___lam__0___closed__3;
 LEAN_EXPORT lean_object* l_Lean_SMap_fold___at___Lean_SMap_toList___at___Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_2176519478____hygCtx___hyg_30__spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_SimpCongrTheorems_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_SMap_insert___at___Lean_Meta_addSimpCongrTheoremEntry_spec__0_spec__5_spec__6_spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_insert___at___Lean_Meta_addSimpCongrTheoremEntry_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_SMap_insert___at___Lean_Meta_addSimpCongrTheoremEntry_spec__0_spec__5_spec__5___redArg(lean_object*, lean_object*);
@@ -346,7 +346,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lean_Meta_Tactic_Sim
 LEAN_EXPORT lean_object* l_Lean_SMap_insert___at___Lean_Meta_addSimpCongrTheoremEntry_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___Lean_Expr_withAppAux___at___Lean_Meta_mkSimpCongrTheorem_spec__19_spec__19___boxed(lean_object**);
 static lean_object* l_Lean_Meta_reprSimpCongrTheorem___redArg___closed__3____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_1925118298____hygCtx___hyg_46_;
-lean_object* l_Lean_CollectMVars_visit(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_switch___at___Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3898756595____hygCtx___hyg_2__spec__0(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -359,7 +358,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_SMap_fold___at___Lean_SMap_toList___at___Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_2176519478____hygCtx___hyg_30__spec__0_spec__0_spec__6___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_mkSimpCongrTheorem_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1___closed__9;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_initFn___regBuiltin___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_initFn_docString__1___closed__22____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3428004144____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_Meta_SimpCongrTheorem_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_mkSimpCongrTheorem_spec__1_spec__1_spec__1_spec__1_spec__1_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_initFn___regBuiltin___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_initFn_docString__1___closed__5____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3428004144____hygCtx___hyg_2_;
 lean_object* l_Lean_indentExpr(lean_object*);
@@ -434,7 +432,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 static lean_object* l_Array_Array_repr___at___Lean_Meta_reprSimpCongrTheorem____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_1925118298____hygCtx___hyg_46__spec__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_addSimpCongrTheoremEntry(lean_object*, lean_object*);
-lean_object* l_Lean_Level_param___override(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Meta_instInhabitedSimpCongrTheorems___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_initFn___lam__1____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3428004144____hygCtx___hyg_2____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -490,6 +487,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lean_Meta_Tactic_Sim
 uint64_t l_Lean_Meta_TransparencyMode_toUInt64(uint8_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_toList___at___Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_2176519478____hygCtx___hyg_30__spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConst(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn___lam__0____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3898756595____hygCtx___hyg_2____boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_initFn___regBuiltin___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_initFn_docString__1___closed__10____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3428004144____hygCtx___hyg_2_;
@@ -499,7 +497,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_mkSimpCongrTheorem_spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_SimpCongrTheorems_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_fold___at___Lean_SMap_toList___at___Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_2176519478____hygCtx___hyg_30__spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_initFn___regBuiltin___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_initFn_docString__1___closed__24____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_3428004144____hygCtx___hyg_2_;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -513,6 +510,7 @@ LEAN_EXPORT lean_object* l_Lean_SMap_find_x3f___at___Lean_Meta_SimpCongrTheorems
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__13___closed__3;
 static lean_object* l_Array_Array_repr___at___Lean_Meta_reprSimpCongrTheorem____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_1925118298____hygCtx___hyg_46__spec__0___closed__7;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15_spec__15___lam__0___closed__9;
+lean_object* l_Lean_mkLevelParam(lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_SMap_insert___at___Lean_Meta_addSimpCongrTheoremEntry_spec__0_spec__0_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_SMap_insert___at___Lean_Meta_addSimpCongrTheoremEntry_spec__0_spec__5_spec__9(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
@@ -524,23 +522,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_Persist
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_PersistentHashMap_foldlMAux___at___Lean_PersistentHashMap_foldlM___at___Lean_PersistentHashMap_foldl___at___Lean_SMap_fold___at___Lean_SMap_toList___at___Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_2176519478____hygCtx___hyg_30__spec__0_spec__0_spec__1_spec__1_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at___Lean_PersistentHashMap_foldl___at___Lean_SMap_fold___at___Lean_SMap_toList___at___Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_2176519478____hygCtx___hyg_30__spec__0_spec__0_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_toList___at___Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems_2176519478____hygCtx___hyg_30__spec__0___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_SimpCongrTheorem_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_SimpCongrTheorem_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_SimpCongrTheorem_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Meta_instInhabitedSimpCongrTheorem___closed__0() {
 _start:
 {
@@ -1208,23 +1189,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Meta_instReprSimpCongrTheorem___closed__0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_SimpCongrTheorems_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_SimpCongrTheorems_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_SimpCongrTheorems_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_instInhabitedSimpCongrTheorems___closed__0() {
@@ -5447,7 +5411,7 @@ if (x_4 == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
-x_7 = l_Lean_Level_param___override(x_5);
+x_7 = l_Lean_mkLevelParam(x_5);
 lean_ctor_set(x_1, 1, x_2);
 lean_ctor_set(x_1, 0, x_7);
 {
@@ -5466,7 +5430,7 @@ x_10 = lean_ctor_get(x_1, 1);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_dec(x_1);
-x_11 = l_Lean_Level_param___override(x_9);
+x_11 = l_Lean_mkLevelParam(x_9);
 x_12 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_2);
@@ -5496,7 +5460,7 @@ lean_inc(x_10);
 lean_dec(x_9);
 x_11 = lean_box(0);
 x_12 = l_List_mapTR_loop___at___Lean_mkConstWithLevelParams___at___Lean_Meta_mkSimpCongrTheorem_spec__1_spec__9(x_10, x_11);
-x_13 = l_Lean_Expr_const___override(x_1, x_12);
+x_13 = l_Lean_mkConst(x_1, x_12);
 lean_ctor_set(x_7, 0, x_13);
 return x_7;
 }
@@ -5513,7 +5477,7 @@ lean_inc(x_16);
 lean_dec(x_14);
 x_17 = lean_box(0);
 x_18 = l_List_mapTR_loop___at___Lean_mkConstWithLevelParams___at___Lean_Meta_mkSimpCongrTheorem_spec__1_spec__9(x_16, x_17);
-x_19 = l_Lean_Expr_const___override(x_1, x_18);
+x_19 = l_Lean_mkConst(x_1, x_18);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_15);
@@ -5606,7 +5570,7 @@ else
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; size_t x_21; size_t x_22; 
 x_12 = lean_array_uget(x_1, x_3);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__11___redArg___closed__3;
-x_14 = l_Lean_CollectMVars_visit(x_12, x_13);
+x_14 = l_Lean_Expr_collectMVars(x_13, x_12);
 x_15 = lean_ctor_get(x_14, 1);
 lean_inc_ref(x_15);
 lean_dec_ref(x_14);
@@ -6175,18 +6139,18 @@ block_38:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; size_t x_25; size_t x_26; lean_object* x_27; 
 x_18 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15_spec__15___lam__0___closed__0;
-x_19 = l_Lean_Expr_getAppNumArgs(x_12);
+x_19 = l_Lean_Expr_getAppNumArgs(x_11);
 lean_inc(x_19);
 x_20 = lean_mk_array(x_19, x_18);
 x_21 = lean_unsigned_to_nat(1u);
 x_22 = lean_nat_sub(x_19, x_21);
 lean_dec(x_19);
-lean_inc_ref(x_12);
-x_23 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_12, x_20, x_22);
+lean_inc_ref(x_11);
+x_23 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_11, x_20, x_22);
 x_24 = lean_box(0);
 x_25 = lean_array_size(x_23);
 x_26 = 0;
-x_27 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__12(x_1, x_12, x_24, x_23, x_25, x_26, x_24, x_13, x_14, x_15, x_16, x_17);
+x_27 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__12(x_1, x_11, x_24, x_23, x_25, x_26, x_24, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
@@ -6202,7 +6166,7 @@ lean_object* x_29; lean_object* x_30;
 x_29 = lean_ctor_get(x_27, 0);
 lean_dec(x_29);
 x_30 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_30, 0, x_11);
+lean_ctor_set(x_30, 0, x_12);
 lean_ctor_set(x_27, 0, x_30);
 return x_27;
 }
@@ -6213,7 +6177,7 @@ x_31 = lean_ctor_get(x_27, 1);
 lean_inc(x_31);
 lean_dec(x_27);
 x_32 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_32, 0, x_11);
+lean_ctor_set(x_32, 0, x_12);
 x_33 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set(x_33, 1, x_31);
@@ -6223,7 +6187,7 @@ return x_33;
 else
 {
 uint8_t x_34; 
-lean_dec_ref(x_11);
+lean_dec_ref(x_12);
 x_34 = !lean_is_exclusive(x_27);
 if (x_34 == 0)
 {
@@ -6247,7 +6211,7 @@ return x_37;
 block_66:
 {
 lean_object* x_46; uint8_t x_47; 
-x_46 = l_Lean_Expr_mvarId_x21(x_39);
+x_46 = l_Lean_Expr_mvarId_x21(x_40);
 x_47 = l_Std_DTreeMap_Internal_Impl_contains___at_____private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_mkSimpCongrTheorem_onlyMVarsAt_spec__0___redArg(x_46, x_2);
 lean_dec(x_2);
 lean_dec(x_46);
@@ -6265,7 +6229,7 @@ goto block_38;
 else
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; uint8_t x_62; 
-lean_dec_ref(x_39);
+lean_dec_ref(x_40);
 x_48 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__12___closed__1;
 x_49 = lean_unsigned_to_nat(1u);
 x_50 = lean_nat_add(x_1, x_49);
@@ -6280,7 +6244,7 @@ x_55 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 x_56 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_56, 0, x_54);
 lean_ctor_set(x_56, 1, x_55);
-x_57 = l_Lean_indentExpr(x_40);
+x_57 = l_Lean_indentExpr(x_39);
 x_58 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_58, 0, x_56);
 lean_ctor_set(x_58, 1, x_57);
@@ -6371,8 +6335,8 @@ return x_88;
 }
 else
 {
-x_39 = x_69;
-x_40 = x_67;
+x_39 = x_67;
+x_40 = x_69;
 x_41 = x_6;
 x_42 = x_7;
 x_43 = x_8;
@@ -7071,6 +7035,377 @@ return x_120;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_67; lean_object* x_68; lean_object* x_90; lean_object* x_91; lean_object* x_120; lean_object* x_121; uint8_t x_122; 
+x_120 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15_spec__15___lam__0___closed__8;
+x_121 = lean_unsigned_to_nat(3u);
+x_122 = l_Lean_Expr_isAppOfArity(x_5, x_120, x_121);
+if (x_122 == 0)
+{
+lean_object* x_123; lean_object* x_124; uint8_t x_125; 
+x_123 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15_spec__15___lam__0___closed__10;
+x_124 = lean_unsigned_to_nat(2u);
+x_125 = l_Lean_Expr_isAppOfArity(x_5, x_123, x_124);
+if (x_125 == 0)
+{
+lean_object* x_126; lean_object* x_127; 
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec(x_7);
+lean_dec_ref(x_6);
+lean_dec(x_3);
+lean_dec(x_2);
+x_126 = lean_box(0);
+x_127 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_127, 0, x_126);
+lean_ctor_set(x_127, 1, x_10);
+return x_127;
+}
+else
+{
+lean_object* x_128; lean_object* x_129; lean_object* x_130; 
+x_128 = l_Lean_Expr_appFn_x21(x_5);
+x_129 = l_Lean_Expr_appArg_x21(x_128);
+lean_dec_ref(x_128);
+x_130 = l_Lean_Expr_appArg_x21(x_5);
+x_90 = x_129;
+x_91 = x_130;
+goto block_119;
+}
+}
+else
+{
+lean_object* x_131; lean_object* x_132; lean_object* x_133; 
+x_131 = l_Lean_Expr_appFn_x21(x_5);
+x_132 = l_Lean_Expr_appArg_x21(x_131);
+lean_dec_ref(x_131);
+x_133 = l_Lean_Expr_appArg_x21(x_5);
+x_90 = x_132;
+x_91 = x_133;
+goto block_119;
+}
+block_38:
+{
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; size_t x_25; size_t x_26; lean_object* x_27; 
+x_18 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15_spec__15___lam__0___closed__0;
+x_19 = l_Lean_Expr_getAppNumArgs(x_12);
+lean_inc(x_19);
+x_20 = lean_mk_array(x_19, x_18);
+x_21 = lean_unsigned_to_nat(1u);
+x_22 = lean_nat_sub(x_19, x_21);
+lean_dec(x_19);
+lean_inc_ref(x_12);
+x_23 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_12, x_20, x_22);
+x_24 = lean_box(0);
+x_25 = lean_array_size(x_23);
+x_26 = 0;
+x_27 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__12(x_1, x_12, x_24, x_23, x_25, x_26, x_24, x_13, x_14, x_15, x_16, x_17);
+lean_dec(x_16);
+lean_dec_ref(x_15);
+lean_dec(x_14);
+lean_dec_ref(x_13);
+lean_dec_ref(x_23);
+if (lean_obj_tag(x_27) == 0)
+{
+uint8_t x_28; 
+x_28 = !lean_is_exclusive(x_27);
+if (x_28 == 0)
+{
+lean_object* x_29; lean_object* x_30; 
+x_29 = lean_ctor_get(x_27, 0);
+lean_dec(x_29);
+x_30 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_30, 0, x_11);
+lean_ctor_set(x_27, 0, x_30);
+return x_27;
+}
+else
+{
+lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+x_31 = lean_ctor_get(x_27, 1);
+lean_inc(x_31);
+lean_dec(x_27);
+x_32 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_32, 0, x_11);
+x_33 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_33, 0, x_32);
+lean_ctor_set(x_33, 1, x_31);
+return x_33;
+}
+}
+else
+{
+uint8_t x_34; 
+lean_dec_ref(x_11);
+x_34 = !lean_is_exclusive(x_27);
+if (x_34 == 0)
+{
+return x_27;
+}
+else
+{
+lean_object* x_35; lean_object* x_36; lean_object* x_37; 
+x_35 = lean_ctor_get(x_27, 0);
+x_36 = lean_ctor_get(x_27, 1);
+lean_inc(x_36);
+lean_inc(x_35);
+lean_dec(x_27);
+x_37 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_37, 0, x_35);
+lean_ctor_set(x_37, 1, x_36);
+return x_37;
+}
+}
+}
+block_66:
+{
+lean_object* x_46; uint8_t x_47; 
+x_46 = l_Lean_Expr_mvarId_x21(x_39);
+x_47 = l_Std_DTreeMap_Internal_Impl_contains___at_____private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_mkSimpCongrTheorem_onlyMVarsAt_spec__0___redArg(x_46, x_2);
+lean_dec(x_2);
+lean_dec(x_46);
+if (x_47 == 0)
+{
+x_11 = x_39;
+x_12 = x_40;
+x_13 = x_41;
+x_14 = x_42;
+x_15 = x_43;
+x_16 = x_44;
+x_17 = x_45;
+goto block_38;
+}
+else
+{
+lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; uint8_t x_62; 
+lean_dec_ref(x_39);
+x_48 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__12___closed__1;
+x_49 = lean_unsigned_to_nat(1u);
+x_50 = lean_nat_add(x_1, x_49);
+x_51 = l_Nat_reprFast(x_50);
+x_52 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_52, 0, x_51);
+x_53 = l_Lean_MessageData_ofFormat(x_52);
+x_54 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_54, 0, x_48);
+lean_ctor_set(x_54, 1, x_53);
+x_55 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15_spec__15___lam__0___closed__2;
+x_56 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_56, 0, x_54);
+lean_ctor_set(x_56, 1, x_55);
+x_57 = l_Lean_indentExpr(x_40);
+x_58 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_58, 0, x_56);
+lean_ctor_set(x_58, 1, x_57);
+x_59 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__12___closed__5;
+x_60 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_60, 0, x_58);
+lean_ctor_set(x_60, 1, x_59);
+x_61 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_mkSimpCongrTheorem_spec__1_spec__1_spec__1_spec__1_spec__1_spec__2_spec__2___redArg(x_60, x_41, x_42, x_43, x_44, x_45);
+lean_dec(x_44);
+lean_dec_ref(x_43);
+lean_dec(x_42);
+lean_dec_ref(x_41);
+x_62 = !lean_is_exclusive(x_61);
+if (x_62 == 0)
+{
+return x_61;
+}
+else
+{
+lean_object* x_63; lean_object* x_64; lean_object* x_65; 
+x_63 = lean_ctor_get(x_61, 0);
+x_64 = lean_ctor_get(x_61, 1);
+lean_inc(x_64);
+lean_inc(x_63);
+lean_dec(x_61);
+x_65 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_65, 0, x_63);
+lean_ctor_set(x_65, 1, x_64);
+return x_65;
+}
+}
+}
+block_89:
+{
+lean_object* x_69; uint8_t x_70; 
+x_69 = l_Lean_Expr_getAppFn(x_67);
+x_70 = l_Lean_Expr_isMVar(x_69);
+if (x_70 == 0)
+{
+lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; uint8_t x_85; 
+lean_dec_ref(x_69);
+lean_dec(x_2);
+x_71 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__12___closed__1;
+x_72 = lean_unsigned_to_nat(1u);
+x_73 = lean_nat_add(x_1, x_72);
+x_74 = l_Nat_reprFast(x_73);
+x_75 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_75, 0, x_74);
+x_76 = l_Lean_MessageData_ofFormat(x_75);
+x_77 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_77, 0, x_71);
+lean_ctor_set(x_77, 1, x_76);
+x_78 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15_spec__15___lam__0___closed__4;
+x_79 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_79, 0, x_77);
+lean_ctor_set(x_79, 1, x_78);
+x_80 = l_Lean_indentExpr(x_67);
+x_81 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_81, 0, x_79);
+lean_ctor_set(x_81, 1, x_80);
+x_82 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__12___closed__5;
+x_83 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_83, 0, x_81);
+lean_ctor_set(x_83, 1, x_82);
+x_84 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_mkSimpCongrTheorem_spec__1_spec__1_spec__1_spec__1_spec__1_spec__2_spec__2___redArg(x_83, x_6, x_7, x_8, x_9, x_68);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec(x_7);
+lean_dec_ref(x_6);
+x_85 = !lean_is_exclusive(x_84);
+if (x_85 == 0)
+{
+return x_84;
+}
+else
+{
+lean_object* x_86; lean_object* x_87; lean_object* x_88; 
+x_86 = lean_ctor_get(x_84, 0);
+x_87 = lean_ctor_get(x_84, 1);
+lean_inc(x_87);
+lean_inc(x_86);
+lean_dec(x_84);
+x_88 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_88, 0, x_86);
+lean_ctor_set(x_88, 1, x_87);
+return x_88;
+}
+}
+else
+{
+x_39 = x_69;
+x_40 = x_67;
+x_41 = x_6;
+x_42 = x_7;
+x_43 = x_8;
+x_44 = x_9;
+x_45 = x_68;
+goto block_66;
+}
+}
+block_119:
+{
+size_t x_92; size_t x_93; lean_object* x_94; 
+x_92 = lean_array_size(x_4);
+x_93 = 0;
+lean_inc(x_9);
+lean_inc_ref(x_8);
+lean_inc(x_7);
+lean_inc_ref(x_6);
+lean_inc(x_2);
+x_94 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__13(x_2, x_1, x_4, x_92, x_93, x_3, x_6, x_7, x_8, x_9, x_10);
+if (lean_obj_tag(x_94) == 0)
+{
+lean_object* x_95; uint8_t x_96; 
+x_95 = lean_ctor_get(x_94, 1);
+lean_inc(x_95);
+lean_dec_ref(x_94);
+lean_inc(x_2);
+x_96 = l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_mkSimpCongrTheorem_onlyMVarsAt(x_90, x_2);
+if (x_96 == 0)
+{
+lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; uint8_t x_111; 
+lean_dec_ref(x_91);
+lean_dec(x_2);
+x_97 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__12___closed__1;
+x_98 = lean_unsigned_to_nat(1u);
+x_99 = lean_nat_add(x_1, x_98);
+x_100 = l_Nat_reprFast(x_99);
+x_101 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_101, 0, x_100);
+x_102 = l_Lean_MessageData_ofFormat(x_101);
+x_103 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_103, 0, x_97);
+lean_ctor_set(x_103, 1, x_102);
+x_104 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15_spec__15___lam__0___closed__6;
+x_105 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_105, 0, x_103);
+lean_ctor_set(x_105, 1, x_104);
+x_106 = l_Lean_indentExpr(x_90);
+x_107 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_107, 0, x_105);
+lean_ctor_set(x_107, 1, x_106);
+x_108 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__12___closed__5;
+x_109 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_109, 0, x_107);
+lean_ctor_set(x_109, 1, x_108);
+x_110 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_mkSimpCongrTheorem_spec__1_spec__1_spec__1_spec__1_spec__1_spec__2_spec__2___redArg(x_109, x_6, x_7, x_8, x_9, x_95);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec(x_7);
+lean_dec_ref(x_6);
+x_111 = !lean_is_exclusive(x_110);
+if (x_111 == 0)
+{
+return x_110;
+}
+else
+{
+lean_object* x_112; lean_object* x_113; lean_object* x_114; 
+x_112 = lean_ctor_get(x_110, 0);
+x_113 = lean_ctor_get(x_110, 1);
+lean_inc(x_113);
+lean_inc(x_112);
+lean_dec(x_110);
+x_114 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_114, 0, x_112);
+lean_ctor_set(x_114, 1, x_113);
+return x_114;
+}
+}
+else
+{
+lean_dec_ref(x_90);
+x_67 = x_91;
+x_68 = x_95;
+goto block_89;
+}
+}
+else
+{
+uint8_t x_115; 
+lean_dec_ref(x_91);
+lean_dec_ref(x_90);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec(x_7);
+lean_dec_ref(x_6);
+lean_dec(x_2);
+x_115 = !lean_is_exclusive(x_94);
+if (x_115 == 0)
+{
+return x_94;
+}
+else
+{
+lean_object* x_116; lean_object* x_117; lean_object* x_118; 
+x_116 = lean_ctor_get(x_94, 0);
+x_117 = lean_ctor_get(x_94, 1);
+lean_inc(x_117);
+lean_inc(x_116);
+lean_dec(x_94);
+x_118 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_118, 0, x_116);
+lean_ctor_set(x_118, 1, x_117);
+return x_118;
+}
+}
+}
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -7186,7 +7521,7 @@ x_34 = lean_array_uget(x_2, x_4);
 lean_inc(x_1);
 lean_inc(x_17);
 lean_inc(x_20);
-x_35 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15_spec__15___lam__0___boxed), 10, 3);
+x_35 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15___lam__0___boxed), 10, 3);
 lean_closure_set(x_35, 0, x_20);
 lean_closure_set(x_35, 1, x_17);
 lean_closure_set(x_35, 2, x_1);
@@ -7415,7 +7750,7 @@ x_79 = lean_array_uget(x_2, x_4);
 lean_inc(x_1);
 lean_inc(x_17);
 lean_inc(x_20);
-x_80 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15_spec__15___lam__0___boxed), 10, 3);
+x_80 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15___lam__0___boxed), 10, 3);
 lean_closure_set(x_80, 0, x_20);
 lean_closure_set(x_80, 1, x_17);
 lean_closure_set(x_80, 2, x_1);
@@ -9820,6 +10155,17 @@ lean_dec(x_4);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15_spec__15(x_1, x_2, x_11, x_12, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec_ref(x_2);
 return x_13;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; 
+x_11 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
+lean_dec(x_1);
+return x_11;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {

@@ -39,7 +39,6 @@ LEAN_EXPORT lean_object* l_Rat_term___x2f_x2e__;
 LEAN_EXPORT lean_object* l_Rat_mul___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_hashRat____x40_Init_Data_Rat_Basic_3597219815____hygCtx___hyg_55_(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Rat_ctorIdx(lean_object*);
 static lean_object* l_Rat_den__nz___autoParam___closed__24;
 LEAN_EXPORT lean_object* l_Rat_instDecidableLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Rat_pow___boxed(lean_object*, lean_object*);
@@ -61,13 +60,13 @@ LEAN_EXPORT lean_object* l_instHashableRat;
 static lean_object* l_Rat_den__nz___autoParam___closed__4;
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT uint8_t l_Rat_isInt(lean_object*);
+lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Rat_ceil___closed__0;
 LEAN_EXPORT lean_object* l_Rat_blt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Rat_instIntCast;
 LEAN_EXPORT lean_object* l_instToStringRat;
 static lean_object* l_Rat_den__nz___autoParam___closed__25;
 static lean_object* l_Rat_instSub___closed__0;
-LEAN_EXPORT lean_object* l_Rat_ctorIdx___boxed(lean_object*);
 static lean_object* l_Rat_instPowNat___closed__0;
 static lean_object* l_Rat_den__nz___autoParam___closed__16;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
@@ -494,23 +493,6 @@ x_1 = l_Rat_den__nz___autoParam___closed__26;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Rat_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Rat_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Rat_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT uint8_t l_decEqRat____x40_Init_Data_Rat_Basic_3597219815____hygCtx___hyg_34_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -904,7 +886,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 lean_inc(x_3);
-x_6 = lean_nat_to_int(x_3);
+x_6 = l_instNatCastInt___lam__0(x_3);
 x_7 = lean_int_div_exact(x_1, x_6);
 lean_dec(x_6);
 lean_dec(x_1);
@@ -937,7 +919,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 lean_inc(x_3);
-x_10 = lean_nat_to_int(x_3);
+x_10 = l_instNatCastInt___lam__0(x_3);
 x_11 = lean_int_div_exact(x_1, x_10);
 lean_dec(x_10);
 lean_dec(x_1);
@@ -981,7 +963,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 lean_inc(x_4);
-x_7 = lean_nat_to_int(x_4);
+x_7 = l_instNatCastInt___lam__0(x_4);
 x_8 = lean_int_div_exact(x_1, x_7);
 lean_dec(x_7);
 lean_dec(x_1);
@@ -1017,7 +999,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 lean_inc(x_5);
-x_8 = lean_nat_to_int(x_5);
+x_8 = l_instNatCastInt___lam__0(x_5);
 x_9 = lean_int_div_exact(x_1, x_8);
 lean_dec(x_8);
 lean_dec(x_1);
@@ -1113,7 +1095,7 @@ LEAN_EXPORT lean_object* l_Rat_instNatCast___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 x_3 = l_Rat_ofInt(x_2);
 return x_3;
 }

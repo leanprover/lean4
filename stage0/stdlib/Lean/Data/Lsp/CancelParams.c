@@ -27,7 +27,7 @@ static lean_object* l_Lean_Lsp_fromJsonCancelParams___closed__8____x40_Lean_Data
 static lean_object* l_Lean_Lsp_fromJsonCancelParams___closed__2____x40_Lean_Data_Lsp_CancelParams_1394637457____hygCtx___hyg_45_;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonCancelParams____x40_Lean_Data_Lsp_CancelParams_1394637457____hygCtx___hyg_45__spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Lsp_beqCancelParams____x40_Lean_Data_Lsp_CancelParams_1394637457____hygCtx___hyg_18_(lean_object*, lean_object*);
-lean_object* l_List_foldl___at___Array_appendList_spec__0(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_foldl___at___Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc_1001020224____hygCtx___hyg_30_(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instBEqCancelParams___closed__0;
@@ -47,33 +47,14 @@ lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lea
 LEAN_EXPORT lean_object* l_Lean_Lsp_fromJsonCancelParams____x40_Lean_Data_Lsp_CancelParams_1394637457____hygCtx___hyg_45_(lean_object*);
 static lean_object* l_Lean_Lsp_toJsonCancelParams___closed__0____x40_Lean_Data_Lsp_CancelParams_1394637457____hygCtx___hyg_35_;
 static lean_object* l_Lean_Lsp_fromJsonCancelParams___closed__0____x40_Lean_Data_Lsp_CancelParams_1394637457____hygCtx___hyg_45_;
-LEAN_EXPORT lean_object* l_Lean_Lsp_CancelParams_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_CancelParams_1394637457____hygCtx___hyg_35_(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Lsp_CancelParams_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Lsp_fromJsonCancelParams___closed__10____x40_Lean_Data_Lsp_CancelParams_1394637457____hygCtx___hyg_45_;
 static lean_object* l_Lean_Lsp_fromJsonCancelParams___closed__3____x40_Lean_Data_Lsp_CancelParams_1394637457____hygCtx___hyg_45_;
 static lean_object* l_Lean_Lsp_instToJsonCancelParams___closed__0;
 static lean_object* l_Lean_Lsp_fromJsonCancelParams___closed__6____x40_Lean_Data_Lsp_CancelParams_1394637457____hygCtx___hyg_45_;
 static lean_object* l_Lean_Lsp_instFromJsonCancelParams___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Lsp_CancelParams_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_CancelParams_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Lsp_CancelParams_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Lsp_instInhabitedCancelParams___closed__0() {
 _start:
 {
@@ -152,7 +133,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec_ref(x_1);
-x_6 = l_List_foldl___at___Array_appendList_spec__0(lean_box(0), x_2, x_4);
+x_6 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_2, x_4);
 x_1 = x_5;
 x_2 = x_6;
 goto _start;

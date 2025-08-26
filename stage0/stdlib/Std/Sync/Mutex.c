@@ -46,7 +46,6 @@ lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_basemutex_lock(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Mutex_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Mutex_new___redArg(lean_object*, lean_object*);
 lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BaseMutex_lock___boxed(lean_object*, lean_object*);
@@ -68,7 +67,6 @@ lean_object* l_instMonadLiftT___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_condvar_notify_all(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Mutex_ctorIdx(lean_object*, lean_object*);
 lean_object* lean_io_condvar_wait(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Mutex_atomicallyOnce(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Mutex_atomically___redArg___lam__2(lean_object*, lean_object*);
@@ -264,23 +262,6 @@ uint8_t x_9; lean_object* x_10;
 x_9 = lean_unbox(x_8);
 x_10 = l_Std_Condvar_waitUntil___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_9);
 return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Mutex_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_instCoeOutMutexBaseMutex___lam__0(lean_object* x_1) {

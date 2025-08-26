@@ -24,9 +24,7 @@ LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownC
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Meta_getFunInduct_x3f_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getFunIndInfo_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_FunIndParamKind_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_FunIndParamKind_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_FunIndInfo_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_reprFunIndParamKind___closed__4____x40_Lean_Meta_Tactic_FunIndInfo_2982806231____hygCtx___hyg_11_;
 static lean_object* l_Lean_Meta_reprFunIndInfo___redArg___closed__12____x40_Lean_Meta_Tactic_FunIndInfo_1633639569____hygCtx___hyg_47_;
 lean_object* l_Lean_Environment_header(lean_object*);
@@ -110,7 +108,6 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Meta_ini
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___Lean_Meta_getFunInduct_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Meta_getFunInduct_x3f_spec__0_spec__0_spec__0_spec__0_spec__0___closed__12;
-LEAN_EXPORT lean_object* l_Lean_Meta_FunIndParamKind_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_getFunInductName___closed__0;
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Meta_getFunInduct_x3f_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -233,7 +230,6 @@ LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___Array_Arr
 static lean_object* l_Lean_Meta_reprFunIndInfo___redArg___closed__2____x40_Lean_Meta_Tactic_FunIndInfo_1633639569____hygCtx___hyg_47_;
 LEAN_EXPORT lean_object* l_Lean_Meta_instReprFunIndParamKind;
 static lean_object* l_Lean_Meta_getFunCasesName___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Meta_FunIndInfo_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FunIndParamKind_ctorIdx(uint8_t x_1) {
 _start:
 {
@@ -265,23 +261,6 @@ _start:
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
 x_3 = l_Lean_Meta_FunIndParamKind_ctorIdx(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_FunIndParamKind_toCtorIdx(uint8_t x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_FunIndParamKind_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_FunIndParamKind_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = lean_unbox(x_1);
-x_3 = l_Lean_Meta_FunIndParamKind_toCtorIdx(x_2);
 return x_3;
 }
 }
@@ -590,23 +569,6 @@ _start:
 uint8_t x_1; 
 x_1 = 0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_FunIndInfo_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_FunIndInfo_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_FunIndInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_instInhabitedFunIndInfo___closed__0() {
@@ -2707,16 +2669,16 @@ if (x_29 == 0)
 uint8_t x_30; 
 x_30 = l_Lean_Exception_isRuntime(x_27);
 lean_dec(x_27);
-x_7 = x_18;
-x_8 = x_28;
+x_7 = x_28;
+x_8 = x_18;
 x_9 = x_30;
 goto block_12;
 }
 else
 {
 lean_dec(x_27);
-x_7 = x_18;
-x_8 = x_28;
+x_7 = x_28;
+x_8 = x_18;
 x_9 = x_29;
 goto block_12;
 }
@@ -2740,16 +2702,16 @@ if (x_34 == 0)
 uint8_t x_35; 
 x_35 = l_Lean_Exception_isRuntime(x_31);
 lean_dec(x_31);
-x_7 = x_33;
-x_8 = x_32;
+x_7 = x_32;
+x_8 = x_33;
 x_9 = x_35;
 goto block_12;
 }
 else
 {
 lean_dec(x_31);
-x_7 = x_33;
-x_8 = x_32;
+x_7 = x_32;
+x_8 = x_33;
 x_9 = x_34;
 goto block_12;
 }
@@ -2856,16 +2818,16 @@ if (x_53 == 0)
 uint8_t x_54; 
 x_54 = l_Lean_Exception_isRuntime(x_49);
 lean_dec(x_49);
-x_7 = x_52;
-x_8 = x_50;
+x_7 = x_50;
+x_8 = x_52;
 x_9 = x_54;
 goto block_12;
 }
 else
 {
 lean_dec(x_49);
-x_7 = x_52;
-x_8 = x_50;
+x_7 = x_50;
+x_8 = x_52;
 x_9 = x_53;
 goto block_12;
 }
@@ -2903,16 +2865,16 @@ block_12:
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_7);
+lean_dec_ref(x_8);
 x_10 = lean_box(0);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
-lean_ctor_set(x_11, 1, x_8);
+lean_ctor_set(x_11, 1, x_7);
 return x_11;
 }
 else
 {
-return x_7;
+return x_8;
 }
 }
 }

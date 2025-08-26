@@ -33,7 +33,6 @@ LEAN_EXPORT lean_object* l_Std_Net_decEqIPv6Addr____x40_Std_Net_Addr_3102941654_
 LEAN_EXPORT lean_object* l_Std_Net_SocketAddress_ipAddr(lean_object*);
 static lean_object* l_Std_Net_instInhabitedSocketAddressV6___closed__0;
 LEAN_EXPORT lean_object* l_Std_Net_IPv6Addr_ofParts(uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t);
-LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_toCtorIdx(uint8_t);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_IPAddr_toString___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_instDecidableEqMACAddr(lean_object*, lean_object*);
@@ -42,15 +41,12 @@ uint16_t lean_uint16_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqIPv6Addr___boxed(lean_object*, lean_object*);
 lean_object* l_instDecidableEqUInt8___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Net_MACAddr_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Net_InterfaceAddress_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_decEqSocketAddressV4____x40_Std_Net_Addr_1948278843____hygCtx___hyg_27_(lean_object*, lean_object*);
 static lean_object* l_Std_Net_instInhabitedIPv4Addr___closed__0;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_interfaceAddresses___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_SocketAddressV6_instCoeSocketAddress___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_decEqIPAddr____x40_Std_Net_Addr_2349654907____hygCtx___hyg_29____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Net_MACAddr_ctorIdx(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_decEqIPv4Addr____x40_Std_Net_Addr_626626886____hygCtx___hyg_20_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Net_IPAddr_ctorIdx(lean_object*);
@@ -69,9 +65,6 @@ static uint16_t l_Std_Net_instInhabitedSocketAddressV4___closed__0;
 LEAN_EXPORT lean_object* l_Std_Net_IPv6Addr_instCoeIPAddr___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_IPAddr_toString(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_IPv4Addr_ofParts___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Net_InterfaceAddress_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Net_IPv6Addr_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Net_SocketAddressV6_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqSocketAddressV6___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_instInhabitedIPv4Addr;
 LEAN_EXPORT uint8_t l_Std_Net_IPAddr_family(lean_object*);
@@ -92,7 +85,6 @@ LEAN_EXPORT lean_object* l_Std_Net_decEqMACAddr____x40_Std_Net_Addr_2759219931__
 LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqIPv4Addr___boxed(lean_object*, lean_object*);
 static uint8_t l_Std_Net_instInhabitedMACAddr___closed__0;
-LEAN_EXPORT lean_object* l_Std_Net_SocketAddressV4_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_ctorIdx(uint8_t);
 static lean_object* l_Std_Net_IPv6Addr_ofParts___closed__0;
 LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqAddressFamily___boxed(lean_object*, lean_object*);
@@ -105,13 +97,11 @@ LEAN_EXPORT lean_object* l_Std_Net_instInhabitedSocketAddressV4;
 LEAN_EXPORT uint8_t l_Std_Net_instDecidableEqSocketAddressV4(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_decEqIPAddr____x40_Std_Net_Addr_2349654907____hygCtx___hyg_29_(lean_object*, lean_object*);
 static lean_object* l_Std_Net_IPAddr_instToString___closed__0;
-LEAN_EXPORT lean_object* l_Std_Net_IPv4Addr_ctorIdx___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_instInhabitedAddressFamily;
 lean_object* l_instDecidableEqUInt16___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_IPv4Addr_instCoeIPAddr___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_IPv6Addr_instCoeIPAddr;
-LEAN_EXPORT lean_object* l_Std_Net_SocketAddressV4_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqMACAddr___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_interface_addresses(lean_object*);
 static lean_object* l_Std_Net_instInhabitedIPAddr___closed__0;
@@ -132,37 +122,16 @@ LEAN_EXPORT uint8_t l_Std_Net_instDecidableEqIPv6Addr(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Std_Net_SocketAddressV4_instCoeSocketAddress___lam__0(lean_object*);
 static lean_object* l_Std_Net_instInhabitedInterfaceAddress___closed__1;
 LEAN_EXPORT uint16_t l_Std_Net_SocketAddress_port(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Net_IPv6Addr_ctorIdx(lean_object*);
 lean_object* lean_uv_pton_v6(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Net_IPv4Addr_ctorIdx(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_instDecidableEqSocketAddressV6(lean_object*, lean_object*);
 lean_object* lean_uv_ntop_v6(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_AddressFamily_ofNat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_ofNat___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_decEqSocketAddressV6____x40_Std_Net_Addr_2239520224____hygCtx___hyg_27_(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Net_SocketAddressV6_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_toCtorIdx___boxed(lean_object*);
 uint8_t lean_uint8_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_decEqInterfaceAddress____x40_Std_Net_Addr_1695030132____hygCtx___hyg_54____boxed(lean_object*, lean_object*);
 lean_object* lean_uv_ntop_v4(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_noConfusion___redArg___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Net_MACAddr_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Net_MACAddr_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Net_MACAddr_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static uint8_t _init_l_Std_Net_instInhabitedMACAddr___closed__0() {
 _start:
 {
@@ -230,23 +199,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Net_IPv4Addr_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Net_IPv4Addr_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Net_IPv4Addr_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Std_Net_instInhabitedIPv4Addr___closed__0() {
 _start:
 {
@@ -303,23 +255,6 @@ lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Net_SocketAddressV4_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Net_SocketAddressV4_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Net_SocketAddressV4_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static uint16_t _init_l_Std_Net_instInhabitedSocketAddressV4___closed__0() {
@@ -402,23 +337,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Net_IPv6Addr_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Net_IPv6Addr_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Net_IPv6Addr_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Std_Net_instInhabitedIPv6Addr___closed__0() {
 _start:
 {
@@ -475,23 +393,6 @@ lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Net_SocketAddressV6_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Net_SocketAddressV6_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Net_SocketAddressV6_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Std_Net_instInhabitedSocketAddressV6___closed__0() {
@@ -814,23 +715,6 @@ _start:
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
 x_3 = l_Std_Net_AddressFamily_ctorIdx(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_toCtorIdx(uint8_t x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Net_AddressFamily_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = lean_unbox(x_1);
-x_3 = l_Std_Net_AddressFamily_toCtorIdx(x_2);
 return x_3;
 }
 }
@@ -1345,23 +1229,6 @@ x_2 = l_Std_Net_SocketAddress_port(x_1);
 lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Net_InterfaceAddress_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Net_InterfaceAddress_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Net_InterfaceAddress_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Std_Net_instInhabitedInterfaceAddress___closed__0() {

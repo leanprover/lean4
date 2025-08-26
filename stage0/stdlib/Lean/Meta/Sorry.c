@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkSorry(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkLabeledSorry___lam__0___closed__0;
 static lean_object* l_Lean_Meta_mkSorry___closed__1;
@@ -34,7 +33,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_mkLabeledSorry(lean_object*, uint8_t, uint8
 static lean_object* l_Lean_Meta_mkLabeledSorry___lam__0___closed__12;
 static lean_object* l_Lean_Elab_throwAbortCommand___at___Lean_Meta_mkSorry_spec__1___redArg___closed__1;
 static lean_object* l_Lean_Meta_SorryLabelView_encode___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Meta_SorryLabelView_ctorIdx(lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkLabeledSorry___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -54,26 +52,28 @@ lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortCommand___at___Lean_Meta_mkSorry_spec__1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkLabeledSorry___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkLabeledSorry___lam__0___closed__7;
-lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkSorry___closed__2;
 static lean_object* l_Lean_Meta_mkLabeledSorry___lam__0___closed__13;
 static lean_object* l_Lean_Meta_mkLabeledSorry___closed__2;
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkLabeledSorry___lam__0___closed__11;
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_utf8PosToLspPos(lean_object*, lean_object*);
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
+lean_object* l_Lean_instToExprName___private__1(lean_object*);
 static lean_object* l_Lean_Meta_mkLabeledSorry___lam__0___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Meta_isLabeledSorry_x3f(lean_object*);
 static lean_object* l_Lean_Meta_mkSorry___closed__5;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkSorry___closed__0;
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
+lean_object* l_Lean_Core_mkFreshUserName(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Meta_mkLabeledSorry___lam__0___closed__9;
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasConst___at___Lean_Meta_mkSorry_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkForall(lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 static lean_object* l_Lean_Elab_throwAbortCommand___at___Lean_Meta_mkSorry_spec__1___redArg___closed__0;
 static lean_object* l_Lean_Meta_mkSorry___closed__6;
@@ -87,8 +87,6 @@ static lean_object* l_Lean_Meta_mkLabeledSorry___lam__0___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 extern lean_object* l_Lean_levelOne;
 lean_object* lean_erase_macro_scopes(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_SorryLabelView_ctorIdx___boxed(lean_object*);
-lean_object* l___private_Lean_ToExpr_0__Lean_Name_toExprAux(lean_object*);
 static lean_object* l_Lean_Meta_mkLabeledSorry___closed__1;
 LEAN_EXPORT lean_object* l_Lean_getMainModule___at___Lean_Meta_mkLabeledSorry_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasConst___at___Lean_Meta_mkSorry_spec__0___redArg(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -233,7 +231,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_mkSorry___closed__4;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -261,7 +259,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_mkSorry___closed__7;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -331,7 +329,7 @@ x_31 = lean_box(0);
 lean_ctor_set_tag(x_16, 1);
 lean_ctor_set(x_16, 1, x_31);
 lean_ctor_set(x_16, 0, x_29);
-x_32 = l_Lean_Expr_const___override(x_14, x_16);
+x_32 = l_Lean_mkConst(x_14, x_16);
 if (x_2 == 0)
 {
 lean_object* x_33; 
@@ -396,7 +394,7 @@ x_43 = lean_box(0);
 x_44 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_44, 0, x_41);
 lean_ctor_set(x_44, 1, x_43);
-x_45 = l_Lean_Expr_const___override(x_14, x_44);
+x_45 = l_Lean_mkConst(x_14, x_44);
 if (x_2 == 0)
 {
 lean_object* x_46; 
@@ -498,23 +496,6 @@ x_9 = l_Lean_Meta_mkSorry(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_SorryLabelView_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_SorryLabelView_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_SorryLabelView_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Meta_SorryLabelView_encode___closed__0() {
 _start:
 {
@@ -578,7 +559,7 @@ block_9:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = l_Lean_Meta_SorryLabelView_encode___closed__0;
 x_7 = l_Lean_Name_str___override(x_5, x_6);
-x_8 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_7, x_2, x_3, x_4);
+x_8 = l_Lean_Core_mkFreshUserName(x_7, x_2, x_3, x_4);
 return x_8;
 }
 }
@@ -853,7 +834,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_mkLabeledSorry___lam__0___closed__3;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -921,7 +902,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_mkLabeledSorry___lam__0___closed__10;
 x_2 = l_Lean_Meta_mkLabeledSorry___lam__0___closed__7;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -949,7 +930,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_mkLabeledSorry___lam__0___closed__13;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -963,7 +944,7 @@ x_11 = l_Lean_Meta_mkLabeledSorry___lam__0___closed__1;
 x_12 = 0;
 x_13 = lean_box(0);
 x_14 = l_Lean_Meta_mkLabeledSorry___lam__0___closed__4;
-x_15 = l_Lean_Expr_forallE___override(x_11, x_14, x_2, x_12);
+x_15 = l_Lean_mkForall(x_11, x_12, x_14, x_2);
 x_16 = l_Lean_Meta_mkSorry(x_15, x_3, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -974,9 +955,9 @@ if (x_17 == 0)
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_18 = lean_ctor_get(x_16, 0);
 x_19 = l_Lean_Meta_mkLabeledSorry___lam__0___closed__11;
-x_20 = l_Lean_Expr_const___override(x_4, x_13);
+x_20 = l_Lean_mkConst(x_4, x_13);
 x_21 = l_Lean_Meta_mkLabeledSorry___lam__0___closed__14;
-x_22 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux(x_5);
+x_22 = l_Lean_instToExprName___private__1(x_5);
 x_23 = l_Lean_mkApp4(x_19, x_14, x_20, x_21, x_22);
 x_24 = l_Lean_Expr_app___override(x_18, x_23);
 lean_ctor_set(x_16, 0, x_24);
@@ -991,9 +972,9 @@ lean_inc(x_26);
 lean_inc(x_25);
 lean_dec(x_16);
 x_27 = l_Lean_Meta_mkLabeledSorry___lam__0___closed__11;
-x_28 = l_Lean_Expr_const___override(x_4, x_13);
+x_28 = l_Lean_mkConst(x_4, x_13);
 x_29 = l_Lean_Meta_mkLabeledSorry___lam__0___closed__14;
-x_30 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux(x_5);
+x_30 = l_Lean_instToExprName___private__1(x_5);
 x_31 = l_Lean_mkApp4(x_27, x_14, x_28, x_29, x_30);
 x_32 = l_Lean_Expr_app___override(x_25, x_31);
 x_33 = lean_alloc_ctor(0, 2, 0);
@@ -1015,8 +996,8 @@ lean_object* x_34; uint8_t x_35; lean_object* x_36; lean_object* x_37; lean_obje
 x_34 = l_Lean_Meta_mkLabeledSorry___lam__0___closed__1;
 x_35 = 0;
 x_36 = lean_box(0);
-x_37 = l_Lean_Expr_const___override(x_4, x_36);
-x_38 = l_Lean_Expr_forallE___override(x_34, x_37, x_2, x_35);
+x_37 = l_Lean_mkConst(x_4, x_36);
+x_38 = l_Lean_mkForall(x_34, x_35, x_37, x_2);
 x_39 = l_Lean_Meta_mkSorry(x_38, x_3, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_39) == 0)
 {
@@ -1026,7 +1007,7 @@ if (x_40 == 0)
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_41 = lean_ctor_get(x_39, 0);
-x_42 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux(x_5);
+x_42 = l_Lean_instToExprName___private__1(x_5);
 x_43 = l_Lean_Expr_app___override(x_41, x_42);
 lean_ctor_set(x_39, 0, x_43);
 return x_39;
@@ -1039,7 +1020,7 @@ x_45 = lean_ctor_get(x_39, 1);
 lean_inc(x_45);
 lean_inc(x_44);
 lean_dec(x_39);
-x_46 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux(x_5);
+x_46 = l_Lean_instToExprName___private__1(x_5);
 x_47 = l_Lean_Expr_app___override(x_44, x_46);
 x_48 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_48, 0, x_47);

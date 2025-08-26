@@ -24,7 +24,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__12____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_21_;
 extern lean_object* l_Lake_defaultPackagesDir;
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___proj___lam__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__10____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_21_;
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___proj___lam__2(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55,7 +54,6 @@ static size_t l_Lake_WorkspaceConfig_instConfigMeta___closed__14;
 static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__9____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_21_;
 static lean_object* l_Lake_WorkspaceConfig_instConfigMeta___closed__7;
 static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__2____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_21_;
-LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_ctorIdx(lean_object*);
 static lean_object* l_Lake_WorkspaceConfig_instConfigMeta___closed__3;
 static lean_object* l_Lake_WorkspaceConfig_instConfigMeta___closed__4;
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig___fields;
@@ -92,23 +90,6 @@ static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__13____x40_Lake
 static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__6____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_21_;
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_reprWorkspaceConfig____x40_Lake_Config_WorkspaceConfig_3427859091____hygCtx___hyg_21____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_WorkspaceConfig_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedWorkspaceConfig___closed__0() {
 _start:
 {

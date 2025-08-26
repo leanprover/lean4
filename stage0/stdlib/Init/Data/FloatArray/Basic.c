@@ -72,7 +72,6 @@ LEAN_EXPORT lean_object* l_FloatArray_mkEmpty___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_get_x3f(lean_object*, lean_object*);
 static lean_object* l_FloatArray_foldl___redArg___closed__8;
 LEAN_EXPORT lean_object* l_FloatArray_instForInFloat(lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemNatFloatLtSize;
 LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__6____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
@@ -153,7 +152,6 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_toList(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_set_x21___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_ctorIdx(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instForInFloat___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -188,23 +186,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_float_array_data(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_FloatArray_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_FloatArray_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_FloatArray_ctorIdx(x_1);
-lean_dec_ref(x_1);
 return x_2;
 }
 }

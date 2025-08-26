@@ -18,9 +18,7 @@ LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___redArg___lam__0(lean_object*
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_toLBool___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_9____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_toLBoolM___redArg___lam__0(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_toLBoolM(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_ctorIdx(uint8_t);
@@ -77,23 +75,6 @@ _start:
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
 x_3 = l_Lean_LBool_ctorIdx(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx(uint8_t x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_LBool_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = lean_unbox(x_1);
-x_3 = l_Lean_LBool_toCtorIdx(x_2);
 return x_3;
 }
 }

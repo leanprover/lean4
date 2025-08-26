@@ -50,7 +50,6 @@ LEAN_EXPORT lean_object* l_List_repr___at___Lean_Elab_Structural_reprIndGroupIns
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 static lean_object* l_Array_Array_repr___at___Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo_2677995456____hygCtx___hyg_47__spec__0___closed__3;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInfo_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___Array_Array_repr___at___Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo_2677995456____hygCtx___hyg_47__spec__0_spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfoRec___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
@@ -78,7 +77,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 static lean_object* l_Lean_getConstInfoRec___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__2___closed__1;
 uint8_t l_Lean_Level_isEquiv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___Array_Array_repr___at___Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo_2677995456____hygCtx___hyg_47__spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInst_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInst_brecOn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__2_spec__2_spec__2_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_reprIndGroupInfo___redArg___closed__10____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo_2677995456____hygCtx___hyg_47_;
@@ -119,7 +117,6 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Array_Array_repr___at___Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo_2677995456____hygCtx___hyg_47__spec__0_spec__0___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___List_repr___at___Lean_Elab_Structural_reprIndGroupInst____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo_18370999____hygCtx___hyg_38__spec__0_spec__0(lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInfo_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_instInhabitedIndGroupInfo;
 lean_object* lean_array_to_list(lean_object*);
 lean_object* l_Lean_reprExpr____x40_Lean_Expr_3091913453____hygCtx___hyg_278_(lean_object*, lean_object*);
@@ -151,7 +148,6 @@ static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownId
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__2_spec__2_spec__2_spec__2_spec__2_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Array_Array_repr___at___Lean_Elab_Structural_reprIndGroupInst____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo_18370999____hygCtx___hyg_38__spec__4_spec__4(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInst_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
@@ -260,23 +256,6 @@ LEAN_EXPORT lean_object* l_List_repr___at___Lean_Elab_Structural_reprIndGroupIns
 static lean_object* l_Lean_Elab_Structural_reprIndGroupInst___redArg___closed__9____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo_18370999____hygCtx___hyg_38_;
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo_2677995456____hygCtx___hyg_47____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInfo_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInfo_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Structural_IndGroupInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___Lean_Elab_Structural_beqIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo_2677995456____hygCtx___hyg_25__spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1100,23 +1079,6 @@ x_3 = l_Lean_Elab_Structural_IndGroupInfo_brecOnName(x_1, x_2);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInst_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInst_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Structural_IndGroupInst_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Elab_Structural_instInhabitedIndGroupInst___closed__0() {

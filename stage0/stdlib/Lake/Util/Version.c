@@ -17,7 +17,6 @@ static lean_object* l_Lake_reprStdVer___redArg___closed__6____x40_Lake_Util_Vers
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_reprSemVerCore___redArg___closed__15____x40_Lake_Util_Version_779621111____hygCtx___hyg_39_;
 static lean_object* l_Lake_instReprSemVerCore___closed__0;
-LEAN_EXPORT lean_object* l_Lake_DecodeVersion_ctorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_reprSemVerCore___redArg___closed__16____x40_Lake_Util_Version_779621111____hygCtx___hyg_39_;
 LEAN_EXPORT lean_object* l_Lake_instFromJsonToolchainVer___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMinSemVerCore___lam__0(lean_object*, lean_object*);
@@ -66,7 +65,6 @@ LEAN_EXPORT lean_object* l_Lake_SemVerCore_toString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instLTStdVer;
 LEAN_EXPORT lean_object* l_Lake_ordSemVerCore____x40_Lake_Util_Version_779621111____hygCtx___hyg_65____boxed(lean_object*, lean_object*);
 lean_object* l_Lake_reprDate___redArg____x40_Lake_Util_Date_3979656006____hygCtx___hyg_75_(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_StdVer_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__Lake_ToolchainVer_lt_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToJsonStdVer;
 static lean_object* l_Lake_reprSemVerCore___redArg___closed__11____x40_Lake_Util_Version_779621111____hygCtx___hyg_39_;
@@ -99,7 +97,6 @@ LEAN_EXPORT lean_object* l_Lake_instLEStdVer;
 LEAN_EXPORT lean_object* l_Lake_StdVer_toString(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_instDecidableEqSemVerCore(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_DecodeVersion_ctorIdx(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMaxSemVerCore___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -120,7 +117,6 @@ LEAN_EXPORT lean_object* l_Lake_instToJsonToolchainVer___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StdVer_ofSemVerCore(lean_object*);
 static lean_object* l_Lake_toolchainFileName___closed__0;
 LEAN_EXPORT uint8_t l_Lake_ToolchainVer_decLe(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_StdVer_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_toString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_reprSemVerCore____x40_Lake_Util_Version_779621111____hygCtx___hyg_39____boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_ToolchainVer_decLt(lean_object*, lean_object*);
@@ -147,7 +143,6 @@ LEAN_EXPORT lean_object* l_Lake_reprStdVer____x40_Lake_Util_Version_4117999005__
 static lean_object* l_Lake_reprSemVerCore___redArg___closed__5____x40_Lake_Util_Version_779621111____hygCtx___hyg_39_;
 static lean_object* l_Lake_instCoeSemVerCoreStdVer___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instLTToolchainVer;
-LEAN_EXPORT lean_object* l_Lake_SemVerCore_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instDecidableEqStdVer___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_ToolchainVer_defaultOrigin___closed__0;
 static lean_object* l_Lake_reprSemVerCore___redArg___closed__6____x40_Lake_Util_Version_779621111____hygCtx___hyg_39_;
@@ -234,30 +229,12 @@ LEAN_EXPORT lean_object* l_Lake_instCoeLeanVerToolchainVer;
 LEAN_EXPORT lean_object* l_Lake_instFromJsonSemVerCore;
 static lean_object* l_Lake_reprStdVer___redArg___closed__2____x40_Lake_Util_Version_4117999005____hygCtx___hyg_28_;
 LEAN_EXPORT lean_object* l_Lake_reprSemVerCore___redArg____x40_Lake_Util_Version_779621111____hygCtx___hyg_39_(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_SemVerCore_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_ordSemVerCore____x40_Lake_Util_Version_779621111____hygCtx___hyg_65_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_reprSemVerCore____x40_Lake_Util_Version_779621111____hygCtx___hyg_39_(lean_object*, lean_object*);
 static lean_object* l_Lake_ToolchainVer_ofString___closed__2;
 static lean_object* l_Lake_instOrdStdVer___closed__0;
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_ofFile_x3f(lean_object*, lean_object*);
 static lean_object* l_Lake_reprSemVerCore___redArg___closed__13____x40_Lake_Util_Version_779621111____hygCtx___hyg_39_;
-LEAN_EXPORT lean_object* l_Lake_SemVerCore_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_SemVerCore_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_SemVerCore_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedSemVerCore___closed__0() {
 _start:
 {
@@ -1302,23 +1279,6 @@ _start:
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lake_instFromJsonSemVerCore___lam__0), 1, 0);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_StdVer_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_StdVer_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_StdVer_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedStdVer___closed__0() {
@@ -4238,23 +4198,6 @@ lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_DecodeVersion_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_DecodeVersion_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_DecodeVersion_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
 }
 }
 static lean_object* _init_l_Lake_instDecodeVersionSemVerCore___closed__0() {

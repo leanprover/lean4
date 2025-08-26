@@ -33,7 +33,7 @@ static lean_object* l_Std_Time_reprTimeZone___redArg___closed__10____x40_Std_Tim
 LEAN_EXPORT lean_object* l_Std_Time_decEqTimeZone____x40_Std_Time_Zoned_TimeZone_3161280324____hygCtx___hyg_53____boxed(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_reprTimeZone____x40_Std_Time_Zoned_TimeZone_3161280324____hygCtx___hyg_45__spec__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ctorIdx___boxed(lean_object*);
+lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__11____x40_Std_Time_Zoned_TimeZone_3161280324____hygCtx___hyg_45_;
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__20____x40_Std_Time_Zoned_TimeZone_3161280324____hygCtx___hyg_45_;
 lean_object* lean_nat_to_int(lean_object*);
@@ -61,7 +61,6 @@ static lean_object* l_Std_Time_reprTimeZone___redArg___closed__2____x40_Std_Time
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_toSeconds___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTC;
 lean_object* l_Bool_repr___redArg(uint8_t);
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ctorIdx(lean_object*);
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__21____x40_Std_Time_Zoned_TimeZone_3161280324____hygCtx___hyg_45_;
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__8____x40_Std_Time_Zoned_TimeZone_3161280324____hygCtx___hyg_45_;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ofSeconds(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -75,29 +74,12 @@ static lean_object* l_Std_Time_reprTimeZone___redArg___closed__4____x40_Std_Time
 static lean_object* l_Std_Time_TimeZone_GMT___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_instInhabitedTimeZone;
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__22____x40_Std_Time_Zoned_TimeZone_3161280324____hygCtx___hyg_45_;
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_TimeZone_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Std_Time_instInhabitedTimeZone___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 return x_2;
 }
 }

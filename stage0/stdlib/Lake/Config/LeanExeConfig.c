@@ -22,7 +22,6 @@ LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_toLeanConfig_instConfigParent(lean
 static lean_object* l_Lake_LeanExeConfig_instConfigMeta___closed__5;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_LeanExeConfig___fields___closed__29;
-LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_ctorIdx(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanExeConfig_srcDir___proj___lam__3___closed__0;
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_instEmptyCollection___lam__0___boxed(lean_object*);
 static size_t l_Lake_LeanExeConfig_instConfigMeta___closed__14;
@@ -151,7 +150,6 @@ LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_nativeFacets___proj___lam__2(lean_
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_srcDir___proj___lam__3___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_exeName___proj(lean_object*);
 extern lean_object* l_Lake_Module_oExportFacet;
-LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_supportInterpreter___proj___lam__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanExeConfig_instConfigMeta___closed__10;
 static lean_object* l_Lake_LeanExeConfig___fields___closed__20;
@@ -203,24 +201,6 @@ extern lean_object* l_Lake_LeanConfig___fields;
 static lean_object* l_Lake_LeanExeConfig___fields___closed__11;
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_instConfigMeta___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_srcDir_instConfigField___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_LeanExeConfig_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedLeanExeConfig___lam__0___closed__0() {
 _start:
 {

@@ -18,15 +18,16 @@ LEAN_EXPORT lean_object* l_Lean_Elab_HeaderSyntax_imports___boxed(lean_object*, 
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_headerToImports___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_processHeaderCore(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint32_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_TSyntax_getId(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_printImports_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_processHeader___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* l_Lean_Syntax_getId(lean_object*);
 static lean_object* l_Lean_Elab_processHeaderCore___closed__0;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_printImports(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_printImportSrcs_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
+lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -91,7 +92,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_processHeaderCore___boxed(lean_object*, lea
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_HeaderSyntax_startPos___boxed(lean_object*);
-lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 lean_object* l_Lean_findLean(lean_object*, lean_object*, lean_object*);
@@ -470,7 +470,7 @@ lean_object* x_52; lean_object* x_53; lean_object* x_54;
 x_52 = lean_unsigned_to_nat(4u);
 x_53 = l_Lean_Syntax_getArg(x_13, x_52);
 lean_dec(x_13);
-x_54 = l_Lean_Syntax_getId(x_53);
+x_54 = l_Lean_TSyntax_getId(x_53);
 lean_dec(x_53);
 if (lean_obj_tag(x_46) == 0)
 {
@@ -781,8 +781,8 @@ block_37:
 if (lean_obj_tag(x_3) == 0)
 {
 x_23 = x_32;
-x_24 = x_34;
-x_25 = x_33;
+x_24 = x_33;
+x_25 = x_34;
 x_26 = x_35;
 x_27 = x_32;
 goto block_31;
@@ -790,8 +790,8 @@ goto block_31;
 else
 {
 x_23 = x_32;
-x_24 = x_34;
-x_25 = x_33;
+x_24 = x_33;
+x_25 = x_34;
 x_26 = x_35;
 x_27 = x_36;
 goto block_31;
@@ -825,8 +825,8 @@ goto block_37;
 else
 {
 x_23 = x_38;
-x_24 = x_40;
-x_25 = x_39;
+x_24 = x_39;
+x_25 = x_40;
 x_26 = x_42;
 x_27 = x_4;
 goto block_31;
@@ -857,15 +857,15 @@ lean_object* x_53; lean_object* x_54; lean_object* x_55;
 x_53 = lean_unsigned_to_nat(4u);
 x_54 = l_Lean_Syntax_getArg(x_14, x_53);
 lean_dec(x_14);
-x_55 = l_Lean_Syntax_getId(x_54);
+x_55 = l_Lean_TSyntax_getId(x_54);
 lean_dec(x_54);
 if (lean_obj_tag(x_47) == 0)
 {
 uint8_t x_56; 
 x_56 = 0;
 x_38 = x_50;
-x_39 = x_45;
-x_40 = x_55;
+x_39 = x_55;
+x_40 = x_45;
 x_41 = x_46;
 x_42 = x_56;
 goto block_44;
@@ -874,8 +874,8 @@ else
 {
 lean_dec_ref(x_47);
 x_38 = x_50;
-x_39 = x_45;
-x_40 = x_55;
+x_39 = x_55;
+x_40 = x_45;
 x_41 = x_46;
 x_42 = x_50;
 goto block_44;
@@ -1502,7 +1502,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
+x_5 = l_Lean_KVMap_find(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 

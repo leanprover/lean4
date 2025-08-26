@@ -74,6 +74,7 @@ lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Lean_reprHeadIndex___closed__9____x40_Lean_HeadIndex_3977151746____hygCtx___hyg_101_;
 static lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexQuick_x3f___closed__2;
+uint8_t l_Lean_beqFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_18_(lean_object*, lean_object*);
 static lean_object* l_Lean_reprHeadIndex___closed__12____x40_Lean_HeadIndex_3977151746____hygCtx___hyg_101_;
 static lean_object* l_Lean_reprHeadIndex___closed__18____x40_Lean_HeadIndex_3977151746____hygCtx___hyg_101_;
 uint64_t l_Lean_hashMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_35_(lean_object*);
@@ -87,6 +88,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_Lean_HeadIndex_hash(lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_beqHeadIndex____x40_Lean_HeadIndex_3977151746____hygCtx___hyg_74____boxed(lean_object*, lean_object*);
+uint8_t l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_18_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HeadIndex_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -180,7 +182,7 @@ if (lean_obj_tag(x_2) == 0)
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_2, 0);
-x_5 = lean_name_eq(x_3, x_4);
+x_5 = l_Lean_beqFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_18_(x_3, x_4);
 return x_5;
 }
 else
@@ -197,7 +199,7 @@ if (lean_obj_tag(x_2) == 1)
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_7 = lean_ctor_get(x_1, 0);
 x_8 = lean_ctor_get(x_2, 0);
-x_9 = lean_name_eq(x_7, x_8);
+x_9 = l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_18_(x_7, x_8);
 return x_9;
 }
 else

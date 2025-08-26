@@ -70,7 +70,6 @@ static lean_object* l_Lake_LeanLibConfig___fields___closed__39;
 uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLibConfig_srcDir___proj___lam__3___closed__0;
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_libPrefixOnWindows___proj___lam__1(uint8_t, lean_object*);
 static lean_object* l_Lake_LeanLibConfig_precompileModules___proj___closed__0;
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_libName___proj(lean_object*);
@@ -199,7 +198,6 @@ static lean_object* l_Lake_instInhabitedLeanLibConfig___closed__2;
 static lean_object* l_Lake_LeanLibConfig___fields___closed__26;
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_toLeanConfig___proj___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_toLeanConfig_instConfigParent(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_ctorIdx(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_roots___proj(lean_object*);
 static lean_object* l_Lake_LeanLibConfig_instConfigMeta___closed__12;
@@ -261,24 +259,6 @@ LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_libName___proj___lam__3(lean_objec
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_toLeanConfig___proj___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_srcDir___proj(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_toLeanConfig___proj___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_LeanLibConfig_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedLeanLibConfig___lam__0___closed__0() {
 _start:
 {

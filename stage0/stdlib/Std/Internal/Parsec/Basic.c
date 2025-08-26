@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_Parsec_eof___boxed(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCharsCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_Input_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_instAlternative___redArg___closed__0;
 static lean_object* l_Std_Internal_Parsec_expectedEndOfInput___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -30,7 +29,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many1___boxed(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCharsCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_quote(lean_object*);
 static lean_object* l_Std_Internal_Parsec_unexpectedEndOfInput___closed__0;
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_Input_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_tryCatch___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_reprParseResult___redArg___closed__5____x40_Std_Internal_Parsec_Basic_1356375387____hygCtx___hyg_54_;
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -435,25 +433,6 @@ lean_closure_set(x_5, 1, lean_box(0));
 lean_closure_set(x_5, 2, x_3);
 lean_closure_set(x_5, 3, x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_Input_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = lean_unsigned_to_nat(0u);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_Input_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l_Std_Internal_Parsec_Input_ctorIdx(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec_ref(x_6);
-lean_dec_ref(x_5);
-lean_dec_ref(x_4);
-return x_7;
 }
 }
 static lean_object* _init_l_Std_Internal_Parsec_instInhabited___lam__0___closed__0() {

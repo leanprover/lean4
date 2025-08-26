@@ -47,6 +47,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_unknownIdentifierMessageTag;
 uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -118,7 +119,6 @@ static lean_object* l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonem
 static lean_object* l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___lam__0___closed__11;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at_____private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance_spec__17___redArg(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___lam__0___closed__26;
 static lean_object* l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___lam__0___closed__0;
@@ -173,6 +173,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_mkNonemptyInstanceHandler___boxed(lean_obje
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__5;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance_spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Core_mkFreshUserName(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 lean_object* l_Lean_Elab_Deriving_Context_mkVisibilityFromTypes(lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
@@ -256,7 +257,6 @@ size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_getConstInfoInduct___at_____private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance_spec__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1_spec__2___redArg___closed__0;
-lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance_spec__13___redArg___closed__15;
@@ -902,7 +902,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
+x_5 = l_Lean_KVMap_find(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
@@ -1919,7 +1919,7 @@ lean_dec_ref(x_20);
 x_23 = lean_erase_macro_scopes(x_21);
 lean_inc(x_8);
 lean_inc_ref(x_7);
-x_24 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_23, x_7, x_8, x_22);
+x_24 = l_Lean_Core_mkFreshUserName(x_23, x_7, x_8, x_22);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 

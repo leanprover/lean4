@@ -30,7 +30,6 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedExternAttrData;
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at_____private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData_spec__0_spec__0_spec__0___closed__6;
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at_____private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData_spec__0_spec__0_spec__0___closed__4;
-LEAN_EXPORT lean_object* l_Lean_ExternAttrData_ctorIdx(lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 static lean_object* l_Lean_getExternAttrData_x3f___closed__0;
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -127,7 +126,6 @@ static lean_object* l_Lean_initFn___closed__4____x40_Lean_Compiler_ExternAttr_41
 LEAN_EXPORT lean_object* l_Lean_instBEqExternAttrData;
 lean_object* l_List_intersperseTR___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ExternEntry_backend(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ExternAttrData_ctorIdx___boxed(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_expandExternPattern___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_beqExternEntry____x40_Lean_Compiler_ExternAttr_2930099606____hygCtx___hyg_66_(lean_object*, lean_object*);
@@ -395,23 +393,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_instHashableExternEntry___closed__0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ExternAttrData_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ExternAttrData_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_ExternAttrData_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_instInhabitedExternAttrData() {

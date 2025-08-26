@@ -29,6 +29,7 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_l
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_logLint___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__5___closed__4;
 uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__14;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
@@ -142,7 +143,6 @@ extern lean_object* l_Lean_Elab_Command_instInhabitedScope;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__5_spec__5_spec__5_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___at___Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__5_spec__5_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__12;
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Linter_logLint___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__5___closed__1;
@@ -1039,7 +1039,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
+x_5 = l_Lean_KVMap_find(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 

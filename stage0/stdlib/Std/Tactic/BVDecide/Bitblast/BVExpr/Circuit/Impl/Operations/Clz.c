@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastClz(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastClz___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_BitVec_instNatCast___lam__0(lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst___redArg(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
@@ -50,13 +51,13 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; 
-x_10 = l_BitVec_ofNat(x_3, x_3);
+x_10 = l_BitVec_instNatCast___lam__0(x_3, x_3);
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = l_BitVec_ofNat(x_3, x_11);
 x_13 = l_BitVec_sub(x_3, x_10, x_12);
 lean_dec(x_12);
 lean_dec(x_10);
-x_14 = l_BitVec_ofNat(x_3, x_6);
+x_14 = l_BitVec_instNatCast___lam__0(x_3, x_6);
 x_15 = l_BitVec_sub(x_3, x_13, x_14);
 lean_dec(x_14);
 lean_dec(x_13);
@@ -144,7 +145,7 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastClz___redArg
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = l_BitVec_ofNat(x_3, x_3);
+x_6 = l_BitVec_instNatCast___lam__0(x_3, x_3);
 x_7 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst___redArg(x_3, x_6);
 lean_dec(x_6);
 x_8 = lean_unsigned_to_nat(0u);

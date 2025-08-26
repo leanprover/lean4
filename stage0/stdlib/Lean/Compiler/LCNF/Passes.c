@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Lean_Compiler_LCNF_cse(uint8_t, uint8_t, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Passes_0__Lean_Compiler_LCNF_initFn___closed__4____x40_Lean_Compiler_LCNF_Passes_304272854____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_LCNF_addPass_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_initFn___lam__0____x40_Lean_Compiler_LCNF_Passes_3698839830____hygCtx___hyg_2_(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__26;
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__0____x40_Lean_Compiler_LCNF_Passes_3698839830____hygCtx___hyg_2_;
@@ -160,6 +159,7 @@ lean_object* l_Lean_Compiler_LCNF_simp(lean_object*, lean_object*, uint8_t);
 static lean_object* l___private_Lean_Compiler_LCNF_Passes_0__Lean_Compiler_LCNF_initFn___closed__3____x40_Lean_Compiler_LCNF_Passes_1385327404____hygCtx___hyg_2_;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__19;
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_LCNF_addPass_spec__0_spec__0_spec__0___redArg___closed__0;
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getPassManager___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_LCNF_addPass_spec__0_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__5;
@@ -3296,7 +3296,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_LCNF_addPass___closed__3;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }

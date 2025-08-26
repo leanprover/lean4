@@ -1,8 +1,8 @@
 Bla.f (x : Nat) : Nat
 root.lean:21:14-21:22: error: protected declarations must be in a namespace
 root.lean:29:4-29:10: error: invalid declaration name `_root_`, `_root_` is a prefix used to refer to the 'root' namespace
-root.lean:31:0-31:32: error: invalid namespace '_root_', '_root_' is a reserved namespace
-root.lean:33:0-33:34: error: invalid namespace 'f._root_', '_root_' is a reserved namespace
+root.lean:31:0-31:32: error: invalid namespace `_root_`, `_root_` is a reserved namespace
+root.lean:33:0-33:34: error: invalid namespace `f._root_`, `_root_` is a reserved namespace
 root.lean:35:14-35:22: error: protected declarations must be in a namespace
 root.lean:41:7-41:8: error(lean.unknownIdentifier): Unknown identifier `h`
 root.lean:43:7-43:8: error(lean.unknownIdentifier): Unknown identifier `f`

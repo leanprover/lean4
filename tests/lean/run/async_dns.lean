@@ -12,23 +12,6 @@ def assertBEq [BEq α] [ToString α] (actual expected : α) : IO Unit := do
     throw <| IO.userError <|
       s!"expected '{expected}', got '{actual}'"
 
-def baseSelector (asyncWaiter : AsyncTask α) : Selector α :=
- {
-    tryFn := do
-      if ← IO.hasFinished asyncWaiter then
-        let result ← IO.ofExcept asyncWaiter.get
-        return some result
-      else
-        return none
-    registerFn waiter := do
-      discard <| AsyncTask.mapIO (x := asyncWaiter) fun data => do
-        let lose := return ()
-        let win promise := promise.resolve (.ok data)
-        waiter.race lose win
-    unregisterFn := pure ()
-  }
-
-
 def timeout [Inhabited α] (a : Async α) (time : Std.Time.Millisecond.Offset) : Async α := do
   let result ← Async.race (a.map Except.ok) (sleep time |>.map Except.error)
 
@@ -43,7 +26,7 @@ def runDNS : Async Unit := do
     (throw <| IO.userError <| "No DNS results for google.com" : IO _)
 
 def runDNSNoAscii : Async Unit := do
-  let infos ← timeout (DNS.getAddrInfo "google.com▸" "http") 1000
+  let infos ← timeout (DNS.getAddrInfo "google.com▸" "http") 10000
 
   unless infos.size > 0 do
     (throw <| IO.userError <| "No DNS results for google.com" : IO _)

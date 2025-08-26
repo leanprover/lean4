@@ -822,16 +822,20 @@ until the end.
 -/
 @[inline, specialize]
 def race
-    [MonadLiftT BaseIO m] [MonadAwait Task m] [MonadAsync t m] [MonadAwait t m]
+    [MonadLiftT BaseIO m] [MonadAwait Task m] [MonadAsync (ETask ε) m] [MonadExcept ε m]
     [Monad m] [Inhabited α] (x : m α) (y : m α)
     (prio := Task.Priority.default) :
     m α := do
   let promise ← IO.Promise.new
 
-  discard (async (t := t) (prio := prio) <| Bind.bind x (liftM ∘ promise.resolve))
-  discard (async (t := t) (prio := prio) <| Bind.bind y (liftM ∘ promise.resolve))
+  let x1 ← async (prio := prio) (t := ETask ε) x
+  let x2 ← async (prio := prio) (t := ETask ε) y
 
-  await promise.result!
+  discard <| BaseIO.chainTask x1 promise.resolve
+  discard <| BaseIO.chainTask x2 promise.resolve
+
+  let result ← await promise.result!
+  MonadExcept.ofExcept result
 
 /--
 Runs all computations in an `Array` concurrently and returns all results as an array.

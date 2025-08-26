@@ -71,18 +71,18 @@ structure Selector (α : Type) where
   Attempts to retrieve a piece of data from the event source in a non-blocking fashion, returning
   `some` if data is available and `none` otherwise.
   -/
-  tryFn : IO (Option α)
+  tryFn : Async (Option α)
   /--
   Registers a `Waiter` with the event source. Once data is available, the event source should
   attempt to call `Waiter.race` and resolve the `Waiter`'s promise if it wins. It is crucial that
   data is never actually consumed from the event source unless `Waiter.race` wins in order to
   prevent data loss.
   -/
-  registerFn : Waiter α → IO Unit
+  registerFn : Waiter α → Async Unit
   /--
   A cleanup function that is called once any `Selector` has won the `Selectable.one` race.
   -/
-  unregisterFn : IO Unit
+  unregisterFn : Async Unit
 
 /--
 An event source together with a continuation to call on data obtained from that event source,
@@ -98,7 +98,7 @@ structure Selectable (α : Type) where
     /--
     The continuation that is called on results from the event source.
     -/
-    cont : β → IO (AsyncTask α)
+    cont : β → Async α
 
 private def shuffleIt {α : Type u} (xs : Array α) (gen : StdGen) : Array α :=
   go xs gen 0
@@ -129,7 +129,7 @@ partial def Selectable.one (selectables : Array (Selectable α)) : Async α := d
 
   for selectable in selectables do
     if let some val ← selectable.selector.tryFn then
-      let result ← Async.ofAsyncTask (← selectable.cont val)
+      let result ← selectable.cont val
       return result
 
   let finished ← IO.mkRef false
@@ -140,25 +140,28 @@ partial def Selectable.one (selectables : Array (Selectable α)) : Async α := d
     let waiter := Waiter.mk finished waiterPromise
     selectable.selector.registerFn waiter
 
-    IO.chainTask (t := waiterPromise.result?) fun res? => do
+    discard <| IO.bindTask (t := waiterPromise.result?) fun res? => do
       match res? with
       | none =>
         /-
         If we get `none` that means the waiterPromise was dropped, usually due to cancellation. In
         this situation just do nothing.
         -/
-        return ()
+        return (Task.pure (.ok ()))
       | some res =>
-        try
-          let res ← IO.ofExcept res
+        let async : Async _ :=
+          try
+            let res ← IO.ofExcept res
 
-          for selectable in selectables do
-            selectable.selector.unregisterFn
+            for selectable in selectables do
+              selectable.selector.unregisterFn
 
-          let contRes ← selectable.cont res
-          discard <| contRes.mapIO (promise.resolve <| .ok ·)
-        catch e =>
-          promise.resolve (.error e)
+            let contRes ← selectable.cont res
+            promise.resolve (.ok contRes)
+          catch e =>
+            promise.resolve (.error e)
+
+        async.toBaseIO
 
   Async.ofPromise (pure promise)
 
@@ -166,8 +169,7 @@ def Selectable.combine (selectables : Array (Selectable α)) : Selector α := {
   tryFn := do
     for selectable in selectables do
       if let some val ← selectable.selector.tryFn then
-        let asyncTask ← selectable.cont val
-        let result ← IO.ofExcept asyncTask.get
+        let result ← selectable.cont val
         return some result
     return none
 
@@ -177,22 +179,23 @@ def Selectable.combine (selectables : Array (Selectable α)) : Selector α := {
       let derivedWaiter := Waiter.mk waiter.finished waiterPromise
       selectable.selector.registerFn derivedWaiter
 
-      IO.chainTask (t := waiterPromise.result?) fun res? => do
+      discard <| IO.bindTask (t := waiterPromise.result?) fun res? => do
         match res? with
-        | none => return ()
+        | none => return (Task.pure (.ok ()))
         | some res =>
-          let mainPromise := waiter.promise
+          let async : Async _ := do
+            let mainPromise := waiter.promise
 
-          for selectable in selectables do
-            selectable.selector.unregisterFn
+            for selectable in selectables do
+              selectable.selector.unregisterFn
 
-          try
-            let val ← IO.ofExcept res
-            let asyncTask ← selectable.cont val
-            let result ← IO.ofExcept asyncTask.get
-            mainPromise.resolve (.ok result)
-          catch e =>
-            mainPromise.resolve (.error e)
+            try
+              let val ← IO.ofExcept res
+              let result ← selectable.cont val
+              mainPromise.resolve (.ok result)
+            catch e =>
+              mainPromise.resolve (.error e)
+          async.toBaseIO
 
   unregisterFn := do
     for selectable in selectables do

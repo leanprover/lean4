@@ -22,7 +22,7 @@ def t2 [DecidableEq α] : DecidableEq (Test α) :=
 /--
 trace: [Elab.Deriving.decEq] ⏎
     public instance : DecidableEq✝ PubEnum✝ := fun x✝ y✝ =>
-      if h✝ : x.toCtorIdx✝ = y.toCtorIdx✝ then
+      if h✝ : x.ctorIdx✝ = y.ctorIdx✝ then
         isTrue✝
           (by
             first

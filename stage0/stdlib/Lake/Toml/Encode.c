@@ -28,6 +28,7 @@ LEAN_EXPORT lean_object* l_Lake_instToTomlFilePath___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instSmartInsertArrayOfToToml(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTomlInt;
 lean_object* lean_array_push(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_ToToml_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Lake_instToTomlArray___redArg___lam__1___closed__9;
 LEAN_EXPORT lean_object* l_Lake_instToTomlName___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTomlValue;
@@ -50,6 +51,7 @@ static lean_object* l_Lake_instToTomlValue___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instToTomlArrayValue;
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_ToToml_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTomlFilePath;
 lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToToml_x3fArray(lean_object*, lean_object*);
@@ -58,16 +60,22 @@ lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lake_Toml_instSmartInsertOfToToml_x3f___redArg___lam__0___closed__0;
 lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instSmartInsertTable;
+LEAN_EXPORT lean_object* l_Lake_ToToml_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTomlNat;
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_instToTomlArray___redArg___lam__1___closed__6;
+LEAN_EXPORT lean_object* l_Lake_Toml_SmartInsert_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToToml_x3fOption___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_ToToml_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_smartInsert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Toml_SmartInsert_toCtorIdx(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Toml_SmartInsert_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTomlArray___redArg___lam__0(lean_object*, lean_object*);
 lean_object* l_Lake_Toml_Value_table(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTomlArrayValue___lam__0(lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instToTomlArray___redArg___lam__1___closed__5;
+LEAN_EXPORT lean_object* l_Lake_ToToml_x3f_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Lake_instToTomlArray___redArg___lam__1___closed__4;
 LEAN_EXPORT lean_object* l_Lake_Toml_instSmartInsertTable___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instSmartInsertOfToToml_x3f(lean_object*, lean_object*);
@@ -75,6 +83,7 @@ LEAN_EXPORT lean_object* l_Lake_instToTomlFloat___lam__0___boxed(lean_object*);
 static lean_object* l_Lake_instToTomlArray___redArg___lam__1___closed__7;
 static lean_object* l_Lake_Toml_encodeArray_x3f___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instToToml_x3fOption(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_ToToml_x3f_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_instSmartInsertOptionOfToToml___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_Toml_instSmartInsertString___lam__0(lean_object*, lean_object*, lean_object*);
@@ -83,10 +92,12 @@ LEAN_EXPORT lean_object* l_Lake_Toml_Table_insertD(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_insert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_encodeArray_x3f___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Toml_SmartInsert_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToToml_x3fArray___redArg(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instSmartInsertOfToToml_x3f___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_ToToml_x3f_ctorIdx(lean_object*, lean_object*);
 static lean_object* l_Lake_instToTomlArray___redArg___lam__1___closed__0;
 static lean_object* l_Lake_instToTomlArray___redArg___lam__1___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_smartInsert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -101,6 +112,7 @@ static lean_object* l_Lake_instToTomlArray___redArg___lam__1___closed__8;
 static lean_object* l_Lake_instToTomlTable___closed__0;
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instSmartInsertOfToToml_x3f___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_ToToml_x3f_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTomlArray___redArg___lam__1(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -112,6 +124,40 @@ LEAN_EXPORT lean_object* l_Lake_instToToml_x3fOptionOfToToml(lean_object*, lean_
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTomlFloat;
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_instSmartInsertOptionOfToToml___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_ToToml_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_ToToml_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_ToToml_ctorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_ToToml_toCtorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_ToToml_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_ToToml_toCtorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_Lake_instToTomlValue___closed__0() {
 _start:
 {
@@ -462,6 +508,40 @@ x_1 = l_Lake_instToTomlTable___closed__0;
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Lake_ToToml_x3f_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_ToToml_x3f_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_ToToml_x3f_ctorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_ToToml_x3f_toCtorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_ToToml_x3f_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_ToToml_x3f_toCtorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_instToToml_x3fOfToToml___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -755,6 +835,40 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_instToToml_x3fOptionOfToToml___redArg(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Toml_SmartInsert_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Toml_SmartInsert_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_Toml_SmartInsert_ctorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Toml_SmartInsert_toCtorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Toml_SmartInsert_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_Toml_SmartInsert_toCtorIdx(x_1, x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }

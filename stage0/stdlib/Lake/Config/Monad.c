@@ -107,6 +107,7 @@ LEAN_EXPORT lean_object* l_Lake_findLeanExe_x3f___redArg(lean_object*, lean_obje
 static lean_object* l_Lake_getLeanSysroot___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_getPkgUrlMap___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getEnvLeanSrcPath___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_MonadWorkspace_toCtorIdx___boxed(lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_findModule_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getEnvLeanSrcPath___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanCc_x3f(lean_object*, lean_object*, lean_object*);
@@ -160,6 +161,7 @@ LEAN_EXPORT lean_object* l_Lake_getLeanSysroot___redArg(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lake_instMonadWorkspaceOfMonadLakeOfFunctor___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanLibDir___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getAugmentedLeanSrcPath___redArg___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_MonadWorkspace_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLakeEnv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadWorkspaceOfMonadStateOfWorkspace(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadWorkspaceOfMonadStateOfWorkspace___redArg(lean_object*);
@@ -178,6 +180,7 @@ LEAN_EXPORT lean_object* l_Lake_LakeEnvT_run___redArg(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lake_getSharedLibPath___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanCc___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLakeLibDir___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_MonadWorkspace_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanLibDir___redArg(lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_findLeanLib_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanIncludeDir___redArg(lean_object*, lean_object*);
@@ -221,6 +224,7 @@ LEAN_EXPORT lean_object* l_Lake_getLeanCc_x3f___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadWorkspaceOfMonadReaderOfWorkspace___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLake___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanOptions___redArg___lam__0___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_MonadWorkspace_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanSharedLib(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLakeLibDir(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanArgs(lean_object*, lean_object*, lean_object*);
@@ -270,6 +274,40 @@ _start:
 lean_object* x_5; 
 x_5 = lean_apply_1(x_4, x_3);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_MonadWorkspace_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_MonadWorkspace_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_MonadWorkspace_ctorIdx(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_MonadWorkspace_toCtorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_MonadWorkspace_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_MonadWorkspace_toCtorIdx(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instMonadWorkspaceOfMonadReaderOfWorkspace___redArg(lean_object* x_1) {

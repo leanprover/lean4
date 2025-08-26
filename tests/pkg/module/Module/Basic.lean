@@ -254,16 +254,18 @@ info: theorem f_exp_wfrec.eq_unfold : f_exp_wfrec = fun x x_1 =>
 
 /-! Private fields should force private ctors. -/
 
+abbrev Priv := Nat
+
 public structure StructWithPrivateField where
-  private x : Nat
+  private x : Priv
 
 /--
 info: structure StructWithPrivateField : Type
 number of parameters: 0
 fields:
-  private StructWithPrivateField.x : Nat
+  private StructWithPrivateField.x : Priv
 constructor:
-  private StructWithPrivateField.mk (x : Nat) : StructWithPrivateField
+  private StructWithPrivateField.mk (x : Priv) : StructWithPrivateField
 -/
 #guard_msgs in
 #print StructWithPrivateField

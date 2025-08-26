@@ -53,24 +53,12 @@ namespace Lean.Meta.DiscrTree
   2- Distinguish partial applications `f a`, `f a b`, and `f a b c`.
 -/
 
-/--
-An ordering for the key that puts `star` and `other` first. Differs from the auto-generated `ctorIdx`.
--/
-private def Key.ctorIdx' : Key → Nat
-  | .star     => 0
-  | .other    => 1
-  | .lit ..   => 2
-  | .fvar ..  => 3
-  | .const .. => 4
-  | .arrow    => 5
-  | .proj ..  => 6
-
 def Key.lt : Key → Key → Bool
   | .lit v₁,        .lit v₂        => v₁ < v₂
   | .fvar n₁ a₁,    .fvar n₂ a₂    => Name.quickLt n₁.name n₂.name || (n₁ == n₂ && a₁ < a₂)
   | .const n₁ a₁,   .const n₂ a₂   => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
   | .proj s₁ i₁ a₁, .proj s₂ i₂ a₂ => Name.quickLt s₁ s₂ || (s₁ == s₂ && i₁ < i₂) || (s₁ == s₂ && i₁ == i₂ && a₁ < a₂)
-  | k₁,             k₂             => k₁.ctorIdx' < k₂.ctorIdx'
+  | k₁,             k₂             => k₁.ctorIdx < k₂.ctorIdx
 
 instance : LT Key := ⟨fun a b => Key.lt a b⟩
 instance (a b : Key) : Decidable (a < b) := inferInstanceAs (Decidable (Key.lt a b))

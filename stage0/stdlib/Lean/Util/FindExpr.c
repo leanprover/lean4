@@ -27,10 +27,12 @@ LEAN_EXPORT uint8_t l_Lean_Expr_occurs___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_findImpl_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion___redArg(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 lean_object* lean_find_ext_expr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion___redArg___lam__0___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_occurs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion___redArg___boxed(lean_object*, lean_object*);
 lean_object* lean_find_expr(lean_object*, lean_object*);
@@ -114,7 +116,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_toCtorIdx(uint8_t x_1) {
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorIdx(uint8_t x_1) {
 _start:
 {
 switch (x_1) {
@@ -137,6 +139,23 @@ x_4 = lean_unsigned_to_nat(2u);
 return x_4;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_unbox(x_1);
+x_3 = l_Lean_Expr_FindStep_ctorIdx(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_toCtorIdx(uint8_t x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Expr_FindStep_ctorIdx(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_toCtorIdx___boxed(lean_object* x_1) {

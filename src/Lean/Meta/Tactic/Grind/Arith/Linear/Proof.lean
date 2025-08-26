@@ -4,14 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Util
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
-public import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
-public import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
-public import Lean.Meta.Tactic.Grind.Arith.VarRename
+import Lean.Meta.Tactic.Grind.Arith.Util
+import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.VarRename
+import Lean.Meta.Tactic.Grind.Diseq
+import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
+import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+import Lean.Meta.Tactic.Grind.Arith.ProofUtil
 import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
 

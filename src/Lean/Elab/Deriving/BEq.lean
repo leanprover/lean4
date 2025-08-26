@@ -130,7 +130,7 @@ private def mkBEqEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
   let auxFunName := ctx.auxFunNames[0]!
   let vis := ctx.mkVisibilityFromTypes
   let expAttr := ctx.mkNoExposeAttrFromCtors
-  `(@[$[$expAttr],*] $vis:visibility def $(mkIdent auxFunName):ident  (x y : $(mkCIdent name)) : Bool := x.toCtorIdx == y.toCtorIdx)
+  `(@[$[$expAttr],*] $vis:visibility def $(mkIdent auxFunName):ident  (x y : $(mkCIdent name)) : Bool := x.ctorIdx == y.ctorIdx)
 
 private def mkBEqEnumCmd (name : Name): TermElabM (Array Syntax) := do
   let ctx ← mkContext "beq" name

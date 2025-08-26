@@ -28,7 +28,9 @@ static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertTZifV1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Std_Time_TimeZone_Offset_toIsoString(lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Std_Time_Database_ctorIdx___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_Database_toCtorIdx(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Std_Time_TimeZone_convertTZifV1___closed__2;
 static lean_object* l_Std_Time_TimeZone_convertTZifV1___closed__1;
@@ -43,9 +45,11 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 LEAN_EXPORT lean_object* l_Nat_cast___at___Nat_cast___at___Std_Time_TimeZone_convertLocalTimeType_spec__0_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_Time_TimeZone_convertTZifV1_spec__0(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern uint8_t l_instInhabitedUInt8;
+LEAN_EXPORT lean_object* l_Std_Time_Database_toCtorIdx___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_TimeZone_convertUt(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertTZifV2___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_Database_ctorIdx(lean_object*, lean_object*);
 lean_object* lean_uint8_to_nat(uint8_t);
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_Time_TimeZone_convertTZifV1_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertWall___boxed(lean_object*);
@@ -60,6 +64,40 @@ LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_TimeZone_convertLocalTimeTyp
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_Time_TimeZone_convertTZifV1_spec__1___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_Time_TimeZone_convertTZifV1_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertTransition___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_Database_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Database_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Time_Database_ctorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Database_toCtorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Database_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Time_Database_toCtorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT uint8_t l_Std_Time_TimeZone_convertWall(uint8_t x_1) {
 _start:
 {
@@ -151,7 +189,7 @@ return x_10;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; uint8_t x_13; uint8_t x_14; lean_object* x_15; uint8_t x_16; lean_object* x_21; uint8_t x_22; lean_object* x_29; lean_object* x_35; uint8_t x_36; 
+lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; uint8_t x_15; uint8_t x_16; lean_object* x_21; uint8_t x_22; lean_object* x_29; lean_object* x_35; uint8_t x_36; 
 x_11 = lean_array_fget_borrowed(x_4, x_1);
 x_12 = lean_ctor_get(x_11, 0);
 x_13 = lean_ctor_get_uint8(x_11, sizeof(void*)*1);
@@ -181,10 +219,10 @@ x_17 = l_Std_Time_TimeZone_convertUt(x_16);
 lean_inc(x_12);
 x_18 = lean_alloc_ctor(0, 3, 3);
 lean_ctor_set(x_18, 0, x_12);
-lean_ctor_set(x_18, 1, x_15);
+lean_ctor_set(x_18, 1, x_14);
 lean_ctor_set(x_18, 2, x_3);
 lean_ctor_set_uint8(x_18, sizeof(void*)*3, x_13);
-lean_ctor_set_uint8(x_18, sizeof(void*)*3 + 1, x_14);
+lean_ctor_set_uint8(x_18, sizeof(void*)*3 + 1, x_15);
 lean_ctor_set_uint8(x_18, sizeof(void*)*3 + 2, x_17);
 x_19 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
@@ -199,8 +237,8 @@ x_25 = lean_nat_dec_lt(x_1, x_24);
 lean_dec(x_24);
 if (x_25 == 0)
 {
-x_14 = x_23;
-x_15 = x_21;
+x_14 = x_21;
+x_15 = x_23;
 x_16 = x_9;
 goto block_20;
 }
@@ -209,8 +247,8 @@ else
 lean_object* x_26; uint8_t x_27; 
 x_26 = lean_array_fget_borrowed(x_7, x_1);
 x_27 = lean_unbox(x_26);
-x_14 = x_23;
-x_15 = x_21;
+x_14 = x_21;
+x_15 = x_23;
 x_16 = x_27;
 goto block_20;
 }

@@ -53,7 +53,7 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
       let declName := parentName?.getD Name.anonymous ++ shortDeclName
       if decls.any fun decl => decl.declName == declName then
         withRef declId do
-          throwError "'{declName}' has already been declared"
+          throwError "'{.ofConstName declName}' has already been declared"
       checkNotAlreadyDeclared declName
       applyAttributesAt declName attrs AttributeApplicationTime.beforeElaboration
       addDocString' declName docStr?

@@ -139,6 +139,7 @@ LEAN_EXPORT lean_object* l_ImportCompletion_computePartialImportCompletions(lean
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___ImportCompletion_collectAvailableImportsFromLake_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_24_(lean_object*);
 LEAN_EXPORT lean_object* l_ImportCompletion_computeCompletions(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___ImportCompletion_computePartialImportCompletions_spec__3_spec__3___redArg___lam__0___closed__6;
@@ -155,7 +156,6 @@ lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___ImportCompletion_computePartialImportCompletions_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___ImportCompletion_computePartialImportCompletions_spec__3_spec__3___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_23_(lean_object*);
 static lean_object* l_ImportCompletion_collectAvailableImportsFromLake___closed__4;
 LEAN_EXPORT lean_object* l_ImportCompletion_isImportNameCompletionRequest___boxed(lean_object*, lean_object*);
 static lean_object* l_ImportCompletion_isImportNameCompletionRequest___closed__2;
@@ -2440,17 +2440,17 @@ x_26 = lean_nat_dec_le(x_20, x_25);
 if (x_26 == 0)
 {
 lean_inc(x_25);
-x_6 = x_25;
-x_7 = x_23;
-x_8 = x_22;
+x_6 = x_23;
+x_7 = x_22;
+x_8 = x_25;
 x_9 = x_25;
 goto block_13;
 }
 else
 {
-x_6 = x_25;
-x_7 = x_23;
-x_8 = x_22;
+x_6 = x_23;
+x_7 = x_22;
+x_8 = x_25;
 x_9 = x_20;
 goto block_13;
 }
@@ -2650,22 +2650,22 @@ return x_4;
 block_13:
 {
 uint8_t x_10; 
-lean_dec(x_7);
-x_10 = lean_nat_dec_le(x_9, x_6);
+lean_dec(x_6);
+x_10 = lean_nat_dec_le(x_9, x_8);
 if (x_10 == 0)
 {
 lean_object* x_11; 
-lean_dec(x_6);
+lean_dec(x_8);
 lean_inc(x_9);
-x_11 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_8, x_9, x_9);
+x_11 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_7, x_9, x_9);
 lean_dec(x_9);
 return x_11;
 }
 else
 {
 lean_object* x_12; 
-x_12 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_8, x_9, x_6);
-lean_dec(x_6);
+x_12 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_7, x_9, x_8);
+lean_dec(x_8);
 return x_12;
 }
 }
@@ -4460,7 +4460,7 @@ lean_dec(x_8);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_array_uset(x_4, x_3, x_9);
 lean_inc_ref(x_1);
-x_11 = l_Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_23_(x_1);
+x_11 = l_Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_24_(x_1);
 x_12 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_6, 6, x_12);
@@ -4492,7 +4492,7 @@ lean_dec(x_6);
 x_24 = lean_unsigned_to_nat(0u);
 x_25 = lean_array_uset(x_4, x_3, x_24);
 lean_inc_ref(x_1);
-x_26 = l_Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_23_(x_1);
+x_26 = l_Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData_1519671747____hygCtx___hyg_24_(x_1);
 x_27 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_27, 0, x_26);
 x_28 = lean_alloc_ctor(0, 8, 0);

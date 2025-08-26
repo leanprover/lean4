@@ -30,10 +30,12 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_
 LEAN_EXPORT lean_object* l_Lean_IR_isDeclMeta___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM_827378437____hygCtx___hyg_2__spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_Log_format_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_LogEntry_toCtorIdx(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_initFn___lam__3____x40_Lean_Compiler_IR_CompilerM_827378437____hygCtx___hyg_2____boxed(lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
 uint8_t l_Lean_instDecidableEqOLeanLevel(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_IR_LogEntry_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___Lean_IR_log_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_addDecls_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_initFn___closed__0____x40_Lean_Compiler_IR_CompilerM_1057239454____hygCtx___hyg_2_;
@@ -111,6 +113,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_Persiste
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_isLogEnabledFor___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_LogEntry_instToFormat;
 LEAN_EXPORT lean_object* l_List_foldl___at___Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM_827378437____hygCtx___hyg_2__spec__2(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_LogEntry_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_addDecl___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_findDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -159,6 +162,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___Lean_Persistent
 LEAN_EXPORT lean_object* l_Lean_IR_findDecl___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addTrace___at___Lean_IR_log_spec__0___closed__1;
 static lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_exportIREntries___closed__2;
+LEAN_EXPORT lean_object* l_Lean_IR_LogEntry_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_containsDecl_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_findDecl_x27___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -322,6 +326,49 @@ static lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_exportIREn
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_sortDecls(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_findDecl_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_LogEntry_fmt___closed__4;
+LEAN_EXPORT lean_object* l_Lean_IR_LogEntry_ctorIdx(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+else
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(1u);
+return x_3;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_IR_LogEntry_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_IR_LogEntry_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_IR_LogEntry_toCtorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_IR_LogEntry_ctorIdx(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_IR_LogEntry_toCtorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_IR_LogEntry_toCtorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_IR_LogEntry_fmt_spec__0(lean_object* x_1) {
 _start:
 {
@@ -2205,8 +2252,8 @@ lean_inc_ref(x_1);
 x_27 = l_Lean_getExportNameFor_x3f(x_1, x_24);
 if (lean_obj_tag(x_27) == 0)
 {
-x_11 = x_26;
-x_12 = x_25;
+x_11 = x_25;
+x_12 = x_26;
 x_13 = x_24;
 goto block_19;
 }
@@ -2242,8 +2289,8 @@ goto block_10;
 else
 {
 lean_dec(x_28);
-x_11 = x_26;
-x_12 = x_25;
+x_11 = x_25;
+x_12 = x_26;
 x_13 = x_24;
 goto block_19;
 }
@@ -2307,8 +2354,8 @@ lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
 x_17 = lean_alloc_ctor(1, 4, 0);
 lean_ctor_set(x_17, 0, x_13);
-lean_ctor_set(x_17, 1, x_12);
-lean_ctor_set(x_17, 2, x_11);
+lean_ctor_set(x_17, 1, x_11);
+lean_ctor_set(x_17, 2, x_12);
 lean_ctor_set(x_17, 3, x_16);
 x_18 = lean_array_push(x_5, x_17);
 x_6 = x_18;

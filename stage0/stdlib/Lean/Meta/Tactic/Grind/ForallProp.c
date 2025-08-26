@@ -10824,7 +10824,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_ForallProp_0____reg
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_ForallProp_0____regBuiltin_Lean_Meta_Grind_simpForall_declare__31___closed__4____x40_Lean_Meta_Tactic_Grind_ForallProp_4143869776____hygCtx___hyg_11_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -11642,7 +11642,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(2u);
 x_2 = l_Lean_Meta_Grind_propagateForallPropDown___closed__5;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -11671,7 +11671,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_ForallProp_0____reg
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_ForallProp_0____regBuiltin_Lean_Meta_Grind_simpExists_declare__36___closed__4____x40_Lean_Meta_Tactic_Grind_ForallProp_173604616____hygCtx___hyg_10_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -11681,7 +11681,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_ForallProp_0____reg
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
+x_1 = lean_box(0);
 x_2 = l___private_Lean_Meta_Tactic_Grind_ForallProp_0____regBuiltin_Lean_Meta_Grind_simpExists_declare__36___closed__5____x40_Lean_Meta_Tactic_Grind_ForallProp_173604616____hygCtx___hyg_10_;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;

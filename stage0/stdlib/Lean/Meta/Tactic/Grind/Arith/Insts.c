@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_synthInstanceMeta_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withNewMCtxDepth___at___Lean_Meta_Grind_Arith_getIsCharInst_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
@@ -32,18 +31,18 @@ lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_getNoZeroDivInst_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Meta_Grind_Arith_getIsCharInst_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withNewMCtxDepth___at___Lean_Meta_Grind_Arith_getIsCharInst_x3f_spec__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_getNoZeroDivInst_x3f___redArg___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_getNoZeroDivInst_x3f___redArg___closed__3;
 static lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__0;
-lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_EvalNum_0__Lean_Meta_Grind_Arith_evalNatCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_getNoZeroDivInst_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkFreshExprMVar(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewMCtxDepthImp(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -51,6 +50,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_getNoZeroDivInst_x3f___redArg___clos
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_Arith_evalNat_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3;
 static lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2;
@@ -265,7 +265,7 @@ _start:
 {
 lean_object* x_17; 
 lean_inc_ref(x_12);
-x_17 = l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(x_1, x_2, x_3, x_12, x_13, x_14, x_15, x_16);
+x_17 = l_Lean_Meta_mkFreshExprMVar(x_1, x_2, x_3, x_12, x_13, x_14, x_15, x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
@@ -278,7 +278,7 @@ x_20 = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__3;
 x_21 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_21, 0, x_4);
 lean_ctor_set(x_21, 1, x_5);
-x_22 = l_Lean_Expr_const___override(x_20, x_21);
+x_22 = l_Lean_mkConst(x_20, x_21);
 lean_inc(x_18);
 x_23 = l_Lean_mkApp3(x_22, x_6, x_7, x_18);
 lean_inc(x_15);
@@ -338,7 +338,7 @@ if (x_35 == 0)
 lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 x_36 = lean_ctor_get(x_34, 0);
 x_37 = lean_ctor_get(x_34, 1);
-x_38 = l___private_Lean_Meta_Tactic_Grind_Arith_EvalNum_0__Lean_Meta_Grind_Arith_evalNatCore(x_36, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_37);
+x_38 = l_Lean_Meta_Grind_Arith_evalNat_x3f(x_36, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_37);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; 
@@ -468,7 +468,7 @@ x_62 = lean_ctor_get(x_34, 1);
 lean_inc(x_62);
 lean_inc(x_61);
 lean_dec(x_34);
-x_63 = l___private_Lean_Meta_Tactic_Grind_Arith_EvalNum_0__Lean_Meta_Grind_Arith_evalNatCore(x_61, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_62);
+x_63 = l_Lean_Meta_Grind_Arith_evalNat_x3f(x_61, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_62);
 if (lean_obj_tag(x_63) == 0)
 {
 lean_object* x_64; 
@@ -650,7 +650,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__1;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -790,7 +790,7 @@ x_10 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);
 lean_inc_ref(x_10);
-x_11 = l_Lean_Expr_const___override(x_8, x_10);
+x_11 = l_Lean_mkConst(x_8, x_10);
 lean_inc_ref(x_2);
 x_12 = l_Lean_Expr_app___override(x_11, x_2);
 lean_inc(x_6);
@@ -823,7 +823,7 @@ x_16 = lean_ctor_get(x_14, 0);
 lean_inc(x_16);
 lean_dec_ref(x_14);
 x_17 = l_Lean_Meta_Grind_Arith_getNoZeroDivInst_x3f___redArg___closed__3;
-x_18 = l_Lean_Expr_const___override(x_17, x_10);
+x_18 = l_Lean_mkConst(x_17, x_10);
 x_19 = l_Lean_mkAppB(x_18, x_2, x_16);
 x_20 = l_Lean_Meta_Grind_synthInstanceMeta_x3f(x_19, x_3, x_4, x_5, x_6, x_15);
 return x_20;

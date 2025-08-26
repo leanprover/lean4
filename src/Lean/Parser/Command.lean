@@ -62,11 +62,11 @@ def namedPrio := leading_parser
 def optNamedPrio := optional namedPrio
 
 def «private»        := leading_parser "private "
-def «protected»      := leading_parser "protected "
 def «public»         := leading_parser "public "
 def visibility       :=
   withAntiquot (mkAntiquot "visibility" decl_name% (isPseudoKind := true)) <|
-    «private» <|> «protected» <|> «public»
+    «private» <|> «public»
+def «protected»      := leading_parser "protected "
 def «meta»           := leading_parser "meta "
 def «noncomputable»  := leading_parser "noncomputable "
 def «unsafe»         := leading_parser "unsafe "
@@ -76,7 +76,8 @@ def «nonrec»         := leading_parser "nonrec "
 /-- `declModifiers` is the collection of modifiers on a declaration:
 * a doc comment `/-- ... -/`
 * a list of attributes `@[attr1, attr2]`
-* a visibility specifier, `private`, `protected`, or `public`
+* a visibility specifier, `private` or `public`
+* `protected`
 * `noncomputable`
 * `unsafe`
 * `partial` or `nonrec`
@@ -90,6 +91,7 @@ such as inductive constructors, structure projections, and `let rec` / `where` d
   optional docComment >>
   optional (Term.«attributes» >> if inline then skip else ppDedent ppLine) >>
   optional visibility >>
+  optional «protected» >>
   optional («meta» <|> «noncomputable») >>
   optional «unsafe» >>
   optional («partial» <|> «nonrec»)
@@ -158,8 +160,11 @@ def whereStructInst  := leading_parser
     declValSimple <|> declValEqns <|> whereStructInst
 def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
+def derivingClass    := leading_parser
+  optional ("@[" >> nonReservedSymbol "expose" >> "]") >> withForbidden "for" termParser
+def derivingClasses  := sepBy1 derivingClass ", "
 def optDefDeriving   :=
-  optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
+  optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def definition     := leading_parser
   "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> declVal >> optDefDeriving
 def «theorem»        := leading_parser
@@ -179,7 +184,6 @@ def «example»        := leading_parser
 def ctor             := leading_parser
   atomic (optional docComment >> "\n| ") >>
   ppGroup (declModifiers true >> rawIdent >> optDeclSig)
-def derivingClasses  := sepBy1 ident ", "
 def optDeriving      := leading_parser
   optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def computedField    := leading_parser
@@ -251,13 +255,13 @@ def «structure»          := leading_parser
   («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
    «inductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
-  "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
+  "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover termParser skip) ", "
 def sectionHeader := leading_parser
   optional ("@[" >> nonReservedSymbol "expose" >> "] ") >>
   optional ("public ") >>
   optional ("noncomputable ")
 /--
-A `section`/`end` pair delimits the scope of `variable`, `include, `open`, `set_option`, and `local`
+A `section`/`end` pair delimits the scope of `variable`, `include`, `open`, `set_option`, and `local`
 commands. Sections can be nested. `section <id>` provides a label to the section that has to appear
 with the matching `end`. In either case, the `end` can be omitted, in which case the section is
 closed at the end of the file.
@@ -821,8 +825,9 @@ identifier names chosen in the docstring for consistency.
     "[" >> sepBy1 ident ", " >> "]"
 
 /--
-  This is an auxiliary command for generation constructor injectivity theorems for
+  This is an auxiliary command to generate constructor injectivity theorems for
   inductive types defined at `Prelude.lean`.
+  Temporarily also controls the generation of the `ctorIdx` definition.
   It is meant for bootstrapping purposes only. -/
 @[builtin_command_parser] def genInjectiveTheorems := leading_parser
   "gen_injective_theorems% " >> ident
@@ -865,6 +870,7 @@ builtin_initialize
   register_parser_alias                                                 optDeclSig
   register_parser_alias                                                 openDecl
   register_parser_alias                                                 docComment
+  register_parser_alias                                                 visibility
 
 /--
 Registers an error explanation.
@@ -881,6 +887,12 @@ used to generate visibility syntax for declarations that is independent of the p
 -/
 def visibility.ofBool (isPublic : Bool) : TSyntax ``visibility :=
   Unhygienic.run <| if isPublic then `(visibility| public) else `(visibility| private)
+
+/--
+Returns syntax for `private` if `attrKind` is `local` and `public` otherwise.
+-/
+def visibility.ofAttrKind (attrKind : TSyntax ``Term.attrKind) : TSyntax ``visibility :=
+  visibility.ofBool <| !attrKind matches `(attrKind| local)
 
 end Command
 

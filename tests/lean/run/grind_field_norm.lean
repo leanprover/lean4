@@ -1,3 +1,4 @@
+module
 open Lean.Grind
 set_option grind.debug true
 
@@ -22,8 +23,5 @@ example [NoNatZeroDivisors R] (a : R) : 1 / a + 1 / (2 * a) = 3 / (2 * a) := by 
 example (a b : R) (_ : a ≠ 0) (_ : b ≠ 0) : a / (a / b) = b := by grind
 example (a b : R) (_ : a ≠ 0) : a / (a / b) = b := by grind
 
--- TODO: create a mock implementation of `ℚ` for testing purposes.
-variable (ℚ : Type) [Field ℚ] [IsCharP ℚ 0]
-
-example (x : ℚ) (h₀ : x ≠ 0) :
+example (x : Rat) (h₀ : x ≠ 0) :
     (4 / x)⁻¹ * ((3 * x^3) / x)^2 * ((1 / (2 * x))⁻¹)^3 = 18 * x^8 := by grind

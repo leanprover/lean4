@@ -1,3 +1,4 @@
+module
 import Lean.Meta.Tactic.Grind
 
 def f (a : Nat) := a + a + a

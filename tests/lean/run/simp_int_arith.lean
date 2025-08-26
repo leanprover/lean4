@@ -148,7 +148,7 @@ fun x y z =>
         (((((((Expr.var 1).add (Expr.mulL 3 (Expr.var 0))).add (Expr.num 1)).add (Expr.num 1)).add (Expr.var 2)).add
               (Expr.var 1)).sub
           (Expr.var 0))
-        (Eq.refl true)))
+        (eagerReduce (Eq.refl true))))
 -/
 #guard_msgs (info) in
 open Int.Linear in
@@ -170,7 +170,7 @@ fun x y z f =>
             (((((((Expr.var 0).add (Expr.mulL 3 (Expr.var 1))).add (Expr.num 1)).add (Expr.num 1)).add (Expr.var 2)).add
                   (Expr.var 0)).sub
               (Expr.var 1))
-            (Eq.refl true)))
+            (eagerReduce (Eq.refl true))))
       (f y))
 -/
 #guard_msgs (info) in
@@ -295,7 +295,7 @@ fun a b =>
             ((((Expr.var 1).add ((Expr.num 21).sub (Expr.var 1))).add
                   (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).add
               (Expr.num 12))
-            2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 11))) 3 (Eq.refl true))))
+            2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 11))) 3 (eagerReduce (Eq.refl true)))))
       (iff_self (2 ∣ a + 2 * b + 11)))
 -/
 #guard_msgs (info) in
@@ -318,7 +318,7 @@ fun a b =>
                 ((((Expr.var 1).add ((Expr.num 11).sub (Expr.var 1))).add
                       (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).sub
                   (Expr.num 11))
-                2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 0))) 3 (Eq.refl true)))
+                2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 0))) 3 (eagerReduce (Eq.refl true))))
             Int.dvd_add_self_mul._simp_1))
         Int.dvd_add_self_mul._simp_1)
       (iff_self (2 ∣ a)))

@@ -9,8 +9,10 @@ module
 prelude
 public import Init.Data.Bool
 public import Init.Data.Option.Lemmas
-public import all Init.Data.List.BasicAux
-public import all Init.Data.List.Control
+public import Init.Data.List.BasicAux
+import all Init.Data.List.BasicAux
+public import Init.Data.List.Control
+import all Init.Data.List.Control
 public import Init.Control.Lawful.Basic
 public import Init.BinderPredicates
 
@@ -70,7 +72,7 @@ See also
 
 Further results, which first require developing further automation around `Nat`, appear in
 * `Init.Data.List.Nat.Basic`: miscellaneous lemmas
-* `Init.Data.List.Nat.Range`: `List.range` and `List.enum`
+* `Init.Data.List.Nat.Range`: `List.range`, `List.range'` and `List.enum`
 * `Init.Data.List.Nat.TakeDrop`: `List.take` and `List.drop`
 
 Also
@@ -1084,6 +1086,12 @@ theorem getLast?_tail {l : List α} : (tail l).getLast? = if l.length = 1 then n
     rw [if_neg]
     rintro ⟨⟩
 
+@[simp, grind =]
+theorem cons_head_tail (h : l ≠ []) : l.head h :: l.tail = l := by
+  induction l with
+  | nil => contradiction
+  | cons ih => simp_all
+
 /-! ## Basic operations -/
 
 /-! ### map -/
@@ -1850,6 +1858,10 @@ theorem append_eq_map_iff {f : α → β} :
 @[simp, grind =]
 theorem sum_append_nat {l₁ l₂ : List Nat} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
   induction l₁ generalizing l₂ <;> simp_all [Nat.add_assoc]
+
+@[simp, grind =]
+theorem sum_reverse_nat (xs : List Nat) : xs.reverse.sum = xs.sum := by
+  induction xs <;> simp_all [Nat.add_comm]
 
 /-! ### concat
 

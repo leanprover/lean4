@@ -29,7 +29,8 @@ structure Import where
   isExported : Bool := true
   /-- Whether all definitions (transitively) reachable through the -/
   isMeta     : Bool := false
-  deriving Repr, Inhabited, ToJson, FromJson
+  deriving Repr, Inhabited, ToJson, FromJson,
+    BEq, Hashable -- needed by Lake (in `Lake.Load.Elab.Lean`)
 
 instance : Coe Name Import := ⟨({module := ·})⟩
 

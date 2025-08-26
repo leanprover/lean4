@@ -15,13 +15,13 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_mkOverflowBit_go___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_mkOverflowBit_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_mkOverflowBit_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_mkFullAdderCarry___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_mkOverflowBit___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_land(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_mkOverflowBit_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_mkOverflowBit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -45,11 +45,10 @@ return x_31;
 else
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
-x_32 = lean_array_fget(x_5, x_7);
+x_32 = lean_array_fget_borrowed(x_5, x_7);
 x_33 = lean_unsigned_to_nat(1u);
 x_34 = lean_nat_shiftr(x_32, x_33);
 x_35 = lean_nat_land(x_33, x_32);
-lean_dec(x_32);
 x_36 = lean_unsigned_to_nat(0u);
 x_37 = lean_nat_dec_eq(x_35, x_36);
 lean_dec(x_35);
@@ -99,11 +98,10 @@ goto _start;
 block_30:
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
-x_21 = lean_array_fget(x_6, x_7);
+x_21 = lean_array_fget_borrowed(x_6, x_7);
 x_22 = lean_unsigned_to_nat(1u);
 x_23 = lean_nat_shiftr(x_21, x_22);
 x_24 = lean_nat_land(x_22, x_21);
-lean_dec(x_21);
 x_25 = lean_unsigned_to_nat(0u);
 x_26 = lean_nat_dec_eq(x_24, x_25);
 lean_dec(x_24);

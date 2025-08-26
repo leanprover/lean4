@@ -6,7 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Std.Data.DTreeMap.Internal.Lemmas
+import Std.Data.DTreeMap.Internal.Lemmas
 public import Std.Data.DTreeMap.Raw.AdditionalOperations
 public import Std.Data.DTreeMap.Raw.Basic
 

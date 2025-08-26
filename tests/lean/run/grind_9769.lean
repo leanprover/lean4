@@ -1,3 +1,4 @@
+module
 def Foo (n : Nat) := Σ (m : Nat), {f : Fin (n + 2) → Fin (m + 2) // f 0 = 0}
 
 variable (n : Nat)

@@ -96,7 +96,7 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
           else
             withLocalDecl n (if useEq then BinderInfo.default else BinderInfo.implicit) d fun arg2 =>
               mkArgs2 (i + 1) (b.instantiate1 arg2) (args2.push arg2) (args2New.push arg2)
-        | _ => throwError "unexpected constructor type for '{ctorVal.name}'"
+        | _ => throwError "unexpected constructor type for `{ctorVal.name}`"
       else
         jp args2 args2New
     if useEq then
@@ -110,7 +110,7 @@ private def mkInjectiveTheoremType? (ctorVal : ConstructorVal) : MetaM (Option E
   mkInjectiveTheoremTypeCore? ctorVal false
 
 private def injTheoremFailureHeader (ctorName : Name) : MessageData :=
-  m!"failed to prove injectivity theorem for constructor '{ctorName}', use 'set_option genInjectivity false' to disable the generation"
+  m!"failed to prove injectivity theorem for constructor `{ctorName}`, use 'set_option genInjectivity false' to disable the generation"
 
 private def throwInjectiveTheoremFailure {α} (ctorName : Name) (mvarId : MVarId) : MetaM α :=
   throwError "{injTheoremFailureHeader ctorName}{indentD <| MessageData.ofGoal mvarId}"
@@ -154,7 +154,7 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
   forallTelescopeReducing targetType fun xs type => do
     let mvar ← mkFreshExprSyntheticOpaqueMVar type
     let [mvarId₁, mvarId₂] ← mvar.mvarId!.apply (mkConst ``Eq.propIntro)
-      | throwError "unexpected number of subgoals when proving injective theorem for constructor '{ctorName}'"
+      | throwError "unexpected number of subgoals when proving injective theorem for constructor `{ctorName}`"
     let (h, mvarId₁) ← mvarId₁.intro1
     let (_, mvarId₂) ← mvarId₂.intro1
     solveEqOfCtorEq ctorName mvarId₁ h
@@ -178,11 +178,14 @@ private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
 
 register_builtin_option genInjectivity : Bool := {
   defValue := true
-  descr    := "generate injectivity theorems for inductive datatype constructors"
+  descr    := "generate injectivity theorems for inductive datatype constructors. \
+    Temporarily (for bootstrapping reasons) also controls the generation of the
+    `ctorIdx` definition."
 }
 
 def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
   if (← getEnv).contains ``Eq.propIntro && genInjectivity.get (← getOptions) &&  !(← isInductivePredicate declName) then
+    withTraceNode `Meta.injective (fun _ => return m!"{declName}") do
     let info ← getConstInfoInduct declName
     unless info.isUnsafe do
       -- We need to reset the local context here because `solveEqOfCtorEq` uses
@@ -193,7 +196,6 @@ def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
       withLCtx {} {} do
       for ctor in info.ctors do
         withExporting (isExporting := !isPrivateName ctor) do
-        withTraceNode `Meta.injective (fun _ => return m!"{ctor}") do
           let ctorVal ← getConstInfoCtor ctor
           if ctorVal.numFields > 0 then
             mkInjectiveTheorem ctorVal

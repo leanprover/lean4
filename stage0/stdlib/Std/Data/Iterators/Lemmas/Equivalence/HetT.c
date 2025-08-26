@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Equivalence.HetT
-// Imports: Init.Control.Lawful.Basic Init.Data.Subtype Init.PropLemmas Init.Classical Init.Data.Iterators.Internal.LawfulMonadLiftFunction Init.Data.Iterators.PostconditionMonad
+// Imports: Init.Control.Lawful.Basic Init.Data.Subtype.Basic Init.PropLemmas Init.Classical Init.Data.Iterators.Internal.LawfulMonadLiftFunction Init.Data.Iterators.PostconditionMonad
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* initialize_Init_Control_Lawful_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Subtype(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Subtype_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_PropLemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Classical(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Internal_LawfulMonadLiftFunction(uint8_t builtin, lean_object*);
@@ -27,7 +27,7 @@ _G_initialized = true;
 res = initialize_Init_Control_Lawful_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Subtype(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Subtype_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_PropLemmas(builtin, lean_io_mk_world());

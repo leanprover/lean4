@@ -536,11 +536,10 @@ return x_2;
 static lean_object* _init_l_Lean_Language_Lean_HeaderParsedSnapshot_processedResult___closed__0() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = lean_box(0);
-x_2 = lean_box(0);
-x_3 = l_Lean_Language_SnapshotTask_finished___redArg(x_2, x_1);
-return x_3;
+x_2 = l_Lean_Language_SnapshotTask_finished___redArg(x_1, x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_processedResult(lean_object* x_1) {

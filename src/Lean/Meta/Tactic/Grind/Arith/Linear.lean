@@ -22,6 +22,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Linear.Internalize
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Model
 public import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 public import Lean.Meta.Tactic.Grind.Arith.Linear.MBTC
+public import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
 
 public section
 

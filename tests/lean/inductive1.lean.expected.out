@@ -27,8 +27,8 @@ but the preceding declaration `T1` has
   `w1`, `v`, `u`
 
 Note: All inductive declarations in the same `mutual` block must have the same universe level parameters
-inductive1.lean:69:2-69:5: error: 'Boo.T1.bla' has already been declared
-inductive1.lean:73:10-73:12: error: 'Boo.T1' has already been declared
+inductive1.lean:69:2-69:5: error: `Boo.T1.bla` has already been declared
+inductive1.lean:73:10-73:12: error: `Boo.T1` has already been declared
 inductive1.lean:80:0-80:27: error: Invalid modifier: Inductive declarations cannot be marked as `partial`
 inductive1.lean:81:0-81:33: error: Invalid modifier: Inductive declarations cannot be marked as `noncomputable`
 inductive1.lean:82:2-82:8: error: Cannot add attribute `[inline]`: Declaration `T1'` is not a definition
@@ -39,10 +39,10 @@ Hint: Remove `private` modifier from constructor
 inductive1.lean:93:7-93:26: error: Invalid mutually inductive types: `T2` is unsafe, but `T1` is safe
 
 Note: Safe and unsafe inductive declarations cannot both occur in the same `mutual` block
-inductive1.lean:100:0-100:4: error: Missing resulting type for constructor 'T1.z2': Its resulting type must be specified because it is part of an inductive family declaration
+inductive1.lean:100:0-100:4: error: Missing resulting type for constructor `T1.z2`: Its resulting type must be specified because it is part of an inductive family declaration
 inductive1.lean:105:7-105:9: error: type expected, got
   (T1 : Nat → Type)
-inductive1.lean:108:7-108:10: error(lean.ctorResultingTypeMismatch): Unexpected resulting type for constructor 'T1.z1': Expected an application of
+inductive1.lean:108:7-108:10: error(lean.ctorResultingTypeMismatch): Unexpected resulting type for constructor `T1.z1`: Expected an application of
   T1
 but found
   Nat

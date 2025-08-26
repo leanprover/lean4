@@ -20,10 +20,6 @@ inductive Op where
   | bla
   | foo (a : Nat)
 
-def Op.ctorIdx : Op → Nat
-  | .bla => 0
-  | .foo .. => 1
-
 def Op.fooData (o : Op) (h : o.ctorIdx = 1) : Nat :=
   match o, h with
   | .foo a, _ => a

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lean_mkFreshId___at___Lean_mkFreshFVarId___at___Lean_Compiler_LCNF_InferType_compatibleTypesFull_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkFreshFVarId___at___Lean_Compiler_LCNF_InferType_compatibleTypesFull_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkFreshId___at___Lean_mkFreshFVarId___at___Lean_Compiler_LCNF_InferType_compatibleTypesFull_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -35,11 +34,12 @@ LEAN_EXPORT lean_object* l_List_isEqv___at___Lean_Compiler_LCNF_compatibleTypesQ
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_compatibleTypesQuick___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkFreshFVarId___at___Lean_Compiler_LCNF_InferType_compatibleTypesFull_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_CompatibleTypes_0__Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Compiler_LCNF_CompatibleTypes_0__Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f___closed__0;
 lean_object* l_Lean_Expr_headBeta(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_InferType_compatibleTypesFull(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
@@ -369,7 +369,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f___closed__0() {
+static lean_object* _init_l___private_Lean_Compiler_LCNF_CompatibleTypes_0__Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -378,7 +378,7 @@ x_2 = l_Lean_Expr_bvar___override(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_CompatibleTypes_0__Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
@@ -402,7 +402,7 @@ x_13 = lean_ctor_get(x_11, 1);
 lean_inc_ref(x_13);
 x_14 = lean_ctor_get_uint8(x_11, sizeof(void*)*3 + 8);
 lean_dec_ref(x_11);
-x_15 = l_Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f___closed__0;
+x_15 = l___private_Lean_Compiler_LCNF_CompatibleTypes_0__Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f___closed__0;
 x_16 = l_Lean_Expr_app___override(x_1, x_15);
 x_17 = l_Lean_Expr_lam___override(x_12, x_13, x_16, x_14);
 x_18 = lean_alloc_ctor(1, 1, 0);
@@ -438,7 +438,7 @@ x_24 = lean_ctor_get(x_22, 1);
 lean_inc_ref(x_24);
 x_25 = lean_ctor_get_uint8(x_22, sizeof(void*)*3 + 8);
 lean_dec_ref(x_22);
-x_26 = l_Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f___closed__0;
+x_26 = l___private_Lean_Compiler_LCNF_CompatibleTypes_0__Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f___closed__0;
 x_27 = l_Lean_Expr_app___override(x_1, x_26);
 x_28 = l_Lean_Expr_lam___override(x_23, x_24, x_27, x_25);
 x_29 = lean_alloc_ctor(1, 1, 0);
@@ -848,7 +848,7 @@ lean_inc_ref(x_39);
 lean_inc(x_38);
 lean_inc_ref(x_37);
 lean_inc_ref(x_36);
-x_46 = l_Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f(x_1, x_36, x_37, x_38, x_39, x_40, x_41);
+x_46 = l___private_Lean_Compiler_LCNF_CompatibleTypes_0__Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f(x_1, x_36, x_37, x_38, x_39, x_40, x_41);
 if (lean_obj_tag(x_46) == 0)
 {
 lean_object* x_47; 
@@ -943,7 +943,7 @@ lean_inc_ref(x_39);
 lean_inc(x_38);
 lean_inc_ref(x_37);
 lean_inc_ref(x_36);
-x_61 = l_Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f(x_2, x_36, x_37, x_38, x_39, x_40, x_41);
+x_61 = l___private_Lean_Compiler_LCNF_CompatibleTypes_0__Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f(x_2, x_36, x_37, x_38, x_39, x_40, x_41);
 if (lean_obj_tag(x_61) == 0)
 {
 lean_object* x_62; 
@@ -1532,8 +1532,8 @@ _G_initialized = true;
 res = initialize_Lean_Compiler_LCNF_InferType(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f___closed__0 = _init_l_Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f___closed__0();
-lean_mark_persistent(l_Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f___closed__0);
+l___private_Lean_Compiler_LCNF_CompatibleTypes_0__Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f___closed__0 = _init_l___private_Lean_Compiler_LCNF_CompatibleTypes_0__Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f___closed__0();
+lean_mark_persistent(l___private_Lean_Compiler_LCNF_CompatibleTypes_0__Lean_Compiler_LCNF_InferType_compatibleTypesFull_etaExpand_x3f___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

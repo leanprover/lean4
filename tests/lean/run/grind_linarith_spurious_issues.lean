@@ -1,3 +1,4 @@
+module
 open Lean Grind
 
 -- Should not produced spurious issues.

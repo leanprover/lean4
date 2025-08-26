@@ -2,7 +2,7 @@ open Lean
 
 def exec (x : MacroM α) : Option α :=
   match x {
-      mainModule := `Expander
+      quotContext := `Expander
       currMacroScope := 0
       ref := default
       methods := default } { macroScope := 0 } with

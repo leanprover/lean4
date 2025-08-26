@@ -17,12 +17,12 @@ public section
 namespace Lean.Elab.Tactic
 open Meta Parser.Tactic Command
 
-private structure ConfigItemView where
+structure ConfigItemView where
   ref : Syntax
   option : Ident
   value : Term
   /-- Whether this was using `+`/`-`, to be able to give a better error message on type mismatch. -/
-  (bool : Bool := false)
+  bool : Bool := false
 
 /-- Interprets the `config` as an array of option/value pairs. -/
 def mkConfigItemViews (c : TSyntaxArray ``configItem) : Array ConfigItemView :=
@@ -59,7 +59,7 @@ private partial def expandField (structName : Name) (field : Name) : MetaM (Name
   | .str .anonymous fieldName => expandFieldName structName (Name.mkSimple fieldName)
   | .str field' fieldName =>
     let (field', projFn) ← expandField structName field'
-    let notStructure {α} : MetaM α := throwError "Field `{field'}` of structure '{.ofConstName structName}' is not a structure"
+    let notStructure {α} : MetaM α := throwError "Field `{field'}` of structure `{.ofConstName structName}` is not a structure"
     let .const structName' _ := (← getConstInfo projFn).type.getForallBody | notStructure
     unless isStructure (← getEnv) structName' do notStructure
     let (field'', projFn) ← expandFieldName structName' (Name.mkSimple fieldName)

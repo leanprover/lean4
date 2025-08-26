@@ -150,6 +150,7 @@ def reorderVars : GoalM Unit := do
     varMap      := s.varMap.map fun x => old2new[x]!
     vars'       := s.vars
     varMap'     := s.varMap
+    natDef      := s.natDef.map fun x => old2new[x]!
     dvds        := s.dvds.map fun _ => none
     lowers      := s.lowers.map fun _ => {}
     uppers      := s.uppers.map fun _ => {}

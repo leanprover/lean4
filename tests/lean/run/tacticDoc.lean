@@ -51,20 +51,20 @@ syntax (name := nonTacticTm) "nonTactic" : term
 
 syntax (name := nonTacticTm') "nonTactic'" : term
 
-/-- error: 'nonTacticTm'' is not a tactic -/
+/-- error: `nonTacticTm'` is not a tactic -/
 #guard_msgs in
 attribute [tactic_alt my_trivial] nonTacticTm'
 
 /-! These tests check that non-tactics can't have tactic alternatives -/
 
-/-- error: 'nonTacticTm' is not a tactic -/
+/-- error: `nonTacticTm` is not a tactic -/
 #guard_msgs in
 @[tactic_alt nonTacticTm]
 syntax (name := itsATactic) "yepATactic" : tactic
 
 syntax (name := itsATactic') "yepATactic'" : tactic
 
-/-- error: 'nonTacticTm' is not a tactic -/
+/-- error: `nonTacticTm` is not a tactic -/
 #guard_msgs in
 attribute [tactic_alt nonTacticTm] itsATactic'
 
@@ -94,19 +94,19 @@ syntax "someTactic" : tactic
 
 /-! Check that only canonical tactics may receive doc extensions -/
 
-/-- error: 'nonTacticTm'' is not a tactic -/
+/-- error: `nonTacticTm'` is not a tactic -/
 #guard_msgs in
 /-- Some docs that don't belong here -/
 tactic_extension nonTacticTm'
 
-/-- error: 'very_trivial' is an alternative form of 'my_trivial' -/
+/-- error: `very_trivial` is an alternative form of `my_trivial` -/
 #guard_msgs in
 /-- Some docs that don't belong here -/
 tactic_extension very_trivial
 
 /-! Check that warnings are issued if alternatives have their own docstrings -/
 
-/-- warning: Docstring for 'tacticAnother' will be ignored because it is an alternative -/
+/-- warning: Docstring for `tacticAnother` will be ignored because it is an alternative -/
 #guard_msgs in
 /-- Docs -/
 @[tactic_alt my_trivial]
@@ -115,20 +115,20 @@ syntax "another" : tactic
 /-- Docs -/
 syntax (name := yetAnother) "yetAnother" : tactic
 
-/-- warning: Docstring for 'yetAnother' will be ignored because it is an alternative -/
+/-- warning: Docstring for `yetAnother` will be ignored because it is an alternative -/
 #guard_msgs in
 attribute [tactic_alt my_trivial] «yetAnother»
 
 /-! # Querying Tactic Docs -/
 /--
 info: Available tags: ⏎
-  • 'ctrl' — "control flow"
+  • `ctrl` — "control flow"
     Tactics that sequence or arrange other tactics ⏎
     '<;>'
-  • 'extensible'
+  • `extensible`
     Tactics that are intended to be extensible ⏎
     'my_trivial'
-  • 'finishing'
+  • `finishing`
     Finishing tactics that are intended to completely close a goal ⏎
     'omega', 'my_trivial', 'someTerm'
 -/

@@ -16,9 +16,11 @@ extern "C" {
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Assignment_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_hasPosAssignment___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_hasAssignment(uint8_t, uint8_t);
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment_1214057755____hygCtx___hyg_13_(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_addAssignment(uint8_t, uint8_t);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_removePosAssignment___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_removeNegAssignment___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_addNegAssignment___boxed(lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString___lam__0___closed__1;
@@ -26,7 +28,6 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instBEqAssignment;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString___lam__0(uint8_t);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_addNegAssignment(uint8_t);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString___lam__0___closed__0;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString;
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofNat(lean_object*);
@@ -38,7 +39,6 @@ LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_removeNegAssi
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqAssignment___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_hasAssignment___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_removePosAssignment(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_instEntailsPosFinArray(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instInhabitedAssignment;
@@ -56,15 +56,14 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofNat___
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Assignment_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter___redArg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_hasPosAssignment(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_hasNegAssignment___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment___hyg_119_(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment_1214057755____hygCtx___hyg_13____boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqAssignment(uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment___hyg_119____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Assignment_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_addPosAssignment(uint8_t);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_toCtorIdx(uint8_t);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_hasNegAssignment(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_removeAssignment___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_toCtorIdx(uint8_t x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ctorIdx(uint8_t x_1) {
 _start:
 {
 switch (x_1) {
@@ -95,12 +94,12 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_toCtorIdx___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ctorIdx___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_toCtorIdx(x_2);
+x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ctorIdx(x_2);
 return x_3;
 }
 }
@@ -168,41 +167,42 @@ LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofNat(lean_ob
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_nat_dec_le(x_2, x_1);
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = lean_nat_dec_le(x_1, x_2);
 if (x_3 == 0)
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_nat_dec_eq(x_1, x_4);
+x_4 = lean_unsigned_to_nat(2u);
+x_5 = lean_nat_dec_le(x_1, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
-x_6 = 1;
+x_6 = 3;
 return x_6;
 }
 else
 {
 uint8_t x_7; 
-x_7 = 0;
+x_7 = 2;
 return x_7;
 }
 }
 else
 {
-uint8_t x_8; 
-x_8 = lean_nat_dec_eq(x_1, x_2);
-if (x_8 == 0)
+lean_object* x_8; uint8_t x_9; 
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = lean_nat_dec_le(x_1, x_8);
+if (x_9 == 0)
 {
-uint8_t x_9; 
-x_9 = 3;
-return x_9;
+uint8_t x_10; 
+x_10 = 1;
+return x_10;
 }
 else
 {
-uint8_t x_10; 
-x_10 = 2;
-return x_10;
+uint8_t x_11; 
+x_11 = 0;
+return x_11;
 }
 }
 }
@@ -221,8 +221,8 @@ LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqAssignmen
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_toCtorIdx(x_1);
-x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_toCtorIdx(x_2);
+x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ctorIdx(x_1);
+x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ctorIdx(x_2);
 x_5 = lean_nat_dec_eq(x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -240,25 +240,25 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment___hyg_119_(uint8_t x_1, uint8_t x_2) {
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment_1214057755____hygCtx___hyg_13_(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_toCtorIdx(x_1);
-x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_toCtorIdx(x_2);
+x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ctorIdx(x_1);
+x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ctorIdx(x_2);
 x_5 = lean_nat_dec_eq(x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment___hyg_119____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment_1214057755____hygCtx___hyg_13____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
 x_4 = lean_unbox(x_2);
-x_5 = l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment___hyg_119_(x_3, x_4);
+x_5 = l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment_1214057755____hygCtx___hyg_13_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -267,7 +267,7 @@ static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_Internal_instBEqAssignment_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment___hyg_119____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment_1214057755____hygCtx___hyg_13____boxed), 2, 0);
 return x_1;
 }
 }

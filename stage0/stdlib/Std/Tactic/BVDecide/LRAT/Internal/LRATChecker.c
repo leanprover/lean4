@@ -13,17 +13,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Result_ofNat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_noConfusion___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_toCtorIdx___boxed(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ofNat___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_toCtorIdx(uint8_t);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__1;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instInhabitedResult;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__2;
@@ -39,7 +38,7 @@ LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult(ui
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_noConfusion___redArg(uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_toCtorIdx(uint8_t x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorIdx(uint8_t x_1) {
 _start:
 {
 switch (x_1) {
@@ -64,12 +63,12 @@ return x_4;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_toCtorIdx___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorIdx___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Result_toCtorIdx(x_2);
+x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorIdx(x_2);
 return x_3;
 }
 }
@@ -137,18 +136,13 @@ LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Result_ofNat(lean_object
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = lean_unsigned_to_nat(1u);
-x_3 = lean_nat_dec_le(x_2, x_1);
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_nat_dec_le(x_1, x_2);
 if (x_3 == 0)
 {
-uint8_t x_4; 
-x_4 = 0;
-return x_4;
-}
-else
-{
-uint8_t x_5; 
-x_5 = lean_nat_dec_eq(x_1, x_2);
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = lean_nat_dec_le(x_1, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
@@ -161,6 +155,12 @@ uint8_t x_7;
 x_7 = 1;
 return x_7;
 }
+}
+else
+{
+uint8_t x_8; 
+x_8 = 0;
+return x_8;
 }
 }
 }
@@ -178,8 +178,8 @@ LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult(ui
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Result_toCtorIdx(x_1);
-x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Result_toCtorIdx(x_2);
+x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorIdx(x_1);
+x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorIdx(x_2);
 x_5 = lean_nat_dec_eq(x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -405,7 +405,7 @@ x_38 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_38);
 lean_dec_ref(x_6);
 x_39 = lean_ctor_get(x_2, 3);
-lean_inc_ref(x_39);
+lean_inc(x_39);
 x_40 = lean_apply_2(x_39, x_3, x_38);
 x_3 = x_40;
 x_4 = x_37;

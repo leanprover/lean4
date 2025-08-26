@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Grind.Simp
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 
 public section
 
@@ -21,6 +22,11 @@ private def getType? (e : Expr) : Option Expr :=
   | HAdd.hAdd α _ _ _ _ _ => some α
   | HSub.hSub α _ _ _ _ _ => some α
   | HMul.hMul α _ _ _ _ _ => some α
+  | HSMul.hSMul α β _ _ _ _ =>
+    match_expr α with
+    | Nat => some β
+    | Int => some β
+    | _ => none
   | HPow.hPow α β _ _ _ _ =>
     let_expr Nat := β | none
     some α
@@ -86,17 +92,17 @@ private def processInv (e inst a : Expr) : RingM Unit := do
       if c == 0 then
         let expected ← mkEq (mkApp2 (← getMulFn) a e) (← denoteNum 1)
         pushNewFact <| mkExpectedPropHint
-          (mkApp5 (mkConst ``Grind.CommRing.inv_int_eq [ring.u]) ring.type fieldInst charInst (mkIntLit k) reflBoolTrue)
+          (mkApp5 (mkConst ``Grind.CommRing.inv_int_eq [ring.u]) ring.type fieldInst charInst (mkIntLit k) eagerReflBoolTrue)
           expected
       else if k % c == 0 then
         let expected ← mkEq e (← denoteNum 0)
         pushNewFact <| mkExpectedPropHint
-          (mkApp6 (mkConst ``Grind.CommRing.inv_zero_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst (mkIntLit k) reflBoolTrue)
+          (mkApp6 (mkConst ``Grind.CommRing.inv_zero_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst (mkIntLit k) eagerReflBoolTrue)
           expected
       else
         let expected ← mkEq (mkApp2 (← getMulFn) a e) (← denoteNum 1)
         pushNewFact <| mkExpectedPropHint
-          (mkApp6 (mkConst ``Grind.CommRing.inv_int_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst (mkIntLit k) reflBoolTrue)
+          (mkApp6 (mkConst ``Grind.CommRing.inv_int_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst (mkIntLit k) eagerReflBoolTrue)
           expected
       return ()
   pushNewFact <| mkApp3 (mkConst ``Grind.CommRing.inv_split [ring.u]) ring.type fieldInst a
@@ -123,7 +129,10 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     trace_goal[grind.ring.internalize] "[{ringId}]: {e}"
     setTermRingId e
     markAsCommRingTerm e
-    modifyRing fun s => { s with denote := s.denote.insert { expr := e } re }
+    modifyRing fun s => { s with
+      denote := s.denote.insert { expr := e } re
+      denoteEntries := s.denoteEntries.push (e, re)
+    }
   else if let some semiringId ← getSemiringId? type then SemiringM.run semiringId do
     let some re ← sreify? e | return ()
     trace_goal[grind.ring.internalize] "semiring [{semiringId}]: {e}"

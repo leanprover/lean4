@@ -25,6 +25,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_
 lean_object* l_String_quote(lean_object*);
 static lean_object* l_Lean_Syntax_formatStxAux___closed__17;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instToFormat___lam__0(lean_object*);
+static lean_object* l_Lean_Syntax_instToString___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instToStringTSyntax___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Syntax_formatStxAux_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo___closed__1;
@@ -53,6 +54,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_instToString;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instToFormatTSyntax___boxed(lean_object*);
 static lean_object* l_Lean_Syntax_formatStxAux___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instToString___lam__0(lean_object*);
+extern lean_object* l_Std_Format_defWidth;
 static lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_formatStxAux___closed__13;
@@ -443,7 +445,6 @@ else
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; 
@@ -456,6 +457,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
+lean_inc_ref(x_4);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_dec_ref(x_1);
@@ -958,11 +960,19 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Syntax_instToFormat___lam__0), 1, 0);
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Syntax_instToString___lam__0___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Std_Format_defWidth;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Syntax_instToString___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_unsigned_to_nat(120u);
+x_2 = l_Lean_Syntax_instToString___lam__0___closed__0;
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_format_pretty(x_1, x_2, x_3, x_3);
 return x_4;
@@ -1025,7 +1035,7 @@ lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; lean_object* 
 x_2 = lean_box(0);
 x_3 = 0;
 x_4 = l_Lean_Syntax_formatStx(x_1, x_2, x_3);
-x_5 = lean_unsigned_to_nat(120u);
+x_5 = l_Lean_Syntax_instToString___lam__0___closed__0;
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_format_pretty(x_4, x_5, x_6, x_6);
 return x_7;
@@ -1121,6 +1131,8 @@ l_Lean_Syntax_formatStxAux___closed__20 = _init_l_Lean_Syntax_formatStxAux___clo
 lean_mark_persistent(l_Lean_Syntax_formatStxAux___closed__20);
 l_Lean_Syntax_instToFormat = _init_l_Lean_Syntax_instToFormat();
 lean_mark_persistent(l_Lean_Syntax_instToFormat);
+l_Lean_Syntax_instToString___lam__0___closed__0 = _init_l_Lean_Syntax_instToString___lam__0___closed__0();
+lean_mark_persistent(l_Lean_Syntax_instToString___lam__0___closed__0);
 l_Lean_Syntax_instToString___closed__0 = _init_l_Lean_Syntax_instToString___closed__0();
 lean_mark_persistent(l_Lean_Syntax_instToString___closed__0);
 l_Lean_Syntax_instToString = _init_l_Lean_Syntax_instToString();

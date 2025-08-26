@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.InputFileConfig
-// Imports: Lake.Config.Meta Lake.Config.Pattern
+// Imports: Lean.Data.Name Lake.Config.Pattern Lake.Config.MetaClasses Lake.Config.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,8 +22,10 @@ static lean_object* l_Lake_InputFileConfig_instConfigMeta___closed__3;
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_instConfigFields(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_path___proj___lam__2(lean_object*, lean_object*);
 lean_object* l_Lake_Pattern_star(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_InputDirConfig_instEmptyCollection(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputDirConfig_filter_instConfigField(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_InputDirConfig_text___proj___lam__0(lean_object*);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputDirConfig_filter___proj___lam__0(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_InputFileConfig_text___proj___lam__3(lean_object*);
@@ -56,6 +58,7 @@ static lean_object* l_Lake_InputFileConfig___fields___closed__2;
 static lean_object* l_Lake_InputFileConfig___fields___closed__3;
 static lean_object* l_Lake_InputFileConfig_instConfigMeta___closed__0;
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_path_instConfigField(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_InputFileConfig_instEmptyCollection(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_text_instConfigField(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_text___proj___lam__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
@@ -76,9 +79,7 @@ static lean_object* l_Lake_InputFileConfig___fields___closed__8;
 static lean_object* l_Lake_InputFileConfig_instConfigMeta___closed__7;
 static lean_object* l_Lake_InputFileConfig_instConfigMeta___closed__8;
 LEAN_EXPORT lean_object* l_Lake_InputDirConfig_filter___proj___lam__0___boxed(lean_object*);
-lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
 static lean_object* l_Lake_InputFileConfig___fields___closed__0;
-LEAN_EXPORT lean_object* l_Lake_instEmptyCollectionInputFileConfig(lean_object*);
 static uint8_t l_Lake_InputFileConfig_instConfigMeta___closed__11;
 LEAN_EXPORT lean_object* l_Lake_InputDirConfig_text___proj___boxed(lean_object*);
 static uint8_t l_Lake_InputDirConfig_instConfigMeta___closed__3;
@@ -95,6 +96,7 @@ static lean_object* l_Lake_InputDirConfig_instConfigMeta___closed__6;
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_text___proj___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_instConfigMeta___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputDirConfig_path___proj___lam__0___boxed(lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_InputDirConfig___fields___closed__0;
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_path___proj___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_path___proj___lam__1(lean_object*, lean_object*);
@@ -123,9 +125,7 @@ LEAN_EXPORT lean_object* l_Lake_InputDirConfig_instConfigFields___boxed(lean_obj
 static lean_object* l_Lake_InputDirConfig_instConfigMeta___closed__0;
 LEAN_EXPORT lean_object* l_Lake_InputDirConfig_text_instConfigField(lean_object*);
 static lean_object* l_Lake_InputDirConfig_instConfigMeta___closed__4;
-lean_object* l_Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instEmptyCollectionInputDirConfig(lean_object*);
 static lean_object* l_Lake_InputFileConfig___fields___closed__7;
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_path___proj___lam__0(lean_object* x_1) {
 _start:
@@ -194,7 +194,7 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = 0;
-x_4 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_3);
+x_4 = l_Lean_Name_toString(x_1, x_3);
 return x_4;
 }
 }
@@ -687,7 +687,7 @@ lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12;
 x_8 = lean_alloc_closure((void*)(l_Lake_InputFileConfig_instConfigMeta___lam__0), 2, 0);
 x_9 = 0;
 x_10 = l_Lake_InputFileConfig_instConfigMeta___closed__14;
-x_11 = l_Array_foldlMUnsafe_fold___redArg(x_3, x_8, x_1, x_9, x_10, x_2);
+x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_3, x_8, x_1, x_9, x_10, x_2);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_1);
 lean_ctor_set(x_12, 1, x_11);
@@ -696,12 +696,12 @@ return x_12;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instEmptyCollectionInputFileConfig(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_InputFileConfig_instEmptyCollection(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = 0;
-x_3 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_2);
+x_3 = l_Lean_Name_toString(x_1, x_2);
 x_4 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set_uint8(x_4, sizeof(void*)*1, x_2);
@@ -781,7 +781,7 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = 0;
-x_4 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_3);
+x_4 = l_Lean_Name_toString(x_1, x_3);
 return x_4;
 }
 }
@@ -1254,7 +1254,7 @@ x_3 = 0;
 x_4 = l_Lake_InputDirConfig___fields;
 x_5 = l_Lake_InputDirConfig_instConfigMeta___closed__4;
 x_6 = l_Lake_InputFileConfig_instConfigMeta___closed__10;
-x_7 = l_Array_foldlMUnsafe_fold___redArg(x_6, x_5, x_4, x_3, x_2, x_1);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_5, x_4, x_3, x_2, x_1);
 return x_7;
 }
 }
@@ -1300,12 +1300,12 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instEmptyCollectionInputDirConfig(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_InputDirConfig_instEmptyCollection(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = 0;
-x_3 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_2);
+x_3 = l_Lean_Name_toString(x_1, x_2);
 x_4 = l_Lake_InputDirConfig_filter___proj___lam__3___closed__0;
 x_5 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_5, 0, x_3);
@@ -1314,17 +1314,25 @@ lean_ctor_set_uint8(x_5, sizeof(void*)*2, x_2);
 return x_5;
 }
 }
-lean_object* initialize_Lake_Config_Meta(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Name(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Pattern(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Config_MetaClasses(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Config_Meta(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_InputFileConfig(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Config_Meta(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Name(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_Pattern(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Config_MetaClasses(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Config_Meta(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_InputFileConfig___fields___closed__0 = _init_l_Lake_InputFileConfig___fields___closed__0();

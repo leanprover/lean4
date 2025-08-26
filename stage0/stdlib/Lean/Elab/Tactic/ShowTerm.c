@@ -30,7 +30,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_Tac
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Elab_Tactic_ShowTerm_evalShowTerm_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_mvar___override(lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_ShowTerm_0__Lean_Elab_Tactic_ShowTerm_evalShowTerm___regBuiltin_Lean_Elab_Tactic_ShowTerm_evalShowTerm__1___closed__3;
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Elab_Tactic_ShowTerm_evalShowTerm_spec__1___redArg(lean_object*, lean_object*, lean_object*);
@@ -76,6 +75,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_ShowTerm_0__Lean_Elab_Tact
 static lean_object* l___private_Lean_Elab_Tactic_ShowTerm_0__Lean_Elab_Tactic_ShowTerm_elabShowTerm___regBuiltin_Lean_Elab_Tactic_ShowTerm_elabShowTerm__1___closed__1;
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_Tactic_ShowTerm_evalShowTerm_spec__0___redArg___closed__0;
+lean_object* l_Lean_mkMVar(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___closed__2;
 static lean_object* l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___closed__4;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -286,7 +286,7 @@ lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean
 x_20 = lean_ctor_get(x_19, 1);
 lean_inc(x_20);
 lean_dec_ref(x_19);
-x_21 = l_Lean_Expr_mvar___override(x_14);
+x_21 = l_Lean_mkMVar(x_14);
 x_22 = l_Lean_instantiateMVars___at___Lean_Elab_Tactic_ShowTerm_evalShowTerm_spec__1___redArg(x_21, x_9, x_20);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
@@ -294,8 +294,8 @@ x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec_ref(x_22);
 x_25 = lean_ctor_get(x_10, 5);
-lean_inc(x_25);
 x_26 = l_Lean_Expr_headBeta(x_23);
+lean_inc(x_25);
 x_27 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_27, 0, x_25);
 x_28 = 0;
@@ -848,7 +848,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ShowTerm_elabShowTerm___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Try this: ", 10, 10);
+x_1 = lean_mk_string_unchecked("Try this:", 9, 9);
 return x_1;
 }
 }
@@ -914,11 +914,11 @@ x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec_ref(x_22);
 x_25 = lean_ctor_get(x_7, 5);
-lean_inc(x_25);
 x_26 = lean_unsigned_to_nat(0u);
 x_27 = l_Lean_Syntax_getArg(x_1, x_26);
 lean_dec(x_1);
 x_28 = l_Lean_Expr_headBeta(x_23);
+lean_inc(x_25);
 x_29 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_29, 0, x_25);
 x_30 = l_Lean_Elab_Tactic_ShowTerm_elabShowTerm___closed__3;

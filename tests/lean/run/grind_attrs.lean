@@ -1,3 +1,4 @@
+module
 opaque R : Nat → Nat → Prop
 
 @[grind ->]

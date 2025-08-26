@@ -30,10 +30,15 @@ where
     | .const declName .. => s.insert declName
     | _ => s
 
--- TODO: refine? balance run time vs export size
-private def isBodyRelevant (decl : Decl) : CompilerM Bool := do
-  let opts := (← getOptions)
-  decl.isTemplateLike <||> decl.value.isCodeAndM (pure <| ·.sizeLe (compiler.small.get opts))
+private def shouldExportBody (decl : Decl) : CompilerM Bool := do
+  -- Export body if template-like...
+  decl.isTemplateLike <||>
+  -- ...or it is below the (local) opportunistic inlining threshold and its `Expr` is exported
+  -- anyway, unlikely leading to more rebuilds
+  decl.value.isCodeAndM fun code => do
+    return (
+      ((← getEnv).setExporting true |>.findAsync? decl.name |>.any (·.kind == .defn)) &&
+      code.sizeLe (compiler.small.get (← getOptions)))
 
 /--
 Marks the given declaration as to be exported and recursively infers the correct visibility of its
@@ -41,7 +46,7 @@ body and referenced declarations based on that.
 -/
 partial def markDeclPublicRec (phase : Phase) (decl : Decl) : CompilerM Unit := do
   modifyEnv (setDeclPublic · decl.name)
-  if (← isBodyRelevant decl) && !isDeclTransparent (← getEnv) phase decl.name then
+  if (← shouldExportBody decl) && !isDeclTransparent (← getEnv) phase decl.name then
     trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is opaque and its body looks relevant"
     modifyEnv (setDeclTransparent · phase decl.name)
     decl.value.forCodeM fun code =>

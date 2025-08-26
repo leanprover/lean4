@@ -6,19 +6,23 @@ Authors: Kim Morrison
 module
 
 prelude
-public import all Init.Data.Vector.Basic
+public import Init.Data.Vector.Basic
+import all Init.Data.Vector.Basic
 public import Init.Data.Vector.Lemmas
-public import all Init.Data.Array.Lex.Basic
+public import Init.Data.Array.Lex.Basic
+import all Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lex.Lemmas
 import Init.Data.Range.Polymorphic.Lemmas
+import Init.Data.Order.Lemmas
 
 public section
+
+open Std
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Vector
-
 
 /-! ### Lexicographic ordering -/
 
@@ -96,27 +100,35 @@ instance [LT α]
     Trans (· < · : Vector α n → Vector α n → Prop) (· < ·) (· < ·) where
   trans h₁ h₂ := Vector.lt_trans h₁ h₂
 
-protected theorem lt_of_le_of_lt [LT α]
-    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
-    [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
-    [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+protected theorem lt_of_le_of_lt [LT α] [LE α] [LawfulOrderLT α] [IsLinearOrder α]
     {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
   Array.lt_of_le_of_lt h₁ h₂
 
-protected theorem le_trans [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
+@[deprecated Vector.lt_of_le_of_lt (since := "2025-08-01")]
+protected theorem lt_of_le_of_lt' [LT α]
+    [Std.Asymm (· < · : α → α → Prop)]
+    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+    {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
+  letI := LE.ofLT α
+  haveI : IsLinearOrder α := IsLinearOrder.of_lt
+  Array.lt_of_le_of_lt h₁ h₂
+
+protected theorem le_trans [LT α] [LE α] [LawfulOrderLT α] [IsLinearOrder α]
+    {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
+  fun h₃ => h₁ (Vector.lt_of_le_of_lt h₂ h₃)
+
+@[deprecated Vector.le_trans (since := "2025-08-01")]
+protected theorem le_trans' [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
-  fun h₃ => h₁ (Vector.lt_of_le_of_lt h₂ h₃)
+  letI := LE.ofLT α
+  haveI : IsLinearOrder α := IsLinearOrder.of_lt
+  Array.le_trans h₁ h₂
 
-instance [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)] :
+instance [LT α] [LE α] [LawfulOrderLT α] [IsLinearOrder α] :
     Trans (· ≤ · : Vector α n → Vector α n → Prop) (· ≤ ·) (· ≤ ·) where
   trans h₁ h₂ := Vector.le_trans h₁ h₂
 
@@ -129,14 +141,24 @@ instance [LT α]
     Std.Asymm (· < · : Vector α n → Vector α n → Prop) where
   asymm _ _ := Vector.lt_asymm
 
-protected theorem le_total [LT α]
-    [i : Std.Total (¬ · < · : α → α → Prop)] (xs ys : Vector α n) : xs ≤ ys ∨ ys ≤ xs :=
+protected theorem le_total [LT α] [i : Std.Asymm (· < · : α → α → Prop)] (xs ys : Vector α n) :
+    xs ≤ ys ∨ ys ≤ xs :=
   Array.le_total _ _
 
-instance [LT α]
-    [Std.Total (¬ · < · : α → α → Prop)] :
+protected theorem le_antisymm [LT α] [LE α] [IsLinearOrder α] [LawfulOrderLT α]
+    {xs ys : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys ≤ xs) : xs = ys :=
+  Vector.toArray_inj.mp <| Array.le_antisymm h₁ h₂
+
+instance [LT α] [Std.Asymm (· < · : α → α → Prop)] :
     Std.Total (· ≤ · : Vector α n → Vector α n → Prop) where
   total := Vector.le_total
+
+instance [LT α] [LE α] [IsLinearOrder α] [LawfulOrderLT α] :
+    IsLinearOrder (Vector α n) := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply Vector.le_antisymm
+  case le_total => constructor; apply Vector.le_total
+  case le_trans => constructor; apply Vector.le_trans
 
 @[simp] protected theorem not_lt [LT α]
     {xs ys : Vector α n} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
@@ -144,15 +166,19 @@ instance [LT α]
 @[simp] protected theorem not_le [LT α]
     {xs ys : Vector α n} : ¬ ys ≤ xs ↔ xs < ys := Classical.not_not
 
+instance [LT α] [Std.Asymm (· < · : α → α → Prop)] : LawfulOrderLT (Vector α n) where
+  lt_iff _ _ := by
+    open Classical in
+    simp [← Vector.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+
 protected theorem le_of_lt [LT α]
-    [i : Std.Total (¬ · < · : α → α → Prop)]
+    [i : Std.Asymm (· < · : α → α → Prop)]
     {xs ys : Vector α n} (h : xs < ys) : xs ≤ ys :=
   Array.le_of_lt h
 
 protected theorem le_iff_lt_or_eq [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
+    [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Std.Total (¬ · < · : α → α → Prop)]
     {xs ys : Vector α n} : xs ≤ ys ↔ xs < ys ∨ xs = ys := by
   simpa using Array.le_iff_lt_or_eq (xs := xs.toArray) (ys := ys.toArray)
 
@@ -222,7 +248,6 @@ protected theorem lt_iff_exists [LT α] {xs ys : Vector α n} :
   simp_all [Array.lt_iff_exists]
 
 protected theorem le_iff_exists [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)] {xs ys : Vector α n} :
     xs ≤ ys ↔
@@ -237,7 +262,6 @@ theorem append_left_lt [LT α] {xs : Vector α n} {ys ys' : Vector α m} (h : ys
   simpa using Array.append_left_lt h
 
 theorem append_left_le [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     {xs : Vector α n} {ys ys' : Vector α m} (h : ys ≤ ys') :
@@ -250,10 +274,8 @@ protected theorem map_lt [LT α] [LT β]
   simpa using Array.map_lt w h
 
 protected theorem map_le [LT α] [LT β]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Std.Irrefl (· < · : β → β → Prop)]
     [Std.Asymm (· < · : β → β → Prop)]
     [Std.Antisymm (¬ · < · : β → β → Prop)]
     {xs ys : Vector α n} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : xs ≤ ys) :

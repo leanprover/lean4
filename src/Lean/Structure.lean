@@ -84,7 +84,7 @@ private structure StructureState where
   map : PersistentHashMap Name StructureInfo := {}
   deriving Inhabited
 
-builtin_initialize structureExt : PersistentEnvExtension StructureInfo StructureInfo (Unit × StructureState) ← registerPersistentEnvExtension {
+private builtin_initialize structureExt : PersistentEnvExtension StructureInfo StructureInfo (Unit × StructureState) ← registerPersistentEnvExtension {
   mkInitial       := pure ((), {})
   addImportedFn   := fun _ => pure ((), {})
   addEntryFn      := fun (_, s) e => ((), { s with map := s.map.insert e.structName e })
@@ -119,7 +119,7 @@ Throws an error if the structure has not already been registered with `Lean.regi
 -/
 def setStructureParents [Monad m] [MonadEnv m] [MonadError m] (structName : Name) (parentInfo : Array StructureParentInfo) : m Unit := do
   let some info := structureExt.getState (← getEnv) |>.snd.map.find? structName
-    | throwError "cannot set structure parents for '{structName}', structure not defined in current module"
+    | throwError "cannot set structure parents for `{structName}`, structure not defined in current module"
   modifyEnv fun env => structureExt.addEntry env { info with parentInfo }
 
 /-- Gets the `StructureInfo` if `structName` has been declared as a structure to the elaborator. -/

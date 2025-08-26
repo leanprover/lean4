@@ -9,6 +9,7 @@ prelude
 public import Lean.AddDecl
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.CompletionName
+import Lean.Meta.NatTable
 
 public section
 
@@ -58,21 +59,6 @@ def canUse : MetaM Bool := do
   unless (← NoConfusionLinear.deps.allM (hasConst · (skipRealize := true))) do return false
   return true
 
-def mkNatLookupTable (n : Expr) (type : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
-  let u ← getLevel type
-  let rec go (start stop : Nat) (hstart : start < stop := by omega) (hstop : stop ≤ es.size := by omega) : MetaM Expr := do
-    if h : start + 1 = stop then
-      return es[start]
-    else
-      let mid := (start + stop) / 2
-      let low ← go start mid
-      let high ← go mid stop
-      return mkApp4 (mkConst ``cond [u]) type (mkApp2 (mkConst ``Nat.blt) n (mkRawNatLit mid)) low high
-  if h : es.size = 0 then
-    pure default
-  else
-    go 0 es.size
-
 -- Right-associates the top-most `max`s to work around #5695 for prettier code
 private def reassocMax (l : Level) : Level :=
   let lvls := maxArgs l #[]
@@ -87,9 +73,10 @@ where
 /--
 Takes the max of the levels of the given expressions.
 -/
-def maxLevels (es : Array Expr) (default : Expr) : MetaM Level := do
-  let mut maxLevel ← getLevel default
-  for e in es do
+def maxLevels (es : Array Expr) : MetaM Level := do
+  assert! es.size > 0
+  let mut maxLevel ← getLevel es[0]!
+  for e in es[1...*] do
     let l ← getLevel e
     maxLevel := mkLevelMax' maxLevel l
   return reassocMax maxLevel.normalize
@@ -115,12 +102,11 @@ private def mkPULiftDown (e : Expr) : MetaM Expr := do
   else
     throwError "mkULiftDown: expected ULift type, got {t}"
 
-def mkNatLookupTableLifting (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
-  let u ← maxLevels es default
-  let default ← mkPULift u default
+def mkNatLookupTableLifting (n : Expr) (es : Array Expr) : MetaM Expr := do
+  let u ← maxLevels es
   let u' := reassocMax (mkLevelMax' u 1).normalize
   let es ← es.mapM (mkPULift u)
-  mkNatLookupTable n (.sort u') es default
+  mkNatLookupTable n (.sort u') es
 
 def mkWithCtorTypeName (indName : Name) : Name :=
   Name.str indName "noConfusionType" |>.str "withCtorType"
@@ -133,6 +119,7 @@ def mkNoConfusionTypeName (indName : Name) : Name :=
 
 def mkWithCtorType (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
+  if info.numCtors = 0 then return
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstVal casesOnName
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
@@ -146,7 +133,7 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
         let ctorType ← inferType ctor
         forallTelescope ctorType fun ys _ =>
           mkForallFVars ys P
-      let e ← mkNatLookupTableLifting ctorIdx es P
+      let e ← mkNatLookupTableLifting ctorIdx es
       mkLambdaFVars ((xs.push P).push ctorIdx) e
 
   let declName := mkWithCtorTypeName indName
@@ -163,6 +150,7 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
 
 def mkWithCtor (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
+  if info.numCtors = 0 then return
   let withCtorTypeName := mkWithCtorTypeName indName
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstVal casesOnName

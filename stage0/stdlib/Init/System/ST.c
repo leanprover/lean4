@@ -50,9 +50,9 @@ lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_set___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_runST(lean_object*, lean_object*);
+lean_object* l_EStateM_instInhabited___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_modifyUnsafe___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_instInhabited___redArg___lam__0(lean_object*, lean_object*);
 static lean_object* l_instMonadEST___closed__0;
 LEAN_EXPORT lean_object* l_ST_Ref_take(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_modify___redArg(lean_object*, lean_object*, lean_object*);
@@ -233,8 +233,7 @@ LEAN_EXPORT lean_object* l_instInhabitedEST___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_EStateM_instInhabited___redArg___lam__0), 2, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_EStateM_instInhabited___redArg(x_1);
 return x_2;
 }
 }
@@ -242,8 +241,7 @@ LEAN_EXPORT lean_object* l_instInhabitedEST(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_EStateM_instInhabited___redArg___lam__0), 2, 1);
-lean_closure_set(x_5, 0, x_4);
+x_5 = l_EStateM_instInhabited___redArg(x_4);
 return x_5;
 }
 }
@@ -276,7 +274,7 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_instSTWorldOfMonadLift(x_1, x_2, x_3, x_4, x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 return x_6;
 }
 }
@@ -803,7 +801,7 @@ LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___redArg(lean_object* x_1, lean
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-lean_inc_ref(x_1);
+lean_inc(x_1);
 lean_inc(x_2);
 x_3 = lean_alloc_closure((void*)(l_ST_Ref_toMonadStateOf___redArg___lam__0), 4, 2);
 lean_closure_set(x_3, 0, x_2);
@@ -813,7 +811,7 @@ x_4 = lean_alloc_closure((void*)(l_ST_Prim_Ref_get___boxed), 4, 3);
 lean_closure_set(x_4, 0, lean_box(0));
 lean_closure_set(x_4, 1, lean_box(0));
 lean_closure_set(x_4, 2, x_2);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_5 = lean_apply_2(x_1, lean_box(0), x_4);
 x_6 = lean_alloc_closure((void*)(l_ST_Ref_set), 6, 5);
 lean_closure_set(x_6, 0, lean_box(0));

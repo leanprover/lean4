@@ -101,6 +101,22 @@ builtin_dsimproc_decl normNatDivInst ((_ / _ : Nat)) := normInst 3 Nat.mkInstHDi
 builtin_dsimproc_decl normNatModInst ((_ % _ : Nat)) := normInst 3 Nat.mkInstMod
 builtin_dsimproc_decl normNatPowInst ((_ ^ _ : Nat)) := normInst 3 Nat.mkInstHPow
 
+/--
+Returns `true`, if `@OfNat.ofNat α n inst` is the standard way we represent `Nat` numerals in Lean.
+-/
+private def isNormNatNum (α n inst : Expr) : Bool := Id.run do
+  unless α.isConstOf ``Nat do return false
+  let .lit (.natVal _) := n | return false
+  unless inst.isAppOfArity ``instOfNatNat 1 do return false
+  return inst.appArg! == n
+
+builtin_dsimproc_decl normNatOfNatInst ((OfNat.ofNat _: Nat)) := fun e => do
+  let_expr OfNat.ofNat α n inst := e | return .continue
+  if isNormNatNum α n inst then
+    return .done e
+  let some n ← getNatValue? e | return .continue
+  return .done (mkNatLit n)
+
 builtin_dsimproc_decl normIntNegInst ((- _ : Int)) := normInst 1 Int.mkInstNeg
 builtin_dsimproc_decl normIntAddInst ((_ + _ : Int)) := normInst 3 Int.mkInstHAdd
 builtin_dsimproc_decl normIntMulInst ((_ * _ : Int)) := normInst 3 Int.mkInstHMul
@@ -108,6 +124,48 @@ builtin_dsimproc_decl normIntSubInst ((_ - _ : Int)) := normInst 3 Int.mkInstHSu
 builtin_dsimproc_decl normIntDivInst ((_ / _ : Int)) := normInst 3 Int.mkInstHDiv
 builtin_dsimproc_decl normIntModInst ((_ % _ : Int)) := normInst 3 Int.mkInstMod
 builtin_dsimproc_decl normIntPowInst ((_ ^ _ : Int)) := normInst 3 Int.mkInstHPow
+
+/--
+Returns `true`, if `@OfNat.ofNat α n inst` is the standard way we represent `Int` numerals in Lean.
+-/
+private def isNormIntNum (α n inst : Expr) : Bool := Id.run do
+  unless α.isConstOf ``Int do return false
+  let .lit (.natVal _) := n | return false
+  unless inst.isAppOfArity ``instOfNat 1 do return false
+  return inst.appArg! == n
+
+builtin_dsimproc_decl normIntOfNatInst ((OfNat.ofNat _: Int)) := fun e => do
+  let_expr OfNat.ofNat α n inst := e | return .continue
+  if isNormIntNum α n inst then
+    return .done e
+  let some n ← getIntValue? e | return .continue
+  return .done (mkIntLit n)
+
+builtin_simproc_decl normNatCastNum (NatCast.natCast _) := fun e => do
+  let_expr f@NatCast.natCast α _ a := e | return .continue
+  let some k ← getNatValue? a | return .continue
+  let us := f.constLevels!
+  let semiring := mkApp (mkConst ``Grind.Semiring us) α
+  let some semiringInst ← synthInstanceMeta? semiring | return .continue
+  let n ← mkNumeral α k
+  let h := mkApp3 (mkConst ``Grind.Semiring.natCast_eq_ofNat us) α semiringInst a
+  return .done { expr := n, proof? := some h }
+
+builtin_simproc_decl normIntCastNum (IntCast.intCast _) := fun e => do
+  let_expr f@IntCast.intCast α _ a := e | return .continue
+  let some k ← getIntValue? a | return .continue
+  let us := f.constLevels!
+  let ring := mkApp (mkConst ``Grind.Ring us) α
+  let some ringInst ← synthInstanceMeta? ring | return .continue
+  let n ← mkNumeral α k.natAbs
+  if k < 0 then
+    let some negInst ← synthInstanceMeta? (mkApp (mkConst ``Neg us) α) | return .continue
+    let n := mkApp3 (mkConst ``Neg.neg us) α negInst n
+    let h := mkApp4 (mkConst ``Grind.Ring.intCast_eq_ofNat_of_nonpos us) α ringInst a eagerReflBoolTrue
+    return .done { expr := n, proof? := some h }
+  else
+    let h := mkApp4 (mkConst ``Grind.Ring.intCast_eq_ofNat_of_nonneg us) α ringInst a eagerReflBoolTrue
+    return .done { expr := n, proof? := some h }
 
 /-!
 Add additional arithmetic simprocs
@@ -122,6 +180,7 @@ def addSimproc (s : Simprocs) : CoreM Simprocs := do
   let s ← s.add ``normNatDivInst (post := false)
   let s ← s.add ``normNatModInst (post := false)
   let s ← s.add ``normNatPowInst (post := false)
+  let s ← s.add ``normNatOfNatInst (post := false)
   let s ← s.add ``normIntNegInst (post := false)
   let s ← s.add ``normIntAddInst (post := false)
   let s ← s.add ``normIntMulInst (post := false)
@@ -129,6 +188,9 @@ def addSimproc (s : Simprocs) : CoreM Simprocs := do
   let s ← s.add ``normIntDivInst (post := false)
   let s ← s.add ``normIntModInst (post := false)
   let s ← s.add ``normIntPowInst (post := false)
+  let s ← s.add ``normIntOfNatInst (post := false)
+  let s ← s.add ``normNatCastNum (post := false)
+  let s ← s.add ``normIntCastNum (post := false)
   return s
 
 end Lean.Meta.Grind.Arith

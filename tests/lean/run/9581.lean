@@ -15,7 +15,7 @@ theorem F_spec :
    ⦃⇓ _ => ⌜1 < 2⌝⦄ := by
   mvcgen [F]
 
-  case inv => exact ⇓ _ => ⌜1 < 2⌝
+  case inv1 => exact ⇓ _ => ⌜1 < 2⌝
   -- it would be nice if we had a tactic wrapper around `case inv => exact ...` that does `mleave`
   -- on all subgoals afterwards.
 
@@ -26,4 +26,13 @@ theorem F_spec :
   -- Goal that could be discharged completely automatically:
   -- case post.except
   -- ⊢ (⇓x => ⌜1 < 2⌝).snd ⊢ₑ (⇓x => ⌜1 < 2⌝).snd
+  · assumption
   · mleave
+
+theorem F_spec_using_with :
+   ⦃⌜True⌝⦄
+   F
+   ⦃⇓ _ => ⌜1 < 2⌝⦄ := by
+  mvcgen [F]
+  invariants · ⇓ _ => ⌜1 < 2⌝
+  with omega

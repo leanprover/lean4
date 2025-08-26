@@ -9,7 +9,8 @@ prelude
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Int.LemmasAux
 public import Init.Data.Hashable
-public import all Init.Data.Ord
+public import Init.Data.Ord.Basic
+import all Init.Data.Ord.Basic
 public import Init.Data.RArray
 public import Init.Grind.Ring.Basic
 public import Init.Grind.Ring.Field
@@ -17,6 +18,8 @@ public import Init.Grind.Ordered.Ring
 public import Init.GrindInstances.Ring.Int
 
 @[expose] public section
+
+open Std
 
 namespace Lean.Grind
 -- These are no longer global instances, so we need to turn them on here.
@@ -361,7 +364,7 @@ instance : LawfulBEq Poly where
 def Poly.denote [Ring α] (ctx : Context α) (p : Poly) : α :=
   match p with
   | .num k => Int.cast k
-  | .add k m p => HMul.hMul (α := Int) k (m.denote ctx) + denote ctx p
+  | .add k m p => k • (m.denote ctx) + denote ctx p
 
 @[expose]
 def Poly.denote' [Ring α] (ctx : Context α) (p : Poly) : α :=
@@ -373,7 +376,7 @@ where
     bif k == 1 then
       m.denote' ctx
     else
-      HMul.hMul (α := Int) k (m.denote' ctx)
+      k • m.denote' ctx
 
   go (p : Poly) (acc : α) : α :=
     match p with
@@ -833,55 +836,6 @@ where
       | .var x => Poly.ofMon (.mult {x, k} .unit)
       | _ => (go a).powC k c
 
-/--
-A Nullstellensatz certificate.
-```
-lhs₁ = rh₁ → ... → lhsₙ = rhₙ → q₁*(lhs₁ - rhs₁) + ... + qₙ*(lhsₙ - rhsₙ) = 0
-```
--/
-inductive NullCert where
-  | empty
-  | add (q : Poly) (lhs : Expr) (rhs : Expr) (s : NullCert)
-
-/--
-```
-q₁*(lhs₁ - rhs₁) + ... + qₙ*(lhsₙ - rhsₙ)
-```
--/
-@[expose]
-noncomputable def NullCert.denote {α} [CommRing α] (ctx : Context α) : NullCert → α
-  | .empty => 0
-  | .add q lhs rhs nc => (q.denote ctx)*(lhs.denote ctx - rhs.denote ctx) + nc.denote ctx
-
-/--
-```
-lhs₁ = rh₁ → ... → lhsₙ = rhₙ → p
-```
--/
-@[expose]
-def NullCert.eqsImplies {α} [CommRing α] (ctx : Context α) (nc : NullCert) (p : Prop) : Prop :=
-  match nc with
-  | .empty           => p
-  | .add _ lhs rhs nc => lhs.denote ctx = rhs.denote ctx → eqsImplies ctx nc p
-
-/--
-A polynomial representing
-```
-q₁*(lhs₁ - rhs₁) + ... + qₙ*(lhsₙ - rhsₙ)
-```
--/
-@[expose]
-def NullCert.toPoly (nc : NullCert) : Poly :=
-  match nc with
-  | .empty => .num 0
-  | .add q lhs rhs nc => (q.mul (lhs.sub rhs).toPoly).combine nc.toPoly
-
-@[expose]
-def NullCert.toPolyC (nc : NullCert) (c : Nat) : Poly :=
-  match nc with
-  | .empty => .num 0
-  | .add q lhs rhs nc => (q.mulC ((lhs.sub rhs).toPolyC c) c).combineC (nc.toPolyC c) c
-
 /-!
 Theorems for justifying the procedure for commutative rings in `grind`.
 -/
@@ -1107,78 +1061,6 @@ theorem Expr.eq_of_toPoly_eq {α} [CommRing α] (ctx : Context α) (a b : Expr) 
   simp [denote_toPoly] at h
   assumption
 
-/-- Helper theorem for proving `NullCert` theorems. -/
-theorem NullCert.eqsImplies_helper {α} [CommRing α] (ctx : Context α) (nc : NullCert) (p : Prop) : (nc.denote ctx = 0 → p) → nc.eqsImplies ctx p := by
-  induction nc <;> simp [denote, eqsImplies]
-  next ih =>
-    intro h₁ h₂
-    apply ih
-    simp [h₂, sub_self, mul_zero, zero_add] at h₁
-    assumption
-
-theorem NullCert.denote_toPoly {α} [CommRing α] (ctx : Context α) (nc : NullCert) : nc.toPoly.denote ctx = nc.denote ctx := by
-  induction nc <;> simp [toPoly, denote, Poly.denote, intCast_zero, Poly.denote_combine, Poly.denote_mul, Expr.denote_toPoly, Expr.denote, *]
-
-@[expose]
-def NullCert.eq_cert (nc : NullCert) (lhs rhs : Expr) :=
-  (lhs.sub rhs).toPoly == nc.toPoly
-
-theorem NullCert.eq {α} [CommRing α] (ctx : Context α) (nc : NullCert) {lhs rhs : Expr}
-    : nc.eq_cert lhs rhs → nc.eqsImplies ctx (lhs.denote ctx = rhs.denote ctx) := by
-  simp [eq_cert]; intro h₁
-  apply eqsImplies_helper
-  intro h₂
-  replace h₁ := congrArg (Poly.denote ctx) h₁
-  simp [Expr.denote_toPoly, denote_toPoly, h₂, Expr.denote, sub_eq_zero_iff] at h₁
-  assumption
-
-theorem NullCert.eqsImplies_helper' {α} [CommRing α] {ctx : Context α} {nc : NullCert} {p q : Prop} : nc.eqsImplies ctx p → (p → q) → nc.eqsImplies ctx q := by
-  induction nc <;> simp [eqsImplies]
-  next => intro h₁ h₂; exact h₂ h₁
-  next ih => intro h₁ h₂ h₃; exact ih (h₁ h₃) h₂
-
-theorem NullCert.ne_unsat {α} [CommRing α] (ctx : Context α) (nc : NullCert) (lhs rhs : Expr)
-    : nc.eq_cert lhs rhs → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
-  intro h₁ h₂
-  exact eqsImplies_helper' (eq ctx nc h₁) h₂
-
-@[expose]
-def NullCert.eq_nzdiv_cert (nc : NullCert) (k : Int) (lhs rhs : Expr) : Bool :=
-  k ≠ 0 && (lhs.sub rhs).toPoly.mulConst k == nc.toPoly
-
-theorem NullCert.eq_nzdiv {α} [CommRing α] [NoNatZeroDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
-    : nc.eq_nzdiv_cert k lhs rhs → nc.eqsImplies ctx (lhs.denote ctx = rhs.denote ctx) := by
-  simp [eq_nzdiv_cert]
-  intro h₁ h₂
-  apply eqsImplies_helper
-  intro h₃
-  replace h₂ := congrArg (Poly.denote ctx) h₂
-  simp [Expr.denote_toPoly, Poly.denote_mulConst, denote_toPoly, h₃, Expr.denote, ← zsmul_eq_intCast_mul] at h₂
-  replace h₂ := no_int_zero_divisors h₁ h₂
-  rw [sub_eq_zero_iff] at h₂
-  assumption
-
-theorem NullCert.ne_nzdiv_unsat {α} [CommRing α] [NoNatZeroDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
-    : nc.eq_nzdiv_cert k lhs rhs → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
-  intro h₁ h₂
-  exact eqsImplies_helper' (eq_nzdiv ctx nc k lhs rhs h₁) h₂
-
-@[expose]
-def NullCert.eq_unsat_cert (nc : NullCert) (k : Int) : Bool :=
-  k ≠ 0 && nc.toPoly == .num k
-
-theorem NullCert.eq_unsat {α} [CommRing α] [IsCharP α 0] (ctx : Context α) (nc : NullCert) (k : Int)
-    : nc.eq_unsat_cert k → nc.eqsImplies ctx False := by
-  simp [eq_unsat_cert]
-  intro h₁ h₂
-  apply eqsImplies_helper
-  intro h₃
-  replace h₂ := congrArg (Poly.denote ctx) h₂
-  simp [denote_toPoly, h₃, Poly.denote] at h₂
-  have := IsCharP.intCast_eq_zero_iff (α := α) 0 k
-  simp [← h₂] at this
-  contradiction
-
 /-!
 Theorems for justifying the procedure for commutative rings with a characteristic in `grind`.
 -/
@@ -1305,64 +1187,6 @@ theorem Expr.eq_of_toPolyC_eq {α c} [CommRing α] [IsCharP α c] (ctx : Context
   have h := congrArg (Poly.denote ctx) (eq_of_beq h)
   simp [denote_toPolyC] at h
   assumption
-
-theorem NullCert.denote_toPolyC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (nc : NullCert) : (nc.toPolyC c).denote ctx = nc.denote ctx := by
-  induction nc <;> simp [toPolyC, denote, Poly.denote, intCast_zero, Poly.denote_combineC, Poly.denote_mulC, Expr.denote_toPolyC, Expr.denote, *]
-
-@[expose]
-def NullCert.eq_certC (nc : NullCert) (lhs rhs : Expr) (c : Nat) :=
-  (lhs.sub rhs).toPolyC c == nc.toPolyC c
-
-theorem NullCert.eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (nc : NullCert) {lhs rhs : Expr}
-    : nc.eq_certC lhs rhs c → nc.eqsImplies ctx (lhs.denote ctx = rhs.denote ctx) := by
-  simp [eq_certC]; intro h₁
-  apply eqsImplies_helper
-  intro h₂
-  replace h₁ := congrArg (Poly.denote ctx) h₁
-  simp [Expr.denote_toPolyC, denote_toPolyC, h₂, Expr.denote, sub_eq_zero_iff] at h₁
-  assumption
-
-theorem NullCert.ne_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (nc : NullCert) (lhs rhs : Expr)
-    : nc.eq_certC lhs rhs c → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
-  intro h₁ h₂
-  exact eqsImplies_helper' (eqC ctx nc h₁) h₂
-
-@[expose]
-def NullCert.eq_nzdiv_certC (nc : NullCert) (k : Int) (lhs rhs : Expr) (c : Nat) : Bool :=
-  k ≠ 0 && ((lhs.sub rhs).toPolyC c).mulConstC k c == nc.toPolyC c
-
-theorem NullCert.eq_nzdivC {α c} [CommRing α] [IsCharP α c] [NoNatZeroDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
-    : nc.eq_nzdiv_certC k lhs rhs c → nc.eqsImplies ctx (lhs.denote ctx = rhs.denote ctx) := by
-  simp [eq_nzdiv_certC]
-  intro h₁ h₂
-  apply eqsImplies_helper
-  intro h₃
-  replace h₂ := congrArg (Poly.denote ctx) h₂
-  simp [Expr.denote_toPolyC, Poly.denote_mulConstC, denote_toPolyC, h₃, Expr.denote, ← zsmul_eq_intCast_mul] at h₂
-  replace h₂ := no_int_zero_divisors h₁ h₂
-  rw [sub_eq_zero_iff] at h₂
-  assumption
-
-theorem NullCert.ne_nzdiv_unsatC {α c} [CommRing α] [IsCharP α c] [NoNatZeroDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
-    : nc.eq_nzdiv_certC k lhs rhs c → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
-  intro h₁ h₂
-  exact eqsImplies_helper' (eq_nzdivC ctx nc k lhs rhs h₁) h₂
-
-@[expose]
-def NullCert.eq_unsat_certC (nc : NullCert) (k : Int) (c : Nat) : Bool :=
-  k % c != 0 && nc.toPolyC c == .num k
-
-theorem NullCert.eq_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (nc : NullCert) (k : Int)
-    : nc.eq_unsat_certC k c → nc.eqsImplies ctx False := by
-  simp [eq_unsat_certC]
-  intro h₁ h₂
-  apply eqsImplies_helper
-  intro h₃
-  replace h₂ := congrArg (Poly.denote ctx) h₂
-  simp [denote_toPolyC, h₃, Poly.denote] at h₂
-  have := IsCharP.intCast_eq_zero_iff (α := α) c k
-  simp [h₂] at this
-  contradiction
 
 namespace Stepwise
 /-!
@@ -1589,8 +1413,8 @@ where
 @[expose]
 def Poly.denoteAsIntModule [CommRing α] (ctx : Context α) (p : Poly) : α :=
   match p with
-  | .num k => HMul.hMul (α := Int) k (One.one : α)
-  | .add k m p => HMul.hMul (α := Int) k (m.denoteAsIntModule ctx) + denoteAsIntModule ctx p
+  | .num k => k • (One.one : α)
+  | .add k m p => k • (m.denoteAsIntModule ctx) + denoteAsIntModule ctx p
 
 theorem Mon.denoteAsIntModule_go_eq_denote {α} [CommRing α] (ctx : Context α) (m : Mon) (acc : α)
     : denoteAsIntModule.go ctx m acc = acc * m.denote ctx := by
@@ -1616,21 +1440,21 @@ theorem diseq_norm {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p : P
 
 open OrderedAdd
 
-theorem le_norm {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem le_norm {α} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → lhs.denote ctx ≤ rhs.denote ctx → p.denoteAsIntModule ctx ≤ 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h; subst p; simp [Expr.denote_toPoly, Expr.denote]
   replace h := add_le_left h ((-1) * rhs.denote ctx)
   rw [neg_mul, ← sub_eq_add_neg, one_mul, ← sub_eq_add_neg, sub_self] at h
   assumption
 
-theorem lt_norm {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem lt_norm {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → lhs.denote ctx < rhs.denote ctx → p.denoteAsIntModule ctx < 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h; subst p; simp [Expr.denote_toPoly, Expr.denote]
   replace h := add_lt_left h ((-1) * rhs.denote ctx)
   rw [neg_mul, ← sub_eq_add_neg, one_mul, ← sub_eq_add_neg, sub_self] at h
   assumption
 
-theorem not_le_norm {α} [CommRing α] [LinearOrder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem not_le_norm {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert rhs lhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → p.denoteAsIntModule ctx < 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]
   replace h₁ := LinearOrder.lt_of_not_le h₁
@@ -1638,7 +1462,7 @@ theorem not_le_norm {α} [CommRing α] [LinearOrder α] [OrderedRing α] (ctx : 
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
 
-theorem not_lt_norm {α} [CommRing α] [LinearOrder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem not_lt_norm {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert rhs lhs p → ¬ lhs.denote ctx < rhs.denote ctx → p.denoteAsIntModule ctx ≤ 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]
   replace h₁ := LinearOrder.le_of_not_lt h₁
@@ -1646,14 +1470,14 @@ theorem not_lt_norm {α} [CommRing α] [LinearOrder α] [OrderedRing α] (ctx : 
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
 
-theorem not_le_norm' {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem not_le_norm' {α} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → ¬ p.denoteAsIntModule ctx ≤ 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
   replace h : rhs.denote ctx + (lhs.denote ctx - rhs.denote ctx) ≤ _ := add_le_right (rhs.denote ctx) h
   rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp [add_zero] at h
   contradiction
 
-theorem not_lt_norm' {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem not_lt_norm' {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → ¬ lhs.denote ctx < rhs.denote ctx → ¬ p.denoteAsIntModule ctx < 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
   replace h : rhs.denote ctx + (lhs.denote ctx - rhs.denote ctx) < _ := add_lt_right (rhs.denote ctx) h

@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_PRange_instSupportsLowerBoundClosedOfDecidableLE(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_BoundShape_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instDecidableMemMk___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange______macroRules__Std__PRange__term_x2a_x2e_x2e_x2e_x3d____1___closed__6;
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange______macroRules__Std__PRange__term___x3c_x2e_x2e_x2e_x3d____1___closed__8;
@@ -28,7 +29,6 @@ static lean_object* l_Std_PRange_term_x2a_x2e_x2e_x2e_x3d_____closed__1;
 LEAN_EXPORT lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange______macroRules__Std__PRange__term___x2e_x2e_x2e_x3d____1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_term_x2a_x2e_x2e_x2e_x3d__;
 LEAN_EXPORT lean_object* l_Std_PRange_instSupportsLowerBoundClosedOfDecidableLE___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instBoundedUpwardEnumerableOpenOfUpwardEnumerable___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instMembershipMkOfSupportsLowerBoundOfSupportsUpperBound(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange______macroRules__Std__PRange__term___x2e_x2e_x2e_x3d____1___closed__21;
@@ -40,6 +40,7 @@ static lean_object* l_Std_PRange_term___x2e_x2e_x2e_x2a___closed__3;
 static lean_object* l_Std_PRange_term___x2e_x2e_x2e_x2a___closed__5;
 static lean_object* l_Std_PRange_SupportsLowerBound_decidableSatisfiesLowerBound___autoParam___closed__0;
 LEAN_EXPORT lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange______macroRules__Std__PRange__term___x2e_x2e_x2e_x3c____1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_BoundShape_ctorIdx(uint8_t);
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange______macroRules__Std__PRange__term___x2e_x2e_x2e_x3d____1___closed__26;
 static lean_object* l_Std_PRange_term___x3c_x2e_x2e_x2e_x3d_____closed__5;
 LEAN_EXPORT lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange______macroRules__Std__PRange__term___x3c_x2e_x2e_x2e_x2a__1(lean_object*, lean_object*, lean_object*);
@@ -79,7 +80,6 @@ static lean_object* l_Std_PRange_SupportsLowerBound_decidableSatisfiesLowerBound
 static lean_object* l_Std_PRange_term_x2a_x2e_x2e_x2e_____closed__4;
 static lean_object* l_Std_PRange_term___x2e_x2e_x2e_x3d_____closed__1;
 LEAN_EXPORT lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange______macroRules__Std__PRange__term_x2a_x2e_x2e_x2e____1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_BoundShape_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Std_PRange_term___x2e_x2e_x2e_x3d_____closed__4;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PRange_term_x2a_x2e_x2e_x2e_x3c_____closed__0;
@@ -154,7 +154,6 @@ static lean_object* l_Std_PRange_term_x2a_x2e_x2e_x2e_x3c_____closed__5;
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange______macroRules__Std__PRange__term___x2e_x2e_x2e_x3d____1___closed__30;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_BoundShape_toCtorIdx(uint8_t);
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange______macroRules__Std__PRange__term_x2a_x2e_x2e_x2e_x3d____1___closed__11;
 static lean_object* l_Std_PRange_term___x2e_x2e_x2e_x3c_____closed__4;
 LEAN_EXPORT lean_object* l_Std_PRange_instDecidableRelBoundIsSatisfied__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -223,7 +222,6 @@ static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange__
 LEAN_EXPORT lean_object* l_Std_PRange_SupportsUpperBound_decidableSatisfiesUpperBound___autoParam;
 static lean_object* l_Std_PRange_term_x2a_x2e_x2e_x2e_x2a___closed__2;
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange______macroRules__Std__PRange__term_x2a_x2e_x2e_x2e_x3d____1___closed__8;
-LEAN_EXPORT lean_object* l_Std_PRange_instSupportsUpperBoundClosedOfDecidableLE___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instSupportsLowerBoundClosedOfDecidableLE___redArg___boxed(lean_object*);
 static lean_object* l_Std_PRange_term_x2a_x2e_x2e_x2e_x3c_____closed__2;
 static lean_object* l_Std_PRange_term___x2e_x2e_x2e_x3c_____closed__1;
@@ -270,7 +268,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_BoundShape_noConfusion___redArg(uint8_t, u
 static lean_object* l_Std_PRange_SupportsLowerBound_decidableSatisfiesLowerBound___autoParam___closed__4;
 LEAN_EXPORT lean_object* l_Std_PRange_term___x2e_x2e_x2e__;
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange______macroRules__Std__PRange__term___x2e_x2e_x2e_x3d____1___closed__28;
-LEAN_EXPORT lean_object* l_Std_PRange_BoundShape_toCtorIdx(uint8_t x_1) {
+LEAN_EXPORT lean_object* l_Std_PRange_BoundShape_ctorIdx(uint8_t x_1) {
 _start:
 {
 switch (x_1) {
@@ -295,12 +293,12 @@ return x_4;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_PRange_BoundShape_toCtorIdx___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_PRange_BoundShape_ctorIdx___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-x_3 = l_Std_PRange_BoundShape_toCtorIdx(x_2);
+x_3 = l_Std_PRange_BoundShape_ctorIdx(x_2);
 return x_3;
 }
 }
@@ -3979,14 +3977,6 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT(x_1, x_2, x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Std_PRange_instSupportsLowerBoundClosedOfDecidableLE___redArg(lean_object* x_1) {
 _start:
 {
@@ -4033,14 +4023,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_PRange_instSupportsUpperBoundClosedOfDecidableLE___redArg(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_PRange_instSupportsUpperBoundClosedOfDecidableLE___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_PRange_instSupportsUpperBoundClosedOfDecidableLE(x_1, x_2, x_3);
 return x_4;
 }
 }

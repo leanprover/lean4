@@ -96,11 +96,11 @@ partial def dischargeFailEntails (u : Level) (ps : Expr) (Q : Expr) (Q' : Expr) 
   if ps.isAppOf ``PostShape.pure then
     return mkConst ``True.intro
   if ← isDefEq Q Q' then
-    return mkApp2 (mkConst ``FailConds.entails.refl [u]) ps Q
-  if ← isDefEq Q (mkApp (mkConst ``FailConds.false [u]) ps) then
-    return mkApp2 (mkConst ``FailConds.entails_false [u]) ps Q'
-  if ← isDefEq Q' (mkApp (mkConst ``FailConds.true [u]) ps) then
-    return mkApp2 (mkConst ``FailConds.entails_true [u]) ps Q
+    return mkApp2 (mkConst ``ExceptConds.entails.refl [u]) ps Q
+  if ← isDefEq Q (mkApp (mkConst ``ExceptConds.false [u]) ps) then
+    return mkApp2 (mkConst ``ExceptConds.entails_false [u]) ps Q'
+  if ← isDefEq Q' (mkApp (mkConst ``ExceptConds.true [u]) ps) then
+    return mkApp2 (mkConst ``ExceptConds.entails_true [u]) ps Q
   -- the remaining cases are recursive.
   if let some (_σ, ps) := ps.app2? ``PostShape.arg then
     return ← dischargeFailEntails u ps Q Q' goalTag
@@ -117,31 +117,29 @@ partial def dischargeFailEntails (u : Level) (ps : Expr) (Q : Expr) (Q' : Expr) 
     let prf₂ ← dischargeFailEntails u ps (← mkProj' ``Prod 1 Q) (← mkProj' ``Prod 1 Q') (goalTag ++ `except)
     return ← mkAppM ``And.intro #[prf₁, prf₂] -- This is just a bit too painful to construct by hand
   -- This case happens when decomposing with unknown `ps : PostShape`
-  mkFreshExprSyntheticOpaqueMVar (mkApp3 (mkConst ``FailConds.entails [u]) ps Q Q') goalTag
+  mkFreshExprSyntheticOpaqueMVar (mkApp3 (mkConst ``ExceptConds.entails [u]) ps Q Q') goalTag
 end
 
 def dischargeMGoal (goal : MGoal) (goalTag : Name) : n Expr := do
   liftMetaM <| do trace[Elab.Tactic.Do.spec] "dischargeMGoal: {goal.target}"
   -- simply try one of the assumptions for now. Later on we might want to decompose conjunctions etc; full xsimpl
   -- The `withDefault` ensures that a hyp `⌜s = 4⌝` can be used to discharge `⌜s = 4⌝ s`.
-  -- (Recall that `⌜s = 4⌝ s` is `SVal.curry (σs:=[Nat]) (fun _ => s = 4) s` and `SVal.curry` is
+  -- (Recall that `⌜s = 4⌝ s` is `SPred.pure (σs:=[Nat]) (s = 4) s` and `SPred.pure` is
   -- semi-reducible.)
-  let some prf ← liftMetaM (withDefault <| goal.assumption <|> goal.assumptionPure)
+  -- We also try `mpure_intro; trivial` through `goal.triviallyPure` here because later on an
+  -- assignment like `⌜s = ?c⌝` becomes impossible to discharge because `?c` will get abstracted
+  -- over local bindings that depend on synthetic opaque MVars (such as loop invariants), and then
+  -- the type of the new `?c` will not be defeq to itself. A bug, but we need to work around it for
+  -- now.
+  let some prf ← liftMetaM (withDefault <| goal.assumption <|> goal.assumptionPure <|> goal.triviallyPure)
     | mkFreshExprSyntheticOpaqueMVar goal.toExpr goalTag
   liftMetaM <| do trace[Elab.Tactic.Do.spec] "proof: {prf}"
   return prf
 
-def mkPreTag (goalTag : Name) : Name := Id.run do
-  let dflt := goalTag ++ `pre1
-  let .str p s := goalTag | return dflt
-  unless "pre".isPrefixOf s do return dflt
-  let some n := (s.toSubstring.drop 3).toString.toNat? | return dflt
-  return .str p ("pre" ++ toString (n + 1))
-
 /--
   Returns the proof and the list of new unassigned MVars.
 -/
-def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name) (mkPreTag := mkPreTag) : n Expr := do
+def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name) : n Expr := do
   -- First instantiate `fun s => ...` in the target via repeated `mintro ∀s`.
   mIntroForallN goal goal.target.consumeMData.getNumHeadLambdas fun goal => do
   -- Elaborate the spec for the wp⟦e⟧ app in the target
@@ -151,11 +149,8 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
   let wp := T.getArg! 2
   let specThm ← elabSpecAtWP wp
 
-  -- The precondition of `specThm` might look like `⌜?n = ‹Nat›ₛ ∧ ?m = ‹Bool›ₛ⌝`, which expands to
-  -- `SVal.curry (fun tuple => ?n = SVal.uncurry (getThe Nat tuple) ∧ ?m = SVal.uncurry (getThe Bool tuple))`.
-  -- Note that the assignments for `?n` and `?m` depend on the bound variable `tuple`.
-  -- Here, we further eta expand and simplify according to `etaPotential` so that the solutions for
-  -- `?n` and `?m` do not depend on `tuple`.
+  -- The precondition of `specThm` might look like `⌜?n = nₛ ∧ ?m = b⌝`, which expands to
+  -- `SPred.pure (?n = n ∧ ?m = b)`.
   let residualEta := specThm.etaPotential - (T.getAppNumArgs - 4) -- 4 arguments expected for PredTrans.apply
   mIntroForallN goal residualEta fun goal => do
 
@@ -196,7 +191,7 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
   if !HPRfl then
     -- let P := (← reduceProjBeta? P).getD P
     -- Try to avoid creating a longer name if the postcondition does not need to create a goal
-    let tag := if !QQ'Rfl then mkPreTag goalTag else goalTag
+    let tag := if !QQ'Rfl then goalTag ++ `pre else goalTag
     let HPPrf ← dischargeMGoal { goal with target := P } tag
     prePrf := mkApp6 (mkConst ``SPred.entails.trans [u]) goal.σs goal.hyps P goal.target HPPrf
 

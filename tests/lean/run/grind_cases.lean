@@ -1,3 +1,4 @@
+module
 /--
 error: invalid `[grind cases eager]`, `List` is not a non-recursive inductive datatype or an alias for one
 -/

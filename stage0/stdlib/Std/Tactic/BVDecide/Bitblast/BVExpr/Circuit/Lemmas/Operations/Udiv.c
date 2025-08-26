@@ -27,7 +27,7 @@ x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_nat_dec_eq(x_1, x_4);
 if (x_5 == 1)
 {
-lean_dec_ref(x_3);
+lean_dec(x_3);
 lean_inc(x_2);
 return x_2;
 }

@@ -14,17 +14,22 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringAttributes___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Xml_instToStringElement___private__1(lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___closed__0;
 static lean_object* l_Lean_Xml_instToStringAttributes___lam__1___closed__0;
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_ctorIdx(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Xml_instToStringContent___private__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringAttributes___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Xml_instToStringContent___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__2;
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__1;
 static lean_object* l_Lean_Xml_instToStringAttributes___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__3(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Xml_instInhabitedContent___closed__0;
 static lean_object* l_Lean_Xml_instToStringAttributes___lam__0___closed__1;
@@ -37,18 +42,17 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap
 LEAN_EXPORT lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringAttributes___lam__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Xml_instToStringElement___closed__0;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2(size_t, size_t, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___closed__1;
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__3(lean_object*, size_t, size_t, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringElement;
@@ -131,6 +135,40 @@ lean_dec_ref(x_2);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_ctorIdx(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+case 1:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(1u);
+return x_3;
+}
+default: 
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(2u);
+return x_4;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Xml_Content_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Xml_instInhabitedContent___closed__0() {
 _start:
 {
@@ -187,7 +225,7 @@ x_3 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_fold
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -212,7 +250,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__3(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__3(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -281,7 +319,7 @@ x_10 = l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__1;
 x_11 = lean_string_append(x_9, x_10);
 x_19 = lean_array_size(x_4);
 x_20 = 0;
-x_21 = l_Array_mapMUnsafe_map___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2(x_19, x_20, x_4);
+x_21 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2(x_19, x_20, x_4);
 x_22 = lean_unsigned_to_nat(0u);
 x_23 = lean_array_get_size(x_21);
 x_24 = lean_nat_dec_lt(x_22, x_23);
@@ -308,7 +346,7 @@ else
 size_t x_26; lean_object* x_27; 
 x_26 = lean_usize_of_nat(x_23);
 lean_dec(x_23);
-x_27 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__3(x_21, x_20, x_26, x_7);
+x_27 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__3(x_21, x_20, x_26, x_7);
 lean_dec_ref(x_21);
 x_12 = x_27;
 goto block_18;
@@ -399,7 +437,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -407,11 +445,11 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2(x_4, x_5, x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; 
@@ -419,16 +457,24 @@ x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_7 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__3(x_1, x_5, x_6, x_4);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__3(x_1, x_5, x_6, x_4);
 lean_dec_ref(x_1);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Xml_instToStringElement___private__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Xml_instToStringElement___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Xml_instToStringElement___private__1), 1, 0);
 return x_1;
 }
 }
@@ -440,11 +486,19 @@ x_1 = l_Lean_Xml_instToStringElement___closed__0;
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Xml_instToStringContent___private__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Xml_instToStringContent___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Xml_instToStringContent___private__1), 1, 0);
 return x_1;
 }
 }

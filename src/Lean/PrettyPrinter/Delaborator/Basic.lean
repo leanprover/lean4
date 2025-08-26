@@ -96,14 +96,6 @@ instance (priority := low) : MonadStateOf SubExpr.HoleIterator DelabM where
     let (ret, holeIter') := f s.holeIter
     (ret, { s with holeIter := holeIter' })
 
--- Macro scopes in the delaborator output are ultimately ignored by the pretty printer,
--- so give a trivial implementation.
-instance : MonadQuotation DelabM := {
-  getCurrMacroScope   := pure default
-  getMainModule       := pure default
-  withFreshMacroScope := fun x => x
-}
-
 /--
 Registers a delaborator.
 
@@ -141,9 +133,9 @@ as `@[app_delab c]` first performs name resolution on `c` in the current scope.
 -/
 macro "app_delab" id:ident : attr => do
   match ← Macro.resolveGlobalName id.getId with
-  | [] => Macro.throwErrorAt id s!"unknown declaration '{id.getId}'"
+  | [] => Macro.throwErrorAt id s!"unknown declaration `{id.getId}`"
   | [(c, [])] => `(attr| delab $(mkIdentFrom (canonical := true) id (`app ++ c)))
-  | _ => Macro.throwErrorAt id s!"ambiguous declaration '{id.getId}'"
+  | _ => Macro.throwErrorAt id s!"ambiguous declaration `{id.getId}`"
 
 def getExprKind : DelabM Name := do
   let e ← getExpr
@@ -445,7 +437,7 @@ partial def delab : Delab := do
       return pf
 
   let k ← getExprKind
-  let stx ← withIncDepth <| delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate '{k}'")
+  let stx ← withIncDepth <| delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate `{k}`")
   if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> pure !e.isMData then
     let typeStx ← withType delab
     `(($stx : $typeStx)) >>= annotateCurPos

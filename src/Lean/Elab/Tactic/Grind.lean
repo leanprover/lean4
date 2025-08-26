@@ -68,6 +68,17 @@ def elabInitGrindNorm : CommandElab := fun stx =>
         Grind.registerNormTheorems pre post
   | _ => throwUnsupportedSyntax
 
+private def warnRedundantEMatchArg (s : Grind.EMatchTheorems) (declName : Name) : MetaM Unit := do
+  let kinds ← match s.getKindsFor (.decl declName) with
+    | [] => return ()
+    | [k] => pure m!"@{k.toAttribute}"
+    | [.eqLhs gen, .eqRhs _]
+    | [.eqRhs gen, .eqLhs _] => pure m!"@{(Grind.EMatchTheoremKind.eqBoth gen).toAttribute}"
+    | ks =>
+      let ks := ks.map fun k => m!"@{k.toAttribute}"
+      pure m!"{ks}"
+  logWarning m!"this parameter is redundant, environment already contains `{declName}` annotated with `{kinds}`"
+
 def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) (only : Bool) : MetaM Grind.Params := do
   let mut params := params
   for p in ps do
@@ -90,7 +101,7 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
         let thms := s.find (.decl declName)
         let thms := thms.filter fun thm => thm.kind == .user
         if thms.isEmpty then
-          throwErrorAt p "invalid use of `usr` modifier, `{declName}` does not have patterns specified with the command `grind_pattern`"
+          throwErrorAt p "invalid use of `usr` modifier, `{.ofConstName declName}` does not have patterns specified with the command `grind_pattern`"
         for thm in thms do
           params := { params with extra := params.extra.push thm }
       | .ematch kind =>
@@ -103,7 +114,7 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
           for ctor in info.ctors do
             params ← withRef p <| addEMatchTheorem params ctor (.default false)
         else
-          throwError "invalid use of `intro` modifier, `{declName}` is not an inductive predicate"
+          throwError "invalid use of `intro` modifier, `{.ofConstName declName}` is not an inductive predicate"
       | .ext =>
         throwError "`[grind ext]` cannot be set using parameters"
       | .infer =>
@@ -125,24 +136,29 @@ where
     let info ← getAsyncConstInfo declName
     match info.kind with
     | .thm | .axiom | .ctor =>
-      if params.ematch.containsWithSameKind (.decl declName) kind then
-        logWarning m!"this parameter is redundant, environment already contains `@{kind.toAttribute} {declName}`"
       match kind with
       | .eqBoth gen =>
-        let params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen) params.symPrios) }
-        return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName (.eqRhs gen) params.symPrios) }
+        let thm₁ ← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen) params.symPrios
+        let thm₂ ← Grind.mkEMatchTheoremForDecl declName (.eqRhs gen) params.symPrios
+        if params.ematch.containsWithSamePatterns thm₁.origin thm₁.patterns &&
+           params.ematch.containsWithSamePatterns thm₂.origin thm₂.patterns then
+          warnRedundantEMatchArg params.ematch declName
+        return { params with extra := params.extra.push thm₁ |>.push thm₂ }
       | _ =>
-        return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName kind params.symPrios) }
+        let thm ← Grind.mkEMatchTheoremForDecl declName kind params.symPrios
+        if params.ematch.containsWithSamePatterns thm.origin thm.patterns then
+          warnRedundantEMatchArg params.ematch declName
+        return { params with extra := params.extra.push thm }
     | .defn =>
       if (← isReducible declName) then
-        throwError "`{declName}` is a reducible definition, `grind` automatically unfolds them"
+        throwError "`{.ofConstName declName}` is a reducible definition, `grind` automatically unfolds them"
       if !kind.isEqLhs && !kind.isDefault then
-        throwError "invalid `grind` parameter, `{declName}` is a definition, the only acceptable (and redundant) modifier is '='"
+        throwError "invalid `grind` parameter, `{.ofConstName declName}` is a definition, the only acceptable (and redundant) modifier is '='"
       let some thms ← Grind.mkEMatchEqTheoremsForDef? declName
-        | throwError "failed to generate equation theorems for `{declName}`"
+        | throwError "failed to generate equation theorems for `{.ofConstName declName}`"
       return { params with extra := params.extra ++ thms.toPArray' }
     | _ =>
-      throwError "invalid `grind` parameter, `{declName}` is not a theorem, definition, or inductive type"
+      throwError "invalid `grind` parameter, `{.ofConstName declName}` is not a theorem, definition, or inductive type"
 
 def mkGrindParams (config : Grind.Config) (only : Bool) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) : MetaM Grind.Params := do
   let params ← Grind.mkParams config
@@ -203,7 +219,7 @@ def evalGrindCore
   let only := only.isSome
   let params := if let some params := params then params.getElems else #[]
   if Grind.grind.warning.get (← getOptions) then
-    logWarningAt ref "The `grind` tactic is new and its behaviour may change in the future. This project has used `set_option grind.warning true` to discourage its use."
+    logWarningAt ref "The `grind` tactic is new and its behavior may change in the future. This project has used `set_option grind.warning true` to discourage its use."
   withMainContext do
     let result ← grind (← getMainGoal) config only params fallback
     replaceMainGoal []

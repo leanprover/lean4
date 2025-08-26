@@ -205,7 +205,7 @@ theorem Poly.denoteS_combine {α} [CommSemiring α] (ctx : Context α) (p₁ p�
   unfold combine; generalize hugeFuel = fuel
   fun_induction combine.go
   case case1 => intros; apply denoteS_concat <;> assumption
-  case case2 => intros h₁ h₂; cases h₁; cases h₂; simp [denoteS, Int.toNat_add, natCast_add, *]
+  case case2 => intro h₁ h₂; cases h₁; cases h₂; simp [denoteS, Int.toNat_add, natCast_add, *]
   case case3 => intro h₁ h₂; cases h₁; simp [denoteS, denoteS_addConst, add_comm, *]
   case case4 => intro h₁ h₂; cases h₂; simp [denoteS, denoteS_addConst, *]
   case case5 k₁ _ _ k₂ _ _ hg _ h ih =>

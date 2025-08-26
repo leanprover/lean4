@@ -182,7 +182,7 @@ builtin_simproc_decl matcherPushArg (_) := fun e => do
     mkLambdaFVars xs (.lam motiveBodyArg.bindingName! motiveBodyArg.bindingDomain! motiveBodyArg.bindingBody!.bindingDomain! .default)
 
   let argPusher ← mkMatchArgPusher matcherApp.matcherName matcherApp.toMatcherInfo
-  -- Let's infer the level paramters:
+  -- Let's infer the level parameters:
   let proof ← withTransparency .all <| mkAppOptM
     argPusher ((matcherApp.params ++ #[motive', alpha, beta, fExpr, rel] ++ matcherApp.discrs ++ matcherApp.alts).map some)
   let some (_, _, rhs) := (← inferType proof).eq? | throwError "matcherPushArg: expected equality:{indentExpr (← inferType proof)}"
@@ -197,7 +197,7 @@ def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := withTransp
   match (← simpTarget mvarId ctx (simprocs := simprocs)).1 with
   | none => return ()
   | some mvarId' =>
-    prependError m!"failed to finish proof for equational theorem for '{.ofConstName declName}'" do
+    prependError m!"failed to finish proof for equational theorem for `{.ofConstName declName}`" do
       mvarId'.refl
 
 public def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessProof : Simp.Result) : MetaM Unit := do
@@ -249,7 +249,7 @@ public def mkBinaryUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) : 
       let mvarId ← deltaLHS mvarId -- unfold the function
       let mvarIds ← mvarId.applyConst unaryEqName
       unless mvarIds.isEmpty do
-        throwError "Failed to apply '{unaryEqName}' to '{mvarId}'"
+        throwError "Failed to apply `{unaryEqName}` to `{mvarId}`"
 
       let value ← instantiateMVars main
       let type ← mkForallFVars xs type

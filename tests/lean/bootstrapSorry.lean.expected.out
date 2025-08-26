@@ -1,0 +1,3 @@
+bootstrapSorry.lean:8:21-8:24: error(lean.unknownIdentifier): Unknown identifier `Nat`
+
+Note: A private declaration `Nat` (from `Init.Prelude`) exists but is not accessible in the current context.

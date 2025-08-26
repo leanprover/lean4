@@ -152,9 +152,20 @@ theorem sampler_correct {m : Type → Type u} {k h} [Monad m] [WPMonad m ps] :
   sampler (m:=m) n k h
   ⦃⇓ xs => ⌜xs.toList.Nodup⌝⦄ := by
   mvcgen -leave [sampler]
-  case inv => exact (⇓ (midway, xs) => ⌜Midway.valid midway xs.rpref.length⌝)
-  -- case step => simp_all
-  case post.success =>
+  case inv1 => exact (⇓ (xs, midway) => ⌜Midway.valid midway xs.prefix.length⌝)
+  case vc1 pref cur _ _ _ _ _ _ r _ _ _ =>
+    dsimp
+    mframe
+    rename_i hinv
+    mpure_intro
+    simp only [List.length_append, List.length_cons, List.length_nil, Nat.zero_add]
+    have : cur = pref.length := sorry -- by grind -- wishful thinking :(
+    subst this
+    apply Midway.valid_next _ pref.length _ r.val r.property.1 r.property.2 hinv
+  case vc2 =>
+    mpure_intro
+    exact valid_init
+  case vc3 =>
     dsimp
     mrename_i h
     mpure h
@@ -163,16 +174,4 @@ theorem sampler_correct {m : Type → Type u} {k h} [Monad m] [WPMonad m ps] :
     simp at h
     -- prove List.take k r.snd.toList = r.snd.toList for r.snd : Vector (Fin n) k
     sorry
-  case post.except => simp
-  case step.success rpref x _ _ _ _ _ _ r _ _ =>
-    dsimp
-    mintro ∀s
-    mframe
-    rename_i hinv
-    mpure_intro
-    change Midway.valid (next _ x _ r.val) (rpref.length + 1)
-    have : x = rpref.length := sorry -- by grind -- wishful thinking :(
-    subst this
-    apply Midway.valid_next _ rpref.length _ r.val r.property.1 r.property.2 hinv
-  mpure_intro
-  exact valid_init
+  case vc4 => simp

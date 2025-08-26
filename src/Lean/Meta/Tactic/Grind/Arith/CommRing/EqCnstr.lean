@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 
 public section
 
@@ -341,7 +342,6 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
     let p ← (ra.sub rb).toPolyM
     addNewEq (← mkEqCnstr p (.core a b ra rb))
   else if let some semiringId ← inSameSemiring? a b then SemiringM.run semiringId do
-    if (← getConfig).ringNull then return () -- TODO: remove after we add Nullstellensatz certificates for semiring adapter
     trace_goal[grind.ring.assert] "{← mkEq a b}"
     let some sa ← toSemiringExpr? a | return ()
     let some sb ← toSemiringExpr? b | return ()
@@ -405,7 +405,6 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
     }
   else if let some semiringId ← inSameSemiring? a b then SemiringM.run semiringId do
     if (← getAddRightCancelInst?).isSome then
-      if (← getConfig).ringNull then return () -- TODO: remove after we add Nullstellensatz certificates for semiring adapter
       trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
       let some sa ← toSemiringExpr? a | return ()
       let some sb ← toSemiringExpr? b | return ()
@@ -462,9 +461,9 @@ private def propagateEqs : RingM Unit := do
     if (← checkMaxSteps) then return ()
     let some ra ← toRingExpr? a | unreachable!
     map ← process map a ra
-  for (a, ra) in (← getRing).denote do
+  for (a, ra) in (← getRing).denoteEntries do
     if (← checkMaxSteps) then return ()
-    map ← process map a.expr ra
+    map ← process map a ra
 where
   process (map : PropagateEqMap) (a : Expr) (ra : RingExpr) : RingM PropagateEqMap := do
     let d : PolyDerivation := .input (← ra.toPolyM)

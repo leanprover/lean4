@@ -69,7 +69,7 @@ private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
   if candidates.size = 0 then
     throwError message
   else if h : candidates.size = 1 then
-    throwError message ++ .hint' m!"'{candidates[0]}' is similar"
+    throwError message ++ .hint' m!"`{candidates[0]}` is similar"
   else
     let sorted := candidates.qsort (·.toString < ·.toString)
     let diff :=
@@ -164,7 +164,7 @@ private def throwWrongArgCount (ctx : Context) (tooMany : Bool) : M α := do
   let argKind := if ctx.explicit then "" else "explicit "
   let argWord := if numExpectedArgs == 1 then "argument" else "arguments"
   let discrepancyKind := if tooMany then "Too many" else "Not enough"
-  let mut msg := m!"Invalid pattern: {discrepancyKind} arguments to '{ctx.funId}'; \
+  let mut msg := m!"Invalid pattern: {discrepancyKind} arguments to `{ctx.funId}`; \
     expected {numExpectedArgs} {argKind}{argWord}"
   if !tooMany then
     msg := msg ++ .hint' "To ignore all remaining arguments, use the ellipsis notation `..`"
@@ -211,9 +211,9 @@ private def processVar (idStx : Syntax) : M Syntax := do
     throwErrorAt idStx "Invalid pattern variable: Identifier expected, but found{indentD idStx}"
   let id := idStx.getId
   unless id.eraseMacroScopes.isAtomic do
-    throwError "Invalid pattern variable: Variable name must be atomic, but '{id}' has multiple components"
+    throwError "Invalid pattern variable: Variable name must be atomic, but `{id}` has multiple components"
   if (← get).found.contains id then
-    throwError "Invalid pattern variable: Variable name '{id}' was already used"
+    throwError "Invalid pattern variable: Variable name `{id}` was already used"
   modify fun s => { s with vars := s.vars.push idStx, found := s.found.insert id }
   return idStx
 

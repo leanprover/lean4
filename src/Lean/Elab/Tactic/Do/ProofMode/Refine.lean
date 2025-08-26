@@ -31,7 +31,7 @@ partial def mRefineCore (goal : MGoal) (pat : MRefinePat) (k : MGoal → TSyntax
   | .stateful name => liftMetaM do
     match name with
     | `(binderIdent| $name:ident) => do
-      let some prf ← goal.exact name | throwError "unknown hypothesis '{repr name}'"
+      let some prf ← goal.exact name | throwError "unknown hypothesis `{repr name}`"
       return prf
     | _ => do
       let some prf ← goal.assumption | throwError "could not solve {goal.target} by assumption"
@@ -48,16 +48,23 @@ partial def mRefineCore (goal : MGoal) (pat : MRefinePat) (k : MGoal → TSyntax
   | .tuple [p] => mRefineCore goal p k
   | .tuple (p::ps) => do
     let T ← whnfR goal.target
-    if let some (u, σs, T₁, T₂) := parseAnd? T.consumeMData then
+    let f := T.getAppFn'
+    let args := T.getAppArgs
+    trace[Meta.debug] "f: {f}, args: {args}"
+    if f.isConstOf ``SPred.and && args.size >= 3 then
+      let T₁ := args[1]!.beta args[3...*]
+      let T₂ := args[2]!.beta args[3...*]
       let prf₁ ← mRefineCore { goal with target := T₁ } p k
       let prf₂ ← mRefineCore { goal with target := T₂ } (.tuple ps) k
-      return mkApp6 (mkConst ``SPred.and_intro [u]) σs goal.hyps T₁ T₂ prf₁ prf₂
-    else if let some (α, σs, ψ) := T.app3? ``SPred.exists then
+      return mkApp6 (mkConst ``SPred.and_intro [goal.u]) goal.σs goal.hyps T₁ T₂ prf₁ prf₂
+    else if f.isConstOf ``SPred.exists && args.size >= 3 then
+      let α := args[0]!
+      let ψ := args[2]!
       let some witness ← patAsTerm p (some α) | throwError "pattern does not elaborate to a term to instantiate ψ"
-      let prf ← mRefineCore { goal with target := ψ.betaRev #[witness] } (.tuple ps) k
+      let prf ← mRefineCore { goal with target := ψ.beta (#[witness] ++ args[3...*]) } (.tuple ps) k
       let u ← getLevel α
-      return mkApp6 (mkConst ``SPred.exists_intro' [u, goal.u]) α σs goal.hyps ψ witness prf
-    else throwError "Neither a conjunction nor an existential quantifier {goal.target}"
+      return mkApp6 (mkConst ``SPred.exists_intro' [u, goal.u]) α goal.σs goal.hyps ψ witness prf
+    else throwError "Neither a conjunction nor an existential quantifier {T}"
 
 @[builtin_tactic Lean.Parser.Tactic.mrefine]
 def elabMRefine : Tactic

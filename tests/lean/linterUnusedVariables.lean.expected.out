@@ -92,7 +92,7 @@ a : Nat
 linterUnusedVariables.lean:248:33-248:40: error: unsolved goals
 a : Nat
 ⊢ Nat
-linterUnusedVariables.lean:248:0-248:40: error: type of theorem 'async' is not a proposition
+linterUnusedVariables.lean:248:0-248:40: error: type of theorem `async` is not a proposition
   Nat → Nat
 linterUnusedVariables.lean:283:41-283:43: warning: unused variable `ha`
 

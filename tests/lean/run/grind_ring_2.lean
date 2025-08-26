@@ -1,3 +1,4 @@
+module
 set_option grind.debug true
 open Lean.Grind
 
@@ -40,14 +41,8 @@ example [CommRing α] [NoNatZeroDivisors α] (x y : α) : 600000*x = 1 → 300*y
 example (x y : Int) : y = 0 → (x + 1)*(x - 1) + y = x^2 → False := by
   grind
 
-example (x y : Int) : y = 0 → (x + 1)*(x - 1) + y = x^2 → False := by
-  grind +ringNull
-
 example (x y z : BitVec 8) : z = y → (x + 1)*(x - 1)*y + y = z*x^2 + 1 → False := by
   grind
-
-example (x y z : BitVec 8) : z = y → (x + 1)*(x - 1)*y + y = z*x^2 + 1 → False := by
-  grind +ringNull
 
 example [CommRing α] (x y : α) : x*y*x = 1 → x*y*y = y → y = 1 := by
   grind

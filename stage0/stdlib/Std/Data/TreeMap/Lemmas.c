@@ -24,7 +24,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_inc(x_3);
 return x_3;
 }

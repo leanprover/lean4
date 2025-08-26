@@ -4,17 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Util.SortExprs
-public import Lean.Meta.Check
-public import Lean.Meta.Offset
-public import Lean.Meta.AppBuilder
 public import Lean.Meta.KExprMap
-public import Lean.Data.RArray
-
+import Lean.Meta.Offset
+import Lean.Data.RArray
+import Lean.Meta.AppBuilder
+import Lean.Meta.NatInstTesters
 public section
-
 namespace Nat.Linear
 
 /-- Applies the given variable permutation to `e` -/

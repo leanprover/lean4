@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.Data.List.Perm
-public import all Init.Data.List.Sort.Basic
+public import Init.Data.List.Sort.Basic
+import all Init.Data.List.Sort.Basic
 public import Init.Data.List.Nat.Range
 public import Init.Data.Bool
 
@@ -352,7 +353,7 @@ where go : ∀ (i : Nat) (l : List α),
     rw [merge_stable]
     · rw [go, go]
     · simp only [mem_mergeSort, Prod.forall]
-      intros j x k y mx my
+      intro j x k y mx my
       have := mem_zipIdx mx
       have := mem_zipIdx my
       simp_all

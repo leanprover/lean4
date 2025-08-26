@@ -34,7 +34,6 @@ LEAN_EXPORT lean_object* l_instReprExcept___redArg(lean_object*, lean_object*);
 static lean_object* l_instToStringSum___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_instToStringExcept___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringChar;
-LEAN_EXPORT lean_object* l_instToStringPUnit___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringPos;
 LEAN_EXPORT lean_object* l_instToStringList(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringList___redArg(lean_object*);
@@ -78,6 +77,7 @@ LEAN_EXPORT lean_object* l_instToStringProd___redArg___lam__0(lean_object*, lean
 LEAN_EXPORT lean_object* l_instToStringULift___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringSum(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringSubtype(lean_object*, lean_object*, lean_object*);
+static lean_object* l_instToStringFormat___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_instToStringProd___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprExcept___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringNat;
@@ -92,6 +92,7 @@ LEAN_EXPORT lean_object* l_instToStringOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringSigma___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_addParenHeuristic___closed__0;
 LEAN_EXPORT lean_object* l_instToStringUInt64___lam__0(uint64_t);
+extern lean_object* l_Std_Format_defWidth;
 static lean_object* l_instToStringInt___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_instToStringBool;
 LEAN_EXPORT lean_object* l_instToStringFin___lam__0(lean_object*);
@@ -457,7 +458,6 @@ else
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_2, 1);
-lean_inc(x_4);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -475,6 +475,7 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint32_t x_17; lean_object* x_18; 
+lean_inc_ref(x_4);
 x_11 = lean_ctor_get(x_2, 0);
 lean_inc(x_11);
 lean_dec_ref(x_2);
@@ -541,16 +542,8 @@ static lean_object* _init_l_instToStringPUnit() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instToStringPUnit___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_instToStringPUnit___lam__0), 1, 0);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instToStringPUnit___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_instToStringPUnit___lam__0(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_instToStringULift___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -582,7 +575,7 @@ static lean_object* _init_l_instToStringUnit___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instToStringPUnit___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_instToStringPUnit___lam__0), 1, 0);
 return x_1;
 }
 }
@@ -883,11 +876,19 @@ x_3 = l_instToStringUSize___lam__0(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_instToStringFormat___lam__0___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Std_Format_defWidth;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instToStringFormat___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_unsigned_to_nat(120u);
+x_2 = l_instToStringFormat___lam__0___closed__0;
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_format_pretty(x_1, x_2, x_3, x_3);
 return x_4;
@@ -1883,6 +1884,8 @@ l_instToStringUInt64 = _init_l_instToStringUInt64();
 lean_mark_persistent(l_instToStringUInt64);
 l_instToStringUSize = _init_l_instToStringUSize();
 lean_mark_persistent(l_instToStringUSize);
+l_instToStringFormat___lam__0___closed__0 = _init_l_instToStringFormat___lam__0___closed__0();
+lean_mark_persistent(l_instToStringFormat___lam__0___closed__0);
 l_instToStringFormat = _init_l_instToStringFormat();
 lean_mark_persistent(l_instToStringFormat);
 l_addParenHeuristic___closed__0 = _init_l_addParenHeuristic___closed__0();

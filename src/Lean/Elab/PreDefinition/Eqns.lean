@@ -394,7 +394,7 @@ private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) 
         else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
           mvarIds.forM go
         else
-          throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+          throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
 
 
 /--
@@ -408,7 +408,7 @@ This is currently used for non-recursive functions, well-founded recursion and p
 but not for structural recursion.
 -/
 def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (Array Name) := do
-  trace[Elab.definition.eqns] "mkEqns: {declName}"
+  trace[Elab.definition.eqns] "mkEqns: {.ofConstName declName}"
   let info ← getConstInfoDefn declName
   let us := info.levelParams.map mkLevelParam
   withOptions (tactic.hygienic.set · false) do
@@ -449,7 +449,7 @@ where
   until one of the equational theorems is applicable.
 -/
 partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
-  let some eqs ← getEqnsFor? declName | throwError "failed to generate equations for '{declName}'"
+  let some eqs ← getEqnsFor? declName | throwError "failed to generate equations for `{.ofConstName declName}`"
   let tryEqns (mvarId : MVarId) : MetaM Bool :=
     eqs.anyM fun eq => commitWhen do checkpointDefEq (mayPostpone := false) do
       try
@@ -475,7 +475,7 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
     if (← tryContradiction mvarId) then
       return ()
 
-    throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+    throwError "failed to generate unfold theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
   go mvarId
 
 builtin_initialize

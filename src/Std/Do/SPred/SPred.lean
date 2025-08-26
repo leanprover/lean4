@@ -33,9 +33,6 @@ namespace SPred
 universe u
 variable {σs : List (Type u)}
 
-/-- A pure proposition `P : Prop` embedded into `SPred`. For internal use in this module only; prefer to use idiom bracket notation `⌜P⌝. -/
-abbrev pure (P : Prop) : SPred σs := SVal.curry (fun _ => ⟨P⟩)
-
 @[ext]
 theorem ext_nil {P Q : SPred []} (h : P.down ↔ Q.down) : P = Q := by
   cases P; cases Q; simp_all
@@ -43,12 +40,24 @@ theorem ext_nil {P Q : SPred []} (h : P.down ↔ Q.down) : P = Q := by
 @[ext]
 theorem ext_cons {P Q : SPred (σ::σs)} : (∀ s, P s = Q s) → P = Q := funext
 
+/--
+A pure proposition `P : Prop` embedded into `SPred`.
+Prefer to use idiom bracket notation `⌜P⌝.
+-/
+def pure {σs : List (Type u)} (P : Prop) : SPred σs := match σs with
+  | [] => ULift.up P
+  | _ :: _ => fun _ => pure P
+theorem pure_nil : pure (σs:=[]) P = ULift.up P := rfl
+theorem pure_cons : pure (σs:=σ::σs) P = fun _ => pure P := rfl
+
 /-- Entailment in `SPred`. -/
 def entails {σs : List (Type u)} (P Q : SPred σs) : Prop := match σs with
   | [] => P.down → Q.down
   | σ :: _ => ∀ (s : σ), entails (P s) (Q s)
 @[simp, grind =] theorem entails_nil {P Q : SPred []} : entails P Q = (P.down → Q.down) := rfl
-@[grind =] theorem entails_cons {P Q : SPred (σ::σs)} : entails P Q = (∀ s, entails (P s) (Q s)) := rfl
+-- We would like to make `entails_cons` @[simp], but that has no effect until we merge #9015.
+-- Until then, we have `entails_<n>` for n ∈ [1:5] in DerivedLaws.lean.
+theorem entails_cons {P Q : SPred (σ::σs)} : entails P Q = (∀ s, entails (P s) (Q s)) := rfl
 theorem entails_cons_intro {P Q : SPred (σ::σs)} : (∀ s, entails (P s) (Q s)) → entails P Q := by simp only [entails_cons, imp_self]
 
 -- Reducibility of entails must be semi-reducible so that entails_refl is useful for rfl
@@ -58,7 +67,7 @@ def bientails {σs : List (Type u)} (P Q : SPred σs) : Prop := match σs with
   | [] => P.down ↔ Q.down
   | σ :: _ => ∀ (s : σ), bientails (P s) (Q s)
 @[simp, grind =] theorem bientails_nil {P Q : SPred []} : bientails P Q = (P.down ↔ Q.down) := rfl
-@[grind =] theorem bientails_cons {P Q : SPred (σ::σs)} : bientails P Q = (∀ s, bientails (P s) (Q s)) := rfl
+theorem bientails_cons {P Q : SPred (σ::σs)} : bientails P Q = (∀ s, bientails (P s) (Q s)) := rfl
 theorem bientails_cons_intro {P Q : SPred (σ::σs)} : (∀ s, bientails (P s) (Q s)) → bientails P Q := by simp only [bientails_cons, imp_self]
 
 /-- Conjunction in `SPred`. -/
@@ -117,4 +126,4 @@ def conjunction {σs : List (Type u)} (env : List (SPred σs)) : SPred σs := ma
 @[simp, grind =] theorem conjunction_nil : conjunction ([] : List (SPred σs)) = pure True := rfl
 @[simp, grind =] theorem conjunction_cons {P : SPred σs} {env : List (SPred σs)} : conjunction (P::env) = P.and (conjunction env) := rfl
 @[simp, grind =] theorem conjunction_apply {env : List (SPred (σ::σs))} : conjunction env s = conjunction (env.map (· s)) := by
-  induction env <;> simp [conjunction, *]
+  induction env <;> simp [conjunction, pure_cons, *]

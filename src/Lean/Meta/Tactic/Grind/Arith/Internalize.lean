@@ -15,7 +15,8 @@ public section
 
 namespace Lean.Meta.Grind.Arith
 
-def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
+@[export lean_grind_arith_internalize]
+def internalizeImpl (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   Offset.internalize e parent?
   Cutsat.internalize e parent?
   CommRing.internalize e parent?

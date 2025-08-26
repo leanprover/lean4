@@ -102,6 +102,6 @@ Error: not a local definition
 #guard_msgs in example (x : Nat) : x + 1 = 1 := by
   unfold x
 
-  /-- error: conv tactic 'unfold' failed, local variable 'x' has no definition -/
+/-- error: conv tactic `unfold` failed, local variable `x` has no definition -/
 #guard_msgs in example (x : Nat) : x + 1 = 1 := by
   conv => unfold x

@@ -1,5 +1,5 @@
 /--
-info: Try this: ⏎
+info: Try this:
   simp only [Nat.reduceMul, a]
 -/
 #guard_msgs in

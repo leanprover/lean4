@@ -4,7 +4,7 @@ private axiom test_sorry : ∀ {α}, α
 -- set_option trace.Tactic.rewrites.lemmas true
 
 /--
-info: Try this: ⏎
+info: Try this:
   rw [@List.map_append]
   -- no goals
 -/
@@ -13,7 +13,7 @@ example (f : α → β) (L M : List α) : (L ++ M).map f = L.map f ++ M.map f :=
   rw?
 
 /--
-info: Try this: ⏎
+info: Try this:
   rw [Nat.one_mul]
   -- no goals
 -/
@@ -99,7 +99,7 @@ example : zero = 0 := by
 
 -- Discharge side conditions from local hypotheses.
 /--
-info: Try this: ⏎
+info: Try this:
   rw [h p]
   -- no goals
 -/
@@ -109,7 +109,7 @@ example {P : Prop} (p : P) (h : P → 1 = 2) : 2 = 1 := by
 
 -- Use `solve_by_elim` to discharge side conditions.
 /--
-info: Try this: ⏎
+info: Try this:
   rw [h (f p)]
   -- no goals
 -/
@@ -119,7 +119,7 @@ example {P Q : Prop} (p : P) (f : P → Q) (h : Q → 1 = 2) : 2 = 1 := by
 
 -- Rewrite in reverse, discharging side conditions from local hypotheses.
 /--
-info: Try this: ⏎
+info: Try this:
   rw [← h₁ p]
   -- Q a
 -/

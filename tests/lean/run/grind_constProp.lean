@@ -208,7 +208,7 @@ def evalExpr (e : Expr) : EvalM Val := do
   grind [UnaryOp.simplify.eq_def]
 
 /--
-info: Try this: ⏎
+info: Try this:
   fun_induction Expr.simplify <;> grind
 -/
 #guard_msgs (info) in
@@ -310,7 +310,7 @@ theorem State.cons_le_of_eq (h₁ : σ' ≼ σ) (h₂ : σ.find? x = some v) : (
   grind
 
 /--
-info: Try this: ⏎
+info: Try this:
   fun_induction join <;> grind
 -/
 #guard_msgs (info) in

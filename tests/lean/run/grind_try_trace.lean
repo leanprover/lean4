@@ -89,7 +89,7 @@ example : app (app as bs) cs = app as (app bs cs) := by
   try?
 
 /--
-info: Try this: ⏎
+info: Try this:
   fun_induction app as bs <;> grind [= app]
 -/
 #guard_msgs (info) in

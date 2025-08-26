@@ -8,7 +8,7 @@ section
 variable [BEq α] {o₁ o₂ o₃ o₄ o₅ : Option α}
 
 /--
-info: Try this: ⏎
+info: Try this:
   grind only [=_
       Option.or_assoc,
     = Option.getD_or, = Option.or_some, = Option.some_beq_none, = Option.or_assoc, = Option.some_or]
@@ -17,7 +17,7 @@ info: Try this: ⏎
 example : ((o₁.or (o₂.or (some x))).or (o₄.or o₅) == none) = false := by grind?
 
 /--
-info: Try this: ⏎
+info: Try this:
   grind only [Option.max_none_right,
     Option.min_some_some, = Nat.min_def]
 -/
@@ -25,14 +25,14 @@ info: Try this: ⏎
 example : max (some 7) none = min (some 13) (some 7) := by grind?
 
 /--
-info: Try this: ⏎
+info: Try this:
   grind only [= Option.guard_apply]
 -/
 #guard_msgs in
 example : Option.guard (· ≤ 7) 3 = some 3 := by grind?
 
 /--
-info: Try this: ⏎
+info: Try this:
   grind only [=
       Option.mem_bind_iff]
 -/

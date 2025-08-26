@@ -18,7 +18,7 @@ axiom r.symm {a b : Nat} : r a b → r b a
 axiom r.trans {a b c : Nat} : r a b → r b c → r a c
 
 /--
-info: Try this: ⏎
+info: Try this:
   refine r.symm ?_
   -- Remaining subgoals:
   -- ⊢ r a c
@@ -38,7 +38,7 @@ example (a b c : Nat) (h₁ : r b a) (h₂ : r b c) : r c a := by
 attribute [symm] r.symm
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact r.trans (id (r.symm h₂)) h₁
 -/
 #guard_msgs in

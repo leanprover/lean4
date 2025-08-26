@@ -15,6 +15,7 @@ import Lean.Data.Lsp.Utf16
 import Lean.Meta.CollectFVars
 import Lean.Meta.Tactic.ExposeNames
 meta import Lean.Meta.Hint
+public import Lean.Meta.Hint
 
 public section
 
@@ -80,7 +81,7 @@ def delabToRefinableSuggestion (e : Expr) : MetaM Suggestion :=
 * A code action is added, which will apply the suggestion.
 
 The parameters are:
-* `ref`: the span of the info diagnostic
+* `ref`: the span of the widget diagnostic
 * `s`: a `Suggestion`, which contains
   * `suggestion`: the replacement text
   * `preInfo?`: an optional string shown immediately before the replacement text in the widget
@@ -92,30 +93,32 @@ The parameters are:
     If `none`, we simply prepend `"Try This: "` to the suggestion text.
 * `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
   If not provided it defaults to `ref`.
-* `header`: a string that begins the display. By default, it is `"Try this: "`.
+* `header`: a string that begins the display. By default, it is `"Try this:"`.
 * `codeActionPrefix?`: an optional string to be used as the prefix of the replacement text if the
   suggestion does not have a custom `toCodeActionTitle?`. If not provided, `"Try this: "` is used.
+* `diffGranularity`: How to compute the diff display in the suggestion. Defaults to only displaying
+  the inserted string.
 -/
 def addSuggestion (ref : Syntax) (s : Suggestion) (origSpan? : Option Syntax := none)
-    (header : String := "Try this: ") (codeActionPrefix? : Option String := none) :
-    MetaM Unit := do
+    (header : String := "Try this:") (codeActionPrefix? : Option String := none)
+    (diffGranularity : Hint.DiffGranularity := .none) : MetaM Unit := do
   let hintSuggestion := {
     span? := origSpan?
-    diffGranularity := .none
+    diffGranularity
     toTryThisSuggestion := s
   }
   let suggs ← Hint.mkSuggestionsMessage #[hintSuggestion] ref codeActionPrefix? (forceList := false)
   logInfoAt ref m!"{header}{suggs}"
 
-/-- Add a list of "try this" suggestions as a single "try these" suggestion. This has three effects:
+set_option linter.unusedVariables false in
+/-- Add a list of "try this" suggestions as a single "try these" suggestion. This has two effects:
 
-* An info diagnostic is displayed saying `Try these: <list of suggestions>`
-* A widget is registered, saying `Try these: <list of suggestions>` with a link on each
-  `<suggestion>` to apply the suggestion
+* A widget diagnostic is displayed, saying `Try these: <list of suggestions>` with a link on
+  each suggestion in `<list of suggestions>` to apply each suggestion
 * A code action for each suggestion is added, which will apply the suggestion.
 
 The parameters are:
-* `ref`: the span of the info diagnostic
+* `ref`: the span of the widget diagnostic
 * `suggestions`: an array of `Suggestion`s, which each contain
   * `suggestion`: the replacement text
   * `preInfo?`: an optional string shown immediately before the replacement text in the widget
@@ -124,26 +127,29 @@ The parameters are:
     message (only)
   * `toCodeActionTitle?`: an optional function `String → String` describing how to transform the
     pretty-printed suggestion text into the code action text which appears in the lightbulb menu.
-    If `none`, we simply prepend `"Try This: "` to the suggestion text.
+    If `none`, we simply prepend `"Try this: "` to the suggestion text.
 * `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
   If not provided it defaults to `ref`.
 * `header`: a string that precedes the list. By default, it is `"Try these:"`.
-* `_style?` (**deprecated**): unused.
+* `style?` (**deprecated**): unused.
 * `codeActionPrefix?`: an optional string to be used as the prefix of the replacement text for all
   suggestions which do not have a custom `toCodeActionTitle?`. If not provided, `"Try this: "` is
   used.
+* `diffGranularity`: How to compute the diff display in the suggestion. Defaults to only displaying
+  the inserted string.
 -/
 def addSuggestions (ref : Syntax) (suggestions : Array Suggestion)
     (origSpan? : Option Syntax := none) (header : String := "Try these:")
-    (_style? : Option SuggestionStyle := none)
-    (codeActionPrefix? : Option String := none) : MetaM Unit := do
+    (style? : Option SuggestionStyle := none)
+    (codeActionPrefix? : Option String := none)
+    (diffGranularity : Hint.DiffGranularity := .none) : MetaM Unit := do
   if suggestions.isEmpty then throwErrorAt ref "No suggestions available"
   let hintSuggestions := suggestions.map fun s => {
     span? := origSpan?
-    diffGranularity := .none
+    diffGranularity
     toTryThisSuggestion := s
   }
-  let suggs ← Hint.mkSuggestionsMessage hintSuggestions ref codeActionPrefix? (forceList := false)
+  let suggs ← Hint.mkSuggestionsMessage hintSuggestions ref codeActionPrefix? (forceList := true)
   logInfoAt ref m!"{header}{suggs}"
 
 /-! # Tactic-specific widget hooks -/
@@ -236,7 +242,7 @@ private def addExactSuggestionCore (addSubgoalsMsg : Bool) (checkState? : Option
 /-- Add an `exact e` or `refine e` suggestion.
 
 The parameters are:
-* `ref`: the span of the info diagnostic
+* `ref`: the span of the widget diagnostic
 * `e`: the replacement expression
 * `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
   If not provided it defaults to `ref`.
@@ -267,7 +273,7 @@ def addExactSuggestion (ref : Syntax) (e : Expr)
 cannot, display messages indicating the invalid generated tactics.
 
 The parameters are:
-* `ref`: the span of the info diagnostic
+* `ref`: the span of the widget diagnostic
 * `es`: the array of replacement expressions
 * `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
   If not provided it defaults to `ref`.
@@ -304,16 +310,16 @@ def addExactSuggestions (ref : Syntax) (es : Array Expr)
 /-- Add a term suggestion.
 
 The parameters are:
-* `ref`: the span of the info diagnostic
+* `ref`: the span of the widget diagnostic
 * `e`: the replacement expression
 * `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
   If not provided it defaults to `ref`.
-* `header`: a string which precedes the suggestion. By default, it's `"Try this: "`.
+* `header`: a string which precedes the suggestion. By default, it's `"Try this:"`.
 * `codeActionPrefix?`: an optional string to be used as the prefix of the replacement text if the
   suggestion does not have a custom `toCodeActionTitle?`. If not provided, `"Try this: "` is used.
 -/
 def addTermSuggestion (ref : Syntax) (e : Expr)
-    (origSpan? : Option Syntax := none) (header : String := "Try this: ")
+    (origSpan? : Option Syntax := none) (header : String := "Try this:")
     (codeActionPrefix? : Option String := none) : MetaM Unit := do
   addSuggestion ref (← delabToRefinableSuggestion e) (origSpan? := origSpan?) (header := header)
     (codeActionPrefix? := codeActionPrefix?)
@@ -321,7 +327,7 @@ def addTermSuggestion (ref : Syntax) (e : Expr)
 /-- Add term suggestions.
 
 The parameters are:
-* `ref`: the span of the info diagnostic
+* `ref`: the span of the widget diagnostic
 * `es`: an array of the replacement expressions
 * `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
   If not provided it defaults to `ref`.
@@ -376,7 +382,7 @@ open Lean.Syntax
 /-- Add a suggestion for `rw [h₁, ← h₂] at loc`.
 
 Parameters:
-* `ref`: the span of the info diagnostic
+* `ref`: the span of the widget diagnostic
 * `rules`: a list of arguments to `rw`, with the second component `true` if the rewrite is reversed
 * `type?`: the goal after the suggested rewrite, `.none` if the rewrite closes the goal, or `.undef`
   if the resulting goal is unknown

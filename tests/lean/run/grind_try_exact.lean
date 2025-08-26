@@ -6,7 +6,7 @@ opaque Q : Nat → Prop
 theorem Pall : Q x → P x := sorry
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact Pall h
 -/
 #guard_msgs (info) in
@@ -14,7 +14,7 @@ example (h : Q x) (_ : x > 0) : P x := by
   try?
 
 /--
-info: Try this: ⏎
+info: Try this:
   · intros; expose_names; exact Pall h
 -/
 #guard_msgs (info) in
@@ -22,7 +22,7 @@ example: Q x → True → P x := by
   try?
 
 /--
-info: Try this: ⏎
+info: Try this:
   · intros; expose_names; exact Pall h_1
 -/
 #guard_msgs (info) in
@@ -42,7 +42,7 @@ example : Q x := by
   try? -- should fail, we cannot elaborate `exact Qall`
 
 /--
-info: Try this: ⏎
+info: Try this:
   · expose_names; exact Pall h
 -/
 #guard_msgs (info) in

@@ -10,7 +10,7 @@ public inductive AckFuel : (n m : Nat) → Type where
 
 namespace Test1
 /--
-info: Try this: ⏎
+info: Try this:
   termination_by structural x _ x => x
 -/
 #guard_msgs in
@@ -24,7 +24,7 @@ end Test1
 
 namespace Test2
 /--
-info: Try this: ⏎
+info: Try this:
   termination_by structural x _ x => x
 -/
 #guard_msgs in
@@ -38,7 +38,7 @@ end Test2
 
 namespace Test3
 /--
-info: Try this: ⏎
+info: Try this:
   termination_by structural x _ x => x
 -/
 #guard_msgs in

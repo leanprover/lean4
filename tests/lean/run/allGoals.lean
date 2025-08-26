@@ -124,7 +124,7 @@ has type
 but is expected to have type
   false = false
 ---
-info: Try this: ⏎
+info: Try this:
   Bool.casesOn (motive := fun t => b = t → b = b) b
     (fun h => Eq.symm h ▸ sorry) (fun h => Eq.symm h ▸ Eq.refl true) (Eq.refl b)
 -/
@@ -220,7 +220,7 @@ Simple failure.
 error: Failed: `fail` tactic was invoked
 ⊢ True
 ---
-info: Try this: ⏎
+info: Try this:
   sorry
 -/
 #guard_msgs in
@@ -240,7 +240,7 @@ error: maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
 ---
-info: Try this: ⏎
+info: Try this:
   sorry
 -/
 #guard_msgs in

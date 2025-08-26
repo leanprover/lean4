@@ -13,7 +13,7 @@ def optimal' (a : Aexp) : Prop :=
 inductive_fixpoint
 
 /--
-info: Try this: ⏎
+info: Try this:
   simp_all only [asimp_const, reduceCtorEq]
 -/
 #guard_msgs in

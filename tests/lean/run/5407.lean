@@ -39,7 +39,7 @@ axiom imp : A → B → C
 axiom a : A
 axiom b : B
 /--
-info: Try this: ⏎
+info: Try this:
   (expose_names; exact imp h_1 h)
 -/
 #guard_msgs in
@@ -65,7 +65,7 @@ example : EqExplicit (fun (f : α → β) => (fun g x => g x) f) id := by
 
 /-! Suggests `expose_names` if a name in the syntax contains macro scopes -/
 /--
-info: Try this: ⏎
+info: Try this:
   (expose_names; exact h)
 -/
 #guard_msgs in
@@ -78,7 +78,7 @@ example {P : Prop} : P → P := by
 opaque D : Nat → Type
 axiom c_of_d {n : Nat} : D n → C
 /--
-info: Try this: ⏎
+info: Try this:
   exact c_of_d x
 -/
 #guard_msgs in
@@ -93,7 +93,7 @@ opaque E : Prop
 axiom option1 : A → E
 axiom option2 {_ : B} : E
 /--
-info: Try this: ⏎
+info: Try this:
   refine option1 ?_
   -- Remaining subgoals:
   -- ⊢ A
@@ -116,7 +116,7 @@ of parenthesized sequencing.
 opaque R : A → B → Prop
 axiom rImp (b : B) : R a b → R a b
 /--
-info: Try this: ⏎
+info: Try this:
   (expose_names; refine rImp b ?_)
   -- Remaining subgoals:
   -- ⊢ R a b
@@ -131,7 +131,7 @@ example : (b : B) → R a b := by
 
 /-! `show_term` exhibits the same behavior as `exact?` -/
 /--
-info: Try this: ⏎
+info: Try this:
   (expose_names; exact h)
 -/
 #guard_msgs in
@@ -153,7 +153,7 @@ example : B → E := by
   intro
   show_term apply option2
 /--
-info: Try this: ⏎
+info: Try this:
   exact c_of_d d
 -/
 #guard_msgs in
@@ -173,7 +173,7 @@ noncomputable opaque a : A
 axiom eq (a' : A) : a = a'
 
 /--
-info: Try this: ⏎
+info: Try this:
   (expose_names; rw [eq a'])
   -- Foo a' a'
 ---

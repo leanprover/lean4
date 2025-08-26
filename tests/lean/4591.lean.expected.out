@@ -1,2 +1,2 @@
-Try this: 
+Try this:
   simp only [Nat.foo]

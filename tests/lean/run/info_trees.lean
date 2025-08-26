@@ -69,7 +69,7 @@ info: • [Command] @ ⟨77, 0⟩-⟨77, 40⟩ @ Lean.Elab.Command.elabDeclarati
                 • [CustomInfo(Lean.Meta.Tactic.TryThis.TryThisInfo)]
     • [Term] t (isBinder := true) : ∀ (n : Nat), 0 ≤ n @ ⟨77, 8⟩-⟨77, 9⟩
 ---
-info: Try this: ⏎
+info: Try this:
   exact Nat.zero_le n
 -/
 #guard_msgs in

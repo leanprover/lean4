@@ -5,7 +5,7 @@ Authors: Kim Morrison
 -/
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact (n, 37)
 -/
 #guard_msgs in example (n : Nat) : Nat × Nat := by
@@ -15,7 +15,7 @@ info: Try this: ⏎
     exact 37
 
 /--
-info: Try this: ⏎
+info: Try this:
   refine (?_, ?_)
 -/
 #guard_msgs in example : Nat × Nat := by
@@ -23,7 +23,7 @@ info: Try this: ⏎
   repeat exact 42
 
 /--
-info: Try this: ⏎
+info: Try this:
   fun {X} => X
 -/
 #guard_msgs in example : {_a : Nat} → Nat :=

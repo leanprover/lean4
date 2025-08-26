@@ -6,7 +6,7 @@ def copy (curr : Nat) (input : Array Nat) (output : Array Nat) : Array Nat :=
 termination_by input.size - curr
 
 /--
-info: Try this: ⏎
+info: Try this:
   termination_by input.size - curr
 -/
 #guard_msgs(drop warning, info) in

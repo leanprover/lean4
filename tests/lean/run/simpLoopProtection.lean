@@ -361,7 +361,7 @@ use `set_option diagnostics true` to get diagnostic information
 example : d > 0 := by simp? only [dc, ca, ac]; exact testSorry
 
 /--
-info: Try this: ⏎
+info: Try this:
   simp only [dc, h, Nat.one_pos]
 -/
 #guard_msgs in

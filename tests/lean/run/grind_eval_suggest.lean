@@ -73,7 +73,7 @@ example : True := by
 macro "simple_tac" : tactic => `(tactic| eval_suggest (intros; skip; first | skip | simp))
 
 /--
-info: Try this: ⏎
+info: Try this:
   simp
 -/
 #guard_msgs (info) in
@@ -88,7 +88,7 @@ set_option hygiene false in
 macro "simple_tac2" : tactic => `(tactic| eval_suggest (intros; (simp only [Nat.zero_add]; simp only [Nat.one_mul]); simp [*]))
 
 /--
-info: Try this: ⏎
+info: Try this:
   · intros; simp only [Nat.zero_add]; simp only [Nat.one_mul]; simp [*]
 -/
 #guard_msgs (info) in

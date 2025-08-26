@@ -51,7 +51,7 @@ partial_fixpoint monotonicity
 -- Tactics
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact fun x y a x => a (x + 1)
 -/
 #guard_msgs in

@@ -12,7 +12,7 @@ def evalTryApply : TryTactic := fun tac => do
   `(tactic| (trace "worked"; assumption))
 
 /--
-info: Try this: ⏎
+info: Try this:
   · trace "worked"; assumption
 -/
 #guard_msgs (info) in

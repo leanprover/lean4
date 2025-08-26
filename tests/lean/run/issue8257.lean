@@ -1,5 +1,5 @@
 /--
-info: Try this: ⏎
+info: Try this:
   termination_by xs.length / 2 - i
 -/
 #guard_msgs in
@@ -13,7 +13,7 @@ def foo (xs : String) (i : Nat) (a b : String.Iterator) : Bool :=
 termination_by?
 
 /--
-info: Try this: ⏎
+info: Try this:
   termination_by xs.length / 2 - i
 -/
 #guard_msgs in
@@ -29,7 +29,7 @@ termination_by?
 
 
 /--
-info: Try this: ⏎
+info: Try this:
   termination_by xs.length / 2 - i
 -/
 #guard_msgs in

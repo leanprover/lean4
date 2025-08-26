@@ -1,5 +1,5 @@
 /--
-info: Try this: ⏎
+info: Try this:
   simp only [x]
 ---
 warning: declaration uses 'sorry'
@@ -11,7 +11,7 @@ example {P : Nat → Prop} : let x := 0; P x := by
   sorry
 
 /--
-info: Try this: ⏎
+info: Try this:
   simp_all only [x]
 ---
 warning: declaration uses 'sorry'

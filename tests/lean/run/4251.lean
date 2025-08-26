@@ -1,5 +1,5 @@
 /--
-info: Try this: ⏎
+info: Try this:
   simp only [ha, Nat.reduceEqDiff, imp_self]
 -/
 #guard_msgs in

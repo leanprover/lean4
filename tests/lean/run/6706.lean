@@ -10,7 +10,7 @@ declarations.
 def P := True
 theorem N.A.B : P := trivial
 /--
-info: Try this: ⏎
+info: Try this:
   simp only [N.A.B]
 -/
 #guard_msgs in
@@ -18,7 +18,7 @@ theorem N.X.A.B : P := by
   simp? [N.A.B]
 
 /--
-info: Try this: ⏎
+info: Try this:
   simp only [_root_.N.A.B]
 -/
 #guard_msgs in

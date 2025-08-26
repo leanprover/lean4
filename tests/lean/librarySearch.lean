@@ -20,14 +20,14 @@ set_option linter.unusedVariables false
 noncomputable section
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact Nat.lt_add_one x
 -/
 #guard_msgs in
 example (x : Nat) : x ≠ x.succ := Nat.ne_of_lt (by apply?)
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact Nat.zero_lt_succ 1
 -/
 #guard_msgs in
@@ -36,28 +36,28 @@ example : 0 ≠ 1 + 1 := Nat.ne_of_lt (by apply?)
 example : 0 ≠ 1 + 1 := Nat.ne_of_lt (by exact Fin.pos')
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact Nat.add_comm x y
 -/
 #guard_msgs in
 example (x y : Nat) : x + y = y + x := by apply?
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact fun a => Nat.add_le_add_right a k
 -/
 #guard_msgs in
 example (n m k : Nat) : n ≤ m → n + k ≤ m + k := by apply?
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact Nat.mul_dvd_mul_left a w
 -/
 #guard_msgs in
 example (_ha : a > 0) (w : b ∣ c) : a * b ∣ a * c := by apply?
 
 /--
-info: Try this: ⏎
+info: Try this:
   Nat.lt_add_one x
 -/
 #guard_msgs in
@@ -72,19 +72,19 @@ example {α : Sort u} (x y : α) : Eq x y := exact?%
 example (x y : Nat) : x ≤ y := exact?%
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact p
 -/
 #guard_msgs in
 example (P : Prop) (p : P) : P := by apply?
 /--
-info: Try this: ⏎
+info: Try this:
   exact False.elim (np p)
 -/
 #guard_msgs in
 example (P : Prop) (p : P) (np : ¬P) : false := by apply?
 /--
-info: Try this: ⏎
+info: Try this:
   exact h x rfl
 -/
 #guard_msgs in
@@ -100,7 +100,7 @@ example (α : Prop) : α → α := by apply?
 -- example (P Q : Prop) : (¬ Q → ¬ P) → (P → Q) := by apply? -- say: `exact Function.mtr`
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact Nat.add_comm a b
 -/
 #guard_msgs in
@@ -108,7 +108,7 @@ example (a b : Nat) : a + b = b + a :=
 by apply?
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact Nat.mul_sub_left_distrib n m k
 -/
 #guard_msgs in
@@ -118,7 +118,7 @@ by apply?
 attribute [symm] Eq.symm
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact Eq.symm (Nat.mul_sub_left_distrib n m k)
 -/
 #guard_msgs in
@@ -126,21 +126,21 @@ example (n m k : Nat) : n * m - n * k = n * (m - k) := by
   apply?
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact eq_comm
 -/
 #guard_msgs in
 example {α : Type} (x y : α) : x = y ↔ y = x := by apply?
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact Nat.add_pos_left ha b
 -/
 #guard_msgs in
 example (a b : Nat) (ha : 0 < a) (_hb : 0 < b) : 0 < a + b := by apply?
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact Nat.add_pos_left ha b
 -/
 #guard_msgs in
@@ -151,14 +151,14 @@ example (a b : Nat) (ha : 0 < a) (_hb : 0 < b) : 0 < a + b := by apply?
 section synonym
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact Nat.add_pos_left ha b
 -/
 #guard_msgs in
 example (a b : Nat) (ha : a > 0) (_hb : 0 < b) : 0 < a + b := by apply?
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact Nat.le_of_dvd w h
 -/
 #guard_msgs in
@@ -166,7 +166,7 @@ example (a b : Nat) (h : a ∣ b) (w : b > 0) : a ≤ b :=
 by apply?
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact Nat.le_of_dvd w h
 -/
 #guard_msgs in
@@ -174,13 +174,13 @@ example (a b : Nat) (h : a ∣ b) (w : b > 0) : b ≥ a := by apply?
 
 -- TODO: A lemma with head symbol `¬` can be used to prove `¬ p` or `⊥`
 /--
-info: Try this: ⏎
+info: Try this:
   exact Nat.not_lt_zero a
 -/
 #guard_msgs in
 example (a : Nat) : ¬ (a < 0) := by apply?
 /--
-info: Try this: ⏎
+info: Try this:
   exact Nat.not_succ_le_zero a h
 -/
 #guard_msgs in
@@ -199,20 +199,20 @@ theorem lemma_with_false_in_head (a b : Nat) (_h1 : a < b) (h2 : P a) : False :=
   apply Nat.not_lt_zero; cases h2; assumption
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact lemma_with_gt_in_head a h
 -/
 #guard_msgs in
 example (a : Nat) (h : P a) : 0 > a := by apply?
 /--
-info: Try this: ⏎
+info: Try this:
   exact lemma_with_gt_in_head a h
 -/
 #guard_msgs in
 example (a : Nat) (h : P a) : a < 0 := by apply?
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact lemma_with_false_in_head a b h1 h2
 -/
 #guard_msgs in
@@ -224,7 +224,7 @@ example (a b : Nat) (h1 : a < b) (h2 : P a) : False := by apply?
 end synonym
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact fun P => iff_not_self
 -/
 #guard_msgs in
@@ -240,21 +240,21 @@ theorem p_iff_q (i : Nat) : P i ↔ Q i :=
 -- We even find `iff` results:
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact (p_iff_q a).mp h
 -/
 #guard_msgs in
 example {a : Nat} (h : P a) : Q a := by apply?
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact (p_iff_q a).mpr h
 -/
 #guard_msgs in
 example {a : Nat} (h : Q a) : P a := by apply?
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact
     (Nat.dvd_add_iff_left h₁).mpr h₂
 -/
@@ -270,14 +270,14 @@ opaque f : Nat → Nat
 axiom F (a b : Nat) : f a ≤ f b ↔ a ≤ b
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact (F a b).mpr h
 -/
 #guard_msgs in
 example (a b : Nat) (h : a ≤ b) : f a ≤ f b := by apply?
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact L.flatten
 -/
 #guard_msgs in
@@ -305,7 +305,7 @@ theorem Bool_eq_iff {A B : Bool} : (A = B) = (A ↔ B) :=
   by (cases A <;> cases B <;> simp)
 
 /--
-info: Try this: ⏎
+info: Try this:
   exact Bool_eq_iff
 -/
 #guard_msgs in
@@ -346,7 +346,7 @@ theorem Bool_eq_iff2 {A B : Bool} : (A = B) = (A ↔ B) := by
 --   | exact? says exact ge_antisymm hyx hxy
 
 /--
-info: Try this: ⏎
+info: Try this:
   refine Int.mul_ne_zero ?_ h
   -- Remaining subgoals:
   -- ⊢ 2 ≠ 0
@@ -360,7 +360,7 @@ example {x : Int} (h : x ≠ 0) : 2 * x ≠ 0 := by
 -- Check that adding `with_reducible` prevents expensive kernel reductions.
 -- https://leanprover.zulipchat.com/#narrow/stream/287929-mathlib4/topic/.60exact.3F.60.20failure.3A.20.22maximum.20recursion.20depth.20has.20been.20reached.22/near/417649319
 /--
-info: Try this: ⏎
+info: Try this:
   exact Nat.add_comm n m
 -/
 #guard_msgs in

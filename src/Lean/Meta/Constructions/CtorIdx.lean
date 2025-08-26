@@ -55,26 +55,34 @@ public def mkCtorIdx (indName : Name) : MetaM Unit := do
       let declType ← mkArrow indType natType
       let declType ← mkForallFVars xs declType
       let declValue ← withLocalDeclD `x indType fun x => do
-        let motive ← mkLambdaFVars (indices.push x) natType
-        let mut value := mkConst casesOnName (levelOne::us)
-        value := mkAppN value params
-        value := mkApp value motive
-        value := mkAppN value indices
-        value := mkApp value x
-        for c in info.ctors do
-          let cInfo ← getConstInfoCtor c
-          let cType ← instantiateForall cInfo.type params
-          let alt ← forallBoundedTelescope cType cInfo.numFields fun ys _ =>
-            mkLambdaFVars ys <| mkRawNatLit cInfo.cidx
-          value := mkApp value alt
+        let value ← if info.numCtors = 1 then
+          pure (mkRawNatLit 0)
+        else
+          let motive ← mkLambdaFVars (indices.push x) natType
+          let mut value := mkConst casesOnName (levelOne::us)
+          value := mkAppN value params
+          value := mkApp value motive
+          value := mkAppN value indices
+          value := mkApp value x
+          for c in info.ctors do
+            let cInfo ← getConstInfoCtor c
+            let cType ← instantiateForall cInfo.type params
+            let alt ← forallBoundedTelescope cType cInfo.numFields fun ys _ =>
+              mkLambdaFVars ys <| mkRawNatLit cInfo.cidx
+            value := mkApp value alt
+          pure value
         mkLambdaFVars (xs.push x) value
-      addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+      let decl := .defnDecl (← mkDefinitionValInferringUnsafe
         (name        := declName)
         (levelParams := info.levelParams)
         (type        := declType)
         (value       := declValue)
         (hints       := ReducibilityHints.abbrev)
-      ))
+      )
+      addDecl decl
+      if info.numCtors = 1 then
+        setInlineAttribute declName .macroInline
+      compileDecl decl
       modifyEnv fun env => addToCompletionBlackList env declName
       modifyEnv fun env => addProtected env declName
       setReducibleAttribute declName
@@ -82,13 +90,16 @@ public def mkCtorIdx (indName : Name) : MetaM Unit := do
       -- Deprecated alias for enumeration types (which used to have `toCtorIdx`)
       if (← isEnumType indName) then
         let aliasName := mkToCtorIdxName indName
-        addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+        let decl := .defnDecl (← mkDefinitionValInferringUnsafe
           (name        := aliasName)
           (levelParams := info.levelParams)
           (type        := declType)
           (value       := mkConst declName us)
           (hints       := ReducibilityHints.abbrev)
-        ))
+        )
+        addDecl decl
+        setInlineAttribute aliasName .macroInline
+        compileDecl decl
         modifyEnv fun env => addToCompletionBlackList env aliasName
         modifyEnv fun env => addProtected env aliasName
         setReducibleAttribute aliasName

@@ -168,7 +168,7 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) : TermElabM Unit
   -- and we make sure to put the instance in the private scope.
   withoutExporting (when := isPrivateName declName) do
   let ConstantInfo.defnInfo info ← getConstInfo declName
-    | throwError "Failed to delta derive instance, `{declName}` is not a definition."
+    | throwError "Failed to delta derive instance, `{.ofConstName declName}` is not a definition."
   let value := info.value.beta decl.getAppArgs
   let result : Closure.MkValueTypeClosureResult ←
     -- Assumption: users intend delta deriving to apply to the body of a definition, even if in the source code

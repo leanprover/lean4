@@ -7,6 +7,7 @@ module
 prelude
 
 public import Init.Data.Rat.Basic
+import Init.Data.Int.Bitwise.Lemmas
 
 @[expose] public section
 

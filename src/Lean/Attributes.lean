@@ -139,7 +139,7 @@ def throwAttrNotInAsyncCtx (attrName declName : Name) (asyncPrefix? : Option Nam
   throwError "Cannot add attribute `[{attrName}]` to declaration `{.ofConstName declName}` because it is not from the present async context{asyncPrefix}"
 
 def throwAttrDeclNotOfExpectedType (attrName declName : Name) (givenType expectedType : Expr) : m α :=
-  throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{declName}` has type{indentExpr givenType}\n\
+  throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` has type{indentExpr givenType}\n\
     but `[{attrName}]` can only be added to declarations of type{indentExpr expectedType}"
 end
 
@@ -383,7 +383,7 @@ unsafe def mkAttributeImplOfConstantUnsafe (env : Environment) (opts : Options) 
   | some info =>
     match info.type with
     | Expr.const `Lean.AttributeImpl _ => env.evalConst AttributeImpl opts declName
-    | _ => throw s!"Unexpected attribute implementation type: `{declName}` is not of type `Lean.AttributeImpl`"
+    | _ => throw "Unexpected attribute implementation type: `{.ofConstName declName}` is not of type `Lean.AttributeImpl`"
 
 @[implemented_by mkAttributeImplOfConstantUnsafe]
 opaque mkAttributeImplOfConstant (env : Environment) (opts : Options) (declName : Name) : Except String AttributeImpl

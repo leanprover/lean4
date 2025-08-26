@@ -11,7 +11,7 @@ public import Lean.Meta.Tactic.Grind.Simp
 public import Lean.Meta.Tactic.Grind.SynthInstance
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 

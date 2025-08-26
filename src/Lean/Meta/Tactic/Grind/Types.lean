@@ -1579,4 +1579,8 @@ def withoutModifyingState (x : GoalM α) : GoalM α := do
   finally
     set saved
 
+/-- Canonicalizes nested types, type formers, and instances in `e`. -/
+@[extern "lean_grind_canon"] -- Forward definition
+opaque canon (e : Expr) : GoalM Expr
+
 end Lean.Meta.Grind

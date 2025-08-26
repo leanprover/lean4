@@ -364,4 +364,15 @@ partial def toPattern (e : Expr) : MetaM Pattern := do
           let fields ← fields.mapM toPattern
           return Pattern.ctor v.name us params.toList fields.toList
 
+/-! Match congruence equational theorem names helper declarations and functions -/
+
+def congrEqnThmSuffixBase := "congr_eq"
+def congrEqnThmSuffixBasePrefix := congrEqnThmSuffixBase ++ "_"
+def congrEqn1ThmSuffix := congrEqnThmSuffixBasePrefix ++ "1"
+example : congrEqn1ThmSuffix = "congr_eq_1" := rfl
+
+/-- Returns `true` if `s` is of the form `congr_eq_<idx>` -/
+def isCongrEqnReservedNameSuffix (s : String) : Bool :=
+  congrEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop congrEqnThmSuffixBasePrefix.length).isNat
+
 end Lean.Meta.Match

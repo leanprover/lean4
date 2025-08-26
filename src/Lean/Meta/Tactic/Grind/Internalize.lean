@@ -15,7 +15,6 @@ public import Lean.Meta.Match.MatchEqs
 public import Lean.Util.CollectLevelParams
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Util
-public import Lean.Meta.Tactic.Grind.Canon
 public import Lean.Meta.Tactic.Grind.Beta
 public import Lean.Meta.Tactic.Grind.MatchCond
 public import Lean.Meta.Tactic.Grind.Arith.Internalize

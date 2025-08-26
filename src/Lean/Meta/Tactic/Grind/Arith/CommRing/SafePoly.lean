@@ -4,19 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
-
 public section
-
 namespace Lean.Meta.Grind.Arith.CommRing
-
 /-!
 The polynomial functions at `Poly.lean` are used for constructing proofs-by-reflection,
 but they do not provide mechanisms for aborting expensive computations.
 -/
-
 private def applyChar (a : Int) : RingM Int := do
   if let some c ← nonzeroChar? then
     return a % c

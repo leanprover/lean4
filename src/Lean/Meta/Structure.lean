@@ -26,7 +26,7 @@ def getStructureName (struct : Expr) : MetaM Name :=
   match struct.getAppFn with
   | Expr.const declName .. => do
     unless isStructure (← getEnv) declName do
-      throwError "'{declName}' is not a structure"
+      throwError "'{.ofConstName declName}' is not a structure"
     return declName
   | _ => throwError "expected structure"
 

@@ -15,7 +15,8 @@ private def isParentSameOpApp (parent? : Option Expr) (op : Expr) : GoalM Bool :
   unless e.isApp && e.appFn!.isApp do return false
   return isSameExpr e.appFn!.appFn! op
 
-def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
+@[export lean_grind_ac_internalize]
+def internalizeImpl (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).ac do return ()
   unless e.isApp && e.appFn!.isApp do return ()
   let op := e.appFn!.appFn!

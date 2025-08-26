@@ -11,7 +11,7 @@ public import Lean.Meta.Tactic.Grind.Simp
 public import Lean.Meta.Tactic.Grind.SynthInstance
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 
@@ -41,7 +41,7 @@ private def mkExpectedDefEqMsg (a b : Expr) : MetaM MessageData :=
   return m!"`grind linarith` expected{indentExpr a}\nto be definitionally equal to{indentExpr b}"
 
 private def ensureDefEq (a b : Expr) : MetaM Unit := do
-  unless (← withDefault <| isDefEq a b) do
+  unless (← isDefEqD a b) do
     throwError (← mkExpectedDefEqMsg a b)
 
 private def addZeroLtOne (one : Var) : LinearM Unit := do
@@ -94,7 +94,7 @@ private def mkOne? (u : Level) (type : Expr) : GoalM (Option Expr) := do
   let some oneInst ← synthInstance? (mkApp (mkConst ``One [u]) type) | return none
   let one ← internalizeConst <| mkApp2 (mkConst ``One.one [u]) type oneInst
   let one' ← mkNumeral type 1
-  unless (← withDefault <| isDefEq one one') do reportIssue! (← mkExpectedDefEqMsg one one')
+  unless (← isDefEqD one one') do reportIssue! (← mkExpectedDefEqMsg one one')
   return some one
 
 private def mkLawfulOrderLTInst? (u : Level) (type : Expr) (ltInst? leInst? : Option Expr) : GoalM (Option Expr) := do
@@ -173,7 +173,7 @@ where
       let some parentInst := parentInst? | return none
       let some childInst := childInst? | return none
       let toField := mkApp3 (mkConst toFieldName [u]) type leInst childInst
-      unless (← withDefault <| isDefEq parentInst toField) do
+      unless (← isDefEqD parentInst toField) do
         reportIssue! (← mkExpectedDefEqMsg parentInst toField)
         return none
       return some childInst

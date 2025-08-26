@@ -49,7 +49,7 @@ def addDocString
     [Monad m] [MonadError m] [MonadEnv m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m]
     (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) : m Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
-    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
+    throwError "invalid doc string, declaration '{.ofConstName declName}' is in an imported module"
   validateDocComment docComment
   let docString : String ← getDocStringText docComment
   modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces

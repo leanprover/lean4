@@ -1254,8 +1254,8 @@ inductive LValResolution where
   in which case these do not need to be structures. Supports generalized field notation. -/
   | const    (baseStructName : Name) (structName : Name) (constName : Name)
   /-- Like `const`, but with `fvar` instead of `constName`.
-  The `fullName` is the name of the recursive function, and `baseName` is the base name of the type to search for in the parameter list. -/
-  | localRec (baseName : Name) (fullName : Name) (fvar : Expr)
+  The `baseName` is the base name of the type to search for in the parameter list. -/
+  | localRec (baseName : Name) (fvar : Expr)
 
 private def throwLValErrorAt (ref : Syntax) (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
   throwErrorAt ref "{msg}{indentExpr e}\nhas type{indentExpr eType}"
@@ -1325,6 +1325,9 @@ where
     | some (_, p2) => prodArity p2 + 1
 
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
+  let throwInvalidFieldAt {α : Type} (ref : Syntax) (fieldName : String) (fullName : Name) : TermElabM α := do
+    throwLValErrorAt ref e eType <| ← mkUnknownIdentifierMessage (declHint := fullName)
+      m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`"
   if eType.isForall then
     match lval with
     | LVal.fieldName _ fieldName suffix? fullRef =>
@@ -1336,8 +1339,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
            been a field in the `Function` namespace, so we needn't wait to check if this is actually
            a constant. If `suffix?` is non-`none`, we prefer to throw the "unknown constant" error
            (because of monad namespaces like `IO` and auxiliary declarations like `mutual_induct`) -/
-        throwLValErrorAt fullRef e eType (← mkUnknownIdentifierMessage (declHint := fullName)
-          m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`")
+        throwInvalidFieldAt fullRef fieldName fullName
     | .fieldIdx .. =>
       throwLValError e eType "Invalid projection: Projections cannot be used on functions"
   else if eType.getAppFn.isMVar then
@@ -1380,19 +1382,17 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       if let some baseStructName := findField? env structName (Name.mkSimple fieldName) then
         return LValResolution.projFn baseStructName structName (Name.mkSimple fieldName)
     -- Search the local context first
-    let fullName := Name.mkStr structName fieldName
+    let fullName := Name.mkStr (privateToUserName structName) fieldName
     for localDecl in (← getLCtx) do
       if localDecl.isAuxDecl then
         if let some localDeclFullName := (← getLCtx).auxDeclToFullName.get? localDecl.fvarId then
-          if fullName == (privateToUserName? localDeclFullName).getD localDeclFullName then
+          if fullName == privateToUserName localDeclFullName then
             /- LVal notation is being used to make a "local" recursive call. -/
-            return LValResolution.localRec structName fullName localDecl.toExpr
+            return LValResolution.localRec structName localDecl.toExpr
     -- Then search the environment
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName
-    let msg ← mkUnknownIdentifierMessage (declHint := fullName)
-      m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`"
-    throwLValErrorAt fullRef e eType msg
+    throwInvalidFieldAt fullRef fieldName fullName
   | none, LVal.fieldName _ _ (some suffix) fullRef =>
     -- This may be a function constant whose implicit arguments have already been filled in:
     let c := e.getAppFn
@@ -1479,11 +1479,12 @@ Otherwise, if there isn't another parameter with the same name, we add `e` to `n
 
 Remark: `fullName` is the name of the resolved "field" access function. It is used for reporting errors
 -/
-private partial def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) (namedArgs : Array NamedArg) (f : Expr) (explicit : Bool) :
+private partial def addLValArg (baseName : Name) (e : Expr) (args : Array Arg) (namedArgs : Array NamedArg) (f : Expr) (explicit : Bool) :
     MetaM (Array Arg × Array NamedArg) := do
-  withoutModifyingState <| go f (← inferType f) 0 namedArgs (namedArgs.map (·.name)) true
+  withoutModifyingState <| go none f (← inferType f) 0 namedArgs (namedArgs.map (·.name)) true
 where
   /--
+  * `fPreCoercion?` keeps track of what `f` was originally, if there was a coercion. For error reporting.
   * `argIdx` is the position into `args` for the next place an explicit argument can be inserted.
   * `remainingNamedArgs` keeps track of named arguments that haven't been visited yet,
     for handling the case where multiple parameters have the same name.
@@ -1492,7 +1493,7 @@ where
     Disabled after using `CoeFun` since those parameter names unlikely to be meaningful,
     and otherwise whether dot notation works or not could feel random.
   -/
-  go (f fType : Expr) (argIdx : Nat) (remainingNamedArgs : Array NamedArg) (unusableNamedArgs : Array Name) (allowNamed : Bool) := withIncRecDepth do
+  go (fPreCoercion? : Option Expr) (f fType : Expr) (argIdx : Nat) (remainingNamedArgs : Array NamedArg) (unusableNamedArgs : Array Name) (allowNamed : Bool) := withIncRecDepth do
     /- Use metavariables (rather than `forallTelescope`) to prevent `coerceToFunction?` from succeeding when multiple instances could apply -/
     let (xs, bInfos, fType') ← forallMetaTelescope fType
     let mut argIdx := argIdx
@@ -1515,7 +1516,7 @@ where
             /- If we can't add `e` to `args`, we try to add it using a named argument, but this is only possible
                if there isn't an argument with the same name occurring before it. -/
             if !allowNamed || unusableNamedArgs.contains xDecl.userName then
-              throwUnusableParameter allowNamed xDecl
+              throwUnusableParameter fPreCoercion? f allowNamed xDecl
             else
               return (args, namedArgs.push { name := xDecl.userName, val := Arg.expr e })
         /- Advance `argIdx` and update seen named arguments. -/
@@ -1526,26 +1527,42 @@ where
        Otherwise, we can abort now. -/
     if allowNamed || argIdx ≤ args.size then
       if let fType'@(.forallE ..) ← whnf fType' then
-        return ← go (mkAppN f xs) fType' argIdx remainingNamedArgs unusableNamedArgs allowNamed
+        return ← go fPreCoercion? (mkAppN f xs) fType' argIdx remainingNamedArgs unusableNamedArgs allowNamed
       if let some f' ← coerceToFunction? (mkAppN f xs) then
-        return ← go f' (← inferType f') argIdx remainingNamedArgs unusableNamedArgs false
+        return ← go (fPreCoercion?.getD f) f' (← inferType f') argIdx remainingNamedArgs unusableNamedArgs false
     let tyCtorMsg := MessageData.ofLazyM do
       let some decl := (← getEnv).find? baseName | return .ofConstName baseName
       if decl.type.isForall then
         return m!"{.ofConstName baseName} ..."
       else
         return .ofConstName baseName
-    throwError m!"Invalid field notation: Function `{.ofConstName fullName}` does not have a usable \
+    throwError m!"Invalid field notation: Function {funMsg fPreCoercion? f} does not have a usable \
       parameter of type `{tyCtorMsg}` for which to substitute{inlineExprTrailing e}"
       ++ .note m!"Such a parameter must be explicit, or implicit with a unique name, to be used by field notation"
 
-  throwUnusableParameter (allowNamed : Bool) (xDecl : MetavarDecl) :=
+  funMsg (fPreCoercion? : Option Expr) (f : Expr) : MessageData :=
+    let msg (e : Expr) : MessageData :=
+      -- Eta reduce since often coercions are written with lambdas.
+      -- This might be somewhat misleading, since the lambda can rephrase parameters.
+      let e := e.getAppFn.eta
+      if let .const c .. := e then
+        -- avoid `@`
+        m!"`{.ofConstName c}`"
+      else
+        m!"`{e}`"
+    if let some fPreCoercion := fPreCoercion? then
+      m!"{msg f} (coerced from {msg fPreCoercion})"
+    else
+      msg f
+
+  throwUnusableParameter (fPreCoercion? : Option Expr) (f : Expr) (allowNamed : Bool) (xDecl : MetavarDecl) :=
+    let fmsg := funMsg fPreCoercion? f
     let note : MessageData := if !allowNamed && !xDecl.userName.hasMacroScopes then
-      .note m!"Field notation cannot refer to parameter `{xDecl.userName}` of `{.ofConstName fullName}` \
+      .note m!"Field notation cannot refer to parameter `{xDecl.userName}` \
         by name because that constant was coerced to a function"
     else if allowNamed then
       let param := if xDecl.userName.hasMacroScopes then .nil else m!" `{xDecl.userName}`"
-      .note m!"The parameter{param} of `{.ofConstName fullName}` cannot be referred to by name \
+      .note m!"The parameter{param} cannot be referred to by name \
          because that function has a preceding parameter of the same name"
     else .nil
     -- Transforming field notation into direct application is too involved to offer a confident
@@ -1553,9 +1570,9 @@ where
     let hint := MessageData.hint' <|
       m!"Consider rewriting this application without field notation (e.g., `C.f x` instead of `x.f`)" ++
       if allowNamed then
-        m!" or changing the parameter names of `{.ofConstName fullName}` to avoid this conflict"
+        m!" or changing the parameter names of the function to avoid this conflict"
       else .nil
-    throwError m!"Invalid field notation: `{.ofConstName fullName}` has a parameter with \
+    throwError m!"Invalid field notation: {fmsg} has a parameter with \
       expected type{indentExpr xDecl.type}\nbut it cannot be used" ++ note ++ hint
 
 /-- Adds the `TermInfo` for the field of a projection. See `Lean.Parser.Term.identProjKind`. -/
@@ -1601,19 +1618,19 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       let projFn ← mkConst constName
       let projFn ← addProjTermInfo lval.getRef projFn
       if lvals.isEmpty then
-        let (args, namedArgs) ← addLValArg baseStructName constName f args namedArgs projFn explicit
+        let (args, namedArgs) ← addLValArg baseStructName f args namedArgs projFn explicit
         elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
       else
-        let (args, namedArgs) ← addLValArg baseStructName constName f #[] #[] projFn (explicit := false)
+        let (args, namedArgs) ← addLValArg baseStructName f #[] #[] projFn (explicit := false)
         let f ← elabAppArgs projFn namedArgs args (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
-    | LValResolution.localRec baseName fullName fvar =>
+    | LValResolution.localRec baseName fvar =>
       let fvar ← addProjTermInfo lval.getRef fvar
       if lvals.isEmpty then
-        let (args, namedArgs) ← addLValArg baseName fullName f args namedArgs fvar explicit
+        let (args, namedArgs) ← addLValArg baseName f args namedArgs fvar explicit
         elabAppArgs fvar namedArgs args expectedType? explicit ellipsis
       else
-        let (args, namedArgs) ← addLValArg baseName fullName f #[] #[] fvar (explicit := false)
+        let (args, namedArgs) ← addLValArg baseName f #[] #[] fvar (explicit := false)
         let f ← elabAppArgs fvar namedArgs args (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
   loop f lvals

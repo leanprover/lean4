@@ -62,7 +62,7 @@ private def isDefEqBounded (a b : Expr) (parent : Expr) : GoalM Bool := do
   let curr := (← getConfig).canonHeartbeats
   tryCatchRuntimeEx
     (withTheReader Core.Context (fun ctx => { ctx with maxHeartbeats := curr*1000 }) do
-      withDefault <| isDefEq a b)
+      isDefEqD a b)
     fun ex => do
       if ex.isRuntime then
         reportIssue! "failed to show that{indentExpr a}\nis definitionally equal to{indentExpr b}\nwhile canonicalizing{indentExpr parent}\nusing `{curr}*1000` heartbeats, `(canonHeartbeats := {curr})`"
@@ -74,7 +74,7 @@ private def isDefEqBounded (a b : Expr) (parent : Expr) : GoalM Bool := do
 Helper function for canonicalizing `e` occurring as the `i`th argument of an `f`-application.
 If `useIsDefEqBounded` is `true`, we try `isDefEqBounded` before returning false
 -/
-def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBounded : Bool) : GoalM Expr := do
+private def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBounded : Bool) : GoalM Expr := do
   let s ← get'
   if let some c := s.canon.find? e then
     return c
@@ -91,7 +91,7 @@ def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBou
     ```
     where `grind` unfolds the definition of `DHashMap.insert` and `TreeMap.insert`.
     -/
-    if (← withDefault <| isDefEq eType cType) then
+    if (← isDefEqD eType cType) then
       if (← isDefEq e c) then
         -- We used to check `c.fvarsSubset e` because it is not
         -- in general safe to replace `e` with `c` if `c` has more free variables than `e`.
@@ -111,9 +111,9 @@ def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBou
   modify' fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key ((e, eType)::cs) }
   return e
 
-abbrev canonType (parent f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore parent f i e (useIsDefEqBounded := false)
-abbrev canonInst (parent f : Expr) (i : Nat) (e : Expr) := withReducibleAndInstances <| canonElemCore parent f i e (useIsDefEqBounded := true)
-abbrev canonImplicit (parent f : Expr) (i : Nat) (e : Expr) := withReducible <| canonElemCore parent f i e (useIsDefEqBounded := true)
+private abbrev canonType (parent f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore parent f i e (useIsDefEqBounded := false)
+private abbrev canonInst (parent f : Expr) (i : Nat) (e : Expr) := withReducibleAndInstances <| canonElemCore parent f i e (useIsDefEqBounded := true)
+private abbrev canonImplicit (parent f : Expr) (i : Nat) (e : Expr) := withReducible <| canonElemCore parent f i e (useIsDefEqBounded := true)
 
 /--
 Return type for the `shouldCanon` function.
@@ -195,8 +195,8 @@ private def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := 
       return some <| args.set 0 Int.mkType
   return none
 
-/-- Canonicalizes nested types, type formers, and instances in `e`. -/
-partial def canon (e : Expr) : GoalM Expr := do profileitM Exception "grind canon" (← getOptions) do
+@[export lean_grind_canon]
+partial def canonImpl (e : Expr) : GoalM Expr := do profileitM Exception "grind canon" (← getOptions) do
   trace_goal[grind.debug.canon] "{e}"
   visit e |>.run' {}
 where
@@ -260,7 +260,5 @@ where
     return e'
 
 end Canon
-
-export Canon (canon)
 
 end Lean.Meta.Grind

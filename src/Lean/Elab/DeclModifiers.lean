@@ -38,7 +38,7 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadFina
     | none          => throwError "'{.ofConstName declName true}' has already been declared"
     | some declName => throwError "private declaration '{.ofConstName declName true}' has already been declared"
   if isReservedName env (privateToUserName declName) || isReservedName env (mkPrivateName (← getEnv) declName) then
-    throwError "'{declName}' is a reserved name"
+    throwError "'{.ofConstName declName}' is a reserved name"
   if env.contains (mkPrivateName env declName) then
     addInfo (mkPrivateName env declName)
     throwError "a private declaration '{.ofConstName declName true}' has already been declared"
@@ -225,7 +225,7 @@ def checkIfShadowingStructureField (declName : Name) : m Unit := do
       let fieldNames := getStructureFieldsFlattened (← getEnv) pre
       for fieldName in fieldNames do
         if pre ++ fieldName == declName then
-          throwError "invalid declaration name '{declName}', structure '{pre}' has field '{fieldName}'"
+          throwError "invalid declaration name '{.ofConstName declName}', structure '{pre}' has field '{fieldName}'"
   | _ => pure ()
 
 def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name) : m (Name × Name) := do

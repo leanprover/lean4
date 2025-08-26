@@ -87,7 +87,7 @@ def registerBuiltinSimprocCore (declName : Name) (key : Array SimpTheoremKey) (p
   unless (← initializing) do
     throw (IO.userError s!"Invalid builtin simproc declaration: It can only be registered during initialization")
   if (← builtinSimprocDeclsRef.get).keys.contains declName then
-    throw (IO.userError s!"Invalid builtin simproc declaration `{declName}`: This builtin simproc has already been declared")
+    throw (IO.userError s!"Invalid builtin simproc declaration `{privateToUserName declName}`: This builtin simproc has already been declared")
   builtinSimprocDeclsRef.modify fun { keys, procs } =>
     { keys := keys.insert declName key, procs := procs.insert declName proc }
 
@@ -100,9 +100,9 @@ def registerBuiltinDSimproc (declName : Name) (key : Array SimpTheoremKey) (proc
 def registerSimproc (declName : Name) (keys : Array SimpTheoremKey) : CoreM Unit := do
   let env ← getEnv
   unless (env.getModuleIdxFor? declName).isNone do
-    throwError "Invalid simproc declaration `{declName}`: This function is declared in an imported module"
+    throwError "Invalid simproc declaration `{.ofConstName declName}`: This function is declared in an imported module"
   if (← isSimproc declName) then
-    throwError "Invalid simproc declaration `{declName}`: This simproc has already been declared"
+    throwError "Invalid simproc declaration `{.ofConstName declName}`: This simproc has already been declared"
   modifyEnv fun env => simprocDeclExt.modifyState env fun s => { s with newEntries := s.newEntries.insert declName keys }
 
 instance : BEq SimprocEntry where
@@ -132,7 +132,7 @@ unsafe def getSimprocFromDeclImpl (declName : Name) : ImportM (Sum Simproc DSimp
       return .inl (← IO.ofExcept <| ctx.env.evalConst Simproc ctx.opts declName)
     | .const ``DSimproc _ =>
       return .inr (← IO.ofExcept <| ctx.env.evalConst DSimproc ctx.opts declName)
-    | _ => throw <| IO.userError s!"Simproc `{declName}` has an unexpected type: Expected `Simproc` or `DSimproc`, but found `{info.type}`"
+    | _ => throw <| IO.userError s!"Simproc `{privateToUserName declName}` has an unexpected type: Expected `Simproc` or `DSimproc`, but found `{info.type}`"
 
 @[implemented_by getSimprocFromDeclImpl]
 opaque getSimprocFromDecl (declName: Name) : ImportM (Sum Simproc DSimproc)
@@ -143,13 +143,13 @@ def toSimprocEntry (e : SimprocOLeanEntry) : ImportM SimprocEntry := do
 def eraseSimprocAttr (ext : SimprocExtension) (declName : Name) : AttrM Unit := do
   let s := ext.getState (← getEnv)
   unless s.simprocNames.contains declName do
-    throwError "`{declName}` does not have a [simproc] attribute"
+    throwError "`{.ofConstName declName}` does not have a [simproc] attribute"
   modifyEnv fun env => ext.modifyState env fun s => s.erase declName
 
 def addSimprocAttrCore (ext : SimprocExtension) (declName : Name) (kind : AttributeKind) (post : Bool) : CoreM Unit := do
   let proc ← getSimprocFromDecl declName
   let some keys ← getSimprocDeclKeys? declName |
-    throwError "Invalid `[simproc]` attribute: `{declName}` is not a simproc"
+    throwError "Invalid `[simproc]` attribute: `{.ofConstName declName}` is not a simproc"
   ext.add { declName, post, keys, proc } kind
 
 def Simprocs.addCore (s : Simprocs) (keys : Array SimpTheoremKey) (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : Simprocs :=
@@ -164,7 +164,7 @@ Implements attributes `builtin_simproc` and `builtin_sevalproc`.
 -/
 def addSimprocBuiltinAttrCore (ref : IO.Ref Simprocs) (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit := do
   let some keys := (← builtinSimprocDeclsRef.get).keys[declName]? |
-    throw (IO.userError s!"Invalid `[builtin_simproc]` attribute: `{declName}` is not a builtin simproc")
+    throw (IO.userError s!"Invalid `[builtin_simproc]` attribute: `{privateToUserName declName}` is not a builtin simproc")
   ref.modify fun s => s.addCore keys declName post proc
 
 def addSimprocBuiltinAttr (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit :=
@@ -180,12 +180,12 @@ def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs
     catch e =>
       if (← isBuiltinSimproc declName) then
         let some proc := (← builtinSimprocDeclsRef.get).procs[declName]?
-          | throwError "Invalid `[simproc]` attribute: `{declName}` is not a simproc"
+          | throwError "Invalid `[simproc]` attribute: `{.ofConstName declName}` is not a simproc"
         pure proc
       else
         throw e
   let some keys ← getSimprocDeclKeys? declName |
-    throwError "Invalid `[simproc]` attribute: `{declName}` is not a simproc"
+    throwError "Invalid `[simproc]` attribute: `{.ofConstName declName}` is not a simproc"
   return s.addCore keys declName post proc
 
 def SimprocEntry.try (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM Step := do
@@ -409,7 +409,7 @@ private def addBuiltin (declName : Name) (stx : Syntax) (addDeclName : Name) : A
       | .const ``Simproc _  => pure <| mkApp3 (mkConst ``Sum.inl [0, 0]) (mkConst ``Simproc) (mkConst ``DSimproc) (mkConst declName)
       | .const ``DSimproc _ => pure <| mkApp3 (mkConst ``Sum.inr [0, 0]) (mkConst ``Simproc) (mkConst ``DSimproc) (mkConst declName)
       | tp => throwError "Unexpected simproc type: Expected {.ofConstName ``Lean.Meta.Simp.Simproc} or {.ofConstName ``Lean.Meta.Simp.DSimproc}, \
-                but `{declName}` has type{indentExpr tp}"
+                but `{.ofConstName declName}` has type{indentExpr tp}"
     let val := mkAppN (mkConst addDeclName) #[toExpr declName, toExpr post, procExpr]
     let initDeclName ← mkFreshUserName (declName ++ `declare)
     declareBuiltin initDeclName val

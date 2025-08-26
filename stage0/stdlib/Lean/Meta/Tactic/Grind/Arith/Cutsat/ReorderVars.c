@@ -2287,8 +2287,8 @@ if (x_54 == 0)
 {
 lean_object* x_55; 
 x_55 = l_outOfBounds___redArg(x_53);
-x_24 = x_51;
-x_25 = x_50;
+x_24 = x_50;
+x_25 = x_51;
 x_26 = x_55;
 goto block_34;
 }
@@ -2297,8 +2297,8 @@ else
 lean_object* x_56; 
 lean_inc_ref(x_42);
 x_56 = l_Lean_PersistentArray_get_x21___redArg(x_53, x_42, x_5);
-x_24 = x_51;
-x_25 = x_50;
+x_24 = x_50;
+x_25 = x_51;
 x_26 = x_56;
 goto block_34;
 }
@@ -2391,8 +2391,8 @@ block_34:
 if (lean_obj_tag(x_26) == 0)
 {
 x_18 = x_1;
-x_19 = x_24;
-x_20 = x_25;
+x_19 = x_25;
+x_20 = x_24;
 goto block_23;
 }
 else
@@ -2406,7 +2406,7 @@ lean_inc(x_28);
 lean_dec(x_27);
 x_29 = lean_nat_abs(x_28);
 lean_dec(x_28);
-x_30 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_updateDvd___redArg(x_29, x_5, x_24, x_25);
+x_30 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_updateDvd___redArg(x_29, x_5, x_25, x_24);
 x_31 = lean_ctor_get(x_30, 0);
 lean_inc(x_31);
 x_32 = lean_ctor_get(x_30, 1);

@@ -2577,10 +2577,10 @@ block_9:
 uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = 0;
 x_7 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_7, 0, x_4);
+lean_ctor_set(x_7, 0, x_5);
 lean_ctor_set_uint8(x_7, sizeof(void*)*1, x_6);
 x_8 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_8, 0, x_5);
+lean_ctor_set(x_8, 0, x_4);
 lean_ctor_set(x_8, 1, x_7);
 return x_8;
 }
@@ -2589,10 +2589,10 @@ block_15:
 uint8_t x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = 1;
 x_13 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_13, 0, x_10);
+lean_ctor_set(x_13, 0, x_11);
 lean_ctor_set_uint8(x_13, sizeof(void*)*1, x_12);
 x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_11);
+lean_ctor_set(x_14, 0, x_10);
 lean_ctor_set(x_14, 1, x_13);
 return x_14;
 }
@@ -2608,8 +2608,8 @@ lean_object* x_20;
 x_20 = lean_ctor_get(x_17, 0);
 lean_inc(x_20);
 lean_dec_ref(x_17);
-x_4 = x_20;
-x_5 = x_18;
+x_4 = x_18;
+x_5 = x_20;
 goto block_9;
 }
 else
@@ -2618,8 +2618,8 @@ lean_object* x_21;
 x_21 = lean_ctor_get(x_17, 0);
 lean_inc(x_21);
 lean_dec_ref(x_17);
-x_10 = x_21;
-x_11 = x_18;
+x_10 = x_18;
+x_11 = x_21;
 goto block_15;
 }
 }
@@ -2633,8 +2633,8 @@ lean_object* x_23;
 x_23 = lean_ctor_get(x_17, 0);
 lean_inc(x_23);
 lean_dec_ref(x_17);
-x_10 = x_23;
-x_11 = x_18;
+x_10 = x_18;
+x_11 = x_23;
 goto block_15;
 }
 else
@@ -2643,8 +2643,8 @@ lean_object* x_24;
 x_24 = lean_ctor_get(x_17, 0);
 lean_inc(x_24);
 lean_dec_ref(x_17);
-x_4 = x_24;
-x_5 = x_18;
+x_4 = x_18;
+x_5 = x_24;
 goto block_9;
 }
 }
@@ -2723,10 +2723,10 @@ block_13:
 uint8_t x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = 0;
 x_11 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_11, 0, x_8);
+lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set_uint8(x_11, sizeof(void*)*1, x_10);
 x_12 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_12, 0, x_9);
+lean_ctor_set(x_12, 0, x_8);
 lean_ctor_set(x_12, 1, x_11);
 return x_12;
 }
@@ -2735,10 +2735,10 @@ block_19:
 uint8_t x_16; lean_object* x_17; lean_object* x_18; 
 x_16 = 1;
 x_17 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_17, 0, x_14);
+lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set_uint8(x_17, sizeof(void*)*1, x_16);
 x_18 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_18, 0, x_15);
+lean_ctor_set(x_18, 0, x_14);
 lean_ctor_set(x_18, 1, x_17);
 return x_18;
 }
@@ -2754,8 +2754,8 @@ lean_object* x_24;
 x_24 = lean_ctor_get(x_21, 0);
 lean_inc(x_24);
 lean_dec_ref(x_21);
-x_8 = x_24;
-x_9 = x_22;
+x_8 = x_22;
+x_9 = x_24;
 goto block_13;
 }
 else
@@ -2764,8 +2764,8 @@ lean_object* x_25;
 x_25 = lean_ctor_get(x_21, 0);
 lean_inc(x_25);
 lean_dec_ref(x_21);
-x_14 = x_25;
-x_15 = x_22;
+x_14 = x_22;
+x_15 = x_25;
 goto block_19;
 }
 }
@@ -2779,8 +2779,8 @@ lean_object* x_27;
 x_27 = lean_ctor_get(x_21, 0);
 lean_inc(x_27);
 lean_dec_ref(x_21);
-x_14 = x_27;
-x_15 = x_22;
+x_14 = x_22;
+x_15 = x_27;
 goto block_19;
 }
 else
@@ -2789,8 +2789,8 @@ lean_object* x_28;
 x_28 = lean_ctor_get(x_21, 0);
 lean_inc(x_28);
 lean_dec_ref(x_21);
-x_8 = x_28;
-x_9 = x_22;
+x_8 = x_22;
+x_9 = x_28;
 goto block_13;
 }
 }
@@ -3456,7 +3456,7 @@ x_11 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___redArg(x_8, x_6, x_4, x_3
 x_12 = lean_array_fget_borrowed(x_2, x_3);
 if (lean_obj_tag(x_12) == 2)
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; uint8_t x_19; uint8_t x_43; lean_object* x_50; lean_object* x_51; uint8_t x_52; 
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_19; uint8_t x_43; lean_object* x_50; lean_object* x_51; uint8_t x_52; 
 x_13 = lean_ctor_get(x_12, 0);
 x_14 = lean_ctor_get(x_12, 1);
 x_15 = lean_unsigned_to_nat(1u);
@@ -3488,7 +3488,7 @@ lean_inc(x_16);
 x_23 = l_Nat_reprFast(x_16);
 x_24 = lean_string_append(x_22, x_23);
 lean_dec_ref(x_23);
-x_25 = l_Std_Sat_AIG_toGraphviz_invEdgeStyle(x_17);
+x_25 = l_Std_Sat_AIG_toGraphviz_invEdgeStyle(x_18);
 x_26 = lean_string_append(x_24, x_25);
 lean_dec_ref(x_25);
 x_27 = l_Std_Sat_AIG_toGraphviz_go___redArg___closed__2;
@@ -3496,8 +3496,8 @@ x_28 = lean_string_append(x_26, x_27);
 x_29 = lean_string_append(x_28, x_20);
 lean_dec_ref(x_20);
 x_30 = lean_string_append(x_29, x_21);
-lean_inc(x_18);
-x_31 = l_Nat_reprFast(x_18);
+lean_inc(x_17);
+x_31 = l_Nat_reprFast(x_17);
 x_32 = lean_string_append(x_30, x_31);
 lean_dec_ref(x_31);
 x_33 = l_Std_Sat_AIG_toGraphviz_invEdgeStyle(x_19);
@@ -3514,7 +3514,7 @@ x_40 = lean_ctor_get(x_38, 1);
 lean_inc(x_40);
 lean_dec_ref(x_38);
 x_1 = x_39;
-x_3 = x_18;
+x_3 = x_17;
 x_4 = x_40;
 goto _start;
 }
@@ -3530,15 +3530,15 @@ if (x_47 == 0)
 {
 uint8_t x_48; 
 x_48 = 1;
-x_17 = x_43;
-x_18 = x_44;
+x_17 = x_44;
+x_18 = x_43;
 x_19 = x_48;
 goto block_42;
 }
 else
 {
-x_17 = x_43;
-x_18 = x_44;
+x_17 = x_44;
+x_18 = x_43;
 x_19 = x_9;
 goto block_42;
 }

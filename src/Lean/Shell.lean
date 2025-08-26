@@ -164,6 +164,12 @@ inductive ShellComponent
 | watchdog
 | worker
 
+private builtin_initialize maxMemory : Lean.Option Nat ←
+  Lean.Option.register `max_memory {defValue := Internal.getDefaultMaxMemory ()}
+
+private builtin_initialize timeout : Lean.Option Nat ←
+  Lean.Option.register `timeout {defValue := Internal.getDefaultMaxHeartbeat ()}
+
 @[export lean_shell_main]
 def shellMain
     (args : List String)
@@ -194,10 +200,10 @@ def shellMain
   if printLibDir then
     IO.println (← getLibDir (← getBuildDir))
     return 0
-  let maxMemory := opts.get `max_memory (Internal.getDefaultMaxMemory ())
+  let maxMemory := maxMemory.get opts
   if maxMemory != 0 then
     Internal.setMaxMemory (maxMemory.toUSize * 1024 * 1024)
-  let timeout := opts.get `timeout (Internal.getDefaultMaxHeartbeat ())
+  let timeout := timeout.get opts
   if timeout != 0 then
     Internal.setMaxHeartbeat (timeout.toUSize * 1000)
   match component with

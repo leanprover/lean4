@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Lemmas
 public import Lean.Meta.Tactic.Assert
@@ -13,10 +12,7 @@ public import Lean.Meta.Tactic.Grind.Util
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 public import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
-public import Lean.Meta.Tactic.Grind.Canon
-
 public section
-
 namespace Lean.Meta.Grind
 
 /-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/

@@ -15,7 +15,9 @@ public import Lean.Meta.Basic
 public import Lean.Meta.InferType
 public import Lean.Meta.Eqns
 public import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Match.MatchEqs
+import Lean.Message
+import Lean.Meta.Tactic.FVarSubst
+import Lean.Meta.Match.Basic
 
 public section
 
@@ -310,7 +312,7 @@ def Origin.key : Origin → Name
 
 def Origin.pp [Monad m] [MonadEnv m] [MonadError m] (o : Origin) : m MessageData := do
   match o with
-  | .decl declName => return MessageData.ofConst (← mkConstWithLevelParams declName)
+  | .decl declName => return MessageData.ofConstName declName
   | .fvar fvarId   => return mkFVar fvarId
   | .stx _ ref     => return ref
   | .local id      => return id

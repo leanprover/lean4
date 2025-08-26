@@ -4,13 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.ProveEq
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
-
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
 
 namespace Lean.Meta.Grind.Arith.Linear

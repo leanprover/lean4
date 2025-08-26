@@ -458,7 +458,7 @@ private partial def normalizeField (structName : Name) (fieldView : FieldView) :
       throwErrorAt ref m!"invalid field index, index must be greater than 0"
     let fieldNames := getStructureFields env structName
     if idx > fieldNames.size then
-      throwErrorAt ref m!"invalid field index, structure '{.ofConstName structName}' has only {fieldNames.size} fields"
+      throwErrorAt ref m!"invalid field index, structure `{.ofConstName structName}` has only {fieldNames.size} fields"
     normalizeField structName { fieldView with lhs := .fieldName ref fieldNames[idx - 1]! :: rest }
   | .fieldName ref name :: rest =>
     if !name.isAtomic then
@@ -474,7 +474,7 @@ private partial def normalizeField (structName : Name) (fieldView : FieldView) :
       else if (findField? env structName name).isSome then
         return fieldView
       else
-        throwErrorAt ref m!"'{name}' is not a field of structure '{.ofConstName structName}'"
+        throwErrorAt ref m!"`{name}` is not a field of structure `{.ofConstName structName}`"
   | _ => unreachable!
 
 private inductive ExpandedFieldVal
@@ -500,7 +500,7 @@ private instance : ToMessageData ExpandedFieldVal where
     | .nested fieldViews sources => m!"nested {MessageData.joinSep (sources.map (·.stx)).toList ", "} {MessageData.joinSep (fieldViews.map (indentD <| toMessageData ·)).toList "\n"}"
 
 private instance : ToMessageData ExpandedField where
-  toMessageData field := m!"field '{field.name}' is {field.val}"
+  toMessageData field := m!"field `{field.name}` is {field.val}"
 
 private abbrev ExpandedFields := NameMap ExpandedField
 
@@ -518,7 +518,7 @@ private def expandFields (structName : Name) (fieldViews : Array FieldView) (rec
       | .fieldName ref name :: rest =>
         if let some field := fields.find? name then
           if rest.isEmpty || !field.isNested then
-            throwErrorAt ref m!"field '{name}' has already been specified"
+            throwErrorAt ref m!"field `{name}` has already been specified"
           else
             -- There is a pre-existing nested field, and we are looking at a nested field. So, insert.
             let .nested views' sources := field.val | unreachable!
@@ -536,7 +536,7 @@ private def expandFields (structName : Name) (fieldViews : Array FieldView) (rec
         let fvarId ← mkFreshFVarId
         for parentField in getStructureFieldsFlattened (← getEnv) parentStructName false do
           if fields.contains parentField then
-            throwErrorAt ref m!"field '{name}' from structure '{.ofConstName parentStructName}' has already been specified"
+            throwErrorAt ref m!"field `{name}` from structure `{.ofConstName parentStructName}` has already been specified"
           else
             let val := ExpandedFieldVal.proj fvarId fieldView.val parentStructName name
             fields := fields.insert parentField { ref := ref, name := parentField, val }
@@ -700,7 +700,7 @@ private def normalizeExpr (e : Expr) (zetaDeltaImpl : Bool := true) : StructInst
   etaStructReduce' e
 
 private def addStructFieldAux (fieldName : Name) (e : Expr) : StructInstM Unit := do
-  trace[Elab.struct] "setting '{fieldName}' value to{indentExpr e}"
+  trace[Elab.struct] "setting `{fieldName}` value to{indentExpr e}"
   modify fun s => { s with
     type := s.type.bindingBody!.instantiateBetaRevRange 0 1 #[e]
     fields := s.fields.push e
@@ -738,7 +738,7 @@ private partial def getFieldDefaultValue? (fieldName : Name) : StructInstM (Name
     | return ({}, none)
   let fieldMap := (← get).fieldMap
   let some (fields, val) ← instantiateStructDefaultValueFn? defFn (← read).levels (← read).params (pure ∘ fieldMap.find?)
-    | logError m!"default value for field '{fieldName}' of structure '{.ofConstName (← read).structName}' could not be instantiated, ignoring"
+    | logError m!"default value for field `{fieldName}` of structure `{.ofConstName (← read).structName}` could not be instantiated, ignoring"
       return ({}, none)
   return (fields, val)
 
@@ -822,7 +822,7 @@ private def synthOptParamFields : StructInstM Unit := do
               cannot be assigned the default value{indentExpr selectedVal}"
         else
           assignErrors := assignErrors.push m!"\
-            default value for field '{selected.fieldName}' {← mkHasTypeButIsExpectedMsg selectedType fieldType}"
+            default value for field `{selected.fieldName}` {← mkHasTypeButIsExpectedMsg selectedType fieldType}"
       else
         if selected.required then
           -- Clear the value but preserve its pending status, for the "fields missing" error.
@@ -954,7 +954,7 @@ private def getParentStructType? (parentStructName : Name) : StructInstM (Option
     let projTy ← normalizeExpr projTy
     if projTy.containsFVar self.fvarId! then
       -- unsupported dependent type, parent depends on fields that haven't been visited yet.
-      trace[Elab.struct] "getParentStructType? '{parentStructName}', failed, computed type depends on {self}{indentExpr projTy}"
+      trace[Elab.struct] "getParentStructType? `{parentStructName}`, failed, computed type depends on {self}{indentExpr projTy}"
       return none
     return (projTy, path.getLast?)
 
@@ -980,7 +980,7 @@ private def mkProjStx (s : Syntax) (fieldName : Name) : Syntax :=
 
 private def processField (loop : StructInstM α) (field : ExpandedField) (fieldType : Expr) : StructInstM α := withRef field.ref do
   let fieldType := fieldType.consumeTypeAnnotations
-  trace[Elab.struct] "processing field '{field.name}' of type {fieldType}{indentD (toMessageData field)}"
+  trace[Elab.struct] "processing field `{field.name}` of type {fieldType}{indentD (toMessageData field)}"
   match field.val with
   | .term val => withRef val do
     trace[Elab.struct] "field.val is term {field.name}"
@@ -1010,7 +1010,7 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
         let e ← mkProjection (.fvar fvarId) field.name
         let eType ← inferType e
         unless ← isDefEq eType fieldType do
-          throwError m!"type of field '{field.name}' from structure '{.ofConstName parentStructName}' \
+          throwError m!"type of field `{field.name}` from structure `{.ofConstName parentStructName}` \
             {← mkHasTypeButIsExpectedMsg eType fieldType}"
         addStructFieldAux field.name e
       catch ex =>
@@ -1052,12 +1052,12 @@ Handle the case when no field is given.
 These fields can still be solved for by parent instance synthesis later.
 -/
 private def processNoField (loop : StructInstM α) (fieldName : Name) (binfo : BinderInfo) (fieldType : Expr) : StructInstM α := do
-  trace[Elab.struct] "processNoField '{fieldName}' of type {fieldType}"
+  trace[Elab.struct] "processNoField `{fieldName}` of type {fieldType}"
   if (← read).ellipsis && (← readThe Term.Context).inPattern then
     -- See the note in `ElabAppArgs.processExplicitArg`
     -- In ellipsis & pattern mode, do not use optParams or autoParams.
     let e ← addStructFieldMVar fieldName fieldType
-    registerCustomErrorIfMVar e (← read).view.ref m!"don't know how to synthesize placeholder for field '{fieldName}'"
+    registerCustomErrorIfMVar e (← read).view.ref m!"don't know how to synthesize placeholder for field `{fieldName}`"
     loop
   else
     let autoParam? := fieldType.getAutoParamTactic?
@@ -1095,10 +1095,10 @@ private partial def loop : StructInstM Expr := withViewRef do
   if let .forallE fieldName fieldType _ binfo := type then
     if let some fieldValue := (← get).fieldMap.find? fieldName then
       -- This is a field that was added by `addParentInstanceFields`
-      trace[Elab.struct] "field '{fieldName}' already exists, with type {fieldType}"
+      trace[Elab.struct] "field `{fieldName}` already exists, with type {fieldType}"
       let fieldValueType ← inferType fieldValue
       unless ← isDefEq fieldType fieldValueType do
-        throwError "field '{fieldName}' inferred from a parent class {← mkHasTypeButIsExpectedMsg fieldValueType fieldType}"
+        throwError "field `{fieldName}` inferred from a parent class {← mkHasTypeButIsExpectedMsg fieldValueType fieldType}"
       addStructFieldAux fieldName fieldValue
       loop
     else if let some field := (← read).fieldViews.find? fieldName then
@@ -1143,7 +1143,7 @@ private partial def addParentInstanceFields : StructInstM Unit := do
       -- This may fail if there is a complicated dependence. In that case, we put the problem on the deferred list.
       match ← getParentStructType? parentName with
       | none =>
-        trace[Elab.struct] "could not calculate type for parent '{.ofConstName parentName}'"
+        trace[Elab.struct] "could not calculate type for parent `{.ofConstName parentName}`"
         deferred := (parentName, parentFields) :: deferred
       | some (parentTy, _) =>
         match ← trySynthInstance parentTy with
@@ -1163,13 +1163,13 @@ private partial def addParentInstanceFields : StructInstM Unit := do
                 let projType ← inferType proj
                 let fieldType ← inferType fieldVal
                 unless ← isDefEq projType fieldType do
-                  throwError "parent field '{parentField}' {← mkHasTypeButIsExpectedMsg proj fieldType}"
+                  throwError "parent field `{parentField}` {← mkHasTypeButIsExpectedMsg proj fieldType}"
                 unless ← isDefEq proj fieldVal do
-                  throwError "parent field '{parentField}'{indentExpr proj}\nis not definitionally equal to overlapping field{indentExpr fieldVal}"
-                trace[Elab.struct] "checked field '{parentField}' from parent '{parentTy}' is definitionally equal"
+                  throwError "parent field `{parentField}`{indentExpr proj}\nis not definitionally equal to overlapping field{indentExpr fieldVal}"
+                trace[Elab.struct] "checked field `{parentField}` from parent `{parentTy}` is definitionally equal"
               | none =>
                 modify fun s => { s with fieldMap := s.fieldMap.insert parentField proj }
-                trace[Elab.struct] "added field '{parentField}' from parent '{parentTy}'"
+                trace[Elab.struct] "added field `{parentField}` from parent `{parentTy}`"
             -- All the fields have been added, update the list of remaining fields.
             remainingFields := remainingFields.filter (!parentFields.contains ·)
             -- Move the deferred list back the front of the work list
@@ -1195,7 +1195,7 @@ private def elabStructInstView (s : StructInstView) (structName : Name) (structT
   let env ← getEnv
   let ctorVal := getStructureCtor env structName
   if isInaccessiblePrivateName env ctorVal.name then
-    throwError "invalid \{...} notation, constructor for '{.ofConstName structName}' is marked as private"
+    throwError "invalid \{...} notation, constructor for `{.ofConstName structName}` is marked as private"
   let { ctorFn, ctorFnType, structType, levels, params } ← mkCtorHeader ctorVal structType?
   let (_, fields) ← expandFields structName s.fields (recover := (← read).errToSorry)
   let fields ← addSourceFields structName s.sources.explicit fields

@@ -63,7 +63,7 @@ def FocusResult.rewriteHyps (res : FocusResult) (goal : MGoal) : Expr → Expr :
   mkApp6 (mkConst ``Focus.rewrite_hyps [goal.u]) goal.σs goal.hyps (SPred.mkAnd! goal.u goal.σs res.restHyps res.focusHyp) goal.target res.proof
 
 def MGoal.focusHypWithInfo (goal : MGoal) (name : Ident) : MetaM FocusResult := do
-  let some res := goal.focusHyp name.getId | throwError "unknown hypothesis '{name}'"
+  let some res := goal.focusHyp name.getId | throwError "unknown hypothesis `{name}`"
   let some hyp := parseHyp? res.focusHyp | throwError "impossible; res.focusHyp not a hypothesis"
   addHypInfo name goal.σs hyp
   pure res

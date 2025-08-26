@@ -99,7 +99,7 @@ def elabMSpecialize : Tactic
   --    One for each arg; end up with goal P' ∧ H' ⊢ₛ T
   -- 3. Recombine with SPred.mkAnd (NB: P' might be empty), compose with P' ∧ H' ⊣⊢ₛ SPred.mkAnd P' H'.
   -- 4. Make a new MVar for goal `SPred.mkAnd P' H' ⊢ T` and assign the transitive chain.
-  let some specFocus := goal.focusHyp hyp.getId | throwError "unknown identifier '{hyp}'"
+  let some specFocus := goal.focusHyp hyp.getId | throwError "unknown identifier `{hyp}`"
   let u := goal.u
   let σs := goal.σs
   let P := specFocus.restHyps

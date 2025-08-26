@@ -99,7 +99,7 @@ where
           trace[Elab.definition.partialFixpoint] "mkUnfoldEq rfl succeeded"
           instantiateMVars goal
         catch e =>
-          throwError "failed to generate unfold theorem for '{.ofConstName declName}':\n{e.toMessageData}"
+          throwError "failed to generate unfold theorem for `{.ofConstName declName}`:\n{e.toMessageData}"
       let type ← mkForallFVars xs type
       let type ← letToHave type
       let value ← mkLambdaFVars xs goal

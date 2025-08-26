@@ -36,7 +36,7 @@ builtin_initialize matchPatternAttr : TagAttribute ←
     (validate := fun declName => do
       withExporting (isExporting := !isPrivateName declName) do
         if !(← getConstInfo declName).isDefinition then
-          throwError "invalid `@[match_pattern]` attribute, '{.ofConstName declName}' is not an exposed definition")
+          throwError "invalid `@[match_pattern]` attribute, `{.ofConstName declName}` is not an exposed definition")
 
 @[export lean_has_match_pattern_attribute]
 def hasMatchPatternAttribute (env : Environment) (n : Name) : Bool :=

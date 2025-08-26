@@ -34,7 +34,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
     let varNamess ← preDefs.mapIdxM fun i preDef => varyingVarNames fixedParamPerms i preDef
     for varNames in varNamess, preDef in preDefs do
       if varNames.isEmpty then
-        throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
+        throwError "well-founded recursion cannot be used, `{preDef.declName}` does not take any (non-fixed) arguments"
     let argsPacker := { varNamess }
     let preDefs' ← preDefs.mapM fun preDef => do
       return { preDef with value := (← unfoldIfArgIsConstOf (preDefs.map (·.declName)) preDef.value) }

@@ -751,7 +751,24 @@ Message ordering for `#guard_msgs`:
 syntax guardMsgsOrdering := &"ordering" " := " guardMsgsOrderingArg
 
 set_option linter.missingDocs false in
-syntax guardMsgsSpecElt := guardMsgsFilter <|> guardMsgsWhitespace <|> guardMsgsOrdering
+syntax guardMsgsPositionsArg := &"true" <|> &"false"
+
+/--
+Position reporting for `#guard_msgs`:
+- `positions := true` will report the positions of messages with the line numbers computed
+  relative to the line of the `#guard_msgs` token, e.g.
+  ```
+  @ +3:7...+4:2
+  info: <message>
+  ```
+  Note that the reported column is absolute.
+- `positions := false` (the default) will not render positions.
+-/
+syntax guardMsgsPositions := &"positions" " := " guardMsgsPositionsArg
+
+set_option linter.missingDocs false in
+syntax guardMsgsSpecElt :=
+  guardMsgsFilter <|> guardMsgsWhitespace <|> guardMsgsOrdering <|> guardMsgsPositions
 
 set_option linter.missingDocs false in
 syntax guardMsgsSpec := "(" guardMsgsSpecElt,* ")"

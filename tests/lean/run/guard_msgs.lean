@@ -348,3 +348,39 @@ run_meta trace[debug] "a trace"
 run_meta trace[debug] "a trace"
 
 end Trace
+
+section Positions
+
+open Lean
+
+/--
+@ +1:0...+1:7
+info: foo
+-/
+#guard_msgs (positions := true) in
+run_cmd logInfo m!"foo"
+
+elab "#log" tk:&"here" : command => logInfoAt tk "foo"
+
+/--
+@ +0:40...+0:44
+info: foo
+-/
+#guard_msgs (positions := true) in #log here
+
+/--
+@ +3:7...+3:11
+info: foo
+-/
+#guard_msgs (positions := true) in
+
+
+#log   here
+
+/--
+info: foo
+-/
+#guard_msgs (positions := false) in
+run_cmd logInfo m!"foo"
+
+end Positions

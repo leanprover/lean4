@@ -62,7 +62,7 @@ private def isDefEqBounded (a b : Expr) (parent : Expr) : GoalM Bool := do
   let curr := (← getConfig).canonHeartbeats
   tryCatchRuntimeEx
     (withTheReader Core.Context (fun ctx => { ctx with maxHeartbeats := curr*1000 }) do
-      withDefault <| isDefEq a b)
+      isDefEqD a b)
     fun ex => do
       if ex.isRuntime then
         reportIssue! "failed to show that{indentExpr a}\nis definitionally equal to{indentExpr b}\nwhile canonicalizing{indentExpr parent}\nusing `{curr}*1000` heartbeats, `(canonHeartbeats := {curr})`"
@@ -91,7 +91,7 @@ private def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIs
     ```
     where `grind` unfolds the definition of `DHashMap.insert` and `TreeMap.insert`.
     -/
-    if (← withDefault <| isDefEq eType cType) then
+    if (← isDefEqD eType cType) then
       if (← isDefEq e c) then
         -- We used to check `c.fvarsSubset e` because it is not
         -- in general safe to replace `e` with `c` if `c` has more free variables than `e`.

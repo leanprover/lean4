@@ -77,7 +77,7 @@ where
     else
       return some (← asVar e)
   isOfNatZero (e : Expr) : LinearM Bool := do
-    withDefault <| isDefEq e (← getStruct).ofNatZero
+    isDefEqD e (← getStruct).ofNatZero
   processHMul (i a b : Expr) : LinearM (Option LinExpr) := do
     if isHMulIntInst (← getStruct) i then
       let some k ← getIntValue? a | return none

@@ -26,7 +26,7 @@ def mkPowFn (u : Level) (type : Expr) (semiringInst : Expr) : m Expr := do
   canonExpr <| mkApp4 (mkConst ``HPow.hPow [u, 0, u]) type Nat.mkType type inst
 where
   checkInst (inst inst' : Expr) : MetaM Unit := do
-    unless (← withDefault <| isDefEq inst inst') do
+    unless (← isDefEqD inst inst') do
       throwError "instance for power operator{indentExpr inst}\nis not definitionally equal to the `Grind.Semiring` one{indentExpr inst'}"
 
 def mkNatCastFn (u : Level) (type : Expr) (semiringInst : Expr) : m Expr := do
@@ -44,7 +44,7 @@ def mkNatCastFn (u : Level) (type : Expr) (semiringInst : Expr) : m Expr := do
   canonExpr <| mkApp2 (mkConst ``NatCast.natCast [u]) type inst
 where
   checkInst (inst inst' : Expr) : MetaM Unit := do
-    unless (← withDefault <| isDefEq inst inst') do
+    unless (← isDefEqD inst inst') do
       throwError "instance for natCast{indentExpr inst}\nis not definitionally equal to the `Grind.Semiring` one{indentExpr inst'}"
 
 variable [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadRing m]
@@ -112,7 +112,7 @@ def getIntCastFn : m Expr := do
   return intCastFn
 where
   checkInst (inst inst' : Expr) : MetaM Unit := do
-    unless (← withDefault <| isDefEq inst inst') do
+    unless (← isDefEqD inst inst') do
       throwError "instance for intCast{indentExpr inst}\nis not definitionally equal to the `Grind.Ring` one{indentExpr inst'}"
 
 def getNatCastFn : m Expr := do

@@ -429,7 +429,7 @@ private def processUnassigned (mvars : Array Expr) (i : Nat) (v : Expr) (h : i <
     else
       reportIssue! "type error constructing proof for {thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
       failure
-  if (← withDefault <| isDefEq mvarIdType vType) then
+  if (← isDefEqD mvarIdType vType) then
     unless (← mvarId.checkedAssign v) do unassignOrFail
   else
     if let some heq ← withoutReportingMVarIssues <| proveEq? vType mvarIdType (abstract := true) then

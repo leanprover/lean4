@@ -8,7 +8,6 @@ prelude
 public import Init.Grind.Ring.OfSemiring
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Var
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
 namespace Lean.Meta.Grind.Arith.CommRing

@@ -130,4 +130,17 @@ def getNext? : RingM (Option EqCnstr) := do
   incSteps
   return some c
 
+def mkVar (e : Expr) : RingM Var := do
+  let s ← getRing
+  if let some var := s.varMap.find? { expr := e } then
+    return var
+  let var : Var := s.vars.size
+  modifyRing fun s => { s with
+    vars       := s.vars.push e
+    varMap     := s.varMap.insert { expr := e } var
+  }
+  setTermRingId e
+  markAsCommRingTerm e
+  return var
+
 end Lean.Meta.Grind.Arith.CommRing

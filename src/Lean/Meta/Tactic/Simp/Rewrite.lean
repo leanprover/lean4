@@ -225,12 +225,12 @@ where
         if inErasedSet thm then continue
         if rflOnly then
           unless thm.rfl do
-            if debug.tactic.simp.checkDefEqAttr.get (← getOptions) &&
-               backward.dsimp.useDefEqAttr.get (← getOptions) then
-              let isRflOld ← withOptions (backward.dsimp.useDefEqAttr.set · false) do
-                isRflProof thm.proof
-              if isRflOld then
-                logWarning m!"theorem {thm.proof} is no longer rfl"
+            debug[tactic.simp.check.defEqAttr] do
+              if backward.dsimp.useDefEqAttr.get (← getOptions) then
+                let isRflOld ← withOptions (backward.dsimp.useDefEqAttr.set · false) do
+                  isRflProof thm.proof
+                if isRflOld then
+                  logWarning m!"theorem {thm.proof} is no longer rfl"
             continue
         if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then
           trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"

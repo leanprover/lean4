@@ -204,7 +204,7 @@ private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
   mkGoal mvarId params
 
 def main (mvarId : MVarId) (params : Params) (fallback : Fallback) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
-  if debug.terminalTacticsAsSorry.get (← getOptions) then
+  debug[terminalTacticsAsSorry] do
     mvarId.admit
     return {
         failure? := none, issues := [], config := params.config, trace := {}, counters := {}, simp := {}, splitDiags := {}

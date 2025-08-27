@@ -13,7 +13,7 @@ evaluated.
 -- set_option trace.Elab.block true
 set_option debug.skipKernelTC true
 set_option backward.dsimp.useDefEqAttr false
-set_option debug.tactic.simp.checkDefEqAttr false
+set_option debug.tactic.simp.check.defEqAttr false
 
 axiom testSorry : α
 

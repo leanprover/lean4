@@ -9,7 +9,7 @@ set_option linter.unusedSimpArgs false
 -- Enable simp consistency checks, so that the elaborator type checker is run on generated proofs.
 -- We want this so that we can verify that haves are "elaborator type correct",
 -- since the kernel does not check `nonDep`.
-set_option debug.simp.check.have true
+set_option debug.tactic.simp.check.have true
 -- To see the types of `have` binders for verification.
 set_option pp.letVarTypes true
 
@@ -615,7 +615,7 @@ example (n : Nat) (h : n = 190) : lp 20 0 = n := by
 -- set_option profiler true
 -- set_option profiler.threshold 2
 -- #time
-set_option debug.simp.check.have false in
+set_option debug.tactic.simp.check.have false in
 example (n : Nat) (h : n = 4950) : lp 100 0 = n := by
   simp -zeta -zetaUnused only [lp]
   simp -zeta only [Nat.zero_add]

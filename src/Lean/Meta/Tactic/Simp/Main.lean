@@ -26,10 +26,9 @@ register_builtin_option backward.dsimp.proofs : Bool := {
     descr    := "Let `dsimp` simplify proof terms"
   }
 
-register_builtin_option debug.simp.check.have : Bool := {
-    defValue := false
-    descr    := "(simp) enable consistency checks for `have` telescope simplification"
-  }
+builtin_initialize
+  registerDebugClass `tactic.simp.check "(simp) enable consistency checks"
+  registerDebugClass `tactic.simp.check.have "(simp) enable consistency checks for `have` telescope simplification"
 
 builtin_initialize congrHypothesisExceptionId : InternalExceptionId ←
   registerInternalExceptionId `congrHypothesisFailed
@@ -624,9 +623,10 @@ def simpHaveTelescope (e : Expr) : SimpM Result := do
     assert! !info.haveInfo.isEmpty
     let (fixed, used) ← info.computeFixedUsed (keepUnused := !(← getConfig).zetaUnused)
     let r ← simpHaveTelescopeAux info fixed used e 0 (Array.mkEmpty info.haveInfo.size)
-    if r.modified && debug.simp.check.have.get (← getOptions) then
-      check r.expr
-      check r.proof
+    if r.modified then
+      debug[tactic.simp.check.have] do
+        validateTypeCorrect r.expr
+        validateTypeCorrect r.proof
     return (r.toResult info.level e, used, fixed, r.modified)
 where
   /-

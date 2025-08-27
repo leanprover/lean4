@@ -489,18 +489,14 @@ register_builtin_option linter.unusedSectionVars : Bool := {
   descr := "enable the 'unused section variables in theorem body' linter"
 }
 
-register_builtin_option debug.proofAsSorry : Bool := {
-  defValue := false
-  group    := "debug"
-  descr    := "replace the bodies (proofs) of theorems with `sorry`"
-}
+builtin_initialize
+  registerDebugClass `proofAsSorry "replace the bodies (proofs) of theorems with `sorry`"
 
 /-- Returns true if `k` is a theorem, option `debug.proofAsSorry` is set to true, and the environment contains the axiom `sorryAx`. -/
 private def useProofAsSorry (k : DefKind) : CoreM Bool := do
   if k.isTheorem then
-    if debug.proofAsSorry.get (← getOptions) then
-      if (← getEnv).contains ``sorryAx then
-        return true
+    debug[proofAsSorry] if (← getEnv).contains ``sorryAx then
+      return true
   return false
 
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=

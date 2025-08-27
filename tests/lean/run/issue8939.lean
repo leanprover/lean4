@@ -9,7 +9,10 @@ public inductive AckFuel : (n m : Nat) → Type where
   | step3 : (∀ m', P m' → AckFuel n m') → AckFuel (n + 1) m → AckFuel (n+1) (m + 1)
 
 namespace Test1
-/-- info: Try this: termination_by structural x _ x => x -/
+/--
+info: Try this:
+  termination_by structural x _ x => x
+-/
 #guard_msgs in
 public def ackermann_fuel : (n m : Nat) → (fuel : AckFuel n m) → Nat
 | 0, m, .step1 => m+1
@@ -20,7 +23,10 @@ termination_by?
 end Test1
 
 namespace Test2
-/-- info: Try this: termination_by structural x _ x => x -/
+/--
+info: Try this:
+  termination_by structural x _ x => x
+-/
 #guard_msgs in
 public def ackermann_fuel : (n m : Nat) → (fuel : AckFuel n m) → Nat
 | 0, m, .step1 => m+1
@@ -31,7 +37,10 @@ termination_by?
 end Test2
 
 namespace Test3
-/-- info: Try this: termination_by structural x _ x => x -/
+/--
+info: Try this:
+  termination_by structural x _ x => x
+-/
 #guard_msgs in
 @[expose] public def ackermann_fuel : (n m : Nat) → (fuel : AckFuel n m) → Nat
 | 0, m, .step1 => m+1

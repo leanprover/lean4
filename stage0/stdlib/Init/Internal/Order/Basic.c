@@ -57,7 +57,6 @@ LEAN_EXPORT lean_object* l_Lean_Order_instCCPOPProd___redArg___lam__0(lean_objec
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__10;
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__5;
 static lean_object* l_Lean_Order_term___u2291_____closed__2;
-LEAN_EXPORT lean_object* l_Lean_Order_CompleteLattice_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_instOrderPi___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Order_term___u2291_____closed__6;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -79,7 +78,6 @@ LEAN_EXPORT lean_object* l_Lean_Order_lfp___redArg(lean_object*);
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term_u22a5__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderExceptTOfMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_fun__csup___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Order_CCPO_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_CompleteLattice_ctorIdx(lean_object*, lean_object*);
 static lean_object* l_Lean_Order_term___u2291_____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Order_fix___redArg(lean_object*);
@@ -87,7 +85,6 @@ LEAN_EXPORT lean_object* l_Lean_Order_fun__csup(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_Order_term___u2291__;
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Order_instCCPOExceptTOfMonadOfPartialOrder___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Order_CompleteLattice_toCtorIdx(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______unexpand__Lean__Order__PartialOrder__rel__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Order_lfp__monotone___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -101,7 +98,6 @@ LEAN_EXPORT lean_object* l_Lean_Order_term_u22a5;
 LEAN_EXPORT lean_object* l_Lean_Order_CCPO_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_inf(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_ReverseImplicationOrder_instOrder;
-LEAN_EXPORT lean_object* l_Lean_Order_CCPO_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_lfp___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Order_term___u2291_____closed__3;
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term_u22a5__1___closed__0;
@@ -129,17 +125,8 @@ LEAN_EXPORT lean_object* l_Lean_Order_instCCPOPProd(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_Order_instOrderPi(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderOption(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Order_PartialOrder_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_instCCPOPProd___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_PartialOrder_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Order_PartialOrder_toCtorIdx(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -600,23 +587,6 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Order_CCPO_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Order_CCPO_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Order_CCPO_toCtorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Order_bot___redArg(lean_object* x_1) {
 _start:
 {
@@ -862,23 +832,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Order_CompleteLattice_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Order_CompleteLattice_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Order_CompleteLattice_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Order_CompleteLattice_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

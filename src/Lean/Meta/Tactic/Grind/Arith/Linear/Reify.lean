@@ -17,9 +17,9 @@ def isAddInst (struct : Struct) (inst : Expr) : Bool :=
   isSameExpr struct.addFn.appArg! inst
 def isZeroInst (struct : Struct) (inst : Expr) : Bool :=
   isSameExpr struct.zero.appArg! inst
-def isHMulIntInst (struct : Struct) (inst : Expr) : Bool :=
+def isSMulIntInst (struct : Struct) (inst : Expr) : Bool :=
   isSameExpr struct.zsmulFn.appArg! inst
-def isHMulNatInst (struct : Struct) (inst : Expr) : Bool :=
+def isSMulNatInst (struct : Struct) (inst : Expr) : Bool :=
   isSameExpr struct.nsmulFn.appArg! inst
 def isHomoMulInst (struct : Struct) (inst : Expr) : Bool :=
   if let some homomulFn := struct.homomulFn? then isSameExpr homomulFn inst else false
@@ -47,11 +47,8 @@ partial def reify? (e : Expr) (skipVar : Bool) : LinearM (Option LinExpr) := do
     if isAddInst (← getStruct  ) i then return some (.add (← go a) (← go b)) else asTopVar e
   | HSub.hSub _ _ _ i a b =>
     if isSubInst (← getStruct  ) i then return some (.sub (← go a) (← go b)) else asTopVar e
-  | HMul.hMul _ _ _ i a b =>
-    let some r ← processHMul i a b | asTopVar e
-    return some r
   | HSMul.hSMul _ _ _ i a b =>
-    let some r ← processHSMul i a b | asTopVar e
+    let some r ← processSMul i a b | asTopVar e
     return some r
   | Neg.neg _ i a =>
     if isNegInst (← getStruct  ) i then return some (.neg (← go a)) else asTopVar e
@@ -78,19 +75,11 @@ where
       return some (← asVar e)
   isOfNatZero (e : Expr) : LinearM Bool := do
     isDefEqD e (← getStruct).ofNatZero
-  processHMul (i a b : Expr) : LinearM (Option LinExpr) := do
-    if isHMulIntInst (← getStruct) i then
+  processSMul (i a b : Expr) : LinearM (Option LinExpr) := do
+    if isSMulIntInst (← getStruct) i then
       let some k ← getIntValue? a | return none
       return some (.intMul k (← go b))
-    else if isHMulNatInst (← getStruct) i then
-      let some k ← getNatValue? a | return none
-      return some (.natMul k (← go b))
-    return none
-  processHSMul (i a b : Expr) : LinearM (Option LinExpr) := do
-    if isHSMulIntInst (← getStruct) i then
-      let some k ← getIntValue? a | return none
-      return some (.intMul k (← go b))
-    else if isHSMulNatInst (← getStruct) i then
+    else if isSMulNatInst (← getStruct) i then
       let some k ← getNatValue? a | return none
       return some (.natMul k (← go b))
     return none
@@ -100,11 +89,8 @@ where
       if isAddInst (← getStruct) i then return .add (← go a) (← go b) else asVar e
     | HSub.hSub _ _ _ i a b =>
       if isSubInst (← getStruct) i then return .sub (← go a) (← go b) else asVar e
-    | HMul.hMul _ _ _ i a b =>
-      let some r ← processHMul i a b | asVar e
-      return r
     | HSMul.hSMul _ _ _ i a b =>
-      let some r ← processHSMul i a b | asVar e
+      let some r ← processSMul i a b | asVar e
       return r
     | Neg.neg _ i a =>
       if isNegInst (← getStruct) i then return .neg (← go a) else asVar e

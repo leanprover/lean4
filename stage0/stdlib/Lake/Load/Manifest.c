@@ -50,7 +50,6 @@ static lean_object* l_Lake_PackageEntry_fromJson_x3f___closed__1;
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_Manifest_getPackages___closed__1;
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Manifest_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Manifest_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageEntry_inDirectory(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedPackageEntrySrc;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lake_PackageEntry_fromJson_x3f_spec__0___redArg(lean_object*, lean_object*);
@@ -108,14 +107,12 @@ static lean_object* l_Lake_PackageEntry_fromJson_x3f___closed__18;
 static lean_object* l_Lake_PackageEntry_fromJson_x3f___closed__10;
 static lean_object* l_Lake_PackageEntry_toJson___closed__9;
 static lean_object* l_Option_fromJson_x3f___at_____private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6____x40_Lake_Load_Manifest_2705597052____hygCtx___hyg_111__spec__2___closed__0;
-LEAN_EXPORT lean_object* l___private_Lake_Load_Manifest_0__Lake_PackageEntryV6_toCtorIdx___boxed(lean_object*);
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_Manifest_getVersion___closed__3;
 LEAN_EXPORT lean_object* l_Lake_Manifest_save___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6___closed__5____x40_Lake_Load_Manifest_2705597052____hygCtx___hyg_111_;
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6___lam__1___closed__7____x40_Lake_Load_Manifest_2705597052____hygCtx___hyg_111_;
 LEAN_EXPORT lean_object* l___private_Lake_Load_Manifest_0__Lake_PackageEntryV6_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageEntry_instFromJson;
-LEAN_EXPORT lean_object* l_Lake_PackageEntrySrc_toCtorIdx(lean_object*);
 static lean_object* l_Option_fromJson_x3f___at_____private_Lake_Load_Manifest_0__Lake_Manifest_getPackages_spec__1___closed__0;
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6___closed__2____x40_Lake_Load_Manifest_2705597052____hygCtx___hyg_111_;
 static lean_object* l_Lake_PackageEntry_toJson___closed__5;
@@ -168,7 +165,6 @@ LEAN_EXPORT lean_object* l_Lake_PackageEntrySrc_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageEntrySrc_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageEntry_ctorIdx(lean_object*);
 static lean_object* l_Lake_PackageEntry_toJson___closed__4;
-LEAN_EXPORT lean_object* l_Lake_PackageEntry_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Manifest_parseEntries(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_NameMap_toJson___at_____private_Lake_Load_Manifest_0__Lake_toJsonPackageEntryV6____x40_Lake_Load_Manifest_2705597052____hygCtx___hyg_131__spec__0_spec__0_spec__0(lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_NameMap_toJson___at_____private_Lake_Load_Manifest_0__Lake_toJsonPackageEntryV6____x40_Lake_Load_Manifest_2705597052____hygCtx___hyg_131__spec__0_spec__0___redArg___closed__0;
@@ -178,7 +174,6 @@ LEAN_EXPORT lean_object* l_Lake_PackageEntry_toJson(lean_object*);
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_instToJsonPackageEntryV6;
 static lean_object* l_Lake_Manifest_fromJson_x3f___closed__0;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Manifest_toCtorIdx___boxed(lean_object*);
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6___lam__1___closed__0____x40_Lake_Load_Manifest_2705597052____hygCtx___hyg_111_;
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_Manifest_getPackages___closed__4;
 LEAN_EXPORT lean_object* l_Option_toJson___at_____private_Lake_Load_Manifest_0__Lake_toJsonPackageEntryV6____x40_Lake_Load_Manifest_2705597052____hygCtx___hyg_131__spec__6(lean_object*);
@@ -217,11 +212,9 @@ static lean_object* l___private_Lake_Load_Manifest_0__Lake_instToJsonPackageEntr
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_instFromJsonPackageEntryV6___closed__0;
 lean_object* lean_io_error_to_string(lean_object*);
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_Manifest_getVersion___closed__9;
-LEAN_EXPORT lean_object* l_Lake_PackageEntrySrc_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lake_PackageEntry_fromJson_x3f_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Option_fromJson_x3f___at_____private_Lake_Load_Manifest_0__Lake_Manifest_getPackages_spec__4_spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Load_Manifest_0__Lake_PackageEntryV6_toCtorIdx(lean_object*);
 static lean_object* l_Lake_PackageEntry_fromJson_x3f___closed__16;
 static lean_object* l_Lake_PackageEntry_toJson___closed__0;
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_Manifest_getPackages___closed__3;
@@ -260,7 +253,6 @@ static lean_object* l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6___closed__13____x40_Lake_Load_Manifest_2705597052____hygCtx___hyg_111_;
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_NameMap_toJson___at_____private_Lake_Load_Manifest_0__Lake_toJsonPackageEntryV6____x40_Lake_Load_Manifest_2705597052____hygCtx___hyg_131__spec__0_spec__0___redArg___closed__8;
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6___closed__10____x40_Lake_Load_Manifest_2705597052____hygCtx___hyg_111_;
-LEAN_EXPORT lean_object* l_Lake_PackageEntry_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lake_PackageEntry_fromJson_x3f___closed__13;
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6___closed__6____x40_Lake_Load_Manifest_2705597052____hygCtx___hyg_111_;
 static lean_object* l_Lake_PackageEntry_fromJson_x3f___closed__6;
@@ -331,23 +323,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lake_Load_Manifest_0__Lake_PackageEntryV6_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lake_Load_Manifest_0__Lake_PackageEntryV6_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Lake_Load_Manifest_0__Lake_PackageEntryV6_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lake_Load_Manifest_0__Lake_PackageEntryV6_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Lake_Load_Manifest_0__Lake_PackageEntryV6_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -3437,23 +3412,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_PackageEntrySrc_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_PackageEntrySrc_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_PackageEntrySrc_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_PackageEntrySrc_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedPackageEntrySrc___closed__0() {
 _start:
 {
@@ -3485,23 +3443,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_PackageEntry_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_PackageEntry_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_PackageEntry_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_PackageEntry_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -5420,23 +5361,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_Manifest_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Manifest_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Manifest_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Manifest_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

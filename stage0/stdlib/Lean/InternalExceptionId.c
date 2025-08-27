@@ -19,12 +19,10 @@ LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_getName___boxed(lean_object*
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_InternalExceptionId_toString___closed__0;
-LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedInternalExceptionId;
 static lean_object* l_Lean_registerInternalExceptionId___closed__2;
 LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_getName(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_toCtorIdx___boxed(lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lean_instBEqInternalExceptionId___closed__0;
 size_t lean_usize_of_nat(lean_object*);
@@ -70,23 +68,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_InternalExceptionId_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_InternalExceptionId_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }

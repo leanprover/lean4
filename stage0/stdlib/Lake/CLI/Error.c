@@ -118,7 +118,6 @@ static lean_object* l_List_repr_x27___at___Lake_reprCliError____x40_Lake_CLI_Err
 static lean_object* l_Lake_reprCliError___closed__76____x40_Lake_CLI_Error_438044115____hygCtx___hyg_381_;
 static lean_object* l_Lake_reprCliError___closed__5____x40_Lake_CLI_Error_438044115____hygCtx___hyg_381_;
 static lean_object* l_Lake_reprCliError___closed__78____x40_Lake_CLI_Error_438044115____hygCtx___hyg_381_;
-LEAN_EXPORT lean_object* l_Lake_CliError_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lake_reprCliError___closed__4____x40_Lake_CLI_Error_438044115____hygCtx___hyg_381_;
 static lean_object* l_Lake_CliError_toString___closed__39;
 static lean_object* l_Lake_reprCliError___closed__36____x40_Lake_CLI_Error_438044115____hygCtx___hyg_381_;
@@ -148,7 +147,6 @@ lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l_Lake_CliError_toString___closed__24;
 static lean_object* l_Lake_CliError_toString___closed__14;
 static lean_object* l_Lake_CliError_toString___closed__35;
-LEAN_EXPORT lean_object* l_Lake_CliError_toCtorIdx(lean_object*);
 static lean_object* l_Lake_reprCliError___closed__43____x40_Lake_CLI_Error_438044115____hygCtx___hyg_381_;
 static lean_object* l_Lake_reprCliError___closed__69____x40_Lake_CLI_Error_438044115____hygCtx___hyg_381_;
 static lean_object* l_Lake_reprCliError___closed__80____x40_Lake_CLI_Error_438044115____hygCtx___hyg_381_;
@@ -391,23 +389,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_CliError_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_CliError_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_CliError_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_CliError_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_CliError_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }

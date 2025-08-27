@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l_Lean_Elab_Term_MatchExpr_toAlt_x3f___closed__7;
 static lean_object* l___private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_generate_loop___closed__18;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_Alt_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Term_MatchExpr_toElseAlt_x3f___closed__4;
 static lean_object* l___private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__0;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Array_filterMapM___at___Lean_Elab_Term_MatchExpr_getParams_spec__0_spec__0___closed__10;
@@ -139,7 +138,6 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at__
 static lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_generate_loop_spec__0___redArg___closed__0;
 static lean_object* l_Lean_Elab_Term_expandMatchExpr___closed__0;
 static lean_object* l_Lean_Elab_Term_MatchExpr_getActuals___closed__8;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_ElseAlt_toCtorIdx(lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Array_filterMapM___at___Lean_Elab_Term_MatchExpr_getParams_spec__0_spec__0___closed__2;
 static lean_object* l___private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_generate_loop___closed__9;
 lean_object* lean_array_to_list(lean_object*);
@@ -174,7 +172,6 @@ static lean_object* l___private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Array_filterMapM___at___Lean_Elab_Term_MatchExpr_getParams_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_generate_loop___closed__23;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_generate_loop_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_ElseAlt_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_Term_MatchExpr_shouldSaveActual___lam__0(lean_object*);
 static lean_object* l___private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_generate_loop___closed__20;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_ElseAlt_ctorIdx___boxed(lean_object*);
@@ -183,7 +180,6 @@ static lean_object* l_Lean_Elab_Term_MatchExpr_next___closed__0;
 static lean_object* l___private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_expandLetExpr___regBuiltin_Lean_Elab_Term_expandLetExpr__1___closed__1;
 static lean_object* l_Lean_Elab_Term_MatchExpr_toElseAlt_x3f___closed__0;
 static lean_object* l_Lean_Elab_Term_MatchExpr_getActuals___closed__19;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_Alt_toCtorIdx(lean_object*);
 static lean_object* l___private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_generate_loop___closed__12;
 static lean_object* l___private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_generate_loop___closed__6;
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -318,23 +314,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_Alt_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_Alt_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Term_MatchExpr_Alt_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_ElseAlt_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -348,23 +327,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_Term_MatchExpr_ElseAlt_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_ElseAlt_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_ElseAlt_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Term_MatchExpr_ElseAlt_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }

@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Std_Sat_AIG_mkAtomCached___at___Std_Tactic_BVDecide_BVExpr_bitblast_blastVar_go_spec__0_spec__3_spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Std_Sat_AIG_mkAtomCached___at___Std_Tactic_BVDecide_BVExpr_bitblast_blastVar_go_spec__0_spec__3_spec__7___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Std_Sat_AIG_mkAtomCached___at___Std_Tactic_BVDecide_BVExpr_bitblast_blastVar_go_spec__0_spec__3_spec__4_spec__4___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_BVVar_toCtorIdx___boxed(lean_object*, lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Std_Sat_AIG_mkAtomCached___at___Std_Tactic_BVDecide_BVExpr_bitblast_blastVar_go_spec__0_spec__3_spec__4_spec__4_spec__4(lean_object*, lean_object*, lean_object*);
@@ -61,7 +60,6 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_emptyWithCapacity___at___Std_Tacti
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_BVVar_ctorIdx___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_BVVar_toCtorIdx(lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Std_Sat_AIG_mkAtomCached___at___Std_Tactic_BVDecide_BVExpr_bitblast_blastVar_go_spec__0_spec__3_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -86,24 +84,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Tactic_BVDecide_BVExpr_bitblast_BVVar_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_BVVar_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_BVVar_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Tactic_BVDecide_BVExpr_bitblast_BVVar_toCtorIdx(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

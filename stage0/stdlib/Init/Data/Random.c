@@ -13,16 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_StdGen_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_mkStdGen___boxed(lean_object*);
 static lean_object* l_stdNext___closed__9;
 static lean_object* l_stdRange___closed__0;
 LEAN_EXPORT lean_object* l_IO_setRandSeed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_randNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_RandomGen_toCtorIdx___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_StdGen_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_randNat___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_RandomGen_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_IO_setRandSeed___closed__0;
 static lean_object* l_stdNext___closed__6;
 LEAN_EXPORT lean_object* l_IO_rand(lean_object*, lean_object*, lean_object*);
@@ -112,23 +108,6 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_RandomGen_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_RandomGen_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_RandomGen_toCtorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_StdGen_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -142,23 +121,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_StdGen_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_StdGen_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_StdGen_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_StdGen_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

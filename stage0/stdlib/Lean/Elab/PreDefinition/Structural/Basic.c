@@ -36,7 +36,6 @@ static lean_object* l_Lean_Elab_Structural_instInhabitedM___closed__15;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_State_ctorIdx(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_Structural_Positions_groupAndSort___redArg___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_Positions_groupAndSort___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_State_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Structural_Positions_groupAndSort___redArg___lam__2___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Structural_Positions_inverse_spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -82,7 +81,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Structural_Positions_numIndices___boxed(lea
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_instInhabitedM___closed__11;
 lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_State_toCtorIdx(lean_object*);
 lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_Positions_numIndices(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_Positions_groupAndSort(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -221,23 +219,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_Structural_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_State_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Structural_State_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Structural_State_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

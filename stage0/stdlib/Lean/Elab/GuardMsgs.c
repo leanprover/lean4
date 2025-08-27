@@ -52,7 +52,6 @@ lean_object* l_Lean_Elab_Command_getScope___redArg(lean_object*, lean_object*);
 lean_object* l_Array_reverse___redArg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsFilterAction___closed__2;
 static lean_object* l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToStringWithoutPos___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardMsgs_GuardMsgFailure_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_MessageData_toString(lean_object*, lean_object*);
 static lean_object* l_initFn___closed__2____x40_Lean_Elab_GuardMsgs_2868335979____hygCtx___hyg_4_;
 lean_object* l_Lean_indentD(lean_object*);
@@ -386,7 +385,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___closed__6;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Diff_diff___at___Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs_spec__13_spec__39___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoTree___at___Lean_Elab_pushInfoLeaf___at___Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs_spec__9_spec__9___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardMsgs_GuardMsgFailure_toCtorIdx(lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 uint8_t l_instDecidableNot___redArg(uint8_t);
 lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___redArg(lean_object*, lean_object*);
@@ -3717,23 +3715,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_Tactic_GuardMsgs_GuardMsgFailure_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardMsgs_GuardMsgFailure_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardMsgs_GuardMsgFailure_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Tactic_GuardMsgs_GuardMsgFailure_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

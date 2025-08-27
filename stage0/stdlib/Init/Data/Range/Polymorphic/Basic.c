@@ -14,14 +14,12 @@
 extern "C" {
 #endif
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__48;
-LEAN_EXPORT lean_object* l_Std_PRange_RangeSize_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__53;
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__5;
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__34;
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__21;
 LEAN_EXPORT lean_object* l_Std_PRange_isEmpty___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__0;
-LEAN_EXPORT lean_object* l_Std_PRange_RangeSize_toCtorIdx(uint8_t, lean_object*, lean_object*);
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__52;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeSize_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__57;
@@ -104,24 +102,6 @@ _start:
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
 x_5 = l_Std_PRange_RangeSize_ctorIdx(x_4, x_2, x_3);
-lean_dec_ref(x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_PRange_RangeSize_toCtorIdx(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_PRange_RangeSize_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_1);
-x_5 = l_Std_PRange_RangeSize_toCtorIdx(x_4, x_2, x_3);
 lean_dec_ref(x_3);
 return x_5;
 }

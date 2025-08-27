@@ -16,7 +16,6 @@ extern "C" {
 uint8_t l_Nat_blt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Expr_ctorIdx___boxed(lean_object*);
 static lean_object* l___private_Init_Data_Nat_SOM_0__Nat_SOM_Poly_add_go___closed__0;
-LEAN_EXPORT lean_object* l_Nat_SOM_Expr_toCtorIdx(lean_object*);
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_mulMon(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Nat_SOM_instInhabitedExpr___closed__0;
@@ -45,7 +44,6 @@ LEAN_EXPORT lean_object* l_Nat_SOM_Expr_toPoly(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Mon_mul(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_SOM_Expr_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_insertSorted(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_mul(lean_object*, lean_object*);
 lean_object* l_instDecidableEqNat___boxed(lean_object*, lean_object*);
@@ -90,23 +88,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Nat_SOM_Expr_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Nat_SOM_Expr_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Nat_SOM_Expr_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Nat_SOM_Expr_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Nat_SOM_Expr_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

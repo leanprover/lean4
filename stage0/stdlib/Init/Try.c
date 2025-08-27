@@ -18,7 +18,6 @@ static lean_object* l_Lean_Parser_Tactic_tryTrace___closed__2;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__19;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tryTrace;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__16;
-LEAN_EXPORT lean_object* l_Lean_Try_Config_toCtorIdx___boxed(lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_optConfig;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__25;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__29;
@@ -61,7 +60,6 @@ static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tryResult;
 static lean_object* l_Lean_Parser_Tactic_tryResult___closed__11;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Try_Config_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_tryResult___closed__10;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__10;
 static lean_object* l_Lean_Parser_Tactic_tryTrace___closed__8;
@@ -94,23 +92,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Try_Config_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Try_Config_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Try_Config_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Try_Config_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -128,7 +128,6 @@ static lean_object* l_Std_Time_instInhabitedPlainTime___closed__15;
 static lean_object* l_Std_Time_PlainTime_toSeconds___closed__1;
 extern lean_object* l_Std_Time_Minute_instAddOffset;
 static lean_object* l_Std_Time_PlainTime_midnight___closed__2;
-LEAN_EXPORT lean_object* l_Std_Time_PlainTime_toCtorIdx(lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instInhabitedPlainTime___closed__12;
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_millisecond(lean_object*);
@@ -187,7 +186,6 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainTime_ofMinutes___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_ofMilliseconds(lean_object*);
 static lean_object* l_Std_Time_instInhabitedPlainTime___closed__7;
 static lean_object* l_Std_Time_reprPlainTime___redArg___closed__18____x40_Std_Time_Time_PlainTime_905586295____hygCtx___hyg_402_;
-LEAN_EXPORT lean_object* l_Std_Time_PlainTime_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Std_Time_instInhabitedPlainTime___closed__9;
 static lean_object* l_Std_Time_instInhabitedPlainTime___closed__16;
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_ctorIdx(lean_object* x_1) {
@@ -203,23 +201,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Time_PlainTime_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainTime_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainTime_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_PlainTime_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -41,11 +41,9 @@ static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_NameMap_
 LEAN_EXPORT lean_object* l_Lake_Env_leanSrcPath(lean_object*);
 static lean_object* l_Lake_Env_noToolchainVars___closed__15;
 LEAN_EXPORT lean_object* l_Lake_Env_leanSearchPath___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Env_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Env_baseVars(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Env_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lake_instInhabitedEnv___closed__2;
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_NameMap_toJson___at___Lake_Env_baseVars_spec__0_spec__0___redArg___closed__2;
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
@@ -175,23 +173,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_Env_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Env_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Env_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Env_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

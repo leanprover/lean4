@@ -48,7 +48,6 @@ static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__15____x40_Init_Grin
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Expr_denote_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_le__le__combine__cert(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote_x27___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Grind_Linarith_reprPoly___closed__2____x40_Init_Grind_Ordered_Linarith_2431311409____hygCtx___hyg_55_;
 lean_object* l_Lean_RArray_getImpl___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_ctorIdx(lean_object*);
@@ -57,7 +56,6 @@ LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_L
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Var_denote___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith_3091913453____hygCtx___hyg_145____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_le__lt__combine__cert(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_denote_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith_3091913453____hygCtx___hyg_110_(lean_object*, lean_object*);
@@ -90,7 +88,6 @@ LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_L
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_mul___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__0____x40_Init_Grind_Ordered_Linarith_3091913453____hygCtx___hyg_145_;
 static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__1____x40_Init_Grind_Ordered_Linarith_3091913453____hygCtx___hyg_145_;
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_toCtorIdx(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_eq__eq__subst__cert(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_combine_x27_match__3_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_combine_x27_match__3_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -161,7 +158,6 @@ lean_object* lean_int_add(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_eq__diseq__subst__cert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_lt__lt__combine__cert___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Grind_Linarith_instBEqExpr___closed__0;
 lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_eq__coeff__cert___boxed(lean_object*, lean_object*, lean_object*);
@@ -233,23 +229,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Grind_Linarith_Expr_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_Linarith_Expr_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_Linarith_Expr_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -1340,23 +1319,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_Linarith_Poly_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_Linarith_Poly_toCtorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith_2431311409____hygCtx___hyg_34_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1545,12 +1507,12 @@ block_34:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; lean_object* x_32; lean_object* x_33; 
 x_22 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_22, 0, x_18);
+lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
-lean_inc(x_19);
+lean_inc(x_18);
 x_23 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
-lean_ctor_set(x_23, 1, x_19);
+lean_ctor_set(x_23, 1, x_18);
 x_24 = l_Nat_reprFast(x_15);
 x_25 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
@@ -1559,13 +1521,13 @@ lean_ctor_set(x_26, 0, x_23);
 lean_ctor_set(x_26, 1, x_25);
 x_27 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
-lean_ctor_set(x_27, 1, x_19);
+lean_ctor_set(x_27, 1, x_18);
 x_28 = l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith_2431311409____hygCtx___hyg_55_(x_16, x_17);
 x_29 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
 lean_ctor_set(x_29, 1, x_28);
 x_30 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_30, 0, x_20);
+lean_ctor_set(x_30, 0, x_19);
 lean_ctor_set(x_30, 1, x_29);
 x_31 = 0;
 x_32 = lean_alloc_ctor(6, 1, 1);
@@ -1588,9 +1550,9 @@ x_40 = l_Int_repr(x_14);
 lean_dec(x_14);
 x_41 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_41, 0, x_40);
-x_18 = x_37;
-x_19 = x_36;
-x_20 = x_35;
+x_18 = x_36;
+x_19 = x_35;
+x_20 = x_37;
 x_21 = x_41;
 goto block_34;
 }
@@ -1602,9 +1564,9 @@ lean_dec(x_14);
 x_43 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_43, 0, x_42);
 x_44 = l_Repr_addAppParen(x_43, x_17);
-x_18 = x_37;
-x_19 = x_36;
-x_20 = x_35;
+x_18 = x_36;
+x_19 = x_35;
+x_20 = x_37;
 x_21 = x_44;
 goto block_34;
 }

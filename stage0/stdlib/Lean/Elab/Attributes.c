@@ -35,7 +35,6 @@ static lean_object* l_Lean_Elab_mkAttrKindGlobal___closed__5;
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Attribute_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabAttr___redArg___lam__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabAttrs___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -61,7 +60,6 @@ lean_object* l_Lean_throwError___redArg(lean_object*, lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lean_Elab_Attribute_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_toAttributeKind___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Attribute_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Elab_elabAttr___redArg___lam__6___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabAttr___redArg___lam__3(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_toAttributeKind___closed__1;
@@ -134,23 +132,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_Attribute_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Attribute_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Attribute_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Attribute_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -21,7 +21,6 @@ LEAN_EXPORT lean_object* l_Lean_instDecidableEqDeclarationRange___boxed(lean_obj
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 static lean_object* l_Lean_instToExprDeclarationRange___closed__1;
-LEAN_EXPORT lean_object* l_Lean_DeclarationRanges_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_reprDeclarationRanges___redArg____x40_Lean_Data_DeclarationRange_1978900198____hygCtx___hyg_27_(lean_object*);
 static lean_object* l_Lean_instToExprDeclarationRanges___lam__0___closed__2;
 static lean_object* l_Lean_reprDeclarationRange___redArg___closed__15____x40_Lean_Data_DeclarationRange_1992516353____hygCtx___hyg_66_;
@@ -45,7 +44,6 @@ LEAN_EXPORT lean_object* l_Lean_reprDeclarationRange____x40_Lean_Data_Declaratio
 static lean_object* l_Lean_reprDeclarationRange___redArg___closed__18____x40_Lean_Data_DeclarationRange_1992516353____hygCtx___hyg_66_;
 LEAN_EXPORT lean_object* l_Lean_DeclarationLocation_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_reprDeclarationRange___redArg___closed__10____x40_Lean_Data_DeclarationRange_1992516353____hygCtx___hyg_66_;
-LEAN_EXPORT lean_object* l_Lean_DeclarationLocation_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedDeclarationLocation;
 LEAN_EXPORT lean_object* l_Lean_reprDeclarationRanges____x40_Lean_Data_DeclarationRange_1978900198____hygCtx___hyg_27_(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedDeclarationRanges___closed__0;
@@ -71,7 +69,6 @@ static lean_object* l_Lean_reprDeclarationRange___redArg___closed__19____x40_Lea
 uint8_t l_Lean_decEqPosition____x40_Lean_Data_Position_1632782336____hygCtx___hyg_27_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_reprDeclarationRange____x40_Lean_Data_DeclarationRange_1992516353____hygCtx___hyg_66____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_instToExprDeclarationRange___lam__0___closed__3;
-LEAN_EXPORT lean_object* l_Lean_DeclarationLocation_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_reprDeclarationRange___redArg____x40_Lean_Data_DeclarationRange_1992516353____hygCtx___hyg_66_(lean_object*);
 static lean_object* l_Lean_instInhabitedDeclarationRange___closed__1;
 static lean_object* l_Lean_instToExprDeclarationRanges___closed__0;
@@ -88,7 +85,6 @@ LEAN_EXPORT lean_object* l_Lean_decEqDeclarationLocation____x40_Lean_Data_Declar
 static lean_object* l_Lean_instToExprDeclarationRange___lam__0___closed__1;
 static lean_object* l_Lean_reprDeclarationRange___redArg___closed__4____x40_Lean_Data_DeclarationRange_1992516353____hygCtx___hyg_66_;
 LEAN_EXPORT lean_object* l_Lean_DeclarationRange_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_DeclarationRange_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_reprPosition___redArg____x40_Lean_Data_Position_1632782336____hygCtx___hyg_42_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToExprDeclarationRanges;
 LEAN_EXPORT uint8_t l_Lean_instDecidableEqDeclarationLocation(lean_object*, lean_object*);
@@ -99,10 +95,8 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_reprDeclarationRange___redArg___closed__11____x40_Lean_Data_DeclarationRange_1992516353____hygCtx___hyg_66_;
 static lean_object* l_Lean_instToExprDeclarationRanges___closed__1;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_DeclarationRanges_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_instToExprDeclarationRanges___lam__0___closed__0;
 static lean_object* l_Lean_reprDeclarationRange___redArg___closed__14____x40_Lean_Data_DeclarationRange_1992516353____hygCtx___hyg_66_;
-LEAN_EXPORT lean_object* l_Lean_DeclarationRange_toCtorIdx(lean_object*);
 static lean_object* l_Lean_instReprDeclarationLocation___closed__0;
 static lean_object* l_Lean_instReprDeclarationRanges___closed__0;
 static lean_object* l_Lean_reprDeclarationLocation___redArg___closed__3____x40_Lean_Data_DeclarationRange_1813066514____hygCtx___hyg_42_;
@@ -139,23 +133,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_DeclarationRange_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_DeclarationRange_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_DeclarationRange_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_DeclarationRange_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -834,23 +811,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_DeclarationRanges_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_DeclarationRanges_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_DeclarationRanges_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_instInhabitedDeclarationRanges___closed__0() {
 _start:
 {
@@ -1288,23 +1248,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_DeclarationLocation_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_DeclarationLocation_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_DeclarationLocation_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_DeclarationLocation_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

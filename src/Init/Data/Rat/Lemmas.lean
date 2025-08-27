@@ -773,11 +773,32 @@ protected theorem pow_pos {a : Rat} {n : Nat} (h : 0 < a) : 0 < a ^ n := by
   | zero => simp +decide
   | succ k ih => rw [Rat.pow_succ]; exact Rat.mul_pos ih h
 
+protected theorem pow_nonneg {a : Rat} {n : Nat} (h : 0 ≤ a) : 0 ≤ a ^ n := by
+  by_cases h' : a = 0
+  · simp [h']
+    match n with
+    | 0 => simp; rfl
+    | n + 1 => simp [Rat.pow_succ]; apply Rat.le_refl
+  · exact Rat.le_of_lt (Rat.pow_pos (Rat.lt_of_le_of_ne h (Ne.symm h')))
+
 protected theorem zpow_pos {a : Rat} {n : Int} (h : 0 < a) : 0 < a ^ n := by
   cases n
   · simp [Rat.zpow_natCast, Rat.pow_pos h]
   · simp only [Int.negSucc_eq, Rat.zpow_neg, Rat.inv_pos, ← Int.natCast_add_one,
       Rat.zpow_natCast, Rat.pow_pos h]
+
+protected theorem zpow_nonneg {a : Rat} {n : Int} (h : 0 ≤ a) : 0 ≤ a ^ n := by
+  by_cases h' : a = 0
+  · simp [h']
+    match n with
+    | (0 : Nat) => simp; rfl
+    | (n + 1 : Nat) =>
+      rw [Rat.zpow_natCast, Rat.pow_succ, Rat.mul_zero]
+      rfl
+    | -(n + 1 : Nat) =>
+      rw [Rat.zpow_neg, Rat.zpow_natCast, Rat.pow_succ, Rat.mul_zero, Rat.inv_zero]
+      rfl
+  · exact Rat.le_of_lt (Rat.zpow_pos (Rat.lt_of_le_of_ne h (Ne.symm h')))
 
 protected theorem div_lt_iff {a b c : Rat} (hb : 0 < b) : a / b < c ↔ a < c * b := by
   rw [← Rat.mul_lt_mul_right hb, Rat.div_mul_cancel (Rat.ne_of_gt hb)]

@@ -72,7 +72,6 @@ LEAN_EXPORT lean_object* l_Std_Time_instOrdPlainDate___lam__0(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch___closed__8;
 lean_object* l_Std_Time_ValidDate_dayOfYear(uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_PlainDate_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDate_addMonthsClip___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_PlainDate_ofYearMonthDayClip___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDate_weekday___boxed(lean_object*);
@@ -162,7 +161,6 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainDate_addMonthsClip(lean_object*, lean_o
 uint8_t l_instDecidableNot___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDate_withWeekday(lean_object*, uint8_t);
 static lean_object* l_Std_Time_PlainDate_toDaysSinceUNIXEpoch___closed__1;
-LEAN_EXPORT lean_object* l_Std_Time_PlainDate_toCtorIdx___boxed(lean_object*);
 lean_object* l_instOrdInt___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDate_subYearsClip(lean_object*, lean_object*);
 static lean_object* l_Std_Time_reprPlainDate___redArg___closed__7____x40_Std_Time_Date_PlainDate_2349060872____hygCtx___hyg_335_;
@@ -210,23 +208,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Time_PlainDate_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainDate_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainDate_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_PlainDate_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

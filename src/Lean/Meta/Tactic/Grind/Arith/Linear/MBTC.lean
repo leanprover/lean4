@@ -49,7 +49,7 @@ private def eqAssignment (a b : Expr) : GoalM Bool := do
   let some structId := structId₁? <|> structId₂? | return false
   let s := (← get).arith.linear.structs[structId]!
   -- It is pointless to generate case-splits unless we have support for disequality.
-  unless s.linearInst?.isSome do return false
+  unless s.isLinearInst?.isSome do return false
   let some v₁ := getAssignmentExt? s a | return false
   let some v₂ := getAssignmentExt? s b | return false
   return v₁ == v₂

@@ -42,7 +42,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Const_get___redArg(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Std_DHashMap_instUnion(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_getKey___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Const_toArray___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_term___x7em_____closed__12;
 LEAN_EXPORT lean_object* l_Std_DHashMap_keysArray___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
@@ -327,7 +326,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Const_forMUncurried___boxed(lean_object*
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_getKey___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_instRepr___redArg___lam__2___closed__1;
-LEAN_EXPORT lean_object* l_Std_DHashMap_toCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_forIn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -387,25 +385,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_DHashMap_ctorIdx(x_1, x_2, x_3, x_4, x_5);
-lean_dec_ref(x_5);
-lean_dec_ref(x_4);
-lean_dec_ref(x_3);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_DHashMap_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = lean_unsigned_to_nat(0u);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_DHashMap_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Std_DHashMap_toCtorIdx(x_1, x_2, x_3, x_4, x_5);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);

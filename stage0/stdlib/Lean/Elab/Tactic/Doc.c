@@ -113,7 +113,6 @@ static lean_object* l___private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Doc_ela
 static lean_object* l_Lean_getDocStringText___at___Lean_Elab_Tactic_Doc_elabRegisterTacticTag_spec__0___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Parser_Tactic_Doc_allTagsWithInfo___at___Lean_Elab_Tactic_Doc_elabPrintTacTags_spec__9_spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Doc_TacticDoc_toCtorIdx(lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Doc_showParserName___closed__3;
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_Elab_Tactic_Doc_elabTacticExtension_spec__0_spec__0___redArg___closed__2;
 static lean_object* l_Lean_Elab_Tactic_Doc_elabPrintTacTags___redArg___closed__0;
@@ -234,7 +233,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___Lean_Persiste
 static size_t l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find_x3f_x27___at_____private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Doc_showParserName_spec__4_spec__6_spec__6___redArg___closed__1;
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at_____private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Doc_showParserName_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Doc_TacticDoc_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_Tactic_Doc_elabPrintTacTags_spec__8___redArg(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logInfo___at___Lean_Elab_Tactic_Doc_elabPrintTacTags_spec__18_spec__18_spec__18___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -9619,23 +9617,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_Tactic_Doc_TacticDoc_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Doc_TacticDoc_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Doc_TacticDoc_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Tactic_Doc_TacticDoc_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

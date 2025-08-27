@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_VarInfo_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_reorderVarMap___redArg___closed__4;
 uint8_t l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear_2431311409____hygCtx___hyg_44_(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Cutsat_eliminated___redArg(lean_object*, lean_object*, lean_object*);
@@ -328,7 +327,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_mapM___at___Lean_Meta_Grind_Arit
 lean_object* lean_grind_cutsat_assert_le(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_Meta_Grind_Arith_Cutsat_reorderVars_spec__41_spec__41___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_reorderVarMap___redArg___closed__10;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_VarInfo_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Meta_Grind_Arith_Cutsat_reorderDiseqSplits_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -383,23 +381,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_Grind_Arith_Cutsat_VarInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_VarInfo_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_VarInfo_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_Arith_Cutsat_VarInfo_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -2287,8 +2268,8 @@ if (x_54 == 0)
 {
 lean_object* x_55; 
 x_55 = l_outOfBounds___redArg(x_53);
-x_24 = x_51;
-x_25 = x_50;
+x_24 = x_50;
+x_25 = x_51;
 x_26 = x_55;
 goto block_34;
 }
@@ -2297,8 +2278,8 @@ else
 lean_object* x_56; 
 lean_inc_ref(x_42);
 x_56 = l_Lean_PersistentArray_get_x21___redArg(x_53, x_42, x_5);
-x_24 = x_51;
-x_25 = x_50;
+x_24 = x_50;
+x_25 = x_51;
 x_26 = x_56;
 goto block_34;
 }
@@ -2391,8 +2372,8 @@ block_34:
 if (lean_obj_tag(x_26) == 0)
 {
 x_18 = x_1;
-x_19 = x_24;
-x_20 = x_25;
+x_19 = x_25;
+x_20 = x_24;
 goto block_23;
 }
 else
@@ -2406,7 +2387,7 @@ lean_inc(x_28);
 lean_dec(x_27);
 x_29 = lean_nat_abs(x_28);
 lean_dec(x_28);
-x_30 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_updateDvd___redArg(x_29, x_5, x_24, x_25);
+x_30 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_updateDvd___redArg(x_29, x_5, x_25, x_24);
 x_31 = lean_ctor_get(x_30, 0);
 lean_inc(x_31);
 x_32 = lean_ctor_get(x_30, 1);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Rat.Basic
-// Imports: Init.Data.Nat.Coprime Init.Data.Hashable Init.Data.OfScientific
+// Imports: Init.Data.Nat.Coprime Init.Data.Hashable Init.Data.OfScientific Init.Data.Int.Bitwise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -29,7 +29,6 @@ static lean_object* l_Rat___aux__Init__Data__Rat__Basic______macroRules__Rat__te
 LEAN_EXPORT lean_object* l_Rat_div___boxed(lean_object*, lean_object*);
 static lean_object* l_Rat_term___x2f_x2e_____closed__11;
 LEAN_EXPORT lean_object* l_Rat_den__nz___autoParam;
-LEAN_EXPORT lean_object* l_Rat_toCtorIdx___boxed(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 static lean_object* l_Rat___aux__Init__Data__Rat__Basic______macroRules__Rat__term___x2f_x2e____1___closed__2;
@@ -188,7 +187,6 @@ static lean_object* l_Rat_den__nz___autoParam___closed__5;
 static lean_object* l_Rat___aux__Init__Data__Rat__Basic______macroRules__Rat__term___x2f_x2e____1___closed__9;
 LEAN_EXPORT lean_object* l_Rat_normalize___redArg(lean_object*, lean_object*);
 static lean_object* l_Rat_instIntCast___closed__0;
-LEAN_EXPORT lean_object* l_Rat_toCtorIdx(lean_object*);
 lean_object* lean_nat_div_exact(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Rat_instNatCast;
 lean_object* l_String_toSubstring_x27(lean_object*);
@@ -509,23 +507,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Rat_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Rat_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Rat_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Rat_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -2843,6 +2824,7 @@ return x_2;
 lean_object* initialize_Init_Data_Nat_Coprime(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Hashable(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_OfScientific(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_Bitwise(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Rat_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -2855,6 +2837,9 @@ res = initialize_Init_Data_Hashable(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_OfScientific(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Bitwise(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Rat_den__nz___autoParam___closed__0 = _init_l_Rat_den__nz___autoParam___closed__0();

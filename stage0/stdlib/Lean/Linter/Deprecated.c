@@ -40,7 +40,6 @@ lean_object* l_Lean_TSyntax_getString(lean_object*);
 uint64_t lean_uint64_lor(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn___lam__2____x40_Lean_Linter_Deprecated_2190225664____hygCtx___hyg_2_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_9_(uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Linter_DeprecationEntry_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Linter_checkDeprecated___closed__4;
 lean_object* l_Lean_setEnv___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_checkDeprecated___closed__33;
@@ -171,7 +170,6 @@ static lean_object* l_Lean_Linter_checkDeprecated___closed__0;
 uint64_t lean_uint64_shift_left(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Linter_linter_deprecated;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_DeprecationEntry_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__8____x40_Lean_Linter_Deprecated_1975727962____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_Linter_checkDeprecated_spec__2_spec__2_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_DeprecationEntry_ctorIdx(lean_object*);
@@ -405,23 +403,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Linter_DeprecationEntry_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Linter_DeprecationEntry_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Linter_DeprecationEntry_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Linter_DeprecationEntry_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

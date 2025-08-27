@@ -8,6 +8,8 @@ module
 prelude
 import Init.Grind.Module.Envelope
 
+open Std
+
 namespace Lean.Grind.IntModule.OfNatModule
 
 /-!
@@ -22,19 +24,19 @@ theorem of_diseq {α} [NatModule α] [AddRightCancel α] {a b : α} {a' b' : Q �
     (h₁ : toQ a = a') (h₂ : toQ b = b') : a ≠ b → a' ≠ b' := by
   rw [← h₁, ← h₂]; intro h₃ h₄; replace h₄ := toQ_inj h₄; contradiction
 
-theorem of_le {α} [NatModule α] [LE α] [LT α] [Preorder α] [OrderedAdd α] {a b : α} {a' b' : Q α}
+theorem of_le {α} [NatModule α] [LE α] [IsPreorder α] [OrderedAdd α] {a b : α} {a' b' : Q α}
     (h₁ : toQ a = a') (h₂ : toQ b = b') : a ≤ b → a' ≤ b' := by
   rw [← h₁, ← h₂, toQ_le]; intro; assumption
 
-theorem of_not_le {α} [NatModule α] [LE α] [LT α] [Preorder α] [OrderedAdd α] {a b : α} {a' b' : Q α}
+theorem of_not_le {α} [NatModule α] [LE α] [IsPreorder α] [OrderedAdd α] {a b : α} {a' b' : Q α}
     (h₁ : toQ a = a') (h₂ : toQ b = b') : ¬ a ≤ b → ¬ a' ≤ b' := by
   rw [← h₁, ← h₂, toQ_le]; intro; assumption
 
-theorem of_lt {α} [NatModule α] [LE α] [LT α] [Preorder α] [OrderedAdd α] {a b : α} {a' b' : Q α}
+theorem of_lt {α} [NatModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] {a b : α} {a' b' : Q α}
     (h₁ : toQ a = a') (h₂ : toQ b = b') : a < b → a' < b' := by
   rw [← h₁, ← h₂, toQ_lt]; intro; assumption
 
-theorem of_not_lt {α} [NatModule α] [LE α] [LT α] [Preorder α] [OrderedAdd α] {a b : α} {a' b' : Q α}
+theorem of_not_lt {α} [NatModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] {a b : α} {a' b' : Q α}
     (h₁ : toQ a = a') (h₂ : toQ b = b') : ¬ a < b → ¬ a' < b' := by
   rw [← h₁, ← h₂, toQ_lt]; intro; assumption
 

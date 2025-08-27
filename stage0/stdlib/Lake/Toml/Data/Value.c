@@ -35,7 +35,6 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Toml_ppTable_spec__6_spec__6___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Toml_ppTable_spec__3_spec__3(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_Value_toCtorIdx___boxed(lean_object*);
 uint8_t l_Lake_Toml_decEqDateTime____x40_Lake_Toml_Data_DateTime_1078177878____hygCtx___hyg_87_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_empty;
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
@@ -128,7 +127,6 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold
 static lean_object* l_Lake_Toml_Table_empty___closed__0;
 static lean_object* l_String_foldlAux___at___Lake_Toml_ppString_spec__0___closed__1;
 static lean_object* l_Lake_Toml_ppInlineArray___closed__0;
-LEAN_EXPORT lean_object* l_Lake_Toml_Value_toCtorIdx(lean_object*);
 static lean_object* l_Lake_Toml_ppString___closed__0;
 static lean_object* l_String_foldlAux___at___Lake_Toml_ppString_spec__0___closed__0;
 lean_object* l_String_intercalate(lean_object*, lean_object*);
@@ -215,23 +213,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_Toml_Value_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Toml_Value_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Toml_Value_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Toml_Value_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Toml_Value_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -257,7 +257,6 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_minute___boxed(lean_object*);
 static lean_object* l_Std_Time_instInhabitedPlainDateTime___closed__37;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_withNanoseconds(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instInhabitedPlainDateTime___closed__25;
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_toCtorIdx___boxed(lean_object*);
 lean_object* l_Std_Time_PlainTime_toSeconds(lean_object*);
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__1;
 static lean_object* l_Std_Time_reprPlainDateTime___redArg___closed__3____x40_Std_Time_DateTime_PlainDateTime_219837899____hygCtx___hyg_273_;
@@ -269,7 +268,6 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_withMilliseconds(lean_object*,
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_atDate(lean_object*, lean_object*);
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__21;
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_toCtorIdx(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_PlainDateTime_inLeapYear(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_instDecidableEqPlainDateTime(lean_object*, lean_object*);
 lean_object* l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch(lean_object*);
@@ -323,23 +321,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Time_PlainDateTime_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_PlainDateTime_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

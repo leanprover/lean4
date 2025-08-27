@@ -34,11 +34,9 @@ LEAN_EXPORT lean_object* l_Std_Format_instAppend;
 static lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instMonadPrettyFormatStateMState___lam__2___boxed__const__1;
 lean_object* l_StateT_get(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic_2198578649____hygCtx___hyg_9_(uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_Std_Format_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_merge___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_fill(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___redArg___lam__0___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Format_MonadPrettyFormat_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instMonadPrettyFormatStateMState___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -47,7 +45,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___r
 LEAN_EXPORT lean_object* l_Std_Format_FlattenAllowability_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_ctorIdx(uint8_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_WorkItem_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instMonadPrettyFormatStateMState___lam__2(lean_object*, lean_object*);
 static lean_object* l_panic___at_____private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Std_Format_pretty_spec__0_spec__0_spec__2___closed__3;
 static lean_object* l_Std_Format_paren___closed__0;
@@ -56,7 +53,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___r
 LEAN_EXPORT lean_object* l_Std_Format_join(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_pushGroup___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__7(uint32_t, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_SpaceResult_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___redArg(lean_object*, lean_object*);
@@ -78,9 +74,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_SpaceR
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Std_Format_pretty_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___redArg___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_WorkGroup_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_State_toCtorIdx___boxed(lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_prettyM___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___redArg(lean_object*, lean_object*, lean_object*);
@@ -104,7 +98,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___r
 LEAN_EXPORT lean_object* l_Std_instToFormatFormat___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSuffix(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_____private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Std_Format_pretty_spec__0_spec__0_spec__2___closed__6;
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_State_toCtorIdx(lean_object*);
 static lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instMonadPrettyFormatStateMState___closed__4;
 lean_object* l_StateT_instMonad___redArg___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at_____private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Std_Format_pretty_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -122,9 +115,7 @@ lean_object* l_StateT_instMonad___redArg___lam__9(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Format_instInhabitedFlattenBehavior;
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__0(lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Format_FlattenAllowability_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Format_isEmpty(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_WorkItem_toCtorIdx___boxed(lean_object*);
 lean_object* l_StateT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_isEmpty___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_prefixJoin(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -148,7 +139,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instMo
 static lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instMonadPrettyFormatStateMState___closed__8;
 LEAN_EXPORT uint8_t l_Std_Format_FlattenAllowability_shouldFlatten(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_prettyM___at___Std_Format_pretty_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_WorkGroup_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_instBEqFlattenBehavior;
 static lean_object* l_Std_Format_instBEqFlattenAllowability___closed__0;
@@ -157,7 +147,6 @@ LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_ctorIdx___boxed(lean_objec
 LEAN_EXPORT lean_object* l_Std_Format_prefixJoin___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_FlattenAllowability_shouldFlatten___boxed(lean_object*);
 lean_object* lean_string_length(lean_object*);
-LEAN_EXPORT lean_object* l_Std_ToFormat_toCtorIdx___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Std_Format_nestD___closed__0;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -168,7 +157,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___r
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__7___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_MonadPrettyFormat_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_instBEqFlattenAllowability;
-LEAN_EXPORT lean_object* l_Std_Format_MonadPrettyFormat_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Std_Format_pretty_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__5(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Format_sbracket___closed__0;
@@ -186,10 +174,8 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Std_Format_paren___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_pushGroup___at_____private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Std_Format_pretty_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ToFormat_ctorIdx___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_SpaceResult_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_merge(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Format_beqFlattenAllowability____x40_Init_Data_Format_Basic_855825417____hygCtx___hyg_16_(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Format_FlattenAllowability_toCtorIdx(lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instToFormatFormat;
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instMonadPrettyFormatStateMState___lam__1(uint32_t, lean_object*);
@@ -216,7 +202,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSuffix___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_ToFormat_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_WorkItem_ctorIdx___boxed(lean_object*);
 lean_object* l_StateT_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_toCtorIdx___boxed(lean_object*);
@@ -232,7 +217,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_State_
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_StateT_instMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Format_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_ctorIdx(uint8_t x_1) {
 _start:
 {
@@ -435,23 +419,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Format_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Format_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Format_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Format_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Format_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -692,23 +659,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Init_Data_Format_Basic_0__Std_Format_SpaceResult_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_SpaceResult_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_SpaceResult_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Init_Data_Format_Basic_0__Std_Format_SpaceResult_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -1101,23 +1051,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_WorkItem_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_WorkItem_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Init_Data_Format_Basic_0__Std_Format_WorkItem_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Format_FlattenAllowability_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -1140,23 +1073,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Format_FlattenAllowability_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Format_FlattenAllowability_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Format_FlattenAllowability_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Format_FlattenAllowability_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Format_FlattenAllowability_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -1283,23 +1199,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Init_Data_Format_Basic_0__Std_Format_WorkGroup_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_WorkGroup_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_WorkGroup_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Init_Data_Format_Basic_0__Std_Format_WorkGroup_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -1646,23 +1545,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Format_MonadPrettyFormat_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Format_MonadPrettyFormat_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Format_MonadPrettyFormat_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Format_MonadPrettyFormat_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
@@ -4530,23 +4412,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Init_Data_Format_Basic_0__Std_Format_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_State_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_State_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Init_Data_Format_Basic_0__Std_Format_State_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -8017,23 +7882,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_ToFormat_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_ToFormat_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_ToFormat_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_ToFormat_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

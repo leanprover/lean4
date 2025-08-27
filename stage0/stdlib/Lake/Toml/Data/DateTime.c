@@ -25,14 +25,12 @@ LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedTime;
 LEAN_EXPORT lean_object* l_Lake_Toml_Time_ofValid_x3f(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lake_decEqDate____x40_Lake_Util_Date_3979656006____hygCtx___hyg_36_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instDecidableEqDateTime___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_Time_toCtorIdx(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Toml_instDecidableEqTime(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_split___at___Lake_Toml_DateTime_ofString_x3f_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___Lake_Toml_DateTime_ofString_x3f_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___Lake_Toml_Time_ofString_x3f_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_split___at___Lake_Toml_DateTime_ofString_x3f_spec__3(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Toml_decEqDateTime____x40_Lake_Toml_Data_DateTime_1078177878____hygCtx___hyg_87_(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lake_Toml_Time_toString___closed__1;
 LEAN_EXPORT lean_object* l_String_split___at___Lake_Toml_DateTime_ofString_x3f_spec__0___boxed(lean_object*);
@@ -61,11 +59,9 @@ LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___Lake_Toml_
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_toString(lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instDecidableEqTime___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instCoeTimeDateTime___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instCoeTimeDateTime;
 LEAN_EXPORT lean_object* l_String_split___at___Lake_Toml_DateTime_ofString_x3f_spec__3___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_Time_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_decEqTime____x40_Lake_Toml_Data_DateTime_516538407____hygCtx___hyg_56____boxed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Toml_decEqDateTime___lam__0____x40_Lake_Toml_Data_DateTime_1078177878____hygCtx___hyg_87_(uint8_t, uint8_t, uint8_t);
@@ -119,23 +115,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_Toml_Time_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Toml_Time_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Toml_Time_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Toml_Time_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -982,23 +961,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_Toml_DateTime_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Toml_DateTime_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Toml_DateTime_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

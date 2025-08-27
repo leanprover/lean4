@@ -13,22 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_RArray_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instGetElemRArrayNatTrue___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_getImpl___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_size___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_size(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_getImpl___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_toCtorIdx___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_getImpl(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_size___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_toCtorIdx___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_getImpl_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instGetElemRArrayNatTrue___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_ctorIdx___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_getImpl_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -77,40 +73,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_RArray_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_RArray_toCtorIdx___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_RArray_ctorIdx___redArg(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_RArray_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_RArray_ctorIdx___redArg(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_RArray_toCtorIdx___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_RArray_toCtorIdx___redArg(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_RArray_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_RArray_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

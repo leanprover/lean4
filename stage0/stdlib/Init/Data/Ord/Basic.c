@@ -51,7 +51,6 @@ LEAN_EXPORT lean_object* l_instOrdString___lam__0___boxed(lean_object*, lean_obj
 static lean_object* l_reprOrdering___closed__3____x40_Init_Data_Ord_Basic_3833408738____hygCtx___hyg_13_;
 uint8_t lean_uint64_dec_lt(uint64_t, uint64_t);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-LEAN_EXPORT lean_object* l_Ord_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_compareLex___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_beqOfOrd(lean_object*, lean_object*);
 uint8_t lean_int8_dec_eq(uint8_t, uint8_t);
@@ -197,7 +196,6 @@ LEAN_EXPORT uint8_t l_instOrdInt16___lam__0(uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_Ord_toLE(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instOrd___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_instOrd___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Ord_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instOrdInt___lam__0___boxed(lean_object*, lean_object*);
 uint8_t lean_int16_dec_lt(uint16_t, uint16_t);
 LEAN_EXPORT uint8_t l_List_compareLex___redArg(lean_object*, lean_object*, lean_object*);
@@ -1269,23 +1267,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Ord_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Ord_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Ord_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Ord_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

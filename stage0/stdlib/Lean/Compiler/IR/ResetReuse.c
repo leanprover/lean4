@@ -49,7 +49,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_Rese
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_empty___at___Lean_IR_Decl_insertResetReuseCore_spec__0(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at___Lean_IR_ResetReuse_R_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_ResetReuse_Context_toCtorIdx(lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 uint8_t l_Lean_IR_FnBody_hasLiveVar(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ResetReuse_Context_ctorIdx(lean_object*);
@@ -136,7 +135,6 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ResetReuse_UseClassification_ctorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_IR_ResetReuse_Context_toCtorIdx___boxed(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_initFn___closed__27____x40_Lean_Compiler_IR_ResetReuse_1484512311____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_initFn___closed__16____x40_Lean_Compiler_IR_ResetReuse_1484512311____hygCtx___hyg_2_;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
@@ -742,23 +740,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_IR_ResetReuse_Context_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_IR_ResetReuse_Context_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_IR_ResetReuse_Context_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_IR_ResetReuse_Context_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

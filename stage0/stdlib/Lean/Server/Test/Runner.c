@@ -97,7 +97,6 @@ lean_object* l_String_quote(lean_object*);
 static lean_object* l_Lean_Server_Test_Runner_Client_fromJsonInteractiveGoal___closed__8____x40_Lean_Server_Test_Runner_3114798910____hygCtx___hyg_48_;
 LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_main___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Test_Runner_0__Lean_Server_Test_Runner_main_readFirstResponse___closed__38;
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_InteractiveGoals_toCtorIdx(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Ipc_waitForExit(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_Client_fromJsonInteractiveGoal____x40_Lean_Server_Test_Runner_3114798910____hygCtx___hyg_48__spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -178,7 +177,6 @@ static lean_object* l_Lean_Server_Test_Runner_Client_reprSubexprInfo___redArg___
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_Client_fromJsonHyp____x40_Lean_Server_Test_Runner_1883984589____hygCtx___hyg_46__spec__4___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Test_Runner_0__Lean_Server_Test_Runner_main_readFirstResponse___closed__41;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_InteractiveGoals_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_Lsp_Ipc_runWith___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___at___Lean_Server_Test_Runner_Client_reprSubexprInfo____x40_Lean_Server_Test_Runner_3233133395____hygCtx___hyg_34__spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_reprTaggedText____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_100____at___Lean_Server_Test_Runner_Client_reprHyp____x40_Lean_Server_Test_Runner_1883984589____hygCtx___hyg_55__spec__0___closed__4;
@@ -341,7 +339,6 @@ static lean_object* l___private_Lean_Server_Test_Runner_0__Lean_Server_Test_Runn
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_toJsonDidChangeTextDocumentParams____x40_Lean_Data_Lsp_TextSync_3191430154____hygCtx___hyg_25_(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_InteractiveGoal_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_reprSubexprInfo___redArg____x40_Lean_Server_Test_Runner_3233133395____hygCtx___hyg_34_(lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_Client_fromJsonSubexprInfo____x40_Lean_Server_Test_Runner_3233133395____hygCtx___hyg_25__spec__0___boxed(lean_object*, lean_object*);
@@ -399,7 +396,6 @@ static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean
 LEAN_EXPORT lean_object* l_IO_eprintln___at___Lean_Server_Test_Runner_main_spec__22(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readResponseAs___at___Lean_Server_Test_Runner_main_spec__12(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___at___Lean_Server_Test_Runner_main_spec__3___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_Hyp_toCtorIdx___boxed(lean_object*);
 lean_object* l_IO_FS_readFile(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
@@ -410,7 +406,6 @@ lean_object* l___private_Lean_Data_Lsp_Ipc_0__Lean_Lsp_Ipc_waitForMessage_loop(l
 static lean_object* l_Lean_Server_Test_Runner_main___closed__10;
 static lean_object* l_Lean_Server_Test_Runner_Client_fromJsonInteractiveGoals___closed__8____x40_Lean_Server_Test_Runner_1490754142____hygCtx___hyg_16_;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_writeNotification___at___Lean_Server_Test_Runner_main_spec__43(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_Hyp_toCtorIdx(lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___closed__23;
 static lean_object* l___private_Lean_Server_Test_Runner_0__Lean_Server_Test_Runner_main_readFirstResponse___closed__51;
 static lean_object* l___private_Lean_Server_Test_Runner_0__Lean_Server_Test_Runner_main_readFirstResponse___closed__15;
@@ -424,7 +419,6 @@ lean_object* l_Lean_Json_parseTagged(lean_object*, lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Lean_Server_Test_Runner_main_spec__7(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Test_Runner_Client_reprHyp___redArg___closed__1____x40_Lean_Server_Test_Runner_1883984589____hygCtx___hyg_55_;
 lean_object* l_IO_FS_Stream_writeLspMessage(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_SubexprInfo_toCtorIdx___boxed(lean_object*);
 static lean_object* l_panic___at_____private_Lean_Server_Test_Runner_0__Lean_Server_Test_Runner_main_readFirstResponse_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_main(lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___closed__13;
@@ -478,7 +472,6 @@ LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Run
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_writeRequest___at___Lean_Server_Test_Runner_main_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Test_Runner_Client_fromJsonSubexprInfo___closed__5____x40_Lean_Server_Test_Runner_3233133395____hygCtx___hyg_25_;
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___closed__31;
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_SubexprInfo_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_Client_fromJsonInteractiveGoals____x40_Lean_Server_Test_Runner_1490754142____hygCtx___hyg_16__spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_Array_repr___at___Lean_Widget_reprTaggedText____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_100____at___Lean_Server_Test_Runner_Client_reprHyp____x40_Lean_Server_Test_Runner_1883984589____hygCtx___hyg_55__spec__0_spec__0___closed__1;
 static lean_object* l___private_Lean_Server_Test_Runner_0__Lean_Server_Test_Runner_main_readFirstResponse___closed__14;
@@ -573,7 +566,6 @@ static lean_object* l_Lean_Server_Test_Runner_ident___closed__0;
 static lean_object* l_Lean_Server_Test_Runner_Client_fromJsonHyp___closed__1____x40_Lean_Server_Test_Runner_1883984589____hygCtx___hyg_46_;
 static lean_object* l_Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_116____at___Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_Client_fromJsonHyp____x40_Lean_Server_Test_Runner_1883984589____hygCtx___hyg_46__spec__0_spec__0___lam__0___closed__1;
 lean_object* l_Option_fromJson_x3f(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_InteractiveGoal_toCtorIdx(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Test_Runner_Client_reprSubexprInfo___redArg___closed__5____x40_Lean_Server_Test_Runner_3233133395____hygCtx___hyg_34_;
 static lean_object* l_Lean_Server_Test_Runner_instFromJsonPanelWidgetInstance___closed__1;
@@ -665,23 +657,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_Test_Runner_Client_SubexprInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_SubexprInfo_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_SubexprInfo_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_Test_Runner_Client_SubexprInfo_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -1593,23 +1568,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_Test_Runner_Client_Hyp_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_Hyp_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_Hyp_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_Test_Runner_Client_Hyp_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -3947,23 +3905,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_InteractiveGoal_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_InteractiveGoal_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_Test_Runner_Client_InteractiveGoal_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_Client_fromJsonInteractiveGoal____x40_Lean_Server_Test_Runner_3114798910____hygCtx___hyg_48__spec__0_spec__0_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
@@ -4891,23 +4832,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_Test_Runner_Client_InteractiveGoals_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_InteractiveGoals_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_InteractiveGoals_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_Test_Runner_Client_InteractiveGoals_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

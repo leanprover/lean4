@@ -56,7 +56,6 @@ LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_U
 static lean_object* l_Lean_ppGoal___closed__3;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedPPFns___lam__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_pp_raw;
-LEAN_EXPORT lean_object* l_Lean_FormatWithInfos_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_PPExt_2338552601____hygCtx___hyg_4_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ppExprWithInfos(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__3____x40_Lean_Util_PPExt_3440049895____hygCtx___hyg_4_;
@@ -69,7 +68,6 @@ LEAN_EXPORT lean_object* l_Lean_initFn___lam__3____x40_Lean_Util_PPExt_357215152
 static lean_object* l_Lean_instInhabitedPPFns___lam__0___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedPPFns___lam__3(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PPContext_toCtorIdx(lean_object*);
 static lean_object* l_Lean_initFn___closed__2____x40_Lean_Util_PPExt_2338552601____hygCtx___hyg_4_;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_Lean_ppGoal___closed__1;
@@ -83,7 +81,6 @@ static lean_object* l_Lean_formatRawTerm___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ppConstNameWithInfos(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__0____x40_Lean_Util_PPExt_2338552601____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_PPExt_4216440811____hygCtx___hyg_4_(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PPFns_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_ppGoal___closed__0;
 LEAN_EXPORT lean_object* l_Lean_instCoeFormatFormatWithInfos___lam__0(lean_object*);
 static lean_object* l_Lean_ppExprWithInfos___closed__5;
@@ -96,7 +93,6 @@ LEAN_EXPORT lean_object* l_Lean_initFn___lam__2____x40_Lean_Util_PPExt_357215152
 static lean_object* l_Lean_formatRawTerm___closed__0;
 static lean_object* l_Lean_ppExprWithInfos___closed__8;
 static lean_object* l_Lean_initFn___closed__3____x40_Lean_Util_PPExt_453169063____hygCtx___hyg_4_;
-LEAN_EXPORT lean_object* l_Lean_FormatWithInfos_toCtorIdx(lean_object*);
 static lean_object* l_Lean_initFn___closed__0____x40_Lean_Util_PPExt_4216440811____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_ppTerm(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ppExprWithInfos___closed__10;
@@ -141,8 +137,6 @@ static lean_object* l_Lean_initFn___closed__0____x40_Lean_Util_PPExt_453169063__
 LEAN_EXPORT lean_object* l_Lean_PPFns_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_Util_PPExt_2338552601____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__2____x40_Lean_Util_PPExt_357215152____hygCtx___hyg_2_(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PPContext_toCtorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PPFns_toCtorIdx(lean_object*);
 static lean_object* l_Lean_ppExprWithInfos___closed__7;
 static lean_object* l_Lean_initFn___closed__4____x40_Lean_Util_PPExt_2338552601____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedPPFns___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -606,23 +600,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_PPContext_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PPContext_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_PPContext_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_FormatWithInfos_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -636,23 +613,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_FormatWithInfos_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_FormatWithInfos_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_FormatWithInfos_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_FormatWithInfos_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -689,23 +649,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_PPFns_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PPFns_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PPFns_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_PPFns_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

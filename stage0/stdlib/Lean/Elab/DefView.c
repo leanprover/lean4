@@ -124,7 +124,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_
 static lean_object* l_Lean_Elab_Command_isDefLike___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_mkDefViewOfOpaque___closed__7;
-LEAN_EXPORT lean_object* l_Lean_Elab_HeaderProcessedSnapshot_toCtorIdx(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instToSnapshotTreeHeaderProcessedSnapshot___lam__1___closed__0;
 static lean_object* l_Lean_Elab_Command_mkDefViewOfOpaque___closed__1;
@@ -143,11 +142,9 @@ lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_addTrace___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__1_spec__1___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_DefParsed_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_DefView_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_DefKind_isTheorem(uint8_t);
 lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedDefView___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Elab_BodyProcessedSnapshot_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_DefKind_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_addTrace___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -164,7 +161,6 @@ lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_isTracingEnabledFor___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__0___redArg___closed__0;
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_DefViewElabHeaderData_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__5_spec__5_spec__5___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_DefView_0__Lean_Elab_Command_initFn___closed__3____x40_Lean_Elab_DefView_1745620379____hygCtx___hyg_2_;
@@ -225,7 +221,6 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_Elab_liftMacroM___at___
 static lean_object* l_Lean_Elab_Command_mkDefViewOfOpaque___closed__0;
 LEAN_EXPORT lean_object* l_Lean_getMainModule___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__12___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedDefView;
-LEAN_EXPORT lean_object* l_Lean_Elab_DefParsed_toCtorIdx(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_beqDefKind____x40_Lean_Elab_DefView_1927388259____hygCtx___hyg_9_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__5_spec__5_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Option_get___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__5_spec__5_spec__5_spec__5(lean_object*, lean_object*);
@@ -238,7 +233,6 @@ static lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_thro
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__11(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_DefViewElabHeaderData_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_HeaderProcessedSnapshot_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_DefsParsedSnapshot_toCtorIdx(lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_addTrace___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__1_spec__1___redArg___closed__4;
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
 extern lean_object* l_Lean_inheritedTraceOptions;
@@ -263,11 +257,9 @@ LEAN_EXPORT lean_object* l_Lean_Elab_DefKind_noConfusion___boxed(lean_object*, l
 static lean_object* l_Lean_Elab_instToSnapshotTreeHeaderProcessedSnapshot___lam__0___closed__9;
 static lean_object* l_Lean_Elab_instInhabitedDefViewElabHeaderData___closed__1;
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_DefsParsedSnapshot_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_DefView_markDefEq___lam__0(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedDefViewElabHeaderData___closed__2;
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_BodyProcessedSnapshot_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__5_spec__5_spec__5_spec__5___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_mkDefViewOfOpaque___closed__4;
@@ -277,7 +269,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_mkDefViewOfOpaque(lean_object*, lea
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_mkDefViewOfAbbrev___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_DefViewElabHeaderData_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_DefParsed_toCtorIdx___boxed(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__5_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -293,7 +284,6 @@ LEAN_EXPORT lean_object* l_liftExcept___at___Lean_Elab_liftMacroM___at___Lean_El
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 static lean_object* l_Lean_addTrace___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__1___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Elab_DefViewElabHeaderData_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_instImpl___closed__1____x40_Lean_Elab_DefView_2042677648____hygCtx___hyg_34_;
 lean_object* l_List_reverse___redArg(lean_object*);
 static lean_object* l_Lean_Elab_Command_isDefLike___closed__6;
@@ -334,7 +324,6 @@ static lean_object* l_Lean_Elab_instInhabitedDefViewElabHeaderData___closed__0;
 static lean_object* l_Lean_Elab_instToSnapshotTreeHeaderProcessedSnapshot___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedDefViewElabHeaderData;
 LEAN_EXPORT lean_object* l_Lean_Elab_DefKind_noConfusion___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_DefView_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_mkDefViewOfInstance___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instToSnapshotTreeHeaderProcessedSnapshot___lam__0___closed__6;
@@ -374,7 +363,6 @@ static lean_object* l_Lean_Elab_Command_mkDefViewOfExample___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___Lean_Elab_Command_mkDefViewOfInstance_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instToSnapshotTreeHeaderProcessedSnapshot___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_mkDefViewOfTheorem(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_HeaderProcessedSnapshot_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_DefView_0__Lean_Elab_Command_initFn___closed__0____x40_Lean_Elab_DefView_2390142386____hygCtx___hyg_2_;
@@ -624,23 +612,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_DefViewElabHeaderData_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_DefViewElabHeaderData_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_DefViewElabHeaderData_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Elab_instInhabitedDefViewElabHeaderData___closed__0() {
 _start:
 {
@@ -720,23 +691,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_BodyProcessedSnapshot_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_BodyProcessedSnapshot_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_BodyProcessedSnapshot_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_instToSnapshotTreeBodyProcessedSnapshot___lam__0(lean_object* x_1) {
 _start:
 {
@@ -781,23 +735,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_HeaderProcessedSnapshot_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_HeaderProcessedSnapshot_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_HeaderProcessedSnapshot_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_HeaderProcessedSnapshot_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -1076,23 +1013,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_DefParsed_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_DefParsed_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_DefParsed_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_DefsParsedSnapshot_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -1106,23 +1026,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_DefsParsedSnapshot_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_DefsParsedSnapshot_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_DefsParsedSnapshot_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_DefsParsedSnapshot_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -1435,23 +1338,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_DefView_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_DefView_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_DefView_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_DefView_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

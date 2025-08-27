@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Offset
-// Imports: Init.Control.Option Lean.Data.LBool Lean.Meta.InferType Lean.Meta.NatInstTesters Lean.Util.SafeExponentiation
+// Imports: Init.Control.Option Lean.Data.LBool Lean.Meta.Basic Lean.Meta.NatInstTesters Lean.Util.SafeExponentiation
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -9543,7 +9543,7 @@ return x_8;
 }
 lean_object* initialize_Init_Control_Option(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_LBool(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_InferType(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_NatInstTesters(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_SafeExponentiation(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -9557,7 +9557,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_LBool(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_InferType(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_NatInstTesters(builtin, lean_io_mk_world());

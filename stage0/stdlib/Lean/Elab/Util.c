@@ -21,7 +21,6 @@ lean_object* l_Lean_evalPrio(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_checkSyntaxNodeKind___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_addConstInfo___at___Lean_Elab_mkElabAttribute_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_instMonadMacroAdapterOfMonadLiftOfMonadQuotation___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_MacroStackElem_toCtorIdx(lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_addConstInfo___at___Lean_Elab_mkElabAttribute_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__6;
 static lean_object* l_Lean_Elab_pushInfoLeaf___at___Lean_Elab_addConstInfo___at___Lean_Elab_mkElabAttribute_spec__0_spec__8___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_mkElabAttribute___redArg___lam__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -130,7 +129,6 @@ static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at_
 static lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_expandMacroImpl_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_MonadMacroAdapter_toCtorIdx(lean_object*, lean_object*);
 lean_object* l_Lean_Exception_toMessageData(lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_Elab_checkSyntaxNodeKind___at___Lean_Elab_checkSyntaxNodeKindAtNamespaces___at___Lean_Elab_checkSyntaxNodeKindAtCurrentNamespaces_spec__0_spec__0_spec__0_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_addConstInfo___at___Lean_Elab_mkElabAttribute_spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -362,7 +360,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack(lean_object*, lean_object*, l
 static lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_initFn___closed__8____x40_Lean_Elab_Util_2034298159____hygCtx___hyg_2_;
 lean_object* l_Lean_getRefPos___redArg(lean_object*, lean_object*);
 uint8_t l_Lean_isPrivateName(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_MonadMacroAdapter_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_checkSyntaxNodeKind___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_toMessageList(lean_object*);
@@ -427,7 +424,6 @@ static lean_object* l_Lean_Elab_liftMacroM___redArg___closed__6;
 lean_object* l_EStateM_nonBacktrackable(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withLogging(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_MacroStackElem_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_nestedExceptionToMessageData___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MacroScopesView_equalScope___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_nestedExceptionToMessageData___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -776,23 +772,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_MacroStackElem_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_MacroStackElem_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_MacroStackElem_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_MacroStackElem_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -5101,23 +5080,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Elab_MonadMacroAdapter_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_MonadMacroAdapter_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_MonadMacroAdapter_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Elab_MonadMacroAdapter_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

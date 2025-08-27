@@ -50,7 +50,6 @@ static lean_object* l_Lean_instBEqExternAttrData___closed__0;
 LEAN_EXPORT lean_object* l_Lean_instHashableExternAttrData;
 LEAN_EXPORT lean_object* l_Lean_isExternC___boxed(lean_object*, lean_object*);
 uint64_t lean_string_hash(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ExternEntry_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_expandExternPatternAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at_____private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -69,7 +68,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToEx
 LEAN_EXPORT lean_object* l_List_foldl___at___Lean_mkSimpleFnCall_spec__0___boxed(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* l_List_find_x3f___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ExternAttrData_toCtorIdx(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isExternC(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData_spec__3___closed__0;
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at_____private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData_spec__0_spec__0_spec__0___closed__5;
@@ -100,7 +98,6 @@ static lean_object* l_Lean_instHashableExternAttrData___closed__0;
 static lean_object* l_Lean_initFn___closed__3____x40_Lean_Compiler_ExternAttr_4197872175____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at_____private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_____private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ExternAttrData_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_List_beq___at___Lean_beqExternAttrData____x40_Lean_Compiler_ExternAttr_200644545____hygCtx___hyg_19__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__2____x40_Lean_Compiler_ExternAttr_4197872175____hygCtx___hyg_2_(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Lean_hashExternAttrData____x40_Lean_Compiler_ExternAttr_200644545____hygCtx___hyg_36__spec__0___boxed(lean_object*, lean_object*);
@@ -130,7 +127,6 @@ static lean_object* l_Lean_initFn___closed__4____x40_Lean_Compiler_ExternAttr_41
 LEAN_EXPORT lean_object* l_Lean_instBEqExternAttrData;
 lean_object* l_List_intersperseTR___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ExternEntry_backend(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ExternEntry_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ExternAttrData_ctorIdx___boxed(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_expandExternPattern___boxed(lean_object*, lean_object*);
@@ -194,23 +190,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_ExternEntry_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ExternEntry_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_ExternEntry_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ExternEntry_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_ExternEntry_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -431,23 +410,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_ExternAttrData_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ExternAttrData_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ExternAttrData_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_ExternAttrData_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }

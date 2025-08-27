@@ -427,7 +427,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___L
 static lean_object* l_Lean_Elab_Tactic_Omega_asLinearComboImpl___closed__9;
 static lean_object* l_Lean_Elab_Tactic_Omega_mkEvalRflProof___redArg___closed__4;
 static lean_object* l_Lean_Elab_Tactic_Omega_asLinearComboImpl___closed__14;
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_MetaProblem_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_omegaImpl___closed__0;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
@@ -1073,7 +1072,6 @@ LEAN_EXPORT lean_object* l_List_foldl___at___Lean_Elab_Tactic_Omega_MetaProblem_
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Elab_Tactic_Omega_asLinearCombo_spec__2_spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___closed__16;
 static lean_object* l_List_mapTR_loop___at___List_mapTR_loop___at___Lean_Elab_Tactic_Omega_omegaImpl_spec__2_spec__2___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_MetaProblem_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_Tactic_Omega_elabOmegaConfig_spec__0_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_Tactic_Omega_elabOmegaConfig_spec__0_spec__1_spec__2___closed__2;
 static lean_object* l___private_Lean_Elab_Tactic_Omega_Frontend_0__Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCast___closed__60;
@@ -2834,23 +2832,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_Tactic_Omega_MetaProblem_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_MetaProblem_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_MetaProblem_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Tactic_Omega_MetaProblem_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

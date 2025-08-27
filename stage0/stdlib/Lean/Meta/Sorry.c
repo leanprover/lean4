@@ -54,7 +54,6 @@ lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortCommand___at___Lean_Meta_mkSorry_spec__1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkLabeledSorry___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkLabeledSorry___lam__0___closed__7;
-LEAN_EXPORT lean_object* l_Lean_Meta_SorryLabelView_toCtorIdx(lean_object*);
 lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkSorry___closed__2;
 static lean_object* l_Lean_Meta_mkLabeledSorry___lam__0___closed__13;
@@ -87,7 +86,6 @@ static lean_object* l_Lean_Meta_mkSorry___closed__3;
 static lean_object* l_Lean_Meta_mkLabeledSorry___lam__0___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 extern lean_object* l_Lean_levelOne;
-LEAN_EXPORT lean_object* l_Lean_Meta_SorryLabelView_toCtorIdx___boxed(lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SorryLabelView_ctorIdx___boxed(lean_object*);
 lean_object* l___private_Lean_ToExpr_0__Lean_Name_toExprAux(lean_object*);
@@ -513,23 +511,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_SorryLabelView_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_SorryLabelView_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_SorryLabelView_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_SorryLabelView_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }

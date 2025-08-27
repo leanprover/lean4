@@ -14,13 +14,11 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_Context_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Context_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LakeT_run___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Context_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LakeT_run(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LakeM_run(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LakeM_run___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Context_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Context_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -34,23 +32,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_Context_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Context_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Context_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Context_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }

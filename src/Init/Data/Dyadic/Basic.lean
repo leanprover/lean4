@@ -399,9 +399,21 @@ theorem ofIntWithPrec_shiftLeft_add {n : Nat} :
       Int.add_comm x.trailingZeros n, ← Int.sub_sub]
 
 /-- The "precision" of a dyadic number, i.e. in `n * 2^(-p)` with `n` odd the precision is `p`. -/
-def precision : Dyadic → Int
-  | .zero => 0
-  | .ofOdd _ p _ => p
+-- TODO: If `WithBot` is upstreamed, replace this with `WithBot Int`.
+def precision : Dyadic → Option Int
+  | .zero => none
+  | .ofOdd _ p _ => some p
+
+theorem precision_ofIntWithPrec_le {i : Int} (h : i ≠ 0) (prec : Int) :
+    (ofIntWithPrec i prec).precision ≤ some prec := by
+  simp [ofIntWithPrec, h, precision]
+  omega
+
+@[simp] theorem precision_zero : (0 : Dyadic).precision = none := rfl
+@[simp] theorem precision_neg {x : Dyadic} : (-x).precision = x.precision :=
+  match x with
+  | .zero => rfl
+  | .ofOdd _ _ _ => rfl
 
 /--
 Convert a rational number `x` to the greatest dyadic number with precision at most `prec`
@@ -441,7 +453,7 @@ def roundDown (x : Dyadic) (prec : Int) : Dyadic :=
     | .ofNat l => .ofIntWithPrec (n >>> l) prec
     | .negSucc _ => x
 
-theorem roundDown_eq_self_of_le {x : Dyadic} {prec : Int} (h : x.precision ≤ prec) :
+theorem roundDown_eq_self_of_le {x : Dyadic} {prec : Int} (h : x.precision ≤ some prec) :
     roundDown x prec = x := by
   rcases x with _ | ⟨n, k, hn⟩
   · rfl
@@ -626,5 +638,22 @@ instance : Std.IsLinearPreorder Dyadic where
   le_total := Dyadic.le_total
 
 instance : Std.IsLinearOrder Dyadic where
+
+/-- `roundUp x prec` is the least dyadic number with precision at most `prec` which is greater than or equal to `x`. -/
+def roundUp (x : Dyadic) (prec : Int) : Dyadic :=
+  match x with
+  | .zero => .zero
+  | .ofOdd n k _ =>
+    match k - prec with
+    | .ofNat l => .ofIntWithPrec (-((-n) >>> l)) prec
+    | .negSucc _ => x
+
+theorem roundUp_eq_neg_roundDown_neg (x : Dyadic) (prec : Int) :
+    x.roundUp prec = -((-x).roundDown prec) := by
+  rcases x with _ | ⟨n, k, hn⟩
+  · rfl
+  · change _ = -(ofOdd ..).roundDown prec
+    rw [roundDown, roundUp]
+    split <;> simp
 
 end Dyadic

@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT uint8_t l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_45_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_45__spec__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_OpenDecl_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_OpenDecl_instInhabited___closed__0;
 LEAN_EXPORT lean_object* l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_45____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_rootNamespace___closed__0;
@@ -40,7 +39,6 @@ static lean_object* l_Lean_OpenDecl_instToString___lam__0___closed__1;
 lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_OpenDecl_instToString___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toString___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_OpenDecl_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqOpenDecl;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -66,23 +64,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_OpenDecl_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_OpenDecl_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_OpenDecl_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_OpenDecl_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_OpenDecl_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

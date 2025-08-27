@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Equivalence_Basic_0__Std_Iterators_quotOfQuot___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_BundledIterM_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_BundledIterM_toCtorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Equivalence_Basic_0__Std_Iterators_quotOfQuot(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_BundledIterM_ofIterM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIterator_u03b1(lean_object*, lean_object*, lean_object*);
@@ -26,7 +25,6 @@ LEAN_EXPORT lean_object* l_Std_Iterators_BundledIterM_ofIterM___redArg(lean_obje
 LEAN_EXPORT lean_object* l_Std_Iterators_instIterator_u03b1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Equivalence_Basic_0__Std_Iterators_quotOfQuot___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIterator_u03b1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_BundledIterM_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_BundledIterM_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -40,23 +38,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Iterators_BundledIterM_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_BundledIterM_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_BundledIterM_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Iterators_BundledIterM_toCtorIdx(x_1, x_2, x_3);
 lean_dec_ref(x_3);
 return x_4;
 }

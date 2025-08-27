@@ -31,7 +31,6 @@ static lean_object* l_Lake_reprArtifact___redArg___closed__10____x40_Lake_Config
 LEAN_EXPORT lean_object* l_Lake_instReprArtifact;
 static lean_object* l_Lake_reprArtifact___redArg___closed__22____x40_Lake_Config_Artifact_2408451568____hygCtx___hyg_45_;
 static lean_object* l_Lake_reprArtifact___redArg___closed__4____x40_Lake_Config_Artifact_2408451568____hygCtx___hyg_45_;
-LEAN_EXPORT lean_object* l_Lake_Artifact_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lake_reprArtifact___redArg___closed__0____x40_Lake_Config_Artifact_2408451568____hygCtx___hyg_45_;
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lake_reprArtifact___redArg___closed__17____x40_Lake_Config_Artifact_2408451568____hygCtx___hyg_45_;
@@ -40,7 +39,6 @@ static lean_object* l_Lake_reprArtifact___redArg___closed__20____x40_Lake_Config
 static lean_object* l_Lake_reprArtifact___redArg___closed__21____x40_Lake_Config_Artifact_2408451568____hygCtx___hyg_45_;
 static lean_object* l_Lake_reprArtifact___redArg___closed__11____x40_Lake_Config_Artifact_2408451568____hygCtx___hyg_45_;
 LEAN_EXPORT lean_object* l_Lake_Artifact_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Artifact_toCtorIdx(lean_object*);
 static lean_object* l_Lake_reprArtifact___redArg___closed__2____x40_Lake_Config_Artifact_2408451568____hygCtx___hyg_45_;
 static lean_object* l_Lake_reprArtifact___redArg___closed__16____x40_Lake_Config_Artifact_2408451568____hygCtx___hyg_45_;
 static lean_object* l_Lake_reprArtifact___redArg___closed__3____x40_Lake_Config_Artifact_2408451568____hygCtx___hyg_45_;
@@ -75,23 +73,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_Artifact_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Artifact_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Artifact_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Artifact_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -4422,7 +4422,7 @@ static lean_object* _init_l_Lean_Elab_LibrarySearch_elabExact_x3fTerm___lam__2__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Try this: ", 10, 10);
+x_1 = lean_mk_string_unchecked("Try this:", 9, 9);
 return x_1;
 }
 }

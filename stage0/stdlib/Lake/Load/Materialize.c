@@ -26,7 +26,6 @@ static lean_object* l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___cl
 static lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___closed__5;
 static lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__1;
 static lean_object* l_Lake_Dependency_materialize___closed__3;
-LEAN_EXPORT lean_object* l_Lake_MaterializedDep_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_cloneGitPkg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__3;
 lean_object* l_String_quote(lean_object*);
@@ -118,7 +117,6 @@ lean_object* l_Lake_GitRepo_getRemoteUrl_x3f(lean_object*, lean_object*, lean_ob
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__5;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MaterializedDep_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_Dependency_materialize_materializeGit___at___Lake_Dependency_materialize_spec__0(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedMaterializedDep___closed__3;
 lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
@@ -3827,23 +3825,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_MaterializedDep_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MaterializedDep_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MaterializedDep_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_MaterializedDep_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

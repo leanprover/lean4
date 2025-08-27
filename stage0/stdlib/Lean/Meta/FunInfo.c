@@ -138,7 +138,6 @@ static lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___l
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__1(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__7_spec__7_spec__9___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_FunInfoEnvCacheKey_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__12_spec__12_spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_beq___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_beqFunInfoEnvCacheKey____x40_Lean_Meta_FunInfo_117766202____hygCtx___hyg_35__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__7_spec__7___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -194,7 +193,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_Persist
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_FunInfo_getArity___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Environment_realizeValue___at___Lean_Meta_realizeValue___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__15_spec__15_spec__15(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_FunInfoEnvCacheKey_toCtorIdx(lean_object*);
 uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_9_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Array_finIdxOf_x3f___at___Array_idxOf_x3f___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit_spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__1___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -349,23 +347,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lean_Meta_FunInfo_0__Lean_Meta_FunInfoEnvCacheKey_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_FunInfoEnvCacheKey_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_FunInfoEnvCacheKey_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Lean_Meta_FunInfo_0__Lean_Meta_FunInfoEnvCacheKey_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

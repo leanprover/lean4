@@ -23,8 +23,6 @@ LEAN_EXPORT lean_object* l_Lake_Script_ctorIdx(lean_object*);
 static lean_object* l_Lake_instInhabitedScript___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instTypeNameScriptFn_unsafe__1;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedScript___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Script_toCtorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Script_toCtorIdx(lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Script_run(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instTypeNameScriptFn;
@@ -85,23 +83,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_Script_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Script_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Script_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Script_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -36,7 +36,6 @@ static lean_object* l_Lean_CollectLevelParams_instInhabitedState___closed__5;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_CollectLevelParams_visitLevel_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_CollectLevelParams_visitLevel_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CollectLevelParams_instInhabitedState___closed__0;
-LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_CollectLevelParams_visitExpr_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_CollectLevelParams_visitLevel_spec__0___redArg(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -88,7 +87,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____priva
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_level_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Lean_CollectLevelParams_visitLevels_spec__0(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -110,23 +108,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_CollectLevelParams_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_CollectLevelParams_State_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

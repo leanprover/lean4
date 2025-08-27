@@ -89,7 +89,6 @@ static lean_object* l_Lean_Elab_WF_registerEqnsInfo___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Elab_WF_registerEqnsInfo_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_WF_Eqns_2013126914____hygCtx___hyg_2_(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_WF_EqnInfo_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Elab_WF_registerEqnsInfo_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_initFn___closed__1____x40_Lean_Elab_PreDefinition_WF_Eqns_4054467276____hygCtx___hyg_2_;
 static lean_object* l_Lean_Elab_WF_instInhabitedEqnInfo___closed__0;
@@ -103,7 +102,6 @@ LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownC
 static lean_object* l_Lean_Elab_WF_instInhabitedEqnInfo___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_registerEqnsInfo___lam__0(uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_findModuleOf_x3f___at___Lean_Elab_WF_copyPrivateUnfoldTheorem_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Elab_WF_EqnInfo_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static lean_object* l_Lean_Elab_WF_copyPrivateUnfoldTheorem___closed__0;
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_findModuleOf_x3f___at___Lean_Elab_WF_copyPrivateUnfoldTheorem_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__7;
@@ -249,23 +247,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_WF_EqnInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_WF_EqnInfo_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_WF_EqnInfo_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_WF_EqnInfo_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

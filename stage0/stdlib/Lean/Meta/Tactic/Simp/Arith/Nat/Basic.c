@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp.Arith.Nat.Basic
-// Imports: Lean.Util.SortExprs Lean.Meta.Check Lean.Meta.Offset Lean.Meta.AppBuilder Lean.Meta.KExprMap Lean.Data.RArray
+// Imports: Lean.Util.SortExprs Lean.Meta.KExprMap Lean.Meta.Offset Lean.Data.RArray Lean.Meta.AppBuilder Lean.Meta.NatInstTesters
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -178,7 +178,6 @@ static lean_object* l_List_repr___at___Lean_Meta_Simp_Arith_Nat_reprPolyCnstr___
 LEAN_EXPORT lean_object* l_List_repr___at___Lean_Meta_Simp_Arith_Nat_reprPolyCnstr____x40_Lean_Meta_Tactic_Simp_Arith_Nat_Basic_2609251159____hygCtx___hyg_3__spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at_____private_Lean_Meta_Tactic_Simp_Arith_Nat_Basic_0__Nat_Linear_Expr_applyPerm_go_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_ToLinear_run___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Nat_ToLinear_State_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Nat_reprPolyCnstr____x40_Lean_Meta_Tactic_Simp_Arith_Nat_Basic_2609251159____hygCtx___hyg_3_(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFnCleanup___redArg(lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearCnstr_x3f___closed__3;
@@ -225,7 +224,6 @@ static lean_object* l_Lean_Meta_Simp_Arith_Nat_instToExprLinearCnstr___closed__1
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_reprExpr___closed__13____x40_Lean_Meta_Tactic_Simp_Arith_Nat_Basic_684342607____hygCtx___hyg_3_;
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_LinearExpr_toExpr___closed__16;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Arith_Nat_Basic_0__Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr_visit___closed__9;
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Nat_ToLinear_State_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_LinearExpr_toExpr___closed__8;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Arith_Nat_Basic_0__Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr_visit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_reprExpr___closed__11____x40_Lean_Meta_Tactic_Simp_Arith_Nat_Basic_684342607____hygCtx___hyg_3_;
@@ -2758,23 +2756,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Nat_ToLinear_State_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Nat_ToLinear_State_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_State_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -6797,11 +6778,11 @@ return x_2;
 }
 }
 lean_object* initialize_Lean_Util_SortExprs(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Check(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Offset(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_KExprMap(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Offset(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_RArray(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_NatInstTesters(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Simp_Arith_Nat_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -6810,19 +6791,19 @@ _G_initialized = true;
 res = initialize_Lean_Util_SortExprs(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Check(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_KExprMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Offset(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lean_Data_RArray(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Meta_AppBuilder(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_KExprMap(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_RArray(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_NatInstTesters(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Simp_Arith_Nat_reprExpr___closed__0____x40_Lean_Meta_Tactic_Simp_Arith_Nat_Basic_684342607____hygCtx___hyg_3_ = _init_l_Lean_Meta_Simp_Arith_Nat_reprExpr___closed__0____x40_Lean_Meta_Tactic_Simp_Arith_Nat_Basic_684342607____hygCtx___hyg_3_();

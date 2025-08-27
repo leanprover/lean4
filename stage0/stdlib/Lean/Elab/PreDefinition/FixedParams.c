@@ -115,7 +115,6 @@ static lean_object* l___private_Lean_Meta_Transform_0__Lean_Meta_transformWithCa
 LEAN_EXPORT lean_object* l_panic___at___Lean_Elab_getFixedParamsInfo_spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_FixedParamPerms_erase___closed__6;
 LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___Array_Array_repr___at___Lean_Elab_reprFixedParamPerms____x40_Lean_Elab_PreDefinition_FixedParams_184321338____hygCtx___hyg_44__spec__8_spec__15_spec__15(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_FixedParams_Info_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withIncRecDepth___at_____private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit___at___Lean_Meta_transform___at___Lean_Elab_getFixedParamsInfo_spec__11_spec__11_spec__22(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_FixedParamPerm_pickVarying___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__32_spec__32___redArg___lam__2___closed__2;
@@ -189,7 +188,6 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__6_spec__6___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_FixedParams_0__initFn___closed__14____x40_Lean_Elab_PreDefinition_FixedParams_791000795____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab_FixedParamPerm_forallTelescopeImpl_go___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_FixedParamPerms_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at___Lean_Expr_withAppAux___at___Lean_Elab_getFixedParamsInfo_spec__8_spec__8___closed__0;
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit___at___Lean_Meta_transform___at___Lean_Elab_getFixedParamsInfo_spec__11_spec__11___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -510,7 +508,6 @@ static lean_object* l___private_Lean_Elab_PreDefinition_FixedParams_0__initFn___
 static lean_object* l_Lean_Elab_reprFixedParamPerms___redArg___closed__10____x40_Lean_Elab_PreDefinition_FixedParams_184321338____hygCtx___hyg_44_;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__13___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_FixedParamPerms_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_FixedParamPerms_fixedArePrefix(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__14_spec__14___redArg(uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamPerms_spec__6(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -685,7 +682,6 @@ LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___Array_Arr
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Array_zip___redArg(lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonadLift___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_FixedParams_Info_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit___at___Lean_Meta_transform___at___Lean_Elab_getFixedParamsInfo_spec__11_spec__11_spec__24___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__32___boxed(lean_object**);
 static lean_object* l_Lean_Elab_reprFixedParamPerms___redArg___closed__1____x40_Lean_Elab_PreDefinition_FixedParams_184321338____hygCtx___hyg_44_;
@@ -736,23 +732,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_FixedParams_Info_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_FixedParams_Info_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_FixedParams_Info_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_FixedParams_Info_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -13437,23 +13416,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_FixedParamPerms_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_FixedParamPerms_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_FixedParamPerms_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_FixedParamPerms_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

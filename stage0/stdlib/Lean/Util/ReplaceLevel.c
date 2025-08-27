@@ -32,11 +32,9 @@ LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_State_ctorIdx(lean_object*
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_replace(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_State_toCtorIdx(lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
 LEAN_EXPORT size_t l_Lean_Expr_ReplaceLevelImpl_cacheSize;
-LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_State_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr;
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3;
@@ -160,23 +158,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Expr_ReplaceLevelImpl_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_State_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_State_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Expr_ReplaceLevelImpl_State_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -35,7 +35,6 @@ LEAN_EXPORT lean_object* l_instReprExcept___redArg(lean_object*, lean_object*);
 static lean_object* l_instToStringSum___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_instToStringExcept___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringChar;
-LEAN_EXPORT lean_object* l_ToString_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringPos;
 LEAN_EXPORT lean_object* l_instToStringList(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringList___redArg(lean_object*);
@@ -67,7 +66,6 @@ static lean_object* l_List_toString___redArg___closed__0;
 LEAN_EXPORT lean_object* l_instToStringId(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringUInt16___lam__0___boxed(lean_object*);
 static lean_object* l_instReprExcept___redArg___lam__0___closed__3;
-LEAN_EXPORT lean_object* l_ToString_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_List_toString___redArg___closed__1;
 lean_object* l_List_foldl___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringUInt32___lam__0(uint32_t);
@@ -186,23 +184,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_ToString_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_ToString_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_ToString_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_ToString_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

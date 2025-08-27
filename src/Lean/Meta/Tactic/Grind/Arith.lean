@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Util
-public import Lean.Meta.Tactic.Grind.Arith.ProofUtil
 public import Lean.Meta.Tactic.Grind.Arith.Types
 public import Lean.Meta.Tactic.Grind.Arith.Main
 public import Lean.Meta.Tactic.Grind.Arith.Offset

@@ -38,6 +38,7 @@ public import Lean.Meta.Tactic.Grind.ReflCmp
 public import Lean.Meta.Tactic.Grind.SynthInstance
 public import Lean.Meta.Tactic.Grind.AC
 public import Lean.Meta.Tactic.Grind.VarRename
+public import Lean.Meta.Tactic.Grind.ProofUtil
 
 public section
 

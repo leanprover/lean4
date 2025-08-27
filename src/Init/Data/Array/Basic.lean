@@ -10,8 +10,6 @@ public import Init.WFTactics
 public import Init.Data.Nat.Basic
 public import Init.Data.Fin.Basic
 public import Init.Data.UInt.BasicAux
-public import Init.Data.Repr
-public import Init.Data.ToString.Basic
 public import Init.GetElem
 public import Init.Data.List.ToArrayImpl
 import all Init.Data.List.ToArrayImpl

@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Array.Basic
 public import Init.Data.Array.DecidableEq
 public import Init.Data.UInt.Basic
 public import Init.Data.UInt.BasicAux

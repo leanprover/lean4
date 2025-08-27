@@ -669,7 +669,7 @@ private def fillHolesFromWhereFinally (name : Name) (es : Array ExprWithHoles) (
   if isNoLongerExporting then
     goals' ← goals.mapM fun mvarId => do
       let mvarDecl ← getMVarDecl mvarId
-      return (← mkFreshExprMVarAt mvarDecl.lctx mvarDecl.localInstances mvarDecl.type mvarDecl.kind).mvarId!
+      return (← mkFreshExprMVarAt mvarDecl.lctx mvarDecl.localInstances mvarDecl.type mvarDecl.kind mvarDecl.userName).mvarId!
 
   withExporting (isExporting := wasExporting && !isNoLongerExporting) do
   Lean.Elab.Term.TermElabM.run' do

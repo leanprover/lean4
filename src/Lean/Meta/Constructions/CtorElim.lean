@@ -188,24 +188,15 @@ def mkConstructorElim (indName : Name) : MetaM Unit := do
       let ctorApp := mkAppN (mkConst (mkCtorIdxName indName) us) (params ++ ism)
       let hType ← mkEq ctorApp (mkRawNatLit i)
       withLocalDeclD `h hType fun h => do
-        if info.numCtors = 1 then
-          -- Special case for single constructor: Just use `casesOn`
-          let e := mkConst casesOnName (v :: us)
-          let e := mkAppN e params
-          let e := mkApp e motive
-          let e := mkAppN e ism
-          let e := mkApp e alt
-          mkLambdaFVars (params ++ #[motive] ++ ism ++ #[h, alt]) e
-        else
-          let e := mkConst CtorElimName (v :: us)
-          let e := mkAppN e params
-          let e := mkApp e motive
-          let e := mkApp e (mkRawNatLit i)
-          let e := mkAppN e ism
-          let e := mkApp e (← mkEqSymm h)
-          let CtorElimTypeApp := mkAppN (mkConst CtorElimTypeName (v :: us)) ((params.push motive).push (mkRawNatLit i))
-          let e := mkApp e (← withMkPULiftUp CtorElimTypeApp fun _ => pure alt)
-          mkLambdaFVars (params ++ #[motive] ++ ism ++ #[h, alt]) e
+        let e := mkConst CtorElimName (v :: us)
+        let e := mkAppN e params
+        let e := mkApp e motive
+        let e := mkApp e (mkRawNatLit i)
+        let e := mkAppN e ism
+        let e := mkApp e (← mkEqSymm h)
+        let CtorElimTypeApp := mkAppN (mkConst CtorElimTypeName (v :: us)) ((params.push motive).push (mkRawNatLit i))
+        let e := mkApp e (← withMkPULiftUp CtorElimTypeApp fun _ => pure alt)
+        mkLambdaFVars (params ++ #[motive] ++ ism ++ #[h, alt]) e
     let declType ← inferType e
 
     addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
@@ -222,18 +213,18 @@ def mkConstructorElim (indName : Name) : MetaM Unit := do
     setReducibleAttribute declName
 
 public def mkCtorElim (indName : Name) : MetaM Unit := do
+  -- We need the `.ctorIdx` function to exist
   unless (← getEnv).contains (mkCtorIdxName indName) do return
   let .inductInfo indVal ← getConstInfo indName | return
-  -- Do not do anything if there are no constructors
-  if indVal.numCtors = 0 then return
+  -- Do not do anything if there are not multiple constructors
+  unless indVal.numCtors > 1 do return
   -- Do not do anything unless its a type and can elim to type
   if (← isPropFormerType indVal.type) then return
   let recInfo ← getConstInfo (mkRecName indName)
   unless recInfo.levelParams.length > indVal.levelParams.length do return
 
-  if indVal.numCtors > 1 then
-    mkCtorElimType indName
-    mkIndCtorElim indName
+  mkCtorElimType indName
+  mkIndCtorElim indName
   mkConstructorElim indName
 
 

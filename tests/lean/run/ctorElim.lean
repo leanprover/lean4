@@ -18,3 +18,11 @@ info: @[reducible] protected def Vec.cons.elim.{u} : {α : Type} →
 -/
 #guard_msgs in
 #print sig Vec.cons.elim
+
+
+structure JustOneConstructor where
+  (x : Nat)
+  (y : Bool)
+
+/-- error: Unknown constant `JustOneConstructor.mk.elim` -/
+#guard_msgs in #print sig JustOneConstructor.mk.elim

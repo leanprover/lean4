@@ -14,6 +14,7 @@ public import Lean.Meta.Tactic.Grind.AC.Seq
 public import Lean.Meta.Tactic.Grind.AC.Proof
 public import Lean.Meta.Tactic.Grind.AC.DenoteExpr
 public import Lean.Meta.Tactic.Grind.AC.ToExpr
+public import Lean.Meta.Tactic.Grind.AC.VarRename
 public section
 namespace Lean
 builtin_initialize registerTraceClass `grind.ac

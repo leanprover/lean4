@@ -94,9 +94,10 @@ private def toContextExpr (vars : Array Expr) : ACM Expr := do
 
 private def mkContext (h : Expr) : ProofM Expr := do
   let s ← getStruct
-  let usedVars     :=
+  let mut usedVars     :=
     collectMapVars (← get).seqDecls (·.collectVars) >>
-    collectMapVars (← get).exprDecls (·.collectVars) <| {}
+    collectMapVars (← get).exprDecls (·.collectVars) >>
+    (if (← hasNeutral) then (collectVar 0) else id) <| {}
   let vars'        := usedVars.toArray
   let varRename    := mkVarRename vars'
   let vars         := (← getStruct).vars
@@ -130,7 +131,7 @@ partial def DiseqCnstr.toExprProof (c : DiseqCnstr) : ProofM Expr := do caching 
     return mkApp6 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← mkDiseqProof a b)
   | .erase_dup c₁ =>
     let h ← mkDupPrefix ``AC.diseq_erase_dup
-    return mkApp6 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.lhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c₁.toExprProof)
+    return mkApp6 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c₁.toExprProof)
   | _ => throwError "NIY"
 
 def DiseqCnstr.setUnsat (c : DiseqCnstr) : ACM Unit := do

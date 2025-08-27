@@ -15,8 +15,8 @@ public section
 namespace Lean.Meta.IndPredBelow
 
 structure Context where
-  /-- Any inductive in the mutual group -/
-  indVal : InductiveVal
+  /-- The names of level parameters -/
+  levelParams : List Name
   /-- Inductive eliminates into any universe -/
   largeElim : Bool
   /-- Parameters of the mutual inductive -/
@@ -41,7 +41,7 @@ def isIH (type : Expr) (ctx : Context) : MetaM (Option Nat) := do
 
 /-- Returns `@XYZ.below params... motives...` -/
 def mkBelowAppOfIdx (i : Nat) (ctx : Context) : Expr :=
-  let const := .const (ctx.belowNames[i]!) (ctx.indVal.levelParams.map Level.param)
+  let const := .const (ctx.belowNames[i]!) (ctx.levelParams.map Level.param)
   mkAppN (mkAppN const ctx.params) ctx.motives
 
 /--
@@ -113,7 +113,7 @@ def mkBelowInductives (ctx : Context) : MetaM Unit := do
     inducts := inducts.push ind
     minorIdx := newIdx
   let nparams := ctx.params.size + ctx.motives.size
-  Lean.addDecl <| .inductDecl ctx.indVal.levelParams nparams inducts.toList ctx.indVal.isUnsafe
+  Lean.addDecl <| .inductDecl ctx.levelParams nparams inducts.toList false
   for b in ctx.belowNames do
     Lean.mkCasesOn b
 
@@ -123,7 +123,7 @@ def withBRecOnArgs (k : (newMinors : Array Expr) → (proofArgs : Array Expr) �
       let motive := ctx.motives[i]
       let motiveType ← inferType motive
       -- {motive : (a : Nat) → (x : ABC a) → Prop}
-      -- ==> (F_1 : (a : Nat) → (x : ABC a) → ABC.below x → Prop)
+      -- ==> (F_1 : (a : Nat) → (x : ABC a) → ABC.below x → motive a x)
       let type ← forallTelescope motiveType fun majors _ => do
         let type ← mkArrow (mkAppN (mkBelowAppOfIdx i ctx) majors) (mkAppN motive majors)
         mkForallFVars majors type
@@ -157,7 +157,7 @@ def withBRecOnArgs (k : (newMinors : Array Expr) → (proofArgs : Array Expr) �
             else
               -- constructor ABC.test (f : Nat → Nat) (h : (a : Nat) → ABC (f a)) : ABC (f 0 + f 1)
               -- proof = (fun f h ih => @ABC.below.test motive f h ih (fun a => F_1 (f a) (ih a)))
-              let belowCtor := .const belowCtorName (ctx.indVal.levelParams.map Level.param)
+              let belowCtor := .const belowCtorName (ctx.levelParams.map Level.param)
               let proof := mkAppN (mkAppN (mkAppN belowCtor ctx.params) ctx.motives) args
               mkLambdaFVars vars proof
           termination_by minorArgs.size - j
@@ -170,7 +170,7 @@ def withBRecOnArgs (k : (newMinors : Array Expr) → (proofArgs : Array Expr) �
 def mkBRecOn (ctx : Context) : MetaM Unit := do
   withBRecOnArgs (ctx := ctx) fun newMinors proofArgs => do
     let nmotives := ctx.motives.size
-    let lparams := ctx.indVal.levelParams.map Level.param
+    let lparams := ctx.levelParams.map Level.param
     let lparams := if ctx.largeElim then levelZero :: lparams else lparams
     for i in *...nmotives do
       let motive := ctx.motives[i]!
@@ -187,7 +187,7 @@ def mkBRecOn (ctx : Context) : MetaM Unit := do
           let type ← mkForallFVars vars type
           addDecl <| .thmDecl {
             name := ctx.brecOnNames[i]!
-            levelParams := ctx.indVal.levelParams
+            levelParams := ctx.levelParams
             type := type
             value := proof
           }
@@ -201,6 +201,7 @@ def detectRecApp (x : Expr) : MetaM (Option (Expr × Expr)) := do
   x.withApp fun fn args => do
     unless fn.isFVar do
       return none
+    let env ← getEnv
     return (← getLCtx).findDecl? fun decl =>
       let rec go (argIdx : Nat) (e : Expr) := do
         if h : argIdx < args.size then
@@ -208,10 +209,11 @@ def detectRecApp (x : Expr) : MetaM (Option (Expr × Expr)) := do
           | .forallE _ _ b _ => go (argIdx + 1) (b.instantiate1 args[argIdx])
           | _ => none
         else
-          let .app f a := e | none
-          unless a == x do none
-          let .const (.str _ s) _ := f.getAppFn | none
+          let .app f a := e.getForallBody | none
+          unless a.getAppFn == fn do none
+          let .const (.str n s) _ := f.getAppFn | none
           unless s = "below" ∨ (s.dropPrefix? "below_").any (·.isNat) do none
+          unless (env.findAsync? n).any (·.kind == .induct) do none
           some (mkAppN decl.toExpr args, e)
       termination_by args.size - argIdx
       go 0 decl.type
@@ -260,7 +262,7 @@ partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) 
       let belowName := type.getAppFn.constName!
       let val ← getConstInfoInduct belowName
       discrs := discrs.insertIdx! (i + 1) below
-      -- | a, b, ABC.thing ..., c, d ==> | a, b, .(ABC.thing ...), c, d, ABC.below.thing ...
+      -- | a, b, ABC.thing ..., c, d ==> | a, b, .(ABC.thing ...), ABC.below.thing ..., c, d
       let lhss ← input.lhss.mapM (addBelowPattern belowName i)
       input := { input with discrInfos := input.discrInfos.push {}, lhss }
       matchTypeAdd := matchTypeAdd.push (i, type.stripArgsN val.numIndices, val.numIndices)
@@ -321,10 +323,10 @@ where
     let prevPatterns := lhs.patterns.take idx
     let (originalPattern :: morePatterns) := lhs.patterns.drop idx |
       throwError "invalid amount of patterns"
-    let (belowPattern, fVars) ← (convertToBelow indName originalPattern none).run #[]
+    let ((belowPattern, inaccessiblePattern), fVars) ←
+      (convertToBelow indName originalPattern none).run #[]
     withExistingLocalDecls fVars.toList do
-    let oldInaccessible ← toInaccessible originalPattern
-    let patterns := prevPatterns ++ oldInaccessible :: belowPattern :: morePatterns
+    let patterns := prevPatterns ++ inaccessiblePattern :: belowPattern :: morePatterns
     return { lhs with patterns, fvarDecls := lhs.fvarDecls ++ fVars.toList }
 
   /--
@@ -341,25 +343,26 @@ where
     - it is a variable. Here you we need to introduce a fresh variable of a different type.
   -/
   convertToBelow (belowIndName : Name) (originalPattern : Pattern) (var? : Option Expr) :
-      StateRefT (Array LocalDecl) MetaM Pattern := do
+      StateRefT (Array LocalDecl) MetaM (Pattern × Pattern) := do
     match originalPattern with
     | .var varId =>
       if let some var := var? then
         let localDecl ← getFVarLocalDecl var
         modify fun decls => decls.push localDecl
-        return .var var.fvarId!
+        return (.var var.fvarId!, originalPattern)
       let type ← varId.getType
-      let type ← whnf type
-      type.withApp fun f args => do
-        let .const nm us := f | throwError "expected constant application at {type}"
-        let ind ← getConstInfoInduct nm
-        let tgtType := mkAppN (.const belowIndName us) belowParams
-        let tgtType := mkAppN tgtType (args.extract ind.numParams)
-        let tgtType := .app tgtType (.fvar varId)
-        withLocalDeclD (← mkFreshUserName `h) tgtType fun h => do
-          let localDecl ← getFVarLocalDecl h
-          modify fun decls => decls.push localDecl
-          return .var h.fvarId!
+      let tgtType ← forallTelescopeReducing (whnfType := true) type fun moreVars body => do
+        body.withApp fun f args => do
+          let .const nm us := f | throwError "expected constant application at {type}"
+          let ind ← getConstInfoInduct nm
+          let tgtType := mkAppN (.const belowIndName us) belowParams
+          let tgtType := mkAppN tgtType (args.extract ind.numParams)
+          let tgtType := .app tgtType (mkAppN (.fvar varId) moreVars)
+          mkForallFVars moreVars tgtType
+      withLocalDeclD (← mkFreshUserName `h) tgtType fun h => do
+        let localDecl ← getFVarLocalDecl h
+        modify fun decls => decls.push localDecl
+        return (.var h.fvarId!, originalPattern)
     | .ctor ctorName us params fields =>
       withTraceNode `Meta.IndPredBelow.match (return m!"{exceptEmoji ·} pattern {← originalPattern.toExpr} to {belowIndName}") do
       let ctorInfo ← getConstInfoCtor ctorName
@@ -384,29 +387,25 @@ where
           let belowInd := varType.getForallBody.getAppFn.constName!
           let realIdx := recIdxs[i / 2]!
           trace[Meta.IndPredBelow.match] "transform {var} to {realIdx}"
-          let p ← convertToBelow belowInd belowFields[realIdx]! var
-          belowFields ← belowFields.modifyM realIdx (fun x => toInaccessible x)
+          let (belowPattern, inaccessiblePattern) ←
+            convertToBelow belowInd belowFields[realIdx]! var
+          belowFields := belowFields.set! realIdx inaccessiblePattern
           -- add motive decl var
           let localDecl ← getFVarLocalDecl vars[i + 1]!
           modify fun decls => decls.push localDecl
-          belowFields := belowFields.push p
+          belowFields := belowFields.push belowPattern
           belowFields := belowFields.push (.var vars[i + 1]!.fvarId!)
           i := i + 2
         let ctor := .ctor belowCtor.name us belowParams.toList belowFields.toList
         if ← isTracingEnabledFor `Meta.IndPredBelow.match then
           withExistingLocalDecls ((← get).extract curDeclCount).toList do
             trace[Meta.IndPredBelow.match] "{originalPattern.toMessageData} ↦ {ctor.toMessageData}"
-        return ctor
+        return (ctor, .inaccessible (← originalPattern.toExpr))
     | .as varId p hId =>
-      let p ← convertToBelow belowIndName p var?
-      return Pattern.as varId p hId
+      let (belowPattern, inaccessiblePattern) ← convertToBelow belowIndName p var?
+      return (belowPattern, Pattern.as varId inaccessiblePattern hId)
     | p => throwError "unexpected pattern {p.toMessageData} while elaborating \
             inductive predicate recursion"
-
-  toInaccessible : Pattern → MetaM Pattern
-    | .inaccessible p => return .inaccessible p
-    | .var v => return .var v
-    | p => .inaccessible <$> p.toExpr
 
 /-- Generates the auxiliary lemmas `below` and `brecOn` for a recursive inductive predicate. -/
 def mkBelow (indName : Name) : MetaM Unit :=
@@ -414,8 +413,9 @@ def mkBelow (indName : Name) : MetaM Unit :=
   unless (← isInductivePredicate indName) do return
   let indVal ← getConstInfoInduct indName
   if indVal.isUnsafe || !indVal.isRec then return
+  let levelParams := indVal.levelParams
   let recVal ← getConstInfoRec (indName ++ `rec)
-  let largeElim := recVal.levelParams.length > indVal.levelParams.length
+  let largeElim := recVal.levelParams.length > levelParams.length
   let t := if largeElim then recVal.instantiateTypeLevelParams [.zero] else recVal.type
   let n := recVal.numParams + recVal.numMotives + recVal.numMinors
   forallBoundedTelescope t (some n) fun as _ => do
@@ -429,7 +429,7 @@ def mkBelow (indName : Name) : MetaM Unit :=
       (Array.range' 1 indVal.numNested).map (indVal.all.head! ++ `below).appendIndexAfter
     let brecOnNames := indVal.all.toArray.map (· ++ `brecOn) ++
       (Array.range' 1 indVal.numNested).map (indVal.all.head! ++ `brecOn).appendIndexAfter
-    let ctx := { indVal, largeElim, params, motives, motiveToIdx, minors, recNames, belowNames, brecOnNames }
+    let ctx := { levelParams, largeElim, params, motives, motiveToIdx, minors, recNames, belowNames, brecOnNames }
     mkBelowInductives ctx
     mkBRecOn ctx
 

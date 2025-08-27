@@ -6,6 +6,7 @@ import Module.ImportedPrivateImported
 import Module.PrivateImported
 import Module.ImportedAllPrivateImported
 import Module.NonModule
+import Module.WFRecFunInd
 
 /-! # Module system basic tests -/
 

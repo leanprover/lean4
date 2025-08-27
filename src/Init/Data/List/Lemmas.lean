@@ -2918,7 +2918,7 @@ theorem foldl_of_exists {xs : List α} {f : δ → α → δ} {init : δ} (p : �
     obtain ⟨b, h₁, h₂⟩ := h
     simp only [mem_cons] at h₁
     obtain rfl | h₁ := h₁
-    · apply foldl_of_init
+    · apply foldl_induction
       · intro a m r
         exact w a (mem_cons_of_mem b m) r
       · exact h₂ init

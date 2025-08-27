@@ -270,17 +270,11 @@ theorem Seq.eraseDup_k_eq_eraseDup (s : Seq) : s.eraseDup_k = s.eraseDup := by
 
 attribute [local simp] Seq.eraseDup_k_eq_eraseDup
 
--- theorem Seq.denote_eraseDup {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.IdempotentOp ctx.op} (s : Seq)
---    : s.eraseDup.denote ctx = s.denote ctx := by
---   fun_induction eraseDup s -- FAILED
-
 theorem Seq.denote_eraseDup {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.IdempotentOp ctx.op} (s : Seq)
     : s.eraseDup.denote ctx = s.denote ctx := by
-  induction s <;> simp [eraseDup] <;> split <;> split
-  next ih _ _ h₁ h₂ => simp [← ih, h₁, h₂, Std.IdempotentOp.idempotent]
-  next ih _ _ h₁ _ => simp [← ih, h₁]
-  next ih _ _ _ h₁ h₂ => simp [← ih, h₁, h₂, ← Std.Associative.assoc (self := inst₁), Std.IdempotentOp.idempotent]
-  next ih _ _ _ h₁ _ => simp [← ih, h₁]
+  fun_induction eraseDup s <;> simp_all +zetaDelta
+  next ih => simp [← ih, Std.IdempotentOp.idempotent]
+  next ih => simp [← ih, ← Std.Associative.assoc (self := inst₁), Std.IdempotentOp.idempotent]
 
 attribute [local simp] Seq.denote_eraseDup
 

@@ -9,7 +9,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.VarRename
+import Lean.Meta.Tactic.Grind.VarRename
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr

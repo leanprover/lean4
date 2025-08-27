@@ -15,7 +15,6 @@ public import Lean.Meta.Tactic.Grind.Arith.Cutsat
 public import Lean.Meta.Tactic.Grind.Arith.CommRing
 public import Lean.Meta.Tactic.Grind.Arith.Linear
 public import Lean.Meta.Tactic.Grind.Arith.Simproc
-public import Lean.Meta.Tactic.Grind.Arith.VarRename
 public import Lean.Meta.Tactic.Grind.Arith.Internalize
 
 public section

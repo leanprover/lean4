@@ -56,7 +56,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 static lean_object* l_Lean_Lsp_instFromJsonFileChangeType___lam__0___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Lsp_DidChangeWatchedFilesParams_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Lsp_fromJsonDidChangeWatchedFilesRegistrationOptions___closed__2____x40_Lean_Data_Lsp_Workspace_127849045____hygCtx___hyg_16_;
-lean_object* l_List_foldl___at___Array_appendList_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_WorkspaceFolder_ctorIdx(lean_object*);
 static lean_object* l_Lean_Lsp_fromJsonDidChangeWatchedFilesParams___closed__1____x40_Lean_Data_Lsp_Workspace_1964822858____hygCtx___hyg_16_;
 LEAN_EXPORT lean_object* l_Lean_Lsp_toJsonDidChangeWatchedFilesParams____x40_Lean_Data_Lsp_Workspace_1964822858____hygCtx___hyg_25_(lean_object*);
@@ -67,6 +66,7 @@ static lean_object* l_Lean_Lsp_fromJsonFileSystemWatcher___closed__1____x40_Lean
 static lean_object* l_Lean_Lsp_fromJsonFileEvent___closed__0____x40_Lean_Data_Lsp_Workspace_3846126738____hygCtx___hyg_24_;
 LEAN_EXPORT lean_object* l_Array_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonDidChangeWatchedFilesParams____x40_Lean_Data_Lsp_Workspace_1964822858____hygCtx___hyg_16__spec__0_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_toJsonFileSystemWatcher____x40_Lean_Data_Lsp_Workspace_448054281____hygCtx___hyg_35_(lean_object*);
+lean_object* l_List_foldl___at___Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_FileChangeType_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_FileChangeType_noConfusion___redArg(uint8_t, uint8_t);
@@ -225,7 +225,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec_ref(x_1);
-x_6 = l_List_foldl___at___Array_appendList_spec__0(lean_box(0), x_2, x_4);
+x_6 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_2, x_4);
 x_1 = x_5;
 x_2 = x_6;
 goto _start;

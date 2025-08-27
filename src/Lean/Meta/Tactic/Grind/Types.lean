@@ -440,7 +440,12 @@ structure ENode where
   to the linarith module. Its implementation is similar to the `offset?` field.
   -/
   linarith? : Option Expr := none
-  -- Remark: we expect to have builtin support for offset constraints, cutsat, comm ring, and linarith.
+  /--
+  The `ac?` field is used to propagate equalities from the `grind` congruence closure module
+  to the ac module. Its implementation is similar to the `offset?` field.
+  -/
+  ac? : Option Expr := none
+  -- Remark: we expect to have builtin support for offset constraints, cutsat, comm ring, linarith, and ac.
   -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
   deriving Inhabited, Repr
 
@@ -1282,6 +1287,53 @@ def markAsLinarithTerm (e : Expr) : GoalM Unit := do
   else
     setENode root.self { root with linarith? := some e }
     propagateLinarithDiseqs (← getParents root.self)
+
+/--
+Notifies the ac module that `a = b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_ac_eq"] -- forward definition
+opaque AC.processNewEq (a b : Expr) : GoalM Unit
+
+/--
+Notifies the ac module that `a ≠ b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_ac_diseq"] -- forward definition
+opaque AC.processNewDiseq (a b : Expr) : GoalM Unit
+
+/--
+Given `lhs` and `rhs` that are known to be disequal, checks whether
+`lhs` and `rhs` have ac terms `e₁` and `e₂` attached to them,
+and invokes process `AC.processNewDiseq e₁ e₂`
+-/
+def propagateACDiseq (lhs rhs : Expr) : GoalM Unit := do
+  let some lhs ← get? lhs | return ()
+  let some rhs ← get? rhs | return ()
+  AC.processNewDiseq lhs rhs
+where
+  get? (a : Expr) : GoalM (Option Expr) := do
+    return (← getRootENode a).ac?
+
+/--
+Traverses disequalities in `parents`, and propagate the ones relevant to the
+ac module.
+-/
+def propagateACDiseqs (parents : ParentSet) : GoalM Unit := do
+  forEachDiseq parents propagateACDiseq
+
+/--
+Marks `e` as a term of interest to the ac module.
+If the root of `e`s equivalence class has already a term of interest,
+a new equality is propagated to the ac module.
+-/
+def markAsACTerm (e : Expr) : GoalM Unit := do
+  let root ← getRootENode e
+  if let some e' := root.ac? then
+    AC.processNewEq e e'
+  else
+    setENode root.self { root with ac? := some e }
+    propagateACDiseqs (← getParents root.self)
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do

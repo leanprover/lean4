@@ -69,6 +69,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_getCast_x3f(lean_obje
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_getKey_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_forM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_instInhabitedAssocList(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_defaultAssocList____x40_Std_Data_DHashMap_Internal_AssocList_Basic_996150287____hygCtx___hyg_68_(lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_AssocList_foldl___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_forM___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_AssocList_getCast_x21___redArg___closed__3;
@@ -180,6 +181,14 @@ lean_object* x_4;
 x_4 = l_Std_DHashMap_Internal_AssocList_ctorIdx(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_defaultAssocList____x40_Std_Data_DHashMap_Internal_AssocList_Basic_996150287____hygCtx___hyg_68_(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_box(0);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_instInhabitedAssocList(lean_object* x_1, lean_object* x_2) {

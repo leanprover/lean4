@@ -33,11 +33,12 @@ LEAN_EXPORT lean_object* l_Lean_Meta_CheckTactic_matchCheckGoalType___boxed(lean
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_Meta_CheckTactic_matchCheckGoalType_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckTactic_mkCheckGoalType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_CheckTactic_matchCheckGoalType___closed__2;
-lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_CheckTactic_matchCheckGoalType___closed__4;
 static lean_object* l_Lean_Meta_CheckTactic_mkCheckGoalType___closed__4;
 static lean_object* l_Lean_Meta_CheckTactic_mkCheckGoalType___closed__2;
+lean_object* l_Lean_Meta_mkFreshExprMVar(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_CheckTactic_matchCheckGoalType___closed__3;
 lean_object* l_Lean_indentExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_Meta_CheckTactic_matchCheckGoalType_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -115,7 +116,7 @@ x_12 = lean_box(0);
 x_13 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_13, 0, x_10);
 lean_ctor_set(x_13, 1, x_12);
-x_14 = l_Lean_Expr_const___override(x_11, x_13);
+x_14 = l_Lean_mkConst(x_11, x_13);
 x_15 = l_Lean_mkAppB(x_14, x_2, x_1);
 lean_ctor_set(x_8, 0, x_15);
 return x_8;
@@ -133,7 +134,7 @@ x_19 = lean_box(0);
 x_20 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_20, 0, x_16);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l_Lean_Expr_const___override(x_18, x_20);
+x_21 = l_Lean_mkConst(x_18, x_20);
 x_22 = l_Lean_mkAppB(x_21, x_2, x_1);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
@@ -505,7 +506,7 @@ lean_ctor_set(x_12, 0, x_11);
 x_13 = 0;
 x_14 = lean_box(0);
 lean_inc_ref(x_3);
-x_15 = l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(x_12, x_13, x_14, x_3, x_4, x_5, x_6, x_10);
+x_15 = l_Lean_Meta_mkFreshExprMVar(x_12, x_13, x_14, x_3, x_4, x_5, x_6, x_10);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
@@ -518,7 +519,7 @@ lean_inc(x_16);
 x_18 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_inc_ref(x_3);
-x_19 = l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(x_18, x_13, x_14, x_3, x_4, x_5, x_6, x_17);
+x_19 = l_Lean_Meta_mkFreshExprMVar(x_18, x_13, x_14, x_3, x_4, x_5, x_6, x_17);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 

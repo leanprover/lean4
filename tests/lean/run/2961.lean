@@ -24,7 +24,7 @@ info: equations:
 
 /--
 error: Failed to realize constant replace.eq_def:
-  failed to generate unfold theorem for 'replace'
+  failed to generate unfold theorem for `replace`
   case h_1
   f : Nat → Option Nat
   t : Nat
@@ -34,7 +34,7 @@ error: Failed to realize constant replace.eq_def:
   ⊢ replace f t = u
 ---
 error: Failed to realize constant replace.eq_def:
-  failed to generate unfold theorem for 'replace'
+  failed to generate unfold theorem for `replace`
   case h_1
   f : Nat → Option Nat
   t : Nat
@@ -74,7 +74,7 @@ info: equations:
 
 /--
 error: Failed to realize constant replace2.eq_def:
-  failed to generate unfold theorem for 'replace2'
+  failed to generate unfold theorem for `replace2`
   case h_1
   f : Nat → Option Nat
   t1 t2 : Nat
@@ -84,7 +84,7 @@ error: Failed to realize constant replace2.eq_def:
   ⊢ replace2 f t1 t2 = u
 ---
 error: Failed to realize constant replace2.eq_def:
-  failed to generate unfold theorem for 'replace2'
+  failed to generate unfold theorem for `replace2`
   case h_1
   f : Nat → Option Nat
   t1 t2 : Nat

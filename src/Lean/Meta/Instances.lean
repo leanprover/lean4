@@ -87,7 +87,7 @@ def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
 
 def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) : m Instances := do
   unless d.instanceNames.contains declName do
-    throwError "'{.ofConstName declName}' does not have [instance] attribute"
+    throwError "`{.ofConstName declName}` does not have [instance] attribute"
   return d.eraseCore declName
 
 builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←
@@ -317,9 +317,9 @@ def addDefaultInstance (declName : Name) (prio : Nat := 0) : MetaM Unit := do
       match type.getAppFn with
       | Expr.const className _ =>
         unless isClass (← getEnv) className do
-          throwError "invalid default instance '{.ofConstName declName}', it has type '({className} ...)', but {className}' is not a type class"
+          throwError "invalid default instance `{.ofConstName declName}`, it has type `({className} ...)`, but `{.ofConstName className}` is not a type class"
         setEnv <| defaultInstanceExtension.addEntry (← getEnv) { className := className, instanceName := declName, priority := prio }
-      | _ => throwError "invalid default instance '{.ofConstName declName}', type must be of the form '(C ...)' where 'C' is a type class"
+      | _ => throwError "invalid default instance `{.ofConstName declName}`, type must be of the form `(C ...)` where `C` is a type class"
 
 builtin_initialize
   registerBuiltinAttribute {

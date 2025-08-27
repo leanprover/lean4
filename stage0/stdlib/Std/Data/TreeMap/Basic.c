@@ -153,7 +153,6 @@ LEAN_EXPORT lean_object* l_Std_TreeMap_getEntryLED___redArg(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Std_TreeMap_forIn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_getKeyGTD___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_find_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_instReprTupleOfRepr___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_min___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_keyAtIdxD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -251,6 +250,7 @@ LEAN_EXPORT lean_object* l_Std_TreeMap_instInsertProd___redArg___lam__0(lean_obj
 LEAN_EXPORT lean_object* l_Std_TreeMap_foldl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_min_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_min___redArg(lean_object*);
+lean_object* l_instReprTupleOfRepr___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_getEntryGTD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_isEmpty___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_keysArray___redArg(lean_object*);
@@ -6356,8 +6356,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = l_Std_TreeMap_instRepr___redArg___closed__0;
-x_4 = lean_alloc_closure((void*)(l_instReprTupleOfRepr___redArg___lam__0), 3, 1);
-lean_closure_set(x_4, 0, x_2);
+x_4 = l_instReprTupleOfRepr___redArg(x_2);
 x_5 = lean_alloc_closure((void*)(l_Prod_repr___boxed), 6, 4);
 lean_closure_set(x_5, 0, lean_box(0));
 lean_closure_set(x_5, 1, lean_box(0));

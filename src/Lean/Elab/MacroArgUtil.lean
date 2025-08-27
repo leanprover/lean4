@@ -65,7 +65,7 @@ where
           let id := id.getId.eraseMacroScopes
           let kind := (← Parser.getSyntaxKindOfParserAlias? id).getD Name.anonymous
           return ⟨Syntax.mkAntiquotNode kind term⟩
-        | _ => throwError "unknown parser declaration/category/alias '{id}'"
+        | _ => throwError "unknown parser declaration/category/alias `{id}`"
     | stx, term => do
       -- can't match against `` `(stx| ($stxs*)) `` as `*` is interpreted as the `stx` operator
       if stx.raw.isOfKind ``Parser.Syntax.paren then

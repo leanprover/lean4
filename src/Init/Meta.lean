@@ -131,6 +131,12 @@ def isInaccessibleUserName : Name → Bool
   | Name.num p _   => isInaccessibleUserName p
   | _              => false
 
+-- FIXME: `getUtf8Byte` is in `Init.Data.String.Extra`, which causes an import cycle with
+-- `Init.Meta`. Moving `getUtf8Byte` up to `Init.Data.String.Basic` creates another import cycle.
+-- Please replace this definition with `getUtf8Byte` when the string refactor is through.
+@[extern "lean_string_get_byte_fast"]
+private opaque getUtf8Byte' (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
+
 /--
 Creates a round-trippable string name component if possible, otherwise returns `none`.
 Names that are valid identifiers are not escaped, and otherwise, if they do not contain `»`, they are escaped.

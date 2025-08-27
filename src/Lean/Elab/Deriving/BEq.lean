@@ -104,12 +104,10 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
     let letDecls ← mkLocalInstanceLetDecls ctx `BEq header.argNames
     body ← mkLet letDecls body
   let binders    := header.binders
-  let vis := ctx.mkVisibilityFromTypes
   if ctx.usePartial then
     `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
   else
-    let expAttr := ctx.mkNoExposeAttrFromCtors
-    `(@[$[$expAttr],*] $vis:visibility def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
+    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
@@ -128,9 +126,7 @@ private def mkBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
 
 private def mkBEqEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
   let auxFunName := ctx.auxFunNames[0]!
-  let vis := ctx.mkVisibilityFromTypes
-  let expAttr := ctx.mkNoExposeAttrFromCtors
-  `(@[$[$expAttr],*] $vis:visibility def $(mkIdent auxFunName):ident  (x y : $(mkCIdent name)) : Bool := x.ctorIdx == y.ctorIdx)
+  `(def $(mkIdent auxFunName):ident  (x y : $(mkCIdent name)) : Bool := x.ctorIdx == y.ctorIdx)
 
 private def mkBEqEnumCmd (name : Name): TermElabM (Array Syntax) := do
   let ctx ← mkContext "beq" name
@@ -141,6 +137,7 @@ private def mkBEqEnumCmd (name : Name): TermElabM (Array Syntax) := do
 open Command
 
 def mkBEqInstance (declName : Name) : CommandElabM Unit := do
+  withoutExposeFromCtors declName do
     let cmds ← liftTermElabM <|
       if (← isEnumType declName) then
         mkBEqEnumCmd declName

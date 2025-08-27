@@ -13,11 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l_panic___at___Lean_Compiler_LCNF_Code_applyRenaming_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Param_applyRenaming___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_Param_applyRenaming_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Param_applyRenaming___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Compiler_LCNF_defaultAlt____x40_Lean_Compiler_LCNF_Basic_2228446694____hygCtx___hyg_273_;
 static lean_object* l_Lean_Compiler_LCNF_Code_applyRenaming___closed__3;
-extern lean_object* l_Lean_Compiler_LCNF_instInhabitedCode;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_applyRenaming___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_applyRenaming(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -819,11 +820,19 @@ return x_77;
 }
 }
 }
+static lean_object* _init_l_panic___at___Lean_Compiler_LCNF_Code_applyRenaming_spec__0___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Compiler_LCNF_defaultAlt____x40_Lean_Compiler_LCNF_Basic_2228446694____hygCtx___hyg_273_;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_panic___at___Lean_Compiler_LCNF_Code_applyRenaming_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Compiler_LCNF_instInhabitedCode;
+x_2 = l_panic___at___Lean_Compiler_LCNF_Code_applyRenaming_spec__0___closed__0;
 x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }
@@ -2110,6 +2119,8 @@ _G_initialized = true;
 res = initialize_Lean_Compiler_LCNF_CompilerM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_panic___at___Lean_Compiler_LCNF_Code_applyRenaming_spec__0___closed__0 = _init_l_panic___at___Lean_Compiler_LCNF_Code_applyRenaming_spec__0___closed__0();
+lean_mark_persistent(l_panic___at___Lean_Compiler_LCNF_Code_applyRenaming_spec__0___closed__0);
 l_Lean_Compiler_LCNF_Code_applyRenaming___closed__0 = _init_l_Lean_Compiler_LCNF_Code_applyRenaming___closed__0();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Code_applyRenaming___closed__0);
 l_Lean_Compiler_LCNF_Code_applyRenaming___closed__1 = _init_l_Lean_Compiler_LCNF_Code_applyRenaming___closed__1();

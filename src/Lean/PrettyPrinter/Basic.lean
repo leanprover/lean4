@@ -27,7 +27,7 @@ unsafe def runForNodeKind {α} (attr : KeyedDeclsAttribute α) (k : SyntaxNodeKi
       let d ← evalConst ParserDescr k
       interp d
     else
-      throwError "no declaration of attribute [{attr.defn.name}] found for '{k}'"
+      throwError "no declaration of attribute [{attr.defn.name}] found for `{k}`"
 
 end PrettyPrinter
 end Lean

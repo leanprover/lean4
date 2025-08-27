@@ -562,78 +562,82 @@ goto block_31;
 }
 else
 {
-lean_object* x_34; lean_object* x_35; uint8_t x_36; 
-x_34 = lean_ctor_get(x_32, 1);
+lean_object* x_34; uint8_t x_35; 
+lean_inc_ref(x_32);
+x_34 = l_Lean_Expr_appFnCleanup___redArg(x_32);
+x_35 = l_Lean_Expr_isApp(x_34);
+if (x_35 == 0)
+{
+lean_dec_ref(x_34);
+lean_dec_ref(x_32);
+lean_dec(x_18);
+x_28 = x_22;
+goto block_31;
+}
+else
+{
+lean_object* x_36; uint8_t x_37; 
 lean_inc_ref(x_34);
-x_35 = l_Lean_Expr_appFnCleanup___redArg(x_32);
-x_36 = l_Lean_Expr_isApp(x_35);
-if (x_36 == 0)
+x_36 = l_Lean_Expr_appFnCleanup___redArg(x_34);
+x_37 = l_Lean_Expr_isApp(x_36);
+if (x_37 == 0)
 {
-lean_dec_ref(x_35);
+lean_dec_ref(x_36);
 lean_dec_ref(x_34);
+lean_dec_ref(x_32);
 lean_dec(x_18);
 x_28 = x_22;
 goto block_31;
 }
 else
 {
-lean_object* x_37; lean_object* x_38; uint8_t x_39; 
-x_37 = lean_ctor_get(x_35, 1);
-lean_inc_ref(x_37);
-x_38 = l_Lean_Expr_appFnCleanup___redArg(x_35);
-x_39 = l_Lean_Expr_isApp(x_38);
-if (x_39 == 0)
-{
+lean_object* x_38; lean_object* x_39; uint8_t x_40; 
+x_38 = l_Lean_Expr_appFnCleanup___redArg(x_36);
+x_39 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass_spec__6___redArg___closed__1;
+x_40 = l_Lean_Expr_isConstOf(x_38, x_39);
 lean_dec_ref(x_38);
-lean_dec_ref(x_37);
+if (x_40 == 0)
+{
 lean_dec_ref(x_34);
+lean_dec_ref(x_32);
 lean_dec(x_18);
 x_28 = x_22;
 goto block_31;
 }
 else
 {
-lean_object* x_40; lean_object* x_41; uint8_t x_42; 
-x_40 = l_Lean_Expr_appFnCleanup___redArg(x_38);
-x_41 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass_spec__6___redArg___closed__1;
-x_42 = l_Lean_Expr_isConstOf(x_40, x_41);
-lean_dec_ref(x_40);
-if (x_42 == 0)
-{
-lean_dec_ref(x_37);
-lean_dec_ref(x_34);
-lean_dec(x_18);
-x_28 = x_22;
-goto block_31;
-}
-else
-{
-lean_object* x_43; lean_object* x_44; uint8_t x_45; 
+lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
 lean_dec(x_27);
 lean_dec(x_24);
-x_43 = l_Lean_Expr_cleanupAnnotations(x_34);
-x_44 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass_spec__6___redArg___closed__4;
-x_45 = l_Lean_Expr_isConstOf(x_43, x_44);
-lean_dec_ref(x_43);
-if (x_45 == 0)
+x_41 = lean_ctor_get(x_32, 1);
+lean_inc_ref(x_41);
+lean_dec_ref(x_32);
+x_42 = l_Lean_Expr_cleanupAnnotations(x_41);
+x_43 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass_spec__6___redArg___closed__4;
+x_44 = l_Lean_Expr_isConstOf(x_42, x_43);
+lean_dec_ref(x_42);
+if (x_44 == 0)
 {
-lean_object* x_46; lean_object* x_47; 
-lean_dec_ref(x_37);
+lean_object* x_45; lean_object* x_46; 
+lean_dec_ref(x_34);
 lean_dec(x_18);
+x_45 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_45, 0, x_25);
+lean_ctor_set(x_45, 1, x_26);
 x_46 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_46, 0, x_25);
-lean_ctor_set(x_46, 1, x_26);
-x_47 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_47, 0, x_23);
-lean_ctor_set(x_47, 1, x_46);
-x_10 = x_47;
+lean_ctor_set(x_46, 0, x_23);
+lean_ctor_set(x_46, 1, x_45);
+x_10 = x_46;
 x_11 = x_22;
 goto block_15;
 }
 else
 {
-uint8_t x_48; 
-x_48 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass_spec__0___redArg(x_26, x_37);
+lean_object* x_47; uint8_t x_48; 
+x_47 = lean_ctor_get(x_34, 1);
+lean_inc_ref(x_47);
+lean_dec_ref(x_34);
+x_48 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass_spec__0___redArg(x_26, x_47);
 if (x_48 == 0)
 {
 lean_object* x_49; 
@@ -666,7 +670,7 @@ x_57 = lean_ctor_get(x_55, 1);
 lean_inc(x_57);
 lean_dec_ref(x_55);
 x_58 = lean_box(0);
-x_59 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass_spec__2___redArg(x_26, x_37, x_58);
+x_59 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass_spec__2___redArg(x_26, x_47, x_58);
 x_60 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_60, 0, x_56);
 lean_ctor_set(x_60, 1, x_59);
@@ -680,7 +684,7 @@ goto block_15;
 else
 {
 uint8_t x_62; 
-lean_dec_ref(x_37);
+lean_dec_ref(x_47);
 lean_dec(x_26);
 lean_dec(x_23);
 lean_dec(x_8);
@@ -710,7 +714,7 @@ return x_65;
 else
 {
 uint8_t x_66; 
-lean_dec_ref(x_37);
+lean_dec_ref(x_47);
 lean_dec(x_26);
 lean_dec(x_25);
 lean_dec(x_23);
@@ -742,7 +746,7 @@ return x_69;
 else
 {
 lean_object* x_70; lean_object* x_71; lean_object* x_72; 
-lean_dec_ref(x_37);
+lean_dec_ref(x_47);
 x_70 = lean_array_push(x_23, x_18);
 x_71 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_71, 0, x_25);

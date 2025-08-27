@@ -751,7 +751,24 @@ Message ordering for `#guard_msgs`:
 syntax guardMsgsOrdering := &"ordering" " := " guardMsgsOrderingArg
 
 set_option linter.missingDocs false in
-syntax guardMsgsSpecElt := guardMsgsFilter <|> guardMsgsWhitespace <|> guardMsgsOrdering
+syntax guardMsgsPositionsArg := &"true" <|> &"false"
+
+/--
+Position reporting for `#guard_msgs`:
+- `positions := true` will report the positions of messages with the line numbers computed
+  relative to the line of the `#guard_msgs` token, e.g.
+  ```
+  @ +3:7...+4:2
+  info: <message>
+  ```
+  Note that the reported column is absolute.
+- `positions := false` (the default) will not render positions.
+-/
+syntax guardMsgsPositions := &"positions" " := " guardMsgsPositionsArg
+
+set_option linter.missingDocs false in
+syntax guardMsgsSpecElt :=
+  guardMsgsFilter <|> guardMsgsWhitespace <|> guardMsgsOrdering <|> guardMsgsPositions
 
 set_option linter.missingDocs false in
 syntax guardMsgsSpec := "(" guardMsgsSpecElt,* ")"
@@ -795,7 +812,8 @@ In general, `#guard_msgs` accepts a comma-separated list of configuration clause
 ```
 #guard_msgs (configElt,*) in cmd
 ```
-By default, the configuration list is `(check all, whitespace := normalized, ordering := exact)`.
+By default, the configuration list is
+`(check all, whitespace := normalized, ordering := exact, positions := false)`.
 
 Message filters select messages by severity:
 - `info`, `warning`, `error`: (non-trace) messages with the given severity level.
@@ -820,6 +838,11 @@ Message ordering:
 - `ordering := exact` uses the exact ordering of the messages (the default).
 - `ordering := sorted` sorts the messages in lexicographic order.
   This helps with testing commands that are non-deterministic in their ordering.
+
+Position reporting:
+- `positions := true` reports the ranges of all messages relative to the line on which
+  `#guard_msgs` appears.
+- `positions := false` does not report position info.
 
 For example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop
 everything else.

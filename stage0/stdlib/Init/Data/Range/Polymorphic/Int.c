@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_instRangeSizeOpenInt;
 LEAN_EXPORT lean_object* l_Std_PRange_instRangeSizeClosedInt___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt;
 LEAN_EXPORT lean_object* l_Std_PRange_instRangeSizeOpenInt___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instRangeSizeClosedInt;
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0;
@@ -54,7 +55,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__1(lean_obje
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_nat_to_int(x_1);
+x_3 = l_instNatCastInt___lam__0(x_1);
 x_4 = lean_int_add(x_2, x_3);
 lean_dec(x_3);
 x_5 = lean_alloc_ctor(1, 1, 0);

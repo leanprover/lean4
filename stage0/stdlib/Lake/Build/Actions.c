@@ -16,6 +16,7 @@ extern "C" {
 static lean_object* l_Lake_tar___closed__1;
 static lean_object* l_Lake_download___closed__1;
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_toJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx___hyg_119_(lean_object*);
 static lean_object* l_Lake_download___closed__0;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_mkArgs_spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lake_compileO(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -160,7 +161,6 @@ static lean_object* l_Lake_download___closed__2;
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 static lean_object* l_Lake_compileLeanModule___closed__10;
 extern uint8_t l_System_Platform_isWindows;
-lean_object* l_Lean_toJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx___hyg_115_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_mkArgs_spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___Lake_compileLeanModule_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1045,7 +1045,7 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean
 x_27 = lean_ctor_get(x_26, 1);
 lean_inc(x_27);
 lean_dec_ref(x_26);
-x_28 = l_Lean_toJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx___hyg_115_(x_3);
+x_28 = l_Lean_toJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx___hyg_119_(x_3);
 x_29 = lean_unsigned_to_nat(80u);
 x_30 = l_Lean_Json_pretty(x_28, x_29);
 x_31 = l_IO_FS_writeFile(x_4, x_30, x_27);

@@ -75,13 +75,10 @@ structure PrivField where
   private a : Nat
 deriving BEq
 
-/--
-info: def instBEqPrivField : BEq PrivField :=
-<not imported>
--/
+/-- info: fun a => beqPrivField✝ a a -/
 #guard_msgs in
 #with_exporting
-#print instBEqPrivField
+#reduce fun (a : PrivField) => a == a
 
 end
 
@@ -91,10 +88,7 @@ public structure PrivField2 where
   private a : Nat
 deriving BEq
 
-/--
-info: def instBEqPrivField2 : BEq PrivField2 :=
-<not imported>
--/
+/-- info: fun a => beqPrivField2✝ a a -/
 #guard_msgs in
 #with_exporting
-#print instBEqPrivField2
+#reduce fun (a : PrivField2) => a == a

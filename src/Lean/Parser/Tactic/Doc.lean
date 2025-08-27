@@ -82,16 +82,16 @@ builtin_initialize
 
       let tgtName ← Lean.Elab.realizeGlobalConstNoOverloadWithInfo tgt
 
-      if !(isTactic (← getEnv) tgtName) then throwErrorAt tgt "'{tgtName}' is not a tactic"
+      if !(isTactic (← getEnv) tgtName) then throwErrorAt tgt "`{tgtName}` is not a tactic"
       -- If this condition is true, then we're in an `attribute` command and can validate here.
       if (← getEnv).find? decl |>.isSome then
-        if !(isTactic (← getEnv) decl) then throwError "'{decl}' is not a tactic"
+        if !(isTactic (← getEnv) decl) then throwError "`{decl}` is not a tactic"
 
       if let some tgt' := alternativeOfTactic (← getEnv) tgtName then
-        throwError "'{tgtName}' is itself an alternative for '{tgt'}'"
+        throwError "`{tgtName}` is itself an alternative for `{tgt'}`"
       modifyEnv fun env => tacticAlternativeExt.addEntry env (decl, tgtName)
       if (← findSimpleDocString? (← getEnv) decl).isSome then
-        logWarningAt stx m!"Docstring for '{decl}' will be ignored because it is an alternative"
+        logWarningAt stx m!"Docstring for `{decl}` will be ignored because it is an alternative"
 
     descr :=
       "Register a tactic parser as an alternative form of an existing tactic, so they " ++

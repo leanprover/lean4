@@ -21,7 +21,6 @@ lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 static lean_object* l_Lean_Expr_fvarsSubset___closed__5;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Expr_fvarsSubset_spec__0___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_CollectFVars_main(lean_object*, lean_object*);
 lean_object* lean_find_ext_expr(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Expr_fvarsSubset_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Expr_fvarsSubset_spec__0___redArg___boxed(lean_object*, lean_object*);
@@ -33,6 +32,7 @@ lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 static lean_object* l_Lean_Expr_fvarsSubset___closed__2;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
+lean_object* l_Lean_collectFVars(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_fvarsSubset___closed__3;
 static lean_object* l_Lean_Expr_fvarsSubset___closed__6;
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Expr_fvarsSubset_spec__0(lean_object*, lean_object*, lean_object*);
@@ -241,7 +241,7 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = l_Lean_Expr_fvarsSubset___closed__6;
-x_8 = l_Lean_CollectFVars_main(x_2, x_7);
+x_8 = l_Lean_collectFVars(x_7, x_2);
 x_9 = lean_alloc_closure((void*)(l_Lean_Expr_fvarsSubset___lam__0___boxed), 2, 1);
 lean_closure_set(x_9, 0, x_8);
 x_10 = lean_find_ext_expr(x_9, x_1);

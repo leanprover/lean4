@@ -59,7 +59,7 @@ private partial def expandField (structName : Name) (field : Name) : MetaM (Name
   | .str .anonymous fieldName => expandFieldName structName (Name.mkSimple fieldName)
   | .str field' fieldName =>
     let (field', projFn) ← expandField structName field'
-    let notStructure {α} : MetaM α := throwError "Field `{field'}` of structure '{.ofConstName structName}' is not a structure"
+    let notStructure {α} : MetaM α := throwError "Field `{field'}` of structure `{.ofConstName structName}` is not a structure"
     let .const structName' _ := (← getConstInfo projFn).type.getForallBody | notStructure
     unless isStructure (← getEnv) structName' do notStructure
     let (field'', projFn) ← expandFieldName structName' (Name.mkSimple fieldName)

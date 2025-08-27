@@ -2831,6 +2831,17 @@ theorem foldr_rel {l : List α} {f : α → β → β} {g : α → γ → γ} {a
     · simp
     · exact ih h fun a m c c' h => h' _ (by simp_all) _ _ h
 
+/-- If a predicate remains true at each step of a fold,
+and it is true at the beginning, then it is true at the end. -/
+theorem foldr_induction {xs : List α} {f : α → δ → δ} {init : δ} (p : δ → Prop)
+    (w : ∀ (a : α) (_ : a ∈ xs) (r : δ), p r → p (f a r))
+    (h : p init) : p (xs.foldr f init) := by
+  induction xs with
+  | nil => simp_all
+  | cons x xs ih =>
+    rw [foldr_cons]
+    exact w x mem_cons_self (foldr f init xs) (ih fun a m r => w a (mem_cons_of_mem x m) r)
+
 /-- If a predicate has the same value at each step of a fold,
 then it has the same value at the beginning and end. -/
 theorem foldr_iff {xs : List α} {f : α → δ → δ} {init : δ} (p : δ → Prop)
@@ -2842,17 +2853,6 @@ theorem foldr_iff {xs : List α} {f : α → δ → δ} {init : δ} (p : δ → 
     rw [foldr_cons, w _ (mem_cons_self), ih]
     intro a m r
     exact w a (mem_cons_of_mem x m) r
-
-/-- If a predicate remains true at each step of a fold,
-and it is true at the beginning, then it is true at the end. -/
-theorem foldr_of_init {xs : List α} {f : α → δ → δ} {init : δ} (p : δ → Prop)
-    (w : ∀ (a : α) (_ : a ∈ xs) (r : δ), p r → p (f a r))
-    (h : p init) : p (xs.foldr f init) := by
-  induction xs with
-  | nil => simp_all
-  | cons x xs ih =>
-    rw [foldr_cons]
-    exact w x mem_cons_self (foldr f init xs) (ih fun a m r => w a (mem_cons_of_mem x m) r)
 
 /--
 If a predicate remains true at each step of a fold,
@@ -2878,6 +2878,17 @@ theorem foldr_of_exists {xs : List α} {f : α → δ → δ} {init : δ} (p : �
         exact w a (mem_cons_of_mem x m) r
       · exact ⟨a, h₁, h₂⟩
 
+/-- If a predicate remains true at each step of a fold,
+and it is true at the beginning, then it is true at the end. -/
+theorem foldl_induction {xs : List α} {f : δ → α → δ} {init : δ} (p : δ → Prop)
+    (w : ∀ (a : α) (_ : a ∈ xs) (r : δ), p r → p (f r a))
+    (h : p init) : p (xs.foldl f init) := by
+  induction xs generalizing init with
+  | nil => simp_all
+  | cons x xs ih =>
+    rw [foldl_cons]
+    exact ih (fun a m r => w a (mem_cons_of_mem x m) r) (w x mem_cons_self init h)
+
 /-- If a predicate has the same value at each step of a fold,
 then it has the same value at the beginning and end. -/
 theorem foldl_iff {xs : List α} {f : δ → α → δ} {init : δ} (p : δ → Prop)
@@ -2890,17 +2901,6 @@ theorem foldl_iff {xs : List α} {f : δ → α → δ} {init : δ} (p : δ → 
     · exact mem_cons_self
     · intro a m r
       exact w a (mem_cons_of_mem x m) r
-
-/-- If a predicate remains true at each step of a fold,
-and it is true at the beginning, then it is true at the end. -/
-theorem foldl_of_init {xs : List α} {f : δ → α → δ} {init : δ} (p : δ → Prop)
-    (w : ∀ (a : α) (_ : a ∈ xs) (r : δ), p r → p (f r a))
-    (h : p init) : p (xs.foldl f init) := by
-  induction xs generalizing init with
-  | nil => simp_all
-  | cons x xs ih =>
-    rw [foldl_cons]
-    exact ih (fun a m r => w a (mem_cons_of_mem x m) r) (w x mem_cons_self init h)
 
 /--
 If a predicate remains true at each step of a fold,

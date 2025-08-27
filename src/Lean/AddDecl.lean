@@ -94,6 +94,10 @@ def addDecl (decl : Declaration) : CoreM Unit := do
       if (← getEnv).header.isModule && !(← getEnv).isExporting then
         exportedInfo? := some <| .axiomInfo { defn with isUnsafe := defn.safety == .unsafe }
       pure (defn.name, .defnInfo defn, .defn)
+    | .opaqueDecl op =>
+      if (← getEnv).header.isModule && !(← getEnv).isExporting then
+        exportedInfo? := some <| .axiomInfo { op with }
+      pure (op.name, .opaqueInfo op, .opaque)
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ => return (← doAdd)
 

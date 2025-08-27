@@ -14,7 +14,8 @@ public section
 open Lean
 
 -- Implementation detail of TypeName, since classes cannot be opaque
-private opaque TypeNameData (α : Type u) : NonemptyType.{0} :=
+-- TODO: should be private; #10098
+opaque TypeNameData (α : Type u) : NonemptyType.{0} :=
   ⟨Name, inferInstance⟩
 
 /--

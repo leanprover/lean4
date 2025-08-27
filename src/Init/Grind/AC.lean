@@ -15,19 +15,22 @@ public import Init.Data.Bool
 namespace Lean.Grind.AC
 abbrev Var := Nat
 
-structure Context (α : Type u) where
-  vars    : RArray α
+structure Context (α : Sort u) where
+  vars    : RArray (PLift α)
   op      : α → α → α
 
 inductive Expr where
-  | var (x : Nat)
+  | var (x : Var)
   | op (lhs rhs : Expr)
   deriving Inhabited, Repr, BEq
 
-noncomputable def Expr.denote {α} (ctx : Context α) (e : Expr) : α :=
-  Expr.rec (fun x => ctx.vars.get x) (fun _ _ ih₁ ih₂ => ctx.op ih₁ ih₂) e
+noncomputable def Var.denote {α : Sort u} (ctx : Context α) (x : Var) : α :=
+  PLift.rec (fun x => x) (ctx.vars.get x)
 
-theorem Expr.denote_var {α} (ctx : Context α) (x : Var) : (Expr.var x).denote ctx = ctx.vars.get x := rfl
+noncomputable def Expr.denote {α} (ctx : Context α) (e : Expr) : α :=
+  Expr.rec (fun x => x.denote ctx) (fun _ _ ih₁ ih₂ => ctx.op ih₁ ih₂) e
+
+theorem Expr.denote_var {α} (ctx : Context α) (x : Var) : (Expr.var x).denote ctx = x.denote ctx := rfl
 theorem Expr.denote_op {α} (ctx : Context α) (a b : Expr) : (Expr.op a b).denote ctx = ctx.op (a.denote ctx) (b.denote ctx) := rfl
 
 attribute [local simp] Expr.denote_var Expr.denote_op
@@ -59,10 +62,10 @@ instance : LawfulBEq Seq where
   rfl := by intro a; induction a <;> simp! [BEq.beq]; assumption
 
 noncomputable def Seq.denote {α} (ctx : Context α) (s : Seq) : α :=
-  Seq.rec (fun x => ctx.vars.get x) (fun x _ ih => ctx.op (ctx.vars.get x) ih) s
+  Seq.rec (fun x => x.denote ctx) (fun x _ ih => ctx.op (x.denote ctx) ih) s
 
-theorem Seq.denote_var {α} (ctx : Context α) (x : Var) : (Seq.var x).denote ctx = ctx.vars.get x := rfl
-theorem Seq.denote_op {α} (ctx : Context α) (x : Var) (s : Seq) : (Seq.cons x s).denote ctx = ctx.op (ctx.vars.get x) (s.denote ctx) := rfl
+theorem Seq.denote_var {α} (ctx : Context α) (x : Var) : (Seq.var x).denote ctx = x.denote ctx := rfl
+theorem Seq.denote_op {α} (ctx : Context α) (x : Var) (s : Seq) : (Seq.cons x s).denote ctx = ctx.op (x.denote ctx) (s.denote ctx) := rfl
 
 attribute [local simp] Seq.denote_var Seq.denote_op
 
@@ -152,7 +155,7 @@ theorem Seq.erase0_k_eq_erase0 (s : Seq) : s.erase0_k = s.erase0 := by
 
 attribute [local simp] Seq.erase0_k_eq_erase0
 
-theorem Seq.denote_erase0 {α} (ctx : Context α) {inst : Std.LawfulIdentity ctx.op (ctx.vars.get 0)} (s : Seq)
+theorem Seq.denote_erase0 {α} (ctx : Context α) {inst : Std.LawfulIdentity ctx.op (Var.denote ctx 0)} (s : Seq)
     : s.erase0.denote ctx = s.denote ctx := by
   fun_induction erase0 s <;> simp_all +zetaDelta
   next => rw [Std.LawfulLeftIdentity.left_id (self := inst.toLawfulLeftIdentity)]
@@ -179,12 +182,12 @@ theorem Seq.insert_k_eq_insert (x : Var) (s : Seq) : insert_k x s = insert x s :
 attribute [local simp] Seq.insert_k_eq_insert
 
 theorem Seq.denote_insert {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} (x : Var) (s : Seq)
-    : (s.insert x).denote ctx = ctx.op (ctx.vars.get x) (s.denote ctx) := by
+    : (s.insert x).denote ctx = ctx.op (x.denote ctx) (s.denote ctx) := by
   fun_induction insert x s <;> simp
   next => rw [Std.Commutative.comm (self := inst₂)]
   next y s h ih =>
     simp [ih, ← Std.Associative.assoc (self := inst₁)]
-    rw [Std.Commutative.comm (self := inst₂) (ctx.vars.get x)]
+    rw [Std.Commutative.comm (self := inst₂) (x.denote ctx)]
 
 attribute [local simp] Seq.denote_insert
 
@@ -208,7 +211,7 @@ theorem Seq.denote_sort' {α} (ctx : Context α) {inst₁ : Std.Associative ctx.
   fun_induction sort' s acc <;> simp
   next x s ih =>
     simp [ih, ← Std.Associative.assoc (self := inst₁)]
-    rw [Std.Commutative.comm (self := inst₂) (ctx.vars.get x) (s.denote ctx)]
+    rw [Std.Commutative.comm (self := inst₂) (x.denote ctx) (s.denote ctx)]
 
 attribute [local simp] Seq.denote_sort'
 
@@ -387,11 +390,11 @@ theorem Seq.denote_combineFuel {α} (ctx : Context α) {inst₁ : Std.Associativ
   next ih => simp [ih, Std.Associative.assoc (self := inst₁)]
   next x₁ s₁ x₂ s₂ h ih =>
     simp [ih]
-    rw [← Std.Associative.assoc (self := inst₁), ← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (ctx.vars.get x₂)]
-    rw [Std.Associative.assoc (self := inst₁), Std.Associative.assoc (self := inst₁), Std.Associative.assoc (self := inst₁) (ctx.vars.get x₁)]
-    apply congrArg (ctx.op (ctx.vars.get x₁))
+    rw [← Std.Associative.assoc (self := inst₁), ← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (x₂.denote ctx)]
+    rw [Std.Associative.assoc (self := inst₁), Std.Associative.assoc (self := inst₁), Std.Associative.assoc (self := inst₁) (x₁.denote ctx)]
+    apply congrArg (ctx.op (x₁.denote ctx))
     rw [← Std.Associative.assoc (self := inst₁), ← Std.Associative.assoc (self := inst₁) (s₁.denote ctx)]
-    rw [Std.Commutative.comm (self := inst₂) (ctx.vars.get x₂)]
+    rw [Std.Commutative.comm (self := inst₂) (x₂.denote ctx)]
 
 attribute [local simp] Seq.denote_combineFuel
 
@@ -446,54 +449,65 @@ theorem superpose_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} 
   apply congrArg (ctx.op (c.denote ctx))
   rw [Std.Commutative.comm (self := inst₂) (b.denote ctx)]
 
-noncomputable def norm_a_cert (lhs rhs : Expr) (lhs' rhs' : Seq) : Bool :=
+noncomputable def eq_norm_a_cert (lhs rhs : Expr) (lhs' rhs' : Seq) : Bool :=
   lhs.toSeq.beq' lhs' |>.and' (rhs.toSeq.beq' rhs')
 
-theorem norm_a {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs rhs : Expr) (lhs' rhs' : Seq)
-    : norm_a_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
-  simp [norm_a_cert]; intro _ _; subst lhs' rhs'; simp
+theorem eq_norm_a {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs rhs : Expr) (lhs' rhs' : Seq)
+    : eq_norm_a_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
+  simp [eq_norm_a_cert]; intro _ _; subst lhs' rhs'; simp
 
-noncomputable def norm_ac_cert (lhs rhs : Expr) (lhs' rhs' : Seq) : Bool :=
+noncomputable def eq_norm_ac_cert (lhs rhs : Expr) (lhs' rhs' : Seq) : Bool :=
   lhs.toSeq.sort.beq' lhs' |>.and' (rhs.toSeq.sort.beq' rhs')
 
-theorem norm_ac {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.Commutative ctx.op} (lhs rhs : Expr) (lhs' rhs' : Seq)
-    : norm_ac_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
-  simp [norm_ac_cert]; intro _ _; subst lhs' rhs'; simp
+theorem eq_norm_ac {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.Commutative ctx.op} (lhs rhs : Expr) (lhs' rhs' : Seq)
+    : eq_norm_ac_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
+  simp [eq_norm_ac_cert]; intro _ _; subst lhs' rhs'; simp
 
-noncomputable def norm_aci_cert (lhs rhs : Expr) (lhs' rhs' : Seq) : Bool :=
-  lhs.toSeq.erase0.sort.beq' lhs' |>.and' (rhs.toSeq.erase0.sort.beq' rhs')
-
-theorem norm_aci {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.Commutative ctx.op} {_ : Std.LawfulIdentity ctx.op (ctx.vars.get 0)}
-      (lhs rhs : Expr) (lhs' rhs' : Seq) : norm_aci_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
-  simp [norm_aci_cert]; intro _ _; subst lhs' rhs'; simp
-
-noncomputable def norm_ai_cert (lhs rhs : Expr) (lhs' rhs' : Seq) : Bool :=
+noncomputable def eq_norm_ai_cert (lhs rhs : Expr) (lhs' rhs' : Seq) : Bool :=
   lhs.toSeq.erase0.beq' lhs' |>.and' (rhs.toSeq.erase0.beq' rhs')
 
-theorem norm_ai {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.LawfulIdentity ctx.op (ctx.vars.get 0)}
-      (lhs rhs : Expr) (lhs' rhs' : Seq) : norm_ai_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
-  simp [norm_ai_cert]; intro _ _; subst lhs' rhs'; simp
+theorem eq_norm_ai {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.LawfulIdentity ctx.op (Var.denote ctx 0)}
+      (lhs rhs : Expr) (lhs' rhs' : Seq) : eq_norm_ai_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
+  simp [eq_norm_ai_cert]; intro _ _; subst lhs' rhs'; simp
 
-noncomputable def norm_acip_cert (lhs rhs : Expr) (lhs' rhs' : Seq) : Bool :=
-  lhs.toSeq.erase0.sort.eraseDup.beq' lhs' |>.and' (rhs.toSeq.erase0.sort.eraseDup.beq' rhs')
+noncomputable def eq_norm_aci_cert (lhs rhs : Expr) (lhs' rhs' : Seq) : Bool :=
+  lhs.toSeq.erase0.sort.beq' lhs' |>.and' (rhs.toSeq.erase0.sort.beq' rhs')
 
-theorem norm_acip {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.Commutative ctx.op}
-      {_ : Std.LawfulIdentity ctx.op (ctx.vars.get 0)} {_ : Std.IdempotentOp ctx.op}
-      (lhs rhs : Expr) (lhs' rhs' : Seq) : norm_acip_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
-  simp [norm_acip_cert]; intro _ _; subst lhs' rhs'; simp
+theorem eq_norm_aci {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.Commutative ctx.op} {_ : Std.LawfulIdentity ctx.op (Var.denote ctx 0)}
+      (lhs rhs : Expr) (lhs' rhs' : Seq) : eq_norm_aci_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
+  simp [eq_norm_aci_cert]; intro _ _; subst lhs' rhs'; simp
 
-noncomputable def norm_acp_cert (lhs rhs : Expr) (lhs' rhs' : Seq) : Bool :=
-  lhs.toSeq.sort.eraseDup.beq' lhs' |>.and' (rhs.toSeq.sort.eraseDup.beq' rhs')
-
-theorem norm_acp {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.Commutative ctx.op} {_ : Std.IdempotentOp ctx.op}
-      (lhs rhs : Expr) (lhs' rhs' : Seq) : norm_acp_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
-  simp [norm_acp_cert]; intro _ _; subst lhs' rhs'; simp
-
-noncomputable def norm_dup_cert (lhs rhs lhs' rhs' : Seq) : Bool :=
+noncomputable def eq_erase_dup_cert (lhs rhs lhs' rhs' : Seq) : Bool :=
   lhs.eraseDup.beq' lhs' |>.and' (rhs.eraseDup.beq' rhs')
 
-theorem norm_dup (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.IdempotentOp ctx.op}
-      (lhs rhs lhs' rhs' : Seq) : norm_dup_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
-  simp [norm_dup_cert]; intro _ _; subst lhs' rhs'; simp
+theorem eq_erase_dup {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.IdempotentOp ctx.op}
+      (lhs rhs lhs' rhs' : Seq) : eq_erase_dup_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
+  simp [eq_erase_dup_cert]; intro _ _; subst lhs' rhs'; simp
+
+theorem diseq_norm_a {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs rhs : Expr) (lhs' rhs' : Seq)
+    : eq_norm_a_cert lhs rhs lhs' rhs' → lhs.denote ctx ≠ rhs.denote ctx → lhs'.denote ctx ≠ rhs'.denote ctx := by
+  simp [eq_norm_a_cert]; intro _ _; subst lhs' rhs'; simp
+
+theorem diseq_norm_ac {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.Commutative ctx.op} (lhs rhs : Expr) (lhs' rhs' : Seq)
+    : eq_norm_ac_cert lhs rhs lhs' rhs' → lhs.denote ctx ≠ rhs.denote ctx → lhs'.denote ctx ≠ rhs'.denote ctx := by
+  simp [eq_norm_ac_cert]; intro _ _; subst lhs' rhs'; simp
+
+theorem diseq_norm_ai {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.LawfulIdentity ctx.op (Var.denote ctx 0)}
+      (lhs rhs : Expr) (lhs' rhs' : Seq) : eq_norm_ai_cert lhs rhs lhs' rhs' → lhs.denote ctx ≠ rhs.denote ctx → lhs'.denote ctx ≠ rhs'.denote ctx := by
+  simp [eq_norm_ai_cert]; intro _ _; subst lhs' rhs'; simp
+
+theorem diseq_norm_aci {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.Commutative ctx.op} {_ : Std.LawfulIdentity ctx.op (Var.denote ctx 0)}
+      (lhs rhs : Expr) (lhs' rhs' : Seq) : eq_norm_aci_cert lhs rhs lhs' rhs' → lhs.denote ctx ≠ rhs.denote ctx → lhs'.denote ctx ≠ rhs'.denote ctx := by
+  simp [eq_norm_aci_cert]; intro _ _; subst lhs' rhs'; simp
+
+theorem diseq_erase_dup {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.IdempotentOp ctx.op}
+      (lhs rhs lhs' rhs' : Seq) : eq_erase_dup_cert lhs rhs lhs' rhs' → lhs.denote ctx ≠ rhs.denote ctx → lhs'.denote ctx ≠ rhs'.denote ctx := by
+  simp [eq_erase_dup_cert]; intro _ _; subst lhs' rhs'; simp
+
+noncomputable def diseq_unsat_cert (lhs rhs : Seq) : Bool :=
+  lhs.beq' rhs
+
+theorem diseq_unsat {α} (ctx : Context α) (lhs rhs : Seq) : diseq_unsat_cert lhs rhs → lhs.denote ctx ≠ rhs.denote ctx → False := by
+  simp [diseq_unsat_cert]; intro; subst lhs; simp
 
 end Lean.Grind.AC

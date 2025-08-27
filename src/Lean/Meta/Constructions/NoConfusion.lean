@@ -28,12 +28,11 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   let .inductInfo indVal ← getConstInfo declName | return
   let recInfo ← getConstInfo (mkRecName declName)
   unless recInfo.levelParams.length > indVal.levelParams.length do return
+  if (← isPropFormerType indVal.type) then return
 
-  let useLinear ← NoConfusionLinear.canUse
+  let useLinear ← NoConfusionLinear.canUse declName
 
   if useLinear then
-    NoConfusionLinear.mkWithCtorType declName
-    NoConfusionLinear.mkWithCtor declName
     NoConfusionLinear.mkNoConfusionTypeLinear declName
   else
     let name := Name.mkStr declName "noConfusionType"

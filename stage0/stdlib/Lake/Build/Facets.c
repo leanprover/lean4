@@ -62,6 +62,7 @@ LEAN_EXPORT lean_object* l_Lake_ModuleExportInfo_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lake_ExternLib_defaultFacet___closed__1;
 static lean_object* l_Lake_LeanLib_defaultFacet___closed__1;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
+lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Lake_LeanExe_exeFacet___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Module_setupFacet;
 static lean_object* l_Lake_Package_optGitHubReleaseFacet___closed__0;
@@ -338,7 +339,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(2u);
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 return x_2;
 }
 }

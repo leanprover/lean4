@@ -30,6 +30,7 @@ static lean_object* l_Lean_withTraceNode___at___Lean_Compiler_compile_spec__1___
 static double l_Lean_withTraceNode___at___Lean_Compiler_compile_spec__1___redArg___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___Lean_withTraceNode___at___Lean_Compiler_compile_spec__1_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofList(lean_object*);
+lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 static lean_object* l_Lean_withTraceNode___at___Lean_Compiler_compile_spec__1___redArg___closed__3;
 static lean_object* l_Lean_addMessageContextPartial___at_____private_Lean_Util_Trace_0__Lean_addTraceNode___at___Lean_withTraceNode___at___Lean_Compiler_compile_spec__1_spec__4_spec__5___closed__6;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -111,7 +112,6 @@ static lean_object* l___private_Lean_Compiler_Main_0__Lean_Compiler_initFn___clo
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at___Lean_withTraceNode___at___Lean_Compiler_compile_spec__1_spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___Lean_withTraceNode___at___Lean_Compiler_compile_spec__1_spec__2___redArg(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
-lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l___private_Lean_Compiler_Main_0__Lean_Compiler_initFn___closed__8____x40_Lean_Compiler_Main_509999922____hygCtx___hyg_2_;
 size_t lean_array_size(lean_object*);
@@ -417,7 +417,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
+x_5 = l_Lean_KVMap_find(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
@@ -1133,7 +1133,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
+x_5 = l_Lean_KVMap_find(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_inc(x_4);

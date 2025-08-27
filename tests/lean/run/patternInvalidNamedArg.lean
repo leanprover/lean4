@@ -32,7 +32,7 @@ example (t : T) :=
   | T.mk2 (y := true) (w := true) (z := false) => ()
   | _ => ()
 
-/-- error: Invalid pattern: Too many arguments to 'T.mk2'; expected 3 explicit arguments -/
+/-- error: Invalid pattern: Too many arguments to `T.mk2`; expected 3 explicit arguments -/
 #guard_msgs in
 example (t : T) :=
   match t with

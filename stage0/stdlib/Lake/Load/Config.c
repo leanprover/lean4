@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_LoadConfig_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object*);
+extern lean_object* l_Lake_defaultLakeDir;
 static lean_object* l_Lake_LoadConfig_lakeDir___closed__0;
 LEAN_EXPORT lean_object* l_Lake_LoadConfig_ctorIdx___boxed(lean_object*);
 lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
@@ -39,7 +40,7 @@ static lean_object* _init_l_Lake_LoadConfig_lakeDir___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(".lake", 5, 5);
+x_1 = l_Lake_defaultLakeDir;
 return x_1;
 }
 }

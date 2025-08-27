@@ -34,7 +34,7 @@ def addBuiltinDocString (declName : Name) (docString : String) : IO Unit := do
 
 def addDocStringCore [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString : String) : m Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
-    throwError "invalid doc string, declaration '{.ofConstName declName}' is in an imported module"
+    throwError "invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
   modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
 
 def addDocStringCore' [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString? : Option String) : m Unit :=

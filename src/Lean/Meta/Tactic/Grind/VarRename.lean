@@ -4,13 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Prelude
 public import Init.Data.Array.QSort
 public import Std.Data.HashSet
 public section
-namespace Lean.Meta.Grind.Arith
+namespace Lean.Meta.Grind
 
 abbrev Var : Type := Nat
 abbrev FoundVars := Std.HashSet Nat
@@ -45,4 +44,4 @@ def mkVarRename (new2old : Array Var) : VarRename := Id.run do
     new := new + 1
   { map := old2new }
 
-end Lean.Meta.Grind.Arith
+end Lean.Meta.Grind

@@ -1,4 +1,4 @@
-holeErrors.lean:3:14-3:20: error: don't know how to synthesize implicit argument 'α'
+holeErrors.lean:3:14-3:20: error: don't know how to synthesize implicit argument `α`
   @id ?m
 context:
 ⊢ Sort u
@@ -6,11 +6,11 @@ holeErrors.lean:3:4-3:10: error(lean.inferDefTypeFailed): Failed to infer type o
 holeErrors.lean:5:9-5:10: error(lean.inferDefTypeFailed): Failed to infer type of definition `f2`
 
 Note: Because this declaration's type has been explicitly provided, all parameter types and holes (e.g., `_`) in its header are resolved before its body is processed; information from the declaration body cannot be used to infer what these values should be
-holeErrors.lean:8:9-8:15: error: don't know how to synthesize implicit argument 'α'
+holeErrors.lean:8:9-8:15: error: don't know how to synthesize implicit argument `α`
   @id ?m
 context:
 ⊢ Sort u
-holeErrors.lean:8:4-8:5: error: failed to infer 'let' declaration type
+holeErrors.lean:8:4-8:5: error: failed to infer `let` declaration type
 holeErrors.lean:7:4-7:10: error(lean.inferDefTypeFailed): Failed to infer type of definition `f3.{u}`
 holeErrors.lean:11:4-11:6: error(lean.inferDefTypeFailed): Failed to infer type of definition `f4`
 holeErrors.lean:11:8-11:9: error(lean.inferBinderTypeFailed): Failed to infer type of binder `x`
@@ -18,7 +18,7 @@ holeErrors.lean:13:4-13:6: error(lean.inferDefTypeFailed): Failed to infer type 
 holeErrors.lean:13:8-13:9: error(lean.inferBinderTypeFailed): Failed to infer type of binder `x`
 holeErrors.lean:16:4-16:5: error(lean.inferBinderTypeFailed): Failed to infer type of binder `x`
 holeErrors.lean:15:4-15:6: error(lean.inferDefTypeFailed): Failed to infer type of definition `f6`
-holeErrors.lean:19:13-19:19: error: don't know how to synthesize implicit argument 'α'
+holeErrors.lean:19:13-19:19: error: don't know how to synthesize implicit argument `α`
   @id ?m
 context:
 ⊢ Sort u

@@ -113,7 +113,7 @@ The provided argument
 is not definitionally equal to the expected parameter
   n
 
-Note: The value of parameter 'n' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
+Note: The value of parameter `n` must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 -/
 #guard_msgs in
 inductive BadIdx (α : Type) (n : Nat) : Type
@@ -127,7 +127,7 @@ The provided argument
 is not definitionally equal to the expected parameter
   n
 
-Note: The value of parameter 'n' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
+Note: The value of parameter `n` must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 -/
 #guard_msgs in
 inductive BadIdx' (α : Type) (n k : Nat) : Type
@@ -144,7 +144,7 @@ The provided argument
 is not definitionally equal to the expected parameter
   α
 
-Note: The value of parameter 'α' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
+Note: The value of parameter `α` must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 -/
 #guard_msgs in
 inductive Bar (α β : Type) : Type

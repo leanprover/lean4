@@ -51,6 +51,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_SMap_insert
 LEAN_EXPORT lean_object* l_Lean_SMap_insert___at___Lean_Meta_Match_Extension_State_addEntry_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find_x3f___at___Lean_Meta_Match_Extension_getMatcherInfo_x3f_spec__0_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Match_defaultDiscrInfo____x40_Lean_Meta_Match_MatcherInfo_2294596093____hygCtx___hyg_18_;
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_addMatcherInfo___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_Extension_initFn___closed__3____x40_Lean_Meta_Match_MatcherInfo_4087579999____hygCtx___hyg_2_;
@@ -224,6 +225,14 @@ lean_object* x_2;
 x_2 = l_Lean_Meta_Match_DiscrInfo_ctorIdx(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_Match_defaultDiscrInfo____x40_Lean_Meta_Match_MatcherInfo_2294596093____hygCtx___hyg_18_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_Match_instInhabitedDiscrInfo() {
@@ -2942,6 +2951,8 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_Meta_Match_defaultDiscrInfo____x40_Lean_Meta_Match_MatcherInfo_2294596093____hygCtx___hyg_18_ = _init_l_Lean_Meta_Match_defaultDiscrInfo____x40_Lean_Meta_Match_MatcherInfo_2294596093____hygCtx___hyg_18_();
+lean_mark_persistent(l_Lean_Meta_Match_defaultDiscrInfo____x40_Lean_Meta_Match_MatcherInfo_2294596093____hygCtx___hyg_18_);
 l_Lean_Meta_Match_instInhabitedDiscrInfo = _init_l_Lean_Meta_Match_instInhabitedDiscrInfo();
 lean_mark_persistent(l_Lean_Meta_Match_instInhabitedDiscrInfo);
 l_Lean_Meta_Match_Extension_instInhabitedState___closed__0 = _init_l_Lean_Meta_Match_Extension_instInhabitedState___closed__0();

@@ -777,8 +777,8 @@ return x_11;
 block_18:
 {
 lean_object* x_17; 
-lean_dec(x_15);
-x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_Tactic_Omega_atoms_spec__1___redArg(x_14, x_13, x_16);
+lean_dec(x_14);
+x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_Tactic_Omega_atoms_spec__1___redArg(x_15, x_13, x_16);
 lean_dec(x_16);
 x_7 = x_17;
 goto block_12;
@@ -792,16 +792,16 @@ if (x_23 == 0)
 lean_dec(x_19);
 lean_inc(x_22);
 x_13 = x_22;
-x_14 = x_21;
-x_15 = x_20;
+x_14 = x_20;
+x_15 = x_21;
 x_16 = x_22;
 goto block_18;
 }
 else
 {
 x_13 = x_22;
-x_14 = x_21;
-x_15 = x_20;
+x_14 = x_20;
+x_15 = x_21;
 x_16 = x_19;
 goto block_18;
 }
@@ -6970,16 +6970,16 @@ lean_object* x_519;
 x_519 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_519, 0, x_517);
 lean_ctor_set(x_519, 1, x_490);
-x_471 = x_513;
-x_472 = x_514;
+x_471 = x_514;
+x_472 = x_513;
 x_473 = x_519;
 goto block_481;
 }
 else
 {
 lean_dec_ref(x_517);
-x_471 = x_513;
-x_472 = x_514;
+x_471 = x_514;
+x_472 = x_513;
 x_473 = x_490;
 goto block_481;
 }
@@ -6999,7 +6999,7 @@ block_481:
 lean_object* x_474; lean_object* x_475; lean_object* x_476; uint8_t x_477; 
 x_474 = l_Lean_Elab_Tactic_Omega_analyzeAtom___redArg___closed__79;
 x_475 = l_Lean_Expr_const___override(x_474, x_468);
-x_476 = l_Lean_Expr_app___override(x_475, x_471);
+x_476 = l_Lean_Expr_app___override(x_475, x_472);
 x_477 = l_List_elem___at___Lean_Elab_Tactic_Omega_analyzeAtom_spec__0(x_476, x_473);
 if (x_477 == 0)
 {
@@ -7014,7 +7014,7 @@ lean_ctor_set(x_478, 0, x_476);
 lean_ctor_set(x_478, 1, x_473);
 x_479 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_479, 0, x_478);
-lean_ctor_set(x_479, 1, x_472);
+lean_ctor_set(x_479, 1, x_471);
 return x_479;
 }
 else
@@ -7027,7 +7027,7 @@ if (lean_is_scalar(x_87)) {
  x_480 = x_87;
 }
 lean_ctor_set(x_480, 0, x_473);
-lean_ctor_set(x_480, 1, x_472);
+lean_ctor_set(x_480, 1, x_471);
 return x_480;
 }
 }

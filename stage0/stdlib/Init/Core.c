@@ -35,6 +35,7 @@ static lean_object* l___aux__Init__Core______macroRules__Lean__Parser__Tactic__t
 static lean_object* l___aux__Init__Core______macroRules__Lean__Parser__Tactic__tacticRfl__1___closed__10;
 LEAN_EXPORT lean_object* l_instInhabitedProp;
 LEAN_EXPORT lean_object* l_Thunk_map___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_defaultTask____x40_Init_Core_811566013____hygCtx___hyg_11_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___u2287____1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_bne(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2229____1___closed__4;
@@ -80,6 +81,7 @@ LEAN_EXPORT lean_object* l_Sum_inhabitedRight___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__PSum__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subtype_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_iteInduction(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_defaultForInStep___redArg____x40_Init_Core_3388938137____hygCtx___hyg_20_(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_reduceBool(uint8_t);
 static lean_object* l___aux__Init__Core______macroRules__term___u2295____1___closed__0;
 static lean_object* l_term___u2287_____closed__3;
@@ -112,6 +114,7 @@ static lean_object* l_term___u2248_____closed__5;
 LEAN_EXPORT lean_object* l_UInt32_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___u2295_x27____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2295_x27____1___closed__5;
+LEAN_EXPORT lean_object* l_defaultTask___redArg____x40_Init_Core_811566013____hygCtx___hyg_11_(lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2260____1___closed__0;
 LEAN_EXPORT lean_object* l_Quotient_recOn___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableEqSum(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -174,6 +177,7 @@ LEAN_EXPORT lean_object* l_term_x7b_x7d;
 LEAN_EXPORT lean_object* l_term___u2286__;
 LEAN_EXPORT lean_object* l_Prod_map___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2283____1___closed__0;
+LEAN_EXPORT lean_object* l_defaultForInStep____x40_Init_Core_3388938137____hygCtx___hyg_20_(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableEqProd___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term_x7b_x7d__1___closed__2;
 LEAN_EXPORT uint8_t l_instDecidableDite___redArg(uint8_t, lean_object*, lean_object*);
@@ -221,6 +225,7 @@ LEAN_EXPORT lean_object* l_term___u2282__;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Quotient_mk_x27___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_thunkCoe___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_defaultPNonScalar____x40_Init_Core_1893859328____hygCtx___hyg_11_;
 LEAN_EXPORT lean_object* l_Thunk_bind___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Task_spawn___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_decEqSum___redArg____x40_Init_Core_2394421412____hygCtx___hyg_3_(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -291,6 +296,7 @@ LEAN_EXPORT uint8_t l_decidable__of__decidable__of__eq(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_iteInduction___redArg(uint8_t, lean_object*, lean_object*);
 static lean_object* l_term___x5c_____closed__4;
 LEAN_EXPORT lean_object* l_PSum_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_defaultNonScalar____x40_Init_Core_1893859328____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_term___u2287__;
 LEAN_EXPORT lean_object* l_Quotient_mk(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___u2260____2(lean_object*, lean_object*, lean_object*);
@@ -2392,6 +2398,24 @@ _start:
 lean_object* x_3; 
 x_3 = l_ForInStep_ctorIdx(x_1, x_2);
 lean_dec_ref(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_defaultForInStep___redArg____x40_Init_Core_3388938137____hygCtx___hyg_20_(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_defaultForInStep____x40_Init_Core_3388938137____hygCtx___hyg_20_(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
 return x_3;
 }
 }
@@ -5510,6 +5534,24 @@ lean_dec(x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_defaultTask___redArg____x40_Init_Core_811566013____hygCtx___hyg_11_(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_defaultTask____x40_Init_Core_811566013____hygCtx___hyg_11_(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_instInhabitedTask___redArg(lean_object* x_1) {
 _start:
 {
@@ -6988,7 +7030,23 @@ _start:
 return lean_box(0);
 }
 }
+static lean_object* _init_l_defaultNonScalar____x40_Init_Core_1893859328____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_unsigned_to_nat(0u);
+return x_1;
+}
+}
 static lean_object* _init_l_instInhabitedNonScalar() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_unsigned_to_nat(0u);
+return x_1;
+}
+}
+static lean_object* _init_l_defaultPNonScalar____x40_Init_Core_1893859328____hygCtx___hyg_11_() {
 _start:
 {
 lean_object* x_1; 
@@ -8889,8 +8947,12 @@ l_instTransIff = _init_l_instTransIff();
 l_instDecidableTrue = _init_l_instDecidableTrue();
 l_instDecidableFalse = _init_l_instDecidableFalse();
 l_instInhabitedProp = _init_l_instInhabitedProp();
+l_defaultNonScalar____x40_Init_Core_1893859328____hygCtx___hyg_4_ = _init_l_defaultNonScalar____x40_Init_Core_1893859328____hygCtx___hyg_4_();
+lean_mark_persistent(l_defaultNonScalar____x40_Init_Core_1893859328____hygCtx___hyg_4_);
 l_instInhabitedNonScalar = _init_l_instInhabitedNonScalar();
 lean_mark_persistent(l_instInhabitedNonScalar);
+l_defaultPNonScalar____x40_Init_Core_1893859328____hygCtx___hyg_11_ = _init_l_defaultPNonScalar____x40_Init_Core_1893859328____hygCtx___hyg_11_();
+lean_mark_persistent(l_defaultPNonScalar____x40_Init_Core_1893859328____hygCtx___hyg_11_);
 l_instInhabitedPNonScalar = _init_l_instInhabitedPNonScalar();
 lean_mark_persistent(l_instInhabitedPNonScalar);
 l_instInhabitedTrue = _init_l_instInhabitedTrue();

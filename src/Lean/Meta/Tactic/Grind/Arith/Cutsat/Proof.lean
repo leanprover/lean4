@@ -8,8 +8,8 @@ prelude
 public import Init.Grind.Ring.Poly
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Diseq
-import Lean.Meta.Tactic.Grind.Arith.ProofUtil
-import Lean.Meta.Tactic.Grind.Arith.VarRename
+import Lean.Meta.Tactic.Grind.ProofUtil
+import Lean.Meta.Tactic.Grind.VarRename
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat

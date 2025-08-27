@@ -101,8 +101,7 @@ def mkAuxFunction (ctx : Context) (auxFunName : Name) (indVal : InductiveVal): T
     then `(Parser.Termination.suffix|termination_by structural $target₁)
     else `(Parser.Termination.suffix|)
   let type    ← `(Decidable ($target₁ = $target₂))
-  let vis := ctx.mkVisibilityFromTypes
-  `($vis:visibility def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
+  `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
     $termSuffix:suffix)
 
 def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do
@@ -178,13 +177,11 @@ def mkEnumOfNatThm (declName : Name) : MetaM Unit := do
 
 def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
   let cmd ← liftTermElabM do
-    let ctx ← mkContext "decEq" declName
     mkEnumOfNat declName
     mkEnumOfNatThm declName
     let ofNatIdent  := mkIdent (Name.mkStr declName "ofNat")
     let auxThmIdent := mkIdent (Name.mkStr declName "ofNat_ctorIdx")
-    let vis := ctx.mkVisibilityFromTypes
-    `($vis:visibility instance : DecidableEq $(mkCIdent declName) :=
+    `(instance : DecidableEq $(mkCIdent declName) :=
         fun x y =>
           if h : x.ctorIdx = y.ctorIdx then
             -- We use `rfl` in the following proof because the first script fails for unit-like datatypes due to etaStruct.
@@ -195,6 +192,7 @@ def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
   elabCommand cmd
 
 def mkDecEqInstance (declName : Name) : CommandElabM Bool := do
+  withoutExposeFromCtors declName do
   if (← isEnumType declName) then
     mkDecEqEnum declName
     return true

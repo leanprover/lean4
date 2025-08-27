@@ -28,12 +28,12 @@ static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___cl
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_FnBody_pushProj_spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_pushProjs_spec__3_spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*);
+static lean_object* l_Lean_IR_pushProjs___closed__0;
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__9____x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__4____x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_IR_pushProjs_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__14____x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_IR_pushProjs_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_IR_instInhabitedFnBody;
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__2____x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__16____x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
 lean_object* l_Array_back_x21___redArg(lean_object*, lean_object*);
@@ -52,6 +52,7 @@ lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__28____x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__13____x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__10____x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
+extern lean_object* l_Lean_IR_defaultAlt____x40_Lean_Compiler_IR_Basic_2916942170____hygCtx___hyg_469_;
 LEAN_EXPORT lean_object* l_Lean_IR_Decl_pushProj(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_pushProjs_spec__0___redArg___boxed(lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
@@ -81,6 +82,7 @@ static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___cl
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__18____x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
+lean_object* l_Lean_IR_Alt_body(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__3____x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
@@ -465,6 +467,14 @@ x_10 = l_Lean_IR_pushProjs(x_4, x_5, x_6, x_8, x_9);
 return x_10;
 }
 }
+static lean_object* _init_l_Lean_IR_pushProjs___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_IR_defaultAlt____x40_Lean_Compiler_IR_Basic_2916942170____hygCtx___hyg_469_;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_IR_pushProjs(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -473,7 +483,7 @@ x_6 = l_Array_isEmpty___redArg(x_1);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_15; 
-x_7 = l_Lean_IR_instInhabitedFnBody;
+x_7 = l_Lean_IR_pushProjs___closed__0;
 x_8 = l_Array_back_x21___redArg(x_7, x_1);
 x_9 = lean_array_pop(x_1);
 if (lean_obj_tag(x_8) == 0)
@@ -782,40 +792,19 @@ return x_3;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
 x_5 = lean_array_uget(x_3, x_2);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
-if (lean_obj_tag(x_5) == 0)
-{
-lean_object* x_14; lean_object* x_15; 
-x_14 = lean_ctor_get(x_5, 1);
-lean_inc(x_14);
-lean_dec_ref(x_5);
-x_15 = l_Lean_IR_FnBody_freeIndices(x_14);
-x_8 = x_15;
-goto block_13;
-}
-else
-{
-lean_object* x_16; lean_object* x_17; 
-x_16 = lean_ctor_get(x_5, 0);
-lean_inc(x_16);
-lean_dec_ref(x_5);
-x_17 = l_Lean_IR_FnBody_freeIndices(x_16);
-x_8 = x_17;
-goto block_13;
-}
-block_13:
-{
-size_t x_9; size_t x_10; lean_object* x_11; 
-x_9 = 1;
-x_10 = lean_usize_add(x_2, x_9);
-x_11 = lean_array_uset(x_7, x_2, x_8);
-x_2 = x_10;
-x_3 = x_11;
+x_8 = l_Lean_IR_Alt_body(x_5);
+lean_dec(x_5);
+x_9 = l_Lean_IR_FnBody_freeIndices(x_8);
+x_10 = 1;
+x_11 = lean_usize_add(x_2, x_10);
+x_12 = lean_array_uset(x_7, x_2, x_9);
+x_2 = x_11;
+x_3 = x_12;
 goto _start;
-}
 }
 }
 }
@@ -1364,6 +1353,8 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_NormIds(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_IR_pushProjs___closed__0 = _init_l_Lean_IR_pushProjs___closed__0();
+lean_mark_persistent(l_Lean_IR_pushProjs___closed__0);
 l_Lean_IR_FnBody_pushProj___closed__0 = _init_l_Lean_IR_FnBody_pushProj___closed__0();
 lean_mark_persistent(l_Lean_IR_FnBody_pushProj___closed__0);
 l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__0____x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_ = _init_l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__0____x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_();

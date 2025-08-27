@@ -93,6 +93,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DH
 lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_List_toString___at_____private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_rw_spec__0___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_lookingAt___boxed(lean_object*, lean_object*);
+lean_object* lean_mk_io_user_error(lean_object*);
 static lean_object* l_List_mapTR_loop___at_____private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_rw_spec__4___closed__0;
 static lean_object* l_Lean_rewriteManualLinksCore___closed__1;
 static lean_object* l_List_mapTR_loop___at___Lean_rewriteManualLinks_spec__0___closed__2;
@@ -108,12 +109,14 @@ LEAN_EXPORT lean_object* l_List_foldl___at___List_toString___at_____private_Lean
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_rw___closed__1;
 static lean_object* l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_rw___closed__2;
+extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at_____private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_rw_spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Std_DHashMap_Internal_Raw_u2080_Const_insertMany___at_____private_Lean_DocString_Links_0__Lean_domainMap_spec__0_spec__0_spec__1___redArg(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_urlChar(uint32_t);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_urlChar___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___Std_DHashMap_Internal_Raw_u2080_Const_insertMany___at_____private_Lean_DocString_Links_0__Lean_domainMap_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at_____private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_rw_spec__2_spec__2(lean_object*, lean_object*, lean_object*);
+static lean_object* l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__3;
 static lean_object* l___private_Lean_DocString_Links_0__Lean_domainMap___closed__0;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Std_DHashMap_Internal_Raw_u2080_Const_insertMany___at_____private_Lean_DocString_Links_0__Lean_domainMap_spec__0_spec__0_spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Iterator_forward(lean_object*, lean_object*);
@@ -3646,11 +3649,19 @@ static lean_object* _init_l_List_mapTR_loop___at___Lean_validateBuiltinDocString
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(":\n    ", 6, 6);
+x_1 = l_Std_Format_defWidth;
 return x_1;
 }
 }
 static lean_object* _init_l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked(":\n    ", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -3697,16 +3708,16 @@ x_15 = l_String_quote(x_14);
 lean_dec_ref(x_14);
 x_16 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
-x_17 = lean_unsigned_to_nat(120u);
+x_17 = l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__1;
 x_18 = lean_unsigned_to_nat(0u);
 x_19 = lean_format_pretty(x_16, x_17, x_18, x_18);
 x_20 = lean_string_append(x_13, x_19);
 lean_dec_ref(x_19);
-x_21 = l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__1;
+x_21 = l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__2;
 x_22 = lean_string_append(x_20, x_21);
 x_23 = lean_string_append(x_22, x_10);
 lean_dec(x_10);
-x_24 = l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__2;
+x_24 = l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__3;
 x_25 = lean_string_append(x_23, x_24);
 lean_ctor_set(x_2, 1, x_3);
 lean_ctor_set(x_2, 0, x_25);
@@ -3740,16 +3751,16 @@ x_33 = l_String_quote(x_32);
 lean_dec_ref(x_32);
 x_34 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_34, 0, x_33);
-x_35 = lean_unsigned_to_nat(120u);
+x_35 = l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__1;
 x_36 = lean_unsigned_to_nat(0u);
 x_37 = lean_format_pretty(x_34, x_35, x_36, x_36);
 x_38 = lean_string_append(x_31, x_37);
 lean_dec_ref(x_37);
-x_39 = l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__1;
+x_39 = l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__2;
 x_40 = lean_string_append(x_38, x_39);
 x_41 = lean_string_append(x_40, x_28);
 lean_dec(x_28);
-x_42 = l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__2;
+x_42 = l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__3;
 x_43 = lean_string_append(x_41, x_42);
 x_44 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_44, 0, x_43);
@@ -3797,8 +3808,7 @@ x_13 = l_List_foldl___at___Lean_rewriteManualLinks_spec__1(x_12, x_11);
 lean_dec(x_11);
 x_14 = lean_string_append(x_8, x_13);
 lean_dec_ref(x_13);
-x_15 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_15, 0, x_14);
+x_15 = lean_mk_io_user_error(x_14);
 lean_ctor_set_tag(x_3, 1);
 lean_ctor_set(x_3, 0, x_15);
 return x_3;
@@ -3838,8 +3848,7 @@ x_26 = l_List_foldl___at___Lean_rewriteManualLinks_spec__1(x_25, x_24);
 lean_dec(x_24);
 x_27 = lean_string_append(x_21, x_26);
 lean_dec_ref(x_26);
-x_28 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_28, 0, x_27);
+x_28 = lean_mk_io_user_error(x_27);
 x_29 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_29, 0, x_28);
 lean_ctor_set(x_29, 1, x_18);
@@ -3982,6 +3991,8 @@ l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__1 = _in
 lean_mark_persistent(l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__1);
 l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__2 = _init_l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__2();
 lean_mark_persistent(l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__2);
+l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__3 = _init_l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__3();
+lean_mark_persistent(l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__3);
 l_Lean_validateBuiltinDocString___closed__0 = _init_l_Lean_validateBuiltinDocString___closed__0();
 lean_mark_persistent(l_Lean_validateBuiltinDocString___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

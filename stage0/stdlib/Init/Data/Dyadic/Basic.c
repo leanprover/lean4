@@ -49,6 +49,7 @@ LEAN_EXPORT lean_object* l_Dyadic_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_sub(lean_object*, lean_object*);
 static lean_object* l_Dyadic_instHShiftRightInt___closed__0;
 LEAN_EXPORT lean_object* l_Dyadic_instPowNat;
+lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_precision(lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_instNatCast___lam__0(lean_object*);
 static lean_object* l_Dyadic_instAdd___closed__0;
@@ -411,7 +412,7 @@ LEAN_EXPORT lean_object* l_Dyadic_instOfNat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 x_3 = l_Dyadic_ofInt(x_2);
 return x_3;
 }
@@ -436,7 +437,7 @@ LEAN_EXPORT lean_object* l_Dyadic_instNatCast___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 x_3 = l_Dyadic_ofInt(x_2);
 return x_3;
 }
@@ -1068,7 +1069,7 @@ LEAN_EXPORT lean_object* l_Dyadic_instHShiftLeftNat___lam__0(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_nat_to_int(x_2);
+x_3 = l_instNatCastInt___lam__0(x_2);
 x_4 = l_Dyadic_shiftLeft(x_1, x_3);
 lean_dec(x_3);
 return x_4;
@@ -1086,7 +1087,7 @@ LEAN_EXPORT lean_object* l_Dyadic_instHShiftRightNat___lam__0(lean_object* x_1, 
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_nat_to_int(x_2);
+x_3 = l_instNatCastInt___lam__0(x_2);
 x_4 = l_Dyadic_shiftRight(x_1, x_3);
 lean_dec(x_3);
 return x_4;

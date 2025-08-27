@@ -26,7 +26,7 @@ def getStructureName (struct : Expr) : MetaM Name :=
   match struct.getAppFn with
   | Expr.const declName .. => do
     unless isStructure (← getEnv) declName do
-      throwError "'{.ofConstName declName}' is not a structure"
+      throwError "`{.ofConstName declName}` is not a structure"
     return declName
   | _ => throwError "expected structure"
 
@@ -54,13 +54,13 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
   withLCtx {} {} do
     let indVal ← getConstInfoInduct n
     if indVal.numCtors != 1 then
-      throwError "cannot generate projections for '{.ofConstName n}', does not have exactly one constructor"
+      throwError "cannot generate projections for `{.ofConstName n}`, does not have exactly one constructor"
     let ctorVal ← getConstInfoCtor indVal.ctors.head!
     let isPredicate ← isPropFormerType indVal.type
     let lvls := indVal.levelParams.map mkLevelParam
     forallBoundedTelescope ctorVal.type indVal.numParams fun params ctorType => do
       if params.size != indVal.numParams then
-        throwError "projection generation failed, '{.ofConstName n}' is an ill-formed inductive datatype"
+        throwError "projection generation failed, `{.ofConstName n}` is an ill-formed inductive datatype"
       let selfType := mkAppN (.const n lvls) params
       let selfBI : BinderInfo := if instImplicit then .instImplicit else .default
       withLocalDecl `self selfBI selfType fun self => do
@@ -83,17 +83,17 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
           ctorType ← withoutExporting (when := isPrivateName projName) do
             unless ctorType.isForall do
               throwErrorAt ref "\
-                failed to generate projection '{projName}' for '{.ofConstName n}', \
+                failed to generate projection `{projName}` for `{.ofConstName n}`, \
                 not enough constructor fields"
             unless paramInfoOverrides.length ≤ params.size do
               throwErrorAt ref "\
-                failed to generate projection '{projName}' for '{.ofConstName n}', \
+                failed to generate projection `{projName}` for `{.ofConstName n}`, \
                 too many structure parameter overrides"
             let resultType := ctorType.bindingDomain!.consumeTypeAnnotations
             let isProp ← isProp resultType
             if isPredicate && !isProp then
               throwErrorAt ref "\
-                failed to generate projection '{projName}' for the 'Prop'-valued type '{.ofConstName n}', \
+                failed to generate projection `{projName}` for the 'Prop'-valued type `{.ofConstName n}`, \
                 field must be a proof, but it has type\
                 {indentExpr resultType}"
             let projType := lctx.mkForall projArgs resultType

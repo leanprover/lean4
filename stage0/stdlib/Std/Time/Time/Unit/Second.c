@@ -36,6 +36,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_instReprOrdinal___lam__0___boxed(lean
 lean_object* l_compareOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Std_Time_Second_instReprOrdinal___lam__0___closed__0;
+lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat___redArg(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Second_instDecidableLtOrdinal___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Second_instToStringOffset___closed__0;
@@ -53,7 +54,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_instReprOrdinal___boxed(lean_object*)
 LEAN_EXPORT lean_object* l_Std_Time_Second_instLEOrdinal(uint8_t);
 lean_object* l_Std_Time_Internal_Bounded_LE_instOfNatHAddIntCast(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Time_Internal_instInhabitedUnitVal(lean_object*);
 lean_object* l_Int_repr(lean_object*);
 static lean_object* l_Std_Time_Second_instOfNatOrdinal___closed__3;
 LEAN_EXPORT uint8_t l_Std_Time_Second_instDecidableLtOffset(lean_object*, lean_object*);
@@ -119,6 +119,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt(uint8_t, lean_object*, lean_object*);
+lean_object* l_Std_Time_Internal_defaultUnitVal____x40_Std_Time_Internal_UnitVal_2277112071____hygCtx___hyg_187_(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instLTOrdinal(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instLEOrdinal(uint8_t x_1) {
 _start:
@@ -284,7 +285,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(59u);
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 return x_2;
 }
 }
@@ -342,7 +343,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_6 = lean_nat_to_int(x_2);
+x_6 = l_instNatCastInt___lam__0(x_2);
 x_7 = l_Std_Time_Second_instOfNatOrdinal___closed__4;
 x_8 = lean_int_sub(x_6, x_3);
 lean_dec(x_6);
@@ -597,7 +598,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Time_Second_instInhabitedOffset___closed__0;
-x_2 = l_Std_Time_Internal_instInhabitedUnitVal(x_1);
+x_2 = l_Std_Time_Internal_defaultUnitVal____x40_Std_Time_Internal_UnitVal_2277112071____hygCtx___hyg_187_(x_1);
 return x_2;
 }
 }
@@ -735,7 +736,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_instOfNatOffset(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 return x_2;
 }
 }
@@ -759,7 +760,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_Offset_ofNat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 return x_2;
 }
 }
@@ -816,7 +817,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat___redArg(lean_object* x
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 return x_2;
 }
 }
@@ -824,7 +825,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat(uint8_t x_1, lean_objec
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_nat_to_int(x_2);
+x_4 = l_instNatCastInt___lam__0(x_2);
 return x_4;
 }
 }
@@ -841,7 +842,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofFin___redArg(lean_object* x
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 return x_2;
 }
 }
@@ -849,7 +850,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofFin(uint8_t x_1, lean_objec
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_nat_to_int(x_2);
+x_3 = l_instNatCastInt___lam__0(x_2);
 return x_3;
 }
 }

@@ -34,6 +34,7 @@ def internalizeImpl (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     let e' ← reify e
     modifyStruct fun s => { s with denote := s.denote.insert { expr := e } e' }
     trace[grind.ac.internalize] "[{id}] {← e'.denoteExpr}"
+    addTermOpId e
     markAsACTerm e
 
 end Lean.Meta.Grind.AC

@@ -25,7 +25,6 @@ namespace Lake
 
 /-! ## JobAction -/
 
-public section -- for `Ord`
 /-- Information on what this job did. -/
 public inductive JobAction
 /-- No information about this job's action is available. -/
@@ -37,7 +36,6 @@ public inductive JobAction
 /-- Tried to perform a build action (set by `buildUnlessUpToDate?`) -/
 | build
 deriving Inhabited, Repr, DecidableEq, Ord
-end
 
 namespace JobAction
 

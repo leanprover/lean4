@@ -815,6 +815,10 @@ theorem distinct_keys [TransCmp cmp] (h : t.WF) :
     t.keys.Pairwise (fun a b => ¬ cmp a b = .eq) :=
   DTreeMap.Raw.distinct_keys h
 
+theorem nodup_keys [LawfulEqCmp cmp] [TransCmp cmp] (h : t.WF) :
+    t.keys.Nodup := by
+  simpa [List.Nodup] using t.distinct_keys h
+
 theorem ordered_keys [TransCmp cmp] (h : t.WF) :
     t.keys.Pairwise (fun a b => cmp a b = .lt) :=
   DTreeMap.Raw.ordered_keys h

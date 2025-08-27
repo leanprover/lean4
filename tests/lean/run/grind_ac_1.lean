@@ -65,16 +65,14 @@ trace: [grind.debug.proof] Classical.byContradiction
             let e_2 := (Expr.var 1).op ((Expr.var 2).op (Expr.var 3));
             let p_1 := Seq.cons 1 (Seq.cons 2 (Seq.var 3));
             diseq_unsat ctx p_1 p_1 (eagerReduce (Eq.refl true))
-              (diseq_erase_dup ctx p_1 p_1 p_1 p_1 (eagerReduce (Eq.refl true))
-                (diseq_norm_aci ctx e_2 e_1 p_1 p_1 (eagerReduce (Eq.refl true)) h_1)))
+              (diseq_norm_aci ctx e_2 e_1 p_1 p_1 (eagerReduce (Eq.refl true)) h_1))
           fun h_1 =>
           let ctx := Context.mk (RArray.branch 1 (RArray.leaf (PLift.up a)) (RArray.leaf (PLift.up b))) min;
           let e_1 := (Expr.var 1).op (Expr.var 0);
           let e_2 := (Expr.var 0).op (Expr.var 1);
           let p_1 := Seq.cons 0 (Seq.var 1);
           diseq_unsat ctx p_1 p_1 (eagerReduce (Eq.refl true))
-            (diseq_erase_dup ctx p_1 p_1 p_1 p_1 (eagerReduce (Eq.refl true))
-              (diseq_norm_ac ctx e_2 e_1 p_1 p_1 (eagerReduce (Eq.refl true)) h_1)))
+            (diseq_norm_ac ctx e_2 e_1 p_1 p_1 (eagerReduce (Eq.refl true)) h_1))
 -/
 #guard_msgs in
 set_option pp.structureInstances false in

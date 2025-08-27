@@ -47,7 +47,12 @@ def saveDiseq (c : DiseqCnstr) : ACM Unit := do
 
 def DiseqCnstr.eraseDup (c : DiseqCnstr) : ACM DiseqCnstr := do
   unless (← isIdempotent) do return c
-  return { lhs := c.lhs.eraseDup, rhs := c.rhs.eraseDup, h := .erase_dup c }
+  let lhs := c.lhs.eraseDup
+  let rhs := c.rhs.eraseDup
+  if c.lhs == lhs && c.rhs == rhs then
+    return c
+  else
+    return { lhs, rhs, h := .erase_dup c }
 
 def DiseqCnstr.assert (c : DiseqCnstr) : ACM Unit := do
   let c ← c.eraseDup

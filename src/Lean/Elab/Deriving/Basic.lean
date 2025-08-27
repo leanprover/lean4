@@ -229,8 +229,9 @@ def registerDerivingHandler (className : Name) (handler : DerivingHandler) : IO 
     | some handlers => m.insert className (handler :: handlers)
     | none => m.insert className [handler]
 
-def applyDerivingHandlers (className : Name) (typeNames : Array Name) : CommandElabM Unit := do
+def applyDerivingHandlers (className : Name) (typeNames : Array Name) (setExpose := false) : CommandElabM Unit := do
   withScope (fun sc => { sc with
+    attrs := if setExpose then Unhygienic.run `(Parser.Term.attrInstance| expose) :: sc.attrs else sc.attrs
     -- Deactivate some linting options that only make writing deriving handlers more painful.
     opts := sc.opts.setBool `warn.exposeOnPrivate false
     -- When any of the types are private, the deriving handler will need access to the private scope
@@ -263,10 +264,7 @@ def getOptDerivingClasses (optDeriving : Syntax) : CoreM (Array DerivingClassVie
 
 def DerivingClassView.applyHandlers (view : DerivingClassView) (declNames : Array Name) : CommandElabM Unit :=
   withRef view.ref do
-    (if view.hasExpose then withScope fun sc =>
-      { sc with attrs := Unhygienic.run `(Parser.Term.attrInstance| expose) :: sc.attrs }
-     else id) do
-      applyDerivingHandlers (← liftCoreM <| view.getClassName) declNames
+    applyDerivingHandlers (setExpose := view.hasExpose) (← liftCoreM <| view.getClassName) declNames
 
 private def elabDefDeriving (classes : Array DerivingClassView) (decls : Array Syntax) :
     CommandElabM Unit := runTermElabM fun _ => do

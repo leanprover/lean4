@@ -70,3 +70,13 @@ deriving Inhabited
 #guard_msgs in
 #with_exporting
 #reduce (default : PrivField)
+
+/-! ...which should not be compatible with explicit `@[expose]`. -/
+
+/--
+error: cannot use `deriving ... @[expose]` with `PrivFieldExp` as it has one or more private constructors
+-/
+#guard_msgs in
+public structure PrivFieldExp where
+  private a : Nat
+deriving @[expose] Inhabited

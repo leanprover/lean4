@@ -4977,7 +4977,7 @@ static lean_object* _init_l_Lean_resolveNamespaceCore___redArg___lam__2___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown namespace '", 19, 19);
+x_1 = lean_mk_string_unchecked("unknown namespace `", 19, 19);
 return x_1;
 }
 }
@@ -4985,7 +4985,7 @@ static lean_object* _init_l_Lean_resolveNamespaceCore___redArg___lam__2___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -5331,7 +5331,7 @@ static lean_object* _init_l_Lean_resolveUniqueNamespace___redArg___lam__0___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ambiguous namespace '", 21, 21);
+x_1 = lean_mk_string_unchecked("ambiguous namespace `", 21, 21);
 return x_1;
 }
 }
@@ -5339,7 +5339,7 @@ static lean_object* _init_l_Lean_resolveUniqueNamespace___redArg___lam__0___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', possible interpretations: '", 30, 30);
+x_1 = lean_mk_string_unchecked("`, possible interpretations: `", 30, 30);
 return x_1;
 }
 }
@@ -5977,7 +5977,7 @@ static lean_object* _init_l_Lean_ensureNonAmbiguous___redArg___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ambiguous identifier '", 22, 22);
+x_1 = lean_mk_string_unchecked("ambiguous identifier `", 22, 22);
 return x_1;
 }
 }
@@ -5993,7 +5993,7 @@ static lean_object* _init_l_Lean_ensureNonAmbiguous___redArg___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', possible interpretations: ", 29, 29);
+x_1 = lean_mk_string_unchecked("`, possible interpretations: ", 29, 29);
 return x_1;
 }
 }

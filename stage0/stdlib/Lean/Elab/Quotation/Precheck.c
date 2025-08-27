@@ -2653,7 +2653,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_precheck___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("no macro or `[quot_precheck]` instance for syntax kind '", 56, 56);
+x_1 = lean_mk_string_unchecked("no macro or `[quot_precheck]` instance for syntax kind `", 56, 56);
 return x_1;
 }
 }
@@ -2670,7 +2670,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_precheck___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' found", 7, 7);
+x_1 = lean_mk_string_unchecked("` found", 7, 7);
 return x_1;
 }
 }

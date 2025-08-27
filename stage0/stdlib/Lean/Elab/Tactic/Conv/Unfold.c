@@ -484,7 +484,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("conv tactic 'unfold' failed, local variable '", 45, 45);
+x_1 = lean_mk_string_unchecked("conv tactic `unfold` failed, local variable `", 45, 45);
 return x_1;
 }
 }
@@ -501,7 +501,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' has no definition", 19, 19);
+x_1 = lean_mk_string_unchecked("` has no definition", 19, 19);
 return x_1;
 }
 }
@@ -518,7 +518,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("conv tactic 'unfold' failed, expression ", 40, 40);
+x_1 = lean_mk_string_unchecked("conv tactic `unfold` failed, expression ", 40, 40);
 return x_1;
 }
 }

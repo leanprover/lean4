@@ -836,9 +836,10 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_Grind_instInhabitedChoice___closed__5;
 x_2 = l_Lean_Meta_Grind_instInhabitedChoice___closed__8;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 2, x_1);
 return x_3;
 }
 }

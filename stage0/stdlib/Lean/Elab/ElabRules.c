@@ -1416,7 +1416,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid elab_rules alternative, expected syntax node kind '", 59, 59);
+x_1 = lean_mk_string_unchecked("invalid elab_rules alternative, expected syntax node kind `", 59, 59);
 return x_1;
 }
 }
@@ -1433,7 +1433,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -1552,7 +1552,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid elab_rules alternative, unexpected syntax node kind '", 61, 61);
+x_1 = lean_mk_string_unchecked("invalid elab_rules alternative, unexpected syntax node kind `", 61, 61);
 return x_1;
 }
 }
@@ -3100,7 +3100,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabElabRulesAux___closed__55() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unsupported syntax category '", 29, 29);
+x_1 = lean_mk_string_unchecked("unsupported syntax category `", 29, 29);
 return x_1;
 }
 }
@@ -3151,7 +3151,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabElabRulesAux___closed__61() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("syntax category '", 17, 17);
+x_1 = lean_mk_string_unchecked("syntax category `", 17, 17);
 return x_1;
 }
 }
@@ -3168,7 +3168,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabElabRulesAux___closed__63() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' does not support expected type specification", 46, 46);
+x_1 = lean_mk_string_unchecked("` does not support expected type specification", 46, 46);
 return x_1;
 }
 }

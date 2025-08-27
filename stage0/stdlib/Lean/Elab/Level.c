@@ -96,7 +96,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Level_instAddMessageContextLevelElabM___lam
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__0;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at_____private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at___Lean_Elab_Level_elabLevel_spec__2_spec__2___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Level_elabLevel___closed__20;
 lean_object* lean_mk_syntax_ident(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM;
 lean_object* l_EStateM_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -104,7 +103,6 @@ lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lam__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_maxUniverseOffset;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwIllFormedSyntax___at___Lean_Elab_Level_elabLevel_spec__1___redArg___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Level_elabLevel___closed__21;
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__2;
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__16;
 static lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__8;
@@ -1634,7 +1632,7 @@ static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown universe level '", 24, 24);
+x_1 = lean_mk_string_unchecked("unknown universe level `", 24, 24);
 return x_1;
 }
 }
@@ -1648,23 +1646,6 @@ return x_2;
 }
 }
 static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__19() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__20() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Level_elabLevel___closed__19;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__21() {
 _start:
 {
 lean_object* x_1; 
@@ -1849,7 +1830,7 @@ goto block_66;
 else
 {
 lean_object* x_68; uint8_t x_69; uint8_t x_70; 
-x_68 = l_Lean_Elab_Level_elabLevel___closed__21;
+x_68 = l_Lean_Elab_Level_elabLevel___closed__19;
 x_69 = l_Lean_Option_get___at___Lean_Elab_Level_elabLevel_spec__5(x_5, x_68);
 lean_dec(x_5);
 lean_inc(x_50);
@@ -1926,7 +1907,7 @@ x_57 = l_Lean_MessageData_ofSyntax(x_56);
 x_58 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_58, 0, x_55);
 lean_ctor_set(x_58, 1, x_57);
-x_59 = l_Lean_Elab_Level_elabLevel___closed__20;
+x_59 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___redArg___lam__0___closed__6;
 x_60 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_60, 0, x_58);
 lean_ctor_set(x_60, 1, x_59);
@@ -2466,7 +2447,7 @@ goto block_214;
 else
 {
 lean_object* x_216; uint8_t x_217; uint8_t x_218; 
-x_216 = l_Lean_Elab_Level_elabLevel___closed__21;
+x_216 = l_Lean_Elab_Level_elabLevel___closed__19;
 x_217 = l_Lean_Option_get___at___Lean_Elab_Level_elabLevel_spec__5(x_154, x_216);
 lean_dec(x_154);
 lean_inc(x_198);
@@ -2533,7 +2514,7 @@ x_205 = l_Lean_MessageData_ofSyntax(x_204);
 x_206 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_206, 0, x_203);
 lean_ctor_set(x_206, 1, x_205);
-x_207 = l_Lean_Elab_Level_elabLevel___closed__20;
+x_207 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___redArg___lam__0___closed__6;
 x_208 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_208, 0, x_206);
 lean_ctor_set(x_208, 1, x_207);
@@ -3140,10 +3121,6 @@ l_Lean_Elab_Level_elabLevel___closed__18 = _init_l_Lean_Elab_Level_elabLevel___c
 lean_mark_persistent(l_Lean_Elab_Level_elabLevel___closed__18);
 l_Lean_Elab_Level_elabLevel___closed__19 = _init_l_Lean_Elab_Level_elabLevel___closed__19();
 lean_mark_persistent(l_Lean_Elab_Level_elabLevel___closed__19);
-l_Lean_Elab_Level_elabLevel___closed__20 = _init_l_Lean_Elab_Level_elabLevel___closed__20();
-lean_mark_persistent(l_Lean_Elab_Level_elabLevel___closed__20);
-l_Lean_Elab_Level_elabLevel___closed__21 = _init_l_Lean_Elab_Level_elabLevel___closed__21();
-lean_mark_persistent(l_Lean_Elab_Level_elabLevel___closed__21);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

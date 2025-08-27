@@ -3081,7 +3081,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_Eqns_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to generate equational theorem for '", 43, 43);
+x_1 = lean_mk_string_unchecked("failed to generate equational theorem for `", 43, 43);
 return x_1;
 }
 }
@@ -3098,7 +3098,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_Eqns_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'\n", 2, 2);
+x_1 = lean_mk_string_unchecked("`\n", 2, 2);
 return x_1;
 }
 }

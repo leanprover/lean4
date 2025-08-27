@@ -864,7 +864,7 @@ static lean_object* _init_l___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_resol
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ambiguous identifier '", 22, 22);
+x_1 = lean_mk_string_unchecked("ambiguous identifier `", 22, 22);
 return x_1;
 }
 }
@@ -881,7 +881,7 @@ static lean_object* _init_l___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_resol
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', possible interpretations: ", 29, 29);
+x_1 = lean_mk_string_unchecked("`, possible interpretations: ", 29, 29);
 return x_1;
 }
 }

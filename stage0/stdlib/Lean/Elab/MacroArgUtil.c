@@ -3129,7 +3129,7 @@ static lean_object* _init_l___private_Lean_Elab_MacroArgUtil_0__Lean_Elab_Comman
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown parser declaration/category/alias '", 43, 43);
+x_1 = lean_mk_string_unchecked("unknown parser declaration/category/alias `", 43, 43);
 return x_1;
 }
 }
@@ -3146,7 +3146,7 @@ static lean_object* _init_l___private_Lean_Elab_MacroArgUtil_0__Lean_Elab_Comman
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }

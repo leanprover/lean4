@@ -115,7 +115,7 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_searchModuleNameOfFil
 static lean_object* l_Lean_getSrcSearchPath___closed__1;
 LEAN_EXPORT lean_object* l_Lean_forEachModuleInDir___redArg___lam__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_SearchPath_findAllWithExt_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lean_get_prefix(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_getBuildDir(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SearchPath_findWithExt(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Lean_findSysroot_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_searchModuleNameOfFileName(lean_object*, lean_object*, lean_object*);
@@ -172,7 +172,7 @@ static lean_object* l_Lean_forEachModuleInDir___redArg___lam__2___closed__1;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_SearchPath_findAllWithExt_spec__3_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_SearchPath_findAllWithExt_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_searchModuleNameOfFileName_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lean_get_libdir(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_getLibDir(lean_object*, lean_object*);
 static lean_object* l_Lean_findOLean___closed__0;
 lean_object* l_IO_Process_run(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getSrcSearchPath___closed__0;
@@ -1396,7 +1396,7 @@ x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* lean_get_prefix(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_getBuildDir(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -1501,7 +1501,7 @@ x_1 = lean_mk_string_unchecked("stage1", 6, 6);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* lean_get_libdir(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_getLibDir(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_11; 
@@ -1541,7 +1541,7 @@ LEAN_EXPORT lean_object* l_Lean_getBuiltinSearchPath(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = lean_get_libdir(x_1, x_2);
+x_3 = l_Lean_getLibDir(x_1, x_2);
 x_4 = !lean_is_exclusive(x_3);
 if (x_4 == 0)
 {
@@ -1702,7 +1702,7 @@ LEAN_EXPORT lean_object* lean_init_search_path(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_get_prefix(x_1);
+x_2 = l_Lean_getBuildDir(x_1);
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 

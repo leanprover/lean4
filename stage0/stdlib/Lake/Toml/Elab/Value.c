@@ -3058,7 +3058,7 @@ static lean_object* _init_l___private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBasi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid unicode escape '", 24, 24);
+x_1 = lean_mk_string_unchecked("invalid unicode escape `", 24, 24);
 return x_1;
 }
 }
@@ -3075,7 +3075,7 @@ static lean_object* _init_l___private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBasi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -4952,7 +4952,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_foldlMUnsaf
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("cannot redefine key '", 21, 21);
+x_1 = lean_mk_string_unchecked("cannot redefine key `", 21, 21);
 return x_1;
 }
 }

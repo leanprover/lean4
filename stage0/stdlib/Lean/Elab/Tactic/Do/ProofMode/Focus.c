@@ -1270,7 +1270,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown hypothesis '", 20, 20);
+x_1 = lean_mk_string_unchecked("unknown hypothesis `", 20, 20);
 return x_1;
 }
 }
@@ -1287,7 +1287,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }

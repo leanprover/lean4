@@ -3830,7 +3830,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid '", 9, 9);
+x_1 = lean_mk_string_unchecked("invalid `", 9, 9);
 return x_1;
 }
 }
@@ -3847,7 +3847,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' conv tactic, failed to resolve", 32, 32);
+x_1 = lean_mk_string_unchecked("` conv tactic, failed to resolve", 32, 32);
 return x_1;
 }
 }
@@ -4043,7 +4043,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -4060,7 +4060,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' conv tactic failed, equality expected", 39, 39);
+x_1 = lean_mk_string_unchecked("` conv tactic failed, equality expected", 39, 39);
 return x_1;
 }
 }
@@ -7492,7 +7492,7 @@ static lean_object* _init_l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' conv tactic failed, cannot select argument", 44, 44);
+x_1 = lean_mk_string_unchecked("` conv tactic failed, cannot select argument", 44, 44);
 return x_1;
 }
 }
@@ -9695,7 +9695,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' conv tactic failed to create congruence theorem", 49, 49);
+x_1 = lean_mk_string_unchecked("` conv tactic failed to create congruence theorem", 49, 49);
 return x_1;
 }
 }
@@ -11003,7 +11003,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_congrArgForall___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' conv tactic failed, cannot select domain", 42, 42);
+x_1 = lean_mk_string_unchecked("` conv tactic failed, cannot select domain", 42, 42);
 return x_1;
 }
 }
@@ -12853,7 +12853,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' tactic, application has ", 26, 26);
+x_1 = lean_mk_string_unchecked("` tactic, application has ", 26, 26);
 return x_1;
 }
 }
@@ -13833,7 +13833,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_congrArgN___lam__0___closed__0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' conv tactic, index is out of bounds for pi type", 49, 49);
+x_1 = lean_mk_string_unchecked("` conv tactic, index is out of bounds for pi type", 49, 49);
 return x_1;
 }
 }
@@ -13868,7 +13868,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_congrArgN___lam__0___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' conv tactic, application or implication expected", 50, 50);
+x_1 = lean_mk_string_unchecked("` conv tactic, application or implication expected", 50, 50);
 return x_1;
 }
 }

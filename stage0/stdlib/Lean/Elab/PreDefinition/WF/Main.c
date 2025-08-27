@@ -1208,7 +1208,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("well-founded recursion cannot be used, '", 40, 40);
+x_1 = lean_mk_string_unchecked("well-founded recursion cannot be used, `", 40, 40);
 return x_1;
 }
 }
@@ -1225,7 +1225,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' does not take any (non-fixed) arguments", 41, 41);
+x_1 = lean_mk_string_unchecked("` does not take any (non-fixed) arguments", 41, 41);
 return x_1;
 }
 }

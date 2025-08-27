@@ -1230,7 +1230,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid macro_rules alternative, expected syntax node kind '", 60, 60);
+x_1 = lean_mk_string_unchecked("invalid macro_rules alternative, expected syntax node kind `", 60, 60);
 return x_1;
 }
 }
@@ -1247,7 +1247,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -1366,7 +1366,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid macro_rules alternative, unexpected syntax node kind '", 62, 62);
+x_1 = lean_mk_string_unchecked("invalid macro_rules alternative, unexpected syntax node kind `", 62, 62);
 return x_1;
 }
 }

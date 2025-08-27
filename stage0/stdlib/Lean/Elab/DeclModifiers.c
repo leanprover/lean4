@@ -475,7 +475,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___redArg___lam__3_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("a non-private declaration '", 27, 27);
+x_1 = lean_mk_string_unchecked("a non-private declaration `", 27, 27);
 return x_1;
 }
 }
@@ -492,7 +492,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___redArg___lam__3_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' has already been declared", 27, 27);
+x_1 = lean_mk_string_unchecked("` has already been declared", 27, 27);
 return x_1;
 }
 }
@@ -590,7 +590,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___redArg___lam__7_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("a private declaration '", 23, 23);
+x_1 = lean_mk_string_unchecked("a private declaration `", 23, 23);
 return x_1;
 }
 }
@@ -668,7 +668,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___redArg___lam__10
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -685,7 +685,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___redArg___lam__10
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is a reserved name", 20, 20);
+x_1 = lean_mk_string_unchecked("` is a reserved name", 20, 20);
 return x_1;
 }
 }
@@ -768,7 +768,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___redArg___lam__12
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("private declaration '", 21, 21);
+x_1 = lean_mk_string_unchecked("private declaration `", 21, 21);
 return x_1;
 }
 }
@@ -3753,7 +3753,7 @@ static lean_object* _init_l_Lean_Elab_checkIfShadowingStructureField___redArg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid declaration name '", 26, 26);
+x_1 = lean_mk_string_unchecked("invalid declaration name `", 26, 26);
 return x_1;
 }
 }
@@ -3770,7 +3770,7 @@ static lean_object* _init_l_Lean_Elab_checkIfShadowingStructureField___redArg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', structure '", 14, 14);
+x_1 = lean_mk_string_unchecked("`, structure `", 14, 14);
 return x_1;
 }
 }
@@ -3787,7 +3787,7 @@ static lean_object* _init_l_Lean_Elab_checkIfShadowingStructureField___redArg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' has field '", 13, 13);
+x_1 = lean_mk_string_unchecked("` has field `", 13, 13);
 return x_1;
 }
 }

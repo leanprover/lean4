@@ -6362,7 +6362,7 @@ static lean_object* _init_l___private_Lean_Elab_Binders_0__Lean_Elab_Term_ensure
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid binder name '", 21, 21);
+x_1 = lean_mk_string_unchecked("invalid binder name `", 21, 21);
 return x_1;
 }
 }
@@ -6379,7 +6379,7 @@ static lean_object* _init_l___private_Lean_Elab_Binders_0__Lean_Elab_Term_ensure
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', it must be atomic", 20, 20);
+x_1 = lean_mk_string_unchecked("`, it must be atomic", 20, 20);
 return x_1;
 }
 }
@@ -23766,7 +23766,7 @@ static lean_object* _init_l_Lean_Elab_Term_elabLetDeclAux___lam__1___closed__0()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to infer '", 17, 17);
+x_1 = lean_mk_string_unchecked("failed to infer `", 17, 17);
 return x_1;
 }
 }
@@ -23783,7 +23783,7 @@ static lean_object* _init_l_Lean_Elab_Term_elabLetDeclAux___lam__1___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' declaration type", 18, 18);
+x_1 = lean_mk_string_unchecked("` declaration type", 18, 18);
 return x_1;
 }
 }
@@ -23800,7 +23800,7 @@ static lean_object* _init_l_Lean_Elab_Term_elabLetDeclAux___lam__1___closed__4()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to infer universe levels in '", 36, 36);
+x_1 = lean_mk_string_unchecked("failed to infer universe levels in `", 36, 36);
 return x_1;
 }
 }

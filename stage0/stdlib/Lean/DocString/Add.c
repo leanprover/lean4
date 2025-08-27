@@ -428,7 +428,7 @@ static lean_object* _init_l_Lean_addDocString___redArg___lam__6___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid doc string, declaration '", 33, 33);
+x_1 = lean_mk_string_unchecked("invalid doc string, declaration `", 33, 33);
 return x_1;
 }
 }
@@ -445,7 +445,7 @@ static lean_object* _init_l_Lean_addDocString___redArg___lam__6___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is in an imported module", 26, 26);
+x_1 = lean_mk_string_unchecked("` is in an imported module", 26, 26);
 return x_1;
 }
 }

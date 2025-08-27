@@ -5319,7 +5319,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eq
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to generate unfold theorem for '", 39, 39);
+x_1 = lean_mk_string_unchecked("failed to generate unfold theorem for `", 39, 39);
 return x_1;
 }
 }
@@ -5336,7 +5336,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eq
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("':\n", 3, 3);
+x_1 = lean_mk_string_unchecked("`:\n", 3, 3);
 return x_1;
 }
 }

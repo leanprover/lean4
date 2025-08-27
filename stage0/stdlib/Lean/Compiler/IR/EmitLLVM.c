@@ -665,7 +665,7 @@ static lean_object* l_Lean_IR_EmitLLVM_emitLhsSlot_____redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_RefcountKind_noConfusion___redArg(uint8_t, uint8_t);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_String_foldlAux___at___Lean_IR_EmitLLVM_quoteString_spec__0___closed__4;
-lean_object* lean_get_prefix(lean_object*);
+lean_object* l_Lean_getBuildDir(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitDec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitIsShared(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitJDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -959,7 +959,7 @@ lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr(lean_obje
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_IR_emitLLVM_spec__4(size_t, size_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_constIntSizeT(size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_llvm_link_modules(size_t, size_t, size_t, lean_object*);
-lean_object* lean_get_libdir(lean_object*, lean_object*);
+lean_object* l_Lean_getLibDir(lean_object*, lean_object*);
 lean_object* lean_llvm_set_visibility(size_t, size_t, uint64_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___Lean_IR_EmitLLVM_emitPartialApp_spec__0___redArg(lean_object*, size_t, size_t, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_emitFnDeclAux___closed__0;
@@ -39206,7 +39206,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_getLeanHBcPath(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_get_prefix(x_1);
+x_2 = l_Lean_getBuildDir(x_1);
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -39215,7 +39215,7 @@ lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
 lean_dec_ref(x_2);
-x_5 = lean_get_libdir(x_3, x_4);
+x_5 = l_Lean_getLibDir(x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 

@@ -129,7 +129,6 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 static lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getParamsPos___closed__0;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getParamsPos_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
-static lean_object* l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__3;
 static lean_object* l_Lean_Meta_RecursorInfo_instToString___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_RecursorInfo_numIndices___boxed(lean_object*);
 static lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___closed__8;
@@ -258,7 +257,6 @@ static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConsta
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__3;
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0_spec__0_spec__0_spec__0___redArg___closed__1;
-static lean_object* l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getParamsPos_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_Meta_Attribute_Recursor_getMajorPos_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
@@ -1816,7 +1814,7 @@ static lean_object* _init_l_Lean_getConstInfoRec___at_____private_Lean_Meta_Recu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("` is not a recursor", 19, 19);
 return x_1;
 }
 }
@@ -1825,23 +1823,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__0;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is not a recursor", 19, 19);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__2;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -1897,13 +1878,13 @@ lean_dec(x_8);
 x_15 = lean_ctor_get(x_7, 1);
 lean_inc(x_15);
 lean_dec_ref(x_7);
-x_16 = l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__1;
+x_16 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_17 = 0;
 x_18 = l_Lean_MessageData_ofConstName(x_1, x_17);
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_16);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__3;
+x_20 = l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__1;
 x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
@@ -2544,7 +2525,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid user defined recursor '", 31, 31);
+x_1 = lean_mk_string_unchecked("invalid user defined recursor `", 31, 31);
 return x_1;
 }
 }
@@ -2561,7 +2542,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', result type must be of the form (C t), where C is a bound variable, and t is a (possibly empty) sequence of bound variables", 126, 126);
+x_1 = lean_mk_string_unchecked("`, result type must be of the form `C t`, where `C` is a bound variable, and t is a (possibly empty) sequence of bound variables", 128, 128);
 return x_1;
 }
 }
@@ -2878,7 +2859,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMaj
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ill-formed recursor '", 21, 21);
+x_1 = lean_mk_string_unchecked("ill-formed recursor `", 21, 21);
 return x_1;
 }
 }
@@ -2895,7 +2876,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMaj
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid user defined recursor, '", 32, 32);
+x_1 = lean_mk_string_unchecked("invalid user defined recursor, `", 32, 32);
 return x_1;
 }
 }
@@ -2912,7 +2893,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMaj
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' does not support dependent elimination, and position of the major premise was not specified (solution: set attribute '[recursor <pos>]', where <pos> is the position of the major premise)", 188, 188);
+x_1 = lean_mk_string_unchecked("` does not support dependent elimination, and position of the major premise was not specified (solution: set attribute `[recursor <pos>]`, where `<pos>` is the position of the major premise)", 190, 190);
 return x_1;
 }
 }
@@ -2981,7 +2962,7 @@ x_15 = l_Lean_MessageData_ofConstName(x_1, x_11);
 x_16 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
-x_17 = l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__1;
+x_17 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_18 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
@@ -3436,7 +3417,7 @@ static lean_object* _init_l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', type of the major premise does not contain the recursor parameter", 68, 68);
+x_1 = lean_mk_string_unchecked("`, type of the major premise does not contain the recursor parameter", 68, 68);
 return x_1;
 }
 }
@@ -4163,7 +4144,7 @@ static lean_object* _init_l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', type of the major premise does not contain the recursor index", 64, 64);
+x_1 = lean_mk_string_unchecked("`, type of the major premise does not contain the recursor index", 64, 64);
 return x_1;
 }
 }
@@ -4788,7 +4769,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMot
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', motive result sort must be Prop or (Sort u) where u is a universe level parameter", 84, 84);
+x_1 = lean_mk_string_unchecked("`, motive result sort must be Prop or `Sort u` where u is a universe level parameter", 84, 84);
 return x_1;
 }
 }
@@ -4892,7 +4873,7 @@ static lean_object* _init_l_List_forIn_x27_loop___at___List_forIn_x27_loop___at_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', major premise type does not contain universe level parameter '", 65, 65);
+x_1 = lean_mk_string_unchecked("`, major premise type does not contain universe level parameter `", 65, 65);
 return x_1;
 }
 }
@@ -4954,7 +4935,7 @@ x_24 = l_Lean_MessageData_ofName(x_13);
 x_25 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
-x_26 = l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__1;
+x_26 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_27 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_26);
@@ -5056,7 +5037,7 @@ x_55 = l_Lean_MessageData_ofName(x_43);
 x_56 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_56, 0, x_54);
 lean_ctor_set(x_56, 1, x_55);
-x_57 = l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__1;
+x_57 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_58 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_58, 0, x_56);
 lean_ctor_set(x_58, 1, x_57);
@@ -5179,7 +5160,7 @@ x_25 = l_Lean_MessageData_ofName(x_14);
 x_26 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_26, 0, x_24);
 lean_ctor_set(x_26, 1, x_25);
-x_27 = l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__1;
+x_27 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_28 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
@@ -5278,7 +5259,7 @@ x_56 = l_Lean_MessageData_ofName(x_44);
 x_57 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_57, 0, x_55);
 lean_ctor_set(x_57, 1, x_56);
-x_58 = l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__1;
+x_58 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_59 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_59, 0, x_57);
 lean_ctor_set(x_59, 1, x_58);
@@ -6666,7 +6647,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', motive must have a type of the form (C : Pi (i : B A), I A i -> Type), where A is (possibly empty) sequence of variables (aka parameters), (i : B A) is a (possibly empty) telescope (aka indices), and I is a constant", 218, 218);
+x_1 = lean_mk_string_unchecked("`, motive must have a type of the form (C : Pi (i : B A), I A i -> Type), where A is (possibly empty) sequence of variables (aka parameters), (i : B A) is a (possibly empty) telescope (aka indices), and I is a constant", 218, 218);
 return x_1;
 }
 }
@@ -6977,7 +6958,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_____private_Lean_Meta_Recu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', type of the major premise must be of the form (I ...), where I is a constant", 79, 79);
+x_1 = lean_mk_string_unchecked("`, type of the major premise must be of the form (I ...), where I is a constant", 79, 79);
 return x_1;
 }
 }
@@ -7236,7 +7217,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___Lean_Expr_withAppAux___a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', indices must occur before major premise", 42, 42);
+x_1 = lean_mk_string_unchecked("`, indices must occur before major premise", 42, 42);
 return x_1;
 }
 }
@@ -8922,10 +8903,6 @@ l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getM
 lean_mark_persistent(l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__0);
 l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__1 = _init_l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__1();
 lean_mark_persistent(l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__1);
-l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__2 = _init_l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__2();
-lean_mark_persistent(l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__2);
-l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__3 = _init_l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__3();
-lean_mark_persistent(l_Lean_getConstInfoRec___at_____private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__3);
 l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f___closed__0 = _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f___closed__0();
 lean_mark_persistent(l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f___closed__0);
 l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f___closed__1 = _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f___closed__1();

@@ -388,7 +388,6 @@ LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_____private_Lean_Meta_IndPr
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_IndPredBelow_backwardsChaining_spec__4_spec__4_spec__4_spec__4___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit___at___Lean_Meta_transform___at_____private_Lean_Meta_IndPredBelow_0__Lean_Meta_IndPredBelow_mkCtorType_checkCount_spec__1_spec__1_spec__14_spec__15___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_IndPredBelow_backwardsChaining_spec__4_spec__4___redArg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_IndPredBelow_mkContext_spec__13___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_PersistentArray_anyMAux___at___Lean_PersistentArray_anyM___at___Lean_Meta_IndPredBelow_backwardsChaining_spec__14_spec__14_spec__15___lam__0___closed__6;
@@ -880,7 +879,6 @@ static lean_object* l_Lean_Meta_IndPredBelow_backwardsChaining___lam__0___closed
 size_t lean_usize_land(size_t, size_t);
 static lean_object* l_Lean_Meta_transform___at_____private_Lean_Meta_IndPredBelow_0__Lean_Meta_IndPredBelow_mkCtorType_checkCount_spec__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Meta_IndPredBelow_0__Lean_Meta_IndPredBelow_proveBrecOn_applyCtors_spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__2;
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__10;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Meta_IndPredBelow_mkBelow_spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_18_(lean_object*, lean_object*);
@@ -2844,7 +2842,7 @@ static lean_object* _init_l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("` is not a inductive type", 25, 25);
 return x_1;
 }
 }
@@ -2853,23 +2851,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__0;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is not a inductive type", 25, 25);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__2;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -2925,13 +2906,13 @@ lean_dec(x_8);
 x_15 = lean_ctor_get(x_7, 1);
 lean_inc(x_15);
 lean_dec_ref(x_7);
-x_16 = l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__1;
+x_16 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_17 = 0;
 x_18 = l_Lean_MessageData_ofConstName(x_1, x_17);
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_16);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__3;
+x_20 = l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__1;
 x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
@@ -10583,7 +10564,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___at___Lean_Meta_IndPredBelow_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is not a constructor", 22, 22);
+x_1 = lean_mk_string_unchecked("` is not a constructor", 22, 22);
 return x_1;
 }
 }
@@ -10647,7 +10628,7 @@ lean_dec(x_8);
 x_15 = lean_ctor_get(x_7, 1);
 lean_inc(x_15);
 lean_dec_ref(x_7);
-x_16 = l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__1;
+x_16 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_17 = 0;
 x_18 = l_Lean_MessageData_ofConstName(x_1, x_17);
 x_19 = lean_alloc_ctor(7, 2, 0);
@@ -32024,10 +32005,6 @@ l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___clos
 lean_mark_persistent(l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__0);
 l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__1 = _init_l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__1();
 lean_mark_persistent(l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__1);
-l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__2 = _init_l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__2();
-lean_mark_persistent(l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__2);
-l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__3 = _init_l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__3();
-lean_mark_persistent(l_Lean_getConstInfoInduct___at___Lean_Meta_IndPredBelow_mkContext_spec__0___closed__3);
 l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_IndPredBelow_mkContext_spec__13___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_IndPredBelow_mkContext_spec__13___closed__0();
 lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_IndPredBelow_mkContext_spec__13___closed__0);
 l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_IndPredBelow_mkContext_spec__13___closed__1 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_IndPredBelow_mkContext_spec__13___closed__1();

@@ -1162,7 +1162,6 @@ static lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_elabMutual
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__7_spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_logGoalsAccomplishedSnapshotTask_spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_getFunName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__2;
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkClosureForAux_spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Language_DynamicSnapshot_ofTyped___at___Lean_Elab_Command_elabMutualDef_spec__3_spec__3___boxed(lean_object*, lean_object*, lean_object*);
@@ -1434,7 +1433,6 @@ LEAN_EXPORT uint8_t l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_typeHasRec
 LEAN_EXPORT lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_instantiateMVarsAtLetRecToLift___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_withRestoreOrSaveFull___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_elabFunValues_spec__9___redArg___lam__7___closed__0;
 static lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_declValToTerm___closed__2;
-static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Array_getMax_x3f___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_pickMaxFVar_x3f_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Term_MutualClosure_main_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
@@ -32112,7 +32110,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("cannot omit referenced section variable '", 41, 41);
+x_1 = lean_mk_string_unchecked("cannot omit referenced section variable `", 41, 41);
 return x_1;
 }
 }
@@ -32121,23 +32119,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__0;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__2;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -32192,7 +32173,7 @@ x_29 = l_Lean_MessageData_ofExpr(x_28);
 x_30 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_30, 0, x_27);
 lean_ctor_set(x_30, 1, x_29);
-x_31 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__3;
+x_31 = l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_registerFailedToInferDefTypeInfo___redArg___closed__5;
 x_32 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_32, 0, x_30);
 lean_ctor_set(x_32, 1, x_31);
@@ -32263,7 +32244,7 @@ x_29 = l_Lean_MessageData_ofExpr(x_28);
 x_30 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_30, 0, x_27);
 lean_ctor_set(x_30, 1, x_29);
-x_31 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__3;
+x_31 = l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_registerFailedToInferDefTypeInfo___redArg___closed__5;
 x_32 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_32, 0, x_30);
 lean_ctor_set(x_32, 1, x_31);
@@ -36260,7 +36241,7 @@ static lean_object* _init_l_Lean_Elab_Term_withRestoreOrSaveFull___at_____privat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("automatically included section variable(s) unused in theorem '", 62, 62);
+x_1 = lean_mk_string_unchecked("automatically included section variable(s) unused in theorem `", 62, 62);
 return x_1;
 }
 }
@@ -36277,7 +36258,7 @@ static lean_object* _init_l_Lean_Elab_Term_withRestoreOrSaveFull___at_____privat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("':\n  ", 5, 5);
+x_1 = lean_mk_string_unchecked("`:\n  ", 5, 5);
 return x_1;
 }
 }
@@ -41294,7 +41275,7 @@ static lean_object* _init_l_List_forM___at_____private_Lean_Elab_MutualDef_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid type in 'let rec', it uses '", 36, 36);
+x_1 = lean_mk_string_unchecked("invalid type in `let rec`, it uses `", 36, 36);
 return x_1;
 }
 }
@@ -41311,7 +41292,7 @@ static lean_object* _init_l_List_forM___at_____private_Lean_Elab_MutualDef_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' which is being defined simultaneously", 39, 39);
+x_1 = lean_mk_string_unchecked("` which is being defined simultaneously", 39, 39);
 return x_1;
 }
 }
@@ -53049,7 +53030,7 @@ static lean_object* _init_l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("type of theorem '", 17, 17);
+x_1 = lean_mk_string_unchecked("type of theorem `", 17, 17);
 return x_1;
 }
 }
@@ -53066,7 +53047,7 @@ static lean_object* _init_l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is not a proposition", 22, 22);
+x_1 = lean_mk_string_unchecked("` is not a proposition", 22, 22);
 return x_1;
 }
 }
@@ -60082,7 +60063,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'mutual' block contains two declarations of the same name '", 59, 59);
+x_1 = lean_mk_string_unchecked("`mutual` block contains two declarations of the same name `", 59, 59);
 return x_1;
 }
 }
@@ -60139,7 +60120,7 @@ x_28 = l_Lean_MessageData_ofName(x_17);
 x_29 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
 lean_ctor_set(x_29, 1, x_28);
-x_30 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__3;
+x_30 = l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_registerFailedToInferDefTypeInfo___redArg___closed__5;
 x_31 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
@@ -88100,10 +88081,6 @@ l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private
 lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__0);
 l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__1 = _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__1();
 lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__1);
-l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__2 = _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__2();
-lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__2);
-l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__3 = _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__3();
-lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars_collectUsed_spec__10_spec__10___closed__3);
 l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars___redArg___closed__0 = _init_l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars___redArg___closed__0();
 lean_mark_persistent(l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars___redArg___closed__0);
 l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars___redArg___closed__1 = _init_l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars___redArg___closed__1();

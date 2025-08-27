@@ -23232,7 +23232,7 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_checkUnsupported___redA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("code generator does not support recursor '", 42, 42);
+x_1 = lean_mk_string_unchecked("code generator does not support recursor `", 42, 42);
 return x_1;
 }
 }
@@ -23249,7 +23249,7 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_checkUnsupported___redA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' yet, consider using 'match ... with' and/or structural recursion", 66, 66);
+x_1 = lean_mk_string_unchecked("` yet, consider using `match ... with` and/or structural recursion", 66, 66);
 return x_1;
 }
 }

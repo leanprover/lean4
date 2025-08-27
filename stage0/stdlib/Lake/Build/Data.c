@@ -3067,7 +3067,7 @@ static lean_object* _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown or ambiguous target namespace '", 39, 39);
+x_1 = lean_mk_string_unchecked("unknown or ambiguous target namespace `", 39, 39);
 return x_1;
 }
 }
@@ -3075,7 +3075,7 @@ static lean_object* _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -3101,7 +3101,7 @@ static lean_object* _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown target namespace '", 26, 26);
+x_1 = lean_mk_string_unchecked("unknown target namespace `", 26, 26);
 return x_1;
 }
 }

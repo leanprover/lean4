@@ -4306,7 +4306,7 @@ static lean_object* _init_l_Lean_IR_ToIR_lowerLet___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -4324,7 +4324,7 @@ static lean_object* _init_l_Lean_IR_ToIR_lowerLet___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' not supported by code generator; consider marking definition as 'noncomputable'", 81, 81);
+x_1 = lean_mk_string_unchecked("` not supported by code generator; consider marking definition as `noncomputable`", 81, 81);
 return x_1;
 }
 }
@@ -4351,7 +4351,7 @@ static lean_object* _init_l_Lean_IR_ToIR_lowerLet___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("code generator does not support recursor '", 42, 42);
+x_1 = lean_mk_string_unchecked("code generator does not support recursor `", 42, 42);
 return x_1;
 }
 }
@@ -4369,7 +4369,7 @@ static lean_object* _init_l_Lean_IR_ToIR_lowerLet___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' yet, consider using 'match ... with' and/or structural recursion", 66, 66);
+x_1 = lean_mk_string_unchecked("` yet, consider using 'match ... with' and/or structural recursion", 66, 66);
 return x_1;
 }
 }

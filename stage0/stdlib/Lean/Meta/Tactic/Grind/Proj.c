@@ -1093,7 +1093,7 @@ x_46 = lean_ctor_get(x_44, 0);
 x_47 = lean_ctor_get(x_44, 1);
 x_48 = lean_ctor_get(x_46, 0);
 lean_inc_ref(x_48);
-x_49 = lean_ctor_get_uint8(x_46, sizeof(void*)*14 + 4);
+x_49 = lean_ctor_get_uint8(x_46, sizeof(void*)*15 + 4);
 lean_dec(x_46);
 x_50 = l_Lean_Expr_isAppOf(x_48, x_25);
 lean_dec(x_25);
@@ -1384,7 +1384,7 @@ lean_inc(x_102);
 lean_dec(x_44);
 x_104 = lean_ctor_get(x_102, 0);
 lean_inc_ref(x_104);
-x_105 = lean_ctor_get_uint8(x_102, sizeof(void*)*14 + 4);
+x_105 = lean_ctor_get_uint8(x_102, sizeof(void*)*15 + 4);
 lean_dec(x_102);
 x_106 = l_Lean_Expr_isAppOf(x_104, x_25);
 lean_dec(x_25);
@@ -1863,7 +1863,7 @@ if (lean_is_exclusive(x_186)) {
 }
 x_190 = lean_ctor_get(x_187, 0);
 lean_inc_ref(x_190);
-x_191 = lean_ctor_get_uint8(x_187, sizeof(void*)*14 + 4);
+x_191 = lean_ctor_get_uint8(x_187, sizeof(void*)*15 + 4);
 lean_dec(x_187);
 x_192 = l_Lean_Expr_isAppOf(x_190, x_168);
 lean_dec(x_168);

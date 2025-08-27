@@ -770,7 +770,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Family______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown family '", 16, 16);
+x_1 = lean_mk_string_unchecked("unknown family `", 16, 16);
 return x_1;
 }
 }
@@ -778,7 +778,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Family______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }

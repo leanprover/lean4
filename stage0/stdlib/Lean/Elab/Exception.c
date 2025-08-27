@@ -513,7 +513,7 @@ static lean_object* _init_l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___redArg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("a universe level named '", 24, 24);
+x_1 = lean_mk_string_unchecked("a universe level named `", 24, 24);
 return x_1;
 }
 }
@@ -530,7 +530,7 @@ static lean_object* _init_l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___redArg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' has already been declared", 27, 27);
+x_1 = lean_mk_string_unchecked("` has already been declared", 27, 27);
 return x_1;
 }
 }

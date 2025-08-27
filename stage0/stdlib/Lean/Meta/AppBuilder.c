@@ -3140,7 +3140,7 @@ static lean_object* _init_l___private_Lean_Meta_AppBuilder_0__Lean_Meta_throwApp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("AppBuilder for '", 16, 16);
+x_1 = lean_mk_string_unchecked("AppBuilder for `", 16, 16);
 return x_1;
 }
 }
@@ -3157,7 +3157,7 @@ static lean_object* _init_l___private_Lean_Meta_AppBuilder_0__Lean_Meta_throwApp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', ", 3, 3);
+x_1 = lean_mk_string_unchecked("`, ", 3, 3);
 return x_1;
 }
 }

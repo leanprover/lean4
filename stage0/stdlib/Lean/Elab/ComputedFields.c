@@ -41,7 +41,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_ComputedFields_isScalarField(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoDefn___at___Lean_Elab_ComputedFields_overrideCasesOn_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_validateComputedFields_spec__2_spec__2___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDecls_loop___at___Lean_Meta_withLocalDecls___at___Lean_Meta_withLocalDeclsD___at___Lean_Elab_ComputedFields_mkComputedFieldOverrides_spec__1_spec__2_spec__2___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoDefn___at___Lean_Elab_ComputedFields_overrideCasesOn_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
@@ -142,6 +141,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclD___at___Lean_Elab_ComputedFie
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at___Lean_Elab_ComputedFields_overrideCasesOn_spec__7___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__3;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Elab_ComputedFields_overrideConstructors_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_ComputedFields_0__Lean_Elab_ComputedFields_computedFieldAttr___regBuiltin_Lean_Elab_ComputedFields_computedFieldAttr_declRange__3___closed__3;
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__10;
@@ -189,7 +189,6 @@ LEAN_EXPORT lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logError___at_
 static lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDecls_loop___at___Lean_Meta_withLocalDecls___at___Lean_Meta_withLocalDeclsD___at___Lean_Elab_ComputedFields_mkComputedFieldOverrides_spec__1_spec__2_spec__2___redArg___closed__0;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Elab_ComputedFields_overrideConstructors_spec__2_spec__2___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_ComputedFields_mkUnsafeCastTo___closed__3;
-static lean_object* l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__10(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__0___redArg(lean_object*, lean_object*, lean_object*);
@@ -414,6 +413,7 @@ LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknow
 LEAN_EXPORT lean_object* l_Lean_getExprMVarAssignment_x3f___at___Lean_Meta_whnfEasyCases___at___Lean_Meta_whnfEasyCases___at___Lean_Meta_whnfHeadPred___at___Lean_Elab_ComputedFields_getComputedFieldValue_spec__0_spec__0_spec__1_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_getComputedFieldValue_spec__8_spec__8_spec__8_spec__8_spec__8_spec__9___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_ComputedFields_initFn___closed__2____x40_Lean_Elab_ComputedFields_4242877025____hygCtx___hyg_2_;
+static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__4;
 lean_object* lean_array_mk(lean_object*);
 uint8_t l_Lean_Expr_occurs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_Elab_ComputedFields_setComputedFields_spec__2_spec__2_spec__2_spec__2___boxed(lean_object*, lean_object*);
@@ -1685,7 +1685,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedField
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("` is not a constructor", 22, 22);
 return x_1;
 }
 }
@@ -1694,23 +1694,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__0;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is not a constructor", 22, 22);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__2;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -1766,13 +1749,13 @@ lean_dec(x_6);
 x_13 = lean_ctor_get(x_5, 1);
 lean_inc(x_13);
 lean_dec_ref(x_5);
-x_14 = l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__1;
+x_14 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__10;
 x_15 = 0;
 x_16 = l_Lean_MessageData_ofConstName(x_1, x_15);
 x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_14);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__3;
+x_18 = l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__1;
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
@@ -4232,13 +4215,13 @@ lean_dec(x_8);
 x_15 = lean_ctor_get(x_7, 1);
 lean_inc(x_15);
 lean_dec_ref(x_7);
-x_16 = l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__1;
+x_16 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__10;
 x_17 = 0;
 x_18 = l_Lean_MessageData_ofConstName(x_1, x_17);
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_16);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__3;
+x_20 = l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__1;
 x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
@@ -4277,7 +4260,7 @@ static lean_object* _init_l_Lean_getConstInfoInduct___at___Lean_Elab_ComputedFie
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is not a inductive type", 25, 25);
+x_1 = lean_mk_string_unchecked("` is not a inductive type", 25, 25);
 return x_1;
 }
 }
@@ -4341,7 +4324,7 @@ lean_dec(x_8);
 x_15 = lean_ctor_get(x_7, 1);
 lean_inc(x_15);
 lean_dec_ref(x_7);
-x_16 = l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__1;
+x_16 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__10;
 x_17 = 0;
 x_18 = l_Lean_MessageData_ofConstName(x_1, x_17);
 x_19 = lean_alloc_ctor(7, 2, 0);
@@ -6910,7 +6893,7 @@ static lean_object* _init_l_Lean_getConstInfoDefn___at___Lean_Elab_ComputedField
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is not a definition", 21, 21);
+x_1 = lean_mk_string_unchecked("` is not a definition", 21, 21);
 return x_1;
 }
 }
@@ -6974,7 +6957,7 @@ lean_dec(x_9);
 x_16 = lean_ctor_get(x_8, 1);
 lean_inc(x_16);
 lean_dec_ref(x_8);
-x_17 = l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__1;
+x_17 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__10;
 x_18 = 0;
 x_19 = l_Lean_MessageData_ofConstName(x_1, x_18);
 x_20 = lean_alloc_ctor(7, 2, 0);
@@ -18765,7 +18748,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' must be tagged with @[computed_field]", 39, 39);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -18774,6 +18757,23 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__1;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("' must be tagged with @[computed_field]", 39, 39);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__3;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -18812,12 +18812,12 @@ x_26 = l_Lean_TagAttribute_hasTag(x_25, x_23, x_24);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
-x_27 = l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__1;
+x_27 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__2;
 x_28 = l_Lean_MessageData_ofName(x_24);
 lean_ctor_set_tag(x_19, 7);
 lean_ctor_set(x_19, 1, x_28);
 lean_ctor_set(x_19, 0, x_27);
-x_29 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__2;
+x_29 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__4;
 x_30 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_30, 0, x_19);
 lean_ctor_set(x_30, 1, x_29);
@@ -18857,12 +18857,12 @@ x_38 = l_Lean_TagAttribute_hasTag(x_37, x_35, x_36);
 if (x_38 == 0)
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-x_39 = l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__1;
+x_39 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__2;
 x_40 = l_Lean_MessageData_ofName(x_36);
 x_41 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_41, 0, x_39);
 lean_ctor_set(x_41, 1, x_40);
-x_42 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__2;
+x_42 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__4;
 x_43 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
@@ -18930,12 +18930,12 @@ x_26 = l_Lean_TagAttribute_hasTag(x_25, x_23, x_24);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
-x_27 = l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__1;
+x_27 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__2;
 x_28 = l_Lean_MessageData_ofName(x_24);
 lean_ctor_set_tag(x_19, 7);
 lean_ctor_set(x_19, 1, x_28);
 lean_ctor_set(x_19, 0, x_27);
-x_29 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__2;
+x_29 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__4;
 x_30 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_30, 0, x_19);
 lean_ctor_set(x_30, 1, x_29);
@@ -18975,12 +18975,12 @@ x_38 = l_Lean_TagAttribute_hasTag(x_37, x_35, x_36);
 if (x_38 == 0)
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-x_39 = l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__1;
+x_39 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__2;
 x_40 = l_Lean_MessageData_ofName(x_36);
 x_41 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_41, 0, x_39);
 lean_ctor_set(x_41, 1, x_40);
-x_42 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__2;
+x_42 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__4;
 x_43 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
@@ -19646,10 +19646,6 @@ l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___
 lean_mark_persistent(l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__0);
 l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__1 = _init_l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__1();
 lean_mark_persistent(l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__1);
-l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__2 = _init_l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__2();
-lean_mark_persistent(l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__2);
-l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__3 = _init_l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__3();
-lean_mark_persistent(l_Lean_getConstInfoCtor___at___Lean_Elab_ComputedFields_isScalarField_spec__0___closed__3);
 l_panic___at___Lean_Meta_whnfEasyCases___at___Lean_Meta_whnfHeadPred___at___Lean_Elab_ComputedFields_getComputedFieldValue_spec__0_spec__0_spec__0___closed__0 = _init_l_panic___at___Lean_Meta_whnfEasyCases___at___Lean_Meta_whnfHeadPred___at___Lean_Elab_ComputedFields_getComputedFieldValue_spec__0_spec__0_spec__0___closed__0();
 lean_mark_persistent(l_panic___at___Lean_Meta_whnfEasyCases___at___Lean_Meta_whnfHeadPred___at___Lean_Elab_ComputedFields_getComputedFieldValue_spec__0_spec__0_spec__0___closed__0);
 l_Lean_Meta_whnfEasyCases___at___Lean_Meta_whnfEasyCases___at___Lean_Meta_whnfHeadPred___at___Lean_Elab_ComputedFields_getComputedFieldValue_spec__0_spec__0_spec__1___closed__0 = _init_l_Lean_Meta_whnfEasyCases___at___Lean_Meta_whnfEasyCases___at___Lean_Meta_whnfHeadPred___at___Lean_Elab_ComputedFields_getComputedFieldValue_spec__0_spec__0_spec__1___closed__0();
@@ -19764,6 +19760,10 @@ l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private
 lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__1);
 l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__2 = _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__2();
 lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__2);
+l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__3 = _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__3();
+lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__3);
+l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__4 = _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__4();
+lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_ComputedFields_setComputedFields_spec__6_spec__6___closed__4);
 l_Lean_Elab_ComputedFields_setComputedFields___closed__0 = _init_l_Lean_Elab_ComputedFields_setComputedFields___closed__0();
 lean_mark_persistent(l_Lean_Elab_ComputedFields_setComputedFields___closed__0);
 l_Lean_Elab_ComputedFields_setComputedFields___closed__1 = _init_l_Lean_Elab_ComputedFields_setComputedFields___closed__1();

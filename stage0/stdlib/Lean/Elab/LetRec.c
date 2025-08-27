@@ -44,7 +44,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_elabDeclAttrs___at_____private_Lean_Elab_Le
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__44_spec__44___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at___Lean_withEnv___at___Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0_spec__15_spec__15___redArg___closed__1;
-static lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__3;
 lean_object* lean_private_to_user_name(lean_object*);
 static lean_object* l___private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__44_spec__44___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -216,7 +215,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Le
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabTerminationHints___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__30___lam__2___boxed(lean_object**);
-static lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__2;
 static lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__0___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_registerLetRecsToLift_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_validateDocComment___at___Lean_addDocString___at___Lean_addDocString_x27___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__18_spec__18_spec__18_spec__18_spec__18_spec__18___redArg___closed__0;
@@ -2617,7 +2615,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___at_____private_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("a non-private declaration '", 27, 27);
+x_1 = lean_mk_string_unchecked("a non-private declaration `", 27, 27);
 return x_1;
 }
 }
@@ -2634,7 +2632,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___at_____private_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' has already been declared", 27, 27);
+x_1 = lean_mk_string_unchecked("` has already been declared", 27, 27);
 return x_1;
 }
 }
@@ -2776,7 +2774,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___at_____private_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("a private declaration '", 23, 23);
+x_1 = lean_mk_string_unchecked("a private declaration `", 23, 23);
 return x_1;
 }
 }
@@ -2888,7 +2886,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___at_____private_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("` is a reserved name", 20, 20);
 return x_1;
 }
 }
@@ -2897,23 +2895,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__0;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is a reserved name", 20, 20);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__2;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -2974,7 +2955,7 @@ else
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_dec_ref(x_1);
-x_19 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1;
+x_19 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_20 = l_Lean_MessageData_ofConstName(x_2, x_3);
 if (lean_is_scalar(x_15)) {
  x_21 = lean_alloc_ctor(7, 2, 0);
@@ -2984,7 +2965,7 @@ if (lean_is_scalar(x_15)) {
 }
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
-x_22 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__3;
+x_22 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1;
 x_23 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);
@@ -3036,12 +3017,12 @@ else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec_ref(x_1);
-x_16 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1;
+x_16 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_17 = l_Lean_MessageData_ofConstName(x_2, x_3);
 x_18 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__3;
+x_19 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1;
 x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
@@ -3060,7 +3041,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___at_____private_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("private declaration '", 21, 21);
+x_1 = lean_mk_string_unchecked("private declaration `", 21, 21);
 return x_1;
 }
 }
@@ -3100,7 +3081,7 @@ x_15 = lean_private_to_user_name(x_2);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_16 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1;
+x_16 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_17 = l_Lean_MessageData_ofConstName(x_2, x_3);
 lean_ctor_set_tag(x_11, 7);
 lean_ctor_set(x_11, 1, x_17);
@@ -3153,7 +3134,7 @@ x_28 = lean_private_to_user_name(x_2);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
-x_29 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1;
+x_29 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_30 = l_Lean_MessageData_ofConstName(x_2, x_3);
 x_31 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
@@ -4547,7 +4528,7 @@ static lean_object* _init_l_Lean_addDocString___at___Lean_addDocString_x27___at_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid doc string, declaration '", 33, 33);
+x_1 = lean_mk_string_unchecked("invalid doc string, declaration `", 33, 33);
 return x_1;
 }
 }
@@ -4564,7 +4545,7 @@ static lean_object* _init_l_Lean_addDocString___at___Lean_addDocString_x27___at_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is in an imported module", 26, 26);
+x_1 = lean_mk_string_unchecked("` is in an imported module", 26, 26);
 return x_1;
 }
 }
@@ -9614,7 +9595,7 @@ if (x_153 == 0)
 {
 lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; uint8_t x_162; 
 x_154 = lean_ctor_get(x_140, 5);
-x_155 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1;
+x_155 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_156 = l_Lean_MessageData_ofConstName(x_146, x_148);
 x_157 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_157, 0, x_155);
@@ -9686,7 +9667,7 @@ lean_inc(x_168);
 lean_inc(x_167);
 lean_inc(x_166);
 lean_dec(x_140);
-x_182 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1;
+x_182 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_183 = l_Lean_MessageData_ofConstName(x_146, x_148);
 x_184 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_184, 0, x_182);
@@ -10859,7 +10840,7 @@ if (x_153 == 0)
 {
 lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; uint8_t x_162; 
 x_154 = lean_ctor_get(x_147, 5);
-x_155 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1;
+x_155 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_156 = l_Lean_MessageData_ofConstName(x_145, x_148);
 x_157 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_157, 0, x_155);
@@ -10931,7 +10912,7 @@ lean_inc(x_168);
 lean_inc(x_167);
 lean_inc(x_166);
 lean_dec(x_147);
-x_182 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1;
+x_182 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_183 = l_Lean_MessageData_ofConstName(x_145, x_148);
 x_184 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_184, 0, x_182);
@@ -13508,7 +13489,7 @@ if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 x_28 = lean_ctor_get(x_11, 5);
-x_29 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1;
+x_29 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_30 = l_Lean_MessageData_ofName(x_26);
 x_31 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
@@ -13559,7 +13540,7 @@ lean_inc(x_38);
 lean_inc(x_37);
 lean_inc(x_36);
 lean_dec(x_11);
-x_52 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1;
+x_52 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_53 = l_Lean_MessageData_ofName(x_26);
 x_54 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_54, 0, x_52);
@@ -13652,7 +13633,7 @@ if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 x_28 = lean_ctor_get(x_11, 5);
-x_29 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1;
+x_29 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_30 = l_Lean_MessageData_ofName(x_26);
 x_31 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
@@ -13703,7 +13684,7 @@ lean_inc(x_38);
 lean_inc(x_37);
 lean_inc(x_36);
 lean_dec(x_11);
-x_52 = l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1;
+x_52 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_53 = l_Lean_MessageData_ofName(x_26);
 x_54 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_54, 0, x_52);
@@ -14979,10 +14960,6 @@ l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_El
 lean_mark_persistent(l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__0);
 l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1 = _init_l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1();
 lean_mark_persistent(l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__1);
-l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__2 = _init_l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__2();
-lean_mark_persistent(l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__2);
-l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__3 = _init_l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__3();
-lean_mark_persistent(l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__3___closed__3);
 l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__5___closed__0 = _init_l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__5___closed__0();
 lean_mark_persistent(l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__5___closed__0);
 l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__5___closed__1 = _init_l_Lean_Elab_checkNotAlreadyDeclared___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__0___lam__5___closed__1();

@@ -889,7 +889,7 @@ static lean_object* _init_l___private_Lean_Elab_Declaration_0__Lean_Elab_Command
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid namespace '", 19, 19);
+x_1 = lean_mk_string_unchecked("invalid namespace `", 19, 19);
 return x_1;
 }
 }
@@ -897,7 +897,7 @@ static lean_object* _init_l___private_Lean_Elab_Declaration_0__Lean_Elab_Command
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', '_root_' is a reserved namespace", 35, 35);
+x_1 = lean_mk_string_unchecked("`, `_root_` is a reserved namespace", 35, 35);
 return x_1;
 }
 }
@@ -905,7 +905,7 @@ static lean_object* _init_l___private_Lean_Elab_Declaration_0__Lean_Elab_Command
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', it must not contain numeric parts", 36, 36);
+x_1 = lean_mk_string_unchecked("`, it must not contain numeric parts", 36, 36);
 return x_1;
 }
 }
@@ -20352,7 +20352,7 @@ static lean_object* _init_l_Lean_ensureNonAmbiguous___at___Lean_Elab_Command_ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ambiguous identifier '", 22, 22);
+x_1 = lean_mk_string_unchecked("ambiguous identifier `", 22, 22);
 return x_1;
 }
 }
@@ -20368,7 +20368,7 @@ static lean_object* _init_l_Lean_ensureNonAmbiguous___at___Lean_Elab_Command_ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', possible interpretations: ", 29, 29);
+x_1 = lean_mk_string_unchecked("`, possible interpretations: ", 29, 29);
 return x_1;
 }
 }

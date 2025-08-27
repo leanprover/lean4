@@ -49,7 +49,6 @@ LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknow
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_PrettyPrinter_runForNodeKind_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_PrettyPrinter_runForNodeKind_spec__0_spec__0_spec__0_spec__0_spec__0___lam__0___closed__0;
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_PrettyPrinter_runForNodeKind_spec__0_spec__0_spec__0___redArg___closed__1;
-static lean_object* l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__9;
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___Lean_PrettyPrinter_runForNodeKind_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_PrettyPrinter_runForNodeKind_spec__0_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_PrettyPrinter_runForNodeKind_spec__0_spec__0_spec__0___redArg___closed__0;
@@ -87,7 +86,6 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierA
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_PrettyPrinter_runForNodeKind_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_PrettyPrinter_runForNodeKind_spec__0_spec__0_spec__0_spec__0_spec__0___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_evalConst___at___Lean_PrettyPrinter_runForNodeKind_spec__8___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__10;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_PrettyPrinter_runForNodeKind_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_runForNodeKind___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1034,7 +1032,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___redArg___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("] found for '", 13, 13);
+x_1 = lean_mk_string_unchecked("] found for `", 13, 13);
 return x_1;
 }
 }
@@ -1051,32 +1049,33 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___redArg___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__4;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("ParserDescr", 11, 11);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__6() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean", 4, 4);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__5;
+x_2 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__4;
+x_3 = l_Lean_Name_mkStr2(x_2, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ParserDescr", 11, 11);
+x_1 = lean_mk_string_unchecked("TrailingParserDescr", 19, 19);
 return x_1;
 }
 }
@@ -1085,25 +1084,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__7;
-x_2 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__6;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__9() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("TrailingParserDescr", 19, 19);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__10() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__9;
-x_2 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__6;
+x_2 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__4;
 x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
@@ -1140,12 +1121,12 @@ lean_inc(x_15);
 lean_dec_ref(x_13);
 x_38 = l_Lean_ConstantInfo_type(x_14);
 lean_dec(x_14);
-x_39 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__8;
+x_39 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__6;
 x_40 = l_Lean_Expr_isConstOf(x_38, x_39);
 if (x_40 == 0)
 {
 lean_object* x_41; uint8_t x_42; 
-x_41 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__10;
+x_41 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__8;
 x_42 = l_Lean_Expr_isConstOf(x_38, x_41);
 lean_dec_ref(x_38);
 x_16 = x_42;
@@ -1182,7 +1163,7 @@ x_24 = l_Lean_MessageData_ofName(x_2);
 x_25 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
-x_26 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__5;
+x_26 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_PrettyPrinter_runForNodeKind_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_27 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_26);
@@ -1306,12 +1287,12 @@ lean_inc(x_54);
 lean_dec_ref(x_52);
 x_77 = l_Lean_ConstantInfo_type(x_53);
 lean_dec(x_53);
-x_78 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__8;
+x_78 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__6;
 x_79 = l_Lean_Expr_isConstOf(x_77, x_78);
 if (x_79 == 0)
 {
 lean_object* x_80; uint8_t x_81; 
-x_80 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__10;
+x_80 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__8;
 x_81 = l_Lean_Expr_isConstOf(x_77, x_80);
 lean_dec_ref(x_77);
 x_55 = x_81;
@@ -1348,7 +1329,7 @@ x_63 = l_Lean_MessageData_ofName(x_2);
 x_64 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_64, 0, x_62);
 lean_ctor_set(x_64, 1, x_63);
-x_65 = l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__5;
+x_65 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_PrettyPrinter_runForNodeKind_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_66 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_66, 0, x_64);
 lean_ctor_set(x_66, 1, x_65);
@@ -1719,10 +1700,6 @@ l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__7 = _init_l_Lean_PrettyPr
 lean_mark_persistent(l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__7);
 l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__8 = _init_l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__8();
 lean_mark_persistent(l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__8);
-l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__9 = _init_l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__9();
-lean_mark_persistent(l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__9);
-l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__10 = _init_l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__10();
-lean_mark_persistent(l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__10);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

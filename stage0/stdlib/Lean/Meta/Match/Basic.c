@@ -4837,7 +4837,7 @@ static lean_object* _init_l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___lam__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Type mismatch during dependent match-elimination at pattern variable '", 70, 70);
+x_1 = lean_mk_string_unchecked("Type mismatch during dependent match-elimination at pattern variable `", 70, 70);
 return x_1;
 }
 }
@@ -4854,7 +4854,7 @@ static lean_object* _init_l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___lam__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' with type", 11, 11);
+x_1 = lean_mk_string_unchecked("` with type", 11, 11);
 return x_1;
 }
 }

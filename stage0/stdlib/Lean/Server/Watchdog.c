@@ -536,7 +536,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_RequestData_getRequest_x3f___box
 static lean_object* l_IO_FS_Stream_readNotificationAs___at___IO_FS_Stream_readLspNotificationAs___at___Lean_Server_Watchdog_initAndRunWatchdogAux_spec__1_spec__1___closed__48;
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_handleIleanInfoFinal___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_forwardNotification(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lean_server_watchdog_main(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_watchdogMain(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_Watchdog_startLoadingReferences_spec__1___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_groupByKey___at___Lean_Server_Watchdog_handleModuleHierarchyImports_spec__4___redArg___closed__2;
 static lean_object* l_Lean_Server_Watchdog_emitServerRequestResponse___at___Lean_Server_Watchdog_handleQueryModule_spec__3___closed__0;
@@ -49092,7 +49092,7 @@ x_1 = lean_mk_string_unchecked("Watchdog error: ", 16, 16);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* lean_server_watchdog_main(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_watchdogMain(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_26; 

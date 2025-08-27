@@ -560,7 +560,6 @@ LEAN_EXPORT lean_object* l_Lean_Linter_logLint___at___Lean_Linter_logLintIf___at
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_replaceArrowBinderNames(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_x3f___at___Lean_Elab_addDeclarationRangesFromSyntax___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__29_spec__29___redArg___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__3;
 LEAN_EXPORT lean_object* l_Lean_withEnv___at___Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6_spec__16(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___List_mapM_loop___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors_spec__3_spec__3___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit___at___Lean_Meta_transform___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors_checkParamOccs_spec__3_spec__3_spec__16_spec__17(lean_object*, lean_object*);
@@ -666,7 +665,6 @@ LEAN_EXPORT lean_object* l_Lean_addDeclarationRanges___at___Lean_Elab_addDeclara
 LEAN_EXPORT lean_object* l_Lean_withEnv___at___Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6_spec__16___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getDocStringText___at___Lean_addDocString___at___Lean_addDocString_x27___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__20_spec__20_spec__26___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoTree___at___Lean_Elab_pushInfoLeaf___at___Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6_spec__14_spec__14___redArg___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__2;
 static lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___closed__7;
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_isInductiveFamily___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3107,7 +3105,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("a non-private declaration '", 27, 27);
+x_1 = lean_mk_string_unchecked("a non-private declaration `", 27, 27);
 return x_1;
 }
 }
@@ -3124,7 +3122,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' has already been declared", 27, 27);
+x_1 = lean_mk_string_unchecked("` has already been declared", 27, 27);
 return x_1;
 }
 }
@@ -3266,7 +3264,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("a private declaration '", 23, 23);
+x_1 = lean_mk_string_unchecked("a private declaration `", 23, 23);
 return x_1;
 }
 }
@@ -3378,7 +3376,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("` is a reserved name", 20, 20);
 return x_1;
 }
 }
@@ -3387,23 +3385,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__0;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is a reserved name", 20, 20);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__2;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -3464,7 +3445,7 @@ else
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_dec_ref(x_1);
-x_19 = l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__1;
+x_19 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6_spec__6_spec__6_spec__6_spec__6_spec__6_spec__6___closed__17;
 x_20 = l_Lean_MessageData_ofConstName(x_2, x_3);
 if (lean_is_scalar(x_15)) {
  x_21 = lean_alloc_ctor(7, 2, 0);
@@ -3474,7 +3455,7 @@ if (lean_is_scalar(x_15)) {
 }
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
-x_22 = l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__3;
+x_22 = l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__1;
 x_23 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);
@@ -3526,12 +3507,12 @@ else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec_ref(x_1);
-x_16 = l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__1;
+x_16 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6_spec__6_spec__6_spec__6_spec__6_spec__6_spec__6___closed__17;
 x_17 = l_Lean_MessageData_ofConstName(x_2, x_3);
 x_18 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__3;
+x_19 = l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__1;
 x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
@@ -3550,7 +3531,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("private declaration '", 21, 21);
+x_1 = lean_mk_string_unchecked("private declaration `", 21, 21);
 return x_1;
 }
 }
@@ -3590,7 +3571,7 @@ x_15 = lean_private_to_user_name(x_2);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_16 = l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__1;
+x_16 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6_spec__6_spec__6_spec__6_spec__6_spec__6_spec__6___closed__17;
 x_17 = l_Lean_MessageData_ofConstName(x_2, x_3);
 lean_ctor_set_tag(x_11, 7);
 lean_ctor_set(x_11, 1, x_17);
@@ -3643,7 +3624,7 @@ x_28 = lean_private_to_user_name(x_2);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
-x_29 = l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__1;
+x_29 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6_spec__6_spec__6_spec__6_spec__6_spec__6_spec__6___closed__17;
 x_30 = l_Lean_MessageData_ofConstName(x_2, x_3);
 x_31 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
@@ -5348,7 +5329,7 @@ static lean_object* _init_l_Lean_addDocString___at___Lean_addDocString_x27___at_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid doc string, declaration '", 33, 33);
+x_1 = lean_mk_string_unchecked("invalid doc string, declaration `", 33, 33);
 return x_1;
 }
 }
@@ -5365,7 +5346,7 @@ static lean_object* _init_l_Lean_addDocString___at___Lean_addDocString_x27___at_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is in an imported module", 26, 26);
+x_1 = lean_mk_string_unchecked("` is in an imported module", 26, 26);
 return x_1;
 }
 }
@@ -14680,7 +14661,7 @@ static lean_object* _init_l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("The value of parameter '", 24, 24);
+x_1 = lean_mk_string_unchecked("The value of parameter `", 24, 24);
 return x_1;
 }
 }
@@ -14697,7 +14678,7 @@ static lean_object* _init_l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.", 110, 110);
+x_1 = lean_mk_string_unchecked("` must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.", 110, 110);
 return x_1;
 }
 }
@@ -20270,7 +20251,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Unexpected resulting type for constructor '", 43, 43);
+x_1 = lean_mk_string_unchecked("Unexpected resulting type for constructor `", 43, 43);
 return x_1;
 }
 }
@@ -20287,7 +20268,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("': Expected", 11, 11);
+x_1 = lean_mk_string_unchecked("`: Expected", 11, 11);
 return x_1;
 }
 }
@@ -20500,7 +20481,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("': Expected a type, but found", 29, 29);
+x_1 = lean_mk_string_unchecked("`: Expected a type, but found", 29, 29);
 return x_1;
 }
 }
@@ -21143,7 +21124,7 @@ static lean_object* _init_l_List_mapM_loop___at___List_mapM_loop___at_____privat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Missing resulting type for constructor '", 40, 40);
+x_1 = lean_mk_string_unchecked("Missing resulting type for constructor `", 40, 40);
 return x_1;
 }
 }
@@ -21160,7 +21141,7 @@ static lean_object* _init_l_List_mapM_loop___at___List_mapM_loop___at_____privat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("': Its resulting type must be specified because it is part of an inductive family declaration", 93, 93);
+x_1 = lean_mk_string_unchecked("`: Its resulting type must be specified because it is part of an inductive family declaration", 93, 93);
 return x_1;
 }
 }
@@ -25540,10 +25521,6 @@ l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____pr
 lean_mark_persistent(l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__0);
 l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__1 = _init_l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__1();
 lean_mark_persistent(l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__1);
-l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__2 = _init_l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__2();
-lean_mark_persistent(l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__2);
-l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__3 = _init_l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__3();
-lean_mark_persistent(l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__3___closed__3);
 l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__5___closed__0 = _init_l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__5___closed__0();
 lean_mark_persistent(l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__5___closed__0);
 l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__5___closed__1 = _init_l_Lean_Elab_checkNotAlreadyDeclared___at___Lean_Elab_applyVisibility___at_____private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__6_spec__6___lam__5___closed__1();

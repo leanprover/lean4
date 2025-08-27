@@ -1221,8 +1221,8 @@ if (lean_is_exclusive(x_16)) {
 }
 x_20 = lean_ctor_get(x_17, 2);
 lean_inc_ref(x_20);
-x_21 = lean_ctor_get_uint8(x_17, sizeof(void*)*14 + 1);
-x_22 = lean_ctor_get_uint8(x_17, sizeof(void*)*14 + 2);
+x_21 = lean_ctor_get_uint8(x_17, sizeof(void*)*15 + 1);
+x_22 = lean_ctor_get_uint8(x_17, sizeof(void*)*15 + 2);
 lean_dec(x_17);
 x_23 = l_Lean_Meta_Grind_Goal_ppENodeRef___closed__8;
 x_70 = lean_alloc_ctor(7, 2, 0);

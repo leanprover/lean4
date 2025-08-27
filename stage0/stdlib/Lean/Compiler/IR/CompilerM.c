@@ -4350,7 +4350,7 @@ static lean_object* _init_l_Lean_IR_getDecl___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown declaration '", 21, 21);
+x_1 = lean_mk_string_unchecked("unknown declaration `", 21, 21);
 return x_1;
 }
 }
@@ -4358,7 +4358,7 @@ static lean_object* _init_l_Lean_IR_getDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }

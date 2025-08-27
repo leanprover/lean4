@@ -724,7 +724,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_getSrcDir
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("cannot compute parent directory of '", 36, 36);
+x_1 = lean_mk_string_unchecked("cannot compute parent directory of `", 36, 36);
 return x_1;
 }
 }
@@ -741,7 +741,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_getSrcDir
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }

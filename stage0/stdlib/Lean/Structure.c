@@ -3027,7 +3027,7 @@ static lean_object* _init_l_Lean_setStructureParents___redArg___lam__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("cannot set structure parents for '", 34, 34);
+x_1 = lean_mk_string_unchecked("cannot set structure parents for `", 34, 34);
 return x_1;
 }
 }
@@ -3044,7 +3044,7 @@ static lean_object* _init_l_Lean_setStructureParents___redArg___lam__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', structure not defined in current module", 42, 42);
+x_1 = lean_mk_string_unchecked("`, structure not defined in current module", 42, 42);
 return x_1;
 }
 }

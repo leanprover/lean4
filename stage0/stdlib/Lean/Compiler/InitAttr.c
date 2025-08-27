@@ -3739,7 +3739,7 @@ static lean_object* _init_l_Lean_registerInitAttrUnsafe___lam__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("initialization function '", 25, 25);
+x_1 = lean_mk_string_unchecked("initialization function `", 25, 25);
 return x_1;
 }
 }
@@ -3756,7 +3756,7 @@ static lean_object* _init_l_Lean_registerInitAttrUnsafe___lam__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' must have type of the form `IO <type>`", 40, 40);
+x_1 = lean_mk_string_unchecked("` must have type of the form `IO <type>`", 40, 40);
 return x_1;
 }
 }
@@ -3773,7 +3773,7 @@ static lean_object* _init_l_Lean_registerInitAttrUnsafe___lam__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' type mismatch", 15, 15);
+x_1 = lean_mk_string_unchecked("` type mismatch", 15, 15);
 return x_1;
 }
 }

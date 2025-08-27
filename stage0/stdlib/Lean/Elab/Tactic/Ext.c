@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__2;
 lean_object* l_Lean_MVarId_withContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_mkExtType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_evalPrio(lean_object*, lean_object*, lean_object*);
@@ -490,7 +489,6 @@ lean_object* l_Lean_Elab_Term_instMonadTermElabM___lam__0___boxed(lean_object*, 
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_evalApplyExtTheorem___regBuiltin_Lean_Elab_Tactic_Ext_evalApplyExtTheorem_declRange__5___closed__6;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_evalExt___regBuiltin_Lean_Elab_Tactic_Ext_evalExt_declRange__3___closed__4;
-static lean_object* l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lam__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6530,7 +6528,7 @@ static lean_object* _init_l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("` is not a inductive type", 25, 25);
 return x_1;
 }
 }
@@ -6539,23 +6537,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__0;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is not a inductive type", 25, 25);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__2;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -6613,13 +6594,13 @@ lean_dec(x_10);
 x_17 = lean_ctor_get(x_9, 1);
 lean_inc(x_17);
 lean_dec_ref(x_9);
-x_18 = l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__1;
+x_18 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_Tactic_Ext_withExtHyps_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_19 = 0;
 x_20 = l_Lean_MessageData_ofConstName(x_1, x_19);
 x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_18);
 lean_ctor_set(x_21, 1, x_20);
-x_22 = l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__3;
+x_22 = l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__1;
 x_23 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);
@@ -25348,10 +25329,6 @@ l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0_
 lean_mark_persistent(l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__0);
 l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__1 = _init_l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__1();
 lean_mark_persistent(l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__1);
-l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__2 = _init_l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__2();
-lean_mark_persistent(l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__2);
-l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__3 = _init_l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__3();
-lean_mark_persistent(l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__3);
 l_Lean_addDeclarationRanges___at___Lean_Elab_addDeclarationRangesFromSyntax___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__12_spec__13___redArg___closed__0 = _init_l_Lean_addDeclarationRanges___at___Lean_Elab_addDeclarationRangesFromSyntax___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__12_spec__13___redArg___closed__0();
 lean_mark_persistent(l_Lean_addDeclarationRanges___at___Lean_Elab_addDeclarationRangesFromSyntax___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__12_spec__13___redArg___closed__0);
 l_Lean_addDeclarationRanges___at___Lean_Elab_addDeclarationRangesFromSyntax___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__12_spec__13___redArg___closed__1 = _init_l_Lean_addDeclarationRanges___at___Lean_Elab_addDeclarationRangesFromSyntax___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__12_spec__13___redArg___closed__1();

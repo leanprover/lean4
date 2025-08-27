@@ -4079,7 +4079,7 @@ static lean_object* _init_l_Lean_Elab_Term_checkLeftRec___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid occurrence of '", 23, 23);
+x_1 = lean_mk_string_unchecked("invalid occurrence of `", 23, 23);
 return x_1;
 }
 }
@@ -4096,7 +4096,7 @@ static lean_object* _init_l_Lean_Elab_Term_checkLeftRec___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', parser algorithm does not allow this form of left recursion", 62, 62);
+x_1 = lean_mk_string_unchecked("`, parser algorithm does not allow this form of left recursion", 62, 62);
 return x_1;
 }
 }
@@ -12986,7 +12986,7 @@ static lean_object* _init_l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParse
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown parser declaration/category/alias '", 43, 43);
+x_1 = lean_mk_string_unchecked("unknown parser declaration/category/alias `", 43, 43);
 return x_1;
 }
 }
@@ -13003,7 +13003,7 @@ static lean_object* _init_l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParse
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -18896,7 +18896,7 @@ static lean_object* _init_l_Lean_Elab_Command_resolveSyntaxKind___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid syntax node kind '", 26, 26);
+x_1 = lean_mk_string_unchecked("invalid syntax node kind `", 26, 26);
 return x_1;
 }
 }
@@ -21778,7 +21778,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabSyntax___closed__28() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown category '", 18, 18);
+x_1 = lean_mk_string_unchecked("unknown category `", 18, 18);
 return x_1;
 }
 }

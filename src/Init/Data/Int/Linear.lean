@@ -12,9 +12,11 @@ public import Init.Data.Int.Lemmas
 public import Init.Data.Int.LemmasAux
 public import Init.Data.Int.DivMod.Bootstrap
 public import Init.Data.Int.Cooper
-public import all Init.Data.Int.Gcd
+public import Init.Data.Int.Gcd
+import all Init.Data.Int.Gcd
 public import Init.Data.RArray
-public import all Init.Data.AC
+public import Init.Data.AC
+import all Init.Data.AC
 
 public section
 
@@ -37,7 +39,7 @@ inductive Expr where
   | neg (a : Expr)
   | mulL (k : Int) (a : Expr)
   | mulR (a : Expr) (k : Int)
-  deriving Inhabited, BEq
+  deriving Inhabited, @[expose] BEq
 
 @[expose]
 def Expr.denote (ctx : Context) : Expr → Int
@@ -52,7 +54,7 @@ def Expr.denote (ctx : Context) : Expr → Int
 inductive Poly where
   | num (k : Int)
   | add (k : Int) (v : Var) (p : Poly)
-  deriving BEq
+  deriving @[expose] BEq
 
 @[expose]
 protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
@@ -1280,7 +1282,7 @@ noncomputable def diseq_eq_subst_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p�
 theorem eq_diseq_subst (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
     : diseq_eq_subst_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx ≠ 0 → p₃.denote' ctx ≠ 0 := by
   simp [diseq_eq_subst_cert]
-  intros _ _; subst p₃
+  intro _ _; subst p₃
   intro h₁ h₂
   simp [*]
 
@@ -2143,6 +2145,61 @@ theorem natCast_sub (x y : Nat)
       contradiction
     rw [Int.ofNat_le] at this
     rw [Lean.Omega.Int.ofNat_sub_eq_zero this]
+
+/-! Helper theorem for linearizing nonlinear terms -/
+
+@[expose] noncomputable def var_eq_cert (x : Var) (k : Int) (p : Poly) : Bool :=
+  Poly.rec (fun _ => false)
+    (fun k₁ x' p' _ => Poly.rec (fun k₂ => k₁ != 0 && x == x' && k == -k₂/k₁) (fun _ _ _ _ => false) p')
+    p
+
+theorem var_eq (ctx : Context) (x : Var) (k : Int) (p : Poly) : var_eq_cert x k p → p.denote' ctx = 0 → x.denote ctx = k := by
+  simp [var_eq_cert]; cases p <;> simp; next k₁ x' p' =>
+  cases p' <;> simp; next k₂ =>
+  intro h₁ _ _; subst x' k; intro h₂
+  replace h₂ := Int.neg_eq_of_add_eq_zero h₂
+  rw [Int.neg_eq_comm] at h₂
+  rw [← h₂]; clear h₂; simp; rw [Int.mul_comm, Int.mul_ediv_cancel]
+  assumption
+
+@[expose] noncomputable def of_var_eq_mul_cert (x : Var) (k : Int) (y : Var) (p : Poly) : Bool :=
+  p.beq' (.add 1 x (.add (-k) y (.num 0)))
+
+theorem of_var_eq_mul (ctx : Context) (x : Var) (k : Int) (y : Var) (p : Poly) : of_var_eq_mul_cert x k y p → x.denote ctx = k * y.denote ctx → p.denote' ctx = 0 := by
+  simp [of_var_eq_mul_cert]; intro _ h; subst p; simp [h]
+  rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.sub_self]
+
+@[expose] noncomputable def of_var_eq_var_cert (x : Var) (y : Var) (p : Poly) : Bool :=
+  p.beq' (.add 1 x (.add (-1) y (.num 0)))
+
+theorem of_var_eq_var (ctx : Context) (x : Var) (y : Var) (p : Poly) : of_var_eq_var_cert x y p → x.denote ctx = y.denote ctx → p.denote' ctx = 0 := by
+  simp [of_var_eq_var_cert]; intro _ h; subst p; simp [h]
+  rw [← Int.sub_eq_add_neg, Int.sub_self]
+
+@[expose] noncomputable def of_var_eq_cert (x : Var) (k : Int) (p : Poly) : Bool :=
+  p.beq' (.add 1 x (.num (-k)))
+
+theorem of_var_eq (ctx : Context) (x : Var) (k : Int) (p : Poly) : of_var_eq_cert x k p → x.denote ctx = k → p.denote' ctx = 0 := by
+  simp [of_var_eq_cert]; intro _ h; subst p; simp [h]
+  rw [← Int.sub_eq_add_neg, Int.sub_self]
+
+theorem eq_one_mul (a : Int) : a = 1*a := by simp
+theorem mul_eq_kk (a b k₁ k₂ k : Int) (h₁ : a = k₁) (h₂ : b = k₂) (h₃ : k₁*k₂ == k) : a*b = k := by simp_all
+theorem mul_eq_kkx (a b k₁ k₂ c k : Int) (h₁ : a = k₁) (h₂ : b = k₂*c) (h₃ : k₁*k₂ == k) : a*b = k*c := by
+  simp at h₃; rw [h₁, h₂, ← Int.mul_assoc, h₃]
+theorem mul_eq_kxk (a b k₁ c k₂ k : Int) (h₁ : a = k₁*c) (h₂ : b = k₂) (h₃ : k₁*k₂ == k) : a*b = k*c := by
+  simp at h₃; rw [h₁, h₂, Int.mul_comm, ← Int.mul_assoc, Int.mul_comm k₂, h₃]
+theorem mul_eq_zero_left (a b : Int) (h : a = 0) : a*b = 0 := by simp [*]
+theorem mul_eq_zero_right (a b : Int) (h : b = 0) : a*b = 0 := by simp [*]
+
+theorem div_eq (a b k : Int) (h : b = k) : a / b = a / k := by simp [*]
+theorem mod_eq (a b k : Int) (h : b = k) : a % b = a % k := by simp [*]
+
+theorem div_eq' (a b b' k : Int) (h₁ : b = b') (h₂ : k == a/b') : a / b = k := by simp_all
+theorem mod_eq' (a b b' k : Int) (h₁ : b = b') (h₂ : k == a%b') : a % b = k := by simp_all
+
+theorem pow_eq (a : Int) (b : Nat) (a' b' k : Int) (h₁ : a = a') (h₂ : ↑b = b') (h₃ : k == a'^b'.toNat) : a^b = k := by
+  simp [← h₁, ← h₂] at h₃; simp [h₃]
 
 end Int.Linear
 

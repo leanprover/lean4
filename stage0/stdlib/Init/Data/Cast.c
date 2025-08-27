@@ -19,9 +19,28 @@ LEAN_EXPORT lean_object* l_Nat_cast(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeHTCTNatOfNatCast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instNatCastNat___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_NatCast_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeTailNatOfNatCast___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeTailNatOfNatCast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instNatCastNat___lam__0___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_NatCast_ctorIdx___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_NatCast_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_NatCast_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_NatCast_ctorIdx(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_instNatCastNat___lam__0(lean_object* x_1) {
 _start:
 {

@@ -6,7 +6,8 @@ Authors: Mario Carneiro
 module
 
 prelude
-public import all Init.Data.List.Lemmas  -- for dsimping with `getElem?_cons_succ`
+public import Init.Data.List.Lemmas  -- for dsimping with `getElem?_cons_succ`
+import all Init.Data.List.Lemmas  -- for dsimping with `getElem?_cons_succ`
 public import Init.Data.List.Count
 public import Init.Data.Subtype.Basic
 public import Init.BinderNameHint
@@ -123,7 +124,7 @@ theorem attachWith_congr {l₁ l₂ : List α} (w : l₁ = l₂) {P : α → Pro
       ⟨x, mem_cons_self⟩ :: xs.attach.map fun ⟨y, h⟩ => ⟨y, mem_cons_of_mem x h⟩ := by
   simp only [attach, attachWith, pmap, map_pmap, cons.injEq, true_and]
   apply pmap_congr_left
-  intros a _ m' _
+  intro a _ m' _
   rfl
 
 @[simp, grind =]

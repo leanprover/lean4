@@ -18,31 +18,45 @@ LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_processedResu
 static lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_processedResult___closed__0;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot_go___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedState_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeHeaderProcessedSnapshot;
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_ctorIdx___boxed(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderProcessedState_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_pushOpt___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandElaboratingSnapshot_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandResultSnapshot___lam__0(lean_object*);
 lean_object* l_Lean_Language_SnapshotTask_finished___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_processedResult___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_processedResult(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_ctorIdx(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedState_ctorIdx(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderProcessedState_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot_go___lam__0___boxed(lean_object*);
 static lean_object* l_Lean_Language_Lean_instToSnapshotTreeHeaderProcessedSnapshot___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandResultSnapshot_ctorIdx(lean_object*);
 lean_object* lean_thunk_get_own(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_pushOpt(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeHeaderParsedSnapshot;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeHeaderParsedSnapshot___lam__3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot_go___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderProcessedSnapshot_ctorIdx(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandParsedSnapshot_ctorIdx(lean_object*);
 static lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandResultSnapshot___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandResultSnapshot;
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandParsedSnapshot_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Language_Lean_instToSnapshotTreeHeaderParsedSnapshot___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandElaboratingSnapshot_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderProcessedSnapshot_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot___closed__0;
 lean_object* l_Lean_Language_SnapshotTask_map___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot_go___lam__2(lean_object*);
 static lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot_go___closed__1;
 static lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandResultSnapshot_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeHeaderProcessedSnapshot___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_pushOpt___redArg(lean_object* x_1, lean_object* x_2) {
@@ -69,6 +83,23 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_Language_Lean_pushOpt___redArg(x_2, x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandResultSnapshot_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandResultSnapshot_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Language_Lean_CommandResultSnapshot_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Language_Lean_instToSnapshotTreeCommandResultSnapshot___lam__0___closed__0() {
@@ -114,6 +145,23 @@ _start:
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Language_Lean_instToSnapshotTreeCommandResultSnapshot___lam__0), 1, 0);
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandElaboratingSnapshot_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandElaboratingSnapshot_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Language_Lean_CommandElaboratingSnapshot_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot_go___lam__0(lean_object* x_1) {
@@ -223,6 +271,23 @@ x_1 = l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot___closed
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandParsedSnapshot_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandParsedSnapshot_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Language_Lean_CommandParsedSnapshot_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go___closed__0() {
 _start:
 {
@@ -323,6 +388,40 @@ x_1 = l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot___closed__0;
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderProcessedState_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderProcessedState_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Language_Lean_HeaderProcessedState_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderProcessedSnapshot_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderProcessedSnapshot_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Language_Lean_HeaderProcessedSnapshot_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeHeaderProcessedSnapshot___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -419,6 +518,40 @@ lean_object* x_1; lean_object* x_2;
 x_1 = l_Lean_Language_Lean_instToSnapshotTreeHeaderProcessedSnapshot___closed__0;
 x_2 = lean_alloc_closure((void*)(l_Lean_Language_Lean_instToSnapshotTreeHeaderProcessedSnapshot___lam__1), 2, 1);
 lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedState_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedState_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Language_Lean_HeaderParsedState_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Language_Lean_HeaderParsedSnapshot_ctorIdx(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }

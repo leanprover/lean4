@@ -77,7 +77,7 @@ trace: [Compiler.result] size: 5
             lcAny →
               Lean.Core.Context → lcAny → PUnit → EStateM.Result Lean.Exception PUnit PUnit := _eval._lam_0 _x.9 _x.10;
       let _x.12 : EStateM.Result Lean.Exception PUnit
-        lcAny := Lean.Elab.Command.liftTermElabM._redArg _f.11 a.1 a.2 a.3;
+        PUnit := Lean.Elab.Command.liftTermElabM._redArg _f.11 a.1 a.2 a.3;
       return _x.12
 -/
 #guard_msgs in

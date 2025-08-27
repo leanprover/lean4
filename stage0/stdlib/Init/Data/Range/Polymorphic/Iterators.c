@@ -369,7 +369,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 lean_dec_ref(x_1);
 x_9 = lean_apply_3(x_2, x_4, lean_box(0), x_7);
 x_10 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_3, x_9);
@@ -392,9 +392,9 @@ x_15 = lean_apply_1(x_1, x_11);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; 
-lean_inc_ref(x_14);
+lean_inc(x_14);
 lean_dec(x_12);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
@@ -417,9 +417,9 @@ if (x_19 == 0)
 {
 lean_object* x_20; 
 lean_dec(x_17);
-lean_inc_ref(x_14);
+lean_inc(x_14);
 lean_dec(x_12);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);

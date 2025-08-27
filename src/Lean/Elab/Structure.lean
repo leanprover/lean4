@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Structure
 public import Lean.Elab.MutualInductive
+import Lean.Linter.Basic
 
 public section
 
@@ -995,15 +996,14 @@ private def elabFieldTypeValue (structParams : Array Expr) (view : StructFieldVi
       match view.default? with
       | none => return (none, paramInfoOverrides, none)
       | some (.optParam valStx) =>
-        withoutExporting (when := view.modifiers.isPrivate) do
-          Term.synthesizeSyntheticMVarsNoPostponing
-          let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
-          let value ← Term.withoutAutoBoundImplicit <| Term.elabTerm valStx none
-          let value ← runStructElabM (init := state) <| solveParentMVars value
-          registerFailedToInferFieldType view.name (← inferType value) view.nameId
-          registerFailedToInferDefaultValue view.name value valStx
-          let value ← mkLambdaFVars params value
-          return (none, paramInfoOverrides, StructFieldDefault.optParam value)
+        Term.synthesizeSyntheticMVarsNoPostponing
+        let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
+        let value ← Term.withoutAutoBoundImplicit <| Term.elabTerm valStx none
+        let value ← runStructElabM (init := state) <| solveParentMVars value
+        registerFailedToInferFieldType view.name (← inferType value) view.nameId
+        registerFailedToInferDefaultValue view.name value valStx
+        let value ← mkLambdaFVars params value
+        return (none, paramInfoOverrides, StructFieldDefault.optParam value)
       | some (.autoParam tacticStx) =>
         throwErrorAt tacticStx "Invalid field declaration: Type must be provided when auto-param tactic is used"
     | some typeStx =>
@@ -1017,14 +1017,13 @@ private def elabFieldTypeValue (structParams : Array Expr) (view : StructFieldVi
         let type ← mkForallFVars params type
         return (type, paramInfoOverrides, none)
       | some (.optParam valStx) =>
-        withoutExporting (when := view.modifiers.isPrivate) do
-          let value ← Term.withoutAutoBoundImplicit <| Term.elabTermEnsuringType valStx type
-          let value ← runStructElabM (init := state) <| solveParentMVars value
-          registerFailedToInferDefaultValue view.name value valStx
-          Term.synthesizeSyntheticMVarsNoPostponing
-          let type  ← mkForallFVars params type
-          let value ← mkLambdaFVars params value
-          return (type, paramInfoOverrides, StructFieldDefault.optParam value)
+        let value ← Term.withoutAutoBoundImplicit <| Term.elabTermEnsuringType valStx type
+        let value ← runStructElabM (init := state) <| solveParentMVars value
+        registerFailedToInferDefaultValue view.name value valStx
+        Term.synthesizeSyntheticMVarsNoPostponing
+        let type  ← mkForallFVars params type
+        let value ← mkLambdaFVars params value
+        return (type, paramInfoOverrides, StructFieldDefault.optParam value)
       | some (.autoParam tacticStx) =>
         let name := mkAutoParamFnOfProjFn view.declName
         discard <| Term.declareTacticSyntax tacticStx name
@@ -1037,6 +1036,10 @@ where
   go (i : Nat) : StructElabM α := do
     if h : i < views.size then
       let view := views[i]
+      -- `withLocalDecl` may need access to private data in case of private fields but we recurse
+      -- for further fields inside of it, so save and later restore exporting flag
+      let wasExporting := (← getEnv).isExporting
+      withoutExporting (when := isPrivateName view.declName) do
       withRef view.ref do
       if let some parent := (← get).parents.find? (·.name == view.name) then
         throwError "Field `{view.name}` has already been declared as a projection for parent `{.ofConstName parent.structName}`"
@@ -1051,7 +1054,8 @@ where
                            name := view.name, declName := view.declName, fvar := fieldFVar, default? := default?,
                            binfo := view.binderInfo, paramInfoOverrides,
                            kind := StructFieldKind.newField }
-            go (i+1)
+            withExporting (isExporting := wasExporting) do
+              go (i+1)
         | none, some (.optParam value) =>
           let type ← inferType value
           withLocalDecl view.rawName view.binderInfo type fun fieldFVar => do
@@ -1059,7 +1063,8 @@ where
                            name := view.name, declName := view.declName, fvar := fieldFVar, default? := default?,
                            binfo := view.binderInfo, paramInfoOverrides,
                            kind := StructFieldKind.newField }
-            go (i+1)
+            withExporting (isExporting := wasExporting) do
+              go (i+1)
         | none, some (.autoParam _) =>
           throwError "Field `{view.name}` has an auto-param but no type"
       | some info =>
@@ -1085,7 +1090,8 @@ where
               pushInfoLeaf <| .ofFieldRedeclInfo { stx := view.ref }
               if let some projFn := info.projFn? then Term.addTermInfo' view.ref (← mkConstWithLevelParams projFn)
               replaceFieldInfo { info with ref := view.nameId, default? := StructFieldDefault.optParam value }
-              go (i+1)
+              withExporting (isExporting := wasExporting) do
+                go (i+1)
           | some (.autoParam tacticStx) =>
             if let some type := view.type? then
               throwErrorAt type "Omit the type of field `{view.name}` to set its auto-param tactic"
@@ -1099,7 +1105,8 @@ where
               replaceFieldInfo { info with ref := view.nameId, default? := StructFieldDefault.autoParam (.const name []) }
               pushInfoLeaf <| .ofFieldRedeclInfo { stx := view.ref }
               if let some projFn := info.projFn? then Term.addTermInfo' view.ref (← mkConstWithLevelParams projFn)
-              go (i+1)
+              withExporting (isExporting := wasExporting) do
+                go (i+1)
         match info.kind with
         | StructFieldKind.newField      => throwError "Field `{view.name}` has already been declared"
         | StructFieldKind.subobject n
@@ -1166,6 +1173,7 @@ private def mkCtorLCtx : StructElabM LocalContext := do
 Builds a constructor for the type, for adding the inductive type to the environment.
 -/
 private def mkCtor (view : StructView) (r : ElabHeaderResult) (params : Array Expr) : StructElabM Constructor :=
+  withoutExporting (when := isPrivateName view.ctor.declName) do
   withRef view.ref do
   let (binders, paramInfoOverrides) ← elabParamInfoUpdates params view.ctor.binders.getArgs
   unless binders.isEmpty do
@@ -1224,13 +1232,14 @@ private partial def mkFlatCtor (levelParams : List Name) (params : Array Expr) (
     StructElabM Unit := do
   let env ← getEnv
   let ctor := getStructureCtor env structName
-  let val ← mkFlatCtorExpr levelParams params ctor replaceIndFVars
-  withLCtx {} {} do trace[Elab.structure] "created flat constructor:{indentExpr val}"
-  -- Note: flatCtorName will be private if the constructor is private
-  let flatCtorName := mkFlatCtorOfStructCtorName ctor.name
-  let valType ← replaceIndFVars (← instantiateMVars (← inferType val))
-  let valType := valType.inferImplicit params.size true
-  addDecl <| Declaration.defnDecl (← mkDefinitionValInferringUnsafe flatCtorName levelParams valType val .abbrev)
+  withoutExporting (when := isPrivateName ctor.name) do
+    let val ← mkFlatCtorExpr levelParams params ctor replaceIndFVars
+    withLCtx {} {} do trace[Elab.structure] "created flat constructor:{indentExpr val}"
+    -- Note: flatCtorName will be private if the constructor is private
+    let flatCtorName := mkFlatCtorOfStructCtorName ctor.name
+    let valType ← replaceIndFVars (← instantiateMVars (← inferType val))
+    let valType := valType.inferImplicit params.size true
+    addDecl <| Declaration.defnDecl (← mkDefinitionValInferringUnsafe flatCtorName levelParams valType val .abbrev)
 
 private partial def checkResultingUniversesForFields (fieldInfos : Array StructFieldInfo) (u : Level) : TermElabM Unit := do
   for info in fieldInfos do

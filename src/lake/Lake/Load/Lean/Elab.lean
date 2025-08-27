@@ -3,7 +3,13 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Util.Log
+public import Lake.Load.Config
+public import Lean.Environment
+import Lean.Compiler.IR
 import Lean.Elab.Frontend
 import Lake.DSL.Extensions
 import Lake.DSL.Attributes
@@ -21,13 +27,14 @@ open System Lean
 
 namespace Lake
 
-deriving instance BEq, Hashable for Import
-
 /- Cache for the imported header environment of Lake configuration files. -/
-builtin_initialize importEnvCache : IO.Ref (Std.HashMap (Array Import) Environment) ← IO.mkRef {}
+private builtin_initialize importEnvCache :
+  IO.Ref (Std.HashMap (Array Import) Environment) ← IO.mkRef {}
 
 /-- Like `importModules`, but fetch the resulting import state from the cache if possible. -/
-def importModulesUsingCache (imports : Array Import) (opts : Options) (trustLevel : UInt32) : IO Environment := do
+public def importModulesUsingCache
+  (imports : Array Import) (opts : Options) (trustLevel : UInt32)
+: IO Environment := do
   if let some env := (← importEnvCache.get)[imports]? then
     return env
   let env ← importModules (loadExts := true) imports opts trustLevel
@@ -35,8 +42,11 @@ def importModulesUsingCache (imports : Array Import) (opts : Options) (trustLeve
   return env
 
 /-- Like `Lean.Elab.processHeader`, but using `importEnvCache`. -/
-def processHeader (header : TSyntax ``Parser.Module.header) (opts : Options)
-(inputCtx : Parser.InputContext) : StateT MessageLog IO Environment := do
+-- TODO: Update to incorporate the module system
+private def processHeader
+  (header : TSyntax ``Parser.Module.header) (opts : Options)
+  (inputCtx : Parser.InputContext) : StateT MessageLog IO Environment
+:= do
   try
     let imports := Elab.headerToImports header
     importModulesUsingCache imports opts 1024
@@ -46,11 +56,13 @@ def processHeader (header : TSyntax ``Parser.Module.header) (opts : Options)
     mkEmptyEnvironment
 
 /-- Main module `Name` of a Lake configuration file. -/
-def configModuleName : Name := `lakefile
+public def configModuleName : Name := `lakefile
 
 /-- Elaborate `configFile` with the given package directory and options. -/
-def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
-(leanOpts := Options.empty) (configFile := pkgDir / defaultLeanConfigFile) : LogIO Environment := do
+def elabConfigFile
+  (pkgDir : FilePath) (lakeOpts : NameMap String)
+  (leanOpts := Options.empty) (configFile := pkgDir / defaultLeanConfigFile)
+: LogIO Environment := do
 
   -- Read file and initialize environment
   let input ← IO.FS.readFile configFile
@@ -162,7 +174,7 @@ Import the `.olean` for the configuration file if `reconfigure` is not set and
 an up-to-date one exists (i.e., one with matching configuration and on the same
 toolchain). Otherwise, elaborate the configuration and save it to the `.olean`.
 -/
-def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
+public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
   let some configName := FilePath.mk <$> cfg.configFile.fileName
     | error "invalid configuration file name"
   let olean := cfg.lakeDir / configName.withExtension "olean"

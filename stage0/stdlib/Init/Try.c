@@ -42,6 +42,7 @@ static lean_object* l_Lean_Parser_Tactic_tryResult___closed__4;
 static lean_object* l_Lean_Parser_Tactic_tryTrace___closed__4;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__4;
 static lean_object* l_Lean_Parser_Tactic_tryResult___closed__8;
+static lean_object* l_Lean_Try_defaultConfig___closed__0____x40_Init_Try_3081449384____hygCtx___hyg_13_;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__17;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__23;
 static lean_object* l_Lean_Parser_Tactic_tryResult___closed__9;
@@ -55,6 +56,7 @@ static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__7;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__11;
 static lean_object* l_Lean_Parser_Tactic_tryResult___closed__7;
 static lean_object* l_Lean_Parser_Tactic_tryTrace___closed__9;
+LEAN_EXPORT lean_object* l_Lean_Try_Config_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tryResult;
 static lean_object* l_Lean_Parser_Tactic_tryResult___closed__11;
@@ -63,21 +65,39 @@ static lean_object* l_Lean_Parser_Tactic_tryResult___closed__10;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__10;
 static lean_object* l_Lean_Parser_Tactic_tryTrace___closed__8;
 static lean_object* l_Lean_Parser_Tactic_tryTrace___closed__7;
+LEAN_EXPORT lean_object* l_Lean_Try_defaultConfig____x40_Init_Try_3081449384____hygCtx___hyg_13_;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__27;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__24;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_attemptAll;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__28;
-static lean_object* l_Lean_Try_instInhabitedConfig___closed__0;
 static lean_object* l_Lean_Parser_Tactic_tryTrace___closed__6;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Try_Config_ctorIdx(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__26;
 static lean_object* l_Lean_Parser_Tactic_tryResult___closed__1;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__30;
 static lean_object* l_Lean_Parser_Tactic_tryTrace___closed__3;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__12;
 static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__18;
-static lean_object* _init_l_Lean_Try_instInhabitedConfig___closed__0() {
+LEAN_EXPORT lean_object* l_Lean_Try_Config_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Try_Config_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Try_Config_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Try_defaultConfig___closed__0____x40_Init_Try_3081449384____hygCtx___hyg_13_() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -95,11 +115,19 @@ lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 6, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Try_defaultConfig____x40_Init_Try_3081449384____hygCtx___hyg_13_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Try_defaultConfig___closed__0____x40_Init_Try_3081449384____hygCtx___hyg_13_;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Try_instInhabitedConfig() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Try_instInhabitedConfig___closed__0;
+x_1 = l_Lean_Try_defaultConfig____x40_Init_Try_3081449384____hygCtx___hyg_13_;
 return x_1;
 }
 }
@@ -704,8 +732,10 @@ _G_initialized = true;
 res = initialize_Init_Tactics(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Try_instInhabitedConfig___closed__0 = _init_l_Lean_Try_instInhabitedConfig___closed__0();
-lean_mark_persistent(l_Lean_Try_instInhabitedConfig___closed__0);
+l_Lean_Try_defaultConfig___closed__0____x40_Init_Try_3081449384____hygCtx___hyg_13_ = _init_l_Lean_Try_defaultConfig___closed__0____x40_Init_Try_3081449384____hygCtx___hyg_13_();
+lean_mark_persistent(l_Lean_Try_defaultConfig___closed__0____x40_Init_Try_3081449384____hygCtx___hyg_13_);
+l_Lean_Try_defaultConfig____x40_Init_Try_3081449384____hygCtx___hyg_13_ = _init_l_Lean_Try_defaultConfig____x40_Init_Try_3081449384____hygCtx___hyg_13_();
+lean_mark_persistent(l_Lean_Try_defaultConfig____x40_Init_Try_3081449384____hygCtx___hyg_13_);
 l_Lean_Try_instInhabitedConfig = _init_l_Lean_Try_instInhabitedConfig();
 lean_mark_persistent(l_Lean_Try_instInhabitedConfig);
 l_Lean_Parser_Tactic_tryTrace___closed__0 = _init_l_Lean_Parser_Tactic_tryTrace___closed__0();

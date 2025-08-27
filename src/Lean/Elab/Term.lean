@@ -821,7 +821,7 @@ where
   addArgName (msg : MessageData) (extra : String := "") : TermElabM MessageData := do
     match (← get).mvarArgNames.get? mvarErrorInfo.mvarId with
     | none => return msg
-    | some argName => return if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
+    | some argName => return if argName.hasMacroScopes then msg else msg ++ extra ++ m!" `{argName}`"
 
   appendExtra (msg : MessageData) : MessageData :=
     match extraMsg? with
@@ -1480,11 +1480,10 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   let s ← saveState
   let k := stx.getKind
   match termElabAttribute.getEntries (← getEnv) k with
-  | []      => throwError "elaboration function for '{k}' has not been implemented{indentD stx}"
+  | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
   | elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
 
 instance : MonadMacroAdapter TermElabM where
-  getCurrMacroScope := getCurrMacroScope
   getNextMacroScope := return (← getThe Core.State).nextMacroScope
   setNextMacroScope next := modifyThe Core.State fun s => { s with nextMacroScope := next }
 
@@ -1901,7 +1900,7 @@ where
           let localDecl ← auto.fvarId!.getDecl
           for x in xs do
             if (← localDeclDependsOn localDecl x.fvarId!) then
-              throwError "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
+              throwError "invalid auto implicit argument `{auto}`, it depends on explicitly provided argument `{x}`"
       return autos ++ xs
     | auto :: todo =>
       let autos ← collectUnassignedMVars (← inferType auto) autos
@@ -1948,7 +1947,7 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
   checkDeprecatedCore constName
   let cinfo ← getConstVal constName
   if explicitLevels.length > cinfo.levelParams.length then
-    throwError "too many explicit universe levels for '{constName}'"
+    throwError "too many explicit universe levels for `{constName}`"
   else
     let numMissingLevels := cinfo.levelParams.length - explicitLevels.length
     let us ← mkFreshLevelMVars numMissingLevels
@@ -1978,7 +1977,7 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
   if let some (e, projs) ← resolveLocalName n then
     unless explicitLevels.isEmpty do
-      throwError "invalid use of explicit universe parameters, '{e}' is a local variable"
+      throwError "invalid use of explicit universe parameters, `{e}` is a local variable"
     return [(e, projs)]
   let preresolved := preresolved.filterMap fun
     | .decl n projs => some (n, projs)
@@ -1993,14 +1992,18 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
     process preresolved
 where
   process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
-    if candidates.isEmpty then
-      if (← read).autoBoundImplicit &&
-           !(← read).autoBoundImplicitForbidden n &&
-           isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
-        throwAutoBoundImplicitLocal n
-      else
-        throwUnknownIdentifierAt (declHint := n) stx m!"Unknown identifier `{.ofConstName n}`"
-    mkConsts candidates explicitLevels
+    if !candidates.isEmpty then
+      return (← mkConsts candidates explicitLevels)
+    let env ← getEnv
+    -- check for scope errors before trying auto implicits
+    if env.isExporting then
+      if let [(npriv, _)] ← withEnv (env.setExporting false) <| resolveGlobalName n then
+        throwUnknownIdentifierAt (declHint := npriv) stx m!"Unknown identifier `{.ofConstName n}`"
+    if (← read).autoBoundImplicit &&
+          !(← read).autoBoundImplicitForbidden n &&
+          isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
+      throwAutoBoundImplicitLocal n
+    throwUnknownIdentifierAt (declHint := n) stx m!"Unknown identifier `{.ofConstName n}`"
 
 /--
   Similar to `resolveName`, but creates identifiers for the main part and each projection with position information derived from `ident`.
@@ -2055,7 +2058,7 @@ def universeConstraintsCheckpoint (x : TermElabM α) : TermElabM α := do
 def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : TermElabM ExpandDeclIdResult := do
   let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
   if (← read).sectionVars.contains r.shortName then
-    throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
+    throwError "invalid declaration name `{r.shortName}`, there is a section variable with the same name"
   return r
 
 /--

@@ -1,3 +1,4 @@
+module
 opaque p : Nat → Prop
 
 -- Local forall should be activated only once

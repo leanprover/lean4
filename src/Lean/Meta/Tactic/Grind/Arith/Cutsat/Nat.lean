@@ -4,22 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Data.Int.OfNat
 public import Lean.Meta.Tactic.Grind.Simp
 public import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
-
+import Lean.Meta.NatInstTesters
 public section
-
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+/-- Given `e`, returns `(NatCast.natCast e, rfl)` -/
 def mkNatVar (e : Expr) : GoalM (Expr × Expr) := do
   if let some p := (← get').natToIntMap.find? { expr := e } then
     return p
-  let e' := mkIntNatCast e
+  let e' ← shareCommon (mkIntNatCast e)
   let he := mkApp (mkApp (mkConst ``Eq.refl [1]) Int.mkType) e'
   let r := (e', he)
   modify' fun s => { s with

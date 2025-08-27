@@ -21,6 +21,11 @@ protected theorem pow_succ (b : Int) (e : Nat) : b ^ (e+1) = (b ^ e) * b := rfl
 protected theorem pow_succ' (b : Int) (e : Nat) : b ^ (e+1) = b * (b ^ e) := by
   rw [Int.mul_comm, Int.pow_succ]
 
+protected theorem pow_add (a : Int) (m n : Nat) : a ^ (m + n) = a ^ m * a ^ n := by
+  induction n with
+  | zero => rw [Nat.add_zero, Int.pow_zero, Int.mul_one]
+  | succ _ ih => rw [Nat.add_succ, Int.pow_succ, Int.pow_succ, ih, Int.mul_assoc]
+
 protected theorem zero_pow {n : Nat} (h : n ≠ 0) : (0 : Int) ^ n = 0 := by
   match n, h with
   | n + 1, _ => simp [Int.pow_succ]
@@ -42,6 +47,8 @@ protected theorem pow_ne_zero {n : Int} {m : Nat} : n ≠ 0 → n ^ m ≠ 0 := b
   induction m with
   | zero => simp
   | succ m ih => exact fun h => Int.mul_ne_zero (ih h) h
+
+instance {n : Int} {m : Nat} [NeZero n] : NeZero (n ^ m) := ⟨Int.pow_ne_zero (NeZero.ne _)⟩
 
 @[deprecated Nat.pow_le_pow_left (since := "2025-02-17")]
 abbrev pow_le_pow_of_le_left := @Nat.pow_le_pow_left

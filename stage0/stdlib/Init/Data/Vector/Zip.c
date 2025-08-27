@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Zip
-// Imports: Init.Data.Array.Basic Init.Data.Array.Zip Init.Data.Vector.Basic Init.Data.Vector.Lemmas
+// Imports: Init.Data.Array.Basic Init.Data.Array.Basic Init.Data.Array.Zip Init.Data.Vector.Basic Init.Data.Vector.Basic Init.Data.Vector.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,7 +23,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_5; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_5 = lean_apply_3(x_4, x_1, x_2, lean_box(0));
 return x_5;
 }
@@ -32,14 +32,14 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_6; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_6 = lean_apply_3(x_4, x_1, x_2, lean_box(0));
 return x_6;
 }
 else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);
@@ -66,7 +66,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_5; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_5 = lean_apply_3(x_4, x_1, x_2, lean_box(0));
 return x_5;
 }
@@ -75,14 +75,14 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_6; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_6 = lean_apply_3(x_4, x_1, x_2, lean_box(0));
 return x_6;
 }
 else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);
@@ -104,7 +104,9 @@ return x_8;
 }
 }
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Zip(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -115,7 +117,13 @@ _G_initialized = true;
 res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Array_Zip(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());

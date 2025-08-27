@@ -144,7 +144,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
       preresolved
     let val := quote val
     -- `scp` is bound in stxQuot.expand
-    `(Syntax.ident info $(quote rawVal) (addMacroScope mainModule $val scp) $(quote preresolved))
+    `(Syntax.ident info $(quote rawVal) (addMacroScope quotCtx $val scp) $(quote preresolved))
   -- if antiquotation, insert contents as-is, else recurse
   | stx@(Syntax.node _ k _) => do
     if let some (k, _) := stx.antiquotKind? then
@@ -181,7 +181,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
             | `sepBy    =>
               let sep := quote <| getSepFromSplice arg
               `(@TSepArray.elemsAndSeps $(quote ks) $sep $val)
-            | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
+            | k         => throwErrorAt arg "invalid antiquotation suffix splice kind `{k}`"
         else if k == nullKind && isAntiquotSplice arg && !isEscapedAntiquot arg then
           let k := antiquotSpliceKind? arg
           let (arg, bindLets) ← floatOutAntiquotTerms arg |>.run pure
@@ -243,7 +243,7 @@ def mkSyntaxQuotation (stx : Syntax) (kind : Name) : TermElabM Syntax := do
      including it literally in a syntax quotation. -/
   `(Bind.bind MonadRef.mkInfoFromRefPos (fun info =>
       Bind.bind getCurrMacroScope (fun scp =>
-        Bind.bind getMainModule (fun mainModule => Pure.pure (@TSyntax.mk $(quote kind) $stx)))))
+        Bind.bind MonadQuotation.getContext (fun quotCtx => Pure.pure (@TSyntax.mk $(quote kind) $stx)))))
   /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
      capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
      note that the syntax quotation above enjoys the same hygiene guarantees as
@@ -399,7 +399,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
           | `optional => `(have $id := Option.map (@TSyntax.mk $(quote ks)) (Syntax.getOptional? __discr); $rhs)
           | `many     => `(have $id := @TSyntaxArray.mk $(quote ks) (Syntax.getArgs __discr); $rhs)
           | `sepBy    => `(have $id := @TSepArray.mk $(quote ks) $(quote <| getSepFromSplice quoted[0]) (Syntax.getArgs __discr); $rhs)
-          | k         => throwErrorAt quoted "invalid antiquotation suffix splice kind '{k}'"
+          | k         => throwErrorAt quoted "invalid antiquotation suffix splice kind `{k}`"
         | anti         => fun _   => throwErrorAt anti "unsupported antiquotation kind in pattern"
     else if quoted.getArgs.size == 1 && isAntiquotSplice quoted[0] then pure {
       check   := other pat,

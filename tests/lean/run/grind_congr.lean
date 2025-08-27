@@ -1,3 +1,4 @@
+module
 import Lean
 def f (a : Nat) := a + a + a
 def g (a : Nat) := a + a

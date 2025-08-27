@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Order.Lemmas
-// Imports: Init.Data.Order.Classes Init.Data.Order.Factories Init.SimpLemmas Init.Classical
+// Imports: Init.Data.Order.Classes Init.Data.Order.Factories Init.Data.Order.Factories Init.SimpLemmas Init.Classical Init.Data.BEq
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,15 +19,8 @@ LEAN_EXPORT lean_object* l_Std_instTransNotLtOfLawfulOrderLTOfTotalOfLe(lean_obj
 LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_instTransLtOfLeOfLawfulOrderLT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Classical_Order_instLT(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instTransLeOfIsPreorder__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instTransLeOfIsPreorder(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-return lean_box(0);
-}
-}
-LEAN_EXPORT lean_object* l_Std_instTransLeOfIsPreorder__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 return lean_box(0);
@@ -80,8 +73,10 @@ return x_5;
 }
 lean_object* initialize_Init_Data_Order_Classes(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_SimpLemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Classical(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_BEq(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -93,10 +88,16 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Order_Factories(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Order_Factories(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_SimpLemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Classical(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BEq(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

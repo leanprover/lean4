@@ -1,4 +1,7 @@
-/-- info: Try this: simp only [Nat.reduceMul, a] -/
+/--
+info: Try this:
+  simp only [Nat.reduceMul, a]
+-/
 #guard_msgs in
 example : True := by
   let a := 10

@@ -57,6 +57,7 @@ lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PostCond_mayThrow(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_term___u2192_u209a__;
 static lean_object* l_Std_Do_term___u2227_u2091_____closed__2;
+LEAN_EXPORT lean_object* l_Std_Do_PostShape_ctorIdx___boxed(lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__termPost_u27e8___x2c_x2c_u27e9__1___closed__6;
 LEAN_EXPORT lean_object* l_Std_Do_ExceptConds_false(lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__term___u21d3___x3d_x3e____1___closed__16;
@@ -71,6 +72,7 @@ static lean_object* l_Std_Do_termPost_u27e8___x2c_x2c_u27e9___closed__7;
 static lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__termPost_u27e8___x2c_x2c_u27e9__1___closed__19;
 LEAN_EXPORT lean_object* l_Std_Do_PostCond_and___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__term___u22a2_u2091____1___closed__8;
+LEAN_EXPORT lean_object* l_Std_Do_PostShape_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_term___u2192_u2091__;
 static lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__termPost_u27e8___x2c_x2c_u27e9__1___closed__23;
 static lean_object* l_Std_Do_term___u22a2_u2091_____closed__5;
@@ -306,6 +308,40 @@ static lean_object* l_Std_Do_termPost_u27e8___x2c_x2c_u27e9___closed__8;
 static lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__term___u22a2_u2091____1___closed__14;
 static lean_object* l_Std_Do_termPost_u27e8___x2c_x2c_u27e9___closed__4;
 static lean_object* l_Std_Do___aux__Std__Do__PostCond______macroRules__Std__Do__term___u22a2_u2091____1___closed__10;
+LEAN_EXPORT lean_object* l_Std_Do_PostShape_ctorIdx(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+case 1:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(1u);
+return x_3;
+}
+default: 
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(2u);
+return x_4;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_PostShape_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Do_PostShape_ctorIdx(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Do_PostShape_args(lean_object* x_1) {
 _start:
 {
@@ -906,16 +942,16 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_7; 
-lean_dec_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_6);
+lean_dec(x_5);
 x_7 = lean_apply_2(x_4, x_2, x_3);
 return x_7;
 }
 case 1:
 {
 lean_object* x_8; lean_object* x_9; 
-lean_dec_ref(x_6);
-lean_dec_ref(x_4);
+lean_dec(x_6);
+lean_dec(x_4);
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
 lean_dec_ref(x_1);
@@ -925,8 +961,8 @@ return x_9;
 default: 
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_5);
+lean_dec(x_4);
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
 lean_dec_ref(x_1);
@@ -950,15 +986,15 @@ _start:
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
-lean_dec_ref(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_4);
+lean_dec(x_3);
 lean_inc(x_2);
 return x_2;
 }
 case 1:
 {
 lean_object* x_5; lean_object* x_6; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec_ref(x_1);
@@ -968,7 +1004,7 @@ return x_6;
 default: 
 {
 lean_object* x_7; lean_object* x_8; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);

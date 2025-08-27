@@ -1,3 +1,4 @@
+module
 import Lean.Meta.Tactic.Grind
 
 set_option trace.Meta.debug true

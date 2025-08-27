@@ -129,6 +129,10 @@ theorem UpwardEnumerable.le_refl {α : Type u} [UpwardEnumerable α] [LawfulUpwa
     (a : α) : UpwardEnumerable.LE a a :=
   ⟨0, LawfulUpwardEnumerable.succMany?_zero a⟩
 
+theorem UpwardEnumerable.lt_irrefl {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    {a : α} : ¬ UpwardEnumerable.LT a a :=
+  fun h => LawfulUpwardEnumerable.ne_of_lt a a h rfl
+
 theorem UpwardEnumerable.le_trans {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {a b c : α} (hab : UpwardEnumerable.LE a b) (hbc : UpwardEnumerable.LE b c) :
     UpwardEnumerable.LE a c := by
@@ -145,6 +149,12 @@ theorem UpwardEnumerable.lt_of_lt_of_le {α : Type u} [UpwardEnumerable α] [Law
   refine ⟨hab.choose + hbc.choose, ?_⟩
   rw [Nat.add_right_comm, succMany?_add, hab.choose_spec, Option.bind_some, hbc.choose_spec]
 
+theorem UpwardEnumerable.lt_of_le_of_lt {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    {a b c : α} (hab : UpwardEnumerable.LE a b) (hbc : UpwardEnumerable.LT b c) :
+    UpwardEnumerable.LT a c := by
+  refine ⟨hab.choose + hbc.choose, ?_⟩
+  rw [Nat.add_assoc, succMany?_add, hab.choose_spec, Option.bind_some, hbc.choose_spec]
+
 theorem UpwardEnumerable.not_gt_of_le {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {a b : α} :
     UpwardEnumerable.LE a b → ¬ UpwardEnumerable.LT b a := by
@@ -153,6 +163,11 @@ theorem UpwardEnumerable.not_gt_of_le {α : Type u} [UpwardEnumerable α] [Lawfu
     refine ⟨n + m, ?_⟩
     rw [Nat.add_assoc, UpwardEnumerable.succMany?_add, hle, Option.bind_some, hgt]
   exact LawfulUpwardEnumerable.ne_of_lt _ _ this rfl
+
+theorem UpwardEnumerable.not_ge_of_lt {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    {a b : α} :
+    UpwardEnumerable.LT a b → ¬ UpwardEnumerable.LE b a :=
+  flip not_gt_of_le
 
 theorem UpwardEnumerable.not_gt_of_lt {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {a b : α} (h : UpwardEnumerable.LT a b) : ¬ UpwardEnumerable.LT b a :=

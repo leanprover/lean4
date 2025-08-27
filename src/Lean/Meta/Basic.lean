@@ -900,7 +900,7 @@ Throw an exception if `mvarId` is not declared in the current metavariable conte
 def _root_.Lean.MVarId.getDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   match (← mvarId.findDecl?) with
   | some d => pure d
-  | none   => throwError "unknown metavariable '?{mvarId.name}'"
+  | none   => throwError "unknown metavariable `?{mvarId.name}`"
 
 /--
 Return `mvarId` kind. Throw an exception if `mvarId` is not declared in the current metavariable context.
@@ -953,7 +953,7 @@ Return the level of the given universe level metavariable.
 def _root_.Lean.LMVarId.getLevel (mvarId : LMVarId) : MetaM Nat := do
   match (← getMCtx).findLevelDepth? mvarId with
   | some depth => return depth
-  | _          => throwError "unknown universe metavariable '?{mvarId.name}'"
+  | _          => throwError "unknown universe metavariable `?{mvarId.name}`"
 
 /--
 Return true if the given universe metavariable is "read-only".
@@ -972,7 +972,7 @@ def _root_.Lean.MVarId.setUserName (mvarId : MVarId) (newUserName : Name) : Meta
 Throw an exception saying `fvarId` is not declared in the current local context.
 -/
 def _root_.Lean.FVarId.throwUnknown (fvarId : FVarId) : CoreM α :=
-  throwError "unknown free variable '{mkFVar fvarId}'"
+  throwError "unknown free variable `{mkFVar fvarId}`"
 
 /--
 Return `some decl` if `fvarId` is declared in the current local context.
@@ -1042,7 +1042,7 @@ Throw an exception if free variable is not declared.
 def getLocalDeclFromUserName (userName : Name) : MetaM LocalDecl := do
   match (← getLCtx).findFromUserName? userName with
   | some d => pure d
-  | none   => throwError "unknown local declaration '{userName}'"
+  | none   => throwError "unknown local declaration `{userName}`"
 
 /-- Given a user-facing name for a free variable, return the free variable or throw if not declared. -/
 def getFVarFromUserName (userName : Name) : MetaM Expr := do
@@ -1053,7 +1053,7 @@ def getFVarFromUserName (userName : Name) : MetaM Expr := do
 Lift a `MkBindingM` monadic action `x` to `MetaM`.
 -/
 @[inline] def liftMkBindingM (x : MetavarContext.MkBindingM α) : MetaM α := do
-  match x { lctx := (← getLCtx), mainModule := (← getEnv).mainModule } { mctx := (← getMCtx), ngen := (← getNGen), nextMacroScope := (← getThe Core.State).nextMacroScope } with
+  match x { lctx := (← getLCtx), quotContext := (← readThe Core.Context).quotContext } { mctx := (← getMCtx), ngen := (← getNGen), nextMacroScope := (← getThe Core.State).nextMacroScope } with
   | .ok e sNew => do
     setMCtx sNew.mctx
     modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }
@@ -2231,16 +2231,25 @@ def sortFVarIds (fvarIds : Array FVarId) : MetaM (Array FVarId) := do
 end Methods
 
 /--
+Return `true` if `indVal` is an inductive predicate. That is, `inductive` type in `Prop`.
+-/
+def isInductivePredicateVal (indVal : InductiveVal) : MetaM Bool := do
+  forallTelescopeReducing indVal.type fun _ type => do
+    match (← whnfD type) with
+    | .sort u .. => return u == levelZero
+    | _ => return false
+
+/--
 Return `some info` if `declName` is an inductive predicate where `info : InductiveVal`.
 That is, `inductive` type in `Prop`.
 -/
 def isInductivePredicate? (declName : Name) : MetaM (Option InductiveVal) := do
   match (← getEnv).find? declName with
   | some (.inductInfo info) =>
-    forallTelescopeReducing info.type fun _ type => do
-      match (← whnfD type) with
-      | .sort u .. => if u == levelZero then return some info else return none
-      | _ => return none
+    if (← isInductivePredicateVal info) then
+      return some info
+    else
+      return none
   | _ => return none
 
 /-- Return `true` if `declName` is an inductive predicate. That is, `inductive` type in `Prop`. -/

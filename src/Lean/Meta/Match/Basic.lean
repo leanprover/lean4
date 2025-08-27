@@ -247,7 +247,7 @@ def checkAndReplaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : MetaM Alt :
     unless (← isDefEqGuarded fvarDecl.type vType) do
       withExistingLocalDecls alt.fvarDecls do
         let (expectedType, givenType) ← addPPExplicitToExposeDiff vType fvarDecl.type
-        throwErrorAt alt.ref "Type mismatch during dependent match-elimination at pattern variable '{mkFVar fvarDecl.fvarId}' with type{indentExpr givenType}\nExpected type{indentExpr expectedType}"
+        throwErrorAt alt.ref "Type mismatch during dependent match-elimination at pattern variable `{mkFVar fvarDecl.fvarId}` with type{indentExpr givenType}\nExpected type{indentExpr expectedType}"
     return replaceFVarId fvarId v alt
 
 end Alt
@@ -364,5 +364,16 @@ partial def toPattern (e : Expr) : MetaM Pattern := do
           let fields := args.extract v.numParams args.size
           let fields ← fields.mapM toPattern
           return Pattern.ctor v.name us params.toList fields.toList
+
+/-! Match congruence equational theorem names helper declarations and functions -/
+
+def congrEqnThmSuffixBase := "congr_eq"
+def congrEqnThmSuffixBasePrefix := congrEqnThmSuffixBase ++ "_"
+def congrEqn1ThmSuffix := congrEqnThmSuffixBasePrefix ++ "1"
+example : congrEqn1ThmSuffix = "congr_eq_1" := rfl
+
+/-- Returns `true` if `s` is of the form `congr_eq_<idx>` -/
+def isCongrEqnReservedNameSuffix (s : String) : Bool :=
+  congrEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop congrEqnThmSuffixBasePrefix.length).isNat
 
 end Lean.Meta.Match

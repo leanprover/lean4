@@ -24,7 +24,8 @@ open Meta
 /-! # `elabTerm` for Tactics and basic tactics that use it. -/
 
 /--
-Runs a term elaborator inside a tactic.
+Runs a term elaborator inside a tactic, finalizing elaboration with `Term.synthesizeSyntheticMVars`.
+- `mayPostpone` controls the postponement behavior of `Term.synthesizeSyntheticMVars`.
 
 This function ensures that term elaboration fails when backtracking,
 i.e., in `first| tac term | other`.
@@ -219,7 +220,7 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
     else
       /- Ensure that the main goal does not occur in `val`. -/
       if val.findMVar? (· == mvarId) matches some _ then
-        throwError "'refine' tactic failed, value{indentExpr val}\ndepends on the main goal metavariable '{mkMVar mvarId}'"
+        throwError "`refine` tactic failed, value{indentExpr val}\ndepends on the main goal metavariable `{mkMVar mvarId}`"
       mvarId.assign val
       replaceMainGoal mvarIds'
 

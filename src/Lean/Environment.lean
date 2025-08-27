@@ -804,7 +804,7 @@ declarations from `realizeConst`, which are not restricted to the current prefix
 which may escape the branch(es) they have been realized on such as when looking into the type `Expr`
 of a declaration found on another branch. Thus when we cannot find the declaration using the fast
 prefix-based lookup, we fall back to waiting for and looking at the realizations from all branches.
-To avoid this expensive search for realizations from other branches, `skipRealize` can set to ensure
+To avoid this expensive search for realizations from other branches, `skipRealize` can be set to ensure
 negative lookups are as fast as positive ones.
 
 Use `findTask` instead if any blocking should be avoided.
@@ -1536,7 +1536,7 @@ An environment extension with support for storing/retrieving entries from a .ole
  - β is the type of values used to update the state.
  - σ is the actual state.
 
-For most extensions, α and β coincide. `α` and ‵β` do not coincide for extensions where the data
+For most extensions, α and β coincide. `α` and `β` do not coincide for extensions where the data
 used to update the state contains elements which cannot be stored in files (for example, closures).
 
 During elaboration of a module, state of type `σ` can be both read and written. When elaboration is
@@ -1913,7 +1913,7 @@ private def ImportedModule.publicModule? (self : ImportedModule) : Option Module
 private def ImportedModule.getData? (self : ImportedModule) (level : OLeanLevel) : Option ModuleData := do
   -- Without the module system, we only have the exported level.
   let level := if (← self.publicModule?).isModule then level else .exported
-  self.parts[level.toCtorIdx]?.map (·.1)
+  self.parts[level.ctorIdx]?.map (·.1)
 
 /-- The main module data that will eventually be used to construct the kernel environment. -/
 private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleData :=
@@ -2182,7 +2182,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     serverBaseExts := (← setImportedEntries privateBase.extensions serverData)
   }
   if leakEnv then
-    /- Mark persistent a first time before `finalizePersistenExtensions`, which
+    /- Mark persistent a first time before `finalizePersistentExtensions`, which
        avoids costly MT markings when e.g. an interpreter closure (which
        contains the environment) is put in an `IO.Ref`. This can happen in e.g.
        initializers of user environment extensions and is wasteful because the
@@ -2589,6 +2589,10 @@ class MonadEnv (m : Type → Type) where
   modifyEnv : (Environment → Environment) → m Unit
 
 export MonadEnv (getEnv modifyEnv)
+
+/-- Returns the module name of the current file. -/
+def getMainModule [Monad m] [MonadEnv m] : m Name :=
+  return (← getEnv).header.mainModule
 
 @[always_inline]
 instance (m n) [MonadLift m n] [MonadEnv m] : MonadEnv n where

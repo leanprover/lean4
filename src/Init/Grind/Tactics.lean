@@ -111,6 +111,10 @@ structure Config where
   -/
   cutsat := true
   /--
+  When `true` (default: `true`), uses procedure for handling associative (and commutative) operators.
+  -/
+  ac := true
+  /--
   Maximum exponent eagerly evaluated while computing bounds for `ToInt` and
   the characteristic of a ring.
   -/
@@ -428,7 +432,7 @@ are only internalized after `grind` decided whether the condition is
 -/
 
 -- The following symbols are only used as the root pattern symbol if there isn't another option
-attribute [grind symbol low] HAdd.hAdd HSub.hSub HMul.hMul Dvd.dvd HDiv.hDiv HMod.hMod
+attribute [grind symbol low] HAdd.hAdd HSub.hSub HMul.hMul HSMul.hSMul Dvd.dvd HDiv.hDiv HMod.hMod
 
 -- TODO: improve pattern inference heuristics and reduce priority for LT.lt and LE.le
 -- attribute [grind symbol low] LT.lt LE.le

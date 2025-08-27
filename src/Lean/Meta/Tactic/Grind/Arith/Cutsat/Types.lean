@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Int.Linear
-public import Std.Internal.Rat
 public import Lean.Data.PersistentArray
 public import Lean.Meta.Tactic.Grind.ExprPtr
 public import Lean.Meta.Tactic.Grind.Arith.Util
@@ -19,7 +18,6 @@ public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 export Int.Linear (Var Poly)
-export Std.Internal (Rat)
 
 deriving instance Hashable for Poly
 
@@ -102,6 +100,20 @@ inductive EqCnstrProof where
   | commRingNorm (c : EqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
   | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
   | defnNatCommRing (h : Expr) (x : Var) (e' : Int.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | mul (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr))
+  | /--
+    Linearization proof for `/`
+    - If `?y = some y`, then it is a proof for `a / b = y / k` where `c` is a proof that `b = k`
+    - If `?y = none`, then it is a proof for `a / b = a/k` where `c` is a proof that `b = k`. `a` is a numeral in this case.
+    -/
+    div (k : Int) (y? : Option Var) (c : EqCnstr)
+  | /--
+    Linearization proof for `%`
+    - If `?y = some y`, then it is a proof for `a % b = y%k` where `c` is a proof that `b = k`
+    - If `?y = none`, then it is a proof for `a % b = a%k` where `c` is a proof that `b = k`. `a` is a numeral in this case.
+    -/
+    mod (k : Int) (y? : Option Var) (c : EqCnstr)
+  | pow (ka : Int) (ca? : Option EqCnstr) (kb : Nat) (cb? : Option EqCnstr)
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where
@@ -343,6 +355,16 @@ structure State where
   `usedCommRing` is `true` if the `CommRing` has been used to normalize expressions.
   -/
   usedCommRing : Bool := false
+  /--
+  Mapping from terms to variables representing nonlinear terms.
+  For example, suppose the denotation of variable `x` is the nonlinear term `a*b*c`,
+  and `y` is the nonlinear term `a / d`. Then the mapping contains the entries
+  - `a ↦ [x, y]`
+  - `b ↦ [x]`
+  - `c ↦ [x]`
+  - `d ↦ [y]`
+  -/
+  nonlinearOccs : PHashMap Var (List Var) := {}
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

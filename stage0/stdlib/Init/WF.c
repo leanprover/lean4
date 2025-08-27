@@ -30,6 +30,7 @@ LEAN_EXPORT lean_object* l_wfParam(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_measure___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_wfParam___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_instWellFoundedRelation(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFoundedRelation_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_emptyWf(lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_instWellFoundedRelation___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_skipLeft(lean_object*, lean_object*, lean_object*);
@@ -37,6 +38,14 @@ LEAN_EXPORT lean_object* l_PSigma_instWellFoundedRelation(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_sizeOfWFRel___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_Lex_instDecidableRelOfDecidableEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_lex(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFoundedRelation_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_emptyWf(lean_object* x_1) {
 _start:
 {
@@ -58,7 +67,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_invImage(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_5;
 }
 }

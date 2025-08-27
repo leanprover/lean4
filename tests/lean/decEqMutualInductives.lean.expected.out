@@ -22,8 +22,7 @@
            else isFalse✝³ (by intro n✝²; injection n✝²; apply h✝² _; assumption)
        termination_by structural x✝²
      end,
-     @[expose✝]
-     public instance : DecidableEq✝ (@ListTree✝) :=
+     instance : DecidableEq✝ (@ListTree✝) :=
        decEqListTree✝]
 [Elab.Deriving.decEq] 
     [mutual
@@ -52,6 +51,5 @@
            else isFalse✝³ (by intro n✝²; injection n✝²; apply h✝³ _; assumption)
        termination_by structural x✝⁴
      end,
-     @[expose✝]
-     public instance : DecidableEq✝ (@Foo₁✝) :=
+     instance : DecidableEq✝ (@Foo₁✝) :=
        decEqFoo₁✝]

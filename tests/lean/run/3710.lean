@@ -23,7 +23,8 @@ theorem indicator_of {s : Set} {a : Nat} (h : s a) : indicator s a = 1 := if_pos
 theorem indicator_of_not {s : Set} {a : Nat} (h : ¬ s a) : indicator s a = 0 := if_neg h
 
 /--
-info: Try this: simp only [compl_iff, singleton_iff, not_true_eq_false, not_false_eq_true, indicator_of_not]
+info: Try this:
+  simp only [compl_iff, singleton_iff, not_true_eq_false, not_false_eq_true, indicator_of_not]
 -/
 #guard_msgs in
 theorem test : indicator (compl <| singleton 0) 0 = 0 := by

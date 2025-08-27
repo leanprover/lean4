@@ -6,17 +6,17 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Std.Internal.Rat
 public import Init.Grind.Ring.Poly
 public import Init.Grind.Ordered.Linarith
 public import Lean.Data.PersistentArray
 public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Init.Data.Rat.Basic
 
 public section
 
 namespace Lean.Meta.Grind.Arith.Linear
 export Lean.Grind.Linarith (Var Poly)
-export Std.Internal (Rat)
+
 abbrev LinExpr := Lean.Grind.Linarith.Expr
 
 deriving instance Hashable for Poly
@@ -101,14 +101,16 @@ structure Struct where
   leInst?          : Option Expr
   /-- `LT` instance if available -/
   ltInst?          : Option Expr
-  /-- `Preorder` instance if available -/
-  preorderInst?    : Option Expr
-  /-- `OrderedAdd` instance with `Preorder` if available -/
+  /-- `LawfulOrderLT` instance if available -/
+  lawfulOrderLTInst?    : Option Expr
+  /-- `IsPreorder` instance if available -/
+  isPreorderInst?    : Option Expr
+  /-- `OrderedAdd` instance with `IsPreorder` if available -/
   orderedAddInst?       : Option Expr
-  /-- `PartialOrder` instance if available -/
-  partialInst?     : Option Expr
-  /-- `LinearOrder` instance if available -/
-  linearInst?      : Option Expr
+  /-- `IsPartialOrder` instance if available -/
+  isPartialInst?     : Option Expr
+  /-- `IsLinearOrder` instance if available -/
+  isLinearInst?      : Option Expr
   /-- `NoNatZeroDivisors` -/
   noNatDivInst?    : Option Expr
   /-- `Ring` instance -/

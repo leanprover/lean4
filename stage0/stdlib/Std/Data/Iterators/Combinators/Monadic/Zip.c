@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instFinitenessRelation_u2081(lean_o
 LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instIteratorCollect___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instIterator___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instIteratorLoop___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_Zip_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMappedPartial(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instIteratorCollect___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instIterator___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -27,6 +28,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instProductivenessRelation___boxed(
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_zip(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instIteratorSize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instIterator___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_Zip_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instIteratorLoopPartial(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_sizePartial___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instIterator___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,6 +54,24 @@ lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(le
 LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instIteratorCollect(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instIteratorCollectPartial___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instIteratorSizePartial___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_Zip_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = lean_unsigned_to_nat(0u);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_Zip_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Std_Iterators_Zip_ctorIdx(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec_ref(x_7);
+lean_dec(x_4);
+return x_8;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Iterators_Zip_instIterator___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -225,7 +245,7 @@ lean_inc(x_6);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_7 = lean_ctor_get(x_5, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_5, 2);
@@ -242,7 +262,7 @@ return x_11;
 else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_12 = lean_ctor_get(x_5, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_5, 2);
@@ -268,10 +288,10 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_3);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 lean_dec_ref(x_4);
 x_7 = lean_alloc_closure((void*)(l_Std_Iterators_Zip_instIterator___redArg___lam__2), 5, 4);
 lean_closure_set(x_7, 0, x_6);
@@ -318,7 +338,7 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Std_Iterators_IterM_zip(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 return x_9;
 }
 }
@@ -336,8 +356,8 @@ _start:
 lean_object* x_11; 
 x_11 = l_Std_Iterators_Zip_instFinitenessRelation_u2081(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec_ref(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_4);
+lean_dec(x_7);
+lean_dec(x_4);
 return x_11;
 }
 }
@@ -347,18 +367,18 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_6; 
-lean_dec_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_5);
+lean_dec(x_4);
 x_6 = lean_apply_1(x_3, x_2);
 return x_6;
 }
 else
 {
-lean_dec_ref(x_3);
+lean_dec(x_3);
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);
@@ -368,7 +388,7 @@ return x_8;
 else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 lean_dec_ref(x_1);
@@ -403,8 +423,8 @@ _start:
 lean_object* x_11; 
 x_11 = l_Std_Iterators_Zip_instFinitenessRelation_u2082(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec_ref(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_4);
+lean_dec(x_7);
+lean_dec(x_4);
 return x_11;
 }
 }
@@ -422,8 +442,8 @@ _start:
 lean_object* x_11; 
 x_11 = l_Std_Iterators_Zip_instProductivenessRelation(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec_ref(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_4);
+lean_dec(x_7);
+lean_dec(x_4);
 return x_11;
 }
 }
@@ -546,8 +566,8 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 lean_inc_ref(x_3);
-lean_inc_ref(x_2);
-lean_inc_ref(x_1);
+lean_inc(x_2);
+lean_inc(x_1);
 x_4 = l_Std_Iterators_Zip_instIterator___redArg(x_1, x_2, x_3);
 lean_inc_ref_n(x_3, 2);
 x_5 = l_Std_Iterators_Zip_instIteratorLoop___redArg(x_1, x_2, x_3, x_3);
@@ -575,8 +595,8 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 lean_inc_ref(x_3);
-lean_inc_ref(x_2);
-lean_inc_ref(x_1);
+lean_inc(x_2);
+lean_inc(x_1);
 x_4 = l_Std_Iterators_Zip_instIterator___redArg(x_1, x_2, x_3);
 lean_inc_ref_n(x_3, 2);
 x_5 = l_Std_Iterators_Zip_instIteratorLoopPartial___redArg(x_1, x_2, x_3, x_3);

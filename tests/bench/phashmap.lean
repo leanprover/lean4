@@ -34,10 +34,10 @@ instance [Pure m] : Std.Iterators.Iterator RandomIterator m UInt64 where
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RandomIterator) m n :=
   .defaultImplementation
 
-def mkMapWithCap (seed : UInt64) (size : Nat) : Lean.PersistentHashMap UInt64 String := Id.run do
+def mkMapWithCap (seed : UInt64) (size : Nat) : Lean.PersistentHashMap UInt64 UInt64 := Id.run do
   let mut map := Lean.PersistentHashMap.empty
   for val in iterRand seed |>.take size |>.allowNontermination do
-    map := map.insert val s!"{val}"
+    map := map.insert val val
   return map
 
 def timeNanos (reps : Nat) (x : IO Unit) : IO Float := do
@@ -105,7 +105,7 @@ def benchInsertHit (seed : UInt64) (size : Nat) : IO Float := do
     let mut map := map
     while todo != 0 do
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insert val s!"{val}"
+        map := map.insert val val
         if map.isEmpty then
           throw <| .userError "Fail"
       todo := todo - size
@@ -120,7 +120,7 @@ def benchInsertMissEmpty (seed : UInt64) (size : Nat) : IO Float := do
     while todo != 0 do
       let mut map : Lean.PersistentHashMap _ _ := {}
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insert val s!"{val}"
+        map := map.insert val val
         if map.isEmpty then
           throw <| .userError "Fail"
       todo := todo - size
@@ -137,7 +137,7 @@ def benchInsertMissEmptyShared (seed : UInt64) (size : Nat) : IO Float := do
       let mut map : Lean.PersistentHashMap _ _ := {}
       let mut maps := Array.emptyWithCapacity size
       for val in iterRand seed |>.take size |>.allowNontermination do
-        map := map.insert val s!"{val}"
+        map := map.insert val val
         if map.isEmpty then
           throw <| .userError "Fail"
         maps := maps.push map
@@ -158,7 +158,7 @@ def benchEraseInsert (seed : UInt64) (size : Nat) : IO Float := do
     let mut todo := checks
     while todo != 0 do
       for (eraseVal, newVal) in eraseIter.zip newIter |>.take size |>.allowNontermination do
-        map := map.erase eraseVal |>.insert newVal s!"{newVal}"
+        map := map.erase eraseVal |>.insert newVal newVal
         if map.isEmpty then
           throw <| .userError "Fail"
       todo := todo - size

@@ -64,7 +64,7 @@ Note: You can use `set_option quotPrecheck false` to disable this check.
 fun e => do
   let info ← MonadRef.mkInfoFromRefPos
   let scp ← getCurrMacroScope
-  let mainModule ← getMainModule
+  let quotCtx ← MonadQuotation.getContext
   pure
       {
         raw :=

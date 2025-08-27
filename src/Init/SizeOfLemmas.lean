@@ -6,9 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import all Init.Data.Char.Basic
+public import Init.Data.Char.Basic
+import all Init.Data.Char.Basic
 public import Init.Meta
-public import all Init.SizeOf
+public import Init.SizeOf
+import all Init.SizeOf
 public import Init.Data.Nat.Linear
 
 public section

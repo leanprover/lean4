@@ -8,9 +8,13 @@
             "type": [
                 "string",
                 "boolean",
-                "integer"
+                "integer",
+                "object"
             ],
             "minimum": 0,
+            "additionalProperties": {
+                "$ref": "#/definitions/leanOptionValue"
+            },
             "description": "A `set_option` string / boolean / natural number configuration value."
         },
         "leanConfig": {
@@ -126,7 +130,7 @@
                 },
                 "platformIndependent": {
                     "type": "boolean",
-                    "description": "Asserts whether Lake should assume Lean modules are platform-independent.\n\n* If `false`, Lake will add `System.Platform.target` to the module traces within the code unit (e.g., package or library). This will force Lean code to be re-elaborated on different platforms.\n\n* If `true`, Lake will exclude platform-dependent elements (e.g., precompiled modules, external libraries) from a module's trace, preventing re-elaboration on different platforms. Note that this will not effect  modules outside the code unit in question. For example, a platform-independent package which depends on a platform-dependent library will still be platform-dependent.\n\n* If not set, Lake will construct traces as natural. That is, it will include platform-dependent artifacts in the trace if they module depends on them, but otherwise not force modules to be platform-dependent.\n\nThere is no check  for correctness here, so a configuration can lie and Lake will not catch it."
+                    "description": "Asserts whether Lake should assume Lean modules are platform-independent.\n\n* If `false`, Lake will add `System.Platform.target` to the module traces within the code unit (e.g., package or library). This will force Lean code to be re-elaborated on different platforms.\n\n* If `true`, Lake will exclude platform-dependent elements (e.g., precompiled modules, external libraries) from a module's trace, preventing re-elaboration on different platforms. Note that this will not effect modules outside the code unit in question. For example, a platform-independent package which depends on a platform-dependent library will still be platform-dependent.\n\n* If not set, Lake will construct traces as natural. That is, it will include platform-dependent artifacts in the trace if they module depends on them, but otherwise not force modules to be platform-dependent.\n\nThere is no check  for correctness here, so a configuration can lie and Lake will not catch it."
                 },
                 "dynlibs": {
                     "type": "array",
@@ -322,7 +326,7 @@
                         "object"
                     ],
                     "default": "*",
-                    "description": "Includes only the files from the directory whose paths satisify this pattern.\n\nFormat: Either `\"*\"`, or a recursive object with one of the following properties at every layer:\n- `path`: String pattern matching the path.\n- `extension`: String pattern matching the extension of the file in the path.\n- `fileName`: String pattern matching the name of the file in the path.\n- `not`: Negate a path pattern.\n- `any`: Match any of an array of path patterns.\n- `all`: Match all of an array of path patterns.\n\nString patterns have the following format: Either `\"*\"`, an array of all strings that are a match, or a recursive object with one of the following properties at every layer:\n- `startsWith`: Denotes a prefix string of all strings that are a match.\n- `endsWith`: Denotes a suffix string of all strings that are a match.\n- `not`: Negate a string pattern.\n- `any`: Match any of an array of string patterns.\n- `all`: Match all of an array of string patterns."
+                    "description": "Includes only the files from the directory whose paths satisfy this pattern.\n\nFormat: Either `\"*\"`, or a recursive object with one of the following properties at every layer:\n- `path`: String pattern matching the path.\n- `extension`: String pattern matching the extension of the file in the path.\n- `fileName`: String pattern matching the name of the file in the path.\n- `not`: Negate a path pattern.\n- `any`: Match any of an array of path patterns.\n- `all`: Match all of an array of path patterns.\n\nString patterns have the following format: Either `\"*\"`, an array of all strings that are a match, or a recursive object with one of the following properties at every layer:\n- `startsWith`: Denotes a prefix string of all strings that are a match.\n- `endsWith`: Denotes a suffix string of all strings that are a match.\n- `not`: Negate a string pattern.\n- `any`: Match any of an array of string patterns.\n- `all`: Match all of an array of string patterns."
                 }
             },
             "required": [
@@ -346,76 +350,20 @@
                     "description": "A dependency on the local filesystem, specified by its path."
                 },
                 "git": {
-                    "anyOf": [
-                        {
-                            "type": "string",
-                            "description": "URL to the Git repository."
-                        },
-                        {
-                            "type": "object",
-                            "properties": {
-                                "url": {
-                                    "type": "string",
-                                    "description": "URL to the Git repository."
-                                },
-                                "subDir": {
-                                    "type": "string",
-                                    "description": "Subdirectory of the Git repository that contains the package's source code."
-                                }
-                            },
-                            "required": [
-                                "url"
-                            ],
-                            "description": "Table declaring both the URL to the Git repository and the subdirectory of the Git repository that contains the package's source code."
-                        }
-                    ],
-                    "description": "A dependency in a Git repository, specified either by its URL as a string or by a table with the keys:\n\n* url: the repository URL \n* subDir: the subdirectory of the Git repository that contains the package's source code"
+                    "type": "string",
+                    "description": "A dependency in a Git repository, specified by its URL."
+                },
+                "subDir": {
+                    "type": "string",
+                    "description": "The subdirectory of a Git repository (as specified by `git`) that contains the package's source code."
                 },
                 "rev": {
                     "type": "string",
-                    "description": "For Git or Reservoir dependencies, this field specifies the Git revision, which may be a branch name, a tag name, or a specific hash. On Reservoir, the version field takes precedence over this field."
-                },
-                "source": {
-                    "type": "object",
-                    "properties": {
-                        "type": {
-                            "type": "string",
-                            "enum": [
-                                "path",
-                                "git"
-                            ],
-                            "description": "Whether this dependency exists on disk (`path`) or should be cloned via Git (`git`). If `type` is `path`, then the `dir` property must also be set. If `type` is `git`, then the `url` property must also be set."
-                        },
-                        "dir": {
-                            "type": "string",
-                            "description": "Path to the directory where this dependency is located. Must be present if `type` is `path`."
-                        },
-                        "url": {
-                            "type": "string",
-                            "description": "URL of the Git repository where this dependency is located. Must be present if `type` is `git`."
-                        },
-                        "rev": {
-                            "type": "string",
-                            "description": "Git revision to depend on, which may be a branch name, a tag name, or a specific hash."
-                        },
-                        "subDir": {
-                            "type": "string",
-                            "description": "Subdirectory of the Git repository that contains the package's source code."
-                        }
-                    },
-                    "required": [
-                        "type"
-                    ],
-                    "description": "A dependency source, specified as a self-contained table, which is used when neither the git nor the path key is present. The key type should be either the string \"git\" or the string \"path\". If the type is \"path\", then there must be a further key \"path\" whose value is a string that provides the location of the package on disk. If the type is \"git\", then the following keys should be present:\n\n* url: the repository URL \n* rev: the Git revision, which may be a branch name, a tag name, or a specific hash (optional) \n* subDir: the subdirectory of the Git repository that contains the package's source code"
+                    "description": "For Git dependencies, this field specifies the Git revision, which may be a branch name, a tag name, or a specific hash."
                 },
                 "scope": {
                     "type": "string",
-                    "default": "",
                     "description": "An additional qualifier used to distinguish packages of the same name in a Lake registry. On Reservoir, this is the package owner."
-                },
-                "version": {
-                    "type": "string",
-                    "description": "The target version of the dependency. A Git revision can be specified with the syntax git#<rev>."
                 }
             },
             "required": [
@@ -424,6 +372,7 @@
             "x-taplo": {
                 "initKeys": [
                     "name",
+                    "git",
                     "rev",
                     "scope"
                 ]
@@ -442,7 +391,6 @@
                 },
                 "version": {
                     "type": "string",
-                    "default": "",
                     "description": "The package version. Versions have the form:\n\n``` v!\"<major>.<minor>.<patch>[-<specialDescr>]\" ``` \nA version with a `-` suffix is considered a \"prerelease\".\n\nLake suggest the following guidelines for incrementing versions:\n\n* **Major version increment** *(e.g., v1.3.0 → v2.0.0)* Indicates significant breaking changes in the package.\nPackage users are not expected to update to the new version without manual intervention.\n\n* **Minor version increment** *(e.g., v1.3.0 → v1.4.0)* Denotes notable changes that are expected to be generally backwards compatible.\nPackage users are expected to update to this version automatically and should be able to fix any breakages and/or warnings easily.\n\n* **Patch version increment** *(e.g., v1.3.0 → v1.3.1)* Reserved for bug fixes and small touchups.\nPackage users are expected to update automatically and should not expect significant breakage, except in the edge case of users relying on the behavior of patched bugs.\n\n**Note that backwards-incompatible changes may occur at any version increment.** The is because the current nature of Lean (e.g., transitive imports, rich metaprogramming, reducibility in proofs), makes it infeasible to define a completely stable interface for a package.\nInstead, the different version levels indicate a change's intended significance and how difficult migration is expected to be.\n\nVersions of form the `0.x.x` are considered development versions prior to first official release. Like prerelease, they are not expected to closely follow the above guidelines.\n\nPackages without a defined version default to `0.0.0`."
                 },
                 "versionTags": {
@@ -459,7 +407,6 @@
                 },
                 "description": {
                     "type": "string",
-                    "default": "",
                     "description": "A short description for the package (e.g., for Reservoir)."
                 },
                 "keywords": {
@@ -473,12 +420,10 @@
                 },
                 "homepage": {
                     "type": "string",
-                    "default": "",
                     "description": "A URL to information about the package.\n\nReservoir will already include a link to the package's GitHub repository (if the package is sourced from there). Thus, users are advised to specify something else for this (if anything)."
                 },
                 "license": {
                     "type": "string",
-                    "default": "",
                     "description": "The package's license (if one).\nShould be a valid [SPDX License Expression][1].\n\nReservoir requires that packages uses an OSI-approved license to be included in its index, and currently only supports single identifier SPDX expressions. For, a list of OSI-approved SPDX license identifiers, see the [SPDX LIcense List][2].\n\n[1]: https://spdx.github.io/spdx-spec/v3.0/annexes/SPDX-license-expressions/ [2]: https://spdx.org/licenses/"
                 },
                 "licenseFiles": {
@@ -579,7 +524,6 @@
                 },
                 "testDriver": {
                     "type": "string",
-                    "default": "",
                     "description": "The name of the script, executable, or library by `lake test` when this package is the workspace root. To point to a definition in another package, use the syntax `<pkg>/<def>`.\n\nA script driver will be run by `lake test` with the arguments configured in `testDriverArgs` followed by any specified on the CLI (e.g., via  `lake lint -- <args>...`). An executable driver will be built and then run like a script. A library will just be built."
                 },
                 "testDriverArgs": {
@@ -593,7 +537,6 @@
                 },
                 "lintDriver": {
                     "type": "string",
-                    "default": "",
                     "description": "The name of the script or executable used by `lake lint` when this package is the workspace root. To point to a definition in another package, use the syntax `<pkg>/<def>`.\n\nA script driver will be run by `lake lint` with the arguments configured in `lintDriverArgs` followed by any specified on the CLI (e.g., via  `lake lint -- <args>...`). An executable driver will be built and then run like a script."
                 },
                 "lintDriverArgs": {

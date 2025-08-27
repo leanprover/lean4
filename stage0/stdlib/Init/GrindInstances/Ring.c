@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances.Ring
-// Imports: Init.GrindInstances.Ring.Nat Init.GrindInstances.Ring.Int Init.GrindInstances.Ring.UInt Init.GrindInstances.Ring.SInt Init.GrindInstances.Ring.Fin Init.GrindInstances.Ring.BitVec
+// Imports: Init.GrindInstances.Ring.Nat Init.GrindInstances.Ring.Int Init.GrindInstances.Ring.UInt Init.GrindInstances.Ring.SInt Init.GrindInstances.Ring.Fin Init.GrindInstances.Ring.BitVec Init.GrindInstances.Ring.Rat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,7 @@ lean_object* initialize_Init_GrindInstances_Ring_UInt(uint8_t builtin, lean_obje
 lean_object* initialize_Init_GrindInstances_Ring_SInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_GrindInstances_Ring_Fin(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_GrindInstances_Ring_BitVec(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_GrindInstances_Ring_Rat(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_GrindInstances_Ring(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -40,6 +41,9 @@ res = initialize_Init_GrindInstances_Ring_Fin(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_GrindInstances_Ring_BitVec(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_GrindInstances_Ring_Rat(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

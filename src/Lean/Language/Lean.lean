@@ -260,7 +260,7 @@ ruled out.
 def LeanProcessingM.run (act : LeanProcessingM α) (oldInputCtx? : Option InputContext) :
     ProcessingM α := do
   -- compute position of syntactic change once
-  let firstDiffPos? := oldInputCtx?.map (·.input.firstDiffPos (← read).input)
+  let firstDiffPos? := oldInputCtx?.map (·.inputString.firstDiffPos (← read).inputString)
   ReaderT.adapt ({ · with firstDiffPos? }) act
 
 /--
@@ -392,7 +392,7 @@ where
       -- they are passed separately from `old`
       if let some oldSuccess := old.result? then
         -- make sure to update ranges of all reused tasks
-        let progressRange? := .some ⟨newParserState.pos, ctx.input.endPos⟩
+        let progressRange? := .some ⟨newParserState.pos, ctx.endPos⟩
         return {
           ictx
           stx := newStx
@@ -478,7 +478,7 @@ where
   processHeader (stx : HeaderSyntax) (parserState : Parser.ModuleParserState) :
       LeanProcessingM (SnapshotTask HeaderProcessedSnapshot) := do
     let ctx ← read
-    SnapshotTask.ofIO none none (.some ⟨0, ctx.input.endPos⟩) <|
+    SnapshotTask.ofIO none none (.some ⟨0, ctx.endPos⟩) <|
     ReaderT.run (r := ctx) <|  -- re-enter reader in new task
     withHeaderExceptions (α := HeaderProcessedSnapshot) ({ · with result? := none, metaSnap := default }) do
       let setup ← match (← setupImports stx) with
@@ -488,7 +488,7 @@ where
       let startTime := (← IO.monoNanosNow).toFloat / 1000000000
       let mut opts := setup.opts
       -- HACK: no better way to enable in core with `USE_LAKE` off
-      if setup.mainModuleName.getRoot ∈ [`Init, `Std, `Lean, `Lake] then
+      if setup.mainModuleName.getRoot ∈ [`Init, `Std, `Lean, `Lake, `LakeMain] then
         opts := experimental.module.setIfNotSet opts true
       if !stx.raw[0].isNone && !experimental.module.get opts then
         throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"
@@ -569,7 +569,7 @@ where
             parseCmd oldNext newParserState oldResult.cmdState newProm sync cancelTk ctx
         prom.resolve <| { old with nextCmdSnap? := some {
           stx? := none
-          reportingRange := .some ⟨newParserState.pos, ctx.input.endPos⟩
+          reportingRange := .some ⟨newParserState.pos, ctx.endPos⟩
           task := newProm.result!
           cancelTk? := cancelTk
         } }
@@ -651,7 +651,7 @@ where
         else some <$> IO.Promise.new
       let nextCmdSnap? := next?.map ({
         stx? := none
-        reportingRange := .some ⟨parserState.pos, ctx.input.endPos⟩
+        reportingRange := .some ⟨parserState.pos, ctx.endPos⟩
         cancelTk? := parseCancelTk
         task := ·.result!
       })

@@ -14,6 +14,7 @@ public import Lean.Elab.PreDefinition.TerminationHint
 public import Lean.Elab.Match
 public import Lean.Compiler.MetaAttr
 meta import Lean.Parser.Term
+import Lean.Linter.Basic
 
 public section
 
@@ -194,7 +195,7 @@ def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit :=
 private def ensureAtomicBinderName (binderView : BinderView) : TermElabM Unit :=
   let n := binderView.id.getId.eraseMacroScopes
   unless n.isAtomic do
-    throwErrorAt binderView.id "invalid binder name '{n}', it must be atomic"
+    throwErrorAt binderView.id "invalid binder name `{n}`, it must be atomic"
 
 register_builtin_option checkBinderAnnotations : Bool := {
   defValue := true
@@ -302,7 +303,11 @@ open Lean.Elab.Term.Quotation in
     -- elaborate independently from each other
     let dom ← elabType dom
     let rng ← elabType rng
-    return mkForall (← MonadQuotation.addMacroScope `a) BinderInfo.default dom rng
+    -- We use a non-variable macro scope as collisions are not an issue here (we've already
+    -- elaborated the subterm). The delaborator will eventually renumber macro scopes if the
+    -- binding is shown at all.
+    let n := addMacroScope `_internal `a reservedMacroScope
+    return mkForall n BinderInfo.default dom rng
   | _                    => throwUnsupportedSyntax
 
 /--
@@ -776,8 +781,8 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     -/
     let type ← withSynthesize (postpone := .partial) <| elabType typeStx
     let letMsg := if config.nondep then "have" else "let"
-    registerCustomErrorIfMVar type typeStx m!"failed to infer '{letMsg}' declaration type"
-    registerLevelMVarErrorExprInfo type typeStx m!"failed to infer universe levels in '{letMsg}' declaration type"
+    registerCustomErrorIfMVar type typeStx m!"failed to infer `{letMsg}` declaration type"
+    registerLevelMVarErrorExprInfo type typeStx m!"failed to infer universe levels in `{letMsg}` declaration type"
     if config.postponeValue then
       let type ← mkForallFVars fvars type
       let val  ← mkFreshExprMVar type

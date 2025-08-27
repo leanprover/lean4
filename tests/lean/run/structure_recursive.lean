@@ -124,7 +124,7 @@ structure RecS where
 Incidental new feature: checking projections when the structure is Prop.
 -/
 /--
-error: failed to generate projection 'Exists'.x' for the 'Prop'-valued type 'Exists'', field must be a proof, but it has type
+error: failed to generate projection `Exists'.x` for the 'Prop'-valued type `Exists'`, field must be a proof, but it has type
   α
 -/
 #guard_msgs in

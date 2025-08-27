@@ -157,19 +157,6 @@ int getopt_long(int argc, char *in_argv[], const char *optstring, const option *
 
 using namespace lean; // NOLINT
 
-#ifndef LEAN_SERVER_DEFAULT_MAX_MEMORY
-#define LEAN_SERVER_DEFAULT_MAX_MEMORY 1024
-#endif
-#ifndef LEAN_DEFAULT_MAX_MEMORY
-#define LEAN_DEFAULT_MAX_MEMORY 0
-#endif
-#ifndef LEAN_DEFAULT_MAX_HEARTBEAT
-#define LEAN_DEFAULT_MAX_HEARTBEAT 0
-#endif
-#ifndef LEAN_SERVER_DEFAULT_MAX_HEARTBEAT
-#define LEAN_SERVER_DEFAULT_MAX_HEARTBEAT 100000
-#endif
-
 extern "C" obj_res lean_display_header(obj_arg);
 static void display_header() {
     consume_io_result(lean_display_header(io_mk_world()));
@@ -286,6 +273,10 @@ options set_config_option(options const & opts, char const * in) {
 namespace lean {
 extern "C" obj_res lean_shell_main(
     obj_arg  args,
+    obj_arg  forwarded_args,
+    uint8    component,
+    uint8    print_prefix,
+    uint8    print_libdir,
     uint8    use_stdin,
     uint8    only_deps,
     uint8    only_src_deps,
@@ -306,6 +297,10 @@ extern "C" obj_res lean_shell_main(
 );
 uint32 run_shell_main(
     int argc, char* argv[],
+    buffer<string_ref> forwarded_args,
+    int run_server,
+    bool print_prefix,
+    bool print_libdir,
     bool use_stdin,
     bool only_deps,
     bool only_src_deps,
@@ -330,6 +325,10 @@ uint32 run_shell_main(
     }
     return get_io_scalar_result<uint32>(lean_shell_main(
         args.steal(),
+        to_list_ref(forwarded_args).to_obj_arg(),
+        run_server,
+        print_prefix,
+        print_libdir,
         use_stdin,
         only_deps, only_src_deps, deps_json,
         opts.to_obj_arg(),
@@ -348,19 +347,6 @@ uint32 run_shell_main(
     ));
 }
 
-/* def workerMain : Options → IO UInt32 */
-extern "C" object * lean_server_worker_main(object * opts, object * w);
-uint32_t run_server_worker(options const & opts) {
-    return get_io_scalar_result<uint32_t>(lean_server_worker_main(opts.to_obj_arg(), io_mk_world()));
-}
-
-/* def watchdogMain (args : List String) : IO Uint32 */
-extern "C" object* lean_server_watchdog_main(object* args, object* w);
-uint32_t run_server_watchdog(buffer<string_ref> const & args) {
-    list_ref<string_ref> arglist = to_list_ref(args);
-    return get_io_scalar_result<uint32_t>(lean_server_watchdog_main(arglist.to_obj_arg(), io_mk_world()));
-}
-
 extern "C" object* lean_init_search_path(object* w);
 void init_search_path() {
     get_io_scalar_result<unsigned>(lean_init_search_path(io_mk_world()));
@@ -371,9 +357,6 @@ void environment_free_regions(elab_environment && env) {
     consume_io_result(lean_environment_free_regions(env.steal(), io_mk_world()));
 }
 }
-
-extern "C" object * lean_get_prefix(object * w);
-extern "C" object * lean_get_libdir(object * sysroot, object * w);
 
 void check_optarg(char const * option_name) {
     if (!optarg) {
@@ -601,29 +584,6 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
     lean::io_mark_end_initialization();
 
-    if (print_prefix) {
-        std::cout << get_io_result<string_ref>(lean_get_prefix(io_mk_world())).data() << std::endl;
-        return 0;
-    }
-
-    if (print_libdir) {
-        string_ref prefix = get_io_result<string_ref>(lean_get_prefix(io_mk_world()));
-        std::cout << get_io_result<string_ref>(lean_get_libdir(prefix.to_obj_arg(), io_mk_world())).data() << std::endl;
-        return 0;
-    }
-
-    if (auto max_memory = opts.get_unsigned(get_max_memory_opt_name(),
-                                            opts.get_bool("server") ? LEAN_SERVER_DEFAULT_MAX_MEMORY
-                                                                    : LEAN_DEFAULT_MAX_MEMORY)) {
-        set_max_memory_megabyte(max_memory);
-    }
-
-    if (auto timeout = opts.get_unsigned(get_timeout_opt_name(),
-                                         opts.get_bool("server") ? LEAN_SERVER_DEFAULT_MAX_HEARTBEAT
-                                                                 : LEAN_DEFAULT_MAX_HEARTBEAT)) {
-        set_max_heartbeat_thousands(timeout);
-    }
-
     if (get_profiler(opts)) {
         g_lean_report_task_get_blocked_time = report_task_get_blocked_time;
         report_profiling_time("initialization", init_time);
@@ -632,18 +592,14 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     scoped_task_manager scope_task_man(num_threads);
 
     try {
-        if (run_server == 1)
-            return run_server_watchdog(forwarded_args);
-        else if (run_server == 2)
-            return run_server_worker(opts);
-        else
-            return run_shell_main(
-                argc - optind, argv + optind,
-                use_stdin, only_deps, only_src_deps, deps_json,
-                opts, trust_lvl, root_dir, setup_fn,
-                olean_fn, ilean_fn, c_output, llvm_output,
-                json_output, error_kinds, stats, run
-            );
+        return run_shell_main(
+            argc - optind, argv + optind,
+            forwarded_args, run_server, print_prefix, print_libdir,
+            use_stdin, only_deps, only_src_deps, deps_json,
+            opts, trust_lvl, root_dir, setup_fn,
+            olean_fn, ilean_fn, c_output, llvm_output,
+            json_output, error_kinds, stats, run
+        );
     } catch (lean::throwable & ex) {
         std::cerr << ex.what() << "\n";
     } catch (std::bad_alloc & ex) {

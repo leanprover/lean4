@@ -100,7 +100,7 @@ open Command
 def mkOrdInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then
     for declName in declNames do
-      let cmds ← liftTermElabM <| mkOrdInstanceCmds declName
+      let cmds ← withoutExposeFromCtors declName <| liftTermElabM <| mkOrdInstanceCmds declName
       cmds.forM elabCommand
     return true
   else

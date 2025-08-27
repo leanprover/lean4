@@ -21,6 +21,8 @@ public import Lean.Elab.DeclUtil
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.DeclarationRange
 import Lean.Elab.ComputedFields
+import Lean.Meta.Constructions.CtorIdx
+import Lean.Meta.Constructions.CtorElim
 
 public section
 
@@ -904,13 +906,16 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
         let numVars   := vars.size
         let numParams := numVars + numExplicitParams
         let indTypes ← updateParams vars indTypes
+        -- allow general access to private data for steps that do no elaboration
         let indTypes ←
-          if let some univToInfer := univToInfer? then
-            updateResultingUniverse views numParams (← levelMVarToParam indTypes univToInfer)
-          else
-            propagateUniversesToConstructors numParams indTypes
-            levelMVarToParam indTypes none
-        checkResultingUniverses views elabs' numParams indTypes
+          withoutExporting do
+            if let some univToInfer := univToInfer? then
+              updateResultingUniverse views numParams (← levelMVarToParam indTypes univToInfer)
+            else
+              propagateUniversesToConstructors numParams indTypes
+              levelMVarToParam indTypes none
+        withoutExporting do
+          checkResultingUniverses views elabs' numParams indTypes
         elabs'.forM fun elab' => elab'.finalizeTermElab
         let usedLevelNames := collectLevelParamsInInductive indTypes
         match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
@@ -968,9 +973,12 @@ private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
   let hasHEq  := env.contains ``HEq
   let hasUnit := env.contains ``PUnit
   let hasProd := env.contains ``Prod
+  let hasNat  := env.contains ``Nat
   for n in declNames do
     mkRecOn n
     if hasUnit then mkCasesOn n
+    if hasNat then mkCtorIdx n
+    if hasNat then mkCtorElim n
     if hasUnit && hasEq && hasHEq then mkNoConfusion n
     if hasUnit && hasProd then mkBelow n
   for n in declNames do
@@ -982,12 +990,14 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
   Term.withDeclName view0.declName do withRef ref do
   withExporting (isExporting := !isPrivateName view0.declName) do
     let res ← mkInductiveDecl vars elabs
-    mkAuxConstructions (elabs.map (·.view.declName))
-    unless view0.isClass do
-      mkSizeOfInstances view0.declName
-      IndPredBelow.mkBelow view0.declName
-      for e in elabs do
-        mkInjectiveTheorems e.view.declName
+    -- This might be too coarse, consider reconsidering on construction-by-construction basis
+    withoutExporting (when := view0.ctors.any (isPrivateName ·.declName)) do
+      mkAuxConstructions (elabs.map (·.view.declName))
+      unless view0.isClass do
+        mkSizeOfInstances view0.declName
+        IndPredBelow.mkBelow view0.declName
+        for e in elabs do
+          mkInjectiveTheorems e.view.declName
     for e in elabs do
       enableRealizationsForConst e.view.declName
     return res
@@ -1043,12 +1053,12 @@ private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM U
   let mut processed : NameSet := {}
   for view in views do
     for classView in view.derivingClasses do
-      let className := classView.className
+      let className ← liftCoreM <| classView.getClassName
       unless processed.contains className do
         processed := processed.insert className
         let mut declNames := #[]
         for view in views do
-          if view.derivingClasses.any fun classView => classView.className == className then
+          if view.derivingClasses.any fun classView' => classView'.cls == classView.cls then
             declNames := declNames.push view.declName
         classView.applyHandlers declNames
 

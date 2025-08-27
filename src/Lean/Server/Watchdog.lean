@@ -1663,7 +1663,6 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     : ServerContext
   }
 
-@[export lean_server_watchdog_main]
 def watchdogMain (args : List String) : IO UInt32 := do
   let i ← IO.getStdin
   let o ← IO.getStdout

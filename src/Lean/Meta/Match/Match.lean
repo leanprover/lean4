@@ -985,7 +985,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
 def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput := do
   let matcherName := matcherApp.matcherName
   let some matcherInfo ← getMatcherInfo? matcherName
-    | throwError "Internal error during match expression elaboration: Could not find a matcher named '{matcherName}'"
+    | throwError "Internal error during match expression elaboration: Could not find a matcher named `{matcherName}`"
   let matcherConst ← getConstInfo matcherName
   let matcherType ← instantiateForall matcherConst.type <| matcherApp.params ++ #[matcherApp.motive]
   let matchType ← do
@@ -1016,13 +1016,13 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
 /-- This function is only used for testing purposes -/
 def withMkMatcherInput (matcherName : Name) (k : MkMatcherInput → MetaM α) : MetaM α := do
   let some matcherInfo ← getMatcherInfo? matcherName
-    | throwError "Internal error during match expression elaboration: Could not find a matcher named '{matcherName}'"
+    | throwError "Internal error during match expression elaboration: Could not find a matcher named `{matcherName}`"
   let matcherConst ← getConstInfo matcherName
   forallBoundedTelescope matcherConst.type (some matcherInfo.arity) fun xs _ => do
   let matcherApp ← mkConstWithLevelParams matcherConst.name
   let matcherApp := mkAppN matcherApp xs
   let some matcherApp ← matchMatcherApp? matcherApp
-    | throwError "Internal error during match expression elaboration: Could not find a matcher app named '{matcherApp}'"
+    | throwError "Internal error during match expression elaboration: Could not find a matcher app named `{matcherApp}`"
   let mkMatcherInput ← getMkMatcherInputInContext matcherApp
   k mkMatcherInput
 

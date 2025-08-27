@@ -21,6 +21,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filter___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Map_instIteratorCollect___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterWithPostcondition___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_FilterMap_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_mapWithPostcondition___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterM___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -83,6 +84,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Map_instIteratorCollect___redArg___lam_
 LEAN_EXPORT lean_object* l_Std_Iterators_FilterMap_instIterator___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Map_instIteratorCollectPartial___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_FilterMap_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Map_instIteratorCollect___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_FilterMap_instIterator___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_FilterMap_instIteratorLoop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -117,6 +119,25 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorSizePartialFilterMap(lean_o
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_filterMapWithPostcondition___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Map_instIteratorLoopPartial(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Map_instIteratorCollectPartial(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_FilterMap_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = lean_unsigned_to_nat(0u);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_FilterMap_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l_Std_Iterators_FilterMap_ctorIdx(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+return x_9;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_InternalCombinators_filterMap___redArg(lean_object* x_1) {
 _start:
 {
@@ -146,9 +167,9 @@ _start:
 lean_object* x_10; 
 x_10 = l_Std_Iterators_IterM_InternalCombinators_filterMap(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_9);
-lean_dec_ref(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
 return x_10;
 }
 }
@@ -181,9 +202,9 @@ _start:
 lean_object* x_11; 
 x_11 = l_Std_Iterators_IterM_InternalCombinators_map(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_10);
-lean_dec_ref(x_9);
-lean_dec_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
 lean_dec_ref(x_6);
 return x_11;
 }
@@ -217,9 +238,9 @@ _start:
 lean_object* x_10; 
 x_10 = l_Std_Iterators_IterM_filterMapWithPostcondition(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_9);
-lean_dec_ref(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
 return x_10;
 }
 }
@@ -269,8 +290,8 @@ return x_9;
 case 1:
 {
 uint8_t x_10; 
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_3);
+lean_dec(x_2);
 x_10 = !lean_is_exclusive(x_4);
 if (x_10 == 0)
 {
@@ -293,8 +314,8 @@ return x_14;
 default: 
 {
 lean_object* x_15; lean_object* x_16; 
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_3);
+lean_dec(x_2);
 x_15 = lean_box(2);
 x_16 = lean_apply_2(x_1, lean_box(0), x_15);
 return x_16;
@@ -319,12 +340,12 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 lean_dec_ref(x_4);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_7);
+lean_inc(x_7);
 lean_dec_ref(x_5);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_8 = lean_alloc_closure((void*)(l_Std_Iterators_FilterMap_instIterator___redArg___lam__1), 4, 3);
 lean_closure_set(x_8, 0, x_7);
 lean_closure_set(x_8, 1, x_2);
@@ -368,7 +389,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_1);
 x_6 = lean_apply_1(x_2, x_4);
 x_7 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_3, x_6);
@@ -412,9 +433,9 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l___private_Init_Data_Iterators_Combinators_Monadic_FilterMap_0__Std_Iterators_FilterMap_instFinitenessRelation(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec_ref(x_9);
-lean_dec_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
 lean_dec_ref(x_6);
 return x_11;
 }
@@ -432,9 +453,9 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l___private_Init_Data_Iterators_Combinators_Monadic_FilterMap_0__Std_Iterators_Map_instProductivenessRelation(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec_ref(x_9);
-lean_dec_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
 lean_dec_ref(x_6);
 return x_11;
 }
@@ -586,7 +607,7 @@ _start:
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = lean_alloc_closure((void*)(l_Std_Iterators_Map_instIteratorCollect___redArg___lam__0), 2, 1);
 lean_closure_set(x_10, 0, x_8);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_11 = lean_alloc_closure((void*)(l_Std_Iterators_Map_instIteratorCollect___redArg___lam__1), 4, 2);
 lean_closure_set(x_11, 0, x_1);
 lean_closure_set(x_11, 1, x_6);
@@ -604,7 +625,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_1);
 x_6 = lean_alloc_closure((void*)(l_Std_Iterators_Map_instIteratorCollect___redArg___lam__3), 9, 4);
 lean_closure_set(x_6, 0, x_2);
@@ -627,7 +648,7 @@ _start:
 {
 lean_object* x_14; 
 x_14 = l_Std_Iterators_Map_instIteratorCollect(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 lean_dec_ref(x_7);
 return x_14;
 }
@@ -647,7 +668,7 @@ _start:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_alloc_closure((void*)(l_Std_Iterators_Map_instIteratorCollect___redArg___lam__0), 2, 1);
 lean_closure_set(x_9, 0, x_7);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 x_10 = lean_alloc_closure((void*)(l_Std_Iterators_Map_instIteratorCollectPartial___redArg___lam__1), 4, 2);
 lean_closure_set(x_10, 0, x_1);
 lean_closure_set(x_10, 1, x_5);
@@ -665,7 +686,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_1);
 x_6 = lean_alloc_closure((void*)(l_Std_Iterators_Map_instIteratorCollectPartial___redArg___lam__2), 8, 4);
 lean_closure_set(x_6, 0, x_2);
@@ -688,7 +709,7 @@ _start:
 {
 lean_object* x_13; 
 x_13 = l_Std_Iterators_Map_instIteratorCollectPartial(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 lean_dec_ref(x_7);
 return x_13;
 }
@@ -760,9 +781,9 @@ _start:
 lean_object* x_11; 
 x_11 = l_Std_Iterators_IterM_mapWithPostcondition(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_10);
-lean_dec_ref(x_9);
-lean_dec_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
 lean_dec_ref(x_6);
 return x_11;
 }
@@ -796,9 +817,9 @@ _start:
 lean_object* x_10; 
 x_10 = l_Std_Iterators_IterM_filterWithPostcondition(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_9);
-lean_dec_ref(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
 lean_dec_ref(x_5);
 return x_10;
 }
@@ -832,10 +853,10 @@ _start:
 lean_object* x_11; 
 x_11 = l_Std_Iterators_IterM_filterMapM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_10);
-lean_dec_ref(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_9);
+lean_dec(x_8);
 lean_dec_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 return x_11;
 }
 }
@@ -868,10 +889,10 @@ _start:
 lean_object* x_11; 
 x_11 = l_Std_Iterators_IterM_mapM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_10);
-lean_dec_ref(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_9);
+lean_dec(x_8);
 lean_dec_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 return x_11;
 }
 }
@@ -904,10 +925,10 @@ _start:
 lean_object* x_10; 
 x_10 = l_Std_Iterators_IterM_filterM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_9);
-lean_dec_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_8);
+lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 return x_10;
 }
 }
@@ -942,7 +963,7 @@ x_9 = l_Std_Iterators_IterM_filterMap(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 return x_9;
 }
 }
@@ -975,9 +996,9 @@ _start:
 lean_object* x_9; 
 x_9 = l_Std_Iterators_IterM_map(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 return x_9;
 }
 }
@@ -1012,7 +1033,7 @@ x_8 = l_Std_Iterators_IterM_filter(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 return x_8;
 }
 }
@@ -1021,9 +1042,9 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 lean_inc_ref(x_1);
-lean_inc_ref(x_2);
-lean_inc_ref(x_4);
-lean_inc_ref(x_3);
+lean_inc(x_2);
+lean_inc(x_4);
+lean_inc(x_3);
 x_5 = l_Std_Iterators_FilterMap_instIterator___redArg(x_3, x_4, x_2, x_1);
 lean_inc_ref_n(x_1, 2);
 x_6 = l_Std_Iterators_FilterMap_instIteratorLoop___redArg(x_1, x_1, x_2, x_3, x_4);
@@ -1051,9 +1072,9 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 lean_inc_ref(x_1);
-lean_inc_ref(x_2);
-lean_inc_ref(x_4);
-lean_inc_ref(x_3);
+lean_inc(x_2);
+lean_inc(x_4);
+lean_inc(x_3);
 x_5 = l_Std_Iterators_FilterMap_instIterator___redArg(x_3, x_4, x_2, x_1);
 lean_inc_ref_n(x_1, 2);
 x_6 = l_Std_Iterators_FilterMap_instIteratorLoopPartial___redArg(x_1, x_1, x_2, x_3, x_4);
@@ -1107,8 +1128,8 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Std_Iterators_instIteratorSizeMap(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec_ref(x_9);
-lean_dec_ref(x_7);
+lean_dec(x_9);
+lean_dec(x_7);
 lean_dec_ref(x_6);
 return x_11;
 }
@@ -1136,8 +1157,8 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Std_Iterators_instIteratorSizePartialMap(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec_ref(x_9);
-lean_dec_ref(x_7);
+lean_dec(x_9);
+lean_dec(x_7);
 lean_dec_ref(x_6);
 return x_11;
 }

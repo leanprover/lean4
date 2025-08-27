@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_RArray_toExpr___redArg___closed__5;
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0__Lean_RArray_getImpl_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -29,6 +28,7 @@ LEAN_EXPORT lean_object* l_Lean_RArray_toExpr(lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0__Lean_RArray_ofFn_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_ofArray___redArg(lean_object*);
 static lean_object* l_Lean_RArray_toExpr___redArg___closed__3;
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0__Lean_RArray_ofFn_go___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_RArray_toExpr___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_RArray_ofArray(lean_object*, lean_object*, lean_object*);
@@ -63,7 +63,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_nat_add(x_2, x_3);
 x_8 = lean_nat_shiftr(x_7, x_4);
 lean_dec(x_7);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_9 = l___private_Lean_Data_RArray_0__Lean_RArray_ofFn_go___redArg(x_1, x_2, x_8);
 lean_inc(x_8);
 x_10 = l___private_Lean_Data_RArray_0__Lean_RArray_ofFn_go___redArg(x_1, x_8, x_3);
@@ -192,7 +192,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; lean_object* x_5; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec_ref(x_1);
@@ -202,7 +202,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_1, 1);
@@ -385,9 +385,9 @@ x_14 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_14, 0, x_10);
 lean_ctor_set(x_14, 1, x_13);
 lean_inc_ref(x_14);
-x_15 = l_Lean_Expr_const___override(x_12, x_14);
+x_15 = l_Lean_mkConst(x_12, x_14);
 x_16 = l_Lean_RArray_toExpr___redArg___closed__5;
-x_17 = l_Lean_Expr_const___override(x_16, x_14);
+x_17 = l_Lean_mkConst(x_16, x_14);
 x_18 = l___private_Lean_Data_RArray_0__Lean_RArray_toExpr_go___redArg(x_1, x_2, x_15, x_17, x_3, x_11);
 return x_18;
 }

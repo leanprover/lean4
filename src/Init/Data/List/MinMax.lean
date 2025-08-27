@@ -147,7 +147,11 @@ theorem min?_replicate [Min α] [Std.IdempotentOp (min : α → α → α)] {n :
   simp [min?_replicate, Nat.ne_of_gt h]
 
 /--
-Requirements are satisfied for `[OrderData α] [Min α] [IsLinearOrder α] [LawfulOrderMin α]`
+This lemma is also applicable given the following instances:
+
+```
+[LE α] [Min α] [IsLinearOrder α] [LawfulOrderMin α]
+```
 -/
 theorem foldl_min [Min α] [Std.IdempotentOp (min : α → α → α)] [Std.Associative (min : α → α → α)]
     {l : List α} {a : α} : l.foldl (init := a) min = min a (l.min?.getD a) := by
@@ -268,7 +272,7 @@ theorem max?_eq_some_iff_legacy [Max α] [LE α] [anti : Std.Antisymm (· ≤ ·
     (max_le_iff : ∀ a b c : α, max b c ≤ a ↔ b ≤ a ∧ c ≤ a) {xs : List α} :
     xs.max? = some a ↔ a ∈ xs ∧ ∀ b ∈ xs, b ≤ a := by
   haveI : MaxEqOr α := ⟨max_eq_or⟩
-  haveI : LawfulOrderMax α := .of_le (fun _ _ _ => max_le_iff _ _ _) max_eq_or
+  haveI : LawfulOrderMax α := .of_max_le_iff (fun _ _ _ => max_le_iff _ _ _) max_eq_or
   haveI : Refl (α := α) (· ≤ ·) := ⟨le_refl⟩
   haveI : IsLinearOrder α := .of_refl_of_antisymm_of_lawfulOrderMax
   apply max?_eq_some_iff
@@ -284,7 +288,11 @@ theorem max?_replicate [Max α] [Std.IdempotentOp (max : α → α → α)] {n :
   simp [max?_replicate, Nat.ne_of_gt h]
 
 /--
-Requirements are satisfied for `[OrderData α] [Max α] [LinearOrder α] [LawfulOrderMax α]`
+This lemma is also applicable given the following instances:
+
+```
+[LE α] [Min α] [IsLinearOrder α] [LawfulOrderMax α]
+```
 -/
 theorem foldl_max [Max α] [Std.IdempotentOp (max : α → α → α)] [Std.Associative (max : α → α → α)]
     {l : List α} {a : α} : l.foldl (init := a) max = max a (l.max?.getD a) := by

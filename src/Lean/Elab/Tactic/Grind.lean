@@ -101,7 +101,7 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
         let thms := s.find (.decl declName)
         let thms := thms.filter fun thm => thm.kind == .user
         if thms.isEmpty then
-          throwErrorAt p "invalid use of `usr` modifier, `{declName}` does not have patterns specified with the command `grind_pattern`"
+          throwErrorAt p "invalid use of `usr` modifier, `{.ofConstName declName}` does not have patterns specified with the command `grind_pattern`"
         for thm in thms do
           params := { params with extra := params.extra.push thm }
       | .ematch kind =>
@@ -114,7 +114,7 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
           for ctor in info.ctors do
             params ← withRef p <| addEMatchTheorem params ctor (.default false)
         else
-          throwError "invalid use of `intro` modifier, `{declName}` is not an inductive predicate"
+          throwError "invalid use of `intro` modifier, `{.ofConstName declName}` is not an inductive predicate"
       | .ext =>
         throwError "`[grind ext]` cannot be set using parameters"
       | .infer =>
@@ -151,14 +151,14 @@ where
         return { params with extra := params.extra.push thm }
     | .defn =>
       if (← isReducible declName) then
-        throwError "`{declName}` is a reducible definition, `grind` automatically unfolds them"
+        throwError "`{.ofConstName declName}` is a reducible definition, `grind` automatically unfolds them"
       if !kind.isEqLhs && !kind.isDefault then
-        throwError "invalid `grind` parameter, `{declName}` is a definition, the only acceptable (and redundant) modifier is '='"
+        throwError "invalid `grind` parameter, `{.ofConstName declName}` is a definition, the only acceptable (and redundant) modifier is '='"
       let some thms ← Grind.mkEMatchEqTheoremsForDef? declName
-        | throwError "failed to generate equation theorems for `{declName}`"
+        | throwError "failed to generate equation theorems for `{.ofConstName declName}`"
       return { params with extra := params.extra ++ thms.toPArray' }
     | _ =>
-      throwError "invalid `grind` parameter, `{declName}` is not a theorem, definition, or inductive type"
+      throwError "invalid `grind` parameter, `{.ofConstName declName}` is not a theorem, definition, or inductive type"
 
 def mkGrindParams (config : Grind.Config) (only : Bool) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) : MetaM Grind.Params := do
   let params ← Grind.mkParams config

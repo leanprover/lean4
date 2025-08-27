@@ -19,11 +19,16 @@ LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___redArg___lam__0___boxed(lean
 LEAN_EXPORT lean_object* l_Bool_toLBool___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx(uint8_t);
+LEAN_EXPORT lean_object* l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_13____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_13_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_toLBoolM___redArg___lam__0(lean_object*, uint8_t);
+LEAN_EXPORT uint8_t l_Lean_defaultLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_7_;
 LEAN_EXPORT lean_object* l_toLBoolM(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LBool_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_LBool_and(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_LBool_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_instInhabitedLBool;
 LEAN_EXPORT uint8_t l_Lean_LBool_neg(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_LBool_toString(uint8_t);
@@ -37,14 +42,12 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_LBool_instToString___closed__0;
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 static lean_object* l_Lean_LBool_toString___closed__1;
-LEAN_EXPORT lean_object* l_Lean_beqLBool____x40_Lean_Data_LBool___hyg_20____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_LBool_toString___closed__0;
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_toLBoolM___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_toLBoolM___redArg___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_beqLBool____x40_Lean_Data_LBool___hyg_20_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_instBEqLBool;
-LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx(uint8_t x_1) {
+LEAN_EXPORT lean_object* l_Lean_LBool_ctorIdx(uint8_t x_1) {
 _start:
 {
 switch (x_1) {
@@ -67,6 +70,23 @@ x_4 = lean_unsigned_to_nat(2u);
 return x_4;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_LBool_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_unbox(x_1);
+x_3 = l_Lean_LBool_ctorIdx(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx(uint8_t x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_LBool_ctorIdx(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx___boxed(lean_object* x_1) {
@@ -130,6 +150,14 @@ x_7 = l_Lean_LBool_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
 }
+static uint8_t _init_l_Lean_defaultLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_7_() {
+_start:
+{
+uint8_t x_1; 
+x_1 = 0;
+return x_1;
+}
+}
 static uint8_t _init_l_Lean_instInhabitedLBool() {
 _start:
 {
@@ -138,25 +166,25 @@ x_1 = 0;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_beqLBool____x40_Lean_Data_LBool___hyg_20_(uint8_t x_1, uint8_t x_2) {
+LEAN_EXPORT uint8_t l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_13_(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Lean_LBool_toCtorIdx(x_1);
-x_4 = l_Lean_LBool_toCtorIdx(x_2);
+x_3 = l_Lean_LBool_ctorIdx(x_1);
+x_4 = l_Lean_LBool_ctorIdx(x_2);
 x_5 = lean_nat_dec_eq(x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_beqLBool____x40_Lean_Data_LBool___hyg_20____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_13____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
 x_4 = lean_unbox(x_2);
-x_5 = l_Lean_beqLBool____x40_Lean_Data_LBool___hyg_20_(x_3, x_4);
+x_5 = l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_13_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -165,7 +193,7 @@ static lean_object* _init_l_Lean_instBEqLBool___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_beqLBool____x40_Lean_Data_LBool___hyg_20____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_13____boxed), 2, 0);
 return x_1;
 }
 }
@@ -352,10 +380,10 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 lean_dec_ref(x_1);
 x_5 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_3);
 x_6 = lean_alloc_closure((void*)(l_toLBoolM___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_6, 0, x_5);
@@ -370,10 +398,10 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_5);
+lean_inc(x_5);
 lean_dec_ref(x_2);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 lean_dec_ref(x_4);
 x_7 = lean_alloc_closure((void*)(l_toLBoolM___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_7, 0, x_6);
@@ -399,6 +427,7 @@ _G_initialized = true;
 res = initialize_Init_Data_ToString_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_defaultLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_7_ = _init_l_Lean_defaultLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_7_();
 l_Lean_instInhabitedLBool = _init_l_Lean_instInhabitedLBool();
 l_Lean_instBEqLBool___closed__0 = _init_l_Lean_instBEqLBool___closed__0();
 lean_mark_persistent(l_Lean_instBEqLBool___closed__0);

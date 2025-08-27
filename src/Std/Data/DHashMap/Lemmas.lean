@@ -9,7 +9,8 @@ prelude
 public import Std.Data.DHashMap.Internal.Raw
 public import Std.Data.DHashMap.Internal.RawLemmas
 import all Std.Data.DHashMap.Basic
-public import all Std.Data.DHashMap.AdditionalOperations
+public import Std.Data.DHashMap.AdditionalOperations
+import all Std.Data.DHashMap.AdditionalOperations
 
 public section
 
@@ -1166,6 +1167,46 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.Pairwise (fun a b => (a == b) = false) :=
   Raw₀.distinct_keys ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
+@[simp]
+theorem toArray_keys :
+    m.keys.toArray = m.keysArray :=
+  Raw₀.toArray_keys_eq_keysArray ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem toList_keysArray :
+    m.keysArray.toList = m.keys :=
+  Raw₀.toList_keysArray_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem size_keysArray [EquivBEq α] [LawfulHashable α] :
+    m.keysArray.size = m.size :=
+  Raw₀.size_keysArray ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem isEmpty_keysArray [EquivBEq α] [LawfulHashable α] :
+    m.keysArray.isEmpty = m.isEmpty :=
+  Raw₀.isEmpty_keysArray ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem contains_keysArray [EquivBEq α] [LawfulHashable α]
+    {k : α} :
+    m.keysArray.contains k = m.contains k :=
+  Raw₀.contains_keysArray ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem mem_keysArray [LawfulBEq α] {k : α} :
+    k ∈ m.keysArray ↔ k ∈ m :=
+  Raw₀.mem_keysArray ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem forall_mem_keysArray_iff_forall_mem_getKey [EquivBEq α] [LawfulHashable α]
+    {p : α → Prop} :
+    (∀ k ∈ m.keysArray, p k) ↔ ∀ (k : α) (h : k ∈ m), p (m.getKey k h) :=
+  Raw₀.forall_mem_keysArray_iff_forall_contains_getKey ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem contains_of_mem_keysArray [EquivBEq α] [LawfulHashable α] {k : α}
+    (h' : k ∈ m.keysArray) : m.contains k :=
+  Raw₀.contains_of_mem_keysArray ⟨m.1, m.2.size_buckets_pos⟩ m.2 h'
+
 @[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     m.toList.map Sigma.fst = m.keys :=
@@ -1276,6 +1317,103 @@ theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
 theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] :
     (toList m).Pairwise (fun a b => (a.1 == b.1) = false) :=
   Raw₀.Const.distinct_keys_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+end Const
+
+@[simp]
+theorem toArray_toList :
+    m.toList.toArray = m.toArray :=
+  Raw₀.toArray_toList_eq_toArray ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem toList_toArray :
+    m.toArray.toList = m.toList :=
+  Raw₀.toList_toArray_eq_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] :
+    m.toArray.map Sigma.fst = m.keysArray :=
+  Raw₀.map_fst_toArray_eq_keysArray ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem size_toArray [EquivBEq α] [LawfulHashable α] :
+    m.toArray.size = m.size :=
+  Raw₀.size_toArray ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem isEmpty_toArray [EquivBEq α] [LawfulHashable α] :
+    m.toArray.isEmpty = m.isEmpty :=
+  Raw₀.isEmpty_toArray ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem mem_toArray_iff_get?_eq_some [LawfulBEq α]
+    {k : α} {v : β k} :
+    ⟨k, v⟩ ∈ m.toArray ↔ m.get? k = some v :=
+  Raw₀.mem_toArray_iff_get?_eq_some ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem find?_toArray_eq_some_iff_get?_eq_some [LawfulBEq α]
+    {k : α} {v : β k} :
+    m.toArray.find? (·.1 == k) = some ⟨k, v⟩ ↔ m.get? k = some v :=
+  Raw₀.find?_toArray_eq_some_iff_get?_eq_some ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {k : α} :
+    m.toArray.find? (·.1 == k) = none ↔ m.contains k = false :=
+  Raw₀.find?_toArray_eq_none_iff_contains_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+namespace Const
+
+variable {β : Type v} {m : DHashMap α (fun _ => β)}
+
+@[simp]
+theorem toArray_toList :
+    (DHashMap.Const.toList m).toArray = DHashMap.Const.toArray m :=
+  Raw₀.Const.toArray_toList_eq_toArray ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem toList_toArray :
+    (DHashMap.Const.toArray m).toList = DHashMap.Const.toList m :=
+  Raw₀.Const.toList_toArray_eq_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] :
+    (DHashMap.Const.toArray m).map Prod.fst = m.keysArray :=
+  Raw₀.Const.map_fst_toArray_eq_keysArray ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem size_toArray [EquivBEq α] [LawfulHashable α] :
+    (DHashMap.Const.toArray m).size = m.size :=
+  Raw₀.Const.size_toArray ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem isEmpty_toArray [EquivBEq α] [LawfulHashable α] :
+    (DHashMap.Const.toArray m).isEmpty = m.isEmpty :=
+  Raw₀.Const.isEmpty_toArray ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem mem_toArray_iff_get?_eq_some [LawfulBEq α]
+    {k : α} {v : β} :
+    (k, v) ∈ DHashMap.Const.toArray m ↔ get? m k = some v :=
+  Raw₀.Const.mem_toArray_iff_get?_eq_some ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem get?_eq_some_iff_exists_beq_and_mem_toArray [EquivBEq α] [LawfulHashable α]
+    {k : α} {v : β} :
+    get? m k = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ DHashMap.Const.toArray m :=
+  Raw₀.Const.get?_eq_some_iff_exists_beq_and_mem_toArray ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some
+    [EquivBEq α] [LawfulHashable α] {k k' : α} {v : β} :
+    (DHashMap.Const.toArray m).find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
+      m.getKey? k = some k' ∧ get? m k = some v :=
+  Raw₀.Const.find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {k : α} :
+    (DHashMap.Const.toArray m).find? (·.1 == k) = none ↔ m.contains k = false :=
+  Raw₀.Const.find?_toArray_eq_none_iff_contains_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem mem_toArray_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHashable α]
+    {k: α} {v : β} :
+    (k, v) ∈ DHashMap.Const.toArray m ↔ m.getKey? k = some k ∧ get? m k = some v := by
+  simp [← toArray_toList, mem_toList_iff_getKey?_eq_some_and_get?_eq_some]
 
 end Const
 
@@ -1396,6 +1534,66 @@ theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m']
     {f : α → δ → m' (ForInStep δ)} {init : δ} :
     m.forIn (fun a _ d => f a d) init = ForIn.forIn m.keys init f :=
   Raw₀.forIn_eq_forIn_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+end Const
+
+theorem foldM_eq_foldlM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β a → m' δ} {init : δ} :
+    m.foldM f init = m.toArray.foldlM (fun a b => f a b.1 b.2) init :=
+  Raw₀.foldM_eq_foldlM_toArray ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem fold_eq_foldl_toArray {f : δ → (a : α) → β a → δ} {init : δ} :
+    m.fold f init = m.toArray.foldl (fun a b => f a b.1 b.2) init :=
+  Raw₀.fold_eq_foldl_toArray ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forM_eq_forM_toArray [Monad m'] [LawfulMonad m'] {f : (a : α) → β a → m' PUnit} :
+    m.forM f = m.toArray.forM (fun a => f a.1 a.2) :=
+  Raw₀.forM_eq_forM_toArray ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
+    {f : (a : α) → β a → δ → m' (ForInStep δ)} {init : δ} :
+    m.forIn f init = ForIn.forIn m.toArray init (fun a b => f a.1 a.2 b) :=
+  Raw₀.forIn_eq_forIn_toArray ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem foldM_eq_foldlM_keysArray [Monad m'] [LawfulMonad m']
+    {f : δ → α → m' δ} {init : δ} :
+    m.foldM (fun d a _ => f d a) init = m.keysArray.foldlM f init :=
+  Raw₀.foldM_eq_foldlM_keysArray ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem fold_eq_foldl_keysArray {f : δ → α → δ} {init : δ} :
+    m.fold (fun d a _ => f d a) init = m.keysArray.foldl f init :=
+  Raw₀.fold_eq_foldl_keysArray ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forM_eq_forM_keysArray [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    m.forM (fun a _ => f a) = m.keysArray.forM f :=
+  Raw₀.forM_eq_forM_keysArray ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_keysArray [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    m.forIn (fun a _ d => f a d) init = ForIn.forIn m.keysArray init f :=
+  Raw₀.forIn_eq_forIn_keysArray ⟨m.1, m.2.size_buckets_pos⟩
+
+namespace Const
+
+variable {β : Type v} {m : DHashMap α (fun _ => β)}
+
+theorem foldM_eq_foldlM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → α → β → m' δ} {init : δ} :
+    m.foldM f init = (DHashMap.Const.toArray m).foldlM (fun a b => f a b.1 b.2) init :=
+  Raw₀.Const.foldM_eq_foldlM_toArray ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem fold_eq_foldl_toArray {f : δ → α → β → δ} {init : δ} :
+    m.fold f init = (DHashMap.Const.toArray m).foldl (fun a b => f a b.1 b.2) init :=
+  Raw₀.Const.fold_eq_foldl_toArray ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forM_eq_forM_toArray [Monad m'] [LawfulMonad m'] {f : α → β → m' PUnit} :
+    m.forM f = (DHashMap.Const.toArray m).forM (fun a => f a.1 a.2) :=
+  Raw₀.Const.forM_eq_forM_toArray ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
+    {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
+    m.forIn f init = ForIn.forIn (DHashMap.Const.toArray m) init (fun a b => f a.1 a.2 b) :=
+  Raw₀.Const.forIn_eq_forIn_toArray ⟨m.1, m.2.size_buckets_pos⟩
 
 end Const
 
@@ -3497,7 +3695,7 @@ theorem get?_filterMap [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `get?_filterMap` when `LawfulBEq` is available. -/
 @[grind =]
-theorem get?_filterMap' [LawfulBEq α] [LawfulHashable α]
+theorem get?_filterMap' [LawfulBEq α]
     {f : α → β → Option γ} {k : α} :
     Const.get? (m.filterMap f) k = (Const.get? m k).bind fun x => f k x := by
   simp [get?_filterMap]
@@ -3525,7 +3723,7 @@ theorem get_filterMap [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `get_filterMap` when `LawfulBEq` is available. -/
 @[grind =]
-theorem get_filterMap' [LawfulBEq α] [LawfulHashable α]
+theorem get_filterMap' [LawfulBEq α]
     {f : α → β → Option γ} {k : α} {h} :
     Const.get (m.filterMap f) k h =
       (f k (Const.get m k (mem_of_mem_filterMap h))).get (by simpa using isSome_apply_of_mem_filterMap h) := by
@@ -3540,7 +3738,7 @@ theorem get!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited γ]
 
 /-- Simpler variant of `get!_filterMap` when `LawfulBEq` is available. -/
 @[grind =]
-theorem get!_filterMap' [LawfulBEq α] [LawfulHashable α] [Inhabited γ]
+theorem get!_filterMap' [LawfulBEq α] [Inhabited γ]
     {f : α → β → Option γ} {k : α} :
     Const.get! (m.filterMap f) k = ((Const.get? m k).bind (f k) ).get!:= by
   simp [get!_filterMap]
@@ -3559,7 +3757,7 @@ theorem getD_filterMap [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `getD_filterMap` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getD_filterMap' [LawfulBEq α] [LawfulHashable α]
+theorem getD_filterMap' [LawfulBEq α]
     {f : α → β → Option γ} {k : α} {fallback : γ} :
     Const.getD (m.filterMap f) k fallback = ((Const.get? m k).bind (f k)).getD fallback := by
   simp [getD_filterMap]
@@ -3826,7 +4024,7 @@ theorem get?_filter [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `get?_filter` when `LawfulBEq` is available. -/
 @[simp, grind =]
-theorem get?_filter' [LawfulBEq α] [LawfulHashable α]
+theorem get?_filter' [LawfulBEq α]
     {f : α → β → Bool} {k : α} :
     Const.get? (m.filter f) k = (Const.get? m k).filter (f k) := by
   simp [get?_filter]
@@ -3852,7 +4050,7 @@ theorem get!_filter [EquivBEq α] [LawfulHashable α] [Inhabited β]
 
 /-- Simpler variant of `get!_filter` when `LawfulBEq` is available. -/
 @[grind =]
-theorem get!_filter' [LawfulBEq α] [LawfulHashable α] [Inhabited β]
+theorem get!_filter' [LawfulBEq α] [Inhabited β]
     {f : α → β → Bool} {k : α} :
     Const.get! (m.filter f) k = ((Const.get? m k).filter (f k)).get! := by
   simp [get!_filter]
@@ -3871,7 +4069,7 @@ theorem getD_filter [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `getD_filter` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getD_filter' [LawfulBEq α] [LawfulHashable α]
+theorem getD_filter' [LawfulBEq α]
     {f : α → β → Bool} {k : α} {fallback : β} :
     Const.getD (m.filter f) k fallback = ((Const.get? m k).filter (f k)).getD fallback := by
   simp [getD_filter]
@@ -4031,7 +4229,7 @@ namespace Const
 variable {β : Type v} {γ : Type w} {m : DHashMap α fun _ => β}
 
 @[simp, grind =]
-theorem get?_map [LawfulBEq α] [LawfulHashable α]
+theorem get?_map [LawfulBEq α]
     {f : α → β → γ} {k : α} :
     Const.get? (m.map f) k = (Const.get? m k).map (f k) :=
   Raw₀.Const.get?_map ⟨m.1, _⟩ m.2
@@ -4050,7 +4248,7 @@ theorem get?_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
   Raw₀.Const.get?_map_of_getKey?_eq_some ⟨m.1, _⟩ m.2 h
 
 @[simp, grind =]
-theorem get_map [LawfulBEq α] [LawfulHashable α]
+theorem get_map [LawfulBEq α]
     {f : α → β → γ} {k : α} {h'} :
     Const.get (m.map f) k h' = f k (Const.get m k (mem_of_mem_map h')) :=
   Raw₀.Const.get_map ⟨m.1, _⟩ m.2
@@ -4064,7 +4262,7 @@ theorem get_map' [EquivBEq α] [LawfulHashable α]
   Raw₀.Const.get_map' ⟨m.1, _⟩ m.2
 
 @[grind =]
-theorem get!_map [LawfulBEq α] [LawfulHashable α] [Inhabited γ]
+theorem get!_map [LawfulBEq α] [Inhabited γ]
     {f : α → β → γ} {k : α} :
     Const.get! (m.map f) k = ((Const.get? m k).map (f k)).get! :=
   Raw₀.Const.get!_map ⟨m.1, _⟩ m.2
@@ -4083,7 +4281,7 @@ theorem get!_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited
   Raw₀.Const.get!_map_of_getKey?_eq_some ⟨m.1, _⟩ m.2 h
 
 @[grind =]
-theorem getD_map [LawfulBEq α] [LawfulHashable α]
+theorem getD_map [LawfulBEq α]
     {f : α → β → γ} {k : α} {fallback : γ} :
     Const.getD (m.map f) k fallback = ((Const.get? m k).map (f k)).getD fallback :=
   Raw₀.Const.getD_map ⟨m.1, _⟩ m.2
@@ -4103,8 +4301,8 @@ theorem getD_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited
 
 theorem toList_map {m : DHashMap α fun _ => β}
     {f : α → β → γ} :
-    (Raw.Const.toList (m.map f).1).Perm
-      ((Raw.Const.toList m.1).map (fun p => (p.1, f p.1 p.2))) :=
+    (Const.toList (m.map f)).Perm
+      ((Const.toList m).map (fun p => (p.1, f p.1 p.2))) :=
   Raw₀.Const.toList_map ⟨m.1, m.2.size_buckets_pos⟩
 
 end Const

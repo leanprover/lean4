@@ -10,7 +10,8 @@ public import Init.Data.List.TakeDrop
 public import Init.Data.List.Attach
 public import Init.Data.List.OfFn
 public import Init.Data.Array.Bootstrap
-public import all Init.Data.List.Control
+public import Init.Data.List.Control
+import all Init.Data.List.Control
 
 public section
 

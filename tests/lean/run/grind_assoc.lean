@@ -1,3 +1,4 @@
+module
 def α : Type := sorry
 instance : Mul α := sorry
 

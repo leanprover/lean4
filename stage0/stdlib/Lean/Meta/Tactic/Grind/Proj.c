@@ -125,7 +125,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 2);
-x_5 = lean_ctor_get(x_2, 12);
+x_5 = lean_ctor_get(x_2, 13);
 x_6 = l_Lean_checkTraceOption(x_5, x_4, x_1);
 x_7 = lean_box(x_6);
 x_8 = lean_alloc_ctor(0, 2, 0);
@@ -1093,7 +1093,7 @@ x_46 = lean_ctor_get(x_44, 0);
 x_47 = lean_ctor_get(x_44, 1);
 x_48 = lean_ctor_get(x_46, 0);
 lean_inc_ref(x_48);
-x_49 = lean_ctor_get_uint8(x_46, sizeof(void*)*14 + 4);
+x_49 = lean_ctor_get_uint8(x_46, sizeof(void*)*15 + 4);
 lean_dec(x_46);
 x_50 = l_Lean_Expr_isAppOf(x_48, x_25);
 lean_dec(x_25);
@@ -1384,7 +1384,7 @@ lean_inc(x_102);
 lean_dec(x_44);
 x_104 = lean_ctor_get(x_102, 0);
 lean_inc_ref(x_104);
-x_105 = lean_ctor_get_uint8(x_102, sizeof(void*)*14 + 4);
+x_105 = lean_ctor_get_uint8(x_102, sizeof(void*)*15 + 4);
 lean_dec(x_102);
 x_106 = l_Lean_Expr_isAppOf(x_104, x_25);
 lean_dec(x_25);
@@ -1863,7 +1863,7 @@ if (lean_is_exclusive(x_186)) {
 }
 x_190 = lean_ctor_get(x_187, 0);
 lean_inc_ref(x_190);
-x_191 = lean_ctor_get_uint8(x_187, sizeof(void*)*14 + 4);
+x_191 = lean_ctor_get_uint8(x_187, sizeof(void*)*15 + 4);
 lean_dec(x_187);
 x_192 = l_Lean_Expr_isAppOf(x_190, x_168);
 lean_dec(x_168);

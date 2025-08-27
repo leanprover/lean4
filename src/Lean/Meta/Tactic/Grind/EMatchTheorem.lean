@@ -15,7 +15,9 @@ public import Lean.Meta.Basic
 public import Lean.Meta.InferType
 public import Lean.Meta.Eqns
 public import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Match.MatchEqs
+import Lean.Message
+import Lean.Meta.Tactic.FVarSubst
+import Lean.Meta.Match.Basic
 
 public section
 
@@ -308,12 +310,12 @@ def Origin.key : Origin → Name
   | .stx id _      => id
   | .local id      => id
 
-def Origin.pp [Monad m] [MonadEnv m] [MonadError m] (o : Origin) : m MessageData := do
+def Origin.pp (o : Origin) : MessageData :=
   match o with
-  | .decl declName => return MessageData.ofConst (← mkConstWithLevelParams declName)
-  | .fvar fvarId   => return mkFVar fvarId
-  | .stx _ ref     => return ref
-  | .local id      => return id
+  | .decl declName => MessageData.ofConstName declName
+  | .fvar fvarId   => mkFVar fvarId
+  | .stx _ ref     => ref
+  | .local id      => id
 
 instance : BEq Origin where
   beq a b := a.key == b.key
@@ -593,7 +595,7 @@ private def isCandidateSymbol (declName : Name) (root : Bool) : M Bool := do
   if prio == 0 then return false
   -- Remark: uncomment the following code to fix bootstrapping issues
   -- if declName ∈ badForPatterns then
-  --  throwError "INSERT `import Init.Grind.Tactics`, otherwise a pattern containing `{declName}` will be used, prio: {prio}"
+  --  throwError "INSERT `import Init.Grind.Tactics`, otherwise a pattern containing `{.ofConstName declName}` will be used, prio: {prio}"
   -- If it is the root symbol, then we check whether `prio ≥ minPrio`
   if root then
     return prio ≥ ctx.minPrio
@@ -870,7 +872,7 @@ private def ppParamsAt (proof : Expr) (numParams : Nat) (paramPos : List Nat) : 
 
 private def logPatternWhen (showInfo : Bool) (origin : Origin) (patterns : List Expr) : MetaM Unit := do
   if showInfo then
-    logInfo m!"{← origin.pp}: {patterns.map ppPattern}"
+    logInfo m!"{origin.pp}: {patterns.map ppPattern}"
 
 /--
 Creates an E-matching theorem for a theorem with proof `proof`, `numParams` parameters, and the given set of patterns.
@@ -881,11 +883,11 @@ def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams 
   -- the patterns have already been selected, there is no point in using priorities here
   let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns (← getGlobalSymbolPriorities) (minPrio := 1)
   if symbols.isEmpty then
-    throwError "invalid pattern for `{← origin.pp}`{indentD (patterns.map ppPattern)}\nthe pattern does not contain constant symbols for indexing"
-  trace[grind.ematch.pattern] "{← origin.pp}: {patterns.map ppPattern}"
+    throwError "invalid pattern for `{origin.pp}`{indentD (patterns.map ppPattern)}\nthe pattern does not contain constant symbols for indexing"
+  trace[grind.ematch.pattern] "{origin.pp}: {patterns.map ppPattern}"
   if let .missing pos ← checkCoverage proof numParams bvarFound then
      let pats : MessageData := m!"{patterns.map ppPattern}"
-     throwError "invalid pattern(s) for `{← origin.pp}`{indentD pats}\nthe following theorem parameters cannot be instantiated:{indentD (← ppParamsAt proof numParams pos)}"
+     throwError "invalid pattern(s) for `{origin.pp}`{indentD pats}\nthe following theorem parameters cannot be instantiated:{indentD (← ppParamsAt proof numParams pos)}"
   logPatternWhen showInfo origin patterns
   return {
     proof, patterns, numParams, symbols
@@ -897,7 +899,7 @@ private def getProofFor (declName : Name) : MetaM Expr := do
   -- For theorems, `isProp` has already been checked at declaration time
   unless wasOriginallyTheorem (← getEnv) declName do
     unless (← isProp info.type) do
-      throwError "invalid E-matching theorem `{declName}`, type is not a proposition"
+      throwError "invalid E-matching theorem `{.ofConstName declName}`, type is not a proposition"
   let us := info.levelParams.map mkLevelParam
   return mkConst declName us
 
@@ -922,7 +924,7 @@ def mkEMatchEqTheoremCore (origin : Origin) (levelParams : Array Name) (proof : 
       | HEq _ lhs _ rhs => pure (lhs, rhs)
       | _ => throwError "invalid E-matching equality theorem, conclusion must be an equality{indentExpr type}"
     let pat := if useLhs then lhs else rhs
-    trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: origin: {← origin.pp}, pat: {pat}, useLhs: {useLhs}"
+    trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: origin: {origin.pp}, pat: {pat}, useLhs: {useLhs}"
     let pat ← preprocessPattern pat normalizePattern
     trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: after preprocessing: {pat}, {← normalize pat normConfig}"
     let pats := splitWhileForbidden (pat.abstract xs)
@@ -1255,7 +1257,7 @@ def mkEMatchTheoremWithKind?
       | .fwd =>
         let ps ← getPropTypes xs
         if ps.isEmpty then
-          throwError "invalid `grind` forward theorem, theorem `{← origin.pp}` does not have propositional hypotheses"
+          throwError "invalid `grind` forward theorem, theorem `{origin.pp}` does not have propositional hypotheses"
         pure ps
       | .bwd _ => pure #[type]
       | .leftRight => pure <| (← getPropTypes xs).push type
@@ -1277,7 +1279,7 @@ where
   go (xs : Array Expr) (searchPlaces : Array Expr) : MetaM (Option EMatchTheorem) := do
     let some (patterns, symbols) ← collect xs searchPlaces | return none
     let numParams := xs.size
-    trace[grind.ematch.pattern] "{← origin.pp}: {patterns.map ppPattern}"
+    trace[grind.ematch.pattern] "{origin.pp}: {patterns.map ppPattern}"
     logPatternWhen showInfo origin patterns
     return some {
       proof, patterns, numParams, symbols
@@ -1286,7 +1288,7 @@ where
 
 def mkEMatchTheoremForDecl (declName : Name) (thmKind : EMatchTheoremKind) (prios : SymbolPriorities) (showInfo := false) : MetaM EMatchTheorem := do
   let some thm ← mkEMatchTheoremWithKind? (.decl declName) #[] (← getProofFor declName) thmKind prios (showInfo := showInfo)
-    | throwError "`@{thmKind.toAttribute} theorem {declName}` {thmKind.explainFailure}, consider using different options or the `grind_pattern` command"
+    | throwError "`@{thmKind.toAttribute} theorem {.ofConstName declName}` {thmKind.explainFailure}, consider using different options or the `grind_pattern` command"
   return thm
 
 def mkEMatchEqTheoremsForDef? (declName : Name) (showInfo := false) : MetaM (Option (Array EMatchTheorem)) := do
@@ -1299,14 +1301,14 @@ private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind
     ematchTheoremsExt.add (← mkEMatchEqTheorem declName (normalizePattern := true) (useLhs := useLhs) (gen := thmKind.gen) (showInfo := showInfo)) attrKind
   else if let some thms ← mkEMatchEqTheoremsForDef? declName (showInfo := showInfo) then
     unless useLhs do
-      throwError "`{declName}` is a definition, you must only use the left-hand side for extracting patterns"
+      throwError "`{.ofConstName declName}` is a definition, you must only use the left-hand side for extracting patterns"
     thms.forM (ematchTheoremsExt.add · attrKind)
   else
     throwError s!"`{thmKind.toAttribute}` attribute can only be applied to equational theorems or function definitions"
 
 def EMatchTheorems.eraseDecl (s : EMatchTheorems) (declName : Name) : MetaM EMatchTheorems := do
   let throwErr {α} : MetaM α :=
-    throwError "`{declName}` is not marked with the `[grind]` attribute"
+    throwError "`{.ofConstName declName}` is not marked with the `[grind]` attribute"
   if !wasOriginallyTheorem (← getEnv) declName then
     if let some eqns ← getEqnsFor? declName then
        let s := ematchTheoremsExt.getState (← getEnv)

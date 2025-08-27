@@ -8,7 +8,8 @@ Additional goodies for writing macros
 module
 
 prelude
-public import all Init.Prelude  -- for unfolding `Name.beq`
+public import Init.Prelude  -- for unfolding `Name.beq`
+import all Init.Prelude  -- for unfolding `Name.beq`
 public import Init.MetaTypes
 public import Init.Syntax
 public import Init.Data.Array.GetLit
@@ -130,6 +131,12 @@ def isInaccessibleUserName : Name → Bool
   | Name.num p _   => isInaccessibleUserName p
   | _              => false
 
+-- FIXME: `getUtf8Byte` is in `Init.Data.String.Extra`, which causes an import cycle with
+-- `Init.Meta`. Moving `getUtf8Byte` up to `Init.Data.String.Basic` creates another import cycle.
+-- Please replace this definition with `getUtf8Byte` when the string refactor is through.
+@[extern "lean_string_get_byte_fast"]
+private opaque getUtf8Byte' (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
+
 /--
 Creates a round-trippable string name component if possible, otherwise returns `none`.
 Names that are valid identifiers are not escaped, and otherwise, if they do not contain `»`, they are escaped.
@@ -146,7 +153,7 @@ variable (sep : String) (escape : Bool) in
 Uses the separator `sep` (usually `"."`) to combine the components of the `Name` into a string.
 See the documentation for `Name.toStringWithToken` for an explanation of `escape` and `isToken`.
 -/
-@[specialize isToken] -- explicit annotation because isToken is overriden in recursive call
+@[specialize isToken] -- explicit annotation because isToken is overridden in recursive call
 def toStringWithSep (n : Name) (isToken : String → Bool := fun _ => false) : String :=
   match n with
   | anonymous       => "[anonymous]"

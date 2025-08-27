@@ -454,6 +454,18 @@
     <<: *time
     cmd: lean big_beq_rec.lean
 - attributes:
+    description: big_deceq
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean big_deceq.lean
+- attributes:
+    description: big_deceq_rec
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean big_deceq_rec.lean
+- attributes:
     description: nat_repr
     tags: [fast, suite]
   run_config:

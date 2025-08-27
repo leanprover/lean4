@@ -6,18 +6,13 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.AC.Util
+import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.ProofUtil
 import Lean.Meta.Tactic.Grind.AC.ToExpr
 import Lean.Meta.Tactic.Grind.AC.VarRename
 public section
 namespace Lean.Meta.Grind.AC
 open Lean.Grind
-
-private def toContextExpr (vars : Array Expr) : ACM Expr := do
-  let s ← getStruct
-  if h : 0 < vars.size then
-    RArray.toExpr s.type id (RArray.ofFn (vars[·]) h)
-  else unreachable!
 
 structure ProofM.State where
   cache      : Std.HashMap UInt64 Expr := {}
@@ -67,41 +62,52 @@ private def getNeutralInst : ACM Expr := do
   let some inst := (← getStruct).neutralInst? | throwError "`grind` internal error, `{(← getStruct).op}` does not have a neutral element"
   return inst
 
+private def mkPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp2 (mkConst declName [s.u]) s.type (← getContext)
+
 private def mkAPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp3 (mkConst declName [.succ s.u]) s.type (← getContext) s.assocInst
+  return mkApp3 (mkConst declName [s.u]) s.type (← getContext) s.assocInst
 
 private def mkACPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp4 (mkConst declName [.succ s.u]) s.type (← getContext) s.assocInst (← getCommInst)
+  return mkApp4 (mkConst declName [s.u]) s.type (← getContext) s.assocInst (← getCommInst)
 
 private def mkAIPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp4 (mkConst declName [.succ s.u]) s.type (← getContext) s.assocInst (← getNeutralInst)
+  return mkApp4 (mkConst declName [s.u]) s.type (← getContext) s.assocInst (← getNeutralInst)
 
 private def mkACIPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [.succ s.u]) s.type (← getContext) s.assocInst (← getCommInst) (← getNeutralInst)
+  return mkApp5 (mkConst declName [s.u]) s.type (← getContext) s.assocInst (← getCommInst) (← getNeutralInst)
 
 private def mkDupPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp4 (mkConst declName [.succ s.u]) s.type (← getContext) s.assocInst (← getIdempotentInst)
+  return mkApp4 (mkConst declName [s.u]) s.type (← getContext) s.assocInst (← getIdempotentInst)
+
+private def toContextExpr (vars : Array Expr) : ACM Expr := do
+  let s ← getStruct
+  if h : 0 < vars.size then
+    RArray.toExpr (mkApp (mkConst ``PLift [s.u]) s.type) id (RArray.ofFn (vars[·]) h)
+  else unreachable!
 
 private def mkContext (h : Expr) : ProofM Expr := do
+  let s ← getStruct
   let usedVars     :=
     collectMapVars (← get).seqDecls (·.collectVars) >>
     collectMapVars (← get).exprDecls (·.collectVars) <| {}
   let vars'        := usedVars.toArray
   let varRename    := mkVarRename vars'
   let vars         := (← getStruct).vars
-  let vars         := vars'.map fun x => vars[x]!
+  let up           := mkApp (mkConst ``PLift.up [s.u]) s.type
+  let vars         := vars'.map fun x => mkApp up vars[x]!
   let h := mkLetOfMap (← get).seqDecls h `p (mkConst ``Grind.AC.Seq) fun p => toExpr <| p.renameVars varRename
   let h := mkLetOfMap (← get).exprDecls h `e (mkConst ``Grind.AC.Expr) fun e => toExpr <| e.renameVars varRename
   let h := h.abstract #[(← read).ctx]
   if h.hasLooseBVars then
-    let s ← getStruct
-    let ctxType := mkApp (mkConst ``RArray [.succ s.u]) s.type
-    let ctxVal ← toContextExpr vars
+    let ctxType := mkApp (mkConst ``AC.Context [s.u]) s.type
+    let ctxVal := mkApp3 (mkConst ``AC.Context.mk [s.u]) s.type (← toContextExpr vars) s.op
     return .letE `ctx ctxType ctxVal h (nondep := false)
   else
     return h
@@ -112,5 +118,24 @@ private abbrev withProofContext (x : ProofM Expr) : ACM Expr := do
 where
   go : ProofM Expr := do
     mkContext (← x)
+
+partial def DiseqCnstr.toExprProof (c : DiseqCnstr) : ProofM Expr := do caching c do
+  match c.h with
+  | .core a b lhs rhs =>
+    let h ← match (← isCommutative), (← hasNeutral) with
+      | false, false => mkAPrefix ``AC.diseq_norm_a
+      | false, true  => mkAIPrefix ``AC.diseq_norm_ai
+      | true,  false => mkACPrefix ``AC.diseq_norm_ac
+      | true,  true  => mkACIPrefix ``AC.diseq_norm_aci
+    return mkApp6 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← mkDiseqProof a b)
+  | .erase_dup c₁ =>
+    let h ← mkDupPrefix ``AC.diseq_erase_dup
+    return mkApp6 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.lhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c₁.toExprProof)
+  | _ => throwError "NIY"
+
+def DiseqCnstr.setUnsat (c : DiseqCnstr) : ACM Unit := do
+  let h ← withProofContext do
+    return mkApp4 (← mkPrefix ``AC.diseq_unsat) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c.toExprProof)
+  closeGoal h
 
 end Lean.Meta.Grind.AC

@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.AC.Util
 import Lean.Meta.Tactic.Grind.AC.DenoteExpr
+import Lean.Meta.Tactic.Grind.AC.Proof
 public section
 namespace Lean.Meta.Grind.AC
 open Lean.Grind
@@ -52,7 +53,10 @@ def DiseqCnstr.assert (c : DiseqCnstr) : ACM Unit := do
   let c ← c.eraseDup
   -- TODO: simplify and check conflict
   trace[grind.ac.assert] "{← c.denoteExpr}"
-  saveDiseq c
+  if c.lhs == c.rhs then
+    c.setUnsat
+  else
+    saveDiseq c
 
 @[export lean_process_ac_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := withExprs a b do

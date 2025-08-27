@@ -6,8 +6,10 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.AC.Util
+import Lean.Meta.Tactic.Grind.AC.DenoteExpr
 public section
 namespace Lean.Meta.Grind.AC
+open Lean.Grind
 /-- For each structure `s` s.t. `a` and `b` are elements of, execute `k` -/
 @[specialize] def withExprs (a b : Expr) (k : ACM Unit) : GoalM Unit := do
   let ids₁ ← getTermOpIds a
@@ -26,6 +28,32 @@ where
       else
         go (id₁::ids₁) ids₂
 
+def asACExpr (e : Expr) : ACM AC.Expr := do
+  if let some e' := (← getStruct).denote.find? { expr := e } then
+    return e'
+  else
+    return .var ((← getStruct).varMap.find? { expr := e }).get!
+
+def norm (e : AC.Expr) : ACM AC.Seq := do
+  match (← isCommutative), (← hasNeutral) with
+  | true,  true  => return e.toSeq.erase0.sort
+  | true,  false => return e.toSeq.sort
+  | false, true  => return e.toSeq.erase0
+  | false, false => return e.toSeq
+
+def saveDiseq (c : DiseqCnstr) : ACM Unit := do
+  modifyStruct fun s => { s with diseqs := s.diseqs.push c }
+
+def DiseqCnstr.eraseDup (c : DiseqCnstr) : ACM DiseqCnstr := do
+  unless (← isIdempotent) do return c
+  return { lhs := c.lhs.eraseDup, rhs := c.rhs.eraseDup, h := .erase_dup c }
+
+def DiseqCnstr.assert (c : DiseqCnstr) : ACM Unit := do
+  let c ← c.eraseDup
+  -- TODO: simplify and check conflict
+  trace[grind.ac.assert] "{← c.denoteExpr}"
+  saveDiseq c
+
 @[export lean_process_ac_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := withExprs a b do
   trace[grind.ac.assert] "{a} = {b}"
@@ -33,7 +61,10 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := withExprs a b do
 
 @[export lean_process_ac_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := withExprs a b do
-  trace[grind.ac.assert] "{a} ≠ {b}"
-  -- TODO
+  let ea ← asACExpr a
+  let lhs ← norm ea
+  let eb ← asACExpr b
+  let rhs ← norm eb
+  { lhs, rhs, h := .core a b ea eb : DiseqCnstr }.assert
 
 end Lean.Meta.Grind.AC

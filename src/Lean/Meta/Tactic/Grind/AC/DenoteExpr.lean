@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.AC.Util
+import Lean.Meta.AppBuilder
 public section
 namespace Lean.Meta.Grind.AC
 open Lean.Grind
@@ -20,5 +21,13 @@ def _root_.Lean.Grind.AC.Expr.denoteExpr (e : AC.Expr) : M Expr := do
   match e with
   | .var x => return (← getStruct).vars[x]!
   | .op lhs rhs => return mkApp2 (← getStruct).op (← denoteExpr lhs) (← denoteExpr rhs)
+
+def EqCnstr.denoteExpr (c : EqCnstr) : M Expr := do
+  let s ← getStruct
+  return mkApp3 (mkConst ``Eq [s.u]) s.type (← c.lhs.denoteExpr) (← c.rhs.denoteExpr)
+
+def DiseqCnstr.denoteExpr (c : DiseqCnstr) : M Expr := do
+  let s ← getStruct
+  return mkApp3 (mkConst ``Ne [s.u]) s.type (← c.lhs.denoteExpr) (← c.rhs.denoteExpr)
 
 end Lean.Meta.Grind.AC

@@ -161,4 +161,13 @@ def mkVar (e : Expr) : ACM AC.Var := do
   markAsACTerm e
   return var
 
+def isCommutative : ACM Bool :=
+  return (← getStruct).commInst?.isSome
+
+def hasNeutral : ACM Bool :=
+  return (← getStruct).neutralInst?.isSome
+
+def isIdempotent : ACM Bool :=
+  return (← getStruct).idempotentInst?.isSome
+
 end Lean.Meta.Grind.AC

@@ -16,6 +16,8 @@ public section
 namespace Lean.Meta.Grind.AC
 open Lean.Grind
 
+deriving instance Hashable for AC.Expr, AC.Seq
+
 mutual
 structure EqCnstr where
   lhs : AC.Seq
@@ -24,7 +26,8 @@ structure EqCnstr where
   id  : Nat
 
 inductive EqCnstrProof where
-  | core (a b : Expr) (ra rb : AC.Expr)
+  | core (a b : Expr) (ea eb : AC.Expr)
+  | erase_dup (c : EqCnstr)
   | simp_ac (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | superpose_ac (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | simp_suffix (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
@@ -52,7 +55,8 @@ structure DiseqCnstr where
   h   : DiseqCnstrProof
 
 inductive DiseqCnstrProof where
-  | core (a b : Expr) (ra rb : AC.Expr)
+  | core (a b : Expr) (ea eb : AC.Expr)
+  | erase_dup (c : DiseqCnstr)
   | simp_ac (lhs : Bool) (s : AC.Seq) (c₁ : DiseqCnstr) (c₂ : EqCnstr)
   | simp_suffix (lhs : Bool) (s : AC.Seq) (c₁ : DiseqCnstr) (c₂ : EqCnstr)
   | simp_prefix (lhs : Bool) (s : AC.Seq) (c₁ : DiseqCnstr) (c₂ : EqCnstr)

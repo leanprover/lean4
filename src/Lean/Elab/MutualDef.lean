@@ -656,20 +656,44 @@ private def ExprWithHoles.getHoles (e : ExprWithHoles) : TermElabM (Array MVarId
 private def fillHolesFromWhereFinally (name : Name) (es : Array ExprWithHoles) (whereFinally : WhereFinallyView) : TermElabM PUnit := do
   if whereFinally.isNone then return
   let goals := (← es.mapM fun e => e.getHoles).flatten
+
+  -- Exit exporting context if entering proof(s), analogous to `Term.runTactic`.
+  -- NOTE: when entering a proof/data mix, we must conservatively default to not changing the
+  -- context.
+  let wasExporting := (← getEnv).isExporting
+  let isNoLongerExporting ← pure wasExporting <&&> goals.allM fun mvarId => do
+    mvarId.withContext do
+      isProp (← mvarId.getType)
+
+  let mut goals' := goals
+  if isNoLongerExporting then
+    goals' ← goals.mapM fun mvarId => do
+      let mvarDecl ← getMVarDecl mvarId
+      return (← mkFreshExprMVarAt mvarDecl.lctx mvarDecl.localInstances mvarDecl.type mvarDecl.kind mvarDecl.userName).mvarId!
+
+  withExporting (isExporting := wasExporting && !isNoLongerExporting) do
   Lean.Elab.Term.TermElabM.run' do
   Term.withDeclName name do
   withRef whereFinally.ref do
     unless goals.isEmpty do
       -- make info from `runTactic` available
-      goals.forM fun goal => pushInfoTree (.hole goal)
+      goals'.forM fun goal => pushInfoTree (.hole goal)
       -- assign goals
-      let remainingGoals ← Tactic.run goals[0]! do
-        Tactic.setGoals goals.toList
+      let remainingGoals ← Tactic.run goals'[0]! do
+        Tactic.setGoals goals'.toList
         Tactic.withTacticInfoContext whereFinally.ref do
           Tactic.evalTactic whereFinally.tactic
       -- complain if any goals remain
       unless remainingGoals.isEmpty do
         Term.reportUnsolvedGoals remainingGoals
+      if isNoLongerExporting then
+        for mvarId in goals, mvarId' in goals' do
+          let mut e ← instantiateExprMVars (.mvar mvarId')
+          if !e.isFVar then
+            e ← mvarId'.withContext do
+              withExporting (isExporting := wasExporting) do
+                abstractProof e
+          mvarId.assign e
 
 namespace MutualClosure
 

@@ -19,6 +19,8 @@ concurrency:
 jobs:
   update-stage0:
     runs-on: nscloud-ubuntu-22.04-amd64-8x16
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
     steps:
     # This action should push to an otherwise protected branch, so it
     # uses a deploy key with write permissions, as suggested at

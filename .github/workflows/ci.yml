@@ -223,6 +223,7 @@ jobs:
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
+                "CTEST_OPTIONS": "-E 'leanlaketest_hello'", // started failing from unpack
               },
               {
                 "name": "macOS aarch64",

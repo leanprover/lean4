@@ -82,13 +82,15 @@ The arguments to pass to `leanc` when linking the binary executable.
 
 By default, the package's plus the executable's `moreLinkArgs`.
 If `supportInterpreter := true`, Lake prepends `-rdynamic` on non-Windows
-systems.
+systems. On Windows, it links in a manifest for Unicode path support.
 -/
-public def linkArgs (self : LeanExe) : Array String :=
+public def linkArgs (self : LeanExe) : Array String := Id.run do
+  let mut linkArgs := self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
   if self.config.supportInterpreter && !Platform.isWindows then
-    #["-rdynamic"] ++ self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
-  else
-    self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
+    linkArgs := #["-rdynamic"] ++ linkArgs
+  else if System.Platform.isWindows then
+    linkArgs := linkArgs ++ #["-Wl,--whole-archive", "-lleanmanifest", "-Wl,--no-whole-archive"]
+  return linkArgs
 
 /--
 Whether the Lean shared library should be dynamically linked to the executable.

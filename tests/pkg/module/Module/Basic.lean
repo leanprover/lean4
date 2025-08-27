@@ -44,7 +44,7 @@ def fpriv := 1
 /--
 error: Unknown identifier `fpriv`
 
-Note: A private declaration `fpriv` (from this module) exists but is not accessible in the current context.
+Note: A private declaration `fpriv` (from the current module) exists but would need to be public to access here.
 -/
 #guard_msgs in
 public theorem tpriv : fpriv = 1 := rfl
@@ -144,7 +144,7 @@ def priv := 2
 /--
 error: Unknown identifier `priv`
 
-Note: A private declaration `priv` (from this module) exists but is not accessible in the current context.
+Note: A private declaration `priv` (from the current module) exists but would need to be public to access here.
 -/
 #guard_msgs in
 public abbrev h := priv

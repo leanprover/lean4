@@ -16,7 +16,6 @@ public section
 
 /-!
 This module contains the implementation of `Std.Terminator` with bottom-up cancellation.
-Cancellation now flows from children to parents, and we await confirmation before proceeding.
 -/
 
 namespace Std
@@ -208,25 +207,19 @@ where
         set { st with tokens := st.tokens.insert tokenId updatedInfo }
         return responseTasks
 
-    -- Phase 4: Wait for all consumer responses
     for responseTask in responses do
       let response := responseTask.get
       if not response then
-        -- Consumer rejected cancellation - this could be logged or handled
         pure ()
 
-    -- Phase 5: If this token has a parent and we're not the root initiator,
-    -- propagate cancellation upward
     match tokenInfo.parent with
-    | none => pure ()  -- Root token, we're done
+    | none => pure ()
     | some parentId =>
-      -- Only propagate up if the parent initiated this cancellation
-      -- or if we are the original initiator
       match initiatorId with
-      | none => cancelBottomUp state parentId (some tokenId)  -- We initiated, continue up
+      | none => cancelBottomUp state parentId (some tokenId)
       | some initId =>
-        if initId == parentId then pure ()  -- Parent initiated, stop here
-        else cancelBottomUp state parentId (some tokenId)  -- Continue propagation
+        if initId == parentId then pure ()
+        else cancelBottomUp state parentId (some tokenId)
 
 /--
 Checks if this token source exists and is cancelled.

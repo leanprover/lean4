@@ -39,9 +39,9 @@ def mk (duration : Std.Time.Millisecond.Offset) : Async Sleep := do
 
 /--
 If:
-- `s` is not yet running start it and return an `Async` that will resolve once the previously
-   configured `duration` has run out.
-- `s` is already or not anymore running return the same `Async` as the first call to `wait`.
+- `s` is not yet running start it and return an `Async` computation that will complete once the previously
+   configured `duration` has elapsed.
+- `s` is already or not anymore running return the same `Async` computation as the first call to `wait`.
 -/
 @[inline]
 def wait (s : Sleep) : Async Unit :=
@@ -49,7 +49,7 @@ def wait (s : Sleep) : Async Unit :=
 
 /--
 If:
-- `s` is still running the timer restarts counting from now and finishes after `duration`
+- `s` is still running the timer restarts counting from now and completes after `duration`
   milliseconds.
 - `s` is not yet or not anymore running this is a no-op.
 -/
@@ -59,8 +59,8 @@ def reset (s : Sleep) : Async Unit :=
 
 /--
 If:
-- `s` is still running this stops `s` without resolving any remaining `Async`s that were created
-  through `wait`. Note that if another `Async` is binding on any of these it is going hang
+- `s` is still running this stops `s` without completing any remaining `Async` computations that were created
+  through `wait`. Note that if another `Async` computation is binding on any of these it will hang
   forever without further intervention.
 - `s` is not yet or not anymore running this is a no-op.
 -/
@@ -69,7 +69,7 @@ def stop (s : Sleep) : IO Unit :=
   s.native.stop
 
 /--
-Create a `Selector` that resolves once `s` has finished. Note that calling this function starts `s`
+Create a `Selector` that completes once `s` has finished. Note that calling this function starts `s`
 if it hasn't already started.
 -/
 def selector (s : Sleep) : Async (Selector Unit) := do
@@ -91,14 +91,14 @@ def selector (s : Sleep) : Async (Selector Unit) := do
 end Sleep
 
 /--
-Return an `Async` that resolves after `duration`.
+Return an `Async` computation that completes after `duration`.
 -/
 def sleep (duration : Std.Time.Millisecond.Offset) : Async Unit := do
   let sleeper ← Sleep.mk duration
   sleeper.wait
 
 /--
-Return a `Selector` that resolves after `duration`.
+Return a `Selector` that completes after `duration`.
 -/
 def Selector.sleep (duration : Std.Time.Millisecond.Offset) : Async (Selector Unit) := do
   let sleeper ← Sleep.mk duration
@@ -111,7 +111,6 @@ The underlying timer has millisecond resolution.
 structure Interval where
   private ofNative ::
     native : Internal.UV.Timer
-
 
 namespace Interval
 
@@ -126,12 +125,12 @@ def mk (duration : Std.Time.Millisecond.Offset) (_ : 0 < duration := by decide) 
 
 /--
 If:
-- `i` is not yet running start it and return an `Async` that resolves right away as the 0th
+- `i` is not yet running start it and return an `Async` computation that completes right away as the 0th
   multiple of `duration` has elapsed.
 - `i` is already running and:
-  - the tick from the last call of `i` has not yet finished return the same `Async` as the last
+  - the tick from the last call of `i` has not yet finished return the same `Async` computation as the last
     call
-  - the tick from the last call of `i` has finished return a new `Async` that waits for the
+  - the tick from the last call of `i` has finished return a new `Async` computation that waits for the
     closest next tick from the time of calling this function.
 - `i` is not running anymore this is a no-op.
 -/
@@ -151,8 +150,8 @@ def reset (i : Interval) : IO Unit :=
 
 /--
 If:
-- `i` is still running this stops `i` without resolving any remaining `Async` that were created
-  through `tick`. Note that if another `Async` is binding on any of these it is going hang
+- `i` is still running this stops `i` without completing any remaining `Async` computations that were created
+  through `tick`. Note that if another `Async` computation is binding on any of these it will hang
   forever without further intervention.
 - `i` is not yet or not anymore running this is a no-op.
 -/

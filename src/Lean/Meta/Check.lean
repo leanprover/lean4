@@ -229,7 +229,7 @@ def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr)
       let trailing := trailing?.map (m!"\n" ++ ·) |>.getD .nil
       pure m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}{trailing}")
     let env ← getEnv
-    let blocked := diag.unfoldBlockedCounter.toList.filterMap fun (n, _) => do
+    let blocked := diag.unfoldBlockedCounter.toList.filterMap fun n => do
       guard <| getOriginalConstKind? env n matches some .defn
       return .ofConstName n
     if !blocked.isEmpty then

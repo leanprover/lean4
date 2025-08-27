@@ -418,7 +418,7 @@ structure Diagnostics where
   /--
   Number of times each declaration has been tried to be unfolded while its body was inaccessible.
   -/
-  unfoldBlockedCounter : PHashMap Name Nat := {}
+  unfoldBlockedCounter : PHashSet Name := {}
   /-- Number of times `f a =?= f b` heuristic has been used per function `f`. -/
   heuristicCounter : PHashMap Name Nat := {}
   /-- Number of times a TC instance is used. -/
@@ -682,9 +682,9 @@ def recordUnfold (declName : Name) : MetaM Unit := do
     { unfoldCounter := unfoldCounter.insert declName newC, unfoldBlockedCounter, heuristicCounter, instanceCounter, synthPendingFailures }
 
 def recordUnfoldBlocked (declName : Name) : MetaM Unit := do
-  modifyDiagAlways fun { unfoldCounter, unfoldBlockedCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
-    let newC := if let some c := unfoldBlockedCounter.find? declName then c + 1 else 1
-    { unfoldCounter, unfoldBlockedCounter := unfoldBlockedCounter.insert declName newC, heuristicCounter, instanceCounter, synthPendingFailures }
+  if !(← get).diag.unfoldBlockedCounter.contains declName then
+    modifyDiagAlways fun { unfoldCounter, unfoldBlockedCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+      { unfoldCounter, unfoldBlockedCounter := unfoldBlockedCounter.insert declName, heuristicCounter, instanceCounter, synthPendingFailures }
 
 def resetUnfoldBlocked : MetaM Unit := do
   modifyDiagAlways fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures, .. } =>

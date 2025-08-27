@@ -19,14 +19,12 @@ open System Lean
 
 namespace Lake
 
-public section -- for `Ord`
 /-- The major-minor-patch triple of a [SemVer](https://semver.org/). -/
 public structure SemVerCore where
   major : Nat := 0
   minor : Nat := 0
   patch : Nat := 0
   deriving Inhabited, Repr, DecidableEq, Ord
-end
 
 public instance : LT SemVerCore := ltOfOrd
 public instance : LE SemVerCore := leOfOrd

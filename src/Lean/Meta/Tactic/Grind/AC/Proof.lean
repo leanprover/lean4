@@ -6,10 +6,18 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.AC.Util
+import Lean.Meta.Tactic.Grind.ProofUtil
 import Lean.Meta.Tactic.Grind.AC.ToExpr
+import Lean.Meta.Tactic.Grind.AC.VarRename
 public section
 namespace Lean.Meta.Grind.AC
 open Lean.Grind
+
+private def toContextExpr (vars : Array Expr) : ACM Expr := do
+  let s ← getStruct
+  if h : 0 < vars.size then
+    RArray.toExpr s.type id (RArray.ofFn (vars[·]) h)
+  else unreachable!
 
 structure ProofM.State where
   cache      : Std.HashMap UInt64 Expr := {}
@@ -79,6 +87,30 @@ private def mkDupPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
   return mkApp4 (mkConst declName [.succ s.u]) s.type (← getContext) s.assocInst (← getIdempotentInst)
 
+private def mkContext (h : Expr) : ProofM Expr := do
+  let usedVars     :=
+    collectMapVars (← get).seqDecls (·.collectVars) >>
+    collectMapVars (← get).exprDecls (·.collectVars) <| {}
+  let vars'        := usedVars.toArray
+  let varRename    := mkVarRename vars'
+  let vars         := (← getStruct).vars
+  let vars         := vars'.map fun x => vars[x]!
+  let h := mkLetOfMap (← get).seqDecls h `p (mkConst ``Grind.AC.Seq) fun p => toExpr <| p.renameVars varRename
+  let h := mkLetOfMap (← get).exprDecls h `e (mkConst ``Grind.AC.Expr) fun e => toExpr <| e.renameVars varRename
+  let h := h.abstract #[(← read).ctx]
+  if h.hasLooseBVars then
+    let s ← getStruct
+    let ctxType := mkApp (mkConst ``RArray [.succ s.u]) s.type
+    let ctxVal ← toContextExpr vars
+    return .letE `ctx ctxType ctxVal h (nondep := false)
+  else
+    return h
 
+private abbrev withProofContext (x : ProofM Expr) : ACM Expr := do
+  let ctx := mkFVar (← mkFreshFVarId)
+  go { ctx } |>.run' {}
+where
+  go : ProofM Expr := do
+    mkContext (← x)
 
 end Lean.Meta.Grind.AC

@@ -16,9 +16,7 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
 public import Lean.Meta.Tactic.Grind.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
-
 public section
-
 namespace Lean.Meta.Grind.Arith.CommRing
 /--
 Returns a context of type `RArray α` containing the variables `vars` where

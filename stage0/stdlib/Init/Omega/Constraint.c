@@ -82,6 +82,7 @@ LEAN_EXPORT lean_object* l_Lean_Omega_UpperBound_sat___boxed(lean_object*, lean_
 lean_object* l_Int_repr(lean_object*);
 lean_object* l_Lean_Omega_IntList_leading(lean_object*);
 static lean_object* l_Lean_Omega_Constraint_instToString___lam__0___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Omega_decEqConstraint____x40_Init_Omega_Constraint_671019870____hygCtx___hyg_43_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_tidyConstraint(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_tidy_x3f(lean_object*);
@@ -150,6 +151,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Omega_Constraint_impossible___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_instToString___lam__0___boxed(lean_object*);
 static lean_object* l_Option_repr___at___Lean_Omega_reprConstraint____x40_Init_Omega_Constraint_671019870____hygCtx___hyg_58__spec__0___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_ctorIdx(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Omega_Constraint_isImpossible(lean_object*);
 lean_object* l_Lean_Omega_IntList_dot(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Omega_reprConstraint____x40_Init_Omega_Constraint_671019870____hygCtx___hyg_58__spec__1(lean_object*);
@@ -211,6 +213,23 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Omega_Constraint_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3____at___Lean_Omega_beqConstraint____x40_Init_Omega_Constraint_671019870____hygCtx___hyg_24__spec__0(lean_object* x_1, lean_object* x_2) {

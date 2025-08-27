@@ -181,6 +181,7 @@ static lean_object* l___auto___closed__3____x40_Init_Data_Vector_Basic_310383142
 LEAN_EXPORT lean_object* l_Vector_tail___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_any___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Vector_singleton___redArg___closed__0;
+LEAN_EXPORT lean_object* l_Vector_ctorIdx(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__33____x40_Init_Data_Vector_Basic_1499792475____hygCtx___hyg_20_;
 static lean_object* l___auto___closed__23____x40_Init_Data_Vector_Basic_1499792475____hygCtx___hyg_20_;
 lean_object* l_Array_unzip___redArg(lean_object*);
@@ -506,6 +507,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Basic_0__Vector_mapM_go___
 static lean_object* l___auto___closed__18____x40_Init_Data_Vector_Basic_1499792475____hygCtx___hyg_20_;
 LEAN_EXPORT lean_object* l_Vector_mapIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Vector_term_x23v_x5b___x2c_x5d___closed__0;
+LEAN_EXPORT lean_object* l_Vector_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Vector_foldl___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Vector_zip___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_firstM_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -666,6 +668,24 @@ LEAN_EXPORT lean_object* l_Vector_mkEmpty___boxed(lean_object*, lean_object*);
 lean_object* l_Array_finIdxOf_x3f___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_elimAsList___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Vector_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(0u);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Vector_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Vector_ctorIdx(x_1, x_2, x_3);
+lean_dec_ref(x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
 static lean_object* _init_l_reprVector___redArg___closed__0____x40_Init_Data_Vector_Basic_509770449____hygCtx___hyg_32_() {
 _start:
 {

@@ -54,7 +54,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Parser_Extra_0__Lean_Parser_many1___re
 static lean_object* l_Lean_Parser_termRegister__parser__alias_x28Kind_x3a_x3d___x29_______________closed__33;
 extern lean_object* l_Lean_Parser_nameLitNoAntiquot;
 static lean_object* l___private_Lean_Parser_Extra_0__Lean_Parser_initFn___closed__48____x40_Lean_Parser_Extra_2431976320____hygCtx___hyg_2_;
-uint8_t l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_19_(lean_object*, lean_object*);
+uint8_t l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_23_(lean_object*, lean_object*);
 lean_object* l_Lean_addBuiltinDocString(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser___aux__Lean__Parser__Extra______macroRules__Lean__Parser__termRegister__parser__alias_x28Kind_x3a_x3d___x29______________1___closed__22;
@@ -5150,7 +5150,7 @@ lean_object* x_34; uint8_t x_35;
 x_34 = lean_ctor_get(x_30, 0);
 lean_inc(x_34);
 lean_dec_ref(x_30);
-x_35 = l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_19_(x_32, x_34);
+x_35 = l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_23_(x_32, x_34);
 lean_dec(x_34);
 if (x_35 == 0)
 {

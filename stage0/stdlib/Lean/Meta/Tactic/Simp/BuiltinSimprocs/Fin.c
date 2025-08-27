@@ -43,6 +43,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_0____r
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_0__Fin_reduceBEq___regBuiltin_Fin_reduceBEq_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_1869567773____hygCtx___hyg_23_(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_reducePred(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_0____regBuiltin_Fin_reduceCastSucc_declare__156___closed__3____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_2550739679____hygCtx___hyg_13_;
+LEAN_EXPORT lean_object* l_Fin_Value_ctorIdx___boxed(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_0____regBuiltin_Fin_reduceShiftRight_declare__96___closed__9____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_1714635550____hygCtx___hyg_20_;
 static lean_object* l_Fin_reduceOr___redArg___closed__0;
@@ -736,6 +737,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_0____r
 static lean_object* l_Fin_reduceAnd___redArg___closed__0;
 static lean_object* l_Fin_reduceCastLE___redArg___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_0____regBuiltin_Fin_reduceNe_declare__126___closed__7____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_875503241____hygCtx___hyg_21_;
+LEAN_EXPORT lean_object* l_Fin_Value_ctorIdx(lean_object*);
 static lean_object* l_Fin_reduceAdd___redArg___closed__2;
 static lean_object* l_Fin_reduceOr___redArg___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_0__Fin_reduceLT___regBuiltin_Fin_reduceLT_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_3323300974____hygCtx___hyg_25_(lean_object*);
@@ -748,6 +750,23 @@ static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_0____r
 static lean_object* l_Fin_reduceCastAdd___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Fin_reduceBEq___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_0____regBuiltin_Fin_reduceAnd_declare__76___closed__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_2827040777____hygCtx___hyg_20_;
+LEAN_EXPORT lean_object* l_Fin_Value_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Fin_Value_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Fin_Value_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT uint8_t l_Fin_decEqValue____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin_1953721060____hygCtx___hyg_27_(lean_object* x_1, lean_object* x_2) {
 _start:
 {

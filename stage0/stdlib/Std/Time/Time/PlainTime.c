@@ -83,6 +83,7 @@ static lean_object* l_Std_Time_PlainTime_midnight___closed__13;
 static lean_object* l_Std_Time_PlainTime_midnight___closed__11;
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_subMilliseconds___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_PlainTime_midnight___closed__14;
+LEAN_EXPORT lean_object* l_Std_Time_PlainTime_ctorIdx(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_ofNanoseconds___boxed(lean_object*);
 static lean_object* l_Std_Time_reprPlainTime___redArg___closed__0____x40_Std_Time_Time_PlainTime_905586295____hygCtx___hyg_402_;
@@ -194,6 +195,7 @@ LEAN_EXPORT lean_object* l_Std_Time_instReprPlainTime;
 static lean_object* l_Std_Time_instInhabitedPlainTime___closed__6;
 static lean_object* l_Std_Time_PlainTime_midnight___closed__7;
 static lean_object* l_Std_Time_reprPlainTime___redArg___closed__6____x40_Std_Time_Time_PlainTime_905586295____hygCtx___hyg_402_;
+LEAN_EXPORT lean_object* l_Std_Time_PlainTime_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_withNanoseconds(lean_object*, lean_object*);
 extern lean_object* l_Std_Time_Nanosecond_instAddOffset;
 LEAN_EXPORT lean_object* l_Std_Time_instOrdPlainTime___lam__1___boxed(lean_object*);
@@ -206,6 +208,23 @@ static lean_object* l_Std_Time_reprPlainTime___redArg___closed__18____x40_Std_Ti
 static lean_object* l_Std_Time_instInhabitedPlainTime___closed__9;
 static lean_object* l_Std_Time_PlainTime_midnight___closed__8;
 static lean_object* l_Std_Time_instInhabitedPlainTime___closed__16;
+LEAN_EXPORT lean_object* l_Std_Time_PlainTime_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_PlainTime_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Time_PlainTime_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_reprPlainTime____x40_Std_Time_Time_PlainTime_905586295____hygCtx___hyg_402__spec__0(lean_object* x_1) {
 _start:
 {

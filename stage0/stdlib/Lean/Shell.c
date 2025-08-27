@@ -215,6 +215,7 @@ static lean_object* l___private_Lean_Shell_0__Lean_initFn___closed__2____x40_Lea
 lean_object* lean_string_append(lean_object*, lean_object*);
 uint8_t lean_internal_is_multi_thread(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Shell_0__Lean_shellMain___lam__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Shell_0__Lean_ShellComponent_toCtorIdx(uint8_t);
 static lean_object* l___private_Lean_Shell_0__Lean_displayHelp___closed__32;
 lean_object* l_Lean_profileitIOUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_ofExcept___at_____private_Lean_Shell_0__Lean_shellMain_spec__0(lean_object*, lean_object*, lean_object*);
@@ -230,6 +231,7 @@ lean_object* l_Lean_printImportsJson(lean_object*, lean_object*);
 static uint8_t l___private_Lean_Shell_0__Lean_shortVersionString___closed__3;
 static lean_object* l___private_Lean_Shell_0__Lean_shellMain___closed__4;
 static lean_object* l___private_Lean_Shell_0__Lean_displayHelp___closed__39;
+LEAN_EXPORT lean_object* l___private_Lean_Shell_0__Lean_ShellComponent_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_eprint___at___IO_eprintln___at_____private_Lean_Shell_0__Lean_shellMain_spec__1_spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Shell_0__Lean_displayHelp___closed__31;
 static lean_object* l___private_Lean_Shell_0__Lean_versionHeader___closed__8;
@@ -1714,6 +1716,23 @@ _start:
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
 x_3 = l___private_Lean_Shell_0__Lean_ShellComponent_ctorIdx(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Shell_0__Lean_ShellComponent_toCtorIdx(uint8_t x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Lean_Shell_0__Lean_ShellComponent_ctorIdx(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Shell_0__Lean_ShellComponent_toCtorIdx___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_unbox(x_1);
+x_3 = l___private_Lean_Shell_0__Lean_ShellComponent_toCtorIdx(x_2);
 return x_3;
 }
 }

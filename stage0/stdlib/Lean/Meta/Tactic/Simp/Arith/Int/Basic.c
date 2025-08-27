@@ -223,6 +223,7 @@ static lean_object* l_Lean_Meta_Simp_Arith_Int_ToLinear_leCnstr_x3f___closed__10
 LEAN_EXPORT lean_object* l_Int_Linear_instReprExpr__lean;
 static lean_object* l_Lean_Meta_Simp_Arith_Int_ofLinearExpr___closed__6;
 static lean_object* l_Lean_Meta_Simp_Arith_Int_ofLinearExpr___closed__8;
+LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Int_ToLinear_State_ctorIdx___boxed(lean_object*);
 static lean_object* l_Int_Linear_reprPoly___closed__1____x40_Lean_Meta_Tactic_Simp_Arith_Int_Basic_1935947874____hygCtx___hyg_3_;
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_instToExprInt_mkNat(lean_object*);
@@ -250,6 +251,7 @@ static lean_object* l_Lean_Meta_Simp_Arith_Int_ofLinearExpr___closed__16;
 LEAN_EXPORT lean_object* l_Int_Linear_reprPoly____x40_Lean_Meta_Tactic_Simp_Arith_Int_Basic_1935947874____hygCtx___hyg_3_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Int_ToLinear_run___redArg___closed__2;
 static lean_object* l_Lean_Meta_Simp_Arith_Int_ofLinearExpr___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Int_ToLinear_State_ctorIdx(lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Int_ofPoly___closed__15;
 lean_object* l_Lean_mkIntNeg(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Arith_Int_Basic_0__Lean_Meta_Simp_Arith_Int_ToLinear_toLinearExpr_visit___closed__1;
@@ -3153,6 +3155,23 @@ lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Int_ToLinear_State_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Int_ToLinear_State_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_Simp_Arith_Int_ToLinear_State_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Int_ToLinear_addAsVar(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

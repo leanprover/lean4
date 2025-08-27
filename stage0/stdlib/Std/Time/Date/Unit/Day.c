@@ -90,7 +90,6 @@ LEAN_EXPORT lean_object* l___auto____x40_Std_Time_Date_Unit_Day_197636206____hyg
 LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_toHours___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_instDecidableEqOrdinal___boxed(lean_object*, lean_object*);
 lean_object* l_Std_Time_Internal_Bounded_LE_instOfNatHAddIntCast(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Time_Internal_instInhabitedUnitVal(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___Nat_cast___at___Std_Time_Day_instReprOffset_spec__0_spec__0(lean_object*);
 lean_object* l_Int_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_Ordinal_OfYear_ofNat___boxed(lean_object*, lean_object*, lean_object*);
@@ -194,6 +193,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Day_instInhabitedOffset;
 LEAN_EXPORT lean_object* l_Std_Time_Day_instOrdOffset;
 LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofInt(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_instNegOffset;
+lean_object* l_Std_Time_Internal_defaultUnitVal____x40_Std_Time_Internal_UnitVal_2277112071____hygCtx___hyg_187_(lean_object*);
 static lean_object* l_Std_Time_Day_instSubOffset___closed__0;
 static lean_object* l_Std_Time_Day_Offset_toMilliseconds___closed__0;
 static lean_object* l___auto___closed__0____x40_Std_Time_Date_Unit_Day_197636206____hygCtx___hyg_21_;
@@ -517,7 +517,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Time_Day_instInhabitedOffset___closed__0;
-x_2 = l_Std_Time_Internal_instInhabitedUnitVal(x_1);
+x_2 = l_Std_Time_Internal_defaultUnitVal____x40_Std_Time_Internal_UnitVal_2277112071____hygCtx___hyg_187_(x_1);
 return x_2;
 }
 }

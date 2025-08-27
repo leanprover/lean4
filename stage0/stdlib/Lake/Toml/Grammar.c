@@ -202,7 +202,6 @@ lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_header___closed__0;
 static lean_object* l_Lake_Toml_string___closed__7;
 static lean_object* l_Lake_Toml_stdTable_formatter___closed__1;
-uint8_t l_Lean_Parser_beqError____x40_Lean_Parser_Types_2111619821____hygCtx___hyg_42_(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_numeralFn___lam__0___closed__13;
 static lean_object* l_Lake_Toml_array___closed__0;
@@ -399,6 +398,7 @@ static lean_object* l_Lake_Toml_simpleKey_formatter___closed__0;
 static lean_object* l___private_Lake_Toml_Grammar_0__Lake_Toml_timeAuxFn___closed__1;
 static lean_object* l_Lake_Toml_arrayTable___closed__8;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_withAntiquot_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Parser_beqError____x40_Lean_Parser_Types_2111619821____hygCtx___hyg_46_(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Toml_Grammar_0__Lake_Toml_hourMinFn___closed__4;
 static lean_object* l_Lake_Toml_arrayTable___closed__4;
 LEAN_EXPORT lean_object* l_Lake_Toml_numeralFn(lean_object*, lean_object*);
@@ -907,7 +907,7 @@ lean_dec_ref(x_1);
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
 lean_dec_ref(x_2);
-x_8 = l_Lean_Parser_beqError____x40_Lean_Parser_Types_2111619821____hygCtx___hyg_42_(x_6, x_7);
+x_8 = l_Lean_Parser_beqError____x40_Lean_Parser_Types_2111619821____hygCtx___hyg_46_(x_6, x_7);
 return x_8;
 }
 }

@@ -61,6 +61,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_getUnfoldableConstNoEx_x3f___redArg(lean_ob
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_Meta_getUnfoldableConst_x3f_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_Meta_getUnfoldableConst_x3f_spec__0_spec__0_spec__0___closed__11;
 lean_object* l_Lean_AsyncConstantInfo_toConstantInfo(lean_object*);
+uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_13_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_isReducible___at_____private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault_spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_Meta_getUnfoldableConst_x3f_spec__0_spec__0_spec__0___closed__14;
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_Meta_getUnfoldableConst_x3f_spec__0_spec__0_spec__0___closed__9;
@@ -92,7 +93,6 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_findAsync_x3f(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_Meta_getUnfoldableConst_x3f_spec__0_spec__0_spec__0___closed__16;
-uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_9_(uint8_t, uint8_t);
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_Meta_getUnfoldableConst_x3f_spec__0___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_Meta_getUnfoldableConst_x3f_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -396,7 +396,7 @@ if (lean_is_exclusive(x_37)) {
  x_40 = lean_box(0);
 }
 x_47 = 3;
-x_48 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_9_(x_6, x_47);
+x_48 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_13_(x_6, x_47);
 if (x_48 == 0)
 {
 lean_dec(x_38);
@@ -481,7 +481,7 @@ if (lean_is_exclusive(x_56)) {
  x_59 = lean_box(0);
 }
 x_66 = 3;
-x_67 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_9_(x_6, x_66);
+x_67 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_13_(x_6, x_66);
 if (x_67 == 0)
 {
 lean_dec(x_57);

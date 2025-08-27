@@ -235,6 +235,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___at_____private_Lake_CLI_Translate_Toml_0__Lake___aux__Lake__CLI__Translate__Toml______macroRules____private__Lake__CLI__Translate__Toml__0__Lake__commandGen__toml__encoders_x25__1_spec__8(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__93;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Toml_encodeLeanOptions_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_InsertField_ctorIdx(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_Package_mkTomlTargets___closed__7;
 static lean_object* l_Lake_Dependency_toToml___closed__12;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_instEncodeFieldOfToToml___redArg(lean_object*);
@@ -245,6 +246,7 @@ uint8_t l_Lake_instDecidableEqBuildType(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_____private_Lake_CLI_Translate_Toml_0__Lake_PackageConfig_toToml_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToToml_x3fPattern___redArg(lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__132;
+uint8_t l_Lake_decEqGlob____x40_Lake_Config_Glob_4198728730____hygCtx___hyg_61_(lean_object*, lean_object*);
 static lean_object* l_Lake_StrPatDescr_toToml___closed__2;
 lean_object* l_Lake_PackageConfig_readmeFile___proj(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_InputFileConfig_instToToml(lean_object*);
@@ -273,11 +275,9 @@ static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___clos
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_instInsertFieldOfEncodeFieldOfBEqOfConfigField___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lake_PathPatDescr_toToml_x3f(lean_object*);
-uint8_t l_Lake_decEqGlob____x40_Lake_Config_Glob_4198728730____hygCtx___hyg_57_(lean_object*, lean_object*);
 lean_object* l_Lake_PackageConfig_license___proj(lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_InputDirConfig_toToml___closed__0;
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lake_decEqStdVer____x40_Lake_Util_Version_4117999005____hygCtx___hyg_36_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_toToml_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___lam__0___closed__12;
 lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
@@ -419,6 +419,7 @@ lean_object* l_Lake_PackageConfig_toWorkspaceConfig___proj(lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__83;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_CLI_Translate_Toml_0__Lake_genToToml___at_____private_Lake_CLI_Translate_Toml_0__Lake___aux__Lake__CLI__Translate__Toml______macroRules____private__Lake__CLI__Translate__Toml__0__Lake__commandGen__toml__encoders_x25__1_spec__0_spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Array_contains___at_____private_Lake_CLI_Translate_Toml_0__Lake_genToToml___at_____private_Lake_CLI_Translate_Toml_0__Lake___aux__Lake__CLI__Translate__Toml______macroRules____private__Lake__CLI__Translate__Toml__0__Lake__commandGen__toml__encoders_x25__1_spec__0_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t);
+uint8_t l_Lake_decEqStdVer____x40_Lake_Util_Version_4117999005____hygCtx___hyg_40_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_instInsertFieldOfEncodeFieldOfBEqOfConfigField___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__76;
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_LeanLibConfig_toToml___closed__2;
@@ -508,6 +509,7 @@ static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___lam_
 lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__27;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_EncodeField_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkTomlConfig___closed__0;
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___lam__0___closed__10;
 static lean_object* l_Lake_Dependency_toToml___closed__14;
@@ -638,6 +640,7 @@ lean_object* l_Lake_LeanLibConfig_extraDepTargets___proj(lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_Package_mkTomlTargets___closed__2;
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake___aux__Lake__CLI__Translate__Toml______macroRules____private__Lake__CLI__Translate__Toml__0__Lake__commandGen__toml__encoders_x25__1___closed__18;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Toml_encodeArray_x3f___at___Lake_PatternDescr_toToml_x3f___at___Lake_Pattern_toToml_x3f___at_____private_Lake_CLI_Translate_Toml_0__Lake_InputDirConfig_toToml_spec__0_spec__0_spec__0_spec__0___redArg(lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_InsertField_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_PackageConfig_toToml___closed__23;
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_LeanConfig_toToml___closed__9;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -695,6 +698,7 @@ static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_PackageConfig_to
 extern lean_object* l_Lake_LeanExe_keyword;
 extern lean_object* l_Lake_LeanExeConfig_instConfigMeta;
 extern lean_object* l_Lake_LeanConfig_weakLeanArgs___proj;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_EncodeField_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__104;
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_Package_mkTomlTargets___closed__4;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_____private_Lake_CLI_Translate_Toml_0__Lake_PackageConfig_toToml_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -766,6 +770,24 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_EncodeField_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_unsigned_to_nat(0u);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_EncodeField_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Lake_CLI_Translate_Toml_0__Lake_EncodeField_ctorIdx(x_1, x_2, x_3, x_4);
+lean_dec_ref(x_4);
+lean_dec(x_2);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_instEncodeFieldOfToToml___redArg(lean_object* x_1) {
 _start:
 {
@@ -797,6 +819,24 @@ x_5 = l___private_Lake_CLI_Translate_Toml_0__Lake_instEncodeFieldOfToToml(x_1, x
 lean_dec_ref(x_4);
 lean_dec(x_3);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_InsertField_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(0u);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_InsertField_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Lake_CLI_Translate_Toml_0__Lake_InsertField_ctorIdx(x_1, x_2, x_3);
+lean_dec_ref(x_3);
+lean_dec(x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_Toml_Table_insertField___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -15329,7 +15369,7 @@ x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
 x_8 = lean_array_fget_borrowed(x_1, x_7);
 x_9 = lean_array_fget_borrowed(x_2, x_7);
-x_10 = l_Lake_decEqGlob____x40_Lake_Config_Glob_4198728730____hygCtx___hyg_57_(x_8, x_9);
+x_10 = l_Lake_decEqGlob____x40_Lake_Config_Glob_4198728730____hygCtx___hyg_61_(x_8, x_9);
 if (x_10 == 0)
 {
 lean_dec(x_7);
@@ -20559,7 +20599,7 @@ lean_inc_ref(x_2);
 x_499 = lean_apply_1(x_497, x_2);
 lean_inc_ref(x_2);
 x_500 = lean_apply_1(x_498, x_2);
-x_501 = l_Lake_decEqStdVer____x40_Lake_Util_Version_4117999005____hygCtx___hyg_36_(x_499, x_500);
+x_501 = l_Lake_decEqStdVer____x40_Lake_Util_Version_4117999005____hygCtx___hyg_40_(x_499, x_500);
 lean_dec_ref(x_500);
 if (x_501 == 0)
 {

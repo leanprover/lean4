@@ -26,7 +26,6 @@ LEAN_EXPORT lean_object* l_Lake_recFetch___at___Lake_recFetch___at___Lake_recFet
 LEAN_EXPORT lean_object* l_Lake_recFetch___at___Lake_recFetch___at___Lake_recFetchAcyclic___at_____private_Lake_Build_Index_0__Lake_recFetchWithIndex_spec__0_spec__2_spec__2___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__7;
 lean_object* l_Lake_Package_findTargetDecl_x3f(lean_object*, lean_object*);
-uint8_t l_Lake_decEqBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_83_(lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_recFetch___at___Lake_recFetchAcyclic___at_____private_Lake_Build_Index_0__Lake_recFetchWithIndex_spec__0_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -52,6 +51,7 @@ LEAN_EXPORT lean_object* l_Lake_recFetch___at___Lake_recFetch___at___Lake_recFet
 LEAN_EXPORT lean_object* l_Lake_FetchT_run___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___at_____private_Lake_Build_Index_0__Lake_recBuildWithIndex_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_buildCycleError(lean_object*);
+uint8_t l_Lake_decEqBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_87_(lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_findFacetConfig_x3f(lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -1971,7 +1971,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = l_Lake_decEqBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_83_(x_1, x_4);
+x_6 = l_Lake_decEqBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_87_(x_1, x_4);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -2045,7 +2045,7 @@ if (lean_is_exclusive(x_4)) {
  lean_dec_ref(x_4);
  x_20 = lean_box(0);
 }
-x_25 = l_Lake_decEqBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_83_(x_15, x_1);
+x_25 = l_Lake_decEqBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_87_(x_15, x_1);
 if (x_25 == 0)
 {
 if (x_2 == 0)

@@ -33,8 +33,10 @@ lean_object* l_Function_comp(lean_object*, lean_object*, lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instMonad___lam__7___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_const(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pushArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_PredTrans_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pushExcept___redArg___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instLE___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_PredTrans_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instMonad___lam__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instMonad___lam__7(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pushArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -53,6 +55,24 @@ lean_object* l_Function_const___boxed(lean_object*, lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pushExcept___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pure___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pure(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_PredTrans_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(0u);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_PredTrans_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Do_PredTrans_ctorIdx(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instLE(lean_object* x_1, lean_object* x_2) {
 _start:
 {

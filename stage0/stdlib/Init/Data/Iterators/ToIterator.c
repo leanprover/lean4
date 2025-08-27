@@ -43,6 +43,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorCollectState___redArg___box
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorCollectState(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorState___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorSizeState___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorLoopPartialState___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_iterM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_of___redArg___boxed(lean_object*);
@@ -51,12 +52,31 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorCollectPartialState___boxed
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorCollectState___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorLoopState___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_iterM___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorSizeState(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorCollectPartialState(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_iter___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorLoopPartialState___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorLoopState___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorCollectPartialState___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_unsigned_to_nat(0u);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Std_Iterators_ToIterator_ctorIdx(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
+lean_dec(x_2);
+return x_6;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_iterM___redArg(lean_object* x_1) {
 _start:
 {

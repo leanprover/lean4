@@ -30,8 +30,8 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_DeclValue_forCodeM___at___Lean_Com
 static lean_object* l_Lean_Compiler_LCNF_markDeclPublicRec___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_markDeclPublicRec___closed__6;
 static lean_object* l_Lean_Compiler_LCNF_markDeclPublicRec___closed__3;
-uint8_t l_Lean_beqConstantKind____x40_Lean_Environment_2807703329____hygCtx___hyg_9_(uint8_t, uint8_t);
 static lean_object* l___private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_initFn___closed__5____x40_Lean_Compiler_LCNF_Visibility_3356661454____hygCtx___hyg_2_;
+uint8_t l_Lean_beqConstantKind____x40_Lean_Environment_2807703329____hygCtx___hyg_13_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Visibility_3356661454____hygCtx___hyg_2_(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
@@ -431,7 +431,7 @@ lean_dec_ref(x_15);
 x_18 = lean_ctor_get_uint8(x_17, sizeof(void*)*3);
 lean_dec(x_17);
 x_19 = 0;
-x_20 = l_Lean_beqConstantKind____x40_Lean_Environment_2807703329____hygCtx___hyg_9_(x_18, x_19);
+x_20 = l_Lean_beqConstantKind____x40_Lean_Environment_2807703329____hygCtx___hyg_13_(x_18, x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; 
@@ -485,7 +485,7 @@ lean_dec_ref(x_32);
 x_36 = lean_ctor_get_uint8(x_35, sizeof(void*)*3);
 lean_dec(x_35);
 x_37 = 0;
-x_38 = l_Lean_beqConstantKind____x40_Lean_Environment_2807703329____hygCtx___hyg_9_(x_36, x_37);
+x_38 = l_Lean_beqConstantKind____x40_Lean_Environment_2807703329____hygCtx___hyg_13_(x_36, x_37);
 if (x_38 == 0)
 {
 lean_object* x_39; lean_object* x_40; 

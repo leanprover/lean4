@@ -14,11 +14,12 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_CanonM_run_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_State_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint64_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_unsafe__1_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_canon_unsafe__1_spec__0___redArg___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_State_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Meta_Canonicalizer_canon_spec__0_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_instHashableExprVisited___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_unsafe__7___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -29,6 +30,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHa
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Meta_Canonicalizer_canon_spec__6___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Canonicalizer_instInhabitedState___closed__4;
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Meta_Canonicalizer_canon_spec__0_spec__0(lean_object*, uint64_t, lean_object*);
+static lean_object* l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__2____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_unsafe__1_spec__0_spec__0___redArg(lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
@@ -61,7 +63,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_CanonM_run(lean_object*, lean
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 size_t lean_ptr_addr(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Meta_Canonicalizer_canon_spec__0_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__0;
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_canon_unsafe__1_spec__0_spec__0(lean_object*, uint64_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -88,7 +89,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_instInhabitedState;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
-static lean_object* l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__1;
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_spec__0(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_instHashableExprVisited;
 uint64_t l_Lean_Expr_hash(lean_object*);
@@ -100,6 +100,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DH
 LEAN_EXPORT uint8_t l_Lean_Meta_Canonicalizer_instBEqExprVisited___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_unsafe__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_spec__1___redArg___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_ExprVisited_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Meta_Canonicalizer_canon_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Meta_Canonicalizer_canon_spec__0_spec__1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -109,12 +110,14 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at_____priva
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 static lean_object* l_Lean_Meta_Canonicalizer_canon___closed__0;
 lean_object* l_Lean_Meta_Context_config(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_ExprVisited_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_unsafe__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_canon_unsafe__1_spec__0___redArg(lean_object*, uint64_t);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Canonicalizer_instInhabitedState___closed__0;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_unsafe__7_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_defaultExprVisited____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_CanonM_run_x27___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_unsafe__7_spec__0_spec__1(lean_object*, lean_object*);
@@ -136,6 +139,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_CanonM_run___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
+static lean_object* l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__0____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_;
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint64_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
@@ -162,11 +166,29 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_canon___boxed(lean_object*, l
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_unsafe__1_spec__0___redArg(lean_object*, lean_object*);
 uint8_t l_Lean_Meta_ParamInfo_isExplicit(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+static lean_object* l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__1____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_;
 static lean_object* l_Lean_Meta_Canonicalizer_instInhabitedState___closed__5;
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_unsafe__7_spec__0_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_canon(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__0() {
+LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_ExprVisited_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_ExprVisited_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_Canonicalizer_ExprVisited_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__0____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_() {
 _start:
 {
 lean_object* x_1; 
@@ -174,30 +196,38 @@ x_1 = lean_mk_string_unchecked("_inhabitedExprDummy", 19, 19);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__1() {
+static lean_object* _init_l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__1____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__0;
+x_1 = l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__0____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__2() {
+static lean_object* _init_l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__2____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__1;
+x_2 = l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__1____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_;
 x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Canonicalizer_defaultExprVisited____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__2____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_;
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_Canonicalizer_instInhabitedExprVisited() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__2;
+x_1 = l_Lean_Meta_Canonicalizer_defaultExprVisited____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_;
 return x_1;
 }
 }
@@ -255,6 +285,23 @@ x_2 = l_Lean_Meta_Canonicalizer_instHashableExprVisited___lam__0(x_1);
 lean_dec_ref(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_State_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_State_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_Canonicalizer_State_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_Canonicalizer_instInhabitedState___closed__0() {
@@ -4654,12 +4701,14 @@ lean_dec_ref(res);
 res = initialize_Std_Data_HashMap_Raw(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__0 = _init_l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__0();
-lean_mark_persistent(l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__0);
-l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__1 = _init_l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__1();
-lean_mark_persistent(l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__1);
-l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__2 = _init_l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__2();
-lean_mark_persistent(l_Lean_Meta_Canonicalizer_instInhabitedExprVisited___closed__2);
+l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__0____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_ = _init_l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__0____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_();
+lean_mark_persistent(l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__0____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_);
+l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__1____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_ = _init_l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__1____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_();
+lean_mark_persistent(l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__1____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_);
+l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__2____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_ = _init_l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__2____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_();
+lean_mark_persistent(l_Lean_Meta_Canonicalizer_defaultExprVisited___closed__2____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_);
+l_Lean_Meta_Canonicalizer_defaultExprVisited____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_ = _init_l_Lean_Meta_Canonicalizer_defaultExprVisited____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_();
+lean_mark_persistent(l_Lean_Meta_Canonicalizer_defaultExprVisited____x40_Lean_Meta_Canonicalizer_3461202564____hygCtx___hyg_16_);
 l_Lean_Meta_Canonicalizer_instInhabitedExprVisited = _init_l_Lean_Meta_Canonicalizer_instInhabitedExprVisited();
 lean_mark_persistent(l_Lean_Meta_Canonicalizer_instInhabitedExprVisited);
 l_Lean_Meta_Canonicalizer_instBEqExprVisited = _init_l_Lean_Meta_Canonicalizer_instBEqExprVisited();

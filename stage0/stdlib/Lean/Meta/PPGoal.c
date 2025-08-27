@@ -57,7 +57,6 @@ static lean_object* l_Lean_Meta_ppGoal___closed__6;
 uint32_t l_Lean_Expr_approxDepth(lean_object*);
 uint8_t l_List_isEmpty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_Meta_initFn____x40_Lean_Meta_PPGoal_4194171852____hygCtx___hyg_4__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instInhabitedPersistentArrayNode(lean_object*);
 static lean_object* l_Lean_Meta_ppGoal___closed__4;
 static lean_object* l_Lean_Meta_ppGoal_shouldShowLetValue___redArg___closed__1;
 static lean_object* l_Lean_Meta_initFn___closed__4____x40_Lean_Meta_PPGoal_3724023615____hygCtx___hyg_4_;
@@ -110,6 +109,7 @@ LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_Meta_ppGoal_shouldShowLet
 static lean_object* l_Lean_Meta_initFn___closed__2____x40_Lean_Meta_PPGoal_2086777308____hygCtx___hyg_4_;
 uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_defaultPersistentArrayNode____x40_Lean_Data_PersistentArray_281732585____hygCtx___hyg_44_(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn___closed__2____x40_Lean_Meta_PPGoal_2325355352____hygCtx___hyg_4_;
@@ -2433,7 +2433,7 @@ static lean_object* _init_l___private_Lean_Data_PersistentArray_0__Lean_Persiste
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instInhabitedPersistentArrayNode(lean_box(0));
+x_1 = l_Lean_defaultPersistentArrayNode____x40_Lean_Data_PersistentArray_281732585____hygCtx___hyg_44_(lean_box(0));
 return x_1;
 }
 }

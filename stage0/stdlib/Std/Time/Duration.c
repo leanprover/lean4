@@ -26,6 +26,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Duration_instHAddOffset__4;
 LEAN_EXPORT lean_object* l_Std_Time_Duration_toNanoseconds___boxed(lean_object*);
 lean_object* l_Std_Time_PlainTime_toNanoseconds(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Duration_sub___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_Duration_ctorIdx___boxed(lean_object*);
 static lean_object* l_Std_Time_Duration_instCoeOffset__4___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Duration_addHours___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Duration_subMinutes(lean_object*, lean_object*);
@@ -138,6 +139,7 @@ LEAN_EXPORT lean_object* l_Int_cast___at___Std_Time_Duration_ofNanoseconds_spec_
 LEAN_EXPORT lean_object* l_Std_Time_Duration_toDays(lean_object*);
 static lean_object* l_Std_Time_reprDuration___redArg___closed__4____x40_Std_Time_Duration_4137264884____hygCtx___hyg_292_;
 static lean_object* l_Std_Time_Duration_instCoeOffset__2___closed__1;
+LEAN_EXPORT lean_object* l_Std_Time_Duration_ctorIdx(lean_object*);
 static lean_object* l_Std_Time_Duration_instCoeOffset__4___closed__3;
 static lean_object* l_Std_Time_Duration_toMinutes___closed__0;
 static lean_object* l_Std_Time_reprDuration___redArg___closed__12____x40_Std_Time_Duration_4137264884____hygCtx___hyg_292_;
@@ -235,6 +237,23 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___
 static lean_object* l_Std_Time_instToStringDuration___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Duration_instHSubOffset;
 LEAN_EXPORT lean_object* l_Std_Time_Duration_addSeconds(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_Duration_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Duration_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Time_Duration_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_reprDuration____x40_Std_Time_Duration_4137264884____hygCtx___hyg_292__spec__0(lean_object* x_1) {
 _start:
 {

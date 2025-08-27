@@ -104,6 +104,7 @@ static uint8_t l_Lake_Module_bcFile_x3f___closed__0;
 static lean_object* l_Lake_LeanLib_findModuleBySrc_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Package_findModule_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_nativeFacets___boxed(lean_object*, lean_object*);
+uint8_t l_Lake_ordBuildType____x40_Lake_Config_LeanConfig_3988279785____hygCtx___hyg_24_(uint8_t, uint8_t);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_System_FilePath_components(lean_object*);
 static lean_object* l_Lake_LeanLib_findModuleBySrc_x3f___closed__2;
@@ -138,7 +139,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 lean_object* l_Lake_BuildType_leanArgs(uint8_t);
 static lean_object* l_Lake_Module_oleanPrivateFile___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Module_srcPath(lean_object*, lean_object*);
-uint8_t l_Lake_ordBuildType____x40_Lake_Config_LeanConfig_3988279785____hygCtx___hyg_21_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_Module_pkg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_coNoExportFile(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToJsonModule;
@@ -152,6 +152,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 static lean_object* l_Lake_Module_bcoFile___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModule_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LeanOptions_appendArray(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Module_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_instCheckExists;
 LEAN_EXPORT lean_object* l_Lake_Module_cFile(lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
@@ -187,6 +188,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lake_instHashableModule;
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_bcoFile(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Module_ctorIdx___boxed(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_modToFilePath(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -211,6 +213,23 @@ LEAN_EXPORT lean_object* l_Lake_Module_setupFile(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_serverOptions(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_shouldPrecompile___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModule_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Module_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Module_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_Module_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_instToJsonModule___lam__0(lean_object* x_1) {
 _start:
 {
@@ -2614,7 +2633,7 @@ x_11 = lean_ctor_get_uint8(x_7, sizeof(void*)*13);
 x_12 = lean_ctor_get(x_7, 0);
 x_13 = lean_ctor_get(x_7, 4);
 x_14 = lean_box(1);
-x_24 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig_3988279785____hygCtx___hyg_21_(x_8, x_11);
+x_24 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig_3988279785____hygCtx___hyg_24_(x_8, x_11);
 if (x_24 == 2)
 {
 x_15 = x_11;
@@ -2660,7 +2679,7 @@ x_6 = lean_ctor_get(x_2, 2);
 x_7 = lean_ctor_get(x_6, 0);
 x_8 = lean_ctor_get_uint8(x_5, sizeof(void*)*13);
 x_9 = lean_ctor_get_uint8(x_7, sizeof(void*)*13);
-x_10 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig_3988279785____hygCtx___hyg_21_(x_8, x_9);
+x_10 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig_3988279785____hygCtx___hyg_24_(x_8, x_9);
 if (x_10 == 2)
 {
 return x_9;
@@ -2777,7 +2796,7 @@ x_8 = lean_ctor_get_uint8(x_5, sizeof(void*)*13);
 x_9 = lean_ctor_get(x_5, 0);
 x_10 = lean_ctor_get_uint8(x_7, sizeof(void*)*13);
 x_11 = lean_ctor_get(x_7, 0);
-x_18 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig_3988279785____hygCtx___hyg_21_(x_8, x_10);
+x_18 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig_3988279785____hygCtx___hyg_24_(x_8, x_10);
 if (x_18 == 2)
 {
 x_12 = x_10;
@@ -2822,7 +2841,7 @@ x_8 = lean_ctor_get_uint8(x_5, sizeof(void*)*13);
 x_9 = lean_ctor_get(x_5, 1);
 x_10 = lean_ctor_get_uint8(x_7, sizeof(void*)*13);
 x_11 = lean_ctor_get(x_7, 1);
-x_17 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig_3988279785____hygCtx___hyg_21_(x_8, x_10);
+x_17 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig_3988279785____hygCtx___hyg_24_(x_8, x_10);
 if (x_17 == 2)
 {
 x_12 = x_10;
@@ -2894,7 +2913,7 @@ x_8 = lean_ctor_get_uint8(x_5, sizeof(void*)*13);
 x_9 = lean_ctor_get(x_5, 3);
 x_10 = lean_ctor_get_uint8(x_7, sizeof(void*)*13);
 x_11 = lean_ctor_get(x_7, 3);
-x_17 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig_3988279785____hygCtx___hyg_21_(x_8, x_10);
+x_17 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig_3988279785____hygCtx___hyg_24_(x_8, x_10);
 if (x_17 == 2)
 {
 x_12 = x_10;

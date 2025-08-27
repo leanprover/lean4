@@ -100,6 +100,7 @@ static lean_object* l_Lean_Parser_Tactic_bvCheck___closed__2;
 static lean_object* l_Lean_Parser_bv__normalize___closed__15;
 static lean_object* l_Lean_Parser_bv__normalize___closed__4;
 static lean_object* l_Lean_Parser_bv__normalize___closed__21;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_BVDecideConfig_ctorIdx(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_bvNormalize___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_bv__normalize;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -142,7 +143,25 @@ static lean_object* l_Lean_Parser_Tactic_bvTrace___closed__3;
 static lean_object* l_Lean_Parser___aux__Std__Tactic__BVDecide__Syntax______macroRules__Lean__Parser__command____Builtin__simproc_____x5b___x5d___x28___x29_x3a_x3d____1___closed__5;
 static lean_object* l_Lean_Parser_bv__normalize___closed__23;
 static lean_object* l_Lean_Parser_bvNormalizeProcBuiltinAttr___closed__4;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_BVDecideConfig_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Parser_bv__normalize___closed__33;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_BVDecideConfig_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_BVDecideConfig_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVDecideConfig_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Parser_Tactic_bvCheck___closed__0() {
 _start:
 {

@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_toJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx___hyg_119_(lean_object*);
 static lean_object* l_Lake_setupFile___closed__5;
 lean_object* l_Lean_Json_compress(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -76,7 +77,6 @@ extern lean_object* l_Lake_configModuleName;
 lean_object* lean_io_wait(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* l_Lean_toJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx___hyg_115_(lean_object*);
 lean_object* l_Lake_setupServerModule(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_realConfigFile(lean_object*, lean_object*);
 static uint32_t _init_l_Lake_noConfigFileCode() {
@@ -356,7 +356,7 @@ lean_dec_ref(x_58);
 x_61 = lean_ctor_get(x_59, 0);
 lean_inc(x_61);
 lean_dec_ref(x_59);
-x_62 = l_Lean_toJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx___hyg_115_(x_61);
+x_62 = l_Lean_toJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx___hyg_119_(x_61);
 x_63 = l_Lean_Json_compress(x_62);
 x_64 = l_IO_println___at___Lake_setupFile_spec__0(x_63, x_60);
 if (lean_obj_tag(x_64) == 0)
@@ -657,7 +657,7 @@ lean_ctor_set(x_149, 3, x_146);
 lean_ctor_set(x_149, 4, x_148);
 lean_ctor_set(x_149, 5, x_145);
 lean_ctor_set_uint8(x_149, sizeof(void*)*6, x_33);
-x_150 = l_Lean_toJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx___hyg_115_(x_149);
+x_150 = l_Lean_toJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx___hyg_119_(x_149);
 x_151 = l_Lean_Json_compress(x_150);
 x_152 = l_IO_println___at___Lake_setupFile_spec__0(x_151, x_30);
 if (lean_obj_tag(x_152) == 0)
@@ -829,7 +829,7 @@ lean_dec_ref(x_202);
 x_205 = lean_ctor_get(x_203, 0);
 lean_inc(x_205);
 lean_dec_ref(x_203);
-x_206 = l_Lean_toJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx___hyg_115_(x_205);
+x_206 = l_Lean_toJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx___hyg_119_(x_205);
 x_207 = l_Lean_Json_compress(x_206);
 x_208 = l_IO_println___at___Lake_setupFile_spec__0(x_207, x_204);
 if (lean_obj_tag(x_208) == 0)
@@ -1117,7 +1117,7 @@ lean_ctor_set(x_283, 3, x_280);
 lean_ctor_set(x_283, 4, x_282);
 lean_ctor_set(x_283, 5, x_279);
 lean_ctor_set_uint8(x_283, sizeof(void*)*6, x_177);
-x_284 = l_Lean_toJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx___hyg_115_(x_283);
+x_284 = l_Lean_toJsonModuleSetup____x40_Lean_Setup_3122765986____hygCtx___hyg_119_(x_283);
 x_285 = l_Lean_Json_compress(x_284);
 x_286 = l_IO_println___at___Lake_setupFile_spec__0(x_285, x_174);
 if (lean_obj_tag(x_286) == 0)

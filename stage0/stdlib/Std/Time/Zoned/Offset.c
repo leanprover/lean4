@@ -32,6 +32,7 @@ static lean_object* l_Std_Time_TimeZone_reprOffset___redArg___closed__3____x40_S
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_toIsoString(lean_object*, uint8_t);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 lean_object* l_compareOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_ctorIdx(lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Std_Time_TimeZone_reprOffset___redArg___closed__10____x40_Std_Time_Zoned_Offset_4279387111____hygCtx___hyg_182_;
@@ -57,6 +58,7 @@ lean_object* lean_nat_abs(lean_object*);
 static lean_object* l_Std_Time_TimeZone_Offset_toIsoString___closed__3;
 static lean_object* l_Std_Time_TimeZone_Offset_toIsoString___closed__5;
 lean_object* lean_int_mul(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_zero;
 LEAN_EXPORT uint8_t l_Std_Time_TimeZone_decEqOffset____x40_Std_Time_Zoned_Offset_4279387111____hygCtx___hyg_190_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_ofHours___boxed(lean_object*);
@@ -78,6 +80,23 @@ LEAN_EXPORT lean_object* l_Std_Time_TimeZone_reprOffset___redArg____x40_Std_Time
 lean_object* l_Rat_ofInt(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_TimeZone_Offset_toIsoString_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Offset_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Time_TimeZone_Offset_ctorIdx(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_TimeZone_reprOffset____x40_Std_Time_Zoned_Offset_4279387111____hygCtx___hyg_182__spec__0(lean_object* x_1) {
 _start:
 {

@@ -691,6 +691,7 @@ where
                 deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
               else
                 return e
+            | .axiomInfo val => recordUnfoldAxiom val.name; return e
             | _ => return e
       | .proj _ i c =>
         let k (c : Expr) := do
@@ -813,6 +814,8 @@ mutual
               recordUnfold fInfo.name
               deltaBetaDefinition fInfo fLvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
             else
+              if fInfo.isAxiom then
+                recordUnfoldAxiom fInfo.name
               return none
           if smartUnfolding.get (← getOptions) then
             match ((← getEnv).find? (skipRealize := true) (mkSmartUnfoldingNameFor fInfo.name)) with
@@ -882,7 +885,10 @@ mutual
       if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else
-        unless cinfo.hasValue do return none
+        unless cinfo.hasValue do
+          if cinfo.isAxiom then
+            recordUnfoldAxiom cinfo.name
+          return none
         deltaDefinition cinfo lvls
           (fun _ => pure none)
           (fun e => do recordUnfold declName; pure (some e))

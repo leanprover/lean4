@@ -81,6 +81,9 @@ has type
   Vector Unit 1
 but is expected to have type
   Vector Unit f
+
+Note: The following definitions were not unfolded because their definition is not exposed:
+  f ↦ 1
 -/
 #guard_msgs in
 public theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := testSorry

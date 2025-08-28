@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.AC
-// Imports: Lean.Meta.Tactic.Grind.AC.Types Lean.Meta.Tactic.Grind.AC.Util Lean.Meta.Tactic.Grind.AC.Var Lean.Meta.Tactic.Grind.AC.Internalize
+// Imports: Lean.Meta.Tactic.Grind.AC.Types Lean.Meta.Tactic.Grind.AC.Util Lean.Meta.Tactic.Grind.AC.Var Lean.Meta.Tactic.Grind.AC.Internalize Lean.Meta.Tactic.Grind.AC.Eq Lean.Meta.Tactic.Grind.AC.Seq Lean.Meta.Tactic.Grind.AC.Proof Lean.Meta.Tactic.Grind.AC.DenoteExpr Lean.Meta.Tactic.Grind.AC.ToExpr Lean.Meta.Tactic.Grind.AC.VarRename
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -604,6 +604,12 @@ lean_object* initialize_Lean_Meta_Tactic_Grind_AC_Types(uint8_t builtin, lean_ob
 lean_object* initialize_Lean_Meta_Tactic_Grind_AC_Util(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_AC_Var(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_AC_Internalize(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_AC_Eq(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_AC_Seq(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_AC_Proof(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_AC_DenoteExpr(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_AC_ToExpr(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_AC_VarRename(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_AC(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -619,6 +625,24 @@ res = initialize_Lean_Meta_Tactic_Grind_AC_Var(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_AC_Internalize(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_AC_Eq(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_AC_Seq(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_AC_Proof(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_AC_DenoteExpr(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_AC_ToExpr(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_AC_VarRename(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Tactic_Grind_AC_0__Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Grind_AC_3214356224____hygCtx___hyg_2_ = _init_l___private_Lean_Meta_Tactic_Grind_AC_0__Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Grind_AC_3214356224____hygCtx___hyg_2_();

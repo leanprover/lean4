@@ -1270,7 +1270,7 @@ If it resolves to `name`, returns `(S', name)`.
 private partial def findMethod? (structName fieldName : Name) : MetaM (Option (Name × Name)) := do
   let env ← getEnv
   let find? structName' : MetaM (Option (Name × Name)) := do
-    let fullName := structName' ++ fieldName
+    let fullName := privateToUserName structName' ++ fieldName
     -- We do not want to make use of the current namespace for resolution.
     let candidates := ResolveName.resolveGlobalName (← getEnv) Name.anonymous (← getOpenDecls) fullName
       |>.filter (fun (_, fieldList) => fieldList.isEmpty)

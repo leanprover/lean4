@@ -11,7 +11,7 @@ def optimize : Expr → Expr
 
 /--
 error: Failed to realize constant optimize.eq_def:
-  failed to generate equational theorem for 'optimize'
+  failed to generate equational theorem for `optimize`
   case h_2
   e1 : Expr
   i : BitVec 32
@@ -32,7 +32,7 @@ error: Failed to realize constant optimize.eq_def:
   ⊢ Expr.const 0 = Expr.op bop✝ (Expr.const 0)
 ---
 error: Failed to realize constant optimize.eq_def:
-  failed to generate equational theorem for 'optimize'
+  failed to generate equational theorem for `optimize`
   case h_2
   e1 : Expr
   i : BitVec 32
@@ -58,7 +58,7 @@ error: Unknown identifier `optimize.eq_def`
 #check optimize.eq_def
 
 /--
-error: failed to generate equational theorem for 'optimize'
+error: failed to generate equational theorem for `optimize`
 case h_2
 e1 : Expr
 i : BitVec 32

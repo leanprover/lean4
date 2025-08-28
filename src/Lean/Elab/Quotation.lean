@@ -181,7 +181,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
             | `sepBy    =>
               let sep := quote <| getSepFromSplice arg
               `(@TSepArray.elemsAndSeps $(quote ks) $sep $val)
-            | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
+            | k         => throwErrorAt arg "invalid antiquotation suffix splice kind `{k}`"
         else if k == nullKind && isAntiquotSplice arg && !isEscapedAntiquot arg then
           let k := antiquotSpliceKind? arg
           let (arg, bindLets) ← floatOutAntiquotTerms arg |>.run pure
@@ -399,7 +399,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
           | `optional => `(have $id := Option.map (@TSyntax.mk $(quote ks)) (Syntax.getOptional? __discr); $rhs)
           | `many     => `(have $id := @TSyntaxArray.mk $(quote ks) (Syntax.getArgs __discr); $rhs)
           | `sepBy    => `(have $id := @TSepArray.mk $(quote ks) $(quote <| getSepFromSplice quoted[0]) (Syntax.getArgs __discr); $rhs)
-          | k         => throwErrorAt quoted "invalid antiquotation suffix splice kind '{k}'"
+          | k         => throwErrorAt quoted "invalid antiquotation suffix splice kind `{k}`"
         | anti         => fun _   => throwErrorAt anti "unsupported antiquotation kind in pattern"
     else if quoted.getArgs.size == 1 && isAntiquotSplice quoted[0] then pure {
       check   := other pat,

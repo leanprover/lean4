@@ -39,6 +39,7 @@ extern lean_object* l_Lean_Parser_Term_identProjKind;
 static lean_object* l_Lean_Server_FileWorker_instImpl___closed__0____x40_Lean_Server_FileWorker_SemanticHighlighting_607881837____hygCtx___hyg_7_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0_spec__5_spec__5_spec__5___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Server_FileWorker_fromJsonAbsoluteLspSemanticToken____x40_Lean_Server_FileWorker_SemanticHighlighting_2811461461____hygCtx___hyg_65__spec__0(lean_object*, lean_object*);
+lean_object* l_Lean_Lsp_SemanticTokenType_toNat(uint8_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1___redArg___closed__4;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Array_filterMapM___at___Lean_Server_FileWorker_computeAbsoluteLspSemanticTokens_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -47,6 +48,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_contains___at___Lean_Server_re
 lean_object* l_Lean_Json_mkObj(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_parseRequestParams___at_____private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__11_spec__11_spec__11_spec__11(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Server_FileWorker_fromJsonAbsoluteLspSemanticToken____x40_Lean_Server_FileWorker_SemanticHighlighting_2811461461____hygCtx___hyg_65__spec__0___boxed(lean_object*, lean_object*);
+uint8_t l_Lean_Lsp_beqPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_31_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_collectInfoBasedSemanticTokens___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_Const_alter___at___Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1_spec__1_spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_noHighlightKinds___closed__1;
@@ -54,6 +56,7 @@ uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_Syntax_getHeadInfo(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint64_t l_Lean_Lsp_hashPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_69_(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_Const_alter___at___Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1_spec__1_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0_spec__5_spec__5___redArg___closed__0;
@@ -81,18 +84,16 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Server_FileWorker_fromJsonAbsoluteLspSemanticToken___closed__16____x40_Lean_Server_FileWorker_SemanticHighlighting_2811461461____hygCtx___hyg_65_;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__11_spec__11_spec__11___redArg___lam__4___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_Const_alter___at___Std_DHashMap_Internal_Raw_u2080_Const_alter___at___Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1_spec__1_spec__5___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_LeanSemanticToken_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_Const_alter___at___Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1_spec__1_spec__1___redArg(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
+lean_object* l_Lean_Lsp_ordPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_50____boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
-lean_object* l_Lean_Lsp_ordPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_46____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_noHighlightKinds___closed__17;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_AbsoluteLspSemanticToken_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1_spec__7_spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* l_Lean_Lsp_SemanticTokenType_ctorIdx(uint8_t);
 LEAN_EXPORT uint8_t l_Array_contains___at___Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleSemanticTokensRange(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_alter___at___Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -120,9 +121,7 @@ lean_object* l_EIO_ofExcept___redArg(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_filterDuplicateSemanticTokens___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_instInhabitedSemanticTokensState;
-lean_object* l_Lean_Lsp_fromJsonPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_85_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0_spec__5_spec__5_spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_foldl___at___Array_appendList_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SemanticTokensState_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_parseRequestParams___at_____private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__11_spec__11_spec__11_spec__12(lean_object*, lean_object*, lean_object*);
@@ -133,6 +132,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_Server_
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens_spec__4(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__10(lean_object*, lean_object*);
 lean_object* l_Lean_initializing(lean_object*);
+lean_object* l_List_foldl___at___Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_parseRequestParams___at___Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_LeanSemanticToken_ctorIdx(lean_object*);
@@ -148,7 +148,6 @@ static lean_object* l___private_Lean_Server_FileWorker_SemanticHighlighting_0__L
 LEAN_EXPORT lean_object* l_Array_contains___at___Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens_spec__0___boxed(lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_AbsoluteLspSemanticToken_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_noHighlightKinds___closed__8;
 LEAN_EXPORT uint8_t l_Lean_Server_FileWorker_handleSemanticTokensRange___lam__0(lean_object*, lean_object*);
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
@@ -187,7 +186,6 @@ LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at___Lean_Persisten
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_computeDeltaLspSemanticTokens_spec__0___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__11_spec__11_spec__11___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_Lean_Server_FileWorker_hashAbsoluteLspSemanticToken____x40_Lean_Server_FileWorker_SemanticHighlighting_2811461461____hygCtx___hyg_54_(lean_object*);
-uint8_t l_Lean_Lsp_beqPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_27_(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_fromJsonAbsoluteLspSemanticToken___closed__12____x40_Lean_Server_FileWorker_SemanticHighlighting_2811461461____hygCtx___hyg_65_;
 static lean_object* l_Lean_Server_FileWorker_noHighlightKinds___closed__9;
@@ -222,12 +220,12 @@ LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentH
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_Const_alter___at___Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1_spec__1_spec__2_spec__2_spec__2(lean_object*, lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0_spec__2_spec__2___redArg___closed__1;
 static lean_object* l_Lean_Server_FileWorker_fromJsonAbsoluteLspSemanticToken___closed__3____x40_Lean_Server_FileWorker_SemanticHighlighting_2811461461____hygCtx___hyg_65_;
-uint64_t l_Lean_Lsp_hashPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_65_(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_Server_FileWorker_keywordSemanticTokenMap_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__11(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Array_filterMapM___at___Lean_Server_FileWorker_computeAbsoluteLspSemanticTokens_spec__0___closed__0;
 lean_object* lean_io_basemutex_lock(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_parseRequestParams___at_____private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__11_spec__11_spec__11_spec__12___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_io_user_error(lean_object*);
 lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg(lean_object*, uint32_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_filterDuplicateSemanticTokens___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_computeSemanticTokens(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -242,7 +240,6 @@ static lean_object* l_Array_groupByKey___at___Lean_Server_FileWorker_filterDupli
 extern lean_object* l_Lean_Server_statefulRequestHandlers;
 static lean_object* l_Lean_Server_FileWorker_fromJsonAbsoluteLspSemanticToken___closed__18____x40_Lean_Server_FileWorker_SemanticHighlighting_2811461461____hygCtx___hyg_65_;
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l_Lean_Lsp_toJsonPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_75_(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_Const_alter___at___Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_Mutex_atomically___at_____private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__11_spec__11_spec__11_spec__13___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -265,7 +262,6 @@ uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_computeDeltaLspSemanticTokens(lean_object*);
 lean_object* l_Lean_Server_RequestCancellationToken_cancellationTasks(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_computeDeltaLspSemanticTokens_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_LeanSemanticToken_toCtorIdx(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_keywordSemanticTokenMap___closed__0;
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_Const_alter___at___Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1_spec__1_spec__2_spec__2_spec__2___redArg(lean_object*, lean_object*);
@@ -286,6 +282,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at___Lean_Pers
 static lean_object* l_Lean_Server_FileWorker_noHighlightKinds___closed__21;
 static lean_object* l_Lean_Server_FileWorker_noHighlightKinds___closed__13;
 static lean_object* l_Lean_Server_FileWorker_computeDeltaLspSemanticTokens___closed__1;
+lean_object* l_Lean_Lsp_toJsonPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_79_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__11_spec__11_spec__11___redArg___lam__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_fromJsonSemanticTokensRangeParams____x40_Lean_Data_Lsp_LanguageFeatures_3194656721____hygCtx___hyg_24_(lean_object*);
@@ -298,6 +295,7 @@ static lean_object* l_Lean_Server_FileWorker_fromJsonAbsoluteLspSemanticToken___
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__11_spec__11_spec__11___redArg___lam__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_toJsonAbsoluteLspSemanticToken____x40_Lean_Server_FileWorker_SemanticHighlighting_2811461461____hygCtx___hyg_74_(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_fromJsonAbsoluteLspSemanticToken___closed__8____x40_Lean_Server_FileWorker_SemanticHighlighting_2811461461____hygCtx___hyg_65_;
+lean_object* l_Lean_Lsp_fromJsonPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_89_(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens___closed__3;
 static lean_object* l_Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__11_spec__11_spec__11___redArg___lam__4(lean_object*, lean_object*);
@@ -305,7 +303,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_noHighlightKinds;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Server_FileWorker_computeSemanticTokens_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_Const_alter___at___Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_AbsoluteLspSemanticToken_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_Const_alter___at___Std_DHashMap_Internal_Raw_u2080_Const_alter___at___Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1_spec__1_spec__5___redArg___lam__0(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_toJsonSemanticTokens____x40_Lean_Data_Lsp_LanguageFeatures_2666355890____hygCtx___hyg_36_(lean_object*);
@@ -408,6 +405,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrid
 static lean_object* l_Lean_Server_FileWorker_fromJsonAbsoluteLspSemanticToken___closed__14____x40_Lean_Server_FileWorker_SemanticHighlighting_2811461461____hygCtx___hyg_65_;
 static lean_object* l_Std_DHashMap_Internal_AssocList_Const_alter___at___Std_DHashMap_Internal_Raw_u2080_Const_alter___at___Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1_spec__1_spec__5___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Array_groupByKey___at___Lean_Server_FileWorker_filterDuplicateSemanticTokens_spec__1_spec__7_spec__7___redArg(lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_defaultSemanticTokensState____x40_Lean_Server_FileWorker_SemanticHighlighting_607881837____hygCtx___hyg_16_;
 static lean_object* _init_l_Lean_Server_FileWorker_noHighlightKinds___closed__0() {
 _start:
 {
@@ -1681,23 +1679,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_LeanSemanticToken_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_LeanSemanticToken_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_FileWorker_LeanSemanticToken_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_AbsoluteLspSemanticToken_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -1715,23 +1696,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_AbsoluteLspSemanticToken_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_AbsoluteLspSemanticToken_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_FileWorker_AbsoluteLspSemanticToken_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT uint8_t l_Lean_Server_FileWorker_beqAbsoluteLspSemanticToken____x40_Lean_Server_FileWorker_SemanticHighlighting_2811461461____hygCtx___hyg_33_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1742,7 +1706,7 @@ x_5 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
 x_8 = lean_ctor_get_uint8(x_2, sizeof(void*)*2);
-x_9 = l_Lean_Lsp_beqPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_27_(x_3, x_6);
+x_9 = l_Lean_Lsp_beqPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_31_(x_3, x_6);
 if (x_9 == 0)
 {
 return x_9;
@@ -1750,7 +1714,7 @@ return x_9;
 else
 {
 uint8_t x_10; 
-x_10 = l_Lean_Lsp_beqPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_27_(x_4, x_7);
+x_10 = l_Lean_Lsp_beqPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_31_(x_4, x_7);
 if (x_10 == 0)
 {
 return x_10;
@@ -1799,9 +1763,9 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
 x_5 = 0;
-x_6 = l_Lean_Lsp_hashPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_65_(x_2);
+x_6 = l_Lean_Lsp_hashPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_69_(x_2);
 x_7 = lean_uint64_mix_hash(x_5, x_6);
-x_8 = l_Lean_Lsp_hashPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_65_(x_3);
+x_8 = l_Lean_Lsp_hashPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_69_(x_3);
 x_9 = lean_uint64_mix_hash(x_7, x_8);
 x_10 = l_Lean_Lsp_hashSemanticTokenType____x40_Lean_Data_Lsp_LanguageFeatures_2393496674____hygCtx___hyg_30_(x_4);
 x_11 = lean_uint64_mix_hash(x_9, x_10);
@@ -1839,7 +1803,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_Json_getObjValD(x_1, x_2);
-x_4 = l_Lean_Lsp_fromJsonPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_85_(x_3);
+x_4 = l_Lean_Lsp_fromJsonPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_89_(x_3);
 return x_4;
 }
 }
@@ -2333,7 +2297,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec_ref(x_1);
-x_6 = l_List_foldl___at___Array_appendList_spec__0(lean_box(0), x_2, x_4);
+x_6 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_2, x_4);
 x_1 = x_5;
 x_2 = x_6;
 goto _start;
@@ -2360,7 +2324,7 @@ lean_inc_ref(x_3);
 x_4 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
 lean_dec_ref(x_1);
 x_5 = l_Lean_Server_FileWorker_fromJsonAbsoluteLspSemanticToken___closed__0____x40_Lean_Server_FileWorker_SemanticHighlighting_2811461461____hygCtx___hyg_65_;
-x_6 = l_Lean_Lsp_toJsonPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_75_(x_2);
+x_6 = l_Lean_Lsp_toJsonPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_79_(x_2);
 x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_5);
 lean_ctor_set(x_7, 1, x_6);
@@ -2369,7 +2333,7 @@ x_9 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_9, 0, x_7);
 lean_ctor_set(x_9, 1, x_8);
 x_10 = l_Lean_Server_FileWorker_fromJsonAbsoluteLspSemanticToken___closed__13____x40_Lean_Server_FileWorker_SemanticHighlighting_2811461461____hygCtx___hyg_65_;
-x_11 = l_Lean_Lsp_toJsonPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_75_(x_3);
+x_11 = l_Lean_Lsp_toJsonPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_79_(x_3);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
@@ -3560,7 +3524,7 @@ x_21 = lean_nat_sub(x_15, x_19);
 lean_dec(x_19);
 x_22 = lean_nat_sub(x_20, x_15);
 lean_dec(x_20);
-x_23 = l_Lean_Lsp_SemanticTokenType_ctorIdx(x_11);
+x_23 = l_Lean_Lsp_SemanticTokenType_toNat(x_11);
 x_24 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_computeDeltaLspSemanticTokens_spec__0___closed__0;
 x_25 = lean_array_push(x_24, x_18);
 x_26 = lean_array_push(x_25, x_21);
@@ -3631,7 +3595,7 @@ return x_2;
 else
 {
 uint8_t x_12; 
-x_12 = l_Lean_Lsp_beqPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_27_(x_5, x_7);
+x_12 = l_Lean_Lsp_beqPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_31_(x_5, x_7);
 lean_dec_ref(x_7);
 lean_dec_ref(x_5);
 if (x_12 == 0)
@@ -3718,7 +3682,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_computeDeltaLspSemanticTokens
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Lsp_ordPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_46____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Lsp_ordPosition____x40_Lean_Data_Lsp_BasicAux_1632782336____hygCtx___hyg_50____boxed), 2, 0);
 return x_1;
 }
 }
@@ -4120,7 +4084,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_12; lean_object* x_13; lean_object* x_22; lean_object* x_23; lean_object* x_32; lean_object* x_33; lean_object* x_42; uint8_t x_43; lean_object* x_44; lean_object* x_45; uint8_t x_46; uint8_t x_47; 
+lean_object* x_2; lean_object* x_3; lean_object* x_12; lean_object* x_13; lean_object* x_22; lean_object* x_23; lean_object* x_32; lean_object* x_33; lean_object* x_42; uint8_t x_43; uint8_t x_44; lean_object* x_45; lean_object* x_46; uint8_t x_47; 
 x_42 = l_Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens___closed__1;
 lean_inc(x_1);
 x_43 = l_Lean_Syntax_isOfKind(x_1, x_42);
@@ -4132,7 +4096,7 @@ lean_inc(x_1);
 x_50 = l_Lean_Syntax_isOfKind(x_1, x_49);
 if (x_50 == 0)
 {
-lean_object* x_51; lean_object* x_52; uint8_t x_53; lean_object* x_54; uint8_t x_55; lean_object* x_56; lean_object* x_58; lean_object* x_59; uint8_t x_60; uint8_t x_61; uint32_t x_63; lean_object* x_64; lean_object* x_65; uint8_t x_66; uint8_t x_67; uint32_t x_72; lean_object* x_73; lean_object* x_74; uint8_t x_75; uint8_t x_76; lean_object* x_82; lean_object* x_83; uint8_t x_84; uint8_t x_85; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; uint8_t x_97; lean_object* x_104; uint32_t x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; uint8_t x_109; lean_object* x_114; uint32_t x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; uint8_t x_119; lean_object* x_125; 
+lean_object* x_51; lean_object* x_52; uint8_t x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; lean_object* x_58; uint8_t x_59; lean_object* x_60; uint8_t x_61; uint32_t x_63; lean_object* x_64; uint8_t x_65; lean_object* x_66; uint8_t x_67; uint32_t x_72; lean_object* x_73; uint8_t x_74; lean_object* x_75; uint8_t x_76; lean_object* x_82; uint8_t x_83; lean_object* x_84; uint8_t x_85; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; uint8_t x_97; lean_object* x_104; uint32_t x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; uint8_t x_109; lean_object* x_114; uint32_t x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; uint8_t x_119; lean_object* x_125; 
 x_51 = l_Lean_Server_FileWorker_noHighlightKinds;
 lean_inc(x_1);
 x_52 = l_Lean_Syntax_getKind(x_1);
@@ -4204,35 +4168,35 @@ return x_152;
 }
 block_57:
 {
-if (x_55 == 0)
+if (x_56 == 0)
 {
 lean_dec_ref(x_54);
 lean_dec(x_1);
-return x_56;
+return x_55;
 }
 else
 {
 if (x_53 == 0)
 {
 x_12 = x_54;
-x_13 = x_56;
+x_13 = x_55;
 goto block_21;
 }
 else
 {
 lean_dec_ref(x_54);
 lean_dec(x_1);
-return x_56;
+return x_55;
 }
 }
 }
 block_62:
 {
-if (x_60 == 0)
+if (x_59 == 0)
 {
 x_54 = x_58;
-x_55 = x_61;
-x_56 = x_59;
+x_55 = x_60;
+x_56 = x_61;
 goto block_57;
 }
 else
@@ -4240,14 +4204,14 @@ else
 if (x_53 == 0)
 {
 x_12 = x_58;
-x_13 = x_59;
+x_13 = x_60;
 goto block_21;
 }
 else
 {
 x_54 = x_58;
-x_55 = x_61;
-x_56 = x_59;
+x_55 = x_60;
+x_56 = x_61;
 goto block_57;
 }
 }
@@ -4369,25 +4333,25 @@ block_103:
 {
 lean_object* x_98; uint8_t x_99; 
 x_98 = lean_unsigned_to_nat(1u);
-x_99 = lean_nat_dec_lt(x_98, x_93);
-lean_dec(x_93);
+x_99 = lean_nat_dec_lt(x_98, x_96);
+lean_dec(x_96);
 if (x_99 == 0)
 {
-x_82 = x_94;
-x_83 = x_95;
-x_84 = x_97;
+x_82 = x_93;
+x_83 = x_97;
+x_84 = x_94;
 x_85 = x_99;
 goto block_92;
 }
 else
 {
 uint32_t x_100; uint32_t x_101; uint8_t x_102; 
-x_100 = lean_string_utf8_get(x_94, x_96);
+x_100 = lean_string_utf8_get(x_93, x_95);
 x_101 = 35;
 x_102 = lean_uint32_dec_eq(x_100, x_101);
-x_82 = x_94;
-x_83 = x_95;
-x_84 = x_97;
+x_82 = x_93;
+x_83 = x_97;
+x_84 = x_94;
 x_85 = x_102;
 goto block_92;
 }
@@ -4483,10 +4447,10 @@ x_129 = lean_nat_dec_lt(x_127, x_128);
 if (x_129 == 0)
 {
 lean_inc_ref(x_126);
-x_93 = x_128;
-x_94 = x_126;
-x_95 = x_125;
-x_96 = x_127;
+x_93 = x_126;
+x_94 = x_125;
+x_95 = x_127;
+x_96 = x_128;
 x_97 = x_129;
 goto block_103;
 }
@@ -4499,11 +4463,11 @@ x_132 = lean_uint32_dec_le(x_131, x_130);
 if (x_132 == 0)
 {
 lean_inc_ref(x_126);
-x_114 = x_128;
+x_114 = x_126;
 x_115 = x_130;
-x_116 = x_126;
-x_117 = x_125;
-x_118 = x_127;
+x_116 = x_125;
+x_117 = x_127;
+x_118 = x_128;
 x_119 = x_132;
 goto block_124;
 }
@@ -4513,11 +4477,11 @@ uint32_t x_133; uint8_t x_134;
 x_133 = 90;
 x_134 = lean_uint32_dec_le(x_130, x_133);
 lean_inc_ref(x_126);
-x_114 = x_128;
+x_114 = x_126;
 x_115 = x_130;
-x_116 = x_126;
-x_117 = x_125;
-x_118 = x_127;
+x_116 = x_125;
+x_117 = x_127;
+x_118 = x_128;
 x_119 = x_134;
 goto block_124;
 }
@@ -4532,7 +4496,7 @@ return x_125;
 }
 else
 {
-lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; uint8_t x_158; lean_object* x_159; lean_object* x_160; uint8_t x_161; uint8_t x_162; lean_object* x_164; lean_object* x_165; uint8_t x_166; uint32_t x_167; uint8_t x_168; lean_object* x_173; lean_object* x_174; uint8_t x_175; uint32_t x_176; uint8_t x_177; lean_object* x_183; lean_object* x_184; uint8_t x_185; uint8_t x_186; lean_object* x_193; lean_object* x_194; lean_object* x_195; uint8_t x_196; lean_object* x_202; lean_object* x_203; lean_object* x_204; uint32_t x_205; uint8_t x_206; lean_object* x_211; lean_object* x_212; lean_object* x_213; uint32_t x_214; uint8_t x_215; lean_object* x_221; uint8_t x_231; lean_object* x_232; lean_object* x_233; uint8_t x_234; lean_object* x_236; uint8_t x_237; lean_object* x_238; uint8_t x_239; uint32_t x_241; lean_object* x_242; lean_object* x_243; uint8_t x_244; uint8_t x_245; uint32_t x_250; lean_object* x_251; uint8_t x_252; lean_object* x_253; uint8_t x_254; lean_object* x_260; lean_object* x_261; uint8_t x_262; uint8_t x_263; lean_object* x_270; lean_object* x_271; lean_object* x_272; uint8_t x_273; lean_object* x_279; lean_object* x_280; uint32_t x_281; lean_object* x_282; uint8_t x_283; lean_object* x_288; lean_object* x_289; uint32_t x_290; lean_object* x_291; uint8_t x_292; lean_object* x_298; 
+lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; uint8_t x_158; lean_object* x_159; lean_object* x_160; uint8_t x_161; uint8_t x_162; lean_object* x_164; lean_object* x_165; uint8_t x_166; uint32_t x_167; uint8_t x_168; lean_object* x_173; lean_object* x_174; uint8_t x_175; uint32_t x_176; uint8_t x_177; lean_object* x_183; lean_object* x_184; uint8_t x_185; uint8_t x_186; lean_object* x_193; lean_object* x_194; lean_object* x_195; uint8_t x_196; lean_object* x_202; lean_object* x_203; lean_object* x_204; uint32_t x_205; uint8_t x_206; lean_object* x_211; lean_object* x_212; lean_object* x_213; uint32_t x_214; uint8_t x_215; lean_object* x_221; uint8_t x_231; lean_object* x_232; lean_object* x_233; uint8_t x_234; uint8_t x_236; lean_object* x_237; lean_object* x_238; uint8_t x_239; uint32_t x_241; uint8_t x_242; lean_object* x_243; lean_object* x_244; uint8_t x_245; uint32_t x_250; uint8_t x_251; lean_object* x_252; lean_object* x_253; uint8_t x_254; uint8_t x_260; lean_object* x_261; lean_object* x_262; uint8_t x_263; lean_object* x_270; lean_object* x_271; lean_object* x_272; uint8_t x_273; uint32_t x_279; lean_object* x_280; lean_object* x_281; lean_object* x_282; uint8_t x_283; uint32_t x_288; lean_object* x_289; lean_object* x_290; lean_object* x_291; uint8_t x_292; lean_object* x_298; 
 x_153 = lean_unsigned_to_nat(0u);
 x_154 = lean_unsigned_to_nat(1u);
 x_155 = lean_unsigned_to_nat(2u);
@@ -4708,17 +4672,17 @@ block_163:
 {
 if (x_161 == 0)
 {
-x_44 = x_159;
-x_45 = x_160;
-x_46 = x_162;
+x_44 = x_162;
+x_45 = x_159;
+x_46 = x_160;
 x_47 = x_158;
 goto block_48;
 }
 else
 {
-x_44 = x_159;
-x_45 = x_160;
-x_46 = x_162;
+x_44 = x_162;
+x_45 = x_159;
+x_46 = x_160;
 x_47 = x_43;
 goto block_48;
 }
@@ -4809,7 +4773,7 @@ goto block_163;
 else
 {
 uint32_t x_187; uint32_t x_188; uint8_t x_189; 
-x_187 = lean_string_utf8_get(x_184, x_154);
+x_187 = lean_string_utf8_get(x_183, x_154);
 x_188 = 65;
 x_189 = lean_uint32_dec_le(x_188, x_187);
 if (x_189 == 0)
@@ -4851,7 +4815,7 @@ goto block_192;
 else
 {
 uint32_t x_198; uint32_t x_199; uint8_t x_200; 
-x_198 = lean_string_utf8_get(x_194, x_153);
+x_198 = lean_string_utf8_get(x_193, x_153);
 x_199 = 35;
 x_200 = lean_uint32_dec_eq(x_198, x_199);
 x_183 = x_193;
@@ -4945,8 +4909,8 @@ x_224 = lean_nat_dec_lt(x_153, x_223);
 if (x_224 == 0)
 {
 lean_inc_ref(x_222);
-x_193 = x_221;
-x_194 = x_222;
+x_193 = x_222;
+x_194 = x_221;
 x_195 = x_223;
 x_196 = x_224;
 goto block_201;
@@ -4960,8 +4924,8 @@ x_227 = lean_uint32_dec_le(x_226, x_225);
 if (x_227 == 0)
 {
 lean_inc_ref(x_222);
-x_211 = x_221;
-x_212 = x_222;
+x_211 = x_222;
+x_212 = x_221;
 x_213 = x_223;
 x_214 = x_225;
 x_215 = x_227;
@@ -4973,8 +4937,8 @@ uint32_t x_228; uint8_t x_229;
 x_228 = 90;
 x_229 = lean_uint32_dec_le(x_225, x_228);
 lean_inc_ref(x_222);
-x_211 = x_221;
-x_212 = x_222;
+x_211 = x_222;
+x_212 = x_221;
 x_213 = x_223;
 x_214 = x_225;
 x_215 = x_229;
@@ -5000,9 +4964,9 @@ else
 {
 if (x_231 == 0)
 {
-lean_dec_ref(x_232);
+lean_dec_ref(x_233);
 lean_dec(x_1);
-return x_233;
+return x_232;
 }
 else
 {
@@ -5014,19 +4978,19 @@ goto block_31;
 }
 else
 {
-lean_dec_ref(x_232);
+lean_dec_ref(x_233);
 lean_dec(x_1);
-return x_233;
+return x_232;
 }
 }
 }
 }
 block_240:
 {
-if (x_237 == 0)
+if (x_236 == 0)
 {
 x_231 = x_239;
-x_232 = x_236;
+x_232 = x_237;
 x_233 = x_238;
 x_234 = x_50;
 goto block_235;
@@ -5034,7 +4998,7 @@ goto block_235;
 else
 {
 x_231 = x_239;
-x_232 = x_236;
+x_232 = x_237;
 x_233 = x_238;
 x_234 = x_158;
 goto block_235;
@@ -5052,16 +5016,16 @@ if (x_247 == 0)
 uint8_t x_248; 
 x_248 = l_Lean_isLetterLike(x_241);
 x_236 = x_242;
-x_237 = x_244;
-x_238 = x_243;
+x_237 = x_243;
+x_238 = x_244;
 x_239 = x_248;
 goto block_240;
 }
 else
 {
 x_236 = x_242;
-x_237 = x_244;
-x_238 = x_243;
+x_237 = x_243;
+x_238 = x_244;
 x_239 = x_247;
 goto block_240;
 }
@@ -5069,8 +5033,8 @@ goto block_240;
 else
 {
 x_236 = x_242;
-x_237 = x_244;
-x_238 = x_243;
+x_237 = x_243;
+x_238 = x_244;
 x_239 = x_245;
 goto block_240;
 }
@@ -5086,8 +5050,8 @@ if (x_256 == 0)
 {
 x_241 = x_250;
 x_242 = x_251;
-x_243 = x_253;
-x_244 = x_252;
+x_243 = x_252;
+x_244 = x_253;
 x_245 = x_256;
 goto block_249;
 }
@@ -5098,8 +5062,8 @@ x_257 = 122;
 x_258 = lean_uint32_dec_le(x_250, x_257);
 x_241 = x_250;
 x_242 = x_251;
-x_243 = x_253;
-x_244 = x_252;
+x_243 = x_252;
+x_244 = x_253;
 x_245 = x_258;
 goto block_249;
 }
@@ -5118,23 +5082,23 @@ block_269:
 if (x_263 == 0)
 {
 x_236 = x_260;
-x_237 = x_262;
-x_238 = x_261;
+x_237 = x_261;
+x_238 = x_262;
 x_239 = x_263;
 goto block_240;
 }
 else
 {
 uint32_t x_264; uint32_t x_265; uint8_t x_266; 
-x_264 = lean_string_utf8_get(x_260, x_154);
+x_264 = lean_string_utf8_get(x_262, x_154);
 x_265 = 65;
 x_266 = lean_uint32_dec_le(x_265, x_264);
 if (x_266 == 0)
 {
 x_250 = x_264;
 x_251 = x_260;
-x_252 = x_262;
-x_253 = x_261;
+x_252 = x_261;
+x_253 = x_262;
 x_254 = x_266;
 goto block_259;
 }
@@ -5145,8 +5109,8 @@ x_267 = 90;
 x_268 = lean_uint32_dec_le(x_264, x_267);
 x_250 = x_264;
 x_251 = x_260;
-x_252 = x_262;
-x_253 = x_261;
+x_252 = x_261;
+x_253 = x_262;
 x_254 = x_268;
 goto block_259;
 }
@@ -5155,25 +5119,25 @@ goto block_259;
 block_278:
 {
 uint8_t x_274; 
-x_274 = lean_nat_dec_lt(x_154, x_270);
-lean_dec(x_270);
+x_274 = lean_nat_dec_lt(x_154, x_271);
+lean_dec(x_271);
 if (x_274 == 0)
 {
-x_260 = x_271;
-x_261 = x_272;
-x_262 = x_273;
+x_260 = x_273;
+x_261 = x_270;
+x_262 = x_272;
 x_263 = x_274;
 goto block_269;
 }
 else
 {
 uint32_t x_275; uint32_t x_276; uint8_t x_277; 
-x_275 = lean_string_utf8_get(x_271, x_153);
+x_275 = lean_string_utf8_get(x_272, x_153);
 x_276 = 35;
 x_277 = lean_uint32_dec_eq(x_275, x_276);
-x_260 = x_271;
-x_261 = x_272;
-x_262 = x_273;
+x_260 = x_273;
+x_261 = x_270;
+x_262 = x_272;
 x_263 = x_277;
 goto block_269;
 }
@@ -5184,21 +5148,21 @@ if (x_283 == 0)
 {
 uint32_t x_284; uint8_t x_285; 
 x_284 = 95;
-x_285 = lean_uint32_dec_eq(x_281, x_284);
+x_285 = lean_uint32_dec_eq(x_279, x_284);
 if (x_285 == 0)
 {
 uint8_t x_286; 
-x_286 = l_Lean_isLetterLike(x_281);
-x_270 = x_279;
-x_271 = x_280;
+x_286 = l_Lean_isLetterLike(x_279);
+x_270 = x_280;
+x_271 = x_281;
 x_272 = x_282;
 x_273 = x_286;
 goto block_278;
 }
 else
 {
-x_270 = x_279;
-x_271 = x_280;
+x_270 = x_280;
+x_271 = x_281;
 x_272 = x_282;
 x_273 = x_285;
 goto block_278;
@@ -5206,8 +5170,8 @@ goto block_278;
 }
 else
 {
-x_270 = x_279;
-x_271 = x_280;
+x_270 = x_280;
+x_271 = x_281;
 x_272 = x_282;
 x_273 = x_283;
 goto block_278;
@@ -5219,7 +5183,7 @@ if (x_292 == 0)
 {
 uint32_t x_293; uint8_t x_294; 
 x_293 = 97;
-x_294 = lean_uint32_dec_le(x_293, x_290);
+x_294 = lean_uint32_dec_le(x_293, x_288);
 if (x_294 == 0)
 {
 x_279 = x_288;
@@ -5233,7 +5197,7 @@ else
 {
 uint32_t x_295; uint8_t x_296; 
 x_295 = 122;
-x_296 = lean_uint32_dec_le(x_290, x_295);
+x_296 = lean_uint32_dec_le(x_288, x_295);
 x_279 = x_288;
 x_280 = x_289;
 x_281 = x_290;
@@ -5244,8 +5208,8 @@ goto block_287;
 }
 else
 {
-x_270 = x_288;
-x_271 = x_289;
+x_270 = x_289;
+x_271 = x_290;
 x_272 = x_291;
 x_273 = x_292;
 goto block_278;
@@ -5262,9 +5226,9 @@ x_301 = lean_nat_dec_lt(x_153, x_300);
 if (x_301 == 0)
 {
 lean_inc_ref(x_299);
-x_270 = x_300;
-x_271 = x_299;
-x_272 = x_298;
+x_270 = x_298;
+x_271 = x_300;
+x_272 = x_299;
 x_273 = x_301;
 goto block_278;
 }
@@ -5277,10 +5241,10 @@ x_304 = lean_uint32_dec_le(x_303, x_302);
 if (x_304 == 0)
 {
 lean_inc_ref(x_299);
-x_288 = x_300;
-x_289 = x_299;
-x_290 = x_302;
-x_291 = x_298;
+x_288 = x_302;
+x_289 = x_298;
+x_290 = x_300;
+x_291 = x_299;
 x_292 = x_304;
 goto block_297;
 }
@@ -5290,10 +5254,10 @@ uint32_t x_305; uint8_t x_306;
 x_305 = 90;
 x_306 = lean_uint32_dec_le(x_302, x_305);
 lean_inc_ref(x_299);
-x_288 = x_300;
-x_289 = x_299;
-x_290 = x_302;
-x_291 = x_298;
+x_288 = x_302;
+x_289 = x_298;
+x_290 = x_300;
+x_291 = x_299;
 x_292 = x_306;
 goto block_297;
 }
@@ -5309,7 +5273,7 @@ return x_298;
 }
 else
 {
-lean_object* x_352; lean_object* x_353; lean_object* x_354; lean_object* x_355; uint8_t x_356; uint8_t x_357; lean_object* x_358; lean_object* x_359; uint8_t x_360; lean_object* x_362; lean_object* x_363; uint8_t x_364; uint8_t x_365; uint32_t x_367; lean_object* x_368; lean_object* x_369; uint8_t x_370; uint8_t x_371; uint32_t x_376; lean_object* x_377; lean_object* x_378; uint8_t x_379; uint8_t x_380; 
+lean_object* x_352; lean_object* x_353; lean_object* x_354; lean_object* x_355; uint8_t x_356; uint8_t x_357; lean_object* x_358; lean_object* x_359; uint8_t x_360; lean_object* x_362; uint8_t x_363; lean_object* x_364; uint8_t x_365; lean_object* x_367; uint8_t x_368; uint32_t x_369; lean_object* x_370; uint8_t x_371; lean_object* x_376; uint8_t x_377; uint32_t x_378; lean_object* x_379; uint8_t x_380; 
 x_352 = lean_unsigned_to_nat(0u);
 x_353 = lean_unsigned_to_nat(2u);
 x_354 = l_Lean_Syntax_getArg(x_1, x_353);
@@ -5327,7 +5291,7 @@ x_388 = l_Array_contains___at___Lean_Server_FileWorker_collectSyntaxBasedSemanti
 lean_dec(x_387);
 if (x_388 == 0)
 {
-lean_object* x_389; lean_object* x_390; lean_object* x_391; uint8_t x_392; uint8_t x_393; lean_object* x_400; lean_object* x_401; lean_object* x_402; uint8_t x_403; lean_object* x_409; lean_object* x_410; uint32_t x_411; lean_object* x_412; uint8_t x_413; lean_object* x_418; lean_object* x_419; uint32_t x_420; lean_object* x_421; uint8_t x_422; lean_object* x_428; lean_object* x_438; uint8_t x_439; 
+lean_object* x_389; lean_object* x_390; uint8_t x_391; lean_object* x_392; uint8_t x_393; lean_object* x_400; lean_object* x_401; lean_object* x_402; uint8_t x_403; lean_object* x_409; uint32_t x_410; lean_object* x_411; lean_object* x_412; uint8_t x_413; lean_object* x_418; uint32_t x_419; lean_object* x_420; lean_object* x_421; uint8_t x_422; lean_object* x_428; lean_object* x_438; uint8_t x_439; 
 x_389 = lean_unsigned_to_nat(1u);
 x_438 = l_Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens___closed__5;
 lean_inc(x_1);
@@ -5393,14 +5357,14 @@ goto block_366;
 else
 {
 uint32_t x_394; uint32_t x_395; uint8_t x_396; 
-x_394 = lean_string_utf8_get(x_390, x_389);
+x_394 = lean_string_utf8_get(x_392, x_389);
 x_395 = 65;
 x_396 = lean_uint32_dec_le(x_395, x_394);
 if (x_396 == 0)
 {
-x_376 = x_394;
-x_377 = x_390;
-x_378 = x_391;
+x_376 = x_390;
+x_377 = x_391;
+x_378 = x_394;
 x_379 = x_392;
 x_380 = x_396;
 goto block_385;
@@ -5410,9 +5374,9 @@ else
 uint32_t x_397; uint8_t x_398; 
 x_397 = 90;
 x_398 = lean_uint32_dec_le(x_394, x_397);
-x_376 = x_394;
-x_377 = x_390;
-x_378 = x_391;
+x_376 = x_390;
+x_377 = x_391;
+x_378 = x_394;
 x_379 = x_392;
 x_380 = x_398;
 goto block_385;
@@ -5422,25 +5386,25 @@ goto block_385;
 block_408:
 {
 uint8_t x_404; 
-x_404 = lean_nat_dec_lt(x_389, x_400);
-lean_dec(x_400);
+x_404 = lean_nat_dec_lt(x_389, x_401);
+lean_dec(x_401);
 if (x_404 == 0)
 {
-x_390 = x_401;
-x_391 = x_402;
-x_392 = x_403;
+x_390 = x_400;
+x_391 = x_403;
+x_392 = x_402;
 x_393 = x_404;
 goto block_399;
 }
 else
 {
 uint32_t x_405; uint32_t x_406; uint8_t x_407; 
-x_405 = lean_string_utf8_get(x_401, x_352);
+x_405 = lean_string_utf8_get(x_402, x_352);
 x_406 = 35;
 x_407 = lean_uint32_dec_eq(x_405, x_406);
-x_390 = x_401;
-x_391 = x_402;
-x_392 = x_403;
+x_390 = x_400;
+x_391 = x_403;
+x_392 = x_402;
 x_393 = x_407;
 goto block_399;
 }
@@ -5451,22 +5415,22 @@ if (x_413 == 0)
 {
 uint32_t x_414; uint8_t x_415; 
 x_414 = 95;
-x_415 = lean_uint32_dec_eq(x_411, x_414);
+x_415 = lean_uint32_dec_eq(x_410, x_414);
 if (x_415 == 0)
 {
 uint8_t x_416; 
-x_416 = l_Lean_isLetterLike(x_411);
+x_416 = l_Lean_isLetterLike(x_410);
 x_400 = x_409;
-x_401 = x_410;
-x_402 = x_412;
+x_401 = x_412;
+x_402 = x_411;
 x_403 = x_416;
 goto block_408;
 }
 else
 {
 x_400 = x_409;
-x_401 = x_410;
-x_402 = x_412;
+x_401 = x_412;
+x_402 = x_411;
 x_403 = x_415;
 goto block_408;
 }
@@ -5474,8 +5438,8 @@ goto block_408;
 else
 {
 x_400 = x_409;
-x_401 = x_410;
-x_402 = x_412;
+x_401 = x_412;
+x_402 = x_411;
 x_403 = x_413;
 goto block_408;
 }
@@ -5486,13 +5450,13 @@ if (x_422 == 0)
 {
 uint32_t x_423; uint8_t x_424; 
 x_423 = 97;
-x_424 = lean_uint32_dec_le(x_423, x_420);
+x_424 = lean_uint32_dec_le(x_423, x_419);
 if (x_424 == 0)
 {
 x_409 = x_418;
 x_410 = x_419;
-x_411 = x_420;
-x_412 = x_421;
+x_411 = x_421;
+x_412 = x_420;
 x_413 = x_424;
 goto block_417;
 }
@@ -5500,11 +5464,11 @@ else
 {
 uint32_t x_425; uint8_t x_426; 
 x_425 = 122;
-x_426 = lean_uint32_dec_le(x_420, x_425);
+x_426 = lean_uint32_dec_le(x_419, x_425);
 x_409 = x_418;
 x_410 = x_419;
-x_411 = x_420;
-x_412 = x_421;
+x_411 = x_421;
+x_412 = x_420;
 x_413 = x_426;
 goto block_417;
 }
@@ -5512,7 +5476,7 @@ goto block_417;
 else
 {
 x_400 = x_418;
-x_401 = x_419;
+x_401 = x_420;
 x_402 = x_421;
 x_403 = x_422;
 goto block_408;
@@ -5529,9 +5493,9 @@ x_431 = lean_nat_dec_lt(x_352, x_430);
 if (x_431 == 0)
 {
 lean_inc_ref(x_429);
-x_400 = x_430;
-x_401 = x_429;
-x_402 = x_428;
+x_400 = x_428;
+x_401 = x_430;
+x_402 = x_429;
 x_403 = x_431;
 goto block_408;
 }
@@ -5544,10 +5508,10 @@ x_434 = lean_uint32_dec_le(x_433, x_432);
 if (x_434 == 0)
 {
 lean_inc_ref(x_429);
-x_418 = x_430;
-x_419 = x_429;
-x_420 = x_432;
-x_421 = x_428;
+x_418 = x_428;
+x_419 = x_432;
+x_420 = x_430;
+x_421 = x_429;
 x_422 = x_434;
 goto block_427;
 }
@@ -5557,10 +5521,10 @@ uint32_t x_435; uint8_t x_436;
 x_435 = 90;
 x_436 = lean_uint32_dec_le(x_432, x_435);
 lean_inc_ref(x_429);
-x_418 = x_430;
-x_419 = x_429;
-x_420 = x_432;
-x_421 = x_428;
+x_418 = x_428;
+x_419 = x_432;
+x_420 = x_430;
+x_421 = x_429;
 x_422 = x_436;
 goto block_427;
 }
@@ -5606,9 +5570,9 @@ else
 {
 if (x_357 == 0)
 {
-lean_dec_ref(x_358);
+lean_dec_ref(x_359);
 lean_dec(x_1);
-return x_359;
+return x_358;
 }
 else
 {
@@ -5620,20 +5584,20 @@ goto block_11;
 }
 else
 {
-lean_dec_ref(x_358);
+lean_dec_ref(x_359);
 lean_dec(x_1);
-return x_359;
+return x_358;
 }
 }
 }
 }
 block_366:
 {
-if (x_364 == 0)
+if (x_363 == 0)
 {
 x_357 = x_365;
 x_358 = x_362;
-x_359 = x_363;
+x_359 = x_364;
 x_360 = x_43;
 goto block_361;
 }
@@ -5641,7 +5605,7 @@ else
 {
 x_357 = x_365;
 x_358 = x_362;
-x_359 = x_363;
+x_359 = x_364;
 x_360 = x_356;
 goto block_361;
 }
@@ -5652,21 +5616,21 @@ if (x_371 == 0)
 {
 uint32_t x_372; uint8_t x_373; 
 x_372 = 95;
-x_373 = lean_uint32_dec_eq(x_367, x_372);
+x_373 = lean_uint32_dec_eq(x_369, x_372);
 if (x_373 == 0)
 {
 uint8_t x_374; 
-x_374 = l_Lean_isLetterLike(x_367);
-x_362 = x_368;
-x_363 = x_369;
+x_374 = l_Lean_isLetterLike(x_369);
+x_362 = x_367;
+x_363 = x_368;
 x_364 = x_370;
 x_365 = x_374;
 goto block_366;
 }
 else
 {
-x_362 = x_368;
-x_363 = x_369;
+x_362 = x_367;
+x_363 = x_368;
 x_364 = x_370;
 x_365 = x_373;
 goto block_366;
@@ -5674,8 +5638,8 @@ goto block_366;
 }
 else
 {
-x_362 = x_368;
-x_363 = x_369;
+x_362 = x_367;
+x_363 = x_368;
 x_364 = x_370;
 x_365 = x_371;
 goto block_366;
@@ -5687,7 +5651,7 @@ if (x_380 == 0)
 {
 uint32_t x_381; uint8_t x_382; 
 x_381 = 97;
-x_382 = lean_uint32_dec_le(x_381, x_376);
+x_382 = lean_uint32_dec_le(x_381, x_378);
 if (x_382 == 0)
 {
 x_367 = x_376;
@@ -5701,7 +5665,7 @@ else
 {
 uint32_t x_383; uint8_t x_384; 
 x_383 = 122;
-x_384 = lean_uint32_dec_le(x_376, x_383);
+x_384 = lean_uint32_dec_le(x_378, x_383);
 x_367 = x_376;
 x_368 = x_377;
 x_369 = x_378;
@@ -5712,8 +5676,8 @@ goto block_375;
 }
 else
 {
-x_362 = x_377;
-x_363 = x_378;
+x_362 = x_376;
+x_363 = x_377;
 x_364 = x_379;
 x_365 = x_380;
 goto block_366;
@@ -5726,15 +5690,15 @@ lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* 
 x_4 = l_Lean_Server_FileWorker_keywordSemanticTokenMap;
 x_5 = 0;
 x_6 = lean_box(x_5);
-x_7 = l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens_spec__2___redArg(x_4, x_2, x_6);
+x_7 = l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens_spec__2___redArg(x_4, x_3, x_6);
 lean_dec(x_6);
-lean_dec_ref(x_2);
+lean_dec_ref(x_3);
 x_8 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_8, 0, x_1);
 x_9 = lean_unbox(x_7);
 lean_dec(x_7);
 lean_ctor_set_uint8(x_8, sizeof(void*)*1, x_9);
-x_10 = lean_array_push(x_3, x_8);
+x_10 = lean_array_push(x_2, x_8);
 return x_10;
 }
 block_21:
@@ -5760,15 +5724,15 @@ lean_object* x_24; uint8_t x_25; lean_object* x_26; lean_object* x_27; lean_obje
 x_24 = l_Lean_Server_FileWorker_keywordSemanticTokenMap;
 x_25 = 0;
 x_26 = lean_box(x_25);
-x_27 = l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens_spec__2___redArg(x_24, x_22, x_26);
+x_27 = l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens_spec__2___redArg(x_24, x_23, x_26);
 lean_dec(x_26);
-lean_dec_ref(x_22);
+lean_dec_ref(x_23);
 x_28 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_28, 0, x_1);
 x_29 = lean_unbox(x_27);
 lean_dec(x_27);
 lean_ctor_set_uint8(x_28, sizeof(void*)*1, x_29);
-x_30 = lean_array_push(x_23, x_28);
+x_30 = lean_array_push(x_22, x_28);
 return x_30;
 }
 block_41:
@@ -5777,46 +5741,46 @@ lean_object* x_34; uint8_t x_35; lean_object* x_36; lean_object* x_37; lean_obje
 x_34 = l_Lean_Server_FileWorker_keywordSemanticTokenMap;
 x_35 = 0;
 x_36 = lean_box(x_35);
-x_37 = l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens_spec__2___redArg(x_34, x_33, x_36);
+x_37 = l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens_spec__2___redArg(x_34, x_32, x_36);
 lean_dec(x_36);
-lean_dec_ref(x_33);
+lean_dec_ref(x_32);
 x_38 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_38, 0, x_1);
 x_39 = lean_unbox(x_37);
 lean_dec(x_37);
 lean_ctor_set_uint8(x_38, sizeof(void*)*1, x_39);
-x_40 = lean_array_push(x_32, x_38);
+x_40 = lean_array_push(x_33, x_38);
 return x_40;
 }
 block_48:
 {
 if (x_47 == 0)
 {
-x_32 = x_44;
-x_33 = x_45;
+x_32 = x_45;
+x_33 = x_46;
 goto block_41;
 }
 else
 {
-if (x_46 == 0)
+if (x_44 == 0)
 {
 lean_dec_ref(x_45);
 lean_dec(x_1);
-return x_44;
+return x_46;
 }
 else
 {
 if (x_43 == 0)
 {
-x_32 = x_44;
-x_33 = x_45;
+x_32 = x_45;
+x_33 = x_46;
 goto block_41;
 }
 else
 {
 lean_dec_ref(x_45);
 lean_dec(x_1);
-return x_44;
+return x_46;
 }
 }
 }
@@ -6495,6 +6459,14 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_Server_FileWorker_instImpl____x40_Lean_Server_FileWorker_SemanticHighlighting_607881837____hygCtx___hyg_7_;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Server_FileWorker_defaultSemanticTokensState____x40_Lean_Server_FileWorker_SemanticHighlighting_607881837____hygCtx___hyg_16_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
 return x_1;
 }
 }
@@ -7814,8 +7786,7 @@ x_10 = lean_string_append(x_9, x_1);
 lean_dec_ref(x_1);
 x_11 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0___closed__1;
 x_12 = lean_string_append(x_10, x_11);
-x_13 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_13, 0, x_12);
+x_13 = lean_mk_io_user_error(x_12);
 lean_ctor_set_tag(x_4, 1);
 lean_ctor_set(x_4, 0, x_13);
 return x_4;
@@ -7831,8 +7802,7 @@ x_16 = lean_string_append(x_15, x_1);
 lean_dec_ref(x_1);
 x_17 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0___closed__1;
 x_18 = lean_string_append(x_16, x_17);
-x_19 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_19, 0, x_18);
+x_19 = lean_mk_io_user_error(x_18);
 x_20 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_14);
@@ -7942,8 +7912,7 @@ x_54 = lean_string_append(x_53, x_1);
 lean_dec_ref(x_1);
 x_55 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0___closed__3;
 x_56 = lean_string_append(x_54, x_55);
-x_57 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_57, 0, x_56);
+x_57 = lean_mk_io_user_error(x_56);
 lean_ctor_set_tag(x_23, 1);
 lean_ctor_set(x_23, 0, x_57);
 return x_23;
@@ -8018,8 +7987,7 @@ x_76 = lean_string_append(x_75, x_1);
 lean_dec_ref(x_1);
 x_77 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0___closed__3;
 x_78 = lean_string_append(x_76, x_77);
-x_79 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_79, 0, x_78);
+x_79 = lean_mk_io_user_error(x_78);
 x_80 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_80, 0, x_79);
 lean_ctor_set(x_80, 1, x_59);
@@ -9034,8 +9002,7 @@ x_14 = lean_string_append(x_13, x_1);
 lean_dec_ref(x_1);
 x_15 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0___closed__1;
 x_16 = lean_string_append(x_14, x_15);
-x_17 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_17, 0, x_16);
+x_17 = lean_mk_io_user_error(x_16);
 lean_ctor_set_tag(x_8, 1);
 lean_ctor_set(x_8, 0, x_17);
 return x_8;
@@ -9051,8 +9018,7 @@ x_20 = lean_string_append(x_19, x_1);
 lean_dec_ref(x_1);
 x_21 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0___closed__1;
 x_22 = lean_string_append(x_20, x_21);
-x_23 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_23, 0, x_22);
+x_23 = lean_mk_io_user_error(x_22);
 x_24 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_18);
@@ -9318,8 +9284,7 @@ x_16 = lean_string_append(x_15, x_1);
 lean_dec_ref(x_1);
 x_17 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0___closed__3;
 x_18 = lean_string_append(x_16, x_17);
-x_19 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_19, 0, x_18);
+x_19 = lean_mk_io_user_error(x_18);
 lean_ctor_set_tag(x_9, 1);
 lean_ctor_set(x_9, 0, x_19);
 return x_9;
@@ -9353,8 +9318,7 @@ x_25 = lean_string_append(x_24, x_1);
 lean_dec_ref(x_1);
 x_26 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0___closed__3;
 x_27 = lean_string_append(x_25, x_26);
-x_28 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_28, 0, x_27);
+x_28 = lean_mk_io_user_error(x_27);
 x_29 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_29, 0, x_28);
 lean_ctor_set(x_29, 1, x_21);
@@ -9861,6 +9825,8 @@ l_Lean_Server_FileWorker_instImpl____x40_Lean_Server_FileWorker_SemanticHighligh
 lean_mark_persistent(l_Lean_Server_FileWorker_instImpl____x40_Lean_Server_FileWorker_SemanticHighlighting_607881837____hygCtx___hyg_7_);
 l_Lean_Server_FileWorker_instTypeNameSemanticTokensState = _init_l_Lean_Server_FileWorker_instTypeNameSemanticTokensState();
 lean_mark_persistent(l_Lean_Server_FileWorker_instTypeNameSemanticTokensState);
+l_Lean_Server_FileWorker_defaultSemanticTokensState____x40_Lean_Server_FileWorker_SemanticHighlighting_607881837____hygCtx___hyg_16_ = _init_l_Lean_Server_FileWorker_defaultSemanticTokensState____x40_Lean_Server_FileWorker_SemanticHighlighting_607881837____hygCtx___hyg_16_();
+lean_mark_persistent(l_Lean_Server_FileWorker_defaultSemanticTokensState____x40_Lean_Server_FileWorker_SemanticHighlighting_607881837____hygCtx___hyg_16_);
 l_Lean_Server_FileWorker_instInhabitedSemanticTokensState = _init_l_Lean_Server_FileWorker_instInhabitedSemanticTokensState();
 lean_mark_persistent(l_Lean_Server_FileWorker_instInhabitedSemanticTokensState);
 l_Lean_Server_parseRequestParams___at___Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0_spec__0___closed__0 = _init_l_Lean_Server_parseRequestParams___at___Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0_spec__0___closed__0();

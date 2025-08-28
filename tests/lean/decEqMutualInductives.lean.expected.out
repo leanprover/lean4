@@ -1,13 +1,13 @@
 [Elab.Deriving.decEq] 
     [mutual
-       public def decEqTree✝ (x✝ : @Tree✝) (x✝¹ : @Tree✝) : Decidable✝ (x✝ = x✝¹) :=
+       def decEqTree✝ (x✝ : @Tree✝) (x✝¹ : @Tree✝) : Decidable✝ (x✝ = x✝¹) :=
          match x✝, x✝¹ with
          | @Tree.node a✝, @Tree.node b✝ =>
            let inst✝ := decEqListTree✝ @a✝ @b✝;
            if h✝ : @a✝ = @b✝ then by subst h✝; exact isTrue✝ rfl✝
            else isFalse✝ (by intro n✝; injection n✝; apply h✝ _; assumption)
        termination_by structural x✝
-       public def decEqListTree✝ (x✝² : @ListTree✝) (x✝³ : @ListTree✝) : Decidable✝ (x✝² = x✝³) :=
+       def decEqListTree✝ (x✝² : @ListTree✝) (x✝³ : @ListTree✝) : Decidable✝ (x✝² = x✝³) :=
          match x✝², x✝³ with
          | @ListTree.nil, @ListTree.nil => isTrue✝¹ rfl✝¹
          | ListTree.nil .., ListTree.cons .. => isFalse✝¹ (by intro h✝¹; injection h✝¹)
@@ -22,12 +22,11 @@
            else isFalse✝³ (by intro n✝²; injection n✝²; apply h✝² _; assumption)
        termination_by structural x✝²
      end,
-     @[]
-     public instance : DecidableEq✝ (@ListTree✝) :=
+     instance : DecidableEq✝ (@ListTree✝) :=
        decEqListTree✝]
 [Elab.Deriving.decEq] 
     [mutual
-       public def decEqFoo₁✝ (x✝ : @Foo₁✝) (x✝¹ : @Foo₁✝) : Decidable✝ (x✝ = x✝¹) :=
+       def decEqFoo₁✝ (x✝ : @Foo₁✝) (x✝¹ : @Foo₁✝) : Decidable✝ (x✝ = x✝¹) :=
          match x✝, x✝¹ with
          | @Foo₁.foo₁₁, @Foo₁.foo₁₁ => isTrue✝ rfl✝
          | Foo₁.foo₁₁ .., Foo₁.foo₁₂ .. => isFalse✝ (by intro h✝; injection h✝)
@@ -37,14 +36,14 @@
            if h✝¹ : @a✝ = @b✝ then by subst h✝¹; exact isTrue✝¹ rfl✝¹
            else isFalse✝¹ (by intro n✝; injection n✝; apply h✝¹ _; assumption)
        termination_by structural x✝
-       public def decEqFoo₂✝ (x✝² : @Foo₂✝) (x✝³ : @Foo₂✝) : Decidable✝ (x✝² = x✝³) :=
+       def decEqFoo₂✝ (x✝² : @Foo₂✝) (x✝³ : @Foo₂✝) : Decidable✝ (x✝² = x✝³) :=
          match x✝², x✝³ with
          | @Foo₂.foo₂ a✝¹, @Foo₂.foo₂ b✝¹ =>
            let inst✝¹ := decEqFoo₃✝ @a✝¹ @b✝¹;
            if h✝² : @a✝¹ = @b✝¹ then by subst h✝²; exact isTrue✝² rfl✝²
            else isFalse✝² (by intro n✝¹; injection n✝¹; apply h✝² _; assumption)
        termination_by structural x✝²
-       public def decEqFoo₃✝ (x✝⁴ : @Foo₃✝) (x✝⁵ : @Foo₃✝) : Decidable✝ (x✝⁴ = x✝⁵) :=
+       def decEqFoo₃✝ (x✝⁴ : @Foo₃✝) (x✝⁵ : @Foo₃✝) : Decidable✝ (x✝⁴ = x✝⁵) :=
          match x✝⁴, x✝⁵ with
          | @Foo₃.foo₃ a✝², @Foo₃.foo₃ b✝² =>
            let inst✝² := decEqFoo₁✝ @a✝² @b✝²;
@@ -52,6 +51,5 @@
            else isFalse✝³ (by intro n✝²; injection n✝²; apply h✝³ _; assumption)
        termination_by structural x✝⁴
      end,
-     @[]
-     public instance : DecidableEq✝ (@Foo₁✝) :=
+     instance : DecidableEq✝ (@Foo₁✝) :=
        decEqFoo₁✝]

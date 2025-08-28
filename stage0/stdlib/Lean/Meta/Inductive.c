@@ -23,7 +23,6 @@ static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownId
 lean_object* l_Lean_Environment_header(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__2;
 lean_object* l_Lean_Meta_forallMetaTelescope(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -57,7 +56,6 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0_spec__0_spec__0_spec__0___redArg___closed__1;
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__6;
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__3;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0_spec__0_spec__0_spec__0___redArg___closed__0;
@@ -969,7 +967,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCto
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("` is not a constructor", 22, 22);
 return x_1;
 }
 }
@@ -978,23 +976,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__0;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is not a constructor", 22, 22);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__2;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -1050,13 +1031,13 @@ lean_dec(x_8);
 x_15 = lean_ctor_get(x_7, 1);
 lean_inc(x_15);
 lean_dec_ref(x_7);
-x_16 = l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__1;
+x_16 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__17;
 x_17 = 0;
 x_18 = l_Lean_MessageData_ofConstName(x_1, x_17);
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_16);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__3;
+x_20 = l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__1;
 x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
@@ -1688,10 +1669,6 @@ l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__0 = _
 lean_mark_persistent(l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__0);
 l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__1 = _init_l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__1();
 lean_mark_persistent(l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__1);
-l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__2 = _init_l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__2();
-lean_mark_persistent(l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__2);
-l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__3 = _init_l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__3();
-lean_mark_persistent(l_Lean_getConstInfoCtor___at___Lean_Meta_compatibleCtors_spec__0___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

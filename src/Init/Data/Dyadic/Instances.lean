@@ -32,7 +32,9 @@ instance : CommRing Dyadic where
   pow_succ := Dyadic.pow_succ
   sub_eq_add_neg _ _ := rfl
   neg_add_cancel := Dyadic.neg_add_cancel
-  neg_zsmul _ _ := by simp [← toRat_inj, Rat.neg_mul]
+  neg_zsmul i a := by
+    change ((-i : Int) : Dyadic) * a = -(i * a)
+    simp [← toRat_inj, Rat.neg_mul]
   left_distrib := Dyadic.mul_add
   right_distrib := Dyadic.add_mul
   intCast_neg _ := by simp [← toRat_inj]
@@ -48,13 +50,6 @@ instance : NoNatZeroDivisors Dyadic where
     change k * a = k * b at h₂
     simp only [← toRat_inj, toRat_mul, toRat_natCast] at h₂ ⊢
     simpa [← Rat.mul_assoc, Rat.inv_mul_cancel, h₁] using congrArg ((k : Rat)⁻¹ * ·) h₂
-
-instance : LinearOrder Dyadic where
-  le_refl := Dyadic.le_refl
-  le_trans := Dyadic.le_trans
-  le_antisymm := Dyadic.le_antisymm
-  le_total := Dyadic.le_total
-  lt_iff_le_not_le := Std.LawfulOrderLT.lt_iff _ _
 
 instance : OrderedRing Dyadic where
   zero_lt_one := by decide

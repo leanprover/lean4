@@ -41,7 +41,6 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 static lean_object* l_Lean_ForEachExprWhere_initCache___closed__2;
 LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_visited___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_State_toCtorIdx(lean_object*);
 LEAN_EXPORT size_t l_Lean_ForEachExprWhere_cacheSize;
 lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ForEachExprWhere_checked___redArg___closed__0;
@@ -95,7 +94,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachE
 LEAN_EXPORT lean_object* l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___redArg___lam__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_ForEachExprWhere_initCache___closed__1;
-LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_State_toCtorIdx___boxed(lean_object*);
 static size_t _init_l_Lean_ForEachExprWhere_cacheSize___closed__0() {
 _start:
 {
@@ -146,23 +144,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_ForEachExprWhere_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_State_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_State_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_ForEachExprWhere_State_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

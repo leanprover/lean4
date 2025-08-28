@@ -353,7 +353,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
         | .strictImplicit => `(bracketedBinderF| {{$id $[: $ty?]?}})
         | .instImplicit => do
           let some ty := ty?
-            | throwErrorAt binder "cannot update binder annotation of variable '{id}' to instance implicit:\n\
+            | throwErrorAt binder "cannot update binder annotation of variable `{id}` to instance implicit:\n\
                 variable was originally declared without an explicit type"
           `(bracketedBinderF| [$(⟨id⟩) : $ty])
       for id in ids.reverse do
@@ -367,7 +367,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
               runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
                 Term.elabBinder newBinder fun _ => pure ()
             catch e =>
-              throwErrorAt binder m!"cannot update binder annotation of variable '{id}' to instance implicit:\n\
+              throwErrorAt binder m!"cannot update binder annotation of variable `{id}` to instance implicit:\n\
                 {e.toMessageData}"
           varDeclsNew := varDeclsNew.push (← mkBinder id binderInfo)
         else
@@ -517,7 +517,7 @@ open Lean.Parser.Command.InternalSyntax in
       if let some idx := vars.findIdx? (· == id.getId) then
         uids := uids.push sc.varUIds[idx]!
       else
-        throwError "invalid 'include', variable '{id}' has not been declared in the current scope"
+        throwError "invalid 'include', variable `{id}` has not been declared in the current scope"
     modifyScope fun sc => { sc with
       includedVars := sc.includedVars ++ uids.toList
       omittedVars := sc.omittedVars.filter (!uids.contains ·) }
@@ -556,10 +556,10 @@ open Lean.Parser.Command.InternalSyntax in
             omittedVars := omittedVars.push uid
             omitsUsed := omitsUsed.set! idx true
           else
-            throwError "invalid 'omit', '{ldecl.userName}' has not been declared in the current scope"
+            throwError "invalid 'omit', `{ldecl.userName}` has not been declared in the current scope"
       for o in omits, used in omitsUsed do
         unless used do
-          throwError "'{o}' did not match any variables in the current scope"
+          throwError "`{o}` did not match any variables in the current scope"
       return omittedVars
     modifyScope fun sc => { sc with
       omittedVars := sc.omittedVars ++ omittedVars.toList

@@ -42,7 +42,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_GeneralizeTelescope_
 static lean_object* l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___closed__2;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_kabstract(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_generalizeTelescope___redArg___closed__0;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
@@ -52,9 +51,11 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDec
 LEAN_EXPORT lean_object* l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Core_mkFreshUserName(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___closed__0;
 static lean_object* l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___closed__1;
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
+lean_object* l_Lean_LocalDecl_userName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at___Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__4_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_generalizeTelescope_spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -63,7 +64,6 @@ LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Meta_GeneralizeTelescope_
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at___Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_generalizeTelescope___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_GeneralizeTelescope_Entry_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Meta_generalizeTelescope_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -72,7 +72,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_GeneralizeTelescope_Entry_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclD___at___Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -100,23 +99,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_GeneralizeTelescope_Entry_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_GeneralizeTelescope_Entry_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_GeneralizeTelescope_Entry_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_GeneralizeTelescope_Entry_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -717,7 +699,7 @@ _start:
 lean_object* x_13; 
 lean_inc(x_11);
 lean_inc_ref(x_10);
-x_13 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_5, x_10, x_11, x_12);
+x_13 = l_Lean_Core_mkFreshUserName(x_5, x_10, x_11, x_12);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
@@ -881,8 +863,7 @@ lean_inc_ref(x_14);
 x_66 = lean_ctor_get(x_59, 1);
 lean_inc(x_66);
 lean_dec_ref(x_59);
-x_67 = lean_ctor_get(x_60, 2);
-lean_inc(x_67);
+x_67 = l_Lean_LocalDecl_userName(x_60);
 lean_dec_ref(x_60);
 x_68 = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___lam__1(x_3, x_2, x_4, x_1, x_67, x_14, x_15, x_5, x_6, x_7, x_8, x_66);
 return x_68;
@@ -942,17 +923,17 @@ block_26:
 {
 lean_object* x_24; lean_object* x_25; 
 x_24 = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___closed__1;
-x_25 = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___lam__1(x_3, x_2, x_4, x_1, x_24, x_17, x_18, x_19, x_20, x_21, x_22, x_23);
+x_25 = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___lam__1(x_3, x_2, x_4, x_1, x_24, x_18, x_17, x_19, x_20, x_21, x_22, x_23);
 return x_25;
 }
 block_57:
 {
 if (x_16 == 0)
 {
-lean_inc_ref(x_15);
 lean_inc_ref(x_14);
-x_17 = x_14;
-x_18 = x_15;
+lean_inc_ref(x_15);
+x_17 = x_15;
+x_18 = x_14;
 x_19 = x_27;
 x_20 = x_28;
 x_21 = x_29;
@@ -1030,10 +1011,10 @@ lean_object* x_52;
 x_52 = lean_ctor_get(x_32, 1);
 lean_inc(x_52);
 lean_dec_ref(x_32);
-lean_inc_ref(x_15);
 lean_inc_ref(x_14);
-x_17 = x_14;
-x_18 = x_15;
+lean_inc_ref(x_15);
+x_17 = x_15;
+x_18 = x_14;
 x_19 = x_27;
 x_20 = x_28;
 x_21 = x_29;

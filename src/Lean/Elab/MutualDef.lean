@@ -465,7 +465,7 @@ where
       for var in (← get).fvarIds do
         if let some uid := revSectionFVars[var]? then
           if sc.omittedVars.contains uid then
-            throwError "cannot omit referenced section variable '{Expr.fvar var}'"
+            throwError "cannot omit referenced section variable `{Expr.fvar var}`"
     -- instances (`addDependencies` unnecessary as by definition they may only reference variables
     -- already included)
     for var in vars do
@@ -559,7 +559,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
                 some m!"{var}"
           if unusedVars.size > 0 then
             Linter.logLint linter.unusedSectionVars header.ref
-              m!"automatically included section variable(s) unused in theorem '{header.declName}':\
+              m!"automatically included section variable(s) unused in theorem `{header.declName}`:\
               \n  {MessageData.joinSep unusedVars.toList "\n  "}\
               \nconsider restructuring your `variable` declarations so that the variables are not \
                 in scope or explicitly omit them:\
@@ -636,7 +636,7 @@ private def checkLetRecsToLiftTypes (funVars : Array Expr) (letRecsToLift : List
     | none        => pure ()
     | some fvarId => do
       let fnName ← getFunName fvarId letRecsToLift
-      throwErrorAt toLift.ref "invalid type in 'let rec', it uses '{fnName}' which is being defined simultaneously"
+      throwErrorAt toLift.ref "invalid type in `let rec`, it uses `{fnName}` which is being defined simultaneously"
 
 private structure ExprWithHoles where
   ref : Syntax
@@ -1019,7 +1019,7 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
     let type ← mkForallFVars sectionVars header.type
     if header.kind.isTheorem then
       unless (← isProp type) do
-        throwErrorAt header.ref "type of theorem '{header.declName}' is not a proposition{indentExpr type}"
+        throwErrorAt header.ref "type of theorem `{header.declName}` is not a proposition{indentExpr type}"
     return preDefs.push {
       ref         := getDeclarationSelectionRef header.ref
       kind        := header.kind
@@ -1133,7 +1133,7 @@ private def checkAllDeclNamesDistinct (preDefs : Array PreDefinition) : TermElab
   for preDef in preDefs do
     let userName := privateToUserName preDef.declName
     if let some dupStx := names[userName]? then
-      let errorMsg := m!"'mutual' block contains two declarations of the same name '{userName}'"
+      let errorMsg := m!"`mutual` block contains two declarations of the same name `{userName}`"
       Lean.logErrorAt dupStx errorMsg
       throwErrorAt preDef.ref errorMsg
     names := names.insert userName preDef.ref

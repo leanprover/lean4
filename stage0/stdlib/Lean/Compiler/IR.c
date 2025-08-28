@@ -30,6 +30,7 @@ static lean_object* l_Lean_IR_compile___closed__28;
 static lean_object* l_Lean_IR_initFn___closed__4____x40_Lean_Compiler_IR_583794373____hygCtx___hyg_4_;
 static lean_object* l_Lean_IR_compile___closed__24;
 static lean_object* l_Lean_IR_compile___closed__17;
+lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__5____x40_Lean_Compiler_IR_640659120____hygCtx___hyg_2_;
 lean_object* l_Lean_IR_addDecls(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_compile___closed__2;
@@ -108,7 +109,6 @@ static lean_object* l_Lean_IR_compile___closed__8;
 LEAN_EXPORT lean_object* l_Lean_IR_compile___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__7____x40_Lean_Compiler_IR_640659120____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn____x40_Lean_Compiler_IR_640659120____hygCtx___hyg_2_(lean_object*);
-lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* l_Lean_IR_inferMeta(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
@@ -423,7 +423,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
+x_5 = l_Lean_KVMap_find(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 

@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_forM___redArg(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldl___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_ctorIdx___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_toAssocList_x27___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_AssocList_toCtorIdx___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at___Lean_AssocList_toList_spec__0___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_foldl___redArg___closed__4;
 static lean_object* l_Lean_AssocList_foldl___redArg___closed__5;
@@ -32,9 +31,7 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_toList___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_toList___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at___Lean_AssocList_toList_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_foldl___redArg___closed__9;
-LEAN_EXPORT lean_object* l_Lean_AssocList_toCtorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_AssocList_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProd___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toAssocList_x27___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -43,7 +40,6 @@ LEAN_EXPORT uint8_t l_Lean_AssocList_any___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_isEmpty___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_AssocList_toCtorIdx___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_empty(lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_foldl___redArg___closed__1;
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
@@ -89,6 +85,7 @@ LEAN_EXPORT uint8_t l_Lean_AssocList_all(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l___private_Lean_Data_AssocList_0__Lean_AssocList_forIn_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_foldl___redArg___closed__7;
 LEAN_EXPORT uint8_t l_Lean_AssocList_any(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_defaultAssocList____x40_Lean_Data_AssocList_996150287____hygCtx___hyg_55_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedAssocList(lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_foldl___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Lean_AssocList_any___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -145,38 +142,12 @@ lean_dec(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_AssocList_toCtorIdx___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_defaultAssocList____x40_Lean_Data_AssocList_996150287____hygCtx___hyg_55_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lean_AssocList_ctorIdx___redArg(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_AssocList_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_AssocList_ctorIdx___redArg(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_AssocList_toCtorIdx___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_AssocList_toCtorIdx___redArg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_AssocList_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_AssocList_toCtorIdx(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
+lean_object* x_3; 
+x_3 = lean_box(0);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_instInhabitedAssocList(lean_object* x_1, lean_object* x_2) {

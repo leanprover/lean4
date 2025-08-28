@@ -55,18 +55,22 @@ public def mkCtorIdx (indName : Name) : MetaM Unit := do
       let declType ← mkArrow indType natType
       let declType ← mkForallFVars xs declType
       let declValue ← withLocalDeclD `x indType fun x => do
-        let motive ← mkLambdaFVars (indices.push x) natType
-        let mut value := mkConst casesOnName (levelOne::us)
-        value := mkAppN value params
-        value := mkApp value motive
-        value := mkAppN value indices
-        value := mkApp value x
-        for c in info.ctors do
-          let cInfo ← getConstInfoCtor c
-          let cType ← instantiateForall cInfo.type params
-          let alt ← forallBoundedTelescope cType cInfo.numFields fun ys _ =>
-            mkLambdaFVars ys <| mkRawNatLit cInfo.cidx
-          value := mkApp value alt
+        let value ← if info.numCtors = 1 then
+          pure (mkRawNatLit 0)
+        else
+          let motive ← mkLambdaFVars (indices.push x) natType
+          let mut value := mkConst casesOnName (levelOne::us)
+          value := mkAppN value params
+          value := mkApp value motive
+          value := mkAppN value indices
+          value := mkApp value x
+          for c in info.ctors do
+            let cInfo ← getConstInfoCtor c
+            let cType ← instantiateForall cInfo.type params
+            let alt ← forallBoundedTelescope cType cInfo.numFields fun ys _ =>
+              mkLambdaFVars ys <| mkRawNatLit cInfo.cidx
+            value := mkApp value alt
+          pure value
         mkLambdaFVars (xs.push x) value
       addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
         (name        := declName)
@@ -79,17 +83,17 @@ public def mkCtorIdx (indName : Name) : MetaM Unit := do
       modifyEnv fun env => addProtected env declName
       setReducibleAttribute declName
 
-      -- Deprecated alias
-      -- (Add deprecation attribute after stage0 update)
-      let aliasName := mkToCtorIdxName indName
-      addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
-        (name        := aliasName)
-        (levelParams := info.levelParams)
-        (type        := declType)
-        (value       := mkConst declName us)
-        (hints       := ReducibilityHints.abbrev)
-      ))
-      modifyEnv fun env => addToCompletionBlackList env aliasName
-      modifyEnv fun env => addProtected env aliasName
-      setReducibleAttribute aliasName
-      Lean.Linter.setDeprecated aliasName { newName? := some declName, since? := "2025-08-25" }
+      -- Deprecated alias for enumeration types (which used to have `toCtorIdx`)
+      if (← isEnumType indName) then
+        let aliasName := mkToCtorIdxName indName
+        addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+          (name        := aliasName)
+          (levelParams := info.levelParams)
+          (type        := declType)
+          (value       := mkConst declName us)
+          (hints       := ReducibilityHints.abbrev)
+        ))
+        modifyEnv fun env => addToCompletionBlackList env aliasName
+        modifyEnv fun env => addProtected env aliasName
+        setReducibleAttribute aliasName
+        Lean.Linter.setDeprecated aliasName { newName? := some declName, since? := "2025-08-25" }

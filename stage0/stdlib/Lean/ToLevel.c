@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_ToLevel_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToLevel;
 lean_object* l_Lean_Level_succ___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ToLevel_ctorIdx(lean_object*);
@@ -21,7 +20,6 @@ lean_object* l_Lean_Level_max___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ToLevel_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToLevel__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ToLevel_max(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ToLevel_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ToLevel_imax(lean_object*, lean_object*);
 lean_object* l_Lean_Level_imax___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ToLevel_ctorIdx(lean_object* x_1) {
@@ -37,23 +35,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_ToLevel_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ToLevel_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ToLevel_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_ToLevel_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }

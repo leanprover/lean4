@@ -27,6 +27,7 @@ double lean_float_div(double, double);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 static double l_Lean_addTrace___at_____private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___closed__0;
 static lean_object* l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go___closed__13;
+lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_addTrace___at_____private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5_spec__5___closed__4;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go___closed__19;
@@ -105,7 +106,6 @@ LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at___Lean_withTraceNode___at__
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___Lean_withTraceNode___at_____private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__7_spec__7___redArg___boxed(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go___closed__18;
-lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 static lean_object* l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go___closed__7;
@@ -1083,7 +1083,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
+x_5 = l_Lean_KVMap_find(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
@@ -1654,7 +1654,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
+x_5 = l_Lean_KVMap_find(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_inc(x_4);

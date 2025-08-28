@@ -36,7 +36,6 @@ static lean_object* l_Lean_CollectLevelParams_instInhabitedState___closed__5;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_CollectLevelParams_visitLevel_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_CollectLevelParams_visitLevel_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CollectLevelParams_instInhabitedState___closed__0;
-LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_CollectLevelParams_visitExpr_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_CollectLevelParams_visitLevel_spec__0___redArg(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -80,7 +79,6 @@ uint64_t l_Lean_Level_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_CollectLevelParams_visitLevel_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_visitLevels(lean_object*, lean_object*);
-lean_object* l_Lean_Level_param___override(lean_object*);
 uint8_t l_Lean_Expr_hasLevelParam(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_CollectLevelParams_visitExpr_spec__2_spec__2(lean_object*, lean_object*);
@@ -88,10 +86,10 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____priva
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_level_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Lean_CollectLevelParams_visitLevels_spec__0(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+lean_object* l_Lean_mkLevelParam(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_CollectLevelParams_visitLevel_spec__2_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_CollectLevelParams_visitExpr_spec__2_spec__2___redArg(lean_object*);
 size_t lean_usize_land(size_t, size_t);
@@ -110,23 +108,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_CollectLevelParams_State_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_CollectLevelParams_State_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -1331,7 +1312,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 lean_inc(x_2);
 x_5 = lean_name_append_index_after(x_2, x_3);
-x_6 = l_Lean_Level_param___override(x_5);
+x_6 = l_Lean_mkLevelParam(x_5);
 x_7 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_CollectLevelParams_visitLevel_spec__0___redArg(x_4, x_6);
 if (x_7 == 0)
 {
@@ -1366,7 +1347,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_4 = l_Lean_Level_param___override(x_2);
+x_4 = l_Lean_mkLevelParam(x_2);
 x_5 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_CollectLevelParams_visitLevel_spec__0___redArg(x_3, x_4);
 if (x_5 == 0)
 {

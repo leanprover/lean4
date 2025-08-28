@@ -46,7 +46,6 @@ static lean_object* l_Array___aux__Init__Data__Array__Subarray______macroRules__
 LEAN_EXPORT lean_object* l_Subarray_allM___redArg___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Subarray______macroRules__Array__term_____x5b___x3a_x5d__1___closed__2;
 LEAN_EXPORT lean_object* l_Subarray_size___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Slice_Internal_SubarrayData_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_getD___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Subarray______macroRules__Array__term_____x5b___x3a_x5d__1___closed__6;
 LEAN_EXPORT lean_object* l_Subarray_size___boxed(lean_object*, lean_object*);
@@ -191,7 +190,6 @@ LEAN_EXPORT lean_object* l_Subarray_findRevM_x3f(lean_object*, lean_object*, lea
 LEAN_EXPORT uint8_t l_Subarray_all___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_get___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_term_____x5b___x3a___x5d;
-LEAN_EXPORT lean_object* l_Std_Slice_Internal_SubarrayData_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Subarray______macroRules__Array__term_____x5b___x3a___x5d__1___closed__0;
 LEAN_EXPORT lean_object* l_Subarray_anyM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Subarray_0__Subarray_findSomeRevM_x3f_find___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -244,23 +242,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Slice_Internal_SubarrayData_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Slice_Internal_SubarrayData_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Slice_Internal_SubarrayData_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Slice_Internal_SubarrayData_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

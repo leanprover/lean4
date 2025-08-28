@@ -27,8 +27,8 @@ LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_addLeft___redArg(lean_object*, le
 static lean_object* l_Lean_Diff_instToStringAction___lam__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Diff_instHashableAction;
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
+lean_object* l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_Entry_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_lcs___redArg___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_hashAction____x40_Lean_Util_Diff_2880791090____hygCtx___hyg_19____boxed(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -39,7 +39,6 @@ static lean_object* l_Lean_Diff_reprAction___closed__0____x40_Lean_Util_Diff_288
 LEAN_EXPORT lean_object* l_Lean_Diff_instToStringAction___lam__0(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Diff_diff___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Diff_diff___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_Entry_toCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l_Lean_Diff_instToStringAction___lam__0___closed__1;
 LEAN_EXPORT uint64_t l_Lean_Diff_hashAction____x40_Lean_Util_Diff_2880791090____hygCtx___hyg_19_(uint8_t);
@@ -68,7 +67,6 @@ LEAN_EXPORT lean_object* l_Lean_Diff_diff___redArg(lean_object*, lean_object*, l
 LEAN_EXPORT uint8_t l_Lean_Diff_instInhabitedAction;
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_diff___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_addRight___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_lcs___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Diff_Action_linePrefix___closed__0;
@@ -148,6 +146,7 @@ LEAN_EXPORT lean_object* l_Lean_Diff_Action_noConfusion___redArg___lam__0___boxe
 LEAN_EXPORT lean_object* l_Lean_Diff_matchPrefix(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 static lean_object* l_Lean_Diff_lcs___redArg___closed__15;
+LEAN_EXPORT uint8_t l_Lean_Diff_defaultAction____x40_Lean_Util_Diff_2880791090____hygCtx___hyg_28_;
 LEAN_EXPORT lean_object* l_Lean_Diff_beqAction____x40_Lean_Util_Diff_2880791090____hygCtx___hyg_14____boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -572,6 +571,14 @@ x_1 = l_Lean_Diff_instHashableAction___closed__0;
 return x_1;
 }
 }
+static uint8_t _init_l_Lean_Diff_defaultAction____x40_Lean_Util_Diff_2880791090____hygCtx___hyg_28_() {
+_start:
+{
+uint8_t x_1; 
+x_1 = 0;
+return x_1;
+}
+}
 static uint8_t _init_l_Lean_Diff_instInhabitedAction() {
 _start:
 {
@@ -717,25 +724,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Diff_Histogram_Entry_ctorIdx(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_Entry_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_unsigned_to_nat(0u);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_Entry_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Diff_Histogram_Entry_toCtorIdx(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -1899,8 +1887,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Diff_lcs___redArg___closed__11;
-x_2 = lean_alloc_closure((void*)(l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_1);
 return x_2;
 }
 }
@@ -1958,7 +1945,7 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Diff_lcs___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_47; lean_object* x_48; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_67; lean_object* x_68; lean_object* x_69; uint8_t x_70; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_47; lean_object* x_48; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; uint8_t x_75; 
 x_5 = l_Lean_Diff_lcs___redArg___closed__9;
 x_6 = l_Std_PRange_instUpwardEnumerableNat;
 lean_inc_ref(x_1);
@@ -1997,30 +1984,34 @@ x_59 = lean_alloc_closure((void*)(l_Lean_Diff_lcs___redArg___lam__3___boxed), 7,
 lean_closure_set(x_59, 0, x_15);
 lean_closure_set(x_59, 1, x_1);
 lean_closure_set(x_59, 2, x_2);
-x_60 = l_Lean_Diff_lcs___redArg___closed__12;
-x_67 = l_Subarray_size___redArg(x_14);
-x_68 = lean_unsigned_to_nat(0u);
-x_69 = l_Lean_Diff_lcs___redArg___closed__17;
-x_70 = lean_nat_dec_lt(x_68, x_67);
-if (x_70 == 0)
+x_60 = l_Lean_Diff_lcs___redArg___closed__11;
+x_61 = l_Lean_Diff_lcs___redArg___closed__12;
+x_70 = l_Subarray_size___redArg(x_14);
+x_71 = lean_unsigned_to_nat(0u);
+x_72 = l_Lean_Diff_lcs___redArg___closed__17;
+x_73 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_60);
+lean_inc(x_70);
+x_74 = lean_apply_2(x_73, x_70, x_71);
+x_75 = lean_unbox(x_74);
+if (x_75 == 0)
 {
-lean_dec(x_67);
-x_61 = x_69;
-goto block_66;
+lean_dec(x_70);
+x_62 = x_72;
+goto block_69;
 }
 else
 {
-lean_object* x_71; lean_object* x_72; 
+lean_object* x_76; lean_object* x_77; 
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
 lean_inc(x_14);
-x_71 = lean_alloc_closure((void*)(l_Lean_Diff_lcs___redArg___lam__4___boxed), 7, 3);
-lean_closure_set(x_71, 0, x_14);
-lean_closure_set(x_71, 1, x_1);
-lean_closure_set(x_71, 2, x_2);
-x_72 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___redArg(x_6, x_60, x_5, x_67, x_69, x_71, x_68);
-x_61 = x_72;
-goto block_66;
+x_76 = lean_alloc_closure((void*)(l_Lean_Diff_lcs___redArg___lam__4___boxed), 7, 3);
+lean_closure_set(x_76, 0, x_14);
+lean_closure_set(x_76, 1, x_1);
+lean_closure_set(x_76, 2, x_2);
+x_77 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___redArg(x_6, x_61, x_5, x_70, x_72, x_76, x_71);
+x_62 = x_77;
+goto block_69;
 }
 block_46:
 {
@@ -2122,24 +2113,27 @@ x_20 = x_57;
 goto block_46;
 }
 }
-block_66:
+block_69:
 {
-lean_object* x_62; lean_object* x_63; uint8_t x_64; 
-x_62 = l_Subarray_size___redArg(x_15);
-x_63 = lean_unsigned_to_nat(0u);
-x_64 = lean_nat_dec_lt(x_63, x_62);
-if (x_64 == 0)
+lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; uint8_t x_67; 
+x_63 = l_Subarray_size___redArg(x_15);
+x_64 = lean_unsigned_to_nat(0u);
+x_65 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_60);
+lean_inc(x_63);
+x_66 = lean_apply_2(x_65, x_63, x_64);
+x_67 = lean_unbox(x_66);
+if (x_67 == 0)
 {
-lean_dec(x_62);
+lean_dec(x_63);
 lean_dec_ref(x_59);
-x_48 = x_61;
+x_48 = x_62;
 goto block_58;
 }
 else
 {
-lean_object* x_65; 
-x_65 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___redArg(x_6, x_60, x_5, x_62, x_61, x_59, x_63);
-x_48 = x_65;
+lean_object* x_68; 
+x_68 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___redArg(x_6, x_61, x_5, x_63, x_62, x_59, x_64);
+x_48 = x_68;
 goto block_58;
 }
 }
@@ -3279,6 +3273,7 @@ l_Lean_Diff_instHashableAction___closed__0 = _init_l_Lean_Diff_instHashableActio
 lean_mark_persistent(l_Lean_Diff_instHashableAction___closed__0);
 l_Lean_Diff_instHashableAction = _init_l_Lean_Diff_instHashableAction();
 lean_mark_persistent(l_Lean_Diff_instHashableAction);
+l_Lean_Diff_defaultAction____x40_Lean_Util_Diff_2880791090____hygCtx___hyg_28_ = _init_l_Lean_Diff_defaultAction____x40_Lean_Util_Diff_2880791090____hygCtx___hyg_28_();
 l_Lean_Diff_instInhabitedAction = _init_l_Lean_Diff_instInhabitedAction();
 l_Lean_Diff_instToStringAction___lam__0___closed__0 = _init_l_Lean_Diff_instToStringAction___lam__0___closed__0();
 lean_mark_persistent(l_Lean_Diff_instToStringAction___lam__0___closed__0);

@@ -24,9 +24,9 @@ private def ensureValidNamespace (name : Name) : MacroM Unit := do
   match name with
   | .str p s =>
     if s == "_root_" then
-      Macro.throwError s!"invalid namespace '{name}', '_root_' is a reserved namespace"
+      Macro.throwError s!"invalid namespace `{name}`, `_root_` is a reserved namespace"
     ensureValidNamespace p
-  | .num .. => Macro.throwError s!"invalid namespace '{name}', it must not contain numeric parts"
+  | .num .. => Macro.throwError s!"invalid namespace `{name}`, it must not contain numeric parts"
   | .anonymous => return ()
 
 private def setDeclIdName (declId : Syntax) (nameNew : Name) : Syntax :=

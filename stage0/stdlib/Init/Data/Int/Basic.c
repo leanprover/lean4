@@ -19,17 +19,14 @@ static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__te
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__9;
 LEAN_EXPORT lean_object* l_Int_cast(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Int_instMul___closed__0;
-LEAN_EXPORT lean_object* l_Int_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instIntCastInt___lam__0___boxed(lean_object*);
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__5;
 LEAN_EXPORT lean_object* l_Int_instInhabited;
 LEAN_EXPORT lean_object* l_Int_ctorIdx(lean_object*);
 static lean_object* l_Int_sign___closed__0;
 LEAN_EXPORT lean_object* l_Int_instMin___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IntCast_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeHTCTIntOfIntCast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_add___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_toCtorIdx(lean_object*);
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__14;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Int_sign___closed__1;
@@ -101,7 +98,6 @@ LEAN_EXPORT lean_object* l_Int_neg___boxed(lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instSub;
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__4;
-LEAN_EXPORT lean_object* l_IntCast_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_mul___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_toNat(lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
@@ -956,23 +952,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Int_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Int_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Int_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Int_toCtorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Int_sign___closed__0() {
 _start:
 {
@@ -1250,23 +1229,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_IntCast_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_IntCast_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_IntCast_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_IntCast_toCtorIdx(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }

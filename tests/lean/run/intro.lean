@@ -186,7 +186,7 @@ error: don't know how to synthesize placeholder
 context:
 ⊢ ?_
 ---
-error: don't know how to synthesize placeholder for argument 'β'
+error: don't know how to synthesize placeholder for argument `β`
 context:
 ⊢ Sort _
 ---

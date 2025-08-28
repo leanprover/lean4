@@ -14,4 +14,4 @@ setLit.lean:24:31-24:38: error: overloaded, errors
   
   Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
   
-  24:33 'val' is not a field of structure 'String'
+  24:33 `val` is not a field of structure `String`

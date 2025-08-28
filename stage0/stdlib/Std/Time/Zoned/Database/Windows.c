@@ -31,6 +31,7 @@ static uint64_t l_Std_Time_Database_Windows_getZoneRules___closed__0;
 lean_object* lean_nat_to_int(lean_object*);
 uint64_t lean_int64_neg(uint64_t);
 uint8_t lean_int64_dec_le(uint64_t, uint64_t);
+lean_object* lean_mk_io_user_error(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___redArg___boxed(lean_object*);
 static uint64_t l_Std_Time_Database_Windows_getZoneRules___closed__1;
 lean_object* lean_windows_get_next_transition(lean_object*, uint64_t, uint8_t, lean_object*);
@@ -647,8 +648,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Time_Database_Windows_getZoneRules___closed__2;
-x_2 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = lean_mk_io_user_error(x_1);
 return x_2;
 }
 }

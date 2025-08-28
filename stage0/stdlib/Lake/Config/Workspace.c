@@ -93,7 +93,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Config_Workspace_0__Lake_OpaqueWorkspa
 LEAN_EXPORT lean_object* l_Lake_Workspace_serverOptions(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_findModule_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_findLibraryFacetConfig_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Workspace_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueWorkspace_instCoeGet;
 lean_object* l_Lake_Package_findModule_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_leanOptions(lean_object*);
@@ -114,6 +113,7 @@ static lean_object* l_Lake_Workspace_findPackage_x3f___closed__0;
 static lean_object* l_Lake_Workspace_augmentedEnvVars___closed__5;
 lean_object* l_List_appendTR___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_relPkgsDir(lean_object*);
+extern lean_object* l_Lake_defaultLakeDir;
 static lean_object* l_Lake_Workspace_augmentedEnvVars___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___Lake_Workspace_leanSrcPath_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lake_Workspace_findScript_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -134,7 +134,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 LEAN_EXPORT lean_object* l_Lake_Workspace_findLeanExe_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_findTargetConfig_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_System_SearchPath_toString(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Workspace_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lake_Workspace_findScript_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_packageOverridesFile(lean_object*);
@@ -225,23 +224,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_Workspace_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Workspace_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Workspace_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Workspace_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -408,7 +390,7 @@ static lean_object* _init_l_Lake_Workspace_relLakeDir___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(".lake", 5, 5);
+x_1 = l_Lake_defaultLakeDir;
 return x_1;
 }
 }

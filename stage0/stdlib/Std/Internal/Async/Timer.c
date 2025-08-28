@@ -20,7 +20,6 @@ static lean_object* l___auto___closed__13____x40_Std_Internal_Async_Timer_143443
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Interval_mk___redArg(lean_object*, lean_object*);
 lean_object* lean_uv_timer_next(lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Sleep_toCtorIdx(lean_object*);
 static lean_object* l___auto___closed__21____x40_Std_Internal_Async_Timer_1434432365____hygCtx___hyg_4_;
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_Sleep_wait___closed__0;
@@ -73,12 +72,10 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Sleep_selector___lam__2___boxed
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_Sleep_selector_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Sleep_selector___lam__4___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Sleep_reset___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Interval_toCtorIdx(lean_object*);
 static lean_object* l___auto___closed__4____x40_Std_Internal_Async_Timer_1434432365____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Interval_stop___boxed(lean_object*, lean_object*);
 static lean_object* l___auto___closed__19____x40_Std_Internal_Async_Timer_1434432365____hygCtx___hyg_4_;
 static lean_object* l___auto___closed__22____x40_Std_Internal_Async_Timer_1434432365____hygCtx___hyg_4_;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Interval_toCtorIdx___boxed(lean_object*);
 lean_object* lean_io_get_task_state(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Sleep_selector___lam__0(lean_object*);
 lean_object* l_Int_toNat(lean_object*);
@@ -89,7 +86,6 @@ static lean_object* l___auto___closed__25____x40_Std_Internal_Async_Timer_143443
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Interval_mk___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Sleep_wait___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Sleep_selector___lam__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Sleep_toCtorIdx___boxed(lean_object*);
 static lean_object* l___auto___closed__23____x40_Std_Internal_Async_Timer_1434432365____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Sleep_selector___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Interval_tick(lean_object*, lean_object*);
@@ -119,23 +115,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Internal_IO_Async_Sleep_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Sleep_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Sleep_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_Sleep_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -982,23 +961,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Internal_IO_Async_Interval_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Interval_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Interval_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_Interval_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }

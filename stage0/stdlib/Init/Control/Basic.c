@@ -40,7 +40,6 @@ LEAN_EXPORT lean_object* l_Bind_kleisliLeft(lean_object*, lean_object*, lean_obj
 LEAN_EXPORT lean_object* l___aux__Init__Control__Basic______unexpand__andM__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadControlTOfMonadControl___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_optional___redArg___lam__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ForM_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instForInOfForIn_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Control__Basic______macroRules__term___x3c_x26_x3e____1___closed__0;
 static lean_object* l___aux__Init__Control__Basic______macroRules__term___x3e_x3d_x3e____1___closed__2;
@@ -63,7 +62,6 @@ LEAN_EXPORT lean_object* l___aux__Init__Control__Basic______unexpand__Bind__klei
 LEAN_EXPORT lean_object* l_instForInOfForIn_x27___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x3e_x3d_x3e_____closed__6;
 static lean_object* l_term___x3c_x3d_x3c_____closed__1;
-LEAN_EXPORT lean_object* l_MonadControlT_toCtorIdx(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x3d_x3c_x3c_____closed__3;
 LEAN_EXPORT lean_object* l_Bind_bindLeft___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x3c_x26_x3e_____closed__5;
@@ -85,29 +83,24 @@ static lean_object* l_term___x3c_x3d_x3c_____closed__0;
 LEAN_EXPORT lean_object* l_term___x3c_x3d_x3c__;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 static lean_object* l_term___x3c_x7c_x7c_x3e_____closed__1;
-LEAN_EXPORT lean_object* l_Alternative_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Control__Basic______unexpand__Bind__kleisliRight__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadControlTOfPure___redArg___lam__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Control__Basic______macroRules__term___x3c_x26_x26_x3e____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Control__Basic______macroRules__term___x3c_x26_x3e____1___closed__6;
 LEAN_EXPORT lean_object* l_Alternative_ctorIdx___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_MonadControl_toCtorIdx(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x3c_x26_x3e_____closed__7;
 static lean_object* l_term___x3d_x3c_x3c_____closed__2;
 static lean_object* l___aux__Init__Control__Basic______macroRules__term___x3c_x26_x3e____1___closed__11;
 static lean_object* l___aux__Init__Control__Basic______unexpand__Functor__mapRev__1___closed__1;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadControlTOfPure___redArg___lam__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ForM_toCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Control__Basic______unexpand__Bind__kleisliLeft__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ForM_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Control__Basic______macroRules__term___x3c_x26_x3e____1___closed__12;
 LEAN_EXPORT lean_object* l___aux__Init__Control__Basic______unexpand__Bind__bindLeft__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ForInStep_value(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Control__Basic______macroRules__term___x3c_x3d_x3c____1___closed__0;
-LEAN_EXPORT lean_object* l_MonadControlT_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Alternative_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Functor_discard___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToBoolBool;
 static lean_object* l___aux__Init__Control__Basic______macroRules__term___x3e_x3d_x3e____1___closed__1;
@@ -145,7 +138,6 @@ static lean_object* l___aux__Init__Control__Basic______macroRules__term___x3d_x3
 static lean_object* l_term___x3c_x26_x3e_____closed__9;
 static lean_object* l___aux__Init__Control__Basic______macroRules__term___x3e_x3d_x3e____1___closed__5;
 static lean_object* l_term___x3c_x26_x3e_____closed__2;
-LEAN_EXPORT lean_object* l_MonadControl_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadControl_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Control__Basic______macroRules__term___x3d_x3c_x3c____1___closed__4;
 LEAN_EXPORT lean_object* l___aux__Init__Control__Basic______unexpand__andM__1(lean_object*, lean_object*, lean_object*);
@@ -160,7 +152,6 @@ LEAN_EXPORT lean_object* l_instForInOfForIn_x27___redArg(lean_object*);
 static lean_object* l___aux__Init__Control__Basic______macroRules__term___x3c_x26_x3e____1___closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Control__Basic______macroRules__term___x3d_x3c_x3c____1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ToBool_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Control__Basic______macroRules__term___x3e_x3d_x3e____1___closed__4;
 static lean_object* l_term___x3c_x3d_x3c_____closed__3;
 static lean_object* l_term___x3e_x3d_x3e_____closed__1;
@@ -175,7 +166,6 @@ static lean_object* l_term___x3c_x26_x3e_____closed__0;
 static lean_object* l_term___x3e_x3d_x3e_____closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__Control__Basic______macroRules__term___x3c_x3d_x3c____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Control__Basic______unexpand__Functor__mapRev__1___closed__0;
-LEAN_EXPORT lean_object* l_ToBool_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadControlTOfMonadControl___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Control__Basic______macroRules__term___x3c_x7c_x7c_x3e____1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ForInStep_value___redArg___boxed(lean_object*);
@@ -751,23 +741,6 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Alternative_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Alternative_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Alternative_toCtorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_instOrElseOfAlternative___redArg(lean_object* x_1) {
 _start:
 {
@@ -940,23 +913,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_ToBool_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_ToBool_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_ToBool_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_ToBool_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
@@ -1572,23 +1528,6 @@ lean_dec_ref(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_MonadControl_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_MonadControl_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_MonadControl_toCtorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_MonadControlT_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1602,23 +1541,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_MonadControlT_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_MonadControlT_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_MonadControlT_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_MonadControlT_toCtorIdx(x_1, x_2, x_3);
 lean_dec_ref(x_3);
 return x_4;
 }
@@ -1850,23 +1772,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_ForM_ctorIdx(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_ForM_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_unsigned_to_nat(0u);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_ForM_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_ForM_toCtorIdx(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 return x_5;
 }

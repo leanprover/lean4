@@ -167,9 +167,9 @@ private def checkMeta (preDef : PreDefinition) : TermElabM Unit := do
     if let .const c .. := e then
       match getIRPhases (← getEnv) c, preDef.modifiers.isMeta with
       | .runtime, true =>
-        throwError "Invalid meta definition, '{.ofConstName c}' must be `meta` to access"
+        throwError "Invalid meta definition, `{.ofConstName c}` must be `meta` to access"
       | .comptime, false =>
-        throwError "Invalid definition, may not access `meta` declaration '{.ofConstName c}'"
+        throwError "Invalid definition, may not access `meta` declaration `{.ofConstName c}`"
       | _, _ => pure ()
     return true
 

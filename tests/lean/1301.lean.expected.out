@@ -3,7 +3,7 @@ a : True
 1301.lean:5:32-5:35: error: Tactic `tacticTac` has not been implemented
 1301.lean:5:40-5:43: error: Tactic `tacticTac` has not been implemented
 a' : True ∧ True
-1301.lean:9:25-9:29: error: elaboration function for 'termTerm' has not been implemented
+1301.lean:9:25-9:29: error: elaboration function for `termTerm` has not been implemented
   term
 def b : Nat → Nat :=
 sorry

@@ -821,7 +821,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Grind_getEqcLambdas___closed__3;
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(1413u);
+x_3 = lean_unsigned_to_nat(1463u);
 x_4 = l_Lean_Meta_Grind_getEqcLambdas___closed__2;
 x_5 = l_Lean_Meta_Grind_getEqcLambdas___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -832,7 +832,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getEqcLambdas(lean_object* x_1, lean_
 _start:
 {
 uint8_t x_11; 
-x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*14 + 3);
+x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*15 + 3);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -4502,7 +4502,7 @@ if (x_18 == 0)
 lean_object* x_19; uint8_t x_20; lean_object* x_21; 
 x_19 = lean_ctor_get(x_4, 0);
 lean_dec(x_19);
-x_20 = lean_ctor_get_uint8(x_17, sizeof(void*)*14 + 3);
+x_20 = lean_ctor_get_uint8(x_17, sizeof(void*)*15 + 3);
 lean_dec(x_17);
 x_21 = lean_box(x_20);
 lean_ctor_set(x_4, 0, x_21);
@@ -4514,7 +4514,7 @@ lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25;
 x_22 = lean_ctor_get(x_4, 1);
 lean_inc(x_22);
 lean_dec(x_4);
-x_23 = lean_ctor_get_uint8(x_17, sizeof(void*)*14 + 3);
+x_23 = lean_ctor_get_uint8(x_17, sizeof(void*)*15 + 3);
 lean_dec(x_17);
 x_24 = lean_box(x_23);
 x_25 = lean_alloc_ctor(0, 2, 0);
@@ -4701,7 +4701,7 @@ lean_object* x_33; uint8_t x_34;
 x_33 = lean_ctor_get(x_31, 0);
 lean_inc(x_33);
 lean_dec_ref(x_31);
-x_34 = lean_ctor_get_uint8(x_33, sizeof(void*)*14 + 3);
+x_34 = lean_ctor_get_uint8(x_33, sizeof(void*)*15 + 3);
 if (x_34 == 0)
 {
 lean_object* x_35; 

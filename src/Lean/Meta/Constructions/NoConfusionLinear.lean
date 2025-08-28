@@ -10,8 +10,8 @@ public import Lean.AddDecl
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.CompletionName
 import Lean.Meta.NatTable
-
-public section
+import Lean.Meta.Constructions.CtorIdx
+import Lean.Meta.Constructions.CtorElim
 
 /-!
 This module produces a construction for the `noConfusionType` that is linear in size in the number of
@@ -19,20 +19,13 @@ constructors of the inductive type. This is in contrast to the previous construc
 `no_confusion.cpp`), that is quadratic in size due to nested `.brecOn` applications.
 
 We still use the old construction when processing the prelude, for the few inductives that we need
-until below (`Nat`, `Bool`, `Decidable`).
+until we have the machinery for this construction (`Nat`, `Bool`, `Decidable`).
 
-The main trick is to use a `withCtor` helper that is like a match with one constructor pattern and
-one catch-all pattern, and thus linear in size. And the helper itself is a single function
-definition, rather than one for each constructor, using a `withCtorType` helper in the function.
+The main trick is to use the per-constructor `.elim` combinator that is like `cases` but has only
+one arm, and is thus constant in size. See `Lean.Meta.Constructions.CtorLeim.lean` for that construction.
 
 See the `linearNoConfusion.lean` test for exemplary output of this translation (checked to be
 up-to-date).
-
-The `withCtor` functions could be generally useful, but for that they should probably eliminate into
-`Sort _` rather than `Type _`, and then writing the `withCtorType` function runs into universe level
-confusion, which may be solvable if the kernel had more complete univere level normalization.
-Until then we put these helper in the `noConfusionType` namespace to indicate that they are not
-general purpose.
 
 This module is written in a rather manual style, constructing the `Expr` directly. It's best
 read with the expected output to the side.
@@ -48,166 +41,26 @@ register_builtin_option backwards.linearNoConfusionType : Bool := {
   descr    := "use the linear-size construction for the `noConfusionType` declaration of an inductive type. Set to false to use the previous, simpler but quadratic-size construction. "
 }
 
-/--
-List of constants that the linear `noConfusionType` construction depends on.
--/
-private def deps : Array Lean.Name :=
-  #[ ``cond, ``ULift, ``Eq.ndrec, ``Not, ``dite, ``Nat.decEq, ``Nat.blt ]
-
-def canUse : MetaM Bool := do
-  unless backwards.linearNoConfusionType.get (← getOptions) do return false
-  unless (← NoConfusionLinear.deps.allM (hasConst · (skipRealize := true))) do return false
-  return true
-
--- Right-associates the top-most `max`s to work around #5695 for prettier code
-private def reassocMax (l : Level) : Level :=
-  let lvls := maxArgs l #[]
-  let last := lvls.back!
-  lvls.pop.foldr mkLevelMax last
-where
-  maxArgs (l : Level) (lvls : Array Level) : Array Level :=
-  match l with
-  | .max l1 l2 => maxArgs l2 (maxArgs l1 lvls)
-  | _ => lvls.push l
-
-/--
-Takes the max of the levels of the given expressions.
--/
-def maxLevels (es : Array Expr) : MetaM Level := do
-  assert! es.size > 0
-  let mut maxLevel ← getLevel es[0]!
-  for e in es[1...*] do
-    let l ← getLevel e
-    maxLevel := mkLevelMax' maxLevel l
-  return reassocMax maxLevel.normalize
-
-private def mkPULift (r : Level) (t : Expr) : MetaM Expr := do
-  let s ← getLevel t
-  return mkApp (mkConst `PULift [r,s]) t
-
-private def withMkPULiftUp (t : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
-  let t  ← whnf t
-  if t.isAppOfArity `PULift 1 then
-    let t' := t.appArg!
-    let e ← k t'
-    return mkApp2 (mkConst `PULift.up (t.appFn!.constLevels!)) t' e
-  else
-    throwError "withMkPULiftUp: expected PULift type, got {t}"
-
-private def mkPULiftDown (e : Expr) : MetaM Expr := do
-  let t ← whnf (← inferType e)
-  if t.isAppOfArity `PULift 1 then
-    let t' := t.appArg!
-    return mkApp2 (mkConst `PULift.down t.appFn!.constLevels!) t' e
-  else
-    throwError "mkULiftDown: expected ULift type, got {t}"
-
-def mkNatLookupTableLifting (n : Expr) (es : Array Expr) : MetaM Expr := do
-  let u ← maxLevels es
-  let u' := reassocMax (mkLevelMax' u 1).normalize
-  let es ← es.mapM (mkPULift u)
-  mkNatLookupTable n (.sort u') es
-
-def mkWithCtorTypeName (indName : Name) : Name :=
-  Name.str indName "noConfusionType" |>.str "withCtorType"
-
-def mkWithCtorName (indName : Name) : Name :=
-  Name.str indName "noConfusionType" |>.str "withCtor"
-
 def mkNoConfusionTypeName (indName : Name) : Name :=
   Name.str indName "noConfusionType"
 
-def mkWithCtorType (indName : Name) : MetaM Unit := do
-  let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
-  if info.numCtors = 0 then return
-  let casesOnName := mkCasesOnName indName
-  let casesOnInfo ← getConstVal casesOnName
-  let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
-  let indTyCon := mkConst indName us
-  let indTyKind ← inferType indTyCon
-  let e ← forallBoundedTelescope indTyKind info.numParams fun xs _ => do
-    withLocalDeclD `P (mkSort v.succ) fun P => do
-    withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
-      let es ← info.ctors.toArray.mapM fun ctorName => do
-        let ctor := mkAppN (mkConst ctorName us) xs
-        let ctorType ← inferType ctor
-        forallTelescope ctorType fun ys _ =>
-          mkForallFVars ys P
-      let e ← mkNatLookupTableLifting ctorIdx es
-      mkLambdaFVars ((xs.push P).push ctorIdx) e
+public def canUse (indName : Name) : MetaM Bool := do
+  unless backwards.linearNoConfusionType.get (← getOptions) do return false
+  -- Check if the prelude is loaded
+  unless (← hasConst ``Eq.propIntro) do return false
+  -- Check if we have the constructor elim helpers
+  unless (← hasConst (mkCtorElimName indName)) do return false
+  return true
 
-  let declName := mkWithCtorTypeName indName
-  addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
-    (name        := declName)
-    (levelParams := casesOnInfo.levelParams)
-    (type        := (← inferType e))
-    (value       := e)
-    (hints       := ReducibilityHints.abbrev)
-  ))
-  modifyEnv fun env => addToCompletionBlackList env declName
-  modifyEnv fun env => addProtected env declName
-  setReducibleAttribute declName
+def mkIfNatEq (P : Expr) (e1 e2 : Expr) («then» : Expr → MetaM Expr) («else» : Expr → MetaM Expr) : MetaM Expr := do
+  let heq := mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) e1 e2
+  let u ← getLevel P
+  let e := mkApp3 (mkConst ``dite [u]) P heq (mkApp2 (mkConst ``Nat.decEq) e1 e2)
+  let e := mkApp e (← withLocalDeclD `h heq (fun h => do mkLambdaFVars #[h] (← «then» h)))
+  let e := mkApp e (← withLocalDeclD `h (mkNot heq) (fun h => do mkLambdaFVars #[h] (← «else» h)))
+  pure e
 
-def mkWithCtor (indName : Name) : MetaM Unit := do
-  let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
-  if info.numCtors = 0 then return
-  let withCtorTypeName := mkWithCtorTypeName indName
-  let casesOnName := mkCasesOnName indName
-  let casesOnInfo ← getConstVal casesOnName
-  let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
-  let indTyCon := mkConst indName us
-  let indTyKind ← inferType indTyCon
-  let e ← forallBoundedTelescope indTyKind info.numParams fun xs t => do
-    withLocalDeclD `P (mkSort v.succ) fun P => do
-    withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
-      let withCtorTypeNameApp := mkAppN (mkConst withCtorTypeName (v :: us)) (xs.push P)
-      let kType := mkApp withCtorTypeNameApp  ctorIdx
-      withLocalDeclD `k kType fun k =>
-      withLocalDeclD `k' P fun k' =>
-      forallBoundedTelescope t info.numIndices fun ys t' => do
-        let t' ← whnfD t'
-        assert! t'.isSort
-        withLocalDeclD `x (mkAppN indTyCon (xs ++ ys)) fun x => do
-          let e := mkConst (mkCasesOnName indName) (v.succ :: us)
-          let e := mkAppN e xs
-          let motive ← mkLambdaFVars (ys.push x) P
-          let e := mkApp e motive
-          let e := mkAppN e ys
-          let e := mkApp e x
-          let alts ← info.ctors.toArray.mapIdxM fun i ctorName => do
-            let ctor := mkAppN (mkConst ctorName us) xs
-            let ctorType ← inferType ctor
-            forallTelescope ctorType fun zs _ => do
-              let heq := mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) ctorIdx (mkRawNatLit i)
-              let «then» ← withLocalDeclD `h heq fun h => do
-                let e ← mkEqNDRec (motive := withCtorTypeNameApp) k h
-                let e ← mkPULiftDown e
-                let e := mkAppN e zs
-                -- ``Eq.ndrec
-                mkLambdaFVars #[h] e
-              let «else» ← withLocalDeclD `h (mkNot heq) fun h =>
-                mkLambdaFVars #[h] k'
-              let alt := mkApp5 (mkConst ``dite [v.succ])
-                  P heq (mkApp2 (mkConst ``Nat.decEq) ctorIdx (mkRawNatLit i))
-                  «then» «else»
-              mkLambdaFVars zs alt
-          let e := mkAppN e alts
-          mkLambdaFVars (xs ++ #[P, ctorIdx, k, k'] ++ ys ++ #[x]) e
-
-  let declName := mkWithCtorName indName
-  -- not compiled to avoid old code generator bug #1774
-  addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
-    (name        := declName)
-    (levelParams := casesOnInfo.levelParams)
-    (type        := (← inferType e))
-    (value       := e)
-    (hints       := ReducibilityHints.abbrev)
-  ))
-  modifyEnv fun env => addToCompletionBlackList env declName
-  modifyEnv fun env => addProtected env declName
-  setReducibleAttribute declName
-
-def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
+public def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
   let declName := mkNoConfusionTypeName indName
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
   let casesOnName := mkCasesOnName indName
@@ -234,24 +87,28 @@ def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
             let alts' ← alts.mapIdxM fun i alt => do
               let altType ← inferType alt
               forallTelescope altType fun zs1 _ => do
-                let alt := mkConst (mkWithCtorName indName) (v :: us)
-                let alt := mkAppN alt xs
-                let alt := mkApp alt PType
-                let alt := mkApp alt (mkRawNatLit i)
-                let k ← withMkPULiftUp (← inferType alt).bindingDomain! fun t =>
-                  forallTelescopeReducing t fun zs2 _ => do
-                    let eqs ← (Array.zip zs1 zs2).filterMapM fun (z1,z2) => do
-                      if (← isProof z1) then
-                        return none
-                      else
-                        return some (← mkEqHEq z1 z2)
-                    let k ← mkArrowN eqs P
-                    let k ← mkArrow k P
-                    mkLambdaFVars zs2 k
-                let alt := mkApp alt k
-                let alt := mkApp alt P
-                let alt := mkAppN alt ys
-                let alt := mkApp alt x2
+                let ctorIdxApp := mkAppN (mkConst (mkCtorIdxName indName) us) (xs ++ ys ++ #[x2])
+                let alt ← mkIfNatEq PType (ctorIdxApp) (mkRawNatLit i)
+                  («else» := fun _ => pure P) fun h => do
+                  let conName := info.ctors[i]!
+                  let withName := mkConstructorElimName indName conName
+                  let e := mkConst withName (v.succ :: us)
+                  let e := mkAppN e xs
+                  let e := mkApp e motive
+                  let e := mkAppN e ys
+                  let e := mkApp e x2
+                  let e := mkApp e h
+                  let e := mkApp e <|
+                    ← forallTelescopeReducing ((← whnf (← inferType e)).bindingDomain!) fun zs2 _ => do
+                      let eqs ← (Array.zip zs1 zs2).filterMapM fun (z1,z2) => do
+                        if (← isProof z1) then
+                          return none
+                        else
+                          return some (← mkEqHEq z1 z2)
+                      let k ← mkArrowN eqs P
+                      let k ← mkArrow k P
+                      mkLambdaFVars zs2 k
+                  pure e
                 mkLambdaFVars zs1 alt
             let e := mkAppN e alts'
             let e ← mkLambdaFVars #[x1, x2] e

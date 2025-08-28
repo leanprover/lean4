@@ -69,7 +69,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
   | .fvar .. => return e
   | _ => do
     let fn := e.getAppFn
-    let .const c .. := fn | throwError "call of unknown parser at '{e}'"
+    let .const c .. := fn | throwError "call of unknown parser at `{e}`"
     -- call the translated `p` with (a prefix of) the arguments of `e`, recursing for arguments
     -- of type `ty` (i.e. formerly `Parser`)
     let mkCall (p : Name) := do
@@ -95,9 +95,9 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
       if resultTy.isConstOf ``Lean.Parser.TrailingParser || resultTy.isConstOf ``Lean.Parser.Parser then do
         -- synthesize a new `[combinatorAttr c]`
         let some value ← pure cinfo.value?
-          | throwError "don't know how to generate {ctx.varName} for non-definition '{e}'"
+          | throwError "don't know how to generate {ctx.varName} for non-definition `{e}`"
         unless (env.getModuleIdxFor? c).isNone || force do
-          throwError "refusing to generate code for imported parser declaration '{c}'; use `@[run_parser_attribute_hooks]` on its definition instead."
+          throwError "refusing to generate code for imported parser declaration `{c}`; use `@[run_parser_attribute_hooks]` on its definition instead."
         let value ← compileParserExpr <| replaceParserTy ctx value
         let ty ← forallTelescope cinfo.type fun params _ =>
           params.foldrM (init := mkConst ctx.tyName) fun param ty => do
@@ -124,7 +124,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
         -- if this is a generic function, e.g. `AndThen.andthen`, it's easier to just unfold it until we are
         -- back to parser combinators
         let some e' ← unfoldDefinition? e
-          | throwError "don't know how to generate {ctx.varName} for non-parser combinator '{e}'"
+          | throwError "don't know how to generate {ctx.varName} for non-parser combinator `{e}`"
         compileParserExpr e'
 end
 

@@ -35,7 +35,9 @@ instance : Field Rat where
     simp only [Int.natCast_add, Int.cast_ofNat_Int, Rat.intCast_add]
     rfl
   sub_eq_add_neg := Rat.sub_eq_add_neg
-  neg_zsmul i a := by simp [Rat.intCast_neg, Rat.neg_mul]
+  neg_zsmul i a := by
+    change ((-i : Int) : Rat) * a = -(i * a)
+    simp [Rat.intCast_neg, Rat.neg_mul]
   div_eq_mul_inv := Rat.div_def
   zero_ne_one := by decide
   inv_zero := Rat.inv_zero

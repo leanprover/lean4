@@ -54,11 +54,30 @@ fun {m a} x => x.casesOn (fun {n} a => 0) (fun {n} a => 1) 2
 #guard_msgs in
 #print B.ctorIdx
 
+-- Single constructor inductives do not use casesOn
+
+inductive Single where | only (n : Nat)
+/--
+info: @[reducible] protected def Single.ctorIdx : Single → Nat :=
+fun x => 0
+-/
+#guard_msgs in #print Single.ctorIdx
+
+structure Struct where
+  field1 : Nat
+  field2 : Bool
+/--
+info: @[reducible] protected def Struct.ctorIdx : Struct → Nat :=
+fun x => 0
+-/
+#guard_msgs in #print Struct.ctorIdx
+
+-- Unsafe inductives do get a definition
 
 unsafe inductive U : Type | mk : (U → U) → U
 /--
 info: @[reducible] unsafe protected def U.ctorIdx : U → Nat :=
-fun x => U.casesOn x fun a => 0
+fun x => 0
 -/
 #guard_msgs in
 #print U.ctorIdx
@@ -69,3 +88,14 @@ inductive Eq' : α → α → Prop where | refl (a : α) : Eq' a a
 /-- error: Unknown constant `Eq'.ctorIdx` -/
 #guard_msgs in
 #print Eq'.ctorIdx
+
+
+set_option linter.deprecated true
+
+-- Enumeration types get a deprecated alias, other types dont
+/-- info: Enum.toCtorIdx : Enum → Nat -/
+#guard_msgs in #check Enum.toCtorIdx
+/-- warning: `Enum.toCtorIdx` has been deprecated: Use `Enum.ctorIdx` instead -/
+#guard_msgs in example := Enum.toCtorIdx
+/-- error: Unknown identifier `Nonrec.toCtorIdx` -/
+#guard_msgs in #check Nonrec.toCtorIdx

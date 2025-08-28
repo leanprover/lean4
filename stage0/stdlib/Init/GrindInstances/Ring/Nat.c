@@ -14,20 +14,21 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_Grind_instCommSemiringNat___closed__1;
-lean_object* l_instPowNat___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_instCommSemiringNat___closed__0;
 static lean_object* l_Lean_Grind_instCommSemiringNat___closed__2;
 static lean_object* l_Lean_Grind_instCommSemiringNat___closed__7;
 static lean_object* l_Lean_Grind_instCommSemiringNat___closed__3;
-lean_object* l_instHAdd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_instCommSemiringNat___closed__8;
 static lean_object* l_Lean_Grind_instCommSemiringNat___closed__6;
 lean_object* l_Nat_mul___boxed(lean_object*, lean_object*);
 lean_object* l_instOfNatNat___boxed(lean_object*);
 lean_object* l_Nat_add___boxed(lean_object*, lean_object*);
+lean_object* l_instHPow___redArg(lean_object*);
+lean_object* l_instPowNat___redArg(lean_object*);
 static lean_object* l_Lean_Grind_instCommSemiringNat___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommSemiringNat;
 static lean_object* l_Lean_Grind_instCommSemiringNat___closed__5;
+lean_object* l_instSMulOfMul___redArg(lean_object*);
 lean_object* l_instNatCastNat___lam__0___boxed(lean_object*);
 lean_object* l_Nat_pow___boxed(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Grind_instCommSemiringNat___closed__0() {
@@ -59,8 +60,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommSemiringNat___closed__1;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instSMulOfMul___redArg(x_1);
 return x_2;
 }
 }
@@ -77,8 +77,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommSemiringNat___closed__4;
-x_2 = lean_alloc_closure((void*)(l_instPowNat___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instPowNat___redArg(x_1);
 return x_2;
 }
 }
@@ -87,8 +86,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommSemiringNat___closed__5;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instHPow___redArg(x_1);
 return x_2;
 }
 }

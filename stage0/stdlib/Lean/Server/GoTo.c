@@ -28,6 +28,7 @@ static lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_locationLinksDef
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_findModuleOf_x3f___at_____private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_findModuleOf_x3f___at_____private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_TSyntax_getId(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_fromJsonGoToKind___lam__1____x40_Lean_Server_GoTo_1461473286____hygCtx___hyg_21____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_getInstanceProjectionArg_x3f___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_ForEachExpr_visit___at___Lean_Server_GoToKind_determineTargetExprs_spec__1_spec__3_spec__3___redArg___boxed(lean_object*, lean_object*);
@@ -51,7 +52,6 @@ size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksOfInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_locationLinksDefault_defaultDeclNames(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_DeclarationRange_toLspRange(lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -119,6 +119,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_isInstanceProjectionInfoFor___redArg(uint
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_isInstanceProjection___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_findModuleOf_x3f___at_____private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksOfInfo(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_ForEachExpr_visit___at___Lean_Server_GoToKind_determineTargetExprs_spec__1_spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -139,6 +140,7 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksOfInfo___lam__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_builtinDeclRanges;
 LEAN_EXPORT lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromBinder_binderInfo_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_getPrefix(lean_object*);
 static lean_object* l_Lean_Server_toJsonGoToKind___closed__5____x40_Lean_Server_GoTo_1461473286____hygCtx___hyg_11_;
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_findModuleOf_x3f___at_____private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__16;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_findModuleOf_x3f___at_____private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -162,7 +164,6 @@ uint8_t lean_is_no_confusion(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksFromCommandInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_locationLinksDefault_defaultDeclNames___redArg___closed__4;
 static lean_object* l_Lean_Server_instFromJsonGoToKind___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Server_GoToContext_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksFromCommandInfo___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_fromJsonGoToKind___closed__2____x40_Lean_Server_GoTo_1461473286____hygCtx___hyg_21_;
 static lean_object* l_Lean_Server_locationLinksFromImport___redArg___closed__11;
@@ -193,6 +194,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_noConfusion(lean_object*, uint8_
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_findModuleOf_x3f___at_____private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Server_instToJsonGoToKind;
+extern lean_object* l_Lean_defaultDeclarationRanges____x40_Lean_Data_DeclarationRange_1978900198____hygCtx___hyg_25_;
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromBinder_binderInfo_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_GoToKind_determineTargetExprs___closed__4;
@@ -204,6 +206,7 @@ LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___at_____private_Lean_Server_Go
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_findModuleOf_x3f___at_____private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_toJsonGoToKind____x40_Lean_Server_GoTo_1461473286____hygCtx___hyg_11_(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_findModuleOf_x3f___at_____private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_22_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_isInstanceProjection(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksFromErrorNameInfo___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_GoToKind_determineTargetExprs___closed__1;
@@ -261,14 +264,12 @@ static lean_object* l_Lean_Server_toJsonGoToKind___closed__3____x40_Lean_Server_
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_locationLinksFromTermInfo_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_locationLinksFromTermInfo_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_GoToContext_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_Elab_Info_range_x3f(lean_object*);
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksOfInfo___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
-extern lean_object* l_Lean_instInhabitedDeclarationRanges;
 lean_object* lean_erase_macro_scopes(lean_object*);
 uint8_t l_Lean_isRecCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_ForEachExpr_visit___at___Lean_Server_GoToKind_determineTargetExprs_spec__1_spec__3_spec__7___redArg(lean_object*, lean_object*, lean_object*);
@@ -3790,23 +3791,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_GoToContext_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_GoToContext_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_GoToContext_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_GoToM_run___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -5536,6 +5520,14 @@ x_1 = l_Lean_declRangeExt;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___redArg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_defaultDeclarationRanges____x40_Lean_Data_DeclarationRange_1978900198____hygCtx___hyg_25_;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -5564,7 +5556,7 @@ lean_inc_ref(x_13);
 x_14 = lean_ctor_get(x_13, 2);
 lean_inc(x_14);
 lean_dec_ref(x_13);
-x_15 = l_Lean_instInhabitedDeclarationRanges;
+x_15 = l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___redArg___closed__1;
 x_16 = 0;
 lean_inc(x_1);
 x_17 = l_Lean_MapDeclarationExtension_find_x3f___redArg(x_15, x_12, x_7, x_1, x_14, x_16);
@@ -5603,7 +5595,7 @@ lean_inc_ref(x_24);
 x_25 = lean_ctor_get(x_24, 2);
 lean_inc(x_25);
 lean_dec_ref(x_24);
-x_26 = l_Lean_instInhabitedDeclarationRanges;
+x_26 = l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___redArg___closed__1;
 x_27 = 0;
 lean_inc(x_1);
 x_28 = l_Lean_MapDeclarationExtension_find_x3f___redArg(x_26, x_23, x_7, x_1, x_25, x_27);
@@ -5695,7 +5687,7 @@ return x_18;
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_23; uint8_t x_30; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_21; uint8_t x_28; 
 x_8 = lean_st_ref_get(x_6, x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -5714,24 +5706,25 @@ lean_inc(x_14);
 lean_dec_ref(x_12);
 lean_inc(x_1);
 lean_inc_ref(x_11);
-x_30 = lean_is_aux_recursor(x_11, x_1);
-if (x_30 == 0)
+x_28 = lean_is_aux_recursor(x_11, x_1);
+if (x_28 == 0)
 {
-uint8_t x_31; 
+uint8_t x_29; 
 lean_inc(x_1);
-x_31 = lean_is_no_confusion(x_11, x_1);
-x_23 = x_31;
-goto block_29;
+x_29 = lean_is_no_confusion(x_11, x_1);
+x_21 = x_29;
+goto block_27;
 }
 else
 {
 lean_dec_ref(x_11);
-x_23 = x_30;
-goto block_29;
+x_21 = x_28;
+goto block_27;
 }
 block_20:
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_15 = l_Lean_Name_getPrefix(x_1);
 x_16 = l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___redArg(x_15, x_6, x_14);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);
@@ -5742,52 +5735,36 @@ x_19 = l_Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl
 lean_dec(x_1);
 return x_19;
 }
-block_22:
+block_27:
 {
-if (lean_obj_tag(x_1) == 0)
+if (x_21 == 0)
 {
-x_15 = x_1;
-goto block_20;
-}
-else
-{
-lean_object* x_21; 
-x_21 = lean_ctor_get(x_1, 0);
-lean_inc(x_21);
-x_15 = x_21;
-goto block_20;
-}
-}
-block_29:
-{
-if (x_23 == 0)
-{
-uint8_t x_24; 
-x_24 = lean_unbox(x_13);
+uint8_t x_22; 
+x_22 = lean_unbox(x_13);
 lean_dec(x_13);
-if (x_24 == 0)
+if (x_22 == 0)
 {
-lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_inc(x_1);
-x_25 = l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___redArg(x_1, x_6, x_14);
-x_26 = lean_ctor_get(x_25, 0);
-lean_inc(x_26);
-x_27 = lean_ctor_get(x_25, 1);
-lean_inc(x_27);
-lean_dec_ref(x_25);
-x_28 = l_Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0___lam__0(x_1, x_26, x_2, x_3, x_4, x_5, x_6, x_27);
+x_23 = l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___redArg(x_1, x_6, x_14);
+x_24 = lean_ctor_get(x_23, 0);
+lean_inc(x_24);
+x_25 = lean_ctor_get(x_23, 1);
+lean_inc(x_25);
+lean_dec_ref(x_23);
+x_26 = l_Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0___lam__0(x_1, x_24, x_2, x_3, x_4, x_5, x_6, x_25);
 lean_dec(x_1);
-return x_28;
+return x_26;
 }
 else
 {
-goto block_22;
+goto block_20;
 }
 }
 else
 {
 lean_dec(x_13);
-goto block_22;
+goto block_20;
 }
 }
 }
@@ -6497,7 +6474,7 @@ else
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_ctor_get(x_4, 0);
-x_7 = lean_name_eq(x_6, x_1);
+x_7 = l_Lean_beqFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_22_(x_6, x_1);
 return x_7;
 }
 }
@@ -7010,7 +6987,7 @@ lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34;
 x_31 = lean_unsigned_to_nat(4u);
 x_32 = l_Lean_Syntax_getArg(x_17, x_31);
 lean_dec(x_17);
-x_33 = l_Lean_Syntax_getId(x_32);
+x_33 = l_Lean_TSyntax_getId(x_32);
 x_34 = l_Lean_Server_documentUriFromModule_x3f(x_33, x_25);
 if (lean_obj_tag(x_34) == 0)
 {
@@ -7063,9 +7040,9 @@ if (lean_obj_tag(x_45) == 0)
 lean_object* x_46; 
 lean_dec_ref(x_2);
 x_46 = lean_box(0);
-x_5 = x_43;
+x_5 = x_44;
 x_6 = x_42;
-x_7 = x_44;
+x_7 = x_43;
 x_8 = x_46;
 goto block_16;
 }
@@ -7085,9 +7062,9 @@ lean_inc_ref(x_50);
 lean_dec_ref(x_47);
 x_51 = l_String_Range_toLspRange(x_50, x_49);
 lean_ctor_set(x_45, 0, x_51);
-x_5 = x_43;
+x_5 = x_44;
 x_6 = x_42;
-x_7 = x_44;
+x_7 = x_43;
 x_8 = x_45;
 goto block_16;
 }
@@ -7103,9 +7080,9 @@ lean_dec_ref(x_47);
 x_54 = l_String_Range_toLspRange(x_53, x_52);
 x_55 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_55, 0, x_54);
-x_5 = x_43;
+x_5 = x_44;
 x_6 = x_42;
-x_7 = x_44;
+x_7 = x_43;
 x_8 = x_55;
 goto block_16;
 }
@@ -7291,12 +7268,12 @@ goto block_86;
 block_16:
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_inc_ref(x_7);
+lean_inc_ref(x_5);
 x_9 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_5);
-lean_ctor_set(x_9, 2, x_7);
-lean_ctor_set(x_9, 3, x_7);
+lean_ctor_set(x_9, 1, x_7);
+lean_ctor_set(x_9, 2, x_5);
+lean_ctor_set(x_9, 3, x_5);
 x_10 = lean_box(0);
 x_11 = 0;
 x_12 = lean_alloc_ctor(0, 2, 1);
@@ -10766,6 +10743,8 @@ l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getCo
 lean_mark_persistent(l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_findModuleOf_x3f___at_____private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0___redArg___closed__1);
 l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___redArg___closed__0 = _init_l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___redArg___closed__0();
 lean_mark_persistent(l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___redArg___closed__0);
+l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___redArg___closed__1 = _init_l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___redArg___closed__1();
+lean_mark_persistent(l_Lean_findDeclarationRangesCore_x3f___at___Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0_spec__1___redArg___closed__1);
 l_Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0___lam__0___closed__0 = _init_l_Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0___lam__0___closed__0();
 lean_mark_persistent(l_Lean_findDeclarationRanges_x3f___at___Lean_Server_locationLinksFromDecl_spec__0___lam__0___closed__0);
 l_Lean_Server_locationLinksFromDecl___closed__0 = _init_l_Lean_Server_locationLinksFromDecl___closed__0();

@@ -595,7 +595,7 @@ where go := do
           match commandElabAttribute.getEntries s.env k with
           | []      =>
             withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
-              throwError "elaboration function for '{k}' has not been implemented"
+              throwError "elaboration function for `{k}` has not been implemented"
           | elabFns => elabCommandUsing s stx elabFns
     | _ =>
       withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|

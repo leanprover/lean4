@@ -11,13 +11,14 @@ public import Init.Grind.Ordered.Module
 
 public section
 
+open Std
 namespace Lean.Grind
 
 /--
 A ring which is also equipped with a preorder is considered a strict ordered ring if addition, negation,
 and multiplication are compatible with the preorder, and `0 < 1`.
 -/
-class OrderedRing (R : Type u) [Semiring R] [LE R] [LT R] [Preorder R] extends OrderedAdd R where
+class OrderedRing (R : Type u) [Semiring R] [LE R] [LT R] [IsPreorder R] extends OrderedAdd R where
   /-- In a strict ordered semiring, we have `0 < 1`. -/
   zero_lt_one : (0 : R) < 1
   /-- In a strict ordered semiring, we can multiply an inequality `a < b` on the left
@@ -33,7 +34,7 @@ variable {R : Type u} [Ring R]
 
 section Preorder
 
-variable [LE R] [LT R] [Preorder R] [OrderedRing R]
+variable [LE R] [LT R] [LawfulOrderLT R] [IsPreorder R] [OrderedRing R]
 
 theorem neg_one_lt_zero : (-1 : R) < 0 := by
   have h := zero_lt_one (R := R)
@@ -43,7 +44,7 @@ theorem neg_one_lt_zero : (-1 : R) < 0 := by
 
 theorem ofNat_nonneg (x : Nat) : (OfNat.ofNat x : R) ≥ 0 := by
   induction x
-  next => simp [OfNat.ofNat, Zero.zero]; apply Preorder.le_refl
+  next => simp [OfNat.ofNat, Zero.zero]; apply le_refl
   next n ih =>
     have := OrderedRing.zero_lt_one (R := R)
     rw [Semiring.ofNat_succ]
@@ -52,7 +53,8 @@ theorem ofNat_nonneg (x : Nat) : (OfNat.ofNat x : R) ≥ 0 := by
     have := Preorder.lt_of_lt_of_le this ih
     exact Preorder.le_of_lt this
 
-instance [Ring R] [LE R] [LT R] [Preorder R] [OrderedRing R] : IsCharP R 0 := IsCharP.mk' _ _ <| by
+instance [Ring R] [LE R] [LT R] [LawfulOrderLT R] [IsPreorder R] [OrderedRing R] :
+    IsCharP R 0 := IsCharP.mk' _ _ <| by
   intro x
   simp only [Nat.mod_zero]; constructor
   next =>
@@ -77,7 +79,12 @@ end Preorder
 
 section PartialOrder
 
-variable [LE R] [LT R] [PartialOrder R] [OrderedRing R]
+variable [LE R] [LT R] [IsPartialOrder R] [OrderedRing R]
+
+theorem mul_pos {a b : R} (h₁ : 0 < a) (h₂ : 0 < b) : 0 < a * b := by
+  simpa [Semiring.zero_mul] using mul_lt_mul_of_pos_right h₁ h₂
+
+variable [LawfulOrderLT R]
 
 theorem zero_le_one : (0 : R) ≤ 1 := Preorder.le_of_lt zero_lt_one
 
@@ -92,8 +99,8 @@ theorem mul_le_mul_of_nonneg_left {a b c : R} (h : a ≤ b) (h' : 0 ≤ c) : c *
     rw [PartialOrder.le_iff_lt_or_eq] at h
     cases h with
     | inl h => exact Preorder.le_of_lt (p h h')
-    | inr h => subst h; exact Preorder.le_refl (c * a)
-  | inr h' => subst h'; simp [Semiring.zero_mul, Preorder.le_refl]
+    | inr h => subst h; exact le_refl (c * a)
+  | inr h' => subst h'; simp [Semiring.zero_mul, le_refl]
 
 theorem mul_le_mul_of_nonneg_right {a b c : R} (h : a ≤ b) (h' : 0 ≤ c) : a * c ≤ b * c := by
   rw [PartialOrder.le_iff_lt_or_eq] at h'
@@ -103,8 +110,8 @@ theorem mul_le_mul_of_nonneg_right {a b c : R} (h : a ≤ b) (h' : 0 ≤ c) : a 
     rw [PartialOrder.le_iff_lt_or_eq] at h
     cases h with
     | inl h => exact Preorder.le_of_lt (p h h')
-    | inr h => subst h; exact Preorder.le_refl (a * c)
-  | inr h' => subst h'; simp [Semiring.mul_zero, Preorder.le_refl]
+    | inr h => subst h; exact le_refl (a * c)
+  | inr h' => subst h'; simp [Semiring.mul_zero, le_refl]
 
 open OrderedAdd
 
@@ -139,9 +146,6 @@ theorem mul_nonpos_of_nonpos_of_nonneg {a b : R} (h₁ : a ≤ 0) (h₂ : 0 ≤ 
   rw [← neg_nonneg_iff, ← Ring.neg_mul]
   apply mul_nonneg (neg_nonneg_iff.mpr h₁) h₂
 
-theorem mul_pos {a b : R} (h₁ : 0 < a) (h₂ : 0 < b) : 0 < a * b := by
-  simpa [Semiring.zero_mul] using mul_lt_mul_of_pos_right h₁ h₂
-
 theorem mul_pos_of_neg_of_neg {a b : R} (h₁ : a < 0) (h₂ : b < 0) : 0 < a * b := by
   have := mul_pos (neg_pos_iff.mpr h₁) (neg_pos_iff.mpr h₂)
   simpa [Ring.neg_mul, Ring.mul_neg, AddCommGroup.neg_neg] using this
@@ -158,22 +162,22 @@ end PartialOrder
 
 section LinearOrder
 
-variable [LE R] [LT R] [LinearOrder R] [OrderedRing R]
+variable [LE R] [LT R] [LawfulOrderLT R] [IsLinearOrder R] [OrderedRing R]
 
 theorem mul_nonneg_iff {a b : R} : 0 ≤ a * b ↔ 0 ≤ a ∧ 0 ≤ b ∨ a ≤ 0 ∧ b ≤ 0 := by
   rcases LinearOrder.trichotomy 0 a with (ha | rfl | ha)
   · rcases LinearOrder.trichotomy 0 b with (hb | rfl | hb)
     · simp [Preorder.le_of_lt ha, Preorder.le_of_lt hb, mul_nonneg]
-    · simp [Semiring.mul_zero, Preorder.le_refl, LinearOrder.le_total]
+    · simp [Semiring.mul_zero, le_refl, le_total]
     · have m : a * b < 0 := mul_neg_of_pos_of_neg ha hb
       simp [Preorder.le_of_lt ha, Preorder.le_of_lt hb, Preorder.not_ge_of_lt m,
         Preorder.not_ge_of_lt ha, Preorder.not_ge_of_lt hb]
-  · simp [Semiring.zero_mul, Preorder.le_refl, LinearOrder.le_total]
+  · simp [Semiring.zero_mul, le_refl, le_total]
   · rcases LinearOrder.trichotomy 0 b with (hb | rfl | hb)
     · have m : a * b < 0 := mul_neg_of_neg_of_pos ha hb
       simp [Preorder.le_of_lt ha, Preorder.le_of_lt hb, Preorder.not_ge_of_lt m,
         Preorder.not_ge_of_lt ha, Preorder.not_ge_of_lt hb]
-    · simp [Semiring.mul_zero, Preorder.le_refl, LinearOrder.le_total]
+    · simp [Semiring.mul_zero, le_refl, le_total]
     · simp [Preorder.le_of_lt ha, Preorder.le_of_lt hb, mul_nonneg_of_nonpos_of_nonpos]
 
 theorem mul_pos_iff {a b : R} : 0 < a * b ↔ 0 < a ∧ 0 < b ∨ a < 0 ∧ b < 0 := by
@@ -194,7 +198,7 @@ theorem mul_pos_iff {a b : R} : 0 < a * b ↔ 0 < a ∧ 0 < b ∨ a < 0 ∧ b < 
 
 theorem sq_nonneg {a : R} : 0 ≤ a^2 := by
   rw [Semiring.pow_two, mul_nonneg_iff]
-  rcases LinearOrder.le_total 0 a with (h | h)
+  rcases le_total (a := 0) (b := a) with (h | h)
   · exact .inl ⟨h, h⟩
   · exact .inr ⟨h, h⟩
 

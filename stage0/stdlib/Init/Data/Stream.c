@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Stream_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStreamRange___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_instStreamProd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instStreamProd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -42,7 +41,6 @@ LEAN_EXPORT lean_object* l_instStreamSubarray(lean_object*);
 LEAN_EXPORT lean_object* l_instForInOfStream___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ToStream_toCtorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStreamSubarray___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_instToStreamList(lean_object*);
 LEAN_EXPORT lean_object* l_ToStream_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
@@ -58,9 +56,7 @@ lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_instToStreamList___lam__0___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instStreamList___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_ToStream_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Stream_forIn___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Stream_toCtorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ToStream_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -78,23 +74,6 @@ lean_dec(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_ToStream_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_ToStream_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_ToStream_toCtorIdx(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Stream_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -108,23 +87,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Stream_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Stream_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Stream_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Stream_toCtorIdx(x_1, x_2, x_3);
 lean_dec_ref(x_3);
 return x_4;
 }

@@ -10,19 +10,19 @@ context:
 x : Nat
 y : Nat := ⋯
 ⊢ Nat
-holes.lean:10:15-10:18: error: don't know how to synthesize implicit argument 'β'
+holes.lean:10:15-10:18: error: don't know how to synthesize implicit argument `β`
   @g Nat (?m x) x
 context:
 x : Nat
 ⊢ Type
-holes.lean:10:9-10:12: error: don't know how to synthesize implicit argument 'β'
+holes.lean:10:9-10:12: error: don't know how to synthesize implicit argument `β`
   @g Nat (?m x) x
 context:
 x : Nat
 ⊢ Type
 holes.lean:13:10-13:11: error(lean.inferBinderTypeFailed): Failed to infer type of binder `β`
 holes.lean:15:12-15:13: error(lean.inferBinderTypeFailed): Failed to infer type of binder `β`
-holes.lean:19:0-19:3: error: don't know how to synthesize implicit argument 'β'
+holes.lean:19:0-19:3: error: don't know how to synthesize implicit argument `β`
   @f Nat (?m a) a
 context:
 a : Nat

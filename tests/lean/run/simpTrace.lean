@@ -19,7 +19,10 @@ def x4 := 1
 @[simp] theorem x3_eq_x4 : x3 = x4 := rfl
 @[simp] theorem x1_eq_x2 : x1 = x2 := rfl
 
-/-- info: Try this: simp only [x1_eq_x2, x2_eq_x3, x3_eq_x4] -/
+/--
+info: Try this:
+  simp only [x1_eq_x2, x2_eq_x3, x3_eq_x4]
+-/
 #guard_msgs in
 example : x1 = x4 := by
   simp?
@@ -28,7 +31,10 @@ example : x1 = x4 := by
 `simp?` lists every theorem being used only once.
 -/
 
-/-- info: Try this: simp only [x1_eq_x2, x2_eq_x3, x3_eq_x4] -/
+/--
+info: Try this:
+  simp only [x1_eq_x2, x2_eq_x3, x3_eq_x4]
+-/
 #guard_msgs in
 example : x1 * x1 = x4 * x4 := by
   simp?
@@ -46,7 +52,10 @@ def test : Nat → Nat
 `simp?` mentions the name of the definition instead of the names of the equation lemmas.
 -/
 
-/-- info: Try this: simp only [test] -/
+/--
+info: Try this:
+  simp only [test]
+-/
 #guard_msgs in
 example : [test 3, test 2, test 4, test 5, test 0] = [4, 9, 16, 0, 3] := by
   simp?
@@ -55,7 +64,10 @@ example : [test 3, test 2, test 4, test 5, test 0] = [4, 9, 16, 0, 3] := by
 `simp?` records names of `let` declarations being unfolded.
 -/
 
-/-- info: Try this: simp only [a] -/
+/--
+info: Try this:
+  simp only [a]
+-/
 #guard_msgs in
 example : let a := 5; a = 5 := by
   intro a
@@ -66,7 +78,8 @@ example : let a := 5; a = 5 := by
 -/
 
 /--
-info: Try this: simp only [h]
+info: Try this:
+  simp only [h]
 ---
 error: unsolved goals
 a b : Nat
@@ -94,13 +107,17 @@ simproc dontRewriteY2 (y2) := fun _ => do
 /--
 info: was run
 ---
-info: Try this: simp only [rewriteY1]
+info: Try this:
+  simp only [rewriteY1]
 -/
 #guard_msgs in
 example : y1 = y2 := by
   simp? -- rewriteY1 succeeds, dontRewriteY2 doesn't
 
-/-- info: Try this: simp only [Nat.reduceAdd] -/
+/--
+info: Try this:
+  simp only [Nat.reduceAdd]
+-/
 #guard_msgs in
 example : 1 + 1 = 2 := by
   simp?
@@ -117,8 +134,9 @@ theorem very_long_lemma_oh_no_can_you_please_stop_we're_getting_to_the_limit : z
 theorem wait_this_is_rewritten_backwards_and_wow_it's_very_clear_and_obvious : z3 = z2 := rfl
 
 /--
-info: Try this: simp only [very_long_lemma_oh_no_can_you_please_stop_we're_getting_to_the_limit,
-  ← wait_this_is_rewritten_backwards_and_wow_it's_very_clear_and_obvious]
+info: Try this:
+  simp only [very_long_lemma_oh_no_can_you_please_stop_we're_getting_to_the_limit,
+      ← wait_this_is_rewritten_backwards_and_wow_it's_very_clear_and_obvious]
 -/
 #guard_msgs in
 example : z1 = z3 := by

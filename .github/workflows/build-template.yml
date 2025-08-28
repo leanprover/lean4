@@ -36,7 +36,7 @@ jobs:
         include: ${{fromJson(inputs.config)}}
       # complete all jobs
       fail-fast: false
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ endsWith(matrix.os, '-with-cache') && fromJSON(format('["{0}", "nscloud-git-mirror-1gb"]', matrix.os)) || matrix.os }}
     defaults:
       run:
         shell: ${{ matrix.shell || 'nix develop -c bash -euxo pipefail {0}' }}
@@ -69,9 +69,15 @@ jobs:
           brew install ccache tree zstd coreutils gmp libuv
         if: runner.os == 'macOS'
       - name: Checkout
+        if: (!endsWith(matrix.os, '-with-cache'))
         uses: actions/checkout@v4
         with:
           # the default is to use a virtual merge commit between the PR and master: just use the PR
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Namespace Checkout
+        if: endsWith(matrix.os, '-with-cache')
+        uses: namespacelabs/nscloud-checkout-action@v7
+        with:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Open Nix shell once
         run: true
@@ -169,7 +175,9 @@ jobs:
       # Should be done as early as possible and in particular *before* "Check rebootstrap" which
       # changes the state of stage1/
       - name: Save Cache
-        if: steps.restore-cache.outputs.cache-hit != 'true'
+        # Caching on cancellation created some mysterious issues perhaps related to improper build
+        # shutdown
+        if: steps.restore-cache.outputs.cache-hit != 'true' && !cancelled()
         uses: actions/cache/save@v4
         with:
           # NOTE: must be in sync with `restore` above

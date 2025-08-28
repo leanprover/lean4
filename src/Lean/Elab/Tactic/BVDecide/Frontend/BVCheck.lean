@@ -29,7 +29,7 @@ def getSrcDir : TermElabM System.FilePath := do
   let ctx ← readThe Lean.Core.Context
   let srcPath := System.FilePath.mk ctx.fileName
   let some srcDir := srcPath.parent
-    | throwError "cannot compute parent directory of '{srcPath}'"
+    | throwError "cannot compute parent directory of `{srcPath}`"
   return srcDir
 
 def mkContext (lratPath : System.FilePath) (cfg : BVDecideConfig) : TermElabM TacticContext := do

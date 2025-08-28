@@ -16,16 +16,14 @@ extern "C" {
 static lean_object* l_Lake_Target_repr___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Target_instRepr(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_ctorIdx___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Target_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_Target_repr___redArg___closed__0;
 static lean_object* l_Lake_Target_repr___redArg___closed__3;
-LEAN_EXPORT lean_object* l_Lake_Target_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_instCoePartialBuildKey___lam__0___boxed(lean_object*);
 static lean_object* l_Lake_Target_repr___redArg___closed__4;
 lean_object* lean_nat_to_int(lean_object*);
-lean_object* l_Lake_reprBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_69_(lean_object*, lean_object*);
 lean_object* l_Lake_PartialBuildKey_toString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_instCoePartialBuildKey(lean_object*);
+lean_object* l_Lake_reprBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_73_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_repr(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Target_repr___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Target_repr___boxed(lean_object*, lean_object*, lean_object*);
@@ -51,23 +49,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_Target_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Target_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Target_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_Target_toCtorIdx(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -145,7 +126,7 @@ block_12:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; 
 x_4 = l_Lake_Target_repr___redArg___closed__2;
 x_5 = lean_unsigned_to_nat(1024u);
-x_6 = l_Lake_reprBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_69_(x_1, x_5);
+x_6 = l_Lake_reprBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_73_(x_1, x_5);
 x_7 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_7, 0, x_4);
 lean_ctor_set(x_7, 1, x_6);

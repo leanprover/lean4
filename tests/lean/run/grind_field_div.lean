@@ -1,5 +1,5 @@
 module
-open Lean Grind
+open Std Lean Grind
 set_option grind.debug true
 
 example [Field α] [IsCharP α 0] (a b c : α) : a/3 = b → c = a/3 → a/2 + a/2 = b + 2*c  := by
@@ -68,7 +68,7 @@ example [Field α] {sqrtTwo a b c : α} :
 -- characteristic zero.
 #guard_msgs (trace) in
 set_option trace.grind.split true in
-example [Field α] [LE α] [LT α] [LinearOrder α] [OrderedRing α] (x y z : α)
+example [Field α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α] (x y z : α)
     : x > 0 → y > 0 → z > 0 → x * y * z ≥ 1 →
       (x ^ 2 - y * z) / (x ^ 2 + y ^ 2 + z ^ 2) + (y ^ 2 - z * x) / (y ^ 2 + z ^ 2 + x ^ 2) +
         (z ^ 2 - x * y) / (z ^ 2 + x ^ 2 + y ^ 2) =

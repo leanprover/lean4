@@ -8,21 +8,20 @@ module
 
 prelude
 public import Lean.Meta.Basic
-public import Lean.Meta.Match.MatcherApp.Transform
-public import Lean.Meta.Check
-public import Lean.Meta.Tactic.Subst
-public import Lean.Meta.Injective -- for elimOptParam
-public import Lean.Meta.ArgsPacker
-public import Lean.Meta.PProdN
-public import Lean.Elab.PreDefinition.WF.Eqns
-public import Lean.Elab.PreDefinition.Structural.Eqns
-public import Lean.Elab.PreDefinition.Structural.IndGroupInfo
-public import Lean.Elab.PreDefinition.Structural.FindRecArg
-public import Lean.Elab.Command
-public import Lean.Meta.Tactic.ElimInfo
-public import Lean.Meta.Tactic.FunIndInfo
-
-public section
+public import Lean.Meta.Tactic.Simp.Types
+import Lean.Meta.Match.MatcherApp.Transform
+import Lean.Meta.Check
+import Lean.Meta.Tactic.Subst
+import Lean.Meta.Injective -- for elimOptParam
+import Lean.Meta.ArgsPacker
+import Lean.Meta.PProdN
+import Lean.Elab.PreDefinition.WF.Eqns
+import Lean.Elab.PreDefinition.Structural.Eqns
+import Lean.Elab.PreDefinition.Structural.IndGroupInfo
+import Lean.Elab.PreDefinition.Structural.FindRecArg
+import Lean.Elab.Command
+import Lean.Meta.Tactic.ElimInfo
+import Lean.Meta.Tactic.FunIndInfo
 
 /-!
 This module contains code to derive, from the definition of a recursive function (structural or
@@ -519,6 +518,7 @@ def buildInductionCase (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr)
 Like `mkLambdaFVars (usedOnly := true)`, but
 
  * silently skips expression in `xs` that are not `.isFVar`
+ * also skips let-bound variabls
  * returns a mask (same size as `xs`) indicating which variables have been abstracted
    (`true` means was abstracted).
 
@@ -535,12 +535,13 @@ def mkLambdaFVarsMasked (xs : Array Expr) (e : Expr) : MetaM (Array Bool × Expr
   let mut mask := #[]
   while ! xs.isEmpty do
     let discr := xs.back!
+    xs := xs.pop
     if discr.isFVar && e.containsFVar discr.fvarId! then
+      unless (← discr.fvarId!.isLetVar) do
         e ← mkLambdaFVars #[discr] e
         mask := mask.push true
-    else
-        mask := mask.push false
-    xs := xs.pop
+        continue
+    mask := mask.push false
   return (mask.reverse, e)
 
 /-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
@@ -616,7 +617,7 @@ partial def inProdLambdaLastArg (rw : Expr → MetaM Simp.Result) (goal : Expr) 
       let r ← inLastArg rw goal
       r.addLambdas xs
 
-def rwIfWith (hc : Expr) (e : Expr) : MetaM Simp.Result := do
+public def rwIfWith (hc : Expr) (e : Expr) : MetaM Simp.Result := do
   match_expr e with
   | ite@ite α c h t f =>
     let us := ite.constLevels!
@@ -664,6 +665,7 @@ def rwLetWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
   if e.isLet then
     if (← isDefEq e.letValue! h) then
       return { expr := e.letBody!.instantiate1 h }
+  trace[Meta.FunInd] "rwLetWith failed:{inlineExpr e}not a let expression or `{h}` is not definitionally equal to `{e.letValue!}`"
   return { expr := e }
 
 def rwMData (e : Expr) : MetaM Simp.Result := do
@@ -681,7 +683,7 @@ def rwFun (names : Array Name) (e : Expr) : MetaM Simp.Result := do
     else
       return { expr := e }
 
-def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
+public def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
   if e.isAppOf ``PSum.casesOn || e.isAppOf ``PSigma.casesOn then
     let mut e := e
     while true do
@@ -1662,7 +1664,7 @@ def deriveInduction (unfolding : Bool) (name : Name) : MetaM Unit := do
     else
       throwError "constant `{name}` is not structurally or well-founded recursive"
 
-def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
+public def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
   match s with
   | "induct"

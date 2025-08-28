@@ -72,7 +72,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_r
 static lean_object* l_Lean_Meta_Grind_getAttrKindCore___closed__40;
 static lean_object* l_Lean_Meta_Grind_getAttrKindCore___closed__12;
 lean_object* l_Lean_Meta_Grind_isCasesAttrCandidate(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AttrKind_toCtorIdx(lean_object*);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_registerGrindAttr___closed__8;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_registerGrindAttr___lam__1___closed__3;
@@ -127,7 +126,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_r
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_Meta_Grind_getAttrKindCore_spec__0_spec__0___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_Meta_Grind_getAttrKindCore_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_getAttrKindCore___closed__34;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AttrKind_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_getAttrKindCore___closed__45;
 lean_object* l_Lean_Meta_Grind_isExtTheorem___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_registerGrindAttr___closed__20;
@@ -226,23 +224,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_Grind_AttrKind_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AttrKind_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_AttrKind_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AttrKind_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_AttrKind_toCtorIdx(x_1);
 lean_dec(x_1);
 return x_2;
 }

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_DSL_VerLit_0__Lake_elabVerLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_DSL_VerLit_0__Lake_elabVerLit___regBuiltin___private_Lake_DSL_VerLit_0__Lake_elabVerLit__1___closed__10;
 LEAN_EXPORT lean_object* l___private_Lake_DSL_VerLit_0__Lake_elabVerLit___regBuiltin___private_Lake_DSL_VerLit_0__Lake_elabVerLit__1(lean_object*);
@@ -37,6 +36,7 @@ LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___a
 static lean_object* l_Lake_instToExprStdVer___lam__0___closed__2;
 lean_object* l_Lean_Elab_Term_elabTermEnsuringType(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 static lean_object* l___private_Lake_DSL_VerLit_0__Lake_elabVerLit___closed__19;
 LEAN_EXPORT lean_object* l_Lake_instToExprStdVer___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lake_DSL_VerLit_0__Lake_elabVerLit_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -88,6 +88,7 @@ static lean_object* l___private_Lake_DSL_VerLit_0__Lake_elabVerLit___regBuiltin_
 LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lake_DSL_VerLit_0__Lake_elabVerLit_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_termElabAttribute;
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -124,7 +125,6 @@ static lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at_____pr
 LEAN_EXPORT lean_object* l_Lake_instToExprSemVerCore;
 static lean_object* l___private_Lake_DSL_VerLit_0__Lake_elabVerLit___closed__31;
 static lean_object* l___private_Lake_DSL_VerLit_0__Lake_elabVerLit___closed__29;
-lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 static lean_object* l___private_Lake_DSL_VerLit_0__Lake_elabVerLit___closed__1;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -183,7 +183,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lake_instToExprSemVerCore___lam__0___closed__3;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -236,7 +236,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lake_instToExprSemVerCore___closed__0;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -277,7 +277,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lake_instToExprStdVer___lam__0___closed__1;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -342,7 +342,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lake_instToExprStdVer___closed__0;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -589,7 +589,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
+x_5 = l_Lean_KVMap_find(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
@@ -1062,7 +1062,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l___private_Lake_DSL_VerLit_0__Lake_elabVerLit___closed__7;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -1255,7 +1255,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l___private_Lake_DSL_VerLit_0__Lake_elabVerLit___closed__28;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }

@@ -10,8 +10,11 @@ public import Init.System.Promise
 public import Init.Data.Queue
 public import Std.Sync.Mutex
 public import Std.Internal.Async.Select
+public import Std.Internal.Async.IO
 
 public section
+
+open Std.Internal.Async.IO
 
 /-!
 This module contains the implementation of `Std.Channel`. `Std.Channel` is a multi-producer
@@ -578,7 +581,7 @@ private partial def recvSelector (ch : Bounded α) : Selector (Option α) where
 
       set { st with consumers }
 where
-  registerAux (ch : Bounded α) (waiter : Waiter (Option α)) : IO Unit := do
+  registerAux (ch : Bounded α) (waiter : Waiter (Option α)) : Async Unit := do
     ch.state.atomically do
       -- We did drop the lock between `tryFn` and now so maybe ready?
       if ← recvReady' then
@@ -597,16 +600,17 @@ where
         let promise ← IO.Promise.new
         modify fun st => { st with consumers := st.consumers.enqueue ⟨promise, some waiter⟩ }
 
-        IO.chainTask promise.result? fun res? => do
+        discard <| IO.bindTask promise.result? fun res? => do
           match res? with
-          | none => return ()
+          | none => return (Task.pure (.ok ()))
           | some res =>
             if res then
-              registerAux ch waiter
+              registerAux ch waiter |>.toBaseIO
             else
               let lose := return ()
               let win promise := promise.resolve (.ok none)
               waiter.race lose win
+              return (Task.pure (.ok ()))
 
 end Bounded
 
@@ -894,6 +898,15 @@ partial def forAsync [Inhabited α] (f : α → BaseIO Unit) (ch : Channel α)
 
 @[inherit_doc CloseableChannel.sync, inline]
 def sync (ch : Channel α) : Channel.Sync α := ch
+
+instance [Inhabited α] : AsyncStream (Channel α) α where
+  next channel := channel.recvSelector
+
+instance [Inhabited α] : AsyncRead (Channel α) α where
+  read receiver := Internal.IO.Async.Async.ofIOTask receiver.recv
+
+instance [Inhabited α] : AsyncWrite (Channel α) α where
+  write receiver x := Internal.IO.Async.Async.ofIOTask (receiver.send x)
 
 namespace Sync
 

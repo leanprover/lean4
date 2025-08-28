@@ -12,18 +12,18 @@ def assertBEq [BEq α] [ToString α] (actual expected : α) : IO Unit := do
 
 /-- Mike is another client. -/
 def runMike (client: TCP.Socket.Client) : Async Unit := do
-  let message ← await (← client.recv? 1024)
+  let message ← client.recv? 1024
   assertBEq (String.fromUTF8? =<< message) none
 
 /-- Joe is another client. -/
 def runJoe (client: TCP.Socket.Client) : Async Unit := do
-  let message ← await (← client.recv? 1024)
+  let message ← client.recv? 1024
   assertBEq (String.fromUTF8? =<< message) none
 
 /-- Robert is the server. -/
 def runRobert (server: TCP.Socket.Server) : Async Unit := do
-  discard <| await (← server.accept)
-  discard <| await (← server.accept)
+  discard <| server.accept
+  discard <| server.accept
 
 def clientServer : IO Unit := do
   let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8083
@@ -35,7 +35,7 @@ def clientServer : IO Unit := do
   assertBEq (← server.getSockName).port 8083
 
   let joe ← TCP.Socket.Client.mk
-  let task ← joe.connect addr
+  let task ← joe.connect addr |>.toBaseIO
   task.block
 
   assertBEq (← joe.getPeerName).port 8083
@@ -43,7 +43,7 @@ def clientServer : IO Unit := do
   joe.noDelay
 
   let mike ← TCP.Socket.Client.mk
-  let task ← mike.connect addr
+  let task ← mike.connect addr |>.toBaseIO
   task.block
 
   assertBEq (← mike.getPeerName).port 8083

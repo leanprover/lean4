@@ -90,7 +90,7 @@ mutual
 
 inductive EvenDist : Nat → Nat → Prop where
   | zero : EvenDist 0 0
-  | succ_left (h : OddDist a b) : EvenDist a.succ b
+  | succ_left (h : Nat → OddDist a b) : EvenDist a.succ b
   | succ_right (h : OddDist a b) : EvenDist a b.succ
 
 inductive OddDist : Nat → Nat → Prop where
@@ -123,14 +123,22 @@ theorem OddDist.recTest {a b} (h : OddDist b a) : True :=
   | .succ_right h => h.recTest
 termination_by structural h
 
-theorem EvenDist.recTest (h : EvenDist a b) : True :=
+theorem OddDist.recTest' {a b} (h : OddDist b a) : True :=
   match h with
-  | .zero => trivial
   | .succ_left h => h.recTest
   | .succ_right h => h.recTest
 termination_by structural h
 
+theorem EvenDist.recTest (h : EvenDist a b) : True :=
+  match h with
+  | .zero => trivial
+  | .succ_left h => (h 3).recTest
+  | .succ_right h => h.recTest'
+termination_by structural h
+
 end
+
+#print OddDist.recTest
 
 /-!
 Nested inductives

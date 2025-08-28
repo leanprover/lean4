@@ -42,13 +42,12 @@ def replaceIndPredRecApp (recArgInfo : RecArgInfo) (ctx : RecursionContext) (fid
     unless recArgInfo.indicesPos.contains i || i == recArgInfo.recArgPos do
       unless recArgInfo.fixedParamPerm.isFixed i do
         ys := ys.push args[i]
-  let directArgCount := (← inferType e).headBeta.getForallArity
-  trace[Elab.definition.structural] "We have {ys}, and the args: {args}, and {e}"
-  if ys.size < directArgCount then fail
-  let j := positions[motiveIdx]!.size
   let recApp := mkAppN e ys
-  let recApp := andProj pos j recApp
-  return mkAppN recApp args[recArgInfo.fixedParamPerm.size...*] -- over-application
+  forallTelescope (← inferType recApp).headBeta fun moreVars _ => do -- under-application
+    trace[Elab.definition.structural] "ys = {ys}, args = {args}, e = {e}, moreVars = {moreVars}"
+    let j := positions[motiveIdx]!.size
+    let recApp := andProj pos j recApp
+    mkLambdaFVars moreVars <| mkAppN recApp args[recArgInfo.fixedParamPerm.size...*] -- over-application
 
 private partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
     (params : Array Expr) (ctx : RecursionContext) (e : Expr) : M Expr := do

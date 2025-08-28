@@ -157,6 +157,17 @@ protected def empty : ByteSlice := ⟨{
     stop_le_size_byteArray := Nat.le_refl 0
   }⟩
 
+/--
+Creates a new ByteSlice of a ByteArray
+-/
+protected def ofByteArray (ba : ByteArray) : ByteSlice := ⟨{
+    byteArray := ba
+    start := 0
+    stop := ba.size
+    start_le_stop := Nat.zero_le _
+    stop_le_size_byteArray := Nat.le_refl _
+  }⟩
+
 instance : EmptyCollection (ByteSlice) :=
   ⟨ByteSlice.empty⟩
 

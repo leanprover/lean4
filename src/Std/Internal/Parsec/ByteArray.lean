@@ -185,14 +185,13 @@ def ws : Parser Unit := fun it =>
   .success (skipWs it) ()
 
 /--
-Parse `n` bytes from the input into a `ByteArray`, errors if not enough bytes.
+Parse `n` bytes from the input into a `ByteSlice`, errors if not enough bytes.
 -/
-def take (n : Nat) : Parser ByteArray := fun it =>
-  let subarr := it.array.extract it.idx (it.idx + n)
-  if subarr.size != n then
+def take (n : Nat) : Parser ByteSlice := fun it =>
+  if it.idx + n > it.array.size then
     .error it .eof
   else
-    .success (it.forward n) subarr
+    .success (it.forward n) (it.array[it.idx...(it.idx+n)])
 
 /--
 Parses while a predicate is satisfied.

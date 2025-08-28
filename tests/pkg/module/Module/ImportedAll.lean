@@ -24,6 +24,9 @@ has type
   Vector Unit 1
 but is expected to have type
   Vector Unit f
+
+Note: The following definitions were attempted to be unfolded but they are not marked as `@[expose]`:
+  f
 -/
 #guard_msgs in
 public theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := sorry

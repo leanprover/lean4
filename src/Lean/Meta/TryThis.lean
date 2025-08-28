@@ -161,7 +161,8 @@ structure Suggestion where
   Note that this property is used only by the "try this" widget; it is ignored by the inline hint
   widget. -/
   style? : Option SuggestionStyle := none
-  /-- How to represent the suggestion as `MessageData`. This is used only in the info diagnostic.
+  /-- How to represent the suggestion as `MessageData`. This is used only in the text of the
+  widget diagnostic.
   If `none`, we use `suggestion`. Use `toMessageData` to render a `Suggestion` in this manner. -/
   messageData? : Option MessageData := none
   /-- How to construct the text that appears in the lightbulb menu from the suggestion text. If
@@ -171,7 +172,6 @@ structure Suggestion where
   deriving Inhabited
 
 attribute [deprecated "The `style?` property is not used anymore." (since := "2025-08-14")] Suggestion.style?
-attribute [deprecated "The `messageData?` property is not used anymore." (since := "2025-08-14")] Suggestion.messageData?
 
 /- Use `toMessageData` of the suggestion text. -/
 instance : ToMessageData Suggestion where

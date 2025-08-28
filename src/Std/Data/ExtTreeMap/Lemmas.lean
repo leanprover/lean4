@@ -792,6 +792,10 @@ theorem distinct_keys [TransCmp cmp] :
     t.keys.Pairwise (fun a b => ¬ cmp a b = .eq) :=
   ExtDTreeMap.distinct_keys
 
+theorem nodup_keys [TransCmp cmp] :
+    t.keys.Nodup :=
+  t.distinct_keys.imp Std.ReflCmp.ne_of_cmp_ne_eq
+
 theorem ordered_keys [TransCmp cmp] :
     t.keys.Pairwise (fun a b => cmp a b = .lt) :=
   ExtDTreeMap.ordered_keys

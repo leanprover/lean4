@@ -54,7 +54,6 @@ and will be rebuilt on different host platforms.
   [ToString α] [ComputeHash α Id] (a : α) (caption := "pure")
 : JobM PUnit := addTrace <| .ofHash (pureHash a) s!"{caption}: {toString a}"
 
-public section -- for `ToJson`
 /--
 The build trace file format,
 which stores information about a (successful) build.
@@ -67,7 +66,6 @@ public structure BuildMetadata where
   /-- A trace file that was created from fetching an artifact from the cache. -/
   synthetic : Bool
   deriving ToJson
-end
 
 public protected def BuildMetadata.fromJson? (json : Json) : Except String BuildMetadata := do
   let obj ← JsonObject.fromJson? json

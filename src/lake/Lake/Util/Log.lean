@@ -19,13 +19,11 @@ open Lean
 
 namespace Lake
 
-public section -- for `Ord`
 public inductive Verbosity
 | quiet
 | normal
 | verbose
 deriving Repr, DecidableEq, Ord
-end
 
 public instance : LT Verbosity := ltOfOrd
 public instance : LE Verbosity := leOfOrd
@@ -75,14 +73,12 @@ public def OutStream.get : OutStream → BaseIO IO.FS.Stream
 public instance : Coe IO.FS.Stream OutStream := ⟨.stream⟩
 public instance : Coe IO.FS.Handle OutStream := ⟨fun h => .stream (.ofHandle h)⟩
 
-public section -- for `Ord`, `ToJson`, `FromJson`
 public inductive LogLevel
 | trace
 | info
 | warning
 | error
 deriving Inhabited, Repr, DecidableEq, Ord, ToJson, FromJson
-end
 
 public instance : LT LogLevel := ltOfOrd
 public instance : LE LogLevel := leOfOrd
@@ -132,12 +128,10 @@ public def Verbosity.minLogLv : Verbosity → LogLevel
 | .normal =>  .info
 | .verbose => .trace
 
-public section -- for `ToJson`, `FromJson`
 public structure LogEntry where
   level : LogLevel
   message : String
   deriving Inhabited, ToJson, FromJson
-end
 
 public protected def LogEntry.toString (self : LogEntry) (useAnsi := false) : String :=
   if useAnsi then

@@ -96,12 +96,12 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       let inst ←
         match hints[i]!.fixpointType with
         | .coinductiveFixpoint =>
-          forallTelescope type fun xs e => do
+          forallTelescopeReducing type fun xs e => do
             unless e.isProp do
               throwError "`coinductive_fixpoint` can be only used to define predicates"
             mkInstPiOfInstsForall xs (mkConst ``ReverseImplicationOrder.instCompleteLattice)
         | .inductiveFixpoint =>
-          forallTelescope type fun xs e => do
+          forallTelescopeReducing type fun xs e => do
             unless e.isProp do
               throwError "`inductive_fixpoint` can be only used to define predicates"
             mkInstPiOfInstsForall xs (mkConst ``ImplicationOrder.instCompleteLattice)

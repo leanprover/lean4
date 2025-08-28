@@ -6,3 +6,8 @@ def def1 (r : α → α → Prop) : α → Prop := DefFunctor r (def1 r)
 
 def def2 (r : α → α → Prop) : α → Prop := fun x => DefFunctor r (def2 r) x
   coinductive_fixpoint monotonicity sorry
+
+def Set α := α → Prop
+
+def def3 (r : α → α → Prop) : Set α := DefFunctor r (def3 r)
+  coinductive_fixpoint monotonicity sorry

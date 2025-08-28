@@ -113,6 +113,7 @@ where
     else
       false
 
+/-- Determine if tracing is available for a given class, checking ancestor classes if appropriate. -/
 def isTracingEnabledFor (cls : Name) : m Bool := do
   return checkTraceOption (← MonadTrace.getInheritedTraceOptions) (← getOptions) cls
 
@@ -250,6 +251,13 @@ instance [always : MonadAlwaysExcept ε m] [STWorld ω m] [BEq α] [Hashable α]
     MonadAlwaysExcept ε (MonadCacheT α β m) where
   except := let _ := always.except; inferInstance
 
+/-- Run the provided action `k`, and log its execution within a trace node.
+
+The message is produced after the action completes, and has access to its return value.
+If profiling is enabled, this will also log the runtime of `k`.
+
+The `cls`, `collapsed`, and `tag` arguments are fowarded to the constructor of `TraceData`.
+-/
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let _ := always.except
@@ -319,17 +327,25 @@ def exceptBoolEmoji : Except ε Bool → String
   | .ok true => checkEmoji
   | .ok false => crossEmoji
 
+/-- Visualize an `Except _ (Option _)` using a checkmark or cross.
+
+`bombEmoji` is used for `Except.error`. -/
 def exceptOptionEmoji : Except ε (Option α) → String
   | .error _ => bombEmoji
   | .ok (some _) => checkEmoji
   | .ok none => crossEmoji
 
-/-- Visualize an `Except` using a checkmark or a cross. -/
+/-- Visualize an `Except` using a checkmark or a cross.
+
+Unlike `exceptBoolEmoji` this shows `.error` with `crossEmoji`. -/
 def exceptEmoji : Except ε α → String
   | .error _ => crossEmoji
   | .ok _ => checkEmoji
 
 class ExceptToEmoji (ε α : Type) where
+  /-- Visualize an `Except.ok x` using a checkmark or cross.
+
+  By convention, `bombEmoji` is used for `Except.error`. -/
   toEmoji : Except ε α → String
 
 instance : ExceptToEmoji ε Bool where

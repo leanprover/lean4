@@ -859,9 +859,9 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.Pairwise (fun a b => (a == b) = false) :=
   DHashMap.distinct_keys
 
-theorem nodup_keys [LawfulBEq α] [LawfulHashable α] :
-    m.keys.Nodup := by
-  simpa [List.Nodup] using m.distinct_keys
+theorem nodup_keys [EquivBEq α] [LawfulHashable α] :
+    m.keys.Nodup :=
+  m.distinct_keys.imp ne_of_beq_false
 
 @[simp]
 theorem toArray_keys :

@@ -241,10 +241,12 @@ theorem NatProp.recTest1 (x : NatProp) : True :=
   match x with
   | .zero => trivial
   | .succ k => k.recTest2
+termination_by structural x
 
 theorem NatProp.recTest2 (x : NatProp) : True :=
   match x with
   | .zero => trivial
   | .succ k => k.recTest1
+termination_by structural x
 
 end

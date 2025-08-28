@@ -255,7 +255,7 @@ actual parameters and the remaining are motives.
 partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) (nrealParams : Nat)
     (ctx : RecursionContext) (k : RecursionContext → Expr → MetaM Expr) :
     MetaM (Option (Expr × MetaM Unit)) :=
-  withTraceNode `Meta.IndPredBelow (return m!"{exceptEmoji ·} {matcherApp.toExpr} and {belowParams}") do
+  withTraceNode `Meta.IndPredBelow.match (return m!"{exceptEmoji ·} {matcherApp.toExpr} and {belowParams}") do
   let mut input ← getMkMatcherInputInContext matcherApp
   let mut discrs := matcherApp.discrs
   let mut matchTypeAdd := #[] -- #[(discrIdx, ), ...]
@@ -312,6 +312,7 @@ partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) 
     -- we add new fvars to the end so all `oldCount` previous ones are preserved
     withExistingLocalDecls lhs.fvarDecls do
     lambdaBoundedTelescope alt oldCount fun oldAltVars t => do
+      trace[Meta.IndPredBelow.match] "new decls:\n{newDecls}"
       let fvars := lhs.fvarDecls.toArray.map (·.toExpr)
       let t :=
         -- special case: previously `Unit → motive ...`, now has variables
@@ -425,7 +426,7 @@ where
       let (predPattern, belowPattern) ← convertToBelow belowIndName p var?
       return (.as varId predPattern hId, belowPattern)
     | _ =>
-      -- variables, inaccessibles ==> we can't
+      -- variables, inaccessibles
       let oldH ← originalPattern.toExpr
       if let some var := var? then
         let localDecl ← getFVarLocalDecl var

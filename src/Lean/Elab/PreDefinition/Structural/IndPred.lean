@@ -27,12 +27,34 @@ def andProj (i n : Nat) (e : Expr) : Expr :=
   | i + 1, k + 1 => andProj i k (.proj ``And 1 e)
   | _, _ => e
 
+def replaceIndPredRecApp (recArgInfo : RecArgInfo) (ctx : RecursionContext) (fidx : Nat)
+    (positions : Positions) (e : Expr) (args : Array Expr) : MetaM Expr := do
+  let some recArg := args[recArgInfo.recArgPos]? |
+    throwError "insufficient number of parameters at recursive application {indentExpr e}"
+  let recArg ← whnfCore recArg
+  let fail {α} : MetaM α := do throwError "failed to eliminate recursive application{indentExpr e}"
+  let .fvar recVar := recArg.getAppFn | fail
+  let some (motiveIdx, e) := ctx.motives.get? recVar | fail
+  let e := mkAppN e recArg.getAppArgs
+  let some pos := positions[motiveIdx]!.idxOf? fidx | fail
+  let mut ys := #[]
+  for h : i in *...args.size do
+    unless recArgInfo.indicesPos.contains i || i == recArgInfo.recArgPos do
+      unless recArgInfo.fixedParamPerm.isFixed i do
+        ys := ys.push args[i]
+  let directArgCount := (← inferType e).headBeta.getForallArity
+  trace[Elab.definition.structural] "We have {ys}, and the args: {args}, and {e}"
+  if ys.size < directArgCount then fail
+  let j := positions[motiveIdx]!.size
+  let recApp := mkAppN e ys
+  let recApp := andProj pos j recApp
+  return mkAppN recApp args[recArgInfo.fixedParamPerm.size...*] -- over-application
+
 private partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
     (params : Array Expr) (ctx : RecursionContext) (e : Expr) : M Expr := do
   let recFnNames := recArgInfos.map (·.fnName)
   let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnNames) M Bool :=
     modifyGet (·.contains e)
-  let inv := positions.inverse
   let rec loop (ctx : RecursionContext) (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr := do
     unless ← containsRecFn e do
       return e
@@ -58,22 +80,7 @@ private partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (posi
           let args ← args.mapM (loop ctx)
           if let .const c _ := f then
             if let some fidx := recFnNames.idxOf? c then
-              let info := recArgInfos[fidx]!
-              let some recArg := args[info.recArgPos]? |
-                throwError "insufficient number of parameters at recursive application {indentExpr e}"
-              let recArg ← whnf recArg
-              let fail := throwError "failed to eliminate recursive application{indentExpr e}"
-              let .fvar recVar := recArg | fail
-              let some (motiveIdx, e) := ctx.motives.get? recVar | fail
-              let (ind, i) := inv[fidx]!
-              if ind != motiveIdx then fail
-              let ys := info.fixedParamPerm.pickVarying args
-              let directArgCount := (← inferType e).getForallArity
-              if ys.size < directArgCount then fail
-              let j := positions[ind]!.size
-              let recApp := mkAppN e ys[*...directArgCount]
-              let recApp := andProj i j recApp
-              return mkAppN recApp ys[directArgCount...*]
+              return ← replaceIndPredRecApp recArgInfos[fidx]! ctx fidx positions e args
           return mkAppN (← loop ctx f) args
       let some matcherApp ← matchMatcherApp? e | processApp e
       if recArgInfos.all (fun i => !recArgHasLooseBVarsAt i.fnName i.recArgPos e) then
@@ -85,9 +92,7 @@ private partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (posi
           g (loop ctx e)
       if let some (newApp, addMatcher) := matcherResult then
         modifyThe State fun s => { s with addMatchers := s.addMatchers.push addMatcher }
-        let some _newApp ← matchMatcherApp? newApp | throwError "not a matcherApp: {newApp}"
-        trace[Elab.definition.structural] "modified matcher:\n{newApp}"
-        processApp newApp
+        return newApp
       else
         -- Note: `recArgHasLooseBVarsAt` has false positives, so sometimes everything might stay
         -- the same

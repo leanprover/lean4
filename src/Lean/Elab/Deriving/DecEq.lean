@@ -138,11 +138,10 @@ def mkMatchNew (ctx : Context) (header : Header) (indVal : InductiveVal) : TermE
   -- Alternatively we could define a helper function `casesOnTwoSameCon` that has two targets,
   -- expects `x1.ctorIdx = x2.ctorIdx` and has one arm for each constructors.
   let paramUnderscores : Array Term ← Array.ofFnM (n := indVal.numParams) fun _ => `(_)
-  let indexUnderscores : Array Term ← Array.ofFnM (n := indVal.numIndices) fun _ => `(_)
-  let motive : Term ← `(@fun $indexUnderscores* x1 => $(mkCIdent ctorIdxName) $x2:ident = $(mkCIdent ctorIdxName) x1 → Decidable (x1 = $x2))
+  let motive : Term ← `(@fun x1 => $(mkCIdent ctorIdxName) $x2:ident = $(mkCIdent ctorIdxName) x1 → Decidable (x1 = $x2))
   `(
     if $h:ident : $(mkCIdent ctorIdxName) $x1:ident = $(mkCIdent ctorIdxName) $x2:ident then
-      @$(mkCIdent casesOnName) $paramUnderscores* $motive:term $indexUnderscores* $x1:term $alts:term* ($h:ident).symm
+      @$(mkCIdent casesOnName) $paramUnderscores* $motive:term $x1:term $alts:term* ($h:ident).symm
     else
       isFalse (fun h' => $h:ident (congrArg $(mkCIdent ctorIdxName) h'))
   )
@@ -166,7 +165,8 @@ where
 
 
 def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
-  if indVal.numCtors ≥ deriving.deceq.avoid_match_threshold.get (← getOptions) then
+  if indVal.numCtors ≥ deriving.deceq.avoid_match_threshold.get (← getOptions) &&
+     indVal.numIndices = 0 then
     mkMatchNew ctx header indVal
   else
     mkMatchOld ctx header indVal

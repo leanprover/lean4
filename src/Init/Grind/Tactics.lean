@@ -114,6 +114,7 @@ structure Config where
   When `true` (default: `true`), uses procedure for handling associative (and commutative) operators.
   -/
   ac := true
+  acSteps := 1000
   /--
   Maximum exponent eagerly evaluated while computing bounds for `ToInt` and
   the characteristic of a ring.

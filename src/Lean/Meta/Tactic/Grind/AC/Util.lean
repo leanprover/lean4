@@ -19,6 +19,12 @@ def get' : GoalM State := do
 @[inline] def modify' (f : State → State) : GoalM Unit := do
   modify fun s => { s with ac := f s.ac }
 
+def checkMaxSteps : GoalM Bool := do
+  return (← get').steps >= (← getConfig).acSteps
+
+def incSteps : GoalM Unit := do
+  modify' fun s => { s with steps := s.steps + 1 }
+
 structure ACM.Context where
   opId : Nat
 

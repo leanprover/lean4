@@ -90,6 +90,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_instLEOffset;
 static lean_object* l_Std_Time_Second_instOrdOrdinal___closed__2;
 LEAN_EXPORT lean_object* l_Std_Time_Second_instDecidableEqOrdinal___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instDecidableLeOrdinal___redArg___boxed(lean_object*, lean_object*);
+lean_object* l_Std_Time_Internal_defaultUnitVal____x40_Std_Time_Internal_UnitVal_2277112071____hygCtx___hyg_185_(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instLTOffset;
 static lean_object* l_Std_Time_Second_instOrdOrdinal___closed__1;
@@ -119,7 +120,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt(uint8_t, lean_object*, lean_object*);
-lean_object* l_Std_Time_Internal_defaultUnitVal____x40_Std_Time_Internal_UnitVal_2277112071____hygCtx___hyg_187_(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instLTOrdinal(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instLEOrdinal(uint8_t x_1) {
 _start:
@@ -598,7 +598,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Time_Second_instInhabitedOffset___closed__0;
-x_2 = l_Std_Time_Internal_defaultUnitVal____x40_Std_Time_Internal_UnitVal_2277112071____hygCtx___hyg_187_(x_1);
+x_2 = l_Std_Time_Internal_defaultUnitVal____x40_Std_Time_Internal_UnitVal_2277112071____hygCtx___hyg_185_(x_1);
 return x_2;
 }
 }

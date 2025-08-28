@@ -777,8 +777,8 @@ return x_11;
 block_18:
 {
 lean_object* x_17; 
-lean_dec(x_14);
-x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_Tactic_Omega_atoms_spec__1___redArg(x_15, x_13, x_16);
+lean_dec(x_13);
+x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_Tactic_Omega_atoms_spec__1___redArg(x_15, x_14, x_16);
 lean_dec(x_16);
 x_7 = x_17;
 goto block_12;
@@ -786,23 +786,23 @@ goto block_12;
 block_24:
 {
 uint8_t x_23; 
-x_23 = lean_nat_dec_le(x_22, x_19);
+x_23 = lean_nat_dec_le(x_22, x_21);
 if (x_23 == 0)
 {
-lean_dec(x_19);
+lean_dec(x_21);
 lean_inc(x_22);
-x_13 = x_22;
-x_14 = x_20;
-x_15 = x_21;
+x_13 = x_19;
+x_14 = x_22;
+x_15 = x_20;
 x_16 = x_22;
 goto block_18;
 }
 else
 {
-x_13 = x_22;
-x_14 = x_20;
-x_15 = x_21;
-x_16 = x_19;
+x_13 = x_19;
+x_14 = x_22;
+x_15 = x_20;
+x_16 = x_21;
 goto block_18;
 }
 }
@@ -821,17 +821,17 @@ x_31 = lean_nat_dec_le(x_27, x_30);
 if (x_31 == 0)
 {
 lean_inc(x_30);
-x_19 = x_30;
-x_20 = x_26;
-x_21 = x_25;
+x_19 = x_26;
+x_20 = x_25;
+x_21 = x_30;
 x_22 = x_30;
 goto block_24;
 }
 else
 {
-x_19 = x_30;
-x_20 = x_26;
-x_21 = x_25;
+x_19 = x_26;
+x_20 = x_25;
+x_21 = x_30;
 x_22 = x_27;
 goto block_24;
 }

@@ -166,7 +166,6 @@ static lean_object* l_Array_Array_repr___at_____private_Lean_Elab_PreDefinition_
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lean_Meta_ForEachExpr_0__Lean_Meta_forEachExpr_x27_visit___at___Lean_Meta_forEachExpr_x27___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix_spec__1_spec__1_spec__3_spec__3___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Elab_Structural_Positions_groupAndSort___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__13_spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitForall___at_____private_Lean_Meta_ForEachExpr_0__Lean_Meta_forEachExpr_x27_visit___at___Lean_Meta_forEachExpr_x27___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix_spec__1_spec__1_spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_defaultPreDefinition____x40_Lean_Elab_PreDefinition_Basic_7717608____hygCtx___hyg_80_;
 LEAN_EXPORT lean_object* l_Lean_setEnv___at___Lean_withEnv___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos_spec__26_spec__26(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__23(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___closed__22;
@@ -202,7 +201,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____priva
 LEAN_EXPORT lean_object* l_Array_zipWithMAux___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_FixedParamPerms_erase(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ForEachExpr_0__Lean_Meta_forEachExpr_x27_visit___at___Lean_Meta_forEachExpr_x27___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Structural_reprRecArgInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_68_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__24___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__23___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -277,8 +275,10 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 static lean_object* l_Lean_setEnv___at___Lean_withEnv___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos_spec__26_spec__26___redArg___closed__1;
 lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_defaultPreDefinition____x40_Lean_Elab_PreDefinition_Basic_7717608____hygCtx___hyg_71_;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at_____private_Lean_Meta_ForEachExpr_0__Lean_Meta_forEachExpr_x27_visit___at___Lean_Meta_forEachExpr_x27___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix_spec__1_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Array_Array_repr___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos_spec__17___closed__2;
+uint8_t l_Lean_beqFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_20_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix_spec__0(lean_object*, uint8_t, uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos___lam__4___boxed__const__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ForEachExpr_0__Lean_Meta_visitForall_visit___at___Lean_Meta_visitForall___at_____private_Lean_Meta_ForEachExpr_0__Lean_Meta_forEachExpr_x27_visit___at___Lean_Meta_forEachExpr_x27___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix_spec__1_spec__1_spec__12_spec__12___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -300,6 +300,7 @@ static lean_object* l_Lean_Meta_withErasedFVars___at_____private_Lean_Elab_PreDe
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_Positions_groupAndSort___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__13___redArg___closed__4;
 lean_object* l_Lean_enableRealizationsForConst(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__19;
 lean_object* l_Lean_Meta_mapErrorImp___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_structuralRecursion___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ForEachExpr_0__Lean_Meta_forEachExpr_x27_visit___at___Lean_Meta_forEachExpr_x27___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix_spec__1_spec__1___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -310,6 +311,7 @@ static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_____private_Lean_Meta_ForEachExpr_0__Lean_Meta_visitLet_visit___at___Lean_Meta_visitLet___at_____private_Lean_Meta_ForEachExpr_0__Lean_Meta_forEachExpr_x27_visit___at___Lean_Meta_forEachExpr_x27___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix_spec__1_spec__1_spec__14_spec__14_spec__14___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Array_Array_repr___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos_spec__17_spec__17(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__18;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Elab_Structural_structuralRecursion_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Meta_withErasedFVars___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos_spec__5_spec__9(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_Positions_groupAndSort___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__13_spec__15_spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -329,7 +331,6 @@ static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownId
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ForEachExpr_0__Lean_Meta_forEachExpr_x27_visit___at___Lean_Meta_forEachExpr_x27___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix_spec__1_spec__1___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Elab_Structural_structuralRecursion_spec__5___closed__1;
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_22_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lean_Meta_ForEachExpr_0__Lean_Meta_forEachExpr_x27_visit___at___Lean_Meta_forEachExpr_x27___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix_spec__1_spec__1_spec__3_spec__3___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__23___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
@@ -343,6 +344,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___Lean_Elab_Structural_reportTermMeasure_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___closed__9;
+extern lean_object* l_Lean_Elab_Structural_defaultRecArgInfo____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_55_;
 static lean_object* l_Array_Array_repr___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos_spec__17___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_Structural_structuralRecursion_spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___closed__16;
@@ -368,6 +370,7 @@ LEAN_EXPORT lean_object* l_List_mapTR_loop___at___List_mapTR_loop___at_____priva
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos_spec__12___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__24___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__12___redArg___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__20;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__3_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos_spec__12_spec__12___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -377,6 +380,7 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_FixedParamPerm_buildArgs___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_Positions_groupAndSort___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__13___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingDomain_x21(lean_object*);
+static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_structuralRecursion_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Elab_Structural_Positions_groupAndSort___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__13_spec__13___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos_spec__12_spec__12___closed__5;
@@ -421,6 +425,7 @@ LEAN_EXPORT lean_object* l_Array_Array_repr___at_____private_Lean_Elab_PreDefini
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___Lean_Elab_Structural_reportTermMeasure_spec__0(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
+lean_object* l_Lean_Elab_Structural_reprRecArgInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_61_(lean_object*);
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__1;
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_withCommonTelescope_go_spec__3(lean_object*, size_t, size_t);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos___lam__2___closed__7;
@@ -435,7 +440,6 @@ LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnkn
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__4;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_structuralRecursion_spec__0(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Structural_defaultRecArgInfo____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_62_;
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___closed__12;
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
@@ -462,6 +466,7 @@ static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lean_Meta_ForEachExpr_0__Lean_Meta_forEachExpr_x27_visit___at___Lean_Meta_forEachExpr_x27___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix_spec__1_spec__1_spec__3_spec__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_____private_Lean_Meta_ForEachExpr_0__Lean_Meta_visitLet_visit___at___Lean_Meta_visitLet___at_____private_Lean_Meta_ForEachExpr_0__Lean_Meta_forEachExpr_x27_visit___at___Lean_Meta_forEachExpr_x27___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix_spec__1_spec__1_spec__14_spec__14_spec__14___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___closed__4;
+uint8_t l_Lean_isPrivateName(lean_object*);
 LEAN_EXPORT lean_object* l_Array_zipWithMAux___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__22___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_Positions_groupAndSort___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__13_spec__15___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
@@ -486,6 +491,7 @@ size_t lean_usize_add(size_t, size_t);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___closed__10;
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_Positions_groupAndSort___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__13_spec__15_spec__15(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos_spec__1___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4660,7 +4666,7 @@ static lean_object* _init_l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnk
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("` (from ", 8, 8);
+x_1 = lean_mk_string_unchecked("` (from the current module) exists but would need to be public to access here.", 78, 78);
 return x_1;
 }
 }
@@ -4677,7 +4683,7 @@ static lean_object* _init_l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnk
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(") exists but is not accessible in the current context.", 54, 54);
+x_1 = lean_mk_string_unchecked("A public declaration `", 22, 22);
 return x_1;
 }
 }
@@ -4694,7 +4700,7 @@ static lean_object* _init_l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnk
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("this module", 11, 11);
+x_1 = lean_mk_string_unchecked("` exists but is imported privately; consider adding `public import ", 67, 67);
 return x_1;
 }
 }
@@ -4703,33 +4709,57 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__13;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
 static lean_object* _init_l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__15() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__14;
-x_2 = l_Lean_MessageData_ofFormat(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("`.", 2, 2);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__16() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`", 1, 1);
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__15;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__17() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("` (from `", 9, 9);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__18() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__16;
+x_1 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__17;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__19() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("`) exists but would need to be public to access here.", 53, 53);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__20() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__19;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -4742,115 +4772,144 @@ x_9 = lean_st_ref_get(x_7, x_8);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_17; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_21; 
 x_11 = lean_ctor_get(x_9, 0);
 x_12 = lean_ctor_get(x_9, 1);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc_ref(x_13);
 lean_dec(x_11);
-x_17 = l_Lean_Name_isAnonymous(x_2);
-if (x_17 == 0)
+x_21 = l_Lean_Name_isAnonymous(x_2);
+if (x_21 == 0)
 {
-uint8_t x_18; 
-x_18 = lean_ctor_get_uint8(x_13, sizeof(void*)*8);
-if (x_18 == 0)
+uint8_t x_22; 
+x_22 = lean_ctor_get_uint8(x_13, sizeof(void*)*8);
+if (x_22 == 0)
 {
 lean_dec_ref(x_13);
 lean_free_object(x_9);
 lean_dec(x_2);
-goto block_16;
+goto block_20;
 }
 else
 {
-lean_object* x_19; uint8_t x_20; 
+lean_object* x_23; uint8_t x_24; 
 lean_inc_ref(x_13);
-x_19 = l_Lean_Environment_setExporting(x_13, x_17);
+x_23 = l_Lean_Environment_setExporting(x_13, x_21);
 lean_inc(x_2);
-lean_inc_ref(x_19);
-x_20 = l_Lean_Environment_contains(x_19, x_2, x_18);
-if (x_20 == 0)
+lean_inc_ref(x_23);
+x_24 = l_Lean_Environment_contains(x_23, x_2, x_22);
+if (x_24 == 0)
 {
-lean_dec_ref(x_19);
+lean_dec_ref(x_23);
 lean_dec_ref(x_13);
 lean_free_object(x_9);
 lean_dec(x_2);
-goto block_16;
+goto block_20;
 }
 else
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_39; 
-x_21 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__2;
-x_22 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__6;
-x_23 = lean_box(0);
-x_24 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_24, 0, x_19);
-lean_ctor_set(x_24, 1, x_21);
-lean_ctor_set(x_24, 2, x_22);
-lean_ctor_set(x_24, 3, x_23);
+lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+x_25 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__2;
+x_26 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__6;
+x_27 = lean_box(0);
+x_28 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_28, 0, x_23);
+lean_ctor_set(x_28, 1, x_25);
+lean_ctor_set(x_28, 2, x_26);
+lean_ctor_set(x_28, 3, x_27);
 lean_inc(x_2);
-x_25 = l_Lean_MessageData_ofConstName(x_2, x_17);
+x_29 = l_Lean_MessageData_ofConstName(x_2, x_21);
 lean_ctor_set_tag(x_9, 3);
-lean_ctor_set(x_9, 1, x_25);
-lean_ctor_set(x_9, 0, x_24);
-x_39 = l_Lean_Environment_getModuleIdxFor_x3f(x_13, x_2);
-lean_dec(x_2);
-if (lean_obj_tag(x_39) == 0)
+lean_ctor_set(x_9, 1, x_29);
+lean_ctor_set(x_9, 0, x_28);
+x_30 = l_Lean_Environment_getModuleIdxFor_x3f(x_13, x_2);
+if (lean_obj_tag(x_30) == 0)
 {
-lean_object* x_40; 
+lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_dec_ref(x_13);
-x_40 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__15;
-x_26 = x_40;
-goto block_38;
+lean_dec(x_2);
+x_31 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__8;
+x_32 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_32, 0, x_31);
+lean_ctor_set(x_32, 1, x_9);
+x_33 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__10;
+x_34 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_34, 0, x_32);
+lean_ctor_set(x_34, 1, x_33);
+x_35 = l_Lean_MessageData_note(x_34);
+x_36 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_36, 0, x_1);
+lean_ctor_set(x_36, 1, x_35);
+x_14 = x_36;
+goto block_17;
 }
 else
 {
-lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
-x_41 = lean_ctor_get(x_39, 0);
-lean_inc(x_41);
-lean_dec_ref(x_39);
-x_42 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__17;
-x_43 = lean_box(0);
-x_44 = l_Lean_Environment_header(x_13);
+lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; uint8_t x_42; 
+x_37 = lean_ctor_get(x_30, 0);
+lean_inc(x_37);
+lean_dec_ref(x_30);
+x_38 = lean_box(0);
+x_39 = l_Lean_Environment_header(x_13);
 lean_dec_ref(x_13);
-x_45 = l_Lean_EnvironmentHeader_moduleNames(x_44);
-x_46 = lean_array_get(x_43, x_45, x_41);
-lean_dec(x_41);
-lean_dec_ref(x_45);
-x_47 = l_Lean_MessageData_ofName(x_46);
-x_48 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_48, 0, x_42);
-lean_ctor_set(x_48, 1, x_47);
-x_49 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_49, 0, x_48);
-lean_ctor_set(x_49, 1, x_42);
-x_26 = x_49;
-goto block_38;
-}
-block_38:
+x_40 = l_Lean_EnvironmentHeader_moduleNames(x_39);
+x_41 = lean_array_get(x_38, x_40, x_37);
+lean_dec(x_37);
+lean_dec_ref(x_40);
+x_42 = l_Lean_isPrivateName(x_2);
+lean_dec(x_2);
+if (x_42 == 0)
 {
-lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
-x_27 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__8;
-x_28 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_28, 1, x_9);
-x_29 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__10;
-x_30 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_30, 0, x_28);
-lean_ctor_set(x_30, 1, x_29);
-x_31 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_31, 0, x_30);
-lean_ctor_set(x_31, 1, x_26);
-x_32 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__12;
-x_33 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_33, 0, x_31);
-lean_ctor_set(x_33, 1, x_32);
-x_34 = l_Lean_MessageData_note(x_33);
-x_35 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_35, 0, x_1);
-lean_ctor_set(x_35, 1, x_34);
-x_36 = lean_box(0);
-x_37 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___lam__0(x_35, x_36, x_3, x_4, x_5, x_6, x_7, x_12);
-return x_37;
+lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
+x_43 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__12;
+x_44 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_44, 0, x_43);
+lean_ctor_set(x_44, 1, x_9);
+x_45 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__14;
+x_46 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_46, 0, x_44);
+lean_ctor_set(x_46, 1, x_45);
+x_47 = l_Lean_MessageData_ofName(x_41);
+x_48 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_48, 0, x_46);
+lean_ctor_set(x_48, 1, x_47);
+x_49 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__16;
+x_50 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_50, 0, x_48);
+lean_ctor_set(x_50, 1, x_49);
+x_51 = l_Lean_MessageData_note(x_50);
+x_52 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_52, 0, x_1);
+lean_ctor_set(x_52, 1, x_51);
+x_14 = x_52;
+goto block_17;
+}
+else
+{
+lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
+x_53 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__8;
+x_54 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_54, 0, x_53);
+lean_ctor_set(x_54, 1, x_9);
+x_55 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__18;
+x_56 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_56, 0, x_54);
+lean_ctor_set(x_56, 1, x_55);
+x_57 = l_Lean_MessageData_ofName(x_41);
+x_58 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_58, 0, x_56);
+lean_ctor_set(x_58, 1, x_57);
+x_59 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__20;
+x_60 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_60, 0, x_58);
+lean_ctor_set(x_60, 1, x_59);
+x_61 = l_Lean_MessageData_note(x_60);
+x_62 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_62, 0, x_1);
+lean_ctor_set(x_62, 1, x_61);
+x_14 = x_62;
+goto block_17;
+}
 }
 }
 }
@@ -4860,144 +4919,187 @@ else
 lean_dec_ref(x_13);
 lean_free_object(x_9);
 lean_dec(x_2);
-goto block_16;
+goto block_20;
 }
-block_16:
+block_17:
 {
-lean_object* x_14; lean_object* x_15; 
-x_14 = lean_box(0);
-x_15 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___lam__0(x_1, x_14, x_3, x_4, x_5, x_6, x_7, x_12);
-return x_15;
+lean_object* x_15; lean_object* x_16; 
+x_15 = lean_box(0);
+x_16 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___lam__0(x_14, x_15, x_3, x_4, x_5, x_6, x_7, x_12);
+return x_16;
+}
+block_20:
+{
+lean_object* x_18; lean_object* x_19; 
+x_18 = lean_box(0);
+x_19 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___lam__0(x_1, x_18, x_3, x_4, x_5, x_6, x_7, x_12);
+return x_19;
 }
 }
 else
 {
-lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_56; 
-x_50 = lean_ctor_get(x_9, 0);
-x_51 = lean_ctor_get(x_9, 1);
-lean_inc(x_51);
-lean_inc(x_50);
+lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; uint8_t x_73; 
+x_63 = lean_ctor_get(x_9, 0);
+x_64 = lean_ctor_get(x_9, 1);
+lean_inc(x_64);
+lean_inc(x_63);
 lean_dec(x_9);
-x_52 = lean_ctor_get(x_50, 0);
-lean_inc_ref(x_52);
-lean_dec(x_50);
-x_56 = l_Lean_Name_isAnonymous(x_2);
-if (x_56 == 0)
+x_65 = lean_ctor_get(x_63, 0);
+lean_inc_ref(x_65);
+lean_dec(x_63);
+x_73 = l_Lean_Name_isAnonymous(x_2);
+if (x_73 == 0)
 {
-uint8_t x_57; 
-x_57 = lean_ctor_get_uint8(x_52, sizeof(void*)*8);
-if (x_57 == 0)
+uint8_t x_74; 
+x_74 = lean_ctor_get_uint8(x_65, sizeof(void*)*8);
+if (x_74 == 0)
 {
-lean_dec_ref(x_52);
+lean_dec_ref(x_65);
 lean_dec(x_2);
-goto block_55;
+goto block_72;
 }
 else
 {
-lean_object* x_58; uint8_t x_59; 
-lean_inc_ref(x_52);
-x_58 = l_Lean_Environment_setExporting(x_52, x_56);
+lean_object* x_75; uint8_t x_76; 
+lean_inc_ref(x_65);
+x_75 = l_Lean_Environment_setExporting(x_65, x_73);
 lean_inc(x_2);
-lean_inc_ref(x_58);
-x_59 = l_Lean_Environment_contains(x_58, x_2, x_57);
-if (x_59 == 0)
+lean_inc_ref(x_75);
+x_76 = l_Lean_Environment_contains(x_75, x_2, x_74);
+if (x_76 == 0)
 {
-lean_dec_ref(x_58);
-lean_dec_ref(x_52);
+lean_dec_ref(x_75);
+lean_dec_ref(x_65);
 lean_dec(x_2);
-goto block_55;
+goto block_72;
 }
 else
 {
-lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_79; 
-x_60 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__2;
-x_61 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__6;
-x_62 = lean_box(0);
-x_63 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_63, 0, x_58);
-lean_ctor_set(x_63, 1, x_60);
-lean_ctor_set(x_63, 2, x_61);
-lean_ctor_set(x_63, 3, x_62);
+lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; 
+x_77 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__2;
+x_78 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__6;
+x_79 = lean_box(0);
+x_80 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_80, 0, x_75);
+lean_ctor_set(x_80, 1, x_77);
+lean_ctor_set(x_80, 2, x_78);
+lean_ctor_set(x_80, 3, x_79);
 lean_inc(x_2);
-x_64 = l_Lean_MessageData_ofConstName(x_2, x_56);
-x_65 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_65, 0, x_63);
-lean_ctor_set(x_65, 1, x_64);
-x_79 = l_Lean_Environment_getModuleIdxFor_x3f(x_52, x_2);
+x_81 = l_Lean_MessageData_ofConstName(x_2, x_73);
+x_82 = lean_alloc_ctor(3, 2, 0);
+lean_ctor_set(x_82, 0, x_80);
+lean_ctor_set(x_82, 1, x_81);
+x_83 = l_Lean_Environment_getModuleIdxFor_x3f(x_65, x_2);
+if (lean_obj_tag(x_83) == 0)
+{
+lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; 
+lean_dec_ref(x_65);
 lean_dec(x_2);
-if (lean_obj_tag(x_79) == 0)
-{
-lean_object* x_80; 
-lean_dec_ref(x_52);
-x_80 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__15;
-x_66 = x_80;
-goto block_78;
-}
-else
-{
-lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; 
-x_81 = lean_ctor_get(x_79, 0);
-lean_inc(x_81);
-lean_dec_ref(x_79);
-x_82 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__17;
-x_83 = lean_box(0);
-x_84 = l_Lean_Environment_header(x_52);
-lean_dec_ref(x_52);
-x_85 = l_Lean_EnvironmentHeader_moduleNames(x_84);
-x_86 = lean_array_get(x_83, x_85, x_81);
-lean_dec(x_81);
-lean_dec_ref(x_85);
-x_87 = l_Lean_MessageData_ofName(x_86);
-x_88 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_88, 0, x_82);
-lean_ctor_set(x_88, 1, x_87);
+x_84 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__8;
+x_85 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_85, 0, x_84);
+lean_ctor_set(x_85, 1, x_82);
+x_86 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__10;
+x_87 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_87, 0, x_85);
+lean_ctor_set(x_87, 1, x_86);
+x_88 = l_Lean_MessageData_note(x_87);
 x_89 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_89, 0, x_88);
-lean_ctor_set(x_89, 1, x_82);
+lean_ctor_set(x_89, 0, x_1);
+lean_ctor_set(x_89, 1, x_88);
 x_66 = x_89;
-goto block_78;
+goto block_69;
 }
-block_78:
+else
 {
-lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; 
-x_67 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__8;
-x_68 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_68, 0, x_67);
-lean_ctor_set(x_68, 1, x_65);
-x_69 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__10;
-x_70 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_70, 0, x_68);
-lean_ctor_set(x_70, 1, x_69);
-x_71 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_71, 0, x_70);
-lean_ctor_set(x_71, 1, x_66);
-x_72 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__12;
-x_73 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_73, 0, x_71);
-lean_ctor_set(x_73, 1, x_72);
-x_74 = l_Lean_MessageData_note(x_73);
-x_75 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_75, 0, x_1);
-lean_ctor_set(x_75, 1, x_74);
-x_76 = lean_box(0);
-x_77 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___lam__0(x_75, x_76, x_3, x_4, x_5, x_6, x_7, x_51);
-return x_77;
+lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; uint8_t x_95; 
+x_90 = lean_ctor_get(x_83, 0);
+lean_inc(x_90);
+lean_dec_ref(x_83);
+x_91 = lean_box(0);
+x_92 = l_Lean_Environment_header(x_65);
+lean_dec_ref(x_65);
+x_93 = l_Lean_EnvironmentHeader_moduleNames(x_92);
+x_94 = lean_array_get(x_91, x_93, x_90);
+lean_dec(x_90);
+lean_dec_ref(x_93);
+x_95 = l_Lean_isPrivateName(x_2);
+lean_dec(x_2);
+if (x_95 == 0)
+{
+lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; 
+x_96 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__12;
+x_97 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_97, 0, x_96);
+lean_ctor_set(x_97, 1, x_82);
+x_98 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__14;
+x_99 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_99, 0, x_97);
+lean_ctor_set(x_99, 1, x_98);
+x_100 = l_Lean_MessageData_ofName(x_94);
+x_101 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_101, 0, x_99);
+lean_ctor_set(x_101, 1, x_100);
+x_102 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__16;
+x_103 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_103, 0, x_101);
+lean_ctor_set(x_103, 1, x_102);
+x_104 = l_Lean_MessageData_note(x_103);
+x_105 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_105, 0, x_1);
+lean_ctor_set(x_105, 1, x_104);
+x_66 = x_105;
+goto block_69;
+}
+else
+{
+lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; 
+x_106 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__8;
+x_107 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_107, 0, x_106);
+lean_ctor_set(x_107, 1, x_82);
+x_108 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__18;
+x_109 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_109, 0, x_107);
+lean_ctor_set(x_109, 1, x_108);
+x_110 = l_Lean_MessageData_ofName(x_94);
+x_111 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_111, 0, x_109);
+lean_ctor_set(x_111, 1, x_110);
+x_112 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__20;
+x_113 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_113, 0, x_111);
+lean_ctor_set(x_113, 1, x_112);
+x_114 = l_Lean_MessageData_note(x_113);
+x_115 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_115, 0, x_1);
+lean_ctor_set(x_115, 1, x_114);
+x_66 = x_115;
+goto block_69;
+}
 }
 }
 }
 }
 else
 {
-lean_dec_ref(x_52);
+lean_dec_ref(x_65);
 lean_dec(x_2);
-goto block_55;
+goto block_72;
 }
-block_55:
+block_69:
 {
-lean_object* x_53; lean_object* x_54; 
-x_53 = lean_box(0);
-x_54 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___lam__0(x_1, x_53, x_3, x_4, x_5, x_6, x_7, x_51);
-return x_54;
+lean_object* x_67; lean_object* x_68; 
+x_67 = lean_box(0);
+x_68 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___lam__0(x_66, x_67, x_3, x_4, x_5, x_6, x_7, x_64);
+return x_68;
+}
+block_72:
+{
+lean_object* x_70; lean_object* x_71; 
+x_70 = lean_box(0);
+x_71 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___lam__0(x_1, x_70, x_3, x_4, x_5, x_6, x_7, x_64);
+return x_71;
 }
 }
 }
@@ -5287,6 +5389,23 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("`", 1, 1);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__2;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -5298,7 +5417,7 @@ x_11 = l_Lean_MessageData_ofConstName(x_2, x_10);
 x_12 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_12, 0, x_9);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__17;
+x_13 = l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__3;
 x_14 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
@@ -5473,7 +5592,7 @@ lean_dec(x_9);
 x_16 = lean_ctor_get(x_8, 1);
 lean_inc(x_16);
 lean_dec_ref(x_8);
-x_17 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__17;
+x_17 = l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__3;
 x_18 = 0;
 x_19 = l_Lean_MessageData_ofConstName(x_1, x_18);
 x_20 = lean_alloc_ctor(7, 2, 0);
@@ -6079,8 +6198,8 @@ return x_10;
 block_24:
 {
 lean_object* x_23; 
-lean_dec(x_19);
-x_23 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_Structural_Positions_groupAndSort___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__13_spec__18___redArg(x_21, x_20, x_22);
+lean_dec(x_21);
+x_23 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_Structural_Positions_groupAndSort___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__13_spec__18___redArg(x_19, x_20, x_22);
 lean_dec(x_22);
 x_13 = x_23;
 goto block_18;
@@ -6088,14 +6207,14 @@ goto block_18;
 block_30:
 {
 uint8_t x_29; 
-x_29 = lean_nat_dec_le(x_28, x_27);
+x_29 = lean_nat_dec_le(x_28, x_26);
 if (x_29 == 0)
 {
-lean_dec(x_27);
+lean_dec(x_26);
 lean_inc(x_28);
 x_19 = x_25;
 x_20 = x_28;
-x_21 = x_26;
+x_21 = x_27;
 x_22 = x_28;
 goto block_24;
 }
@@ -6103,8 +6222,8 @@ else
 {
 x_19 = x_25;
 x_20 = x_28;
-x_21 = x_26;
-x_22 = x_27;
+x_21 = x_27;
+x_22 = x_26;
 goto block_24;
 }
 }
@@ -6123,17 +6242,17 @@ x_37 = lean_nat_dec_le(x_33, x_36);
 if (x_37 == 0)
 {
 lean_inc(x_36);
-x_25 = x_32;
-x_26 = x_31;
-x_27 = x_36;
+x_25 = x_31;
+x_26 = x_36;
+x_27 = x_32;
 x_28 = x_36;
 goto block_30;
 }
 else
 {
-x_25 = x_32;
-x_26 = x_31;
-x_27 = x_36;
+x_25 = x_31;
+x_26 = x_36;
+x_27 = x_32;
 x_28 = x_33;
 goto block_30;
 }
@@ -7229,7 +7348,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_Main_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Structural_defaultRecArgInfo____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_62_;
+x_1 = l_Lean_Elab_Structural_defaultRecArgInfo____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_55_;
 return x_1;
 }
 }
@@ -7237,7 +7356,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_Main_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_defaultPreDefinition____x40_Lean_Elab_PreDefinition_Basic_7717608____hygCtx___hyg_80_;
+x_1 = l_Lean_Elab_defaultPreDefinition____x40_Lean_Elab_PreDefinition_Basic_7717608____hygCtx___hyg_71_;
 return x_1;
 }
 }
@@ -9661,7 +9780,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
-x_7 = l_Lean_beqFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_22_(x_1, x_6);
+x_7 = l_Lean_beqFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_20_(x_1, x_6);
 lean_dec(x_6);
 if (x_7 == 0)
 {
@@ -9979,7 +10098,7 @@ LEAN_EXPORT uint8_t l_Lean_exprDependsOn___at_____private_Lean_Elab_PreDefinitio
 _start:
 {
 uint8_t x_3; 
-x_3 = l_Lean_beqFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_22_(x_1, x_2);
+x_3 = l_Lean_beqFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_20_(x_1, x_2);
 return x_3;
 }
 }
@@ -10785,7 +10904,7 @@ lean_inc(x_1);
 lean_ctor_set_tag(x_3, 5);
 lean_ctor_set(x_3, 1, x_1);
 lean_ctor_set(x_3, 0, x_2);
-x_7 = l_Lean_Elab_Structural_reprRecArgInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_68_(x_5);
+x_7 = l_Lean_Elab_Structural_reprRecArgInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_61_(x_5);
 x_8 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_8, 0, x_3);
 lean_ctor_set(x_8, 1, x_7);
@@ -10805,7 +10924,7 @@ lean_inc(x_1);
 x_12 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_12, 0, x_2);
 lean_ctor_set(x_12, 1, x_1);
-x_13 = l_Lean_Elab_Structural_reprRecArgInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_68_(x_10);
+x_13 = l_Lean_Elab_Structural_reprRecArgInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_61_(x_10);
 x_14 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
@@ -10837,7 +10956,7 @@ lean_inc(x_1);
 lean_ctor_set_tag(x_3, 5);
 lean_ctor_set(x_3, 1, x_1);
 lean_ctor_set(x_3, 0, x_2);
-x_7 = l_Lean_Elab_Structural_reprRecArgInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_68_(x_5);
+x_7 = l_Lean_Elab_Structural_reprRecArgInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_61_(x_5);
 x_8 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_8, 0, x_3);
 lean_ctor_set(x_8, 1, x_7);
@@ -10856,7 +10975,7 @@ lean_inc(x_1);
 x_12 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_12, 0, x_2);
 lean_ctor_set(x_12, 1, x_1);
-x_13 = l_Lean_Elab_Structural_reprRecArgInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_68_(x_10);
+x_13 = l_Lean_Elab_Structural_reprRecArgInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_61_(x_10);
 x_14 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
@@ -10887,7 +11006,7 @@ lean_dec(x_2);
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec_ref(x_1);
-x_6 = l_Lean_Elab_Structural_reprRecArgInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_68_(x_5);
+x_6 = l_Lean_Elab_Structural_reprRecArgInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_61_(x_5);
 return x_6;
 }
 else
@@ -10897,7 +11016,7 @@ lean_inc_ref(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);
-x_8 = l_Lean_Elab_Structural_reprRecArgInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_68_(x_7);
+x_8 = l_Lean_Elab_Structural_reprRecArgInfo___redArg____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_61_(x_7);
 x_9 = l_List_foldl___at___Std_Format_joinSep___at___Array_Array_repr___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos_spec__17_spec__17_spec__17(x_2, x_8, x_4);
 return x_9;
 }
@@ -16607,10 +16726,20 @@ l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Le
 lean_mark_persistent(l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__16);
 l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__17 = _init_l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__17();
 lean_mark_persistent(l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__17);
+l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__18 = _init_l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__18();
+lean_mark_persistent(l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__18);
+l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__19 = _init_l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__19();
+lean_mark_persistent(l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__19);
+l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__20 = _init_l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__20();
+lean_mark_persistent(l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2_spec__2_spec__2___closed__20);
 l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__0 = _init_l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__0();
 lean_mark_persistent(l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__0);
 l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__1 = _init_l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__1();
 lean_mark_persistent(l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__1);
+l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__2 = _init_l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__2();
+lean_mark_persistent(l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__2);
+l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__3 = _init_l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__3();
+lean_mark_persistent(l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2_spec__2_spec__2_spec__2___redArg___closed__3);
 l_Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2___closed__0 = _init_l_Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2___closed__0();
 lean_mark_persistent(l_Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2___closed__0);
 l_Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2___closed__1 = _init_l_Lean_getConstInfoInduct___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__2___closed__1();

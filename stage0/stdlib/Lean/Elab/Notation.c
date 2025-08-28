@@ -220,6 +220,7 @@ static lean_object* l_Lean_Elab_Command_removeParentheses___closed__2;
 lean_object* l_Lean_Elab_Command_elabSyntax(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_mkUnexpander___closed__67;
 uint8_t lean_name_eq(lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_152_;
 static lean_object* l_Lean_Elab_Command_expandNotationItemIntoSyntaxItem___closed__12;
 static lean_object* l_Lean_Elab_Command_mkUnexpander___closed__51;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Command_addInheritDocDefault_spec__0___redArg___closed__6;
@@ -336,7 +337,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_removeParentheses(lean_object*, lea
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Command_addInheritDocDefault_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_elabNotation_spec__1_spec__6_spec__6_spec__6_spec__7___closed__0;
 size_t lean_usize_add(size_t, size_t);
-extern lean_object* l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_165_;
 static lean_object* l_Lean_Elab_Command_mkUnexpander___closed__28;
 static lean_object* l_Lean_Elab_Command_mkUnexpander___closed__42;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -5643,7 +5643,7 @@ static lean_object* _init_l_Lean_isTracingEnabledFor___at___Lean_Elab_liftMacroM
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_165_;
+x_1 = l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_152_;
 return x_1;
 }
 }

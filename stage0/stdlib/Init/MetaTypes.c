@@ -14,82 +14,127 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_noConfusion___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_defaultEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_7_;
+LEAN_EXPORT uint8_t l_Lean_Meta_defaultEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_8_;
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_default_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedNameGenerator;
+LEAN_EXPORT lean_object* l_Lean_Meta_defaultOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_31_;
 LEAN_EXPORT uint8_t l_Lean_Meta_instInhabitedEtaStructMode;
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_ctorIdx(uint8_t);
 static lean_object* l_Lean_Meta_Simp_instBEqConfig___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_none_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_all_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_notClasses_elim___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Module_ctorIdx(lean_object*);
 static lean_object* l_Lean_Meta_instBEqOccurrences___closed__0;
-LEAN_EXPORT uint8_t l_Lean_Meta_defaultTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_7_;
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_all_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_instances_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameGenerator_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_all_elim___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_ctorElim___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_37____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_defaultNameGenerator___closed__0____x40_Init_MetaTypes_1938196255____hygCtx___hyg_24_;
 static lean_object* l_Lean_Meta_instBEqEtaStructMode___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_instances_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_instances_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instCoeListNatOccurrences;
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_ctorIdx___boxed(lean_object*);
 uint8_t l_List_hasDecEq___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DSimp_instBEqConfig;
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_default_elim___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_ctorElim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_13____boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_neutralConfig;
 LEAN_EXPORT lean_object* l_Lean_Meta_DSimp_defaultConfig____x40_Init_MetaTypes_3081449384____hygCtx___hyg_132_;
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_ConfigCtx_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_DSimp_instBEqConfig___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_DSimp_Config_ctorIdx(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Meta_defaultTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_8_;
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_reducible_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_none_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DSimp_Config_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_all_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_all_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_NormCastConfig_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Config_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_noConfusion___redArg(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_DSimp_defaultConfig___closed__0____x40_Init_MetaTypes_3081449384____hygCtx___hyg_132_;
 LEAN_EXPORT lean_object* l_Lean_Meta_LiftLetsConfig_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Simp_neutralConfig___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_none_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instCoeListNatOccurrences___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_notClasses_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_all_elim___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_all_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_neg_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Simp_beqConfig____x40_Init_MetaTypes_3081449385____hygCtx___hyg_264_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Module_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_13_(uint8_t, uint8_t);
-LEAN_EXPORT uint8_t l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_31_(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_notClasses_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_14_(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_default_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LiftLetsConfig_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameGenerator_ctorIdx(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_none_elim___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_all_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_notClasses_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instInhabitedConfig;
-LEAN_EXPORT lean_object* l_Lean_Meta_defaultOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_25_;
 LEAN_EXPORT uint8_t l_Lean_Meta_instInhabitedTransparencyMode;
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_instances_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_NormCastConfig_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_defaultNameGenerator____x40_Init_MetaTypes_1938196255____hygCtx___hyg_24_;
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_reducible_elim___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_pos_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ExtractLetsConfig_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_instBEqTransparencyMode___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_ConfigCtx_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instBEqOccurrences;
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_reducible_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_noConfusion___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instBEqEtaStructMode;
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_default_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_14____boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_pos_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedOccurrences;
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_reducible_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_noConfusion___redArg(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_all_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Config_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DSimp_beqConfig____x40_Init_MetaTypes_3081449384____hygCtx___hyg_138____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instBEqTransparencyMode;
 static lean_object* l_Lean_Meta_Simp_defaultConfig___closed__0____x40_Init_MetaTypes_3081449385____hygCtx___hyg_258_;
 LEAN_EXPORT lean_object* l_Lean_Meta_DSimp_instInhabitedConfig;
+LEAN_EXPORT uint8_t l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_37_(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_DSimp_beqConfig____x40_Init_MetaTypes_3081449384____hygCtx___hyg_138_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_defaultMaxSteps;
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_neg_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_beqConfig____x40_Init_MetaTypes_3081449385____hygCtx___hyg_264____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instBEqConfig;
-LEAN_EXPORT uint8_t l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_13_(uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_13____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_ctorIdx(uint8_t);
 lean_object* l_instDecidableEqNat___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_31____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_defaultConfig____x40_Init_MetaTypes_3081449385____hygCtx___hyg_258_;
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_all_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_14_(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_14____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ExtractLetsConfig_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Meta_EtaStructMode_noConfusion___redArg___closed__0;
@@ -212,6 +257,172 @@ x_3 = l_Lean_Meta_TransparencyMode_toCtorIdx(x_2);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_ctorElim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_ctorElim(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_inc(x_5);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_ctorElim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_TransparencyMode_ctorElim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; lean_object* x_7; 
+x_6 = lean_unbox(x_3);
+x_7 = l_Lean_Meta_TransparencyMode_ctorElim(x_1, x_2, x_6, x_4, x_5);
+lean_dec(x_5);
+lean_dec(x_2);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_all_elim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_all_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_inc(x_4);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_all_elim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_TransparencyMode_all_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_all_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_2);
+x_6 = l_Lean_Meta_TransparencyMode_all_elim(x_1, x_5, x_3, x_4);
+lean_dec(x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_default_elim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_default_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_inc(x_4);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_default_elim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_TransparencyMode_default_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_default_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_2);
+x_6 = l_Lean_Meta_TransparencyMode_default_elim(x_1, x_5, x_3, x_4);
+lean_dec(x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_reducible_elim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_reducible_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_inc(x_4);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_reducible_elim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_TransparencyMode_reducible_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_reducible_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_2);
+x_6 = l_Lean_Meta_TransparencyMode_reducible_elim(x_1, x_5, x_3, x_4);
+lean_dec(x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_instances_elim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_instances_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_inc(x_4);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_instances_elim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_TransparencyMode_instances_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_instances_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_2);
+x_6 = l_Lean_Meta_TransparencyMode_instances_elim(x_1, x_5, x_3, x_4);
+lean_dec(x_4);
+return x_6;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_noConfusion___redArg___lam__0(lean_object* x_1) {
 _start:
 {
@@ -264,7 +475,7 @@ x_7 = l_Lean_Meta_TransparencyMode_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
 }
-static uint8_t _init_l_Lean_Meta_defaultTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_7_() {
+static uint8_t _init_l_Lean_Meta_defaultTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_8_() {
 _start:
 {
 uint8_t x_1; 
@@ -280,7 +491,7 @@ x_1 = 0;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_13_(uint8_t x_1, uint8_t x_2) {
+LEAN_EXPORT uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_14_(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -292,13 +503,13 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_13____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_14____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
 x_4 = lean_unbox(x_2);
-x_5 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_13_(x_3, x_4);
+x_5 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_14_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -307,7 +518,7 @@ static lean_object* _init_l_Lean_Meta_instBEqTransparencyMode___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_13____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_14____boxed), 2, 0);
 return x_1;
 }
 }
@@ -370,6 +581,139 @@ x_3 = l_Lean_Meta_EtaStructMode_toCtorIdx(x_2);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_ctorElim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_ctorElim(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_inc(x_5);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_ctorElim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_EtaStructMode_ctorElim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; lean_object* x_7; 
+x_6 = lean_unbox(x_3);
+x_7 = l_Lean_Meta_EtaStructMode_ctorElim(x_1, x_2, x_6, x_4, x_5);
+lean_dec(x_5);
+lean_dec(x_2);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_all_elim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_all_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_inc(x_4);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_all_elim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_EtaStructMode_all_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_all_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_2);
+x_6 = l_Lean_Meta_EtaStructMode_all_elim(x_1, x_5, x_3, x_4);
+lean_dec(x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_notClasses_elim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_notClasses_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_inc(x_4);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_notClasses_elim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_EtaStructMode_notClasses_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_notClasses_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_2);
+x_6 = l_Lean_Meta_EtaStructMode_notClasses_elim(x_1, x_5, x_3, x_4);
+lean_dec(x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_none_elim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_none_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_inc(x_4);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_none_elim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_EtaStructMode_none_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_none_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_2);
+x_6 = l_Lean_Meta_EtaStructMode_none_elim(x_1, x_5, x_3, x_4);
+lean_dec(x_4);
+return x_6;
+}
+}
 static lean_object* _init_l_Lean_Meta_EtaStructMode_noConfusion___redArg___closed__0() {
 _start:
 {
@@ -414,7 +758,7 @@ x_7 = l_Lean_Meta_EtaStructMode_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
 }
-static uint8_t _init_l_Lean_Meta_defaultEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_7_() {
+static uint8_t _init_l_Lean_Meta_defaultEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_8_() {
 _start:
 {
 uint8_t x_1; 
@@ -430,7 +774,7 @@ x_1 = 0;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_13_(uint8_t x_1, uint8_t x_2) {
+LEAN_EXPORT uint8_t l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_14_(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -442,13 +786,13 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_13____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_14____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
 x_4 = lean_unbox(x_2);
-x_5 = l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_13_(x_3, x_4);
+x_5 = l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_14_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -457,7 +801,7 @@ static lean_object* _init_l_Lean_Meta_instBEqEtaStructMode___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_13____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_14____boxed), 2, 0);
 return x_1;
 }
 }
@@ -824,7 +1168,7 @@ goto block_46;
 block_50:
 {
 uint8_t x_49; 
-x_49 = l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_13_(x_6, x_20);
+x_49 = l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_14_(x_6, x_20);
 if (x_49 == 0)
 {
 return x_49;
@@ -1590,7 +1934,7 @@ goto block_92;
 block_96:
 {
 uint8_t x_95; 
-x_95 = l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_13_(x_11, x_39);
+x_95 = l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_14_(x_11, x_39);
 if (x_95 == 0)
 {
 return x_95;
@@ -1894,7 +2238,90 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_defaultOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_25_() {
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+return x_2;
+}
+else
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec(x_1);
+x_4 = lean_apply_1(x_2, x_3);
+return x_4;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Meta_Occurrences_ctorElim___redArg(x_3, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Meta_Occurrences_ctorElim(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_2);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_all_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Meta_Occurrences_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_all_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Meta_Occurrences_ctorElim___redArg(x_2, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_pos_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Meta_Occurrences_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_pos_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Meta_Occurrences_ctorElim___redArg(x_2, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_neg_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Meta_Occurrences_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_neg_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Meta_Occurrences_ctorElim___redArg(x_2, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_Meta_defaultOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_31_() {
 _start:
 {
 lean_object* x_1; 
@@ -1910,7 +2337,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_31_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_37_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
@@ -1989,11 +2416,11 @@ return x_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_31____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_37____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_31_(x_1, x_2);
+x_3 = l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_37_(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -2002,7 +2429,7 @@ static lean_object* _init_l_Lean_Meta_instBEqOccurrences___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_31____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_37____boxed), 2, 0);
 return x_1;
 }
 }
@@ -2080,7 +2507,7 @@ l_Lean_defaultNameGenerator____x40_Init_MetaTypes_1938196255____hygCtx___hyg_24_
 lean_mark_persistent(l_Lean_defaultNameGenerator____x40_Init_MetaTypes_1938196255____hygCtx___hyg_24_);
 l_Lean_instInhabitedNameGenerator = _init_l_Lean_instInhabitedNameGenerator();
 lean_mark_persistent(l_Lean_instInhabitedNameGenerator);
-l_Lean_Meta_defaultTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_7_ = _init_l_Lean_Meta_defaultTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_7_();
+l_Lean_Meta_defaultTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_8_ = _init_l_Lean_Meta_defaultTransparencyMode____x40_Init_MetaTypes_2581322616____hygCtx___hyg_8_();
 l_Lean_Meta_instInhabitedTransparencyMode = _init_l_Lean_Meta_instInhabitedTransparencyMode();
 l_Lean_Meta_instBEqTransparencyMode___closed__0 = _init_l_Lean_Meta_instBEqTransparencyMode___closed__0();
 lean_mark_persistent(l_Lean_Meta_instBEqTransparencyMode___closed__0);
@@ -2088,7 +2515,7 @@ l_Lean_Meta_instBEqTransparencyMode = _init_l_Lean_Meta_instBEqTransparencyMode(
 lean_mark_persistent(l_Lean_Meta_instBEqTransparencyMode);
 l_Lean_Meta_EtaStructMode_noConfusion___redArg___closed__0 = _init_l_Lean_Meta_EtaStructMode_noConfusion___redArg___closed__0();
 lean_mark_persistent(l_Lean_Meta_EtaStructMode_noConfusion___redArg___closed__0);
-l_Lean_Meta_defaultEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_7_ = _init_l_Lean_Meta_defaultEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_7_();
+l_Lean_Meta_defaultEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_8_ = _init_l_Lean_Meta_defaultEtaStructMode____x40_Init_MetaTypes_251281299____hygCtx___hyg_8_();
 l_Lean_Meta_instInhabitedEtaStructMode = _init_l_Lean_Meta_instInhabitedEtaStructMode();
 l_Lean_Meta_instBEqEtaStructMode___closed__0 = _init_l_Lean_Meta_instBEqEtaStructMode___closed__0();
 lean_mark_persistent(l_Lean_Meta_instBEqEtaStructMode___closed__0);
@@ -2120,8 +2547,8 @@ l_Lean_Meta_Simp_neutralConfig___closed__0 = _init_l_Lean_Meta_Simp_neutralConfi
 lean_mark_persistent(l_Lean_Meta_Simp_neutralConfig___closed__0);
 l_Lean_Meta_Simp_neutralConfig = _init_l_Lean_Meta_Simp_neutralConfig();
 lean_mark_persistent(l_Lean_Meta_Simp_neutralConfig);
-l_Lean_Meta_defaultOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_25_ = _init_l_Lean_Meta_defaultOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_25_();
-lean_mark_persistent(l_Lean_Meta_defaultOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_25_);
+l_Lean_Meta_defaultOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_31_ = _init_l_Lean_Meta_defaultOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_31_();
+lean_mark_persistent(l_Lean_Meta_defaultOccurrences____x40_Init_MetaTypes_1399156001____hygCtx___hyg_31_);
 l_Lean_Meta_instInhabitedOccurrences = _init_l_Lean_Meta_instInhabitedOccurrences();
 lean_mark_persistent(l_Lean_Meta_instInhabitedOccurrences);
 l_Lean_Meta_instBEqOccurrences___closed__0 = _init_l_Lean_Meta_instBEqOccurrences___closed__0();

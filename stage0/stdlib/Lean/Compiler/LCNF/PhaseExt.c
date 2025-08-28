@@ -222,7 +222,6 @@ static lean_object* l___auto___closed__5____x40_Lean_Compiler_LCNF_PhaseExt_1541
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldl___at_____private_Lean_Compiler_LCNF_PhaseExt_0__Lean_Compiler_LCNF_sortedDecls_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_List_Impl_0__List_takeTR_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_forEachDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Compiler_LCNF_defaultDecl____x40_Lean_Compiler_LCNF_Basic_1021782049____hygCtx___hyg_84_;
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at___Lean_PersistentHashMap_foldl___at_____private_Lean_Compiler_LCNF_PhaseExt_0__Lean_Compiler_LCNF_sortedDecls_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_forEachDecl_spec__6___boxed(lean_object**);
@@ -276,6 +275,7 @@ static lean_object* l___auto___closed__16____x40_Lean_Compiler_LCNF_PhaseExt_154
 lean_object* l_Array_binSearchAux___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_monoExt;
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__1____x40_Lean_Compiler_LCNF_PhaseExt_3963586030____hygCtx___hyg_2_;
+extern lean_object* l_Lean_Compiler_LCNF_defaultDecl____x40_Lean_Compiler_LCNF_Basic_1021782049____hygCtx___hyg_75_;
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_isDeclPublic___closed__2;
 uint64_t l_Lean_Name_hash___override(lean_object*);
@@ -1485,7 +1485,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_PhaseExt_0__Lean_Compil
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_defaultDecl____x40_Lean_Compiler_LCNF_Basic_1021782049____hygCtx___hyg_84_;
+x_1 = l_Lean_Compiler_LCNF_defaultDecl____x40_Lean_Compiler_LCNF_Basic_1021782049____hygCtx___hyg_75_;
 return x_1;
 }
 }

@@ -130,6 +130,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__L
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_contains___at_____private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__Lean_Meta_Grind_Arith_pickUnusedValue_go_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at_____private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__Lean_Meta_Grind_Arith_satisfyDiseqs_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
+uint8_t l_decEqRat____x40_Init_Data_Rat_Basic_3597219815____hygCtx___hyg_31_(lean_object*, lean_object*);
 uint8_t l_Lean_Meta_Grind_isIntNum(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at_____private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__Lean_Meta_Grind_Arith_assignUnassigned_spec__6_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Goal_getGeneration(lean_object*, lean_object*);
@@ -201,7 +202,6 @@ uint8_t l_Lean_Meta_Grind_isNatNum(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isInterpretedTerm___closed__9;
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__Lean_Meta_Grind_Arith_satisfyDiseqs(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_decEqRat____x40_Init_Data_Rat_Basic_3597219815____hygCtx___hyg_34_(lean_object*, lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Meta_Grind_Arith_assignEqc_spec__0_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_Grind_Arith_traceModel_spec__3___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -372,7 +372,7 @@ x_6 = lean_ctor_get(x_4, 0);
 lean_inc(x_6);
 lean_dec_ref(x_4);
 x_7 = l_Rat_ofInt(x_2);
-x_8 = l_decEqRat____x40_Init_Data_Rat_Basic_3597219815____hygCtx___hyg_34_(x_6, x_7);
+x_8 = l_decEqRat____x40_Init_Data_Rat_Basic_3597219815____hygCtx___hyg_31_(x_6, x_7);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 if (x_8 == 0)

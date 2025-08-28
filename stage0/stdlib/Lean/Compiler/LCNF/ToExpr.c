@@ -56,7 +56,6 @@ static lean_object* l_Lean_Compiler_LCNF_ToExpr_run_x27___redArg___closed__6;
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_FVarId_toExprM(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
-extern lean_object* l_Lean_Compiler_LCNF_defaultParam____x40_Lean_Compiler_LCNF_Basic_2211743917____hygCtx___hyg_43_;
 static lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__5;
 static lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(lean_object*, lean_object*, lean_object*);
@@ -76,6 +75,7 @@ static lean_object* l_Lean_Compiler_LCNF_ToExpr_run_x27___redArg___closed__5;
 lean_object* l_Lean_Compiler_LCNF_LetValue_toExpr(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_mkLambdaM_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Compiler_LCNF_defaultParam____x40_Lean_Compiler_LCNF_Basic_2211743917____hygCtx___hyg_38_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_toExpr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_toExpr___boxed(lean_object*, lean_object*);
@@ -380,7 +380,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_defaultParam____x40_Lean_Compiler_LCNF_Basic_2211743917____hygCtx___hyg_43_;
+x_1 = l_Lean_Compiler_LCNF_defaultParam____x40_Lean_Compiler_LCNF_Basic_2211743917____hygCtx___hyg_38_;
 return x_1;
 }
 }

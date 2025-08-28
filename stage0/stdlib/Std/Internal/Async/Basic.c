@@ -21,6 +21,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_instFunctor___lam__0(
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_instMonadAsyncStateTOfFunctor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_pure___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_EAsync_forIn_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_pure_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instMonadAsyncAsyncTaskError___lam__0(lean_object*);
 static lean_object* l_Std_Internal_IO_Async_EAsync_instOrElse___closed__0;
 static lean_object* l_Std_Internal_IO_Async_EAsync_instMonadAwaitETask___closed__0;
@@ -49,6 +50,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_tryFinally_x27___redArg_
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_ETask_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_instMonad___lam__1(lean_object*, lean_object*);
 lean_object* lean_io_promise_new(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_instMonadAsyncStateTOfFunctor___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_EAsync_instMonadExceptOf___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -87,6 +89,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_tryFinally_x27(lean_obje
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_concurrentlyAll___redArg___lam__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instMonadAwaitPromise(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_ETask_map___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_ctorElim___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_EAsync_instMonadExceptOf___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instMonad___lam__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_await___redArg(lean_object*, lean_object*);
@@ -105,6 +108,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_ofTask(lean_object*, 
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_ETask_mapEIO___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Promise_result_x21___redArg(lean_object*);
 lean_object* lean_task_bind(lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_ofTask_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_joinTask___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_concurrently___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instMonadAwaitPromise___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -212,6 +216,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_concurrently___redArg___lam__1(
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_instMonad___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_block___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_pure_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_ofTask___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_getState___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_ETask_mapEIO___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -304,6 +309,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_instMonadAwaitReaderTOfMonad___
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_instMonadAsyncReaderT(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_ETask_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_get_task_state(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_forIn___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_instMonad___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -324,6 +330,7 @@ LEAN_EXPORT lean_object* l___private_Std_Internal_Async_Basic_0__Std_Internal_IO
 lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_ExceptT_instMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instMonadLiftBaseAsync___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_ofTask_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_mapIO___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_instMonadAwaitStateT___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2800,6 +2807,78 @@ lean_object* x_3;
 x_3 = l_Std_Internal_IO_Async_MaybeTask_ctorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec_ref(x_1);
+x_4 = lean_apply_1(x_2, x_3);
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_5);
+lean_dec_ref(x_1);
+x_6 = lean_apply_1(x_2, x_5);
+return x_6;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Std_Internal_IO_Async_MaybeTask_ctorElim___redArg(x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Std_Internal_IO_Async_MaybeTask_ctorElim(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_3);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_pure_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Internal_IO_Async_MaybeTask_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_pure_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Std_Internal_IO_Async_MaybeTask_ctorElim___redArg(x_3, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_ofTask_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Internal_IO_Async_MaybeTask_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_ofTask_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Std_Internal_IO_Async_MaybeTask_ctorElim___redArg(x_3, x_5);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_toTask___redArg(lean_object* x_1) {

@@ -38,6 +38,20 @@ info: List.casesOn2.{u_1, u} {α : Type u} (motive : List α → List α → Sor
 #guard_msgs in
 #check List.casesOn2
 
-
-
 end List
+
+namespace BadIdx
+opaque f : Nat → Nat
+inductive T : (n : Nat) → Type where
+  | mk1 : Fin n → T (f n)
+  | mk2 : Fin (2*n) → T (f n)
+
+run_meta mkCasesOnSameCtorHet `BadIdx.casesOn2Het ``T
+/--
+error: Dependent elimination failed: Failed to solve equation
+  f n✝ = f n
+-/
+#guard_msgs in
+run_meta mkCasesOnSameCtor `BadIdx.casesOn2 ``T ``BadIdx.casesOn2Het
+
+end BadIdx

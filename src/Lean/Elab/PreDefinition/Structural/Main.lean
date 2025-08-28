@@ -122,8 +122,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParamPerms
 
   -- Assemble the individual `.brecOn` applications
   let valuesNew ← (Array.zip recArgInfos values).mapIdxM fun i (r, v) => do
-    let newValue ← mkBRecOnApp positions i brecOnConst packedFArgs r v
-    if isIndPred then mkLetFVars funTypes newValue else pure newValue
+    mkBRecOnApp positions i brecOnConst packedFArgs funTypes r v
   -- Abstract over the fixed prefixed, preserving the original parameter order
   let valuesNew ← (values.zip valuesNew).mapIdxM fun i ⟨value, valueNew⟩ =>
     lambdaTelescope value fun ys _ => do

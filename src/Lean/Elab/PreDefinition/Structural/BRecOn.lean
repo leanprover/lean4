@@ -284,15 +284,16 @@ Completes the `.brecOn` for the given function.
 The `value` is the function with (only) the fixed parameters moved into the context.
 -/
 def mkBRecOnApp (positions : Positions) (fnIdx : Nat) (brecOnConst : Nat → Expr)
-    (packedFArgs : Array Expr) (recArgInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
+    (packedFArgs : Array Expr) (funTypes : Array Expr) (recArgInfo : RecArgInfo)
+    (value : Expr) : MetaM Expr := do
   lambdaTelescope value fun ys _value => do
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor ys
     let brecOn := brecOnConst recArgInfo.indIdx
     let brecOn := mkAppN brecOn indexMajorArgs
     let brecOn := mkAppN brecOn packedFArgs
     let some (size, idx) := positions.findSome? fun pos => (pos.size, ·) <$> pos.finIdxOf? fnIdx
-      | throwError "mkBrecOnApp: Could not find {fnIdx} in {positions}"
+      | throwError "mkBRecOnApp: Could not find {fnIdx} in {positions}"
     let brecOn ← PProdN.projM size idx brecOn
-    mkLambdaFVars ys (mkAppN brecOn otherArgs)
+    mkLambdaFVars ys (← mkLetFVars funTypes (mkAppN brecOn otherArgs))
 
 end Lean.Elab.Structural

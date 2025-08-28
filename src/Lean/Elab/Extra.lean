@@ -152,19 +152,35 @@ Remarks:
 -/
 
 private inductive BinOpKind where
-  | regular   -- `binop%`
-  | lazy      -- `binop_lazy%`
-  | leftact   -- `leftact%`
-  | rightact  -- `rightact%`
+  /-- `binop%`. A normal heterogeneous binary operation that prefers to be homogeneous. -/
+  | regular
+  /-- `binop_lazy%`. Like `binop%` but the second operand is wrapped in `fun _ => ...`. -/
+  | lazy
+  /-- `leftact%`. A heterogenous binary operation that prefers to be of the form `α → β → β`. -/
+  | leftact
+  /-- `rightact%`. A heterogeneous binary operation that prefers to be of the form `α → β → α`. -/
+  | rightact
 deriving BEq
+
+private def BinOpKind.toString : BinOpKind → String
+  | regular   => "binop%"
+  | lazy      => "binop_lazy%"
+  | leftact   => "leftact%"
+  | rightact  => "rightact%"
 
 private inductive Tree where
   /--
-  Leaf of the tree.
-  We store the `infoTrees` generated when elaborating `val`. These trees become
-  subtrees of the infotree nodes generated for `op` nodes.
+  Leaf of the tree, an arbitrary term.
+  - `infoTrees`: We store the InfoTrees generated when elaborating `val`. These trees become
+    subtrees of the infotree nodes generated for `op` nodes.
+  - `val` is the elaborated expression.
+  - `num` is whether this term is a number literal (`num` or `scientific`).
+    We use this to detect "purely numeric" expression trees; when there is an expected type, we can synthesize synthetic metavariables completely.
+    We can even synthesize synthetic metavariables for certain purely numeric subtrees completely as well (binops, which have outParams).
+  - `pendingMVars` is the list of synthetic metavariable problems generated when elaborating the value.
+    We can use this to force synthesis for particular subtrees. The metavariables are still present in the global state.
   -/
-  | term (ref : Syntax) (infoTrees : PersistentArray InfoTree) (val : Expr)
+  | term (ref : Syntax) (infoTrees : PersistentArray InfoTree) (val : Expr) (num : Bool) (pendingMVars : List MVarId)
   /--
   `ref` is the original syntax that expanded into `binop%/...`.
   -/
@@ -179,10 +195,55 @@ private inductive Tree where
   -/
   | macroExpansion (macroName : Name) (stx stx' : Syntax) (nested : Tree)
 
+private def Tree.ref : Tree → Syntax
+  | .term ref ..  => ref
+  | .binop ref .. => ref
+  | .unop ref ..  => ref
+  | .macroExpansion _ stx _ _ => stx
+
+variable (macros : Bool := false) in
+private def Tree.toMessageData : Tree → MessageData
+  | .term (val := val) (num := num) .. => m!"·{if num then "[num]" else ""} {val}"
+  | .binop _ kind f lhs rhs =>
+    m!"· {kind.toString} {f}{indentD lhs.toMessageData}{indentD rhs.toMessageData}"
+  | .unop _ f arg =>
+    m!"· unop {f}{indentD arg.toMessageData}"
+  | .macroExpansion macroName _ _ nested =>
+    if macros then
+      m!"· macro {macroName}{indentD nested.toMessageData}"
+    else
+      nested.toMessageData
+
+/--
+Returns true if the expression tree is purely numeric: each leaf is a number literal.
+With purely numeric trees, we can eagerly apply default instances in many cases.
+-/
+private def Tree.isNumeric : Tree → Bool
+  | .term (num := num) .. => num
+  | .binop (lhs := lhs) (rhs := rhs) .. => lhs.isNumeric && rhs.isNumeric
+  | .unop (arg := arg) .. => arg.isNumeric
+  | .macroExpansion (nested := nested) .. => nested.isNumeric
+
+/--
+Collects all the pending metavariables in the tree, in `pendingMVars` order.
+-/
+private def Tree.pendingMVars (t : Tree) (acc : List MVarId := []) : List MVarId :=
+  match t with
+  | .term (pendingMVars := mvars) .. => mvars ++ acc
+  | .binop (lhs := lhs) (rhs := rhs) .. => rhs.pendingMVars (lhs.pendingMVars acc)
+  | .unop (arg := arg) .. => arg.pendingMVars acc
+  | .macroExpansion (nested := nested) .. => nested.pendingMVars acc
+
+private def Tree.hasPendingMVars (t : Tree) : Bool :=
+  match t with
+  | .term (pendingMVars := mvars) .. => !mvars.isEmpty
+  | .binop (lhs := lhs) (rhs := rhs) .. => lhs.hasPendingMVars || rhs.hasPendingMVars
+  | .unop (arg := arg) .. => arg.hasPendingMVars
+  | .macroExpansion (nested := nested) .. => nested.hasPendingMVars
 
 private partial def toTree (s : Syntax) : TermElabM Tree := do
   /-
-  Remark: ew used to use `expandMacros` here, but this is a bad idiom
+  Remark: we used to use `expandMacros` here, but this is a bad idiom
   because we do not record the macro expansion information in the info tree.
   We now manually expand the notation in the `go` function, and save
   the macro declaration names in the `op` nodes.
@@ -214,28 +275,51 @@ where
 
   processBinOp (ref : Syntax) (kind : BinOpKind) (f lhs rhs : Syntax) := do
     let some f ← resolveId? f | throwUnknownConstantAt f f.getId
-    -- treat corresponding argument as leaf for `leftact/rightact`
-    let lhs ← if kind == .leftact then processLeaf lhs else go lhs
-    let rhs ← if kind == .rightact then processLeaf rhs else go rhs
-    return .binop ref kind f lhs rhs
+    -- Even for `leftact/rightact` we build trees for each argument.
+    -- Collecting information about the expression trees lets use analyze whether the tree is purely numeric.
+    return .binop ref kind f (← go lhs) (← go rhs)
 
   processUnOp (ref : Syntax) (f arg : Syntax) := do
     let some f ← resolveId? f | throwUnknownConstantAt f f.getId
     return .unop ref f (← go arg)
 
   processLeaf (s : Syntax) := do
-    let e ← elabTerm s none
-    let info ← getResetInfoTrees
-    return .term s info e
+    let num := s.isOfKind numLitKind || s.isOfKind scientificLitKind
+    -- Elaborate the term in a context without any pending synthetic metavariables,
+    -- and collect them. The metavariables are still put into the global `pendingMVars` state in the correct order.
+    let pendingMVarsSaved := (← get).pendingMVars
+    modify fun s => { s with pendingMVars := [] }
+    try
+      let e ← elabTerm s none
+      let info ← getResetInfoTrees
+      return .term s info e (num := num) (pendingMVars := (← get).pendingMVars)
+    finally
+      modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
 
--- Auxiliary function used at `analyze`
-private def hasCoe (fromType toType : Expr) : TermElabM Bool := do
+/--
+Caches for tree analysis and construction.
+-/
+private structure Caches where
+  /-- For `hasCoe`. Cache of `(fromType, toType)` pairs to whether a coercion exists. -/
+  hasCoeCache : Std.HashMap (Expr × Expr) Bool := {}
+  /-- For `hasHomogeneousInstance`. Cache of `(className, maxType)` pairs to whether a homoneous instance exists. -/
+  hasHomogInstCache : Std.HashMap (Name × Expr) Bool := {}
+
+private abbrev TreeM := StateRefT Caches TermElabM
+
+/-- Auxiliary function used at `analyze`. Returns whether or not there is a simple coercion from `fromType` to `toType`. -/
+private def hasCoe (fromType toType : Expr) : TreeM Bool := do
   if (← getEnv).contains ``CoeT then
-    withLocalDeclD `x fromType fun x => do
-    match ← coerceSimple? x toType with
-    | .some _ => return true
-    | .none   => return false
-    | .undef  => return false -- TODO: should we do something smarter here?
+    withTraceNode `Elab.binop (pure m!"{exceptBoolEmoji ·} hasCoe {fromType} to {toType}") do
+      if let some res := (← get).hasCoeCache[(fromType, toType)]? then
+        return res
+      let res ← withLocalDeclD `x fromType fun x => do
+        match ← coerceSimple? x toType with
+        | .some _ => return true
+        | .none   => return false
+        | .undef  => return false -- TODO: should we do something smarter here?
+      modify fun s => { s with hasCoeCache := s.hasCoeCache.insert (fromType, toType) res }
+      return res
   else
     return false
 
@@ -253,7 +337,15 @@ private def isUnknown : Expr → Bool
   | .mdata _ b      => isUnknown b
   | _               => false
 
-private def analyze (t : Tree) (expectedType? : Option Expr) : TermElabM AnalyzeResult := do
+/--
+Analyzes the `Tree` to come up with a maximal type.
+
+This does not analyze the respective left/right subtree of the leftact/rightact node.
+-/
+private def analyze (t : Tree) (expectedType? : Option Expr) : TreeM AnalyzeResult := do
+  withTraceNode `Elab.binop (fun
+    | .error .. => pure m!"{bombEmoji} error when analyzing"
+    | .ok r => pure m!"{checkEmoji} analyzed hasUncomparable: {r.hasUncomparable}, hasUnknown: {r.hasUnknown}, maxType: {r.max?}") do
   let max? ←
     match expectedType? with
     | none => pure none
@@ -262,23 +354,25 @@ private def analyze (t : Tree) (expectedType? : Option Expr) : TermElabM Analyze
       if isUnknown expectedType then pure none else pure (some expectedType)
   (go t *> get).run' { max? }
 where
-   go (t : Tree) : StateRefT AnalyzeResult TermElabM Unit := do
-     unless (← get).hasUncomparable do
-       match t with
-       | .macroExpansion _ _ _ nested => go nested
-       | .binop _ .leftact  _ _ rhs => go rhs
-       | .binop _ .rightact _ lhs _ => go lhs
-       | .binop _ _ _ lhs rhs => go lhs; go rhs
-       | .unop _ _ arg => go arg
-       | .term _ _ val =>
-         let type := (← instantiateMVars (← inferType val)).cleanupAnnotations
-         if isUnknown type then
-           modify fun s => { s with hasUnknown := true }
-         else
-           match (← get).max? with
-           | none     => modify fun s => { s with max? := type }
-           | some max =>
-             /-
+  go (t : Tree) : StateRefT AnalyzeResult TreeM Unit := do
+    unless (← get).hasUncomparable do
+      match t with
+      | .macroExpansion _ _ _ nested => go nested
+      | .binop _ .leftact  _ _ rhs => go rhs
+      | .binop _ .rightact _ lhs _ => go lhs
+      | .binop _ _ _ lhs rhs => go lhs; go rhs
+      | .unop _ _ arg => go arg
+      | .term _ _ val _ _ =>
+        let type := (← instantiateMVars (← inferType val)).cleanupAnnotations
+        if isUnknown type then
+          trace[Elab.binop] "leaf term has unknown type{indentExpr val}"
+          modify fun s => { s with hasUnknown := true }
+        else
+          withTraceNode `Elab.binop (pure m!"{exceptEmoji ·} analyzing leaf term{indentExpr val}") do
+            match (← get).max? with
+            | none     => modify fun s => { s with max? := type }
+            | some max =>
+              /-
               Remark: Previously, we used `withNewMCtxDepth` to prevent metavariables in `max` and `type` from being assigned.
 
               Reason: This is a heuristic procedure for introducing coercions in scenarios such as:
@@ -303,15 +397,15 @@ where
               As a result, rather than restricting reducibility, we decided to set `Meta.Config.isDefEqStuckEx := true`.
               This means that if `isDefEq` encounters a subproblem `?m =?= a` where `?m` is non-assignable, it aborts the test
               instead of unfolding definitions.
-             -/
-             unless (← withNewMCtxDepth <| withConfig (fun config => { config with isDefEqStuckEx := true }) <| isDefEqGuarded max type) do
-               if (← hasCoe type max) then
-                 return ()
-               else if (← hasCoe max type) then
-                 modify fun s => { s with max? := type }
-               else
-                 trace[Elab.binop] "uncomparable types: {max}, {type}"
-                 modify fun s => { s with hasUncomparable := true }
+              -/
+              unless (← withNewMCtxDepth <| withConfig (fun config => { config with isDefEqStuckEx := true }) <| isDefEqGuarded max type) do
+                if (← hasCoe type max) then
+                  return ()
+                else if (← hasCoe max type) then
+                  modify fun s => { s with max? := type }
+                else
+                  trace[Elab.binop] "uncomparable types: {max}, {type}"
+                  modify fun s => { s with hasUncomparable := true }
 
 private def mkBinOp (lazy : Bool) (f : Expr) (lhs rhs : Expr) : TermElabM Expr := do
   let mut rhs := rhs
@@ -321,24 +415,6 @@ private def mkBinOp (lazy : Bool) (f : Expr) (lhs rhs : Expr) : TermElabM Expr :
 
 private def mkUnOp (f : Expr) (arg : Expr) : TermElabM Expr := do
   elabAppArgs f #[] #[Arg.expr arg] (expectedType? := none) (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
-
-private def toExprCore (t : Tree) : TermElabM Expr := do
-  match t with
-  | .term _ trees e =>
-    modifyInfoState (fun s => { s with trees := s.trees ++ trees }); return e
-  | .binop ref kind f lhs rhs =>
-    withRef ref <|
-      withTermInfoContext' .anonymous ref do
-        mkBinOp (kind == .lazy) f (← toExprCore lhs) (← toExprCore rhs)
-  | .unop ref f arg =>
-    withRef ref <|
-      withTermInfoContext' .anonymous ref do
-        mkUnOp f (← toExprCore arg)
-  | .macroExpansion macroName stx stx' nested =>
-    withRef stx <|
-      withTermInfoContext' macroName stx <|
-        withMacroExpansion stx stx' <|
-          toExprCore nested
 
 /--
   Auxiliary function to decide whether we should coerce `f`'s argument to `maxType` or not.
@@ -365,35 +441,122 @@ private def toExprCore (t : Tree) : TermElabM Expr := do
   the default instance above from being even tried.
 -/
 private def hasHeterogeneousDefaultInstances (f : Expr) (maxType : Expr) (lhs : Bool) : MetaM Bool := do
-  let .const fName .. := f | return false
-  let .const typeName .. := maxType.getAppFn | return false
-  let className := fName.getPrefix
-  let defInstances ← getDefaultInstances className
-  if defInstances.length ≤ 1 then return false
-  for (instName, _) in defInstances do
-    if let .app (.app (.app _heteroClass lhsType) rhsType) _resultType :=
-        (← getConstInfo instName).type.getForallBody then
-      if  lhs && rhsType.isAppOf typeName then return true
-      if !lhs && lhsType.isAppOf typeName then return true
-  return false
-
-/--
-  Return `true` if polymorphic function `f` has a homogeneous instance of `maxType`.
-  The coercions to `maxType` only makes sense if such instance exists.
-
-  For example, suppose `maxType` is `Int`, and `f` is `HPow.hPow`. Then,
-  adding coercions to `maxType` only make sense if we have an instance `HPow Int Int Int`.
--/
-private def hasHomogeneousInstance (f : Expr) (maxType : Expr) : MetaM Bool := do
-  let .const fName .. := f | return false
-  let className := fName.getPrefix
-  try
-    let inst ← mkAppM className #[maxType, maxType, maxType]
-    return (← trySynthInstance inst) matches .some _
-  catch _ =>
+  withTraceNode `Elab.binop (pure m!"{exceptBoolEmoji ·} hasHeterogeneousDefaultInstances {f} : {maxType}, (lhs := {lhs})") do
+    let .const fName .. := f | return false
+    let .const typeName .. := maxType.getAppFn | return false
+    let className := fName.getPrefix
+    let defInstances ← getDefaultInstances className
+    if defInstances.length ≤ 1 then return false
+    for (instName, _) in defInstances do
+      if let .app (.app (.app _heteroClass lhsType) rhsType) _resultType :=
+          (← getConstInfo instName).type.getForallBody then
+        if  lhs && rhsType.isAppOf typeName then return true
+        if !lhs && lhsType.isAppOf typeName then return true
     return false
 
+/--
+Returns `true` if polymorphic function `f` has a homogeneous instance of `maxType`.
+The coercions to `maxType` only makes sense if such instance exists.
+
+For example, suppose `maxType` is `Int`, and `f` is `HPow.hPow`. Then,
+adding coercions to `maxType` only make sense if we have an instance `HPow Int Int Int`.
+-/
+private def hasHomogeneousInstance (f : Expr) (maxType : Expr) : TreeM Bool := do
+  withTraceNode `Elab.binop (pure m!"{exceptBoolEmoji ·} hasHomogeneousInstance {f} : {maxType}") do
+    let .const fName .. := f | return false
+    let className := fName.getPrefix
+    let maxType ← instantiateMVars maxType
+    if let some res := (← get).hasHomogInstCache[(className, maxType)]? then
+      return res
+    else
+      let res ← try
+        let inst ← mkAppM className #[maxType, maxType, maxType]
+        pure <| (← trySynthInstance inst) matches .some _
+      catch _ =>
+        pure <| false
+      modify fun s => { s with hasHomogInstCache := s.hasHomogInstCache.insert (className, maxType) res }
+      return res
+
 mutual
+  private partial def toExprCore (t : Tree) (maxType? : Option Expr) : TreeM Expr := controlAt TermElabM fun runInBase => do
+    let typeKnown (e : Expr) : MetaM Bool := return !isUnknown (← instantiateMVars (← inferType e)).cleanupAnnotations
+    match t with
+    | .term _ trees e _ _ =>
+      modifyInfoState (fun s => { s with trees := s.trees ++ trees })
+      return e
+    | .binop ref .leftact f lhs rhs =>
+      withRef ref <| withTermInfoContext' .anonymous ref <| runInBase do
+        let rhs' ← toExprCore rhs maxType?
+        if ← typeKnown rhs' then
+          let lhsRes ← analyze lhs none
+          if !lhsRes.hasUncomparable && lhsRes.max?.isSome then
+            let lhs' ← toExpr' lhs lhsRes.max? lhsRes
+            return ← mkBinOp false f lhs' rhs'
+          else if lhs.isNumeric then
+            withTraceNode `Elab.binop (pure m!"{exceptEmoji ·} leftact lhs is numeric") do
+              let pendingMVarsSaved := (← getThe Term.State).pendingMVars
+              modifyThe Term.State fun s => { s with pendingMVars := [] }
+              try
+                modifyThe Term.State fun s => { s with pendingMVars := rhs.pendingMVars }
+                let lhs' ← toExprCore lhs none
+                let e ← mkBinOp false f lhs' rhs'
+                -- Add the tree's pending metavariables *after* this one. We want leftact/rightact default instances to have a chance to apply first.
+                -- E.g. in `(5 ^ 2 : Float)`, we want to specialize the exponent to `Float`.
+                modifyThe Term.State fun s => { s with pendingMVars := t.pendingMVars ++ s.pendingMVars }
+                synthesizeSyntheticMVarsNoPostponing
+                trace[Elab.binop] "Result:{indentExpr e}"
+                return e
+              finally
+                modifyThe Term.State fun s => { s with pendingMVars := pendingMVarsSaved }
+          else
+            mkBinOp false f (← toExprCore lhs none) rhs'
+        else
+          mkBinOp false f (← toExpr lhs none) rhs'
+    | .binop ref .rightact f lhs rhs =>
+      withRef ref <| withTermInfoContext' .anonymous ref <| runInBase do
+        let lhs' ← toExprCore lhs maxType?
+        if ← typeKnown lhs' then
+          let rhsRes ← analyze rhs none
+          if !rhsRes.hasUncomparable && rhsRes.max?.isSome then
+            let rhs' ← toExpr' rhs rhsRes.max? rhsRes
+            return ← mkBinOp false f lhs' rhs'
+          else if rhs.isNumeric then
+            withTraceNode `Elab.binop (pure m!"{exceptEmoji ·} rightact rhs is numeric") do
+              let pendingMVarsSaved := (← getThe Term.State).pendingMVars
+              modifyThe Term.State fun s => { s with pendingMVars := [] }
+              try
+                -- Elaborate with a metavariable for the max type, to guide elaboration, rather than use `toExprCore`.
+                let rhsType ← mkFreshTypeMVar
+                let rhs' ← toExpr' rhs rhsType { max? := rhsType }
+                let rhsMVars ← modifyGetThe Term.State fun s => (s.pendingMVars, { s with pendingMVars := [] })
+                -- Elaborate the binop itself
+                let e ← mkBinOp false f lhs' rhs'
+                -- Add the tree's pending metavariables *after* the binop's. We want leftact/rightact default instances to have a chance to apply first.
+                -- E.g. in `(5 ^ 2 : Float)`, we want to specialize the exponent to `Float`.
+                modifyThe Term.State fun s => { s with pendingMVars := rhs.pendingMVars ++ rhsMVars ++ s.pendingMVars }
+                synthesizeSyntheticMVarsNoPostponing
+                trace[Elab.binop] "Result:{indentExpr e}"
+                return e
+              finally
+                modifyThe Term.State fun s => { s with pendingMVars := pendingMVarsSaved }
+          else
+            mkBinOp false f lhs' (← toExprCore rhs none)
+        else
+          mkBinOp false f lhs' (← toExpr rhs none)
+    | .binop ref kind f lhs rhs =>
+      withRef ref <|
+        withTermInfoContext' .anonymous ref <| runInBase do
+          mkBinOp (kind == .lazy) f (← toExprCore lhs maxType?) (← toExprCore rhs maxType?)
+    | .unop ref f arg =>
+      withRef ref <|
+        withTermInfoContext' .anonymous ref <| runInBase do
+          mkUnOp f (← toExprCore arg maxType?)
+    | .macroExpansion macroName stx stx' nested =>
+      withRef stx <|
+        withTermInfoContext' macroName stx <|
+          withMacroExpansion stx stx' <|
+            runInBase <| toExprCore nested maxType?
+
   /--
     Try to coerce elements in the `t` to `maxType` when needed.
     If the type of an element in `t` is unknown we only coerce it to `maxType` if `maxType` does not have heterogeneous
@@ -412,68 +575,89 @@ mutual
 
     Remark: if `hasHeterogeneousDefaultInstances` implementation is not good enough we should refine it in the future.
   -/
-  private partial def applyCoe (t : Tree) (maxType : Expr) (isPred : Bool) : TermElabM Tree := do
+  private partial def applyCoe (t : Tree) (maxType : Expr) (isPred : Bool) : TreeM Tree := do
     go t none false isPred
   where
-    go (t : Tree) (f? : Option Expr) (lhs : Bool) (isPred : Bool) : TermElabM Tree := do
-      match t with
-      | .binop ref .leftact f lhs rhs =>
-        return .binop ref .leftact f lhs (← go rhs none false false)
-      | .binop ref .rightact f lhs rhs =>
-        return .binop ref .rightact f (← go lhs none false false) rhs
-      | .binop ref kind f lhs rhs =>
-        /-
+    go (t : Tree) (f? : Option Expr) (lhs : Bool) (isPred : Bool) : TreeM Tree := do
+      withTraceNode `Elab.binop (pure m!"{exceptEmoji ·} applying coercions") do
+        trace[Elab.binop] "tree:\n{t.toMessageData true}"
+        match t with
+        | .binop ref .leftact f lhs rhs =>
+          return .binop ref .leftact f lhs (← go rhs none false false)
+        | .binop ref .rightact f lhs rhs =>
+          return .binop ref .rightact f (← go lhs none true false) rhs
+        | .binop ref kind f lhs rhs =>
+          /-
           We only keep applying coercions to `maxType` if `f` is predicate or
           `f` has a homogeneous instance with `maxType`. See `hasHomogeneousInstance` for additional details.
 
           Remark: We assume `binrel%` elaborator is only used with homogeneous predicates.
-        -/
-        if (← pure isPred <||> hasHomogeneousInstance f maxType) then
-          return .binop ref kind f (← go lhs f true false) (← go rhs f false false)
-        else
-          let r ← withRef ref do
-            mkBinOp (kind == .lazy) f (← toExpr lhs none) (← toExpr rhs none)
-          let infoTrees ← getResetInfoTrees
-          return .term ref infoTrees r
-      | .unop ref f arg =>
-        return .unop ref f (← go arg none false false)
-      | .term ref trees e =>
-        let type := (← instantiateMVars (← inferType e)).cleanupAnnotations
-        trace[Elab.binop] "visiting {e} : {type} =?= {maxType}"
-        if isUnknown type then
-          if let some f := f? then
-            if (← hasHeterogeneousDefaultInstances f maxType lhs) then
-              -- See comment at `hasHeterogeneousDefaultInstances`
-              return t
-        if (← isDefEqGuarded maxType type) then
-          return t
-        else
-          trace[Elab.binop] "added coercion: {e} : {type} => {maxType}"
-          withRef ref <| return .term ref trees (← mkCoe maxType e)
-      | .macroExpansion macroName stx stx' nested =>
-        withRef stx <| withPushMacroExpansionStack stx stx' do
-          return .macroExpansion macroName stx stx' (← go nested f? lhs isPred)
 
-  private partial def toExpr (tree : Tree) (expectedType? : Option Expr) : TermElabM Expr := do
-    let r ← analyze tree expectedType?
-    trace[Elab.binop] "hasUncomparable: {r.hasUncomparable}, hasUnknown: {r.hasUnknown}, maxType: {r.max?}"
+          We also apply coercions if the subtree is purely numeric. In that case, we would be relying on default instances anyway.
+          This can occur if maxType is a metavariable, in which case hasHomogeneousInstance fails.
+          -/
+          if (← pure isPred <||> hasHomogeneousInstance f maxType <||> pure t.isNumeric) then
+            return .binop ref kind f (← go lhs f true false) (← go rhs f false false)
+          else
+            let r ← withRef ref do
+              mkBinOp (kind == .lazy) f (← toExpr lhs none) (← toExpr rhs none)
+            let infoTrees ← getResetInfoTrees
+            return .term ref infoTrees r (num := false) (pendingMVars := [])
+        | .unop ref f arg =>
+          return .unop ref f (← go arg none false false)
+        | .term ref trees e _ pendingMVars =>
+          let type := (← instantiateMVars (← inferType e)).cleanupAnnotations
+          trace[Elab.binop] "applyCoe visiting term {e} : {type} =?= {maxType}"
+          if isUnknown type then
+            if let some f := f? then
+              if (← hasHeterogeneousDefaultInstances f maxType lhs) then
+                -- See comment at `hasHeterogeneousDefaultInstances`
+                return t
+          if (← isDefEqGuarded maxType type) then
+            -- Try synthesizing `t`'s pending metavariables
+            unless pendingMVars.isEmpty do
+              let pendingMVarsSaved := (← getThe Term.State).pendingMVars
+              modifyThe Term.State fun s => { s with pendingMVars := [] }
+              try
+                modifyThe Term.State fun s => { s with pendingMVars := pendingMVars }
+                synthesizeSyntheticMVars (postpone := .yes)
+              finally
+                modifyThe Term.State fun s => { s with pendingMVars := pendingMVarsSaved }
+            return t
+          else
+            trace[Elab.binop] "added coercion: {e} : {type} => {maxType}"
+            withRef ref <| return .term ref trees (← mkCoe maxType e) false []
+        | .macroExpansion macroName stx stx' nested => controlAt TermElabM fun runInBase => do
+          withRef stx <| withPushMacroExpansionStack stx stx' <| runInBase do
+            return .macroExpansion macroName stx stx' (← go nested f? lhs isPred)
+
+  private partial def toExpr (tree : Tree) (expectedType? : Option Expr) : TreeM Expr := do
+    withTraceNode `Elab.binop (pure m!"{exceptEmoji ·} expression analysis and construction") do
+      trace[Elab.binop] "Expression tree:\n{tree.toMessageData}"
+      let r ← analyze tree expectedType?
+      toExpr' tree expectedType? r
+
+  private partial def toExpr' (tree : Tree) (expectedType? : Option Expr) (r : AnalyzeResult) : TreeM Expr := do
     if r.hasUncomparable || r.max?.isNone then
-      let result ← toExprCore tree
+      let result ← toExprCore tree none
+      trace[Elab.binop] "result (applied no coercions):{indentExpr result}"
       ensureHasType expectedType? result
     else
-      let result ← toExprCore (← applyCoe tree r.max?.get! (isPred := false))
+      let maxType := r.max?.get!
+      let tree ← applyCoe tree maxType (isPred := false)
+      let result ← toExprCore tree maxType
       unless r.hasUnknown do
         -- Record the resulting maxType calculation.
-        -- We can do this when all the types are known, since in this case `hasUncomparable` is valid.
+        -- We can do this when all the types are known, since then `hasUncomparable == false` means the tree is homogenous.
         -- If they're not known, recording maxType like this can lead to heterogeneous operations failing to elaborate.
-        discard <| isDefEqGuarded (← inferType result) r.max?.get!
-      trace[Elab.binop] "result: {result}"
+        discard <| isDefEqGuarded (← inferType result) maxType
+      trace[Elab.binop] "result:{indentExpr result}"
       ensureHasType expectedType? result
 
 end
 
 def elabOp : TermElab := fun stx expectedType? => do
-  toExpr (← toTree stx) expectedType?
+  toExpr (← toTree stx) expectedType? |>.run' {}
 
 @[builtin_term_elab binop] def elabBinOp : TermElab := elabOp
 @[builtin_term_elab binop_lazy] def elabBinOpLazy : TermElab := elabOp
@@ -530,27 +714,30 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
     let rhsStx := stx[3]
     let lhs ← withRef lhsStx <| toTree lhsStx
     let rhs ← withRef rhsStx <| toTree rhsStx
-    let tree := .binop stx .regular f lhs rhs
-    let r ← analyze tree none
-    trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, hasUnknown: {r.hasUnknown}, maxType: {r.max?}"
-    if r.hasUncomparable || r.max?.isNone then
-      -- Use default elaboration strategy + `toBoolIfNecessary`
-      let lhs ← toExprCore lhs
-      let rhs ← toExprCore rhs
-      let lhs ← withRef lhsStx <| toBoolIfNecessary lhs
-      let rhs ← withRef rhsStx <| toBoolIfNecessary rhs
-      let lhsType ← inferType lhs
-      let rhs ← withRef rhsStx <| ensureHasType lhsType rhs
-      elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
-    else
-      let mut maxType := r.max?.get!
-      /- If `noProp == true` and `maxType` is `Prop`, then set `maxType := Bool`. `See toBoolIfNecessary` -/
-      if noProp then
-        if (← withNewMCtxDepth <| isDefEq maxType (mkSort levelZero)) then
-          maxType := Lean.mkConst ``Bool
-      let result ← toExprCore (← applyCoe tree maxType (isPred := true))
-      trace[Elab.binrel] "result: {result}"
-      return result
+    let go : TreeM Expr := withTraceNode `Elab.binrel (pure m!"{exceptEmoji ·} expression analysis and construction") do
+      let tree := .binop stx .regular f lhs rhs
+      let r ← analyze tree none
+      if r.hasUncomparable || r.max?.isNone then
+        -- Use default elaboration strategy + `toBoolIfNecessary`
+        let lhs ← toExprCore lhs none
+        let rhs ← toExprCore rhs none
+        let lhs ← withRef lhsStx <| toBoolIfNecessary lhs
+        let rhs ← withRef rhsStx <| toBoolIfNecessary rhs
+        let lhsType ← inferType lhs
+        let rhs ← withRef rhsStx <| ensureHasType lhsType rhs
+        let result ← elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
+        trace[Elab.binrel] "result (default strategy):{indentExpr result}"
+        return result
+      else
+        let mut maxType := r.max?.get!
+        /- If `noProp == true` and `maxType` is `Prop`, then set `maxType := Bool`. `See toBoolIfNecessary` -/
+        if noProp then
+          if (← withNewMCtxDepth <| isDefEq maxType (mkSort levelZero)) then
+            maxType := Lean.mkConst ``Bool
+        let result ← toExprCore (← applyCoe tree maxType (isPred := true)) maxType
+        trace[Elab.binrel] "result:{indentExpr result}"
+        return result
+    go.run' {}
   | none   => throwUnknownConstantAt stx[1] stx[1].getId
 where
   /-- If `noProp == true` and `e` has type `Prop`, then coerce it to `Bool`. -/

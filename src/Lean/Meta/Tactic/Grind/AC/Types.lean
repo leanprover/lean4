@@ -28,6 +28,8 @@ structure EqCnstr where
 inductive EqCnstrProof where
   | core (a b : Expr) (ea eb : AC.Expr)
   | erase_dup (c : EqCnstr)
+  | swap (c : EqCnstr)
+  | simp_exact (lhs : Bool) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | simp_ac (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | superpose_ac (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | simp_suffix (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
@@ -91,6 +93,11 @@ structure Struct where
   basis            : List EqCnstr := {}
   /-- Disequalities. -/
   diseqs           : PArray DiseqCnstr := {}
+  /--
+  If `recheck` is `true`, then new equalities have been added to the basis since we checked
+  disequalities and implied equalities.
+  -/
+  recheck        : Bool := false
   deriving Inhabited
 
 /-- State for all associative operators detected by `grind`. -/
@@ -108,6 +115,7 @@ structure State where
   Mapping from expressions/terms to their structure ids.
   Recall that term may be the argument of different operators. -/
   exprToOpIds : PHashMap ExprPtr (List Nat) := {}
+  steps := 0
   deriving Inhabited
 
 end Lean.Meta.Grind.AC

@@ -7,6 +7,7 @@ module
 prelude
 public import Init.Core
 public import Init.Grind.AC
+public import Init.Data.Ord
 public section
 namespace Lean.Grind.AC
 
@@ -28,6 +29,26 @@ where
   go : Seq → Seq → Seq
     | .var x, acc => .cons x acc
     | .cons x s, acc => go s (.cons x acc)
+
+protected def Seq.compare (s₁ s₂ : Seq) : Ordering :=
+  let len₁ := s₁.length
+  let len₂ := s₂.length
+  if len₁ < len₂ then
+    .lt
+  else if len₁ > len₂ then
+    .gt
+  else
+    lex s₁ s₂
+where
+  lex (s₁ s₂ : Seq) : Ordering :=
+    match s₁, s₂ with
+    | .var x,     .var y     => compare x y
+    | .cons ..,   .var _     => .gt
+    | .var _,     .cons ..   => .lt
+    | .cons x s₁, .cons y s₂ => compare x y |>.then (lex s₁ s₂)
+
+instance : Ord Seq where
+  compare := Seq.compare
 
 instance : Append Seq where
   append := Seq.concat

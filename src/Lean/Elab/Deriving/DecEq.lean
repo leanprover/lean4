@@ -20,7 +20,7 @@ open Lean.Parser.Term
 open Meta
 
 register_builtin_option deriving.deceq.avoid_match_threshold : Nat := {
-  defValue := 10
+  defValue := 2
   descr := "Avoid using match expressions in `DecidableEq` instances when the number of constructors \
     exceeds this threshold. When and if that construction compiles as efficiently as the old \
     one, this option may go away." }
@@ -134,9 +134,15 @@ def mkMatchNew (ctx : Context) (header : Header) (indVal : InductiveVal) : TermE
       `(@fun $ctorArgs1:term* h =>
           $(mkIdent withName) $x2:term h (@fun $ctorArgs2:term* => $rhs:term)
       )
+  -- We go through some length to explicitly instantiate the implicit `motive` argument
+  -- Alternatively we could define a helper function `casesOnTwoSameCon` that has two targets,
+  -- expects `x1.ctorIdx = x2.ctorIdx` and has one arm for each constructors.
+  let paramUnderscores : Array Term ← Array.ofFnM (n := indVal.numParams) fun _ => `(_)
+  let indexUnderscores : Array Term ← Array.ofFnM (n := indVal.numIndices) fun _ => `(_)
+  let motive : Term ← `(@fun $indexUnderscores* x1 => $(mkCIdent ctorIdxName) $x2:ident = $(mkCIdent ctorIdxName) x1 → Decidable (x1 = $x2))
   `(
     if $h:ident : $(mkCIdent ctorIdxName) $x1:ident = $(mkCIdent ctorIdxName) $x2:ident then
-      $(mkCIdent casesOnName) (motive := fun x1 => $(mkCIdent ctorIdxName) $x2:ident = $(mkCIdent ctorIdxName) x1 → Decidable (x1 = $x2)) $x1:term $alts:term* ($h:ident).symm
+      @$(mkCIdent casesOnName) $paramUnderscores* $motive:term $indexUnderscores* $x1:term $alts:term* ($h:ident).symm
     else
       isFalse (fun h' => $h:ident (congrArg $(mkCIdent ctorIdxName) h'))
   )

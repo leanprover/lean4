@@ -138,8 +138,6 @@ termination_by structural h
 
 end
 
-#print OddDist.recTest
-
 /-!
 Nested inductives
 -/
@@ -258,3 +256,49 @@ theorem NatProp.recTest2 (x : NatProp) : True :=
 termination_by structural x
 
 end
+
+/-!
+Support for named patterns
+-/
+
+mutual
+
+inductive TestEven (b : Bool) : Nat → Prop where
+  | zero : TestEven b 0
+  | succ (h : Nat → TestOdd b n) (a : Nat) : TestEven b (n + 1)
+
+inductive TestOdd (b : Bool) : Nat → Prop where
+  | succ (h : TestEven b n) : TestOdd b (n + 1)
+
+end
+
+def TestEven.recTest {b : Bool} {n : Nat} (h : TestEven b n) (_a : Bool) : True :=
+  match h with
+  | .zero => trivial
+  | @TestEven.succ _ n h' _a =>
+    match h' 2 with
+    | .succ .zero => trivial
+    | .succ h₁@hh₁:(.succ h'' _) =>
+      have : True := match h'' 3 with
+        | .succ h''' => h'''.recTest false
+      have := h₁
+      have := hh₁
+      have := h₁.recTest
+      trivial
+termination_by structural h
+
+/-!
+Matching on partial applications
+-/
+
+def TestEven.recTest2 {b : Bool} {n : Nat} (h : TestEven b n) : True :=
+  match h with
+  | .zero => trivial
+  | @TestEven.succ _ n h' _a =>
+    -- h' : ∀ (a : Nat), TestOdd b n
+    match n, h' with
+    | _ + 1, h'' =>
+      match h'' 2 with
+      | .succ h''' => h'''.recTest2
+    | 0, _ => trivial
+termination_by structural h

@@ -193,37 +193,11 @@ def mkBRecOn (ctx : Context) : MetaM Unit := do
           }
 
 /--
-Do we match on an expression that corresponds to a `below` proof?
-If so, return the proof and its type.
--/
-def detectRecPredApp (x : Expr) : MetaM (Option (Expr × Name)) := do
-  let x ← whnfCore x
-  x.withApp fun fn args => do
-    unless fn.isFVar do
-      return none
-    let env ← getEnv
-    return (← getLCtx).findDecl? fun decl =>
-      let rec go (argIdx : Nat) (e : Expr) := do
-        if h : argIdx < args.size then
-          match e with
-          | .forallE _ _ b _ => go (argIdx + 1) (b.instantiate1 args[argIdx])
-          | _ => none
-        else
-          let .app f a := e.getForallBody | none
-          unless a.getAppFn == fn do none
-          let .const belowName@(.str n s) _ := f.getAppFn | none
-          unless s = "below" ∨ (s.dropPrefix? "below_").any (·.isNat) do none
-          unless (env.findAsync? n).any (·.kind == .induct) do none
-          some (mkAppN decl.toExpr args, belowName)
-      termination_by args.size - argIdx
-      go 0 decl.type
-
-/--
 Given `val` which corresponds to a constructor of a below inductive,
 and `paramCount` which is the number of parameters in the real inductive,
 return the indices of the fields corresponding to recursive calls.
 -/
-def belowRecIndices (val : ConstructorVal) (paramCount : Nat) : MetaM (Array Nat) := do
+def belowRecIndices (val : ConstructorVal) (paramCount : Nat) : MetaM (Array (Nat × Nat)) := do
   forallTelescope val.type fun vars _ => do
     let motives := vars.extract paramCount val.numParams
     vars.filterMapM (start := val.numParams) fun e => do
@@ -231,10 +205,45 @@ def belowRecIndices (val : ConstructorVal) (paramCount : Nat) : MetaM (Array Nat
       let .app f a := type.getForallBody | return none
       let a@(.fvar _) := a.getAppFn | return none
       let f@(.fvar _) := f.getAppFn | return none
-      unless motives.contains f do return none
-      return vars.idxOf a - val.numParams
+      let some motiveIdx := motives.idxOf? f | return none
+      return (motiveIdx, vars.idxOf a - val.numParams)
 
 open Match
+
+structure RecursionContext where
+  belows : FVarIdMap (Name × Expr)
+  motives : FVarIdMap (Nat × Expr)
+
+instance : ToMessageData RecursionContext where
+  toMessageData ctx :=
+    "\nBelows:\n" ++
+    toMessageData (ctx.belows.toArray.map (fun (var, nm, e) => (Expr.fvar var, nm, e)))
+    ++ "\nMotives:\n" ++
+    toMessageData (ctx.motives.toArray.map (fun (var, nm, e) => (Expr.fvar var, nm, e)))
+
+inductive NewDecl where
+  | below (decl : LocalDecl) (indName : Name) (of : Array FVarId)
+  | motive (decl : LocalDecl) (motiveIdx : Nat) (of : Array FVarId)
+
+instance : ToMessageData NewDecl where
+  toMessageData
+  | .below decl indName vars =>
+    m!"Below: {decl.toExpr}, {indName}, {vars.map Expr.fvar}"
+  | .motive decl idx vars =>
+    m!"Motive: {decl.toExpr}, {idx}, {vars.map Expr.fvar}"
+
+def NewDecl.getDecl : NewDecl → LocalDecl
+  | .below decl _ _ => decl
+  | .motive decl _ _ => decl
+
+def collectDirectVarsInPattern (p : Pattern) : Array FVarId :=
+  go p #[]
+where
+  go (p : Pattern) (a : Array FVarId) : Array FVarId :=
+    match p with
+    | .var v => a.push v
+    | .as v p' _ => go p' (a.push v)
+    | _ => a
 
 /--
 This function adds an additional `below` discriminant to a matcher application.
@@ -243,7 +252,8 @@ It is used for modifying the patterns, such that the structural recursion can us
 `belowParams` are the parameters for the `below` applications where the first `nrealParams` are
 actual parameters and the remaining are motives.
 -/
-partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) (nrealParams : Nat) :
+partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) (nrealParams : Nat)
+    (ctx : RecursionContext) (k : RecursionContext → Expr → MetaM Expr) :
     MetaM (Option (Expr × MetaM Unit)) :=
   withTraceNode `Meta.IndPredBelow (return m!"{exceptEmoji ·} {matcherApp.toExpr} and {belowParams}") do
   let mut input ← getMkMatcherInputInContext matcherApp
@@ -251,16 +261,24 @@ partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) 
   let mut matchTypeAdd := #[] -- #[(discrIdx, ), ...]
   let mut i := discrs.size
   let oldVarCounts := input.lhss.toArray.map (·.fvarDecls.length)
+  let mut newDecls := Array.replicate oldVarCounts.size #[]
   while i > 0 do
     i := i - 1
     let discr := discrs[i]!
-    if let some (below, belowName) ← detectRecPredApp discr then
-      let val ← getConstInfoInduct belowName
-      discrs := discrs.insertIdx! (i + 1) below
-      -- | a, b, ABC.thing ..., c, d ==> | a, b, .(ABC.thing ...), ABC.below.thing ..., c, d
-      let lhss ← input.lhss.mapM (addBelowPattern belowName i)
-      input := { input with discrInfos := input.discrInfos.insertIdx! (i + 1) {}, lhss }
-      matchTypeAdd := matchTypeAdd.push (i, belowName)
+    let discr ← whnfCore discr
+    let .fvar var := discr.getAppFn | continue
+    let some (belowName, below) := ctx.belows.get? var | continue
+    let val ← getConstInfoInduct belowName
+    discrs := discrs.insertIdx! (i + 1) (mkAppN below discr.getAppArgs)
+    -- | a, b, ABC.thing ..., c, d ==> | a, b, .(ABC.thing ...), ABC.below.thing ..., c, d
+    let mut newLHSs := #[]
+    let mut lhssArray := input.lhss.toArray
+    for h : j in *...lhssArray.size do
+      let (newLHS, newDeclsAdd) ← addBelowPattern belowName i lhssArray[j]
+      newLHSs := newLHSs.push newLHS
+      newDecls := newDecls.modify j (· ++ newDeclsAdd)
+    input := { input with discrInfos := input.discrInfos.insertIdx! (i + 1) {}, lhss := newLHSs.toList }
+    matchTypeAdd := matchTypeAdd.push (i, belowName)
   if matchTypeAdd.isEmpty then
     return none
   -- adds below vars in between the existing vars
@@ -290,6 +308,7 @@ partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) 
   let alts ← matcherApp.alts |>.mapIdxM fun idx alt => do
     let lhs := input.lhss[idx]!
     let oldCount := oldVarCounts[idx]!
+    let newDecls := newDecls[idx]!
     -- we add new fvars to the end so all `oldCount` previous ones are preserved
     withExistingLocalDecls lhs.fvarDecls do
     lambdaBoundedTelescope alt oldCount fun oldAltVars t => do
@@ -302,7 +321,17 @@ partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) 
       let oldVars := fvars.extract 0 oldCount
       let t := t.replaceFVars oldAltVars oldVars
       trace[Meta.IndPredBelow.match] "oldAltVars = {oldAltVars}; oldCount = {oldCount}; fvars = {fvars}"
-      let newAlt ← mkLambdaFVars fvars t
+      let mut ctx := ctx
+      for newDecl in newDecls do
+        match newDecl with
+        | .below decl indName vars =>
+          for v in vars do
+            ctx := { ctx with belows := ctx.belows.insert v (indName, decl.toExpr) }
+        | .motive decl motiveIdx vars =>
+          for v in vars do
+            ctx := { ctx with motives := ctx.motives.insert v (motiveIdx, decl.toExpr) }
+      let e' ← k ctx t
+      let newAlt ← mkLambdaFVars fvars e'
       trace[Meta.IndPredBelow.match] "alt {idx}:\n{alt} ↦ {newAlt}"
       pure newAlt
 
@@ -312,15 +341,16 @@ partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) 
   return some (newApp, res.addMatcher)
 
 where
-  addBelowPattern (indName : Name) (idx : Nat) (lhs : AltLHS) : MetaM AltLHS := do
+  addBelowPattern (indName : Name) (idx : Nat) (lhs : AltLHS) : MetaM (AltLHS × Array NewDecl) := do
     withExistingLocalDecls lhs.fvarDecls do
     let prevPatterns := lhs.patterns.take idx
     let (originalPattern :: morePatterns) := lhs.patterns.drop idx |
       throwError "invalid amount of patterns"
-    let ((predPattern, belowPattern), fVars) ← (convertToBelow indName originalPattern none).run #[]
-    withExistingLocalDecls fVars.toList do
+    let ((predPattern, belowPattern), decls) ← (convertToBelow indName originalPattern none).run #[]
+    let localDecls := (decls.map (·.getDecl)).toList
+    withExistingLocalDecls localDecls do
     let patterns := prevPatterns ++ predPattern :: belowPattern :: morePatterns
-    return { lhs with patterns, fvarDecls := lhs.fvarDecls ++ fVars.toList }
+    return ({ lhs with patterns, fvarDecls := lhs.fvarDecls ++ localDecls }, decls)
 
   /--
   `ABC.below`, `h : ∀ x y z, ABC a b c` ===>
@@ -349,7 +379,7 @@ where
   the below pattern.
   -/
   convertToBelow (belowIndName : Name) (originalPattern : Pattern) (var? : Option Expr) :
-      StateRefT (Array LocalDecl) MetaM (Pattern × Pattern) := do
+      StateRefT (Array NewDecl) MetaM (Pattern × Pattern) := do
     match originalPattern with
     | .ctor ctorName us params fields =>
       withTraceNode `Meta.IndPredBelow.match (return m!"{exceptEmoji ·} pattern {← originalPattern.toExpr} to {belowIndName}") do
@@ -373,20 +403,21 @@ where
           let varType ← inferType var
           let belowArg := varType.getForallBody.appArg!
           let belowInd := varType.getForallBody.getAppFn.constName!
-          let realIdx := recIdxs[i / 2]!
+          let (motiveIdx, realIdx) := recIdxs[i / 2]!
           trace[Meta.IndPredBelow.match] "transform {var} to {realIdx}, {belowFields[realIdx]!.toMessageData}"
           let (predPattern, belowPattern) ← convertToBelow belowInd belowFields[realIdx]! var
           belowFields := belowFields.set! realIdx predPattern
           -- add motive decl var
           let localDecl ← getFVarLocalDecl vars[i + 1]!
-          modify fun decls => decls.push localDecl
+          let newDecl := .motive localDecl motiveIdx (collectDirectVarsInPattern predPattern)
+          modify fun decls => decls.push newDecl
           belowFields := belowFields.push belowPattern
           belowFields := belowFields.push (.var vars[i + 1]!.fvarId!)
           i := i + 2
         let ctor := .ctor belowCtor.name us belowParams.toList belowFields.toList
-        if ← isTracingEnabledFor `Meta.IndPredBelow.match then
-          withExistingLocalDecls ((← get).extract curDeclCount).toList do
-            trace[Meta.IndPredBelow.match] "{originalPattern.toMessageData} ↦ {ctor.toMessageData}"
+        --if ← isTracingEnabledFor `Meta.IndPredBelow.match then
+          --withExistingLocalDecls ((← get).extract curDeclCount).toList do
+            --trace[Meta.IndPredBelow.match] "{originalPattern.toMessageData} ↦ {ctor.toMessageData}"
         --let ctorExpr := mkAppN (mkAppN (mkConst ctorName us) params.toArray) fieldExprs
         let ctorExpr ← originalPattern.toExpr
         return (.inaccessible ctorExpr, ctor)
@@ -398,12 +429,14 @@ where
       let oldH ← originalPattern.toExpr
       if let some var := var? then
         let localDecl ← getFVarLocalDecl var
-        modify fun decls => decls.push localDecl
+        let newDecl := .below localDecl belowIndName (collectDirectVarsInPattern originalPattern)
+        modify fun decls => decls.push newDecl
         return (originalPattern, .var var.fvarId!)
       let tgtType ← toBelowType belowIndName oldH
       withLocalDeclD (← mkFreshUserName `h) tgtType fun newH => do
         let localDecl ← getFVarLocalDecl newH
-        modify fun decls => decls.push localDecl
+        let newDecl := .below localDecl belowIndName (collectDirectVarsInPattern originalPattern)
+        modify fun decls => decls.push newDecl
         return (originalPattern, .var newH.fvarId!)
 
 /-- Generates the auxiliary lemmas `below` and `brecOn` for a recursive inductive predicate. -/

@@ -17,16 +17,7 @@ public section
 namespace Lean.Elab.Structural
 open Meta
 
-/--
-Given `t = a ∧ b ∧ c ∧ ...`, return the `i`th type (of `n` total) or `none` if `n ≤ i` or there
-aren't enough `And`s to get the `i`th one.
--/
-def andProjType (i n : Nat) (t : Expr) : Option Expr :=
-  match i, n, t with
-  | 0, 1, t => some t
-  | 0, _ + 1, mkApp2 (.const ``And _) a _ => some a
-  | i + 1, k + 1, mkApp2 (.const ``And _) _ b => andProjType i k b
-  | _, _, _ => none
+open IndPredBelow (RecursionContext)
 
 /-- Return the `i`th projection of the type `e` where `e` has `n` Ands. -/
 def andProj (i n : Nat) (e : Expr) : Expr :=
@@ -36,81 +27,63 @@ def andProj (i n : Nat) (e : Expr) : Expr :=
   | i + 1, k + 1 => andProj i k (.proj ``And 1 e)
   | _, _ => e
 
-private def replaceIndPredRecApp (fixedParamPerm : FixedParamPerm) (funType : Expr) (i n : Nat) (e : Expr) : M Expr := do
-  withoutProofIrrelevance do
-  withTraceNode `Elab.definition.structural (fun _ => pure m!"eliminating recursive call {e}") do
-    -- We want to replace `e` with an expression of the same type
-    let main ← mkFreshExprSyntheticOpaqueMVar (← inferType e)
-    let args : Array Expr := e.getAppArgs
-    let ys := fixedParamPerm.pickVarying args
-    let lctx ← getLCtx
-    let r ← lctx.anyM fun localDecl => do
-      if localDecl.isAuxDecl then return false
-      let (mvars, _, t) ← forallMetaTelescope localDecl.type -- NB: do not reduce, we want to see the `funType`
-      let t := t.headBeta
-      let some t := andProjType i n t | return false
-      unless t.getAppFn == funType do return false
-      withTraceNodeBefore `Elab.definition.structural (do pure m!"trying {mkFVar localDecl.fvarId} : {localDecl.type}") do
-        if ys.size < t.getAppNumArgs then
-          trace[Elab.definition.structural] "too few arguments, expected {t.getAppNumArgs}, found {ys.size}. Underapplied recursive call?"
-          return false
-        if (← (t.getAppArgs.zip ys).allM (fun (t,s) => isDefEq t s)) then
-          let recApp := mkAppN (mkAppN localDecl.toExpr mvars) ys[t.getAppNumArgs...*]
-          let recApp := andProj i n recApp
-          main.mvarId!.assign recApp
-          return ← mvars.allM fun v => do
-            unless (← v.mvarId!.isAssigned) do
-              trace[Elab.definition.structural] "Cannot use {mkFVar localDecl.fvarId}: parameter {v} remains unassigned"
-              return false
-            return true
-        trace[Elab.definition.structural] "Arguments do not match"
-        return false
-    unless r do
-      throwError "Could not eliminate recursive call {e} at {main.mvarId!}"
-    instantiateMVars main
-
 private partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
-    (funTypes : Array Expr) (params : Array Expr) (e : Expr) : M Expr := do
+    (params : Array Expr) (ctx : RecursionContext) (e : Expr) : M Expr := do
   let recFnNames := recArgInfos.map (·.fnName)
   let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnNames) M Bool :=
     modifyGet (·.contains e)
   let inv := positions.inverse
-  let rec loop (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr := do
+  let rec loop (ctx : RecursionContext) (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr := do
     unless ← containsRecFn e do
       return e
     match e with
     | .lam n d b c =>
-      withLocalDecl n c (← loop d) fun x => do
-        mkLambdaFVars #[x] (← loop (b.instantiate1 x))
+      withLocalDecl n c (← loop ctx d) fun x => do
+        mkLambdaFVars #[x] (← loop ctx (b.instantiate1 x))
     | .forallE n d b c =>
-      withLocalDecl n c (← loop d) fun x => do
-        mkForallFVars #[x] (← loop (b.instantiate1 x))
+      withLocalDecl n c (← loop ctx d) fun x => do
+        mkForallFVars #[x] (← loop ctx (b.instantiate1 x))
     | .letE n type val body nondep =>
-      mapLetDecl n (← loop type) (← loop val) (nondep := nondep) fun x => do
-        loop (body.instantiate1 x)
+      mapLetDecl n (← loop ctx type) (← loop ctx val) (nondep := nondep) fun x => do
+        loop ctx (body.instantiate1 x)
     | .mdata _ b => do
       if let some stx := getRecAppSyntax? e then
-        withRef stx <| loop b
+        withRef stx <| loop ctx b
       else
-        return e.updateMData! (← loop b)
-    | .proj _ _ e' => return e.updateProj! (← loop e')
+        return e.updateMData! (← loop ctx b)
+    | .proj _ _ e' => return e.updateProj! (← loop ctx e')
     | .app _ _ =>
       let processApp (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr := do
         e.withApp fun f args => do
-          let args ← args.mapM loop
+          let args ← args.mapM (loop ctx)
           if let .const c _ := f then
             if let some fidx := recFnNames.idxOf? c then
               let info := recArgInfos[fidx]!
+              let some recArg := args[info.recArgPos]? |
+                throwError "insufficient number of parameters at recursive application {indentExpr e}"
+              let recArg ← whnf recArg
+              let fail := throwError "failed to eliminate recursive application{indentExpr e}"
+              let .fvar recVar := recArg | fail
+              let some (motiveIdx, e) := ctx.motives.get? recVar | fail
               let (ind, i) := inv[fidx]!
+              if ind != motiveIdx then fail
+              let ys := info.fixedParamPerm.pickVarying args
+              let directArgCount := (← inferType e).getForallArity
+              if ys.size < directArgCount then fail
               let j := positions[ind]!.size
-              return ← replaceIndPredRecApp info.fixedParamPerm funTypes[fidx]! i j (mkAppN f args)
-          return mkAppN (← loop f) args
+              let recApp := mkAppN e ys[*...directArgCount]
+              let recApp := andProj i j recApp
+              return mkAppN recApp ys[directArgCount...*]
+          return mkAppN (← loop ctx f) args
       let some matcherApp ← matchMatcherApp? e | processApp e
       if recArgInfos.all (fun i => !recArgHasLooseBVarsAt i.fnName i.recArgPos e) then
         return ← processApp e
       trace[Elab.definition.structural] "matcherApp before adding below transformation:\n{matcherApp.toExpr}"
       let nrealParams := recArgInfos[0]!.indGroupInst.params.size
-      if let some (newApp, addMatcher) ← IndPredBelow.mkBelowMatcher matcherApp params nrealParams then
+      let matcherResult ← controlAt MetaM fun g =>
+        IndPredBelow.mkBelowMatcher matcherApp params nrealParams ctx fun ctx e =>
+          g (loop ctx e)
+      if let some (newApp, addMatcher) := matcherResult then
         modifyThe State fun s => { s with addMatchers := s.addMatchers.push addMatcher }
         let some _newApp ← matchMatcherApp? newApp | throwError "not a matcherApp: {newApp}"
         trace[Elab.definition.structural] "modified matcher:\n{newApp}"
@@ -122,7 +95,7 @@ private partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (posi
     | _ =>
       ensureNoRecFn recFnNames e
       pure e
-  loop e |>.run' {}
+  loop ctx e |>.run' {}
 
 /--
 Turns `fun a b => x` into `let funType := fun a b => α` (where `x : α`).
@@ -161,13 +134,18 @@ The `recArgInfos` is used to transform the body of the function to replace recur
 uses of the `below` induction hypothesis.
 -/
 def mkIndPredBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
-    (recArgInfo : RecArgInfo) (value : Expr) (FType : Expr) (funTypes params : Array Expr) : M Expr := do
+    (recArgInfo : RecArgInfo) (value : Expr) (FType : Expr) (params : Array Expr) : M Expr := do
   lambdaTelescope value fun xs value => do
     let (indicesMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
     let FType ← instantiateForall FType indicesMajorArgs
     forallBoundedTelescope FType (some 1) fun below _ => do
       let below := below[0]!
-      let valueNew ← replaceIndPredRecApps recArgInfos positions funTypes params value
+      let belowName := (← inferType below).getForallBody.getAppFn.constName!
+      let ctx := {
+        belows := .insert {} indicesMajorArgs.back!.fvarId! (belowName, below)
+        motives := {}
+      }
+      let valueNew ← replaceIndPredRecApps recArgInfos positions params ctx value
       mkLambdaFVars (indicesMajorArgs ++ #[below] ++ otherArgs) valueNew
 
 end Lean.Elab.Structural

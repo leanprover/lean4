@@ -108,7 +108,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParamPerms
     let v := values[idx]!
     let t := FTypes[idx]!
     if isIndPred then
-      mkIndPredBRecOnF recArgInfos positions r v t funTypes (brecOnConst 0).getAppArgs
+      mkIndPredBRecOnF recArgInfos positions r v t (brecOnConst 0).getAppArgs
     else
       mkBRecOnF recArgInfos positions r v t
   trace[Elab.definition.structural] "FArgs: {FArgs}"

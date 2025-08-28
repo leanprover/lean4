@@ -1,6 +1,6 @@
-open Lean.Grind
+open Std Lean.Grind
 
-variable {α : Type} [Field α] [LinearOrder α] [OrderedRing α]
+variable {α : Type} [Field α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α]
 
 example (a b : α) (h : a < b / 2) : 2 * a < b := by grind
 example (a b : α) (h : a < b / 2) : a + a < b := by grind

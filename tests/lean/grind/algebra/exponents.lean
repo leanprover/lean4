@@ -1,5 +1,16 @@
 open Lean.Grind
 
+section CommSemiring
+
+-- from Mathlib.RingTheory.Localization.Ideal
+theorem IsLocalization.map_radical.extracted_1 {R : Type u_1} [inst : CommSemiring R] (x s : R) : (s * x) ^ (n + 1) = s ^ n * x * (s * x ^ n) := by
+  grind
+
+-- from Mathlib.Algebra.Polynomial.Expand
+theorem Polynomial.expand_char.extracted_1 {R : Type u} [inst : CommSemiring R] (n p : Nat) (C X : R) : C * X ^ (n * p) = C * (X ^ n) ^ p := by grind
+
+end CommSemiring
+
 section CommRing
 
 variable (R : Type) [CommRing R]

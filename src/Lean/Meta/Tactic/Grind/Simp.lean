@@ -50,6 +50,9 @@ def preprocess (e : Expr) : GoalM Simp.Result := do
   let e ← instantiateMVars e
   let r ← simpCore e
   let e' := r.expr
+  -- Remark: `simpCore` unfolds reducible constants, but it does not consistently visit all possible subterms.
+  -- So, we must use the following `unfoldReducible` step. It is non-op in most cases
+  let e' ← unfoldReducible e'
   let e' ← abstractNestedProofs e'
   let e' ← markNestedSubsingletons e'
   let e' ← eraseIrrelevantMData e'

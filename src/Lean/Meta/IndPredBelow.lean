@@ -192,6 +192,32 @@ def mkBRecOn (ctx : Context) : MetaM Unit := do
             value := proof
           }
 
+/-- Generates the auxiliary lemmas `below` and `brecOn` for a recursive inductive predicate. -/
+def mkBelow (indName : Name) : MetaM Unit :=
+  withTraceNode `Meta.IndPredBelow (fun _ => return m!"{indName}") do
+  unless (← isInductivePredicate indName) do return
+  let indVal ← getConstInfoInduct indName
+  if indVal.isUnsafe || !indVal.isRec then return
+  let levelParams := indVal.levelParams
+  let recVal ← getConstInfoRec (indName ++ `rec)
+  let largeElim := recVal.levelParams.length > levelParams.length
+  let t := if largeElim then recVal.instantiateTypeLevelParams [.zero] else recVal.type
+  let n := recVal.numParams + recVal.numMotives + recVal.numMinors
+  forallBoundedTelescope t (some n) fun as _ => do
+    let params := as.extract 0 recVal.numParams
+    let motives := as.extract recVal.numParams (recVal.numParams + recVal.numMotives)
+    let minors := as.extract (recVal.numParams + recVal.numMotives)
+    let motiveToIdx := motives.zipIdx.foldl (init := ∅) fun a (e, n) => a.insert e.fvarId! n
+    let recNames := indVal.all.toArray.map (· ++ `rec) ++
+      (Array.range' 1 indVal.numNested).map (indVal.all.head! ++ `rec).appendIndexAfter
+    let belowNames := indVal.all.toArray.map (· ++ `below) ++
+      (Array.range' 1 indVal.numNested).map (indVal.all.head! ++ `below).appendIndexAfter
+    let brecOnNames := indVal.all.toArray.map (· ++ `brecOn) ++
+      (Array.range' 1 indVal.numNested).map (indVal.all.head! ++ `brecOn).appendIndexAfter
+    let ctx := { levelParams, largeElim, params, motives, motiveToIdx, minors, recNames, belowNames, brecOnNames }
+    mkBelowInductives ctx
+    mkBRecOn ctx
+
 /--
 Given `val` which corresponds to a constructor of a below inductive,
 and `paramCount` which is the number of parameters in the real inductive,
@@ -210,8 +236,21 @@ def belowRecIndices (val : ConstructorVal) (paramCount : Nat) : MetaM (Array (Na
 
 open Match
 
+/--
+Records below proofs and motive proofs available. This is extended using `NewDecl`s while visiting
+and rewriting match expressions.
+-/
 structure RecursionContext where
+  /--
+  Map from proofs `h : ∀ x y z, ...` to pairs of `belowIndName` and a proof of
+  `h' : ∀ x y z, belowIndName ... (h x y z)`. These are used to find match rewriting candidates.
+  -/
   belows : FVarIdMap (Name × Expr)
+  /--
+  Map from proofs `h : ∀ x y z, ...` to pairs of `n` and a proof of
+  `h' : ∀ x y z, <nth motive> ... (h' x y z)` (nth motive corresponds to the order of motives in
+  the recursor). These are used to eliminate recursive calls.
+  -/
   motives : FVarIdMap (Nat × Expr)
 
 instance : ToMessageData RecursionContext where
@@ -221,9 +260,15 @@ instance : ToMessageData RecursionContext where
     ++ "\nMotives:\n" ++
     toMessageData (ctx.motives.toArray.map (fun (var, nm, e) => (Expr.fvar var, nm, e)))
 
+/--
+New local declarations that were added in the process of adding below discriminants to a matcher
+with information on their purpose.
+-/
 inductive NewDecl where
-  | below (decl : LocalDecl) (indName : Name) (of : Array FVarId)
-  | motive (decl : LocalDecl) (motiveIdx : Nat) (of : Array FVarId)
+  /-- A new declaration of type `∀ x y z, indName ... (h x y z)` for all `h ∈ vars` -/
+  | below (decl : LocalDecl) (indName : Name) (vars : Array FVarId)
+  /-- A new declaration of type `∀ x y z, <nth motive> ... (h x y z)` for all `h ∈ vars` -/
+  | motive (decl : LocalDecl) (motiveIdx : Nat) (vars : Array FVarId)
 
 instance : ToMessageData NewDecl where
   toMessageData
@@ -236,6 +281,10 @@ def NewDecl.getDecl : NewDecl → LocalDecl
   | .below decl _ _ => decl
   | .motive decl _ _ => decl
 
+/--
+Given a pattern `p`, return an array of variables that bind `p` completely (i.e. variables and
+named patterns).
+-/
 def collectDirectVarsInPattern (p : Pattern) : Array FVarId :=
   go p #[]
 where
@@ -311,17 +360,16 @@ partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) 
     let newDecls := newDecls[idx]!
     -- we add new fvars to the end so all `oldCount` previous ones are preserved
     withExistingLocalDecls lhs.fvarDecls do
-    lambdaBoundedTelescope alt oldCount fun oldAltVars t => do
       trace[Meta.IndPredBelow.match] "new decls:\n{newDecls}"
       let fvars := lhs.fvarDecls.toArray.map (·.toExpr)
+      let oldVars := fvars.extract 0 oldCount
+      let t := alt.beta oldVars
       let t :=
         -- special case: previously `Unit → motive ...`, now has variables
         match oldCount, hasEqns, fvars.size with
-        | 0, false, _ + 1 => t.bindingBody!
+        | 0, false, _ + 1 => t.betaRev #[mkConst ``Unit.unit]
         | _, _, _ => t
-      let oldVars := fvars.extract 0 oldCount
-      let t := t.replaceFVars oldAltVars oldVars
-      trace[Meta.IndPredBelow.match] "oldAltVars = {oldAltVars}; oldCount = {oldCount}; fvars = {fvars}"
+      trace[Meta.IndPredBelow.match] "oldCount = {oldCount}; fvars = {fvars}"
       let mut ctx := ctx
       for newDecl in newDecls do
         match newDecl with
@@ -426,7 +474,7 @@ where
       let (predPattern, belowPattern) ← convertToBelow belowIndName p var?
       return (.as varId predPattern hId, belowPattern)
     | _ =>
-      -- variables, inaccessibles
+      -- variables, inaccessibles => just introduce below variable and keep original pattern
       let oldH ← originalPattern.toExpr
       if let some var := var? then
         let localDecl ← getFVarLocalDecl var
@@ -439,32 +487,6 @@ where
         let newDecl := .below localDecl belowIndName (collectDirectVarsInPattern originalPattern)
         modify fun decls => decls.push newDecl
         return (originalPattern, .var newH.fvarId!)
-
-/-- Generates the auxiliary lemmas `below` and `brecOn` for a recursive inductive predicate. -/
-def mkBelow (indName : Name) : MetaM Unit :=
-  withTraceNode `Meta.IndPredBelow (fun _ => return m!"{indName}") do
-  unless (← isInductivePredicate indName) do return
-  let indVal ← getConstInfoInduct indName
-  if indVal.isUnsafe || !indVal.isRec then return
-  let levelParams := indVal.levelParams
-  let recVal ← getConstInfoRec (indName ++ `rec)
-  let largeElim := recVal.levelParams.length > levelParams.length
-  let t := if largeElim then recVal.instantiateTypeLevelParams [.zero] else recVal.type
-  let n := recVal.numParams + recVal.numMotives + recVal.numMinors
-  forallBoundedTelescope t (some n) fun as _ => do
-    let params := as.extract 0 recVal.numParams
-    let motives := as.extract recVal.numParams (recVal.numParams + recVal.numMotives)
-    let minors := as.extract (recVal.numParams + recVal.numMotives)
-    let motiveToIdx := motives.zipIdx.foldl (init := ∅) fun a (e, n) => a.insert e.fvarId! n
-    let recNames := indVal.all.toArray.map (· ++ `rec) ++
-      (Array.range' 1 indVal.numNested).map (indVal.all.head! ++ `rec).appendIndexAfter
-    let belowNames := indVal.all.toArray.map (· ++ `below) ++
-      (Array.range' 1 indVal.numNested).map (indVal.all.head! ++ `below).appendIndexAfter
-    let brecOnNames := indVal.all.toArray.map (· ++ `brecOn) ++
-      (Array.range' 1 indVal.numNested).map (indVal.all.head! ++ `brecOn).appendIndexAfter
-    let ctx := { levelParams, largeElim, params, motives, motiveToIdx, minors, recNames, belowNames, brecOnNames }
-    mkBelowInductives ctx
-    mkBRecOn ctx
 
 builtin_initialize
   registerTraceClass `Meta.IndPredBelow

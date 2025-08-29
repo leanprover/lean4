@@ -1,6 +1,9 @@
 module
 
-inductive Vec (α : Type u) : Nat → Type u
+set_option trace.Elab.Deriving.decEq true
+set_option deriving.deceq.avoid_match_threshold 1
+
+public inductive Vec (α : Type u) : Nat → Type u
   | nil  : Vec α 0
   | cons : α → {n : Nat} → Vec α n → Vec α (n+1)
   deriving DecidableEq

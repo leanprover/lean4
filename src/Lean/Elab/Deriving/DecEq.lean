@@ -14,6 +14,7 @@ import Lean.Elab.Deriving.Util
 import Lean.Meta.NatTable
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
+import Lean.Meta.Constructions.CasesOnSameCtor
 
 namespace Lean.Elab.Deriving.DecEq
 open Lean.Parser.Term
@@ -101,49 +102,47 @@ where
 
 def mkMatchNew (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
   assert! header.targetNames.size == 2
-  assert! indVal.numCtors > 1
+  assert! indVal.numCtors > 1 -- TODO: casesOnSameCtor makes sense for single-constructor as well
+
   let x1 := mkIdent header.targetNames[0]!
   let x2 := mkIdent header.targetNames[1]!
-  let h := mkIdent (← mkFreshUserName `h)
   let ctorIdxName := mkCtorIdxName indVal.name
-  let casesOnName := mkCasesOnName indVal.name
+  let casesOnSameCtorName ← mkFreshUserName (indVal.name ++ `casesOnSameCtor)
+  mkCasesOnSameCtor casesOnSameCtorName indVal.name
   let alts ← Array.ofFnM (n := indVal.numCtors) fun ⟨ctorIdx, _⟩ => do
     let ctorName := indVal.ctors[ctorIdx]!
     let ctorInfo ← getConstInfoCtor ctorName
-    forallTelescopeReducing ctorInfo.type fun xs _type => do
+    forallTelescopeReducing ctorInfo.type fun xs type => do
+      let type ← Core.betaReduce type -- we 'beta-reduce' to eliminate "artificial" dependencies
       let mut ctorArgs1 : Array Term := #[]
       let mut ctorArgs2 : Array Term := #[]
       let mut todo := #[]
 
       for i in *...ctorInfo.numFields do
         let x := xs[indVal.numParams + i]!
-        let a := mkIdent (← mkFreshUserName `a)
-        let b := mkIdent (← mkFreshUserName `b)
-        ctorArgs1 := ctorArgs1.push a
-        ctorArgs2 := ctorArgs2.push b
-        let xType ← inferType x
-        let indValNum :=
-          ctx.typeInfos.findIdx?
-          (xType.isAppOf ∘ ConstantVal.name ∘ InductiveVal.toConstantVal)
-        let recField  := indValNum.map (ctx.auxFunNames[·]!)
-        let isProof ← isProp xType
-        todo := todo.push (a, b, recField, isProof)
+        if type.containsFVar x.fvarId! then
+          -- If resulting type depends on this field, we don't need to bring it into
+          -- scope nor compare it
+          ctorArgs1 := ctorArgs1.push (← `(_))
+        else
+          let a := mkIdent (← mkFreshUserName `a)
+          let b := mkIdent (← mkFreshUserName `b)
+          ctorArgs1 := ctorArgs1.push a
+          ctorArgs2 := ctorArgs2.push b
+          let xType ← inferType x
+          let indValNum :=
+            ctx.typeInfos.findIdx?
+            (xType.isAppOf ∘ ConstantVal.name ∘ InductiveVal.toConstantVal)
+          let recField  := indValNum.map (ctx.auxFunNames[·]!)
+          let isProof ← isProp xType
+          todo := todo.push (a, b, recField, isProof)
       let rhs ← mkSameCtorRhs todo.toList
-      let x2:= mkIdent header.targetNames[1]!
-      let withName := mkConstructorElimName indVal.name ctorName
-      `(@fun $ctorArgs1:term* h =>
-          $(mkIdent withName) $x2:term h (@fun $ctorArgs2:term* => $rhs:term)
-      )
-  -- We go through some length to explicitly instantiate the implicit `motive` argument
-  -- Alternatively we could define a helper function `casesOnTwoSameCon` that has two targets,
-  -- expects `x1.ctorIdx = x2.ctorIdx` and has one arm for each constructors.
-  let paramUnderscores : Array Term ← Array.ofFnM (n := indVal.numParams) fun _ => `(_)
-  let motive : Term ← `(@fun x1 => $(mkCIdent ctorIdxName) $x2:ident = $(mkCIdent ctorIdxName) x1 → Decidable (x1 = $x2))
+      `(@fun $ctorArgs1:term* $ctorArgs2:term* =>$rhs:term)
   `(
-    if $h:ident : $(mkCIdent ctorIdxName) $x1:ident = $(mkCIdent ctorIdxName) $x2:ident then
-      @$(mkCIdent casesOnName) $paramUnderscores* $motive:term $x1:term $alts:term* ($h:ident).symm
+    if h : $(mkCIdent ctorIdxName) $x1:ident = $(mkCIdent ctorIdxName) $x2:ident then
+      $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
     else
-      isFalse (fun h' => $h:ident (congrArg $(mkCIdent ctorIdxName) h'))
+      isFalse (fun h' => h (congrArg $(mkCIdent ctorIdxName) h'))
   )
 where
   mkSameCtorRhs : List (Ident × Ident × Option Name × Bool) → TermElabM Term
@@ -165,8 +164,7 @@ where
 
 
 def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
-  if indVal.numCtors ≥ deriving.deceq.avoid_match_threshold.get (← getOptions) &&
-     indVal.numIndices = 0 then
+  if indVal.numCtors ≥ deriving.deceq.avoid_match_threshold.get (← getOptions) then
     mkMatchNew ctx header indVal
   else
     mkMatchOld ctx header indVal

@@ -190,4 +190,33 @@ example : Seq.subset (2::2) (0::1::2::2::3::4) = .strict (0::1::3::4) := rfl
 example : Seq.subset (1::2) (0::1::1::1::2::2::3::4) = .strict (0::1::1::2::3::4) := rfl
 example : Seq.subset (1::1::2) (0::1::1::1::2::2::3::4) = .strict (0::1::2::3::4) := rfl
 
+def Seq.isSorted (s : Seq) : Bool :=
+  match s with
+  | .var _ => true
+  | .cons x s => go x s
+where
+  go (x : Var) (s : Seq) : Bool :=
+    match s with
+    | .var y => x ≤ y
+    | .cons y s => x ≤ y && go y s
+
+def Seq.contains (s : Seq) (x : Var) : Bool :=
+  match s with
+  | .var y => x == y
+  | .cons y s => x == y || s.contains x
+
+def Seq.noAdjacentDuplicates (s : Seq) : Bool :=
+  match s with
+  | .var _ => true
+  | .cons x s => go x s
+where
+  go (x : Var) (s : Seq) : Bool :=
+    match s with
+    | .var y => x != y
+    | .cons y s => x != y && go y s
+
+example : Seq.erase0 (1::0) = 1 := rfl
+example : Seq.erase0 (0::1) = 1 := rfl
+example : Seq.erase0 (0::1::2) = 1::2 := rfl
+
 end Lean.Grind.AC

@@ -28,6 +28,7 @@ structure EqCnstr where
 inductive EqCnstrProof where
   | core (a b : Expr) (ea eb : AC.Expr)
   | erase_dup (c : EqCnstr)
+  | erase0 (c : EqCnstr)
   | swap (c : EqCnstr)
   | simp_exact (lhs : Bool) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | simp_ac (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
@@ -59,6 +60,7 @@ structure DiseqCnstr where
 inductive DiseqCnstrProof where
   | core (a b : Expr) (ea eb : AC.Expr)
   | erase_dup (c : DiseqCnstr)
+  | erase0 (c : DiseqCnstr)
   | simp_ac (lhs : Bool) (s : AC.Seq) (c₁ : DiseqCnstr) (c₂ : EqCnstr)
   | simp_suffix (lhs : Bool) (s : AC.Seq) (c₁ : DiseqCnstr) (c₂ : EqCnstr)
   | simp_prefix (lhs : Bool) (s : AC.Seq) (c₁ : DiseqCnstr) (c₂ : EqCnstr)

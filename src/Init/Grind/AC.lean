@@ -478,6 +478,13 @@ theorem eq_erase_dup {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : S
       (lhs rhs lhs' rhs' : Seq) : eq_erase_dup_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
   simp [eq_erase_dup_cert]; intro _ _; subst lhs' rhs'; simp
 
+noncomputable def eq_erase0_cert (lhs rhs lhs' rhs' : Seq) : Bool :=
+  lhs.erase0.beq' lhs' |>.and' (rhs.erase0.beq' rhs')
+
+theorem eq_erase0 {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.LawfulIdentity ctx.op (Var.denote ctx 0)}
+      (lhs rhs lhs' rhs' : Seq) : eq_erase0_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
+  simp [eq_erase0_cert]; intro _ _; subst lhs' rhs'; simp
+
 theorem diseq_norm_a {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs rhs : Expr) (lhs' rhs' : Seq)
     : eq_norm_a_cert lhs rhs lhs' rhs' → lhs.denote ctx ≠ rhs.denote ctx → lhs'.denote ctx ≠ rhs'.denote ctx := by
   simp [eq_norm_a_cert]; intro _ _; subst lhs' rhs'; simp

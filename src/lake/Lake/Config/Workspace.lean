@@ -50,10 +50,6 @@ namespace Workspace
 @[inline] def bootstrap (ws : Workspace) : Bool :=
   ws.root.bootstrap
 
-/-- The Lake cache. May be disabled. -/
-@[inline] public def lakeCache (ws : Workspace) : Cache :=
-  ws.lakeEnv.lakeCache
-
 /-- The path to the workspace's directory (i.e., the directory of the root package). -/
 @[inline] public def dir (self : Workspace) : FilePath :=
   self.root.dir
@@ -69,6 +65,14 @@ namespace Workspace
 /-- The full path to the workspace's Lake directory (e.g., `.lake`). -/
 @[inline] public def lakeDir (self : Workspace) : FilePath :=
   self.root.lakeDir
+
+/-- The Lake cache. -/
+@[inline] public def lakeCache (ws : Workspace) : Cache :=
+  ws.lakeEnv.lakeCache?.getD ⟨ws.lakeDir⟩
+
+/-- Whether the Lake artifact cache should be enabled by default for packages in the workspace. -/
+@[inline] public def enableArtifactCache (ws : Workspace) : Bool :=
+  ws.lakeEnv.enableArtifactCache
 
 /-- The path to the workspace's remote packages directory relative to `dir`. -/
 @[inline] public def relPkgsDir (self : Workspace) : FilePath :=
@@ -248,6 +252,7 @@ These are the settings use by `lake env` / `Lake.env` to run executables.
 -/
 public def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
   let vars := self.lakeEnv.baseVars ++ #[
+    ("LAKE_CACHE_DIR", some self.lakeCache.dir.toString),
     ("LEAN_PATH", some self.augmentedLeanPath.toString),
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
     -- Allow the Lean version to change dynamically within core

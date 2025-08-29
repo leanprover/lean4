@@ -64,6 +64,7 @@ public structure LakeOptions where
   ansiMode : AnsiMode := .auto
   outFormat : OutFormat := .text
   offline : Bool := false
+  outputsFile? : Option FilePath := none
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -117,6 +118,7 @@ def LakeOptions.mkBuildConfig
   failLv := opts.failLv
   outLv := opts.outLv
   ansiMode := opts.ansiMode
+  outputsFile? := opts.outputsFile?
   out; showSuccess
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
@@ -190,6 +192,7 @@ def lakeShortOption : (opt : Char) → CliM PUnit
 | 'v' => modifyThe LakeOptions ({· with verbosity := .verbose})
 | 'd' => do let rootDir ← takeOptArg "-d" "path"; modifyThe LakeOptions ({· with rootDir})
 | 'f' => do let configFile ← takeOptArg "-f" "path"; modifyThe LakeOptions ({· with configFile})
+| 'o' => do let outputsFile? ← takeOptArg "-o" "path"; modifyThe LakeOptions ({· with outputsFile?})
 | 'K' => do setConfigOpt <| ← takeOptArg "-K" "key-value pair"
 | 'U' => do
   logWarning "the '-U' shorthand for '--update' is deprecated"

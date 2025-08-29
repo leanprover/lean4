@@ -22,14 +22,6 @@ public structure Cache where
 
 namespace Cache
 
-/--
-Returns whether the  Lake cache is disabled.
-
-An empty directory string indicates the cache is disabled.
--/
-public def isDisabled (cache : Cache) : Bool :=
-  cache.dir.toString.isEmpty
-
 /-- Returns the artifact directory for the Lake cache. -/
 @[inline] public def artifactDir (cache : Cache) : FilePath :=
   cache.dir / "artifacts"
@@ -39,10 +31,7 @@ public def artifactPath (cache : Cache) (contentHash : Hash) (ext := "art")  : F
   cache.artifactDir / if ext.isEmpty then contentHash.toString else s!"{contentHash}.{ext}"
 
 /--
-Returns the path to the artifact in the Lake cache with extension `ext` if it exists.
-
-If the Lake cache is disabled, the behavior of this function is undefined.
--/
+Returns the path to the artifact in the Lake cache with extension `ext` if it exists. -/
 public def getArtifact? (cache : Cache) (contentHash : Hash) (ext := "art")  : BaseIO (Option Artifact) := do
   let path := cache.artifactPath contentHash ext
   if let .ok mtime ← getMTime path |>.toBaseIO then
@@ -52,18 +41,42 @@ public def getArtifact? (cache : Cache) (contentHash : Hash) (ext := "art")  : B
   else
     return none
 
-/-- The file where the package's input mapping is stored in the Lake cache. -/
-@[inline] public def inputsDir (cache : Cache) : FilePath :=
-  cache.dir / "inputs"
+/-- The directory where input-to-output mappings are stored in the Lake cache. -/
+@[inline] public def outputsDir (cache : Cache) : FilePath :=
+  cache.dir / "outputs"
 
-/-- The file where a package's input mapping is stored in the Lake cache. -/
-public def inputsFile (pkgName : String) (cache : Cache)  : FilePath :=
-  cache.inputsDir / s!"{pkgName}.jsonl"
+/-- The file containing the outputs of the the given input for the package. -/
+@[inline] public def outputsFile (cache : Cache) (pkg : String) (inputHash : Hash) : FilePath  :=
+  cache.outputsDir / pkg / s!"{inputHash}.json"
+
+/-- Cache the outputs corresponding to the given input for the package.  -/
+public def writeOutputsCore
+  (cache : Cache) (pkg : String) (inputHash : Hash) (outputs : Json)
+: IO Unit := do
+  let file := cache.outputsFile pkg inputHash
+  createParentDirs file
+  IO.FS.writeFile file outputs.compress
+
+/-- Cache the outputs corresponding to the given input for the package.  -/
+@[inline] public def writeOutputs
+  [ToJson α] (cache : Cache) (pkg : String) (inputHash : Hash) (outputs : α)
+: IO Unit := cache.writeOutputsCore pkg inputHash (toJson outputs)
+
+/-- Retrieve the cached outputs corresponding to the given input for the package (if any). -/
+public def readOutputs? (cache : Cache) (pkg : String) (inputHash : Hash) : IO (Option Json) := do
+  let path := cache.outputsFile pkg inputHash
+  match (← IO.FS.readFile path |>.toBaseIO) with
+  | .ok contents =>
+    match Json.parse contents with
+    | .ok outputs => return outputs
+    | .error e => throw <| IO.userError s!"{path}: invalid JSON: {e}"
+  | .error (.noFileOrDirectory ..) => return none
+  | .error e => throw e
 
 end Cache
 
 /--
-Maps an input hash to a structure of artifact content hashes.
+Maps an input hash to a structure of output artifact content hashes.
 
 These mappings are stored in a per-package JSON Lines file in the Lake cache.
 -/
@@ -87,33 +100,44 @@ namespace CacheMap
   loop 1 {}
 
 /-- Load a `CacheMap` from a JSON Lines file. -/
-public def load (inputsFile : FilePath) : LogIO CacheMap := do
-  match (← IO.FS.Handle.mk inputsFile .read |>.toBaseIO) with
+public def load (file : FilePath) : LogIO CacheMap := do
+  match (← IO.FS.Handle.mk file .read |>.toBaseIO) with
   | .ok h =>
     h.lock (exclusive := false)
-    loadCore h inputsFile.toString
+    loadCore h file.toString
   | .error (.noFileOrDirectory ..) =>
     return {}
   | .error e =>
-    error s!"{inputsFile}: failed to open file: {e}"
+    error s!"{file}: failed to open file: {e}"
 
 /--
 Save a `CacheMap` to a JSON Lines file.
 Entries already in the file but not in the map will not be removed.
 -/
-public def save (inputsFile : FilePath) (cache : CacheMap) : LogIO Unit := do
-  createParentDirs inputsFile
-  discard <| IO.FS.Handle.mk inputsFile .append -- ensure file exists
-  match (← IO.FS.Handle.mk inputsFile .readWrite |>.toBaseIO) with
+public def updateFile (file : FilePath) (cache : CacheMap) : LogIO Unit := do
+  createParentDirs file
+  discard <| IO.FS.Handle.mk file .append -- ensure file exists
+  match (← IO.FS.Handle.mk file .readWrite |>.toBaseIO) with
   | .ok h =>
     h.lock (exclusive := true)
-    let currEntries ← loadCore h inputsFile.toString
+    let currEntries ← loadCore h file.toString
     let cache := cache.fold (fun m k v => m.insert k v) currEntries
     h.rewind
     cache.forM fun k v =>
        h.putStrLn (toJson (k, v)).compress
   | .error e =>
-    error s!"{inputsFile}: failed to open file: {e}"
+    error s!"{file}: failed to open file: {e}"
+
+/-- Write a `CacheMap` to a JSON Lines file. -/
+public def writeFile (file : FilePath) (cache : CacheMap) : LogIO Unit := do
+  createParentDirs file
+  match (← IO.FS.Handle.mk file .write |>.toBaseIO) with
+  | .ok h =>
+    h.lock (exclusive := true)
+    cache.forM fun k v =>
+       h.putStrLn (toJson (k, v)).compress
+  | .error e =>
+    error s!"{file}: failed to open file: {e}"
 
 /-- Returns the output data associated with the input hash in the cache. -/
 public nonrec def get? (inputHash : Hash) (cache : CacheMap) : Option Json :=
@@ -133,6 +157,9 @@ end CacheMap
 public abbrev CacheRef := IO.Ref CacheMap
 
 namespace CacheRef
+
+@[inline] public def mk (init : CacheMap := {}) : BaseIO CacheRef :=
+  IO.mkRef init
 
 @[inline, inherit_doc CacheMap.get?]
 public def get? (inputHash : Hash) (cache : CacheRef) : BaseIO (Option Json) :=

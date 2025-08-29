@@ -183,7 +183,17 @@ as the point of comparison instead.
   else
     return false
 
-/-- Checks whether `info` is up-to-date, and replays the log of the trace if available. -/
+/-- Returns whether the hash does not match the trace's dependency hash. -/
+public def SavedTrace.isDifferentFrom  (hash : Hash) (self : SavedTrace) : Bool :=
+  match self with
+  | .ok data =>
+    hash != data.depHash
+  | _ =>
+    true
+
+/--
+Checks whether `info` is up-to-date with the trace.
+If so, replays the log of the trace if available. -/
 @[specialize] public def SavedTrace.replayIfUpToDate
   [CheckExists ι] [GetMTime ι]
   (info : ι) (depTrace : BuildTrace) (savedTrace : SavedTrace)
@@ -362,8 +372,6 @@ public def buildFileUnlessUpToDate'
     clearFileHash file
   setTrace (← fetchFileTrace file text)
 
-
-
 /--
 Copies `file` to the Lake cache with the file extension `ext`, and
 saves its hash in its `.hash` file.
@@ -400,7 +408,7 @@ public def Cache.saveArtifact
 
 @[inline,  inherit_doc Cache.saveArtifact]
 public def cacheArtifact
-  [MonadLakeEnv m] [MonadLiftT IO m] [Monad m]
+  [MonadWorkspace m] [MonadLiftT IO m] [Monad m]
   (file : FilePath) (ext := "art") (text := false) (exe := false)
 : m Artifact := do (← getLakeCache).saveArtifact file ext text exe
 
@@ -424,9 +432,11 @@ in either the saved trace file or in the cached input-to-content mapping.
 -/
 @[specialize] public def resolveArtifactsUsing?
   (α : Type u) [FromJson α] [ResolveArtifacts JobM α β]
-  (inputHash : Hash) (traceFile : FilePath) (savedTrace : SavedTrace) (cache : CacheRef)
+   (inputHash : Hash) (traceFile : FilePath) (savedTrace : SavedTrace)
+  (cache : Cache) (pkg : Package)
 : JobM (Option β) := do
-  if let some out ← cache.get? inputHash then
+  let updateCache ← pkg.isArtifactCacheEnabled
+  if let some out ← cache.readOutputs? pkg.cacheScope inputHash then
     if let .ok (hashes : α) := fromJson? out then
       if let some arts ← resolveArtifacts? hashes then
         savedTrace.replayOrFetch traceFile inputHash out
@@ -445,7 +455,8 @@ in either the saved trace file or in the cached input-to-content mapping.
       if let some out := data.outputs? then
         if let .ok (hashes : α) := fromJson? out then
           if let some arts ← resolveArtifacts? hashes then
-            cache.insert inputHash out
+            if updateCache then
+              cache.writeOutputs pkg.cacheScope inputHash out
             savedTrace.replayOrFetch traceFile inputHash out
             return some arts
   return none
@@ -458,7 +469,7 @@ public instance : ToJson (FileOutputHash ext) := ⟨(toJson ·.hash)⟩
 public instance : FromJson (FileOutputHash ext) := ⟨(.mk <$> fromJson? ·)⟩
 
 public instance
-  [MonadLakeEnv m] [MonadLiftT BaseIO m] [Monad m]
+  [MonadWorkspace m] [MonadLiftT BaseIO m] [Monad m]
 : ResolveArtifacts m (FileOutputHash ext) Artifact := ⟨(getArtifact? ·.hash ext)⟩
 
 /--
@@ -491,28 +502,47 @@ public def buildArtifactUnlessUpToDate
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
   let savedTrace ← readTraceFile traceFile
   if let some pkg ← getCurrPackage? then
+    let cache ← getLakeCache
     let inputHash := depTrace.hash
-    if let some cache := pkg.cacheRef? then
-      let art? ← resolveArtifactsUsing? (FileOutputHash ext) inputHash traceFile savedTrace cache
-      if let some art := art? then
-        if restore && !(← file.pathExists) then
-          logVerbose s!"restored artifact from cache to: {file}"
-          copyFile art.path file
-          if exe then
-            let r := ⟨true, true, true⟩
-            IO.setAccessRights file ⟨r, r, r⟩ -- 777
-          writeFileHash file art.hash
+    let fetchArt? restore := do
+      let art? ← resolveArtifactsUsing? (FileOutputHash ext)
+        inputHash traceFile savedTrace cache pkg
+      let some art := art?
+        | return none
+      if restore && (savedTrace.isDifferentFrom inputHash || !(← file.pathExists)) then
+        logVerbose s!"restored artifact from cache to: {file}"
+        copyFile art.path file
+        if exe then
+          let r := ⟨true, true, true⟩
+          IO.setAccessRights file ⟨r, r, r⟩ -- 777
+        writeFileHash file art.hash
+      return some art
+    if (← pkg.isArtifactCacheEnabled) then
+      if let some art ← fetchArt? restore then
+        setTrace art.trace
+        if let some outputsRef := pkg.outputsRef? then
+          outputsRef.insert inputHash art.hash
+        return if restore then file else art.path
+      else
+        unless (← savedTrace.replayIfUpToDate file depTrace) do
+          discard <| doBuild depTrace traceFile
+        let art ← cacheArtifact file ext text exe
+        cache.writeOutputs pkg.cacheScope inputHash art.hash
+        if let some outputsRef := pkg.outputsRef? then
+          outputsRef.insert inputHash art.hash
         setTrace art.trace
         return if restore then file else art.path
+    else
       unless (← savedTrace.replayIfUpToDate file depTrace) do
-        discard <| doBuild depTrace traceFile
-      let art ← cacheArtifact file ext text exe
-      cache.insert inputHash art.hash
-      setTrace art.trace
-      return if restore then file else art.path
+        if (← fetchArt? true).isNone then
+          discard <| doBuild depTrace traceFile
+      let contentHash ← fetchFileHash file text
+      if let some outputsRef := pkg.outputsRef? then
+        outputsRef.insert inputHash contentHash
+      setTrace (← computeArtifactTrace file file contentHash)
+      return file
   if (← savedTrace.replayIfUpToDate file depTrace) then
-    let contentHash ← fetchFileHash file text
-    setTrace (← computeArtifactTrace file file contentHash)
+    setTrace (← fetchFileTrace file text)
     return file
   else
     let contentHash ← doBuild depTrace traceFile

@@ -42,6 +42,8 @@ public structure BuildConfig where
   ansiMode : AnsiMode := .auto
   /-- Whether to print a message when the build finishes successfully (if not quiet). -/
   showSuccess : Bool := false
+  /-- File to save input-to-output mappings from the build of the worksoace's root -/
+  outputsFile? : Option FilePath := none
 
 /--
 Whether the build should show progress information.

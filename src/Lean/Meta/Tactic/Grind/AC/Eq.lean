@@ -9,6 +9,7 @@ public import Lean.Meta.Tactic.Grind.AC.Util
 import Lean.Meta.Tactic.Grind.AC.DenoteExpr
 import Lean.Meta.Tactic.Grind.AC.Proof
 import Lean.Meta.Tactic.Grind.AC.Seq
+import Lean.Meta.Tactic.Grind.AC.Inv
 public section
 namespace Lean.Meta.Grind.AC
 open Lean.Grind
@@ -272,5 +273,22 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := withExprs a b do
   let eb ← asACExpr b
   let rhs ← norm eb
   { lhs, rhs, h := .core a b ea eb : DiseqCnstr }.assert
+
+def checkStruct : ACM Bool := do
+  -- TODO
+  return false
+
+def check : GoalM Bool := do profileitM Exception "grind ac" (← getOptions) do
+  if (← checkMaxSteps) then return false
+  let mut progress := false
+  checkInvariants
+  try
+    for opId in *...(← get').structs.size do
+      let r ← ACM.run opId checkStruct
+      progress := progress || r
+      if (← isInconsistent) then return true
+    return progress
+  finally
+    checkInvariants
 
 end Lean.Meta.Grind.AC

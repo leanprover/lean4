@@ -157,10 +157,10 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_markProof(lean_object*, lean_object*,
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_profileitIOUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(uint8_t, uint8_t);
 lean_object* l_Lean_Meta_Grind_foldProjs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_MarkNestedSubsingletons_0__Lean_Meta_Grind_isDecidable(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_13_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_Grind_isMarkedSubsingletonConst___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isMarkedSubsingletonApp___boxed(lean_object*);
 uint8_t l_Lean_Expr_isForall(lean_object*);
@@ -2318,7 +2318,7 @@ return x_44;
 else
 {
 uint8_t x_45; 
-x_45 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_13_(x_36, x_36);
+x_45 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(x_36, x_36);
 if (x_45 == 0)
 {
 lean_object* x_46; lean_object* x_47; 
@@ -3156,7 +3156,7 @@ return x_199;
 else
 {
 uint8_t x_200; 
-x_200 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_13_(x_191, x_191);
+x_200 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(x_191, x_191);
 if (x_200 == 0)
 {
 lean_object* x_201; lean_object* x_202; 

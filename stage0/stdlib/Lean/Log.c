@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_13_(uint8_t, uint8_t);
 lean_object* l_Lean_Option_get___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_kind(lean_object*);
 static uint64_t l_Lean_errorDescriptionWidget___closed__1;
@@ -102,6 +101,7 @@ extern lean_object* l_Lean_errorExplanationManualDomain;
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Log_3265821404____hygCtx___hyg_4__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed___closed__3;
 LEAN_EXPORT lean_object* l_Lean_logAt___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_getRefPos___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed_stripNestedTags___closed__0;
 static lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed___closed__4;
@@ -973,7 +973,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_22; uint8_t x_24; uint8_t x_25; 
 x_24 = 1;
-x_25 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_13_(x_8, x_24);
+x_25 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_8, x_24);
 if (x_25 == 0)
 {
 x_22 = x_25;
@@ -1039,7 +1039,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; uint8_t x_23; 
 x_9 = 2;
-x_23 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_13_(x_7, x_9);
+x_23 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_7, x_9);
 if (x_23 == 0)
 {
 x_10 = x_23;

@@ -99,6 +99,7 @@ LEAN_EXPORT lean_object* l___private_Lake_Build_Package_0__Lake_Package_recCompu
 extern lean_object* l_Lake_Reservoir_lakeHeaders;
 static lean_object* l_Lake_Package_gitHubReleaseFacetConfig___lam__1___closed__0;
 static lean_object* l_Lake_buildAction___at_____private_Lake_Build_Package_0__Lake_Package_fetchBuildArchive_spec__4___redArg___closed__1;
+uint8_t l_IO_FS_ordSystemTime____x40_Init_System_IO_1242411632____hygCtx___hyg_48_(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_buildCacheFacetConfig___lam__1___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Job_mapM___at___Lake_Package_afterBuildCacheSync_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_optBarrelFacetConfig___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -109,7 +110,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Build_Package_0__Lake_Package_getRelea
 LEAN_EXPORT lean_object* l_IO_withStderr___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_Package_0__Lake_Package_recFetchDeps_spec__3_spec__3_spec__6___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStderr___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_Package_0__Lake_Package_recFetchDeps_spec__3_spec__3_spec__6___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_string_hash(lean_object*);
-uint8_t l_IO_FS_ordSystemTime____x40_Init_System_IO_1242411632____hygCtx___hyg_51_(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Package_0__Lake_Package_recFetchDeps___lam__0___closed__0;
 static lean_object* l_Lake_formatQuery___at___Lake_Package_optBuildCacheFacetConfig_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___at_____private_Lake_Build_Package_0__Lake_Package_recFetchDeps_spec__0___redArg(lean_object*, lean_object*);
@@ -8877,7 +8877,7 @@ x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc_ref(x_7);
 lean_dec(x_6);
-x_8 = l_IO_FS_ordSystemTime____x40_Init_System_IO_1242411632____hygCtx___hyg_51_(x_2, x_7);
+x_8 = l_IO_FS_ordSystemTime____x40_Init_System_IO_1242411632____hygCtx___hyg_48_(x_2, x_7);
 lean_dec_ref(x_7);
 if (x_8 == 0)
 {
@@ -8907,7 +8907,7 @@ lean_dec(x_4);
 x_15 = lean_ctor_get(x_13, 1);
 lean_inc_ref(x_15);
 lean_dec(x_13);
-x_16 = l_IO_FS_ordSystemTime____x40_Init_System_IO_1242411632____hygCtx___hyg_51_(x_2, x_15);
+x_16 = l_IO_FS_ordSystemTime____x40_Init_System_IO_1242411632____hygCtx___hyg_48_(x_2, x_15);
 lean_dec_ref(x_15);
 if (x_16 == 0)
 {

@@ -97,5 +97,36 @@ macro "#analyzeEMatchTheorems" : command => `(
 #analyzeEMatchTheorems
 
 -- -- We can analyze specific theorems using commands such as
-set_option trace.grind.ematch.instance true in
-run_meta analyzeEMatchTheorem ``List.filterMap_some {}
+set_option trace.grind.ematch.instance true
+
+-- 1. grind immediately sees `(#[] : Array α) = ([] : List α).toArray` but probably this should be hidden.
+-- 2. `Vector.toArray_empty` keys on `Array.mk []` rather than `#v[].toArray`
+-- I guess we could add `(#[].extract _ _).extract _ _` as a stop pattern.
+run_meta analyzeEMatchTheorem ``Array.extract_empty {}
+
+-- Neither `Option.bind_some` nor `Option.bind_fun_some` fire, because the terms appear inside
+-- lambdas. So we get crazy things like:
+-- `fun x => ((some x).bind some).bind fun x => (some x).bind fun x => (some x).bind some`
+-- We could consider replacing `filterMap_some` with
+-- `filterMap g (filterMap f xs) = filterMap (f >=> g) xs`
+-- to avoid the lambda that `grind` struggles with, but this would require more API around the fish.
+run_meta analyzeEMatchTheorem ``Array.filterMap_some {}
+
+-- Not entirely certain what is wrong here, but certainly
+-- `eq_empty_of_append_eq_empty` is firing too often.
+-- Ideally we could instantiate this is we fine `xs ++ ys` in the same equivalence class,
+-- note just as soon as we see `xs ++ ys`.
+-- I've tried removing this in https://github.com/leanprover/lean4/pull/10162
+run_meta analyzeEMatchTheorem ``Array.range'_succ {}
+
+-- Perhaps the same story here.
+run_meta analyzeEMatchTheorem ``Array.range_succ {}
+
+-- `zip_map_left` and `zip_map_right` are bad grind lemmas,
+-- checking if they can be removed in https://github.com/leanprover/lean4/pull/10163
+run_meta analyzeEMatchTheorem ``Array.zip_map {}
+
+-- It seems crazy to me that as soon as we have `0 >>> n = 0`, we instantiate based on the
+-- pattern `0 >>> n >>> m` by substituting `0` into `0 >>> n` to produce the `0 >>> n >>> n`.
+-- I don't think any forbidden subterms can help us here. I don't know what to do. :-(
+run_meta analyzeEMatchTheorem ``Int.zero_shiftRight {}

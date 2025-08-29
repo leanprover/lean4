@@ -25,7 +25,7 @@
       lakeprof report -r | awk '{if ($3) cum = $3} END {print "longest rebuild path: " cum}'
     max_runs: 2
     parse_output: true
-  # initialize stage2 cmake + warmup
+  # initialize stage3 cmake + warmup
   build_config:
     cmd: |
       bash -c 'make -C ${BUILD:-../build/release} stage3 -j$(nproc)'
@@ -39,19 +39,19 @@
       echo -n 'lines: '
       find src -name '*.lean' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean: '
-      find ${BUILD:-build/release}/stage2/lib/lean -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/lean -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean.server: '
-      find ${BUILD:-build/release}/stage2/lib/lean -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/lean -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean.private: '
-      find ${BUILD:-build/release}/stage2/lib/lean -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/lean -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .ir: '
-      find ${BUILD:-build/release}/stage2/lib/lean -name '*.ir' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/lean -name '*.ir' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'lines C: '
-      find ${BUILD:-build/release}/stage2/lib/temp -name '*.c' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/temp -name '*.c' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'lines C++: '
       find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'max dynamic symbols: '
-      find ${BUILD:-build/release}/stage2/lib/lean -name '*.a' -exec bash -c 'nm {} | grep " T " | wc -l' \; | sort --reverse --numeric-sort | head -n1
+      find ${BUILD:-build/release}/stage3/lib/lean -name '*.so' -exec bash -c 'nm --extern-only --defined-only {} | wc -l' \; | sort --reverse --numeric-sort | head -n1
     max_runs: 1
     runner: output
 - attributes:
@@ -62,11 +62,11 @@
     cmd: |
       set -euxo pipefail
       echo -n 'bytes .olean: '
-      find ${BUILD:-build/release}/stage2/lib/lean/Init -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/lean/Init -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean.server: '
-      find ${BUILD:-build/release}/stage2/lib/lean/Init -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/lean/Init -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean.private: '
-      find ${BUILD:-build/release}/stage2/lib/lean/Init -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/lean/Init -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
     max_runs: 1
     runner: output
 - attributes:
@@ -76,7 +76,7 @@
     cmd: |
       set -eu
       echo -n 'binary size: '
-      wc -c ${BUILD:-../../build/release}/stage2/lib/lean/libleanshared.so | cut -d' ' -f 1
+      wc -c ${BUILD:-../../build/release}/stage3/lib/lean/libleanshared.so | cut -d' ' -f 1
     max_runs: 1
     runner: output
 - attributes:

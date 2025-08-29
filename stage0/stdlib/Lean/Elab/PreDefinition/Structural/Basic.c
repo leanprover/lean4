@@ -1815,7 +1815,7 @@ return x_15;
 block_30:
 {
 lean_object* x_29; 
-x_29 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort(lean_box(0), x_25, x_24, x_26, x_27, x_28, lean_box(0), lean_box(0), lean_box(0));
+x_29 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort(lean_box(0), x_27, x_24, x_25, x_26, x_28, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_28);
 lean_dec(x_24);
 x_18 = x_29;
@@ -1831,8 +1831,8 @@ lean_dec(x_33);
 lean_inc(x_35);
 x_24 = x_31;
 x_25 = x_32;
-x_26 = x_34;
-x_27 = x_35;
+x_26 = x_35;
+x_27 = x_34;
 x_28 = x_35;
 goto block_30;
 }
@@ -1840,8 +1840,8 @@ else
 {
 x_24 = x_31;
 x_25 = x_32;
-x_26 = x_34;
-x_27 = x_35;
+x_26 = x_35;
+x_27 = x_34;
 x_28 = x_33;
 goto block_30;
 }
@@ -1863,18 +1863,18 @@ if (x_45 == 0)
 {
 lean_inc(x_44);
 x_31 = x_39;
-x_32 = x_42;
+x_32 = x_38;
 x_33 = x_44;
-x_34 = x_38;
+x_34 = x_42;
 x_35 = x_44;
 goto block_37;
 }
 else
 {
 x_31 = x_39;
-x_32 = x_42;
+x_32 = x_38;
 x_33 = x_44;
-x_34 = x_38;
+x_34 = x_42;
 x_35 = x_40;
 goto block_37;
 }

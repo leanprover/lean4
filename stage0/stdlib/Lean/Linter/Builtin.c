@@ -16,7 +16,6 @@ extern "C" {
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__13;
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___closed__0;
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__11;
-uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_13_(uint8_t, uint8_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 uint8_t l_Lean_Syntax_matchesIdent(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_getScope___redArg(lean_object*, lean_object*);
@@ -89,6 +88,7 @@ LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at_
 static lean_object* l_Lean_Linter_initFn___closed__0____x40_Lean_Linter_Builtin_1271794952____hygCtx___hyg_4_;
 static lean_object* l_Lean_Linter_logLint___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__5___closed__0;
 static lean_object* l_Lean_Linter_initFn___closed__8____x40_Lean_Linter_Builtin_1271794952____hygCtx___hyg_4_;
+extern lean_object* l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_152_;
 extern lean_object* l_Lean_warningAsError;
 static lean_object* l_Lean_Linter_logLint___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__5___closed__2;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -134,6 +134,7 @@ static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, size_t, size_t);
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__16;
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__2;
+uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(uint8_t, uint8_t);
 static lean_object* l_Lean_Options_toLinterOptions___at___Lean_Linter_getLinterOptions___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__0_spec__0___redArg___closed__0;
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__0;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
@@ -142,7 +143,6 @@ static lean_object* l_Lean_logAt___at___Lean_logWarningAt___at___Lean_Linter_log
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__5_spec__5_spec__5_spec__5___redArg___closed__3;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__5_spec__5_spec__5_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_165_;
 LEAN_EXPORT lean_object* l_Lean_logAt___at___Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__5_spec__5_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__12;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -460,7 +460,7 @@ static lean_object* _init_l_Lean_Linter_getLinterOptions___at___Lean_Linter_susp
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_165_;
+x_1 = l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_152_;
 return x_1;
 }
 }
@@ -1132,7 +1132,7 @@ _start:
 {
 lean_object* x_8; uint8_t x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_96; uint8_t x_97; uint8_t x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; uint8_t x_132; lean_object* x_133; uint8_t x_134; uint8_t x_135; lean_object* x_136; lean_object* x_137; uint8_t x_141; lean_object* x_142; uint8_t x_143; uint8_t x_144; uint8_t x_157; uint8_t x_158; lean_object* x_159; uint8_t x_160; uint8_t x_161; uint8_t x_163; uint8_t x_178; 
 x_157 = 2;
-x_178 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_13_(x_3, x_157);
+x_178 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_3, x_157);
 if (x_178 == 0)
 {
 x_163 = x_178;
@@ -1746,7 +1746,7 @@ x_170 = lean_ctor_get(x_169, 1);
 lean_inc(x_170);
 lean_dec_ref(x_169);
 x_171 = 1;
-x_172 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_13_(x_3, x_171);
+x_172 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_3, x_171);
 if (x_172 == 0)
 {
 lean_dec(x_170);

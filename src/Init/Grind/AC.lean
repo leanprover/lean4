@@ -345,7 +345,7 @@ theorem superpose_prefix_suffix {α} (ctx : Context α) {inst₁ : Std.Associati
   simp [superpose_prefix_suffix_cert]; intro _ _ _ _; subst lhs₁ lhs₂ lhs rhs; simp
   intro h₁ h₂; simp [← h₁, ← h₂, Std.Associative.assoc (self := inst₁)]
 
-def Seq.combineFuel (fuel : Nat) (s₁ s₂ : Seq) : Seq :=
+def Seq.unionFuel (fuel : Nat) (s₁ s₂ : Seq) : Seq :=
   match fuel with
   | 0 => s₁.concat s₂
   | fuel + 1 =>
@@ -355,12 +355,12 @@ def Seq.combineFuel (fuel : Nat) (s₁ s₂ : Seq) : Seq :=
     | .cons .., .var x₂ => s₁.insert x₂
     | .cons x₁ s₁, .cons x₂ s₂ =>
       if Nat.blt x₁ x₂ then
-        .cons x₁ (combineFuel fuel s₁ (.cons x₂ s₂))
+        .cons x₁ (unionFuel fuel s₁ (.cons x₂ s₂))
       else
-        .cons x₂ (combineFuel fuel (.cons x₁ s₁) s₂)
+        .cons x₂ (unionFuel fuel (.cons x₁ s₁) s₂)
 
--- Kernel version for `combineFuel`
-noncomputable def Seq.combineFuel_k (fuel : Nat) : Seq → Seq → Seq :=
+-- Kernel version for `unionFuel`
+noncomputable def Seq.unionFuel_k (fuel : Nat) : Seq → Seq → Seq :=
   Nat.rec concat
     (fun _ ih s₁ s₂ => Seq.rec
       (fun x₁ => Seq.rec (fun x₂ => Bool.rec (.cons x₂ (.var x₁)) (.cons x₁ (.var x₂)) (Nat.blt x₁ x₂)) (fun _ _ _ => s₂.insert x₁) s₂)
@@ -368,17 +368,17 @@ noncomputable def Seq.combineFuel_k (fuel : Nat) : Seq → Seq → Seq :=
         (fun x₂ s₂' _ => Bool.rec (.cons x₂ (ih s₁ s₂')) (.cons x₁ (ih s₁' s₂)) (Nat.blt x₁ x₂)) s₂)
       s₁) fuel
 
-theorem Seq.combineFuel_k_eq_combineFuel (fuel : Nat) (s₁ s₂ : Seq) : combineFuel_k fuel s₁ s₂ = combineFuel fuel s₁ s₂ := by
-  fun_induction combineFuel <;> simp [combineFuel_k, *]
+theorem Seq.unionFuel_k_eq_unionFuel (fuel : Nat) (s₁ s₂ : Seq) : unionFuel_k fuel s₁ s₂ = unionFuel fuel s₁ s₂ := by
+  fun_induction unionFuel <;> simp [unionFuel_k, *]
   next => rfl
   next ih => rw [← ih]; rfl
   next ih => rw [← ih]; rfl
 
-attribute [local simp] Seq.combineFuel_k_eq_combineFuel
+attribute [local simp] Seq.unionFuel_k_eq_unionFuel
 
-theorem Seq.denote_combineFuel {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} (fuel : Nat) (s₁ s₂ : Seq)
-    : (s₁.combineFuel fuel s₂).denote ctx = ctx.op (s₁.denote ctx) (s₂.denote ctx) := by
-  fun_induction combineFuel <;> simp
+theorem Seq.denote_unionFuel {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} (fuel : Nat) (s₁ s₂ : Seq)
+    : (s₁.unionFuel fuel s₂).denote ctx = ctx.op (s₁.denote ctx) (s₂.denote ctx) := by
+  fun_induction unionFuel <;> simp
   next => simp [Std.Commutative.comm (self := inst₂)]
   next => simp [Std.Commutative.comm (self := inst₂)]
   next ih => simp [ih, Std.Associative.assoc (self := inst₁)]
@@ -390,47 +390,47 @@ theorem Seq.denote_combineFuel {α} (ctx : Context α) {inst₁ : Std.Associativ
     rw [← Std.Associative.assoc (self := inst₁), ← Std.Associative.assoc (self := inst₁) (s₁.denote ctx)]
     rw [Std.Commutative.comm (self := inst₂) (x₂.denote ctx)]
 
-attribute [local simp] Seq.denote_combineFuel
+attribute [local simp] Seq.denote_unionFuel
 
 def hugeFuel := 1000000
 
-def Seq.combine (s₁ s₂ : Seq) : Seq :=
-  combineFuel hugeFuel s₁ s₂
+def Seq.union (s₁ s₂ : Seq) : Seq :=
+  unionFuel hugeFuel s₁ s₂
 
-noncomputable def Seq.combine_k (s₁ s₂ : Seq) : Seq :=
-  combineFuel_k hugeFuel s₁ s₂
+noncomputable def Seq.union_k (s₁ s₂ : Seq) : Seq :=
+  unionFuel_k hugeFuel s₁ s₂
 
-theorem Seq.combine_k_eq_combine (s₁ s₂ : Seq) : s₁.combine_k s₂ = s₁.combine s₂ := by
-  simp [combine, combine_k]
+theorem Seq.union_k_eq_union (s₁ s₂ : Seq) : s₁.union_k s₂ = s₁.union s₂ := by
+  simp [union, union_k]
 
-attribute [local simp] Seq.combine_k_eq_combine
+attribute [local simp] Seq.union_k_eq_union
 
-theorem Seq.denote_combine {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} (s₁ s₂ : Seq)
-    : (s₁.combine s₂).denote ctx = ctx.op (s₁.denote ctx) (s₂.denote ctx) := by
-  simp [combine]
+theorem Seq.denote_union {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} (s₁ s₂ : Seq)
+    : (s₁.union s₂).denote ctx = ctx.op (s₁.denote ctx) (s₂.denote ctx) := by
+  simp [union]
 
-attribute [local simp] Seq.denote_combine
+attribute [local simp] Seq.denote_union
 
 noncomputable def simp_ac_cert (c lhs rhs s s' : Seq) : Bool :=
-  s.beq' (c.combine_k lhs) |>.and'
-  (s'.beq' (c.combine_k rhs))
+  s.beq' (c.union_k lhs) |>.and'
+  (s'.beq' (c.union_k rhs))
 
 /--
-Given `lhs = rhs`, and a term `s := combine a lhs`, rewrite it to `s' := combine a rhs`
+Given `lhs = rhs`, and a term `s := union a lhs`, rewrite it to `s' := union a rhs`
 -/
 theorem simp_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} (c lhs rhs s s' : Seq)
     : simp_ac_cert c lhs rhs s s' → lhs.denote ctx = rhs.denote ctx → s.denote ctx = s'.denote ctx := by
   simp [simp_ac_cert]; intro _ _; subst s s'; simp; intro h; rw [h]
 
 noncomputable def superpose_ac_cert (a b c lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq) : Bool :=
-  lhs₁.beq' (c.combine_k a) |>.and'
-  (lhs₂.beq' (c.combine_k b)) |>.and'
-  (lhs.beq' (b.combine_k rhs₁)) |>.and'
-  (rhs.beq' (a.combine_k rhs₂))
+  lhs₁.beq' (c.union_k a) |>.and'
+  (lhs₂.beq' (c.union_k b)) |>.and'
+  (lhs.beq' (b.union_k rhs₁)) |>.and'
+  (rhs.beq' (a.union_k rhs₂))
 
 /--
-Given `lhs₁ = rhs₁` and `lhs₂ = rhs₂` where `lhs₁ := combine c a` and `lhs₂ := combine c b`,
-`lhs = rhs` where `lhs := combine b rhs₁` and `rhs := combine a rhs₂`
+Given `lhs₁ = rhs₁` and `lhs₂ = rhs₂` where `lhs₁ := union c a` and `lhs₂ := union c b`,
+`lhs = rhs` where `lhs := union b rhs₁` and `rhs := union a rhs₂`
 -/
 theorem superpose_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op}  (a b c lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq)
     : superpose_ac_cert a b c lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx

@@ -36,6 +36,14 @@ def mkInstPiOfInstForall (x : Expr) (inst : Expr) : MetaM Expr := do
   else
     throwError "mkInstPiOfInstForall: unexpected type of {inst}"
 
+/-- An n-ary version of `mkInstPiOfInstForall`. Takes an array of arguments instead.
+--/
+def mkInstPiOfInstsForall (xs : Array Expr) (inst : Expr) : MetaM Expr := do
+  let mut inst := inst
+  for x in xs.reverse do
+    inst ← mkInstPiOfInstForall x inst
+  pure inst
+
 /--
 Given a function `f : α → α`, an instance `inst : CCPO α`
 and a monotonicity proof `hmono : monotone f`, constructs a least fixpoint of `f`

@@ -342,7 +342,12 @@ def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
       let suggestionText := suggestionArr[0]!.2.1
       let map ← getFileMap
       let rangeContents := map.source.extract range.start range.stop
-      let mut edits := readableDiff rangeContents suggestionText suggestion.diffGranularity
+      let edits ← do
+        if let some msgData := suggestion.messageData? then
+          pure #[(.insert, toString <| ← msgData.format)]
+        else
+          pure <| readableDiff rangeContents suggestionText suggestion.diffGranularity
+      let mut edits := edits
       if let some previewRange := suggestion.previewSpan? >>= Syntax.getRange? then
         if previewRange.includes range then
           let map ← getFileMap

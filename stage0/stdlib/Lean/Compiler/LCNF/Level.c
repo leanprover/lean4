@@ -144,10 +144,10 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_simpLevelMax_x27(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(uint8_t, uint8_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_panic___at___Lean_Compiler_LCNF_NormLevelParam_normLevel_spec__8___closed__2;
 lean_object* l_StateT_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_13_(uint8_t, uint8_t);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1671,7 +1671,7 @@ return x_70;
 else
 {
 uint8_t x_71; 
-x_71 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_13_(x_60, x_60);
+x_71 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(x_60, x_60);
 if (x_71 == 0)
 {
 lean_object* x_72; lean_object* x_73; 
@@ -1769,7 +1769,7 @@ return x_95;
 else
 {
 uint8_t x_96; 
-x_96 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_13_(x_85, x_85);
+x_96 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(x_85, x_85);
 if (x_96 == 0)
 {
 lean_object* x_97; lean_object* x_98; 

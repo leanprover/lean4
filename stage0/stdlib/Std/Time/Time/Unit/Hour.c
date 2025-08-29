@@ -89,6 +89,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Hour_instOrdOrdinal;
 static lean_object* l_Std_Time_Hour_instInhabitedOrdinal___closed__9;
 LEAN_EXPORT lean_object* l_Std_Time_Hour_Ordinal_toOffset___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Hour_Ordinal_toRelative(lean_object*);
+lean_object* l_Std_Time_Internal_defaultUnitVal____x40_Std_Time_Internal_UnitVal_2277112071____hygCtx___hyg_185_(lean_object*);
 static lean_object* l_Std_Time_Hour_Ordinal_shiftTo1BasedHour___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Hour_instInhabitedOffset;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
@@ -110,7 +111,6 @@ lean_object* l_Rat_ofInt(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Hour_instDecidableLeOffset(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Hour_instNegOffset;
 LEAN_EXPORT lean_object* l_Std_Time_Hour_instOrdOffset;
-lean_object* l_Std_Time_Internal_defaultUnitVal____x40_Std_Time_Internal_UnitVal_2277112071____hygCtx___hyg_187_(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Hour_instDecidableLtOffset___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Hour_Ordinal_toRelative___closed__0;
 static lean_object* _init_l_Std_Time_Hour_instReprOrdinal___closed__0() {
@@ -440,7 +440,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Time_Hour_instInhabitedOffset___closed__0;
-x_2 = l_Std_Time_Internal_defaultUnitVal____x40_Std_Time_Internal_UnitVal_2277112071____hygCtx___hyg_187_(x_1);
+x_2 = l_Std_Time_Internal_defaultUnitVal____x40_Std_Time_Internal_UnitVal_2277112071____hygCtx___hyg_185_(x_1);
 return x_2;
 }
 }

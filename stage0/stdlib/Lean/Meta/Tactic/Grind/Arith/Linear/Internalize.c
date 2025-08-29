@@ -2494,7 +2494,7 @@ if (lean_obj_tag(x_28) == 0)
 lean_object* x_29; uint8_t x_30; 
 x_29 = lean_ctor_get(x_28, 0);
 lean_inc(x_29);
-x_30 = lean_ctor_get_uint8(x_29, sizeof(void*)*7 + 18);
+x_30 = lean_ctor_get_uint8(x_29, sizeof(void*)*8 + 18);
 lean_dec(x_29);
 if (x_30 == 0)
 {

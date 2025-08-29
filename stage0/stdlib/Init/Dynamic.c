@@ -18,7 +18,7 @@ LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___boxed
 LEAN_EXPORT lean_object* l_TypeName_mk___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_typeNameImpl___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__TypeNameData(lean_object*);
+LEAN_EXPORT lean_object* l_TypeNameData(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__TypeName_typeNameImpl___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_mkImpl(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_mkImpl___redArg(lean_object*, lean_object*);
@@ -34,7 +34,7 @@ LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__TypeName_typeNameImpl___red
 LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__DynamicPointed;
 LEAN_EXPORT lean_object* l_TypeName_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__TypeNameData(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_TypeNameData(lean_object* x_1) {
 _start:
 {
 return lean_box(0);

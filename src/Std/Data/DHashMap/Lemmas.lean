@@ -1167,6 +1167,10 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.Pairwise (fun a b => (a == b) = false) :=
   Raw₀.distinct_keys ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
+theorem nodup_keys [EquivBEq α] [LawfulHashable α] :
+    m.keys.Nodup :=
+  m.distinct_keys.imp ne_of_beq_false
+
 @[simp]
 theorem toArray_keys :
     m.keys.toArray = m.keysArray :=

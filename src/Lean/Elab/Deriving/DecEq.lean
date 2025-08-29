@@ -107,7 +107,8 @@ def mkMatchNew (ctx : Context) (header : Header) (indVal : InductiveVal) : TermE
   let x1 := mkIdent header.targetNames[0]!
   let x2 := mkIdent header.targetNames[1]!
   let ctorIdxName := mkCtorIdxName indVal.name
-  let casesOnSameCtorName ← mkFreshUserName (indVal.name ++ `casesOnSameCtor)
+  -- NB: the getMatcherInfo? assumes all mathcers are called `match_`
+  let casesOnSameCtorName ← mkFreshUserName (indVal.name ++ `match_on_same_ctor)
   mkCasesOnSameCtor casesOnSameCtorName indVal.name
   let alts ← Array.ofFnM (n := indVal.numCtors) fun ⟨ctorIdx, _⟩ => do
     let ctorName := indVal.ctors[ctorIdx]!

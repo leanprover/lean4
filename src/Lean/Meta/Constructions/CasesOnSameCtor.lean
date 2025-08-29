@@ -162,37 +162,37 @@ def withSharedIndices (ctor : Expr) (k : Array Expr → Expr → Expr → MetaM 
 public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
 
-  if info.numIndices == 0 then
-    -- No indices? The heterogenous version is what we want here
-    mkCasesOnSameCtorHet declName indName
-    return
+  -- No longer true with the motive now including the ctrIdx equality
+  -- if info.numIndices == 0 then
+  --   -- No indices? The heterogenous version is what we want here
+  --   mkCasesOnSameCtorHet declName indName
+  --   return
 
   let casesOnSameCtorHet := declName ++ `het
   mkCasesOnSameCtorHet casesOnSameCtorHet indName
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstVal casesOnName
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
-  let e ← forallBoundedTelescope casesOnInfo.type info.numParams fun params t =>
+  forallBoundedTelescope casesOnInfo.type info.numParams fun params t =>
     let t0 := t.bindingBody! -- ignore motive
     forallBoundedTelescope t0 (some info.numIndices) fun is t =>
     forallBoundedTelescope t (some 1) fun x1 _ =>
     forallBoundedTelescope t (some 1) fun x2 _ => do
       let x1 := x1[0]!
       let x2 := x2[0]!
-      let motiveType ← mkForallFVars (is ++ #[x1,x2]) (mkSort v)
-      withLocalDecl `motive .implicit motiveType fun motive => do
-
       let ctorApp1 := mkAppN (mkConst (mkCtorIdxName indName) us) (params ++ is ++ #[x1])
       let ctorApp2 := mkAppN (mkConst (mkCtorIdxName indName) us) (params ++ is ++ #[x2])
       let heqType ← mkEq ctorApp1 ctorApp2
       withLocalDeclD `h heqType fun heq => do
+      let motiveType ← mkForallFVars (is ++ #[x1,x2,heq]) (mkSort v)
+      withLocalDecl `motive .implicit motiveType fun motive => do
 
       let altTypes ← info.ctors.toArray.mapIdxM fun i ctorName => do
         let ctor := mkAppN (mkConst ctorName us) params
         withSharedIndices ctor fun zs12 ctorApp1 ctorApp2 => do
           let ctorRet1 ← whnf (← inferType ctorApp1)
           let is : Array Expr := ctorRet1.getAppArgs[info.numParams:]
-          let e := mkAppN motive (is ++ #[ctorApp1, ctorApp2])
+          let e := mkAppN motive (is ++ #[ctorApp1, ctorApp2, (← mkEqRefl (mkNatLit i))])
           let e ← mkForallFVars zs12 e
           let name := match ctorName with
             | Name.str _ s => Name.mkSimple s
@@ -204,7 +204,7 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
         let (motive', newRefls) ←
           withNewEqs (is.push x1) ism1' fun newEqs1 newRefls1 => do
           withNewEqs (is.push x2) ism2' fun newEqs2 newRefls2 => do
-            let motive' := mkAppN motive (is ++ #[x1, x2])
+            let motive' := mkAppN motive (is ++ #[x1, x2, heq])
             let motive' ← mkForallFVars (newEqs1 ++ newEqs2) motive'
             let motive' ← mkLambdaFVars (ism1' ++ ism2') motive'
             return (motive', newRefls1 ++ newRefls2)
@@ -213,13 +213,13 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
         let casesOn2 := mkApp casesOn2 motive'
         let casesOn2 := mkAppN casesOn2 (is ++ #[x1] ++ is ++ #[x2])
         let casesOn2 := mkApp casesOn2 heq
-        let altTypes ← inferArgumentTypesN info.numCtors casesOn2
+        let altTypes' ← inferArgumentTypesN info.numCtors casesOn2
         let alts' ← info.ctors.toArray.mapIdxM fun i ctorName => do
           let ctor := mkAppN (mkConst ctorName us) params
           let ctorType ← inferType ctor
           forallTelescope ctorType fun zs1 _ctorRet1 => do
           forallTelescope ctorType fun zs2 _ctorRet2 => do
-            let altType ← instantiateForall altTypes[i]! (zs1 ++ zs2)
+            let altType ← instantiateForall altTypes'[i]! (zs1 ++ zs2)
             let alt ← mkFreshExprSyntheticOpaqueMVar altType
             let goal := alt.mvarId!
             -- throwError m!"{goal}"
@@ -236,20 +236,29 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
         -- check casesOn2
         -- let goals ← goal.applyN casesOn2 (n := alts.size)
         -- throwError m!"{casesOn2}"
-        mkLambdaFVars (params ++ #[motive] ++ is ++ #[x1,x2] ++ #[heq] ++ alts) casesOn2
+        let e ← mkLambdaFVars (params ++ #[motive] ++ is ++ #[x1,x2] ++ #[heq] ++ alts) casesOn2
 
-  addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
-    (name        := declName)
-    (levelParams := casesOnInfo.levelParams)
-    (type        := (← inferType e))
-    (value       := e)
-    (hints       := ReducibilityHints.abbrev)
-  ))
-  modifyEnv fun env => markAuxRecursor env declName
-  modifyEnv fun env => addToCompletionBlackList env declName
-  modifyEnv fun env => addProtected env declName
-  Elab.Term.elabAsElim.setTag declName
-  setReducibleAttribute declName
+        addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+          (name        := declName)
+          (levelParams := casesOnInfo.levelParams)
+          (type        := (← inferType e))
+          (value       := e)
+          (hints       := ReducibilityHints.abbrev)
+        ))
+        modifyEnv fun env => markAuxRecursor env declName
+        modifyEnv fun env => addToCompletionBlackList env declName
+        modifyEnv fun env => addProtected env declName
+        Elab.Term.elabAsElim.setTag declName
+        setReducibleAttribute declName
+
+        let matcherInfo : MatcherInfo := {
+          numParams := info.numParams
+          numDiscrs := info.numIndices + 3
+          altNumParams := altTypes.map (·.2.getNumHeadForalls)
+          uElimPos? := some 0
+          discrInfos := #[{}, {}, {}]}
+        Match.addMatcherInfo declName matcherInfo
+
 
 
 end Lean

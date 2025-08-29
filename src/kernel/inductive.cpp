@@ -900,7 +900,7 @@ struct elim_nested_inductive_fn {
         }
     }
 
-    void throw_ill_formed() {
+    [[noreturn]] void throw_ill_formed() {
         throw kernel_exception(m_env, "invalid nested inductive datatype, ill-formed declaration");
     }
 

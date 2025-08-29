@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 #include "library/constructions/util.h"
 
 namespace lean {
-static void throw_corrupted(name const & n) {
+[[noreturn]] static void throw_corrupted(name const & n) {
     throw exception(sstream() << "error in '" << g_no_confusion << "' generation, '" << n << "' inductive datatype declaration is corrupted");
 }
 

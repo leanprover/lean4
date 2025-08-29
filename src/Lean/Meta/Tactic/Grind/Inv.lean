@@ -4,22 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Proof
-public import Lean.Meta.Tactic.Grind.MatchCond
-public import Lean.Meta.Tactic.Grind.Arith.Inv
-
-public section
-
+import Lean.Meta.Tactic.Grind.Proof
+import Lean.Meta.Tactic.Grind.MatchCond
+import Lean.Meta.Tactic.Grind.Arith.Inv
+import Lean.Meta.Tactic.Grind.AC.Inv
 namespace Lean.Meta.Grind
-
 /-!
 Debugging support code for checking basic invariants.
 -/
 
-private def checkEqc (root : ENode) : GoalM Unit := do
+def checkEqc (root : ENode) : GoalM Unit := do
   let mut size := 0
   let mut curr := root.self
   repeat
@@ -55,7 +51,7 @@ def checkChild (e : Expr) (child : Expr) : GoalM Bool := do
   let some childRoot ← getRoot? child | return false
   return isSameExpr childRoot e
 
-private def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
+def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
   let_expr Grind.MatchCond parent ← parent | return false
   let mut curr := parent
   repeat
@@ -68,7 +64,7 @@ private def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
     curr := b
   return false
 
-private def checkParents (e : Expr) : GoalM Unit := do
+def checkParents (e : Expr) : GoalM Unit := do
   if (← isRoot e) then
     for parent in (← getParents e) do
       if isMatchCond parent then
@@ -97,7 +93,7 @@ private def checkParents (e : Expr) : GoalM Unit := do
     -- All the parents are stored in the root of the equivalence class.
     assert! (← getParents e).isEmpty
 
-private def checkPtrEqImpliesStructEq : GoalM Unit := do
+def checkPtrEqImpliesStructEq : GoalM Unit := do
   let exprs ← getExprs
   for h₁ : i in *...exprs.size do
     let e₁ := exprs[i]
@@ -108,7 +104,7 @@ private def checkPtrEqImpliesStructEq : GoalM Unit := do
       -- and the two expressions must not be structurally equal
       assert! !Expr.equal e₁ e₂
 
-private def checkProofs : GoalM Unit := do
+def checkProofs : GoalM Unit := do
   let eqcs ← getEqcs
   for eqc in eqcs do
     for a in eqc do
@@ -119,10 +115,8 @@ private def checkProofs : GoalM Unit := do
           check p
           trace_goal[grind.debug.proofs] "checked: {← inferType p}"
 
-/--
-Checks basic invariants if `grind.debug` is enabled.
--/
-def checkInvariants (expensive := false) : GoalM Unit := do
+/-- Checks invariants if `grind.debug` is enabled. -/
+public def checkInvariants (expensive := false) : GoalM Unit := do
   if grind.debug.get (← getOptions) then
     for e in (← getExprs) do
       let node ← getENode e
@@ -132,10 +126,12 @@ def checkInvariants (expensive := false) : GoalM Unit := do
     if expensive then
       checkPtrEqImpliesStructEq
     Arith.checkInvariants
+    AC.checkInvariants
   if expensive && grind.debug.proofs.get (← getOptions) then
     checkProofs
 
-def Goal.checkInvariants (goal : Goal) (expensive := false) : GrindM Unit :=
+@[inherit_doc Grind.checkInvariants]
+public def Goal.checkInvariants (goal : Goal) (expensive := false) : GrindM Unit :=
   discard <| GoalM.run' goal <| Grind.checkInvariants expensive
 
 end Lean.Meta.Grind

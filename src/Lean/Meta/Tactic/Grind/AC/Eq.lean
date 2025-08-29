@@ -80,6 +80,18 @@ def EqCnstr.eraseDup (c : EqCnstr) : ACM EqCnstr := do
   else
     return { c with lhs, rhs, h := .erase_dup c }
 
+def EqCnstr.erase0 (c : EqCnstr) : ACM EqCnstr := do
+  unless (← hasNeutral) do return c
+  let lhs := c.lhs.erase0
+  let rhs := c.rhs.erase0
+  if c.lhs == lhs && c.rhs == rhs then
+    return c
+  else
+    return { c with lhs, rhs, h := .erase0 c }
+
+def EqCnstr.cleanup (c : EqCnstr) : ACM EqCnstr := do
+  (← c.eraseDup).erase0
+
 def EqCnstr.orient (c : EqCnstr) : EqCnstr :=
   if compare c.rhs c.lhs == .gt then
     { c with lhs := c.rhs, rhs := c.lhs, h := .swap c }
@@ -128,16 +140,16 @@ private def simplifyRhsWithA (c : EqCnstr) (c' : EqCnstr) (r : AC.SubseqResult) 
 
 /-- Simplifies `c` using the basis when `(← isCommutative)` is `false` -/
 private def EqCnstr.simplifyA (c : EqCnstr) : ACM EqCnstr := do
-  let mut c ← c.eraseDup
+  let mut c ← c.cleanup
   repeat
     incSteps
     if (← checkMaxSteps) then return c
     if let some (c', r) ← c.lhs.findSimpA? then
       c := simplifyLhsWithA c c' r
-      c ← c.eraseDup
+      c ← c.cleanup
     else if let some (c', r) ← c.rhs.findSimpA? then
       c := simplifyRhsWithA c c' r
-      c ← c.eraseDup
+      c ← c.cleanup
     else
       trace[grind.debug.ac.simplify] "{← c.denoteExpr}"
       return c
@@ -179,16 +191,16 @@ private def simplifyWithAC' (c : EqCnstr) (c' : EqCnstr) : Option EqCnstr := do
 
 /-- Simplify `c` using the basis when `(← isCommutative)` is `true` -/
 private def EqCnstr.simplifyAC (c : EqCnstr) : ACM EqCnstr := do
-  let mut c ← c.eraseDup
+  let mut c ← c.cleanup
   repeat
     incSteps
     if (← checkMaxSteps) then return c
     if let some (c', r) ← c.lhs.findSimpAC? then
       c := simplifyLhsWithAC c c' r
-      c ← c.eraseDup
+      c ← c.cleanup
     else if let some (c', r) ← c.rhs.findSimpAC? then
       c := simplifyRhsWithAC c c' r
-      c ← c.eraseDup
+      c ← c.cleanup
     else
       trace[grind.debug.ac.simplify] "{← c.denoteExpr}"
       return c

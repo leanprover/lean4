@@ -4,20 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Lemmas
-public import Lean.Meta.Tactic.Assert
-public import Lean.Meta.Tactic.Grind.Simp
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Cases
-public import Lean.Meta.Tactic.Grind.CasesMatch
-public import Lean.Meta.Tactic.Grind.Injection
-public import Lean.Meta.Tactic.Grind.Core
 public import Lean.Meta.Tactic.Grind.SearchM
-
+import Lean.Meta.Tactic.Assert
+import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Cases
+import Lean.Meta.Tactic.Grind.CasesMatch
+import Lean.Meta.Tactic.Grind.Injection
+import Lean.Meta.Tactic.Grind.Core
 public section
-
 namespace Lean.Meta.Grind
 
 private inductive IntroResult where

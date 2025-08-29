@@ -4,16 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.Split
-public import Lean.Meta.Tactic.Grind.EMatch
-public import Lean.Meta.Tactic.Grind.Arith
-public import Lean.Meta.Tactic.Grind.Lookahead
+public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.SearchM
-
+import Lean.Meta.Tactic.Grind.Split
+import Lean.Meta.Tactic.Grind.EMatch
+import Lean.Meta.Tactic.Grind.Arith
+import Lean.Meta.Tactic.Grind.Lookahead
+import Lean.Meta.Tactic.Grind.Intro
 public section
-
 namespace Lean.Meta.Grind
 def tryFallback : GoalM Bool := do
   (← getMethods).fallback

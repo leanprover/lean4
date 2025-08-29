@@ -7,18 +7,11 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Simp
 
 public section
 
 namespace Lean.Meta.Grind
-/--
-A lighter version of `preprocess` which produces a definitionally equal term,
-but ensures assumptions made by `grind` are satisfied.
--/
-def preprocessLight (e : Expr) : GoalM Expr := do
-  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← unfoldReducible e))))))
-
 /--
 If `e` has not been internalized yet, instantiate metavariables, unfold reducible, canonicalize,
 and internalize the result.

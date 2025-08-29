@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
+import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr

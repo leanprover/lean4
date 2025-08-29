@@ -274,7 +274,7 @@ inductive TestOdd (b : Bool) : Nat → Prop where
 
 end
 
-def TestEven.recTest {b : Bool} {n : Nat} (h : TestEven b n) (_a : Bool) : True :=
+theorem TestEven.recTest {b : Bool} {n : Nat} (h : TestEven b n) (_a : Bool) : True :=
   match h with
   | .zero => trivial
   | @TestEven.succ _ n h' _a =>
@@ -293,7 +293,7 @@ termination_by structural h
 Matching on partial applications
 -/
 
-def TestEven.recTest2 {b : Bool} {n : Nat} (h : TestEven b n) : True :=
+theorem TestEven.recTest2 {b : Bool} {n : Nat} (h : TestEven b n) : True :=
   match h with
   | .zero => trivial
   | @TestEven.succ _ n h' _a =>
@@ -304,3 +304,18 @@ def TestEven.recTest2 {b : Bool} {n : Nat} (h : TestEven b n) : True :=
       | .succ h''' => h'''.recTest2
     | 0, _ => trivial
 termination_by structural h
+
+/-!
+Recursive calls as part of match discriminants
+-/
+
+def addProofDependency {p : Prop} (_h : p) (a : α) : α := a
+
+theorem NatProp.recTest3 (p : NatProp) : True :=
+  match p with
+  | .zero => trivial
+  | .succ h =>
+    match addProofDependency h.recTest3 trivial, h with
+    | ⟨⟩, .zero => trivial
+    | ⟨⟩, .succ h => h.recTest3
+termination_by structural p

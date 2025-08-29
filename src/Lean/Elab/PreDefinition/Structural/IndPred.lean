@@ -90,7 +90,7 @@ private partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (posi
           g (loop ctx e)
       if let some (newApp, addMatcher) := matcherResult then
         modifyThe State fun s => { s with addMatchers := s.addMatchers.push addMatcher }
-        return newApp
+        processApp newApp -- recursive applications may still be hidden in e.g. the discriminants
       else
         -- Note: `recArgHasLooseBVarsAt` has false positives, so sometimes everything might stay
         -- the same
@@ -148,7 +148,8 @@ def mkIndPredBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
         belows := .insert {} indicesMajorArgs.back!.fvarId! (belowName, below)
         motives := {}
       }
-      let valueNew ← replaceIndPredRecApps recArgInfos positions params ctx value
+      let valueNew ← withDeclNameForAuxNaming recArgInfo.fnName <|
+        replaceIndPredRecApps recArgInfos positions params ctx value
       mkLambdaFVars (indicesMajorArgs ++ #[below] ++ otherArgs) valueNew
 
 end Lean.Elab.Structural

@@ -35,19 +35,18 @@ def replaceIndPredRecApp (recArgInfo : RecArgInfo) (ctx : RecursionContext) (fid
   let fail {α} : MetaM α := do throwError "failed to eliminate recursive application{indentExpr e}"
   let .fvar recVar := recArg.getAppFn | fail
   let some (motiveIdx, e) := ctx.motives.get? recVar | fail
-  let e := mkAppN e recArg.getAppArgs
+  let recApp := mkAppN e recArg.getAppArgs
   let some pos := positions[motiveIdx]!.idxOf? fidx | fail
   let mut ys := #[]
   for h : i in *...args.size do
     unless recArgInfo.indicesPos.contains i || i == recArgInfo.recArgPos do
       unless recArgInfo.fixedParamPerm.isFixed i do
         ys := ys.push args[i]
-  let recApp := mkAppN e ys
-  forallTelescope (← inferType recApp).headBeta fun moreVars _ => do -- under-application
-    trace[Elab.definition.structural] "ys = {ys}, args = {args}, e = {e}, moreVars = {moreVars}"
-    let j := positions[motiveIdx]!.size
-    let recApp := andProj pos j recApp
-    mkLambdaFVars moreVars <| mkAppN recApp args[recArgInfo.fixedParamPerm.size...*] -- over-application
+  let recApp := andProj pos positions[motiveIdx]!.size recApp
+  --forallTelescope (← inferType recApp).headBeta fun moreVars _ => do -- under-application
+    --trace[Elab.definition.structural] "ys = {ys}, args = {args}, e = {e}, moreVars = {moreVars}"
+    --mkLambdaFVars moreVars <| mkAppN recApp ys
+  return mkAppN recApp ys
 
 private partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
     (params : Array Expr) (ctx : RecursionContext) (e : Expr) : M Expr := do

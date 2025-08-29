@@ -243,16 +243,18 @@ inductive NatProp : Prop where
 
 mutual
 
-theorem NatProp.recTest1 (x : NatProp) : True :=
+theorem NatProp.recTest1 (_a : Nat) (x : NatProp) (_c : Nat) : True :=
   match x with
   | .zero => trivial
-  | .succ k => k.recTest2
+  | .succ k =>
+    have := k.recTest2 7
+    this 3
 termination_by structural x
 
-theorem NatProp.recTest2 (x : NatProp) : True :=
+theorem NatProp.recTest2 (_b : Nat) (x : NatProp) (_d : Nat) : True :=
   match x with
   | .zero => trivial
-  | .succ k => k.recTest1
+  | .succ k => k.recTest1 3 5
 termination_by structural x
 
 end

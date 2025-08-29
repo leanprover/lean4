@@ -159,8 +159,16 @@ def withSharedIndices (ctor : Expr) (k : Array Expr → Expr → Expr → MetaM 
     go ctor zs.toList zs
 
 
-public def mkCasesOnSameCtor (declName : Name) (indName : Name) (casesOnSameCtorHet : Name) : MetaM Unit := do
+public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
+
+  if info.numIndices == 0 then
+    -- No indices? The heterogenous version is what we want here
+    mkCasesOnSameCtorHet declName indName
+    return
+
+  let casesOnSameCtorHet := declName ++ `het
+  mkCasesOnSameCtorHet casesOnSameCtorHet indName
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstVal casesOnName
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"

@@ -8,8 +8,18 @@ inductive Vec (α : Type u) : Nat → Type u
 
 namespace Vec
 -- set_option debug.skipKernelTC true
-run_meta mkCasesOnSameCtorHet `Vec.casesOn2Het ``Vec
-run_meta mkCasesOnSameCtor `Vec.casesOn2 ``Vec ``Vec.casesOn2Het
+run_meta mkCasesOnSameCtor `Vec.casesOn2 ``Vec
+
+/--
+info: Vec.casesOn2.het.{u_1, u} {α : Type u} {motive : {a : Nat} → Vec α a → {a : Nat} → Vec α a → Sort u_1} {a✝ : Nat}
+  (t : Vec α a✝) {a✝¹ : Nat} (t✝ : Vec α a✝¹) (h : t.ctorIdx = t✝.ctorIdx) (nil : motive nil nil)
+  (cons :
+    (a : α) →
+      {n : Nat} → (a_1 : Vec α n) → (a_2 : α) → {n_1 : Nat} → (a_3 : Vec α n_1) → motive (cons a a_1) (cons a_2 a_3)) :
+  motive t t✝
+-/
+#guard_msgs in
+#check Vec.casesOn2.het
 
 /--
 info: Vec.casesOn2.{u_1, u} {α : Type u} {motive : {a : Nat} → Vec α a → Vec α a → Sort u_1} {a✝ : Nat} (t t✝ : Vec α a✝)
@@ -26,8 +36,7 @@ namespace List
 -- set_option debug.skipKernelTC true
 -- set_option trace.compiler.ir.result true
 
-run_meta mkCasesOnSameCtorHet `List.casesOn2Het ``List
-run_meta mkCasesOnSameCtor `List.casesOn2 ``List ``List.casesOn2Het
+run_meta mkCasesOnSameCtor `List.casesOn2 ``List
 
 /--
 info: List.casesOn2.{u_1, u} {α : Type u} {motive : List α → List α → Sort u_1} (t t✝ : List α) (h : t.ctorIdx = t✝.ctorIdx)
@@ -52,6 +61,6 @@ error: Dependent elimination failed: Failed to solve equation
   f n✝ = f n
 -/
 #guard_msgs in
-run_meta mkCasesOnSameCtor `BadIdx.casesOn2 ``T ``BadIdx.casesOn2Het
+run_meta mkCasesOnSameCtor `BadIdx.casesOn2 ``T
 
 end BadIdx

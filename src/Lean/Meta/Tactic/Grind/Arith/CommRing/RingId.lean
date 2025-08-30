@@ -4,17 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Ring.Field
-public import Init.Grind.Ring.Envelope
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.SynthInstance
-public import Lean.Meta.Tactic.Grind.Arith.Insts
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
-
+import Init.Grind.Ring.Field
+import Init.Grind.Ring.Envelope
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.SynthInstance
+import Lean.Meta.Tactic.Grind.Arith.Insts
 public section
-
 namespace Lean.Meta.Grind.Arith.CommRing
 
 /--

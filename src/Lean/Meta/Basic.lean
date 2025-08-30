@@ -1329,36 +1329,38 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
       | _ => return .undef
     | _            => return .none
 
-partial def _root_.Lean.LocalInstances.addInstances (fvarId : FVarId)
-    (val : Expr) (localInsts : LocalInstances) : MetaM LocalInstances := do
-  let type ← whnf (← inferType val)
-  let .const className us := type.getAppFn | throwError "expected an instance, not {val}"
-  let mut localInsts := localInsts.push { className, fvarId, val }
-  if let some projFuns := getClassAbbrevProjs? (← getEnv) className then
-    let params := type.getAppArgs
-    for projFun in projFuns do
-      localInsts := localInsts.addInstance fvarId (mkAppN (.const projFun us) params)
-  return localInsts
-
-private def withNewLocalInstanceImp (fvar : Expr) (k : MetaM α) : MetaM α := do
-  let localDecl ← getFVarLocalDecl fvar
-  if localDecl.isImplementationDetail then
-    k
-  else
-    let localInstances ← (← read).localInstances.addInstances fvar.fvarId! fvar
-    withReader (fun ctx => { ctx with localInstances }) k
-
-/-- Add entry `{ className := className, fvar := fvar }` to localInstances,
-    and then execute continuation `k`. -/
-def withNewLocalInstance (fvar : Expr) : n α → n α :=
-  mapMetaM <| withNewLocalInstanceImp fvar
-
 private def fvarsSizeLtMaxFVars (fvars : Array Expr) (maxFVars? : Option Nat) : Bool :=
   match maxFVars? with
   | some maxFVars => fvars.size < maxFVars
   | none          => true
 
 mutual
+
+  partial def _root_.Lean.LocalInstances.addInstance (className : Name) (val : Expr)
+      (fvarId : FVarId) (localInsts : LocalInstances) : MetaM LocalInstances := do
+    let localInsts := localInsts.push { className, fvarId, val }
+    if let some projFuns := getClassAbbrevProjs? (← getEnv) className then
+      forallTelescopeReducingAux (← inferType val) none (cleanupAnnotations := false) (whnfType := true) fun xs type => do
+        let type ← whnf type
+        let .const _ us := type.getAppFn | panic! s!"'{type}' is not a constant application"
+        let params := type.getAppArgs
+        projFuns.foldlM (init := localInsts) fun localInsts projFun => do
+          let val := mkAppN val xs
+          let projType := (← getConstInfo projFun).type
+          let some projClass ← isClassImp? projType | panic! s!"projection '{projFun}' doesn't projection into a class"
+          let projVal ← mkLambdaFVars xs (.app (mkAppN (.const projFun us) params) val)
+          localInsts.addInstance projClass projVal fvarId
+    else
+      return localInsts
+
+  private partial def withNewLocalInstanceImp (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α := do
+    let localDecl ← getFVarLocalDecl fvar
+    if localDecl.isImplementationDetail then
+      k
+    else
+    let localInstances ← (← read).localInstances.addInstance className fvar fvar.fvarId!
+    withReader (fun ctx => { ctx with localInstances }) k
+
   /--
     `withNewLocalInstances isClassExpensive fvars j k` updates the vector or local instances
     using free variables `fvars[j] ... fvars.back`, and execute `k`.
@@ -1375,8 +1377,8 @@ mutual
       | .undef  =>
         match (← isClassExpensive? decl.type) with
         | none   => withNewLocalInstancesImp fvars (i+1) k
-        | some _ => withNewLocalInstance fvar <| withNewLocalInstancesImp fvars (i+1) k
-      | .some _ => withNewLocalInstance fvar <| withNewLocalInstancesImp fvars (i+1) k
+        | some c => withNewLocalInstanceImp c fvar <| withNewLocalInstancesImp fvars (i+1) k
+      | .some c => withNewLocalInstanceImp c fvar <| withNewLocalInstancesImp fvars (i+1) k
     else
       k
 
@@ -1502,6 +1504,12 @@ end
 -/
 def isClass? (type : Expr) : MetaM (Option Name) :=
   try isClassImp? type catch _ => return none
+
+/-- Add entry `{ className := className, fvar := fvar }` to localInstances,
+    and then execute continuation `k`. -/
+partial def withNewLocalInstance (className : Name) (fvar : Expr) : n α → n α :=
+  mapMetaM <| withNewLocalInstanceImp className fvar
+
 
 private def withNewLocalInstancesImpAux (fvars : Array Expr) (j : Nat) : n α → n α :=
   mapMetaM <| withNewLocalInstancesImp fvars j
@@ -1744,8 +1752,8 @@ where
       | _ => finalize ()
 
 private def withNewFVar (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do
-  if (← isClass? fvarType).isSome then
-    withNewLocalInstance fvar <| k fvar
+  if let some c ← isClass? fvarType then
+    withNewLocalInstance c fvar <| k fvar
   else
     k fvar
 
@@ -1875,10 +1883,10 @@ def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := 
   let size := localInsts.size
   for decl in decls do
     unless decl.isImplementationDetail do
-      if (← isClass? decl.type).isSome then
+      if let some className ← isClass? decl.type then
         -- Ensure we don't add the same local instance multiple times.
         unless localInsts.any fun localInst => localInst.fvarId == decl.fvarId do
-          localInsts ← localInsts.addInstances decl.fvarId decl.toExpr
+          localInsts ← localInsts.addInstance className decl.toExpr decl.fvarId
   if localInsts.size == size then
     k
   else

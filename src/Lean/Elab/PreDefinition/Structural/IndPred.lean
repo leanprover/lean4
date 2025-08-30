@@ -43,9 +43,6 @@ def replaceIndPredRecApp (recArgInfo : RecArgInfo) (ctx : RecursionContext) (fid
       unless recArgInfo.fixedParamPerm.isFixed i do
         ys := ys.push args[i]
   let recApp := andProj pos positions[motiveIdx]!.size recApp
-  --forallTelescope (← inferType recApp).headBeta fun moreVars _ => do -- under-application
-    --trace[Elab.definition.structural] "ys = {ys}, args = {args}, e = {e}, moreVars = {moreVars}"
-    --mkLambdaFVars moreVars <| mkAppN recApp ys
   return mkAppN recApp ys
 
 private partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)

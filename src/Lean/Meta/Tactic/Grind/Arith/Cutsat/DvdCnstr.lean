@@ -14,9 +14,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 import Lean.Meta.NatInstTesters
-
 public section
-
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 def DvdCnstr.norm (c : DvdCnstr) : DvdCnstr :=

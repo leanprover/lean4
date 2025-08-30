@@ -5,11 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.MBTC
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
-
+public import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.MBTC
+import Lean.Meta.Tactic.Grind.Arith.ModelUtil
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 public section
-
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do

@@ -14,6 +14,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ReorderVars
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 
 public section
 

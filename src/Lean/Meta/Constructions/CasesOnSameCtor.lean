@@ -258,6 +258,7 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
           uElimPos? := some 0
           discrInfos := #[{}, {}, {}]}
         Match.addMatcherInfo declName matcherInfo
+        enableRealizationsForConst declName
 
 
 

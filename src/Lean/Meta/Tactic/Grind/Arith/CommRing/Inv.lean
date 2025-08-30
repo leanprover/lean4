@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+import Lean.Meta.Tactic.Grind.Arith.CommRing.GetSet
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 

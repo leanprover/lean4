@@ -11,6 +11,7 @@ import Init.Grind.Ring.Envelope
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Arith.Insts
+import Lean.Meta.Tactic.Grind.Arith.CommRing.GetSet
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 

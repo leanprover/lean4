@@ -8,7 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.SynthInstance
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.GetSet
+import Lean.Meta.Tactic.Grind.Arith.CommRing.GetSet
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 public section

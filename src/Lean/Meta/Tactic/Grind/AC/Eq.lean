@@ -257,6 +257,10 @@ def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : ACM Unit := do
   trace_goal[grind.ac.assert.basis] "{← c.denoteExpr}"
   addToBasisCore c
 
+def EqCnstr.addToBasis (c : EqCnstr) : ACM Unit := do
+  let c ← c.simplify
+  c.addToBasisAfterSimp
+
 def EqCnstr.assert (c : EqCnstr) : ACM Unit := do
   let c ← c.simplify
   if c.lhs == c.rhs then
@@ -286,9 +290,44 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := withExprs a b do
   let rhs ← norm eb
   { lhs, rhs, h := .core a b ea eb : DiseqCnstr }.assert
 
-def checkStruct : ACM Bool := do
+private def isQueueEmpty : ACM Bool :=
+  return (← getStruct).queue.isEmpty
+
+/--
+Returns `true` if the todo queue is not empty or the `recheck` flag is set to `true`
+-/
+private def needCheck : ACM Bool := do
+  unless (← isQueueEmpty) do return true
+  return (← getStruct).recheck
+
+private def getNext? : ACM (Option EqCnstr) := do
+  let some c := (← getStruct).queue.min? | return none
+  modifyStruct fun s => { s with queue := s.queue.erase c }
+  incSteps
+  return some c
+
+private def checkDiseqs : ACM Unit := do
   -- TODO
-  return false
+  return ()
+
+private def propagateEqs : ACM Unit := do
+  -- TODO
+  return ()
+
+private def checkStruct : ACM Bool := do
+  unless (← needCheck) do return false
+  trace_goal[grind.debug.ac.check] "{(← getStruct).op}"
+  repeat
+    checkSystem "ac"
+    let some c ← getNext? | break
+    trace_goal[grind.debug.ac.check] "{← c.denoteExpr}"
+    c.addToBasis
+    if (← isInconsistent) then return true
+    if (← checkMaxSteps) then return true
+  checkDiseqs
+  propagateEqs
+  modifyStruct fun s => { s with recheck := false }
+  return true
 
 def check : GoalM Bool := do profileitM Exception "grind ac" (← getOptions) do
   if (← checkMaxSteps) then return false

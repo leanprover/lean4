@@ -24,4 +24,5 @@ builtin_initialize registerTraceClass `grind.ac.internalize
 builtin_initialize registerTraceClass `grind.debug.ac.op
 builtin_initialize registerTraceClass `grind.debug.ac.basis
 builtin_initialize registerTraceClass `grind.debug.ac.simp
+builtin_initialize registerTraceClass `grind.debug.ac.check
 end Lean

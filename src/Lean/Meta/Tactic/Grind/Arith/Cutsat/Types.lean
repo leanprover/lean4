@@ -4,17 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Data.Int.Linear
-public import Lean.Data.PersistentArray
-public import Lean.Meta.Tactic.Grind.ExprPtr
-public import Lean.Meta.Tactic.Grind.Arith.Util
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
-
+import Lean.Data.PersistentArray
+import Lean.Meta.Tactic.Grind.ExprPtr
+import Lean.Meta.Tactic.Grind.Arith.Util
 public section
-
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 export Int.Linear (Var Poly)

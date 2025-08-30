@@ -6,13 +6,10 @@ Authors: Dany Fabian
 module
 
 prelude
-public import Lean.Util.HasConstCache
-public import Lean.Meta.IndPredBelow
-public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.Structural.RecArgInfo
-
-public section
+import Lean.Util.HasConstCache
+import Lean.Meta.IndPredBelow
 
 namespace Lean.Elab.Structural
 open Meta
@@ -45,7 +42,7 @@ def replaceIndPredRecApp (recArgInfo : RecArgInfo) (ctx : RecursionContext) (fid
   let recApp := andProj pos positions[motiveIdx]!.size recApp
   return mkAppN recApp ys
 
-private partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
+partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
     (params : Array Expr) (ctx : RecursionContext) (e : Expr) : M Expr := do
   let recFnNames := recArgInfos.map (·.fnName)
   let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnNames) M Bool :=
@@ -101,7 +98,7 @@ private partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (posi
 Turns `fun a b => x` into `let funType := fun a b => α` (where `x : α`).
 The continuation is the called with all `funType`s corresponding to the values.
 -/
-def withFunTypes (values : Array Expr) (k : Array Expr → M α) : M α := do
+public def withFunTypes (values : Array Expr) (k : Array Expr → M α) : M α := do
   go 0 #[]
 where
   go (i : Nat) (res : Array Expr) : M α :=
@@ -119,7 +116,7 @@ where
 Calculates the `.brecOn` motive corresponding to one structural recursive function.
 The `value` is the function with (only) the fixed parameters moved into the context.
 -/
-def mkIndPredBRecOnMotive (recArgInfo : RecArgInfo) (value funType : Expr) : M Expr := do
+public def mkIndPredBRecOnMotive (recArgInfo : RecArgInfo) (value funType : Expr) : M Expr := do
   lambdaTelescope value fun xs _ => do
     let type := mkAppN funType xs
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
@@ -133,7 +130,7 @@ The `FType` is the expected type of the argument.
 The `recArgInfos` is used to transform the body of the function to replace recursive calls with
 uses of the `below` induction hypothesis.
 -/
-def mkIndPredBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
+public def mkIndPredBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
     (recArgInfo : RecArgInfo) (value : Expr) (FType : Expr) (params : Array Expr) : M Expr := do
   lambdaTelescope value fun xs value => do
     let (indicesMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs

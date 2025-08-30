@@ -6,9 +6,10 @@ Authors: Dany Fabian, Robin Arnez
 module
 
 prelude
-public import Lean.Meta.Constructions.CasesOn
-public import Lean.Meta.Match.Match
-public import Lean.Meta.Tactic.SolveByElim
+public import Lean.Meta.Match.MatcherApp.Basic
+import Lean.Meta.Constructions.CasesOn
+import Lean.Meta.Match.Match
+import Lean.Meta.Tactic.SolveByElim
 
 namespace Lean.Meta.IndPredBelow
 

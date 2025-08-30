@@ -409,6 +409,16 @@ from an `ELogT` (e.g., `LogIO`).
   let log ← getLog
   return (a, log.takeFrom iniPos)
 
+/-- If `x` produces any logs, group them into an error block. -/
+@[inline] public def throwIfLogs [Monad m] [MonadStateOf Log m] [MonadExceptOf Log.Pos m] (x : m α) : m α := do
+  let iniPos ← getLogPos
+  let a ← x
+  let endPos ← getLogPos
+  if iniPos ≠ endPos then
+    throw iniPos
+  else
+    return a
+
 /-- Performs `x` and backtracks any error to the log position before `x`. -/
 @[inline] public def withLogErrorPos
   [Monad m] [MonadStateOf Log m] [MonadExceptOf Log.Pos m] (self : m α)

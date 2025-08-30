@@ -11,7 +11,9 @@ public import Lake.Util.Exit
 public import Lake.Load.Config
 public import Lake.CLI.Error
 import Lake.Version
+import Lake.Reservoir
 import Lake.Build.Run
+import Lake.Build.Actions
 import Lake.Build.Targets
 import Lake.Build.Job.Monad
 import Lake.Build.Job.Register
@@ -306,6 +308,89 @@ def parseTemplateLangSpec (spec : String) : Except CliError (InitTemplate × Con
 
 namespace lake
 
+/-! ### `lake cache` CLI -/
+
+namespace cache
+
+protected def get : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  --let file ← takeArg?
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let ws ← loadWorkspace cfg
+  let (some artEndpoint, some revEndpoint) :=
+      (ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint?)
+    | if ws.lakeEnv.cacheArtifactEndpoint?.isNone then
+        logError "the LAKE_CACHE_ARTIFACT_ENDPOINT environment variable must be set for `cache get`"
+      if ws.lakeEnv.cacheRevisionEndpoint?.isNone then
+        logError "the LAKE_CACHE_REVISION_ENDPOINT environment variable must be set for `cache put`"
+      exit 1
+  let service : CacheService := {artEndpoint, revEndpoint}
+  let cache := ws.lakeCache
+  ws.packages.forM fun pkg => do
+    let repo := GitRepo.mk pkg.dir
+    if (← repo.hasDiff) then
+      logWarning s!"{pkg.name}: package has changes; only artifacts for committed code will be downloaded"
+    let rev ← repo.getHeadRevision
+    let scope := pkg.cacheScope
+    let map : CacheMap ← service.downloadRevisionOutputs rev scope
+    cache.writeMap scope map
+    let hashes ← map.collectOutputHashes
+    service.downloadArtifacts cache hashes scope
+
+protected def put : CliM PUnit := do
+  processOptions lakeOption
+  let file ← takeArg "mappings"
+  let opts ← getThe LakeOptions
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let ws ← loadWorkspace cfg
+  let (some key, some artEndpoint, some revEndpoint) :=
+      (ws.lakeEnv.cacheKey?, ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint?)
+    | if ws.lakeEnv.cacheKey?.isNone then
+        logError "the LAKE_CACHE_KEY environment variable must be set for `cache put`"
+      if ws.lakeEnv.cacheArtifactEndpoint?.isNone then
+        logError "the LAKE_CACHE_ARTIFACT_ENDPOINT environment variable must be set for `cache put`"
+      if ws.lakeEnv.cacheRevisionEndpoint?.isNone then
+        logError "the LAKE_CACHE_REVISION_ENDPOINT environment variable must be set for `cache put`"
+      exit 1
+  let service : CacheService := {key, artEndpoint, revEndpoint}
+  let pkg := ws.root
+  let repo := GitRepo.mk pkg.dir
+  if (← repo.hasDiff) then
+    error "package has changes; commit code before uploading a build"
+  let rev ← repo.getHeadRevision
+  let map ← CacheMap.load file
+  let scope := pkg.cacheScope
+  let hashes ← map.collectOutputHashes
+  let arts ← ws.lakeCache.getArtifacts hashes
+  service.uploadRevisionOutputs rev file scope
+  service.uploadArtifacts ⟨hashes, rfl⟩ arts scope
+
+protected def add : CliM PUnit := do
+  processOptions lakeOption
+  let file ← takeArg "mappings"
+  let pkg? ← takeArg?
+  let opts ← getThe LakeOptions
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let ws ← loadWorkspace cfg
+  let pkg ← match pkg? with
+    | some pkg => parsePackageSpec ws pkg
+    | _ => pure ws.root
+  let scope := pkg.cacheScope
+  let map ← CacheMap.load file
+  ws.lakeCache.writeMap scope map
+
+end cache
+
+def cacheCli : (cmd : String) → CliM PUnit
+| "add"   => cache.add
+| "get"   => cache.get
+| "put"   => cache.put
+| cmd     => throw <| CliError.unknownCommand cmd
+
 /-! ### `lake script` CLI -/
 
 namespace script
@@ -457,6 +542,16 @@ protected def upload : CliM PUnit := do
   noArgsRem do
   let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
   ws.root.uploadRelease tag
+
+protected def cache : CliM PUnit := do
+  if let some cmd ← takeArg? then
+    processLeadingOptions lakeOption -- between `lake cache <cmd>` and args
+    if (← getWantsHelp) then
+      IO.println <| helpCache cmd
+    else
+      cacheCli cmd
+  else
+    throw <| CliError.missingCommand
 
 protected def setupFile : CliM PUnit := do
   processOptions lakeOption
@@ -660,6 +755,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "pack"                => lake.pack
 | "unpack"              => lake.unpack
 | "upload"              => lake.upload
+| "cache"               => lake.cache
 | "setup-file"          => lake.setupFile
 | "test"                => lake.test
 | "check-test"          => lake.checkTest

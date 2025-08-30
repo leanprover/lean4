@@ -186,8 +186,8 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
              To make it work, users have to write the third alternative as `| zs => g zs + 2`
              If this is too annoying in practice, we may replace `ys` with the matching term, but
              this may generate weird error messages, when it doesn't work. -/
-          trace[Elab.definition.structural] "below before `matcherApp.addArg?`: {below} : {← inferType below}"
-          if let some matcherApp ← some <$> matcherApp.addArg below then
+          trace[Elab.definition.structural] "below before matcherApp.addArg: {below} : {← inferType below}"
+          if let some matcherApp ← matcherApp.addArg? below then
             let altsNew ← matcherApp.alts.zipWithM (bs := matcherApp.altNumParams) fun alt numParams =>
               lambdaBoundedTelescope alt numParams fun xs altBody => do
                 trace[Elab.definition.structural] "altNumParams: {numParams}, xs: {xs}"

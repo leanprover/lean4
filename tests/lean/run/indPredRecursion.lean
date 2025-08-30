@@ -336,7 +336,7 @@ theorem NatProp.recTest4 (p : NatProp) : True :=
 termination_by structural p
 
 /-!
-Generalized `le` using successor function
+Recursion on universe polymorphic functions
 -/
 
 class SuccTest (α : Type u) where

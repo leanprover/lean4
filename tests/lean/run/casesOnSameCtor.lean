@@ -85,24 +85,18 @@ info: Vec.match_on_same_ctor.splitter.{u_1, u} {α : Type u}
 -- (I wonder if we should use this in general in MatchEq)
 example : @Vec.match_on_same_ctor = @Vec.match_on_same_ctor.splitter := by rfl
 
--- Equations are generated and are rfl
 /--
-info: private theorem Vec.match_on_same_ctor.eq_2.{u_1, u} : ∀ {α : Type u}
-  {motive : {a : Nat} → (t t_1 : Vec α a) → t.ctorIdx = t_1.ctorIdx → Sort u_1} (a : α) (n : Nat) (a_1 : Vec α n)
-  (a_2 : α) (a_3 : Vec α n) (nil : motive nil nil ⋯)
-  (cons : (a : α) → {n : Nat} → (a_4 : Vec α n) → (a_5 : α) → (a_6 : Vec α n) → motive (cons a a_4) (cons a_5 a_6) ⋯),
-  (match n + 1, Vec.cons a a_1, Vec.cons a_2 a_3 with
+info: Vec.match_on_same_ctor.eq_2.{u_1, u} {α : Type u}
+  {motive : {a : Nat} → (t t_1 : Vec α a) → t.ctorIdx = t_1.ctorIdx → Sort u_1} (a✝ : α) (n : Nat) (a✝¹ : Vec α n)
+  (a✝² : α) (a✝³ : Vec α n) (nil : motive nil nil ⋯)
+  (cons : (a : α) → {n : Nat} → (a_1 : Vec α n) → (a_2 : α) → (a_3 : Vec α n) → motive (cons a a_1) (cons a_2 a_3) ⋯) :
+  (match n + 1, Vec.cons a✝ a✝¹, Vec.cons a✝² a✝³ with
     | 0, Vec.nil, Vec.nil, ⋯ => nil
-    | n + 1, Vec.cons a a_4, Vec.cons a_5 a_6, ⋯ => cons a a_4 a_5 a_6) =
-    cons a a_1 a_2 a_3 :=
-fun {α} {motive} a n a_1 a_2 a_3 nil cons =>
-  Eq.refl
-    (match n + 1, Vec.cons a a_1, Vec.cons a_2 a_3 with
-    | 0, Vec.nil, Vec.nil, Eq.refl 0 => nil
-    | n + 1, Vec.cons a a_4, Vec.cons a_5 a_6, Eq.refl 1 => cons a a_4 a_5 a_6)
+    | n + 1, Vec.cons a a_1, Vec.cons a_2 a_3, ⋯ => cons a a_1 a_2 a_3) =
+    cons a✝ a✝¹ a✝² a✝³
 -/
 #guard_msgs in
-#print Vec.match_on_same_ctor.eq_2
+#check Vec.match_on_same_ctor.eq_2
 
 end Vec
 

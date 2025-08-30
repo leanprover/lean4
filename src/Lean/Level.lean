@@ -204,6 +204,18 @@ def isNeverZero : Level → Bool
   | max l₁ l₂    => isNeverZero l₁ || isNeverZero l₂
   | imax _  l₂   => isNeverZero l₂
 
+/--
+Returns true if and only if `l` evaluates to zero for all instantiations of parameters and
+meta-variables.
+-/
+def isAlwaysZero : Level → Bool
+  | zero         => true
+  | param ..     => false
+  | mvar ..      => false
+  | succ ..      => false
+  | max l₁ l₂    => isAlwaysZero l₁ && isAlwaysZero l₂
+  | imax _  l₂   => isAlwaysZero l₂
+
 @[expose] def ofNat : Nat → Level
   | 0   => levelZero
   | n+1 => mkLevelSucc (ofNat n)

@@ -47,7 +47,7 @@ theorem Power2.mul : Power2 n → Power2 m → Power2 (n*m) := by
   | ind h2 ih => exact mul_left_comm .. ▸ ind ih
 
 /- The following example fails because the structural recursion cannot be performed on the `Nat`s and
-   the `brecOn` construction doesn't work for inductive predicates -/
+   the `brecOn` construction doesn't work for inductive predicates (?????) -/
 set_option trace.Elab.definition.structural true in
 set_option trace.Meta.IndPredBelow.match true in
 set_option pp.explicit true in
@@ -80,10 +80,10 @@ theorem step_deterministic' : deterministic step := λ x y₁ y₂ hy₁ hy₂ =
   @step.brecOn (λ s t st => ∀ y₂, s ==> y₂ → t = y₂) _ _ hy₁ (λ s t st hy₁ y₂ hy₂ =>
     match hy₁, hy₂ with
     | step.below.ST_PlusConstConst _ _, step.ST_PlusConstConst _ _ => rfl
-    | step.below.ST_Plus1 _ _ _ hy₁ ih, step.ST_Plus1 _ t₁' _ _ => by rw [←ih t₁']; assumption
-    | step.below.ST_Plus1 _ _ _ hy₁ ih, step.ST_Plus2 _ _ _ _ => by cases hy₁
-    | step.below.ST_Plus2 _ _ _ _ ih, step.ST_Plus2 _ _ t₂ _ => by rw [←ih t₂]; assumption
-    | step.below.ST_Plus2 _ _ _ hy₁ _, step.ST_PlusConstConst _ _ => by cases hy₁
+    | step.below.ST_Plus1 _ _ _ hy₁ _ ih, step.ST_Plus1 _ t₁' _ _ => by rw [←ih t₁']; assumption
+    | step.below.ST_Plus1 _ _ _ hy₁ _ ih, step.ST_Plus2 _ _ _ _ => by cases hy₁
+    | step.below.ST_Plus2 _ _ _ _ _ ih, step.ST_Plus2 _ _ t₂ _ => by rw [←ih t₂]; assumption
+    | step.below.ST_Plus2 _ _ _ _ hy₁ _, step.ST_PlusConstConst _ _ => by cases hy₁
     ) y₂ hy₂
 
 section NestedRecursion
@@ -109,8 +109,8 @@ theorem foo' : ∀ {n}, is_nat n → P n := fun h =>
   @is_nat.brecOn (fun n hn => P n) _ h fun n h ih =>
   match ih with
   | is_nat.below.Z => F0
-  | is_nat.below.S is_nat.below.Z _ => F1
-  | is_nat.below.S (is_nat.below.S b hx) h₂ => FS hx
+  | is_nat.below.S _ is_nat.below.Z _ => F1
+  | is_nat.below.S _ (is_nat.below.S _ b hx) h₂ => FS hx
 
 end NestedRecursion
 

@@ -35,7 +35,7 @@ namespace Lean.Meta
 def mkPProd (e1 e2 : Expr) : MetaM Expr := do
   let lvl1 ← getLevel e1
   let lvl2 ← getLevel e2
-  if lvl1 matches .zero && lvl2 matches .zero then
+  if lvl1.isAlwaysZero && lvl2.isAlwaysZero then
     return mkApp2 (.const `And []) e1 e2
   else
     return mkApp2 (.const ``PProd [lvl1, lvl2]) e1 e2
@@ -46,7 +46,7 @@ def mkPProdMk (e1 e2 : Expr) : MetaM Expr := do
   let t2 ← inferType e2
   let lvl1 ← getLevel t1
   let lvl2 ← getLevel t2
-  if lvl1 matches .zero && lvl2 matches .zero then
+  if lvl1.isAlwaysZero && lvl2.isAlwaysZero then
     return mkApp4 (.const ``And.intro []) t1 t2 e1 e2
   else
     return mkApp4 (.const ``PProd.mk [lvl1, lvl2]) t1 t2 e1 e2
@@ -92,8 +92,8 @@ def genMk {α : Type _} [Inhabited α] (mk : α → α → MetaM α) (xs : Array
 /-- Given types `tᵢ`, produces `t₁ ×' t₂ ×' t₃` -/
 def pack (lvl : Level) (xs : Array Expr) : MetaM Expr := do
   if xs.size = 0 then
-    if lvl matches .zero then return .const ``True []
-                         else return .const ``PUnit [lvl]
+    if lvl.isAlwaysZero then return .const ``True []
+                        else return .const ``PUnit [lvl]
   genMk mkPProd xs
 
 /--
@@ -114,8 +114,8 @@ where
 /-- Given values `xᵢ` of type `tᵢ`, produces value of type `t₁ ×' t₂ ×' t₃` -/
 def mk (lvl : Level) (xs : Array Expr) : MetaM Expr := do
   if xs.size = 0 then
-    if lvl matches .zero then return .const ``True.intro []
-                         else return .const ``PUnit.unit [lvl]
+    if lvl.isAlwaysZero then return .const ``True.intro []
+                        else return .const ``PUnit.unit [lvl]
   genMk mkPProdMk xs
 
 /-- Given a value `e` of type `t = t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/

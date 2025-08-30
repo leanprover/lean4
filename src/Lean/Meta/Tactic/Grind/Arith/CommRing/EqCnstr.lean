@@ -7,10 +7,12 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.ProveEq
+import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
+import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
 namespace Lean.Meta.Grind.Arith.CommRing

@@ -7,9 +7,13 @@ module
 prelude
 public import Init.Grind.Ring.Poly
 public import Lean.Meta.Tactic.Grind.Types
+import Init.Data.Int.OfNat
+import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.ProofUtil
 import Lean.Meta.Tactic.Grind.VarRename
+import Lean.Meta.Tactic.Simp.Arith.Int.Basic
+import Lean.Meta.Tactic.Simp.Arith.Int.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat

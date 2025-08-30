@@ -4,14 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.ToInt
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Arith.ModelUtil
-
+import Init.Grind.ToInt
+import Lean.Meta.Tactic.Grind.Arith.ModelUtil
 public section
-
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 private def isIntNatENode (n : ENode) : MetaM Bool :=

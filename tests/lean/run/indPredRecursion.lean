@@ -334,3 +334,19 @@ theorem NatProp.recTest4 (p : NatProp) : True :=
       have := h.recTest3
       h'.recTest4
 termination_by structural p
+
+/-!
+Generalized `le` using successor function
+-/
+
+class SuccTest (α : Type u) where
+  succ : α → α
+
+inductive SuccTest.le {α : Type u} [SuccTest α] : α → α → Prop where
+  | refl {n : α} : le n n
+  | step {a b : α} (h : le a b) : le a (SuccTest.succ b)
+
+theorem SuccTest.le_trans {α : Type u} [SuccTest α] {a b c : α} : le a b → le b c → le a c
+  | h, .refl => h
+  | h, .step h' => .step (le_trans h h')
+termination_by structural _ h => h

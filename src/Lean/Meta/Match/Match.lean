@@ -986,8 +986,9 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
   let matcherName := matcherApp.matcherName
   let some matcherInfo ← getMatcherInfo? matcherName
     | throwError "Internal error during match expression elaboration: Could not find a matcher named `{matcherName}`"
-  let matcherConst ← getConstInfo matcherName
-  let matcherType ← instantiateForall matcherConst.type <| matcherApp.params ++ #[matcherApp.motive]
+  let matcherConst ← getConstVal matcherName
+  let matcherType ← instantiateTypeLevelParams matcherConst matcherApp.matcherLevels.toList
+  let matcherType ← instantiateForall matcherType <| matcherApp.params ++ #[matcherApp.motive]
   let matchType ← do
     let u :=
       if let some idx := matcherInfo.uElimPos?

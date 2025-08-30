@@ -58,6 +58,7 @@ def getUnfoldableConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := 
   match (← getEnv).find? constName with
   | some (info@(.thmInfo _))  => getTheoremInfo info
   | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
+  | some (.axiomInfo _)       => recordUnfoldBlocked constName; return none
   | _                         => return none
 
 end Meta

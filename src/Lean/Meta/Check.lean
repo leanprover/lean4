@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.InferType
 public import Lean.Meta.Sorry
+import Lean.AddDecl
 
 public section
 
@@ -205,14 +206,15 @@ function. Any expressions appearing in the trailing message should be included i
 def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr)
     (trailing? : Option MessageData := none) (trailingExprs : Array Expr := #[])
     : MetaM MessageData := do
+  let diag := (← get).diag
   return MessageData.ofLazyM (es := #[givenType, expectedType] ++ trailingExprs) do
-    try
+    let mut msg ← (try
       let givenTypeType ← inferType givenType
       let expectedTypeType ← inferType expectedType
       if (← isDefEqGuarded givenTypeType expectedTypeType) then
         let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
         let trailing := trailing?.map (m!"\n" ++ ·) |>.getD .nil
-        return m!"has type{indentExpr givenType}\n\
+        pure m!"has type{indentExpr givenType}\n\
           but is expected to have type{indentExpr expectedType}{trailing}"
       else
         let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
@@ -220,12 +222,19 @@ def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr)
         let trailing := match trailing? with
           | none => inlineExprTrailing expectedTypeType
           | some trailing => inlineExpr expectedTypeType ++ trailing
-        return m!"has type{indentExpr givenType}\nof sort{inlineExpr givenTypeType}\
+        pure m!"has type{indentExpr givenType}\nof sort{inlineExpr givenTypeType}\
           but is expected to have type{indentExpr expectedType}\nof sort{trailing}"
     catch _ =>
       let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
       let trailing := trailing?.map (m!"\n" ++ ·) |>.getD .nil
-      return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}{trailing}"
+      pure m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}{trailing}")
+    let env ← getEnv
+    let blocked := diag.unfoldBlockedCounter.toList.filterMap fun n => do
+      guard <| getOriginalConstKind? env n matches some .defn
+      return .ofConstName n
+    if !blocked.isEmpty then
+      msg := msg ++ MessageData.note m!"The following definitions were attempted to be unfolded but they are not marked as `@[expose]`:{indentD <| .joinSep blocked " "}"
+    return msg
 
 def throwAppTypeMismatch (f a : Expr) : MetaM α := do
   -- Clarify that `a` is "last" only if it may be confused with some preceding argument; otherwise,

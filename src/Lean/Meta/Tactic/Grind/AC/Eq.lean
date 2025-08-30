@@ -122,7 +122,7 @@ private def _root_.Lean.Grind.AC.Seq.findSimpAC? (s : AC.Seq) : ACM (Option (EqC
     unless r matches .false do return some (c, r)
   return none
 
-private def simplifyLhsWithA (c : EqCnstr) (c' : EqCnstr) (r : AC.SubseqResult) : EqCnstr :=
+private def EqCnstr.simplifyLhsWithA (c : EqCnstr) (c' : EqCnstr) (r : AC.SubseqResult) : EqCnstr :=
   match r with
   | .exact    => { c with lhs := c'.rhs, h := .simp_exact (lhs := true) c c' }
   | .prefix s => { c with lhs := c'.rhs ++ s, h := .simp_prefix (lhs := true) s c c' }
@@ -130,7 +130,7 @@ private def simplifyLhsWithA (c : EqCnstr) (c' : EqCnstr) (r : AC.SubseqResult) 
   | .middle p s => { c with lhs := p ++ c'.rhs ++ s, h := .simp_middle (lhs := true) p s c c' }
   | .false => c
 
-private def simplifyRhsWithA (c : EqCnstr) (c' : EqCnstr) (r : AC.SubseqResult) : EqCnstr :=
+private def EqCnstr.simplifyRhsWithA (c : EqCnstr) (c' : EqCnstr) (r : AC.SubseqResult) : EqCnstr :=
   match r with
   | .exact    => { c with rhs := c'.rhs, h := .simp_exact (lhs := false) c c' }
   | .prefix s => { c with rhs := c'.rhs ++ s, h := .simp_prefix (lhs := false) s c c' }
@@ -145,10 +145,10 @@ private def EqCnstr.simplifyA (c : EqCnstr) : ACM EqCnstr := do
     incSteps
     if (← checkMaxSteps) then return c
     if let some (c', r) ← c.lhs.findSimpA? then
-      c := simplifyLhsWithA c c' r
+      c := c.simplifyLhsWithA c' r
       c ← c.cleanup
     else if let some (c', r) ← c.rhs.findSimpA? then
-      c := simplifyRhsWithA c c' r
+      c := c.simplifyRhsWithA c' r
       c ← c.cleanup
     else
       trace[grind.debug.ac.simplify] "{← c.denoteExpr}"
@@ -159,20 +159,20 @@ private def EqCnstr.simplifyA (c : EqCnstr) : ACM EqCnstr := do
 Simplifies `c` (lhs and rhs) using `c'`, returns `some c` if simplified.
 Case `(← isCommutative) == false`
 -/
-private def simplifyWithA' (c : EqCnstr) (c' : EqCnstr) : Option EqCnstr := do
+private def EqCnstr.simplifyWithA' (c : EqCnstr) (c' : EqCnstr) : Option EqCnstr := do
   let r₁ := c'.lhs.subseq c.lhs
-  let c := simplifyLhsWithA c c' r₁
+  let c := c.simplifyLhsWithA c' r₁
   let r₂ := c'.lhs.subseq c.rhs
-  let c := simplifyRhsWithA c c' r₂
+  let c := c.simplifyRhsWithA c' r₂
   if r₁ matches .false && r₂ matches .false then none else some c
 
-private def simplifyLhsWithAC (c : EqCnstr) (c' : EqCnstr) (r : AC.SubsetResult) : EqCnstr :=
+private def EqCnstr.simplifyLhsWithAC (c : EqCnstr) (c' : EqCnstr) (r : AC.SubsetResult) : EqCnstr :=
   match r with
   | .exact    => { c with lhs := c'.rhs, h := .simp_exact (lhs := true) c c' }
   | .strict s => { c with lhs := c'.rhs.union s, h := .simp_ac (lhs := true) s c c' }
   | .false => c
 
-private def simplifyRhsWithAC (c : EqCnstr) (c' : EqCnstr) (r : AC.SubsetResult) : EqCnstr :=
+private def EqCnstr.simplifyRhsWithAC (c : EqCnstr) (c' : EqCnstr) (r : AC.SubsetResult) : EqCnstr :=
   match r with
   | .exact    => { c with rhs := c'.rhs, h := .simp_exact (lhs := false) c c' }
   | .strict s => { c with rhs := c'.rhs.union s, h := .simp_ac (lhs := false) s c c' }
@@ -182,11 +182,11 @@ private def simplifyRhsWithAC (c : EqCnstr) (c' : EqCnstr) (r : AC.SubsetResult)
 Simplifies `c` (lhs and rhs) using `c'`, returns `some c` if simplified.
 Case `(← isCommutative) == true`
 -/
-private def simplifyWithAC' (c : EqCnstr) (c' : EqCnstr) : Option EqCnstr := do
+private def EqCnstr.simplifyWithAC' (c : EqCnstr) (c' : EqCnstr) : Option EqCnstr := do
   let r₁ := c'.lhs.subset c.lhs
-  let c := simplifyLhsWithAC c c' r₁
+  let c := c.simplifyLhsWithAC c' r₁
   let r₂ := c'.lhs.subset c.rhs
-  let c := simplifyRhsWithAC c c' r₂
+  let c := c.simplifyRhsWithAC c' r₂
   if r₁ matches .false && r₂ matches .false then none else some c
 
 /-- Simplify `c` using the basis when `(← isCommutative)` is `true` -/
@@ -196,10 +196,10 @@ private def EqCnstr.simplifyAC (c : EqCnstr) : ACM EqCnstr := do
     incSteps
     if (← checkMaxSteps) then return c
     if let some (c', r) ← c.lhs.findSimpAC? then
-      c := simplifyLhsWithAC c c' r
+      c := c.simplifyLhsWithAC c' r
       c ← c.cleanup
     else if let some (c', r) ← c.rhs.findSimpAC? then
-      c := simplifyRhsWithAC c c' r
+      c := c.simplifyRhsWithAC c' r
       c ← c.cleanup
     else
       trace[grind.debug.ac.simplify] "{← c.denoteExpr}"

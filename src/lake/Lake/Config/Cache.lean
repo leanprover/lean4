@@ -110,15 +110,20 @@ public def insertCore (inputHash : Hash) (val : Json) (cache : CacheMap) : Cache
 @[inline] public def insert [ToJson α] (inputHash : Hash) (val : α) (cache : CacheMap) : CacheMap :=
   cache.insertCore inputHash (toJson val)
 
-/-- Extract each output hash from their structured data into a flat array. -/
-public partial def collectOutputHashes (map : CacheMap) : LogIO (Array Hash) := do
+/-- Extract each output from their structured data into a flat array of artifact descriptions. -/
+public partial def collectOutputDescrs (map : CacheMap) : LogIO (Array ArtifactDescr) := do
   throwIfLogs <| map.foldM (init := #[]) fun as _ o => go as o
 where go as o := do
   match o with
+  | .null =>
+    return as
+  | .bool b =>
+    logError s!"unsupported output: {b}"
+    return as
   | .num o =>
     if o.exponent = 0 && 0 < o.mantissa then
       if h : o.mantissa.toNat < UInt64.size then
-        return as.push ⟨.ofNatLT o.mantissa.toNat h⟩
+        return as.push {hash := ⟨.ofNatLT o.mantissa.toNat h⟩}
       else
         logError s!"unsupported output; decimal too big: {o}"
         return as
@@ -126,16 +131,13 @@ where go as o := do
       logError s!"unsupported output; number is not a natural: {o}"
       return as
   | .str o =>
-    if let some hash := Hash.ofDecimal? o then
-      return as.push hash
-    else
-      logError s!"unsupported output; invalid hash string: {o}"
+    match ArtifactDescr.ofFilePath? o with
+    | .ok a => return as.push a
+    | .error e =>
+      logError s!"unsupported output: {e}"
       return as
   | .arr os => os.foldlM (init := as) go
   | .obj os => os.foldlM (init := as) fun as _ o => go as o
-  | o =>
-    logError s!"unsupported output: {o.pretty}"
-    return as
 
 end CacheMap
 
@@ -169,27 +171,27 @@ namespace Cache
   cache.dir / "artifacts"
 
 /-- Returns the path to artifact in the Lake cache with extension `ext`. -/
-public def artifactPath (cache : Cache) (contentHash : Hash) (ext := "art")  : FilePath :=
-  cache.artifactDir / if ext.isEmpty then contentHash.toString else s!"{contentHash}.{ext}"
+@[inline] public protected def artifactPath (cache : Cache) (contentHash : Hash) (ext := "art")  : FilePath :=
+  cache.artifactDir / artifactPath contentHash ext
 
-/-- Returns the path to the artifact in the Lake cache with extension `ext` if it exists. -/
-public def getArtifact? (cache : Cache) (contentHash : Hash) (ext := "art")  : BaseIO (Option Artifact) := do
-  let path := cache.artifactPath contentHash ext
+/-- Returns the artifact in the Lake cache corresponding the given artifact description. -/
+public def getArtifact? (cache : Cache) (descr : ArtifactDescr) : BaseIO (Option Artifact) := do
+  let path := cache.artifactDir / descr.toFilePath
   if let .ok mtime ← getMTime path |>.toBaseIO then
-    return some {path, mtime, hash := contentHash}
+    return some {toArtifactDescr := descr, path, mtime}
   else if (← path.pathExists) then
-    return some {path, mtime := 0, hash := contentHash}
+    return some {toArtifactDescr := descr, path, mtime := 0}
   else
     return none
 
-/-- Returns path to the artifact for each hash. Errors if any are missing. -/
-public def getArtifacts
-  (cache : Cache) (hashes : Array Hash)
-: LogIO (Vector FilePath hashes.size) := throwIfLogs do
-  (Vector.mk hashes rfl).mapM fun hash => do
-    let art := cache.artifactPath hash
+/-- Returns path to the artifact for each output. Errors if any are missing. -/
+public def getArtifactPaths
+  (cache : Cache) (descrs : Array ArtifactDescr)
+: LogIO (Vector FilePath descrs.size) := throwIfLogs do
+  (Vector.mk descrs rfl).mapM fun out => do
+    let art := cache.artifactDir / out.toFilePath
     unless (← art.pathExists) do
-      logError s!"artifact for output {hash} not found in the cache"
+      logError s!"artifact not found in cache: {art}"
     return art
 
 /-- The directory where input-to-output mappings are stored in the Lake cache. -/
@@ -218,15 +220,17 @@ public def writeMap (cache : Cache) (scope : String) (map : CacheMap) : IO Unit 
   map.forM fun i o => cache.writeOutputsCore scope i o
 
 /-- Retrieve the cached outputs corresponding to the given input for the package (if any). -/
-public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : IO (Option Json) := do
+public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : LogIO (Option Json) := do
   let path := cache.outputsFile scope inputHash
   match (← IO.FS.readFile path |>.toBaseIO) with
   | .ok contents =>
     match Json.parse contents with
     | .ok outputs => return outputs
-    | .error e => throw <| IO.userError s!"{path}: invalid JSON: {e}"
+    | .error e =>
+      logWarning s!"{path}: invalid JSON: {e}"
+      return none
   | .error (.noFileOrDirectory ..) => return none
-  | .error e => throw e
+  | .error e => error s!"{path}: read failed: {e}"
 
 end Cache
 
@@ -260,20 +264,20 @@ namespace CacheService
 /-- The MIME type of Lake/Reservoir artifact. -/
 public def artifactContentType : String := "application/vnd.reservoir.artifact"
 
-public def artifactUrl (contentHash : Hash) (scope : String) (service : CacheService) (ext := "art") :=
-  s!"{service.artEndpoint}/{uriEncode scope}/{contentHash}.{ext}"
+public def artifactUrl (contentHash : Hash) (scope : String) (service : CacheService) : String :=
+  s!"{service.artEndpoint}/{uriEncode scope}/{contentHash}.art"
 
 public def downloadArtifact
-  (cache : Cache) (contentHash : Hash) (scope : String) (service : CacheService) (ext := "art")
+  (cache : Cache) (descr : ArtifactDescr) (scope : String) (service : CacheService)
 : LogIO Unit :=
-  let url := service.artifactUrl contentHash scope ext
-  let path := cache.artifactPath contentHash ext
+  let url := service.artifactUrl descr.hash scope
+  let path := cache.artifactDir / descr.toFilePath
   download url path
 
 public def downloadArtifacts
-  (cache : Cache) (contentHashes : Array Hash) (scope : String) (service : CacheService)
+  (cache : Cache) (descrs : Array ArtifactDescr) (scope : String) (service : CacheService)
 : LogIO Unit := do
-  contentHashes.forM fun hash => downloadArtifact cache hash scope service
+  descrs.forM fun descr => downloadArtifact cache descr scope service
 
 public def uploadArtifact
   (contentHash : Hash) (art : FilePath) (scope : String) (service : CacheService)
@@ -282,8 +286,8 @@ public def uploadArtifact
   uploadS3 art artifactContentType url service.key
 
 public def uploadArtifacts
-  (hashes : Vector Hash n) (arts : Vector FilePath n) (scope : String)  (service : CacheService)
-: LogIO Unit := n.forM fun n h => uploadArtifact hashes[n] arts[n] scope service
+  (descrs : Vector ArtifactDescr n) (paths : Vector FilePath n) (scope : String)  (service : CacheService)
+: LogIO Unit := n.forM fun n h => uploadArtifact descrs[n].hash paths[n] scope service
 
 /-- The MIME type of Lake/Reservoir input-to-output mappings for a Git revision. -/
 public def mapContentType : String := "application/vnd.reservoir.outputs+json-lines"

@@ -8,6 +8,8 @@ module
 prelude
 public import Init.System.IO
 public import Lean.Data.Json
+import Init.Data.Nat.Fold
+import Lake.Util.String
 import Lake.Util.IO
 
 /-! # Lake Traces
@@ -101,19 +103,49 @@ namespace Hash
 
 public instance : Hashable Hash := ⟨Hash.val⟩
 
-@[inline] public def ofNat (n : Nat) :=
-  mk n.toUInt64
-
-public def ofString? (s : String) : Option Hash :=
-  (inline s.toNat?).map ofNat
-
-public def load? (hashFile : FilePath) : BaseIO (Option Hash) :=
-  ofString? <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
-
 public def nil : Hash :=
   mk <| 1723 -- same as Name.anonymous
 
 public instance : NilTrace Hash := ⟨nil⟩
+
+@[inline] public def ofNat (n : Nat) :=
+  mk n.toUInt64
+
+/-- Parse a hash from a string of lowercase hexadecimal digits. Does no validation. -/
+public def ofLowerHex (s : String) : Hash :=
+  mk <| s.utf8ByteSize.fold (init := 0) fun i h n =>
+    let c := s.getUtf8Byte i h
+    if c ≤ 57 then n*16 + (c - 48).toUInt64
+    else n*16 + (c - 87).toUInt64 -- as 'a' = 97, (c - 'a' + 10) = (c - 87)
+
+/-- Parse a hash from a 16-digit string of lowercase hexadecimal. -/
+@[inline_if_reduce] public def ofLowerHex? (s : String) : Option Hash :=
+  if s.utf8ByteSize = 16 && isLowerHex s then ofLowerHex s else none
+where isLowerHex s :=
+  s.utf8ByteSize.all fun i h =>
+    let c := s.getUtf8Byte i h
+    if c ≤ 57 then -- '9'
+      48 ≤ c -- '0'
+    else if c ≤ 102 then -- 'f'
+      97 ≤ c -- 'a'
+    else
+      false
+
+/-- Returns the hash as 16-digit lowercase hex string. -/
+public protected def hex (self : Hash) : String :=
+  lpad (Nat.toDigits 16 self.val.toNat).asString '0' 16
+
+public def ofDecimal? (s : String) : Option Hash :=
+  (inline s.toNat?).map ofNat
+
+public protected def decimal (self : Hash) : String :=
+  (Nat.toDigits 10 self.val.toNat).asString
+
+@[inline] public def ofString? (s : String) : Option Hash :=
+  ofDecimal? s
+
+public def load? (hashFile : FilePath) : BaseIO (Option Hash) :=
+  ofString? <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
 
 @[inline] public def mix (h1 h2 : Hash) : Hash :=
   mk <| mixHash h1.val h2.val

@@ -46,6 +46,12 @@ public structure Env where
   If `none`, no suitable system directory for the cache exists.
   -/
   lakeCache? : Option Cache
+  /-- The authentication key for cache uploads (i.e., `LAKE_CACHE_KEY`). -/
+  cacheKey? : Option String
+  /-- The base URL for artifact uploads and downloads from the cache (i.e., `LAKE_CACHE_ARTIFACT_ENDPOINT`). -/
+  cacheArtifactEndpoint? : Option String
+  /-- The base URL for revision uploads and downloads from the cache (i.e., `LAKE_CACHE_REVISION_ENDPOINT`). -/
+  cacheRevisionEndpoint? : Option String
   /-- The initial Elan toolchain of the environment (i.e., `ELAN_TOOLCHAIN`). -/
   initToolchain : String
   /-- The initial Lean library search path of the environment (i.e., `LEAN_PATH`). -/
@@ -128,6 +134,9 @@ public def compute
     noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind envToBool?).getD false
     enableArtifactCache := (← IO.getEnv "LAKE_ARTIFACT_CACHE").bind envToBool? |>.getD false
     lakeCache? := ← computeCache? elan? toolchain
+    cacheKey? := ← IO.getEnv "LAKE_CACHE_KEY"
+    cacheArtifactEndpoint? := ← IO.getEnv "LAKE_CACHE_ARTIFACT_ENDPOINT"
+    cacheRevisionEndpoint? := ← IO.getEnv "LAKE_CACHE_REVISION_ENDPOINT"
     githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
     toolchain
     initToolchain
@@ -222,6 +231,9 @@ public def baseVars (env : Env) : Array (String × Option String)  :=
     ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
     ("LAKE_NO_CACHE", toString env.noCache),
     ("LAKE_ARTIFACT_CACHE", toString env.enableArtifactCache),
+    ("LAKE_CACHE_KEY", env.cacheKey?),
+    ("LAKE_CACHE_ARTIFACT_ENDPOINT", env.cacheArtifactEndpoint?),
+    ("LAKE_CACHE_REVISION_ENDPOINT", env.cacheRevisionEndpoint?),
     ("LEAN", env.lean.lean.toString),
     ("LEAN_SYSROOT", env.lean.sysroot.toString),
     ("LEAN_AR", env.lean.ar.toString),

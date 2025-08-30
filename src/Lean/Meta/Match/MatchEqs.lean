@@ -401,9 +401,11 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
       mvarId ← subst mvarId' h
     trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
   mvarId := (← mvarId.intros).2
-  mvarId ← mvarId.deltaTarget (· == matchDeclName)
-  mvarId ← mvarId.heqOfEq
-  go mvarId 0
+  try mvarId.refl
+  catch _ =>
+    mvarId ← mvarId.deltaTarget (· == matchDeclName)
+    mvarId ← mvarId.heqOfEq
+    go mvarId 0
   instantiateMVars mvar0
 where
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do

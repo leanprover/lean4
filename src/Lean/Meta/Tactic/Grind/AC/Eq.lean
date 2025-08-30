@@ -221,6 +221,7 @@ private def EqCnstr.simplify (c : EqCnstr) : ACM EqCnstr := do
   if (← isCommutative) then c.simplifyAC else c.simplifyA
 
 def EqCnstr.addToQueue (c : EqCnstr) : ACM Unit := do
+  trace[grind.debug.ac.queue] "{← c.denoteExpr}"
   modifyStruct fun s => { s with queue := s.queue.insert c }
 
 def EqCnstr.simplifyBasis (c : EqCnstr) : ACM Unit := do

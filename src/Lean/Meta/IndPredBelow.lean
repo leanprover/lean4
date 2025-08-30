@@ -373,6 +373,8 @@ public partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array
     let oldCount := oldVarCounts[idx]!
     let newDecls := newDecls[idx]!
     -- we add new fvars to the end so all `oldCount` previous ones are preserved
+    -- Note: these free variables are guaranteed to be unique because they are created in
+    -- `getMkMatcherInputInContext` and/or `convertToBelow`.
     withExistingLocalDecls lhs.fvarDecls do
       trace[Meta.IndPredBelow.match] "new decls:\n{newDecls}"
       let fvars := lhs.fvarDecls.toArray.map (·.toExpr)

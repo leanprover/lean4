@@ -319,3 +319,18 @@ theorem NatProp.recTest3 (p : NatProp) : True :=
     | ⟨⟩, .zero => trivial
     | ⟨⟩, .succ h => h.recTest3
 termination_by structural p
+
+/-!
+Using the same match twice
+-/
+
+theorem NatProp.recTest4 (p : NatProp) : True :=
+  match p with
+  | .zero => trivial
+  | .succ h =>
+    match h with
+    | .zero => trivial
+    | .succ h' =>
+      have := h.recTest3
+      h'.recTest4
+termination_by structural p

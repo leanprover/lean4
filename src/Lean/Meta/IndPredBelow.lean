@@ -10,8 +10,6 @@ public import Lean.Meta.Constructions.CasesOn
 public import Lean.Meta.Match.Match
 public import Lean.Meta.Tactic.SolveByElim
 
-public section
-
 namespace Lean.Meta.IndPredBelow
 
 structure Context where
@@ -85,7 +83,7 @@ def mkBelowInductive (motiveIdx minorIdx : Nat) (ctx : Context) : MetaM (Nat × 
       let rec go (i : Nat) (vars : Array Expr) : MetaM Expr := do
         if h : i < minorArgs.size then
           let type ← inferType minorArgs[i]
-          if let some _ ← isIH type ctx then
+          if let some _ := isIH type ctx then
             -- minorArgs[i] : (a : Nat) → motive (f a)
             -- ==> (ih : (a : Nat) → ABC.below (f a)) (ih_1 : (a : Nat) → motive (f a))
             withLocalDeclD (← mkFreshUserName `ih) (ihTypeToBelowType type ctx) fun below =>
@@ -142,7 +140,7 @@ def withBRecOnArgs (k : (newMinors : Array Expr) → (proofArgs : Array Expr) �
           let rec go2 (j : Nat) (vars args : Array Expr) : MetaM Expr := do
             if h : j < minorArgs.size then
               let type ← inferType minorArgs[j]
-              if let some i' ← isIH type ctx then
+              if let some i' := isIH type ctx then
                 -- minorArgs[j] : (a : Nat) → motive (f a)
                 -- newIH : (a : Nat) → ABC.below (f a)
                 withLocalDeclD (← mkFreshUserName `ih) (ihTypeToBelowType type ctx) fun newIH => do
@@ -193,7 +191,7 @@ def mkBRecOn (ctx : Context) : MetaM Unit := do
           }
 
 /-- Generates the auxiliary lemmas `below` and `brecOn` for a recursive inductive predicate. -/
-def mkBelow (indName : Name) : MetaM Unit :=
+public def mkBelow (indName : Name) : MetaM Unit :=
   withTraceNode `Meta.IndPredBelow (fun _ => return m!"{indName}") do
   unless (← isInductivePredicate indName) do return
   let indVal ← getConstInfoInduct indName
@@ -240,7 +238,7 @@ open Match
 Records below proofs and motive proofs available. This is extended using `NewDecl`s while visiting
 and rewriting match expressions.
 -/
-structure RecursionContext where
+public structure RecursionContext where
   /--
   Map from proofs `h : ∀ x y z, ...` to pairs of `belowIndName` and a proof of
   `h' : ∀ x y z, belowIndName ... (h x y z)`. These are used to find match rewriting candidates.
@@ -301,7 +299,7 @@ It is used for modifying the patterns, such that the structural recursion can us
 `belowParams` are the parameters for the `below` applications where the first `nrealParams` are
 actual parameters and the remaining are motives.
 -/
-partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) (nrealParams : Nat)
+public partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) (nrealParams : Nat)
     (ctx : RecursionContext) (k : RecursionContext → Expr → MetaM Expr) :
     MetaM (Option (Expr × MetaM Unit)) :=
   withTraceNode `Meta.IndPredBelow.match (return m!"{exceptEmoji ·} {matcherApp.toExpr} and {belowParams}") do

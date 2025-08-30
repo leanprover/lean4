@@ -11,6 +11,21 @@ import Lean.Meta.Constructions.CasesOn
 import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.SolveByElim
 
+/-!
+# The `below` and `brecOn` constructions for inductive predicates
+
+This module defines the `below` and `brecOn` constructions for inductive predicates.
+While the `brecOn` construction for inductive predicates is structurally indentical to the one for
+regular types apart from only eliminating to propositions, the `below` construction is changed
+since it is unlike for types not possible to eliminate proofs of inductive predicates to `Prop`s
+containing nested proofs. Instead, each `below` declaration is defined as an inductive type with one
+constructor per constructor of the original inductive, containing additional motive proofs and
+nested below proofs.
+
+Additionally, this module defines the function `mkBelowMatcher` which can be used to rewrite match
+expressions to expose these motive proofs and nested below proofs.
+-/
+
 namespace Lean.Meta.IndPredBelow
 
 structure Context where
@@ -294,14 +309,14 @@ where
     | _ => a
 
 /--
-This function adds an additional `below` discriminant to a matcher application.
-It is used for modifying the patterns, such that the structural recursion can use the new
-`below` predicate instead of the original one and thus be used prove structural recursion.
-`belowParams` are the parameters for the `below` applications where the first `nrealParams` are
-actual parameters and the remaining are motives.
+This function adds an additional `below` discriminant to a matcher application and transforms each
+alternative with the provided `transformAlt` function. The provided recursion context is used for
+finding below proofs that correspond to discriminants and is extended with new proofs when calling
+`transformAlt`. `belowParams` should contain parameters and motives for `below` applications where
+the first `nrealParams` are parameters and the remaining are motives.
 -/
 public partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) (nrealParams : Nat)
-    (ctx : RecursionContext) (k : RecursionContext → Expr → MetaM Expr) :
+    (ctx : RecursionContext) (transformAlt : RecursionContext → Expr → MetaM Expr) :
     MetaM (Option (Expr × MetaM Unit)) :=
   withTraceNode `Meta.IndPredBelow.match (return m!"{exceptEmoji ·} {matcherApp.toExpr} and {belowParams}") do
   let mut input ← getMkMatcherInputInContext matcherApp
@@ -378,7 +393,7 @@ public partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array
         | .motive decl motiveIdx vars =>
           for v in vars do
             ctx := { ctx with motives := ctx.motives.insert v (motiveIdx, decl.toExpr) }
-      let e' ← k ctx t
+      let e' ← transformAlt ctx t
       let newAlt ← mkLambdaFVars fvars e'
       trace[Meta.IndPredBelow.match] "alt {idx}:\n{alt} ↦ {newAlt}"
       pure newAlt
@@ -463,10 +478,6 @@ where
           belowFields := belowFields.push (.var vars[i + 1]!.fvarId!)
           i := i + 2
         let ctor := .ctor belowCtor.name us belowParams.toList belowFields.toList
-        --if ← isTracingEnabledFor `Meta.IndPredBelow.match then
-          --withExistingLocalDecls ((← get).extract curDeclCount).toList do
-            --trace[Meta.IndPredBelow.match] "{originalPattern.toMessageData} ↦ {ctor.toMessageData}"
-        --let ctorExpr := mkAppN (mkAppN (mkConst ctorName us) params.toArray) fieldExprs
         let ctorExpr ← originalPattern.toExpr
         return (.inaccessible ctorExpr, ctor)
     | .as varId p hId =>

@@ -36,6 +36,7 @@ COMMANDS:
   pack                  pack build artifacts into an archive for distribution
   unpack                unpack build artifacts from an distributed archive
   upload <tag>          upload build artifacts to a GitHub release
+  cache                 manage the Lake cache
   script                manage and run workspace scripts
   scripts               shorthand for `lake script list`
   run <script>          shorthand for `lake script run`
@@ -303,6 +304,19 @@ USAGE:
 If no package is specified, deletes the build directories of every package in
 the workspace. Otherwise, just deletes those of the specified packages."
 
+def helpCacheCli :=
+"Manage the Lake cache
+
+USAGE:
+  lake cache <COMMAND>
+
+COMMANDS:
+  get [<mappings>]      download artifacts into the Lake cache
+  put <mappings>        upload artifacts to a remote cache
+  add <mappings>        add input-to-output mappings to the Lake cache
+
+See `lake help <command>` for more information on a specific command."
+
 def helpScriptCli :=
 "Manage Lake scripts
 
@@ -429,6 +443,12 @@ public def helpScript : (cmd : String) → String
 | "run"                 => helpScriptRun
 | "doc"                 => helpScriptDoc
 | _                     => helpScriptCli
+
+public def helpCache : (cmd : String) → String
+-- | "get"                 => helpCacheGet
+-- | "put"                 => helpCachePut
+-- | "add"                 => helpCacheAdd
+| _                     => helpCacheCli
 
 public def help : (cmd : String) → String
 | "new"                 => helpNew

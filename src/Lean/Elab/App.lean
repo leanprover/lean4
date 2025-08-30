@@ -254,10 +254,13 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
 
 /-- Normalize and return the function type. -/
 private def normalizeFunType : M Expr := do
-  let s ← get
-  let fType ← whnfForall s.fType
-  modify fun s => { s with fType }
-  return fType
+  let fType := (← get).fType
+  if fType.isForall then
+    return fType
+  else
+    let fType ← whnfForall fType
+    modify fun s => { s with fType }
+    return fType
 
 /-- Return the binder name at `fType`. This method assumes `fType` is a function type. -/
 private def getBindingName : M Name := return (← get).fType.bindingName!
@@ -751,7 +754,11 @@ mutual
 
   /-- Elaborate function application arguments. -/
   partial def main : M Expr := do
-    let fType ← normalizeFunType
+    -- If there are no more arguments, then avoid unnecessarily unfolding the return type,
+    -- which can expose implicit parameters, opt-params and auto-params.
+    -- We assume abbreviations and instances should be unfolded.
+    let trans := if (← hasArgsToProcess) then .default else .instances
+    let fType ← withTransparency trans normalizeFunType
     if fType.isForall then
       let binderName := fType.bindingName!
       let binfo := fType.bindingInfo!

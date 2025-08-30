@@ -15,9 +15,9 @@ def foo (α : Type) [Inhabited α] (x : α := default) : α := x
 #guard_msgs in #check foo Nat 1
 
 /-!
-Check that optional value omission is aware of unfolding.
+Check that optional value omission is aware of unfolding, but only of abbreviations.
 -/
-def Ty := (x : Nat := 1) → Fin (x + 1)
+abbrev Ty := (x : Nat := 1) → Fin (x + 1)
 
 def f (y : Nat := 2) : Ty := fun x => 0
 
@@ -28,6 +28,16 @@ def f (y : Nat := 2) : Ty := fun x => 0
 /-- info: f : Fin (1 + 1) -/
 #guard_msgs in #check (f)
 
+def Ty' := (x : Nat := 1) → Fin (x + 1)
+
+def f' (y : Nat := 2) : Ty' := fun x => 0
+
+/-- info: f' 3 4 : Fin (4 + 1) -/
+#guard_msgs in #check f' 3 4
+/-- info: f' 3 : Ty' -/
+#guard_msgs in #check f' 3
+/-- info: f' : Ty' -/
+#guard_msgs in #check (f')
 
 /-!
 Check that overapplied projections pretty print using projection notation.

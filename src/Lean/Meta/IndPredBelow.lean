@@ -35,9 +35,9 @@ structure Context where
   brecOnNames : Array Name
 
 /-- Is `type` a motive nested in foralls and applications? -/
-def isIH (type : Expr) (ctx : Context) : MetaM (Option Nat) := do
-  let .fvar f := type.getForallBody.getAppFn | return none
-  return ctx.motiveToIdx.get? f
+def isIH (type : Expr) (ctx : Context) : Option Nat := do
+  let .fvar f := type.getForallBody.getAppFn | none
+  ctx.motiveToIdx.get? f
 
 /-- Returns `@XYZ.below params... motives...` -/
 def mkBelowAppOfIdx (i : Nat) (ctx : Context) : Expr :=

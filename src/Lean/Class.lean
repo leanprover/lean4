@@ -25,6 +25,8 @@ structure ClassEntry where
     `outParams := #[2, 3]`
   -/
   outParams : Array Nat
+  /-- If the class is declared with `class abbrev`, we store the structure projections in `abbrevProjs?`. -/
+  abbrevProjs? : Option (Array Name)
 
 namespace ClassEntry
 
@@ -36,12 +38,17 @@ end ClassEntry
 /-- State of the type class environment extension. -/
 structure ClassState where
   outParamMap : SMap Name (Array Nat) := SMap.empty
+  abbrevProjMap : SMap Name (Array Name) := SMap.empty
   deriving Inhabited
 
 namespace ClassState
 
 def addEntry (s : ClassState) (entry : ClassEntry) : ClassState :=
-  { s with outParamMap := s.outParamMap.insert entry.name entry.outParams }
+  { s with
+    outParamMap := s.outParamMap.insert entry.name entry.outParams
+    abbrevProjMap := match entry.abbrevProjs? with
+      | some abbrevProjs => s.abbrevProjMap.insert entry.name abbrevProjs
+      | none =>  s.abbrevProjMap }
 
 /--
 Switch the state into persistent mode. We switch to this mode after
@@ -49,7 +56,7 @@ we read all imported .olean files.
 Recall that we use a `SMap` for implementing the state of the type class environment extension.
 -/
 def switch (s : ClassState) : ClassState :=
-  { s with outParamMap := s.outParamMap.switch }
+  { s with outParamMap := s.outParamMap.switch, abbrevProjMap := s.abbrevProjMap.switch }
 
 end ClassState
 
@@ -63,14 +70,22 @@ builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry Clas
     addImportedFn := fun es => (mkStateFromImportedEntries ClassState.addEntry {} es).switch
   }
 
-/-- Return `true` if `n` is the name of type class in the given environment. -/
+/-- Return `true` if `n` is the name of a type class in the given environment. -/
 @[export lean_is_class]
 def isClass (env : Environment) (n : Name) : Bool :=
   (classExtension.getState env).outParamMap.contains n
 
+/-- Return `true` if `n` is the name of a `class abbrev` in the given environment. -/
+def isClassAbbrev (env : Environment) (n : Name) : Bool :=
+  (classExtension.getState env).abbrevProjMap.contains n
+
 /-- If `declName` is a class, return the position of its `outParams`. -/
 def getOutParamPositions? (env : Environment) (declName : Name) : Option (Array Nat) :=
   (classExtension.getState env).outParamMap.find? declName
+
+/-- Return `true` if `n` is the name of a `class abbrev` in the given environment. -/
+def getClassAbbrevProjs? (env : Environment) (declName : Name) : Option (Array Name) :=
+  (classExtension.getState env).abbrevProjMap.find? declName
 
 /-- Return `true` if the given `declName` is a type class with output parameters. -/
 @[export lean_has_out_params]
@@ -146,6 +161,16 @@ where
         keepBinderInfo ()
     | _ => type
 
+def getClassAbbrevProjs (env : Environment) (clsName : Name) : Except MessageData (Array Name) := do
+  let some { fieldNames, .. } := getStructureInfo? env clsName
+    | throw m!"invalid 'class abbrev', declaration '{.ofConstName clsName}' must be a structure"
+  fieldNames.mapM fun fieldName => do
+    if isClass env fieldName then
+      getProjFnForField? env clsName fieldName
+        |>.getDM <| throw m!"invalid 'class abbrev', field {fieldName} doesn't have a projection function"
+    else
+      throw m!"invalid 'class abbrev', field {fieldName} is not a class"
+
 /--
 Add a new type class with the given name to the environment.
 `declName` must not be the name of an existing type class,
@@ -153,15 +178,20 @@ and it must be the name of constant in `env`.
 `declName` must be a inductive datatype or axiom.
 Recall that all structures are inductive datatypes.
 -/
-def addClass (env : Environment) (clsName : Name) : Except MessageData Environment := do
+def addClass (env : Environment) (clsName : Name) (classAbbrev : Bool) : Except MessageData Environment := do
   if isClass env clsName then
     throw m!"class has already been declared '{.ofConstName clsName true}'"
   let some decl := env.find? clsName
     | throw m!"unknown declaration '{clsName}'"
   unless decl matches .inductInfo .. | .axiomInfo .. do
-    throw m!"invalid 'class', declaration '{.ofConstName clsName}' must be inductive datatype, structure, or constant"
+    throw m!"invalid 'class', declaration '{.ofConstName clsName}' must be an inductive datatype, structure, or constant"
   let outParams ← checkOutParam 0 #[] #[] decl.type
-  return classExtension.addEntry env { name := clsName, outParams }
+  let abbrevProjs? ←
+    if classAbbrev then
+      some <$> getClassAbbrevProjs env clsName
+    else
+      pure none
+  return classExtension.addEntry env { name := clsName, outParams, abbrevProjs? }
 
 /--
 Registers an inductive type or structure as a type class. Using `class` or `class inductive` is
@@ -176,7 +206,24 @@ private def init :=
       let env ← getEnv
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do throwAttrMustBeGlobal `class kind
-      let env ← ofExcept (addClass env decl)
+      let env ← ofExcept (addClass env decl false)
+      setEnv env
+  }
+
+/--
+Registers a structure as a type class abbreviation. Using `class abbrev` is
+generally preferred over using `@[class_abbrev] structure` directly.
+-/
+@[builtin_init, builtin_doc]
+private def initAbbrev :=
+  registerBuiltinAttribute {
+    name  := `class_abbrev
+    descr := "type class abbreviation"
+    add   := fun decl stx kind => do
+      let env ← getEnv
+      Attribute.Builtin.ensureNoArgs stx
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `class kind
+      let env ← ofExcept (addClass env decl true)
       setEnv env
   }
 

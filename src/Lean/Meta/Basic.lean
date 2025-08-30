@@ -1329,17 +1329,29 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
       | _ => return .undef
     | _            => return .none
 
-private def withNewLocalInstanceImp (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α := do
+partial def _root_.Lean.LocalInstances.addInstances (fvarId : FVarId)
+    (val : Expr) (localInsts : LocalInstances) : MetaM LocalInstances := do
+  let type ← whnf (← inferType val)
+  let .const className us := type.getAppFn | throwError "expected an instance, not {val}"
+  let mut localInsts := localInsts.push { className, fvarId, val }
+  if let some projFuns := getClassAbbrevProjs? (← getEnv) className then
+    let params := type.getAppArgs
+    for projFun in projFuns do
+      localInsts := localInsts.addInstance fvarId (mkAppN (.const projFun us) params)
+  return localInsts
+
+private def withNewLocalInstanceImp (fvar : Expr) (k : MetaM α) : MetaM α := do
   let localDecl ← getFVarLocalDecl fvar
   if localDecl.isImplementationDetail then
     k
   else
-    withReader (fun ctx => { ctx with localInstances := ctx.localInstances.push { className := className, fvar := fvar } }) k
+    let localInstances ← (← read).localInstances.addInstances fvar.fvarId! fvar
+    withReader (fun ctx => { ctx with localInstances }) k
 
 /-- Add entry `{ className := className, fvar := fvar }` to localInstances,
     and then execute continuation `k`. -/
-def withNewLocalInstance (className : Name) (fvar : Expr) : n α → n α :=
-  mapMetaM <| withNewLocalInstanceImp className fvar
+def withNewLocalInstance (fvar : Expr) : n α → n α :=
+  mapMetaM <| withNewLocalInstanceImp fvar
 
 private def fvarsSizeLtMaxFVars (fvars : Array Expr) (maxFVars? : Option Nat) : Bool :=
   match maxFVars? with
@@ -1363,8 +1375,8 @@ mutual
       | .undef  =>
         match (← isClassExpensive? decl.type) with
         | none   => withNewLocalInstancesImp fvars (i+1) k
-        | some c => withNewLocalInstance c fvar <| withNewLocalInstancesImp fvars (i+1) k
-      | .some c => withNewLocalInstance c fvar <| withNewLocalInstancesImp fvars (i+1) k
+        | some _ => withNewLocalInstance fvar <| withNewLocalInstancesImp fvars (i+1) k
+      | .some _ => withNewLocalInstance fvar <| withNewLocalInstancesImp fvars (i+1) k
     else
       k
 
@@ -1732,8 +1744,8 @@ where
       | _ => finalize ()
 
 private def withNewFVar (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do
-  if let some c ← isClass? fvarType then
-    withNewLocalInstance c fvar <| k fvar
+  if (← isClass? fvarType).isSome then
+    withNewLocalInstance fvar <| k fvar
   else
     k fvar
 
@@ -1863,10 +1875,10 @@ def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := 
   let size := localInsts.size
   for decl in decls do
     unless decl.isImplementationDetail do
-      if let some className ← isClass? decl.type then
+      if (← isClass? decl.type).isSome then
         -- Ensure we don't add the same local instance multiple times.
-        unless localInsts.any fun localInst => localInst.fvar.fvarId! == decl.fvarId do
-          localInsts := localInsts.push { className, fvar := decl.toExpr }
+        unless localInsts.any fun localInst => localInst.fvarId == decl.fvarId do
+          localInsts ← localInsts.addInstances decl.fvarId decl.toExpr
   if localInsts.size == size then
     k
   else
@@ -1949,7 +1961,7 @@ def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) 
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
   let lctx' := fvarIds.foldl (·.erase ·) lctx
-  let localInsts' := localInsts.filter (!fvarIds.contains ·.fvar.fvarId!)
+  let localInsts' := localInsts.filter (!fvarIds.contains ·.fvarId)
   withLCtx lctx' localInsts' k
 
 /--

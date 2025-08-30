@@ -344,12 +344,6 @@ public def nativeLibDir (self : Package) : FilePath :=
 @[inline] public def enableArtifactCache? (self : Package) : Option Bool :=
   self.config.enableArtifactCache?
 
-public def readOutputsFrom?
-  (cache : Cache) (inputHash : Hash) (self : Package)
-: IO (Option Json) :=
-  let pkgName := self.name.toString (escape := false)
-  cache.readOutputs? pkgName inputHash
-
 /-- The directory within the Lake cache were package-scoped files are stored. -/
 public def cacheScope (self : Package) :=
   self.name.toString (escape := false)

@@ -144,8 +144,8 @@ public def getLeanArgs : m (Array String) :=
   (·.lakeCache) <$> getWorkspace
 
 @[inline, inherit_doc Cache.getArtifact?]
-public def getArtifact? [Bind m] [MonadLiftT BaseIO m] (contentHash : Hash) (ext := "art") : m (Option Artifact) :=
-  getLakeCache >>= (·.getArtifact? contentHash ext)
+public def getArtifact? [Bind m] [MonadLiftT BaseIO m] (descr : ArtifactDescr) : m (Option Artifact) :=
+  getLakeCache >>= (·.getArtifact? descr)
 
 /--
 Returns whether the package the artifact cache is enabled for the package.

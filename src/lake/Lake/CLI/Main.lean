@@ -67,6 +67,7 @@ public structure LakeOptions where
   outFormat : OutFormat := .text
   offline : Bool := false
   outputsFile? : Option FilePath := none
+  scope? : Option String := none
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -221,6 +222,9 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--offline"     => modifyThe LakeOptions ({· with offline := true})
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
+| "--scope"       => do
+  let scope ← takeOptArg "--scope" "cache scope"
+  modifyThe LakeOptions ({· with scope? := some scope})
 | "--log-level"   => do
   let outLv ← takeOptArg' "--log-level" "log level" LogLevel.ofString?
   modifyThe LakeOptions ({· with outLv? := outLv})
@@ -315,7 +319,7 @@ namespace cache
 protected def get : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  --let file ← takeArg?
+  --let mappings? ← takeArg?
   noArgsRem do
   let cfg ← mkLoadConfig opts
   let ws ← loadWorkspace cfg
@@ -328,7 +332,7 @@ protected def get : CliM PUnit := do
       exit 1
   let service : CacheService := {artEndpoint, revEndpoint}
   let cache := ws.lakeCache
-  ws.packages.forM fun pkg => do
+  ws.packages.forM fun pkg => do -- TODO: Parallelize and do not fail if missing
     let repo := GitRepo.mk pkg.dir
     if (← repo.hasDiff) then
       logWarning s!"{pkg.name}: package has changes; only artifacts for committed code will be downloaded"
@@ -336,13 +340,15 @@ protected def get : CliM PUnit := do
     let scope := pkg.cacheScope
     let map : CacheMap ← service.downloadRevisionOutputs rev scope
     cache.writeMap scope map
-    let hashes ← map.collectOutputHashes
-    service.downloadArtifacts cache hashes scope
+    let descrs ← map.collectOutputDescrs
+    service.downloadArtifacts cache descrs scope
 
 protected def put : CliM PUnit := do
   processOptions lakeOption
   let file ← takeArg "mappings"
   let opts ← getThe LakeOptions
+  let some scope := opts.scope?
+    | error "the `--scope` option must be set for `cache put`"
   noArgsRem do
   let cfg ← mkLoadConfig opts
   let ws ← loadWorkspace cfg
@@ -362,11 +368,10 @@ protected def put : CliM PUnit := do
     error "package has changes; commit code before uploading a build"
   let rev ← repo.getHeadRevision
   let map ← CacheMap.load file
-  let scope := pkg.cacheScope
-  let hashes ← map.collectOutputHashes
-  let arts ← ws.lakeCache.getArtifacts hashes
+  let descrs ← map.collectOutputDescrs
+  let paths ← ws.lakeCache.getArtifactPaths descrs
   service.uploadRevisionOutputs rev file scope
-  service.uploadArtifacts ⟨hashes, rfl⟩ arts scope
+  service.uploadArtifacts ⟨descrs, rfl⟩ paths scope
 
 protected def add : CliM PUnit := do
   processOptions lakeOption

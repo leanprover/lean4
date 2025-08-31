@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide
-import Lean.Meta.Tactic.TryThis
-import Std.Tactic.BVDecide.Syntax
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide
+public import Lean.Meta.Tactic.TryThis
+public import Std.Tactic.BVDecide.Syntax
+
+public section
 
 /-!
 This modules provides the implementation of `bv_check`.
@@ -25,7 +29,7 @@ def getSrcDir : TermElabM System.FilePath := do
   let ctx ← readThe Lean.Core.Context
   let srcPath := System.FilePath.mk ctx.fileName
   let some srcDir := srcPath.parent
-    | throwError "cannot compute parent directory of '{srcPath}'"
+    | throwError "cannot compute parent directory of `{srcPath}`"
   return srcDir
 
 def mkContext (lratPath : System.FilePath) (cfg : BVDecideConfig) : TermElabM TacticContext := do
@@ -35,15 +39,15 @@ def mkContext (lratPath : System.FilePath) (cfg : BVDecideConfig) : TermElabM Ta
 /--
 Prepare an `Expr` that proves `bvExpr.unsat` using `ofReduceBool`.
 -/
-def lratChecker (ctx : TacticContext) (bvExpr : BVLogicalExpr) : MetaM Expr := do
+def lratChecker (ctx : TacticContext) (reflectionResult : ReflectionResult) : MetaM Expr := do
   let cert ← LratCert.ofFile ctx.lratPath ctx.config.trimProofs
-  cert.toReflectionProof ctx bvExpr ``verifyBVExpr ``unsat_of_verifyBVExpr_eq_true
+  cert.toReflectionProof ctx reflectionResult
 
 @[inherit_doc Lean.Parser.Tactic.bvCheck]
 def bvCheck (g : MVarId) (ctx : TacticContext) : MetaM Unit := do
   let unsatProver : UnsatProver := fun _ reflectionResult _ => do
-    withTraceNode `sat (fun _ => return "Preparing LRAT reflection term") do
-      let proof ← lratChecker ctx reflectionResult.bvExpr
+    withTraceNode `Meta.Tactic.sat (fun _ => return "Preparing LRAT reflection term") do
+      let proof ← lratChecker ctx reflectionResult
       return .ok ⟨proof, ""⟩
   let _ ← closeWithBVReflection g unsatProver
   return ()

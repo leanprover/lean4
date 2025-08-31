@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.SizeOf
-import Init.MetaTypes
-import Init.WF
+public import Init.SizeOf
+public import Init.MetaTypes
+public import Init.WF
+
+public section
 
 /--
 Unfold definitions commonly used in well founded relation definitions.

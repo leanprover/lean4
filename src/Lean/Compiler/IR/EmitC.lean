@@ -3,16 +3,20 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Runtime
-import Lean.Compiler.NameMangling
-import Lean.Compiler.ExportAttr
-import Lean.Compiler.InitAttr
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.EmitUtil
-import Lean.Compiler.IR.NormIds
-import Lean.Compiler.IR.SimpCase
-import Lean.Compiler.IR.Boxing
+public import Lean.Runtime
+public import Lean.Compiler.NameMangling
+public import Lean.Compiler.ExportAttr
+public import Lean.Compiler.InitAttr
+public import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.EmitUtil
+public import Lean.Compiler.IR.NormIds
+public import Lean.Compiler.IR.SimpCase
+public import Lean.Compiler.IR.Boxing
+
+public section
 
 namespace Lean.IR.EmitC
 open ExplicitBoxing (requiresBoxedVersion mkBoxedName isBoxedName)
@@ -47,8 +51,8 @@ def emitLns {α : Type} [ToString α] (as : List α) : M Unit :=
 
 def argToCString (x : Arg) : String :=
   match x with
-  | Arg.var x => toString x
-  | _         => "lean_box(0)"
+  | .var x => toString x
+  | .erased => "lean_box(0)"
 
 def emitArg (x : Arg) : M Unit :=
   emit (argToCString x)
@@ -62,8 +66,9 @@ def toCType : IRType → String
   | IRType.uint64     => "uint64_t"
   | IRType.usize      => "size_t"
   | IRType.object     => "lean_object*"
+  | IRType.tagged     => "lean_object*"
   | IRType.tobject    => "lean_object*"
-  | IRType.irrelevant => "lean_object*"
+  | IRType.erased     => "lean_object*"
   | IRType.struct _ _ => panic! "not implemented yet"
   | IRType.union _ _  => panic! "not implemented yet"
 
@@ -96,16 +101,16 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
   let ps := decl.params
   let env ← getEnv
   if ps.isEmpty then
-    if isClosedTermName env decl.name then emit "static "
-    else if isExternal then emit "extern "
+    if isExternal then emit "extern "
+    else if isClosedTermName env decl.name then emit "static "
     else emit "LEAN_EXPORT "
   else
     if !isExternal then emit "LEAN_EXPORT "
   emit (toCType decl.resultType ++ " " ++ cppBaseName)
   unless ps.isEmpty do
     emit "("
-    -- We omit irrelevant parameters for extern constants
-    let ps := if isExternC env decl.name then ps.filter (fun p => !p.ty.isIrrelevant) else ps
+    -- We omit erased parameters for extern constants
+    let ps := if isExternC env decl.name then ps.filter (fun p => !p.ty.isErased) else ps
     if ps.size > closureMaxArgs && isBoxedName decl.name then
       emit "lean_object**"
     else
@@ -143,6 +148,7 @@ def emitMainFn : M Unit := do
     unless xs.size == 2 || xs.size == 1 do throw "invalid main function, incorrect arity when generating code"
     let env ← getEnv
     let usesLeanAPI := usesModuleFrom env `Lean
+    emitLn "char ** lean_setup_args(int argc, char ** argv);";
     if usesLeanAPI then
        emitLn "void lean_initialize();"
     else
@@ -155,8 +161,10 @@ def emitMainFn : M Unit := do
   int main(int argc, char ** argv) {
   #if defined(WIN32) || defined(_WIN32)
   SetErrorMode(SEM_FAILCRITICALERRORS);
+  SetConsoleOutputCP(CP_UTF8);
   #endif
   lean_object* in; lean_object* res;";
+    emitLn "argv = lean_setup_args(argc, argv);";
     if usesLeanAPI then
       emitLn "lean_initialize();"
     else
@@ -402,10 +410,10 @@ def toStringArgs (ys : Array Arg) : List String :=
 
 def emitSimpleExternalCall (f : String) (ps : Array Param) (ys : Array Arg) : M Unit := do
   emit f; emit "("
-  -- We must remove irrelevant arguments to extern calls.
+  -- We must remove erased arguments to extern calls.
   discard <| ys.size.foldM
     (fun i _ (first : Bool) =>
-      if ps[i]!.ty.isIrrelevant then
+      if ps[i]!.ty.isErased then
         pure first
       else do
         unless first do emit ", "
@@ -419,18 +427,17 @@ def emitExternCall (f : FunId) (ps : Array Param) (extData : ExternAttrData) (ys
   match getExternEntryFor extData `c with
   | some (ExternEntry.standard _ extFn) => emitSimpleExternalCall extFn ps ys
   | some (ExternEntry.inline _ pat)     => do emit (expandExternPattern pat (toStringArgs ys)); emitLn ";"
-  | some (ExternEntry.foreign _ extFn)  => emitSimpleExternalCall extFn ps ys
   | _ => throw s!"failed to emit extern application '{f}'"
 
 def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
   emitLhs z
   let decl ← getDecl f
   match decl with
-  | Decl.extern _ ps _ extData => emitExternCall f ps extData ys
-  | _ =>
+  | .fdecl .. | .extern _ _ _ { entries := [.opaque _], .. } =>
     emitCName f
     if ys.size > 0 then emit "("; emitArgs ys; emit ")"
     emitLn ";"
+  | Decl.extern _ ps _ extData => emitExternCall f ps extData ys
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
   let decl ← getDecl f
@@ -494,7 +501,15 @@ def emitNumLit (t : IRType) (v : Nat) : M Unit := do
     else
       emit "lean_cstr_to_nat(\""; emit v; emit "\")"
   else
-    emit v
+    if v < UInt32.size then
+      emit v
+    else if t == .usize then
+      emit "((size_t)"
+      emit v
+      emit "ULL)"
+    else
+      emit v
+      emit "ULL"
 
 def emitLit (z : VarId) (t : IRType) (v : LitVal) : M Unit := do
   emitLhs z;
@@ -525,13 +540,13 @@ def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
 def isTailCall (x : VarId) (v : Expr) (b : FnBody) : M Bool := do
   let ctx ← read;
   match v, b with
-  | Expr.fap f _, FnBody.ret (Arg.var y) => return f == ctx.mainFn && x == y
+  | Expr.fap f _, FnBody.ret (.var y) => return f == ctx.mainFn && x == y
   | _, _ => pure false
 
 def paramEqArg (p : Param) (x : Arg) : Bool :=
   match x with
-  | Arg.var x => p.x == x
-  | _ => false
+  | .var x => p.x == x
+  | .erased => false
 
 /--
 Given `[p_0, ..., p_{n-1}]`, `[y_0, ..., y_{n-1}]`, representing the assignments
@@ -623,7 +638,6 @@ partial def emitBlock (b : FnBody) : M Unit := do
   | FnBody.set x i y b         => emitSet x i y; emitBlock b
   | FnBody.uset x i y b        => emitUSet x i y; emitBlock b
   | FnBody.sset x i o y t b    => emitSSet x i o y t; emitBlock b
-  | FnBody.mdata _ b           => emitBlock b
   | FnBody.ret x               => emit "return "; emitArg x; emitLn ";"
   | FnBody.case _ x xType alts => emitCase x xType alts
   | FnBody.jmp j xs            => emitJmp j xs

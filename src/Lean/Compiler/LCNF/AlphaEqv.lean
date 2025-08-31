@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Basic
+public import Lean.Compiler.LCNF.Basic
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -17,7 +21,7 @@ namespace AlphaEqv
 abbrev EqvM := ReaderM (FVarIdMap FVarId)
 
 def eqvFVar (fvarId₁ fvarId₂ : FVarId) : EqvM Bool := do
-  let fvarId₂ := (← read).find? fvarId₂ |>.getD fvarId₂
+  let fvarId₂ := (← read).get? fvarId₂ |>.getD fvarId₂
   return fvarId₁ == fvarId₂
 
 def eqvType (e₁ e₂ : Expr) : EqvM Bool := do
@@ -54,7 +58,7 @@ def eqvArgs (as₁ as₂ : Array Arg) : EqvM Bool := do
 
 def eqvLetValue (e₁ e₂ : LetValue) : EqvM Bool := do
   match e₁, e₂ with
-  | .value v₁, .value v₂ => return v₁ == v₂
+  | .lit v₁, .lit v₂ => return v₁ == v₂
   | .erased, .erased => return true
   | .proj s₁ i₁ x₁, .proj s₂ i₂ x₂ => pure (s₁ == s₂ && i₁ == i₂) <&&> eqvFVar x₁ x₂
   | .const n₁ us₁ as₁, .const n₂ us₂ as₂ => pure (n₁ == n₂ && us₁ == us₂) <&&> eqvArgs as₁ as₂
@@ -69,7 +73,7 @@ def eqvLetValue (e₁ e₂ : LetValue) : EqvM Bool := do
     let rec @[specialize] go (i : Nat) : EqvM Bool := do
       if h : i < params₁.size then
         let p₁ := params₁[i]
-        have : i < params₂.size := by simp_all_arith
+        have : i < params₂.size := by simp_all +arith
         let p₂ := params₂[i]
         unless (← eqvType p₁.type p₂.type) do return false
         withFVar p₁.fvarId p₂.fvarId do

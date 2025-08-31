@@ -27,7 +27,11 @@ protected:
 
     void free_memory() {
         if (m_buffer != reinterpret_cast<T*>(m_initial_buffer))
-            delete[] reinterpret_cast<char*>(m_buffer);
+            #if __cpp_sized_deallocation >= 201309L
+                operator delete[](reinterpret_cast<char*>(m_buffer), sizeof(T) * m_capacity);
+            #else
+                delete[] reinterpret_cast<char*>(m_buffer);
+            #endif
     }
 
     void set_capacity(size_t new_capacity) {

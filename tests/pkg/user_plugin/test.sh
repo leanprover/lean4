@@ -28,12 +28,11 @@ check_plugin () {
     ls $LIB_DIR
     exit 1
   }
-  mv $shlib $LIB_DIR/$plugin.$SHLIB_EXT
 }
 check_plugin UserPlugin
 check_plugin UserEnvPlugin
-PLUGIN=$LIB_DIR/UserPlugin.$SHLIB_EXT
-ENV_PLUGIN=$LIB_DIR/UserEnvPlugin.$SHLIB_EXT
+PLUGIN=$LIB_DIR/${LIB_PREFIX}UserPlugin.$SHLIB_EXT
+ENV_PLUGIN=$LIB_DIR/${LIB_PREFIX}UserEnvPlugin.$SHLIB_EXT
 
 # Expected test output
 EXPECTED_OUT="Ran builtin initializer"

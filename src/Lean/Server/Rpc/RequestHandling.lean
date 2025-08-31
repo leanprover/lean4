@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-prelude
-import Lean.Data.Lsp.Extra
-import Lean.Server.Requests
+module
 
-import Lean.Server.Rpc.Basic
+prelude
+public import Lean.Data.Lsp.Extra
+public import Lean.Server.Requests
+
+public import Lean.Server.Rpc.Basic
+
+public section
 
 namespace Lean.Server
 
@@ -19,7 +23,7 @@ private structure RpcProcedure where
 /- We store the builtin RPC handlers in a Ref and users' handlers in an extension. This ensures
 that users don't need to import core Lean modules to make builtin handlers work, but also that
 they *can* easily create custom handlers and use them in the same file. -/
-builtin_initialize builtinRpcProcedures : IO.Ref (PHashMap Name RpcProcedure) ←
+private builtin_initialize builtinRpcProcedures : IO.Ref (PHashMap Name RpcProcedure) ←
   IO.mkRef {}
 builtin_initialize userRpcProcedures : MapDeclarationExtension Name ←
   mkMapDeclarationExtension
@@ -29,7 +33,7 @@ private unsafe def evalRpcProcedureUnsafe (env : Environment) (opts : Options) (
   env.evalConstCheck RpcProcedure opts ``RpcProcedure procName
 
 @[implemented_by evalRpcProcedureUnsafe]
-opaque evalRpcProcedure (env : Environment) (opts : Options) (procName : Name) :
+private opaque evalRpcProcedure (env : Environment) (opts : Options) (procName : Name) :
     Except String RpcProcedure
 
 open RequestM in
@@ -38,7 +42,11 @@ def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
   -- waits for the header.  (Therefore the built-in RPC procedures won't change
   -- if we wait for further snapshots.)
   if let some proc := (← builtinRpcProcedures.get).find? p.method then
-    proc.wrapper p.sessionId p.params
+    RequestM.asTask do
+      let t ← proc.wrapper p.sessionId p.params
+      match t.get with
+      | .ok r => return r
+      | .error err => throw err
   else
     let doc ← readDoc
     let text := doc.meta.text
@@ -63,32 +71,31 @@ def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
 builtin_initialize
   registerLspRequestHandler "$/lean/rpc/call" Lsp.RpcCallParams Json handleRpcCall
 
-def wrapRpcProcedure (method : Name) paramType respType
+private def wrapRpcProcedure (method : Name) paramType respType
     [RpcEncodable paramType] [RpcEncodable respType]
-    (handler : paramType → RequestM (RequestTask respType)) : RpcProcedure :=
-  ⟨fun seshId j => do
+    (handler : paramType → RequestM (RequestTask respType)) : RpcProcedure where
+  wrapper seshId j := do
     let rc ← read
 
-    let some seshRef := rc.rpcSessions.find? seshId
+    let some seshRef := rc.rpcSessions.get? seshId
       | throwThe RequestError { code := JsonRpc.ErrorCode.rpcNeedsReconnect
                                 message := s!"Outdated RPC session" }
-    let t ← RequestM.asTask do
+
+    let v ← do
       match rpcDecode j (← seshRef.get).objects with
-      | Except.ok v => return v
+      | Except.ok v => pure v
       | Except.error e => throwThe RequestError {
-          code := JsonRpc.ErrorCode.invalidParams
-          message := s!"Cannot decode params in RPC call '{method}({j.compress})'\n{e}"
-        }
+        code := JsonRpc.ErrorCode.invalidParams
+        message := s!"Cannot decode params in RPC call '{method}({j.compress})'\n{e}"
+      }
 
-    let t ← RequestM.bindTask t fun
-      | Except.error e => throw e
-      | Except.ok ps => handler ps
+    let t ← handler v
 
-    RequestM.mapTask t fun
+    RequestM.mapTaskCheap t fun
       | Except.error e => throw e
       | Except.ok ret =>
         seshRef.modifyGet fun st =>
-          rpcEncode ret st.objects |>.map id ({st with objects := ·})⟩
+          rpcEncode ret st.objects |>.map id ({st with objects := ·})
 
 def registerBuiltinRpcProcedure (method : Name) paramType respType
     [RpcEncodable paramType] [RpcEncodable respType]

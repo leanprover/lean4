@@ -3,18 +3,19 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Proof
+import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Arith.Inv
-
+import Lean.Meta.Tactic.Grind.AC.Inv
 namespace Lean.Meta.Grind
-
 /-!
 Debugging support code for checking basic invariants.
 -/
 
-private def checkEqc (root : ENode) : GoalM Unit := do
+def checkEqc (root : ENode) : GoalM Unit := do
   let mut size := 0
   let mut curr := root.self
   repeat
@@ -46,43 +47,64 @@ private def checkEqc (root : ENode) : GoalM Unit := do
   -- The size of the equivalence class is correct.
   assert! root.size == size
 
-private def checkParents (e : Expr) : GoalM Unit := do
+def checkChild (e : Expr) (child : Expr) : GoalM Bool := do
+  let some childRoot ← getRoot? child | return false
+  return isSameExpr childRoot e
+
+def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
+  let_expr Grind.MatchCond parent ← parent | return false
+  let mut curr := parent
+  repeat
+    let .forallE _ d b _ := curr
+      | return false
+    match_expr d with
+    | Eq _ lhs _ => if (← checkChild e lhs) then return true -- found it
+    | HEq α lhs _ _ => if (← checkChild e α <||> checkChild e lhs) then return true -- found it
+    | _ => pure ()
+    curr := b
+  return false
+
+def checkParents (e : Expr) : GoalM Unit := do
   if (← isRoot e) then
     for parent in (← getParents e) do
-      let mut found := false
-      let checkChild (child : Expr) : GoalM Bool := do
-        let some childRoot ← getRoot? child | return false
-        return isSameExpr childRoot e
-      -- There is an argument `arg` s.t. root of `arg` is `e`.
-      for arg in parent.getAppArgs do
-        if (← checkChild arg) then
-          found := true
-          break
-      -- Recall that we have support for `Expr.forallE` propagation. See `ForallProp.lean`.
-      if let .forallE _ d b _ := parent then
-        if (← checkChild d) then
-          found := true
-        unless b.hasLooseBVars do
-          if (← checkChild b) then
+      if isMatchCond parent then
+        unless (← checkMatchCondParent e parent) do
+          throwError "e: {e}, parent: {parent}"
+        assert! (← checkMatchCondParent e parent)
+      else
+        let mut found := false
+        -- There is an argument `arg` s.t. root of `arg` is `e`.
+        for arg in parent.getAppArgs do
+          if (← checkChild e arg) then
             found := true
-      unless found do
-        assert! (← checkChild parent.getAppFn)
+            break
+        -- Recall that we have support for `Expr.forallE` propagation. See `ForallProp.lean`.
+        if let .forallE _ d b _ := parent then
+          if (← checkChild e d) then
+            found := true
+          unless b.hasLooseBVars do
+            if (← checkChild e b) then
+              found := true
+        unless found do
+          unless (← checkChild e parent.getAppFn) do
+            throwError "e: {e}, parent: {parent}"
+          assert! (← checkChild e parent.getAppFn)
   else
     -- All the parents are stored in the root of the equivalence class.
     assert! (← getParents e).isEmpty
 
-private def checkPtrEqImpliesStructEq : GoalM Unit := do
-  let nodes ← getENodes
-  for h₁ : i in [: nodes.size] do
-    let n₁ := nodes[i]
-    for h₂ : j in [i+1 : nodes.size] do
-      let n₂ := nodes[j]
+def checkPtrEqImpliesStructEq : GoalM Unit := do
+  let exprs ← getExprs
+  for h₁ : i in *...exprs.size do
+    let e₁ := exprs[i]
+    for h₂ : j in (i+1)...exprs.size do
+      let e₂ := exprs[j]
       -- We don't have multiple nodes for the same expression
-      assert! !isSameExpr n₁.self n₂.self
+      assert! !isSameExpr e₁ e₂
       -- and the two expressions must not be structurally equal
-      assert! !Expr.equal n₁.self n₂.self
+      assert! !Expr.equal e₁ e₂
 
-private def checkProofs : GoalM Unit := do
+def checkProofs : GoalM Unit := do
   let eqcs ← getEqcs
   for eqc in eqcs do
     for a in eqc do
@@ -93,22 +115,23 @@ private def checkProofs : GoalM Unit := do
           check p
           trace_goal[grind.debug.proofs] "checked: {← inferType p}"
 
-/--
-Checks basic invariants if `grind.debug` is enabled.
--/
-def checkInvariants (expensive := false) : GoalM Unit := do
+/-- Checks invariants if `grind.debug` is enabled. -/
+public def checkInvariants (expensive := false) : GoalM Unit := do
   if grind.debug.get (← getOptions) then
-    for (_, node) in (← get).enodes do
+    for e in (← getExprs) do
+      let node ← getENode e
       checkParents node.self
-      if isSameExpr node.self node.root then
+      if node.isRoot then
         checkEqc node
     if expensive then
       checkPtrEqImpliesStructEq
     Arith.checkInvariants
+    AC.checkInvariants
   if expensive && grind.debug.proofs.get (← getOptions) then
     checkProofs
 
-def Goal.checkInvariants (goal : Goal) (expensive := false) : GrindM Unit :=
+@[inherit_doc Grind.checkInvariants]
+public def Goal.checkInvariants (goal : Goal) (expensive := false) : GrindM Unit :=
   discard <| GoalM.run' goal <| Grind.checkInvariants expensive
 
 end Lean.Meta.Grind

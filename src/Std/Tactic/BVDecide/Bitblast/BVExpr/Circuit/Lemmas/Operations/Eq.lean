@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
+
+@[expose] public section
 
 /-!
 This module contains the verification of the `BitVec` equality bitblaster from `Impl.Operations.Eq`.
@@ -31,7 +35,7 @@ theorem mkEq_denote_eq (aig : AIG α) (pair : AIG.BinaryRefVec aig w) (assign : 
   constructor
   · intro h
     ext i h'
-    rw [← hleft, ← hright]
+    rw [← BitVec.getLsbD_eq_getElem, ← BitVec.getLsbD_eq_getElem, ← hleft, ← hright]
     · simp [h, h']
     · omega
     · omega

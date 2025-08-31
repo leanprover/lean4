@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.Options
+public import Lean.Data.Options
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -13,7 +17,7 @@ User controlled configuration options for the code generator.
 -/
 structure ConfigOptions where
   /--
-  Any function declaration or join point with size `≤ smallThresold` is inlined
+  Any function declaration or join point with size `≤ smallThreshold` is inlined
   even if there are multiple occurrences.
   -/
   smallThreshold : Nat := 1
@@ -31,6 +35,10 @@ structure ConfigOptions where
   Perform type compatibility checking after each compiler pass.
   -/
   checkTypes : Bool := false
+  /--
+  Cache closed terms and evaluate them at initialization time.
+  -/
+  extractClosed : Bool := true
   deriving Inhabited
 
 register_builtin_option compiler.small : Nat := {
@@ -57,11 +65,18 @@ register_builtin_option compiler.checkTypes : Bool := {
   descr    := "(compiler) perform type compatibility checking after each compiler pass. Note this is not a complete check, and it is used only for debugging purposes. It fails in code that makes heavy use of dependent types."
 }
 
+register_builtin_option compiler.extract_closed : Bool := {
+  defValue := true
+  group    := "compiler"
+  descr    := "(compiler) enable/disable closed term caching"
+}
+
 def toConfigOptions (opts : Options) : ConfigOptions := {
   smallThreshold := compiler.small.get opts
   maxRecInline   := compiler.maxRecInline.get opts
   maxRecInlineIfReduce := compiler.maxRecInlineIfReduce.get opts
   checkTypes := compiler.checkTypes.get opts
+  extractClosed := compiler.extract_closed.get opts
 }
 
 end Lean.Compiler.LCNF

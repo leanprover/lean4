@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.Basic
-import Std.Sat.AIG.Lemmas
+public import Std.Sat.AIG.Basic
+public import Std.Sat.AIG.Lemmas
+
+@[expose] public section
 
 /-!
 This module contains functions to construct AIG nodes while making use of the sub-circuit cache
@@ -25,44 +29,32 @@ A version of `AIG.mkAtom` that uses the subterm cache in `AIG`. This version is 
 programming, for proving purposes use `AIG.mkAtom` and equality theorems to this one.
 -/
 def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
-  let ⟨decls, cache, inv⟩ := aig
+  let ⟨decls, cache, hdag, hzero, hconst⟩ := aig
   let decl := .atom n
   match cache.get? decl with
   | some hit =>
-    ⟨⟨decls, cache, inv⟩ , hit.idx, hit.hbound⟩
+    ⟨⟨decls, cache, hdag, hzero, hconst⟩ , hit.idx, false, hit.hbound⟩
   | none =>
     let g := decls.size
     let cache := cache.insert decls decl
     let decls := decls.push decl
-    have inv := by
-      intro i lhs rhs linv rinv h1 h2
+    have hdag := by
+      intro i lhs rhs h1 h2
       simp only [Array.getElem_push] at h2
       split at h2
-      · apply inv <;> assumption
+      · apply hdag <;> assumption
       · contradiction
-  ⟨⟨decls, cache, inv⟩, ⟨g, by simp [g, decls]⟩⟩
+    have hzero' := by simp [decls]
+    have hconst := by simp [decls, Array.getElem_push, hzero, hconst]
+    ⟨⟨decls, cache, hdag, hzero', hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 /--
 A version of `AIG.mkConst` that uses the subterm cache in `AIG`. This version is meant for
 programming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
 -/
-def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
-  let ⟨decls, cache, inv⟩ := aig
-  let decl := .const val
-  match cache.get? decl with
-  | some hit =>
-    ⟨⟨decls, cache, inv⟩, hit.idx, hit.hbound⟩
-  | none =>
-    let g := decls.size
-    let cache := cache.insert decls decl
-    let decls := decls.push decl
-    have inv := by
-      intro i lhs rhs linv rinv h1 h2
-      simp only [Array.getElem_push] at h2
-      split at h2
-      · apply inv <;> assumption
-      · contradiction
-  ⟨⟨decls, cache, inv⟩, ⟨g, by simp [g, decls]⟩⟩
+@[inline]
+def mkConstCached (aig : AIG α) (val : Bool) : Ref aig :=
+  ⟨0, val, aig.hzero⟩
 
 /--
 A version of `AIG.mkGate` that uses the subterm cache in `AIG`. This version is meant for
@@ -70,62 +62,70 @@ programming, for proving purposes use `AIG.mkGate` and equality theorems to this
 
 Beyond caching this function also implements a subset of the optimizations presented in:
 -/
-def mkGateCached (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
-  let lhs := input.lhs.ref.gate
-  let rhs := input.rhs.ref.gate
+def mkGateCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
+  let lhs := input.lhs.gate
+  let rhs := input.rhs.gate
   if lhs < rhs then
     go aig ⟨input.lhs, input.rhs⟩
   else
     go aig ⟨input.rhs, input.lhs⟩
 where
-  go (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
-    let ⟨decls, cache, inv⟩ := aig
-    let lhs := input.lhs.ref.gate
-    let rhs := input.rhs.ref.gate
-    let linv := input.lhs.inv
-    let rinv := input.rhs.inv
-    have := input.lhs.ref.hgate
-    have := input.rhs.ref.hgate
-    let decl := .gate lhs rhs linv rinv
+  go (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
+    let ⟨decls, cache, hdag, hzero, hconst⟩ := aig
+    let lhs := input.lhs.gate
+    let rhs := input.rhs.gate
+    let linv := input.lhs.invert
+    let rinv := input.rhs.invert
+    have := input.lhs.hgate
+    have := input.rhs.hgate
+    let decl := .gate (.mk lhs linv) (.mk rhs rinv)
     match cache.get? decl with
     | some hit =>
-      ⟨⟨decls, cache, inv⟩, ⟨hit.idx, hit.hbound⟩⟩
+      ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨hit.idx, false, hit.hbound⟩⟩
     | none =>
       /-
-      Here we implement the constant propagating subset of:
+      Here we implement the one-level subset of:
       https://fmv.jku.at/papers/BrummayerBiere-MEMICS06.pdf
       TODO: rest of the table
       -/
-      match decls[lhs], decls[rhs], linv, rinv with
+      let lhsVal := AIG.getConstant ⟨decls, cache, hdag, hzero, hconst⟩ input.lhs
+      let rhsVal := AIG.getConstant ⟨decls, cache, hdag, hzero, hconst⟩ input.rhs
+      match lhsVal, rhsVal with
       -- Boundedness
-      | .const true, _, true, _ | .const false, _, false, _
-      | _, .const true, _, true | _, .const false, _, false =>
-        mkConstCached ⟨decls, cache, inv⟩ false
+      | .some false, _ | _, .some false =>
+        let ref := mkConstCached ⟨decls, cache, hdag, hzero, hconst⟩ false
+        ⟨⟨decls, cache, hdag, hzero, hconst⟩, ref⟩
       -- Left Neutrality
-      | .const true, _, false, false | .const false, _, true, false =>
-        ⟨⟨decls, cache, inv⟩, rhs, (by assumption)⟩
+      | .some true, _ => ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨rhs, rinv, by assumption⟩⟩
       -- Right Neutrality
-      | _, .const true, false, false | _, .const false, false, true =>
-        ⟨⟨decls, cache, inv⟩, lhs, (by assumption)⟩
-      | _, _, _, _ =>
-        if lhs == rhs && linv == false && rinv == false then
-          -- Idempotency rule
-         ⟨⟨decls, cache, inv⟩, lhs, (by assumption)⟩
-        else if lhs == rhs && linv == !rinv then
-          -- Contradiction rule
-          mkConstCached ⟨decls, cache, inv⟩ false
+      | _, .some true => ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨lhs, linv, by assumption⟩⟩
+      -- No constant inputs
+      | _, _ =>
+        if lhs == rhs then
+           -- Idempotency
+          if linv == rinv then
+            ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨lhs, linv, by assumption⟩⟩
+          -- Contradiction
+          else
+            let ref := mkConstCached ⟨decls, cache, hdag, hzero, hconst⟩ false
+            ⟨⟨decls, cache, hdag, hzero, hconst⟩, ref⟩
         else
+          -- Gate couldn't be simplified
           let g := decls.size
           let cache := cache.insert decls decl
           let decls := decls.push decl
-          have inv := by
-            intro i lhs rhs linv rinv h1 h2
-            simp only [decls] at *
+          have hdag := by
+            intro i lhs rhs h1 h2
             simp only [Array.getElem_push] at h2
+            simp_all
             split at h2
-            · apply inv <;> assumption
-            · injections; omega
-          ⟨⟨decls, cache, inv⟩, ⟨g, by simp [g, decls]⟩⟩
+            · apply hdag <;> assumption
+            · injection h2 with hl hr
+              simp [← hl, ← hr]
+              omega
+          have hzero' := by simp [decls]
+          have hconst := by simp [decls, Array.getElem_push, hzero, hconst]
+          ⟨⟨decls, cache, hdag, hzero', hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 end AIG
 

@@ -1,6 +1,8 @@
 import Lean
 import UserAttr.BlaAttr
 
+attribute [-simp] Nat.add_left_cancel_iff Nat.add_right_cancel_iff
+
 @[bla] def f (x : Nat) := x + 2
 @[bla] def g (x : Nat) := x + 1
 
@@ -26,11 +28,11 @@ def getFooAttrInfo? (declName : Name) : CoreM (Option (Nat × Bool)) :=
 @[my_simp] theorem g_eq : g x = x + 1 := rfl
 
 example : f x + g x = 2*x + 3 := by
-  fail_if_success simp_arith -- does not apply f_eq and g_eq
-  simp_arith [f, g]
+  fail_if_success simp +arith -- does not apply f_eq and g_eq
+  simp +arith [f, g]
 
 example : f x + g x = 2*x + 3 := by
-  simp_arith [my_simp]
+  simp +arith [my_simp]
 
 example : f x = id (x + 2) := by
   simp

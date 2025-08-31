@@ -3,14 +3,18 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.CNF
-import Std.Sat.AIG.RelabelNat
-import Std.Tactic.BVDecide.Bitblast
-import Std.Tactic.BVDecide.Syntax
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.SatAtBVLogical
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
-import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
+public import Std.Sat.AIG.CNF
+public import Std.Sat.AIG.RelabelNat
+public import Std.Tactic.BVDecide.Bitblast
+public import Std.Tactic.BVDecide.Syntax
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.SatAtBVLogical
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
+public import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
+
+public section
 
 /-!
 This module provides the implementation of the `bv_decide` frontend itself.
@@ -37,9 +41,9 @@ expression - pair values.
 def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Array (Bool × Nat))
     (aigSize : Nat) (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
     Array (Expr × BVExpr.PackedBitVec) := Id.run do
-  let mut sparseMap : Std.HashMap Nat (RBMap Nat Bool Ord.compare) := {}
+  let mut sparseMap : Std.HashMap Nat (Std.TreeMap Nat Bool) := {}
   let filter bvBit _ :=
-    let (_, _, synthetic) := atomsAssignment.get! bvBit.var
+    let (_, _, synthetic) := atomsAssignment[bvBit.var]!
     !synthetic
   let var2Cnf := var2Cnf.filter filter
   for (bitVar, cnfVar) in var2Cnf.toArray do
@@ -74,14 +78,27 @@ def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Ar
       if bitValue then
         value := value ||| (1 <<< currentBit)
       currentBit := currentBit + 1
-    let (_, atomExpr, _) := atomsAssignment.get! bitVecVar
+    let (_, atomExpr, _) := atomsAssignment[bitVecVar]!
     finalMap := finalMap.push (atomExpr, ⟨BitVec.ofNat currentBit value⟩)
   return finalMap
 
 structure ReflectionResult where
+  /--
+  The reflected expression.
+  -/
   bvExpr : BVLogicalExpr
+  /--
+  Function to prove `False` given a satisfiability proof of `bvExpr`
+  -/
   proveFalse : Expr → M Expr
+  /--
+  Set of unused hypotheses for diagnostic purposes.
+  -/
   unusedHypotheses : Std.HashSet FVarId
+  /--
+  A cache for `toExpr bvExpr`.
+  -/
+  expr : Expr
 
 /--
 A counter example generated from the bitblaster.
@@ -114,6 +131,7 @@ The result of a spurious counter example diagnosis.
 structure Diagnosis where
   uninterpretedSymbols : Std.HashSet Expr := {}
   unusedRelevantHypotheses : Std.HashSet FVarId := {}
+  derivedEquations : Array (Expr × Expr) := #[]
 
 abbrev DiagnosisM : Type → Type := ReaderT CounterExample <| StateRefT Diagnosis MetaM
 
@@ -124,17 +142,25 @@ def run (x : DiagnosisM Unit) (counterExample : CounterExample) : MetaM Diagnosi
     let (_, issues) ← ReaderT.run x counterExample |>.run {}
     return issues
 
+@[inline]
 def unusedHyps : DiagnosisM (Std.HashSet FVarId) := do
   return (← read).unusedHypotheses
 
+@[inline]
 def equations : DiagnosisM (Array (Expr × BVExpr.PackedBitVec)) := do
   return (← read).equations
 
+@[inline]
 def addUninterpretedSymbol (e : Expr) : DiagnosisM Unit :=
   modify fun s => { s with uninterpretedSymbols := s.uninterpretedSymbols.insert e }
 
+@[inline]
 def addUnusedRelevantHypothesis (fvar : FVarId) : DiagnosisM Unit :=
   modify fun s => { s with unusedRelevantHypotheses := s.unusedRelevantHypotheses.insert fvar }
+
+@[inline]
+def addDerivedEquation (var : Expr) (value : Expr) : DiagnosisM Unit :=
+  modify fun s => { s with derivedEquations := s.derivedEquations.push (var, value) }
 
 def checkRelevantHypsUsed (fvar : FVarId) : DiagnosisM Unit := do
   for hyp in ← unusedHyps do
@@ -147,16 +173,72 @@ Diagnose spurious counter examples, currently this checks:
 - Whether all hypotheses which contain any variable that was bitblasted were included
 -/
 def diagnose : DiagnosisM Unit := do
-  for (expr, _) in ← equations do
-    match_expr expr with
-    | BitVec.ofBool x =>
-      match x with
-      | .fvar fvarId => checkRelevantHypsUsed fvarId
-      | _ => addUninterpretedSymbol expr
-    | _ =>
-      match expr with
-      | .fvar fvarId => checkRelevantHypsUsed fvarId
-      | _ => addUninterpretedSymbol expr
+  for (var, value) in ← equations do
+    let (var, value) ← transformEquation var value
+    addDerivedEquation var value
+    match var with
+    | .fvar fvarId => checkRelevantHypsUsed fvarId
+    | _ => addUninterpretedSymbol var
+where
+  transformEquation (var : Expr) (value : BVExpr.PackedBitVec) : DiagnosisM (Expr × Expr) := do
+    if var.isFVar then
+      return (var, toExpr value.bv)
+    else
+      match_expr var with
+      | BitVec.ofBool x =>
+        return (x, toExpr <| value.bv == 1)
+      | UInt8.toBitVec x =>
+        if h : value.w = 8 then
+          return (x, toExpr <| UInt8.ofBitVec (h ▸ value.bv))
+        else
+          throwError m!"Value for UInt8 was not 8 bit but {value.w} bit"
+      | UInt16.toBitVec x =>
+        if h : value.w = 16 then
+          return (x, toExpr <| UInt16.ofBitVec (h ▸ value.bv))
+        else
+          throwError m!"Value for UInt16 was not 16 bit but {value.w} bit"
+      | UInt32.toBitVec x =>
+        if h : value.w = 32 then
+          return (x, toExpr <| UInt32.ofBitVec (h ▸ value.bv))
+        else
+          throwError m!"Value for UInt32 was not 32 bit but {value.w} bit"
+      | UInt64.toBitVec x =>
+        if h : value.w = 64 then
+          return (x, toExpr <| UInt64.ofBitVec (h ▸ value.bv))
+        else
+          throwError m!"Value for UInt64 was not 64 bit but {value.w} bit"
+      | Int8.toBitVec x =>
+        if h : value.w = 8 then
+          return (x, toExpr <| Int8.ofBitVec (h ▸ value.bv))
+        else
+          throwError m!"Value for Int8 was not 8 bit but {value.w} bit"
+      | Int16.toBitVec x =>
+        if h : value.w = 16 then
+          return (x, toExpr <| Int16.ofBitVec (h ▸ value.bv))
+        else
+          throwError m!"Value for Int16 was not 16 bit but {value.w} bit"
+      | Int32.toBitVec x =>
+        if h : value.w = 32 then
+          return (x, toExpr <| Int32.ofBitVec (h ▸ value.bv))
+        else
+          throwError m!"Value for Int32 was not 32 bit but {value.w} bit"
+      | Int64.toBitVec x =>
+        if h : value.w = 64 then
+          return (x, toExpr <| Int64.ofBitVec (h ▸ value.bv))
+        else
+          throwError m!"Value for Int64 was not 64 bit but {value.w} bit"
+      | _ =>
+        match var with
+        | .app (.const (.str p s) levels) arg =>
+          if s == Normalize.enumToBitVecSuffix then
+            let .inductInfo inductiveInfo ← getConstInfo p | unreachable!
+            let ctors := inductiveInfo.ctors
+            let enumVal := mkConst ctors[value.bv.toNat]! levels
+            return (arg, enumVal)
+          else
+            return (var, toExpr value.bv)
+        | _ => return (var, toExpr value.bv)
+
 
 end DiagnosisM
 
@@ -178,20 +260,74 @@ def explainCounterExampleQuality (counterExample : CounterExample) : MetaM Messa
   let folder acc explainer := if let some m := explainer diagnosis then acc.push m else acc
   let explanations := explainers.foldl (init := #[]) folder
 
+  let mut err := m!""
+
   if explanations.isEmpty then
-    return m!"The prover found a counterexample, consider the following assignment:\n"
+    err := err ++ m!"The prover found a counterexample, consider the following assignment:\n"
   else
-    let mut err := m!"The prover found a potentially spurious counterexample:\n"
+    err := err ++ m!"The prover found a potentially spurious counterexample:\n"
     err := err ++ explanations.foldl (init := m!"") (fun acc exp => acc ++ m!"- " ++ exp ++ m!"\n")
     err := err ++ m!"Consider the following assignment:\n"
-    return err
+
+
+  let folder := fun error (var, value) => error ++ m!"{var} = {value}\n"
+  err := diagnosis.derivedEquations.foldl (init := err) folder
+  return err
+
+/--
+Turn an `LratCert` into a proof that some `reflectedExpr` is UNSAT.
+-/
+def LratCert.toReflectionProof (cert : LratCert) (cfg : TacticContext)
+    (reflectionResult : ReflectionResult) : MetaM Expr := do
+  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling expr term") do
+    mkAuxDecl cfg.exprDef reflectionResult.expr (mkConst ``BVLogicalExpr)
+
+  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling proof certificate term") do
+    mkAuxDecl cfg.certDef (toExpr cert) (mkConst ``String)
+
+  let reflectedExpr := mkConst cfg.exprDef
+  let certExpr := mkConst cfg.certDef
+
+  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling reflection proof term") do
+    let auxValue := mkApp2 (mkConst ``verifyBVExpr) reflectedExpr certExpr
+    mkAuxDecl cfg.reflectionDef auxValue (mkConst ``Bool)
+
+  let auxType ← mkEq (mkConst cfg.reflectionDef) (toExpr true)
+  let auxProof :=
+    mkApp3
+      (mkConst ``Lean.ofReduceBool)
+      (mkConst cfg.reflectionDef)
+      (toExpr true)
+      (← mkEqRefl (toExpr true))
+  try
+    let auxLemma ←
+      -- disable async TC so we can catch its exceptions
+      withOptions (Elab.async.set · false) do
+        withTraceNode `Meta.Tactic.sat (fun _ => return "Verifying LRAT certificate") do
+          mkAuxLemma [] auxType auxProof
+    return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr (mkConst auxLemma)
+  catch e =>
+    throwError m!"Failed to check the LRAT certificate in the kernel:\n{e.toMessageData}"
+where
+  /--
+  Add an auxiliary declaration. Only used to create constants that appear in our reflection proof.
+  -/
+  mkAuxDecl (name : Name) (value type : Expr) : CoreM Unit :=
+    addAndCompile <| .defnDecl {
+      name := name,
+      levelParams := [],
+      type := type,
+      value := value,
+      hints := .abbrev,
+      safety := .safe
+    }
 
 def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : ReflectionResult)
     (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
     MetaM (Except CounterExample UnsatProver.Result) := do
   let bvExpr := reflectionResult.bvExpr
   let entry ←
-    withTraceNode `bv (fun _ => return "Bitblasting BVLogicalExpr to AIG") do
+    withTraceNode `Meta.Tactic.bv (fun _ => return "Bitblasting BVLogicalExpr to AIG") do
       -- lazyPure to prevent compiler lifting
       IO.lazyPure (fun _ => bvExpr.bitblast)
   let aigSize := entry.aig.decls.size
@@ -201,7 +337,7 @@ def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : Ref
     IO.FS.writeFile ("." / "aig.gv") <| AIG.toGraphviz entry
 
   let (cnf, map) ←
-    withTraceNode `sat (fun _ => return "Converting AIG to CNF") do
+    withTraceNode `Meta.Tactic.sat (fun _ => return "Converting AIG to CNF") do
       -- lazyPure to prevent compiler lifting
       IO.lazyPure (fun _ =>
         let (entry, map) := entry.relabelNat'
@@ -210,19 +346,18 @@ def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : Ref
       )
 
   let res ←
-    withTraceNode `sat (fun _ => return "Obtaining external proof certificate") do
+    withTraceNode `Meta.Tactic.sat (fun _ => return "Obtaining external proof certificate") do
       runExternal cnf ctx.solver ctx.lratPath ctx.config.trimProofs ctx.config.timeout ctx.config.binaryProofs
 
   match res with
   | .ok cert =>
     trace[Meta.Tactic.sat] "SAT solver found a proof."
-    let proof ← cert.toReflectionProof ctx bvExpr ``verifyBVExpr ``unsat_of_verifyBVExpr_eq_true
+    let proof ← cert.toReflectionProof ctx reflectionResult
     return .ok ⟨proof, cert⟩
   | .error assignment =>
     trace[Meta.Tactic.sat] "SAT solver found a counter example."
     let equations := reconstructCounterExample map assignment aigSize atomsAssignment
     return .error { goal, unusedHypotheses := reflectionResult.unusedHypotheses, equations }
-
 
 def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
   let hyps ← getPropHyps
@@ -234,26 +369,27 @@ def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
     else
       unusedHypotheses := unusedHypotheses.insert hyp
   if h : sats.size = 0 then
-    let mut error := "None of the hypotheses are in the supported BitVec fragment.\n"
-    error := error ++ "There are two potential fixes for this:\n"
+    let mut error := "None of the hypotheses are in the supported BitVec fragment after applying preprocessing.\n"
+    error := error ++ "There are three potential reasons for this:\n"
     error := error ++ "1. If you are using custom BitVec constructs simplify them to built-in ones.\n"
     error := error ++ "2. If your problem is using only built-in ones it might currently be out of reach.\n"
-    error := error ++ "   Consider expressing it in terms of different operations that are better supported."
+    error := error ++ "   Consider expressing it in terms of different operations that are better supported.\n"
+    error := error ++ "3. The original goal was reduced to False and is thus invalid."
     throwError error
   else
-    let sat := sats[1:].foldl (init := sats[0]) SatAtBVLogical.and
+    let sat := sats[1...*].foldl (init := sats[0]) SatAtBVLogical.and
     return {
-      bvExpr := sat.bvExpr,
+      bvExpr := ShareCommon.shareCommon sat.bvExpr,
       proveFalse := sat.proveFalse,
-      unusedHypotheses := unusedHypotheses
+      unusedHypotheses := unusedHypotheses,
+      expr := sat.expr
     }
-
 
 def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver) :
     MetaM (Except CounterExample LratCert) := M.run do
   g.withContext do
     let reflectionResult ←
-      withTraceNode `bv (fun _ => return "Reflecting goal into BVLogicalExpr") do
+      withTraceNode `Meta.Tactic.bv (fun _ => return "Reflecting goal into BVLogicalExpr") do
         reflectBV g
     trace[Meta.Tactic.bv] "Reflected bv logical expression: {reflectionResult.bvExpr}"
 
@@ -269,7 +405,7 @@ def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver) :
 
 def bvUnsat (g : MVarId) (ctx : TacticContext) : MetaM (Except CounterExample LratCert) := M.run do
   let unsatProver : UnsatProver := fun g reflectionResult atomsAssignment => do
-    withTraceNode `bv (fun _ => return "Preparing LRAT reflection term") do
+    withTraceNode `Meta.Tactic.bv (fun _ => return "Preparing LRAT reflection term") do
       lratBitblaster g ctx reflectionResult atomsAssignment
   closeWithBVReflection g unsatProver
 
@@ -303,9 +439,7 @@ def bvDecide (g : MVarId) (ctx : TacticContext) : MetaM Result := do
   | .error counterExample =>
     counterExample.goal.withContext do
       let error ← explainCounterExampleQuality counterExample
-      let folder := fun error (var, value) => error ++ m!"{var} = {value.bv}\n"
-      let errorMessage := counterExample.equations.foldl (init := error) folder
-      throwError (← addMessageContextFull errorMessage)
+      throwError (← addMessageContextFull error)
 
 @[builtin_tactic Lean.Parser.Tactic.bvDecide]
 def evalBvDecide : Tactic := fun

@@ -1,22 +1,20 @@
 {"textDocument": {"uri": "file:///compHeader.lean"},
  "position": {"line": 2, "character": 22}}
 {"items":
- [{"sortText": "0",
-   "label": "veryLongNam",
-   "kind": 6,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///compHeader.lean"},
-     "position": {"line": 2, "character": 22}},
-    "id": {"fvar": {"id": "_uniq.7"}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "veryLongNameForCompletion",
+ [{"label": "veryLongNameForCompletion",
    "kind": 21,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///compHeader.lean"},
      "position": {"line": 2, "character": 22}},
     "id": {"const": {"declName": "veryLongNameForCompletion"}},
+    "cPos": 0}},
+  {"label": "veryLongNam",
+   "kind": 6,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///compHeader.lean"},
+     "position": {"line": 2, "character": 22}},
+    "id": {"fvar": {"id": "_uniq.7"}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}

@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Normalize.Bool
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-import Lean.Meta.Tactic.Simp
+public import Std.Tactic.BVDecide.Normalize.Bool
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+public import Lean.Meta.Tactic.Simp
+
+public section
 
 /-!
 This module contains the implementation of the embedded constraint substitution pass in the fixpoint
@@ -20,11 +24,11 @@ open Lean.Meta
 
 /--
 Substitute embedded constraints. That is look for hypotheses of the form `h : x = true` and use
-them to substitute occurences of `x` within other hypotheses. Additionally this drops all
+them to substitute occurrences of `x` within other hypotheses. Additionally this drops all
 redundant top level hypotheses.
 -/
 def embeddedConstraintPass : Pass where
-  name := `embeddedConstraintSubsitution
+  name := `embeddedConstraintSubstitution
   run' goal := do
     goal.withContext do
       let hyps ← getPropHyps
@@ -51,7 +55,11 @@ def embeddedConstraintPass : Pass where
       let cfg ← PreProcessM.getConfig
       let targets ← goal.withContext getPropHyps
       let simpCtx ← Simp.mkContext
-        (config := { failIfUnchanged := false, maxSteps := cfg.maxSteps })
+        (config := {
+          failIfUnchanged := false,
+          implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
+          maxSteps := cfg.maxSteps,
+        })
         (simpTheorems := relevantHyps)
         (congrTheorems := (← getSimpCongrTheorems))
       let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := targets)

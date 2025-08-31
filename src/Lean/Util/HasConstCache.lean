@@ -3,14 +3,18 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Expr
-import Std.Data.HashMap.Raw
+public import Lean.Expr
+public import Std.Data.HashMap.Raw
+
+public section
 
 namespace Lean
 
 structure HasConstCache (declNames : Array Name) where
-  cache : Std.HashMap.Raw Expr Bool := Std.HashMap.Raw.empty
+  cache : Std.HashMap.Raw Expr Bool := ∅
 
 unsafe def HasConstCache.containsUnsafe (e : Expr) : StateM (HasConstCache declNames) Bool := do
   if let some r := (← get).cache.get? (beq := ⟨ptrEq⟩) e then

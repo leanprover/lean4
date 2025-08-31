@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.Id
-import Init.Data.List.Impl
+public import Init.Control.Id
+public import Init.Data.List.Impl
+
+public section
 
 universe u v w w'
 namespace Lean
@@ -38,7 +42,7 @@ def isEmpty : AssocList α β → Bool
     foldlM f d es
 
 @[inline] def foldl (f : δ → α → β → δ) (init : δ) (as : AssocList α β) : δ :=
-  Id.run (foldlM f init as)
+  Id.run (foldlM (pure <| f · · ·) init as)
 
 def toList (as : AssocList α β) : List (α × β) :=
   as.foldl (init := []) (fun r a b => (a, b)::r) |>.reverse

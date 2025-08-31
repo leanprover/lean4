@@ -160,6 +160,12 @@ mpz & mpz::operator*=(unsigned u) { mpz_mul_ui(m_val, m_val, u); return *this; }
 
 mpz & mpz::operator*=(int u) { mpz_mul_si(m_val, m_val, u); return *this; }
 
+mpz mpz::divexact(mpz const & n, mpz const & d) {
+    mpz q;
+    mpz_divexact(q.m_val, n.m_val, d.m_val);
+    return q;
+}
+
 mpz mpz::ediv(mpz const & n, mpz const & d) {
     mpz q;
     mpz_t r;
@@ -315,6 +321,8 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
 static void *mpz_alloc(size_t size) {
 #ifdef LEAN_SMALL_ALLOCATOR
     return alloc(size);
+#elif defined(LEAN_MIMALLOC)
+    return mi_malloc(size);
 #else
     return malloc(size);
 #endif
@@ -323,8 +331,10 @@ static void *mpz_alloc(size_t size) {
 static void mpz_dealloc(void *ptr, size_t size) {
 #ifdef LEAN_SMALL_ALLOCATOR
         dealloc(ptr, size);
+#elif defined(LEAN_MIMALLOC)
+        mi_free_size(ptr, size);
 #else
-        free(ptr);
+        free_sized(ptr, size);
 #endif
 }
 
@@ -751,6 +761,10 @@ mpz & mpz::operator/=(unsigned u) {
 
 mpz & mpz::operator%=(mpz const & o) {
     return rem(o.m_size, o.m_digits);
+}
+
+mpz mpz::divexact(mpz const & n, mpz const & d) {
+    return n / d;
 }
 
 mpz mpz::ediv(mpz const & n, mpz const & d) {

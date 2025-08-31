@@ -3,10 +3,14 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Data.Format
-import Lean.Data.Json
-import Lean.ToExpr
+public import Lean.Data.Format
+public import Lean.Data.Json.FromToJson.Basic
+public import Lean.ToExpr
+
+public section
 
 namespace Lean
 
@@ -80,7 +84,7 @@ partial def toPosition (fmap : FileMap) (pos : String.Pos) : Position :=
         if e == b + 1 then { line := fmap.getLine b, column := toColumn posB 0 }
         else
           let m := (b + e) / 2;
-          let posM := ps.get! m;
+          let posM := ps[m]!
           if pos == posM then { line := fmap.getLine m, column := 0 }
           else if pos > posM then loop m e
           else loop b m

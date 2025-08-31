@@ -1,3 +1,4 @@
+module
 variable (d : Nat) in
 inductive X : Nat → Prop
   | f {s : Nat} : X s
@@ -9,22 +10,30 @@ case grind.1
 c : Nat
 q : X c 0
 s : Nat
-h✝ : 0 = s
-h : HEq ⋯ ⋯
+h : 0 = s
+h_1 : ⋯ ≍ ⋯
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] X c 0
     [prop] 0 = s
-    [prop] HEq ⋯ ⋯
+    [prop] ⋯ ≍ ⋯
   [eqc] True propositions
     [prop] X c 0
     [prop] X c s
   [eqc] Equivalence classes
-    [eqc] {s, 0}
-[grind] Issues
-  [issue] #1 other goal(s) were not fully processed due to previous failures, threshold: `(failures := 1)`
+    [eqc] {0, s}
+  [cases] Case analyses
+    [cases] [1/2]: X c 0
+      [cases] source: Initial goal
+  [cutsat] Assignment satisfying linear constraints
+    [assign] c := 1
+    [assign] s := 0
 -/
 #guard_msgs (error) in
 example {c : Nat} (q : X c 0) : False := by
-  grind [X]
+  grind -mbtc [cases X]
+
+example {c : Nat} (q : X c 0) : False := by
+  fail_if_success grind [cases X]
+  sorry

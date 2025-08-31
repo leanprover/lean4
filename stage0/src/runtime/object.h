@@ -287,7 +287,6 @@ inline b_obj_res task_get(b_obj_arg t) { return lean_task_get(t); }
 inline bool io_check_canceled_core() { return lean_io_check_canceled_core(); }
 inline void io_cancel_core(b_obj_arg t) { return lean_io_cancel_core(t); }
 inline bool io_get_task_state_core(b_obj_arg t) { return lean_io_get_task_state_core(t); }
-inline b_obj_res io_wait_any_core(b_obj_arg task_list) { return lean_io_wait_any_core(task_list); }
 
 // =======================================
 // External
@@ -301,6 +300,12 @@ inline void * external_data(object * o) { return lean_get_external_data(o); }
 
 inline obj_res mk_option_none() { return box(0); }
 inline obj_res mk_option_some(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cnstr_set(r, 0, v); return r; }
+
+// =======================================
+// Except
+
+inline obj_res mk_except_ok(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cnstr_set(r, 0, v); return r; }
+inline obj_res mk_except_err(obj_arg v) { obj_res r = alloc_cnstr(0, 1, 0); cnstr_set(r, 0, v); return r; }
 
 // =======================================
 // Natural numbers
@@ -467,10 +472,13 @@ inline obj_res st_ref_set(b_obj_arg r, obj_arg v, obj_arg w) { return lean_st_re
 inline obj_res st_ref_reset(b_obj_arg r, obj_arg w) { return lean_st_ref_reset(r, w); }
 inline obj_res st_ref_swap(b_obj_arg r, obj_arg v, obj_arg w) { return lean_st_ref_swap(r, v, w); }
 
+obj_res lean_promise_new();
+void lean_promise_resolve(obj_arg value, b_obj_arg promise);
 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg);
 extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg);
-extern "C" LEAN_EXPORT obj_res lean_io_promise_result(obj_arg promise);
+extern "C" LEAN_EXPORT obj_res lean_io_promise_result_opt(obj_arg promise);
+extern "C" LEAN_EXPORT obj_res lean_get_or_block(obj_arg opt);
 
 // =======================================
 // Module initialization/finalization

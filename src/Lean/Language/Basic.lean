@@ -8,10 +8,14 @@ driver. See the [server readme](../Server/README.md#worker-architecture) for an 
 Authors: Sebastian Ullrich
 -/
 
+module
+
 prelude
-import Init.System.Promise
-import Lean.Parser.Types
-import Lean.Util.Trace
+public import Init.System.Promise
+public import Lean.Parser.Types
+public import Lean.Util.Trace
+
+public section
 
 set_option linter.missingDocs true
 
@@ -66,58 +70,91 @@ structure Snapshot where
   isFatal := false
 deriving Inhabited
 
+/-- Range that is marked as being processed by the server while a task is running. -/
+inductive SnapshotTask.ReportingRange where
+  /-- Inherit range from outer task if any, or else the entire file. -/
+  | inherit
+  /-- Use given range. -/
+  | protected some (range : String.Range)
+  /-- Do not mark as being processed. Child nodes are still visited. -/
+  | skip
+deriving Inhabited
+
+/--
+Constructs a reporting range by replacing a missing range with `inherit`, which is a reasonable
+default to ensure that a range is shown in all cases.
+-/
+def SnapshotTask.ReportingRange.ofOptionInheriting : Option String.Range → SnapshotTask.ReportingRange
+  | some range => .some range
+  | none       => .inherit
+
+/--
+Yields the default reporting range of a `Syntax`, which is just the `canonicalOnly` range
+of the syntax if any, or `inherit` otherwise.
+-/
+def SnapshotTask.defaultReportingRange (stx? : Option Syntax) : ReportingRange :=
+  .ofOptionInheriting <| stx?.bind (·.getRange? (canonicalOnly := true))
+
 /-- A task producing some snapshot type (usually a subclass of `Snapshot`). -/
 -- Longer-term TODO: Give the server more control over the priority of tasks, depending on e.g. the
 -- cursor position. This may require starting the tasks suspended (e.g. in `Thunk`). The server may
 -- also need more dependency information for this in order to avoid priority inversion.
 structure SnapshotTask (α : Type) where
   /--
-  Range that is marked as being processed by the server while the task is running. If `none`,
-  the range of the outer task if some or else the entire file is reported.
+  `Syntax` processed by this `SnapshotTask`.
+  The `Syntax` is used by the language server to determine whether to force this `SnapshotTask`
+  when a request is made.
+  In general, the elaborator retains the following invariant:
+  If `stx?` is `none`, then this snapshot task (and all of its children) do not contain `InfoTree`
+  information that can be used in the language server, and so the language server will ignore it
+  when it is looking for an `InfoTree`.
+  Nonetheless, if `stx?` is `none`, then this snapshot task (and any of its children) may still
+  contain message log information.
   -/
-  range? : Option String.Range
+  stx? : Option Syntax
+  /-- Range that is marked as being processed by the server while the task is running. -/
+  reportingRange : SnapshotTask.ReportingRange := SnapshotTask.defaultReportingRange stx?
+  /--
+  Cancellation token that can be set by the server to cancel the task when it detects the results
+  are not needed anymore.
+  -/
+  cancelTk? : Option IO.CancelToken
   /-- Underlying task producing the snapshot. -/
   task : Task α
 deriving Nonempty, Inhabited
 
-/-- Creates a snapshot task from a reporting range and a `BaseIO` action. -/
-def SnapshotTask.ofIO (range? : Option String.Range) (act : BaseIO α) : BaseIO (SnapshotTask α) := do
+/-- Creates a snapshot task from the syntax processed by the task and a `BaseIO` action. -/
+def SnapshotTask.ofIO (stx? : Option Syntax) (cancelTk? : Option IO.CancelToken)
+    (reportingRange : SnapshotTask.ReportingRange := SnapshotTask.defaultReportingRange stx?) (act : BaseIO α) :
+    BaseIO (SnapshotTask α) := do
   return {
-    range?
+    stx?, reportingRange, cancelTk?
     task := (← BaseIO.asTask act)
   }
 
 /-- Creates a finished snapshot task. -/
-def SnapshotTask.pure (a : α) : SnapshotTask α where
+def SnapshotTask.finished (stx? : Option Syntax) (a : α) : SnapshotTask α where
+  stx?
   -- irrelevant when already finished
-  range? := none
+  reportingRange := .skip
   task := .pure a
+  cancelTk? := none
+
+/-- Transforms a task's output without changing the processed syntax. -/
+def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (stx? : Option Syntax := t.stx?)
+    (reportingRange : SnapshotTask.ReportingRange := t.reportingRange) (sync := false) : SnapshotTask β :=
+  { stx?, cancelTk? := t.cancelTk?, reportingRange, task := t.task.map (sync := sync) f }
 
 /--
-  Explicitly cancels a tasks. Like with basic `Tasks`s, cancellation happens implicitly when the
-  last reference to the task is dropped *if* it is not an I/O task. -/
-def SnapshotTask.cancel (t : SnapshotTask α) : BaseIO Unit :=
-  IO.cancel t.task
-
-/-- Transforms a task's output without changing the reporting range. -/
-def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (range? : Option String.Range := t.range?)
-    (sync := false) : SnapshotTask β :=
-  { range?, task := t.task.map (sync := sync) f }
-
-/--
-  Chains two snapshot tasks. The range is taken from the first task if not specified; the range of
-  the second task is discarded. -/
-def SnapshotTask.bind (t : SnapshotTask α) (act : α → SnapshotTask β)
-    (range? : Option String.Range := t.range?) (sync := false) : SnapshotTask β :=
-  { range?, task := t.task.bind (sync := sync) (act · |>.task) }
-
-/--
-  Chains two snapshot tasks. The range is taken from the first task if not specified; the range of
-  the second task is discarded. -/
+  Chains two snapshot tasks. The processed syntax and the reporting range are taken from the first
+  task if not specified; the processed syntax and the reporting range of the second task are
+  discarded. The cancellation tokens of both tasks are discarded. They are replaced with the given
+  token if any. -/
 def SnapshotTask.bindIO (t : SnapshotTask α) (act : α → BaseIO (SnapshotTask β))
-    (range? : Option String.Range := t.range?) (sync := false) : BaseIO (SnapshotTask β) :=
+    (stx? : Option Syntax := t.stx?) (reportingRange : SnapshotTask.ReportingRange := t.reportingRange)
+    (cancelTk? : Option IO.CancelToken) (sync := false) : BaseIO (SnapshotTask β) := do
   return {
-    range?
+    stx?, reportingRange, cancelTk?
     task := (← BaseIO.bindTask (sync := sync) t.task fun a => (·.task) <$> (act a))
   }
 
@@ -163,36 +200,6 @@ structure SnapshotBundle (α : Type) where
   new  : IO.Promise α
 
 /--
-Runs `act` with a newly created promise and finally resolves it to `default` if not done by `act`.
-
-Always resolving promises involved in the snapshot tree is important to avoid deadlocking the
-language server.
--/
-def withAlwaysResolvedPromise [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
-    (act : IO.Promise α → m β) : m β := do
-  let p ← IO.Promise.new
-  try
-    act p
-  finally
-    p.resolve default
-
-/--
-Runs `act` with `count` newly created promises and finally resolves them to `default` if not done by
-`act`.
-
-Always resolving promises involved in the snapshot tree is important to avoid deadlocking the
-language server.
--/
-def withAlwaysResolvedPromises [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
-    (count : Nat) (act : Array (IO.Promise α) → m Unit) : m Unit := do
-  let ps ← Array.range count |>.mapM fun _ => IO.Promise.new
-  try
-    act ps
-  finally
-    for p in ps do
-      p.resolve default
-
-/--
   Tree of snapshots where each snapshot comes with an array of asynchronous further subtrees. Used
   for asynchronously collecting information about the entirety of snapshots in the language server.
   The involved tasks may form a DAG on the `Task` dependency level but this is not captured by this
@@ -202,7 +209,7 @@ structure SnapshotTree where
   element : Snapshot
   /-- The asynchronously available children of the snapshot tree node. -/
   children : Array (SnapshotTask SnapshotTree)
-deriving Inhabited
+deriving Inhabited, TypeName
 
 /--
   Helper class for projecting a heterogeneous hierarchy of snapshot classes to a homogeneous
@@ -212,14 +219,25 @@ class ToSnapshotTree (α : Type) where
   toSnapshotTree : α → SnapshotTree
 export ToSnapshotTree (toSnapshotTree)
 
+instance : ToSnapshotTree SnapshotTree where
+  toSnapshotTree s := s
+
 instance [ToSnapshotTree α] : ToSnapshotTree (Option α) where
   toSnapshotTree
     | some a => toSnapshotTree a
     | none   => default
 
+/--
+Recursively triggers all `SnapshotTask.cancelTk?` in the reachable tree, asynchronously.
+-/
+partial def SnapshotTask.cancelRec [ToSnapshotTree α] (t : SnapshotTask α) : BaseIO Unit := do
+  if let some cancelTk := t.cancelTk? then
+    cancelTk.set
+  BaseIO.chainTask (sync := true) t.task fun snap => toSnapshotTree snap |>.children.forM cancelRec
+
 /-- Snapshot type without child nodes. -/
 structure SnapshotLeaf extends Snapshot
-deriving Nonempty, TypeName
+deriving Inhabited, TypeName
 
 instance : ToSnapshotTree SnapshotLeaf where
   toSnapshotTree s := SnapshotTree.mk s.toSnapshot #[]
@@ -294,12 +312,13 @@ def reportMessages (msgLog : MessageLog) (opts : Options)
         {msg with severity}
       else
         msg
-    if json then
-      let j ← msg.toJson
-      IO.println j.compress
-    else
-      let s ← msg.toString includeEndPos
-      IO.print s
+    unless msg.isSilent do
+      if json then
+        let j ← msg.toJson
+        IO.println j.compress
+      else
+        let s ← msg.toString includeEndPos
+        IO.print s
     return hasErrors || msg.severity matches .error
 
 /--
@@ -315,15 +334,15 @@ def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options)
 
 /-- Waits on and returns all snapshots in the tree. -/
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
-  Id.run <| s.foldM (·.push ·) #[]
+  Id.run <| s.foldM (pure <| ·.push ·) #[]
 
 /-- Returns a task that waits on all snapshots in the tree. -/
-def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
+partial def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
   | mk _ children => go children.toList
 where
   go : List (SnapshotTask SnapshotTree) → BaseIO (Task Unit)
     | [] => return .pure ()
-    | t::ts => BaseIO.bindTask t.task fun _ => go ts
+    | t::ts => BaseIO.bindTask (sync := true) t.task fun t => go (t.children.toList ++ ts)
 
 /-- Context of an input processing invocation. -/
 structure ProcessingContext extends Parser.InputContext

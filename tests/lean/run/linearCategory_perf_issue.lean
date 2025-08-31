@@ -1,29 +1,6 @@
 universe u v w v₁ v₂ v₃ u₁ u₂ u₃
 
-section Mathlib.Algebra.Group.ZeroOne
-
-class One (α : Type u) where
-  one : α
-
-instance (priority := 300) One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-end Mathlib.Algebra.Group.ZeroOne
-
 section Mathlib.Algebra.Group.Defs
-
-class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hSMul : α → β → γ
-
-class SMul (M : Type u) (α : Type v) where
-  smul : M → α → α
-
-infixr:73 " • " => SMul.smul
-
-macro_rules | `($x • $y) => `(leftact% HSMul.hSMul $x $y)
-
-instance instHSMul {α β} [SMul α β] : HSMul α β β where
-  hSMul := SMul.smul
 
 class AddMonoid (M : Type u) extends Add M, Zero M where
   protected add_assoc : ∀ a b c : M, a + b + c = a + (b + c)
@@ -182,14 +159,14 @@ section Mathlib.CategoryTheory.Category.Basic
 
 namespace CategoryTheory
 
-class CategoryStruct (obj : Type u₁) extends Quiver.{v₁ + 1} obj : Type max u₁ (v₁ + 1) where
+class CategoryStruct (obj : Type u₁) : Type max u₁ (v₁ + 1) extends Quiver.{v₁ + 1} obj where
   id : ∀ X : obj, Hom X X
   comp : ∀ {X Y Z : obj}, (X ⟶ Y) → (Y ⟶ Z) → (X ⟶ Z)
 
 scoped notation "𝟙" => CategoryStruct.id  -- type as \b1
 scoped infixr:80 " ≫ " => CategoryStruct.comp -- type as \gg
 
-class Category (obj : Type u₁) extends CategoryStruct.{v₁} obj : Type max u₁ (v₁ + 1) where
+class Category (obj : Type u₁) : Type max u₁ (v₁ + 1) extends CategoryStruct.{v₁} obj where
   id_comp : ∀ {X Y : obj} (f : X ⟶ Y), 𝟙 X ≫ f = f
   comp_id : ∀ {X Y : obj} (f : X ⟶ Y), f ≫ 𝟙 Y = f
   assoc : ∀ {W X Y Z : obj} (f : W ⟶ X) (g : X ⟶ Y) (h : Y ⟶ Z), (f ≫ g) ≫ h = f ≫ g ≫ h
@@ -202,8 +179,8 @@ section Mathlib.CategoryTheory.Functor.Basic
 
 namespace CategoryTheory
 
-structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D]
-    extends Prefunctor C D : Type max v₁ v₂ u₁ u₂ where
+structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D] : Type max v₁ v₂ u₁ u₂
+    extends Prefunctor C D where
 
 infixr:26 " ⥤ " => Functor -- type as \func
 
@@ -265,17 +242,14 @@ instance Functor.category : Category.{max u₁ v₂} (C ⥤ D) where
   comp α β := vcomp α β
   id_comp := by
     intro X Y f
-    simp_all only
     ext x : 2
     apply id_comp
   comp_id := by
     intro X Y f
-    simp_all only
     ext x : 2
     apply comp_id
   assoc := by
     intro W X Y Z f g h
-    simp_all only
     ext x : 2
     apply assoc
 
@@ -384,7 +358,6 @@ instance functorCategoryPreadditive : Preadditive (C ⥤ D) where
         apply add_zero
       neg_add_cancel := by
         intros
-        dsimp only
         ext
         apply neg_add_cancel }
   add_comp := by

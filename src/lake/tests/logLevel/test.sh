@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-set -euxo pipefail
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source ../common.sh
 
 ./clean.sh
 
 # Test failure log level
 
+echo "# TEST: Failure log level"
+
 log_fail_target() {
-  ($LAKE build "$@" && exit 1 || true) | grep --color foo
-  ($LAKE build "$@" && exit 1 || true) | grep --color foo # test replay
+  test_err "foo" build "$@"
+  test_err "foo" build "$@" # test replay
 }
 
 log_fail_target topTrace --fail-level=trace
@@ -28,12 +28,14 @@ log_fail Error
 
 # Test output log level
 
+echo "# TEST: Output log level"
+
 log_empty() {
   lv=$1; shift
   rm -f .lake/build/art$lv
-  $LAKE build art$lv "$@" | grep --color foo && exit 1 || true
-  $LAKE build art$lv -v # test whole log was saved
-  $LAKE build art$lv "$@" | grep --color foo && exit 1 || true # test replay
+  test_not_out "foo" build art$lv "$@"
+  test_run build art$lv -v # test whole log was saved
+  test_not_out "foo" build art$lv "$@" # test replay
 }
 
 log_empty Info -q
@@ -46,9 +48,8 @@ log_empty Trace
 
 # Test configuration-time output log level
 
-$LAKE resolve-deps -R -Klog=info 2>&1 | grep --color "info: bar"
-$LAKE resolve-deps -R -Klog=info -q 2>&1 |
-  grep --color "info: bar"  && exit 1 || true
-$LAKE resolve-deps -R -Klog=warning 2>&1 | grep --color "warning: bar"
-$LAKE resolve-deps -R -Klog=warning --log-level=error 2>&1 |
-  grep --color "warning: bar" && exit 1 || true
+echo "# TEST: Configuration log level"
+test_out "info:" resolve-deps -R -Klog=info
+test_not_out "info:" resolve-deps -R -Klog=info -q
+test_out "warning:" resolve-deps -R -Klog=warning
+test_not_out "warning:" resolve-deps -R -Klog=warning --log-level=error

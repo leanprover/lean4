@@ -3,11 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Std.Sat.AIG.CachedGatesLemmas
-import Std.Sat.AIG.LawfulVecOperator
-import Std.Sat.AIG.If
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+public import Std.Sat.AIG.CachedGatesLemmas
+public import Std.Sat.AIG.LawfulVecOperator
+public import Std.Sat.AIG.If
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.shiftLeft`.
@@ -28,19 +32,14 @@ variable [Hashable α] [DecidableEq α]
 def blastShiftLeftConst (aig : AIG α) (target : AIG.ShiftTarget aig w) :
     AIG.RefVecEntry α w :=
   let ⟨input, distance⟩ := target
-  go aig input distance 0 (by omega) .empty
+  go aig input distance 0 (by omega) (.emptyWithCapacity w)
 where
   go (aig : AIG α) (input : AIG.RefVec aig w) (distance : Nat) (curr : Nat) (hcurr : curr ≤ w)
       (s : AIG.RefVec aig curr) :
       AIG.RefVecEntry α w :=
   if hidx : curr < w then
     if hdist : curr < distance then
-      let res := aig.mkConstCached false
-      let aig := res.aig
-      let zeroRef := res.ref
-      have hfinal := AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
-      let s := s.cast hfinal
-      let input := input.cast hfinal
+      let zeroRef := aig.mkConstCached false
       let s := s.push zeroRef
       go aig input distance (curr + 1) (by omega) s
     else
@@ -58,10 +57,8 @@ theorem blastShiftLeftConst.go_le_size (aig : AIG α) (distance : Nat) (input : 
   split
   · dsimp only
     split
-    · refine Nat.le_trans ?_ (by apply go_le_size)
-      apply AIG.LawfulOperator.le_size
-    · refine Nat.le_trans ?_ (by apply go_le_size)
-      omega
+    · apply go_le_size
+    · apply go_le_size
   · simp
 termination_by w - curr
 
@@ -77,9 +74,6 @@ theorem blastShiftLeftConst.go_decl_eq (aig : AIG α) (distance : Nat) (input : 
     · rw [← hgo]
       intro idx h1 h2
       rw [blastShiftLeftConst.go_decl_eq]
-      rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkConstCached)
-      assumption
     · rw [← hgo]
       intro idx h1 h2
       rw [blastShiftLeftConst.go_decl_eq]

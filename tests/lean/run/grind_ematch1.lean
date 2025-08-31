@@ -1,3 +1,6 @@
+module
+reset_grind_attrs%
+public section
 set_option trace.grind.ematch.pattern true
 
 attribute [grind =] Array.size_set
@@ -22,13 +25,13 @@ example (as bs : Array α) (v : α)
 
 set_option trace.grind.ematch.instance true
 
-attribute [grind =] Array.get_set_ne
+attribute [grind =] Array.getElem_set_ne
 
 /--
-info: [grind.ematch.instance] Array.size_set: (as.set i v ⋯).size = as.size
-[grind.ematch.instance] Array.get_set_ne: ∀ (hj : j < as.size), i ≠ j → (as.set i v ⋯)[j] = as[j]
+trace: [grind.ematch.instance] Array.size_set: (as.set i v ⋯).size = as.size
+[grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < as.size), i ≠ j → (as.set i v ⋯)[j] = as[j]
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example (as bs cs : Array α) (v : α)
         (i : Nat)
         (h₁ : i < as.size)
@@ -47,15 +50,15 @@ theorem Rtrans (a b c : Nat) : R a b → R b c → R a c := sorry
 grind_pattern Rtrans => R a b, R b c
 
 /--
-info: [grind.ematch.instance] Rtrans: R a b → R b c → R a c
+trace: [grind.ematch.instance] Rtrans: R a b → R b c → R a c
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example : R a b → R b c → R a c := by
   grind
 
 
 /--
-info: [grind.ematch.instance] Rtrans: R a d → R d e → R a e
+trace: [grind.ematch.instance] Rtrans: R a d → R d e → R a e
 [grind.ematch.instance] Rtrans: R c d → R d e → R c e
 [grind.ematch.instance] Rtrans: R b c → R c d → R b d
 [grind.ematch.instance] Rtrans: R a b → R b c → R a c
@@ -65,7 +68,7 @@ info: [grind.ematch.instance] Rtrans: R a d → R d e → R a e
 [grind.ematch.instance] Rtrans: R a b → R b d → R a d
 [grind.ematch.instance] Rtrans: R b c → R c e → R b e
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example : R a b → R b c → R c d → R d e → R a d := by
   grind
 
@@ -75,30 +78,40 @@ namespace using_grind_fwd
 opaque S : Nat → Nat → Prop
 
 /--
-error: `@[grind →] theorem using_grind_fwd.StransBad` failed to find patterns in the antecedents of the theorem, consider using different options or the `grind_pattern` command
+error: `@[grind →] theorem StransBad` failed to find patterns in the antecedents of the theorem, consider using different options or the `grind_pattern` command
 -/
 #guard_msgs (error) in
 @[grind→] theorem StransBad (a b c d : Nat) : S a b ∨ R a b → S b c → S a c ∧ S b d := sorry
 
 
-set_option trace.grind.ematch.pattern.search true in
+set_option trace.grind.debug.ematch.pattern true in
 /--
-info: [grind.ematch.pattern.search] candidate: S a b
-[grind.ematch.pattern.search] found pattern: S #4 #3
-[grind.ematch.pattern.search] candidate: R a b
-[grind.ematch.pattern.search] skip, no new variables covered
-[grind.ematch.pattern.search] candidate: S b c
-[grind.ematch.pattern.search] found pattern: S #3 #2
-[grind.ematch.pattern.search] found full coverage
+trace: [grind.debug.ematch.pattern] place: S a b ∨ R a b
+[grind.debug.ematch.pattern] collect: S a b ∨ R a b
+[grind.debug.ematch.pattern] arg: S a b, support: false
+[grind.debug.ematch.pattern] collect: S a b
+[grind.debug.ematch.pattern] candidate: S a b
+[grind.debug.ematch.pattern] found pattern: S #4 #3
+[grind.debug.ematch.pattern] arg: R a b, support: false
+[grind.debug.ematch.pattern] collect: R a b
+[grind.debug.ematch.pattern] candidate: R a b
+[grind.debug.ematch.pattern] skip, no new variables covered
+[grind.debug.ematch.pattern] arg: a, support: false
+[grind.debug.ematch.pattern] arg: b, support: false
+[grind.debug.ematch.pattern] place: S b c
+[grind.debug.ematch.pattern] collect: S b c
+[grind.debug.ematch.pattern] candidate: S b c
+[grind.debug.ematch.pattern] found pattern: S #3 #2
+[grind.debug.ematch.pattern] found full coverage
 [grind.ematch.pattern] Strans: [S #4 #3, S #3 #2]
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 @[grind→] theorem Strans (a b c : Nat) : S a b ∨ R a b → S b c → S a c := sorry
 
 /--
-info: [grind.ematch.instance] Strans: S a b ∨ R a b → S b c → S a c
+trace: [grind.ematch.instance] Strans: S a b ∨ R a b → S b c → S a c
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example : S a b → S b c → S a c := by
   grind
 
@@ -110,16 +123,14 @@ opaque P : Nat → Prop
 opaque Q : Nat → Prop
 opaque f : Nat → Nat → Nat
 
-/--
-info: [grind.ematch.pattern] pqf: [P (f #2 #1)]
--/
-#guard_msgs (info) in
+/-- trace: [grind.ematch.pattern] pqf: [f #2 #1] -/
+#guard_msgs (trace) in
 @[grind←] theorem pqf : Q x → P (f x y) := sorry
 
 /--
-info: [grind.ematch.instance] pqf: Q a → P (f a b)
+trace: [grind.ematch.instance] pqf: Q a → P (f a b)
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example : Q 0 → Q 1 → Q 2 → Q 3 → ¬ P (f a b) → a = 1 → False := by
   grind
 
@@ -132,24 +143,24 @@ opaque Q : Nat → Prop
 opaque f : Nat → Nat → Nat
 
 /--
-error: `@[grind →] theorem using_grind_fwd2.pqfBad` failed to find patterns in the antecedents of the theorem, consider using different options or the `grind_pattern` command
+error: `@[grind →] theorem pqfBad` failed to find patterns in the antecedents of the theorem, consider using different options or the `grind_pattern` command
 -/
 #guard_msgs (error) in
 @[grind→] theorem pqfBad : Q x → P (f x y) := sorry
 
 /--
-info: [grind.ematch.pattern] pqf: [Q #1]
+trace: [grind.ematch.pattern] pqf: [Q #1]
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 @[grind→] theorem pqf : Q x → P (f x x) := sorry
 
 /--
-info: [grind.ematch.instance] pqf: Q 3 → P (f 3 3)
+trace: [grind.ematch.instance] pqf: Q 3 → P (f 3 3)
 [grind.ematch.instance] pqf: Q 2 → P (f 2 2)
 [grind.ematch.instance] pqf: Q 1 → P (f 1 1)
 [grind.ematch.instance] pqf: Q 0 → P (f 0 0)
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example : Q 0 → Q 1 → Q 2 → Q 3 → ¬ P (f a a) → a = 1 → False := by
   grind
 
@@ -161,22 +172,22 @@ opaque P : Nat → Nat → Prop
 opaque Q : Nat → Nat → Prop
 
 /--
-error: `@[grind →] theorem using_grind_mixed.pqBad1` failed to find patterns in the antecedents of the theorem, consider using different options or the `grind_pattern` command
+error: `@[grind →] theorem pqBad1` failed to find patterns in the antecedents of the theorem, consider using different options or the `grind_pattern` command
 -/
 #guard_msgs (error) in
 @[grind→] theorem pqBad1 : P x y → Q x z := sorry
 
 /--
-error: `@[grind ←] theorem using_grind_mixed.pqBad2` failed to find patterns in the theorem's conclusion, consider using different options or the `grind_pattern` command
+error: `@[grind ←] theorem pqBad2` failed to find patterns in the theorem's conclusion, consider using different options or the `grind_pattern` command
 -/
 #guard_msgs (error) in
 @[grind←] theorem pqBad2 : P x y → Q x z := sorry
 
 
 /--
-info: [grind.ematch.pattern] pqBad: [Q #3 #1, P #3 #2]
+trace: [grind.ematch.pattern] pqBad: [Q #3 #1, P #3 #2]
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 @[grind] theorem pqBad : P x y → Q x z := sorry
 
 example : P a b → Q a c := by
@@ -191,9 +202,9 @@ opaque f : Nat → Nat
 opaque g : Nat → Nat → Nat
 
 /--
-info: [grind.ematch.pattern] fq: [g #0 (f #0)]
+trace: [grind.ematch.pattern] fq: [g #0 (f #0)]
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 @[grind =_]
 theorem fq : f x = g x (f x) := sorry
 
@@ -205,10 +216,10 @@ opaque f : Nat → Nat
 opaque g : Nat → Nat → Nat
 
 /--
-info: [grind.ematch.pattern] fq: [f #0]
+trace: [grind.ematch.pattern] fq: [f #0]
 [grind.ematch.pattern] fq: [g #0 (g #0 #0)]
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 @[grind _=_]
 theorem fq : f x = g x (g x x) := sorry
 

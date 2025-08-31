@@ -11,9 +11,13 @@ No field notation notation here. Used to print `refine ?_.succ` and `refine ?_.s
 -/
 
 /--
-info: Try this: refine Nat.succ ?_
+info: Try this:
+  refine Nat.succ ?_
 ---
-info: Try this: refine Prod.snd ?_
+info: found a partial proof, but the corresponding tactic failed:
+  (expose_names; refine Prod.snd ?_)
+
+It may be possible to correct this proof by adding type annotations, explicitly specifying implicit arguments, or eliminating unnecessary function abstractions.
 -/
 #guard_msgs in
 example : Nat := by
@@ -25,7 +29,10 @@ example : Nat := by
 No field notation even under binders. (That is, be aware of delayed assignment metavariables.)
 -/
 
-/-- info: Try this: refine fun x => Nat.succ ?_ -/
+/--
+info: Try this:
+  refine fun x => Nat.succ ?_
+-/
 #guard_msgs in
 example : Nat → Nat := by
   show_term refine fun _ => Nat.succ ?_

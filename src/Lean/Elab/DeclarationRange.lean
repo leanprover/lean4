@@ -3,11 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Log
-import Lean.Parser.Command
-import Lean.DeclarationRange
-import Lean.Data.Lsp.Utf16
+public import Lean.Log
+public import Lean.Parser.Command
+public import Lean.DeclarationRange
+public import Lean.Data.Lsp.Utf16
+
+public section
 
 namespace Lean.Elab
 
@@ -15,15 +19,7 @@ def getDeclarationRange? [Monad m] [MonadFileMap m] (stx : Syntax) : m (Option D
   let some range := stx.getRange?
     | return none
   let fileMap ← getFileMap
-  --let range := fileMap.utf8RangeToLspRange
-  let pos    := fileMap.toPosition range.start
-  let endPos := fileMap.toPosition range.stop
-  return some {
-    pos          := pos
-    charUtf16    := fileMap.leanPosToLspPos pos |>.character
-    endPos       := endPos
-    endCharUtf16 := fileMap.leanPosToLspPos endPos |>.character
-  }
+  return some <| .ofStringPositions fileMap range.start range.stop
 
 /--
   For most builtin declarations, the selection range is just its name, which is stored in the second position.

@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Toml
 import Lake.Util.Message
+import Lake.Toml.Data.Value
 
 /-!
 ## TOML Test Runner
@@ -51,16 +52,6 @@ def testInvalid (tomlFile : FilePath) : BaseIO TestOutcome := do
   | .fail l => return .pass (← mkMessageLogString l)
   | .error e => return .error (toString e)
 
-@[inline] def Fin.forM [Monad m] (n) (f : Fin n → m Unit) : m Unit :=
-  loop 0
-where
-  loop (i : Nat) : m Unit := do
-    if h : i < n then let a ← f ⟨i, h⟩; loop (i+1) else pure ()
-  termination_by n - i
-
-local instance [Monad m] : ForIn m (RBNode α β) ((a : α) × β a) where
-  forIn t init f := t.forIn init (fun a b acc => f ⟨a, b⟩ acc)
-
 def expectBEq [BEq α] [ToString α] (actual expected : α) : Except String Unit := do
   unless actual == expected do
     throw s!"expected '{expected}', got '{actual}'"
@@ -68,15 +59,23 @@ def expectBEq [BEq α] [ToString α] (actual expected : α) : Except String Unit
 def expectPrimitive (actualTy : String) (expected : Json) : Except String String := do
   let .ok expected := expected.getObj?
     | throw s!"expected non-primitive, got '{actualTy}'"
-  let some ty := expected.find compare "type"
+  let some ty := expected.get?  "type"
     | throw s!"expected non-primitive, got '{actualTy}'"
-  let some val := expected.find compare "value"
+  let some val := expected.get? "value"
     | throw s!"expected non-primitive, got '{actualTy}'"
   let .ok val := val.getStr?
     | throw s!"expected non-primitive, got '{actualTy}'"
   unless actualTy == ty do
     throw s!"expected value of type '{ty}', got '{actualTy}'"
   return val
+
+def decodeSign (s : String) : Bool × String :=
+  if s.front == '-' then
+    (true, s.drop 1)
+  else if s.front == '+' then
+    (false, s.drop 1)
+  else
+    (false, s)
 
 mutual
 
@@ -91,16 +90,16 @@ partial def expectValue (actual : Value) (expected : Json) : Except String Unit 
       unless actN.isNaN do
         throw s!"expected '{expected}', got '{actN}'"
     else
-      let (sign, e) := decodeSign expected
+      let (neg, e) := decodeSign expected
       if e.toLower == "inf" then
-        unless actN.isInf && sign == (actN < 0) do
+        unless actN.isInf && neg == (actN < 0) do
           throw s!"expected '{e}', got '{actN}'"
       else
           let some flt :=
             (Nat.toFloat <$> e.toNat?) <|>
             (Syntax.decodeScientificLitVal? e |>.map fun (m,s,e) => .ofScientific m s e)
             | throw s!"failed to parse expected float value: {e}"
-          expectBEq actN <| if sign then -flt else flt
+          expectBEq actN <| if neg then -flt else flt
   | .dateTime _ dt =>
     match dt with
     | .offsetDateTime _ _ _ => expectBEq (toString dt) (← expectPrimitive "datetime" expected)
@@ -111,7 +110,7 @@ partial def expectValue (actual : Value) (expected : Json) : Except String Unit 
     let .ok expVs := expected.getArr?
       | throw "expected non-array, got array"
     if h_size : actVs.size = expVs.size then
-      Fin.forM actVs.size fun i => expectValue actVs[i] (expVs[i]'(h_size ▸ i.isLt))
+      actVs.size.forM fun i _ => expectValue actVs[i] expVs[i]
     else
       throw s!"expected array of size {expVs.size}, got {actVs.size}:\n{actual}"
   | .table _ t => expectTable t expected
@@ -146,7 +145,7 @@ def testValid (tomlFile : FilePath) : BaseIO TestOutcome := do
       | .ok j =>
         match expectTable t j with
         | .ok _ => return .pass <| ppTable t
-        | .error e => return .fail <| e.trimRight ++ "\n"
+        | .error e => return .fail <| e.trimRight.push '\n'
       | .error e => return .error s!"invalid JSON: {e}"
     | .error e => return .error (toString e)
   | .fail l => return .fail (← mkMessageLogString l)
@@ -158,9 +157,9 @@ def walkDir (root : FilePath) (ext : String := "toml") : IO (Array FilePath) := 
 
 def main : IO UInt32 := do
   -- Detect Tests
-  let invalidTestFiles ← walkDir <| FilePath.mk "tests" / "invalid"
-  let validTestFiles ← walkDir <| FilePath.mk "tests" / "valid"
-  let numTests := invalidTestFiles.size + validTestFiles.size
+  let validTestFiles ← walkDir <| "tests" / "valid"
+  let invalidTestFiles ← walkDir <| "tests" / "invalid"
+  let numTests := validTestFiles.size + invalidTestFiles.size
   let outcomes := Array.mkEmpty numTests
   -- Run Tests
   let outcomes ← invalidTestFiles.foldlM (init := outcomes) fun outcomes path => do
@@ -184,7 +183,10 @@ def main : IO UInt32 := do
         IO.print s!"{testName} failed:\n{s}"
       else
         IO.print s!"{testName} failed\n"
-    | .error s => errored := errored + 1; IO.print s!"{testName} errored:\n{s}\n"
+    | .error s =>
+      errored := errored + 1
+      IO.print s!"{testName} errored:\n{s}\n"
   let percent := (numTests - skipped - failed - errored) * 100 / numTests
-  IO.println s!"{percent}% of tests passed, {failed} failed, {errored} errored, {skipped} skipped out of {numTests}"
+  IO.println s!"{percent}% of tests passed, \
+    {failed} failed, {errored} errored, {skipped} skipped out of {numTests}"
   return if failed > 0 || errored > 0 then 1 else 0

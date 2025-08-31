@@ -1,3 +1,4 @@
+module
 def foo (x : Nat) := x + 2
 
 example (f : Nat → Nat) : f (foo a) = b → f (c + 1) = d → c = a + 1 → b = d := by
@@ -19,11 +20,11 @@ error: invalid `grind` forward theorem, theorem `blathm` does not have propositi
 example : bla (foo a) = b → bla b = bla (a + 2) := by
   grind [foo, → blathm]
 
-opaque P : Nat → Prop
-opaque Q : Nat → Prop
+public opaque P : Nat → Prop
+public opaque Q : Nat → Prop
 opaque R : Nat → Prop
 
-theorem pq : P x → Q x := sorry
+public theorem pq : P x → Q x := sorry
 theorem qr : Q x → R x := sorry
 
 example : P x → R x := by
@@ -33,10 +34,10 @@ example : P x → R x := by
 error: `grind` failed
 case grind
 x : Nat
-a✝ : P x
-x✝ : ¬R x
+h : P x
+h_1 : ¬R x
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] P x
     [prop] ¬R x
@@ -44,11 +45,9 @@ x✝ : ¬R x
     [prop] P x
   [eqc] False propositions
     [prop] R x
-  [ematch] E-matching
-    [thm] pq:
-        ∀ {x : Nat}, P x → Q x
-        patterns: [Q #1]
-    [thm] qr: ∀ {x : Nat}, Q x → R x patterns: [Q #1]
+  [ematch] E-matching patterns
+    [thm] pq: [Q #1]
+    [thm] qr: [Q #1]
 -/
 #guard_msgs (error) in
 example : P x → R x := by

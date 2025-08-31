@@ -1,1 +1,1 @@
-rm -f lean-toolchain a/lean-toolchain b/lean-toolchain
+rm -f produced.out lean-toolchain a/lean-toolchain b/lean-toolchain

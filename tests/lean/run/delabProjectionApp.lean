@@ -97,9 +97,9 @@ set_option pp.explicit true
 #guard_msgs in #check x.val
 /-- info: y.val : Nat -/
 #guard_msgs in #check y.val
-/-- info: (@Fin''.toFin0 (@OfNat.ofNat Nat 5 (instOfNatNat 5)) z).val : Nat -/
+/-- info: (@Fin''.toFin0 (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))) z).val : Nat -/
 #guard_msgs in #check z.val
-/-- info: (@D.toA (@OfNat.ofNat Nat 5 (instOfNatNat 5)) d).x : Nat -/
+/-- info: (@D.toA (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))) d).x : Nat -/
 #guard_msgs in #check d.x
 
 end
@@ -184,3 +184,36 @@ set_option pp.notation false in
 set_option pp.notation false in set_option pp.fieldNotation.generalized false in
 /-- info: ∀ {α : Type} (s t : MySet α), MySet.MySubset s t : Prop -/
 #guard_msgs in #check ∀ {α : Type} (s t : MySet α), s ⊆⊆ t
+
+/-!
+Private definition on public type.
+-/
+private def Char.MyIsA (c : Char) : Prop := c = 'A'
+
+/-- info: ∀ (c : Char), c.MyIsA : Prop -/
+#guard_msgs in #check ∀ (c : Char), c.MyIsA
+
+/-!
+Public definition on public type.
+-/
+def Char.MyIsA' (c : Char) : Prop := c = 'A'
+
+/-- info: ∀ (c : Char), c.MyIsA' : Prop -/
+#guard_msgs in #check ∀ (c : Char), c.MyIsA'
+
+/-!
+Private definition on private type.
+-/
+private structure Char'
+private def Char'.MyIsA (_ : Char') : Prop := true
+
+/-- info: ∀ (c : Char'), c.MyIsA : Prop -/
+#guard_msgs in #check ∀ (c : Char'), c.MyIsA
+
+/-!
+Public definition on private type.
+-/
+def Char'.MyIsA' (_ : Char') : Prop := true
+
+/-- info: ∀ (c : Char'), c.MyIsA' : Prop -/
+#guard_msgs in #check ∀ (c : Char'), c.MyIsA'

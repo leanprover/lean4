@@ -3,16 +3,20 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Parser.Basic
-import Lean.Parser.Level
-import Lean.Parser.Term
-import Lean.Parser.Tactic
-import Lean.Parser.Command
-import Lean.Parser.Module
-import Lean.Parser.Syntax
-import Lean.Parser.Do
-import Lean.Parser.Tactic.Doc
+public import Lean.Parser.Basic
+public import Lean.Parser.Level
+public import Lean.Parser.Term
+public import Lean.Parser.Tactic
+public import Lean.Parser.Command
+public import Lean.Parser.Module
+public import Lean.Parser.Syntax
+public import Lean.Parser.Do
+public import Lean.Parser.Tactic.Doc
+
+public section
 
 namespace Lean
 namespace Parser
@@ -30,6 +34,7 @@ builtin_initialize
   register_parser_alias (kind := nameLitKind) "name" nameLit
   register_parser_alias (kind := scientificLitKind) "scientific" scientificLit
   register_parser_alias (kind := identKind) ident
+  register_parser_alias (kind := identKind) rawIdent
   register_parser_alias (kind := hygieneInfoKind) hygieneInfo
   register_parser_alias "colGt" checkColGt { stackSz? := some 0 }
   register_parser_alias "colGe" checkColGe { stackSz? := some 0 }

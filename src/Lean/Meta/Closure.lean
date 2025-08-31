@@ -3,13 +3,18 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.MetavarContext
-import Lean.Environment
-import Lean.AddDecl
-import Lean.Util.FoldConsts
-import Lean.Meta.Basic
-import Lean.Meta.Check
+public import Lean.MetavarContext
+public import Lean.Environment
+public import Lean.AddDecl
+public import Lean.Util.FoldConsts
+public import Lean.Meta.Basic
+public import Lean.Meta.Check
+public import Lean.Meta.Tactic.AuxLemma
+
+public section
 
 /-!
 
@@ -55,7 +60,7 @@ In this module, we produce
 ```lean
 def aux := fun (y : Nat) => h (g y)
 ```
-Note that in this particular case, it is safe to lambda abstract the let-varible `y`.
+Note that in this particular case, it is safe to lambda abstract the let-variable `y`.
 This module uses the following approach to decide whether it is safe or not to lambda
 abstract a let-variable.
 1) We enable zetaDelta-expansion tracking in `MetaM`. That is, whenever we perform type checking
@@ -192,7 +197,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
   | Expr.proj _ _ s      => return e.updateProj! (← collect s)
   | Expr.forallE _ d b _ => return e.updateForallE! (← collect d) (← collect b)
   | Expr.lam _ d b _     => return e.updateLambdaE! (← collect d) (← collect b)
-  | Expr.letE _ t v b _  => return e.updateLet! (← collect t) (← collect v) (← collect b)
+  | Expr.letE _ t v b _  => return e.updateLetE! (← collect t) (← collect v) (← collect b)
   | Expr.app f a         => return e.updateApp! (← collect f) (← collect a)
   | Expr.mdata _ b       => return e.updateMData! (← collect b)
   | Expr.sort u          => return e.updateSort! (← collectLevel u)
@@ -285,9 +290,10 @@ partial def process : ClosureM Unit := do
       pushLocalDecl newFVarId userName type bi
       pushFVarArg (mkFVar fvarId)
       process
-    | .ldecl _ _ userName type val _ _ =>
+    | .ldecl _ _ userName type val nondep _ =>
       let zetaDeltaFVarIds ← getZetaDeltaFVarIds
-      if !zetaDeltaFVarIds.contains fvarId then
+      -- Note: If `nondep` is true then `zetaDeltaFVarIds.contains fvarId` must be false.
+      if nondep || !zetaDeltaFVarIds.contains fvarId then
         /- Non-dependent let-decl
 
             Recall that if `fvarId` is in `zetaDeltaFVarIds`, then we zetaDelta-expanded it
@@ -320,11 +326,11 @@ partial def process : ClosureM Unit := do
         Lean.mkLambda n bi ty b
       else
         Lean.mkForall n bi ty b
-    | .ldecl _ _ n ty val nonDep _ =>
+    | .ldecl _ _ n ty val nondep _ =>
       if b.hasLooseBVar 0 then
         let ty  := ty.abstractRange i xs
         let val := val.abstractRange i xs
-        mkLet n ty val b nonDep
+        mkLet n ty val b nondep
       else
         b.lowerLooseBVars 1 1
 
@@ -342,7 +348,6 @@ structure MkValueTypeClosureResult where
   exprArgs    : Array Expr
 
 def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr) := do
-  resetZetaDeltaFVarIds
   withTrackingZetaDelta do
     let type  ← collectExpr type
     let value ← collectExpr value
@@ -375,7 +380,7 @@ def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool
   let result ← Closure.mkValueTypeClosure type value zetaDelta
   let env ← getEnv
   let hints := ReducibilityHints.regular (getMaxHeight env result.value + 1)
-  let decl := Declaration.defnDecl (← mkDefinitionValInferrringUnsafe name result.levelParams.toList
+  let decl := Declaration.defnDecl (← mkDefinitionValInferringUnsafe name result.levelParams.toList
     result.type result.value  hints)
   addDecl decl
   if compile then
@@ -391,36 +396,9 @@ def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false) 
 /--
   Create an auxiliary theorem with the given name, type and value. It is similar to `mkAuxDefinition`.
 -/
-def mkAuxTheorem (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool := false) : MetaM Expr := do
+def mkAuxTheorem (type : Expr) (value : Expr) (zetaDelta : Bool := false) (kind? : Option Name := none) (cache := true) : MetaM Expr := do
   let result ← Closure.mkValueTypeClosure type value zetaDelta
-  let env ← getEnv
-  let decl :=
-    if env.hasUnsafe result.type || env.hasUnsafe result.value then
-      -- `result` contains unsafe code, thus we cannot use a theorem.
-      Declaration.defnDecl {
-        name
-        levelParams := result.levelParams.toList
-        type        := result.type
-        value       := result.value
-        hints       := ReducibilityHints.opaque
-        safety      := DefinitionSafety.unsafe
-      }
-    else
-      Declaration.thmDecl {
-        name
-        levelParams := result.levelParams.toList
-        type        := result.type
-        value       := result.value
-      }
-  addDecl decl
+  let name ← mkAuxLemma (kind? := kind?) (cache := cache) result.levelParams.toList result.type result.value
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
-
-/--
-  Similar to `mkAuxTheorem`, but infers the type of `value`.
--/
-def mkAuxTheoremFor (name : Name) (value : Expr) (zetaDelta : Bool := false) : MetaM Expr := do
-  let type ← inferType value
-  let type := type.headBeta
-  mkAuxTheorem name type value zetaDelta
 
 end Lean.Meta

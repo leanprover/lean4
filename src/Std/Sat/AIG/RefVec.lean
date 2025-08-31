@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.LawfulOperator
-import Std.Sat.AIG.CachedGatesLemmas
+public import Std.Sat.AIG.LawfulOperator
+public import Std.Sat.AIG.CachedGatesLemmas
+public import Init.Data.Vector.Lemmas
+
+@[expose] public section
 
 namespace Std
 namespace Sat
@@ -17,24 +22,29 @@ variable {α : Type} [Hashable α] [DecidableEq α] {aig : AIG α}
 namespace RefVec
 
 def empty : RefVec aig 0 where
-  refs := #[]
-  hlen := by simp
+  refs := #v[]
   hrefs := by intros; contradiction
+
+def emptyWithCapacity (c : Nat) : RefVec aig 0 where
+  refs := Vector.emptyWithCapacity c
+  hrefs := by intros; contradiction
+
+@[simp]
+theorem emptyWithCapacity_eq : emptyWithCapacity (aig := aig) c = empty := by
+  rfl
 
 @[inline]
 def cast' {aig1 aig2 : AIG α} (s : RefVec aig1 len)
     (h :
-      (∀ {i : Nat} (h : i < len), s.refs[i]'(by have := s.hlen; omega) < aig1.decls.size)
-        → ∀ {i : Nat} (h : i < len), s.refs[i]'(by have := s.hlen; omega) < aig2.decls.size) :
+      (∀ {i : Nat} (h : i < len), s.refs[i].gate < aig1.decls.size)
+        → ∀ {i : Nat} (h : i < len), s.refs[i].gate < aig2.decls.size) :
     RefVec aig2 len :=
   { s with
     hrefs := by
       intros
       apply h
-      · intros
-        apply s.hrefs
-        assumption
-      · assumption
+      intros
+      apply s.hrefs
   }
 
 @[inline]
@@ -47,45 +57,48 @@ def cast {aig1 aig2 : AIG α} (s : RefVec aig1 len) (h : aig1.decls.size ≤ aig
 
 @[inline]
 def get (s : RefVec aig len) (idx : Nat) (hidx : idx < len) : Ref aig :=
-  let ⟨refs, hlen, hrefs⟩ := s
-  let ref := refs[idx]'(by rw [hlen]; assumption)
-  ⟨ref, by apply hrefs; assumption⟩
+  let ⟨refs, hrefs⟩ := s
+  let ref := refs[idx]
+  ⟨ref.gate, ref.invert, hrefs ..⟩
 
 @[inline]
 def push (s : RefVec aig len) (ref : AIG.Ref aig) : RefVec aig (len + 1) :=
-  let ⟨refs, hlen, hrefs⟩ := s
+  let ⟨refs, hrefs⟩ := s
   ⟨
-    refs.push ref.gate,
-    by simp [hlen],
+    refs.push (.mk ref.gate ref.invert),
     by
       intro i hi
-      simp only [Array.getElem_push]
+      simp only [Vector.getElem_push hi]
       split
       · apply hrefs
-        omega
-      · apply AIG.Ref.hgate
+      · simp [Ref.hgate]
   ⟩
+
+@[simp]
+theorem cast_cast {aig1 aig2 aig3 : AIG α} (s : RefVec aig1 len)
+    (h1 : aig1.decls.size ≤ aig2.decls.size) (h2 : aig2.decls.size ≤ aig3.decls.size) :
+    (s.cast h1).cast h2 = s.cast (Nat.le_trans h1 h2) := rfl
 
 @[simp]
 theorem get_push_ref_eq (s : RefVec aig len) (ref : AIG.Ref aig) :
     (s.push ref).get len (by omega) = ref := by
-  have := s.hlen
-  simp [get, push, ← this]
+  simp [get, push]
 
 -- This variant exists because it is sometimes hard to rewrite properly with DTT.
 theorem get_push_ref_eq' (s : RefVec aig len) (ref : AIG.Ref aig) (idx : Nat)
     (hidx : idx = len) :
     (s.push ref).get idx (by omega) = ref := by
-  have := s.hlen
-  simp [get, push, ← this, hidx]
+  simp [get, push, hidx]
 
 theorem get_push_ref_lt (s : RefVec aig len) (ref : AIG.Ref aig) (idx : Nat)
     (hidx : idx < len) :
     (s.push ref).get idx (by omega) = s.get idx hidx := by
   simp only [get, push, Ref.mk.injEq]
   cases ref
-  simp only [Ref.mk.injEq]
-  rw [Array.getElem_push_lt]
+  simp only
+  rw [Vector.getElem_push_lt]
+  · simp
+  · simp [hidx]
 
 @[simp]
 theorem get_cast {aig1 aig2 : AIG α} (s : RefVec aig1 len) (idx : Nat) (hidx : idx < len)
@@ -97,20 +110,18 @@ theorem get_cast {aig1 aig2 : AIG α} (s : RefVec aig1 len) (idx : Nat) (hidx : 
 
 @[inline]
 def append (lhs : RefVec aig lw) (rhs : RefVec aig rw) : RefVec aig (lw + rw) :=
-  let ⟨lrefs, hl1, hl2⟩ := lhs
-  let ⟨rrefs, hr1, hr2⟩ := rhs
+  let ⟨lrefs, hl⟩ := lhs
+  let ⟨rrefs, hr⟩ := rhs
   ⟨
     lrefs ++ rrefs,
-    by simp [Array.size_append, hl1, hr1],
     by
       intro i h
-      by_cases hsplit : i < lrefs.size
-      · rw [Array.getElem_append_left]
-        apply hl2
+      by_cases hsplit : i < lw
+      · rw [Vector.getElem_append_left]
+        apply hl
         omega
-      · rw [Array.getElem_append_right]
-        · apply hr2
-          omega
+      · rw [Vector.getElem_append_right]
+        · apply hr
         · omega
   ⟩
 
@@ -125,12 +136,13 @@ theorem get_append (lhs : RefVec aig lw) (rhs : RefVec aig rw) (idx : Nat)
   simp only [get, append]
   split
   · simp [Ref.mk.injEq]
-    rw [Array.getElem_append_left]
+    rw [Vector.getElem_append_left]
+    · simp
+    · assumption
   · simp only [Ref.mk.injEq]
-    rw [Array.getElem_append_right]
-    · simp [lhs.hlen]
-    · rw [lhs.hlen]
-      omega
+    rw [Vector.getElem_append_right]
+    · simp
+    · omega
 
 @[inline]
 def getD (s : RefVec aig len) (idx : Nat) (alt : Ref aig) : Ref aig :=
@@ -151,13 +163,18 @@ theorem get_out_bound (s : RefVec aig len) (idx : Nat) (alt : Ref aig) (hidx : l
   · omega
   · rfl
 
-def countKnown [Inhabited α] (aig : AIG α) (s : RefVec aig len) : Nat := Id.run do
-  let folder acc ref :=
-    let decl := aig.decls[ref]!
-    match decl with
-    | .const .. => acc + 1
-    | _ => acc
-  return s.refs.foldl (init := 0) folder
+def countKnown (aig : AIG α) (s : RefVec aig len) : Nat :=
+  go aig s 0 0
+where
+  go (aig : AIG α) (s : RefVec aig len) (idx : Nat) (acc : Nat) : Nat :=
+    if h : idx < len then
+      let ref := s.refs[idx]
+      let decl := aig.decls[ref.gate]'(s.hrefs h)
+      match decl with
+      | .false => go aig s (idx + 1) (acc + 1)
+      | _ => go aig s (idx + 1) acc
+    else
+      acc
 
 end RefVec
 

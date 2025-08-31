@@ -3,9 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Expr
-import Lean.Environment
+public import Lean.Expr
+public import Lean.Util.PtrSet
+public import Lean.Declaration
+
+public section
 
 namespace Lean
 namespace Expr
@@ -70,14 +75,4 @@ def getUsedConstantsAsSet (c : ConstantInfo) : NameSet :=
     | _ => {}
 
 end ConstantInfo
-
-def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
-  e.foldConsts 0 fun constName max =>
-    match env.find? constName with
-    | ConstantInfo.defnInfo val =>
-      match val.hints with
-      | ReducibilityHints.regular h => if h > max then h else max
-      | _                           => max
-    | _ => max
-
 end Lean

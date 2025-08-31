@@ -4,8 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Init.PropLemmas
+public import Init.PropLemmas
+
+public section
+
+@[expose] section
 
 namespace Lean
 
@@ -22,15 +28,12 @@ tree implementing `Nat → α`.
 
 See `RArray.ofFn` and `RArray.ofArray` in module `Lean.Data.RArray` for functions that construct an
 `RArray`.
-
-It is not universe-polymorphic. ; smaller proof objects and no complication with the `ToExpr` type
-class.
 -/
-inductive RArray (α : Type) : Type where
+inductive RArray (α : Type u) : Type u where
   | leaf : α → RArray α
   | branch : Nat → RArray α → RArray α → RArray α
 
-variable {α : Type}
+variable {α : Type u}
 
 /-- The crucial operation, written with very little abstractional overhead -/
 noncomputable def RArray.get (a : RArray α) (n : Nat) : α :=

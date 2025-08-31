@@ -3,13 +3,23 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.Array.Count
-import Init.Data.Vector.Lemmas
+public import Init.Data.Array.Count
+import all Init.Data.Array.Count
+public import Init.Data.Vector.Basic
+import all Init.Data.Vector.Basic
+public import Init.Data.Vector.Lemmas
+
+public section
 
 /-!
 # Lemmas about `Vector.countP` and `Vector.count`.
 -/
+
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Vector
 
@@ -18,107 +28,108 @@ open Nat
 /-! ### countP -/
 section countP
 
-variable (p q : α → Bool)
+variable {p q : α → Bool}
 
 @[simp] theorem countP_empty : countP p #v[] = 0 := rfl
 
-@[simp] theorem countP_push_of_pos (l : Vector α n) (pa : p a) : countP p (l.push a) = countP p l + 1 := by
-  rcases l with ⟨l⟩
+@[simp] theorem countP_push_of_pos {xs : Vector α n} (pa : p a) : countP p (xs.push a) = countP p xs + 1 := by
+  rcases xs with ⟨xs, rfl⟩
   simp_all
 
-@[simp] theorem countP_push_of_neg (l : Vector α n) (pa : ¬p a) : countP p (l.push a) = countP p l := by
-  rcases l with ⟨l, rfl⟩
+@[simp] theorem countP_push_of_neg {xs : Vector α n} (pa : ¬p a) : countP p (xs.push a) = countP p xs := by
+  rcases xs with ⟨xs, rfl⟩
   simp_all
 
-theorem countP_push (a : α) (l : Vector α n) : countP p (l.push a) = countP p l + if p a then 1 else 0 := by
-  rcases l with ⟨l, rfl⟩
+theorem countP_push {a : α} {xs : Vector α n} : countP p (xs.push a) = countP p xs + if p a then 1 else 0 := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.countP_push]
 
-@[simp] theorem countP_singleton (a : α) : countP p #v[a] = if p a then 1 else 0 := by
-  simp [countP_push]
+@[grind =]
+theorem countP_singleton {a : α} : countP p #v[a] = if p a then 1 else 0 := by
+  simp
 
-theorem size_eq_countP_add_countP (l : Vector α n) : n = countP p l + countP (fun a => ¬p a) l := by
-  rcases l with ⟨l, rfl⟩
-  simp [List.length_eq_countP_add_countP (p := p)]
+theorem size_eq_countP_add_countP {xs : Vector α n} : n = countP p xs + countP (fun a => ¬p a) xs := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.size_eq_countP_add_countP (p := p)]
 
-theorem countP_le_size {l : Vector α n} : countP p l ≤ n := by
-  rcases l with ⟨l, rfl⟩
+theorem countP_le_size {xs : Vector α n} : countP p xs ≤ n := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.countP_le_size (p := p)]
 
-@[simp] theorem countP_append (l₁ : Vector α n) (l₂ : Vector α m) : countP p (l₁ ++ l₂) = countP p l₁ + countP p l₂ := by
-  cases l₁
-  cases l₂
+@[simp, grind =] theorem countP_append {xs : Vector α n} {ys : Vector α m} : countP p (xs ++ ys) = countP p xs + countP p ys := by
+  cases xs
+  cases ys
   simp
 
-@[simp] theorem countP_pos_iff {p} : 0 < countP p l ↔ ∃ a ∈ l, p a := by
-  cases l
+@[simp] theorem countP_pos_iff {p} : 0 < countP p xs ↔ ∃ a ∈ xs, p a := by
+  cases xs
   simp
 
-@[simp] theorem one_le_countP_iff {p} : 1 ≤ countP p l ↔ ∃ a ∈ l, p a :=
+@[simp] theorem one_le_countP_iff {p} : 1 ≤ countP p xs ↔ ∃ a ∈ xs, p a :=
   countP_pos_iff
 
-@[simp] theorem countP_eq_zero {p} : countP p l = 0 ↔ ∀ a ∈ l, ¬p a := by
-  cases l
+@[simp] theorem countP_eq_zero {p} : countP p xs = 0 ↔ ∀ a ∈ xs, ¬p a := by
+  cases xs
   simp
 
-@[simp] theorem countP_eq_size {p} : countP p l = l.size ↔ ∀ a ∈ l, p a := by
-  cases l
+@[simp] theorem countP_eq_size {p} {xs : Vector α n} : countP p xs = n ↔ ∀ a ∈ xs, p a := by
+  rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem countP_cast (p : α → Bool) (l : Vector α n) : countP p (l.cast h) = countP p l := by
-  rcases l with ⟨l, rfl⟩
+@[simp] theorem countP_cast (p : α → Bool) (xs : Vector α n) : countP p (xs.cast h) = countP p xs := by
+  rcases xs with ⟨xs, rfl⟩
   simp
 
-theorem countP_mkVector (p : α → Bool) (a : α) (n : Nat) :
-    countP p (mkVector n a) = if p a then n else 0 := by
-  simp only [mkVector_eq_toVector_mkArray, countP_cast, countP_mk]
-  simp [Array.countP_mkArray]
+theorem countP_replicate {a : α} {n : Nat} : countP p (replicate n a) = if p a then n else 0 := by
+  simp only [replicate_eq_mk_replicate, countP_mk]
+  simp [Array.countP_replicate]
 
-theorem boole_getElem_le_countP (p : α → Bool) (l : Vector α n) (i : Nat) (h : i < n) :
-    (if p l[i] then 1 else 0) ≤ l.countP p := by
-  rcases l with ⟨l, rfl⟩
+@[deprecated countP_replicate (since := "2025-03-18")]
+abbrev countP_mkVector := @countP_replicate
+
+theorem boole_getElem_le_countP {p : α → Bool} {xs : Vector α n} (h : i < n) :
+    (if p xs[i] then 1 else 0) ≤ xs.countP p := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.boole_getElem_le_countP]
 
-theorem countP_set (p : α → Bool) (l : Vector α n) (i : Nat) (a : α) (h : i < n) :
-    (l.set i a).countP p = l.countP p - (if p l[i] then 1 else 0) + (if p a then 1 else 0) := by
-  cases l
-  simp [Array.countP_set, h]
+theorem countP_set {p : α → Bool} {xs : Vector α n} {a : α} (h : i < n) :
+    (xs.set i a).countP p = xs.countP p - (if p xs[i] then 1 else 0) + (if p a then 1 else 0) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.countP_set]
 
 @[simp] theorem countP_true : (countP fun (_ : α) => true) = (fun (_ : Vector α n) => n) := by
-  funext l
+  funext xs
   rw [countP]
-  simp only [Array.countP_true, l.2]
+  simp only [Array.countP_true, xs.2]
 
 @[simp] theorem countP_false : (countP fun (_ : α) => false) = (fun (_ : Vector α n) => 0) := by
-  funext l
+  funext xs
   simp
 
-@[simp] theorem countP_map (p : β → Bool) (f : α → β) (l : Vector α n) :
-    countP p (map f l) = countP (p ∘ f) l := by
-  rcases l with ⟨l, rfl⟩
+@[simp] theorem countP_map {p : β → Bool} {f : α → β} {xs : Vector α n} :
+    countP p (map f xs) = countP (p ∘ f) xs := by
+  rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem countP_flatten (l : Vector (Vector α m) n) :
-    countP p l.flatten = (l.map (countP p)).sum := by
-  rcases l with ⟨l, rfl⟩
+@[simp] theorem countP_flatten {xss : Vector (Vector α m) n} :
+    countP p xss.flatten = (xss.map (countP p)).sum := by
+  rcases xss with ⟨xss, rfl⟩
   simp [Function.comp_def]
 
-theorem countP_flatMap (p : β → Bool) (l : Vector α n) (f : α → Vector β m) :
-    countP p (l.flatMap f) = (map (countP p ∘ f) l).sum := by
-  rcases l with ⟨l, rfl⟩
+theorem countP_flatMap {p : β → Bool} {xs : Vector α n} {f : α → Vector β m} :
+    countP p (xs.flatMap f) = (map (countP p ∘ f) xs).sum := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.countP_flatMap, Function.comp_def]
 
-@[simp] theorem countP_reverse (l : Vector α n) : countP p l.reverse = countP p l := by
-  cases l
+@[simp, grind =] theorem countP_reverse {xs : Vector α n} : countP p xs.reverse = countP p xs := by
+  rcases xs with ⟨xs, rfl⟩
   simp
 
-variable {p q}
-
-theorem countP_mono_left (h : ∀ x ∈ l, p x → q x) : countP p l ≤ countP q l := by
-  cases l
+theorem countP_mono_left (h : ∀ x ∈ xs, p x → q x) : countP p xs ≤ countP q xs := by
+  rcases xs with ⟨xs, rfl⟩
   simpa using Array.countP_mono_left (by simpa using h)
 
-theorem countP_congr (h : ∀ x ∈ l, p x ↔ q x) : countP p l = countP q l :=
+theorem countP_congr (h : ∀ x ∈ xs, p x ↔ q x) : countP p xs = countP q xs :=
   Nat.le_antisymm
     (countP_mono_left fun x hx => (h x hx).1)
     (countP_mono_left fun x hx => (h x hx).2)
@@ -130,104 +141,123 @@ section count
 
 variable [BEq α]
 
-@[simp] theorem count_empty (a : α) : count a #v[] = 0 := rfl
+@[simp, grind =] theorem count_empty {a : α} : count a #v[] = 0 := rfl
 
-theorem count_push (a b : α) (l : Vector α n) :
-    count a (l.push b) = count a l + if b == a then 1 else 0 := by
-  rcases l with ⟨l, rfl⟩
+theorem count_push {a b : α} {xs : Vector α n} :
+    count a (xs.push b) = count a xs + if b == a then 1 else 0 := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.count_push]
 
-theorem count_eq_countP (a : α) (l : Vector α n) : count a l = countP (· == a) l := rfl
+theorem count_eq_countP {a : α} {xs : Vector α n} : count a xs = countP (· == a) xs := rfl
 
 theorem count_eq_countP' {a : α} : count (n := n) a = countP (· == a) := by
-  funext l
+  funext xs
   apply count_eq_countP
 
-theorem count_le_size (a : α) (l : Vector α n) : count a l ≤ n := countP_le_size _
+theorem count_le_size {a : α} {xs : Vector α n} : count a xs ≤ n := countP_le_size
 
-theorem count_le_count_push (a b : α) (l : Vector α n) : count a l ≤ count a (l.push b) := by
-  rcases l with ⟨l, rfl⟩
+grind_pattern count_le_size => count a xs
+
+theorem count_le_count_push {a b : α} {xs : Vector α n} : count a xs ≤ count a (xs.push b) := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.count_push]
 
-@[simp] theorem count_singleton (a b : α) : count a #v[b] = if b == a then 1 else 0 := by
+@[simp, grind =] theorem count_singleton {a b : α} : count a #v[b] = if b == a then 1 else 0 := by
   simp [count_eq_countP]
 
-@[simp] theorem count_append (a : α) (l₁ : Vector α n) (l₂ : Vector α m) :
-    count a (l₁ ++ l₂) = count a l₁ + count a l₂ :=
+@[simp, grind =] theorem count_append {a : α} {xs : Vector α n} {ys : Vector α m} :
+    count a (xs ++ ys) = count a xs + count a ys :=
   countP_append ..
 
-@[simp] theorem count_flatten (a : α) (l : Vector (Vector α m) n) :
-    count a l.flatten = (l.map (count a)).sum := by
-  rcases l with ⟨l, rfl⟩
+@[simp, grind =] theorem count_flatten {a : α} {xss : Vector (Vector α m) n} :
+    count a xss.flatten = (xss.map (count a)).sum := by
+  rcases xss with ⟨xss, rfl⟩
   simp [Array.count_flatten, Function.comp_def]
 
-@[simp] theorem count_reverse (a : α) (l : Vector α n) : count a l.reverse = count a l := by
-  rcases l with ⟨l, rfl⟩
+@[simp, grind =] theorem count_reverse {a : α} {xs : Vector α n} : count a xs.reverse = count a xs := by
+  rcases xs with ⟨xs, rfl⟩
   simp
 
-theorem boole_getElem_le_count (a : α) (l : Vector α n) (i : Nat) (h : i < n) :
-    (if l[i] == a then 1 else 0) ≤ l.count a := by
-  rcases l with ⟨l, rfl⟩
-  simp [Array.boole_getElem_le_count, h]
+theorem boole_getElem_le_count {a : α} {xs : Vector α n} (h : i < n) :
+    (if xs[i] == a then 1 else 0) ≤ xs.count a := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.boole_getElem_le_count]
 
-theorem count_set (a b : α) (l : Vector α n) (i : Nat) (h : i < n) :
-    (l.set i a).count b = l.count b - (if l[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
-  rcases l with ⟨l, rfl⟩
-  simp [Array.count_set, h]
+theorem count_set {a b : α} {xs : Vector α n} (h : i < n) :
+    (xs.set i a).count b = xs.count b - (if xs[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.count_set]
 
-@[simp] theorem count_cast (l : Vector α n) : (l.cast h).count a = l.count a := by
-  rcases l with ⟨l, rfl⟩
+@[simp] theorem count_cast {xs : Vector α n} : (xs.cast h).count a = xs.count a := by
+  rcases xs with ⟨xs, rfl⟩
   simp
 
 variable [LawfulBEq α]
 
-@[simp] theorem count_push_self (a : α) (l : Vector α n) : count a (l.push a) = count a l + 1 := by
-  rcases l with ⟨l, rfl⟩
+@[simp] theorem count_push_self {a : α} {xs : Vector α n} : count a (xs.push a) = count a xs + 1 := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.count_push_self]
 
-@[simp] theorem count_push_of_ne (h : b ≠ a) (l : Vector α n) : count a (l.push b) = count a l := by
-  rcases l with ⟨l, rfl⟩
+@[simp] theorem count_push_of_ne {xs : Vector α n} (h : b ≠ a) : count a (xs.push b) = count a xs := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.count_push_of_ne, h]
 
-theorem count_singleton_self (a : α) : count a #v[a] = 1 := by simp
+theorem count_singleton_self {a : α} : count a #v[a] = 1 := by simp
 
 @[simp]
-theorem count_pos_iff {a : α} {l : Vector α n} : 0 < count a l ↔ a ∈ l := by
-  rcases l with ⟨l, rfl⟩
-  simp [Array.count_pos_iff, beq_iff_eq, exists_eq_right]
+theorem count_pos_iff {a : α} {xs : Vector α n} : 0 < count a xs ↔ a ∈ xs := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.count_pos_iff]
 
-@[simp] theorem one_le_count_iff {a : α} {l : Vector α n} : 1 ≤ count a l ↔ a ∈ l :=
+@[simp] theorem one_le_count_iff {a : α} {xs : Vector α n} : 1 ≤ count a xs ↔ a ∈ xs :=
   count_pos_iff
 
-theorem count_eq_zero_of_not_mem {a : α} {l : Vector α n} (h : a ∉ l) : count a l = 0 :=
+theorem count_eq_zero_of_not_mem {a : α} {xs : Vector α n} (h : a ∉ xs) : count a xs = 0 :=
   Decidable.byContradiction fun h' => h <| count_pos_iff.1 (Nat.pos_of_ne_zero h')
 
-theorem not_mem_of_count_eq_zero {a : α} {l : Vector α n} (h : count a l = 0) : a ∉ l :=
+theorem not_mem_of_count_eq_zero {a : α} {xs : Vector α n} (h : count a xs = 0) : a ∉ xs :=
   fun h' => Nat.ne_of_lt (count_pos_iff.2 h') h.symm
 
-theorem count_eq_zero {l : Vector α n} : count a l = 0 ↔ a ∉ l :=
+theorem count_eq_zero {xs : Vector α n} : count a xs = 0 ↔ a ∉ xs :=
   ⟨not_mem_of_count_eq_zero, count_eq_zero_of_not_mem⟩
 
-theorem count_eq_size {l : Vector α n} : count a l = l.size ↔ ∀ b ∈ l, a = b := by
-  rcases l with ⟨l, rfl⟩
+theorem count_eq_size {xs : Vector α n} : count a xs = n ↔ ∀ b ∈ xs, a = b := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.count_eq_size]
 
-@[simp] theorem count_mkVector_self (a : α) (n : Nat) : count a (mkVector n a) = n := by
-  simp only [mkVector_eq_toVector_mkArray, count_cast, count_mk]
+@[simp] theorem count_replicate_self {a : α} {n : Nat} : count a (replicate n a) = n := by
+  simp only [replicate_eq_mk_replicate, count_mk]
   simp
 
-theorem count_mkVector (a b : α) (n : Nat) : count a (mkVector n b) = if b == a then n else 0 := by
-  simp only [mkVector_eq_toVector_mkArray, count_cast, count_mk]
-  simp [Array.count_mkArray]
+@[deprecated count_replicate_self (since := "2025-03-18")]
+abbrev count_mkVector_self := @count_replicate_self
 
-theorem count_le_count_map [DecidableEq β] (l : Vector α n) (f : α → β) (x : α) :
-    count x l ≤ count (f x) (map f l) := by
-  rcases l with ⟨l, rfl⟩
+theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b == a then n else 0 := by
+  simp only [replicate_eq_mk_replicate, count_mk]
+  simp [Array.count_replicate]
+
+@[deprecated count_replicate (since := "2025-03-18")]
+abbrev count_mkVector := @count_replicate
+
+theorem count_le_count_map [BEq β] [LawfulBEq β] {xs : Vector α n} {f : α → β} {x : α} :
+    count x xs ≤ count (f x) (map f xs) := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.count_le_count_map]
 
-theorem count_flatMap {α} [BEq β] (l : Vector α n) (f : α → Vector β m) (x : β) :
-    count x (l.flatMap f) = (map (count x ∘ f) l).sum := by
-  rcases l with ⟨l, rfl⟩
+theorem count_flatMap {α} [BEq β] {xs : Vector α n} {f : α → Vector β m} {x : β} :
+    count x (xs.flatMap f) = (map (count x ∘ f) xs).sum := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.count_flatMap, Function.comp_def]
+
+theorem countP_replace {a b : α} {xs : Vector α n} {p : α → Bool} :
+    (xs.replace a b).countP p =
+      if xs.contains a then xs.countP p + (if p b then 1 else 0) - (if p a then 1 else 0) else xs.countP p := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.countP_replace]
+
+theorem count_replace {a b c : α} {xs : Vector α n} :
+    (xs.replace a b).count c =
+      if xs.contains a then xs.count c + (if b == c then 1 else 0) - (if a == c then 1 else 0) else xs.count c := by
+  simp [count_eq_countP, countP_replace]
 
 end count

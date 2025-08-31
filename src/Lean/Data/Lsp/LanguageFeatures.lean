@@ -4,9 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Json
-import Lean.Data.Lsp.Basic
+public import Lean.Data.Json.FromToJson.Basic
+public import Lean.Data.Lsp.Basic
+meta import Lean.Data.Json
+
+public section
 
 namespace Lean
 namespace Lsp
@@ -28,7 +33,7 @@ inductive CompletionItemKind where
   deriving Inhabited, DecidableEq, Repr, Hashable
 
 instance : ToJson CompletionItemKind where
-  toJson a := toJson (a.toCtorIdx + 1)
+  toJson a := toJson (a.ctorIdx + 1)
 
 instance : FromJson CompletionItemKind where
   fromJson? v := do
@@ -46,7 +51,7 @@ inductive CompletionItemTag where
   deriving Inhabited, DecidableEq, Repr, Hashable
 
 instance : ToJson CompletionItemTag where
-  toJson t := toJson (t.toCtorIdx + 1)
+  toJson t := toJson (t.ctorIdx + 1)
 
 instance : FromJson CompletionItemTag where
   fromJson? v := do
@@ -347,13 +352,12 @@ def SemanticTokenType.names : Array String :=
     "regexp", "operator", "decorator", "leanSorryLike"]
 
 def SemanticTokenType.toNat (tokenType : SemanticTokenType) : Nat :=
-  tokenType.toCtorIdx
+  tokenType.ctorIdx
 
 -- sanity check
--- TODO: restore after update-stage0
---example {v : SemanticTokenType} : open SemanticTokenType in
---    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
---  cases v <;> native_decide
+example {v : SemanticTokenType} : open SemanticTokenType in
+    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
+  cases v <;> native_decide
 
 /--
 The semantic token modifiers included by default in the LSP specification.
@@ -379,7 +383,7 @@ def SemanticTokenModifier.names : Array String :=
     "async", "modification", "documentation", "defaultLibrary"]
 
 def SemanticTokenModifier.toNat (modifier : SemanticTokenModifier) : Nat :=
-  modifier.toCtorIdx
+  modifier.ctorIdx
 
 -- sanity check
 example {v : SemanticTokenModifier} : open SemanticTokenModifier in
@@ -443,6 +447,151 @@ structure RenameParams extends TextDocumentPositionParams where
   deriving FromJson, ToJson
 
 structure PrepareRenameParams extends TextDocumentPositionParams
+  deriving FromJson, ToJson
+
+structure InlayHintParams extends WorkDoneProgressParams where
+  textDocument : TextDocumentIdentifier
+  range        : Range
+  deriving FromJson, ToJson
+
+inductive InlayHintTooltip
+  | plaintext (text : String)
+  | markdown (markup : MarkupContent)
+
+instance : FromJson InlayHintTooltip where
+  fromJson?
+    | .str s => .ok <| .plaintext s
+    | j@(.obj _) => do return .markdown (← fromJson? j)
+    | j => .error s!"invalid inlay hint tooltip {j}"
+
+instance : ToJson InlayHintTooltip where
+  toJson
+    | .plaintext text => toJson text
+    | .markdown markup => toJson markup
+
+structure InlayHintLabelPart where
+  value     : String
+  tooltip?  : Option InlayHintTooltip := none
+  location? : Option Location := none
+  command?  : Option Command := none
+  deriving FromJson, ToJson
+
+inductive InlayHintLabel
+  | name (n : String)
+  | parts (p : Array InlayHintLabelPart)
+
+instance : FromJson InlayHintLabel where
+  fromJson?
+    | .str s => .ok <| .name s
+    | j@(.arr _) => do return .parts (← fromJson? j)
+    | j => .error s!"invalid inlay hint label {j}"
+
+instance : ToJson InlayHintLabel where
+  toJson
+    | .name n => toJson n
+    | .parts p => toJson p
+
+inductive InlayHintKind where
+  | type
+  | parameter
+
+instance : FromJson InlayHintKind where
+  fromJson?
+    | 1 => .ok .type
+    | 2 => .ok .parameter
+    | j => .error s!"unknown inlay hint kind {j}"
+
+instance : ToJson InlayHintKind where
+  toJson
+    | .type => 1
+    | .parameter => 2
+
+structure InlayHint where
+  position      : Position
+  label         : InlayHintLabel
+  kind?         : Option InlayHintKind := none
+  textEdits?    : Option (Array TextEdit) := none
+  tooltip?      : Option (InlayHintTooltip) := none
+  paddingLeft?  : Option Bool := none
+  paddingRight? : Option Bool := none
+  data?         : Option Json := none
+  deriving FromJson, ToJson
+
+structure InlayHintClientCapabilities where
+  dynamicRegistration? : Option Bool := none
+  resolveSupport?      : Option ResolveSupport := none
+  deriving FromJson, ToJson
+
+structure InlayHintOptions extends WorkDoneProgressOptions where
+  resolveProvider? : Option Bool := none
+  deriving FromJson, ToJson
+
+inductive ParameterInformationLabel
+  | name (name : String)
+  | range (startUtf16Offset endUtf16Offset : Nat)
+
+instance : FromJson ParameterInformationLabel where
+  fromJson?
+    | .str name => .ok <| .name name
+    | .arr #[startUtf16OffsetJson, endUtf16OffsetJson] => do
+      return .range (← fromJson? startUtf16OffsetJson) (← fromJson? endUtf16OffsetJson)
+    | _ => .error "unexpected JSON for `ParameterInformationLabel`"
+
+instance : ToJson ParameterInformationLabel where
+  toJson
+    | .name name => .str name
+    | .range startUtf16Offset endUtf16Offset => .arr #[startUtf16Offset, endUtf16Offset]
+
+structure ParameterInformation where
+  label : ParameterInformationLabel
+  documentation? : Option MarkupContent := none
+  deriving FromJson, ToJson
+
+structure SignatureInformation where
+  label : String
+  documentation? : Option MarkupContent := none
+  parameters? : Option (Array ParameterInformation) := none
+  activeParameter? : Option Nat := none
+  deriving FromJson, ToJson
+
+structure SignatureHelp where
+  signatures : Array SignatureInformation
+  activeSignature? : Option Nat := none
+  activeParameter? : Option Nat := none
+  deriving FromJson, ToJson
+
+inductive SignatureHelpTriggerKind where
+  | invoked
+  | triggerCharacter
+  | contentChange
+
+instance : FromJson SignatureHelpTriggerKind where
+  fromJson?
+    | (1 : Nat) => .ok .invoked
+    | (2 : Nat) => .ok .triggerCharacter
+    | (3 : Nat) => .ok .contentChange
+    | _ => .error "Unexpected JSON in `SignatureHelpTriggerKind`"
+
+instance : ToJson SignatureHelpTriggerKind where
+  toJson
+    | .invoked => 1
+    | .triggerCharacter => 2
+    | .contentChange => 3
+
+structure SignatureHelpContext where
+  triggerKind : SignatureHelpTriggerKind
+  triggerCharacter? : Option String := none
+  isRetrigger : Bool
+  activeSignatureHelp? : Option SignatureHelp := none
+  deriving FromJson, ToJson
+
+structure SignatureHelpParams extends TextDocumentPositionParams, WorkDoneProgressParams where
+  context? : Option SignatureHelpContext := none
+  deriving FromJson, ToJson
+
+structure SignatureHelpOptions extends WorkDoneProgressOptions where
+  triggerCharacters? : Option (Array String) := none
+  retriggerCharacters? : Option (Array String) := none
   deriving FromJson, ToJson
 
 end Lsp

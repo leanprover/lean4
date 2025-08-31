@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Zoned.ZoneRules
-import Std.Time.Zoned.Database.TzIf
+public import Std.Time.Zoned.ZoneRules
+public import Std.Time.Zoned.Database.TzIf
+
+public section
 
 namespace Std
 namespace Time
@@ -47,9 +51,9 @@ def convertUt : Bool → UTLocal
 Converts a given time index into a `LocalTimeType` by using a time zone (`tz`) and its identifier.
 -/
 def convertLocalTimeType (index : Nat) (tz : TZif.TZifV1) (identifier : String) : Option LocalTimeType := do
-  let localType ← tz.localTimeTypes.get? index
+  let localType ← tz.localTimeTypes[index]?
   let offset := Offset.ofSeconds <| .ofInt localType.gmtOffset
-  let abbreviation ← tz.abbreviations.getD index (offset.toIsoString true)
+  let abbreviation := tz.abbreviations.getD index (offset.toIsoString true)
   let wallflag := convertWall (tz.stdWallIndicators.getD index true)
   let utLocal := convertUt (tz.utLocalIndicators.getD index true)
 
@@ -66,10 +70,10 @@ def convertLocalTimeType (index : Nat) (tz : TZif.TZifV1) (identifier : String) 
 Converts a transition.
 -/
 def convertTransition (times: Array LocalTimeType) (index : Nat) (tz : TZif.TZifV1) : Option Transition := do
-  let time := tz.transitionTimes.get! index
+  let time := tz.transitionTimes[index]!
   let time := Second.Offset.ofInt time
-  let indice := tz.transitionIndices.get! index
-  return { time, localTimeType := times.get! indice.toNat }
+  let indice := tz.transitionIndices[index]!
+  return { time, localTimeType := times[indice.toNat]! }
 
 /--
 Converts a `TZif.TZifV1` structure to a `ZoneRules` structure.
@@ -77,14 +81,14 @@ Converts a `TZif.TZifV1` structure to a `ZoneRules` structure.
 def convertTZifV1 (tz : TZif.TZifV1) (id : String) : Except String ZoneRules := do
   let mut times : Array LocalTimeType := #[]
 
-  for i in [0:tz.header.typecnt.toNat] do
+  for i in *...tz.header.typecnt.toNat do
     if let some result := convertLocalTimeType i tz id
       then times := times.push result
       else .error s!"cannot convert local time {i} of the file"
 
   let mut transitions := #[]
 
-  for i in [0:tz.transitionTimes.size] do
+  for i in *...tz.transitionTimes.size do
     if let some result := convertTransition times i tz
       then transitions := transitions.push result
       else .error s!"cannot convert transition {i} of the file"

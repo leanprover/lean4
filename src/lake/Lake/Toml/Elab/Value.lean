@@ -3,10 +3,13 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lake.Toml.Data.Value
-import Lake.Toml.Grammar
+public import Lean.CoreM
+public import Lake.Toml.Data.Value
+public import Lake.Toml.Grammar
+meta import all Lake.Toml.Grammar -- for quotations
 
 /-!
 # TOML Value Elaboration
@@ -25,7 +28,7 @@ namespace Lake.Toml
 
 def elabBoolean (x : TSyntax ``boolean) : CoreM Bool := do
   match x with
-  | `(boolean|true)=> return true
+  | `(boolean|true) => return true
   | `(boolean|false) => return false
   | _ => throwErrorAt x "invalid boolean"
 
@@ -46,8 +49,8 @@ def decodeSign (s : String) : Bool × String :=
     (false, s)
 
 def decodeDecInt (s : String) : Int :=
-  let (sign, s) := decodeSign s
-  if sign then
+  let (neg, s) := inline <| decodeSign s
+  if neg then
     .negOfNat <| decodeDecNum s
   else
     .ofNat <| decodeDecNum s
@@ -65,9 +68,9 @@ def decodeMantissa (s : String) : Nat × Nat :=
 
 def decodeFrExp (s : String) : Nat × Int :=
   match s.split (fun c => c == 'E' || c == 'e') with
-  | [m,exp] =>
+  | [m, exp] =>
     let exp := decodeDecInt exp
-    let (m,dotExp) := decodeMantissa m
+    let (m, dotExp) := decodeMantissa m
     (m, Int.negOfNat dotExp + exp)
   | [m] =>
     let (m, e) := decodeMantissa m
@@ -75,15 +78,15 @@ def decodeFrExp (s : String) : Nat × Int :=
   | _ => (0,0)
 
 def decodeFloat (s : String) : Float :=
-  let (sign, s) := decodeSign s
+  let (neg, s) := decodeSign s
   if s = "inf" then
-    if sign then -1.0/0 else 1.0/0
+    if neg then -1.0/0 else 1.0/0
   else if s = "nan" then
-    if sign then -(0.0/0) else 0.0/0
+    if neg then -(0.0/0) else 0.0/0
   else
-    let (m,e) := decodeFrExp s
+    let (m, e) := decodeFrExp s
     let flt := Float.ofScientific m (e < 0) e.natAbs
-    if sign then -flt else flt
+    if neg then -flt else flt
 
 def elabFloat (x : TSyntax ``float) : CoreM Float := do
   return decodeFloat <| ← elabLit x "float"
@@ -141,7 +144,7 @@ partial def elabBasicStringCore (lit : String) (i : String.Pos := 0) (out := "")
             let ch := Char.ofNatAux val h
             elabBasicStringCore lit escape.stopPos (out.push ch)
           else
-            throwError "invalid unicode escape '{escape}'"
+            throwError "invalid unicode escape `{escape}`"
         match curr with
         | 'b'  => elabBasicStringCore lit (lit.next' i h) (out.push '\x08')
         | 't'  => elabBasicStringCore lit (lit.next' i h) (out.push '\t')
@@ -189,7 +192,7 @@ def elabString (x : TSyntax ``string) : CoreM String := do
 @[inline] def elabUnquotedKey (x : TSyntax ``unquotedKey) : CoreM String := do
   elabLit x "unquoted key"
 
-def elabSimpleKey (x : TSyntax ``simpleKey) : CoreM String := do
+public def elabSimpleKey (x : TSyntax ``simpleKey) : CoreM String := do
   match x with
   | `(simpleKey|$x:unquotedKey) => elabUnquotedKey x
   | `(simpleKey|$x:literalString) => elabLiteralString x
@@ -218,18 +221,18 @@ def elabInlineTable (x : TSyntax ``inlineTable) (elabVal : TSyntax ``val → Cor
     let (k, t) ← StateT.run (s := t) <| ks.pop.foldlM (init := Name.anonymous) fun k p => do
       let k ← k.str <$> elabSimpleKey p
       if let some v := t.find? k then
-        unless v.isNone do throwErrorAt p m!"cannot redefine key '{k}'"
+        unless v.isNone do throwErrorAt p m!"cannot redefine key `{k}`"
       else
         modify fun t => t.push k none
       return k
     let k ← k.str <$> elabSimpleKey tailKey
     if t.contains k then
-      throwErrorAt tailKey m!"cannot redefine key '{k}'"
+      throwErrorAt tailKey m!"cannot redefine key `{k}`"
     else
       return t.push k (← elabVal v)
   return t.filterMap fun _ v => v
 
-partial def elabVal (x : TSyntax ``val) : CoreM Value := do
+public partial def elabVal (x : TSyntax ``val) : CoreM Value := do
   match x with
   | `(val|$x:float) => .float x <$> elabFloat x
   | `(val|$x:decInt) => .integer x <$> elabDecInt x

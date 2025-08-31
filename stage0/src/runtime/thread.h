@@ -21,6 +21,7 @@ namespace chrono = std::chrono;
 #if defined(LEAN_MULTI_THREAD)
 #include <thread>
 #include <mutex>
+#include <shared_mutex>
 #include <atomic>
 #include <condition_variable>
 #define LEAN_THREAD_LOCAL thread_local
@@ -29,6 +30,7 @@ namespace lean {
 using std::thread;
 using std::mutex;
 using std::recursive_mutex;
+using std::shared_timed_mutex;
 using std::atomic;
 using std::atomic_bool;
 using std::atomic_ushort;
@@ -145,12 +147,23 @@ public:
 class mutex {
 public:
     void lock() {}
+    bool try_lock() { return true; }
     void unlock() {}
 };
 class recursive_mutex {
 public:
     void lock() {}
+    bool try_lock() { return true; }
     void unlock() {}
+};
+class shared_timed_mutex {
+public:
+    void lock() {}
+    bool try_lock() { return true; }
+    void unlock() {}
+    void lock_shared() {}
+    bool try_lock_shared() { return true; }
+    void unlock_shared() {}
 };
 class condition_variable {
 public:

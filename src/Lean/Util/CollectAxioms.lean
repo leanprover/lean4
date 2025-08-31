@@ -3,14 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.MonadEnv
-import Lean.Util.FoldConsts
+public import Lean.MonadEnv
+public import Lean.Util.FoldConsts
+
+public section
 
 namespace Lean
 
 namespace CollectAxioms
-
 
 structure State where
   visited : NameSet    := {}
@@ -24,8 +27,12 @@ partial def collect (c : Name) : M Unit := do
   unless s.visited.contains c do
     modify fun s => { s with visited := s.visited.insert c }
     let env ← read
-    match env.find? c with
-    | some (ConstantInfo.axiomInfo _)  => modify fun s => { s with axioms := s.axioms.push c }
+    -- We should take the constant from the kernel env, which may differ from the one in the elab
+    -- env in case of (async) errors.
+    match env.checked.get.find? c with
+    | some (ConstantInfo.axiomInfo v)  =>
+        modify fun s => { s with axioms := (s.axioms.push c) }
+        collectExpr v.type
     | some (ConstantInfo.defnInfo v)   => collectExpr v.type *> collectExpr v.value
     | some (ConstantInfo.thmInfo v)    => collectExpr v.type *> collectExpr v.value
     | some (ConstantInfo.opaqueInfo v) => collectExpr v.type *> collectExpr v.value

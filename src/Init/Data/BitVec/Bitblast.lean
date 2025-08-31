@@ -3,12 +3,25 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Harun Khan, Abdalrhman M Mohamed, Joe Hendrix, Siddharth Bhat
 -/
+module
+
 prelude
-import Init.Data.BitVec.Folds
-import Init.Data.Nat.Mod
+public import Init.Data.Nat.Bitwise.Basic
+import all Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.Mod
+public import Init.Data.Int.DivMod
+import all Init.Data.Int.DivMod
+public import Init.Data.Int.LemmasAux
+public import Init.Data.BitVec.Basic
+import all Init.Data.BitVec.Basic
+public import Init.Data.BitVec.Decidable
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.BitVec.Folds
+
+@[expose] public section
 
 /-!
-# Bitblasting of bitvectors
+# Bit blasting of bitvectors
 
 This module provides theorems for showing the equivalence between BitVec operations using
 the `Fin 2^n` representation and Boolean vectors.  It is still under development, but
@@ -18,21 +31,21 @@ as vectors of bits into proofs about Lean `BitVec` values.
 The module is named for the bit-blasting operation in an SMT solver that converts bitvector
 expressions into expressions about individual bits in each vector.
 
-### Example: How bitblasting works for multiplication
+### Example: How bit blasting works for multiplication
 
-We explain how the lemmas here are used for bitblasting,
+We explain how the lemmas here are used for bit blasting,
 by using multiplication as a prototypical example.
-Other bitblasters for other operations follow the same pattern.
-To bitblast a multiplication of the form `x * y`,
+Other bit blasters for other operations follow the same pattern.
+To bit blast a multiplication of the form `x * y`,
 we must unfold the above into a form that the SAT solver understands.
 
-We assume that the solver already knows how to bitblast addition.
+We assume that the solver already knows how to bit blast addition.
 This is known to `bv_decide`, by exploiting the lemma `add_eq_adc`,
 which says that `x + y : BitVec w` equals `(adc x y false).2`,
 where `adc` builds an add-carry circuit in terms of the primitive operations
 (bitwise and, bitwise or, bitwise xor) that bv_decide already understands.
-In this way, we layer bitblasters on top of each other,
-by reducing the multiplication bitblaster to an addition operation.
+In this way, we layer bit blasters on top of each other,
+by reducing the multiplication bit blaster to an addition operation.
 
 The core lemma is given by `getLsbD_mul`:
 
@@ -64,7 +77,7 @@ mulRec_succ_eq
 By repeatedly applying the lemmas `mulRec_zero_eq` and `mulRec_succ_eq`,
 one obtains a circuit for multiplication.
 Note that this circuit uses `BitVec.add`, `BitVec.getLsbD`, `BitVec.shiftLeft`.
-Here, `BitVec.add` and `BitVec.shiftLeft` are (recursively) bitblasted by `bv_decide`,
+Here, `BitVec.add` and `BitVec.shiftLeft` are (recursively) bit blasted by `bv_decide`,
 using the lemmas `add_eq_adc` and `shiftLeft_eq_shiftLeftRec`,
 and `BitVec.getLsbD` is a primitive that `bv_decide` knows how to reduce to SAT.
 
@@ -87,10 +100,10 @@ computes the correct value for multiplication.
 
 To zoom out, therefore, we follow two steps:
 First, we prove bitvector lemmas to unfold a high-level operation (such as multiplication)
-into already bitblastable operations (such as addition and left shift).
+into already bit blastable operations (such as addition and left shift).
 We then use these lemmas to prove the correctness of the circuit that `bv_decide` builds.
 
-We use this workflow to implement bitblasting for all SMT-LIB2 operations.
+We use this workflow to implement bit blasting for all SMT-LIB v2 operations.
 
 ## Main results
 * `x + y : BitVec w` is `(adc x y false).2`.
@@ -108,7 +121,12 @@ open Nat Bool
 
 namespace Bool
 
-/-- At least two out of three booleans are true. -/
+/--
+At least two out of three Booleans are true.
+
+This function is typically used to model addition of binary numbers, to combine a carry bit with two
+addend bits.
+-/
 abbrev atLeastTwo (a b c : Bool) : Bool := a && b || a && c || b && c
 
 @[simp] theorem atLeastTwo_false_left  : atLeastTwo false b c = (b && c) := by simp [atLeastTwo]
@@ -128,14 +146,14 @@ private theorem testBit_limit {x i : Nat} (x_lt_succ : x < 2^(i+1)) :
     testBit x i = decide (x ≥ 2^i) := by
   cases xi : testBit x i with
   | true =>
-    simp [testBit_implies_ge xi]
+    simp [Nat.ge_two_pow_of_testBit xi]
   | false =>
     simp
     cases Nat.lt_or_ge x (2^i) with
     | inl x_lt =>
       exact x_lt
     | inr x_ge =>
-      have ⟨j, ⟨j_ge, jp⟩⟩  := ge_two_pow_implies_high_bit_true x_ge
+      have ⟨j, ⟨j_ge, jp⟩⟩  := exists_ge_and_testBit_of_ge_two_pow x_ge
       cases Nat.lt_or_eq_of_le j_ge with
       | inr x_eq =>
         simp [x_eq, jp] at xi
@@ -143,8 +161,8 @@ private theorem testBit_limit {x i : Nat} (x_lt_succ : x < 2^(i+1)) :
         exfalso
         apply Nat.lt_irrefl
         calc x < 2^(i+1) := x_lt_succ
-             _ ≤ 2 ^ j := Nat.pow_le_pow_of_le_right Nat.zero_lt_two x_lt
-             _ ≤ x := testBit_implies_ge jp
+             _ ≤ 2 ^ j := Nat.pow_le_pow_right Nat.zero_lt_two x_lt
+             _ ≤ x := ge_two_pow_of_testBit jp
 
 private theorem mod_two_pow_succ (x i : Nat) :
     x % 2^(i+1) = 2^i*(x.testBit i).toNat + x % (2 ^ i):= by
@@ -227,7 +245,7 @@ theorem toNat_add_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0#w) :
     simp only [decide_eq_true_eq] at this
     omega
   rw [← carry_width]
-  simp [not_eq_true, carry_of_and_eq_zero h]
+  simp [carry_of_and_eq_zero h]
 
 /-- Carry function for bitwise addition. -/
 def adcb (x y c : Bool) : Bool × Bool := (atLeastTwo x y c, x ^^ (y ^^ c))
@@ -241,7 +259,7 @@ theorem getLsbD_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool
       (getLsbD x i ^^ (getLsbD y i ^^ carry i x y c)) := by
   let ⟨x, x_lt⟩ := x
   let ⟨y, y_lt⟩ := y
-  simp only [getLsbD, toNat_add, toNat_setWidth, i_lt, toNat_ofFin, toNat_ofBool,
+  simp only [getLsbD, toNat_add, toNat_setWidth, toNat_ofFin, toNat_ofBool,
     Nat.mod_add_mod, Nat.add_mod_mod]
   apply Eq.trans
   rw [← Nat.div_add_mod x (2^i), ← Nat.div_add_mod y (2^i)]
@@ -255,7 +273,7 @@ theorem getLsbD_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool
       Nat.add_left_comm (_%_) (_ * _) _,
       testBit_limit (mod_two_pow_add_mod_two_pow_add_bool_lt_two_pow_succ x y i c)
     ]
-  simp [testBit_to_div_mod, carry, Nat.add_assoc]
+  simp [testBit_eq_decide_div_mod_eq, carry, Nat.add_assoc]
 
 theorem getLsbD_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
     getLsbD (x + y) i =
@@ -284,7 +302,7 @@ theorem adc_spec (x y : BitVec w) (c : Bool) :
     simp [carry, Nat.mod_one]
     cases c <;> rfl
   case step =>
-    simp [adcb, Prod.mk.injEq, carry_succ, getLsbD_add_add_bool]
+    simp [adcb, carry_succ, getElem_add_add_bool]
 
 theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := by
   simp [adc_spec]
@@ -294,14 +312,14 @@ theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := b
 theorem getMsbD_add {i : Nat} {i_lt : i < w} {x y : BitVec w} :
     getMsbD (x + y) i =
       Bool.xor (getMsbD x i) (Bool.xor (getMsbD y i) (carry (w - 1 - i) x y false)) := by
-  simp [getMsbD, getLsbD_add, i_lt, show w - 1 - i < w by omega]
+  simp [getMsbD, getElem_add, i_lt, show w - 1 - i < w by omega]
 
 theorem msb_add {w : Nat} {x y: BitVec w} :
     (x + y).msb =
       Bool.xor x.msb (Bool.xor y.msb (carry (w - 1) x y false)) := by
   simp only [BitVec.msb, BitVec.getMsbD]
   by_cases h : w ≤ 0
-  · simp [h, show w = 0 by omega]
+  · simp [show w = 0 by omega]
   · rw [getLsbD_add (x := x)]
     simp [show w > 0 by omega]
     omega
@@ -321,28 +339,28 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     (h : x &&& y = 0#w) : x + y = x ||| y := by
   rw [add_eq_adc, adc, iunfoldr_replace (fun _ => false) (x ||| y)]
   · rfl
-  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false, getLsbD_or,
+  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false,
     Prod.mk.injEq, and_eq_false_imp]
-    intros i
+    intro i
     replace h : (x &&& y).getLsbD i = (0#w).getLsbD i := by rw [h]
     simp only [getLsbD_and, getLsbD_zero, and_eq_false_imp] at h
     constructor
-    · intros hx
-      simp_all [hx]
-    · by_cases hx : x.getLsbD i <;> simp_all [hx]
+    · intro hx
+      simp_all
+    · by_cases hx : x.getLsbD i <;> simp_all
 
 /-! ### Sub-/
 
 theorem getLsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
     (x - y).getLsbD i
       = (x.getLsbD i ^^ ((~~~y + 1#w).getLsbD i ^^ carry i x (~~~y + 1#w) false)) := by
-  rw [sub_toAdd, BitVec.neg_eq_not_add, getLsbD_add]
+  rw [sub_eq_add_neg, BitVec.neg_eq_not_add, getLsbD_add]
   omega
 
 theorem getMsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
     (x - y).getMsbD i =
       (x.getMsbD i ^^ ((~~~y + 1).getMsbD i ^^ carry (w - 1 - i) x (~~~y + 1) false)) := by
-  rw [sub_toAdd, neg_eq_not_add, getMsbD_add]
+  rw [sub_eq_add_neg, neg_eq_not_add, getMsbD_add]
   · rfl
   · omega
 
@@ -353,31 +371,32 @@ theorem getElem_sub {i : Nat} {x y : BitVec w} (h : i < w) :
 theorem msb_sub {x y: BitVec w} :
     (x - y).msb
       = (x.msb ^^ ((~~~y + 1#w).msb ^^ carry (w - 1 - 0) x (~~~y + 1#w) false)) := by
-  simp [sub_toAdd, BitVec.neg_eq_not_add, msb_add]
+  simp [sub_eq_add_neg, BitVec.neg_eq_not_add, msb_add]
 
 /-! ### Negation -/
 
 theorem bit_not_testBit (x : BitVec w) (i : Fin w) :
-  getLsbD (((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsbD i)))) ()).snd) i.val = !(getLsbD x i.val) := by
+  (((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd)[i.val] = !(getLsbD x i.val) := by
   apply iunfoldr_getLsbD (fun _ => ()) i (by simp)
 
 theorem bit_not_add_self (x : BitVec w) :
-  ((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsbD i)))) ()).snd + x  = -1 := by
+  ((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd + x  = -1 := by
   simp only [add_eq_adc]
   apply iunfoldr_replace_snd (fun _ => false) (-1) false rfl
-  intro i; simp only [ BitVec.not, adcb, testBit_toNat]
-  rw [iunfoldr_replace_snd (fun _ => ()) (((iunfoldr (fun i c => (c, !(x.getLsbD i)))) ()).snd)]
-  <;> simp [bit_not_testBit, negOne_eq_allOnes, getLsbD_allOnes]
+  intro i; simp only [adcb, Fin.is_lt, getLsbD_eq_getElem, atLeastTwo_false_right, bne_false,
+    ofNat_eq_ofNat, Prod.mk.injEq, and_eq_false_imp]
+  rw [iunfoldr_replace_snd (fun _ => ()) (((iunfoldr (fun i c => (c, !(x[i.val])))) ()).snd)]
+  <;> simp [bit_not_testBit, neg_one_eq_allOnes, getElem_allOnes]
 
 theorem bit_not_eq_not (x : BitVec w) :
-  ((iunfoldr (fun i c => (c, !(x.getLsbD i)))) ()).snd = ~~~ x := by
-  simp [←allOnes_sub_eq_not, BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), ←negOne_eq_allOnes]
+  ((iunfoldr (fun i c => (c, !(x[i])))) ()).snd = ~~~ x := by
+  simp [←allOnes_sub_eq_not, BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), ←neg_one_eq_allOnes]
 
-theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsbD i)))) ()).snd) (BitVec.ofNat w 1) false).snd:= by
+theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd) (BitVec.ofNat w 1) false).snd:= by
   simp only [← add_eq_adc]
-  rw [iunfoldr_replace_snd ((fun _ => ())) (((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsbD i)))) ()).snd) _ rfl]
-  · rw [BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), sub_toAdd, BitVec.add_comm _ (-x)]
-    simp [← sub_toAdd, BitVec.sub_add_cancel]
+  rw [iunfoldr_replace_snd ((fun _ => ())) (((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd) _ rfl]
+  · rw [BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), sub_eq_add_neg, BitVec.add_comm _ (-x)]
+    simp [← sub_eq_add_neg, BitVec.sub_add_cancel]
   · simp [bit_not_testBit x _]
 
 /--
@@ -397,7 +416,7 @@ theorem getLsbD_neg {i : Nat} {x : BitVec w} :
   · rw [getLsbD_add hi]
     have : 0 < w := by omega
     simp only [getLsbD_not, hi, decide_true, Bool.true_and, getLsbD_one, this, not_bne,
-      _root_.true_and, not_eq_eq_eq_not]
+      not_eq_eq_eq_not]
     cases i with
     | zero =>
       have carry_zero : carry 0 ?x ?y false = false := by
@@ -412,7 +431,7 @@ theorem getLsbD_neg {i : Nat} {x : BitVec w} :
       · rintro h j hj; exact And.right <| h j (by omega)
       · rintro h j hj; exact ⟨by omega, h j (by omega)⟩
   · have h_ge : w ≤ i := by omega
-    simp [getLsbD_ge _ _ h_ge, h_ge, hi]
+    simp [h_ge, hi]
 
 theorem getElem_neg {i : Nat} {x : BitVec w} (h : i < w) :
     (-x)[i] = (x[i] ^^ decide (∃ j < i, x.getLsbD j = true)) := by
@@ -421,7 +440,7 @@ theorem getElem_neg {i : Nat} {x : BitVec w} (h : i < w) :
 theorem getMsbD_neg {i : Nat} {x : BitVec w} :
     getMsbD (-x) i =
       (getMsbD x i ^^ decide (∃ j < w, i < j ∧ getMsbD x j = true)) := by
-  simp only [getMsbD, getLsbD_neg, Bool.decide_and, Bool.and_eq_true, decide_eq_true_eq]
+  simp only [getMsbD, getLsbD_neg, Bool.and_eq_true, decide_eq_true_eq]
   by_cases hi : i < w
   case neg =>
     simp [hi]; omega
@@ -476,11 +495,41 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
         case zero => exact hmsb
         case succ => exact getMsbD_x _ hi (by omega)
 
+/-- This is false if `v < w` and `b = intMin`. See also `signExtend_neg_of_ne_intMin`. -/
+@[simp] theorem signExtend_neg_of_le {v w : Nat} (h : w ≤ v) (b : BitVec v) :
+    (-b).signExtend w = -b.signExtend w := by
+  apply BitVec.eq_of_getElem_eq
+  intro i hi
+  simp only [getElem_signExtend, getElem_neg]
+  rw [dif_pos (by omega), dif_pos (by omega)]
+  simp only [getLsbD_signExtend, Bool.and_eq_true, decide_eq_true_eq, Bool.ite_eq_true_distrib,
+    Bool.bne_right_inj, decide_eq_decide]
+  exact ⟨fun ⟨j, hj₁, hj₂⟩ => ⟨j, ⟨hj₁, ⟨by omega, by rwa [if_pos (by omega)]⟩⟩⟩,
+    fun ⟨j, hj₁, hj₂, hj₃⟩ => ⟨j, hj₁, by rwa [if_pos (by omega)] at hj₃⟩⟩
+
+/-- This is false if `v < w` and `b = intMin`. See also `signExtend_neg_of_le`. -/
+@[simp] theorem signExtend_neg_of_ne_intMin {v w : Nat} (b : BitVec v) (hb : b ≠ intMin v) :
+    (-b).signExtend w = -b.signExtend w := by
+  refine (by omega : w ≤ v ∨ v < w).elim (fun h => signExtend_neg_of_le h b) (fun h => ?_)
+  apply BitVec.eq_of_toInt_eq
+  rw [toInt_signExtend_of_le (by omega), toInt_neg_of_ne_intMin hb, toInt_neg_of_ne_intMin,
+    toInt_signExtend_of_le (by omega)]
+  apply ne_of_apply_ne BitVec.toInt
+  rw [toInt_signExtend_of_le (by omega), toInt_intMin_of_pos (by omega)]
+  have := b.le_two_mul_toInt
+  have : -2 ^ w < -2 ^ v := by
+    apply Int.neg_lt_neg
+    norm_cast
+    rwa [Nat.pow_lt_pow_iff_right (by omega)]
+  have : 2 * b.toInt ≠ -2 ^ w := by omega
+  rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
+  omega
+
 /-! ### abs -/
 
 theorem msb_abs {w : Nat} {x : BitVec w} :
     x.abs.msb = (decide (x = intMin w) && decide (0 < w)) := by
-  simp only [BitVec.abs, getMsbD_neg, ne_eq, decide_not, Bool.not_bne]
+  simp only [BitVec.abs]
   by_cases h₀ : 0 < w
   · by_cases h₁ : x = intMin w
     · simp [h₁, msb_intMin]
@@ -503,54 +552,42 @@ theorem ult_eq_not_carry (x y : BitVec w) : x.ult y = !carry w x (~~~y) true := 
   rw [Nat.mod_eq_of_lt (by omega)]
   omega
 
-theorem ule_eq_not_ult (x y : BitVec w) : x.ule y = !y.ult x := by
-  simp [BitVec.ule, BitVec.ult, ← decide_not]
-
 theorem ule_eq_carry (x y : BitVec w) : x.ule y = carry w y (~~~x) true := by
   simp [ule_eq_not_ult, ult_eq_not_carry]
 
-/-- If two bitvectors have the same `msb`, then signed and unsigned comparisons coincide -/
-theorem slt_eq_ult_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) :
-    x.slt y = x.ult y := by
-  simp only [BitVec.slt, toInt_eq_msb_cond, BitVec.ult, decide_eq_decide, h]
-  cases y.msb <;> simp
-
-/-- If two bitvectors have different `msb`s, then unsigned comparison is determined by this bit -/
-theorem ult_eq_msb_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
-    x.ult y = y.msb := by
-  simp only [BitVec.ult, msb_eq_decide, ne_eq, decide_eq_decide] at *
-  omega
-
-/-- If two bitvectors have different `msb`s, then signed and unsigned comparisons are opposites -/
-theorem slt_eq_not_ult_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
-    x.slt y = !x.ult y := by
-  simp only [BitVec.slt, toInt_eq_msb_cond, Bool.eq_not_of_ne h, ult_eq_msb_of_msb_neq h]
-  cases y.msb <;> (simp; omega)
-
-theorem slt_eq_ult (x y : BitVec w) :
-    x.slt y = (x.msb != y.msb).xor (x.ult y) := by
-  by_cases h : x.msb = y.msb
-  · simp [h, slt_eq_ult_of_msb_eq]
-  · have h' : x.msb != y.msb := by simp_all
-    simp [slt_eq_not_ult_of_msb_neq h, h']
-
-theorem slt_eq_not_carry (x y : BitVec w) :
+theorem slt_eq_not_carry {x y : BitVec w} :
     x.slt y = (x.msb == y.msb).xor (carry w x (~~~y) true) := by
   simp only [slt_eq_ult, bne, ult_eq_not_carry]
   cases x.msb == y.msb <;> simp
 
-theorem sle_eq_not_slt (x y : BitVec w) : x.sle y = !y.slt x := by
-  simp only [BitVec.sle, BitVec.slt, ← decide_not, decide_eq_decide]; omega
-
-theorem sle_eq_carry (x y : BitVec w) :
+theorem sle_eq_carry {x y : BitVec w} :
     x.sle y = !((x.msb == y.msb).xor (carry w y (~~~x) true)) := by
   rw [sle_eq_not_slt, slt_eq_not_carry, beq_comm]
 
-/-! ### mul recurrence for bitblasting -/
+theorem neg_slt_zero (h : 0 < w) {x : BitVec w} :
+    (-x).slt 0#w = ((x == intMin w) || (0#w).slt x) := by
+  rw [slt_zero_eq_msb, msb_neg, slt_eq_sle_and_ne, zero_sle_eq_not_msb]
+  apply Bool.eq_iff_iff.2
+  cases hmsb : x.msb with
+  | false => simpa [ne_intMin_of_msb_eq_false h hmsb] using Decidable.not_iff_not.2 (eq_comm)
+  | true =>
+    simp only [Bool.bne_true, Bool.not_and, Bool.or_eq_true, Bool.not_eq_eq_eq_not, Bool.not_true,
+      bne_eq_false_iff_eq, Bool.false_and, Bool.or_false, beq_iff_eq,
+      _root_.or_iff_right_iff_imp]
+    rintro rfl
+    simp at hmsb
+
+theorem neg_sle_zero (h : 0 < w) {x : BitVec w} :
+    (-x).sle 0#w = (x == intMin w || (0#w).sle x) := by
+  rw [sle_eq_slt_or_eq, neg_slt_zero h, sle_eq_slt_or_eq]
+  simp [Bool.beq_eq_decide_eq (-x), Bool.beq_eq_decide_eq _ x, Eq.comm (a := x), Bool.or_assoc]
+
+/-! ### mul recurrence for bit blasting -/
 
 /--
 A recurrence that describes multiplication as repeated addition.
-Is useful for bitblasting multiplication.
+
+This function is useful for bit blasting multiplication.
 -/
 def mulRec (x y : BitVec w) (s : Nat) : BitVec w :=
   let cur := if y.getLsbD s then (x <<< s) else 0
@@ -574,30 +611,27 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i
       setWidth w (x.setWidth i) + (x &&& twoPow w i) := by
   rw [add_eq_or_of_and_eq_zero]
   · ext k h
-    simp only [getLsbD_setWidth, h, decide_true, Bool.true_and, getLsbD_or, getLsbD_and]
+    simp only [getElem_setWidth, getLsbD_setWidth, h, getLsbD_eq_getElem, getElem_or, getElem_and,
+      getElem_twoPow]
     by_cases hik : i = k
     · subst hik
-      simp [h]
-    · simp only [getLsbD_twoPow, hik, decide_false, Bool.and_false, Bool.or_false]
-      by_cases hik' : k < (i + 1)
+      simp
+    · by_cases hik' : k < (i + 1)
       · have hik'' : k < i := by omega
         simp [hik', hik'']
+        omega
       · have hik'' : ¬ (k < i) := by omega
         simp [hik', hik'']
+        omega
   · ext k
-    simp only [and_twoPow, getLsbD_and, getLsbD_setWidth, Fin.is_lt, decide_true, Bool.true_and,
-      getLsbD_zero, and_eq_false_imp, and_eq_true, decide_eq_true_eq, and_imp]
+    simp only [and_twoPow,
+      ]
     by_cases hi : x.getLsbD i <;> simp [hi] <;> omega
-
-@[deprecated setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (since := "2024-09-18"),
-  inherit_doc setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow]
-abbrev zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow :=
-  @setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow
 
 /--
 Recurrence lemma: multiplying `x` with the first `s` bits of `y` is the
 same as truncating `y` to `s` bits, then zero extending to the original length,
-and performing the multplication. -/
+and performing the multiplication. -/
 theorem mulRec_eq_mul_signExtend_setWidth (x y : BitVec w) (s : Nat) :
     mulRec x y s = x * ((y.setWidth (s + 1)).setWidth w) := by
   induction s
@@ -620,16 +654,18 @@ theorem mulRec_eq_mul_signExtend_setWidth (x y : BitVec w) (s : Nat) :
       by_cases hy : y.getLsbD (s' + 1) <;> simp [hy]
     rw [heq, ← BitVec.mul_add, ← setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow]
 
-@[deprecated mulRec_eq_mul_signExtend_setWidth (since := "2024-09-18"),
-  inherit_doc mulRec_eq_mul_signExtend_setWidth]
-abbrev mulRec_eq_mul_signExtend_truncate := @mulRec_eq_mul_signExtend_setWidth
-
 theorem getLsbD_mul (x y : BitVec w) (i : Nat) :
     (x * y).getLsbD i = (mulRec x y w).getLsbD i := by
   simp only [mulRec_eq_mul_signExtend_setWidth]
   rw [setWidth_setWidth_of_le]
   · simp
   · omega
+
+theorem mul_eq_mulRec {x y : BitVec w} :
+    x * y = mulRec x y w := by
+  apply eq_of_getLsbD_eq
+  intro i hi
+  apply getLsbD_mul
 
 theorem getMsbD_mul (x y : BitVec w) (i : Nat) :
     (x * y).getMsbD i = (mulRec x y w).getMsbD i := by
@@ -642,15 +678,16 @@ theorem getElem_mul {x y : BitVec w} {i : Nat} (h : i < w) :
     (x * y)[i] = (mulRec x y w)[i] := by
   simp [mulRec_eq_mul_signExtend_setWidth]
 
-/-! ## shiftLeft recurrence for bitblasting -/
+/-! ## shiftLeft recurrence for bit blasting -/
 
 /--
-`shiftLeftRec x y n` shifts `x` to the left by the first `n` bits of `y`.
+Shifts `x` to the left by the first `n` bits of `y`.
 
-The theorem `shiftLeft_eq_shiftLeftRec` proves the equivalence of `(x <<< y)` and `shiftLeftRec`.
+The theorem `BitVec.shiftLeft_eq_shiftLeftRec` proves the equivalence of `(x <<< y)` and
+`BitVec.shiftLeftRec x y`.
 
-Together with equations `shiftLeftRec_zero`, `shiftLeftRec_succ`,
-this allows us to unfold `shiftLeft` into a circuit for bitblasting.
+Together with equations `BitVec.shiftLeftRec_zero` and `BitVec.shiftLeftRec_succ`, this allows
+`BitVec.shiftLeft` to be unfolded into a circuit for bit blasting.
  -/
 def shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))
@@ -704,7 +741,7 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
 
 /--
 Show that `x <<< y` can be written in terms of `shiftLeftRec`.
-This can be unfolded in terms of `shiftLeftRec_zero`, `shiftLeftRec_succ` for bitblasting.
+This can be unfolded in terms of `shiftLeftRec_zero`, `shiftLeftRec_succ` for bit blasting.
 -/
 theorem shiftLeft_eq_shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) :
     x <<< y = shiftLeftRec x y (w₂ - 1) := by
@@ -712,7 +749,7 @@ theorem shiftLeft_eq_shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) :
   · simp [of_length_zero]
   · simp [shiftLeftRec_eq]
 
-/-! # udiv/urem recurrence for bitblasting
+/-! # udiv/urem recurrence for bit blasting
 
 In order to prove the correctness of the division algorithm on the integers,
 one shows that `n.div d = q` and `n.mod d = r` iff `n = d * q + r` and `0 ≤ r < d`.
@@ -745,7 +782,7 @@ private theorem Nat.div_add_eq_left_of_lt {x y z : Nat} (hx : z ∣ x) (hy : y <
   · apply Nat.le_trans
     · exact div_mul_le_self x z
     · omega
-  · simp only [succ_eq_add_one, Nat.add_mul, Nat.one_mul]
+  · simp only [Nat.add_mul, Nat.one_mul]
     apply Nat.add_lt_add_of_le_of_lt
     · apply Nat.le_of_eq
       exact (Nat.div_eq_iff_eq_mul_left hz hx).mp rfl
@@ -858,10 +895,10 @@ def DivModState.lawful_init {w : Nat} (args : DivModArgs w) (hd : 0#w < args.d) 
     hwrn := by simp only; omega,
     hdPos := by assumption
     hrLtDivisor := by simp [BitVec.lt_def] at hd ⊢; assumption
-    hrWidth := by simp [DivModState.init],
-    hqWidth := by simp [DivModState.init],
+    hrWidth := by simp,
+    hqWidth := by simp,
     hdiv := by
-      simp only [DivModState.init, toNat_ofNat, zero_mod, Nat.mul_zero, Nat.add_zero];
+      simp only [toNat_ofNat, zero_mod, Nat.mul_zero, Nat.add_zero];
       rw [Nat.shiftRight_eq_div_pow]
       apply Nat.div_eq_of_lt args.n.isLt
   }
@@ -889,7 +926,7 @@ theorem DivModState.umod_eq_of_lawful {qr : DivModState w}
     n % d = qr.r := by
   apply umod_eq_of_mul_add_toNat h.hrLtDivisor
   have hdiv := h.hdiv
-  simp only [shiftRight_zero] at hdiv
+  simp only at hdiv
   simp only [h_final] at *
   exact hdiv.symm
 
@@ -903,7 +940,7 @@ The input to the shift subtractor is a legal input to `divrem`, and we also need
 input bit to perform shift subtraction on, and thus we need `0 < wn`.
 -/
 structure DivModState.Poised {w : Nat} (args : DivModArgs w) (qr : DivModState w)
-  extends DivModState.Lawful args qr : Type where
+  extends DivModState.Lawful args qr where
   /-- Only perform a round of shift-subtract if we have dividend bits. -/
   hwn_lt : 0 < qr.wn
 
@@ -919,8 +956,9 @@ def DivModState.wr_lt_w {qr : DivModState w} (h : qr.Poised args) : qr.wr < w :=
 /-! ### Division shift subtractor -/
 
 /--
-One round of the division algorithm, that tries to perform a subtract shift.
-Note that this should only be called when `r.msb = false`, so we will not overflow.
+One round of the division algorithm. It tries to perform a subtract shift.
+
+This should only be called when `r.msb = false`, so it will not overflow.
 -/
 def divSubtractShift (args : DivModArgs w) (qr : DivModState w) : DivModState w :=
   let {n, d} := args
@@ -942,7 +980,7 @@ theorem DivModState.toNat_shiftRight_sub_one_eq
     {args : DivModArgs w} {qr : DivModState w} (h : qr.Poised args) :
     args.n.toNat >>> (qr.wn - 1)
     = (args.n.toNat >>> qr.wn) * 2 + (args.n.getLsbD (qr.wn - 1)).toNat := by
-  show BitVec.toNat (args.n >>> (qr.wn - 1)) = _
+  change BitVec.toNat (args.n >>> (qr.wn - 1)) = _
   have {..} := h -- break the structure down for `omega`
   rw [shiftRight_sub_one_eq_shiftConcat args.n h.hwn_lt]
   rw [toNat_shiftConcat_eq_of_lt (k := w - qr.wn)]
@@ -966,7 +1004,7 @@ obeys the division equation. -/
 theorem lawful_divSubtractShift (qr : DivModState w) (h : qr.Poised args) :
     DivModState.Lawful args (divSubtractShift args qr) := by
   rcases args with ⟨n, d⟩
-  simp only [divSubtractShift, decide_eq_true_eq]
+  simp only [divSubtractShift]
   -- We add these hypotheses for `omega` to find them later.
   have ⟨⟨hrwn, hd, hrd, hr, hn, hrnd⟩, hwn_lt⟩ := h
   have : d.toNat * (qr.q.toNat * 2) = d.toNat * qr.q.toNat * 2 := by rw [Nat.mul_assoc]
@@ -1010,7 +1048,7 @@ theorem lawful_divSubtractShift (qr : DivModState w) (h : qr.Poised args) :
 
 /-! ### Core division algorithm circuit -/
 
-/-- A recursive definition of division for bitblasting, in terms of a shift-subtraction circuit. -/
+/-- A recursive definition of division for bit blasting, in terms of a shift-subtraction circuit. -/
 def divRec {w : Nat} (m : Nat) (args : DivModArgs w) (qr : DivModState w) :
     DivModState w :=
   match m with
@@ -1030,11 +1068,10 @@ theorem divRec_succ (m : Nat) (args : DivModArgs w) (qr : DivModState w) :
 theorem lawful_divRec {args : DivModArgs w} {qr : DivModState w}
     (h : DivModState.Lawful args qr) :
     DivModState.Lawful args (divRec qr.wn args qr) := by
-  generalize hm : qr.wn = m
-  induction m generalizing qr
-  case zero =>
+  induction hm : qr.wn generalizing qr with
+  | zero =>
     exact h
-  case succ wn' ih =>
+  | succ wn' ih =>
     simp only [divRec_succ]
     apply ih
     · apply lawful_divSubtractShift
@@ -1048,11 +1085,10 @@ theorem lawful_divRec {args : DivModArgs w} {qr : DivModState w}
 @[simp]
 theorem wn_divRec (args : DivModArgs w) (qr : DivModState w) :
     (divRec qr.wn args qr).wn = 0 := by
-  generalize hm : qr.wn = m
-  induction m generalizing qr
-  case zero =>
+  induction hm : qr.wn generalizing qr with
+  | zero =>
     assumption
-  case succ wn' ih =>
+  | succ wn' ih =>
     apply ih
     simp only [divSubtractShift, hm]
     split <;> rfl
@@ -1104,15 +1140,17 @@ theorem getLsbD_udiv (n d : BitVec w) (hy : 0#w < d)  (i : Nat) :
 
 theorem getMsbD_udiv (n d : BitVec w) (hd : 0#w < d)  (i : Nat) :
     (n / d).getMsbD i = (decide (i < w) && (divRec w {n, d} (DivModState.init w)).q.getMsbD i) := by
-  simp [getMsbD_eq_getLsbD, getLsbD_udiv, udiv_eq_divRec (by assumption)]
+  simp [getMsbD_eq_getLsbD, udiv_eq_divRec (by assumption)]
 
 /- ### Arithmetic shift right (sshiftRight) recurrence -/
 
 /--
-`sshiftRightRec x y n` shifts `x` arithmetically/signed to the right by the first `n` bits of `y`.
-The theorem `sshiftRight_eq_sshiftRightRec` proves the equivalence of `(x.sshiftRight y)` and `sshiftRightRec`.
-Together with equations `sshiftRightRec_zero`, `sshiftRightRec_succ`,
-this allows us to unfold `sshiftRight` into a circuit for bitblasting.
+Shifts `x` arithmetically (signed) to the right by the first `n` bits of `y`.
+
+The theorem `BitVec.sshiftRight_eq_sshiftRightRec` proves the equivalence of `(x.sshiftRight y)` and
+`BitVec.sshiftRightRec x y`. Together with equations `BitVec.sshiftRightRec_zero`, and
+`BitVec.sshiftRightRec_succ`, this allows `BitVec.sshiftRight` to be unfolded into a circuit for
+bit blasting.
 -/
 def sshiftRightRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))
@@ -1159,7 +1197,7 @@ theorem sshiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
 
 /--
 Show that `x.sshiftRight y` can be written in terms of `sshiftRightRec`.
-This can be unfolded in terms of `sshiftRightRec_zero_eq`, `sshiftRightRec_succ_eq` for bitblasting.
+This can be unfolded in terms of `sshiftRightRec_zero_eq`, `sshiftRightRec_succ_eq` for bit blasting.
 -/
 theorem sshiftRight_eq_sshiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
     (x.sshiftRight' y).getLsbD i = (sshiftRightRec x y (w₂ - 1)).getLsbD i := by
@@ -1167,16 +1205,16 @@ theorem sshiftRight_eq_sshiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
   · simp [of_length_zero]
   · simp [sshiftRightRec_eq]
 
-/- ### Logical shift right (ushiftRight) recurrence for bitblasting -/
+/- ### Logical shift right (ushiftRight) recurrence for bit blasting -/
 
 /--
-`ushiftRightRec x y n` shifts `x` logically to the right by the first `n` bits of `y`.
+Shifts `x` logically to the right by the first `n` bits of `y`.
 
-The theorem `shiftRight_eq_ushiftRightRec` proves the equivalence
-of `(x >>> y)` and `ushiftRightRec`.
+The theorem `BitVec.shiftRight_eq_ushiftRightRec` proves the equivalence
+of `(x >>> y)` and `BitVec.ushiftRightRec`.
 
-Together with equations `ushiftRightRec_zero`, `ushiftRightRec_succ`,
-this allows us to unfold `ushiftRight` into a circuit for bitblasting.
+Together with equations `BitVec.ushiftRightRec_zero` and `BitVec.ushiftRightRec_succ`,
+this allows `BitVec.ushiftRight` to be unfolded into a circuit for bit blasting.
 -/
 def ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))
@@ -1222,12 +1260,1133 @@ theorem ushiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
 
 /--
 Show that `x >>> y` can be written in terms of `ushiftRightRec`.
-This can be unfolded in terms of `ushiftRightRec_zero`, `ushiftRightRec_succ` for bitblasting.
+This can be unfolded in terms of `ushiftRightRec_zero`, `ushiftRightRec_succ` for bit blasting.
 -/
 theorem shiftRight_eq_ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
     x >>> y = ushiftRightRec x y (w₂ - 1) := by
   rcases w₂ with rfl | w₂
   · simp [of_length_zero]
   · simp [ushiftRightRec_eq]
+
+/-! ### Overflow definitions -/
+
+/-- Unsigned addition overflows iff the final carry bit of the addition circuit is `true`. -/
+theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
+    uaddOverflow x y = (x.setWidth (w + 1) + y.setWidth (w + 1)).msb := by
+  simp [uaddOverflow, msb_add, msb_setWidth, carry]
+
+theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
+    saddOverflow x y = (x.msb == y.msb && !((x + y).msb == x.msb)) := by
+  simp only [saddOverflow]
+  rcases w with _|w
+  · revert x y; decide
+  · have := le_two_mul_toInt (x := x); have := two_mul_toInt_lt (x := x)
+    have := le_two_mul_toInt (x := y); have := two_mul_toInt_lt (x := y)
+    simp only [← decide_or, msb_eq_toInt, decide_beq_decide, toInt_add, ← decide_not, ← decide_and,
+      decide_eq_decide]
+    rw_mod_cast [Int.bmod_neg_iff (by omega) (by omega)]
+    simp only [Nat.add_one_sub_one, ge_iff_le]
+    omega
+
+theorem usubOverflow_eq {w : Nat} (x y : BitVec w) :
+    usubOverflow x y = decide (x < y) := rfl
+
+theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
+    ssubOverflow x y = ((!x.msb && y.msb && (x - y).msb) || (x.msb && !y.msb && !(x - y).msb)) := by
+  simp only [ssubOverflow]
+  rcases w with _|w
+  · simp [BitVec.of_length_zero]
+  · have h₁ := BitVec.toInt_sub_toInt_lt_twoPow_iff (x := x) (y := y)
+    have h₂ := BitVec.twoPow_le_toInt_sub_toInt_iff (x := x) (y := y)
+    simp only [Nat.add_one_sub_one] at h₁ h₂
+    simp only [Nat.add_one_sub_one, ge_iff_le, msb_eq_toInt, ← decide_not, Int.not_lt, toInt_sub]
+    simp only [bool_to_prop]
+    omega
+
+theorem negOverflow_eq {w : Nat} (x : BitVec w) :
+    (negOverflow x) = (decide (0 < w) && (x == intMin w)) := by
+  simp only [negOverflow]
+  rcases w with _|w
+  · simp [toInt_of_zero_length]
+  · suffices - 2 ^ w = (intMin (w + 1)).toInt by simp [beq_eq_decide_eq, ← toInt_inj, this]
+    simp only [toInt_intMin, Nat.add_one_sub_one, Int.natCast_emod, Int.neg_inj]
+    rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
+
+/--
+  Prove that signed division `x.toInt / y.toInt` only overflows when `x = intMin w` and `y = allOnes w` (for `0 < w`).
+-/
+theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
+    (sdivOverflow x y) = (decide (0 < w) && (x = intMin w) && (y = allOnes w)) := by
+  rcases w with _|w
+  · simp [sdivOverflow, of_length_zero]
+  · have yle := le_two_mul_toInt (x := y)
+    have ylt := two_mul_toInt_lt (x := y)
+    -- if y = allOnes (w + 1), thus y.toInt = -1,
+    -- the division overflows iff x = intMin (w + 1), as for negation
+    by_cases hy : y = allOnes (w + 1)
+    · simp [sdivOverflow_eq_negOverflow_of_eq_allOnes, negOverflow_eq, ← hy, beq_eq_decide_eq]
+    · simp only [sdivOverflow, hy, bool_to_prop]
+      have := BitVec.neg_two_pow_le_toInt_ediv (x := x) (y := y)
+      simp only [Nat.add_one_sub_one] at this
+      by_cases hx : 0 ≤ x.toInt
+      · by_cases hy' : 0 ≤ y.toInt
+        · have := BitVec.toInt_ediv_toInt_lt_of_nonneg_of_nonneg
+                (x := x) (y := y) (by omega) (by omega)
+          simp only [Nat.add_one_sub_one] at this; simp; omega
+        · have := BitVec.toInt_ediv_toInt_nonpos_of_nonneg_of_nonpos
+                (x := x) (y := y) (by omega) (by omega)
+          simp; omega
+      · by_cases hy' : 0 ≤ y.toInt
+        · have :=  BitVec.toInt_ediv_toInt_nonpos_of_nonpos_of_nonneg
+                (x := x) (y := y) (by omega) (by omega)
+          simp; omega
+        · have := BitVec.toInt_ediv_toInt_lt_of_nonpos_of_lt_neg_one
+                (x := x) (y := y) (by omega) (by rw [← toInt_inj, toInt_allOnes] at hy; omega)
+          simp only [Nat.add_one_sub_one] at this; simp; omega
+
+theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
+    umulOverflow x y =
+      (0 < w && BitVec.twoPow (w * 2) w ≤ x.zeroExtend (w * 2) * y.zeroExtend (w * 2)) := by
+  simp only [umulOverflow, toNat_twoPow, le_def, toNat_mul, toNat_setWidth, mod_mul_mod]
+  rcases w with _|w
+  · simp [of_length_zero]
+  · simp only [ge_iff_le, show 0 < w + 1 by omega, decide_true, mul_mod_mod, Bool.true_and,
+      decide_eq_decide]
+    rw [Nat.mod_eq_of_lt BitVec.toNat_mul_toNat_lt, Nat.mod_eq_of_lt]
+    have := Nat.pow_lt_pow_of_lt (a := 2) (n := w + 1) (m := (w + 1) * 2)
+    omega
+
+theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
+    smulOverflow x y =
+      (0 < w &&
+      ((signExtend (w * 2) (intMax w)).slt (signExtend (w * 2) x * signExtend (w * 2) y) ||
+      (signExtend (w * 2) x * signExtend (w * 2) y).slt (signExtend (w * 2) (intMin w)))) := by
+  simp only [smulOverflow]
+  rcases w with _|w
+  · simp [of_length_zero, toInt_zero]
+  · have h₁ := BitVec.two_pow_le_toInt_mul_toInt_iff (x := x) (y := y)
+    have h₂ := BitVec.toInt_mul_toInt_lt_neg_two_pow_iff (x := x) (y := y)
+    simp only [Nat.add_one_sub_one] at h₁ h₂
+    simp [h₁, h₂]
+
+/- ### umod -/
+
+theorem getElem_umod {n d : BitVec w} (hi : i < w) :
+    (n % d)[i]
+      = if d = 0#w then n[i]
+      else (divRec w { n := n, d := d } (DivModState.init w)).r[i] := by
+  by_cases hd : d = 0#w
+  · simp [hd]
+  · have := (BitVec.not_le (x := d) (y := 0#w)).mp
+    rw [← BitVec.umod_eq_divRec (by simp [hd, this])]
+    simp [hd]
+
+theorem getLsbD_umod {n d : BitVec w}:
+    (n % d).getLsbD i
+      = if d = 0#w then n.getLsbD i
+      else (divRec w { n := n, d := d } (DivModState.init w)).r.getLsbD i := by
+  by_cases hi : i < w
+  · simp only [BitVec.getLsbD_eq_getElem hi, getElem_umod]
+  · simp [show w ≤ i by omega]
+
+theorem getMsbD_umod {n d : BitVec w}:
+    (n % d).getMsbD i
+      = if d = 0#w then n.getMsbD i
+      else (divRec w { n := n, d := d } (DivModState.init w)).r.getMsbD i := by
+  by_cases hi : i < w
+  · rw [BitVec.getMsbD_eq_getLsbD, getLsbD_umod]
+    simp [BitVec.getMsbD_eq_getLsbD, hi]
+  · simp [show w ≤ i by omega]
+
+
+/-! ### Mappings to and from BitVec -/
+
+theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x, g (f x) = x) :
+    ∀ x y, x = y ↔ f x = f y := by
+  intro x y
+  constructor
+  · intro h'
+    rw [h']
+  · intro h'
+    have := congrArg g h'
+    simpa [h] using this
+
+@[simp]
+theorem ne_intMin_of_lt_of_msb_false {x : BitVec w} (hw : 0 < w) (hx : x.msb = false) :
+    x ≠ intMin w := by
+  have := toNat_lt_of_msb_false hx
+  simp [toNat_eq, Nat.two_pow_pred_mod_two_pow hw]
+  omega
+
+@[simp]
+theorem ne_zero_of_msb_true {x : BitVec w} (hx : x.msb = true) :
+    x ≠ 0#w := by
+  have := Nat.two_pow_pos (w-1)
+  have := le_toNat_of_msb_true hx
+  simp [toNat_eq]
+  omega
+
+@[simp]
+theorem msb_neg_of_ne_intMin_of_ne_zero {x : BitVec w} (h : x ≠ intMin w) (h' : x ≠ 0#w) :
+    (-x).msb = !x.msb := by
+  simp only [msb_neg, bool_to_prop]
+  simp [h, h']
+
+@[simp]
+theorem udiv_intMin_of_msb_false {x : BitVec w} (h : x.msb = false) :
+    x / intMin w = 0#w := by
+  by_cases hw : w = 0
+  · subst hw
+    decide +revert
+  have wpos : 0 < w := by omega
+  have := Nat.two_pow_pos (w-1)
+  simp [toNat_eq, wpos]
+  exact toNat_lt_of_msb_false h
+
+theorem sdiv_intMin {x : BitVec w} :
+    x.sdiv (intMin w) = if x = intMin w then 1#w else 0#w := by
+  by_cases hw : w = 0
+  · subst hw
+    decide +revert
+  have wpos : 0 < w := by omega
+  by_cases h : x = intMin w
+  · subst h
+    simp
+  · simp only [sdiv_eq, msb_intMin, show 0 < w by omega, h]
+    have := Nat.two_pow_pos (w-1)
+    by_cases hx : x.msb
+    · simp [msb_neg_of_ne_intMin_of_ne_zero (by simp [h])
+        (BitVec.ne_zero_of_msb_true hx), hx]
+    · simp [hx]
+
+theorem sdiv_neg {x y : BitVec w} (h : y ≠ intMin w) :
+    x.sdiv (-y) = -(x.sdiv y) := by
+  by_cases h' : y = 0#w
+  · subst h'
+    simp
+  · simp only [BitVec.sdiv, msb_neg_of_ne_intMin_of_ne_zero h (by simp [h'])]
+    cases x.msb <;> cases y.msb <;> simp
+
+theorem neg_sdiv {x y : BitVec w} (h : x ≠ intMin w) :
+    (-x).sdiv y = -(x.sdiv y) := by
+  by_cases hx0 : x = 0#w
+  · subst hx0
+    simp
+  · simp only [BitVec.sdiv, msb_neg_of_ne_intMin_of_ne_zero h (by simp [hx0])]
+    cases x.msb <;> cases y.msb <;> simp
+
+theorem neg_sdiv_neg {x y : BitVec w} (h : x ≠ intMin w) :
+    (-x).sdiv (-y) = x.sdiv y := by
+  by_cases h' : y = intMin w
+  · subst h'
+    simp [sdiv_intMin, neg_intMin]
+  · by_cases hy0 : y = 0#w
+    · subst hy0
+      simp
+    · by_cases hx0 : x = 0#w
+      · subst hx0
+        simp
+      · simp only [BitVec.sdiv,
+           msb_neg_of_ne_intMin_of_ne_zero h  (by simp [hx0]),
+           msb_neg_of_ne_intMin_of_ne_zero h' (by simp [hy0])]
+        cases x.msb <;> cases y.msb <;> simp
+
+theorem intMin_eq_neg_two_pow : intMin w = BitVec.ofInt w (-2 ^ (w - 1)) := by
+  apply BitVec.eq_of_toInt_eq
+  refine (Nat.eq_zero_or_pos w).elim (by rintro rfl; simp [BitVec.toInt_zero_length]) (fun hw => ?_)
+  rw [BitVec.toInt_intMin_of_pos hw, BitVec.toInt_ofInt_eq_self hw (Int.le_refl _)]
+  have := Nat.two_pow_pos (w - 1)
+  norm_cast
+  omega
+
+theorem toInt_intMin_eq_bmod : (intMin w).toInt = (-2 ^ (w - 1)).bmod (2 ^ w) := by
+  rw [intMin_eq_neg_two_pow, toInt_ofInt]
+
+@[simp]
+theorem toInt_bmod_cancel(b : BitVec w) : b.toInt.bmod (2 ^ w) = b.toInt := by
+  rw [toInt_eq_toNat_bmod, Int.bmod_bmod]
+
+theorem sdiv_ne_intMin_of_ne_intMin {x y : BitVec w} (h : x ≠ intMin w) :
+    x.sdiv y ≠ intMin w := by
+  by_cases hw : w = 0
+  · subst hw
+    simp [BitVec.eq_nil x] at h
+    contradiction
+  simp only [sdiv, udiv_eq, neg_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  <;> simp only [hx, hy, neg_ne_intMin_inj]
+  <;> simp only [Bool.not_eq_true] at hx hy
+  <;> apply ne_intMin_of_lt_of_msb_false (by omega)
+  <;> rw [msb_udiv]
+  <;> try simp only [hx, Bool.false_and]
+  · simp [h, ne_zero_of_msb_true, hx]
+  · simp [h, ne_zero_of_msb_true, hx]
+
+theorem toInt_eq_neg_toNat_neg_of_msb_true {x : BitVec w} (h : x.msb = true) :
+    x.toInt = -((-x).toNat) := by
+  simp only [toInt_eq_msb_cond, h, ↓reduceIte, toNat_neg, Int.natCast_emod]
+  norm_cast
+  rw [Nat.mod_eq_of_lt]
+  · omega
+  · have := @BitVec.isLt w x
+    have ne_zero := ne_zero_of_msb_true h
+    simp only [ne_eq, toNat_eq, toNat_ofNat, zero_mod] at ne_zero
+    omega
+
+theorem toInt_eq_neg_toNat_neg_of_nonpos {x : BitVec w} (h : x = 0#w ∨ x.msb = true) :
+    x.toInt = -((-x).toNat) := by
+  cases h
+  case inl h' =>
+    simp [h']
+  case inr h' =>
+    simp [toInt_eq_neg_toNat_neg_of_msb_true h']
+
+theorem intMin_udiv_eq_intMin_iff (x : BitVec w) :
+    intMin w / x = intMin w ↔ x = 1#w := by
+  by_cases hw : w = 0;   subst hw; decide +revert
+  by_cases hx : x = 1#w; subst hx; simp
+  have wpos : 0 < w := by omega
+
+  have : 0 ≤ (2 ^ (w - 1) / x.toNat) := by simp
+  have := Nat.two_pow_pos (w - 1)
+
+  constructor
+  · intro h
+    rw [← toInt_inj, toInt_eq_msb_cond] at h
+    have : (intMin w / x).msb = false := by simp [msb_udiv, msb_intMin,  wpos, hx]
+    simp only [this, false_eq_true, ↓reduceIte, toNat_udiv, toNat_intMin, wpos,
+      Nat.two_pow_pred_mod_two_pow, Int.natCast_ediv, toInt_intMin] at h
+    omega
+  · intro h
+    subst h
+    simp
+
+theorem intMin_udiv_ne_zero_of_ne_zero {b : BitVec w} (hb : b.msb = false) (hb0 : b ≠ 0#w) :
+    intMin w / b ≠ 0#w := by
+  by_cases hw : w = 0;   subst hw; decide +revert
+  have wpos : 0 < w := by omega
+
+  simp [toNat_eq] at hb0
+  have := @Nat.div_eq_zero_iff_lt b.toNat (2 ^ (w-1)) (by omega)
+  have := toNat_lt_of_msb_false hb
+
+  simp [toNat_eq, wpos]
+  omega
+
+theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1#w) :
+    (a.sdiv b).toInt = a.toInt.tdiv b.toInt := by
+  by_cases hw0 : w = 0;   subst hw0; decide +revert
+  by_cases hw1 : w = 1;   subst hw1; decide +revert
+  by_cases ha0 : a = 0#w; subst ha0; simp
+  by_cases hb0 : b = 0#w; subst hb0; simp
+  by_cases hb1 : b = 1#w; subst hb1; simp [show 1 < w by omega]
+
+  have wpos : 0 < w := by omega
+  have := Nat.two_pow_pos (w - 1)
+
+  by_cases hbintMin : b = intMin w
+  · simp only at hbintMin
+    subst hbintMin
+    have toIntA_lt := @BitVec.toInt_lt w a; norm_cast at toIntA_lt
+    have le_toIntA := @BitVec.le_toInt w a; norm_cast at le_toIntA
+    simp only [sdiv_intMin, toInt_intMin, wpos,
+      Nat.two_pow_pred_mod_two_pow, Int.tdiv_neg]
+    · by_cases ha_intMin : a = intMin w
+      · simp only [ha_intMin, ↓reduceIte, show 1 < w by omega, toInt_one, toInt_intMin, wpos,
+          Nat.two_pow_pred_mod_two_pow, Int.neg_tdiv, Int.neg_neg]
+        rw [Int.tdiv_self (by omega)]
+      · by_cases ha_nonneg : 0 ≤ a.toInt
+        · simp [Int.tdiv_eq_zero_of_lt ha_nonneg (by norm_cast at *), ha_intMin, -Int.natCast_pow]
+        · simp only [ne_eq, ← toInt_inj, toInt_intMin, wpos, Nat.two_pow_pred_mod_two_pow] at h
+          rw [← Int.neg_tdiv, Int.tdiv_eq_zero_of_lt (by omega)]
+          · simp [ha_intMin]
+          · simp [wpos, ← toInt_ne, toInt_intMin, -Int.natCast_pow] at ha_intMin
+            omega
+
+  · by_cases ha : a.msb <;> by_cases hb : b.msb
+    <;> simp only [not_eq_true] at ha hb
+    · simp only [sdiv_eq, ha, hb, udiv_eq]
+      rw [toInt_eq_neg_toNat_neg_of_nonpos (x := a) (by simp [ha]),
+        toInt_eq_neg_toNat_neg_of_nonpos (x := b) (by simp [hb]),
+        Int.neg_tdiv_neg, Int.tdiv_eq_ediv_of_nonneg (by omega)]
+      rw [toInt_eq_toNat_of_msb]
+      · rfl
+      · by_cases ha_intMin : a = intMin w
+        · simp only [ha_intMin, ne_eq, not_true_eq_false, _root_.false_or] at h
+          simp [msb_udiv, neg_eq_iff_eq_neg, h]
+        · simp [msb_udiv, ha_intMin, ha]
+    · have sdiv_toInt_of_msb_true_of_msb_false :
+          (a.sdiv b).toInt = -((-a).toNat / b.toNat) := by
+        simp only [sdiv_eq, ha, hb, udiv_eq]
+        rw [toInt_eq_neg_toNat_neg_of_nonpos]
+        · rw [neg_neg, toNat_udiv, toNat_neg, Int.natCast_emod, Int.neg_inj]
+          norm_cast
+        · rw [neg_eq_zero_iff]
+          by_cases h' : -a / b = 0#w
+          · simp [h']
+          · by_cases ha_intMin : a = intMin w
+            · have ry := (intMin_udiv_eq_intMin_iff b).mp
+              simp only [hb1, imp_false] at ry
+              simp [msb_udiv, ha_intMin, hb1, ry, intMin_udiv_ne_zero_of_ne_zero, hb, hb0]
+            · have := @BitVec.ne_intMin_of_lt_of_msb_false w ((-a) / b) wpos (by simp [ha, ha0, ha_intMin])
+              simp [msb_neg, h', this, ha, ha_intMin]
+      rw [toInt_eq_toNat_of_msb hb, toInt_eq_neg_toNat_neg_of_msb_true ha, Int.neg_tdiv,
+        Int.tdiv_eq_ediv_of_nonneg (by omega), sdiv_toInt_of_msb_true_of_msb_false]
+    · rw [← @BitVec.neg_neg w (a.sdiv b), ← sdiv_neg hbintMin]
+      have hmb : (-b).msb = false := by simp [hbintMin, hb]
+      rw [toInt_neg_of_ne_intMin]
+      · simp [sdiv, ha, hmb]
+        rw [toInt_udiv_of_msb ha, toInt_eq_toNat_of_msb ha]
+        rw [toInt_eq_neg_toNat_neg_of_msb_true hb, Int.tdiv_neg, Int.tdiv_eq_ediv_of_nonneg (by omega)]
+      · apply sdiv_ne_intMin_of_ne_intMin
+        apply ne_intMin_of_lt_of_msb_false (by omega) ha
+    · rw [sdiv, Int.tdiv_cases, udiv_eq, neg_eq, if_pos (toInt_nonneg_of_msb_false ha),
+        if_pos (toInt_nonneg_of_msb_false hb), ha, hb, toInt_udiv_of_msb ha,
+        toInt_eq_toNat_of_msb ha, toInt_eq_toNat_of_msb hb]
+
+theorem intMin_sdiv_neg_one : (intMin w).sdiv (-1#w) = intMin w := by
+  refine (Nat.eq_zero_or_pos w).elim (by rintro rfl; exact Subsingleton.elim _ _) (fun hw => ?_)
+  apply BitVec.eq_of_toNat_eq
+  rw [sdiv]
+  simp [msb_intMin, hw, neg_one_eq_allOnes, msb_allOnes]
+  have : 2 ≤ 2 ^ w := Nat.pow_one 2 ▸ (Nat.pow_le_pow_iff_right (by omega)).2 (by omega)
+  rw [Nat.sub_sub_self (by omega), Nat.mod_eq_of_lt, Nat.div_one]
+  omega
+
+theorem toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).bmod (2 ^ w) := by
+  by_cases h : a = intMin w ∧ b = -1#w
+  · rcases h with ⟨rfl, rfl⟩
+    rw [BitVec.intMin_sdiv_neg_one]
+    refine (Nat.eq_zero_or_pos w).elim (by rintro rfl; simp [toInt_of_zero_length]) (fun hw => ?_)
+    rw [toInt_intMin_of_pos hw, neg_one_eq_allOnes, toInt_allOnes, if_pos hw, Int.tdiv_neg,
+      Int.tdiv_one, Int.neg_neg, Int.bmod_eq_neg (Int.pow_nonneg (by omega))]
+    conv => lhs; rw [(by omega: w = (w - 1) + 1)]
+    simp [Nat.pow_succ, Int.natCast_pow, Int.mul_comm]
+  · rw [← toInt_bmod_cancel]
+    rw [BitVec.toInt_sdiv_of_ne_or_ne _ _ (by simpa only [Decidable.not_and_iff_not_or_not] using h)]
+
+private theorem neg_udiv_eq_intMin_iff_eq_intMin_eq_one_of_msb_eq_true
+    {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = false) :
+    -x / y = intMin w ↔ (x = intMin w ∧ y = 1#w) := by
+  constructor
+  · intro h
+    rcases w with _ | w; decide +revert
+    have : (-x / y).msb = true := by simp [h, msb_intMin]
+    rw [msb_udiv] at this
+    simp only [bool_to_prop] at this
+    obtain ⟨hx, hy⟩ := this
+    simp only [beq_iff_eq] at hy
+    subst hy
+    simp only [udiv_one, neg_eq_intMin] at h
+    simp [h]
+  · rintro ⟨hx, hy⟩
+    subst hx hy
+    simp
+
+theorem getElem_sdiv {x y : BitVec w} (h : i < w) :
+    (x.sdiv y)[i] =
+      (match x.msb, y.msb with
+      | false, false => (x / y)[i]
+      | false, true => (-(x / -y))[i]
+      | true, false => (-(-x / y))[i]
+      | true, true => (-x / -y)[i]) := by
+  simp only [sdiv, udiv_eq, neg_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  <;> simp [hx, hy]
+
+theorem getLsbD_sdiv {x y : BitVec w} :
+    (x.sdiv y).getLsbD i =
+      match x.msb, y.msb with
+      | false, false => (x / y).getLsbD i
+      | false, true =>( -(x / -y)).getLsbD i
+      | true, false => (-(-x / y)).getLsbD i
+      | true, true => (-x / -y).getLsbD i := by
+  simp only [sdiv, udiv_eq, neg_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  <;> simp [hx, hy]
+
+theorem getMsbD_sdiv {x y : BitVec w} :
+    (x.sdiv y).getMsbD i =
+      match x.msb, y.msb with
+      | false, false => (x / y).getMsbD i
+      | false, true =>( -(x / -y)).getMsbD i
+      | true, false => (-(-x / y)).getMsbD i
+      | true, true => (-x / -y).getMsbD i := by
+  simp only [sdiv, udiv_eq, neg_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  <;> simp [hx, hy]
+
+/--
+the most significant bit of the signed division `x.sdiv y` can be computed
+by the following cases:
+(1) x nonneg, y nonneg: never neg.
+(2) x nonneg, y neg: neg when result nonzero.
+   We know that y is nonzero since it is negative, so we only check `|x| ≥ |y|`.
+(3) x neg, y nonneg: neg when result nonzero.
+  We check that `y ≠ 0` and `|x| ≥ |y|`.
+(4) x neg, y neg: neg when `x = intMin, `y = -1`, since `intMin / -1 = intMin`.
+
+The proof strategy is to perform a case analysis on the sign of `x` and `y`,
+followed by unfolding the `sdiv` into `udiv`.
+-/
+theorem msb_sdiv_eq_decide {x y : BitVec w} :
+    (x.sdiv y).msb = (decide (0 < w) &&
+      (!x.msb && y.msb && decide (-y ≤ x)) ||
+      (x.msb && !y.msb && decide (y ≤ -x) && !decide (y = 0#w)) ||
+      (x.msb && y.msb && decide (x = intMin w) && decide (y = -1#w)))
+     := by
+  rcases w; decide +revert
+  case succ w =>
+    simp only [sdiv_eq, udiv_eq]
+    rcases hxmsb : x.msb <;> rcases hymsb : y.msb
+    · simp [hxmsb, msb_udiv_eq_false_of, Bool.not_false, Bool.and_false, Bool.false_and,
+        Bool.and_true, Bool.or_self, Bool.and_self]
+    · simp only [hxmsb, hymsb, msb_neg, msb_udiv_eq_false_of, bne_false, Bool.not_false,
+        Bool.and_self, ne_zero_of_msb_true, decide_false, Bool.and_true, Bool.true_and, Bool.not_true,
+        Bool.false_and, Bool.or_false, bool_to_prop]
+      have : x / -y ≠ intMin (w + 1) := by
+        intro h
+        have : (x / -y).msb = (intMin (w + 1)).msb := by simp only [h]
+        simp only [msb_udiv, msb_intMin, show 0 < w + 1 by omega, decide_true, and_eq_true, beq_iff_eq] at this
+        obtain ⟨hcontra, _⟩ := this
+        simp only [hcontra, true_eq_false] at hxmsb
+      simp [this, hymsb, udiv_ne_zero_iff_ne_zero_and_le]
+    · simp only [Bool.not_true, Bool.and_self, Bool.false_and, Bool.not_false,
+        Bool.true_and, Bool.false_or, Bool.and_false, Bool.or_false]
+      by_cases hx₁ : x = 0#(w + 1)
+      · simp [hx₁, neg_zero, zero_udiv, msb_zero, le_zero_iff, Bool.and_not_self]
+      · by_cases hy₁ : y = 0#(w + 1)
+        · simp [hy₁, udiv_zero, neg_zero, msb_zero, decide_true, Bool.not_true, Bool.and_false]
+        · simp only [hy₁, decide_false, Bool.not_false, Bool.and_true]
+          by_cases hxy₁ : (- x / y) = 0#(w + 1)
+          · simp only [hxy₁, neg_zero, msb_zero, false_eq_decide_iff, BitVec.not_le,
+              BitVec.not_le]
+            simp only [udiv_eq_zero_iff_eq_zero_or_lt, hy₁, _root_.false_or] at hxy₁
+            bv_omega
+          · simp only [udiv_eq_zero_iff_eq_zero_or_lt, _root_.not_or, BitVec.not_lt,
+              hy₁, not_false_eq_true, _root_.true_and] at hxy₁
+            simp only [decide_true, msb_neg, bne_iff_ne, ne_eq,
+              bool_to_prop,
+              bne_iff_ne, ne_eq, udiv_eq_zero_iff_eq_zero_or_lt, hy₁, _root_.false_or,
+              BitVec.not_lt, hxy₁, _root_.true_and, decide_not, not_eq_eq_eq_not, not_eq_not,
+              msb_udiv, msb_neg]
+            simp only [hx₁, not_false_eq_true, _root_.true_and, decide_not, hxmsb, not_eq_eq_eq_not,
+              Bool.not_true, decide_eq_false_iff_not, Decidable.not_not, beq_iff_eq]
+            rw [neg_udiv_eq_intMin_iff_eq_intMin_eq_one_of_msb_eq_true hxmsb hymsb]
+    · simp only [msb_udiv, msb_neg, hxmsb, bne_true, Bool.not_and, Bool.not_true, Bool.and_true,
+        Bool.false_and, Bool.and_false, hymsb, ne_zero_of_msb_true, decide_false, Bool.not_false,
+        Bool.or_self, Bool.and_self, Bool.true_and, Bool.false_or]
+      simp only [bool_to_prop]
+      simp [BitVec.ne_zero_of_msb_true (x := x) hxmsb, neg_eq_iff_eq_neg]
+
+theorem msb_umod_eq_false_of_left {x : BitVec w} (hx : x.msb = false) (y : BitVec w) : (x % y).msb = false := by
+  rw [msb_eq_false_iff_two_mul_lt] at hx ⊢
+  rw [toNat_umod]
+  refine Nat.lt_of_le_of_lt ?_ hx
+  rw [Nat.mul_le_mul_left_iff (by decide)]
+  exact Nat.mod_le _ _
+
+theorem msb_umod_of_le_of_ne_zero_of_le {x y : BitVec w}
+    (hx : x ≤ intMin w) (hy : y ≠ 0#w) (hy' : y ≤ intMin w) : (x % y).msb = false := by
+  simp only [msb_umod, Bool.and_eq_false_imp, Bool.or_eq_false_iff, decide_eq_false_iff_not,
+    BitVec.not_lt, beq_eq_false_iff_ne, ne_eq, hy, not_false_eq_true, _root_.and_true]
+  intro h
+  rw [← intMin_le_iff_msb_eq_true (length_pos_of_ne hy)] at h
+  rwa [BitVec.le_antisymm hx h]
+
+theorem getElem_srem {x y : BitVec w} (h : i < w) :
+    (x.srem y)[i] =
+      match x.msb, y.msb with
+      | false, false => (x % y)[i]
+      | false, true => (x % -y)[i]
+      | true, false => (-(-x % y))[i]
+      | true, true => (-(-x % -y))[i] := by
+  simp only [srem, umod_eq, neg_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  <;> simp [hx, hy]
+
+theorem getLsbD_srem {x y : BitVec w} :
+    (x.srem y).getLsbD i =
+      match x.msb, y.msb with
+      | false, false => (x % y).getLsbD i
+      | false, true => (x % -y).getLsbD i
+      | true, false => (-(-x % y)).getLsbD i
+      | true, true => (-(-x % -y)).getLsbD i := by
+  simp only [srem, umod_eq, neg_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  <;> simp [hx, hy]
+
+theorem getMsbD_srem {x y : BitVec w} :
+    (x.srem y).getMsbD i  =
+      match x.msb, y.msb with
+      | false, false => (x % y).getMsbD i
+      | false, true => (x % -y).getMsbD i
+      | true, false => (-(-x % y)).getMsbD i
+      | true, true => (-(-x % -y)).getMsbD i := by
+  simp only [srem, umod_eq, neg_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  <;> simp [hx, hy]
+
+@[simp]
+theorem toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt := by
+  rw [srem_eq]
+  by_cases hyz : y = 0#w
+  · simp only [hyz, msb_zero, umod_zero, neg_zero, neg_neg, toInt_zero, Int.tmod_zero]
+    cases x.msb <;> rfl
+  cases h : x.msb
+  · cases h' : y.msb
+    · dsimp only
+      rw [toInt_eq_toNat_of_msb (msb_umod_eq_false_of_left h y), toNat_umod]
+      rw [toInt_eq_toNat_of_msb h, toInt_eq_toNat_of_msb h', ← Int.ofNat_tmod]
+    · dsimp only
+      rw [toInt_eq_toNat_of_msb (msb_umod_eq_false_of_left h _), toNat_umod]
+      rw [toInt_eq_toNat_of_msb h, toInt_eq_neg_toNat_neg_of_msb_true h']
+      rw [Int.tmod_neg, ← Int.ofNat_tmod]
+  · cases h' : y.msb
+    · dsimp only
+      rw [toInt_eq_neg_toNat_neg_of_msb_true h, toInt_eq_toNat_of_msb h', Int.neg_tmod]
+      rw [← Int.ofNat_tmod, ← toNat_umod, toInt_neg_eq_of_msb ?msb, toInt_eq_toNat_of_msb ?msb]
+      rw [BitVec.msb_umod_of_le_of_ne_zero_of_le (neg_le_intMin_of_msb_eq_true h) hyz]
+      exact le_intMin_of_msb_eq_false h'
+    · dsimp only
+      rw [toInt_eq_neg_toNat_neg_of_msb_true h, toInt_eq_neg_toNat_neg_of_msb_true h', Int.neg_tmod, Int.tmod_neg]
+      rw [← Int.ofNat_tmod, ← toNat_umod, toInt_neg_eq_of_msb ?msb', toInt_eq_toNat_of_msb ?msb']
+      rw [BitVec.msb_umod_of_le_of_ne_zero_of_le (neg_le_intMin_of_msb_eq_true h)
+        ((not_congr neg_eq_zero_iff).mpr hyz)]
+      exact neg_le_intMin_of_msb_eq_true h'
+
+@[simp]
+theorem msb_intMin_umod_neg_of_msb_true {y : BitVec w} (hy : y.msb = true) :
+    (intMin w % -y).msb = false := by
+  by_cases hyintmin : y = intMin w
+  · simp [hyintmin]
+  · rw [msb_umod_of_msb_false_of_ne_zero (by simp [hyintmin, hy])]
+    simp [hy]
+
+@[simp]
+theorem msb_neg_umod_neg_of_msb_true_of_msb_true {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+      (-x % -y).msb = false := by
+  by_cases hx' : x = intMin w
+  · simp only [hx', neg_intMin, msb_intMin_umod_neg_of_msb_true hy]
+  · simp [show (-x).msb = false by simp [hx, hx']]
+
+theorem toInt_dvd_toInt_iff {x y : BitVec w} :
+    y.toInt ∣ x.toInt ↔ (if x.msb then -x else x) % (if y.msb then -y else y) = 0#w := by
+  constructor
+  <;> by_cases hxmsb : x.msb <;> by_cases hymsb: y.msb
+  <;> intro h
+  <;> simp only [hxmsb, hymsb, reduceIte, false_eq_true, toNat_eq, toNat_umod, toNat_ofNat,
+        zero_mod, toInt_eq_neg_toNat_neg_of_msb_true, Int.dvd_neg, Int.neg_dvd,
+        toInt_eq_toNat_of_msb] at h
+  <;> simp only [hxmsb, hymsb, toInt_eq_neg_toNat_neg_of_msb_true, toInt_eq_toNat_of_msb,
+        Int.dvd_neg, Int.neg_dvd, toNat_eq, toNat_umod, reduceIte, toNat_ofNat, zero_mod]
+  <;> norm_cast
+  <;> norm_cast at h
+  <;> simp only [dvd_of_mod_eq_zero, h, dvd_iff_mod_eq_zero.mp, reduceIte]
+
+theorem toInt_dvd_toInt_iff_of_msb_true_msb_false {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = false) :
+    y.toInt ∣ x.toInt ↔ (-x) % y = 0#w := by
+  simpa [hx, hy] using toInt_dvd_toInt_iff (x := x) (y := y)
+
+theorem toInt_dvd_toInt_iff_of_msb_false_msb_true {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = true) :
+    y.toInt ∣ x.toInt ↔ x % (-y) = 0#w := by
+  simpa [hx, hy] using toInt_dvd_toInt_iff (x := x) (y := y)
+
+@[simp]
+theorem neg_toInt_neg_umod_eq_of_msb_true_msb_true {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+    -(-(-x % -y)).toInt = (-x % -y).toNat := by
+  rw [neg_toInt_neg]
+  by_cases h : -x % -y = 0#w
+  · simp [h]
+  · rw [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
+
+@[simp]
+theorem toInt_umod_neg_add {x y : BitVec w} (hymsb : y.msb = true) (hxmsb : x.msb = false) (hdvd : ¬y.toInt ∣ x.toInt) :
+    (x % -y + y).toInt = x.toInt % y.toInt + y.toInt := by
+  rcases w with _|w ; simp [of_length_zero]
+  have hypos : 0 < y.toNat := toNat_pos_of_ne_zero (by simp [hymsb])
+  have hxnonneg := toInt_nonneg_of_msb_false hxmsb
+  have hynonpos := toInt_neg_of_msb_true hymsb
+  have hylt : (-y).toNat ≤ 2 ^ (w) := toNat_neg_lt_of_msb y hymsb
+  have hmodlt := Nat.mod_lt x.toNat (y := (-y).toNat)
+      (by rw [toNat_neg, Nat.mod_eq_of_lt (by omega)]; omega)
+  simp only [toInt_add]
+  rw [toInt_umod, toInt_eq_neg_toNat_neg_of_msb_true hymsb, Int.bmod_add_bmod,
+    Int.bmod_eq_of_le (by omega) (by omega),
+    toInt_eq_toNat_of_msb hxmsb, Int.emod_neg]
+
+@[simp]
+theorem toInt_sub_neg_umod {x y : BitVec w} (hxmsb : x.msb = true) (hymsb : y.msb = false) (hdvd : ¬y.toInt ∣ x.toInt) :
+    (y - -x % y).toInt = x.toInt % y.toInt := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · have : y.toNat < 2 ^ w := toNat_lt_of_msb_false hymsb
+    by_cases hyzero : y = 0#(w+1)
+    · subst hyzero; simp
+    · simp only [toNat_eq, toNat_ofNat, zero_mod] at hyzero
+      have hypos : 0 < y.toNat := by omega
+      simp only [toInt_sub, toInt_eq_toNat_of_msb hymsb, toInt_umod,
+        Int.sub_bmod_bmod, toInt_eq_neg_toNat_neg_of_msb_true hxmsb, Int.neg_emod]
+      have hmodlt := Nat.mod_lt (x := (-x).toNat) (y := y.toNat) hypos
+      rw [Int.bmod_eq_of_le (by omega) (by omega)]
+      simp only [toInt_eq_toNat_of_msb hymsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,
+        Int.dvd_neg] at hdvd
+      simp only [hdvd, ↓reduceIte, Int.natAbs_cast]
+
+theorem srem_zero_of_dvd {x y : BitVec w} (h : y.toInt ∣ x.toInt) :
+    x.srem y = 0#w := by
+  have := toInt_dvd_toInt_iff (x := x) (y := y)
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  <;> simp only [h, hx, reduceIte, hy, false_eq_true, true_iff] at this
+  <;> simp [srem, hx, hy, this]
+
+/--
+The remainder for `srem`, i.e. division with rounding to zero is negative
+iff `x` is negative and `y` does not divide `x`.
+
+We can eventually build fast circuits for the divisibility test `x.srem y = 0`.
+-/
+theorem msb_srem {x y : BitVec w} : (x.srem y).msb =
+    (x.msb && decide (x.srem y ≠ 0)) := by
+  rw [msb_eq_toInt]
+  by_cases hx : x.msb
+  · by_cases hsrem : x.srem y = 0#w
+    · simp [hsrem]
+    · have := toInt_neg_of_msb_true hx
+      by_cases hdvd : y.toInt ∣ x.toInt
+      · simp [BitVec.srem_zero_of_dvd hdvd] at hsrem
+      · simp only [toInt_srem, Int.tmod_eq_emod, show ¬0 ≤ x.toInt by omega, hdvd, _root_.or_self,
+          reduceIte, hx, ofNat_eq_ofNat, ne_eq, hsrem, not_false_eq_true, decide_true, Bool.and_self,
+          decide_eq_true_eq, gt_iff_lt]
+        have hlt := Int.emod_lt (a := x.toInt) (b := y.toInt)
+        by_cases hy0 : y = 0#w
+        · simp only [hy0, toInt_zero, Int.emod_zero, Int.natAbs_zero, Int.cast_ofNat_Int,
+            Int.sub_zero, gt_iff_lt]
+          exact toInt_neg_of_msb_true hx
+        · simp only [← toInt_inj, toInt_zero] at hy0
+          simp only [ne_eq, hy0, not_false_eq_true, forall_const] at hlt
+          have := Int.le_natAbs (a := y.toInt)
+          omega
+  · simp only [toInt_srem, hx, ofNat_eq_ofNat, ne_eq, decide_not, Bool.false_and,
+      decide_eq_false_iff_not, Int.not_lt]
+    apply Int.tmod_nonneg y.toInt (by exact toInt_nonneg_of_msb_false (by simp at hx; exact hx))
+
+theorem toInt_smod {x y : BitVec w} :
+    (x.smod y).toInt = x.toInt.fmod y.toInt := by
+  rcases w with _|w
+  · decide +revert
+  · by_cases hyzero : y = 0#(w + 1)
+    · simp [hyzero]
+    · rw [smod_eq]
+      cases hxmsb : x.msb <;> cases hymsb : y.msb
+      <;> simp only [umod_eq]
+      · have : 0 < y.toNat := by simp [toNat_eq] at hyzero; omega
+        have : y.toNat < 2 ^ w := toNat_lt_of_msb_false hymsb
+        have : x.toNat % y.toNat < y.toNat := Nat.mod_lt x.toNat (by omega)
+        rw [toInt_umod, Int.fmod_eq_emod_of_nonneg x.toInt (toInt_nonneg_of_msb_false hymsb),
+          toInt_eq_toNat_of_msb hxmsb, toInt_eq_toNat_of_msb hymsb,
+          Int.bmod_eq_of_le_mul_two (by omega) (by omega)]
+      · have := toInt_dvd_toInt_iff_of_msb_false_msb_true hxmsb hymsb
+        by_cases hx_dvd_y : y.toInt ∣ x.toInt
+        · simp [show x % -y = 0#(w + 1) by simp_all, hx_dvd_y, Int.fmod_eq_zero_of_dvd]
+        · have hynonpos := toInt_neg_of_msb_true hymsb
+          simp only [show ¬x % -y = 0#(w + 1) by simp_all, ↓reduceIte,
+            toInt_umod_neg_add hymsb hxmsb hx_dvd_y, Int.fmod_eq_emod, show ¬0 ≤ y.toInt by omega,
+            hx_dvd_y, _root_.or_self]
+      · have hynonneg := toInt_nonneg_of_msb_false hymsb
+        rw [Int.fmod_eq_emod_of_nonneg x.toInt (b := y.toInt) (by omega)]
+        have hdvd := toInt_dvd_toInt_iff_of_msb_true_msb_false hxmsb hymsb
+        by_cases hx_dvd_y : y.toInt ∣ x.toInt
+        · simp [show -x % y = 0#(w + 1) by simp_all, hx_dvd_y, Int.emod_eq_zero_of_dvd]
+        · simp [show ¬-x % y = 0#(w + 1) by simp_all, toInt_sub_neg_umod hxmsb hymsb hx_dvd_y]
+      · rw [←Int.neg_inj, neg_toInt_neg_umod_eq_of_msb_true_msb_true hxmsb hymsb]
+        simp [BitVec.toInt_eq_neg_toNat_neg_of_msb_true, hxmsb, hymsb,
+          Int.fmod_eq_emod_of_nonneg _]
+
+theorem getElem_smod {x y : BitVec w} (h : i < w) :
+    (x.smod y)[i] =
+      match x.msb, y.msb with
+      | false, false => (x % y)[i]
+      | false, true => (if x % -y = 0#w then (x % -y) else (x % -y + y))[i]
+      | true, false => (if -x % y = 0#w then (-x % y) else (y - -x % y))[i]
+      | true, true => (-(-x % -y))[i] := by
+  simp only [smod, umod_eq, neg_eq, zero_eq, add_eq, sub_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  <;> simp [hx, hy]
+
+theorem getLsbD_smod {x y : BitVec w} :
+    (x.smod y).getLsbD i =
+      match x.msb, y.msb with
+      | false, false => (x % y).getLsbD i
+      | false, true => if x % -y = 0#w then false else (x % -y + y).getLsbD i
+      | true, false => if -x % y = 0#w then false else (y - -x % y).getLsbD i
+      | true, true => (-(-x % -y)).getLsbD i := by
+  simp only [smod, umod_eq, neg_eq, zero_eq, add_eq, sub_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  · simp [hx, hy]
+  · by_cases hxy : -x % y = 0#w <;> simp [hx, hy, hxy]
+  · by_cases hxy : x % -y = 0#w <;> simp [hx, hy, hxy]
+  · simp [hx, hy]
+
+theorem getMsbD_smod {x y : BitVec w} :
+    (x.smod y).getMsbD i  =
+      match x.msb, y.msb with
+      | false, false => (x % y).getMsbD i
+      | false, true => (if x % -y = 0#w then (x % -y) else (x % -y + y)).getMsbD i
+      | true, false => (if -x % y = 0#w then (-x % y) else (y - -x % y)).getMsbD i
+      | true, true => (-(-x % -y)).getMsbD i := by
+  simp only [smod, umod_eq, neg_eq, zero_eq, add_eq, sub_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  <;> simp [hx, hy]
+
+theorem msb_smod {x y : BitVec w} :
+    (x.smod y).msb = (x.msb && y = 0) || (y.msb && (x.smod y) ≠ 0) := by
+  rw [msb_eq_toInt]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  · by_cases hsmod : x.smod y = 0#w <;> simp [hx, hy, hsmod]
+  · simp only [hx, ofNat_eq_ofNat, Bool.true_and, decide_eq_decide, decide_iff_dist, hy, ne_eq,
+      decide_not, Bool.false_and, Bool.or_false, beq_iff_eq]
+    constructor
+    · intro h
+      apply Classical.byContradiction
+      intro hcontra
+      rw [toInt_smod] at h
+      have := toInt_nonneg_of_msb_false (by simp at hy; exact hy)
+      have := Int.fmod_nonneg_of_pos (a := x.toInt) (b := y.toInt) (by simp [← toInt_inj] at hcontra; omega)
+      omega
+    · intro h
+      simp only [h, smod_zero]
+      exact toInt_neg_of_msb_true hx
+  · by_cases hsmod : x.smod y = 0#w <;> simp [hx, hy, hsmod]
+  · simp only [toInt_smod, hx, ofNat_eq_ofNat, Bool.false_and, decide_eq_false_iff_not, Int.not_lt,
+      hy, ne_eq, decide_not, Bool.or_false, decide_eq_true_eq]
+    simp only [not_eq_true] at hx hy
+    apply Int.fmod_nonneg (by exact toInt_nonneg_of_msb_false hx) (by exact toInt_nonneg_of_msb_false hy)
+
+/-! ### Lemmas that use bit blasting circuits -/
+
+theorem add_sub_comm {x y : BitVec w} : x + y - z = x - z + y := by
+  apply eq_of_toNat_eq
+  simp only [toNat_sub, toNat_add, add_mod_mod, mod_add_mod]
+  congr 1
+  omega
+
+theorem sub_add_comm {x y : BitVec w} : x - y + z = x + z - y := by
+  rw [add_sub_comm]
+
+theorem not_add_one {x : BitVec w} : ~~~ (x + 1#w) = ~~~ x - 1#w := by
+  rw [not_eq_neg_add, not_eq_neg_add, neg_add]
+
+theorem not_add_eq_not_neg {x y : BitVec w} : ~~~ (x + y) = ~~~ x - y := by
+  rw [not_eq_neg_add, not_eq_neg_add, neg_add]
+  simp only [sub_eq_add_neg]
+  rw [BitVec.add_assoc, @BitVec.add_comm _ (-y), ← BitVec.add_assoc]
+
+theorem not_sub_one_eq_not_add_one {x : BitVec w} : ~~~ (x - 1#w) = ~~~ x + 1#w := by
+  rw [not_eq_neg_add, not_eq_neg_add, neg_sub,
+    BitVec.add_sub_cancel, BitVec.sub_add_cancel]
+
+theorem not_sub_eq_not_add {x y : BitVec w} : ~~~ (x - y) = ~~~ x + y := by
+  rw [BitVec.sub_eq_add_neg, not_add_eq_not_neg, sub_neg]
+
+/-- The value of `(carry i x y false)` can be computed by truncating `x` and `y`
+to `len` bits where `len ≥ i`. -/
+theorem carry_extractLsb'_eq_carry {w i len : Nat} (hi : i < len)
+    {x y : BitVec w} {b : Bool}:
+    (carry i (extractLsb' 0 len x) (extractLsb' 0 len y) b)
+    = (carry i x y b) := by
+  simp only [carry, extractLsb'_toNat, shiftRight_zero, ge_iff_le,
+    decide_eq_decide]
+  have : 2 ^ i ∣ 2^len := by
+    apply Nat.pow_dvd_pow
+    omega
+  rw [Nat.mod_mod_of_dvd _ this, Nat.mod_mod_of_dvd _ this]
+
+/--
+The `[0..len)` low bits of `x + y` can be computed by truncating `x` and `y`
+to `len` bits and then adding.
+-/
+theorem extractLsb'_add {w len : Nat} {x y : BitVec w} (hlen : len ≤ w) :
+    (x + y).extractLsb' 0 len = x.extractLsb' 0 len + y.extractLsb' 0 len := by
+  ext i hi
+  rw [getElem_extractLsb', Nat.zero_add, getLsbD_add (by omega)]
+  simp [getElem_add, carry_extractLsb'_eq_carry hi, getElem_extractLsb', Nat.zero_add]
+
+/-- `extractLsb'` commutes with multiplication. -/
+theorem extractLsb'_mul {w len} {x y : BitVec w} (hlen : len ≤ w) :
+    (x * y).extractLsb' 0 len = (x.extractLsb' 0 len) * (y.extractLsb' 0 len) := by
+  simp [← setWidth_eq_extractLsb' hlen, setWidth_mul _ _ hlen]
+
+/-- Adding bitvectors that are zero in complementary positions equals concatenation.
+We add a `no_index` annotation to `HAppend.hAppend` such that the width `v + w`
+does not act as a key in the discrimination tree.
+This is important to allow matching, when the type of the result of append
+`x : BitVec 3` and `y : BitVec 4` has been reduced to `x ++ y : BitVec 7`.
+-/
+theorem append_zero_add_zero_append {v w : Nat} {x : BitVec v} {y : BitVec w} :
+    (HAppend.hAppend (γ := BitVec (no_index _)) x 0#w) +
+    (HAppend.hAppend (γ := BitVec (no_index _)) 0#v y)
+    = x ++ y := by
+  rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
+
+/-- Adding bitvectors that are zero in complementary positions equals concatenation. -/
+theorem zero_append_add_append_zero {v w : Nat} {x : BitVec v} {y : BitVec w} :
+  (HAppend.hAppend (γ := BitVec (no_index _)) 0#v y) +
+  (HAppend.hAppend (γ := BitVec (no_index _)) x 0#w)
+  = x ++ y := by
+  rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
+
+/-- Heuristically, `y <<< x` is much larger than `x`,
+and hence low bits of `y <<< x`. Thus, `x + (y <<< x) = x ||| (y <<< x).` -/
+theorem add_shiftLeft_eq_or_shiftLeft {x y : BitVec w} :
+    x + (y <<< x) =  x ||| (y <<< x) := by
+  rw [add_eq_or_of_and_eq_zero]
+  ext i hi
+  simp only [shiftLeft_eq', getElem_and, getElem_shiftLeft, getElem_zero, and_eq_false_imp,
+    not_eq_eq_eq_not, Bool.not_true, decide_eq_false_iff_not, Nat.not_lt]
+  intro hxi hxval
+  have : 2^i ≤ x.toNat := two_pow_le_toNat_of_getElem_eq_true hi hxi
+  have : i < 2^i := by exact Nat.lt_two_pow_self
+  omega
+
+/-- Heuristically, `y <<< x` is much larger than `x`,
+and hence low bits of `y <<< x`. Thus, `(y <<< x) + x = (y <<< x) ||| x.` -/
+theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
+    (y <<< x) + x =  (y <<< x) ||| x := by
+  rw [BitVec.add_comm, add_shiftLeft_eq_or_shiftLeft, or_comm]
+
+/- ### Fast Circuit For Unsigned Overflow Detection -/
+
+/-!
+# Note [Fast Unsigned Multiplication Overflow Detection]
+
+The fast unsigned multiplication overflow detection circuit is described in
+`Efficient integer multiplication overflow detection circuits` (https://ieeexplore.ieee.org/abstract/document/987767).
+With this circuit, the computation of the overflow flag for the unsigned multiplication of
+two bitvectors `x` and `y` with bitwidth `w` requires:
+· extending the operands by `1` bit and performing the multiplication with the extended operands,
+· computing the preliminary overflow flag, which describes whether `x` and `y` together have at most
+  `w - 2` leading zeros.
+If the most significant bit of the extended operands' multiplication is `true` or if the
+preliminary overflow flag is `true`, overflow happens.
+In particular, the conditions check two different cases:
+· if the most significant bit of the extended operands' multiplication is `true`, the result of the
+  multiplication 2 ^ w ≤ x.toNat * y.toNat < 2 ^ (w + 1),
+· if the preliminary flag is true, then 2 ^ (w + 1) ≤ x.toNat * y.toNat.
+
+The computation of the preliminary overflow flag `resRec` relies on two quantities:
+· `uppcRec`: the unsigned parallel prefix circuit for the bits until a certain `i`,
+· `aandRec`: the conjunction between the parallel prefix circuit at of the first operand until a certain `i`
+  and the `i`-th bit in the second operand.
+-/
+
+/--
+  `uppcRec` is the unsigned parallel prefix, `x.uppcRec s = true` iff `x.toNat` is greater or equal
+  than `2 ^ (w - 1 - (s - 1))`.
+-/
+def uppcRec {w} (x : BitVec w) (s : Nat) (hs : s < w) : Bool :=
+  match s with
+  | 0 => x.msb
+  | i + 1 =>  x[w - 1 - i] || uppcRec x i (by omega)
+
+/-- The unsigned parallel prefix of `x` at `s` is `true` if and only if x interpreted
+  as a natural number is greater or equal than `2 ^ (w - 1 - (s - 1))`. -/
+@[simp]
+theorem uppcRec_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
+    uppcRec x s h ↔ 2 ^ (w - 1 - (s - 1)) ≤ x.toNat := by
+  rcases w with _|w
+  · omega
+  · induction s
+    · case succ.zero =>
+      simp only [uppcRec, msb_eq_true_iff_two_mul_ge, Nat.pow_add, Nat.pow_one,
+        Nat.mul_comm (2 ^ w) 2, ge_iff_le, Nat.add_one_sub_one, zero_le, Nat.sub_eq_zero_of_le,
+        Nat.sub_zero]
+      apply Nat.mul_le_mul_left_iff (by omega)
+    · case succ.succ s ihs =>
+      simp only [uppcRec, or_eq_true, ihs, Nat.add_one_sub_one]
+      have := Nat.pow_le_pow_of_le (a := 2) ( n := (w - s)) (m := (w - (s - 1))) (by omega) (by omega)
+      constructor
+      · intro h'
+        rcases h' with h'|h'
+        · apply ge_two_pow_of_testBit h'
+        · omega
+      · intro h'
+        by_cases hbit: x[w - s]
+        · simp [hbit]
+        · have := BitVec.le_toNat_iff_getLsbD_eq_true (x := x) (i := w - s) (by omega)
+          simp only [h', true_iff] at this
+          obtain ⟨k, hk⟩ := this
+          by_cases hwk : w - s + k < w + 1
+          · by_cases hk' : 0 < k
+            · have hle := ge_two_pow_of_testBit hk
+              have hpowle := Nat.pow_le_pow_of_le (a := 2) ( n := (w - (s - 1))) (m := (w - s + k)) (by omega) (by omega)
+              omega
+            · rw [getLsbD_eq_getElem (by omega)] at hk
+              simp [hbit, show k = 0 by omega] at hk
+          · simp_all
+
+/--
+  Conjunction for fast umulOverflow circuit
+-/
+def aandRec (x y : BitVec w) (s : Nat) (hs : s < w) : Bool :=
+  y[s] && uppcRec x s (by omega)
+
+
+/--
+  Preliminary overflow flag for fast umulOverflow circuit as introduced in
+  `Efficient integer multiplication overflow detection circuits` (https://ieeexplore.ieee.org/abstract/document/987767).
+-/
+def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) : Bool :=
+  match hs0 : s with
+  | 0 => by omega
+  | s' + 1 =>
+    match hs' : s' with
+    | 0 => aandRec x y 1 (by omega)
+    | s'' + 1 =>
+      (resRec x y s' (by omega) (by omega)) || (aandRec x y s (by omega))
+
+/-- The preliminary overflow flag is true for a certain `s` if and only if the conjunction returns true at
+  any `k` smaller than or equal to `s`. -/
+theorem resRec_true_iff (x y : BitVec w) (s : Nat) (hs : s < w) (hs' : 0 < s) :
+    resRec x y s hs hs' = true ↔ ∃ (k : Nat), ∃ (h : k ≤ s), ∃ (_ : 0 < k), aandRec x y k (by omega) := by
+  unfold resRec
+  rcases s with _|s
+  · omega
+  · rcases s
+    · case zero =>
+      constructor
+      · intro ha
+        exists 1, by omega, by omega
+      · intro hr
+        obtain ⟨k, hk, hk', hk''⟩ := hr
+        simp only [show k = 1 by omega] at hk''
+        exact hk''
+    · case succ s =>
+      induction s
+      · case zero =>
+        unfold resRec
+        simp only [Nat.zero_add, Nat.reduceAdd, or_eq_true]
+        constructor
+        · intro h
+          rcases h with h|h
+          · exists 1, by omega, by omega
+          · exists 2, by omega, by omega
+        · intro h
+          obtain ⟨k, hk, hk', hk''⟩ := h
+          have h : k = 1 ∨ k = 2 := by omega
+          rcases h with h|h
+          <;> simp only [h] at hk''
+          <;> simp [hk'']
+      · case succ s ihs =>
+        specialize ihs (by omega) (by omega)
+        unfold resRec
+        simp only [or_eq_true, ihs]
+        constructor
+        · intro h
+          rcases h with h|h
+          · obtain ⟨k, hk, hk', hk''⟩ := h
+            exists k, by omega, by omega
+          · exists s + 1 + 1 + 1, by omega, by omega
+        · intro h
+          obtain ⟨k, hk, hk', hk''⟩ := h
+          by_cases h' : x.aandRec y (s + 1 + 1 + 1) (by omega) = true
+          · simp [h']
+          · simp only [h', false_eq_true, _root_.or_false]
+            by_cases h'' : k ≤ s + 1 + 1
+            · exists k, h'', by omega
+            · have : k = s + 1 + 1 + 1 := by omega
+              simp_all
+
+/-- If the sum of the leading zeroes of two bitvecs with bitwidth `w` is less than or equal to
+  (`w - 2`), then the preliminary overflow flag is true and their unsigned multiplication overflows.
+  The explanation is in `Efficient integer multiplication overflow detection circuits`
+  https://ieeexplore.ieee.org/abstract/document/987767
+  -/
+theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hx : x ≠ 0#w) (hy : y ≠ 0#w):
+    (clz x).toNat + (clz y).toNat ≤ w - 2 → resRec x y (w - 1) (by omega) (by omega) := by
+  intro h
+  rw [resRec_true_iff]
+  exists (w - 1 - y.clz.toNat), by omega, by omega
+  simp only [aandRec]
+  by_cases hw0 : w - 1 - y.clz.toNat = 0
+  · have := clz_lt_iff_ne_zero.mpr (by omega)
+    omega
+  · simp only [and_eq_true, getLsbD_true_clz_of_ne_zero (x := y) (by omega) (by omega),
+    getElem_of_getLsbD_eq_true, uppcRec_true_iff,
+    show w - 1 - (w - 1 - y.clz.toNat - 1) = y.clz.toNat + 1 by omega, _root_.true_and]
+    exact Nat.le_trans (Nat.pow_le_pow_of_le (a := 2) (n := y.clz.toNat + 1)
+          (m := w - 1 - x.clz.toNat) (by omega) (by omega))
+          (BitVec.two_pow_sub_clz_le_toNat_of_ne_zero (x := x) (by omega) (by omega))
+
+/--
+  Complete fast overflow detection circuit for unsigned multiplication.
+-/
+theorem fastUmulOverflow (x y : BitVec w) :
+    umulOverflow x y = if hw : w ≤ 1 then false
+      else (setWidth (w + 1) x * setWidth (w + 1) y)[w] || x.resRec y (w - 1) (by omega) (by omega) := by
+  rcases w with _|_|w
+  · simp [of_length_zero, umulOverflow]
+  · have hx : x.toNat ≤ 1 := by omega
+    have hy : y.toNat ≤ 1 := by omega
+    have := Nat.mul_le_mul (n₁ := x.toNat) (m₁ := y.toNat) (n₂ := 1) (m₂ := 1) hx hy
+    simp [umulOverflow]
+    omega
+  · by_cases h : umulOverflow x y
+    · simp only [h, Nat.reduceLeDiff, reduceDIte, Nat.add_one_sub_one, true_eq, or_eq_true]
+      simp only [umulOverflow, ge_iff_le, decide_eq_true_eq] at h
+      by_cases h' : x.toNat * y.toNat < 2 ^ (w + 1 + 1 + 1)
+      · have hlt := BitVec.getElem_eq_true_of_lt_of_le
+          (x := (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y))
+          (k := w + 1 + 1)  (by omega)
+        simp only [toNat_mul, toNat_setWidth, Nat.lt_add_one, toNat_mod_cancel_of_lt,
+          Nat.mod_eq_of_lt (a := x.toNat * y.toNat) (b := 2 ^ (w + 1 + 1 + 1)) (by omega), h', h,
+          forall_const] at hlt
+        simp [hlt]
+      · by_cases hsw : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1] = true
+        · simp [hsw]
+        · simp only [hsw, false_eq_true, _root_.false_or]
+          have := Nat.two_pow_pos (w := w + 1 + 1)
+          have hltx := BitVec.toNat_lt_two_pow_sub_clz (x := x)
+          have hlty := BitVec.toNat_lt_two_pow_sub_clz (x := y)
+          have := Nat.mul_ne_zero_iff (m := y.toNat) (n := x.toNat)
+          simp only [ne_eq, show ¬x.toNat * y.toNat = 0 by omega, not_false_eq_true,
+            true_iff] at this
+          obtain ⟨hxz,hyz⟩ := this
+          apply resRec_of_clz_le (x := x) (y := y) (by omega) (by simp [toNat_eq]; exact hxz) (by simp [toNat_eq]; exact hyz)
+          by_cases hzxy : x.clz.toNat + y.clz.toNat ≤ w
+          · omega
+          · by_cases heq : w + 1 - y.clz.toNat = 0
+            · by_cases heq' : w + 1 + 1 - y.clz.toNat = 0
+              · simp [heq', hyz] at hlty
+              · simp only [show y.clz.toNat = w + 1 by omega, Nat.add_sub_cancel_left,
+                  Nat.pow_one] at hlty
+                simp only [show y.toNat = 1 by omega, Nat.mul_one, Nat.not_lt] at h'
+                omega
+            · by_cases w + 1 < y.clz.toNat
+              · omega
+              · simp only [Nat.not_lt] at h'
+                have := Nat.mul_lt_mul'' (a := x.toNat) (b := y.toNat) (c := 2 ^ (w + 1 + 1 - x.clz.toNat)) (d := 2 ^ (w + 1 + 1 - y.clz.toNat)) hltx hlty
+                simp only [← Nat.pow_add] at this
+                have := Nat.pow_le_pow_of_le (a := 2) (n := w + 1 + 1 - x.clz.toNat + (w + 1 + 1 - y.clz.toNat)) (m := w + 1 + 1 + 1)
+                 (by omega) (by omega)
+                omega
+    · simp only [h, Nat.reduceLeDiff, reduceDIte, Nat.add_one_sub_one, false_eq, or_eq_false_iff]
+      simp only [umulOverflow, ge_iff_le, decide_eq_true_eq, Nat.not_le] at h
+      and_intros
+      · simp only [← getLsbD_eq_getElem, getLsbD_eq_getMsbD, Nat.lt_add_one, decide_true,
+          Nat.add_one_sub_one, Nat.sub_self, ← msb_eq_getMsbD_zero, Bool.true_and,
+          msb_eq_false_iff_two_mul_lt, toNat_mul, toNat_setWidth, toNat_mod_cancel_of_lt]
+        rw [Nat.mod_eq_of_lt (by omega),Nat.pow_add (m := w + 1 + 1) (n := 1)]
+        simp [Nat.mul_comm 2 (x.toNat * y.toNat), h]
+      · apply Classical.byContradiction
+        intro hcontra
+        simp only [not_eq_false, resRec_true_iff, exists_prop, exists_and_left] at hcontra
+        obtain ⟨k,hk,hk',hk''⟩ := hcontra
+        simp only [aandRec, and_eq_true, uppcRec_true_iff, Nat.add_one_sub_one] at hk''
+        obtain ⟨hky, hkx⟩ := hk''
+        have hyle := two_pow_le_toNat_of_getElem_eq_true (x := y) (i := k) (by omega) hky
+        have := Nat.mul_le_mul (n₁ := 2 ^ (w + 1 - (k - 1))) (m₁ := 2 ^ k) (n₂ := x.toNat) (m₂ := y.toNat) hkx hyle
+        simp [← Nat.pow_add, show w + 1 - (k - 1) + k = w + 1 + 1 by omega] at this
+        omega
 
 end BitVec

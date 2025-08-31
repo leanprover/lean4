@@ -3,11 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Internal.Rat
-import Std.Time.Internal
-import Std.Time.Time.Unit.Minute
-import Std.Time.Time.Unit.Second
+public import Std.Time.Internal
+public import Std.Time.Time.Unit.Minute
+public import Std.Time.Time.Unit.Second
+
+public section
 
 namespace Std
 namespace Time
@@ -20,8 +23,8 @@ set_option linter.all true
 /--
 `Ordinal` represents a bounded value for hours, ranging from 0 to 23.
 -/
-def Ordinal := Bounded.LE 0 23
-  deriving Repr, BEq, LE, LT
+@[expose] def Ordinal := Bounded.LE 0 23
+deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 0 (0 + (23 : Nat))) n)
@@ -35,21 +38,33 @@ instance {x y : Ordinal} : Decidable (x ≤ y) :=
 instance {x y : Ordinal} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
 
+instance : Ord Ordinal := inferInstanceAs <| Ord (Bounded.LE 0 _)
+
+instance : TransOrd Ordinal := inferInstanceAs <| TransOrd (Bounded.LE 0 _)
+
+instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 0 _)
+
 /--
 `Offset` represents an offset in hours, defined as an `Int`. This can be used to express durations
 or differences in hours.
 -/
-def Offset : Type := UnitVal 3600
-  deriving Repr, BEq, Inhabited, Add, Sub, Neg, ToString, LT, LE
+@[expose] def Offset : Type := UnitVal 3600
+deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, ToString, LT, LE
 
-instance { x y : Offset } : Decidable (x ≤ y) :=
+instance {x y : Offset} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
 
-instance { x y : Offset } : Decidable (x < y) :=
+instance {x y : Offset} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
 
 instance : OfNat Offset n :=
   ⟨UnitVal.ofNat n⟩
+
+instance : Ord Offset := inferInstanceAs <| Ord (UnitVal _)
+
+instance : TransOrd Offset := inferInstanceAs <| TransOrd (UnitVal _)
+
+instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd (UnitVal _)
 
 namespace Ordinal
 

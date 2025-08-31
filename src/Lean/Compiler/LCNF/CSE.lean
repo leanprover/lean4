@@ -3,10 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.ToExpr
-import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.ToExpr
+public import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.NeverExtractAttr
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -44,7 +49,14 @@ def replaceFun (decl : FunDecl) (fvarId : FVarId) : M Unit := do
   eraseFunDecl decl
   addFVarSubst decl.fvarId fvarId
 
-partial def _root_.Lean.Compiler.LCNF.Code.cse (code : Code) : CompilerM Code :=
+def hasNeverExtract (v : LetValue) : CompilerM Bool :=
+  match v with
+  | .const declName .. =>
+    return hasNeverExtractAttribute (← getEnv) declName
+  | .lit _ | .erased | .proj .. | .fvar .. =>
+    return false
+
+partial def _root_.Lean.Compiler.LCNF.Code.cse (shouldElimFunDecls : Bool) (code : Code) : CompilerM Code :=
   go code |>.run' {}
 where
   goFunDecl (decl : FunDecl) : M FunDecl := do
@@ -57,24 +69,30 @@ where
     match code with
     | .let decl k =>
       let decl ← normLetDecl decl
-      -- We only apply CSE to pure code
-      let key := decl.value.toExpr
-      match (← get).map.find? key with
-      | some fvarId =>
-        replaceLet decl fvarId
-        go k
-      | none =>
-        addEntry key decl.fvarId
+      if (← hasNeverExtract decl.value) then
         return code.updateLet! decl (← go k)
+      else
+        -- We only apply CSE to pure code
+        let key := decl.value.toExpr
+        match (← get).map.find? key with
+        | some fvarId =>
+          replaceLet decl fvarId
+          go k
+        | none =>
+          addEntry key decl.fvarId
+          return code.updateLet! decl (← go k)
     | .fun decl k =>
       let decl ← goFunDecl decl
-      let value := decl.toExpr
-      match (← get).map.find? value with
-      | some fvarId' =>
-        replaceFun decl fvarId'
-        go k
-      | none =>
-        addEntry value decl.fvarId
+      if shouldElimFunDecls then
+        let value := decl.toExpr
+        match (← get).map.find? value with
+        | some fvarId' =>
+          replaceFun decl fvarId'
+          go k
+        | none =>
+          addEntry value decl.fvarId
+          return code.updateFun! decl (← go k)
+      else
         return code.updateFun! decl (← go k)
     | .jp decl k =>
       let decl ← goFunDecl decl
@@ -101,12 +119,12 @@ end CSE
 /--
 Common sub-expression elimination
 -/
-def Decl.cse (decl : Decl) : CompilerM Decl := do
-  let value ← decl.value.mapCodeM (·.cse)
+def Decl.cse (shouldElimFunDecls : Bool) (decl : Decl) : CompilerM Decl := do
+  let value ← decl.value.mapCodeM (·.cse shouldElimFunDecls)
   return { decl with value }
 
-def cse (phase : Phase := .base) (occurrence := 0) : Pass :=
-  .mkPerDeclaration `cse Decl.cse phase occurrence
+def cse (phase : Phase := .base) (shouldElimFunDecls := false) (occurrence := 0) : Pass :=
+  .mkPerDeclaration `cse (Decl.cse shouldElimFunDecls) phase occurrence
 
 builtin_initialize
   registerTraceClass `Compiler.cse (inherited := true)

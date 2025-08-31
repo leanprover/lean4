@@ -1,3 +1,4 @@
+module
 theorem dummy (x : Nat) : x = x :=
   rfl
 
@@ -17,7 +18,7 @@ def one : α := sorry
 theorem inv_eq {a b : α} (w : mul a b = one) : inv a = b := sorry
 
 /--
-info: [grind.ematch.pattern] inv_eq: [@Lean.Grind.eqBwdPattern `[α] (inv #2) #1]
+trace: [grind.ematch.pattern] inv_eq: [@Lean.Grind.eqBwdPattern `[α] (inv #2) #1]
 -/
 #guard_msgs in
 set_option trace.grind.ematch.pattern true in
@@ -25,6 +26,9 @@ attribute [grind ←=] inv_eq
 
 example {a b : α} (w : mul a b = one) : inv a = b := by
   grind
+
+example {a b : α} (w : mul a b = one) : inv a = b := by
+  grind only [<-= inv_eq]
 
 structure S where
   f : Bool → α
@@ -36,6 +40,9 @@ attribute [grind =] S.h S.h'
 example (s : S) : inv (s.f true) = s.f false := by
   grind
 
+example (s : S) : inv (s.f true) = s.f false := by
+  grind only [<-= inv_eq, = S.h]
+
 example (s : S) : s.f false = inv (s.f true) := by
   grind
 
@@ -46,10 +53,10 @@ example (s : S) : a ≠ s.f false → a = inv (s.f true) → False := by
   grind
 
 /--
-info: [grind.ematch.instance] inv_eq: mul (s.f true) (s.f false) = one → inv (s.f true) = s.f false
+trace: [grind.ematch.instance] inv_eq: mul (s.f true) (s.f false) = one → inv (s.f true) = s.f false
 [grind.ematch.instance] S.h: mul (s.f true) (s.f false) = one
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.ematch.instance true in
 example (s : S) : inv (s.f true) = s.f false := by
   grind

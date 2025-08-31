@@ -10,14 +10,14 @@ $LAKE -d bar build --update
 # Serves as a regression test to ensure that multiples of a package in
 # the dependency tree do not produce duplicate entries in the manifest.
 # https://github.com/leanprover/lean4/pull/3957
-diff --strip-trailing-cr bar/lake-manifest.expected.json bar/lake-manifest.json
+diff -u --strip-trailing-cr bar/lake-manifest.expected.json bar/lake-manifest.json
 $LAKE -d foo build --update
 
 ./foo/.lake/build/bin/foo
 ./bar/.lake/build/bin/bar
 
 # Test setup-file works (i.e., does not error)
-$LAKE -d foo setup-file ./foo/Foo.lean A B
+$LAKE -d foo setup-file ./foo/Foo.lean
 
 # Test `lake clean`
 test -d a/.lake/build
@@ -34,7 +34,7 @@ test ! -d foo/.lake/build
 ./clean.sh
 
 $LAKE -d bar -f lakefile.toml build --update
-diff --strip-trailing-cr bar/lake-manifest.expected.json bar/lake-manifest.json
+diff -u --strip-trailing-cr bar/lake-manifest.expected.json bar/lake-manifest.json
 $LAKE -d foo -f lakefile.toml build --update
 
 ./foo/.lake/build/bin/foo

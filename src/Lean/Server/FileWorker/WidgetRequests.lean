@@ -4,14 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-prelude
-import Lean.Widget.Basic
-import Lean.Widget.InteractiveCode
-import Lean.Widget.InteractiveGoal
-import Lean.Widget.InteractiveDiagnostic
+module
 
-import Lean.Server.Rpc.RequestHandling
-import Lean.Server.FileWorker.RequestHandling
+prelude
+public import Lean.Widget.Basic
+public import Lean.Widget.InteractiveCode
+public import Lean.Widget.InteractiveGoal
+public import Lean.Widget.InteractiveDiagnostic
+
+public import Lean.Server.Rpc.RequestHandling
+public import Lean.Server.FileWorker.RequestHandling
+import Lean.PrettyPrinter.Delaborator.Builtins
+
+public section
 
 /-! Registers all widget-related RPC procedures. -/
 
@@ -28,7 +33,7 @@ builtin_initialize
     `Lean.Widget.InteractiveDiagnostics.msgToInteractive
     MsgToInteractive
     (TaggedText MsgEmbed)
-    fun ⟨⟨m⟩, i⟩ => RequestM.asTask do msgToInteractive m i (hasWidgets := true)
+    fun ⟨m, i⟩ => RequestM.pureTask do msgToInteractive m.val i (hasWidgets := true)
 
 /-- The information that the infoview uses to render a popup
 for when the user hovers over an expression.
@@ -41,24 +46,24 @@ structure InfoPopup where
   doc : Option String
   deriving Inhabited, RpcEncodable
 
+open PrettyPrinter.Delaborator in
 /-- Given elaborator info for a particular subexpression. Produce the `InfoPopup`.
 
 The intended usage of this is for the infoview to pass the `InfoWithCtx` which
 was stored for a particular `SubexprInfo` tag in a `TaggedText` generated with `ppExprTagged`.
  -/
 def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
-  | ⟨i⟩ => RequestM.asTask do
+  | i => RequestM.pureTask do
+    let i := i.val
     i.ctx.runMetaM i.info.lctx do
       let type? ← match (← i.info.type?) with
         | some type => some <$> ppExprTagged type
         | none => pure none
       let exprExplicit? ← match i.info with
-        | Elab.Info.ofTermInfo ti
-        | Elab.Info.ofDelabTermInfo { toTermInfo := ti, explicit := true, ..} =>
-          some <$> ppExprTaggedWithoutTopLevelHighlight ti.expr (explicit := true)
-        | Elab.Info.ofDelabTermInfo { toTermInfo := ti, explicit := false, ..} =>
-          -- Keep the top-level tag so that users can also see the explicit version of the term on an additional hover.
-          some <$> ppExprTagged ti.expr (explicit := false)
+        | Elab.Info.ofTermInfo ti =>
+          some <$> ppExprForPopup ti.expr (explicit := true)
+        | Elab.Info.ofDelabTermInfo { toTermInfo := ti, explicit, ..} =>
+          some <$> ppExprForPopup ti.expr (explicit := explicit)
         | Elab.Info.ofFieldInfo fi => pure <| some <| TaggedText.text fi.fieldName.toString
         | _ => pure none
       return {
@@ -67,11 +72,26 @@ def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
         doc := ← i.info.docString? : InfoPopup
       }
 where
-  ppExprTaggedWithoutTopLevelHighlight (e : Expr) (explicit : Bool) : MetaM CodeWithInfos := do
-    let pp ← ppExprTagged e (explicit := explicit)
-    return match pp with
-      | .tag _ tt => tt
-      | tt => tt
+  maybeWithoutTopLevelHighlight : Bool → CodeWithInfos → CodeWithInfos
+    | true, .tag _ tt => tt
+    | _,    tt        => tt
+  ppExprForPopup (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
+    let mut e := e
+    -- When hovering over a metavariable, we want to see its value, even if `pp.instantiateMVars` is false.
+    if explicit && e.isMVar then
+      if let some e' ← getExprMVarAssignment? e.mvarId! then
+        e := e'
+    -- When `explicit` is false, keep the top-level tag so that users can also see the explicit version of the term on an additional hover.
+    maybeWithoutTopLevelHighlight explicit <$> ppExprTagged e do
+      if explicit then
+        withOptionAtCurrPos pp.tagAppFns.name true do
+        withOptionAtCurrPos pp.explicit.name true do
+        withOptionAtCurrPos pp.mvars.anonymous.name true do
+          delabApp
+      else
+        withOptionAtCurrPos pp.proofs.name true do
+        withOptionAtCurrPos pp.sorrySource.name true do
+          delab
 
 builtin_initialize
   registerBuiltinRpcProcedure
@@ -110,23 +130,33 @@ builtin_initialize
     `Lean.Widget.getGoToLocation
     GetGoToLocationParams
     (Array Lsp.LocationLink)
-    fun ⟨kind, ⟨i⟩⟩ => RequestM.asTask do
+    fun ⟨kind, i⟩ => RequestM.pureTask do
+      let i := i.val
       let rc ← read
-      let ls ← FileWorker.locationLinksOfInfo kind i
+      let ls ← locationLinksOfInfo rc.doc.meta kind i
+      let ls := ls.map (·.toLocationLink)
       if !ls.isEmpty then return ls
       -- TODO(WN): unify handling of delab'd (infoview) and elab'd (editor) applications
       let .ofTermInfo ti := i.info | return #[]
       let .app _ _ := ti.expr | return #[]
       let some nm := ti.expr.getAppFn.constName? | return #[]
-      i.ctx.runMetaM ti.lctx <|
-        locationLinksFromDecl rc.srcSearchPath rc.doc.meta.uri nm none
+      let ctx : GoToContext := {
+        doc := rc.doc.meta
+        kind
+        infoTree? := none
+        originInfo? := none
+        children := PersistentArray.empty
+      }
+      GoToM.run ctx i.ctx ti.lctx do
+        let ls ← locationLinksFromDecl nm
+        return ls.map (·.toLocationLink)
 
 def lazyTraceChildrenToInteractive (children : WithRpcRef LazyTraceChildren) :
     RequestM (RequestTask (Array (TaggedText MsgEmbed))) :=
-  RequestM.asTask do
-    let ⟨indent, children⟩ := children
-    children.mapM fun ⟨child⟩ =>
-      msgToInteractive child (hasWidgets := true) (indent := indent)
+  RequestM.pureTask do
+    let ⟨indent, children⟩ := children.val
+    children.mapM fun child =>
+      msgToInteractive child.val (hasWidgets := true) (indent := indent)
 
 builtin_initialize registerBuiltinRpcProcedure ``lazyTraceChildrenToInteractive _ _ lazyTraceChildrenToInteractive
 

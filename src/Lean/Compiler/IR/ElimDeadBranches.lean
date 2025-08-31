@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Format
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.Format
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.CompilerM
+
+public section
 
 namespace Lean.IR.UnreachableBranches
 
@@ -16,7 +20,7 @@ inductive Value where
   | top -- any value
   | ctor (i : CtorInfo) (vs : Array Value)
   | choice (vs : List Value)
-  deriving Inhabited, Repr
+  deriving Inhabited, BEq, Repr
 
 protected partial def Value.toFormat : Value → Format
   | Value.bot => "⊥"
@@ -37,18 +41,6 @@ instance : ToString Value where
 
 namespace Value
 
-protected partial def beq : Value → Value → Bool
-  | bot, bot => true
-  | top, top => true
-  | ctor i₁ vs₁, ctor i₂ vs₂ => i₁ == i₂ && Array.isEqv vs₁ vs₂ Value.beq
-  | choice vs₁, choice vs₂ =>
-    vs₁.all (fun v₁ => vs₂.any fun v₂ => Value.beq v₁ v₂)
-    &&
-    vs₂.all (fun v₂ => vs₁.any fun v₁ => Value.beq v₁ v₂)
-  | _, _ => false
-
-instance : BEq Value := ⟨Value.beq⟩
-
 partial def addChoice (merge : Value → Value → Value) : List Value → Value → List Value
   | [], v => [v]
   | v₁@(ctor i₁ _) :: cs, v₂@(ctor i₂ _) =>
@@ -68,15 +60,6 @@ partial def merge (v₁ v₂ : Value) : Value :=
   | choice vs₁, choice vs₂ => choice <| vs₁.foldl (addChoice merge) vs₂
   | choice vs, v => choice <| addChoice merge vs v
   | v, choice vs => choice <| addChoice merge vs v
-
-protected partial def format : Value → Format
-  | top => "top"
-  | bot => "bot"
-  | choice vs => format "@" ++ @List.format _ ⟨Value.format⟩ vs
-  | ctor i vs => format "#" ++ if vs.isEmpty then format i.name else Format.paren (format i.name ++ @formatArray _ ⟨Value.format⟩ vs)
-
-instance : ToFormat Value := ⟨Value.format⟩
-instance : ToString Value := ⟨Format.pretty ∘ Value.format⟩
 
 /--
   In `truncate`, we approximate a value as `top` if depth > `truncateMaxDepth`.
@@ -141,11 +124,16 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (FunId ×
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
-    toArrayFn := fun s => sortEntries s.toArray
+    exportEntriesFnEx? := some fun _ s _ => fun
+      -- preserved for non-modules, make non-persistent at some point?
+      | .private => sortEntries s.toArray
+      | _ => #[]
+    asyncMode := .sync  -- compilation is non-parallel anyway
+    replay? := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) (fun s ⟨e, n⟩ => s.insert e n)
   }
 
 def addFunctionSummary (env : Environment) (fid : FunId) (v : Value) : Environment :=
-  functionSummariesExt.addEntry (env.addExtraName fid) (fid, v)
+  functionSummariesExt.addEntry env (fid, v)
 
 def getFunctionSummary? (env : Environment) (fid : FunId) : Option Value :=
   match env.getModuleIdxFor? fid with
@@ -163,6 +151,7 @@ structure InterpContext where
 structure InterpState where
   assignments : Array Assignment
   funVals     : PArray Value -- we take snapshots during fixpoint computations
+  visitedJps  : Array (Std.HashSet JoinPointId)
 
 abbrev M := ReaderT InterpContext (StateM InterpState)
 
@@ -176,8 +165,8 @@ def findVarValue (x : VarId) : M Value := do
 
 def findArgValue (arg : Arg) : M Value :=
   match arg with
-  | Arg.var x => findVarValue x
-  | _         => pure top
+  | .var x => findVarValue x
+  | .erased => pure top
 
 def updateVarAssignment (x : VarId) (v : Value) : M Unit := do
   let v' ← findVarValue x
@@ -221,11 +210,18 @@ def updateCurrFnSummary (v : Value) : M Unit := do
   let currFnIdx := ctx.currFnIdx
   modify fun s => { s with funVals := s.funVals.modify currFnIdx (fun v' => widening ctx.env v v') }
 
+def markJPVisited (j : JoinPointId) : M Bool := do
+  let currFnIdx := (← read).currFnIdx
+  modifyGet fun s =>
+    ⟨!(s.visitedJps[currFnIdx]!.contains j),
+     { s with visitedJps := s.visitedJps.modify currFnIdx fun a => a.insert j }⟩
+
 /-- Return true if the assignment of at least one parameter has been updated. -/
-def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool := do
+def updateJPParamsAssignment (j : JoinPointId) (ys : Array Param) (xs : Array Arg) : M Bool := do
   let ctx ← read
   let currFnIdx := ctx.currFnIdx
-  ys.size.foldM (init := false) fun i _ r => do
+  let isFirstVisit ← markJPVisited j
+  ys.size.foldM (init := isFirstVisit) fun i _ r => do
     let y := ys[i]
     let x := xs[i]!
     let yVal ← findVarValue y.x
@@ -240,7 +236,7 @@ def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool := do
 private partial def resetNestedJPParams : FnBody → M Unit
   | FnBody.jdecl _ ys _ k => do
     ys.forM resetParamAssignment
-    /- Remark we don't need to reset the parameters of joint-points
+    /- Remark we don't need to reset the parameters of join points
       nested in `b` since they will be reset if this JP is used. -/
     resetNestedJPParams k
   | FnBody.case _ _ _ alts =>
@@ -270,7 +266,7 @@ partial def interpFnBody : FnBody → M Unit
     let ctx ← read
     let ys := (ctx.lctx.getJPParams j).get!
     let b  := (ctx.lctx.getJPBody j).get!
-    let updated ← updateJPParamsAssignment ys xs
+    let updated ← updateJPParamsAssignment j ys xs
     if updated then
       -- We must reset the value of nested join-point parameters since they depend on `ys` values
       resetNestedJPParams b
@@ -281,7 +277,8 @@ partial def interpFnBody : FnBody → M Unit
 
 def inferStep : M Bool := do
   let ctx ← read
-  modify fun s => { s with assignments := ctx.decls.map fun _ => {} }
+  modify fun s => { s with assignments := ctx.decls.map fun _ => {},
+                           visitedJps := ctx.decls.map fun _ => {} }
   ctx.decls.size.foldM (init := false) fun idx _ modified => do
     match ctx.decls[idx] with
     | .fdecl (xs := ys) (body := b) .. => do
@@ -293,7 +290,11 @@ def inferStep : M Bool := do
         let s ← get
         let newVals := s.funVals[idx]!
         pure (modified || currVals != newVals)
-    | .extern .. => pure modified
+    | .extern .. => do
+      let currVals := (← get).funVals[idx]!
+      updateCurrFnSummary .top
+      let newVals := (← get).funVals[idx]!
+      pure (modified || currVals != newVals)
 
 partial def inferMain : M Unit := do
   let modified ← inferStep
@@ -326,19 +327,20 @@ end UnreachableBranches
 open UnreachableBranches
 
 def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
-  let s ← get
-  let env := s.env
+  let env ← getEnv
   let assignments : Array Assignment := decls.map fun _ => {}
   let funVals := mkPArray decls.size Value.bot
+  let visitedJps := decls.map fun _ => {}
   let ctx : InterpContext := { decls := decls, env := env }
-  let s : InterpState := { assignments := assignments, funVals := funVals }
+  let s : InterpState := { assignments, funVals, visitedJps }
   let (_, s) := (inferMain ctx).run s
   let funVals := s.funVals
   let assignments := s.assignments
-  modify fun s =>
-    let env := decls.size.fold (init := s.env) fun i _ env =>
+  modifyEnv fun env =>
+    decls.size.fold (init := env) fun i _ env =>
       addFunctionSummary env decls[i].name funVals[i]!
-    { s with env := env }
   return decls.mapIdx fun i decl => elimDead assignments[i]! decl
+
+builtin_initialize registerTraceClass `compiler.ir.elim_dead_branches (inherited := true)
 
 end Lean.IR

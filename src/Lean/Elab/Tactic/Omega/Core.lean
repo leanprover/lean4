@@ -3,10 +3,14 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Omega.Constraint
-import Lean.Elab.Tactic.Omega.OmegaM
-import Lean.Elab.Tactic.Omega.MinNatAbs
+public import Init.Omega.Constraint
+public import Lean.Elab.Tactic.Omega.OmegaM
+public import Lean.Elab.Tactic.Omega.MinNatAbs
+
+public section
 
 namespace Lean.Elab.Tactic.Omega
 
@@ -139,12 +143,14 @@ instance : ToString Fact where
 /-- `tidy`, implemented on `Fact`. -/
 def tidy (f : Fact) : Fact :=
   match f.justification.tidy? with
-  | some ⟨_, _, justification⟩ => { justification }
+  | some ⟨constraint, coeffs, justification⟩ => { coeffs, constraint, justification }
   | none => f
 
 /-- `combo`, implemented on `Fact`. -/
 def combo (a : Int) (f : Fact) (b : Int) (g : Fact) : Fact :=
-  { justification := .combo a f.justification b g.justification }
+  { coeffs := .combo a f.coeffs b g.coeffs
+    constraint := .combo a f.constraint b g.constraint
+    justification := .combo a f.justification b g.justification }
 
 end Fact
 
@@ -185,7 +191,7 @@ structure Problem where
   proveFalse?_spec : possible || proveFalse?.isSome := by rfl
   /--
   If we have found a contradiction,
-  `explanation?` will contain a human readable account of the deriviation.
+  `explanation?` will contain a human readable account of the derivation.
   -/
   explanation? : Thunk String := ""
 
@@ -478,7 +484,7 @@ def fourierMotzkinData (p : Problem) : Array FourierMotzkinData := Id.run do
   let mut data : Array FourierMotzkinData :=
     (List.range p.numVars).foldl (fun a i => a.push { var := i}) #[]
   for (_, f@⟨xs, s, _⟩) in p.constraints do
-    for i in [0:n] do
+    for i in *...n do
       let x := Coeffs.get xs i
       data := data.modify i fun d =>
         if x = 0 then
@@ -513,7 +519,7 @@ def fourierMotzkinSelect (data : Array FourierMotzkinData) : MetaM FourierMotzki
   if bestSize = 0 then
     trace[omega] "Selected variable {data[0]!.var}."
     return data[0]!
-  for h : i in [1:data.size] do
+  for h : i in 1...data.size do
     let exact := data[i].exact
     let size := data[i].size
     if size = 0 || !bestExact && exact || (bestExact == exact) && size < bestSize then

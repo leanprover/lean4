@@ -4,10 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.System.IO
-import Lean.Data.RBTree
-import Lean.Data.Json
+public import Init.System.IO
+public import Lean.Data.Json.Stream
+public import Lean.Data.Json.FromToJson.Basic
+
+public section
 
 /-! Implementation of JSON-RPC 2.0 (https://www.jsonrpc.org/specification)
 for use in the LSP server. -/
@@ -111,8 +115,9 @@ inductive Message where
   | response (id : RequestID) (result : Json)
   /-- A non-successful response. -/
   | responseError (id : RequestID) (code : ErrorCode) (message : String) (data? : Option Json)
+  deriving Inhabited
 
-def Batch := Array Message
+@[expose] def Batch := Array Message
 
 /-- Generic version of `Message.request`.
 
@@ -130,6 +135,14 @@ structure Request (α : Type u) where
 instance [ToJson α] : CoeOut (Request α) Message :=
   ⟨fun r => Message.request r.id r.method (toStructured? r.param).toOption⟩
 
+def Request.ofMessage? : Message → Option (Request Json)
+  | .request id method params? => some {
+      id
+      method
+      param := toJson params?
+    }
+  | _ => none
+
 /-- Generic version of `Message.notification`.
 
 A notification message. A processed notification message must not send a response back. They work like events.
@@ -144,6 +157,13 @@ structure Notification (α : Type u) where
 
 instance [ToJson α] : CoeOut (Notification α) Message :=
   ⟨fun r => Message.notification r.method (toStructured? r.param).toOption⟩
+
+def Notification.ofMessage? : Message → Option (Notification Json)
+  | .notification method params? => some {
+      method
+      param := toJson params?
+    }
+  | _ => none
 
 /-- Generic version of `Message.response`.
 
@@ -163,6 +183,10 @@ structure Response (α : Type u) where
 
 instance [ToJson α] : CoeOut (Response α) Message :=
   ⟨fun r => Message.response r.id (toJson r.result)⟩
+
+def Response.ofMessage? : Message → Option (Response Json)
+  | .response id result => some { id, result }
+  | _ => none
 
 /-- Generic version of `Message.responseError`.
 
@@ -186,10 +210,14 @@ instance [ToJson α] : CoeOut (ResponseError α) Message :=
 instance : CoeOut (ResponseError Unit) Message :=
   ⟨fun r => Message.responseError r.id r.code r.message none⟩
 
+def ResponseError.ofMessage? : Message → Option (ResponseError Json)
+  | .responseError id code message data? => some { id, code, message, data? }
+  | _ => none
+
 instance : Coe String RequestID := ⟨RequestID.str⟩
 instance : Coe JsonNumber RequestID := ⟨RequestID.num⟩
 
-private def RequestID.lt : RequestID → RequestID → Bool
+@[expose] def RequestID.lt : RequestID → RequestID → Bool
   | RequestID.str a, RequestID.str b            => a < b
   | RequestID.num a, RequestID.num b            => a < b
   | RequestID.null,  RequestID.num _            => true
@@ -197,7 +225,7 @@ private def RequestID.lt : RequestID → RequestID → Bool
   | RequestID.num _, RequestID.str _            => true
   | _, _ /- str < *, num < null, null < null -/ => false
 
-private def RequestID.ltProp : LT RequestID :=
+@[expose] def RequestID.ltProp : LT RequestID :=
   ⟨fun a b => RequestID.lt a b = true⟩
 
 instance : LT RequestID :=

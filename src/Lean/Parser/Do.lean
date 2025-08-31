@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Term
+public import Lean.Parser.Term
+
+public section
 
 namespace Lean
 namespace Parser
@@ -51,7 +55,7 @@ def notFollowedByRedefinedTermToken :=
   -- an "open" command follows the `do`-block.
   -- If we don't add `do`, then users would have to indent `do` blocks or use `{ ... }`.
   notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "match_expr" <|> "let" <|> "let_expr" <|> "have" <|>
-      "do" <|> "dbg_trace" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try")
+      "do" <|> "dbg_trace" <|> "assert!" <|> "debug_assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try")
     "token at 'do' element"
 
 @[builtin_doElem_parser] def doLet      := leading_parser
@@ -65,7 +69,7 @@ def notFollowedByRedefinedTermToken :=
   checkColGt >> " | " >> doSeq
 
 @[builtin_doElem_parser] def doLetMetaExpr  := leading_parser
-  "let_expr " >> matchExprPat >> " ← " >> termParser >>
+  "let_expr " >> matchExprPat >> leftArrow >> termParser >>
   checkColGt >> " | " >> doSeq
 
 @[builtin_doElem_parser] def doLetRec   := leading_parser
@@ -79,17 +83,22 @@ def doPatDecl  := leading_parser
 @[builtin_doElem_parser] def doLetArrow      := leading_parser
   withPosition ("let " >> optional "mut " >> (doIdDecl <|> doPatDecl))
 
--- We use `letIdDeclNoBinders` to define `doReassign`.
--- Motivation: we do not reassign functions, and avoid parser conflict
+/-
+We use `letIdDeclNoBinders` to define `doReassign`.
+Motivations:
+- we do not reassign functions,
+- we do not want `hygieneInfo` case, and
+- avoid parser conflict
+-/
 def letIdDeclNoBinders := node ``letIdDecl <|
-  atomic (ident >> pushNone >> optType >> " := ") >> termParser
+  atomic (node ``letId ident >> pushNone >> optType >> " := ") >> termParser
 
 @[builtin_doElem_parser] def doReassign      := leading_parser
   notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
 @[builtin_doElem_parser] def doReassignArrow := leading_parser
   notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)
 @[builtin_doElem_parser] def doHave     := leading_parser
-  "have" >> Term.haveDecl
+  "have" >> Term.letDecl
 /-
 In `do` blocks, we support `if` without an `else`.
 Thus, we use indentation to prevent examples such as
@@ -123,7 +132,7 @@ else if c_2 then
 def elseIf := atomic (group (withPosition ("else " >> checkLineEq >> " if ")))
 -- ensure `if $e then ...` still binds to `e:term`
 def doIfLetPure := leading_parser " := " >> termParser
-def doIfLetBind := leading_parser " ← " >> termParser
+def doIfLetBind := leading_parser leftArrow >> termParser
 def doIfLet     := leading_parser (withAnonymousAntiquot := false)
   "let " >> termParser >> (doIfLetPure <|> doIfLetBind)
 def doIfProp    := leading_parser (withAnonymousAntiquot := false)
@@ -200,6 +209,12 @@ It should only be used for debugging.
 -/
 @[builtin_doElem_parser] def doAssert    := leading_parser:leadPrec
   "assert! " >> termParser
+/--
+`debug_assert! cond` panics if `cond` evaluates to `false` and the executing code has been built
+with debug assertions enabled (see the `debugAssertions` option).
+-/
+@[builtin_doElem_parser] def doDebugAssert := leading_parser:leadPrec
+  "debug_assert! " >> termParser
 
 /-
 We use `notFollowedBy` to avoid counterintuitive behavior.
@@ -219,7 +234,7 @@ The second `notFollowedBy` prevents this problem.
 -/
 @[builtin_doElem_parser] def doExpr   := leading_parser
   notFollowedByRedefinedTermToken >> termParser >>
-  notFollowedBy (symbol ":=" <|> symbol "←" <|> symbol "<-")
+  notFollowedBy (symbol ":=" <|> leftArrow)
     "unexpected token after 'expr' in 'do' block"
 @[builtin_doElem_parser] def doNested := leading_parser
   "do " >> doSeq

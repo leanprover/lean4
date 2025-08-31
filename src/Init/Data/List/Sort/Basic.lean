@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.List.Impl
-import Init.Data.List.Nat.TakeDrop
+public import Init.Data.List.Impl
+public import Init.Data.List.Nat.TakeDrop
+
+public section
 
 /-!
 # Definition of `merge` and `mergeSort`.
@@ -14,13 +18,20 @@ These definitions are intended for verification purposes,
 and are replaced at runtime by efficient versions in `Init.Data.List.Sort.Impl`.
 -/
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 /--
-`O(min |l| |r|)`. Merge two lists using `le` as a switch.
+Merges two lists, using `le` to select the first element of the resulting list if both are
+non-empty.
 
-This version is not tail-recursive,
-but it is replaced at runtime by `mergeTR` using a `@[csimp]` lemma.
+If both input lists are sorted according to `le`, then the resulting list is also sorted according
+to `le`. `O(|xs| + |ys|)`.
+
+This implementation is not tail-recursive, but it is replaced at runtime by a proven-equivalent
+tail-recursive merge.
 -/
 def merge (xs ys : List α) (le : α → α → Bool := by exact fun a b => a ≤ b) : List α :=
   match xs, ys with
@@ -35,8 +46,8 @@ def merge (xs ys : List α) (le : α → α → Bool := by exact fun a b => a �
 @[simp] theorem nil_merge (ys : List α) : merge [] ys le = ys := by simp [merge]
 @[simp] theorem merge_right (xs : List α) : merge xs [] le = xs := by
   induction xs with
-  | nil => simp [merge]
-  | cons x xs ih => simp [merge, ih]
+  | nil => simp
+  | cons x xs ih => simp [merge]
 
 /--
 Split a list in two equal parts. If the length is odd, the first part will be one element longer.
@@ -51,16 +62,16 @@ def MergeSort.Internal.splitInTwo (l : { l : List α // l.length = n }) :
 open MergeSort.Internal in
 set_option linter.unusedVariables false in
 /--
-Simplified implementation of stable merge sort.
+A stable merge sort.
 
-This function is designed for reasoning about the algorithm, and is not efficient.
-(It particular it uses the non tail-recursive `merge` function,
-and so can not be run on large lists, but also makes unnecessary traversals of lists.)
-It is replaced at runtime in the compiler by `mergeSortTR₂` using a `@[csimp]` lemma.
+This function is a simplified implementation that's designed to be easy to reason about, rather than
+for efficiency. In particular, it uses the non-tail-recursive `List.merge` function and traverses
+lists unnecessarily.
 
-Because we want the sort to be stable,
-it is essential that we split the list in two contiguous sublists.
+It is replaced at runtime by an efficient implementation that has been proven to be equivalent.
 -/
+-- Because we want the sort to be stable, it is essential that we split the list in two contiguous
+-- sublists.
 def mergeSort : ∀ (xs : List α) (le : α → α → Bool := by exact fun a b => a ≤ b), List α
   | [], _ => []
   | [a], _ => [a]
@@ -73,14 +84,14 @@ termination_by xs => xs.length
 
 /--
 Given an ordering relation `le : α → α → Bool`,
-construct the reverse lexicographic ordering on `Nat × α`.
-which first compares the second components using `le`,
+construct the lexicographic ordering on `α × Nat`.
+which first compares the first components using `le`,
 but if these are equivalent (in the sense `le a.2 b.2 && le b.2 a.2`)
-then compares the first components using `≤`.
+then compares the second components using `≤`.
 
 This function is only used in stating the stability properties of `mergeSort`.
 -/
-def enumLE (le : α → α → Bool) (a b : Nat × α) : Bool :=
-  if le a.2 b.2 then if le b.2 a.2 then a.1 ≤ b.1 else true else false
+def zipIdxLE (le : α → α → Bool) (a b : α × Nat) : Bool :=
+  if le a.1 b.1 then if le b.1 a.1 then a.2 ≤ b.2 else true else false
 
 end List

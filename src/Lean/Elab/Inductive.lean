@@ -3,8 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller
 -/
+module
+
 prelude
-import Lean.Elab.MutualInductive
+public import Lean.Elab.MutualInductive
+import Lean.Linter.Basic
+
+public section
 
 namespace Lean.Elab.Command
 open Meta
@@ -31,19 +36,32 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
     def ctor := leading_parser optional docComment >> "\n| " >> declModifiers >> rawIdent >> optDeclSig
     ```
     -/
-    let mut ctorModifiers ← elabModifiers ⟨ctor[2]⟩
+    let modifiersStx := ctor[2]
+    let mut ctorModifiers ← elabModifiers ⟨modifiersStx⟩
     if let some leadingDocComment := ctor[0].getOptional? then
       if ctorModifiers.docString?.isSome then
-        logErrorAt leadingDocComment "duplicate doc string"
-      ctorModifiers := { ctorModifiers with docString? := TSyntax.getDocString ⟨leadingDocComment⟩ }
+        logErrorAt leadingDocComment "Duplicate doc string"
+      ctorModifiers := { ctorModifiers with docString? := some ⟨leadingDocComment⟩ }
     if ctorModifiers.isPrivate && modifiers.isPrivate then
-      throwError "invalid 'private' constructor in a 'private' inductive datatype"
+      let hint ← do
+        let .original .. := modifiersStx.getHeadInfo | pure .nil
+        let some range := modifiersStx[2].getRangeWithTrailing? | pure .nil
+        -- Drop the doc comment from both the `declModifiers` and outer `ctor`, as well as
+        -- everything after the constructor name (yielding invalid syntax with the desired range)
+        let previewSpan? := ctor.modifyArgs (·[2...4].toArray.modify 0 (·.modifyArgs (·[1...*])))
+        MessageData.hint "Remove `private` modifier from constructor" #[{
+          suggestion := ""
+          span? := Syntax.ofRange range
+          previewSpan?
+          toCodeActionTitle? := some fun _ => "Delete `private` modifier"
+        }]
+      throwError m!"Constructor cannot be marked `private` because it is already in a `private` inductive datatype" ++ hint
     if ctorModifiers.isProtected && modifiers.isPrivate then
-      throwError "invalid 'protected' constructor in a 'private' inductive datatype"
+      throwError "Constructor cannot be `protected` because it is in a `private` inductive datatype"
     checkValidCtorModifier ctorModifiers
     let ctorName := ctor.getIdAt 3
     let ctorName := declName ++ ctorName
-    let ctorName ← withRef ctor[3] <| applyVisibility ctorModifiers.visibility ctorName
+    let ctorName ← withRef ctor[3] <| applyVisibility ctorModifiers ctorName
     let (binders, type?) := expandOptDeclSig ctor[4]
     addDocString' ctorName ctorModifiers.docString?
     addDeclarationRangesFromSyntax ctorName ctor ctor[3]
@@ -54,7 +72,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
   if decl[3][0].isToken ":=" then
     -- https://github.com/leanprover/lean4/issues/5236
     withRef decl[0] <| Linter.logLintIf Linter.linter.deprecated decl[3]
-      "'inductive ... :=' has been deprecated in favor of 'inductive ... where'."
+      "`inductive ... :=` has been deprecated in favor of `inductive ... where`"
   return {
     ref             := decl
     shortDeclName   := name
@@ -138,7 +156,7 @@ private def reorderCtorArgs (ctorType : Expr) : MetaM Expr := do
     else
       let r ← mkForallFVars (bsPrefix ++ as) type
       /- `r` already contains the resulting type.
-         To be able to produce more better error messages, we copy the first `bsPrefix.size` binder names from `C` to `r`.
+         To be able to produce better error messages, we copy the first `bsPrefix.size` binder names from `C` to `r`.
          This is important when some of constructor parameters were inferred using the auto-bound implicit feature.
          For example, in the following declaration.
          ```
@@ -156,7 +174,7 @@ private def reorderCtorArgs (ctorType : Expr) : MetaM Expr := do
        -/
       let C := type.getAppFn
       let binderNames := getArrowBinderNames (← instantiateMVars (← inferType C))
-      return replaceArrowBinderNames r binderNames[:bsPrefix.size]
+      return replaceArrowBinderNames r binderNames[*...bsPrefix.size]
 
 /--
   Elaborate constructor types.
@@ -178,7 +196,8 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
           match ctorView.type? with
           | none          =>
             if indFamily then
-              throwError "constructor resulting type must be specified in inductive family declaration"
+              throwError "Missing resulting type for constructor `{ctorView.declName}`: \
+                Its resulting type must be specified because it is part of an inductive family declaration"
             return mkAppN indFVar params
           | some ctorType =>
             let type ← Term.elabType ctorType
@@ -188,13 +207,13 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
             let type ← checkParamOccs type
             forallTelescopeReducing type fun _ resultingType => do
               unless resultingType.getAppFn == indFVar do
-                throwError "unexpected constructor resulting type{indentExpr resultingType}"
+                throwUnexpectedResultingTypeMismatch resultingType indFVar ctorView.declName ctorType
               unless (← isType resultingType) do
-                throwError "unexpected constructor resulting type, type expected{indentExpr resultingType}"
+                throwUnexpectedResultingTypeNotType resultingType ctorView.declName ctorType
             return type
         let type ← elabCtorType
         Term.synthesizeSyntheticMVarsNoPostponing
-        let ctorParams ← Term.addAutoBoundImplicits ctorParams
+        let ctorParams ← Term.addAutoBoundImplicits ctorParams (ctorView.declId.getTailPos? (canonicalOnly := true))
         let except (mvarId : MVarId) := ctorParams.any fun ctorParam => ctorParam.isMVar && ctorParam.mvarId! == mvarId
         /-
           We convert metavariables in the resulting type into extra parameters. Otherwise, we would not be able to elaborate
@@ -229,23 +248,62 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
         trace[Elab.inductive] "{ctorView.declName} : {type}"
         return { name := ctorView.declName, type }
 where
+  /--
+  Ensures that the arguments to recursive occurrences of the type family being defined match the
+  parameters from the inductive definition.
+  -/
   checkParamOccs (ctorType : Expr) : MetaM Expr :=
-    let visit (e : Expr) : MetaM TransformStep := do
+    let visit (e : Expr) : StateT (List Expr) MetaM TransformStep := do
       let f := e.getAppFn
       if indFVars.contains f then
         let mut args := e.getAppArgs
-        unless args.size ≥ params.size do
-          throwError "unexpected inductive type occurrence{indentExpr e}"
-        for h : i in [:params.size] do
-          let param := params[i]
+        -- Prefer throwing an "argument mismatch" error rather than a "missing parameter" one
+        for i in *...min args.size params.size do
+          let param := params[i]!
           let arg := args[i]!
           unless (← isDefEq param arg) do
-            throwError "inductive datatype parameter mismatch{indentExpr arg}\nexpected{indentExpr param}"
+            let (arg, param) ← addPPExplicitToExposeDiff arg param
+            let msg := m!"Mismatched inductive type parameter in{indentExpr e}\nThe provided argument\
+              {indentExpr arg}\nis not definitionally equal to the expected parameter{indentExpr param}"
+            let noteMsg := m!"The value of parameter `{param}` must be fixed throughout the inductive \
+              declaration. Consider making this parameter an index if it must vary."
+            throwNamedError lean.inductiveParamMismatch (msg ++ .note noteMsg)
           args := args.set! i param
+        unless args.size ≥ params.size do
+          let expected := mkAppN f params
+          let containingExprMsg := (← get).head?.map toMessageData |>.getD m!"<missing>"
+          let msg :=
+            m!"Missing parameter(s) in occurrence of inductive type: In the expression{indentD containingExprMsg}\n\
+               found{indentExpr e}\nbut expected all parameters to be specified:{indentExpr expected}"
+          let noteMsg :=
+            m!"All occurrences of an inductive type in the types of its constructors must specify its \
+              fixed parameters. Only indices can be omitted in a partial application of the type constructor."
+          throwNamedError lean.inductiveParamMissing (msg ++ .note noteMsg)
         return TransformStep.done (mkAppN f args)
       else
+        modify fun es => e :: es
         return .continue
-    transform ctorType (pre := visit)
+    let popContainingExpr (e : Expr) : StateT (List Expr) MetaM TransformStep := do
+      modify fun es => es.drop 1
+      return .done e
+    transform ctorType (pre := visit) (post := popContainingExpr) |>.run' [ctorType]
+
+  throwUnexpectedResultingTypeMismatch (resultingType indFVar : Expr) (declName : Name) (ctorType : Syntax) := do
+    let lazyAppMsg := MessageData.ofLazyM do
+      if let some fvarId := indFVar.fvarId? then
+        if let some decl := (← getLCtx).find? fvarId then
+          if (← whnfD decl.type).isForall then
+            return m!" an application of"
+      return m!""
+    throwNamedErrorAt ctorType lean.ctorResultingTypeMismatch "Unexpected resulting type for constructor `{declName}`: \
+      Expected{lazyAppMsg}{indentExpr indFVar}\nbut found{indentExpr resultingType}"
+
+  throwUnexpectedResultingTypeNotType (resultingType : Expr) (declName : Name) (ctorType : Syntax) := do
+    let lazyMsg := MessageData.ofLazyM do
+      let resultingTypeType ← inferType resultingType
+      return indentExpr resultingTypeType
+    throwNamedErrorAt ctorType lean.ctorResultingTypeMismatch "Unexpected resulting type for constructor `{declName}`: \
+      Expected a type, but found{indentExpr resultingType}\nof type{lazyMsg}"
 
 @[builtin_inductive_elab Lean.Parser.Command.inductive, builtin_inductive_elab Lean.Parser.Command.classInductive]
 def elabInductiveCommand : InductiveElabDescr where

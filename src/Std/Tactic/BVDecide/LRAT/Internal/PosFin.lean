@@ -3,8 +3,13 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Init.NotationExtra
+public import Init.NotationExtra
+public import Init.Data.Hashable
+
+@[expose] public section
 
 namespace Std.Tactic.BVDecide
 namespace LRAT
@@ -17,6 +22,9 @@ instance : DecidableEq (PosFin n) :=
 
 instance : CoeOut (PosFin n) Nat where
   coe p := p.val
+
+instance {n} : Hashable (PosFin n) where
+  hash p := hash p.val
 
 instance : ToString (PosFin n) where
   toString p := toString p.val

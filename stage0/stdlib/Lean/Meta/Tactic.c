@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic
-// Imports: Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.Contradiction Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Revert Lean.Meta.Tactic.Clear Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Generalize Lean.Meta.Tactic.Replace Lean.Meta.Tactic.Induction Lean.Meta.Tactic.Cases Lean.Meta.Tactic.ElimInfo Lean.Meta.Tactic.Delta Lean.Meta.Tactic.Constructor Lean.Meta.Tactic.Simp Lean.Meta.Tactic.AuxLemma Lean.Meta.Tactic.SplitIf Lean.Meta.Tactic.Split Lean.Meta.Tactic.TryThis Lean.Meta.Tactic.Cleanup Lean.Meta.Tactic.Unfold Lean.Meta.Tactic.Rename Lean.Meta.Tactic.LinearArith Lean.Meta.Tactic.AC Lean.Meta.Tactic.Refl Lean.Meta.Tactic.Congr Lean.Meta.Tactic.Repeat Lean.Meta.Tactic.NormCast Lean.Meta.Tactic.IndependentOf Lean.Meta.Tactic.Symm Lean.Meta.Tactic.Backtrack Lean.Meta.Tactic.SolveByElim Lean.Meta.Tactic.FunInd Lean.Meta.Tactic.Rfl Lean.Meta.Tactic.Rewrites Lean.Meta.Tactic.Grind Lean.Meta.Tactic.Ext
+// Imports: Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.Contradiction Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Revert Lean.Meta.Tactic.Clear Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Generalize Lean.Meta.Tactic.Replace Lean.Meta.Tactic.Lets Lean.Meta.Tactic.Induction Lean.Meta.Tactic.Cases Lean.Meta.Tactic.ElimInfo Lean.Meta.Tactic.Delta Lean.Meta.Tactic.Constructor Lean.Meta.Tactic.Simp Lean.Meta.Tactic.AuxLemma Lean.Meta.Tactic.SplitIf Lean.Meta.Tactic.Split Lean.Meta.Tactic.TryThis Lean.Meta.Tactic.Cleanup Lean.Meta.Tactic.Unfold Lean.Meta.Tactic.Rename Lean.Meta.Tactic.AC Lean.Meta.Tactic.Refl Lean.Meta.Tactic.Congr Lean.Meta.Tactic.Repeat Lean.Meta.Tactic.NormCast Lean.Meta.Tactic.IndependentOf Lean.Meta.Tactic.Symm Lean.Meta.Tactic.Backtrack Lean.Meta.Tactic.SolveByElim Lean.Meta.Tactic.FunInd Lean.Meta.Tactic.Rfl Lean.Meta.Tactic.Rewrites Lean.Meta.Tactic.Grind Lean.Meta.Tactic.Ext Lean.Meta.Tactic.Try
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,6 +23,7 @@ lean_object* initialize_Lean_Meta_Tactic_Assert(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Rewrite(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Generalize(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Replace(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Lets(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Induction(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Cases(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_ElimInfo(uint8_t builtin, lean_object*);
@@ -36,7 +37,6 @@ lean_object* initialize_Lean_Meta_Tactic_TryThis(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Cleanup(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Unfold(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Rename(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_LinearArith(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_AC(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Refl(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Congr(uint8_t builtin, lean_object*);
@@ -51,6 +51,7 @@ lean_object* initialize_Lean_Meta_Tactic_Rfl(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Rewrites(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Ext(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Try(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -84,6 +85,9 @@ res = initialize_Lean_Meta_Tactic_Generalize(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Replace(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Lets(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Induction(builtin, lean_io_mk_world());
@@ -123,9 +127,6 @@ res = initialize_Lean_Meta_Tactic_Unfold(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Rename(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_LinearArith(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_AC(builtin, lean_io_mk_world());
@@ -168,6 +169,9 @@ res = initialize_Lean_Meta_Tactic_Grind(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Ext(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Try(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

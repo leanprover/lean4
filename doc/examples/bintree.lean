@@ -179,7 +179,7 @@ local macro "have_eq " lhs:term:max rhs:term:max : tactic =>
   `(tactic|
     (have h : $lhs = $rhs :=
        -- TODO: replace with linarith
-       by simp_arith at *; apply Nat.le_antisymm <;> assumption
+       by simp +arith at *; apply Nat.le_antisymm <;> assumption
      try subst $lhs))
 
 /-!
@@ -282,7 +282,7 @@ theorem BinTree.find_insert_of_ne (b : BinTree β) (ne : k ≠ k') (v : β)
   let ⟨t, h⟩ := b; simp
   induction t with simp
   | leaf =>
-    intros le
+    intro le
     exact Nat.lt_of_le_of_ne le ne
   | node left key value right ihl ihr =>
     let .node hl hr bl br := h

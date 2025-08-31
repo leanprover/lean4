@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Neg
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Sub
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Neg
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Sub
+
+@[expose] public section
 
 /-!
 This module contains the verification of the bitblaster for `BitVec.sub` from `Impl.Operations.Sub`.
@@ -31,7 +35,7 @@ theorem denote_blastSub (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Boo
             =
           (lhs - rhs).getLsbD idx := by
   intro idx hidx
-  rw [BitVec.sub_toAdd]
+  rw [BitVec.sub_eq_add_neg]
   unfold blastSub
   rw [denote_blastAdd]
   · intros

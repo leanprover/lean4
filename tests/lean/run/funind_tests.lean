@@ -109,8 +109,8 @@ def let_tailrec : Nat → Nat
 termination_by n => n
 
 /--
-info: let_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive n.succ) (a✝ : Nat) :
-  motive a✝
+info: let_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), n < n + 1 → motive n → motive n.succ)
+  (a✝ : Nat) : motive a✝
 -/
 #guard_msgs in
 #check let_tailrec.induct
@@ -139,13 +139,13 @@ def with_ite_tailrec : Nat → Nat
     if n % 2 = 0 then
       with_ite_tailrec n
     else
-      with_ite_tailrec n
+      with_ite_tailrec (n-1)
 termination_by n => n
 
 /--
 info: with_ite_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
   (case2 : ∀ (n : Nat), n % 2 = 0 → motive n → motive n.succ)
-  (case3 : ∀ (n : Nat), ¬n % 2 = 0 → motive n → motive n.succ) (a✝ : Nat) : motive a✝
+  (case3 : ∀ (n : Nat), ¬n % 2 = 0 → motive (n - 1) → motive n.succ) (a✝ : Nat) : motive a✝
 -/
 #guard_msgs in
 #check with_ite_tailrec.induct
@@ -200,6 +200,24 @@ info: with_dite_tailrec.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), x
 -/
 #guard_msgs in
 #check with_dite_tailrec.induct
+
+set_option linter.unusedVariables false in
+def with_bif_tailrec : Nat → Nat
+  | 0 => 0
+  | n+1 =>
+    bif n % 2 == 0 then
+      with_bif_tailrec n
+    else
+      with_bif_tailrec (n-1)
+termination_by n => n
+
+/--
+info: with_bif_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
+  (case2 : ∀ (n : Nat), (n % 2 == 0) = true → motive n → motive n.succ)
+  (case3 : ∀ (n : Nat), (n % 2 == 0) = false → motive (n - 1) → motive n.succ) (a✝ : Nat) : motive a✝
+-/
+#guard_msgs in
+#check with_bif_tailrec.induct
 
 set_option linter.unusedVariables false in
 def with_match_refining_tailrec : Nat → Nat
@@ -502,7 +520,7 @@ info: GramSchmidt.foo.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), (�
 
 end GramSchmidt
 
-namespace LetFun
+namespace Have
 
 def foo {α} (x : α) : List α → Nat
   | .nil => 0
@@ -511,7 +529,7 @@ def foo {α} (x : α) : List α → Nat
       this
 termination_by xs => xs
 /--
-info: LetFun.foo.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
+info: Have.foo.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
   (case2 : ∀ (_y : α) (ys : List α), motive ys → motive (_y :: ys)) (a✝ : List α) : motive a✝
 -/
 #guard_msgs in
@@ -526,13 +544,13 @@ def bar {α} (x : α) : List α → Nat
 termination_by xs => xs
 
 /--
-info: LetFun.bar.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
-  (case2 : ∀ (_y : α) (ys : List α), Nat → motive ys → motive (_y :: ys)) (a✝ : List α) : motive a✝
+info: Have.bar.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
+  (case2 : ∀ (_y : α) (ys : List α), motive ys → motive (_y :: ys)) (a✝ : List α) : motive a✝
 -/
 #guard_msgs in
 #check bar.induct
 
-end LetFun
+end Have
 
 
 namespace RecCallInDisrs
@@ -671,8 +689,8 @@ def foo (fixed : Bool := false) (n : Nat) (m : Nat := 0) : Nat :=
 termination_by n
 
 /--
-info: DefaultArgument.foo.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
-  (case2 : ∀ (m n : Nat), motive n m → motive n.succ m) (n m : Nat) : motive n m
+info: DefaultArgument.foo.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive n.succ)
+  (n : Nat) : motive n
 -/
 #guard_msgs in
 #check foo.induct
@@ -715,11 +733,11 @@ def foo (n : Nat) : Nat :=
 info: Dite.foo.induct (motive : Nat → Prop)
   (case1 :
     ∀ (x : Nat),
-      let j := x - 1;
+      have j := x - 1;
       j < x → motive j → motive x)
   (case2 :
     ∀ (x : Nat),
-      let j := x - 1;
+      have j := x - 1;
       ¬j < x → motive x)
   (n : Nat) : motive n
 -/
@@ -783,7 +801,7 @@ info: Mutual_Induct.even.mutual_induct (motive1 motive2 : Nat → Prop) (case1 :
 
 -- The .mutual_induct only exists on the first declaration:
 
-/-- error: unknown constant 'Mutual_Induct.odd.mutual_induct' -/
+/-- error: Unknown constant `Mutual_Induct.odd.mutual_induct` -/
 #guard_msgs in
 #check odd.mutual_induct
 
@@ -797,16 +815,11 @@ def nonmutual : Nat → Bool
   | 0 => true
   | n+1 => nonmutual n
 
-/-- error: unknown constant 'Mutual_Induct.nonmutual.mutual_induct' -/
+/-- error: Unknown constant `Mutual_Induct.nonmutual.mutual_induct` -/
 #guard_msgs in
 #check nonmutual.mutual_induct
 
-/--
-error: invalid field notation, type is not of the form (C ...) where C is a constant
-  id
-has type
-  ?_ → ?_
--/
+/-- error: Unknown constant `id.mutual_induct` -/
 #guard_msgs in
 set_option pp.mvars false in
 #check id.mutual_induct

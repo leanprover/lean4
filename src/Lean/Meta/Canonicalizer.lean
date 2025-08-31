@@ -3,12 +3,15 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.HashMap
-import Lean.Util.ShareCommon
-import Lean.Meta.Basic
-import Lean.Meta.FunInfo
-import Std.Data.HashMap.Raw
+public import Lean.Util.ShareCommon
+public import Lean.Meta.Basic
+public import Lean.Meta.FunInfo
+public import Std.Data.HashMap.Raw
+
+public section
 
 namespace Lean.Meta
 namespace Canonicalizer
@@ -49,7 +52,7 @@ State for the `CanonM` monad.
 structure State where
   /-- Mapping from `Expr` to hash. -/
   -- We use `HashMap.Raw` to ensure we don't have to tag `State` as `unsafe`.
-  cache      : Std.HashMap.Raw ExprVisited UInt64 := Std.HashMap.Raw.empty
+  cache      : Std.HashMap.Raw ExprVisited UInt64 := ∅
   /--
   Given a hashcode `k` and `keyToExprs.find? h = some es`, we have that all `es` have hashcode `k`, and
   are not definitionally equal modulo the transparency setting used. -/
@@ -101,7 +104,7 @@ private partial def mkKey (e : Expr) : CanonM UInt64 := do
         else
           getFunInfo f
         let mut k ← mkKey f
-        for i in [:e.getAppNumArgs] do
+        for i in *...e.getAppNumArgs do
           if h : i < info.paramInfo.size then
             let info := info.paramInfo[i]
             if info.isExplicit && !info.isProp then

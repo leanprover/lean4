@@ -94,4 +94,4 @@ def Foo.decEq {α : Type u} [DecidableEq α] (a b : Foo α) : Decidable (a = b) 
       else
         isFalse (fun h => Foo.noConfusion' h fun h _ => he1 h)
   else
-    isFalse (fun h => have : ¬ b.ctorIdx == b.ctorIdx := h ▸ hc; this LawfulBEq.rfl)
+    isFalse (fun h => have : ¬ b.ctorIdx == b.ctorIdx := h ▸ hc; this BEq.rfl)

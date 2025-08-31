@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Json.FromToJson
-import Lean.Server.Rpc.Basic
+public import Lean.Data.Json.FromToJson.Basic
+public import Lean.Server.Rpc.Basic
+
+public section
 
 namespace Lean.Widget
 open Server
@@ -74,7 +78,7 @@ private structure TaggedState where
   column   : Nat                                 := 0
   deriving Inhabited
 
-instance : Std.Format.MonadPrettyFormat (StateM TaggedState) where
+private instance : Std.Format.MonadPrettyFormat (StateM TaggedState) where
   pushOutput s       := modify fun ⟨out, ts, col⟩ => ⟨out.appendText s, ts, col + s.length⟩
   pushNewline indent := modify fun ⟨out, ts, _⟩ => ⟨out.appendText ("\n".pushn ' ' indent), ts, indent⟩
   currColumn         := return (←get).column

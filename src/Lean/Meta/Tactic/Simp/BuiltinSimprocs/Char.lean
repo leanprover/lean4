@@ -3,14 +3,19 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ToExpr
-import Lean.Meta.LitValues
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.UInt
+public import Lean.ToExpr
+public import Lean.Meta.LitValues
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.UInt
+
+public section
 
 namespace Char
 open Lean Meta Simp
 
+@[inherit_doc getCharValue?]
 def fromExpr? (e : Expr) : SimpM (Option Char) :=
   getCharValue? e
 
@@ -56,10 +61,14 @@ builtin_dsimproc [simp, seval] reduceBEq  (( _ : Char) == _)  := reduceBoolPred 
 builtin_dsimproc [simp, seval] reduceBNe  (( _ : Char) != _)  := reduceBoolPred ``bne 4 (. != .)
 
 /--
-Return `.done` for Char values. We don't want to unfold in the symbolic evaluator.
-In regular `simp`, we want to prevent the nested raw literal from being converted into
-a `OfNat.ofNat` application. TODO: cleanup
+Returns `.done` for Char values.
+
+These values should not be unfolded in the symbolic evaluator.
+
+In regular `simp`, the nested raw literal should be prevented from being converted into an
+`OfNat.ofNat` application.
 -/
+-- TODO: cleanup
 builtin_dsimproc ↓ [simp, seval] isValue (Char.ofNat _ ) := fun e => do
   unless (← fromExpr? e).isSome do return .continue
   return .done e

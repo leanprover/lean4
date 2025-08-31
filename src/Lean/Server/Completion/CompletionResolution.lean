@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.Completion.CompletionItemData
-import Lean.Server.Completion.CompletionInfoSelection
+public import Lean.Server.Completion.CompletionItemData
+public import Lean.Server.Completion.CompletionInfoSelection
+public import Lean.Linter.Deprecated
+
+public section
 
 namespace Lean.Lsp
 
@@ -62,6 +67,34 @@ def CompletionItem.resolve
         return toString (← Meta.ppExpr typeWithoutImplicits)
     item := { item with detail? := detail? }
 
+  if item.documentation?.isNone then
+    let docStringPrefix? := Id.run do
+      let .const declName := id
+        | none
+      let some param := Linter.deprecatedAttr.getParam? env declName
+        | none
+      let docstringPrefix :=
+        if let some text := param.text? then
+          text
+        else if let some newName := param.newName? then
+          s!"`{declName}` has been deprecated, use `{newName}` instead."
+        else
+          s!"`{declName}` has been deprecated."
+      some docstringPrefix
+    let docString? ← do
+      let .const declName := id
+        | pure none
+      findDocString? env declName
+    let doc? := do
+      let docValue ←
+        match docStringPrefix?, docString? with
+        | none,                 none           => none
+        | some docStringPrefix, none           => docStringPrefix
+        | none,                 docString      => docString
+        | some docStringPrefix, some docString => s!"{docStringPrefix}\n\n{docString}"
+      pure { value := docValue , kind := MarkupKind.markdown : MarkupContent }
+    item := { item with documentation? := doc? }
+
   return item
 
 end Lean.Lsp
@@ -83,8 +116,8 @@ def resolveCompletionItem?
     (id                : CompletionIdentifier)
     (completionInfoPos : Nat)
     : IO CompletionItem := do
-  let completionInfos := findCompletionInfosAt fileMap hoverPos cmdStx infoTree
-  let some i := completionInfos.get? completionInfoPos
+  let (completionInfos, _) := findCompletionInfosAt fileMap hoverPos cmdStx infoTree
+  let some i := completionInfos[completionInfoPos]?
     | return item
   i.ctx.runMetaM i.info.lctx (item.resolve id)
 

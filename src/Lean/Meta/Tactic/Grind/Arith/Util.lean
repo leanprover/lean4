@@ -3,15 +3,25 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Expr
-import Lean.Message
+public import Init.Grind.Ring.Basic
+public import Lean.Meta.SynthInstance
+public import Lean.Meta.Basic
+public import Init.Data.Rat.Basic
+
+public section
 
 namespace Lean.Meta.Grind.Arith
 
 /-- Returns `true` if `e` is of the form `Nat` -/
 def isNatType (e : Expr) : Bool :=
   e.isConstOf ``Nat
+
+/-- Returns `true` if `e` is of the form `Int` -/
+def isIntType (e : Expr) : Bool :=
+  e.isConstOf ``Int
 
 /-- Returns `true` if `e` is of the form `@instHAdd Nat instAddNat` -/
 def isInstAddNat (e : Expr) : Bool :=
@@ -49,54 +59,111 @@ def isNatNum? (e : Expr) : Option Nat := Id.run do
   let .lit (.natVal k) := k | none
   some k
 
-/-- Returns `some (a, k)` if `e` is of the form `a + k`.  -/
-def isNatOffset? (e : Expr) : Option (Expr × Nat) := Id.run do
-  let some (a, b) := isNatAdd? e | none
-  let some k := isNatNum? b | none
-  some (a, k)
+def isSupportedType (e : Expr) : Bool :=
+  isNatType e || isIntType e
 
-/-- An offset constraint. -/
-structure Offset.Cnstr (α : Type) where
-  u  : α
-  v  : α
-  k  : Int := 0
-  deriving Inhabited
+partial def isRelevantPred (e : Expr) : Bool :=
+  match_expr e with
+  | Not p => isRelevantPred p
+  | LE.le α _ _ _ => isSupportedType α
+  | Eq α _ _ => isSupportedType α
+  | Dvd.dvd α _ _ _ => isSupportedType α
+  | _ => false
 
-def Offset.Cnstr.neg : Cnstr α → Cnstr α
-  | { u, v, k } => { u := v, v := u, k := -k - 1 }
+def isArithTerm (e : Expr) : Bool :=
+  match_expr e with
+  | HAdd.hAdd _ _ _ _ _ _ => true
+  | HSub.hSub _ _ _ _ _ _ => true
+  | HMul.hMul _ _ _ _ _ _ => true
+  | HDiv.hDiv _ _ _ _ _ _ => true
+  | HMod.hMod _ _ _ _ _ _ => true
+  | HPow.hPow _ _ _ _ _ _ => true
+  | HSMul.hSMul _ _ _ _ _ _ => true
+  | Neg.neg _ _ _ => true
+  | OfNat.ofNat _ _ _ => true
+  | _ => false
 
-example (c : Offset.Cnstr α) : c.neg.neg = c := by
-  cases c; simp [Offset.Cnstr.neg]; omega
+/-- Quote `e` using `「` and `」` if `e` is an arithmetic term that is being treated as a variable. -/
+def quoteIfArithTerm (e : Expr) : MessageData :=
+  if isArithTerm e then
+    aquote e
+  else
+    e
+/--
+`gcdExt a b` returns the triple `(g, α, β)` such that
+- `g = gcd a b` (with `g ≥ 0`), and
+- `g = α * a + β * b`.
+-/
+partial def gcdExt (a b : Int) : Int × Int × Int :=
+  if b = 0 then
+    (a.natAbs, if a = 0 then 0 else a / a.natAbs, 0)
+  else
+    let (g, α, β) := gcdExt b (a % b)
+    (g, β, α - (a / b) * β)
 
-def Offset.toMessageData [inst : ToMessageData α] (c : Offset.Cnstr α) : MessageData :=
-  match c.k with
-  | .ofNat 0   => m!"{c.u} ≤ {c.v}"
-  | .ofNat k   => m!"{c.u} ≤ {c.v} + {k}"
-  | .negSucc k => m!"{c.u} + {k + 1} ≤ {c.v}"
+-- TODO: PArray.shrink and PArray.resize
+partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
+  if a.size > sz then shrink a.pop sz else a
 
-instance : ToMessageData (Offset.Cnstr Expr) where
-  toMessageData c := Offset.toMessageData c
+partial def resize (a : PArray Rat) (sz : Nat) : PArray Rat :=
+  if a.size > sz then shrink a sz else go a
+where
+  go (a : PArray Rat) : PArray Rat :=
+    if a.size < sz then go (a.push 0) else a
+
+namespace CollectDecVars
+/-! Helper monad for collecting decision variables in `linarith` and `cutsat` -/
+
+structure State where
+  visited : Std.HashSet UInt64 := {}
+  found : FVarIdSet := {}
+
+abbrev CollectDecVarsM := ReaderT FVarIdSet $ StateM State
+
+def alreadyVisited (c : α) : CollectDecVarsM Bool := do
+  let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
+  if (← get).visited.contains addr then return true
+  modify fun s => { s with visited := s.visited.insert addr }
+  return false
+
+def markAsFound (fvarId : FVarId) : CollectDecVarsM Unit := do
+  modify fun s => { s with found := s.found.insert fvarId }
+
+abbrev CollectDecVarsM.run (x : CollectDecVarsM Unit) (decVars : FVarIdSet) : FVarIdSet :=
+  let (_, s) := x decVars |>.run {}
+  s.found
+
+end CollectDecVars
+
+export CollectDecVars (CollectDecVarsM)
+
+private def ____intModuleMarker____ : Bool := true
 
 /--
-Returns `some cnstr` if `e` is offset constraint.
-Remark: `z` is `0` numeral. It is an extra argument because we
-want to be able to provide the one that has already been internalized.
--/
-def isNatOffsetCnstr? (e : Expr) (z : Expr) : Option (Offset.Cnstr Expr) :=
-  match_expr e with
-  | LE.le _ inst a b => if isInstLENat inst then go a b else none
-  | _ => none
-where
-  go (u v : Expr) :=
-    if let some (u, k) := isNatOffset? u then
-      some { u, k := - k, v }
-    else if let some (v, k) := isNatOffset? v then
-      some { u, v, k }
-    else if let some k := isNatNum? u then
-      some { u := z, v, k := - k }
-    else if let some k := isNatNum? v then
-      some { u, v := z, k }
+Return auxiliary expression used as "virtual" parent when
+internalizing auxiliary expressions created by `toIntModuleExpr`.
+The function `toIntModuleExpr` converts a `CommRing` polynomial into
+a `IntModule` expression. We don't want this auxiliary expression to be
+internalized by the `CommRing` module since it uses a nonstandard encoding
+with `@HSMul.hSMul Int α α`, a virtual `One.one` constant, etc.
+ -/
+def getIntModuleVirtualParent : Expr :=
+  mkConst ``____intModuleMarker____
+
+def isIntModuleVirtualParent (parent? : Option Expr) : Bool :=
+  match parent? with
+  | none => false
+  | some parent => parent == getIntModuleVirtualParent
+
+@[specialize] def split (cs : PArray α) (getCoeff : α → Int) : PArray α × Array (Int × α) := Id.run do
+  let mut cs' := {}
+  let mut todo := #[]
+  for c in cs do
+    let b := getCoeff c
+    if b == 0 then
+      cs' := cs'.push c
     else
-      some { u, v }
+      todo := todo.push (b, c)
+  return (cs', todo)
 
 end Lean.Meta.Grind.Arith

@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Data.HashMap
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Lean.Meta.AppBuilder
-import Lean.ToExpr
-import Lean.Data.RArray
+public import Std.Data.HashMap
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+public import Lean.Meta.AppBuilder
+public import Lean.ToExpr
+public import Lean.Data.RArray
+
+public section
 
 /-!
 This module contains the implementation of the reflection monad, used by all other components of this
@@ -36,11 +40,11 @@ instance : ToExpr BVUnOp where
   toExpr x :=
     match x with
     | .not => mkConst ``BVUnOp.not
-    | .shiftLeftConst n => mkApp (mkConst ``BVUnOp.shiftLeftConst) (toExpr n)
-    | .shiftRightConst n => mkApp (mkConst ``BVUnOp.shiftRightConst) (toExpr n)
     | .rotateLeft n => mkApp (mkConst ``BVUnOp.rotateLeft) (toExpr n)
     | .rotateRight n => mkApp (mkConst ``BVUnOp.rotateRight) (toExpr n)
     | .arithShiftRightConst n => mkApp (mkConst ``BVUnOp.arithShiftRightConst) (toExpr n)
+    | .reverse => mkConst ``BVUnOp.reverse
+    | .clz => mkConst ``BVUnOp.clz
   toTypeExpr := mkConst ``BVUnOp
 
 instance : ToExpr (BVExpr w) where
@@ -50,16 +54,16 @@ where
   go {w : Nat} : BVExpr w → Expr
   | .var idx => mkApp2 (mkConst ``BVExpr.var) (toExpr w) (toExpr idx)
   | .const val => mkApp2 (mkConst ``BVExpr.const) (toExpr w) (toExpr val)
-  | .zeroExtend (w := oldWidth) val inner =>
-    mkApp3 (mkConst ``BVExpr.zeroExtend) (toExpr oldWidth) (toExpr val) (go inner)
-  | .signExtend (w := oldWidth) val inner =>
-    mkApp3 (mkConst ``BVExpr.signExtend) (toExpr oldWidth) (toExpr val) (go inner)
   | .bin lhs op rhs => mkApp4 (mkConst ``BVExpr.bin) (toExpr w) (go lhs) (toExpr op) (go rhs)
   | .un op operand => mkApp3 (mkConst ``BVExpr.un) (toExpr w) (toExpr op) (go operand)
-  | .append (l := l) (r := r) lhs rhs =>
-    mkApp4 (mkConst ``BVExpr.append) (toExpr l) (toExpr r) (go lhs) (go rhs)
-  | .replicate (w := oldWidth) w inner =>
-    mkApp3 (mkConst ``BVExpr.replicate) (toExpr oldWidth) (toExpr w) (go inner)
+  | .append (w := w) (l := l) (r := r) lhs rhs _ =>
+    let wExpr := toExpr w
+    let proof := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) wExpr
+    mkApp6 (mkConst ``BVExpr.append) (toExpr l) (toExpr r) wExpr (go lhs) (go rhs) proof
+  | .replicate (w' := newWidth) (w := oldWidth) w inner _ =>
+    let newWExpr := toExpr newWidth
+    let proof := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) newWExpr
+    mkApp5 (mkConst ``BVExpr.replicate) (toExpr oldWidth) newWExpr (toExpr w) (go inner) proof
   | .extract (w := oldWidth) hi lo expr =>
     mkApp4 (mkConst ``BVExpr.extract) (toExpr oldWidth) (toExpr hi) (toExpr lo) (go expr)
   | .shiftLeft (m := m) (n := n) lhs rhs =>
@@ -124,7 +128,7 @@ structure Atom where
   atomNumber : Nat
   /--
   Whether the atom is synthetic. The effect of this is that values for this atom are not considered
-  for the counter example deriviation. This is for example useful when we introduce an atom over
+  for the counter example derivation. This is for example useful when we introduce an atom over
   an expression, together with additional lemmas that fully describe the behavior of the atom.
   -/
   synthetic : Bool
@@ -139,11 +143,16 @@ structure State where
   -/
   atoms : Std.HashMap Expr Atom := {}
   /--
-  A cache for `atomsAssignment`. We maintain the invariant that this value is only used if
-  `atoms` is non empty. The reason for not using an `Option` is that it would pollute a lot of code
-  with error handling that is never hit as this invariant is enforced before all of this code.
+  A cache for `atomsAssignment`. If it is `none` the cache is currently invalidated as new atoms
+  have been added since it was last updated, if it is `some` it must be consistent with the atoms
+  contained in `atoms`.
   -/
-  atomsAssignmentCache : Expr := mkConst `illegal
+  atomsAssignmentCache : Option Expr := none
+  /--
+  Cached calls to `evalsAtAtoms` of various reflection structures. Whenever `atoms` is modified
+  this cache is invalidated as `evalsAtAtoms` relies on `atoms`.
+  -/
+  evalsAtCache : Std.HashMap Expr (Option Expr) := {}
 
 /--
 The reflection monad, used to track `BitVec` variables that we see as we traverse the context.
@@ -160,13 +169,25 @@ structure ReifiedBVExpr where
   -/
   bvExpr : BVExpr width
   /--
-  A proof that `bvExpr.eval atomsAssignment = originalBVExpr`, none if it holds by `rfl`.
+  The expression that was reflected, used for caching of `evalsAtAtoms`.
   -/
-  evalsAtAtoms : M (Option Expr)
+  originalExpr : Expr
+  /--
+  A proof that `bvExpr.eval atomsAssignment = originalExpr`, none if it holds by `rfl`.
+  -/
+  evalsAtAtoms' : M (Option Expr)
   /--
   A cache for `toExpr bvExpr`.
   -/
   expr : Expr
+
+def ReifiedBVExpr.evalsAtAtoms (reified : ReifiedBVExpr) : M (Option Expr) := do
+  match (← get).evalsAtCache[reified.originalExpr]? with
+  | some hit => return hit
+  | none =>
+    let proof? ← reified.evalsAtAtoms'
+    modify fun s => { s with evalsAtCache :=  s.evalsAtCache.insert reified.originalExpr proof? }
+    return proof?
 
 /--
 A reified version of an `Expr` representing a `BVPred`.
@@ -177,13 +198,25 @@ structure ReifiedBVPred where
   -/
   bvPred : BVPred
   /--
-  A proof that `bvPred.eval atomsAssignment = originalBVPredExpr`, none if it holds by `rfl`.
+  The expression that was reflected, usef for caching of `evalsAtAtoms`.
   -/
-  evalsAtAtoms : M (Option Expr)
+  originalExpr : Expr
+  /--
+  A proof that `bvPred.eval atomsAssignment = originalExpr`, none if it holds by `rfl`.
+  -/
+  evalsAtAtoms' : M (Option Expr)
   /--
   A cache for `toExpr bvPred`
   -/
   expr : Expr
+
+def ReifiedBVPred.evalsAtAtoms (reified : ReifiedBVPred) : M (Option Expr) := do
+  match (← get).evalsAtCache[reified.originalExpr]? with
+  | some hit => return hit
+  | none =>
+    let proof? ← reified.evalsAtAtoms'
+    modify fun s => { s with evalsAtCache :=  s.evalsAtCache.insert reified.originalExpr proof? }
+    return proof?
 
 /--
 A reified version of an `Expr` representing a `BVLogicalExpr`.
@@ -194,13 +227,25 @@ structure ReifiedBVLogical where
   -/
   bvExpr : BVLogicalExpr
   /--
-  A proof that `bvExpr.eval atomsAssignment = originalBVLogicalExpr`, none if it holds by `rfl`.
+  The expression that was reflected, usef for caching of `evalsAtAtoms`.
   -/
-  evalsAtAtoms : M (Option Expr)
+  originalExpr : Expr
+  /--
+  A proof that `bvExpr.eval atomsAssignment = originalExpr`, none if it holds by `rfl`.
+  -/
+  evalsAtAtoms' : M (Option Expr)
   /--
   A cache for `toExpr bvExpr`
   -/
   expr : Expr
+
+def ReifiedBVLogical.evalsAtAtoms (reified : ReifiedBVLogical) : M (Option Expr) := do
+  match (← get).evalsAtCache[reified.originalExpr]? with
+  | some hit => return hit
+  | none =>
+    let proof? ← reified.evalsAtAtoms'
+    modify fun s => { s with evalsAtCache :=  s.evalsAtCache.insert reified.originalExpr proof? }
+    return proof?
 
 /--
 A reified version of an `Expr` representing a `BVLogicalExpr` that we know to be true.
@@ -239,7 +284,21 @@ def atoms : M (Array (Nat × Expr)) := do
 Retrieve a `BitVec.Assignment` representing the atoms we found so far.
 -/
 def atomsAssignment : M Expr := do
-  return (← getThe State).atomsAssignmentCache
+  match (← getThe State).atomsAssignmentCache with
+  | some cache => return cache
+  | none => updateAtomsAssignment
+where
+  updateAtomsAssignment : M Expr := do
+    let as ← atoms
+    if h : 0 < as.size then
+      let ras := Lean.RArray.ofArray as h
+      let packedType := mkConst ``BVExpr.PackedBitVec
+      let pack := fun (width, expr) => mkApp2 (mkConst ``BVExpr.PackedBitVec.mk) (toExpr width) expr
+      let newAtomsAssignment ← ras.toExpr packedType pack
+      modify fun s => { s with atomsAssignmentCache := some newAtomsAssignment }
+      return newAtomsAssignment
+    else
+      throwError "updateAtomsAssignment should only be called when there is an atom"
 
 /--
 Look up an expression in the atoms, recording it if it has not previously appeared.
@@ -254,20 +313,16 @@ def lookup (e : Expr) (width : Nat) (synthetic : Bool) : M Nat := do
     trace[Meta.Tactic.bv] "New atom of width {width}, synthetic? {synthetic}: {e}"
     let ident ← modifyGetThe State fun s =>
       let newAtom := { width, synthetic, atomNumber := s.atoms.size}
-      (s.atoms.size, { s with atoms := s.atoms.insert e newAtom })
-    updateAtomsAssignment
+      let newAtomNumber := s.atoms.size
+      let s := {
+        s with
+          atoms := s.atoms.insert e newAtom,
+          -- must clear the caches as they depend on `atoms`.
+          atomsAssignmentCache := none
+          evalsAtCache := {}
+      }
+      (newAtomNumber, s)
     return ident
-where
-  updateAtomsAssignment : M Unit := do
-    let as ← atoms
-    if h : 0 < as.size then
-      let ras := Lean.RArray.ofArray as h
-      let packedType := mkConst ``BVExpr.PackedBitVec
-      let pack := fun (width, expr) => mkApp2 (mkConst ``BVExpr.PackedBitVec.mk) (toExpr width) expr
-      let newAtomsAssignment := ras.toExpr packedType pack
-      modify fun s => { s with atomsAssignmentCache := newAtomsAssignment }
-    else
-      throwError "updateAtomsAssignment should only be called when there is an atom"
 
 @[specialize]
 def simplifyBinaryProof' (mkFRefl : Expr → Expr) (fst : Expr) (fproof : Option Expr)
@@ -302,6 +357,18 @@ structure LemmaState where
   The list of top level lemmas that got created on the fly during reflection.
   -/
   lemmas : Array SatAtBVLogical := #[]
+  /--
+  Cache for reification of `BVExpr`.
+  -/
+  bvExprCache : Std.HashMap Expr (Option ReifiedBVExpr) := {}
+  /--
+  Cache for reification of `BVPred`.
+  -/
+  bvPredCache : Std.HashMap Expr (Option ReifiedBVPred) := {}
+  /--
+  Cache for reification of `BVLogicalExpr`.
+  -/
+  bvLogicalCache : Std.HashMap Expr (Option ReifiedBVLogical) := {}
 
 /--
 The lemma reflection monad. It extends the usual reflection monad `M` by adding the ability to
@@ -320,6 +387,36 @@ Add another top level lemma.
 -/
 def addLemma (lemma : SatAtBVLogical) : LemmaM Unit := do
   modify fun s => { s with lemmas := s.lemmas.push lemma }
+
+@[specialize]
+def withBVExprCache (e : Expr) (f : Expr → LemmaM (Option ReifiedBVExpr)) :
+    LemmaM (Option ReifiedBVExpr) := do
+  match (← get).bvExprCache[e]? with
+  | some hit => return hit
+  | none =>
+    let res ← f e
+    modify fun s => { s with bvExprCache := s.bvExprCache.insert e res }
+    return res
+
+@[specialize]
+def withBVPredCache (e : Expr) (f : Expr → LemmaM (Option ReifiedBVPred)) :
+    LemmaM (Option ReifiedBVPred) := do
+  match (← get).bvPredCache[e]? with
+  | some hit => return hit
+  | none =>
+    let res ← f e
+    modify fun s => { s with bvPredCache := s.bvPredCache.insert e res }
+    return res
+
+@[specialize]
+def withBVLogicalCache (e : Expr) (f : Expr → LemmaM (Option ReifiedBVLogical)) :
+    LemmaM (Option ReifiedBVLogical) := do
+  match (← get).bvLogicalCache[e]? with
+  | some hit => return hit
+  | none =>
+    let res ← f e
+    modify fun s => { s with bvLogicalCache := s.bvLogicalCache.insert e res }
+    return res
 
 end LemmaM
 

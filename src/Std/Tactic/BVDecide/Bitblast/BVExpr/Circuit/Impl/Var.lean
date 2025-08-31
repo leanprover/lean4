@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Std.Sat.AIG.CachedGatesLemmas
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+public import Std.Sat.AIG.CachedGatesLemmas
+public import Std.Sat.AIG.LawfulVecOperator
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for symbolic `BitVec` values.
@@ -23,7 +27,7 @@ structure BVVar (width : Nat) where
   ident : Nat
 
 def blastVar (aig : AIG BVBit) (var : BVVar w) : AIG.RefVecEntry BVBit w :=
-  go aig w var.ident 0 .empty (by omega)
+  go aig w var.ident 0 (.emptyWithCapacity w) (by omega)
 where
   go (aig : AIG BVBit) (w : Nat) (a : Nat) (curr : Nat) (s : AIG.RefVec aig curr)
     (hcurr : curr ≤ w) :

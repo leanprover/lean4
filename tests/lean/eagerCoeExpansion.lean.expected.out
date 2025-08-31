@@ -6,16 +6,20 @@ def r : Nat → Prop :=
 fun (a : Nat) =>
   @ite.{1} Prop
     (@Eq.{1} Bool
-      (@BEq.beq.{0} Nat (@instBEqOfDecidableEq.{0} Nat instDecidableEqNat) a (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)))
+      (@BEq.beq.{0} Nat (@instBEqOfDecidableEq.{0} Nat instDecidableEqNat) a
+        (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))))
       Bool.true)
     (instDecidableEqBool
-      (@BEq.beq.{0} Nat (@instBEqOfDecidableEq.{0} Nat instDecidableEqNat) a (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)))
+      (@BEq.beq.{0} Nat (@instBEqOfDecidableEq.{0} Nat instDecidableEqNat) a
+        (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))))
       Bool.true)
     (@Eq.{1} Bool
-      (@bne.{0} Nat (@instBEqOfDecidableEq.{0} Nat instDecidableEqNat) a (@OfNat.ofNat.{0} Nat 1 (instOfNatNat 1)))
+      (@bne.{0} Nat (@instBEqOfDecidableEq.{0} Nat instDecidableEqNat) a
+        (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
       Bool.true)
     (@Eq.{1} Bool
-      (@bne.{0} Nat (@instBEqOfDecidableEq.{0} Nat instDecidableEqNat) a (@OfNat.ofNat.{0} Nat 2 (instOfNatNat 2)))
+      (@bne.{0} Nat (@instBEqOfDecidableEq.{0} Nat instDecidableEqNat) a
+        (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
       Bool.true)
 def s : Option Nat :=
 myFun.f 3 <|> myFun.f 4

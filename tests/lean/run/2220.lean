@@ -4,8 +4,9 @@ set_option pp.coercions false
 set_option pp.explicit true
 
 /--
-info: @HPow.hPow Int Nat Int (@instHPow Int Nat (@instPowNat Int Int.instNatPow)) (@OfNat.ofNat Int 3 (@instOfNat 3))
-  (@OfNat.ofNat Nat 2 (instOfNatNat 2)) : Int
+info: @HPow.hPow Int Nat Int (@instHPow Int Nat (@instPowNat Int Int.instNatPow))
+  (@OfNat.ofNat Int (nat_lit 3) (@instOfNat (nat_lit 3)))
+  (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) : Int
 -/
 #guard_msgs in
 #check (3 : Int) ^ 2
@@ -13,9 +14,10 @@ info: @HPow.hPow Int Nat Int (@instHPow Int Nat (@instPowNat Int Int.instNatPow)
 -- 2 is Nat
 
 /--
-info: @HAdd.hAdd Int Int Int (@instHAdd Int Int.instAdd) (@OfNat.ofNat Int 1 (@instOfNat 1))
-  (@HPow.hPow Int Nat Int (@instHPow Int Nat (@instPowNat Int Int.instNatPow)) (@OfNat.ofNat Int 3 (@instOfNat 3))
-    (@OfNat.ofNat Nat 2 (instOfNatNat 2))) : Int
+info: @HAdd.hAdd Int Int Int (@instHAdd Int Int.instAdd) (@OfNat.ofNat Int (nat_lit 1) (@instOfNat (nat_lit 1)))
+  (@HPow.hPow Int Nat Int (@instHPow Int Nat (@instPowNat Int Int.instNatPow))
+    (@OfNat.ofNat Int (nat_lit 3) (@instOfNat (nat_lit 3)))
+    (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))) : Int
 -/
 #guard_msgs in
 #check (1 : Int) + 3 ^ 2
@@ -24,9 +26,10 @@ info: @HAdd.hAdd Int Int Int (@instHAdd Int Int.instAdd) (@OfNat.ofNat Int 1 (@i
 -- 2 is Nat
 
 /--
-info: @HAdd.hAdd Int Int Int (@instHAdd Int Int.instAdd) (@OfNat.ofNat Int 1 (@instOfNat 1))
-  (@HPow.hPow Int Nat Int (@instHPow Int Nat (@instPowNat Int Int.instNatPow)) (@OfNat.ofNat Int 3 (@instOfNat 3))
-    (@OfNat.ofNat Nat 2 (instOfNatNat 2))) : Int
+info: @HAdd.hAdd Int Int Int (@instHAdd Int Int.instAdd) (@OfNat.ofNat Int (nat_lit 1) (@instOfNat (nat_lit 1)))
+  (@HPow.hPow Int Nat Int (@instHPow Int Nat (@instPowNat Int Int.instNatPow))
+    (@OfNat.ofNat Int (nat_lit 3) (@instOfNat (nat_lit 3)))
+    (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))) : Int
 -/
 #guard_msgs in
 #check (1 + 3 ^ 2 : Int)

@@ -3,9 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.DeclarationRange
-import Lean.MonadEnv
+public import Lean.Data.DeclarationRange
+public import Lean.MonadEnv
+
+public section
 
 /-!
 # Environment extension for declaration ranges
@@ -14,17 +18,27 @@ import Lean.MonadEnv
 namespace Lean
 
 builtin_initialize builtinDeclRanges : IO.Ref (NameMap DeclarationRanges) ← IO.mkRef {}
-builtin_initialize declRangeExt : MapDeclarationExtension DeclarationRanges ← mkMapDeclarationExtension
+builtin_initialize declRangeExt : MapDeclarationExtension DeclarationRanges ←
+  mkMapDeclarationExtension (exportEntriesFn := fun _ s level =>
+    if level < .server then
+      #[]
+    else s.toArray)
 
 def addBuiltinDeclarationRanges (declName : Name) (declRanges : DeclarationRanges) : IO Unit :=
   builtinDeclRanges.modify (·.insert declName declRanges)
 
 def addDeclarationRanges [Monad m] [MonadEnv m] (declName : Name) (declRanges : DeclarationRanges) : m Unit := do
-  unless declRangeExt.contains (← getEnv) declName do
-    modifyEnv fun env => declRangeExt.insert env declName declRanges
+  if declName.isAnonymous then
+    -- This can happen on elaboration of partial syntax and would panic in `modifyState` otherwise
+    return
+  modifyEnv fun env => declRangeExt.insert env declName declRanges
 
 def findDeclarationRangesCore? [Monad m] [MonadEnv m] (declName : Name) : m (Option DeclarationRanges) :=
-  return declRangeExt.find? (← getEnv) declName
+  -- In the case of private definitions imported via `import all`, looking in `.olean.server` is not
+  -- sufficient, so we look in the actual environment as well via `exported` (TODO: rethink
+  -- parameter naming).
+  return declRangeExt.find? (level := .exported) (← getEnv) declName <|>
+    declRangeExt.find? (level := .server) (← getEnv) declName
 
 def findDeclarationRanges? [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) : m (Option DeclarationRanges) := do
   let env ← getEnv

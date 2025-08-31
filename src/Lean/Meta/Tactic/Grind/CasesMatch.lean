@@ -3,26 +3,21 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Match.MatcherApp
 import Lean.Meta.Tactic.Grind.MatchCond
-
+import Lean.Meta.Tactic.Grind.Simp
+public section
 namespace Lean.Meta.Grind
 
-/--
-Returns `true` if `e` is of the form `∀ ..., _ = _ ... -> False`
--/
-private def isMatchCond (e : Expr) : Bool := Id.run do
-  let mut e := e
-  let mut hasEqs := false
-  repeat
-    let .forallE _ d b _ := e | return false
-    if d.isEq || d.isHEq then hasEqs := true
-    if b.isFalse then return hasEqs
-    e := b
-  return true
+/-- Returns `true` if `e` is of the form `∀ ..., _ = _ ... -> False` -/
+def isMatchCondCandidate (e : Expr) : Bool :=
+  -- TODO: see comment at the beginning of `MatchCond.lean`.
+  Simp.isEqnThmHypothesis e
 
 /--
 Given a splitter alternative, annotate the terms that are `match`-expression
@@ -31,7 +26,7 @@ conditions corresponding to overlapping patterns.
 private def addMatchCondsToAlt (alt : Expr) : Expr := Id.run do
   let .forallE _ d b _ := alt
     | return alt
-  let d := if isMatchCond d then markAsMatchCond d else d
+  let d := if isMatchCondCandidate d then markAsPreMatchCond d else d
   return alt.updateForallE! d (addMatchCondsToAlt b)
 
 /--

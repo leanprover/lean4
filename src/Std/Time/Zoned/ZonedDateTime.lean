@@ -3,14 +3,20 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Zoned.DateTime
-import Std.Time.Zoned.ZoneRules
+public import Std.Time.Zoned.DateTime
+public import Std.Time.Zoned.ZoneRules
+import all Std.Time.DateTime.PlainDateTime
+
+public section
 
 namespace Std
 namespace Time
 
-set_option linter.all true
+-- TODO (@kim-em): re-enable this once there is a mechanism to exclude `linter.indexVariables`.
+-- set_option linter.all true
 
 /--
 Represents a date and time with timezone information.
@@ -39,7 +45,7 @@ structure ZonedDateTime where
   timezone : TimeZone
 
 instance : Inhabited ZonedDateTime where
-  default := ⟨Thunk.mk Inhabited.default, Inhabited.default, Inhabited.default, Inhabited.default⟩
+  default := private ⟨Thunk.mk Inhabited.default, Inhabited.default, Inhabited.default, Inhabited.default⟩
 
 namespace ZonedDateTime
 open DateTime
@@ -105,7 +111,7 @@ def toTimestamp (date : ZonedDateTime) : Timestamp :=
   date.timestamp
 
 /--
-Changes the `ZoleRules` to a new one.
+Changes the `ZoneRules` to a new one.
 -/
 @[inline]
 def convertZoneRules (date : ZonedDateTime) (tz₁ : TimeZone.ZoneRules) : ZonedDateTime :=

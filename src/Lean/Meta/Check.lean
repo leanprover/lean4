@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.InferType
-import Lean.Meta.Sorry
+public import Lean.Meta.InferType
+public import Lean.Meta.Sorry
+
+public section
 
 /-!
 This is not the Kernel type checker, but an auxiliary method for checking
@@ -18,7 +22,7 @@ private def ensureType (e : Expr) : MetaM Unit := do
   discard <| getLevel e
 
 private def checkConstant (constName : Name) (us : List Level) : MetaM Unit := do
-  let cinfo ← getConstInfo constName
+  let cinfo ← getConstVal constName
   unless us.length == cinfo.levelParams.length do
     throwIncorrectNumberOfLevels constName us
 
@@ -84,6 +88,17 @@ where
       | _, .mdata _ b' =>
         let (a, b') ← visit a b'
         return (a, b.updateMData! b')
+      | .const nm _, .const nm' _ =>
+        if nm != nm' then
+          return (a, b)
+        else
+          return (a.setPPUniverses true, b.setPPUniverses true)
+      | .proj _ i a', .proj _ j b' =>
+        if i != j then
+          return (a, b)
+        else
+          let (a', b') ← visit a' b'
+          return (a.updateProj! a', b.updateProj! b')
       | .app .., .app .. =>
         if a.getAppNumArgs != b.getAppNumArgs then
           return (a, b)
@@ -98,14 +113,14 @@ where
           -- That is to say, the arity might depend on the values of the arguments.
           -- We look for the first explicit argument that is different.
           -- Otherwise we look for the first implicit argument.
-          -- We try `isDefEq` on all arguments to get discretionary mvar assigments.
+          -- We try `isDefEq` on all arguments to get discretionary mvar assignments.
           let mut as := a.getAppArgs
           let mut bs := b.getAppArgs
           let mut aFnType ← inferType a.getAppFn
           let mut bFnType ← inferType b.getAppFn
           let mut firstExplicitDiff? := none
           let mut firstImplicitDiff? := none
-          for i in [0:as.size] do
+          for i in *...as.size do
             unless aFnType.isForall do aFnType ← withTransparency .all <| whnf aFnType
             unless bFnType.isForall do bFnType ← withTransparency .all <| whnf bFnType
             -- These pattern matches are expected to succeed:
@@ -172,33 +187,67 @@ where
 def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
   let lctx ← getLCtx
   match lctx.find? fvarId with
-  | some (LocalDecl.ldecl _ _ _ t v _ _) => do
+  | some (LocalDecl.ldecl _ _ _ t v nondep _) => do
     let vType ← inferType v
     let (vType, t) ← addPPExplicitToExposeDiff vType t
-    throwError "invalid let declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
+    let declKind := if nondep then "have" else "let"
+    throwError "invalid {declKind} declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
   | _ => unreachable!
 
 /--
-  Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
+Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
+Adds the type’s types unless they are defeq.
+
+If `trailing?` is non-`none`, it is appended to the end of the message. This requires modifying the
+produced message, so prefer specifying `trailing?` over appending a message to the result of this
+function. Any expressions appearing in the trailing message should be included in `trailingExprs`.
 -/
-def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageData := do
-  try
-    let givenTypeType ← inferType givenType
-    let expectedTypeType ← inferType expectedType
-    let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
-    let (givenTypeType, expectedTypeType) ← addPPExplicitToExposeDiff givenTypeType expectedTypeType
-    return m!"has type{indentD m!"{givenType} : {givenTypeType}"}\nbut is expected to have type{indentD m!"{expectedType} : {expectedTypeType}"}"
-  catch _ =>
-    let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
-    return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}"
+def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr)
+    (trailing? : Option MessageData := none) (trailingExprs : Array Expr := #[])
+    : MetaM MessageData := do
+  return MessageData.ofLazyM (es := #[givenType, expectedType] ++ trailingExprs) do
+    try
+      let givenTypeType ← inferType givenType
+      let expectedTypeType ← inferType expectedType
+      if (← isDefEqGuarded givenTypeType expectedTypeType) then
+        let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
+        let trailing := trailing?.map (m!"\n" ++ ·) |>.getD .nil
+        return m!"has type{indentExpr givenType}\n\
+          but is expected to have type{indentExpr expectedType}{trailing}"
+      else
+        let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
+        let (givenTypeType, expectedTypeType) ← addPPExplicitToExposeDiff givenTypeType expectedTypeType
+        let trailing := match trailing? with
+          | none => inlineExprTrailing expectedTypeType
+          | some trailing => inlineExpr expectedTypeType ++ trailing
+        return m!"has type{indentExpr givenType}\nof sort{inlineExpr givenTypeType}\
+          but is expected to have type{indentExpr expectedType}\nof sort{trailing}"
+    catch _ =>
+      let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
+      let trailing := trailing?.map (m!"\n" ++ ·) |>.getD .nil
+      return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}{trailing}"
 
 def throwAppTypeMismatch (f a : Expr) : MetaM α := do
-  let (expectedType, binfo) ← getFunctionDomain f
+  -- Clarify that `a` is "last" only if it may be confused with some preceding argument; otherwise,
+  -- avoid this wording because it may be misleading if more arguments follow `a`, e.g., if `f a` is
+  -- a subexpression of `f a b`
+  let argDescStr := if f.getAppArgs.any (· == a) then
+    m!"last{indentExpr a}\nargument "
+  else
+    m!"argument{indentExpr a}\n"
   let mut e := mkApp f a
-  unless binfo.isExplicit do
+  let msg ← try
+    let (expectedType, binfo) ← getFunctionDomain f
+    unless binfo.isExplicit do
+      e := e.setAppPPExplicit
+    let aType ← inferType a
+    let hasTypeButIsExpected ← mkHasTypeButIsExpectedMsg aType expectedType
+      (trailing? := m!"in the application{indentExpr e}") (trailingExprs := #[e])
+    pure m!"Application type mismatch: The {argDescStr}{hasTypeButIsExpected}"
+  catch _ =>
     e := e.setAppPPExplicit
-  let aType ← inferType a
-  throwError "application type mismatch{indentExpr e}\nargument{indentExpr a}\n{← mkHasTypeButIsExpectedMsg aType expectedType}"
+    pure m!"Application type mismatch: The {argDescStr}is not of the expected type in the application{indentExpr e}"
+  throwError msg
 
 def checkApp (f a : Expr) : MetaM Unit := do
   let fType ← inferType f

@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Parser
-import Lean.CoreM
-import Std.Internal.Parsec
+public import Std.Tactic.BVDecide.LRAT.Parser
+public import Lean.CoreM
+public import Std.Internal.Parsec
+
+public section
 
 /-!
 This module implements the logic to call CaDiCal (or CLI interface compatible SAT solvers) and
@@ -132,7 +136,7 @@ where
     if let some tk := (← read).cancelTk? then
       if ← tk.isSet then
         cleanup
-        throw <| .internal Core.interruptExceptionId
+        throwInterruptException
     x
 
 /--

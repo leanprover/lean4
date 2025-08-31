@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.AddDecl
-import Lean.MonadEnv
-import Lean.Elab.InfoTree.Main
+public import Lean.AddDecl
+public import Lean.MonadEnv
+public import Lean.Elab.InfoTree.Main
+
+public section
 
 namespace Lean
 
@@ -49,10 +53,10 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
         let initFnName ← Elab.realizeGlobalConstNoOverloadWithInfo initFnName
         let initDecl ← getConstInfo initFnName
         match getIOTypeArg initDecl.type with
-        | none => throwError "initialization function '{initFnName}' must have type of the form `IO <type>`"
+        | none => throwError "initialization function `{initFnName}` must have type of the form `IO <type>`"
         | some initTypeArg =>
           if decl.type == initTypeArg then pure initFnName
-          else throwError "initialization function '{initFnName}' type mismatch"
+          else throwError "initialization function `{initFnName}` type mismatch"
       | none =>
         if isIOUnit decl.type then pure Name.anonymous
         else throwError "initialization function must have type `IO Unit`"
@@ -96,7 +100,28 @@ private opaque registerInitAttrInner (attrName : Name) (runAfterImport : Bool) (
 def registerInitAttr (attrName : Name) (runAfterImport : Bool) (ref : Name := by exact decl_name%) : IO (ParametricAttribute Name) :=
   registerInitAttrInner attrName runAfterImport ref
 
+/--
+Registers an initialization procedure. Initialization procedures are run in files that import the
+file they are defined in.
+
+This attribute comes in two kinds: Without arguments, the tagged declaration should have type
+`IO Unit` and are simply run during initialization. With a declaration name as a argument, the
+tagged declaration should be an opaque constant and the provided declaration name an action in `IO`
+that returns a value of the type of the tagged declaration. Such initialization procedures store
+the resulting value and make it accessible through the tagged declaration.
+
+The `initialize` command should usually be preferred over using this attribute directly.
+-/
+@[builtin_doc]
 builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init true
+
+/--
+Registers a builtin initialization procedure.
+
+This attribute is used internally to define builtin initialization procedures for bootstrapping and
+should not be used otherwise.
+-/
+@[builtin_doc]
 builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtin_init false
 
 def getInitFnNameForCore? (env : Environment) (attr : ParametricAttribute Name) (fn : Name) : Option Name :=
@@ -105,7 +130,6 @@ def getInitFnNameForCore? (env : Environment) (attr : ParametricAttribute Name) 
   | some n              => some n
   | _                   => none
 
-@[export lean_get_builtin_init_fn_name_for]
 def getBuiltinInitFnNameFor? (env : Environment) (fn : Name) : Option Name :=
   getInitFnNameForCore? env builtinInitAttr fn
 
@@ -122,11 +146,9 @@ def isIOUnitInitFnCore (env : Environment) (attr : ParametricAttribute Name) (fn
   | some Name.anonymous => true
   | _ => false
 
-@[export lean_is_io_unit_regular_init_fn]
 def isIOUnitRegularInitFn (env : Environment) (fn : Name) : Bool :=
   isIOUnitInitFnCore env regularInitAttr fn
 
-@[export lean_is_io_unit_builtin_init_fn]
 def isIOUnitBuiltinInitFn (env : Environment) (fn : Name) : Bool :=
   isIOUnitInitFnCore env builtinInitAttr fn
 
@@ -140,7 +162,7 @@ def setBuiltinInitAttr (env : Environment) (declName : Name) (initFnName : Name 
   builtinInitAttr.setParam env declName initFnName
 
 def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit := do
-  let name ← mkAuxName (`_regBuiltin ++ forDecl) 1
+  let name ← mkAuxDeclName (kind := `_regBuiltin ++ forDecl)
   let type := mkApp (mkConst `IO) (mkConst `Unit)
   let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := ReducibilityHints.opaque,
                                      safety := DefinitionSafety.safe }

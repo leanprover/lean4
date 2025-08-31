@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro, Markus Himmel
 -/
+module
+
 prelude
-import Init.NotationExtra
+public import Init.NotationExtra
+
+public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -49,7 +53,7 @@ namespace AssocList
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def foldl (f : δ → (α : α) → β α → δ) (init : δ) (as : AssocList α β) : δ :=
-  Id.run (foldlM f init as)
+  Id.run (foldlM (pure <| f · · ·) init as)
 
 /-- Internal implementation detail of the hash map -/
 @[specialize] def foldrM (f : (a : α) → β a → δ → m δ) : (init : δ) → AssocList α β → m δ
@@ -60,7 +64,7 @@ namespace AssocList
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def foldr (f : (a : α) → β a → δ → δ) (init : δ) (as : AssocList α β) : δ :=
-  Id.run (foldrM f init as)
+  Id.run (foldrM (pure <| f · · ·) init as)
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (as : AssocList α β) : m PUnit :=
@@ -170,6 +174,7 @@ def erase [BEq α] (a : α) : AssocList α β → AssocList α β
   | cons k v l => bif k == a then l else cons k v (l.erase a)
 
 /-- Internal implementation detail of the hash map -/
+@[specialize]
 def modify [BEq α] [LawfulBEq α] (a : α) (f : β a → β a) :
     AssocList α β → AssocList α β
   | nil => nil
@@ -182,6 +187,7 @@ def modify [BEq α] [LawfulBEq α] (a : α) (f : β a → β a) :
       cons k v (modify a f l)
 
 /-- Internal implementation detail of the hash map -/
+@[specialize]
 def alter [BEq α] [LawfulBEq α] (a : α) (f : Option (β a) → Option (β a)) :
     AssocList α β → AssocList α β
   | nil => match f none with
@@ -200,6 +206,7 @@ def alter [BEq α] [LawfulBEq α] (a : α) (f : Option (β a) → Option (β a))
 namespace Const
 
 /-- Internal implementation detail of the hash map -/
+@[specialize]
 def modify [BEq α] {β : Type v} (a : α) (f : β → β) :
     AssocList α (fun _ => β) → AssocList α (fun _ => β)
   | nil => nil
@@ -210,6 +217,7 @@ def modify [BEq α] {β : Type v} (a : α) (f : β → β) :
       cons k v (modify a f l)
 
 /-- Internal implementation detail of the hash map -/
+@[specialize]
 def alter [BEq α] {β : Type v} (a : α) (f : Option β → Option β) :
     AssocList α (fun _ => β) → AssocList α (fun _ => β)
   | nil => match f none with
@@ -217,7 +225,7 @@ def alter [BEq α] {β : Type v} (a : α) (f : Option β → Option β) :
     | some b => AssocList.cons a b nil
   | cons k v l =>
     if k == a then
-      match f v with
+      match f (some v) with
       | none => l
       | some b => cons a b l
     else

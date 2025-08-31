@@ -4,13 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
+module
+
 prelude
-import Init.System.Uri
-import Lean.Data.Lsp.Communication
-import Lean.Data.Lsp.Diagnostics
-import Lean.Data.Lsp.Extra
-import Lean.Data.Lsp.TextSync
-import Lean.Server.InfoUtils
+public import Init.System.Uri
+public import Lean.Data.Lsp.Communication
+public import Lean.Data.Lsp.Diagnostics
+public import Lean.Data.Lsp.Extra
+public import Lean.Data.Lsp.TextSync
+public import Lean.Server.InfoUtils
+
+public section
 
 namespace IO
 
@@ -73,6 +77,12 @@ namespace Lean.Server
 structure DocumentMeta where
   /-- URI where the document is located. -/
   uri                 : Lsp.DocumentUri
+  /--
+  Module name corresponding to `uri`.
+  We store the module name instead of recomputing it as needed to ensure that we can still
+  determine the original module name even when the file has been deleted in the mean-time.
+  -/
+  mod                 : Name
   /-- Version number of the document. Incremented whenever the document is edited. -/
   version             : Nat
   /--
@@ -87,10 +97,11 @@ structure DocumentMeta where
   deriving Inhabited
 
 /-- Extracts an `InputContext` from `doc`. -/
-def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext where
-  input    := doc.text.source
-  fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString
-  fileMap  := doc.text
+def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext :=
+  .mk
+    (input := doc.text.source)
+    (fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString)
+    (fileMap  := doc.text)
 
 /--
 Replaces the range `r` (using LSP UTF-16 positions) in `text` (using UTF-8 positions)
@@ -172,6 +183,39 @@ def mkApplyWorkspaceEditRequest (params : ApplyWorkspaceEditParams) :
     JsonRpc.Request ApplyWorkspaceEditParams :=
   ⟨"workspace/applyEdit", "workspace/applyEdit", params⟩
 
+private def externalUriToName (uri : DocumentUri) : Lean.Name :=
+  .str .anonymous s!"external:{uri}"
+
+private def externalNameToUri? (name : Lean.Name) : Option DocumentUri := do
+  let .str .anonymous name := name
+    | none
+  let uri ← name.dropPrefix? "external:"
+  return uri.toString
+
+/--
+Finds the URI corresponding to `modName` in `searchSearchPath`.
+Yields `none` if the file corresponding to `modName` has been deleted in the mean-time.
+-/
+def documentUriFromModule? (modName : Name) : IO (Option DocumentUri) := do
+  if let some uri := externalNameToUri? modName then
+    return uri
+  let some path ← (← getSrcSearchPath).findModuleWithExt "lean" modName
+    | return none
+  -- Resolve symlinks (such as `src` in the build dir) so that files are opened
+  -- in the right folder
+  let path ← IO.FS.realPath path
+  return some <| System.Uri.pathToUri path
+
+/-- Finds the module name corresponding to `uri` in `srcSearchPath`. -/
+def moduleFromDocumentUri (uri : DocumentUri) : IO Name := do
+  let some path := System.Uri.fileUriToPath? uri
+    | return externalUriToName uri
+  if path.extension != "lean" then
+    return externalUriToName uri
+  let some modNameInPath ← searchModuleNameOfFileName path (← getSrcSearchPath)
+    | return externalUriToName uri
+  return modNameInPath
+
 end Lean.Server
 
 /--
@@ -180,16 +224,3 @@ in `text`.
 -/
 def String.Range.toLspRange (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.Range :=
   ⟨text.utf8PosToLspPos r.start, text.utf8PosToLspPos r.stop⟩
-
-open Lean in
-/--
-Attempts to find a module name in the roots denoted by `srcSearchPath` for `uri`.
-Fails if `uri` is not a `file://` uri or if the given `uri` cannot be found in `srcSearchPath`.
--/
-def System.SearchPath.searchModuleNameOfUri
-    (srcSearchPath : SearchPath)
-    (uri           : Lsp.DocumentUri)
-    : IO (Option Name) := do
-  let some path := Uri.fileUriToPath? uri
-    | return none
-  searchModuleNameOfFileName path srcSearchPath

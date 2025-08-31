@@ -3,10 +3,14 @@ Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lean.AddDecl
-import Lean.Util.FoldConsts
+public import Lean.CoreM
+public import Lean.AddDecl
+public import Lean.Util.FoldConsts
+
+public section
 
 /-!
 # `Lean.Environment.replay`
@@ -127,7 +131,7 @@ when we replayed the inductives.
 -/
 def checkPostponedConstructors : M Unit := do
   for ctor in (← get).postponedConstructors do
-    match (← get).env.constants.find? ctor, (← read).newConstants[ctor]? with
+    match (← get).env.find? ctor, (← read).newConstants[ctor]? with
     | some (.ctorInfo info), some (.ctorInfo info') =>
       if ! (info == info') then throw <| IO.userError s!"Invalid constructor {ctor}"
     | _, _ => throw <| IO.userError s!"No such constructor {ctor}"
@@ -138,7 +142,7 @@ when we replayed the inductives.
 -/
 def checkPostponedRecursors : M Unit := do
   for ctor in (← get).postponedRecursors do
-    match (← get).env.constants.find? ctor, (← read).newConstants[ctor]? with
+    match (← get).env.find? ctor, (← read).newConstants[ctor]? with
     | some (.recInfo info), some (.recInfo info') =>
       if ! (info == info') then throw <| IO.userError s!"Invalid recursor {ctor}"
     | _, _ => throw <| IO.userError s!"No such recursor {ctor}"

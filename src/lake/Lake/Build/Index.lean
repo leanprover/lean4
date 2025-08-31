@@ -3,9 +3,13 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Build.Executable
+public import Lake.Build.Fetch
+import Lake.Config.Monad
 import Lake.Build.Topological
+import Lake.Util.StoreInsts
 
 /-!
 # The Lake Build Index
@@ -16,70 +20,47 @@ Lake build functions, which is used by Lake to build any Lake build info.
 This module leverages the index to perform topologically-based recursive builds.
 -/
 
-open Lean
-namespace Lake
+open Lean (Name)
 open System (FilePath)
 
-/--
-Converts a conveniently-typed target facet build function into its
-dynamically-typed equivalent.
--/
-@[macro_inline] def mkTargetFacetBuild
-  (facet : Name) (build : FetchM (Job α))
-  [h : FamilyOut TargetData facet (Job α)]
-: FetchM (TargetData facet) :=
-  cast (by rw [← h.family_key_eq_type]) build
-
-def ExternLib.recBuildStatic (lib : ExternLib) : FetchM (Job FilePath) :=
-  withRegisterJob s!"{lib.staticTargetName.toString}:static" do
-  lib.config.getJob <$> fetch (lib.pkg.target lib.staticTargetName)
-
-def ExternLib.recBuildShared (lib : ExternLib) : FetchM (Job FilePath) :=
-  withRegisterJob s!"{lib.staticTargetName.toString}:shared" do
-  buildLeanSharedLibOfStatic (← lib.static.fetch) lib.linkArgs
-
-def ExternLib.recComputeDynlib (lib : ExternLib) : FetchM (Job Dynlib) := do
-  withRegisterJob s!"{lib.staticTargetName.toString}:dynlib" do
-  computeDynlibOfShared (← lib.shared.fetch)
-
-/-!
-## Topologically-based Recursive Build Using the Index
--/
+namespace Lake
 
 /-- Recursive build function for anything in the Lake build index. -/
-def recBuildWithIndex : (info : BuildInfo) → FetchM (BuildData info.key)
-| .moduleFacet mod facet => do
-  if let some config := (← getWorkspace).findModuleFacetConfig? facet then
-    config.build mod
-  else
-    error s!"do not know how to build module facet `{facet}`"
-| .packageFacet pkg facet => do
-  if let some config := (← getWorkspace).findPackageFacetConfig? facet then
-    config.build pkg
-  else
-    error s!"do not know how to build package facet `{facet}`"
-| .target pkg target =>
-  if let some config := pkg.findTargetConfig? target then
-    config.build pkg
-  else
-    error s!"could not build `{target}` of `{pkg.name}` -- target not found"
-| .libraryFacet lib facet => do
-  if let some config := (← getWorkspace).findLibraryFacetConfig? facet then
-    config.build lib
-  else
-    error s!"do not know how to build library facet `{facet}`"
-| .leanExe exe =>
-  mkTargetFacetBuild LeanExe.exeFacet exe.recBuildExe
-| .staticExternLib lib =>
-  mkTargetFacetBuild ExternLib.staticFacet lib.recBuildStatic
-| .sharedExternLib lib =>
-  mkTargetFacetBuild ExternLib.sharedFacet lib.recBuildShared
-| .dynlibExternLib lib =>
-  mkTargetFacetBuild ExternLib.dynlibFacet lib.recComputeDynlib
+private def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) := do
+  match info with
+  | .target pkg target =>
+    if let some decl := pkg.findTargetDecl? target then
+      if h : decl.kind.isAnonymous then
+        let key := BuildKey.packageTarget pkg.name target
+        fetchOrCreate key do (decl.targetConfig h).fetchFn pkg
+      else
+        let kind := ⟨decl.kind, by simp [decl.target_eq_type h]⟩
+        let job := Job.pure (kind := kind) <| decl.mkConfigTarget pkg
+        return cast (by simp [decl.data_eq_target h]) job
+    else
+      error s!"invalid target '{info}': target not found in package"
+  | .facet target kind data facet =>
+    if let some config := (← getWorkspace).findFacetConfig? facet then
+      if h : config.kind = kind then
+        let recFetch := config.fetchFn <| cast (by simp [h]) data
+        if config.memoize then
+          let key := BuildKey.facet target facet
+          fetchOrCreate key recFetch
+        else
+          recFetch
+      else
+        error s!"invalid target '{info}': \
+          input target is of kind '{kind}', but facet expects '{config.kind}'"
+    else
+      error s!"invalid target '{info}': unknown facet '{facet}'"
+
+/-- Recursive build function with memoization. -/
+private def recFetchWithIndex : (info : BuildInfo) → RecBuildM (Job (BuildData info.key)) :=
+ inline <| recFetchAcyclic (β := (Job <| BuildData ·.key)) BuildInfo.key recBuildWithIndex
 
 /--
 Run a recursive Lake build using the Lake build index
 and a topological / suspending scheduler.
 -/
-def FetchM.run (x : FetchM α) : RecBuildM α :=
-  x (inline <| recFetchMemoize BuildInfo.key recBuildWithIndex)
+@[inline] public nonrec def FetchT.run (x : FetchT m α) : RecBuildT m α :=
+  x.run recFetchWithIndex

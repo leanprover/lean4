@@ -1,8 +1,7 @@
 {"textDocument": {"uri": "file:///completionAtPrint.lean"},
  "position": {"line": 2, "character": 10}}
 {"items":
- [{"sortText": "0",
-   "label": "gg",
+ [{"label": "gg",
    "kind": 21,
    "data":
    {"params":
@@ -10,4 +9,4 @@
      "position": {"line": 2, "character": 10}},
     "id": {"const": {"declName": "f.gg"}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}

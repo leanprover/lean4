@@ -3,8 +3,12 @@ Copyright (c) Leonardo de Moura. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 
 namespace Lean
 
@@ -20,17 +24,21 @@ structure Module where
 
 namespace Meta
 
+/--
+Which constants should be unfolded?
+-/
 inductive TransparencyMode where
-  /-- unfold all constants, even those tagged as `@[irreducible]`. -/
+  /-- Unfolds all constants, even those tagged as `@[irreducible]`. -/
   | all
-  /-- unfold all constants except those tagged as `@[irreducible]`. -/
+  /-- Unfolds all constants except those tagged as `@[irreducible]`. -/
   | default
-  /-- unfold only constants tagged with the `@[reducible]` attribute. -/
+  /-- Unfolds only constants tagged with the `@[reducible]` attribute. -/
   | reducible
-  /-- unfold reducible constants and constants tagged with the `@[instance]` attribute. -/
+  /-- Unfolds reducible constants and constants tagged with the `@[instance]` attribute. -/
   | instances
   deriving Inhabited, BEq
 
+/-- Which structure types should eta be used with? -/
 inductive EtaStructMode where
   /-- Enable eta for structure and classes. -/
   | all
@@ -51,8 +59,9 @@ It is immediately converted to `Lean.Meta.Simp.Config` by `Lean.Elab.Tactic.elab
 -/
 structure Config where
   /--
-  When `true` (default: `true`), performs zeta reduction of let expressions.
+  When `true` (default: `true`), performs zeta reduction of `let` and `have` expressions.
   That is, `let x := v; e[x]` reduces to `e[v]`.
+  If `zetaHave` is `false` then `have` expressions are not zeta reduced.
   See also `zetaDelta`.
   -/
   zeta              : Bool := true
@@ -101,7 +110,8 @@ structure Config where
   unfoldPartialApp  : Bool := false
   /--
   When `true` (default: `false`), local definitions are unfolded.
-  That is, given a local context containing entry `x : t := e`, the free variable `x` reduces to `e`.
+  That is, given a local context containing `x : t := e`, then the free variable `x` reduces to `e`.
+  Otherwise, `x` must be provided as a `simp` argument.
   -/
   zetaDelta         : Bool := false
   /--
@@ -110,10 +120,16 @@ structure Config where
   -/
   index             : Bool := true
   /--
-  When `true` (default : `true`), then simps will remove unused let-declarations:
+  When `true` (default : `true`), then `simp` will remove unused `let` and `have` expressions:
   `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
   -/
   zetaUnused : Bool := true
+  /--
+  When `false` (default: `true`), then disables zeta reduction of `have` expressions.
+  If `zeta` is `false`, then this option has no effect.
+  Unused `have`s are still removed if `zeta` or `zetaUnused` are true.
+  -/
+  zetaHave : Bool := true
   deriving Inhabited, BEq
 
 end DSimp
@@ -124,7 +140,7 @@ def defaultMaxSteps := 100000
 
 /--
 The configuration for `simp`.
-Passed to `simp` using, for example, the `simp (config := {contextual := true})` syntax.
+Passed to `simp` using, for example, the `simp +contextual` or `simp (maxSteps := 100000)` syntax.
 
 See also `Lean.Meta.Simp.neutralConfig` and `Lean.Meta.DSimp.Config`.
 -/
@@ -145,7 +161,7 @@ structure Config where
   -/
   contextual        : Bool := false
   /--
-  When true (default: `true`) then the simplifier caches the result of simplifying each subexpression, if possible.
+  When true (default: `true`) then the simplifier caches the result of simplifying each sub-expression, if possible.
   -/
   memoize           : Bool := true
   /--
@@ -155,8 +171,9 @@ structure Config where
   -/
   singlePass        : Bool := false
   /--
-  When `true` (default: `true`), performs zeta reduction of let expressions.
+  When `true` (default: `true`), performs zeta reduction of `let` and `have` expressions.
   That is, `let x := v; e[x]` reduces to `e[v]`.
+  If `zetaHave` is `false` then `have` expressions are not zeta reduced.
   See also `zetaDelta`.
   -/
   zeta              : Bool := true
@@ -220,7 +237,8 @@ structure Config where
   unfoldPartialApp  : Bool := false
   /--
   When `true` (default: `false`), local definitions are unfolded.
-  That is, given a local context containing entry `x : t := e`, the free variable `x` reduces to `e`.
+  That is, given a local context containing `x : t := e`, then the free variable `x` reduces to `e`.
+  Otherwise, `x` must be provided as a `simp` argument.
   -/
   zetaDelta         : Bool := false
   /--
@@ -234,10 +252,44 @@ structure Config where
   -/
   implicitDefEqProofs : Bool := true
   /--
-  When `true` (default : `true`), then simps will remove unused let-declarations:
+  When `true` (default : `true`), then `simp` removes unused `let` and `have` expressions:
   `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
+  This option takes precedence over `zeta` and `zetaHave`.
   -/
   zetaUnused : Bool := true
+  /--
+  When `true` (default : `true`), then `simp` catches runtime exceptions and
+  converts them into `simp` exceptions.
+  -/
+  catchRuntime : Bool := true
+  /--
+  When `false` (default: `true`), then disables zeta reduction of `have` expressions.
+  If `zeta` is `false`, then this option has no effect.
+  Unused `have`s are still removed if `zeta` or `zetaUnused` are true.
+  -/
+  zetaHave : Bool := true
+  /--
+  When `true` (default : `true`), then `simp` will attempt to transform `let`s into `have`s
+  if they are non-dependent. This only applies when `zeta := false`.
+  -/
+  letToHave : Bool := true
+  /--
+  When `true` (default: `true`), `simp` tries to realize constant `f.congr_simp`
+  when constructing an auxiliary congruence proof for `f`.
+  This option exists because the termination prover uses `simp` and `withoutModifyingEnv`
+  while constructing the termination proof. Thus, any constant realized by `simp`
+  is deleted.
+  -/
+  congrConsts : Bool := true
+  /--
+  When `true` (default: `true`), the bitvector simprocs use `BitVec.ofNat` for representing
+  bitvector literals.
+  -/
+  bitVecOfNat : Bool := true
+  /--
+  When `true` (default: `true`), the `^` simprocs generate an warning it the exponents are too big.
+  -/
+  warnExponents : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`
@@ -259,6 +311,7 @@ def neutralConfig : Simp.Config := {
   ground            := false
   zetaDelta         := false
   zetaUnused        := false
+  letToHave         := false
 }
 
 structure NormCastConfig extends Simp.Config where
@@ -281,5 +334,45 @@ inductive Occurrences where
   deriving Inhabited, BEq
 
 instance : Coe (List Nat) Occurrences := ⟨.pos⟩
+
+/--
+Configuration for the `extract_lets` tactic.
+-/
+structure ExtractLetsConfig where
+  /-- If true (default: false), extract lets from subterms that are proofs.
+  Top-level lets are always extracted. -/
+  proofs : Bool := false
+  /-- If true (default: true), extract lets from subterms that are types.
+  Top-level lets are always extracted. -/
+  types : Bool := true
+  /-- If true (default: false), extract lets from subterms that are implicit arguments. -/
+  implicits : Bool := false
+  /-- If false (default: true), extracts only top-level lets, otherwise allows descending into subterms.
+  When false, `proofs` and `types` are ignored, and lets appearing in the types or values of the
+  top-level lets are not themselves extracted. -/
+  descend : Bool := true
+  /-- If true (default: true), descend into forall/lambda/let bodies when extracting. Only relevant when `descend` is true. -/
+  underBinder : Bool := true
+  /-- If true (default: false), eliminate unused lets rather than extract them. -/
+  usedOnly : Bool := false
+  /-- If true (default: true), reuse local declarations that have syntactically equal values.
+  Note that even when false, the caching strategy for `extract_let`s may result in fewer extracted let bindings than expected. -/
+  merge : Bool := true
+  /-- When merging is enabled, if true (default: true), make use of pre-existing local definitions in the local context. -/
+  useContext : Bool := true
+  /-- If true (default: false), then once `givenNames` is exhausted, stop extracting lets. Otherwise continue extracting lets. -/
+  onlyGivenNames : Bool := false
+  /-- If true (default: false), then when no name is provided for a 'let' expression, the name is used as-is without making it be inaccessible.
+  The name still might be inaccessible if the binder name was. -/
+  preserveBinderNames : Bool := false
+  /-- If true (default: false), lift non-extractable `let`s as far out as possible. -/
+  lift : Bool := false
+
+/--
+Configuration for the `lift_lets` tactic.
+-/
+structure LiftLetsConfig extends ExtractLetsConfig where
+  lift := true
+  preserveBinderNames := true
 
 end Lean.Meta

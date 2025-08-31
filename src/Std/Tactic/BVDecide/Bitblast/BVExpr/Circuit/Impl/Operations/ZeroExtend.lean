@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Std.Sat.AIG.CachedGatesLemmas
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+public import Std.Sat.AIG.CachedGatesLemmas
+public import Std.Sat.AIG.LawfulVecOperator
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.zeroExtend`.
@@ -24,7 +28,7 @@ variable [Hashable α] [DecidableEq α]
 def blastZeroExtend (aig : AIG α) (target : AIG.ExtendTarget aig newWidth) :
     AIG.RefVecEntry α newWidth :=
   let ⟨width, input⟩ := target
-  go aig width input newWidth 0 (by omega) .empty
+  go aig width input newWidth 0 (by omega) (.emptyWithCapacity newWidth)
 where
   go (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth : Nat) (curr : Nat)
       (hcurr : curr ≤ newWidth) (s : AIG.RefVec aig curr) :
@@ -34,12 +38,7 @@ where
         let s := s.push (input.get curr hcurr2)
         go aig w input newWidth (curr + 1) (by omega) s
       else
-        let res := aig.mkConstCached false
-        let aig := res.aig
-        let zeroRef := res.ref
-        have hcast := AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
-        let input := input.cast hcast
-        let s := s.cast hcast
+        let zeroRef := aig.mkConstCached false
         let s := s.push zeroRef
         go aig w input newWidth (curr + 1) (by omega) s
     else
@@ -56,10 +55,8 @@ theorem go_le_size (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth
   split
   · dsimp only
     split
-    · refine Nat.le_trans ?_ (by apply go_le_size)
-      omega
-    · refine Nat.le_trans ?_ (by apply go_le_size)
-      apply AIG.LawfulOperator.le_size (f := AIG.mkConstCached)
+    · apply go_le_size
+    · apply go_le_size
   · simp
 termination_by newWidth - curr
 
@@ -78,9 +75,6 @@ theorem go_decl_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth
     · rw [← hgo]
       intro idx h1 h2
       rw [go_decl_eq]
-      rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkConstCached)
-      assumption
   · simp [← hgo]
 termination_by newWidth - curr
 

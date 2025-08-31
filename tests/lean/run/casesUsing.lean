@@ -17,6 +17,16 @@ theorem ex1 (p q : Nat) : p ≤ q ∨ p > q := by
   | lower d => apply Or.inl; show p ≤ p + d.succ; admit
   | upper d => apply Or.inr; show q + d.succ > q; admit
 
+/-- error: Insufficient number of targets for `elimEx` -/
+#guard_msgs in
+theorem ex1' (p q : Nat) : p ≤ q ∨ p > q := by
+  cases p using elimEx
+
+/-- error: Too many targets for `elimEx` -/
+#guard_msgs in
+theorem ex1'' (p q : Nat) : p ≤ q ∨ p > q := by
+  cases p, q, p using elimEx
+
 theorem ex2 (p q : Nat) : p ≤ q ∨ p > q := by
   cases p, q using elimEx
   case lower => admit

@@ -3,9 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Basic
-import Lean.Parser.Extra
+public import Lean.Parser.Basic
+public import Lean.Parser.Extra
+
+public section
 
 namespace Lean.Parser
 
@@ -48,7 +52,7 @@ namespace Attr
 def externEntry := leading_parser
   optional (ident >> ppSpace) >> optional (nonReservedSymbol "inline ") >> strLit
 @[builtin_attr_parser] def extern     := leading_parser
-  nonReservedSymbol "extern" >> optional (ppSpace >> numLit) >> many (ppSpace >> externEntry)
+  nonReservedSymbol "extern" >> many (ppSpace >> externEntry)
 
 /--
 Declare this tactic to be an alias or alternative form of an existing tactic.

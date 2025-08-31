@@ -24,7 +24,7 @@ namespace Primitives
     | arrayOutOfBounds: Error
     | maximumSizeExceeded: Error
     | panic: Error
-    -- Addded by Joachim
+    -- Added by Joachim
     | nontermination : Error
 
 
@@ -310,8 +310,6 @@ namespace hashmap
       HashMap.move_elements_loop ntable1 slots1 i2
     else Result.ok (ntable, slots)
   partial_fixpoint
-  set_option pp.proofs true in
-  #print HashMap.move_elements_loop.proof_2
 
   def HashMap.move_elements
     {T : Type} (ntable : HashMap T) (slots : alloc.vec.Vec (AList T)) :

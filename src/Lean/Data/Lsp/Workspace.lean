@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Lsp.Basic
-import Lean.Data.Json
+public import Lean.Data.Lsp.Basic
+public import Lean.Data.Json.FromToJson.Basic
+
+public section
 
 namespace Lean
 namespace Lsp

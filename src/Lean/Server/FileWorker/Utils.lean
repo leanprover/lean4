@@ -4,12 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Language.Lean.Types
-import Lean.Server.Utils
-import Lean.Server.Snapshots
-import Lean.Server.AsyncList
-import Lean.Server.Rpc.Basic
+public import Lean.Language.Lean.Types
+public import Lean.Server.Utils
+public import Lean.Server.Snapshots
+public import Lean.Server.AsyncList
+public import Lean.Server.Rpc.Basic
+
+public section
 
 namespace Lean.Server.FileWorker
 open Snapshots
@@ -19,22 +23,22 @@ open IO
 private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
     AsyncList IO.Error Snapshot := Id.run do
   let some headerParsed := initSnap.result? | return .nil
-  .delayed <| headerParsed.processedSnap.task.bind fun headerProcessed => Id.run do
+  .delayed <| headerParsed.processedSnap.task.asServerTask.bindCheap fun headerProcessed => Id.run do
     let some headerSuccess := headerProcessed.result? | return .pure <| .ok .nil
     return .pure <| .ok <| .cons {
       stx := initSnap.stx
       mpState := headerParsed.parserState
       cmdState := headerSuccess.cmdState
-    } <| .delayed <| headerSuccess.firstCmdSnap.task.bind go
+    } <| .delayed <| headerSuccess.firstCmdSnap.task.asServerTask.bindCheap go
 where
   go cmdParsed :=
-    cmdParsed.finishedSnap.task.map fun finished =>
+    cmdParsed.elabSnap.resultSnap.task.asServerTask.mapCheap fun result =>
       .ok <| .cons {
         stx := cmdParsed.stx
         mpState := cmdParsed.parserState
-        cmdState := finished.cmdState
+        cmdState := result.cmdState
       } (match cmdParsed.nextCmdSnap? with
-        | some next => .delayed <| next.task.bind go
+        | some next => .delayed <| next.task.asServerTask.bindCheap go
         | none => .nil)
 
 /--
@@ -43,11 +47,11 @@ reporter task has been started.
 -/
 structure EditableDocumentCore where
   /-- The document. -/
-  meta     : DocumentMeta
+  «meta»   : DocumentMeta
   /-- Initial processing snapshot. -/
   initSnap : Language.Lean.InitialSnapshot
   /-- Old representation for backward compatibility. -/
-  cmdSnaps : AsyncList IO.Error Snapshot := mkCmdSnaps initSnap
+  cmdSnaps : AsyncList IO.Error Snapshot := private_decl% mkCmdSnaps initSnap
   /--
   Interactive versions of diagnostics reported so far. Filled by `reportSnapshots` and read by
   `handleGetInteractiveDiagnosticsRequest`.
@@ -59,7 +63,7 @@ structure EditableDocument extends EditableDocumentCore where
   /--
     Task reporting processing status back to client. We store it here for implementing
     `waitForDiagnostics`. -/
-  reporter : Task Unit
+  reporter : ServerTask Unit
 
 namespace EditableDocument
 

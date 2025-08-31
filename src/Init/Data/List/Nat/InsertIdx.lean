@@ -3,8 +3,12 @@ Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Data.List.Nat.Modify
+public import Init.Data.List.Nat.Modify
+
+public section
 
 /-!
 # insertIdx
@@ -12,9 +16,10 @@ import Init.Data.List.Nat.Modify
 Proves various lemmas about `List.insertIdx`.
 -/
 
-open Function
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
-open Nat
+open Function Nat
 
 namespace List
 
@@ -26,182 +31,201 @@ section InsertIdx
 
 variable {a : α}
 
-@[simp]
-theorem insertIdx_zero (s : List α) (x : α) : insertIdx 0 x s = x :: s :=
+@[simp, grind =]
+theorem insertIdx_zero {xs : List α} {x : α} : xs.insertIdx 0 x = x :: xs :=
   rfl
 
-@[simp]
-theorem insertIdx_succ_nil (n : Nat) (a : α) : insertIdx (n + 1) a [] = [] :=
+@[simp, grind =]
+theorem insertIdx_succ_nil {n : Nat} {a : α} : ([] : List α).insertIdx (n + 1) a = [] :=
   rfl
 
-@[simp]
-theorem insertIdx_succ_cons (s : List α) (hd x : α) (n : Nat) :
-    insertIdx (n + 1) x (hd :: s) = hd :: insertIdx n x s :=
+@[simp, grind =]
+theorem insertIdx_succ_cons {xs : List α} {hd x : α} {i : Nat} :
+    (hd :: xs).insertIdx (i + 1) x = hd :: xs.insertIdx i x :=
   rfl
 
-theorem length_insertIdx : ∀ n as, (insertIdx n a as).length = if n ≤ as.length then as.length + 1 else as.length
+@[grind =]
+theorem length_insertIdx : ∀ {i} {as : List α}, (as.insertIdx i a).length = if i ≤ as.length then as.length + 1 else as.length
   | 0, _ => by simp
   | n + 1, [] => by simp
   | n + 1, a :: as => by
     simp only [insertIdx_succ_cons, length_cons, length_insertIdx, Nat.add_le_add_iff_right]
     split <;> rfl
 
-theorem length_insertIdx_of_le_length (h : n ≤ length as) : length (insertIdx n a as) = length as + 1 := by
+theorem length_insertIdx_of_le_length (h : i ≤ length as) (a : α) : (as.insertIdx i a).length = as.length + 1 := by
   simp [length_insertIdx, h]
 
-theorem length_insertIdx_of_length_lt (h : length as < n) : length (insertIdx n a as) = length as := by
+theorem length_insertIdx_of_length_lt (h : length as < i) (a : α) : (as.insertIdx i a).length = as.length := by
   simp [length_insertIdx, h]
-
-theorem eraseIdx_insertIdx (n : Nat) (l : List α) : (l.insertIdx n a).eraseIdx n = l := by
-  rw [eraseIdx_eq_modifyTailIdx, insertIdx, modifyTailIdx_modifyTailIdx_self]
-  exact modifyTailIdx_id _ _
 
 theorem insertIdx_eraseIdx_of_ge :
-    ∀ n m as,
-      n < length as → n ≤ m → insertIdx m a (as.eraseIdx n) = (as.insertIdx (m + 1) a).eraseIdx n
+    ∀ {i j as},
+      i < length as → i ≤ j → (as.eraseIdx i).insertIdx j a = (as.insertIdx (j + 1) a).eraseIdx i
   | 0, 0, [], has, _ => (Nat.lt_irrefl _ has).elim
   | 0, 0, _ :: as, _, _ => by simp [eraseIdx, insertIdx]
   | 0, _ + 1, _ :: _, _, _ => rfl
   | n + 1, m + 1, a :: as, has, hmn =>
     congrArg (cons a) <|
-      insertIdx_eraseIdx_of_ge n m as (Nat.lt_of_succ_lt_succ has) (Nat.le_of_succ_le_succ hmn)
+      insertIdx_eraseIdx_of_ge (Nat.lt_of_succ_lt_succ has) (Nat.le_of_succ_le_succ hmn)
 
 theorem insertIdx_eraseIdx_of_le :
-    ∀ n m as,
-      n < length as → m ≤ n → insertIdx m a (as.eraseIdx n) = (as.insertIdx m a).eraseIdx (n + 1)
+    ∀ {i j as},
+      i < length as → j ≤ i → (as.eraseIdx i).insertIdx j a = (as.insertIdx j a).eraseIdx (i + 1)
   | _, 0, _ :: _, _, _ => rfl
-  | n + 1, m + 1, a :: as, has, hmn =>
+  | _ + 1, _ + 1, a :: _, has, hmn =>
     congrArg (cons a) <|
-      insertIdx_eraseIdx_of_le n m as (Nat.lt_of_succ_lt_succ has) (Nat.le_of_succ_le_succ hmn)
+      insertIdx_eraseIdx_of_le (Nat.lt_of_succ_lt_succ has) (Nat.le_of_succ_le_succ hmn)
 
+@[grind =]
+theorem insertIdx_eraseIdx (h : i < length as) :
+    (as.eraseIdx i).insertIdx j a =
+      if i ≤ j then (as.insertIdx (j + 1) a).eraseIdx i else (as.insertIdx j a).eraseIdx (i + 1) := by
+  split <;> rename_i h'
+  · rw [insertIdx_eraseIdx_of_ge h h']
+  · rw [insertIdx_eraseIdx_of_le h (by omega)]
+
+@[grind =]
 theorem insertIdx_comm (a b : α) :
-    ∀ (i j : Nat) (l : List α) (_ : i ≤ j) (_ : j ≤ length l),
+    ∀ {i j : Nat} {l : List α} (_ : i ≤ j) (_ : j ≤ length l),
       (l.insertIdx i a).insertIdx (j + 1) b = (l.insertIdx j b).insertIdx i a
   | 0, j, l => by simp [insertIdx]
   | _ + 1, 0, _ => fun h => (Nat.not_lt_zero _ h).elim
   | i + 1, j + 1, [] => by simp
   | i + 1, j + 1, c :: l => fun h₀ h₁ => by
     simp only [insertIdx_succ_cons, cons.injEq, true_and]
-    exact insertIdx_comm a b i j l (Nat.le_of_succ_le_succ h₀) (Nat.le_of_succ_le_succ h₁)
+    exact insertIdx_comm a b (Nat.le_of_succ_le_succ h₀) (Nat.le_of_succ_le_succ h₁)
 
 theorem mem_insertIdx {a b : α} :
-    ∀ {n : Nat} {l : List α} (_ : n ≤ l.length), a ∈ l.insertIdx n b ↔ a = b ∨ a ∈ l
+    ∀ {i : Nat} {l : List α} (_ : i ≤ l.length), a ∈ l.insertIdx i b ↔ a = b ∨ a ∈ l
   | 0, as, _ => by simp
   | _ + 1, [], h => (Nat.not_succ_le_zero _ h).elim
   | n + 1, a' :: as, h => by
     rw [List.insertIdx_succ_cons, mem_cons, mem_insertIdx (Nat.le_of_succ_le_succ h),
       ← or_assoc, @or_comm (a = a'), or_assoc, mem_cons]
 
-theorem insertIdx_of_length_lt (l : List α) (x : α) (n : Nat) (h : l.length < n) :
-    insertIdx n x l = l := by
-  induction l generalizing n with
+theorem insertIdx_of_length_lt {l : List α} {x : α} {i : Nat} (h : l.length < i) :
+    l.insertIdx i x = l := by
+  induction l generalizing i with
   | nil =>
-    cases n
+    cases i
     · simp at h
     · simp
   | cons x l ih =>
-    cases n
+    cases i
     · simp at h
     · simp only [Nat.succ_lt_succ_iff, length] at h
-      simpa using ih _ h
+      simpa using ih h
+
+@[simp, grind =]
+theorem eraseIdx_insertIdx_self {i : Nat} {l : List α} (a : α) : (l.insertIdx i a).eraseIdx i = l := by
+  rw [eraseIdx_eq_modifyTailIdx, insertIdx, modifyTailIdx_modifyTailIdx_self]
+  exact modifyTailIdx_id _ _
+
+@[deprecated eraseIdx_insertIdx_self (since := "2025-06-18")]
+abbrev eraseIdx_insertIdx := @eraseIdx_insertIdx_self
 
 @[simp]
-theorem insertIdx_length_self (l : List α) (x : α) : insertIdx l.length x l = l ++ [x] := by
+theorem insertIdx_length_self {l : List α} {x : α} : l.insertIdx l.length x = l ++ [x] := by
   induction l with
   | nil => simp
   | cons x l ih => simpa using ih
 
-theorem length_le_length_insertIdx (l : List α) (x : α) (n : Nat) :
-    l.length ≤ (insertIdx n x l).length := by
+theorem length_le_length_insertIdx {l : List α} {x : α} {i : Nat} :
+    l.length ≤ (l.insertIdx i x).length := by
   simp only [length_insertIdx]
   split <;> simp
 
-theorem length_insertIdx_le_succ (l : List α) (x : α) (n : Nat) :
-    (insertIdx n x l).length ≤ l.length + 1 := by
+theorem length_insertIdx_le_succ {l : List α} {x : α} {i : Nat} :
+    (l.insertIdx i x).length ≤ l.length + 1 := by
   simp only [length_insertIdx]
   split <;> simp
 
-theorem getElem_insertIdx_of_lt {l : List α} {x : α} {n k : Nat} (hn : k < n)
-    (hk : k < (insertIdx n x l).length) :
-    (insertIdx n x l)[k] = l[k]'(by simp [length_insertIdx] at hk; split at hk <;> omega) := by
-  induction n generalizing k l with
+theorem getElem_insertIdx_of_lt {l : List α} {x : α} {i j : Nat} (hn : j < i)
+    (hk : j < (l.insertIdx i x).length) :
+    (l.insertIdx i x)[j] = l[j]'(by simp [length_insertIdx] at hk; split at hk <;> omega) := by
+  induction i generalizing j l with
   | zero => simp at hn
   | succ n ih =>
     cases l with
     | nil => simp
     | cons _ _=>
-      cases k
-      · simp [get]
+      cases j
+      · simp
       · rw [Nat.succ_lt_succ_iff] at hn
         simpa using ih hn _
 
 @[simp]
-theorem getElem_insertIdx_self {l : List α} {x : α} {n : Nat} (hn : n < (insertIdx n x l).length) :
-    (insertIdx n x l)[n] = x := by
-  induction l generalizing n with
+theorem getElem_insertIdx_self {l : List α} {x : α} {i : Nat} (hi : i < (l.insertIdx i x).length) :
+    (l.insertIdx i x)[i] = x := by
+  induction l generalizing i with
   | nil =>
-    simp [length_insertIdx] at hn
-    split at hn
+    simp [length_insertIdx] at hi
+    split at hi
     · simp_all
     · omega
   | cons _ _ ih =>
-    cases n
+    cases i
     · simp
-    · simp only [insertIdx_succ_cons, length_cons, length_insertIdx, Nat.add_lt_add_iff_right] at hn ih
-      simpa using ih hn
+    · simp only [insertIdx_succ_cons, length_cons, length_insertIdx, Nat.add_lt_add_iff_right] at hi ih
+      simpa using ih hi
 
-theorem getElem_insertIdx_of_ge {l : List α} {x : α} {n k : Nat} (hn : n + 1 ≤ k)
-    (hk : k < (insertIdx n x l).length) :
-    (insertIdx n x l)[k] = l[k - 1]'(by simp [length_insertIdx] at hk; split at hk <;> omega) := by
-  induction l generalizing n k with
+theorem getElem_insertIdx_of_gt {l : List α} {x : α} {i j : Nat} (hn : i < j)
+    (hk : j < (l.insertIdx i x).length) :
+    (l.insertIdx i x)[j] = l[j - 1]'(by simp [length_insertIdx] at hk; split at hk <;> omega) := by
+  induction l generalizing i j with
   | nil =>
-    cases n with
+    cases i with
     | zero =>
       simp only [insertIdx_zero, length_singleton, lt_one_iff] at hk
       omega
     | succ n => simp at hk
   | cons _ _ ih =>
-    cases n with
+    cases i with
     | zero =>
       simp only [insertIdx_zero] at hk
-      cases k with
+      cases j with
       | zero => omega
-      | succ k => simp
+      | succ j => simp
     | succ n =>
-      cases k with
+      cases j with
       | zero => simp
-      | succ k =>
+      | succ j =>
         simp only [insertIdx_succ_cons, getElem_cons_succ]
         rw [ih (by omega)]
-        cases k with
+        cases j with
         | zero => omega
-        | succ k => simp
+        | succ j => simp
 
-theorem getElem_insertIdx {l : List α} {x : α} {n k : Nat} (h : k < (insertIdx n x l).length) :
-    (insertIdx n x l)[k] =
-      if h₁ : k < n then
-        l[k]'(by simp [length_insertIdx] at h; split at h <;> omega)
+@[deprecated getElem_insertIdx_of_gt (since := "2025-02-04")]
+abbrev getElem_insertIdx_of_ge := @getElem_insertIdx_of_gt
+
+@[grind =]
+theorem getElem_insertIdx {l : List α} {x : α} {i j : Nat} (h : j < (l.insertIdx i x).length) :
+    (l.insertIdx i x)[j] =
+      if h₁ : j < i then
+        l[j]'(by simp [length_insertIdx] at h; split at h <;> omega)
       else
-        if h₂ : k = n then
+        if h₂ : j = i then
           x
         else
-          l[k-1]'(by simp [length_insertIdx] at h; split at h <;> omega) := by
+          l[j-1]'(by simp [length_insertIdx] at h; split at h <;> omega) := by
   split <;> rename_i h₁
   · rw [getElem_insertIdx_of_lt h₁]
   · split <;> rename_i h₂
     · subst h₂
       rw [getElem_insertIdx_self h]
-    · rw [getElem_insertIdx_of_ge (by omega)]
+    · rw [getElem_insertIdx_of_gt (by omega)]
 
-theorem getElem?_insertIdx {l : List α} {x : α} {n k : Nat} :
-    (insertIdx n x l)[k]? =
-      if k < n then
-        l[k]?
+@[grind =]
+theorem getElem?_insertIdx {l : List α} {x : α} {i j : Nat} :
+    (l.insertIdx i x)[j]? =
+      if j < i then
+        l[j]?
       else
-        if k = n then
-          if k ≤ l.length then some x else none
+        if j = i then
+          if j ≤ l.length then some x else none
         else
-          l[k-1]? := by
+          l[j-1]? := by
   rw [getElem?_def]
   split <;> rename_i h
   · rw [getElem_insertIdx h]
@@ -224,18 +248,21 @@ theorem getElem?_insertIdx {l : List α} {x : α} {n k : Nat} :
       · rw [getElem?_eq_none]
         split at h <;> omega
 
-theorem getElem?_insertIdx_of_lt {l : List α} {x : α} {n k : Nat} (h : k < n) :
-    (insertIdx n x l)[k]? = l[k]? := by
+theorem getElem?_insertIdx_of_lt {l : List α} {x : α} {i j : Nat} (h : j < i) :
+    (l.insertIdx i x)[j]? = l[j]? := by
   rw [getElem?_insertIdx, if_pos h]
 
-theorem getElem?_insertIdx_self {l : List α} {x : α} {n : Nat} :
-    (insertIdx n x l)[n]? = if n ≤ l.length then some x else none := by
+theorem getElem?_insertIdx_self {l : List α} {x : α} {i : Nat} :
+    (l.insertIdx i x)[i]? = if i ≤ l.length then some x else none := by
   rw [getElem?_insertIdx, if_neg (by omega)]
   simp
 
-theorem getElem?_insertIdx_of_ge {l : List α} {x : α} {n k : Nat} (h : n + 1 ≤ k) :
-    (insertIdx n x l)[k]? = l[k - 1]? := by
+theorem getElem?_insertIdx_of_gt {l : List α} {x : α} {i j : Nat} (h : i < j) :
+    (l.insertIdx i x)[j]? = l[j - 1]? := by
   rw [getElem?_insertIdx, if_neg (by omega), if_neg (by omega)]
+
+@[deprecated getElem?_insertIdx_of_gt (since := "2025-02-04")]
+abbrev getElem?_insertIdx_of_ge := @getElem?_insertIdx_of_gt
 
 end InsertIdx
 

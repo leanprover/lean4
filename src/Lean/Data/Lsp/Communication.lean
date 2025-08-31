@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.System.IO
-import Lean.Data.JsonRpc
+public import Init.System.IO
+public import Lean.Data.JsonRpc
+
+public section
 
 /-! Reading/writing LSP messages from/to IO handles. -/
 

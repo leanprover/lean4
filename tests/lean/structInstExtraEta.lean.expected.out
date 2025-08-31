@@ -1,9 +1,0 @@
-def b : B :=
-let __src := a;
-{ toA := __src }
-def c : C :=
-let __src := a;
-{ toB := { toA := __src } }
-def d : D :=
-let __src := c;
-{ toB := __src.toB }

@@ -7,7 +7,7 @@ elab tk:"#R[" ts:term,* "]" : term => do
   let ts : Array Lean.Syntax := ts
   let es ← ts.mapM fun stx => Lean.Elab.Term.elabTerm stx none
   if h : 0 < es.size then
-    return (Lean.RArray.toExpr (← Lean.Meta.inferType es[0]!) id (Lean.RArray.ofArray es h))
+    Lean.RArray.toExpr (← Lean.Meta.inferType es[0]!) id (Lean.RArray.ofArray es h)
   else
     throwErrorAt tk "RArray cannot be empty"
 
@@ -40,13 +40,6 @@ example (x₁ x₂ x₃ : Nat) : ((x₁ + x₂) + (x₂ + x₃) < x₃ + x₂) =
     (Expr.add (Expr.var 2) (Expr.var 1))
     (Expr.add (Expr.var 0) (Expr.var 1))
     (Expr.num 0)
-    rfl
-
-example (x₁ x₂ : Nat) : x₁ + 2 ≤ 3*x₂ → 4*x₂ ≤ 3 + x₁ → 3 ≤ 2*x₂ → False :=
-  Certificate.of_combine_isUnsat #R[x₁, x₂]
-    [ (1, { eq := false, lhs := Expr.add (Expr.var 0) (Expr.num 2), rhs := Expr.mulL 3 (Expr.var 1) }),
-      (1, { eq := false, lhs := Expr.mulL 4 (Expr.var 1), rhs := Expr.add (Expr.num 3) (Expr.var 0) }),
-      (0, { eq := false, lhs := Expr.num 3, rhs := Expr.mulL 2 (Expr.var 1) }) ]
     rfl
 
 example (x : Nat) (xs : List Nat) : (sizeOf x < 1 + (1 + sizeOf x + sizeOf xs)) = True :=

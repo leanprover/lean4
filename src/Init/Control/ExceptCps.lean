@@ -3,27 +3,49 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.Lawful.Basic
+public import Init.Control.Lawful.Basic
+
+public section
 
 /-!
 The Exception monad transformer using CPS style.
 -/
 
-def ExceptCpsT (ε : Type u) (m : Type u → Type v) (α : Type u) := (β : Type u) → (α → m β) → (ε → m β) → m β
+/--
+Adds exceptions of type `ε` to a monad `m`.
+
+Instead of using `Except ε` to model exceptions, this implementation uses continuation passing
+style. This has different performance characteristics from `ExceptT ε`.
+-/
+@[expose] def ExceptCpsT (ε : Type u) (m : Type u → Type v) (α : Type u) := (β : Type u) → (α → m β) → (ε → m β) → m β
 
 namespace ExceptCpsT
 
-@[always_inline, inline]
+/--
+Use a monadic action that may throw an exception as an action that may return an exception's value.
+-/
+@[always_inline, inline, expose]
 def run {ε α : Type u} [Monad m] (x : ExceptCpsT ε m α) : m (Except ε α) :=
   x _ (fun a => pure (Except.ok a)) (fun e => pure (Except.error e))
 
 set_option linter.unusedVariables false in  -- `s` unused
+/--
+Use a monadic action that may throw an exception by providing explicit success and failure
+continuations.
+-/
 @[always_inline, inline]
 def runK {ε α : Type u} (x : ExceptCpsT ε m α) (s : ε) (ok : α → m β) (error : ε → m β) : m β :=
   x _ ok error
 
-@[always_inline, inline]
+/--
+Returns the value of a computation, forgetting whether it was an exception or a success.
+
+This corresponds to early return.
+-/
+@[always_inline, inline, expose]
 def runCatch [Monad m] (x : ExceptCpsT α m α) : m α :=
   x α pure pure
 
@@ -40,7 +62,10 @@ instance : MonadExceptOf ε (ExceptCpsT ε m) where
   throw e  := fun _ _ k => k e
   tryCatch x handle := fun _ k₁ k₂ => x _ k₁ (fun e => handle e _ k₁ k₂)
 
-@[always_inline, inline]
+/--
+Run an action from the transformed monad in the exception monad.
+-/
+@[always_inline, inline, expose]
 def lift [Monad m] (x : m α) : ExceptCpsT ε m α :=
   fun _ k _ => x >>= k
 

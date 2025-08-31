@@ -1,5 +1,6 @@
 import Lean
 
+@[semireducible]
 def ack : Nat → Nat → Nat
   | 0,   y   => y+1
   | x+1, 0   => ack x 1
@@ -8,9 +9,7 @@ def ack : Nat → Nat → Nat
 set_option maxHeartbeats 500
 open Lean Meta
 
-/--
-error: (kernel) deterministic timeout
--/
+/-- error: (kernel) deterministic timeout -/
 #guard_msgs in
 run_meta do
   let type ← mkEq (← mkAppM ``ack #[mkNatLit 4, mkNatLit 4]) (mkNatLit 100000)

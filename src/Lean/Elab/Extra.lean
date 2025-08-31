@@ -3,9 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Elab.App
-import Lean.Elab.BuiltinNotation
+public import Lean.Elab.App
+public import Lean.Elab.BuiltinNotation
+
+public section
 
 /-! # Auxiliary elaboration functions: AKA custom elaborators -/
 
@@ -26,12 +30,10 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
 @[builtin_term_elab forInMacro] def elabForIn : TermElab :=  fun stx expectedType? => do
   match stx with
   | `(for_in% $col $init $body) =>
-      match (← isLocalIdent? col) with
-      | none   => elabTerm (← `(let col := $col; for_in% col $init $body)) expectedType?
-      | some colFVar =>
         tryPostponeIfNoneOrMVar expectedType?
+        let colE ← elabTerm col none
         let m ← getMonadForIn expectedType?
-        let colType ← inferType colFVar
+        let colType ← inferType colE
         let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
         let forInInstance ← try
           mkAppM ``ForIn #[m, colType, elemType]
@@ -42,7 +44,7 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
           let forInFn ← mkConst ``forIn
           elabAppArgs forInFn
             (namedArgs := #[{ name := `m, val := Arg.expr m}, { name := `α, val := Arg.expr elemType }, { name := `self, val := Arg.expr inst }])
-            (args := #[Arg.stx col, Arg.stx init, Arg.stx body])
+            (args := #[Arg.expr colE, Arg.stx init, Arg.stx body])
             (expectedType? := expectedType?)
             (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
         | .undef    => tryPostpone; throwForInFailure forInInstance
@@ -52,12 +54,10 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
 @[builtin_term_elab forInMacro'] def elabForIn' : TermElab :=  fun stx expectedType? => do
   match stx with
   | `(for_in'% $col $init $body) =>
-      match (← isLocalIdent? col) with
-      | none   => elabTerm (← `(let col := $col; for_in'% col $init $body)) expectedType?
-      | some colFVar =>
         tryPostponeIfNoneOrMVar expectedType?
+        let colE ← elabTerm col none
         let m ← getMonadForIn expectedType?
-        let colType ← inferType colFVar
+        let colType ← inferType colE
         let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
         let forInInstance ←
           try
@@ -70,7 +70,7 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
           let forInFn ← mkConst ``forIn'
           elabAppArgs forInFn
             (namedArgs := #[{ name := `m, val := Arg.expr m}, { name := `α, val := Arg.expr elemType}, { name := `self, val := Arg.expr inst }])
-            (args := #[Arg.expr colFVar, Arg.stx init, Arg.stx body])
+            (args := #[Arg.expr colE, Arg.stx init, Arg.stx body])
             (expectedType? := expectedType?)
             (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
         | .undef    => tryPostpone; throwForInFailure forInInstance
@@ -198,8 +198,8 @@ where
     | `(unop% $f $arg) => processUnOp s f arg
     | `(leftact% $f $lhs $rhs) => processBinOp s .leftact f lhs rhs
     | `(rightact% $f $lhs $rhs) => processBinOp s .rightact f lhs rhs
-    | `(($e)) =>
-      if hasCDot e then
+    | `(($h:hygieneInfo $e)) =>
+      if hasCDot e h.getHygieneInfo then
         processLeaf s
       else
         go e
@@ -213,14 +213,14 @@ where
         | none => processLeaf s
 
   processBinOp (ref : Syntax) (kind : BinOpKind) (f lhs rhs : Syntax) := do
-    let some f ← resolveId? f | throwUnknownConstant f.getId
+    let some f ← resolveId? f | throwUnknownConstantAt f f.getId
     -- treat corresponding argument as leaf for `leftact/rightact`
     let lhs ← if kind == .leftact then processLeaf lhs else go lhs
     let rhs ← if kind == .rightact then processLeaf rhs else go rhs
     return .binop ref kind f lhs rhs
 
   processUnOp (ref : Syntax) (f arg : Syntax) := do
-    let some f ← resolveId? f | throwUnknownConstant f.getId
+    let some f ← resolveId? f | throwUnknownConstantAt f f.getId
     return .unop ref f (← go arg)
 
   processLeaf (s : Syntax) := do
@@ -551,7 +551,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
       let result ← toExprCore (← applyCoe tree maxType (isPred := true))
       trace[Elab.binrel] "result: {result}"
       return result
-  | none   => throwUnknownConstant stx[1].getId
+  | none   => throwUnknownConstantAt stx[1] stx[1].getId
 where
   /-- If `noProp == true` and `e` has type `Prop`, then coerce it to `Bool`. -/
   toBoolIfNecessary (e : Expr) : TermElabM Expr := do

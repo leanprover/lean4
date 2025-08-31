@@ -1,8 +1,7 @@
 {"textDocument": {"uri": "file:///533.lean"},
  "position": {"line": 4, "character": 10}}
 {"items":
- [{"sortText": "0",
-   "label": "F",
+ [{"label": "F",
    "kind": 6,
    "data":
    {"params":
@@ -10,8 +9,7 @@
      "position": {"line": 4, "character": 10}},
     "id": {"fvar": {"id": "_uniq.7"}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "Foo",
+  {"label": "Foo",
    "kind": 6,
    "data":
    {"params":
@@ -19,4 +17,4 @@
      "position": {"line": 4, "character": 10}},
     "id": {"fvar": {"id": "_uniq.3"}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}

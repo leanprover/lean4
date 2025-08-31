@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
+
+@[expose] public section
 
 /-!
 This module contains the verification of the bitblaster `BitVec.zeroExtend` from `Impl.Operations.ZeroExtend`.
@@ -43,14 +47,9 @@ theorem go_get_aux (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth
       intros
       rw [go_get_aux]
       rw [AIG.RefVec.get_push_ref_lt]
-      · simp only [Ref.cast, Ref.mk.injEq]
-        rw [AIG.RefVec.get_cast]
-        · simp
-        · assumption
-      · apply go_le_size
   · dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl]
     have : curr = newWidth := by omega
     subst this
     simp
@@ -69,12 +68,12 @@ theorem go_denote_mem_prefix (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w)
     (hcurr : curr ≤ newWidth) (s : AIG.RefVec aig curr) (start : Nat) (hstart) :
     ⟦
       (go aig w input newWidth curr hcurr s).aig,
-      ⟨start, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
       assign
     ⟧
       =
-    ⟦aig, ⟨start, hstart⟩, assign⟧ := by
-  apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
     apply go_decl_eq
@@ -105,7 +104,7 @@ theorem go_denote_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWid
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       split at hgo
-      · next hsplit =>
+      next hsplit =>
         rw [heq] at hsplit
         simp only [hsplit, ↓reduceDIte]
         rw [← hgo]
@@ -115,14 +114,15 @@ theorem go_denote_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWid
           · simp [heq]
           · simp [Ref.hgate]
         · omega
-      · next hsplit =>
+      next hsplit =>
         rw [heq] at hsplit
         simp only [hsplit, ↓reduceDIte]
         rw [← hgo]
         rw [go_get]
         rw [AIG.RefVec.get_push_ref_eq']
         · rw [go_denote_mem_prefix]
-          · simp [heq]
+          · simp only [Ref.cast_eq]
+            rw [denote_mkConstCached]
           · simp [Ref.hgate]
         · omega
     | inr =>
@@ -132,10 +132,7 @@ theorem go_denote_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWid
         omega
       · rw [← hgo]
         rw [go_denote_eq]
-        · split
-          · omega
-          · rfl
-        · omega
+        omega
   · omega
 termination_by newWidth - curr
 

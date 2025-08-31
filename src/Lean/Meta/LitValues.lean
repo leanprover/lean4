@@ -3,9 +3,13 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Init.Control.Option
+public import Lean.Meta.Basic
+public import Init.Control.Option
+
+public section
 
 namespace Lean.Meta
 
@@ -50,7 +54,7 @@ def getIntValue? (e : Expr) : MetaM (Option Int) := do
   let some (n, _) ← getOfNatValue? a ``Int | return none
   return some (-↑n)
 
-/-- Return `some c` if `e` is a `Char.ofNat`-application encoding character `c`. -/
+/-- Return `some c` if `e` is a `Char.ofNat`-application that encodes the character `c`. -/
 def getCharValue? (e : Expr) : MetaM (Option Char) := do
   let_expr Char.ofNat n ← e | return none
   let some n ← getNatValue? n | return none
@@ -68,13 +72,13 @@ def getFinValue? (e : Expr) : MetaM (Option ((n : Nat) × Fin n)) := OptionT.run
   let n ← getNatValue? (← whnfD type.appArg!)
   match n with
   | 0 => failure
-  | m+1 => return ⟨m+1, Fin.ofNat' _ v⟩
+  | m+1 => return ⟨m+1, Fin.ofNat _ v⟩
 
 /--
 Return `some ⟨n, v⟩` if `e` is:
 - an `OfNat.ofNat` application
 - a `BitVec.ofNat` application
-- a `BitVec.ofNatLt` application
+- a `BitVec.ofNatLT` application
 that encode a `BitVec n` with value `v`.
 -/
 def getBitVecValue? (e : Expr) : MetaM (Option ((n : Nat) × BitVec n)) := OptionT.run do
@@ -83,7 +87,7 @@ def getBitVecValue? (e : Expr) : MetaM (Option ((n : Nat) × BitVec n)) := Optio
     let n ← getNatValue? nExpr
     let v ← getNatValue? vExpr
     return ⟨n, BitVec.ofNat n v⟩
-  | BitVec.ofNatLt nExpr vExpr _ =>
+  | BitVec.ofNatLT nExpr vExpr _ =>
     let n ← getNatValue? nExpr
     let v ← getNatValue? vExpr
     return ⟨n, BitVec.ofNat n v⟩
@@ -173,7 +177,7 @@ def litToCtor (e : Expr) : MetaM Expr := do
     let p := mkApp4 (mkConst ``LT.lt [0]) (mkConst ``Nat) (mkConst ``instLTNat) i n
     let h := mkApp3 (mkConst ``of_decide_eq_true) p
       (mkApp2 (mkConst ``Nat.decLt) i n)
-      (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``true))
+      eagerReflBoolTrue
     return mkApp3 (mkConst ``Fin.mk) n i h
   return e
 

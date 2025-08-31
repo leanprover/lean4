@@ -15,8 +15,8 @@ unsafe def processInput (input : String) (initializers := false)  :
 open System in
 def findLean (mod : Name) : IO FilePath := do
   let olean ← findOLean mod
-  -- Remove a ".lake/build/lib/" substring from the path.
-  let lean := olean.toString.replace (toString (FilePath.mk ".lake" / "build" / "lib") ++ FilePath.pathSeparator.toString) ""
+  -- Remove a ".lake/build/lib/lean" substring from the path.
+  let lean := olean.toString.replace (toString (FilePath.mk ".lake" / "build" / "lib" / "lean") ++ FilePath.pathSeparator.toString) ""
   return FilePath.mk lean |>.withExtension "lean"
 
 /-- Read the source code of the named module. -/

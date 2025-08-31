@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
 
+module
+
 prelude
-import Init.Classical
-import Init.ByCases
+public import Init.Classical
+public import Init.ByCases
+
+@[expose] public section
 
 namespace Lean.Data.AC
 inductive Expr
@@ -39,7 +43,7 @@ class EvalInformation (α : Sort u) (β : Sort v) where
   evalVar : α → Nat → β
 
 def Context.var (ctx : Context α) (idx : Nat) : Variable ctx.op :=
-  ctx.vars.getD idx ⟨ctx.arbitrary, none⟩
+  ctx.vars[idx]?.getD ⟨ctx.arbitrary, none⟩
 
 instance : ContextInformation (Context α) where
   isNeutral ctx x := ctx.var x |>.neutral.isSome
@@ -207,7 +211,7 @@ theorem Context.evalList_sort_congr
   induction c generalizing a b with
   | nil => simp [sort.loop, h₂]
   | cons c _  ih =>
-    simp [sort.loop]; apply ih; simp [evalList_insert ctx h, evalList]
+    simp [sort.loop]; apply ih; simp [evalList_insert ctx h]
     cases a with
     | nil => apply absurd h₃; simp
     | cons a as =>
@@ -280,7 +284,7 @@ theorem Context.toList_nonEmpty (e : Expr) : e.toList ≠ [] := by
     simp [Expr.toList]
     cases h : l.toList with
     | nil => contradiction
-    | cons => simp [List.append]
+    | cons => simp
 
 theorem Context.unwrap_isNeutral
   {ctx : Context α}
@@ -326,13 +330,13 @@ theorem Context.eval_toList (ctx : Context α) (e : Expr) : evalList α ctx e.to
   induction e with
   | var x => rfl
   | op l r ih₁ ih₂ =>
-    simp [evalList, Expr.toList, eval, ←ih₁, ←ih₂]
+    simp [Expr.toList, eval, ←ih₁, ←ih₂]
     apply evalList_append <;> apply toList_nonEmpty
 
 theorem Context.eval_norm (ctx : Context α) (e : Expr) : evalList α ctx (norm ctx e) = eval α ctx e := by
   simp [norm]
   cases h₁ : ContextInformation.isIdem ctx <;> cases h₂ : ContextInformation.isComm ctx <;>
-  simp_all [evalList_removeNeutrals, eval_toList, toList_nonEmpty, evalList_mergeIdem, evalList_sort]
+  simp_all [evalList_removeNeutrals, eval_toList, evalList_mergeIdem, evalList_sort]
 
 theorem Context.eq_of_norm (ctx : Context α) (a b : Expr) (h : norm ctx a == norm ctx b) : eval α ctx a = eval α ctx b := by
   have h := congrArg (evalList α ctx) (eq_of_beq h)

@@ -1,7 +1,7 @@
 synthorder.lean:4:0-4:40: error: instance does not provide concrete values for (semi-)out-params
   Foo A (B × ?C)
 synthorder.lean:7:0-7:38: error: cannot find synthesization order for instance @instFooNat with type
-  {A : Type} → [inst : Foo A Nat] → Foo Nat A
+  {A : Type} → [Foo A Nat] → Foo Nat A
 all remaining arguments have metavariables:
   Foo ?A Nat
 [Meta.synthOrder] synthesizing the arguments of @instFoo in the order [3, 4]:

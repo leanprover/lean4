@@ -3,9 +3,12 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lean.Elab.ElabRules
+public import Lean.Elab.Term
 import Lake.DSL.Extensions
+import Lake.DSL.Syntax
 
 namespace Lake.DSL
 open Lean Elab Term
@@ -14,21 +17,15 @@ open Lean Elab Term
 A dummy default constant for `__dir__` to make it type check
 outside Lakefile elaboration (e.g., when editing).
 -/
-opaque dummyDir : System.FilePath
+public opaque dummyDir : System.FilePath
 
 /--
 A dummy default constant for `get_config` to make it type check
 outside Lakefile elaboration (e.g., when editing).
 -/
-opaque dummyGetConfig? : Name → Option String
+public opaque dummyGetConfig? : Name → Option String
 
-/--
-A macro that expands to the path of package's directory
-during the Lakefile's elaboration.
--/
-scoped syntax (name := dirConst) "__dir__" : term
-
-@[term_elab dirConst]
+@[builtin_term_elab dirConst]
 def elabDirConst : TermElab := fun stx expectedType? => do
   let exp :=
     if let some dir := dirExt.getState (← getEnv) then
@@ -39,16 +36,7 @@ def elabDirConst : TermElab := fun stx expectedType? => do
       Syntax.mkApp (mkCIdentFrom stx ``id) #[mkCIdentFrom stx ``dummyDir]
   withMacroExpansion stx exp <| elabTerm exp expectedType?
 
-/--
-A macro that expands to the specified configuration option (or `none`,
-if the option has not been set) during the Lakefile's elaboration.
-
-Configuration arguments are set either via the Lake CLI (by the `-K` option)
-or via the `with` clause in a `require` statement.
--/
-scoped syntax (name := getConfig) "get_config? " ident :term
-
-@[term_elab getConfig]
+@[builtin_term_elab getConfig]
 def elabGetConfig : TermElab := fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?
   match stx with

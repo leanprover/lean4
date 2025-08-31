@@ -3,56 +3,32 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.Completion.CompletionCollectors
-import Std.Data.HashMap
+public import Lean.Server.Completion.CompletionCollectors
+public import Lean.Server.RequestCancellation
+public import Std.Data.HashMap
+
+public section
 
 namespace Lean.Server.Completion
 open Lsp
 open Elab
 
 private def filterDuplicateCompletionItems
-    (items : Array ScoredCompletionItem)
-    : Array ScoredCompletionItem :=
-  let duplicationGroups := items.groupByKey fun s => (
-      s.item.label,
-      s.item.textEdit?,
-      s.item.detail?,
-      s.item.kind?,
-      s.item.tags?,
-      s.item.documentation?,
+    (items : Array CompletionItem)
+    : Array CompletionItem :=
+  let duplicationGroups := items.groupByKey fun i => (
+      i.label,
+      i.textEdit?,
+      i.detail?,
+      i.kind?,
+      i.tags?,
+      i.documentation?,
     )
-  duplicationGroups.map (fun _ duplicateItems => duplicateItems.getMax? (·.score < ·.score) |>.get!)
+  duplicationGroups.map (fun _ duplicateItems => duplicateItems[0]!)
     |>.valuesArray
-
-/--
-Sorts `items` descendingly according to their score and ascendingly according to their label
-for equal scores.
--/
-private def sortCompletionItems (items : Array ScoredCompletionItem) : Array CompletionItem :=
-  let items := items.qsort fun ⟨i1, s1⟩ ⟨i2, s2⟩ =>
-    if s1 != s2 then
-      s1 > s2
-    else
-      i1.label.map (·.toLower) < i2.label.map (·.toLower)
-  items.map (·.1)
-
-/--
-Assigns the `CompletionItem.sortText?` for all items in `completions` according to their order
-in `completions`. This is necessary because clients will use their own sort order if the server
-does not set it.
--/
-private def assignSortTexts (completions : Array CompletionItem) : Array CompletionItem := Id.run do
-  if completions.isEmpty then
-    return #[]
-  let items := completions.mapIdx fun i item =>
-    { item with sortText? := toString i }
-  let maxDigits := items[items.size - 1]!.sortText?.get!.length
-  let items := items.map fun item =>
-    let sortText := item.sortText?.get!
-    let pad := List.replicate (maxDigits - sortText.length) '0' |>.asString
-    { item with sortText? := pad ++ sortText }
-  items
 
 partial def find?
     (params   : CompletionParams)
@@ -61,11 +37,12 @@ partial def find?
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
     (caps     : ClientCapabilities)
-    : IO CompletionList := do
-  let prioritizedPartitions := findPrioritizedCompletionPartitionsAt fileMap hoverPos cmdStx infoTree
+    : CancellableM CompletionList := do
+  let (prioritizedPartitions, isComplete) := findPrioritizedCompletionPartitionsAt fileMap hoverPos cmdStx infoTree
   let mut allCompletions := #[]
   for partition in prioritizedPartitions do
     for (i, completionInfoPos) in partition do
+      CancellableM.checkCancelled
       let completions : Array ScoredCompletionItem ←
         match i.info with
         | .id stx id danglingDot lctx .. =>
@@ -78,6 +55,8 @@ partial def find?
           fieldIdCompletion params completionInfoPos i.ctx lctx id structName
         | .option stx =>
           optionCompletion params completionInfoPos i.ctx stx caps
+        | .errorName _ partialId =>
+          errorNameCompletion params completionInfoPos i.ctx partialId caps
         | .tactic .. =>
           tacticCompletion params completionInfoPos i.ctx
         | _ =>
@@ -90,8 +69,6 @@ partial def find?
 
   let finalCompletions := allCompletions
     |> filterDuplicateCompletionItems
-    |> sortCompletionItems
-    |> assignSortTexts
-  return { items := finalCompletions, isIncomplete := true }
+  return { items := finalCompletions, isIncomplete := ! isComplete }
 
 end Lean.Server.Completion

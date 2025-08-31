@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.FreeVars
-import Lean.Compiler.IR.NormIds
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.FreeVars
+public import Lean.Compiler.IR.NormIds
+
+public section
 
 namespace Lean.IR
 
@@ -20,7 +24,7 @@ partial def pushProjs (bs : Array FnBody) (alts : Array Alt) (altsF : Array Inde
     let push (x : VarId) :=
         if !ctxF.contains x.idx then
           let alts := alts.mapIdx fun i alt => alt.modifyBody fun b' =>
-             if (altsF.get! i).contains x.idx then b.setBody b'
+             if altsF[i]!.contains x.idx then b.setBody b'
              else b'
           let altsF  := altsF.map fun s => if s.contains x.idx then b.collectFreeIndices s else s
           pushProjs bs alts altsF ctx ctxF
@@ -53,5 +57,7 @@ def Decl.pushProj (d : Decl) : Decl :=
   match d with
   | .fdecl (body := b) .. => d.updateBody! b.pushProj |>.normalizeIds
   | other => other
+
+builtin_initialize registerTraceClass `compiler.ir.push_proj (inherited := true)
 
 end Lean.IR

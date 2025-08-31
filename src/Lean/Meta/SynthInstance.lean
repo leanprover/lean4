@@ -5,13 +5,17 @@ Authors: Daniel Selsam, Leonardo de Moura
 
 Type class instance synthesizer using tabled resolution.
 -/
+module
+
 prelude
-import Init.Data.Array.InsertionSort
-import Lean.Meta.Basic
-import Lean.Meta.Instances
-import Lean.Meta.AbstractMVars
-import Lean.Meta.Check
-import Lean.Util.Profile
+public import Init.Data.Array.InsertionSort
+public import Lean.Meta.Basic
+public import Lean.Meta.Instances
+public import Lean.Meta.AbstractMVars
+public import Lean.Meta.Check
+public import Lean.Util.Profile
+
+public section
 
 namespace Lean.Meta
 
@@ -135,7 +139,7 @@ partial def normExpr (e : Expr) : M Expr := do
     | .const _ us      => return e.updateConst! (← us.mapM normLevel)
     | .sort u          => return e.updateSort! (← normLevel u)
     | .app f a         => return e.updateApp! (← normExpr f) (← normExpr a)
-    | .letE _ t v b _  => return e.updateLet! (← normExpr t) (← normExpr v) (← normExpr b)
+    | .letE _ t v b _  => return e.updateLetE! (← normExpr t) (← normExpr v) (← normExpr b)
     | .forallE _ d b _ => return e.updateForallE! (← normExpr d) (← normExpr b)
     | .lam _ d b _     => return e.updateLambdaE! (← normExpr d) (← normExpr b)
     | .mdata _ b       => return e.updateMData! (← normExpr b)
@@ -227,7 +231,7 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
           let synthOrder ← forallTelescopeReducing (← inferType linst.fvar) fun xs _ => do
             if xs.isEmpty then return #[]
             let mut order := #[]
-            for i in [:xs.size], x in xs do
+            for i in *...xs.size, x in xs do
               if (← getFVarLocalDecl x).binderInfo == .instImplicit then
                 order := order.push i
             return order
@@ -547,7 +551,7 @@ def generate : SynthM Unit := do
   else
     let key  := gNode.key
     let idx  := gNode.currInstanceIdx - 1
-    let inst := gNode.instances.get! idx
+    let inst := gNode.instances[idx]!
     let mctx := gNode.mctx
     let mvar := gNode.mvar
     /- See comment at `typeHasMVars` -/
@@ -709,7 +713,7 @@ private def assignOutParams (type : Expr) (result : Expr) : MetaM Bool := do
   return defEq
 
 /--
-Auxiliary function for converting the `AbstractMVarsResult` returned by `SynthIntance.main` into an `Expr`.
+Auxiliary function for converting the `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
 -/
 private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) : MetaM (Option Expr) := do
   let some abstResult := abstResult? | return none
@@ -745,7 +749,7 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
   return some result
 
 /--
-Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthIntance.main` into an `Expr`.
+Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
 This function tries to avoid the potentially expensive `check` at `applyCachedAbstractResult?`.
 -/
 private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) : MetaM (Option Expr) := do
@@ -771,11 +775,11 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (abstResult? : Option
     if abstResult.numMVars == 0 && abstResult.paramNames.isEmpty then
       -- See `applyCachedAbstractResult?` If new metavariables have **not** been introduced,
       -- we don't need to perform extra checks again when reusing result.
-      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some { expr := result, paramNames := #[], numMVars := 0 }) }
+      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some { expr := result, paramNames := #[], mvars := #[] }) }
     else
       modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some abstResult) }
 
-def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
+def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
   withTraceNode `Meta.synthInstance
@@ -800,6 +804,9 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
       trace[Meta.synthInstance] "result {result?}"
       cacheResult cacheKey abstResult? result?
       return result?
+
+def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
+  synthInstanceCore? type maxResultSize?
 
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if

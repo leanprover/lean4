@@ -3,15 +3,19 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.LitValues
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+public import Lean.Meta.LitValues
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+
+public section
 
 open Lean Meta Simp
 
 macro "declare_uint_simprocs" typeName:ident : command =>
 let ofNat := typeName.getId ++ `ofNat
-let ofNatCore := mkIdent (typeName.getId ++ `ofNatCore)
+let ofNatLT := mkIdent (typeName.getId ++ `ofNatLT)
 let toNat := mkIdent (typeName.getId ++ `toNat)
 let fromExpr := mkIdent `fromExpr
 `(
@@ -54,8 +58,8 @@ builtin_simproc [simp, seval] reduceNe  (( _ : $typeName) ≠ _)  := reduceBinPr
 builtin_dsimproc [simp, seval] reduceBEq  (( _ : $typeName) == _)  := reduceBoolPred ``BEq.beq 4 (. == .)
 builtin_dsimproc [simp, seval] reduceBNe  (( _ : $typeName) != _)  := reduceBoolPred ``bne 4 (. != .)
 
-builtin_dsimproc [simp, seval] $(mkIdent `reduceOfNatCore):ident ($ofNatCore _ _) := fun e => do
-  unless e.isAppOfArity $(quote ofNatCore.getId) 2 do return .continue
+builtin_dsimproc [simp, seval] $(mkIdent `reduceOfNatLT):ident ($ofNatLT _ _) := fun e => do
+  unless e.isAppOfArity $(quote ofNatLT.getId) 2 do return .continue
   let some value ← Nat.fromExpr? e.appFn!.appArg! | return .continue
   let value := $(mkIdent ofNat) value
   return .done <| toExpr value

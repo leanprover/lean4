@@ -10,12 +10,12 @@ instance : GetElem (Array α) Nat α where
 opaque f : Option Bool → Id Unit
 
 def bad2 (bs : Array Bool) (n : Nat) : Id Unit := do
-  for idx in [:n] do
+  for idx in *...n do
     let b  := getElem bs idx
     f b
 
 def bad3 (bs : Array Bool) (n : Nat) : Id Unit := do
-  for h : idx in [:n] do
+  for h : idx in *...n do
     let b  := getElem bs idx
     f b
 

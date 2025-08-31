@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.InternalExceptionId
-import Lean.Exception
+public import Lean.InternalExceptionId
+public import Lean.Exception
+
+public section
 
 namespace Lean.Elab
 
@@ -38,7 +42,7 @@ def isAutoBoundImplicitLocalException? (ex : Exception) : Option Name :=
   | _ => none
 
 def throwAlreadyDeclaredUniverseLevel [Monad m] [MonadError m] (u : Name) : m α :=
-  throwError "a universe level named '{u}' has already been declared"
+  throwError "a universe level named `{u}` has already been declared"
 
 -- Throw exception to abort elaboration of the current command without producing any error message
 def throwAbortCommand {α m} [MonadExcept Exception m] : m α :=

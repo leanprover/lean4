@@ -4,10 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.AppBuilder
-import Lean.Meta.PProdN
-import Lean.Meta.ArgsPacker.Basic
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.PProdN
+public import Lean.Meta.ArgsPacker.Basic
+
+public section
 
 /-!
 This module implements the equivalence between the types
@@ -115,7 +119,7 @@ private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := Id.run do
   if arity = 0 then return #[]
   let mut result := #[]
   let mut t := t
-  for _ in [:arity - 1] do
+  for _ in *...(arity - 1 : Nat) do
     result := result.push (mkProj ``PSigma 0 t)
     t := mkProj ``PSigma 1 t
   result.push t
@@ -176,21 +180,31 @@ def uncurry (varNames : Array Name) (e : Expr) : MetaM Expr := do
       let value ← casesOn varNames.toList x u codomain e
       mkLambdaFVars #[x] value
 
-/-- Given `(A ⊗' B ⊗' … ⊗' D) → R` (non-dependent) `R`, return `A → B → … → D → R` -/
+/--
+Given type `(x : A ⊗' B ⊗' … ⊗' D) → R[x]`
+return expression of type `(x : A) → (y : B) → … → (z : D) → R[(x,y,z)]`
+-/
 private def curryType (varNames : Array Name) (type : Expr) : MetaM Expr := do
-  let some (domain, codomain) := type.arrow? |
-    throwError "curryType: Expected arrow type, got {type}"
-  go codomain varNames.toList domain
+  unless type.isForall do
+    throwError "curryType: Expected forall type, got {type}"
+  let packedDomain := type.bindingDomain!
+  go packedDomain packedDomain #[] varNames.toList
 where
-  go  (codomain : Expr) : List Name → Expr → MetaM Expr
-  | [], _ => pure codomain
-  | [_], domain => mkArrow domain codomain
-  | n::ns, domain =>
+  go (packedDomain domain : Expr) args : List Name → MetaM Expr
+  | [] => do
+      let packedArg := Unary.pack packedDomain args
+      instantiateForall type #[packedArg]
+  | [n] => do
+    withLocalDeclD n domain fun x => do
+      let dummy := Expr.const ``Unit []
+      mkForallFVars #[x] (← go packedDomain dummy (args.push x) [])
+  | n :: ns =>
     match_expr domain with
     | PSigma a b =>
-      withLocalDecl n .default a fun x => do
-        mkForallFVars #[x] (← go codomain ns (b.beta #[x]))
+      withLocalDeclD n a fun x => do
+        mkForallFVars #[x] (← go packedDomain (b.beta #[x]) (args.push x) ns)
     | _ => throwError "curryType: Expected PSigma type, got {domain}"
+
 
 /--
 Given expression `e` of type `(x : A ⊗' B ⊗' … ⊗' D) → R[x]`
@@ -328,6 +342,8 @@ if they are all the same.
 
 -/
 def uncurryType (types : Array Expr) : MetaM Expr := do
+  if types.size = 1 then
+    return types[0]!
   let types ← types.mapM whnfForall
   types.forM fun type => do
     unless type.isForall do
@@ -418,16 +434,19 @@ def uncurryND (es : Array Expr) : MetaM Expr := do
     mkLambdaFVars #[x] value
 
 /-
-Given type `(A ⊕' C) → R` (non-depenent), return types
+Given type `(A ⊕' C) → R` (possibly dependent), return types
 ```
 #[A → R, B → R]
 ```
 -/
 def curryType (n : Nat) (type : Expr) : MetaM (Array Expr) := do
-  let some (domain, codomain) := type.arrow? |
-    throwError "curryType: Expected arrow type, got {type}"
+  unless type.isForall do
+    throwError "curryType: Expected forall type, got {type}"
+  let domain := type.bindingDomain!
   let ds ← unpackType n domain
-  ds.toArray.mapM (fun d => mkArrow d codomain)
+  ds.toArray.mapIdxM fun i d =>
+    withLocalDeclD `x d fun x => do
+      mkForallFVars #[x] (← instantiateForall type #[← pack ds.length domain i x])
 
 end Mutual
 
@@ -471,7 +490,7 @@ Given types `(x : A) → (y : B[x]) → R₁[x,y]` and `(z : C) → R₂[z]`, re
 ```
 -/
 def uncurryType (argsPacker : ArgsPacker) (types : Array Expr) : MetaM Expr := do
-  let unary ← (Array.zipWith argsPacker.varNamess types Unary.uncurryType).mapM id
+  let unary ← Array.zipWithM Unary.uncurryType argsPacker.varNamess types
   Mutual.uncurryType unary
 
 /--
@@ -482,11 +501,11 @@ and `(z : C) → R₂[z]`, returns an expression of type
 ```
 -/
 def uncurry (argsPacker : ArgsPacker) (es : Array Expr) : MetaM Expr := do
-  let unary ← (Array.zipWith argsPacker.varNamess es Unary.uncurry).mapM id
+  let unary ← Array.zipWithM Unary.uncurry argsPacker.varNamess es
   Mutual.uncurry unary
 
 def uncurryWithType (argsPacker : ArgsPacker) (resultType : Expr) (es : Array Expr) : MetaM Expr := do
-  let unary ← (Array.zipWith argsPacker.varNamess es Unary.uncurry).mapM id
+  let unary ← Array.zipWithM Unary.uncurry argsPacker.varNamess es
   Mutual.uncurryWithType resultType unary
 
 /--
@@ -497,7 +516,7 @@ and `(z : C) → R`, returns an expression of type
 ```
 -/
 def uncurryND (argsPacker : ArgsPacker) (es : Array Expr) : MetaM Expr := do
-  let unary ← (Array.zipWith argsPacker.varNamess es Unary.uncurry).mapM id
+  let unary ← Array.zipWithM Unary.uncurry argsPacker.varNamess es
   Mutual.uncurryND unary
 
 /--
@@ -526,14 +545,14 @@ def curryProj (argsPacker : ArgsPacker) (e : Expr) (i : Nat) : MetaM Expr := do
 
 
 /--
-Given type `(x : a ⊗' b ⊕' c ⊗' d) → R` (non-dependent), return types
+Given type `(x : a ⊗' b ⊕' c ⊗' d) → R` (dependent), return types
 ```
 #[(x: a) → (y : b) → R, (x : c) → (y : d) → R]
 ```
 -/
 def curryType (argsPacker : ArgsPacker) (t : Expr) : MetaM (Array Expr) := do
   let unary ← Mutual.curryType argsPacker.numFuncs t
-  (Array.zipWith argsPacker.varNamess unary Unary.curryType).mapM id
+  Array.zipWithM Unary.curryType argsPacker.varNamess unary
 
 /--
 Given expression `e` of type `(x : a ⊗' b ⊕' c ⊗' d) → e[x]`, wraps that expression
@@ -544,7 +563,7 @@ to produce an expression of the isomorphic type
 -/
 def curry (argsPacker : ArgsPacker) (e : Expr) : MetaM Expr := do
   let mut es := #[]
-  for i in [:argsPacker.numFuncs] do
+  for i in *...argsPacker.numFuncs do
     es := es.push (← argsPacker.curryProj e i)
   PProdN.mk 0 es
 
@@ -560,16 +579,16 @@ where
   go : List Expr → Array Expr → MetaM α
   | [], acc => k acc
   | t::ts, acc => do
-    let name := if argsPacker.numFuncs = 1 then name else .mkSimple s!"{name}{acc.size+1}"
+    let name := if argsPacker.numFuncs = 1 then name else .mkSimple s!"{name}{acc.size + 1}"
     withLocalDeclD name t fun x => do
       go ts (acc.push x)
 
 /--
 Given `value : type` where `type` is
 ```
-(m : a ⊗' b ⊕' c ⊗' d → s) → r[m]
+(m : (x : a ⊗' b ⊕' c ⊗' d) → s[x]) → r[m]
 ```
-brings `m1 : a → b → s` and `m2 : c → d → s` into scope. The continuation receives
+brings `m1 : (x : a) → (y : b) → s[.inl ⟨x,y⟩]` and `m2 : (x : c) → (y : d) → s[.inr ⟨x,y⟩]` into scope. The continuation receives
 
  * FVars for `m1`…
  * `e[m]`
@@ -583,14 +602,14 @@ unless `numFuns = 1`
 def curryParam {α} (argsPacker : ArgsPacker) (value : Expr) (type : Expr)
     (k : Array Expr → Expr → Expr → MetaM α) : MetaM α := do
   unless type.isForall do
-    throwError "uncurryParam: expected forall, got {type}"
+    throwError "curryParam: expected forall, got {type}"
   let packedMotiveType := type.bindingDomain!
-  unless packedMotiveType.isArrow do
-    throwError "uncurryParam: unexpected packed motive {packedMotiveType}"
+  unless packedMotiveType.isForall do
+    throwError "curryParam: unexpected packed motive, not a forall{indentExpr packedMotiveType}"
   -- Bring unpacked motives (motive1 : a → b → Prop and motive2 : c → d → Prop) into scope
   withCurriedDecl argsPacker type.bindingName! packedMotiveType fun motives => do
     -- Combine them into a packed motive (motive : a ⊗' b ⊕' c ⊗' d → Prop), and use that
-    let motive ← argsPacker.uncurryND motives
+    let motive ← argsPacker.uncurryWithType packedMotiveType motives
     let type ← instantiateForall type #[motive]
     let value := mkApp value motive
     k motives value type

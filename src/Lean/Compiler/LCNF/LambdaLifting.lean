@@ -3,15 +3,19 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Instances
-import Lean.Compiler.InlineAttrs
-import Lean.Compiler.LCNF.Closure
-import Lean.Compiler.LCNF.Types
-import Lean.Compiler.LCNF.MonadScope
-import Lean.Compiler.LCNF.Internalize
-import Lean.Compiler.LCNF.Level
-import Lean.Compiler.LCNF.AuxDeclCache
+public import Lean.Meta.Instances
+public import Lean.Compiler.InlineAttrs
+public import Lean.Compiler.LCNF.Closure
+public import Lean.Compiler.LCNF.Types
+public import Lean.Compiler.LCNF.MonadScope
+public import Lean.Compiler.LCNF.Internalize
+public import Lean.Compiler.LCNF.Level
+public import Lean.Compiler.LCNF.AuxDeclCache
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace LambdaLifting
@@ -178,16 +182,8 @@ def eagerLambdaLifting : Pass where
   name       := `eagerLambdaLifting
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl => do
-      if (← Meta.isInstance decl.name) then
-        /-
-        Recall that we lambda lift local functions in instances to control code blowup, and make sure they are cheap to inline.
-        It is not worth to lift tiny ones. TODO: evaluate whether we should add a compiler option to control the min size.
-
-        Recall that when performing eager lambda lifting in instances, we progatate the `[inline]` annotations to the new auxiliary functions.
-
-        Note: we have tried `if decl.inlineable then return decls.push decl`, but it didn't help in our preliminary experiments.
-        -/
-        return decls ++ (← decl.lambdaLifting (liftInstParamOnly := false) (suffix := `_elam) (inheritInlineAttrs := true) (minSize := 3))
+      if decl.inlineAttr || (← Meta.isInstance decl.name) then
+        return decls.push decl
       else
         return decls ++ (← decl.lambdaLifting (liftInstParamOnly := true) (suffix := `_elam))
 

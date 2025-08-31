@@ -4,9 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Meta.PPGoal
-import Lean.ReservedNameAction
+public import Init.Task
+public import Lean.Meta.PPGoal
+public import Lean.ReservedNameAction
+
+public section
 
 namespace Lean.Elab.CommandContextInfo
 
@@ -56,6 +61,7 @@ def CompletionInfo.stx : CompletionInfo → Syntax
   | fieldId stx ..    => stx
   | namespaceId stx   => stx
   | option stx        => stx
+  | errorName stx ..  => stx
   | endSection stx .. => stx
   | tactic stx ..     => stx
 
@@ -71,7 +77,7 @@ def CompletionInfo.lctx : CompletionInfo → LocalContext
   | _                   => .empty
 
 def CustomInfo.format : CustomInfo → Format
-  | i => f!"CustomInfo({i.value.typeName})"
+  | i => f!"[CustomInfo({i.value.typeName})]"
 
 instance : ToFormat CustomInfo := ⟨CustomInfo.format⟩
 
@@ -95,8 +101,18 @@ partial def InfoTree.substitute (tree : InfoTree) (assignment : PersistentHashMa
     | none      => hole id
     | some tree => substitute tree assignment
 
+/-- Applies `s.lazyAssignment` to `s.trees`, asynchronously. -/
+def InfoState.substituteLazy (s : InfoState) : Task InfoState :=
+  Task.mapList (tasks := s.lazyAssignment.toList.map (·.2)) fun _ => { s with
+    trees := s.trees.map (·.substitute <| s.lazyAssignment.map (·.get))
+    lazyAssignment := {}
+  }
+
 /-- Embeds a `CoreM` action in `IO` by supplying the information stored in `info`. -/
 def ContextInfo.runCoreM (info : ContextInfo) (x : CoreM α) : IO α := do
+  -- We assume that this function is used only outside elaboration, mostly in the language server,
+  -- and so we can and should provide access to information regardless whether it is exported.
+  let env := info.env.setExporting false
   /-
     We must execute `x` using the `ngen` stored in `info`. Otherwise, we may create `MVarId`s and `FVarId`s that
     have been used in `lctx` and `info.mctx`.
@@ -105,7 +121,7 @@ def ContextInfo.runCoreM (info : ContextInfo) (x : CoreM α) : IO α := do
     (withOptions (fun _ => info.options) x).toIO
       { currNamespace := info.currNamespace, openDecls := info.openDecls
         fileName := "<InfoTree>", fileMap := default }
-      { env := info.env, ngen := info.ngen }
+      { env, ngen := info.ngen }
 
 def ContextInfo.runMetaM (info : ContextInfo) (lctx : LocalContext) (x : MetaM α) : IO α := do
   (·.1) <$> info.runCoreM (x.run { lctx := lctx } { mctx := info.mctx })
@@ -144,26 +160,29 @@ def TermInfo.format (ctx : ContextInfo) (info : TermInfo) : IO Format := do
         Meta.ppExpr (← Meta.inferType info.expr)
       catch _ =>
         pure "<failed-to-infer-type>"
-    return f!"{← Meta.ppExpr info.expr} {if info.isBinder then "(isBinder := true) " else ""}: {ty} @ {formatElabInfo ctx info.toElabInfo}"
+    return f!"[Term] {← Meta.ppExpr info.expr} {if info.isBinder then "(isBinder := true) " else ""}: {ty} @ {formatElabInfo ctx info.toElabInfo}"
 
 def PartialTermInfo.format (ctx : ContextInfo) (info : PartialTermInfo) : Format :=
-  f!"Partial term @ {formatElabInfo ctx info.toElabInfo}"
+  f!"[PartialTerm] @ {formatElabInfo ctx info.toElabInfo}"
 
 def CompletionInfo.format (ctx : ContextInfo) (info : CompletionInfo) : IO Format :=
   match info with
-  | .dot i (expectedType? := expectedType?) .. => return f!"[.] {← i.format ctx} : {expectedType?}"
-  | .id stx _ _ lctx expectedType? => ctx.runMetaM lctx do return f!"[.] {← ctx.ppSyntax lctx stx} : {expectedType?} @ {formatStxRange ctx info.stx}"
-  | _ => return f!"[.] {info.stx} @ {formatStxRange ctx info.stx}"
+  | .dot i (expectedType? := expectedType?) .. => return f!"[Completion-Dot] {← i.format ctx} : {expectedType?}"
+  | .id stx _ _ lctx expectedType? => ctx.runMetaM lctx do return f!"[Completion-Id] {← ctx.ppSyntax lctx stx} : {expectedType?} @ {formatStxRange ctx info.stx}"
+  | _ => return f!"[Completion] {info.stx} @ {formatStxRange ctx info.stx}"
 
 def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : IO Format := do
-  return f!"command @ {formatElabInfo ctx info.toElabInfo}"
+  return f!"[Command] @ {formatElabInfo ctx info.toElabInfo}"
 
 def OptionInfo.format (ctx : ContextInfo) (info : OptionInfo) : IO Format := do
-  return f!"option {info.optionName} @ {formatStxRange ctx info.stx}"
+  return f!"[Option] {info.optionName} @ {formatStxRange ctx info.stx}"
+
+def ErrorNameInfo.format (ctx : ContextInfo) (info : ErrorNameInfo) : IO Format := do
+  return f!"[ErrorName] {info.errorName} @ {formatStxRange ctx info.stx}"
 
 def FieldInfo.format (ctx : ContextInfo) (info : FieldInfo) : IO Format := do
   ctx.runMetaM info.lctx do
-    return f!"{info.fieldName} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange ctx info.stx}"
+    return f!"[Field] {info.fieldName} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange ctx info.stx}"
 
 def ContextInfo.ppGoals (ctx : ContextInfo) (goals : List MVarId) : IO Format :=
   if goals.isEmpty then
@@ -176,31 +195,31 @@ def TacticInfo.format (ctx : ContextInfo) (info : TacticInfo) : IO Format := do
   let ctxA := { ctx with mctx := info.mctxAfter }
   let goalsBefore ← ctxB.ppGoals info.goalsBefore
   let goalsAfter  ← ctxA.ppGoals info.goalsAfter
-  return f!"Tactic @ {formatElabInfo ctx info.toElabInfo}\n{info.stx}\nbefore {goalsBefore}\nafter {goalsAfter}"
+  return f!"[Tactic] @ {formatElabInfo ctx info.toElabInfo}\n{info.stx}\nbefore {goalsBefore}\nafter {goalsAfter}"
 
 def MacroExpansionInfo.format (ctx : ContextInfo) (info : MacroExpansionInfo) : IO Format := do
   let stx    ← ctx.ppSyntax info.lctx info.stx
   let output ← ctx.ppSyntax info.lctx info.output
-  return f!"Macro expansion\n{stx}\n===>\n{output}"
+  return f!"[MacroExpansion]\n{stx}\n===>\n{output}"
 
 def UserWidgetInfo.format (info : UserWidgetInfo) : Format :=
-  f!"UserWidget {info.id}\n{Std.ToFormat.format <| info.props.run' {}}"
+  f!"[UserWidget] {info.id}\n{Std.ToFormat.format <| info.props.run' {}}"
 
 def FVarAliasInfo.format (info : FVarAliasInfo) : Format :=
-  f!"FVarAlias {info.userName.eraseMacroScopes}: {info.id.name} -> {info.baseId.name}"
+  f!"[FVarAlias] {info.userName.eraseMacroScopes}: {info.id.name} -> {info.baseId.name}"
 
 def FieldRedeclInfo.format (ctx : ContextInfo) (info : FieldRedeclInfo) : Format :=
-  f!"FieldRedecl @ {formatStxRange ctx info.stx}"
+  f!"[FieldRedecl] @ {formatStxRange ctx info.stx}"
 
 def DelabTermInfo.format (ctx : ContextInfo) (info : DelabTermInfo) : IO Format := do
   let loc := if let some loc := info.location? then f!"{loc.module} {loc.range.pos}-{loc.range.endPos}" else "none"
-  return f!"DelabTermInfo @ {← TermInfo.format ctx info.toTermInfo}\n\
+  return f!"[DelabTerm] @ {← TermInfo.format ctx info.toTermInfo}\n\
     Location: {loc}\n\
     Docstring: {repr info.docString?}\n\
     Explicit: {info.explicit}"
 
 def ChoiceInfo.format (ctx : ContextInfo) (info : ChoiceInfo) : Format :=
-  f!"Choice @ {formatElabInfo ctx info.toElabInfo}"
+  f!"[Choice] @ {formatElabInfo ctx info.toElabInfo}"
 
 def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format ctx
@@ -209,6 +228,7 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofCommandInfo i        => i.format ctx
   | ofMacroExpansionInfo i => i.format ctx
   | ofOptionInfo i         => i.format ctx
+  | ofErrorNameInfo i      => i.format ctx
   | ofFieldInfo i          => i.format ctx
   | ofCompletionInfo i     => i.format ctx
   | ofUserWidgetInfo i     => pure <| i.format
@@ -225,6 +245,7 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofCommandInfo i        => some i.toElabInfo
   | ofMacroExpansionInfo _ => none
   | ofOptionInfo _         => none
+  | ofErrorNameInfo _      => none
   | ofFieldInfo _          => none
   | ofCompletionInfo _     => none
   | ofUserWidgetInfo _     => none
@@ -302,7 +323,7 @@ def addConstInfo [MonadEnv m] [MonadError m]
 /-- This does the same job as `realizeGlobalConstNoOverload`; resolving an identifier
 syntax to a unique fully resolved name or throwing if there are ambiguities.
 But also adds this resolved name to the infotree. This means that when you hover
-over a name in the sourcefile you will see the fully resolved name in the hover info.-/
+over a name in the source file you will see the fully resolved name in the hover info.-/
 def realizeGlobalConstNoOverloadWithInfo (id : Syntax) (expectedType? : Option Expr := none) : CoreM Name := do
   let n ← realizeGlobalConstNoOverload id
   if (← getInfoState).enabled then

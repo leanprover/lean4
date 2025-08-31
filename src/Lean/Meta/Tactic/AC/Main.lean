@@ -3,12 +3,16 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
+module
+
 prelude
-import Init.Data.AC
-import Lean.Meta.AppBuilder
-import Lean.Meta.Tactic.Refl
-import Lean.Meta.Tactic.Simp.Main
-import Lean.Elab.Tactic.Rewrite
+public import Init.Data.AC
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.Tactic.Refl
+public import Lean.Meta.Tactic.Simp.Main
+public import Lean.Elab.Tactic.Rewrite
+
+public section
 
 namespace Lean.Meta.AC
 open Lean.Data.AC
@@ -60,15 +64,15 @@ inductive PreExpr
 | op (lhs rhs : PreExpr)
 | var (e : Expr)
 
-@[match_pattern] def bin (op l r : Expr) :=
+@[match_pattern, expose] def bin (op l r : Expr) :=
   Expr.app (Expr.app op l) r
 
 def toACExpr (op l r : Expr) : MetaM (Array Expr × ACExpr) := do
   let (preExpr, vars) ←
     toPreExpr (mkApp2 op l r)
-    |>.run Std.HashSet.empty
+    |>.run ∅
   let vars := vars.toArray.insertionSort Expr.lt
-  let varMap := vars.foldl (fun xs x => xs.insert x xs.size) Std.HashMap.empty |>.get!
+  let varMap := vars.foldl (fun xs x => xs.insert x xs.size) (∅ : Std.HashMap Expr Nat) |>.get!
 
   return (vars, toACExpr varMap preExpr)
   where
@@ -124,7 +128,7 @@ def buildNormProof (preContext : PreContext) (l r : Expr) : MetaM (Lean.Expr × 
     let rhs := convert acExprNormed
     let proof := mkAppN (mkConst ``Context.eq_of_norm [u]) #[α, context, lhs, rhs, ←mkEqRefl (mkConst ``Bool.true)]
     let proofType ← mkEq (convertTarget vars acExpr) (convertTarget vars acExprNormed)
-    let proof ← mkExpectedTypeHint proof proofType
+    let proof := mkExpectedPropHint proof proofType
     return proof
   let some (_, _, tgt) := (← inferType proof).eq? | panic! "unexpected proof type"
   return (proof, tgt)

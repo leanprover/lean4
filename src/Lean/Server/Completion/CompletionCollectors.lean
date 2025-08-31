@@ -3,11 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Data.FuzzyMatching
-import Lean.Elab.Tactic.Doc
-import Lean.Server.Completion.CompletionResolution
-import Lean.Server.Completion.EligibleHeaderDecls
+public import Lean.Data.FuzzyMatching
+public import Lean.Elab.Tactic.Doc
+public import Lean.Server.Completion.CompletionResolution
+public import Lean.Server.Completion.EligibleHeaderDecls
+public import Lean.Server.RequestCancellation
+public import Lean.Server.Completion.CompletionUtils
+
+public section
 
 namespace Lean.Server.Completion
 open Elab
@@ -17,11 +23,6 @@ open FuzzyMatching
 
 section Infrastructure
 
-  structure ScoredCompletionItem where
-    item  : CompletionItem
-    score : Float
-    deriving Inhabited
-
   private structure Context where
     params            : CompletionParams
     completionInfoPos : Nat
@@ -30,18 +31,17 @@ section Infrastructure
   /-- Intermediate state while completions are being computed. -/
   private structure State where
     /-- All completion items and their fuzzy match scores so far. -/
-    items  : Array ScoredCompletionItem := #[]
+    items  : Array CompletionItem := #[]
 
   /--
   Monad used for completion computation that allows modifying a completion `State` and reading
   `CompletionParams`.
   -/
-  private abbrev M := ReaderT Context $ StateRefT State MetaM
+  private abbrev M := ReaderT Context $ StateRefT State $ CancellableT MetaM
 
   /-- Adds a new completion item to the state in `M`. -/
   private def addItem
       (item  : CompletionItem)
-      (score : Float)
       (id?   : Option CompletionIdentifier := none)
       : M Unit := do
     let ctx ← read
@@ -52,7 +52,7 @@ section Infrastructure
       : ResolvableCompletionItemData
     }
     let item := { item with data? := toJson data }
-    modify fun s => { s with items := s.items.push ⟨item, score⟩ }
+    modify fun s => { s with items := s.items.push item }
 
   /--
   Adds a new completion item with the given `label`, `id`, `kind` and `score` to the state in `M`.
@@ -62,36 +62,15 @@ section Infrastructure
       (label         : Name)
       (id            : CompletionIdentifier)
       (kind          : CompletionItemKind)
-      (score         : Float)
       : M Unit := do
     let env ← getEnv
-    let (docStringPrefix?, tags?) := Id.run do
+    let tags? := do
       let .const declName := id
-        | (none, none)
-      let some param := Linter.deprecatedAttr.getParam? env declName
-        | (none, none)
-      let docstringPrefix :=
-        if let some text := param.text? then
-          text
-        else if let some newName := param.newName? then
-          s!"`{declName}` has been deprecated, use `{newName}` instead."
-        else
-          s!"`{declName}` has been deprecated."
-      (some docstringPrefix, some #[CompletionItemTag.deprecated])
-    let docString? ← do
-      let .const declName := id
-        | pure none
-      findDocString? env declName
-    let doc? := do
-      let docValue ←
-        match docStringPrefix?, docString? with
-        | none,                 none           => none
-        | some docStringPrefix, none           => docStringPrefix
-        | none,                 docString      => docString
-        | some docStringPrefix, some docString => s!"{docStringPrefix}\n\n{docString}"
-      pure { value := docValue , kind := MarkupKind.markdown : MarkupContent }
-    let item := { label := label.toString, kind? := kind, documentation? := doc?, tags?}
-    addItem item score id
+        | none
+      guard <| Linter.isDeprecated env declName
+      some #[CompletionItemTag.deprecated]
+    let item := { label := label.toString, kind? := kind, tags? }
+    addItem item id
 
   private def getCompletionKindForDecl (constInfo : ConstantInfo) : M CompletionItemKind := do
     let env ← getEnv
@@ -104,7 +83,7 @@ section Infrastructure
         return CompletionItemKind.enum
       else
         return CompletionItemKind.struct
-    else if constInfo.isTheorem then
+    else if wasOriginallyTheorem env constInfo.name then
       return CompletionItemKind.event
     else if (← isProjectionFn constInfo.name) then
       return CompletionItemKind.field
@@ -116,17 +95,17 @@ section Infrastructure
       else
         return CompletionItemKind.constant
 
-  private def addUnresolvedCompletionItemForDecl (label : Name) (declName : Name) (score : Float) : M Unit := do
+  private def addUnresolvedCompletionItemForDecl (label : Name) (declName : Name) : M Unit := do
     if let some c := (← getEnv).find? declName then
-      addUnresolvedCompletionItem label (.const declName) (← getCompletionKindForDecl c) score
+      addUnresolvedCompletionItem label (.const declName) (← getCompletionKindForDecl c)
 
-  private def addKeywordCompletionItem (keyword : String) (score : Float) : M Unit := do
+  private def addKeywordCompletionItem (keyword : String) : M Unit := do
     let item := { label := keyword, detail? := "keyword", documentation? := none, kind? := CompletionItemKind.keyword }
-    addItem item score
+    addItem item
 
-  private def addNamespaceCompletionItem (ns : Name) (score : Float) : M Unit := do
+  private def addNamespaceCompletionItem (ns : Name) : M Unit := do
     let item := { label := ns.toString, detail? := "namespace", documentation? := none, kind? := CompletionItemKind.module }
-    addItem item score
+    addItem item
 
   private def runM
       (params            : CompletionParams)
@@ -134,10 +113,13 @@ section Infrastructure
       (ctx               : ContextInfo)
       (lctx              : LocalContext)
       (x                 : M Unit)
-      : IO (Array ScoredCompletionItem) :=
-    ctx.runMetaM lctx do
-      let (_, s) ← x.run ⟨params, completionInfoPos⟩ |>.run {}
-      return s.items
+      : CancellableM (Array CompletionItem) := do
+    let tk ← read
+    let r ← ctx.runMetaM lctx do
+      x.run ⟨params, completionInfoPos⟩ |>.run {} |>.run tk
+    match r with
+    | .error _ => throw .requestCancelled
+    | .ok (_, s) => return s.items
 
 end Infrastructure
 
@@ -158,7 +140,7 @@ section Utils
 
     Remark: `danglingDot == true` when the completion point is an identifier followed by `.`.
   -/
-  private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : Name) : MetaM (Option (Name × Float)) := do
+  private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : Name) : MetaM (Option Name) := do
     let some declName ← normPrivateName? declName
       | return none
     if !ns.isPrefixOf declName then
@@ -169,28 +151,45 @@ section Utils
       if id.isPrefixOf declName then
         let declName := declName.replacePrefix id Name.anonymous
         if declName.isAtomic && !declName.isAnonymous then
-          return some (declName, 1)
+          return some declName
     else if let (.str p₁ s₁, .str p₂ s₂) := (id, declName) then
       if p₁ == p₂ then
         -- If the namespaces agree, fuzzy-match on the trailing part
-        return fuzzyMatchScoreWithThreshold? s₁ s₂ |>.map (.mkSimple s₂, ·)
+        if s₁.charactersIn s₂ then
+          return some <| .mkSimple s₂
+        else
+          return none
       else if p₁.isAnonymous then
         -- If `id` is namespace-less, also fuzzy-match declaration names in arbitrary namespaces
         -- (but don't match the namespace itself).
         -- Penalize score by component length of added namespace.
-        return fuzzyMatchScoreWithThreshold? s₁ s₂ |>.map (declName, · / (p₂.getNumParts + 1).toFloat)
+        if s₁.charactersIn s₂ then
+          return some declName
+        else
+          return none
     return none
+
+  private def forEligibleDeclsWithCancellationM [Monad m] [MonadEnv m]
+      [MonadLiftT (ST IO.RealWorld) m] [MonadCancellable m] [MonadLiftT IO m]
+      (f : Name → ConstantInfo → m PUnit) : m PUnit := do
+    let _ ← StateT.run (s := 0) <| forEligibleDeclsM fun decl ci => do
+      modify (· + 1)
+      if (← get) >= 10000 then
+        RequestCancellation.check
+        set <| 0
+      f decl ci
 
 end Utils
 
 section IdCompletionUtils
 
-  private def matchAtomic (id : Name) (declName : Name) (danglingDot : Bool) : Option Float := do
+  private def matchAtomic (id : Name) (declName : Name) (danglingDot : Bool) : Bool :=
     if danglingDot then
-      none
-    match id, declName with
-    | .str .anonymous s₁, .str .anonymous s₂ => fuzzyMatchScoreWithThreshold? s₁ s₂
-    | _, _ => none
+      false
+    else
+      match id, declName with
+      | .str .anonymous s₁, .str .anonymous s₂ => s₁.charactersIn s₂
+      | _, _ => false
 
   /--
   Truncate the given identifier and make sure it has length `≤ newLength`.
@@ -214,76 +213,47 @@ section IdCompletionUtils
             (Name.mkStr p (s.extract 0 ⟨newLen - optDot - len⟩), newLen)
     (go id).1
 
-  def matchNamespace (ns : Name) (nsFragment : Name) (danglingDot : Bool) : Option Float :=
-    if danglingDot then
-      if nsFragment != ns && nsFragment.isPrefixOf ns then
-        some 1
-      else
-        none
-    else
-      match ns, nsFragment with
-      | .str p₁ s₁, .str p₂ s₂ =>
-        if p₁ == p₂ then fuzzyMatchScoreWithThreshold? s₂ s₁ else none
-      | _, _ => none
+  private def bestLabelForDecl? (ctx : ContextInfo) (declName : Name) (id : Name) (danglingDot : Bool) :
+      M (Option Name) := Prod.snd <$> StateT.run (s := none) do
+    let matchUsingNamespace (ns : Name) : StateT (Option Name) M Unit := do
+      let some label ← matchDecl? ns id danglingDot declName
+        | return
+      modify fun
+        | none =>
+          some label
+        | some bestLabel =>
+          -- for open namespaces `A` and `A.B` and a decl `A.B.c`, pick the decl `c` over `B.c`
+          if label.isSuffixOf bestLabel then
+            some label
+          else
+            some bestLabel
+    let rec visitNamespaces (ns : Name) : StateT (Option Name) M Unit := do
+      let Name.str p .. := ns
+        | return ()
+      matchUsingNamespace ns
+      visitNamespaces p
+    -- use current namespace
+    visitNamespaces ctx.currNamespace
+    -- use open decls
+    for openDecl in ctx.openDecls do
+      let OpenDecl.simple ns exs := openDecl
+        | pure ()
+      if exs.contains declName then
+        continue
+      matchUsingNamespace ns
+    matchUsingNamespace Name.anonymous
 
-  def completeNamespaces (ctx : ContextInfo) (id : Name) (danglingDot : Bool) : M Unit := do
+  private def completeNamespaces (ctx : ContextInfo) (id : Name) (danglingDot : Bool) : M Unit := do
     let env ← getEnv
-    let add (ns : Name) (ns' : Name) (score : Float) : M Unit :=
-      if danglingDot then
-        addNamespaceCompletionItem (ns.replacePrefix (ns' ++ id) Name.anonymous) score
-      else
-        addNamespaceCompletionItem (ns.replacePrefix ns' Name.anonymous) score
     env.getNamespaceSet |>.forM fun ns => do
       unless ns.isInternal || env.contains ns do -- Ignore internal and namespaces that are also declaration names
-        for openDecl in ctx.openDecls do
-          match openDecl with
-          | OpenDecl.simple ns' _      =>
-            if let some score := matchNamespace ns (ns' ++ id) danglingDot then
-              add ns ns' score
-              return ()
-          | _ => pure ()
-        -- use current namespace
-        let rec visitNamespaces (ns' : Name) : M Unit := do
-          if let some score := matchNamespace ns (ns' ++ id) danglingDot then
-            add ns ns' score
-          else
-            match ns' with
-            | Name.str p .. => visitNamespaces p
-            | _ => return ()
-        visitNamespaces ctx.currNamespace
+        let label? ← bestLabelForDecl? ctx ns id danglingDot
+        if let some bestLabel := label? then
+          addNamespaceCompletionItem bestLabel
 
 end IdCompletionUtils
 
 section DotCompletionUtils
-
-  private def unfoldeDefinitionGuarded? (e : Expr) : MetaM (Option Expr) :=
-    try unfoldDefinition? e catch _ => pure none
-
-  /-- Return `true` if `e` is a `declName`-application, or can be unfolded (delta-reduced) to one. -/
-  private partial def isDefEqToAppOf (e : Expr) (declName : Name) : MetaM Bool := do
-    let isConstOf := match e.getAppFn with
-      | .const name .. => (privateToUserName? name).getD name == declName
-      | _ => false
-    if isConstOf then
-      return true
-    let some e ← unfoldeDefinitionGuarded? e | return false
-    isDefEqToAppOf e declName
-
-  private def isDotCompletionMethod (typeName : Name) (info : ConstantInfo) : MetaM Bool :=
-    forallTelescopeReducing info.type fun xs _ => do
-      for x in xs do
-        let localDecl ← x.fvarId!.getDecl
-        let type := localDecl.type.consumeMData
-        if (← isDefEqToAppOf type typeName) then
-          return true
-      return false
-
-  /--
-  Checks whether the expected type of `info.type` can be reduced to an application of `typeName`.
-  -/
-  private def isDotIdCompletionMethod (typeName : Name) (info : ConstantInfo) : MetaM Bool := do
-    forallTelescopeReducing info.type fun _ type =>
-      isDefEqToAppOf type.consumeMData typeName
 
   /--
   Converts `n` to `Name.anonymous` if `n` is a private prefix (see `Lean.isPrivatePrefix`).
@@ -322,23 +292,59 @@ section DotCompletionUtils
   strip the private prefix from deep in the name, letting us reject most names without
   having to scan the full name first.
   -/
-  private def NameSetModPrivate := RBTree Name cmpModPrivate
+  private def NameSetModPrivate := Std.TreeSet Name cmpModPrivate
+
+  private def NameSetModPrivate.ofArray (names : Array Name) : NameSetModPrivate :=
+    Std.TreeSet.ofArray names cmpModPrivate
 
   /--
-    Given a type, try to extract relevant type names for dot notation field completion.
+    Given a type, try to extract relevant type names for dot notation field completion (for `s.f x₁ ... xₙ`).
     We extract the type name, parent struct names, and unfold the type.
     The process mimics the dot notation elaboration procedure at `App.lean` -/
-  private partial def getDotCompletionTypeNames (type : Expr) : MetaM NameSetModPrivate :=
-    return (← visit type |>.run RBTree.empty).2
-  where
-    visit (type : Expr) : StateRefT NameSetModPrivate MetaM Unit := do
-      let .const typeName _ := type.getAppFn | return ()
-      modify fun s => s.insert typeName
-      if isStructure (← getEnv) typeName then
-        for parentName in (← getAllParentStructures typeName) do
-          modify fun s => s.insert parentName
-      let some type ← unfoldeDefinitionGuarded? type | return ()
-      visit type
+  private def getDotCompletionTypeNameSet (type : Expr) : MetaM NameSetModPrivate := do
+    let mut set := .empty
+    for typeName in ← getDotCompletionTypeNames type do
+      set := set.insert typeName
+    return set
+
+  /-- Return `true` if `e` is a `declName`-application, or can be unfolded (delta-reduced) to one. -/
+  private partial def isDefEqToAppOf (e : Expr) (declName : Name) : MetaM Bool := do
+    let isConstOf := match e.getAppFn with
+      | .const name .. => (privateToUserName? name).getD name == declName
+      | _ => false
+    if isConstOf then
+      return true
+    let some e ← unfoldDefinitionGuarded? e | return false
+    isDefEqToAppOf e declName
+
+  private def isDotCompletionMethod (typeName : Name) (info : ConstantInfo) : MetaM Bool :=
+    forallTelescopeReducing info.type fun xs _ => do
+      for x in xs do
+        let localDecl ← x.fvarId!.getDecl
+        let type := localDecl.type.consumeMData
+        if (← isDefEqToAppOf type typeName) then
+          return true
+      return false
+
+  /--
+  Checks whether the type of `info.type` returns one of the type names in `typeNameSet`, for dot ident notation completion.
+  The process mimics the dotted identifier notation elaboration procedure at `Lean.Elab.App`.
+  -/
+  private partial def isDotIdCompletionMethod (typeNameSet : NameSetModPrivate) (info : ConstantInfo) : MetaM Bool := do
+    let rec visit (type : Expr) : MetaM Bool := do
+      let type ← try whnfCoreUnfoldingAnnotations type catch _ => pure type
+      if type.isForall then
+        forallTelescope type fun _ type => visit type
+      else
+        let type ← instantiateMVars type
+        let .const typeName _ := type.getAppFn | return false
+        if typeNameSet.contains typeName then
+          return true
+        else if let some type' ← unfoldDefinitionGuarded? type then
+          visit type'
+        else
+          return false
+    visit info.type
 
 end DotCompletionUtils
 
@@ -365,71 +371,45 @@ private def idCompletionCore
   if id.isAtomic then
     -- search for matches in the local context
     for localDecl in (← getLCtx) do
-      if let some score := matchAtomic id localDecl.userName danglingDot then
-        addUnresolvedCompletionItem localDecl.userName (.fvar localDecl.fvarId) (kind := CompletionItemKind.variable) score
+      if matchAtomic id localDecl.userName danglingDot then
+        addUnresolvedCompletionItem localDecl.userName (.fvar localDecl.fvarId) (kind := CompletionItemKind.variable)
   -- search for matches in the environment
   let env ← getEnv
-  forEligibleDeclsM fun declName c => do
-    let bestMatch? ← (·.2) <$> StateT.run (s := none) do
-      let matchUsingNamespace (ns : Name) : StateT (Option (Name × Float)) M Unit := do
-        let some (label, score) ← matchDecl? ns id danglingDot declName
-          | return
-        modify fun
-          | none =>
-            some (label, score)
-          | some (bestLabel, bestScore) =>
-            -- for open namespaces `A` and `A.B` and a decl `A.B.c`, pick the decl `c` over `B.c`
-            if label.isSuffixOf bestLabel then
-              some (label, score)
-            else
-              some (bestLabel, bestScore)
-      let rec visitNamespaces (ns : Name) : StateT (Option (Name × Float)) M Unit := do
-        let Name.str p .. := ns
-          | return ()
-        matchUsingNamespace ns
-        visitNamespaces p
-      -- use current namespace
-      visitNamespaces ctx.currNamespace
-      -- use open decls
-      for openDecl in ctx.openDecls do
-        let OpenDecl.simple ns exs := openDecl
-          | pure ()
-        if exs.contains declName then
-          continue
-        matchUsingNamespace ns
-      matchUsingNamespace Name.anonymous
-    if let some (bestLabel, bestScore) := bestMatch? then
-      addUnresolvedCompletionItem bestLabel (.const declName) (← getCompletionKindForDecl c) bestScore
-  let matchAlias (ns : Name) (alias : Name) : Option Float :=
+  forEligibleDeclsWithCancellationM fun declName c => do
+    let bestMatch? ← bestLabelForDecl? ctx declName id danglingDot
+    if let some bestLabel := bestMatch? then
+      addUnresolvedCompletionItem bestLabel (.const declName) (← getCompletionKindForDecl c)
+  RequestCancellation.check
+  let matchAlias (ns : Name) (alias : Name) : Bool :=
     -- Recall that aliases may not be atomic and include the namespace where they were created.
     if ns.isPrefixOf alias then
       let alias := alias.replacePrefix ns Name.anonymous
       matchAtomic id alias danglingDot
     else
-      none
+      false
   let eligibleHeaderDecls ← getEligibleHeaderDecls env
   -- Auxiliary function for `alias`
-  let addAlias (alias : Name) (declNames : List Name) (score : Float) : M Unit := do
+  let addAlias (alias : Name) (declNames : List Name) : M Unit := do
     declNames.forM fun declName => do
       if allowCompletion eligibleHeaderDecls env declName then
-        addUnresolvedCompletionItemForDecl (.mkSimple alias.getString!) declName score
+        addUnresolvedCompletionItemForDecl (.mkSimple alias.getString!) declName
   -- search explicitly open `ids`
   for openDecl in ctx.openDecls do
     match openDecl with
     | OpenDecl.explicit openedId resolvedId =>
       if allowCompletion eligibleHeaderDecls env resolvedId then
-        if let some score := matchAtomic id openedId danglingDot then
-          addUnresolvedCompletionItemForDecl (.mkSimple openedId.getString!) resolvedId score
+        if matchAtomic id openedId danglingDot then
+          addUnresolvedCompletionItemForDecl (.mkSimple openedId.getString!) resolvedId
     | OpenDecl.simple ns _      =>
       getAliasState env |>.forM fun alias declNames => do
-        if let some score := matchAlias ns alias then
-          addAlias alias declNames score
+        if matchAlias ns alias then
+          addAlias alias declNames
   -- search for aliases
   getAliasState env |>.forM fun alias declNames => do
     -- use current namespace
     let rec searchAlias (ns : Name) : M Unit := do
-      if let some score := matchAlias ns alias then
-        addAlias alias declNames score
+      if matchAlias ns alias then
+        addAlias alias declNames
       else
         match ns with
         | Name.str p ..  => searchAlias p
@@ -440,8 +420,7 @@ private def idCompletionCore
     if let .str .anonymous s := id then
       let keywords := Parser.getTokenTable env
       for keyword in keywords.findPrefix s do
-        if let some score := fuzzyMatchScoreWithThreshold? s keyword then
-          addKeywordCompletionItem keyword score
+        addKeywordCompletionItem keyword
   -- Search namespaces
   completeNamespaces ctx id danglingDot
 
@@ -454,7 +433,7 @@ def idCompletion
     (id                : Name)
     (hoverInfo         : HoverInfo)
     (danglingDot       : Bool)
-    : IO (Array ScoredCompletionItem) :=
+    : CancellableM (Array CompletionItem) :=
   runM params completionInfoPos ctx lctx do
     idCompletionCore ctx stx id hoverInfo danglingDot
 
@@ -463,16 +442,16 @@ def dotCompletion
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
     (info              : TermInfo)
-    : IO (Array ScoredCompletionItem) :=
+    : CancellableM (Array CompletionItem) :=
   runM params completionInfoPos ctx info.lctx do
     let nameSet ← try
-      getDotCompletionTypeNames (← instantiateMVars (← inferType info.expr))
+      getDotCompletionTypeNameSet (← instantiateMVars (← inferType info.expr))
     catch _ =>
-      pure RBTree.empty
+      pure Std.TreeSet.empty
     if nameSet.isEmpty then
       return
 
-    forEligibleDeclsM fun declName c => do
+    forEligibleDeclsWithCancellationM fun declName c => do
       let unnormedTypeName := declName.getPrefix
       if ! nameSet.contains unnormedTypeName then
         return
@@ -482,7 +461,7 @@ def dotCompletion
       if ! (← isDotCompletionMethod typeName c) then
         return
       let completionKind ← getCompletionKindForDecl c
-      addUnresolvedCompletionItem (.mkSimple c.name.getString!) (.const c.name) (kind := completionKind) 1
+      addUnresolvedCompletionItem (.mkSimple c.name.getString!) (.const c.name) (kind := completionKind)
 
 def dotIdCompletion
     (params            : CompletionParams)
@@ -491,21 +470,18 @@ def dotIdCompletion
     (lctx              : LocalContext)
     (id                : Name)
     (expectedType?     : Option Expr)
-    : IO (Array ScoredCompletionItem) :=
+    : CancellableM (Array CompletionItem) :=
   runM params completionInfoPos ctx lctx do
     let some expectedType := expectedType?
       | return ()
 
-    let resultTypeFn := (← instantiateMVars expectedType).cleanupAnnotations.getAppFn.cleanupAnnotations
-    let .const .. := resultTypeFn
-      | return ()
+    let typeNames ← getDotIdCompletionTypeNames expectedType
+    if typeNames.isEmpty then
+      return ()
 
-    let nameSet ← try
-      getDotCompletionTypeNames resultTypeFn
-    catch _ =>
-      pure RBTree.empty
+    let nameSet := NameSetModPrivate.ofArray typeNames
 
-    forEligibleDeclsM fun declName c => do
+    forEligibleDeclsWithCancellationM fun declName c => do
       let unnormedTypeName := declName.getPrefix
       if ! nameSet.contains unnormedTypeName then
         return
@@ -513,18 +489,17 @@ def dotIdCompletion
       let some declName ← normPrivateName? declName
         | return
 
-      let typeName := declName.getPrefix
-      if ! (← isDotIdCompletionMethod typeName c) then
+      if ! (← isDotIdCompletionMethod nameSet c) then
         return
 
       let completionKind ← getCompletionKindForDecl c
       if id.isAnonymous then
         -- We're completing a lone dot => offer all decls of the type
-        addUnresolvedCompletionItem (.mkSimple c.name.getString!) (.const c.name) completionKind 1
+        addUnresolvedCompletionItem (.mkSimple c.name.getString!) (.const c.name) completionKind
         return
 
-      let some (label, score) ← matchDecl? typeName id (danglingDot := false) declName | pure ()
-      addUnresolvedCompletionItem label (.const c.name) completionKind score
+      let some label ← matchDecl? declName.getPrefix id (danglingDot := false) declName | pure ()
+      addUnresolvedCompletionItem label (.const c.name) completionKind
 
 def fieldIdCompletion
     (params            : CompletionParams)
@@ -533,15 +508,49 @@ def fieldIdCompletion
     (lctx              : LocalContext)
     (id                : Option Name)
     (structName        : Name)
-    : IO (Array ScoredCompletionItem) :=
+    : CancellableM (Array CompletionItem) :=
   runM params completionInfoPos ctx lctx do
     let idStr := id.map (·.toString) |>.getD ""
     let fieldNames := getStructureFieldsFlattened (← getEnv) structName (includeSubobjectFields := false)
     for fieldName in fieldNames do
       let .str _ fieldName := fieldName | continue
-      let some score := fuzzyMatchScoreWithThreshold? idStr fieldName | continue
+      if ! idStr.charactersIn fieldName then
+        continue
       let item := { label := fieldName, detail? := "field", documentation? := none, kind? := CompletionItemKind.field }
-      addItem item score
+      addItem item
+
+/--
+Generate completion items for a syntax object generated by `identWithPartialTrailingDot` given a
+known collection of completion candidates. Should only be used in contexts where namespaces do not
+affect the set of eligible completion candidates.
+-/
+private def trailingDotCompletion [ForIn Id Coll (Name × α)]
+    (entries : Coll) (stx : Syntax) (caps : ClientCapabilities) (ctx : ContextInfo)
+    (mkItem : Name → α → Option InsertReplaceEdit → CompletionItem) :
+    Array CompletionItem := Id.run do
+  let (partialName, trailingDot) :=
+    match stx.getSubstring? (withLeading := false) (withTrailing := false) with
+    | none => ("", false)  -- the `ident` is `missing`, list all options
+    | some ss =>
+      if !ss.str.atEnd ss.stopPos && ss.str.get ss.stopPos == '.' then
+        -- include trailing dot, which is not parsed by `ident`
+        (ss.toString ++ ".", true)
+      else
+        (ss.toString, false)
+  let mut items := #[]
+  for (name, value) in entries do
+    if partialName.charactersIn name.toString then
+      let textEdit? :=
+        if !caps.textDocument?.any (·.completion?.any (·.completionItem?.any (·.insertReplaceSupport?.any (·)))) then
+          none -- InsertReplaceEdit not supported by client
+        else if let some ⟨start, stop⟩ := stx.getRange? then
+          let stop := if trailingDot then stop + ' ' else stop
+          let range := ⟨ctx.fileMap.utf8PosToLspPos start, ctx.fileMap.utf8PosToLspPos stop⟩
+          some { newText := name.toString, insert := range, replace := range : InsertReplaceEdit }
+        else
+          none
+      items := items.push (mkItem name value textEdit?)
+  return items
 
 def optionCompletion
     (params            : CompletionParams)
@@ -549,62 +558,66 @@ def optionCompletion
     (ctx               : ContextInfo)
     (stx               : Syntax)
     (caps              : ClientCapabilities)
-    : IO (Array ScoredCompletionItem) :=
+    : IO (Array CompletionItem) :=
   ctx.runMetaM {} do
-    let (partialName, trailingDot) :=
-      -- `stx` is from `"set_option" >> ident`
-      match stx[1].getSubstring? (withLeading := false) (withTrailing := false) with
-      | none => ("", false)  -- the `ident` is `missing`, list all options
-      | some ss =>
-        if !ss.str.atEnd ss.stopPos && ss.str.get ss.stopPos == '.' then
-          -- include trailing dot, which is not parsed by `ident`
-          (ss.toString ++ ".", true)
-        else
-          (ss.toString, false)
     -- HACK(WN): unfold the type so ForIn works
-    let (decls : RBMap _ _ _) ← getOptionDecls
+    let (decls : Std.TreeMap _ _ _) ← getOptionDecls
     let opts ← getOptions
-    let mut items := #[]
-    for ⟨name, decl⟩ in decls do
-      if let some score := fuzzyMatchScoreWithThreshold? partialName name.toString then
-        let textEdit :=
-          if !caps.textDocument?.any (·.completion?.any (·.completionItem?.any (·.insertReplaceSupport?.any (·)))) then
-            none -- InsertReplaceEdit not supported by client
-          else if let some ⟨start, stop⟩ := stx[1].getRange? then
-            let stop := if trailingDot then stop + ' ' else stop
-            let range := ⟨ctx.fileMap.utf8PosToLspPos start, ctx.fileMap.utf8PosToLspPos stop⟩
-            some { newText := name.toString, insert := range, replace := range : InsertReplaceEdit }
-          else
-            none
-        items := items.push ⟨{
-            label := name.toString
-            detail? := s!"({opts.get name decl.defValue}), {decl.descr}"
-            documentation? := none,
-            kind? := CompletionItemKind.property -- TODO: investigate whether this is the best kind for options.
-            textEdit? := textEdit
-            data? := toJson {
-              params,
-              cPos := completionInfoPos,
-              id? := none : ResolvableCompletionItemData
-            }
-          }, score⟩
-    return items
+    -- `stx` is from `"set_option " >> ident`
+    return trailingDotCompletion decls stx[1] caps ctx fun name decl textEdit? => {
+      label := name.toString
+      detail? := s!"({opts.get name decl.defValue}), {decl.descr}"
+      documentation? := none,
+      kind? := CompletionItemKind.property -- TODO: investigate whether this is the best kind for options.
+      textEdit?
+      data? := toJson {
+        params
+        cPos := completionInfoPos
+        id? := none : ResolvableCompletionItemData
+      }
+    }
+
+def errorNameCompletion
+    (params            : CompletionParams)
+    (completionInfoPos : Nat)
+    (ctx               : ContextInfo)
+    (partialId         : Syntax)
+    (caps              : ClientCapabilities)
+    : IO (Array CompletionItem) :=
+  ctx.runMetaM {} do
+    let explanations := getErrorExplanationsRaw (← getEnv)
+    return trailingDotCompletion explanations partialId caps ctx fun name explan textEdit? => {
+      label := name.toString,
+      detail? := "error name",
+      documentation? := some {
+        kind := .markdown,
+        value := explan.summaryWithSeverity
+      }
+      -- TODO: whatever we decide about the kind for options above is also likely relevant here
+      kind? := CompletionItemKind.property
+      textEdit?
+      tags? := explan.metadata.removedVersion?.map fun _ => #[CompletionItemTag.deprecated]
+      data? := toJson {
+        params
+        cPos := completionInfoPos
+        id? := none : ResolvableCompletionItemData
+      }
+    }
 
 def tacticCompletion
     (params            : CompletionParams)
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
-    : IO (Array ScoredCompletionItem) := ctx.runMetaM .empty do
+    : IO (Array CompletionItem) := ctx.runMetaM .empty do
   let allTacticDocs ← Tactic.Doc.allTacticDocs
-  let items : Array ScoredCompletionItem := allTacticDocs.map fun tacticDoc =>
-    ⟨{
+  let items : Array CompletionItem := allTacticDocs.map fun tacticDoc => {
       label          := tacticDoc.userName
       detail?        := none
       documentation? := tacticDoc.docString.map fun docString =>
         { value := docString, kind := MarkupKind.markdown : MarkupContent }
       kind?          := CompletionItemKind.keyword
       data?          := toJson { params, cPos := completionInfoPos, id? := none : ResolvableCompletionItemData }
-    }, 1⟩
+    }
   return items
 
 end Lean.Server.Completion

@@ -121,6 +121,51 @@ where
   go : ProofM Expr := do
     mkContext (← x)
 
+partial def EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := do caching c do
+  match c.h with
+  | .core a b lhs rhs =>
+    let h ← match (← isCommutative), (← hasNeutral) with
+      | false, false => mkAPrefix ``AC.eq_norm_a
+      | false, true  => mkAIPrefix ``AC.eq_norm_ai
+      | true,  false => mkACPrefix ``AC.eq_norm_ac
+      | true,  true  => mkACIPrefix ``AC.eq_norm_aci
+    return mkApp6 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← mkEqProof a b)
+  | .erase_dup c₁ =>
+    let h ← mkDupPrefix ``AC.eq_erase_dup
+    return mkApp6 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c₁.toExprProof)
+  | .erase0 c₁ =>
+    let h ← mkAIPrefix ``AC.eq_erase0
+    return mkApp6 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c₁.toExprProof)
+  | .simp_exact isLhs c₁ c₂ =>
+    let h ← mkPrefix <| if isLhs then ``AC.eq_simp_lhs_exact else ``AC.eq_simp_rhs_exact
+    let o := if isLhs then c₂.rhs else c₂.lhs
+    return mkApp5 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl o) (← c₁.toExprProof) (← c₂.toExprProof)
+  | .simp_prefix isLhs tail c₁ c₂ =>
+    let h ← mkAPrefix <| if isLhs then ``AC.eq_simp_lhs_prefix else ``AC.eq_simp_rhs_prefix
+    let s' := if isLhs then c.lhs else c.rhs
+    return mkApp9 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl tail) (← mkSeqDecl c₂.lhs) (← mkSeqDecl c₂.rhs) (← mkSeqDecl s')
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .simp_suffix isLhs head c₁ c₂ =>
+    let h ← mkAPrefix <| if isLhs then ``AC.eq_simp_lhs_suffix else ``AC.eq_simp_rhs_suffix
+    let s' := if isLhs then c.lhs else c.rhs
+    return mkApp9 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl head) (← mkSeqDecl c₂.lhs) (← mkSeqDecl c₂.rhs) (← mkSeqDecl s')
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .simp_middle isLhs head tail c₁ c₂ =>
+    let h ← mkAPrefix <| if isLhs then ``AC.eq_simp_lhs_middle else ``AC.eq_simp_rhs_middle
+    let s' := if isLhs then c.lhs else c.rhs
+    return mkApp10 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl head) (← mkSeqDecl tail) (← mkSeqDecl c₂.lhs) (← mkSeqDecl c₂.rhs) (← mkSeqDecl s')
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .simp_ac isLhs s c₁ c₂ =>
+    let h ← mkACPrefix <| if isLhs then ``AC.eq_simp_lhs_ac else ``AC.eq_simp_rhs_ac
+    let s' := if isLhs then c.lhs else c.rhs
+    return mkApp9 h (← mkSeqDecl s) (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c₂.lhs) (← mkSeqDecl c₂.rhs) (← mkSeqDecl s')
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .swap c =>
+    let h ← mkPrefix ``AC.eq_orient
+    return mkApp3 h (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) (← c.toExprProof)
+  | .superpose_prefix .. => throwError "NIY"
+  | .superpose_ac .. => throwError "NIY"
+
 partial def DiseqCnstr.toExprProof (c : DiseqCnstr) : ProofM Expr := do caching c do
   match c.h with
   | .core a b lhs rhs =>
@@ -133,7 +178,33 @@ partial def DiseqCnstr.toExprProof (c : DiseqCnstr) : ProofM Expr := do caching 
   | .erase_dup c₁ =>
     let h ← mkDupPrefix ``AC.diseq_erase_dup
     return mkApp6 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c₁.toExprProof)
-  | _ => throwError "NIY"
+  | .erase0 c₁ =>
+    let h ← mkAIPrefix ``AC.diseq_erase0
+    return mkApp6 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c₁.toExprProof)
+  | .simp_exact isLhs c₁ c₂ =>
+    let h ← mkPrefix <| if isLhs then ``AC.diseq_simp_lhs_exact else ``AC.diseq_simp_rhs_exact
+    let o := if isLhs then c₂.rhs else c₂.lhs
+    return mkApp5 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl o) (← c₁.toExprProof) (← c₂.toExprProof)
+  | .simp_prefix isLhs tail c₁ c₂ =>
+    let h ← mkAPrefix <| if isLhs then ``AC.diseq_simp_lhs_prefix else ``AC.diseq_simp_rhs_prefix
+    let s' := if isLhs then c.lhs else c.rhs
+    return mkApp9 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl tail) (← mkSeqDecl c₂.lhs) (← mkSeqDecl c₂.rhs) (← mkSeqDecl s')
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .simp_suffix isLhs head c₁ c₂ =>
+    let h ← mkAPrefix <| if isLhs then ``AC.diseq_simp_lhs_suffix else ``AC.diseq_simp_rhs_suffix
+    let s' := if isLhs then c.lhs else c.rhs
+    return mkApp9 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl head) (← mkSeqDecl c₂.lhs) (← mkSeqDecl c₂.rhs) (← mkSeqDecl s')
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .simp_middle isLhs head tail c₁ c₂ =>
+    let h ← mkAPrefix <| if isLhs then ``AC.diseq_simp_lhs_middle else ``AC.diseq_simp_rhs_middle
+    let s' := if isLhs then c.lhs else c.rhs
+    return mkApp10 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl head) (← mkSeqDecl tail) (← mkSeqDecl c₂.lhs) (← mkSeqDecl c₂.rhs) (← mkSeqDecl s')
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .simp_ac isLhs s c₁ c₂ =>
+    let h ← mkACPrefix <| if isLhs then ``AC.diseq_simp_lhs_ac else ``AC.diseq_simp_rhs_ac
+    let s' := if isLhs then c.lhs else c.rhs
+    return mkApp9 h (← mkSeqDecl s) (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c₂.lhs) (← mkSeqDecl c₂.rhs) (← mkSeqDecl s')
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
 
 def DiseqCnstr.setUnsat (c : DiseqCnstr) : ACM Unit := do
   let h ← withProofContext do

@@ -91,18 +91,18 @@ local macro "gen_cnstr_fns " cnstr:ident : command =>
 
   private def $(mkId `simplifyLhsWithA) (c : $cnstr) (c' : EqCnstr) (r : AC.SubseqResult) : $cnstr :=
     match r with
-    | .exact    => { c with lhs := c'.rhs, h := .simp_exact (lhs := true) c c' }
-    | .prefix s => { c with lhs := c'.rhs ++ s, h := .simp_prefix (lhs := true) s c c' }
-    | .suffix s => { c with lhs := s ++ c'.rhs, h := .simp_suffix (lhs := true) s c c' }
-    | .middle p s => { c with lhs := p ++ c'.rhs ++ s, h := .simp_middle (lhs := true) p s c c' }
+    | .exact    => { c with lhs := c'.rhs, h := .simp_exact (lhs := true) c' c }
+    | .prefix s => { c with lhs := c'.rhs ++ s, h := .simp_prefix (lhs := true) s c' c }
+    | .suffix s => { c with lhs := s ++ c'.rhs, h := .simp_suffix (lhs := true) s c' c }
+    | .middle p s => { c with lhs := p ++ c'.rhs ++ s, h := .simp_middle (lhs := true) p s c' c }
     | .false => c
 
   private def $(mkId `simplifyRhsWithA) (c : $cnstr) (c' : EqCnstr) (r : AC.SubseqResult) : $cnstr :=
     match r with
-    | .exact    => { c with rhs := c'.rhs, h := .simp_exact (lhs := false) c c' }
-    | .prefix s => { c with rhs := c'.rhs ++ s, h := .simp_prefix (lhs := false) s c c' }
-    | .suffix s => { c with rhs := s ++ c'.rhs, h := .simp_suffix (lhs := false) s c c' }
-    | .middle p s => { c with rhs := p ++ c'.rhs ++ s, h := .simp_middle (lhs := false) p s c c' }
+    | .exact    => { c with rhs := c'.rhs, h := .simp_exact (lhs := false) c' c }
+    | .prefix s => { c with rhs := c'.rhs ++ s, h := .simp_prefix (lhs := false) s c' c }
+    | .suffix s => { c with rhs := s ++ c'.rhs, h := .simp_suffix (lhs := false) s c' c }
+    | .middle p s => { c with rhs := p ++ c'.rhs ++ s, h := .simp_middle (lhs := false) p s c' c }
     | .false => c
 
   /-- Simplifies `c` using the basis when `(← isCommutative)` is `false` -/
@@ -135,14 +135,14 @@ local macro "gen_cnstr_fns " cnstr:ident : command =>
 
   private def $(mkId `simplifyLhsWithAC) (c : $cnstr) (c' : EqCnstr) (r : AC.SubsetResult) : $cnstr :=
     match r with
-    | .exact    => { c with lhs := c'.rhs, h := .simp_exact (lhs := true) c c' }
-    | .strict s => { c with lhs := c'.rhs.union s, h := .simp_ac (lhs := true) s c c' }
+    | .exact    => { c with lhs := c'.rhs, h := .simp_exact (lhs := true) c' c }
+    | .strict s => { c with lhs := c'.rhs.union s, h := .simp_ac (lhs := true) s c' c }
     | .false => c
 
   private def $(mkId `simplifyRhsWithAC) (c : $cnstr) (c' : EqCnstr) (r : AC.SubsetResult) : $cnstr :=
     match r with
-    | .exact    => { c with rhs := c'.rhs, h := .simp_exact (lhs := false) c c' }
-    | .strict s => { c with rhs := c'.rhs.union s, h := .simp_ac (lhs := false) s c c' }
+    | .exact    => { c with rhs := c'.rhs, h := .simp_exact (lhs := false) c' c }
+    | .strict s => { c with rhs := c'.rhs.union s, h := .simp_ac (lhs := false) s c' c }
     | .false => c
 
   /--

@@ -8,7 +8,10 @@ module
 prelude
 public import Lake.Util.Log
 import all Init.Data.String.Extra
+import Lake.Util.JsonObject
 import Lake.Util.Proc
+
+open Lean
 
 namespace Lake
 
@@ -87,8 +90,40 @@ public def uriEncodeChar (c : Char) (s := "") : String :=
 public def uriEncode (s : String) : String :=
   s.foldl (init := "") fun s c => uriEncodeChar c s
 
+/--
+Performs a HTTP `GET` request of a URL (using `curl` with JSON output) and, if successful,
+return the body.  Otherwise, returns `none` on a 404 and errors on anything else.
+-/
+public def getUrl?
+  (url : String) (headers : Array String := #[])
+: LogIO (Option String) := withLogErrorPos do
+  let args := #[
+      "-s", "-L", "-w", "%{stderr}%{json}\n",
+      "--retry", "3" -- intermittent network errors can occur
+  ]
+  let args := headers.foldl (init := args) (· ++ #["-H", ·])
+  let out ← captureProc' {cmd := "curl", args := args.push url}
+  match Json.parse out.stderr >>= JsonObject.fromJson? with
+  | .ok data =>
+    let code ← id do
+      match (data.get? "response_code" <|> data.get? "http_code") with
+      | .ok (some code) => return code
+      | .ok none => error s!"curl's JSON output did not contain a response code"
+      | .error e => error s!"curl's JSON output contained an invalid JSON response code: {e}"
+    if code == 200 then
+      return some out.stdout.trim
+    else if code == 404 then
+      return none
+    else
+      error s!"failed to GET URL, error {code}"
+  | .error e =>
+    error s!"curl produced invalid JSON output: {e}"
+
 /-- Perform a HTTP `GET` request of a URL (using `curl`) and return the body. -/
 public def getUrl (url : String) (headers : Array String := #[]) : LogIO String := do
-  let args := #["-s", "-L", "--retry", "3"] -- intermittent network errors can occur
+  let args := #[
+      "-s", "-L",
+      "--retry", "3" -- intermittent network errors can occur
+  ]
   let args := headers.foldl (init := args) (· ++ #["-H", ·])
   captureProc {cmd := "curl", args := args.push url}

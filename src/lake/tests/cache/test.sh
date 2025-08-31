@@ -5,6 +5,7 @@ source ../common.sh
 
 # Test the functionality of the Lake artifact cache
 
+# Store Lake cache in a local directory
 TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 CACHE_DIR="$TEST_DIR/.lake/cache"
 export LAKE_CACHE_DIR="$CACHE_DIR"

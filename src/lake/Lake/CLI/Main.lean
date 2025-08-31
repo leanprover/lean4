@@ -319,6 +319,7 @@ namespace cache
 protected def get : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
+  let scope? := opts.scope?
   --let mappings? ← takeArg?
   noArgsRem do
   let cfg ← mkLoadConfig opts
@@ -328,7 +329,7 @@ protected def get : CliM PUnit := do
     | if ws.lakeEnv.cacheArtifactEndpoint?.isNone then
         logError "the LAKE_CACHE_ARTIFACT_ENDPOINT environment variable must be set for `cache get`"
       if ws.lakeEnv.cacheRevisionEndpoint?.isNone then
-        logError "the LAKE_CACHE_REVISION_ENDPOINT environment variable must be set for `cache put`"
+        logError "the LAKE_CACHE_REVISION_ENDPOINT environment variable must be set for `cache get`"
       exit 1
   let service : CacheService := {artEndpoint, revEndpoint}
   let cache := ws.lakeCache
@@ -337,8 +338,9 @@ protected def get : CliM PUnit := do
     if (← repo.hasDiff) then
       logWarning s!"{pkg.name}: package has changes; only artifacts for committed code will be downloaded"
     let rev ← repo.getHeadRevision
-    let scope := pkg.cacheScope
-    let map : CacheMap ← service.downloadRevisionOutputs rev scope
+    let scope := scope?.getD pkg.cacheScope
+    let path := cache.revisionPath scope rev
+    let map ← service.downloadRevisionOutputs rev path scope
     cache.writeMap scope map
     let descrs ← map.collectOutputDescrs
     service.downloadArtifacts cache descrs scope
@@ -370,8 +372,8 @@ protected def put : CliM PUnit := do
   let map ← CacheMap.load file
   let descrs ← map.collectOutputDescrs
   let paths ← ws.lakeCache.getArtifactPaths descrs
-  service.uploadRevisionOutputs rev file scope
   service.uploadArtifacts ⟨descrs, rfl⟩ paths scope
+  service.uploadRevisionOutputs rev file scope
 
 protected def add : CliM PUnit := do
   processOptions lakeOption

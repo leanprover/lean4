@@ -28,19 +28,23 @@ public abbrev CacheMap := Std.HashMap Hash Json
 namespace CacheMap
 
 /-- Parse a `Cache` from a JSON Lines string. -/
-public partial def parse (contents : String) : LogIO CacheMap := do
+public partial def parse (contents : String) : LoggerIO CacheMap := do
   let rec loop (i : Nat) (cache : CacheMap) (stopPos pos : String.Pos) := do
     let endPos := contents.posOfAux '\n' stopPos pos
+    let line := contents.extract pos endPos
+    if line.trim.isEmpty then
+      return cache
+    let cache ← id do
+      match Json.parse line >>= fromJson? with
+      | .ok (inputHash, arts) =>
+        return cache.insert inputHash arts
+      | .error e =>
+        logWarning s!"invalid JSON on line {i}: {e}"
+        return cache
     if h : contents.atEnd endPos then
       return cache
     else
-      let line := contents.extract pos endPos
-      match Json.parse line >>= fromJson? with
-      | .ok (inputHash, arts) =>
-        loop (i+1) (cache.insert inputHash arts) stopPos (contents.next' endPos h)
-      | .error e =>
-        logWarning s!"invalid JSON on line {i}: {e}"
-        loop (i+1) cache stopPos (contents.next' endPos h)
+      loop (i+1) cache stopPos (contents.next' endPos h)
   loop 1 {} contents.endPos 0
 
 @[inline] private partial def loadCore
@@ -232,21 +236,29 @@ public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : Lo
   | .error (.noFileOrDirectory ..) => return none
   | .error e => error s!"{path}: read failed: {e}"
 
+/-- The directory where input-to-output mappings of downloaded package revisions are cached. -/
+@[inline] public def revisionDir (cache : Cache) : FilePath :=
+  cache.dir / "revisions"
+
+/-- Returns path to the input-to-output mappings of a downloaded package revision. -/
+@[inline] public def revisionPath (cache : Cache) (scope : String) (rev : String)   : FilePath :=
+  cache.revisionDir / scope / s!"{rev}.jsonl"
+
 end Cache
 
 /-- Uploads a file to an online bucket using the Amazon S3 protocol. -/
 def uploadS3
   (file : FilePath) (contentType : String) (url : String) (key : String)
-: LogIO Unit := do
-  logInfo s!"uploading {file} to {url}"
+: LoggerIO Unit := do
   proc {
     cmd := "curl"
     args := #[
+      "-s",
       "--aws-sigv4", "aws:amz:auto:s3", "--user", key,
       "-X", "PUT", "-T", file.toString, url,
       "-H",  s!"Content-Type: {contentType}"
     ]
-  }
+  } (quiet := true)
 
 /--
 Cache service description.
@@ -265,45 +277,76 @@ namespace CacheService
 public def artifactContentType : String := "application/vnd.reservoir.artifact"
 
 public def artifactUrl (contentHash : Hash) (scope : String) (service : CacheService) : String :=
-  s!"{service.artEndpoint}/{uriEncode scope}/{contentHash}.art"
+  let scope := "/".intercalate <| scope.split (· == '/') |>.map uriEncode
+  s!"{service.artEndpoint}/{scope}/{contentHash}.art"
 
 public def downloadArtifact
-  (cache : Cache) (descr : ArtifactDescr) (scope : String) (service : CacheService)
-: LogIO Unit :=
+  (cache : Cache) (descr : ArtifactDescr) (scope : String) (service : CacheService) (force := false)
+: LoggerIO Unit := do
   let url := service.artifactUrl descr.hash scope
   let path := cache.artifactDir / descr.toFilePath
+  if (← path.pathExists) && !force then
+    return
+  logInfo s!"\
+    {scope}: downloading artifact {descr.hash}\
+    \n  local path: {path}\
+    \n  remote URL: {url}"
   download url path
 
 public def downloadArtifacts
-  (cache : Cache) (descrs : Array ArtifactDescr) (scope : String) (service : CacheService)
-: LogIO Unit := do
-  descrs.forM fun descr => downloadArtifact cache descr scope service
+  (cache : Cache) (descrs : Array ArtifactDescr) (scope : String) (service : CacheService) (force := false)
+: LoggerIO Unit := do
+  descrs.forM fun descr => downloadArtifact cache descr scope service force
 
 public def uploadArtifact
   (contentHash : Hash) (art : FilePath) (scope : String) (service : CacheService)
-: LogIO Unit :=
+: LoggerIO Unit := do
   let url := service.artifactUrl contentHash scope
+  logInfo s!"\
+    {scope}: uploading artifact {contentHash}\
+    \n  local path: {art}\
+    \n  remote URL: {url}"
   uploadS3 art artifactContentType url service.key
 
 public def uploadArtifacts
   (descrs : Vector ArtifactDescr n) (paths : Vector FilePath n) (scope : String)  (service : CacheService)
-: LogIO Unit := n.forM fun n h => uploadArtifact descrs[n].hash paths[n] scope service
+: LoggerIO Unit := n.forM fun n h => uploadArtifact descrs[n].hash paths[n] scope service
 
 /-- The MIME type of Lake/Reservoir input-to-output mappings for a Git revision. -/
 public def mapContentType : String := "application/vnd.reservoir.outputs+json-lines"
 
 public def revisionUrl (rev : String) (scope : String) (service : CacheService) :=
-  s!"{service.revEndpoint}/{uriEncode scope}/{rev}.jsonl"
+  let scope := "/".intercalate <| scope.split (· == '/') |>.map uriEncode
+  s!"{service.revEndpoint}/{scope}/{rev}.jsonl"
 
-public def downloadRevisionOutputs (rev : String) (scope : String) (service : CacheService) : LogIO CacheMap := do
+public def downloadRevisionOutputs
+  (rev : String) (path : FilePath) (scope : String) (service : CacheService) (force := false)
+: LoggerIO CacheMap := do
+  if (← path.pathExists) && !force then
+    let contents ← IO.FS.readFile path
+    return ← CacheMap.parse contents
   let url := service.revisionUrl rev scope
-  let r ← try getUrl url catch e =>
-    logError s!"{scope}: revision {rev} not found at endpoint"
+  logInfo s!"\
+    {scope}: downloading outputs for {rev}\
+    \n  local path: {path}\
+    \n  remote URL: {url}"
+  let contents? ← try getUrl? url catch e =>
+    logError s!"{scope}: output lookup failed"
     throw e
-  CacheMap.parse r
+  let some contents := contents?
+    | error s!"{scope}: outputs not found for revision {rev}"
+  createParentDirs path
+  IO.FS.writeFile path contents
+  CacheMap.parse contents
 
 public def uploadRevisionOutputs
   (rev : String) (outputs : FilePath) (scope : String) (service : CacheService)
-: LogIO Unit := uploadS3 outputs mapContentType (service.revisionUrl rev scope) service.key
+: LoggerIO Unit := do
+  let url := service.revisionUrl rev scope
+  logInfo s!"\
+    {scope}: uploading outputs for {rev}\
+    \n  local path: {outputs}\
+    \n  remote URL: {url}"
+  uploadS3 outputs mapContentType url service.key
 
 end CacheService

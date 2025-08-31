@@ -196,7 +196,7 @@ def saveDiseq (c : DiseqCnstr) : ACM Unit := do
 
 def DiseqCnstr.assert (c : DiseqCnstr) : ACM Unit := do
   let c ← c.eraseDup
-  -- let c ← c.simplify -- TODO: uncomment after implementing proof generation
+  let c ← c.simplify
   trace[grind.ac.assert] "{← c.denoteExpr}"
   if c.lhs == c.rhs then
     c.setUnsat
@@ -306,8 +306,11 @@ private def getNext? : ACM (Option EqCnstr) := do
   return some c
 
 private def checkDiseqs : ACM Unit := do
-  -- TODO
-  return ()
+  let diseqs := (← getStruct).diseqs
+  modifyStruct fun s => { s with diseqs := {} }
+  for c in diseqs do
+    c.assert
+    if (← isInconsistent) then return
 
 private def propagateEqs : ACM Unit := do
   -- TODO

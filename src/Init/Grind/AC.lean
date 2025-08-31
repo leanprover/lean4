@@ -299,6 +299,10 @@ theorem Seq.denote_concat {α} (ctx : Context α) {inst₁ : Std.Associative ctx
 
 attribute [local simp] Seq.denote_concat
 
+theorem eq_orient {α} (ctx : Context α) (lhs rhs : Seq)
+    : lhs.denote ctx = rhs.denote ctx → rhs.denote ctx = lhs.denote ctx := by
+  simp_all
+
 theorem eq_simp_lhs_exact {α} (ctx : Context α) (lhs₁ rhs₁ rhs₂ : Seq)
     : lhs₁.denote ctx = rhs₁.denote ctx → lhs₁.denote ctx = rhs₂.denote ctx → rhs₁.denote ctx = rhs₂.denote ctx := by
   simp_all

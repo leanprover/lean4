@@ -15,6 +15,10 @@ import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
 import Lean.Elab.App
 
+/-!
+See `mkCasesOnSameCtor` below.
+-/
+
 namespace Lean
 
 open Meta
@@ -94,15 +98,15 @@ public def mkCasesOnSameCtorHet (declName : Name) (indName : Name) : MetaM Unit 
             -- Here we let the typecheker reduce the `ctorIdx` application
             let heq := mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) ctorApp2 (mkRawNatLit i)
             withLocalDeclD `h heq fun h => do
-              let e := mkConst (mkConstructorElimName indName ctorName) (v :: us)
-              let e := mkAppN e params
               let motive2 ← mkLambdaFVars ism2 (mkAppN motive (ism1 ++ ism2))
-              let e := mkApp e motive2
-              let e := mkAppN e ism2
-              let e := mkApp e h
               let alt ← forallTelescope ctorType fun zs2 _ => do
                 mkLambdaFVars zs2 <| mkAppN alts[i]! (zs1 ++ zs2)
-              let e := mkApp e alt
+              let e := if info.numCtors = 1 then
+                let casesOn := mkConst (mkCasesOnName indName) (v :: us)
+                mkAppN casesOn (params ++ #[motive2] ++ ism2 ++ #[alt])
+              else
+                let casesOn := mkConst (mkConstructorElimName indName ctorName) (v :: us)
+                mkAppN casesOn (params ++ #[motive2] ++ ism2 ++ #[h, alt])
               mkLambdaFVars (zs1.push h) e
         let e := mkAppN e alts1
         let e := mkApp e (← mkEqSymm heq)
@@ -159,6 +163,29 @@ def withSharedIndices (ctor : Expr) (k : Array Expr → Expr → Expr → MetaM 
     go ctor zs.toList zs
 
 
+/--
+This constructs a matcher for a match statement that matches on the constructors of
+a data type in parallel. So if `h : x1.ctorIdx = x2.ctorIdx`, then it implements
+```
+match x1, x2, h with
+| ctor1 .. , ctor1 .. , _ => ...
+| ctor2 .. , ctor2 .. , _ => ...
+```
+The normal matcher supports such matches, but implements them using nested `casesOn`, which
+leads to a quadratic blow-up. This function uses the per-constructor eliminators to implement this
+more efficiently.
+
+This is useful for implementing or deriving functionality like `BEq`, `DecidableEq`, `Ord` and
+proving their lawfulness.
+
+One could imagine a future where `match` compilation is smart enough to do that automatically; then
+this module can be dropped.
+
+Note that for some data types where the indices determine the constructor (e.g. `Vec`), this leads
+to less efficient code than the normal matcher, as this needs to read the constructor tag on both
+arguments, wheras the normal matcher produces code that reads just the first argument’s tag, and
+then boldly reads the second argument’s fields.
+-/
 public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
 
@@ -238,28 +265,35 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
         -- throwError m!"{casesOn2}"
         let e ← mkLambdaFVars (params ++ #[motive] ++ is ++ #[x1,x2] ++ #[heq] ++ alts) casesOn2
 
-        addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
-          (name        := declName)
-          (levelParams := casesOnInfo.levelParams)
-          (type        := (← inferType e))
-          (value       := e)
-          (hints       := ReducibilityHints.abbrev)
-        ))
-        modifyEnv fun env => markAuxRecursor env declName
-        modifyEnv fun env => addToCompletionBlackList env declName
-        modifyEnv fun env => addProtected env declName
-        Elab.Term.elabAsElim.setTag declName
-        setReducibleAttribute declName
-
+        let decl := .defnDecl (← mkDefinitionValInferringUnsafe
+            (name        := declName)
+            (levelParams := casesOnInfo.levelParams)
+            (type        := (← inferType e))
+            (value       := e)
+            (hints       := ReducibilityHints.abbrev)
+          )
         let matcherInfo : MatcherInfo := {
           numParams := info.numParams
           numDiscrs := info.numIndices + 3
           altNumParams := altTypes.map (·.2.getNumHeadForalls)
           uElimPos? := some 0
           discrInfos := #[{}, {}, {}]}
-        Match.addMatcherInfo declName matcherInfo
-        enableRealizationsForConst declName
 
+        -- Compare attributes with `mkMatcherAuxDefinition`
+        addDecl decl
+        Elab.Term.elabAsElim.setTag declName
+        Match.addMatcherInfo declName matcherInfo
+        setInlineAttribute declName
+
+        -- Pragmatic hack:
+        -- Normally a matcher is not marked as an aux recursor. We still do that here
+        -- becuase this makes the elaborator unfold it more eagerily, it seems,
+        -- and this works around issues with the structural recursion equation generator
+        -- (see #10195).
+        modifyEnv fun env => markAuxRecursor env declName
+
+        enableRealizationsForConst declName
+        compileDecl decl
 
 
 end Lean

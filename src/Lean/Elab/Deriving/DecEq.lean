@@ -102,7 +102,6 @@ where
 
 def mkMatchNew (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
   assert! header.targetNames.size == 2
-  assert! indVal.numCtors > 1 -- TODO: casesOnSameCtor makes sense for single-constructor as well
 
   let x1 := mkIdent header.targetNames[0]!
   let x2 := mkIdent header.targetNames[1]!
@@ -139,12 +138,13 @@ def mkMatchNew (ctx : Context) (header : Header) (indVal : InductiveVal) : TermE
           todo := todo.push (a, b, recField, isProof)
       let rhs ← mkSameCtorRhs todo.toList
       `(@fun $ctorArgs1:term* $ctorArgs2:term* =>$rhs:term)
-  `(
-    if h : $(mkCIdent ctorIdxName) $x1:ident = $(mkCIdent ctorIdxName) $x2:ident then
-      $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
-    else
-      isFalse (fun h' => h (congrArg $(mkCIdent ctorIdxName) h'))
-  )
+  if indVal.numCtors == 1 then
+    `( $(mkCIdent casesOnSameCtorName) $x1:term $x2:term rfl $alts:term* )
+  else
+    `( if h : $(mkCIdent ctorIdxName) $x1:ident = $(mkCIdent ctorIdxName) $x2:ident then
+        $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
+      else
+        isFalse (fun h' => h (congrArg $(mkCIdent ctorIdxName) h')))
 where
   mkSameCtorRhs : List (Ident × Ident × Option Name × Bool) → TermElabM Term
     | [] => ``(isTrue rfl)

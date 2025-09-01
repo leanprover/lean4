@@ -75,32 +75,32 @@ def xs : Array Nat := (*...100000).iter.toArray
 
 def l : List Nat := (*...100000).iter.toList
 
-#eval sum₁ xs
+#eval! sum₁ xs
 
-#eval sum₂ xs
+#eval! sum₂ xs
 
-#eval isolatedMap xs
+#eval! isolatedMap xs
 
-#eval isolatedFilterMap xs
+#eval! isolatedFilterMap xs
 
-#eval isolatedTake xs 1000000
+#eval! isolatedTake xs 1000000
 
-#eval isolatedDrop xs 100000
+#eval! isolatedDrop xs 100000
 
-#eval isolatedTakeWhile xs
+#eval! isolatedTakeWhile xs
 
-#eval isolatedDropWhile xs
+#eval! isolatedDropWhile xs
 
-#eval isolatedZip xs xs
+#eval! isolatedZip xs xs
 
-#eval isolatedSteppedRange 1000000
+#eval! isolatedSteppedRange 1000000
 
-#eval longChainOfCombinators xs
+#eval! longChainOfCombinators xs
 
-#eval (*...1000000).iter.fold (init := 0) (· + ·)
+#eval! (*...1000000).iter.fold (init := 0) (· + ·)
 
-#eval primes 3000
+#eval! primes 3000
 
-#eval printEveryNth l 10000
+#eval! printEveryNth l 10000
 
-#eval printEveryNthSliceBased xs 10000
+#eval! printEveryNthSliceBased xs 10000

@@ -20,11 +20,13 @@ namespace Lean.Elab.Deriving.DecEq
 open Lean.Parser.Term
 open Meta
 
-register_builtin_option deriving.deceq.avoid_match_threshold : Nat := {
-  defValue := 2
-  descr := "Avoid using match expressions in `DecidableEq` instances when the number of constructors \
-    exceeds this threshold. When and if that construction compiles as efficiently as the old \
-    one, this option may go away." }
+register_builtin_option deriving.decEq.linear_construction_threshold : Nat := {
+  defValue := 10
+  descr := "If the inductive data type has this many or more constructors, use a different \
+    implementation for deciding equality that avoids the quadratic code size produced by the \
+    default implementation.\n\n\
+    The alternative construction compiles to less efficient code in some cases, so by default \
+    it is only used for inductive types with 10 or more constructors." |
 
 def mkDecEqHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `DecidableEq 2 indVal
@@ -165,7 +167,7 @@ where
 
 
 def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
-  if indVal.numCtors ≥ deriving.deceq.avoid_match_threshold.get (← getOptions) then
+  if indVal.numCtors ≥ deriving.decEq.avoid_match_threshold.get (← getOptions) then
     mkMatchNew ctx header indVal
   else
     mkMatchOld ctx header indVal

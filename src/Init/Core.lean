@@ -101,7 +101,6 @@ instance : DecidableEq Empty := fun a => a.elim
 /-- Decidable equality for PEmpty -/
 instance : DecidableEq PEmpty := fun a => a.elim
 
-set_option genInjectivity false in
 /--
 Delays evaluation. The delayed code is evaluated at most once.
 
@@ -617,7 +616,6 @@ class Sep (α : outParam <| Type u) (γ : Type v) where
   /-- Computes `{ a ∈ c | p a }`. -/
   sep : (α → Prop) → γ → γ
 
-set_option genInjectivity false in
 /--
 `Task α` is a primitive for asynchronous computation.
 It represents a computation that will resolve to a value of type `α`,

@@ -12,5 +12,9 @@ public import Std.Sync.Mutex
 public import Std.Sync.RecursiveMutex
 public import Std.Sync.Barrier
 public import Std.Sync.SharedMutex
+public import Std.Sync.Broadcast
+public import Std.Sync.Terminator
+public import Std.Sync.StreamMap
+public import Std.Sync.Notify
 
 @[expose] public section

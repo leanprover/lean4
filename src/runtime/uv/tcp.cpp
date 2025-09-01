@@ -385,7 +385,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket, ob
         tcp_socket->m_byte_array = nullptr;
     }
 
-    lean_dec((lean_object*)tcp_socket);
+    lean_dec(socket);
 
     event_loop_unlock(&global_ev);
     return lean_io_result_mk_ok(lean_box(0));

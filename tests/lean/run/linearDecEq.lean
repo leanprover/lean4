@@ -4,7 +4,7 @@ Tests for deriving decidable equality using the linear-size parallel match const
 -/
 
 -- We always want to use the new construction in this test
-set_option deriving.decEq.avoid_match_threshold 0
+set_option deriving.decEq.linear_construction_threshold 0
 
 inductive EmptyType : Type
 deriving DecidableEq

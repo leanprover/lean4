@@ -167,7 +167,7 @@ where
 
 
 def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
-  if indVal.numCtors ≥ deriving.decEq.avoid_match_threshold.get (← getOptions) then
+  if indVal.numCtors ≥ deriving.decEq.linear_construction_threshold.get (← getOptions) then
     mkMatchNew ctx header indVal
   else
     mkMatchOld ctx header indVal

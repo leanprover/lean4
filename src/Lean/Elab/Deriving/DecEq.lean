@@ -26,7 +26,7 @@ register_builtin_option deriving.decEq.linear_construction_threshold : Nat := {
     implementation for deciding equality that avoids the quadratic code size produced by the \
     default implementation.\n\n\
     The alternative construction compiles to less efficient code in some cases, so by default \
-    it is only used for inductive types with 10 or more constructors." |
+    it is only used for inductive types with 10 or more constructors." }
 
 def mkDecEqHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `DecidableEq 2 indVal

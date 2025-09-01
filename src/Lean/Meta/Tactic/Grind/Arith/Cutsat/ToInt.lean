@@ -4,16 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.ToIntLemmas
-public import Lean.Meta.Tactic.Grind.SynthInstance
-public import Lean.Meta.Tactic.Grind.Simp
+public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-public import Lean.Meta.Tactic.Grind.Arith.EvalNum
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
+import Init.Grind.ToIntLemmas
+import Lean.Meta.Tactic.Grind.SynthInstance
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Arith.EvalNum
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 public section
-
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 private def reportMissingToIntAdapter (type : Expr) (instType : Expr) : MetaM Unit := do

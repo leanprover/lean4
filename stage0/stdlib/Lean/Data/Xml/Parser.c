@@ -32,7 +32,6 @@ lean_object* lean_uint32_to_nat(uint32_t);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCharsCore___at___Lean_Xml_Parser_CData_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Xml_Parser_cp___closed__2;
 static lean_object* l_Std_Internal_Parsec_manyCharsCore___at___Lean_Xml_Parser_EncName_spec__0___closed__2;
-extern lean_object* l_Lean_Xml_defaultElement____x40_Lean_Data_Xml_Basic_2314661920____hygCtx___hyg_75_;
 static lean_object* l_Lean_Xml_Parser_doctypedecl___closed__1;
 static lean_object* l_Lean_Xml_Parser_content___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_CDSect(lean_object*);
@@ -291,6 +290,7 @@ static lean_object* l_Lean_Xml_Parser_DefaultDecl___closed__1;
 static lean_object* l_Lean_Xml_Parser_PITarget___closed__15;
 static lean_object* l_Lean_Xml_Parser_VersionNum___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Xml_Parser_NameStartChar_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Xml_defaultElement____x40_Lean_Data_Xml_Basic_2314661920____hygCtx___hyg_72_;
 static lean_object* l_Std_Internal_Parsec_manyCore___at___Lean_Xml_Parser_Mixed_spec__0___closed__2;
 static lean_object* l_Lean_Xml_Parser_NotationDecl___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___at___Lean_Xml_Parser_CharRef_spec__0(lean_object*, lean_object*);
@@ -29543,7 +29543,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Xml_defaultElement____x40_Lean_Data_Xml_Basic_2314661920____hygCtx___hyg_75_;
+x_1 = l_Lean_Xml_defaultElement____x40_Lean_Data_Xml_Basic_2314661920____hygCtx___hyg_72_;
 return x_1;
 }
 }

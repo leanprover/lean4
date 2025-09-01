@@ -7,6 +7,9 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.MatchDiscrOnly
+import Lean.Meta.Tactic.Grind.ProveEq
+import Lean.Meta.Tactic.Grind.SynthInstance
 public section
 namespace Lean.Meta.Grind
 namespace EMatch

@@ -14,6 +14,7 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
+import Lean.Meta.Tactic.Grind.Arith.Insts
 
 public section
 

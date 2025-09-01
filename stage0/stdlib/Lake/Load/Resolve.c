@@ -444,7 +444,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Load_Resolve_0__Lake_instMonadCycleOfN
 static lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_updateToolchain___closed__19;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Load_Resolve_0__Lake_Workspace_updateAndMaterializeCore_spec__21(lean_object*, uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lake_decEqToolchainVer____x40_Lake_Util_Version_1214108401____hygCtx___hyg_60_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Load_Resolve_0__Lake_addDependencyEntries_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_updateAndMaterialize___elam__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -509,6 +508,7 @@ static lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsC
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lake_formatCycle___at_____private_Lake_Load_Resolve_0__Lake_depCycleError___at_____private_Lake_Load_Resolve_0__Lake_Workspace_runResolveT___at_____private_Lake_Load_Resolve_0__Lake_Workspace_updateAndMaterializeCore___elam__5_spec__4_spec__6_spec__6_spec__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at_____private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore_go___at___Lake_Workspace_materializeDeps___elam__0___at___Lake_Workspace_materializeDeps_spec__0_spec__0_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
+uint8_t l_Lake_decEqToolchainVer____x40_Lake_Util_Version_1214108401____hygCtx___hyg_61_(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Resolve_0__Lake_depCycleError___at_____private_Lake_Load_Resolve_0__Lake_Workspace_runResolveT___at_____private_Lake_Load_Resolve_0__Lake_Workspace_updateAndMaterializeCore_spec__6_spec__6___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore_go___at_____private_Lake_Load_Resolve_0__Lake_Workspace_updateAndMaterializeCore___elam__5___at_____private_Lake_Load_Resolve_0__Lake_Workspace_updateAndMaterializeCore_spec__12_spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7115,7 +7115,7 @@ lean_object* x_189; uint8_t x_190;
 x_189 = lean_ctor_get(x_162, 0);
 lean_inc(x_189);
 lean_dec_ref(x_162);
-x_190 = l_Lake_decEqToolchainVer____x40_Lake_Util_Version_1214108401____hygCtx___hyg_60_(x_189, x_187);
+x_190 = l_Lake_decEqToolchainVer____x40_Lake_Util_Version_1214108401____hygCtx___hyg_61_(x_189, x_187);
 lean_dec(x_189);
 if (x_190 == 0)
 {
@@ -7407,7 +7407,7 @@ lean_object* x_254; uint8_t x_255;
 x_254 = lean_ctor_get(x_227, 0);
 lean_inc(x_254);
 lean_dec_ref(x_227);
-x_255 = l_Lake_decEqToolchainVer____x40_Lake_Util_Version_1214108401____hygCtx___hyg_60_(x_254, x_252);
+x_255 = l_Lake_decEqToolchainVer____x40_Lake_Util_Version_1214108401____hygCtx___hyg_61_(x_254, x_252);
 lean_dec(x_254);
 if (x_255 == 0)
 {
@@ -17402,7 +17402,7 @@ lean_object* x_189; uint8_t x_190;
 x_189 = lean_ctor_get(x_162, 0);
 lean_inc(x_189);
 lean_dec_ref(x_162);
-x_190 = l_Lake_decEqToolchainVer____x40_Lake_Util_Version_1214108401____hygCtx___hyg_60_(x_189, x_187);
+x_190 = l_Lake_decEqToolchainVer____x40_Lake_Util_Version_1214108401____hygCtx___hyg_61_(x_189, x_187);
 lean_dec(x_189);
 if (x_190 == 0)
 {
@@ -17694,7 +17694,7 @@ lean_object* x_254; uint8_t x_255;
 x_254 = lean_ctor_get(x_227, 0);
 lean_inc(x_254);
 lean_dec_ref(x_227);
-x_255 = l_Lake_decEqToolchainVer____x40_Lake_Util_Version_1214108401____hygCtx___hyg_60_(x_254, x_252);
+x_255 = l_Lake_decEqToolchainVer____x40_Lake_Util_Version_1214108401____hygCtx___hyg_61_(x_254, x_252);
 lean_dec(x_254);
 if (x_255 == 0)
 {

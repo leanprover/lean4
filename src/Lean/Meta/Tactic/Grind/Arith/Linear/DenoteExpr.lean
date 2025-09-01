@@ -5,13 +5,13 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.ProveEq
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
-
 namespace Lean.Meta.Grind.Arith.Linear
 /-!
 Helper functions for converting reified terms back into their denotations.

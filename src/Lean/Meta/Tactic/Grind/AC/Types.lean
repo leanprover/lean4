@@ -28,13 +28,14 @@ structure EqCnstr where
 inductive EqCnstrProof where
   | core (a b : Expr) (ea eb : AC.Expr)
   | erase_dup (c : EqCnstr)
+  | erase0 (c : EqCnstr)
   | swap (c : EqCnstr)
   | simp_exact (lhs : Bool) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | simp_ac (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
-  | superpose_ac (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | simp_suffix (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | simp_prefix (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | simp_middle (lhs : Bool) (s₁ s₂ : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
+  | superpose_ac (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | superpose_prefix (s₁ s₂ : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
 end
 
@@ -59,10 +60,12 @@ structure DiseqCnstr where
 inductive DiseqCnstrProof where
   | core (a b : Expr) (ea eb : AC.Expr)
   | erase_dup (c : DiseqCnstr)
-  | simp_ac (lhs : Bool) (s : AC.Seq) (c₁ : DiseqCnstr) (c₂ : EqCnstr)
-  | simp_suffix (lhs : Bool) (s : AC.Seq) (c₁ : DiseqCnstr) (c₂ : EqCnstr)
-  | simp_prefix (lhs : Bool) (s : AC.Seq) (c₁ : DiseqCnstr) (c₂ : EqCnstr)
-  | simp_middle (lhs : Bool) (s₁ s₂ : AC.Seq) (c₁ : DiseqCnstr) (c₂ : EqCnstr)
+  | erase0 (c : DiseqCnstr)
+  | simp_exact (lhs : Bool) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+  | simp_ac (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+  | simp_suffix (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+  | simp_prefix (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+  | simp_middle (lhs : Bool) (s₁ s₂ : AC.Seq) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
 end
 
 structure Struct where

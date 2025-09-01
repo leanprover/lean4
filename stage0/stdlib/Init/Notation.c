@@ -256,6 +256,7 @@ static lean_object* l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e__
 static lean_object* l_term___u224d_____closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___xd7____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2c_x2a__1___closed__5;
+static lean_object* l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__8;
 LEAN_EXPORT lean_object* l_term___x3c_x7c_x3e__;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__prio_x28___x29__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__stx___x2c_x2b_x2c_x3f__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -1782,6 +1783,7 @@ static lean_object* l_term___x5e_x5e_x5e_____closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3c____2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__stx___x2b__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_prioHigh;
+static lean_object* l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__7;
 static lean_object* l_term_x7b___x3a___x2f_x2f___x7d___closed__10;
 static lean_object* l_termIfThenElse___closed__5;
 static lean_object* l_term___x3c_____closed__1;
@@ -18135,8 +18137,30 @@ return x_3;
 static lean_object* _init_l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__6() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__4;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__7() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
+x_2 = l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__6;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__7;
 x_2 = l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__5;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -18184,7 +18208,7 @@ x_17 = l___aux__Init__Notation______macroRules__term___u2218____1___closed__2;
 x_18 = l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__1;
 x_19 = l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__4;
 x_20 = l_Lean_addMacroScope(x_8, x_19, x_9);
-x_21 = l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__6;
+x_21 = l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__8;
 lean_inc(x_16);
 x_22 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_22, 0, x_16);
@@ -30259,6 +30283,10 @@ l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__5 = _init
 lean_mark_persistent(l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__5);
 l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__6 = _init_l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__6();
 lean_mark_persistent(l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__6);
+l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__7 = _init_l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__7();
+lean_mark_persistent(l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__7);
+l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__8 = _init_l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__8();
+lean_mark_persistent(l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__8);
 l_term___x3c_x24_x3e_____closed__0 = _init_l_term___x3c_x24_x3e_____closed__0();
 lean_mark_persistent(l_term___x3c_x24_x3e_____closed__0);
 l_term___x3c_x24_x3e_____closed__1 = _init_l_term___x3c_x24_x3e_____closed__1();

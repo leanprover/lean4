@@ -23,27 +23,10 @@ namespace Lean
 
 open Meta
 
-/-
-def Vec.casesOnSameCtorHet {α}
-    {motive : ∀ {n1}, Vec α n1 → ∀ {n2}, Vec α n2 → Sort u}
-    {n1} (x1 : Vec α n1)
-    {n2} (x2 : Vec α n2)
-    (h : x2.ctorIdx = x1.ctorIdx)
-    (nil : motive .nil .nil)
-    (cons : ∀ x n1 xs y n2 ys, motive (@Vec.cons _ x n1 xs) (@Vec.cons _ y n2 ys)) :
-    motive x1 x2 :=
-  x1.casesOn (motive := fun _ x' => x2.ctorIdx = x'.ctorIdx → motive x' x2)
-    (nil := fun heq =>
-      Vec.nil.elim x2 heq (motive := fun _ x' => motive .nil x')
-        (nil := nil)
-    )
-    (cons := fun a1 n1 xs1 heq =>
-      Vec.cons.elim x2 heq (motive := fun _ x' => motive (.cons a1 xs1) x')
-        (cons := fun a2 n2 xs2 => cons a1 n1 xs1 a2 n2 xs2)
-    )
-    h
- -/
-
+/--
+Helper for `mkCasesOnSameCtor` that constructs a heterogenous matcher (indices may differ)
+and does not include the equality proof in the motive (so it's not a the shape of a matcher) yet.
+-/
 public def mkCasesOnSameCtorHet (declName : Name) (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
   let casesOnName := mkCasesOnName indName
@@ -125,26 +108,6 @@ public def mkCasesOnSameCtorHet (declName : Name) (indName : Name) : MetaM Unit 
   Elab.Term.elabAsElim.setTag declName
   setReducibleAttribute declName
 
-/-
-def Vec.casesOnSameCtor {α}
-    (motive : ∀ {n}, (x1 x2 : Vec α n) → Sort u)
-    {n}
-    (x1 x2 : Vec α n)
-    (h : x2.ctorIdx = x1.ctorIdx)
-    (nil : motive .nil .nil)
-    (cons : ∀ n x xs y ys, motive (@Vec.cons _ x n xs) (@Vec.cons _ y n ys)) :
-    motive x1 x2 :=
-   Vec.casesOnSameCtorHet
-    (motive := @fun n1 x1' n2 x2' => n1 = n → x1' ≍ x1 → n2 = n → x2' ≍ x2 → motive x1 x2)
-    x1 x2 h
-    (nil := by unify_eqns 4; exact nil)
-    (cons := fun a1 n1 xs1 a2 n2 xs2 => by unify_eqns 4; exact cons ..)
-    rfl
-    .rfl
-    rfl
-    .rfl
--/
-
 def withSharedIndices (ctor : Expr) (k : Array Expr → Expr → Expr → MetaM α) : MetaM α := do
   let ctorType ← inferType ctor
   forallTelescopeReducing ctorType fun zs ctorRet => do
@@ -161,7 +124,6 @@ def withSharedIndices (ctor : Expr) (k : Array Expr → Expr → Expr → MetaM 
           withLocalDeclD t.bindingName! t.bindingDomain! fun z' => do
             go (mkApp ctor2 z') todo' (acc.push z')
     go ctor zs.toList zs
-
 
 /--
 This constructs a matcher for a match statement that matches on the constructors of
@@ -188,12 +150,6 @@ then boldly reads the second argument’s fields.
 -/
 public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
-
-  -- No longer true with the motive now including the ctrIdx equality
-  -- if info.numIndices == 0 then
-  --   -- No indices? The heterogenous version is what we want here
-  --   mkCasesOnSameCtorHet declName indName
-  --   return
 
   let casesOnSameCtorHet := declName ++ `het
   mkCasesOnSameCtorHet casesOnSameCtorHet indName
@@ -249,20 +205,13 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
             let altType ← instantiateForall altTypes'[i]! (zs1 ++ zs2)
             let alt ← mkFreshExprSyntheticOpaqueMVar altType
             let goal := alt.mvarId!
-            -- throwError m!"{goal}"
             let some (goal, _) ← Cases.unifyEqs? newRefls.size goal {}
                 | throwError "unifyEqns? unexpectedly closed goal"
             let [] ← goal.apply alts[i]!
               | throwError "could not apply {alts[i]!} to close\n{goal}"
-            -- throwError m!"{goal}"
-            -- goal.admit
             mkLambdaFVars (zs1 ++ zs2) (← instantiateMVars alt)
         let casesOn2 := mkAppN casesOn2 alts'
         let casesOn2 := mkAppN casesOn2 newRefls
-        check casesOn2
-        -- check casesOn2
-        -- let goals ← goal.applyN casesOn2 (n := alts.size)
-        -- throwError m!"{casesOn2}"
         let e ← mkLambdaFVars (params ++ #[motive] ++ is ++ #[x1,x2] ++ #[heq] ++ alts) casesOn2
 
         let decl := .defnDecl (← mkDefinitionValInferringUnsafe
@@ -287,7 +236,7 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
 
         -- Pragmatic hack:
         -- Normally a matcher is not marked as an aux recursor. We still do that here
-        -- becuase this makes the elaborator unfold it more eagerily, it seems,
+        -- because this makes the elaborator unfold it more eagerily, it seems,
         -- and this works around issues with the structural recursion equation generator
         -- (see #10195).
         modifyEnv fun env => markAuxRecursor env declName

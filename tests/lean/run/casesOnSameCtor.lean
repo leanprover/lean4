@@ -1,12 +1,15 @@
 import Lean
-open Lean Meta
 
+/-! This tests and documents the constructions in CasesOnSameCtor. -/
+
+open Lean Meta
 
 inductive Vec (α : Type u) : Nat → Type u
   | nil  : Vec α 0
   | cons : α → {n : Nat} → Vec α n → Vec α (n+1)
 
 namespace Vec
+
 -- set_option debug.skipKernelTC true
 run_meta mkCasesOnSameCtor `Vec.match_on_same_ctor ``Vec
 
@@ -106,6 +109,7 @@ info: theorem Vec.decEqVec.eq_def.{u_1} : ∀ {α : Type u_1} {a : Nat} [inst : 
 
 -- Incidentially, normal match syntax is able to produce an equivalent matcher
 -- (with different implementation):
+-- (see #10195 for problems with equation generation)
 
 def decEqVecPlain {α} {a} [DecidableEq α] (x : @Vec α a) (x_1 : @Vec α a) : Decidable (x = x_1) :=
   if h : Vec.ctorIdx x = Vec.ctorIdx x_1 then
@@ -121,60 +125,6 @@ def decEqVecPlain {α} {a} [DecidableEq α] (x : @Vec α a) (x_1 : @Vec α a) : 
         else isFalse (by intro n_1; injection n_1; apply h_1 _; assumption)
   else isFalse (fun h' => h (congrArg Vec.ctorIdx h'))
 termination_by structural x
-
--- However, #10195 prevents us from generating equations for this definition:
--- (If this is fixed at some point, we can hopefully stop marking
--- these matcher as “aux recursors”.)
-
-/--
-error: Failed to realize constant decEqVecPlain.eq_def:
-  failed to generate equational theorem for `decEqVecPlain`
-  case nil.isTrue
-  α : Type u_1
-  inst : DecidableEq α
-  x_1 : Vec α 0
-  h✝ : nil.ctorIdx = x_1.ctorIdx
-  ⊢ (match (motive :=
-          (a : Nat) →
-            (x x_1 : Vec α a) →
-              x.ctorIdx = x_1.ctorIdx →
-                rec PUnit (fun a {n} a a_ih => ((x_1 : Vec α n) → Decidable (a = x_1)) ×' a_ih) x → Decidable (x = x_1))
-          0, nil, x_1, ⋯ with
-        | .(0), nil, nil, x => fun x => isTrue ⋯
-        | .(n + 1), cons a_1 a_2, cons b b_1, x => fun x_2 =>
-          if h : a_1 = b then
-            Eq.rec (motive := fun x x_3 =>
-              (cons a_1 a_2).ctorIdx = (cons x b_1).ctorIdx → Decidable (cons a_1 a_2 = cons x b_1))
-              (fun x =>
-                if h_2 : a_2 = b_1 then
-                  Eq.rec (motive := fun x x_3 =>
-                    (cons a_1 a_2).ctorIdx = (cons a_1 x).ctorIdx → Decidable (cons a_1 a_2 = cons a_1 x))
-                    (fun x => isTrue ⋯) h_2 x
-                else isFalse ⋯)
-              ⋯ x
-          else isFalse ⋯)
-        PUnit.unit =
-      match 0, nil, x_1, ⋯ with
-      | .(0), nil, nil, x => isTrue ⋯
-      | .(n + 1), cons a_1 a_2, cons b b_1, x =>
-        if h : a_1 = b then
-          Eq.rec (motive := fun x x_2 =>
-            (cons a_1 a_2).ctorIdx = (cons x b_1).ctorIdx → Decidable (cons a_1 a_2 = cons x b_1))
-            (fun x =>
-              if h_2 : a_2 = b_1 then
-                Eq.rec (motive := fun x x_2 =>
-                  (cons a_1 a_2).ctorIdx = (cons a_1 x).ctorIdx → Decidable (cons a_1 a_2 = cons a_1 x))
-                  (fun x => isTrue ⋯) h_2 x
-              else isFalse ⋯)
-            ⋯ x
-        else isFalse ⋯
----
-error: Unknown constant `decEqVecPlain.eq_def`
--/
-#guard_msgs(pass trace, all) in
-#print sig decEqVecPlain.eq_def
-
-
 end Vec
 
 namespace List

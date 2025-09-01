@@ -276,7 +276,7 @@ where
     | .cons x s₁, .var y =>
       if x == y then (push c x |> rev, rev r₁, app (rev r₂) s₁)
       else if x < y then go s₁ (.var y) c r₁ (push r₂ x)
-      else (push c x |> rev, push r₁ y |> rev, app (push r₂ x |> rev) s₁)
+      else (rev c, push r₁ y |> rev, app (push r₂ x |> rev) s₁)
     | .cons x s₁, .cons y s₂ =>
       if x == y then go s₁ s₂ (push c x) r₁ r₂
       else if x < y then go s₁ (.cons y s₂) c r₁ (push r₂ x)

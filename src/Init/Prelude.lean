@@ -1178,7 +1178,7 @@ propositional connective is `Not : Prop → Prop`.
 
 export Bool (or and not)
 
-set_option genInjectivity false in
+set_option genCtorIdx false
 /--
 The natural numbers, starting at zero.
 
@@ -2145,7 +2145,6 @@ instance (x y : BitVec w) : Decidable (LE.le x y) :=
 /-- The number of distinct values representable by `UInt8`, that is, `2^8 = 256`. -/
 abbrev UInt8.size : Nat := 256
 
-set_option genInjectivity false in
 /--
 Unsigned 8-bit integers.
 
@@ -2203,7 +2202,6 @@ instance : Inhabited UInt8 where
 /-- The number of distinct values representable by `UInt16`, that is, `2^16 = 65536`. -/
 abbrev UInt16.size : Nat := 65536
 
-set_option genInjectivity false in
 /--
 Unsigned 16-bit integers.
 

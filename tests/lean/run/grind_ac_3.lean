@@ -231,3 +231,13 @@ example (a b c d e f g h : Nat) :
     max a b = max c d → max b e = max d f → max b g = max d h →
     max (max f d) (max c g) = max (max e d) (max h c) := by
   grind -cutsat only
+
+example (a b c d e f g h : Nat) :
+    max a b = max c d → max b e = max d f → max b g = max d h →
+    max (max f d) (max c g) = max (max e (max d (max b (max c e)))) h := by
+  grind -cutsat only
+
+example {α} (op : α → α → α) [Std.Associative op] [Std.Commutative op] (a b c d : α)
+    : op a b = op b c → op c c = op d c →
+      op (op d a) (op b d) = op (op a a) (op b d) := by
+  grind only

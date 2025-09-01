@@ -24,7 +24,6 @@ static lean_object* l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lam__0___c
 static lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_tryThisProvider___regBuiltin___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_tryThisProvider__1___closed__8;
 static lean_object* l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lam__0___closed__14;
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___lam__0___closed__41;
-uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_13_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lam__0___closed__25;
 extern lean_object* l_Lean_Meta_Hint_tryThisDiffWidget;
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_tryThisProvider_spec__1___redArg___closed__2;
@@ -102,6 +101,7 @@ static lean_object* l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lam__0___c
 static lean_object* l_Lean_Meta_Tactic_TryThis_delabToRefinableSuggestion___closed__0;
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___lam__0___closed__55;
 extern lean_object* l_Lean_maxRecDepth;
+extern lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis_3141183573____hygCtx___hyg_38_;
 static lean_object* l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lam__0___closed__22;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addExactSuggestionCore___closed__8;
@@ -221,7 +221,6 @@ static lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_Try
 static lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_tryThisProvider___regBuiltin___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_tryThisProvider__1___closed__7;
 static lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_tryThisProvider___regBuiltin___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_tryThisProvider__1___closed__2;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis_3141183573____hygCtx___hyg_42_;
 static lean_object* l_Lean_Meta_Tactic_TryThis_delabToRefinableSyntax___closed__1;
 extern lean_object* l_Lean_warningAsError;
 static lean_object* l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lam__0___closed__2;
@@ -343,6 +342,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_Tactic_TryThis_addExactSuggestions_spec__1_spec__1(uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_log___at___Lean_logInfo___at___Lean_Meta_Tactic_TryThis_addExactSuggestion_spec__0_spec__0(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
+uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(uint8_t, uint8_t);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_tryThisProvider_spec__1___redArg___closed__0;
@@ -833,7 +833,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis_3141183573____hygCtx___hyg_42_;
+x_1 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis_3141183573____hygCtx___hyg_38_;
 return x_1;
 }
 }
@@ -1862,7 +1862,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_81; lean_object* x_82; uint8_t x_83; uint8_t x_84; uint8_t x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_110; uint8_t x_111; lean_object* x_112; uint8_t x_113; uint8_t x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_121; uint8_t x_122; lean_object* x_123; uint8_t x_124; lean_object* x_125; lean_object* x_126; uint8_t x_127; uint8_t x_133; uint8_t x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; uint8_t x_139; uint8_t x_140; uint8_t x_142; uint8_t x_158; 
 x_133 = 2;
-x_158 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_13_(x_3, x_133);
+x_158 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_3, x_133);
 if (x_158 == 0)
 {
 x_142 = x_158;
@@ -2352,7 +2352,7 @@ x_150 = lean_alloc_closure((void*)(l_Lean_logAt___at___Lean_logInfoAt___at___Lea
 lean_closure_set(x_150, 0, x_148);
 lean_closure_set(x_150, 1, x_149);
 x_151 = 1;
-x_152 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_13_(x_3, x_151);
+x_152 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_3, x_151);
 if (x_152 == 0)
 {
 lean_inc_ref(x_143);
@@ -6597,7 +6597,7 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_81; lean_object* x_82; uint8_t x_83; lean_object* x_84; lean_object* x_85; uint8_t x_86; uint8_t x_87; lean_object* x_88; lean_object* x_110; lean_object* x_111; uint8_t x_112; lean_object* x_113; uint8_t x_114; uint8_t x_115; lean_object* x_116; lean_object* x_117; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; uint8_t x_125; uint8_t x_126; uint8_t x_127; uint8_t x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; uint8_t x_138; uint8_t x_139; uint8_t x_140; uint8_t x_142; uint8_t x_158; 
 x_133 = 2;
-x_158 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_13_(x_3, x_133);
+x_158 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_3, x_133);
 if (x_158 == 0)
 {
 x_142 = x_158;
@@ -7087,7 +7087,7 @@ x_150 = lean_alloc_closure((void*)(l_Lean_logAt___at___Lean_logInfoAt___at___Lea
 lean_closure_set(x_150, 0, x_148);
 lean_closure_set(x_150, 1, x_149);
 x_151 = 1;
-x_152 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_13_(x_3, x_151);
+x_152 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_3, x_151);
 if (x_152 == 0)
 {
 lean_inc_ref(x_143);

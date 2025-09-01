@@ -359,7 +359,7 @@ if (lean_obj_tag(x_10) == 0)
 lean_object* x_11; uint8_t x_12; 
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*7 + 11);
+x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*8 + 11);
 lean_dec(x_11);
 if (x_12 == 0)
 {

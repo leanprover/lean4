@@ -194,6 +194,7 @@ lean_object* l_Lean_Elab_Command_elabSyntax(lean_object*, lean_object*, lean_obj
 static lean_object* l_Lean_Elab_Command_elabElab___closed__12;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_Command_elabElabRulesAux_spec__2___redArg___closed__1;
+extern lean_object* l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_152_;
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_Elab_Command_elabElabRulesAux_spec__3_spec__3_spec__3___redArg___closed__7;
 extern lean_object* l_Lean_Elab_pp_macroStack;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Command_elabElabRulesAux_spec__10_spec__10___closed__2;
@@ -304,7 +305,6 @@ static lean_object* l_Lean_Elab_Command_elabElabRulesAux___closed__7;
 static lean_object* l___private_Lean_Elab_ElabRules_0__Lean_Elab_Command_elabElab___regBuiltin_Lean_Elab_Command_elabElab_declRange__3___closed__6;
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Elab_Command_elabElab___closed__10;
-extern lean_object* l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_165_;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___Lean_Elab_Command_elabElab_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -517,7 +517,7 @@ static lean_object* _init_l_Lean_addMessageContextPartial___at___Lean_throwError
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_165_;
+x_1 = l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_152_;
 return x_1;
 }
 }

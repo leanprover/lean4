@@ -16,10 +16,16 @@ extern "C" {
 static lean_object* l___aux__Init__Core______macroRules__term___x5c____1___closed__5;
 static lean_object* l_term___u2229_____closed__2;
 LEAN_EXPORT lean_object* l_PNonScalar_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_DoResultBC_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_toBoolUsing(lean_object*, uint8_t);
 static lean_object* l_term___u222a_____closed__6;
+LEAN_EXPORT lean_object* l_ForInStep_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_DoResultPR_pure_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_PSum_inr_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_PSum_inr_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_DoResultBC_ctorIdx(lean_object*, lean_object*);
 static lean_object* l_term___u2283_____closed__0;
+LEAN_EXPORT lean_object* l_Sum_inr_elim___redArg(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______unexpand__Iff__1___closed__1;
 static lean_object* l___aux__Init__Core______macroRules__term___u2282____1___closed__3;
 LEAN_EXPORT lean_object* l_Subtype_instBEq(lean_object*, lean_object*, lean_object*);
@@ -34,6 +40,7 @@ LEAN_EXPORT lean_object* l_instDecidableEqOfIff___boxed(lean_object*, lean_objec
 static lean_object* l___aux__Init__Core______macroRules__Lean__Parser__Tactic__tacticRfl__1___closed__8;
 static lean_object* l___aux__Init__Core______macroRules__Lean__Parser__Tactic__tacticRfl__1___closed__10;
 LEAN_EXPORT lean_object* l_instInhabitedProp;
+LEAN_EXPORT lean_object* l_DoResultSBC_break_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Thunk_map___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_defaultTask____x40_Init_Core_811566013____hygCtx___hyg_11_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___u2287____1(lean_object*, lean_object*, lean_object*);
@@ -65,6 +72,7 @@ LEAN_EXPORT lean_object* l_Task_pure___boxed(lean_object*, lean_object*);
 static lean_object* l_term___x3c_x2d_x3e_____closed__7;
 static lean_object* l_term___x3c_x2d_x3e_____closed__9;
 LEAN_EXPORT lean_object* l_Sum_inhabitedLeft___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_DoResultPR_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableTrue;
 LEAN_EXPORT lean_object* l_instDecidableEqSum___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2295____1___closed__6;
@@ -72,6 +80,7 @@ LEAN_EXPORT lean_object* l_Sum_ctorIdx(lean_object*, lean_object*, lean_object*)
 static lean_object* l___aux__Init__Core______macroRules__term___x5c____1___closed__4;
 static lean_object* l_term___x21_x3d_____closed__5;
 static lean_object* l_term___u2229_____closed__1;
+LEAN_EXPORT lean_object* l_DoResultPRBC_return_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_DoResultPR_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_DoResultPR_ctorIdx___redArg(lean_object*);
 static lean_object* l_term_x7b_x7d___closed__2;
@@ -81,7 +90,6 @@ LEAN_EXPORT lean_object* l_Sum_inhabitedRight___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__PSum__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subtype_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_iteInduction(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_defaultForInStep___redArg____x40_Init_Core_3388938137____hygCtx___hyg_20_(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_reduceBool(uint8_t);
 static lean_object* l___aux__Init__Core______macroRules__term___u2295____1___closed__0;
 static lean_object* l_term___u2287_____closed__3;
@@ -92,6 +100,7 @@ LEAN_EXPORT lean_object* l_Quotient_rec(lean_object*, lean_object*, lean_object*
 static lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____2___closed__0;
 LEAN_EXPORT lean_object* l_instDecidableEqOfLawfulBEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_u2205___closed__4;
+LEAN_EXPORT lean_object* l_DoResultBC_continue_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2282_____closed__4;
 LEAN_EXPORT lean_object* l_thunkCoe(lean_object*);
 LEAN_EXPORT lean_object* l_Quotient_mk___redArg___boxed(lean_object*);
@@ -113,6 +122,7 @@ LEAN_EXPORT lean_object* l_UInt64_ctorIdx___boxed(lean_object*);
 static lean_object* l_term___u2248_____closed__5;
 LEAN_EXPORT lean_object* l_UInt32_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___u2295_x27____1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ForInStep_yield_elim___redArg(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2295_x27____1___closed__5;
 LEAN_EXPORT lean_object* l_defaultTask___redArg____x40_Init_Core_811566013____hygCtx___hyg_11_(lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2260____1___closed__0;
@@ -127,8 +137,10 @@ static lean_object* l_term_x7b_x7d___closed__5;
 static lean_object* l___aux__Init__Core______macroRules__term___u2295____1___closed__1;
 static lean_object* l_term___u2295_x27_____closed__3;
 static lean_object* l___aux__Init__Core______macroRules__term___u2287____1___closed__3;
+LEAN_EXPORT lean_object* l_Sum_inr_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Task_Priority_max;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_DoResultPR_return_elim___redArg(lean_object*, lean_object*);
 static lean_object* l_term___u2229_____closed__4;
 static lean_object* l_term_u2205___closed__3;
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____2(lean_object*, lean_object*, lean_object*);
@@ -151,6 +163,8 @@ static lean_object* l_term___x21_x3d_____closed__4;
 LEAN_EXPORT lean_object* l_decidable__of__decidable__of__iff___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_noConfusionEnum(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2286_____closed__0;
+LEAN_EXPORT lean_object* l_DoResultSBC_continue_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_inl_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PSum_inhabitedLeft___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_inline___boxed(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__Lean__Parser__Tactic__tacticRfl__1___closed__5;
@@ -169,6 +183,7 @@ static lean_object* l___aux__Init__Core______macroRules__term___u2282____1___clo
 LEAN_EXPORT uint8_t l_instDecidableEqEmpty(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Subtype_instDecidableEq___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__bne__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_DoResultBC_break_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedPUnit;
 static lean_object* l_term___u2194_____closed__4;
 LEAN_EXPORT lean_object* l_Quot_recOnSubsingleton___redArg(lean_object*, lean_object*);
@@ -177,8 +192,8 @@ LEAN_EXPORT lean_object* l_term_x7b_x7d;
 LEAN_EXPORT lean_object* l_term___u2286__;
 LEAN_EXPORT lean_object* l_Prod_map___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2283____1___closed__0;
-LEAN_EXPORT lean_object* l_defaultForInStep____x40_Init_Core_3388938137____hygCtx___hyg_20_(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableEqProd___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_PSum_inl_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term_x7b_x7d__1___closed__2;
 LEAN_EXPORT uint8_t l_instDecidableDite___redArg(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Union_ctorIdx___boxed(lean_object*, lean_object*);
@@ -191,11 +206,13 @@ static lean_object* l___aux__Init__Core______macroRules__term___u2283____1___clo
 LEAN_EXPORT lean_object* l_Task_ctorIdx(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2283____1___closed__1;
 LEAN_EXPORT lean_object* l_Inter_ctorIdx(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_DoResultPRBC_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Quotient_decidableEq___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___x5c____1___closed__3;
 static lean_object* l___aux__Init__Core______macroRules__term___u2286____1___closed__2;
 LEAN_EXPORT lean_object* l_Prod_lexLtDec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__3;
+LEAN_EXPORT lean_object* l_DoResultPRBC_pure_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedForInStep___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_flip(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
@@ -231,6 +248,7 @@ LEAN_EXPORT lean_object* l_Task_spawn___boxed(lean_object*, lean_object*, lean_o
 LEAN_EXPORT uint8_t l_decEqSum___redArg____x40_Init_Core_2394421412____hygCtx___hyg_3_(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Union__union__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_DoResultPR_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Quotient_recOnSubsingleton_u2082___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_DoResultPR_ctorIdx___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__SDiff__sdiff__1(lean_object*, lean_object*, lean_object*);
@@ -262,8 +280,10 @@ LEAN_EXPORT lean_object* l_PSum_inhabitedRight(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Quotient_lift_u2082___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2282____1___closed__0;
 LEAN_EXPORT lean_object* l_Sep_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ForInStep_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_And_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Thunk_ctorIdx(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ForInStep_yield_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__HasSSubset__SSubset__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Core_0__Thunk_fnImpl___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___u2248____1(lean_object*, lean_object*, lean_object*);
@@ -292,6 +312,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Ne__1___boxed(lean_o
 LEAN_EXPORT lean_object* l_Singleton_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Inter__inter__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_ctorIdx(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_defaultForInStep___redArg____x40_Init_Core_3388938137____hygCtx___hyg_21_(lean_object*);
 LEAN_EXPORT uint8_t l_decidable__of__decidable__of__eq(lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_iteInduction___redArg(uint8_t, lean_object*, lean_object*);
 static lean_object* l_term___x5c_____closed__4;
@@ -307,6 +328,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Ne__1(lean_object*, 
 static lean_object* l___aux__Init__Core______macroRules__term___u2260____2___closed__1;
 static lean_object* l_term___x3c_x2d_x3e_____closed__1;
 LEAN_EXPORT lean_object* l_term___x3c_x2d_x3e__;
+LEAN_EXPORT lean_object* l_DoResultSBC_pureReturn_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Task_map___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2194_____closed__0;
 LEAN_EXPORT lean_object* l_ULift_ctorIdx___boxed(lean_object*, lean_object*);
@@ -314,6 +336,7 @@ static lean_object* l_term___u2282_____closed__5;
 static lean_object* l___aux__Init__Core______macroRules__Lean__Parser__Tactic__tacticRfl__1___closed__3;
 LEAN_EXPORT lean_object* l_iteInduction___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Quotient_mk___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_ForInStep_ctorElim___redArg(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__Lean__Parser__Tactic__tacticRfl__1___closed__9;
 LEAN_EXPORT lean_object* l_instDecidableDite___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2194_____closed__2;
@@ -323,6 +346,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__PSum__1___boxed(lean
 static lean_object* l_term_x7b_x7d___closed__4;
 static lean_object* l___aux__Init__Core______macroRules__term___u222a____1___closed__3;
 static lean_object* l___aux__Init__Core______macroRules__term___u2286____1___closed__6;
+LEAN_EXPORT lean_object* l_PSum_inl_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Thunk_bind___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_thunk_get_own(lean_object*);
 LEAN_EXPORT lean_object* l_ForIn_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -335,6 +359,7 @@ LEAN_EXPORT lean_object* l_instInhabitedMProd___redArg(lean_object*, lean_object
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Iff__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt8_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_decidable__of__decidable__of__iff___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_DoResultSBC_pureReturn_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Task_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableEqSum___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Thunk_map(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -354,6 +379,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___u2229____1(
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2248____1___closed__3;
 LEAN_EXPORT lean_object* l_PLift_ctorIdx(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_DoResultSBC_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_SDiff_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_opaqueId___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
@@ -382,8 +408,10 @@ LEAN_EXPORT lean_object* l_Lean_opaqueId(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2229____1___closed__6;
 static lean_object* l___aux__Init__Core______macroRules__term___u2260____1___closed__1;
 lean_object* lean_task_get_own(lean_object*);
+LEAN_EXPORT lean_object* l_DoResultPRBC_continue_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___x3c_x2d_x3e____1___closed__9;
 LEAN_EXPORT lean_object* l_Quot_rec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ForInStep_done_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Thunk_bind(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedForInStep(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Quotient_mk_x27(lean_object*, lean_object*, lean_object*);
@@ -399,12 +427,14 @@ LEAN_EXPORT lean_object* l_instBEqProd(lean_object*, lean_object*, lean_object*,
 LEAN_EXPORT uint8_t l_decEqSum____x40_Init_Core_2394421412____hygCtx___hyg_3_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2287____1___closed__4;
 LEAN_EXPORT lean_object* l_inline___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_DoResultSBC_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x3c_x2d_x3e_____closed__0;
 static lean_object* l_term___x3c_x2d_x3e_____closed__8;
 static lean_object* l___aux__Init__Core______macroRules__term___u2295_x27____1___closed__6;
 LEAN_EXPORT lean_object* l_Sum_inhabitedLeft(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_strictAnd___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_DoResultPR_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Sum__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_u2205___closed__1;
 static lean_object* l_term___x5c_____closed__1;
@@ -429,6 +459,7 @@ LEAN_EXPORT lean_object* l_Quot_liftOn___redArg(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__Lean__Parser__Tactic__tacticRfl__1___closed__1;
 static lean_object* l___aux__Init__Core______macroRules__term_x7b_x7d__1___closed__4;
 LEAN_EXPORT lean_object* l_DoResultSBC_ctorIdx___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_DoResultBC_break_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PULift_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_decidable__of__decidable__of__iff(lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l_term___u2295_____closed__5;
@@ -436,13 +467,17 @@ LEAN_EXPORT lean_object* l_DoResultSBC_ctorIdx(lean_object*, lean_object*, lean_
 LEAN_EXPORT uint8_t l_bne___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2248____1___closed__6;
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__Lean__Parser__Tactic__tacticRfl__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_DoResultSBC_break_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2282____1___closed__5;
 static lean_object* l___aux__Init__Core______macroRules__term___u2248____1___closed__0;
+LEAN_EXPORT lean_object* l_DoResultPRBC_continue_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableIff___redArg(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_DoResultPRBC_return_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PProd_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__SSuperset__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Iff__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instBEqProd___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_inl_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2286_____closed__5;
 static lean_object* l_term___x21_x3d_____closed__0;
 static lean_object* l_term___u2260_____closed__4;
@@ -475,6 +510,7 @@ static lean_object* l_term___u2248_____closed__2;
 LEAN_EXPORT lean_object* l_instInhabitedMProd(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_term_u2205___closed__0;
+LEAN_EXPORT lean_object* l_DoResultPR_return_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Quotient_pliftOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2260_____closed__0;
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___x5c____1(lean_object*, lean_object*, lean_object*);
@@ -497,12 +533,17 @@ LEAN_EXPORT lean_object* l_Sep_ctorIdx(lean_object*, lean_object*, lean_object*)
 LEAN_EXPORT lean_object* l___private_Init_Core_0__Thunk_fnImpl___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2260_____closed__3;
+LEAN_EXPORT lean_object* l_DoResultBC_ctorElim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_DoResultPRBC_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_DoResultSBC_continue_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_PSum_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_DoResultBC_ctorIdx___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Superset__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2229____1___closed__0;
 static lean_object* l_term___u222a_____closed__4;
 LEAN_EXPORT lean_object* l_Quotient_lift(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_defaultForInStep____x40_Init_Core_3388938137____hygCtx___hyg_21_(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2295____1___closed__5;
 LEAN_EXPORT lean_object* l_PSum_ctorIdx(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__4;
@@ -514,6 +555,7 @@ static lean_object* l___aux__Init__Core______macroRules__term___u2260____2___clo
 static lean_object* l_term___u2295_____closed__6;
 static lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__2;
 static lean_object* l_term_x7b_x7d___closed__6;
+LEAN_EXPORT lean_object* l_DoResultPRBC_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Thunk_mk___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_USize_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Quotient_mk___boxed(lean_object*, lean_object*, lean_object*);
@@ -526,6 +568,8 @@ static lean_object* l___aux__Init__Core______macroRules__term___u2295____1___clo
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Iff__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2248_____closed__0;
 LEAN_EXPORT lean_object* l_eagerReduce___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_DoResultPR_pure_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_DoResultBC_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u222a_____closed__5;
 static lean_object* l___aux__Init__Core______macroRules__term___u2260____2___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Core_0__Thunk_fnImpl___boxed(lean_object*, lean_object*, lean_object*);
@@ -534,7 +578,9 @@ LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___u2295____1(
 LEAN_EXPORT lean_object* l_Quotient_lift___redArg(lean_object*, lean_object*);
 static lean_object* l_term___u2248_____closed__6;
 LEAN_EXPORT lean_object* l_Eq_ndrecOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_PSum_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_ctorIdx___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Sum_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedPProd___redArg(lean_object*, lean_object*);
 static lean_object* l_term___x5c_____closed__3;
 LEAN_EXPORT uint8_t l_instDecidableEqPUnit(lean_object*, lean_object*);
@@ -545,6 +591,7 @@ LEAN_EXPORT lean_object* l_instDecidableIff___boxed(lean_object*, lean_object*, 
 static lean_object* l___aux__Init__Core______macroRules__term___u222a____1___closed__4;
 LEAN_EXPORT lean_object* l_PSum_ctorIdx___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instTransIff;
+LEAN_EXPORT lean_object* l_DoResultPRBC_pure_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___u2260____1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Eq_ndrecOn___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -557,6 +604,7 @@ LEAN_EXPORT uint8_t l_instDecidableEqOfLawfulBEq___redArg(lean_object*, lean_obj
 static lean_object* l___aux__Init__Core______macroRules__term___x3c_x2d_x3e____1___closed__5;
 LEAN_EXPORT lean_object* l_Quotient_recOnSubsingleton___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Quotient_recOnSubsingleton_u2082(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_DoResultPRBC_break_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Subtype_instDecidableEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2260____1___closed__4;
 static lean_object* l_term___u2260_____closed__5;
@@ -564,9 +612,11 @@ LEAN_EXPORT lean_object* l_EmptyCollection_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Quotient_rec___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Subtype_instDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2248____1___closed__5;
+LEAN_EXPORT lean_object* l_Sum_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2295_x27_____closed__5;
 LEAN_EXPORT uint8_t l_instDecidableIff(lean_object*, lean_object*, uint8_t, uint8_t);
 static lean_object* l___aux__Init__Core______macroRules__term___u2283____1___closed__4;
+LEAN_EXPORT lean_object* l_DoResultSBC_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqPUnit___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Quotient_mk_x27___redArg(lean_object*);
 static lean_object* l_term___x21_x3d_____closed__3;
@@ -595,14 +645,17 @@ LEAN_EXPORT lean_object* l_DoResultBC_ctorIdx___redArg___boxed(lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2295_x27____1___closed__4;
 static lean_object* l_term___u2229_____closed__3;
 LEAN_EXPORT lean_object* l_Quot_hrecOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_DoResultBC_continue_elim___redArg(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2282____1___closed__6;
 static lean_object* l_term___u222a_____closed__3;
+LEAN_EXPORT lean_object* l_Sum_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MProd_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Quotient_hrecOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___x5c____1___closed__0;
 LEAN_EXPORT lean_object* l_Squash_mk(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Thunk_map___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2286_____closed__1;
+LEAN_EXPORT lean_object* l_DoResultPRBC_break_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Squash_lift___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Task_get___boxed(lean_object*, lean_object*);
 lean_object* l_String_toSubstring_x27(lean_object*);
@@ -616,11 +669,13 @@ static lean_object* l___aux__Init__Core______macroRules__term___u2286____1___clo
 LEAN_EXPORT lean_object* l_MProd_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subtype_instBEq___redArg(lean_object*);
 static lean_object* l___aux__Init__Core______unexpand__Iff__1___closed__0;
+LEAN_EXPORT lean_object* l_PSum_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedPNonScalar;
 LEAN_EXPORT lean_object* l_bne___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt32_ctorIdx(uint32_t);
 static lean_object* l_term___u222a_____closed__0;
 static lean_object* l___aux__Init__Core______macroRules__term___x3c_x2d_x3e____1___closed__10;
+LEAN_EXPORT lean_object* l_ForInStep_done_elim___redArg(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__Lean__Parser__Tactic__tacticRfl__1___closed__7;
 LEAN_EXPORT lean_object* l_DoResultSBC_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt8_ctorIdx___boxed(lean_object*);
@@ -1643,6 +1698,66 @@ lean_dec_ref(x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Sum_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec_ref(x_1);
+x_4 = lean_apply_1(x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Sum_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Sum_ctorElim___redArg(x_5, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Sum_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Sum_ctorElim(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_4);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Sum_inl_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Sum_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Sum_inl_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Sum_ctorElim___redArg(x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Sum_inr_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Sum_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Sum_inr_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Sum_ctorElim___redArg(x_4, x_6);
+return x_7;
+}
+}
 static lean_object* _init_l_term___u2295_____closed__0() {
 _start:
 {
@@ -1991,6 +2106,66 @@ lean_object* x_4;
 x_4 = l_PSum_ctorIdx(x_1, x_2, x_3);
 lean_dec_ref(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_PSum_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec_ref(x_1);
+x_4 = lean_apply_1(x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_PSum_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_PSum_ctorElim___redArg(x_5, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_PSum_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_PSum_ctorElim(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_4);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_PSum_inl_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_PSum_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_PSum_inl_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_PSum_ctorElim___redArg(x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_PSum_inr_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_PSum_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_PSum_inr_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_PSum_ctorElim___redArg(x_4, x_6);
+return x_7;
 }
 }
 static lean_object* _init_l_term___u2295_x27_____closed__0() {
@@ -2401,7 +2576,67 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_defaultForInStep___redArg____x40_Init_Core_3388938137____hygCtx___hyg_20_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_ForInStep_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec_ref(x_1);
+x_4 = lean_apply_1(x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_ForInStep_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_ForInStep_ctorElim___redArg(x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_ForInStep_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_ForInStep_ctorElim(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_3);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_ForInStep_done_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_ForInStep_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_ForInStep_done_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_ForInStep_ctorElim___redArg(x_3, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_ForInStep_yield_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_ForInStep_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_ForInStep_yield_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_ForInStep_ctorElim___redArg(x_3, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_defaultForInStep___redArg____x40_Init_Core_3388938137____hygCtx___hyg_21_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -2410,7 +2645,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_defaultForInStep____x40_Init_Core_3388938137____hygCtx___hyg_20_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_defaultForInStep____x40_Init_Core_3388938137____hygCtx___hyg_21_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -2528,6 +2763,123 @@ lean_dec_ref(x_4);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_DoResultPRBC_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 2:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec_ref(x_1);
+x_4 = lean_apply_1(x_2, x_3);
+return x_4;
+}
+case 3:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+lean_dec_ref(x_1);
+x_6 = lean_apply_1(x_2, x_5);
+return x_6;
+}
+default: 
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = lean_ctor_get(x_1, 0);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_1, 1);
+lean_inc(x_8);
+lean_dec_ref(x_1);
+x_9 = lean_apply_2(x_2, x_7, x_8);
+return x_9;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPRBC_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l_DoResultPRBC_ctorElim___redArg(x_6, x_8);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPRBC_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l_DoResultPRBC_ctorElim(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_5);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPRBC_pure_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_DoResultPRBC_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPRBC_pure_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_DoResultPRBC_ctorElim___redArg(x_5, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPRBC_return_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_DoResultPRBC_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPRBC_return_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_DoResultPRBC_ctorElim___redArg(x_5, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPRBC_break_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_DoResultPRBC_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPRBC_break_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_DoResultPRBC_ctorElim___redArg(x_5, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPRBC_continue_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_DoResultPRBC_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPRBC_continue_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_DoResultPRBC_ctorElim___redArg(x_5, x_7);
+return x_8;
+}
+}
 LEAN_EXPORT lean_object* l_DoResultPR_ctorIdx___redArg(lean_object* x_1) {
 _start:
 {
@@ -2571,6 +2923,68 @@ lean_dec_ref(x_4);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_DoResultPR_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec_ref(x_1);
+x_5 = lean_apply_2(x_2, x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPR_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l_DoResultPR_ctorElim___redArg(x_6, x_8);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPR_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l_DoResultPR_ctorElim(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_5);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPR_pure_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_DoResultPR_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPR_pure_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_DoResultPR_ctorElim___redArg(x_5, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPR_return_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_DoResultPR_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultPR_return_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_DoResultPR_ctorElim___redArg(x_5, x_7);
+return x_8;
+}
+}
 LEAN_EXPORT lean_object* l_DoResultBC_ctorIdx___redArg(lean_object* x_1) {
 _start:
 {
@@ -2612,6 +3026,66 @@ lean_object* x_3;
 x_3 = l_DoResultBC_ctorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultBC_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec_ref(x_1);
+x_4 = lean_apply_1(x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultBC_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_DoResultBC_ctorElim___redArg(x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultBC_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_DoResultBC_ctorElim(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_3);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultBC_break_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_DoResultBC_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultBC_break_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_DoResultBC_ctorElim___redArg(x_3, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultBC_continue_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_DoResultBC_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultBC_continue_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_DoResultBC_ctorElim___redArg(x_3, x_5);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_DoResultSBC_ctorIdx___redArg(lean_object* x_1) {
@@ -2663,6 +3137,96 @@ lean_object* x_4;
 x_4 = l_DoResultSBC_ctorIdx(x_1, x_2, x_3);
 lean_dec_ref(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultSBC_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec_ref(x_1);
+x_5 = lean_apply_2(x_2, x_3, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec_ref(x_1);
+x_7 = lean_apply_1(x_2, x_6);
+return x_7;
+}
+}
+}
+LEAN_EXPORT lean_object* l_DoResultSBC_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_DoResultSBC_ctorElim___redArg(x_5, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultSBC_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_DoResultSBC_ctorElim(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_4);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultSBC_pureReturn_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_DoResultSBC_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultSBC_pureReturn_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_DoResultSBC_ctorElim___redArg(x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultSBC_break_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_DoResultSBC_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultSBC_break_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_DoResultSBC_ctorElim___redArg(x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultSBC_continue_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_DoResultSBC_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_DoResultSBC_continue_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_DoResultSBC_ctorElim___redArg(x_4, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_HasEquiv_ctorIdx(lean_object* x_1, lean_object* x_2) {

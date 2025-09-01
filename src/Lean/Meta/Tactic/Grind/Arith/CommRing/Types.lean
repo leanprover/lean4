@@ -4,14 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Ring.OfSemiring
-public import Lean.Data.PersistentArray
 public import Lean.Meta.Tactic.Grind.ExprPtr
 public import Lean.Meta.Tactic.Grind.Arith.Util
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
-
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+import Lean.Data.PersistentArray
 public section
 
 namespace Lean.Meta.Grind.Arith.CommRing

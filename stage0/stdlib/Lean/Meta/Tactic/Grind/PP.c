@@ -184,6 +184,7 @@ static double l_Lean_toTraceElem___at___Lean_Meta_Grind_ppExprArray_spec__0___cl
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Meta_Grind_Goal_ppState_spec__8_spec__8___redArg___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at_____private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_Goal_ppENodeDecl___closed__6;
+lean_object* l_Lean_defaultPersistentArrayNode____x40_Lean_Data_PersistentArray_281732585____hygCtx___hyg_45_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppOffset_spec__0___redArg(uint8_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___redArg___closed__7;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___redArg___closed__3;
@@ -193,7 +194,6 @@ LEAN_EXPORT lean_object* l_Lean_toTraceElem___at___Lean_Meta_Grind_ppExprArray_s
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_goalToMessageData(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___redArg___closed__5;
-lean_object* l_Lean_defaultPersistentArrayNode____x40_Lean_Data_PersistentArray_281732585____hygCtx___hyg_44_(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppCutsat_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Meta_Grind_Goal_ppState_spec__8_spec__8___redArg___closed__6;
@@ -9122,7 +9122,7 @@ static lean_object* _init_l___private_Lean_Data_PersistentArray_0__Lean_Persiste
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_defaultPersistentArrayNode____x40_Lean_Data_PersistentArray_281732585____hygCtx___hyg_44_(lean_box(0));
+x_1 = l_Lean_defaultPersistentArrayNode____x40_Lean_Data_PersistentArray_281732585____hygCtx___hyg_45_(lean_box(0));
 return x_1;
 }
 }
@@ -10922,7 +10922,7 @@ _start:
 lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
-x_9 = lean_ctor_get_uint8(x_2, sizeof(void*)*7 + 11);
+x_9 = lean_ctor_get_uint8(x_2, sizeof(void*)*8 + 11);
 x_10 = lean_box(x_9);
 lean_inc(x_8);
 x_11 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_goalToMessageData___lam__0___boxed), 9, 4);

@@ -104,7 +104,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_WF_preDefsFromUnaryNonRec_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_WF_withAppN_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_____private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit_visitLambda___at_____private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit___at___Lean_Meta_transform___at___Lean_Elab_WF_packCalls_spec__5_spec__5_spec__11_spec__11___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_defaultPreDefinition____x40_Lean_Elab_PreDefinition_Basic_7717608____hygCtx___hyg_80_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit_visitForall___at_____private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit___at___Lean_Meta_transform___at___Lean_Elab_WF_packCalls_spec__5_spec__5_spec__13___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at___Lean_withEnv___at___Lean_Elab_WF_preDefsFromUnaryNonRec_spec__5_spec__5___redArg___closed__1;
 size_t lean_ptr_addr(lean_object*);
@@ -165,6 +164,7 @@ static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Le
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ofSubarray___redArg(lean_object*);
 static lean_object* l_Lean_Elab_WF_withAppN___closed__0;
+extern lean_object* l_Lean_Elab_defaultPreDefinition____x40_Lean_Elab_PreDefinition_Basic_7717608____hygCtx___hyg_71_;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___Lean_Elab_WF_varyingVarNames_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_FixedParamPerm_instantiateForall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4770,7 +4770,7 @@ static lean_object* _init_l_Lean_Elab_WF_mutualName___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_defaultPreDefinition____x40_Lean_Elab_PreDefinition_Basic_7717608____hygCtx___hyg_80_;
+x_1 = l_Lean_Elab_defaultPreDefinition____x40_Lean_Elab_PreDefinition_Basic_7717608____hygCtx___hyg_71_;
 return x_1;
 }
 }

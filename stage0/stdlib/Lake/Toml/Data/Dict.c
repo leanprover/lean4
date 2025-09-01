@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_filter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Toml_RBDict_isEmpty___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_defaultRBDict____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_instEmptyCollection___redArg(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_contains___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -64,7 +63,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_append___redArg___boxed(lean_object*
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_findEntry_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lake_Toml_RBDict_ofArray_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Toml_RBDict_beq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_defaultRBDict____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51____boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_push___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_beq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake_Toml_RBDict_keys_spec__0___redArg(size_t, size_t, lean_object*);
@@ -84,12 +82,14 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lake_Toml_RBDict_ofArray_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake_Toml_RBDict_values_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
+static lean_object* l_Lake_Toml_defaultRBDict___closed__1____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_;
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_keys(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict___redArg___boxed(lean_object*);
 static lean_object* l_Lake_Toml_RBDict_map___redArg___closed__0;
 static lean_object* l_Lake_Toml_RBDict_empty___closed__0;
 static lean_object* l_Lake_Toml_RBDict_empty___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at_____private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lake_Toml_RBDict_ofArray_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Toml_defaultRBDict____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_appendArray___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_findIdx_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict___redArg(lean_object*);
@@ -100,17 +100,18 @@ LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_foldM(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_RBDict_map___redArg___closed__2;
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_Toml_defaultRBDict___closed__0____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake_Toml_RBDict_keys_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_alter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_filterMap___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_RBDict_map___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_map___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Toml_defaultRBDict____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48____boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_mkEmpty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_isEmpty___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_beq___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lake_Toml_RBDict_ofArray_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_map___redArg(lean_object*, lean_object*);
-static lean_object* l_Lake_Toml_defaultRBDict___closed__0____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_;
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_values___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_foldM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_empty___boxed(lean_object*, lean_object*, lean_object*);
@@ -159,7 +160,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_insert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_Toml_defaultRBDict___closed__1____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_;
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_map___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_mkEmpty___redArg___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -189,7 +189,7 @@ lean_dec_ref(x_3);
 return x_5;
 }
 }
-static lean_object* _init_l_Lake_Toml_defaultRBDict___closed__0____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_() {
+static lean_object* _init_l_Lake_Toml_defaultRBDict___closed__0____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_() {
 _start:
 {
 lean_object* x_1; 
@@ -197,31 +197,31 @@ x_1 = l_Array_empty(lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_Toml_defaultRBDict___closed__1____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_() {
+static lean_object* _init_l_Lake_Toml_defaultRBDict___closed__1____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(1);
-x_2 = l_Lake_Toml_defaultRBDict___closed__0____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_;
+x_2 = l_Lake_Toml_defaultRBDict___closed__0____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Toml_defaultRBDict____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_Toml_defaultRBDict____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lake_Toml_defaultRBDict___closed__1____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_;
+x_4 = l_Lake_Toml_defaultRBDict___closed__1____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_;
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Toml_defaultRBDict____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_Toml_defaultRBDict____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lake_Toml_defaultRBDict____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_(x_1, x_2, x_3);
+x_4 = l_Lake_Toml_defaultRBDict____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_(x_1, x_2, x_3);
 lean_dec_ref(x_3);
 return x_4;
 }
@@ -230,7 +230,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict___redArg(lean_object* x
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lake_Toml_defaultRBDict____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_(lean_box(0), lean_box(0), x_1);
+x_2 = l_Lake_Toml_defaultRBDict____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_(lean_box(0), lean_box(0), x_1);
 return x_2;
 }
 }
@@ -238,7 +238,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict(lean_object* x_1, lean_
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lake_Toml_defaultRBDict____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_(lean_box(0), lean_box(0), x_3);
+x_4 = l_Lake_Toml_defaultRBDict____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_(lean_box(0), lean_box(0), x_3);
 return x_4;
 }
 }
@@ -516,9 +516,9 @@ goto block_54;
 block_46:
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-x_43 = lean_nat_add(x_40, x_42);
+x_43 = lean_nat_add(x_41, x_42);
 lean_dec(x_42);
-lean_dec(x_40);
+lean_dec(x_41);
 if (lean_is_scalar(x_37)) {
  x_44 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -537,7 +537,7 @@ if (lean_is_scalar(x_27)) {
 lean_ctor_set(x_45, 0, x_39);
 lean_ctor_set(x_45, 1, x_30);
 lean_ctor_set(x_45, 2, x_31);
-lean_ctor_set(x_45, 3, x_41);
+lean_ctor_set(x_45, 3, x_40);
 lean_ctor_set(x_45, 4, x_44);
 return x_45;
 }
@@ -563,8 +563,8 @@ if (lean_obj_tag(x_33) == 0)
 lean_object* x_52; 
 x_52 = lean_ctor_get(x_33, 0);
 lean_inc(x_52);
-x_40 = x_51;
-x_41 = x_50;
+x_40 = x_50;
+x_41 = x_51;
 x_42 = x_52;
 goto block_46;
 }
@@ -572,8 +572,8 @@ else
 {
 lean_object* x_53; 
 x_53 = lean_unsigned_to_nat(0u);
-x_40 = x_51;
-x_41 = x_50;
+x_40 = x_50;
+x_41 = x_51;
 x_42 = x_53;
 goto block_46;
 }
@@ -3499,10 +3499,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Fold(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_Toml_defaultRBDict___closed__0____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_ = _init_l_Lake_Toml_defaultRBDict___closed__0____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_();
-lean_mark_persistent(l_Lake_Toml_defaultRBDict___closed__0____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_);
-l_Lake_Toml_defaultRBDict___closed__1____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_ = _init_l_Lake_Toml_defaultRBDict___closed__1____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_();
-lean_mark_persistent(l_Lake_Toml_defaultRBDict___closed__1____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_51_);
+l_Lake_Toml_defaultRBDict___closed__0____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_ = _init_l_Lake_Toml_defaultRBDict___closed__0____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_();
+lean_mark_persistent(l_Lake_Toml_defaultRBDict___closed__0____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_);
+l_Lake_Toml_defaultRBDict___closed__1____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_ = _init_l_Lake_Toml_defaultRBDict___closed__1____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_();
+lean_mark_persistent(l_Lake_Toml_defaultRBDict___closed__1____x40_Lake_Toml_Data_Dict_242520308____hygCtx___hyg_48_);
 l_Lake_Toml_RBDict_empty___closed__0 = _init_l_Lake_Toml_RBDict_empty___closed__0();
 lean_mark_persistent(l_Lake_Toml_RBDict_empty___closed__0);
 l_Lake_Toml_RBDict_empty___closed__1 = _init_l_Lake_Toml_RBDict_empty___closed__1();

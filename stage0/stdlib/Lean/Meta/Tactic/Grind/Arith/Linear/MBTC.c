@@ -49,9 +49,9 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_____private_Lean
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at_____private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_eqAssignment_spec__0_spec__0___redArg___closed__0;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_toRatValue_x3f___closed__10;
-extern lean_object* l_Lean_Meta_Grind_Arith_Linear_defaultStruct____x40_Lean_Meta_Tactic_Grind_Arith_Linear_Types_677398288____hygCtx___hyg_530_;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_toRatValue_x3f___closed__8;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_eqAssignment___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_decEqRat____x40_Init_Data_Rat_Basic_3597219815____hygCtx___hyg_31_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_____private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_eqAssignment_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_isInterpreted___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_mbtc(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -81,7 +81,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_isInterpreted___redArg___closed__1;
 lean_object* l_Lean_Meta_Grind_Arith_Linear_getAssignment_x3f(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
-uint8_t l_decEqRat____x40_Init_Data_Rat_Basic_3597219815____hygCtx___hyg_34_(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_toRatValue_x3f___closed__5;
@@ -103,6 +102,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___Lean_Persiste
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at_____private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_eqAssignment_spec__0_spec__0___redArg___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_hasTheoryVar___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_Grind_Arith_Linear_defaultStruct____x40_Lean_Meta_Tactic_Grind_Arith_Linear_Types_677398288____hygCtx___hyg_485_;
 uint64_t l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(lean_object*);
 lean_object* l_Rat_neg(lean_object*);
 size_t lean_usize_land(size_t, size_t);
@@ -1052,7 +1052,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_Arith_Linear_defaultStruct____x40_Lean_Meta_Tactic_Grind_Arith_Linear_Types_677398288____hygCtx___hyg_530_;
+x_1 = l_Lean_Meta_Grind_Arith_Linear_defaultStruct____x40_Lean_Meta_Tactic_Grind_Arith_Linear_Types_677398288____hygCtx___hyg_485_;
 return x_1;
 }
 }
@@ -1207,7 +1207,7 @@ lean_object* x_39; uint8_t x_40; lean_object* x_41;
 x_39 = lean_ctor_get(x_36, 0);
 lean_inc(x_39);
 lean_dec_ref(x_36);
-x_40 = l_decEqRat____x40_Init_Data_Rat_Basic_3597219815____hygCtx___hyg_34_(x_35, x_39);
+x_40 = l_decEqRat____x40_Init_Data_Rat_Basic_3597219815____hygCtx___hyg_31_(x_35, x_39);
 lean_dec(x_39);
 lean_dec(x_35);
 x_41 = lean_box(x_40);
@@ -1284,7 +1284,7 @@ lean_object* x_58; uint8_t x_59; lean_object* x_60; lean_object* x_61;
 x_58 = lean_ctor_get(x_54, 0);
 lean_inc(x_58);
 lean_dec_ref(x_54);
-x_59 = l_decEqRat____x40_Init_Data_Rat_Basic_3597219815____hygCtx___hyg_34_(x_53, x_58);
+x_59 = l_decEqRat____x40_Init_Data_Rat_Basic_3597219815____hygCtx___hyg_31_(x_53, x_58);
 lean_dec(x_58);
 lean_dec(x_53);
 x_60 = lean_box(x_59);

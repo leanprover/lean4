@@ -34,6 +34,7 @@ LEAN_EXPORT lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabDirConst(le
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__20;
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__10;
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabDirConst___closed__0;
+extern lean_object* l_System_defaultFilePath____x40_Init_System_FilePath_3398306____hygCtx___hyg_14_;
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 extern lean_object* l_Lake_optsExt;
@@ -49,7 +50,6 @@ lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__34;
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabDirConst___regBuiltin___private_Lake_DSL_Config_0__Lake_DSL_elabDirConst__1___closed__7;
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__37;
-extern lean_object* l_System_defaultFilePath____x40_Init_System_FilePath_3398306____hygCtx___hyg_16_;
 LEAN_EXPORT lean_object* l_Lake_DSL_dummyGetConfig_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DSL_dummyGetConfig_x3f___boxed(lean_object*);
 lean_object* l_Lean_instQuoteNameMkStr1___private__1(lean_object*);
@@ -156,7 +156,7 @@ static lean_object* _init_l_Lake_DSL_dummyDir___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_System_defaultFilePath____x40_Init_System_FilePath_3398306____hygCtx___hyg_16_;
+x_1 = l_System_defaultFilePath____x40_Init_System_FilePath_3398306____hygCtx___hyg_14_;
 return x_1;
 }
 }

@@ -31,8 +31,10 @@ static lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_upsert_loop___r
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l___auto___closed__12____x40_Lean_Data_Trie_779136058____hygCtx___hyg_10_;
 uint8_t lean_usize_dec_eq(size_t, size_t);
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_leaf_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_node1_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_find_x3f_loop___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_upsert_insertEmpty___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -83,10 +85,12 @@ static lean_object* l___auto___closed__28____x40_Lean_Data_Trie_779136058____hyg
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Trie_0__Lean_Data_Trie_values_go_spec__0___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l___auto___closed__26____x40_Lean_Data_Trie_779136058____hygCtx___hyg_10_;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_find_x3f_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_toList(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_matchPrefix(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_upsert_insertEmpty___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__11____x40_Lean_Data_Trie_779136058____hygCtx___hyg_10_;
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_findPrefix_go___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString___private__1(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
@@ -94,6 +98,8 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_values_go(
 LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at_____private_Lean_Data_Trie_0__Lean_Data_Trie_upsert_loop_spec__0(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_find_x3f_loop___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__9____x40_Lean_Data_Trie_779136058____hygCtx___hyg_10_;
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_node_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_matchPrefix___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_matchPrefix___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_matchPrefix___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -118,6 +124,7 @@ LEAN_EXPORT lean_object* l_Lean_Data_Trie_values(lean_object*, lean_object*);
 static lean_object* l_Lean_Data_Trie_empty___closed__0;
 static lean_object* l___auto___closed__25____x40_Lean_Data_Trie_779136058____hygCtx___hyg_10_;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_upsert_loop___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_leaf_elim___redArg(lean_object*, lean_object*);
 static lean_object* l___auto___closed__6____x40_Lean_Data_Trie_779136058____hygCtx___hyg_10_;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_upsert_insertEmpty___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString___private__1___redArg(lean_object*);
@@ -145,11 +152,13 @@ static lean_object* l_Lean_Data_Trie_values___redArg___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_values_go___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg___lam__0(uint8_t, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_node_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_find_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* lean_byte_array_size(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Trie_0__Lean_Data_Trie_values_go_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 static lean_object* l___auto___closed__20____x40_Lean_Data_Trie_779136058____hygCtx___hyg_10_;
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_node1_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_values___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_ctorIdx___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_find_x3f_loop(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -205,6 +214,113 @@ lean_object* x_3;
 x_3 = l_Lean_Data_Trie_ctorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec_ref(x_1);
+x_4 = lean_apply_1(x_2, x_3);
+return x_4;
+}
+case 1:
+{
+lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
+x_7 = lean_ctor_get(x_1, 1);
+lean_inc_ref(x_7);
+lean_dec_ref(x_1);
+x_8 = lean_box(x_6);
+x_9 = lean_apply_3(x_2, x_5, x_8, x_7);
+return x_9;
+}
+default: 
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_1, 0);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_1, 1);
+lean_inc_ref(x_11);
+x_12 = lean_ctor_get(x_1, 2);
+lean_inc_ref(x_12);
+lean_dec_ref(x_1);
+x_13 = lean_apply_3(x_2, x_10, x_11, x_12);
+return x_13;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_Data_Trie_ctorElim___redArg(x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_Data_Trie_ctorElim(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_3);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_leaf_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Data_Trie_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_leaf_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Data_Trie_ctorElim___redArg(x_3, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_node1_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Data_Trie_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_node1_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Data_Trie_ctorElim___redArg(x_3, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_node_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Data_Trie_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_node_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Data_Trie_ctorElim___redArg(x_3, x_5);
+return x_6;
 }
 }
 static lean_object* _init_l_Lean_Data_Trie_empty___closed__0() {

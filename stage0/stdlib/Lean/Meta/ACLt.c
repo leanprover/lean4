@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduce_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint8_dec_lt(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_noConfusion___redArg___boxed(lean_object*, lean_object*);
@@ -23,6 +24,7 @@ LEAN_EXPORT lean_object* l_panic___at_____private_Lean_Meta_ACLt_0__Lean_Meta_AC
 LEAN_EXPORT lean_object* l_Lean_Meta_acLt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Config_toConfigWithKey(lean_object*);
 lean_object* l_Lean_Expr_projExpr_x21(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_allChildrenLt_spec__0(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(lean_object*);
@@ -56,6 +58,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_ctorIdx(uint8_t);
 LEAN_EXPORT uint8_t l_Lean_Expr_ctorWeight(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_ltApp_spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduceSimpleOnly_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_config;
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_ctorIdx___boxed(lean_object*);
@@ -73,20 +76,26 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_ltPai
 uint8_t l_Lean_Meta_ParamInfo_isInstImplicit(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_allChildrenLt_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lpo___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_none_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduceSimpleOnly_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_reduce(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_main(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lexSameCtor___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduceSimpleOnly_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingDomain_x21(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_none_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_letValue_x21(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_someChildGe(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_____private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lexSameCtor_spec__0___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduce_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lexSameCtor___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_defaultParamInfo____x40_Lean_Meta_Basic_2838363723____hygCtx___hyg_83_;
 static lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_ltApp___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduce_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_allChildrenLt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_allChildrenLt_spec__1___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_ltApp_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -98,9 +107,11 @@ lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_allChildrenLt_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
+extern lean_object* l_Lean_Meta_defaultParamInfo____x40_Lean_Meta_Basic_2838363723____hygCtx___hyg_75_;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___Lean_Expr_withAppAux___at_____private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_allChildrenLt_spec__2_spec__2___redArg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getFunInfoNArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___Lean_Expr_withAppAux___at_____private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_allChildrenLt_spec__2_spec__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_toCtorIdx___boxed(lean_object*);
@@ -108,6 +119,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_acLt(lean_object*, lean_object*, uint8_t, l
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_allChildrenLt_spec__0___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_allChildrenLt_spec__0___boxed(lean_object**);
 lean_object* l_Lean_Expr_bindingBody_x21(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduce_elim___redArg___boxed(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lexSameCtor___closed__0;
 lean_object* l_Lean_Expr_sortLevel_x21(lean_object*);
@@ -115,6 +127,7 @@ lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_allChildrenLt(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_getParamsInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isMData(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_none_elim___redArg___boxed(lean_object*);
 static lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_getParamsInfo___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lt(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bvarIdx_x21(lean_object*);
@@ -124,10 +137,13 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 lean_object* l_Lean_Expr_mdataExpr_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_ltApp_spec__0(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_allChildrenLt_spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduceSimpleOnly_elim___redArg___boxed(lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 uint64_t l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_none_elim___redArg(lean_object*);
 uint8_t l_Lean_Name_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_letBody_x21(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_ctorElim___redArg(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_ctorWeight(lean_object* x_1) {
 _start:
 {
@@ -266,6 +282,139 @@ uint8_t x_2; lean_object* x_3;
 x_2 = lean_unbox(x_1);
 x_3 = l_Lean_Meta_ACLt_ReduceMode_toCtorIdx(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_ctorElim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_ctorElim(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_inc(x_5);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_ctorElim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_ACLt_ReduceMode_ctorElim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; lean_object* x_7; 
+x_6 = lean_unbox(x_3);
+x_7 = l_Lean_Meta_ACLt_ReduceMode_ctorElim(x_1, x_2, x_6, x_4, x_5);
+lean_dec(x_5);
+lean_dec(x_2);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduce_elim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduce_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_inc(x_4);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduce_elim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_ACLt_ReduceMode_reduce_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduce_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_2);
+x_6 = l_Lean_Meta_ACLt_ReduceMode_reduce_elim(x_1, x_5, x_3, x_4);
+lean_dec(x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduceSimpleOnly_elim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduceSimpleOnly_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_inc(x_4);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduceSimpleOnly_elim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_ACLt_ReduceMode_reduceSimpleOnly_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_reduceSimpleOnly_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_2);
+x_6 = l_Lean_Meta_ACLt_ReduceMode_reduceSimpleOnly_elim(x_1, x_5, x_3, x_4);
+lean_dec(x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_none_elim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_none_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_inc(x_4);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_none_elim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_ACLt_ReduceMode_none_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_none_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_2);
+x_6 = l_Lean_Meta_ACLt_ReduceMode_none_elim(x_1, x_5, x_3, x_4);
+lean_dec(x_4);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_noConfusion___redArg___lam__0(lean_object* x_1) {
@@ -1654,7 +1803,7 @@ static lean_object* _init_l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_defaultParamInfo____x40_Lean_Meta_Basic_2838363723____hygCtx___hyg_83_;
+x_1 = l_Lean_Meta_defaultParamInfo____x40_Lean_Meta_Basic_2838363723____hygCtx___hyg_75_;
 return x_1;
 }
 }

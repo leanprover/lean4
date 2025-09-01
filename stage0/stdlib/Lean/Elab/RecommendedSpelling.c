@@ -78,6 +78,7 @@ lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(lean_object*, lean_o
 lean_object* l_Lean_Elab_realizeGlobalConstNoOverloadWithInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Elab_Term_Doc_elabRecommendedSpelling_spec__7(uint8_t, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_Elab_Term_Doc_elabRecommendedSpelling_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_152_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Term_Doc_elabRecommendedSpelling_spec__6___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_pp_macroStack;
 LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_Term_Doc_elabRecommendedSpelling_spec__0_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -113,7 +114,6 @@ static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__6;
 static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__7;
 lean_object* l_Lean_Elab_Command_liftTermElabM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
-extern lean_object* l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_165_;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Elab_Term_Doc_elabRecommendedSpelling_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
@@ -136,7 +136,7 @@ static lean_object* _init_l_Lean_addMessageContextPartial___at___Lean_throwError
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_165_;
+x_1 = l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_152_;
 return x_1;
 }
 }

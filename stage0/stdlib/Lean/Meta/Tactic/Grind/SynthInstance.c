@@ -15,7 +15,6 @@ extern "C" {
 #endif
 extern lean_object* l_Lean_Meta_isDefEqStuckExceptionId;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_synthInstanceMeta_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_23_(lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_synthInstance___closed__1;
@@ -38,6 +37,7 @@ LEAN_EXPORT lean_object* l_Lean_profileitM___at___Lean_Meta_Grind_synthInstanceM
 static lean_object* l_Lean_Meta_Grind_synthInstance___closed__2;
 lean_object* l_Lean_Meta_synthInstanceCore_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_synthInstanceMeta_x3f___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_21_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_synthInstanceMeta_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_synthInstance_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_synthInstanceAndAssign___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -114,7 +114,7 @@ lean_object* x_13; uint8_t x_14;
 x_13 = lean_ctor_get(x_10, 0);
 lean_inc(x_13);
 lean_dec_ref(x_10);
-x_14 = l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_23_(x_3, x_13);
+x_14 = l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_21_(x_3, x_13);
 lean_dec(x_13);
 if (x_14 == 0)
 {

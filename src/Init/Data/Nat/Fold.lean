@@ -128,6 +128,12 @@ theorem fold_congr {α : Type u} {n m : Nat} (w : n = m)
   subst m
   rfl
 
+theorem foldRev_congr {α : Type u} {n m : Nat} (w : n = m)
+     (f : (i : Nat) → i < n → α → α) (init : α) :
+     foldRev n f init = foldRev m (fun i h => f i (by omega)) init := by
+  subst m
+  rfl
+
 private theorem foldTR_loop_congr {α : Type u} {n m : Nat} (w : n = m)
      (f : (i : Nat) → i < n → α → α) (j : Nat) (h : j ≤ n) (init : α) :
      foldTR.loop n f j h init = foldTR.loop m (fun i h => f i (by omega)) j (by omega) init := by
@@ -270,6 +276,16 @@ def dfoldRev (n : Nat) {α : (i : Nat) → (h : i ≤ n := by omega) → Type u}
   | succ n ih =>
     simp [ih, List.finRange_succ_last, List.foldl_map]
 
+theorem fold_add
+    {α n m} (f : (i : Nat) → i < n + m → α → α) (init : α) :
+    fold (n + m) f init =
+      fold m (fun i h => f (n + i) (by omega))
+        (fold n (fun i h => f i (by omega)) init) := by
+  induction m with
+  | zero => simp; rfl
+  | succ m ih =>
+    simp [fold_congr (Nat.add_assoc n m 1).symm, ih]
+
 /-! ### `foldRev` -/
 
 @[simp] theorem foldRev_zero {α : Type u} (f : (i : Nat) → i < 0 → α → α) (init : α) :
@@ -284,6 +300,17 @@ def dfoldRev (n : Nat) {α : (i : Nat) → (h : i ≤ n := by omega) → Type u}
   induction n generalizing init with
   | zero => simp
   | succ n ih => simp [ih, List.finRange_succ_last, List.foldr_map]
+
+theorem foldRev_add
+    {α n m} (f : (i : Nat) → i < n + m → α → α) (init : α) :
+    foldRev (n + m) f init =
+      foldRev n (fun i h => f i (by omega))
+        (foldRev m (fun i h => f (n + i) (by omega)) init) := by
+  induction m generalizing init with
+  | zero => simp; rfl
+  | succ m ih =>
+    rw [foldRev_congr (Nat.add_assoc n m 1).symm]
+    simp [ih]
 
 /-! ### `any` -/
 

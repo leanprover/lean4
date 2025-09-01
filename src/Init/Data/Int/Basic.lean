@@ -321,6 +321,8 @@ def natAbs (m : @& Int) : Nat :=
   | ofNat m => m
   | -[m +1] => m.succ
 
+attribute [gen_constructor_elims] Int
+
 /-! ## sign -/
 
 /--

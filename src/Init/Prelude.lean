@@ -2021,6 +2021,8 @@ protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
 instance instSubNat : Sub Nat where
   sub := Nat.sub
 
+attribute [gen_constructor_elims] Nat
+
 /--
 Gets the word size of the current platform. The word size may be 64 or 32 bits.
 

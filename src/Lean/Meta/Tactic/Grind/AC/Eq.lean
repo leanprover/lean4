@@ -161,6 +161,7 @@ local macro "gen_cnstr_fns " cnstr:ident : command =>
     let mut c ← c.cleanup
     repeat
       incSteps
+      trace[grind.debug.ac.simp] "{← c.denoteExpr}"
       if (← checkMaxSteps) then return c
       if let some (c', r) ← c.lhs.findSimpAC? then
         c := c.simplifyLhsWithAC c' r
@@ -169,7 +170,7 @@ local macro "gen_cnstr_fns " cnstr:ident : command =>
         c := c.simplifyRhsWithAC c' r
         c ← c.cleanup
       else
-        trace[grind.debug.ac.simplify] "{← c.denoteExpr}"
+        trace[grind.debug.ac.simp] "done: {← c.denoteExpr}"
         return c
     return c
 
@@ -214,21 +215,39 @@ def EqCnstr.orient (c : EqCnstr) : EqCnstr :=
   else
     c
 
-def EqCnstr.superposeWith (c : EqCnstr) : ACM Unit := do
-  trace[Meta.debug] "superpose {← c.denoteExpr}"
-  return () -- TODO
-
 def EqCnstr.addToQueue (c : EqCnstr) : ACM Unit := do
   trace[grind.debug.ac.queue] "{← c.denoteExpr}"
   modifyStruct fun s => { s with queue := s.queue.insert c }
+
+def EqCnstr.superposeWithAC (c₁ : EqCnstr) : ACM Unit := do
+  if (← checkMaxSteps) then return ()
+  let lhs₁ := c₁.lhs
+  for c₂ in (← getStruct).basis do
+    let lhs₂ := c₂.lhs
+    trace[grind.debug.ac.superpose] "[{lhs₁.sharesVar lhs₂}]: {← lhs₁.denoteExpr}, {← lhs₂.denoteExpr}"
+    if lhs₁.sharesVar lhs₂ then
+      assert! lhs₁ != lhs₂
+      let (some s, some s₁, some s₂) := lhs₁.superposeAC lhs₂ | unreachable!
+      if grind.debug.get (← getOptions) then
+        assert! lhs₁ == s₂.union s
+        assert! lhs₂ == s₁.union s
+      let c ← mkEqCnstr (c₁.rhs.union s₁) (c₂.rhs.union s₂) (.superpose_ac s s₁ s₂ c₁ c₂)
+      c.addToQueue
+
+def EqCnstr.superposeWithA (c₁ : EqCnstr) : ACM Unit := do
+  trace[Meta.debug] "NIY {← c₁.denoteExpr}"
+
+def EqCnstr.superposeWith (c : EqCnstr) : ACM Unit := do
+  if (← isCommutative) then c.superposeWithAC else c.superposeWithA
 
 def EqCnstr.simplifyBasis (c : EqCnstr) : ACM Unit := do
   let rec go (basis : List EqCnstr) (acc : List EqCnstr) : ACM (List EqCnstr) := do
     match basis with
     | [] => return acc.reverse
     | c' :: basis =>
-      if let some c' ← c'.simplifyWith c then
-        c'.addToQueue
+      if let some c'' ← c'.simplifyWith c then
+        trace[grind.debug.ac.simp] "{← c'.denoteExpr} using {← c.denoteExpr} := {← c''.denoteExpr}"
+        c''.addToQueue
         go basis acc
       else
         go basis (c' :: acc)
@@ -244,7 +263,7 @@ private def addSorted (c : EqCnstr) : List EqCnstr → List EqCnstr
       c' :: addSorted c cs
 
 def EqCnstr.addToBasisCore (c : EqCnstr) : ACM Unit := do
-  trace[grind.debug.ac.basis] "{← c.denoteExpr}"
+  trace[grind.ac.basis] "{← c.lhs.denoteExpr} ↝ {← c.rhs.denoteExpr}"
   modifyStruct fun s => { s with
     basis := addSorted c s.basis
     recheck := true
@@ -253,24 +272,23 @@ def EqCnstr.addToBasisCore (c : EqCnstr) : ACM Unit := do
 def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : ACM Unit := do
   c.simplifyBasis
   c.superposeWith
-  trace_goal[grind.ac.assert.basis] "{← c.denoteExpr}"
   addToBasisCore c
 
 def EqCnstr.addToBasis (c : EqCnstr) : ACM Unit := do
   let c ← c.simplify
+  if c.lhs == c.rhs then return ()
+  let c := c.orient
   c.addToBasisAfterSimp
 
 def EqCnstr.assert (c : EqCnstr) : ACM Unit := do
   let c ← c.simplify
-  if c.lhs == c.rhs then
-    return ()
+  if c.lhs == c.rhs then return ()
+  let c := c.orient
+  trace[grind.ac.assert] "{← c.denoteExpr}"
+  if c.lhs.isVar then
+    c.addToBasisAfterSimp
   else
-    let c := c.orient
-    trace[grind.ac.assert] "{← c.denoteExpr}"
-    if c.lhs.isVar then
-      c.addToBasisAfterSimp
-    else
-      c.addToQueue
+    c.addToQueue
 
 @[export lean_process_ac_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := withExprs a b do

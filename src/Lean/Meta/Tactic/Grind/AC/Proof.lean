@@ -104,7 +104,7 @@ private def mkContext (h : Expr) : ProofM Expr := do
   let vars         := (← getStruct).vars
   let up           := mkApp (mkConst ``PLift.up [s.u]) s.type
   let vars         := vars'.map fun x => mkApp up vars[x]!
-  let h := mkLetOfMap (← get).seqDecls h `p (mkConst ``Grind.AC.Seq) fun p => toExpr <| p.renameVars varRename
+  let h := mkLetOfMap (← get).seqDecls h `s (mkConst ``Grind.AC.Seq) fun p => toExpr <| p.renameVars varRename
   let h := mkLetOfMap (← get).exprDecls h `e (mkConst ``Grind.AC.Expr) fun e => toExpr <| e.renameVars varRename
   let h := h.abstract #[(← read).ctx]
   if h.hasLooseBVars then
@@ -164,7 +164,11 @@ partial def EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := do caching c do
     let h ← mkPrefix ``AC.eq_orient
     return mkApp3 h (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) (← c.toExprProof)
   | .superpose_prefix .. => throwError "NIY"
-  | .superpose_ac .. => throwError "NIY"
+  | .superpose_ac s s₁ s₂ c₁ c₂  =>
+    let h ← mkACPrefix ``AC.superpose_ac
+    let h := mkApp9 h (← mkSeqDecl s₂) (← mkSeqDecl s₁) (← mkSeqDecl s) (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs)
+        (← mkSeqDecl c₂.lhs) (← mkSeqDecl c₂.rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs)
+    return mkApp3 h eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
 
 partial def DiseqCnstr.toExprProof (c : DiseqCnstr) : ProofM Expr := do caching c do
   match c.h with

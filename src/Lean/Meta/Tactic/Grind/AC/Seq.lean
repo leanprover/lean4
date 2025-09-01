@@ -219,4 +219,67 @@ example : Seq.erase0 (1::0) = 1 := rfl
 example : Seq.erase0 (0::1) = 1 := rfl
 example : Seq.erase0 (0::1::2) = 1::2 := rfl
 
+/--
+Returns `true` if `s₁` and `s₂` have at least one variable in common.
+The function assumes both of them are sorted.
+-/
+def Seq.sharesVar (s₁ s₂ : Seq) : Bool :=
+  match s₁, s₂ with
+  | .var x,     .var y     => x == y
+  | .var x,     .cons y s₂ => x == y || sharesVar (.var x) s₂
+  | .cons x s₁, .var y     => x == y || sharesVar s₁ (.var y)
+  | .cons x s₁, .cons y s₂ =>
+    if x == y then true
+    else if x < y then s₁.sharesVar (.cons y s₂)
+    else sharesVar (.cons x s₁) s₂
+
+example : Seq.sharesVar 0 0 = true := by simp [Seq.sharesVar, OfNat.ofNat]
+example : Seq.sharesVar (0::1::2) (2::3) = true := by simp [Seq.sharesVar, OfNat.ofNat]
+example : Seq.sharesVar (2::3) (0::1::2) = true := by simp [Seq.sharesVar, OfNat.ofNat]
+example : Seq.sharesVar (0::1::2) (3::3) = false := by simp [Seq.sharesVar, OfNat.ofNat]
+example : Seq.sharesVar (0::2::3) (0::1::2) = true := by simp [Seq.sharesVar, OfNat.ofNat]
+
+def toSeq? (xs : List Var) : Option Seq :=
+  match xs with
+  | [] => none
+  | x::xs => some <| go xs (.var x)
+where
+  go (xs : List Var) (acc : Seq) : Seq :=
+    match xs with
+    | [] => acc.reverse
+    | x::xs => go xs (.cons x acc)
+
+private def push (s? : Option Seq) (x : Var) : Option Seq :=
+  match s? with
+  | none => some (.var x)
+  | some s => some (.cons x s)
+
+private def rev (s? : Option Seq) : Option Seq :=
+  Seq.reverse <$> s?
+
+private def app (s? : Option Seq) (s' : Seq) : Option Seq :=
+  match s? with
+  | none   => some s'
+  | some s => some (s ++ s')
+
+def Seq.superposeAC (s₁ s₂ : Seq) : Option Seq × Option Seq × Option Seq :=
+  go s₁ s₂ none none none
+where
+  go (s₁ s₂ : Seq) (c r₁ r₂ : Option Seq) : Option Seq × Option Seq × Option Seq :=
+    match s₁, s₂ with
+    | .var x, .var y =>
+      if x == y then (push c x |> rev, rev r₁, rev r₂) else (rev c, push r₁ y |> rev, push r₂ x |> rev)
+    | .var x, .cons y s₂ =>
+      if x == y then (push c x |> rev, app (rev r₁) s₂, rev r₂)
+      else if x < y then (rev c, app (push r₁ y |> rev) s₂, push r₂ x |> rev)
+      else go (.var x) s₂ c (push r₁ y) r₂
+    | .cons x s₁, .var y =>
+      if x == y then (push c x |> rev, rev r₁, app (rev r₂) s₁)
+      else if x < y then go s₁ (.var y) c r₁ (push r₂ x)
+      else (rev c, push r₁ y |> rev, app (push r₂ x |> rev) s₁)
+    | .cons x s₁, .cons y s₂ =>
+      if x == y then go s₁ s₂ (push c x) r₁ r₂
+      else if x < y then go s₁ (.cons y s₂) c r₁ (push r₂ x)
+      else go (.cons x s₁) s₂ c (push r₁ y) r₂
+
 end Lean.Grind.AC

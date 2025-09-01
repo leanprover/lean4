@@ -58,7 +58,6 @@ LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_Elab_processHeaderCore_sp
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__2;
 static lean_object* l_Lean_Elab_processHeaderCore___closed__1;
 lean_object* l_Lean_Environment_setMainModule(lean_object*, lean_object*);
-extern lean_object* l_Lean_defaultImport____x40_Lean_Setup_2279959588____hygCtx___hyg_54_;
 LEAN_EXPORT lean_object* l_Lean_Elab_HeaderSyntax_isModule___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_HeaderSyntax_toModuleHeader(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -86,6 +85,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2_spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___Lean_Elab_HeaderSyntax_imports_spec__1(lean_object*);
+extern lean_object* l_Lean_defaultImport____x40_Lean_Setup_2279959588____hygCtx___hyg_49_;
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__14;
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Elab_processHeaderCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -194,7 +194,7 @@ static lean_object* _init_l_panic___at___Lean_Elab_HeaderSyntax_imports_spec__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_defaultImport____x40_Lean_Setup_2279959588____hygCtx___hyg_54_;
+x_1 = l_Lean_defaultImport____x40_Lean_Setup_2279959588____hygCtx___hyg_49_;
 return x_1;
 }
 }

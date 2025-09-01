@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_msgLog(lean_object*);
 static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__2;
+extern lean_object* l_Lean_Elab_defaultInfoTree____x40_Lean_Elab_InfoTree_Types_1074344063____hygCtx___hyg_58_;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_endPos___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 static lean_object* l_panic___at___Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0;
@@ -28,7 +29,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM(lean_o
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runTermElabM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCoreM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_defaultInfoTree____x40_Lean_Elab_InfoTree_Types_1074344063____hygCtx___hyg_57_;
 static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__0;
 static lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_env(lean_object*);
@@ -137,7 +137,7 @@ static lean_object* _init_l_panic___at___Lean_Server_Snapshots_Snapshot_infoTree
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_defaultInfoTree____x40_Lean_Elab_InfoTree_Types_1074344063____hygCtx___hyg_57_;
+x_1 = l_Lean_Elab_defaultInfoTree____x40_Lean_Elab_InfoTree_Types_1074344063____hygCtx___hyg_58_;
 return x_1;
 }
 }

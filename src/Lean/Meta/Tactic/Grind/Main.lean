@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Lemmas
 public import Lean.Meta.Tactic.Util
-public import Lean.Meta.Tactic.ExposeNames
-public import Lean.Meta.Tactic.Simp.Diagnostics
-public import Lean.Meta.Tactic.Grind.Split  -- TODO: not minimal yet
+public import Lean.Meta.Tactic.Grind.Types
+import Init.Grind.Lemmas
+import Lean.Meta.Tactic.ExposeNames
+import Lean.Meta.Tactic.Simp.Diagnostics
+import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Proj
@@ -24,9 +24,8 @@ import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
 import Lean.Meta.Tactic.Grind.ReflCmp
-
+import Lean.Meta.Tactic.Grind.PP
 public section
-
 namespace Lean.Meta.Grind
 
 structure Params where

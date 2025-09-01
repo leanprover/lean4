@@ -4,22 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Util
 public import Init.Grind.Lemmas
-public import Lean.Meta.LitValues
-public import Lean.Meta.Match.MatcherInfo
-public import Lean.Meta.Match.MatchEqsExt
-public import Lean.Meta.Match.MatchEqs
-public import Lean.Util.CollectLevelParams
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Util
-public import Lean.Meta.Tactic.Grind.Beta
-public import Lean.Meta.Tactic.Grind.MatchCond
-
+import Lean.Meta.LitValues
+import Lean.Meta.Match.MatcherInfo
+import Lean.Meta.Match.MatchEqsExt
+import Lean.Meta.Match.MatchEqs
+import Lean.Util.CollectLevelParams
+import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.Beta
+import Lean.Meta.Tactic.Grind.MatchCond
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 public section
-
 namespace Lean.Meta.Grind
 
 @[extern "lean_grind_ac_internalize"] -- forward definition

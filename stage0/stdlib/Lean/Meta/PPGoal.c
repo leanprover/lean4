@@ -105,11 +105,11 @@ static lean_object* l___private_Lean_Meta_PPGoal_0__Lean_Meta_ppGoal_pushPending
 static lean_object* l_Lean_Meta_initFn___closed__0____x40_Lean_Meta_PPGoal_2325355352____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_Meta_pp_showLetValues_tactic_threshold;
 static lean_object* l___private_Lean_Meta_PPGoal_0__Lean_Meta_ppGoal_ppVars___closed__0;
+lean_object* l_Lean_defaultPersistentArrayNode____x40_Lean_Data_PersistentArray_281732585____hygCtx___hyg_45_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_Meta_ppGoal_shouldShowLetValue_spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn___closed__2____x40_Lean_Meta_PPGoal_2086777308____hygCtx___hyg_4_;
 uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_defaultPersistentArrayNode____x40_Lean_Data_PersistentArray_281732585____hygCtx___hyg_44_(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn___closed__2____x40_Lean_Meta_PPGoal_2325355352____hygCtx___hyg_4_;
@@ -2433,7 +2433,7 @@ static lean_object* _init_l___private_Lean_Data_PersistentArray_0__Lean_Persiste
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_defaultPersistentArrayNode____x40_Lean_Data_PersistentArray_281732585____hygCtx___hyg_44_(lean_box(0));
+x_1 = l_Lean_defaultPersistentArrayNode____x40_Lean_Data_PersistentArray_281732585____hygCtx___hyg_45_(lean_box(0));
 return x_1;
 }
 }

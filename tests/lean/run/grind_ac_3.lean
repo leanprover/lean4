@@ -1,4 +1,5 @@
 set_option warn.sorry false
+set_option grind.debug true
 
 opaque op : Int → Int → Int
 instance : Std.Associative op := sorry
@@ -224,4 +225,9 @@ example (a b c d e f : Int) (h1 : max a b = max c d) (h2 : max b e = max d f) :
 example (a b c d e f g h : Nat) :
     max a b = max c d → max b e = max d f → max b g = max d h →
     max (max c d) (max f g) = max (max c d) (max h e) := by
+  grind only
+
+example (a b c d e f g h : Nat) :
+    max a b = max c d → max b e = max d f → max b g = max d h →
+    max (max f d) (max c g) = max (max e d) (max h c) := by
   grind only

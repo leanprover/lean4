@@ -568,7 +568,21 @@
     cmd: lean riscv-ast.lean
     max_runs: 2
 - attributes:
-    description: iterators
+    description: iterators (compiled)
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./iterators.lean.out
+  build_config:
+    cmd: ./compile.sh iterators.lean
+- attributes:
+    description: iterators (interpreted)
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean --run iterators.lean
+- attributes:
+    description: iterators (declarations)
     tags: [fast]
   run_config:
     <<: *time

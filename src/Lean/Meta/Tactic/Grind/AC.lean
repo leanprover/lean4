@@ -20,10 +20,11 @@ namespace Lean
 builtin_initialize registerTraceClass `grind.ac
 builtin_initialize registerTraceClass `grind.ac.assert
 builtin_initialize registerTraceClass `grind.ac.internalize
+builtin_initialize registerTraceClass `grind.ac.basis
 
 builtin_initialize registerTraceClass `grind.debug.ac.op
-builtin_initialize registerTraceClass `grind.debug.ac.basis
 builtin_initialize registerTraceClass `grind.debug.ac.simp
 builtin_initialize registerTraceClass `grind.debug.ac.check
 builtin_initialize registerTraceClass `grind.debug.ac.queue
+builtin_initialize registerTraceClass `grind.debug.ac.superpose
 end Lean

@@ -566,7 +566,7 @@ theorem toDyadic_toRat (x : Dyadic) (prec : Int) :
     rw [this]
     cases h : k - prec
     · simp
-    · simp
+    · simp only [Int.toNat_neg_negSucc, Int.toNat_negSucc, Int.shiftRight_zero]
       rw [Int.negSucc_eq, Int.eq_neg_comm, Int.neg_sub, eq_comm, Int.sub_eq_iff_eq_add] at h
       simp only [h, ← Int.natCast_add_one, Int.add_comm _ k, ofIntWithPrec_shiftLeft_add,
         ofOdd_eq_ofIntWithPrec]

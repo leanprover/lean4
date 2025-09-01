@@ -701,9 +701,14 @@ theorem toNat_sub_toNat_neg : ∀ n : Int, ↑n.toNat - ↑(-n).toNat = n
   | (_+1:Nat) => Nat.add_zero _
   | -[_+1] => Nat.zero_add _
 
-@[simp] theorem toNat_neg_nat : ∀ n : Nat, (-(n : Int)).toNat = 0
+@[simp] theorem toNat_neg_natCast : ∀ n : Nat, (-(n : Int)).toNat = 0
   | 0 => rfl
   | _+1 => rfl
+
+@[deprecated toNat_neg_natCast (since := "2025-08-29")]
+theorem toNat_neg_nat : ∀ n : Nat, (-(n : Int)).toNat = 0 := toNat_neg_natCast
+
+@[simp] theorem toNat_neg_negSucc (n : Nat) : (- -[n+1]).toNat = n + 1 := rfl
 
 /-! ### toNat? -/
 

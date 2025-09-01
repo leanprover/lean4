@@ -75,7 +75,7 @@ theorem trailingZeros_two_mul {i : Int} (h : i ≠ 0) :
 
 theorem shiftRight_trailingZeros_mod_two {i : Int} (h : i ≠ 0) :
     (i >>> i.trailingZeros) % 2 = 1 := by
-  rw (occs := .pos [2]) [← Int.emod_add_ediv i 2]
+  rw (occs := .pos [2]) [← Int.emod_add_mul_ediv i 2]
   rcases i.emod_two_eq with h' | h' <;> rw [h']
   · rcases Int.dvd_of_emod_eq_zero h' with ⟨a, rfl⟩
     simp only [ne_eq, Int.mul_eq_zero, Int.reduceEq, false_or] at h
@@ -92,7 +92,7 @@ theorem two_pow_trailingZeros_dvd {i : Int} (h : i ≠ 0) :
     simp only [ne_eq, Int.mul_eq_zero, Int.reduceEq, false_or] at h
     rw [trailingZeros_two_mul h, Int.pow_succ']
     exact Int.mul_dvd_mul_left _ (two_pow_trailingZeros_dvd h)
-  · rw (occs := .pos [1]) [← Int.emod_add_ediv i 2, h', Int.add_comm, trailingZeros_two_mul_add_one]
+  · rw (occs := .pos [1]) [← Int.emod_add_mul_ediv i 2, h', Int.add_comm, trailingZeros_two_mul_add_one]
     exact Int.one_dvd _
 termination_by i.natAbs
 
@@ -415,16 +415,22 @@ theorem precision_ofIntWithPrec_le {i : Int} (h : i ≠ 0) (prec : Int) :
   | .zero => rfl
   | .ofOdd _ _ _ => rfl
 
+end Dyadic
+
+namespace Rat
+
+open Dyadic
+
 /--
 Convert a rational number `x` to the greatest dyadic number with precision at most `prec`
 which is less than or equal to `x`.
 -/
-def _root_.Rat.toDyadic (x : Rat) (prec : Int) : Dyadic :=
+def toDyadic (x : Rat) (prec : Int) : Dyadic :=
   match prec with
   | (n : Nat) => .ofIntWithPrec ((x.num <<< n) / x.den) prec
   | -(n + 1 : Nat) => .ofIntWithPrec (x.num / (x.den <<< (n + 1))) prec
 
-theorem _root_.Rat.toDyadic_mkRat (a : Int) (b : Nat) (prec : Int) :
+theorem toDyadic_mkRat (a : Int) (b : Nat) (prec : Int) :
     Rat.toDyadic (mkRat a b) prec =
       .ofIntWithPrec ((a <<< prec.toNat) / (b <<< (-prec).toNat)) prec := by
   by_cases hb : b = 0
@@ -432,14 +438,95 @@ theorem _root_.Rat.toDyadic_mkRat (a : Int) (b : Nat) (prec : Int) :
   rcases h : mkRat a b with ⟨n, d, hnz, hr⟩
   obtain ⟨m, hm, rfl, rfl⟩ := Rat.mkRat_num_den hb h
   cases prec
-  · simp only [Rat.toDyadic, Int.ofNat_eq_coe, Int.toNat_natCast, Int.toNat_neg_nat,
+  · simp only [Rat.toDyadic, Int.ofNat_eq_coe, Int.toNat_natCast, Int.toNat_neg_natCast,
       shiftLeft_zero, Int.natCast_mul]
     rw [Int.mul_comm d, ← Int.ediv_ediv (by simp), ← Int.shiftLeft_mul,
       Int.mul_ediv_cancel _ (by simpa using hm)]
   · simp only [Rat.toDyadic, Int.natCast_shiftLeft, Int.negSucc_eq, ← Int.natCast_add_one,
-      Int.toNat_neg_nat, Int.shiftLeft_zero, Int.neg_neg, Int.toNat_natCast, Int.natCast_mul]
+      Int.toNat_neg_natCast, Int.shiftLeft_zero, Int.neg_neg, Int.toNat_natCast, Int.natCast_mul]
     rw [Int.mul_comm d, ← Int.mul_shiftLeft, ← Int.ediv_ediv (by simp),
       Int.mul_ediv_cancel _ (by simpa using hm)]
+
+theorem toDyadic_eq_ofIntWithPrec (x : Rat) (prec : Int) :
+    x.toDyadic prec = .ofIntWithPrec ((x.num <<< prec.toNat) / (x.den <<< (-prec).toNat)) prec := by
+  conv => lhs; rw [← Rat.mkRat_self x]
+  rw [Rat.toDyadic_mkRat]
+
+/--
+Converting a rational to a dyadic at a given precision and then back to a rational
+gives the same result as taking the floor of the rational at precision `2 ^ prec`.
+-/
+theorem toRat_toDyadic (x : Rat) (prec : Int) :
+    (x.toDyadic prec).toRat = (x * 2 ^ prec).floor / 2 ^ prec := by
+  rw [Rat.toDyadic_eq_ofIntWithPrec, toRat_ofIntWithPrec_eq_mul_two_pow, Rat.zpow_neg, Rat.div_def]
+  congr 2
+  rw [Rat.floor_def, Int.shiftLeft_eq, Nat.shiftLeft_eq]
+  match prec with
+  | .ofNat prec =>
+    simp only [Int.ofNat_eq_coe, Int.toNat_natCast, Int.toNat_neg_natCast, Nat.pow_zero,
+      Nat.mul_one]
+    have : (2 ^ prec : Rat) = ((2 ^ prec : Nat) : Rat) := by simp
+    rw [Rat.zpow_natCast, this, Rat.mul_def']
+    simp only [Rat.num_mkRat, Rat.den_mkRat]
+    simp only [Rat.natCast_pow, Rat.natCast_ofNat, Rat.num_pow, Rat.num_ofNat, Rat.den_pow,
+      Rat.den_ofNat, Nat.one_pow, Nat.mul_one]
+    split
+    · simp_all
+    · rw [Int.ediv_ediv (Int.ofNat_zero_le _)]
+      congr 1
+      rw [Int.natCast_ediv, Int.mul_ediv_cancel']
+      rw [Int.natCast_dvd_natCast]
+      apply gcd_dvd_left
+  | .negSucc prec =>
+    simp only [Int.toNat_negSucc, Int.pow_zero, Int.mul_one, Int.toNat_neg_negSucc, Int.natCast_mul,
+      Int.natCast_pow, Int.cast_ofNat_Int]
+    have : (2 ^ ((prec : Int) + 1)) = ((2 ^ (prec + 1) : Nat) : Rat) := by simp; rfl
+    rw [Int.negSucc_eq, Rat.zpow_neg, this, Rat.mul_def']
+    simp only [Rat.num_mkRat, Rat.den_mkRat]
+    simp only [natCast_pow, natCast_ofNat, den_inv, num_pow, num_ofNat, Int.natAbs_pow,
+      Int.reduceAbs, num_inv, den_pow, den_ofNat, Nat.one_pow, Int.cast_ofNat_Int, Int.mul_one]
+    have : ¬ (2 ^ (prec + 1) : Int) = 0 := NeZero.out
+    simp only [if_neg this]
+    have : (2 ^ (prec + 1) : Int).sign = 1 := by simpa using Int.pow_pos (by decide)
+    simp only [this]
+    have : x.den * 2 ^ (prec + 1) = 0 ↔ x.den = 0 := by
+      rw [Nat.mul_eq_zero]
+      simp_all
+    simp only [this, Int.mul_one]
+    split
+    · simp_all
+    · rw [Int.ediv_ediv (Int.ofNat_zero_le _)]
+      congr 1
+      rw [Int.natCast_ediv, Int.mul_ediv_cancel']
+      · simp
+      · rw [Int.natCast_dvd_natCast]
+        apply gcd_dvd_left
+
+theorem toRat_toDyadic_le {x : Rat} {prec : Int} : (x.toDyadic prec).toRat ≤ x := by
+  rw [toRat_toDyadic]
+  have : (x * 2 ^ prec).floor ≤ x * 2 ^ prec := Rat.floor_le _
+  apply Rat.le_of_mul_le_mul_right (c := 2 ^ prec)
+  rw [Rat.div_mul_cancel]
+  exact this
+  · apply Rat.ne_of_gt (Rat.zpow_pos (by decide))
+  · exact Rat.zpow_pos (by decide)
+
+theorem lt_toRat_toDyadic_add {x : Rat} {prec : Int} :
+    x < (x.toDyadic prec + ofIntWithPrec 1 prec).toRat := by
+  rw [toRat_add, toRat_toDyadic, toRat_ofIntWithPrec_eq_mul_two_pow]
+  have := Rat.lt_floor_add_one (x * 2 ^ prec)
+  rw [Rat.zpow_neg, Rat.div_def, ← Rat.add_mul]
+  apply Rat.lt_of_mul_lt_mul_right (c := 2 ^ prec)
+  rw [Rat.mul_assoc, Rat.inv_mul_cancel, Rat.mul_one]
+  exact mod_cast this
+  · apply Rat.ne_of_gt (Rat.zpow_pos (by decide))
+  · exact Rat.zpow_nonneg (by decide)
+
+-- TODO: `x.toDyadic prec` is the unique dyadic with the given precision satisfying the two inequalities above.
+
+end Rat
+
+namespace Dyadic
 
 /--
 Rounds a dyadic rational `x` down to the greatest dyadic number with precision at most `prec`
@@ -481,8 +568,8 @@ theorem toDyadic_toRat (x : Dyadic) (prec : Int) :
     · simp
     · simp
       rw [Int.negSucc_eq, Int.eq_neg_comm, Int.neg_sub, eq_comm, Int.sub_eq_iff_eq_add] at h
-      simp only [Int.neg_negSucc, h, ← Int.natCast_add_one, Int.add_comm _ k,
-        Nat.succ_eq_add_one, Int.toNat_natCast, ofIntWithPrec_shiftLeft_add, ofOdd_eq_ofIntWithPrec]
+      simp only [h, ← Int.natCast_add_one, Int.add_comm _ k, ofIntWithPrec_shiftLeft_add,
+        ofOdd_eq_ofIntWithPrec]
 
 theorem toRat_inj {x y : Dyadic} : x.toRat = y.toRat ↔ x = y := by
   refine ⟨fun h => ?_, fun h => h ▸ rfl⟩

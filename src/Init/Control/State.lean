@@ -63,34 +63,41 @@ instance {σ α} [Subsingleton σ] [Subsingleton α] : Subsingleton (StateM σ �
 namespace StateT
 section
 variable {σ : Type u} {m : Type u → Type v}
-variable [Monad m] {α β : Type u}
+variable {α β : Type u}
 
 /--
 Returns the given value without modifying the state. Typically used via `Pure.pure`.
 -/
 @[always_inline, inline, expose]
-protected def pure (a : α) : StateT σ m α :=
+protected def pure [Pure m] (a : α) : StateT σ m α :=
   fun s => pure (a, s)
+
+@[always_inline]
+instance [Pure m] : Pure (StateT σ m) where pure := StateT.pure
 
 /--
 Sequences two actions. Typically used via the `>>=` operator.
 -/
 @[always_inline, inline, expose]
-protected def bind (x : StateT σ m α) (f : α → StateT σ m β) : StateT σ m β :=
+protected def bind [Bind m] (x : StateT σ m α) (f : α → StateT σ m β) : StateT σ m β :=
   fun s => do let (a, s) ← x s; f a s
+
+@[always_inline]
+instance [Bind m] : Bind (StateT σ m) where bind := StateT.bind
 
 /--
 Modifies the value returned by a computation. Typically used via the `<$>` operator.
 -/
 @[always_inline, inline, expose]
-protected def map (f : α → β) (x : StateT σ m α) : StateT σ m β :=
-  fun s => do let (a, s) ← x s; pure (f a, s)
+protected def map [Functor m] (f : α → β) (x : StateT σ m α) : StateT σ m β :=
+  fun s => (Prod.map f (·)) <$> x s
 
 @[always_inline]
-instance : Monad (StateT σ m) where
-  pure := StateT.pure
-  bind := StateT.bind
-  map  := StateT.map
+instance [Functor m] : Functor (StateT σ m) where
+  map := StateT.map
+
+@[always_inline]
+instance [Monad m] : Monad (StateT σ m) where
 
 /--
 Recovers from errors. The state is rolled back on error recovery. Typically used via the `<|>`
@@ -107,7 +114,7 @@ Fails with a recoverable error. The state is rolled back on error recovery.
 protected def failure [Alternative m] {α : Type u} : StateT σ m α :=
   fun _ => failure
 
-instance [Alternative m] : Alternative (StateT σ m) where
+instance [Monad m] [Alternative m] : Alternative (StateT σ m) where
   failure := StateT.failure
   orElse  := StateT.orElse
 
@@ -117,14 +124,14 @@ Retrieves the current value of the monad's mutable state.
 This increments the reference count of the state, which may inhibit in-place updates.
 -/
 @[always_inline, inline, expose]
-protected def get : StateT σ m σ :=
+protected def get [Pure m] : StateT σ m σ :=
   fun s => pure (s, s)
 
 /--
 Replaces the mutable state with a new value.
 -/
 @[always_inline, inline, expose]
-protected def set : σ → StateT σ m PUnit :=
+protected def set [Pure m] : σ → StateT σ m PUnit :=
   fun s' _ => pure (⟨⟩, s')
 
 /--
@@ -136,7 +143,7 @@ It is equivalent to `do let (a, s) := f (← StateT.get); StateT.set s; pure a`.
 state value, and additional references can inhibit in-place updates of data.
 -/
 @[always_inline, inline, expose]
-protected def modifyGet (f : σ → α × σ) : StateT σ m α :=
+protected def modifyGet [Pure m] (f : σ → α × σ) : StateT σ m α :=
   fun s => pure (f s)
 
 /--
@@ -146,16 +153,16 @@ This function is typically implicitly accessed via a `MonadLiftT` instance as pa
 lifting](lean-manual://section/monad-lifting).
 -/
 @[always_inline, inline, expose]
-protected def lift {α : Type u} (t : m α) : StateT σ m α :=
-  fun s => do let a ← t; pure (a, s)
+protected def lift [Functor m] {α : Type u} (t : m α) : StateT σ m α :=
+  fun s => (·, s) <$> t
 
-instance : MonadLift m (StateT σ m) := ⟨StateT.lift⟩
+instance [Functor m] : MonadLift m (StateT σ m) := ⟨StateT.lift⟩
 
 @[always_inline]
 instance (σ m) : MonadFunctor m (StateT σ m) := ⟨fun f x s => f (x s)⟩
 
 @[always_inline]
-instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateT σ m) := {
+instance (ε) [Functor m] [MonadExceptOf ε m] : MonadExceptOf ε (StateT σ m) := {
   throw    := StateT.lift ∘ throwThe ε
   tryCatch := fun x c s => tryCatchThe ε (x s) (fun e => c e s)
 }
@@ -168,19 +175,18 @@ Creates a suitable implementation of `ForIn.forIn` from a `ForM` instance.
 -/
 @[always_inline, inline]
 def ForM.forIn [Monad m] [ForM (StateT β (ExceptT β m)) ρ α]
-    (x : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β := do
-  let g a b := .mk do
-    match ← f a b with
-    | .yield b' => pure (.ok (⟨⟩, b'))
-    | .done b' => pure (.error b')
-  match ← forM (m := StateT β (ExceptT β m)) (α := α) x g |>.run b |>.run with
-  | .ok a => pure a.2
-  | .error a => pure a
+    (x : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β :=
+  let g a b := .mk <|
+    (fun | .yield b' => .ok (⟨⟩, b') | .done b' => .error b')
+      <$> f a b
+  (fun | .ok a => a.2 | .error a => a)
+    <$> (forM (m := StateT β (ExceptT β m)) (α := α) x g |>.run b |>.run)
+  
 
 section
 variable {σ : Type u} {m : Type u → Type v}
 
-instance [Monad m] : MonadStateOf σ (StateT σ m) where
+instance [Pure m] : MonadStateOf σ (StateT σ m) where
   get       := StateT.get
   set       := StateT.set
   modifyGet := StateT.modifyGet
@@ -188,15 +194,14 @@ instance [Monad m] : MonadStateOf σ (StateT σ m) where
 end
 
 @[always_inline]
-instance StateT.monadControl (σ : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (StateT σ m) where
+instance StateT.monadControl (σ : Type u) (m : Type u → Type v) [Functor m] : MonadControl m (StateT σ m) where
   stM      := fun α   => α × σ
-  liftWith := fun f => do let s ← get; liftM (f (fun x => x.run s))
-  restoreM := fun x => do let (a, s) ← liftM x; set s; pure a
+  liftWith := fun f s => StateT.run (StateT.lift (f (fun x => x.run s))) s
+  restoreM := fun x _ => x
 
 @[always_inline]
-instance StateT.tryFinally {m : Type u → Type v} {σ : Type u} [MonadFinally m] [Monad m] : MonadFinally (StateT σ m) where
-  tryFinally' := fun x h s => do
-    let ((a, _), (b, s'')) ← tryFinally' (x s) fun
+instance StateT.tryFinally {m : Type u → Type v} {σ : Type u} [MonadFinally m] [Functor m] : MonadFinally (StateT σ m) where
+  tryFinally' := fun x h s =>
+    (fun ((a, _), (b, s'')) => ((a, b), s'')) <$> tryFinally' (x s) fun
       | some (a, s') => h (some a) s'
       | none         => h none s
-    pure ((a, b), s'')

@@ -30,7 +30,6 @@ opaque floatSpec : FloatSpec := {
   decLe := fun _ _ => inferInstanceAs (Decidable True)
 }
 
-set_option genInjectivity false in
 /--
 64-bit floating-point numbers.
 
@@ -501,5 +500,3 @@ This function does not reduce in the kernel.
 -/
 @[extern "lean_float_scaleb"]
 opaque Float.scaleB (x : Float) (i : @& Int) : Float
-
-gen_injective_theorems% Float

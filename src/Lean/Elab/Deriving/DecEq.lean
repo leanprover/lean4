@@ -21,7 +21,7 @@ open Lean.Parser.Term
 open Meta
 
 register_builtin_option deriving.decEq.linear_construction_threshold : Nat := {
-  defValue := 0 -- Just for testing on the branch, reset to 10 before merging
+  defValue := 10
   descr := "If the inductive data type has this many or more constructors, use a different \
     implementation for deciding equality that avoids the quadratic code size produced by the \
     default implementation.\n\n\

@@ -8,7 +8,7 @@ You should not edit the `stage0` directory except using the commands described i
 
 ## Development Setup
 
-You can use any of the [supported editors](https://docs.lean-lang.org/lean4/doc/setup.html#editing) for editing the Lean source code.
+You can use any of the [supported editors](https://lean-lang.org/install/manual/) for editing the Lean source code.
 Please see below for specific instructions for VS Code.
 
 ### Dev setup using elan

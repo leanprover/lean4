@@ -129,8 +129,8 @@ def ediv_add_emod := @mul_ediv_add_emod
 theorem ediv_mul_add_emod (a b : Int) : a / b * b + a % b = a := by
   rw [Int.mul_comm]; exact mul_ediv_add_emod ..
 
-@[deprecated mul_ediv_add_emod (since := "2025-09-01")]
-def ediv_add_emod' := @mul_ediv_add_emod
+@[deprecated ediv_mul_add_emod (since := "2025-09-01")]
+def ediv_add_emod' := @ediv_mul_add_emod
 
 theorem emod_def (a b : Int) : a % b = a - b * (a / b) := by
   rw [← Int.add_sub_cancel (a % b), emod_add_mul_ediv]

@@ -1289,7 +1289,6 @@ where
     withExporting (isExporting :=
       headers.any (fun header =>
         header.modifiers.isInferredPublic env &&
-        !header.modifiers.isMeta &&
         !header.modifiers.attrs.any (·.name == `no_expose)) &&
       (isExporting ||
        headers.all (fun header => (header.kind matches .abbrev | .instance)) ||

@@ -40,7 +40,7 @@ theorem ofNat_succ (n : Nat) : (succ n : Int) = n + 1 := rfl
 
 theorem neg_ofNat_zero : -((0 : Nat) : Int) = 0 := rfl
 theorem neg_ofNat_succ (n : Nat) : -(succ n : Int) = -[n+1] := rfl
-theorem neg_negSucc (n : Nat) : -(-[n+1]) = succ n := rfl
+@[simp] theorem neg_negSucc (n : Nat) : -(-[n+1]) = ((n + 1 : Nat) : Int) := rfl
 
 theorem negOfNat_eq : negOfNat n = -ofNat n := rfl
 

@@ -247,7 +247,7 @@ def cmod (a b : Int) : Int :=
 
 theorem cdiv_add_cmod (a b : Int) : b*(cdiv a b) + cmod a b = a := by
   unfold cdiv cmod
-  have := Int.ediv_add_emod (-a) b
+  have := Int.mul_ediv_add_emod (-a) b
   have := congrArg (Neg.neg) this
   simp at this
   conv => rhs; rw[← this]
@@ -272,7 +272,7 @@ private abbrev div_mul_cancel_of_mod_zero :=
 theorem cdiv_eq_div_of_divides {a b : Int} (h : a % b = 0) : a/b = cdiv a b := by
   replace h := div_mul_cancel_of_mod_zero h
   have hz : a % b = 0 := by
-    have := Int.ediv_add_emod a b
+    have := Int.mul_ediv_add_emod a b
     conv at this => rhs; rw [← Int.add_zero a]
     rw [Int.mul_comm, h] at this
     exact Int.add_left_cancel this
@@ -1753,7 +1753,7 @@ theorem cooper_right_split_dvd (ctx : Context) (p₁ p₂ : Poly) (k : Nat) (b :
   intros; subst b p'; simp; assumption
 
 private theorem one_emod_eq_one {a : Int} (h : a > 1) : 1 % a = 1 := by
-  have aux₁ := Int.ediv_add_emod 1 a
+  have aux₁ := Int.mul_ediv_add_emod 1 a
   have : 1 / a = 0 := Int.ediv_eq_zero_of_lt (by decide) h
   simp [this] at aux₁
   assumption
@@ -1780,7 +1780,7 @@ private theorem ex_of_dvd {α β a b d x : Int}
     rw [Int.mul_emod, aux₁, Int.one_mul, Int.emod_emod] at this
     assumption
   have : x = (x / d)*d + (- α * b) % d := by
-    conv => lhs; rw [← Int.ediv_add_emod x d]
+    conv => lhs; rw [← Int.mul_ediv_add_emod x d]
     rw [Int.mul_comm, this]
   exists x / d
 
@@ -1863,7 +1863,7 @@ theorem cooper_unsat (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (α β : 
   exact cooper_unsat' h₁ h₂ h₃ h₄ h₅ h₆
 
 theorem ediv_emod (x y : Int) : -1 * x + y * (x / y) + x % y = 0 := by
-  rw [Int.add_assoc, Int.ediv_add_emod x y, Int.add_comm]
+  rw [Int.add_assoc, Int.mul_ediv_add_emod x y, Int.add_comm]
   simp
   rw [Int.add_neg_eq_sub, Int.sub_self]
 

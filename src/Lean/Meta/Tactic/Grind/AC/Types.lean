@@ -37,6 +37,7 @@ inductive EqCnstrProof where
   | simp_middle (lhs : Bool) (s₁ s₂ : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | superpose_ac (r₁ c r₂ : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | superpose (p s c : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
+  | superpose_ac_idempotent (x : AC.Var) (c₁ : EqCnstr)
 end
 
 instance : Inhabited EqCnstrProof where

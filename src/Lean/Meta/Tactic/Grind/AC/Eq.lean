@@ -254,8 +254,37 @@ private def EqCnstr.superposeWithA (c₁ : EqCnstr) : ACM Unit := do
       c₁.superposeA c₂
       c₂.superposeA c₁
 
+/--
+If the operator is idempotent, we have to add extra critical pairs.
+See section 4.1 of the paper "MODULARITY, COMBINATION, AC CONGRUENCE CLOSURE"
+The idea is the following, given `c` of the form `lhs = rhs`,
+for each variable `x` in `lhs` s.t. `x` is not in `rhs`, we add the equation
+`lhs = rhs.union {x}`
+Note that the paper does not include `x` is not in `rhs`, but this extra filter is correct
+since after normalization and simplification `lhs = rhs.union {x}` would be discarded.
+-/
+private def EqCnstr.superposeAC_Idempotent (c : EqCnstr) : ACM Unit := do
+  go c.lhs
+where
+  goVar (x : AC.Var) : ACM Unit := do
+    unless c.rhs.contains x do
+      let c := { c with rhs := c.rhs.insert x, h := .superpose_ac_idempotent x c }
+      if (← hasNeutral) && c.rhs.contains 0 then
+        (← c.erase0).addToQueue
+      else
+        c.addToQueue
+
+  go (s : AC.Seq) : ACM Unit := do
+    match s with
+    | .var x => goVar x
+    | .cons x s => goVar x; go s
+
 private def EqCnstr.superposeWith (c : EqCnstr) : ACM Unit := do
-  if (← isCommutative) then c.superposeWithAC else c.superposeWithA
+  if (← isCommutative) then
+    c.superposeWithAC
+    if (← isIdempotent) then c.superposeAC_Idempotent
+  else
+    c.superposeWithA
 
 private def EqCnstr.simplifyBasis (c : EqCnstr) : ACM Unit := do
   let rec go (basis : List EqCnstr) (acc : List EqCnstr) : ACM (List EqCnstr) := do

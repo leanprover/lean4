@@ -42,3 +42,21 @@ example {α : Sort u} (op : α → α → α) [Std.Associative op] [Std.Commutat
     (one : α) [Std.LawfulIdentity op one] (a b c d : α)
     : op a (op (op b one) b) = op d c → op (op b a) (op (op b one) c) = op (op c one) (op d c)  := by
   grind only
+
+example {α : Sort u} (op : α → α → α) [Std.Associative op] [Std.Commutative op] (a b : α)
+    : op a (op a b) = op a a →
+      op a (op b b) = op b b →
+      op b (op b b) = op b b  := by
+  grind only
+
+example {α : Sort u} (op : α → α → α) [Std.Associative op] [Std.Commutative op] [Std.IdempotentOp op] (a b : α)
+    : op a (op a b) = op a a →
+      op a (op b b) = op b b →
+      a = b := by
+  grind only
+
+example {α : Sort u} (op : α → α → α) [Std.Associative op] [Std.Commutative op]
+    [Std.IdempotentOp op]
+    (a b c d : α)
+    : op a (op b b) = op d c → op (op b a) (op b c) = op c (op d c)  := by
+  grind only

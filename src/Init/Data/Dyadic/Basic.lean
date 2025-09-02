@@ -478,7 +478,7 @@ theorem toRat_toDyadic (x : Rat) (prec : Int) :
       rw [Int.natCast_dvd_natCast]
       apply gcd_dvd_left
   | .negSucc prec =>
-    simp only [Int.toNat_negSucc, Int.pow_zero, Int.mul_one, Int.toNat_neg_negSucc, Int.natCast_mul,
+    simp only [Int.toNat_negSucc, Int.pow_zero, Int.mul_one, Int.neg_negSucc, Int.natCast_mul,
       Int.natCast_pow, Int.cast_ofNat_Int]
     have : (2 ^ ((prec : Int) + 1)) = ((2 ^ (prec + 1) : Nat) : Rat) := by simp; rfl
     rw [Int.negSucc_eq, Rat.zpow_neg, this, Rat.mul_def']
@@ -566,7 +566,8 @@ theorem toDyadic_toRat (x : Dyadic) (prec : Int) :
     rw [this]
     cases h : k - prec
     · simp
-    · simp only [Int.toNat_neg_negSucc, Int.toNat_negSucc, Int.shiftRight_zero]
+    · simp only [Int.neg_negSucc, Int.natCast_add, Int.cast_ofNat_Int, Int.toNat_natCast_add_one,
+        Int.toNat_negSucc, Int.shiftRight_zero]
       rw [Int.negSucc_eq, Int.eq_neg_comm, Int.neg_sub, eq_comm, Int.sub_eq_iff_eq_add] at h
       simp only [h, ← Int.natCast_add_one, Int.add_comm _ k, ofIntWithPrec_shiftLeft_add,
         ofOdd_eq_ofIntWithPrec]
@@ -665,7 +666,7 @@ theorem blt_eq_false_iff : blt x y = false ↔ ble y x = true := by
     rcases k₁ - k₂ with (_ | _) | _
     · simp
     · simp [← Int.negSucc_eq]
-    · simp only [Int.neg_negSucc, succ_eq_add_one, decide_eq_false_iff_not, Int.not_lt,
+    · simp only [Int.neg_negSucc, decide_eq_false_iff_not, Int.not_lt,
         decide_eq_true_eq]
 
 theorem ble_iff_toRat : ble x y ↔ x.toRat ≤ y.toRat := by

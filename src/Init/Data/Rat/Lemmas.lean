@@ -1040,7 +1040,7 @@ theorem lt_floor_add_one (a : Rat) : a < ((a.floor + 1 : Int): Rat) := by
   simp [this]
   simpa using Int.lt_ediv_mul (a.num + a.den) (b := a.den) (by have := a.den_nz; omega)
 
-theorem le_floor_iff (x : Int) (a : Rat) : x ≤ a.floor ↔ (x : Rat) ≤ a := by
+theorem le_floor_iff {x : Int} {a : Rat} : x ≤ a.floor ↔ (x : Rat) ≤ a := by
   constructor
   · intro h
     rw [← intCast_le_intCast] at h
@@ -1048,7 +1048,7 @@ theorem le_floor_iff (x : Int) (a : Rat) : x ≤ a.floor ↔ (x : Rat) ≤ a := 
   · intro h
     simpa using floor_monotone h
 
-theorem floor_lt_iff (a : Rat) (x : Int) : a.floor < x ↔ a < (x : Rat) := by
+theorem floor_lt_iff {a : Rat} {x : Int} : a.floor < x ↔ a < (x : Rat) := by
   rw [← Decidable.not_iff_not, Int.not_lt, le_floor_iff, Rat.not_lt]
 
 theorem ceil_eq_neg_floor_neg (a : Rat) : a.ceil = -((-a).floor) := by

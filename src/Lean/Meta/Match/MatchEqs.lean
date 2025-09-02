@@ -401,9 +401,11 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
       mvarId ← subst mvarId' h
     trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
   mvarId := (← mvarId.intros).2
-  mvarId ← mvarId.deltaTarget (· == matchDeclName)
-  mvarId ← mvarId.heqOfEq
-  go mvarId 0
+  try mvarId.refl
+  catch _ =>
+    mvarId ← mvarId.deltaTarget (· == matchDeclName)
+    mvarId ← mvarId.heqOfEq
+    go mvarId 0
   instantiateMVars mvar0
 where
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
@@ -821,7 +823,11 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
       let template ← deltaExpand template (· == constInfo.name)
       let template := template.headBeta
-      let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
+      let splitterVal ←
+        if (← isDefEq splitterType constInfo.type) then
+          pure <| mkConst constInfo.name us
+        else
+          mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
       addAndCompile <| Declaration.defnDecl {
         name        := splitterName
         levelParams := constInfo.levelParams

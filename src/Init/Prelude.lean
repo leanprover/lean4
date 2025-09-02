@@ -1178,7 +1178,7 @@ propositional connective is `Not : Prop → Prop`.
 
 export Bool (or and not)
 
-set_option genInjectivity false in
+set_option genCtorIdx false in
 /--
 The natural numbers, starting at zero.
 
@@ -2021,7 +2021,7 @@ protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
 instance instSubNat : Sub Nat where
   sub := Nat.sub
 
-gen_injective_theorems% Nat
+attribute [gen_constructor_elims] Nat
 
 /--
 Gets the word size of the current platform. The word size may be 64 or 32 bits.
@@ -2145,7 +2145,6 @@ instance (x y : BitVec w) : Decidable (LE.le x y) :=
 /-- The number of distinct values representable by `UInt8`, that is, `2^8 = 256`. -/
 abbrev UInt8.size : Nat := 256
 
-set_option genInjectivity false in
 /--
 Unsigned 8-bit integers.
 
@@ -2203,7 +2202,6 @@ instance : Inhabited UInt8 where
 /-- The number of distinct values representable by `UInt16`, that is, `2^16 = 65536`. -/
 abbrev UInt16.size : Nat := 65536
 
-set_option genInjectivity false in
 /--
 Unsigned 16-bit integers.
 
@@ -2262,7 +2260,6 @@ instance : Inhabited UInt16 where
 /-- The number of distinct values representable by `UInt32`, that is, `2^32 = 4294967296`. -/
 abbrev UInt32.size : Nat := 4294967296
 
-set_option genInjectivity false in
 /--
 Unsigned 32-bit integers.
 
@@ -2368,7 +2365,6 @@ instance : Min UInt32 := minOfLe
 /-- The number of distinct values representable by `UInt64`, that is, `2^64 = 18446744073709551616`. -/
 abbrev UInt64.size : Nat := 18446744073709551616
 
-set_option genInjectivity false in
 /--
 Unsigned 64-bit integers.
 
@@ -2438,7 +2434,6 @@ theorem USize.size_pos : LT.lt 0 USize.size :=
   | _, Or.inl rfl => of_decide_eq_true rfl
   | _, Or.inr rfl => of_decide_eq_true rfl
 
-set_option genInjectivity false in
 /--
 Unsigned integers that are the size of a word on the platform's architecture.
 
@@ -2743,7 +2738,6 @@ def List.concat {α : Type u} : List α → α → List α
   | nil,       b => cons b nil
   | cons a as, b => cons a (concat as b)
 
-set_option genInjectivity false in
 /--
 A string is a sequence of Unicode code points.
 
@@ -2927,7 +2921,6 @@ def panic {α : Sort u} [Inhabited α] (msg : String) : α :=
 -- TODO: this be applied directly to `Inhabited`'s definition when we remove the above workaround
 attribute [nospecialize] Inhabited
 
-set_option genInjectivity false in
 /--
 `Array α` is the type of [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array) with elements
 from `α`. This type has special support in the runtime.

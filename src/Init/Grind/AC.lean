@@ -299,37 +299,84 @@ theorem Seq.denote_concat {α} (ctx : Context α) {inst₁ : Std.Associative ctx
 
 attribute [local simp] Seq.denote_concat
 
+theorem eq_orient {α} (ctx : Context α) (lhs rhs : Seq)
+    : lhs.denote ctx = rhs.denote ctx → rhs.denote ctx = lhs.denote ctx := by
+  simp_all
+
+theorem eq_simp_lhs_exact {α} (ctx : Context α) (lhs₁ rhs₁ rhs₂ : Seq)
+    : lhs₁.denote ctx = rhs₁.denote ctx → lhs₁.denote ctx = rhs₂.denote ctx → rhs₁.denote ctx = rhs₂.denote ctx := by
+  simp_all
+
+theorem eq_simp_rhs_exact {α} (ctx : Context α) (lhs₁ rhs₁ lhs₂ : Seq)
+    : lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = lhs₁.denote ctx → lhs₂.denote ctx = rhs₁.denote ctx := by
+  simp_all
+
+theorem diseq_simp_lhs_exact {α} (ctx : Context α) (lhs₁ rhs₁ rhs₂ : Seq)
+    : lhs₁.denote ctx = rhs₁.denote ctx → lhs₁.denote ctx ≠ rhs₂.denote ctx → rhs₁.denote ctx ≠ rhs₂.denote ctx := by
+  simp_all
+
+theorem diseq_simp_rhs_exact {α} (ctx : Context α) (lhs₁ rhs₁ lhs₂ : Seq)
+    : lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx ≠ lhs₁.denote ctx → lhs₂.denote ctx ≠ rhs₁.denote ctx := by
+  simp_all
+
 noncomputable def simp_prefix_cert (lhs rhs tail s s' : Seq) : Bool :=
   s.beq' (lhs.concat_k tail) |>.and' (s'.beq' (rhs.concat_k tail))
 
-/--
-Given `lhs = rhs`, and a term `s := lhs * tail`, rewrite it to `s' := rhs * tail`
--/
-theorem simp_prefix {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs rhs tail s s' : Seq)
-    : simp_prefix_cert lhs rhs tail s s' → lhs.denote ctx = rhs.denote ctx → s.denote ctx = s'.denote ctx := by
-  simp [simp_prefix_cert]; intro _ _ h; subst s s'; simp [h]
+theorem eq_simp_lhs_prefix {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs₁ rhs₁ tail lhs₂ rhs₂ lhs₂' : Seq)
+    : simp_prefix_cert lhs₁ rhs₁ tail lhs₂ lhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx → lhs₂'.denote ctx = rhs₂.denote ctx := by
+  simp [simp_prefix_cert]; intros; subst lhs₂ lhs₂'; simp_all
+
+theorem eq_simp_rhs_prefix {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs₁ rhs₁ tail lhs₂ rhs₂ rhs₂' : Seq)
+    : simp_prefix_cert lhs₁ rhs₁ tail rhs₂ rhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx → lhs₂.denote ctx = rhs₂'.denote ctx := by
+  simp [simp_prefix_cert]; intros; subst rhs₂ rhs₂'; simp_all
+
+theorem diseq_simp_lhs_prefix {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs₁ rhs₁ tail lhs₂ rhs₂ lhs₂' : Seq)
+    : simp_prefix_cert lhs₁ rhs₁ tail lhs₂ lhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx ≠ rhs₂.denote ctx → lhs₂'.denote ctx ≠ rhs₂.denote ctx := by
+  simp [simp_prefix_cert]; intros; subst lhs₂ lhs₂'; simp_all
+
+theorem diseq_simp_rhs_prefix {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs₁ rhs₁ tail lhs₂ rhs₂ rhs₂' : Seq)
+    : simp_prefix_cert lhs₁ rhs₁ tail rhs₂ rhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx ≠ rhs₂.denote ctx → lhs₂.denote ctx ≠ rhs₂'.denote ctx := by
+  simp [simp_prefix_cert]; intros; subst rhs₂ rhs₂'; simp_all
 
 noncomputable def simp_suffix_cert (lhs rhs head s s' : Seq) : Bool :=
   s.beq' (head.concat_k lhs) |>.and' (s'.beq' (head.concat_k rhs))
 
-/--
-Given `lhs = rhs`, and a term `s := head * lhs`, rewrite it to `s' := head * rhs`
--/
-theorem simp_suffix {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs rhs head s s' : Seq)
-    : simp_suffix_cert lhs rhs head s s' → lhs.denote ctx = rhs.denote ctx → s.denote ctx = s'.denote ctx := by
-  simp [simp_suffix_cert]; intro _ _ h; subst s s'; simp [h]
+theorem eq_simp_lhs_suffix {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs₁ rhs₁ head lhs₂ rhs₂ lhs₂' : Seq)
+    : simp_suffix_cert lhs₁ rhs₁ head lhs₂ lhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx → lhs₂'.denote ctx = rhs₂.denote ctx := by
+  simp [simp_suffix_cert]; intros; subst lhs₂ lhs₂'; simp_all
+
+theorem eq_simp_rhs_suffix {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs₁ rhs₁ head lhs₂ rhs₂ rhs₂' : Seq)
+    : simp_suffix_cert lhs₁ rhs₁ head rhs₂ rhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx → lhs₂.denote ctx = rhs₂'.denote ctx := by
+  simp [simp_suffix_cert]; intros; subst rhs₂ rhs₂'; simp_all
+
+theorem diseq_simp_lhs_suffix {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs₁ rhs₁ head lhs₂ rhs₂ lhs₂' : Seq)
+    : simp_suffix_cert lhs₁ rhs₁ head lhs₂ lhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx ≠ rhs₂.denote ctx → lhs₂'.denote ctx ≠ rhs₂.denote ctx := by
+  simp [simp_suffix_cert]; intros; subst lhs₂ lhs₂'; simp_all
+
+theorem diseq_simp_rhs_suffix {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs₁ rhs₁ head lhs₂ rhs₂ rhs₂' : Seq)
+    : simp_suffix_cert lhs₁ rhs₁ head rhs₂ rhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx ≠ rhs₂.denote ctx → lhs₂.denote ctx ≠ rhs₂'.denote ctx := by
+  simp [simp_suffix_cert]; intros; subst rhs₂ rhs₂'; simp_all
 
 noncomputable def simp_middle_cert (lhs rhs head tail s s' : Seq) : Bool :=
   s.beq' (head.concat_k (lhs.concat_k tail)) |>.and' (s'.beq' (head.concat_k (rhs.concat_k tail)))
 
-/--
-Given `lhs = rhs`, and a term `s := head * lhs * tail`, rewrite it to `s' := head * rhs * tail`
--/
-theorem simp_middle {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs rhs head tail s s' : Seq)
-    : simp_middle_cert lhs rhs head tail s s' → lhs.denote ctx = rhs.denote ctx → s.denote ctx = s'.denote ctx := by
-  simp [simp_middle_cert]; intro _ _ h; subst s s'; simp [h]
+theorem eq_simp_lhs_middle {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs₁ rhs₁ head tail lhs₂ rhs₂ lhs₂' : Seq)
+    : simp_middle_cert lhs₁ rhs₁ head tail lhs₂ lhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx → lhs₂'.denote ctx = rhs₂.denote ctx := by
+  simp [simp_middle_cert]; intros; subst lhs₂ lhs₂'; simp_all
 
-noncomputable def superpose_prefix_suffix_cert (p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq) : Bool :=
+theorem eq_simp_rhs_middle {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs₁ rhs₁ head tail lhs₂ rhs₂ rhs₂' : Seq)
+    : simp_middle_cert lhs₁ rhs₁ head tail rhs₂ rhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx → lhs₂.denote ctx = rhs₂'.denote ctx := by
+  simp [simp_middle_cert]; intros; subst rhs₂ rhs₂'; simp_all
+
+theorem diseq_simp_lhs_middle {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs₁ rhs₁ head tail lhs₂ rhs₂ lhs₂' : Seq)
+    : simp_middle_cert lhs₁ rhs₁ head tail lhs₂ lhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx ≠ rhs₂.denote ctx → lhs₂'.denote ctx ≠ rhs₂.denote ctx := by
+  simp [simp_middle_cert]; intros; subst lhs₂ lhs₂'; simp_all
+
+theorem diseq_simp_rhs_middle {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs₁ rhs₁ head tail lhs₂ rhs₂ rhs₂' : Seq)
+    : simp_middle_cert lhs₁ rhs₁ head tail rhs₂ rhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx ≠ rhs₂.denote ctx → lhs₂.denote ctx ≠ rhs₂'.denote ctx := by
+  simp [simp_middle_cert]; intros; subst rhs₂ rhs₂'; simp_all
+
+noncomputable def superpose_cert (p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq) : Bool :=
   lhs₁.beq' (p.concat_k c) |>.and'
   (lhs₂.beq' (c.concat_k s)) |>.and'
   (lhs.beq' (rhs₁.concat_k s)) |>.and'
@@ -339,10 +386,10 @@ noncomputable def superpose_prefix_suffix_cert (p c s lhs₁ rhs₁ lhs₂ rhs�
 Given `lhs₁ = rhs₁` and `lhs₂ = rhs₂` where `lhs₁ := p * c` and `lhs₂ := c * s`,
 `lhs = rhs` where `lhs := rhs₁ * s` and `rhs := p * rhs₂`
 -/
-theorem superpose_prefix_suffix {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} (p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq)
-    : superpose_prefix_suffix_cert p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx
+theorem superpose {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} (p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq)
+    : superpose_cert p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx
       → lhs.denote ctx = rhs.denote ctx := by
-  simp [superpose_prefix_suffix_cert]; intro _ _ _ _; subst lhs₁ lhs₂ lhs rhs; simp
+  simp [superpose_cert]; intro _ _ _ _; subst lhs₁ lhs₂ lhs rhs; simp
   intro h₁ h₂; simp [← h₁, ← h₂, Std.Associative.assoc (self := inst₁)]
 
 def Seq.unionFuel (fuel : Nat) (s₁ s₂ : Seq) : Seq :=
@@ -422,26 +469,42 @@ theorem simp_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst
     : simp_ac_cert c lhs rhs s s' → lhs.denote ctx = rhs.denote ctx → s.denote ctx = s'.denote ctx := by
   simp [simp_ac_cert]; intro _ _; subst s s'; simp; intro h; rw [h]
 
-noncomputable def superpose_ac_cert (a b c lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq) : Bool :=
-  lhs₁.beq' (c.union_k a) |>.and'
-  (lhs₂.beq' (c.union_k b)) |>.and'
-  (lhs.beq' (b.union_k rhs₁)) |>.and'
-  (rhs.beq' (a.union_k rhs₂))
+theorem eq_simp_lhs_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} (c lhs₁ rhs₁ lhs₂ rhs₂ lhs₂' : Seq)
+    : simp_ac_cert c lhs₁ rhs₁ lhs₂ lhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx → lhs₂'.denote ctx = rhs₂.denote ctx := by
+  simp [simp_ac_cert]; intros; subst lhs₂ lhs₂'; simp_all
+
+theorem eq_simp_rhs_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} (c lhs₁ rhs₁ lhs₂ rhs₂ rhs₂' : Seq)
+    : simp_ac_cert c lhs₁ rhs₁ rhs₂ rhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx → lhs₂.denote ctx = rhs₂'.denote ctx := by
+  simp [simp_ac_cert]; intros; subst rhs₂ rhs₂'; simp_all
+
+theorem diseq_simp_lhs_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} (c lhs₁ rhs₁ lhs₂ rhs₂ lhs₂' : Seq)
+    : simp_ac_cert c lhs₁ rhs₁ lhs₂ lhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx ≠ rhs₂.denote ctx → lhs₂'.denote ctx ≠ rhs₂.denote ctx := by
+  simp [simp_ac_cert]; intros; subst lhs₂ lhs₂'; simp_all
+
+theorem diseq_simp_rhs_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} (c lhs₁ rhs₁ lhs₂ rhs₂ rhs₂' : Seq)
+    : simp_ac_cert c lhs₁ rhs₁ rhs₂ rhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx ≠ rhs₂.denote ctx → lhs₂.denote ctx ≠ rhs₂'.denote ctx := by
+  simp [simp_ac_cert]; intros; subst rhs₂ rhs₂'; simp_all
+
+noncomputable def superpose_ac_cert (r₁ c r₂ lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq) : Bool :=
+  lhs₁.beq' (c.union_k r₁) |>.and'
+  (lhs₂.beq' (c.union_k r₂)) |>.and'
+  (lhs.beq' (r₂.union_k rhs₁)) |>.and'
+  (rhs.beq' (r₁.union_k rhs₂))
 
 /--
-Given `lhs₁ = rhs₁` and `lhs₂ = rhs₂` where `lhs₁ := union c a` and `lhs₂ := union c b`,
-`lhs = rhs` where `lhs := union b rhs₁` and `rhs := union a rhs₂`
+Given `lhs₁ = rhs₁` and `lhs₂ = rhs₂` where `lhs₁ := union c r₁` and `lhs₂ := union c r₂`,
+`lhs = rhs` where `lhs := union r₂ rhs₁` and `rhs := union r₁ rhs₂`
 -/
-theorem superpose_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op}  (a b c lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq)
-    : superpose_ac_cert a b c lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx
+theorem superpose_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op}  (r₁ c r₂ lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq)
+    : superpose_ac_cert r₁ c r₂ lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx
       → lhs.denote ctx = rhs.denote ctx := by
   simp [superpose_ac_cert]; intro _ _ _ _; subst lhs₁ lhs₂ lhs rhs; simp
   intro h₁ h₂; simp [← h₁, ← h₂]
-  rw [← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (b.denote ctx)]
-  rw [← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (a.denote ctx)]
+  rw [← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (r₂.denote ctx)]
+  rw [← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (r₁.denote ctx)]
   simp [Std.Associative.assoc (self := inst₁)]
   apply congrArg (ctx.op (c.denote ctx))
-  rw [Std.Commutative.comm (self := inst₂) (b.denote ctx)]
+  rw [Std.Commutative.comm (self := inst₂) (r₂.denote ctx)]
 
 noncomputable def eq_norm_a_cert (lhs rhs : Expr) (lhs' rhs' : Seq) : Bool :=
   lhs.toSeq.beq' lhs' |>.and' (rhs.toSeq.beq' rhs')
@@ -478,6 +541,13 @@ theorem eq_erase_dup {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : S
       (lhs rhs lhs' rhs' : Seq) : eq_erase_dup_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
   simp [eq_erase_dup_cert]; intro _ _; subst lhs' rhs'; simp
 
+noncomputable def eq_erase0_cert (lhs rhs lhs' rhs' : Seq) : Bool :=
+  lhs.erase0.beq' lhs' |>.and' (rhs.erase0.beq' rhs')
+
+theorem eq_erase0 {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.LawfulIdentity ctx.op (Var.denote ctx 0)}
+      (lhs rhs lhs' rhs' : Seq) : eq_erase0_cert lhs rhs lhs' rhs' → lhs.denote ctx = rhs.denote ctx → lhs'.denote ctx = rhs'.denote ctx := by
+  simp [eq_erase0_cert]; intro _ _; subst lhs' rhs'; simp
+
 theorem diseq_norm_a {α} (ctx : Context α) {_ : Std.Associative ctx.op} (lhs rhs : Expr) (lhs' rhs' : Seq)
     : eq_norm_a_cert lhs rhs lhs' rhs' → lhs.denote ctx ≠ rhs.denote ctx → lhs'.denote ctx ≠ rhs'.denote ctx := by
   simp [eq_norm_a_cert]; intro _ _; subst lhs' rhs'; simp
@@ -497,6 +567,10 @@ theorem diseq_norm_aci {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ :
 theorem diseq_erase_dup {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.IdempotentOp ctx.op}
       (lhs rhs lhs' rhs' : Seq) : eq_erase_dup_cert lhs rhs lhs' rhs' → lhs.denote ctx ≠ rhs.denote ctx → lhs'.denote ctx ≠ rhs'.denote ctx := by
   simp [eq_erase_dup_cert]; intro _ _; subst lhs' rhs'; simp
+
+theorem diseq_erase0 {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.LawfulIdentity ctx.op (Var.denote ctx 0)}
+      (lhs rhs lhs' rhs' : Seq) : eq_erase0_cert lhs rhs lhs' rhs' → lhs.denote ctx ≠ rhs.denote ctx → lhs'.denote ctx ≠ rhs'.denote ctx := by
+  simp [eq_erase0_cert]; intro _ _; subst lhs' rhs'; simp
 
 noncomputable def diseq_unsat_cert (lhs rhs : Seq) : Bool :=
   lhs.beq' rhs

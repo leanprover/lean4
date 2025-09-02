@@ -14,7 +14,6 @@ public import Lean.Meta.Constructions
 public import Lean.Meta.CollectFVars
 public import Lean.Meta.SizeOf
 public import Lean.Meta.Injective
-public import Lean.Meta.IndPredBelow
 public import Lean.Elab.Command
 public import Lean.Elab.DefView
 public import Lean.Elab.DeclUtil
@@ -23,6 +22,7 @@ public import Lean.Elab.DeclarationRange
 import Lean.Elab.ComputedFields
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
+import Lean.Meta.IndPredBelow
 
 public section
 

@@ -190,4 +190,123 @@ example : Seq.subset (2::2) (0::1::2::2::3::4) = .strict (0::1::3::4) := rfl
 example : Seq.subset (1::2) (0::1::1::1::2::2::3::4) = .strict (0::1::1::2::3::4) := rfl
 example : Seq.subset (1::1::2) (0::1::1::1::2::2::3::4) = .strict (0::1::2::3::4) := rfl
 
+def Seq.isSorted (s : Seq) : Bool :=
+  match s with
+  | .var _ => true
+  | .cons x s => go x s
+where
+  go (x : Var) (s : Seq) : Bool :=
+    match s with
+    | .var y => x ≤ y
+    | .cons y s => x ≤ y && go y s
+
+def Seq.contains (s : Seq) (x : Var) : Bool :=
+  match s with
+  | .var y => x == y
+  | .cons y s => x == y || s.contains x
+
+def Seq.noAdjacentDuplicates (s : Seq) : Bool :=
+  match s with
+  | .var _ => true
+  | .cons x s => go x s
+where
+  go (x : Var) (s : Seq) : Bool :=
+    match s with
+    | .var y => x != y
+    | .cons y s => x != y && go y s
+
+example : Seq.erase0 (1::0) = 1 := rfl
+example : Seq.erase0 (0::1) = 1 := rfl
+example : Seq.erase0 (0::1::2) = 1::2 := rfl
+
+/--
+Returns `true` if `s₁` and `s₂` have at least one variable in common.
+The function assumes both of them are sorted.
+-/
+def Seq.sharesVar (s₁ s₂ : Seq) : Bool :=
+  match s₁, s₂ with
+  | .var x,     .var y     => x == y
+  | .var x,     .cons y s₂ => x == y || sharesVar (.var x) s₂
+  | .cons x s₁, .var y     => x == y || sharesVar s₁ (.var y)
+  | .cons x s₁, .cons y s₂ =>
+    if x == y then true
+    else if x < y then s₁.sharesVar (.cons y s₂)
+    else sharesVar (.cons x s₁) s₂
+
+example : Seq.sharesVar 0 0 = true := by simp [Seq.sharesVar, OfNat.ofNat]
+example : Seq.sharesVar (0::1::2) (2::3) = true := by simp [Seq.sharesVar, OfNat.ofNat]
+example : Seq.sharesVar (2::3) (0::1::2) = true := by simp [Seq.sharesVar, OfNat.ofNat]
+example : Seq.sharesVar (0::1::2) (3::3) = false := by simp [Seq.sharesVar, OfNat.ofNat]
+example : Seq.sharesVar (0::2::3) (0::1::2) = true := by simp [Seq.sharesVar, OfNat.ofNat]
+
+def toSeq? (xs : List Var) : Option Seq :=
+  match xs with
+  | [] => none
+  | x::xs => some <| go xs (.var x)
+where
+  go (xs : List Var) (acc : Seq) : Seq :=
+    match xs with
+    | [] => acc.reverse
+    | x::xs => go xs (.cons x acc)
+
+private def push (s? : Option Seq) (x : Var) : Option Seq :=
+  match s? with
+  | none => some (.var x)
+  | some s => some (.cons x s)
+
+private def rev (s? : Option Seq) : Option Seq :=
+  Seq.reverse <$> s?
+
+private def app (s? : Option Seq) (s' : Seq) : Option Seq :=
+  match s? with
+  | none   => some s'
+  | some s => some (s ++ s')
+
+/--
+Returns `some (r₁, c, r₂)` if `s₁ == r₁.union c` and `s₂ == r₂.union c`
+
+It assumes `s₁` and `s₂` are sorted
+-/
+def Seq.superposeAC? (s₁ s₂ : Seq) : Option (Seq × Seq × Seq) :=
+  go s₁ s₂ none none none
+where
+  mkResult (r₁ c r₂ : Option Seq) : Option (Seq × Seq × Seq) :=
+    match r₁, c, r₂ with
+    | some r₁, some c, some r₂ => some (r₁, c, r₂)
+    | _, _, _ => none
+
+  go (s₁ s₂ : Seq) (r₁ c r₂ : Option Seq) : Option (Seq × Seq × Seq) :=
+    match s₁, s₂ with
+    | .var x, .var y =>
+      if x == y then mkResult (rev r₁) (rev (push c x)) (rev r₂)
+      else mkResult (rev (push r₁ x)) (rev c) (rev (push r₂ y))
+    | .var x, .cons y s₂ =>
+      if x == y then mkResult (rev r₁) (rev (push c x)) (app (rev r₂) s₂)
+      else if x < y then mkResult (rev (push r₁ x)) (rev c) (app (rev r₂) (.cons y s₂))
+      else go (.var x) s₂ r₁ c (push r₂ y)
+    | .cons x s₁, .var y =>
+      if x == y then mkResult (app (rev r₁) s₁) (rev (push c x)) (rev r₂)
+      else if x < y then go s₁ (.var y) (push r₁ x) c r₂
+      else mkResult (app (rev r₁) (.cons x s₁)) (rev c) (rev (push r₂ y))
+    | .cons x s₁, .cons y s₂ =>
+      if x == y then go s₁ s₂ r₁ (push c x) r₂
+      else if x < y then go s₁ (.cons y s₂) (push r₁ x) c r₂
+      else go (.cons x s₁) s₂ r₁ c (push r₂ y)
+
+/--
+Returns `some (p, c, s)` if `s₁ == p ++ c` and `s₂ == c ++ s`
+-/
+def Seq.superpose? (s₁ s₂ : Seq) : Option (Seq × Seq × Seq) :=
+  match s₁ with
+  | .var _ => none
+  | .cons x s₁ => go s₁ s₂ (.var x)
+where
+  go (s₁ s₂ p : Seq) : Option (Seq × Seq × Seq) :=
+    match s₂.startsWith s₁ with
+    | .false => match s₁ with
+      | .var _ => none
+      | .cons x s₁ => go s₁ s₂ (.cons x p)
+    | .exact => none
+    | .prefix s => some (p.reverse, s₁, s)
+
 end Lean.Grind.AC

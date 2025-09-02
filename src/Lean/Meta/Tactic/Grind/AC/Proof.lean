@@ -95,10 +95,6 @@ private def mkACDPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
   return mkApp5 (mkConst declName [s.u]) s.type (← getContext) s.assocInst (← getCommInst) (← getIdempotentInst)
 
-private def mkDupPrefix (declName : Name) : ProofM Expr := do
-  let s ← getStruct
-  return mkApp4 (mkConst declName [s.u]) s.type (← getContext) s.assocInst (← getIdempotentInst)
-
 private def toContextExpr (vars : Array Expr) : ACM Expr := do
   let s ← getStruct
   if h : 0 < vars.size then
@@ -147,12 +143,21 @@ partial def EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := do caching c do
       | true,  false => mkACPrefix ``AC.eq_norm_ac
       | true,  true  => mkACIPrefix ``AC.eq_norm_aci
     return mkApp6 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← mkEqProof a b)
+  | .refl s =>
+    let h ← mkPrefix ``AC.refl
+    return mkApp h (← mkSeqDecl s)
   | .erase_dup c₁ =>
-    let h ← mkDupPrefix ``AC.eq_erase_dup
+    let h ← mkADPrefix ``AC.eq_erase_dup
     return mkApp6 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c₁.toExprProof)
+  | .erase_dup_rhs c₁ =>
+    let h ← mkADPrefix ``AC.eq_erase_dup_rhs
+    return mkApp5 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c₁.toExprProof)
   | .erase0 c₁ =>
     let h ← mkAIPrefix ``AC.eq_erase0
     return mkApp6 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c₁.toExprProof)
+  | .erase0_rhs c₁ =>
+    let h ← mkAIPrefix ``AC.eq_erase0
+    return mkApp5 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c₁.toExprProof)
   | .simp_exact isLhs c₁ c₂ =>
     let h ← mkPrefix <| if isLhs then ``AC.eq_simp_lhs_exact else ``AC.eq_simp_rhs_exact
     let o := if isLhs then c₂.rhs else c₂.lhs
@@ -213,7 +218,7 @@ partial def DiseqCnstr.toExprProof (c : DiseqCnstr) : ProofM Expr := do caching 
       | true,  true  => mkACIPrefix ``AC.diseq_norm_aci
     return mkApp6 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← mkDiseqProof a b)
   | .erase_dup c₁ =>
-    let h ← mkDupPrefix ``AC.diseq_erase_dup
+    let h ← mkADPrefix ``AC.diseq_erase_dup
     return mkApp6 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c₁.toExprProof)
   | .erase0 c₁ =>
     let h ← mkAIPrefix ``AC.diseq_erase0
@@ -247,5 +252,34 @@ def DiseqCnstr.setUnsat (c : DiseqCnstr) : ACM Unit := do
   let h ← withProofContext do
     return mkApp4 (← mkPrefix ``AC.diseq_unsat) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c.toExprProof)
   closeGoal h
+
+def mkExprEqSeqProof (e : AC.Expr) (c : EqCnstr) : ProofM Expr := do
+  let h ← match (← isCommutative), (← hasNeutral) with
+    | false, false => mkAPrefix ``AC.norm_a
+    | false, true  => mkAIPrefix ``AC.norm_ai
+    | true,  false => mkACPrefix ``AC.norm_ac
+    | true,  true  => mkACIPrefix ``AC.norm_aci
+  let h₁ := mkApp3 h (← mkExprDecl e) (← mkSeqDecl c.lhs) eagerReflBoolTrue
+  let h₂ ← c.toExprProof
+  let h ← mkPrefix ``AC.eq_expr_seq_seq
+  return mkApp5 h (← mkExprDecl e) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) h₁ h₂
+
+/--
+Asserts `a = b`, where
+- `ea` is `a`s reification
+- `eb` is `b`s reification
+- `ca` is a proof for `sa = s` where `norm ea = sa`
+- `cb` is a proof for `sb = s` where `norm eb = sb`
+-/
+def propagateEq (a b : Expr) (ea eb : AC.Expr) (ca cb : EqCnstr) : ACM Unit := do
+  assert! ca.rhs == cb.rhs
+  let h ← withProofContext do
+    let h₁ ← mkExprEqSeqProof ea ca
+    let h₂ ← mkExprEqSeqProof eb cb
+    let h ← mkPrefix ``AC.imp_eq
+    return mkApp5 h (← mkExprDecl ea) (← mkExprDecl eb) (← mkSeqDecl ca.rhs) h₁ h₂
+  let s ← getStruct
+  let eq := mkApp3 (mkConst ``Eq [s.u]) s.type a b
+  pushEq a b <| mkExpectedPropHint h eq
 
 end Lean.Meta.Grind.AC

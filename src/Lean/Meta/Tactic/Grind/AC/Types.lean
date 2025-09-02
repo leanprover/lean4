@@ -40,6 +40,10 @@ inductive EqCnstrProof where
   | superpose_ac_idempotent (x : AC.Var) (c₁ : EqCnstr)
   | superpose_head_idempotent (x : AC.Var) (c₁ : EqCnstr)
   | superpose_tail_idempotent (x : AC.Var) (c₁ : EqCnstr)
+  -- The following constructors are for equality propagation
+  | refl (s : AC.Seq)
+  | erase_dup_rhs (c : EqCnstr)
+  | erase0_rhs (c : EqCnstr)
 end
 
 instance : Inhabited EqCnstrProof where

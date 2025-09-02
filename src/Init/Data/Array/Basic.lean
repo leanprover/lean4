@@ -1692,6 +1692,40 @@ def getMax? (as : Array α) (lt : α → α → Bool) : Option α :=
   else
     none
 
+/-! ### partitionM -/
+
+/--
+Returns a pair of arrays that together contain all the elements of `as`. The first array contains
+those elements for which the monadic predicate `p` returns `true`, and the second contains those for
+which `p` returns `false`. The array's elements are examined in order, from left to right.
+
+This is a monadic version of `Array.partition`.
+
+Example:
+```lean
+def posOrNeg (x : Int) : Except String Bool :=
+  if x > 0 then pure true
+  else if x < 0 then pure false
+  else throw "Zero is not positive or negative"
+
+#eval #[-1, 2, 3].partitionM posOrNeg
+-- Except.ok (#[2, 3], #[-1])
+
+#eval #[0, 2, 3].partitionM posOrNeg
+-- Except.error "Zero is not positive or negative"
+```
+-/
+@[inline, specialize]
+def partitionM {α : Type} [Monad m] (p : α → m Bool) (as : Array α) : m (Array α × Array α) := do
+  let mut bs := #[]
+  let mut cs := #[]
+  for a in as do
+    if (← p a) then
+      bs := bs.push a
+    else
+      cs := cs.push a
+  return (bs, cs)
+
 /--
 Returns a pair of arrays that together contain all the elements of `as`. The first array contains
 those elements for which `p` returns `true`, and the second contains those for which `p` returns
@@ -1715,6 +1749,46 @@ def partition (p : α → Bool) (as : Array α) : Array α × Array α := Id.run
     else
       cs := cs.push a
   return (bs, cs)
+
+/-! ### partitionMapM -/
+
+/--
+Applies a monadic function that returns a disjoint union to each element of an array,
+collecting the `Sum.inl` and `Sum.inr` results into separate arrays.
+
+Example:
+```lean
+def f (x : Int) : Except String (Int ⊕ String) :=
+  if x % 2 = 0 then pure (Sum.inl x)
+  else pure (Sum.inr (toString x))
+
+#eval #[0, 1, 2, 3].partitionMapM f
+-- Except.ok (#[0, 2], #["1", "3"])
+```
+-/
+@[inline, specialize]
+def partitionMapM [Monad m] (f : α → m (β ⊕ γ)) (as : Array α) : m (Array β × Array γ) := do
+  let mut bs := #[]
+  let mut cs := #[]
+  for a in as do
+    match ← f a with
+    | Sum.inl b => bs := bs.push b
+    | Sum.inr c => cs := cs.push c
+  return (bs, cs)
+
+/-! ### partitionMap -/
+
+/--
+Applies a function that returns a disjoint union to each element of an array, collecting the `Sum.inl`
+and `Sum.inr` results into separate arrays.
+
+Examples:
+ * `#[0, 1, 2, 3].partitionMap (fun x => if x % 2 = 0 then .inl x else .inr x) = (#[0, 2], #[1, 3])`
+ * `#[0, 1, 2, 3].partitionMap (fun x => if x = 0 then .inl x else .inr x) = (#[0], #[1, 2, 3])`
+-/
+@[inline]
+def partitionMap (f : α → β ⊕ γ) (as : Array α) : Array β × Array γ :=
+  Id.run <| partitionMapM (fun a => pure (f a)) as
 
 /--
 Removes all the elements that satisfy a predicate from the end of an array.

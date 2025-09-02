@@ -556,7 +556,7 @@ theorem contains_of_mem_toArray [EquivBEq α] [LawfulHashable α] (h : m.WF) {k 
 
 section monadic
 
-variable {m : Raw α} {δ : Type v} {m' : Type v → Type v}
+variable {m : Raw α} {δ : Type v} {m' : Type v → Type w}
 
 theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : δ → α → m' δ} {init : δ} :

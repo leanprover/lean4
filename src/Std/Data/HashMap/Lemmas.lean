@@ -1018,7 +1018,7 @@ theorem mem_toArray_iff_getKey?_eq_some_and_getElem?_eq_some [EquivBEq α] [Lawf
 
 section monadic
 
-variable {m : HashMap α β} {δ : Type w} {m' : Type w → Type w}
+variable {m : HashMap α β} {δ : Type w} {m' : Type w → Type w'}
 
 theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
     {f : δ → (a : α) → β → m' δ} {init : δ} :

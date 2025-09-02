@@ -1423,7 +1423,7 @@ end Const
 
 section monadic
 
-variable {m : DHashMap α β} {δ : Type w} {m' : Type w → Type w}
+variable {m : DHashMap α β} {δ : Type w} {m' : Type w → Type w'}
 
 theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
     {f : δ → (a : α) → β a → m' δ} {init : δ} :

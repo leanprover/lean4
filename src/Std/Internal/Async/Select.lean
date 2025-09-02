@@ -123,6 +123,9 @@ The protocol for this is as follows:
    the `Selectable.cont` of the winning `Selector` is executed and returned.
 -/
 partial def Selectable.one (selectables : Array (Selectable α)) : IO (AsyncTask α) := do
+  if selectables.isEmpty then
+    throw <| .userError "Selectable.one requires at least one Selectable"
+
   let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
   let gen := mkStdGen seed
   let selectables := shuffleIt selectables gen

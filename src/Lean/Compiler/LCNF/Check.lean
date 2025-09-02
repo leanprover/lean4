@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.PrettyPrinter
-import Lean.Compiler.LCNF.CompatibleTypes
+public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.PrettyPrinter
+public import Lean.Compiler.LCNF.CompatibleTypes
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -110,7 +114,7 @@ def isCtorParam (f : Expr) (i : Nat) : CoreM Bool := do
 def checkAppArgs (f : Expr) (args : Array Arg) : CheckM Unit := do
   let mut fType ← inferType f
   let mut j := 0
-  for h : i in [:args.size] do
+  for h : i in *...args.size do
     let arg := args[i]
     if fType.isErased then
       return ()
@@ -128,14 +132,6 @@ def checkAppArgs (f : Expr) (args : Array Arg) : CheckM Unit := do
       let argType ← arg.inferType
       unless (← InferType.compatibleTypes argType expectedType) do
         throwError "type mismatch at LCNF application{indentExpr (mkAppN f (args.map Arg.toExpr))}\nargument {arg.toExpr} has type{indentExpr argType}\nbut is expected to have type{indentExpr expectedType}"
-    unless (← pure (maybeTypeFormerType expectedType) <||> isErasedCompatible expectedType) do
-      match arg with
-      | .fvar fvarId => checkFVar fvarId
-      | .erased => pure ()
-      | .type _ =>
-        -- Constructor parameters that are not type formers are erased at phase .mono
-        unless (← getPhase) ≥ .mono && (← isCtorParam f i) do
-          throwError "invalid LCNF application{indentExpr (mkAppN f (args.map (·.toExpr)))}\nargument{indentExpr arg.toExpr}\nhas type{indentExpr expectedType}\nmust be a free variable"
     fType := b
 
 def checkLetValue (e : LetValue) : CheckM Unit := do
@@ -204,7 +200,7 @@ partial def checkFunDeclCore (declName : Name) (params : Array Param) (type : Ex
     if (← checkTypes) then
       let valueType ← mkForallParams params (← value.inferType)
       unless (← InferType.compatibleTypes type valueType) do
-        throwError "type mismatch at `{declName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr type}"
+        throwError "type mismatch at `{.ofConstName declName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr type}"
 
 partial def checkFunDecl (funDecl : FunDecl) : CheckM Unit := do
   checkFunDeclCore funDecl.binderName funDecl.params funDecl.type funDecl.value

@@ -6,8 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.String.Basic
-import Init.Data.ToString.Basic
+public import Init.Data.String.Basic
+public import Init.Data.ToString.Basic
+
+public section
 
 universe u v
 

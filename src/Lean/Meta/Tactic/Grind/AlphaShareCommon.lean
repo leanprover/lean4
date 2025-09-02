@@ -3,8 +3,12 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.ExprPtr
+public import Lean.Meta.Tactic.Grind.ExprPtr
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -52,10 +56,10 @@ structure AlphaKey where
   expr : Expr
 
 instance : Hashable AlphaKey where
-  hash k := alphaHash k.expr
+  hash k := private alphaHash k.expr
 
 instance : BEq AlphaKey where
-  beq k₁ k₂ := alphaEq k₁.expr k₂.expr
+  beq k₁ k₂ := private alphaEq k₁.expr k₂.expr
 
 structure AlphaShareCommon.State where
   map : PHashMap ExprPtr Expr := {}

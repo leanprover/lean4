@@ -8,8 +8,10 @@ notation, basic datatypes and type classes
 module
 
 prelude
-meta import Init.Prelude
-import Init.SizeOf
+public meta import Init.Prelude
+public import Init.SizeOf
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 @[expose] section
@@ -26,6 +28,29 @@ which applies to all applications of the function).
 theorem id_def {α : Sort u} (a : α) : id a = a := rfl
 
 attribute [grind] id
+
+/--
+A helper gadget for instructing the kernel to eagerly reduce terms.
+
+When the gadget wraps the argument of an application, then when checking that
+the expected and inferred type of the argument match, the kernel will evaluate terms more eagerly.
+It is often used to wrap `Eq.refl true` proof terms as `eagerReduce (Eq.refl true)`
+when using proof by reflection.
+As an example, consider the theorem:
+```
+theorem eq_norm (ctx : Context) (p₁ p₂ : Poly) (h : (p₁.norm == p₂) = true) :
+  p₁.denote ctx = 0 → p₂.denote ctx = 0
+```
+The argument `h : (p₁.norm == p₂) = true` is a candidate for `eagerReduce`.
+When applying this theorem, we would write:
+
+```
+eq_norm ctx p q (eagerReduce (Eq.refl true)) h
+```
+to instruct the kernel to use eager reduction when establishing that `(p.norm == q) = true` is
+definitionally equal to `true = true`.
+-/
+@[expose] def eagerReduce {α : Sort u} (a : α) : α := a
 
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,
@@ -750,6 +775,8 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 
 @[inherit_doc] infix:50 " != " => bne
 
+macro_rules | `($x != $y) => `(binrel_no_prop% bne $x $y)
+
 recommended_spelling "bne" for "!=" in [bne, «term_!=_»]
 
 /-- `ReflBEq α` says that the `BEq` implementation is reflexive. -/
@@ -850,6 +877,8 @@ and asserts that `a` and `b` are not equal.
   ¬(a = b)
 
 @[inherit_doc] infix:50 " ≠ "  => Ne
+
+macro_rules | `($x ≠ $y) => `(binrel% Ne $x $y)
 
 recommended_spelling "ne" for "≠" in [Ne, «term_≠_»]
 
@@ -1530,38 +1559,13 @@ end Setoid
 /-! # Propositional extensionality -/
 
 /--
-The axiom of **propositional extensionality**. It asserts that if propositions
-`a` and `b` are logically equivalent (i.e. we can prove `a` from `b` and vice versa),
-then `a` and `b` are *equal*, meaning that we can replace `a` with `b` in all
-contexts.
+The [axiom](lean-manual://section/axioms) of **propositional extensionality**. It asserts that if
+propositions `a` and `b` are logically equivalent (that is, if `a` can be proved from `b` and vice
+versa), then `a` and `b` are *equal*, meaning `a` can be replaced with `b` in all contexts.
 
-For simple expressions like `a ∧ c ∨ d → e` we can prove that because all the logical
-connectives respect logical equivalence, we can replace `a` with `b` in this expression
-without using `propext`. However, for higher order expressions like `P a` where
-`P : Prop → Prop` is unknown, or indeed for `a = b` itself, we cannot replace `a` with `b`
-without an axiom which says exactly this.
-
-This is a relatively uncontroversial axiom, which is intuitionistically valid.
-It does however block computation when using `#reduce` to reduce proofs directly
-(which is not recommended), meaning that canonicity,
-the property that all closed terms of type `Nat` normalize to numerals,
-fails to hold when this (or any) axiom is used:
-```
-set_option pp.proofs true
-
-def foo : Nat := by
-  have : (True → True) ↔ True := ⟨λ _ => trivial, λ _ _ => trivial⟩
-  have := propext this ▸ (2 : Nat)
-  exact this
-
-#reduce foo
--- propext { mp := fun x x => True.intro, mpr := fun x => True.intro } ▸ 2
-
-#eval foo -- 2
-```
-`#eval` can evaluate it to a numeral because the compiler erases casts and
-does not evaluate proofs, so `propext`, whose return type is a proposition,
-can never block it.
+The standard logical connectives provably respect propositional extensionality. However, an axiom is
+needed for higher order expressions like `P a` where `P : Prop → Prop` is unknown, as well as for
+equality. Propositional extensionality is intuitionistically valid.
 -/
 axiom propext {a b : Prop} : (a ↔ b) → a = b
 
@@ -1592,6 +1596,7 @@ gen_injective_theorems% MProd
 gen_injective_theorems% NonScalar
 gen_injective_theorems% Option
 gen_injective_theorems% PLift
+gen_injective_theorems% PULift
 gen_injective_theorems% PNonScalar
 gen_injective_theorems% PProd
 gen_injective_theorems% Prod
@@ -2517,11 +2522,16 @@ class Antisymm (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `r` satisfies `r a b → r b a → a = b`. -/
   antisymm (a b : α) : r a b → r b a → a = b
 
-/-- `Asymm X r` means that the binary relation `r` on `X` is asymmetric, that is,
+/-- `Asymm r` means that the binary relation `r` is asymmetric, that is,
 `r a b → ¬ r b a`. -/
 class Asymm (r : α → α → Prop) : Prop where
   /-- An asymmetric relation satisfies `r a b → ¬ r b a`. -/
   asymm : ∀ a b, r a b → ¬r b a
+
+/-- `Symm r` means that the binary relation `r` is symmetric, that is, `r a b → r b a`.  -/
+class Symm (r : α → α → Prop) : Prop where
+  /-- A symmetric relation satisfies `r a b → r b a`. -/
+  symm : ∀ a b, r a b → r b a
 
 /-- `Total X r` means that the binary relation `r` on `X` is total, that is, that for any
 `x y : X` we have `r x y` or `r y x`. -/
@@ -2536,3 +2546,7 @@ class Irrefl (r : α → α → Prop) : Prop where
   irrefl : ∀ a, ¬r a a
 
 end Std
+
+/-- Deprecated alias for `XorOp`. -/
+@[deprecated XorOp (since := "2025-07-30")]
+abbrev Xor := XorOp

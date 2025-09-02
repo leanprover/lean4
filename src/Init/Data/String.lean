@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.String.Basic
-import Init.Data.String.Extra
-import Init.Data.String.Lemmas
+public import Init.Data.String.Basic
+public import Init.Data.String.Extra
+public import Init.Data.String.Lemmas
+
+public section

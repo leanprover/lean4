@@ -6,10 +6,14 @@ Authors: Markus Himmel, Mac Malone
 module
 
 prelude
+public import Init.Data.BitVec.Basic
 import all Init.Data.BitVec.Basic
+public import Init.Data.UInt.Basic
 import all Init.Data.UInt.Basic
-import Init.Data.UInt.Lemmas
-import Init.Data.Fin.Bitwise
+public import Init.Data.UInt.Lemmas
+public import Init.Data.Fin.Bitwise
+
+public section
 
 set_option hygiene false in
 macro "declare_bitwise_uint_theorems" typeName:ident bits:term:arg : command =>
@@ -1231,7 +1235,7 @@ theorem USize.shiftLeft_add {a b c : USize} (hb : b < USize.ofNat System.Platfor
 @[simp] theorem UInt32.neg_one_shiftLeft_or_shiftLeft {a b : UInt32} :
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← UInt32.shiftLeft_or]
 @[simp] theorem UInt64.neg_one_shiftLeft_or_shiftLeft {a b : UInt8} :
-    (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← UInt64.shiftLeft_or]
+    (-1) <<< b ||| a <<< b = (-1) <<< b := by simp
 @[simp] theorem USize.neg_one_shiftLeft_or_shiftLeft {a b : USize} :
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← USize.shiftLeft_or]
 

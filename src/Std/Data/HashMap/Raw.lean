@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Raw
+public import Std.Data.DHashMap.Raw
+
+@[expose] public section
 
 set_option linter.missingDocs true
 set_option autoImplicit false
@@ -38,7 +42,7 @@ over `HashMap.Raw`. Lemmas about the operations on `Std.Data.HashMap.Raw` are av
 module `Std.Data.HashMap.RawLemmas`.
 
 This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
-and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
+and an array of buckets, where each bucket is a linked list of key-value pairs. The number of buckets
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
 
@@ -226,8 +230,6 @@ instance {m : Type w → Type w} : ForIn m (Raw α β) (α × β) where
 
 section Unverified
 
-/-! We currently do not provide lemmas for the functions below. -/
-
 @[inline, inherit_doc DHashMap.Raw.filterMap] def filterMap {γ : Type w} (f : α → β → Option γ)
     (m : Raw α β) : Raw α γ :=
   ⟨m.inner.filterMap f⟩
@@ -244,6 +246,8 @@ section Unverified
 
 @[inline, inherit_doc DHashMap.Raw.keysArray] def keysArray (m : Raw α β) : Array α :=
   m.inner.keysArray
+
+/-! We currently do not provide lemmas for the functions below. -/
 
 @[inline, inherit_doc DHashMap.Raw.values] def values (m : Raw α β) : List β :=
 m.inner.values

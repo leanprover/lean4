@@ -1,11 +1,12 @@
-opaque f : Nat → Nat
+module
+public opaque f : Nat → Nat
 
 /--
 error: the modifier `usr` is only relevant in parameters for `grind only`
 -/
 #guard_msgs (error) in
 @[grind usr]
-theorem fthm : f (f x) = f x := sorry
+public theorem fthm : f (f x) = f x := sorry
 
 /-- trace: [grind.ematch.pattern] fthm: [f #0] -/
 #guard_msgs (trace) in

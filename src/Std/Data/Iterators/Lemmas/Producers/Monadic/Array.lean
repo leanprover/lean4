@@ -3,13 +3,17 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Internal.LawfulMonadLiftFunction
-import Std.Data.Iterators.Producers.Monadic.Array
-import Std.Data.Iterators.Consumers
-import Std.Data.Iterators.Lemmas.Consumers.Monadic
-import Std.Data.Iterators.Lemmas.Producers.Monadic.List
-import Std.Data.Iterators.Lemmas.Equivalence.Basic
+public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
+public import Init.Data.Iterators.Consumers
+public import Std.Data.Iterators.Producers.Monadic.Array
+public import Std.Data.Iterators.Lemmas.Consumers.Monadic
+public import Std.Data.Iterators.Lemmas.Producers.Monadic.List
+public import Std.Data.Iterators.Lemmas.Equivalence.Basic
+
+@[expose] public section
 
 /-!
 # Lemmas about array iterators
@@ -131,23 +135,12 @@ theorem _root_.Array.toList_iterM [LawfulMonad m] {array : Array β} :
     (array.iterM m).toList = pure array.toList := by
   simp [Array.iterM_eq_iterFromIdxM, Array.toList_iterFromIdxM]
 
--- Move to Init.Data.Array.Lemmas in a separate PR afterwards
-private theorem drop_toArray' {l : List α} {k : Nat} :
-    l.toArray.drop k = (l.drop k).toArray := by
-  induction l generalizing k
-  case nil => simp
-  case cons l' ih =>
-    match k with
-    | 0 => simp
-    | k' + 1 => simp [List.drop_succ_cons, ← ih]
-
 @[simp]
 theorem _root_.Array.toArray_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : Nat} :
     (array.iterFromIdxM m pos).toArray = pure (array.extract pos) := by
   simp [← IterM.toArray_toList, Array.toList_iterFromIdxM]
-  rw [← Array.drop_eq_extract]
   rw (occs := [2]) [← Array.toArray_toList (xs := array)]
-  rw [drop_toArray']
+  rw [← List.toArray_drop]
 
 @[simp]
 theorem _root_.Array.toArray_toIterM [LawfulMonad m] {array : Array β} :

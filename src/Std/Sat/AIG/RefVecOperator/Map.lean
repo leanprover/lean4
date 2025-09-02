@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.RefVec
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Sat.AIG.RefVec
+public import Std.Sat.AIG.LawfulVecOperator
+
+@[expose] public section
 
 namespace Std
 namespace Sat
@@ -82,7 +86,7 @@ theorem map.go_le_size {aig : AIG α} (idx : Nat) (hidx) (s : RefVec aig idx)
     aig.decls.size ≤ (go aig idx hidx s input f).aig.decls.size := by
   unfold go
   split
-  · next h =>
+  next h =>
     dsimp only
     refine Nat.le_trans ?_ (by apply map.go_le_size)
     apply LawfulOperator.le_size

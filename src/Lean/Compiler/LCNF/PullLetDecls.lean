@@ -3,11 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.DependsOn
-import Lean.Compiler.LCNF.Types
-import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.DependsOn
+public import Lean.Compiler.LCNF.Types
+public import Lean.Compiler.LCNF.PassManager
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace PullLetDecls
@@ -107,6 +111,11 @@ def Decl.pullLetDecls (decl : Decl) (isCandidateFn : LetDecl → FVarIdSet → C
 
 def Decl.pullInstances (decl : Decl) : CompilerM Decl :=
   decl.pullLetDecls fun letDecl candidates => do
+    -- TODO: Correctly represent these dependencies so this check isn't required.
+    if let .const _ _ args := letDecl.value then
+      if args.any (· == .erased) then return false
+    if let .fvar _ args := letDecl.value then
+      if args.any (· == .erased) then return false
     if (← isClass? letDecl.type).isSome then
       return true
     else if let .proj _ _ fvarId := letDecl.value then

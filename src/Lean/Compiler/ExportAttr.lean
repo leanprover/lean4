@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Attributes
+public import Lean.Attributes
+
+public section
 
 namespace Lean
 
@@ -54,11 +58,10 @@ builtin_initialize exportAttr : ParametricAttribute Name ←
     getParam := fun _ stx => do
       let exportName ← Attribute.Builtin.getId stx
       unless isValidCppName exportName do
-        throwError "invalid 'export' function name, is not a valid C++ identifier"
+        throwError "Invalid `export` function name: `{exportName}` is not a valid C++ identifier"
       return exportName
   }
 
-@[export lean_get_export_name_for]
 def getExportNameFor? (env : Environment) (n : Name) : Option Name :=
   exportAttr.getParam? env n
 

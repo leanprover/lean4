@@ -26,7 +26,7 @@ info: foo.eq_def (x✝ x✝¹ : Nat) :
 #guard_msgs in
 #check foo.eq_def
 
-/-- error: unknown identifier 'foo.eq_4' -/
+/-- error: Unknown identifier `foo.eq_4` -/
 #guard_msgs in
 #check foo.eq_4
 
@@ -107,7 +107,7 @@ info: Structural.foo.eq_def (x✝ x✝¹ : Nat) :
 #guard_msgs in
 #check foo.eq_def
 
-/-- error: unknown identifier 'foo.eq_4' -/
+/-- error: Unknown identifier `Structural.foo.eq_4` -/
 #guard_msgs in
 #check Structural.foo.eq_4
 

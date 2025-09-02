@@ -6,7 +6,9 @@ Author: Leonardo de Moura, Robert Y. Lewis, Keeley Hoek, Mario Carneiro
 module
 
 prelude
-import Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.Bitwise.Basic
+
+public section
 
 @[expose] section
 
@@ -219,7 +221,7 @@ instance : AndOp (Fin n) where
   and := Fin.land
 instance : OrOp (Fin n) where
   or := Fin.lor
-instance : Xor (Fin n) where
+instance : XorOp (Fin n) where
   xor := Fin.xor
 instance : ShiftLeft (Fin n) where
   shiftLeft := Fin.shiftLeft

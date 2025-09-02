@@ -6,8 +6,14 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.UInt.BasicAux
-import Init.Data.BitVec.Basic
+public import Init.Data.UInt.BasicAux
+public import Init.Data.BitVec.Basic
+public import Init.Data.Order.Classes
+import Init.Data.Order.Factories
+
+@[expose] public section
+
+open Std
 
 set_option linter.missingDocs true
 
@@ -181,7 +187,7 @@ instance : Complement UInt8 := ⟨UInt8.complement⟩
 instance : Neg UInt8 := ⟨UInt8.neg⟩
 instance : AndOp UInt8     := ⟨UInt8.land⟩
 instance : OrOp UInt8      := ⟨UInt8.lor⟩
-instance : Xor UInt8       := ⟨UInt8.xor⟩
+instance : XorOp UInt8       := ⟨UInt8.xor⟩
 instance : ShiftLeft UInt8  := ⟨UInt8.shiftLeft⟩
 instance : ShiftRight UInt8 := ⟨UInt8.shiftRight⟩
 
@@ -395,7 +401,7 @@ instance : Complement UInt16 := ⟨UInt16.complement⟩
 instance : Neg UInt16 := ⟨UInt16.neg⟩
 instance : AndOp UInt16     := ⟨UInt16.land⟩
 instance : OrOp UInt16      := ⟨UInt16.lor⟩
-instance : Xor UInt16       := ⟨UInt16.xor⟩
+instance : XorOp UInt16       := ⟨UInt16.xor⟩
 instance : ShiftLeft UInt16  := ⟨UInt16.shiftLeft⟩
 instance : ShiftRight UInt16 := ⟨UInt16.shiftRight⟩
 
@@ -612,7 +618,7 @@ instance : Complement UInt32 := ⟨UInt32.complement⟩
 instance : Neg UInt32 := ⟨UInt32.neg⟩
 instance : AndOp UInt32     := ⟨UInt32.land⟩
 instance : OrOp UInt32      := ⟨UInt32.lor⟩
-instance : Xor UInt32       := ⟨UInt32.xor⟩
+instance : XorOp UInt32       := ⟨UInt32.xor⟩
 instance : ShiftLeft UInt32  := ⟨UInt32.shiftLeft⟩
 instance : ShiftRight UInt32 := ⟨UInt32.shiftRight⟩
 
@@ -790,7 +796,7 @@ instance : Complement UInt64 := ⟨UInt64.complement⟩
 instance : Neg UInt64 := ⟨UInt64.neg⟩
 instance : AndOp UInt64     := ⟨UInt64.land⟩
 instance : OrOp UInt64      := ⟨UInt64.lor⟩
-instance : Xor UInt64       := ⟨UInt64.xor⟩
+instance : XorOp UInt64       := ⟨UInt64.xor⟩
 instance : ShiftLeft UInt64  := ⟨UInt64.shiftLeft⟩
 instance : ShiftRight UInt64 := ⟨UInt64.shiftRight⟩
 
@@ -1054,7 +1060,7 @@ instance : Complement USize := ⟨USize.complement⟩
 instance : Neg USize := ⟨USize.neg⟩
 instance : AndOp USize      := ⟨USize.land⟩
 instance : OrOp USize       := ⟨USize.lor⟩
-instance : Xor USize        := ⟨USize.xor⟩
+instance : XorOp USize        := ⟨USize.xor⟩
 instance : ShiftLeft USize  := ⟨USize.shiftLeft⟩
 instance : ShiftRight USize := ⟨USize.shiftRight⟩
 

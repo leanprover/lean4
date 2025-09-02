@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Internal.WF.Defs
-import Std.Data.DTreeMap.Basic
+public import Std.Data.DTreeMap.Internal.WF.Defs
+public import Std.Data.DTreeMap.Basic
+
+@[expose] public section
 
 /-
 # Dependent tree maps with unbundled well-formedness invariant
@@ -27,12 +31,13 @@ set_option linter.missingDocs true
 universe u v w w₂
 
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Std
 
 namespace DTreeMap
 open Internal (Impl)
+
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 /--
 Dependent tree maps without a bundled well-formedness invariant, suitable for use in nested
@@ -99,7 +104,7 @@ structure Equiv (m₁ m₂ : Raw α β cmp) where
 
 @[inherit_doc] scoped infix:50 " ~m " => Equiv
 
-@[simp]
+@[simp, grind =]
 theorem empty_eq_emptyc : (empty : Raw α β cmp) = ∅ :=
   rfl
 

@@ -2,6 +2,7 @@ import Lean
 
 set_option linter.missingDocs false
 set_option linter.all true
+set_option linter.unusedSimpArgs false
 
 def explicitlyUsedVariable (x : Nat) : Nat :=
   x

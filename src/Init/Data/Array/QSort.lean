@@ -6,4 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Array.QSort.Basic
+public import Init.Data.Array.QSort.Basic
+
+public section

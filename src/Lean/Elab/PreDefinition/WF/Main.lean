@@ -3,17 +3,21 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.TerminationMeasure
-import Lean.Elab.PreDefinition.Mutual
-import Lean.Elab.PreDefinition.WF.PackMutual
-import Lean.Elab.PreDefinition.WF.FloatRecApp
-import Lean.Elab.PreDefinition.WF.Rel
-import Lean.Elab.PreDefinition.WF.Fix
-import Lean.Elab.PreDefinition.WF.Unfold
-import Lean.Elab.PreDefinition.WF.Preprocess
-import Lean.Elab.PreDefinition.WF.GuessLex
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.TerminationMeasure
+public import Lean.Elab.PreDefinition.Mutual
+public import Lean.Elab.PreDefinition.WF.PackMutual
+public import Lean.Elab.PreDefinition.WF.FloatRecApp
+public import Lean.Elab.PreDefinition.WF.Rel
+public import Lean.Elab.PreDefinition.WF.Fix
+public import Lean.Elab.PreDefinition.WF.Unfold
+public import Lean.Elab.PreDefinition.WF.Preprocess
+public import Lean.Elab.PreDefinition.WF.GuessLex
+
+public section
 
 namespace Lean.Elab
 open WF
@@ -30,9 +34,11 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
     let varNamess ← preDefs.mapIdxM fun i preDef => varyingVarNames fixedParamPerms i preDef
     for varNames in varNamess, preDef in preDefs do
       if varNames.isEmpty then
-        throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
+        throwError "well-founded recursion cannot be used, `{preDef.declName}` does not take any (non-fixed) arguments"
     let argsPacker := { varNamess }
-    let unaryPreDef ← packMutual fixedParamPerms argsPacker preDefs
+    let preDefs' ← preDefs.mapM fun preDef => do
+      return { preDef with value := (← unfoldIfArgIsConstOf (preDefs.map (·.declName)) preDef.value) }
+    let unaryPreDef ← packMutual fixedParamPerms argsPacker preDefs'
     return (fixedParamPerms, argsPacker, unaryPreDef)
   trace[Elab.definition.wf] "unaryPreDef:{indentD unaryPreDef.value}"
 

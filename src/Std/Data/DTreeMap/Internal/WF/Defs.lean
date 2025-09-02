@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Internal.Operations
+public import Std.Data.DTreeMap.Internal.Operations
+
+@[expose] public section
 
 /-!
 # Well-formedness predicate on size-bounded trees
@@ -21,9 +25,9 @@ set_option linter.all true
 universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Std.DTreeMap.Internal
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Impl
 

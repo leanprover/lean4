@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.HashMap.Raw
+public import Std.Data.HashMap.Raw
+
+@[expose] public section
 
 /-!
 # Hash sets with unbundled well-formedness invariant
@@ -212,13 +216,17 @@ instance {m : Type v → Type v} : ForM m (Raw α) α where
 instance {m : Type v → Type v} : ForIn m (Raw α) α where
   forIn m init f := m.forIn f init
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
 /-- Removes all elements from the hash set for which the given function returns `false`. -/
 @[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : Raw α) : Raw α :=
   ⟨m.inner.filter fun a _ => f a⟩
+
+/-- Transforms the hash set into an array of elements in some order. -/
+@[inline] def toArray (m : Raw α) : Array α :=
+  m.inner.keysArray
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
 
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
 @[inline] def all (m : Raw α) (p : α → Bool) : Bool := Id.run do
@@ -231,11 +239,6 @@ section Unverified
   for a in m do
     if p a then return true
   return false
-
-
-/-- Transforms the hash set into an array of elements in some order. -/
-@[inline] def toArray (m : Raw α) : Array α :=
-  m.inner.keysArray
 
 /--
 Inserts multiple mappings into the hash set by iterating over the given collection and calling

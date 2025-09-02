@@ -3,9 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mac Malone
 -/
+module
+
 prelude
-import Lean.Data.Json
-import Lean.Util.LeanOptions
+public import Lean.Data.Json.Parser
+public import Lean.Data.Json.FromToJson.Basic
+public import Lean.Util.LeanOptions
+
+public section
 
 /-!
 # Module Setup Information
@@ -24,7 +29,8 @@ structure Import where
   isExported : Bool := true
   /-- Whether all definitions (transitively) reachable through the -/
   isMeta     : Bool := false
-  deriving Repr, Inhabited, ToJson, FromJson
+  deriving Repr, Inhabited, ToJson, FromJson,
+    BEq, Hashable -- needed by Lake (in `Lake.Load.Elab.Lean`)
 
 instance : Coe Name Import := ⟨({module := ·})⟩
 
@@ -38,6 +44,46 @@ structure ModuleHeader where
   isModule : Bool
   deriving Repr, Inhabited, ToJson, FromJson
 
+/--
+Module data files used for an `import` statement.
+This structure is designed for efficient JSON serialization.
+-/
+structure ImportArtifacts where
+  ofArray ::
+    toArray : Array System.FilePath
+  deriving Repr, Inhabited
+
+instance : ToJson ImportArtifacts := ⟨(toJson ·.toArray)⟩
+instance : FromJson ImportArtifacts := ⟨(.ofArray <$> fromJson? ·)⟩
+
+def ImportArtifacts.size (arts : ImportArtifacts) :=
+  arts.toArray.size
+
+def ImportArtifacts.olean? (arts : ImportArtifacts) :=
+  arts.toArray[0]?
+
+def ImportArtifacts.ir? (arts : ImportArtifacts) :=
+  arts.toArray[1]?
+
+def ImportArtifacts.oleanServer? (arts : ImportArtifacts) :=
+  arts.toArray[2]?
+
+def ImportArtifacts.oleanPrivate? (arts : ImportArtifacts) :=
+  arts.toArray[3]?
+
+def ImportArtifacts.oleanParts (inServer : Bool) (arts : ImportArtifacts) : Array System.FilePath := Id.run do
+  let mut fnames := #[]
+  if let some mFile := arts.olean? then
+    fnames := fnames.push mFile
+    if let some sFile := arts.oleanServer? then
+      -- For uniformity, Lake always provides us with .olean.server, so load it only when we are in
+      -- server mode or we need it to load further files.
+      if inServer || arts.oleanPrivate?.isSome then
+        fnames := fnames.push sFile
+      if let some pFile := arts.oleanPrivate? then
+        fnames := fnames.push pFile
+  return fnames
+
 /-- Files containing data for a single module. -/
 structure ModuleArtifacts where
   lean? : Option System.FilePath := none
@@ -45,23 +91,37 @@ structure ModuleArtifacts where
   oleanServer? : Option System.FilePath := none
   oleanPrivate? : Option System.FilePath := none
   ilean? : Option System.FilePath := none
+  ir? : Option System.FilePath := none
   c? : Option System.FilePath := none
   bc? : Option System.FilePath := none
   deriving Repr, Inhabited, ToJson, FromJson
 
-/--
-A module's setup information as described by a JSON file.
-Supersedes the module's header when the `--setup` CLI option is used.
--/
+def ModuleArtifacts.oleanParts (arts : ModuleArtifacts) : Array System.FilePath := Id.run do
+  let mut fnames := #[]
+  if let some mFile := arts.olean? then
+    fnames := fnames.push mFile
+    if let some sFile := arts.oleanServer? then
+      fnames := fnames.push sFile
+      if let some pFile := arts.oleanPrivate? then
+        fnames := fnames.push pFile
+  return fnames
+
+/-- A module's setup information as described by a JSON file. -/
 structure ModuleSetup where
   /-- Name of the module. -/
   name : Name
-  /-- Whether the module is participating in the module system. -/
+  /--
+  Whether the module, by default, participates in the module system.
+  Even if `false`, a module can still choose to participate by using `module` in its header.
+  -/
   isModule : Bool := false
-  /-- The module's direct imports. -/
-  imports : Array Import := #[]
-  /-- Pre-resolved artifacts of related modules (e.g., this module's transitive imports). -/
-  modules : NameMap ModuleArtifacts := {}
+  /--
+  The module's direct imports.
+  If `none`, uses the imports from the module header.
+  -/
+  imports? : Option (Array Import) := none
+  /-- Pre-resolved artifacts of transitively imported modules. -/
+  importArts : NameMap ImportArtifacts := {}
   /-- Dynamic libraries to load with the module. -/
   dynlibs : Array System.FilePath := #[]
   /-- Plugins to initialize with the module. -/

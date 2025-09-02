@@ -3,13 +3,18 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Init.Grind.PP
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Arith.Model
-import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
-import Lean.Meta.Tactic.Grind.Arith.Linear.PP
+public import Init.Grind.Util
+public import Init.Grind.PP
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Model
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
+public import Lean.Meta.Tactic.Grind.Arith.Linear.PP
+import Lean.PrettyPrinter
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -107,7 +112,7 @@ private def ppEqcs : M Unit := do
      pushMsg <| .trace { cls := `eqc } "Equivalence classes" otherEqcs
 
 private def ppEMatchTheorem (thm : EMatchTheorem) : MetaM MessageData := do
-  let m := m!"{← thm.origin.pp}: {thm.patterns.map ppPattern}"
+  let m := m!"{thm.origin.pp}: {thm.patterns.map ppPattern}"
   return .trace { cls := `thm } m #[]
 
 private def ppActiveTheoremPatterns : M Unit := do
@@ -180,7 +185,7 @@ private def ppCasesTrace : M Unit := do
     let mut msgs := #[]
     for { expr, i , num, source } in goal.split.trace.reverse do
       msgs := msgs.push <| .trace { cls := `cases } m!"[{i+1}/{num}]: {expr}" #[
-        .trace { cls := `cases } m!"source: {← source.toMessageData}" #[]
+        .trace { cls := `cases } m!"source: {source.toMessageData}" #[]
       ]
     pushMsg <| .trace { cls := `cases } "Case analyses" msgs
 

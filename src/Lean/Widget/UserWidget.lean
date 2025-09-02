@@ -4,10 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Elab.Eval
-import Lean.Server.Rpc.RequestHandling
-import Lean.Widget.Types
+public import Lean.Elab.Eval
+public import Lean.Server.Rpc.RequestHandling
+public import Lean.Widget.Types
+meta import Lean.Parser.Term
+meta import Lean.Elab.Command
+
+public section
 
 namespace Lean.Widget
 open Meta Elab
@@ -31,7 +37,7 @@ class ToModule (α : Type u) where
 
 instance : ToModule Module := ⟨id⟩
 
-private builtin_initialize builtinModulesRef : IO.Ref (RBMap UInt64 (Name × Module) compare) ←
+private builtin_initialize builtinModulesRef : IO.Ref (Std.TreeMap UInt64 (Name × Module)) ←
   IO.mkRef ∅
 
 def addBuiltinModule (id : Name) (m : Module) : IO Unit :=
@@ -43,9 +49,9 @@ where `inst : ToModule α` is synthesized during registration time
 and stored thereafter. -/
 private abbrev ModuleRegistry := SimplePersistentEnvExtension
   (UInt64 × Name × Expr)
-  (RBMap UInt64 (Name × Expr) compare)
+  (Std.TreeMap UInt64 (Name × Expr))
 
-builtin_initialize moduleRegistry : ModuleRegistry ←
+private builtin_initialize moduleRegistry : ModuleRegistry ←
   registerSimplePersistentEnvExtension {
     addImportedFn := fun xss => xss.foldl (Array.foldl (fun s n => s.insert n.1 n.2)) ∅
     addEntryFn    := fun s n => s.insert n.1 n.2
@@ -62,14 +68,14 @@ builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
       applicationTime := .afterCompilation
       add             := fun decl stx kind => Prod.fst <$> MetaM.run do
         Attribute.Builtin.ensureNoArgs stx
-        unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
+        unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
         let e ← mkAppM ``ToModule.toModule #[.const decl []]
         let mod ← evalModule e
         let env ← getEnv
         unless builtin do  -- don't warn on collision between previous and current stage
-          if let some _ := (← builtinModulesRef.get).find? mod.javascriptHash then
+          if let some _ := (← builtinModulesRef.get).get? mod.javascriptHash then
             logWarning m!"A builtin widget module with the same hash(JS source code) was already registered."
-        if let some (n, _) := moduleRegistry.getState env |>.find? mod.javascriptHash then
+        if let some (n, _) := moduleRegistry.getState env |>.get? mod.javascriptHash then
           logWarning m!"A widget module with the same hash(JS source code) was already registered at {.ofConstName n true}."
         let env ← getEnv
         if builtin then
@@ -101,7 +107,7 @@ structure WidgetSource where
 
 open Server RequestM in
 def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) := do
-  if let some (_, m) := (← builtinModulesRef.get).find? args.hash then
+  if let some (_, m) := (← builtinModulesRef.get).get? args.hash then
     return .pure { sourcetext := m.javascript }
 
   let doc ← readDoc
@@ -110,7 +116,7 @@ def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask Widge
   withWaitFindSnap doc (notFoundX := notFound)
     (fun s => s.endPos >= pos || (moduleRegistry.getState s.env).contains args.hash)
     fun snap => do
-      if let some (_, e) := moduleRegistry.getState snap.env |>.find? args.hash then
+      if let some (_, e) := moduleRegistry.getState snap.env |>.get? args.hash then
         runTermElabM snap do
           return { sourcetext := (← evalModule e).javascript }
       else
@@ -156,11 +162,11 @@ This is similar to a parametric attribute, except that:
   which we cannot do owing to the closure. -/
 private abbrev PanelWidgetsExt := SimpleScopedEnvExtension
   (UInt64 × Name)
-  (RBMap UInt64 (List PanelWidgetsExtEntry) compare)
+  (Std.TreeMap UInt64 (List PanelWidgetsExtEntry))
 
-builtin_initialize panelWidgetsExt : PanelWidgetsExt ←
+private builtin_initialize panelWidgetsExt : PanelWidgetsExt ←
   registerSimpleScopedEnvExtension {
-    addEntry := fun s (h, n) => s.insert h (.global n :: s.findD h [])
+    addEntry := fun s (h, n) => s.insert h (.global n :: s.getD h [])
     initial  := .empty
   }
 
@@ -183,7 +189,7 @@ def addPanelWidgetScoped [Monad m] [MonadEnv m] [MonadResolveName m] (h : UInt64
 
 def addPanelWidgetLocal [Monad m] [MonadEnv m] (wi : WidgetInstance) : m Unit := do
   modifyEnv fun env => panelWidgetsExt.modifyState env fun s =>
-    s.insert wi.javascriptHash (.local wi :: s.findD wi.javascriptHash [])
+    s.insert wi.javascriptHash (.local wi :: s.getD wi.javascriptHash [])
 
 def erasePanelWidget [Monad m] [MonadEnv m] (h : UInt64) : m Unit := do
   modifyEnv fun env => panelWidgetsExt.modifyState env fun st => st.erase h
@@ -199,7 +205,7 @@ def WidgetInstance.ofHash (hash : UInt64) (props : StateM Server.RpcObjectStore 
   let env ← getEnv
   let builtins ← builtinModulesRef.get
   let some id :=
-    (builtins.find? hash |>.map (·.1)) <|> (moduleRegistry.getState env |>.find? hash |>.map (·.1))
+    (builtins.get? hash |>.map (·.1)) <|> (moduleRegistry.getState env |>.get? hash |>.map (·.1))
     | throwError s!"No widget module with hash {hash} registered"
   return { id, javascriptHash := hash, props }
 
@@ -258,7 +264,7 @@ Note that persistent erasure is not possible, i.e.,
 syntax (name := showPanelWidgetsCmd) "show_panel_widgets " "[" sepBy1(showWidgetSpec, ", ") "]" : command
 
 open Command in
-@[command_elab showPanelWidgetsCmd] def elabShowPanelWidgetsCmd : CommandElab
+@[command_elab showPanelWidgetsCmd] meta def elabShowPanelWidgetsCmd : CommandElab
   | `(show_panel_widgets [ $ws ,*]) => liftTermElabM do
     for w in ws.getElems do
       match w with
@@ -305,7 +311,7 @@ In particular, `<props> : Json` works. -/
 syntax (name := widgetCmd) "#widget " widgetInstanceSpec : command
 
 open Command in
-@[command_elab widgetCmd] def elabWidgetCmd : CommandElab
+@[command_elab widgetCmd] meta def elabWidgetCmd : CommandElab
   | stx@`(#widget $s) => liftTermElabM do
     let wi : Expr ← elabWidgetInstanceSpec s
     let wi : WidgetInstance ← evalWidgetInstance wi

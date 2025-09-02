@@ -6,4 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Module.Basic
+public import Init.Grind.Module.Basic
+public import Init.Grind.Module.Envelope
+public import Init.Grind.Module.OfNatModule
+
+public section

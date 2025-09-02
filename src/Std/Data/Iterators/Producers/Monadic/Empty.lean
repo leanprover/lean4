@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Consumers.Collect
-import Std.Data.Iterators.Consumers.Loop
-import Std.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.Consumers.Collect
+public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.Iterators.Internal.Termination
+
+@[expose] public section
 
 /-!
 This file provides an empty iterator.
@@ -51,8 +55,8 @@ private def Empty.instFinitenessRelation [Monad m] :
     cases h'
     cases h
 
-instance Empty.instFinite [Monad m] : Finite (Empty m β) m :=
-  Finite.of_finitenessRelation instFinitenessRelation
+instance Empty.instFinite [Monad m] : Finite (Empty m β) m := by
+  exact Finite.of_finitenessRelation instFinitenessRelation
 
 instance Empty.instIteratorCollect {n : Type w → Type w''} [Monad m] [Monad n] :
     IteratorCollect (Empty m β) m n :=
@@ -62,11 +66,11 @@ instance Empty.instIteratorCollectPartial {n : Type w → Type w''} [Monad m] [M
     IteratorCollectPartial (Empty m β) m n :=
   .defaultImplementation
 
-instance Empty.instIteratorLoop {n : Type w → Type w''} [Monad m] [Monad n] :
+instance Empty.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] :
     IteratorLoop (Empty m β) m n :=
   .defaultImplementation
 
-instance Empty.instIteratorLoopPartial {n : Type w → Type w''} [Monad m] [Monad n] :
+instance Empty.instIteratorLoopPartial {n : Type x → Type x'} [Monad m] [Monad n] :
     IteratorLoopPartial (Empty m β) m n :=
   .defaultImplementation
 

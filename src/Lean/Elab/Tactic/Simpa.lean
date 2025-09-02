@@ -3,12 +3,16 @@ Copyright (c) 2018 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Arthur Paulino, Gabriel Ebner, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Assumption
-import Lean.Meta.Tactic.TryThis
-import Lean.Elab.Tactic.Simp
-import Lean.Elab.App
-import Lean.Linter.Basic
+public import Lean.Meta.Tactic.Assumption
+public import Lean.Meta.Tactic.TryThis
+public import Lean.Elab.Tactic.Simp
+public import Lean.Elab.App
+public import Lean.Linter.Basic
+
+public section
 
 /--
 Enables the 'unnecessary `simpa`' linter. This will report if a use of
@@ -34,7 +38,7 @@ deriving instance Repr for UseImplicitLambdaResult
   | `(tactic| simpa%$tk $[?%$squeeze]? $[!%$unfold]? $cfg:optConfig $(disch)? $[only%$only]?
         $[[$args,*]]? $[using $usingArg]?) => Elab.Tactic.focus do withSimpDiagnostics do
     let stx ← `(tactic| simp $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]?)
-    let { ctx, simprocs, dischargeWrapper } ←
+    let { ctx, simprocs, dischargeWrapper, .. } ←
       withMainContext <| mkSimpContext stx (eraseLocal := false)
     let ctx := if unfold.isSome then ctx.setAutoUnfold else ctx
     -- TODO: have `simpa` fail if it doesn't use `simp`.
@@ -50,7 +54,7 @@ deriving instance Repr for UseImplicitLambdaResult
         let mvarCounterSaved := (← getMCtx).mvarCounter
         let e ← Tactic.elabTerm stx none (mayPostpone := true)
         unless ← occursCheck g e do
-          throwError "occurs check failed, expression{indentExpr e}\ncontains the goal {Expr.mvar g}"
+          throwError "Occurs check failed: Expression{indentExpr e}\ncontains the goal {Expr.mvar g}"
         -- Copy the goal. We want to defer assigning `g := g'` to prevent `MVarId.note` from
         -- partially assigning the goal in case we need to log unassigned metavariables.
         -- Without deferring, this can cause `logUnassignedAndAbort` to report that `g` could not
@@ -74,7 +78,7 @@ deriving instance Repr for UseImplicitLambdaResult
             unless (← withAssignableSyntheticOpaque <| isDefEq gType hType) do
               -- `e` still is valid in this new local context
               Term.throwTypeMismatchError gType hType h
-                (header? := some m!"type mismatch, term{indentExpr e}\nafter simplification")
+                (header? := some m!"Type mismatch: After simplification, term{indentExpr e}\n")
             logUnassignedAndAbort (← filterOldMVars (← getMVars e) mvarCounterSaved)
             closeMainGoal `simpa (checkUnassigned := false) h
         | none =>
@@ -82,7 +86,7 @@ deriving instance Repr for UseImplicitLambdaResult
             if let .fvar h := e then
               if (← getLCtx).getRoundtrippingUserName? h |>.isSome then
                 logLint linter.unnecessarySimpa (← getRef)
-                  m!"try 'simp at {Expr.fvar h}' instead of 'simpa using {Expr.fvar h}'"
+                  m!"Try `simp at {Expr.fvar h}` instead of `simpa using {Expr.fvar h}`"
         g.assign gCopy
         pure stats
       else if let some ldecl := (← getLCtx).findFromUserName? `this then

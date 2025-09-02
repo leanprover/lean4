@@ -1,3 +1,4 @@
+module
 import Lean.Meta.Tactic.Grind
 
 set_option trace.Meta.debug true
@@ -73,7 +74,7 @@ trace: [Meta.debug] true:  [p]
 [Meta.debug] [b, a]
 -/
 #guard_msgs (trace) in
-example (p : Prop) (a : Vector Nat 5) (b : Vector Nat 6) : (p → HEq a b) → p → False := by
+example (p : Prop) (a : Vector Nat 5) (b : Vector Nat 6) : (p → a ≍ b) → p → False := by
   grind on_failure fallback
 
 /--

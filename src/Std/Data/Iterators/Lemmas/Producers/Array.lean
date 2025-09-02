@@ -3,9 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Lemmas.Consumers.Collect
-import Std.Data.Iterators.Lemmas.Producers.Monadic.Array
+public import Std.Data.Iterators.Lemmas.Consumers.Collect
+public import Std.Data.Iterators.Producers.Array
+public import Std.Data.Iterators.Producers.List
+public import Std.Data.Iterators.Lemmas.Producers.Monadic.Array
+
+@[expose] public section
 
 /-!
 # Lemmas about array iterators
@@ -72,7 +78,7 @@ theorem _root_.Array.toArray_iterFromIdx {array : Array β} {pos : Nat} :
 @[simp]
 theorem _root_.Array.toArray_toIter {array : Array β} :
     array.iter.toArray = array := by
-  simp [Array.iter_eq_iterFromIdx, Array.toArray_iterFromIdxM]
+  simp [Array.iter_eq_iterFromIdx]
 
 @[simp]
 theorem _root_.Array.toListRev_iterFromIdx {array : Array β} {pos : Nat} :

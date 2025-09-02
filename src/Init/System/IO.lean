@@ -6,11 +6,13 @@ Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Ma
 module
 
 prelude
-import Init.System.IOError
-import Init.System.FilePath
-import Init.System.ST
-import Init.Data.Ord
-import Init.Data.String.Extra
+public import Init.System.IOError
+public import Init.System.FilePath
+public import Init.System.ST
+public import Init.Data.Ord.Basic
+public import Init.Data.String.Extra
+
+public section
 
 open System
 
@@ -22,7 +24,7 @@ reordered.
    Makes sure we never reorder `IO` operations.
 
    TODO: mark opaque -/
-def IO.RealWorld : Type := Unit
+@[expose] def IO.RealWorld : Type := Unit
 
 /--
 A monad that can have side effects on the external world or throw exceptions of type `ε`.
@@ -532,13 +534,6 @@ Waits for the task to finish, then returns its result.
   return t.get
 
 /--
-Waits until any of the tasks in the list has finished, then return its result.
--/
-@[extern "lean_io_wait_any"] opaque waitAny (tasks : @& List (Task α))
-    (h : tasks.length > 0 := by exact Nat.zero_lt_succ _) : BaseIO α :=
-  return tasks[0].get
-
-/--
 Returns the number of _heartbeats_ that have occurred during the current thread's execution. The
 heartbeat count is the number of “small” memory allocations performed in a thread.
 
@@ -940,7 +935,7 @@ encountered.
 The underlying file is not automatically closed upon encountering an EOF, and subsequent reads from
 the handle may block and/or return data.
 -/
-partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
+def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
   h.readBinToEndInto .empty
 
 /--
@@ -957,12 +952,14 @@ def Handle.readToEnd (h : Handle) : IO String := do
   | none => throw <| .userError s!"Tried to read from handle containing non UTF-8 data."
 
 /--
-Returns the contents of a UTF-8-encoded text file as an array of lines.
+Reads the entire remaining contents of the file handle as a UTF-8-encoded array of lines.
 
 Newline markers are not included in the lines.
+
+The underlying file is not automatically closed, and subsequent reads from the handle may block
+and/or return data.
 -/
-partial def lines (fname : FilePath) : IO (Array String) := do
-  let h ← Handle.mk fname Mode.read
+partial def Handle.lines (h : Handle) : IO (Array String) := do
   let rec read (lines : Array String) := do
     let line ← h.getLine
     if line.length == 0 then
@@ -974,6 +971,15 @@ partial def lines (fname : FilePath) : IO (Array String) := do
     else
       pure <| lines.push line
   read #[]
+
+/--
+Returns the contents of a UTF-8-encoded text file as an array of lines.
+
+Newline markers are not included in the lines.
+-/
+def lines (fname : FilePath) : IO (Array String) := do
+  let h ← Handle.mk fname Mode.read
+  h.lines
 
 /--
 Write the provided bytes to a binary file at the specified path.
@@ -1337,7 +1343,7 @@ output, or error streams.
 For `IO.Process.Stdio.piped`, this type is `IO.FS.Handle`. Otherwise, it is `Unit`, because no
 communication is possible.
 -/
-def Stdio.toHandleType : Stdio → Type
+@[expose] def Stdio.toHandleType : Stdio → Type
   | Stdio.piped   => FS.Handle
   | Stdio.inherit => Unit
   | Stdio.null    => Unit
@@ -1463,13 +1469,21 @@ structure Output where
   stderr   : String
 
 /--
-Runs a process to completion and captures its output and exit code. The child process is run with a
-null standard input, and the current process blocks until it has run to completion.
+Runs a process to completion and captures its output and exit code.
+The child process is run with a null standard input or the specified input if provided,
+and the current process blocks until it has run to completion.
 
 The specifications of standard input, output, and error handles in `args` are ignored.
 -/
-def output (args : SpawnArgs) : IO Output := do
-  let child ← spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
+def output (args : SpawnArgs) (input? : Option String := none) : IO Output := do
+  let child ←
+    if let some input := input? then
+      let (stdin, child) ← (← spawn { args with stdout := .piped, stderr := .piped, stdin := .piped }).takeStdin
+      stdin.putStr input
+      stdin.flush
+      pure child
+    else
+      spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
   let stdout ← IO.asTask child.stdout.readToEnd Task.Priority.dedicated
   let stderr ← child.stderr.readToEnd
   let exitCode ← child.wait
@@ -1477,12 +1491,15 @@ def output (args : SpawnArgs) : IO Output := do
   pure { exitCode := exitCode, stdout := stdout, stderr := stderr }
 
 /--
-Runs a process to completion, blocking until it terminates. If the child process terminates
-successfully with exit code 0, its standard output is returned. An exception is thrown if it
-terminates with any other exit code.
+Runs a process to completion, blocking until it terminates.
+The child process is run with a null standard input or the specified input if provided,
+If the child process terminates successfully with exit code 0, its standard output is returned.
+An exception is thrown if it terminates with any other exit code.
+
+The specifications of standard input, output, and error handles in `args` are ignored.
 -/
-def run (args : SpawnArgs) : IO String := do
-  let out ← output args
+def run (args : SpawnArgs) (input? : Option String := none) : IO String := do
+  let out ← output args input?
   if out.exitCode != 0 then
     throw <| IO.userError s!"process '{args.cmd}' exited with code {out.exitCode}\
       \nstderr:\
@@ -1665,6 +1682,66 @@ def ofBuffer (r : Ref Buffer) : Stream where
     let data := s.toUTF8
     { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size }
   isTty   := pure false
+
+/--
+Reads the entire remaining contents of the stream until an end-of-file marker (EOF) is
+encountered.
+
+The underlying stream is not automatically closed upon encountering an EOF, and subsequent reads from
+the stream may block and/or return data.
+-/
+partial def readBinToEndInto (s : Stream) (buf : ByteArray) : IO ByteArray := do
+  let rec loop (acc : ByteArray) : IO ByteArray := do
+    let buf ← s.read 1024
+    if buf.isEmpty then
+      return acc
+    else
+      loop (acc ++ buf)
+  loop buf
+
+/--
+Reads the entire remaining contents of the stream until an end-of-file marker (EOF) is
+encountered.
+
+The underlying stream is not automatically closed upon encountering an EOF, and subsequent reads from
+the stream may block and/or return data.
+-/
+def readBinToEnd (s : Stream) : IO ByteArray := do
+  s.readBinToEndInto .empty
+
+/--
+Reads the entire remaining contents of the stream as a UTF-8-encoded string. An exception is
+thrown if the contents are not valid UTF-8.
+
+The underlying stream is not automatically closed, and subsequent reads from the stream may block
+and/or return data.
+-/
+def readToEnd (s : Stream) : IO String := do
+  let data ← s.readBinToEnd
+  match String.fromUTF8? data with
+  | some s => return s
+  | none => throw <| .userError s!"Tried to read from stream containing non UTF-8 data."
+
+/--
+Reads the entire remaining contents of the stream as a UTF-8-encoded array of lines.
+
+Newline markers are not included in the lines.
+
+The underlying stream is not automatically closed, and subsequent reads from the stream may block
+and/or return data.
+-/
+partial def lines (s : Stream) : IO (Array String) := do
+  let rec read (lines : Array String) := do
+    let line ← s.getLine
+    if line.length == 0 then
+      pure lines
+    else if line.back == '\n' then
+      let line := line.dropRight 1
+      let line := if line.back == '\r' then line.dropRight 1 else line
+      read <| lines.push line
+    else
+      pure <| lines.push line
+  read #[]
 
 end Stream
 

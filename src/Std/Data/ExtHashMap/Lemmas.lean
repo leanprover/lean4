@@ -3,9 +3,14 @@ Copyright (c) 2025 Robin Arnez, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robin Arnez
 -/
+module
+
 prelude
-import Std.Data.ExtHashMap.Basic
-import Std.Data.ExtDHashMap.Lemmas
+public import Std.Data.ExtHashMap.Basic
+import all Std.Data.ExtDHashMap.Basic
+public import Std.Data.ExtDHashMap.Lemmas
+
+@[expose] public section
 
 /-!
 # Extensional hash map lemmas
@@ -1849,7 +1854,7 @@ theorem getElem?_filterMap [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `getElem?_filterMap` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getElem?_filterMap' [LawfulBEq α] [LawfulHashable α]
+theorem getElem?_filterMap' [LawfulBEq α]
     {f : α → β → Option γ} {k : α} :
     (m.filterMap f)[k]? = m[k]?.bind fun x => f k x := by
   simp [getElem?_filterMap]
@@ -1876,11 +1881,11 @@ theorem isSome_apply_of_mem_filterMap [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `getElem_filterMap` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getElem_filterMap' [LawfulBEq α] [LawfulHashable α]
+theorem getElem_filterMap' [LawfulBEq α]
     {f : α → β → Option γ} {k : α} {h} :
     (m.filterMap f)[k]'h =
       (f k (m[k]'(mem_of_mem_filterMap h))).get (by simpa using isSome_apply_of_mem_filterMap h) := by
-  simp [getElem_filterMap, h]
+  simp [getElem_filterMap]
 
 @[grind =] theorem getElem!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited γ]
     {f : α → β → Option γ} {k : α} :
@@ -1987,7 +1992,7 @@ theorem getElem?_filter [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `getElem?_filter` when `LawfulBEq` is available. -/
 @[simp, grind =]
-theorem getElem?_filter' [LawfulBEq α] [LawfulHashable α]
+theorem getElem?_filter' [LawfulBEq α]
     {f : α → β → Bool} {k : α} :
     (m.filter f)[k]? = m[k]?.filter (f k) := by
   simp [getElem?_filter]
@@ -2012,7 +2017,7 @@ theorem getElem!_filter [EquivBEq α] [LawfulHashable α] [Inhabited β]
 
 /-- Simpler variant of `getElem!_filter` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getElem!_filter' [LawfulBEq α] [LawfulHashable α] [Inhabited β]
+theorem getElem!_filter' [LawfulBEq α] [Inhabited β]
     {f : α → β → Bool} {k : α} :
     (m.filter f)[k]! = (m[k]?.filter (f k)).get! := by
   simp [getElem!_filter]
@@ -2031,7 +2036,7 @@ theorem getD_filter [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `getD_filter` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getD_filter' [LawfulBEq α] [LawfulHashable α]
+theorem getD_filter' [LawfulBEq α]
     {f : α → β → Bool} {k : α} {fallback : β} :
     (m.filter f).getD k fallback = (m[k]?.filter (f k)).getD fallback := by
   simp [getD_filter]
@@ -2139,7 +2144,7 @@ theorem size_map [EquivBEq α] [LawfulHashable α]
   ExtDHashMap.size_map
 
 @[simp, grind =]
-theorem getElem?_map [LawfulBEq α] [LawfulHashable α]
+theorem getElem?_map [LawfulBEq α]
     {f : α → β → γ} {k : α} :
     (m.map f)[k]? = m[k]?.map (f k) :=
   ExtDHashMap.Const.get?_map
@@ -2158,7 +2163,7 @@ theorem getElem?_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
   ExtDHashMap.Const.get?_map_of_getKey?_eq_some h
 
 @[simp, grind =]
-theorem getElem_map [LawfulBEq α] [LawfulHashable α]
+theorem getElem_map [LawfulBEq α]
     {f : α → β → γ} {k : α} {h'} :
     (m.map f)[k]' h' =
       f k (m[k]'(mem_of_mem_map h')) :=
@@ -2172,7 +2177,7 @@ theorem getElem_map' [EquivBEq α] [LawfulHashable α]
       f (m.getKey k (mem_of_mem_map h')) (m[k]'(mem_of_mem_map h')) :=
   ExtDHashMap.Const.get_map' (h' := h')
 
-@[grind =] theorem getElem!_map [LawfulBEq α] [LawfulHashable α] [Inhabited γ]
+@[grind =] theorem getElem!_map [LawfulBEq α] [Inhabited γ]
     {f : α → β → γ} {k : α} :
     (m.map f)[k]! =
       (m[k]?.map (f k)).get! :=
@@ -2191,7 +2196,7 @@ theorem getElem!_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhab
     (m.map f)[k]! = (m[k]?.map (f k')).get! :=
   ExtDHashMap.Const.get!_map_of_getKey?_eq_some h
 
-@[grind =] theorem getD_map [LawfulBEq α] [LawfulHashable α]
+@[grind =] theorem getD_map [LawfulBEq α]
     {f : α → β → γ} {k : α} {fallback : γ} :
     (m.map f).getD k fallback =
       (m[k]?.map (f k)).getD fallback :=

@@ -6,10 +6,12 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.SimpLemmas
-import Init.Data.Nat.Basic
-import Init.Data.List.Notation
-import Init.Data.Nat.Div.Basic
+public import Init.SimpLemmas
+public import Init.Data.Nat.Basic
+public import Init.Data.List.Notation
+public import Init.Data.Nat.Div.Basic
+
+public section
 
 @[expose] section
 
@@ -240,8 +242,7 @@ instance instLT [LT α] : LT (List α) := ⟨List.lt⟩
 instance decidableLT [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
     Decidable (l₁ < l₂) := decidableLex (· < ·) l₁ l₂
 
-@[deprecated decidableLT (since := "2024-12-13"), inherit_doc decidableLT]
-abbrev hasDecidableLt := @decidableLT
+
 
 /--
 Non-strict ordering of lists with respect to a strict ordering of their elements.
@@ -673,7 +674,7 @@ instance : Std.Associative (α := List α) (· ++ ·) := ⟨append_assoc⟩
 theorem append_cons (as : List α) (b : α) (bs : List α) : as ++ b :: bs = as ++ [b] ++ bs := by
   simp
 
-@[simp] theorem concat_eq_append {as : List α} {a : α} : as.concat a = as ++ [a] := by
+@[simp, grind =] theorem concat_eq_append {as : List α} {a : α} : as.concat a = as ++ [a] := by
   induction as <;> simp [concat, *]
 
 theorem reverseAux_eq_append {as bs : List α} : reverseAux as bs = reverseAux as [] ++ bs := by
@@ -730,9 +731,9 @@ Examples:
 -/
 @[inline] def flatMap {α : Type u} {β : Type v} (b : α → List β) (as : List α) : List β := flatten (map b as)
 
-@[simp, grind] theorem flatMap_nil {f : α → List β} : List.flatMap f [] = [] := by simp [flatten, List.flatMap]
+@[simp, grind] theorem flatMap_nil {f : α → List β} : List.flatMap f [] = [] := by simp [List.flatMap]
 @[simp, grind] theorem flatMap_cons {x : α} {xs : List α} {f : α → List β} :
-  List.flatMap f (x :: xs) = f x ++ List.flatMap f xs := by simp [flatten, List.flatMap]
+  List.flatMap f (x :: xs) = f x ++ List.flatMap f xs := by simp [List.flatMap]
 
 /-! ### replicate -/
 
@@ -753,7 +754,7 @@ def replicate : (n : Nat) → (a : α) → List α
 @[simp, grind] theorem length_replicate {n : Nat} {a : α} : (replicate n a).length = n := by
   induction n with
   | zero => simp
-  | succ n ih => simp only [ih, replicate_succ, length_cons, Nat.succ_eq_add_one]
+  | succ n ih => simp only [ih, replicate_succ, length_cons]
 
 /-! ## Additional functions -/
 
@@ -892,7 +893,7 @@ theorem mem_of_elem_eq_true [BEq α] [LawfulBEq α] {a : α} {as : List α} : el
   | a'::as =>
     simp [elem]
     split
-    next h => intros; simp [BEq.beq] at h; subst h; apply Mem.head
+    next h => intros; simp at h; subst h; apply Mem.head
     next _ => intro h; exact Mem.tail _ (mem_of_elem_eq_true h)
 
 theorem elem_eq_true_of_mem [BEq α] [ReflBEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as = true := by
@@ -1367,7 +1368,7 @@ Each element of a list is related to all later elements of the list by `R`.
 `Pairwise R l` means that all the elements of `l` with earlier indexes are `R`-related to all the
 elements with later indexes.
 
-For example, `Pairwise (· ≠ ·) l` asserts that `l` has no duplicates, and if `Pairwise (· < ·) l`
+For example, `Pairwise (· ≠ ·) l` asserts that `l` has no duplicates, and `Pairwise (· < ·) l`
 asserts that `l` is (strictly) sorted.
 
 Examples:
@@ -1720,13 +1721,7 @@ Examples:
 -/
 def idxOf [BEq α] (a : α) : List α → Nat := findIdx (· == a)
 
-/-- Returns the index of the first element equal to `a`, or the length of the list otherwise. -/
-@[deprecated idxOf (since := "2025-01-29")] abbrev indexOf := @idxOf
-
 @[simp] theorem idxOf_nil [BEq α] : ([] : List α).idxOf x = 0 := rfl
-
-@[deprecated idxOf_nil (since := "2025-01-29")]
-theorem indexOf_nil [BEq α] : ([] : List α).idxOf x = 0 := rfl
 
 /-! ### findIdx? -/
 
@@ -1758,10 +1753,6 @@ Examples:
 -/
 @[inline] def idxOf? [BEq α] (a : α) : List α → Option Nat := findIdx? (· == a)
 
-/-- Return the index of the first occurrence of `a` in the list. -/
-@[deprecated idxOf? (since := "2025-01-29")]
-abbrev indexOf? := @idxOf?
-
 /-! ### findFinIdx? -/
 
 /--
@@ -1780,7 +1771,7 @@ where
   | a :: l, i, h =>
     if p a then
       some ⟨i, by
-        simp only [Nat.add_comm _ i, ← Nat.add_assoc] at h
+        simp only [Nat.add_comm _ i] at h
         exact Nat.lt_of_add_right_lt (Nat.lt_of_succ_le (Nat.le_of_eq h))⟩
     else
       go l (i + 1) (by simp at h; simpa [← Nat.add_assoc, Nat.add_right_comm] using h)
@@ -2015,7 +2006,7 @@ def zip : List α → List β → List (Prod α β) :=
   zipWith Prod.mk
 
 @[simp] theorem zip_nil_left : zip ([] : List α) (l : List β)  = [] := rfl
-@[simp] theorem zip_nil_right : zip (l : List α) ([] : List β)  = [] := by simp [zip, zipWith]
+@[simp] theorem zip_nil_right : zip (l : List α) ([] : List β)  = [] := by simp [zip]
 @[simp] theorem zip_cons_cons : zip (a :: as) (b :: bs) = (a, b) :: zip as bs := rfl
 
 /-! ### zipWithAll -/
@@ -2117,21 +2108,10 @@ def range' : (start len : Nat) → (step : Nat := 1) → List Nat
   | _, 0, _ => []
   | s, n+1, step => s :: range' (s+step) n step
 
-/-! ### iota -/
-
-/--
-`O(n)`. `iota n` is the numbers from `1` to `n` inclusive, in decreasing order.
-* `iota 5 = [5, 4, 3, 2, 1]`
--/
-@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20")]
-def iota : Nat → List Nat
-  | 0       => []
-  | m@(n+1) => m :: iota n
-
-set_option linter.deprecated false in
-@[simp] theorem iota_zero : iota 0 = [] := rfl
-set_option linter.deprecated false in
-@[simp] theorem iota_succ : iota (i+1) = (i+1) :: iota i := rfl
+@[simp, grind =] theorem range'_zero : range' s 0 step = [] := rfl
+@[simp, grind =] theorem range'_one {s step : Nat} : range' s 1 step = [s] := rfl
+-- The following theorem is intentionally not a simp lemma.
+theorem range'_succ : range' s (n + 1) step = s :: range' (s + step) n step := rfl
 
 /-! ### zipIdx -/
 
@@ -2150,38 +2130,6 @@ def zipIdx : (l : List α) → (n : Nat := 0) → List (α × Nat)
 
 @[simp] theorem zipIdx_nil : ([] : List α).zipIdx i = [] := rfl
 @[simp] theorem zipIdx_cons : (a::as).zipIdx i = (a, i) :: as.zipIdx (i+1) := rfl
-
-/-! ### enumFrom -/
-
-/--
-`O(|l|)`. `enumFrom n l` is like `enum` but it allows you to specify the initial index.
-* `enumFrom 5 [a, b, c] = [(5, a), (6, b), (7, c)]`
--/
-@[deprecated "Use `zipIdx` instead; note the signature change." (since := "2025-01-21")]
-def enumFrom : Nat → List α → List (Nat × α)
-  | _, [] => nil
-  | n, x :: xs   => (n, x) :: enumFrom (n + 1) xs
-
-set_option linter.deprecated false in
-@[deprecated zipIdx_nil (since := "2025-01-21"), simp]
-theorem enumFrom_nil : ([] : List α).enumFrom i = [] := rfl
-set_option linter.deprecated false in
-@[deprecated zipIdx_cons (since := "2025-01-21"), simp]
-theorem enumFrom_cons : (a::as).enumFrom i = (i, a) :: as.enumFrom (i+1) := rfl
-
-/-! ### enum -/
-
-set_option linter.deprecated false in
-/--
-`O(|l|)`. `enum l` pairs up each element with its index in the list.
-* `enum [a, b, c] = [(0, a), (1, b), (2, c)]`
--/
-@[deprecated "Use `zipIdx` instead; note the signature change." (since := "2025-01-21")]
-def enum : List α → List (Nat × α) := enumFrom 0
-
-set_option linter.deprecated false in
-@[deprecated zipIdx_nil (since := "2025-01-21"), simp]
-theorem enum_nil : ([] : List α).enum = [] := rfl
 
 /-! ## Minima and maxima -/
 
@@ -2601,25 +2549,6 @@ Examples:
     rw [Nat.mul_succ, ← Nat.add_assoc, Nat.add_sub_cancel, Nat.add_right_comm n]
     exact go s n (m + 1)
   exact (go s n 0).symm
-
-/-! ### iota -/
-
-/-- Tail-recursive version of `List.iota`. -/
-@[deprecated "Use `List.range' 1 n` instead of `iota n`." (since := "2025-01-20")]
-def iotaTR (n : Nat) : List Nat :=
-  let rec go : Nat → List Nat → List Nat
-    | 0, r => r.reverse
-    | m@(n+1), r => go n (m::r)
-  go n []
-
-set_option linter.deprecated false in
-@[csimp]
-theorem iota_eq_iotaTR : @iota = @iotaTR :=
-  have aux (n : Nat) (r : List Nat) : iotaTR.go n r = r.reverse ++ iota n := by
-    induction n generalizing r with
-    | zero => simp [iota, iotaTR.go]
-    | succ n ih => simp [iota, iotaTR.go, ih, append_assoc]
-  funext fun n => by simp [iotaTR, aux]
 
 /-! ## Other list operations -/
 

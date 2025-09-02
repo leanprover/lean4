@@ -6,7 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 
 namespace Lean
 
@@ -57,8 +59,9 @@ It is immediately converted to `Lean.Meta.Simp.Config` by `Lean.Elab.Tactic.elab
 -/
 structure Config where
   /--
-  When `true` (default: `true`), performs zeta reduction of let expressions.
+  When `true` (default: `true`), performs zeta reduction of `let` and `have` expressions.
   That is, `let x := v; e[x]` reduces to `e[v]`.
+  If `zetaHave` is `false` then `have` expressions are not zeta reduced.
   See also `zetaDelta`.
   -/
   zeta              : Bool := true
@@ -107,7 +110,8 @@ structure Config where
   unfoldPartialApp  : Bool := false
   /--
   When `true` (default: `false`), local definitions are unfolded.
-  That is, given a local context containing entry `x : t := e`, the free variable `x` reduces to `e`.
+  That is, given a local context containing `x : t := e`, then the free variable `x` reduces to `e`.
+  Otherwise, `x` must be provided as a `simp` argument.
   -/
   zetaDelta         : Bool := false
   /--
@@ -116,10 +120,16 @@ structure Config where
   -/
   index             : Bool := true
   /--
-  When `true` (default : `true`), then simps will remove unused let-declarations:
+  When `true` (default : `true`), then `simp` will remove unused `let` and `have` expressions:
   `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
   -/
   zetaUnused : Bool := true
+  /--
+  When `false` (default: `true`), then disables zeta reduction of `have` expressions.
+  If `zeta` is `false`, then this option has no effect.
+  Unused `have`s are still removed if `zeta` or `zetaUnused` are true.
+  -/
+  zetaHave : Bool := true
   deriving Inhabited, BEq
 
 end DSimp
@@ -130,7 +140,7 @@ def defaultMaxSteps := 100000
 
 /--
 The configuration for `simp`.
-Passed to `simp` using, for example, the `simp (config := {contextual := true})` syntax.
+Passed to `simp` using, for example, the `simp +contextual` or `simp (maxSteps := 100000)` syntax.
 
 See also `Lean.Meta.Simp.neutralConfig` and `Lean.Meta.DSimp.Config`.
 -/
@@ -151,7 +161,7 @@ structure Config where
   -/
   contextual        : Bool := false
   /--
-  When true (default: `true`) then the simplifier caches the result of simplifying each subexpression, if possible.
+  When true (default: `true`) then the simplifier caches the result of simplifying each sub-expression, if possible.
   -/
   memoize           : Bool := true
   /--
@@ -161,8 +171,9 @@ structure Config where
   -/
   singlePass        : Bool := false
   /--
-  When `true` (default: `true`), performs zeta reduction of let expressions.
+  When `true` (default: `true`), performs zeta reduction of `let` and `have` expressions.
   That is, `let x := v; e[x]` reduces to `e[v]`.
+  If `zetaHave` is `false` then `have` expressions are not zeta reduced.
   See also `zetaDelta`.
   -/
   zeta              : Bool := true
@@ -226,7 +237,8 @@ structure Config where
   unfoldPartialApp  : Bool := false
   /--
   When `true` (default: `false`), local definitions are unfolded.
-  That is, given a local context containing entry `x : t := e`, the free variable `x` reduces to `e`.
+  That is, given a local context containing `x : t := e`, then the free variable `x` reduces to `e`.
+  Otherwise, `x` must be provided as a `simp` argument.
   -/
   zetaDelta         : Bool := false
   /--
@@ -240,15 +252,44 @@ structure Config where
   -/
   implicitDefEqProofs : Bool := true
   /--
-  When `true` (default : `true`), then simps will remove unused let-declarations:
+  When `true` (default : `true`), then `simp` removes unused `let` and `have` expressions:
   `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
+  This option takes precedence over `zeta` and `zetaHave`.
   -/
   zetaUnused : Bool := true
   /--
-  When `true` (default : `true`), then simps will catch runtime exceptions and
-  convert them into `simp` exceptions.
+  When `true` (default : `true`), then `simp` catches runtime exceptions and
+  converts them into `simp` exceptions.
   -/
   catchRuntime : Bool := true
+  /--
+  When `false` (default: `true`), then disables zeta reduction of `have` expressions.
+  If `zeta` is `false`, then this option has no effect.
+  Unused `have`s are still removed if `zeta` or `zetaUnused` are true.
+  -/
+  zetaHave : Bool := true
+  /--
+  When `true` (default : `true`), then `simp` will attempt to transform `let`s into `have`s
+  if they are non-dependent. This only applies when `zeta := false`.
+  -/
+  letToHave : Bool := true
+  /--
+  When `true` (default: `true`), `simp` tries to realize constant `f.congr_simp`
+  when constructing an auxiliary congruence proof for `f`.
+  This option exists because the termination prover uses `simp` and `withoutModifyingEnv`
+  while constructing the termination proof. Thus, any constant realized by `simp`
+  is deleted.
+  -/
+  congrConsts : Bool := true
+  /--
+  When `true` (default: `true`), the bitvector simprocs use `BitVec.ofNat` for representing
+  bitvector literals.
+  -/
+  bitVecOfNat : Bool := true
+  /--
+  When `true` (default: `true`), the `^` simprocs generate an warning it the exponents are too big.
+  -/
+  warnExponents : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`
@@ -270,6 +311,7 @@ def neutralConfig : Simp.Config := {
   ground            := false
   zetaDelta         := false
   zetaUnused        := false
+  letToHave         := false
 }
 
 structure NormCastConfig extends Simp.Config where

@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.TreeMap.Raw.Basic
-import Std.Data.TreeSet.Basic
+public import Std.Data.TreeMap.Raw.Basic
+public import Std.Data.TreeSet.Basic
+
+@[expose] public section
 
 /-
 # Tree sets with unbundled well-formedness invariant
@@ -95,7 +99,7 @@ structure Equiv (m₁ m₂ : Raw α cmp) where
 
 @[inherit_doc] scoped infix:50 " ~m " => Equiv
 
-@[simp]
+@[simp, grind =]
 theorem empty_eq_emptyc : (empty : Raw α cmp) = ∅ :=
   rfl
 

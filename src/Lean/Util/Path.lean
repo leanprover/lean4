@@ -8,8 +8,12 @@ paths containing package roots: an import `A.B.C` resolves to
 `path/A/B/C.olean` for the first entry `path` in `LEAN_PATH`
 with a directory `A/`. `import A` resolves to `path/A.olean`.
 -/
+module
+
 prelude
-import Init.System.IO
+public import Init.System.IO
+
+public section
 
 namespace Lean
 open System
@@ -71,11 +75,9 @@ end SearchPath
 
 builtin_initialize searchPathRef : IO.Ref SearchPath ← IO.mkRef {}
 
-@[export lean_get_prefix]
 def getBuildDir : IO FilePath := do
   return (← IO.appDir).parent |>.get!
 
-@[export lean_get_libdir]
 def getLibDir (leanSysroot : FilePath) : IO FilePath := do
   let mut buildDir := leanSysroot
   -- use stage1 stdlib with stage0 executable (which should never be distributed outside of the build directory)
@@ -134,7 +136,6 @@ def getSrcSearchPath : IO SearchPath := do
   return srcSearchPath ++ [srcPath / "lake", srcPath]
 
 /-- Infer module name of source file name. -/
-@[export lean_module_name_of_file]
 def moduleNameOfFileName (fname : FilePath) (rootDir : Option FilePath) : IO Name := do
   let fname ← IO.FS.realPath fname
   let rootDir ← match rootDir with

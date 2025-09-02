@@ -3,9 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.ForEachExprWhere
-import Lean.Compiler.LCNF.CompilerM
+public import Lean.Util.ForEachExprWhere
+public import Lean.Compiler.LCNF.CompilerM
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Closure
@@ -132,7 +136,7 @@ mutual
       if ctx.inScope fvarId then
         /- We only collect the variables in the scope of the function application being specialized. -/
         if let some funDecl ← findFunDecl? fvarId then
-          if ctx.isUnderBinder || ctx.abstract funDecl.fvarId then
+          if ctx.abstract funDecl.fvarId then
             modify fun s => { s with params := s.params.push <| { funDecl with borrow := false } }
           else
             collectFunDecl funDecl

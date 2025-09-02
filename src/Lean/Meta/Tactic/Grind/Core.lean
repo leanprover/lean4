@@ -3,17 +3,21 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Lean.Meta.LitValues
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Inv
-import Lean.Meta.Tactic.Grind.PP
-import Lean.Meta.Tactic.Grind.Ctor
-import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.Beta
-import Lean.Meta.Tactic.Grind.Internalize
-import Lean.Meta.Tactic.Grind.Simp
+public import Init.Grind.Util
+public import Lean.Meta.LitValues
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Inv
+public import Lean.Meta.Tactic.Grind.PP
+public import Lean.Meta.Tactic.Grind.Ctor
+public import Lean.Meta.Tactic.Grind.Util
+public import Lean.Meta.Tactic.Grind.Beta
+public import Lean.Meta.Tactic.Grind.Internalize
+public import Lean.Meta.Tactic.Grind.Simp
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -79,7 +83,7 @@ private def closeGoalWithValuesEq (lhs rhs : Expr) : GoalM Unit := do
   let p ← mkEq lhs rhs
   let hp ← mkEqProof lhs rhs
   let d ← mkDecide p
-  let pEqFalse := mkApp3 (mkConst ``eq_false_of_decide) p d.appArg! (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``false))
+  let pEqFalse := mkApp3 (mkConst ``eq_false_of_decide) p d.appArg! eagerReflBoolFalse
   let falseProof := mkApp4 (mkConst ``Eq.mp [levelZero]) p (← getFalseExpr) pEqFalse hp
   closeGoal falseProof
 
@@ -212,7 +216,32 @@ def propagateLinarith : PendingTheoryPropagation → GoalM Unit
   | _ => return ()
 
 /--
-Tries to apply beta-reductiong using the parent applications of the functions in `fns` with
+Helper function for combining `ENode.ac?` fields and detecting what needs to be
+propagated to the ac module.
+-/
+private def checkACEq (rhsRoot lhsRoot : ENode) : GoalM PendingTheoryPropagation := do
+  match lhsRoot.ac? with
+  | some lhs =>
+    if let some rhs := rhsRoot.ac? then
+      return .eq lhs rhs
+    else
+      -- We have to retrieve the node because other fields have been updated
+      let rhsRoot ← getENode rhsRoot.self
+      setENode rhsRoot.self { rhsRoot with ac? := lhs }
+      return .diseqs (← getParents rhsRoot.self)
+  | none =>
+    if rhsRoot.ac?.isSome then
+      return .diseqs (← getParents lhsRoot.self)
+    else
+      return .none
+
+def propagateAC : PendingTheoryPropagation → GoalM Unit
+  | .eq lhs rhs => AC.processNewEq lhs rhs
+  | .diseqs ps => propagateACDiseqs ps
+  | _ => return ()
+
+/--
+Tries to apply beta-reduction using the parent applications of the functions in `fns` with
 the lambda expressions in `lams`.
 -/
 def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
@@ -235,6 +264,34 @@ def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
         internalize curr (← getGeneration parent)
         args := args.push arg
         curr := f
+
+private def getFunWithGivenDomain? (lams : Array Expr) (d : Expr) : Option Expr :=
+  lams.find? fun
+    | .lam _ d' _ _ => isSameExpr d d'
+    | _ => false
+
+private def propagateUnitConstFuns (lams₁ lams₂ : Array Expr) : GoalM Unit := do
+  if h : lams₁.size = 0 then return () else
+  if h : lams₂.size = 0 then return () else
+  for lam₁ in lams₁ do
+    -- Remark: we have heterogeneous equivalence classes. So, we may have functions
+    -- with different domains in the same equivalence class.
+    let .lam _ d₁ b₁ _ := lam₁ | pure ()
+    let u ← getLevel d₁
+    let inh := mkApp (mkConst ``Inhabited [u]) d₁
+    let some inhInst ← synthInstance? inh | pure ()
+    let isTarget ← if !b₁.hasLooseBVars then
+      pure true
+    else
+      let sub := mkApp (mkConst ``Subsingleton [u]) d₁
+      pure (← synthInstance? sub).isSome
+    if isTarget then
+      let some (.lam _ d₁ b₂ _) := getFunWithGivenDomain? lams₂ d₁ | pure ()
+      let val ← preprocessLight <| mkApp2 (mkConst ``default [u]) d₁ inhInst
+      let lhs := b₁.instantiate1 val
+      let rhs := b₂.instantiate1 val
+      let h ← mkEqProof lams₁[0] lams₂[0]
+      pushNewFact <| mkExpectedPropHint (← mkCongrFun h val) (← mkEq lhs rhs)
 
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   let lhsNode ← getENode lhs
@@ -317,6 +374,7 @@ where
     let cutsatTodo ← checkCutsatEq rhsRoot lhsRoot
     let ringTodo ← checkCommRingEq rhsRoot lhsRoot
     let linarithTodo ← checkLinarithEq rhsRoot lhsRoot
+    let ACTodo ← checkACEq rhsRoot lhsRoot
     resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
@@ -326,13 +384,33 @@ where
         propagateUp parent
       for e in toPropagateDown do
         propagateDown e
+      propagateUnitConstFuns lams₁ lams₂
       propagateOffset offsetTodo
       propagateCutsat cutsatTodo
       propagateCommRing ringTodo
       propagateLinarith linarithTodo
+      propagateAC ACTodo
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
-    traverseEqc lhs fun n =>
-      setENode n.self { n with root := rootNew }
+    let isFalseRoot ← isFalseExpr rootNew
+    traverseEqc lhs fun n => do
+      let n := { n with root := rootNew }
+      setENode n.self n
+      /-
+      If `n` is an equality being inserted into the `False` equivalence class,
+      we must ensure it is root `m` of its congruence class if the root is not already
+      in the `False` equivalence class.
+      This can happen when the equality `n = m` is still has to be processed. That is,
+      it is in the `newFacts` todo array.
+      A similar swap is performed at `addCongrTable`.
+      -/
+      if isFalseRoot && n.self.isAppOfArity ``Eq 3 && !n.isCongrRoot then
+        if let some { e } := (← get).congrTable.find? { e := n.self } then
+        -- If the current congruence root is already `False`, we don't need to swap
+        unless (← isFalseExpr e) do
+          -- We must swap the congruence root to ensure `isDiseq` and `getDiseqFor?` work properly
+          modify fun s => { s with congrTable := s.congrTable.insert { e := n.self } }
+          setENode n.self { n with congr := n.self }
+          setENode e { (← getENode e) with congr := n.self }
 
 /-- Ensures collection of equations to be processed is empty. -/
 private def resetNewFacts : GoalM Unit :=
@@ -353,7 +431,7 @@ private def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
 private def addEq (lhs rhs proof : Expr) : GoalM Unit := do
   addEqCore lhs rhs proof false
 
-/-- Adds a new heterogeneous equality `HEq lhs rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
+/-- Adds a new heterogeneous equality `lhs ≍ rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
 private def addHEq (lhs rhs proof : Expr) : GoalM Unit := do
   addEqCore lhs rhs proof true
 

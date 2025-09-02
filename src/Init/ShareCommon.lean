@@ -6,8 +6,10 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Util
-import Init.Data.UInt.Basic
+public import Init.Util
+public import Init.Data.UInt.Basic
+
+public section
 
 namespace ShareCommon
 /-

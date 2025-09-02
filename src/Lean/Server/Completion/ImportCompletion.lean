@@ -3,12 +3,18 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Data.NameTrie
-import Lean.Util.Paths
-import Lean.Util.LakePath
-import Lean.Server.Completion.CompletionItemData
-import Lean.Parser.Module
+public import Lean.Data.NameTrie
+public import Lean.Util.LakePath
+public import Lean.Server.Completion.CompletionItemData
+public import Lean.Parser.Module
+meta import Lean.Parser.Module
+
+public section
+
+public section
 
 namespace ImportCompletion
 
@@ -53,7 +59,7 @@ def computePartialImportCompletions
   let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
     | return #[]
   let some (completePrefix, incompleteSuffix) := importsStx.findSome? fun importStx => do
-      let `(Parser.Module.«import»| $[private]? $[meta]? import $[all]? $importId $[.%$trailingDotTk?$_]?) := importStx
+      let `(Parser.Module.«import»| $[public]? $[meta]? import $[all]? $importId $[.%$trailingDotTk?$_]?) := importStx
         | unreachable!
       match trailingDotTk? with
       | none =>

@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Basic
+public import Std.Data.DHashMap.Basic
+
+@[expose] public section
 
 set_option linter.missingDocs true
 set_option autoImplicit false
@@ -35,7 +39,7 @@ namespace Std
 Hash maps.
 
 This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
-and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
+and an array of buckets, where each bucket is a linked list of key-value pairs. The number of buckets
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
 
@@ -243,6 +247,13 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
     {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
   ⟨DHashMap.Const.insertManyIfNewUnit m.inner l⟩
 
+@[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :
+    Array (α × β) :=
+  DHashMap.Const.toArray m.inner
+
+@[inline, inherit_doc DHashMap.keysArray] def keysArray (m : HashMap α β) :
+    Array α :=
+  m.inner.keysArray
 
 section Unverified
 
@@ -252,14 +263,6 @@ section Unverified
     (m : HashMap α β) : HashMap α β × HashMap α β :=
   let ⟨l, r⟩ := m.inner.partition f
   ⟨⟨l⟩, ⟨r⟩⟩
-
-@[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :
-    Array (α × β) :=
-  DHashMap.Const.toArray m.inner
-
-@[inline, inherit_doc DHashMap.keysArray] def keysArray (m : HashMap α β) :
-    Array α :=
-  m.inner.keysArray
 
 @[inline, inherit_doc DHashMap.values] def values (m : HashMap α β) : List β :=
   m.inner.values

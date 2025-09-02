@@ -14,14 +14,16 @@ scientific.lean:15:6-15:7: error: invalid occurrence of `·` notation, it must b
 scientific.lean:15:7-15:12: error: unexpected token; expected command
 scientific.lean:16:6-16:7: error: invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)
 scientific.lean:16:7-16:16: error: unexpected token; expected command
-scientific.lean:19:6-19:7: error: unknown identifier 'e'
+scientific.lean:19:6-19:7: error(lean.unknownIdentifier): Unknown identifier `e`
 scientific.lean:20:9: error: missing exponent digits in scientific literal
 scientific.lean:21:9: error: missing exponent digits in scientific literal
 scientific.lean:22:9: error: missing exponent digits in scientific literal
 scientific.lean:23:9: error: missing exponent digits in scientific literal
 scientific.lean:24:9: error: missing exponent digits in scientific literal
 scientific.lean:25:9: error: missing exponent digits in scientific literal
-scientific.lean:26:7-26:8: error: invalid dotted identifier notation, unknown identifier `Nat.E` from expected type
+scientific.lean:26:6-26:8: error(lean.unknownIdentifier): Unknown constant `Nat.E`
+
+Note: Inferred this name from the expected resulting type of `.E`:
   Nat
-scientific.lean:27:7-27:9: error: unknown identifier 'E3'
+scientific.lean:27:7-27:9: error(lean.unknownIdentifier): Unknown identifier `E3`
 scientific.lean:28:7: error: missing exponent digits in scientific literal

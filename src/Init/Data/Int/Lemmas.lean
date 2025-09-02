@@ -6,9 +6,11 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-import Init.Conv
-import Init.NotationExtra
-import Init.PropLemmas
+public import Init.Conv
+public import Init.NotationExtra
+public import Init.PropLemmas
+
+public section
 
 namespace Int
 
@@ -38,7 +40,7 @@ theorem ofNat_succ (n : Nat) : (succ n : Int) = n + 1 := rfl
 
 theorem neg_ofNat_zero : -((0 : Nat) : Int) = 0 := rfl
 theorem neg_ofNat_succ (n : Nat) : -(succ n : Int) = -[n+1] := rfl
-theorem neg_negSucc (n : Nat) : -(-[n+1]) = succ n := rfl
+@[simp] theorem neg_negSucc (n : Nat) : -(-[n+1]) = ((n + 1 : Nat) : Int) := rfl
 
 theorem negOfNat_eq : negOfNat n = -ofNat n := rfl
 
@@ -83,6 +85,17 @@ theorem negSucc_coe (n : Nat) : -[n+1] = -↑(n + 1) := rfl
 
 @[simp, norm_cast] theorem cast_ofNat_Int :
   (Nat.cast (no_index (OfNat.ofNat n)) : Int) = OfNat.ofNat n := rfl
+
+@[simp] theorem beq'_eq (a b : Int) : Int.beq' a b = (a = b) := by
+  cases a <;> cases b <;> simp [Int.beq', ofNat_inj]
+
+@[simp] theorem beq'_ne (a b : Int) : (Int.beq' a b = false) = (a ≠ b) := by
+  rw [Ne, ← beq'_eq, Bool.not_eq_true]
+
+theorem beq'_eq_beq (a b : Int) : (Int.beq' a b) = (a == b) := by
+  have h : (Int.beq' a b = true) = (a == b) := by simp
+  have : ∀ {a b : Bool}, (a = true) = (b = true) → a = b := by intro a b; cases a <;> cases b <;> simp
+  exact this h
 
 /- ## neg -/
 
@@ -348,10 +361,10 @@ theorem negSucc_coe' (n : Nat) : -[n+1] = -↑n - 1 := by
 
 protected theorem subNatNat_eq_coe {m n : Nat} : subNatNat m n = ↑m - ↑n := by
   apply subNatNat_elim m n fun m n i => i = m - n
-  · intros i n
+  · intro i n
     rw [Int.natCast_add, Int.sub_eq_add_neg, Int.add_assoc, Int.add_left_comm,
       Int.add_right_neg, Int.add_zero]
-  · intros i n
+  · intro i n
     simp only [negSucc_eq, natCast_add, ofNat_one, Int.sub_eq_add_neg, Int.neg_add, ← Int.add_assoc]
     rw [Int.add_neg_eq_sub (a := n), ← ofNat_sub, Nat.sub_self, ofNat_zero, Int.zero_add]
     apply Nat.le_refl
@@ -454,7 +467,7 @@ theorem negOfNat_eq_subNatNat_zero (n) : negOfNat n = subNatNat 0 n := by cases 
 theorem ofNat_mul_subNatNat (m n k : Nat) :
     m * subNatNat n k = subNatNat (m * n) (m * k) := by
   cases m with
-  | zero => simp [ofNat_zero, Int.zero_mul, Nat.zero_mul, subNatNat_self]
+  | zero => simp [Int.zero_mul, Nat.zero_mul, subNatNat_self]
   | succ m => cases n.lt_or_ge k with
     | inl h =>
       have h' : succ m * n < succ m * k := Nat.mul_lt_mul_of_pos_left h (Nat.succ_pos m)
@@ -552,6 +565,9 @@ protected theorem mul_eq_zero {a b : Int} : a * b = 0 ↔ a = 0 ∨ b = 0 := by
 
 protected theorem mul_ne_zero {a b : Int} (a0 : a ≠ 0) (b0 : b ≠ 0) : a * b ≠ 0 :=
   Or.rec a0 b0 ∘ Int.mul_eq_zero.mp
+
+instance {a b : Int} [NeZero a] [NeZero b] : NeZero (a * b) :=
+  ⟨Int.mul_ne_zero (NeZero.ne _) (NeZero.ne _)⟩
 
 @[simp] protected theorem mul_ne_zero_iff {a b : Int} : a * b ≠ 0 ↔ a ≠ 0 ∧ b ≠ 0 := by
   rw [ne_eq, Int.mul_eq_zero, not_or, ne_eq]

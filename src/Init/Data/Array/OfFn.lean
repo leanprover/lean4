@@ -6,11 +6,14 @@ Authors: Kim Morrison
 module
 
 prelude
+public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
-import Init.Data.Array.Lemmas
-import Init.Data.Array.Monadic
-import Init.Data.List.OfFn
-import Init.Data.List.FinRange
+public import Init.Data.Array.Lemmas
+public import Init.Data.Array.Monadic
+public import Init.Data.List.OfFn
+public import Init.Data.List.FinRange
+
+public section
 
 /-!
 # Theorems about `Array.ofFn`

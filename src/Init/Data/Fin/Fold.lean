@@ -6,9 +6,11 @@ Authors: François G. Dorais
 module
 
 prelude
-import Init.Data.Nat.Linear
-import Init.Control.Lawful.Basic
-import Init.Data.Fin.Lemmas
+public import Init.Data.Nat.Linear
+public import Init.Control.Lawful.Basic
+public import Init.Data.Fin.Lemmas
+
+public section
 
 namespace Fin
 
@@ -105,14 +107,14 @@ Fin.foldrM n f xₙ = do
   subst w
   rfl
 
-theorem foldlM_loop_lt [Monad m] (f : α → Fin n → m α) (x) (h : i < n) :
+private theorem foldlM_loop_lt [Monad m] (f : α → Fin n → m α) (x) (h : i < n) :
     foldlM.loop n f x i = f x ⟨i, h⟩ >>= (foldlM.loop n f . (i+1)) := by
   rw [foldlM.loop, dif_pos h]
 
-theorem foldlM_loop_eq [Monad m] (f : α → Fin n → m α) (x) : foldlM.loop n f x n = pure x := by
+private theorem foldlM_loop_eq [Monad m] (f : α → Fin n → m α) (x) : foldlM.loop n f x n = pure x := by
   rw [foldlM.loop, dif_neg (Nat.lt_irrefl _)]
 
-theorem foldlM_loop [Monad m] (f : α → Fin (n+1) → m α) (x) (h : i < n+1) :
+private theorem foldlM_loop [Monad m] (f : α → Fin (n+1) → m α) (x) (h : i < n+1) :
     foldlM.loop (n+1) f x i = f x ⟨i, h⟩ >>= (foldlM.loop n (fun x j => f x j.succ) . i) := by
   if h' : i < n then
     rw [foldlM_loop_lt _ _ h]
@@ -168,22 +170,24 @@ theorem foldlM_add [Monad m] [LawfulMonad m] (f : α → Fin (n + k) → m α) :
   subst w
   rfl
 
-theorem foldrM_loop_zero [Monad m] (f : Fin n → α → m α) (x) :
+private theorem foldrM_loop_zero [Monad m] (f : Fin n → α → m α) (x) :
     foldrM.loop n f ⟨0, Nat.zero_le _⟩ x = pure x := by
   rw [foldrM.loop]
 
-theorem foldrM_loop_succ [Monad m] (f : Fin n → α → m α) (x) (h : i < n) :
+private theorem foldrM_loop_succ [Monad m] (f : Fin n → α → m α) (x) (h : i < n) :
     foldrM.loop n f ⟨i+1, h⟩ x = f ⟨i, h⟩ x >>= foldrM.loop n f ⟨i, Nat.le_of_lt h⟩ := by
   rw [foldrM.loop]
 
-theorem foldrM_loop [Monad m] [LawfulMonad m] (f : Fin (n+1) → α → m α) (x) (h : i+1 ≤ n+1) :
+private theorem foldrM_loop [Monad m] [LawfulMonad m] (f : Fin (n+1) → α → m α) (x) (h : i+1 ≤ n+1) :
     foldrM.loop (n+1) f ⟨i+1, h⟩ x =
       foldrM.loop n (fun j => f j.succ) ⟨i, Nat.le_of_succ_le_succ h⟩ x >>= f 0 := by
   induction i generalizing x with
   | zero =>
     rw [foldrM_loop_zero, foldrM_loop_succ, pure_bind]
     conv => rhs; rw [←bind_pure (f 0 x)]
-    rfl
+    congr
+    funext
+    rw [foldrM_loop_zero]
   | succ i ih =>
     rw [foldrM_loop_succ, foldrM_loop_succ, bind_assoc]
     congr; funext; exact ih ..
@@ -224,14 +228,14 @@ theorem foldrM_add [Monad m] [LawfulMonad m] (f : Fin (n + k) → α → m α) :
   subst w
   rfl
 
-theorem foldl_loop_lt (f : α → Fin n → α) (x) (h : i < n) :
+private theorem foldl_loop_lt (f : α → Fin n → α) (x) (h : i < n) :
     foldl.loop n f x i = foldl.loop n f (f x ⟨i, h⟩) (i+1) := by
   rw [foldl.loop, dif_pos h]
 
-theorem foldl_loop_eq (f : α → Fin n → α) (x) : foldl.loop n f x n = x := by
+private theorem foldl_loop_eq (f : α → Fin n → α) (x) : foldl.loop n f x n = x := by
   rw [foldl.loop, dif_neg (Nat.lt_irrefl _)]
 
-theorem foldl_loop (f : α → Fin (n+1) → α) (x) (h : i < n+1) :
+private theorem foldl_loop (f : α → Fin (n+1) → α) (x) (h : i < n+1) :
     foldl.loop (n+1) f x i = foldl.loop n (fun x j => f x j.succ) (f x ⟨i, h⟩) i := by
   if h' : i < n then
     rw [foldl_loop_lt _ _ h]
@@ -252,7 +256,7 @@ theorem foldl_succ_last (f : α → Fin (n+1) → α) (x) :
     foldl (n+1) f x = f (foldl n (f · ·.castSucc) x) (last n) := by
   rw [foldl_succ]
   induction n generalizing x with
-  | zero => simp [foldl_succ, Fin.last]
+  | zero => simp [Fin.last]
   | succ n ih => rw [foldl_succ, ih (f · ·.succ), foldl_succ]; simp
 
 theorem foldl_add (f : α → Fin (n + m) → α) (x) :
@@ -281,15 +285,15 @@ theorem foldlM_pure [Monad m] [LawfulMonad m] {n} {f : α → Fin n → α} :
   subst w
   rfl
 
-theorem foldr_loop_zero (f : Fin n → α → α) (x) :
+private theorem foldr_loop_zero (f : Fin n → α → α) (x) :
     foldr.loop n f 0 (Nat.zero_le _) x = x := by
   rw [foldr.loop]
 
-theorem foldr_loop_succ (f : Fin n → α → α) (x) (h : i < n) :
+private theorem foldr_loop_succ (f : Fin n → α → α) (x) (h : i < n) :
     foldr.loop n f (i+1) h x = foldr.loop n f i (Nat.le_of_lt h) (f ⟨i, h⟩ x) := by
   rw [foldr.loop]
 
-theorem foldr_loop (f : Fin (n+1) → α → α) (x) (h : i+1 ≤ n+1) :
+private theorem foldr_loop (f : Fin (n+1) → α → α) (x) (h : i+1 ≤ n+1) :
     foldr.loop (n+1) f (i+1) h x =
       f 0 (foldr.loop n (fun j => f j.succ) i (Nat.le_of_succ_le_succ h) x) := by
   induction i generalizing x with

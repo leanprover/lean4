@@ -3,15 +3,20 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Eqns
-import Lean.Util.CollectAxioms
-import Lean.Elab.Command
+public import Lean.Meta.Eqns
+public import Lean.Util.CollectAxioms
+public import Lean.Elab.Command
+import Lean.PrettyPrinter.Delaborator.Builtins
+
+public section
 
 namespace Lean.Elab.Command
 
 private def throwUnknownId (id : Name) : CommandElabM Unit :=
-  throwError "unknown identifier '{.ofConstName id}'"
+  throwError "Unknown identifier `{.ofConstName id}`"
 
 private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
   match levelParams with
@@ -29,6 +34,10 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   | ReducibilityStatus.reducible =>     attrs := attrs.push m!"reducible"
   | ReducibilityStatus.semireducible => pure ()
 
+  let env ← getEnv
+  if env.header.isModule && (env.setExporting true |>.find? id |>.any (·.isDefinition)) then
+    attrs := attrs.push m!"expose"
+
   if defeqAttr.hasTag (← getEnv) id then
     attrs := attrs.push m!"defeq"
 
@@ -41,15 +50,15 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   | DefinitionSafety.partial => m := m ++ "partial "
   | DefinitionSafety.safe    => pure ()
 
-  if isProtected (← getEnv) id then
-    m := m ++ "protected "
-
   let id' ← match privateToUserName? id with
     | some id' =>
       m := m ++ "private "
       pure id'
     | none =>
       pure id
+
+  if isProtected (← getEnv) id then
+    m := m ++ "protected "
 
   if sig then
     return m!"{m}{kind} {id'}{levelParamsToMessageData levelParams} : {type}"
@@ -125,7 +134,7 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
       let flatCtorName := mkFlatCtorOfStructCtorName ctor
       let flatCtorInfo ← getConstInfo flatCtorName
       let autoParams : NameMap Syntax ← forallTelescope flatCtorInfo.type fun args _ =>
-        args[numParams:].foldlM (init := {}) fun set arg => do
+        args[numParams...*].foldlM (init := {}) fun set arg => do
           let decl ← arg.fvarId!.getDecl
           if let some (.const tacticDecl _) := decl.type.getAutoParamTactic? then
             let tacticSyntax ← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl
@@ -145,7 +154,7 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
           let fi ← getFieldOrigin source field
           let proj := fi.projFn
           let modifier := if isPrivateName proj then "private " else ""
-          let ftype ← inferType (fieldMap.find! field)
+          let ftype ← inferType (fieldMap.get! field)
           let value ←
             if let some stx := autoParams.find? field then
               let stx : TSyntax ``Parser.Tactic.tacticSeq := ⟨stx⟩

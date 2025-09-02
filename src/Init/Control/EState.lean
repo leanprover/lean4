@@ -6,9 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Control.State
-import Init.Control.Except
-import Init.Data.ToString.Basic
+public import Init.Control.State
+public import Init.Control.Except
+public import Init.Data.ToString.Basic
+
+public section
 universe u v
 
 namespace EStateM

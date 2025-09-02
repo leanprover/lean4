@@ -3,11 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Rewrite
-import Lean.Meta.Tactic.Replace
-import Lean.Elab.Tactic.Location
-import Lean.Elab.Tactic.Config
+public import Lean.Meta.Tactic.Rewrite
+public import Lean.Meta.Tactic.Replace
+public import Lean.Elab.Tactic.Location
+public import Lean.Elab.Tactic.Config
+import Lean.Meta.Eqns
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -40,7 +45,7 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
   -- show initial state up to (incl.) `[`
   withTacticInfoContext (mkNullNode #[token, lbrak]) (pure ())
   let numRules := (rules.size + 1) / 2
-  for i in [:numRules] do
+  for i in *...numRules do
     let rule := rules[i * 2]!
     let sep  := rules.getD (i * 2 + 1) Syntax.missing
     -- show rule state up to (incl.) next `,`
@@ -58,9 +63,9 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
             let declName ← try realizeGlobalConstNoOverload id catch _ => return (← x symm term)
             let some eqThms ← getEqnsFor? declName | x symm term
             let hint := if eqThms.size = 1 then m!"" else
-              m!" Try rewriting with '{Name.str declName unfoldThmSuffix}'."
+              .hint' m!"Try rewriting with `{Name.str declName unfoldThmSuffix}`"
             let rec go : List Name →  TacticM Unit
-              | [] => throwError "failed to rewrite using equation theorems for '{declName}'.{hint}"
+              | [] => throwError m!"Failed to rewrite using equation theorems for `{.ofConstName declName}`" ++ hint
               | eqThm::eqThms => (x symm (mkCIdentFrom id eqThm)) <|> go eqThms
             discard <| Term.addTermInfo id (← mkConstWithFreshMVarLevels declName) (lctx? := ← getLCtx)
             go eqThms.toList
@@ -79,6 +84,6 @@ declare_config_elab elabRewriteConfig Rewrite.Config
     withLocation loc
       (rewriteLocalDecl term symm · cfg)
       (rewriteTarget term symm cfg)
-      (throwTacticEx `rewrite · "did not find instance of the pattern in the current goal")
+      (throwTacticEx `rewrite · "Did not find an occurrence of the pattern in the current goal")
 
 end Lean.Elab.Tactic

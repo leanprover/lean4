@@ -7,8 +7,10 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Pairwise
-import Init.Data.List.Find
+public import Init.Data.List.Pairwise
+public import Init.Data.List.Find
+
+public section
 
 /-!
 # Lemmas about `List.eraseP`, `List.erase`, and `List.eraseIdx`.
@@ -55,14 +57,8 @@ theorem eraseP_of_forall_not {l : List α} (h : ∀ a, a ∈ l → ¬p a) : l.er
       rintro x h' rfl
       simp_all
 
-@[deprecated eraseP_eq_nil_iff (since := "2025-01-30")]
-abbrev eraseP_eq_nil := @eraseP_eq_nil_iff
-
 theorem eraseP_ne_nil_iff {xs : List α} {p : α → Bool} : xs.eraseP p ≠ [] ↔ xs ≠ [] ∧ ∀ x, p x → xs ≠ [x] := by
   simp
-
-@[deprecated eraseP_ne_nil_iff (since := "2025-01-30")]
-abbrev eraseP_ne_nil := @eraseP_ne_nil_iff
 
 theorem exists_of_eraseP : ∀ {l : List α} {a} (_ : a ∈ l) (_ : p a),
     ∃ a l₁ l₂, (∀ b ∈ l₁, ¬p b) ∧ p a ∧ l = l₁ ++ a :: l₂ ∧ l.eraseP p = l₁ ++ l₂
@@ -146,7 +142,7 @@ theorem mem_of_mem_eraseP {l : List α} : a ∈ l.eraseP p → a ∈ l := (erase
 @[simp] theorem eraseP_eq_self_iff {p} {l : List α} : l.eraseP p = l ↔ ∀ a ∈ l, ¬ p a := by
   rw [← Sublist.length_eq eraseP_sublist, length_eraseP]
   split <;> rename_i h
-  · simp only [any_eq_true, length_eq_zero_iff] at h
+  · simp only [any_eq_true] at h
     constructor
     · intro; simp_all [Nat.sub_one_eq_self]
     · intro; obtain ⟨x, m, h⟩ := h; simp_all
@@ -287,9 +283,9 @@ theorem eraseP_comm {l : List α} (h : ∀ a ∈ l, ¬ p a ∨ ¬ q a) :
     by_cases h₁ : p a
     · by_cases h₂ : q a
       · simp_all
-      · simp [h₁, h₂, ih (fun b m => h b (mem_cons_of_mem _ m))]
+      · simp [h₁, h₂]
     · by_cases h₂ : q a
-      · simp [h₁, h₂, ih (fun b m => h b (mem_cons_of_mem _ m))]
+      · simp [h₁, h₂]
       · simp [h₁, h₂, ih (fun b m => h b (mem_cons_of_mem _ m))]
 
 theorem head_eraseP_mem {xs : List α} {p : α → Bool} (h) : (xs.eraseP p).head h ∈ xs :=
@@ -335,7 +331,7 @@ theorem erase_of_not_mem [LawfulBEq α] {a : α} : ∀ {l : List α}, a ∉ l �
 theorem erase_eq_eraseP' (a : α) (l : List α) : l.erase a = l.eraseP (· == a) := by
   induction l
   · simp
-  · next b t ih =>
+  next b t ih =>
     rw [erase_cons, eraseP_cons, ih]
     if h : b == a then simp [h] else simp [h]
 
@@ -350,16 +346,10 @@ theorem erase_eq_eraseP [LawfulBEq α] (a : α) : ∀ (l : List α), l.erase a =
   rw [erase_eq_eraseP]
   simp
 
-@[deprecated erase_eq_nil_iff (since := "2025-01-30")]
-abbrev erase_eq_nil := @erase_eq_nil_iff
-
 theorem erase_ne_nil_iff [LawfulBEq α] {xs : List α} {a : α} :
     xs.erase a ≠ [] ↔ xs ≠ [] ∧ xs ≠ [a] := by
   rw [erase_eq_eraseP]
   simp
-
-@[deprecated erase_ne_nil_iff (since := "2025-01-30")]
-abbrev erase_ne_nil := @erase_ne_nil_iff
 
 theorem exists_erase_eq [LawfulBEq α] {a : α} {l : List α} (h : a ∈ l) :
     ∃ l₁ l₂, a ∉ l₁ ∧ l = l₁ ++ a :: l₂ ∧ l.erase a = l₁ ++ l₂ := by
@@ -437,7 +427,7 @@ theorem erase_append_left [LawfulBEq α] {l₁ : List α} (l₂) (h : a ∈ l₁
 theorem erase_append_right [LawfulBEq α] {a : α} {l₁ : List α} (l₂ : List α) (h : a ∉ l₁) :
     (l₁ ++ l₂).erase a = (l₁ ++ l₂.erase a) := by
   rw [erase_eq_eraseP, erase_eq_eraseP, eraseP_append_right]
-  intros b h' h''; rw [eq_of_beq h''] at h; exact h h'
+  intro b h' h''; rw [eq_of_beq h''] at h; exact h h'
 
 @[grind =]
 theorem erase_append [LawfulBEq α] {a : α} {l₁ l₂ : List α} :
@@ -578,19 +568,17 @@ theorem eraseIdx_eq_take_drop_succ :
   match l, i with
   | [], _
   | a::l, 0
-  | a::l, i + 1 => simp [Nat.succ_inj]
+  | a::l, i + 1 => simp
 
-@[deprecated eraseIdx_eq_nil_iff (since := "2025-01-30")]
-abbrev eraseIdx_eq_nil := @eraseIdx_eq_nil_iff
+
 
 theorem eraseIdx_ne_nil_iff {l : List α} {i : Nat} : eraseIdx l i ≠ [] ↔ 2 ≤ l.length ∨ (l.length = 1 ∧ i ≠ 0) := by
   match l with
   | []
   | [a]
-  | a::b::l => simp [Nat.succ_inj]
+  | a::b::l => simp
 
-@[deprecated eraseIdx_ne_nil_iff (since := "2025-01-30")]
-abbrev eraseIdx_ne_nil := @eraseIdx_ne_nil_iff
+
 
 @[grind]
 theorem eraseIdx_sublist : ∀ (l : List α) (k : Nat), eraseIdx l k <+ l
@@ -698,7 +686,6 @@ theorem erase_eq_eraseIdx_of_idxOf [BEq α] [LawfulBEq α]
     rw [eq_comm, eraseIdx_eq_self]
     exact Nat.le_of_eq (idxOf_eq_length h).symm
 
-@[deprecated erase_eq_eraseIdx_of_idxOf (since := "2025-01-29")]
-abbrev erase_eq_eraseIdx_of_indexOf := @erase_eq_eraseIdx_of_idxOf
+
 
 end List

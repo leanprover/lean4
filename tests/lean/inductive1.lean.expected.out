@@ -1,31 +1,49 @@
-inductive1.lean:4:15-4:18: error: invalid resulting type, expecting 'Sort _' or an indexed family of sorts
-inductive1.lean:12:0-12:19: error: invalid mutually inductive types, resulting universe mismatch, given
+inductive1.lean:4:15-4:18: error: Invalid resulting type: Expected a sort or an indexed family of sorts
+
+Hint: Examples of valid sorts include `Type _`, `Sort _`, and `Prop`
+inductive1.lean:12:0-12:19: error: Invalid mutually inductive types: The resulting type of this declaration
   Type
-expected type
+differs from a preceding one
   Prop
-inductive1.lean:22:0-22:37: error: invalid mutually inductive types, resulting universe mismatch, given
+
+Note: All inductive types declared in the same `mutual` block must belong to the same type universe
+inductive1.lean:22:0-22:37: error: Invalid mutually inductive types: The resulting type of this declaration
   Type v
-expected type
+differs from a preceding one
   Type u
-inductive1.lean:31:0-31:41: error: invalid mutually inductive types, parameter 'x' has type
-  Bool : Type
+
+Note: All inductive types declared in the same `mutual` block must belong to the same type universe
+inductive1.lean:31:0-31:41: error: Invalid mutually inductive types: Parameter `x` has type
+  Bool
 but is expected to have type
-  Nat : Type
-inductive1.lean:40:0-40:30: error: invalid inductive type, number of parameters mismatch in mutually inductive datatypes
-inductive1.lean:49:0-49:40: error: invalid mutually inductive types, binder annotation mismatch at parameter 'x'
-inductive1.lean:59:0-59:45: error: invalid inductive type, universe parameters mismatch in mutually inductive datatypes
-inductive1.lean:69:2-69:5: error: 'Boo.T1.bla' has already been declared
-inductive1.lean:73:10-73:12: error: 'Boo.T1' has already been declared
-inductive1.lean:80:0-80:27: error: invalid use of 'partial' in inductive declaration
-inductive1.lean:81:0-81:33: error: invalid use of 'noncomputable' in inductive declaration
-inductive1.lean:82:2-82:8: error: declaration is not a definition 'T1''
-inductive1.lean:85:0-85:17: error: invalid 'private' constructor in a 'private' inductive datatype
-inductive1.lean:93:7-93:26: error: invalid inductive type, cannot mix unsafe and safe declarations in mutually inductive datatypes
-inductive1.lean:100:0-100:4: error: Missing resulting type for constructor 'T1.z2': Its resulting type must be specified because it is part of an inductive family declaration
+  Nat
+inductive1.lean:40:0-40:30: error: Invalid mutually inductive types: `T2` has 1 parameter(s), but the preceding type `T1` has 2
+
+Note: All inductive types declared in the same `mutual` block must have the same parameters
+inductive1.lean:49:0-49:40: error: Invalid mutually inductive types: Binder annotations for parameter `x` must match
+inductive1.lean:59:0-59:45: error: Universe parameter mismatch in mutually inductive types: `T2` has universe parameters
+  `w2`, `v`, `u`
+but the preceding declaration `T1` has
+  `w1`, `v`, `u`
+
+Note: All inductive declarations in the same `mutual` block must have the same universe level parameters
+inductive1.lean:69:2-69:5: error: `Boo.T1.bla` has already been declared
+inductive1.lean:73:10-73:12: error: `Boo.T1` has already been declared
+inductive1.lean:80:0-80:27: error: Invalid modifier: Inductive declarations cannot be marked as `partial`
+inductive1.lean:81:0-81:33: error: Invalid modifier: Inductive declarations cannot be marked as `noncomputable`
+inductive1.lean:82:2-82:8: error: Cannot add attribute `[inline]`: Declaration `T1'` is not a definition
+inductive1.lean:85:0-85:17: error: Constructor cannot be marked `private` because it is already in a `private` inductive datatype
+
+Hint: Remove `private` modifier from constructor
+  p̵r̵i̵v̵a̵t̵e̵ ̵mk
+inductive1.lean:93:7-93:26: error: Invalid mutually inductive types: `T2` is unsafe, but `T1` is safe
+
+Note: Safe and unsafe inductive declarations cannot both occur in the same `mutual` block
+inductive1.lean:100:0-100:4: error: Missing resulting type for constructor `T1.z2`: Its resulting type must be specified because it is part of an inductive family declaration
 inductive1.lean:105:7-105:9: error: type expected, got
   (T1 : Nat → Type)
-inductive1.lean:108:7-108:10: error: Unexpected resulting type for constructor 'T1.z1': Expected an application of
+inductive1.lean:108:7-108:10: error(lean.ctorResultingTypeMismatch): Unexpected resulting type for constructor `T1.z1`: Expected an application of
   T1
 but found
   Nat
-inductive1.lean:118:7-118:11: error: unknown identifier 'cons'
+inductive1.lean:118:7-118:11: error(lean.unknownIdentifier): Unknown identifier `cons`

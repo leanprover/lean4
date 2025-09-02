@@ -3,13 +3,19 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Meta.Diagnostics
-import Lean.Elab.Binders
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.SetOption
-import Lean.Language.Basic
-import Lean.Meta.ForEachExpr
+public import Init.Data.Range.Polymorphic.Stream
+public import Lean.Meta.Diagnostics
+public import Lean.Elab.Binders
+public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.SetOption
+public import Lean.Language.Basic
+public import Lean.Meta.ForEachExpr
+public meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab.Command
 
@@ -74,6 +80,7 @@ structure Scope where
   so all sections and namespaces nested within a `noncomputable` section also have this flag set.
   -/
   isNoncomputable : Bool := false
+  isPublic : Bool := false
   /--
   Attributes that should be applied to all matching declaration in the section. Inherited from
   parent scopes.
@@ -85,10 +92,11 @@ structure State where
   env            : Environment
   messages       : MessageLog := {}
   scopes         : List Scope := [{ header := "" }]
+  usedQuotCtxts  : NameSet := {}
   nextMacroScope : Nat := firstFrontendMacroScope + 1
   maxRecDepth    : Nat
   ngen           : NameGenerator := {}
-  auxDeclNGen    : DeclNameGenerator := {}
+  auxDeclNGen    : DeclNameGenerator := .ofPrefix .anonymous
   infoState      : InfoState := {}
   traceState     : TraceState := {}
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
@@ -100,6 +108,7 @@ structure Context where
   currRecDepth   : Nat := 0
   cmdPos         : String.Pos := 0
   macroStack     : MacroStack := []
+  quotContext?   : Option Name := none
   currMacroScope : MacroScope := firstFrontendMacroScope
   ref            : Syntax := Syntax.missing
   /--
@@ -157,10 +166,10 @@ instance : MonadExceptOf Exception CommandElabM where
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
   env         := env
   messages    := messages
-  scopes      := [{ header := "", opts := opts }]
+  scopes      := [{ header := "", opts }]
   maxRecDepth := maxRecDepth.get opts
   -- Outside of declarations, fall back to a module-specific prefix
-  auxDeclNGen := { namePrefix := mkPrivateName env .anonymous }
+  auxDeclNGen := .ofPrefix <| mkPrivateName env .anonymous
 }
 
 /- Linters should be loadable as plugins, so store in a global IO ref instead of an attribute managed by the
@@ -210,6 +219,18 @@ instance : MonadDeclNameGenerator CommandElabM where
   getDeclNGen := return (← get).auxDeclNGen
   setDeclNGen ngen := modify fun s => { s with auxDeclNGen := ngen }
 
+protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
+protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
+
+protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
+  let fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
+  withReader (fun ctx => { ctx with currMacroScope := fresh }) x
+
+instance : MonadQuotation CommandElabM where
+  getCurrMacroScope   := Command.getCurrMacroScope
+  getContext          := do (← read).quotContext?.getDM getMainModule
+  withFreshMacroScope := Command.withFreshMacroScope
+
 private def runCore (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
@@ -225,6 +246,7 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     currNamespace      := scope.currNamespace
     openDecls          := scope.openDecls
     initHeartbeats     := heartbeats
+    quotContext        := (← MonadQuotation.getMainModule)
     currMacroScope     := ctx.currMacroScope
     options            := scope.opts
     cancelTk?          := ctx.cancelTk?
@@ -404,18 +426,6 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
       lintAct infoSt
   logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
 
-protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
-protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
-
-protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
-  let fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
-  withReader (fun ctx => { ctx with currMacroScope := fresh }) x
-
-instance : MonadQuotation CommandElabM where
-  getCurrMacroScope   := Command.getCurrMacroScope
-  getMainModule       := Command.getMainModule
-  withFreshMacroScope := Command.withFreshMacroScope
-
 /--
 Registers a command elaborator for the given syntax node kind.
 
@@ -472,7 +482,6 @@ def withMacroExpansion (beforeStx afterStx : Syntax) (x : CommandElabM α) : Com
     withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 instance : MonadMacroAdapter CommandElabM where
-  getCurrMacroScope := getCurrMacroScope
   getNextMacroScope := return (← get).nextMacroScope
   setNextMacroScope next := modify fun s => { s with nextMacroScope := next }
 
@@ -563,7 +572,7 @@ where go := do
                 let opts ← getOptions
                 -- For each command, associate it with new promise and old snapshot, if any, and
                 -- elaborate recursively
-                for cmd in cmds, cmdPromise in cmdPromises, i in [0:cmds.size] do
+                for cmd in cmds, cmdPromise in cmdPromises, i in *...cmds.size do
                   let oldCmd? := oldCmds?.bind (·[i]?)
                   withReader ({ · with snap? := some {
                     new := cmdPromise
@@ -586,7 +595,7 @@ where go := do
           match commandElabAttribute.getEntries s.env k with
           | []      =>
             withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
-              throwError "elaboration function for '{k}' has not been implemented"
+              throwError "elaboration function for `{k}` has not been implemented"
           | elabFns => elabCommandUsing s stx elabFns
     | _ =>
       withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
@@ -605,12 +614,52 @@ builtin_initialize
   registerTraceClass `Elab.snapshotTree
 
 /--
+If `hint?` is `some hint`, establishes a new context for macro scope naming and runs `act` in it,
+otherwise runs `act` directly without changes.
+
+Context names as documented in Note `Macro Scope Representation` help with avoiding rebuilds and
+`prefer_native` lookup misses from macro scopes in declaration names and other exported information.
+This function establishes a new context with a globally unique name by combining the name of the
+current module with `hint` while also checking for previously used `hint`s in the same module.
+Thus `hint` does not need to be unique but ensuring it is usually unique helps with keeping the
+context name stable.
+
+In the current implementation, we call `withInitQuotContext` once in `elabCommandTopLevel` using the
+source input of the command as the hint. This helps with keeping macro scopes stable on changes to
+other parts of the file but not on changes to the command itself. Thus in each *declaration*
+elaborator we call `withInitQuotContext` again with the declaration name(s) as a hint so that
+changes to any other part of the declaration do not change the context name.
+-/
+def withInitQuotContext (hint? : Option UInt64) (act : CommandElabM Unit) : CommandElabM Unit := do
+  let some hint := hint?
+    | act
+  let mut idx := hint.toUInt32.toNat
+  while (← get).usedQuotCtxts.contains ((← getMainModule).num idx |>.str "_hygCtx") do
+    idx := idx + 1
+  let quotCtx := (← getMainModule).num idx |>.str "_hygCtx"
+  let nextMacroScope := (← get).nextMacroScope
+  try
+    modify fun st => { st with
+      usedQuotCtxts  := st.usedQuotCtxts.insert quotCtx
+      nextMacroScope := firstFrontendMacroScope + 1
+    }
+    withReader (fun ctx => { ctx with
+      quotContext?   := some quotCtx
+      currMacroScope := firstFrontendMacroScope
+    }) act
+  finally
+    modify ({ · with nextMacroScope })
+
+/--
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
 macro expansion etc.
 -/
 def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do profileitM Exception "elaboration" (← getOptions) do
   withReader ({ · with suppressElabErrors :=
     stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
+  -- initialize quotation context using hash of input string
+  let ss? := stx.getSubstring? (withLeading := false) (withTrailing := false)
+  withInitQuotContext (ss?.map (hash ·.toString.trim)) do
   let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   let initInfoTrees ← getResetInfoTrees
   try
@@ -654,7 +703,7 @@ The environment linter framework needs to be able to run linters with the same c
 as `liftTermElabM`, so we expose that context as a public function here.
 -/
 def mkMetaContext : Meta.Context := {
-  config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
+  keyedConfig := Meta.Config.toConfigWithKey { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
 }
 
 open Lean.Parser.Term in
@@ -689,7 +738,7 @@ consider using `runTermElabM`.
 Recall that `TermElabM` actions can automatically lift `MetaM` and `CoreM` actions.
 Example:
 ```
-import Lean
+public import Lean
 
 open Lean Elab Command Meta
 
@@ -729,7 +778,9 @@ command.
 
 Example:
 ```
-import Lean
+public import Lean
+
+public section
 
 open Lean Elab Command Meta
 

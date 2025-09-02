@@ -6,10 +6,14 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.Data.Char.Basic
 import all Init.Data.Char.Basic
-import Init.Meta
+public import Init.Meta
+public import Init.SizeOf
 import all Init.SizeOf
-import Init.Data.Nat.Linear
+public import Init.Data.Nat.Linear
+
+public section
 
 @[simp] protected theorem Fin.sizeOf (a : Fin n) : sizeOf a = a.val + 1 := by
   cases a; simp +arith

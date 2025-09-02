@@ -3,22 +3,33 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.CommRing.Poly
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.Linear.Var
-import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
-import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
-import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
+public import Init.Grind.Ring.Poly
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
+public import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
+public import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Linear
 
 def isLeInst (struct : Struct) (inst : Expr) : Bool :=
-  isSameExpr struct.leFn.appArg! inst
+  if let some leFn := struct.leFn? then
+    isSameExpr leFn.appArg! inst
+  else
+    false
+
 def isLtInst (struct : Struct) (inst : Expr) : Bool :=
-  isSameExpr struct.ltFn.appArg! inst
+  if let some ltFn := struct.ltFn? then
+    isSameExpr ltFn.appArg! inst
+  else
+    false
 
 def IneqCnstr.assert (c : IneqCnstr) : LinearM Unit := do
   trace[grind.linarith.assert] "{← c.denoteExpr}"
@@ -31,6 +42,7 @@ def IneqCnstr.assert (c : IneqCnstr) : LinearM Unit := do
       trace[grind.linarith.trivial] "{← c.denoteExpr}"
   | .add a x _ =>
     trace[grind.linarith.assert.store] "{← c.denoteExpr}"
+    c.p.updateOccs
     if a < 0 then
       modifyStruct fun s => { s with lowers := s.lowers.modify x (·.push c) }
     else

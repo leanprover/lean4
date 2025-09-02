@@ -1,3 +1,4 @@
+module
 inductive Even : Nat → Prop
   | zero : Even 0
   | plus_two {n} : Even n → Even (n + 2)
@@ -45,7 +46,6 @@ h : ¬Even 16
     [thm] Even.zero: [Even `[0]]
   [limits] Thresholds reached
     [limit] maximum number of E-matching rounds has been reached, threshold: `(ematch := 5)`
-    [limit] maximum term generation has been reached, threshold: `(gen := 5)`
 [grind] Diagnostics
   [thm] E-Matching instances
     [thm] Even.plus_two ↦ 5

@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.AddDecl
-import Lean.MonadEnv
-import Lean.Elab.InfoTree.Main
+public import Lean.AddDecl
+public import Lean.MonadEnv
+public import Lean.Elab.InfoTree.Main
+
+public section
 
 namespace Lean
 
@@ -49,10 +53,10 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
         let initFnName ← Elab.realizeGlobalConstNoOverloadWithInfo initFnName
         let initDecl ← getConstInfo initFnName
         match getIOTypeArg initDecl.type with
-        | none => throwError "initialization function '{initFnName}' must have type of the form `IO <type>`"
+        | none => throwError "initialization function `{initFnName}` must have type of the form `IO <type>`"
         | some initTypeArg =>
           if decl.type == initTypeArg then pure initFnName
-          else throwError "initialization function '{initFnName}' type mismatch"
+          else throwError "initialization function `{initFnName}` type mismatch"
       | none =>
         if isIOUnit decl.type then pure Name.anonymous
         else throwError "initialization function must have type `IO Unit`"
@@ -126,7 +130,6 @@ def getInitFnNameForCore? (env : Environment) (attr : ParametricAttribute Name) 
   | some n              => some n
   | _                   => none
 
-@[export lean_get_builtin_init_fn_name_for]
 def getBuiltinInitFnNameFor? (env : Environment) (fn : Name) : Option Name :=
   getInitFnNameForCore? env builtinInitAttr fn
 
@@ -143,11 +146,9 @@ def isIOUnitInitFnCore (env : Environment) (attr : ParametricAttribute Name) (fn
   | some Name.anonymous => true
   | _ => false
 
-@[export lean_is_io_unit_regular_init_fn]
 def isIOUnitRegularInitFn (env : Environment) (fn : Name) : Bool :=
   isIOUnitInitFnCore env regularInitAttr fn
 
-@[export lean_is_io_unit_builtin_init_fn]
 def isIOUnitBuiltinInitFn (env : Environment) (fn : Name) : Bool :=
   isIOUnitInitFnCore env builtinInitAttr fn
 

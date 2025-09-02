@@ -6,10 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.WF
-import Init.WFTactics
-import Init.Data.Nat.Basic
-meta import Init.MetaTypes
+public import Init.WF
+public import Init.WFTactics
+public import Init.Data.Nat.Basic
+public meta import Init.MetaTypes
+
+public section
 
 @[expose] section
 
@@ -348,12 +350,7 @@ theorem mod_le (x y : Nat) : x % y ≤ x := by
 theorem mod_lt_of_lt {a b c : Nat} (h : a < c) : a % b < c :=
   Nat.lt_of_le_of_lt (Nat.mod_le _ _) h
 
-@[simp] theorem zero_mod (b : Nat) : 0 % b = 0 := by
-  rw [mod_eq]
-  have : ¬ (0 < b ∧ b = 0) := by
-    intro ⟨h₁, h₂⟩
-    simp_all
-  simp [this]
+@[simp] theorem zero_mod (b : Nat) : 0 % b = 0 := rfl
 
 @[simp] theorem mod_self (n : Nat) : n % n = 0 := by
   rw [mod_eq_sub_mod (Nat.le_refl _), Nat.sub_self, zero_mod]
@@ -512,7 +509,7 @@ theorem sub_mul_div_of_le (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x /
         rw [mul_succ] at h₁
         exact h₁
       rw [sub_succ, ← IH h₂, div_eq_sub_div h₀ h₃]
-      simp [Nat.pred_succ, mul_succ, Nat.sub_sub]
+      simp [mul_succ, Nat.sub_sub]
 
 theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - (x + 1)) / n = p - ((x / n) + 1) := by
   have npos : 0 < n := (eq_zero_or_pos _).resolve_left fun n0 => by

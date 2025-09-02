@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Combinators
-// Imports: Std.Data.Iterators.Combinators.Monadic Std.Data.Iterators.Combinators.Take Std.Data.Iterators.Combinators.TakeWhile Std.Data.Iterators.Combinators.Drop Std.Data.Iterators.Combinators.DropWhile Std.Data.Iterators.Combinators.FilterMap Std.Data.Iterators.Combinators.Zip
+// Imports: Std.Data.Iterators.Combinators.Monadic Std.Data.Iterators.Combinators.Take Std.Data.Iterators.Combinators.TakeWhile Std.Data.Iterators.Combinators.Drop Std.Data.Iterators.Combinators.DropWhile Std.Data.Iterators.Combinators.StepSize Std.Data.Iterators.Combinators.Zip
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,7 +18,7 @@ lean_object* initialize_Std_Data_Iterators_Combinators_Take(uint8_t builtin, lea
 lean_object* initialize_Std_Data_Iterators_Combinators_TakeWhile(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Combinators_Drop(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Combinators_DropWhile(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Iterators_Combinators_FilterMap(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Iterators_Combinators_StepSize(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Combinators_Zip(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Combinators(uint8_t builtin, lean_object* w) {
@@ -40,7 +40,7 @@ lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Combinators_DropWhile(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Combinators_FilterMap(builtin, lean_io_mk_world());
+res = initialize_Std_Data_Iterators_Combinators_StepSize(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Combinators_Zip(builtin, lean_io_mk_world());

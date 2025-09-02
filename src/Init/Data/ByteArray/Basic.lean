@@ -6,11 +6,14 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Array.Basic
-import Init.Data.Array.Subarray
-import Init.Data.UInt.Basic
+public import Init.Data.Array.Basic
+public import Init.Data.Array.DecidableEq
+public import Init.Data.UInt.Basic
+public import Init.Data.UInt.BasicAux
 import all Init.Data.UInt.BasicAux
-import Init.Data.Option.Basic
+public import Init.Data.Option.Basic
+
+@[expose] public section
 universe u
 
 structure ByteArray where
@@ -20,6 +23,14 @@ attribute [extern "lean_byte_array_mk"] ByteArray.mk
 attribute [extern "lean_byte_array_data"] ByteArray.data
 
 namespace ByteArray
+
+deriving instance BEq for ByteArray
+
+attribute [ext] ByteArray
+
+instance : DecidableEq ByteArray :=
+  fun _ _ => decidable_of_decidable_of_iff ByteArray.ext_iff.symm
+
 @[extern "lean_mk_empty_byte_array"]
 def emptyWithCapacity (c : @& Nat) : ByteArray :=
   { data := #[] }

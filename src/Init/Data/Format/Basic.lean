@@ -6,14 +6,17 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Control.State
-import Init.Data.Int.Basic
-import Init.Data.String.Basic
+public import Init.Control.State
+public import Init.Data.Int.Basic
+public import Init.Data.String.Basic
+
+public section
 
 namespace Std
 
-/-- Determines how groups should have linebreaks inserted when the
-text would overfill its remaining space.
+/--
+Determines how groups should have linebreaks inserted when the text would overfill its remaining
+space.
 
 - `allOrNone` will make a linebreak on every `Format.line` in the group or none of them.
   ```
@@ -28,60 +31,83 @@ text would overfill its remaining space.
   ```
 -/
 inductive Format.FlattenBehavior where
+  /--
+  Either all `Format.line`s in the group will be newlines, or all of them will be spaces.
+  -/
   | allOrNone
+  /--
+  As few `Format.line`s in the group as possible will be newlines.
+  -/
   | fill
   deriving Inhabited, BEq
 
 open Format in
-/-- A string with pretty-printing information for rendering in a column-width-aware way.
+/--
+A representation of a set of strings, in which the placement of newlines and indentation differ.
+
+Given a specific line width, specified in columns, the string that uses the fewest lines can be
+selected.
 
 The pretty-printing algorithm is based on Wadler's paper
-[_A Prettier Printer_](https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf). -/
+[_A Prettier Printer_](https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf).
+-/
 inductive Format where
   /-- The empty format. -/
   | nil                 : Format
-  /-- A position where a newline may be inserted
-  if the current group does not fit within the allotted column width. -/
+  /--
+  A position where a newline may be inserted if the current group does not fit within the allotted
+  column width.
+  -/
   | line                : Format
-  /-- `align` tells the formatter to pad with spaces to the current indent,
-  or else add a newline if we are already at or past the indent. For example:
+  /--
+  `align` tells the formatter to pad with spaces to the current indentation level, or else add a
+  newline if we are already at or past the indent.
+
+  If `force` is true, then it will pad to the indent even if it is in a flattened group.
+
+  Example:
+  ```lean example
+  open Std Format in
+  #eval IO.println (nest 2 <| "." ++ align ++ "a" ++ line ++ "b")
   ```
-  nest 2 <| "." ++ align ++ "a" ++ line ++ "b"
-  ```
-  results in:
-  ```
+  ```lean output
   . a
     b
   ```
-  If `force` is true, then it will pad to the indent even if it is in a flattened group.
   -/
   | align (force : Bool) : Format
-  /-- A node containing a plain string. -/
-  | text                : String → Format
-  /-- `nest n f` tells the formatter that `f` is nested inside something with length `n`
-  so that it is pretty-printed with the correct indentation on a line break.
-  For example, we can define a formatter for list `l : List Format` as:
+  /--
+  A node containing a plain string.
 
-  ```
-  let f := join <| l.intersperse <| ", " ++ Format.line
-  group (nest 1 <| "[" ++ f ++ "]")
-  ```
-
-  This will be written all on one line, but if the text is too large,
-  the formatter will put in linebreaks after the commas and indent later lines by 1.
+  If the string contains newlines, the formatter emits them and then indents to the current level.
   -/
-  | nest (indent : Int) : Format → Format
-  /-- Concatenation of two Formats. -/
-  | append              : Format → Format → Format
-  /-- Creates a new flattening group for the given inner format.  -/
-  | group               : Format → (behavior : FlattenBehavior := FlattenBehavior.allOrNone) → Format
+  | text                : String → Format
+  /--
+  `nest indent f` increases the current indentation level by `indent` while rendering `f`.
+
+  Example:
+  ```lean example
+  open Std Format in
+  def fmtList (l : List Format) : Format :=
+    let f := joinSep l  (", " ++ Format.line)
+    group (nest 1 <| "[" ++ f ++ "]")
+  ```
+
+  This will be written all on one line, but if the text is too large, the formatter will put in
+  linebreaks after the commas and indent later lines by 1.
+  -/
+  | nest (indent : Int) (f : Format) : Format
+  /-- Concatenation of two `Format`s. -/
+  | append : Format → Format → Format
+  /-- Creates a new flattening group for the given inner `Format`.  -/
+  | group : Format → (behavior : FlattenBehavior := FlattenBehavior.allOrNone) → Format
   /-- Used for associating auxiliary information (e.g. `Expr`s) with `Format` objects. -/
-  | tag                 : Nat → Format → Format
+  | tag : Nat → Format → Format
   deriving Inhabited
 
 namespace Format
 
-/-- Check whether the given format contains no characters. -/
+/-- Checks whether the given format contains no characters. -/
 def isEmpty : Format → Bool
   | nil          => true
   | line         => false
@@ -92,16 +118,29 @@ def isEmpty : Format → Bool
   | group f _    => f.isEmpty
   | tag _ f      => f.isEmpty
 
-/-- Alias for a group with `FlattenBehavior` set to `fill`. -/
+/--
+Creates a group in which as few `Format.line`s as possible are rendered as newlines.
+
+This is an alias for `Format.group`, with `FlattenBehavior` set to `fill`.
+-/
 def fill (f : Format) : Format :=
   group f (behavior := FlattenBehavior.fill)
 
 instance : Append Format     := ⟨Format.append⟩
 instance : Coe String Format := ⟨text⟩
 
+/--
+Concatenates a list of `Format`s with `++`.
+-/
 def join (xs : List Format) : Format :=
   xs.foldl (·++·) ""
 
+/--
+Checks whether a `Format` is the constructor `Format.nil`.
+
+This does not check whether the resulting rendered strings are always empty. To do that, use
+`Format.isEmpty`.
+-/
 def isNil : Format → Bool
   | nil => true
   | _   => false
@@ -174,15 +213,30 @@ private partial def spaceUptoLine' : List WorkGroup → Nat → Nat → SpaceRes
       (spaceUptoLine i.f g.fla.shouldFlatten (w + col - i.indent) w)
       (spaceUptoLine' ({ g with items := is }::gs) col)
 
-/-- A monad in which we can pretty-print `Format` objects. -/
+/--
+A monad that can be used to incrementally render `Format` objects.
+-/
 class MonadPrettyFormat (m : Type → Type) where
-  pushOutput (s : String)    : m Unit
+  /--
+  Emits the string `s`.
+  -/
+  pushOutput (s : String) : m Unit
+  /--
+  Emits a newline followed by `indent` columns of indentation.
+  -/
   pushNewline (indent : Nat) : m Unit
-  currColumn                 : m Nat
-  /-- Start a scope tagged with `n`. -/
-  startTag                   : Nat → m Unit
-  /-- Exit the scope of `n`-many opened tags. -/
-  endTags                    : Nat → m Unit
+  /--
+  Gets the current column at which the next string will be emitted.
+  -/
+  currColumn : m Nat
+  /--
+  Starts a region tagged with `tag`.
+  -/
+  startTag (tag : Nat) : m Unit
+  /--
+  Exits the scope of `count` opened tags.
+  -/
+  endTags (count : Nat) : m Unit
 open MonadPrettyFormat
 
 private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List WorkGroup) (w : Nat) [Monad m] [MonadPrettyFormat m] : m (List WorkGroup) := do
@@ -276,35 +330,59 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
       else
         pushGroup flb [{ i with f }] (gs' is) w >>= be w
 
-/-- Render the given `f : Format` with a line width of `w`.
+/- Render the given `f : Format` with a line width of `w`.
 `indent` is the starting amount to indent each line by. -/
+/--
+Renders a `Format` using effects in the monad `m`, using the methods of `MonadPrettyFormat`.
+
+Each line is emitted as soon as it is rendered, rather than waiting for the entire document to be
+rendered.
+* `w`: the total width
+* `indent`: the initial indentation to use for wrapped lines (subsequent wrapping may increase the
+  indentation)
+-/
 def prettyM (f : Format) (w : Nat) (indent : Nat := 0) [Monad m] [MonadPrettyFormat m] : m Unit :=
   be w [{ flb := FlattenBehavior.allOrNone, fla := .disallow, items := [{ f := f, indent, activeTags := 0 }]}]
 
-/-- Create a format `l ++ f ++ r` with a flatten group.
-FlattenBehaviour is `allOrNone`; for `fill` use `bracketFill`. -/
+/--
+Creates a format `l ++ f ++ r` with a flattening group, nesting the contents by the length of `l`.
+
+The group's `FlattenBehavior` is `allOrNone`; for `fill` use `Std.Format.bracketFill`.
+-/
 @[inline] def bracket (l : String) (f : Format) (r : String) : Format :=
   group (nest l.length $ l ++ f ++ r)
 
-/-- Creates the format `"(" ++ f ++ ")"` with a flattening group.-/
+/--
+Creates the format `"(" ++ f ++ ")"` with a flattening group, nesting by one space.
+-/
 @[inline] def paren (f : Format) : Format :=
   bracket "(" f ")"
 
-/-- Creates the format `"[" ++ f ++ "]"` with a flattening group.-/
+/--
+Creates the format `"[" ++ f ++ "]"` with a flattening group, nesting by one space.
+
+`sbracket` is short for “square bracket”.
+-/
 @[inline] def sbracket (f : Format) : Format :=
   bracket "[" f "]"
 
-/-- Same as `bracket` except uses the `fill` flattening behaviour. -/
+/--
+Creates a format `l ++ f ++ r` with a flattening group, nesting the contents by the length of `l`.
+
+The group's `FlattenBehavior` is `fill`; for `allOrNone` use `Std.Format.bracketFill`.
+-/
 @[inline] def bracketFill (l : String) (f : Format) (r : String) : Format :=
   fill (nest l.length $ l ++ f ++ r)
 
-/-- Default indentation. -/
+/-- The default indentation level, which is two spaces. -/
 def defIndent  := 2
 def defUnicode := true
-/-- Default width of the targeted output pane. -/
+/-- The default width of the targeted output, which is 120 columns. -/
 def defWidth   := 120
 
-/-- Nest with the default indentation amount.-/
+/--
+Increases the indentation level by the default amount.
+-/
 def nestD (f : Format) : Format :=
   nest defIndent f
 
@@ -340,9 +418,17 @@ def pretty (f : Format) (width : Nat := defWidth) (indent : Nat := 0) (column :=
 
 end Format
 
-/-- Class for converting a given type α to a `Format` object for pretty-printing.
-See also `Repr`, which also outputs a `Format` object. -/
+/--
+Specifies a “user-facing” way to convert from the type `α` to a `Format` object. There is no
+expectation that the resulting string is valid code.
+
+The `Repr` class is similar, but the expectation is that instances produce valid Lean code.
+-/
 class ToFormat (α : Type u) where
+  /--
+  Converts a value to a `Format` object, with no expectation that the resulting string is valid
+  code.
+  -/
   format : α → Format
 
 export ToFormat (format)
@@ -354,18 +440,31 @@ instance : ToFormat Format where
 instance : ToFormat String where
   format s := Format.text s
 
-/-- Intersperse the given list (each item printed with `format`) with the given `sep` format. -/
+/--
+Intercalates the given list with the given `sep` format.
+
+The list items are formatting using `ToFormat.format`.
+-/
 def Format.joinSep {α : Type u} [ToFormat α] : List α → Format → Format
   | [],    _   => nil
   | [a],   _   => format a
   | a::as, sep => as.foldl (· ++ sep ++ format ·) (format a)
 
-/-- Format each item in `items` and prepend prefix `pre`. -/
+/--
+Concatenates the given list after prepending `pre` to each element.
+
+The list items are formatting using `ToFormat.format`.
+-/
 def Format.prefixJoin {α : Type u} [ToFormat α] (pre : Format) : List α → Format
   | []    => nil
   | a::as => as.foldl (· ++ pre ++ format ·) (pre ++ format a)
 
-/-- Format each item in `items` and append `suffix`. -/
+/--
+Concatenates the given list after appending the given suffix to each element.
+
+The list items are formatting using `ToFormat.format`.
+-/
+
 def Format.joinSuffix {α : Type u} [ToFormat α] : List α → Format → Format
   | [],    _      => nil
   | a::as, suffix => as.foldl (· ++ format · ++ suffix) (format a ++ suffix)

@@ -33,7 +33,7 @@ inductive T3 : Prop where
 Given the resultant type, fail to infer a level for `PUnit` if there's not a unique solution.
 -/
 /--
-error: invalid universe level in constructor 'E0.mk', parameter 'x' has type
+error: Invalid universe level in constructor `E0.mk`: Parameter `x` has type
   PUnit.{u_1}
 at universe level
   u_1
@@ -48,7 +48,7 @@ inductive E0 : Type where
 Given the resultant type, fail to infer a level for `PUnit` if there's not a unique solution.
 -/
 /--
-error: invalid universe level in constructor 'E1.mk', parameter 'x' has type
+error: Invalid universe level in constructor `E1.mk`: Parameter `x` has type
   Prod.{u_1, u_2} PUnit.{u_1 + 1} PUnit.{u_2 + 1}
 at universe level
   max (u_1+1) (u_2+1)
@@ -63,9 +63,10 @@ inductive E1 : Type 1 where
 `Sort` polymorphism is not allowed.
 -/
 /--
-error: invalid universe polymorphic resulting type, the resulting universe is not 'Prop', but it may be 'Prop' for some parameter values:
+error: Invalid universe polymorphic resulting type: The resulting universe is not `Prop`, but it may be `Prop` for some parameter values:
   Sort u
-Possible solution: use levels of the form 'max 1 _' or '_ + 1' to ensure the universe is of the form 'Type _'.
+
+Hint: A possible solution is to use levels of the form `max 1 _` or `_ + 1` to ensure the universe is of the form `Type _`
 -/
 #guard_msgs in
 inductive P (α : Sort u) : Sort u where
@@ -75,7 +76,7 @@ inductive P (α : Sort u) : Sort u where
 Errors for `structure` are specialized to talking about fields.
 -/
 /--
-error: invalid universe level for field 'α', has type
+error: Invalid universe level for field `α`: Field has type
   Type
 at universe level
   2
@@ -93,7 +94,7 @@ Errors for `structure` talk about parent projection fields too.
 structure A' where
   α : Type
 /--
-error: invalid universe level for field 'α', has type
+error: Invalid universe level for field `α`: Field has type
   Type
 at universe level
   2

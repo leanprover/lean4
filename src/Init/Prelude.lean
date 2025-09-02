@@ -6,6 +6,8 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude -- Don't import Init, because we're in Init itself
+
+public section
 set_option linter.missingDocs true -- keep it documented
 @[expose] section  -- Expose all defs
 
@@ -61,20 +63,14 @@ Examples:
   fun _ => a
 
 /--
-The encoding of `let_fun x := v; b` is `letFun v (fun x => b)`.
+`letFun v (fun x => b)` is a function version of `have x := v; b`.
 This is equal to `(fun x => b) v`, so the value of `x` is not accessible to `b`.
 This is in contrast to `let x := v; b`, where the value of `x` is accessible to `b`.
 
-There is special support for `letFun`.
-Both WHNF and `simp` are aware of `letFun` and can reduce it when zeta reduction is enabled,
-despite the fact it is marked `irreducible`.
-For metaprogramming, the function `Lean.Expr.letFun?` can be used to recognize a `let_fun` expression
-to extract its parts as if it were a `let` expression.
+This used to be the way `have`/`let_fun` syntax was encoded,
+and there used to be special support for `letFun` in WHNF and `simp`.
 -/
 def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
--- We need to export the body of `letFun`, which is suppressed if `[irreducible]` is set directly.
--- We can work around this rare case by applying the attribute after the fact.
-attribute [irreducible] letFun
 
 set_option checkBinderAnnotations false in
 /--
@@ -470,16 +466,16 @@ Unsafe auxiliary constant used by the compiler to erase `Quot.lift`.
 unsafe axiom Quot.lcInv {α : Sort u} {r : α → α → Prop} (q : Quot r) : α
 
 /--
-Heterogeneous equality. `HEq a b` asserts that `a` and `b` have the same
+Heterogeneous equality. `a ≍ b` asserts that `a` and `b` have the same
 type, and casting `a` across the equality yields `b`, and vice versa.
 
 You should avoid using this type if you can. Heterogeneous equality does not
 have all the same properties as `Eq`, because the assumption that the types of
 `a` and `b` are equal is often too weak to prove theorems of interest. One
-important non-theorem is the analogue of `congr`: If `HEq f g` and `HEq x y`
-and `f x` and `g y` are well typed it does not follow that `HEq (f x) (g y)`.
+public important non-theorem is the analogue of `congr`: If `f ≍ g` and `x ≍ y`
+and `f x` and `g y` are well typed it does not follow that `f x ≍ g y`.
 (This does follow if you have `f = g` instead.) However if `a` and `b` have
-the same type then `a = b` and `HEq a b` are equivalent.
+the same type then `a = b` and `a ≍ b` are equivalent.
 -/
 inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
   /-- Reflexivity of heterogeneous equality. -/
@@ -592,7 +588,7 @@ theorem Or.neg_resolve_right (h : Or a (Not b)) (nb : b) : a := h.elim id (absur
 The Boolean values, `true` and `false`.
 
 Logically speaking, this is equivalent to `Prop` (the type of propositions). The distinction is
-important for programming: both propositions and their proofs are erased in the code generator,
+public important for programming: both propositions and their proofs are erased in the code generator,
 while `Bool` corresponds to the Boolean type in most programming languages and carries precisely one
 bit of run-time information.
 -/
@@ -890,6 +886,30 @@ theorem ULift.up_down {α : Type u} (b : ULift.{v} α) : Eq (up (down b)) b := r
 /-- Bijection between `α` and `ULift.{v} α` -/
 theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a := rfl
 
+instance [Inhabited α] : Inhabited (ULift α) where
+  default := ULift.up default
+
+/--
+Lifts a type or proposition to a higher universe level.
+
+`PULift α` wraps a value of type `α`. It is a generalization of
+`PLift` that allows lifting values who's type may live in `Sort s`.
+It also subsumes `PLift`.
+-/
+-- The universe variable `r` is written first so that `ULift.{r} α` can be used
+-- when `s` can be inferred from the type of `α`.
+structure PULift.{r, s} (α : Sort s) : Sort (max s r 1) where
+  /-- Wraps a value to increase its type's universe level. -/
+  up ::
+  /-- Extracts a wrapped value from a universe-lifted type. -/
+  down : α
+
+/-- Bijection between `α` and `PULift.{v} α` -/
+theorem PULift.up_down {α : Sort u} (b : PULift.{v} α) : Eq (up (down b)) b := rfl
+
+/-- Bijection between `α` and `PULift.{v} α` -/
+theorem PULift.down_up {α : Sort u} (a : α) : Eq (down (up.{v} a)) a := rfl
+
 /--
 Either a proof that `p` is true or a proof that `p` is false. This is equivalent to a `Bool` paired
 with a proof that the `Bool` is `true` if and only if `p` is true.
@@ -1158,6 +1178,7 @@ propositional connective is `Not : Prop → Prop`.
 
 export Bool (or and not)
 
+set_option genCtorIdx false in
 /--
 The natural numbers, starting at zero.
 
@@ -1565,7 +1586,7 @@ class AndOp (α : Type u) where
   and : α → α → α
 
 /-- The homogeneous version of `HXor`: `a ^^^ b : α` where `a b : α`. -/
-class Xor (α : Type u) where
+class XorOp (α : Type u) where
   /-- The implementation of `a ^^^ b : α`. See `HXor`. -/
   xor : α → α → α
 
@@ -1648,8 +1669,8 @@ instance [AndOp α] : HAnd α α α where
   hAnd a b := AndOp.and a b
 
 @[default_instance]
-instance [Xor α] : HXor α α α where
-  hXor a b := Xor.xor a b
+instance [XorOp α] : HXor α α α where
+  hXor a b := XorOp.xor a b
 
 @[default_instance]
 instance [OrOp α] : HOr α α α where
@@ -1999,6 +2020,8 @@ protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
 
 instance instSubNat : Sub Nat where
   sub := Nat.sub
+
+attribute [gen_constructor_elims] Nat
 
 /--
 Gets the word size of the current platform. The word size may be 64 or 32 bits.
@@ -2569,7 +2592,7 @@ This function is `@[macro_inline]`, so `dflt` will not be evaluated unless `opt`
 
 Examples:
  * `(some "hello").getD "goodbye" = "hello"`
- * `none.getD "goodbye" = "hello"`
+ * `none.getD "goodbye" = "goodbye"`
 -/
 @[macro_inline, expose] def Option.getD (opt : Option α) (dflt : α) : α :=
   match opt with
@@ -2813,33 +2836,6 @@ where
    | .nil       => 0
    | .cons c cs => hAdd (go cs) c.utf8Size
 
-instance : HAdd String.Pos String.Pos String.Pos where
-  hAdd p₁ p₂ := { byteIdx := hAdd p₁.byteIdx p₂.byteIdx }
-
-instance : HSub String.Pos String.Pos String.Pos where
-  hSub p₁ p₂ := { byteIdx := HSub.hSub p₁.byteIdx p₂.byteIdx }
-
-instance : HAdd String.Pos Char String.Pos where
-  hAdd p c := { byteIdx := hAdd p.byteIdx c.utf8Size }
-
-instance : HAdd String.Pos String String.Pos where
-  hAdd p s := { byteIdx := hAdd p.byteIdx s.utf8ByteSize }
-
-instance : LE String.Pos where
-  le p₁ p₂ := LE.le p₁.byteIdx p₂.byteIdx
-
-instance : LT String.Pos where
-  lt p₁ p₂ := LT.lt p₁.byteIdx p₂.byteIdx
-
-instance (p₁ p₂ : String.Pos) : Decidable (LE.le p₁ p₂) :=
-  inferInstanceAs (Decidable (LE.le p₁.byteIdx p₂.byteIdx))
-
-instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
-  inferInstanceAs (Decidable (LT.lt p₁.byteIdx p₂.byteIdx))
-
-instance : Min String.Pos := minOfLe
-instance : Max String.Pos := maxOfLe
-
 /--
 A UTF-8 byte position that points at the end of a string, just after the last character.
 
@@ -3011,6 +3007,15 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
 
 /--
+Version of `Array.getInternal` that does not increment the reference count of its result.
+
+This is only intended for direct use by the compiler.
+-/
+@[extern "lean_array_fget_borrowed"]
+unsafe opaque Array.getInternalBorrowed {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
+  a.toList.get ⟨i, h⟩
+
+/--
 Use the indexing notation `a[i]` instead.
 
 Access an element from an array without needing a runtime bounds checks,
@@ -3038,6 +3043,14 @@ Examples:
 -/
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
   dite (LT.lt i a.size) (fun h => a.getInternal i h) (fun _ => v₀)
+
+/--
+Version of `Array.get!Internal` that does not increment the reference count of its result.
+
+This is only intended for direct use by the compiler.
+-/
+@[extern "lean_array_get_borrowed"]
+unsafe opaque Array.get!InternalBorrowed {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α
 
 /--
 Use the indexing notation `a[i]!` instead.
@@ -3668,7 +3681,7 @@ class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) where
 export MonadReader (read)
 
 /--
-Retrieves the local value whose type is `ρ`.  This is useful when a monad supports reading more that
+Retrieves the local value whose type is `ρ`.  This is useful when a monad supports reading more than
 one type of value.
 
 Use `read` for a version that expects the type `ρ` to be inferred from `m`.
@@ -3728,7 +3741,7 @@ class MonadWithReader (ρ : outParam (Type u)) (m : Type u → Type v) where
   During the inner action `x`, reading the value returns `f` applied to the original value. After
   control returns from `x`, the reader monad's value is restored.
   -/
-  withReader {α : Type u} : (ρ → ρ) → m α → m α
+  withReader {α : Type u} : (f : ρ → ρ) → (x : m α) → m α
 
 export MonadWithReader (withReader)
 
@@ -4233,7 +4246,7 @@ instance : BEq Name where
 This function does not have special support for macro scopes.
 See `Name.append`.
 -/
-def appendCore : Name → Name → Name
+@[expose] def appendCore : Name → Name → Name
   | n, .anonymous => n
   | n, .str p s => .str (appendCore n p) s
   | n, .num p d => .num (appendCore n p) d
@@ -4245,7 +4258,9 @@ def defaultMaxRecDepth := 512
 
 /-- The message to display on stack overflow. -/
 def maxRecDepthErrorMessage : String :=
-  "maximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information"
+  "maximum recursion depth has been reached\n\
+   use `set_option maxRecDepth <num>` to increase limit\n\
+   use `set_option diagnostics true` to get diagnostic information"
 
 /-! # Syntax -/
 
@@ -4555,12 +4570,12 @@ in `s!"value = {x}"`.
 abbrev interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
 
 /-- Creates an info-less node of the given kind and children. -/
-@[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax (.cons k .nil) :=
+@[inline, expose] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax (.cons k .nil) :=
   ⟨Syntax.node SourceInfo.none k args⟩
 
 /-- Creates an info-less `nullKind` node with the given children, if any. -/
 -- NOTE: used by the quotation elaborator output
-@[inline] def mkNullNode (args : Array Syntax := Array.empty) : Syntax :=
+@[inline, expose] def mkNullNode (args : Array Syntax := Array.empty) : Syntax :=
   mkNode nullKind args |>.raw
 
 namespace Syntax
@@ -4922,9 +4937,8 @@ def withRef? [Monad m] [MonadRef m] {α} (ref? : Option Syntax) (x : m α) : m �
 class MonadQuotation (m : Type → Type) extends MonadRef m where
   /-- Get the fresh scope of the current macro invocation -/
   getCurrMacroScope : m MacroScope
-  /-- Get the module name of the current file. This is used to ensure that
-  hygienic names don't clash across multiple files. -/
-  getMainModule     : m Name
+  /-- Get the context name used in Note `Macro Scope Representation`. -/
+  getContext        : m Name
   /--
   Execute action in a new macro invocation context. This transformer should be
   used at all places that morally qualify as the beginning of a "macro call",
@@ -4940,7 +4954,11 @@ class MonadQuotation (m : Type → Type) extends MonadRef m where
   -/
   withFreshMacroScope {α : Type} : m α → m α
 
-export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
+export MonadQuotation (getCurrMacroScope withFreshMacroScope)
+
+-- TODO: delete after rebootstrap
+@[inherit_doc MonadQuotation.getContext]
+abbrev MonadQuotation.getMainModule := @MonadQuotation.getContext
 
 /-- Construct a synthetic `SourceInfo` from the `ref` in the monad state. -/
 @[inline]
@@ -4949,32 +4967,47 @@ def MonadRef.mkInfoFromRefPos [Monad m] [MonadRef m] : m SourceInfo :=
 
 instance [MonadFunctor m n] [MonadLift m n] [MonadQuotation m] : MonadQuotation n where
   getCurrMacroScope   := liftM (m := m) getCurrMacroScope
-  getMainModule       := liftM (m := m) getMainModule
+  getContext          := liftM (m := m) MonadQuotation.getContext
   withFreshMacroScope := monadMap (m := m) withFreshMacroScope
 
 /-!
+# Note [Macro Scope Representation]
+
 We represent a name with macro scopes as
 ```
-<actual name>._@.(<module_name>.<scopes>)*.<module_name>._hyg.<scopes>
+<actual name>._@.(<ctx>.<scopes>)*.<ctx>._hyg.<scopes>
 ```
-Example: suppose the module name is `Init.Data.List.Basic`, and name is `foo.bla`, and macroscopes [2, 5]
+Example: suppose the context name is `Init.Data.List.Basic`, and name is `foo.bla`, and macroscopes [2, 5]
 ```
 foo.bla._@.Init.Data.List.Basic._hyg.2.5
 ```
+The delimiter `_hyg` is used just to improve the `hasMacroScopes` performance.
 
-We may have to combine scopes from different files/modules.
-The main modules being processed is always the right-most one.
-This situation may happen when we execute a macro generated in
-an imported file in the current file.
+The primary purpose of the context name is to differentiate macro scopes from different files as the
+numeric scopes are reset in each file. The current scope is always the right-most one. Scopes from
+multiple files may be collected when we execute a macro generated in an imported file in the current
+file.
 ```
 foo.bla._@.Init.Data.List.Basic.2.1.Init.Lean.Expr._hyg.4
 ```
 
 The delimiter `_hyg` is used just to improve the `hasMacroScopes` performance.
+In practice, we further specify the context name down to be unique per declaration so that the
+numeric scopes are not influenced by the elaboration of preceding declarations. This helps both with
+ensuring declaration names are more stable so that `prefer_native` can find the correct native
+symbol as well as making exported information in general more stable, avoiding rebuilds under the
+module system. Thus the actual encoding of the context name in the current implementation is
+```
+<main module>.<uniq>._hygCtx
+```
+where `<uniq>` is an identifier unique within the current module, set by
+`Command.withInitQuotContext`; see there for details. Thus we can assume the full context name to be
+unique throughout all modules and reset the numeric scopes whenever establishing a fresh context
+name.
 -/
 
 /-- Does this name have hygienic macro scopes? -/
-def Name.hasMacroScopes : Name → Bool
+@[expose] def Name.hasMacroScopes : Name → Bool
   | str _ s => beq s "_hyg"
   | num p _ => hasMacroScopes p
   | _       => false
@@ -5018,8 +5051,8 @@ structure MacroScopesView where
   /-- All the name components `(<module_name>.<scopes>)*` from the imports
   concatenated together. -/
   imported   : Name
-  /-- The main module in which this identifier was parsed. -/
-  mainModule : Name
+  /-- The context name, a globally unique prefix. -/
+  ctx        : Name
   /-- The list of macro scopes. -/
   scopes     : List MacroScope
 
@@ -5031,7 +5064,7 @@ def MacroScopesView.review (view : MacroScopesView) : Name :=
   match view.scopes with
   | List.nil      => view.name
   | List.cons _ _ =>
-    let base := (Name.mkStr (Name.appendCore (Name.appendCore (Name.mkStr view.name "_@") view.imported) view.mainModule) "_hyg")
+    let base := (Name.mkStr (Name.appendCore (Name.appendCore (Name.mkStr view.name "_@") view.imported) view.ctx) "_hyg")
     view.scopes.foldl Name.mkNum base
 
 private def assembleParts : List Name → Name → Name
@@ -5043,7 +5076,7 @@ private def assembleParts : List Name → Name → Name
 private def extractImported (scps : List MacroScope) (mainModule : Name) : Name → List Name → MacroScopesView
   | n@(Name.str p str), parts =>
     match beq str "_@" with
-    | true  => { name := p, mainModule := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
+    | true  => { name := p, ctx := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
     | false => extractImported scps mainModule p (List.cons n parts)
   | n@(Name.num p _), parts => extractImported scps mainModule p (List.cons n parts)
   | _,                    _     => panic "Error: unreachable @ extractImported"
@@ -5051,7 +5084,7 @@ private def extractImported (scps : List MacroScope) (mainModule : Name) : Name 
 private def extractMainModule (scps : List MacroScope) : Name → List Name → MacroScopesView
   | n@(Name.str p str), parts =>
     match beq str "_@" with
-    | true  => { name := p, mainModule := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
+    | true  => { name := p, ctx := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
     | false => extractMainModule scps p (List.cons n parts)
   | n@(Name.num _ _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
   | _,                    _   => panic "Error: unreachable @ extractMainModule"
@@ -5068,23 +5101,23 @@ private def extractMacroScopesAux : Name → List MacroScope → MacroScopesView
 def extractMacroScopes (n : Name) : MacroScopesView :=
   match n.hasMacroScopes with
   | true  => extractMacroScopesAux n List.nil
-  | false => { name := n, scopes := List.nil, imported := Name.anonymous, mainModule := Name.anonymous }
+  | false => { name := n, scopes := List.nil, imported := Name.anonymous, ctx := Name.anonymous }
 
-/-- Add a new macro scope onto the name `n`, in the given `mainModule`. -/
-def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
+/-- Add a new macro scope onto the name `n`, in the given `ctx`. -/
+def addMacroScope (ctx : Name) (n : Name) (scp : MacroScope) : Name :=
   match n.hasMacroScopes with
   | true =>
     let view := extractMacroScopes n
-    match beq view.mainModule mainModule with
+    match beq view.ctx ctx with
     | true  => Name.mkNum n scp
     | false =>
       { view with
-        imported   := view.scopes.foldl Name.mkNum (Name.appendCore view.imported view.mainModule)
-        mainModule := mainModule
+        imported   := view.scopes.foldl Name.mkNum (Name.appendCore view.imported view.ctx)
+        ctx := ctx
         scopes     := List.cons scp List.nil
       }.review
   | false =>
-    Name.mkNum (Name.mkStr (Name.appendCore (Name.mkStr n "_@") mainModule) "_hyg") scp
+    Name.mkNum (Name.mkStr (Name.appendCore (Name.mkStr n "_@") ctx) "_hyg") scp
 
 /--
 Appends two names `a` and `b`, propagating macro scopes from `a` or `b`, if any, to the result.
@@ -5095,7 +5128,7 @@ This function is used for the `Append Name` instance.
 See also `Lean.Name.appendCore`, which appends names without any consideration for macro scopes.
 Also consider `Lean.Name.eraseMacroScopes` to erase macro scopes before appending, if appropriate.
 -/
-def Name.append (a b : Name) : Name :=
+@[expose] def Name.append (a b : Name) : Name :=
   match a.hasMacroScopes, b.hasMacroScopes with
   | true, true  =>
     panic "Error: invalid `Name.append`, both arguments have macro scopes, consider using `eraseMacroScopes`"
@@ -5115,9 +5148,9 @@ Add a new macro scope onto the name `n`, using the monad state to supply the
 main module and current macro scope.
 -/
 @[inline] def MonadQuotation.addMacroScope {m : Type → Type} [MonadQuotation m] [Monad m] (n : Name) : m Name :=
-  bind getMainModule     fun mainModule =>
+  bind MonadQuotation.getContext fun ctx =>
   bind getCurrMacroScope fun scp =>
-  pure (Lean.addMacroScope mainModule n scp)
+  pure (Lean.addMacroScope ctx n scp)
 
 namespace Syntax
 
@@ -5162,8 +5195,8 @@ structure Context where
   /-- An opaque reference to the `Methods` object. This is done to break a
   dependency cycle: the `Methods` involve `MacroM` which has not been defined yet. -/
   methods        : MethodsRef
-  /-- The currently parsing module. -/
-  mainModule     : Name
+  /-- The quotation context name for `MonadQuotation.getContext`. -/
+  quotContext    : Name
   /-- The current macro scope. -/
   currMacroScope : MacroScope
   /-- The current recursion depth. -/
@@ -5218,11 +5251,6 @@ instance : MonadRef MacroM where
   getRef     := bind read fun ctx => pure ctx.ref
   withRef    := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x
 
-/-- Add a new macro scope to the name `n`. -/
-def addMacroScope (n : Name) : MacroM Name :=
-  bind read fun ctx =>
-  pure (Lean.addMacroScope ctx.mainModule n ctx.currMacroScope)
-
 /-- Throw an `unsupportedSyntax` exception. -/
 def throwUnsupported {α} : MacroM α :=
   throw Exception.unsupportedSyntax
@@ -5256,8 +5284,12 @@ scope is fresh.
 
 instance : MonadQuotation MacroM where
   getCurrMacroScope ctx := pure ctx.currMacroScope
-  getMainModule     ctx := pure ctx.mainModule
+  getContext        ctx := pure ctx.quotContext
   withFreshMacroScope   := Macro.withFreshMacroScope
+
+/-- Add a new macro scope to the name `n`. -/
+def addMacroScope (n : Name) : MacroM Name :=
+  MonadQuotation.addMacroScope n
 
 /-- The opaque methods that are available to `MacroM`. -/
 structure Methods where
@@ -5356,7 +5388,7 @@ instance : MonadQuotation UnexpandM where
   withRef ref x       := withReader (fun _ => ref) x
   -- unexpanders should not need to introduce new names
   getCurrMacroScope   := pure 0
-  getMainModule       := pure `_fakeMod
+  getContext          := pure `_fakeMod
   withFreshMacroScope := id
 
 end PrettyPrinter

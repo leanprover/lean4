@@ -1,4 +1,9 @@
+module
+
 import Lean
+import all Init.NotationExtra
+import all Lean.ResolveName
+
 set_option maxHeartbeats 100000
 attribute [simp] Array.findIdx?.loop
 attribute [simp] Lean.expandExplicitBindersAux.loop

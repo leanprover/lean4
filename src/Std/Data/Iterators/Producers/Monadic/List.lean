@@ -3,11 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Nat.Lemmas
-import Init.RCases
-import Std.Data.Iterators.Consumers
-import Std.Data.Iterators.Internal.Termination
+public import Init.Data.Nat.Lemmas
+public import Init.RCases
+public import Init.Data.Iterators.Consumers
+public import Init.Data.Iterators.Internal.Termination
+
+@[expose] public section
 
 /-!
 # List iterator
@@ -17,7 +21,7 @@ This module provides an iterator for lists that is accessible via `List.iterM`.
 
 namespace Std.Iterators
 
-variable {α : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+variable {α : Type w} {m : Type w → Type w'}
 
 /--
 The underlying state of a list iterator. Its contents are internal and should
@@ -56,22 +60,34 @@ private def ListIterator.finitenessRelation [Pure m] :
     cases step <;> simp_all [IterStep.successor, IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
 
 instance [Pure m] : Finite (ListIterator α) m :=
-  Finite.of_finitenessRelation ListIterator.finitenessRelation
+  by exact Finite.of_finitenessRelation ListIterator.finitenessRelation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorCollect (ListIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
+    IteratorCollect (ListIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorCollectPartial (ListIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
+    IteratorCollectPartial (ListIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorLoop (ListIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
+    IteratorLoop (ListIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorLoopPartial (ListIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
+    IteratorLoopPartial (ListIterator α) m n :=
+  .defaultImplementation
+
+@[always_inline, inline]
+instance {α : Type w} [Monad m] : IteratorSize (ListIterator α) m :=
+  .defaultImplementation
+
+@[always_inline, inline]
+instance {α : Type w} [Monad m] : IteratorSizePartial (ListIterator α) m :=
   .defaultImplementation
 
 end Std.Iterators

@@ -17,14 +17,18 @@
       rusage_properties: ["maxrss"]
   run_config:
     <<: *time
+    cwd: ../../src
     cmd: |
-      bash -c 'set -eo pipefail; touch ../../src/Init/Prelude.lean; make LEAN_OPTS="-Dprofiler=true -Dprofiler.threshold=99999 --stats" -C ${BUILD:-../../build/release}/stage2 --output-sync -j$(nproc) 2>&1 | ./accumulate_profile.py'
+      set -euxo pipefail
+      bash -c 'set -eo pipefail; find ${BUILD:-../build/release}/stage3 -name "*.olean" -delete; lakeprof record make -C ${BUILD:-../build/release}/stage3 -j$(nproc) 2>&1 | ../tests/bench/accumulate_profile.py'
+      lakeprof report -p | awk '{if ($3) cum = $3} END {print "longest build path: " cum}'
+      lakeprof report -r | awk '{if ($3) cum = $3} END {print "longest rebuild path: " cum}'
     max_runs: 2
     parse_output: true
-  # initialize stage2 cmake + warmup
+  # initialize stage3 cmake + warmup
   build_config:
     cmd: |
-      bash -c 'make -C ${BUILD:-../../build/release} stage2 -j$(nproc)'
+      bash -c 'make -C ${BUILD:-../build/release} stage3 -j$(nproc)'
 - attributes:
     description: stdlib size
     tags: [deterministic, fast]
@@ -35,17 +39,19 @@
       echo -n 'lines: '
       find src -name '*.lean' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean: '
-      find ${BUILD:-build/release}/stage2/lib/lean -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/lean -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean.server: '
-      find ${BUILD:-build/release}/stage2/lib/lean -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/lean -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean.private: '
-      find ${BUILD:-build/release}/stage2/lib/lean -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/lean -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      echo -n 'bytes .ir: '
+      find ${BUILD:-build/release}/stage3/lib/lean -name '*.ir' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'lines C: '
-      find ${BUILD:-build/release}/stage2/lib/temp -name '*.c' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/temp -name '*.c' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'lines C++: '
       find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'max dynamic symbols: '
-      find ${BUILD:-build/release}/stage2/lib/lean -name '*.a' -exec bash -c 'nm {} | grep " T " | wc -l' \; | sort --reverse --numeric-sort | head -n1
+      find ${BUILD:-build/release}/stage3/lib/lean -name '*.so' -exec bash -c 'nm --extern-only --defined-only {} | wc -l' \; | sort --reverse --numeric-sort | head -n1
     max_runs: 1
     runner: output
 - attributes:
@@ -56,11 +62,11 @@
     cmd: |
       set -euxo pipefail
       echo -n 'bytes .olean: '
-      find ${BUILD:-build/release}/stage2/lib/lean/Init -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/lean/Init -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean.server: '
-      find ${BUILD:-build/release}/stage2/lib/lean/Init -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/lean/Init -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean.private: '
-      find ${BUILD:-build/release}/stage2/lib/lean/Init -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage3/lib/lean/Init -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
     max_runs: 1
     runner: output
 - attributes:
@@ -70,7 +76,7 @@
     cmd: |
       set -eu
       echo -n 'binary size: '
-      wc -c ${BUILD:-../../build/release}/stage2/lib/lean/libleanshared.so | cut -d' ' -f 1
+      wc -c ${BUILD:-../../build/release}/stage3/lib/lean/libleanshared.so | cut -d' ' -f 1
     max_runs: 1
     runner: output
 - attributes:
@@ -400,6 +406,66 @@
     <<: *time
     cmd: lean simp_arith1.lean
 - attributes:
+    description: simp_bubblesort_256
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean simp_bubblesort_256.lean
+- attributes:
+    description: simp_local
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean simp_local.lean
+- attributes:
+    description: simp_subexpr
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean simp_subexpr.lean
+- attributes:
+    description: simp_congr
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean --tstack=16384 simp_congr.lean
+- attributes:
+    description: mut_rec_wf
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean mut_rec_wf.lean
+- attributes:
+    description: big_match
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean big_match.lean
+- attributes:
+    description: big_beq
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean big_beq.lean
+- attributes:
+    description: big_beq_rec
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean big_beq_rec.lean
+- attributes:
+    description: big_deceq
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean big_deceq.lean
+- attributes:
+    description: big_deceq_rec
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean big_deceq_rec.lean
+- attributes:
     description: nat_repr
     tags: [fast, suite]
   run_config:
@@ -456,6 +522,12 @@
     <<: *time
     cmd: lean bv_decide_large_aig.lean
 - attributes:
+    description: bv_decide_rewriter.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean bv_decide_rewriter.lean
+- attributes:
     description: big_do
     tags: [fast]
   run_config:
@@ -495,3 +567,60 @@
     <<: *time
     cmd: lean riscv-ast.lean
     max_runs: 2
+- attributes:
+    description: iterators
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean iterators.lean
+- attributes:
+    description: workspaceSymbols with new ranges
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean workspaceSymbolsNewRanges.lean
+- attributes:
+    description: hashmap.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./hashmap.lean.out 11 10000
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh hashmap.lean
+- attributes:
+    description: treemap.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./treemap.lean.out 11 10000
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh treemap.lean
+- attributes:
+    description: phashmap.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./phashmap.lean.out 11 10000
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh phashmap.lean
+- attributes:
+    description: grind_bitvec2.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean -Dexperimental.module=true ../lean/run/grind_bitvec2.lean
+- attributes:
+    description: grind_list2.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean -Dexperimental.module=true ../lean/run/grind_list2.lean
+- attributes:
+    description: grind_ring_5.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean -Dexperimental.module=true ../lean/run/grind_ring_5.lean

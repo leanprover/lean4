@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.CachedGates
-import Std.Sat.AIG.LawfulOperator
+public import Std.Sat.AIG.CachedGates
+public import Std.Sat.AIG.LawfulOperator
+
+@[expose] public section
 
 /-!
 This module contains the theory of the cached gate creation functions, mostly enabled by the

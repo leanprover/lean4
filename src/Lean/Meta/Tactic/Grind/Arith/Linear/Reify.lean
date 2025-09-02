@@ -3,9 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.Linear.Var
+public import Lean.Meta.Tactic.Grind.Simp
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -13,15 +17,16 @@ def isAddInst (struct : Struct) (inst : Expr) : Bool :=
   isSameExpr struct.addFn.appArg! inst
 def isZeroInst (struct : Struct) (inst : Expr) : Bool :=
   isSameExpr struct.zero.appArg! inst
-def isHMulInst (struct : Struct) (inst : Expr) : Bool :=
-  isSameExpr struct.hmulFn.appArg! inst
-def isHMulNatInst (struct : Struct) (inst : Expr) : Bool :=
-  isSameExpr struct.hmulNatFn.appArg! inst
-def isSMulInst (struct : Struct) (inst : Expr) : Bool :=
-  if let some smulFn := struct.smulFn? then
-    isSameExpr smulFn.appArg! inst
-  else
-    false
+def isSMulIntInst (struct : Struct) (inst : Expr) : Bool :=
+  isSameExpr struct.zsmulFn.appArg! inst
+def isSMulNatInst (struct : Struct) (inst : Expr) : Bool :=
+  isSameExpr struct.nsmulFn.appArg! inst
+def isHomoMulInst (struct : Struct) (inst : Expr) : Bool :=
+  if let some homomulFn := struct.homomulFn? then isSameExpr homomulFn inst else false
+def isHSMulIntInst (struct : Struct) (inst : Expr) : Bool :=
+  if let some smulFn := struct.zsmulFn? then isSameExpr smulFn.appArg! inst else false
+def isHSMulNatInst (struct : Struct) (inst : Expr) : Bool :=
+  if let some smulFn := struct.nsmulFn? then isSameExpr smulFn.appArg! inst else false
 def isSubInst (struct : Struct) (inst : Expr) : Bool :=
   isSameExpr struct.subFn.appArg! inst
 def isNegInst (struct : Struct) (inst : Expr) : Bool :=
@@ -42,14 +47,9 @@ partial def reify? (e : Expr) (skipVar : Bool) : LinearM (Option LinExpr) := do
     if isAddInst (← getStruct  ) i then return some (.add (← go a) (← go b)) else asTopVar e
   | HSub.hSub _ _ _ i a b =>
     if isSubInst (← getStruct  ) i then return some (.sub (← go a) (← go b)) else asTopVar e
-  | HMul.hMul _ _ _ i a b =>
-    let some r ← processHMul i a b | asTopVar e
-    return some r
   | HSMul.hSMul _ _ _ i a b =>
-    if isSMulInst (← getStruct) i then
-      let some k ← getIntValue? a | pure ()
-      return some (.mul k (← go b))
-    asTopVar e
+    let some r ← processSMul i a b | asTopVar e
+    return some r
   | Neg.neg _ i a =>
     if isNegInst (← getStruct  ) i then return some (.neg (← go a)) else asTopVar e
   | Zero.zero _ i =>
@@ -74,14 +74,14 @@ where
     else
       return some (← asVar e)
   isOfNatZero (e : Expr) : LinearM Bool := do
-    withDefault <| isDefEq e (← getStruct).ofNatZero
-  processHMul (i a b : Expr) : LinearM (Option LinExpr) := do
-    if isHMulInst (← getStruct) i then
+    isDefEqD e (← getStruct).ofNatZero
+  processSMul (i a b : Expr) : LinearM (Option LinExpr) := do
+    if isSMulIntInst (← getStruct) i then
       let some k ← getIntValue? a | return none
-      return some (.mul k (← go b))
-    else if isHMulNatInst (← getStruct) i then
+      return some (.intMul k (← go b))
+    else if isSMulNatInst (← getStruct) i then
       let some k ← getNatValue? a | return none
-      return some (.mul k (← go b))
+      return some (.natMul k (← go b))
     return none
   go (e : Expr) : LinearM LinExpr := do
     match_expr e with
@@ -89,14 +89,9 @@ where
       if isAddInst (← getStruct) i then return .add (← go a) (← go b) else asVar e
     | HSub.hSub _ _ _ i a b =>
       if isSubInst (← getStruct) i then return .sub (← go a) (← go b) else asVar e
-    | HMul.hMul _ _ _ i a b =>
-      let some r ← processHMul i a b | asVar e
-      return r
     | HSMul.hSMul _ _ _ i a b =>
-      if isSMulInst (← getStruct) i then
-        let some k ← getIntValue? a | pure ()
-        return .mul k (← go b)
-      asVar e
+      let some r ← processSMul i a b | asVar e
+      return r
     | Neg.neg _ i a =>
       if isNegInst (← getStruct) i then return .neg (← go a) else asVar e
     | Zero.zero _ i =>
@@ -104,6 +99,5 @@ where
     | OfNat.ofNat _ _ _ =>
       if (← isOfNatZero e) then return .zero else toVar e
     | _ => toVar e
-
 
 end  Lean.Meta.Grind.Arith.Linear

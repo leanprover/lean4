@@ -6,8 +6,14 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-import Init.Data.Int.Lemmas
-import Init.ByCases
+public import Init.Data.Int.Lemmas
+public import Init.ByCases
+public import Init.Data.Order.Factories
+import Init.Data.Order.Lemmas
+
+public section
+
+open Std
 
 /-!
 # Results about the order properties of the integers, and the integers as an ordered ring.
@@ -448,7 +454,7 @@ protected theorem le_max_left (a b : Int) : a ≤ max a b := by rw [Int.max_def]
 protected theorem le_max_right (a b : Int) : b ≤ max a b := Int.max_comm .. ▸ Int.le_max_left ..
 
 protected theorem max_eq_right {a b : Int} (h : a ≤ b) : max a b = b := by
-  simp [Int.max_def, h, Int.not_lt.2 h]
+  simp [Int.max_def, h]
 
 protected theorem max_eq_left {a b : Int} (h : b ≤ a) : max a b = a := by
   rw [← Int.max_comm b a]; exact Int.max_eq_right h
@@ -695,9 +701,12 @@ theorem toNat_sub_toNat_neg : ∀ n : Int, ↑n.toNat - ↑(-n).toNat = n
   | (_+1:Nat) => Nat.add_zero _
   | -[_+1] => Nat.zero_add _
 
-@[simp] theorem toNat_neg_nat : ∀ n : Nat, (-(n : Int)).toNat = 0
+@[simp] theorem toNat_neg_natCast : ∀ n : Nat, (-(n : Int)).toNat = 0
   | 0 => rfl
   | _+1 => rfl
+
+@[deprecated toNat_neg_natCast (since := "2025-08-29")]
+theorem toNat_neg_nat : ∀ n : Nat, (-(n : Int)).toNat = 0 := toNat_neg_natCast
 
 /-! ### toNat? -/
 
@@ -1115,11 +1124,11 @@ protected theorem add_le_zero_iff_le_neg {a b : Int} : a + b ≤ 0 ↔ a ≤ -b 
 protected theorem add_le_zero_iff_le_neg' {a b : Int} : a + b ≤ 0 ↔ b ≤ -a := by
   rw [Int.add_comm, Int.add_le_zero_iff_le_neg]
 
-protected theorem add_nonnneg_iff_neg_le {a b : Int} : 0 ≤ a + b ↔ -b ≤ a := by
+protected theorem add_nonneg_iff_neg_le {a b : Int} : 0 ≤ a + b ↔ -b ≤ a := by
   rw [Int.le_add_iff_sub_le, Int.zero_sub]
 
-protected theorem add_nonnneg_iff_neg_le' {a b : Int} : 0 ≤ a + b ↔ -a ≤ b := by
-  rw [Int.add_comm, Int.add_nonnneg_iff_neg_le]
+protected theorem add_nonneg_iff_neg_le' {a b : Int} : 0 ≤ a + b ↔ -a ≤ b := by
+  rw [Int.add_comm, Int.add_nonneg_iff_neg_le]
 
 /- ### Order properties and multiplication -/
 
@@ -1412,5 +1421,15 @@ theorem natAbs_eq_iff_mul_eq_zero : natAbs a = n ↔ (a - n) * (a + n) = 0 := by
 
 @[deprecated natAbs_eq_iff_mul_eq_zero (since := "2025-03-11")]
 abbrev eq_natAbs_iff_mul_eq_zero := @natAbs_eq_iff_mul_eq_zero
+
+instance instIsLinearOrder : IsLinearOrder Int := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply Int.le_antisymm
+  case le_total => constructor; apply Int.le_total
+  case le_trans => constructor; apply Int.le_trans
+
+instance : LawfulOrderLT Int where
+  lt_iff := by
+    simp [← Int.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
 end Int

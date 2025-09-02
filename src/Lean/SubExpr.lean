@@ -3,11 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki, E.W.Ayers
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Data.Json
-import Lean.Data.RBMap
-import Init.Control.Option
+public import Lean.Meta.Basic
+public import Lean.Data.Json.Basic
+public import Init.Control.Option
+
+public section
 
 namespace Lean
 
@@ -20,7 +23,7 @@ by computing the value of the 4-ary representation `1 :: childIdxs`, since n-ary
 without leading zeros are unique. Note that `pos` is initialized to `1` (case `childIdxs == []`).
 
 See also `SubExpr`. -/
-def SubExpr.Pos := Nat
+@[expose] def SubExpr.Pos := Nat
 
 namespace SubExpr.Pos
 
@@ -171,7 +174,7 @@ def mkRoot (e : Expr) : SubExpr := ⟨e, Pos.root⟩
 def isRoot (s : SubExpr) : Bool := s.pos.isRoot
 
 /-- Map from subexpr positions to values. -/
-abbrev PosMap (α : Type u) := RBMap Pos α compare
+abbrev PosMap (α : Type u) := Std.TreeMap Pos α
 
 def bindingBody! : SubExpr → SubExpr
   | ⟨.forallE _ _ b _, p⟩ => ⟨b, p.pushBindingBody⟩

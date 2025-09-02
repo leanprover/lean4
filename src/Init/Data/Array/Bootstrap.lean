@@ -7,8 +7,11 @@ Authors: Mario Carneiro
 module
 
 prelude
-import Init.Data.List.TakeDrop
+public import Init.Data.List.TakeDrop
+public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
+
+public section
 
 /-!
 ## Bootstrapping theorems about arrays
@@ -32,8 +35,8 @@ the index is in bounds. This is because the tactic itself needs to look up value
 arrays.
 -/
 @[deprecated "Use indexing notation `as[i]` instead" (since := "2025-02-17")]
-def get {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
-  a.toList.get ⟨i, h⟩
+def get {α : Type u} (xs : @& Array α) (i : @& Nat) (h : LT.lt i xs.size) : α :=
+  xs.toList.get ⟨i, h⟩
 
 /--
 Use the indexing notation `a[i]!` instead.
@@ -41,8 +44,8 @@ Use the indexing notation `a[i]!` instead.
 Access an element from an array, or panic if the index is out of bounds.
 -/
 @[deprecated "Use indexing notation `as[i]!` instead" (since := "2025-02-17"), expose]
-def get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
-  Array.getD a i default
+def get! {α : Type u} [Inhabited α] (xs : @& Array α) (i : @& Nat) : α :=
+  Array.getD xs i default
 
 theorem foldlM_toList.aux [Monad m]
     {f : β → α → m β} {xs : Array α} {i j} (H : xs.size ≤ i + j) {b} :
@@ -119,16 +122,10 @@ abbrev pop_toList := @Array.toList_pop
 @[simp] theorem toList_empty : (#[] : Array α).toList = [] := rfl
 
 @[simp, grind =] theorem append_empty {xs : Array α} : xs ++ #[] = xs := by
-  apply ext'; simp only [toList_append, toList_empty, List.append_nil]
-
-@[deprecated append_empty (since := "2025-01-13")]
-abbrev append_nil := @append_empty
+  apply ext'; simp only [toList_append, List.append_nil]
 
 @[simp, grind =] theorem empty_append {xs : Array α} : #[] ++ xs = xs := by
-  apply ext'; simp only [toList_append, toList_empty, List.nil_append]
-
-@[deprecated empty_append (since := "2025-01-13")]
-abbrev nil_append := @empty_append
+  apply ext'; simp only [toList_append, List.nil_append]
 
 @[simp, grind _=_] theorem append_assoc {xs ys zs : Array α} : xs ++ ys ++ zs = xs ++ (ys ++ zs) := by
   apply ext'; simp only [toList_append, List.append_assoc]
@@ -140,7 +137,6 @@ abbrev nil_append := @empty_append
   rw [← appendList_eq_append]; unfold Array.appendList
   induction l generalizing xs <;> simp [*]
 
-@[deprecated toList_appendList (since := "2024-12-11")]
-abbrev appendList_toList := @toList_appendList
+
 
 end Array

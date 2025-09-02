@@ -3,22 +3,38 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Std.Internal.Rat
-import Init.Grind.CommRing.Poly
-import Init.Grind.Ordered.Linarith
-import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ExprPtr
+public import Init.Grind.Ring.Poly
+public import Init.Grind.Ordered.Linarith
+public import Lean.Data.PersistentArray
+public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Init.Data.Rat.Basic
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Linear
 export Lean.Grind.Linarith (Var Poly)
-export Std.Internal (Rat)
+
 abbrev LinExpr := Lean.Grind.Linarith.Expr
 
 deriving instance Hashable for Poly
 deriving instance Hashable for Grind.Linarith.Expr
 
 mutual
+/-- An equality constraint and its justification/proof. -/
+structure EqCnstr where
+  p      : Poly
+  h      : EqCnstrProof
+
+inductive EqCnstrProof where
+  | core (a b : Expr) (lhs rhs : LinExpr)
+  | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | neg (c : EqCnstr)
+  | coeff (k : Nat) (c : EqCnstr)
+  | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
+
 /-- An inequality constraint and its justification/proof. -/
 structure IneqCnstr where
   p      : Poly
@@ -39,6 +55,7 @@ inductive IneqCnstrProof where
     ofEq (a b : Expr) (la lb : LinExpr)
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
     ofCommRingEq (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | subst (x : Var) (c₁ : EqCnstr) (c₂ : IneqCnstr)
 
 structure DiseqCnstr where
   p  : Poly
@@ -48,6 +65,9 @@ inductive DiseqCnstrProof where
   | core (a b : Expr) (lhs rhs : LinExpr)
   | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
   | neg (c : DiseqCnstr)
+  | subst (k₁ k₂ : Int) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+  | subst1 (k : Int) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+  | oneNeZero
 
 inductive UnsatProof where
   | diseq (c : DiseqCnstr)
@@ -58,9 +78,15 @@ end
 instance : Inhabited DiseqCnstr where
   default := { p := .nil, h := .core default default .zero .zero }
 
+instance : Inhabited EqCnstr where
+  default := { p := .nil, h := .core default default .zero .zero }
+
+abbrev VarSet := Std.TreeSet Var
+
 /--
 State for each algebraic structure by this module.
-Each type must be at least implement the instances `IntModule`, `Preorder`, and `IntModule.IsOrdered`
+Each type must at least implement the instance `IntModule`.
+For being able to process inequalities, it must at least implement `Preorder`, and `OrderedAdd`
 -/
 structure Struct where
   id               : Nat
@@ -71,31 +97,43 @@ structure Struct where
   u                : Level
   /-- `IntModule` instance -/
   intModuleInst    : Expr
-  /-- `Preorder` instance -/
-  preorderInst     : Expr
-  /-- `IntModule.IsOrdered` instance with `Preorder` -/
-  isOrdInst        : Expr
-  /-- `PartialOrder` instance if available -/
-  partialInst?     : Option Expr
-  /-- `LinearOrder` instance if available -/
-  linearInst?      : Option Expr
+  /-- `LE` instance if available -/
+  leInst?          : Option Expr
+  /-- `LT` instance if available -/
+  ltInst?          : Option Expr
+  /-- `LawfulOrderLT` instance if available -/
+  lawfulOrderLTInst?    : Option Expr
+  /-- `IsPreorder` instance if available -/
+  isPreorderInst?    : Option Expr
+  /-- `OrderedAdd` instance with `IsPreorder` if available -/
+  orderedAddInst?       : Option Expr
+  /-- `IsPartialOrder` instance if available -/
+  isPartialInst?     : Option Expr
+  /-- `IsLinearOrder` instance if available -/
+  isLinearInst?      : Option Expr
   /-- `NoNatZeroDivisors` -/
   noNatDivInst?    : Option Expr
   /-- `Ring` instance -/
   ringInst?        : Option Expr
   /-- `CommRing` instance -/
   commRingInst?    : Option Expr
-  /-- `Ring.IsOrdered` instance with `Preorder` -/
-  ringIsOrdInst?   : Option Expr
+  /-- `OrderedRing` instance with `Preorder` -/
+  orderedRingInst?   : Option Expr
+  /-- `Field` instance -/
+  fieldInst?       : Option Expr
+  /-- `IsCharP` instance for `type` if available. -/
+  charInst?        : Option (Expr × Nat)
   zero             : Expr
   ofNatZero        : Expr
   one?             : Option Expr
-  leFn             : Expr
-  ltFn             : Expr
+  leFn?            : Option Expr
+  ltFn?            : Option Expr
   addFn            : Expr
-  hmulFn           : Expr
-  hmulNatFn        : Expr
-  smulFn?          : Option Expr
+  zsmulFn          : Expr
+  nsmulFn          : Expr
+  zsmulFn?         : Option Expr
+  nsmulFn?         : Option Expr
+  homomulFn?       : Option Expr -- homogeneous multiplication if structure is a ring
   subFn            : Expr
   negFn            : Expr
   /--
@@ -139,6 +177,24 @@ structure Struct where
   This is necessary because the same disequality may be in different conflicts.
   -/
   diseqSplits : PHashMap Poly FVarId := {}
+  /--
+  Mapping from variable to equation constraint used to eliminate it. `solved` variables should not occur in
+  `diseqs`, `lowers`, or `uppers`.
+  -/
+  elimEqs : PArray (Option EqCnstr) := {}
+  /--
+  Elimination stack. For every variable in `elimStack`. If `x` in `elimStack`, then `elimEqs[x]` is not `none`.
+  -/
+  elimStack : List Var := []
+  /--
+  Mapping from variable to occurrences.
+  For example, an entry `x ↦ {y, z}` means that `x` may occur in `lowers`, or `uppers`, or `diseqs` of
+  variables `y` and `z`.
+  If `x` occurs in `diseqs[y]`, `lowers[y]`, or `uppers[y]`, then `y` is in `occurs[x]`,
+  but the reverse is not true.
+  If `x` is in `elimStack`, then `occurs[x]` is the empty set.
+  -/
+  occurs : PArray VarSet := {}
   /--
   Linear constraints that are not supported.
   We use this information for diagnostics.

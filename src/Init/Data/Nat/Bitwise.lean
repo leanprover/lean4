@@ -6,5 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Nat.Bitwise.Basic
-import Init.Data.Nat.Bitwise.Lemmas
+public import Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.Bitwise.Lemmas
+
+public section

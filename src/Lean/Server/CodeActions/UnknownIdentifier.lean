@@ -3,13 +3,17 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.FileWorker.Utils
-import Lean.Data.Lsp.Internal
-import Lean.Server.Requests
-import Lean.Server.Completion.CompletionInfoSelection
-import Lean.Server.CodeActions.Basic
-import Lean.Server.Completion.CompletionUtils
+public import Lean.Server.FileWorker.Utils
+public import Lean.Data.Lsp.Internal
+public import Lean.Server.Requests
+public import Lean.Server.Completion.CompletionInfoSelection
+public import Lean.Server.CodeActions.Basic
+public import Lean.Server.Completion.CompletionUtils
+
+public section
 
 namespace Lean.Server.FileWorker
 
@@ -25,7 +29,7 @@ def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : Strin
   let text := doc.meta.text
   let some parsedSnap := RequestM.findCmdParsedSnap doc requestedRange.start |>.get
     | return #[]
-  let msgLog := Language.toSnapshotTree parsedSnap |>.collectMessagesInRange requestedRange |>.get
+  let msgLog := Language.toSnapshotTree parsedSnap.elabSnap |>.collectMessagesInRange requestedRange |>.get
   let mut ranges := #[]
   for msg in msgLog.unreported do
     if ! msg.data.hasTag (· == unknownIdentifierMessageTag) then
@@ -144,16 +148,9 @@ def computeDotIdQuery?
     | return none
   let some expectedType := expectedType?
     | return none
-  let typeNames? : Option (Array Name) ← ctx.runMetaM lctx do
-    let resultTypeFn := (← instantiateMVars expectedType).cleanupAnnotations.getAppFn.cleanupAnnotations
-    let .const .. := resultTypeFn
-      | return none
-    try
-      return some <| ← getDotCompletionTypeNames resultTypeFn
-    catch _ =>
-      return none
-  let some typeNames := typeNames?
-    | return none
+  let typeNames : Array Name ← ctx.runMetaM lctx <| getDotIdCompletionTypeNames expectedType
+  if typeNames.isEmpty then
+    return none
   return some {
     identifier := id.toString
     openNamespaces := typeNames.map (.allExcept · #[])
@@ -241,7 +238,7 @@ def handleUnknownIdentifierCodeAction
     | none => { line := 0, character := 0 }
   let importInsertionRange : Lsp.Range := ⟨importInsertionPos, importInsertionPos⟩
   let mut unknownIdentifierCodeActions := #[]
-  let mut hasUnambigiousImportCodeAction := false
+  let mut hasUnambiguousImportCodeAction := false
   let some result := response.queryResults[0]?
     | return #[]
   for query in queries, result in response.queryResults do
@@ -267,7 +264,7 @@ def handleUnknownIdentifierCodeAction
           }
         }
         if isExactMatch then
-          hasUnambigiousImportCodeAction := true
+          hasUnambiguousImportCodeAction := true
       else
         unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
           title := s!"Change to {insertion.fullName}"
@@ -277,7 +274,7 @@ def handleUnknownIdentifierCodeAction
             edits := #[insertion.edit]
           }
         }
-  if hasUnambigiousImportCodeAction then
+  if hasUnambiguousImportCodeAction then
     unknownIdentifierCodeActions := unknownIdentifierCodeActions.push <|
       importAllUnknownIdentifiersCodeAction params "quickfix"
   return unknownIdentifierCodeActions

@@ -11,7 +11,7 @@ This used to have a "don't know how to synthesize placeholder" error on the `hav
 This is because `have` is `refine_lift have ...; ?_`, so it indeed had a placeholder.
 -/
 /--
-error: don't know how to synthesize placeholder for argument 'a'
+error: don't know how to synthesize placeholder for argument `a`
 context:
 htrue : True
 ⊢ False
@@ -30,7 +30,7 @@ example : False := by
 Simplified version of the test.
 -/
 /--
-error: don't know how to synthesize placeholder for argument 'a'
+error: don't know how to synthesize placeholder for argument `a`
 context:
 ⊢ False
 ---
@@ -55,7 +55,7 @@ example (p : Prop) (h : p) : p := by
 Occurs check
 -/
 /--
-error: occurs check failed, expression
+error: Occurs check failed: Expression
   ?foo
 contains the goal ?foo
 -/
@@ -86,11 +86,17 @@ example (p : Prop) (h : p) : ∀ {_ : Nat}, p := by
 Regression test: make sure `simpa?` reports lemmas for both the goal and the `using` clause
 -/
 
-/-- info: Try this: simpa only [id] using h -/
+/--
+info: Try this:
+  simpa only [id] using h
+-/
 #guard_msgs in example (p : Prop) (h : p) : id p := by
   simpa? only [id] using h
 
-/-- info: Try this: simpa only [id] using h -/
+/--
+info: Try this:
+  simpa only [id] using h
+-/
 #guard_msgs in example (p : Prop) (h : id p) : p := by
   simpa? only [id] using h
 
@@ -101,8 +107,9 @@ Regression test: unnecessary `simpa`
 def foo (n : α) := [n]
 
 /--
-warning: try 'simp at h' instead of 'simpa using h'
-note: this linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: Try `simp at h` instead of `simpa using h`
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
 -/
 #guard_msgs in
 example (h : foo n ≠ [n]) : False := by

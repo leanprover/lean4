@@ -3,25 +3,30 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+module
+
 prelude
-import Lake.Config.Defaults
-import Lake.Config.OutFormat
-import Lake.Config.WorkspaceConfig
-import Lake.Config.Dependency
-import Lake.Config.ConfigDecl
-import Lake.Config.Script
-import Lake.Load.Config
-import Lake.Util.DRBMap
-import Lake.Util.OrdHashSet
-import Lake.Util.Version
-import Lake.Util.FilePath
+public import Lake.Config.Defaults
+public import Lake.Config.OutFormat
+public import Lake.Config.WorkspaceConfig
+public import Lake.Config.Dependency
+public import Lake.Config.ConfigDecl
+public import Lake.Config.Script
+public import Lake.Config.Cache
+public import Lake.Config.MetaClasses
+public import Lake.Util.FilePath -- use scoped instance downstream
+public import Lake.Util.OrdHashSet
+public import Lake.Util.Version
+public import Lake.Util.Name
+meta import all Lake.Config.Meta
+meta import all Lake.Util.OpaqueType
 
 open System Lean
 
 namespace Lake
 
 /-- The default `buildArchive` configuration for a package with `name`. -/
-@[inline] def defaultBuildArchive (name : Name) : String :=
+@[inline] public def defaultBuildArchive (name : Name) : String :=
   s!"{name.toString false}-{System.Platform.target}.tar.gz"
 
 --------------------------------------------------------------------------------
@@ -30,7 +35,7 @@ namespace Lake
 
 set_option linter.unusedVariables false in
 /-- A `Package`'s declarative configuration. -/
-configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
+public configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
   /-- **For internal use.** Whether this package is Lean itself. -/
   bootstrap : Bool := false
 
@@ -284,15 +289,39 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   -/
   reservoir : Bool := true
 
+  /--
+  Whether to enables Lake's local, offline artifact cache for the package.
+
+  Artifacts (i.e., build products) of packages will be shared across
+  local copies by storing them in a cache associated with the Lean toolchain.
+  This can significantly reduce initial build times and disk space usage when
+  working with multiple copies of large projects or large dependencies.
+
+  As a caveat, build targets which support the artifact cache will not be stored
+  in their usual location within the build directory. Thus, projects with custom build
+  scripts that rely on specific location of artifacts may wish to disable this feature.
+
+  If `none` (the default), the cache will be disabled by default unless
+  the `LAKE_ARTIFACT_CACHE` environment variable is set to true.
+  -/
+  enableArtifactCache?, enableArtifactCache : Option Bool := none
+  /--
+  Whether native libraries (of this package) should be prefixed with `lib` on Windows.
+
+  Unlike Unix, Windows does not require native libraries to start with `lib` and,
+  by convention, they usually do not. However, for consistent naming across all platforms,
+  users may wish to enable this.
+
+  Defaults to `false`.
+  -/
+  libPrefixOnWindows : Bool := false
 deriving Inhabited
 
-instance : EmptyCollection (PackageConfig n) := ⟨{}⟩
-
 /-- The package's name. -/
-abbrev PackageConfig.name (_ : PackageConfig n) := n
+public abbrev PackageConfig.name (_ : PackageConfig n) := n
 
 /-- A package declaration from a configuration written in Lean. -/
-structure PackageDecl where
+public structure PackageDecl where
   name : Name
   config : PackageConfig name
   deriving TypeName
@@ -301,10 +330,10 @@ structure PackageDecl where
 /-! # Package -/
 --------------------------------------------------------------------------------
 
-declare_opaque_type OpaquePostUpdateHook (pkg : Name)
+public nonempty_type OpaquePostUpdateHook (pkg : Name)
 
 /-- A Lake package -- its location plus its configuration. -/
-structure Package where
+public structure Package where
   /-- The name of the package. -/
   name : Name
   /-- The absolute path to the package's directory. -/
@@ -351,45 +380,48 @@ structure Package where
   testDriver : String := config.testDriver
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
+  /--
+  Input-to-content map for hashes of package artifacts.
+  If `none`, the artifact cache is disabled for the package.
+  -/
+  cacheRef? : Option CacheRef := none
 
-instance : Nonempty Package :=
-  have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
-  ⟨by constructor <;> exact default⟩
+deriving Inhabited
 
-instance : Hashable Package where hash pkg := hash pkg.name
-instance : BEq Package where beq p1 p2 := p1.name == p2.name
+public instance : Hashable Package where hash pkg := hash pkg.name
+public instance : BEq Package where beq p1 p2 := p1.name == p2.name
 
-abbrev PackageSet := Std.HashSet Package
-@[inline] def PackageSet.empty : PackageSet := ∅
+public abbrev PackageSet := Std.HashSet Package
+@[inline] public def PackageSet.empty : PackageSet := ∅
 
-abbrev OrdPackageSet := OrdHashSet Package
-@[inline] def OrdPackageSet.empty : OrdPackageSet := OrdHashSet.empty
+public abbrev OrdPackageSet := OrdHashSet Package
+@[inline] public def OrdPackageSet.empty : OrdPackageSet := OrdHashSet.empty
 
-instance : ToText Package := ⟨(·.name.toString)⟩
-instance : ToJson Package := ⟨(toJson ·.name)⟩
+public instance : ToJson Package := ⟨(toJson ·.name)⟩
+public instance : ToString Package := ⟨(·.name.toString)⟩
 
 /-- A package with a name known at type-level. -/
-structure NPackage (n : Name) extends Package where
+public structure NPackage (n : Name) extends Package where
   name_eq : toPackage.name = n
 
 attribute [simp] NPackage.name_eq
 
-instance : CoeOut (NPackage n) Package := ⟨NPackage.toPackage⟩
-instance : CoeDep Package pkg (NPackage pkg.name) := ⟨⟨pkg, rfl⟩⟩
+public instance : CoeOut (NPackage n) Package := ⟨NPackage.toPackage⟩
+public instance : CoeDep Package pkg (NPackage pkg.name) := ⟨⟨pkg, rfl⟩⟩
 
 /--
 The type of a post-update hooks monad.
 `IO` equipped with logging ability and information about the Lake configuration.
 -/
-abbrev PostUpdateFn (pkgName : Name) := NPackage pkgName → LakeT LogIO PUnit
+public abbrev PostUpdateFn (pkgName : Name) := NPackage pkgName → LakeT LogIO PUnit
 
-structure PostUpdateHook (pkgName : Name) where
+public structure PostUpdateHook (pkgName : Name) where
   fn : PostUpdateFn pkgName
   deriving Inhabited
 
-hydrate_opaque_type OpaquePostUpdateHook PostUpdateHook name
+public hydrate_opaque_type OpaquePostUpdateHook PostUpdateHook name
 
-structure PostUpdateHookDecl where
+public structure PostUpdateHookDecl where
   pkg : Name
   fn : PostUpdateFn pkg
   deriving TypeName
@@ -397,231 +429,244 @@ structure PostUpdateHookDecl where
 namespace Package
 
 /-- **For internal use.** Whether this package is Lean itself.  -/
-@[inline] def bootstrap (self : Package) : Bool  :=
+@[inline] public def bootstrap (self : Package) : Bool  :=
   self.config.bootstrap
 
 /-- The package version. -/
-@[inline] def version (self : Package) : LeanVer  :=
+@[inline] public def version (self : Package) : LeanVer  :=
   self.config.version
 
 /-- The package's `versionTags` configuration. -/
-@[inline] def versionTags (self : Package) : StrPat  :=
+@[inline] public def versionTags (self : Package) : StrPat  :=
   self.config.versionTags
 
 /-- The package's `description` configuration. -/
-@[inline] def description (self : Package) : String  :=
+@[inline] public def description (self : Package) : String  :=
   self.config.description
 
 /-- The package's `keywords` configuration. -/
-@[inline] def keywords (self : Package) : Array String  :=
+@[inline] public def keywords (self : Package) : Array String  :=
   self.config.keywords
 
 /-- The package's `homepage` configuration. -/
-@[inline] def homepage (self : Package) : String  :=
+@[inline] public def homepage (self : Package) : String  :=
   self.config.homepage
 
 /-- The package's `reservoir` configuration. -/
-@[inline] def reservoir (self : Package) : Bool  :=
+@[inline] public def reservoir (self : Package) : Bool  :=
   self.config.reservoir
 
 /-- The package's `license` configuration. -/
-@[inline] def license (self : Package) : String  :=
+@[inline] public def license (self : Package) : String  :=
   self.config.license
 
 /-- The package's `licenseFiles` configuration. -/
-@[inline] def relLicenseFiles (self : Package) : Array FilePath :=
+@[inline] public def relLicenseFiles (self : Package) : Array FilePath :=
   self.config.licenseFiles.map (·.normalize)
 
 /-- The package's `dir` joined with each of its `relLicenseFiles`. -/
-@[inline] def licenseFiles (self : Package) : Array FilePath  :=
+@[inline] public def licenseFiles (self : Package) : Array FilePath  :=
   self.relLicenseFiles.map (self.dir / ·.normalize)
 
 /-- The package's `readmeFile` configuration. -/
-@[inline] def relReadmeFile (self : Package) : FilePath  :=
+@[inline] public def relReadmeFile (self : Package) : FilePath  :=
   self.config.readmeFile.normalize
 
 /-- The package's `dir` joined with its `relReadmeFile`. -/
-@[inline] def readmeFile (self : Package) : FilePath  :=
+@[inline] public def readmeFile (self : Package) : FilePath  :=
   self.dir / self.relReadmeFile
 
 /-- The path to the package's Lake directory relative to `dir` (e.g., `.lake`). -/
-@[inline] def relLakeDir (_ : Package) : FilePath :=
+@[inline] public def relLakeDir (_ : Package) : FilePath :=
   defaultLakeDir
 
 /-- The full path to the package's Lake directory (i.e, `dir` joined with `relLakeDir`). -/
-@[inline] def lakeDir (self : Package) : FilePath :=
+@[inline] public def lakeDir (self : Package) : FilePath :=
   self.dir / self.relLakeDir
 
 /-- The path for storing the package's remote dependencies relative to `dir` (i.e., `packagesDir`). -/
-@[inline] def relPkgsDir (self : Package) : FilePath :=
+@[inline] public def relPkgsDir (self : Package) : FilePath :=
   self.config.packagesDir.normalize
 
 /-- The package's `dir` joined with its `relPkgsDir`. -/
-@[inline] def pkgsDir (self : Package) : FilePath :=
+@[inline] public def pkgsDir (self : Package) : FilePath :=
   self.dir / self.relPkgsDir
 
 /-- The path to the package's JSON manifest of remote dependencies. -/
-@[inline] def manifestFile (self : Package) : FilePath :=
+@[inline] public def manifestFile (self : Package) : FilePath :=
   self.dir / self.relManifestFile
 
 /-- The package's `dir` joined with its `buildDir` configuration. -/
-@[inline] def buildDir (self : Package) : FilePath :=
+@[inline] public def buildDir (self : Package) : FilePath :=
   self.dir / self.config.buildDir.normalize
 
 /-- The package's `testDriverArgs` configuration. -/
-@[inline] def testDriverArgs (self : Package) : Array String :=
+@[inline] public def testDriverArgs (self : Package) : Array String :=
   self.config.testDriverArgs
 
 /-- The package's `lintDriverArgs` configuration. -/
-@[inline] def lintDriverArgs (self : Package) : Array String :=
+@[inline] public def lintDriverArgs (self : Package) : Array String :=
   self.config.lintDriverArgs
 
 /-- The package's `extraDepTargets` configuration. -/
-@[inline] def extraDepTargets (self : Package) : Array Name :=
+@[inline] public def extraDepTargets (self : Package) : Array Name :=
   self.config.extraDepTargets
 
 /-- The package's `platformIndependent` configuration. -/
-@[inline] def platformIndependent (self : Package) : Option Bool :=
+@[inline] public def platformIndependent (self : Package) : Option Bool :=
   self.config.platformIndependent
 
 /-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
-@[inline] def releaseRepo? (self : Package) : Option String :=
+@[inline] public def releaseRepo? (self : Package) : Option String :=
   self.config.releaseRepo
 
 /-- The packages `remoteUrl` as an `Option` (`none` if empty). -/
-@[inline] def remoteUrl? (self : Package) : Option String :=
+@[inline] public def remoteUrl? (self : Package) : Option String :=
   if self.remoteUrl.isEmpty then some self.remoteUrl else none
 
 /-- The package's `lakeDir` joined with its `buildArchive`. -/
-@[inline] def buildArchiveFile (self : Package) : FilePath :=
+@[inline] public def buildArchiveFile (self : Package) : FilePath :=
   self.lakeDir / self.buildArchive
 
 /-- The path where Lake stores the package's barrel (downloaded from Reservoir). -/
-@[inline] def barrelFile (self : Package) : FilePath :=
+@[inline] public def barrelFile (self : Package) : FilePath :=
   self.lakeDir / "build.barrel"
 
 /-- The package's `preferReleaseBuild` configuration. -/
-@[inline] def preferReleaseBuild (self : Package) : Bool :=
+@[inline] public def preferReleaseBuild (self : Package) : Bool :=
   self.config.preferReleaseBuild
 
 /-- The package's `precompileModules` configuration. -/
-@[inline] def precompileModules (self : Package) : Bool :=
+@[inline] public def precompileModules (self : Package) : Bool :=
   self.config.precompileModules
 
 /-- The package's `moreGlobalServerArgs` configuration. -/
-@[inline] def moreGlobalServerArgs (self : Package) : Array String :=
+@[inline] public def moreGlobalServerArgs (self : Package) : Array String :=
   self.config.moreGlobalServerArgs
 
 /-- The package's `moreServerOptions` configuration appended to its `leanOptions` configuration. -/
-@[inline] def moreServerOptions (self : Package) : LeanOptions :=
+@[inline] public def moreServerOptions (self : Package) : LeanOptions :=
   LeanOptions.ofArray self.config.leanOptions ++ self.config.moreServerOptions
 
 /-- The package's `buildType` configuration. -/
-@[inline] def buildType (self : Package) : BuildType :=
+@[inline] public def buildType (self : Package) : BuildType :=
   self.config.buildType
 
 /-- The package's `backend` configuration. -/
-@[inline] def backend (self : Package) : Backend :=
+@[inline] public def backend (self : Package) : Backend :=
   self.config.backend
 
 /-- The package's `dynlibs` configuration. -/
-@[inline] def dynlibs (self : Package) : TargetArray Dynlib :=
+@[inline] public def dynlibs (self : Package) : TargetArray Dynlib :=
   self.config.dynlibs
 
 /-- The package's `plugins` configuration. -/
-@[inline] def plugins (self : Package) : TargetArray Dynlib :=
+@[inline] public def plugins (self : Package) : TargetArray Dynlib :=
   self.config.plugins
 
 /-- The package's `leanOptions` configuration. -/
-@[inline] def leanOptions (self : Package) : LeanOptions :=
+@[inline] public def leanOptions (self : Package) : LeanOptions :=
   .ofArray self.config.leanOptions
 
-/-- The package's `moreLeanArgs` configuration appended to its `leanOptions` configuration. -/
-@[inline] def moreLeanArgs (self : Package) : Array String :=
+/-- The package's `moreLeanArgs` configuration. -/
+@[inline] public def moreLeanArgs (self : Package) : Array String :=
   self.config.moreLeanArgs
 
 /-- The package's `weakLeanArgs` configuration. -/
-@[inline] def weakLeanArgs (self : Package) : Array String :=
+@[inline] public def weakLeanArgs (self : Package) : Array String :=
   self.config.weakLeanArgs
 
 /-- The package's `moreLeancArgs` configuration. -/
-@[inline] def moreLeancArgs (self : Package) : Array String :=
+@[inline] public def moreLeancArgs (self : Package) : Array String :=
   self.config.moreLeancArgs
 
 /-- The package's `weakLeancArgs` configuration. -/
-@[inline] def weakLeancArgs (self : Package) : Array String :=
+@[inline] public def weakLeancArgs (self : Package) : Array String :=
   self.config.weakLeancArgs
 
 /-- The package's `moreLinkObjs` configuration. -/
-@[inline] def moreLinkObjs (self : Package) : TargetArray FilePath :=
+@[inline] public def moreLinkObjs (self : Package) : TargetArray FilePath :=
   self.config.moreLinkObjs
 
 /-- The package's `moreLinkLibs` configuration. -/
-@[inline] def moreLinkLibs (self : Package) : TargetArray Dynlib :=
+@[inline] public def moreLinkLibs (self : Package) : TargetArray Dynlib :=
   self.config.moreLinkLibs
 
 /-- The package's `moreLinkArgs` configuration. -/
-@[inline] def moreLinkArgs (self : Package) : Array String :=
+@[inline] public def moreLinkArgs (self : Package) : Array String :=
   self.config.moreLinkArgs
 
 /-- The package's `weakLinkArgs` configuration. -/
-@[inline] def weakLinkArgs (self : Package) : Array String :=
+@[inline] public def weakLinkArgs (self : Package) : Array String :=
   self.config.weakLinkArgs
 
 /-- The package's `dir` joined with its `srcDir` configuration. -/
-@[inline] def srcDir (self : Package) : FilePath :=
+@[inline] public def srcDir (self : Package) : FilePath :=
   self.dir / self.config.srcDir.normalize
 
 /-- The package's root directory for `lean` (i.e., `srcDir`). -/
-@[inline] def rootDir (self : Package) : FilePath :=
+@[inline] public def rootDir (self : Package) : FilePath :=
   self.srcDir
 
 /-- The package's `buildDir` joined with its `leanLibDir` configuration. -/
-@[inline] def leanLibDir (self : Package) : FilePath :=
+@[inline] public def leanLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.leanLibDir.normalize
 
 /--
 Where static libraries for the package are located.
 The package's `buildDir` joined with its `nativeLibDir` configuration.
 -/
-@[inline] def staticLibDir (self : Package) : FilePath :=
+@[inline] public def staticLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.nativeLibDir.normalize
 
 /--
 Where shared libraries for the package are located.
 The package's `buildDir` joined with its `nativeLibDir` configuration.
 -/
-@[inline] def sharedLibDir (self : Package) : FilePath :=
+@[inline] public def sharedLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.nativeLibDir.normalize
 
 /-- The package's `buildDir` joined with its `nativeLibDir` configuration. -/
 @[inline, deprecated "Use staticLibDir or sharedLibDir instead." (since := "2025-03-29")]
-def nativeLibDir (self : Package) : FilePath :=
+public def nativeLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.nativeLibDir.normalize
 
 /-- The package's `buildDir` joined with its `binDir` configuration. -/
-@[inline] def binDir (self : Package) : FilePath :=
+@[inline] public def binDir (self : Package) : FilePath :=
   self.buildDir / self.config.binDir.normalize
 
 /-- The package's `buildDir` joined with its `irDir` configuration. -/
-@[inline] def irDir (self : Package) : FilePath :=
+@[inline] public def irDir (self : Package) : FilePath :=
   self.buildDir / self.config.irDir.normalize
 
+/-- The package's `libPrefixOnWindows` configuration. -/
+@[inline] public def libPrefixOnWindows (self : Package) : Bool :=
+  self.config.libPrefixOnWindows
+
+/-- The package's `enableArtifactCache?` configuration. -/
+@[inline] public def enableArtifactCache? (self : Package) : Option Bool :=
+  self.config.enableArtifactCache?
+
+/-- The file where the package's input-to-content mapping is stored in the Lake cache. -/
+public def inputsFileIn (cache : Cache) (self : Package) : FilePath :=
+  let pkgName := self.name.toString (escape := false)
+  cache.inputsFile pkgName
+
 /-- Try to find a target configuration in the package with the given name. -/
-def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=
-  self.targetDeclMap.find? name
+public def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=
+  self.targetDeclMap.get? name
 
 /-- Whether the given module is considered local to the package. -/
-def isLocalModule (mod : Name) (self : Package) : Bool :=
+public def isLocalModule (mod : Name) (self : Package) : Bool :=
   self.targetDecls.any (·.leanLibConfig?.any (·.isLocalModule mod))
 
 /-- Whether the given module is in the package (i.e., can build it). -/
-def isBuildableModule (mod : Name) (self : Package) : Bool :=
+public def isBuildableModule (mod : Name) (self : Package) : Bool :=
   self.targetDecls.any fun t =>
     t.leanLibConfig?.any (·.isBuildableModule mod) ||
     t.leanExeConfig?.any (·.root == mod)
 
 /-- Remove the package's build outputs (i.e., delete its build directory). -/
-def clean (self : Package) : IO PUnit := do
+public def clean (self : Package) : IO PUnit := do
   if (← self.buildDir.pathExists) then
     IO.FS.removeDirAll self.buildDir

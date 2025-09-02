@@ -6,9 +6,13 @@ Author: Leonardo de Moura
 module
 
 prelude
+public import Init.Data.ByteArray.Basic
 import all Init.Data.ByteArray.Basic
+public import Init.Data.String.Basic
 import all Init.Data.String.Basic
 import Init.Data.UInt.Lemmas
+
+public section
 
 namespace String
 
@@ -163,7 +167,7 @@ def toUTF8 (a : @& String) : ByteArray :=
 
 @[simp] theorem size_toUTF8 (s : String) : s.toUTF8.size = s.utf8ByteSize := by
   simp [toUTF8, ByteArray.size, Array.size, utf8ByteSize, List.flatMap]
-  induction s.data <;> simp [List.map, List.flatten, utf8ByteSize.go, Nat.add_comm, *]
+  induction s.data <;> simp [List.map, utf8ByteSize.go, Nat.add_comm, *]
 
 /--
 Accesses the indicated byte in the UTF-8 encoding of a string.

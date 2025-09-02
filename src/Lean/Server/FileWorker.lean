@@ -4,32 +4,34 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.System.IO
-import Std.Sync.Channel
+public import Init.System.IO
+public import Std.Sync.Channel
 
-import Lean.Data.RBMap
-import Lean.Environment
+public import Lean.Environment
 
-import Lean.Data.Lsp
-import Lean.Data.Json.FromToJson
+public import Lean.Data.Lsp
+public import Lean.Data.Json.FromToJson.Basic
 
-import Lean.Util.FileSetupInfo
-import Lean.LoadDynlib
-import Lean.Language.Lean
+public import Lean.LoadDynlib
+public import Lean.Language.Lean
 
-import Lean.Server.Utils
-import Lean.Server.AsyncList
-import Lean.Server.References
+public import Lean.Server.Utils
+public import Lean.Server.AsyncList
+public import Lean.Server.References
 
-import Lean.Server.FileWorker.Utils
-import Lean.Server.FileWorker.RequestHandling
-import Lean.Server.FileWorker.WidgetRequests
-import Lean.Server.FileWorker.SetupFile
-import Lean.Server.Rpc.Basic
-import Lean.Widget.InteractiveDiagnostic
-import Lean.Server.Completion.ImportCompletion
-import Lean.Server.CodeActions.UnknownIdentifier
+public import Lean.Server.FileWorker.Utils
+public import Lean.Server.FileWorker.RequestHandling
+public import Lean.Server.FileWorker.WidgetRequests
+public import Lean.Server.FileWorker.SetupFile
+public import Lean.Server.Rpc.Basic
+public import Lean.Widget.InteractiveDiagnostic
+public import Lean.Server.Completion.ImportCompletion
+public import Lean.Server.CodeActions.UnknownIdentifier
+
+public section
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
@@ -86,7 +88,7 @@ structure WorkerContext where
   Diagnostics that are included in every single `textDocument/publishDiagnostics` notification.
   -/
   stickyDiagnosticsRef     : IO.Ref (Array InteractiveDiagnostic)
-  partialHandlersRef       : IO.Ref (RBMap String PartialHandlerInfo compare)
+  partialHandlersRef       : IO.Ref (Std.TreeMap String PartialHandlerInfo)
   pendingServerRequestsRef : IO.Ref (Std.TreeMap RequestID (IO.Promise (ServerRequestResponse Json)))
   hLog                     : FS.Stream
   initParams               : InitializeParams
@@ -101,14 +103,14 @@ structure WorkerContext where
 def WorkerContext.modifyGetPartialHandler (ctx : WorkerContext) (method : String)
     (f : PartialHandlerInfo → α × PartialHandlerInfo) : BaseIO α :=
   ctx.partialHandlersRef.modifyGet fun partialHandlers => Id.run do
-    let h := partialHandlers.find! method
+    let h := partialHandlers.get! method
     let (r, h) := f h
     (r, partialHandlers.insert method h)
 
 def WorkerContext.modifyPartialHandler (ctx : WorkerContext) (method : String)
     (f : PartialHandlerInfo → PartialHandlerInfo) : BaseIO Unit :=
   ctx.partialHandlersRef.modify fun partialHandlers => Id.run do
-  let some h := partialHandlers.find? method
+  let some h := partialHandlers.get? method
     | return partialHandlers
   partialHandlers.insert method <| f h
 
@@ -276,17 +278,21 @@ This option can only be set on the command line, not in the lakefile or via `set
       if (← IO.hasFinished t.task) then
         handleNode t.task.get
         -- limit children's reported range to that of the parent, if any, to avoid strange
-        -- non-monotonic progress updates; replace missing children's ranges with parent's
-        let ts := t.task.get.children.map (fun t' => { t' with reportingRange? :=
-          match t.reportingRange?, t'.reportingRange? with
-          | some r, some r' =>
+        -- non-monotonic progress updates; replace `inherit` children's ranges with parent's
+        let ts := t.task.get.children.map (fun t' => { t' with reportingRange :=
+          -- NOTE: as `t.reportingRange?` has already gone through this transformation, it should be
+          -- either `some` or `skip` at this point
+          match t.reportingRange, t'.reportingRange with
+          | .some r, .some r' =>
             let start := max r.start r'.start
             let stop := min r.stop r'.stop
             -- ensure `stop ≥ start`, lest we end up with negative ranges if `r` and `r'` are
             -- disjoint
             let stop := max start stop
-            some { start, stop }
-          | r?,     r?'     => r?' <|> r? })
+            .some { start, stop }
+          | _, .some r' => .some r'
+          | r?, .inherit => r?
+          | _, _ => .skip })
         ts.flatMapM handleFinished
       else
         return #[t]
@@ -322,7 +328,9 @@ This option can only be set on the command line, not in the lakefile or via `set
 
     /-- Reports given tasks' ranges, merging overlapping ones. -/
     sendFileProgress (tasks : Array (SnapshotTask SnapshotTree)) : StateT ReportSnapshotsState BaseIO Unit := do
-      let ranges := tasks.filterMap (·.reportingRange?)
+      let ranges := tasks.filterMap (match ·.reportingRange with
+        | .some r => some r
+        | _       => none)
       let ranges := ranges.qsort (·.start < ·.start)
       let ranges := ranges.foldl (init := #[]) fun rs r => match rs[rs.size - 1]? with
         | some last =>
@@ -342,7 +350,7 @@ structure PendingRequest where
   cancelTk    : RequestCancellationToken
 
 -- Pending requests are tracked so they can be canceled
-abbrev PendingRequestMap := RBMap RequestID PendingRequest compare
+abbrev PendingRequestMap := Std.TreeMap RequestID PendingRequest
 
 structure AvailableImportsCache where
   availableImports       : ImportCompletion.AvailableImports
@@ -356,7 +364,7 @@ structure WorkerState where
   pendingRequests    : PendingRequestMap
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
   to modify sessions. A single `Ref` ensures atomic transactions. -/
-  rpcSessions        : RBMap UInt64 (IO.Ref RpcSession) compare
+  rpcSessions        : Std.TreeMap UInt64 (IO.Ref RpcSession)
 
 abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
@@ -372,7 +380,7 @@ def setupImports
     (doc         : DocumentMeta)
     (cmdlineOpts : Options)
     (chanOut     : Std.Channel JsonRpc.Message)
-    (stx         : TSyntax ``Parser.Module.header)
+    (stx         : Elab.HeaderSyntax)
     : Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
   let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
   if importsAlreadyLoaded then
@@ -382,11 +390,11 @@ def setupImports
     unless (← IO.checkCanceled) do
       IO.Process.exit 2  -- signal restart request to watchdog
     -- should not be visible to user as task is already canceled
-    return .error { diagnostics := .empty, result? := none }
+    return .error { diagnostics := .empty, result? := none, metaSnap := default }
 
+  let header := stx.toModuleHeader
   chanOut.sync.send <| mkInitialIleanInfoUpdateNotification doc <| collectImports stx
-  let imports := Elab.headerToImports stx
-  let fileSetupResult ← setupFile doc imports fun stderrLine => do
+  let fileSetupResult ← setupFile doc header fun stderrLine => do
     let progressDiagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
       -- make progress visible anywhere in the file
@@ -404,16 +412,20 @@ def setupImports
         "Imports are out of date and must be rebuilt; \
           use the \"Restart File\" command in your editor.")
       result? := none
+      metaSnap := default
     }
   | .error msg =>
     return .error {
       diagnostics := (← diagnosticsOfHeaderError msg)
       result? := none
+      metaSnap := default
     }
   | _ => pure ()
 
+  let setup := fileSetupResult.setup
+
   -- override cmdline options with file options
-  let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) fileSetupResult.fileOptions
+  let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) setup.options.toOptions
 
   -- default to async elaboration; see also `Elab.async` docs
   let opts := Elab.async.setIfNotSet opts true
@@ -422,10 +434,11 @@ def setupImports
 
   return .ok {
     mainModuleName := doc.mod
-    isModule := Elab.HeaderSyntax.isModule stx
-    imports
+    isModule := strictOr setup.isModule header.isModule
+    imports := setup.imports?.getD header.imports
     opts
-    plugins := fileSetupResult.plugins
+    importArts := setup.importArts
+    plugins := setup.plugins
   }
 
 /- Worker initialization sequence. -/
@@ -439,7 +452,7 @@ section Initialization
     let pendingServerRequestsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef
     let timestamp ← IO.monoMsNow
-    let partialHandlersRef ← IO.mkRef <| RBMap.fromArray (cmp := compare) <|
+    let partialHandlersRef ← IO.mkRef <| Std.TreeMap.ofArray (cmp := compare) <|
       (← partialLspRequestHandlerMethods).map fun (method, refreshMethod, _) =>
         (method, {
           refreshMethod
@@ -451,7 +464,7 @@ section Initialization
     let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor doc.mkInputContext
     let _ ← ServerTask.IO.asTask do
-      let importClosure := getImportClosure? initSnap
+      let importClosure ← IO.lazyPure fun _ => getImportClosure? initSnap
       let importClosure ← importClosure.filterMapM (documentUriFromModule? ·)
       chanOut.send <| mkImportClosureNotification importClosure
     let ctx := {
@@ -476,8 +489,8 @@ section Initialization
     return (ctx, {
       doc := { doc with reporter }
       reporterCancelTk
-      pendingRequests    := RBMap.empty
-      rpcSessions        := RBMap.empty
+      pendingRequests    := Std.TreeMap.empty
+      rpcSessions        := Std.TreeMap.empty
       importCachingTask? := none
     })
   where
@@ -595,7 +608,7 @@ section NotificationHandling
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     let st ← get
-    let some r := st.pendingRequests.find? p.id
+    let some r := st.pendingRequests.get? p.id
       | return
     r.cancelTk.cancelByCancelRequest
     set <| { st with pendingRequests := st.pendingRequests.erase p.id }
@@ -625,7 +638,7 @@ section NotificationHandling
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   -- NOTE(WN): when the worker restarts e.g. due to changed imports, we may receive `rpc/release`
   -- for the previous RPC session. This is fine, just ignore.
-  if let some seshRef := (← get).rpcSessions.find? p.sessionId then
+  if let some seshRef := (← get).rpcSessions.get? p.sessionId then
     let monoMsNow ← IO.monoMsNow
     let discardRefs : StateM RpcObjectStore Unit := do
       for ref in p.refs do
@@ -636,7 +649,7 @@ def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
       { st with objects }
 
 def handleRpcKeepAlive (p : Lsp.RpcKeepAliveParams) : WorkerM Unit := do
-  match (← get).rpcSessions.find? p.sessionId with
+  match (← get).rpcSessions.get? p.sessionId with
   | none => return
   | some seshRef =>
     seshRef.modify (·.keptAlive (← IO.monoMsNow))
@@ -759,7 +772,7 @@ section MessageHandling
       let params ← RequestM.parseRequestParams Lsp.RpcCallParams params
       if params.method != `Lean.Widget.getInteractiveDiagnostics then
         return none
-      let some seshRef := st.rpcSessions.find? params.sessionId
+      let some seshRef := st.rpcSessions.get? params.sessionId
         | throw RequestError.rpcNeedsReconnect
       let params ← RequestM.parseRequestParams Widget.GetInteractiveDiagnosticsParams params.params
       let resp ← handleGetInteractiveDiagnosticsRequest ctx params
@@ -910,7 +923,7 @@ section MainLoop
           throwServerError s!"Failed responding to request {id}: {e}"
         pure <| acc.erase id
       else pure acc
-    let pendingRequests ← st.pendingRequests.foldM (fun acc id r => filterFinishedTasks acc id r.requestTask) st.pendingRequests
+    let pendingRequests ← st.pendingRequests.foldlM (fun acc id r => filterFinishedTasks acc id r.requestTask) st.pendingRequests
     st := { st with pendingRequests }
 
     -- Opportunistically (i.e. when we wake up on messages) check if any RPC session has expired.
@@ -1050,7 +1063,6 @@ where
       severity? := DiagnosticSeverity.error
       message := err.toString }]
 
-@[export lean_server_worker_main]
 def workerMain (opts : Options) : IO UInt32 := do
   let i ← IO.getStdin
   let o ← IO.getStdout

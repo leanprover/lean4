@@ -3,11 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lean.Compiler.LCNF.Basic
-import Lean.Compiler.LCNF.LCtx
-import Lean.Compiler.LCNF.ConfigOptions
+public import Lean.CoreM
+public import Lean.Compiler.LCNF.Basic
+public import Lean.Compiler.LCNF.LCtx
+public import Lean.Compiler.LCNF.ConfigOptions
+
+public section
 
 namespace Lean.Compiler.LCNF
 /--
@@ -19,9 +23,7 @@ inductive Phase where
   | base
   /-- In this phase polymorphism has been eliminated. -/
   | mono
-  /-- In this phase impure stuff such as RC or efficient BaseIO transformations happen. -/
-  | impure
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 /--
 The state managed by the `CompilerM` `Monad`.
@@ -225,7 +227,7 @@ This function panics if the substitution is mapping `fvarId` to an expression th
 That is, it is not a type (or type former), nor `lcErased`. Recall that a valid `FVarSubst` contains only
 expressions that are free variables, `lcErased`, or type formers.
 -/
-private partial def normFVarImp (s : FVarSubst) (fvarId : FVarId) (translator : Bool) : NormFVarResult :=
+partial def normFVarImp (s : FVarSubst) (fvarId : FVarId) (translator : Bool) : NormFVarResult :=
   match s[fvarId]? with
   | some (.fvar fvarId') =>
     if translator then
@@ -317,8 +319,8 @@ Add the entry `fvarId ↦ fvarId'` to the free variable substitution.
 @[inline, inherit_doc normLetValueImp] def normLetValue [MonadFVarSubst m t] [Monad m] (e : LetValue) : m LetValue :=
   return normLetValueImp (← getSubst) e t
 
-@[inherit_doc normExprImp]
-abbrev normExprCore (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
+@[inherit_doc normExprImp, inline]
+def normExprCore (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
   normExprImp s e translator
 
 /--

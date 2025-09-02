@@ -4,14 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-prelude
-import Lean.Widget.Basic
-import Lean.Widget.InteractiveCode
-import Lean.Widget.InteractiveGoal
-import Lean.Widget.InteractiveDiagnostic
+module
 
-import Lean.Server.Rpc.RequestHandling
-import Lean.Server.FileWorker.RequestHandling
+prelude
+public import Lean.Widget.Basic
+public import Lean.Widget.InteractiveCode
+public import Lean.Widget.InteractiveGoal
+public import Lean.Widget.InteractiveDiagnostic
+
+public import Lean.Server.Rpc.RequestHandling
+public import Lean.Server.FileWorker.RequestHandling
+import Lean.PrettyPrinter.Delaborator.Builtins
+
+public section
 
 /-! Registers all widget-related RPC procedures. -/
 
@@ -128,14 +133,23 @@ builtin_initialize
     fun ⟨kind, i⟩ => RequestM.pureTask do
       let i := i.val
       let rc ← read
-      let ls ← FileWorker.locationLinksOfInfo kind i
+      let ls ← locationLinksOfInfo rc.doc.meta kind i
+      let ls := ls.map (·.toLocationLink)
       if !ls.isEmpty then return ls
       -- TODO(WN): unify handling of delab'd (infoview) and elab'd (editor) applications
       let .ofTermInfo ti := i.info | return #[]
       let .app _ _ := ti.expr | return #[]
       let some nm := ti.expr.getAppFn.constName? | return #[]
-      i.ctx.runMetaM ti.lctx <|
-        locationLinksFromDecl rc.doc.meta.uri nm none
+      let ctx : GoToContext := {
+        doc := rc.doc.meta
+        kind
+        infoTree? := none
+        originInfo? := none
+        children := PersistentArray.empty
+      }
+      GoToM.run ctx i.ctx ti.lctx do
+        let ls ← locationLinksFromDecl nm
+        return ls.map (·.toLocationLink)
 
 def lazyTraceChildrenToInteractive (children : WithRpcRef LazyTraceChildren) :
     RequestM (RequestTask (Array (TaggedText MsgEmbed))) :=

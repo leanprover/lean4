@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Lemmas.Equivalence.Basic
+public import Std.Data.Iterators.Lemmas.Equivalence.Basic
+
+@[expose] public section
 
 /-!
 This module proves that the step functions of equivalent iterators behave the same under certain
@@ -84,7 +88,7 @@ private theorem IterM.Equiv.step_eq.aux {α₁ α₂ : Type w} {m : Type w → T
     ((IterM.stepAsHetT ita).map IterStep.bundledQuotient).Property s →
       ∃ s' : itb.Step, s = s'.1.bundledQuotient := by
   intro h
-  simp only [HetT.property_map, forall_exists_index, and_imp] at h
+  simp only [HetT.property_map] at h
   rcases h with ⟨sa, rfl, hs⟩
   rcases IterM.Equiv.exists_step_of_step h ⟨sa, hs⟩ with ⟨sb, hsb⟩
   exact ⟨sb, hsb⟩
@@ -92,7 +96,7 @@ private theorem IterM.Equiv.step_eq.aux {α₁ α₂ : Type w} {m : Type w → T
 private theorem IterM.Equiv.step_eq.aux_subtypeMk_congr {α : Type u} {P Q R : α → Prop}
     {h₁ : ∀ a, P a → R a}
     {h₂ : ∀ a, Q a → R a} (h : P = Q) :
-    HEq (fun (a : α) (ha : P a) => Subtype.mk a (h₁ a ha))
+    (fun (a : α) (ha : P a) => Subtype.mk a (h₁ a ha)) ≍
       (fun (a : α) (ha : Q a) => Subtype.mk a (h₂ a ha)) := by
   cases h
   simp
@@ -129,7 +133,7 @@ theorem IterM.Equiv.step_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Mon
       IterM.QuotStep.transportAlongEquiv h.symm <$> (Quot.mk _ : _ → itb.QuotStep) <$> itb.step := by
   have he := h
   simp only [IterM.Equiv, BundledIterM.ofIterM, BundledIterM.Equiv, BundledIterM.step,
-    Functor.map] at h
+    ] at h
   simp only [← HetT.comp_map, ← IterStep.mapIterator_comp] at h
   replace h : (IterM.stepAsHetT ita).map IterStep.bundledQuotient =
       (IterM.stepAsHetT itb).map IterStep.bundledQuotient := h

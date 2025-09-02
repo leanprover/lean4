@@ -3,14 +3,18 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Basic
-import Std.Data.Iterators.Producers
-import Std.Data.Iterators.Consumers
-import Std.Data.Iterators.Combinators
-import Std.Data.Iterators.Lemmas
-import Std.Data.Iterators.PostConditionMonad
-import Std.Data.Iterators.Internal
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Consumers
+public import Init.Data.Iterators.PostconditionMonad
+public import Init.Data.Iterators.Internal
+public import Std.Data.Iterators.Producers
+public import Std.Data.Iterators.Combinators
+public import Std.Data.Iterators.Lemmas
+
+@[expose] public section
 
 /-!
 # Iterators
@@ -79,7 +83,9 @@ that needs to wait for a language feature.
 A distinction that cuts through the whole module is that between pure and monadic
 iterators. Each submodule contains a dedicated `Monadic` sub-submodule.
 
-All of the following module names are prefixed with `Std.Data.Iterators`.
+Depending on whether functionality is needed in `Init`, modules might exist in `Init` or in `Std`.
+The following module names can then be found under `Init.Data.Iterators`, `Std.Data.Iterators` or
+both.
 
 ### Basic iterator API
 

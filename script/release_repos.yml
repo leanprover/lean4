@@ -28,19 +28,34 @@ repositories:
     branch: main
     dependencies: []
 
-  - name: doc-gen4
-    url: https://github.com/leanprover/doc-gen4
-    toolchain-tag: true
-    stable-branch: false
-    branch: main
-    dependencies: [lean4-cli]
-
   - name: verso
     url: https://github.com/leanprover/verso
     toolchain-tag: true
     stable-branch: false
     branch: main
     dependencies: []
+
+  - name: plausible
+    url: https://github.com/leanprover-community/plausible
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies: []
+
+  - name: import-graph
+    url: https://github.com/leanprover-community/import-graph
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies:
+      - lean4-cli
+
+  - name: doc-gen4
+    url: https://github.com/leanprover/doc-gen4
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies: [lean4-cli]
 
   - name: reference-manual
     url: https://github.com/leanprover/reference-manual
@@ -64,22 +79,6 @@ repositories:
     branch: master
     dependencies:
       - batteries
-
-  - name: import-graph
-    url: https://github.com/leanprover-community/import-graph
-    toolchain-tag: true
-    stable-branch: false
-    branch: main
-    dependencies:
-      - lean4-cli
-      - batteries
-
-  - name: plausible
-    url: https://github.com/leanprover-community/plausible
-    toolchain-tag: true
-    stable-branch: false
-    branch: main
-    dependencies: []
 
   - name: mathlib4
     url: https://github.com/leanprover-community/mathlib4

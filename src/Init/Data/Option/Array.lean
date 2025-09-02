@@ -6,9 +6,12 @@ Authors: Markus Himmel
 module
 
 prelude
-import Init.Data.Array.Lemmas
-import Init.Data.Option.List
+public import Init.Data.Array.Lemmas
+public import Init.Data.Option.List
+public import Init.Data.Option.Instances
 import all Init.Data.Option.Instances
+
+public section
 
 namespace Option
 
@@ -84,7 +87,7 @@ theorem toArray_eq_singleton_iff {o : Option α} : o.toArray = #[a] ↔ o = some
 
 theorem size_toArray_eq_zero_iff {o : Option α} :
     o.toArray.size = 0 ↔ o = none := by
-  simp [Array.size]
+  simp
 
 @[simp]
 theorem size_toArray_eq_one_iff {o : Option α} :

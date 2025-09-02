@@ -6,9 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Omega
-import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Simproc
+public import Init.Omega
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Nat.Simproc
+
+public section
 
 /-!
 # Further lemmas about `Nat.div` and `Nat.mod`, with the convenience of having `omega` available.
@@ -80,7 +82,7 @@ theorem lt_div_mul_self (h : 0 < k) (w : k ≤ x) : x - k < x / k * k := by
 theorem div_pos (hba : b ≤ a) (hb : 0 < b) : 0 < a / b := by
   cases b
   · contradiction
-  · simp [Nat.pos_iff_ne_zero, div_eq_zero_iff_lt, hba]
+  · simp [Nat.pos_iff_ne_zero, hba]
 
 theorem div_le_div_left (hcb : c ≤ b) (hc : 0 < c) : a / b ≤ a / c :=
   (Nat.le_div_iff_mul_le hc).2 <|
@@ -209,5 +211,20 @@ theorem mod_mod_eq_mod_mod_mod_of_dvd {a b c : Nat} (hb : b ∣ c) :
   refine Or.elim (Nat.eq_zero_or_pos c) (by rintro rfl; simp) (fun hc => ?_)
   have : b < c := Nat.lt_of_le_of_ne (Nat.le_of_dvd hc hb) hb'
   rw [Nat.mod_mod_of_dvd' hb, Nat.mod_eq_of_lt this, Nat.mod_mod_of_dvd _ hb]
+
+theorem mod_eq_mod_iff {x y z : Nat} :
+    x % z = y % z ↔ ∃ k₁ k₂, x + k₁ * z = y + k₂ * z := by
+  constructor
+  · rw [Nat.mod_def, Nat.mod_def]
+    rw [Nat.sub_eq_iff_eq_add, Nat.add_comm, ← Nat.add_sub_assoc, eq_comm, Nat.sub_eq_iff_eq_add, eq_comm]
+    · intro h
+      refine ⟨(y / z), (x / z), ?_⟩
+      rwa [Nat.mul_comm z, Nat.add_comm _ y, Nat.mul_comm z] at h
+    · exact le_add_left_of_le (mul_div_le y z)
+    · exact mul_div_le y z
+    · exact mul_div_le x z
+  · rintro ⟨k₁, k₂, h⟩
+    replace h := congrArg (· % z) h
+    simpa using h
 
 end Nat

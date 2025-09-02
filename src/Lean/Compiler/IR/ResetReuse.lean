@@ -3,10 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.LiveVars
-import Lean.Compiler.IR.Format
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.LiveVars
+public import Lean.Compiler.IR.Format
+
+public section
 
 namespace Lean.IR.ResetReuse
 /-!
@@ -67,6 +72,7 @@ where
       instr.setBody (go b)
 
 structure Context where
+  env       : Environment
   lctx      : LocalContext := {}
   /--
   Contains all variables in `cases` statements in the current path
@@ -111,7 +117,7 @@ private def tryS (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody := do
   if b == b' then
     return b
   else
-    return .vdecl w IRType.object (.reset c.size x) b'
+    return .vdecl w .tobject (.reset c.size x) b'
 
 private def Dfinalize (x : VarId) (c : CtorInfo) : FnBody × Bool → M FnBody
   | (b, true)  => return b
@@ -127,6 +133,44 @@ private def isCtorUsing (b : FnBody) (x : VarId) : Bool :=
   | .vdecl _ _ (.ctor _ ys) _ => argsContainsVar ys x
   | _ => false
 
+inductive UseClassification where
+  | ownedArg
+  | other
+  | none
+
+private def classifyUse (b : FnBody) (x : VarId) : M UseClassification := do
+  match b with
+  | .vdecl _ _ e@(.fap f args) _ =>
+    if let some decl := findEnvDecl (← read).env f then
+      let mut result := .none
+      for arg in args, param in decl.params do
+        match arg with
+        | .var y =>
+          if y == x then
+            result := match result, param.borrow with
+              | .ownedArg, true => .other
+              | .ownedArg, false => .ownedArg
+              | .other, _ => .other
+              | .none, true => .other
+              | .none, false => .ownedArg
+        | .erased => pure ()
+      return result
+    else
+      if e.hasFreeVar x then
+        return .ownedArg
+      else
+        return .none
+  | .vdecl _ _ e@(.pap ..) _ | .vdecl _ _ e@(.ap ..) _ =>
+    if e.hasFreeVar x then
+      return .ownedArg
+    else
+      return .none
+  | _ =>
+    if b.hasFreeVar x then
+      return .other
+    else
+      return .none
+
 /--
 Given `Dmain b`, the resulting pair `(new_b, flag)` contains the new body `new_b`,
 and `flag == true` if `x` is live in `b`.
@@ -139,7 +183,7 @@ private partial def Dmain (x : VarId) (c : CtorInfo) (e : FnBody) : M (FnBody ×
   | .case tid y yType alts =>
     if e.hasLiveVar (← read).lctx x then
       /- If `x` is live in `e`, we recursively process each branch. -/
-      let alts ← alts.mapM fun alt => alt.mmodifyBody fun b => Dmain x c b >>= Dfinalize x c
+      let alts ← alts.mapM fun alt => alt.modifyBodyM fun b => Dmain x c b >>= Dfinalize x c
       return (.case tid y yType alts, true)
     else
       return (e, false)
@@ -163,14 +207,17 @@ private partial def Dmain (x : VarId) (c : CtorInfo) (e : FnBody) : M (FnBody ×
         return (e, true)
       else
         let (b, found) ← Dmain x c b
-        /- Remark: it is fine to use `hasFreeVar` instead of `hasLiveVar`
-           since `instr` is not a `FnBody.jmp` (it is not a terminal) nor
-           it is a `FnBody.jdecl`. -/
-        if found || !instr.hasFreeVar x then
-          return (instr.setBody b, found)
-        else
-          let b ← tryS x c b
+        if found then
           return (instr.setBody b, true)
+        else
+          match (← classifyUse instr x) with
+          | .ownedArg =>
+            return (instr.setBody b, true)
+          | .other =>
+            let b ← tryS x c b
+            return (instr.setBody b, true)
+          | .none =>
+            return (instr.setBody b, false)
 
 private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
   Dmain x c b >>= Dfinalize x c
@@ -181,7 +228,7 @@ partial def R (e : FnBody) : M FnBody := do
     let alreadyFound := (← read).alreadyFound.contains x
     withReader (fun ctx => { ctx with alreadyFound := ctx.alreadyFound.insert x }) do
       let alts ← alts.mapM fun alt => do
-        let alt ← alt.mmodifyBody R
+        let alt ← alt.modifyBodyM R
         match alt with
         | .ctor c b =>
           if c.isScalar || alreadyFound then
@@ -212,24 +259,23 @@ partial def collectResets (e : FnBody) : N Unit := do
   | .jdecl _ _ v b => collectResets v; collectResets b
   | .vdecl _ _ (.reset _ x) b => modify fun s => s.insert x; collectResets b
   | e => unless e.isTerminal do
-    let (_, b) := e.split
-    collectResets b
+    collectResets e.body
 
 end ResetReuse
 open ResetReuse
 
 
-def Decl.insertResetReuseCore (d : Decl) (relaxedReuse : Bool) : Decl :=
+def Decl.insertResetReuseCore (env : Environment) (d : Decl) (relaxedReuse : Bool) : Decl :=
   match d with
   | .fdecl (body := b) .. =>
     let nextIndex := d.maxIndex + 1
     -- First time we execute `insertResetReuseCore`, `relaxedReuse := false`.
     let alreadyFound : PHashSet VarId := if relaxedReuse then (collectResets b *> get).run' {} else {}
-    let bNew := R b { relaxedReuse, alreadyFound } |>.run' nextIndex
+    let bNew := R b { env, relaxedReuse, alreadyFound } |>.run' nextIndex
     d.updateBody! bNew
   | other => other
 
-def Decl.insertResetReuse (d : Decl) : Decl :=
+def Decl.insertResetReuse (env : Environment) (d : Decl) : Decl :=
   /-
   We execute the reset/reuse algorithm twice. The first time, we only reuse memory cells
   between identical constructor memory cells. That is, we do not reuse a `PSigma.mk` memory cell
@@ -240,7 +286,9 @@ def Decl.insertResetReuse (d : Decl) : Decl :=
 
   The second pass addresses issue #4089.
   -/
-  d.insertResetReuseCore (relaxedReuse := false)
-  |>.insertResetReuseCore (relaxedReuse := true)
+  d.insertResetReuseCore env (relaxedReuse := false)
+  |>.insertResetReuseCore env (relaxedReuse := true)
+
+builtin_initialize registerTraceClass `compiler.ir.reset_reuse (inherited := true)
 
 end Lean.IR

@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.BEq
-import Init.Data.Hashable
-import Std.Data.DHashMap.Internal.Defs
+public import Init.Data.BEq
+public import Init.Data.Hashable
+public import Std.Data.DHashMap.Internal.Defs
+
+public section
 
 /-!
 # Dependent hash maps with unbundled well-formedness invariant
@@ -431,10 +435,6 @@ define the `ForM` and `ForIn` instances for `HashMap.Raw`.
 
 end Const
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
 /--
 Updates the values of the hash map by applying the given function to all mappings, keeping
 only those mappings where the function returns `some` value.
@@ -468,6 +468,10 @@ only those mappings where the function returns `some` value.
 /-- Returns an array of all keys present in the hash map in some order. -/
 @[inline] def keysArray (m : Raw α β) : Array α :=
   m.fold (fun acc k _ => acc.push k) (.emptyWithCapacity m.size)
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
 
 /-- Returns a list of all values present in the hash map in some order. -/
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=

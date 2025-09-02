@@ -3,13 +3,18 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ReservedNameAction
-import Lean.AddDecl
-import Lean.Meta.Basic
+public import Lean.ReservedNameAction
+public import Lean.AddDecl
+public import Lean.Meta.Basic
+public import Lean.Meta.Match.MatcherInfo
+public import Lean.DefEqAttrib
+public import Lean.Meta.LetToHave
 import Lean.Meta.AppBuilder
-import Lean.Meta.Match.MatcherInfo
-import Lean.DefEqAttrib
+
+public section
 
 namespace Lean.Meta
 
@@ -44,7 +49,7 @@ This information is populated by the `PreDefinition` module, but the simplifier
 uses when unfolding declarations.
 -/
 builtin_initialize recExt : TagDeclarationExtension ←
-  mkTagDeclarationExtension `recExt (asyncMode := .async)
+  mkTagDeclarationExtension `recExt (asyncMode := .async .asyncEnv)
 
 /--
 Marks the given declaration as recursive.
@@ -114,7 +119,7 @@ builtin_initialize registerReservedNamePredicate fun env n => Id.run do
   else
     false
 
-def GetEqnsFn := Name → MetaM (Option (Array Name))
+@[expose] def GetEqnsFn := Name → MetaM (Option (Array Name))
 
 private builtin_initialize getEqnsFnsRef : IO.Ref (List GetEqnsFn) ← IO.mkRef []
 
@@ -178,6 +183,8 @@ where doRealize name info := do
   lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
     let lhs := mkAppN (mkConst info.name <| info.levelParams.map mkLevelParam) xs
     let type  ← mkForallFVars xs (← mkEq lhs body)
+    -- Note: if this definition was added using `def`, then `letToHave` has already been applied to the body.
+    let type  ← letToHave type
     let value ← mkLambdaFVars xs (← mkEqRefl lhs)
     addDecl <| Declaration.thmDecl {
       name, type, value
@@ -253,7 +260,7 @@ def generateEagerEqns (declName : Name) : MetaM Unit := do
     trace[Elab.definition.eqns] "generating eager equations for {declName}"
     let _ ← getEqnsFor?Core declName
 
-def GetUnfoldEqnFn := Name → MetaM (Option Name)
+@[expose] def GetUnfoldEqnFn := Name → MetaM (Option Name)
 
 private builtin_initialize getUnfoldEqnFnsRef : IO.Ref (List GetUnfoldEqnFn) ← IO.mkRef []
 

@@ -3,10 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Consumers
-import Std.Data.Iterators.Lemmas.Consumers.Collect
-import Std.Data.Iterators.Lemmas.Producers.Monadic.List
+public import Init.Data.Iterators.Consumers
+public import Init.Data.Iterators.Lemmas.Consumers.Collect
+public import Std.Data.Iterators.Producers.List
+public import Std.Data.Iterators.Lemmas.Producers.Monadic.List
+
+@[expose] public section
 
 /-!
 # Lemmas about list iterators
@@ -27,7 +32,7 @@ theorem _root_.List.step_iter_nil :
 @[simp]
 theorem _root_.List.step_iter_cons {x : β} {xs : List β} :
     ((x :: xs).iter).step = ⟨.yield xs.iter x, rfl⟩ := by
-  simp only [List.iter, List.iterM, IterM.step, Iterator.step]; rfl
+  simp only [List.iter, List.iterM]; rfl
 
 @[simp]
 theorem _root_.List.toArray_iter {l : List β} :

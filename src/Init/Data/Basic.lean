@@ -6,13 +6,15 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Nat.Basic
-import Init.Data.Fin.Basic
-import Init.Data.List.Basic
-import Init.Data.Char.Basic
-import Init.Data.String.Basic
-import Init.Data.Option.Basic
-import Init.Data.UInt
-import Init.Data.Repr
-import Init.Data.ToString.Basic
-import Init.Data.String.Extra
+public import Init.Data.Nat.Basic
+public import Init.Data.Fin.Basic
+public import Init.Data.List.Basic
+public import Init.Data.Char.Basic
+public import Init.Data.String.Basic
+public import Init.Data.Option.Basic
+public import Init.Data.UInt
+public import Init.Data.Repr
+public import Init.Data.ToString.Basic
+public import Init.Data.String.Extra
+
+public section

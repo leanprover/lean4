@@ -1,3 +1,4 @@
+module
 /-- trace: [grind.cutsat.model] a := 2 -/
 #guard_msgs (trace) in
 set_option trace.grind.cutsat.model true in

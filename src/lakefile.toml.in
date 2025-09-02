@@ -25,6 +25,14 @@ leanLibDir = "lib/lean"
 # Destination for static libraries
 nativeLibDir = "lib/lean"
 
+leanOptions = { experimental.module = true }
+
+# Additional options derived from the CMake configuration
+# For example, CI will set `-DwarningAsError=true` through this
+moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
+
+${LEAN_EXTRA_LAKEFILE_TOML}
+
 [[lean_lib]]
 name = "Init"
 libName = "${LAKE_LIB_PREFIX}Init"
@@ -55,7 +63,9 @@ globs = [
   # Lake API imported by configuration files
   "Lake",
   # API only imported by `LakeMain` and the `lake` CLI
-  "Lake.CLI",
+  "Lake.CLI", "Lake.Load",
+  # Additional utilities which may not be imported
+  "Lake.Util.+",
 ]
 libName = "${LAKE_LIB_PREFIX}Lake"
 defaultFacets = ["static", "static.export"]

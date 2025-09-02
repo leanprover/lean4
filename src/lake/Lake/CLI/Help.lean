@@ -3,12 +3,15 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+module
+
 prelude
+public import Init.Data.ToString
 import Lake.Version
 
 namespace Lake
 
-def usage :=
+public def usage :=
 uiVersionString ++ "
 
 USAGE:
@@ -80,7 +83,8 @@ The initial configuration and starter files are based on the template:
   std                   library and executable; default
   exe                   executable only
   lib                   library only
-  math                  library only with a mathlib dependency
+  math-lax              library only with a Mathlib dependency
+  math                  library with Mathlib standards for linting and workflows
 
 Templates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML
 version of the configuration file, respectively. The default is TOML."
@@ -419,13 +423,13 @@ already exists, Lake will error.
 Translation is lossy. It does not preserve comments or formatting and
 non-declarative configuration will be discarded."
 
-def helpScript : (cmd : String) → String
+public def helpScript : (cmd : String) → String
 | "list"                => helpScriptList
 | "run"                 => helpScriptRun
 | "doc"                 => helpScriptDoc
 | _                     => helpScriptCli
 
-def help : (cmd : String) → String
+public def help : (cmd : String) → String
 | "new"                 => helpNew
 | "init"                => helpInit
 | "build"               => helpBuild

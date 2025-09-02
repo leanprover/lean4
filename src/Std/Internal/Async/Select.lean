@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.Array.Basic
-import Init.Data.Random
-import Std.Internal.Async.Basic
+public import Init.Data.Array.Basic
+public import Init.Data.Random
+public import Std.Internal.Async.Basic
+
+public section
 
 /-!
 This module contains the implementation of a fair and data-loss free IO multiplexing primitive.
@@ -119,6 +123,9 @@ The protocol for this is as follows:
    the `Selectable.cont` of the winning `Selector` is executed and returned.
 -/
 partial def Selectable.one (selectables : Array (Selectable α)) : IO (AsyncTask α) := do
+  if selectables.isEmpty then
+    throw <| .userError "Selectable.one requires at least one Selectable"
+
   let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
   let gen := mkStdGen seed
   let selectables := shuffleIt selectables gen

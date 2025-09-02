@@ -6,9 +6,11 @@ Authors: Floris van Doorn, Leonardo de Moura
 module
 
 prelude
-import Init.SimpLemmas
-import Init.Data.NeZero
-import Init.Grind.Tactics
+public import Init.SimpLemmas
+public import Init.Data.NeZero
+public import Init.Grind.Tactics
+
+public section
 
 set_option linter.missingDocs true -- keep it documented
 universe u
@@ -405,6 +407,12 @@ theorem le_of_add_right_le {n m k : Nat} (h : n + k ≤ m) : n ≤ m :=
 
 theorem le_add_right_of_le {n m k : Nat} (h : n ≤ m) : n ≤ m + k :=
   Nat.le_trans h (le_add_right m k)
+
+theorem le_of_add_left_le {n m k : Nat} (h : k + n ≤ m) : n ≤ m :=
+  Nat.le_trans (le_add_left n k) h
+
+theorem le_add_left_of_le {n m k : Nat} (h : n ≤ m) : n ≤ k + m :=
+  Nat.le_trans h (le_add_left m k)
 
 theorem lt_of_add_one_le {n m : Nat} (h : n + 1 ≤ m) : n < m := h
 
@@ -931,7 +939,7 @@ protected theorem pred_succ (n : Nat) : pred n.succ = n := rfl
 @[simp] protected theorem add_one_sub_one (n : Nat) : n + 1 - 1 = n := rfl
 
 theorem sub_one_eq_self {n : Nat} : n - 1 = n ↔ n = 0 := by cases n <;> simp [ne_add_one]
-theorem eq_self_sub_one {n : Nat} : n = n - 1 ↔ n = 0 := by cases n <;> simp [add_one_ne]
+theorem eq_self_sub_one {n : Nat} : n = n - 1 ↔ n = 0 := by cases n <;> simp
 
 theorem succ_pred {a : Nat} (h : a ≠ 0) : a.pred.succ = a := by
   induction a with
@@ -1092,13 +1100,13 @@ theorem add_le_of_le_sub {a b c : Nat} (hle : b ≤ c) (h : a ≤ c - b) : a + b
   | ⟨d, hd⟩ =>
     apply @le.intro _ _ d
     rw [Nat.eq_add_of_sub_eq hle hd.symm]
-    simp [Nat.add_comm, Nat.add_assoc, Nat.add_left_comm]
+    simp [Nat.add_comm, Nat.add_left_comm]
 
 theorem le_sub_of_add_le {a b c : Nat} (h : a + b ≤ c) : a ≤ c - b := by
   match le.dest h with
   | ⟨d, hd⟩ =>
     apply @le.intro _ _ d
-    have hd : a + d + b = c := by simp [← hd, Nat.add_comm, Nat.add_assoc, Nat.add_left_comm]
+    have hd : a + d + b = c := by simp [← hd, Nat.add_comm, Nat.add_left_comm]
     have hd := Nat.sub_eq_of_eq_add hd.symm
     exact hd.symm
 

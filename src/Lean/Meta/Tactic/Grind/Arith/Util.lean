@@ -3,10 +3,15 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Expr
-import Lean.Message
-import Std.Internal.Rat
+public import Init.Grind.Ring.Basic
+public import Lean.Meta.SynthInstance
+public import Lean.Meta.Basic
+public import Init.Data.Rat.Basic
+
+public section
 
 namespace Lean.Meta.Grind.Arith
 
@@ -73,6 +78,7 @@ def isArithTerm (e : Expr) : Bool :=
   | HDiv.hDiv _ _ _ _ _ _ => true
   | HMod.hMod _ _ _ _ _ _ => true
   | HPow.hPow _ _ _ _ _ _ => true
+  | HSMul.hSMul _ _ _ _ _ _ => true
   | Neg.neg _ _ _ => true
   | OfNat.ofNat _ _ _ => true
   | _ => false
@@ -86,7 +92,7 @@ def quoteIfArithTerm (e : Expr) : MessageData :=
 /--
 `gcdExt a b` returns the triple `(g, α, β)` such that
 - `g = gcd a b` (with `g ≥ 0`), and
-- `g = α * a + β * β`.
+- `g = α * a + β * b`.
 -/
 partial def gcdExt (a b : Int) : Int × Int × Int :=
   if b = 0 then
@@ -94,8 +100,6 @@ partial def gcdExt (a b : Int) : Int × Int × Int :=
   else
     let (g, α, β) := gcdExt b (a % b)
     (g, β, α - (a / b) * β)
-
-open Std.Internal
 
 -- TODO: PArray.shrink and PArray.resize
 partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
@@ -132,5 +136,34 @@ abbrev CollectDecVarsM.run (x : CollectDecVarsM Unit) (decVars : FVarIdSet) : FV
 end CollectDecVars
 
 export CollectDecVars (CollectDecVarsM)
+
+private def ____intModuleMarker____ : Bool := true
+
+/--
+Return auxiliary expression used as "virtual" parent when
+internalizing auxiliary expressions created by `toIntModuleExpr`.
+The function `toIntModuleExpr` converts a `CommRing` polynomial into
+a `IntModule` expression. We don't want this auxiliary expression to be
+internalized by the `CommRing` module since it uses a nonstandard encoding
+with `@HSMul.hSMul Int α α`, a virtual `One.one` constant, etc.
+ -/
+def getIntModuleVirtualParent : Expr :=
+  mkConst ``____intModuleMarker____
+
+def isIntModuleVirtualParent (parent? : Option Expr) : Bool :=
+  match parent? with
+  | none => false
+  | some parent => parent == getIntModuleVirtualParent
+
+@[specialize] def split (cs : PArray α) (getCoeff : α → Int) : PArray α × Array (Int × α) := Id.run do
+  let mut cs' := {}
+  let mut todo := #[]
+  for c in cs do
+    let b := getCoeff c
+    if b == 0 then
+      cs' := cs'.push c
+    else
+      todo := todo.push (b, c)
+  return (cs', todo)
 
 end Lean.Meta.Grind.Arith

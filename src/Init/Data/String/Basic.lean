@@ -6,8 +6,10 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Data.List.Basic
-import Init.Data.Char.Basic
+public import Init.Data.List.Basic
+public import Init.Data.Char.Basic
+
+public section
 
 universe u
 
@@ -24,6 +26,33 @@ def List.asString (s : List Char) : String :=
 
 namespace String
 
+instance : HAdd String.Pos String.Pos String.Pos where
+  hAdd p₁ p₂ := { byteIdx := p₁.byteIdx + p₂.byteIdx }
+
+instance : HSub String.Pos String.Pos String.Pos where
+  hSub p₁ p₂ := { byteIdx :=  p₁.byteIdx - p₂.byteIdx }
+
+instance : HAdd String.Pos Char String.Pos where
+  hAdd p c := { byteIdx := p.byteIdx + c.utf8Size }
+
+instance : HAdd String.Pos String String.Pos where
+  hAdd p s := { byteIdx := p.byteIdx + s.utf8ByteSize }
+
+instance : LE String.Pos where
+  le p₁ p₂ := p₁.byteIdx ≤ p₂.byteIdx
+
+instance : LT String.Pos where
+  lt p₁ p₂ := p₁.byteIdx < p₂.byteIdx
+
+instance (p₁ p₂ : String.Pos) : Decidable (LE.le p₁ p₂) :=
+  inferInstanceAs (Decidable (p₁.byteIdx ≤ p₂.byteIdx))
+
+instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
+  inferInstanceAs (Decidable (p₁.byteIdx < p₂.byteIdx))
+
+instance : Min String.Pos := minOfLe
+instance : Max String.Pos := maxOfLe
+
 instance : OfNat String.Pos (nat_lit 0) where
   ofNat := {}
 
@@ -34,7 +63,7 @@ instance : LT String :=
 instance decidableLT (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
   List.decidableLT s₁.data s₂.data
 
-@[deprecated decidableLT (since := "2024-12-13")] abbrev decLt := @decidableLT
+
 
 /--
 Non-strict inequality on strings, typically used via the `≤` operator.
@@ -218,22 +247,22 @@ If both the replacement character and the replaced character are 7-bit ASCII cha
 string is not shared, then it is updated in-place and not copied.
 
 Examples:
-* `abc.modify ⟨1⟩ Char.toUpper = "aBc"`
-* `abc.modify ⟨3⟩ Char.toUpper = "abc"`
+* `"abc".modify ⟨1⟩ Char.toUpper = "aBc"`
+* `"abc".modify ⟨3⟩ Char.toUpper = "abc"`
 -/
 def modify (s : String) (i : Pos) (f : Char → Char) : String :=
   s.set i <| f <| s.get i
 
 /--
-Returns the next position in a string after position `p`. The result is unspecified if `p` is not a
-valid position or if `p = s.endPos`.
+Returns the next position in a string after position `p`. If `p` is not a valid position or
+`p = s.endPos`, returns the position one byte after `p`.
 
 A run-time bounds check is performed to determine whether `p` is at the end of the string. If a
 bounds check has already been performed, use `String.next'` to avoid a repeated check.
 
-Some examples where the result is unspecified:
-* `"abc".next ⟨3⟩`, since `3 = "abc".endPos`
-* `"L∃∀N".next ⟨2⟩`, since `2` points into the middle of a multi-byte UTF-8 character
+Some examples of edge cases:
+* `"abc".next ⟨3⟩ = ⟨4⟩`, since `3 = "abc".endPos`
+* `"L∃∀N".next ⟨2⟩ = ⟨3⟩`, since `2` points into the middle of a multi-byte UTF-8 character
 
 Examples:
 * `"abc".get ("abc".next 0) = 'b'`
@@ -245,17 +274,18 @@ def next (s : @& String) (p : @& Pos) : Pos :=
   p + c
 
 def utf8PrevAux : List Char → Pos → Pos → Pos
-  | [],    _, _ => 0
+  | [],    _, p => ⟨p.byteIdx - 1⟩
   | c::cs, i, p =>
     let i' := i + c
-    if i' = p then i else utf8PrevAux cs i' p
+    if p ≤ i' then i else utf8PrevAux cs i' p
 
 /--
 Returns the position in a string before a specified position, `p`. If `p = ⟨0⟩`, returns `0`. If `p`
-is not a valid position, the result is unspecified.
+is greater than `endPos`, returns the position one byte before `p`. Otherwise, if `p` occurs in the
+middle of a multi-byte character, returns the beginning position of that character.
 
-For example, `"L∃∀N".prev ⟨3⟩` is unspecified, since byte 3 occurs in the middle of the multi-byte
-character `'∃'`.
+For example, `"L∃∀N".prev ⟨3⟩` is `⟨1⟩`, since byte 3 occurs in the middle of the multi-byte
+character `'∃'` that starts at byte 1.
 
 Examples:
 * `"abc".get ("abc".endPos |> "abc".prev) = 'c'`
@@ -263,7 +293,7 @@ Examples:
 -/
 @[extern "lean_string_utf8_prev", expose]
 def prev : (@& String) → (@& Pos) → Pos
-  | ⟨s⟩, p => if p = 0 then 0 else utf8PrevAux s 0 p
+  | ⟨s⟩, p => utf8PrevAux s 0 p
 
 /--
 Returns the first character in `s`. If `s = ""`, returns `(default : Char)`.
@@ -298,7 +328,7 @@ Examples:
 * `"L∃∀N".atEnd ⟨7⟩ = false`
 * `"L∃∀N".atEnd ⟨8⟩ = true`
 -/
-@[extern "lean_string_utf8_at_end"]
+@[extern "lean_string_utf8_at_end", expose]
 def atEnd : (@& String) → (@& Pos) → Bool
   | s, p => p.byteIdx ≥ utf8ByteSize s
 
@@ -337,7 +367,7 @@ Requires evidence, `h`, that `p` is within bounds. No run-time bounds check is p
 A typical pattern combines `String.next'` with a dependent `if`-expression to avoid the overhead of
 an additional bounds check. For example:
 ```
-def next? (s: String) (p : String.Pos) : Option Char :=
+def next? (s : String) (p : String.Pos) : Option Char :=
   if h : s.atEnd p then none else s.get (s.next' p h)
 ```
 
@@ -367,20 +397,17 @@ protected theorem Pos.ne_zero_of_lt : {a b : Pos} → a < b → b ≠ 0
 theorem lt_next (s : String) (i : Pos) : i.1 < (s.next i).1 :=
   Nat.add_lt_add_left (Char.utf8Size_pos _) _
 
-theorem utf8PrevAux_lt_of_pos : ∀ (cs : List Char) (i p : Pos), p ≠ 0 →
+theorem utf8PrevAux_lt_of_pos : ∀ (cs : List Char) (i p : Pos), i < p → p ≠ 0 →
     (utf8PrevAux cs i p).1 < p.1
-  | [], _, _, h =>
-    Nat.lt_of_le_of_lt (Nat.zero_le _)
-      (Nat.zero_lt_of_ne_zero (mt (congrArg Pos.mk) h))
-  | c::cs, i, p, h => by
+  | [], _, _, _, h => Nat.sub_one_lt (mt (congrArg Pos.mk) h)
+  | c::cs, i, p, h, h' => by
     simp [utf8PrevAux]
-    apply iteInduction (motive := (Pos.byteIdx · < _)) <;> intro h'
-    next => exact h' ▸ Nat.add_lt_add_left (Char.utf8Size_pos _) _
-    next => exact utf8PrevAux_lt_of_pos _ _ _ h
+    apply iteInduction (motive := (Pos.byteIdx · < _)) <;> intro h''
+    next => exact h
+    next => exact utf8PrevAux_lt_of_pos _ _ _ (Nat.lt_of_not_le h'') h'
 
-theorem prev_lt_of_pos (s : String) (i : Pos) (h : i ≠ 0) : (s.prev i).1 < i.1 := by
-  simp [prev, h]
-  exact utf8PrevAux_lt_of_pos _ _ _ h
+theorem prev_lt_of_pos (s : String) (i : Pos) (h : i ≠ 0) : (s.prev i).1 < i.1 :=
+  utf8PrevAux_lt_of_pos _ _ _ (Nat.zero_lt_of_ne_zero (mt (congrArg Pos.mk) h)) h
 
 def posOfAux (s : String) (c : Char) (stopPos : Pos) (pos : Pos) : Pos :=
   if h : pos < stopPos then
@@ -417,7 +444,7 @@ Returns the position of the last occurrence of a character, `c`, in a string `s`
 contain `c`, returns `none`.
 
 Examples:
-* `"abcabc".refPosOf 'a' = some ⟨3⟩`
+* `"abcabc".revPosOf 'a' = some ⟨3⟩`
 * `"abcabc".revPosOf 'z' = none`
 * `"L∃∀N".revPosOf '∀' = some ⟨4⟩`
 -/
@@ -485,6 +512,7 @@ Examples:
 * `"tea".firstDiffPos "teas" = ⟨3⟩`
 * `"teas".firstDiffPos "tea" = ⟨3⟩`
 -/
+@[expose]
 def firstDiffPos (a b : String) : Pos :=
   let stopPos := a.endPos.min b.endPos
   let rec loop (i : Pos) : Pos :=
@@ -511,7 +539,7 @@ Examples:
 * `"red green blue".extract ⟨4⟩ ⟨100⟩ = "green blue"`
 * `"L∃∀N".extract ⟨2⟩ ⟨100⟩ = "green blue"`
 -/
-@[extern "lean_string_utf8_extract"]
+@[extern "lean_string_utf8_extract", expose]
 def extract : (@& String) → (@& Pos) → (@& Pos) → String
   | ⟨s⟩, b, e => if b.byteIdx ≥ e.byteIdx then "" else ⟨go₁ s 0 b e⟩
 where
@@ -652,7 +680,7 @@ Use `String.intercalate` to place a separator string between the strings in a li
 
 Examples:
  * `String.join ["gr", "ee", "n"] = "green"`
- * `String.join ["b", "", "l", "", "ue"] = "red"`
+ * `String.join ["b", "", "l", "", "ue"] = "blue"`
  * `String.join [] = ""`
 -/
 @[inline] def join (l : List String) : String :=
@@ -2056,6 +2084,11 @@ theorem le_iff {i₁ i₂ : Pos} : i₁ ≤ i₂ ↔ i₁.byteIdx ≤ i₂.byteI
 
 @[simp] theorem mk_le_mk {i₁ i₂ : Nat} : Pos.mk i₁ ≤ Pos.mk i₂ ↔ i₁ ≤ i₂ := .rfl
 
+@[simp] theorem le_refl {p : Pos} : p ≤ p := mk_le_mk.mpr (Nat.le_refl _)
+
+@[simp] theorem le_trans {p1 p2 p3 : Pos} : p1 ≤ p2 → p2 ≤ p3 → p1 ≤ p3 := fun h1 h2 =>
+  mk_le_mk.mpr <| Nat.le_trans (mk_le_mk.mp h1) (mk_le_mk.mp h2)
+
 theorem lt_iff {i₁ i₂ : Pos} : i₁ < i₂ ↔ i₁.byteIdx < i₂.byteIdx := .rfl
 
 @[simp] theorem mk_lt_mk {i₁ i₂ : Nat} : Pos.mk i₁ < Pos.mk i₂ ↔ i₁ < i₂ := .rfl
@@ -2066,7 +2099,11 @@ end Pos
 
 theorem lt_next' (s : String) (p : Pos) : p < next s p := lt_next ..
 
-@[simp] theorem prev_zero (s : String) : prev s 0 = 0 := rfl
+@[simp] theorem prev_zero (s : String) : prev s 0 = 0 := by
+  cases s with | mk cs
+  cases cs
+  next => rfl
+  next => simp [prev, utf8PrevAux, Pos.le_iff]
 
 @[simp] theorem get'_eq (s : String) (p : Pos) (h) : get' s p h = get s p := rfl
 

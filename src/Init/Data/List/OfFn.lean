@@ -6,8 +6,10 @@ Authors: Mario Carneiro, Kim Morrison
 module
 
 prelude
-import Init.Data.List.Basic
-import Init.Data.Fin.Fold
+public import Init.Data.List.Basic
+public import Init.Data.Fin.Fold
+
+public section
 
 /-!
 # Theorems about `List.ofFn`
@@ -96,7 +98,7 @@ theorem ofFn_add {n m} {f : Fin (n + m) → α} :
 
 @[simp]
 theorem ofFn_eq_nil_iff {f : Fin n → α} : ofFn f = [] ↔ n = 0 := by
-  cases n <;> simp only [ofFn_zero, ofFn_succ, eq_self_iff_true, Nat.succ_ne_zero, reduceCtorEq]
+  cases n <;> simp only [ofFn_zero, ofFn_succ, Nat.succ_ne_zero, reduceCtorEq]
 
 @[simp 500, grind =]
 theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i = a := by

@@ -4,22 +4,26 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.DeclarationRange
+public import Lean.DeclarationRange
 
-import Lean.Data.Json
-import Lean.Data.Lsp
-import Lean.Elab.Command
+public import Lean.Data.Json.Basic
+public import Lean.Data.Lsp
+public import Lean.Elab.Command
 
-import Lean.Server.RequestCancellation
-import Lean.Server.ServerTask
+public import Lean.Server.RequestCancellation
+public import Lean.Server.ServerTask
 
-import Lean.Server.FileSource
-import Lean.Server.FileWorker.Utils
+public import Lean.Server.FileSource
+public import Lean.Server.FileWorker.Utils
 
-import Lean.Server.Rpc.Basic
+public import Lean.Server.Rpc.Basic
 
-import Std.Sync.Mutex
+public import Std.Sync.Mutex
+
+public section
 
 /-- Checks whether `r` contains `hoverPos`, taking into account EOF according to `text`. -/
 def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : String.Range)
@@ -192,7 +196,7 @@ abbrev ServerRequestEmitter := (method : String) → (param : Json)
   → BaseIO (ServerTask (ServerRequestResponse Json))
 
 structure RequestContext where
-  rpcSessions          : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
+  rpcSessions          : Std.TreeMap UInt64 (IO.Ref FileWorker.RpcSession)
   doc                  : FileWorker.EditableDocument
   hLog                 : IO.FS.Stream
   initParams           : Lsp.InitializeParams
@@ -394,9 +398,9 @@ def findCmdDataAtPos
     (includeStop : Bool)
     : ServerTask (Option (Syntax × Elab.InfoTree)) :=
   findCmdParsedSnap doc hoverPos |>.bindCheap fun
-    | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos doc.meta.text hoverPos includeStop |>.bindCheap fun
+    | some cmdParsed => toSnapshotTree cmdParsed.elabSnap |>.findInfoTreeAtPos doc.meta.text hoverPos includeStop |>.bindCheap fun
       | some infoTree => .pure <| some (cmdParsed.stx, infoTree)
-      | none          => cmdParsed.infoTreeSnap.task.asServerTask.mapCheap fun s =>
+      | none          => cmdParsed.elabSnap.infoTreeSnap.task.asServerTask.mapCheap fun s =>
         assert! s.infoTree?.isSome
         some (cmdParsed.stx, s.infoTree?.get!)
     | none => .pure none

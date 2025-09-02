@@ -3,10 +3,10 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Canon
-
+public import Lean.Meta.Tactic.Grind.Types
+public section
 namespace Lean.Meta.Grind
 
 /--
@@ -27,7 +27,7 @@ structure MBTC.Context where
   /--
   `eqAssignment x y` returns `true` it the theory variables for `x` and `y` have the same
   interpretation/assignment in the target theory. For example, suppose we have the
-  constraint `x + y ≤ 0`, and cutsat satisfied it by assignining both `x` and `y` to
+  constraint `x + y ≤ 0`, and cutsat satisfied it by assigning both `x` and `y` to
   `0`. Then, `eqAssignment x y` must return `true`.
   -/
   eqAssignment : Expr → Expr → GoalM Bool

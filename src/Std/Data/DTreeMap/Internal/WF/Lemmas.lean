@@ -3,13 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Option.List
-import Init.Data.Array.Bootstrap
-import Std.Classes.Ord.Basic
-import Std.Data.DTreeMap.Internal.Model
-import Std.Data.Internal.Cut
-import Std.Data.Internal.List.Associative
+public import Init.Data.Option.List
+public import Init.Data.Array.Bootstrap
+public import Std.Data.DTreeMap.Internal.Model
+public import Std.Data.Internal.Cut
+import all Std.Data.Internal.List.Associative
+
+@[expose] public section
 
 /-!
 # Lemmas relating operations on well-formed size-bounded trees to operations on lists
@@ -29,9 +32,9 @@ set_option linter.all true
 universe u v w w'
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Std.DTreeMap.Internal.Impl
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 open Std.Internal
 
 /-!
@@ -141,7 +144,7 @@ theorem toListModel_glue {l r : Impl α β} {hl hr hlr} :
 theorem toListModel_link2 [Ord α] {l r : Impl α β} {hl hr} :
     (l.link2 r hl hr).impl.toListModel = l.toListModel ++ r.toListModel := by
   cases l, r, hl, hr using link2.fun_cases
-    <;> simp only [link2, toListModel_leaf, List.nil_append, List.cons_append, List.append_nil]
+    <;> simp only [link2, toListModel_leaf, List.nil_append, List.append_nil]
     <;> split
     <;> (try simp; done)
   all_goals
@@ -366,7 +369,7 @@ theorem exists_cell_of_updateCell [BEq α] [Ord α] [TransOrd α] [LawfulBEqOrd 
     simpa using List.perm_append_comm_assoc _ _ _
   · rw [containsKey_eq_false_iff_forall_mem_keys, keys_eq_map]
     simp only [List.map_append, List.mem_append, List.mem_map, List.mem_filter, beq_iff_eq,
-      beq_eq_false_iff_ne, ne_eq]
+      ]
     rintro a (⟨p, ⟨⟨-, hp⟩, rfl⟩⟩|⟨p, ⟨⟨-, hp⟩, rfl⟩⟩) <;>
       simp_all [← not_compare_eq_iff_beq_eq_false]
 
@@ -523,7 +526,7 @@ theorem applyCell_eq_apply_toListModel [Ord α] [TransOrd α] [BEq α] [LawfulBE
     simp only [List.append_assoc]; exact List.perm_append_comm_assoc ll c.inner.toList rr
   rw [hfg, hg₁ _ _ _ _ hperm, hg]
   · simp only [containsKey_append, Bool.or_eq_false_iff, containsKey_eq_false_iff_forall_mem_keys,
-      keys_eq_map, List.mem_map, beq_eq_false_iff_ne, forall_exists_index, and_imp,
+      keys_eq_map, List.mem_map, forall_exists_index, and_imp,
       forall_apply_eq_imp_iff₂]
     exact ⟨fun p hp => by simp [hll p hp, ← not_compare_eq_iff_beq_eq_false],
       fun p hp => by simp [hrr p hp, ← not_compare_eq_iff_beq_eq_false]⟩
@@ -669,7 +672,7 @@ theorem getKey?ₘ_eq_getKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] 
   · rintro ⟨(_|p), hp⟩ -
     · simp [Cell.getKey?]
     · simp only [Cell.getKey?, Option.toList_some, List.getKey?,
-        compare_eq_iff_eq, Option.some_eq_dite_none_right, exists_prop, and_true]
+        ]
       simp [BEq.symm <| compare_eq_iff_beq.mp (hp p rfl)]
   · exact fun l₁ l₂ h => List.getKey?_of_perm
   · exact fun l₁ l₂ h => List.getKey?_append_of_containsKey_eq_false
@@ -739,7 +742,7 @@ theorem get?ₘ_eq_getValue? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {
   · rintro ⟨(_|p), hp⟩ -
     · simp [Cell.Const.get?]
     · simp only [Cell.Const.get?, Option.toList_some, getValue?,
-        compare_eq_iff_eq, Option.some_eq_dite_none_right, exists_prop, and_true]
+        ]
       simp [BEq.symm <| compare_eq_iff_beq.mp (hp p rfl)]
   · exact fun l₁ l₂ h => getValue?_of_perm
   · exact fun l₁ l₂ h => getValue?_append_of_containsKey_eq_false
@@ -875,7 +878,7 @@ theorem toListModel_eraseₘ [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {
     eraseKey_append_of_containsKey_right_eq_false
   rintro ⟨(_|t), hl⟩
   · simp
-  · simp only [Option.toList_some, Cell.of_inner]
+  · simp only [Option.toList_some]
     have h : t.fst == k := by simpa [compare_eq_iff_beq] using OrientedCmp.eq_symm (hl t rfl)
     simp [eraseKey_cons_of_beq h]
 
@@ -1090,7 +1093,7 @@ theorem alter_eq_alterₘ [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α �
   | leaf =>
     simp only [alter, updateCell, Cell.alter, Cell.empty_inner, Cell.ofOption]
     cases f none
-    · simp [Cell.of_inner]
+    · simp
     · simp
   | inner sz k v l r ihl ihr =>
     rw [alter, updateCell]
@@ -1150,7 +1153,7 @@ theorem modify_eq_alter [Ord α] [LawfulEqOrd α] {t : Impl α β} {a f}
     rw [modify, alter] at *
     split at * <;> try rfl
     all_goals
-      simp only [← ihl htb.left, ← ihr htb.right, balance_eq_inner, balance_eq_inner hmb]
+      simp only [← ihl htb.left, ← ihr htb.right, balance_eq_inner hmb]
 
 theorem ordered_modify [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) (hto : t.Ordered) : (modify a f t).Ordered :=
@@ -1182,7 +1185,7 @@ theorem foldlM_eq_foldlM_toListModel {t : Impl α β} {m δ} [Monad m] [LawfulMo
   induction t generalizing init with
   | leaf => rfl
   | inner sz k v l r ihl ihr =>
-    simp only [foldlM, toListModel_inner, List.foldl_append, List.foldl_cons]
+    simp only [foldlM, toListModel_inner]
     simp [ihl, ihr]
 
 theorem foldlM_toListModel_eq_foldlM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m]
@@ -1208,7 +1211,7 @@ theorem foldrM_eq_foldrM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m]
   induction t generalizing init with
   | leaf => rfl
   | inner sz k v l r ihl ihr =>
-    simp only [foldrM, toListModel_inner, List.foldr_append, List.foldr_cons]
+    simp only [foldrM, toListModel_inner]
     simp [ihl, ihr]
 
 /-!
@@ -1317,7 +1320,7 @@ theorem forIn_eq_forIn_toListModel {δ : Type w} {t : Impl α β} {m : Type w �
   induction t.toListModel with
   | nil => simp
   | cons e es ih =>
-    simp only [List.foldlM_cons, bind_assoc, map_bind, map_eq_pure_bind]
+    simp only [List.foldlM_cons, bind_assoc, map_eq_pure_bind]
     congr; ext step
     congr <;> ext step' <;> cases step' <;> rfl
 
@@ -1350,7 +1353,7 @@ theorem toListModel_alterₘ [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {
     cases f none <;> rfl
   · simp only [Cell.Const.alter, Cell.ofOption, Const.alterKey, Option.toList_some]
     have := OrientedCmp.eq_symm <| hl l rfl
-    simp only [getValue?, compare_eq_iff_beq.mp this, beq_self_eq_true, cond_eq_if,
+    simp only [getValue?, compare_eq_iff_beq.mp this, cond_eq_if,
       reduceIte]
     cases f _
     · simp [eraseKey, compare_eq_iff_beq.mp this]
@@ -1364,7 +1367,7 @@ theorem alter_eq_alterₘ [Ord α] [TransOrd α] {t : Impl α β} {a f}
   | leaf =>
     simp only [alter, updateCell, Cell.Const.alter, Cell.empty_inner, Cell.ofOption]
     cases f none
-    · simp [Cell.of_inner]
+    · simp
     · simp
   | inner sz k v l r ihl ihr =>
     rw [alter, updateCell]
@@ -1372,7 +1375,7 @@ theorem alter_eq_alterₘ [Ord α] [TransOrd α] {t : Impl α β} {a f}
     · simp [ihl htb.left hto.left]
     · simp [ihr htb.right hto.right]
     · apply Eq.symm
-      simp [Cell.Const.alter, Cell.ofOption, cast]
+      simp [Cell.Const.alter, Cell.ofOption]
       cases h₁ : f _ <;> rfl
 
 theorem toListModel_alter [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {t : Impl α β} {a f}
@@ -1425,7 +1428,7 @@ theorem modify_eq_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
     split at * <;> try rfl
     all_goals
       dsimp
-      simp only [← ihl htb.left, ← ihr htb.right, balance_eq_inner, balance_eq_inner hmb]
+      simp only [← ihl htb.left, ← ihr htb.right, balance_eq_inner hmb]
 
 theorem ordered_modify [Ord α] [TransOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) (hto : t.Ordered) : (modify a f t).Ordered :=
@@ -1471,7 +1474,7 @@ end Const
 
 theorem WF.ordered [Ord α] [TransOrd α] {l : Impl α β} (h : WF l) : l.Ordered := by
   induction h
-  · next h => exact h
+  next h => exact h
   · exact ordered_empty
   · exact ordered_insert ‹_› ‹_›
   · exact ordered_insertIfNew ‹_› ‹_›
@@ -1772,8 +1775,8 @@ theorem filterMap_eq_filterMap! [Ord α] {t : Impl α β} {h} {f : (a : α) → 
   | inner sz k v _ _ ihl ihr =>
     simp [filterMap, filterMap!]
     cases f k v
-    · simp only [link2_eq_link2!, ihl, ihr, h.left, h.right]
-    · simp only [link_eq_link!, ihl, ihr, h.left, h.right]
+    · simp only [link2_eq_link2!, ihl, ihr]
+    · simp only [link_eq_link!, ihl, ihr]
 
 theorem WF.filterMap! {_ : Ord α} {t : Impl α β} {f : (a : α) → β a → Option (γ a)} (h : t.WF) :
     (t.filterMap! f).WF := by
@@ -1791,8 +1794,8 @@ theorem filter_eq_filter! [Ord α] {t : Impl α β} {h} {f : (a : α) → β a �
   | inner sz k v l r ihl ihr =>
     simp only [filter!, filter]
     split
-    · simp only [ihl, ihr, link2_eq_link2!, h.left, h.right]
-    · simp only [ihl, ihr, link_eq_link!, h.left, h.right]
+    · simp only [ihl, ihr, link2_eq_link2!]
+    · simp only [ihl, ihr, link_eq_link!]
 
 theorem WF.filter! {_ : Ord α} {t : Impl α β} {f : (a : α) → β a → Bool} (h : t.WF) :
     (t.filter! f).WF := by
@@ -1806,7 +1809,7 @@ theorem WF.filter! {_ : Ord α} {t : Impl α β} {f : (a : α) → β a → Bool
 theorem toListModel_map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} :
     (t.map f).toListModel = t.toListModel.map fun x => ⟨x.1, f x.1 x.2⟩ := by
   induction t
-  · next ihl ihr =>
+  next ihl ihr =>
     simp [map, ihl, ihr]
   · rfl
 
@@ -1816,7 +1819,7 @@ theorem sameKeys_map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} 
   | inner => apply SameKeys.inner <;> assumption
 
 @[simp]
-theorem size_map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} : (t.map f).size = t.size :=
+theorem size_map {instOrd : Ord α} {t : Impl α β} {f : (a : α) → β a → γ a} : (t.map f).size = t.size :=
   sameKeys_map.size_eq
 
 theorem WF.map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} (h : t.WF) : (t.map f).WF :=
@@ -1911,7 +1914,7 @@ theorem entryAtIdx?_eq_getElem? {t : Impl α β} (htb : t.Balanced) {i : Nat} :
   | case1 => rfl
   | case2 _ _ _ _ _ _ h ih =>
     simp only [toListModel_inner, *, htb.left]
-    simp_all only [toListModel_inner, Nat.compare_eq_lt, ← size_eq_length,
+    simp_all only [Nat.compare_eq_lt, ← size_eq_length,
       List.getElem?_append_left, htb.left]
   | case3 =>
     simp only [toListModel_inner, *]

@@ -3,29 +3,35 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Tactics
-import Init.Data.Queue
-import Std.Data.TreeSet
-import Lean.HeadIndex
-import Lean.Meta.Basic
-import Lean.Meta.CongrTheorems
-import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.Tactic.Simp.Types
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Ext
-import Lean.Meta.Tactic.Grind.ExprPtr
-import Lean.Meta.Tactic.Grind.AlphaShareCommon
-import Lean.Meta.Tactic.Grind.Attr
-import Lean.Meta.Tactic.Grind.ExtAttr
-import Lean.Meta.Tactic.Grind.Cases
-import Lean.Meta.Tactic.Grind.Arith.Types
-import Lean.Meta.Tactic.Grind.EMatchTheorem
+public import Init.Grind.Tactics
+public import Init.Data.Queue
+public import Std.Data.TreeSet.Basic
+public import Lean.HeadIndex
+public import Lean.Meta.Tactic.Simp.Types
+public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Lean.Meta.Tactic.Grind.AlphaShareCommon
+public import Lean.Meta.Tactic.Grind.Attr
+public import Lean.Meta.Tactic.Grind.ExtAttr
+public import Lean.Meta.Tactic.Grind.Arith.Types
+public import Lean.Meta.Tactic.Grind.AC.Types
+public import Lean.Meta.Tactic.Grind.EMatchTheorem
+meta import Lean.Parser.Do
+import Lean.Meta.Match.MatchEqsExt
+import Lean.PrettyPrinter
+
+public section
 
 namespace Lean.Meta.Grind
 
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
 def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
+
+/-- Similar to `isDefEq`, but ensures default transparency is used. -/
+def isDefEqD (t s : Expr) : MetaM Bool :=
+  withDefault <| isDefEq t s
 
 /--
 Returns `true` if `e` is `True`, `False`, or a literal value.
@@ -74,14 +80,14 @@ inductive SplitSource where
     input
   deriving Inhabited
 
-def SplitSource.toMessageData : SplitSource → MetaM MessageData
-  | .ematch origin => return m!"E-matching {← origin.pp}"
-  | .ext declName => return m!"Extensionality {declName}"
-  | .mbtc a b i => return m!"Model-based theory combination at argument #{i} of{indentExpr a}\nand{indentExpr b}"
-  | .beta e => return m!"Beta-reduction of{indentExpr e}"
-  | .forallProp e => return m!"Forall propagation at{indentExpr e}"
-  | .existsProp e => return m!"Exists propagation at{indentExpr e}"
-  | .input => return m!"Initial goal"
+def SplitSource.toMessageData : SplitSource → MessageData
+  | .ematch origin => m!"E-matching {origin.pp}"
+  | .ext declName => m!"Extensionality {declName}"
+  | .mbtc a b i => m!"Model-based theory combination at argument #{i} of{indentExpr a}\nand{indentExpr b}"
+  | .beta e => m!"Beta-reduction of{indentExpr e}"
+  | .forallProp e => m!"Forall propagation at{indentExpr e}"
+  | .existsProp e => m!"Exists propagation at{indentExpr e}"
+  | .input => "Initial goal"
 
 /-- Context for `GrindM` monad. -/
 structure Context where
@@ -106,11 +112,15 @@ structure Context where
   reportMVarIssue : Bool := true
   /-- Current source of case-splits. -/
   splitSource  : SplitSource := .input
+  /-- Symbol priorities for inferring E-matching patterns -/
+  symPrios     : SymbolPriorities
   trueExpr     : Expr
   falseExpr    : Expr
   natZExpr     : Expr
   btrueExpr    : Expr
   bfalseExpr   : Expr
+  ordEqExpr    : Expr -- `Ordering.eq`
+  intExpr      : Expr -- `Int`
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -188,10 +198,20 @@ structure State where
   counters   : Counters := {}
   /-- Split diagnostic information. This information is only collected when `set_option diagnostics true` -/
   splitDiags : PArray SplitDiagInfo := {}
+  /--
+  Mapping from binary functions `f` to a theorem `thm : ∀ a b, f a b = .eq → a = b`
+  if it implements the `LawfulEqCmp` type class.
+  -/
+  lawfulEqCmpMap : PHashMap ExprPtr (Option Expr) := {}
+  /--
+  Mapping from binary functions `f` to a theorem `thm : ∀ a, f a a = .eq`
+  if it implements the `ReflCmp` type class.
+  -/
+  reflCmpMap : PHashMap ExprPtr (Option Expr) := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
-private def MethodsRef : Type := MethodsRefPointed.type
-instance : Nonempty MethodsRef := MethodsRefPointed.property
+def MethodsRef : Type := MethodsRefPointed.type
+instance : Nonempty MethodsRef := by exact MethodsRefPointed.property
 
 abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 
@@ -236,11 +256,23 @@ def getBoolFalseExpr : GrindM Expr := do
 def getNatZeroExpr : GrindM Expr := do
   return (← readThe Context).natZExpr
 
+/-- Returns the internalized `Ordering.eq`.  -/
+def getOrderingEqExpr : GrindM Expr := do
+  return (← readThe Context).ordEqExpr
+
+/-- Returns the internalized `Int`.  -/
+def getIntExpr : GrindM Expr := do
+  return (← readThe Context).intExpr
+
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases
 
 def reportMVarInternalization : GrindM Bool :=
   return (← readThe Context).reportMVarIssue
+
+/-- Returns symbol priorities for inferring E-matching patterns. -/
+def getSymbolPriorities : GrindM SymbolPriorities := do
+  return (← readThe Context).symPrios
 
 /--
 Returns `true` if `declName` is the name of a `match` equation or a `match` congruence equation.
@@ -408,7 +440,12 @@ structure ENode where
   to the linarith module. Its implementation is similar to the `offset?` field.
   -/
   linarith? : Option Expr := none
-  -- Remark: we expect to have builtin support for offset constraints, cutsat, comm ring, and linarith.
+  /--
+  The `ac?` field is used to propagate equalities from the `grind` congruence closure module
+  to the ac module. Its implementation is similar to the `offset?` field.
+  -/
+  ac? : Option Expr := none
+  -- Remark: we expect to have builtin support for offset constraints, cutsat, comm ring, linarith, and ac.
   -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
   deriving Inhabited, Repr
 
@@ -423,7 +460,10 @@ inductive NewFact where
   | eq (lhs rhs proof : Expr) (isHEq : Bool)
   | fact (prop proof : Expr) (generation : Nat)
 
-abbrev ENodeMap := PHashMap ExprPtr ENode
+-- This type should be considered opaque outside this module.
+def ENodeMap := PHashMap ExprPtr ENode
+instance : Inhabited ENodeMap where
+  default := private (id {})  -- TODO(sullrich): `id` works around `private` not respecting the expected type
 
 /--
 Key for the congruence table.
@@ -451,6 +491,7 @@ private def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
     mixHash (hashRoot enodes d) (hashRoot enodes b)
   else match_expr e with
   | Grind.nestedProof p _ => hashRoot enodes p
+  | Grind.nestedDecidable p _ => mixHash 13 (hashRoot enodes p)
   | Eq _ lhs rhs => goEq lhs rhs
   | _ => go e 17
 where
@@ -474,12 +515,12 @@ private partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
   | Grind.nestedProof p₁ _ =>
     let_expr Grind.nestedProof p₂ _ := b | false
     hasSameRoot enodes p₁ p₂
-  | Eq α₁ lhs₁ rhs₁ =>
-    let_expr Eq α₂ lhs₂ rhs₂ := b | false
-    if isSameExpr α₁ α₂ then
-      goEq lhs₁ rhs₁ lhs₂ rhs₂
-    else
-      go a b
+  | Grind.nestedDecidable p₁ _ =>
+    let_expr Grind.nestedDecidable p₂ _ := b | false
+    hasSameRoot enodes p₁ p₂
+  | Eq _ lhs₁ rhs₁ =>
+    let_expr Eq _ lhs₂ rhs₂ := b | false
+    goEq lhs₁ rhs₁ lhs₂ rhs₂
   | _ =>
     if a.isApp && b.isApp then
       go a b
@@ -499,10 +540,10 @@ where
       hasSameRoot enodes a b
 
 instance : Hashable (CongrKey enodeMap) where
-  hash k := congrHash enodeMap k.e
+  hash k := private congrHash enodeMap k.e
 
 instance : BEq (CongrKey enodeMap) where
-  beq k1 k2 := isCongruent enodeMap k1.e k2.e
+  beq k1 k2 := private isCongruent enodeMap k1.e k2.e
 
 abbrev CongrTable (enodeMap : ENodeMap) := PHashSet (CongrKey enodeMap)
 
@@ -687,11 +728,19 @@ structure Clean.State where
   next : PHashMap Name Nat := {}
   deriving Inhabited
 
+/--
+Cache for `Unit`-like types. It maps the type to its element.
+We say a type is `Unit`-like if it is a subsingleton and is inhabited.
+-/
+structure UnitLike.State where
+  map : PHashMap ExprPtr (Option Expr) := {}
+  deriving Inhabited
+
 /-- The `grind` goal. -/
 structure Goal where
   mvarId       : MVarId
   canon        : Canon.State := {}
-  private enodeMap : ENodeMap := {}
+  enodeMap     : ENodeMap := default
   exprs        : PArray Expr := {}
   parents      : ParentMap := {}
   congrTable   : CongrTable enodeMap := {}
@@ -719,6 +768,8 @@ structure Goal where
   split        : Split.State := {}
   /-- State of arithmetic procedures. -/
   arith        : Arith.State := {}
+  /-- State of the ac solver. -/
+  ac           : AC.State := {}
   /-- State of the clean name generator. -/
   clean        : Clean.State := {}
   deriving Inhabited
@@ -914,7 +965,7 @@ def Goal.getTarget? (goal : Goal) (e : Expr) : Option Expr := Id.run do
 
 /--
 If `isHEq` is `false`, it pushes `lhs = rhs` with `proof` to `newEqs`.
-Otherwise, it pushes `HEq lhs rhs`.
+Otherwise, it pushes `lhs ≍ rhs`.
 -/
 def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   if grind.debug.get (← getOptions) then
@@ -932,8 +983,8 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   modify fun s => { s with newFacts := s.newFacts.push <| .eq lhs rhs proof isHEq }
 
 /-- Return `true` if `a` and `b` have the same type. -/
-def hasSameType (a b : Expr) : MetaM Bool :=
-  withDefault do isDefEq (← inferType a) (← inferType b)
+def hasSameType (a b : Expr) : MetaM Bool := do
+  isDefEqD (← inferType a) (← inferType b)
 
 @[inline] def pushEqHEq (lhs rhs proof : Expr) : GoalM Unit := do
   if (← hasSameType lhs rhs) then
@@ -945,7 +996,7 @@ def hasSameType (a b : Expr) : MetaM Bool :=
 @[inline] def pushEq (lhs rhs proof : Expr) : GoalM Unit :=
   pushEqCore lhs rhs proof (isHEq := false)
 
-/-- Pushes `HEq lhs rhs` with `proof` to `newEqs`. -/
+/-- Pushes `lhs ≍ rhs` with `proof` to `newEqs`. -/
 @[inline] def pushHEq (lhs rhs proof : Expr) : GoalM Unit :=
   pushEqCore lhs rhs proof (isHEq := true)
 
@@ -1071,7 +1122,7 @@ Notifies the cutsat module that `a ≠ b` where
 @[extern "lean_process_cutsat_diseq"] -- forward definition
 opaque Arith.Cutsat.processNewDiseq (a b : Expr) : GoalM Unit
 
-/-- Returns `true` if `e` is a nonegative numeral and has type `Int`. -/
+/-- Returns `true` if `e` is a nonnegative numeral and has type `Int`. -/
 def isNonnegIntNum (e : Expr) : Bool := Id.run do
   let_expr OfNat.ofNat _ _ inst := e | false
   let_expr instOfNat _ := inst | false
@@ -1092,8 +1143,8 @@ def isNum (e : Expr) : Bool :=
 /--
 Returns `true` if type of `t` is definitionally equal to `α`
 -/
-def hasType (t α : Expr) : MetaM Bool :=
-  withDefault do isDefEq (← inferType t) α
+def hasType (t α : Expr) : MetaM Bool := do
+  isDefEqD (← inferType t) α
 
 /--
 For each equality `b = c` in `parents`, executes `k b c` IF
@@ -1237,6 +1288,53 @@ def markAsLinarithTerm (e : Expr) : GoalM Unit := do
     setENode root.self { root with linarith? := some e }
     propagateLinarithDiseqs (← getParents root.self)
 
+/--
+Notifies the ac module that `a = b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_ac_eq"] -- forward definition
+opaque AC.processNewEq (a b : Expr) : GoalM Unit
+
+/--
+Notifies the ac module that `a ≠ b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_ac_diseq"] -- forward definition
+opaque AC.processNewDiseq (a b : Expr) : GoalM Unit
+
+/--
+Given `lhs` and `rhs` that are known to be disequal, checks whether
+`lhs` and `rhs` have ac terms `e₁` and `e₂` attached to them,
+and invokes process `AC.processNewDiseq e₁ e₂`
+-/
+def propagateACDiseq (lhs rhs : Expr) : GoalM Unit := do
+  let some lhs ← get? lhs | return ()
+  let some rhs ← get? rhs | return ()
+  AC.processNewDiseq lhs rhs
+where
+  get? (a : Expr) : GoalM (Option Expr) := do
+    return (← getRootENode a).ac?
+
+/--
+Traverses disequalities in `parents`, and propagate the ones relevant to the
+ac module.
+-/
+def propagateACDiseqs (parents : ParentSet) : GoalM Unit := do
+  forEachDiseq parents propagateACDiseq
+
+/--
+Marks `e` as a term of interest to the ac module.
+If the root of `e`s equivalence class has already a term of interest,
+a new equality is propagated to the ac module.
+-/
+def markAsACTerm (e : Expr) : GoalM Unit := do
+  let root ← getRootENode e
+  if let some e' := root.ac? then
+    AC.processNewEq e e'
+  else
+    setENode root.self { root with ac? := some e }
+    propagateACDiseqs (← getParents root.self)
+
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do
   return (← getENode e).isCongrRoot
@@ -1260,7 +1358,7 @@ It assumes `a` and `b` are in the same equivalence class, and have the same type
 opaque mkEqProof (a b : Expr) : GoalM Expr
 
 /--
-Returns a proof that `HEq a b`.
+Returns a proof that `a ≍ b`.
 It assumes `a` and `b` are in the same equivalence class.
 -/
 -- Forward definition
@@ -1276,7 +1374,7 @@ opaque internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none)
 opaque processNewFacts : GoalM Unit
 
 /--
-Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `HEq a b`.
+Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `a ≍ b`.
 It assumes `a` and `b` are in the same equivalence class.
 -/
 def mkEqHEqProof (a b : Expr) : GoalM Expr := do
@@ -1513,14 +1611,6 @@ def getExtTheorems (type : Expr) : GoalM (Array Ext.ExtTheorem) := do
     modify fun s => { s with extThms := s.extThms.insert { expr := type } thms }
     return thms
 
-/--
-Helper function for instantiating a type class `type`, and
-then using the result to perform `isDefEq x val`.
--/
-def synthesizeInstanceAndAssign (x type : Expr) : MetaM Bool := do
-  let .some val ← trySynthInstance type | return false
-  isDefEq x val
-
 /-- Add a new lookahead candidate. -/
 def addLookaheadCandidate (sinfo : SplitInfo) : GoalM Unit := do
   trace_goal[grind.lookahead.add] "{sinfo.getExpr}"
@@ -1538,5 +1628,9 @@ def withoutModifyingState (x : GoalM α) : GoalM α := do
     x
   finally
     set saved
+
+/-- Canonicalizes nested types, type formers, and instances in `e`. -/
+@[extern "lean_grind_canon"] -- Forward definition
+opaque canon (e : Expr) : GoalM Expr
 
 end Lean.Meta.Grind

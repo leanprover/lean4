@@ -3,11 +3,15 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.UInt.Log2
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.PassManager
+public import Init.Data.UInt.Log2
+public import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.PassManager
+
+public section
 
 namespace Lean.Compiler.LCNF.Simp
 namespace ConstantFold
@@ -391,6 +395,7 @@ def conversionFolders : List (Name × Folder) := [
   (``UInt32.ofNat, Folder.ofNat (fun v => .uint32 (UInt32.ofNat v))),
   (``UInt64.ofNat, Folder.ofNat (fun v => .uint64 (UInt64.ofNat v))),
   (``USize.ofNat, Folder.ofNat (fun v => .usize (UInt64.ofNat v))),
+  (``Char.ofNat, Folder.ofNat (fun v => .uint32 (Char.ofNat v).val)),
   (``UInt8.toNat, Folder.toNat),
   (``UInt16.toNat, Folder.toNat),
   (``UInt32.toNat, Folder.toNat),

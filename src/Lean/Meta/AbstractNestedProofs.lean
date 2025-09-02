@@ -3,10 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Lean.Meta.Closure
-import Lean.Meta.Transform
+public import Init.Grind.Util
+public import Lean.Meta.Closure
+public import Lean.Meta.Transform
+
+public section
 
 namespace Lean.Meta
 
@@ -60,18 +64,18 @@ partial def visit (e : Expr) : M Expr := do
         let localDecl ← xFVarId.getDecl
         let type      ← visit localDecl.type
         let localDecl := localDecl.setType type
-        let localDecl ← match localDecl.value? with
+        let localDecl ← match localDecl.value? (allowNondep := true) with
            | some value => let value ← visit value; pure <| localDecl.setValue value
            | none       => pure localDecl
         lctx := lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
     checkCache { val := e : ExprStructEq } fun _ => do
-      if (← withoutExporting do isNonTrivialProof e) then
+      if (← isNonTrivialProof e) then
         /- Ensure proofs nested in type are also abstracted -/
         abstractProof e (← read).cache visit
       else match e with
-        | .lam ..      => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
-        | .letE ..     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
+        | .lam ..
+        | .letE ..     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false) (generalizeNondepLet := false)
         | .forallE ..  => forallTelescope e fun xs b => visitBinders xs do mkForallFVars xs (← visit b)
         | .mdata _ b   => return e.updateMData! (← visit b)
         | .proj _ _ b  => return e.updateProj! (← visit b)

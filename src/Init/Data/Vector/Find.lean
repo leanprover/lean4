@@ -6,12 +6,16 @@ Authors: Kim Morrison
 module
 
 prelude
+public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
+public import Init.Data.Vector.Basic
 import all Init.Data.Vector.Basic
-import Init.Data.Vector.Lemmas
-import Init.Data.Vector.Attach
-import Init.Data.Vector.Range
-import Init.Data.Array.Find
+public import Init.Data.Vector.Lemmas
+public import Init.Data.Vector.Attach
+public import Init.Data.Vector.Range
+public import Init.Data.Array.Find
+
+public section
 
 /-!
 # Lemmas about `Vector.findSome?`, `Vector.find?`, `Vector.findFinIdx?`.
@@ -30,7 +34,7 @@ open Nat
 
 @[simp, grind] theorem findSome?_empty : (#v[] : Vector α 0).findSome? f = none := rfl
 @[simp, grind] theorem findSome?_push {xs : Vector α n} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
-  cases xs; simp [List.findSome?_append]
+  cases xs; simp
 
 @[grind]
 theorem findSome?_singleton {a : α} {f : α → Option β} : #v[a].findSome? f = f a := by
@@ -124,7 +128,7 @@ theorem getElem_zero_flatten.proof {xss : Vector (Vector α m) n} (h : 0 < n * m
 theorem getElem_zero_flatten {xss : Vector (Vector α m) n} (h : 0 < n * m) :
     (flatten xss)[0] = (xss.findSome? fun xs => xs[0]?).get (getElem_zero_flatten.proof h) := by
   have t := getElem?_zero_flatten (xss := xss)
-  simp [getElem?_eq_getElem, h] at t
+  simp [h] at t
   simp [← t]
 
 @[grind =]
@@ -251,7 +255,7 @@ theorem find?_flatten_eq_none_iff {xs : Vector (Vector α m) n} {p : α → Bool
 @[simp, grind =] theorem find?_flatMap {xs : Vector α n} {f : α → Vector β m} {p : β → Bool} :
     (xs.flatMap f).find? p = xs.findSome? (fun x => (f x).find? p) := by
   cases xs
-  simp [Array.find?_flatMap, Array.flatMap_toArray]
+  simp [Array.find?_flatMap]
 
 
 theorem find?_flatMap_eq_none_iff {xs : Vector α n} {f : α → Vector β m} {p : β → Bool} :

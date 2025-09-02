@@ -77,9 +77,9 @@ def checkResult (str : String) : CommandElabM Unit := do
 #guard_msgs in
 #eval checkResult "abc [](lean-manual://section/the-section-id)"
 
-/-- info: Result: "abc [](MANUAL/find/?domain=Manual.errorExplanation&name=Lean.MyErrorName)" -/
+/-- info: Result: "abc [](MANUAL/find/?domain=Manual.errorExplanation&name=lean.myErrorName)" -/
 #guard_msgs in
-#eval checkResult "abc [](lean-manual://errorExplanation/Lean.MyErrorName)"
+#eval checkResult "abc [](lean-manual://errorExplanation/lean.myErrorName)"
 
 /--
 info: Result: "abc\n\nMANUAL/find/?domain=Verso.Genre.Manual.section&name=the-section-id\n\nmore text"

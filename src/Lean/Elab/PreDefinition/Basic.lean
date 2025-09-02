@@ -3,23 +3,33 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.ShareCommon
-import Lean.Compiler.MetaAttr
-import Lean.Compiler.NoncomputableAttr
-import Lean.Util.CollectLevelParams
-import Lean.Util.NumObjs
-import Lean.Util.NumApps
-import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.ForEachExpr
-import Lean.Meta.Eqns
-import Lean.Elab.RecAppSyntax
-import Lean.Elab.DefView
-import Lean.Elab.PreDefinition.TerminationHint
+public import Init.ShareCommon
+public import Lean.Compiler.MetaAttr
+public import Lean.Compiler.NoncomputableAttr
+public import Lean.Util.CollectLevelParams
+public import Lean.Util.NumObjs
+public import Lean.Util.NumApps
+public import Lean.Meta.AbstractNestedProofs
+public import Lean.Meta.ForEachExpr
+public import Lean.Meta.Eqns
+public import Lean.Meta.LetToHave
+public import Lean.Elab.RecAppSyntax
+public import Lean.Elab.DefView
+public import Lean.Elab.PreDefinition.TerminationHint
+
+public section
 
 namespace Lean.Elab
 open Meta
 open Term
+
+register_builtin_option cleanup.letToHave : Bool := {
+  defValue := true
+  descr    := "Enables transforming `let`s to `have`s after elaborating declarations."
+}
 
 /--
   A (potentially recursive) definition.
@@ -88,6 +98,31 @@ def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : Attribu
   for preDef in preDefs do
     applyAttributesAt preDef.declName preDef.modifiers.attrs applicationTime
 
+/--
+Applies `Meta.letToHave` to the values of defs, instances, and abbrevs.
+Does not apply the transformation to values that are proofs, or to unsafe definitions.
+-/
+def letToHaveValue (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
+  if !cleanup.letToHave.get (← getOptions)
+      || preDef.modifiers.isUnsafe
+      || preDef.kind matches .theorem | .example | .opaque then
+    return preDef
+  else if ← Meta.isProp preDef.type then
+    return preDef
+  else
+    let value ← Meta.letToHave preDef.value
+    return { preDef with value }
+
+/--
+Applies `Meta.letToHave` to the type of the predef.
+-/
+def letToHaveType (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
+  if !cleanup.letToHave.get (← getOptions) || preDef.kind matches .example then
+    return preDef
+  else
+    let type ← Meta.letToHave preDef.type
+    return { preDef with type }
+
 def abstractNestedProofs (preDef : PreDefinition) (cache := true) : MetaM PreDefinition := withRef preDef.ref do
   if preDef.kind.isTheorem || preDef.kind.isExample then
     pure preDef
@@ -132,15 +167,17 @@ private def checkMeta (preDef : PreDefinition) : TermElabM Unit := do
     if let .const c .. := e then
       match getIRPhases (← getEnv) c, preDef.modifiers.isMeta with
       | .runtime, true =>
-        throwError "Invalid meta definition, '{.ofConstName c}' must be `meta` to access"
+        throwError "Invalid meta definition, `{.ofConstName c}` must be `meta` to access"
       | .comptime, false =>
-        throwError "Invalid definition, may not access `meta` declaration '{.ofConstName c}'"
+        throwError "Invalid definition, may not access `meta` declaration `{.ofConstName c}`"
       | _, _ => pure ()
     return true
 
-private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) : TermElabM Unit :=
+private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) (cleanupValue := false) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
+    let preDef ← letToHaveType preDef
+    let preDef ← if cleanupValue then letToHaveValue preDef else pure preDef
     let mkDefDecl : TermElabM Declaration :=
       return Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
@@ -185,11 +222,11 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
       generateEagerEqns preDef.declName
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
-def addAndCompileNonRec (preDef : PreDefinition) (all : List Name := [preDef.declName]) : TermElabM Unit := do
-  addNonRecAux preDef (compile := true) (all := all)
+def addAndCompileNonRec (preDef : PreDefinition) (all : List Name := [preDef.declName]) (cleanupValue := false) : TermElabM Unit := do
+  addNonRecAux preDef (compile := true) (all := all) (cleanupValue := cleanupValue)
 
-def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) (cacheProofs := true) : TermElabM Unit := do
-  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation) (all := all) (cacheProofs := cacheProofs)
+def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) (cacheProofs := true) (cleanupValue := false) : TermElabM Unit := do
+  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation) (all := all) (cacheProofs := cacheProofs) (cleanupValue := cleanupValue)
 
 /--
   Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module
@@ -257,7 +294,7 @@ def checkCodomainsLevel (preDefs : Array PreDefinition) : MetaM Unit := do
     lambdaTelescope preDef.value fun xs _ => return xs.size
   forallBoundedTelescope preDefs[0]!.type arities[0]!  fun _ type₀ => do
     let u₀ ← getLevel type₀
-    for h : i in [1:preDefs.size] do
+    for h : i in 1...preDefs.size do
       forallBoundedTelescope preDefs[i].type arities[i]! fun _ typeᵢ =>
       unless ← isLevelDefEq u₀ (← getLevel typeᵢ) do
         withOptions (fun o => pp.sanitizeNames.set o false) do
@@ -274,7 +311,7 @@ def shareCommonPreDefs (preDefs : Array PreDefinition) : CoreM (Array PreDefinit
         es := es.push preDef.type |>.push preDef.value
       es := ShareCommon.shareCommon' es
       let mut result := #[]
-      for h : i in [:preDefs.size] do
+      for h : i in *...preDefs.size do
         let preDef := preDefs[i]
         result := result.push { preDef with type := es[2*i]!, value := es[2*i+1]! }
       return result

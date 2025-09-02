@@ -7,9 +7,12 @@ module
 
 prelude
 
-import Init.ByCases
-import Init.RCases
+public import Init.ByCases
+public import Init.RCases
+public import Init.Control.Except  -- for `MonoBind` instance
 import all Init.Control.Except  -- for `MonoBind` instance
+
+public section
 
 /-!
 This module contains some basic definitions and results from domain theory, intended to be used as
@@ -234,7 +237,7 @@ theorem admissible_or (P Q : α → Prop)
     open Classical in
     apply Decidable.or_iff_not_imp_left.mpr
     intro h'
-    simp only [not_forall, not_imp, not_exists, not_and] at h'
+    simp only [not_forall, not_exists, not_and] at h'
     obtain ⟨x, hcx, hx⟩ := h'
     intro y hcy
     cases hchain x y hcx hcy  with
@@ -354,7 +357,7 @@ inductive iterates (f : α → α) : α → Prop where
   | sup {c : α → Prop} (hc : chain c) (hi : ∀ x, c x → iterates f x) : iterates f (csup c)
 
 theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) := by
-  intros x y hx hy
+  intro x y hx hy
   induction hx generalizing y
   case step x hx ih =>
     induction hy
@@ -415,14 +418,14 @@ The least fixpoint of a monotone function is the least upper bound of its transf
 
 The `monotone f` assumption is not strictly necessarily for the definition, but without this the
 definition is not very meaningful and it simplifies applying theorems like `fix_eq` if every use of
-`fix` already has the monotonicty requirement.
+`fix` already has the monotonicity requirement.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
 def fix (f : α → α) (hmono : monotone f) := csup (iterates f)
 
 /--
-The main fixpoint theorem for fixedpoints of monotone functions in chain-complete partial orders.
+The main fixpoint theorem for fixed points of monotone functions in chain-complete partial orders.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
@@ -541,12 +544,6 @@ def admissible_pi_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (hadm : 
 end fun_order
 
 section monotone_lemmas
-
-theorem monotone_letFun
-    {α : Sort u} {β : Sort v} {γ : Sort w} [PartialOrder α] [PartialOrder β]
-    (v : γ) (k : α → γ → β)
-    (hmono : ∀ y, monotone (fun x => k x y)) :
-  monotone fun (x : α) => letFun v (k x) := hmono v
 
 @[partial_fixpoint_monotone]
 theorem monotone_ite
@@ -914,7 +911,7 @@ instance ReverseImplicationOrder.instOrder : PartialOrder ReverseImplicationOrde
   rel_antisymm h₁ h₂ := propext ⟨h₂, h₁⟩
 
 -- This defines a complete lattice on `Prop`, used to define coinductive predicates
-def ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplicationOrder where
+instance ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplicationOrder where
   sup c := ∀ p, c p → p
   sup_spec := by
     intro x c
@@ -925,7 +922,7 @@ def ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplica
       exact l
       exact cy
     case mpr =>
-      intros h y cy ccy
+      intro h y cy ccy
       apply h
       exact ccy
       exact y
@@ -959,8 +956,47 @@ def ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplica
     match h with
     | Or.inl hfx₁ => Or.inl (h₁ x y hxy hfx₁)
     | Or.inr hfx₂ => Or.inr (h₂ x y hxy hfx₂)
-
 end reverse_implication_order
+
+section antitone
+@[partial_fixpoint_monotone] theorem coind_not
+    {α} [PartialOrder α] (f₁ : α → Prop)
+    (h₁ : @monotone _ _ _ ReverseImplicationOrder.instOrder f₁) :
+    @monotone _ _ _ ImplicationOrder.instOrder (fun x => ¬f₁ x) := by
+  intro x y hxy hfx h
+  exact hfx (h₁ x y hxy h)
+
+@[partial_fixpoint_monotone] theorem ind_not
+    {α} [PartialOrder α] (f₁ : α → Prop)
+    (h₁ : @monotone _ _ _ ImplicationOrder.instOrder f₁) :
+    @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => ¬f₁ x) := by
+  intro x y hxy hfx h
+  exact hfx (h₁ x y hxy h)
+
+@[partial_fixpoint_monotone] theorem ind_impl
+    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
+    (h₁ : @monotone _ _ _ ReverseImplicationOrder.instOrder f₁)
+    (h₂ : @monotone _ _ _ ImplicationOrder.instOrder f₂):
+    @monotone _ _ _ ImplicationOrder.instOrder (fun x => f₁ x → f₂ x) := by
+  intro x y hxy himp hf1
+  specialize h₁ x y hxy hf1
+  specialize h₂ x y hxy
+  apply h₂
+  apply himp
+  exact h₁
+
+@[partial_fixpoint_monotone] theorem coind_impl
+    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
+    (h₁ : @monotone _ _ _ ImplicationOrder.instOrder f₁)
+    (h₂ : @monotone _ _ _ ReverseImplicationOrder.instOrder f₂):
+    @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => f₁ x → f₂ x) := by
+  intro x y hxy himp hf1
+  specialize h₁ x y hxy hf1
+  specialize h₂ x y hxy
+  apply h₂
+  apply himp
+  exact h₁
+end antitone
 
 namespace Example
 

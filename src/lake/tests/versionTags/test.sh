@@ -31,5 +31,5 @@ EOF
 ) version-tags
 
 # Cleanup
-rm -f produced.out
+rm -f produced*
 rm -rf .git

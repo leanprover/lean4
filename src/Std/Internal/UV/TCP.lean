@@ -3,11 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving, Sofia Rodrigues
 -/
+module
+
 prelude
-import Init.System.IO
-import Init.System.Promise
-import Init.Data.SInt
-import Std.Net
+public import Init.System.IO
+public import Init.System.Promise
+public import Init.Data.SInt
+public import Std.Net
+
+public section
 
 namespace Std
 namespace Internal
@@ -23,7 +27,7 @@ Represents a TCP socket.
 -/
 def Socket : Type := SocketImpl.type
 
-instance : Nonempty Socket := SocketImpl.property
+instance : Nonempty Socket := by exact SocketImpl.property
 
 namespace Socket
 

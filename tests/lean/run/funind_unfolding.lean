@@ -57,11 +57,11 @@ def fib'' (n : Nat) : Nat :=
 info: fib''.fun_cases_unfolding (n : Nat) (motive : Nat → Prop) (case1 : n < 2 → motive n)
   (case2 :
     ¬n < 2 →
-      let foo := n - 2;
+      have foo := n - 2;
       foo < 100 → motive (fib'' (n - 1) + fib'' foo))
   (case3 :
     ¬n < 2 →
-      let foo := n - 2;
+      have foo := n - 2;
       ¬foo < 100 → motive 0) :
   motive (fib'' n)
 -/
@@ -119,7 +119,7 @@ theorem filter_filter :
   refine filter.induct_unfolding p (motive := fun xs r => filter q r = filter (fun x => p x && q x) xs) ?case1 ?case2 ?case3 xs
   case case1 => rfl
   case case2 =>
-    intros x xs hp ih
+    intro x xs hp ih
     by_cases hq : q x
     case pos => simp [*, filter]
     case neg => simp [*, filter]
@@ -381,7 +381,7 @@ info: siftDown.induct_unfolding (e : Nat) (motive : (a : Array Int) → Nat → 
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        let child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        have child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
         ¬a[root]! < a[child]! → motive a root h a)
   (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h a) (a : Array Int)
   (root : Nat) (h : e ≤ a.size) : motive a root h (siftDown a root e h)
@@ -403,7 +403,7 @@ info: siftDown.induct (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.si
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        let child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        have child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
         ¬a[root]! < a[child]! → motive a root h)
   (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h) (a : Array Int)
   (root : Nat) (h : e ≤ a.size) : motive a root h

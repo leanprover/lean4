@@ -6,7 +6,9 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Nat.Linear
+public import Init.Data.Nat.Linear
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -128,7 +130,7 @@ Safer alternatives include:
   * `List.head?`, which returns an `Option`, and
   * `List.headD`, which returns an explicitly-provided fallback value on empty lists.
 -/
-def head! [Inhabited α] : List α → α
+@[expose] def head! [Inhabited α] : List α → α
   | []   => panic! "empty list"
   | a::_ => a
 
@@ -276,7 +278,7 @@ theorem getElem_append_right {as bs : List α} {i : Nat} (h₁ : as.length ≤ i
   induction as generalizing i with
   | nil => trivial
   | cons a as ih =>
-    cases i with simp [Nat.succ_sub_succ] <;> simp [Nat.succ_sub_succ] at h₁
+    cases i with simp [Nat.succ_sub_succ] <;> simp at h₁
     | succ i => apply ih; simp [h₁]
 
 @[deprecated "Deprecated without replacement." (since := "2025-02-13")]
@@ -360,12 +362,13 @@ theorem not_lex_antisymm [DecidableEq α] {r : α → α → Prop} [DecidableRel
         · exact h₁ (Lex.rel hba)
         · exact eq (antisymm _ _ hab hba)
 
-protected theorem le_antisymm [DecidableEq α] [LT α] [DecidableLT α]
+protected theorem le_antisymm [LT α]
     [i : Std.Antisymm (¬ · < · : α → α → Prop)]
     {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=
+  open Classical in
   not_lex_antisymm i.antisymm h₁ h₂
 
-instance [DecidableEq α] [LT α] [DecidableLT α]
+instance [LT α]
     [s : Std.Antisymm (¬ · < · : α → α → Prop)] :
     Std.Antisymm (· ≤ · : List α → List α → Prop) where
   antisymm _ _ h₁ h₂ := List.le_antisymm h₁ h₂

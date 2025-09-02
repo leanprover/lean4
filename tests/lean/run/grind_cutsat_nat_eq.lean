@@ -1,3 +1,4 @@
+module
 example (a b c : Nat) : a = 0 → b = 0 → c ≥ a + b := by
   grind
 
@@ -53,6 +54,12 @@ example (x : Nat) : x % 0 = x := by
   grind
 
 example (x : Nat) : x % 4 - x % 8 = 0 := by
+  grind
+
+example (x : Int) : x.natAbs ≥ 0 := by
+  grind
+
+example (x : Int) : x > 0 → x.natAbs = x := by
   grind
 
 example (x : Int) (h : x = 7) : x.natAbs = 7 := by
@@ -121,3 +128,27 @@ set_option trace.grind.cutsat.model true in
 example (x y : Nat) : x = y + 3 → y > 0 → False := by
   fail_if_success grind
   sorry
+
+example (a b : Nat) : a  = a + b - b := by
+  grind
+
+example (a b : Nat) : a = a + b - b := by
+  grind -ring -linarith
+
+example (a b : Int) : a = a + b - b := by
+  grind
+
+example (a b : Nat) : a = a + 2^b - 2^b := by
+  grind
+
+example (a b : Nat) : 2^a = 2^a + b - b := by
+  grind
+
+example (a b c : Nat) : c^a = c^a + b - b := by
+  grind
+
+example (n : Nat) : 0 ≤ 2 ^ n := by
+  grind
+
+example (f : Nat → α) (a b : Nat) : a ≤ b + 1 → a > b → f a = f (b + 1) := by
+  grind

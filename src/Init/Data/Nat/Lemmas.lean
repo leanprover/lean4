@@ -6,11 +6,15 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro, Floris van Doorn
 module
 
 prelude
+public import Init.Data.Nat.Bitwise.Basic
 import all Init.Data.Nat.Bitwise.Basic
-import Init.Data.Nat.MinMax
+public import Init.Data.Nat.MinMax
+public import Init.Data.Nat.Log2
 import all Init.Data.Nat.Log2
-import Init.Data.Nat.Power2
-import Init.Data.Nat.Mod
+public import Init.Data.Nat.Power2
+public import Init.Data.Nat.Mod
+
+public section
 
 /-! # Basic theorems about natural numbers
 
@@ -1044,7 +1048,7 @@ theorem div_le_iff_le_mul_of_dvd (hb : b ≠ 0) (hba : b ∣ a) : a / b ≤ c �
   exact ⟨mul_le_mul_right b, fun h ↦ Nat.le_of_mul_le_mul_right h (zero_lt_of_ne_zero hb)⟩
 
 protected theorem div_lt_div_right (ha : a ≠ 0) : a ∣ b → a ∣ c → (b / a < c / a ↔ b < c) := by
-  rintro ⟨d, rfl⟩ ⟨e, rfl⟩; simp [Nat.mul_div_cancel, Nat.pos_iff_ne_zero.2 ha]
+  rintro ⟨d, rfl⟩ ⟨e, rfl⟩; simp [Nat.pos_iff_ne_zero.2 ha]
 
 protected theorem div_lt_div_left (ha : a ≠ 0) (hba : b ∣ a) (hca : c ∣ a) :
     a / b < a / c ↔ c < b := by
@@ -1143,8 +1147,7 @@ protected theorem pow_lt_pow_succ (h : 1 < a) : a ^ n < a ^ (n + 1) := by
 
 protected theorem pow_lt_pow_of_lt {a n m : Nat} (h : 1 < a) (w : n < m) : a ^ n < a ^ m := by
   have := Nat.exists_eq_add_of_lt w
-  cases this
-  case intro k p =>
+  cases this with | intro k p
   rw [Nat.add_right_comm] at p
   subst p
   rw [Nat.pow_add, ← Nat.mul_one (a^n)]
@@ -1163,8 +1166,8 @@ protected theorem pow_le_pow_iff_right {a n m : Nat} (h : 1 < a) :
     a ^ n ≤ a ^ m ↔ n ≤ m := by
   constructor
   · apply Decidable.by_contra
-    intros w
-    simp [Decidable.not_imp_iff_and_not] at w
+    intro w
+    simp at w
     apply Nat.lt_irrefl (a ^ n)
     exact Nat.lt_of_le_of_lt w.1 (Nat.pow_lt_pow_of_lt h w.2)
   · intro w
@@ -1176,7 +1179,7 @@ protected theorem pow_lt_pow_iff_right {a n m : Nat} (h : 1 < a) :
     a ^ n < a ^ m ↔ n < m := by
   constructor
   · apply Decidable.by_contra
-    intros w
+    intro w
     simp at w
     apply Nat.lt_irrefl (a ^ n)
     exact Nat.lt_of_lt_of_le w.1 (Nat.pow_le_pow_of_le h w.2)
@@ -1312,15 +1315,15 @@ theorem pow_eq_self_iff {a b : Nat} (ha : 1 < a) : a ^ b = a ↔ b = 1 := by
 
 @[simp]
 theorem log2_zero : Nat.log2 0 = 0 := by
-  simp [Nat.log2]
+  simp [Nat.log2_def]
 
 theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
   match k with
   | 0 => simp [show 1 ≤ n from Nat.pos_of_ne_zero h]
   | k+1 =>
-    rw [log2]; split
+    rw [log2_def]; split
     · have n0 : 0 < n / 2 := (Nat.le_div_iff_mul_le (by decide)).2 ‹_›
-      simp only [Nat.add_le_add_iff_right, le_log2 (Nat.ne_of_gt n0), le_div_iff_mul_le,
+      simp only [Nat.add_le_add_iff_right, le_log2 (Nat.ne_of_gt n0),
         Nat.pow_succ]
       exact Nat.le_div_iff_mul_le (by decide)
     · simp only [le_zero_eq, succ_ne_zero, false_iff]
@@ -1329,6 +1332,25 @@ theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
 
 theorem log2_lt (h : n ≠ 0) : n.log2 < k ↔ n < 2 ^ k := by
   rw [← Nat.not_le, ← Nat.not_le, le_log2 h]
+
+theorem log2_eq_iff (h : n ≠ 0) : n.log2 = k ↔ 2 ^ k ≤ n ∧ n < 2 ^ (k + 1) := by
+  constructor
+  · intro w
+    exact ⟨(le_log2 h).mp (Nat.le_of_eq w.symm), (log2_lt h).mp (by subst w; apply lt_succ_self)⟩
+  · intro w
+    apply Nat.le_antisymm
+    · apply Nat.le_of_lt_add_one
+      exact (log2_lt h).mpr w.2
+    · exact (le_log2 h).mpr w.1
+
+theorem log2_two_mul (h : n ≠ 0) : (2 * n).log2 = n.log2 + 1 := by
+  obtain ⟨h₁, h₂⟩ := (log2_eq_iff h).mp rfl
+  rw [log2_eq_iff (Nat.mul_ne_zero (by decide) h)]
+  constructor
+  · rw [Nat.pow_succ, Nat.mul_comm]
+    exact mul_le_mul_left 2 h₁
+  · rw [Nat.pow_succ, Nat.mul_comm]
+    rwa [Nat.mul_lt_mul_right (by decide)]
 
 @[simp]
 theorem log2_two_pow : (2 ^ n).log2 = n := by
@@ -1434,7 +1456,7 @@ theorem le_iff_ne_zero_of_dvd (ha : a ≠ 0) (hab : a ∣ b) : a ≤ b ↔ b ≠
 
 theorem div_ne_zero_iff_of_dvd (hba : b ∣ a) : a / b ≠ 0 ↔ a ≠ 0 ∧ b ≠ 0 := by
   obtain rfl | hb := Decidable.em (b = 0) <;>
-    simp [Nat.div_ne_zero_iff, Nat.le_iff_ne_zero_of_dvd, *]
+    simp [Nat.le_iff_ne_zero_of_dvd, *]
 
 theorem pow_mod (a b n : Nat) : a ^ b % n = (a % n) ^ b % n := by
   induction b with
@@ -1559,7 +1581,7 @@ theorem mul_add_mod_of_lt {a b c : Nat} (h : c < b) : (a * b + c) % b = c := by
 @[simp] theorem mod_div_self (m n : Nat) : m % n / n = 0 := by
   cases n
   · exact (m % 0).div_zero
-  · case succ n => exact Nat.div_eq_of_lt (m.mod_lt n.succ_pos)
+  case succ n => exact Nat.div_eq_of_lt (m.mod_lt n.succ_pos)
 
 theorem mod_eq_iff {a b c : Nat} :
     a % b = c ↔ (b = 0 ∧ a = c) ∨ (c < b ∧ Exists fun k => a = b * k + c) :=
@@ -1686,33 +1708,34 @@ theorem div_lt_div_of_lt_of_dvd {a b d : Nat} (hdb : d ∣ b) (h : a < b) : a / 
 
 /-! ### shiftLeft and shiftRight -/
 
-@[simp] theorem shiftLeft_zero : n <<< 0 = n := rfl
+@[simp, grind =] theorem shiftLeft_zero : n <<< 0 = n := rfl
 
-/-- Shiftleft on successor with multiple moved inside. -/
+/-- Shift left on successor with multiple moved inside. -/
 theorem shiftLeft_succ_inside (m n : Nat) : m <<< (n+1) = (2*m) <<< n := rfl
 
-/-- Shiftleft on successor with multiple moved to outside. -/
+/-- Shift left on successor with multiple moved to outside. -/
 theorem shiftLeft_succ : ∀(m n), m <<< (n + 1) = 2 * (m <<< n)
 | _, 0 => rfl
 | _, k + 1 => by
   rw [shiftLeft_succ_inside _ (k+1)]
   rw [shiftLeft_succ _ k, shiftLeft_succ_inside]
 
-/-- Shiftright on successor with division moved inside. -/
+/-- Shift right on successor with division moved inside. -/
 theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
 | _, 0 => rfl
 | _, k + 1 => by
   rw [shiftRight_succ _ (k+1)]
   rw [shiftRight_succ_inside _ k, shiftRight_succ]
 
-@[simp] theorem zero_shiftLeft : ∀ n, 0 <<< n = 0
-  | 0 => by simp [shiftLeft]
-  | n + 1 => by simp [shiftLeft, zero_shiftLeft n, shiftLeft_succ]
+@[simp, grind =] theorem zero_shiftLeft : ∀ n, 0 <<< n = 0
+  | 0 => by simp
+  | n + 1 => by simp [zero_shiftLeft n, shiftLeft_succ]
 
-@[simp] theorem zero_shiftRight : ∀ n, 0 >>> n = 0
-  | 0 => by simp [shiftRight]
-  | n + 1 => by simp [shiftRight, zero_shiftRight n, shiftRight_succ]
+@[simp, grind =] theorem zero_shiftRight : ∀ n, 0 >>> n = 0
+  | 0 => by simp
+  | n + 1 => by simp [zero_shiftRight n, shiftRight_succ]
 
+@[grind _=_]
 theorem shiftLeft_add (m n : Nat) : ∀ k, m <<< (n + k) = (m <<< n) <<< k
   | 0 => rfl
   | k + 1 => by simp [← Nat.add_assoc, shiftLeft_add _ _ k, shiftLeft_succ]

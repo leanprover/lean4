@@ -3,11 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.DeclarationRange
-import Lean.DocString.Links
-import Lean.MonadEnv
-import Init.Data.String.Extra
+public import Lean.DeclarationRange
+public import Lean.DocString.Links
+public import Lean.MonadEnv
+public import Init.Data.String.Extra
+
+public section
 
 -- This module contains the underlying data for docstrings, with as few imports as possible, so that
 -- docstrings can be saved in as much of the compiler as possible.
@@ -30,7 +34,7 @@ def addBuiltinDocString (declName : Name) (docString : String) : IO Unit := do
 
 def addDocStringCore [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString : String) : m Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
-    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
+    throwError "invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
   modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
 
 def addDocStringCore' [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString? : Option String) : m Unit :=
@@ -58,9 +62,11 @@ structure ModuleDoc where
 private builtin_initialize moduleDocExt : SimplePersistentEnvExtension ModuleDoc (PersistentArray ModuleDoc) ← registerSimplePersistentEnvExtension {
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.push e
-  exportEntriesFnEx? := some fun _ _ es => fun
-    | .exported => #[]
-    | _         => es.toArray
+  exportEntriesFnEx? := some fun _ _ es level =>
+    if level < .server then
+      #[]
+    else
+      es.toArray
 }
 
 def addMainModuleDoc (env : Environment) (doc : ModuleDoc) : Environment :=

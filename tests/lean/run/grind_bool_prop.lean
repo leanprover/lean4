@@ -1,3 +1,4 @@
+module
 example (f : Bool → Nat) : f (a && b) = 0 → a = false → f false = 0 := by grind (splits := 0)
 example (f : Bool → Nat) : f (a && b) = 0 → b = false → f false = 0 := by grind (splits := 0)
 example (f : Bool → Nat) : f (a && b) = 0 → a = true → f b = 0 := by grind (splits := 0)
@@ -30,7 +31,7 @@ example (a b : Nat) : (a != b, c) = d → d = (false, true) → a = b := by grin
 example (a b : Bool) : (a ^^ b, c) = d → d = (false, true) → a = b := by grind (splits := 0)
 example (a b : Bool) : (a == b, c) = d → d = (true, true) → a = true → true = b := by grind (splits := 0)
 
-example (h : α = β) (a : α) (b : β) : h ▸ a = b → HEq a b := by grind
+example (h : α = β) (a : α) (b : β) : h ▸ a = b → a ≍ b := by grind
 
 example {α : Type u} [BEq α] [LawfulBEq α] (x : Nat) (a b : α)
     : x = (if a == b then 2 else 1) → x = (if (b == a) then 1 else 2) → False := by

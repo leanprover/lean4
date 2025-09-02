@@ -6,7 +6,9 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Control.Lawful.Basic
-import Init.Control.Lawful.Instances
-import Init.Control.Lawful.Lemmas
-import Init.Control.Lawful.MonadLift
+public import Init.Control.Lawful.Basic
+public import Init.Control.Lawful.Instances
+public import Init.Control.Lawful.Lemmas
+public import Init.Control.Lawful.MonadLift
+
+public section

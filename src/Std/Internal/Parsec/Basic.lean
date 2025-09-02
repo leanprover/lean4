@@ -3,9 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Dany Fabian, Henrik Böving
 -/
+module
+
 prelude
-import Init.NotationExtra
-import Init.Data.ToString.Macro
+public import Init.NotationExtra
+public import Init.Data.ToString.Macro
+
+public section
 
 namespace Std.Internal
 
@@ -18,7 +22,7 @@ inductive ParseResult (α : Type) (ι : Type) where
 
 end Parsec
 
-def Parsec (ι : Type) (α : Type) : Type := ι → Parsec.ParseResult α ι
+@[expose] def Parsec (ι : Type) (α : Type) : Type := ι → Parsec.ParseResult α ι
 
 namespace Parsec
 

@@ -6,8 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Vector.Lemmas
-import Init.Data.Array.Erase
+public import Init.Data.Vector.Lemmas
+public import Init.Data.Array.Erase
+
+public section
 
 /-!
 # Lemmas about `Vector.eraseIdx`.
@@ -42,7 +44,7 @@ theorem getElem?_eraseIdx_of_lt {xs : Vector α n} {i : Nat} (h : i < n) {j : Na
 theorem getElem?_eraseIdx_of_ge {xs : Vector α n} {i : Nat} (h : i < n) {j : Nat} (h' : i ≤ j) :
     (xs.eraseIdx i)[j]? = xs[j + 1]? := by
   rw [getElem?_eraseIdx]
-  simp only [dite_eq_ite, ite_eq_right_iff]
+  simp only [ite_eq_right_iff]
   intro h'
   omega
 
@@ -53,10 +55,11 @@ theorem getElem_eraseIdx {xs : Vector α n} {i : Nat} (h : i < n) {j : Nat} (h' 
   rw [← getElem?_eq_getElem, getElem?_eraseIdx]
   split <;> simp
 
-@[grind →]
 theorem mem_of_mem_eraseIdx {xs : Vector α n} {i : Nat} {h} {a : α} (h : a ∈ xs.eraseIdx i) : a ∈ xs := by
   rcases xs with ⟨xs, rfl⟩
   simpa using Array.mem_of_mem_eraseIdx (by simpa using h)
+
+grind_pattern mem_of_mem_eraseIdx => a ∈ xs.eraseIdx i
 
 theorem eraseIdx_append_of_lt_size {xs : Vector α n} {k : Nat} (hk : k < n) (xs' : Vector α n) (h) :
     eraseIdx (xs ++ xs') k = (eraseIdx xs k ++ xs').cast (by omega) := by

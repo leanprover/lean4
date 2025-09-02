@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.ExtHashMap.Lemmas
-import Std.Data.ExtHashSet.Basic
+public import Std.Data.ExtHashMap.Lemmas
+public import Std.Data.ExtHashSet.Basic
+
+@[expose] public section
 
 /-!
 # Extensional hash set lemmas
@@ -191,7 +195,7 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = (m.get? a).isSome :=
   ExtHashMap.contains_eq_isSome_getKey?
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
     (m.get? a).isSome = m.contains a :=
   contains_eq_isSome_get?.symm
@@ -204,6 +208,10 @@ theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} :
 theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
     (m.get? a).isSome ↔ a ∈ m :=
   mem_iff_isSome_get?.symm
+
+theorem mem_of_get?_eq_some [EquivBEq α] [LawfulHashable α] {k k' : α}
+    (h : m.get? k = some k') : k' ∈ m :=
+  ExtHashMap.mem_of_getKey?_eq_some h
 
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = false → m.get? a = none :=

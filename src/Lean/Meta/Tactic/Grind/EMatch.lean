@@ -3,13 +3,14 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Intro
-import Lean.Meta.Tactic.Grind.MatchDiscrOnly
-import Lean.Meta.Tactic.Grind.MatchCond
+public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Core
-
+import Lean.Meta.Tactic.Grind.MatchDiscrOnly
+import Lean.Meta.Tactic.Grind.ProveEq
+import Lean.Meta.Tactic.Grind.SynthInstance
+public section
 namespace Lean.Meta.Grind
 namespace EMatch
 /-! This module implements a simple E-matching procedure as a backtracking search. -/
@@ -127,6 +128,33 @@ protected def _root_.Lean.Meta.Grind.GenPatternInfo.assign? (genInfo : GenPatter
   let c ← assignDelayedEqProof? c genInfo.hIdx
   return c
 
+private def matchGroundPattern (pArg eArg : Expr) : GoalM Bool := do
+  /-
+  1) Remark:
+  We need to use `withReducibleAndInstances` because ground patterns are often instances.
+  Here is an example
+  ```
+  instance : Max Nat where
+    max := Nat.max -- Redefined the instance
+
+  example (a : Nat) : max a a = a := by
+    grind
+  ```
+  Possible future improvements:
+  - When `diagnostics` is true, try with `withDefault` and report issue if it succeeds.
+  - (minor) Only use `withReducibleAndInstances` if the argument is an implicit instance.
+    Potential issue: some user write `{_ : Class α}` when the instance can be inferred from
+    explicit arguments.
+  2) Remark:
+  If `pArg` contains universe metavariables, we use `withoutModifyingMCtx` to ensure the metavariables
+  are not assigned. These universe metavariables are created at `internalizePattern` for universe polymorphic
+  ground patterns. They are not common, but they occur in practice.
+  -/
+  if pArg.hasLevelMVar then
+    withoutModifyingMCtx <| withReducibleAndInstances <| isDefEq pArg eArg
+  else
+    isEqv pArg eArg <||> withReducibleAndInstances (isDefEq pArg eArg)
+
 /-- Matches a pattern argument. See `matchArgs?`. -/
 private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM Choice := do
   if isPatternDontCare pArg then
@@ -134,23 +162,7 @@ private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM C
   else if pArg.isBVar then
     assign? c pArg.bvarIdx! eArg
   else if let some pArg := groundPattern? pArg then
-    /-
-    We need to use `withReducibleAndIntances` because ground patterns are often instances.
-    Here is an example
-    ```
-    instance : Max Nat where
-      max := Nat.max -- Redefined the instance
-
-    example (a : Nat) : max a a = a := by
-      grind
-    ```
-    Possible future improvements:
-    - When `diagnostics` is true, try with `withDefault` and report issue if it succeeds.
-    - (minor) Only use `withReducibleAndInstances` if the argument is an implicit instance.
-      Potential issue: some user write `{_ : Class α}` when the instance can be inferred from
-      explicit arguments.
-    -/
-    guard (← isEqv pArg eArg <||> withReducibleAndInstances (isDefEq pArg eArg))
+    guard (← matchGroundPattern pArg eArg)
     return c
   else if let some (pArg, k) := isOffsetPattern? pArg then
     assert! Option.isNone <| isOffsetPattern? pArg
@@ -161,7 +173,7 @@ private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM C
       let c ← assign? c pArg.bvarIdx! eArg
       genInfo.assign? c eArg
     else if let some pArg := groundPattern? pArg then
-      guard (← isEqv pArg eArg <||> withReducibleAndInstances (isDefEq pArg eArg))
+      guard (← matchGroundPattern pArg eArg)
       genInfo.assign? c eArg
     else if let some (pArg, k) := isOffsetPattern? pArg then
       return { c with cnstrs := .offset (some genInfo) pArg k eArg :: c.cnstrs }
@@ -340,7 +352,7 @@ private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Na
     -- We must add a hint because `annotateEqnTypeConds` introduces `Grind.PreMatchCond`
     -- which is not reducible.
     proof := mkExpectedPropHint proof prop
-  trace_goal[grind.ematch.instance] "{← thm.origin.pp}: {prop}"
+  trace_goal[grind.ematch.instance] "{thm.origin.pp}: {prop}"
   addTheoremInstance thm proof prop (generation+1)
 
 private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : OptionT M Unit := do
@@ -348,8 +360,8 @@ private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : Opti
   for mvar in mvars, bi in bis do
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
-      unless (← synthesizeInstanceAndAssign mvar type) do
-        reportIssue! "failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
+      unless (← synthInstanceAndAssign mvar type) do
+        reportIssue! "failed to synthesize instance when instantiating {thm.origin.pp}{indentExpr type}"
         failure
 
 private def preprocessGeneralizedPatternRHS (lhs : Expr) (rhs : Expr) (origin : Origin) (expectedType : Expr) : OptionT (StateT Choice M) Expr := do
@@ -361,74 +373,88 @@ private def preprocessGeneralizedPatternRHS (lhs : Expr) (rhs : Expr) (origin : 
   if (← isEqv lhs rhs) then
     return rhs
   else
-    reportIssue! "invalid generalized pattern at `{← origin.pp}`\nwhen processing argument with type{indentExpr expectedType}\nfailed to prove{indentExpr lhs}\nis equal to{indentExpr rhs}"
+    reportIssue! "invalid generalized pattern at `{origin.pp}`\nwhen processing argument with type{indentExpr expectedType}\nfailed to prove{indentExpr lhs}\nis equal to{indentExpr rhs}"
     failure
 
 private def assignGeneralizedPatternProof (mvarId : MVarId) (eqProof : Expr) (origin : Origin) : OptionT (StateT Choice M) Unit := do
   unless (← mvarId.checkedAssign eqProof) do
-    reportIssue! "invalid generalized pattern at `{← origin.pp}`\nfailed to assign {mkMVar mvarId}\nwith{indentExpr eqProof}"
+    reportIssue! "invalid generalized pattern at `{origin.pp}`\nfailed to assign {mkMVar mvarId}\nwith{indentExpr eqProof}"
     failure
 
-private def applyAssignment (mvars : Array Expr) : OptionT (StateT Choice M) Unit := do
+/-- Helper function for `applyAssignment. -/
+private def processDelayed (mvars : Array Expr) (i : Nat) (h : i < mvars.size) : OptionT (StateT Choice M) Unit := do
+  let thm := (← read).thm
+  let mvarId := mvars[i].mvarId!
+  let mvarIdType ← instantiateMVars (← mvarId.getType)
+  match_expr mvarIdType with
+  | Eq α lhs rhs =>
+    let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
+    assignGeneralizedPatternProof mvarId (← mkEqProof lhs rhs) thm.origin
+  | HEq α lhs β rhs =>
+    let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
+    assignGeneralizedPatternProof mvarId (← mkHEqProof lhs rhs) thm.origin
+  | _ =>
+    reportIssue! "invalid generalized pattern at `{thm.origin.pp}`\nequality type expected{indentExpr mvarIdType}"
+    failure
+
+/-- Helper function for `applyAssignment. -/
+private def processUnassigned (mvars : Array Expr) (i : Nat) (v : Expr) (h : i < mvars.size) : OptionT (StateT Choice M) Unit := do
   let thm := (← read).thm
   let numParams := thm.numParams
-  for h : i in [:mvars.size] do
-    let bidx := numParams - i - 1
-    let mut v := (← get).assignment[bidx]!
-    if isSameExpr v delayedEqProof then
-      let mvarId := mvars[i].mvarId!
-      let mvarIdType ← instantiateMVars (← mvarId.getType)
-      match_expr mvarIdType with
-      | Eq α lhs rhs =>
-        let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
-        assignGeneralizedPatternProof mvarId (← mkEqProof lhs rhs) thm.origin
-      | HEq α lhs β rhs =>
-        let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
-        assignGeneralizedPatternProof mvarId (← mkHEqProof lhs rhs) thm.origin
-      | _ =>
-        reportIssue! "invalid generalized pattern at `{← thm.origin.pp}`\nequality type expected{indentExpr mvarIdType}"
-        failure
-    else if !isSameExpr v unassigned then
-      let mvarId := mvars[i].mvarId!
-      let mvarIdType ← mvarId.getType
-      let vType ← inferType v
-      let unassignOrFail : OptionT (StateT Choice M) Unit := do
-        /-
-        If there is type error and `vType` is a proposition, we can still instantiate the
-        theorem by unassigning `v` and using it as an extra hypothesis.
-        Here is an example to motivate the unassignment.
-        ```
-        example (xs : Array Nat) (w : xs.reverse = xs) (j : Nat) (hj : 0 ≤ j) (hj' : j < xs.size / 2)
-            : xs[j] = xs[xs.size - 1 - j] := by
-          grind
-        ```
-        Without the unassignment we get a type error while trying to instantiate the theorem
-        ```
-        theorem getElem_reverse {xs : Array α} {i : Nat} (hi : i < xs.reverse.size) :
-          (xs.reverse)[i] = xs[xs.size - 1 - i]'(by simp at hi; omega)
-        ```
-        The pattern for this theorem is `xs.reverse[i]`. Note that `hi` occurs there as an implicit argument.
-        The term `xs[j]` in our goal e-matches the pattern because we have the equality `xs.reverse = xs`.
-        However, the implicit proof at `xs[j]` has type `j < xs.size` instead of `j < xs.reverse.size`.
-        -/
-        if (← isProp vType) then
-          modify (unassign · bidx)
-        else
-          reportIssue! "type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
-          failure
-      unless (← withDefault <| isDefEq mvarIdType vType) do
-        if let some heq ← withoutReportingMVarIssues <| proveEq? vType mvarIdType (abstract := true) then
-          /-
-          Some of the `cast`s will appear inside the `Grind.MatchCond` binders, and
-          we want their proofs to be properly wrapped.
-          -/
-          let heq := mkApp2 (mkConst ``Grind.nestedProof) (← mkEq vType mvarIdType) heq
-          v ← mkAppM ``cast #[heq, v]
-        else
-          unassignOrFail
-          continue
-      unless (← mvarId.checkedAssign v) do
-        unassignOrFail
+  let bidx := numParams - i - 1
+  let mvarId := mvars[i].mvarId!
+  let mvarIdType ← mvarId.getType
+  let vType ← inferType v
+  let rec unassignOrFail : OptionT (StateT Choice M) Unit := do
+    /-
+    If there is type error and `vType` is a proposition, we can still instantiate the
+    theorem by unassigning `v` and using it as an extra hypothesis.
+    Here is an example to motivate the unassignment.
+    ```
+    example (xs : Array Nat) (w : xs.reverse = xs) (j : Nat) (hj : 0 ≤ j) (hj' : j < xs.size / 2)
+        : xs[j] = xs[xs.size - 1 - j] := by
+      grind
+    ```
+    Without the unassignment we get a type error while trying to instantiate the theorem
+    ```
+    theorem getElem_reverse {xs : Array α} {i : Nat} (hi : i < xs.reverse.size) :
+      (xs.reverse)[i] = xs[xs.size - 1 - i]'(by simp at hi; omega)
+    ```
+    The pattern for this theorem is `xs.reverse[i]`. Note that `hi` occurs there as an implicit argument.
+    The term `xs[j]` in our goal e-matches the pattern because we have the equality `xs.reverse = xs`.
+    However, the implicit proof at `xs[j]` has type `j < xs.size` instead of `j < xs.reverse.size`.
+    -/
+    if (← isProp vType) then
+      modify (unassign · bidx)
+    else
+      reportIssue! "type error constructing proof for {thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
+      failure
+  if (← isDefEqD mvarIdType vType) then
+    unless (← mvarId.checkedAssign v) do unassignOrFail
+  else
+    if let some heq ← withoutReportingMVarIssues <| proveEq? vType mvarIdType (abstract := true) then
+      /-
+      Some of the `cast`s will appear inside the `Grind.MatchCond` binders, and
+      we want their proofs to be properly wrapped.
+      -/
+      let heq := mkApp2 (mkConst ``Grind.nestedProof) (← mkEq vType mvarIdType) heq
+      let v ← mkAppM ``cast #[heq, v]
+      unless (← mvarId.checkedAssign v) do unassignOrFail
+    else
+      unassignOrFail
+
+private def applyAssignment (mvars : Array Expr) : OptionT (StateT Choice M) Unit := do
+  let numParams := (← read).thm.numParams
+  let rec go (i : Nat) := do
+    if h : i < mvars.size then
+      let bidx := numParams - i - 1
+      let v := (← get).assignment[bidx]!
+      if isSameExpr v delayedEqProof then
+        processDelayed mvars i h
+      else if !isSameExpr v unassigned then
+        processUnassigned mvars i v h
+      go (i + 1)
+  go 0
 
 /--
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
@@ -438,13 +464,13 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   let thm := (← read).thm
   unless (← markTheoremInstance thm.proof c.assignment) do
     return ()
-  trace_goal[grind.ematch.instance.assignment] "{← thm.origin.pp}: {assignmentToMessageData c.assignment}"
+  trace_goal[grind.ematch.instance.assignment] "{thm.origin.pp}: {assignmentToMessageData c.assignment}"
   let proof ← thm.getProofWithFreshMVarLevels
   let numParams := thm.numParams
   assert! c.assignment.size == numParams
   let (mvars, bis, _) ← forallMetaBoundedTelescope (← inferType proof) numParams
   if mvars.size != thm.numParams then
-    reportIssue! "unexpected number of parameters at {← thm.origin.pp}"
+    reportIssue! "unexpected number of parameters at {thm.origin.pp}"
     return ()
   let (some _, c) ← applyAssignment mvars |>.run c | return ()
   let some _ ← synthesizeInsts mvars bis | return ()
@@ -454,7 +480,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   else
     let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
     if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
-      reportIssue! "failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
+      reportIssue! "failed to instantiate {thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
     let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
     addNewInstance thm proof c.gen
 
@@ -509,15 +535,14 @@ private def matchEqBwdPat (p : Expr) : M Unit := do
     if (n.heqProofs || n.isCongrRoot) &&
        (!useMT || n.mt == gmt) then
       let_expr Eq α lhs rhs := n.self | pure ()
-      if (← isDefEq α pα) then
-         let c₀ : Choice := { cnstrs := [], assignment, gen := n.generation }
-         let go (lhs rhs : Expr) : M Unit := do
-           let some c₁ ← matchArg? c₀ plhs lhs |>.run | return ()
-           let some c₂ ← matchArg? c₁ prhs rhs |>.run | return ()
-           modify fun s => { s with choiceStack := [c₂] }
-           processChoices
-         go lhs rhs
-         go rhs lhs
+      if let some c₀ ← matchArg? { cnstrs := [], assignment, gen := n.generation } pα α |>.run then
+        let go (lhs rhs : Expr) : M Unit := do
+          let some c₁ ← matchArg? c₀ plhs lhs |>.run | return ()
+          let some c₂ ← matchArg? c₁ prhs rhs |>.run | return ()
+          modify fun s => { s with choiceStack := [c₂] }
+          processChoices
+        go lhs rhs
+        go rhs lhs
     if isSameExpr n.next false then return ()
     curr := n.next
 
@@ -554,7 +579,7 @@ end EMatch
 open EMatch
 
 /-- Performs one round of E-matching, and returns new instances. -/
-private def ematchCore : GoalM Unit := do
+private def ematchCore : GoalM Unit := do profileitM Exception "grind ematch" (← getOptions) do
   let go (thms newThms : PArray EMatchTheorem) : EMatch.M Unit := do
     withReader (fun ctx => { ctx with useMT := true }) <| ematchTheorems thms
     withReader (fun ctx => { ctx with useMT := false }) <| ematchTheorems newThms

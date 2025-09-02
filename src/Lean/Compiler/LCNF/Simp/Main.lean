@@ -3,19 +3,23 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.ImplementedByAttr
-import Lean.Compiler.LCNF.ElimDead
-import Lean.Compiler.LCNF.AlphaEqv
-import Lean.Compiler.LCNF.PrettyPrinter
-import Lean.Compiler.LCNF.Bind
-import Lean.Compiler.LCNF.Simp.FunDeclInfo
-import Lean.Compiler.LCNF.Simp.InlineCandidate
-import Lean.Compiler.LCNF.Simp.InlineProj
-import Lean.Compiler.LCNF.Simp.Used
-import Lean.Compiler.LCNF.Simp.DefaultAlt
-import Lean.Compiler.LCNF.Simp.SimpValue
-import Lean.Compiler.LCNF.Simp.ConstantFold
+public import Lean.Compiler.ImplementedByAttr
+public import Lean.Compiler.LCNF.ElimDead
+public import Lean.Compiler.LCNF.AlphaEqv
+public import Lean.Compiler.LCNF.PrettyPrinter
+public import Lean.Compiler.LCNF.Bind
+public import Lean.Compiler.LCNF.Simp.FunDeclInfo
+public import Lean.Compiler.LCNF.Simp.InlineCandidate
+public import Lean.Compiler.LCNF.Simp.InlineProj
+public import Lean.Compiler.LCNF.Simp.Used
+public import Lean.Compiler.LCNF.Simp.DefaultAlt
+public import Lean.Compiler.LCNF.Simp.SimpValue
+public import Lean.Compiler.LCNF.Simp.ConstantFold
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -48,7 +52,7 @@ def specializePartialApp (info : InlineCandidateInfo) : SimpM FunDecl := do
   for param in info.params, arg in info.args do
     subst := subst.insert param.fvarId arg
   let mut paramsNew := #[]
-  for param in info.params[info.args.size:] do
+  for param in info.params[info.args.size...*] do
     let type ← replaceExprFVars param.type subst (translator := true)
     let paramNew ← mkAuxParam type
     paramsNew := paramsNew.push paramNew
@@ -77,7 +81,7 @@ def etaPolyApp? (letDecl : LetDecl) : OptionT SimpM FunDecl := do
   guard <| (← read).config.etaPoly
   let .const declName us args := letDecl.value | failure
   let some info := (← getEnv).find? declName | failure
-  guard <| hasLocalInst info.type
+  guard <| (← hasLocalInst info.type)
   guard <| !(← Meta.isInstance declName)
   let some decl ← getDecl? declName | failure
   guard <| decl.getArity > args.size
@@ -130,7 +134,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
     markSimplified
     simp (.fun funDecl k)
   else
-    let code ← betaReduce info.params info.value info.args[:info.arity]
+    let code ← betaReduce info.params info.value info.args[*...info.arity]
     if k.isReturnOf fvarId && numArgs == info.arity then
       /- Easy case, the continuation `k` is just returning the result of the application. -/
       markSimplified
@@ -140,28 +144,24 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
       let simpK (result : FVarId) : SimpM Code := do
         /- `result` contains the result of the inlined code -/
         if numArgs > info.arity then
-          let decl ← mkAuxLetDecl (.fvar result info.args[info.arity:])
+          let decl ← mkAuxLetDecl (.fvar result info.args[info.arity...*])
           addFVarSubst fvarId decl.fvarId
           simp (.let decl k)
         else
           addFVarSubst fvarId result
           simp k
+      markSimplified
       if oneExitPointQuick code then
         -- TODO: if `k` is small, we should also inline it here
-        markSimplified
         code.bind fun fvarId' => do
           markUsedFVar fvarId'
           simpK fvarId'
-      -- else if info.ifReduce then
-      --  eraseCode code
-      --  return none
       else
-        markSimplified
-        let expectedType ← inferAppType info.fType info.args[:info.arity]
+        let expectedType ← inferAppType info.fType info.args[*...info.arity]
         if expectedType.headBeta.isForall then
           /-
           If `code` returns a function, we create an auxiliary local function declaration (and eta-expand it)
-          instead of creating a joinpoint that takes a closure as an argument.
+          instead of creating a join point that takes a closure as an argument.
           -/
           let auxFunDecl ← mkAuxFunDecl #[] code
           let auxFunDecl ← auxFunDecl.etaExpand
@@ -199,7 +199,7 @@ partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
     | .alt _ params k =>
       match ctorInfo with
       | .ctor ctorVal ctorArgs =>
-        let fields := ctorArgs[ctorVal.numParams:]
+        let fields := ctorArgs[ctorVal.numParams...*]
         for param in params, field in fields do
           addSubst param.fvarId field
         let k ← simp k

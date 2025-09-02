@@ -35,7 +35,7 @@ echo "# TEST: Direct fetch"
 test_err_diff <(cat << EOF
 ✖ [2/2] Running dep:release
 error: failed to fetch GitHub release (run with '-v' for details)
-Some required builds logged failures:
+Some required targets logged failures:
 - dep:release
 error: build failed
 EOF
@@ -46,11 +46,8 @@ echo "# TEST: Indirect fetch"
 test_out_diff <(cat << EOF
 ⚠ [3/6] Ran dep:extraDep
 warning: building from source; failed to fetch GitHub release (run with '-v' for details)
-✔ [4/6] Built Dep
-✔ [5/6] Built Test
-Build completed successfully.
 EOF
-) build Test
+) build Test -q
 
 # Test download failure
 echo "# TEST: Download failure"
@@ -58,7 +55,7 @@ test_run update # re-fetch release tag
 test_err "curl" -v build dep:release
 
 # Test automatic cloud release unpacking
-echo "# TEST: Automaticcloud release unpacking"
+echo "# TEST: Automatic cloud release unpacking"
 mkdir -p .lake/packages/dep/.lake/build
 test_out "packing" -d .lake/packages/dep pack
 test_exp -f .lake/packages/dep/.lake/release.tgz
@@ -70,14 +67,14 @@ test_exp -d .lake/packages/dep/.lake/build
 # Test that the job prints nothing if the archive is already fetched and unpacked
 echo "# TEST: Quiet if fetched"
 test_out_diff <(cat << 'EOF'
-Build completed successfully.
+Build completed successfully (2 jobs).
 EOF
 ) build dep:release
 
 # Test that releases do not contaminate downstream jobs
 echo "# TEST: Downstream job contamination"
 test_out_diff <(cat << 'EOF'
-Build completed successfully.
+Build completed successfully (5 jobs).
 EOF
 ) build Test
 
@@ -94,4 +91,4 @@ test_run build dep:release
 
 # Cleanup
 rm -rf dep/.git
-rm -f prdouced.out
+rm -f produced*

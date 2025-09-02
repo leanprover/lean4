@@ -3,16 +3,21 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Sub
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ZeroExtend
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Eq
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Ult
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.GetLsbD
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
-import Std.Tactic.BVDecide.Normalize.BitVec
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Sub
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ZeroExtend
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Eq
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Ult
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.GetLsbD
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
+import all Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
+public import Std.Tactic.BVDecide.Normalize.BitVec
+
+@[expose] public section
 
 /-!
 This module contains the verification of the `BitVec.udiv` bitblaster from `Impl.Operations.Udiv`.
@@ -54,7 +59,8 @@ theorem denote_blastShiftConcat_eq_shiftConcat (aig : AIG α) (target : ShiftCon
         =
       (BitVec.shiftConcat x b).getLsbD idx := by
   intro idx hidx
-  simp [BitVec.getLsbD_shiftConcat, hidx, denote_blastShiftConcat, hx, hb, ← BitVec.getLsbD_eq_getElem]
+  simp only [denote_blastShiftConcat, hb, hx, BitVec.getLsbD_shiftConcat, hidx, decide_true,
+    Bool.true_and]
 
 
 theorem blastDivSubtractShift_denote_mem_prefix (aig : AIG α)
@@ -163,9 +169,9 @@ theorem denote_blastDivSubtractShift_r (aig : AIG α) (assign : α → Bool) (lh
   simp only [RefVec.denote_ite, LawfulVecOperator.denote_cast_entry, RefVec.get_cast]
   rw [BVPred.mkUlt_denote_eq (lhs := rbv.shiftConcat (lhs.getLsbD (wn - 1))) (rhs := rhs)]
   · split
-    · next hdiscr =>
+    next hdiscr =>
       rw [← Normalize.BitVec.lt_ult] at hdiscr
-      simp only [Ref.cast_eq, id_eq, Int.reduceNeg, hdiscr, ↓reduceIte]
+      simp only [Ref.cast_eq, hdiscr, ↓reduceIte]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := AIG.RefVec.ite)]
       rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkUlt)]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastSub)]
@@ -177,14 +183,14 @@ theorem denote_blastDivSubtractShift_r (aig : AIG α) (assign : α → Bool) (lh
       · rw [BVPred.denote_getD_eq_getLsbD]
         · exact hleft
         · simp
-    · next hdiscr =>
+    next hdiscr =>
       rw [← Normalize.BitVec.lt_ult] at hdiscr
-      simp only [Ref.cast_eq, id_eq, Int.reduceNeg, hdiscr, ↓reduceIte]
+      simp only [Ref.cast_eq, hdiscr, ↓reduceIte]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := AIG.RefVec.ite)]
       rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkUlt)]
       rw [denote_blastSub]
       · intro idx hidx
-        simp only [Int.reduceNeg, RefVec.get_cast, Ref.cast_eq]
+        simp only [RefVec.get_cast, Ref.cast_eq]
         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
         rw [denote_blastShiftConcat_eq_shiftConcat]
@@ -202,7 +208,7 @@ theorem denote_blastDivSubtractShift_r (aig : AIG α) (assign : α → Bool) (lh
     rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastSub)]
     rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
     rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
-    . simp only [Ref.cast_eq, id_eq, Int.reduceNeg, RefVec.get_cast]
+    . simp only [Ref.cast_eq, RefVec.get_cast]
       rw [denote_blastShiftConcat_eq_shiftConcat]
       . simp [hr]
       . dsimp only
@@ -265,7 +271,7 @@ theorem denote_go_eq_divRec_q (aig : AIG α) (assign : α → Bool) (curr : Nat)
     intro idx hidx
     rw [go, BitVec.divRec_succ, BitVec.divSubtractShift]
     split
-    · next hdiscr =>
+    next hdiscr =>
       rw [ih]
       · rfl
       · intro idx hidx
@@ -291,7 +297,7 @@ theorem denote_go_eq_divRec_q (aig : AIG α) (assign : α → Bool) (curr : Nat)
         · exact hleft
         · exact hright
         · exact hr
-    · next hdiscr =>
+    next hdiscr =>
       rw [ih]
       · rfl
       · intro idx hidx
@@ -371,10 +377,10 @@ theorem denote_blastUdiv (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
         (lhs / rhs).getLsbD idx := by
   intro idx hidx
   unfold blastUdiv
-  simp only [Ref.cast_eq, id_eq, Int.reduceNeg, RefVec.denote_ite,
-    LawfulVecOperator.denote_input_entry, RefVec.get_cast]
+  simp only [Ref.cast_eq, RefVec.denote_ite,
+    RefVec.get_cast]
   split
-  · next hdiscr =>
+  next hdiscr =>
     rw [blastUdiv.go_denote_mem_prefix] at hdiscr
     rw [BVPred.mkEq_denote_eq (lhs := rhs) (rhs := 0#w)] at hdiscr
     · simp only [beq_iff_eq] at hdiscr
@@ -387,7 +393,7 @@ theorem denote_blastUdiv (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
       simp [hright]
     · intro idx hidx
       simp
-  · next hdiscr =>
+  next hdiscr =>
     rw [blastUdiv.go_denote_mem_prefix] at hdiscr
     rw [BVPred.mkEq_denote_eq (lhs := rhs) (rhs := 0#w)] at hdiscr
     · have hzero : 0#w < rhs := by

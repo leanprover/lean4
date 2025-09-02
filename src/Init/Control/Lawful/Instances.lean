@@ -6,11 +6,15 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Control.Lawful.Basic
+public import Init.Control.Lawful.Basic
+public import Init.Control.Except
 import all Init.Control.Except
+public import Init.Control.State
 import all Init.Control.State
-import Init.Control.StateRef
-import Init.Ext
+public import Init.Control.StateRef
+public import Init.Ext
+
+public section
 
 open Function
 
@@ -67,7 +71,7 @@ protected theorem seqLeft_eq {α β ε : Type u} {m : Type u → Type v} [Monad 
   | Except.error _ => simp
   | Except.ok _ =>
     simp [←bind_pure_comp]; apply bind_congr; intro b;
-    cases b <;> simp [comp, Except.map, const]
+    cases b <;> simp [Except.map, const]
 
 protected theorem seqRight_eq [Monad m] [LawfulMonad m] (x : ExceptT ε m α) (y : ExceptT ε m β) : x *> y = const α id <$> x <*> y := by
   change (x >>= fun _ => y) = (const α id <$> x) >>= fun f => f <$> y

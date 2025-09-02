@@ -3,14 +3,18 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.List.BasicAux
-import Lean.Expr
-import Lean.Meta.Instances
-import Lean.Compiler.ExternAttr
-import Lean.Compiler.InlineAttrs
-import Lean.Compiler.Specialize
-import Lean.Compiler.LCNF.Types
+public import Init.Data.List.BasicAux
+public import Lean.Expr
+public import Lean.Meta.Instances
+public import Lean.Compiler.ExternAttr
+public import Lean.Compiler.InlineAttrs
+public import Lean.Compiler.Specialize
+public import Lean.Compiler.LCNF.Types
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -89,7 +93,6 @@ inductive LetValue where
   | proj (typeName : Name) (idx : Nat) (struct : FVarId)
   | const (declName : Name) (us : List Level) (args : Array Arg)
   | fvar (fvarId : FVarId) (args : Array Arg)
-  -- TODO: add constructors for mono and impure phases
   deriving Inhabited, BEq, Hashable
 
 def Arg.toLetValue (arg : Arg) : LetValue :=
@@ -641,20 +644,24 @@ def Decl.instantiateParamsLevelParams (decl : Decl) (us : List Level) : Array Pa
 /--
 Return `true` if the arrow type contains an instance implicit argument.
 -/
-def hasLocalInst (type : Expr) : Bool :=
+def hasLocalInst (type : Expr) : CoreM Bool := do
   match type with
-  | .forallE _ _ b bi => bi.isInstImplicit || hasLocalInst b
-  | _ => false
+  | .forallE _ d b bi =>
+    (pure bi.isInstImplicit) <||>
+    ((pure bi.isImplicit) <&&> (pure (← isArrowClass? d).isSome)) <||>
+    hasLocalInst b
+  | _ => return false
 
 /--
 Return `true` if `decl` is supposed to be inlined/specialized.
 -/
 def Decl.isTemplateLike (decl : Decl) : CoreM Bool := do
-  if hasLocalInst decl.type then
+  let env ← getEnv
+  if ← hasLocalInst decl.type then
     return true -- `decl` applications will be specialized
-  else if (← Meta.isInstance decl.name) then
+  else if Meta.isInstanceCore env decl.name then
     return true -- `decl` is "fuel" for code specialization
-  else if decl.inlineable || hasSpecializeAttribute (← getEnv) decl.name then
+  else if decl.inlineable || hasSpecializeAttribute env decl.name then
     return true -- `decl` is going to be inlined or specialized
   else
     return false
@@ -708,7 +715,7 @@ partial def Code.collectUsed (code : Code) (s : FVarIdHashSet := {}) : FVarIdHas
   | .jmp fvarId args => collectArgs args <| s.insert fvarId
 end
 
-abbrev collectUsedAtExpr (s : FVarIdHashSet) (e : Expr) : FVarIdHashSet :=
+@[inline] def collectUsedAtExpr (s : FVarIdHashSet) (e : Expr) : FVarIdHashSet :=
   collectType e s
 
 /--

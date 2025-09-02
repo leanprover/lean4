@@ -3,11 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Canon
-import Lean.Meta.Tactic.Grind.MBTC
-import Lean.Meta.Tactic.Grind.Arith.Linear.Model
-import Lean.Meta.Tactic.Grind.Arith.Linear.PropagateEq
+public import Lean.Meta.Tactic.Grind.MBTC
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Model
+public import Lean.Meta.Tactic.Grind.Arith.Linear.PropagateEq
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -23,7 +25,7 @@ private partial def toRatValue? (a : Expr) : Option Rat :=
   else if a.isAppOfArity ``HDiv.hDiv 6 then
     (· / ·) <$> toRatValue? a.appFn!.appArg! <*> toRatValue? a.appArg!
   else if let .lit (.natVal n) := a then
-    some (Std.Internal.mkRat n 1)
+    some (mkRat n 1)
   else
     none
 
@@ -47,7 +49,7 @@ private def eqAssignment (a b : Expr) : GoalM Bool := do
   let some structId := structId₁? <|> structId₂? | return false
   let s := (← get).arith.linear.structs[structId]!
   -- It is pointless to generate case-splits unless we have support for disequality.
-  unless s.linearInst?.isSome do return false
+  unless s.isLinearInst?.isSome do return false
   let some v₁ := getAssignmentExt? s a | return false
   let some v₂ := getAssignmentExt? s b | return false
   return v₁ == v₂

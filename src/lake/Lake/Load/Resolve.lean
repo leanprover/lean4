@@ -3,11 +3,17 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner
 -/
+module
+
 prelude
-import Lake.Config.Monad
+public import Lake.Config.Workspace
+public import Lake.Load.Manifest
+import Lake.Util.IO
 import Lake.Util.StoreInsts
+import Lake.Config.Monad
 import Lake.Build.Topological
 import Lake.Load.Materialize
+import Lake.Load.Lean.Eval
 import Lake.Load.Package
 
 open System Lean
@@ -56,6 +62,7 @@ def loadDepPackage
     scope := dep.scope
     remoteUrl := dep.remoteUrl
   }
+  let pkg ← pkg.loadInputsFrom ws.lakeEnv
   if let some env := env? then
     let ws ← IO.ofExcept <| ws.addFacetsFromEnv env leanOpts
     return (pkg, ws)
@@ -391,7 +398,7 @@ post-update hooks.
 
 See `Workspace.updateAndMaterializeCore` for details on the update process.
 -/
-def Workspace.updateAndMaterialize
+public def Workspace.updateAndMaterialize
   (ws : Workspace)
   (toUpdate : NameSet := {}) (leanOpts : Options := {})
   (updateToolchain := true)
@@ -427,7 +434,7 @@ def validateManifest
 Resolving a workspace's dependencies using a manifest,
 downloading and/or updating them as necessary.
 -/
-def Workspace.materializeDeps
+public def Workspace.materializeDeps
   (ws : Workspace) (manifest : Manifest)
   (leanOpts : Options := {}) (reconfigure := false)
   (overrides : Array PackageEntry := #[])

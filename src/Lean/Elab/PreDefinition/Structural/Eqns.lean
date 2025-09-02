@@ -3,15 +3,19 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Eqns
-import Lean.Meta.Tactic.Split
-import Lean.Meta.Tactic.Simp.Main
-import Lean.Meta.Tactic.Apply
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Eqns
-import Lean.Elab.PreDefinition.FixedParams
-import Lean.Elab.PreDefinition.Structural.Basic
+public import Lean.Meta.Eqns
+public import Lean.Meta.Tactic.Split
+public import Lean.Meta.Tactic.Simp.Main
+public import Lean.Meta.Tactic.Apply
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Eqns
+public import Lean.Elab.PreDefinition.FixedParams
+public import Lean.Elab.PreDefinition.Structural.Basic
+
+public section
 
 namespace Lean.Elab
 open Meta
@@ -48,7 +52,7 @@ where
       else if let some mvarId ← simpMatch? mvarId then
         trace[Elab.definition.structural.eqns] "simpMatch? succeeded"
         go mvarId
-      else if let some mvarId ← simpIf? mvarId then
+      else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
         trace[Elab.definition.structural.eqns] "simpIf? succeeded"
         go mvarId
       else
@@ -66,11 +70,11 @@ where
           else if let some mvarIds ← casesOnStuckLHS? mvarId then
             trace[Elab.definition.structural.eqns] "casesOnStuckLHS? succeeded"
             mvarIds.forM go
-          else if let some mvarIds ← splitTarget? mvarId then
+          else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
             trace[Elab.definition.structural.eqns] "splitTarget? succeeded"
             mvarIds.forM go
           else
-            throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+            throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
 
 def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do
@@ -80,7 +84,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     let goal ← mkFreshExprSyntheticOpaqueMVar target
     mkEqnTypes info.declNames goal.mvarId!
   let mut thmNames := #[]
-  for h : i in [: eqnTypes.size] do
+  for h : i in *...eqnTypes.size do
     let type := eqnTypes[i]
     trace[Elab.definition.structural.eqns] "eqnType {i+1}: {type}"
     let name := mkEqLikeNameFor (← getEnv) info.declName s!"{eqnThmSuffixBasePrefix}{i+1}"
@@ -93,6 +97,7 @@ where
   doRealize name type := withOptions (tactic.hygienic.set · false) do
     let value ← mkProof info.declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
+    let type ← letToHave type
     addDecl <| Declaration.thmDecl {
       name, type, value
       levelParams := info.levelParams
@@ -126,6 +131,7 @@ where
       let goal ← mkFreshExprSyntheticOpaqueMVar type
       mkUnfoldProof declName goal.mvarId!
       let type ← mkForallFVars xs type
+      let type ← letToHave type
       let value ← mkLambdaFVars xs (← instantiateMVars goal)
       addDecl <| Declaration.thmDecl {
         name, type, value

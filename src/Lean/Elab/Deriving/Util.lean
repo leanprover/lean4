@@ -3,16 +3,21 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Term
-import Lean.Elab.Term
+public import Lean.Elab.Term
+public import Lean.Elab.Command
+meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab.Deriving
-open Meta
+open Meta Command
 
-def implicitBinderF := Parser.Term.implicitBinder
-def instBinderF     := Parser.Term.instBinder
-def explicitBinderF := Parser.Term.explicitBinder
+meta def implicitBinderF := Parser.Term.implicitBinder
+meta def instBinderF     := Parser.Term.instBinder
+meta def explicitBinderF := Parser.Term.explicitBinder
 
 /-- Make fresh, hygienic names for every parameter and index of an inductive declaration.
 
@@ -49,7 +54,7 @@ invoking ``mkInstImplicitBinders `BarClass foo #[`α, `n, `β]`` gives `` `([Bar
 def mkInstImplicitBinders (className : Name) (indVal : InductiveVal) (argNames : Array Name) : TermElabM (Array Syntax) :=
   forallBoundedTelescope indVal.type indVal.numParams fun xs _ => do
     let mut binders := #[]
-    for h : i in [:xs.size] do
+    for h : i in *...xs.size do
       try
         let x := xs[i]
         let c ← mkAppM className #[x]
@@ -60,6 +65,23 @@ def mkInstImplicitBinders (className : Name) (indVal : InductiveVal) (argNames :
       catch _ =>
         pure ()
     return binders
+
+/--
+Removes any `[expose]` section attributes when running `cont` if `typeName` has private ctors.
+-/
+def withoutExposeFromCtors (typeName : Name) (cont : CommandElabM α) : CommandElabM α := do
+  -- TODO: some duplication with `mkContext` but it is in `TermElabM`; should it be?
+  let indVal ← getConstInfoInduct typeName
+  let mut typeInfos := #[]
+  for typeName in indVal.all do
+    typeInfos := typeInfos.push (← getConstInfoInduct typeName)
+  if typeInfos.any (·.ctors.any isPrivateName) then
+    -- The topmost scope should be the one form
+    if (← getScope).attrs.any (· matches `(Parser.Term.attrInstance| expose)) then
+      throwError "cannot use `deriving ... @[expose]` with `{.ofConstName typeName}` as it has one or more private constructors"
+    withScope (fun sc => { sc with
+        attrs := sc.attrs.filter (!· matches `(Parser.Term.attrInstance| expose)) }) cont
+  else cont
 
 structure Context where
   typeInfos   : Array InductiveVal
@@ -86,14 +108,14 @@ def mkContext (fnPrefix : String) (typeName : Name) : TermElabM Context := do
 
 def mkLocalInstanceLetDecls (ctx : Context) (className : Name) (argNames : Array Name) : TermElabM (Array (TSyntax ``Parser.Term.letDecl)) := do
   let mut letDecls := #[]
-  for h : i in [:ctx.typeInfos.size] do
+  for h : i in *...ctx.typeInfos.size do
     let indVal       := ctx.typeInfos[i]
     let auxFunName   := ctx.auxFunNames[i]!
     let currArgNames ← mkInductArgNames indVal
     let numParams    := indVal.numParams
-    let currIndices  := currArgNames[numParams:]
+    let currIndices  := currArgNames[numParams...*]
     let binders      ← mkImplicitBinders currIndices
-    let argNamesNew  := argNames[:numParams] ++ currIndices
+    let argNamesNew  := argNames[*...numParams] ++ currIndices
     let indType      ← mkInductiveApp indVal argNamesNew
     let type         ← `($(mkCIdent className) $indType)
     let val          ← `(⟨$(mkIdent auxFunName)⟩)
@@ -109,7 +131,7 @@ def mkLet (letDecls : Array (TSyntax ``Parser.Term.letDecl)) (body : Term) : Ter
 open TSyntax.Compat in
 def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (useAnonCtor := true) : TermElabM (Array Command) := do
   let mut instances := #[]
-  for i in [:ctx.typeInfos.size] do
+  for i in *...ctx.typeInfos.size do
     let indVal       := ctx.typeInfos[i]!
     if typeNames.contains indVal.name then
       let auxFunName   := ctx.auxFunNames[i]!
@@ -140,7 +162,7 @@ def mkHeader (className : Name) (arity : Nat) (indVal : InductiveVal) : TermElab
   let binders       ← mkImplicitBinders argNames
   let targetType    ← mkInductiveApp indVal argNames
   let mut targetNames := #[]
-  for _ in [:arity] do
+  for _ in *...arity do
     targetNames := targetNames.push (← mkFreshUserName `x)
   let binders      := binders ++ (← mkInstImplicitBinders className indVal argNames)
   let binders      := binders ++ (← targetNames.mapM fun targetName => `(explicitBinderF| ($(mkIdent targetName) : $targetType)))
@@ -154,7 +176,7 @@ def mkHeader (className : Name) (arity : Nat) (indVal : InductiveVal) : TermElab
 def mkDiscrs (header : Header) (indVal : InductiveVal) : TermElabM (Array (TSyntax ``Parser.Term.matchDiscr)) := do
   let mut discrs := #[]
   -- add indices
-  for argName in header.argNames[indVal.numParams:] do
+  for argName in header.argNames[indVal.numParams...*] do
     discrs := discrs.push (← mkDiscr argName)
   return discrs ++ (← header.targetNames.mapM mkDiscr)
 

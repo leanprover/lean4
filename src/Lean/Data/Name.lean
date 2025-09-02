@@ -3,8 +3,12 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Ord
+public import Init.Data.Ord.Basic
+
+public section
 namespace Lean
 
 namespace Name
@@ -184,6 +188,11 @@ def anyS (n : Name) (f : String → Bool) : Bool :=
   | .str p s => f s || p.anyS f
   | .num p _ => p.anyS f
   | _ => false
+
+/-- Return true if the name is in a namespace associated to metaprogramming. -/
+def isMetaprogramming (n : Name) : Bool :=
+  let components := n.components
+  components.head? == some `Lean || (components.any fun n => n == `Tactic || n == `Linter)
 
 end Name
 end Lean

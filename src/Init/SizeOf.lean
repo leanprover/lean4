@@ -6,7 +6,9 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Tactics
+public import Init.Tactics
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-! # SizeOf -/

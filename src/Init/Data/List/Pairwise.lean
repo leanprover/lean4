@@ -6,8 +6,10 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Sublist
-import Init.Data.List.Attach
+public import Init.Data.List.Sublist
+public import Init.Data.List.Attach
+
+public section
 
 /-!
 # Lemmas about `List.Pairwise` and `List.Nodup`.
@@ -59,7 +61,7 @@ theorem Pairwise.and (hR : Pairwise R l) (hS : Pairwise S l) :
   induction hR with
   | nil => simp only [Pairwise.nil]
   | cons R1 _ IH =>
-    simp only [Pairwise.nil, pairwise_cons] at hS ⊢
+    simp only [pairwise_cons] at hS ⊢
     exact ⟨fun b bl => ⟨R1 b bl, hS.1 b bl⟩, IH hS.2⟩
 
 theorem pairwise_and_iff : l.Pairwise (fun a b => R a b ∧ S a b) ↔ Pairwise R l ∧ Pairwise S l :=
@@ -211,7 +213,7 @@ theorem pairwise_append_comm {R : α → α → Prop} (s : ∀ {x y}, R x y → 
 @[grind] theorem Pairwise.take {l : List α} {i : Nat} (h : List.Pairwise R l) : List.Pairwise R (l.take i) :=
   h.sublist (take_sublist _ _)
 
-@[grind =]
+-- This theorem is not annotated with `grind` because it leads to a loop of instantiations with `Pairwise.sublist`.
 theorem pairwise_iff_forall_sublist : l.Pairwise R ↔ (∀ {a b}, [a,b] <+ l → R a b) := by
   induction l with
   | nil => simp
@@ -229,6 +231,10 @@ theorem pairwise_iff_forall_sublist : l.Pairwise R ↔ (∀ {a b}, [a,b] <+ l �
       · apply IH.mpr
         intro a b hab
         apply h; exact hab.cons _
+
+theorem pairwise_of_forall_sublist (g : ∀ {a b}, [a,b] <+ l → R a b) : l.Pairwise R := pairwise_iff_forall_sublist.mpr g
+
+theorem Pairwise.forall_sublist (h : l.Pairwise R) : ∀ {a b}, [a,b] <+ l → R a b := pairwise_iff_forall_sublist.mp h
 
 theorem Pairwise.rel_of_mem_take_of_mem_drop
     {l : List α} (h : l.Pairwise R) (hx : x ∈ l.take i) (hy : y ∈ l.drop i) : R x y := by
@@ -279,7 +285,11 @@ theorem nodup_nil : @Nodup α [] :=
 theorem nodup_cons {a : α} {l : List α} : Nodup (a :: l) ↔ a ∉ l ∧ Nodup l := by
   simp only [Nodup, pairwise_cons, forall_mem_ne]
 
-@[grind →] theorem Nodup.sublist : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
+@[grind =] theorem nodup_append {l₁ l₂ : List α} :
+    (l₁ ++ l₂).Nodup ↔ l₁.Nodup ∧ l₂.Nodup ∧ ∀ a ∈ l₁, ∀ b ∈ l₂, a ≠ b :=
+  pairwise_append
+
+theorem Nodup.sublist : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
   Pairwise.sublist
 
 grind_pattern Nodup.sublist => l₁ <+ l₂, Nodup l₁
@@ -311,5 +321,49 @@ theorem getElem?_inj {xs : List α}
 
 @[simp, grind =] theorem nodup_replicate {n : Nat} {a : α} :
     (replicate n a).Nodup ↔ n ≤ 1 := by simp [Nodup]
+
+theorem Nodup.count [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : Nodup l) : count a l = if a ∈ l then 1 else 0 := by
+  split <;> rename_i h'
+  · obtain ⟨s, t, rfl⟩ := List.append_of_mem h'
+    rw [nodup_append] at h
+    simp_all
+    rw [count_eq_zero.mpr ?_, count_eq_zero.mpr ?_]
+    · exact h.2.1.1
+    · intro w
+      simpa using h.2.2 _ w
+  · rw [count_eq_zero_of_not_mem h']
+
+grind_pattern Nodup.count => count a l, Nodup l
+
+@[grind =]
+theorem nodup_iff_count [BEq α] [LawfulBEq α] {l : List α} : l.Nodup ↔ ∀ a, count a l ≤ 1 := by
+  induction l with
+  | nil => simp
+  | cons x l ih =>
+    constructor
+    · intro h a
+      simp at h
+      rw [count_cons]
+      split <;> rename_i h'
+      · simp at h'
+        rw [count_eq_zero.mpr ?_]
+        · exact Nat.le_refl _
+        · exact h' ▸ h.1
+      · simp at h'
+        refine ih.mp h.2 a
+    · intro h
+      simp only [count_cons] at h
+      simp only [nodup_cons]
+      constructor
+      · intro w
+        specialize h x
+        simp at h
+        have := count_pos_iff.mpr w
+        replace h := le_of_lt_succ h
+        apply Nat.lt_irrefl _ (Nat.lt_of_lt_of_le this h)
+      · rw [ih]
+        intro a
+        specialize h a
+        exact le_of_add_right_le h
 
 end List

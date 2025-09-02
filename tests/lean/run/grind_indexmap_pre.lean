@@ -1,3 +1,4 @@
+module
 -- This is a companion file for `grind_indexmap.lean`,
 -- showing what an outline of this file might look like before any proofs are written.
 
@@ -41,19 +42,19 @@ instance : Membership α (IndexMap α β) where
 instance {m : IndexMap α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.indices))
 
-instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
-  getElem m a h := m.values[m.indices[a]'h]'(by sorry)
-  getElem? m a := m.indices[a]?.bind (fun i => (m.values[i]?))
-  getElem! m a := m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default
-
 @[inline] def findIdx? (m : IndexMap α β) (a : α) : Option Nat := m.indices[a]?
 
-@[inline] def findIdx (m : IndexMap α β) (a : α) (h : a ∈ m) : Nat := m.indices[a]
+@[inline] def findIdx (m : IndexMap α β) (a : α) (h : a ∈ m := by get_elem_tactic) : Nat := m.indices[a]
 
 @[inline] def getIdx? (m : IndexMap α β) (i : Nat) : Option β := m.values[i]?
 
 @[inline] def getIdx (m : IndexMap α β) (i : Nat) (h : i < m.size := by get_elem_tactic) : β :=
   m.values[i]
+
+instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
+  getElem m a h := m.values[m.indices[a]'h]'(by sorry)
+  getElem? m a := m.indices[a]?.bind (fun i => (m.values[i]?))
+  getElem! m a := m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default
 
 instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem?_def := sorry

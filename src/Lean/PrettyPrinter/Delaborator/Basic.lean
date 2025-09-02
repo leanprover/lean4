@@ -3,11 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.KeyedDeclsAttribute
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.PrettyPrinter.Delaborator.SubExpr
-import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+public import Lean.KeyedDeclsAttribute
+public import Lean.PrettyPrinter.Delaborator.Options
+public import Lean.PrettyPrinter.Delaborator.SubExpr
+public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+import Lean.Elab.InfoTree.Main
+
+public section
 
 /-!
 The delaborator is the first stage of the pretty printer, and the inverse of the
@@ -91,14 +96,6 @@ instance (priority := low) : MonadStateOf SubExpr.HoleIterator DelabM where
     let (ret, holeIter') := f s.holeIter
     (ret, { s with holeIter := holeIter' })
 
--- Macro scopes in the delaborator output are ultimately ignored by the pretty printer,
--- so give a trivial implementation.
-instance : MonadQuotation DelabM := {
-  getCurrMacroScope   := pure default
-  getMainModule       := pure default
-  withFreshMacroScope := fun x => x
-}
-
 /--
 Registers a delaborator.
 
@@ -136,9 +133,9 @@ as `@[app_delab c]` first performs name resolution on `c` in the current scope.
 -/
 macro "app_delab" id:ident : attr => do
   match ← Macro.resolveGlobalName id.getId with
-  | [] => Macro.throwErrorAt id s!"unknown declaration '{id.getId}'"
+  | [] => Macro.throwErrorAt id s!"unknown declaration `{id.getId}`"
   | [(c, [])] => `(attr| delab $(mkIdentFrom (canonical := true) id (`app ++ c)))
-  | _ => Macro.throwErrorAt id s!"ambiguous declaration '{id.getId}'"
+  | _ => Macro.throwErrorAt id s!"ambiguous declaration `{id.getId}`"
 
 def getExprKind : DelabM Name := do
   let e ← getExpr
@@ -165,7 +162,7 @@ def getExprKind : DelabM Name := do
 def getOptionsAtCurrPos : DelabM Options := do
   let ctx ← read
   let mut opts ← getOptions
-  if let some opts' := ctx.optionsPerPos.find? (← getPos) then
+  if let some opts' := ctx.optionsPerPos.get? (← getPos) then
     for (k, v) in opts' do
       opts := opts.insert k v
   return opts
@@ -187,7 +184,7 @@ def withOptionAtCurrPos (k : Name) (v : DataValue) (x : DelabM α) : DelabM α :
   let pos ← getPos
   withReader
     (fun ctx =>
-      let opts' := ctx.optionsPerPos.find? pos |>.getD {} |>.insert k v
+      let opts' := ctx.optionsPerPos.get? pos |>.getD {} |>.insert k v
       { ctx with optionsPerPos := ctx.optionsPerPos.insert pos opts' })
     x
 
@@ -440,7 +437,7 @@ partial def delab : Delab := do
       return pf
 
   let k ← getExprKind
-  let stx ← withIncDepth <| delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate '{k}'")
+  let stx ← withIncDepth <| delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate `{k}`")
   if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> pure !e.isMData then
     let typeStx ← withType delab
     `(($stx : $typeStx)) >>= annotateCurPos

@@ -3,10 +3,16 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.InfoUtils
-import Lean.Data.Lsp
-import Init.Data.List.Sort.Basic
+public import Lean.Server.InfoUtils
+public import Lean.Data.Lsp
+public import Init.Data.List.Sort.Basic
+import Lean.PrettyPrinter.Delaborator
+meta import Lean.Parser.Term
+
+public section
 
 namespace Lean.Server.FileWorker.SignatureHelp
 
@@ -119,7 +125,7 @@ def findSignatureHelp? (text : FileMap) (ctx? : Option Lsp.SignatureHelpContext)
     | return none
   let stack := stack.toArray.map (·.1)
   let mut candidates : Array Candidate := #[]
-  for h:i in [0:stack.size] do
+  for h:i in *...stack.size do
     let stx := stack[i]
     let parent := stack[i+1]?.getD .missing
     let (kind?, control) := determineCandidateKind stx parent

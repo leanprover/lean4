@@ -3,13 +3,17 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Nat.Lemmas
-import Init.RCases
-import Std.Data.Iterators.Basic
-import Std.Data.Iterators.Consumers.Monadic.Collect
-import Std.Data.Iterators.Consumers.Monadic.Loop
-import Std.Data.Iterators.Internal.Termination
+public import Init.Data.Nat.Lemmas
+public import Init.RCases
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Data.Iterators.Internal.Termination
+
+@[expose] public section
 
 /-!
 This module provides the iterator combinator `IterM.take`.
@@ -17,7 +21,7 @@ This module provides the iterator combinator `IterM.take`.
 
 namespace Std.Iterators
 
-variable {α : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {β : Type w}
+variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 
 /--
 The internal state of the `IterM.take` iterator combinator.
@@ -128,30 +132,31 @@ private def Take.instFinitenessRelation [Monad m] [Iterator α m β]
 
 instance Take.instFinite [Monad m] [Iterator α m β] [Productive α m] :
     Finite (Take α m β) m :=
-  Finite.of_finitenessRelation instFinitenessRelation
+  by exact Finite.of_finitenessRelation instFinitenessRelation
 
-instance Take.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Productive α m] :
+instance Take.instIteratorCollect {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] :
     IteratorCollect (Take α m β) m n :=
   .defaultImplementation
 
-instance Take.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m β] :
+instance Take.instIteratorCollectPartial {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] :
     IteratorCollectPartial (Take α m β) m n :=
   .defaultImplementation
 
-instance Take.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
-    [IteratorLoop α m n] [MonadLiftT m n] :
+instance Take.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoop (Take α m β) m n :=
   .defaultImplementation
 
-instance Take.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
-    [IteratorLoopPartial α m n] [MonadLiftT m n] :
-    IteratorLoopPartial (Take α m β) m n where
-  forInPartial lift {γ} it init f := do
-    Prod.fst <$> IteratorLoopPartial.forInPartial lift it.internalState.inner (γ := γ × Nat)
-        (init, it.internalState.remaining)
-        fun out acc =>
-          match acc.snd with
-          | 0 => pure <| .done acc
-          | n + 1 => (fun | .yield x => .yield ⟨x, n⟩ | .done x => .done ⟨x, n⟩) <$> f out acc.fst
+instance Take.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m β]
+    [MonadLiftT m n] :
+    IteratorLoopPartial (Take α m β) m n :=
+  .defaultImplementation
+
+instance {α : Type w} [Monad m] [Iterator α m β] [Finite α m] [IteratorLoop α m m] :
+    IteratorSize (Take α m β) m :=
+  .defaultImplementation
+
+instance {α : Type w} [Monad m] [Iterator α m β] [IteratorLoopPartial α m m] :
+    IteratorSizePartial (Take α m β) m :=
+  .defaultImplementation
 
 end Std.Iterators

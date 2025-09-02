@@ -3,10 +3,12 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Types
+import Init.Grind.ToInt
 import Lean.Meta.Tactic.Grind.Arith.ModelUtil
-
+public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 private def isIntNatENode (n : ENode) : MetaM Bool :=
@@ -25,10 +27,13 @@ private def getCutsatAssignment? (goal : Goal) (node : ENode) : Option Rat := Id
   else
     return none
 
-private def natCast? (e : Expr) : Option Expr :=
-  let_expr NatCast.natCast _ inst a := e | none
-  let_expr instNatCastInt := inst | none
-  some a
+private def natCastToInt? (e : Expr) : Option Expr :=
+  match_expr e with
+  | NatCast.natCast _ inst a =>
+    let_expr instNatCastInt := inst | none
+    some a
+  | Grind.ToInt.toInt _ _ _ a => some a
+  | _ => none
 
 def getAssignment? (goal : Goal) (e : Expr) : MetaM (Option Rat) := do
   let node ← goal.getENode (← goal.getRoot e)
@@ -58,11 +63,11 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
     if (← isIntNatENode node) then
       if let some v ← getAssignment? goal node.self then
         model := assignEqc goal node.self v model
-  -- Assign cast terms
+  -- Assign natCast and toInt terms
   for e in goal.exprs do
     let node ← goal.getENode e
     let i := node.self
-    let some n := natCast? i | pure ()
+    let some n := natCastToInt? i | pure ()
     if model[n]?.isNone then
       let some v := model[i]? | pure ()
       model := assignEqc goal n v model

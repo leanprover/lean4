@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Iterators_Iter_drop___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Iter_drop(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Iter_drop___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Iterators_Iter_drop___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_Iter_drop(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_Iter_drop___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -25,12 +25,14 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_Iter_drop(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Iterators_Iter_drop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_Iterators_Iter_drop___rarg), 2, 0);
-return x_3;
+lean_object* x_5; 
+x_5 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_4);
+return x_5;
 }
 }
 lean_object* initialize_Std_Data_Iterators_Combinators_Monadic_Drop(uint8_t builtin, lean_object*);

@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Data.Lsp
+public import Lean.Data.Lsp
+
+public section
 
 namespace Lean.Lsp
 

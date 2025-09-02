@@ -3,27 +3,34 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.PullLetDecls
-import Lean.Compiler.LCNF.CSE
-import Lean.Compiler.LCNF.Simp
-import Lean.Compiler.LCNF.PullFunDecls
-import Lean.Compiler.LCNF.ReduceJpArity
-import Lean.Compiler.LCNF.JoinPoints
-import Lean.Compiler.LCNF.Specialize
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.ToMono
-import Lean.Compiler.LCNF.LambdaLifting
-import Lean.Compiler.LCNF.FloatLetIn
-import Lean.Compiler.LCNF.ReduceArity
-import Lean.Compiler.LCNF.ElimDeadBranches
-import Lean.Compiler.LCNF.StructProjCases
-import Lean.Compiler.LCNF.ExtractClosed
+public import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.PullLetDecls
+public import Lean.Compiler.LCNF.CSE
+public import Lean.Compiler.LCNF.Simp
+public import Lean.Compiler.LCNF.PullFunDecls
+public import Lean.Compiler.LCNF.ReduceJpArity
+public import Lean.Compiler.LCNF.JoinPoints
+public import Lean.Compiler.LCNF.Specialize
+public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.ToMono
+public import Lean.Compiler.LCNF.LambdaLifting
+public import Lean.Compiler.LCNF.FloatLetIn
+public import Lean.Compiler.LCNF.ReduceArity
+public import Lean.Compiler.LCNF.ElimDeadBranches
+public import Lean.Compiler.LCNF.StructProjCases
+public import Lean.Compiler.LCNF.ExtractClosed
+public import Lean.Compiler.LCNF.Visibility
+
+public section
 
 namespace Lean.Compiler.LCNF
 
 open PassInstaller
+
+namespace Pass
 
 def init : Pass where
   name  := `init
@@ -57,8 +64,12 @@ def saveMono : Pass where
     return decl
   shouldAlwaysRunCheck := true
 
+end Pass
+
+open Pass
+
 def builtinPassManager : PassManager := {
-  passes := #[
+  basePasses := #[
     init,
     pullInstances,
     cse (shouldElimFunDecls := false),
@@ -78,7 +89,12 @@ def builtinPassManager : PassManager := {
     simp (occurrence := 2),
     cse (shouldElimFunDecls := false) (occurrence := 1),
     saveBase, -- End of base phase
+    -- should come last so it can see all created decls
+    -- pass must be run for each phase; see `base/monoTransparentDeclsExt`
+    inferVisibility (phase := .base),
     toMono,
+  ]
+  monoPasses := #[
     simp (occurrence := 3) (phase := .mono),
     reduceJpArity (phase := .mono),
     structProjCases,
@@ -94,7 +110,8 @@ def builtinPassManager : PassManager := {
     simp (occurrence := 5) (phase := .mono),
     cse (occurrence := 2) (phase := .mono),
     saveMono,  -- End of mono phase
-    extractClosed
+    inferVisibility (phase := .mono),
+    extractClosed,
   ]
 }
 
@@ -123,7 +140,7 @@ def addPass (declName : Name) : CoreM Unit := do
     let managerNew ← runFromDecl (← getPassManager) declName
     modifyEnv fun env => passManagerExt.addEntry env (declName, managerNew)
   | _ =>
-    throwError "invalid 'cpass' only 'PassInstaller's can be added via the 'cpass' attribute: {info.type}"
+    throwAttrDeclNotOfExpectedType `cpass declName info.type (mkConst ``PassInstaller)
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -131,7 +148,7 @@ builtin_initialize
     descr := "compiler passes for the code generator"
     add   := fun declName stx kind => do
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError "invalid attribute 'cpass', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `cpass kind
       discard <| addPass declName
     applicationTime := .afterCompilation
   }

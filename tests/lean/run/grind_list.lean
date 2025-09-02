@@ -1,10 +1,11 @@
+module
 reset_grind_attrs%
 namespace List
 
 attribute [local grind =] List.length_cons in
 example : 0 < (x :: t).length := by grind
 
-attribute [local grind →] getElem?_eq_getElem in
+attribute [local grind =] getElem?_eq_getElem in
 attribute [local grind =] length_replicate in
 attribute [local grind =] getElem_replicate in
 attribute [local grind =] getElem?_eq_none in

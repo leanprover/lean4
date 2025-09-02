@@ -3,11 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
+module
+
 prelude
 
-import Lean.Message
-import Lean.EnvExtension
-import Lean.DocString.Links
+public import Lean.Message
+public import Lean.EnvExtension
+public import Lean.DocString.Links
+
+public section
 
 namespace Lean
 
@@ -23,20 +27,8 @@ structure ErrorExplanation.Metadata where
   summary : String
   sinceVersion : String
   severity : MessageSeverity     := .error
-  removedVersion : Option String := none
+  removedVersion? : Option String := none
   deriving FromJson, ToJson
-
-/--
-Describes the location where (the identifier for) an error explanation is declared.
-
-We want to avoid polluting the environment with dummy declarations for error explanations (since,
-outside of the manual, we care only about their names), but we still want jump-to-location
-functionality to work; we use these location values to facilitate that.
--/
-structure ErrorExplanation.Location where
-  uri        : String
-  rangeStart : Nat × Nat
-  rangeEnd   : Nat × Nat
 
 /--
 An explanation of a named error message.
@@ -47,9 +39,16 @@ the bottom of corresponding error messages thrown using `throwNamedError` or `th
 structure ErrorExplanation where
   doc : String
   metadata : ErrorExplanation.Metadata
-  declLoc? : Option ErrorExplanation.Location
+  declLoc? : Option DeclarationLocation
 
 namespace ErrorExplanation
+
+/--
+Returns the error explanation summary prepended with its severity. For use in completions and
+hovers.
+-/
+def summaryWithSeverity (explan : ErrorExplanation) : String :=
+  s!"({explan.metadata.severity}) {explan.metadata.summary}"
 
 /--
 The kind of a code block in an error explanation example. `broken` blocks raise the diagnostic being

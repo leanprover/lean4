@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
+public import Init.Data.BitVec.Bitblast
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
+
+@[expose] public section
 
 /-!
 This module contains the verification of the bitblasters for `BitVec.shiftLeft` from
@@ -46,7 +51,7 @@ theorem go_get_aux (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
       rw [AIG.RefVec.get_push_ref_lt]
   · dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl]
     obtain rfl : curr = w := by omega
     simp
 termination_by w - curr
@@ -122,19 +127,19 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
     | inr =>
       split at hgo
       · split
-        · next hidx =>
+        next hidx =>
           rw [← hgo]
           rw [go_denote_eq]
           · simp [hidx]
           · omega
-        · next hidx =>
+        next hidx =>
           rw [← hgo]
           rw [go_denote_eq]
           · simp [hidx]
           · omega
       · split
         · omega
-        · next hidx =>
+        next hidx =>
           rw [← hgo]
           rw [go_denote_eq]
           · simp [hidx]
@@ -186,7 +191,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
   dsimp only at hg
   split at hg
   · split
-    · next hif1 =>
+    next hif1 =>
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
         denote_blastShiftLeftConst]
@@ -208,7 +213,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
           decide_true, Bool.true_and, Bool.eq_and_self, Bool.not_eq_true', decide_eq_false_iff_not,
           Nat.not_lt]
         omega
-    · next hif1 =>
+    next hif1 =>
       simp only [Bool.not_eq_true] at hif1
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
@@ -284,7 +289,7 @@ theorem denote_blastShiftLeft (aig : AIG α) (target : ArbitraryShiftTarget aig 
   unfold blastShiftLeft at hg
   dsimp only at hg
   split at hg
-  · next hzero =>
+  next hzero =>
     dsimp only
     subst hzero
     rw [← hg]

@@ -6,15 +6,19 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.WFTactics
-import Init.Data.Nat.Basic
-import Init.Data.Fin.Basic
-import Init.Data.UInt.BasicAux
-import Init.Data.Repr
-import Init.Data.ToString.Basic
-import Init.GetElem
+public import Init.WFTactics
+public import Init.Data.Nat.Basic
+public import Init.Data.Fin.Basic
+public import Init.Data.UInt.BasicAux
+public import Init.Data.Repr
+public import Init.Data.ToString.Basic
+public import Init.GetElem
+public import Init.Data.List.ToArrayImpl
 import all Init.Data.List.ToArrayImpl
+public import Init.Data.Array.Set
 import all Init.Data.Array.Set
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -161,7 +165,7 @@ representation of arrays. While this is not provable, `Array.usize` always retur
 the array since the implementation only supports arrays of size less than `USize.size`.
 -/
 @[extern "lean_array_size", simp]
-def usize (a : @& Array α) : USize := a.size.toUSize
+def usize (xs : @& Array α) : USize := xs.size.toUSize
 
 /--
 Low-level indexing operator which is as fast as a C array read.
@@ -169,8 +173,8 @@ Low-level indexing operator which is as fast as a C array read.
 This avoids overhead due to unboxing a `Nat` used as an index.
 -/
 @[extern "lean_array_uget", simp, expose]
-def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
-  a[i.toNat]
+def uget (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
+  xs[i.toNat]
 
 /--
 Low-level modification operator which is as fast as a C array write. The modification is performed
@@ -178,7 +182,7 @@ in-place when the reference to the array is unique.
 
 This avoids overhead due to unboxing a `Nat` used as an index.
 -/
-@[extern "lean_array_uset"]
+@[extern "lean_array_uset", expose]
 def uset (xs : Array α) (i : USize) (v : α) (h : i.toNat < xs.size) : Array α :=
   xs.set i.toNat v h
 
@@ -261,7 +265,7 @@ Examples:
 * `#["red", "green", "blue", "brown"].swapIfInBounds 0 4 = #["red", "green", "blue", "brown"]`
 * `#["red", "green", "blue", "brown"].swapIfInBounds 9 2 = #["red", "green", "blue", "brown"]`
 -/
-@[extern "lean_array_swap"]
+@[extern "lean_array_swap", grind]
 def swapIfInBounds (xs : Array α) (i j : @& Nat) : Array α :=
   if h₁ : i < xs.size then
   if h₂ : j < xs.size then swap xs i j
@@ -1022,7 +1026,7 @@ The optional parameters `start` and `stop` control the region of the array to wh
 applied. Iteration proceeds from `start` (inclusive) to `stop` (exclusive), so `f` is not invoked
 unless `start < stop`. By default, the entire array is used.
 -/
-@[inline]
+@[inline, expose]
 protected def forM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := 0) (stop := as.size) : m PUnit :=
   as.foldlM (fun _ => f) ⟨⟩ start stop
 
@@ -1163,7 +1167,7 @@ Examples:
 def zipIdx (xs : Array α) (start := 0) : Array (α × Nat) :=
   xs.mapIdx fun i a => (a, start + i)
 
-@[deprecated zipIdx (since := "2025-01-21")] abbrev zipWithIndex := @zipIdx
+
 
 /--
 Returns the first element of the array for which the predicate `p` returns `true`, or `none` if no
@@ -1283,7 +1287,7 @@ def findFinIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option (Fin as
     decreasing_by simp_wf; decreasing_trivial_pre_omega
   loop 0
 
-theorem findIdx?_loop_eq_map_findFinIdx?_loop_val {xs : Array α} {p : α → Bool} {j} :
+private theorem findIdx?_loop_eq_map_findFinIdx?_loop_val {xs : Array α} {p : α → Bool} {j} :
     findIdx?.loop p xs j = (findFinIdx?.loop p xs j).map (·.val) := by
   unfold findIdx?.loop
   unfold findFinIdx?.loop
@@ -1320,8 +1324,7 @@ def idxOfAux [BEq α] (xs : Array α) (v : α) (i : Nat) : Option (Fin xs.size) 
   else none
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-@[deprecated idxOfAux (since := "2025-01-29")]
-abbrev indexOfAux := @idxOfAux
+
 
 /--
 Returns the index of the first element equal to `a`, or the size of the array if no element is equal
@@ -1336,8 +1339,7 @@ Examples:
 def finIdxOf? [BEq α] (xs : Array α) (v : α) : Option (Fin xs.size) :=
   idxOfAux xs v 0
 
-@[deprecated "`Array.indexOf?` has been deprecated, use `idxOf?` or `finIdxOf?` instead." (since := "2025-01-29")]
-abbrev indexOf? := @finIdxOf?
+
 
 /--
 Returns the index of the first element equal to `a`, or the size of the array if no element is equal
@@ -1788,7 +1790,7 @@ decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
   induction xs, i, h using Array.eraseIdx.induct with
   | @case1 xs i h h' xs' ih =>
     unfold eraseIdx
-    simp +zetaDelta [h', xs', ih]
+    simp +zetaDelta [h', ih]
   | case2 xs i h h' =>
     unfold eraseIdx
     simp [h']
@@ -1806,6 +1808,7 @@ Examples:
 * `#["apple", "pear", "orange"].eraseIdxIfInBounds 3 = #["apple", "pear", "orange"]`
 * `#["apple", "pear", "orange"].eraseIdxIfInBounds 5 = #["apple", "pear", "orange"]`
 -/
+@[grind]
 def eraseIdxIfInBounds (xs : Array α) (i : Nat) : Array α :=
   if h : i < xs.size then xs.eraseIdx i h else xs
 
@@ -1916,6 +1919,7 @@ Examples:
  * `#["tues", "thur", "sat"].insertIdxIfInBounds 3 "wed" = #["tues", "thur", "sat", "wed"]`
  * `#["tues", "thur", "sat"].insertIdxIfInBounds 4 "wed" = #["tues", "thur", "sat"]`
 -/
+@[grind]
 def insertIdxIfInBounds (as : Array α) (i : Nat) (a : α) : Array α :=
   if h : i ≤ as.size then
     insertIdx as i a
@@ -1952,16 +1956,16 @@ def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
     false
 
 @[semireducible, specialize] -- This is otherwise irreducible because it uses well-founded recursion.
-def zipWithAux (as : Array α) (bs : Array β) (f : α → β → γ) (i : Nat) (cs : Array γ) : Array γ :=
+def zipWithMAux {m : Type v → Type w} [Monad m] (as : Array α) (bs : Array β) (f : α → β → m γ) (i : Nat) (cs : Array γ) : m (Array γ) := do
   if h : i < as.size then
     let a := as[i]
     if h : i < bs.size then
       let b := bs[i]
-      zipWithAux as bs f (i+1) <| cs.push <| f a b
+      zipWithMAux as bs f (i+1) <| cs.push (← f a b)
     else
-      cs
+      return cs
   else
-    cs
+    return cs
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 /--
@@ -1975,7 +1979,7 @@ Examples:
 * `#[x₁, x₂, x₃].zipWith f #[y₁, y₂, y₃, y₄] = #[f x₁ y₁, f x₂ y₂, f x₃ y₃]`
 -/
 @[inline] def zipWith (f : α → β → γ) (as : Array α) (bs : Array β) : Array γ :=
-  zipWithAux as bs f 0 #[]
+  Id.run (zipWithMAux as bs (pure <| f · ·) 0 #[])
 
 /--
 Combines two arrays into an array of pairs in which the first and second components are the
@@ -2011,6 +2015,13 @@ where go (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) :=
     cs
   termination_by max as.size bs.size - i
   decreasing_by simp_wf; decreasing_trivial_pre_omega
+
+/--
+Applies a monadic function to the corresponding elements of two arrays, left-to-right, stopping at
+the end of the shorter array. `zipWithM f as bs` is equivalent to `mapM id (zipWith f as bs)`.
+-/
+@[inline] def zipWithM {m : Type v → Type w} [Monad m] (f : α → β → m γ) (as : Array α) (bs : Array β) : m (Array γ) :=
+  zipWithMAux as bs f 0 #[]
 
 /--
 Separates an array of pairs into two arrays that contain the respective first and second components.

@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Internal_List_values___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_List_keys___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_List_values(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_List_keys(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_List_keys___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_List_keys___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_List_values(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_List_values___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_List_keys(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_List_keys___redArg(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -38,7 +38,7 @@ x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_ctor_get(x_4, 0);
 lean_inc(x_6);
 lean_dec(x_4);
-x_7 = l_Std_Internal_List_keys___rarg(x_5);
+x_7 = l_Std_Internal_List_keys___redArg(x_5);
 lean_ctor_set(x_1, 1, x_7);
 lean_ctor_set(x_1, 0, x_6);
 return x_1;
@@ -54,7 +54,7 @@ lean_dec(x_1);
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l_Std_Internal_List_keys___rarg(x_9);
+x_11 = l_Std_Internal_List_keys___redArg(x_9);
 x_12 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
@@ -63,15 +63,15 @@ return x_12;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_List_keys(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Internal_List_keys(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_Internal_List_keys___rarg), 1, 0);
-return x_3;
+lean_object* x_4; 
+x_4 = l_Std_Internal_List_keys___redArg(x_3);
+return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_List_values___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_List_values___redArg(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -92,7 +92,7 @@ x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec(x_4);
-x_7 = l_Std_Internal_List_values___rarg(x_5);
+x_7 = l_Std_Internal_List_values___redArg(x_5);
 lean_ctor_set(x_1, 1, x_7);
 lean_ctor_set(x_1, 0, x_6);
 return x_1;
@@ -108,7 +108,7 @@ lean_dec(x_1);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l_Std_Internal_List_values___rarg(x_9);
+x_11 = l_Std_Internal_List_values___redArg(x_9);
 x_12 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
@@ -117,12 +117,12 @@ return x_12;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_List_values(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Internal_List_values(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_Internal_List_values___rarg), 1, 0);
-return x_3;
+lean_object* x_4; 
+x_4 = l_Std_Internal_List_values___redArg(x_3);
+return x_4;
 }
 }
 lean_object* initialize_Init_BinderPredicates(uint8_t builtin, lean_object*);

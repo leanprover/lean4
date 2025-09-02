@@ -6,10 +6,12 @@ Authors: Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-import Init.Data.Int.DivMod.Basic
-import Init.Data.Int.Order
-import Init.Data.Nat.Dvd
-import Init.RCases
+public import Init.Data.Int.DivMod.Basic
+public import Init.Data.Int.Order
+public import Init.Data.Nat.Dvd
+public import Init.RCases
+
+public section
 
 /-!
 # Lemmas about integer division needed to bootstrap `omega`.
@@ -56,7 +58,7 @@ protected theorem dvd_trans : ∀ {a b c : Int}, a ∣ b → b ∣ c → a ∣ c
 
 @[simp] protected theorem dvd_neg {a b : Int} : a ∣ -b ↔ a ∣ b := by
   constructor <;> exact fun ⟨k, e⟩ =>
-    ⟨-k, by simp [← e, Int.neg_mul, Int.mul_neg, Int.neg_neg]⟩
+    ⟨-k, by simp [← e, Int.mul_neg, Int.neg_neg]⟩
 
 @[simp] theorem natAbs_dvd_natAbs {a b : Int} : natAbs a ∣ natAbs b ↔ a ∣ b := by
   refine ⟨fun ⟨k, hk⟩ => ?_, fun ⟨k, hk⟩ => ⟨natAbs k, hk.symm ▸ natAbs_mul a k⟩⟩
@@ -95,7 +97,7 @@ theorem ofNat_emod (m n : Nat) : (↑(m % n) : Int) = m % n := natCast_emod m n
 
 /-! ### mod definitions -/
 
-theorem emod_add_ediv : ∀ a b : Int, a % b + b * (a / b) = a
+theorem emod_add_mul_ediv : ∀ a b : Int, a % b + b * (a / b) = a
   | ofNat _, ofNat _ => congrArg ofNat <| Nat.mod_add_div ..
   | ofNat m, -[n+1] => by
     change (m % succ n + -↑(succ n) * -↑(m / succ n) : Int) = m
@@ -109,19 +111,35 @@ where
       ← Int.neg_neg (_-_), Int.neg_sub, Int.sub_sub_self, Int.add_right_comm]
     exact congrArg (fun x => -(ofNat x + 1)) (Nat.mod_add_div ..)
 
-/-- Variant of `emod_add_ediv` with the multiplication written the other way around. -/
-theorem emod_add_ediv' (a b : Int) : a % b + a / b * b = a := by
-  rw [Int.mul_comm]; exact emod_add_ediv ..
+@[deprecated emod_add_mul_ediv (since := "2025-09-01")]
+def emod_add_ediv := @emod_add_mul_ediv
 
-theorem ediv_add_emod (a b : Int) : b * (a / b) + a % b = a := by
-  rw [Int.add_comm]; exact emod_add_ediv ..
+theorem emod_add_ediv_mul (a b : Int) : a % b + a / b * b = a := by
+  rw [Int.mul_comm]; exact emod_add_mul_ediv ..
 
-/-- Variant of `ediv_add_emod` with the multiplication written the other way around. -/
-theorem ediv_add_emod' (a b : Int) : a / b * b + a % b = a := by
-  rw [Int.mul_comm]; exact ediv_add_emod ..
+@[deprecated emod_add_ediv_mul (since := "2025-09-01")]
+def emod_add_ediv' := @emod_add_ediv_mul
+
+theorem mul_ediv_add_emod (a b : Int) : b * (a / b) + a % b = a := by
+  rw [Int.add_comm]; exact emod_add_mul_ediv ..
+
+@[deprecated mul_ediv_add_emod (since := "2025-09-01")]
+def ediv_add_emod := @mul_ediv_add_emod
+
+theorem ediv_mul_add_emod (a b : Int) : a / b * b + a % b = a := by
+  rw [Int.mul_comm]; exact mul_ediv_add_emod ..
+
+@[deprecated ediv_mul_add_emod (since := "2025-09-01")]
+def ediv_add_emod' := @ediv_mul_add_emod
 
 theorem emod_def (a b : Int) : a % b = a - b * (a / b) := by
-  rw [← Int.add_sub_cancel (a % b), emod_add_ediv]
+  rw [← Int.add_sub_cancel (a % b), emod_add_mul_ediv]
+
+theorem mul_ediv_self (a b : Int) : b * (a / b) = a - a % b := by
+  rw [emod_def, Int.sub_sub_self]
+
+theorem ediv_mul_self (a b : Int) : a / b * b = a - a % b := by
+  rw [Int.mul_comm, emod_def, Int.sub_sub_self]
 
 /-! ### `/` ediv -/
 
@@ -224,7 +242,7 @@ theorem add_mul_emod_self {a b c : Int} : (a + b * c) % c = a % c :=
 
 @[simp] theorem emod_add_emod (m n k : Int) : (m % n + k) % n = (m + k) % n := by
   have := (add_mul_emod_self_left (m % n + k) n (m / n)).symm
-  rwa [Int.add_right_comm, emod_add_ediv] at this
+  rwa [Int.add_right_comm, emod_add_mul_ediv] at this
 
 @[simp] theorem add_emod_emod (m n k : Int) : (m + n % k) % k = (m + n) % k := by
   rw [Int.add_comm, emod_add_emod, Int.add_comm]
@@ -250,7 +268,7 @@ theorem emod_add_cancel_right {m n k : Int} (i) : (m + i) % n = (k + i) % n ↔ 
 
 theorem mul_emod (a b n : Int) : (a * b) % n = (a % n) * (b % n) % n := by
   conv => lhs; rw [
-    ← emod_add_ediv a n, ← emod_add_ediv' b n, Int.add_mul, Int.mul_add, Int.mul_add,
+    ← emod_add_mul_ediv a n, ← emod_add_ediv_mul b n, Int.add_mul, Int.mul_add, Int.mul_add,
     Int.mul_assoc, Int.mul_assoc, ← Int.mul_add n _ _, add_mul_emod_self_left,
     ← Int.mul_assoc, add_mul_emod_self_right]
 
@@ -259,7 +277,7 @@ theorem mul_emod (a b n : Int) : (a * b) % n = (a % n) * (b % n) % n := by
 
 @[simp] theorem emod_emod_of_dvd (n : Int) {m k : Int}
     (h : m ∣ k) : (n % k) % m = n % m := by
-  conv => rhs; rw [← emod_add_ediv n k]
+  conv => rhs; rw [← emod_add_mul_ediv n k]
   match k, h with
   | _, ⟨t, rfl⟩ => rw [Int.mul_assoc, add_mul_emod_self_left]
 
@@ -273,7 +291,7 @@ theorem sub_emod (a b n : Int) : (a - b) % n = (a % n - b % n) % n := by
 /-! ### properties of `/` and `%` -/
 
 theorem mul_ediv_cancel_of_emod_eq_zero {a b : Int} (H : a % b = 0) : b * (a / b) = a := by
-  have := emod_add_ediv a b; rwa [H, Int.zero_add] at this
+  have := emod_add_mul_ediv a b; rwa [H, Int.zero_add] at this
 
 theorem ediv_mul_cancel_of_emod_eq_zero {a b : Int} (H : a % b = 0) : a / b * b = a := by
   rw [Int.mul_comm, mul_ediv_cancel_of_emod_eq_zero H]
@@ -324,11 +342,11 @@ theorem emod_pos_of_not_dvd {a b : Int} (h : ¬ a ∣ b) : a = 0 ∨ 0 < b % a :
 theorem mul_ediv_self_le {x k : Int} (h : k ≠ 0) : k * (x / k) ≤ x :=
   calc k * (x / k)
     _ ≤ k * (x / k) + x % k := Int.le_add_of_nonneg_right (emod_nonneg x h)
-    _ = x                   := ediv_add_emod _ _
+    _ = x                   := mul_ediv_add_emod _ _
 
 theorem lt_mul_ediv_self_add {x k : Int} (h : 0 < k) : x < k * (x / k) + k :=
   calc x
-    _ = k * (x / k) + x % k := (ediv_add_emod _ _).symm
+    _ = k * (x / k) + x % k := (mul_ediv_add_emod _ _).symm
     _ < k * (x / k) + k     := Int.add_lt_add_left (emod_lt_of_pos x h) _
 
 /-! ### bmod -/

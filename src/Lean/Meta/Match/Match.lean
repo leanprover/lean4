@@ -3,17 +3,21 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.LitValues
-import Lean.Meta.Check
-import Lean.Meta.Closure
-import Lean.Meta.CtorRecognizer
-import Lean.Meta.Tactic.Cases
-import Lean.Meta.Tactic.Contradiction
-import Lean.Meta.GeneralizeTelescope
-import Lean.Meta.Match.Basic
-import Lean.Meta.Match.MatcherApp.Basic
-import Lean.Meta.Match.MVarRenaming
+public import Lean.Meta.LitValues
+public import Lean.Meta.Check
+public import Lean.Meta.Closure
+public import Lean.Meta.CtorRecognizer
+public import Lean.Meta.Tactic.Cases
+public import Lean.Meta.Tactic.Contradiction
+public import Lean.Meta.GeneralizeTelescope
+public import Lean.Meta.Match.Basic
+public import Lean.Meta.Match.MatcherApp.Basic
+public import Lean.Meta.Match.MVarRenaming
+
+public section
 
 namespace Lean.Meta.Match
 
@@ -476,7 +480,7 @@ private def throwCasesException (p : Problem) (ex : Exception) : MetaM α := do
   | .error ref msg =>
     let exampleMsg :=
       if hasNonTrivialExample p then m!" after processing{indentD <| examplesToMessageData p.examples}" else ""
-    throw <| Exception.error ref <| m!"{msg}{exampleMsg}\n" ++
+    throw <| Exception.error ref <| msg.composePreservingKind <| m!"{exampleMsg}\n" ++
               "the dependent pattern matcher can solve the following kinds of equations\n" ++
               "- <var> = <term> and <term> = <var>\n" ++
               "- <term> = <term> where the terms are definitionally equal\n" ++
@@ -825,7 +829,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   match nameNew? with
   | some nameNew => return (mkMatcherConst nameNew, none)
   | none =>
-    let decl := Declaration.defnDecl (← mkDefinitionValInferrringUnsafe name result.levelParams.toList
+    let decl := Declaration.defnDecl (← mkDefinitionValInferringUnsafe name result.levelParams.toList
       result.type result.value .abbrev)
     trace[Meta.Match.debug] "{name} : {result.type} := {result.value}"
     let addMatcher : MatcherInfo → MetaM Unit := fun mi => do
@@ -883,11 +887,8 @@ The number of patterns must be the same in each `AltLHS`.
 The generated matcher has the structure described at `MatcherInfo`. The motive argument is of the form
 `(motive : (a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> Sort v)`
 where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition.
-
-If `exceptionIfContainsSorry := true`, then `mkMatcher` throws an exception if the auxiliary
-declarations contains a `sorry`. We use this argument to workaround a bug at `IndPredBelow.mkBelowMatcher`.
 -/
-def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : MetaM MatcherResult := withCleanLCtxFor input do
+def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor input do
   let ⟨matcherName, matchType, discrInfos, lhss⟩ := input
   let numDiscrs := discrInfos.size
   let numEqs := getNumEqsFromDiscrInfos discrInfos
@@ -900,11 +901,6 @@ def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : Met
   let uElim ← getLevel matchTypeBody
   let uElimGen ← if uElim == levelZero then pure levelZero else mkFreshLevelMVar
   let mkMatcher (type val : Expr) (minors : Array (Expr × Nat)) (s : State) : MetaM MatcherResult := do
-    let val ← instantiateMVars val
-    let type ← instantiateMVars type
-    if exceptionIfContainsSorry then
-      if type.hasSorry || val.hasSorry then
-        throwError "Failed to create auxiliary match declaration '{matcherName}' because it contains `sorry`"
     trace[Meta.Match.debug] "matcher value: {val}\ntype: {type}"
     trace[Meta.Match.debug] "minors num params: {minors.map (·.2)}"
     /- The option `bootstrap.gen_matcher_code` is a helper hack. It is useful, for example,
@@ -989,9 +985,10 @@ def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : Met
 def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput := do
   let matcherName := matcherApp.matcherName
   let some matcherInfo ← getMatcherInfo? matcherName
-    | throwError "Internal error during match expression elaboration: Could not find a matcher named '{matcherName}'"
-  let matcherConst ← getConstInfo matcherName
-  let matcherType ← instantiateForall matcherConst.type <| matcherApp.params ++ #[matcherApp.motive]
+    | throwError "Internal error during match expression elaboration: Could not find a matcher named `{matcherName}`"
+  let matcherConst ← getConstVal matcherName
+  let matcherType ← instantiateTypeLevelParams matcherConst matcherApp.matcherLevels.toList
+  let matcherType ← instantiateForall matcherType <| matcherApp.params ++ #[matcherApp.motive]
   let matchType ← do
     let u :=
       if let some idx := matcherInfo.uElimPos?
@@ -1020,13 +1017,13 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
 /-- This function is only used for testing purposes -/
 def withMkMatcherInput (matcherName : Name) (k : MkMatcherInput → MetaM α) : MetaM α := do
   let some matcherInfo ← getMatcherInfo? matcherName
-    | throwError "Internal error during match expression elaboration: Could not find a matcher named '{matcherName}'"
+    | throwError "Internal error during match expression elaboration: Could not find a matcher named `{matcherName}`"
   let matcherConst ← getConstInfo matcherName
   forallBoundedTelescope matcherConst.type (some matcherInfo.arity) fun xs _ => do
   let matcherApp ← mkConstWithLevelParams matcherConst.name
   let matcherApp := mkAppN matcherApp xs
   let some matcherApp ← matchMatcherApp? matcherApp
-    | throwError "Internal error during match expression elaboration: Could not find a matcher app named '{matcherApp}'"
+    | throwError "Internal error during match expression elaboration: Could not find a matcher app named `{matcherApp}`"
   let mkMatcherInput ← getMkMatcherInputInContext matcherApp
   k mkMatcherInput
 

@@ -4,12 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.System.IO
-import Lean.Data.Json
-import Lean.Data.Lsp.Communication
-import Lean.Data.Lsp.Diagnostics
-import Lean.Data.Lsp.Extra
+public import Init.System.IO
+public import Lean.Data.Json.Basic
+public import Lean.Data.Lsp.Communication
+public import Lean.Data.Lsp.Diagnostics
+public import Lean.Data.Lsp.Extra
+import Init.Data.List.Sort.Basic
+
+public section
 
 /-! Provides an IpcM monad for interacting with an external LSP process.
 Used for testing the Lean server. -/
@@ -86,6 +91,17 @@ partial def readResponseAs (expectedID : RequestID) (α) [FromJson α] :
 def waitForExit : IpcM UInt32 := do
   (←read).wait
 
+def normalizePublishDiagnosticsParams (p : PublishDiagnosticsParams) :
+    PublishDiagnosticsParams := {
+  p with
+  diagnostics :=
+    -- Sort diagnostics by range and message to erase non-determinism in the order of diagnostics
+    -- induced by parallelism. This isn't complete, but it will hopefully be plenty for all tests.
+    let sorted := p.diagnostics.toList.mergeSort fun d1 d2 =>
+      compare d1.fullRange d2.fullRange |>.then (compare d1.message d2.message) |>.isLE
+    sorted.toArray
+}
+
 /--
 Waits for the worker to emit all diagnostic notifications for the current document version and
 returns the last notification, if any.
@@ -109,7 +125,7 @@ where
       else loop
     | Message.notification "textDocument/publishDiagnostics" (some param) =>
       match fromJson? (toJson param) with
-      | Except.ok diagnosticParam => return (← loop).getD ⟨"textDocument/publishDiagnostics", diagnosticParam⟩
+      | Except.ok diagnosticParam => return (← loop).getD ⟨"textDocument/publishDiagnostics", normalizePublishDiagnosticsParams diagnosticParam⟩
       | Except.error inner => throw $ userError s!"Cannot decode publishDiagnostics parameters\n{inner}"
     | _ => loop
 

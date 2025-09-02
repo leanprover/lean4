@@ -3,20 +3,26 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.ReservedNameAction
-import Lean.Meta.AppBuilder
-import Lean.Meta.CollectMVars
-import Lean.Meta.Coe
-import Lean.Util.CollectLevelMVars
-import Lean.Linter.Deprecated
-import Lean.Elab.Config
-import Lean.Elab.Level
-import Lean.Elab.DeclModifiers
-import Lean.Elab.PreDefinition.TerminationHint
-import Lean.Elab.DeclarationRange
-import Lean.Language.Basic
-import Lean.Elab.InfoTree.InlayHints
+public import Lean.ReservedNameAction
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.CollectMVars
+public import Lean.Meta.Coe
+public import Lean.Util.CollectLevelMVars
+public import Lean.Linter.Deprecated
+public import Lean.Elab.Config
+public import Lean.Elab.Level
+public import Lean.Elab.DeclModifiers
+public import Lean.Elab.PreDefinition.TerminationHint
+public import Lean.Elab.DeclarationRange
+public import Lean.Elab.WhereFinally
+public import Lean.Language.Basic
+public import Lean.Elab.InfoTree.InlayHints
+public meta import Lean.Parser.Term
+
+public section
 
 namespace Lean.Elab
 
@@ -139,6 +145,7 @@ structure LetRecToLift where
   attrs          : Array Attribute
   shortDeclName  : Name
   declName       : Name
+  parentName?    : Option Name
   lctx           : LocalContext
   localInstances : LocalInstances
   type           : Expr
@@ -281,9 +288,8 @@ structure Context where
   /--
      When `autoBoundImplicit` is set to true, instead of producing
      an "unknown identifier" error for unbound variables, we generate an
-     internal exception. This exception is caught at `elabBinders` and
-     `elabTypeWithUnboldImplicit`. Both methods add implicit declarations
-     for the unbound variable and try again. -/
+     internal exception. This exception is caught at `withAutoBoundImplicit`
+     which adds an implicit declaration for the unbound variable and tries again. -/
   autoBoundImplicit  : Bool            := false
   autoBoundImplicits : PArray Expr := {}
   /--
@@ -459,7 +465,7 @@ depend on them (i.e. they should not be inspected beforehand).
 def withNarrowedArgTacticReuse [Monad m] [MonadReaderOf Context m] [MonadLiftT BaseIO m]
     [MonadWithReaderOf Core.Context m] [MonadWithReaderOf Context m] [MonadOptions m]
     (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
-  withNarrowedTacticReuse (fun stx => (mkNullNode stx.getArgs[:argIdx], stx[argIdx])) act stx
+  withNarrowedTacticReuse (fun stx => (mkNullNode stx.getArgs[*...argIdx], stx[argIdx])) act stx
 
 /--
 Disables incremental tactic reuse *and* reporting for `act` if `cond` is true by setting `tacSnap?`
@@ -813,14 +819,14 @@ where
   /-- Append the argument name (if available) to the message.
       Remark: if the argument name contains macro scopes we do not append it. -/
   addArgName (msg : MessageData) (extra : String := "") : TermElabM MessageData := do
-    match (← get).mvarArgNames.find? mvarErrorInfo.mvarId with
+    match (← get).mvarArgNames.get? mvarErrorInfo.mvarId with
     | none => return msg
-    | some argName => return if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
+    | some argName => return if argName.hasMacroScopes then msg else msg ++ extra ++ m!" `{argName}`"
 
   appendExtra (msg : MessageData) : MessageData :=
     match extraMsg? with
     | none => msg
-    | some extraMsg => msg ++ extraMsg
+    | some extraMsg => msg.composePreservingKind extraMsg
 
 /--
   Try to log errors for the unassigned metavariables `pendingMVarIds`.
@@ -992,7 +998,7 @@ def applyAttributes (declName : Name) (attrs : Array Attribute) : TermElabM Unit
 def mkTypeMismatchError (header? : Option MessageData) (e : Expr) (eType : Expr) (expectedType : Expr) : MetaM MessageData := do
   let header : MessageData := match header? with
     | some header => m!"{header} "
-    | none        => m!"type mismatch{indentExpr e}\n"
+    | none        => m!"Type mismatch{indentExpr e}\n"
   return m!"{header}{← mkHasTypeButIsExpectedMsg eType expectedType}"
 
 def throwTypeMismatchError (header? : Option MessageData) (expectedType : Expr) (eType : Expr) (e : Expr)
@@ -1182,9 +1188,8 @@ private def mkSyntheticSorryFor (expectedType? : Option Expr) : TermElabM Expr :
   elaboration step with exception `ex`.
 -/
 def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
-  let syntheticSorry ← mkSyntheticSorryFor expectedType?
   logException ex
-  pure syntheticSorry
+  mkSyntheticSorryFor expectedType?
 
 /-- If `mayPostpone == true`, throw `Exception.postpone`. -/
 def tryPostpone : TermElabM Unit := do
@@ -1267,7 +1272,7 @@ private def postponeElabTermCore (stx : Syntax) (expectedType? : Option Expr) : 
   return mvar
 
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
-  return (← get).syntheticMVars.find? mvarId
+  return (← get).syntheticMVars.get? mvarId
 
 register_builtin_option debug.byAsSorry : Bool := {
   defValue := false
@@ -1475,11 +1480,10 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   let s ← saveState
   let k := stx.getKind
   match termElabAttribute.getEntries (← getEnv) k with
-  | []      => throwError "elaboration function for '{k}' has not been implemented{indentD stx}"
+  | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
   | elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
 
 instance : MonadMacroAdapter TermElabM where
-  getCurrMacroScope := getCurrMacroScope
   getNextMacroScope := return (← getThe Core.State).nextMacroScope
   setNextMacroScope next := modifyThe Core.State fun s => { s with nextMacroScope := next }
 
@@ -1518,9 +1522,7 @@ private def isNoImplicitLambda (stx : Syntax) : Bool :=
   | _ => false
 
 private def isTypeAscription (stx : Syntax) : Bool :=
-  match stx with
-  | `(($_ : $[$_]?)) => true
-  | _                => false
+  stx.isOfKind ``Parser.Term.typeAscription
 
 def hasNoImplicitLambdaAnnotation (type : Expr) : Bool :=
   annotation? `noImplicitLambda type |>.isSome
@@ -1898,7 +1900,7 @@ where
           let localDecl ← auto.fvarId!.getDecl
           for x in xs do
             if (← localDeclDependsOn localDecl x.fvarId!) then
-              throwError "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
+              throwError "invalid auto implicit argument `{auto}`, it depends on explicitly provided argument `{x}`"
       return autos ++ xs
     | auto :: todo =>
       let autos ← collectUnassignedMVars (← inferType auto) autos
@@ -1945,7 +1947,7 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
   checkDeprecatedCore constName
   let cinfo ← getConstVal constName
   if explicitLevels.length > cinfo.levelParams.length then
-    throwError "too many explicit universe levels for '{constName}'"
+    throwError "too many explicit universe levels for `{constName}`"
   else
     let numMissingLevels := cinfo.levelParams.length - explicitLevels.length
     let us ← mkFreshLevelMVars numMissingLevels
@@ -1975,7 +1977,7 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
   if let some (e, projs) ← resolveLocalName n then
     unless explicitLevels.isEmpty do
-      throwError "invalid use of explicit universe parameters, '{e}' is a local variable"
+      throwError "invalid use of explicit universe parameters, `{e}` is a local variable"
     return [(e, projs)]
   let preresolved := preresolved.filterMap fun
     | .decl n projs => some (n, projs)
@@ -1990,14 +1992,18 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
     process preresolved
 where
   process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
-    if candidates.isEmpty then
-      if (← read).autoBoundImplicit &&
-           !(← read).autoBoundImplicitForbidden n &&
-           isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
-        throwAutoBoundImplicitLocal n
-      else
-        throwUnknownIdentifierAt stx m!"unknown identifier '{Lean.mkConst n}'"
-    mkConsts candidates explicitLevels
+    if !candidates.isEmpty then
+      return (← mkConsts candidates explicitLevels)
+    let env ← getEnv
+    -- check for scope errors before trying auto implicits
+    if env.isExporting then
+      if let [(npriv, _)] ← withEnv (env.setExporting false) <| resolveGlobalName n then
+        throwUnknownIdentifierAt (declHint := npriv) stx m!"Unknown identifier `{.ofConstName n}`"
+    if (← read).autoBoundImplicit &&
+          !(← read).autoBoundImplicitForbidden n &&
+          isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
+      throwAutoBoundImplicitLocal n
+    throwUnknownIdentifierAt (declHint := n) stx m!"Unknown identifier `{.ofConstName n}`"
 
 /--
   Similar to `resolveName`, but creates identifiers for the main part and each projection with position information derived from `ident`.
@@ -2052,7 +2058,7 @@ def universeConstraintsCheckpoint (x : TermElabM α) : TermElabM α := do
 def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : TermElabM ExpandDeclIdResult := do
   let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
   if (← read).sectionVars.contains r.shortName then
-    throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
+    throwError "invalid declaration name `{r.shortName}`, there is a section variable with the same name"
   return r
 
 /--
@@ -2100,16 +2106,15 @@ builtin_initialize builtinIncrementalElabs : IO.Ref NameSet ← IO.mkRef {}
 def addBuiltinIncrementalElab (decl : Name) : IO Unit := do
   builtinIncrementalElabs.modify fun s => s.insert decl
 
-@[builtin_init, inherit_doc incrementalAttr, builtin_doc]
-private def init :=
+@[inherit_doc incrementalAttr, builtin_doc]
+builtin_initialize
   registerBuiltinAttribute {
     name            := `builtin_incremental
     descr           := s!"(builtin) {incrementalAttr.attr.descr}"
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do
-        throwError "invalid attribute 'builtin_incremental', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `builtin_incremental kind
       declareBuiltin decl <| mkApp (mkConst ``addBuiltinIncrementalElab) (toExpr decl)
   }
 

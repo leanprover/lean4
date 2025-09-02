@@ -6,9 +6,11 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Format.Basic
-import Init.Data.Array.Basic
-import Init.Data.ToString.Basic
+public import Init.Data.Format.Basic
+public import Init.Data.Array.Basic
+public import Init.Data.ToString.Basic
+
+public section
 
 open Std
 

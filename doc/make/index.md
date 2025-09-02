@@ -44,12 +44,12 @@ Useful CMake Configuration Settings
 Pass these along with the `cmake --preset release` command.
 There are also two alternative presets that combine some of these options you can use instead of `release`: `debug` and `sandebug` (sanitize + debug).
 
-* `-D CMAKE_BUILD_TYPE=`\
+* `-DCMAKE_BUILD_TYPE=`\
   Select the build type. Valid values are `RELEASE` (default), `DEBUG`,
   `RELWITHDEBINFO`, and `MINSIZEREL`.
 
-* `-D CMAKE_C_COMPILER=`\
-  `-D CMAKE_CXX_COMPILER=`\
+* `-DCMAKE_C_COMPILER=`\
+  `-DCMAKE_CXX_COMPILER=`\
   Select the C/C++ compilers to use. Official Lean releases currently use Clang;
   see also `.github/workflows/ci.yml` for the CI config.
 

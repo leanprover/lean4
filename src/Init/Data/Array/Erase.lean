@@ -6,10 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
+public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
-import Init.Data.Array.Lemmas
-import Init.Data.List.Nat.Erase
-import Init.Data.List.Nat.Basic
+public import Init.Data.Array.Lemmas
+public import Init.Data.List.Nat.Erase
+public import Init.Data.List.Nat.Basic
+
+public section
 
 /-!
 # Lemmas about `Array.eraseP`, `Array.erase`, and `Array.eraseIdx`.
@@ -206,7 +209,7 @@ theorem erase_eq_eraseP [LawfulBEq α] (a : α) (xs : Array α) : xs.erase a = x
 theorem erase_ne_empty_iff [LawfulBEq α] {xs : Array α} {a : α} :
     xs.erase a ≠ #[] ↔ xs ≠ #[] ∧ xs ≠ #[a] := by
   rcases xs with ⟨xs⟩
-  simp [List.erase_ne_nil_iff]
+  simp
 
 theorem exists_erase_eq [LawfulBEq α] {a : α} {xs : Array α} (h : a ∈ xs) :
     ∃ ys zs, a ∉ ys ∧ xs = ys.push a ++ zs ∧ xs.erase a = ys ++ zs := by
@@ -306,7 +309,7 @@ theorem erase_eq_iff [LawfulBEq α] {a : α} {xs : Array α} :
 @[simp] theorem erase_replicate_self [LawfulBEq α] {a : α} :
     (replicate n a).erase a = replicate (n - 1) a := by
   simp only [← List.toArray_replicate, List.erase_toArray]
-  simp [List.erase_replicate]
+  simp
 
 @[deprecated erase_replicate_self (since := "2025-03-18")]
 abbrev erase_mkArray_self := @erase_replicate_self
@@ -352,7 +355,7 @@ theorem getElem?_eraseIdx_of_lt {xs : Array α} {i : Nat} (h : i < xs.size) {j :
 theorem getElem?_eraseIdx_of_ge {xs : Array α} {i : Nat} (h : i < xs.size) {j : Nat} (h' : i ≤ j) :
     (xs.eraseIdx i)[j]? = xs[j + 1]? := by
   rw [getElem?_eraseIdx]
-  simp only [dite_eq_ite, ite_eq_right_iff]
+  simp only [ite_eq_right_iff]
   intro h'
   omega
 
@@ -380,10 +383,11 @@ theorem eraseIdx_ne_empty_iff {xs : Array α} {i : Nat} {h} : xs.eraseIdx i ≠ 
     simp [h]
   · simp
 
-@[grind →]
 theorem mem_of_mem_eraseIdx {xs : Array α} {i : Nat} {h} {a : α} (h : a ∈ xs.eraseIdx i) : a ∈ xs := by
   rcases xs with ⟨xs⟩
   simpa using List.mem_of_mem_eraseIdx (by simpa using h)
+
+grind_pattern mem_of_mem_eraseIdx => a ∈ xs.eraseIdx i
 
 theorem eraseIdx_append_of_lt_size {xs : Array α} {k : Nat} (hk : k < xs.size) (ys : Array α) (h) :
     eraseIdx (xs ++ ys) k = eraseIdx xs k ++ ys := by

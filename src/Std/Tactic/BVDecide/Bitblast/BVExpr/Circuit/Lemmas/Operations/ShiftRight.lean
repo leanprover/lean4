@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
+public import Init.Data.BitVec.Bitblast
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
+
+@[expose] public section
 
 /-!
 This module contains the verification of the bitblasters for `BitVec.shiftRight` from
@@ -46,7 +51,7 @@ theorem go_get_aux (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
       rw [AIG.RefVec.get_push_ref_lt]
   · dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl]
     obtain rfl : curr = w := by omega
     simp
 termination_by w - curr
@@ -130,7 +135,7 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
             · omega
       · split
         · omega
-        · next hidx =>
+        next hidx =>
           rw [← hgo]
           rw [go_denote_eq]
           · simp [hidx]
@@ -175,7 +180,7 @@ theorem go_get (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
     all_goals
       rw [go_get]
       rw [AIG.RefVec.get_push_ref_lt]
-  · simp only [get, Ref.mk.injEq]
+  · simp only
     have : curr = w := by omega
     subst this
     simp
@@ -203,7 +208,7 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
   · cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       split at hgo
-      · next hlt =>
+      next hlt =>
         rw [heq] at hlt
         simp only [hlt, ↓reduceDIte]
         dsimp only at hgo
@@ -212,7 +217,7 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
         rw [AIG.RefVec.get_push_ref_eq']
         · simp [heq]
         · omega
-      · next hlt =>
+      next hlt =>
         rw [heq] at hlt
         simp only [hlt, ↓reduceDIte]
         dsimp only at hgo
@@ -276,7 +281,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
   dsimp only at hg
   split at hg
   · split
-    · next hif1 =>
+    next hif1 =>
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
         denote_blastShiftRightConst]
@@ -293,7 +298,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
         Bool.false_eq]
         apply BitVec.getLsbD_of_ge
         omega
-    · next hif1 =>
+    next hif1 =>
       simp only [Bool.not_eq_true] at hif1
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
@@ -369,7 +374,7 @@ theorem denote_blastShiftRight (aig : AIG α) (target : ArbitraryShiftTarget aig
   unfold blastShiftRight at hres
   dsimp only at hres
   split at hres
-  · next hzero =>
+  next hzero =>
     dsimp only
     subst hzero
     rw [← hres]
@@ -409,7 +414,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
   dsimp only at hg
   split at hg
   · split
-    · next hif1 =>
+    next hif1 =>
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
         denote_blastArithShiftRightConst]
@@ -420,13 +425,13 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
         apply Nat.mod_eq_of_lt
         apply Nat.pow_lt_pow_of_lt <;> omega
       split
-      · next hlt =>
+      next hlt =>
         rw [hleft]
         simp [hmod, BitVec.getElem_sshiftRight, hlt, hidx]
-      · next hlt =>
+      next hlt =>
         rw [hleft]
         simp [BitVec.getElem_sshiftRight, hmod, hlt, hidx, BitVec.msb_eq_getLsbD_last]
-    · next hif1 =>
+    next hif1 =>
       simp only [Bool.not_eq_true] at hif1
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
@@ -502,7 +507,7 @@ theorem denote_blastArithShiftRight (aig : AIG α) (target : ArbitraryShiftTarge
   unfold blastArithShiftRight at hres
   dsimp only at hres
   split at hres
-  · next hzero =>
+  next hzero =>
     dsimp only
     subst hzero
     rw [← hres]

@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Pred
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Pred
+
+@[expose] public section
 
 /-!
 This module contains the verification of the bitblaster for general `BitVec` problems with boolean
@@ -46,7 +50,7 @@ theorem go_Inv_of_Inv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.
   | gate g lhs rhs lih rih =>
     cases g
     all_goals
-      simp [go, Gate.eval]
+      simp [go]
       apply BVExpr.Cache.Inv_cast
       · apply LawfulOperator.isPrefix_aig
       · apply rih

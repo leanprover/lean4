@@ -3,13 +3,17 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.PullFunDecls
-import Lean.Compiler.LCNF.FVarUtil
-import Lean.Compiler.LCNF.ScopeM
-import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.PullFunDecls
+public import Lean.Compiler.LCNF.FVarUtil
+public import Lean.Compiler.LCNF.ScopeM
+public import Lean.Compiler.LCNF.InferType
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -378,7 +382,7 @@ def withNewAltScope (alt : Alt) (x : ExtendM α) : ExtendM α := do
 
 /--
 Use all of the above functions to find free variables declared outside
-of join points that said join points can be reasonaly extended by. Reasonable
+of join points that said join points can be reasonably extended by. Reasonable
 meaning that in case the current join point is nested within a function
 declaration we will not extend it by free variables declared before the
 function declaration because we cannot lift join points outside of function
@@ -467,7 +471,7 @@ abbrev ReduceAnalysisM := ReaderT AnalysisCtx StateRefT AnalysisState ScopeM
 abbrev ReduceActionM := ReaderT AnalysisState CompilerM
 
 def isInJpScope (jp : FVarId) (var : FVarId) : ReduceAnalysisM Bool := do
-  return (← read).jpScopes.find! jp |>.contains var
+  return (← read).jpScopes.get! jp |>.contains var
 
 open ScopeM
 
@@ -542,7 +546,7 @@ where
       cs.alts.forM visitor
     | .jmp fn args =>
       let decl ← getFunDecl fn
-      if let some knownArgs := (← get).jpJmpArgs.find? fn then
+      if let some knownArgs := (← get).jpJmpArgs.get? fn then
         let mut newArgs := knownArgs
         for (param, arg) in decl.params.zip args do
           if let some knownVal := newArgs[param.fvarId]? then
@@ -562,7 +566,7 @@ where
   goReduce (code : Code) : ReduceActionM Code := do
     match code with
     | .jp decl k =>
-      if let some reducibleArgs := (← read).jpJmpArgs.find? decl.fvarId then
+      if let some reducibleArgs := (← read).jpJmpArgs.get? decl.fvarId then
         let filter param := do
           let erasable := reducibleArgs.contains param.fvarId
           if erasable then
@@ -582,7 +586,7 @@ where
       else
         return Code.updateFun! code decl (← goReduce k)
     | .jmp fn args =>
-      let reducibleArgs := (← read).jpJmpArgs.find! fn
+      let reducibleArgs := (← read).jpJmpArgs.get! fn
       let decl ← getFunDecl fn
       let newParams := decl.params.zip args
         |>.filter (!reducibleArgs.contains ·.fst.fvarId)
@@ -606,7 +610,7 @@ their definitions and call sites with `jp`/`jmp`.
 -/
 def Decl.findJoinPoints (decl : Decl) : CompilerM Decl := do
   let findResult ← JoinPointFinder.find decl
-  trace[Compiler.findJoinPoints] "Found: {findResult.candidates.size} jp candidates"
+  trace[Compiler.findJoinPoints] "Found {findResult.candidates.size} jp candidates for {decl.name}"
   JoinPointFinder.replace decl findResult
 
 def findJoinPoints : Pass :=

@@ -229,7 +229,7 @@ jobs:
         id: test
         run: |
           ulimit -c unlimited  # coredumps
-          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/$TARGET_STAGE -j$NPROC --output-junit test-results.xml
+          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/$TARGET_STAGE -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: (matrix.wasm || !matrix.cross) && (inputs.check-level >= 1 || matrix.test)
       - name: Test Summary
         uses: test-summary/action@v2

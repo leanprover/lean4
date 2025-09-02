@@ -282,4 +282,20 @@ where
       else if x < y then go s₁ (.cons y s₂) c r₁ (push r₂ x)
       else go (.cons x s₁) s₂ c (push r₁ y) r₂
 
+/--
+Returns `some (p, c, s)` if `s₁ == p ++ c` and `s₂ == c ++ s`
+-/
+def Seq.superpose? (s₁ s₂ : Seq) : Option (Seq × Seq × Seq) :=
+  match s₁ with
+  | .var _ => none
+  | .cons x s₁ => go s₁ s₂ (.var x)
+where
+  go (s₁ s₂ p : Seq) : Option (Seq × Seq × Seq) :=
+    match s₂.startsWith s₁ with
+    | .false => match s₁ with
+      | .var _ => none
+      | .cons x s₁ => go s₁ s₂ (.cons x p)
+    | .exact => none
+    | .prefix s => some (p.reverse, s₁, s)
+
 end Lean.Grind.AC

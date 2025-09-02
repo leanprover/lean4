@@ -168,7 +168,11 @@ partial def EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := do caching c do
     let h := mkApp9 h (← mkSeqDecl s₂) (← mkSeqDecl s₁) (← mkSeqDecl s) (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs)
         (← mkSeqDecl c₂.lhs) (← mkSeqDecl c₂.rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs)
     return mkApp3 h eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
-  | .superpose .. => throwError "NIY"
+  | .superpose p common s c₁ c₂ =>
+    let h ← mkAPrefix ``AC.superpose
+    let h := mkApp9 h (← mkSeqDecl p) (← mkSeqDecl common) (← mkSeqDecl s) (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs)
+        (← mkSeqDecl c₂.lhs) (← mkSeqDecl c₂.rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs)
+    return mkApp3 h eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
 
 partial def DiseqCnstr.toExprProof (c : DiseqCnstr) : ProofM Expr := do caching c do
   match c.h with

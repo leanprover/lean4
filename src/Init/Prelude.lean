@@ -4545,7 +4545,7 @@ abbrev scientificLitKind : SyntaxNodeKind := `scientific
 /-- `` `name `` is the node kind of name literals like `` `foo ``. -/
 abbrev nameLitKind : SyntaxNodeKind := `name
 
-/-- `` `fieldIdx ` is the node kind of projection indices like the `2` in `x.2`. -/
+/-- `` `fieldIdx `` is the node kind of projection indices like the `2` in `x.2`. -/
 abbrev fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 /--

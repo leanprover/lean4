@@ -683,6 +683,7 @@ example {x : BitVec 8} (h : x = 0#8) : x.popCount = 0 := by bv_decide
 example {x : BitVec 8} : (x >>> 1).popCount ≤ x.popCount := by bv_decide
 example {x : BitVec 64} : x.popCount ≤ 64 := by bv_decide
 example {x : BitVec 64} (h : 0 < x) : 0 < x.popCount := by bv_decide
+example {x : BitVec 32} : (x = BitVec.allOnes 32) → x.popCount = 32 := by bv_decide
 
 section
 

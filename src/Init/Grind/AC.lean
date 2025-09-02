@@ -679,4 +679,37 @@ noncomputable def diseq_unsat_cert (lhs rhs : Seq) : Bool :=
 theorem diseq_unsat {α} (ctx : Context α) (lhs rhs : Seq) : diseq_unsat_cert lhs rhs → lhs.denote ctx ≠ rhs.denote ctx → False := by
   simp [diseq_unsat_cert]; intro; subst lhs; simp
 
+theorem norm_a {α} (ctx : Context α) {_ : Std.Associative ctx.op} (e : Expr) (s : Seq)
+    : e.toSeq.beq' s → e.denote ctx = s.denote ctx := by
+  simp; intro _; subst s; simp
+
+theorem norm_ac {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.Commutative ctx.op} (e : Expr) (s : Seq)
+    : e.toSeq.sort.beq' s → e.denote ctx = s.denote ctx := by
+  simp; intro _; subst s; simp
+
+theorem norm_ai {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.LawfulIdentity ctx.op (Var.denote ctx 0)}
+      (e : Expr) (s : Seq) : e.toSeq.erase0.beq' s → e.denote ctx = s.denote ctx := by
+  simp; intro _; subst s; simp
+
+theorem norm_aci {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.Commutative ctx.op} {_ : Std.LawfulIdentity ctx.op (Var.denote ctx 0)}
+      (e : Expr) (s : Seq) : e.toSeq.erase0.sort.beq' s → e.denote ctx = s.denote ctx := by
+  simp; intro _ ; subst s; simp
+
+theorem eq_erase0_rhs {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.LawfulIdentity ctx.op (Var.denote ctx 0)}
+      (lhs rhs rhs' : Seq) : rhs.erase0.beq' rhs' → lhs.denote ctx = rhs.denote ctx → lhs.denote ctx = rhs'.denote ctx := by
+  simp; intro _ _; subst rhs'; simp [*]
+
+theorem eq_erase_dup_rhs {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.IdempotentOp ctx.op}
+      (lhs rhs rhs' : Seq) : rhs.eraseDup.beq' rhs' → lhs.denote ctx = rhs.denote ctx → lhs.denote ctx = rhs'.denote ctx := by
+  simp; intro _ _; subst rhs'; simp [*]
+
+theorem eq_expr_seq_seq {α} (ctx : Context α) (e : Expr) (s₁ s₂ : Seq) : e.denote ctx = s₁.denote ctx → s₁.denote ctx = s₂.denote ctx → e.denote ctx = s₂.denote ctx := by
+  apply Eq.trans
+
+theorem imp_eq {α} (ctx : Context α) (lhs rhs : Expr) (s : Seq)
+    : lhs.denote ctx = s.denote ctx → rhs.denote ctx = s.denote ctx → lhs.denote ctx = rhs.denote ctx := by
+  simp_all
+
+theorem refl {α} (ctx : Context α) (s : Seq) : s.denote ctx = s.denote ctx := (rfl)
+
 end Lean.Grind.AC

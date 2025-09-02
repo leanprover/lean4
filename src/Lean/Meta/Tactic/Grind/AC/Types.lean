@@ -40,6 +40,10 @@ inductive EqCnstrProof where
   | superpose_ac_idempotent (x : AC.Var) (c₁ : EqCnstr)
   | superpose_head_idempotent (x : AC.Var) (c₁ : EqCnstr)
   | superpose_tail_idempotent (x : AC.Var) (c₁ : EqCnstr)
+  -- The following constructors are for equality propagation
+  | refl (s : AC.Seq)
+  | erase_dup_rhs (c : EqCnstr)
+  | erase0_rhs (c : EqCnstr)
 end
 
 instance : Inhabited EqCnstrProof where
@@ -93,6 +97,8 @@ structure Struct where
   varMap           : PHashMap ExprPtr AC.Var := {}
   /-- Mapping from Lean expressions to their representations as `AC.Expr` -/
   denote           : PHashMap ExprPtr AC.Expr := {}
+  /-- `denoteEntries` is `denote` as a `PArray` for deterministic traversal. -/
+  denoteEntries  : PArray (Expr × AC.Expr) := {}
   /-- Equations to process. -/
   queue            : Queue := {}
   /-- Processed equations. -/

@@ -106,6 +106,12 @@ example {α} (op : α → α → α) [Std.Associative op] (u : α) [Std.LawfulId
      op (op c a) (op (op b u) c) = op (op a d) (op d b) := by
   grind
 
+example {α} (f : α → α) (op : α → α → α) [Std.Associative op] (u : α) [Std.LawfulIdentity op u] (a b c d : α)
+   : op u (op a b) = op u c →
+     op b (op a u) = op d u →
+     f (f (op (op c a) (op (op b u) c))) = f (f (op (op a d) (op d b))) := by
+  grind
+
 example {α} (a b c d : List α)
    : a ++ b = c →
      b ++ a = d →

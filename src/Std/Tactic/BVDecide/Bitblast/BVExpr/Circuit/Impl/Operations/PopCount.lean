@@ -220,69 +220,72 @@ where
       simp [show validNodes = 1 by omega]
     ⟨aig, hcast▸parSum⟩
 
--- namespace blastPopCount
+namespace blastPopCount
 
--- -- theorem go_le_size (aig : AIG α) (validNodes: Nat) (parSum : RefVecVec aig w w) (hin : 1 < w) (hval : validNodes ≤ w) :
--- --     aig.decls.size ≤ (go aig validNodes parSum hin hval).aig.decls.size := by
--- --   unfold go
--- --   dsimp only
--- --   split
--- --   · refine Nat.le_trans ?_ (by apply go_le_size)
--- --     apply addVec_le_size
--- --   · simp
+theorem go_le_size (aig : AIG α) (validNodes : Nat) (parSum : AIG.RefVec aig (validNodes * w))
+      (hin : 1 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) :
+    aig.decls.size ≤ (go aig validNodes parSum hin hval hval').aig.decls.size := by
+  unfold go
+  dsimp only
+  split
+  · refine Nat.le_trans ?_ (by apply go_le_size)
+    apply addVec_le_size
+  · simp
 
--- -- theorem go_le_size' (validNodes : Nat) (aig : AIG α) (input : aig.RefVec w) (h : 1 < w) (hval : validNodes ≤ w) :
--- --   let zero := blastConst aig (w := w) 0
--- --   let initVec : Vector (AIG.RefVec aig w) w := Vector.replicate (α := AIG.RefVec aig w) (n := w) (v := zero)
--- --   let initRefVec : RefVecVec aig w w := {vec := initVec}
--- --   aig.decls.size ≤
--- --   (go (blastExtractAndExtendPopulate aig 0 input initRefVec ).aig validNodes
--- --           (blastExtractAndExtendPopulate aig 0 input initRefVec).vec h hval).aig.decls.size:= by
--- --   unfold go
--- --   dsimp only
--- --   split
--- --   · refine Nat.le_trans ?_ (by apply go_le_size)
--- --     refine Nat.le_trans ?_ (by apply addVec_le_size)
--- --     apply extractAndExtendPopulate_le_size
--- --   · apply extractAndExtendPopulate_le_size
 
--- -- theorem go_decl_eq {w : Nat} (validNodes : Nat) (aig : AIG α) (parSum : RefVecVec aig w w)  (hin : 1 < w) (hval : validNodes ≤ w)
--- --   : ∀ (idx : Nat) h1 h2,
--- --     (go aig validNodes parSum hin hval).aig.decls[idx]'h1 =
--- --     aig.decls[idx]'h2 := by
--- --   generalize hgo : go aig validNodes parSum hin hval = res
--- --   unfold go at hgo
--- --   dsimp only at hgo
--- --   split at hgo
--- --   · rw [← hgo]
--- --     intros idx hidx hidx'
--- --     rw [go_decl_eq]
--- --     · exact addVec_decl_eq aig 0 validNodes parSum parSum (by omega) (by omega) ?_ hidx'
--- --     · have :=  addVec_le_size aig 0 validNodes parSum parSum (by omega)
--- --       exact Nat.lt_of_lt_of_le hidx' this
--- --   · simp [← hgo]
+theorem go_le_size' (aig : AIG α) (input : aig.RefVec w) (h : 1 < w) :
+    let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
+  aig.decls.size ≤
+    (go (blastExtractAndExtendPopulate aig 0 input initAcc (by omega)).aig w
+        (blastExtractAndExtendPopulate aig 0 input initAcc (by omega)).vec
+        h (by omega) (by omega)).aig.decls.size:= by
+  unfold go
+  dsimp only
+  split
+  · refine Nat.le_trans ?_ (by apply go_le_size)
+    refine Nat.le_trans ?_ (by apply addVec_le_size)
+    apply extractAndExtendPopulate_le_size
+  · omega
 
--- -- instance : AIG.LawfulVecOperator α AIG.RefVec blastPopCount where
--- --   le_size := by
--- --     intros
--- --     unfold blastPopCount
--- --     split
--- --     · apply go_le_size'
--- --     · split <;> simp
--- --   decl_eq := by
--- --     intros
--- --     unfold blastPopCount
--- --     dsimp only
--- --     expose_names
--- --     split
--- --     · have := extractAndExtendPopulate_le_size (idx := 0) aig input
--- --                     ({vec := Vector.replicate len (blastConst aig 0)})
--- --       rw [go_decl_eq]
--- --       apply extractAndExtendPopulate_decl_eq (idx' := 0) aig input
--- --       exact Nat.lt_of_lt_of_le h1 this
--- --     · split <;> simp
+theorem go_decl_eq {w : Nat} (validNodes : Nat) (aig : AIG α) (parSum : AIG.RefVec aig (validNodes * w))
+      (hin : 1 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes)  : ∀ (idx : Nat) h1 h2,
+    (go aig validNodes parSum hin hval hval').aig.decls[idx]'h1 =
+    aig.decls[idx]'h2 := by
+  generalize hgo : go aig validNodes parSum hin hval hval' = res
+  unfold go at hgo
+  dsimp only at hgo
+  split at hgo
+  · rw [← hgo]
+    intros idx hidx hidx'
+    rw [go_decl_eq]
+    · apply addVec_decl_eq
+    · let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
+      have hcast : 0 = 0/2*w := by omega
+      have := addVec_le_size aig 0 validNodes parSum (hcast▸initAcc) (by omega) (by omega) (by omega)
+      exact Nat.lt_of_lt_of_le hidx' this
+  · simp [← hgo]
 
--- -- end blastPopCount
+instance : AIG.LawfulVecOperator α AIG.RefVec blastPopCount where
+  le_size := by
+    intros
+    unfold blastPopCount
+    split
+    · apply go_le_size'
+    · split <;> simp
+  decl_eq := by
+    intros
+    unfold blastPopCount
+    dsimp only
+    expose_names
+    split
+    · let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
+      have := extractAndExtendPopulate_le_size (idx := 0) aig input initAcc (by omega)
+      rw [go_decl_eq]
+      apply extractAndExtendPopulate_decl_eq (idx' := 0) aig input
+      exact Nat.lt_of_lt_of_le h1 this
+    · split <;> simp
+
+end blastPopCount
 
 end bitblast
 end BVExpr

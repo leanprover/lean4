@@ -262,25 +262,36 @@ private def app (s? : Option Seq) (s' : Seq) : Option Seq :=
   | none   => some s'
   | some s => some (s ++ s')
 
-def Seq.superposeAC (s₁ s₂ : Seq) : Option Seq × Option Seq × Option Seq :=
+/--
+Returns `some (r₁, c, r₂)` if `s₁ == r₁.union c` and `s₂ == r₂.union c`
+
+It assumes `s₁` and `s₂` are sorted
+-/
+def Seq.superposeAC? (s₁ s₂ : Seq) : Option (Seq × Seq × Seq) :=
   go s₁ s₂ none none none
 where
-  go (s₁ s₂ : Seq) (c r₁ r₂ : Option Seq) : Option Seq × Option Seq × Option Seq :=
+  mkResult (r₁ c r₂ : Option Seq) : Option (Seq × Seq × Seq) :=
+    match r₁, c, r₂ with
+    | some r₁, some c, some r₂ => some (r₁, c, r₂)
+    | _, _, _ => none
+
+  go (s₁ s₂ : Seq) (r₁ c r₂ : Option Seq) : Option (Seq × Seq × Seq) :=
     match s₁, s₂ with
     | .var x, .var y =>
-      if x == y then (push c x |> rev, rev r₁, rev r₂) else (rev c, push r₁ y |> rev, push r₂ x |> rev)
+      if x == y then mkResult (rev r₁) (rev (push c x)) (rev r₂)
+      else mkResult (rev (push r₁ x)) (rev c) (rev (push r₂ y))
     | .var x, .cons y s₂ =>
-      if x == y then (push c x |> rev, app (rev r₁) s₂, rev r₂)
-      else if x < y then (rev c, app (push r₁ y |> rev) s₂, push r₂ x |> rev)
-      else go (.var x) s₂ c (push r₁ y) r₂
+      if x == y then mkResult (rev r₁) (rev (push c x)) (app (rev r₂) s₂)
+      else if x < y then mkResult (rev (push r₁ x)) (rev c) (app (rev r₂) (.cons y s₂))
+      else go (.var x) s₂ r₁ c (push r₂ y)
     | .cons x s₁, .var y =>
-      if x == y then (push c x |> rev, rev r₁, app (rev r₂) s₁)
-      else if x < y then go s₁ (.var y) c r₁ (push r₂ x)
-      else (rev c, push r₁ y |> rev, app (push r₂ x |> rev) s₁)
+      if x == y then mkResult (app (rev r₁) s₁) (rev (push c x)) (rev r₂)
+      else if x < y then go s₁ (.var y) (push r₁ x) c r₂
+      else mkResult (app (rev r₁) (.cons x s₁)) (rev c) (rev (push r₂ y))
     | .cons x s₁, .cons y s₂ =>
-      if x == y then go s₁ s₂ (push c x) r₁ r₂
-      else if x < y then go s₁ (.cons y s₂) c r₁ (push r₂ x)
-      else go (.cons x s₁) s₂ c (push r₁ y) r₂
+      if x == y then go s₁ s₂ r₁ (push c x) r₂
+      else if x < y then go s₁ (.cons y s₂) (push r₁ x) c r₂
+      else go (.cons x s₁) s₂ r₁ c (push r₂ y)
 
 /--
 Returns `some (p, c, s)` if `s₁ == p ++ c` and `s₂ == c ++ s`

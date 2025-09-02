@@ -35,7 +35,7 @@ inductive EqCnstrProof where
   | simp_suffix (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | simp_prefix (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | simp_middle (lhs : Bool) (s₁ s₂ : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
-  | superpose_ac (c s₁ s₂ : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
+  | superpose_ac (r₁ c r₂ : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | superpose (p s c : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
 end
 

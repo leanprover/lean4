@@ -485,26 +485,26 @@ theorem diseq_simp_rhs_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx
     : simp_ac_cert c lhs₁ rhs₁ rhs₂ rhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx ≠ rhs₂.denote ctx → lhs₂.denote ctx ≠ rhs₂'.denote ctx := by
   simp [simp_ac_cert]; intros; subst rhs₂ rhs₂'; simp_all
 
-noncomputable def superpose_ac_cert (a b c lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq) : Bool :=
-  lhs₁.beq' (c.union_k a) |>.and'
-  (lhs₂.beq' (c.union_k b)) |>.and'
-  (lhs.beq' (b.union_k rhs₁)) |>.and'
-  (rhs.beq' (a.union_k rhs₂))
+noncomputable def superpose_ac_cert (r₁ c r₂ lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq) : Bool :=
+  lhs₁.beq' (c.union_k r₁) |>.and'
+  (lhs₂.beq' (c.union_k r₂)) |>.and'
+  (lhs.beq' (r₂.union_k rhs₁)) |>.and'
+  (rhs.beq' (r₁.union_k rhs₂))
 
 /--
-Given `lhs₁ = rhs₁` and `lhs₂ = rhs₂` where `lhs₁ := union c a` and `lhs₂ := union c b`,
-`lhs = rhs` where `lhs := union b rhs₁` and `rhs := union a rhs₂`
+Given `lhs₁ = rhs₁` and `lhs₂ = rhs₂` where `lhs₁ := union c r₁` and `lhs₂ := union c r₂`,
+`lhs = rhs` where `lhs := union r₂ rhs₁` and `rhs := union r₁ rhs₂`
 -/
-theorem superpose_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op}  (a b c lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq)
-    : superpose_ac_cert a b c lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx
+theorem superpose_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op}  (r₁ c r₂ lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq)
+    : superpose_ac_cert r₁ c r₂ lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx
       → lhs.denote ctx = rhs.denote ctx := by
   simp [superpose_ac_cert]; intro _ _ _ _; subst lhs₁ lhs₂ lhs rhs; simp
   intro h₁ h₂; simp [← h₁, ← h₂]
-  rw [← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (b.denote ctx)]
-  rw [← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (a.denote ctx)]
+  rw [← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (r₂.denote ctx)]
+  rw [← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (r₁.denote ctx)]
   simp [Std.Associative.assoc (self := inst₁)]
   apply congrArg (ctx.op (c.denote ctx))
-  rw [Std.Commutative.comm (self := inst₂) (b.denote ctx)]
+  rw [Std.Commutative.comm (self := inst₂) (r₂.denote ctx)]
 
 noncomputable def eq_norm_a_cert (lhs rhs : Expr) (lhs' rhs' : Seq) : Bool :=
   lhs.toSeq.beq' lhs' |>.and' (rhs.toSeq.beq' rhs')

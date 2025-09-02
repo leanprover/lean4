@@ -17,6 +17,7 @@ open Lean.Grind
 
 structure ProofM.State where
   cache      : Std.HashMap UInt64 Expr := {}
+  varDecls   : Std.HashMap AC.Var Expr := {}
   exprDecls  : Std.HashMap AC.Expr Expr := {}
   seqDecls   : Std.HashMap AC.Seq Expr := {}
 
@@ -44,6 +45,9 @@ local macro "declare! " decls:ident a:ident : term =>
        let x := mkFVar (← mkFreshFVarId);
        modify fun s => { s with $decls:ident := (s.$decls).insert $a x };
        return x)
+
+private def mkVarDecl (x : AC.Var) : ProofM Expr := do
+  declare! varDecls x
 
 private def mkSeqDecl (s : AC.Seq) : ProofM Expr := do
   declare! seqDecls s
@@ -83,6 +87,10 @@ private def mkACIPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
   return mkApp5 (mkConst declName [s.u]) s.type (← getContext) s.assocInst (← getCommInst) (← getNeutralInst)
 
+private def mkACDPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp5 (mkConst declName [s.u]) s.type (← getContext) s.assocInst (← getCommInst) (← getIdempotentInst)
+
 private def mkDupPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
   return mkApp4 (mkConst declName [s.u]) s.type (← getContext) s.assocInst (← getIdempotentInst)
@@ -95,13 +103,18 @@ private def toContextExpr (vars : Array Expr) : ACM Expr := do
 
 private def mkContext (h : Expr) : ProofM Expr := do
   let s ← getStruct
+  let varDecls := (← get).varDecls
   let mut usedVars     :=
+    collectMapVars varDecls collectVar >>
     collectMapVars (← get).seqDecls (·.collectVars) >>
     collectMapVars (← get).exprDecls (·.collectVars) >>
     (if (← hasNeutral) then (collectVar 0) else id) <| {}
   let vars'        := usedVars.toArray
   let varRename    := mkVarRename vars'
   let vars         := (← getStruct).vars
+  let varFVars     := vars'.map fun x => varDecls[x]?.getD default
+  let varIdsAsExpr := List.range vars'.size |>.toArray |>.map toExpr
+  let h := h.replaceFVars varFVars varIdsAsExpr
   let up           := mkApp (mkConst ``PLift.up [s.u]) s.type
   let vars         := vars'.map fun x => mkApp up vars[x]!
   let h := mkLetOfMap (← get).seqDecls h `s (mkConst ``Grind.AC.Seq) fun p => toExpr <| p.renameVars varRename
@@ -173,6 +186,10 @@ partial def EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := do caching c do
     let h := mkApp9 h (← mkSeqDecl p) (← mkSeqDecl common) (← mkSeqDecl s) (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs)
         (← mkSeqDecl c₂.lhs) (← mkSeqDecl c₂.rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs)
     return mkApp3 h eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .superpose_ac_idempotent x c₁ =>
+    let h ← mkACDPrefix ``AC.superpose_ac_idempotent
+    let h := mkApp4 h (← mkVarDecl x) (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.rhs)
+    return mkApp2 h eagerReflBoolTrue (← c₁.toExprProof)
 
 partial def DiseqCnstr.toExprProof (c : DiseqCnstr) : ProofM Expr := do caching c do
   match c.h with

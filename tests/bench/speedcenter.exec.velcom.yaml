@@ -578,7 +578,9 @@
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean workspaceSymbolsNewRanges.lean
+    cmd: ./workspaceSymbolsNewRanges.lean.out
+  build_config:
+    cmd: ./compile.sh workspaceSymbolsNewRanges.lean
 - attributes:
     description: hashmap.lean
     tags: [fast]

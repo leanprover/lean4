@@ -60,3 +60,10 @@ example {α : Sort u} (op : α → α → α) [Std.Associative op] [Std.Commutat
     (a b c d : α)
     : op a (op b b) = op d c → op (op b a) (op b c) = op c (op d c)  := by
   grind only
+
+example {α : Sort u} (op : α → α → α) [Std.Associative op] [Std.Commutative op]
+    [Std.IdempotentOp op] (a b c d e f x y w : α)
+    : op d (op c x) = op a b →
+      op e (op f (op y w)) = op a (op b c) →
+      op x (op c d) = op e (op w (op y f)) := by
+  grind only

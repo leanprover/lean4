@@ -280,6 +280,7 @@ where
     | .cons x s => goVar x; go s
 
 private def EqCnstr.superposeWith (c : EqCnstr) : ACM Unit := do
+  if c.lhs matches .var _ then return ()
   if (← isCommutative) then
     c.superposeWithAC
     if (← isIdempotent) then c.superposeAC_Idempotent

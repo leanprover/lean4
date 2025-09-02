@@ -582,7 +582,7 @@
     <<: *time
     cmd: lean --run iterators.lean
 - attributes:
-    description: iterators (declarations)
+    description: iterators (elab)
     tags: [fast]
   run_config:
     <<: *time

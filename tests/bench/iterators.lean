@@ -1,5 +1,18 @@
 import Std.Data.Iterators
 
+/-
+This benchmark measures the performance of iterators. The file starts with various function
+declarations. The functions are then called from `main`.
+
+The benchmark is run in three settings.
+
+* The runtime of the compiled program is measured in `iterators (compiled)`.
+* The time taken to interpret the script, including running `main`, is measured in
+  `iterators (interpreted)`.
+* The time taken to interpret the script, without running `main`, is measured in
+  `interators (elab)`.
+-/
+
 /- definitions -/
 
 def sum₁ (xs : Array Nat) : Nat :=
@@ -69,21 +82,15 @@ def longChainOfCombinators (xs : Array Nat) : Nat :=
     |>.takeWhile (fun x => x < 5000000)
     |>.fold (init := 0) (· + ·)
 
-/- evaluations -/
-
 def xs : Array Nat := (*...100000).iter.toArray
 
 def l : List Nat := (*...100000).iter.toList
 
+/- evaluations -/
+
 @[noinline]
 def run' (f : Unit → α) : IO α := do
   return f ()
-
--- notation "run " t => let _ ← run' fun _ => t
-
--- @[noinline]
--- def run' (f : Unit → α) : IO Unit := do
---   let _ ← run'' f
 
 notation "run " t => (fun _ => ()) <$> run' fun _ => t
 

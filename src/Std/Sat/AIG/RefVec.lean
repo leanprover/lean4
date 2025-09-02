@@ -61,6 +61,12 @@ def get (s : RefVec aig len) (idx : Nat) (hidx : idx < len) : Ref aig :=
   ⟨ref.gate, ref.invert, hrefs ..⟩
 
 @[inline]
+def set (s : RefVec aig len) (idx : Nat) (hidx : idx < len) (ref : Fanin) : RefVec aig len :=
+  let ⟨refs, hrefs⟩ := s
+  let ref := refs.set idx ref (by omega)
+  ⟨ref, hrefs⟩
+
+@[inline]
 def push (s : RefVec aig len) (ref : AIG.Ref aig) : RefVec aig (len + 1) :=
   let ⟨refs, hrefs⟩ := s
   ⟨
@@ -174,6 +180,18 @@ where
       | _ => go aig s (idx + 1) acc
     else
       acc
+
+@[inline]
+def extract (vec : RefVec aig w) (start stop : Nat) : RefVec aig (min stop w - start) :=
+  let ⟨vrefs, hv⟩ := vec
+  ⟨
+    vrefs.extract start stop,
+    by
+      intro i h
+      by_cases hsplit : start + i < w
+      · simp [hv]
+      · omega
+  ⟩
 
 end RefVec
 

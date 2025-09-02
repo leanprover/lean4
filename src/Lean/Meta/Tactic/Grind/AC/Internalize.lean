@@ -35,6 +35,7 @@ def internalizeImpl (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     modifyStruct fun s => { s with
       denote := s.denote.insert { expr := e } e'
       denoteEntries := s.denoteEntries.push (e, e')
+      recheck := true -- new equalities may be found by normalization
     }
     trace[grind.ac.internalize] "[{id}] {← e'.denoteExpr}"
     addTermOpId e

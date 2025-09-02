@@ -156,7 +156,7 @@ partial def EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := do caching c do
     let h ← mkAIPrefix ``AC.eq_erase0
     return mkApp6 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.lhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c₁.toExprProof)
   | .erase0_rhs c₁ =>
-    let h ← mkAIPrefix ``AC.eq_erase0
+    let h ← mkAIPrefix ``AC.eq_erase0_rhs
     return mkApp5 h (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.rhs) eagerReflBoolTrue (← c₁.toExprProof)
   | .simp_exact isLhs c₁ c₂ =>
     let h ← mkPrefix <| if isLhs then ``AC.eq_simp_lhs_exact else ``AC.eq_simp_rhs_exact

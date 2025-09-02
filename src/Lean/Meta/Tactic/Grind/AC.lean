@@ -27,4 +27,5 @@ builtin_initialize registerTraceClass `grind.debug.ac.simp
 builtin_initialize registerTraceClass `grind.debug.ac.check
 builtin_initialize registerTraceClass `grind.debug.ac.queue
 builtin_initialize registerTraceClass `grind.debug.ac.superpose
+builtin_initialize registerTraceClass `grind.debug.ac.eq
 end Lean

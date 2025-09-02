@@ -400,9 +400,80 @@ private def checkDiseqs : ACM Unit := do
     c.assert
     if (← isInconsistent) then return
 
+/-- Simplifies the right-hand-side of the given equation. -/
+def EqCnstr.simplifyRHS (c : EqCnstr) : ACM EqCnstr := do
+  let comm ← isCommutative
+  let idempotent ← isIdempotent
+  let neutral ← hasNeutral
+  let mut c := c
+  let mut progress := true
+  while progress do
+    progress := false
+    incSteps
+    if (← checkMaxSteps) then return c
+    if neutral && c.rhs.contains 0 then
+      let rhs := c.rhs.erase0
+      if rhs != c.rhs then
+        c := { c with rhs, h := .erase0_rhs c }
+        progress := true
+    if idempotent then
+      let rhs := c.rhs.eraseDup
+      if rhs != c.rhs then
+        c := { c with rhs, h := .erase_dup_rhs c }
+        progress := true
+    if comm then
+      if let some (c', r) ← c.rhs.findSimpAC? then
+        c := c.simplifyRhsWithAC c' r
+        progress := true
+    else
+      if let some (c', r) ← c.rhs.findSimpA? then
+        c := c.simplifyRhsWithA c' r
+        progress := true
+  return c
+
+/--
+Data for equality propagation. We maintain a mapping from sequences to `EqData`
+-/
+structure EqData where
+  e : Expr
+  r : AC.Expr
+  c : EqCnstr
+
+def mkEqData (e : Expr) (r : AC.Expr) : ACM EqData := do
+  let s ← norm r
+  let c ← mkEqCnstr s s (.refl s)
+  let c ← c.simplifyRHS
+  return { e, r, c }
+
+abbrev PropagateEqMap := Std.HashMap AC.Seq EqData
+
 private def propagateEqs : ACM Unit := do
-  -- TODO
-  return ()
+  if (← isInconsistent) then return ()
+  /-
+  This is a very simple procedure that does not use any indexing data-structure.
+  We don't even cache the simplified expressions.
+  TODO: optimize
+  -/
+  let mut map : PropagateEqMap := {}
+  for e in (← getStruct).vars do
+    if (← checkMaxSteps) then return ()
+    let r ← asACExpr e
+    map ← process map e r
+  for (e, r) in (← getStruct).denoteEntries do
+    if (← checkMaxSteps) then return ()
+    map ← process map e r
+where
+  process (map : PropagateEqMap) (e : Expr) (r : AC.Expr) : ACM PropagateEqMap := do
+    let d ← mkEqData e r
+    let s := d.c.rhs
+    trace[grind.debug.ac.eq] "{e}, s: {← s.denoteExpr}"
+    if let some d' := map[s]? then
+      trace[grind.debug.ac.eq] "found [{← isEqv d.e d'.e}]: {d.e}, {d'.e}"
+      unless (← isEqv d.e d'.e) do
+        propagateEq d.e d'.e d.r d'.r d.c d'.c
+      return map
+    else
+      return map.insert s d
 
 private def checkStruct : ACM Bool := do
   unless (← needCheck) do return false
@@ -428,6 +499,8 @@ def check : GoalM Bool := do profileitM Exception "grind ac" (← getOptions) do
       let r ← ACM.run opId checkStruct
       progress := progress || r
       if (← isInconsistent) then return true
+    if progress then
+      processNewFacts
     return progress
   finally
     checkInvariants

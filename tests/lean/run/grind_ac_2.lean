@@ -85,3 +85,27 @@ example {α : Sort u} (op : α → α → α) [Std.Associative op] [Std.Idempote
       op e (op f (op y w)) = op (op d a) (op b c) →
       op d (op x c) = op e (op f (op y w)) := by
   grind only
+
+example {α β : Sort u} (f : α → β) (op : α → α → α) [Std.Associative op] [Std.Commutative op] (a b c d : α)
+    : op a (op b b) = op d c → f (op (op b a) (op b c)) = f (op c (op d c)) := by
+  grind only
+
+example {α β : Sort u} (f : α → β) (op : α → α → α) [Std.Associative op] [Std.Commutative op] (a b : α)
+    : f (op a b) = f (op b a) := by
+  grind only
+
+example {α : Sort u} (f : α → α) (op : α → α → α) [Std.Associative op] [Std.Commutative op] (a b : α)
+    : op (f (op a b)) b = op b (f (op b a)) := by
+  grind only
+
+example {α β : Sort u} (bar : α → β) (op : α → α → α) [Std.Associative op] [Std.IdempotentOp op] (a b c d e f x y w : α)
+    : op d (op x c) = op a b →
+      op e (op f (op y w)) = op (op d a) (op b c) →
+      bar (op d (op x c)) = bar (op e (op f (op y w))) := by
+  grind only
+
+example (a b c : Nat) : min a (max b c) = min (max c b) a := by
+  grind -cutsat only
+
+example (a b c : Nat) : min a (max b (max c 0)) = min (max c b) a := by
+  grind -cutsat only

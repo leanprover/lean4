@@ -178,33 +178,32 @@ namespace StateT
 @[ext] theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
   funext h
 
-@[simp] theorem run'_eq [Monad m] (x : StateT σ m α) (s : σ) : run' x s = (·.1) <$> run x s :=
+@[simp] theorem run'_eq [Functor m] (x : StateT σ m α) (s : σ) : run' x s = (·.1) <$> run x s :=
   rfl
 
-@[simp] theorem run_pure [Monad m] (a : α) (s : σ) : (pure a : StateT σ m α).run s = pure (a, s) := rfl
+@[simp] theorem run_pure [Pure m] (a : α) (s : σ) : (pure a : StateT σ m α).run s = pure (a, s) := rfl
 
 @[simp] theorem run_bind [Monad m] (x : StateT σ m α) (f : α → StateT σ m β) (s : σ)
     : (x >>= f).run s = x.run s >>= λ p => (f p.1).run p.2 := by
   simp [bind, StateT.bind, run]
 
-@[simp] theorem run_map {α β σ : Type u} [Monad m] [LawfulMonad m] (f : α → β) (x : StateT σ m α) (s : σ) : (f <$> x).run s = (fun (p : α × σ) => (f p.1, p.2)) <$> x.run s := by
-  simp [Functor.map, StateT.map, run, ←bind_pure_comp]
+@[simp] theorem run_map {α β σ : Type u} [Functor m] (f : α → β) (x : StateT σ m α) (s : σ) : (f <$> x).run s = (fun (p : α × σ) => (f p.1, p.2)) <$> x.run s := rfl
 
-@[simp] theorem run_get [Monad m] (s : σ)    : (get : StateT σ m σ).run s = pure (s, s) := rfl
+@[simp] theorem run_get [Pure m] (s : σ)    : (get : StateT σ m σ).run s = pure (s, s) := rfl
 
-@[simp] theorem run_set [Monad m] (s s' : σ) : (set s' : StateT σ m PUnit).run s = pure (⟨⟩, s') := rfl
+@[simp] theorem run_set [Pure m] (s s' : σ) : (set s' : StateT σ m PUnit).run s = pure (⟨⟩, s') := rfl
 
-@[simp] theorem run_modify [Monad m] (f : σ → σ) (s : σ) : (modify f : StateT σ m PUnit).run s = pure (⟨⟩, f s) := rfl
+@[simp] theorem run_modify [Pure m] (f : σ → σ) (s : σ) : (modify f : StateT σ m PUnit).run s = pure (⟨⟩, f s) := rfl
 
-@[simp] theorem run_modifyGet [Monad m] (f : σ → α × σ) (s : σ) : (modifyGet f : StateT σ m α).run s = pure ((f s).1, (f s).2) := by
+@[simp] theorem run_modifyGet [Pure m] (f : σ → α × σ) (s : σ) : (modifyGet f : StateT σ m α).run s = pure ((f s).1, (f s).2) := by
   simp [modifyGet, MonadStateOf.modifyGet, StateT.modifyGet, run]
 
-@[simp] theorem run_lift {α σ : Type u} [Monad m] (x : m α) (s : σ) : (StateT.lift x : StateT σ m α).run s = x >>= fun a => pure (a, s) := rfl
+@[simp] theorem run_lift {α σ : Type u} [Functor m] (x : m α) (s : σ) : (StateT.lift x : StateT σ m α).run s = (·, s) <$> x := rfl
 
 theorem run_bind_lift {α σ : Type u} [Monad m] [LawfulMonad m] (x : m α) (f : α → StateT σ m β) (s : σ) : (StateT.lift x >>= f).run s = x >>= fun a => (f a).run s := by
   simp [StateT.lift, StateT.run, bind, StateT.bind]
 
-@[simp] theorem run_monadLift {α σ : Type u} [Monad m] [MonadLiftT n m] (x : n α) (s : σ) : (monadLift x : StateT σ m α).run s = (monadLift x : m α) >>= fun a => pure (a, s) := rfl
+@[simp] theorem run_monadLift {α σ : Type u} [Functor m] [MonadLiftT n m] (x : n α) (s : σ) : (monadLift x : StateT σ m α).run s = (·, s) <$> (monadLift x : m α) := rfl
 
 @[simp] theorem run_monadMap [MonadFunctorT n m] (f : {β : Type u} → n β → n β) (x : StateT σ m α) (s : σ) :
     (monadMap @f x : StateT σ m α).run s = monadMap @f (x.run s) := rfl
@@ -231,9 +230,13 @@ theorem seqLeft_eq [Monad m] [LawfulMonad m] (x : StateT σ m α) (y : StateT σ
   apply ext; intro s
   simp [←bind_pure_comp]
 
-instance [Monad m] [LawfulMonad m] : LawfulMonad (StateT σ m) where
+instance [Functor m] [LawfulFunctor m] : LawfulFunctor (StateT σ m) where
   id_map         := by intros; apply ext; intros; simp[Prod.eta]
   map_const      := by intros; rfl
+  comp_map       := by intros; apply ext; intros; simp
+
+instance [Monad m] [LawfulMonad m] : LawfulMonad (StateT σ m) where
+  toLawfulFunctor := inferInstance
   seqLeft_eq     := seqLeft_eq
   seqRight_eq    := seqRight_eq
   pure_seq       := by intros; apply ext; intros; simp

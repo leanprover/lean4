@@ -93,6 +93,8 @@ structure Struct where
   varMap           : PHashMap ExprPtr AC.Var := {}
   /-- Mapping from Lean expressions to their representations as `AC.Expr` -/
   denote           : PHashMap ExprPtr AC.Expr := {}
+  /-- `denoteEntries` is `denote` as a `PArray` for deterministic traversal. -/
+  denoteEntries  : PArray (Expr × AC.Expr) := {}
   /-- Equations to process. -/
   queue            : Queue := {}
   /-- Processed equations. -/

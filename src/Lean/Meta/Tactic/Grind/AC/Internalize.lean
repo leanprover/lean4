@@ -32,7 +32,10 @@ def internalizeImpl (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   ACM.run id do
     if (← getStruct).denote.contains { expr := e } then return ()
     let e' ← reify e
-    modifyStruct fun s => { s with denote := s.denote.insert { expr := e } e' }
+    modifyStruct fun s => { s with
+      denote := s.denote.insert { expr := e } e'
+      denoteEntries := s.denoteEntries.push (e, e')
+    }
     trace[grind.ac.internalize] "[{id}] {← e'.denoteExpr}"
     addTermOpId e
     markAsACTerm e

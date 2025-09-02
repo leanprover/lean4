@@ -122,7 +122,7 @@ The protocol for this is as follows:
    Once one of them resolves the `Waiter`, all `Selector.unregisterFn` functions are called, and
    the `Selectable.cont` of the winning `Selector` is executed and returned.
 -/
-partial def Selectable.one (selectables : Array (Selectable α)) : IO (AsyncTask α) := do
+partial def Selectable.one (selectables : Array (Selectable α)) (_h : selectables.size > 0 := by exact Nat.zero_lt_succ _) : IO (AsyncTask α) := do
   let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
   let gen := mkStdGen seed
   let selectables := shuffleIt selectables gen

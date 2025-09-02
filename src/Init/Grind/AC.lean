@@ -376,7 +376,7 @@ theorem diseq_simp_rhs_middle {α} (ctx : Context α) {_ : Std.Associative ctx.o
     : simp_middle_cert lhs₁ rhs₁ head tail rhs₂ rhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx ≠ rhs₂.denote ctx → lhs₂.denote ctx ≠ rhs₂'.denote ctx := by
   simp [simp_middle_cert]; intros; subst rhs₂ rhs₂'; simp_all
 
-noncomputable def superpose_prefix_suffix_cert (p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq) : Bool :=
+noncomputable def superpose_cert (p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq) : Bool :=
   lhs₁.beq' (p.concat_k c) |>.and'
   (lhs₂.beq' (c.concat_k s)) |>.and'
   (lhs.beq' (rhs₁.concat_k s)) |>.and'
@@ -386,10 +386,10 @@ noncomputable def superpose_prefix_suffix_cert (p c s lhs₁ rhs₁ lhs₂ rhs�
 Given `lhs₁ = rhs₁` and `lhs₂ = rhs₂` where `lhs₁ := p * c` and `lhs₂ := c * s`,
 `lhs = rhs` where `lhs := rhs₁ * s` and `rhs := p * rhs₂`
 -/
-theorem superpose_prefix_suffix {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} (p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq)
-    : superpose_prefix_suffix_cert p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx
+theorem superpose {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} (p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq)
+    : superpose_cert p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx
       → lhs.denote ctx = rhs.denote ctx := by
-  simp [superpose_prefix_suffix_cert]; intro _ _ _ _; subst lhs₁ lhs₂ lhs rhs; simp
+  simp [superpose_cert]; intro _ _ _ _; subst lhs₁ lhs₂ lhs rhs; simp
   intro h₁ h₂; simp [← h₁, ← h₂, Std.Associative.assoc (self := inst₁)]
 
 def Seq.unionFuel (fuel : Nat) (s₁ s₂ : Seq) : Seq :=

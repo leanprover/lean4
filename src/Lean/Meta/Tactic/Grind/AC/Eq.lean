@@ -192,10 +192,10 @@ local macro "gen_cnstr_fns " cnstr:ident : command =>
 gen_cnstr_fns EqCnstr
 gen_cnstr_fns DiseqCnstr
 
-def saveDiseq (c : DiseqCnstr) : ACM Unit := do
+private def saveDiseq (c : DiseqCnstr) : ACM Unit := do
   modifyStruct fun s => { s with diseqs := s.diseqs.push c }
 
-def DiseqCnstr.assert (c : DiseqCnstr) : ACM Unit := do
+private def DiseqCnstr.assert (c : DiseqCnstr) : ACM Unit := do
   let c ← c.eraseDup
   let c ← c.simplify
   trace[grind.ac.assert] "{← c.denoteExpr}"
@@ -204,22 +204,22 @@ def DiseqCnstr.assert (c : DiseqCnstr) : ACM Unit := do
   else
     saveDiseq c
 
-def mkEqCnstr (lhs rhs : AC.Seq) (h : EqCnstrProof) : ACM EqCnstr := do
+private def mkEqCnstr (lhs rhs : AC.Seq) (h : EqCnstrProof) : ACM EqCnstr := do
   let id := (← getStruct).nextId
   modifyStruct fun s => { s with nextId := s.nextId + 1 }
   return { lhs, rhs, h, id }
 
-def EqCnstr.orient (c : EqCnstr) : EqCnstr :=
+private def EqCnstr.orient (c : EqCnstr) : EqCnstr :=
   if compare c.rhs c.lhs == .gt then
     { c with lhs := c.rhs, rhs := c.lhs, h := .swap c }
   else
     c
 
-def EqCnstr.addToQueue (c : EqCnstr) : ACM Unit := do
+private def EqCnstr.addToQueue (c : EqCnstr) : ACM Unit := do
   trace[grind.debug.ac.queue] "{← c.denoteExpr}"
   modifyStruct fun s => { s with queue := s.queue.insert c }
 
-def EqCnstr.superposeWithAC (c₁ : EqCnstr) : ACM Unit := do
+private def EqCnstr.superposeWithAC (c₁ : EqCnstr) : ACM Unit := do
   if (← checkMaxSteps) then return ()
   let lhs₁ := c₁.lhs
   for c₂ in (← getStruct).basis do
@@ -234,13 +234,30 @@ def EqCnstr.superposeWithAC (c₁ : EqCnstr) : ACM Unit := do
       let c ← mkEqCnstr (c₁.rhs.union s₁) (c₂.rhs.union s₂) (.superpose_ac s s₁ s₂ c₁ c₂)
       c.addToQueue
 
-def EqCnstr.superposeWithA (c₁ : EqCnstr) : ACM Unit := do
-  trace[Meta.debug] "NIY {← c₁.denoteExpr}"
+private def EqCnstr.superposeA (c₁ c₂ : EqCnstr) : ACM Unit := do
+  let lhs₁ := c₁.lhs
+  let lhs₂ := c₂.lhs
+  assert! lhs₁ != lhs₂
+  if let some (p, c, s) := lhs₁.superpose? lhs₂ then
+    if grind.debug.get (← getOptions) then
+      assert! lhs₁ == p ++ c
+      assert! lhs₂ == c ++ s
+    let c ← mkEqCnstr (c₁.rhs ++ s) (p ++ c₂.rhs) (.superpose p c s c₁ c₂)
+    c.addToQueue
 
-def EqCnstr.superposeWith (c : EqCnstr) : ACM Unit := do
+private def EqCnstr.superposeWithA (c₁ : EqCnstr) : ACM Unit := do
+  if (← checkMaxSteps) then return ()
+  let lhs₁ := c₁.lhs
+  for c₂ in (← getStruct).basis do
+    let lhs₂ := c₂.lhs
+    if lhs₁.sharesVar lhs₂ then
+      c₁.superposeA c₂
+      c₂.superposeA c₁
+
+private def EqCnstr.superposeWith (c : EqCnstr) : ACM Unit := do
   if (← isCommutative) then c.superposeWithAC else c.superposeWithA
 
-def EqCnstr.simplifyBasis (c : EqCnstr) : ACM Unit := do
+private def EqCnstr.simplifyBasis (c : EqCnstr) : ACM Unit := do
   let rec go (basis : List EqCnstr) (acc : List EqCnstr) : ACM (List EqCnstr) := do
     match basis with
     | [] => return acc.reverse
@@ -262,25 +279,25 @@ private def addSorted (c : EqCnstr) : List EqCnstr → List EqCnstr
     else
       c' :: addSorted c cs
 
-def EqCnstr.addToBasisCore (c : EqCnstr) : ACM Unit := do
+private def EqCnstr.addToBasisCore (c : EqCnstr) : ACM Unit := do
   trace[grind.ac.basis] "{← c.lhs.denoteExpr} ↝ {← c.rhs.denoteExpr}"
   modifyStruct fun s => { s with
     basis := addSorted c s.basis
     recheck := true
   }
 
-def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : ACM Unit := do
+private def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : ACM Unit := do
   c.simplifyBasis
   c.superposeWith
   addToBasisCore c
 
-def EqCnstr.addToBasis (c : EqCnstr) : ACM Unit := do
+private def EqCnstr.addToBasis (c : EqCnstr) : ACM Unit := do
   let c ← c.simplify
   if c.lhs == c.rhs then return ()
   let c := c.orient
   c.addToBasisAfterSimp
 
-def EqCnstr.assert (c : EqCnstr) : ACM Unit := do
+private def EqCnstr.assert (c : EqCnstr) : ACM Unit := do
   let c ← c.simplify
   if c.lhs == c.rhs then return ()
   let c := c.orient

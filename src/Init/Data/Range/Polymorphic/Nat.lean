@@ -45,6 +45,14 @@ instance : LawfulUpwardEnumerable Nat where
     simp only [UpwardEnumerable.succMany?, Option.some.injEq] at hn
     omega
 
+instance : LawfulUpwardEnumerableLT Nat := inferInstance
+instance : LawfulUpwardEnumerableLowerBound .closed Nat := inferInstance
+instance : LawfulUpwardEnumerableUpperBound .closed Nat := inferInstance
+instance : LawfulUpwardEnumerableLowerBound .open Nat := inferInstance
+instance : LawfulUpwardEnumerableUpperBound .open Nat := inferInstance
+instance : LawfulUpwardEnumerableLowerBound .unbounded Nat := inferInstance
+instance : LawfulUpwardEnumerableUpperBound .unbounded Nat := inferInstance
+
 instance : InfinitelyUpwardEnumerable Nat where
   isSome_succ? a := by simp [UpwardEnumerable.succ?]
 
@@ -64,6 +72,12 @@ instance : LawfulRangeSize .closed Nat where
     simp only [SupportsUpperBound.IsSatisfied, RangeSize.size, UpwardEnumerable.succ?,
       Option.some.injEq] at hu h ⊢
     omega
+
+instance : LawfulRangeSize .open Nat := inferInstance
+instance : HasFiniteRanges .closed Nat := inferInstance
+instance : HasFiniteRanges .open Nat := inferInstance
+instance : LinearlyUpwardEnumerable Nat := by
+  exact instLinearlyUpwardEnumerableOfTotalLeOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLE
 
 /-!
 The following instances are used for the implementation of array slices a.k.a. `Subarray`.

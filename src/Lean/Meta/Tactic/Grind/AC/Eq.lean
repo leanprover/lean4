@@ -255,6 +255,18 @@ private def EqCnstr.superposeWithA (c₁ : EqCnstr) : ACM Unit := do
       c₂.superposeA c₁
 
 /--
+Similar to `addToQueue`, but checks whether `erase0` can be applied to `c.rhs`.
+This function is used to implement extra superposition for steps when the
+operator is idempotent
+-/
+private def EqCnstr.addToQueue' (c : EqCnstr) : ACM Unit := do
+  if (← hasNeutral) && c.rhs.contains 0 then
+    (← c.erase0).addToQueue
+  else
+    c.addToQueue
+
+
+/--
 If the operator is idempotent, we have to add extra critical pairs.
 See section 4.1 of the paper "MODULARITY, COMBINATION, AC CONGRUENCE CLOSURE"
 The idea is the following, given `c` of the form `lhs = rhs`,
@@ -263,29 +275,40 @@ for each variable `x` in `lhs` s.t. `x` is not in `rhs`, we add the equation
 Note that the paper does not include `x` is not in `rhs`, but this extra filter is correct
 since after normalization and simplification `lhs = rhs.union {x}` would be discarded.
 -/
-private def EqCnstr.superposeAC_Idempotent (c : EqCnstr) : ACM Unit := do
+private def EqCnstr.superposeACIdempotent (c : EqCnstr) : ACM Unit := do
   go c.lhs
 where
   goVar (x : AC.Var) : ACM Unit := do
     unless c.rhs.contains x do
-      let c := { c with rhs := c.rhs.insert x, h := .superpose_ac_idempotent x c }
-      if (← hasNeutral) && c.rhs.contains 0 then
-        (← c.erase0).addToQueue
-      else
-        c.addToQueue
+      let c ← mkEqCnstr c.lhs (c.rhs.insert x) (.superpose_ac_idempotent x c)
+      c.addToQueue'
 
   go (s : AC.Seq) : ACM Unit := do
     match s with
     | .var x => goVar x
     | .cons x s => goVar x; go s
 
+/--
+Similar to `superposeACIdempotent`, but for the non-commutative case
+-/
+private def EqCnstr.superposeAIdempotent (c : EqCnstr) : ACM Unit := do
+  let x := c.lhs.firstVar
+  unless c.rhs.startsWithVar x do
+    let c ← mkEqCnstr c.lhs ((AC.Seq.var x) ++ c.rhs) (.superpose_head_idempotent x c)
+    c.addToQueue'
+  let x := c.lhs.lastVar
+  unless c.rhs.endsWithVar x do
+    let c ← mkEqCnstr c.lhs (c.rhs ++ (AC.Seq.var x)) (.superpose_tail_idempotent x c)
+    c.addToQueue'
+
 private def EqCnstr.superposeWith (c : EqCnstr) : ACM Unit := do
   if c.lhs matches .var _ then return ()
   if (← isCommutative) then
     c.superposeWithAC
-    if (← isIdempotent) then c.superposeAC_Idempotent
+    if (← isIdempotent) then c.superposeACIdempotent
   else
     c.superposeWithA
+    if (← isIdempotent) then c.superposeAIdempotent
 
 private def EqCnstr.simplifyBasis (c : EqCnstr) : ACM Unit := do
   let rec go (basis : List EqCnstr) (acc : List EqCnstr) : ACM (List EqCnstr) := do

@@ -857,15 +857,15 @@ variable [Hashable α] [DecidableEq α]
 --           sorry
 --     · omega
 
--- @[simp]
--- theorem denote_blastPopCount (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (assign : α → Bool)
---       (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
---       :
---       ∀ (idx : Nat) (hidx : idx < w),
---         ⟦(blastPopCount aig xc).aig, (blastPopCount aig xc).vec.get idx hidx, assign⟧
---           =
---         (BitVec.popCountAuxRec x 0 0).getLsbD idx := by
---   sorry
+@[simp]
+theorem denote_blastPopCount (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (assign : α → Bool)
+      (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
+      :
+      ∀ (idx : Nat) (hidx : idx < w),
+        ⟦(blastPopCount aig xc).aig, (blastPopCount aig xc).vec.get idx hidx, assign⟧
+          =
+        (BitVec.popCountAuxRec x 0 0).getLsbD idx := by
+  sorry
 
 
 

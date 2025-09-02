@@ -61,12 +61,6 @@ def get (s : RefVec aig len) (idx : Nat) (hidx : idx < len) : Ref aig :=
   ⟨ref.gate, ref.invert, hrefs ..⟩
 
 @[inline]
-def set (s : RefVec aig len) (idx : Nat) (hidx : idx < len) (ref : Fanin) : RefVec aig len :=
-  let ⟨refs, hrefs⟩ := s
-  let ref := refs.set idx ref (by omega)
-  ⟨ref, hrefs⟩
-
-@[inline]
 def push (s : RefVec aig len) (ref : AIG.Ref aig) : RefVec aig (len + 1) :=
   let ⟨refs, hrefs⟩ := s
   ⟨

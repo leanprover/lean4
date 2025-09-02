@@ -220,9 +220,8 @@ where
       simp [show validNodes = 1 by omega]
     ⟨aig, hcast▸parSum⟩
 
-namespace blastPopCount
 
-theorem go_le_size (aig : AIG α) (validNodes : Nat) (parSum : AIG.RefVec aig (validNodes * w))
+theorem blastPopCount.go_le_size (aig : AIG α) (validNodes : Nat) (parSum : AIG.RefVec aig (validNodes * w))
       (hin : 1 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) :
     aig.decls.size ≤ (go aig validNodes parSum hin hval hval').aig.decls.size := by
   unfold go
@@ -233,7 +232,7 @@ theorem go_le_size (aig : AIG α) (validNodes : Nat) (parSum : AIG.RefVec aig (v
   · simp
 
 
-theorem go_le_size' (aig : AIG α) (input : aig.RefVec w) (h : 1 < w) :
+theorem blastPopCount.go_le_size' (aig : AIG α) (input : aig.RefVec w) (h : 1 < w) :
     let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
   aig.decls.size ≤
     (go (blastExtractAndExtendPopulate aig 0 input initAcc (by omega)).aig w
@@ -247,7 +246,7 @@ theorem go_le_size' (aig : AIG α) (input : aig.RefVec w) (h : 1 < w) :
     apply extractAndExtendPopulate_le_size
   · omega
 
-theorem go_decl_eq {w : Nat} (validNodes : Nat) (aig : AIG α) (parSum : AIG.RefVec aig (validNodes * w))
+theorem blastPopCount.go_decl_eq {w : Nat} (validNodes : Nat) (aig : AIG α) (parSum : AIG.RefVec aig (validNodes * w))
       (hin : 1 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes)  : ∀ (idx : Nat) h1 h2,
     (go aig validNodes parSum hin hval hval').aig.decls[idx]'h1 =
     aig.decls[idx]'h2 := by
@@ -270,7 +269,7 @@ instance : AIG.LawfulVecOperator α AIG.RefVec blastPopCount where
     intros
     unfold blastPopCount
     split
-    · apply go_le_size'
+    · apply blastPopCount.go_le_size'
     · split <;> simp
   decl_eq := by
     intros
@@ -280,12 +279,10 @@ instance : AIG.LawfulVecOperator α AIG.RefVec blastPopCount where
     split
     · let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
       have := extractAndExtendPopulate_le_size (idx := 0) aig input initAcc (by omega)
-      rw [go_decl_eq]
+      rw [blastPopCount.go_decl_eq]
       apply extractAndExtendPopulate_decl_eq (idx' := 0) aig input
       exact Nat.lt_of_lt_of_le h1 this
     · split <;> simp
-
-end blastPopCount
 
 end bitblast
 end BVExpr

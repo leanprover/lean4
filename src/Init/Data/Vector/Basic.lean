@@ -197,9 +197,6 @@ result is empty. If `stop` is greater than the size of the vector, the size is u
 @[inline, expose] def extract (xs : Vector α n) (start : Nat := 0) (stop : Nat := n) : Vector α (min stop n - start) :=
   ⟨xs.toArray.extract start stop, by simp⟩
 
-def extract_of_lt (xs : Vector α n) (start : Nat := 0) (stop : Nat := n) (hlt : stop < n) : Vector α (stop - start) :=
-  ⟨xs.toArray.extract start stop, by simp [show min stop n = stop by sorry]⟩
-
 /--
 Extract the first `i` elements of a vector. If `i` is greater than or equal to the size of the
 vector then the vector is returned unchanged.

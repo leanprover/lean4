@@ -175,18 +175,6 @@ where
     else
       acc
 
-@[inline]
-def extract (vec : RefVec aig w) (start stop : Nat) : RefVec aig (min stop w - start) :=
-  let ⟨vrefs, hv⟩ := vec
-  ⟨
-    vrefs.extract start stop,
-    by
-      intro i h
-      by_cases hsplit : start + i < w
-      · simp [hv]
-      · omega
-  ⟩
-
 end RefVec
 
 structure BinaryRefVec (aig : AIG α) (len : Nat) where

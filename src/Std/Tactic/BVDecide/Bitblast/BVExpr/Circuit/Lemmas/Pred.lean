@@ -10,6 +10,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Expr
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Pred
 
 @[expose] public section
+
 /-!
 This module contains the verification of the bitblaster for predicates over `BitVec` expressions
 (`BVPred`) from `Impl.Pred`.

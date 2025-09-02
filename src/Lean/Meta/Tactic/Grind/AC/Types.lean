@@ -38,6 +38,8 @@ inductive EqCnstrProof where
   | superpose_ac (r₁ c r₂ : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | superpose (p s c : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | superpose_ac_idempotent (x : AC.Var) (c₁ : EqCnstr)
+  | superpose_head_idempotent (x : AC.Var) (c₁ : EqCnstr)
+  | superpose_tail_idempotent (x : AC.Var) (c₁ : EqCnstr)
 end
 
 instance : Inhabited EqCnstrProof where

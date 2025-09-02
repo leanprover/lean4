@@ -309,4 +309,24 @@ where
     | .exact => none
     | .prefix s => some (p.reverse, s₁, s)
 
+def Seq.firstVar (s : Seq) : Var :=
+  match s with
+  | .var x => x
+  | .cons x _ => x
+
+def Seq.startsWithVar (s : Seq) (x : Var) : Bool :=
+  match s with
+  | .var y => x == y
+  | .cons y _ => x == y
+
+def Seq.lastVar (s : Seq) : Var :=
+  match s with
+  | .var x => x
+  | .cons _ s => s.lastVar
+
+def Seq.endsWithVar (s : Seq) (x : Var) : Bool :=
+  match s with
+  | .var y => x == y
+  | .cons _ s => s.endsWithVar x
+
 end Lean.Grind.AC

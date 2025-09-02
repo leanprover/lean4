@@ -87,6 +87,10 @@ private def mkACIPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
   return mkApp5 (mkConst declName [s.u]) s.type (← getContext) s.assocInst (← getCommInst) (← getNeutralInst)
 
+private def mkADPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp4 (mkConst declName [s.u]) s.type (← getContext) s.assocInst (← getIdempotentInst)
+
 private def mkACDPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
   return mkApp5 (mkConst declName [s.u]) s.type (← getContext) s.assocInst (← getCommInst) (← getIdempotentInst)
@@ -188,6 +192,14 @@ partial def EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := do caching c do
     return mkApp3 h eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .superpose_ac_idempotent x c₁ =>
     let h ← mkACDPrefix ``AC.superpose_ac_idempotent
+    let h := mkApp4 h (← mkVarDecl x) (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.rhs)
+    return mkApp2 h eagerReflBoolTrue (← c₁.toExprProof)
+  | .superpose_head_idempotent x c₁ =>
+    let h ← mkADPrefix ``AC.superpose_head_idempotent
+    let h := mkApp4 h (← mkVarDecl x) (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.rhs)
+    return mkApp2 h eagerReflBoolTrue (← c₁.toExprProof)
+  | .superpose_tail_idempotent x c₁ =>
+    let h ← mkADPrefix ``AC.superpose_tail_idempotent
     let h := mkApp4 h (← mkVarDecl x) (← mkSeqDecl c₁.lhs) (← mkSeqDecl c₁.rhs) (← mkSeqDecl c.rhs)
     return mkApp2 h eagerReflBoolTrue (← c₁.toExprProof)
 

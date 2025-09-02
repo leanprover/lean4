@@ -518,7 +518,7 @@ theorem Seq.contains_k_cons (y x : Var) (s : Seq) : Seq.contains_k (.cons y s) x
 
 attribute [local simp] Seq.contains_k_var Seq.contains_k_cons
 
-theorem Seq.denote_insert_of_contains {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} {inst₃ : Std.IdempotentOp ctx.op}
+theorem Seq.denote_insert_of_contains {α} (ctx : Context α) [inst₁ : Std.Associative ctx.op] [inst₂ : Std.Commutative ctx.op] [inst₃ : Std.IdempotentOp ctx.op]
     (s : Seq) (x : Var) : s.contains_k x → (s.insert x).denote ctx = s.denote ctx := by
   induction s
   next => simp; intro; subst x; rw [Std.IdempotentOp.idempotent (self := inst₃)]
@@ -544,7 +544,68 @@ theorem superpose_ac_idempotent {α} (ctx : Context α) {inst₁ : Std.Associati
   simp [superpose_ac_idempotent_cert]; intro h₁ _ h₂; subst rhs
   replace h₂ : Seq.denote ctx (lhs₁.insert x) = Seq.denote ctx (rhs₁.insert x) := by
     simp [h₂]
-  rw [← h₂, Seq.denote_insert_of_contains ctx lhs₁ x h₁] <;> assumption
+  rw [← h₂, Seq.denote_insert_of_contains ctx lhs₁ x h₁]
+
+noncomputable def Seq.startsWithVar_k (s : Seq) (x : Var) : Bool :=
+  Seq.rec (fun y => Nat.beq x y) (fun y _ _ => Nat.beq x y) s
+
+theorem Seq.startsWithVar_k_var (y x : Var) : Seq.startsWithVar_k (.var y) x = (x == y) := by
+  simp [startsWithVar_k]; rw [Bool.eq_iff_iff]; simp
+
+theorem Seq.startsWithVar_k_cons (y x : Var) (s : Seq) : Seq.startsWithVar_k (.cons y s) x = (x == y) := by
+  simp [startsWithVar_k]; rw [Bool.eq_iff_iff]; simp
+
+attribute [local simp] Seq.startsWithVar_k_var Seq.startsWithVar_k_cons
+
+theorem Seq.denote_concat_of_startsWithVar {α} (ctx : Context α) [inst₁ : Std.Associative ctx.op] [inst₂ : Std.IdempotentOp ctx.op]
+    (s : Seq) (x : Var) : s.startsWithVar_k x → (concat_k (.var x) s).denote ctx = s.denote ctx := by
+  cases s <;> simp <;> intro <;> subst x
+  next => rw [Std.IdempotentOp.idempotent (self := inst₂)]
+  next => rw [← Std.Associative.assoc (self := inst₁), Std.IdempotentOp.idempotent (self := inst₂)]
+
+noncomputable def superpose_head_idempotent_cert (x : Var) (lhs₁ rhs₁ rhs : Seq) : Bool :=
+  lhs₁.startsWithVar_k x |>.and' (rhs.beq' (Seq.concat (.var x) rhs₁))
+
+/--
+`superpose_ac_idempotent` for the non-commutative case. This is the "head"-case
+-/
+theorem superpose_head_idempotent {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.IdempotentOp ctx.op}
+    (x : Var) (lhs₁ rhs₁ rhs : Seq) : superpose_head_idempotent_cert x lhs₁ rhs₁ rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₁.denote ctx = rhs.denote ctx := by
+  simp [superpose_head_idempotent_cert]; intro h₁ _ h₂; subst rhs
+  replace h₂ : Seq.denote ctx (Seq.concat (.var x) lhs₁) = Seq.denote ctx (Seq.concat (.var x) rhs₁) := by
+    simp [h₂]
+  rw [← h₂, ← Seq.concat_k_eq_concat, Seq.denote_concat_of_startsWithVar ctx lhs₁ x h₁]
+
+noncomputable def Seq.endsWithVar_k (s : Seq) (x : Var) : Bool :=
+  Seq.rec (fun y => Nat.beq x y) (fun _ _ ih => ih) s
+
+theorem Seq.endsWithVar_k_var (y x : Var) : Seq.endsWithVar_k (.var y) x = (x == y) := by
+  simp [Seq.endsWithVar_k]; rw [Bool.eq_iff_iff]; simp
+
+theorem Seq.endsWithVar_k_cons (y x : Var) (s : Seq) : Seq.endsWithVar_k (.cons y s) x = s.endsWithVar_k x := rfl
+
+attribute [local simp] Seq.endsWithVar_k_var Seq.endsWithVar_k_cons
+
+theorem Seq.denote_concat_of_endsWithVar {α} (ctx : Context α) [inst₁ : Std.Associative ctx.op] [inst₂ : Std.IdempotentOp ctx.op]
+    (s : Seq) (x : Var) : s.endsWithVar_k x → (s.concat_k (.var x)).denote ctx = s.denote ctx := by
+  induction s
+  next => simp; intro; subst x; rw [Std.IdempotentOp.idempotent (self := inst₂)]
+  next ih =>
+    simp; intro h; replace ih := ih h
+    simp at ih; rw [Std.Associative.assoc (self := inst₁), ih]
+
+noncomputable def superpose_tail_idempotent_cert (x : Var) (lhs₁ rhs₁ rhs : Seq) : Bool :=
+  lhs₁.endsWithVar_k x |>.and' (rhs.beq' (Seq.concat rhs₁ (.var x)))
+
+/--
+`superpose_ac_idempotent` for the non-commutative case. It is similar to `superpose_head_idempotent` but for the "tail"-case
+-/
+theorem superpose_tail_idempotent {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.IdempotentOp ctx.op}
+    (x : Var) (lhs₁ rhs₁ rhs : Seq) : superpose_tail_idempotent_cert x lhs₁ rhs₁ rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₁.denote ctx = rhs.denote ctx := by
+  simp [superpose_tail_idempotent_cert]; intro h₁ _ h₂; subst rhs
+  replace h₂ : Seq.denote ctx (Seq.concat lhs₁ (.var x) ) = Seq.denote ctx (Seq.concat rhs₁ (.var x) ) := by
+    simp [h₂]
+  rw [← h₂, ← Seq.concat_k_eq_concat, Seq.denote_concat_of_endsWithVar ctx lhs₁ x h₁]
 
 noncomputable def eq_norm_a_cert (lhs rhs : Expr) (lhs' rhs' : Seq) : Bool :=
   lhs.toSeq.beq' lhs' |>.and' (rhs.toSeq.beq' rhs')

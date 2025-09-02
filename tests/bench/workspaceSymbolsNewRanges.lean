@@ -10,10 +10,14 @@ Currently, the code is using the old ranges because of a significant performance
 regarding the compilation of the new ones in some `for` loops.
 
 We copy the fuzzy matching algorithm, but use the new ranges (`a...b`) instead of the old ones
-(`[a:b]`). Then we match 1000 symbols against a few test inputs using the compiled algorithm.
+(`[a:b]`). Then we match 1000 hard-coded symbols against a few test inputs using the compiled
+algorithm.
+
+Because interpretation of the fuzzy matching algorithm is prohibitively slow, we cannot
+just use `TermElabM` to extract the list of symbols from the environment.
 -/
 
-import Lean
+import Lean.Elab.Term
 
 @[specialize] private def iterateLookaround (f : (Option Char × Char × Option Char) → α) (string : String) : Array α :=
   if string.isEmpty then
@@ -243,11 +247,19 @@ score below the given threshold. -/
 def fuzzyMatch (pattern word : String) (threshold := 0.2) : Bool :=
   fuzzyMatchScoreWithThreshold? pattern word threshold |>.isSome
 
-/--
-1000 constants extracted from the environment. We cannot work in `TermElabM`, directly accessing
-the environment, because this file needs to be compiled -- fuzzy matching is prohibitively slow when
-interpreted.
--/
+-- The constants have been generated using the following code.
+open Lean Elab Term Meta
+
+def getConsts : MetaM (List Name) := do
+  let env ← getEnv
+  return env.constants.toList.map (·.1)
+
+elab "gen_consts" : term => do
+  let consts : List Name ← getConsts
+  let constsAsExprs : List Expr := consts.map toExpr
+  let listExpr : Expr ← mkListLit (.const ``Name []) (constsAsExprs.take 1000)
+  return listExpr
+
 def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/workspaceSymbolsNewRanges.lean».0.fuzzyMatchCore.match_1",
  "charRole.match_3",
  "_private.«external:file:///Users/paul/code/lean4/tests/bench/workspaceSymbolsNewRanges.lean».0.iterateLookaround",

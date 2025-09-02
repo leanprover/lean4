@@ -110,7 +110,7 @@ public theorem mem_toList_iff_mem {sl su} [UpwardEnumerable α]
   rw [Internal.toList_eq_toList_iter, Iter.mem_toList_iff_isPlausibleIndirectOutput,
     Internal.isPlausibleIndirectOutput_iter_iff]
 
-public theorem BoundedUpwardEnumerable.init?_succ_closed [UpwardEnumerable α]
+public theorem BoundedUpwardEnumerable.init?_succ?_closed [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] {lower lower' : Bound .closed α}
     (h : UpwardEnumerable.succ? lower = some lower') :
     BoundedUpwardEnumerable.init? lower' = (BoundedUpwardEnumerable.init? lower).bind UpwardEnumerable.succ? := by
@@ -120,12 +120,12 @@ public theorem BoundedUpwardEnumerable.init?_succ_closed [UpwardEnumerable α]
   · simp [init?] at h'
   · simp_all [init?]
 
-@[deprecated BoundedUpwardEnumerable.init?_succ_closed (since := "2025-08-22")]
+@[deprecated BoundedUpwardEnumerable.init?_succ?_closed (since := "2025-08-22")]
 public theorem BoundedUpwardEnumerable.Closed.init?_succ [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] {lower lower' : Bound .closed α}
     (h : UpwardEnumerable.succ? lower = some lower') :
     BoundedUpwardEnumerable.init? lower' = (BoundedUpwardEnumerable.init? lower).bind UpwardEnumerable.succ? :=
-  init?_succ_closed h
+  init?_succ?_closed h
 
 public theorem pairwise_toList_upwardEnumerableLt {sl su} [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]

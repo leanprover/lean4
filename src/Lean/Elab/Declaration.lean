@@ -175,6 +175,7 @@ def elabDeclaration : CommandElab := fun stx => do
       if declKind == ``Lean.Parser.Command.«axiom» then
         elabAxiom modifiers decl
       else if declKind == ``Lean.Parser.Command.«inductive»
+          || declKind == ``Lean.Parser.Command.«coinductive»
           || declKind == ``Lean.Parser.Command.classInductive
           || declKind == ``Lean.Parser.Command.«structure» then
         elabInductive modifiers decl

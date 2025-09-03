@@ -316,4 +316,16 @@ def elabInductiveCommand : InductiveElabDescr where
         return { ctors }
     }
 
+@[builtin_inductive_elab Lean.Parser.Command.coinductive]
+def elabCoinductiveCommand : InductiveElabDescr where
+  mkInductiveView (modifiers : Modifiers) (stx : Syntax) := do
+    let view ← inductiveSyntaxToView modifiers stx
+    return {
+      view
+      elabCtors := fun rs r params => do
+        let ctors ← elabCtors (rs.map (·.indFVar)) params r
+        return { ctors }
+      isCoinductive := true
+    }
+
 end Lean.Elab.Command

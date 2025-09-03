@@ -878,6 +878,13 @@ private structure FinalizeInductiveDecl where
   numParams : Int
   rs : Array PreElabHeaderResult
 
+/--
+  For nested inductive types, the kernel adds a variable number of auxiliary recursors.
+  Let the elaborator know about them as well. (Other auxiliaries have already been
+  registered by `addDecl` via `Declaration.getNames`.)
+  NOTE: If we want to make inductive elaboration parallel, this should switch to using
+  reserved names.
+-/
 private def addAuxRecs (indTypes : List InductiveType) : TermElabM Unit := do
   for indType in indTypes do
     let mut i := 1
@@ -901,6 +908,23 @@ private def mkReplaceIndFVars (views : Array InductiveView) (indFVars : Array Ex
         match indFVar2Const[e']? with
         | none   => none
         | some c => mkAppN c vars
+
+private def buildFinalizeContext (elabs' : Array InductiveElabStep2) (levelParams : List Name)
+    (vars params : Array Expr) (views : Array InductiveView) (newIndFVars : Array Expr)
+    (rs : Array ElabHeaderResult) : TermElabM FinalizeContext := do
+  let lctx := rs.foldl (init := ← getLCtx) fun lctx r =>
+    lctx.modifyLocalDecl r.indFVar.fvarId! fun decl =>
+      decl.setUserName (`_indFVar ++ decl.userName)
+
+  pure {
+    elabs := elabs',
+    levelParams,
+    params := vars ++ params,
+    replaceIndFVars := mkReplaceIndFVars views newIndFVars levelParams vars,
+    mctx := ← getMCtx,
+    lctx,
+    localInsts := ← getLocalInstances
+  }
 
 private def mkFlatFunctor (views : Array InductiveView) (elabs' : Array InductiveElabStep2) (indFVars : Array Expr) (vars : Array Expr) (levelParams : List Name)
     (numVars : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM FinalizeContext := do
@@ -949,11 +973,10 @@ private def mkFlatFunctor (views : Array InductiveView) (elabs' : Array Inductiv
     let decl := Declaration.inductDecl levelParams (numParams + views.size) indTypes false
     Term.ensureNoUnassignedMVars decl
     addDecl decl
-    let replaceIndFVars : Expr → MetaM Expr := mkReplaceIndFVars views newIndFVars levelParams vars
+
     let rs := Array.zipWith (fun r indFVar => { r with indFVar : ElabHeaderResult }) rs newIndFVars
-    let lctx := rs.foldl (init := ← getLCtx) (fun lctx r => lctx.modifyLocalDecl r.indFVar.fvarId! fun decl => decl.setUserName (`_indFVar ++ decl.userName))
-    pure { elabs := elabs', levelParams, params := vars ++ params, replaceIndFVars,
-              mctx := ← getMCtx, lctx, localInsts := ← getLocalInstances }
+
+    buildFinalizeContext elabs' levelParams vars params views newIndFVars rs
 
 private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext :=
   Term.withoutSavingRecAppSyntax do
@@ -1020,11 +1043,7 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
             -- NOTE: If we want to make inductive elaboration parallel, this should switch to using
             -- reserved names.
             addAuxRecs indTypes
-            let replaceIndFVars : Expr → MetaM Expr := mkReplaceIndFVars views indFVars levelParams vars
-            let lctx := rs.foldl (init := ← getLCtx) (fun lctx r => lctx.modifyLocalDecl r.indFVar.fvarId! fun decl => decl.setUserName (`_indFVar ++ decl.userName))
-            pure {
-              elabs := elabs', levelParams, params := vars ++ params, replaceIndFVars,
-              mctx := ← getMCtx, lctx, localInsts := ← getLocalInstances }
+            buildFinalizeContext elabs' levelParams vars params views indFVars rs
     withSaveInfoContext do -- save new env
       for view in views do
         Term.addTermInfo' view.declId (← mkConstWithLevelParams view.declName) (isBinder := true)

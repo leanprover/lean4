@@ -269,7 +269,31 @@ section FileWorker
 end FileWorker
 
 section ServerM
-  abbrev FileWorkerMap := Std.TreeMap DocumentUri FileWorker
+  structure FileWorkerMap where
+    fileWorkers : Std.TreeMap DocumentUri FileWorker := {}
+    uriByMod    : Std.TreeMap Name DocumentUri Name.quickCmp := {}
+
+  def FileWorkerMap.getUri? (m : FileWorkerMap) (id : FileIdent) : Option DocumentUri :=
+    match id with
+    | .uri uri => uri
+    | .mod mod => m.uriByMod.get? mod
+
+  def FileWorkerMap.insert (m : FileWorkerMap) (uri : DocumentUri) (fw : FileWorker) :
+      FileWorkerMap where
+    fileWorkers := m.fileWorkers.insert uri fw
+    uriByMod    := m.uriByMod.insert fw.doc.mod uri
+
+  def FileWorkerMap.erase (m : FileWorkerMap) (uri : DocumentUri) : FileWorkerMap := Id.run do
+    let some fw := m.fileWorkers.get? uri
+      | return m
+    return {
+      fileWorkers := m.fileWorkers.erase uri
+      uriByMod := m.uriByMod.erase fw.doc.mod
+    }
+
+  def FileWorkerMap.get? (m : FileWorkerMap) (uri : DocumentUri) : Option FileWorker := do
+    m.fileWorkers.get? uri
+
   abbrev ImportMap := Std.TreeMap DocumentUri (Std.TreeSet DocumentUri)
 
   /-- Global import data for all open files managed by this watchdog. -/
@@ -416,8 +440,16 @@ section ServerM
       let rd ← rd.modifyReferencesM (m := IO) f
       set rd
 
+  def getFileWorkerUri? (id : FileIdent) : ServerM (Option DocumentUri) :=
+    return (← (← read).fileWorkersRef.get).getUri? id
+
   def getFileWorker? (uri : DocumentUri) : ServerM (Option FileWorker) :=
     return (← (←read).fileWorkersRef.get).get? uri
+
+  def fileWorkerExists (id : FileIdent) : ServerM Bool := do
+    let some uri ← getFileWorkerUri? id
+      | return false
+    return (← getFileWorker? uri).isSome
 
   def getFileWorkerMod? (uri : DocumentUri) : ServerM (Option Name) := do
     return (← getFileWorker? uri).map (·.doc.mod)
@@ -892,9 +924,11 @@ section ServerM
       pure ()
 
   def tryWriteMessage
-      (uri : DocumentUri)
+      (id : FileIdent)
       (msg : JsonRpc.Message)
       : ServerM Unit := do
+    let some uri ← getFileWorkerUri? id
+      | return
     let some fw ← getFileWorker? uri
       | return
     if let some req := JsonRpc.Request.ofMessage? msg then
@@ -927,7 +961,7 @@ section ServerM
       staleDependency := staleDependency
       : LeanStaleDependencyParams
     }
-    tryWriteMessage uri notification
+    tryWriteMessage (.uri uri) notification
 end ServerM
 
 section RequestHandling
@@ -1233,7 +1267,7 @@ section NotificationHandling
     }
     updateFileWorkers { fw with doc := newDoc }
     let notification := Notification.mk "textDocument/didChange" p
-    tryWriteMessage doc.uri notification
+    tryWriteMessage (.uri doc.uri) notification
 
   /--
   When a file is saved, notifies all file workers for files that depend on this file that this
@@ -1242,11 +1276,11 @@ section NotificationHandling
   -/
   def handleDidSave (p : DidSaveTextDocumentParams) : ServerM Unit := do
     let s ← read
-    let fileWorkers ← s.fileWorkersRef.get
+    let fws ← s.fileWorkersRef.get
     let importData  ← s.importData.get
     let dependents := importData.importedBy.getD p.textDocument.uri ∅
 
-    for ⟨uri, _⟩ in fileWorkers do
+    for ⟨uri, _⟩ in fws.fileWorkers do
       if ! dependents.contains uri then
         continue
       notifyAboutStaleDependency uri p.textDocument.uri
@@ -1288,7 +1322,7 @@ section NotificationHandling
     let ctx ← read
     let some uri ← ctx.requestData.getUri? p.id
       | return
-    tryWriteMessage uri (Notification.mk "$/cancelRequest" p)
+    tryWriteMessage (.uri uri) (Notification.mk "$/cancelRequest" p)
 
   def forwardNotification {α : Type} [ToJson α] [FileSource α] (method : String) (params : α)
       : ServerM Unit :=
@@ -1297,7 +1331,7 @@ end NotificationHandling
 
 section MessageHandling
   def forwardRequestToWorker (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
-    let uri: DocumentUri ←
+    let fileId : FileIdent ←
       if method == "$/lean/rpc/connect" then
         let ps ← parseParams Lsp.RpcConnectParams params
         pure <| fileSource ps
@@ -1307,7 +1341,7 @@ section MessageHandling
           (←read).hOut.writeLspResponseError <| e.toLspResponseError id
           return
         | Except.ok uri => pure uri
-    if (← getFileWorker? uri).isNone then
+    if ! (← fileWorkerExists fileId) then
       /- Clients may send requests to closed files, which we respond to with an error.
       For example, VSCode sometimes sends requests just after closing a file,
       and RPC clients may also do so, e.g. due to remaining timers. -/
@@ -1316,16 +1350,16 @@ section MessageHandling
           /- Some clients (VSCode) also send requests *before* opening a file. We reply
           with `contentModified` as that does not display a "request failed" popup. -/
           code    := ErrorCode.contentModified
-          message := s!"Cannot process request to closed file '{uri}'" }
+          message := s!"Cannot process request to closed file '{toString fileId}'" }
       return
     let r := Request.mk id method params
-    tryWriteMessage uri r
+    tryWriteMessage fileId r
 
   def handleReferenceRequest α β [FromJson α] [ToJson β] (id : RequestID) (params : Json)
       (handler : α → ReaderT ReferenceRequestContext IO β) : ServerM Unit := do
     let ctx ← read
     let hOut := ctx.hOut
-    let fileWorkerMods := (← ctx.fileWorkersRef.get).map fun _ fw => fw.doc.mod
+    let fileWorkerMods := (← ctx.fileWorkersRef.get).fileWorkers.map fun _ fw => fw.doc.mod
     let references ← getReferences
     let _ ← ServerTask.IO.asTask do
       try
@@ -1427,7 +1461,7 @@ section MessageHandling
   def handleResponse (id : RequestID) (result : Json) : ServerM Unit := do
     let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse id)
       | return
-    tryWriteMessage translation.sourceUri (Response.mk translation.localID result)
+    tryWriteMessage (.uri translation.sourceUri) (Response.mk translation.localID result)
 
   def handleResponseError
       (id      : RequestID)
@@ -1437,15 +1471,15 @@ section MessageHandling
       : ServerM Unit := do
     let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse id)
       | return
-    tryWriteMessage translation.sourceUri (ResponseError.mk translation.localID code message data?)
+    tryWriteMessage (.uri translation.sourceUri) (ResponseError.mk translation.localID code message data?)
 end MessageHandling
 
 section MainLoop
   def shutdown : ServerM Unit := do
     let fileWorkers ← (←read).fileWorkersRef.get
-    for ⟨uri, _⟩ in fileWorkers do
+    for ⟨uri, _⟩ in fileWorkers.fileWorkers do
       try terminateFileWorker uri catch _ => pure ()
-    for ⟨_, fw⟩ in fileWorkers do
+    for ⟨_, fw⟩ in fileWorkers.fileWorkers do
       -- TODO: Wait for process group to finish instead
       try let _ ← fw.killProcAndWait catch _ => pure ()
 
@@ -1469,7 +1503,7 @@ section MainLoop
     let st ← read
     let workers ← st.fileWorkersRef.get
     let mut workerTasks := #[]
-    for (_, fw) in workers do
+    for (_, fw) in workers.fileWorkers do
       if !((← getWorkerState fw) matches WorkerState.crashed) then
         workerTasks := workerTasks.push <| fw.commTask.mapCheap (ServerEvent.workerEvent fw)
 
@@ -1657,7 +1691,7 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     pendingWaitForILeanRequests := #[]
   }
   startLoadingReferences referenceData
-  let fileWorkersRef ← IO.mkRef (Std.TreeMap.empty : FileWorkerMap)
+  let fileWorkersRef ← IO.mkRef ({} : FileWorkerMap)
   let serverRequestData ← IO.mkRef {
     pendingServerRequests := Std.TreeMap.empty
     freshServerRequestID  := 0

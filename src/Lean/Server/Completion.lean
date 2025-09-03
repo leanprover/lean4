@@ -30,7 +30,8 @@ private def filterDuplicateCompletionItems
   return r
 
 partial def find?
-    (params   : CompletionParams)
+    (mod      : Name)
+    (pos      : Lsp.Position)
     (fileMap  : FileMap)
     (hoverPos : String.Pos)
     (cmdStx   : Syntax)
@@ -45,19 +46,19 @@ partial def find?
       let completions : Array ScoredCompletionItem ←
         match i.info with
         | .id stx id danglingDot lctx .. =>
-          idCompletion params completionInfoPos i.ctx lctx stx id i.hoverInfo danglingDot
+          idCompletion mod pos completionInfoPos i.ctx lctx stx id i.hoverInfo danglingDot
         | .dot info .. =>
-          dotCompletion params completionInfoPos i.ctx info
+          dotCompletion mod pos completionInfoPos i.ctx info
         | .dotId _ id lctx expectedType? =>
-          dotIdCompletion params completionInfoPos i.ctx lctx id expectedType?
+          dotIdCompletion mod pos completionInfoPos i.ctx lctx id expectedType?
         | .fieldId _ id lctx structName =>
-          fieldIdCompletion params completionInfoPos i.ctx lctx id structName
+          fieldIdCompletion mod pos completionInfoPos i.ctx lctx id structName
         | .option stx =>
-          optionCompletion params completionInfoPos i.ctx stx caps
+          optionCompletion mod pos completionInfoPos i.ctx stx caps
         | .errorName _ partialId =>
-          errorNameCompletion params completionInfoPos i.ctx partialId caps
+          errorNameCompletion mod pos completionInfoPos i.ctx partialId caps
         | .tactic .. =>
-          tacticCompletion params completionInfoPos i.ctx
+          tacticCompletion mod pos completionInfoPos i.ctx
         | _ =>
           pure #[]
       allCompletions := allCompletions ++ completions

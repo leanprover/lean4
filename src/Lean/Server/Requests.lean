@@ -451,9 +451,28 @@ For details of how to register one, see `registerLspRequestHandler`. -/
 section HandlerTable
 open Lsp
 
+structure LspResponse (α : Type) where
+  response   : α
+  isComplete : Bool
+
+structure SerializedLspResponse where
+  response   : Json
+  serialized : String := response.compress
+  isComplete : Bool
+
+-- Custom serialization that uses `r.serialized` in place of `response`.
+-- Identical to `Json.compress` for the JSON of `JsonRpc.Message.response ..`.
+def SerializedLspResponse.toSerializedMessage
+    (id : JsonRpc.RequestID) (r : SerializedLspResponse) : String :=
+  "{" ++
+    s!"\"id\":{toJson id |>.compress}," ++
+    s!"\"jsonrpc\":\"2.0\"," ++
+    s!"\"result\":{r.serialized}"
+    ++ "}"
+
 structure RequestHandler where
-  fileSource : Json → Except RequestError Lsp.DocumentUri
-  handle : Json → RequestM (RequestTask Json)
+  fileSource : Json → Except RequestError FileIdent
+  handle : Json → RequestM (RequestTask SerializedLspResponse)
 
 builtin_initialize requestHandlers : IO.Ref (PersistentHashMap String RequestHandler) ←
   IO.mkRef {}
@@ -483,7 +502,10 @@ def registerLspRequestHandler (method : String)
   let handle := fun j => do
     let params ← RequestM.parseRequestParams paramType j
     let t ← handler params
-    pure <| t.mapCheap <| Except.map ToJson.toJson
+    pure <| t.mapCheap <| Except.map fun r => {
+      response := toJson r
+      isComplete := true
+    }
 
   requestHandlers.modify fun rhs => rhs.insert method { fileSource, handle }
 
@@ -506,11 +528,14 @@ def chainLspRequestHandler (method : String)
   if let some oldHandler ← lookupLspRequestHandler method then
     let handle := fun j => do
       let t ← oldHandler.handle j
-      let t := t.mapCheap fun x => x.bind fun j => FromJson.fromJson? j |>.mapError fun e =>
+      let t := t.mapCheap fun x => x.bind fun j => FromJson.fromJson? j.response |>.mapError fun e =>
         .internalError s!"Failed to parse original LSP response for `{method}` when chaining: {e}"
       let params ← RequestM.parseRequestParams paramType j
       let t ← handler params t
-      pure <| t.mapCheap <| Except.map ToJson.toJson
+      pure <| t.mapCheap <| Except.map fun r => {
+        response := toJson r
+        isComplete := true
+      }
 
     requestHandlers.modify fun rhs => rhs.insert method {oldHandler with handle}
   else
@@ -531,18 +556,14 @@ inductive RequestHandlerCompleteness where
   -/
   | «partial» (refreshMethod : String) (refreshIntervalMs : Nat)
 
-structure LspResponse (α : Type) where
-  response   : α
-  isComplete : Bool
-
 structure StatefulRequestHandler where
-  fileSource      : Json → Except RequestError Lsp.DocumentUri
+  fileSource      : Json → Except RequestError FileIdent
   /--
   `handle` with explicit state management for chaining request handlers.
   This function is pure w.r.t. `lastTaskMutex` and `stateRef`, but not `RequestM`.
   -/
-  pureHandle      : Json → Dynamic → RequestM (LspResponse Json × Dynamic)
-  handle          : Json → RequestM (RequestTask (LspResponse Json))
+  pureHandle      : Json → Dynamic → RequestM (SerializedLspResponse × Dynamic)
+  handle          : Json → RequestM (RequestTask SerializedLspResponse)
   /--
   `onDidChange` with explicit state management for chaining request handlers.
   This function is pure w.r.t. `lastTaskMutex` and `stateRef`, but not `RequestM`.
@@ -588,13 +609,14 @@ private def overrideStatefulLspRequestHandler
   let initState := Dynamic.mk initState
   let stateRef ← IO.mkRef initState
 
-  let pureHandle : Json → Dynamic → RequestM (LspResponse Json × Dynamic) := fun param state => do
+  let pureHandle : Json → Dynamic → RequestM (SerializedLspResponse × Dynamic) := fun param state => do
     let param ← RequestM.parseRequestParams paramType param
     let state ← getState! method state stateType
     let (r, state') ← handler param state
-    return ({ r with response := toJson r.response }, Dynamic.mk state')
+    let response := toJson r.response
+    return ({ r with response := response }, Dynamic.mk state')
 
-  let handle : Json → RequestM (RequestTask (LspResponse Json)) := fun param => lastTaskMutex.atomically do
+  let handle : Json → RequestM (RequestTask SerializedLspResponse) := fun param => lastTaskMutex.atomically do
     let lastTask ← get
     let requestTask ← RequestM.mapTaskCostly lastTask fun () => do
       let state ← stateRef.get
@@ -709,7 +731,7 @@ def handleOnDidChange (p : DidChangeTextDocumentParams) : RequestM Unit := do
   (← statefulRequestHandlers.get).forM fun _ handler => do
     handler.onDidChange p
 
-def handleLspRequest (method : String) (params : Json) : RequestM (RequestTask (LspResponse Json)) := do
+def handleLspRequest (method : String) (params : Json) : RequestM (RequestTask SerializedLspResponse) := do
   if ← isStatefulLspRequestMethod method then
     match ← lookupStatefulLspRequestHandler method with
     | none =>
@@ -721,11 +743,9 @@ def handleLspRequest (method : String) (params : Json) : RequestM (RequestTask (
     | none =>
       throw <| .internalError
         s!"request '{method}' routed through watchdog but unknown in worker; are both using the same plugins?"
-    | some rh =>
-      let t ← rh.handle params
-      return t.mapCheap fun r => r.map ({response := ·, isComplete := true })
+    | some rh => rh.handle params
 
-def routeLspRequest (method : String) (params : Json) : IO (Except RequestError DocumentUri) := do
+def routeLspRequest (method : String) (params : Json) : IO (Except RequestError FileIdent) := do
   if ← isStatefulLspRequestMethod method then
     match ← lookupStatefulLspRequestHandler method with
     | none => return Except.error <| RequestError.methodNotFound method

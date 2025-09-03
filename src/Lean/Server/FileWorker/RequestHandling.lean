@@ -48,7 +48,7 @@ def handleCompletion (p : CompletionParams)
   mapTaskCostly (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       | return { items := #[], isIncomplete := true }
-    Completion.find? p doc.meta.text pos cmdStx infoTree caps
+    Completion.find? doc.meta.mod p.position doc.meta.text pos cmdStx infoTree caps
 
 /--
 Handles `completionItem/resolve` requests that are sent by the client after the user selects
@@ -65,7 +65,7 @@ def handleCompletionItemResolve (item : CompletionItem)
     | return .pure item
   let some id := data.id?
     | return .pure item
-  let pos := text.lspPosToUtf8Pos data.params.position
+  let pos := text.lspPosToUtf8Pos data.pos
   mapTaskCostly (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       | return item

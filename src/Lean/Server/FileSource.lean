@@ -13,24 +13,34 @@ public section
 
 namespace Lean.Lsp
 
+inductive FileIdent where
+  | uri (uri : DocumentUri)
+  | mod (mod : Name)
+  deriving Inhabited
+
+instance : ToString FileIdent where
+  toString
+    | .uri uri => toString uri
+    | .mod mod => toString mod
+
 class FileSource (α : Type) where
-  fileSource : α → DocumentUri
+  fileSource : α → FileIdent
 export FileSource (fileSource)
 
 instance : FileSource Location :=
-  ⟨fun l => l.uri⟩
+  ⟨fun l => .uri l.uri⟩
 
 instance : FileSource TextDocumentIdentifier :=
-  ⟨fun i => i.uri⟩
+  ⟨fun i => .uri i.uri⟩
 
 instance : FileSource VersionedTextDocumentIdentifier :=
-  ⟨fun i => i.uri⟩
+  ⟨fun i => .uri i.uri⟩
 
 instance : FileSource TextDocumentEdit :=
   ⟨fun e => fileSource e.textDocument⟩
 
 instance : FileSource TextDocumentItem :=
-  ⟨fun i => i.uri⟩
+  ⟨fun i => .uri i.uri⟩
 
 instance : FileSource TextDocumentPositionParams :=
   ⟨fun p => fileSource p.textDocument⟩
@@ -66,7 +76,7 @@ instance : FileSource ReferenceParams :=
   ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
 
 instance : FileSource WaitForDiagnosticsParams :=
-  ⟨fun p => p.uri⟩
+  ⟨fun p => .uri p.uri⟩
 
 instance : FileSource DocumentHighlightParams :=
   ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
@@ -90,16 +100,16 @@ instance : FileSource PlainTermGoalParams where
   fileSource p := fileSource p.textDocument
 
 instance : FileSource RpcConnectParams where
-  fileSource p := p.uri
+  fileSource p := .uri p.uri
 
 instance : FileSource RpcCallParams where
   fileSource p := fileSource p.textDocument
 
 instance : FileSource RpcReleaseParams where
-  fileSource p := p.uri
+  fileSource p := .uri p.uri
 
 instance : FileSource RpcKeepAliveParams where
-  fileSource p := p.uri
+  fileSource p := .uri p.uri
 
 instance : FileSource CodeActionParams where
   fileSource p := fileSource p.textDocument

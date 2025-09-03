@@ -74,12 +74,16 @@ structure PartialHandlerInfo where
 
 structure OutputMessage where
   msg        : JsonRpc.Message
-  compressed : String
+  serialized : String
   deriving Inhabited
+
+def OutputMessage.ofLspResponse (id : RequestID) (r : SerializedLspResponse) : OutputMessage where
+  msg := .response id r.response
+  serialized := r.toSerializedMessage id
 
 def OutputMessage.ofMsg (msg : JsonRpc.Message) : OutputMessage where
   msg
-  compressed := toJson msg |>.compress
+  serialized := toJson msg |>.compress
 
 open Widget in
 
@@ -509,7 +513,7 @@ section Initialization
         elaboration tasks here. -/
     mkLspOutputChannel maxDocVersion : IO (Std.Channel OutputMessage) := do
       let chanOut ← Std.Channel.new
-      let _ ← chanOut.forAsync (prio := .dedicated) fun ⟨msg, compressed⟩ => do
+      let _ ← chanOut.forAsync (prio := .dedicated) fun ⟨msg, serialized⟩ => do
         -- discard outdated notifications; note that in contrast to responses, notifications can
         -- always be silently discarded
         let version? : Option Int := do
@@ -531,7 +535,7 @@ section Initialization
 
           -- note that because of `server.reportDelayMs`, we cannot simply set `maxDocVersion` here
           -- as that would allow outdated messages to be reported until the delay is over
-        o.writeSerializedLspMessage compressed |>.catchExceptions (fun _ => pure ())
+        o.writeSerializedLspMessage serialized |>.catchExceptions (fun _ => pure ())
       return chanOut
 
     getImportClosure? (snap : Language.Lean.InitialSnapshot) : Array Name := Id.run do
@@ -702,13 +706,14 @@ section MessageHandling
       : WorkerM (ServerTask (Except Error AvailableImportsCache)) := do
     let ctx ← read
     let st ← get
+    let mod := st.doc.meta.mod
     let text := st.doc.meta.text
 
     match st.importCachingTask? with
     | none => ServerTask.IO.asTask do
       let availableImports ← ImportCompletion.collectAvailableImports
       let lastRequestTimestampMs ← IO.monoMsNow
-      let completions := ImportCompletion.find text ⟨st.doc.initSnap.stx⟩ params availableImports
+      let completions := ImportCompletion.find mod params.position text ⟨st.doc.initSnap.stx⟩ availableImports
       ctx.chanOut.sync.send <| .ofMsg <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
@@ -718,7 +723,7 @@ section MessageHandling
       if timestampNowMs - lastRequestTimestampMs >= 10000 then
         availableImports ← ImportCompletion.collectAvailableImports
       lastRequestTimestampMs := timestampNowMs
-      let completions := ImportCompletion.find text ⟨st.doc.initSnap.stx⟩ params availableImports
+      let completions := ImportCompletion.find  mod params.position text ⟨st.doc.initSnap.stx⟩ availableImports
       ctx.chanOut.sync.send <| .ofMsg <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
@@ -776,7 +781,7 @@ section MessageHandling
 
   def handlePreRequestSpecialCases? (ctx : WorkerContext) (st : WorkerState)
       (id : RequestID) (method : String) (params : Json)
-      : RequestM (Option (RequestTask (LspResponse Json))) := do
+      : RequestM (Option (RequestTask SerializedLspResponse)) := do
     match method with
     | "$/lean/rpc/call" =>
       let params ← RequestM.parseRequestParams Lsp.RpcCallParams params
@@ -807,7 +812,7 @@ section MessageHandling
       return none
 
   def handlePostRequestSpecialCases (id : RequestID) (method : String) (params : Json)
-      (task : RequestTask (LspResponse Json)) : RequestM (RequestTask (LspResponse Json)) := do
+      (task : RequestTask SerializedLspResponse) : RequestM (RequestTask SerializedLspResponse) := do
     let doc ← RequestM.readDoc
     match method with
     | "textDocument/codeAction" =>
@@ -841,7 +846,7 @@ section MessageHandling
       return task
 
   def emitRequestResponse
-      (requestTask? : Except RequestError (RequestTask (LspResponse Json)))
+      (requestTask? : Except RequestError (RequestTask SerializedLspResponse))
       (cancelTk : RequestCancellationToken)
       (id : RequestID)
       (method : String)
@@ -849,7 +854,7 @@ section MessageHandling
     let ctx ← read
     match requestTask? with
     | Except.error e =>
-      emitResponse ctx (isComplete := false) <| e.toLspResponseError id
+      emitResponse ctx (isComplete := false) <| .ofMsg <| e.toLspResponseError id
       return ServerTask.pure <| .ok ()
     | Except.ok requestTask =>
       ServerTask.IO.mapTaskCheap (t := requestTask) fun
@@ -858,14 +863,14 @@ section MessageHandling
             -- Try not to emit a partial response if this request was cancelled.
             -- Clients usually discard responses for requests that they cancelled anyways,
             -- but it's still good to send less over the wire in this case.
-            emitResponse ctx (isComplete := false) <| RequestError.requestCancelled.toLspResponseError id
+            emitResponse ctx (isComplete := false) <| .ofMsg <| RequestError.requestCancelled.toLspResponseError id
             return
-          emitResponse ctx (isComplete := r.isComplete) <| .response id (toJson r.response)
+          emitResponse ctx (isComplete := r.isComplete) <| .ofLspResponse id r
         | Except.error e =>
-          emitResponse ctx (isComplete := false) <| e.toLspResponseError id
+          emitResponse ctx (isComplete := false) <| .ofMsg <| e.toLspResponseError id
   where
-    emitResponse (ctx : WorkerContext) (m : JsonRpc.Message) (isComplete : Bool) : IO Unit := do
-      ctx.chanOut.sync.send <| .ofMsg m
+    emitResponse (ctx : WorkerContext) (m : OutputMessage) (isComplete : Bool) : IO Unit := do
+      ctx.chanOut.sync.send m
       let timestamp ← IO.monoMsNow
       ctx.modifyPartialHandler method fun h => { h with
         requestsInFlight := h.requestsInFlight - 1

@@ -57,9 +57,9 @@ structure ResolvableCompletionItemData extends CompletionItemData where
 instance : ToJson ResolvableCompletionItemData where
   toJson d :=
     let arr : Array Json := #[
-      d.params.textDocument.uri,
-      d.params.position.line,
-      d.params.position.character,
+      toJson d.mod,
+      d.pos.line,
+      d.pos.character,
       d.cPos
     ]
     Json.arr <|
@@ -72,16 +72,15 @@ instance : FromJson ResolvableCompletionItemData where
     | .arr elems => do
       if elems.size < 4 then
         .error "Expected array of size 4 in `FromJson` instance of `ResolvableCompletionItemData"
-      let uri : String ← fromJson? elems[0]!
+      let mod : Name ← fromJson? elems[0]!
       let line : Nat ← fromJson? elems[1]!
       let character : Nat ← fromJson? elems[2]!
       let cPos : Nat ← fromJson? elems[3]!
       let id? : Option CompletionIdentifier ← elems[4]?.mapM fromJson?
+      let pos := { line, character }
       return {
-        params := {
-          textDocument := ⟨uri⟩
-          position := { line, character }
-        }
+        mod
+        pos
         cPos
         id?
       }

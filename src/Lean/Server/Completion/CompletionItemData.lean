@@ -14,30 +14,22 @@ namespace Lean.Lsp
 
 /-- Used in `CompletionItem.data?`. -/
 structure CompletionItemData where
-  params : CompletionParams
+  mod : Name
+  pos : Position
 
 instance : ToJson CompletionItemData where
-  toJson d :=
-    Json.arr #[
-      d.params.textDocument.uri,
-      d.params.position.line,
-      d.params.position.character,
-    ]
+  toJson d := Json.arr #[d.mod.toString, d.pos.line, d.pos.character]
 
 instance : FromJson CompletionItemData where
   fromJson?
   | .arr elems => do
     if elems.size < 3 then
       .error "Expected array of size 3 in `FromJson` instance of `CompletionItemData"
-    let uri : String ← fromJson? elems[0]!
+    let mod : Name ← fromJson? elems[0]!
     let line : Nat ← fromJson? elems[1]!
     let character : Nat ← fromJson? elems[2]!
-    return {
-      params := {
-        textDocument := ⟨uri⟩
-        position := { line, character }
-      }
-    }
+    let pos := { line, character }
+    return { mod, pos }
   | _ => .error "Expected array in `FromJson` instance of `CompletionItemData`"
 
 /--
@@ -50,12 +42,12 @@ Since this function can panic and clients typically send `completionItem/resolve
 selected completion item, all completion items returned by the server in `textDocument/completion`
 requests must have a `data?` field that can be parsed to `CompletionItemData`.
 -/
-def CompletionItem.getFileSource! (item : CompletionItem) : DocumentUri :=
-  let r : Except String DocumentUri := do
+def CompletionItem.getFileSource! (item : CompletionItem) : FileIdent :=
+  let r : Except String FileIdent := do
     let some data := item.data?
       | throw s!"no data param on completion item {item.label}"
     let data : CompletionItemData ← fromJson? data
-    return data.params.textDocument.uri
+    return .mod data.mod
   match r with
   | Except.ok uri => uri
   | Except.error e => panic! e

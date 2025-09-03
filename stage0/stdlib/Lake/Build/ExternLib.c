@@ -189,7 +189,7 @@ LEAN_EXPORT lean_object* l_IO_withStdout___at___IO_FS_withIsolatedStreams___at__
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ExternLib_dynlibFacetConfig___lam__0___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lake_ExternLib_staticFacet;
-uint8_t l_Substring_beq(lean_object*, lean_object*);
+uint8_t lean_substring_beq(lean_object*, lean_object*);
 static lean_object* l_Lake_ExternLib_defaultFacetConfig___closed__1;
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5188,7 +5188,7 @@ lean_ctor_set(x_44, 0, x_37);
 lean_ctor_set(x_44, 1, x_39);
 lean_ctor_set(x_44, 2, x_43);
 x_45 = l___private_Lake_Build_ExternLib_0__Lake_computeDynlibOfShared___lam__0___closed__5;
-x_46 = l_Substring_beq(x_44, x_45);
+x_46 = lean_substring_beq(x_44, x_45);
 if (x_46 == 0)
 {
 uint8_t x_47; 

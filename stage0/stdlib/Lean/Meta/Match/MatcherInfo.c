@@ -171,7 +171,7 @@ static lean_object* l_Lean_Meta_Match_Extension_getMatcherInfo_x3f___closed__2;
 lean_object* lean_array_mk(lean_object*);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isMatcherApp___redArg(lean_object*, lean_object*, lean_object*);
-uint8_t l_Substring_beq(lean_object*, lean_object*);
+uint8_t lean_substring_beq(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_Extension_instInhabitedState___closed__2;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_Extension_initFn___lam__1____x40_Lean_Meta_Match_MatcherInfo_4087579999____hygCtx___hyg_2_(lean_object*);
@@ -2491,7 +2491,7 @@ lean_ctor_set(x_10, 0, x_4);
 lean_ctor_set(x_10, 1, x_5);
 lean_ctor_set(x_10, 2, x_9);
 x_11 = l_Lean_Meta_Match_Extension_getMatcherInfo_x3f___closed__2;
-x_12 = l_Substring_beq(x_10, x_11);
+x_12 = lean_substring_beq(x_10, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; 

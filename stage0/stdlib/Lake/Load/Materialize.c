@@ -112,7 +112,7 @@ static lean_object* l___private_Lake_Load_Materialize_0__Lake_Dependency_materia
 static uint8_t l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__0;
 static uint8_t l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__7;
 LEAN_EXPORT lean_object* l_Lake_PackageEntry_materialize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Substring_beq(lean_object*, lean_object*);
+uint8_t lean_substring_beq(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lake_Dependency_materialize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4975,7 +4975,7 @@ lean_ctor_set(x_120, 0, x_115);
 lean_ctor_set(x_120, 1, x_83);
 lean_ctor_set(x_120, 2, x_119);
 x_121 = l_Lake_Dependency_materialize___closed__4;
-x_122 = l_Substring_beq(x_120, x_121);
+x_122 = lean_substring_beq(x_120, x_121);
 if (x_122 == 0)
 {
 uint8_t x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; uint8_t x_130; lean_object* x_131; lean_object* x_132; uint8_t x_133; 
@@ -5060,7 +5060,7 @@ lean_ctor_set(x_145, 0, x_140);
 lean_ctor_set(x_145, 1, x_83);
 lean_ctor_set(x_145, 2, x_144);
 x_146 = l_Lake_Dependency_materialize___closed__4;
-x_147 = l_Substring_beq(x_145, x_146);
+x_147 = lean_substring_beq(x_145, x_146);
 if (x_147 == 0)
 {
 uint8_t x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; uint8_t x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; 

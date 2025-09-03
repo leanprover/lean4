@@ -58,7 +58,6 @@ LEAN_EXPORT lean_object* l_instToStringPUnit;
 static lean_object* l_instToStringBool___lam__0___closed__1;
 static lean_object* l_String_toInt_x21___closed__0;
 LEAN_EXPORT lean_object* l_instToStringULift___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_addParenHeuristic___boxed(lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 static lean_object* l_instToStringSigma___redArg___lam__0___closed__0;
 lean_object* lean_nat_to_int(lean_object*);
@@ -121,7 +120,7 @@ LEAN_EXPORT lean_object* l_instToStringId___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringUInt32___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringSubstring;
 LEAN_EXPORT lean_object* l_instToStringId___redArg(lean_object*);
-uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
+uint8_t lean_string_isprefixof(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringUInt64;
 lean_object* lean_uint16_to_nat(uint16_t);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
@@ -1033,12 +1032,14 @@ _start:
 {
 lean_object* x_2; uint8_t x_3; uint8_t x_15; 
 x_2 = l_addParenHeuristic___closed__0;
-x_15 = l_String_isPrefixOf(x_2, x_1);
+lean_inc_ref(x_1);
+x_15 = lean_string_isprefixof(x_2, x_1);
 if (x_15 == 0)
 {
 lean_object* x_16; uint8_t x_17; 
 x_16 = l_List_toString___redArg___closed__1;
-x_17 = l_String_isPrefixOf(x_16, x_1);
+lean_inc_ref(x_1);
+x_17 = lean_string_isprefixof(x_16, x_1);
 x_3 = x_17;
 goto block_14;
 }
@@ -1053,12 +1054,14 @@ if (x_3 == 0)
 {
 lean_object* x_4; uint8_t x_5; 
 x_4 = l_addParenHeuristic___closed__1;
-x_5 = l_String_isPrefixOf(x_4, x_1);
+lean_inc_ref(x_1);
+x_5 = lean_string_isprefixof(x_4, x_1);
 if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = l_addParenHeuristic___closed__2;
-x_7 = l_String_isPrefixOf(x_6, x_1);
+lean_inc_ref(x_1);
+x_7 = lean_string_isprefixof(x_6, x_1);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
@@ -1068,13 +1071,13 @@ x_10 = l_String_anyAux___at___addParenHeuristic_spec__0(x_1, x_8, x_9);
 lean_dec(x_8);
 if (x_10 == 0)
 {
-lean_inc_ref(x_1);
 return x_1;
 }
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = lean_string_append(x_2, x_1);
+lean_dec_ref(x_1);
 x_12 = l_addParenHeuristic___closed__3;
 x_13 = lean_string_append(x_11, x_12);
 return x_13;
@@ -1082,19 +1085,16 @@ return x_13;
 }
 else
 {
-lean_inc_ref(x_1);
 return x_1;
 }
 }
 else
 {
-lean_inc_ref(x_1);
 return x_1;
 }
 }
 else
 {
-lean_inc_ref(x_1);
 return x_1;
 }
 }
@@ -1109,15 +1109,6 @@ lean_dec(x_2);
 lean_dec_ref(x_1);
 x_5 = lean_box(x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_addParenHeuristic___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_addParenHeuristic(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_instToStringOption___redArg___lam__0___closed__0() {
@@ -1155,7 +1146,6 @@ lean_dec_ref(x_2);
 x_5 = l_instToStringOption___redArg___lam__0___closed__1;
 x_6 = lean_apply_1(x_1, x_4);
 x_7 = l_addParenHeuristic(x_6);
-lean_dec_ref(x_6);
 x_8 = lean_string_append(x_5, x_7);
 lean_dec_ref(x_7);
 x_9 = l_addParenHeuristic___closed__3;
@@ -1210,7 +1200,6 @@ lean_dec_ref(x_3);
 x_5 = l_instToStringSum___redArg___lam__0___closed__0;
 x_6 = lean_apply_1(x_1, x_4);
 x_7 = l_addParenHeuristic(x_6);
-lean_dec_ref(x_6);
 x_8 = lean_string_append(x_5, x_7);
 lean_dec_ref(x_7);
 x_9 = l_addParenHeuristic___closed__3;
@@ -1227,7 +1216,6 @@ lean_dec_ref(x_3);
 x_12 = l_instToStringSum___redArg___lam__0___closed__1;
 x_13 = lean_apply_1(x_2, x_11);
 x_14 = l_addParenHeuristic(x_13);
-lean_dec_ref(x_13);
 x_15 = lean_string_append(x_12, x_14);
 lean_dec_ref(x_14);
 x_16 = l_addParenHeuristic___closed__3;

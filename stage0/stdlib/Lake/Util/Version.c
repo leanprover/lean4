@@ -215,7 +215,7 @@ LEAN_EXPORT lean_object* l_Lake_reprStdVer____x40_Lake_Util_Version_4117999005__
 static lean_object* l_Lake_reprToolchainVer___closed__10____x40_Lake_Util_Version_1214108401____hygCtx___hyg_49_;
 static lean_object* l_Lake_SemVerCore_parse___closed__2;
 static lean_object* l_Lake_defaultStdVer___closed__1____x40_Lake_Util_Version_4117999005____hygCtx___hyg_23_;
-uint8_t l_Substring_beq(lean_object*, lean_object*);
+uint8_t lean_substring_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_ofFile_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_prOrigin;
 static lean_object* l_Lake_ToolchainVer_ofString___closed__3;
@@ -3032,7 +3032,7 @@ lean_ctor_set(x_9, 0, x_3);
 lean_ctor_set(x_9, 1, x_4);
 lean_ctor_set(x_9, 2, x_8);
 x_10 = l_Lake_ToolchainVer_ofString___closed__2;
-x_11 = l_Substring_beq(x_9, x_10);
+x_11 = lean_substring_beq(x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
@@ -3046,7 +3046,7 @@ lean_ctor_set(x_14, 0, x_3);
 lean_ctor_set(x_14, 1, x_4);
 lean_ctor_set(x_14, 2, x_13);
 x_15 = l_Lake_ToolchainVer_ofString___closed__5;
-x_16 = l_Substring_beq(x_14, x_15);
+x_16 = lean_substring_beq(x_14, x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
@@ -3061,7 +3061,7 @@ lean_ctor_set(x_19, 0, x_3);
 lean_ctor_set(x_19, 1, x_4);
 lean_ctor_set(x_19, 2, x_18);
 x_20 = l_Lake_ToolchainVer_ofString___closed__8;
-x_21 = l_Substring_beq(x_19, x_20);
+x_21 = lean_substring_beq(x_19, x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; 

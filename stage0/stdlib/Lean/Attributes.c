@@ -9225,7 +9225,6 @@ lean_dec_ref(x_33);
 x_36 = l_Lean_EnumAttributes_setValue___redArg___closed__4;
 x_37 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_35, x_10);
 x_38 = l_addParenHeuristic(x_37);
-lean_dec_ref(x_37);
 x_39 = lean_string_append(x_36, x_38);
 lean_dec_ref(x_38);
 x_40 = l_Lean_EnumAttributes_setValue___redArg___closed__5;

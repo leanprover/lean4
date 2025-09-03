@@ -693,7 +693,7 @@ static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr
 lean_object* l_ReaderT_instFunctorOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__66;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabSyntaxAbbrev___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
+uint8_t lean_string_isprefixof(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at___Lean_Elab_liftMacroM___at___Lean_Elab_Term_checkLeftRec_spec__0_spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__43;
 static lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____private_Lean_Elab_Syntax_0__Lean_Elab_Term_mkParserSeq_spec__0___redArg___closed__8;
@@ -6552,7 +6552,8 @@ else
 {
 lean_object* x_76; uint8_t x_77; 
 x_76 = l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom___closed__0;
-x_77 = l_String_isPrefixOf(x_76, x_6);
+lean_inc_ref(x_6);
+x_77 = lean_string_isprefixof(x_76, x_6);
 if (x_77 == 0)
 {
 lean_dec(x_54);

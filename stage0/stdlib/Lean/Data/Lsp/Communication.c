@@ -145,7 +145,7 @@ lean_object* l_IO_FS_Stream_readRequestAs___redArg(lean_object*, lean_object*, l
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__17;
 static lean_object* l_IO_FS_Stream_writeLspMessage___closed__60;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspResponseError(lean_object*, lean_object*, lean_object*);
-lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_string_intercalate(lean_object*, lean_object*);
 static lean_object* l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___closed__2;
 LEAN_EXPORT lean_object* l_List_foldl___at___List_toString___at_____private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader_spec__1_spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
@@ -282,7 +282,7 @@ if (x_23 == 0)
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_24 = lean_ctor_get(x_19, 1);
 lean_dec(x_24);
-x_25 = l_String_intercalate(x_15, x_21);
+x_25 = lean_string_intercalate(x_15, x_21);
 lean_ctor_set_tag(x_19, 0);
 lean_ctor_set(x_19, 1, x_25);
 x_26 = lean_alloc_ctor(1, 1, 0);
@@ -295,7 +295,7 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30;
 x_27 = lean_ctor_get(x_19, 0);
 lean_inc(x_27);
 lean_dec(x_19);
-x_28 = l_String_intercalate(x_15, x_21);
+x_28 = lean_string_intercalate(x_15, x_21);
 x_29 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
 lean_ctor_set(x_29, 1, x_28);

@@ -237,7 +237,7 @@ LEAN_EXPORT lean_object* l_Lean_SubExpr_fromJsonGoalLocation____x40_Lean_SubExpr
 static lean_object* l_Lean_SubExpr_fromJsonGoalsLocation___closed__14____x40_Lean_SubExpr_818559617____hygCtx___hyg_21_;
 static lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringCoord___closed__7;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_foldrM___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_string_intercalate(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushProj(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_instFromJson___lam__0(lean_object*);
@@ -1372,7 +1372,7 @@ x_3 = l_Lean_SubExpr_Pos_toArray(x_1);
 x_4 = lean_array_to_list(x_3);
 x_5 = lean_box(0);
 x_6 = l_List_mapTR_loop___at___Lean_SubExpr_Pos_toString_spec__0(x_4, x_5);
-x_7 = l_String_intercalate(x_2, x_6);
+x_7 = lean_string_intercalate(x_2, x_6);
 x_8 = lean_string_append(x_2, x_7);
 lean_dec_ref(x_7);
 return x_8;

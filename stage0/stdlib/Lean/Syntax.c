@@ -397,7 +397,7 @@ static lean_object* l_Lean_isLitKind___closed__0;
 static lean_object* l_Lean_Syntax_mkAntiquotSpliceNode___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_setCur___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_hasMissing(lean_object*);
-uint8_t l_Substring_beq(lean_object*, lean_object*);
+uint8_t lean_substring_beq(lean_object*, lean_object*);
 static lean_object* l_Lean_isLitKind___closed__8;
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_String_instBEqRange___closed__0;
@@ -1469,7 +1469,7 @@ lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_2, 3);
 lean_inc(x_10);
 lean_dec_ref(x_2);
-x_11 = l_Substring_beq(x_3, x_7);
+x_11 = lean_substring_beq(x_3, x_7);
 if (x_11 == 0)
 {
 lean_dec(x_10);
@@ -1497,7 +1497,7 @@ return x_12;
 else
 {
 uint8_t x_13; 
-x_13 = l_Substring_beq(x_5, x_9);
+x_13 = lean_substring_beq(x_5, x_9);
 if (x_13 == 0)
 {
 lean_dec(x_10);
@@ -2273,7 +2273,7 @@ goto block_44;
 else
 {
 uint8_t x_49; 
-x_49 = l_Substring_beq(x_34, x_38);
+x_49 = lean_substring_beq(x_34, x_38);
 x_41 = x_49;
 goto block_44;
 }
@@ -2727,7 +2727,7 @@ goto block_38;
 else
 {
 uint8_t x_40; 
-x_40 = l_Substring_beq(x_28, x_32);
+x_40 = lean_substring_beq(x_28, x_32);
 x_35 = x_40;
 goto block_38;
 }

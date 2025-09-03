@@ -145,7 +145,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_parseP
 LEAN_EXPORT lean_object* l_Lake_BuildSpec_fetch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 extern lean_object* l_Lake_ExternLib_staticFacet;
-uint8_t l_Substring_beq(lean_object*, lean_object*);
+uint8_t lean_substring_beq(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lake_formatQuery___at_____private_Lake_CLI_Build_0__Lake_resolveModuleTarget_spec__0___boxed(lean_object*, lean_object*);
@@ -4048,7 +4048,7 @@ lean_ctor_set(x_48, 0, x_36);
 lean_ctor_set(x_48, 1, x_29);
 lean_ctor_set(x_48, 2, x_47);
 x_49 = l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___closed__4;
-x_50 = l_Substring_beq(x_48, x_49);
+x_50 = lean_substring_beq(x_48, x_49);
 if (x_50 == 0)
 {
 lean_object* x_51; lean_object* x_52; 
@@ -4177,7 +4177,7 @@ lean_ctor_set(x_77, 0, x_36);
 lean_ctor_set(x_77, 1, x_29);
 lean_ctor_set(x_77, 2, x_76);
 x_78 = l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___closed__4;
-x_79 = l_Substring_beq(x_77, x_78);
+x_79 = lean_substring_beq(x_77, x_78);
 if (x_79 == 0)
 {
 lean_object* x_80; lean_object* x_81; 
@@ -4445,13 +4445,13 @@ lean_ctor_set(x_10, 1, x_5);
 lean_ctor_set(x_10, 2, x_9);
 x_11 = l___private_Lake_CLI_Build_0__Lake_resolveTargetBaseSpec___closed__2;
 lean_inc_ref(x_10);
-x_12 = l_Substring_beq(x_10, x_11);
+x_12 = lean_substring_beq(x_10, x_11);
 x_13 = 1;
 if (x_12 == 0)
 {
 lean_object* x_14; uint8_t x_15; 
 x_14 = l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___closed__4;
-x_15 = l_Substring_beq(x_10, x_14);
+x_15 = lean_substring_beq(x_10, x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; uint8_t x_17; 
@@ -5056,7 +5056,7 @@ lean_ctor_set(x_61, 0, x_26);
 lean_ctor_set(x_61, 1, x_21);
 lean_ctor_set(x_61, 2, x_60);
 x_62 = l___private_Lake_CLI_Build_0__Lake_resolveTargetBaseSpec___closed__2;
-x_63 = l_Substring_beq(x_61, x_62);
+x_63 = lean_substring_beq(x_61, x_62);
 if (x_63 == 0)
 {
 lean_dec(x_60);

@@ -55,7 +55,7 @@ LEAN_EXPORT lean_object* l_Lake_RecBuildT_run___redArg___lam__1(lean_object*, le
 lean_object* l_List_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadCycleOfBuildKeyRecBuildTOfMonadOfMonadError(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withCurrPackage___redArg___lam__0___boxed(lean_object*, lean_object*);
-lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_string_intercalate(lean_object*, lean_object*);
 static lean_object* l_Lake_instMonadCycleOfBuildKeyRecBuildTOfMonadOfMonadError___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_RecBuildT_run_x27___redArg___lam__0(lean_object*);
 extern lean_object* l_Lake_Module_keyword;
@@ -265,7 +265,7 @@ x_2 = l_Lake_buildCycleError___closed__0;
 x_3 = l_Lake_buildCycleError___closed__1;
 x_4 = lean_box(0);
 x_5 = l_List_mapTR_loop___at___Lake_buildCycleError_spec__0(x_1, x_4);
-x_6 = l_String_intercalate(x_3, x_5);
+x_6 = lean_string_intercalate(x_3, x_5);
 x_7 = lean_string_append(x_2, x_6);
 lean_dec_ref(x_6);
 return x_7;

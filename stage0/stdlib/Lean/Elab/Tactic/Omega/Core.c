@@ -496,7 +496,7 @@ static lean_object* l_Lean_Elab_Tactic_Omega_instToExprLinearCombo___lam__0___cl
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_defaultFourierMotzkinData___closed__0____x40_Lean_Elab_Tactic_Omega_Core_96681006____hygCtx___hyg_80_;
 static lean_object* l_Lean_Elab_Tactic_Omega_instToExprLinearCombo___lam__0___closed__14;
 lean_object* l_Lean_Omega_Constraint_combine(lean_object*, lean_object*);
-lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_string_intercalate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Justification_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_mk(lean_object*);
@@ -8130,7 +8130,7 @@ block_15:
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_box(0);
 x_13 = l_List_mapTR_loop___redArg(x_1, x_11, x_12);
-x_14 = l_String_intercalate(x_10, x_13);
+x_14 = lean_string_intercalate(x_10, x_13);
 return x_14;
 }
 }
@@ -17619,7 +17619,7 @@ block_56:
 lean_object* x_53; lean_object* x_54; lean_object* x_55; 
 x_53 = lean_box(0);
 x_54 = l_List_mapTR_loop___at___Lean_Elab_Tactic_Omega_Problem_runOmega_spec__2(x_52, x_53);
-x_55 = l_String_intercalate(x_51, x_54);
+x_55 = lean_string_intercalate(x_51, x_54);
 x_39 = x_55;
 goto block_47;
 }
@@ -17824,7 +17824,7 @@ block_54:
 lean_object* x_51; lean_object* x_52; lean_object* x_53; 
 x_51 = lean_box(0);
 x_52 = l_List_mapTR_loop___at___Lean_Elab_Tactic_Omega_Problem_runOmega_spec__2(x_50, x_51);
-x_53 = l_String_intercalate(x_49, x_52);
+x_53 = lean_string_intercalate(x_49, x_52);
 x_39 = x_53;
 goto block_47;
 }

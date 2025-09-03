@@ -160,7 +160,7 @@ LEAN_EXPORT lean_object* l_Lean_throwInterruptException___at_____private_Lean_El
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_Elab_Tactic_BVDecide_External_satQuery_spec__0_spec__0___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_External_runInterruptible___lam__1(lean_object*, lean_object*);
 lean_object* lean_uint8_to_nat(uint8_t);
-uint8_t l_Substring_beq(lean_object*, lean_object*);
+uint8_t lean_substring_beq(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__17;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -4980,7 +4980,7 @@ lean_ctor_set(x_47, 0, x_39);
 lean_ctor_set(x_47, 1, x_26);
 lean_ctor_set(x_47, 2, x_46);
 x_48 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__10;
-x_49 = l_Substring_beq(x_47, x_48);
+x_49 = lean_substring_beq(x_47, x_48);
 if (x_49 == 0)
 {
 lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; uint8_t x_54; 
@@ -4993,7 +4993,7 @@ lean_ctor_set(x_52, 0, x_39);
 lean_ctor_set(x_52, 1, x_26);
 lean_ctor_set(x_52, 2, x_51);
 x_53 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__12;
-x_54 = l_Substring_beq(x_52, x_53);
+x_54 = lean_substring_beq(x_52, x_53);
 if (x_54 == 0)
 {
 lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 
@@ -5157,7 +5157,7 @@ lean_ctor_set(x_102, 0, x_94);
 lean_ctor_set(x_102, 1, x_26);
 lean_ctor_set(x_102, 2, x_101);
 x_103 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__10;
-x_104 = l_Substring_beq(x_102, x_103);
+x_104 = lean_substring_beq(x_102, x_103);
 if (x_104 == 0)
 {
 lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; uint8_t x_109; 
@@ -5170,7 +5170,7 @@ lean_ctor_set(x_107, 0, x_94);
 lean_ctor_set(x_107, 1, x_26);
 lean_ctor_set(x_107, 2, x_106);
 x_108 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__12;
-x_109 = l_Substring_beq(x_107, x_108);
+x_109 = lean_substring_beq(x_107, x_108);
 if (x_109 == 0)
 {
 lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; 
@@ -5332,7 +5332,7 @@ lean_ctor_set(x_152, 0, x_144);
 lean_ctor_set(x_152, 1, x_26);
 lean_ctor_set(x_152, 2, x_151);
 x_153 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__10;
-x_154 = l_Substring_beq(x_152, x_153);
+x_154 = lean_substring_beq(x_152, x_153);
 if (x_154 == 0)
 {
 lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; uint8_t x_159; 
@@ -5345,7 +5345,7 @@ lean_ctor_set(x_157, 0, x_144);
 lean_ctor_set(x_157, 1, x_26);
 lean_ctor_set(x_157, 2, x_156);
 x_158 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__12;
-x_159 = l_Substring_beq(x_157, x_158);
+x_159 = lean_substring_beq(x_157, x_158);
 if (x_159 == 0)
 {
 lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; lean_object* x_164; lean_object* x_165; lean_object* x_166; lean_object* x_167; 

@@ -232,7 +232,7 @@ static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__t
 static lean_object* l_Lake_term___x3d_x7e_____closed__0;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 static lean_object* l_Lake_defaultPathPatDescr___closed__1____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_;
-uint8_t l_Substring_beq(lean_object*, lean_object*);
+uint8_t lean_substring_beq(lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__Config__Pattern______unexpand__Lake__IsPattern__satisfies__1___closed__0;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_matches___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -2149,7 +2149,7 @@ x_13 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_13, 0, x_5);
 lean_ctor_set(x_13, 1, x_6);
 lean_ctor_set(x_13, 2, x_12);
-x_14 = l_Substring_beq(x_11, x_13);
+x_14 = lean_substring_beq(x_11, x_13);
 return x_14;
 }
 default: 
@@ -2178,7 +2178,7 @@ x_23 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_23, 0, x_15);
 lean_ctor_set(x_23, 1, x_16);
 lean_ctor_set(x_23, 2, x_22);
-x_24 = l_Substring_beq(x_21, x_23);
+x_24 = lean_substring_beq(x_21, x_23);
 return x_24;
 }
 }

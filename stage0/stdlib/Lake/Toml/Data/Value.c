@@ -145,7 +145,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_Value_integer_elim___redArg(lean_object*, l
 static lean_object* l_Lake_Toml_ppString___closed__0;
 LEAN_EXPORT uint8_t l_Lake_Toml_beqValue____x40_Lake_Toml_Data_Value_1953721060____hygCtx___hyg_156_(lean_object*, lean_object*);
 static lean_object* l_String_foldlAux___at___Lake_Toml_ppString_spec__0___closed__0;
-lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_string_intercalate(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_structEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_ppTable(lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lake_Toml_ppTable_spec__5(uint8_t, lean_object*, size_t, size_t);
@@ -1627,7 +1627,7 @@ x_5 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake_Toml
 x_6 = l_Lake_Toml_ppInlineTable___closed__0;
 x_7 = l_Lake_Toml_ppInlineTable___closed__1;
 x_8 = lean_array_to_list(x_5);
-x_9 = l_String_intercalate(x_7, x_8);
+x_9 = lean_string_intercalate(x_7, x_8);
 x_10 = lean_string_append(x_6, x_9);
 lean_dec_ref(x_9);
 x_11 = l_Lake_Toml_ppInlineTable___closed__2;
@@ -1822,7 +1822,7 @@ x_4 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake_Toml
 x_5 = l_Lake_Toml_ppInlineArray___closed__0;
 x_6 = l_Lake_Toml_ppInlineTable___closed__1;
 x_7 = lean_array_to_list(x_4);
-x_8 = l_String_intercalate(x_6, x_7);
+x_8 = lean_string_intercalate(x_6, x_7);
 x_9 = lean_string_append(x_5, x_8);
 lean_dec_ref(x_8);
 x_10 = l_Lake_Toml_ppInlineArray___closed__1;

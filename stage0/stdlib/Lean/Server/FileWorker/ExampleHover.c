@@ -71,7 +71,7 @@ static lean_object* l___private_Lean_Server_FileWorker_ExampleHover_0__Lean_Serv
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t l_instDecidableNot___redArg(uint8_t);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-uint8_t l_Substring_beq(lean_object*, lean_object*);
+uint8_t lean_substring_beq(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
@@ -1257,7 +1257,7 @@ lean_ctor_set(x_34, 0, x_29);
 lean_ctor_set(x_34, 1, x_26);
 lean_ctor_set(x_34, 2, x_33);
 x_35 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_Hover_rewriteExamples_spec__3_spec__3___closed__2;
-x_36 = l_Substring_beq(x_34, x_35);
+x_36 = lean_substring_beq(x_34, x_35);
 if (x_36 == 0)
 {
 lean_dec(x_30);
@@ -1326,7 +1326,7 @@ lean_ctor_set(x_54, 0, x_49);
 lean_ctor_set(x_54, 1, x_26);
 lean_ctor_set(x_54, 2, x_53);
 x_55 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_Hover_rewriteExamples_spec__3_spec__3___closed__5;
-x_56 = l_Substring_beq(x_54, x_55);
+x_56 = lean_substring_beq(x_54, x_55);
 if (x_56 == 0)
 {
 lean_object* x_57; 
@@ -1526,7 +1526,7 @@ lean_ctor_set(x_34, 0, x_29);
 lean_ctor_set(x_34, 1, x_26);
 lean_ctor_set(x_34, 2, x_33);
 x_35 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_Hover_rewriteExamples_spec__3_spec__3___closed__2;
-x_36 = l_Substring_beq(x_34, x_35);
+x_36 = lean_substring_beq(x_34, x_35);
 if (x_36 == 0)
 {
 lean_dec(x_30);
@@ -1595,7 +1595,7 @@ lean_ctor_set(x_54, 0, x_49);
 lean_ctor_set(x_54, 1, x_26);
 lean_ctor_set(x_54, 2, x_53);
 x_55 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_Hover_rewriteExamples_spec__3_spec__3___closed__5;
-x_56 = l_Substring_beq(x_54, x_55);
+x_56 = lean_substring_beq(x_54, x_55);
 if (x_56 == 0)
 {
 lean_object* x_57; 

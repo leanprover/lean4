@@ -866,7 +866,7 @@ static lean_object* l_Lean_Elab_Tactic_Omega_asLinearCombo___closed__0;
 static lean_object* l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___closed__47;
 uint8_t l_Lean_Expr_hasSorry(lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Omega_Frontend_0__Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCast___closed__37;
-lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_string_intercalate(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___closed__70;
 size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Util_Trace_0__Lean_addTraceNode___at___Lean_withTraceNode___at___Lean_Elab_Tactic_Omega_splitDisjunction_spec__1_spec__2_spec__2(size_t, size_t, lean_object*);
@@ -29133,7 +29133,7 @@ x_6 = lean_array_size(x_5);
 x_7 = 0;
 x_8 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Elab_Tactic_Omega_Frontend_0__Lean_Elab_Tactic_Omega_formatErrorMessage_prettyConstraints_spec__0(x_1, x_6, x_7, x_5);
 x_9 = lean_array_to_list(x_8);
-x_10 = l_String_intercalate(x_4, x_9);
+x_10 = lean_string_intercalate(x_4, x_9);
 return x_10;
 }
 block_18:
@@ -35201,8 +35201,7 @@ block_171:
 lean_object* x_168; lean_object* x_169; lean_object* x_170; 
 x_168 = lean_box(0);
 x_169 = l_List_mapTR_loop___at___Lean_Elab_Tactic_Omega_omegaImpl_spec__2(x_167, x_168);
-x_170 = l_String_intercalate(x_166, x_169);
-lean_dec_ref(x_166);
+x_170 = lean_string_intercalate(x_166, x_169);
 x_131 = x_153;
 x_132 = x_154;
 x_133 = x_155;
@@ -35804,8 +35803,7 @@ block_300:
 lean_object* x_297; lean_object* x_298; lean_object* x_299; 
 x_297 = lean_box(0);
 x_298 = l_List_mapTR_loop___at___Lean_Elab_Tactic_Omega_omegaImpl_spec__2(x_296, x_297);
-x_299 = l_String_intercalate(x_295, x_298);
-lean_dec_ref(x_295);
+x_299 = lean_string_intercalate(x_295, x_298);
 x_278 = x_291;
 x_279 = x_292;
 x_280 = x_293;

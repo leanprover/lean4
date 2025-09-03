@@ -60,7 +60,7 @@ LEAN_EXPORT lean_object* l_Lake_guardCycle___redArg(lean_object*, lean_object*, 
 uint8_t l_List_elem___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_guardCycle(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_string_intercalate(lean_object*, lean_object*);
 lean_object* l_ExceptT_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_partition_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadCallStackOfMonadCallStackOf___redArg(lean_object*);
@@ -105,7 +105,7 @@ lean_closure_set(x_3, 0, x_1);
 x_4 = l_Lake_formatCycle___redArg___closed__0;
 x_5 = lean_box(0);
 x_6 = l_List_mapTR_loop___redArg(x_3, x_2, x_5);
-x_7 = l_String_intercalate(x_4, x_6);
+x_7 = lean_string_intercalate(x_4, x_6);
 return x_7;
 }
 }

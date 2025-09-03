@@ -68,7 +68,7 @@ lean_object* l_List_reverse___redArg(lean_object*);
 uint8_t l_instDecidableNot___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_proc(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_rawProc___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_string_intercalate(lean_object*, lean_object*);
 static lean_object* l_Lake_logOutput___redArg___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lake_mkCmdLog_spec__0(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
@@ -268,7 +268,7 @@ x_12 = lean_array_to_list(x_3);
 x_13 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_13, 0, x_2);
 lean_ctor_set(x_13, 1, x_12);
-x_14 = l_String_intercalate(x_11, x_13);
+x_14 = lean_string_intercalate(x_11, x_13);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_21; 

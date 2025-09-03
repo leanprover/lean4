@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Dyadic
-// Imports: Init.Data.Dyadic.Basic Init.Data.Dyadic.Instances Init.Data.Dyadic.Round
+// Imports: Init.Data.Dyadic.Basic Init.Data.Dyadic.Instances Init.Data.Dyadic.Round Init.Data.Dyadic.Inv
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* initialize_Init_Data_Dyadic_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Dyadic_Instances(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Dyadic_Round(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Dyadic_Inv(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Dyadic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -28,6 +29,9 @@ res = initialize_Init_Data_Dyadic_Instances(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Dyadic_Round(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Dyadic_Inv(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

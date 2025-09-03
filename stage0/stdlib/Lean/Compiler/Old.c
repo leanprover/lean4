@@ -31,7 +31,7 @@ static lean_object* l_Lean_Compiler_checkIsDefinition___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Compiler_isUnsafeRecName_x3f(lean_object*);
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__1;
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__2;
-uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
+uint8_t lean_string_isprefixof(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_checkIsDefinition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_mkUnsafeRecName(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_getDeclNamesForCodeGen_spec__0(size_t, size_t, lean_object*);
@@ -90,9 +90,12 @@ case 1:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
+lean_inc_ref(x_4);
+lean_dec_ref(x_1);
 x_5 = l_Lean_Compiler_isEagerLambdaLiftingName___closed__0;
-x_6 = l_String_isPrefixOf(x_5, x_4);
+x_6 = lean_string_isprefixof(x_5, x_4);
 if (x_6 == 0)
 {
 x_1 = x_3;
@@ -100,6 +103,7 @@ goto _start;
 }
 else
 {
+lean_dec(x_3);
 return x_6;
 }
 }
@@ -107,6 +111,8 @@ default:
 {
 lean_object* x_8; 
 x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec_ref(x_1);
 x_1 = x_8;
 goto _start;
 }
@@ -118,7 +124,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Compiler_isEagerLambdaLiftingName(x_1);
-lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }

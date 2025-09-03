@@ -280,7 +280,7 @@ lean_object* lean_erase_macro_scopes(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_InteractiveGoalCore_pretty_addLine(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_defaultInteractiveHypothesisBundle____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_82_;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__2_spec__2(lean_object*, uint8_t, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_string_intercalate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_enc____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1_(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isClass_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_toJson___at___Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText_1749793946____hygCtx___hyg_143____at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_enc____x40_Lean_Widget_InteractiveGoal_562241082____hygCtx___hyg_1__spec__6_spec__6(lean_object*);
@@ -6124,7 +6124,7 @@ x_17 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Le
 x_18 = lean_array_to_list(x_13);
 x_19 = lean_box(0);
 x_20 = l_List_filterTR_loop___at___Lean_Widget_InteractiveGoalCore_pretty_spec__0(x_18, x_19);
-x_21 = l_String_intercalate(x_17, x_20);
+x_21 = lean_string_intercalate(x_17, x_20);
 x_22 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Widget_InteractiveGoalCore_pretty_spec__1___closed__1;
 x_23 = lean_string_dec_eq(x_21, x_22);
 if (x_23 == 0)

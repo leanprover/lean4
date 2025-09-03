@@ -1178,7 +1178,6 @@ lean_dec_ref(x_9);
 x_33 = l_Lean_Parser_dbgTraceStateFn___closed__5;
 x_34 = l_Lean_Parser_Error_toString(x_32);
 x_35 = l_addParenHeuristic(x_34);
-lean_dec_ref(x_34);
 x_36 = lean_string_append(x_33, x_35);
 lean_dec_ref(x_35);
 x_37 = l_Lean_Parser_dbgTraceStateFn___closed__6;

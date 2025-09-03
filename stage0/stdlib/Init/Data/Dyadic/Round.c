@@ -20,7 +20,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Round_0__Rat_toDyadic_matc
 lean_object* lean_nat_abs(lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Dyadic_Round_0__Rat_toDyadic_match__1_splitter___redArg___closed__0;
+LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Round_0__Rat_toDyadic_match__1_splitter___redArg___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Round_0__Rat_toDyadic_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l___private_Init_Data_Dyadic_Round_0__Rat_toDyadic_match__1_splitter___redArg___closed__0() {
 _start:

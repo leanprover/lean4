@@ -241,7 +241,7 @@ static lean_object* l_Lean_Meta_initFn___closed__1____x40_Lean_Meta_Basic_128869
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeImp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instHashableInfoCacheKey___private__1___boxed(lean_object*);
-static lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instTypeNameRealizeConstantResult;
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instTypeNameRealizeConstantResult;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_addTraceAsMessages___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__6_spec__15_spec__15_spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedConfigWithKey___private__1;
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);

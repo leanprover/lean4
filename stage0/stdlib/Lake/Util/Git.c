@@ -127,7 +127,7 @@ static lean_object* l_Lake_GitRepo_checkoutBranch___closed__2;
 static lean_object* l_Lake_GitRepo_resolveRevision_x3f___closed__3;
 static lean_object* l_Lake_GitRepo_quietInit___closed__0;
 LEAN_EXPORT lean_object* l_Lake_GitRepo_checkoutBranch(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Substring_beq(lean_object*, lean_object*);
+uint8_t lean_substring_beq(lean_object*, lean_object*);
 static lean_object* l_Lake_GitRepo_insideWorkTree___closed__0;
 static lean_object* l_Lake_GitRepo_resolveRevision_x3f___closed__2;
 static lean_object* l_Lake_GitRepo_checkoutDetach___closed__2;
@@ -264,7 +264,7 @@ lean_ctor_set(x_7, 0, x_1);
 lean_ctor_set(x_7, 1, x_2);
 lean_ctor_set(x_7, 2, x_6);
 x_8 = l_Lake_Git_filterUrl_x3f___closed__2;
-x_9 = l_Substring_beq(x_7, x_8);
+x_9 = lean_substring_beq(x_7, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
@@ -279,7 +279,7 @@ lean_ctor_set(x_12, 0, x_1);
 lean_ctor_set(x_12, 1, x_11);
 lean_ctor_set(x_12, 2, x_3);
 x_13 = l_Lake_Git_filterUrl_x3f___closed__5;
-x_14 = l_Substring_beq(x_12, x_13);
+x_14 = lean_substring_beq(x_12, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; 

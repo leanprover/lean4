@@ -204,7 +204,7 @@ static lean_object* l_Lake_reprCliError___closed__19____x40_Lake_CLI_Error_43804
 LEAN_EXPORT lean_object* l_Lake_CliError_invalidOptArg_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CliError_missingOptArg_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___List_repr_x27___at___Lake_reprCliError____x40_Lake_CLI_Error_438044115____hygCtx___hyg_386__spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
-lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_string_intercalate(lean_object*, lean_object*);
 static lean_object* l_List_repr_x27___at___Lake_reprCliError____x40_Lake_CLI_Error_438044115____hygCtx___hyg_386__spec__0___redArg___closed__2;
 static lean_object* l_Lake_reprCliError___closed__85____x40_Lake_CLI_Error_438044115____hygCtx___hyg_386_;
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___List_repr_x27___at___Lake_reprCliError____x40_Lake_CLI_Error_438044115____hygCtx___hyg_386__spec__0_spec__0___lam__0(lean_object*);
@@ -4648,7 +4648,7 @@ lean_inc(x_37);
 lean_dec_ref(x_1);
 x_38 = l_Lake_CliError_toString___closed__10;
 x_39 = l_Lake_CliError_toString___closed__11;
-x_40 = l_String_intercalate(x_39, x_37);
+x_40 = lean_string_intercalate(x_39, x_37);
 x_41 = lean_string_append(x_38, x_40);
 lean_dec_ref(x_40);
 return x_41;

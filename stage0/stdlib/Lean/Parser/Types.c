@@ -343,7 +343,7 @@ lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_initCacheForInput___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Parser_withCacheFn_spec__2_spec__6___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_ParserInfo_ctorIdx___boxed(lean_object*);
-lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_string_intercalate(lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Parser_InputContext_input___boxed(lean_object*);
 lean_object* lean_array_mk(lean_object*);
@@ -2492,7 +2492,7 @@ block_7:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = l_Lean_Parser_Error_toString___closed__0;
 x_5 = l_List_appendTR___redArg(x_2, x_3);
-x_6 = l_String_intercalate(x_4, x_5);
+x_6 = lean_string_intercalate(x_4, x_5);
 return x_6;
 }
 block_17:

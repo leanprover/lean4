@@ -60,7 +60,7 @@ LEAN_EXPORT lean_object* l_Lean_markNoConfusion(lean_object*, lean_object*);
 static lean_object* l_Lean_isAuxRecursor___closed__4;
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_AuxRecursor_2046597767____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_noConfusionExt;
-uint8_t l_Substring_beq(lean_object*, lean_object*);
+uint8_t lean_substring_beq(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isAuxRecursor___boxed(lean_object*, lean_object*);
@@ -360,7 +360,7 @@ x_18 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_18, 0, x_10);
 lean_ctor_set(x_18, 1, x_11);
 lean_ctor_set(x_18, 2, x_17);
-x_19 = l_Substring_beq(x_16, x_18);
+x_19 = lean_substring_beq(x_16, x_18);
 x_4 = x_19;
 goto block_6;
 }

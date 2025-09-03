@@ -104,7 +104,7 @@ LEAN_EXPORT lean_object* l_Lean_Name_getPrefix___boxed(lean_object*);
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 static lean_object* l_Lean_Name_isImplementationDetail___closed__2;
 LEAN_EXPORT uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
-uint8_t l_Substring_beq(lean_object*, lean_object*);
+uint8_t lean_substring_beq(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Name_getString_x21___closed__1;
 static lean_object* l_panic___at___Lean_Name_getString_x21_spec__0___closed__0;
@@ -1089,7 +1089,7 @@ x_10 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_10, 0, x_2);
 lean_ctor_set(x_10, 1, x_3);
 lean_ctor_set(x_10, 2, x_9);
-x_11 = l_Substring_beq(x_8, x_10);
+x_11 = lean_substring_beq(x_8, x_10);
 if (x_11 == 0)
 {
 lean_dec(x_7);
@@ -1239,7 +1239,7 @@ lean_ctor_set(x_19, 0, x_4);
 lean_ctor_set(x_19, 1, x_14);
 lean_ctor_set(x_19, 2, x_18);
 x_20 = l_Lean_Name_isInternalDetail___closed__5;
-x_21 = l_Substring_beq(x_19, x_20);
+x_21 = lean_substring_beq(x_19, x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; uint8_t x_23; 
@@ -1392,7 +1392,7 @@ lean_ctor_set(x_10, 0, x_4);
 lean_ctor_set(x_10, 1, x_5);
 lean_ctor_set(x_10, 2, x_9);
 x_11 = l_Lean_Name_isImplementationDetail___closed__2;
-x_12 = l_Substring_beq(x_10, x_11);
+x_12 = lean_substring_beq(x_10, x_11);
 return x_12;
 }
 else

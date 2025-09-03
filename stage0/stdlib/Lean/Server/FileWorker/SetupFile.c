@@ -81,7 +81,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResult_ofError(lean_o
 static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___closed__8;
 lean_object* l_System_Uri_fileUriToPath_x3f(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_setupFile___closed__3;
-lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_string_intercalate(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResultKind_importsOutOfDate_elim___redArg(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -1410,7 +1410,7 @@ x_30 = lean_array_to_list(x_28);
 lean_ctor_set_tag(x_12, 1);
 lean_ctor_set(x_12, 1, x_30);
 lean_ctor_set(x_12, 0, x_27);
-x_31 = l_String_intercalate(x_29, x_12);
+x_31 = lean_string_intercalate(x_29, x_12);
 x_42 = 0;
 x_43 = lean_uint32_dec_eq(x_24, x_42);
 if (x_43 == 0)
@@ -1646,7 +1646,7 @@ x_95 = lean_array_to_list(x_93);
 x_96 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_96, 0, x_92);
 lean_ctor_set(x_96, 1, x_95);
-x_97 = l_String_intercalate(x_94, x_96);
+x_97 = lean_string_intercalate(x_94, x_96);
 x_108 = 0;
 x_109 = lean_uint32_dec_eq(x_89, x_108);
 if (x_109 == 0)

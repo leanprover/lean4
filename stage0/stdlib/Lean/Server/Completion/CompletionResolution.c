@@ -2065,7 +2065,6 @@ lean_inc(x_60);
 lean_dec_ref(x_56);
 x_61 = l_Lean_Lsp_CompletionItem_resolve___closed__2;
 x_62 = l_addParenHeuristic(x_60);
-lean_dec(x_60);
 x_63 = lean_string_append(x_61, x_62);
 lean_dec_ref(x_62);
 x_64 = l_Lean_Lsp_CompletionItem_resolve___closed__3;

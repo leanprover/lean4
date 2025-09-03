@@ -26,7 +26,7 @@ LEAN_EXPORT lean_object* l_BitVec_rotateLeftAux(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_BitVec_rotateRight___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_setWidth_x27___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_getLsb_x3f(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_asString(lean_object*);
+lean_object* lean_list_asstring(lean_object*);
 static lean_object* l_BitVec_term_____x23_______closed__20;
 lean_object* l_List_lengthTR___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_setWidth(lean_object*, lean_object*, lean_object*);
@@ -199,7 +199,7 @@ LEAN_EXPORT lean_object* l_BitVec_rotateLeft___boxed(lean_object*, lean_object*,
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_rotateLeftAux___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_BitVec_toHex___boxed__const__1;
+LEAN_EXPORT lean_object* l_BitVec_toHex___boxed__const__1;
 LEAN_EXPORT lean_object* l_BitVec_instDiv(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_intMin(lean_object*);
 LEAN_EXPORT uint8_t l_BitVec_getMsb(lean_object*, lean_object*, lean_object*);
@@ -1723,7 +1723,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_3 = lean_unsigned_to_nat(16u);
 x_4 = l_Nat_toDigits(x_3, x_2);
-x_5 = l_List_asString(x_4);
+x_5 = lean_list_asstring(x_4);
 x_6 = lean_unsigned_to_nat(3u);
 x_7 = lean_nat_add(x_1, x_6);
 x_8 = lean_unsigned_to_nat(2u);
@@ -1735,7 +1735,7 @@ lean_dec(x_10);
 lean_dec(x_9);
 x_12 = l_BitVec_toHex___boxed__const__1;
 x_13 = l_List_replicateTR___redArg(x_11, x_12);
-x_14 = l_List_asString(x_13);
+x_14 = lean_list_asstring(x_13);
 x_15 = lean_string_append(x_14, x_5);
 lean_dec_ref(x_5);
 return x_15;

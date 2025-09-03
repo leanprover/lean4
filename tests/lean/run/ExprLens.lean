@@ -11,7 +11,7 @@ def Lean.LocalContext.subtract (Γ Δ : LocalContext) : Array Expr :=
   let E := Δ[*...(Δ.size - Γ.size)]
   E.toArray
 
-def ExprTraversal := ∀{M : _} [Monad M] [MonadLiftT MetaM M] [MonadControlT MetaM M] [MonadOptions M], (Pos → Expr → M Expr) → Pos → Expr → M Expr
+abbrev ExprTraversal := ∀{M : _} [Monad M] [MonadLiftT MetaM M] [MonadControlT MetaM M] [MonadOptions M], (Pos → Expr → M Expr) → Pos → Expr → M Expr
 
 instance : Inhabited ExprTraversal where
   default := traverseChildrenWithPos

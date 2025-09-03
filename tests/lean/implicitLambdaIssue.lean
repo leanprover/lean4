@@ -23,7 +23,7 @@ instance : LE (Set α) := ⟨λ s t => ∀ {x : α}, x ∈ s → x ∈ t⟩
 
 instance : PartialOrder (Set α) where
   refl := λ s x => id
-  antisymm := λ s t hst hts => ext $ λ x => ⟨hst, hts⟩
+  antisymm := λ s t hst hts => ext $ λ x => ⟨(hst ·), (hts ·)⟩
   trans := λ s t u hst htu x hxs => htu $ hst hxs
 
 variable (x y z : Set α) (hxy : x ≤ y) (hyz : y ≤ z)

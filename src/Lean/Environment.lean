@@ -2362,6 +2362,9 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
           consts.add c
     }
     checked := dest.checked.map fun kenv => replayKernel exts newPrivateConsts kenv |>.toOption.getD kenv
+    allRealizations := dest.allRealizations.map (sync := true) fun allRealizations =>
+      newPrivateConsts.foldl (init := allRealizations) fun allRealizations c =>
+        allRealizations.insert c.constInfo.name c
   }
 where
   replayKernel (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)

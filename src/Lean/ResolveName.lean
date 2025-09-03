@@ -121,15 +121,16 @@ private partial def resolvePrivateName (env : Environment) (declName : Name) : O
     return n
 
 /-- Check whether `ns ++ id` is a valid namespace name and/or there are aliases names `ns ++ id`. -/
-private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
+private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name := Id.run do
   let resolvedId    := ns ++ id
   -- We ignore protected aliases if `id` is atomic.
   let resolvedIds   := getAliases env resolvedId (skipProtected := id.isAtomic)
-  if (containsDeclOrReserved env resolvedId && (!id.isAtomic || !isProtected env resolvedId)) then
-    resolvedId :: resolvedIds
-  else
-    if let some resolvedIdPrv := resolvePrivateName env resolvedId then resolvedIdPrv :: resolvedIds
-    else resolvedIds
+  if !id.isAtomic || !isProtected env resolvedId then
+    if containsDeclOrReserved env resolvedId then
+      return resolvedId :: resolvedIds
+    else if let some resolvedIdPrv := resolvePrivateName env resolvedId then
+      return resolvedIdPrv :: resolvedIds
+  return resolvedIds
 
 /-- Check surrounding namespaces -/
 private def resolveUsingNamespace (env : Environment) (id : Name) : Name → List Name

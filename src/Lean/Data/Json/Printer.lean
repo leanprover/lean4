@@ -22,7 +22,7 @@ This table contains for each UTF-8 byte whether we need to escape a string that 
 private def escapeTable : { xs : ByteArray // xs.size = 256 } :=
   ⟨ByteArray.mk #[
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -74,6 +74,7 @@ where
     else
       false
 
+@[inline]
 def escape (s : String) (acc : String := "") : String :=
   -- If we don't have any characters that need to be escaped we can just append right away.
   if needEscape s then
@@ -81,6 +82,7 @@ def escape (s : String) (acc : String := "") : String :=
   else
     acc ++ s
 
+@[inline]
 def renderString (s : String) (acc : String := "") : String :=
   let acc := acc ++ "\""
   let acc := escape s acc

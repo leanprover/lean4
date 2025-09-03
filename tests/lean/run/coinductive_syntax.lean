@@ -6,10 +6,21 @@ open Lean.Order
 coinductive infSeq (r : α → α → Prop) : α → Prop where
   | step : r a b → infSeq r b → infSeq r a
 
-def infSeq' (r : α → α → Prop) : α → Prop := infSeq_functor r (infSeq')
-  partial_fixpoint monotonicity by sorry
+def infSeq (r : α → α → Prop) : α → Prop := infSeq_functor r (infSeq)
+  coinductive_fixpoint monotonicity by
+    intro P Q le α r x h
+    cases h
+    case step b a1 a2 =>
+      apply infSeq_functor.step
+      . apply a2
+      . apply le
+        exact a1
 
-#check infSeq'.fixpoint_induct
+def infSeq.step (r : α → α → Prop) {a b : α} : r a b → infSeq r b → infSeq r a := by
+  intro h1 h2
+  have := @infSeq_functor.step α r infSeq a b h1 h2
+  rw [infSeq]
+  exact this
 
 /--
 info: infSeq_functor.{u_1} {α : Sort u_1} (r : α → α → Prop)

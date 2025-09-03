@@ -963,8 +963,8 @@ private def mkFlatFunctor (views : Array InductiveView) (elabs' : Array Inductiv
             for (old, new) in indFVarPremMap do
               resBody := resBody.replaceFVar old new
             mkForallFVars resArgs resBody
-          return { ctor with type := res}
-      return { indType with type := newType, ctors := newCtors}
+          return { ctor with name := ctor.name, type := res}
+      return { indType with name := indType.name, type := newType, ctors := newCtors}
     let indTypes ← replaceIndFVarsWithConsts views newIndFVars levelParams numVars (numParams + views.size) indTypes
     for i in indTypes do
       trace[Elab.inductive] "Name: {i.name}, Type: {i.type}"
@@ -1070,9 +1070,19 @@ private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
   for n in declNames do
     if hasUnit && hasProd then mkBRecOn n
 
+def addFunctorPostfix : Name → Name
+  | Name.anonymous => Name.anonymous
+  | Name.str p s => Name.str p (s ++ "_functor")
+  | Name.num p n => Name.num (addFunctorPostfix p) n
+
+def updateViewWithFunctorNames (view : InductiveView) : InductiveView :=
+  let newCtors := view.ctors.map (fun ctor => {ctor with declName := ctor.declName.updatePrefix (addFunctorPostfix ctor.declName.getPrefix)})
+  {view with declName := addFunctorPostfix view.declName, ctors := newCtors}
+
 private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext := do
   let view0 := elabs[0]!.view
   let ref := view0.ref
+  -- Todo, modify names here
   Term.withDeclName view0.declName do withRef ref do
   withExporting (isExporting := !isPrivateName view0.declName) do
     let res ← mkInductiveDecl vars elabs
@@ -1163,6 +1173,7 @@ private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res 
 def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Unit := do
   let (elabs, res) ← runTermElabM fun vars => do
     let elabs ← inductives.mapM fun (modifiers, stx) => mkInductiveView modifiers stx
+    let elabs := if elabs.any (·.isCoinductive) then elabs.map fun e => {e with view := updateViewWithFunctorNames e.view} else elabs
     elabs.forM fun e => checkValidInductiveModifier e.view.modifiers
     checkNoInductiveNameConflicts elabs
     let res ← elabInductiveViews vars elabs

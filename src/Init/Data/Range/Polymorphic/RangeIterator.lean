@@ -251,14 +251,14 @@ private def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [Supports
       obtain ⟨n, hn⟩ := HasFiniteRanges.finite init bound
       induction n generalizing init with
       | zero =>
-        simp only [UpwardEnumerable.succMany?_zero, Option.elim_some] at hn
+        simp only [succMany?_zero, Option.elim_some] at hn
         constructor
         simp [hn, IterStep.successor]
       | succ n ih =>
         constructor
         rintro it'
-        simp only [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at hn
-        match hs : UpwardEnumerable.succ? init with
+        simp only [succMany?_succ?_eq_succ?_bind_succMany?] at hn
+        match hs : succ? init with
         | none =>
           simp only [hs]
           intro h
@@ -316,7 +316,7 @@ instance RangeIterator.instIteratorAccess {su} [UpwardEnumerable α] [SupportsUp
       · split <;> rename_i heq
         · apply IterM.IsPlausibleNthOutputStep.done
           simp only [Monadic.isPlausibleStep_iff, Monadic.step]
-          simp only [Option.bind_eq_none_iff, UpwardEnumerable.succMany?_zero, reduceCtorEq,
+          simp only [Option.bind_eq_none_iff, succMany?_zero, reduceCtorEq,
             imp_false] at heq
           cases heq' : it.internalState.next
           · simp
@@ -325,7 +325,7 @@ instance RangeIterator.instIteratorAccess {su} [UpwardEnumerable α] [SupportsUp
             exact heq _ rfl
         · cases heq' : it.internalState.next
           · simp [heq'] at heq
-          simp only [heq', Option.bind_some, UpwardEnumerable.succMany?_zero, Option.some.injEq] at heq
+          simp only [heq', Option.bind_some, succMany?_zero, Option.some.injEq] at heq
           cases heq
           split <;> rename_i heq''
           · apply IterM.IsPlausibleNthOutputStep.zero_yield
@@ -338,7 +338,7 @@ instance RangeIterator.instIteratorAccess {su} [UpwardEnumerable α] [SupportsUp
           · apply IterM.IsPlausibleNthOutputStep.done
             simp only [Monadic.isPlausibleStep_iff, Monadic.step, heq']
           · rename_i out
-            simp only [heq', Option.bind_some, LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at heq
+            simp only [heq', Option.bind_some, succMany?_succ?_eq_succ?_bind_succMany?] at heq
             specialize ih ⟨⟨UpwardEnumerable.succ? out, it.internalState.upperBound⟩⟩
             simp only [heq] at ih
             by_cases heq'' : SupportsUpperBound.IsSatisfied it.internalState.upperBound out
@@ -354,7 +354,7 @@ instance RangeIterator.instIteratorAccess {su} [UpwardEnumerable α] [SupportsUp
           rename_i out
           simp only [heq', Option.bind_some] at heq
           have hle : UpwardEnumerable.LE out _ := ⟨n + 1, heq⟩
-          simp only [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at heq
+          simp only [succMany?_succ?_eq_succ?_bind_succMany?] at heq
           specialize ih ⟨⟨UpwardEnumerable.succ? out, it.internalState.upperBound⟩⟩
           simp only [heq] at ih
           by_cases hout : SupportsUpperBound.IsSatisfied it.internalState.upperBound out
@@ -378,7 +378,7 @@ theorem RangeIterator.Monadic.isPlausibleIndirectOutput_iff {su α}
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α]
     {it : IterM (α := RangeIterator su α) Id α} {out : α} :
     it.IsPlausibleIndirectOutput out ↔
-      ∃ n, it.internalState.next.bind (UpwardEnumerable.succMany? n ·) = some out ∧
+      ∃ n, it.internalState.next.bind (succMany? n ·) = some out ∧
         SupportsUpperBound.IsSatisfied it.internalState.upperBound out := by
   constructor
   · intro h
@@ -391,7 +391,7 @@ theorem RangeIterator.Monadic.isPlausibleIndirectOutput_iff {su α}
       obtain ⟨n, hn⟩ := ih
       obtain ⟨a, ha, h₁, h₂, h₃⟩ := h
       refine ⟨n + 1, ?_⟩
-      simp [ha, ← h₃, hn.2, LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, h₂, hn]
+      simp [ha, ← h₃, hn.2, succMany?_succ?_eq_succ?_bind_succMany?, h₂, hn]
   · rintro ⟨n, hn, hu⟩
     induction n generalizing it
     case zero =>
@@ -404,8 +404,8 @@ theorem RangeIterator.Monadic.isPlausibleIndirectOutput_iff {su α}
       rename_i a
       simp only [hn', Option.bind_some] at hn
       have hle : UpwardEnumerable.LE a out := ⟨_, hn⟩
-      rw [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at hn
-      cases hn' : UpwardEnumerable.succ? a
+      rw [succMany?_succ?_eq_succ?_bind_succMany?] at hn
+      cases hn' : succ? a
       · simp only [hn', Option.bind_none, reduceCtorEq] at hn
       rename_i a'
       simp only [hn', Option.bind_some] at hn
@@ -422,7 +422,7 @@ theorem RangeIterator.isPlausibleIndirectOutput_iff {su α}
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α]
     {it : Iter (α := RangeIterator su α) α} {out : α} :
     it.IsPlausibleIndirectOutput out ↔
-      ∃ n, it.internalState.next.bind (UpwardEnumerable.succMany? n ·) = some out ∧
+      ∃ n, it.internalState.next.bind (succMany? n ·) = some out ∧
         SupportsUpperBound.IsSatisfied it.internalState.upperBound out := by
   simp only [Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM,
     Monadic.isPlausibleIndirectOutput_iff, Iter.toIterM]
@@ -476,7 +476,7 @@ instance RangeIterator.instIteratorLoop {su} [UpwardEnumerable α] [SupportsUppe
       exact UpwardEnumerable.le_refl _
     case hle' =>
       refine UpwardEnumerable.le_trans hl ⟨1, ?_⟩
-      simp [UpwardEnumerable.succMany?_one, hs]
+      simp [succMany?_one, hs]
 
 partial instance RepeatIterator.instIteratorLoopPartial {su} [UpwardEnumerable α]
     [SupportsUpperBound su α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α]
@@ -496,7 +496,7 @@ partial instance RepeatIterator.instIteratorLoopPartial {su} [UpwardEnumerable �
         (next : α) (hl : UpwardEnumerable.LE least next) (hu : SupportsUpperBound.IsSatisfied upperBound next) : n γ := do
       match ← f next hl hu acc with
       | .yield acc' =>
-        match hs : UpwardEnumerable.succ? next with
+        match hs : succ? next with
         | some next' =>
           if hu : SupportsUpperBound.IsSatisfied upperBound next' then
             loop γ upperBound least acc' f next' ?hle' hu
@@ -513,10 +513,10 @@ partial instance RepeatIterator.instIteratorLoopPartial {su} [UpwardEnumerable �
       exact UpwardEnumerable.le_refl _
     case hle' =>
       refine UpwardEnumerable.le_trans hl ⟨1, ?_⟩
-      simp [UpwardEnumerable.succMany?_one, hs]
+      simp [succMany?_one, hs]
 
-theorem RangeIterator.instIteratorLoop.loop_eq {su} [UpwardEnumerable α] [SupportsUpperBound su α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α]
+theorem RangeIterator.instIteratorLoop.loop_eq {su} [UpwardEnumerable α]
+    [SupportsUpperBound su α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] {γ : Type u}
     {lift} [Internal.LawfulMonadLiftBindFunction lift]
     {PlausibleForInStep} {upperBound} {next} {hl} {hu} {f} {acc} {wf} :
@@ -524,16 +524,18 @@ theorem RangeIterator.instIteratorLoop.loop_eq {su} [UpwardEnumerable α] [Suppo
       (do
         match ← f next hl hu acc with
         | ⟨.yield c, _⟩ =>
-          letI it' : IterM (α := RangeIterator su α) Id α := ⟨⟨UpwardEnumerable.succ? next, upperBound⟩⟩
+          letI it' : IterM (α := RangeIterator su α) Id α := ⟨⟨succ? next, upperBound⟩⟩
           IterM.DefaultConsumers.forIn' (m := Id) lift γ
             PlausibleForInStep wf it' c it'.IsPlausibleIndirectOutput (fun _ => id)
             (fun b h c => f b
                 (by
                   refine UpwardEnumerable.le_trans hl ?_
                   simp only [RangeIterator.Monadic.isPlausibleIndirectOutput_iff, it',
-                    ← LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at h
+                    ← succMany?_succ?_eq_succ?_bind_succMany?] at h
                   exact ⟨h.choose + 1, h.choose_spec.1⟩)
-                (by simp only [RangeIterator.Monadic.isPlausibleIndirectOutput_iff, it'] at h; exact h.choose_spec.2) c)
+                (by
+                  simp only [RangeIterator.Monadic.isPlausibleIndirectOutput_iff, it'] at h
+                  exact h.choose_spec.2) c)
         | ⟨.done c, _⟩ => return c) := by
   rw [loop]
   apply bind_congr

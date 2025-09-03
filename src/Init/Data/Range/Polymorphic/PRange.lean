@@ -218,6 +218,7 @@ class BoundedUpwardEnumerable (lowerBoundShape : BoundShape) (α : Type u) where
   init? : Bound lowerBoundShape α → Option α
 
 attribute [simp] BoundedUpwardEnumerable.init?
+export BoundedUpwardEnumerable (init?)
 
 /--
 This typeclass ensures that the lower bound predicate from `SupportsLowerBound sl α`
@@ -227,11 +228,10 @@ class LawfulUpwardEnumerableLowerBound (sl α) [UpwardEnumerable α]
     [SupportsLowerBound sl α] [BoundedUpwardEnumerable sl α] where
   /--
   An element `a` satisfies the lower bound `l` if and only if it is
-  `BoundedUpwardEnumerable.init? l` or one of its transitive successors.
+  `init? l` or one of its transitive successors.
   -/
   isSatisfied_iff (a : α) (l : Bound sl α) :
-    SupportsLowerBound.IsSatisfied l a ↔
-      ∃ init, BoundedUpwardEnumerable.init? l = some init ∧ UpwardEnumerable.LE init a
+    SupportsLowerBound.IsSatisfied l a ↔ ∃ init, init? l = some init ∧ UpwardEnumerable.LE init a
 
 /--
 This typeclass ensures that if `b` is a transitive successor of `a` and `b` satisfies an upper bound

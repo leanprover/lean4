@@ -13,7 +13,7 @@ public section
 
 namespace Std.PRange.Nat
 
-theorem succ_eq {n : Nat} : UpwardEnumerable.succ n = n + 1 :=
+theorem succ_eq {n : Nat} : succ n = n + 1 :=
   rfl
 
 theorem toList_Rco_succ_succ {m n : Nat} :

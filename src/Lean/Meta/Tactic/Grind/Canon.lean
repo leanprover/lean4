@@ -233,7 +233,12 @@ where
             let arg := args[i]
             trace_goal[grind.debug.canon] "[{repr (← shouldCanon pinfos i arg)}]: {arg} : {← inferType arg}"
             let arg' ← match (← shouldCanon pinfos i arg) with
-              | .canonType => canonType e f i arg
+              | .canonType =>
+                /-
+                The type may have nested propositions and terms that may need to be canonicalized too.
+                So, we must recurse over it. See issue #10232
+                -/
+                canonType e f i (← visit arg)
               | .canonImplicit => canonImplicit e f i (← visit arg)
               | .visit => visit arg
               | .canonInst =>

@@ -1769,6 +1769,7 @@ private def looksLikeOldCodegenName : Name → Bool
 private opaque getIRExtraConstNames : Environment → OLeanLevel → Array Name
 
 def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO ModuleData := do
+  let env := env.setExporting (level != .private)
   let pExts ← persistentEnvExtensionsRef.get
   let entries := pExts.map fun pExt => Id.run do
     -- get state from `checked` at the end if `async`; it would otherwise panic
@@ -1778,7 +1779,6 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     let state := pExt.getState (asyncMode := asyncMode) env
     (pExt.name, pExt.exportEntriesFn env state level)
   let kenv := env.toKernelEnv
-  let env := env.setExporting (level != .private)
   let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
   -- not all kernel constants may be exported at `level < .private`
   let constants := if level == .private then

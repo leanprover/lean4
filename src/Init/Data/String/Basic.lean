@@ -942,7 +942,7 @@ Examples:
 
 @[export lean_string_foldl]
 def Internal.foldl' (f : String → Char → String) (init : String) (s : String) : String :=
-  foldl f init s
+  String.foldl f init s
 
 @[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos) : α :=
   if h : begPos < i then

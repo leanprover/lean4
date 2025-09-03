@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Format.Macro
 public import Init.Data.Format.Instances
 public import Init.Meta
+import Init.Data.String.Basic
 
 public section
 

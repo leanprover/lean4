@@ -11,6 +11,7 @@ public import Lean.PrettyPrinter.Delaborator.Options
 public import Lean.PrettyPrinter.Delaborator.SubExpr
 public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
 import Lean.Elab.InfoTree.Main
+meta import Init.Data.String.Basic
 
 public section
 

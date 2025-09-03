@@ -9,6 +9,7 @@ prelude
 public import Init.Prelude
 import Init.Data.ToString
 meta import Init.Meta
+meta import Init.Data.String.Basic
 
 /-!
 # Open Type Families in Lean

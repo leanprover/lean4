@@ -443,7 +443,7 @@ def swapAt! (xs : Array α) (i : Nat) (v : α) : α × Array α :=
     swapAt xs i v
   else
     have : Inhabited (α × Array α) := ⟨(v, xs)⟩
-    panic! ("index " ++ toString i ++ " out of bounds")
+    panic! String.Internal.append (String.Internal.append "index " (toString i)) " out of bounds"
 
 /--
 Returns the first `n` elements of an array. The resulting array is produced by repeatedly calling
@@ -2169,7 +2169,7 @@ instance {α : Type u} [Repr α] : Repr (Array α) where
   reprPrec xs _ := Array.repr xs
 
 instance [ToString α] : ToString (Array α) where
-  toString xs := "#" ++ toString xs.toList
+  toString xs := String.Internal.append "#" (toString xs.toList)
 
 end Array
 

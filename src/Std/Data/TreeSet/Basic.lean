@@ -449,6 +449,22 @@ def any (t : TreeSet α cmp) (p : α → Bool) : Bool :=
 def all (t : TreeSet α cmp) (p : α → Bool) : Bool :=
   t.inner.all (fun a _ => p a)
 
+/--
+`t₁.subset t₂` means that every element of `t₁` is also an element of `t₂`, ignoring multiplicity.
+-/
+@[inline]
+def subset (t₁ t₂ : TreeSet α cmp) : Bool :=
+  t₁.all (t₂.contains ·)
+
+/--
+`t₁.diff t₂` returns a new `TreeSet` containing all elements of `t₁`
+that are not present in `t₂`. Effectively, it removes from `t₁`
+every element found in `t₂`.
+-/
+@[inline]
+def diff (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
+  t₂.foldl .erase t₁
+
 /-- Transforms the tree set into a list of elements in ascending order. -/
 @[inline]
 def toList (t : TreeSet α cmp) : List α :=

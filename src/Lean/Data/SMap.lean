@@ -105,6 +105,27 @@ def numBuckets (m : SMap α β) : Nat :=
 def toList (m : SMap α β) : List (α × β) :=
   m.fold (init := []) fun es a b => (a, b)::es
 
+/-- Check if any element satisfies the predicate, short-circuiting if a predicate fails. -/
+@[inline]
+def any (s : SMap α β) (p : α → β → Bool) : Bool := Id.run do
+  for ⟨a, b⟩ in s do
+    if p a b then return true
+  return false
+
+/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+@[inline]
+def all (s : SMap α β) (p : α → β → Bool) : Bool := Id.run do
+  for ⟨a, b⟩ in s do
+    if p a b = false then return false
+  return true
+
+/--
+`t₁.subset t₂` means that every element of `t₁` is also an element of `t₂`, ignoring multiplicity.
+-/
+@[inline]
+def subset [BEq β] (m₁ m₂ : SMap α β) : Bool :=
+  m₁.all (fun a b => m₂.find? a == some b)
+
 end SMap
 
 def _root_.List.toSMap [BEq α] [Hashable α] (es : List (α × β)) : SMap α β :=

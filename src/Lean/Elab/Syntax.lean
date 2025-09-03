@@ -429,11 +429,11 @@ def elabSyntax (stx : Syntax) : CommandElabM Name := do
   discard <| elabSyntax stx
 
 @[builtin_command_elab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab := fun stx => do
-  let `($[$doc?:docComment]? syntax $declName:ident := $[$ps:stx]*) ← pure stx | throwUnsupportedSyntax
+  let `($[$doc?:docComment]? $[$vis?:visibility]? syntax $declName:ident := $[$ps:stx]*) ← pure stx | throwUnsupportedSyntax
   -- TODO: nonatomic names
   let (val, _) ← runTermElabM fun _ => Term.toParserDescr (mkNullNode ps) Name.anonymous
   let stxNodeKind := (← getCurrNamespace) ++ declName.getId
-  let stx' ← `($[$doc?:docComment]? meta def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
+  let stx' ← `($[$doc?:docComment]? $[$vis?:visibility]? meta def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
   withMacroExpansion stx stx' <| elabCommand stx'
 
 def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=

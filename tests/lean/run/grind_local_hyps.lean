@@ -3,14 +3,14 @@
 
 -- Checks that (invalid) identifiers which are not local declarations are still elaborated as global
 -- constants.
-/-- error: unknown constant 'h' -/
+/-- error: Unknown constant `h` -/
 #guard_msgs in
 example : 0 = 0 := by
   grind [h]
 
 -- Checks the same property as before, but in the presence of the modifier `=`, which should not
 -- affect how the subsequent identifier is resolved.
-/-- error: unknown constant 'h' -/
+/-- error: Unknown constant `h` -/
 #guard_msgs in
 example : 0 = 0 := by
   grind [= h]

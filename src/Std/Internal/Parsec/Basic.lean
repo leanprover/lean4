@@ -8,6 +8,7 @@ module
 prelude
 public import Init.NotationExtra
 public import Init.Data.ToString.Macro
+import Init.Data.String.Basic
 
 public section
 

@@ -10,6 +10,7 @@ public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.Range.Polymorphic.Iterators
 public import Std.Internal.Parsec
 public import Std.Internal.Parsec.ByteArray
+import Init.Data.ByteArray.Extra
 
 public section
 

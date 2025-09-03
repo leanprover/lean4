@@ -692,6 +692,17 @@ def mkImpDepCongrCtx (h₁ h₂ : Expr) : MetaM Expr :=
 def mkForallCongr (h : Expr) : MetaM Expr :=
   mkAppM ``forall_congr #[h]
 
+/-- Returns instance for `[Functor m]` if there is one -/
+def isFunctor? (m : Expr) : MetaM (Option Expr) :=
+  try
+    let functorType ← mkAppM `Functor #[m]
+    let result    ← trySynthInstance functorType
+    match result with
+    | LOption.some inst => pure inst
+    | _                 => pure none
+  catch _ =>
+    pure none
+
 /-- Returns instance for `[Monad m]` if there is one -/
 def isMonad? (m : Expr) : MetaM (Option Expr) :=
   try

@@ -6,21 +6,32 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Lean.Data.Options
 import Lean.Meta.Transform
 import Lean.Meta.Inductive
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
 import Lean.Meta.NatTable
 import Lean.Meta.Constructions.CtorIdx
+import Lean.Meta.Constructions.CtorElim
+import Lean.Meta.Constructions.CasesOnSameCtor
 
 namespace Lean.Elab.Deriving.DecEq
 open Lean.Parser.Term
 open Meta
 
+register_builtin_option deriving.decEq.linear_construction_threshold : Nat := {
+  defValue := 10
+  descr := "If the inductive data type has this many or more constructors, use a different \
+    implementation for deciding equality that avoids the quadratic code size produced by the \
+    default implementation.\n\n\
+    The alternative construction compiles to less efficient code in some cases, so by default \
+    it is only used for inductive types with 10 or more constructors." }
+
 def mkDecEqHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `DecidableEq 2 indVal
 
-def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
+def mkMatchOld (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
@@ -90,6 +101,76 @@ where
           let rhs ← `(isFalse (by intro h; injection h))
           alts := alts.push (← `(matchAltExpr| | $[$patterns:term],* => $rhs:term))
     return alts
+
+def mkMatchNew (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
+  assert! header.targetNames.size == 2
+
+  let x1 := mkIdent header.targetNames[0]!
+  let x2 := mkIdent header.targetNames[1]!
+  let ctorIdxName := mkCtorIdxName indVal.name
+  -- NB: the getMatcherInfo? assumes all mathcers are called `match_`
+  let casesOnSameCtorName ← mkFreshUserName (indVal.name ++ `match_on_same_ctor)
+  mkCasesOnSameCtor casesOnSameCtorName indVal.name
+  let alts ← Array.ofFnM (n := indVal.numCtors) fun ⟨ctorIdx, _⟩ => do
+    let ctorName := indVal.ctors[ctorIdx]!
+    let ctorInfo ← getConstInfoCtor ctorName
+    forallTelescopeReducing ctorInfo.type fun xs type => do
+      let type ← Core.betaReduce type -- we 'beta-reduce' to eliminate "artificial" dependencies
+      let mut ctorArgs1 : Array Term := #[]
+      let mut ctorArgs2 : Array Term := #[]
+      let mut todo := #[]
+
+      for i in *...ctorInfo.numFields do
+        let x := xs[indVal.numParams + i]!
+        if type.containsFVar x.fvarId! then
+          -- If resulting type depends on this field, we don't need to bring it into
+          -- scope nor compare it
+          ctorArgs1 := ctorArgs1.push (← `(_))
+        else
+          let a := mkIdent (← mkFreshUserName `a)
+          let b := mkIdent (← mkFreshUserName `b)
+          ctorArgs1 := ctorArgs1.push a
+          ctorArgs2 := ctorArgs2.push b
+          let xType ← inferType x
+          let indValNum :=
+            ctx.typeInfos.findIdx?
+            (xType.isAppOf ∘ ConstantVal.name ∘ InductiveVal.toConstantVal)
+          let recField  := indValNum.map (ctx.auxFunNames[·]!)
+          let isProof ← isProp xType
+          todo := todo.push (a, b, recField, isProof)
+      let rhs ← mkSameCtorRhs todo.toList
+      `(@fun $ctorArgs1:term* $ctorArgs2:term* =>$rhs:term)
+  if indVal.numCtors == 1 then
+    `( $(mkCIdent casesOnSameCtorName) $x1:term $x2:term rfl $alts:term* )
+  else
+    `( if h : $(mkCIdent ctorIdxName) $x1:ident = $(mkCIdent ctorIdxName) $x2:ident then
+        $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
+      else
+        isFalse (fun h' => h (congrArg $(mkCIdent ctorIdxName) h')))
+where
+  mkSameCtorRhs : List (Ident × Ident × Option Name × Bool) → TermElabM Term
+    | [] => ``(isTrue rfl)
+    | (a, b, recField, isProof) :: todo => withFreshMacroScope do
+      let rhs ← if isProof then
+        `(have h : @$a = @$b := rfl; by subst h; exact $(← mkSameCtorRhs todo):term)
+      else
+        let sameCtor ← mkSameCtorRhs todo
+        `(if h : @$a = @$b then
+           by subst h; exact $sameCtor:term
+          else
+           isFalse (by intro n; injection n; apply h _; assumption))
+      if let some auxFunName := recField then
+        -- add local instance for `a = b` using the function being defined `auxFunName`
+        `(let inst := $(mkIdent auxFunName) @$a @$b; $rhs)
+      else
+        return rhs
+
+
+def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
+  if indVal.numCtors ≥ deriving.decEq.linear_construction_threshold.get (← getOptions) then
+    mkMatchNew ctx header indVal
+  else
+    mkMatchOld ctx header indVal
 
 def mkAuxFunction (ctx : Context) (auxFunName : Name) (indVal : InductiveVal): TermElabM (TSyntax `command) := do
   let header  ← mkDecEqHeader indVal

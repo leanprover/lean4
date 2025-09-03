@@ -197,6 +197,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
                 mkLambdaFVars xs (← loop belowForAlt altBody)
             pure { matcherApp with alts := altsNew }.toExpr
           else
+            trace[Elab.definition.structural] "`matcherApp.addArg?` failed"
             processApp e
       | none => processApp e
     | e =>

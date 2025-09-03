@@ -226,7 +226,7 @@ Examples:
 -/
 @[extern "lean_string_of_usize"]
 protected def _root_.USize.repr (n : @& USize) : String :=
-  (toDigits 10 n.toNat).asString
+  List.Internal.asString (toDigits 10 n.toNat)
 
 /-- We statically allocate and memoize reprs for small natural numbers. -/
 private def reprArray : Array String := Id.run do
@@ -235,14 +235,14 @@ private def reprArray : Array String := Id.run do
 def reprFast (n : Nat) : String :=
   if h : n < Nat.reprArray.size then Nat.reprArray.getInternal n h else
   if h : n < USize.size then (USize.ofNatLT n h).repr
-  else (toDigits 10 n).asString
+  else List.Internal.asString (toDigits 10 n)
 
 /--
 Converts a natural number to its decimal string representation.
 -/
 @[implemented_by reprFast]
 protected def repr (n : Nat) : String :=
-  (toDigits 10 n).asString
+  List.Internal.asString (toDigits 10 n)
 
 /--
 Converts a natural number less than `10` to the corresponding Unicode superscript digit character.
@@ -293,7 +293,7 @@ Examples:
  * `Nat.toSuperscriptString 35 = "³⁵"`
 -/
 def toSuperscriptString (n : Nat) : String :=
-  (toSuperDigits n).asString
+  List.Internal.asString (toSuperDigits n)
 
 /--
 Converts a natural number less than `10` to the corresponding Unicode subscript digit character.
@@ -344,7 +344,7 @@ Examples:
  * `Nat.toSubscriptString 35 = "₃₅"`
 -/
 def toSubscriptString (n : Nat) : String :=
-  (toSubDigits n).asString
+  List.Internal.asString (toSubDigits n)
 
 end Nat
 
@@ -356,13 +356,13 @@ Returns the decimal string representation of an integer.
 -/
 protected def Int.repr : Int → String
     | ofNat m   => Nat.repr m
-    | negSucc m => "-" ++ Nat.repr (succ m)
+    | negSucc m => String.Internal.append "-" (Nat.repr (succ m))
 
 instance : Repr Int where
   reprPrec i prec := if i < 0 then Repr.addAppParen i.repr prec else i.repr
 
 def hexDigitRepr (n : Nat) : String :=
-  String.singleton <| Nat.digitChar n
+  String.Internal.singleton <| Nat.digitChar n
 
 def Char.quoteCore (c : Char) (inString : Bool := false) : String :=
   if       c = '\n' then "\\n"
@@ -370,14 +370,14 @@ def Char.quoteCore (c : Char) (inString : Bool := false) : String :=
   else if  c = '\\' then "\\\\"
   else if  c = '\"' then "\\\""
   else if !inString && c = '\'' then "\\\'"
-  else if  c.toNat <= 31 ∨ c = '\x7f' then "\\x" ++ smallCharToHex c
-  else String.singleton c
+  else if  c.toNat <= 31 ∨ c = '\x7f' then String.Internal.append "\\x" (smallCharToHex c)
+  else String.Internal.singleton c
 where
   smallCharToHex (c : Char) : String :=
     let n  := Char.toNat c;
     let d2 := n / 16;
     let d1 := n % 16;
-    hexDigitRepr d2 ++ hexDigitRepr d1
+    String.Internal.append (hexDigitRepr d2) (hexDigitRepr d1)
 
 /--
 Quotes the character to its representation as a character literal, surrounded by single quotes and
@@ -388,7 +388,7 @@ Examples:
  * `'"'.quote = "'\\\"'"`
 -/
 def Char.quote (c : Char) : String :=
-  "'" ++ Char.quoteCore c ++ "'"
+  String.Internal.append (String.Internal.append "'" (Char.quoteCore c)) "'"
 
 instance : Repr Char where
   reprPrec c _ := c.quote
@@ -405,8 +405,8 @@ Examples:
 * `"\"".quote = "\"\\\"\""`
 -/
 def String.quote (s : String) : String :=
-  if s.isEmpty then "\"\""
-  else s.foldl (fun s c => s ++ c.quoteCore (inString := true)) "\"" ++ "\""
+  if String.Internal.isEmpty s then "\"\""
+  else String.Internal.append (String.Internal.foldl (fun s c => String.Internal.append s (c.quoteCore (inString := true))) "\"" s) "\""
 
 instance : Repr String where
   reprPrec s _ := s.quote
@@ -415,10 +415,7 @@ instance : Repr String.Pos where
   reprPrec p _ := "{ byteIdx := " ++ repr p.byteIdx ++ " }"
 
 instance : Repr Substring where
-  reprPrec s _ := Format.text <| String.quote s.toString ++ ".toSubstring"
-
-instance : Repr String.Iterator where
-  reprPrec | ⟨s, pos⟩, prec => Repr.addAppParen ("String.Iterator.mk " ++ reprArg s ++ " " ++ reprArg pos) prec
+  reprPrec s _ := Format.text <| String.Internal.append (String.quote (Substring.Internal.toString s)) ".toSubstring"
 
 instance (n : Nat) : Repr (Fin n) where
   reprPrec f _ := repr f.val

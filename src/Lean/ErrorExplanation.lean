@@ -93,7 +93,7 @@ where
   upToWs (nonempty : Bool) : Parser String := fun it =>
     let it' := it.find fun c => c.isWhitespace
     if nonempty && it'.pos == it.pos then
-      .error it' "Expected a nonempty string"
+      .error it' (.other "Expected a nonempty string")
     else
       .success it' (it.extract it')
 
@@ -180,7 +180,7 @@ private abbrev ValidationM := Parsec ValidationState
 private def ValidationM.run (p : ValidationM α) (input : String) : Except (Nat × String) α :=
   match p (.ofSource input) with
   | .success _ res => Except.ok res
-  | .error s err  => Except.error (s.getLineNumber, err)
+  | .error s err  => Except.error (s.getLineNumber, toString err)
 
 /--
 Matches `p` as many times as possible, followed by EOF. If `p` cannot be matched prior to the end
@@ -290,7 +290,7 @@ where
   labelingExampleErrors {α} (header : String) (x : ValidationM α) : ValidationM α := fun s =>
     match x s with
     | res@(.success ..) => res
-    | .error s' msg => .error s' s!"Example '{header}' is malformed: {msg}"
+    | .error s' msg => .error s' (.other s!"Example '{header}' is malformed: {msg}")
 
   /--
   If `line` is a level-`level` header and, if `title?` is non-`none`, its title is `title?`,

@@ -892,8 +892,9 @@ def auxAdd (vecIn : List (BitVec w)) (currSum : List (BitVec w)) (addedNodes inp
 def extractAndExtendPopulateAux (idx : Nat) (x : BitVec w) (acc : BitVec (w * idx)) (hlt : idx ≤ w) :
   BitVec (w * w) :=
   if hidx : idx < w then
+    have hcast : w + w * idx = w * (idx + 1) := by simp [Nat.mul_add]; omega
     let bv := BitVec.zeroExtend w (BitVec.extractLsb' idx 1 x)
-    extractAndExtendPopulateAux (idx + 1) x (acc ++ bv) (by omega)
+    extractAndExtendPopulateAux (idx + 1) x (hcast▸(bv ++ acc)) (by omega)
   else
     have hcast : w * idx = w * w := by rw [show idx = w by omega]
     hcast▸acc
@@ -910,10 +911,11 @@ def addVecAux (usedNodes validNodes : Nat)
                  else 0#w
       let lhs := BitVec.extractLsb' (usedNodes * w) w oldParSum
       let add := rhs + lhs
-      let newParSum := newParSum ++ add
-      have hcast : usedNodes / 2 * w + w = (usedNodes + 2) / 2 * w := by
+      let newParSum := add ++ newParSum
+      have hcast : w + usedNodes / 2 * w = (usedNodes + 2) / 2 * w := by
         simp [show usedNodes / 2 * w + w = usedNodes / 2 * w + 1 * w by omega,
             show (usedNodes + 2) / 2 = usedNodes/2 + 1 by omega, Nat.add_mul]
+        omega
       addVecAux (usedNodes + 2) validNodes oldParSum (hcast▸newParSum) hval (by omega) (by omega)
     else
       have hor : usedNodes = validNodes ∨ usedNodes = validNodes + 1 := by omega
@@ -960,7 +962,7 @@ def popCountAuxRec (x r : BitVec w) (n : Nat) :=
   | n' + 1 => if x.getLsbD n then x.popCountAuxRec (r + 1) (n + 1) else x.popCountAuxRec r (n + 1)
 termination_by (w - n)
 
-/-- Count the number of bits with value one in a bitvec -/
+/-- Count the number of bits with value `1` in a bitvec -/
 def popCount {w : Nat} (x : BitVec w) : BitVec w := popCountAuxRec x 0 0
 
 end BitVec

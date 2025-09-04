@@ -53,12 +53,14 @@ def getClassAbbrevProjs? (env : Environment) (declName : Name) : Option (Array N
 def addClassAbbrev (env : Environment) (clsName : Name) : Except MessageData Environment := do
   let some { fieldNames, .. } := getStructureInfo? env clsName
     | throw m!"invalid 'class abbrev', declaration '{.ofConstName clsName}' must be a structure"
-  let projs ← fieldNames.mapM fun fieldName => do
-    if isClass env fieldName then
-      getProjFnForField? env clsName fieldName
-        |>.getDM <| throw m!"invalid 'class abbrev', field {fieldName} doesn't have a projection function"
+  let projs ← fieldNames.mapM fun fieldName =>
+    if let some info := getFieldInfo? env clsName fieldName then
+      if info.binderInfo.isInstImplicit then
+        pure info.projFn
+      else
+        throw m!"invalid 'class abbrev', field '{fieldName}' is not marked instance implicit"
     else
-      throw m!"invalid 'class abbrev', field {fieldName} is not a class"
+      throw m!"invalid 'class abbrev', field '{fieldName}' doesn't have a projection function"
   return classAbbrevExtension.addEntry env { name := clsName, projs }
 
 /--

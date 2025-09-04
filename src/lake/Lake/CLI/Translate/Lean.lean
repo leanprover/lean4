@@ -10,7 +10,10 @@ public import Lake.Config.Package
 import Lake.DSL.Syntax
 import Lake.Config.Package
 meta import Lean.Parser.Module
-meta import Lake.Config.Package
+meta import Lake.Config.LeanLibConfig
+meta import Lake.Config.LeanExeConfig
+meta import Lake.Config.InputFileConfig
+meta import Lake.Config.PackageConfig
 import all Lake.Build.Key
 
 open System Lean Syntax Parser Module

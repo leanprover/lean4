@@ -15888,8 +15888,8 @@ lean_inc(x_139);
 x_140 = lean_ctor_get(x_138, 1);
 lean_inc(x_140);
 lean_dec_ref(x_138);
-x_72 = x_131;
-x_73 = x_124;
+x_72 = x_124;
+x_73 = x_131;
 x_74 = x_139;
 x_75 = x_2;
 x_76 = x_3;
@@ -15964,8 +15964,8 @@ return x_148;
 else
 {
 lean_inc_ref(x_100);
-x_72 = x_131;
-x_73 = x_124;
+x_72 = x_124;
+x_73 = x_131;
 x_74 = x_100;
 x_75 = x_2;
 x_76 = x_3;
@@ -16019,7 +16019,7 @@ x_83 = lean_ctor_get(x_81, 1);
 lean_inc(x_83);
 lean_dec_ref(x_81);
 lean_inc_ref(x_70);
-x_84 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp___redArg(x_70, x_74, x_73, x_72, x_77, x_83);
+x_84 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp___redArg(x_70, x_74, x_72, x_73, x_77, x_83);
 lean_dec(x_77);
 if (lean_obj_tag(x_84) == 0)
 {

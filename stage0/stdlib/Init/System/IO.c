@@ -160,7 +160,7 @@ LEAN_EXPORT lean_object* l_IO_ofExcept___redArg(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* lean_io_cancel_token_is_set(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_mapTask___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_metadata___boxed(lean_object*, lean_object*);
-static lean_object* l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop___boxed__const__1;
+LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop___boxed__const__1;
 lean_object* lean_io_getenv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EIO_toBaseIO___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_mapTasks___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);

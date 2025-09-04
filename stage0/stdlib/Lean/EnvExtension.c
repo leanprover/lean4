@@ -2487,7 +2487,7 @@ lean_dec_ref(x_1);
 x_12 = lean_box(0);
 x_13 = l_Lean_TagDeclarationExtension_tag___closed__0;
 x_14 = l_Lean_MapDeclarationExtension_insert___redArg___closed__0;
-x_15 = lean_unsigned_to_nat(149u);
+x_15 = lean_unsigned_to_nat(150u);
 x_16 = lean_unsigned_to_nat(4u);
 x_17 = l_Lean_MapDeclarationExtension_insert___redArg___closed__1;
 x_18 = 1;

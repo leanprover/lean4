@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l___private_Lake_CLI_Init_0__Lake_exeFileContents;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_exeFileContents;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_stdLeanConfigFileContents___closed__1;
 LEAN_EXPORT lean_object* l_Lake_InitTemplate_std_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_defaultExeRoot;
@@ -37,7 +37,7 @@ lean_object* l_Lake_updateManifest(lean_object*, lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_createLeanActionWorkflow___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprInitTemplate___closed__0;
 extern lean_object* l_Lake_toolchainFileName;
-static lean_object* l___private_Lake_CLI_Init_0__Lake_mathBuildActionWorkflowContents;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_mathBuildActionWorkflowContents;
 static size_t l___private_Lake_CLI_Init_0__Lake_initPkg___elam__16___redArg___closed__12;
 static lean_object* l_String_anyAux___at_____private_Lake_CLI_Init_0__Lake_validatePkgName_spec__0___closed__2;
 static lean_object* l_Lake_reprInitTemplate___closed__11____x40_Lake_CLI_Init_3616391521____hygCtx___hyg_7_;
@@ -181,7 +181,7 @@ LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_readmeFileContents(le
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InitTemplate_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Lake_init_spec__1(lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_CLI_Init_0__Lake_gitignoreContents;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_gitignoreContents;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_initPkg___elam__16(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Init_0__Lake_initPkg___elam__16___redArg___closed__0;
 lean_object* lean_io_prim_handle_mk(lean_object*, uint8_t, lean_object*);
@@ -189,7 +189,7 @@ static lean_object* l_Lake_InitTemplate_ofString_x3f___closed__1;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_stdLeanConfigFileContents(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_CLI_Init_0__Lake_initPkg___elam__16_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Init_0__Lake_exeFileContents___closed__0;
-static lean_object* l___private_Lake_CLI_Init_0__Lake_mathUpdateActionWorkflowContents;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_mathUpdateActionWorkflowContents;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_validatePkgName___closed__2;
 static lean_object* l_Lake_InitTemplate_ofString_x3f___closed__6;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_exeLeanConfigFileContents(lean_object*, lean_object*);
@@ -201,14 +201,14 @@ static lean_object* l___private_Lake_CLI_Init_0__Lake_libLeanConfigFileContents_
 static lean_object* l___private_Lake_CLI_Init_0__Lake_gitignoreContents___closed__4;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_initPkg___elam__16___redArg___closed__2;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_validatePkgName___closed__1;
-static lean_object* l___private_Lake_CLI_Init_0__Lake_mathToolchainBlobUrl;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_mathToolchainBlobUrl;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_createLeanActionWorkflow___closed__11;
-static lean_object* l___private_Lake_CLI_Init_0__Lake_leanActionWorkflowContents;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_leanActionWorkflowContents;
 LEAN_EXPORT lean_object* l_Lake_InitTemplate_ctorElim___redArg(lean_object*);
 static lean_object* l___private_Lake_CLI_Init_0__Lake_escapeIdent___closed__4;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_initPkg___elam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Init_0__Lake_initPkg___elam__16___redArg___closed__6;
-static lean_object* l_String_anyAux___at_____private_Lake_CLI_Init_0__Lake_validatePkgName_spec__0___closed__2___boxed__const__1;
+LEAN_EXPORT lean_object* l_String_anyAux___at_____private_Lake_CLI_Init_0__Lake_validatePkgName_spec__0___closed__2___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lake_init___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
 static lean_object* l_Lake_InitTemplate_ofString_x3f___closed__2;
@@ -240,14 +240,14 @@ LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_initPkg___elam__0___r
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 static lean_object* l___private_Lake_CLI_Init_0__Lake_mathLaxTomlConfigFileContents___closed__1;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_initPkg___elam__16___redArg___closed__17;
-static lean_object* l___private_Lake_CLI_Init_0__Lake_mainFileName;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_mainFileName;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_validatePkgName___closed__3;
 LEAN_EXPORT lean_object* l_Lake_InitTemplate_math_elim___redArg(lean_object*);
 static lean_object* l___private_Lake_CLI_Init_0__Lake_createLeanActionWorkflow___closed__8;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_gitignoreContents___closed__0;
 lean_object* lean_io_realpath(lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Init_0__Lake_libRootFileContents___closed__0;
-static lean_object* l_String_anyAux___at_____private_Lake_CLI_Init_0__Lake_validatePkgName_spec__0___closed__1___boxed__const__1;
+LEAN_EXPORT lean_object* l_String_anyAux___at_____private_Lake_CLI_Init_0__Lake_validatePkgName_spec__0___closed__1___boxed__const__1;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Init_0__Lake_createLeanActionWorkflow___closed__14;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -304,7 +304,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Init_0__Lake_createLeanActionWorkflow___closed__16;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_mathToolchainBlobUrl___closed__0;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_initPkg___closed__0;
-static lean_object* l___private_Lake_CLI_Init_0__Lake_mathToolchainUrl;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_mathToolchainUrl;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_initPkg___elam__16___redArg___closed__8;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_mathToolchainUrl___closed__0;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_stdTomlConfigFileContents___closed__0;
@@ -325,8 +325,8 @@ static lean_object* l___private_Lake_CLI_Init_0__Lake_initPkg___elam__16___redAr
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_initPkg___elam__16___boxed(lean_object**);
 static lean_object* l___private_Lake_CLI_Init_0__Lake_escapeName_x21___closed__5;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_dotlessName(lean_object*);
-static lean_object* l___private_Lake_CLI_Init_0__Lake_createReleaseActionWorkflowContents;
-static lean_object* l___private_Lake_CLI_Init_0__Lake_basicFileContents;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_createReleaseActionWorkflowContents;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Init_0__Lake_basicFileContents;
 LEAN_EXPORT lean_object* l_String_anyAux___at_____private_Lake_CLI_Init_0__Lake_validatePkgName_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InitTemplate_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_InitTemplate_exe_elim___redArg(lean_object*);

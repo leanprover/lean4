@@ -142,7 +142,7 @@ lean_object* l_Lake_captureProc(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RegistryPkg_toJson(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RegistrySrc_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_foldlUtf8M___redArg(lean_object*, uint32_t, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Reservoir_0__Lake_RegistryPkg_instToJson;
+LEAN_EXPORT lean_object* l___private_Lake_Reservoir_0__Lake_RegistryPkg_instToJson;
 LEAN_EXPORT lean_object* l_Lake_foldlUtf8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_RegistryPkg_fromJson_x3f___closed__8;
 static lean_object* l_Lake_Reservoir_lakeHeaders___closed__3;

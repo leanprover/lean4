@@ -41,7 +41,7 @@ static lean_object* l___private_Lean_DocString_Links_0__Lean_rewriteManualLinksC
 LEAN_EXPORT lean_object* l_Lean_rewriteManualLinksCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_manualRoot;
 lean_object* lean_mk_array(lean_object*, lean_object*);
-static lean_object* l___private_Lean_DocString_Links_0__Lean_fallbackManualRoot;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Links_0__Lean_fallbackManualRoot;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static uint8_t l_Lean_initFn___closed__6____x40_Lean_DocString_Links_3730308748____hygCtx___hyg_2_;
 static lean_object* l_List_foldl___at___List_toString___at_____private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_rw_spec__0_spec__0___closed__0;
@@ -155,7 +155,7 @@ size_t lean_usize_sub(size_t, size_t);
 static lean_object* l_List_mapTR_loop___at___Lean_rewriteManualLinks_spec__0___closed__1;
 uint8_t l_Substring_beq(lean_object*, lean_object*);
 static lean_object* l_List_toString___at_____private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_rw_spec__0___closed__1;
-static lean_object* l___private_Lean_DocString_Links_0__Lean_domainMap;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Links_0__Lean_domainMap;
 LEAN_EXPORT lean_object* l_List_toString___at_____private_Lean_DocString_Links_0__Lean_rewriteManualLinksCore_rw_spec__0(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_string_append(lean_object*, lean_object*);

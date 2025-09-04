@@ -47,7 +47,7 @@ lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l_Lake_exe___closed__1;
 static lean_object* l_Lake_exe___closed__3;
 static lean_object* l_Lake_Package_uploadRelease___closed__5;
-static lean_object* l_Lake_Package_test___boxed__const__1;
+LEAN_EXPORT lean_object* l_Lake_Package_test___boxed__const__1;
 static lean_object* l_Lake_Package_uploadRelease___closed__11;
 static lean_object* l_Lake_Package_uploadRelease___closed__4;
 LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___Lake_Package_resolveDriver_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);

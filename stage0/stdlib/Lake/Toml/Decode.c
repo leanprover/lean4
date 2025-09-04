@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_Toml_mergeErrors(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Toml_Decode_0__Lake_Toml_Value_instDecodeTomlTable;
+LEAN_EXPORT lean_object* l___private_Lake_Toml_Decode_0__Lake_Toml_Value_instDecodeTomlTable;
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_tryDecodeD___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_decodeKeyval___redArg___lam__0___closed__0;
 static lean_object* l_Lake_Toml_Value_instDecodeTomlInt___closed__0;
@@ -106,7 +106,7 @@ lean_object* lean_nat_abs(lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_decodeKeyval___redArg___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeToml(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Toml_Decode_0__Lake_Toml_instDecodeTomlValue;
+LEAN_EXPORT lean_object* l___private_Lake_Toml_Decode_0__Lake_Toml_instDecodeTomlValue;
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_instDecodeTomlDateTime;
 static lean_object* l_Lake_Toml_Value_instDecodeTomlName___closed__0;
 static lean_object* l_Lake_Toml_Table_decodeValue___closed__1;

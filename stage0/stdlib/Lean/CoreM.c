@@ -897,7 +897,7 @@ LEAN_EXPORT lean_object* l___private_Lean_CoreM_0__Lean_checkUnsupported___redAr
 LEAN_EXPORT lean_object* l_Lean_Core_getAndEmptyMessageLog___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_throwInterruptException___redArg(lean_object*);
 static lean_object* l_Lean_initFn___closed__3____x40_Lean_CoreM_1276945831____hygCtx___hyg_4_;
-static lean_object* l___private_Lean_CoreM_0__Lean_supportedRecursors;
+LEAN_EXPORT lean_object* l___private_Lean_CoreM_0__Lean_supportedRecursors;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get_x3f___at___Lean_addTraceAsMessages___at___Lean_Core_wrapAsyncAsSnapshot_spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_compileDecls___lam__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);

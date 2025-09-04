@@ -136,7 +136,7 @@ LEAN_EXPORT lean_object* l_instReprTupleProdOfRepr(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Sum_repr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprId(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprBool;
-static lean_object* l___private_Init_Data_Repr_0__Nat_reprArray;
+LEAN_EXPORT lean_object* l___private_Init_Data_Repr_0__Nat_reprArray;
 LEAN_EXPORT lean_object* l_Nat_digitChar___boxed(lean_object*);
 static lean_object* l_Repr_addAppParen___closed__4;
 LEAN_EXPORT uint32_t l_Nat_superDigitChar(lean_object*);

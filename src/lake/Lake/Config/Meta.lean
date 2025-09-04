@@ -113,7 +113,7 @@ private def mkConfigAuxDecls
   let fieldsDef ← `( $[$vis?:visibility]? def $fieldsId:ident := $(data.fields))
   let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instConfigFields")
   let fieldsInst ← `( $[$vis?:visibility]? instance $instId:ident : ConfigFields $structTy := ⟨$fieldsId⟩)
-  let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instConfigMeta")
+  let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instConfigInfo")
   let structNameLit : Term := ⟨mkNode ``Term.doubleQuotedName #[mkAtom "`", mkAtom "`", structId]⟩
   let infoInst ← `( $[$vis?:visibility]? instance $instId:ident : ConfigInfo $structNameLit := {fields := $fieldsId})
   let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instEmptyCollection")

@@ -28,7 +28,7 @@ public structure Env where
   lean : LeanInstall
   /-- The Elan installation (if any) of the environment. -/
   elan? : Option ElanInstall
-  /-- The Reservoir API endpoint URL (e.g., `https://reservoir.lean-lang.org/api`). -/
+  /-- The Reservoir API endpoint URL (e.g., `https://reservoir.lean-lang.org/api/v1`). -/
   reservoirApiUrl : String
   /-- Overrides the detected Lean's githash as the string Lake uses for Lean traces. -/
   githashOverride : String

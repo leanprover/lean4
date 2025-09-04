@@ -6216,7 +6216,8 @@ theorem getLsbD_false_ctz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hi : i < x.ctz
   simp only [hi', decide_true, Bool.true_and]
   have : (x.reverse.clzAuxRec (w - 1)).toNat ≤ w := by
     rw [show ((x.reverse.clzAuxRec (w - 1)).toNat ≤ w) =
-          ((x.reverse.clzAuxRec (w - 1)).toNat ≤ (BitVec.ofNat w w).toNat) by simp, ← le_def]
+          ((x.reverse.clzAuxRec (w - 1)).toNat ≤ (BitVec.ofNat w w).toNat) by simp only [toNat_ofNat,
+            Nat.mod_two_pow_self], ← le_def]
     apply clzAuxRec_le (x := x.reverse) (n := w - 1)
   let j := (x.reverse.clzAuxRec (w - 1)).toNat - 1 - i
   rw [show w - 1 - i = w - (x.reverse.clzAuxRec (w - 1)).toNat + j by omega]
@@ -6229,8 +6230,9 @@ theorem getLsbD_true_ctz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w)
   simp only [ctz_eq_reverse_clz, clz]
   rw [getLsbD_eq_getMsbD, ← getLsbD_reverse]
   have := ctz_lt_iff_ne_zero (x := x)
-  simp [clz, BitVec.lt_def] at this
-  simp [this, hx]
+  simp only [ctz_eq_reverse_clz, clz, natCast_eq_ofNat, lt_def, toNat_ofNat, Nat.mod_two_pow_self,
+    ne_eq] at this
+  simp only [this, hx, not_false_eq_true, decide_true, Bool.true_and]
   apply getLsbD_true_of_eq_clzAuxRec_of_ne_zero (x := x.reverse) (n := w - 1) (by simp [reverse_eq_zero_iff, hx])
   intro i hi
   simp [show w ≤ i by omega]

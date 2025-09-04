@@ -109,66 +109,123 @@ end
 def pretty (j : Json) (lineWidth := 80) : String :=
   Format.pretty (render j) lineWidth
 
-protected inductive CompressWorkItem
-  | json (j : Json)
-  | arrayElem (j : Json)
+inductive CompressWorkItemKind where
+  | json
+  | arrayElem
   | arrayEnd
-  | objectField (k : String) (j : Json)
+  | objectField
   | objectEnd
   | comma
 
-open Json.CompressWorkItem in
+structure CompressWorkItemQueue where
+  kinds           : Array CompressWorkItemKind
+  values          : Array Json
+  objectFieldKeys : Array String
+
+@[inline]
+def CompressWorkItemQueue.pushKind (q : CompressWorkItemQueue) (kind : CompressWorkItemKind) :
+    CompressWorkItemQueue := {
+  q with kinds := q.kinds.push kind
+}
+
+@[inline]
+def CompressWorkItemQueue.pushValue (q : CompressWorkItemQueue) (value : Json) :
+    CompressWorkItemQueue := {
+  q with values := q.values.push value
+}
+
+@[inline]
+def CompressWorkItemQueue.pushObjectFieldKey (q : CompressWorkItemQueue) (objectFieldKey : String) :
+    CompressWorkItemQueue := {
+  q with objectFieldKeys := q.objectFieldKeys.push objectFieldKey
+}
+
+@[inline]
+def CompressWorkItemQueue.popKind (q : CompressWorkItemQueue) (h : q.kinds.size ≠ 0) :
+    CompressWorkItemKind × CompressWorkItemQueue :=
+  let kind := q.kinds[q.kinds.size - 1]
+  let q := { q with kinds := q.kinds.pop }
+  (kind, q)
+
+@[inline]
+def CompressWorkItemQueue.popValue! (q : CompressWorkItemQueue) :
+    Json × CompressWorkItemQueue :=
+  let value := q.values[q.values.size - 1]!
+  let q := { q with values := q.values.pop }
+  (value, q)
+
+@[inline]
+def CompressWorkItemQueue.popObjectFieldKey! (q : CompressWorkItemQueue) :
+    String × CompressWorkItemQueue :=
+  let objectFieldKey := q.objectFieldKeys[q.objectFieldKeys.size - 1]!
+  let q := { q with objectFieldKeys := q.objectFieldKeys.pop }
+  (objectFieldKey, q)
+
 partial def compress (j : Json) : String :=
-  go "" #[json j]
+  go "" {
+    kinds := #[.json]
+    values := #[j]
+    objectFieldKeys := #[]
+  }
 where
-  go (acc : String) (workItems : Array Json.CompressWorkItem) : String :=
-    if h : workItems.size = 0 then
+  go (acc : String) (q : CompressWorkItemQueue) : String :=
+    if h : q.kinds.size = 0 then
       acc
     else
-      let workItem := workItems[workItems.size - 1]
-      let workItems := workItems.pop
-      match workItem with
-      | json j =>
+      let (kind, q) := q.popKind h
+      match kind with
+      | .json =>
+        let (j, q) := q.popValue!
         match j with
         | null =>
-          go (acc ++ "null") workItems
+          go (acc ++ "null") q
         | bool b =>
-          go (acc ++ toString b) workItems
+          go (acc ++ toString b) q
         | num n =>
-          go (acc ++ toString n) workItems
+          go (acc ++ toString n) q
         | str s =>
-          go (renderString s acc) workItems
+          go (renderString s acc) q
         | arr elems =>
-          let workItems := workItems.push arrayEnd
-          go (acc ++ "[") (elems.foldr (init := workItems) fun e acc => acc.push (arrayElem e))
+          let q := q.pushKind .arrayEnd
+          go (acc ++ "[") (elems.foldr (init := q) fun e acc => acc.pushKind .arrayElem |>.pushValue e)
         | obj kvs =>
-          let workItems := workItems.push objectEnd
-          go (acc ++ "{") (kvs.foldr (init := workItems) fun k j acc => acc.push (objectField k j))
-      | arrayElem j =>
-        if h : workItems.size = 0 then
-          go acc #[comma, json j]
+          let q := q.pushKind .objectEnd
+          go (acc ++ "{") (kvs.foldr (init := q) fun k j acc => acc.pushKind .objectField |>.pushObjectFieldKey k |>.pushValue j)
+      | .arrayElem =>
+        let (j, q) := q.popValue!
+        if h : q.kinds.size = 0 then
+          go acc {
+            kinds := #[.comma, .json]
+            values := #[j]
+            objectFieldKeys := #[]
+          }
         else
-          let workItem := workItems[workItems.size - 1]
-          if workItem matches arrayEnd then
-            go acc (workItems.pop.push arrayEnd |>.push (json j))
+          let kind := q.kinds[q.kinds.size - 1]
+          if kind matches .arrayEnd then
+            go acc (q.pushKind .json |>.pushValue j)
           else
-            go acc (workItems.push comma |>.push (json j))
-      | arrayEnd =>
-        go (acc ++ "]") workItems
-      | objectField k j =>
-        if h : workItems.size = 0 then
-          go (renderString k acc ++ ":") #[comma, json j]
+            go acc (q.pushKind .comma |>.pushKind .json |>.pushValue j)
+      | .arrayEnd =>
+        go (acc ++ "]") q
+      | .objectField =>
+        let (k, q) := q.popObjectFieldKey!
+        let (j, q) := q.popValue!
+        if h : q.kinds.size = 0 then
+          go (renderString k acc ++ ":") {
+            kinds := #[.comma, .json]
+            values := #[j]
+            objectFieldKeys := #[]
+          }
         else
-          let workItem := workItems[workItems.size - 1]
-          if workItem matches objectEnd then
-            go (renderString k acc ++ ":") (workItems.pop.push objectEnd |>.push (json j))
+          let kind := q.kinds[q.kinds.size - 1]
+          if kind matches .objectEnd then
+            go (renderString k acc ++ ":") (q.pushKind .json |>.pushValue j)
           else
-            go (renderString k acc ++ ":") (workItems.push comma |>.push (json j))
-      | objectEnd =>
-        go (acc ++ "}") workItems
-      | comma =>
-        go (acc ++ ",") workItems
-
+            go (renderString k acc ++ ":") (q.pushKind .comma |>.pushKind .json |>.pushValue j)
+      | .objectEnd =>
+        go (acc ++ "}") q
+      | .comma =>
+        go (acc ++ ",") q
 
 instance : ToFormat Json := ⟨render⟩
 instance : ToString Json := ⟨pretty⟩

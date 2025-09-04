@@ -88,15 +88,13 @@ def compressItemFast (acc : String) (item : ResolvableCompletionItem) : String :
     acc := acc ++ ",\"data\":"
     acc := compressItemDataFast acc data
   if let some tags := item.tags? then
-    acc := acc ++ ",\"tags\":["
-    if h : tags.size == 1 then
-      have : 0 < tags.size := by
-        rw [beq_iff_eq] at h
-        simp [h]
-      acc := acc ++ (tags[0].ctorIdx + 1).repr
-    else
-      acc := compressCompletionTagsFast acc tags 0
-    acc := acc ++ "]"
+    if h : tags.size > 0 then
+      acc := acc ++ ",\"tags\":["
+      if tags.size == 1 then
+        acc := acc ++ (tags[0].ctorIdx + 1).repr
+      else
+        acc := compressCompletionTagsFast acc tags 0
+      acc := acc ++ "]"
   return acc ++ "}"
 
 def compressItemsFast

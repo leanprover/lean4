@@ -1,7 +1,6 @@
 set_option trace.Elab.inductive true
 
 open Lean.Order
-section
 coinductive infSeq (r : α → α → Prop): α → Prop where
   | step : r a b → infSeq r b → infSeq r a
 

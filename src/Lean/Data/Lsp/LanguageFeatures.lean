@@ -60,6 +60,10 @@ instance : FromJson CompletionItemTag where
     return CompletionItemTag.ofNat (i-1)
 
 structure CompletionItem where
+  -- When adjusting this type, make sure to adjust `ResolvableCompletionList.compressFast`
+  -- as well, which is our `(toJson l).compress` fast path.
+  -- (Completion downstream of Mathlib can output gigantic JSON,
+  -- so we want to avoid all redundant allocs)
   label          : String
   detail?        : Option String := none
   documentation? : Option MarkupContent := none

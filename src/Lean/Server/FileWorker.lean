@@ -73,16 +73,16 @@ structure PartialHandlerInfo where
   deriving Inhabited
 
 structure OutputMessage where
-  msg        : JsonRpc.Message
+  msg?       : Option JsonRpc.Message
   serialized : String
   deriving Inhabited
 
 def OutputMessage.ofLspResponse (id : RequestID) (r : SerializedLspResponse) : OutputMessage where
-  msg := .response id r.response
+  msg? := r.response?.map (.response id ·)
   serialized := r.toSerializedMessage id
 
 def OutputMessage.ofMsg (msg : JsonRpc.Message) : OutputMessage where
-  msg
+  msg? := msg
   serialized := toJson msg |>.compress
 
 open Widget in
@@ -513,19 +513,19 @@ section Initialization
         elaboration tasks here. -/
     mkLspOutputChannel maxDocVersion : IO (Std.Channel OutputMessage) := do
       let chanOut ← Std.Channel.new
-      let _ ← chanOut.forAsync (prio := .dedicated) fun ⟨msg, serialized⟩ => do
+      let _ ← chanOut.forAsync (prio := .dedicated) fun ⟨msg?, serialized⟩ => do
         -- discard outdated notifications; note that in contrast to responses, notifications can
         -- always be silently discarded
         let version? : Option Int := do
-          match msg with
-          | .notification "textDocument/publishDiagnostics" (some params) =>
+          match msg? with
+          | some (.notification "textDocument/publishDiagnostics" (some params)) =>
             let params : PublishDiagnosticsParams ← fromJson? (toJson params) |>.toOption
             params.version?
-          | .notification "$/lean/fileProgress" (some params) =>
+          | some (.notification "$/lean/fileProgress" (some params)) =>
             let params : LeanFileProgressParams ← fromJson? (toJson params) |>.toOption
             params.textDocument.version?
-          | .notification "$/lean/ileanInfoUpdate" (some params)
-          | .notification "$/lean/ileanInfoFinal" (some params) =>
+          | some (.notification "$/lean/ileanInfoUpdate" (some params))
+          | some (.notification "$/lean/ileanInfoFinal" (some params)) =>
             let params : LeanIleanInfoParams ← fromJson? (toJson params) |>.toOption
             some params.version
           | _ => none
@@ -793,7 +793,7 @@ section MessageHandling
       let resp ← handleGetInteractiveDiagnosticsRequest ctx params
       let resp ← seshRef.modifyGet fun st =>
         rpcEncode resp st.objects |>.map (·) ({st with objects := ·})
-      return some <| .pure { response := resp, isComplete := true }
+      return some <| .pure { response? := resp, serialized := resp.compress, isComplete := true }
     | "codeAction/resolve" =>
       let params ← RequestM.parseRequestParams CodeAction params
       let some data := params.data?
@@ -804,10 +804,12 @@ section MessageHandling
       return some <| ← RequestM.asTask do
         let unknownIdentifierRanges ← waitAllUnknownIdentifierRanges st.doc
         if unknownIdentifierRanges.isEmpty then
-          return { response := toJson params, isComplete := true }
+          let p := toJson params
+          return { response? := p, serialized := p.compress, isComplete := true }
         let action? ← handleResolveImportAllUnknownIdentifiersCodeAction? id params unknownIdentifierRanges
         let action := action?.getD params
-        return { response := toJson action, isComplete := true }
+        let action := toJson action
+        return { response? := action, serialized := action.compress, isComplete := true }
     | _ =>
       return none
 
@@ -819,21 +821,24 @@ section MessageHandling
       let .ok (params : CodeActionParams) := fromJson? params
         | return task
       RequestM.mapRequestTaskCostly task fun r => do
+        let some response := r.response?
+          | return r
         let isSourceAction := params.context.only?.any fun only =>
             only.contains "source" || only.contains "source.organizeImports"
         if isSourceAction then
           let unknownIdentifierRanges ← waitAllUnknownIdentifierRanges doc
           if unknownIdentifierRanges.isEmpty then
             return r
-          let .ok (codeActions : Array CodeAction) := fromJson? r.response
+          let .ok (codeActions : Array CodeAction) := fromJson? response
             | return r
-          return { r with response := toJson <| codeActions.push <| importAllUnknownIdentifiersCodeAction params "source.organizeImports" }
+          let response := toJson <| codeActions.push <| importAllUnknownIdentifiersCodeAction params "source.organizeImports"
+          return { r with response? := response, serialized := response.compress }
         else
           let requestedRange := doc.meta.text.lspRangeToUtf8Range params.range
           let unknownIdentifierRanges ← waitUnknownIdentifierRanges doc requestedRange
           if unknownIdentifierRanges.isEmpty then
             return r
-          let .ok (codeActions : Array CodeAction) := fromJson? r.response
+          let .ok (codeActions : Array CodeAction) := fromJson? response
             | return r
           RequestM.checkCancelled
           -- Since computing the unknown identifier code actions is *really* expensive,
@@ -841,7 +846,8 @@ section MessageHandling
           IO.sleep 1000
           RequestM.checkCancelled
           let unknownIdentifierCodeActions ← handleUnknownIdentifierCodeAction id params requestedRange
-          return { r with response := toJson <| codeActions ++ unknownIdentifierCodeActions }
+          let response := toJson <| codeActions ++ unknownIdentifierCodeActions
+          return { r with response? := response, serialized := response.compress }
     | _ =>
       return task
 

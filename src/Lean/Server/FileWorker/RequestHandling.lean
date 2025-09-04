@@ -13,6 +13,7 @@ public import Lean.Server.FileWorker.SemanticHighlighting
 public import Lean.Server.FileWorker.SignatureHelp
 public import Lean.Server.Completion
 public import Lean.Server.References
+public import Lean.Server.Completion.CompletionItemCompression
 meta import Lean.Parser.Module
 
 public import Lean.Widget.Diff
@@ -489,6 +490,7 @@ builtin_initialize
     CompletionParams
     ResolvableCompletionList
     handleCompletion
+    (serialize? := some (·.compressFast))
   registerLspRequestHandler
     "completionItem/resolve"
     CompletionItem

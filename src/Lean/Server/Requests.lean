@@ -456,8 +456,8 @@ structure LspResponse (α : Type) where
   isComplete : Bool
 
 structure SerializedLspResponse where
-  response   : Json
-  serialized : String := response.compress
+  response?  : Option Json
+  serialized : String
   isComplete : Bool
 
 -- Custom serialization that uses `r.serialized` in place of `response`.
@@ -485,6 +485,8 @@ A registration consists of:
 - a type of JSON-serializable response data `respType`
 - an actual `handler` which runs in the `RequestM` monad and is expected
   to produce an asynchronous `RequestTask` which does any waiting/computation
+- an optional `serialize` function which can be used to serialize `respType` directly to a string
+  for performance reasons, skipping `Json`
 
 A handler task may be cancelled at any time, so it should check the cancellation token when possible
 to handle this cooperatively. Any exceptions thrown in a request handler will be reported to the client
@@ -492,7 +494,9 @@ as LSP error responses. -/
 def registerLspRequestHandler (method : String)
     paramType [FromJson paramType] [FileSource paramType]
     respType [ToJson respType]
-    (handler : paramType → RequestM (RequestTask respType)) : IO Unit := do
+    (handler : paramType → RequestM (RequestTask respType))
+    (serialize? : Option (respType → String) := none) :
+    IO Unit := do
   if !(← Lean.initializing) then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': only possible during initialization"
   if (← requestHandlers.get).contains method then
@@ -502,10 +506,20 @@ def registerLspRequestHandler (method : String)
   let handle := fun j => do
     let params ← RequestM.parseRequestParams paramType j
     let t ← handler params
-    pure <| t.mapCheap <| Except.map fun r => {
-      response := toJson r
-      isComplete := true
-    }
+    pure <| t.mapCheap <| Except.map fun r =>
+      if let some serialize := serialize? then
+        {
+          response?  := none
+          serialized := serialize r
+          isComplete := true
+        }
+      else
+        let j := toJson r
+        {
+          response? := some j
+          serialized := j.compress
+          isComplete := true
+        }
 
   requestHandlers.modify fun rhs => rhs.insert method { fileSource, handle }
 
@@ -528,14 +542,26 @@ def chainLspRequestHandler (method : String)
   if let some oldHandler ← lookupLspRequestHandler method then
     let handle := fun j => do
       let t ← oldHandler.handle j
-      let t := t.mapCheap fun x => x.bind fun j => FromJson.fromJson? j.response |>.mapError fun e =>
-        .internalError s!"Failed to parse original LSP response for `{method}` when chaining: {e}"
+      let t := t.mapCheap fun x =>
+        x.bind fun j => do
+          let response ←
+            match j.response? with
+            | none =>
+              Json.parse j.serialized |>.mapError fun e =>
+                .internalError s!"Failed to parse original LSP response JSON for `{method}` when chaining: {e}"
+            | some response =>
+              pure response
+          FromJson.fromJson? response |>.mapError fun e =>
+            .internalError s!"Failed to parse original LSP response for `{method}` when chaining: {e}"
       let params ← RequestM.parseRequestParams paramType j
       let t ← handler params t
-      pure <| t.mapCheap <| Except.map fun r => {
-        response := toJson r
-        isComplete := true
-      }
+      pure <| t.mapCheap <| Except.map fun r =>
+        let j := toJson r
+        {
+          response? := some j
+          serialized := j.compress
+          isComplete := true
+        }
 
     requestHandlers.modify fun rhs => rhs.insert method {oldHandler with handle}
   else
@@ -614,7 +640,7 @@ private def overrideStatefulLspRequestHandler
     let state ← getState! method state stateType
     let (r, state') ← handler param state
     let response := toJson r.response
-    return ({ r with response := response }, Dynamic.mk state')
+    return ({ r with response? := some response, serialized := response.compress }, Dynamic.mk state')
 
   let handle : Json → RequestM (RequestTask SerializedLspResponse) := fun param => lastTaskMutex.atomically do
     let lastTask ← get
@@ -713,7 +739,12 @@ def chainStatefulLspRequestHandler (method : String)
   let initState ← getIOState! method oldHandler.initState stateType
   let handle (p : paramType) (s : stateType) : RequestM (LspResponse respType × stateType) := do
     let (r, s) ← oldHandle (toJson p) (Dynamic.mk s)
-    let .ok response := fromJson? r.response
+    let .ok response :=
+        match r.response? with
+        | none => Json.parse r.serialized
+        | some response => .ok response
+      | throw <| RequestError.internalError "Failed to parse response of previous request handler when chaining stateful LSP request handlers"
+    let .ok response := fromJson? response
       | throw <| RequestError.internalError "Failed to convert response of previous request handler when chaining stateful LSP request handlers"
     let r := { r with response := response }
     let s ← getState! method s stateType

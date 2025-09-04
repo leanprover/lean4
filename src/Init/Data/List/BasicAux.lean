@@ -198,6 +198,33 @@ where
     else
       go xs acc₁ (acc₂.push x)
 
+/-! ### partitionMapM -/
+
+/--
+Applies a monadic function that returns a disjoint union to each element of a list,
+collecting the `Sum.inl` and `Sum.inr` results into separate lists.
+
+Example:
+```lean
+def f (x : Int) : Except String (Int ⊕ String) :=
+  if x % 2 = 0 then pure (Sum.inl x)
+  else pure (Sum.inr (toString x))
+
+#eval [0, 1, 2, 3].partitionMapM f
+-- Except.ok ([0, 2], ["1", "3"])
+```
+-/
+@[inline] def partitionMapM [Monad m] (f : α → m (β ⊕ γ)) (l : List α) : m (List β × List γ) := go l #[] #[] where
+  /-- Auxiliary for `partitionMapM`:
+  `partitionMapM.go f l acc₁ acc₂` returns `(acc₁.toList ++ left, acc₂.toList ++ right)`
+  if `partitionMapM f l = (left, right)`. -/
+  @[specialize] go : List α → Array β → Array γ → m (List β × List γ)
+  | [], acc₁, acc₂ => pure (acc₁.toList, acc₂.toList)
+  | x :: xs, acc₁, acc₂ => do
+  match ← f x with
+  | .inl a => go xs (acc₁.push a) acc₂
+  | .inr b => go xs acc₁ (acc₂.push b)
+
 /-! ### partitionMap -/
 
 /--
@@ -208,16 +235,7 @@ Examples:
  * `[0, 1, 2, 3].partitionMap (fun x => if x % 2 = 0 then .inl x else .inr x) = ([0, 2], [1, 3])`
  * `[0, 1, 2, 3].partitionMap (fun x => if x = 0 then .inl x else .inr x) = ([0], [1, 2, 3])`
 -/
-@[inline] def partitionMap (f : α → β ⊕ γ) (l : List α) : List β × List γ := go l #[] #[] where
-  /-- Auxiliary for `partitionMap`:
-  `partitionMap.go f l acc₁ acc₂ = (acc₁.toList ++ left, acc₂.toList ++ right)`
-  if `partitionMap f l = (left, right)`. -/
-  @[specialize] go : List α → Array β → Array γ → List β × List γ
-  | [], acc₁, acc₂ => (acc₁.toList, acc₂.toList)
-  | x :: xs, acc₁, acc₂ =>
-    match f x with
-    | .inl a => go xs (acc₁.push a) acc₂
-    | .inr b => go xs acc₁ (acc₂.push b)
+@[inline] def partitionMap (f : α → β ⊕ γ) (l : List α) : List β × List γ := Id.run <| partitionMapM (fun a => pure (f a)) l
 
 /-! ### mapMono
 

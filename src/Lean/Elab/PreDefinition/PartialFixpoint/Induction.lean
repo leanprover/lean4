@@ -64,25 +64,19 @@ def unfoldPredRel (predType : Expr) (lhs rhs : Expr) (fixpointType : PartialFixp
   match fixpointType with
   | .partialFixpoint => throwError "Trying to apply lattice induction to a non-lattice fixpoint. Please report this issue."
   | .inductiveFixpoint | .coinductiveFixpoint =>
-    let predType ← lambdaTelescope predType fun _ res => pure res
     forallTelescope predType fun ts _ => do
-      let lhsTypes ← ts.mapM inferType
-      let names ← lhsTypes.mapM fun _ => mkFreshUserName `x
-      withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
-        let mut applied  := match fixpointType with
-          | .inductiveFixpoint => (lhs, rhs)
-          | .coinductiveFixpoint => (rhs, lhs)
-          | .partialFixpoint => panic! "Cannot apply lattice induction to a non-lattice fixpoint"
-        for e in exprs do
-          applied := (mkApp applied.1 e, mkApp applied.2 e)
-        if reduceConclusion then
-          match fixpointType with
-          | .inductiveFixpoint => applied := ((←whnf applied.1), applied.2)
-          | .coinductiveFixpoint => applied := (applied.1, (←whnf applied.2))
-          | .partialFixpoint => throwError "Cannot apply lattice induction to a non-lattice fixpoint"
-        let impl ← mkArrow applied.1 applied.2
-        mkForallFVars exprs impl
-
+      let mut applied  := match fixpointType with
+        | .inductiveFixpoint => (lhs, rhs)
+        | .coinductiveFixpoint => (rhs, lhs)
+        | .partialFixpoint => panic! "Cannot apply lattice induction to a non-lattice fixpoint"
+      for e in ts do
+        applied := (mkApp applied.1 e, mkApp applied.2 e)
+      if reduceConclusion then
+        match fixpointType with
+        | .inductiveFixpoint => applied := ((←whnf applied.1), applied.2)
+        | .coinductiveFixpoint => applied := (applied.1, (←whnf applied.2))
+        | .partialFixpoint => throwError "Cannot apply lattice induction to a non-lattice fixpoint"
+      mkForallFVars ts (← mkArrow applied.1 applied.2)
 /--
 Unfolds a PartialOrder relation between tuples of predicates into an array of quantified implications.
 

@@ -70,7 +70,7 @@ public instance : FromJson ArtifactDescr := ⟨ArtifactDescr.fromJson?⟩
 end ArtifactDescr
 
 /-- A file with a known content hash. -/
-public structure Artifact extends ArtifactDescr where
+public structure Artifact extends descr : ArtifactDescr where
   /-- The preferred path to the artifact on the file system. -/
   path : FilePath
   /-- The artifact's. This is used, for example, as a caption in traces. -/

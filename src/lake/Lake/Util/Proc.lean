@@ -42,7 +42,7 @@ public def proc (args : IO.Process.SpawnArgs) (quiet := false) : LogIO Unit := d
 public def captureProc' (args : IO.Process.SpawnArgs) : LogIO (IO.Process.Output) := do
   let out ← rawProc args (quiet := true)
   if out.exitCode = 0 then
-    return out -- remove, e.g., newline at end
+    return out
   else errorWithLog do
     logVerbose (mkCmdLog args)
     logOutput out logInfo

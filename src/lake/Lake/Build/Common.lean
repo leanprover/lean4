@@ -88,7 +88,7 @@ public abbrev BuildMetadata.ofHash := @ofStub
 
 /-- Parse build metadata from a trace file's contents. -/
 public def BuildMetadata.parse (contents : String) : Except String BuildMetadata :=
-  if let some hash := Hash.ofString? contents.trim then
+  if let some hash := Hash.ofDecimal? contents.trim then
     return .ofStub hash
   else
     Json.parse contents >>= fromJson?
@@ -232,7 +232,7 @@ public class ToOutputJson (α : Type u) where
   toOutputJson (arts : α) : Json
 
 public instance : ToOutputJson PUnit := ⟨fun _ => Json.null⟩
-public instance : ToOutputJson Artifact := ⟨(toJson ·.toArtifactDescr)⟩
+public instance : ToOutputJson Artifact := ⟨(toJson ·.descr)⟩
 
 open ToOutputJson in
 /--
@@ -396,7 +396,7 @@ public def Cache.saveArtifact
     IO.FS.writeFile path normalized
     writeFileHash file hash
     let mtime := (← getMTime path |>.toBaseIO).toOption.getD 0
-    return {toArtifactDescr := descr, name := file.toString, path, mtime}
+    return {descr, name := file.toString, path, mtime}
   else
     let contents ← IO.FS.readBinFile file
     let hash := Hash.ofByteArray contents
@@ -409,7 +409,7 @@ public def Cache.saveArtifact
       IO.setAccessRights path ⟨r, r, r⟩ -- 777
     writeFileHash file hash
     let mtime := (← getMTime path |>.toBaseIO).toOption.getD 0
-    return {toArtifactDescr := descr, name := file.toString, path, mtime}
+    return {descr, name := file.toString, path, mtime}
 
 @[inline,  inherit_doc Cache.saveArtifact]
 public def cacheArtifact
@@ -483,7 +483,7 @@ If `text := true`, `file` is hashed as a text file rather than a binary file.
 public def computeArtifact (path : FilePath) (ext := "art") (text := false) : JobM Artifact := do
   let hash ← fetchFileHash path text
   let mtime := (← getMTime path |>.toBaseIO).toOption.getD 0
-  return {toArtifactDescr := artifactWithExt hash ext, name := path.toString, path, mtime}
+  return {descr := artifactWithExt hash ext, name := path.toString, path, mtime}
 
 /--
 Uses the current job's trace to search Lake's local artifact cache for an artifact
@@ -531,9 +531,9 @@ public def buildArtifactUnlessUpToDate
         unless (← savedTrace.replayIfUpToDate file depTrace) do
           discard <| doBuild depTrace traceFile
         let art ← cacheArtifact file ext text exe
-        cache.writeOutputs pkg.cacheScope inputHash art.toArtifactDescr
+        cache.writeOutputs pkg.cacheScope inputHash art.descr
         if let some outputsRef := pkg.outputsRef? then
-          outputsRef.insert inputHash art.toArtifactDescr
+          outputsRef.insert inputHash art.descr
         setTrace art.trace
         return if restore then art.useLocalFile file else art
     else
@@ -545,7 +545,7 @@ public def buildArtifactUnlessUpToDate
         else
           doBuild depTrace traceFile
       if let some outputsRef := pkg.outputsRef? then
-        outputsRef.insert inputHash art.toArtifactDescr
+        outputsRef.insert inputHash art.descr
       setTrace art.trace
       return art
   else

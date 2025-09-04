@@ -11,9 +11,7 @@ public import Lake.Util.Exit
 public import Lake.Load.Config
 public import Lake.CLI.Error
 import Lake.Version
-import Lake.Reservoir
 import Lake.Build.Run
-import Lake.Build.Actions
 import Lake.Build.Targets
 import Lake.Build.Job.Monad
 import Lake.Build.Job.Register

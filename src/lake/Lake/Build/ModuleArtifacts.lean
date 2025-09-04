@@ -74,10 +74,10 @@ public structure ModuleOutputArtifacts where
 
 /-- Content hashes of the artifacts. -/
 public def ModuleOutputArtifacts.descrs (arts : ModuleOutputArtifacts) : ModuleOutputDescrs where
-  olean := arts.olean.toArtifactDescr
-  oleanServer? := arts.oleanServer?.map (·.toArtifactDescr)
-  oleanPrivate? := arts.oleanPrivate?.map (·.toArtifactDescr)
-  ilean := arts.ilean.toArtifactDescr
-  ir? := arts.ir?.map (·.toArtifactDescr)
-  c := arts.c.toArtifactDescr
-  bc? := arts.bc?.map (·.toArtifactDescr)
+  olean := arts.olean.descr
+  oleanServer? := arts.oleanServer?.map (·.descr)
+  oleanPrivate? := arts.oleanPrivate?.map (·.descr)
+  ilean := arts.ilean.descr
+  ir? := arts.ir?.map (·.descr)
+  c := arts.c.descr
+  bc? := arts.bc?.map (·.descr)

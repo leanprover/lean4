@@ -119,7 +119,7 @@ public def ofLowerHex (s : String) : Hash :=
     else n*16 + (c - 87).toUInt64 -- as 'a' = 97, (c - 'a' + 10) = (c - 87)
 
 /-- Parse a hash from a 16-digit string of lowercase hexadecimal. -/
-@[inline_if_reduce] public def ofLowerHex? (s : String) : Option Hash :=
+public def ofLowerHex? (s : String) : Option Hash :=
   if s.utf8ByteSize = 16 && isLowerHex s then ofLowerHex s else none
 where isLowerHex s :=
   s.utf8ByteSize.all fun i h =>
@@ -132,13 +132,13 @@ where isLowerHex s :=
       false
 
 /-- Returns the hash as 16-digit lowercase hex string. -/
-public protected def hex (self : Hash) : String :=
+public def hex (self : Hash) : String :=
   lpad (Nat.toDigits 16 self.val.toNat).asString '0' 16
 
 public def ofDecimal? (s : String) : Option Hash :=
   (inline s.toNat?).map ofNat
 
-public protected def decimal (self : Hash) : String :=
+public def decimal (self : Hash) : String :=
   (Nat.toDigits 10 self.val.toNat).asString
 
 @[inline] public def ofString? (s : String) : Option Hash :=

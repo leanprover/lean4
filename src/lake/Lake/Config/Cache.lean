@@ -186,9 +186,9 @@ namespace Cache
 public def getArtifact? (cache : Cache) (descr : ArtifactDescr) : BaseIO (Option Artifact) := do
   let path := cache.artifactDir / descr.toFilePath
   if let .ok mtime ← getMTime path |>.toBaseIO then
-    return some {toArtifactDescr := descr, path, mtime}
+    return some {descr, path, mtime}
   else if (← path.pathExists) then
-    return some {toArtifactDescr := descr, path, mtime := 0}
+    return some {descr, path, mtime := 0}
   else
     return none
 

@@ -511,7 +511,7 @@ public def Module.setupFacetConfig : ModuleFacetConfig setupFacet :=
 public def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
   mkFacetJobConfig fun mod => (·.toOpaque) <$> mod.setup.fetch
 
-/-- Remove all build outputs of the module. -/
+/-- Remove all existing artifacts produced by the Lean build of the module. -/
 public def Module.clearOutputArtifacts (mod : Module) : IO PUnit := do
   removeFileIfExists mod.oleanFile
   removeFileIfExists mod.oleanServerFile
@@ -637,24 +637,6 @@ private def Module.mkArtifacts (mod : Module) (srcFile : FilePath) (isModule : B
   c? := mod.cFile
   bc? := if Lean.Internal.hasLLVMBackend () then some mod.bcFile else none
 
-/-
-private def Module.computeOutputDescrs (mod : Module) (isModule : Bool) : FetchM ModuleOutputDescrs :=
-  return {
-    olean := ← compute mod.oleanFile "olean"
-    oleanServer? := ← computeIf isModule mod.oleanServerFile "olean.server"
-    oleanPrivate? := ← computeIf isModule mod.oleanPrivateFile "olean.private"
-    ilean := ← compute mod.ileanFile "ilean"
-    ir? := ← computeIf isModule mod.irFile "ir"
-    c := ← compute mod.cFile "c"
-    bc? := ← computeIf (Lean.Internal.hasLLVMBackend ()) mod.bcFile "bc"
-  }
-where
-  @[inline] compute file ext := do
-    return ArtifactDescr.mk (← computeFileHash file) ext
-  computeIf c file ext := do
-     if c then return some (← compute file ext) else return none
--/
-
 private def Module.computeArtifacts (mod : Module) (isModule : Bool) : FetchM ModuleOutputArtifacts :=
   return {
     olean := ← compute mod.oleanFile "olean"
@@ -717,22 +699,21 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
     let depTrace ← getTrace
     let inputHash := depTrace.hash
     let savedTrace ← readTraceFile mod.traceFile
-    let enableCache ← mod.pkg.isArtifactCacheEnabled
     let cache ← getLakeCache
-    let fetchArtsFromCache? := do
+    let fetchArtsFromCache? restoreAll := do
       let arts? ← getArtifacts? inputHash mod.traceFile savedTrace cache mod.pkg
       if let some arts := arts? then
         if savedTrace.isDifferentFrom inputHash then
           mod.clearOutputArtifacts
-        if enableCache then
-          some <$> mod.restoreNeededArtifacts arts
-        else
+        if restoreAll then
           some <$> mod.restoreAllArtifacts arts
+        else
+          some <$> mod.restoreNeededArtifacts arts
       else
         return none
     let arts ← id do
-      if enableCache then
-        if let some arts ← fetchArtsFromCache? then
+      if (← mod.pkg.isArtifactCacheEnabled) then
+        if let some arts ← fetchArtsFromCache? false then
           return arts
         else
           unless (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) do
@@ -743,7 +724,7 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
       else
         if (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) then
           mod.computeArtifacts setup.isModule
-        else if let some arts ← fetchArtsFromCache? then
+        else if let some arts ← fetchArtsFromCache? true then
           return arts
         else
           mod.buildLean depTrace srcFile setup

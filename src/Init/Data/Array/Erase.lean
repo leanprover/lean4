@@ -271,7 +271,7 @@ theorem erase_append [LawfulBEq α] {a : α} {xs ys : Array α} :
     (xs ++ ys).erase a = if a ∈ xs then xs.erase a ++ ys else xs ++ ys.erase a := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
-  simp only [List.append_toArray, List.erase_toArray, List.erase_append, mem_toArray]
+  simp only [List.append_toArray, List.erase_toArray, List.erase_append, List.mem_toArray]
   split <;> simp
 
 @[grind =]

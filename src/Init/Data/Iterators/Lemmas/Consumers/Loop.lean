@@ -44,7 +44,7 @@ theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
             f out acc) := by
   simp [ForIn.forIn, forIn'_eq, -forIn'_eq_forIn]
 
-@[congr] theorem Iter.forIn'_congr {α β : Type w} {m : Type w → Type w'}
+@[congr] theorem Iter.forIn'_congr {α β : Type w}
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id Id]
     {ita itb : Iter (α := α) β} (w : ita = itb)
     {b b' : γ} (hb : b = b')

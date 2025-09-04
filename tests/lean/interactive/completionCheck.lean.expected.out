@@ -4,9 +4,17 @@
  [{"label": "AVerySpecificStructureName2",
    "kind": 22,
    "data":
-   ["file:///completionCheck.lean", 6, 33, 0, "cAVerySpecificStructureName2"]},
+   ["«external:file:///completionCheck.lean»",
+    6,
+    33,
+    0,
+    "cAVerySpecificStructureName2"]},
   {"label": "AVerySpecificStructureName",
    "kind": 22,
    "data":
-   ["file:///completionCheck.lean", 6, 33, 0, "cAVerySpecificStructureName"]}],
+   ["«external:file:///completionCheck.lean»",
+    6,
+    33,
+    0,
+    "cAVerySpecificStructureName"]}],
  "isIncomplete": false}

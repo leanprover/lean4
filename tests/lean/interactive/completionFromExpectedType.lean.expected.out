@@ -3,5 +3,10 @@
 {"items":
  [{"label": "mk",
    "kind": 4,
-   "data": ["file:///completionFromExpectedType.lean", 3, 18, 0, "cFoo.mk"]}],
+   "data":
+   ["«external:file:///completionFromExpectedType.lean»",
+    3,
+    18,
+    0,
+    "cFoo.mk"]}],
  "isIncomplete": false}

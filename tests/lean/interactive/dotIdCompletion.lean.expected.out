@@ -1,10 +1,10 @@
 {"textDocument": {"uri": "file:///dotIdCompletion.lean"},
  "position": {"line": 4, "character": 5}}
 {"items":
- [{"label": "truth",
+ [{"label": "true",
    "kind": 4,
-   "data": ["file:///dotIdCompletion.lean", 4, 5, 0, "cBoo.truth"]},
-  {"label": "true",
+   "data": ["«external:file:///dotIdCompletion.lean»", 4, 5, 0, "cBoo.true"]},
+  {"label": "truth",
    "kind": 4,
-   "data": ["file:///dotIdCompletion.lean", 4, 5, 0, "cBoo.true"]}],
+   "data": ["«external:file:///dotIdCompletion.lean»", 4, 5, 0, "cBoo.truth"]}],
  "isIncomplete": false}

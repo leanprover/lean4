@@ -3,5 +3,5 @@
 {"items":
  [{"label": "foo",
    "kind": 5,
-   "data": ["file:///editCompletion.lean", 3, 22, 1, "cFoo.foo"]}],
+   "data": ["«external:file:///editCompletion.lean»", 3, 22, 1, "cFoo.foo"]}],
  "isIncomplete": false}

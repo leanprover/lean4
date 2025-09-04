@@ -3,21 +3,36 @@
 {"items":
  [{"label": "aaaaaaaa",
    "kind": 21,
-   "data": ["file:///travellingCompletions.lean", 7, 37, 0, "cFoo.aaaaaaaa"]}],
+   "data":
+   ["«external:file:///travellingCompletions.lean»",
+    7,
+    37,
+    0,
+    "cFoo.aaaaaaaa"]}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 20, "character": 20}}
 {"items":
  [{"label": "foobar",
    "kind": 5,
-   "data": ["file:///travellingCompletions.lean", 20, 20, 2, "cBar.foobar"]}],
+   "data":
+   ["«external:file:///travellingCompletions.lean»",
+    20,
+    20,
+    2,
+    "cBar.foobar"]}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 24, "character": 16}}
 {"items":
  [{"label": "foobar",
    "kind": 5,
-   "data": ["file:///travellingCompletions.lean", 24, 16, 2, "cBar.foobar"]}],
+   "data":
+   ["«external:file:///travellingCompletions.lean»",
+    24,
+    16,
+    2,
+    "cBar.foobar"]}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 38, "character": 45}}
@@ -25,16 +40,29 @@
  [{"label": "continuousSMul",
    "kind": 23,
    "data":
-   ["file:///travellingCompletions.lean", 38, 45, 1, "cProd.continuousSMul"]},
+   ["«external:file:///travellingCompletions.lean»",
+    38,
+    45,
+    1,
+    "cProd.continuousSMul"]},
   {"label": "continuousAdd",
    "kind": 23,
    "data":
-   ["file:///travellingCompletions.lean", 38, 45, 1, "cProd.continuousAdd"]}],
+   ["«external:file:///travellingCompletions.lean»",
+    38,
+    45,
+    1,
+    "cProd.continuousAdd"]}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 42, "character": 25}}
 {"items":
  [{"label": "intro",
    "kind": 4,
-   "data": ["file:///travellingCompletions.lean", 42, 25, 1, "cTrue.intro"]}],
+   "data":
+   ["«external:file:///travellingCompletions.lean»",
+    42,
+    25,
+    1,
+    "cTrue.intro"]}],
  "isIncomplete": false}

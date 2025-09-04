@@ -4,7 +4,7 @@
  [{"label": "x",
    "kind": 5,
    "data":
-   ["file:///completionPrivateTypes.lean",
+   ["«external:file:///completionPrivateTypes.lean»",
     3,
     26,
     1,

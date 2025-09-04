@@ -3,5 +3,5 @@
 {"items":
  [{"label": "gg",
    "kind": 21,
-   "data": ["file:///completionAtPrint.lean", 2, 10, 0, "cf.gg"]}],
+   "data": ["«external:file:///completionAtPrint.lean»", 2, 10, 0, "cf.gg"]}],
  "isIncomplete": false}

@@ -4,7 +4,7 @@
  [{"label": "longAndHopefullyUniqueBlaBlaBoo",
    "kind": 21,
    "data":
-   ["file:///completionPrv.lean",
+   ["«external:file:///completionPrv.lean»",
     2,
     33,
     0,
@@ -16,7 +16,7 @@
  [{"label": "longAndHopefullyUniqueBooBoo",
    "kind": 21,
    "data":
-   ["file:///completionPrv.lean",
+   ["«external:file:///completionPrv.lean»",
     9,
     33,
     0,
@@ -28,14 +28,14 @@
  [{"label": "getInc",
    "kind": 3,
    "data":
-   ["file:///completionPrv.lean",
+   ["«external:file:///completionPrv.lean»",
     21,
     5,
     1,
     "c_private.«external:file:///completionPrv.lean».0.S.getInc"]},
   {"label": "field1",
    "kind": 5,
-   "data": ["file:///completionPrv.lean", 21, 5, 1, "cS.field1"]}],
+   "data": ["«external:file:///completionPrv.lean»", 21, 5, 1, "cS.field1"]}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///completionPrv.lean"},
  "position": {"line": 25, "character": 4}}
@@ -43,12 +43,12 @@
  [{"label": "getInc",
    "kind": 3,
    "data":
-   ["file:///completionPrv.lean",
+   ["«external:file:///completionPrv.lean»",
     25,
     4,
     1,
     "c_private.«external:file:///completionPrv.lean».0.S.getInc"]},
   {"label": "field1",
    "kind": 5,
-   "data": ["file:///completionPrv.lean", 25, 4, 1, "cS.field1"]}],
+   "data": ["«external:file:///completionPrv.lean»", 25, 4, 1, "cS.field1"]}],
  "isIncomplete": false}

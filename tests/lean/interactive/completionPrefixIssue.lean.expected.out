@@ -3,11 +3,12 @@
 {"items":
  [{"label": "veryLongDefinitionName",
    "kind": 6,
-   "data": ["file:///completionPrefixIssue.lean", 1, 64, 0, "f_uniq.35"]},
+   "data":
+   ["«external:file:///completionPrefixIssue.lean»", 1, 64, 0, "f_uniq.35"]},
   {"label": "veryLongDefinitionNameVeryLongDefinitionName",
    "kind": 21,
    "data":
-   ["file:///completionPrefixIssue.lean",
+   ["«external:file:///completionPrefixIssue.lean»",
     1,
     64,
     0,

@@ -5779,13 +5779,6 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
   simp only [BitVec.msb, getMsbD_replicate, Nat.zero_mod]
   cases n <;> cases w <;> simp
 
-@[simp]
-theorem reverse_reverse {x : BitVec w} :
-    x.reverse.reverse = x := by
-  ext i
-  simp [getElem_reverse, getMsbD_reverse]
-  congr
-
 /-! ### Inequalities (le / lt) -/
 
 theorem ule_eq_not_ult (x y : BitVec w) : x.ule y = !y.ult x := by

@@ -62,16 +62,20 @@ public partial def parse (contents : String) : LoggerIO CacheMap := do
       loop (i+1) cache
   loop 1 {}
 
-/-- Load a `CacheMap` from a JSON Lines file. -/
-public def load (file : FilePath) : LogIO CacheMap := do
+/-- Loads a `CacheMap` from a JSON Lines file. Returns `none` if the file does not exist. -/
+public def load? (file : FilePath) : LogIO (Option CacheMap) := do
   match (← IO.FS.Handle.mk file .read |>.toBaseIO) with
   | .ok h =>
     h.lock (exclusive := false)
     loadCore h file.toString
   | .error (.noFileOrDirectory ..) =>
-    return {}
+    return none
   | .error e =>
     error s!"{file}: failed to open file: {e}"
+
+/-- Loads a `CacheMap` from a JSON Lines file. -/
+public def load (file : FilePath) : LogIO CacheMap := do
+  return (← inline <| load? file).getD {}
 
 /--
 Save a `CacheMap` to a JSON Lines file.
@@ -263,13 +267,15 @@ def uploadS3
 /--
 Cache service description.
 
-Fields may be missing (be the empty string).
-Necessary fields are assumed to have been set by the producer for the consumer.
+All fields are not required to be valid.
+A user should set at least the necessary ones for a given function.
 -/
 public structure CacheService where
   key : String := ""
-  artEndpoint : String := ""
-  revEndpoint : String := ""
+  artifactEndpoint : String := ""
+  revisionEndpoint : String := ""
+  /-- Reservoir API endpoint. -/
+  apiEndpoint? : Option String := none
 
 namespace CacheService
 
@@ -278,7 +284,11 @@ public def artifactContentType : String := "application/vnd.reservoir.artifact"
 
 public def artifactUrl (contentHash : Hash) (scope : String) (service : CacheService) : String :=
   let scope := "/".intercalate <| scope.split (· == '/') |>.map uriEncode
-  s!"{service.artEndpoint}/{scope}/{contentHash}.art"
+  if let some apiEndpoint := service.apiEndpoint? then
+    s!"{apiEndpoint}/packages/{scope}/artifacts/{contentHash.hex}.art"
+  else
+    let scope := "/".intercalate <| scope.split (· == '/') |>.map uriEncode
+    s!"{service.artifactEndpoint}/{scope}/{contentHash.hex}.art"
 
 public def downloadArtifact
   (cache : Cache) (descr : ArtifactDescr) (scope : String) (service : CacheService) (force := false)
@@ -317,7 +327,10 @@ public def mapContentType : String := "application/vnd.reservoir.outputs+json-li
 
 public def revisionUrl (rev : String) (scope : String) (service : CacheService) :=
   let scope := "/".intercalate <| scope.split (· == '/') |>.map uriEncode
-  s!"{service.revEndpoint}/{scope}/{rev}.jsonl"
+ if let some apiEndpoint := service.apiEndpoint? then
+    s!"{apiEndpoint}/packages/{scope}/revisions/{rev}/outputs.jsonl"
+  else
+    s!"{service.revisionEndpoint}/{scope}/{rev}.jsonl"
 
 public def downloadRevisionOutputs
   (rev : String) (path : FilePath) (scope : String) (service : CacheService) (force := false)

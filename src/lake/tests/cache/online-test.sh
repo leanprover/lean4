@@ -39,10 +39,11 @@ export LAKE_CACHE_DIR="$CACHE_DIR"
 
 echo "# TESTS"
 
-# Tests that `cache put` errors without scope and/or endpoint
-test_err 'the `--scope` option must be set for `cache put`' cache put bogus.jsonl
-test_err 'environment variable must be set for `cache put`' cache put bogus.jsonl --scope=bogus
-test_err 'environment variable must be set for `cache get`' cache get
+# Tests `cache` command errors for bad configurations
+test_err 'the `--scope` option must be set' cache put bogus.jsonl
+test_err 'environment variable must be set' cache put bogus.jsonl --scope=bogus
+LAKE_CACHE_ARTIFACT_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
 
 # Test lookup failure
 with_cdn_endpoints test_err "outputs not found for revision" cache get --scope="bogus"
@@ -53,13 +54,21 @@ test_exp -f .lake/outputs.jsonl
 test_cmd_eq 2 wc -l < .lake/outputs.jsonl
 with_upload_endpoints test_run cache put .lake/outputs.jsonl --scope="test"
 test_cmd rm -rf .lake/cache
-with_cdn_endpoints test_run cache get
+with_cdn_endpoints test_run cache get --scope="test"
 test_run build +Test --no-build
 
 # Test that outputs and artifacts are not re-downloaded
-# also, test the use of the `--scope` option
-with_cdn_endpoints test_not_out "downloading" cache get
 with_cdn_endpoints test_not_out "downloading" cache get --scope="test"
+
+# Test Reservoir download
+test_run -f reservoir.toml update --keep-toolchain
+LAKE_ARTIFACT_CACHE=true test_run -d .lake/packages/Cli \
+  build -o "$TEST_DIR/.lake/cli-outputs.jsonl"
+with_upload_endpoints test_run -d .lake/packages/Cli \
+  cache put "$TEST_DIR/.lake/cli-outputs.jsonl" --scope "leanprover/lean4-cli"
+test_cmd rm -rf .lake/cache
+test_run -f reservoir.toml cache get
+test_run -f reservoir.toml build Cli --no-build
 
 # Cleanup
 rm -rf .git produced.out

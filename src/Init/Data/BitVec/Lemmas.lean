@@ -5786,39 +5786,6 @@ theorem reverse_reverse {x : BitVec w} :
   simp [getElem_reverse, getMsbD_reverse]
   congr
 
-/-! ### Count leading zeros -/
-
-theorem clzAuxRec_zero (x : BitVec w) :
-    x.clzAuxRec 0 = if x.getLsbD 0 then BitVec.ofNat w (w - 1) else BitVec.ofNat w w := by rfl
-
-theorem clzAuxRec_succ (x : BitVec w) :
-    x.clzAuxRec (n + 1) = if x.getLsbD (n + 1) then BitVec.ofNat w (w - 1 - (n + 1)) else BitVec.clzAuxRec x n := by rfl
-
-theorem clzAuxRec_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
-    x.clzAuxRec n = x.clzAuxRec (w - 1) := by
-  let k := n - (w - 1)
-  rw [show n = (w - 1) + k by omega]
-  induction k
-  · case zero => simp
-  · case succ k ihk =>
-    simp [show w - 1 + (k + 1) = (w - 1 + k) + 1 by omega, clzAuxRec_succ, ihk,
-      show x.getLsbD (w - 1 + k + 1) = false by simp only [show w ≤ w - 1 + k + 1 by omega, getLsbD_of_ge]]
-
-theorem clzAuxRec_eq_clzAuxRec_of_getLsbD_false {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i = false) :
-    x.clzAuxRec n = x.clzAuxRec (n + k) := by
-  induction k
-  · case zero => simp
-  · case succ k ihk =>
-    simp only [show n + (k + 1) = (n + k) + 1 by omega, clzAuxRec_succ]
-    by_cases hxn : x.getLsbD (n + k + 1)
-    · have : ¬ ∀ (i : Nat), n < i → x.getLsbD i = false := by
-        simp only [Classical.not_forall, Bool.not_eq_false]
-        exists n + k + 1
-        simp [show n < n + k + 1 by omega, hxn]
-      contradiction
-    · simp only [hxn, Bool.false_eq_true, ↓reduceIte]
-      exact ihk
-
 /-! ### Inequalities (le / lt) -/
 
 theorem ule_eq_not_ult (x y : BitVec w) : x.ule y = !y.ult x := by

@@ -116,7 +116,7 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
 @[simp] theorem find?_range'_eq_some {s n : Nat} {i : Nat} {p : Nat → Bool} :
     (range' s n).find? p = some i ↔ p i ∧ i ∈ range' s n ∧ ∀ j, s ≤ j → j < i → !p j := by
   rw [← List.toArray_range']
-  simp only [List.find?_toArray, mem_toArray]
+  simp only [List.find?_toArray, List.mem_toArray]
   simp [List.find?_range'_eq_some]
 
 @[simp] theorem find?_range'_eq_none {s n : Nat} {p : Nat → Bool} :

@@ -14,6 +14,7 @@ public import Init.Data.Iterators.Consumers.Loop
 import all Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 import all Init.Data.Iterators.Consumers.Monadic.Collect
+import Init.Data.Array.Monadic
 
 public section
 
@@ -42,6 +43,20 @@ theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
           (fun out _ acc => (⟨·, .intro⟩) <$>
             f out acc) := by
   simp [ForIn.forIn, forIn'_eq, -forIn'_eq_forIn]
+
+@[congr] theorem Iter.forIn'_congr {α β : Type w}
+    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id Id]
+    {ita itb : Iter (α := α) β} (w : ita = itb)
+    {b b' : γ} (hb : b = b')
+    {f : (a' : β) → _ → γ → Id (ForInStep γ)}
+    {g : (a' : β) → _ → γ → Id (ForInStep γ)}
+    (h : ∀ a m b, f a (by simpa [w] using m) b = g a m b) :
+    letI : ForIn' Id (Iter (α := α) β) β _ := Iter.instForIn'
+    forIn' ita b f = forIn' itb b' g := by
+  subst_eqs
+  simp only [← funext_iff] at h
+  rw [← h]
+  rfl
 
 theorem Iter.forIn'_eq_forIn'_toIterM {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
@@ -188,6 +203,13 @@ theorem Iter.mem_toList_iff_isPlausibleIndirectOutput {α β} [Iterator α Id β
         obtain ⟨step, h₁, rfl⟩ := h₁
         simp [heq, IterStep.successor] at h₁
 
+theorem Iter.mem_toArray_iff_isPlausibleIndirectOutput {α β} [Iterator α Id β]
+    [IteratorCollect α Id Id] [Finite α Id]
+    [LawfulIteratorCollect α Id Id] [LawfulDeterministicIterator α Id]
+    {it : Iter (α := α) β} {out : β} :
+    out ∈ it.toArray ↔ it.IsPlausibleIndirectOutput out := by
+  rw [← Iter.toArray_toList, List.mem_toArray, mem_toList_iff_isPlausibleIndirectOutput]
+
 theorem Iter.forIn'_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
@@ -222,6 +244,17 @@ theorem Iter.forIn'_toList {α β : Type w} [Iterator α Id β]
     simp only [ihs h (f := fun out h acc => f out (this ▸ h) acc)]
   · simp
 
+theorem Iter.forIn'_toArray {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]
+    [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [LawfulDeterministicIterator α Id]
+    {γ : Type x} {it : Iter (α := α) β} {init : γ}
+    {f : (out : β) → _ → γ → m (ForInStep γ)} :
+    letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
+    ForIn'.forIn' it.toArray init f = ForIn'.forIn' it init (fun out h acc => f out (Iter.mem_toArray_iff_isPlausibleIndirectOutput.mpr h) acc) := by
+  simp only [← Iter.toArray_toList (it := it), List.forIn'_toArray, Iter.forIn'_toList]
+
 theorem Iter.forIn'_eq_forIn'_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
@@ -232,6 +265,18 @@ theorem Iter.forIn'_eq_forIn'_toList {α β : Type w} [Iterator α Id β]
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
     ForIn'.forIn' it init f = ForIn'.forIn' it.toList init (fun out h acc => f out (Iter.mem_toList_iff_isPlausibleIndirectOutput.mp h) acc) := by
   simp only [forIn'_toList]
+  congr
+
+theorem Iter.forIn'_eq_forIn'_toArray {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]
+    [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [LawfulDeterministicIterator α Id]
+    {γ : Type x} {it : Iter (α := α) β} {init : γ}
+    {f : (out : β) → _ → γ → m (ForInStep γ)} :
+    letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
+    ForIn'.forIn' it init f = ForIn'.forIn' it.toArray init (fun out h acc => f out (Iter.mem_toArray_iff_isPlausibleIndirectOutput.mp h) acc) := by
+  simp only [forIn'_toArray]
   congr
 
 theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
@@ -259,6 +304,15 @@ theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
     simp only [bind_pure_comp]
     rw [ihs h]
   · simp
+
+theorem Iter.forIn_toArray {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]
+    [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {γ : Type x} {it : Iter (α := α) β} {init : γ}
+    {f : β → γ → m (ForInStep γ)} :
+    ForIn.forIn it.toArray init f = ForIn.forIn it init f := by
+  simp only [← Iter.toArray_toList, List.forIn_toArray, forIn_toList]
 
 theorem Iter.foldM_eq_forIn {α β : Type w} {γ : Type x} [Iterator α Id β] [Finite α Id]
     {m : Type x → Type x'} [Monad m] [IteratorLoop α Id m] {f : γ → β → m γ}
@@ -301,6 +355,14 @@ theorem Iter.foldlM_toList {α β : Type w} {γ : Type x} [Iterator α Id β] [F
   rw [Iter.foldM_eq_forIn, ← Iter.forIn_toList]
   simp only [List.forIn_yield_eq_foldlM, id_map']
 
+theorem Iter.foldlM_toArray {α β : Type w} {γ : Type x} [Iterator α Id β] [Finite α Id]
+    {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
+    [LawfulIteratorLoop α Id m] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {f : γ → β → m γ} {init : γ} {it : Iter (α := α) β} :
+    it.toArray.foldlM (init := init) f = it.foldM (init := init) f := by
+  rw [Iter.foldM_eq_forIn, ← Iter.forIn_toArray]
+  simp only [Array.forIn_yield_eq_foldlM, id_map']
+
 theorem IterM.forIn_eq_foldM {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
@@ -324,6 +386,12 @@ theorem Iter.fold_eq_foldM {α β : Type w} {γ : Type x} [Iterator α Id β]
     it.fold (init := init) f = (it.foldM (m := Id) (init := init) (pure <| f · ·)).run := by
   simp [foldM_eq_forIn, fold_eq_forIn]
 
+theorem Iter.fold_eq_fold_toIterM {α β : Type w} {γ : Type w} [Iterator α Id β]
+    [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
+    it.fold (init := init) f = (it.toIterM.fold (init := init) f).run := by
+  rw [fold_eq_foldM, foldM_eq_foldM_toIterM, IterM.fold_eq_foldM]
+
 @[simp]
 theorem Iter.forIn_pure_yield_eq_fold {α β : Type w} {γ : Type x} [Iterator α Id β]
     [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] {f : β → γ → γ} {init : γ}
@@ -344,6 +412,38 @@ theorem Iter.fold_eq_match_step {α β : Type w} {γ : Type x} [Iterator α Id �
   generalize it.step = step
   cases step using PlausibleIterStep.casesOn <;> simp
 
+-- The argument `f : γ₁ → γ₂` is intentionally explicit, as it is sometimes not found by unification.
+theorem Iter.fold_hom [Iterator α Id β] [Finite α Id]
+    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    {it : Iter (α := α) β}
+    (f : γ₁ → γ₂) {g₁ : γ₁ → β → γ₁} {g₂ : γ₂ → β → γ₂} {init : γ₁}
+    (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) :
+    it.fold g₂ (f init) = f (it.fold g₁ init) := by
+  -- We cannot reduce to `IterM.fold_hom` because `IterM.fold` is necessarily more restrictive
+  -- w.r.t. the universe of the output.
+  induction it using Iter.inductSteps generalizing init with | step it ihy ihs =>
+  rw [fold_eq_match_step, fold_eq_match_step]
+  split
+  · rw [H, ihy ‹_›]
+  · rw [ihs ‹_›]
+  · simp
+
+theorem Iter.toList_eq_fold {α β : Type w} [Iterator α Id β]
+    [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β} :
+    it.toList = it.fold (init := []) (fun l out => l ++ [out]) := by
+  rw [Iter.toList_eq_toList_toIterM, IterM.toList_eq_fold, Iter.fold_eq_fold_toIterM]
+
+theorem Iter.toArray_eq_fold {α β : Type w} [Iterator α Id β]
+    [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β} :
+    it.toArray = it.fold (init := #[]) (fun xs out => xs.push out) := by
+  simp only [← toArray_toList, toList_eq_fold]
+  rw [← fold_hom (List.toArray)]
+  simp
+
 @[simp]
 theorem Iter.foldl_toList {α β : Type w} {γ : Type x} [Iterator α Id β] [Finite α Id]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
@@ -351,6 +451,14 @@ theorem Iter.foldl_toList {α β : Type w} {γ : Type x} [Iterator α Id β] [Fi
     {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
     it.toList.foldl (init := init) f = it.fold (init := init) f := by
   rw [fold_eq_foldM, List.foldl_eq_foldlM, ← Iter.foldlM_toList]
+
+@[simp]
+theorem Iter.foldl_toArray {α β : Type w} {γ : Type x} [Iterator α Id β] [Finite α Id]
+    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
+    it.toArray.foldl (init := init) f = it.fold (init := init) f := by
+  rw [fold_eq_foldM, Array.foldl_eq_foldlM, ← Iter.foldlM_toArray]
 
 @[simp]
 theorem Iter.size_toArray_eq_size {α β : Type w} [Iterator α Id β] [Finite α Id]

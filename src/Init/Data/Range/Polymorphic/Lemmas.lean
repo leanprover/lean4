@@ -576,4 +576,94 @@ public theorem isEmpty_iff_forall_not_mem {sl su} [UpwardEnumerable α] [LawfulU
       (Option.some_get hi).symm
     exact h ((init? r.lower).get hi) ⟨hl, hu⟩
 
+theorem Std.PRange.getElem?_toList_Rcx_eq [LE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [SupportsUpperBound su α] [LawfulUpwardEnumerableUpperBound su α]
+    [LawfulUpwardEnumerableLE α] [HasFiniteRanges su α]
+    {r : PRange ⟨.closed, su⟩ α} {i} :
+    r.toList[i]? = (UpwardEnumerable.succMany? i r.lower).filter (SupportsUpperBound.IsSatisfied r.upper) := by
+  induction i generalizing r
+  · rw [PRange.toList_eq_match, UpwardEnumerable.succMany?_zero]
+    simp only [Option.filter_some, decide_eq_true_eq]
+    split <;> simp
+  · rename_i n ih
+    rw [PRange.toList_eq_match]
+    simp only
+    split
+    · simp [UpwardEnumerable.succMany?_succ?_eq_succ?_bind_succMany?]
+      cases hs : UpwardEnumerable.succ? r.lower
+      · rw [PRange.toList_eq_match]
+        simp [BoundedUpwardEnumerable.init?, hs]
+      · rw [toList_Rox_eq_toList_Rcx_of_isSome_succ? (by simp [hs])]
+        rw [ih]
+        simp [hs]
+    · simp only [List.length_nil, Nat.not_lt_zero, not_false_eq_true, getElem?_neg]
+      cases hs : UpwardEnumerable.succMany? (n + 1) r.lower
+      · simp
+      · rename_i hl a
+        simp only [Option.filter_some, decide_eq_true_eq, right_eq_ite_iff]
+        have : UpwardEnumerable.LE r.lower a := ⟨n + 1, hs⟩
+        intro ha
+        exact hl.elim <| LawfulUpwardEnumerableUpperBound.isSatisfied_of_le r.upper _ _ ha this (α := α)
+
+theorem Std.PRange.getElem?_toArray_Rcx_eq [LE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [SupportsUpperBound su α] [LawfulUpwardEnumerableUpperBound su α]
+    [LawfulUpwardEnumerableLE α] [HasFiniteRanges su α]
+    {r : PRange ⟨.closed, su⟩ α} {i} :
+    r.toArray[i]? = (UpwardEnumerable.succMany? i r.lower).filter (SupportsUpperBound.IsSatisfied r.upper) := by
+  rw [← toArray_toList, List.getElem?_toArray, getElem?_toList_Rcx_eq]
+
+theorem Std.PRange.isSome_succMany?_of_lt_length_toList_Rcx [LE α] [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [SupportsUpperBound su α] [LawfulUpwardEnumerableUpperBound su α]
+    [LawfulUpwardEnumerableLE α] [HasFiniteRanges su α]
+    {r : PRange ⟨.closed, su⟩ α} {i} (h : i < r.toList.length) :
+    (UpwardEnumerable.succMany? i r.lower).isSome := by
+  have : r.toList[i]?.isSome := by simp [h]
+  simp only [getElem?_toList_Rcx_eq, Option.isSome_filter] at this
+  exact Option.isSome_of_any this
+
+theorem Std.PRange.isSome_succMany?_of_lt_size_toArray_Rcx [LE α] [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [SupportsUpperBound su α] [LawfulUpwardEnumerableUpperBound su α]
+    [LawfulUpwardEnumerableLE α] [HasFiniteRanges su α]
+    {r : PRange ⟨.closed, su⟩ α} {i} (h : i < r.toArray.size) :
+    (UpwardEnumerable.succMany? i r.lower).isSome := by
+  have : r.toArray[i]?.isSome := by simp [h]
+  simp only [getElem?_toArray_Rcx_eq, Option.isSome_filter] at this
+  exact Option.isSome_of_any this
+
+theorem Std.PRange.getElem_toList_Rcx_eq [LE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [SupportsUpperBound su α] [LawfulUpwardEnumerableUpperBound su α]
+    [LawfulUpwardEnumerableLE α] [HasFiniteRanges su α]
+    {r : PRange ⟨.closed, su⟩ α} {i h} :
+    r.toList[i]'h = (UpwardEnumerable.succMany? i r.lower).get
+        (isSome_succMany?_of_lt_length_toList_Rcx h) := by
+  simp [List.getElem_eq_getElem?_get, getElem?_toList_Rcx_eq]
+
+theorem Std.PRange.getElem_toArray_Rcx_eq [LE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [SupportsUpperBound su α] [LawfulUpwardEnumerableUpperBound su α]
+    [LawfulUpwardEnumerableLE α] [HasFiniteRanges su α]
+    {r : PRange ⟨.closed, su⟩ α} {i h} :
+    r.toArray[i]'h = (UpwardEnumerable.succMany? i r.lower).get
+        (isSome_succMany?_of_lt_size_toArray_Rcx h) := by
+  simp [Array.getElem_eq_getElem?_get, getElem?_toArray_Rcx_eq]
+
+theorem Std.PRange.eq_succMany?_of_toList_Rcx_eq_append_cons [LE α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [SupportsUpperBound su α] [HasFiniteRanges su α] [LawfulUpwardEnumerableUpperBound su α]
+    {r : PRange ⟨.closed, su⟩ α} {pref suff : List α} {cur : α} (h : r.toList = pref ++ cur :: suff) :
+    cur = (UpwardEnumerable.succMany? pref.length r.lower).get
+        (isSome_succMany?_of_lt_length_toList_Rcx (by simp [h])) := by
+  have : cur = (pref ++ cur :: suff)[pref.length] := by simp
+  simp only [← h] at this
+  simp [this, getElem_toList_Rcx_eq]
+
+theorem Std.PRange.eq_succMany?_of_toArray_Rcx_eq_append_append [LE α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [SupportsUpperBound su α] [HasFiniteRanges su α] [LawfulUpwardEnumerableUpperBound su α]
+    {r : PRange ⟨.closed, su⟩ α} {pref suff : Array α} {cur : α} (h : r.toArray = pref ++ #[cur] ++ suff) :
+    cur = (UpwardEnumerable.succMany? pref.size r.lower).get
+        (isSome_succMany?_of_lt_size_toArray_Rcx (by simp [h, Nat.add_assoc, Nat.add_comm 1])) := by
+  have : cur = (pref ++ #[cur] ++ suff)[pref.size] := by simp
+  simp only [← h] at this
+  simp [this, getElem_toArray_Rcx_eq]
+
 end Std.PRange

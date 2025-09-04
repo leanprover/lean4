@@ -120,4 +120,37 @@ instance : FileSource InlayHintParams where
 instance : FileSource SignatureHelpParams where
   fileSource p := fileSource p.textDocument
 
+/--
+Yields the file source of `item` by attempting to obtain `mod : Name` from `item.data?`. \
+Panics if `item.data?` is not present or does not contain a `mod` field and the first element of a
+`data?` array cannot be parsed to `Name`.
+Used when `completionItem/resolve` requests pass the watchdog to decide which file worker to forward
+the request to.
+Since this function can panic and clients typically send `completionItem/resolve` requests for every
+selected completion item, all completion items returned by the server in `textDocument/completion`
+requests must have a `data?` field that has a `mod` field.
+-/
+def CompletionItem.getFileSource! (item : CompletionItem) : FileIdent :=
+  let r : Except String FileIdent := do
+    let some data := item.data?
+      | throw s!"no data param on completion item {item.label}"
+    match data with
+    | .obj _ =>
+      -- In the language server, `data` is always an array,
+      -- but we also support having `mod` as an object field for
+      -- `chainLspRequestHandler` consumers.
+      let mod ← data.getObjValAs? Name "mod"
+      return .mod mod
+    | .arr _ =>
+      let mod ← fromJson? <| ← data.getArrVal? 0
+      return .mod mod
+    | _ =>
+      throw s!"unexpected completion item data: {data}"
+  match r with
+  | Except.ok id => id
+  | Except.error e => panic! e
+
+instance : FileSource CompletionItem where
+  fileSource := CompletionItem.getFileSource!
+
 end Lean.Lsp

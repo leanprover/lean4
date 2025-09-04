@@ -17,9 +17,9 @@ open Lsp
 open Elab
 
 private def filterDuplicateCompletionItems
-    (items : Array CompletionItem)
-    : Array CompletionItem := Id.run do
-  let mut r : Array CompletionItem := #[]
+    (items : Array ResolvableCompletionItem)
+    : Array ResolvableCompletionItem := Id.run do
+  let mut r : Array ResolvableCompletionItem := #[]
   let mut index : Std.HashSet (String × Option InsertReplaceEdit) := ∅
   for i in items do
     let key := (i.label, i.textEdit?)
@@ -37,7 +37,7 @@ partial def find?
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
     (caps     : ClientCapabilities)
-    : CancellableM CompletionList := do
+    : CancellableM ResolvableCompletionList := do
   let (prioritizedPartitions, isComplete) := findPrioritizedCompletionPartitionsAt fileMap hoverPos cmdStx infoTree
   let mut allCompletions := #[]
   for partition in prioritizedPartitions do

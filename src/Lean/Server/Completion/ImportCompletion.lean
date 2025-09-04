@@ -8,11 +8,9 @@ module
 prelude
 public import Lean.Data.NameTrie
 public import Lean.Util.LakePath
-public import Lean.Server.Completion.CompletionItemData
+public import Lean.Data.Lsp
 public import Lean.Parser.Module
 meta import Lean.Parser.Module
-
-public section
 
 public section
 
@@ -132,7 +130,7 @@ Sets the `data?` field of every `CompletionItem` in `completionList` using `para
 -/
 def addCompletionItemData (mod : Name) (pos : Lsp.Position) (completionList : CompletionList)
     : CompletionList :=
-  let data := { mod, pos : Lean.Lsp.CompletionItemData }
+  let data := { mod, pos : Lean.Lsp.ResolvableCompletionItemData }
   { completionList with items := completionList.items.map fun item =>
     { item with data? := some <| toJson data } }
 

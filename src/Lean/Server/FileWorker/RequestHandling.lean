@@ -40,7 +40,7 @@ def findCompletionCmdDataAtPos
   findCmdDataAtPos doc pos (includeStop := true)
 
 def handleCompletion (p : CompletionParams)
-    : RequestM (RequestTask CompletionList) := do
+    : RequestM (RequestTask ResolvableCompletionList) := do
   let doc ← readDoc
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
@@ -65,11 +65,13 @@ def handleCompletionItemResolve (item : CompletionItem)
     | return .pure item
   let some id := data.id?
     | return .pure item
+  let some cPos := data.cPos?
+    | return .pure item
   let pos := text.lspPosToUtf8Pos data.pos
   mapTaskCostly (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       | return item
-    Completion.resolveCompletionItem? text pos cmdStx infoTree item id data.cPos
+    Completion.resolveCompletionItem? text pos cmdStx infoTree item id cPos
 
 open Elab in
 def handleHover (p : HoverParams)
@@ -485,7 +487,7 @@ builtin_initialize
   registerLspRequestHandler
     "textDocument/completion"
     CompletionParams
-    CompletionList
+    ResolvableCompletionList
     handleCompletion
   registerLspRequestHandler
     "completionItem/resolve"

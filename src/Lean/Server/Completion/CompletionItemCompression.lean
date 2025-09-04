@@ -14,7 +14,7 @@ namespace Lean.Lsp.ResolvableCompletionList
 def compressItemDataFast (acc : String) (data : ResolvableCompletionItemData) :
     String := Id.run do
   let mut acc := acc ++ "["
-  acc := acc ++ "\"" ++ data.mod.toString ++ "\""
+  acc := Json.renderString data.mod.toString acc
   acc := acc ++ "," ++ data.pos.line.repr
   acc := acc ++ "," ++ data.pos.character.repr
   if let some cPos := data.cPos? then
@@ -23,9 +23,11 @@ def compressItemDataFast (acc : String) (data : ResolvableCompletionItemData) :
     acc := acc ++ ","
     match id with
     | .const declName =>
-      acc := acc ++ "\"c" ++ declName.toString ++ "\""
+      acc := acc ++ "\"c"
+      acc := Json.escape declName.toString acc ++ "\""
     | .fvar id =>
-      acc := acc ++ "\"f" ++ id.name.toString ++ "\""
+      acc := acc ++ "\"f"
+      acc := Json.escape id.name.toString acc ++ "\""
   acc ++ "]"
 
 @[inline]
@@ -33,7 +35,9 @@ def compressMarkupContentFast (acc : String) (c : MarkupContent) : String :=
   let kind := match c.kind with
     | .plaintext => "plaintext"
     | .markdown => "markdown"
-  acc ++ "{\"kind\":\"" ++ kind ++ "\",\"value\":\"" ++ c.value ++ "\"}"
+  let acc := acc ++ "{\"kind\":\"" ++ kind ++ "\",\"value\":"
+  let acc := Json.renderString c.value acc
+  acc ++ "}"
 
 @[inline]
 def compressPositionFast (acc : String) (p : Position) : String :=
@@ -71,9 +75,11 @@ def compressCompletionTagsFast (acc : String) (tags : Array CompletionItemTag) (
 
 @[inline]
 def compressItemFast (acc : String) (item : ResolvableCompletionItem) : String := Id.run do
-  let mut acc := acc ++ "{\"label\":\"" ++ item.label ++ "\""
+  let mut acc := acc ++ "{\"label\":"
+  acc := Json.renderString item.label acc
   if let some detail := item.detail? then
-    acc := acc ++ ",\"detail\":\"" ++ detail ++ "\""
+    acc := acc ++ ",\"detail\":"
+    acc := Json.renderString detail acc
   if let some documentation := item.documentation? then
     acc := acc ++ ",\"documentation\":"
     acc := compressMarkupContentFast acc documentation
@@ -83,7 +89,8 @@ def compressItemFast (acc : String) (item : ResolvableCompletionItem) : String :
     acc := acc ++ ",\"edit\":"
     acc := compressEditFast acc textEdit
   if let some sortText := item.sortText? then
-    acc := acc ++ ",\"sortText\":\"" ++ sortText ++ "\""
+    acc := acc ++ ",\"sortText\":"
+    acc := Json.renderString sortText acc
   if let some data := item.data? then
     acc := acc ++ ",\"data\":"
     acc := compressItemDataFast acc data

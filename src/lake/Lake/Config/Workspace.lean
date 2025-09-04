@@ -31,7 +31,10 @@ public structure Workspace : Type where
   A value of `none` means that Lake is not restartable via the CLI.
   -/
   lakeArgs? : Option (Array String) := none
-  /-- The packages within the workspace (in `require` declaration order). -/
+  /--
+  The packages within the workspace
+  (in `require` declaration order with the root coming first).
+  -/
   packages : Array Package := {}
   /-- Name-package map of packages within the workspace. -/
   packageMap : DNameMap NPackage := {}

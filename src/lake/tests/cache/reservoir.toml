@@ -1,0 +1,6 @@
+name = "test"
+enableArtifactCache = true
+
+[[require]]
+name = "Cli"
+scope = "leanprover"

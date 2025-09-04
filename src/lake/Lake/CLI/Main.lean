@@ -324,21 +324,37 @@ protected def get : CliM PUnit := do
   noArgsRem do
   let cfg ← mkLoadConfig opts
   let ws ← loadWorkspace cfg
-  let (some artEndpoint, some revEndpoint) :=
-      (ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint?)
-    | if ws.lakeEnv.cacheArtifactEndpoint?.isNone then
-        logError "the LAKE_CACHE_ARTIFACT_ENDPOINT environment variable must be set for `cache get`"
-      if ws.lakeEnv.cacheRevisionEndpoint?.isNone then
-        logError "the LAKE_CACHE_REVISION_ENDPOINT environment variable must be set for `cache get`"
-      exit 1
-  let service : CacheService := {artEndpoint, revEndpoint}
+  let service : CacheService ← id do
+    match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
+    | some artifactEndpoint, some revisionEndpoint =>
+      return {artifactEndpoint, revisionEndpoint}
+    | none, none =>
+      return {apiEndpoint? := some ws.lakeEnv.reservoirApiUrl}
+    | some artifactEndpoint, none =>
+      error (invalidEndpointConfig artifactEndpoint "")
+    | none, some revisionEndpoint =>
+      error (invalidEndpointConfig "" revisionEndpoint)
   let cache := ws.lakeCache
-  ws.packages.forM fun pkg => do -- TODO: Parallelize and do not fail if missing
+  if let some scope := scope? then
+    getCache cache service ws.root scope
+  else
+    ws.packages.forM (start := 1) fun pkg => do -- TODO: Parallelize and do not fail if missing
+      if pkg.scope.isEmpty then
+        logInfo s!"skipping non-Reservoir dependency `{pkg.name}`"
+      else
+        getCache cache service pkg s!"{pkg.scope}/{pkg.name.toString (escape := false)}"
+where
+  invalidEndpointConfig artifactEndpoint revisionEndpoint :=
+    s!"invalid endpoint configuration:\
+    \n  LAKE_CACHE_ARTIFACT_ENDPOINT={artifactEndpoint}\
+    \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint}\n\
+    To use `cache get` with a custom endpoint, both environment variables \
+    must be set to non-empty strings. To use Reservoir, neither should be set."
+  getCache cache service pkg scope := do
     let repo := GitRepo.mk pkg.dir
     if (← repo.hasDiff) then
       logWarning s!"{pkg.name}: package has changes; only artifacts for committed code will be downloaded"
     let rev ← repo.getHeadRevision
-    let scope := scope?.getD pkg.cacheScope
     let path := cache.revisionPath scope rev
     let map ← service.downloadRevisionOutputs rev path scope
     cache.writeMap scope map
@@ -354,22 +370,23 @@ protected def put : CliM PUnit := do
   noArgsRem do
   let cfg ← mkLoadConfig opts
   let ws ← loadWorkspace cfg
-  let (some key, some artEndpoint, some revEndpoint) :=
+  let (some key, some artifactEndpoint, some revisionEndpoint) :=
       (ws.lakeEnv.cacheKey?, ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint?)
     | if ws.lakeEnv.cacheKey?.isNone then
-        logError "the LAKE_CACHE_KEY environment variable must be set for `cache put`"
+        logError "to use `cache put`, the LAKE_CACHE_KEY environment variable must be set"
       if ws.lakeEnv.cacheArtifactEndpoint?.isNone then
-        logError "the LAKE_CACHE_ARTIFACT_ENDPOINT environment variable must be set for `cache put`"
+        logError "to use `cache put`, the LAKE_CACHE_ARTIFACT_ENDPOINT environment variable must be set"
       if ws.lakeEnv.cacheRevisionEndpoint?.isNone then
-        logError "the LAKE_CACHE_REVISION_ENDPOINT environment variable must be set for `cache put`"
+        logError "to use `cache put`, the LAKE_CACHE_REVISION_ENDPOINT environment variable must be set"
       exit 1
-  let service : CacheService := {key, artEndpoint, revEndpoint}
+  let service : CacheService := {key, artifactEndpoint, revisionEndpoint}
   let pkg := ws.root
   let repo := GitRepo.mk pkg.dir
   if (← repo.hasDiff) then
     error "package has changes; commit code before uploading a build"
   let rev ← repo.getHeadRevision
-  let map ← CacheMap.load file
+  let some map ← CacheMap.load? file
+    | error s!"{file}: file not found"
   let descrs ← map.collectOutputDescrs
   let paths ← ws.lakeCache.getArtifactPaths descrs
   service.uploadArtifacts ⟨descrs, rfl⟩ paths scope

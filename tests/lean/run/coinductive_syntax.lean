@@ -1,10 +1,11 @@
 set_option trace.Elab.inductive true
---variable (α : Type)
 
 open Lean.Order
-
-coinductive infSeq (r : α → α → Prop) : α → Prop where
+section
+coinductive infSeq (r : α → α → Prop): α → Prop where
   | step : r a b → infSeq r b → infSeq r a
+
+#check infSeq_functor
 
 def infSeq (r : α → α → Prop) : α → Prop := infSeq_functor r (infSeq)
   coinductive_fixpoint monotonicity by

@@ -848,17 +848,19 @@ private def mkIndFVar2Const (views : Array InductiveView) (indFVars : Array Expr
 /-- Remark: `numVars <= numParams`. `numVars` is the number of context `variables` used in the inductive declaration,
    and `numParams` is `numVars` + number of explicit parameters provided in the declaration. -/
 private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name)
-    (numVars : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) :=
+    (numVars : Nat) (numParams : Nat) (indTypes : List InductiveType) (flag : Bool := false) : TermElabM (List InductiveType) :=
   let indFVar2Const := mkIndFVar2Const views indFVars levelNames
   indTypes.mapM fun indType => do
     let ctors ← indType.ctors.mapM fun ctor => do
+      trace[Elab.inductive] "ctorType: {ctor.type}"
       let type ← forallBoundedTelescope ctor.type numParams fun params type => do
+        trace[Elab.inductive] "type: {type}, params: {params}"
         let type := type.replace fun e =>
           if !e.isFVar then
             none
           else match indFVar2Const[e]? with
             | none   => none
-            | some c => mkAppN c (params.extract 0 numVars)
+            | some c => if flag then c else mkAppN c (params.extract 0 numVars)
         instantiateMVars (← mkForallFVars params type)
       return { ctor with type }
     return { indType with ctors }
@@ -929,6 +931,7 @@ private def buildFinalizeContext (elabs' : Array InductiveElabStep2) (levelParam
 private def mkFlatFunctor (views : Array InductiveView) (elabs' : Array InductiveElabStep2) (indFVars : Array Expr) (vars : Array Expr) (levelParams : List Name)
     (numVars : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM FinalizeContext := do
   trace[Elab.inductive] "inside of `mkFlatFunctor`"
+  trace[Elab.inductive] "numParams: {numParams}, numVars: {numVars}"
   let types := indTypes.map (fun indType => (indType.name.append `call, indType.type)) |> List.toArray
   let rs ← indTypes.toArray.mapIdxM (fun idx indType => do
     trace[Elab.inductive] "Looking at: {indType.name}"
@@ -942,30 +945,41 @@ private def mkFlatFunctor (views : Array InductiveView) (elabs' : Array Inductiv
       let newType := rs[idx]!.type
       let newCtors ← indType.ctors.mapM fun ctor =>
         forallTelescope ctor.type fun ctorArgs ctorBody => do
+          trace[Elab.inductive] "Constructor arguments are: {ctorArgs}"
           -- Replacement for inductive fVars in the conclusion
           let indFVarMap := indFVars.zip newIndFVars
           let indFVarMap := (Std.HashMap.emptyWithCapacity indFVars.size).insertMany indFVarMap
-
+          trace[Elab.inductive] "ctorBody: {ctorBody}"
           let nonParamCtorArgs := ctorArgs.extract numParams
-
+          trace[Elab.inductive] "Non-parameter constructor arguments: {nonParamCtorArgs}"
           let newCtorArgs := ctorArgs.extract 0 numParams ++ params.extract numParams ++ nonParamCtorArgs
+          trace[Elab.inductive] "New constructor arguments are: {newCtorArgs}"
           -- We modify the conclusion
           let newConcFn := indFVarMap.get! ctorBody.getAppFn
-          let nonParamArgs := ctorBody.getAppArgs.extract numParams
+          trace[Elab.inductive] "appArgs: {ctorBody.getAppArgs}"
+          let nonParamArgs := ctorBody.getAppArgs.extract (numParams - numVars)
+          trace[Elab.inductive] "nonParamArgs: {nonParamArgs}"
           let newConclusion := mkAppN newConcFn (ctorArgs.extract 0 numParams ++ params.extract numParams ++ nonParamArgs)
           trace[Elab.inductive] "newConclusion: {newConclusion}"
           let res ← mkForallFVars newCtorArgs newConclusion
           let res ← forallBoundedTelescope res params.size fun resArgs resBody => do
+            trace[Elab.inductive] "original body: {resBody}"
             -- Replacement for inductive fVars in premises
             let indFVarPremMap := indFVars.zip (resArgs.extract numParams)
             let indFVarPremMap := (Std.HashMap.emptyWithCapacity indFVars.size).insertMany indFVarPremMap
             let mut resBody := resBody
             for (old, new) in indFVarPremMap do
-              resBody := resBody.replaceFVar old new
+              trace[Elab.inductive] "old: {old}, upon substituting: {mkAppN new <| resArgs.extract 0 numVars}"
+              resBody := resBody.replaceFVar old (mkAppN new <| resArgs.extract 0 numVars)
+            trace[Elab.inductive] "at the end of substitution: {resArgs},  {resBody}"
             mkForallFVars resArgs resBody
           return { ctor with name := ctor.name, type := res}
       return { indType with name := indType.name, type := newType, ctors := newCtors}
-    let indTypes ← replaceIndFVarsWithConsts views newIndFVars levelParams numVars (numParams + views.size) indTypes
+    for i in indTypes do
+      trace[Elab.inductive] "Name: {i.name}, Type: {i.type}"
+      for c in i.ctors do
+        trace[Elab.inductive] "Ctor name: {c.name}, Ctor type: {c.type}"
+    let indTypes ← replaceIndFVarsWithConsts views newIndFVars levelParams numVars (numParams + views.size) indTypes (flag := true)
     for i in indTypes do
       trace[Elab.inductive] "Name: {i.name}, Type: {i.type}"
       for c in i.ctors do

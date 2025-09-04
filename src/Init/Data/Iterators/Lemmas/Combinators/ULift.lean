@@ -53,6 +53,6 @@ theorem Iter.toArray_uLift [Iterator α Id β] {it : Iter (α := α) β}
     [LawfulIteratorCollect α Id Id] :
     it.uLift.toArray = it.toArray.map ULift.up := by
   rw [← toArray_toList, ← toArray_toList, toList_uLift]
-  simp
+  simp [-toArray_toList]
 
 end Std.Iterators

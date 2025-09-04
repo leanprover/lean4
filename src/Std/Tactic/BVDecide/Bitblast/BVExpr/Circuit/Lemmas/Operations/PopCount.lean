@@ -76,71 +76,104 @@ theorem denote_blastExtractAndExtend (aig : AIG α) (xc : AIG.RefVec aig w) (x :
   · intros
     simp [show w ≤ start + idx by omega]
 
--- theorem BitVec.extractAndExtendPopulateAux_get
---   (i : Nat) (hi : i < w) (x : BitVec w) (hw : 0 < w) :
---     let initAcc := 0#0
---     let res := BitVec.extractAndExtendPopulateAux 0 x initAcc (by omega)
---     res[i]'(by sorry) = BitVec.zeroExtend w (BitVec.extractLsb' i 1 x) := by
---   let out :=  (BitVec.extractAndExtendPopulateAux 0 x [] (by intros i h h'; simp at h') (by omega) (by simp))
---   have := (out.property).right
---   specialize this i hi (by omega)
---   simp only [List.get_eq_getElem, BitVec.truncate_eq_setWidth, out] at this
---   apply this
+theorem blastExtractAndExtend_denote_mem_prefix {w : Nat} (aig : AIG α) (curr : Nat)
+    (xc : RefVec aig w) (hstart) :
+    ⟦
+      (blastExtractAndExtend aig xc curr).aig,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply extractAndExtend_le_size⟩,
+      assign
+    ⟧
+      =
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
+  apply IsPrefix.of
+  · intros
+    apply extractAndExtend_decl_eq
+  · intros
+    apply extractAndExtend_le_size
+
+theorem BitVec.getLsbD_extractAndExtend_of_le_of_lt (w idx currIdx : Nat) (x : BitVec w)
+    (hlt : idx < w * (currIdx + 1)) (hle : w * currIdx ≤ idx) :
+  (BitVec.zeroExtend w (BitVec.extractLsb' currIdx 1 x)).getLsbD (idx - w * currIdx) =
+  (BitVec.extractAndExtendPopulateAux 0 x 0#0 (by omega)).getLsbD idx := by sorry
 
 theorem denote_eq_blastExtractAndExtendPopulate
   (assign : α → Bool)
-  (aig : AIG α) (idx w : Nat) (xc : AIG.RefVec aig w) (x : BitVec w)
-  (acc : AIG.RefVec aig (w * idx)) (bvAcc : BitVec (w * idx)) (hlt : idx ≤ w)
-  (hidx : idx < w)
+  (aig : AIG α) (currIdx w : Nat) (xc : AIG.RefVec aig w) (x : BitVec w)
+  (acc : AIG.RefVec aig (w * currIdx)) (hlt : currIdx ≤ w)
   -- the bits added already denote to the corresponding entry in acc
-  (hacc : ∀ (idx1 : Nat) (hidx1 : idx1 < w * idx),
-              ⟦aig, acc.get idx1 hidx1, assign⟧ =
-              bvAcc.getLsbD idx1)
+  (hacc : ∀ (idx : Nat) (hidx : idx < w * currIdx),
+              ⟦aig, acc.get idx hidx, assign⟧ =
+              (BitVec.extractAndExtendPopulateAux 0 x 0#0 (by omega)).getLsbD idx )
   (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
    :
-    ∀ (idx1 : Nat) (hidx1 : idx1 < w * w),
+    ∀ (idx : Nat) (hidx : idx < w * w),
       ⟦
-        (blastExtractAndExtendPopulate aig idx xc acc hlt).aig,
-        (blastExtractAndExtendPopulate aig idx xc acc hlt).vec.get idx1 hidx1,
+        (blastExtractAndExtendPopulate aig currIdx xc acc hlt).aig,
+        (blastExtractAndExtendPopulate aig currIdx xc acc hlt).vec.get idx hidx,
         assign
       ⟧ =
-        (BitVec.extractAndExtendPopulateAux idx x bvAcc hlt).getLsbD idx1 := by
-  intros idx1 hidx1
-  generalize hgen : blastExtractAndExtendPopulate aig idx xc acc hlt = gen
+        (BitVec.extractAndExtendPopulateAux 0 x 0#0 (by omega)).getLsbD idx := by
+  intros idx hidx
+  generalize hgen : blastExtractAndExtendPopulate aig currIdx xc acc hlt = gen
   unfold blastExtractAndExtendPopulate at hgen
   split at hgen
-  · rw [← hgen]
-    let res := blastExtractAndExtend aig xc idx;
-    let aigRes := res.aig;
-    let bv := res.vec;
-    rw [denote_eq_blastExtractAndExtendPopulate (idx := idx + 1)
-      (acc := (acc.cast (by simp [res]; apply extractAndExtend_le_size)).append bv)
-      (x := x)
-      ]
+  · case _ h => -- idx < w
+    rw [← hgen]
+    let res := blastExtractAndExtend aig xc currIdx
+    have hcast : w + w * currIdx = w * (currIdx + 1) := by simp [Nat.mul_add]; omega
+    have := denote_eq_blastExtractAndExtendPopulate
+            (assign := assign)
+            (aig := res.aig)
+            (currIdx := currIdx + 1)
+            (w := w)
+            (xc := xc.cast (by simp [res]; apply extractAndExtend_le_size))
+            (x := x)
+            (acc := (acc.cast (by simp [res]; apply extractAndExtend_le_size)).append res.vec)
+            (hlt := by omega)
+    rw [this]
+    · intros idx hidx
+      simp only [res, RefVec.get_append]
+      by_cases hidx' : idx < w * currIdx
+      · rw [dite_cond_eq_true (by simp [hidx'])]
+        specialize hacc idx hidx'
+        rw [blastExtractAndExtend_denote_mem_prefix (xc := xc)]
+        apply hacc
+      · rw [dite_cond_eq_false (by simp [hidx'])]
+        rw [denote_blastExtractAndExtend (xc := xc) (x := x)]
+        · simp at hidx'
+          rw [BitVec.getLsbD_extractAndExtend_of_le_of_lt (hlt := hidx) (hle := hidx')]
+        · intros j hj
+          apply hx
+    · intros i hi
+      simp only [res]
+      rw [blastExtractAndExtend_denote_mem_prefix (xc := xc)]
+      apply hx
+  · case _ h =>
+    rw [← hgen]
+    have : currIdx = w := by omega
+    simp [this] at *
+    specialize hacc idx hidx
+    rw [← hacc]
+    congr
+    · omega
     · simp_all
-      sorry
-
-      -- let newElem := blastExtractAndExtend (blastExtractAndExtend aig xc idx).aig (xc.cast (by simp_all; apply extractAndExtend_le_size)) (idx + 1);
-      -- let initAcc := 0#0;
-
-      -- have := denote_append
-      --           (m := w) (n := w * idx)
-      --           (assign := assign)
-      --           (aig := (blastExtractAndExtend (blastExtractAndExtend aig xc idx).aig (xc.cast (by sorry)) (idx + 1)).aig)
-      --           (acc := acc.cast (aig2 := newElem.aig) (by sorry))
-      --           (elem := newElem.vec)
-
-
-      -- rw [this]
+      exact
+        eqRec_heq
+          (blastExtractAndExtendPopulate._proof_6 currIdx
+            (blastExtractAndExtendPopulate._proof_5 currIdx hlt h))
+          acc
+    · simp_all
 
 
 
 
-    · sorry
-    · sorry
-    · sorry
-    · sorry
-  · omega
+
+  --   · sorry
+  --   · sorry
+  --   · sorry
+  --   · sorry
+  -- · omega
 -- --   let updated := acc.set start bit.vec (by apply extractAndExtend_le_size) hstart
 -- --   let bvRes := BitVec.extractAndExtendPopulateAux 0 x [] (by intros i hi hl; simp at hl) (by omega) (by simp)
 -- --   let currList := bvRes.val.extract (start := 0) (stop := start)

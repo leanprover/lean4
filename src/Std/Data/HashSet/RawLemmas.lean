@@ -784,6 +784,12 @@ theorem ofList_cons {hd : α} {tl : List α} :
     ofList (hd :: tl) = insertMany ((∅ : Raw α).insert hd) tl :=
   ext HashMap.Raw.unitOfList_cons
 
+theorem ofList_eq_insertMany_empty {l : List α} :
+    ofList l = insertMany (∅ : Raw α) l :=
+  match l with
+  | [] => by simp [insertMany_nil .empty]
+  | hd :: tl => by simp [ofList_cons, insertMany_cons .empty]
+
 @[simp, grind =]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :

@@ -60,3 +60,11 @@ test_unchanged
 # Specializations do not matter.
 sed_i 's/x + 1/x + 2/' Rebuild/Basic.lean
 test_unchanged
+
+# private `match`es do not matter.
+cat >> Rebuild/Basic.lean <<EOF
+def matchTest : Nat -> Nat
+  | 0 => 1
+  | n+1 => n
+EOF
+test_unchanged

@@ -7,15 +7,15 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-public import Lean.Environment
-public import Lean.Exception
-public import Lean.Log
-public import Lean.Elab.DocString
-public import Lean.DocString.Extension
-public import Lean.DocString.Links
-public import Lean.Parser.Types
-public import Lean.DocString.Parser
-public import Lean.ResolveName
+import Lean.Environment
+import Lean.Exception
+import Lean.Log
+import Lean.Elab.DocString
+import Lean.DocString.Extension
+import Lean.DocString.Links
+import Lean.Parser.Types
+import Lean.DocString.Parser
+import Lean.ResolveName
 public import Lean.Elab.Term.TermElabM
 import Std.Data.HashMap
 
@@ -113,40 +113,59 @@ def addMarkdownDocString (declName : Name) (docComment : TSyntax `Lean.Parser.Co
   modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
 
 /--
+Adds an elaborated Verso docstring to the environment.
+-/
+def addVersoDocStringCore [Monad m] [MonadEnv m]
+    (declName : Name) (docs : VersoDocString) : m Unit := do
+  let ⟨blocks, parts⟩ := docs
+  modifyEnv fun env =>
+    versoDocStringExt.addEntry (asyncDecl := declName) (asyncMode := .mainOnly)
+      env (declName, ⟨blocks, parts⟩) -- Using .insert env declName ⟨blocks, parts⟩ leads to panics
+
+/--
 Adds a Verso docstring to the environment.
 -/
 def addVersoDocString (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) : TermElabM Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
   let (blocks, parts) ← versoDocString declName docComment
-  modifyEnv fun env => versoDocStringExt.insert env declName ⟨blocks, parts⟩
+  addVersoDocStringCore declName ⟨blocks, parts⟩
 
 /--
 Adds a docstring to the environment. If `isVerso` is `false`, then the docstring is interpreted as
 Markdown.
 -/
-def addDocStringOf (isVerso : Bool) (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) : TermElabM Unit := do
-  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
-    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
+def addDocStringOf
+    (isVerso : Bool) (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) :
+    TermElabM Unit := do
   if isVerso then
-    let (blocks, parts) ← versoDocString declName docComment
-    modifyEnv fun env => versoDocStringExt.insert env declName ⟨blocks, parts⟩
+    addVersoDocString declName docComment
   else
-    validateDocComment docComment
-    let docString : String ← getDocStringText docComment
-    modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
+    addMarkdownDocString declName docComment
 
 /--
-Adds a docstring to the environment, validating documentation links.
+Adds a docstring to the environment.
+
+If the option `doc.verso` is `true`, the docstring is processed as a Verso docstring.
+
+Otherwise, it is considered a Markdown docstring, and documentation links are validated.
 -/
-def addDocString (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) : TermElabM Unit := do
+def addDocString
+    (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) :
+    TermElabM Unit := do
   addDocStringOf (doc.verso.get (← getOptions)) declName docComment
 
 /--
-Adds a docstring to the environment, validating documentation links.
+Adds a docstring to the environment, if it is provided. If no docstring is provided, nothing
+happens.
+
+If the option `doc.verso` is `true`, the docstring is processed as a Verso docstring.
+
+Otherwise, it is considered a Markdown docstring, and documentation links are validated.
 -/
 def addDocString'
-    (declName : Name) (docString? : Option (TSyntax `Lean.Parser.Command.docComment)) : TermElabM Unit :=
+    (declName : Name) (docString? : Option (TSyntax `Lean.Parser.Command.docComment)) :
+    TermElabM Unit :=
   match docString? with
   | some docString => addDocString declName docString
   | none => return ()

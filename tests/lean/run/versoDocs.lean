@@ -1,16 +1,31 @@
 
 import Lean
 
+
 open Lean Doc Elab Term
 
 set_option doc.verso true
 
+
+
 attribute [doc_role] Lean.Doc.name
+attribute [doc_role] Lean.Doc.kw
+attribute [doc_role] Lean.Doc.kw?
+attribute [doc_role] Lean.Doc.syntaxCat
+attribute [doc_role] Lean.Doc.option
+attribute [doc_role] Lean.Doc.attr
+attribute [doc_role] Lean.Doc.tactic
+attribute [doc_role] Lean.Doc.conv
 attribute [doc_code_block] Lean.Doc.lean
+attribute [doc_code_block] Lean.Doc.output
 attribute [doc_command] Lean.Doc.«open»
+attribute [doc_command] Lean.Doc.«set_option»
 attribute [doc_role] Lean.Doc.given
 attribute [doc_role lean] Lean.Doc.leanTerm
 attribute [doc_role] Lean.Doc.manual
+attribute [doc_role] Lean.Doc.syntax
+
+
 
 @[doc_code_block]
 def c (s : StrLit) : DocM (Block ElabInline ElabBlock) := pure (Block.code (s.getString.toList.reverse |> String.mk))
@@ -135,15 +150,214 @@ This follows the computational behavior of {name}`gcd`.
 
 #check Nat.gcd.induction'
 
+open MessageSeverity in
+/--
+Prints {name}`s` twice.
+
+```lean +error (name := twice)
+#eval printTwice A
+```
+```output twice (severity := error)
+Unknown identifier `A`
+```
+-/
+def printTwice (s : String) : IO Unit := do
+  IO.print s
+  IO.print s
+
+section
+/-!
+This section tests that section variables work as expected. They should be in scope for docstrings,
+but they should not be added as parameters only due to being mentioned in the docstring.
+-/
+variable (howMany : Nat)
+
+/--
+Returns how many there are (that is, {name}`howMany`)
+-/
+def f := howMany
+
+/--
+Returns its argument (but not {name}`howMany`)
+-/
+def g (x : Nat) := x
+
+/--
+{name}`f` and {name}`g` are the same function (there's no extra parameter on {name}`g`)
+-/
+theorem f_eq_g : f = g := rfl
+
+end
+
+section
+/-!
+This tests the rules for {name}`open`.
+-/
+
+namespace A
+def a := "a"
+def b := "b"
+end A
+
+/-- error: Unknown constant `a` -/
+#guard_msgs in
+/--
+{name}`a`
+-/
+def testDef := 15
+
+#guard_msgs in
+/--
+{open A}
+
+{name}`a` and {name}`b`
+-/
+def testDef' := 15
+
+#guard_msgs in
+/--
+{open A only:=a}
+
+{name}`a`
+-/
+def testDef'' := 15
+
+/-- error: Unknown constant `b` -/
+#guard_msgs in
+/--
+{open A only:=a}
+
+{name}`b`
+-/
+def testDef''' := 15
+
+#guard_msgs in
+/--
+{open A (only:=a) (only := b)}
+
+{name}`b`
+-/
+def testDef'''' := 15
+
+
+end
+
+section
+/-!
+This section tests tactic references.
+-/
+
+namespace W
+/--
+Completely unlike {tactic}`grind`
+-/
+syntax (name := wiggleTac) "wiggle" (term)? term,*: tactic
+end W
+
+/--
+The {tactic}`wiggle` tactic is not very powerful.
+
+It can be referred to as {tactic}`W.wiggleTac`.
+
+It can take a parameter! {tactic}`wiggle $t` where {name}`t` is some term.
+Or even more: {tactic}`wiggle $t $[$t2],*`.
+
+Conv tactics can be used similarly:
+ * {conv}`arg`
+ * {conv}`arg 1`
+ * {conv}`ext $x`
+-/
+def something := ()
+
+#check something
+
+end
+
+
+/--
+Attributes are great!
+Examples:
+ * {attr}`grind`
+ * {attr}`@[grind ←, simp]`
+-/
+def somethingElse := ()
+
+/--
+Options control Lean.
+Examples:
+ * Use the {option}`pp.all` to control showing all the details
+ * {option}`set_option pp.all true` to set it
+-/
+def somethingElseAgain := ()
+
+
+/--
+error: Unknown option `pp.alll`
+---
+error: set_option value type mismatch: The value
+  "true"
+has type
+  String
+but the option `pp.all` expects a value of type
+  Bool
+-/
+#guard_msgs in
+/--
+Options control Lean.
+Examples:
+ * Use the {option}`pp.alll` to control showing all the details
+ * {option}`set_option pp.all "true"` to set it
+-/
+def somethingElseAgain' := ()
+
+
+/--
+{kw (cat := term)}`Type` {kw (of := termIfLet)}`if`
+-/
+def somethingElseAgain'' := ()
+
+/--
+info:
+
+Hint: Specify the syntax kind:
+  kw?̵ ̲(̲o̲f̲ ̲:̲=̲ ̲P̲a̲r̲s̲e̲r̲.̲T̲e̲r̲m̲.̲t̲y̲p̲e̲)̲
+-/
+#guard_msgs in
+/--
+{kw?}`Type`
+-/
+def somethingElseAgain''' := ()
+
+
+/--
+{syntaxCat}`term`
+-/
+def stxDoc := ()
+
+/--
+{syntaxCat}`thing`
+-/
+declare_syntax_cat thing
+
+-- Parsing in docstrings should be in a context just after the decl is elaborated
+/--
+This is a thing: {syntax thing}`here{$n}` where {name}`n` is a numeral
+-/
+syntax "here " "{" num "}" : thing
+
+
+/--
+{syntax thing}`here{$n}`
+-/
+def yetMore := ()
+
+@[inherit_doc yetMore]
+def yetMore' := ()
+
+#check yetMore'
 
 /-
 TODO test:
-
-* given
-* section variables
 * Scope rules for all operators
-* open command, and open +scoped, and open only
-* inherit_doc for verso and non-verso docs
-
 
 -/

@@ -104,7 +104,7 @@ def packageOfLEOfLT2 [LE α] [DecidableLE α] [LT α] (h : ∀ a b : α, a < b �
 
 namespace OrdTests
 
-section
+section WithoutSynthesizableInstances
 
 #guard_msgs(error, drop warning) in
 opaque _root_.X.instOrd : Ord X := sorry
@@ -124,6 +124,14 @@ def packageWithoutSynthesizableInstances : LinearOrderPackage X := .ofOrd X {
     letI := X.instOrd
     exact X.instLawfulEqOrd.eq_of_compare }
 
-end
+end WithoutSynthesizableInstances
+
+section WithSynthesizableInstances
+
+attribute [scoped instance] X.instOrd X.instTransOrd X.instLawfulEqOrd
+
+def packageWithSynthesizableInstances : LinearOrderPackage X := .ofOrd X
+
+end WithSynthesizableInstances
 
 end OrdTests

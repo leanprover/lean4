@@ -708,7 +708,7 @@ public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
       ∀ a b : α, compare a b = .eq → a = b := by
     extract_lets
     first
-    | exact LawfulEqOrd.eq_of_compare
+    | exact fun _ _ => LawfulEqOrd.eq_of_compare
     | fail "Failed to derive a `LawfulEqOrd` instance. \
             Please make sure that it can be synthesized or \
             manually provide the field `eq_of_compare`."

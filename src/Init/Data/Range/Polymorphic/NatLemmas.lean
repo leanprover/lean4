@@ -25,4 +25,16 @@ theorem toList_Rco_succ_succ {m n : Nat} :
 theorem ClosedOpen.toList_succ_succ {m n : Nat} :
     ((m+1)...(n+1)).toList = (m...n).toList.map (· + 1) := toList_Rco_succ_succ
 
+@[simp]
+theorem Nat.size_Rco {a b : Nat} :
+    (a...b).size = b - a := by
+  simp [Std.PRange.size, Std.Iterators.Iter.size, Std.Iterators.IteratorSize.size,
+    Std.PRange.Internal.iter, Std.Iterators.Iter.toIterM, Std.PRange.RangeSize.size]
+
+@[simp]
+theorem Nat.size_Rcc {a b : Nat} :
+    (a...=b).size = b + 1- a := by
+  simp [Std.PRange.size, Std.Iterators.Iter.size, Std.Iterators.IteratorSize.size,
+    Std.PRange.Internal.iter, Std.Iterators.Iter.toIterM, Std.PRange.RangeSize.size]
+
 end Std.PRange.Nat

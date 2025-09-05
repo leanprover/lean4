@@ -109,7 +109,7 @@ end
 def pretty (j : Json) (lineWidth := 80) : String :=
   Format.pretty (render j) lineWidth
 
-inductive CompressWorkItemKind where
+private inductive CompressWorkItemKind where
   | json
   | arrayElem
   | arrayEnd
@@ -117,45 +117,45 @@ inductive CompressWorkItemKind where
   | objectEnd
   | comma
 
-structure CompressWorkItemQueue where
+private structure CompressWorkItemQueue where
   kinds           : Array CompressWorkItemKind
   values          : Array Json
   objectFieldKeys : Array String
 
 @[inline]
-def CompressWorkItemQueue.pushKind (q : CompressWorkItemQueue) (kind : CompressWorkItemKind) :
+private def CompressWorkItemQueue.pushKind (q : CompressWorkItemQueue) (kind : CompressWorkItemKind) :
     CompressWorkItemQueue := {
   q with kinds := q.kinds.push kind
 }
 
 @[inline]
-def CompressWorkItemQueue.pushValue (q : CompressWorkItemQueue) (value : Json) :
+private def CompressWorkItemQueue.pushValue (q : CompressWorkItemQueue) (value : Json) :
     CompressWorkItemQueue := {
   q with values := q.values.push value
 }
 
 @[inline]
-def CompressWorkItemQueue.pushObjectFieldKey (q : CompressWorkItemQueue) (objectFieldKey : String) :
+private def CompressWorkItemQueue.pushObjectFieldKey (q : CompressWorkItemQueue) (objectFieldKey : String) :
     CompressWorkItemQueue := {
   q with objectFieldKeys := q.objectFieldKeys.push objectFieldKey
 }
 
 @[inline]
-def CompressWorkItemQueue.popKind (q : CompressWorkItemQueue) (h : q.kinds.size ≠ 0) :
+private def CompressWorkItemQueue.popKind (q : CompressWorkItemQueue) (h : q.kinds.size ≠ 0) :
     CompressWorkItemKind × CompressWorkItemQueue :=
   let kind := q.kinds[q.kinds.size - 1]
   let q := { q with kinds := q.kinds.pop }
   (kind, q)
 
 @[inline]
-def CompressWorkItemQueue.popValue! (q : CompressWorkItemQueue) :
+private def CompressWorkItemQueue.popValue! (q : CompressWorkItemQueue) :
     Json × CompressWorkItemQueue :=
   let value := q.values[q.values.size - 1]!
   let q := { q with values := q.values.pop }
   (value, q)
 
 @[inline]
-def CompressWorkItemQueue.popObjectFieldKey! (q : CompressWorkItemQueue) :
+private def CompressWorkItemQueue.popObjectFieldKey! (q : CompressWorkItemQueue) :
     String × CompressWorkItemQueue :=
   let objectFieldKey := q.objectFieldKeys[q.objectFieldKeys.size - 1]!
   let q := { q with objectFieldKeys := q.objectFieldKeys.pop }

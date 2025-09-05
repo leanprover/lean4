@@ -74,7 +74,7 @@ works with `Monad`.
 
 This function is not tail-recursive, so it may fail with a stack overflow on long lists.
 -/
-@[specialize]
+@[specialize, expose]
 def mapA {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
   | []    => pure []
   | a::as => List.cons <$> f a <*> mapA f as
@@ -98,7 +98,7 @@ If `m` is also a `Monad`, then using `List.forM` can be more efficient.
 
 `List.mapA` is a variant that collects results.
 -/
-@[specialize]
+@[specialize, expose]
 def forA {m : Type u → Type v} [Applicative m] {α : Type w} (as : List α) (f : α → m PUnit) : m PUnit :=
   match as with
   | []      => pure ⟨⟩
@@ -119,7 +119,7 @@ def zipWithM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type x} {γ :
     | _, _, acc => pure acc.toList
   loop as bs #[]
 
-@[specialize]
+@[specialize, expose]
 def filterAuxM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) : List α → List α → m (List α)
   | [],     acc => pure acc
   | h :: t, acc => do
@@ -288,7 +288,7 @@ Examples:
  * `[[], [], []].firstM List.head? = none`
  * `[].firstM List.head? = none`
 -/
-@[specialize]
+@[specialize, expose]
 def firstM {m : Type u → Type v} [Alternative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m β
   | []    => failure
   | a::as => f a <|> firstM f as
@@ -299,7 +299,7 @@ Returns true if the monadic predicate `p` returns `true` for any element of `l`.
 `O(|l|)`. Short-circuits upon encountering the first `true`. The elements in `l` are examined in
 order from left to right.
 -/
-@[specialize]
+@[specialize, expose]
 def anyM {m : Type → Type u} [Monad m] {α : Type v} (p : α → m Bool) : (l : List α) → m Bool
   | []    => pure false
   | a::as => do
@@ -313,7 +313,7 @@ Returns true if the monadic predicate `p` returns `true` for every element of `l
 `O(|l|)`. Short-circuits upon encountering the first `false`. The elements in `l` are examined in
 order from left to right.
 -/
-@[specialize]
+@[specialize, expose]
 def allM {m : Type → Type u} [Monad m] {α : Type v} (p : α → m Bool) : (l : List α) → m Bool
   | []    => pure true
   | a::as => do
@@ -344,7 +344,7 @@ Almost! 5
 some 1
 ```
 -/
-@[specialize]
+@[specialize, expose]
 def findM? {m : Type → Type u} [Monad m] {α : Type} (p : α → m Bool) : List α → m (Option α)
   | []    => pure none
   | a::as => do
@@ -397,7 +397,7 @@ Almost! 5
 some 10
 ```
 -/
-@[specialize]
+@[specialize, expose]
 def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (Option β)) : List α → m (Option β)
   | []    => pure none
   | a::as => do

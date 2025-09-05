@@ -13,13 +13,16 @@ public section
 
 namespace Std.PRange.Nat
 
-theorem succ_eq {n : Nat} : UpwardEnumerable.succ n = n + 1 :=
+theorem succ_eq {n : Nat} : succ n = n + 1 :=
   rfl
 
-theorem ClosedOpen.toList_succ_succ  {m n : Nat} :
-    ((m+1)...(n+1)).toList =
-      (m...n).toList.map (· + 1) := by
+theorem toList_Rco_succ_succ {m n : Nat} :
+    ((m+1)...(n+1)).toList = (m...n).toList.map (· + 1) := by
   simp only [← succ_eq]
-  rw [Std.PRange.ClosedOpen.toList_succ_succ_eq_map]
+  rw [Std.PRange.toList_Rco_succ_succ_eq_map]
+
+@[deprecated toList_Rco_succ_succ (since := "2025-08-22")]
+theorem ClosedOpen.toList_succ_succ {m n : Nat} :
+    ((m+1)...(n+1)).toList = (m...n).toList.map (· + 1) := toList_Rco_succ_succ
 
 end Std.PRange.Nat

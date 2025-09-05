@@ -311,6 +311,7 @@ Attributes are great!
 Examples:
  * {attr}`grind`
  * {attr}`@[grind ←, simp]`
+ * {attr}`init`
 -/
 def somethingElse := ()
 

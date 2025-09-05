@@ -308,6 +308,20 @@ def attr (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
 
     try
       let stx ← parseStrLit attrParser.fn s
+      if stx.getKind == ``Lean.Parser.Attr.simple then
+        let attrName := stx[0].getId.eraseMacroScopes
+        unless isAttribute (← getEnv) attrName do
+          let nameStr := attrName.toString
+          let threshold := max 2 (nameStr.length / 3)
+          let attrs := getAttributeNames (← getEnv) |>.toArray |>.filterMap fun x =>
+            let x := x.toString
+            levenshtein x nameStr threshold |>.map (x, ·)
+          let attrs := attrs.qsort (fun (_, i) (_, j) => i < j) |>.map (·.1)
+          let hint ←
+            if attrs.isEmpty then pure m!""
+            else m!"Use a known attribute:".hint attrs (ref? := s)
+          logErrorAt stx m!"Unknown attribute `{attrName}`{hint}"
+
       return .other {name := ``Data.Attribute, val := .mk <| Data.Attribute.mk stx} #[
         .code s.getString
       ]

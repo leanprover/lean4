@@ -902,7 +902,7 @@ theorem getKey?_eq_some_iff' [BEq α] [EquivBEq α] {l : List ((a : α) × β a)
   · simp [h, getKey?_eq_some_getKey]
   · simp only [h]
     simp only [containsKey_eq_isSome_getKey?, Bool.not_eq_true, Option.isSome_eq_false_iff,
-    Option.isNone_iff_eq_none] at h
+      Option.isNone_iff_eq_none] at h
     simp [h]
 
 theorem getKey_beq [BEq α] {l : List ((a : α) × β a)} {a : α} (h : containsKey a l) :

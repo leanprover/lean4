@@ -114,7 +114,7 @@ LEAN_EXPORT lean_object* l_Lake_reprHash____x40_Lake_Build_Trace_3490929866____h
 static lean_object* l_Lake_reprBuildTrace___redArg___closed__7____x40_Lake_Build_Trace_1381697074____hygCtx___hyg_45_;
 LEAN_EXPORT lean_object* l_Lake_reprHash___redArg____x40_Lake_Build_Trace_3490929866____hygCtx___hyg_13_(uint64_t);
 LEAN_EXPORT lean_object* l_Lake_ComputeHash_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_computeArrayHash___boxed__const__1;
+LEAN_EXPORT lean_object* l_Lake_computeArrayHash___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_checkAgainstTime(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_instHashable;
 LEAN_EXPORT lean_object* l_Lake_getFileMTime___boxed(lean_object*, lean_object*);
@@ -123,7 +123,7 @@ lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprHash;
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_checkAgainstTime___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MTime_instNilTrace;
-static lean_object* l_Lake_computeArrayHash___redArg___boxed__const__1;
+LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg___boxed__const__1;
 static lean_object* l_Lake_reprHash___redArg___closed__4____x40_Lake_Build_Trace_3490929866____hygCtx___hyg_13_;
 static lean_object* l_Lake_reprBuildTrace___redArg___closed__8____x40_Lake_Build_Trace_1381697074____hygCtx___hyg_45_;
 static lean_object* l_Lake_reprBuildTrace___redArg___closed__3____x40_Lake_Build_Trace_1381697074____hygCtx___hyg_45_;

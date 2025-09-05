@@ -17,6 +17,7 @@ public import Init.Data.OfScientific
 public import Init.Data.Option.Coe
 public import Init.Data.Range
 import Init.Data.SInt.Basic
+import Init.Data.String.Basic
 
 public section
 

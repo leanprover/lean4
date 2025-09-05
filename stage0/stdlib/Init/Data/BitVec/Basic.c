@@ -199,7 +199,7 @@ LEAN_EXPORT lean_object* l_BitVec_rotateLeft___boxed(lean_object*, lean_object*,
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_rotateLeftAux___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_BitVec_toHex___boxed__const__1;
+LEAN_EXPORT lean_object* l_BitVec_toHex___boxed__const__1;
 LEAN_EXPORT lean_object* l_BitVec_instDiv(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_intMin(lean_object*);
 LEAN_EXPORT uint8_t l_BitVec_getMsb(lean_object*, lean_object*, lean_object*);

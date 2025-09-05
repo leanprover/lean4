@@ -8,21 +8,15 @@ module
 prelude
 public import Init.Data.List.Basic
 public import Init.Data.Char.Basic
+public import Init.Data.String.Bootstrap
 
 public section
 
 universe u
 
-/--
-Creates a string that contains the characters in a list, in order.
-
-Examples:
- * `['L', '∃', '∀', 'N'].asString = "L∃∀N"`
- * `[].asString = ""`
- * `['a', 'a', 'a'].asString = "aaa"`
--/
-def List.asString (s : List Char) : String :=
-  ⟨s⟩
+@[export lean_list_asstring]
+def List.Internal.asString' (s : List Char) : String :=
+  List.asString s
 
 namespace String
 
@@ -31,6 +25,10 @@ instance : HAdd String.Pos String.Pos String.Pos where
 
 instance : HSub String.Pos String.Pos String.Pos where
   hSub p₁ p₂ := { byteIdx :=  p₁.byteIdx - p₂.byteIdx }
+
+@[export lean_string_pos_sub]
+def Pos.sub : String.Pos → String.Pos → String.Pos :=
+  (· - ·)
 
 instance : HAdd String.Pos Char String.Pos where
   hAdd p c := { byteIdx := p.byteIdx + c.utf8Size }
@@ -52,9 +50,6 @@ instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
 
 instance : Min String.Pos := minOfLe
 instance : Max String.Pos := maxOfLe
-
-instance : OfNat String.Pos (nat_lit 0) where
-  ofNat := {}
 
 instance : LT String :=
   ⟨fun s₁ s₂ => s₁.data < s₂.data⟩
@@ -89,20 +84,6 @@ Examples:
 @[extern "lean_string_length", expose]
 def length : (@& String) → Nat
   | ⟨s⟩ => s.length
-
-/--
-Adds a character to the end of a string.
-
-The internal implementation uses dynamic arrays and will perform destructive updates
-if the string is not shared.
-
-Examples:
-* `"abc".push 'd' = "abcd"`
-* `"".push 'a' = "a"`
--/
-@[extern "lean_string_push", expose]
-def push : String → Char → String
-  | ⟨s⟩, c => ⟨s ++ [c]⟩
 
 /--
 Appends two strings. Usually accessed via the `++` operator.
@@ -305,6 +286,10 @@ Examples:
 @[inline] def front (s : String) : Char :=
   get s 0
 
+@[export lean_string_front]
+def Internal.front' (s : String) : Char :=
+  String.front s
+
 /--
 Returns the last character in `s`. If `s = ""`, returns `(default : Char)`.
 
@@ -430,6 +415,10 @@ Examples:
 @[inline] def posOf (s : String) (c : Char) : Pos :=
   posOfAux s c s.endPos 0
 
+@[export lean_string_posof]
+def Internal.posOf' (s : String) (c : Char) : Pos :=
+  String.posOf s c
+
 def revPosOfAux (s : String) (c : Char) (pos : Pos) : Option Pos :=
   if h : pos = 0 then none
   else
@@ -499,6 +488,10 @@ Returns either `p₁` or `p₂`, whichever has the least byte index.
 -/
 abbrev Pos.min (p₁ p₂ : Pos) : Pos :=
   { byteIdx := p₁.byteIdx.min p₂.byteIdx }
+
+@[export lean_string_pos_min]
+def Pos.Internal.min' (p₁ p₂ : Pos) : Pos :=
+  Pos.min p₁ p₂
 
 /--
 Returns the first position where the two strings differ.
@@ -660,6 +653,10 @@ Examples:
 @[inline] def pushn (s : String) (c : Char) (n : Nat) : String :=
   n.repeat (fun s => s.push c) s
 
+@[export lean_string_pushn]
+def Internal.pushn' (s : String) (c : Char) (n : Nat) : String :=
+  String.pushn s c n
+
 /--
 Checks whether a string is empty.
 
@@ -672,6 +669,10 @@ Examples:
 -/
 @[inline] def isEmpty (s : String) : Bool :=
   s.endPos == 0
+
+@[export lean_string_isempty]
+def Internal.isEmpty' (s : String) : Bool :=
+  String.isEmpty s
 
 /--
 Appends all the strings in a list of strings, in order.
@@ -687,20 +688,6 @@ Examples:
   l.foldl (fun r s => r ++ s) ""
 
 /--
-Returns a new string that contains only the character `c`.
-
-Because strings are encoded in UTF-8, the resulting string may take multiple bytes.
-
-Examples:
- * `String.singleton 'L' = "L"`
- * `String.singleton ' ' = " "`
- * `String.singleton '"' = "\""`
- * `String.singleton '𝒫' = "𝒫"`
--/
-@[inline,expose] def singleton (c : Char) : String :=
-  "".push c
-
-/--
 Appends the strings in a list of strings, placing the separator `s` between each pair.
 
 Examples:
@@ -714,6 +701,10 @@ def intercalate (s : String) : List String → String
 where go (acc : String) (s : String) : List String → String
   | a :: as => go (acc ++ s ++ a) s as
   | []      => acc
+
+@[export lean_string_intercalate]
+def Internal.intercalate' (s : String) : List String → String :=
+  String.intercalate s
 
 /--
 An iterator over the characters (Unicode code points) in a `String`. Typically created by
@@ -926,6 +917,10 @@ Examples:
 @[inline] def offsetOfPos (s : String) (pos : Pos) : Nat :=
   offsetOfPosAux s pos 0 0
 
+@[export lean_string_offsetofpos]
+def Internal.offsetOfPos' (s : String) (pos : Pos) : Nat :=
+  String.offsetOfPos s pos
+
 @[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos) (i : Pos) (a : α) : α :=
   if h : i < stopPos then
     have := Nat.sub_lt_sub_left h (lt_next s i)
@@ -944,6 +939,10 @@ Examples:
 -/
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
   foldlAux f s s.endPos 0 init
+
+@[export lean_string_foldl]
+def Internal.foldl' (f : String → Char → String) (init : String) (s : String) : String :=
+  String.foldl f init s
 
 @[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos) : α :=
   if h : begPos < i then
@@ -990,6 +989,10 @@ Examples:
 @[inline] def any (s : String) (p : Char → Bool) : Bool :=
   anyAux s s.endPos p 0
 
+@[export lean_string_any]
+def Internal.any' (s : String) (p : Char → Bool) :=
+  String.any s p
+
 /--
 Checks whether the Boolean predicate `p` returns `true` for every character in a string.
 
@@ -1012,7 +1015,11 @@ Examples:
 * `"".contains 'x' = false`
 -/
 @[inline] def contains (s : String) (c : Char) : Bool :=
-s.any (fun a => a == c)
+  s.any (fun a => a == c)
+
+@[export lean_string_contains]
+def Internal.contains' (s : String) (c : Char) : Bool :=
+  String.contains s c
 
 theorem utf8SetAux_of_gt (c' : Char) : ∀ (cs : List Char) {i p : Pos}, i > p → utf8SetAux c' cs i p = cs
   | [],    _, _, _ => rfl
@@ -1155,6 +1162,10 @@ Examples:
 def isPrefixOf (p : String) (s : String) : Bool :=
   substrEq p 0 s 0 p.endPos.byteIdx
 
+@[export lean_string_isprefixof]
+def Internal.isPrefix_of' (p : String) (s : String) : Bool :=
+  String.isPrefixOf p s
+
 /--
 In the string `s`, replaces all occurrences of `pattern` with `replacement`.
 
@@ -1204,11 +1215,19 @@ A substring is empty if its start and end positions are the same.
 @[inline] def isEmpty (ss : Substring) : Bool :=
   ss.bsize == 0
 
+@[export lean_substring_isempty]
+def Internal.isEmpty' (ss : Substring) : Bool :=
+  Substring.isEmpty ss
+
 /--
 Copies the region of the underlying string pointed to by a substring into a fresh string.
 -/
 @[inline] def toString : Substring → String
   | ⟨s, b, e⟩ => s.extract b e
+
+@[export lean_substring_tostring]
+def Internal.toString' : Substring → String :=
+  Substring.toString
 
 /--
 Returns an iterator into the underlying string, at the substring's starting position. The ending
@@ -1228,6 +1247,10 @@ returned.  Does not panic.
 -/
 @[inline] def get : Substring → String.Pos → Char
   | ⟨s, b, _⟩, p => s.get (b+p)
+
+@[export lean_substring_get]
+def Internal.get' : Substring → String.Pos → Char :=
+  Substring.get
 
 /--
 Returns the next position in a substring after the given position. If the position is at the end of
@@ -1262,6 +1285,10 @@ position, not the underlying string.
     let absP := b+p
     if absP = b then p else { byteIdx := (s.prev absP).byteIdx - b.byteIdx }
 
+@[export lean_substring_prev]
+def Internal.prev' : Substring → String.Pos → String.Pos :=
+  Substring.prev
+
 /--
 Returns the position that's the specified number of characters forward from the given position in a
 substring. If the end position of the substring is reached, it is returned.
@@ -1295,6 +1322,10 @@ returned.  Does not panic.
 @[inline] def front (s : Substring) : Char :=
   s.get 0
 
+@[export lean_substring_front]
+def Internal.front' : Substring → Char :=
+  Substring.front
+
 /--
 Returns the substring-relative position of the first occurrence of `c` in `s`, or `s.bsize` if `c`
 doesn't occur.
@@ -1311,6 +1342,10 @@ If the substring's end position is reached, the start position is not advanced p
 -/
 @[inline] def drop : Substring → Nat → Substring
   | ss@⟨s, b, e⟩, n => ⟨s, b + ss.nextn n 0, e⟩
+
+@[export lean_substring_drop]
+def Internal.drop' : Substring → Nat → Substring :=
+  Substring.drop
 
 /--
 Removes the specified number of characters (Unicode code points) from the end of a substring
@@ -1359,6 +1394,10 @@ positions adjusted.
 -/
 @[inline] def extract : Substring → String.Pos → String.Pos → Substring
   | ⟨s, b, e⟩, b', e' => if b' ≥ e' then ⟨"", 0, 0⟩ else ⟨s, e.min (b+b'), e.min (b+e')⟩
+
+@[export lean_substring_extract]
+def Internal.extract' : Substring → String.Pos → String.Pos → Substring :=
+  Substring.extract
 
 /--
 Splits a substring `s` on occurrences of the separator string `sep`. The default separator is `" "`.
@@ -1426,6 +1465,10 @@ Short-circuits at the first character for which `p` returns `false`.
 @[inline] def all (s : Substring) (p : Char → Bool) : Bool :=
   !s.any (fun c => !p c)
 
+@[export lean_substring_all]
+def Internal.all' (s : Substring) (p : Char → Bool) : Bool :=
+  Substring.all s p
+
 /--
 Checks whether a substring contains the specified character.
 -/
@@ -1449,6 +1492,10 @@ characters by moving the substring's end position towards its start position.
   | ⟨s, b, e⟩, p =>
     let e := takeWhileAux s e p b;
     ⟨s, b, e⟩
+
+@[export lean_substring_takewhile]
+def Internal.takeWhile' : Substring → (Char → Bool) → Substring :=
+  Substring.takeWhile
 
 /--
 Removes the longest prefix of a substring in which a Boolean predicate returns `true` for all
@@ -1567,6 +1614,10 @@ instead, they are equal if they contain the same sequence of characters.
 def beq (ss1 ss2 : Substring) : Bool :=
   ss1.bsize == ss2.bsize && ss1.str.substrEq ss1.startPos ss2.str ss2.startPos ss1.bsize
 
+@[export lean_substring_beq]
+def Internal.beq' (ss1 ss2 : Substring) : Bool :=
+  Substring.beq ss1 ss2
+
 instance hasBeq : BEq Substring := ⟨beq⟩
 
 /--
@@ -1664,6 +1715,10 @@ Examples:
 @[inline] def drop (s : String) (n : Nat) : String :=
   (s.toSubstring.drop n).toString
 
+@[export lean_string_drop]
+def Internal.drop' (s : String) (n : Nat) : String :=
+  String.drop s n
+
 /--
 Removes the specified number of characters (Unicode code points) from the end of the string.
 
@@ -1676,6 +1731,10 @@ Examples:
 -/
 @[inline] def dropRight (s : String) (n : Nat) : String :=
   (s.toSubstring.dropRight n).toString
+
+@[export lean_string_dropright]
+def Internal.dropRight' (s : String) (n : Nat) : String :=
+  String.dropRight s n
 
 /--
 Creates a new string that contains the first `n` characters (Unicode code points) of `s`.
@@ -1828,6 +1887,10 @@ Examples:
 @[inline] def trim (s : String) : String :=
   s.toSubstring.trim.toString
 
+@[export lean_string_trim]
+def Internal.trim' (s : String) : String :=
+  String.trim s
+
 /--
 Repeatedly increments a position in a string, as if by `String.next`, while the predicate `p`
 returns `true` for the character at the position. Stops incrementing at the end of the string or
@@ -1840,6 +1903,10 @@ Examples:
 -/
 @[inline] def nextWhile (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
   Substring.takeWhileAux s s.endPos p i
+
+@[export lean_string_nextwhile]
+def Internal.nextWhile' (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
+  String.nextWhile s p i
 
 /--
 Repeatedly increments a position in a string, as if by `String.next`, while the predicate `p`
@@ -1890,8 +1957,12 @@ Examples:
 * `"ORANGE".capitalize = "ORANGE"`
 * `"".capitalize = ""`
 -/
-@[inline] def capitalize (s : String) :=
+@[inline] def capitalize (s : String) : String :=
   s.set 0 <| s.get 0 |>.toUpper
+
+@[export lean_string_capitalize]
+def Internal.capitalize' (s : String) : String :=
+  String.capitalize s
 
 /--
 Replaces the first character in `s` with the result of applying `Char.toLower` to it. Returns the
@@ -1974,16 +2045,6 @@ def stripSuffix (s : String) (suff : String) : String :=
 end String
 
 namespace Char
-
-/--
-Constructs a singleton string that contains only the provided character.
-
-Examples:
- * `'L'.toString = "L"`
- * `'"'.toString = "\""`
--/
-@[inline, expose] protected def toString (c : Char) : String :=
-  String.singleton c
 
 @[simp] theorem length_toString (c : Char) : c.toString.length = 1 := rfl
 

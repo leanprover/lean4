@@ -46,7 +46,7 @@ lean_object* l_Lake_logToStream(lean_object*, lean_object*, uint8_t, uint8_t, le
 LEAN_EXPORT lean_object* l_Lake_invalidConfigEnvVar;
 lean_object* l_Lake_loadWorkspace(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_process_spawn(lean_object*, lean_object*);
-static lean_object* l_Lake_setupFile___boxed__const__2;
+LEAN_EXPORT lean_object* l_Lake_setupFile___boxed__const__2;
 lean_object* lean_get_stderr(lean_object*);
 lean_object* lean_mk_io_user_error(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_setupFile(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -61,7 +61,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_runFetchM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-static lean_object* l_Lake_setupFile___boxed__const__1;
+LEAN_EXPORT lean_object* l_Lake_setupFile___boxed__const__1;
 static lean_object* l_Lake_serve___closed__2;
 LEAN_EXPORT lean_object* l_IO_print___at___IO_println___at___Lake_setupFile_spec__0_spec__0(lean_object*, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);

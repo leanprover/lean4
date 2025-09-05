@@ -71,6 +71,7 @@ static lean_object* l_Lean_ParserCompiler_parserNodeKind_x3f___closed__7;
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_ParserCompiler_compileParserExpr_spec__3_spec__3_spec__3_spec__3_spec__3___closed__5;
 static lean_object* l_Lean_ParserCompiler_compileParserExpr___redArg___closed__7;
 lean_object* l_Lean_Attribute_add(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_replaceParserTy___redArg___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_registerParserCompiler___redArg___lam__0___closed__0;
 static lean_object* l_Lean_ParserCompiler_compileParserExpr___redArg___closed__3;
@@ -147,7 +148,6 @@ lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_ParserCompiler_compileParserExpr_spec__3_spec__3_spec__3_spec__3_spec__3___closed__18;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_ParserCompiler_parserNodeKind_x3f_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_registerParserCompiler(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux___redArg(uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaLetTelescope___at___Lean_ParserCompiler_parserNodeKind_x3f_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_ParserCompiler_compileParserExpr_spec__3_spec__3_spec__3_spec__3_spec__3___closed__0;
@@ -819,7 +819,7 @@ x_9 = lean_alloc_closure((void*)(l_Lean_Meta_lambdaLetTelescope___at___Lean_Pars
 lean_closure_set(x_9, 0, x_2);
 x_10 = 0;
 x_11 = lean_box(0);
-x_12 = l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux___redArg(x_10, x_11, x_1, x_9, x_3, x_10, x_4, x_5, x_6, x_7, x_8);
+x_12 = l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux(lean_box(0), x_10, x_11, x_1, x_9, x_3, x_10, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_12) == 0)
 {
 uint8_t x_13; 

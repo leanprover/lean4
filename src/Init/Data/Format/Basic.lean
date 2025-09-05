@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Control.State
 public import Init.Data.Int.Basic
-public import Init.Data.String.Basic
+public import Init.Data.String.Bootstrap
 
 public section
 
@@ -168,8 +168,8 @@ private def spaceUptoLine : Format → Bool → Int → Nat → SpaceResult
     else
       { foundLine := true }
   | text s,       flatten, _, _ =>
-    let p := s.posOf '\n'
-    let off := s.offsetOfPos p
+    let p := String.Internal.posOf s '\n'
+    let off := String.Internal.offsetOfPos s p
     { foundLine := p != s.endPos, foundFlattenedHardLine := flatten && p != s.endPos, space := off }
   | append f₁ f₂, flatten, m, w => merge w (spaceUptoLine f₁ flatten m w) (spaceUptoLine f₂ flatten m)
   | nest n f,     flatten, m, w => spaceUptoLine f flatten (m - n) w
@@ -263,15 +263,15 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
     | append f₁ f₂ => be w (gs' ({ i with f := f₁, activeTags := 0 }::{ i with f := f₂ }::is))
     | nest n f => be w (gs' ({ i with f, indent := i.indent + n }::is))
     | text s =>
-      let p := s.posOf '\n'
+      let p := String.Internal.posOf s '\n'
       if p == s.endPos then
         pushOutput s
         endTags i.activeTags
         be w (gs' is)
       else
-        pushOutput (s.extract {} p)
+        pushOutput (String.Internal.extract s {} p)
         pushNewline i.indent.toNat
-        let is := { i with f := text (s.extract (s.next p) s.endPos) }::is
+        let is := { i with f := text (String.Internal.extract s (String.Internal.next s p) s.endPos) }::is
         -- after a hard line break, re-evaluate whether to flatten the remaining group
         -- note that we shouldn't start flattening after a hard break outside a group
         if g.fla == .disallow then
@@ -298,7 +298,7 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
           pushGroup FlattenBehavior.fill is gs w >>= be w
         -- if preceding fill item fit in a single line, try to fit next one too
         if g.fla.shouldFlatten then
-          let gs'@(g'::_) ← pushGroup FlattenBehavior.fill is gs (w - " ".length)
+          let gs'@(g'::_) ← pushGroup FlattenBehavior.fill is gs (w - String.Internal.length " ")
             | panic "unreachable"
           if g'.fla.shouldFlatten then
             pushOutput " "
@@ -316,7 +316,7 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
       else
         let k ← currColumn
         if k < i.indent then
-          pushOutput ("".pushn ' ' (i.indent - k).toNat)
+          pushOutput (String.Internal.pushn "" ' ' (i.indent - k).toNat)
           endTags i.activeTags
           be w (gs' is)
         else
@@ -350,7 +350,7 @@ Creates a format `l ++ f ++ r` with a flattening group, nesting the contents by 
 The group's `FlattenBehavior` is `allOrNone`; for `fill` use `Std.Format.bracketFill`.
 -/
 @[inline] def bracket (l : String) (f : Format) (r : String) : Format :=
-  group (nest l.length $ l ++ f ++ r)
+  group (nest (String.Internal.length l) $ l ++ f ++ r)
 
 /--
 Creates the format `"(" ++ f ++ ")"` with a flattening group, nesting by one space.
@@ -372,7 +372,7 @@ Creates a format `l ++ f ++ r` with a flattening group, nesting the contents by 
 The group's `FlattenBehavior` is `fill`; for `allOrNone` use `Std.Format.bracketFill`.
 -/
 @[inline] def bracketFill (l : String) (f : Format) (r : String) : Format :=
-  fill (nest l.length $ l ++ f ++ r)
+  fill (nest (String.Internal.length l) $ l ++ f ++ r)
 
 /-- The default indentation level, which is two spaces. -/
 def defIndent  := 2
@@ -397,8 +397,8 @@ private structure State where
 
 private instance : MonadPrettyFormat (StateM State) where
   -- We avoid a structure instance update, and write these functions using pattern matching because of issue #316
-  pushOutput s       := modify fun ⟨out, col⟩ => ⟨out ++ s, col + s.length⟩
-  pushNewline indent := modify fun ⟨out, _⟩ => ⟨out ++ "\n".pushn ' ' indent, indent⟩
+  pushOutput s       := modify fun ⟨out, col⟩ => ⟨String.Internal.append out s, col + (String.Internal.length s)⟩
+  pushNewline indent := modify fun ⟨out, _⟩ => ⟨String.Internal.append out (String.Internal.pushn "\n" ' ' indent), indent⟩
   currColumn         := return (← get).column
   startTag _         := return ()
   endTags _          := return ()

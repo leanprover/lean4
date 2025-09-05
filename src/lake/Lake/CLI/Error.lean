@@ -9,6 +9,7 @@ prelude
 public import Init.Data.ToString
 public import Init.System.FilePath
 import Init.Meta
+import Init.Data.ToString.Name
 
 open Lean (Name)
 

@@ -175,22 +175,6 @@ LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe___redArg___boxed(lean_object*
 LEAN_EXPORT lean_object* l_FloatArray_instEmptyCollection;
 LEAN_EXPORT lean_object* l_FloatArray_uget___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_mk___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_float_array_mk(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_FloatArray_data___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_float_array_data(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_FloatArray_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -205,6 +189,22 @@ _start:
 lean_object* x_2; 
 x_2 = l_FloatArray_ctorIdx(x_1);
 lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_FloatArray_mk___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_float_array_mk(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_FloatArray_data___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_float_array_data(x_1);
 return x_2;
 }
 }

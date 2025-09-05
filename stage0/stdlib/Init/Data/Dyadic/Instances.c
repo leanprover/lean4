@@ -22,7 +22,7 @@ lean_object* l_Dyadic_neg(lean_object*);
 lean_object* l_Dyadic_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Instances_0__Dyadic_instCommRing___lam__0(lean_object*, lean_object*);
 lean_object* l_Dyadic_instNatCast___lam__0(lean_object*);
-static lean_object* l___private_Init_Data_Dyadic_Instances_0__Dyadic_instCommRing;
+LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Instances_0__Dyadic_instCommRing;
 lean_object* l_Dyadic_mul___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Dyadic_Instances_0__Dyadic_instCommRing___closed__3;
 static lean_object* l___private_Init_Data_Dyadic_Instances_0__Dyadic_instCommRing___closed__2;

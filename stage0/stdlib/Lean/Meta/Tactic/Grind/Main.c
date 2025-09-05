@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Main
-// Imports: Init.Grind.Lemmas Lean.Meta.Tactic.Util Lean.Meta.Tactic.ExposeNames Lean.Meta.Tactic.Simp.Diagnostics Lean.Meta.Tactic.Grind.Split Lean.Meta.Tactic.Grind.RevertAll Lean.Meta.Tactic.Grind.PropagatorAttr Lean.Meta.Tactic.Grind.Proj Lean.Meta.Tactic.Grind.ForallProp Lean.Meta.Tactic.Grind.Util Lean.Meta.Tactic.Grind.Inv Lean.Meta.Tactic.Grind.Intro Lean.Meta.Tactic.Grind.EMatch Lean.Meta.Tactic.Grind.Solve Lean.Meta.Tactic.Grind.SimpUtil Lean.Meta.Tactic.Grind.Cases Lean.Meta.Tactic.Grind.LawfulEqCmp Lean.Meta.Tactic.Grind.ReflCmp
+// Imports: Lean.Meta.Tactic.Util Lean.Meta.Tactic.Grind.Types Init.Grind.Lemmas Lean.Meta.Tactic.ExposeNames Lean.Meta.Tactic.Simp.Diagnostics Lean.Meta.Tactic.Grind.Split Lean.Meta.Tactic.Grind.RevertAll Lean.Meta.Tactic.Grind.PropagatorAttr Lean.Meta.Tactic.Grind.Proj Lean.Meta.Tactic.Grind.ForallProp Lean.Meta.Tactic.Grind.Util Lean.Meta.Tactic.Grind.Inv Lean.Meta.Tactic.Grind.Intro Lean.Meta.Tactic.Grind.EMatch Lean.Meta.Tactic.Grind.Solve Lean.Meta.Tactic.Grind.SimpUtil Lean.Meta.Tactic.Grind.Cases Lean.Meta.Tactic.Grind.LawfulEqCmp Lean.Meta.Tactic.Grind.ReflCmp Lean.Meta.Tactic.Grind.PP
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13760,8 +13760,9 @@ x_15 = l_Lean_Meta_Grind_main___lam__0(x_13, x_2, x_3, x_14, x_5, x_6, x_7, x_8,
 return x_15;
 }
 }
-lean_object* initialize_Init_Grind_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Util(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_ExposeNames(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_Diagnostics(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Split(uint8_t builtin, lean_object*);
@@ -13778,15 +13779,19 @@ lean_object* initialize_Lean_Meta_Tactic_Grind_SimpUtil(uint8_t builtin, lean_ob
 lean_object* initialize_Lean_Meta_Tactic_Grind_Cases(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_LawfulEqCmp(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_ReflCmp(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_PP(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Main(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Util(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Util(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Grind_Types(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_ExposeNames(builtin, lean_io_mk_world());
@@ -13835,6 +13840,9 @@ res = initialize_Lean_Meta_Tactic_Grind_LawfulEqCmp(builtin, lean_io_mk_world())
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_ReflCmp(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_PP(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_mkParams___closed__0 = _init_l_Lean_Meta_Grind_mkParams___closed__0();

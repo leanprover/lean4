@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Lookahead
-// Imports: Lean.Meta.Tactic.Grind.Types Lean.Meta.Tactic.Grind.Intro Lean.Meta.Tactic.Grind.Arith Lean.Meta.Tactic.Grind.Split Lean.Meta.Tactic.Grind.EMatch Lean.Meta.Tactic.Grind.SearchM
+// Imports: Lean.Meta.Tactic.Grind.Types Lean.Meta.Tactic.Grind.Intro Lean.Meta.Tactic.Grind.Split Lean.Meta.Tactic.Grind.EMatch Lean.Meta.Tactic.Grind.SearchM Lean.Meta.Tactic.Grind.Check
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -49,7 +49,6 @@ lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Lookahead_0__Lean_Meta_Grind_solve___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Meta_Grind_lookahead_spec__0___redArg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at_____private_Lean_Meta_Tactic_Grind_Lookahead_0__Lean_Meta_Grind_solve_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_Arith_check(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at_____private_Lean_Meta_Tactic_Grind_Lookahead_0__Lean_Meta_Grind_solve_spec__1___redArg___closed__1;
 lean_object* l_Array_empty(lean_object*);
@@ -107,6 +106,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Lookahead_0__Lean_Meta_Gr
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_ematch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at_____private_Lean_Meta_Tactic_Grind_Lookahead_0__Lean_Meta_Grind_solve_spec__1___redArg___closed__2;
+lean_object* l_Lean_Meta_Grind_check(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at_____private_Lean_Meta_Tactic_Grind_Lookahead_0__Lean_Meta_Grind_solve_spec__1___redArg___closed__5;
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -285,7 +285,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18;
 x_16 = lean_ctor_get(x_14, 0);
 x_17 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
-x_18 = l_Lean_Meta_Grind_Arith_check(x_16, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_17);
+x_18 = l_Lean_Meta_Grind_check(x_16, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_17);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
@@ -356,7 +356,7 @@ lean_inc(x_32);
 lean_inc(x_31);
 lean_dec(x_14);
 lean_inc(x_31);
-x_33 = l_Lean_Meta_Grind_Arith_check(x_31, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_32);
+x_33 = l_Lean_Meta_Grind_check(x_31, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_32);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
@@ -9975,10 +9975,10 @@ return x_17;
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Intro(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Arith(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Split(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_EMatch(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_SearchM(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Check(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Lookahead(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -9990,9 +9990,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Intro(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Arith(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Split(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -10000,6 +9997,9 @@ res = initialize_Lean_Meta_Tactic_Grind_EMatch(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_SearchM(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_Check(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_throwMaxRecDepthAt___at_____private_Lean_Meta_Tactic_Grind_Lookahead_0__Lean_Meta_Grind_solve_spec__1___redArg___closed__0 = _init_l_Lean_throwMaxRecDepthAt___at_____private_Lean_Meta_Tactic_Grind_Lookahead_0__Lean_Meta_Grind_solve_spec__1___redArg___closed__0();

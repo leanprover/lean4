@@ -10,6 +10,7 @@ public import Init.Data.Char.Order
 public import Init.Data.Char.Lemmas
 public import Init.Data.List.Lex
 import Init.Data.Order.Lemmas
+public import Init.Data.String.Basic
 
 public section
 

@@ -36,7 +36,7 @@ lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_obj
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
 LEAN_EXPORT size_t l_Lean_Expr_ReplaceLevelImpl_cacheSize;
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-static lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr;
+LEAN_EXPORT lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr;
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3;
 size_t lean_usize_mod(size_t, size_t);
 lean_object* lean_usize_to_nat(size_t);

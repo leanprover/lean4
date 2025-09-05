@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Linear.Proof
-// Imports: Lean.Meta.Tactic.Grind.Arith.Linear.Util Lean.Meta.Tactic.Grind.Arith.Util Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr Lean.Meta.Tactic.Grind.VarRename Lean.Meta.Tactic.Grind.Diseq Lean.Meta.Tactic.Grind.ProofUtil Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr Lean.Meta.Tactic.Grind.Arith.Linear.VarRename Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
+// Imports: Lean.Meta.Tactic.Grind.Arith.Linear.Util Lean.Data.RArray Lean.Meta.Tactic.Grind.Arith.Util Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr Lean.Meta.Tactic.Grind.VarRename Lean.Meta.Tactic.Grind.Diseq Lean.Meta.Tactic.Grind.ProofUtil Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr Lean.Meta.Tactic.Grind.Arith.Linear.VarRename Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -46,7 +46,7 @@ uint8_t l_Lean_Grind_CommRing_beqExpr____x40_Init_Grind_Ring_Poly_3091913453____
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_IneqCnstr_toExprProof___closed__7;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Proof_0__Lean_Meta_Grind_Arith_Linear_mkCommRingThmPrefix___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Proof_0__Lean_Meta_Grind_Arith_Linear_termDeclare_x21____;
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Proof_0__Lean_Meta_Grind_Arith_Linear_termDeclare_x21____;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_Grind_mkLetOfMap___at_____private_Lean_Meta_Tactic_Grind_Arith_Linear_Proof_0__Lean_Meta_Grind_Arith_Linear_mkRingContext_spec__6_spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_UnsatProof_toExprProofCore___closed__0;
 lean_object* l_Lean_Grind_Linarith_Poly_renameVars(lean_object*, lean_object*);
@@ -26172,6 +26172,7 @@ return x_4;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Linear_Util(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_RArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Util(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Linear_ToExpr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Linear_DenoteExpr(uint8_t builtin, lean_object*);
@@ -26188,6 +26189,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Linear_Util(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_RArray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Util(builtin, lean_io_mk_world());

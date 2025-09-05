@@ -328,7 +328,7 @@ static lean_object* l_Lean_Widget_elabWidgetInstanceSpecAux___closed__10;
 static lean_object* l_Lean_Widget_initFn___lam__1___closed__2____x40_Lean_Widget_UserWidget_138048982____hygCtx___hyg_2_;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 static lean_object* l_Lean_Widget_widgetInstanceSpec___closed__0;
-static lean_object* l_Lean_Widget_elabShowPanelWidgetsCmd___boxed__const__1;
+LEAN_EXPORT lean_object* l_Lean_Widget_elabShowPanelWidgetsCmd___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lean_Widget_addPanelWidgetLocal___at___Lean_Widget_elabShowPanelWidgetsCmd_spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Widget_elabShowPanelWidgetsCmd_spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

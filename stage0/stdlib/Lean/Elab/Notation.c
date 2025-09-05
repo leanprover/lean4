@@ -98,7 +98,7 @@ LEAN_EXPORT lean_object* l_liftExcept___at___Lean_Elab_liftMacroM___at___Lean_El
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Elab_Notation_0__Lean_Elab_Command_antiquote_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandNotationItemIntoSyntaxItem___closed__11;
-static lean_object* l_Lean_Elab_Command_elabNotation___boxed__const__1;
+LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabNotation___boxed__const__1;
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_mkUnexpander___closed__4;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);

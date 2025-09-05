@@ -149,6 +149,7 @@ LEAN_EXPORT lean_object* l_instInhabitedRat;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Rat_zpow(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Rat_instMin___lam__0(lean_object*, lean_object*);
 static lean_object* l_Rat_term___x2f_x2e_____closed__1;
 static lean_object* l_hashRat___closed__0____x40_Init_Data_Rat_Basic_3597219815____hygCtx___hyg_52_;
 static lean_object* l_Rat_den__nz___autoParam___closed__20;
@@ -159,6 +160,7 @@ static lean_object* l_instInhabitedRat___closed__0;
 static lean_object* l_Rat_den__nz___autoParam___closed__10;
 static lean_object* l_Rat_den__nz___autoParam___closed__3;
 LEAN_EXPORT lean_object* l_instReprRat;
+LEAN_EXPORT lean_object* l_Rat_instMax___lam__0(lean_object*, lean_object*);
 static lean_object* l_Rat_term___x2f_x2e_____closed__5;
 LEAN_EXPORT uint8_t l_instDecidableEqRat(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
@@ -182,6 +184,7 @@ lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Rat_floor(lean_object*);
 static lean_object* l_Rat_instAdd___closed__0;
 LEAN_EXPORT lean_object* l_Rat_instDiv;
+LEAN_EXPORT lean_object* l_Rat_instMax;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Rat_den__nz___autoParam___closed__5;
 static lean_object* l_Rat___aux__Init__Data__Rat__Basic______macroRules__Rat__term___x2f_x2e____1___closed__9;
@@ -194,6 +197,7 @@ LEAN_EXPORT lean_object* l_Rat_instNeg;
 static lean_object* l_Rat_term___x2f_x2e_____closed__6;
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Rat_Basic_277644297____hygCtx___hyg_6_;
 LEAN_EXPORT lean_object* l_instReprRat___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Rat_instMin;
 LEAN_EXPORT lean_object* l_Rat_neg(lean_object*);
 static lean_object* l_Rat_den__nz___autoParam___closed__22;
 LEAN_EXPORT uint64_t l_hashRat____x40_Init_Data_Rat_Basic_3597219815____hygCtx___hyg_52_(lean_object*);
@@ -1953,6 +1957,60 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Rat_instMin___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
+x_3 = l_Rat_instDecidableLe(x_1, x_2);
+if (x_3 == 0)
+{
+lean_dec_ref(x_1);
+return x_2;
+}
+else
+{
+lean_dec_ref(x_2);
+return x_1;
+}
+}
+}
+static lean_object* _init_l_Rat_instMin() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Rat_instMin___lam__0), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Rat_instMax___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
+x_3 = l_Rat_instDecidableLe(x_1, x_2);
+if (x_3 == 0)
+{
+lean_dec_ref(x_2);
+return x_1;
+}
+else
+{
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+}
+static lean_object* _init_l_Rat_instMax() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Rat_instMax___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Rat_mul(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2989,6 +3047,10 @@ l_Rat_instLT = _init_l_Rat_instLT();
 lean_mark_persistent(l_Rat_instLT);
 l_Rat_instLE = _init_l_Rat_instLE();
 lean_mark_persistent(l_Rat_instLE);
+l_Rat_instMin = _init_l_Rat_instMin();
+lean_mark_persistent(l_Rat_instMin);
+l_Rat_instMax = _init_l_Rat_instMax();
+lean_mark_persistent(l_Rat_instMax);
 l_Rat_instMul___closed__0 = _init_l_Rat_instMul___closed__0();
 lean_mark_persistent(l_Rat_instMul___closed__0);
 l_Rat_instMul = _init_l_Rat_instMul();

@@ -83,7 +83,7 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVLogicalExpr_bitblast(lean_objec
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-static lean_object* l_Std_Sat_AIG_empty___at___Std_Tactic_BVDecide_BVLogicalExpr_bitblast_spec__0;
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_empty___at___Std_Tactic_BVDecide_BVLogicalExpr_bitblast_spec__0;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkOrCached___at___Std_Tactic_BVDecide_BVLogicalExpr_bitblast_go_spec__14(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___Std_Sat_AIG_mkGateCached_go___at___Std_Sat_AIG_mkGateCached___at___Std_Tactic_BVDecide_BVLogicalExpr_bitblast_go_spec__0_spec__0_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);

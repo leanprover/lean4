@@ -41,7 +41,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lake_Package
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lake_Build_Package_0__Lake_Package_recFetchDeps_spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint64_t l___private_Lake_Build_Package_0__Lake_Package_fetchBuildArchive___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Package_optBarrelFacetConfig;
-static lean_object* l_Lake_OrdHashSet_empty___at_____private_Lake_Build_Package_0__Lake_Package_recComputeTransDeps_spec__9;
+LEAN_EXPORT lean_object* l_Lake_OrdHashSet_empty___at_____private_Lake_Build_Package_0__Lake_Package_recComputeTransDeps_spec__9;
 LEAN_EXPORT lean_object* l_Lake_Job_mapM___at___Lake_Package_afterBuildCacheSync_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdout___at___IO_FS_withIsolatedStreams___at___Lake_Job_mapM___at_____private_Lake_Build_Package_0__Lake_Package_maybeFetchBuildCacheWithWarning_spec__0_spec__0_spec__0___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at___Lake_Job_mapM___at_____private_Lake_Build_Package_0__Lake_Package_maybeFetchBuildCacheWithWarning_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

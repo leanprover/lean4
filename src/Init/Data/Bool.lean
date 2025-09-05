@@ -10,7 +10,6 @@ public import Init.NotationExtra
 
 public section
 
-
 namespace Bool
 
 /--

@@ -154,7 +154,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isIntType___closed__0;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__4;
-static uint8_t l___private_Lean_Meta_Tactic_Grind_Arith_Util_0__Lean_Meta_Grind_Arith_________intModuleMarker________;
+LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Arith_Util_0__Lean_Meta_Grind_Arith_________intModuleMarker________;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_split___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_getIntModuleVirtualParent___closed__3;
 static lean_object* l_Lean_Meta_Grind_Arith_isNatNum_x3f___closed__4;

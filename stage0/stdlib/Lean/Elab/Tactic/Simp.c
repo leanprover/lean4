@@ -402,7 +402,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 static lean_object* l_Lean_Elab_Tactic_evalUnsafe___redArg___closed__0____x40_Lean_Elab_Tactic_Simp_787730192____hygCtx___hyg_3_;
 LEAN_EXPORT lean_object* l_Lean_mkFreshId___at_____private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_elabSimpArg_spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabSimpConfigCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Tactic_elabSimpArgs___lam__1___boxed__const__1;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabSimpArgs___lam__1___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lean_mkFreshId___at_____private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_elabSimpArg_spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_mkSimpContext___lam__0___closed__0;
 static lean_object* l_Lean_Elab_Tactic_tacticToDischarge___redArg___closed__1;

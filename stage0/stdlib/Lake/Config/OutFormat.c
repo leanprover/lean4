@@ -114,7 +114,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lake_OutFormat_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_instQueryText(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instFormatQueryOfQueryTextOfQueryJson(lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_OutFormat_0__Lake_instQueryTextModuleHeader;
+LEAN_EXPORT lean_object* l___private_Lake_Config_OutFormat_0__Lake_instQueryTextModuleHeader;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instQueryJson(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTextList___redArg___lam__1(lean_object*, lean_object*);

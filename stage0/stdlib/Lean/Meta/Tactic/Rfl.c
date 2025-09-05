@@ -129,7 +129,6 @@ static lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHas
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Meta_Tactic_Rfl_0__Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl_914023288____hygCtx___hyg_2__spec__0_spec__0_spec__0_spec__0_spec__0___closed__7;
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
-lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_applyRfl___lam__1___closed__7;
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Meta_Tactic_Rfl_0__Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl_914023288____hygCtx___hyg_2__spec__0_spec__0_spec__0___redArg___closed__2;
 static lean_object* l_panic___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl_341261159____hygCtx___hyg_2__spec__0_spec__13___closed__0;
@@ -171,6 +170,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Rfl_0__Lean_Meta_Rfl_initF
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_MVarId_applyRfl_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_goalsToMessageData(lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_MVarId_applyRfl_spec__3_spec__3_spec__3___redArg___closed__0;
+lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Meta_Tactic_Rfl_0__Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl_914023288____hygCtx___hyg_2__spec__0_spec__0_spec__0_spec__0_spec__0___closed__14;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl_341261159____hygCtx___hyg_2__spec__0_spec__3_spec__3_spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Rfl_0__Lean_Meta_Rfl_initFn___closed__3____x40_Lean_Meta_Tactic_Rfl_914023288____hygCtx___hyg_2_;
@@ -1268,7 +1268,7 @@ lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean
 lean_dec(x_11);
 lean_dec(x_8);
 x_35 = lean_nat_add(x_1, x_10);
-x_36 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___redArg(x_2, x_3, x_35);
+x_36 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes(lean_box(0), x_2, x_3, x_35);
 lean_dec(x_35);
 x_37 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_37, 0, x_4);
@@ -1298,7 +1298,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_add(x_1, x_6);
-x_8 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___redArg(x_2, x_3, x_7);
+x_8 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes(lean_box(0), x_2, x_3, x_7);
 lean_dec(x_7);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_4);
@@ -1685,7 +1685,7 @@ if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = lean_unsigned_to_nat(1u);
-x_10 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___redArg(x_2, x_3, x_9);
+x_10 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes(lean_box(0), x_2, x_3, x_9);
 lean_inc(x_7);
 x_11 = l_Lean_PersistentHashMap_insert___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl_341261159____hygCtx___hyg_2__spec__0_spec__3___redArg(x_1, x_7, x_10);
 return x_11;

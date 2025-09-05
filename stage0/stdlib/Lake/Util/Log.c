@@ -338,7 +338,7 @@ LEAN_EXPORT lean_object* l_Lake_instAlternativeELogTOfMonad___redArg(lean_object
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLog___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_fromJsonLogLevel___lam__1___closed__0____x40_Lake_Util_Log_328358094____hygCtx___hyg_50_;
-static lean_object* l___private_Lake_Util_Log_0__Lake_instToStringLogLevel;
+LEAN_EXPORT lean_object* l___private_Lake_Util_Log_0__Lake_instToStringLogLevel;
 LEAN_EXPORT uint8_t l_Lake_instDecidableRelPosLt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OutStream_ctorIdx(lean_object*);
 static lean_object* l_Lake_reprLogLevel___closed__2____x40_Lake_Util_Log_328358094____hygCtx___hyg_14_;

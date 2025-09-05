@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Control.Except
 public import Init.Data.ToString
+import Init.Data.String.Basic
 
 namespace Lake
 

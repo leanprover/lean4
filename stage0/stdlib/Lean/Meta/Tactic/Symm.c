@@ -132,7 +132,6 @@ static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownId
 static lean_object* l___private_Lean_Meta_Tactic_Symm_0__Lean_Meta_Symm_initFn___lam__1___closed__0____x40_Lean_Meta_Tactic_Symm_3447505512____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Meta_Tactic_Symm_0__Lean_Meta_Symm_initFn___regBuiltin___private_Lean_Meta_Tactic_Symm_0__Lean_Meta_Symm_initFn_docString__1___closed__11____x40_Lean_Meta_Tactic_Symm_3447505512____hygCtx___hyg_2_;
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
-lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm_2114135118____hygCtx___hyg_2__spec__0_spec__8___closed__0;
 static lean_object* l___private_Lean_Meta_Tactic_Symm_0__Lean_Meta_Symm_initFn___lam__0___closed__0____x40_Lean_Meta_Tactic_Symm_3447505512____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_Expr_getSymmLems(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -175,6 +174,7 @@ LEAN_EXPORT lean_object* l_Array_binInsertM___at_____private_Lean_Meta_DiscrTree
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm_2114135118____hygCtx___hyg_2__spec__0_spec__3_spec__3_spec__3_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binInsertM___at_____private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm_2114135118____hygCtx___hyg_2__spec__0_spec__8_spec__10___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Meta_Tactic_Symm_0__Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm_3447505512____hygCtx___hyg_2__spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at_____private_Lean_Meta_Tactic_Symm_0__Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm_3447505512____hygCtx___hyg_2__spec__8___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_getLocalHyps___at___Lean_MVarId_symmSaturate_spec__0_spec__0_spec__0_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_applySymm___closed__3;
@@ -1247,7 +1247,7 @@ lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean
 lean_dec(x_11);
 lean_dec(x_8);
 x_35 = lean_nat_add(x_1, x_10);
-x_36 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___redArg(x_2, x_3, x_35);
+x_36 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes(lean_box(0), x_2, x_3, x_35);
 lean_dec(x_35);
 x_37 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_37, 0, x_4);
@@ -1277,7 +1277,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_add(x_1, x_6);
-x_8 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___redArg(x_2, x_3, x_7);
+x_8 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes(lean_box(0), x_2, x_3, x_7);
 lean_dec(x_7);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_4);
@@ -1664,7 +1664,7 @@ if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = lean_unsigned_to_nat(1u);
-x_10 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___redArg(x_2, x_3, x_9);
+x_10 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes(lean_box(0), x_2, x_3, x_9);
 lean_inc(x_7);
 x_11 = l_Lean_PersistentHashMap_insert___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm_2114135118____hygCtx___hyg_2__spec__0_spec__3___redArg(x_1, x_7, x_10);
 return x_11;

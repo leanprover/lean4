@@ -31,7 +31,7 @@ static uint8_t l_System_FilePath_pathSeparator___closed__0;
 LEAN_EXPORT uint8_t l_System_FilePath_isAbsolute(lean_object*);
 lean_object* l_String_quote(lean_object*);
 LEAN_EXPORT lean_object* l_System_instReprFilePath;
-static lean_object* l_System_FilePath_pathSeparators___closed__1___boxed__const__1;
+LEAN_EXPORT lean_object* l_System_FilePath_pathSeparators___closed__1___boxed__const__1;
 LEAN_EXPORT lean_object* l_System_SearchPath_parse(lean_object*);
 LEAN_EXPORT lean_object* l_System_hashFilePath____x40_Init_System_FilePath_3398306____hygCtx___hyg_32____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_extension(lean_object*);
@@ -87,7 +87,7 @@ LEAN_EXPORT lean_object* l_System_FilePath_withFileName___boxed(lean_object*, le
 static uint8_t l_System_FilePath_normalize___closed__1;
 static lean_object* l_System_FilePath_fileName___closed__0;
 LEAN_EXPORT lean_object* l_System_FilePath_withFileName(lean_object*, lean_object*);
-static lean_object* l_System_FilePath_pathSeparators___closed__0___boxed__const__1;
+LEAN_EXPORT lean_object* l_System_FilePath_pathSeparators___closed__0___boxed__const__1;
 lean_object* l_String_revPosOfAux(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_instHDivString___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l_System_FilePath_pathSeparator;

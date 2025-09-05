@@ -269,7 +269,6 @@ static lean_object* l_Option_repr___at___Lean_reprStructureFieldInfo____x40_Lean
 LEAN_EXPORT lean_object* l_Lean_mergeStructureResolutionOrders___redArg___lam__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___Lean_getStructureLikeCtor_x3f_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getAllParentStructures___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_StructureResolutionOrderConflict_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Structure_0__Lean_mergeStructureResolutionOrders_selectParent___redArg___lam__6___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerStructure___closed__0;
@@ -278,6 +277,7 @@ LEAN_EXPORT lean_object* l_Lean_mergeStructureResolutionOrders___redArg___lam__1
 static lean_object* l_Lean_mkFlatCtorOfStructCtorName___closed__0;
 LEAN_EXPORT lean_object* l_Lean_setStructureParents(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_StructureInfo_getProjFn_x3f___boxed(lean_object*, lean_object*);
+lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_defaultStructureResolutionOrderResult____x40_Lean_Structure_117141585____hygCtx___hyg_30_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_getStructureInfo_x3f_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8391,7 +8391,7 @@ lean_ctor_set(x_19, 1, x_15);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(x_6, x_14, x_20);
+x_21 = l___private_Init_While_0__Lean_Loop_forIn_loop(lean_box(0), lean_box(0), x_6, x_14, x_20);
 x_22 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_21, x_8);
 return x_22;
 }

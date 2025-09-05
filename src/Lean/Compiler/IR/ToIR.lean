@@ -160,9 +160,6 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     let env ← Lean.getEnv
     match env.find? name with
     | some (.ctorInfo ctorVal) =>
-      if isExtern env name then
-        return (← mkFap name irArgs)
-
       let type ← nameToIRType ctorVal.induct
       if type.isScalar then
         let var ← bindVar decl.fvarId

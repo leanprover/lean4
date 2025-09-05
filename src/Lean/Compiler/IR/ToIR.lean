@@ -153,8 +153,8 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       lowerCode k
   | .const name _ args =>
     let irArgs ← args.mapM lowerArg
-    if let some code ← tryIrDecl? name irArgs then
-      return code
+    if let some decl ← LCNF.getMonoDecl? name then
+      return (← mkApplication name decl.params.size irArgs)
     let env ← Lean.getEnv
     match env.find? name with
     | some (.ctorInfo ctorVal) =>
@@ -252,12 +252,6 @@ where
       mkFap name args
     else
       mkOverApplication name numParams args
-
-  tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
-    if let some decl ← LCNF.getMonoDecl? name then
-      return some (← mkApplication name decl.params.size args)
-    else
-      return none
 
 partial def lowerAlt (discr : VarId) (a : LCNF.Alt) : M Alt := do
   match a with

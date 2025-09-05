@@ -304,7 +304,6 @@ LEAN_EXPORT lean_object* l_List_mapTR_loop___at_____private_Lean_Language_Lean_0
 LEAN_EXPORT lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_process_doElab___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_process_processHeader___lam__1___closed__18;
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_____private_Lean_Language_Lean_0__Lean_Language_Lean_process_doElab_spec__9___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Language_defaultSnapshotTask___redArg____x40_Lean_Language_Basic_2659715760____hygCtx___hyg_64_(lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_logErrorAt___at___Lean_Elab_logException___at___Lean_Elab_withLogging___at_____private_Lean_Language_Lean_0__Lean_Language_Lean_process_doElab_spec__2_spec__2_spec__2_spec__2_spec__2___redArg___closed__4;
 static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___redArg___closed__4;
 lean_object* l_Lean_PersistentArray_get_x21___redArg(lean_object*, lean_object*, lean_object*);
@@ -323,6 +322,7 @@ static lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lea
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean_1425344694____hygCtx___hyg_4_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_LeanProcessingContext_ctorIdx(lean_object*);
 static lean_object* l_Lean_Language_Lean_initFn___closed__1____x40_Lean_Language_Lean_1425344694____hygCtx___hyg_4_;
+lean_object* l_Lean_Language_defaultSnapshotTask___redArg____x40_Lean_Language_Basic_2659715760____hygCtx___hyg_65_(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_process_parseHeader___lam__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_process_parseCmd___lam__7___boxed(lean_object**);
@@ -10393,7 +10393,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Language_instInhabitedDynamicSnapshot;
-x_2 = l_Lean_Language_defaultSnapshotTask___redArg____x40_Lean_Language_Basic_2659715760____hygCtx___hyg_64_(x_1);
+x_2 = l_Lean_Language_defaultSnapshotTask___redArg____x40_Lean_Language_Basic_2659715760____hygCtx___hyg_65_(x_1);
 return x_2;
 }
 }
@@ -10410,7 +10410,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Language_Lean_0__Lean_Language_Lean_process_parseCmd___closed__1;
-x_2 = l_Lean_Language_defaultSnapshotTask___redArg____x40_Lean_Language_Basic_2659715760____hygCtx___hyg_64_(x_1);
+x_2 = l_Lean_Language_defaultSnapshotTask___redArg____x40_Lean_Language_Basic_2659715760____hygCtx___hyg_65_(x_1);
 return x_2;
 }
 }
@@ -11746,7 +11746,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_pr
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Lean_Language_defaultSnapshotTask___redArg____x40_Lean_Language_Basic_2659715760____hygCtx___hyg_64_(x_1);
+x_3 = l_Lean_Language_defaultSnapshotTask___redArg____x40_Lean_Language_Basic_2659715760____hygCtx___hyg_65_(x_1);
 x_4 = lean_box(0);
 x_5 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_5, 0, x_2);
@@ -12372,7 +12372,7 @@ lean_ctor_set(x_383, 1, x_367);
 lean_ctor_set(x_383, 2, x_376);
 lean_ctor_set(x_383, 3, x_382);
 lean_ctor_set_uint8(x_383, sizeof(void*)*4, x_369);
-x_384 = l_Lean_Language_defaultSnapshotTask___redArg____x40_Lean_Language_Basic_2659715760____hygCtx___hyg_64_(x_10);
+x_384 = l_Lean_Language_defaultSnapshotTask___redArg____x40_Lean_Language_Basic_2659715760____hygCtx___hyg_65_(x_10);
 x_385 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_385, 0, x_383);
 lean_ctor_set(x_385, 1, x_384);
@@ -12480,7 +12480,7 @@ lean_ctor_set(x_402, 1, x_386);
 lean_ctor_set(x_402, 2, x_395);
 lean_ctor_set(x_402, 3, x_401);
 lean_ctor_set_uint8(x_402, sizeof(void*)*4, x_388);
-x_403 = l_Lean_Language_defaultSnapshotTask___redArg____x40_Lean_Language_Basic_2659715760____hygCtx___hyg_64_(x_10);
+x_403 = l_Lean_Language_defaultSnapshotTask___redArg____x40_Lean_Language_Basic_2659715760____hygCtx___hyg_65_(x_10);
 x_404 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_404, 0, x_402);
 lean_ctor_set(x_404, 1, x_403);
@@ -14952,7 +14952,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_pr
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = l_Lean_Language_defaultSnapshotTask___redArg____x40_Lean_Language_Basic_2659715760____hygCtx___hyg_64_(x_1);
+x_4 = l_Lean_Language_defaultSnapshotTask___redArg____x40_Lean_Language_Basic_2659715760____hygCtx___hyg_65_(x_1);
 x_5 = lean_box(0);
 x_6 = lean_box(0);
 x_7 = lean_alloc_ctor(0, 5, 0);

@@ -42,12 +42,6 @@ def c (s : StrLit) : DocM (Block ElabInline ElabBlock) := pure (Block.code (s.ge
 def d (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
   .concat <$> s.reverse.mapM elabBlock
 
-set_option trace.Elab.info true
-/-- Hello world -/
-def foo (x : Nat) : Nat := x
-set_option trace.Elab.info false
-
-#check foo
 
 /--
 A resolved name. The internal thing is a {name}`Name`.
@@ -188,7 +182,7 @@ Unknown identifier `A`
 ```
 
 ```lean +error (name := blah)
-def blah : Nat := "glah"
+def blah2 : Nat := "glah"
 ```
 ```output blah
 Type mismatch

@@ -575,6 +575,8 @@ structure CodeSuggestion where
   role : Name
   /-- The arguments it should receive, as a string. -/
   args : Option String := none
+  /-- More information to show users -/
+  moreInfo : Option String := none
 
 builtin_initialize registerBuiltinAttribute {
   name := `doc_code_suggestions
@@ -866,11 +868,14 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
         unless suggestions.isEmpty do
           let text ← getFileMap
           let str := text.source.extract b e
-          let ss : Array String ←  suggestions.mapM fun {role, args} => do
-            pure <|
-              "{" ++ (← unresolveNameGlobalAvoidingLocals role).toString ++
-              (args.map (" " ++ ·)).getD "" ++ "}" ++ str
-          let ss : Array Meta.Hint.Suggestion := ss.qsort.map (fun s : String => {suggestion := s})
+          let ss : Array Meta.Hint.Suggestion ← suggestions.mapM fun {role, args, moreInfo} => do
+            pure {
+              suggestion :=
+                "{" ++ (← unresolveNameGlobalAvoidingLocals role).toString ++
+                (args.map (" " ++ ·)).getD "" ++ "}" ++ str,
+              postInfo? := moreInfo.map withSpace
+            }
+          let ss : Array Meta.Hint.Suggestion := sortSuggestions ss
           let hint ← m!"Insert a role to document it:".hint ss (ref? := some stx)
           logWarning m!"Code element could be marked up.{hint}"
     return .code s.getString
@@ -894,6 +899,18 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
     throwErrorAt name "No expander for `{name}`"
   | other =>
     throwErrorAt other "Unsupported syntax {other}"
+
+where
+  withSpace (s : String) : String :=
+    if s.startsWith " " then s else " " ++ s
+
+  sortSuggestions (ss : Array Meta.Hint.Suggestion) : Array Meta.Hint.Suggestion :=
+    let cmp : (x y : Meta.Tactic.TryThis.SuggestionText) → Bool
+      | .string s1, .string s2 => s1 < s2
+      | .string _, _ => true
+      | .tsyntax _, .string _ => false
+      | .tsyntax s1, .tsyntax s2 => toString s1.raw < toString s2.raw
+    ss.qsort (cmp ·.suggestion ·.suggestion)
 
 /--
 Elaborates the syntax of an block-level document element to an actual block-level document element.

@@ -837,11 +837,11 @@ def suggestName (code : StrLit) : DocM (Array CodeSuggestion) := do
   let stx ← parseStrLit identFn code
   try
     discard <| realizeGlobalConstNoOverload stx
-    return #[.mk ``name none]
+    return #[.mk ``name none none]
   catch
     | _ =>
     if let some (_, []) := (← resolveLocalName stx.getId) then
-      return #[.mk ``name none]
+      return #[.mk ``name none none]
   return #[]
 
 /--
@@ -853,7 +853,7 @@ def suggestLean (code : StrLit) : DocM (Array CodeSuggestion) := do
   try
     let stx ← parseStrLit p code
     discard <| withoutErrToSorry <| elabTerm stx none
-    return #[.mk ``lean none]
+    return #[.mk ``lean none none]
   catch | _ => return #[]
 
 /--
@@ -865,12 +865,12 @@ def suggestTactic (code : StrLit) : DocM (Array CodeSuggestion) := do
   let asName := asString.toName
   let allTactics ← Tactic.Doc.allTacticDocs
   let found := allTactics.filter fun tac => tac.userName == asString || tac.internalName == asName
-  if found.size = 1 then return #[.mk ``tactic none]
+  if found.size = 1 then return #[.mk ``tactic none none]
   else
     let p := whitespace >> categoryParserFn `tactic
     try
       discard <| parseStrLit p code
-      return #[.mk ``tactic none]
+      return #[.mk ``tactic none none]
     catch | _ => return #[]
 
 open Lean.Parser.Term in
@@ -883,12 +883,12 @@ def suggestAttr (code : StrLit) : DocM (Array CodeSuggestion) := do
     let stx ← parseStrLit attributes.fn code
     let `(attributes|@[$_attrs,*]) := stx
       | return #[]
-    return #[.mk ``attr none]
+    return #[.mk ``attr none none]
   catch
     | _ => pure ()
   try
     discard <| parseStrLit attrParser.fn code
-    return #[.mk ``attr none]
+    return #[.mk ``attr none none]
   catch
     | _ => pure ()
   return #[]
@@ -901,14 +901,14 @@ Suggests the `option` role, if applicable.
 def suggestOption (code : StrLit) : DocM (Array CodeSuggestion) := do
   try
     discard <| parseStrLit Command.«set_option».fn code
-    return #[CodeSuggestion.mk ``option none]
+    return #[CodeSuggestion.mk ``option none none]
   catch
   | _ =>
     try
       let stx ← parseStrLit rawIdentFn code
       let name := stx.getId.eraseMacroScopes
       discard <| getOptionDecl name
-      return #[CodeSuggestion.mk ``option none]
+      return #[CodeSuggestion.mk ``option none none]
     catch
     | _ =>
       return #[]
@@ -929,7 +929,7 @@ def suggestKw (code : StrLit) : DocM (Array CodeSuggestion) := do
     candidates := candidates ++ (which.map (catName, ·))
 
   candidates.mapM fun (cat, of) => do
-    return .mk ``kw (some s!"(cat := {cat}) (of := {of})")
+    return .mk ``kw (some s!"(of := {of})") (some s!"(in `{cat}`)")
 
 /--
 Suggests the `syntaxCat` role, if applicable.
@@ -939,7 +939,7 @@ def suggestCat (code : StrLit) : DocM (Array CodeSuggestion) := do
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env
   if parsers.categories.contains code.getString.toName then
-    return #[.mk ``syntaxCat none]
+    return #[.mk ``syntaxCat none none]
   else
     return #[]
 
@@ -960,4 +960,4 @@ def suggestSyntax (code : StrLit) : DocM (Array CodeSuggestion) := do
     catch | _ => pure ()
 
   candidates.mapM fun cat => do
-    return .mk ``«syntax» (some s!"{cat}")
+    return .mk ``«syntax» (some s!"{cat}") none

@@ -244,16 +244,18 @@ where
     return .vdecl tmpVar .object (.fap name firstArgs) <|
            .vdecl var type (.ap tmpVar restArgs) (← lowerCode k)
 
+  mkApplication (name : Name) (numParams : Nat) (args : Array Arg) : M FnBody := do
+    let numArgs := args.size
+    if numArgs < numParams then
+      mkPap name args
+    else if numArgs == numParams then
+      mkFap name args
+    else
+      mkOverApplication name numParams args
+
   tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
     if let some decl ← LCNF.getMonoDecl? name then
-      let numArgs := args.size
-      let numParams := decl.params.size
-      if numArgs < numParams then
-        return some (← mkPap name args)
-      else if numArgs == numParams then
-        return some (← mkFap name args)
-      else
-        return some (← mkOverApplication name numParams args)
+      return some (← mkApplication name decl.params.size args)
     else
       return none
 

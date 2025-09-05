@@ -89,53 +89,53 @@ Each type must at least implement the instance `IntModule`.
 For being able to process inequalities, it must at least implement `Preorder`, and `OrderedAdd`
 -/
 structure Struct where
-  id               : Nat
+  id                 : Nat
   /-- If the structure is a ring, we store its id in the `CommRing` module at `ringId?` -/
-  ringId?          : Option Nat
-  type             : Expr
+  ringId?            : Option Nat
+  type               : Expr
   /-- Cached `getDecLevel type` -/
-  u                : Level
+  u                  : Level
   /-- `IntModule` instance -/
-  intModuleInst    : Expr
+  intModuleInst      : Expr
   /-- `LE` instance if available -/
-  leInst?          : Option Expr
+  leInst?            : Option Expr
   /-- `LT` instance if available -/
-  ltInst?          : Option Expr
+  ltInst?            : Option Expr
   /-- `LawfulOrderLT` instance if available -/
-  lawfulOrderLTInst?    : Option Expr
+  lawfulOrderLTInst? : Option Expr
   /-- `IsPreorder` instance if available -/
   isPreorderInst?    : Option Expr
   /-- `OrderedAdd` instance with `IsPreorder` if available -/
-  orderedAddInst?       : Option Expr
+  orderedAddInst?    : Option Expr
   /-- `IsPartialOrder` instance if available -/
   isPartialInst?     : Option Expr
   /-- `IsLinearOrder` instance if available -/
   isLinearInst?      : Option Expr
   /-- `NoNatZeroDivisors` -/
-  noNatDivInst?    : Option Expr
+  noNatDivInst?      : Option Expr
   /-- `Ring` instance -/
-  ringInst?        : Option Expr
+  ringInst?          : Option Expr
   /-- `CommRing` instance -/
-  commRingInst?    : Option Expr
+  commRingInst?      : Option Expr
   /-- `OrderedRing` instance with `Preorder` -/
   orderedRingInst?   : Option Expr
   /-- `Field` instance -/
-  fieldInst?       : Option Expr
+  fieldInst?         : Option Expr
   /-- `IsCharP` instance for `type` if available. -/
-  charInst?        : Option (Expr × Nat)
-  zero             : Expr
-  ofNatZero        : Expr
-  one?             : Option Expr
-  leFn?            : Option Expr
-  ltFn?            : Option Expr
-  addFn            : Expr
-  zsmulFn          : Expr
-  nsmulFn          : Expr
-  zsmulFn?         : Option Expr
-  nsmulFn?         : Option Expr
-  homomulFn?       : Option Expr -- homogeneous multiplication if structure is a ring
-  subFn            : Expr
-  negFn            : Expr
+  charInst?          : Option (Expr × Nat)
+  zero               : Expr
+  ofNatZero          : Expr
+  one?               : Option Expr
+  leFn?              : Option Expr
+  ltFn?              : Option Expr
+  addFn              : Expr
+  zsmulFn            : Expr
+  nsmulFn            : Expr
+  zsmulFn?           : Option Expr
+  nsmulFn?           : Option Expr
+  homomulFn?         : Option Expr -- homogeneous multiplication if structure is a ring
+  subFn              : Expr
+  negFn              : Expr
   /--
   Mapping from variables to their denotations.
   Remark each variable can be in only one ring.
@@ -203,6 +203,31 @@ structure Struct where
   ignored : PArray Expr := {}
   deriving Inhabited
 
+structure NatStruct where
+  id                  : Nat
+  /-- Id for `OfNatModule.Q` -/
+  structId            : Nat
+  type                : Expr
+  /-- Cached `getDecLevel type` -/
+  u                   : Level
+  /-- `NatModule` instance for `type` -/
+  natModuleInst       : Expr
+  /-- `LE` instance if available -/
+  leInst?             : Option Expr
+  /-- `LT` instance if available -/
+  ltInst?             : Option Expr
+  /-- `LawfulOrderLT` instance if available -/
+  lawfulOrderLTInst?  : Option Expr
+  /-- `IsPreorder` instance if available -/
+  isPreorderInst?     : Option Expr
+  /-- `OrderedAdd` instance with `IsPreorder` if available -/
+  orderedAddInst?     : Option Expr
+  addRightCancelInst? : Option Expr
+  zero                : Expr
+  toQFn               : Expr
+  addFn               : Expr
+  smulFn              : Expr
+
 /-- State for all `IntModule` types detected by `grind`. -/
 structure State where
   /--
@@ -216,6 +241,14 @@ structure State where
   typeIdOf : PHashMap ExprPtr (Option Nat) := {}
   /- Mapping from expressions/terms to their structure ids. -/
   exprToStructId : PHashMap ExprPtr Nat := {}
+  /-- `NatModule`. We support them using the envelope `OfNatModule.Q` -/
+  natStructs : Array NatStruct := {}
+  /--
+  Mapping from types to its "nat module id". We cache failures using `none`.
+  `natTypeIdOf[type]` is `some id`, then `id < natStructs.size`.
+  If a type is in this map, it is not in `typeIdOf`.
+  -/
+  natTypeIdOf : PHashMap ExprPtr (Option Nat) := {}
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Linear

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Ordered.Module
 public import Lean.Meta.Tactic.Grind.Simp
@@ -15,9 +14,8 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 import Lean.Meta.Tactic.Grind.Arith.Insts
-
+import Init.Grind.Module.Envelope
 public section
-
 namespace Lean.Meta.Grind.Arith.Linear
 
 private def preprocess (e : Expr) : GoalM Expr := do
@@ -297,6 +295,50 @@ where
           -- Create `1` variable, and assert `0 ≠ 1`
           let x ← mkVar one (mark := false)
           addZeroNeOne x
+    return some id
+
+private def mkNatModuleInst? (u : Level) (type : Expr) : GoalM (Option Expr) := do
+  synthInstance? <| mkApp (mkConst ``Grind.NatModule [u]) type
+
+def getNatStructId? (type : Expr) : GoalM (Option Nat) := do
+  unless (← getConfig).linarith do return none
+  if (← isCutsatType type) then return none
+  if let some id? := (← get').natTypeIdOf.find? { expr := type } then
+    return id?
+  else
+    let id? ← go?
+    modify' fun s => { s with natTypeIdOf := s.natTypeIdOf.insert { expr := type } id? }
+    return id?
+where
+  go? : GoalM (Option Nat) := do
+    let u ← getDecLevel type
+    let some natModuleInst ← mkNatModuleInst? u type | return none
+    let q ← shareCommon (← canon (mkApp2 (mkConst ``Grind.IntModule.OfNatModule.Q [u]) type natModuleInst))
+    let some structId ← getStructId? q
+      | throwError "`grind` unexpected failure, failure to initialize auxiliary `IntModule`{indentExpr q}"
+    let leInst? ← getInst? ``LE u type
+    let ltInst? ← getInst? ``LT u type
+    let isPreorderInst? ← mkIsPreorderInst? u type leInst?
+    let lawfulOrderLTInst? ← mkLawfulOrderLTInst? u type ltInst? leInst?
+    let addInst ← getBinHomoInst ``HAdd u type
+    let addFn ← internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type addInst
+    let orderedAddInst? ← match leInst?, isPreorderInst? with
+      | some leInst, some isPreorderInst =>
+        synthInstance? <| mkApp4 (mkConst ``Grind.OrderedAdd [u]) type addInst leInst isPreorderInst
+      | _, _ => pure none
+    let addRightCancelInst? ← synthInstance? <| mkApp2 (mkConst ``Grind.AddRightCancel [u]) type addInst
+    let toQFn ← internalizeFn <| mkApp2 (mkConst ``Grind.IntModule.OfNatModule.toQ [u]) type natModuleInst
+    let zeroInst ← getInst ``Zero u type
+    let zero ← internalizeConst <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
+    let smulInst ← getHSMulNatInst u type
+    let smulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type type smulInst
+    let id := (← get').natStructs.size
+    let natStruct : NatStruct := {
+      id, structId, u, type, natModuleInst,
+      leInst?, ltInst?, lawfulOrderLTInst?, isPreorderInst?, orderedAddInst?, addRightCancelInst?,
+      zero, toQFn, addFn, smulFn
+    }
+    modify' fun s => { s with natStructs := s.natStructs.push natStruct }
     return some id
 
 end Lean.Meta.Grind.Arith.Linear

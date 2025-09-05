@@ -265,9 +265,9 @@ instance : BEq LocalInstance where
 instance : Hashable LocalInstance where
   hash i := hash i.val
 
-/-- Remove local instance with the given `fvarId`. Do nothing if `localInsts` does not contain any free variable with id `fvarId`. -/
+/-- Remove local instances coming from the given `fvarId`. Do nothing if `localInsts` does not contain any free variable with id `fvarId`. -/
 def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : LocalInstances :=
-  localInsts.eraseP (fun inst => inst.fvarId == fvarId)
+  if localInsts.any (·.fvarId == fvarId) then localInsts.filter (·.fvarId != fvarId) else localInsts
 
 /-- A kind for the metavariable that determines its unification behaviour.
 For more information see the large comment at the beginning of this file. -/

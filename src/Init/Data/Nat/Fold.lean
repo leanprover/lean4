@@ -449,7 +449,7 @@ Examples:
 * `(5, 8).foldI (fun j _ _ xs => xs.push j) #[] = #[5, 6, 7]`
 * `(5, 8).foldI (fun j _ _ xs => toString j :: xs) [] = ["7", "6", "5"]`
 -/
-@[inline, simp] def foldI {α : Type u} (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → α → α) (init : α) : α :=
+@[inline, simp, expose] def foldI {α : Type u} (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → α → α) (init : α) : α :=
   (i.2 - i.1).fold (fun j _ => f (i.1 + j) (by omega) (by omega)) init
 
 /--
@@ -463,7 +463,7 @@ Examples:
  * `(5, 8).anyI (fun j _ _ => j % 2 = 0) = true`
  * `(6, 6).anyI (fun j _ _ => j % 2 = 0) = false`
 -/
-@[inline, simp] def anyI (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → Bool) : Bool :=
+@[inline, simp, expose] def anyI (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → Bool) : Bool :=
   (i.2 - i.1).any (fun j _ => f (i.1 + j) (by omega) (by omega))
 
 /--
@@ -477,7 +477,7 @@ Examples:
  * `(5, 8).allI (fun j _ _ => j % 2 = 0) = false`
  * `(6, 7).allI (fun j _ _ => j % 2 = 0) = true`
 -/
-@[inline, simp] def allI (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → Bool) : Bool :=
+@[inline, simp, expose] def allI (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → Bool) : Bool :=
   (i.2 - i.1).all (fun j _ => f (i.1 + j) (by omega) (by omega))
 
 end Prod

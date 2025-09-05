@@ -164,7 +164,7 @@ This is a low-level version of `Array.size` that directly queries the runtime sy
 representation of arrays. While this is not provable, `Array.usize` always returns the exact size of
 the array since the implementation only supports arrays of size less than `USize.size`.
 -/
-@[extern "lean_array_size", simp]
+@[extern "lean_array_size", simp, expose]
 def usize (xs : @& Array α) : USize := xs.size.toUSize
 
 /--
@@ -2072,7 +2072,7 @@ Examples:
  * `#["red", "green", "blue"].leftpad 3 "blank" = #["red", "green", "blue"]`
  * `#["red", "green", "blue"].leftpad 1 "blank" = #["red", "green", "blue"]`
 -/
-def leftpad (n : Nat) (a : α) (xs : Array α) : Array α := replicate (n - xs.size) a ++ xs
+@[expose] def leftpad (n : Nat) (a : α) (xs : Array α) : Array α := replicate (n - xs.size) a ++ xs
 
 /--
 Pads `xs : Array α` on the right with repeated occurrences of `a : α` until it is of length `n`. If
@@ -2084,7 +2084,7 @@ Examples:
  * `#["red", "green", "blue"].rightpad 3 "blank" = #["red", "green", "blue"]`
  * `#["red", "green", "blue"].rightpad 1 "blank" = #["red", "green", "blue"]`
 -/
-def rightpad (n : Nat) (a : α) (xs : Array α) : Array α := xs ++ replicate (n - xs.size) a
+@[expose] def rightpad (n : Nat) (a : α) (xs : Array α) : Array α := xs ++ replicate (n - xs.size) a
 
 /- ### reduceOption -/
 

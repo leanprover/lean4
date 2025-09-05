@@ -10,6 +10,7 @@ public import Init.Data.Format.Macro
 public import Init.Data.Format.Instances
 public import Init.Meta
 import Init.Data.String.Basic
+import Init.Data.ToString.Name
 
 public section
 

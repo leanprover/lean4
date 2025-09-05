@@ -143,19 +143,8 @@ def isInaccessibleUserName : Name → Bool
   | Name.num p _   => isInaccessibleUserName p
   | _              => false
 
--- FIXME: `getUtf8Byte` is in `Init.Data.String.Extra`, which causes an import cycle with
--- `Init.Meta`. Moving `getUtf8Byte` up to `Init.Data.String.Basic` creates another import cycle.
--- Please replace this definition with `getUtf8Byte` when the string refactor is through.
-@[extern "lean_string_get_byte_fast"]
-private opaque getUtf8Byte' (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
-
-/--
-Creates a round-trippable string name component if possible, otherwise returns `none`.
-Names that are valid identifiers are not escaped, and otherwise, if they do not contain `»`, they are escaped.
-- If `force` is `true`, then even valid identifiers are escaped.
--/
 @[inline]
-def escapePart (s : String) (force : Bool := false) : Option String :=
+private def Internal.Meta.escapePart (s : String) (force : Bool := false) : Option String :=
   if String.Internal.length s > 0 && !force && isIdFirst (String.Internal.get s 0) && Substring.Internal.all (Substring.Internal.drop s.toSubstring 1) isIdRest then some s
   else if String.Internal.any s isIdEndEscape then none
   else some <|
@@ -167,7 +156,7 @@ Uses the separator `sep` (usually `"."`) to combine the components of the `Name`
 See the documentation for `Name.toStringWithToken` for an explanation of `escape` and `isToken`.
 -/
 @[specialize isToken] -- explicit annotation because isToken is overridden in recursive call
-def toStringWithSep (n : Name) (isToken : String → Bool := fun _ => false) : String :=
+private def Internal.Meta.toStringWithSep (n : Name) (isToken : String → Bool := fun _ => false) : String :=
   match n with
   | anonymous       => "[anonymous]"
   | str anonymous s => maybeEscape s (isToken s)
@@ -193,7 +182,7 @@ Converts a name to a string.
   The insertion algorithm works so long as parser tokens do not themselves contain `«` or `»`.
 -/
 @[specialize]
-def toStringWithToken (n : Name) (escape := true) (isToken : String → Bool) : String :=
+private def Internal.Meta.toStringWithToken (n : Name) (escape := true) (isToken : String → Bool) : String :=
   -- never escape "prettified" inaccessible names or macro scopes or pseudo-syntax introduced by the delaborator
   toStringWithSep "." (escape && !n.isInaccessibleUserName && !n.hasMacroScopes && !maybePseudoSyntax) n isToken
 where
@@ -215,11 +204,8 @@ Converts a name to a string.
   Names with number components, anonymous names, and names containing `»` might not round trip.
   Furthermore, "pseudo-syntax" produced by the delaborator, such as `_`, `#0` or `?u`, is not escaped.
 -/
-protected def toString (n : Name) (escape := true) : String :=
-  Name.toStringWithToken n escape (fun _ => false)
-
-instance : ToString Name where
-  toString n := n.toString
+private def Internal.Meta.toString (n : Name) (escape := true) : String :=
+  toStringWithToken n escape (fun _ => false)
 
 private def hasNum : Name → Bool
   | anonymous => false
@@ -234,7 +220,7 @@ protected def reprPrec (n : Name) (prec : Nat) : Std.Format :=
     if p.hasNum then
       Repr.addAppParen ("Lean.Name.mkStr " ++ Name.reprPrec p max_prec ++ " " ++ repr s) prec
     else
-      Std.Format.text "`" ++ n.toString
+      Std.Format.text "`" ++ Internal.Meta.toString n
 
 instance : Repr Name where
   reprPrec := Name.reprPrec
@@ -654,7 +640,7 @@ partial def expandMacros (stx : Syntax) (p : SyntaxNodeKind → Bool := fun k =>
   Create an identifier copying the position from `src`.
   To refer to a specific constant, use `mkCIdentFrom` instead. -/
 def mkIdentFrom (src : Syntax) (val : Name) (canonical := false) : Ident :=
-  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (toString val).toSubstring val []⟩
+  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (Name.Internal.Meta.toString val).toSubstring val []⟩
 
 def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) (canonical := false) : m Ident := do
   return mkIdentFrom (← getRef) val canonical
@@ -666,7 +652,7 @@ def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) (canonical := false) : m 
 def mkCIdentFrom (src : Syntax) (c : Name) (canonical := false) : Ident :=
   -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
   let id   := addMacroScope `_internal c reservedMacroScope
-  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (toString id).toSubstring id [.decl c []]⟩
+  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (Name.Internal.Meta.toString id).toSubstring id [.decl c []]⟩
 
 def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) (canonical := false) : m Syntax := do
   return mkCIdentFrom (← getRef) c canonical
@@ -676,7 +662,7 @@ def mkCIdent (c : Name) : Ident :=
 
 @[export lean_mk_syntax_ident]
 def mkIdent (val : Name) : Ident :=
-  ⟨Syntax.ident SourceInfo.none (toString val).toSubstring val []⟩
+  ⟨Syntax.ident SourceInfo.none (Name.Internal.Meta.toString val).toSubstring val []⟩
 
 @[inline] def mkGroupNode (args : Array Syntax := #[]) : Syntax :=
   mkNode groupKind args
@@ -1212,7 +1198,7 @@ end TSyntax
 def HygieneInfo.mkIdent (s : HygieneInfo) (val : Name) (canonical := false) : Ident :=
   let src := s.raw[0]
   let id := { extractMacroScopes src.getId with name := val.eraseMacroScopes }.review
-  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (toString val).toSubstring id []⟩
+  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (Name.Internal.Meta.toString val).toSubstring id []⟩
 
 /-- Reflect a runtime datum back to surface syntax (best-effort). -/
 class Quote (α : Type) (k : SyntaxNodeKind := `term) where
@@ -1230,11 +1216,14 @@ instance : Quote String strLitKind := ⟨Syntax.mkStrLit⟩
 instance : Quote Nat numLitKind := ⟨fun n => Syntax.mkNumLit <| toString n⟩
 instance : Quote Substring := ⟨fun s => Syntax.mkCApp ``String.toSubstring' #[quote (Substring.Internal.toString s)]⟩
 
+@[extern "lean_name_escapepart"]
+private opaque Name.Internal.escapePart (s : String) (force : Bool) : Option String
+
 -- in contrast to `Name.toString`, we can, and want to be, precise here
 private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
   | Name.anonymous => if acc.isEmpty then none else some acc
   | Name.str n s => do
-    let s ← Name.escapePart s
+    let s ← Name.Internal.escapePart s false
     getEscapedNameParts? (s::acc) n
   | Name.num _ _ => none
 

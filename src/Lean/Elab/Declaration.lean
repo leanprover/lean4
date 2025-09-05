@@ -141,7 +141,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
         if isExtern (← getEnv) declName then
           compileDecl decl
         if let some (doc, isVerso) := docString? then
-          addDocStringOf isVerso declName doc
+          addDocStringOf isVerso declName binders doc
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /--

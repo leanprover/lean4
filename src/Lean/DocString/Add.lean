@@ -57,7 +57,7 @@ Adds a Verso docstring to the specified declaration, which should already be pre
 environment.
 -/
 def versoDocString
-    (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) :
+    (declName : Name) (binders : Syntax) (docComment : TSyntax `Lean.Parser.Command.docComment) :
     TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) := do
 
   let text ← getFileMap
@@ -100,7 +100,7 @@ def versoDocString
   else
     let stx := s.stxStack.back
     let stx := stx.getArgs
-    Doc.elabBlocks (stx.map (⟨·⟩)) |>.exec declName
+    Doc.elabBlocks (stx.map (⟨·⟩)) |>.exec declName binders
 
 /--
 Adds a Markdown docstring to the environment, validating documentation links.
@@ -125,10 +125,10 @@ def addVersoDocStringCore [Monad m] [MonadEnv m]
 /--
 Adds a Verso docstring to the environment.
 -/
-def addVersoDocString (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) : TermElabM Unit := do
+def addVersoDocString (declName : Name) (binders : Syntax) (docComment : TSyntax `Lean.Parser.Command.docComment) : TermElabM Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
-  let (blocks, parts) ← versoDocString declName docComment
+  let (blocks, parts) ← versoDocString declName binders docComment
   addVersoDocStringCore declName ⟨blocks, parts⟩
 
 /--
@@ -136,10 +136,10 @@ Adds a docstring to the environment. If `isVerso` is `false`, then the docstring
 Markdown.
 -/
 def addDocStringOf
-    (isVerso : Bool) (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) :
+    (isVerso : Bool) (declName : Name) (binders : Syntax) (docComment : TSyntax `Lean.Parser.Command.docComment) :
     TermElabM Unit := do
   if isVerso then
-    addVersoDocString declName docComment
+    addVersoDocString declName binders docComment
   else
     addMarkdownDocString declName docComment
 
@@ -151,9 +151,9 @@ If the option `doc.verso` is `true`, the docstring is processed as a Verso docst
 Otherwise, it is considered a Markdown docstring, and documentation links are validated.
 -/
 def addDocString
-    (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) :
+    (declName : Name) (binders : Syntax) (docComment : TSyntax `Lean.Parser.Command.docComment) :
     TermElabM Unit := do
-  addDocStringOf (doc.verso.get (← getOptions)) declName docComment
+  addDocStringOf (doc.verso.get (← getOptions)) declName binders docComment
 
 /--
 Adds a docstring to the environment, if it is provided. If no docstring is provided, nothing
@@ -164,8 +164,8 @@ If the option `doc.verso` is `true`, the docstring is processed as a Verso docst
 Otherwise, it is considered a Markdown docstring, and documentation links are validated.
 -/
 def addDocString'
-    (declName : Name) (docString? : Option (TSyntax `Lean.Parser.Command.docComment)) :
+    (declName : Name) (binders : Syntax) (docString? : Option (TSyntax `Lean.Parser.Command.docComment)) :
     TermElabM Unit :=
   match docString? with
-  | some docString => addDocString declName docString
+  | some docString => addDocString declName binders docString
   | none => return ()

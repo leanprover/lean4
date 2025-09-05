@@ -1253,7 +1253,7 @@ where
     }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     if let some (doc, isVerso) := view.modifiers.docString? then
-      addDocStringOf isVerso declId.declName doc
+      addDocStringOf isVerso declId.declName view.binders doc
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
   finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
     let env ← getEnv
@@ -1344,10 +1344,14 @@ where
             lambdaTelescope info.value! fun xs _ => do
               let decl := mkAppN (.const header.declName (info.levelParams.map mkLevelParam)) xs
               processDefDeriving view decl
+  /--
+  Adds documentation in synchronous mode. During async elaboration, docstrings are added when
+  attributes are applied.
+  -/
   addDocs (headers : Array DefViewElabHeader) := do
     for header in headers, view in views do
       if let some (doc, isVerso) := view.modifiers.docString? then
-        addDocStringOf isVerso header.declName doc
+        addDocStringOf isVerso header.declName header.binders doc
 /--
 Logs a snapshot task that waits for the entire snapshot tree in `defsParsedSnap` and then logs a
 `goalsAccomplished` silent message for theorems and `Prop`-typed examples if the entire mutual block

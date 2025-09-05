@@ -54,7 +54,7 @@ structure VersoDocString where
   subsections : Array (Doc.Part ElabInline ElabBlock Empty)
 deriving Inhabited
 
-register_option doc.verso : Bool := {
+register_builtin_option doc.verso : Bool := {
   defValue := false,
   descr := "whether to use Verso syntax in docstrings"
   group := "doc"

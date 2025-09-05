@@ -24,6 +24,14 @@ attribute [doc_role] Lean.Doc.given
 attribute [doc_role lean] Lean.Doc.leanTerm
 attribute [doc_role] Lean.Doc.manual
 attribute [doc_role] Lean.Doc.syntax
+attribute [doc_code_suggestions] Lean.Doc.suggestName
+attribute [doc_code_suggestions] Lean.Doc.suggestLean
+attribute [doc_code_suggestions] Lean.Doc.suggestTactic
+attribute [doc_code_suggestions] Lean.Doc.suggestAttr
+attribute [doc_code_suggestions] Lean.Doc.suggestOption
+attribute [doc_code_suggestions] Lean.Doc.suggestKw
+attribute [doc_code_suggestions] Lean.Doc.suggestCat
+attribute [doc_code_suggestions] Lean.Doc.suggestSyntax
 
 
 
@@ -33,6 +41,20 @@ def c (s : StrLit) : DocM (Block ElabInline ElabBlock) := pure (Block.code (s.ge
 @[doc_directive]
 def d (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
   .concat <$> s.reverse.mapM elabBlock
+
+set_option trace.Elab.info true
+/-- Hello world -/
+def foo (x : Nat) : Nat := x
+set_option trace.Elab.info false
+
+#check foo
+
+/--
+A resolved name. The internal thing is a {name}`Name`.
+
+Functions are `induction`
+-/
+declare_syntax_cat foo
 
 structure ResolvedName where
   name : Name
@@ -93,6 +115,10 @@ def x (y : Nat) : Nat := y * 5
 #eval show TermElabM Unit from do (← findDocString? (← getEnv) ``x).forM (IO.println ·.quote)
 
 
+/--
+{name}`inst`
+-/
+def blah [inst : ToString α] (x : α) : String := inst.toString x
 
 /--
 Rotates an array {name}`xs` by {name}`n` places.
@@ -159,6 +185,18 @@ Prints {name}`s` twice.
 ```
 ```output twice (severity := error)
 Unknown identifier `A`
+```
+
+```lean +error (name := blah)
+def blah : Nat := "glah"
+```
+```output blah
+Type mismatch
+  "glah"
+has type
+  String
+but is expected to have type
+  Nat
 ```
 -/
 def printTwice (s : String) : IO Unit := do

@@ -9,11 +9,14 @@ import Lean.Elab.Open
 public import Lean.Parser
 import Lean.Meta.Hint
 import Lean.Elab.Tactic.Doc
+import Lean.Data.EditDistance
 
 
 namespace Lean.Doc
 open Lean Elab Term
 open Lean.Parser
+open Lean.EditDistance
+open scoped Lean.Doc.Syntax
 
 set_option linter.missingDocs true
 
@@ -743,12 +746,19 @@ def output (name : Ident) (severity : Option (WithSyntax MessageSeverity) := non
           let h ← MessageData.hint m!"Update severity:" #[{suggestion := sevName.toString}] (ref? := some s.stx)
           logErrorAt s.stx m!"Mismatched severity. Message has severity `{sev}`.{h}"
       return .code codeStr
+  let outs := sortByDistance codeStr outs
   let h ← m!"Use one of the outputs:".hint (outs.map (withNl ·.2)) (ref? := code)
   logErrorAt code m!"Output not found.{h}"
   return .code codeStr
 where
   withNl (s : String) :=
     if s.endsWith "\n" then s else s ++ "\n"
+
+  sortByDistance {α} (target : String) (strings : Array (α × String)) : Array (α × String) :=
+    let withDistance := strings.map fun (x, s) =>
+      let d := levenshtein target s target.length
+      (x, s, d.getD target.length)
+    withDistance.qsort (fun (_, _, d1) (_, _, d2) => d1 < d2) |>.map fun (x, s, _) => (x, s)
 
 
 /--
@@ -818,3 +828,136 @@ def manual (domain : Ident) (name : String) (content : TSyntaxArray `inline) : D
   match manualLink domStr name with
   | .ok url => return .link (← content.mapM elabInline) url
   | .error e => throwError e
+
+/--
+Suggests the `name` role, if applicable.
+-/
+--@[builtin_doc_code_suggestions]
+def suggestName (code : StrLit) : DocM (Array CodeSuggestion) := do
+  let stx ← parseStrLit identFn code
+  try
+    discard <| realizeGlobalConstNoOverload stx
+    return #[.mk ``name none]
+  catch
+    | _ =>
+    if let some (_, []) := (← resolveLocalName stx.getId) then
+      return #[.mk ``name none]
+  return #[]
+
+/--
+Suggests the `lean` role, if applicable.
+-/
+--@[builtin_doc_code_suggestions]
+def suggestLean (code : StrLit) : DocM (Array CodeSuggestion) := do
+  let p : ParserFn := whitespace >> termParser.fn
+  try
+    let stx ← parseStrLit p code
+    discard <| withoutErrToSorry <| elabTerm stx none
+    return #[.mk ``lean none]
+  catch | _ => return #[]
+
+/--
+Suggests the `tactic` role, if applicable.
+-/
+--@[builtin_doc_code_suggestions]
+def suggestTactic (code : StrLit) : DocM (Array CodeSuggestion) := do
+  let asString := code.getString
+  let asName := asString.toName
+  let allTactics ← Tactic.Doc.allTacticDocs
+  let found := allTactics.filter fun tac => tac.userName == asString || tac.internalName == asName
+  if found.size = 1 then return #[.mk ``tactic none]
+  else
+    let p := whitespace >> categoryParserFn `tactic
+    try
+      discard <| parseStrLit p code
+      return #[.mk ``tactic none]
+    catch | _ => return #[]
+
+open Lean.Parser.Term in
+/--
+Suggests the `attr` role, if applicable.
+-/
+--@[builtin_doc_code_suggestions]
+def suggestAttr (code : StrLit) : DocM (Array CodeSuggestion) := do
+  try
+    let stx ← parseStrLit attributes.fn code
+    let `(attributes|@[$_attrs,*]) := stx
+      | return #[]
+    return #[.mk ``attr none]
+  catch
+    | _ => pure ()
+  try
+    discard <| parseStrLit attrParser.fn code
+    return #[.mk ``attr none]
+  catch
+    | _ => pure ()
+  return #[]
+
+open Lean.Parser.Command in
+/--
+Suggests the `option` role, if applicable.
+-/
+--@[builtin_doc_code_suggestions]
+def suggestOption (code : StrLit) : DocM (Array CodeSuggestion) := do
+  try
+    discard <| parseStrLit Command.«set_option».fn code
+    return #[CodeSuggestion.mk ``option none]
+  catch
+  | _ =>
+    try
+      let stx ← parseStrLit rawIdentFn code
+      let name := stx.getId.eraseMacroScopes
+      discard <| getOptionDecl name
+      return #[CodeSuggestion.mk ``option none]
+    catch
+    | _ =>
+      return #[]
+
+/--
+Suggests the `kw` role, if applicable.
+-/
+--@[builtin_doc_code_suggestions]
+def suggestKw (code : StrLit) : DocM (Array CodeSuggestion) := do
+  let atom := code.getString
+  let env ← getEnv
+  let parsers := Lean.Parser.parserExtension.getState env
+  let cats := parsers.categories.toArray
+
+  let mut candidates := #[]
+  for (catName, _) in cats do
+    let which ← withAtom catName atom
+    candidates := candidates ++ (which.map (catName, ·))
+
+  candidates.mapM fun (cat, of) => do
+    return .mk ``kw (some s!"(cat := {cat}) (of := {of})")
+
+/--
+Suggests the `syntaxCat` role, if applicable.
+-/
+--@[builtin_doc_code_suggestions]
+def suggestCat (code : StrLit) : DocM (Array CodeSuggestion) := do
+  let env ← getEnv
+  let parsers := Lean.Parser.parserExtension.getState env
+  if parsers.categories.contains code.getString.toName then
+    return #[.mk ``syntaxCat none]
+  else
+    return #[]
+
+/--
+Suggests the `syntax` role, if applicable.
+-/
+--@[builtin_doc_code_suggestions]
+def suggestSyntax (code : StrLit) : DocM (Array CodeSuggestion) := do
+  let env ← getEnv
+  let parsers := Lean.Parser.parserExtension.getState env
+  let cats := parsers.categories.toArray
+
+  let mut candidates := #[]
+  for (catName, _) in cats do
+    try
+      discard <| parseStrLit (whitespace >> (categoryParser catName 0).fn) code
+      candidates := candidates.push catName
+    catch | _ => pure ()
+
+  candidates.mapM fun cat => do
+    return .mk ``«syntax» (some s!"{cat}")

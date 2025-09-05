@@ -1070,11 +1070,11 @@ private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res 
     for view in views do
       withRef view.declId do
         if let some (doc, verso) := view.docString? then
-          addDocStringOf verso view.declName doc
+          addDocStringOf verso view.declName view.binders doc
       for ctor in view.ctors do
         withRef ctor.declId do
           if let some (doc, verso) := ctor.modifiers.docString? then
-            addDocStringOf verso ctor.declName doc
+            addDocStringOf verso ctor.declName ctor.binders doc
 
   runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
     for view in views do withRef view.declId <| Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation

@@ -59,29 +59,29 @@ public section
 
 /-- Argument values -/
 declare_syntax_cat arg_val
-syntax (name:=arg_str) str : arg_val
-syntax (name:=arg_ident) ident : arg_val
-syntax (name:=arg_num) num : arg_val
+scoped syntax (name:=arg_str) str : arg_val
+scoped syntax (name:=arg_ident) ident : arg_val
+scoped syntax (name:=arg_num) num : arg_val
 
 /-- Arguments -/
 declare_syntax_cat doc_arg
 /-- Anonymous positional arguments -/
-syntax (name:=anon) arg_val : doc_arg
+scoped syntax (name:=anon) arg_val : doc_arg
 /-- Named arguments -/
-syntax (name:=named) "(" ident " := " arg_val ")": doc_arg
+scoped syntax (name:=named) "(" ident " := " arg_val ")": doc_arg
 /-- Named arguments, without parentheses. -/
-syntax (name:=named_no_paren) ident " := " arg_val : doc_arg
+scoped syntax (name:=named_no_paren) ident " := " arg_val : doc_arg
 /-- Boolean flags, turned on -/
-syntax (name:=flag_on) "+" ident : doc_arg
+scoped syntax (name:=flag_on) "+" ident : doc_arg
 /-- Boolean flags, turned off -/
-syntax (name:=flag_off) "-" ident : doc_arg
+scoped syntax (name:=flag_off) "-" ident : doc_arg
 
 /-- Link targets, which may be URLs or named references -/
 declare_syntax_cat link_target
 /-- A reference to a URL -/
-syntax (name:=url) "(" str ")" : link_target
+scoped syntax (name:=url) "(" str ")" : link_target
 /-- A named reference -/
-syntax (name:=ref) "[" str "]" : link_target
+scoped syntax (name:=ref) "[" str "]" : link_target
 
 /--
 Verso inline objects. These are part of the ordinary text flow of a paragraph.
@@ -92,28 +92,28 @@ This syntax uses the following conventions:
  * Verso metaprogram names and arguments are in curly braces
 -/
 declare_syntax_cat inline
-syntax (name:=text) str : inline
+scoped syntax (name:=text) str : inline
 /-- Emphasis (often rendered as italics) -/
-syntax (name:=emph) "_[" inline* "]" : inline
+scoped syntax (name:=emph) "_[" inline* "]" : inline
 /-- Bold emphasis   -/
-syntax (name:=bold) "*[" inline* "]" : inline
+scoped syntax (name:=bold) "*[" inline* "]" : inline
 /-- Link -/
-syntax (name:=link) "link[" inline* "]" link_target : inline
+scoped syntax (name:=link) "link[" inline* "]" link_target : inline
 /-- Image -/
-syntax (name:=image) "image(" str ")" link_target : inline
+scoped syntax (name:=image) "image(" str ")" link_target : inline
 /-- A footnote use -/
-syntax (name:=footnote) "footnote(" str ")" : inline
+scoped syntax (name:=footnote) "footnote(" str ")" : inline
 /-- Line break -/
-syntax (name:=linebreak) "line!" str : inline
+scoped syntax (name:=linebreak) "line!" str : inline
 /-- Literal code. If the first and last characters are space, and it contains at least one non-space
   character, then the resulting string has a single space stripped from each end.-/
-syntax (name:=code) "code(" str ")" : inline
+scoped syntax (name:=code) "code(" str ")" : inline
 /-- A _role_: an extension to the Verso document language in an inline position -/
-syntax (name:=role) "role{" ident doc_arg* "}" "[" inline* "]"  : inline
+scoped syntax (name:=role) "role{" ident doc_arg* "}" "[" inline* "]"  : inline
 /-- Inline mathematical notation (equivalent to LaTeX's `$` notation) -/
-syntax (name:=inline_math) "\\math" code : inline
+scoped syntax (name:=inline_math) "\\math" code : inline
 /-- Display-mode mathematical notation -/
-syntax (name:=display_math) "\\displaymath" code : inline
+scoped syntax (name:=display_math) "\\displaymath" code : inline
 
 /--
 Block-level elements, such as paragraphs, headers, and lists.
@@ -140,27 +140,27 @@ syntax (name:=li) "*" block* : list_item
 /-- A description of an item -/
 declare_syntax_cat desc_item
 /-- A description of an item -/
-syntax (name:=desc) ":" inline* "=>" block* : desc_item
+scoped syntax (name:=desc) ":" inline* "=>" block* : desc_item
 
-syntax (name:=para) "para[" inline+ "]" : block
+scoped syntax (name:=para) "para[" inline+ "]" : block
 /-- Unordered List -/
-syntax (name:=ul) "ul{" list_item* "}" : block
+scoped syntax (name:=ul) "ul{" list_item* "}" : block
 /-- Definition list -/
-syntax (name:=dl) "dl{" desc_item* "}" : block
+scoped syntax (name:=dl) "dl{" desc_item* "}" : block
 /-- Ordered list -/
-syntax (name:=ol) "ol(" num ")" "{" list_item* "}" : block
+scoped syntax (name:=ol) "ol(" num ")" "{" list_item* "}" : block
 /-- Literal code -/
-syntax (name:=codeblock) "```" (ident doc_arg*)? "|" str "```" : block
+scoped syntax (name:=codeblock) "```" (ident doc_arg*)? "|" str "```" : block
 /-- Quotation -/
-syntax (name:=blockquote) ">" block* : block
+scoped syntax (name:=blockquote) ">" block* : block
 /-- A link reference definition -/
-syntax (name:=link_ref)  "[" str "]:" str : block
+scoped syntax (name:=link_ref)  "[" str "]:" str : block
 /-- A footnote definition -/
-syntax (name:=footnote_ref)  "[^" str "]:" inline* : block
+scoped syntax (name:=footnote_ref) "[^" str "]:" inline* : block
 /-- Custom directive -/
-syntax (name:=directive) ":::" rawIdent doc_arg* "{" block:max* "}" : block
+scoped syntax (name:=directive) ":::" rawIdent doc_arg* "{" block:max* "}" : block
 /-- A header -/
-syntax (name:=header) "header(" num ")" "{" inline+ "}" : block
+scoped syntax (name:=header) "header(" num ")" "{" inline+ "}" : block
 open Lean.Parser.Term in
 
 open Lean.Parser Term in
@@ -168,7 +168,7 @@ meta def metadataContents : Parser :=
   structInstFields (sepByIndent structInstField ", " (allowTrailingSep := true))
 
 /-- Metadata for this section, defined by the current genre -/
-syntax (name:=metadata_block) "%%%" metadataContents "%%%" : block
+scoped syntax (name:=metadata_block) "%%%" metadataContents "%%%" : block
 
 /-- A block-level command -/
-syntax (name:=command) "command{" rawIdent doc_arg* "}" : block
+scoped syntax (name:=command) "command{" rawIdent doc_arg* "}" : block

@@ -52,6 +52,8 @@ instance : EmptyCollection NameSet := ⟨empty⟩
 instance : Inhabited NameSet := ⟨empty⟩
 def insert (s : NameSet) (n : Name) : NameSet := Std.TreeSet.insert s n
 def contains (s : NameSet) (n : Name) : Bool := Std.TreeSet.contains s n
+abbrev subset : NameSet -> NameSet -> Bool := Std.TreeSet.subset
+abbrev diff (t₁ t₂ : NameSet) : NameSet := Std.TreeSet.diff t₁ t₂
 instance : ForIn m NameSet Name :=
   inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
@@ -91,6 +93,7 @@ instance : EmptyCollection NameSSet := ⟨empty⟩
 instance : Inhabited NameSSet := ⟨empty⟩
 abbrev insert (s : NameSSet) (n : Name) : NameSSet := SSet.insert s n
 abbrev contains (s : NameSSet) (n : Name) : Bool := SSet.contains s n
+abbrev subset : NameSSet -> NameSSet -> Bool := SSet.subset
 end NameSSet
 
 @[expose] def NameHashSet := Std.HashSet Name

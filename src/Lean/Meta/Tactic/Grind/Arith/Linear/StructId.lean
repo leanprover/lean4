@@ -5,14 +5,15 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Ordered.Module
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.SynthInstance
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
+public import Lean.Meta.Tactic.Grind.Types
+import Init.Grind.Ordered.Module
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.SynthInstance
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
+import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
+import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
+import Lean.Meta.Tactic.Grind.Arith.Linear.Util
+import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 import Lean.Meta.Tactic.Grind.Arith.Insts
 import Init.Grind.Module.Envelope
 public section

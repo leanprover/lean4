@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.List.Basic
 public import Init.Data.Char.Basic
+public import Init.Data.String.Bootstrap
 
 public section
 
@@ -21,6 +22,7 @@ Examples:
  * `[].asString = ""`
  * `['a', 'a', 'a'].asString = "aaa"`
 -/
+@[export lean_list_asstring]
 def List.asString (s : List Char) : String :=
   ⟨s⟩
 
@@ -31,6 +33,10 @@ instance : HAdd String.Pos String.Pos String.Pos where
 
 instance : HSub String.Pos String.Pos String.Pos where
   hSub p₁ p₂ := { byteIdx :=  p₁.byteIdx - p₂.byteIdx }
+
+@[export lean_string_pos_sub]
+def Pos.sub : String.Pos → String.Pos → String.Pos :=
+  (· - ·)
 
 instance : HAdd String.Pos Char String.Pos where
   hAdd p c := { byteIdx := p.byteIdx + c.utf8Size }
@@ -52,9 +58,6 @@ instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
 
 instance : Min String.Pos := minOfLe
 instance : Max String.Pos := maxOfLe
-
-instance : OfNat String.Pos (nat_lit 0) where
-  ofNat := {}
 
 instance : LT String :=
   ⟨fun s₁ s₂ => s₁.data < s₂.data⟩
@@ -302,7 +305,7 @@ Examples:
 * `"abc".front = 'a'`
 * `"".front = (default : Char)`
 -/
-@[inline] def front (s : String) : Char :=
+@[export lean_string_front, inline] def front (s : String) : Char :=
   get s 0
 
 /--
@@ -427,7 +430,7 @@ Examples:
 * `"abcba".posOf 'z' = ⟨5⟩`
 * `"L∃∀N".posOf '∀' = ⟨4⟩`
 -/
-@[inline] def posOf (s : String) (c : Char) : Pos :=
+@[export lean_string_posof, inline] def posOf (s : String) (c : Char) : Pos :=
   posOfAux s c s.endPos 0
 
 def revPosOfAux (s : String) (c : Char) (pos : Pos) : Option Pos :=
@@ -497,6 +500,7 @@ Examples:
 /--
 Returns either `p₁` or `p₂`, whichever has the least byte index.
 -/
+@[export lean_string_pos_min]
 abbrev Pos.min (p₁ p₂ : Pos) : Pos :=
   { byteIdx := p₁.byteIdx.min p₂.byteIdx }
 
@@ -657,7 +661,7 @@ Examples:
  * `"indeed".pushn '!' 0 = "indeed"`
  * `"".pushn ' ' 4 = "    "`
 -/
-@[inline] def pushn (s : String) (c : Char) (n : Nat) : String :=
+@[export lean_string_pushn, inline] def pushn (s : String) (c : Char) (n : Nat) : String :=
   n.repeat (fun s => s.push c) s
 
 /--
@@ -670,7 +674,7 @@ Examples:
  * `"empty".isEmpty = false`
  * `" ".isEmpty = false`
 -/
-@[inline] def isEmpty (s : String) : Bool :=
+@[export lean_string_isempty, inline] def isEmpty (s : String) : Bool :=
   s.endPos == 0
 
 /--
@@ -697,7 +701,7 @@ Examples:
  * `String.singleton '"' = "\""`
  * `String.singleton '𝒫' = "𝒫"`
 -/
-@[inline,expose] def singleton (c : Char) : String :=
+@[export lean_string_singleton, inline, expose] def singleton (c : Char) : String :=
   "".push c
 
 /--
@@ -708,6 +712,7 @@ Examples:
  * `" and ".intercalate ["tea", "coffee"] = "tea and coffee"`
  * `" | ".intercalate ["M", "", "N"] = "M |  | N"`
 -/
+@[export lean_string_intercalate]
 def intercalate (s : String) : List String → String
   | []      => ""
   | a :: as => go a s as
@@ -923,7 +928,7 @@ Examples:
 * `"L∃∀N".offsetOfPos ⟨5⟩ = 3`
 * `"L∃∀N".offsetOfPos ⟨50⟩ = 4`
 -/
-@[inline] def offsetOfPos (s : String) (pos : Pos) : Nat :=
+@[export lean_string_offsetofpos, inline] def offsetOfPos (s : String) (pos : Pos) : Nat :=
   offsetOfPosAux s pos 0 0
 
 @[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos) (i : Pos) (a : α) : α :=
@@ -944,6 +949,10 @@ Examples:
 -/
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
   foldlAux f s s.endPos 0 init
+
+@[export lean_string_foldl]
+def Internal.foldlString (f : String → Char → String) (init : String) (s : String) : String :=
+  foldl f init s
 
 @[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos) : α :=
   if h : begPos < i then
@@ -987,7 +996,7 @@ Examples:
  * `"brown and orange".any (·.isLetter) = true`
  * `"".any (fun _ => false) = false`
 -/
-@[inline] def any (s : String) (p : Char → Bool) : Bool :=
+@[export lean_string_any, inline] def any (s : String) (p : Char → Bool) : Bool :=
   anyAux s s.endPos p 0
 
 /--
@@ -1011,7 +1020,7 @@ Examples:
 * `"green".contains 'x' = false`
 * `"".contains 'x' = false`
 -/
-@[inline] def contains (s : String) (c : Char) : Bool :=
+@[export lean_string_contains, inline] def contains (s : String) (c : Char) : Bool :=
 s.any (fun a => a == c)
 
 theorem utf8SetAux_of_gt (c' : Char) : ∀ (cs : List Char) {i p : Pos}, i > p → utf8SetAux c' cs i p = cs
@@ -1152,6 +1161,7 @@ Examples:
  * `"green".isPrefixOf "red green blue" = false`
  * `"".isPrefixOf "red green blue" = true`
 -/
+@[export lean_string_isprefixof]
 def isPrefixOf (p : String) (s : String) : Bool :=
   substrEq p 0 s 0 p.endPos.byteIdx
 
@@ -1201,13 +1211,13 @@ Checks whether a substring is empty.
 
 A substring is empty if its start and end positions are the same.
 -/
-@[inline] def isEmpty (ss : Substring) : Bool :=
+@[export lean_substring_isempty, inline] def isEmpty (ss : Substring) : Bool :=
   ss.bsize == 0
 
 /--
 Copies the region of the underlying string pointed to by a substring into a fresh string.
 -/
-@[inline] def toString : Substring → String
+@[export lean_substring_tostring, inline] def toString : Substring → String
   | ⟨s, b, e⟩ => s.extract b e
 
 /--
@@ -1226,7 +1236,7 @@ is performed with respect to the substring's end position. If the relative posit
 position in the underlying string, the fallback value `(default : Char)`, which is `'A'`, is
 returned.  Does not panic.
 -/
-@[inline] def get : Substring → String.Pos → Char
+@[export lean_substring_get, inline] def get : Substring → String.Pos → Char
   | ⟨s, b, _⟩, p => s.get (b+p)
 
 /--
@@ -1257,7 +1267,7 @@ at the beginning of the substring, it is returned unmodified.
 Both the input position and the returned position are interpreted relative to the substring's start
 position, not the underlying string.
 -/
-@[inline] def prev : Substring → String.Pos → String.Pos
+@[export lean_substring_prev, inline] def prev : Substring → String.Pos → String.Pos
   | ⟨s, b, _⟩, p =>
     let absP := b+p
     if absP = b then p else { byteIdx := (s.prev absP).byteIdx - b.byteIdx }
@@ -1292,7 +1302,7 @@ string, then the character at the start position is returned. If the substring's
 not a valid position in the string, the fallback value `(default : Char)`, which is `'A'`, is
 returned.  Does not panic.
 -/
-@[inline] def front (s : Substring) : Char :=
+@[export lean_substring_front, inline] def front (s : Substring) : Char :=
   s.get 0
 
 /--
@@ -1309,7 +1319,7 @@ by advancing its start position.
 
 If the substring's end position is reached, the start position is not advanced past it.
 -/
-@[inline] def drop : Substring → Nat → Substring
+@[export lean_substring_drop, inline] def drop : Substring → Nat → Substring
   | ss@⟨s, b, e⟩, n => ⟨s, b + ss.nextn n 0, e⟩
 
 /--
@@ -1357,7 +1367,7 @@ If the resulting substring is empty, then the resulting substring is a substring
 `""`. Otherwise, the underlying string is that of the input substring with the beginning and end
 positions adjusted.
 -/
-@[inline] def extract : Substring → String.Pos → String.Pos → Substring
+@[export lean_substring_extract, inline] def extract : Substring → String.Pos → String.Pos → Substring
   | ⟨s, b, e⟩, b', e' => if b' ≥ e' then ⟨"", 0, 0⟩ else ⟨s, e.min (b+b'), e.min (b+e')⟩
 
 /--
@@ -1423,7 +1433,7 @@ Checks whether the Boolean predicate `p` returns `true` for every character in a
 
 Short-circuits at the first character for which `p` returns `false`.
 -/
-@[inline] def all (s : Substring) (p : Char → Bool) : Bool :=
+@[export lean_substring_all, inline] def all (s : Substring) (p : Char → Bool) : Bool :=
   !s.any (fun c => !p c)
 
 /--
@@ -1445,7 +1455,7 @@ termination_by stopPos.1 - i.1
 Retains only the longest prefix of a substring in which a Boolean predicate returns `true` for all
 characters by moving the substring's end position towards its start position.
 -/
-@[inline] def takeWhile : Substring → (Char → Bool) → Substring
+@[export lean_substring_takewhile, inline] def takeWhile : Substring → (Char → Bool) → Substring
   | ⟨s, b, e⟩, p =>
     let e := takeWhileAux s e p b;
     ⟨s, b, e⟩
@@ -1564,6 +1574,7 @@ Checks whether two substrings represent equal strings. Usually accessed via the 
 Two substrings do not need to have the same underlying string or the same start and end positions;
 instead, they are equal if they contain the same sequence of characters.
 -/
+@[export lean_substring_beq]
 def beq (ss1 ss2 : Substring) : Bool :=
   ss1.bsize == ss2.bsize && ss1.str.substrEq ss1.startPos ss2.str ss2.startPos ss1.bsize
 
@@ -1661,7 +1672,7 @@ Examples:
  * `"red green blue".drop 10 = "blue"`
  * `"red green blue".drop 50 = ""`
 -/
-@[inline] def drop (s : String) (n : Nat) : String :=
+@[export lean_string_drop, inline] def drop (s : String) (n : Nat) : String :=
   (s.toSubstring.drop n).toString
 
 /--
@@ -1674,7 +1685,7 @@ Examples:
  * `"red green blue".dropRight 11 = "red"`
  * `"red green blue".dropRight 50 = ""`
 -/
-@[inline] def dropRight (s : String) (n : Nat) : String :=
+@[export lean_string_dropright, inline] def dropRight (s : String) (n : Nat) : String :=
   (s.toSubstring.dropRight n).toString
 
 /--
@@ -1825,7 +1836,7 @@ Examples:
 * `"  abc   ".trim = "abc"`
 * `"abc\ndef\n".trim = "abc\ndef"`
 -/
-@[inline] def trim (s : String) : String :=
+@[export lean_string_trim, inline] def trim (s : String) : String :=
   s.toSubstring.trim.toString
 
 /--
@@ -1838,7 +1849,7 @@ Examples:
 * `let s := "a  "; s.get (s.nextWhile Char.isWhitespace 0) = 'a'`
 * `let s := "ba  "; s.get (s.nextWhile Char.isWhitespace 0) = 'b'`
 -/
-@[inline] def nextWhile (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
+@[export lean_string_nextwhile, inline] def nextWhile (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
   Substring.takeWhileAux s s.endPos p i
 
 /--
@@ -1890,7 +1901,7 @@ Examples:
 * `"ORANGE".capitalize = "ORANGE"`
 * `"".capitalize = ""`
 -/
-@[inline] def capitalize (s : String) :=
+@[export lean_string_capitalize, inline] def capitalize (s : String) : String :=
   s.set 0 <| s.get 0 |>.toUpper
 
 /--
@@ -1982,7 +1993,7 @@ Examples:
  * `'L'.toString = "L"`
  * `'"'.toString = "\""`
 -/
-@[inline, expose] protected def toString (c : Char) : String :=
+@[export lean_char_tostring, inline, expose] protected def toString (c : Char) : String :=
   String.singleton c
 
 @[simp] theorem length_toString (c : Char) : c.toString.length = 1 := rfl

@@ -61,22 +61,23 @@ In the premise of the Park induction principle (`lfp_le_of_le_monotone`) we use 
 The optional parameter `reduceConclusion` (false by default) indicates whether we need to perform this reduction.
 -/
 def unfoldPredRel (predType : Expr) (lhs rhs : Expr) (fixpointType : PartialFixpointType) (reduceConclusion : Bool := false) : MetaM Expr := do
-  match fixpointType with
-  | .partialFixpoint => throwError "Trying to apply lattice induction to a non-lattice fixpoint. Please report this issue."
-  | .inductiveFixpoint | .coinductiveFixpoint =>
-    forallTelescope predType fun ts _ => do
-      let mut applied  := match fixpointType with
-        | .inductiveFixpoint => (lhs, rhs)
-        | .coinductiveFixpoint => (rhs, lhs)
-        | .partialFixpoint => panic! "Cannot apply lattice induction to a non-lattice fixpoint"
-      for e in ts do
-        applied := (mkApp applied.1 e, mkApp applied.2 e)
+  guard <| isLatticeTheoretic fixpointType
+  forallTelescope predType fun ts _ => do
+    let mut lhs : Expr := lhs
+    let mut rhs : Expr := rhs
+    for e in ts do
+      lhs := mkApp lhs e
+      rhs := mkApp rhs e
+    match fixpointType with
+    | .inductiveFixpoint =>
       if reduceConclusion then
-        match fixpointType with
-        | .inductiveFixpoint => applied := ((←whnf applied.1), applied.2)
-        | .coinductiveFixpoint => applied := (applied.1, (←whnf applied.2))
-        | .partialFixpoint => throwError "Cannot apply lattice induction to a non-lattice fixpoint"
-      mkForallFVars ts (← mkArrow applied.1 applied.2)
+        rhs ← whnf rhs
+      mkForallFVars ts (←mkArrow lhs rhs)
+    | .coinductiveFixpoint =>
+      if reduceConclusion then
+          lhs ← whnf lhs
+        mkForallFVars ts (←mkArrow rhs lhs)
+    | .partialFixpoint => throwError "Cannot apply lattice induction to a non-lattice fixpoint"
 /--
 Unfolds a PartialOrder relation between tuples of predicates into an array of quantified implications.
 

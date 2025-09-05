@@ -1117,6 +1117,7 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
     let r              := insertReplacementForMainFns {} sectionVars mainHeaders mainFVars
     let r              := insertReplacementForLetRecs r letRecClosures
     let mainVals       := mainVals.map r.apply
+    trace[Elab.definition] "WOJTEK mainVals: {mainVals}"
     let mainHeaders    := mainHeaders.map fun h => { h with type := r.apply h.type }
     let letRecClosures := letRecClosures.map fun c => { c with toLift := { c.toLift with type := r.apply c.toLift.type, val := r.apply c.toLift.val } }
     let letRecKind     := getKindForLetRecs mainHeaders

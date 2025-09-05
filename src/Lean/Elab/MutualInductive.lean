@@ -19,6 +19,7 @@ public import Lean.Elab.DefView
 public import Lean.Elab.DeclUtil
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.DeclarationRange
+public import Lean.Elab.PreDefinition.PartialFixpoint
 import Lean.Elab.ComputedFields
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
@@ -994,8 +995,77 @@ private def mkFlatFunctor (views : Array InductiveView) (elabs' : Array Inductiv
     let rs := Array.zipWith (fun r indFVar => { r with indFVar : ElabHeaderResult }) rs newIndFVars
     buildFinalizeContext elabs' levelParams vars newParams views newIndFVars rs
 
-private def elabCoinductive (declNames : Array Name) : TermElabM Unit := do
-  trace[Elab.inductive] "called elabCoinductive"
+def addFunctorPostfix : Name → Name
+  | Name.anonymous => Name.anonymous
+  | Name.str p s => Name.str p (s ++ "_functor")
+  | Name.num p n => Name.num (addFunctorPostfix p) n
+
+def removeFunctorPostfix : Name → Name
+  | Name.anonymous => Name.anonymous
+  | Name.str p s => Name.str p (s.stripSuffix "_functor")
+  | Name.num p n => Name.num (removeFunctorPostfix p) n
+
+private partial def withLocalDecls {α} (headers : Array (Name × Name × Expr)) (k : Array Expr → TermElabM α) : TermElabM α :=
+  let rec loop (i : Nat) (fvars : Array Expr) := do
+    if h : i < headers.size then
+      let header := headers[i]
+      withAuxDecl header.1 header.2.2 header.2.1 fun fvar => loop (i+1) (fvars.push fvar)
+    else
+      k fvars
+  loop 0 #[]
+
+private def elabCoinductive (declNames : Array Name) (sectionVars : Array Expr) (views : Array InductiveView): TermElabM Unit := do
+  trace[Elab.inductive] "declNames: {declNames}"
+  let infos ← declNames.mapM getConstInfoInduct
+  let originalNumParams := infos[0]!.numParams - infos.size
+  Term.withLevelNames infos[0]!.levelParams do
+    -- We get original names and types of the predicates
+    let namesAndTypes : Array (Name × Expr) ← infos.mapM fun info => do
+      let type ← forallTelescope info.type fun args body => do
+        mkForallFVars (args.take originalNumParams ++ args.extract info.numParams) body
+      return (removeFunctorPostfix (info.name), type)
+    trace[Elab.inductive] "namesAndTypes: {namesAndTypes}"
+    let localDecls := views.map (·.shortDeclName) |>.zip namesAndTypes
+    withLocalDecls localDecls fun indFVars => do
+      for indFVar in indFVars, view in views do
+        discard <| Term.addTermInfo view.ref indFVar
+
+
+      forallBoundedTelescope infos[0]!.type originalNumParams fun params _ => do
+        trace[Elab.inductive] "params: {params}"
+        let defs ← infos.mapM fun info => do
+          let functor ← mkConstWithLevelParams info.name
+          trace[Elab.inductive] "functor: {functor}"
+          let functor := mkAppN functor (params.take originalNumParams)
+          let indFVars := indFVars.map (mkAppN · <| params.take originalNumParams)
+          let res := mkAppN functor indFVars
+          mkLambdaFVars (params.take originalNumParams) res
+        trace[Elab.inductive] "defs: {defs}"
+
+        let preDefs : Array PreDefinition := defs.mapIdx fun idx defn =>
+          { ref := views[idx]!.ref
+            kind := .def
+            levelParams := infos[0]!.levelParams
+            modifiers := views[idx]!.modifiers
+            declName := namesAndTypes[idx]!.1
+            type := namesAndTypes[idx]!.2
+            value := defn
+            termination := {
+              ref := views[idx]!.ref
+              terminationBy?? := .none
+              terminationBy? := .none
+              partialFixpoint? := .some {
+                  ref := views[idx]!.ref
+                  term? := .none
+                  fixpointType := .coinductiveFixpoint -- todo support mixed definitions
+              }
+              decreasingBy? := .none
+              extraParams := 0
+            }
+          }
+        partialFixpoint preDefs (.some indFVars)
+
+
 
 
 private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext :=
@@ -1089,11 +1159,6 @@ private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
     if hasUnit && hasProd then mkBelow n
   for n in declNames do
     if hasUnit && hasProd then mkBRecOn n
-
-def addFunctorPostfix : Name → Name
-  | Name.anonymous => Name.anonymous
-  | Name.str p s => Name.str p (s ++ "_functor")
-  | Name.num p n => Name.num (addFunctorPostfix p) n
 
 def updateViewWithFunctorNames (view : InductiveView) : InductiveView :=
   let newCtors := view.ctors.map (fun ctor => {ctor with declName := ctor.declName.updatePrefix (addFunctorPostfix ctor.declName.getPrefix)})
@@ -1201,7 +1266,8 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
     pure (elabs, res)
   elabInductiveViewsPostprocessing (elabs.map (·.view)) res
   if elabs.any (·.isCoinductive) then
-    runTermElabM (fun _ => elabCoinductive <| elabs.map (·.view.declName))
+    let views := elabs.map (·.view)
+    runTermElabM fun vars => elabCoinductive (elabs.map (·.view.declName)) vars views
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   elabInductives #[(modifiers, stx)]

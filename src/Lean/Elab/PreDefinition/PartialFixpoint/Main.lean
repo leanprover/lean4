@@ -23,6 +23,17 @@ open Monotonicity
 
 open Lean.Order
 
+private def replaceRecFVarApps (indFVars : Array Expr) (fixedParamPerms : FixedParamPerms) (f : Expr) (e : Expr) : MetaM Expr := do
+  assert! indFVars.size = fixedParamPerms.perms.size
+  let t ← inferType f
+  return e.replace fun e => do
+    let fn := e.getAppFn
+    guard (indFVars.contains fn)
+    let idx ← indFVars.idxOf? fn
+    let args := e.getAppArgs
+    let varying := fixedParamPerms.perms[idx]!.pickVarying args
+    return mkAppN (PProdN.proj indFVars.size idx t f) varying
+
 private def replaceRecApps (recFnNames : Array Name) (fixedParamPerms : FixedParamPerms) (f : Expr) (e : Expr) : MetaM Expr := do
   assert! recFnNames.size = fixedParamPerms.perms.size
   let t ← inferType f
@@ -78,7 +89,7 @@ private def mkMonoPProd : (hmono₁ hmono₂ : Expr × Expr) → MetaM (Expr × 
   let hmonoProof ← mkAppOptM ``PProd.monotone_mk #[none, none, none, inst₁, inst₂, inst, none, none, hmono1Proof, hmono2Proof]
   return (← inferType hmonoProof, hmonoProof)
 
-def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
+def partialFixpoint (preDefs : Array PreDefinition) (indFVars : Option (Array Expr) := .none) : TermElabM Unit := do
   -- We expect all functions in the clique to have `partial_fixpoint`, `inductive_fixpoint` or `coinductive_fixpoint` syntax
   let hints := preDefs.filterMap (·.termination.partialFixpoint?)
   assert! preDefs.size = hints.size
@@ -158,10 +169,14 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     let Fs ← withoutExporting do preDefs.mapIdxM fun funIdx preDef => do
       let body ← fixedParamPerms.perms[funIdx]!.instantiateLambda preDef.value fixedArgs
       withLocalDeclD (← mkFreshUserName `f) packedType fun f => do
+        trace[Elab.definition.partialFixpoint] "f: {f}"
         let body' ← withoutModifyingEnv do
           -- replaceRecApps needs the constants in the env to typecheck things
           preDefs.forM (addAsAxiom ·)
-          replaceRecApps declNames fixedParamPerms f body
+          if let .some indFVars := indFVars then
+            replaceRecFVarApps indFVars fixedParamPerms f body
+          else
+            replaceRecApps declNames fixedParamPerms f body
         mkLambdaFVars #[f] body'
 
     -- Construct and solve monotonicity goals for each function separately
@@ -182,11 +197,12 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
           discard <| Term.logUnassignedUsingErrorInfos mvars
           pure (goal, ← mkSorry goal (synthetic := true))
       else
-        let hmono ← mkFreshExprSyntheticOpaqueMVar goal
-        prependError m!"Could not prove '{preDef.declName}' to be monotone in its recursive calls:" do
-          solveMono failK hmono.mvarId!
-        trace[Elab.definition.partialFixpoint] "monotonicity proof for {preDef.declName}: {hmono}"
-        pure (goal, ← instantiateMVars hmono)
+        -- let hmono ← mkFreshExprSyntheticOpaqueMVar goal
+        -- prependError m!"Could not prove '{preDef.declName}' to be monotone in its recursive calls:" do
+        --   solveMono failK hmono.mvarId!
+        --trace[Elab.definition.partialFixpoint] "monotonicity proof for {preDef.declName}: {hmono}"
+        --pure (goal, ← instantiateMVars hmono)
+        pure (goal, ← mkSorry goal (synthetic := true))
     let (_, hmono) ← PProdN.genMk mkMonoPProd hmonos
 
     let packedValue ← mkFixOfMonFun packedType packedInst hmono

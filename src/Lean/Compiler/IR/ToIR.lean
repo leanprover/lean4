@@ -153,6 +153,8 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       lowerCode k
   | .const name _ args =>
     let irArgs ← args.mapM lowerArg
+    if let some decl ← findDecl name then
+      return (← mkApplication name decl.params.size irArgs)
     if let some decl ← LCNF.getMonoDecl? name then
       return (← mkApplication name decl.params.size irArgs)
     let env ← Lean.getEnv

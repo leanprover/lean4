@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
+public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
 import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
@@ -15,11 +15,10 @@ import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.ProofUtil
 import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
-import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
-
+import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
+import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 public section
-
 namespace Lean.Meta.Grind.Arith.Linear
 
 open CommRing (RingExpr)

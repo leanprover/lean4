@@ -4,20 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Ring.Poly
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
-public import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
-public import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
-public import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
-
-public section
-
+public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
+import Init.Grind.Ring.Poly
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
+import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.Var
+import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
+import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
+import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
+import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
+section
 namespace Lean.Meta.Grind.Arith.Linear
 
 private def _root_.Lean.Grind.Linarith.Poly.substVar (p : Poly) : LinearM (Option (Var × EqCnstr × Poly)) := do

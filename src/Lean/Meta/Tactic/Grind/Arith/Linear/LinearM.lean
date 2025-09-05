@@ -81,4 +81,8 @@ def withRingM (x : RingM α) : LinearM α := do
     | throwNotCommRing
   RingM.run ringId x
 
+@[inline] def modifyStruct (f : Struct → Struct) : LinearM Unit := do
+  let structId ← getStructId
+  modify' fun s => { s with structs := s.structs.modify structId f }
+
 end Lean.Meta.Grind.Arith.Linear

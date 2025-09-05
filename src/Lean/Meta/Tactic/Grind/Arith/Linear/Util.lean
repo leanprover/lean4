@@ -30,10 +30,6 @@ def isLinearOrder : LinearM Bool :=
 def hasNoNatZeroDivisors : LinearM Bool :=
   return (← getStruct).noNatDivInst?.isSome
 
-@[inline] def modifyStruct (f : Struct → Struct) : LinearM Unit := do
-  let structId ← getStructId
-  modify' fun s => { s with structs := s.structs.modify structId f }
-
 def getTermStructId? (e : Expr) : GoalM (Option Nat) := do
   return (← get').exprToStructId.find? { expr := e }
 

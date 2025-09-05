@@ -4,19 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-public import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
-
+public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
+import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
+import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
 public section
-
-namespace Lean.Meta.Grind.Arith
-
-
-namespace Linear
+namespace Lean.Meta.Grind.Arith.Linear
 
 /-- If `e` is a function application supported by the linarith module, return its type. -/
 private def getType? (e : Expr) : Option Expr :=

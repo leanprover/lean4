@@ -58,9 +58,9 @@ Unfolds an appropriate `PartialOrder` instance on predicates to quantifications 
 I.e. `ImplicationOrder.instPartialOrder.rel P Q` becomes
 `∀ x y, P x y → Q x y`.
 In the premise of the Park induction principle (`lfp_le_of_le_monotone`) we use a monotone map defining the predicate in the eta expanded form. In such a case, besides desugaring the predicate, we need to perform a weak head reduction.
-The optional parameter `reduceConclusion` (false by default) indicates whether we need to perform this reduction.
+The optional parameter `reducePremise` (false by default) indicates whether we need to perform this reduction.
 -/
-def unfoldPredRel (predType : Expr) (lhs rhs : Expr) (fixpointType : PartialFixpointType) (reduceConclusion : Bool := false) : MetaM Expr := do
+def unfoldPredRel (predType : Expr) (lhs rhs : Expr) (fixpointType : PartialFixpointType) (reducePremise : Bool := false) : MetaM Expr := do
   guard <| isLatticeTheoretic fixpointType
   forallTelescope predType fun ts _ => do
     let mut lhs : Expr := lhs
@@ -68,15 +68,13 @@ def unfoldPredRel (predType : Expr) (lhs rhs : Expr) (fixpointType : PartialFixp
     for e in ts do
       lhs := mkApp lhs e
       rhs := mkApp rhs e
+    if reducePremise then
+        lhs ← whnf lhs
     match fixpointType with
     | .inductiveFixpoint =>
-      if reduceConclusion then
-        rhs ← whnf rhs
       mkForallFVars ts (←mkArrow lhs rhs)
     | .coinductiveFixpoint =>
-      if reduceConclusion then
-          lhs ← whnf lhs
-        mkForallFVars ts (←mkArrow rhs lhs)
+      mkForallFVars ts (←mkArrow rhs lhs)
     | .partialFixpoint => throwError "Cannot apply lattice induction to a non-lattice fixpoint"
 /--
 Unfolds a PartialOrder relation between tuples of predicates into an array of quantified implications.

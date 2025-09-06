@@ -100,15 +100,14 @@ inductive Mon where
 
 instance : LawfulBEq Mon where
   eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
-    · rw [instBEqMon.beq]; simp
-    · rw [instBEqMon.beq]; simp
+    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq] <;>
+      rw [instBEqMon.beq] <;> simp [Mon.ctorIdx]
     next p₁ m₁ p₂ m₂ ih =>
       cases p₁ <;> cases p₂ <;> simp <;> intros <;> simp [*]
       next h => exact ih h
   rfl := by
     intro a
-    induction a <;> simp! [BEq.beq]
+    induction a <;> simp! [BEq.beq] <;> rw [instBEqMon.beq] <;> simp [Mon.ctorIdx]
     assumption
 
 protected noncomputable def Mon.beq' (m₁ : Mon) : Mon → Bool :=
@@ -350,19 +349,16 @@ protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
 
 instance : LawfulBEq Poly where
   eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
-    next => rw [instBEqPoly.beq]; simp
-    next => rw [instBEqPoly.beq]; simp
+    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq] <;> rw [instBEqPoly.beq]
+      <;> simp [Poly.ctorIdx]
     intro h₁ h₂ h₃
     rename_i m₁ p₁ _ m₂ p₂ ih
-    replace h₂ : m₁ == m₂ := h₂
-    simp [ih h₃, eq_of_beq h₂]
+    simp [h₁, h₂, ih h₃]
   rfl := by
     intro a
-    induction a <;> simp! [BEq.beq]
+    induction a <;> simp! [BEq.beq] <;> rw [instBEqPoly.beq] <;> simp [Poly.ctorIdx]
     rename_i k m p ih
-    change m == m ∧ p == p
-    simp [ih]
+    exact ih
 
 @[expose]
 def Poly.denote [Ring α] (ctx : Context α) (p : Poly) : α :=

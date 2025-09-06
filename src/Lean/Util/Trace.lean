@@ -254,7 +254,15 @@ instance [always : MonadAlwaysExcept ε m] [STWorld ω m] [BEq α] [Hashable α]
 /-- Run the provided action `k`, and log its execution within a trace node.
 
 The message is produced after the action completes, and has access to its return value.
+If it is more convenient to produce the message as part of the computation,
+then `Lean.withTraceNode'` can be used instead.
 If profiling is enabled, this will also log the runtime of `k`.
+
+A typical invocation might be:
+```lean4
+withTraceNode `isPosTrace (msg := (return m!"{ExceptToEmoji.toEmoji ·} checking positivity")) do
+  return 0 < x
+```
 
 The `cls`, `collapsed`, and `tag` arguments are fowarded to the constructor of `TraceData`.
 -/
@@ -280,6 +288,7 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls :
   addTraceNode oldTraces data ref m
   MonadExcept.ofExcept res
 
+/-- A version of `Lean.withTraceNode` which allows generating the message within the computation. -/
 def withTraceNode' [MonadAlwaysExcept Exception m] [MonadLiftT BaseIO m] (cls : Name)
     (k : m (α × MessageData)) (collapsed := true) (tag := "") : m α :=
   let msg := fun
@@ -322,6 +331,9 @@ def bombEmoji := "💥️"
 def checkEmoji := "✅️"
 def crossEmoji := "❌️"
 
+/-- Visualize an `Except _ Bool` using a checkmark or cross.
+
+`bombEmoji` is used for `Except.error`. -/
 def exceptBoolEmoji : Except ε Bool → String
   | .error _ => bombEmoji
   | .ok true => checkEmoji

@@ -166,10 +166,9 @@ def mkMatchNew (header : Header) (indVal : InductiveVal) (auxFunName : Name) : T
   if indVal.numCtors == 1 then
     `( $(mkCIdent casesOnSameCtorName) $x1:term $x2:term rfl $alts:term* )
   else
-    `( if h : $(mkCIdent ctorIdxName) $x1:ident = $(mkCIdent ctorIdxName) $x2:ident then
-        $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
-      else
-        false)
+    `( match decEq ($(mkCIdent ctorIdxName) $x1:ident) ($(mkCIdent ctorIdxName) $x2:ident) with
+      | .isTrue h => $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
+      | .isFalse _ => false)
 
 def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
   if indVal.numCtors ≥ deriving.beq.linear_construction_threshold.get (← getOptions) then

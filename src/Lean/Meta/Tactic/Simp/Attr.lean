@@ -23,6 +23,7 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
     descr := attrDescr
     applicationTime := AttributeApplicationTime.afterCompilation
     add   := fun declName stx attrKind => do
+      withExporting (isExporting := !isPrivateName declName && attrKind == .global) do
       if (← isSimproc declName <||> isBuiltinSimproc declName) then
         let simprocAttrName := simpAttrNameToSimprocAttrName attrName
         Attribute.add declName simprocAttrName stx attrKind

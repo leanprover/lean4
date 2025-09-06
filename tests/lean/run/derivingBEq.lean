@@ -1,5 +1,7 @@
 module
 
+set_option deriving.beq.linear_construction_threshold 1000
+
 public section
 
 inductive Foo
@@ -79,6 +81,10 @@ deriving BEq
 #guard_msgs in
 #with_exporting
 #reduce fun (a : PrivField) => a == a
+
+private structure PrivStruct where
+  a : Nat
+deriving BEq
 
 end
 

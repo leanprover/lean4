@@ -42,21 +42,12 @@ def c (s : StrLit) : DocM (Block ElabInline ElabBlock) := pure (Block.code (s.ge
 def d (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
   .concat <$> s.reverse.mapM elabBlock
 
-
 /--
 A resolved name. The internal thing is a {name}`Name`.
 
 Functions are `induction`
 -/
 declare_syntax_cat foo
-
-structure ResolvedName where
-  name : Name
-
-instance : Lean.Doc.FromDocArg ResolvedName where
-  fromDocArg
-    | .ident x => .mk <$> realizeGlobalConstNoOverloadWithInfo x
-    | other => throwError "Expected name, got {other}"
 
 /--
 x
@@ -169,6 +160,7 @@ This follows the computational behavior of {name}`gcd`.
     n
 
 #check Nat.gcd.induction'
+
 
 open MessageSeverity in
 /--

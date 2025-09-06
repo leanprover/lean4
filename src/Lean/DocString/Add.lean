@@ -106,8 +106,10 @@ def versoDocString
 Adds a Markdown docstring to the environment, validating documentation links.
 -/
 def addMarkdownDocString (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) : TermElabM Unit := do
-  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
+  let throwImported {α} : TermElabM α :=
     throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
+  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
+    throwImported
   validateDocComment docComment
   let docString : String ← getDocStringText docComment
   modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
@@ -115,12 +117,15 @@ def addMarkdownDocString (declName : Name) (docComment : TSyntax `Lean.Parser.Co
 /--
 Adds an elaborated Verso docstring to the environment.
 -/
-def addVersoDocStringCore [Monad m] [MonadEnv m]
+def addVersoDocStringCore [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] [MonadError m]
     (declName : Name) (docs : VersoDocString) : m Unit := do
-  let ⟨blocks, parts⟩ := docs
+  let throwImported {α} : m α :=
+    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
+  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
+    throwImported
   modifyEnv fun env =>
-    versoDocStringExt.addEntry (asyncDecl := declName) (asyncMode := .mainOnly)
-      env (declName, ⟨blocks, parts⟩) -- Using .insert env declName ⟨blocks, parts⟩ leads to panics
+    versoDocStringExt.insert env declName docs --addEntry (asyncMode := .async .asyncEnv)
+      --env (declName, p) -- Using .insert env declName ⟨blocks, parts⟩ leads to panics
 
 /--
 Adds a Verso docstring to the environment.

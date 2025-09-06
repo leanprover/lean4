@@ -22,6 +22,7 @@ public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.DeclarationRange
 public import Lean.Parser.Command
 import Lean.Elab.ComputedFields
+import Lean.DocString.Extension
 
 public section
 

@@ -21,7 +21,6 @@ info: • [Command] @ ⟨83, 0⟩-⟨83, 40⟩ @ Lean.Elab.Command.elabDeclarati
             • [Completion-Id] n : none @ ⟨83, 26⟩-⟨83, 27⟩
             • [Term] n : Nat @ ⟨83, 26⟩-⟨83, 27⟩
   • [CustomInfo(Lean.Elab.Term.AsyncBodyInfo)]
-    • [Term] t (isBinder := true) : ∀ (n : Nat), 0 ≤ n @ ⟨83, 8⟩-⟨83, 9⟩
     • [Term] n (isBinder := true) : Nat @ ⟨83, 11⟩-⟨83, 12⟩
     • [CustomInfo(Lean.Elab.Term.BodyInfo)]
       • [Tactic] @ ⟨83, 31⟩-⟨83, 40⟩
@@ -74,6 +73,7 @@ info: • [Command] @ ⟨83, 0⟩-⟨83, 40⟩ @ Lean.Elab.Command.elabDeclarati
                    {"start": {"line": 82, "character": 34}, "end": {"line": 82, "character": 40}},
                    "isInline": true,
                    "header": "Try this: "}
+    • [Term] t (isBinder := true) : ∀ (n : Nat), 0 ≤ n @ ⟨83, 8⟩-⟨83, 9⟩
     • [Term] t (isBinder := true) : ∀ (n : Nat), 0 ≤ n @ ⟨83, 8⟩-⟨83, 9⟩
 ---
 info: Try this: exact Nat.zero_le n

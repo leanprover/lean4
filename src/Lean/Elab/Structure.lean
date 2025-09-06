@@ -1522,6 +1522,17 @@ def elabStructureCommand : InductiveElabDescr where
                 withOptions (warn.sorry.set · false) do
                   mkRemainingProjections levelParams params view
               setStructureParents view.declName parentInfos
+
+              if let some (doc, isVerso) := view.docString? then
+                addDocStringOf isVerso view.declName view.binders doc
+              if let some (doc, isVerso) := view.ctor.modifiers.docString? then
+                addDocStringOf isVerso view.ctor.declName view.ctor.binders doc
+              for field in view.fields do
+                  -- may not exist if overriding inherited field
+                if (← getEnv).contains field.declName then
+                  if let some (doc, isVerso) := field.modifiers.docString? then
+                    addDocStringOf isVerso field.declName field.binders doc
+
               withSaveInfoContext do  -- save new env
                 for field in view.fields do
                   -- may not exist if overriding inherited field

@@ -135,13 +135,14 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
         trace[Elab.axiom] "{declName} : {type}"
         Term.ensureNoUnassignedMVars decl
         addDecl decl
-        withSaveInfoContext do  -- save new env
-          Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)
+
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking
         if isExtern (← getEnv) declName then
           compileDecl decl
         if let some (doc, isVerso) := docString? then
           addDocStringOf isVerso declName binders doc
+        withSaveInfoContext do  -- save new env with docstring and decl
+          Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /--

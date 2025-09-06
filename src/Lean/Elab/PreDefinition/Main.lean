@@ -19,7 +19,9 @@ namespace Lean.Elab
 open Meta
 open Term
 
-private def addAndCompilePartial (preDefs : Array PreDefinition) (useSorry := false) : TermElabM Unit := do
+private def addAndCompilePartial
+    (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition) (useSorry := false) :
+    TermElabM Unit := do
   for preDef in preDefs do
     trace[Elab.definition] "processing {preDef.declName}"
     let all := preDefs.toList.map (·.declName)
@@ -29,11 +31,11 @@ private def addAndCompilePartial (preDefs : Array PreDefinition) (useSorry := fa
       else
         let msg := m!"failed to compile 'partial' definition '{preDef.declName}'"
         liftM <| mkInhabitantFor msg xs type
-      addNonRec { preDef with
+      addNonRec docCtx { preDef with
         kind  := DefKind.«opaque»
         value
       } (all := all)
-  addAndCompilePartialRec preDefs
+  addAndCompilePartialRec docCtx preDefs
 
 private def isNonRecursive (preDef : PreDefinition) : Bool :=
   Option.isNone $ preDef.value.find? fun
@@ -160,8 +162,6 @@ private def addSorried (preDefs : Array PreDefinition) : TermElabM Unit := do
           value
         }
       addDecl decl
-      withSaveInfoContext do  -- save new env
-        addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
       applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
@@ -301,7 +301,8 @@ def shouldUseWF (preDefs : Array PreDefinition) : Bool :=
     preDef.termination.decreasingBy?.isSome
 
 
-def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLCtx {} {} do
+def addPreDefinitions (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition) :
+    TermElabM Unit := withLCtx {} {} do
   profileitM Exception "process pre-definitions" (← getOptions) do
     withTraceNode `Elab.def.processPreDef (fun _ => return m!"process pre-definitions") do
       for preDef in preDefs do
@@ -320,12 +321,12 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
           let preDef ← eraseRecAppSyntax preDefs[0]!
           ensureEqnReservedNamesAvailable preDef.declName
           if preDef.modifiers.isNoncomputable then
-            addNonRec preDef (cleanupValue := true)
+            addNonRec docCtx preDef (cleanupValue := true)
           else
-            addAndCompileNonRec preDef (cleanupValue := true)
+            addAndCompileNonRec docCtx preDef (cleanupValue := true)
           preDef.termination.ensureNone "not recursive"
         else if preDefs.any (·.modifiers.isUnsafe) then
-          addAndCompileUnsafe preDefs
+          addAndCompileUnsafe docCtx preDefs
           preDefs.forM (·.termination.ensureNone "unsafe")
         else
           if preDefs.any (·.modifiers.isInferredPartial) then
@@ -339,7 +340,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
                   isPartial := false
 
             if isPartial then
-              addAndCompilePartial preDefs
+              addAndCompilePartial docCtx preDefs
               preDefs.forM (·.termination.ensureNone "partial")
               continue
 
@@ -349,16 +350,16 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
             checkTerminationByHints preDefs
             let termMeasures?s ← elabTerminationByHints preDefs
             if shouldUseStructural preDefs then
-              structuralRecursion preDefs termMeasures?s
+              structuralRecursion docCtx preDefs termMeasures?s
             else if shouldUsePartialFixpoint preDefs then
-              partialFixpoint preDefs
+              partialFixpoint docCtx preDefs
             else if shouldUseWF preDefs then
-              wfRecursion preDefs termMeasures?s
+              wfRecursion docCtx preDefs termMeasures?s
             else
               withRef (preDefs[0]!.ref) <| mapError
                 (orelseMergeErrors
-                  (structuralRecursion preDefs termMeasures?s)
-                  (wfRecursion preDefs termMeasures?s))
+                  (structuralRecursion docCtx preDefs termMeasures?s)
+                  (wfRecursion docCtx preDefs termMeasures?s))
                 (fun msg =>
                   let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
                   m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
@@ -370,7 +371,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
                 -- try to add as partial definition
                 withOptions (Elab.async.set · false) do
                   try
-                    addAndCompilePartial preDefs (useSorry := true)
+                    addAndCompilePartial docCtx preDefs (useSorry := true)
                   catch _ =>
                     -- Compilation failed try again just as axiom
                     s.restore

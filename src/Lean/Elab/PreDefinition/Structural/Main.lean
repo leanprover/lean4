@@ -171,7 +171,10 @@ def reportTermMeasure (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit :=
     Tactic.TryThis.addSuggestion ref stx
 
 
-def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) : TermElabM Unit := do
+def structuralRecursion
+    (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition)
+    (termMeasure?s : Array (Option TerminationMeasure)) :
+    TermElabM Unit := do
   let names := preDefs.map (·.declName)
   let ((recArgPoss, preDefsNonRec, fixedParamPerms), state) ← run <| inferRecArgPos preDefs termMeasure?s
   for recArgPos in recArgPoss, preDef in preDefs do
@@ -182,9 +185,9 @@ def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (
     prependError m!"structural recursion failed, produced type incorrect term" do
       -- We create the `_unsafe_rec` before we abstract nested proofs.
       -- Reason: the nested proofs may be referring to the _unsafe_rec.
-      addNonRec preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList)
+      addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList)
   let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
-  addAndCompilePartialRec preDefs
+  addAndCompilePartialRec docCtx preDefs
   for preDef in preDefs, recArgPos in recArgPoss do
     let mut preDef := preDef
     unless preDef.kind.isTheorem do
@@ -196,7 +199,7 @@ def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (
         See issue #2327
         -/
         registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos fixedParamPerms
-    addSmartUnfoldingDef preDef recArgPos
+    addSmartUnfoldingDef docCtx preDef recArgPos
     markAsRecursive preDef.declName
   for preDef in preDefs do
     -- must happen in separate loop so realizations can see eqnInfos of all other preDefs

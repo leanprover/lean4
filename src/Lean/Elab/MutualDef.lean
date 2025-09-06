@@ -1024,6 +1024,7 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
       ref         := getDeclarationSelectionRef header.ref
       kind        := header.kind
       declName    := header.declName
+      binders     := header.binders
       levelParams := [], -- we set it later
       modifiers   := header.modifiers
       type, value, termination
@@ -1047,6 +1048,7 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
       ref         := c.ref
       declName    := c.toLift.declName
       levelParams := [] -- we set it later
+      binders     := mkNullNode -- No docstrings, so we don't need these
       modifiers   := { modifiers with attrs := c.toLift.attrs }
       kind, type, value,
       termination := c.toLift.termination
@@ -1181,7 +1183,6 @@ where
   elabSync headers := do
     finishElab headers
     processDeriving headers
-    addDocs headers
   elabAsync header view declId := do
     assert! view.kind.isTheorem
     let env ← getEnv
@@ -1252,8 +1253,6 @@ where
       default
     }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
-    if let some (doc, isVerso) := view.modifiers.docString? then
-      addDocStringOf isVerso declId.declName view.binders doc
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
   finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
     let env ← getEnv
@@ -1276,8 +1275,6 @@ where
        headers.any (·.modifiers.attrs.any (·.name == `expose)))) do
     let headers := headers.map fun header =>
       { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
-    for view in views, funFVar in funFVars do
-      addLocalVarInfo view.declId funFVar
     let values ← try
       let values ← elabFunValues headers vars sc
       Term.synthesizeSyntheticMVarsNoPostponing
@@ -1302,6 +1299,9 @@ where
       let whereFinally ← declValToWhereFinally header.value
       let exprsWithHoles := (exprsWithHoles.getD header.declName #[]).push { ref := header.ref, expr := value }
       fillHolesFromWhereFinally header.declName exprsWithHoles whereFinally
+    -- Compilation should take place without unused section vars, but all section vars should be
+    -- present when elaborating documentation.
+    let docCtx := (← getLCtx, ← getLocalInstances)
     (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then
        -- do not repeat checks already done in `elabFunValues`
        withHeaderSecVars (check := false) vars sc headers
@@ -1322,7 +1322,10 @@ where
       let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
       for preDef in preDefs do
         trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
-      addPreDefinitions preDefs
+      addPreDefinitions docCtx preDefs
+    for view in views, funFVar in funFVars do
+      addLocalVarInfo view.declId funFVar
+
   processDeriving (headers : Array DefViewElabHeader) := do
     for header in headers, view in views do
       if let some classStxs := view.deriving? then
@@ -1344,14 +1347,7 @@ where
             lambdaTelescope info.value! fun xs _ => do
               let decl := mkAppN (.const header.declName (info.levelParams.map mkLevelParam)) xs
               processDefDeriving view decl
-  /--
-  Adds documentation in synchronous mode. During async elaboration, docstrings are added when
-  attributes are applied.
-  -/
-  addDocs (headers : Array DefViewElabHeader) := do
-    for header in headers, view in views do
-      if let some (doc, isVerso) := view.modifiers.docString? then
-        addDocStringOf isVerso header.declName header.binders doc
+
 /--
 Logs a snapshot task that waits for the entire snapshot tree in `defsParsedSnap` and then logs a
 `goalsAccomplished` silent message for theorems and `Prop`-typed examples if the entire mutual block

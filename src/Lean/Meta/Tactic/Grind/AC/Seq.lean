@@ -128,7 +128,6 @@ where
 
 example : Seq.subseq 1 1 = .exact := rfl
 example : Seq.subseq 1 2 = .false := rfl
-set_option smartUnfolding false in
 example : Seq.subseq (1::2) 2 = .false := rfl
 example : Seq.subseq (1::2) (1::2) = .exact := rfl
 example : Seq.subseq 1 (1::2) = .prefix 2 := rfl

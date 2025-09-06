@@ -62,7 +62,22 @@ public partial def parse (contents : String) : LoggerIO CacheMap := do
       loop (i+1) cache
   loop 1 {}
 
-/-- Loads a `CacheMap` from a JSON Lines file. Returns `none` if the file does not exist. -/
+/--
+Loads a `CacheMap` from a JSON Lines file.
+Errors if the the file is ill-formatted or the read fails for other reasons.
+-/
+public def load (file : FilePath) : LogIO CacheMap := do
+  match (← IO.FS.Handle.mk file .read |>.toBaseIO) with
+  | .ok h =>
+    h.lock (exclusive := false)
+    loadCore h file.toString
+  | .error e =>
+    error s!"{file}: failed to open file: {e}"
+
+/-
+Loads a `CacheMap` from a JSON Lines file. Returns `none` if the file does not exist.
+Errors if the manifest is ill-formatted or the read fails for other reasons.
+-/
 public def load? (file : FilePath) : LogIO (Option CacheMap) := do
   match (← IO.FS.Handle.mk file .read |>.toBaseIO) with
   | .ok h =>
@@ -72,10 +87,6 @@ public def load? (file : FilePath) : LogIO (Option CacheMap) := do
     return none
   | .error e =>
     error s!"{file}: failed to open file: {e}"
-
-/-- Loads a `CacheMap` from a JSON Lines file. -/
-public def load (file : FilePath) : LogIO CacheMap := do
-  return (← inline <| load? file).getD {}
 
 /--
 Save a `CacheMap` to a JSON Lines file.
@@ -265,7 +276,7 @@ def uploadS3
   } (quiet := true)
 
 /--
-Cache service description.
+Configuration of a remote cache service (e.g., Reservoir or an S3 bucket).
 
 All fields are not required to be valid.
 A user should set at least the necessary ones for a given function.
@@ -306,7 +317,14 @@ public def downloadArtifact
 public def downloadArtifacts
   (cache : Cache) (descrs : Array ArtifactDescr) (scope : String) (service : CacheService) (force := false)
 : LoggerIO Unit := do
-  descrs.forM fun descr => downloadArtifact cache descr scope service force
+  let ok ← descrs.foldlM (init := true) fun ok descr =>
+    try
+      downloadArtifact cache descr scope service force
+      return ok
+    catch _ =>
+      return false
+  unless ok do
+    error s!"{scope}: failed to download some artifacts"
 
 public def uploadArtifact
   (contentHash : Hash) (art : FilePath) (scope : String) (service : CacheService)

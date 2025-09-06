@@ -95,14 +95,13 @@ public def mkCasesOnSameCtorHet (declName : Name) (indName : Name) : MetaM Unit 
         let e := mkApp e (← mkEqSymm heq)
         mkLambdaFVars (params ++ #[motive] ++ ism1 ++ ism2 ++ #[heq] ++ alts) e
 
-  withExporting do
-    addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
-      (name        := declName)
-      (levelParams := casesOnInfo.levelParams)
-      (type        := (← inferType e))
-      (value       := e)
-      (hints       := ReducibilityHints.abbrev)
-    ))
+  addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+    (name        := declName)
+    (levelParams := casesOnInfo.levelParams)
+    (type        := (← inferType e))
+    (value       := e)
+    (hints       := ReducibilityHints.abbrev)
+  ))
   modifyEnv fun env => markAuxRecursor env declName
   modifyEnv fun env => addToCompletionBlackList env declName
   modifyEnv fun env => addProtected env declName
@@ -230,8 +229,7 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
           discrInfos := #[{}, {}, {}]}
 
         -- Compare attributes with `mkMatcherAuxDefinition`
-        withExporting do
-          addDecl decl
+        addDecl decl
         Elab.Term.elabAsElim.setTag declName
         Match.addMatcherInfo declName matcherInfo
         setInlineAttribute declName

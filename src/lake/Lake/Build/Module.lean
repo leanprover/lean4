@@ -563,15 +563,11 @@ private def ModuleOutputDescrs.getArtifactsFrom?
     arts := {arts with bc? := some (← cache.getArtifact? (← descrs.bc?))}
   return arts
 
-@[inline] def ModuleOutputDescrs.getArtifacts?
-  [MonadWorkspace m] [MonadLiftT BaseIO m] [Monad m] (descrs : ModuleOutputDescrs)
-: m (Option ModuleOutputArtifacts) := do descrs.getArtifactsFrom? (← getLakeCache)
-
-def resolveModuleOutputs?
+@[inline] def resolveModuleOutputs?
    [MonadWorkspace m] [MonadLiftT BaseIO m] [MonadError m] [Monad m]  (outputs : Json)
 : m (Option ModuleOutputArtifacts) := do
   match fromJson? outputs with
-  | .ok (hashes : ModuleOutputDescrs) => hashes.getArtifacts?
+  | .ok (descrs : ModuleOutputDescrs) => descrs.getArtifactsFrom? (← getLakeCache)
   | .error e => error e
 
 instance

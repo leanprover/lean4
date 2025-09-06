@@ -321,6 +321,7 @@ where
     let ltInst? ← getInst? ``LT u type
     let isPreorderInst? ← mkIsPreorderInst? u type leInst?
     let lawfulOrderLTInst? ← mkLawfulOrderLTInst? u type ltInst? leInst?
+    let isLinearInst? ← mkIsLinearOrderInst? u type leInst?
     let addInst ← getBinHomoInst ``HAdd u type
     let addFn ← internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type addInst
     let orderedAddInst? ← match leInst?, isPreorderInst? with
@@ -338,7 +339,7 @@ where
     let id := (← get').natStructs.size
     let natStruct : NatStruct := {
       id, structId, u, type, natModuleInst,
-      leInst?, ltInst?, lawfulOrderLTInst?, isPreorderInst?, orderedAddInst?, addRightCancelInst?,
+      leInst?, ltInst?, lawfulOrderLTInst?, isPreorderInst?, isLinearInst?, orderedAddInst?, addRightCancelInst?,
       rfl_q, zero, toQFn, addFn, smulFn
     }
     modify' fun s => { s with natStructs := s.natStructs.push natStruct }

@@ -6,20 +6,31 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
-public import Lean.Elab.Deriving.Basic
-public import Lean.Elab.Deriving.Util
+public import Lean.Data.Options
+import Lean.Meta.Transform
+import Lean.Elab.Deriving.Basic
+import Lean.Elab.Deriving.Util
+import Lean.Meta.Constructions.CtorIdx
+import Lean.Meta.Constructions.CasesOnSameCtor
 
-public section
 
 namespace Lean.Elab.Deriving.BEq
 open Lean.Parser.Term
 open Meta
 
+
+register_builtin_option deriving.beq.linear_construction_threshold : Nat := {
+  defValue := 0 -- only for testing, reset to 10 before merging
+  descr := "If the inductive data type has this many or more constructors, use a different \
+    implementation for implementing `BEq` that avoids the quadratic code size produced by the \
+    default implementation.\n\n\
+    The alternative construction compiles to less efficient code in some cases, so by default \
+    it is only used for inductive types with 10 or more constructors." }
+
 def mkBEqHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `BEq 2 indVal
 
-def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
+def mkMatchOld (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
@@ -94,6 +105,78 @@ where
       alts := alts.push alt
     alts := alts.push (← mkElseAlt)
     return alts
+
+def mkMatchNew (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
+  assert! header.targetNames.size == 2
+
+  let x1 := mkIdent header.targetNames[0]!
+  let x2 := mkIdent header.targetNames[1]!
+  let ctorIdxName := mkCtorIdxName indVal.name
+  -- NB: the getMatcherInfo? assumes all mathcers are called `match_`
+  let casesOnSameCtorName ← mkFreshUserName (indVal.name ++ `match_on_same_ctor)
+  mkCasesOnSameCtor casesOnSameCtorName indVal.name
+  let alts ← Array.ofFnM (n := indVal.numCtors) fun ⟨ctorIdx, _⟩ => do
+    let ctorName := indVal.ctors[ctorIdx]!
+    let ctorInfo ← getConstInfoCtor ctorName
+    forallTelescopeReducing ctorInfo.type fun xs type => do
+      let type ← Core.betaReduce type -- we 'beta-reduce' to eliminate "artificial" dependencies
+      let mut ctorArgs1 : Array Term := #[]
+      let mut ctorArgs2 : Array Term := #[]
+
+      let mut rhs ← `(true)
+      let mut rhs_empty := true
+      for i in *...ctorInfo.numFields do
+        let pos := indVal.numParams + ctorInfo.numFields - i - 1
+        let x := xs[pos]!
+        if type.containsFVar x.fvarId! then
+          -- If resulting type depends on this field, we don't need to compare
+          -- and the casesOnSameCtor only has a parameter for it once
+          ctorArgs1 := ctorArgs1.push (← `(_))
+        else
+          let userName ← x.fvarId!.getUserName
+          let a := mkIdent (← mkFreshUserName userName)
+          let b := mkIdent (← mkFreshUserName (userName.appendAfter "'"))
+          ctorArgs1 := ctorArgs1.push a
+          ctorArgs2 := ctorArgs2.push b
+          let xType ← inferType x
+          if (← isProp xType) then
+            continue
+          if xType.isAppOf indVal.name then
+            if rhs_empty then
+              rhs ← `($(mkIdent auxFunName):ident $a:ident $b:ident)
+              rhs_empty := false
+            else
+              rhs ← `($(mkIdent auxFunName):ident $a:ident $b:ident && $rhs)
+          /- If `x` appears in the type of another field, use `eq_of_beq` to
+              unify the types of the subsequent variables -/
+          else if ← xs[(pos+1)...*].anyM
+              (fun fvar => (Expr.containsFVar · x.fvarId!) <$> (inferType fvar)) then
+            rhs ← `(if h : $a:ident == $b:ident then by
+                      cases (eq_of_beq h)
+                      exact $rhs
+                    else false)
+            rhs_empty := false
+          else
+            if rhs_empty then
+              rhs ← `($a:ident == $b:ident)
+              rhs_empty := false
+            else
+              rhs ← `($a:ident == $b:ident && $rhs)
+      `(@fun $ctorArgs1.reverse:term* $ctorArgs2.reverse:term* =>$rhs:term)
+  if indVal.numCtors == 1 then
+    `( $(mkCIdent casesOnSameCtorName) $x1:term $x2:term rfl $alts:term* )
+  else
+    `( if h : $(mkCIdent ctorIdxName) $x1:ident = $(mkCIdent ctorIdxName) $x2:ident then
+        $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
+      else
+        false)
+
+def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
+  if indVal.numCtors ≥ deriving.beq.linear_construction_threshold.get (← getOptions) then
+    mkMatchNew header indVal auxFunName
+  else
+    mkMatchOld header indVal auxFunName
+
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let auxFunName := ctx.auxFunNames[i]!

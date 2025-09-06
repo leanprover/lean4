@@ -77,6 +77,10 @@ namespace Workspace
 @[inline] public def enableArtifactCache (ws : Workspace) : Bool :=
   ws.lakeEnv.enableArtifactCache
 
+/-- Whether the Lake artifact cache should is enabled for workspace's root package. -/
+public def isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
+  ws.root.enableArtifactCache?.getD ws.enableArtifactCache
+
 /-- The path to the workspace's remote packages directory relative to `dir`. -/
 @[inline] public def relPkgsDir (self : Workspace) : FilePath :=
   self.root.relPkgsDir

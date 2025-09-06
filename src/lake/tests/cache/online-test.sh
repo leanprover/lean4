@@ -79,8 +79,10 @@ with_cdn_endpoints test_not_out "downloading" cache get --scope="test"
 
 # Test Reservoir download
 test_run -f reservoir2.toml update --keep-toolchain
+test_out "the artifact cache is not enabled for this package" \
+  -d .lake/packages/Cli build -o "$TEST_DIR/.lake/cli-outputs.jsonl"
 LAKE_ARTIFACT_CACHE=true test_run -d .lake/packages/Cli \
-  build -o "$TEST_DIR/.lake/cli-outputs.jsonl"
+  build -o "$TEST_DIR/.lake/cli-outputs.jsonl" --no-build
 with_upload_endpoints test_run -d .lake/packages/Cli \
   cache put "$TEST_DIR/.lake/cli-outputs.jsonl" --scope "leanprover/lean4-cli"
 test_cmd rm -rf .lake/packages/Cli/.lake/build "$LAKE_CACHE_DIR"

@@ -254,16 +254,21 @@ public def Workspace.runFetchM
     out failLv outLv minAction showOptional useAnsi showProgress showTime
   -- Save input-to-output mappings
   if let some outputsFile := cfg.outputsFile? then
+    let logger := .stream out outLv useAnsi
+    unless ws.isRootArtifactCacheEnabled do
+      logger.logEntry <| .warning s!"{ws.root.name}: \
+        the artifact cache is not enabled for this package, so the artifacts described \
+        by the mappings produced by `-o` will not necessarily be available in the cache."
     if let some ref := ws.root.outputsRef? then
       match (← (← ref.get).writeFile outputsFile {}) with
       | .ok _ log =>
         if !log.isEmpty && isVerbose then
           print! out "There were issues saving input-to-output mappings from the build:\n"
-          log.replay (logger := .stream out outLv useAnsi)
+          log.replay (logger := logger)
       | .error _ log =>
         print! out "Failed to save input-to-output mappings from the build.\n"
         if isVerbose then
-          log.replay (logger := .stream out outLv useAnsi)
+          log.replay (logger := logger)
     else
       print! out "Workspace missing input-to-output mappings from build. (This is likely a bug in Lake.)\n"
   -- Report

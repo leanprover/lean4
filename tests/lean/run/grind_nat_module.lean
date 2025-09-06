@@ -50,3 +50,7 @@ variable [LE M] [IsLinearOrder M] [OrderedAdd M] [AddRightCancel M]
 example {x y z : M} : x + z = y → x = 2•z → 3•z ≠ y → False := by
   grind
 end
+
+example [NatModule α] [AddRightCancel α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedAdd α] (a b c d : α)
+    : a ≤ b → a ≥ c + d → d ≤ 0 → d ≥ 0 → b = c → a = b := by
+  grind

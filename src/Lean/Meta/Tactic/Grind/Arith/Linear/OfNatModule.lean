@@ -107,6 +107,13 @@ private partial def ofNatModule' (e : Expr) : OfNatModuleM (Expr × Expr) := do
       pure (e', h)
     else
       mkOfNatModuleVar e
+  | OfNat.ofNat _ _ _ =>
+    if (← isDefEqD e ns.zero) then
+      let e' := s.zero
+      let h := mkApp2 (mkConst ``Grind.IntModule.OfNatModule.toQ_zero [ns.u]) ns.type ns.natModuleInst
+      pure (e', h)
+    else
+      mkOfNatModuleVar e
   | _ => mkOfNatModuleVar e
 
 def ofNatModule (e : Expr) : OfNatModuleM (Expr × Expr) := do

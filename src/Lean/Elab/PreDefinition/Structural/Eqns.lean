@@ -95,7 +95,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   return thmNames
 where
   doRealize name type := withOptions (tactic.hygienic.set · false) do
-    let value ← mkProof info.declName type
+    let value ← withoutExporting do mkProof info.declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
     let type ← letToHave type
     addDecl <| Declaration.thmDecl {

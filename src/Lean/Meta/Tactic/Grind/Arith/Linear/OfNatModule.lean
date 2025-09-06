@@ -60,12 +60,17 @@ def setTermNatStructId (e : Expr) : OfNatModuleM Unit := do
   modify' fun s => { s with exprToNatStructId := s.exprToNatStructId.insert { expr := e } id }
 
 private def mkOfNatModuleVar (e : Expr) : OfNatModuleM (Expr × Expr) := do
-  let s ← getNatStruct
-  let toQe := mkApp s.toQFn e
-  let h    := mkApp s.rfl_q toQe
-  setTermNatStructId e
-  markAsLinarithTerm e
-  return (toQe, h)
+  if let some r := (← getNatStruct).termMap.find? { expr := e } then
+    return r
+  else
+    let s ← getNatStruct
+    let toQe ← shareCommon (mkApp s.toQFn e)
+    let h    := mkApp s.rfl_q toQe
+    let r := (toQe, h)
+    modifyNatStruct fun s => { s with termMap := s.termMap.insert { expr := e } r }
+    setTermNatStructId e
+    markAsLinarithTerm e
+    return r
 
 private def isAddInst (natStruct : NatStruct) (inst : Expr) : Bool :=
   isSameExpr natStruct.addFn.appArg! inst
@@ -115,7 +120,6 @@ def ofNatModule (e : Expr) : OfNatModuleM (Expr × Expr) := do
     else
       pure (r.expr, h)
     setTermNatStructId e
-    internalize e' (← getGeneration e)
     modifyNatStruct fun s => { s with termMap := s.termMap.insert { expr := e } (e', h) }
     return (e', h)
 

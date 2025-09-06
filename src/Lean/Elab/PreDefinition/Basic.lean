@@ -182,7 +182,6 @@ docstring. If code generation will not occur, then it should be done after addin
 to the environment.
 -/
 private def addDocsAndInfo (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) : TermElabM Unit := do
-  -- HOW DO WE GET SECTION VARS HERE?
   if let some (doc, isVerso) := preDef.modifiers.docString? then
     withLCtx docCtx.1 docCtx.2 do
       addDocStringOf isVerso preDef.declName preDef.binders doc
@@ -232,11 +231,11 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     checkMeta preDef
     if compile && shouldGenCodeFor preDef then
       compileDecl decl
-    addDocsAndInfo docCtx preDef
     if applyAttrAfterCompilation then
       enableRealizationsForConst preDef.declName
       generateEagerEqns preDef.declName
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
+    addDocsAndInfo docCtx preDef
 
 def addAndCompileNonRec (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (all : List Name := [preDef.declName]) (cleanupValue := false) : TermElabM Unit := do
   addNonRecAux docCtx preDef (compile := true) (all := all) (cleanupValue := cleanupValue)

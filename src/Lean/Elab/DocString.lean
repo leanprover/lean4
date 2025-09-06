@@ -1025,7 +1025,11 @@ private partial def elabBlocks' (level : Nat) :
           set xs
       else
         set xs
-        pre := pre.push (← elabBlock x)
+        try
+          pre := pre.push (← elabBlock x)
+        catch
+          | e =>
+            logErrorAt e.getRef e.toMessageData
     else break
   return (pre, sub)
 

@@ -42,12 +42,6 @@ def c (s : StrLit) : DocM (Block ElabInline ElabBlock) := pure (Block.code (s.ge
 def d (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
   .concat <$> s.reverse.mapM elabBlock
 
-/--
-A resolved name. The internal thing is a {name}`Name`.
-
-Functions are `induction`
--/
-declare_syntax_cat foo
 
 /--
 x

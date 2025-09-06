@@ -94,8 +94,6 @@ builtin_initialize
       if let some tgt' := alternativeOfTactic (← getEnv) tgtName then
         throwError "'{tgtName}' is itself an alternative for '{tgt'}'"
       modifyEnv fun env => tacticAlternativeExt.addEntry env (decl, tgtName)
-      if (← findSimpleDocString? (← getEnv) decl).isSome then
-        logWarningAt stx m!"Docstring for '{decl}' will be ignored because it is an alternative"
 
     descr :=
       "Register a tactic parser as an alternative form of an existing tactic, so they " ++

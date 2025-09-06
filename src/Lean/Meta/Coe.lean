@@ -190,7 +190,7 @@ def coerceMonadLift? (e expectedType : Expr) : MetaM (Option Expr) := do
   let saved ← saveState
   if (← isDefEq m n) then
     let some functorInst ← isFunctor? n | restoreState saved; return none
-    try expandCoe (← mkAppOptM ``Lean.Internal.coeM #[m, α, β, none, functorInst, e]) catch _ => restoreState saved; return none
+    try expandCoe (← mkAppOptM ``Lean.Internal.coeF #[m, α, β, none, functorInst, e]) catch _ => restoreState saved; return none
   else if autoLift.get (← getOptions) then
     try
       -- Construct lift from `m` to `n`
@@ -217,7 +217,7 @@ def coerceMonadLift? (e expectedType : Expr) : MetaM (Option Expr) := do
         let v ← getLevel β
         let coeTInstType := Lean.mkForall `a BinderInfo.default α <| mkAppN (mkConst ``CoeT [u, v]) #[α, mkBVar 0, β]
         let .some coeTInstVal ← trySynthInstance coeTInstType | return none
-        let eNew ← expandCoe (mkAppN (Lean.mkConst ``Lean.Internal.liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, functorInst, e])
+        let eNew ← expandCoe (mkAppN (Lean.mkConst ``Lean.Internal.liftCoeF [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, functorInst, e])
         let eNewType ← inferType eNew
         unless (← isDefEq expectedType eNewType) do return none
         return some eNew -- approach 3 worked

@@ -4,14 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
 public import Lean.Meta.Tactic.Grind.Arith.Linear.SearchM
-public import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
-
+import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.Util
+import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
+import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
 public section
-
 namespace Lean.Meta.Grind.Arith.Linear
 
 def IneqCnstr.throwUnexpected (c : IneqCnstr) : LinearM α := do

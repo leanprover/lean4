@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Types
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
@@ -23,9 +22,8 @@ public import Lean.Meta.Tactic.Grind.Arith.Linear.Model
 public import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 public import Lean.Meta.Tactic.Grind.Arith.Linear.MBTC
 public import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
-
+public import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
 public section
-
 namespace Lean
 
 builtin_initialize registerTraceClass `grind.linarith

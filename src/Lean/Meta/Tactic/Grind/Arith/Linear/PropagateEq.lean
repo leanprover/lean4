@@ -4,20 +4,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Ring.Poly
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
-public import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
-public import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
-public import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
-
-public section
-
+public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
+import Init.Grind.Ring.Poly
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
+import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.Var
+import Lean.Meta.Tactic.Grind.Arith.Linear.Util
+import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
+import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
+import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
+import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
+import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
+section
 namespace Lean.Meta.Grind.Arith.Linear
 
 private def _root_.Lean.Grind.Linarith.Poly.substVar (p : Poly) : LinearM (Option (Var × EqCnstr × Poly)) := do
@@ -258,13 +258,28 @@ private def processNewIntModuleDiseq (a b : Expr) : LinearM Unit := do
   let c : DiseqCnstr := { p, h := .core a b lhs rhs }
   c.assert
 
+private def processNewNatModuleDiseq (a b : Expr) : OfNatModuleM Unit := do
+  let ns ← getNatStruct
+  trace[Meta.debug] "{a}, {b}"
+  unless ns.addRightCancelInst?.isSome do return ()
+  let (a', _) ← ofNatModule a
+  let (b', _) ← ofNatModule b
+  trace[Meta.debug] "{a'}, {b'}"
+  LinearM.run ns.structId do
+    let some lhs ← reify? a' (skipVar := false) | return ()
+    let some rhs ← reify? b' (skipVar := false) | return ()
+    let p := (lhs.sub rhs).norm
+    let c : DiseqCnstr := { p, h := .coreOfNat a b ns.id lhs rhs }
+    c.assert
+
 @[export lean_process_linarith_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
-  let some structId ← inSameStruct? a b | return ()
-  LinearM.run structId do
+  if let some structId ← inSameStruct? a b then LinearM.run structId do
     if (← isCommRing) then
       processNewCommRingDiseq a b
     else
       processNewIntModuleDiseq a b
+  else if let some natStructId ← inSameNatStruct? a b then OfNatModuleM.run natStructId do
+    processNewNatModuleDiseq a b
 
 end Lean.Meta.Grind.Arith.Linear

@@ -4,13 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
-
+public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 public section
-
 namespace Lean.Meta.Grind.Arith.Linear
 
 def isAddInst (struct : Struct) (inst : Expr) : Bool :=

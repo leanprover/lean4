@@ -83,7 +83,15 @@ private def processInv (e inst a : Expr) : RingM Unit := do
   if (← getRing).invSet.contains a then return ()
   modifyRing fun s => { s with invSet := s.invSet.insert a }
   if let some k ← toInt? a then
-    assert! k != 0 -- We have the normalization rule `Field.inv_zero`
+    if k == 0 then
+      /-
+      **Remark:** We have a normalization rule for `0⁻¹ = 0`, but we may still encounter `0⁻¹` for one of the following reasons:
+      - `0⁻¹` appears in a subterm that cannot be rewritten by `simp` without introducing a type error.
+      - `preprocessLight`, which does not apply `simp`, was used to preprocess the term. Even if we extended `preprocessLight` to
+        apply `rfl` theorems, it would not be enough since `0⁻¹ = 0` is not a `rfl` theorem.
+      -/
+      pushEq e a <| mkApp2 (mkConst ``Grind.Field.inv_zero [ring.u]) ring.type fieldInst
+      return ()
     if (← hasChar) then
       let (charInst, c) ← getCharInst
       if c == 0 then

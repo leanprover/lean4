@@ -109,8 +109,21 @@ def isSubScriptAlnum (c : Char) : Bool :=
 @[inline] def isIdFirst (c : Char) : Bool :=
   c.isAlpha || c = '_' || isLetterLike c
 
+@[inline] private def isAlphaAscii (c : UInt8) : Bool :=
+  'a'.toUInt8 ≤ c && c ≤ 'z'.toUInt8
+    || 'A'.toUInt8 ≤ c && c ≤ 'Z'.toUInt8
+
+@[inline] private def isIdFirstAscii (c : UInt8) : Bool :=
+  isAlphaAscii c || c = '_'.toUInt8
+
+@[inline] private def isAlphanumAscii (c : UInt8) : Bool :=
+  isAlphaAscii c || '0'.toUInt8 ≤ c && c ≤ '9'.toUInt8
+
 @[inline] def isIdRest (c : Char) : Bool :=
   c.isAlphanum || c = '_' || c = '\'' || c == '!' || c == '?' || isLetterLike c || isSubScriptAlnum c
+
+@[inline] private def isIdRestAscii (c : UInt8) : Bool :=
+  isAlphanumAscii c || c = '_'.toUInt8 || c = '\''.toUInt8 || c == '!'.toUInt8 || c == '?'.toUInt8
 
 def idBeginEscape := '«'
 def idEndEscape   := '»'
@@ -137,6 +150,23 @@ def isInaccessibleUserName : Name → Bool
 @[extern "lean_string_get_byte_fast"]
 private opaque getUtf8Byte' (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
 
+private partial def needsNoEscapeAsciiRest (s : String) (i : Nat) : Bool :=
+  if h : i < s.utf8ByteSize then
+    let c := getUtf8Byte' s i h
+    isIdRestAscii c && needsNoEscapeAsciiRest s (i + 1)
+  else
+    true
+
+@[inline] private def needsNoEscapeAscii (s : String) (h : s.utf8ByteSize > 0) : Bool :=
+  let c := getUtf8Byte' s 0 h
+  isIdFirstAscii c && needsNoEscapeAsciiRest s 1
+
+@[inline] private def needsNoEscape (s : String) (h : s.utf8ByteSize > 0) : Bool :=
+  needsNoEscapeAscii s h || isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest
+
+@[inline] private def escape (s : String) : String :=
+  idBeginEscape.toString ++ s ++ idEndEscape.toString
+
 /--
 Creates a round-trippable string name component if possible, otherwise returns `none`.
 Names that are valid identifiers are not escaped, and otherwise, if they do not contain `»`, they are escaped.
@@ -144,9 +174,15 @@ Names that are valid identifiers are not escaped, and otherwise, if they do not 
 -/
 @[inline]
 def escapePart (s : String) (force : Bool := false) : Option String :=
-  if s.length > 0 && !force && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then some s
-  else if s.any isIdEndEscape then none
-  else some <| idBeginEscape.toString ++ s ++ idEndEscape.toString
+  if h : s.utf8ByteSize > 0 then
+    if !force && needsNoEscape s h then
+      some s
+    else if s.any isIdEndEscape then
+      none
+    else
+      some <| escape s
+  else
+    some <| escape s
 
 variable (sep : String) (escape : Bool) in
 /--

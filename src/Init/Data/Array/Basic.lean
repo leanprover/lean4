@@ -10,8 +10,6 @@ public import Init.WFTactics
 public import Init.Data.Nat.Basic
 public import Init.Data.Fin.Basic
 public import Init.Data.UInt.BasicAux
-public import Init.Data.Repr
-public import Init.Data.ToString.Basic
 public import Init.GetElem
 public import Init.Data.List.ToArrayImpl
 import all Init.Data.List.ToArrayImpl
@@ -164,7 +162,7 @@ This is a low-level version of `Array.size` that directly queries the runtime sy
 representation of arrays. While this is not provable, `Array.usize` always returns the exact size of
 the array since the implementation only supports arrays of size less than `USize.size`.
 -/
-@[extern "lean_array_size", simp]
+@[extern "lean_array_size", simp, expose]
 def usize (xs : @& Array α) : USize := xs.size.toUSize
 
 /--

@@ -240,6 +240,8 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
     let declName ← applyVisibility modifiers declName
     let ref := structStx[1].mkSynthetic
     addDeclarationRangesFromSyntax declName ref
+    if structModifiers.isMeta then
+      modifyEnv (addMeta · declName)
     pure { ref, declId := ref, modifiers, declName }
   if structStx[4].isNone then
     useDefault
@@ -281,6 +283,8 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let binders := ctor[2]
       addDocString' declName ctorModifiers.docString?
       addDeclarationRangesFromSyntax declName ctor[1]
+      if structModifiers.isMeta then
+        modifyEnv (addMeta · declName)
       pure { ref := ctor[1], declId := ctor[1], modifiers := ctorModifiers, declName, binders }
 
 /--

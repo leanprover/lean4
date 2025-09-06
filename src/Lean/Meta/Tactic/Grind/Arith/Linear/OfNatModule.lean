@@ -41,10 +41,29 @@ instance : MonadGetStruct OfNatModuleM where
   let id ← getNatStructId
   modify' fun s => { s with natStructs := s.natStructs.modify id f }
 
+def getTermNatStructId? (e : Expr) : GoalM (Option Nat) := do
+  return (← get').exprToNatStructId.find? { expr := e }
+
+/-- Returns `some natStructId` if `a` and `b` are elements of the same `NatModule` structure. -/
+def inSameNatStruct? (a b : Expr) : GoalM (Option Nat) := do
+  let some id ← getTermNatStructId? a | return none
+  let some id' ← getTermNatStructId? b | return none
+  unless id == id' do return none -- This can happen when we have heterogeneous equalities
+  return id
+
+def setTermNatStructId (e : Expr) : OfNatModuleM Unit := do
+  let id ← getNatStructId
+  if let some id' ← getTermNatStructId? e then
+    unless id' == id do
+      reportIssue! "expression in two different nat module structures in linarith module{indentExpr e}"
+    return ()
+  modify' fun s => { s with exprToNatStructId := s.exprToNatStructId.insert { expr := e } id }
+
 private def mkOfNatModuleVar (e : Expr) : OfNatModuleM (Expr × Expr) := do
   let s ← getNatStruct
   let toQe := mkApp s.toQFn e
-  let h    := mkApp s.rfl toQe
+  let h    := mkApp s.rfl_q toQe
+  setTermNatStructId e
   markAsLinarithTerm e
   return (toQe, h)
 
@@ -95,6 +114,7 @@ def ofNatModule (e : Expr) : OfNatModuleM (Expr × Expr) := do
       pure (r.expr, (← mkEqTrans h proof))
     else
       pure (r.expr, h)
+    setTermNatStructId e
     internalize e' (← getGeneration e)
     modifyNatStruct fun s => { s with termMap := s.termMap.insert { expr := e } (e', h) }
     return (e', h)

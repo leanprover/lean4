@@ -16,6 +16,7 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
 import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
 import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
+import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
 section
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -257,13 +258,28 @@ private def processNewIntModuleDiseq (a b : Expr) : LinearM Unit := do
   let c : DiseqCnstr := { p, h := .core a b lhs rhs }
   c.assert
 
+private def processNewNatModuleDiseq (a b : Expr) : OfNatModuleM Unit := do
+  let ns ← getNatStruct
+  trace[Meta.debug] "{a}, {b}"
+  unless ns.addRightCancelInst?.isSome do return ()
+  let (a', _) ← ofNatModule a
+  let (b', _) ← ofNatModule b
+  trace[Meta.debug] "{a'}, {b'}"
+  LinearM.run ns.structId do
+    let some lhs ← reify? a' (skipVar := false) | return ()
+    let some rhs ← reify? b' (skipVar := false) | return ()
+    let p := (lhs.sub rhs).norm
+    let c : DiseqCnstr := { p, h := .coreOfNat a b ns.id lhs rhs }
+    c.assert
+
 @[export lean_process_linarith_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
-  let some structId ← inSameStruct? a b | return ()
-  LinearM.run structId do
+  if let some structId ← inSameStruct? a b then LinearM.run structId do
     if (← isCommRing) then
       processNewCommRingDiseq a b
     else
       processNewIntModuleDiseq a b
+  else if let some natStructId ← inSameNatStruct? a b then OfNatModuleM.run natStructId do
+    processNewNatModuleDiseq a b
 
 end Lean.Meta.Grind.Arith.Linear

@@ -61,6 +61,7 @@ structure DiseqCnstr where
 inductive DiseqCnstrProof where
   | core (a b : Expr) (lhs rhs : LinExpr)
   | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | coreOfNat (a b : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
   | neg (c : DiseqCnstr)
   | subst (k₁ k₂ : Int) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
   | subst1 (k : Int) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
@@ -220,7 +221,7 @@ structure NatStruct where
   /-- `OrderedAdd` instance with `IsPreorder` if available -/
   orderedAddInst?     : Option Expr
   addRightCancelInst? : Option Expr
-  rfl                 : Expr
+  rfl_q               : Expr -- `@Eq.Refl (OfNatModule.Q type)`
   zero                : Expr
   toQFn               : Expr
   addFn               : Expr
@@ -248,6 +249,8 @@ structure State where
   If a type is in this map, it is not in `typeIdOf`.
   -/
   natTypeIdOf : PHashMap ExprPtr (Option Nat) := {}
+  /- Mapping from expressions/terms to their nat structure ids. -/
+  exprToNatStructId : PHashMap ExprPtr Nat := {}
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Linear

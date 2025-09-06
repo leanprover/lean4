@@ -327,18 +327,19 @@ where
       | some leInst, some isPreorderInst =>
         synthInstance? <| mkApp4 (mkConst ``Grind.OrderedAdd [u]) type addInst leInst isPreorderInst
       | _, _ => pure none
-    let addRightCancelInst? ← synthInstance? <| mkApp2 (mkConst ``Grind.AddRightCancel [u]) type addInst
+    let addInst' ← synthInstance <| mkApp (mkConst ``Add [u]) type
+    let addRightCancelInst? ← synthInstance? <| mkApp2 (mkConst ``Grind.AddRightCancel [u]) type addInst'
     let toQFn ← internalizeFn <| mkApp2 (mkConst ``Grind.IntModule.OfNatModule.toQ [u]) type natModuleInst
     let zeroInst ← getInst ``Zero u type
     let zero ← internalizeConst <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
     let smulInst ← getHSMulNatInst u type
     let smulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type type smulInst
-    let rfl := mkApp (mkConst ``Eq.refl [.succ u]) type
+    let rfl_q := mkApp (mkConst ``Eq.refl [.succ u]) q
     let id := (← get').natStructs.size
     let natStruct : NatStruct := {
       id, structId, u, type, natModuleInst,
       leInst?, ltInst?, lawfulOrderLTInst?, isPreorderInst?, orderedAddInst?, addRightCancelInst?,
-      rfl, zero, toQFn, addFn, smulFn
+      rfl_q, zero, toQFn, addFn, smulFn
     }
     modify' fun s => { s with natStructs := s.natStructs.push natStruct }
     return some id

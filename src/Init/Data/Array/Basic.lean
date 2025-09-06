@@ -2070,7 +2070,7 @@ Examples:
  * `#["red", "green", "blue"].leftpad 3 "blank" = #["red", "green", "blue"]`
  * `#["red", "green", "blue"].leftpad 1 "blank" = #["red", "green", "blue"]`
 -/
-def leftpad (n : Nat) (a : α) (xs : Array α) : Array α := replicate (n - xs.size) a ++ xs
+@[expose] def leftpad (n : Nat) (a : α) (xs : Array α) : Array α := replicate (n - xs.size) a ++ xs
 
 /--
 Pads `xs : Array α` on the right with repeated occurrences of `a : α` until it is of length `n`. If
@@ -2082,7 +2082,7 @@ Examples:
  * `#["red", "green", "blue"].rightpad 3 "blank" = #["red", "green", "blue"]`
  * `#["red", "green", "blue"].rightpad 1 "blank" = #["red", "green", "blue"]`
 -/
-def rightpad (n : Nat) (a : α) (xs : Array α) : Array α := xs ++ replicate (n - xs.size) a
+@[expose] def rightpad (n : Nat) (a : α) (xs : Array α) : Array α := xs ++ replicate (n - xs.size) a
 
 /- ### reduceOption -/
 

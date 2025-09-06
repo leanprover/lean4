@@ -51,7 +51,7 @@ def push : FloatArray → Float → FloatArray
 def size : (@& FloatArray) → Nat
   | ⟨ds⟩ => ds.size
 
-@[extern "lean_sarray_size", simp]
+@[extern "lean_sarray_size", simp, expose]
 def usize (a : @& FloatArray) : USize :=
   a.size.toUSize
 

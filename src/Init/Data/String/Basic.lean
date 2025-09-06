@@ -130,7 +130,7 @@ Examples:
  * `"".toList = []`
  * `"\n".toList = ['\n']`
 -/
-def toList (s : String) : List Char :=
+@[expose] def toList (s : String) : List Char :=
   s.data
 
 /--

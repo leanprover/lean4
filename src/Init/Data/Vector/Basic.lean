@@ -518,7 +518,7 @@ Pad a vector on the left with a given element.
 Note that we immediately simplify this to an `++` operation,
 and do not provide separate verification theorems.
 -/
-@[inline, simp] def leftpad (n : Nat) (a : α) (xs : Vector α m) : Vector α (max n m) :=
+@[inline, simp, expose] def leftpad (n : Nat) (a : α) (xs : Vector α m) : Vector α (max n m) :=
   (replicate (n - m) a ++ xs).cast (by omega)
 
 /--
@@ -527,7 +527,7 @@ Pad a vector on the right with a given element.
 Note that we immediately simplify this to an `++` operation,
 and do not provide separate verification theorems.
 -/
-@[inline, simp] def rightpad (n : Nat) (a : α) (xs : Vector α m) : Vector α (max n m) :=
+@[inline, simp, expose] def rightpad (n : Nat) (a : α) (xs : Vector α m) : Vector α (max n m) :=
   (xs ++ replicate (n - m) a).cast (by omega)
 
 /-! ### ForIn instance -/

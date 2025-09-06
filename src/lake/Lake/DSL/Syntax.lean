@@ -392,8 +392,6 @@ scoped syntax (name := scriptDecl)
   (docComment)? optional(Term.attributes) "script " scriptDeclSpec
 : command
 
-end DSL
-
 /-!
 # Version Literals
 
@@ -404,8 +402,6 @@ Defines the `v!"<ver>"` syntax for version literals.
 scoped syntax:max (name := verLit)
   "v!" noWs interpolatedStr(term)
 : term
-
-namespace DSL
 
 /-!
 # DSL for Build Key

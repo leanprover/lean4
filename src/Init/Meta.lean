@@ -8,8 +8,8 @@ Additional goodies for writing macros
 module
 
 prelude
-public import Init.Prelude  -- for unfolding `Name.beq`
-import all Init.Prelude  -- for unfolding `Name.beq`
+public import Init.Prelude
+import all Init.Prelude -- for unfolding `Name.beq`
 public import Init.MetaTypes
 public import Init.Syntax
 public import Init.Data.Array.GetLit
@@ -1488,18 +1488,21 @@ end Syntax
 namespace TSyntax
 
 def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → Syntax → MacroM Syntax) (mkElem : Syntax → MacroM Syntax) : MacroM Syntax := do
-  let mut i := 0
   let mut result := Syntax.missing
   for elem in chunks do
     let elem ← withRef elem <| match elem.isInterpolatedStrLit? with
       | none     => mkElem elem
-      | some str => mkElem (Syntax.mkStrLit str)
-    if i == 0 then
+      | some str =>
+        if str.isEmpty then continue
+        else mkElem (Syntax.mkStrLit str)
+    if result.isMissing then
       result := elem
     else
       result ← mkAppend result elem
-    i := i+1
-  return result
+  if result.isMissing then
+    mkElem (Syntax.mkStrLit "")
+  else
+    return result
 
 open TSyntax.Compat in
 def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : Term) (toTypeFn : Term) : MacroM Term := do

@@ -21,6 +21,16 @@ theorem ex5 : (mk2 == mk3) = false :=
   rfl
 end Foo
 
+inductive L (α : Type u) : Type u
+  | nil  : L α
+  | cons : α → L α → L α
+  deriving @[expose] BEq
+
+namespace L
+theorem ex1 : (L.cons 10 L.nil == L.cons 20 L.nil) = false := rfl
+theorem ex2 : (L.cons 10 L.nil == L.nil) = false := rfl
+end L
+
 inductive Vec (α : Type u) : Nat → Type u
   | nil  : Vec α 0
   | cons : α → {n : Nat} → Vec α n → Vec α (n+1)

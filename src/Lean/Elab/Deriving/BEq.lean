@@ -112,7 +112,7 @@ def mkMatchNew (header : Header) (indVal : InductiveVal) (auxFunName : Name) : T
   let x1 := mkIdent header.targetNames[0]!
   let x2 := mkIdent header.targetNames[1]!
   let ctorIdxName := mkCtorIdxName indVal.name
-  -- NB: the getMatcherInfo? assumes all mathcers are called `match_`
+  -- NB: the getMatcherInfo? assumes all matchers are called `match_`
   let casesOnSameCtorName ← mkFreshUserName (indVal.name ++ `match_on_same_ctor)
   mkCasesOnSameCtor casesOnSameCtorName indVal.name
   let alts ← Array.ofFnM (n := indVal.numCtors) fun ⟨ctorIdx, _⟩ => do

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
+import Lean.Meta.Tactic.Grind.Simp
 import Init.Grind.Module.OfNatModule
 public section
 namespace Lean.Meta.Grind.Arith.Linear
@@ -51,42 +52,51 @@ private def isAddInst (natStruct : NatStruct) (inst : Expr) : Bool :=
   isSameExpr natStruct.addFn.appArg! inst
 private def isZeroInst (natStruct : NatStruct) (inst : Expr) : Bool :=
   isSameExpr natStruct.zero.appArg! inst
-def isSMulInst (natStruct : NatStruct) (inst : Expr) : Bool :=
+private def isSMulInst (natStruct : NatStruct) (inst : Expr) : Bool :=
   isSameExpr natStruct.smulFn.appArg! inst
 
-partial def ofNatModule (e : Expr) : OfNatModuleM (Expr × Expr) := do
+private partial def ofNatModule' (e : Expr) : OfNatModuleM (Expr × Expr) := do
+  let s ← getStruct
+  let ns ← getNatStruct
+  match_expr e with
+  | HAdd.hAdd _ _ _ i a b =>
+    if isAddInst ns i then
+      let (a', ha) ← ofNatModule' a
+      let (b', hb) ← ofNatModule' b
+      let e' := mkApp2 s.addFn a' b'
+      let h := mkApp8 (mkConst ``Grind.IntModule.OfNatModule.add_congr [ns.u]) ns.type ns.natModuleInst a b a' b' ha hb
+      pure (e', h)
+    else
+      mkOfNatModuleVar e
+  | HSMul.hSMul _ _ _ i a b =>
+    if isSMulInst ns i then
+      let (b', hb) ← ofNatModule' b
+      let e' := mkApp2 s.nsmulFn a b'
+      let h := mkApp6 (mkConst ``Grind.IntModule.OfNatModule.smul_congr [ns.u]) ns.type ns.natModuleInst a b b' hb
+      pure (e', h)
+    else
+      mkOfNatModuleVar e
+  | Zero.zero _ i =>
+    if isZeroInst ns i then
+      let e' := s.zero
+      let h := mkApp2 (mkConst ``Grind.IntModule.OfNatModule.toQ_zero [ns.u]) ns.type ns.natModuleInst
+      pure (e', h)
+    else
+      mkOfNatModuleVar e
+  | _ => mkOfNatModuleVar e
+
+def ofNatModule (e : Expr) : OfNatModuleM (Expr × Expr) := do
   if let some r := (← getNatStruct).termMap.find? { expr := e } then
     return r
   else
-    let s ← getStruct
-    let ns ← getNatStruct
-    let r ← match_expr e with
-      | HAdd.hAdd _ _ _ i a b =>
-        if isAddInst ns i then
-          let (a', ha) ← ofNatModule a
-          let (b', hb) ← ofNatModule b
-          let e' := mkApp2 s.addFn a' b'
-          let h := mkApp8 (mkConst ``Grind.IntModule.OfNatModule.add_congr [ns.u]) ns.type ns.natModuleInst a b a' b' ha hb
-          pure (e', h)
-        else
-          mkOfNatModuleVar e
-      | HSMul.hSMul _ _ _ i a b =>
-        if isSMulInst ns i then
-          let (b', hb) ← ofNatModule b
-          let e' := mkApp2 s.nsmulFn a b'
-          let h := mkApp6 (mkConst ``Grind.IntModule.OfNatModule.smul_congr [ns.u]) ns.type ns.natModuleInst a b b' hb
-          pure (e', h)
-        else
-          mkOfNatModuleVar e
-      | Zero.zero _ i =>
-        if isZeroInst ns i then
-          let e' := s.zero
-          let h := mkApp2 (mkConst ``Grind.IntModule.OfNatModule.toQ_zero [ns.u]) ns.type ns.natModuleInst
-          pure (e', h)
-        else
-          mkOfNatModuleVar e
-      | _ => mkOfNatModuleVar e
-    modifyNatStruct fun s => { s with termMap := s.termMap.insert { expr := e } r }
-    return r
+    let (e', h) ← ofNatModule' e
+    let r ← preprocess e'
+    let (e', h) ← if let some proof := r.proof? then
+      pure (r.expr, (← mkEqTrans h proof))
+    else
+      pure (r.expr, h)
+    internalize e' (← getGeneration e)
+    modifyNatStruct fun s => { s with termMap := s.termMap.insert { expr := e } (e', h) }
+    return (e', h)
 
 end Lean.Meta.Grind.Arith.Linear

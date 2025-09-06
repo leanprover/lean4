@@ -513,6 +513,7 @@ public def buildArtifactUnlessUpToDate
       if restore then
         if savedTrace.isDifferentFrom inputHash || !(← file.pathExists) then
           logVerbose s!"restored artifact from cache to: {file}"
+          createParentDirs file
           copyFile art.path file
           if exe then
             let r := ⟨true, true, true⟩

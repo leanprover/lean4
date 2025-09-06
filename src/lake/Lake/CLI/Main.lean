@@ -318,29 +318,52 @@ protected def get : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let scope? := opts.scope?
-  --let mappings? ← takeArg?
-  noArgsRem do
+  let mappings? ← takeArg?
   let cfg ← mkLoadConfig opts
+  noArgsRem  do
   let ws ← loadWorkspace cfg
-  let service : CacheService ← id do
-    match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
-    | some artifactEndpoint, some revisionEndpoint =>
-      return {artifactEndpoint, revisionEndpoint}
-    | none, none =>
-      return {apiEndpoint? := some ws.lakeEnv.reservoirApiUrl}
-    | some artifactEndpoint, none =>
-      error (invalidEndpointConfig artifactEndpoint "")
-    | none, some revisionEndpoint =>
-      error (invalidEndpointConfig "" revisionEndpoint)
   let cache := ws.lakeCache
-  if let some scope := scope? then
-    getCache cache service ws.root scope
-  else
-    ws.packages.forM (start := 1) fun pkg => do -- TODO: Parallelize and do not fail if missing
-      if pkg.scope.isEmpty then
-        logInfo s!"skipping non-Reservoir dependency `{pkg.name}`"
+  if let some file := mappings? then
+    let some remoteScope := scope?
+      | error "to use `cache get` with a mappings file, `--scope` must be set"
+    let service : CacheService :=
+      if let some artifactEndpoint := ws.lakeEnv.cacheArtifactEndpoint? then
+        {artifactEndpoint}
       else
-        getCache cache service pkg s!"{pkg.scope}/{pkg.name.toString (escape := false)}"
+        {apiEndpoint? := some ws.lakeEnv.reservoirApiUrl}
+    let map ← CacheMap.load file
+    cache.writeMap ws.root.cacheScope map
+    let descrs ← map.collectOutputDescrs
+    service.downloadArtifacts cache descrs remoteScope
+  else
+    let service : CacheService ← id do
+      match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
+      | some artifactEndpoint, some revisionEndpoint =>
+        return {artifactEndpoint, revisionEndpoint}
+      | none, none =>
+        return {apiEndpoint? := some ws.lakeEnv.reservoirApiUrl}
+      | some artifactEndpoint, none =>
+        error (invalidEndpointConfig artifactEndpoint "")
+      | none, some revisionEndpoint =>
+        error (invalidEndpointConfig "" revisionEndpoint)
+    if let some remoteScope := scope? then
+      getCache cache service ws.root remoteScope ws.root.cacheScope
+    else if service.apiEndpoint?.isSome then -- Reservoir
+      -- TODO: Parallelize?
+      let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
+        try
+          if pkg.scope.isEmpty then
+            logInfo s!"{pkg.name}: skipping non-Reservoir dependency`"
+          else
+            let remoteScope := s!"{pkg.scope}/{pkg.name.toString (escape := false)}"
+            getCache cache service pkg remoteScope pkg.cacheScope
+          return ok
+        catch _ =>
+          return false
+      unless ok do
+        error "failed to download artifacts for some dependencies"
+    else
+      error "to use `cache get` with a custom endpoint, the `--scope` option must be set"
 where
   invalidEndpointConfig artifactEndpoint revisionEndpoint :=
     s!"invalid endpoint configuration:\
@@ -348,16 +371,16 @@ where
     \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint}\n\
     To use `cache get` with a custom endpoint, both environment variables \
     must be set to non-empty strings. To use Reservoir, neither should be set."
-  getCache cache service pkg scope := do
+  getCache cache service pkg remoteScope localScope : LoggerIO Unit := do
     let repo := GitRepo.mk pkg.dir
     if (← repo.hasDiff) then
       logWarning s!"{pkg.name}: package has changes; only artifacts for committed code will be downloaded"
     let rev ← repo.getHeadRevision
-    let path := cache.revisionPath scope rev
-    let map ← service.downloadRevisionOutputs rev path scope
-    cache.writeMap scope map
+    let path := cache.revisionPath remoteScope rev
+    let map ← service.downloadRevisionOutputs rev path remoteScope
+    cache.writeMap localScope map
     let descrs ← map.collectOutputDescrs
-    service.downloadArtifacts cache descrs scope
+    service.downloadArtifacts cache descrs remoteScope
 
 protected def put : CliM PUnit := do
   processOptions lakeOption
@@ -368,27 +391,30 @@ protected def put : CliM PUnit := do
   noArgsRem do
   let cfg ← mkLoadConfig opts
   let ws ← loadWorkspace cfg
-  let (some key, some artifactEndpoint, some revisionEndpoint) :=
-      (ws.lakeEnv.cacheKey?, ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint?)
-    | if ws.lakeEnv.cacheKey?.isNone then
-        logError "to use `cache put`, the LAKE_CACHE_KEY environment variable must be set"
-      if ws.lakeEnv.cacheArtifactEndpoint?.isNone then
-        logError "to use `cache put`, the LAKE_CACHE_ARTIFACT_ENDPOINT environment variable must be set"
-      if ws.lakeEnv.cacheRevisionEndpoint?.isNone then
-        logError "to use `cache put`, the LAKE_CACHE_REVISION_ENDPOINT environment variable must be set"
-      exit 1
-  let service : CacheService := {key, artifactEndpoint, revisionEndpoint}
-  let pkg := ws.root
-  let repo := GitRepo.mk pkg.dir
+  let service : CacheService ← id do
+    match ws.lakeEnv.cacheKey?, ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
+    | some key, some artifactEndpoint, some revisionEndpoint =>
+      return {key, artifactEndpoint, revisionEndpoint}
+    | key?, artifactEndpoint?, revisionEndpoint? =>
+      error (invalidEndpointConfig key? artifactEndpoint? revisionEndpoint?)
+  let repo := GitRepo.mk ws.root.dir
   if (← repo.hasDiff) then
     error "package has changes; commit code before uploading a build"
   let rev ← repo.getHeadRevision
-  let some map ← CacheMap.load? file
-    | error s!"{file}: file not found"
+  let map ← CacheMap.load file
   let descrs ← map.collectOutputDescrs
   let paths ← ws.lakeCache.getArtifactPaths descrs
   service.uploadArtifacts ⟨descrs, rfl⟩ paths scope
+  -- Mappings are uploaded after artifacts to allow downloads to assume that
+  -- if the mappings exist, the artifacts should also exist
   service.uploadRevisionOutputs rev file scope
+where
+  invalidEndpointConfig key? artifactEndpoint? revisionEndpoint? :=
+    s!"invalid endpoint configuration:\
+    \n  LAKE_CACHE_KEY is {if key?.isNone then "unset" else "set"}\
+    \n  LAKE_CACHE_ARTIFACT_ENDPOINT={artifactEndpoint?.getD ""}\
+    \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint?.getD ""}\n\
+    To use `cache put`, these environment variables must be set to non-empty strings."
 
 protected def add : CliM PUnit := do
   processOptions lakeOption
@@ -405,12 +431,16 @@ protected def add : CliM PUnit := do
   let map ← CacheMap.load file
   ws.lakeCache.writeMap scope map
 
+protected def help : CliM PUnit := do
+  IO.println <| helpCache <| ← takeArgD ""
+
 end cache
 
 def cacheCli : (cmd : String) → CliM PUnit
 | "add"   => cache.add
 | "get"   => cache.get
 | "put"   => cache.put
+| "help"  => cache.help
 | cmd     => throw <| CliError.unknownCommand cmd
 
 /-! ### `lake script` CLI -/

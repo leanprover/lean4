@@ -194,7 +194,7 @@ def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do
   `(command| mutual $[$res:command]* end)
 
 def mkDecEqCmds (indVal : InductiveVal) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "decEq" indVal.name
+  let ctx ← mkContext ``DecidableEq "decEq" indVal.name
   let cmds := #[← mkAuxFunctions ctx] ++ (← mkInstanceCmds ctx `DecidableEq #[indVal.name] (useAnonCtor := false))
   trace[Elab.Deriving.decEq] "\n{cmds}"
   return cmds

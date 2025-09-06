@@ -4,16 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Ring.Poly
 public import Init.Grind.Ordered.Linarith
 public import Lean.Data.PersistentArray
 public import Lean.Meta.Tactic.Grind.ExprPtr
 public import Init.Data.Rat.Basic
-
 public section
-
 namespace Lean.Meta.Grind.Arith.Linear
 export Lean.Grind.Linarith (Var Poly)
 
@@ -223,10 +220,12 @@ structure NatStruct where
   /-- `OrderedAdd` instance with `IsPreorder` if available -/
   orderedAddInst?     : Option Expr
   addRightCancelInst? : Option Expr
+  rfl                 : Expr
   zero                : Expr
   toQFn               : Expr
   addFn               : Expr
   smulFn              : Expr
+  termMap             : PHashMap ExprPtr (Expr × Expr) := {}
 
 /-- State for all `IntModule` types detected by `grind`. -/
 structure State where

@@ -333,11 +333,12 @@ where
     let zero ← internalizeConst <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
     let smulInst ← getHSMulNatInst u type
     let smulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type type smulInst
+    let rfl := mkApp (mkConst ``Eq.refl [.succ u]) type
     let id := (← get').natStructs.size
     let natStruct : NatStruct := {
       id, structId, u, type, natModuleInst,
       leInst?, ltInst?, lawfulOrderLTInst?, isPreorderInst?, orderedAddInst?, addRightCancelInst?,
-      zero, toQFn, addFn, smulFn
+      rfl, zero, toQFn, addFn, smulFn
     }
     modify' fun s => { s with natStructs := s.natStructs.push natStruct }
     return some id

@@ -142,10 +142,9 @@ def mkMatchNew (ctx : Context) (header : Header) (indVal : InductiveVal) : TermE
   if indVal.numCtors == 1 then
     `( $(mkCIdent casesOnSameCtorName) $x1:term $x2:term rfl $alts:term* )
   else
-    `( if h : $(mkCIdent ctorIdxName) $x1:ident = $(mkCIdent ctorIdxName) $x2:ident then
-        $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
-      else
-        isFalse (fun h' => h (congrArg $(mkCIdent ctorIdxName) h')))
+    `( match decEq ($(mkCIdent ctorIdxName) $x1:ident) ($(mkCIdent ctorIdxName) $x2:ident) with
+      | .isTrue h => $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
+      | .isFalse h => isFalse (fun h' => h (congrArg $(mkCIdent ctorIdxName) h')))
 where
   mkSameCtorRhs : List (Ident × Ident × Option Name × Bool) → TermElabM Term
     | [] => ``(isTrue rfl)

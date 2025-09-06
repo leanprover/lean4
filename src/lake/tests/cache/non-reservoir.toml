@@ -1,0 +1,6 @@
+name = "test"
+
+# Example non-Reservoir dependency
+[[require]]
+name = "hello"
+path = "../../examples/hello"

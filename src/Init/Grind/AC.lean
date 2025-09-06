@@ -57,7 +57,7 @@ attribute [local simp] Seq.beq'_eq
 
 instance : LawfulBEq Seq where
   eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp! [BEq.beq]
+    induction a <;> intro b <;> cases b <;> simp [BEq.beq] <;> rw [instBEqSeq.beq] <;> simp
     next x₁ s₁ ih x₂ s₂ => intro h₁ h₂; simp [h₁, ih h₂]
   rfl := by intro a; induction a <;> simp! [BEq.beq]; assumption
 

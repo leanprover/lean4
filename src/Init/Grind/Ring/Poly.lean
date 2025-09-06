@@ -101,6 +101,8 @@ inductive Mon where
 instance : LawfulBEq Mon where
   eq_of_beq {a} := by
     induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
+    · rw [instBEqMon.beq]; simp
+    · rw [instBEqMon.beq]; simp
     next p₁ m₁ p₂ m₂ ih =>
       cases p₁ <;> cases p₂ <;> simp <;> intros <;> simp [*]
       next h => exact ih h
@@ -349,6 +351,8 @@ protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
 instance : LawfulBEq Poly where
   eq_of_beq {a} := by
     induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
+    next => rw [instBEqPoly.beq]; simp
+    next => rw [instBEqPoly.beq]; simp
     intro h₁ h₂ h₃
     rename_i m₁ p₁ _ m₂ p₂ ih
     replace h₂ : m₁ == m₂ := h₂

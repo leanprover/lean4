@@ -40,8 +40,10 @@ inductive IntInterval : Type where
   deriving BEq, DecidableEq, Inhabited
 
 instance : LawfulBEq IntInterval where
-   rfl := by intro a; cases a <;> simp_all! [BEq.beq]
-   eq_of_beq := by intro a b; cases a <;> cases b <;> simp_all! [BEq.beq]
+   rfl := by
+    intro a; cases a <;> simp_all [BEq.beq, instBEqIntInterval.beq]
+   eq_of_beq := by
+    intro a b; cases a <;> cases b <;> simp_all [BEq.beq, instBEqIntInterval.beq, IntInterval.ctorIdx]
 
 namespace IntInterval
 

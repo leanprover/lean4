@@ -523,10 +523,12 @@ attribute [local simp] Expr.denote_norm
 
 instance : LawfulBEq Poly where
   eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
+    intro b hab
+    induction a generalizing b <;> cases b <;> simp_all! [BEq.beq]
+    · rw [instBEqPoly.beq] at hab; simp at hab
+    · rw [instBEqPoly.beq] at hab; simp at hab
     next ih =>
-      intro _ _ h
-      exact ih h
+      exact ih hab.2.2
   rfl := by
     intro a
     induction a <;> simp! [BEq.beq]

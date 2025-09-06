@@ -304,13 +304,13 @@ register_builtin_option maxErrors : Nat := {
 }
 
 /--
-Reports messages on stdout and returns the new number of errors reported.
+Reports messages on stdout and returns the new total number of errors reported.
 If `json` is true, prints messages as JSON (one per line).
 If a message's kind is in `severityOverrides`, it will be reported with
 the specified severity.
 -/
 private def reportMessages (msgLog : MessageLog) (opts : Options)
-    (json := false) (severityOverrides : NameMap MessageSeverity := {}) (numErrors : Nat) : IO Nat := do
+    (json : Bool) (severityOverrides : NameMap MessageSeverity) (numErrors : Nat) : IO Nat := do
   let includeEndPos := printMessageEndPos.get opts
   msgLog.unreported.foldlM (init := numErrors) fun numErrors msg => do
     let numErrors := numErrors + (if msg.severity matches .error then 1 else 0)

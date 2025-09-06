@@ -2606,7 +2606,6 @@ instance (m n) [MonadLift m n] [MonadEnv m] : MonadEnv n where
 Sets `Environment.isExporting` to the given value while executing `x`. No-op if
 `EnvironmentHeader.isModule` is false.
 -/
-@[inline]
 def withExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
     (isExporting := true) : m α := do
   let old := (← getEnv).isExporting

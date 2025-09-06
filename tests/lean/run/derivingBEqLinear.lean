@@ -1,6 +1,6 @@
 module
 
-set_option deriving.beq.linear_construction_threshold 1000
+set_option deriving.beq.linear_construction_threshold 0
 
 public section
 
@@ -37,11 +37,9 @@ inductive Vec (α : Type u) : Nat → Type u
   deriving @[expose] BEq
 
 namespace Vec
-theorem ex1 : (cons 10 Vec.nil == cons 20 Vec.nil) = false :=
-  rfl
+theorem ex1 : (cons 10 Vec.nil == cons 20 Vec.nil) = false := rfl
 
-theorem ex2 : (cons 10 Vec.nil == cons 10 Vec.nil) = true :=
-  rfl
+theorem ex2 : (cons 10 Vec.nil == cons 10 Vec.nil) = true := rfl
 
 theorem ex3 : (cons 20 (cons 11 Vec.nil) == cons 20 (cons 10 Vec.nil)) = false :=
   rfl

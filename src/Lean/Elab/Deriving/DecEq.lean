@@ -13,7 +13,6 @@ import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
 import Lean.Meta.NatTable
 import Lean.Meta.Constructions.CtorIdx
-import Lean.Meta.Constructions.CtorElim
 import Lean.Meta.Constructions.CasesOnSameCtor
 
 namespace Lean.Elab.Deriving.DecEq
@@ -143,10 +142,9 @@ def mkMatchNew (ctx : Context) (header : Header) (indVal : InductiveVal) : TermE
   if indVal.numCtors == 1 then
     `( $(mkCIdent casesOnSameCtorName) $x1:term $x2:term rfl $alts:term* )
   else
-    `( if h : $(mkCIdent ctorIdxName) $x1:ident = $(mkCIdent ctorIdxName) $x2:ident then
-        $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
-      else
-        isFalse (fun h' => h (congrArg $(mkCIdent ctorIdxName) h')))
+    `( match decEq ($(mkCIdent ctorIdxName) $x1:ident) ($(mkCIdent ctorIdxName) $x2:ident) with
+      | .isTrue h => $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
+      | .isFalse h => isFalse (fun h' => h (congrArg $(mkCIdent ctorIdxName) h')))
 where
   mkSameCtorRhs : List (Ident × Ident × Option Name × Bool) → TermElabM Term
     | [] => ``(isTrue rfl)
@@ -194,7 +192,7 @@ def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do
   `(command| mutual $[$res:command]* end)
 
 def mkDecEqCmds (indVal : InductiveVal) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "decEq" indVal.name
+  let ctx ← mkContext ``DecidableEq "decEq" indVal.name
   let cmds := #[← mkAuxFunctions ctx] ++ (← mkInstanceCmds ctx `DecidableEq #[indVal.name] (useAnonCtor := false))
   trace[Elab.Deriving.decEq] "\n{cmds}"
   return cmds

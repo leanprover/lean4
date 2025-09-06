@@ -1025,7 +1025,7 @@ The form
 ```
 fun_induction f
 ```
-(with no arguments to `f`) searches the goal for an unique eligible application of `f`, and uses
+(with no arguments to `f`) searches the goal for a unique eligible application of `f`, and uses
 these arguments. An application of `f` is eligible if it is saturated and the arguments that will
 become targets are free variables.
 
@@ -1058,7 +1058,7 @@ The form
 ```
 fun_cases f
 ```
-(with no arguments to `f`) searches the goal for an unique eligible application of `f`, and uses
+(with no arguments to `f`) searches the goal for a unique eligible application of `f`, and uses
 these arguments. An application of `f` is eligible if it is saturated and the arguments that will
 become targets are free variables.
 

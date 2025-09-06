@@ -264,9 +264,6 @@ protected theorem pos_of_lt_add_left : n < k + n → 0 < k := by
 protected theorem add_pos_left (h : 0 < m) (n) : 0 < m + n :=
   Nat.lt_of_lt_of_le h (Nat.le_add_right ..)
 
-protected theorem add_pos_right (m) (h : 0 < n) : 0 < m + n :=
-  Nat.lt_of_lt_of_le h (Nat.le_add_left ..)
-
 protected theorem add_self_ne_one : ∀ n, n + n ≠ 1
   | n+1, h => by rw [Nat.succ_add, Nat.succ.injEq] at h; contradiction
 

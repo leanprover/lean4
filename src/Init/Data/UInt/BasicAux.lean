@@ -30,21 +30,6 @@ def UInt8.toFin (x : UInt8) : Fin UInt8.size := x.toBitVec.toFin
 def UInt8.val (x : UInt8) : Fin UInt8.size := x.toFin
 
 /--
-Converts a natural number to an 8-bit unsigned integer, wrapping on overflow.
-
-This function is overridden at runtime with an efficient implementation.
-
-Examples:
- * `UInt8.ofNat 5 = 5`
- * `UInt8.ofNat 255 = 255`
- * `UInt8.ofNat 256 = 0`
- * `UInt8.ofNat 259 = 3`
- * `UInt8.ofNat 32770 = 2`
--/
-@[extern "lean_uint8_of_nat"]
-def UInt8.ofNat (n : @& Nat) : UInt8 := ⟨BitVec.ofNat 8 n⟩
-
-/--
 Converts a natural number to an 8-bit unsigned integer, returning the largest representable value if
 the number is too large.
 
@@ -222,8 +207,8 @@ instance UInt32.instOfNat : OfNat UInt32 n := ⟨UInt32.ofNat n⟩
 
 theorem UInt32.ofNatLT_lt_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :
      n < m → UInt32.ofNatLT n h1 < UInt32.ofNat m := by
-  simp only [(· < ·), BitVec.toNat, ofNatLT, BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.ofNat,
-    Nat.mod_eq_of_lt h2, imp_self]
+  simp only [(· < ·), BitVec.toNat, ofNatLT, BitVec.ofNatLT, ofNat, BitVec.ofNat,
+    Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Nat.mod_eq_of_lt h2, imp_self]
 
 @[deprecated UInt32.ofNatLT_lt_of_lt (since := "2025-02-13")]
 theorem UInt32.ofNat'_lt_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :
@@ -231,8 +216,8 @@ theorem UInt32.ofNat'_lt_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt
 
 theorem UInt32.lt_ofNatLT_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :
      m < n → UInt32.ofNat m < UInt32.ofNatLT n h1 := by
-  simp only [(· < ·), BitVec.toNat, ofNatLT, BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.ofNat,
-    Nat.mod_eq_of_lt h2, imp_self]
+  simp only [(· < ·), BitVec.toNat, ofNatLT, BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat,
+    Fin.ofNat, Nat.mod_eq_of_lt h2, imp_self]
 
 @[deprecated UInt32.lt_ofNatLT_of_lt (since := "2025-02-13")]
 theorem UInt32.lt_ofNat'_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :

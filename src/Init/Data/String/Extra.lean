@@ -11,6 +11,7 @@ import all Init.Data.ByteArray.Basic
 public import Init.Data.String.Basic
 import all Init.Data.String.Basic
 import Init.Data.UInt.Lemmas
+import Init.Data.UInt.Bitwise
 
 public section
 
@@ -135,7 +136,7 @@ the corresponding string, or panics if the array is not a valid UTF-8 encoding o
 /--
 Returns the sequence of bytes in a character's UTF-8 encoding.
 -/
-def utf8EncodeChar (c : Char) : List UInt8 :=
+def utf8EncodeCharFast (c : Char) : List UInt8 :=
   let v := c.val
   if v ≤ 0x7f then
     [v.toUInt8]
@@ -152,8 +153,58 @@ def utf8EncodeChar (c : Char) : List UInt8 :=
      (v >>>  6).toUInt8 &&& 0x3f ||| 0x80,
               v.toUInt8 &&& 0x3f ||| 0x80]
 
+private theorem Nat.add_two_pow_eq_or_of_lt {b : Nat} (i : Nat) (b_lt : b < 2 ^ i) (a : Nat) :
+    b + 2 ^ i * a = b ||| 2 ^ i * a := by
+  rw [Nat.add_comm, Nat.or_comm, Nat.two_pow_add_eq_or_of_lt b_lt]
+
+@[csimp]
+theorem utf8EncodeChar_eq_utf8EncodeCharFast : @utf8EncodeChar = @utf8EncodeCharFast := by
+  funext c
+  simp only [utf8EncodeChar, utf8EncodeCharFast, UInt8.ofNat_uInt32ToNat, UInt8.ofNat_add,
+    UInt8.reduceOfNat, UInt32.le_iff_toNat_le, UInt32.reduceToNat]
+  split
+  · rfl
+  · split
+    · simp only [List.cons.injEq, ← UInt8.toNat_inj, UInt8.toNat_add, UInt8.toNat_ofNat',
+        Nat.reducePow, UInt8.reduceToNat, Nat.mod_add_mod, UInt8.toNat_or, UInt8.toNat_and,
+        UInt32.toNat_toUInt8, UInt32.toNat_shiftRight, UInt32.reduceToNat, Nat.reduceMod, and_true]
+      refine ⟨?_, ?_⟩
+      · rw [Nat.mod_eq_of_lt (by omega), Nat.add_two_pow_eq_or_of_lt 5 (by omega) 6,
+          Nat.and_two_pow_sub_one_eq_mod _ 5, Nat.shiftRight_eq_div_pow,
+          Nat.mod_eq_of_lt (b := 256) (by omega)]
+      · rw [Nat.mod_eq_of_lt (by omega), Nat.add_two_pow_eq_or_of_lt 6 (by omega) 2,
+          Nat.and_two_pow_sub_one_eq_mod _ 6, Nat.mod_mod_of_dvd _ (by decide)]
+    · split
+      · simp only [List.cons.injEq, ← UInt8.toNat_inj, UInt8.toNat_add, UInt8.toNat_ofNat',
+          Nat.reducePow, UInt8.reduceToNat, Nat.mod_add_mod, UInt8.toNat_or, UInt8.toNat_and,
+          UInt32.toNat_toUInt8, UInt32.toNat_shiftRight, UInt32.reduceToNat, Nat.reduceMod, and_true]
+        refine ⟨?_, ?_, ?_⟩
+        · rw [Nat.mod_eq_of_lt (by omega), Nat.add_two_pow_eq_or_of_lt 4 (by omega) 14,
+            Nat.and_two_pow_sub_one_eq_mod _ 4, Nat.shiftRight_eq_div_pow,
+            Nat.mod_eq_of_lt (b := 256) (by omega)]
+        · rw [Nat.mod_eq_of_lt (by omega), Nat.add_two_pow_eq_or_of_lt 6 (by omega) 2,
+            Nat.and_two_pow_sub_one_eq_mod _ 6, Nat.shiftRight_eq_div_pow,
+            Nat.mod_mod_of_dvd (c.val.toNat / 2 ^ 6) (by decide)]
+        · rw [Nat.mod_eq_of_lt (by omega), Nat.add_two_pow_eq_or_of_lt 6 (by omega) 2,
+            Nat.and_two_pow_sub_one_eq_mod _ 6, Nat.mod_mod_of_dvd c.val.toNat (by decide)]
+      · simp only [List.cons.injEq, ← UInt8.toNat_inj, UInt8.toNat_add, UInt8.toNat_ofNat',
+          Nat.reducePow, UInt8.reduceToNat, Nat.mod_add_mod, UInt8.toNat_or, UInt8.toNat_and,
+          UInt32.toNat_toUInt8, UInt32.toNat_shiftRight, UInt32.reduceToNat, Nat.reduceMod, and_true]
+        refine ⟨?_, ?_, ?_, ?_⟩
+        · rw [Nat.mod_eq_of_lt (by omega), Nat.add_two_pow_eq_or_of_lt 3 (by omega) 30,
+            Nat.and_two_pow_sub_one_eq_mod _ 3, Nat.shiftRight_eq_div_pow,
+            Nat.mod_mod_of_dvd _ (by decide)]
+        · rw [Nat.mod_eq_of_lt (by omega), Nat.add_two_pow_eq_or_of_lt 6 (by omega) 2,
+            Nat.and_two_pow_sub_one_eq_mod _ 6, Nat.shiftRight_eq_div_pow,
+            Nat.mod_mod_of_dvd (c.val.toNat / 2 ^ 12) (by decide)]
+        · rw [Nat.mod_eq_of_lt (by omega), Nat.add_two_pow_eq_or_of_lt 6 (by omega) 2,
+            Nat.and_two_pow_sub_one_eq_mod _ 6, Nat.shiftRight_eq_div_pow,
+            Nat.mod_mod_of_dvd (c.val.toNat / 2 ^ 6) (by decide)]
+        · rw [Nat.mod_eq_of_lt (by omega), Nat.add_two_pow_eq_or_of_lt 6 (by omega) 2,
+            Nat.and_two_pow_sub_one_eq_mod _ 6, Nat.mod_mod_of_dvd c.val.toNat (by decide)]
+
 @[simp] theorem length_utf8EncodeChar (c : Char) : (utf8EncodeChar c).length = c.utf8Size := by
-  simp [Char.utf8Size, utf8EncodeChar]
+  simp [Char.utf8Size, utf8EncodeChar_eq_utf8EncodeCharFast, utf8EncodeCharFast]
   cases Decidable.em (c.val ≤ 0x7f) <;> simp [*]
   cases Decidable.em (c.val ≤ 0x7ff) <;> simp [*]
   cases Decidable.em (c.val ≤ 0xffff) <;> simp [*]

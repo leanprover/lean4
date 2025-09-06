@@ -23,7 +23,7 @@ example : monotone (fun (f : Option Unit) => do {do f; f; f}) := by
 
 example : monotone
   (fun (f : Nat → Option Unit) => do
-    for x in [1,2,3] do f x) := by
+    for x in [1,2,3] do f x : _ → Option _) := by
   repeat' monotonicity
 
 example : monotone
@@ -33,5 +33,5 @@ example : monotone
       acc := acc + (← f x)
       if acc > 10 then
         return 5
-    pure acc) := by
+    pure acc : _ → Option _) := by
   repeat' monotonicity

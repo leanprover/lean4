@@ -183,7 +183,7 @@ def updateSyntax (m : KVMap) (k : Name) (f : Syntax → Syntax) : KVMap :=
   (kv : KVMap) (init : δ) (f : Name × DataValue → δ → m (ForInStep δ)) : m δ :=
   forIn kv.entries init f
 
-instance : ForIn m KVMap (Name × DataValue) where
+instance [Monad m] : ForIn m KVMap (Name × DataValue) where
   forIn := KVMap.forIn
 
 def subsetAux : List (Name × DataValue) → KVMap → Bool

@@ -241,7 +241,7 @@ public def load (file : FilePath) : IO Manifest := do
 
 /--
 Parse a manifest file. Returns `none` if the file does not exist.
-Errors if the manifest is ill-formatted or the read files for other reasons.
+Errors if the manifest is ill-formatted or the read fails for other reasons.
 -/
 public def load? (file : FilePath) : IO (Option Manifest) := do
   match (← inline (load file) |>.toBaseIO) with

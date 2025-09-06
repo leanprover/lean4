@@ -28,7 +28,7 @@ public structure Env where
   lean : LeanInstall
   /-- The Elan installation (if any) of the environment. -/
   elan? : Option ElanInstall
-  /-- The Reservoir API endpoint URL (e.g., `https://reservoir.lean-lang.org/api`). -/
+  /-- The Reservoir API endpoint URL (e.g., `https://reservoir.lean-lang.org/api/v1`). -/
   reservoirApiUrl : String
   /-- Overrides the detected Lean's githash as the string Lake uses for Lean traces. -/
   githashOverride : String
@@ -41,8 +41,17 @@ public structure Env where
   noCache : Bool
   /-- Whether the Lake artifact cache should be enabled by default (i.e., `LAKE_ARTIFACT_CACHE`). -/
   enableArtifactCache : Bool
-  /-- The directory of the Lake cache. Set by `LAKE_CACHE_DIR`. If `none`, the cache is disabled. -/
-  lakeCache : Cache
+  /--
+  The system directory for the Lake cache. Set by `LAKE_CACHE_DIR`.
+  If `none`, no suitable system directory for the cache exists.
+  -/
+  lakeCache? : Option Cache
+  /-- The authentication key for cache uploads (i.e., `LAKE_CACHE_KEY`). -/
+  cacheKey? : Option String
+  /-- The base URL for artifact uploads and downloads from the cache (i.e., `LAKE_CACHE_ARTIFACT_ENDPOINT`). -/
+  cacheArtifactEndpoint? : Option String
+  /-- The base URL for revision uploads and downloads from the cache (i.e., `LAKE_CACHE_REVISION_ENDPOINT`). -/
+  cacheRevisionEndpoint? : Option String
   /-- The initial Elan toolchain of the environment (i.e., `ELAN_TOOLCHAIN`). -/
   initToolchain : String
   /-- The initial Lean library search path of the environment (i.e., `LEAN_PATH`). -/
@@ -89,16 +98,22 @@ namespace Env
 public def computeToolchain : BaseIO String := do
   return (← IO.getEnv "ELAN_TOOLCHAIN").getD Lean.toolchain
 
-/-- Compute the cache location used by Lake from the process environment. May be disabled. -/
-public def computeCache (elan? : Option ElanInstall) (toolchain : String) : BaseIO Cache := do
+/--
+Compute the system cache location from the process environment.
+If `none`, no system directory for workspace the cache exists.
+-/
+public def computeCache? (elan? : Option ElanInstall) (toolchain : String) : BaseIO (Option Cache) := do
   if let some cacheDir ← IO.getEnv "LAKE_CACHE_DIR" then
-    return ⟨cacheDir⟩
+    if cacheDir.isEmpty then
+      return none
+    else
+      return some ⟨cacheDir⟩
   else if let some elan := elan? then
-    return ⟨elan.toolchainDir toolchain / "lake" / "cache"⟩
+    return some ⟨elan.toolchainDir toolchain / "lake" / "cache"⟩
   else if let some cacheHome ← getSystemCacheHome? then
-    return ⟨cacheHome / "lake"⟩
+    return some ⟨cacheHome / "lake"⟩
   else
-    return ⟨""⟩
+    return none
 
 /--
 Compute a `Lake.Env` object from the given installs
@@ -118,7 +133,10 @@ public def compute
     reservoirApiUrl := ← getUrlD "RESERVOIR_API_URL" s!"{reservoirBaseUrl}/v1"
     noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind envToBool?).getD false
     enableArtifactCache := (← IO.getEnv "LAKE_ARTIFACT_CACHE").bind envToBool? |>.getD false
-    lakeCache := ← computeCache elan? toolchain
+    lakeCache? := ← computeCache? elan? toolchain
+    cacheKey? := (← IO.getEnv "LAKE_CACHE_KEY").map (·.trim)
+    cacheArtifactEndpoint? := (← IO.getEnv "LAKE_CACHE_ARTIFACT_ENDPOINT").map normalizeUrl
+    cacheRevisionEndpoint? := (← IO.getEnv "LAKE_CACHE_REVISION_ENDPOINT").map normalizeUrl
     githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
     toolchain
     initToolchain
@@ -135,9 +153,11 @@ where
     | .error e => throw s!"'LAKE_PKG_URL_MAP' has invalid JSON: {e}"
   @[macro_inline] getUrlD var default := do
     if let some url ← IO.getEnv var then
-      return if url.back == '/' then url.dropRight 1 else url
+      return normalizeUrl url
     else
        return default
+  normalizeUrl url :=
+    if url.back == '/' then url.dropRight 1 else url
 
 /--
 The string Lake uses to identify Lean in traces.
@@ -213,7 +233,9 @@ public def baseVars (env : Env) : Array (String × Option String)  :=
     ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
     ("LAKE_NO_CACHE", toString env.noCache),
     ("LAKE_ARTIFACT_CACHE", toString env.enableArtifactCache),
-    ("LAKE_CACHE_DIR", if env.lakeCache.isDisabled then none else env.lakeCache.dir.toString),
+    ("LAKE_CACHE_KEY", env.cacheKey?),
+    ("LAKE_CACHE_ARTIFACT_ENDPOINT", env.cacheArtifactEndpoint?),
+    ("LAKE_CACHE_REVISION_ENDPOINT", env.cacheRevisionEndpoint?),
     ("LEAN", env.lean.lean.toString),
     ("LEAN_SYSROOT", env.lean.sysroot.toString),
     ("LEAN_AR", env.lean.ar.toString),
@@ -223,6 +245,7 @@ public def baseVars (env : Env) : Array (String × Option String)  :=
 /-- Environment variable settings for the `Lake.Env`. -/
 public def vars (env : Env) : Array (String × Option String)  :=
   let vars := env.baseVars ++ #[
+    ("LAKE_CACHE_DIR", if let some cache := env.lakeCache? then cache.dir.toString else ""),
     ("LEAN_PATH", some env.leanPath.toString),
     ("LEAN_SRC_PATH", some env.leanSrcPath.toString),
     ("LEAN_GITHASH", env.leanGithash),

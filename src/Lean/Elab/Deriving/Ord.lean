@@ -90,7 +90,7 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
     end)
 
 private def mkOrdInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "ord" declName
+  let ctx ← mkContext ``Ord "ord" declName
   let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Ord #[declName])
   trace[Elab.Deriving.ord] "\n{cmds}"
   return cmds

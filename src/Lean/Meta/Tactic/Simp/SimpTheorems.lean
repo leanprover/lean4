@@ -288,7 +288,12 @@ private partial def shouldPreprocess (type : Expr) : MetaM Bool :=
       return true
 
 private partial def preprocess (e type : Expr) (inv : Bool) (isGlobal : Bool) : MetaM (List (Expr × Expr)) :=
-  go e type
+  -- Make sure `mkAppM` etc used below can access private declarations when synthesizing proofs.
+  -- When synthesizing new types, only elementary declarations like `Eq` and `False` from
+  -- `Init.Prelude` are used and we can assume they are always publicly imported (and if not, we
+  -- still get an error, just later than without this line).
+  withoutExporting do
+    go e type
 where
   go (e type : Expr) : MetaM (List (Expr × Expr)) := do
   let type ← whnf type
@@ -341,7 +346,7 @@ where
       else if rhs.isConstOf ``Bool.false then
         return [(← mkAppM ``Bool.of_not_eq_false #[e], ← mkEq lhs (mkConst ``Bool.true))]
     let type ← mkEq p (mkConst ``False)
-    let e    ← mkEqFalse e
+    let e    ← withoutExporting do mkEqFalse e
     return [(e, type)]
   else if let some (type₁, type₂) := type.and? then
     let e₁ := mkProj ``And 0 e
@@ -352,7 +357,7 @@ where
       throwError m!"Invalid `←` modifier: Cannot be applied to a rule that rewrites to `True`"
         ++ .note m!"This simp theorem will rewrite{inlineExpr type}to `True`, which should not be applied in the reverse direction"
     let type ← mkEq type (mkConst ``True)
-    let e    ← mkEqTrue e
+    let e    ← withoutExporting do mkEqTrue e
     return [(e, type)]
 
 private def checkTypeIsProp (type : Expr) : MetaM Unit :=
@@ -388,7 +393,7 @@ def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
       let mut r := #[]
       for (val, type) in (← preprocess val type inv (isGlobal := true)) do
         let auxName ← mkAuxLemma (kind? := `_simp) cinfo.levelParams type val (inferRfl := true)
-        r := r.push <| (← withoutExporting do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
+        r := r.push <| (← do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
       return r
     else
       return #[← withoutExporting do mkSimpTheoremCore origin (mkConst declName us) #[] (mkConst declName) post prio (noIndexAtArgs := false)]

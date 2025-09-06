@@ -15,6 +15,7 @@ public import Lean.Elab.Match
 public import Lean.Compiler.MetaAttr
 meta import Lean.Parser.Term
 meta import Lean.Parser.Tactic
+import Lean.Linter.Basic
 
 public section
 
@@ -195,7 +196,7 @@ def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit :=
 private def ensureAtomicBinderName (binderView : BinderView) : TermElabM Unit :=
   let n := binderView.id.getId.eraseMacroScopes
   unless n.isAtomic do
-    throwErrorAt binderView.id "invalid binder name '{n}', it must be atomic"
+    throwErrorAt binderView.id "invalid binder name `{n}`, it must be atomic"
 
 register_builtin_option checkBinderAnnotations : Bool := {
   defValue := true
@@ -781,8 +782,8 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     -/
     let type ← withSynthesize (postpone := .partial) <| elabType typeStx
     let letMsg := if config.nondep then "have" else "let"
-    registerCustomErrorIfMVar type typeStx m!"failed to infer '{letMsg}' declaration type"
-    registerLevelMVarErrorExprInfo type typeStx m!"failed to infer universe levels in '{letMsg}' declaration type"
+    registerCustomErrorIfMVar type typeStx m!"failed to infer `{letMsg}` declaration type"
+    registerLevelMVarErrorExprInfo type typeStx m!"failed to infer universe levels in `{letMsg}` declaration type"
     if config.postponeValue then
       let type ← mkForallFVars fvars type
       let val  ← mkFreshExprMVar type

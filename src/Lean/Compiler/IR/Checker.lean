@@ -41,7 +41,7 @@ abbrev M := ReaderT CheckerContext <| StateRefT CheckerState CompilerM
 
 def throwCheckerError {α : Type} (msg : String) : M α := do
   let declName := (← read).currentDecl.name
-  throwError s!"failed to compile definition, compiler IR check failed at '{declName}'. Error: {msg}"
+  throwError "failed to compile definition, compiler IR check failed at `{.ofConstName declName}`. Error: {msg}"
 
 def markIndex (i : Index) : M Unit := do
   let s ← get

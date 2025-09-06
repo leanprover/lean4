@@ -32,7 +32,7 @@ open Meta
 def Term.expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : TermElabM ExpandDeclIdResult := do
   let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
   if (← read).sectionVars.contains r.shortName then
-    throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
+    throwError "invalid declaration name `{r.shortName}`, there is a section variable with the same name"
   return r
 
 builtin_initialize

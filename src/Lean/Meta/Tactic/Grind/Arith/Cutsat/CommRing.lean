@@ -4,21 +4,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.ProveEq
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
-
+import Lean.Meta.Tactic.Grind.ProveEq
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
+import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 public section
-
+namespace Lean.Meta.Grind.Arith.Cutsat
 /-!
 CommRing interface for cutsat. We use it to normalize nonlinear polynomials.
 -/
-
-namespace Lean.Meta.Grind.Arith.Cutsat
 
 /-- Returns `true` if `p` contains a nonlinear monomial. -/
 def _root_.Int.Linear.Poly.isNonlinear (p : Poly) : GoalM Bool := do

@@ -54,7 +54,7 @@ class Semiring (α : Type u) extends Add α, Mul α where
   -/
   [ofNat : ∀ n, OfNat α n]
   /-- Scalar multiplication by natural numbers. -/
-  [nsmul : HMul Nat α α]
+  [nsmul : SMul Nat α]
   /-- Exponentiation by a natural number. -/
   [npow : HPow α Nat α]
   /-- Zero is the right identity for addition. -/
@@ -85,7 +85,7 @@ class Semiring (α : Type u) extends Add α, Mul α where
   ofNat_succ : ∀ a : Nat, OfNat.ofNat (α := α) (a + 1) = OfNat.ofNat a + 1 := by intros; rfl
   /-- Numerals are consistently defined with respect to the canonical map from natural numbers. -/
   ofNat_eq_natCast : ∀ n : Nat, OfNat.ofNat (α := α) n = Nat.cast n := by intros; rfl
-  nsmul_eq_natCast_mul : ∀ n : Nat, ∀ a : α, HMul.hMul (α := Nat) n a = Nat.cast n * a := by intros; rfl
+  nsmul_eq_natCast_mul : ∀ n : Nat, ∀ a : α, n • a = Nat.cast n * a := by intros; rfl
 
 /--
 A ring, i.e. a type equipped with addition, negation, multiplication, and a map from the integers,
@@ -97,15 +97,15 @@ class Ring (α : Type u) extends Semiring α, Neg α, Sub α where
   /-- In every ring there is a canonical map from the integers to the ring. -/
   [intCast : IntCast α]
   /-- Scalar multiplication by integers. -/
-  [zsmul : HMul Int α α]
+  [zsmul : SMul Int α]
   /-- Negation is the left inverse of addition. -/
   neg_add_cancel : ∀ a : α, -a + a = 0
   /-- Subtraction is addition of the negative. -/
   sub_eq_add_neg : ∀ a b : α, a - b = a + -b
   /-- Scalar multiplication by the negation of an integer is the negation of scalar multiplication by that integer. -/
-  neg_zsmul : ∀ (i : Int) (a : α), HMul.hMul (α := Int) (-i : Int) a = -(HMul.hMul (α := Int) i a)
+  neg_zsmul : ∀ (i : Int) (a : α), (-i : Int) • a = -(i • a)
   /-- Scalar multiplication by natural numbers is consistent with scalar multiplication by integers. -/
-  zsmul_natCast_eq_nsmul : ∀ n : Nat, ∀ a : α, HMul.hMul (α := Int) (n : Int) a = HMul.hMul (α := Nat) n a := by intros; rfl
+  zsmul_natCast_eq_nsmul : ∀ n : Nat, ∀ a : α, (n : Int) • a = n • a := by intros; rfl
   /-- The canonical map from the integers is consistent with the canonical map from the natural numbers. -/
   intCast_ofNat : ∀ n : Nat, Int.cast (OfNat.ofNat (α := Int) n) = OfNat.ofNat (α := α) n := by intros; rfl
   /-- The canonical map from the integers is consistent with negation. -/
@@ -195,7 +195,7 @@ theorem natCast_pow (x : Nat) (k : Nat) : ((x ^ k : Nat) : α) = (x : α) ^ k :=
   next => simp [pow_zero, Nat.pow_zero, natCast_one]
   next k ih => simp [pow_succ, Nat.pow_succ, natCast_mul, *]
 
-theorem nsmul_eq_ofNat_mul {α} [Semiring α] {k : Nat} {a : α} : HMul.hMul (α := Nat) k a = OfNat.ofNat k * a := by
+theorem nsmul_eq_ofNat_mul {α} [Semiring α] {k : Nat} {a : α} : k • a = OfNat.ofNat k * a := by
   simp [ofNat_eq_natCast, nsmul_eq_natCast_mul]
 
 end Semiring
@@ -303,7 +303,7 @@ theorem mul_neg (a b : α) : a * (-b) = -(a * b) := by
   rw [neg_eq_mul_neg_one b, neg_eq_mul_neg_one (a * b), mul_assoc]
 
 attribute [local instance] Ring.zsmul in
-theorem zsmul_eq_intCast_mul {k : Int} {a : α} : (HMul.hMul (α := Int) (γ := α) k a : α) = (k : α) * a := by
+theorem zsmul_eq_intCast_mul {k : Int} {a : α} : (k • a : α) = (k : α) * a := by
   match k with
   | (k : Nat) =>
     rw [intCast_natCast, zsmul_natCast_eq_nsmul, nsmul_eq_natCast_mul]
@@ -516,7 +516,7 @@ end IsCharP
 open AddCommGroup
 
 theorem no_int_zero_divisors {α : Type u} [IntModule α] [NoNatZeroDivisors α] {k : Int} {a : α}
-    : k ≠ 0 → k * a = 0 → a = 0 := by
+    : k ≠ 0 → k • a = 0 → a = 0 := by
   match k with
   | (k : Nat) =>
     simp only [ne_eq, Int.natCast_eq_zero]

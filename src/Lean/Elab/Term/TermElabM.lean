@@ -357,7 +357,6 @@ instance : Monad TermElabM :=
   { pure := i.pure, bind := i.bind }
 
 open Meta
-
 instance : Inhabited (TermElabM α) where
   default := throw default
 
@@ -600,6 +599,30 @@ directly.
 @[builtin_doc]
 builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute decl_name%
 
+/--
+  Auxiliary datatype for presenting a Lean lvalue modifier.
+  We represent an unelaborated lvalue as a `Syntax` (or `Expr`) and `List LVal`.
+  Example: `a.foo.1` is represented as the `Syntax` `a` and the list
+  `[LVal.fieldName "foo", LVal.fieldIdx 1]`.
+-/
+inductive LVal where
+  | fieldIdx  (ref : Syntax) (i : Nat)
+  /-- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierarchical/composite name.
+  `ref` is the syntax object representing the field. `fullRef` includes the LHS. -/
+  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (fullRef : Syntax)
+
+def LVal.getRef : LVal → Syntax
+  | .fieldIdx ref _    => ref
+  | .fieldName ref ..  => ref
+
+def LVal.isFieldName : LVal → Bool
+  | .fieldName .. => true
+  | _ => false
+
+instance : ToString LVal where
+  toString
+    | .fieldIdx _ i     => toString i
+    | .fieldName _ n .. => n
 
 /-- Return the name of the declaration being elaborated if available. -/
 def getDeclName? : TermElabM (Option Name) := return (← read).declName?
@@ -719,31 +742,6 @@ def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
 def ppGoal (mvarId : MVarId) : TermElabM Format :=
   Meta.ppGoal mvarId
 
-/--
-  Auxiliary datatype for presenting a Lean lvalue modifier.
-  We represent an unelaborated lvalue as a `Syntax` (or `Expr`) and `List LVal`.
-  Example: `a.foo.1` is represented as the `Syntax` `a` and the list
-  `[LVal.fieldName "foo", LVal.fieldIdx 1]`.
--/
-inductive LVal where
-  | fieldIdx  (ref : Syntax) (i : Nat)
-  /-- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierarchical/composite name.
-  `ref` is the syntax object representing the field. `fullRef` includes the LHS. -/
-  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (fullRef : Syntax)
-
-def LVal.getRef : LVal → Syntax
-  | .fieldIdx ref _    => ref
-  | .fieldName ref ..  => ref
-
-def LVal.isFieldName : LVal → Bool
-  | .fieldName .. => true
-  | _ => false
-
-instance : ToString LVal where
-  toString
-    | .fieldIdx _ i     => toString i
-    | .fieldName _ n .. => n
-
 open Level (LevelElabM)
 
 def liftLevelM (x : LevelElabM α) : TermElabM α := do
@@ -826,7 +824,7 @@ where
   addArgName (msg : MessageData) (extra : String := "") : TermElabM MessageData := do
     match (← get).mvarArgNames.get? mvarErrorInfo.mvarId with
     | none => return msg
-    | some argName => return if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
+    | some argName => return if argName.hasMacroScopes then msg else msg ++ extra ++ m!" `{argName}`"
 
   appendExtra (msg : MessageData) : MessageData :=
     match extraMsg? with
@@ -1485,7 +1483,7 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   let s ← saveState
   let k := stx.getKind
   match termElabAttribute.getEntries (← getEnv) k with
-  | []      => throwError "elaboration function for '{k}' has not been implemented{indentD stx}"
+  | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
   | elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
 
 instance : MonadMacroAdapter TermElabM where
@@ -1905,7 +1903,7 @@ where
           let localDecl ← auto.fvarId!.getDecl
           for x in xs do
             if (← localDeclDependsOn localDecl x.fvarId!) then
-              throwError "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
+              throwError "invalid auto implicit argument `{auto}`, it depends on explicitly provided argument `{x}`"
       return autos ++ xs
     | auto :: todo =>
       let autos ← collectUnassignedMVars (← inferType auto) autos
@@ -1952,7 +1950,7 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
   checkDeprecatedCore constName
   let cinfo ← getConstVal constName
   if explicitLevels.length > cinfo.levelParams.length then
-    throwError "too many explicit universe levels for '{constName}'"
+    throwError "too many explicit universe levels for `{constName}`"
   else
     let numMissingLevels := cinfo.levelParams.length - explicitLevels.length
     let us ← mkFreshLevelMVars numMissingLevels
@@ -1982,7 +1980,7 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
   if let some (e, projs) ← resolveLocalName n then
     unless explicitLevels.isEmpty do
-      throwError "invalid use of explicit universe parameters, '{e}' is a local variable"
+      throwError "invalid use of explicit universe parameters, `{e}` is a local variable"
     return [(e, projs)]
   let preresolved := preresolved.filterMap fun
     | .decl n projs => some (n, projs)

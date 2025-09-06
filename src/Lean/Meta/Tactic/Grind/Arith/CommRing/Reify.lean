@@ -4,14 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Var
-
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
-
 namespace Lean.Meta.Grind.Arith.CommRing
 
 def isAddInst (inst : Expr) : RingM Bool :=

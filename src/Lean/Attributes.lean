@@ -139,7 +139,7 @@ def throwAttrNotInAsyncCtx (attrName declName : Name) (asyncPrefix? : Option Nam
   throwError "Cannot add attribute `[{attrName}]` to declaration `{.ofConstName declName}` because it is not from the present async context{asyncPrefix}"
 
 def throwAttrDeclNotOfExpectedType (attrName declName : Name) (givenType expectedType : Expr) : m α :=
-  throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{declName}` has type{indentExpr givenType}\n\
+  throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` has type{indentExpr givenType}\n\
     but `[{attrName}]` can only be added to declarations of type{indentExpr expectedType}"
 end
 
@@ -165,8 +165,10 @@ def registerTagAttribute (name : Name) (descr : String)
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameSet) n => s.insert n
-    exportEntriesFn := fun es =>
+    exportEntriesFnEx := fun env es _ =>
       let r : Array Name := es.foldl (fun a e => a.push e) #[]
+      -- Do not export info for private defs
+      let r := r.filter (env.contains (skipRealize := false))
       r.qsort Name.quickLt
     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
     asyncMode       := asyncMode
@@ -232,8 +234,10 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
     mkInitial       := pure {}
     addImportedFn   := fun s => impl.afterImport s *> pure {}
     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2
-    exportEntriesFn := fun m =>
+    exportEntriesFnEx := fun env m _ =>
       let r : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[]
+      -- Do not export info for private defs
+      let r := r.filter (env.contains (skipRealize := false) ·.1)
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
   }
@@ -289,8 +293,10 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2
-    exportEntriesFn := fun m =>
+    exportEntriesFnEx := fun env m _ =>
       let r : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[]
+      -- Do not export info for private defs
+      let r := r.filter (env.contains (skipRealize := false) ·.1)
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- We assume (and check in `modifyState`) that, if used asynchronously, enum attributes are set
@@ -383,7 +389,7 @@ unsafe def mkAttributeImplOfConstantUnsafe (env : Environment) (opts : Options) 
   | some info =>
     match info.type with
     | Expr.const `Lean.AttributeImpl _ => env.evalConst AttributeImpl opts declName
-    | _ => throw s!"Unexpected attribute implementation type: `{declName}` is not of type `Lean.AttributeImpl`"
+    | _ => throw "Unexpected attribute implementation type: `{.ofConstName declName}` is not of type `Lean.AttributeImpl`"
 
 @[implemented_by mkAttributeImplOfConstantUnsafe]
 opaque mkAttributeImplOfConstant (env : Environment) (opts : Options) (declName : Name) : Except String AttributeImpl

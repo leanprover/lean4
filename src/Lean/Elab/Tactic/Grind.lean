@@ -91,7 +91,13 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
       else
         params := { params with ematch := (← params.ematch.eraseDecl declName) }
     | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) =>
-      let declName ← realizeGlobalConstNoOverloadWithInfo id
+      let declName ← try
+        realizeGlobalConstNoOverloadWithInfo id
+      catch err =>
+        if (← resolveLocalName id.getId).isSome then
+          throwErrorAt id "redundant parameter `{id}`, `grind` uses local hypotheses automatically"
+        else
+          throw err
       let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
       match kind with
       | .ematch .user =>

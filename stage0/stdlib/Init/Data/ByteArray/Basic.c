@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ByteArray.Basic
-// Imports: Init.Data.Array.Basic Init.Data.Array.DecidableEq Init.Data.UInt.Basic Init.Data.UInt.BasicAux Init.Data.UInt.BasicAux Init.Data.Option.Basic
+// Imports: Init.Data.Array.DecidableEq Init.Data.UInt.Basic Init.Data.UInt.BasicAux Init.Data.UInt.BasicAux Init.Data.Option.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ LEAN_EXPORT lean_object* l_ByteArray_foldl___redArg___lam__0(lean_object*, lean_
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_nextn(lean_object*, lean_object*);
 lean_object* lean_byte_array_copy_slice(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l___auto___closed__16____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
+LEAN_EXPORT lean_object* l_ByteArray_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_hasPrev___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_atEnd___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_ByteArray_Iterator_atEnd(lean_object*);
@@ -70,6 +71,7 @@ LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe_fold___redArg(lean_object*, le
 lean_object* lean_byte_array_push(lean_object*, uint8_t);
 static lean_object* l___auto___closed__10____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
 static lean_object* l___auto___closed__12____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
+static lean_object* l_ByteArray_defaultIterator___closed__0____x40_Init_Data_ByteArray_Basic_650311061____hygCtx___hyg_22_;
 LEAN_EXPORT lean_object* l_panic___at___ByteArray_toUInt64LE_x21_spec__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_append(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -85,7 +87,6 @@ LEAN_EXPORT uint8_t l_ByteArray_Iterator_curr(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_extract___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__21____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
-static lean_object* l_ByteArray_instInhabitedIterator___closed__0;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* lean_byte_array_set(lean_object*, lean_object*, uint8_t);
 static lean_object* l_ByteArray_toUInt64LE_x21___closed__1;
@@ -194,6 +195,7 @@ uint64_t lean_uint64_shift_left(uint64_t, uint64_t);
 static lean_object* l___auto___closed__6____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
 lean_object* lean_byte_array_uset(lean_object*, size_t, uint8_t);
 LEAN_EXPORT lean_object* l_ByteArray_toUInt64LE_x21___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_ByteArray_Iterator_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_prevn(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -217,13 +219,15 @@ LEAN_EXPORT lean_object* l_ByteArray_forIn_loop___redArg___lam__0(lean_object*, 
 LEAN_EXPORT lean_object* l_ByteArray_toList___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__9____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
+LEAN_EXPORT lean_object* l_ByteArray_ctorIdx___boxed(lean_object*);
 static lean_object* l_ByteArray_toUInt64LE_x21___closed__2;
 LEAN_EXPORT lean_object* l_ByteArray_forIn_loop___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_ByteArray_instGetElemNatUInt8LtSize___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+LEAN_EXPORT lean_object* l_ByteArray_defaultIterator____x40_Init_Data_ByteArray_Basic_650311061____hygCtx___hyg_22_;
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAtom(lean_object*);
-static lean_object* l_panic___at___ByteArray_toUInt64LE_x21_spec__0___boxed__const__1;
+LEAN_EXPORT lean_object* l_panic___at___ByteArray_toUInt64LE_x21_spec__0___boxed__const__1;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_ByteArray_isEmpty___boxed(lean_object*);
@@ -239,6 +243,7 @@ static lean_object* l_ByteArray_foldl___redArg___closed__2;
 lean_object* lean_byte_array_size(lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 uint8_t lean_uint8_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_ByteArray_Iterator_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_forInUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_curr___boxed(lean_object*);
@@ -253,6 +258,23 @@ static lean_object* l_ByteArray_instHashable___closed__0;
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_next_x27___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_next(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe_fold___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ByteArray_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_ByteArray_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_ByteArray_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_ByteArray_mk___boxed(lean_object* x_1) {
 _start:
 {
@@ -1995,7 +2017,24 @@ lean_dec(x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_ByteArray_instInhabitedIterator___closed__0() {
+LEAN_EXPORT lean_object* l_ByteArray_Iterator_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_ByteArray_Iterator_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_ByteArray_Iterator_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_ByteArray_defaultIterator___closed__0____x40_Init_Data_ByteArray_Basic_650311061____hygCtx___hyg_22_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2007,11 +2046,19 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
+static lean_object* _init_l_ByteArray_defaultIterator____x40_Init_Data_ByteArray_Basic_650311061____hygCtx___hyg_22_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_ByteArray_defaultIterator___closed__0____x40_Init_Data_ByteArray_Basic_650311061____hygCtx___hyg_22_;
+return x_1;
+}
+}
 static lean_object* _init_l_ByteArray_instInhabitedIterator() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_ByteArray_instInhabitedIterator___closed__0;
+x_1 = l_ByteArray_defaultIterator____x40_Init_Data_ByteArray_Basic_650311061____hygCtx___hyg_22_;
 return x_1;
 }
 }
@@ -2683,7 +2730,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_ByteArray_toUInt64LE_x21___closed__2;
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(367u);
+x_3 = lean_unsigned_to_nat(366u);
 x_4 = l_ByteArray_toUInt64LE_x21___closed__1;
 x_5 = l_ByteArray_toUInt64LE_x21___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2790,7 +2837,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_ByteArray_toUInt64LE_x21___closed__2;
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(379u);
+x_3 = lean_unsigned_to_nat(378u);
 x_4 = l_ByteArray_toUInt64BE_x21___closed__0;
 x_5 = l_ByteArray_toUInt64LE_x21___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2874,7 +2921,6 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_DecidableEq(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin, lean_object*);
@@ -2885,9 +2931,6 @@ LEAN_EXPORT lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin, l
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Array_DecidableEq(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -2999,8 +3042,10 @@ l_ByteArray_foldl___redArg___closed__8 = _init_l_ByteArray_foldl___redArg___clos
 lean_mark_persistent(l_ByteArray_foldl___redArg___closed__8);
 l_ByteArray_foldl___redArg___closed__9 = _init_l_ByteArray_foldl___redArg___closed__9();
 lean_mark_persistent(l_ByteArray_foldl___redArg___closed__9);
-l_ByteArray_instInhabitedIterator___closed__0 = _init_l_ByteArray_instInhabitedIterator___closed__0();
-lean_mark_persistent(l_ByteArray_instInhabitedIterator___closed__0);
+l_ByteArray_defaultIterator___closed__0____x40_Init_Data_ByteArray_Basic_650311061____hygCtx___hyg_22_ = _init_l_ByteArray_defaultIterator___closed__0____x40_Init_Data_ByteArray_Basic_650311061____hygCtx___hyg_22_();
+lean_mark_persistent(l_ByteArray_defaultIterator___closed__0____x40_Init_Data_ByteArray_Basic_650311061____hygCtx___hyg_22_);
+l_ByteArray_defaultIterator____x40_Init_Data_ByteArray_Basic_650311061____hygCtx___hyg_22_ = _init_l_ByteArray_defaultIterator____x40_Init_Data_ByteArray_Basic_650311061____hygCtx___hyg_22_();
+lean_mark_persistent(l_ByteArray_defaultIterator____x40_Init_Data_ByteArray_Basic_650311061____hygCtx___hyg_22_);
 l_ByteArray_instInhabitedIterator = _init_l_ByteArray_instInhabitedIterator();
 lean_mark_persistent(l_ByteArray_instInhabitedIterator);
 l_ByteArray_instSizeOfIterator = _init_l_ByteArray_instSizeOfIterator();

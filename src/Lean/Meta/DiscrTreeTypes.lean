@@ -20,11 +20,11 @@ namespace DiscrTree
 Discrimination tree key. See `DiscrTree`
 -/
 inductive Key where
-  | const : Name → Nat → Key
-  | fvar  : FVarId → Nat → Key
-  | lit   : Literal → Key
   | star  : Key
   | other : Key
+  | lit   : Literal → Key
+  | fvar  : FVarId → Nat → Key
+  | const : Name → Nat → Key
   | arrow : Key
   | proj  : Name → Nat → Nat → Key
   deriving Inhabited, BEq, Repr

@@ -153,14 +153,13 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       lowerCode k
   | .const name _ args =>
     let irArgs ← args.mapM lowerArg
-    if let some code ← tryIrDecl? name irArgs then
-      return code
+    if let some decl ← findDecl name then
+      return (← mkApplication name decl.params.size irArgs)
+    if let some decl ← LCNF.getMonoDecl? name then
+      return (← mkApplication name decl.params.size irArgs)
     let env ← Lean.getEnv
     match env.find? name with
     | some (.ctorInfo ctorVal) =>
-      if isExtern env name then
-        return (← mkFap name irArgs)
-
       let type ← nameToIRType ctorVal.induct
       if type.isScalar then
         let var ← bindVar decl.fvarId
@@ -201,9 +200,9 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     | some (.defnInfo ..) | some (.opaqueInfo ..) =>
       mkFap name irArgs
     | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>
-      throwNamedError lean.dependsOnNoncomputable f!"'{name}' not supported by code generator; consider marking definition as 'noncomputable'"
+      throwNamedError lean.dependsOnNoncomputable f!"`{name}` not supported by code generator; consider marking definition as `noncomputable`"
     | some (.recInfo ..) =>
-      throwError f!"code generator does not support recursor '{name}' yet, consider using 'match ... with' and/or structural recursion"
+      throwError f!"code generator does not support recursor `{name}` yet, consider using 'match ... with' and/or structural recursion"
     | none => panic! "reference to unbound name"
   | .fvar fvarId args =>
     match (← getFVarValue fvarId) with
@@ -244,18 +243,14 @@ where
     return .vdecl tmpVar .object (.fap name firstArgs) <|
            .vdecl var type (.ap tmpVar restArgs) (← lowerCode k)
 
-  tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
-    if let some decl ← LCNF.getMonoDecl? name then
-      let numArgs := args.size
-      let numParams := decl.params.size
-      if numArgs < numParams then
-        return some (← mkPap name args)
-      else if numArgs == numParams then
-        return some (← mkFap name args)
-      else
-        return some (← mkOverApplication name numParams args)
+  mkApplication (name : Name) (numParams : Nat) (args : Array Arg) : M FnBody := do
+    let numArgs := args.size
+    if numArgs < numParams then
+      mkPap name args
+    else if numArgs == numParams then
+      mkFap name args
     else
-      return none
+      mkOverApplication name numParams args
 
 partial def lowerAlt (discr : VarId) (a : LCNF.Alt) : M Alt := do
   match a with

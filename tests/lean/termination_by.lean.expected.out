@@ -13,4 +13,5 @@ termination_by.lean:54:2-54:18: warning: unused `termination_by`, function is no
 termination_by.lean:62:2-62:23: error: incomplete set of termination hints:
 This function is mutually recursive with isOdd, which does not have a termination hint.
 The present clause is ignored.
-Try this: termination_by x1 => x1
+Try this:
+  termination_by x1 => x1

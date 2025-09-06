@@ -91,17 +91,20 @@ def partialFixpoint (docCtx : LocalContext × LocalInstances) (preDefs : Array P
   -- ∀ x y, CCPO (r x y), but crucially constructed using `instCCPOPi`
   let insts ← preDefs.mapIdxM fun i preDef => withRef hints[i]!.ref do
     lambdaTelescope preDef.value fun xs _body => do
+      trace[Elab.definition.partialFixpoint] "preDef.value: {preDef.value}, xs: {xs}, _body: {_body}"
       let type ← instantiateForall preDef.type xs
       let inst ←
         match hints[i]!.fixpointType with
         | .coinductiveFixpoint =>
-          unless type.isProp do
-            throwError "`coinductive_fixpoint` can be only used to define predicates"
-          pure (mkConst ``ReverseImplicationOrder.instCompleteLattice)
+          forallTelescopeReducing type fun xs e => do
+            unless e.isProp do
+              throwError "`coinductive_fixpoint` can be only used to define predicates"
+            mkInstPiOfInstsForall xs (mkConst ``ReverseImplicationOrder.instCompleteLattice)
         | .inductiveFixpoint =>
-          unless type.isProp do
-            throwError "`inductive_fixpoint` can be only used to define predicates"
-          pure (mkConst ``ImplicationOrder.instCompleteLattice)
+          forallTelescopeReducing type fun xs e => do
+            unless e.isProp do
+              throwError "`inductive_fixpoint` can be only used to define predicates"
+            mkInstPiOfInstsForall xs (mkConst ``ImplicationOrder.instCompleteLattice)
         | .partialFixpoint => try
             synthInstance (← mkAppM ``CCPO #[type])
           catch _ =>
@@ -128,10 +131,7 @@ def partialFixpoint (docCtx : LocalContext × LocalInstances) (preDefs : Array P
     -- Or:     CompleteLattice (∀ x y, rᵢ x y)
     let insts' ← insts.mapM fun inst =>
       lambdaTelescope inst fun xs inst => do
-        let mut inst := inst
-        for x in xs.reverse do
-          inst ← mkInstPiOfInstForall x inst
-        pure inst
+        mkInstPiOfInstsForall xs inst
 
     -- Either: CCPO ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
     -- Or:     CompleteLattice ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))

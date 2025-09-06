@@ -53,10 +53,10 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
         let initFnName ← Elab.realizeGlobalConstNoOverloadWithInfo initFnName
         let initDecl ← getConstInfo initFnName
         match getIOTypeArg initDecl.type with
-        | none => throwError "initialization function '{initFnName}' must have type of the form `IO <type>`"
+        | none => throwError "initialization function `{initFnName}` must have type of the form `IO <type>`"
         | some initTypeArg =>
           if decl.type == initTypeArg then pure initFnName
-          else throwError "initialization function '{initFnName}' type mismatch"
+          else throwError "initialization function `{initFnName}` type mismatch"
       | none =>
         if isIOUnit decl.type then pure Name.anonymous
         else throwError "initialization function must have type `IO Unit`"

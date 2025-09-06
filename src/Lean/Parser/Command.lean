@@ -292,6 +292,18 @@ with `end <id>`. The `end` command is optional at the end of a file.
 -/
 @[builtin_command_parser] def «end»          := leading_parser
   "end" >> optional (ppSpace >> checkColGt >> ident)
+
+namespace InternalSyntax
+  /-- Disable delimiting of local entries in ScopedEnvExtension within the current scope.
+  This command is for internal use only. It is intended for macros that implicitly introduce new
+  scopes, such as `expandInCmd` and `expandNamespacedDeclaration`. It allows local attributes to remain
+  accessible beyond those implicit scopes, even though they would normally be hidden from the user.
+  -/
+  scoped syntax (name := end_local_scope) "end_local_scope" : command
+
+  def endLocalScopeSyntax : Command := Unhygienic.run `(end_local_scope)
+end InternalSyntax
+
 /-- Declares one or more typed variables, or modifies whether already-declared variables are
   implicit.
 
@@ -825,8 +837,9 @@ identifier names chosen in the docstring for consistency.
     "[" >> sepBy1 ident ", " >> "]"
 
 /--
-  This is an auxiliary command for generation constructor injectivity theorems for
+  This is an auxiliary command to generate constructor injectivity theorems for
   inductive types defined at `Prelude.lean`.
+  Temporarily also controls the generation of the `ctorIdx` definition.
   It is meant for bootstrapping purposes only. -/
 @[builtin_command_parser] def genInjectiveTheorems := leading_parser
   "gen_injective_theorems% " >> ident

@@ -92,7 +92,7 @@ builtin_initialize
         throwError "`{decl}` is not a tactic (it is in the categor{s} {.andList catNames.toList})"
 
       if let some tgt' := alternativeOfTactic (← getEnv) tgtName then
-        throwError "'{tgtName}' is itself an alternative for '{tgt'}'"
+        throwError "`{tgtName}` is itself an alternative for `{tgt'}`"
       modifyEnv fun env => tacticAlternativeExt.addEntry env (decl, tgtName)
 
     descr :=
@@ -285,12 +285,12 @@ private def tacticDocsOnTactics : ParserAttributeHook where
     if catName == `tactic then
       return
     if alternativeOfTactic (← getEnv) declName |>.isSome then
-      throwError m!"`{declName}` is not a tactic"
+      throwError m!"`{.ofConstName declName}` is not a tactic"
     -- It's sufficient to look in the state (and not the imported entries) because this validation
     -- only needs to check tags added in the current module
     if let some tags := tacticTagExt.getState (← getEnv) |>.find? declName then
       if !tags.isEmpty then
-        throwError m!"`{declName}` is not a tactic"
+        throwError m!"`{.ofConstName declName}` is not a tactic"
 
 builtin_initialize
   registerParserAttributeHook tacticDocsOnTactics

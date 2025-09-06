@@ -12,21 +12,21 @@ t 2
  [{"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 4, "character": 12}, "end": {"line": 4, "character": 13}},
-   "message":
-   "Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\na n : Nat\n⊢ True",
-   "fullRange":
-   {"start": {"line": 4, "character": 12},
-    "end": {"line": 4, "character": 13}}},
-  {"source": "Lean 4",
-   "severity": 1,
-   "range":
    {"start": {"line": 2, "character": 22}, "end": {"line": 3, "character": 0}},
    "message": "unsolved goals\nthis : ∀ (a a : Nat), True\n⊢ True",
    "leanTags": [1],
    "fullRange":
    {"start": {"line": 2, "character": 22},
-    "end": {"line": 10, "character": 11}}}]}
+    "end": {"line": 10, "character": 11}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 4, "character": 12}, "end": {"line": 4, "character": 13}},
+   "message":
+   "Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\na n : Nat\n⊢ True",
+   "fullRange":
+   {"start": {"line": 4, "character": 12},
+    "end": {"line": 4, "character": 13}}}]}
 {"version": 1,
  "uri": "file:///incrementalTactic.lean",
  "diagnostics":

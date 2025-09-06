@@ -4,16 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Data.Int.OfNat
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
-
+public import Lean.Meta.Tactic.Grind.Types
+import Init.Data.Int.OfNat
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
+import Lean.Meta.NatInstTesters
 public section
-
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 /-- Given `e`, returns `(NatCast.natCast e, rfl)` -/

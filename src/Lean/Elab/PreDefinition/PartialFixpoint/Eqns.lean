@@ -29,7 +29,10 @@ structure EqnInfo extends EqnInfoCore where
   fixpointType    : Array PartialFixpointType
   deriving Inhabited
 
-builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
+builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
+  mkMapDeclarationExtension (exportEntriesFn := fun env s _ =>
+    -- Do not export for non-exposed defs
+    s.filter (fun n _ => env.find? n |>.any (·.hasValue)) |>.toArray)
 
 def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name)
     (fixedParamPerms : FixedParamPerms) (fixpointType : Array PartialFixpointType): MetaM Unit := do
@@ -99,7 +102,7 @@ where
           trace[Elab.definition.partialFixpoint] "mkUnfoldEq rfl succeeded"
           instantiateMVars goal
         catch e =>
-          throwError "failed to generate unfold theorem for '{declName}':\n{e.toMessageData}"
+          throwError "failed to generate unfold theorem for `{.ofConstName declName}`:\n{e.toMessageData}"
       let type ← mkForallFVars xs type
       let type ← letToHave type
       let value ← mkLambdaFVars xs goal

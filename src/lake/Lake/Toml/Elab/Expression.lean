@@ -70,7 +70,7 @@ def elabSubKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM Name := do
     let k := k.str <| ← elabSimpleKey kStx
     if let some ty := (← get).keyTys.find? k then
       unless ty matches .dottedPrefix do
-        throwErrorAt kStx "cannot redefine {ty} key '{k}'"
+        throwErrorAt kStx "cannot redefine {ty} key `{k}`"
     else
       modify fun s => {s with keyTys := s.keyTys.insert k .dottedPrefix}
     return k
@@ -84,7 +84,7 @@ def elabKeyval (kv : TSyntax ``keyval) : TomlElabM Unit := do
   let k ← elabSubKeys ks.pop
   let k := k.str <| ← elabSimpleKey tailKeyStx
   if let some ty := (← get).keyTys.find? k then
-    throwErrorAt tailKeyStx "cannot redefine {ty} key '{k}'"
+    throwErrorAt tailKeyStx "cannot redefine {ty} key `{k}`"
   else
     let v ← elabVal v
     modify fun s => {
@@ -108,10 +108,10 @@ def elabHeaderKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM Name := do
       match ty with
       | .array =>
         let some keyTys := (← get).arrKeyTys.find? k
-          | throwError "(internal) bad array key '{k}'"
+          | throwError "(internal) bad array key `{k}`"
         modify fun s => {s with keyTys, currArrKey := k}
       | .stdTable | .headerPrefix | .dottedPrefix  => pure ()
-      | _ => throwErrorAt kStx m!"cannot redefine {ty} key '{k}'"
+      | _ => throwErrorAt kStx m!"cannot redefine {ty} key `{k}`"
     else
       modify fun s => {s with keyTys := s.keyTys.insert k .headerPrefix}
     return k
@@ -126,7 +126,7 @@ def elabStdTable (x : TSyntax ``stdTable) : TomlElabM Unit := withRef x do
   let k ← k.str <$> elabSimpleKey tailKey
   if let some ty := (← get).keyTys.find? k then
     unless ty matches .headerPrefix do
-      throwErrorAt tailKey m!"cannot redefine {ty} key '{k}'"
+      throwErrorAt tailKey m!"cannot redefine {ty} key `{k}`"
   modify fun s => {
     s with
     currKey := k
@@ -146,14 +146,14 @@ def elabArrayTable (x : TSyntax ``arrayTable) : TomlElabM Unit := withRef x do
     if ty matches .array then
       let s ← get
       let some keyTys := s.arrParents.find? k >>= s.arrKeyTys.find?
-        | throwError "(internal) bad array key '{k}'"
+        | throwError "(internal) bad array key `{k}`"
       modify fun s => {
         s with
         keyTys, currKey := k, currArrKey := k
         items := s.items.push ⟨x, k, .array x #[.table x {}]⟩
       }
     else
-      throwErrorAt tailKey s!"cannot redefine {ty} key '{k}'"
+      throwErrorAt tailKey s!"cannot redefine {ty} key `{k}`"
   else
     modify fun s =>
       let keyTys := s.keyTys.insert k .array

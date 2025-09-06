@@ -53,7 +53,7 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
       let declName := parentName?.getD Name.anonymous ++ shortDeclName
       if decls.any fun decl => decl.declName == declName then
         withRef declId do
-          throwError "'{declName}' has already been declared"
+          throwError "`{.ofConstName declName}` has already been declared"
       let binders := decl[1]
       checkNotAlreadyDeclared declName
       applyAttributesAt declName attrs AttributeApplicationTime.beforeElaboration
@@ -109,7 +109,7 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
   for view in views do
     if letRecsToLiftCurr.any fun toLift => toLift.declName == view.declName then
       withRef view.ref do
-        throwError "'{view.declName}' has already been declared"
+        throwError "`{view.declName}` has already been declared"
   let lctx ← getLCtx
   let localInstances ← getLocalInstances
 

@@ -83,7 +83,6 @@ lean_object* l_Int64_sub___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_instCommRingInt16___closed__5;
 lean_object* l_ISize_pow___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint16_t l_Lean_Grind_Int16_intCast___lam__0(lean_object*);
-lean_object* l_instHAdd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_instCommRingInt64___closed__2;
 LEAN_EXPORT uint32_t l_Lean_Grind_Int32_natCast___lam__0(lean_object*);
 uint16_t lean_int16_of_nat(lean_object*);
@@ -108,6 +107,7 @@ lean_object* l_ISize_instOfNat___boxed(lean_object*);
 static lean_object* l_Lean_Grind_instCommRingInt32___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingInt64;
 static lean_object* l_Lean_Grind_instCommRingInt32___closed__2;
+lean_object* l_instHPow___redArg(lean_object*);
 LEAN_EXPORT size_t l_Lean_Grind_instCommRingISize___lam__1(lean_object*, size_t);
 static lean_object* l_Lean_Grind_instCommRingInt16___closed__7;
 uint32_t lean_int32_mul(uint32_t, uint32_t);
@@ -266,8 +266,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommRingInt8___closed__3;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instHPow___redArg(x_1);
 return x_2;
 }
 }
@@ -462,8 +461,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommRingInt16___closed__3;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instHPow___redArg(x_1);
 return x_2;
 }
 }
@@ -658,8 +656,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommRingInt32___closed__3;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instHPow___redArg(x_1);
 return x_2;
 }
 }
@@ -856,8 +853,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommRingInt64___closed__3;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instHPow___redArg(x_1);
 return x_2;
 }
 }
@@ -1054,8 +1050,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommRingISize___closed__3;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instHPow___redArg(x_1);
 return x_2;
 }
 }

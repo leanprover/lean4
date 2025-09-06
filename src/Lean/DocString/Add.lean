@@ -106,8 +106,11 @@ def versoDocString
 Adds a Markdown docstring to the environment, validating documentation links.
 -/
 def addMarkdownDocString (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) : TermElabM Unit := do
+  if declName.isAnonymous then
+    -- This case might happen on partial elaboration; ignore instead of triggering any panics below
+    return
   let throwImported {α} : TermElabM α :=
-    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
+    throwError m!"invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwImported
   validateDocComment docComment

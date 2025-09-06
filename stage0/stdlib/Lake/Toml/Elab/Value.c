@@ -3058,7 +3058,7 @@ static lean_object* _init_l___private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBasi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid unicode escape '", 24, 24);
+x_1 = lean_mk_string_unchecked("invalid unicode escape `", 24, 24);
 return x_1;
 }
 }
@@ -3075,7 +3075,7 @@ static lean_object* _init_l___private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBasi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -3356,7 +3356,7 @@ x_19 = l___private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBasicStringCore___close
 x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l_Lean_throwError___at___Lean_throwErrorAt___at_____private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBoolean_spec__0_spec__0___redArg(x_20, x_9, x_8, x_7);
+x_21 = l_Lean_throwError___at___Lean_throwErrorAt___at_____private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBoolean_spec__0_spec__0___redArg(x_20, x_7, x_8, x_9);
 return x_21;
 }
 block_32:
@@ -3370,9 +3370,9 @@ lean_dec(x_24);
 x_30 = lean_string_push(x_3, x_29);
 x_2 = x_28;
 x_3 = x_30;
-x_4 = x_26;
+x_4 = x_23;
 x_5 = x_25;
-x_6 = x_23;
+x_6 = x_26;
 goto _start;
 }
 block_44:
@@ -3392,9 +3392,9 @@ if (x_41 == 0)
 lean_dec(x_37);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
-x_7 = x_36;
+x_7 = x_34;
 x_8 = x_35;
-x_9 = x_34;
+x_9 = x_36;
 x_10 = x_33;
 goto block_22;
 }
@@ -3408,18 +3408,18 @@ if (x_43 == 0)
 lean_dec(x_37);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
-x_7 = x_36;
+x_7 = x_34;
 x_8 = x_35;
-x_9 = x_34;
+x_9 = x_36;
 x_10 = x_33;
 goto block_22;
 }
 else
 {
-x_23 = x_36;
+x_23 = x_34;
 x_24 = x_37;
 x_25 = x_35;
-x_26 = x_34;
+x_26 = x_36;
 x_27 = x_33;
 goto block_32;
 }
@@ -3427,10 +3427,10 @@ goto block_32;
 }
 else
 {
-x_23 = x_36;
+x_23 = x_34;
 x_24 = x_37;
 x_25 = x_35;
-x_26 = x_34;
+x_26 = x_36;
 x_27 = x_33;
 goto block_32;
 }
@@ -4952,7 +4952,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_foldlMUnsaf
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("cannot redefine key '", 21, 21);
+x_1 = lean_mk_string_unchecked("cannot redefine key `", 21, 21);
 return x_1;
 }
 }
@@ -5580,8 +5580,8 @@ goto block_88;
 block_66:
 {
 lean_object* x_41; lean_object* x_42; 
-x_41 = l_Array_back_x21___redArg(x_37, x_36);
-lean_dec_ref(x_36);
+x_41 = l_Array_back_x21___redArg(x_36, x_37);
+lean_dec_ref(x_37);
 lean_inc_ref(x_13);
 lean_inc(x_41);
 x_42 = l_Lake_Toml_elabSimpleKey(x_41, x_13, x_14, x_40);
@@ -5730,8 +5730,8 @@ if (x_76 == 0)
 {
 lean_dec(x_75);
 lean_dec_ref(x_74);
-x_36 = x_71;
-x_37 = x_72;
+x_36 = x_72;
+x_37 = x_71;
 x_38 = x_73;
 x_39 = x_12;
 x_40 = x_15;
@@ -5745,8 +5745,8 @@ if (x_77 == 0)
 {
 lean_dec(x_75);
 lean_dec_ref(x_74);
-x_36 = x_71;
-x_37 = x_72;
+x_36 = x_72;
+x_37 = x_71;
 x_38 = x_73;
 x_39 = x_12;
 x_40 = x_15;
@@ -5775,8 +5775,8 @@ lean_inc(x_82);
 x_83 = lean_ctor_get(x_80, 1);
 lean_inc(x_83);
 lean_dec(x_80);
-x_36 = x_71;
-x_37 = x_72;
+x_36 = x_72;
+x_37 = x_71;
 x_38 = x_82;
 x_39 = x_83;
 x_40 = x_81;

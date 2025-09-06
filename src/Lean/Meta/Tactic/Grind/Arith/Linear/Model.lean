@@ -4,13 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Arith.ModelUtil
-
+import Lean.Meta.Tactic.Grind.Arith.ModelUtil
 public section
-
 namespace Lean.Meta.Grind.Arith.Linear
 
 def getAssignment? (s : Struct) (e : Expr) : Option Rat := Id.run do

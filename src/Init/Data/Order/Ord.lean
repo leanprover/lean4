@@ -37,6 +37,10 @@ namespace ReflCmp
 theorem cmp_eq_of_eq {α : Type u} {cmp : α → α → Ordering} [Std.ReflCmp cmp] {a b : α} : a = b → cmp a b = .eq := by
   intro h; subst a; apply compare_self
 
+theorem ne_of_cmp_ne_eq {α : Type u} {cmp : α → α → Ordering} [Std.ReflCmp cmp] {a b : α} :
+    cmp a b ≠ .eq → a ≠ b :=
+  mt cmp_eq_of_eq
+
 end ReflCmp
 
 /-- A typeclasses for ordered types for which `compare a a = .eq` for all `a`. -/

@@ -25,7 +25,7 @@ open Lean.Parser.Command
     if let some tgt' := alternativeOfTactic (← getEnv) tacName then
         throwErrorAt tac "`{.ofConstName tacName}` is an alternative form of `{.ofConstName tgt'}`"
     if !(isTactic (← getEnv) tacName) then
-      throwErrorAt tac "`{tacName}` is not a tactic"
+      throwErrorAt tac "`{.ofConstName tacName}` is not a tactic"
 
     modifyEnv (tacticDocExtExt.addEntry · (tacName, docs.getDocString))
     pure ()
@@ -121,7 +121,7 @@ Displays all available tactic tags, with documentation.
 
   let tagDescrs ← liftTermElabM <| (← allTagsWithInfo).mapM fun (name, userName, docs) => do
     pure <| m!"• " ++
-      MessageData.nestD (m!"'{name}'" ++
+      MessageData.nestD (m!"`{name}`" ++
         (if name.toString != userName then m!" — \"{userName}\"" else MessageData.nil) ++
         showDocs docs ++
         (← showTactics name))

@@ -4,7 +4,7 @@ public section
 
 inductive Foo
   | mk1 | mk2 | mk3
-  deriving BEq
+  deriving @[expose] BEq
 
 namespace Foo
 theorem ex1 : (mk1 == mk2) = false :=
@@ -22,7 +22,7 @@ end Foo
 inductive Vec (α : Type u) : Nat → Type u
   | nil  : Vec α 0
   | cons : α → {n : Nat} → Vec α n → Vec α (n+1)
-  deriving BEq
+  deriving @[expose] BEq
 
 namespace Vec
 theorem ex1 : (cons 10 Vec.nil == cons 20 Vec.nil) = false :=
@@ -75,13 +75,10 @@ structure PrivField where
   private a : Nat
 deriving BEq
 
-/--
-info: def instBEqPrivField : BEq PrivField :=
-<not imported>
--/
+/-- info: fun a => beqPrivField✝ a a -/
 #guard_msgs in
 #with_exporting
-#print instBEqPrivField
+#reduce fun (a : PrivField) => a == a
 
 end
 
@@ -91,10 +88,7 @@ public structure PrivField2 where
   private a : Nat
 deriving BEq
 
-/--
-info: def instBEqPrivField2 : BEq PrivField2 :=
-<not imported>
--/
+/-- info: fun a => beqPrivField2✝ a a -/
 #guard_msgs in
 #with_exporting
-#print instBEqPrivField2
+#reduce fun (a : PrivField2) => a == a

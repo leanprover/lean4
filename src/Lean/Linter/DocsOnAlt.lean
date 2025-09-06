@@ -9,6 +9,8 @@ prelude
 import Lean.Parser.Syntax
 public import Lean.Data.Options
 import Lean.Elab.Command
+import Lean.Linter.Basic
+import Lean.Server.InfoUtils
 
 public section
 
@@ -24,7 +26,6 @@ register_builtin_option linter.tactic.docsOnAlt : Bool := {
 private def getLinterDocsOnAlt (o : LinterOptions) : Bool :=
   getLinterValue linter.tactic.docsOnAlt o
 
-
 namespace DocsOnAlt
 
 
@@ -36,6 +37,22 @@ private partial def docsOnAlt : Linter where
           if let some doc := mods.find? (·.getKind == ``docComment) then
             let msg := m!"Documentation is ignored on a tactic alternative."
             logLint linter.tactic.docsOnAlt doc msg
+      else if let some cmd := stx.find? (·.getKind == ``Command.attribute) then
+        let attrs := cmd[2]
+        let names := cmd[4].getArgs
+        if (attrs.find? isAltAttr).isSome then
+          let infoTrees := (← get).infoState.trees.toArray
+          for tree in infoTrees do
+            tree.visitM' (postNode := fun ci info _ => do
+              match info with
+              | .ofTermInfo ti =>
+                if names.contains ti.stx then
+                  if let some (x, _) := ti.expr.const? then
+                    if (← findInternalDocString? ci.env x).isSome then
+                      let msg := m!"Documentation for `{.ofConstName x}` is ignored because it is \
+                        a tactic alternative."
+                      logLint linter.tactic.docsOnAlt ti.stx msg
+              | _ => pure ())
 where
   isAltAttr : Syntax → Bool
     | `(attr|tactic_alt $_) => true

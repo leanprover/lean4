@@ -1033,8 +1033,8 @@ private def tokenFnAux : ParserFn := fun c s =>
     rawStrLitFnAux i c (s.next c i)
   else
     let tk := c.tokens.matchPrefix c.inputString i c.endPos.byteIdx <| by
-      let ⟨⟨{inputString, endPos := ⟨endPos⟩, endPos_valid, ..}, _, _, _⟩⟩ := c
-      rw [String.endPos] at endPos_valid
+      have := c.endPos_valid
+      rw [String.endPos] at this
       omega
     identFnAux i tk .anonymous (includeWhitespace := true) c s
 

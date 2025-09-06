@@ -4,20 +4,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Ring.OfSemiring
-public import Lean.Meta.Tactic.Grind.Diseq
-public import Lean.Meta.Tactic.Grind.Arith.ProofUtil
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
-public import Lean.Meta.Tactic.Grind.Arith.VarRename
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
+import Init.Grind.Ring.OfSemiring
+import Lean.Data.RArray
+import Lean.Meta.Tactic.Grind.Diseq
+import Lean.Meta.Tactic.Grind.ProofUtil
+import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
+import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+import Lean.Meta.Tactic.Grind.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
-
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
-
 namespace Lean.Meta.Grind.Arith.CommRing
 /--
 Returns a context of type `RArray α` containing the variables `vars` where

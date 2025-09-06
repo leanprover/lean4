@@ -274,11 +274,9 @@ theorem zip_map {f : α → γ} {g : β → δ} :
   | _, [] => by simp only [map, zip_nil_right]
   | _ :: _, _ :: _ => by simp only [map, zip_cons_cons, zip_map, Prod.map]
 
-@[grind _=_]
 theorem zip_map_left {f : α → γ} {l₁ : List α} {l₂ : List β} :
     zip (l₁.map f) l₂ = (zip l₁ l₂).map (Prod.map f id) := by rw [← zip_map, map_id]
 
-@[grind _=_]
 theorem zip_map_right {f : β → γ} {l₁ : List α} {l₂ : List β} :
     zip l₁ (l₂.map f) = (zip l₁ l₂).map (Prod.map id f) := by rw [← zip_map, map_id]
 

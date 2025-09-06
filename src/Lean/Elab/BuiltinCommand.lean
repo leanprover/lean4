@@ -16,6 +16,7 @@ public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Init.System.Platform
 public import Lean.Meta.Hint
+public import Lean.Parser.Command
 
 public section
 
@@ -102,6 +103,9 @@ private def checkEndHeader : Name → List Scope → Option Name
     else
       addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace)
   | _                        => throwUnsupportedSyntax
+
+@[builtin_command_elab InternalSyntax.end_local_scope] def elabEndLocalScope : CommandElab := fun _ => do
+  setDelimitsLocal
 
 /--
 Produces a `Name` composed of the names of at most the innermost `n` scopes in `ss`, truncating if an
@@ -349,7 +353,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
         | .strictImplicit => `(bracketedBinderF| {{$id $[: $ty?]?}})
         | .instImplicit => do
           let some ty := ty?
-            | throwErrorAt binder "cannot update binder annotation of variable '{id}' to instance implicit:\n\
+            | throwErrorAt binder "cannot update binder annotation of variable `{id}` to instance implicit:\n\
                 variable was originally declared without an explicit type"
           `(bracketedBinderF| [$(⟨id⟩) : $ty])
       for id in ids.reverse do
@@ -363,7 +367,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
               runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
                 Term.elabBinder newBinder fun _ => pure ()
             catch e =>
-              throwErrorAt binder m!"cannot update binder annotation of variable '{id}' to instance implicit:\n\
+              throwErrorAt binder m!"cannot update binder annotation of variable `{id}` to instance implicit:\n\
                 {e.toMessageData}"
           varDeclsNew := varDeclsNew.push (← mkBinder id binderInfo)
         else
@@ -484,10 +488,11 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 
+open Lean.Parser.Command.InternalSyntax in
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(section $cmd₁:command $cmd₂ end)
+    withRef tk `(section $cmd₁:command $endLocalScopeSyntax:command $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
@@ -512,7 +517,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
       if let some idx := vars.findIdx? (· == id.getId) then
         uids := uids.push sc.varUIds[idx]!
       else
-        throwError "invalid 'include', variable '{id}' has not been declared in the current scope"
+        throwError "invalid 'include', variable `{id}` has not been declared in the current scope"
     modifyScope fun sc => { sc with
       includedVars := sc.includedVars ++ uids.toList
       omittedVars := sc.omittedVars.filter (!uids.contains ·) }
@@ -551,10 +556,10 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
             omittedVars := omittedVars.push uid
             omitsUsed := omitsUsed.set! idx true
           else
-            throwError "invalid 'omit', '{ldecl.userName}' has not been declared in the current scope"
+            throwError "invalid 'omit', `{ldecl.userName}` has not been declared in the current scope"
       for o in omits, used in omitsUsed do
         unless used do
-          throwError "'{o}' did not match any variables in the current scope"
+          throwError "`{o}` did not match any variables in the current scope"
       return omittedVars
     modifyScope fun sc => { sc with
       omittedVars := sc.omittedVars ++ omittedVars.toList

@@ -101,7 +101,7 @@ The steps for this are roughly:
 -/
 def toDecl (declName : Name) : CompilerM Decl := do
   let declName := if let some name := isUnsafeRecName? declName then name else declName
-  let some info ← getDeclInfo? declName | throwError "declaration `{declName}` not found"
+  let some info ← getDeclInfo? declName | throwError "declaration `{.ofConstName declName}` not found"
   let safe := !info.isPartial && !info.isUnsafe
   let env ← getEnv
   let inlineAttr? := getInlineAttribute? env declName
@@ -125,7 +125,7 @@ def toDecl (declName : Name) : CompilerM Decl := do
     let params ← paramsFromTypeBinders type
     return { name := declName, params, type, value := .extern { entries := [] }, levelParams := info.levelParams, safe, inlineAttr? }
   else
-    let some value := info.value? (allowOpaque := true) | throwError "declaration `{declName}` does not have a value"
+    let some value := info.value? (allowOpaque := true) | throwError "declaration `{.ofConstName declName}` does not have a value"
     let (type, value) ← Meta.MetaM.run' do
       let type  ← toLCNFType info.type
       let value ← Meta.lambdaTelescope value fun xs body => do Meta.mkLambdaFVars xs (← Meta.etaExpand body)

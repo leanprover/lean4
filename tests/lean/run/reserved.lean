@@ -9,15 +9,11 @@ def g (x : Nat) := x + 1
 
 def f (x : Nat) := x + 1
 
-/--
-error: 'f.eq_def' is a reserved name
--/
+/-- error: `f.eq_def` is a reserved name -/
 #guard_msgs (error) in
 theorem f.eq_def : f x = x + 1 := rfl
 
-/--
-error: 'f.eq_1' is a reserved name
--/
+/-- error: `f.eq_1` is a reserved name -/
 #guard_msgs (error) in
 theorem f.eq_1 : f x = x + 1 := rfl
 

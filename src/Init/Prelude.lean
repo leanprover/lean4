@@ -1178,6 +1178,7 @@ propositional connective is `Not : Prop → Prop`.
 
 export Bool (or and not)
 
+set_option genCtorIdx false in
 /--
 The natural numbers, starting at zero.
 
@@ -2020,6 +2021,8 @@ protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
 instance instSubNat : Sub Nat where
   sub := Nat.sub
 
+attribute [gen_constructor_elims] Nat
+
 /--
 Gets the word size of the current platform. The word size may be 64 or 32 bits.
 
@@ -2195,6 +2198,52 @@ instance : DecidableEq UInt8 := UInt8.decEq
 
 instance : Inhabited UInt8 where
   default := UInt8.ofNatLT 0 (of_decide_eq_true rfl)
+
+/--
+Strict inequality of 8-bit unsigned integers, defined as inequality of the corresponding
+natural numbers. Usually accessed via the `<` operator.
+-/
+protected def UInt8.lt (a b : UInt8) : Prop := LT.lt a.toBitVec b.toBitVec
+/--
+Non-strict inequality of 8-bit unsigned integers, defined as inequality of the corresponding
+natural numbers. Usually accessed via the `≤` operator.
+-/
+protected def UInt8.le (a b : UInt8) : Prop := LE.le a.toBitVec b.toBitVec
+instance : LT UInt8        := ⟨UInt8.lt⟩
+instance : LE UInt8        := ⟨UInt8.le⟩
+
+/--
+Decides whether one 8-bit unsigned integer is strictly less than another. Usually accessed via the
+`DecidableLT UInt8` instance.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `(if (6 : UInt8) < 7 then "yes" else "no") = "yes"`
+ * `(if (5 : UInt8) < 5 then "yes" else "no") = "no"`
+ * `show ¬((7 : UInt8) < 7) by decide`
+-/
+@[extern "lean_uint8_dec_lt"]
+def UInt8.decLt (a b : UInt8) : Decidable (LT.lt a b) :=
+  inferInstanceAs (Decidable (LT.lt a.toBitVec b.toBitVec))
+
+/--
+Decides whether one 8-bit unsigned integer is less than or equal to another. Usually accessed via the
+`DecidableLE UInt8` instance.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `(if (15 : UInt8) ≤ 15 then "yes" else "no") = "yes"`
+ * `(if (15 : UInt8) ≤ 5 then "yes" else "no") = "no"`
+ * `(if (5 : UInt8) ≤ 15 then "yes" else "no") = "yes"`
+ * `show (7 : UInt8) ≤ 7 by decide`
+-/
+@[extern "lean_uint8_dec_le"]
+def UInt8.decLe (a b : UInt8) : Decidable (LE.le a b) :=
+  inferInstanceAs (Decidable (LE.le a.toBitVec b.toBitVec))
+
+attribute [instance] UInt8.decLt UInt8.decLe
 
 /-- The number of distinct values representable by `UInt16`, that is, `2^16 = 65536`. -/
 abbrev UInt16.size : Nat := 65536
@@ -4542,7 +4591,7 @@ abbrev scientificLitKind : SyntaxNodeKind := `scientific
 /-- `` `name `` is the node kind of name literals like `` `foo ``. -/
 abbrev nameLitKind : SyntaxNodeKind := `name
 
-/-- `` `fieldIdx ` is the node kind of projection indices like the `2` in `x.2`. -/
+/-- `` `fieldIdx `` is the node kind of projection indices like the `2` in `x.2`. -/
 abbrev fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 /--

@@ -49,7 +49,7 @@ instance i1 (b := 0) : Decidable (a.toNat = b) :=
   have : True := by trace_state; trivial
   inferInstance
 
-/-- info: i1 (a : Bool := true) (b : Nat := 0) : Decidable (Bool.toNat a = b) -/
+/-- info: i1 (a : Bool := true) (b : Nat := 0) : Decidable (a.toNat = b) -/
 #guard_msgs in #check i1
 
 /-!

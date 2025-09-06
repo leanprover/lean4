@@ -7,10 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.ProveEq
-
+import Lean.Meta.Tactic.Grind.Simp
 public section
-
 namespace Lean.Meta.Grind
 
 private partial def propagateInjEqs (eqs : Expr) (proof : Expr) : GoalM Unit := do
@@ -35,7 +33,7 @@ and close goal if they are different.
 def propagateCtor (a b : Expr) : GoalM Unit := do
   let aType ← whnfD (← inferType a)
   let bType ← whnfD (← inferType b)
-  unless (← withDefault <| isDefEq aType bType) do
+  unless (← isDefEqD aType bType) do
     return ()
   let ctor₁ := a.getAppFn
   let ctor₂ := b.getAppFn

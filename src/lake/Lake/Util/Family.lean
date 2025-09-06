@@ -196,4 +196,4 @@ scoped macro (name := familyDef)
     `($[$doc?]? @[simp] public axiom $axm : $app = $val
     public instance : FamilyDef $fam $idx $val := ⟨$axm⟩)
   else
-    Macro.throwErrorAt fam s!"unknown family '{tid}'"
+    Macro.throwErrorAt fam s!"unknown family `{tid}`"

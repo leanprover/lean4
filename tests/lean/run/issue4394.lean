@@ -55,7 +55,7 @@ example [PropClass n] (h : P1 n) : P1 n := by
   conv => arg 1; rw [id.eq_def n]
   exact h
 
-/-- error: 'arg' conv tactic failed, cannot select argument -/
+/-- error: `arg` conv tactic failed, cannot select argument -/
 #guard_msgs in
 example [TypeClass n] [TypeClass (id n)] (h : P2 n) : P2 (id n) := by
   conv => arg 1

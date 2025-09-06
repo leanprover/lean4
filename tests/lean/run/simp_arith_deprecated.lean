@@ -1,7 +1,7 @@
 /--
 info: Try these:
-• simp +arith
-• simp +arith +decide
+  • simp +arith
+  • simp +arith +decide
 ---
 error: `simp_arith` has been deprecated. It was a shorthand for `simp +arith +decide`, but most of the time, `+decide` was redundant since simprocs have been implemented.
 -/
@@ -11,8 +11,8 @@ example : x + 2 = 1 + 1 + x := by
 
 /--
 info: Try these:
-• simp +arith [h, id] at h₂
-• simp +arith +decide [h, id] at h₂
+  • simp +arith [h, id] at h₂
+  • simp +arith +decide [h, id] at h₂
 ---
 error: `simp_arith` has been deprecated. It was a shorthand for `simp +arith +decide`, but most of the time, `+decide` was redundant since simprocs have been implemented.
 -/
@@ -22,8 +22,8 @@ example (h : x = y) (h₂ : y + 2 = 1 + 1 + x) : True := by
 
 /--
 info: Try these:
-• simp! +arith [h, id] at h₂
-• simp! +arith +decide [h, id] at h₂
+  • simp! +arith [h, id] at h₂
+  • simp! +arith +decide [h, id] at h₂
 ---
 error: `simp_arith!` has been deprecated. It was a shorthand for `simp! +arith +decide`, but most of the time, `+decide` was redundant since simprocs have been implemented.
 -/
@@ -34,8 +34,8 @@ example (h : x = y) (h₂ : y + 2 = 1 + 1 + x) : True := by
 
 /--
 info: Try these:
-• simp_all +arith
-• simp_all +arith +decide
+  • simp_all +arith
+  • simp_all +arith +decide
 ---
 error: `simp_all_arith` has been deprecated. It was a shorthand for `simp_all +arith +decide`, but most of the time, `+decide` was redundant since simprocs have been implemented.
 -/
@@ -45,8 +45,8 @@ example (h : x = y) (h₂ : y + 2 = 1 + 1 + x) : True := by
 
 /--
 info: Try these:
-• simp_all! +arith
-• simp_all! +arith +decide
+  • simp_all! +arith
+  • simp_all! +arith +decide
 ---
 error: `simp_all_arith!` has been deprecated. It was a shorthand for `simp_all! +arith +decide`, but most of the time, `+decide` was redundant since simprocs have been implemented.
 -/

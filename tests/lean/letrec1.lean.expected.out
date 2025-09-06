@@ -1,4 +1,4 @@
-letrec1.lean:6:0-9:7: error: 'f1.g' has already been declared
+letrec1.lean:6:0-9:7: error: `f1.g` has already been declared
 letrec1.lean:18:35-18:36: error(lean.unknownIdentifier): Unknown identifier `g`
-letrec1.lean:27:8-27:9: error: invalid type in 'let rec', it uses 'f' which is being defined simultaneously
-letrec1.lean:37:10-37:11: error: invalid type in 'let rec', it uses 'g' which is being defined simultaneously
+letrec1.lean:27:8-27:9: error: invalid type in `let rec`, it uses `f` which is being defined simultaneously
+letrec1.lean:37:10-37:11: error: invalid type in `let rec`, it uses `g` which is being defined simultaneously

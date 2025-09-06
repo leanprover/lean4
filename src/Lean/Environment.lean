@@ -1769,6 +1769,7 @@ private def looksLikeOldCodegenName : Name → Bool
 private opaque getIRExtraConstNames : Environment → OLeanLevel → Array Name
 
 def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO ModuleData := do
+  let env := env.setExporting (level != .private)
   let pExts ← persistentEnvExtensionsRef.get
   let entries := pExts.map fun pExt => Id.run do
     -- get state from `checked` at the end if `async`; it would otherwise panic
@@ -1778,7 +1779,6 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     let state := pExt.getState (asyncMode := asyncMode) env
     (pExt.name, pExt.exportEntriesFn env state level)
   let kenv := env.toKernelEnv
-  let env := env.setExporting (level != .private)
   let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
   -- not all kernel constants may be exported at `level < .private`
   let constants := if level == .private then
@@ -1913,7 +1913,7 @@ private def ImportedModule.publicModule? (self : ImportedModule) : Option Module
 private def ImportedModule.getData? (self : ImportedModule) (level : OLeanLevel) : Option ModuleData := do
   -- Without the module system, we only have the exported level.
   let level := if (← self.publicModule?).isModule then level else .exported
-  self.parts[level.toCtorIdx]?.map (·.1)
+  self.parts[level.ctorIdx]?.map (·.1)
 
 /-- The main module data that will eventually be used to construct the kernel environment. -/
 private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleData :=
@@ -2362,6 +2362,9 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
           consts.add c
     }
     checked := dest.checked.map fun kenv => replayKernel exts newPrivateConsts kenv |>.toOption.getD kenv
+    allRealizations := dest.allRealizations.map (sync := true) fun allRealizations =>
+      newPrivateConsts.foldl (init := allRealizations) fun allRealizations c =>
+        allRealizations.insert c.constInfo.name c
   }
 where
   replayKernel (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)

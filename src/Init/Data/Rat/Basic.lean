@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Nat.Coprime
 public import Init.Data.Hashable
 public import Init.Data.OfScientific
+import Init.Data.Int.Bitwise
 
 @[expose] public section
 
@@ -149,6 +150,9 @@ instance : LE Rat := ⟨fun a b => b.blt a = false⟩
 instance (a b : Rat) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (_ = false))
 
+instance : Min Rat := minOfLe
+instance : Max Rat := maxOfLe
+
 /-- Multiplication of rational numbers. (This definition is `@[irreducible]` because you don't
 want to unfold it. Use `Rat.mul_def` instead.) -/
 @[irreducible] protected def mul (a b : Rat) : Rat :=
@@ -185,6 +189,23 @@ because you don't want to unfold it. Use `Rat.inv_def` instead.)
       reduced := a.reduced.symm }
   else
     a
+
+instance : Inv Rat := ⟨Rat.inv⟩
+
+protected def pow (q : Rat) (n : Nat) : Rat :=
+  ⟨q.num ^ n, q.den ^ n, by simp [q.den_nz], by
+    rw [Int.natAbs_pow]; exact q.reduced.pow _ _⟩
+
+instance : Pow Rat Nat where
+  pow := Rat.pow
+
+protected def zpow (q : Rat) (i : Int) : Rat :=
+  match i with
+  | .ofNat n => q ^ n
+  | .negSucc n => (q ^ (n + 1))⁻¹
+
+instance : Pow Rat Int where
+  pow := Rat.zpow
 
 /-- Division of rational numbers. Note: `div a 0 = 0`. -/
 protected def div : Rat → Rat → Rat := (· * ·.inv)

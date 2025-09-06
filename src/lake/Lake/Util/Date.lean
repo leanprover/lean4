@@ -26,14 +26,12 @@ public def rpad (s : String) (c : Char) (len : Nat) : String :=
 public def zpad (n : Nat) (len : Nat) : String :=
   lpad (toString n) '0' len
 
-public section -- for `Ord`
 /-- A date (year-month-day). -/
 public structure Date where
   year : Nat
   month : Nat
   day : Nat
   deriving Inhabited, DecidableEq, Ord, Repr
-end
 
 namespace Date
 

@@ -10,17 +10,11 @@ public import Init.Grind.Tactics
 public import Init.Data.Queue
 public import Std.Data.TreeSet.Basic
 public import Lean.HeadIndex
-public import Lean.Meta.Basic
-public import Lean.Meta.CongrTheorems
-public import Lean.Meta.AbstractNestedProofs
 public import Lean.Meta.Tactic.Simp.Types
-public import Lean.Meta.Tactic.Util
-public import Lean.Meta.Tactic.Ext
 public import Lean.Meta.Tactic.Grind.ExprPtr
 public import Lean.Meta.Tactic.Grind.AlphaShareCommon
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.ExtAttr
-public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.Arith.Types
 public import Lean.Meta.Tactic.Grind.AC.Types
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
@@ -34,6 +28,10 @@ namespace Lean.Meta.Grind
 
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
 def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
+
+/-- Similar to `isDefEq`, but ensures default transparency is used. -/
+def isDefEqD (t s : Expr) : MetaM Bool :=
+  withDefault <| isDefEq t s
 
 /--
 Returns `true` if `e` is `True`, `False`, or a literal value.
@@ -82,14 +80,14 @@ inductive SplitSource where
     input
   deriving Inhabited
 
-def SplitSource.toMessageData : SplitSource → MetaM MessageData
-  | .ematch origin => return m!"E-matching {← origin.pp}"
-  | .ext declName => return m!"Extensionality {declName}"
-  | .mbtc a b i => return m!"Model-based theory combination at argument #{i} of{indentExpr a}\nand{indentExpr b}"
-  | .beta e => return m!"Beta-reduction of{indentExpr e}"
-  | .forallProp e => return m!"Forall propagation at{indentExpr e}"
-  | .existsProp e => return m!"Exists propagation at{indentExpr e}"
-  | .input => return m!"Initial goal"
+def SplitSource.toMessageData : SplitSource → MessageData
+  | .ematch origin => m!"E-matching {origin.pp}"
+  | .ext declName => m!"Extensionality {declName}"
+  | .mbtc a b i => m!"Model-based theory combination at argument #{i} of{indentExpr a}\nand{indentExpr b}"
+  | .beta e => m!"Beta-reduction of{indentExpr e}"
+  | .forallProp e => m!"Forall propagation at{indentExpr e}"
+  | .existsProp e => m!"Exists propagation at{indentExpr e}"
+  | .input => "Initial goal"
 
 /-- Context for `GrindM` monad. -/
 structure Context where
@@ -442,7 +440,12 @@ structure ENode where
   to the linarith module. Its implementation is similar to the `offset?` field.
   -/
   linarith? : Option Expr := none
-  -- Remark: we expect to have builtin support for offset constraints, cutsat, comm ring, and linarith.
+  /--
+  The `ac?` field is used to propagate equalities from the `grind` congruence closure module
+  to the ac module. Its implementation is similar to the `offset?` field.
+  -/
+  ac? : Option Expr := none
+  -- Remark: we expect to have builtin support for offset constraints, cutsat, comm ring, linarith, and ac.
   -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
   deriving Inhabited, Repr
 
@@ -980,8 +983,8 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   modify fun s => { s with newFacts := s.newFacts.push <| .eq lhs rhs proof isHEq }
 
 /-- Return `true` if `a` and `b` have the same type. -/
-def hasSameType (a b : Expr) : MetaM Bool :=
-  withDefault do isDefEq (← inferType a) (← inferType b)
+def hasSameType (a b : Expr) : MetaM Bool := do
+  isDefEqD (← inferType a) (← inferType b)
 
 @[inline] def pushEqHEq (lhs rhs proof : Expr) : GoalM Unit := do
   if (← hasSameType lhs rhs) then
@@ -1140,8 +1143,8 @@ def isNum (e : Expr) : Bool :=
 /--
 Returns `true` if type of `t` is definitionally equal to `α`
 -/
-def hasType (t α : Expr) : MetaM Bool :=
-  withDefault do isDefEq (← inferType t) α
+def hasType (t α : Expr) : MetaM Bool := do
+  isDefEqD (← inferType t) α
 
 /--
 For each equality `b = c` in `parents`, executes `k b c` IF
@@ -1284,6 +1287,53 @@ def markAsLinarithTerm (e : Expr) : GoalM Unit := do
   else
     setENode root.self { root with linarith? := some e }
     propagateLinarithDiseqs (← getParents root.self)
+
+/--
+Notifies the ac module that `a = b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_ac_eq"] -- forward definition
+opaque AC.processNewEq (a b : Expr) : GoalM Unit
+
+/--
+Notifies the ac module that `a ≠ b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_ac_diseq"] -- forward definition
+opaque AC.processNewDiseq (a b : Expr) : GoalM Unit
+
+/--
+Given `lhs` and `rhs` that are known to be disequal, checks whether
+`lhs` and `rhs` have ac terms `e₁` and `e₂` attached to them,
+and invokes process `AC.processNewDiseq e₁ e₂`
+-/
+def propagateACDiseq (lhs rhs : Expr) : GoalM Unit := do
+  let some lhs ← get? lhs | return ()
+  let some rhs ← get? rhs | return ()
+  AC.processNewDiseq lhs rhs
+where
+  get? (a : Expr) : GoalM (Option Expr) := do
+    return (← getRootENode a).ac?
+
+/--
+Traverses disequalities in `parents`, and propagate the ones relevant to the
+ac module.
+-/
+def propagateACDiseqs (parents : ParentSet) : GoalM Unit := do
+  forEachDiseq parents propagateACDiseq
+
+/--
+Marks `e` as a term of interest to the ac module.
+If the root of `e`s equivalence class has already a term of interest,
+a new equality is propagated to the ac module.
+-/
+def markAsACTerm (e : Expr) : GoalM Unit := do
+  let root ← getRootENode e
+  if let some e' := root.ac? then
+    AC.processNewEq e e'
+  else
+    setENode root.self { root with ac? := some e }
+    propagateACDiseqs (← getParents root.self)
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do
@@ -1578,5 +1628,9 @@ def withoutModifyingState (x : GoalM α) : GoalM α := do
     x
   finally
     set saved
+
+/-- Canonicalizes nested types, type formers, and instances in `e`. -/
+@[extern "lean_grind_canon"] -- Forward definition
+opaque canon (e : Expr) : GoalM Expr
 
 end Lean.Meta.Grind

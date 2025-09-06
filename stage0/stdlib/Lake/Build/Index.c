@@ -24,7 +24,6 @@ uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___at_____private_Lake_Build_Index_0__Lake_recBuildWithIndex_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_recFetch___at___Lake_recFetch___at___Lake_recFetchAcyclic___at_____private_Lake_Build_Index_0__Lake_recFetchWithIndex_spec__0_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_recFetch___at___Lake_recFetch___at___Lake_recFetchAcyclic___at_____private_Lake_Build_Index_0__Lake_recFetchWithIndex_spec__0_spec__2_spec__2___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lake_decEqBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_82_(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__7;
 lean_object* l_Lake_Package_findTargetDecl_x3f(lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
@@ -64,6 +63,7 @@ static lean_object* l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___clo
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_partition_loop___at___Lake_recFetchAcyclic___at_____private_Lake_Build_Index_0__Lake_recFetchWithIndex_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+uint8_t l_Lake_decEqBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_88_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_partition_loop___at___Lake_recFetchAcyclic___at_____private_Lake_Build_Index_0__Lake_recFetchWithIndex_spec__0_spec__1(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_elem___at___Lake_recFetchAcyclic___at_____private_Lake_Build_Index_0__Lake_recFetchWithIndex_spec__0_spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__5;
@@ -1971,7 +1971,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = l_Lake_decEqBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_82_(x_1, x_4);
+x_6 = l_Lake_decEqBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_88_(x_1, x_4);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -2045,7 +2045,7 @@ if (lean_is_exclusive(x_4)) {
  lean_dec_ref(x_4);
  x_20 = lean_box(0);
 }
-x_25 = l_Lake_decEqBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_82_(x_15, x_1);
+x_25 = l_Lake_decEqBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_88_(x_15, x_1);
 if (x_25 == 0)
 {
 if (x_2 == 0)

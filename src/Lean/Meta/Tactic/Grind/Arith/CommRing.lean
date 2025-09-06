@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Util.Trace
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
@@ -12,7 +11,9 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Internalize
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Var
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof

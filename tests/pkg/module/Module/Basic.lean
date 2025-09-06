@@ -44,7 +44,7 @@ def fpriv := 1
 /--
 error: Unknown identifier `fpriv`
 
-Note: A private declaration `fpriv` (from this module) exists but is not accessible in the current context.
+Note: A private declaration `fpriv` (from the current module) exists but would need to be public to access here.
 -/
 #guard_msgs in
 public theorem tpriv : fpriv = 1 := rfl
@@ -144,7 +144,7 @@ def priv := 2
 /--
 error: Unknown identifier `priv`
 
-Note: A private declaration `priv` (from this module) exists but is not accessible in the current context.
+Note: A private declaration `priv` (from the current module) exists but would need to be public to access here.
 -/
 #guard_msgs in
 public abbrev h := priv
@@ -172,11 +172,11 @@ termination_by n => n
   | none   => none
 
 
-/-- error: 'f.eq_def' is a reserved name -/
+/-- error: `f.eq_def` is a reserved name -/
 #guard_msgs in
 public def f.eq_def := 1
 
-/-- error: 'fexp.eq_def' is a reserved name -/
+/-- error: `fexp.eq_def` is a reserved name -/
 #guard_msgs in
 public def fexp.eq_def := 1
 
@@ -254,23 +254,25 @@ info: theorem f_exp_wfrec.eq_unfold : f_exp_wfrec = fun x x_1 =>
 
 /-! Private fields should force private ctors. -/
 
+abbrev Priv := Nat
+
 public structure StructWithPrivateField where
-  private x : Nat
+  private x : Priv
 
 /--
 info: structure StructWithPrivateField : Type
 number of parameters: 0
 fields:
-  private StructWithPrivateField.x : Nat
+  private StructWithPrivateField.x : Priv
 constructor:
-  private StructWithPrivateField.mk (x : Nat) : StructWithPrivateField
+  private StructWithPrivateField.mk (x : Priv) : StructWithPrivateField
 -/
 #guard_msgs in
 #print StructWithPrivateField
 
 #check { x := 1 : StructWithPrivateField }
 
-/-- error: invalid {...} notation, constructor for 'StructWithPrivateField' is marked as private -/
+/-- error: invalid {...} notation, constructor for `StructWithPrivateField` is marked as private -/
 #guard_msgs in
 #with_exporting
 #check { x := 1 : StructWithPrivateField }
@@ -298,7 +300,7 @@ constructor:
 #guard_msgs in
 #print StructWithPrivateCtor
 
-/-- error: invalid {...} notation, constructor for 'StructWithPrivateCtor' is marked as private -/
+/-- error: invalid {...} notation, constructor for `StructWithPrivateCtor` is marked as private -/
 #guard_msgs in
 #with_exporting
 #check { x := 1 : StructWithPrivateCtor }
@@ -318,7 +320,7 @@ constructor:
 public section
 
 private def foo : Nat := 0
-/-- error: private declaration 'foo' has already been declared -/
+/-- error: private declaration `foo` has already been declared -/
 #guard_msgs in
 private def foo : Nat := 0
 

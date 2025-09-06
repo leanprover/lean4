@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Hashable
-public import Init.Data.Int
+public import Init.Data.Int.Basic
 public import Lean.Data.KVMap
 public import Lean.Data.SMap
 public import Lean.Level

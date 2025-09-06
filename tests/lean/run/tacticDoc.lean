@@ -119,19 +119,24 @@ syntax "another" : tactic
 /-- Docs -/
 syntax (name := yetAnother) "yetAnother" : tactic
 
+/--
+warning: Documentation for `yetAnother` is ignored because it is a tactic alternative.
+
+Note: This linter can be disabled with `set_option linter.tactic.docsOnAlt false`
+-/
 #guard_msgs in
 attribute [tactic_alt my_trivial] «yetAnother»
 
 /-! # Querying Tactic Docs -/
 /--
 info: Available tags: ⏎
-  • 'ctrl' — "control flow"
+  • `ctrl` — "control flow"
     Tactics that sequence or arrange other tactics ⏎
     '<;>'
-  • 'extensible'
+  • `extensible`
     Tactics that are intended to be extensible ⏎
     'my_trivial'
-  • 'finishing'
+  • `finishing`
     Finishing tactics that are intended to completely close a goal ⏎
     'omega', 'my_trivial', 'someTerm'
 -/

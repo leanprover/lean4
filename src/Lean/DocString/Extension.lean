@@ -76,10 +76,8 @@ def addBuiltinDocString (declName : Name) (docString : String) : IO Unit := do
   builtinDocStrings.modify (·.insert declName docString.removeLeadingSpaces)
 
 def addDocStringCore [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) (docString : String) : m Unit := do
-  let throwImported {α} : m α:=
-    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
-    throwImported
+    throwError m!"invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
   modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
 
 def addDocStringCore' [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) (docString? : Option String) : m Unit :=

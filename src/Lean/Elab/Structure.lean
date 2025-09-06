@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Meta.Structure
 public import Lean.Elab.MutualInductive
+import Lean.Linter.Basic
+import Lean.DocString
 
 public section
 
@@ -238,6 +240,8 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
     let declName ← applyVisibility modifiers declName
     let ref := structStx[1].mkSynthetic
     addDeclarationRangesFromSyntax declName ref
+    if structModifiers.isMeta then
+      modifyEnv (addMeta · declName)
     pure { ref, declId := ref, modifiers, declName }
   if structStx[4].isNone then
     useDefault
@@ -278,6 +282,8 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       -- `binders` is type parameter binder overrides; this will be validated when the constructor is created in `Structure.mkCtor`.
       let binders := ctor[2]
       addDeclarationRangesFromSyntax declName ctor[1]
+      if structModifiers.isMeta then
+        modifyEnv (addMeta · declName)
       pure { ref := ctor[1], declId := ctor[1], modifiers := ctorModifiers, declName, binders }
 
 /--
@@ -1034,6 +1040,10 @@ where
   go (i : Nat) : StructElabM α := do
     if h : i < views.size then
       let view := views[i]
+      -- `withLocalDecl` may need access to private data in case of private fields but we recurse
+      -- for further fields inside of it, so save and later restore exporting flag
+      let wasExporting := (← getEnv).isExporting
+      withoutExporting (when := isPrivateName view.declName) do
       withRef view.ref do
       if let some parent := (← get).parents.find? (·.name == view.name) then
         throwError "Field `{view.name}` has already been declared as a projection for parent `{.ofConstName parent.structName}`"
@@ -1048,7 +1058,8 @@ where
                            name := view.name, declName := view.declName, fvar := fieldFVar, default? := default?,
                            binfo := view.binderInfo, paramInfoOverrides,
                            kind := StructFieldKind.newField }
-            go (i+1)
+            withExporting (isExporting := wasExporting) do
+              go (i+1)
         | none, some (.optParam value) =>
           let type ← inferType value
           withLocalDecl view.rawName view.binderInfo type fun fieldFVar => do
@@ -1056,7 +1067,8 @@ where
                            name := view.name, declName := view.declName, fvar := fieldFVar, default? := default?,
                            binfo := view.binderInfo, paramInfoOverrides,
                            kind := StructFieldKind.newField }
-            go (i+1)
+            withExporting (isExporting := wasExporting) do
+              go (i+1)
         | none, some (.autoParam _) =>
           throwError "Field `{view.name}` has an auto-param but no type"
       | some info =>
@@ -1082,7 +1094,8 @@ where
               pushInfoLeaf <| .ofFieldRedeclInfo { stx := view.ref }
               if let some projFn := info.projFn? then Term.addTermInfo' view.ref (← mkConstWithLevelParams projFn)
               replaceFieldInfo { info with ref := view.nameId, default? := StructFieldDefault.optParam value }
-              go (i+1)
+              withExporting (isExporting := wasExporting) do
+                go (i+1)
           | some (.autoParam tacticStx) =>
             if let some type := view.type? then
               throwErrorAt type "Omit the type of field `{view.name}` to set its auto-param tactic"
@@ -1096,7 +1109,8 @@ where
               replaceFieldInfo { info with ref := view.nameId, default? := StructFieldDefault.autoParam (.const name []) }
               pushInfoLeaf <| .ofFieldRedeclInfo { stx := view.ref }
               if let some projFn := info.projFn? then Term.addTermInfo' view.ref (← mkConstWithLevelParams projFn)
-              go (i+1)
+              withExporting (isExporting := wasExporting) do
+                go (i+1)
         match info.kind with
         | StructFieldKind.newField      => throwError "Field `{view.name}` has already been declared"
         | StructFieldKind.subobject n
@@ -1163,6 +1177,7 @@ private def mkCtorLCtx : StructElabM LocalContext := do
 Builds a constructor for the type, for adding the inductive type to the environment.
 -/
 private def mkCtor (view : StructView) (r : ElabHeaderResult) (params : Array Expr) : StructElabM Constructor :=
+  withoutExporting (when := isPrivateName view.ctor.declName) do
   withRef view.ref do
   let (binders, paramInfoOverrides) ← elabParamInfoUpdates params view.ctor.binders.getArgs
   unless binders.isEmpty do

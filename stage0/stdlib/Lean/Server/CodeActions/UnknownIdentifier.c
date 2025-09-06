@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_computeIdQuery_x3f___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot_go(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_Query_ctorIdx(lean_object*);
 lean_object* l_Lean_FileMap_utf8RangeToLspRange(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__1_spec__2_spec__2_spec__2___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_sendServerRequest___at___Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -37,6 +38,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_Server_FileWor
 static lean_object* l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___lam__2___closed__0;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__7_spec__7___redArg___closed__0;
 size_t lean_uint64_to_usize(uint64_t);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 static lean_object* l_Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f___closed__2;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_importAllUnknownIdentifiersProvider;
@@ -77,6 +79,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__0_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_UnknownIdentifierInfo_ctorIdx___boxed(lean_object*);
 lean_object* l_Lean_FileMap_ofPosition(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f___closed__7;
@@ -92,16 +95,18 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_computeDotIdQuery_x3f___boxed(
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 lean_object* l_Lean_Lsp_WorkspaceEdit_ofTextDocumentEdit(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Lsp_toJsonLeanQueryModuleParams____x40_Lean_Data_Lsp_Internal_1144149020____hygCtx___hyg_33_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__2_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forIn___at___Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__4;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_computeQueries_spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_sendServerRequest___at___Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Name_getPrefix(lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__6___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Lsp_fromJsonLeanQueryModuleResponse____x40_Lean_Data_Lsp_Internal_1407814286____hygCtx___hyg_14_(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__3;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__0_spec__1_spec__1___lam__0___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Server_FileWorker_waitAllUnknownIdentifierRanges_spec__8(lean_object*, size_t, size_t, lean_object*);
@@ -110,6 +115,8 @@ LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___L
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forIn___at___Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Server_RequestM_findCmdDataAtPos(lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_UnknownIdentifierInfo_ctorIdx(lean_object*);
+lean_object* l_Lean_Lsp_toJsonLeanQueryModuleParams____x40_Lean_Data_Lsp_Internal_1144149020____hygCtx___hyg_31_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Server_FileWorker_computeDotQuery_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_computeQueries_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__1_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*);
@@ -122,7 +129,6 @@ lean_object* l_Lean_FileMap_utf8PosToLspPos(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__2_spec__2___redArg___closed__6;
 static lean_object* l_Lean_Server_FileWorker_collectOpenNamespaces___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Server_toJsonCodeActionResolveData____x40_Lean_Server_CodeActions_Basic_2501727465____hygCtx___hyg_32_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f___closed__0;
 static lean_object* l_Lean_Server_FileWorker_importAllUnknownIdentifiersProvider___closed__1;
@@ -154,10 +160,12 @@ LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Server_FileWorker_c
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__1_spec__1___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_computeQueries_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_computeDotQuery_x3f___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_Query_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__4_spec__4(lean_object*, lean_object*, uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleUnknownIdentifierCodeAction___lam__1(lean_object*);
+extern lean_object* l_Lean_NameSet_empty;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Server_FileWorker_waitAllUnknownIdentifierRanges_spec__7___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_computeIdQuery_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Server_FileWorker_waitAllUnknownIdentifierRanges_spec__0_spec__0_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -170,6 +178,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_computeQueries(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forIn___at___Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__4_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_Insertion_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_handleUnknownIdentifierCodeAction___closed__1;
 lean_object* l_Lean_Server_ServerTask_waitAny___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__2_spec__2___redArg___closed__1;
@@ -193,7 +202,6 @@ lean_object* l_Lean_Name_getString_x21(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Server_FileWorker_waitAllUnknownIdentifierRanges_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Server_FileWorker_computeDotQuery_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Lsp_fromJsonLeanQueryModuleResponse____x40_Lean_Data_Lsp_Internal_1407814286____hygCtx___hyg_15_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forIn___at___Lean_Server_FileWorker_waitAllUnknownIdentifierRanges_spec__0_spec__4(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_mk(lean_object*);
@@ -204,6 +212,7 @@ lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__7_spec__7(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_Insertion_ctorIdx(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 lean_object* l_Lean_Server_Completion_getDotCompletionTypeNames(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -249,8 +258,26 @@ lean_object* l_Lean_Name_hash___override___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__4(lean_object*, lean_object*, uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Server_FileWorker_computeDotQuery_x3f_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
+lean_object* l_Lean_Server_toJsonCodeActionResolveData____x40_Lean_Server_CodeActions_Basic_2501727465____hygCtx___hyg_29_(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___lam__2___closed__1;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_UnknownIdentifierInfo_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_UnknownIdentifierInfo_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Server_FileWorker_UnknownIdentifierInfo_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, size_t x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -2735,8 +2762,16 @@ return x_5;
 static lean_object* _init_l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__3() {
 _start:
 {
+lean_object* x_1; 
+x_1 = l_Lean_NameSet_empty;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__4() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(1);
+x_1 = l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__3;
 x_2 = l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__2;
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -2777,7 +2812,7 @@ lean_dec_ref(x_6);
 x_15 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___lam__0), 1, 0);
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__2;
-x_18 = l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__3;
+x_18 = l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__4;
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_39; 
@@ -3000,6 +3035,40 @@ lean_dec_ref(x_1);
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_Insertion_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_Insertion_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Server_FileWorker_Insertion_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_Query_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_Query_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Server_FileWorker_Query_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l___private_Init_While_0__Lean_Loop_forIn_loop___at___Lean_Server_FileWorker_collectOpenNamespaces_spec__0___closed__0() {
 _start:
 {
@@ -3012,68 +3081,68 @@ return x_2;
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Lean_Server_FileWorker_collectOpenNamespaces_spec__0(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-if (lean_is_exclusive(x_1)) {
- lean_ctor_release(x_1, 0);
- lean_ctor_release(x_1, 1);
- x_4 = x_1;
-} else {
- lean_dec_ref(x_1);
- x_4 = lean_box(0);
-}
-x_5 = l_Lean_Name_isAnonymous(x_2);
+uint8_t x_2; 
+x_2 = !lean_is_exclusive(x_1);
+if (x_2 == 0)
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_1, 1);
+x_5 = l_Lean_Name_isAnonymous(x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___Lean_Server_FileWorker_collectOpenNamespaces_spec__0___closed__0;
-lean_inc(x_2);
+lean_inc(x_3);
 x_7 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_7, 0, x_2);
+lean_ctor_set(x_7, 0, x_3);
 lean_ctor_set(x_7, 1, x_6);
-x_8 = lean_array_push(x_3, x_7);
-if (lean_obj_tag(x_2) == 0)
-{
-x_9 = x_2;
-goto block_12;
-}
-else
-{
-lean_object* x_13; 
-x_13 = lean_ctor_get(x_2, 0);
-lean_inc(x_13);
-lean_dec(x_2);
-x_9 = x_13;
-goto block_12;
-}
-block_12:
-{
-lean_object* x_10; 
-if (lean_is_scalar(x_4)) {
- x_10 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_10 = x_4;
-}
-lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_8);
-x_1 = x_10;
+x_8 = lean_array_push(x_4, x_7);
+x_9 = l_Lean_Name_getPrefix(x_3);
+lean_dec(x_3);
+lean_ctor_set(x_1, 1, x_8);
+lean_ctor_set(x_1, 0, x_9);
 goto _start;
 }
+else
+{
+return x_1;
+}
 }
 else
 {
-lean_object* x_14; 
-if (lean_is_scalar(x_4)) {
- x_14 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_14 = x_4;
+lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+x_11 = lean_ctor_get(x_1, 0);
+x_12 = lean_ctor_get(x_1, 1);
+lean_inc(x_12);
+lean_inc(x_11);
+lean_dec(x_1);
+x_13 = l_Lean_Name_isAnonymous(x_11);
+if (x_13 == 0)
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_14 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___Lean_Server_FileWorker_collectOpenNamespaces_spec__0___closed__0;
+lean_inc(x_11);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_11);
+lean_ctor_set(x_15, 1, x_14);
+x_16 = lean_array_push(x_12, x_15);
+x_17 = l_Lean_Name_getPrefix(x_11);
+lean_dec(x_11);
+x_18 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_18, 0, x_17);
+lean_ctor_set(x_18, 1, x_16);
+x_1 = x_18;
+goto _start;
 }
-lean_ctor_set(x_14, 0, x_2);
-lean_ctor_set(x_14, 1, x_3);
-return x_14;
+else
+{
+lean_object* x_20; 
+x_20 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_20, 0, x_11);
+lean_ctor_set(x_20, 1, x_12);
+return x_20;
+}
 }
 }
 }
@@ -3235,7 +3304,7 @@ lean_ctor_set(x_1, 1, x_5);
 lean_ctor_set(x_1, 0, x_4);
 x_18 = l_Lean_FileMap_utf8RangeToLspRange(x_16, x_1);
 lean_inc(x_17);
-x_19 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_17, x_6);
+x_19 = l_Lean_Name_toString(x_17, x_6);
 x_20 = lean_box(0);
 lean_ctor_set(x_9, 3, x_20);
 lean_ctor_set(x_9, 2, x_20);
@@ -3260,7 +3329,7 @@ lean_ctor_set(x_1, 1, x_5);
 lean_ctor_set(x_1, 0, x_4);
 x_25 = l_Lean_FileMap_utf8RangeToLspRange(x_23, x_1);
 lean_inc(x_24);
-x_26 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_24, x_6);
+x_26 = l_Lean_Name_toString(x_24, x_6);
 x_27 = lean_box(0);
 x_28 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_28, 0, x_25);
@@ -3300,7 +3369,7 @@ lean_ctor_set(x_35, 0, x_4);
 lean_ctor_set(x_35, 1, x_5);
 x_36 = l_Lean_FileMap_utf8RangeToLspRange(x_33, x_35);
 lean_inc(x_34);
-x_37 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_34, x_6);
+x_37 = l_Lean_Name_toString(x_34, x_6);
 x_38 = lean_box(0);
 if (lean_is_scalar(x_32)) {
  x_39 = lean_alloc_ctor(0, 4, 0);
@@ -3372,7 +3441,7 @@ lean_inc(x_17);
 x_18 = lean_ctor_get(x_12, 5);
 lean_inc(x_18);
 lean_dec_ref(x_12);
-x_19 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_4, x_5);
+x_19 = l_Lean_Name_toString(x_4, x_5);
 x_20 = lean_box(x_5);
 lean_inc(x_18);
 lean_inc(x_17);
@@ -3406,7 +3475,7 @@ lean_inc(x_26);
 x_27 = lean_ctor_get(x_12, 5);
 lean_inc(x_27);
 lean_dec_ref(x_12);
-x_28 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_4, x_5);
+x_28 = l_Lean_Name_toString(x_4, x_5);
 x_29 = lean_box(x_5);
 lean_inc(x_27);
 lean_inc(x_26);
@@ -3451,7 +3520,7 @@ lean_inc(x_38);
 x_39 = lean_ctor_get(x_34, 5);
 lean_inc(x_39);
 lean_dec_ref(x_34);
-x_40 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_4, x_5);
+x_40 = l_Lean_Name_toString(x_4, x_5);
 x_41 = lean_box(x_5);
 lean_inc(x_39);
 lean_inc(x_38);
@@ -3488,7 +3557,6 @@ _start:
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_6);
 x_9 = l_Lean_Server_FileWorker_computeIdQuery_x3f___lam__0(x_1, x_2, x_3, x_4, x_5, x_8, x_7);
-lean_dec(x_2);
 return x_9;
 }
 }
@@ -4716,7 +4784,7 @@ x_30 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_computeDotIdQuery_x3f
 lean_closure_set(x_30, 0, x_1);
 lean_closure_set(x_30, 1, x_12);
 lean_closure_set(x_30, 2, x_18);
-x_31 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_4, x_8);
+x_31 = l_Lean_Name_toString(x_4, x_8);
 x_32 = lean_array_size(x_24);
 x_33 = 0;
 x_34 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Server_FileWorker_computeDotQuery_x3f_spec__1(x_32, x_33, x_24);
@@ -4743,7 +4811,7 @@ x_38 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_computeDotIdQuery_x3f
 lean_closure_set(x_38, 0, x_1);
 lean_closure_set(x_38, 1, x_12);
 lean_closure_set(x_38, 2, x_18);
-x_39 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_4, x_8);
+x_39 = l_Lean_Name_toString(x_4, x_8);
 x_40 = lean_array_size(x_24);
 x_41 = 0;
 x_42 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Server_FileWorker_computeDotQuery_x3f_spec__1(x_40, x_41, x_24);
@@ -4803,7 +4871,7 @@ x_52 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_computeDotIdQuery_x3f
 lean_closure_set(x_52, 0, x_1);
 lean_closure_set(x_52, 1, x_12);
 lean_closure_set(x_52, 2, x_18);
-x_53 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_4, x_8);
+x_53 = l_Lean_Name_toString(x_4, x_8);
 x_54 = lean_array_size(x_46);
 x_55 = 0;
 x_56 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Server_FileWorker_computeDotQuery_x3f_spec__1(x_54, x_55, x_46);
@@ -4917,7 +4985,7 @@ x_76 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_computeDotIdQuery_x3f
 lean_closure_set(x_76, 0, x_1);
 lean_closure_set(x_76, 1, x_12);
 lean_closure_set(x_76, 2, x_18);
-x_77 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_4, x_8);
+x_77 = l_Lean_Name_toString(x_4, x_8);
 x_78 = lean_array_size(x_69);
 x_79 = 0;
 x_80 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Server_FileWorker_computeDotQuery_x3f_spec__1(x_78, x_79, x_69);
@@ -5427,7 +5495,7 @@ x_8 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_8, 0, x_1);
 lean_ctor_set(x_8, 1, x_6);
 lean_ctor_set(x_8, 2, x_7);
-x_9 = l_Lean_Server_toJsonCodeActionResolveData____x40_Lean_Server_CodeActions_Basic_2501727465____hygCtx___hyg_32_(x_8);
+x_9 = l_Lean_Server_toJsonCodeActionResolveData____x40_Lean_Server_CodeActions_Basic_2501727465____hygCtx___hyg_29_(x_8);
 x_10 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
 x_11 = lean_alloc_ctor(0, 10, 0);
@@ -5499,7 +5567,7 @@ if (x_2 == 0)
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
-x_4 = l_Lean_Lsp_fromJsonLeanQueryModuleResponse____x40_Lean_Data_Lsp_Internal_1407814286____hygCtx___hyg_15_(x_3);
+x_4 = l_Lean_Lsp_fromJsonLeanQueryModuleResponse____x40_Lean_Data_Lsp_Internal_1407814286____hygCtx___hyg_14_(x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
@@ -5539,7 +5607,7 @@ x_15 = lean_ctor_get(x_1, 0);
 lean_inc(x_15);
 lean_dec(x_1);
 lean_inc(x_15);
-x_16 = l_Lean_Lsp_fromJsonLeanQueryModuleResponse____x40_Lean_Data_Lsp_Internal_1407814286____hygCtx___hyg_15_(x_15);
+x_16 = l_Lean_Lsp_fromJsonLeanQueryModuleResponse____x40_Lean_Data_Lsp_Internal_1407814286____hygCtx___hyg_14_(x_15);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -5603,7 +5671,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_5 = lean_ctor_get(x_3, 5);
 lean_inc_ref(x_5);
 lean_dec_ref(x_3);
-x_6 = l_Lean_Lsp_toJsonLeanQueryModuleParams____x40_Lean_Data_Lsp_Internal_1144149020____hygCtx___hyg_33_(x_2);
+x_6 = l_Lean_Lsp_toJsonLeanQueryModuleParams____x40_Lean_Data_Lsp_Internal_1144149020____hygCtx___hyg_31_(x_2);
 x_7 = lean_apply_3(x_5, x_1, x_6, x_4);
 x_8 = !lean_is_exclusive(x_7);
 if (x_8 == 0)
@@ -10084,7 +10152,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; size_t x_15; lean_object* x_16; size_t x_17; lean_object* x_18; lean_object* x_91; lean_object* x_92; lean_object* x_146; lean_object* x_147; lean_object* x_148; uint8_t x_149; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; lean_object* x_14; size_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_91; lean_object* x_92; lean_object* x_146; lean_object* x_147; lean_object* x_148; uint8_t x_149; 
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_6, 0);
@@ -10171,15 +10239,15 @@ x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = lean_unsigned_to_nat(0u);
-x_21 = lean_array_get_size(x_13);
-x_22 = l_Array_toSubarray___redArg(x_13, x_20, x_21);
+x_21 = lean_array_get_size(x_16);
+x_22 = l_Array_toSubarray___redArg(x_16, x_20, x_21);
 x_23 = l_Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f___closed__8;
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__7(x_11, x_12, x_19, x_16, x_15, x_17, x_24, x_4, x_14);
+x_25 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__7(x_11, x_12, x_19, x_17, x_15, x_13, x_24, x_4, x_14);
 lean_dec_ref(x_4);
-lean_dec_ref(x_16);
+lean_dec_ref(x_17);
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc(x_26);
 x_27 = lean_ctor_get(x_26, 1);
@@ -10450,11 +10518,11 @@ if (lean_obj_tag(x_106) == 0)
 {
 lean_object* x_107; 
 x_107 = l_Lean_Server_FileWorker_handleUnknownIdentifierCodeAction___closed__2;
-x_13 = x_104;
+x_13 = x_96;
 x_14 = x_102;
 x_15 = x_95;
-x_16 = x_91;
-x_17 = x_96;
+x_16 = x_104;
+x_17 = x_91;
 x_18 = x_107;
 goto block_90;
 }
@@ -10480,11 +10548,11 @@ lean_dec(x_111);
 x_115 = lean_unsigned_to_nat(0u);
 lean_ctor_set(x_109, 1, x_115);
 lean_ctor_set(x_109, 0, x_114);
-x_13 = x_104;
+x_13 = x_96;
 x_14 = x_102;
 x_15 = x_95;
-x_16 = x_91;
-x_17 = x_96;
+x_16 = x_104;
+x_17 = x_91;
 x_18 = x_109;
 goto block_90;
 }
@@ -10501,11 +10569,11 @@ x_119 = lean_unsigned_to_nat(0u);
 x_120 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_120, 0, x_118);
 lean_ctor_set(x_120, 1, x_119);
-x_13 = x_104;
+x_13 = x_96;
 x_14 = x_102;
 x_15 = x_95;
-x_16 = x_91;
-x_17 = x_96;
+x_16 = x_104;
+x_17 = x_91;
 x_18 = x_120;
 goto block_90;
 }
@@ -10545,11 +10613,11 @@ if (lean_obj_tag(x_127) == 0)
 {
 lean_object* x_128; 
 x_128 = l_Lean_Server_FileWorker_handleUnknownIdentifierCodeAction___closed__2;
-x_13 = x_125;
+x_13 = x_96;
 x_14 = x_123;
 x_15 = x_95;
-x_16 = x_91;
-x_17 = x_96;
+x_16 = x_125;
+x_17 = x_91;
 x_18 = x_128;
 goto block_90;
 }
@@ -10583,11 +10651,11 @@ if (lean_is_scalar(x_132)) {
 }
 lean_ctor_set(x_136, 0, x_134);
 lean_ctor_set(x_136, 1, x_135);
-x_13 = x_125;
+x_13 = x_96;
 x_14 = x_123;
 x_15 = x_95;
-x_16 = x_91;
-x_17 = x_96;
+x_16 = x_125;
+x_17 = x_91;
 x_18 = x_136;
 goto block_90;
 }
@@ -10818,6 +10886,8 @@ l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__2 = _init_l_Le
 lean_mark_persistent(l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__2);
 l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__3 = _init_l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__3();
 lean_mark_persistent(l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__3);
+l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__4 = _init_l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__4();
+lean_mark_persistent(l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__4);
 l___private_Init_While_0__Lean_Loop_forIn_loop___at___Lean_Server_FileWorker_collectOpenNamespaces_spec__0___closed__0 = _init_l___private_Init_While_0__Lean_Loop_forIn_loop___at___Lean_Server_FileWorker_collectOpenNamespaces_spec__0___closed__0();
 lean_mark_persistent(l___private_Init_While_0__Lean_Loop_forIn_loop___at___Lean_Server_FileWorker_collectOpenNamespaces_spec__0___closed__0);
 l_Lean_Server_FileWorker_collectOpenNamespaces___closed__0 = _init_l_Lean_Server_FileWorker_collectOpenNamespaces___closed__0();

@@ -598,6 +598,7 @@ where
 private def restoreModuleArtifact (file : FilePath) (art : Artifact) : JobM Artifact := do
   unless (← file.pathExists) do
     logVerbose s!"restored artifact from cache to: {file}"
+    createParentDirs file
     copyFile art.path file
     writeFileHash file art.hash
   return art.useLocalFile file

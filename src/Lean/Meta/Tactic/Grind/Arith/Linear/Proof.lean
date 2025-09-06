@@ -5,7 +5,8 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
+public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
+import Init.Grind.Module.OfNatModule
 import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
@@ -15,11 +16,11 @@ import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.ProofUtil
 import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
-import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
-
+import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
+import Lean.Meta.Tactic.Grind.Arith.Linear.Util
+import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
 public section
-
 namespace Lean.Meta.Grind.Arith.Linear
 
 open CommRing (RingExpr)
@@ -289,6 +290,15 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c'
     let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') eagerReflBoolTrue (← mkDiseqProof a b)
     let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_norm
     return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
+  | .coreOfNat a b natStructId lhs rhs =>
+    let h ← OfNatModuleM.run natStructId do
+      let ns ← getNatStruct
+      let (a', ha) ← ofNatModule a
+      let (b', hb) ← ofNatModule b
+      return mkApp10 (mkConst ``Grind.IntModule.OfNatModule.of_diseq [ns.u]) ns.type ns.natModuleInst ns.addRightCancelInst?.get!
+        a b a' b' ha hb (← mkDiseqProof a b)
+    return mkApp5 (← mkIntModThmPrefix ``Grind.Linarith.diseq_norm)
+      (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .neg c =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_neg
     return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c.toExprProof)
@@ -358,7 +368,7 @@ partial def IneqCnstr.collectDecVars (c' : IneqCnstr) : CollectDecVarsM Unit := 
 -- Actually, it cannot even contain decision variables in the current implementation.
 partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core .. | .coreCommRing .. | .oneNeZero => return ()
+  | .core .. | .coreCommRing .. | .coreOfNat .. | .oneNeZero => return ()
   | .neg c => c.collectDecVars
   | .subst _ _ c₁ c₂ | .subst1 _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 

@@ -4,16 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Ring.Poly
 public import Init.Grind.Ordered.Linarith
 public import Lean.Data.PersistentArray
 public import Lean.Meta.Tactic.Grind.ExprPtr
 public import Init.Data.Rat.Basic
-
 public section
-
 namespace Lean.Meta.Grind.Arith.Linear
 export Lean.Grind.Linarith (Var Poly)
 
@@ -64,6 +61,7 @@ structure DiseqCnstr where
 inductive DiseqCnstrProof where
   | core (a b : Expr) (lhs rhs : LinExpr)
   | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | coreOfNat (a b : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
   | neg (c : DiseqCnstr)
   | subst (k₁ k₂ : Int) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
   | subst1 (k : Int) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
@@ -89,53 +87,53 @@ Each type must at least implement the instance `IntModule`.
 For being able to process inequalities, it must at least implement `Preorder`, and `OrderedAdd`
 -/
 structure Struct where
-  id               : Nat
+  id                 : Nat
   /-- If the structure is a ring, we store its id in the `CommRing` module at `ringId?` -/
-  ringId?          : Option Nat
-  type             : Expr
+  ringId?            : Option Nat
+  type               : Expr
   /-- Cached `getDecLevel type` -/
-  u                : Level
+  u                  : Level
   /-- `IntModule` instance -/
-  intModuleInst    : Expr
+  intModuleInst      : Expr
   /-- `LE` instance if available -/
-  leInst?          : Option Expr
+  leInst?            : Option Expr
   /-- `LT` instance if available -/
-  ltInst?          : Option Expr
+  ltInst?            : Option Expr
   /-- `LawfulOrderLT` instance if available -/
-  lawfulOrderLTInst?    : Option Expr
+  lawfulOrderLTInst? : Option Expr
   /-- `IsPreorder` instance if available -/
   isPreorderInst?    : Option Expr
   /-- `OrderedAdd` instance with `IsPreorder` if available -/
-  orderedAddInst?       : Option Expr
+  orderedAddInst?    : Option Expr
   /-- `IsPartialOrder` instance if available -/
   isPartialInst?     : Option Expr
   /-- `IsLinearOrder` instance if available -/
   isLinearInst?      : Option Expr
   /-- `NoNatZeroDivisors` -/
-  noNatDivInst?    : Option Expr
+  noNatDivInst?      : Option Expr
   /-- `Ring` instance -/
-  ringInst?        : Option Expr
+  ringInst?          : Option Expr
   /-- `CommRing` instance -/
-  commRingInst?    : Option Expr
+  commRingInst?      : Option Expr
   /-- `OrderedRing` instance with `Preorder` -/
   orderedRingInst?   : Option Expr
   /-- `Field` instance -/
-  fieldInst?       : Option Expr
+  fieldInst?         : Option Expr
   /-- `IsCharP` instance for `type` if available. -/
-  charInst?        : Option (Expr × Nat)
-  zero             : Expr
-  ofNatZero        : Expr
-  one?             : Option Expr
-  leFn?            : Option Expr
-  ltFn?            : Option Expr
-  addFn            : Expr
-  zsmulFn          : Expr
-  nsmulFn          : Expr
-  zsmulFn?         : Option Expr
-  nsmulFn?         : Option Expr
-  homomulFn?       : Option Expr -- homogeneous multiplication if structure is a ring
-  subFn            : Expr
-  negFn            : Expr
+  charInst?          : Option (Expr × Nat)
+  zero               : Expr
+  ofNatZero          : Expr
+  one?               : Option Expr
+  leFn?              : Option Expr
+  ltFn?              : Option Expr
+  addFn              : Expr
+  zsmulFn            : Expr
+  nsmulFn            : Expr
+  zsmulFn?           : Option Expr
+  nsmulFn?           : Option Expr
+  homomulFn?         : Option Expr -- homogeneous multiplication if structure is a ring
+  subFn              : Expr
+  negFn              : Expr
   /--
   Mapping from variables to their denotations.
   Remark each variable can be in only one ring.
@@ -203,6 +201,33 @@ structure Struct where
   ignored : PArray Expr := {}
   deriving Inhabited
 
+structure NatStruct where
+  id                  : Nat
+  /-- Id for `OfNatModule.Q` -/
+  structId            : Nat
+  type                : Expr
+  /-- Cached `getDecLevel type` -/
+  u                   : Level
+  /-- `NatModule` instance for `type` -/
+  natModuleInst       : Expr
+  /-- `LE` instance if available -/
+  leInst?             : Option Expr
+  /-- `LT` instance if available -/
+  ltInst?             : Option Expr
+  /-- `LawfulOrderLT` instance if available -/
+  lawfulOrderLTInst?  : Option Expr
+  /-- `IsPreorder` instance if available -/
+  isPreorderInst?     : Option Expr
+  /-- `OrderedAdd` instance with `IsPreorder` if available -/
+  orderedAddInst?     : Option Expr
+  addRightCancelInst? : Option Expr
+  rfl_q               : Expr -- `@Eq.Refl (OfNatModule.Q type)`
+  zero                : Expr
+  toQFn               : Expr
+  addFn               : Expr
+  smulFn              : Expr
+  termMap             : PHashMap ExprPtr (Expr × Expr) := {}
+
 /-- State for all `IntModule` types detected by `grind`. -/
 structure State where
   /--
@@ -216,6 +241,16 @@ structure State where
   typeIdOf : PHashMap ExprPtr (Option Nat) := {}
   /- Mapping from expressions/terms to their structure ids. -/
   exprToStructId : PHashMap ExprPtr Nat := {}
+  /-- `NatModule`. We support them using the envelope `OfNatModule.Q` -/
+  natStructs : Array NatStruct := {}
+  /--
+  Mapping from types to its "nat module id". We cache failures using `none`.
+  `natTypeIdOf[type]` is `some id`, then `id < natStructs.size`.
+  If a type is in this map, it is not in `typeIdOf`.
+  -/
+  natTypeIdOf : PHashMap ExprPtr (Option Nat) := {}
+  /- Mapping from expressions/terms to their nat structure ids. -/
+  exprToNatStructId : PHashMap ExprPtr Nat := {}
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Linear

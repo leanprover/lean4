@@ -5,12 +5,12 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.MBTC
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Model
-public import Lean.Meta.Tactic.Grind.Arith.Linear.PropagateEq
-
+public import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.MBTC
+import Lean.Meta.Tactic.Grind.Arith.ModelUtil
+import Lean.Meta.Tactic.Grind.Arith.Linear.Model
+import Lean.Meta.Tactic.Grind.Arith.Linear.PropagateEq
 public section
-
 namespace Lean.Meta.Grind.Arith.Linear
 
 private partial def toRatValue? (a : Expr) : Option Rat :=

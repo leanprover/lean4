@@ -375,6 +375,7 @@ where
     let ringTodo ← checkCommRingEq rhsRoot lhsRoot
     let linarithTodo ← checkLinarithEq rhsRoot lhsRoot
     let ACTodo ← checkACEq rhsRoot lhsRoot
+    let todo ← Solvers.mergeTerms rhsRoot lhsRoot
     resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
@@ -390,6 +391,7 @@ where
       propagateCommRing ringTodo
       propagateLinarith linarithTodo
       propagateAC ACTodo
+      todo.propagate
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     let isFalseRoot ← isFalseExpr rootNew
     traverseEqc lhs fun n => do

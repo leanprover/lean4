@@ -467,6 +467,7 @@ where
             registerParent e arg
         addCongrTable e
         internalizeTheories e parent?
+        Solvers.internalize e parent?
         propagateUp e
         propagateBetaForNewApp e
 

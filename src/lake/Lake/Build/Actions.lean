@@ -31,6 +31,7 @@ public def compileLeanModule
   (leanArgs : Array String := #[])
   (leanPath : SearchPath := [])
   (lean : FilePath := "lean")
+  (leanir : FilePath := "leanir")
 : LogIO Unit := do
   let mut args := leanArgs.push leanFile.toString
   if let some oleanFile := arts.olean? then
@@ -75,6 +76,15 @@ public def compileLeanModule
     logInfo s!"stderr:\n{out.stderr.trim}"
   if out.exitCode ≠ 0 then
     error s!"Lean exited with code {out.exitCode}"
+  if let some irFile := arts.ir? then
+    createParentDirs irFile
+    proc {
+      cmd := leanir.toString
+      args := #[setupFile.toString, setup.name.toString, irFile.toString]
+      env := #[
+        ("LEAN_PATH", leanPath.toString)
+      ]
+    }
 
 public def compileO
   (oFile srcFile : FilePath)

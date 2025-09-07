@@ -15,12 +15,6 @@ public import Init.Data.Option.Basic
 @[expose] public section
 universe u
 
-structure ByteArray where
-  data : Array UInt8
-
-attribute [extern "lean_byte_array_mk"] ByteArray.mk
-attribute [extern "lean_byte_array_data"] ByteArray.data
-
 namespace ByteArray
 
 deriving instance BEq for ByteArray
@@ -29,10 +23,6 @@ attribute [ext] ByteArray
 
 instance : DecidableEq ByteArray :=
   fun _ _ => decidable_of_decidable_of_iff ByteArray.ext_iff.symm
-
-@[extern "lean_mk_empty_byte_array"]
-def emptyWithCapacity (c : @& Nat) : ByteArray :=
-  { data := #[] }
 
 @[deprecated emptyWithCapacity (since := "2025-03-12")]
 abbrev mkEmpty := emptyWithCapacity
@@ -48,10 +38,6 @@ instance : EmptyCollection ByteArray where
 @[extern "lean_byte_array_push"]
 def push : ByteArray → UInt8 → ByteArray
   | ⟨bs⟩, b => ⟨bs.push b⟩
-
-@[extern "lean_byte_array_size"]
-def size : (@& ByteArray) → Nat
-  | ⟨bs⟩ => bs.size
 
 @[extern "lean_sarray_size", simp]
 def usize (a : @& ByteArray) : USize :=

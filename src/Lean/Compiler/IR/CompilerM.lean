@@ -162,7 +162,8 @@ def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
     -- it can also see the LCNF)
     findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
     -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
-    findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
+    findAtSorted? (declMapExt.getModuleEntries env modIdx) declName <|>
+    (declMapExt.getState env |>.find? declName)
   | none => declMapExt.getState env |>.find? declName
 
 /-- Like ``findEnvDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/

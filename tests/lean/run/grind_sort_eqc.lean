@@ -87,6 +87,14 @@ h_2 : ¬f (f x) = g x x
     [assign] g y z := 3
     [assign] f (f (f x)) := -1
     [assign] f (f (f (f x))) := -2
+  [assoc] Operator `HAdd.hAdd`
+    [basis] Basis
+      [_] f (f (f x)) + -1 * f (f (f (f x))) = f x + -1 * f (f x)
+      [_] f (f x) + -1 * f (f (f x)) = f x + -1 * f (f x)
+      [_] f x + (-1 * f (f x) + -1) = 0
+    [properties] Properties
+      [_] commutative
+      [_] identity: `0`
   [limits] Thresholds reached
     [limit] maximum term generation has been reached, threshold: `(gen := 2)`
 [grind] Diagnostics

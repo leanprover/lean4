@@ -19,7 +19,7 @@ private partial def solve (generation : Nat) : SearchM Bool := withIncRecDepth d
     return false -- `splitNext` should have been configured to not create choice points
   if (← getGoal).inconsistent then
     return true
-  if (← intros' generation <||> assertAll <||> check <||> splitNext <||> ematch) then
+  if (← intros' generation <||> assertAll <||> check <||> Solvers.check <||> splitNext <||> ematch) then
     solve generation
   else
     return false

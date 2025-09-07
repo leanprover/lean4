@@ -127,6 +127,7 @@ public def checkInvariants (expensive := false) : GoalM Unit := do
       checkPtrEqImpliesStructEq
     Arith.checkInvariants
     AC.checkInvariants
+    Solvers.checkInvariants
   if expensive && grind.debug.proofs.get (← getOptions) then
     checkProofs
 

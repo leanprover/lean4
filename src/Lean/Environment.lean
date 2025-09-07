@@ -1820,8 +1820,6 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
       (← mkPart .exported),
       (← mkPart .server),
       (← mkPart .private)]
-    -- Make sure to change the module name so we derive a different base address
-    saveModuleData (fname.withExtension "ir") (env.mainModule ++ `ir) (mkIRData env)
   else
     saveModuleData fname env.mainModule (← mkModuleData env)
 
@@ -1927,7 +1925,7 @@ private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLev
 
 /-- The module data that should be used for accessing IR for interpretation. -/
 private def ImportedModule.loadIRData? (self : ImportedModule) (arts : NameMap ImportArtifacts)
-    (level : OLeanLevel):
+    (level : OLeanLevel) :
     IO (Option (ModuleData × Option CompactedRegion)) := do
   if (level < .server && self.irPhases == .runtime) || !self.mainModule?.any (·.isModule) then
     return self.mainModule?.map (·, none)

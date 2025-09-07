@@ -14,10 +14,6 @@ public section
 
 universe u
 
-@[export lean_list_asstring]
-def List.Internal.asString' (s : List Char) : String :=
-  List.asString s
-
 namespace String
 
 instance : HAdd String.Pos String.Pos String.Pos where
@@ -27,7 +23,7 @@ instance : HSub String.Pos String.Pos String.Pos where
   hSub p₁ p₂ := { byteIdx :=  p₁.byteIdx - p₂.byteIdx }
 
 @[export lean_string_pos_sub]
-def Pos.sub : String.Pos → String.Pos → String.Pos :=
+def Pos.Internal.sub : String.Pos → String.Pos → String.Pos :=
   (· - ·)
 
 instance : HAdd String.Pos Char String.Pos where
@@ -287,7 +283,7 @@ Examples:
   get s 0
 
 @[export lean_string_front]
-def Internal.front' (s : String) : Char :=
+def Internal.frontImpl (s : String) : Char :=
   String.front s
 
 /--
@@ -416,7 +412,7 @@ Examples:
   posOfAux s c s.endPos 0
 
 @[export lean_string_posof]
-def Internal.posOf' (s : String) (c : Char) : Pos :=
+def Internal.posOfImpl (s : String) (c : Char) : Pos :=
   String.posOf s c
 
 def revPosOfAux (s : String) (c : Char) (pos : Pos) : Option Pos :=
@@ -490,7 +486,7 @@ abbrev Pos.min (p₁ p₂ : Pos) : Pos :=
   { byteIdx := p₁.byteIdx.min p₂.byteIdx }
 
 @[export lean_string_pos_min]
-def Pos.Internal.min' (p₁ p₂ : Pos) : Pos :=
+def Pos.Internal.minImpl (p₁ p₂ : Pos) : Pos :=
   Pos.min p₁ p₂
 
 /--
@@ -654,7 +650,7 @@ Examples:
   n.repeat (fun s => s.push c) s
 
 @[export lean_string_pushn]
-def Internal.pushn' (s : String) (c : Char) (n : Nat) : String :=
+def Internal.pushnImpl (s : String) (c : Char) (n : Nat) : String :=
   String.pushn s c n
 
 /--
@@ -671,7 +667,7 @@ Examples:
   s.endPos == 0
 
 @[export lean_string_isempty]
-def Internal.isEmpty' (s : String) : Bool :=
+def Internal.isEmptyImpl (s : String) : Bool :=
   String.isEmpty s
 
 /--
@@ -703,7 +699,7 @@ where go (acc : String) (s : String) : List String → String
   | []      => acc
 
 @[export lean_string_intercalate]
-def Internal.intercalate' (s : String) : List String → String :=
+def Internal.intercalateImpl (s : String) : List String → String :=
   String.intercalate s
 
 /--
@@ -918,7 +914,7 @@ Examples:
   offsetOfPosAux s pos 0 0
 
 @[export lean_string_offsetofpos]
-def Internal.offsetOfPos' (s : String) (pos : Pos) : Nat :=
+def Internal.offsetOfPosImpl (s : String) (pos : Pos) : Nat :=
   String.offsetOfPos s pos
 
 @[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos) (i : Pos) (a : α) : α :=
@@ -941,7 +937,7 @@ Examples:
   foldlAux f s s.endPos 0 init
 
 @[export lean_string_foldl]
-def Internal.foldl' (f : String → Char → String) (init : String) (s : String) : String :=
+def Internal.foldlImpl (f : String → Char → String) (init : String) (s : String) : String :=
   foldl f init s
 
 @[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos) : α :=
@@ -990,7 +986,7 @@ Examples:
   anyAux s s.endPos p 0
 
 @[export lean_string_any]
-def Internal.any' (s : String) (p : Char → Bool) :=
+def Internal.anyImpl (s : String) (p : Char → Bool) :=
   String.any s p
 
 /--
@@ -1018,7 +1014,7 @@ Examples:
   s.any (fun a => a == c)
 
 @[export lean_string_contains]
-def Internal.contains' (s : String) (c : Char) : Bool :=
+def Internal.containsImpl (s : String) (c : Char) : Bool :=
   String.contains s c
 
 theorem utf8SetAux_of_gt (c' : Char) : ∀ (cs : List Char) {i p : Pos}, i > p → utf8SetAux c' cs i p = cs
@@ -1163,7 +1159,7 @@ def isPrefixOf (p : String) (s : String) : Bool :=
   substrEq p 0 s 0 p.endPos.byteIdx
 
 @[export lean_string_isprefixof]
-def Internal.isPrefix_of' (p : String) (s : String) : Bool :=
+def Internal.isPrefixOfImpl (p : String) (s : String) : Bool :=
   String.isPrefixOf p s
 
 /--
@@ -1216,7 +1212,7 @@ A substring is empty if its start and end positions are the same.
   ss.bsize == 0
 
 @[export lean_substring_isempty]
-def Internal.isEmpty' (ss : Substring) : Bool :=
+def Internal.isEmptyImpl (ss : Substring) : Bool :=
   Substring.isEmpty ss
 
 /--
@@ -1226,7 +1222,7 @@ Copies the region of the underlying string pointed to by a substring into a fres
   | ⟨s, b, e⟩ => s.extract b e
 
 @[export lean_substring_tostring]
-def Internal.toString' : Substring → String :=
+def Internal.toStringImpl : Substring → String :=
   Substring.toString
 
 /--
@@ -1249,7 +1245,7 @@ returned.  Does not panic.
   | ⟨s, b, _⟩, p => s.get (b+p)
 
 @[export lean_substring_get]
-def Internal.get' : Substring → String.Pos → Char :=
+def Internal.getImpl : Substring → String.Pos → Char :=
   Substring.get
 
 /--
@@ -1286,7 +1282,7 @@ position, not the underlying string.
     if absP = b then p else { byteIdx := (s.prev absP).byteIdx - b.byteIdx }
 
 @[export lean_substring_prev]
-def Internal.prev' : Substring → String.Pos → String.Pos :=
+def Internal.prevImpl : Substring → String.Pos → String.Pos :=
   Substring.prev
 
 /--
@@ -1323,7 +1319,7 @@ returned.  Does not panic.
   s.get 0
 
 @[export lean_substring_front]
-def Internal.front' : Substring → Char :=
+def Internal.frontImpl : Substring → Char :=
   Substring.front
 
 /--
@@ -1344,7 +1340,7 @@ If the substring's end position is reached, the start position is not advanced p
   | ss@⟨s, b, e⟩, n => ⟨s, b + ss.nextn n 0, e⟩
 
 @[export lean_substring_drop]
-def Internal.drop' : Substring → Nat → Substring :=
+def Internal.dropImpl : Substring → Nat → Substring :=
   Substring.drop
 
 /--
@@ -1396,7 +1392,7 @@ positions adjusted.
   | ⟨s, b, e⟩, b', e' => if b' ≥ e' then ⟨"", 0, 0⟩ else ⟨s, e.min (b+b'), e.min (b+e')⟩
 
 @[export lean_substring_extract]
-def Internal.extract' : Substring → String.Pos → String.Pos → Substring :=
+def Internal.extractImpl : Substring → String.Pos → String.Pos → Substring :=
   Substring.extract
 
 /--
@@ -1466,7 +1462,7 @@ Short-circuits at the first character for which `p` returns `false`.
   !s.any (fun c => !p c)
 
 @[export lean_substring_all]
-def Internal.all' (s : Substring) (p : Char → Bool) : Bool :=
+def Internal.allImpl (s : Substring) (p : Char → Bool) : Bool :=
   Substring.all s p
 
 /--
@@ -1494,7 +1490,7 @@ characters by moving the substring's end position towards its start position.
     ⟨s, b, e⟩
 
 @[export lean_substring_takewhile]
-def Internal.takeWhile' : Substring → (Char → Bool) → Substring :=
+def Internal.takeWhileImpl : Substring → (Char → Bool) → Substring :=
   Substring.takeWhile
 
 /--
@@ -1615,7 +1611,7 @@ def beq (ss1 ss2 : Substring) : Bool :=
   ss1.bsize == ss2.bsize && ss1.str.substrEq ss1.startPos ss2.str ss2.startPos ss1.bsize
 
 @[export lean_substring_beq]
-def Internal.beq' (ss1 ss2 : Substring) : Bool :=
+def Internal.beqImpl (ss1 ss2 : Substring) : Bool :=
   Substring.beq ss1 ss2
 
 instance hasBeq : BEq Substring := ⟨beq⟩
@@ -1716,7 +1712,7 @@ Examples:
   (s.toSubstring.drop n).toString
 
 @[export lean_string_drop]
-def Internal.drop' (s : String) (n : Nat) : String :=
+def Internal.dropImpl (s : String) (n : Nat) : String :=
   String.drop s n
 
 /--
@@ -1733,7 +1729,7 @@ Examples:
   (s.toSubstring.dropRight n).toString
 
 @[export lean_string_dropright]
-def Internal.dropRight' (s : String) (n : Nat) : String :=
+def Internal.dropRightImpl (s : String) (n : Nat) : String :=
   String.dropRight s n
 
 /--
@@ -1888,7 +1884,7 @@ Examples:
   s.toSubstring.trim.toString
 
 @[export lean_string_trim]
-def Internal.trim' (s : String) : String :=
+def Internal.trimImpl (s : String) : String :=
   String.trim s
 
 /--
@@ -1905,7 +1901,7 @@ Examples:
   Substring.takeWhileAux s s.endPos p i
 
 @[export lean_string_nextwhile]
-def Internal.nextWhile' (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
+def Internal.nextWhileImpl (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
   String.nextWhile s p i
 
 /--
@@ -1961,7 +1957,7 @@ Examples:
   s.set 0 <| s.get 0 |>.toUpper
 
 @[export lean_string_capitalize]
-def Internal.capitalize' (s : String) : String :=
+def Internal.capitalizeImpl (s : String) : String :=
   String.capitalize s
 
 /--

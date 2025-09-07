@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Format.Basic
 public import Init.Data.Array.Basic
 public import Init.Data.ToString.Basic
+import Init.Data.String.Basic
 
 public section
 

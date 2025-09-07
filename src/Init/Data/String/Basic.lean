@@ -366,6 +366,10 @@ theorem _root_.Char.utf8Size_pos (c : Char) : 0 < c.utf8Size := by
 theorem _root_.Char.utf8Size_le_four (c : Char) : c.utf8Size ≤ 4 := by
   repeat first | apply iteInduction (motive := (· ≤ 4)) <;> intros | decide
 
+theorem _root_.Char.utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 ∨ c.utf8Size = 3 ∨ c.utf8Size = 4 := by
+  match c.utf8Size, c.utf8Size_pos, c.utf8Size_le_four with
+  | 1, _, _ | 2, _, _ | 3, _, _ | 4, _, _ => simp
+
 @[deprecated Char.utf8Size_pos (since := "2026-06-04")] abbrev one_le_csize := Char.utf8Size_pos
 
 @[simp] theorem pos_lt_eq (p₁ p₂ : Pos) : (p₁ < p₂) = (p₁.1 < p₂.1) := rfl
@@ -938,7 +942,7 @@ Examples:
 
 @[export lean_string_foldl]
 def Internal.foldlImpl (f : String → Char → String) (init : String) (s : String) : String :=
-  foldl f init s
+  String.foldl f init s
 
 @[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos) : α :=
   if h : begPos < i then

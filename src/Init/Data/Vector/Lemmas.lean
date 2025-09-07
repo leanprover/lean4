@@ -292,8 +292,8 @@ set_option linter.indexVariables false in
 @[deprecated toArray_emptyWithCapacity (since := "2025-03-12")]
 abbrev toArray_mkEmpty := @toArray_emptyWithCapacity
 
-@[simp, grind] theorem toArray_eraseIdx {xs : Vector α n} {i} (h) :
-    (xs.eraseIdx i h).toArray = xs.toArray.eraseIdx i (by simp [h]) := rfl
+@[defeq, simp, grind] theorem toArray_eraseIdx {xs : Vector α n} {i} (h) :
+    (xs.eraseIdx i h).toArray = xs.toArray.eraseIdx i (by simp [h]) := by dsimp [eraseIdx]
 
 @[simp, grind] theorem toArray_eraseIdx! {xs : Vector α n} {i} (hi : i < n) :
     (xs.eraseIdx! i).toArray = xs.toArray.eraseIdx! i := by

@@ -46,7 +46,7 @@ instance : AIG.LawfulVecOperator α ShiftConcatInput blastShiftConcat where
     intros
     unfold blastShiftConcat
     dsimp only
-    apply AIG.LawfulVecOperator.le_size (f := blastZeroExtend)
+    apply AIG.LawfulVecOperator.le_size
   decl_eq := by
     intros
     unfold blastShiftConcat

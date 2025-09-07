@@ -78,8 +78,13 @@ class WellFoundedRelation (α : Sort u) where
 
 namespace WellFounded
 
-theorem apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
-  wf.rec (fun p => p) a
+def T : Prop := ∀ p, (p → p) → p → p
+def δ (z : T) : T := fun p η h => η (z (T → T) id id z p η h)
+def ω : T := fun _ _ h => propext ⟨fun _ => h, fun _ => id⟩ ▸ δ
+def Ω : T := δ ω
+
+def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
+  Ω (∀ x, Acc r x) (fun wf x => ⟨x, fun y _ => wf y⟩) (wf.rec fun p => p) a
 
 section
 variable {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)

@@ -1322,7 +1322,7 @@ theorem map_eq_iff {f : α → β} {xs : Array α} {ys : Array β} :
 
 theorem map_eq_foldl {f : α → β} {xs : Array α} :
     map f xs = foldl (fun bs a => bs.push (f a)) #[] xs := by
-  simpa using mapM_eq_foldlM
+  apply mapM_eq_foldlM (f := (pure <| f ·))
 
 @[simp] theorem map_set {f : α → β} {xs : Array α} {i : Nat} {h : i < xs.size} {a : α} :
     (xs.set i a).map f = (xs.map f).set i (f a) (by simpa using h) := by

@@ -134,28 +134,28 @@ example {α : Type} (x y : α) : x = y ↔ y = x := by apply?
 
 /--
 info: Try this:
-  exact Nat.add_pos_left ha b
+  exact Nat.add_pos_right a hb
 -/
 #guard_msgs in
-example (a b : Nat) (ha : 0 < a) (_hb : 0 < b) : 0 < a + b := by apply?
+example (a b : Nat) (_ha : 0 < a) (hb : 0 < b) : 0 < a + b := by apply?
 
 /--
 info: Try this:
-  exact Nat.add_pos_left ha b
+  exact Nat.add_pos_right a hb
 -/
 #guard_msgs in
 -- Verify that if maxHeartbeats is 0 we don't stop immediately.
 set_option maxHeartbeats 0 in
-example (a b : Nat) (ha : 0 < a) (_hb : 0 < b) : 0 < a + b := by apply?
+example (a b : Nat) (_ha : 0 < a) (hb : 0 < b) : 0 < a + b := by apply?
 
 section synonym
 
 /--
 info: Try this:
-  exact Nat.add_pos_left ha b
+  exact Nat.add_pos_right a hb
 -/
 #guard_msgs in
-example (a b : Nat) (ha : a > 0) (_hb : 0 < b) : 0 < a + b := by apply?
+example (a b : Nat) (_ha : a > 0) (hb : 0 < b) : 0 < a + b := by apply?
 
 /--
 info: Try this:

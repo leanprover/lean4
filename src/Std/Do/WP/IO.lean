@@ -41,10 +41,3 @@ scoped instance instWP : WP (EIO ε) (.except ε .pure) where
     }
 
 instance instLawfulMonad : LawfulMonad (EIO ε) := inferInstanceAs (LawfulMonad (EStateM ε IO.RealWorld))
-
-scoped instance instWPMonad : WPMonad (EIO ε) (.except ε .pure) where
-  wp_pure a := by simp only [wp, pure, EStateM.pure, PredTrans.pure]
-  wp_bind x f := by
-    ext Q : 2
-    simp only [wp, bind, EStateM.bind, PredTrans.bind]
-    cases (x ()) <;> rfl

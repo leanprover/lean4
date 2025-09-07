@@ -42,6 +42,7 @@ static lean_object* l_Lean_PrettyPrinter_registerParserCompilers___closed__2;
 lean_object* l_Lean_MessageData_toString(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_ppSignature___closed__1;
 lean_object* l_Lean_ConstantInfo_levelParams(lean_object*);
+extern lean_object* l_Lean_instInhabitedFileMap_default;
 static lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_initFn___closed__9____x40_Lean_PrettyPrinter_675687902____hygCtx___hyg_2_;
 lean_object* l_Lean_PrettyPrinter_delab(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
@@ -206,7 +207,6 @@ LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_wi
 static lean_object* l_Lean_PrettyPrinter_ppTerm___closed__1;
 static lean_object* l_Lean_PrettyPrinter_ppExprLegacy___closed__14;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_ppExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_defaultFileMap____x40_Lean_Data_Position_635931889____hygCtx___hyg_23_;
 static lean_object* l_Lean_PrettyPrinter_ppModule___closed__1;
 static lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_initFn___closed__5____x40_Lean_PrettyPrinter_675687902____hygCtx___hyg_2_;
 lean_object* l_Lean_sanitizeSyntax(lean_object*, lean_object*);
@@ -1860,7 +1860,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_ppExprLegacy___closed__23() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_defaultFileMap____x40_Lean_Data_Position_635931889____hygCtx___hyg_23_;
+x_1 = l_Lean_instInhabitedFileMap_default;
 return x_1;
 }
 }

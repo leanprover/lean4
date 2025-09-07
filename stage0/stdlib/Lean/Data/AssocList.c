@@ -70,7 +70,6 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___redArg(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_AssocList_insertNew(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_foldl___redArg___closed__2;
 LEAN_EXPORT lean_object* l_List_toAssocList_x27___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_defaultAssocList____x40_Lean_Data_AssocList_996150287____hygCtx___hyg_56_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_AssocList_0__Lean_AssocList_forIn_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_mapKey___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_contains___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -82,6 +81,7 @@ static lean_object* l_Lean_AssocList_foldl___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_AssocList_erase(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_toList___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at___Lean_AssocList_toList_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instInhabitedAssocList_default(lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_replace(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -220,7 +220,7 @@ x_7 = l_Lean_AssocList_ctorElim___redArg(x_4, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_defaultAssocList____x40_Lean_Data_AssocList_996150287____hygCtx___hyg_56_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instInhabitedAssocList_default(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 

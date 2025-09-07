@@ -23,6 +23,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_getSimpTheorems___boxed(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getAsyncConstInfo___at___Lean_Meta_mkSimpAttr_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Meta_registerSimpAttr_spec__0_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Attribute_erase(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_instInhabitedSimpTheorems_default;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at___Lean_Meta_SimpTheorems_erase___at___Lean_Meta_mkSimpAttr_spec__10_spec__15(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
@@ -71,6 +72,7 @@ static lean_object* l_Lean_Meta_mkSimpAttr___lam__1___closed__15;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_Meta_SimpTheorems_erase___at___Lean_Meta_mkSimpAttr_spec__10_spec__10_spec__10_spec__10___lam__0___closed__2;
+uint8_t l_Lean_instBEqMessageSeverity_beq(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_mkSimpAttr___lam__1___closed__9;
 static lean_object* l_Lean_Meta_mkSimpAttr___lam__1___closed__5;
 static lean_object* l_Lean_Meta_getSimpTheorems___redArg___closed__0;
@@ -234,7 +236,6 @@ uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Meta_registerSimpAttr_spec__0_spec__4___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_Meta_SimpTheorems_erase___at___Lean_Meta_mkSimpAttr_spec__10_spec__15_spec__15___redArg(lean_object*, size_t, lean_object*);
-uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at___Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_Meta_SimpTheorems_erase___at___Lean_Meta_mkSimpAttr_spec__10_spec__15_spec__15_spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 uint8_t l_Lean_isPrivateName(lean_object*);
@@ -295,7 +296,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn___closed__3____x40_Lean_Meta_Tactic_Simp_Attr_3725168437____hygCtx___hyg_2_;
 uint8_t lean_usize_dec_lt(size_t, size_t);
-extern lean_object* l_Lean_Meta_defaultSimpTheorems____x40_Lean_Meta_Tactic_Simp_SimpTheorems_3032605156____hygCtx___hyg_92_;
 static lean_object* l_Lean_Meta_getSEvalTheorems___redArg___closed__0;
 static lean_object* l___auto___closed__28____x40_Lean_Meta_Tactic_Simp_Attr_3674351783____hygCtx___hyg_5_;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getAsyncConstInfo___at___Lean_Meta_mkSimpAttr_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2163,7 +2163,7 @@ _start:
 {
 lean_object* x_8; uint8_t x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_79; uint8_t x_80; uint8_t x_81; uint8_t x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_108; lean_object* x_109; uint8_t x_110; uint8_t x_111; uint8_t x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_119; lean_object* x_120; uint8_t x_121; uint8_t x_122; lean_object* x_123; lean_object* x_124; uint8_t x_125; uint8_t x_131; lean_object* x_132; uint8_t x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; uint8_t x_137; uint8_t x_138; uint8_t x_140; uint8_t x_156; 
 x_131 = 2;
-x_156 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_3, x_131);
+x_156 = l_Lean_instBEqMessageSeverity_beq(x_3, x_131);
 if (x_156 == 0)
 {
 x_140 = x_156;
@@ -2653,7 +2653,7 @@ x_148 = lean_alloc_closure((void*)(l_Lean_logAt___at___Lean_log___at___Lean_logW
 lean_closure_set(x_148, 0, x_146);
 lean_closure_set(x_148, 1, x_147);
 x_149 = 1;
-x_150 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_3, x_149);
+x_150 = l_Lean_instBEqMessageSeverity_beq(x_3, x_149);
 if (x_150 == 0)
 {
 lean_inc_ref(x_141);
@@ -4239,7 +4239,7 @@ static lean_object* _init_l_Lean_Meta_mkSimpAttr___lam__3___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_defaultSimpTheorems____x40_Lean_Meta_Tactic_Simp_SimpTheorems_3032605156____hygCtx___hyg_92_;
+x_1 = l_Lean_Meta_instInhabitedSimpTheorems_default;
 return x_1;
 }
 }

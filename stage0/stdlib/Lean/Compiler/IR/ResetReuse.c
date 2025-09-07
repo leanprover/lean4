@@ -35,6 +35,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_Persist
 lean_object* lean_ir_find_env_decl(lean_object*, lean_object*);
 uint8_t lean_usize_dec_le(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_IR_ResetReuse_R_spec__3___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_IR_instBEqVarId_beq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_initFn___closed__1____x40_Lean_Compiler_IR_ResetReuse_1484512311____hygCtx___hyg_2_;
 size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_IR_ResetReuse_R_spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -119,7 +120,6 @@ LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dfinalize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_IR_ResetReuse_R_spec__3_spec__3___redArg___closed__0;
 lean_object* lean_usize_to_nat(size_t);
-uint8_t l_Lean_IR_beqVarId____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_20_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ResetReuse_UseClassification_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_empty___at___Lean_IR_Decl_insertResetReuseCore_spec__0___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_ResetReuse_collectResets_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -155,7 +155,6 @@ lean_object* l_Lean_IR_Alt_body(lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_initFn____x40_Lean_Compiler_IR_ResetReuse_1484512311____hygCtx___hyg_2_(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_initFn___closed__2____x40_Lean_Compiler_IR_ResetReuse_1484512311____hygCtx___hyg_2_;
-uint64_t l_Lean_IR_hashVarId____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_37_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ResetReuse_UseClassification_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_tryS(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_contains___at___Lean_IR_ResetReuse_R_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -186,6 +185,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_ResetReuse_UseClassification_other_elim___red
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S(lean_object*, lean_object*, uint8_t, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
+uint64_t l_Lean_IR_instHashableVarId_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at___Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_IR_ResetReuse_R_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ResetReuse_UseClassification_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -944,7 +944,7 @@ lean_object* x_13; uint8_t x_14;
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 lean_dec_ref(x_12);
-x_14 = l_Lean_IR_beqVarId____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_20_(x_1, x_13);
+x_14 = l_Lean_IR_instBEqVarId_beq(x_1, x_13);
 lean_dec(x_13);
 x_7 = x_14;
 goto block_11;
@@ -1385,7 +1385,7 @@ lean_object* x_35; uint8_t x_36;
 x_35 = lean_ctor_get(x_28, 0);
 lean_inc(x_35);
 lean_dec_ref(x_28);
-x_36 = l_Lean_IR_beqVarId____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_20_(x_35, x_1);
+x_36 = l_Lean_IR_instBEqVarId_beq(x_35, x_1);
 lean_dec(x_35);
 if (x_36 == 0)
 {
@@ -1510,7 +1510,7 @@ lean_object* x_56; uint8_t x_57;
 x_56 = lean_ctor_get(x_48, 0);
 lean_inc(x_56);
 lean_dec_ref(x_48);
-x_57 = l_Lean_IR_beqVarId____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_20_(x_56, x_1);
+x_57 = l_Lean_IR_instBEqVarId_beq(x_56, x_1);
 lean_dec(x_56);
 if (x_57 == 0)
 {
@@ -3064,7 +3064,7 @@ else
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_fget_borrowed(x_1, x_2);
-x_7 = l_Lean_IR_beqVarId____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_20_(x_3, x_6);
+x_7 = l_Lean_IR_instBEqVarId_beq(x_3, x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
@@ -3134,7 +3134,7 @@ lean_object* x_11; uint8_t x_12;
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 lean_dec_ref(x_10);
-x_12 = l_Lean_IR_beqVarId____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_20_(x_3, x_11);
+x_12 = l_Lean_IR_instBEqVarId_beq(x_3, x_11);
 lean_dec(x_11);
 return x_12;
 }
@@ -3182,7 +3182,7 @@ LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at___Lean_IR_ResetReuse_
 _start:
 {
 uint64_t x_3; size_t x_4; uint8_t x_5; 
-x_3 = l_Lean_IR_hashVarId____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_37_(x_2);
+x_3 = l_Lean_IR_instHashableVarId_hash(x_2);
 x_4 = lean_uint64_to_usize(x_3);
 x_5 = l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_IR_ResetReuse_R_spec__0_spec__0___redArg(x_1, x_4, x_2);
 return x_5;
@@ -3223,7 +3223,7 @@ else
 {
 lean_object* x_12; uint8_t x_13; 
 x_12 = lean_array_fget_borrowed(x_6, x_2);
-x_13 = l_Lean_IR_beqVarId____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_20_(x_3, x_12);
+x_13 = l_Lean_IR_instBEqVarId_beq(x_3, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -3271,7 +3271,7 @@ else
 {
 lean_object* x_26; uint8_t x_27; 
 x_26 = lean_array_fget_borrowed(x_19, x_2);
-x_27 = l_Lean_IR_beqVarId____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_20_(x_3, x_26);
+x_27 = l_Lean_IR_instBEqVarId_beq(x_3, x_26);
 if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 
@@ -3342,7 +3342,7 @@ else
 lean_object* x_8; lean_object* x_9; uint64_t x_10; size_t x_11; size_t x_12; lean_object* x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
 x_8 = lean_array_fget_borrowed(x_2, x_4);
 x_9 = lean_array_fget_borrowed(x_3, x_4);
-x_10 = l_Lean_IR_hashVarId____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_37_(x_8);
+x_10 = l_Lean_IR_instHashableVarId_hash(x_8);
 x_11 = lean_uint64_to_usize(x_10);
 x_12 = 5;
 x_13 = lean_unsigned_to_nat(1u);
@@ -3423,7 +3423,7 @@ if (x_22 == 0)
 lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_23 = lean_ctor_get(x_15, 0);
 x_24 = lean_ctor_get(x_15, 1);
-x_25 = l_Lean_IR_beqVarId____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_20_(x_4, x_23);
+x_25 = l_Lean_IR_instBEqVarId_beq(x_4, x_23);
 if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; 
@@ -3452,7 +3452,7 @@ x_29 = lean_ctor_get(x_15, 1);
 lean_inc(x_29);
 lean_inc(x_28);
 lean_dec(x_15);
-x_30 = l_Lean_IR_beqVarId____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_20_(x_4, x_28);
+x_30 = l_Lean_IR_instBEqVarId_beq(x_4, x_28);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; 
@@ -3645,7 +3645,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_IR_ResetReu
 _start:
 {
 uint64_t x_4; size_t x_5; size_t x_6; lean_object* x_7; 
-x_4 = l_Lean_IR_hashVarId____x40_Lean_Compiler_IR_Basic_2143012223____hygCtx___hyg_37_(x_2);
+x_4 = l_Lean_IR_instHashableVarId_hash(x_2);
 x_5 = lean_uint64_to_usize(x_4);
 x_6 = 1;
 x_7 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_IR_ResetReuse_R_spec__3_spec__3___redArg(x_1, x_5, x_6, x_2, x_3);

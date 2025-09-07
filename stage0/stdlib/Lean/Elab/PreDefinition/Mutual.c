@@ -38,6 +38,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_enableInfoTree___at___Lean_Elab_withEnableI
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_Mutual_addPreDefAttributes_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Mutual_withCommonTelescope_spec__0(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_____private_Lean_Elab_PreDefinition_Mutual_0__Lean_Elab_Mutual_withCommonTelescope_go_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_instInhabitedPreDefinition_default;
 static lean_object* l_Lean_setReducibilityStatus___at___Lean_setIrreducibleAttribute___at___Lean_Elab_Mutual_addPreDefAttributes_spec__0_spec__0___redArg___closed__0;
 static lean_object* l_Lean_Elab_Mutual_addPreDefsFromUnary___lam__0___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_Mutual_addPreDefAttributes_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -76,7 +77,6 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Mutual_cleanPreDef___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_____private_Lean_Elab_PreDefinition_Mutual_0__Lean_Elab_Mutual_withCommonTelescope_go_spec__1___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_defaultPreDefinition____x40_Lean_Elab_PreDefinition_Basic_7717608____hygCtx___hyg_71_;
 static lean_object* l_Lean_Elab_Mutual_addPreDefsFromUnary___lam__0___closed__1;
 static lean_object* l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__6;
 lean_object* l_Lean_Elab_abstractNestedProofs(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1273,7 +1273,7 @@ static lean_object* _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_defaultPreDefinition____x40_Lean_Elab_PreDefinition_Basic_7717608____hygCtx___hyg_71_;
+x_1 = l_Lean_Elab_instInhabitedPreDefinition_default;
 return x_1;
 }
 }

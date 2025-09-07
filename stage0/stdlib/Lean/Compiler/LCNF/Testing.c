@@ -64,7 +64,6 @@ static lean_object* l_Lean_throwError___at___Lean_Compiler_LCNF_Testing_assert_s
 static lean_object* l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Code_containsConst_goExpr___closed__0;
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_____private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic_1021782049____hygCtx___hyg_81_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_assertReducesSize(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_____private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_TestInstallerContext_ctorIdx(lean_object*);
@@ -118,6 +117,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_TestContext_ctorIdx(lean_o
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_assertReducesOrPreservesSize___lam__0___boxed(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 static lean_object* l_Lean_Compiler_LCNF_Testing_assertSize___lam__1___closed__0;
+uint8_t l_Lean_Compiler_LCNF_instBEqDecl_beq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Compiler_LCNF_Code_containsConst_spec__0(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_SimpleAssertionM_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Compiler_LCNF_Code_containsConst_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3644,7 +3644,7 @@ x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
 x_8 = lean_array_fget_borrowed(x_1, x_7);
 x_9 = lean_array_fget_borrowed(x_2, x_7);
-x_10 = l_Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic_1021782049____hygCtx___hyg_81_(x_8, x_9);
+x_10 = l_Lean_Compiler_LCNF_instBEqDecl_beq(x_8, x_9);
 if (x_10 == 0)
 {
 lean_dec(x_7);

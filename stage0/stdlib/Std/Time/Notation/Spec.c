@@ -9234,7 +9234,6 @@ x_19 = l_Lean_Syntax_node2(x_9, x_11, x_13, x_18);
 x_20 = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber___closed__15;
 x_21 = lean_box(2);
 x_22 = l_Lean_Syntax_mkStrLit(x_4, x_21);
-lean_dec_ref(x_4);
 lean_inc(x_9);
 x_23 = l_Lean_Syntax_node1(x_9, x_20, x_22);
 x_24 = l_Lean_Syntax_node2(x_9, x_10, x_19, x_23);

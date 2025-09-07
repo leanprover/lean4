@@ -87,6 +87,7 @@ lean_object* l_Int_Linear_Poly_mul(lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_propagateNatDvd___closed__2;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
+uint8_t l_Lean_instBEqLBool_beq(uint8_t, uint8_t);
 static lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Meta_Grind_Arith_Cutsat_DvdCnstr_applySubsts_spec__0___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Meta_Grind_Arith_Cutsat_DvdCnstr_applyEq_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
@@ -108,7 +109,6 @@ static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_DvdCnstr_applyEq___closed__1;
 lean_object* l_Int_Linear_Expr_norm(lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Cutsat_get_x27___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
-uint8_t l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_14_(uint8_t, uint8_t);
 lean_object* l_Lean_Meta_mkOfEqFalseCore(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_propagateIntDvd___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_DvdCnstr_assert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3783,7 +3783,7 @@ lean_dec_ref(x_666);
 x_669 = 0;
 x_670 = lean_unbox(x_667);
 lean_dec(x_667);
-x_671 = l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_14_(x_670, x_669);
+x_671 = l_Lean_instBEqLBool_beq(x_670, x_669);
 if (x_671 == 0)
 {
 x_617 = x_664;
@@ -5282,7 +5282,7 @@ lean_dec_ref(x_980);
 x_983 = 0;
 x_984 = lean_unbox(x_981);
 lean_dec(x_981);
-x_985 = l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_14_(x_984, x_983);
+x_985 = l_Lean_instBEqLBool_beq(x_984, x_983);
 if (x_985 == 0)
 {
 x_931 = x_978;

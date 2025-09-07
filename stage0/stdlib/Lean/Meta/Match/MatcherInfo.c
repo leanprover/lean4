@@ -40,6 +40,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Match_MatcherInfo_getNumDiscrEqs___boxed(le
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_MatcherInfo_getMotivePos___boxed(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_mk_array(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Match_instInhabitedDiscrInfo_default;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_MatcherInfo_arity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_SMap_insert___at___Lean_Meta_Match_Extension_State_addEntry_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -124,7 +125,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_Extension_instInhabitedState___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_Extension_Entry_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Match_defaultDiscrInfo____x40_Lean_Meta_Match_MatcherInfo_2294596093____hygCtx___hyg_16_;
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_Extension_instInhabitedState___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_Extension_initFn___lam__1____x40_Lean_Meta_Match_MatcherInfo_2900206600____hygCtx___hyg_2_(lean_object*);
@@ -232,7 +232,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_Match_defaultDiscrInfo____x40_Lean_Meta_Match_MatcherInfo_2294596093____hygCtx___hyg_16_() {
+static lean_object* _init_l_Lean_Meta_Match_instInhabitedDiscrInfo_default() {
 _start:
 {
 lean_object* x_1; 
@@ -3055,8 +3055,8 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_Match_defaultDiscrInfo____x40_Lean_Meta_Match_MatcherInfo_2294596093____hygCtx___hyg_16_ = _init_l_Lean_Meta_Match_defaultDiscrInfo____x40_Lean_Meta_Match_MatcherInfo_2294596093____hygCtx___hyg_16_();
-lean_mark_persistent(l_Lean_Meta_Match_defaultDiscrInfo____x40_Lean_Meta_Match_MatcherInfo_2294596093____hygCtx___hyg_16_);
+l_Lean_Meta_Match_instInhabitedDiscrInfo_default = _init_l_Lean_Meta_Match_instInhabitedDiscrInfo_default();
+lean_mark_persistent(l_Lean_Meta_Match_instInhabitedDiscrInfo_default);
 l_Lean_Meta_Match_instInhabitedDiscrInfo = _init_l_Lean_Meta_Match_instInhabitedDiscrInfo();
 lean_mark_persistent(l_Lean_Meta_Match_instInhabitedDiscrInfo);
 l_Lean_Meta_Match_Extension_instInhabitedState___closed__0 = _init_l_Lean_Meta_Match_Extension_instInhabitedState___closed__0();

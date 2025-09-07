@@ -34,6 +34,7 @@ static lean_object* l_Lean_instToFormatDataValue___lam__0___closed__4;
 static lean_object* l_Std_Format_initFn___closed__0____x40_Lean_Data_Format_2495473732____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_instToFormatKVMap;
 LEAN_EXPORT lean_object* l_Std_Format_pretty_x27___boxed(lean_object*, lean_object*);
+lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToFormatName__lean___lam__0(lean_object*);
 static lean_object* l_Lean_instToFormatDataValue___lam__0___closed__3;
 LEAN_EXPORT lean_object* l_Std_Format_initFn____x40_Lean_Data_Format_1056614795____hygCtx___hyg_4_(lean_object*);
@@ -75,6 +76,7 @@ static lean_object* l_Std_Format_initFn___closed__4____x40_Lean_Data_Format_3484
 LEAN_EXPORT lean_object* l_Std_Format_pretty_x27(lean_object*, lean_object*);
 static lean_object* l_Std_Format_pretty_x27___closed__0;
 static lean_object* l_Lean_instToFormatKVMap___closed__0;
+static lean_object* l_Lean_formatKVMap___closed__7;
 LEAN_EXPORT lean_object* l_Lean_instToFormatDataValue___lam__0(lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_instToFormatDataValue___lam__0___closed__5;
@@ -82,6 +84,7 @@ static lean_object* l_Lean_formatKVMap___closed__4;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_getIndent(lean_object*);
+lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___Std_Format_initFn____x40_Lean_Data_Format_2495473732____hygCtx___hyg_4__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static uint8_t l_Std_Format_getUnicode___closed__2;
 static lean_object* l_Std_Format_getIndent___closed__1;
@@ -94,7 +97,6 @@ static lean_object* l_Std_Format_initFn___closed__1____x40_Lean_Data_Format_3484
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_getWidth___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToFormatName__lean;
-lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___Std_Format_initFn____x40_Lean_Data_Format_3484694372____hygCtx___hyg_4__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Lean_formatKVMap_spec__0(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -812,7 +814,6 @@ if (x_2 == 0)
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = l_String_quote(x_3);
-lean_dec_ref(x_3);
 lean_ctor_set_tag(x_1, 3);
 lean_ctor_set(x_1, 0, x_4);
 return x_1;
@@ -824,7 +825,6 @@ x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec(x_1);
 x_6 = l_String_quote(x_5);
-lean_dec_ref(x_5);
 x_7 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
@@ -1052,7 +1052,6 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = lean_ctor_get(x_4, 0);
 x_11 = l_String_quote(x_10);
-lean_dec_ref(x_10);
 lean_ctor_set_tag(x_4, 3);
 lean_ctor_set(x_4, 0, x_11);
 x_12 = lean_alloc_ctor(5, 2, 0);
@@ -1067,7 +1066,6 @@ x_13 = lean_ctor_get(x_4, 0);
 lean_inc(x_13);
 lean_dec(x_4);
 x_14 = l_String_quote(x_13);
-lean_dec_ref(x_13);
 x_15 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
 x_16 = lean_alloc_ctor(5, 2, 0);
@@ -1304,7 +1302,6 @@ if (lean_is_exclusive(x_79)) {
  x_86 = lean_box(0);
 }
 x_87 = l_String_quote(x_85);
-lean_dec_ref(x_85);
 if (lean_is_scalar(x_86)) {
  x_88 = lean_alloc_ctor(3, 1, 0);
 } else {
@@ -1524,7 +1521,6 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_15 = lean_ctor_get(x_9, 0);
 x_16 = l_String_quote(x_15);
-lean_dec_ref(x_15);
 lean_ctor_set_tag(x_9, 3);
 lean_ctor_set(x_9, 0, x_16);
 x_17 = lean_alloc_ctor(5, 2, 0);
@@ -1544,7 +1540,6 @@ x_20 = lean_ctor_get(x_9, 0);
 lean_inc(x_20);
 lean_dec(x_9);
 x_21 = l_String_quote(x_20);
-lean_dec_ref(x_20);
 x_22 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
 x_23 = lean_alloc_ctor(5, 2, 0);
@@ -1846,7 +1841,6 @@ if (lean_is_exclusive(x_111)) {
  x_118 = lean_box(0);
 }
 x_119 = l_String_quote(x_117);
-lean_dec_ref(x_117);
 if (lean_is_scalar(x_118)) {
  x_120 = lean_alloc_ctor(3, 1, 0);
 } else {
@@ -2103,7 +2097,6 @@ if (lean_is_exclusive(x_180)) {
  x_189 = lean_box(0);
 }
 x_190 = l_String_quote(x_188);
-lean_dec_ref(x_188);
 if (lean_is_scalar(x_189)) {
  x_191 = lean_alloc_ctor(3, 1, 0);
 } else {
@@ -2360,7 +2353,6 @@ if (x_15 == 0)
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_ctor_get(x_10, 0);
 x_17 = l_String_quote(x_16);
-lean_dec_ref(x_16);
 lean_ctor_set_tag(x_10, 3);
 lean_ctor_set(x_10, 0, x_17);
 lean_ctor_set_tag(x_1, 5);
@@ -2374,7 +2366,6 @@ x_18 = lean_ctor_get(x_10, 0);
 lean_inc(x_18);
 lean_dec(x_10);
 x_19 = l_String_quote(x_18);
-lean_dec_ref(x_18);
 x_20 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set_tag(x_1, 5);
@@ -2601,7 +2592,6 @@ if (lean_is_exclusive(x_72)) {
  x_79 = lean_box(0);
 }
 x_80 = l_String_quote(x_78);
-lean_dec_ref(x_78);
 if (lean_is_scalar(x_79)) {
  x_81 = lean_alloc_ctor(3, 1, 0);
 } else {
@@ -2812,7 +2802,6 @@ if (lean_is_exclusive(x_116)) {
  x_124 = lean_box(0);
 }
 x_125 = l_String_quote(x_123);
-lean_dec_ref(x_123);
 if (lean_is_scalar(x_124)) {
  x_126 = lean_alloc_ctor(3, 1, 0);
 } else {
@@ -3013,7 +3002,6 @@ if (x_177 == 0)
 lean_object* x_178; lean_object* x_179; lean_object* x_180; 
 x_178 = lean_ctor_get(x_172, 0);
 x_179 = l_String_quote(x_178);
-lean_dec_ref(x_178);
 lean_ctor_set_tag(x_172, 3);
 lean_ctor_set(x_172, 0, x_179);
 lean_ctor_set_tag(x_1, 5);
@@ -3028,7 +3016,6 @@ x_181 = lean_ctor_get(x_172, 0);
 lean_inc(x_181);
 lean_dec(x_172);
 x_182 = l_String_quote(x_181);
-lean_dec_ref(x_181);
 x_183 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_183, 0, x_182);
 lean_ctor_set_tag(x_1, 5);
@@ -3267,7 +3254,6 @@ if (lean_is_exclusive(x_247)) {
  x_254 = lean_box(0);
 }
 x_255 = l_String_quote(x_253);
-lean_dec_ref(x_253);
 if (lean_is_scalar(x_254)) {
  x_256 = lean_alloc_ctor(3, 1, 0);
 } else {
@@ -3486,7 +3472,6 @@ if (lean_is_exclusive(x_299)) {
  x_307 = lean_box(0);
 }
 x_308 = l_String_quote(x_306);
-lean_dec_ref(x_306);
 if (lean_is_scalar(x_307)) {
  x_309 = lean_alloc_ctor(3, 1, 0);
 } else {
@@ -3709,12 +3694,21 @@ static lean_object* _init_l_Lean_formatKVMap___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_nat_to_int(x_1);
+x_1 = l_Lean_formatKVMap___closed__2;
+x_2 = lean_string_length(x_1);
 return x_2;
 }
 }
 static lean_object* _init_l_Lean_formatKVMap___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_formatKVMap___closed__4;
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_formatKVMap___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3724,7 +3718,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_formatKVMap___closed__6() {
+static lean_object* _init_l_Lean_formatKVMap___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3740,12 +3734,12 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; 
 x_2 = l_Lean_formatKVMap___closed__1;
 x_3 = l_Std_Format_joinSep___at___Lean_formatKVMap_spec__0(x_1, x_2);
-x_4 = l_Lean_formatKVMap___closed__4;
-x_5 = l_Lean_formatKVMap___closed__5;
+x_4 = l_Lean_formatKVMap___closed__5;
+x_5 = l_Lean_formatKVMap___closed__6;
 x_6 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_3);
-x_7 = l_Lean_formatKVMap___closed__6;
+x_7 = l_Lean_formatKVMap___closed__7;
 x_8 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_7);
@@ -3882,6 +3876,8 @@ l_Lean_formatKVMap___closed__5 = _init_l_Lean_formatKVMap___closed__5();
 lean_mark_persistent(l_Lean_formatKVMap___closed__5);
 l_Lean_formatKVMap___closed__6 = _init_l_Lean_formatKVMap___closed__6();
 lean_mark_persistent(l_Lean_formatKVMap___closed__6);
+l_Lean_formatKVMap___closed__7 = _init_l_Lean_formatKVMap___closed__7();
+lean_mark_persistent(l_Lean_formatKVMap___closed__7);
 l_Lean_instToFormatKVMap___closed__0 = _init_l_Lean_instToFormatKVMap___closed__0();
 lean_mark_persistent(l_Lean_instToFormatKVMap___closed__0);
 l_Lean_instToFormatKVMap = _init_l_Lean_instToFormatKVMap();

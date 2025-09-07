@@ -244,7 +244,6 @@ static lean_object* l_Lean_Elab_Deriving_Repr_mkAuxFunction___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_Repr_mkReprInstanceHandler___lam__0(uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at_____private_Lean_Elab_Deriving_Repr_0__Lean_Elab_Deriving_Repr_mkBodyForInduct_mkAlts_spec__3_spec__3___redArg___lam__1___closed__35;
 static lean_object* l_Lean_Elab_Deriving_Repr_mkAuxFunction___closed__36;
-extern lean_object* l_Lean_defaultInductiveVal____x40_Lean_Declaration_3257753383____hygCtx___hyg_80_;
 static lean_object* l_Lean_Elab_Deriving_Repr_mkReprHeader___closed__17;
 static lean_object* l___private_Lean_Elab_Deriving_Repr_0__Lean_Elab_Deriving_Repr_initFn___closed__14____x40_Lean_Elab_Deriving_Repr_1829928117____hygCtx___hyg_2_;
 double lean_float_of_nat(lean_object*);
@@ -482,6 +481,7 @@ static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownId
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Repr_0__Lean_Elab_Deriving_Repr_mkBodyForInduct_mkAlts_spec__1___redArg___lam__1___closed__4;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Deriving_Repr_mkBodyForStruct_spec__12___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_____private_Lean_Elab_Deriving_Repr_0__Lean_Elab_Deriving_Repr_mkReprInstanceCmd_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedInductiveVal_default;
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Elab_Deriving_Repr_mkBodyForStruct_spec__13___redArg(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Deriving_Repr_mkBodyForStruct_spec__12___redArg___lam__1___closed__31;
@@ -3729,6 +3729,7 @@ x_53 = 1;
 lean_inc(x_52);
 x_54 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_52, x_53);
 x_55 = lean_box(2);
+lean_inc_ref(x_54);
 x_56 = l_Lean_Syntax_mkStrLit(x_54, x_55);
 x_57 = lean_nat_add(x_2, x_10);
 lean_inc_ref(x_3);
@@ -7359,7 +7360,6 @@ x_239 = 1;
 x_240 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_4, x_239);
 x_241 = lean_box(2);
 x_242 = l_Lean_Syntax_mkStrLit(x_240, x_241);
-lean_dec_ref(x_240);
 x_243 = 0;
 x_244 = l_Lean_SourceInfo_fromRef(x_235, x_243);
 x_245 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Deriving_Repr_mkBodyForStruct_spec__12___redArg___lam__1___closed__31;
@@ -8315,7 +8315,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_Repr_mkAuxFunction___closed__0() 
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_defaultInductiveVal____x40_Lean_Declaration_3257753383____hygCtx___hyg_80_;
+x_1 = l_Lean_instInhabitedInductiveVal_default;
 return x_1;
 }
 }

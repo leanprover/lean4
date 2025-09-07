@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.TreeMap.Basic
+public import Std.Data.TreeMap.Basic
+
+@[expose] public section
 
 /-!
 # Tree sets
@@ -15,7 +19,7 @@ Lemmas about the operations on `Std.Data.TreeSet` will be available in the
 module `Std.Data.TreeSet.Lemmas`.
 
 See the module `Std.Data.TreeSet.Raw.Basic` for a variant of this type which is safe to use in
-nested inductive types.
+nested inductive types and `Std.Data.ExtTreeSet.Basic` for a variant with extensionality.
 -/
 
 set_option autoImplicit false
@@ -50,6 +54,10 @@ To avoid expensive copies, users should make sure that the tree set is used line
 Internally, the tree sets are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
 
+For use in proofs, the type `Std.ExtTreeSet` of extensional tree sets should be preferred. This
+type comes with several extensionality lemmas and provides the same functions but requires a
+`TransCmp` instance to work with.
+
 These tree sets contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.TreeSet.Raw` and
 `Std.TreeSet.Raw.WF` unbundle the invariant from the tree set. When in doubt, prefer
@@ -76,7 +84,14 @@ instance : EmptyCollection (TreeSet α cmp) where
 instance : Inhabited (TreeSet α cmp) where
   default := ∅
 
-@[simp]
+/-- Two tree sets are equivalent in the sense of Equiv iff all the values are equal. -/
+structure Equiv (m₁ m₂ : TreeSet α cmp) where
+  /-- Internal implementation detail of the tree map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
+
+@[simp, grind =]
 theorem empty_eq_emptyc : (empty : TreeSet α cmp) = ∅ :=
   rfl
 
@@ -99,7 +114,7 @@ instance : Insert α (TreeSet α cmp) where
   insert e s := s.insert e
 
 instance : LawfulSingleton α (TreeSet α cmp) where
-  insert_emptyc_eq _ := rfl
+  insert_empty_eq _ := rfl
 
 /--
 Checks whether an element is present in a set and inserts the element if it was not found.
@@ -238,22 +253,22 @@ def maxD (t : TreeSet α cmp) (fallback : α) : α :=
 /-- Returns the `n`-th smallest element, or `none` if `n` is at least `t.size`. -/
 @[inline]
 def atIdx? (t : TreeSet α cmp) (n : Nat) : Option α :=
-  TreeMap.keyAtIndex? t.inner n
+  TreeMap.keyAtIdx? t.inner n
 
 /-- Returns the `n`-th smallest element. -/
 @[inline]
 def atIdx (t : TreeSet α cmp) (n : Nat) (h : n < t.size) : α :=
-  TreeMap.keyAtIndex t.inner n h
+  TreeMap.keyAtIdx t.inner n h
 
 /-- Returns the `n`-th smallest element, or panics if `n` is at least `t.size`. -/
 @[inline]
 def atIdx! [Inhabited α] (t : TreeSet α cmp) (n : Nat) : α :=
-  TreeMap.keyAtIndex! t.inner n
+  TreeMap.keyAtIdx! t.inner n
 
 /-- Returns the `n`-th smallest element, or `fallback` if `n` is at least `t.size`. -/
 @[inline]
 def atIdxD (t : TreeSet α cmp) (n : Nat) (fallback : α) : α :=
-  TreeMap.keyAtIndexD t.inner n fallback
+  TreeMap.keyAtIdxD t.inner n fallback
 
 /--
 Tries to retrieve the smallest element that is greater than or equal to the
@@ -437,7 +452,7 @@ def all (t : TreeSet α cmp) (p : α → Bool) : Bool :=
 /-- Transforms the tree set into a list of elements in ascending order. -/
 @[inline]
 def toList (t : TreeSet α cmp) : List α :=
-  t.inner.inner.inner.foldr (fun a _ l => a :: l) ∅
+  t.inner.keys
 
 /-- Transforms a list into a tree set. -/
 def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=
@@ -450,7 +465,7 @@ def fromList (l : List α) (cmp : α → α → Ordering) : TreeSet α cmp :=
 /-- Transforms the tree set into an array of elements in ascending order. -/
 @[inline]
 def toArray (t : TreeSet α cmp) : Array α :=
-  t.foldl (init := ∅) fun acc k => acc.push k
+  t.inner.keysArray
 
 /-- Transforms an array into a tree set. -/
 def ofArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=
@@ -495,7 +510,7 @@ def eraseMany {ρ} [ForIn Id ρ α] (t : TreeSet α cmp) (l : ρ) : TreeSet α c
   ⟨t.inner.eraseMany l⟩
 
 instance [Repr α] : Repr (TreeSet α cmp) where
-  reprPrec m prec := Repr.addAppParen ("TreeSet.ofList " ++ repr m.toList) prec
+  reprPrec m prec := Repr.addAppParen ("Std.TreeSet.ofList " ++ repr m.toList) prec
 
 end TreeSet
 

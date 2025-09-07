@@ -3,9 +3,14 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.AppBuilder
-import Lean.Meta.MatchUtil
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.MatchUtil
+public import Lean.Util.ForEachExpr
+
+public section
 
 namespace Lean.Meta.Grind
 /-! A basic "equality resolution" procedure. -/
@@ -20,6 +25,67 @@ private def forallMetaTelescopeReducingAndUnfoldingNot (prop : Expr) : MetaM (Ar
     let m ← mkFreshExprMVar p
     return (ms.push m, mkConst ``False)
   return (ms, type)
+
+structure TopSort.State where
+  tempMark  : Std.HashSet Expr := {}
+  permMark  : Std.HashSet Expr := {}
+  result : Array Expr := #[]
+
+abbrev TopSortM := OptionT $ StateT TopSort.State MetaM
+
+/--
+Sorts metavariables `ms` using topological sort.
+There is an "edge" from `m₁` to `m₂` if type of `m₁` contains `m₂`.
+We use this function to ensure that after applying equality resolution to
+```
+∀ x : Nat, p x a → ∀ y : Nat, p y b → x = y → False
+```
+we produce
+```
+∀ y, p y a → p y b → False
+```
+instead of
+```
+p ?y a → ∀ y, p y b → False
+```
+Recall that in equality resolution we create a meta-variable for each hypothesis.
+Thus, we initially have
+```
+?x : Nat, ?h₁ : p ?x a, ?y : Nat, ?h₂ : p ?y b, ?h₃ : ?x = ?y
+```
+Then, we resolve `?h₃ : ?x = ?y` as `?y := ?x` and `?h₃ := Eq.refl ?y`.
+But `?h₁` occurs before `?y`. We use topological sort to address this situation.
+If a cycle is detected, it returns `none`.
+-/
+private partial def topsortMVars? (ms : Array Expr) : MetaM (Option (Array Expr)) := do
+  let (some _, s) ← go.run.run {} | return none
+  return some s.result
+where
+  go : TopSortM Unit := do
+    for m in ms do
+      visit m
+
+  visit (m : Expr) : TopSortM Unit := do
+    if (← get).permMark.contains m then
+      return ()
+    if (← get).tempMark.contains m then
+      failure
+    modify fun s => { s with tempMark := s.tempMark.insert m }
+    visitTypeOf m
+    modify fun s => { s with
+      result := s.result.push m
+      permMark := s.permMark.insert m
+    }
+
+  visitTypeOf (m : Expr) : TopSortM Unit := do
+    let type ← instantiateMVars (← inferType m)
+    type.forEach' fun e => do
+      if e.hasExprMVar then
+        if e.isMVar && ms.contains e then
+          visit e
+        return true
+      else
+        return false
 
 private def eqResCore (prop proof : Expr) : MetaM (Option (Expr × Expr)) := withNewMCtxDepth do
   /-
@@ -51,6 +117,7 @@ private def eqResCore (prop proof : Expr) : MetaM (Option (Expr × Expr)) := wit
   let prop' ← instantiateMVars type
   let proof' ← instantiateMVars (mkAppN proof ms)
   let ms ← ms.filterM fun m => return !(← m.mvarId!.isAssigned)
+  let some ms ← topsortMVars? ms | return none
   let prop' ← mkForallFVars ms prop' (binderInfoForMVars := .default)
   let proof' ← mkLambdaFVars ms proof'
   return some (prop', proof')

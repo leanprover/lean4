@@ -3,11 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Nat.Compare
-import Std.Data.DTreeMap.Internal.Balancing
-import Std.Data.DTreeMap.Internal.Queries
-import Std.Classes.Ord
+public import Init.Data.Nat.Compare
+public import Std.Data.DTreeMap.Internal.Balancing
+public import Std.Data.DTreeMap.Internal.Queries
+
+@[expose] public section
 
 /-!
 # Low-level implementation of the size-bounded tree
@@ -69,10 +72,11 @@ def minView (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Bal
   | leaf => ⟨k, v, ⟨r, hr, ✓⟩⟩
   | inner _ k' v' l' r' =>
     let ⟨dk, dv, ⟨dt, hdt, hdt'⟩⟩ := minView k' v' l' r' ✓ ✓ ✓
-    ⟨dk, dv, ⟨balanceRErase k v dt r ✓ ✓ (by as_aux_lemma =>
-      exact hlr.erase_left
-        (by simp only [hdt', hl.eq, size_inner]; omega)
-        (by simp only [hdt', hl.eq, size_inner]; omega)), ✓, ✓⟩⟩
+    ⟨dk, dv, ⟨balanceRErase k v dt r ✓ ✓ (by
+      as_aux_lemma =>
+        exact hlr.erase_left
+          (by simp only [hdt', hl.eq, size_inner]; omega)
+          (by simp only [hdt', hl.eq, size_inner]; omega)), ✓, ✓⟩⟩
 
 /--
 Slower version of `minView` which can be used in the absence of balance information but still
@@ -92,9 +96,10 @@ def maxView (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Bal
   | leaf => ⟨k, v, ⟨l, hl, ✓⟩⟩
   | inner _ k' v' l' r' =>
     let ⟨dk, dv, ⟨dt, hdt, hdt'⟩⟩ := maxView k' v' l' r' ✓ ✓ ✓
-    ⟨dk, dv, ⟨balanceLErase k v l dt ✓ ✓ (by as_aux_lemma =>
-      simp only [hdt', size_inner, hr.eq] at *
-      apply hlr.erase_right <;> omega), ✓, ✓⟩⟩
+    ⟨dk, dv, ⟨balanceLErase k v l dt ✓ ✓ (by
+      as_aux_lemma =>
+        simp only [hdt', size_inner, hr.eq] at *
+        apply hlr.erase_right <;> omega), ✓, ✓⟩⟩
 
 /--
 Slower version of `maxView` which can be used in the absence of balance information but still
@@ -125,14 +130,14 @@ def glue (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced) (hlr : BalancedA
         let ⟨dk, dv, ⟨dt, hdt, hdt'⟩⟩ := minView k' v' l'' r'' ✓ ✓ ✓
         balanceLErase dk dv (.inner sz k v l' r') dt hl ✓
           (by as_aux_lemma =>
-            simp only [hdt', size_inner, hr.eq] at *
-            apply hlr.erase_right <;> omega)
+                simp only [hdt', size_inner, hr.eq] at *
+                apply hlr.erase_right <;> omega)
       else
         let ⟨dk, dv, ⟨dt, hdt, hdt'⟩⟩ := maxView k v l' r' ✓ ✓ ✓
         balanceRErase dk dv dt (.inner sz' k' v' l'' r'') ✓ hr
           (by as_aux_lemma =>
-            simp only [hdt', size_inner, hl.eq] at *
-            apply hlr.erase_left <;> omega)
+                simp only [hdt', size_inner, hl.eq] at *
+                apply hlr.erase_left <;> omega)
 
 @[Std.Internal.tree_tac]
 theorem size_glue {l r : Impl α β} {hl hr hlr} : (glue l r hl hr hlr).size = l.size + r.size := by
@@ -686,7 +691,7 @@ def map [Ord α] (f : (a : α) → β a → γ a) (t : Impl α β) : Impl α γ 
 Monadic version of `map`.
 -/
 @[specialize]
-def mapM {α : Type v} {β γ : α → Type v} {M : Type v → Type v} [Applicative M]
+def mapM {α : Type v} {β γ : α → Type v} {M : Type v → Type w} [Applicative M]
     (f : (a : α) → β a → M (γ a)) : Impl α β → M (Impl α γ)
   | leaf => pure leaf
   | inner sz k v l r => pure (.inner sz k) <*> f k v <*> l.mapM f <*> r.mapM f
@@ -828,7 +833,7 @@ def mergeWith! [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a �
 namespace Const
 
 variable {β : Type v}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 /--
 Changes the mapping of the key `k` by applying the function `f` to the current mapped value

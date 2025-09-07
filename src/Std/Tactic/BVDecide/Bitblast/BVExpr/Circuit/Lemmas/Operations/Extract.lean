@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
+
+@[expose] public section
 
 /-!
 This module contains the verification of the `BitVec.extract` bitblaster from `Impl.Operations.Extract`.
@@ -24,11 +28,11 @@ variable [Hashable α] [DecidableEq α]
 namespace blastExtract
 
 theorem go_get_aux (aig : AIG α) (input : RefVec aig w) (lo : Nat) (curr : Nat)
-    (hcurr : curr ≤ newWidth) (falseRef : Ref aig) (s : RefVec aig curr) :
+    (hcurr : curr ≤ newWidth) (s : RefVec aig curr) :
     ∀ (idx : Nat) (hidx1 : idx < curr),
-        (go input lo falseRef curr hcurr s).get idx (by omega) = s.get idx hidx1 := by
+        (go input lo curr hcurr s).get idx (by omega) = s.get idx hidx1 := by
   intro idx hidx
-  generalize hgo : go input lo falseRef curr hcurr s = res
+  generalize hgo : go input lo curr hcurr s = res
   unfold go at hgo
   split at hgo
   · dsimp only at hgo
@@ -44,12 +48,14 @@ theorem go_get_aux (aig : AIG α) (input : RefVec aig w) (lo : Nat) (curr : Nat)
 termination_by newWidth - curr
 
 theorem go_get (aig : AIG α) (input : RefVec aig w) (lo : Nat) (curr : Nat)
-    (hcurr : curr ≤ newWidth) (falseRef : Ref aig) (s : RefVec aig curr) :
+    (hcurr : curr ≤ newWidth) (s : RefVec aig curr) :
     ∀ (idx : Nat) (hidx1 : idx < newWidth),
-        curr ≤ idx → (go input lo falseRef curr hcurr s).get idx hidx1 = input.getD (lo + idx) falseRef
+        curr ≤ idx → (go input lo curr hcurr s).get idx hidx1
+          =
+        input.getD (lo + idx) (aig.mkConstCached false)
     := by
   intro idx hidx1 hidx2
-  generalize hgo : go input lo falseRef curr hcurr s = res
+  generalize hgo : go input lo curr hcurr s = res
   unfold go at hgo
   dsimp only at hgo
   split at hgo
@@ -90,9 +96,6 @@ theorem denote_blastExtract (aig : AIG α) (target : ExtractTarget aig newWidth)
     · dsimp only
       split
       · rw [RefVec.get_in_bound]
-        rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-        · congr 1
-        · assumption
       · rw [RefVec.get_out_bound]
         · simp
         · omega

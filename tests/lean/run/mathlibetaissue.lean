@@ -42,18 +42,8 @@ class RatCast (K : Type u) where
 
 end Std.Classes.RatCast
 
-section Mathlib.Init.ZeroOne
-
-class One (α : Type u) where
-  one : α
-instance One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-end Mathlib.Init.ZeroOne
-
 section Mathlib.Algebra.Group.Defs
 
-class Inv (α : Type u) where
 class Semigroup (G : Type u) extends Mul G where
 class AddSemigroup (G : Type u) extends Add G where
 class CommSemigroup (G : Type u) extends Semigroup G where
@@ -129,6 +119,7 @@ end Mathlib.Algebra.Ring.Defs
 section Mathlib.Data.Int.Basic
 
 instance : CommRing Int where
+  one := 1
   mul_comm := sorry
   mul_one := Int.mul_one -- Replacing this with `sorry` makes the timeout go away!
   add_zero := Int.add_zero -- Similarly here.
@@ -161,6 +152,6 @@ instance Field.isDomain [Field K] : IsDomain K :=
 end Mathlib.Algebra.Field.Basic
 
 set_option synthInstance.maxHeartbeats 200 in
-/-- info: MulZeroClass.toZero -/
+/-- info: CommRing.toCommSemiring.toNonAssocSemiring.toMulZeroClass.toZero -/
 #guard_msgs in
 #synth Zero Int

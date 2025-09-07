@@ -3,9 +3,11 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
+public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-
+public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 /--
 In principle, we only need to support two kinds of case split.
@@ -74,7 +76,6 @@ def mkCase (kind : CaseKind) : SearchM FVarId := do
     decVars := s.decVars.insert fvarId
   }
   modify' fun s => { s with caseSplits := true }
-  trace[grind.debug.cutsat.backtrack] "mkCase fvarId: {fvarId.name}"
   return fvarId
 
 end Lean.Meta.Grind.Arith.Cutsat

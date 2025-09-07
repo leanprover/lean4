@@ -94,8 +94,8 @@ structure Foo' where
 def Foo'.preorder : Foo' → String
   | {name, n, children} => Id.run do
     let mut acc := name
-    for h : i in [0:n] do
-      acc := acc ++ (children ⟨i, h.2.1⟩).preorder
+    for h : i in *...n do
+      acc := acc ++ (children ⟨i, h.2⟩).preorder
     return acc
 
 /-- info: Foo'.preorder : Foo' → String -/
@@ -117,14 +117,14 @@ structure RecS where
   n : Nat
   recS : Option RecS := none
 
-/-- info: { n := 0, recS := none } : RecS -/
+/-- info: { n := 0 } : RecS -/
 #guard_msgs in #check ({ n := 0 } : RecS)
 
 /-!
 Incidental new feature: checking projections when the structure is Prop.
 -/
 /--
-error: failed to generate projection 'Exists'.x' for the 'Prop'-valued type 'Exists'', field must be a proof, but it has type
+error: failed to generate projection `Exists'.x` for the 'Prop'-valued type `Exists'`, field must be a proof, but it has type
   α
 -/
 #guard_msgs in

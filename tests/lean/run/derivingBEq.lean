@@ -1,6 +1,10 @@
+module
+
+public section
+
 inductive Foo
   | mk1 | mk2 | mk3
-  deriving BEq
+  deriving @[expose] BEq
 
 namespace Foo
 theorem ex1 : (mk1 == mk2) = false :=
@@ -18,7 +22,7 @@ end Foo
 inductive Vec (α : Type u) : Nat → Type u
   | nil  : Vec α 0
   | cons : α → {n : Nat} → Vec α n → Vec α (n+1)
-  deriving BEq
+  deriving @[expose] BEq
 
 namespace Vec
 theorem ex1 : (cons 10 Vec.nil == cons 20 Vec.nil) = false :=
@@ -64,3 +68,27 @@ def ex1 [BEq α] : BEq (Tree α) :=
 
 def ex2 [BEq α] : BEq (TreeList α) :=
   inferInstance
+
+/-! Private fields should yield public, no-expose instances. -/
+
+structure PrivField where
+  private a : Nat
+deriving BEq
+
+/-- info: fun a => instBEqPrivField.beq a a -/
+#guard_msgs in
+#with_exporting
+#reduce fun (a : PrivField) => a == a
+
+end
+
+-- Try again without `public section`
+
+public structure PrivField2 where
+  private a : Nat
+deriving BEq
+
+/-- info: fun a => instBEqPrivField2.beq a a -/
+#guard_msgs in
+#with_exporting
+#reduce fun (a : PrivField2) => a == a

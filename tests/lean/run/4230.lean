@@ -5,7 +5,10 @@ def copy (curr : Nat) (input : Array Nat) (output : Array Nat) : Array Nat :=
     output
 termination_by input.size - curr
 
-/-- info: Try this: termination_by input.size - curr -/
+/--
+info: Try this:
+  termination_by input.size - curr
+-/
 #guard_msgs(drop warning, info) in
 theorem foo (curr : Nat) (input : Array Nat) (output : Array Nat)
     : ∀ (idx : Nat) (hidx1 : idx < curr),
@@ -16,7 +19,7 @@ theorem foo (curr : Nat) (input : Array Nat) (output : Array Nat)
   unfold copy
   split
   . rw [foo]
-    . rw [Array.get_push_lt]
+    . rw [Array.getElem_push_lt]
     . omega
   . rfl
 termination_by?

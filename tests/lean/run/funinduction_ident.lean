@@ -14,18 +14,31 @@ def append : (xs ys : List α) → List α
 namespace ListEx
 
 theorem map_id (xs : List α) : map id xs = xs := by
-  fun_induction map <;> simp_all only [map, id]
+  fun_induction map <;> simp_all only [id]
 
--- This works because collect ignores `.dropped` arguments
+-- This would work with the non-unfolding functional induction lemma, because there the function
+-- argument to `map` is `.dropped`. But since we use the unfolding lemma it doesn't anymore:
 
+/--
+error: Found more than one suitable call of `map` in the goal. Please include the desired arguments.
+-/
+#guard_msgs in
 theorem map_map (f : α → β) (g : β → γ) xs :
   map g (map f xs) = map (g ∘ f) xs := by
+  fun_induction map <;> simp_all only [map, Function.comp]
+
+-- With `set_option tactic.fun_induction.unfolding false` this works, because the function
+-- argument to `map` is ignored when checking for a unique suitable call.
+
+theorem map_map' (f : α → β) (g : β → γ) xs :
+  map g (map f xs) = map (g ∘ f) xs := by
+  set_option tactic.fun_induction.unfolding false in
   fun_induction map <;> simp_all only [map, Function.comp]
 
 -- This should genuinely not work, but have a good error message
 
 /--
-error: found more than one suitable call of 'append' in the goal. Please include the desired arguments.
+error: Found more than one suitable call of `append` in the goal. Please include the desired arguments.
 -/
 #guard_msgs in
 theorem append_assoc :
@@ -45,24 +58,24 @@ def ackermann : (Nat × Nat) → Nat
 termination_by p => p
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 m✝ : Nat
-⊢ P (ackermann (0, m✝))
+⊢ P (m✝ + 1)
 
 case case2
 P : Nat → Prop
 n✝ : Nat
 ih1✝ : P (ackermann (n✝, 1))
-⊢ P (ackermann (n✝.succ, 0))
+⊢ P (ackermann (n✝, 1))
 
 case case3
 P : Nat → Prop
 n✝ m✝ : Nat
 ih2✝ : P (ackermann (n✝ + 1, m✝))
 ih1✝ : P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
-⊢ P (ackermann (n✝.succ, m✝.succ))
+⊢ P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
 -/
 #guard_msgs in
 example : P (ackermann p) := by
@@ -70,28 +83,28 @@ example : P (ackermann p) := by
   fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 m✝ : Nat
-⊢ P (ackermann (0, m✝))
+⊢ P (m✝ + 1)
 
 case case2
 P : Nat → Prop
 n✝ : Nat
-⊢ P (ackermann (n✝.succ, 0))
+⊢ P (ackermann (n✝, 1))
 
 case case3
 P : Nat → Prop
 n✝ m✝ : Nat
-⊢ P (ackermann (n✝.succ, m✝.succ))
+⊢ P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
 -/
 #guard_msgs in
 example : P (ackermann p) := by
   fun_cases ackermann
   fail
 
-/-- error: could not find suitable call of 'ackermann' in the goal -/
+/-- error: Could not find suitable call of `ackermann` in the goal -/
 #guard_msgs in
 example : P (ackermann (n, m)) := by
   fun_induction ackermann
@@ -113,20 +126,20 @@ error: unsolved goals
 case case1
 P : Nat → Prop
 m✝ : Nat
-⊢ P (ackermann 0 m✝)
+⊢ P (m✝ + 1)
 
 case case2
 P : Nat → Prop
 n✝ : Nat
 ih1✝ : P (ackermann n✝ 1)
-⊢ P (ackermann n✝.succ 0)
+⊢ P (ackermann n✝ 1)
 
 case case3
 P : Nat → Prop
 n✝ m✝ : Nat
 ih2✝ : P (ackermann (n✝ + 1) m✝)
 ih1✝ : P (ackermann n✝ (ackermann (n✝ + 1) m✝))
-⊢ P (ackermann n✝.succ m✝.succ)
+⊢ P (ackermann n✝ (ackermann (n✝ + 1) m✝))
 -/
 #guard_msgs in
 example : P (ackermann n m) := by
@@ -150,7 +163,7 @@ case case1
 α : Type u_1
 P : List α → Prop
 inc ms✝ : List α
-⊢ P (ackermann inc [] ms✝)
+⊢ P (ms✝ ++ inc)
 
 case case2
 α : Type u_1
@@ -159,7 +172,7 @@ inc : List α
 head✝ : α
 ns✝ : List α
 ih1✝ : P (ackermann inc ns✝ inc)
-⊢ P (ackermann inc (head✝ :: ns✝) [])
+⊢ P (ackermann inc ns✝ inc)
 
 case case3
 α : Type u_1
@@ -171,7 +184,7 @@ head✝ : α
 ms✝ : List α
 ih2✝ : P (ackermann inc (n✝ :: ns✝) ms✝)
 ih1✝ : P (ackermann inc ns✝ (ackermann inc (n✝ :: ns✝) ms✝))
-⊢ P (ackermann inc (n✝ :: ns✝) (head✝ :: ms✝))
+⊢ P (ackermann inc ns✝ (ackermann inc (n✝ :: ns✝) ms✝))
 -/
 #guard_msgs in
 example : P (ackermann inc n m) := by
@@ -190,28 +203,28 @@ def fib : Nat → Nat
 termination_by structural x => x
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
-⊢ P (fib 0)
+⊢ P 0
 
 case case2
 P : Nat → Prop
-⊢ P (fib 1)
+⊢ P 1
 
 case case3
 P : Nat → Prop
 n✝ : Nat
 ih2✝ : P (fib n✝)
 ih1✝ : P (fib (n✝ + 1))
-⊢ P (fib n✝.succ.succ)
+⊢ P (fib n✝ + fib (n✝ + 1))
 -/
 #guard_msgs in
 example : P (fib n) := by
   fun_induction fib
   fail
 
-/-- error: could not find suitable call of 'fib' in the goal -/
+/-- error: Could not find suitable call of `fib` in the goal -/
 #guard_msgs in
 example : n ≤ fib (n + 2) := by
   fun_induction fib
@@ -237,23 +250,23 @@ info: StructuralWithOmittedParam.fib.induct (motive : Nat → Prop) (case1 : mot
 #check fib.induct -- NB: No inc showing up
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 inc : Nat
-⊢ P (fib 2 0)
+⊢ P 0
 
 case case2
 P : Nat → Prop
 inc : Nat
-⊢ P (fib 2 1)
+⊢ P 2
 
 case case3
 P : Nat → Prop
 inc n✝ : Nat
 ih2✝ : P (fib 2 n✝)
 ih1✝ : P (fib 2 (n✝ + 1))
-⊢ P (fib 2 n✝.succ.succ)
+⊢ P (fib 2 n✝ + fib 2 (n✝ + 1))
 -/
 #guard_msgs in
 example : P (fib 2 n) := by
@@ -310,7 +323,7 @@ namespace Nonrec
 
 def foo := 1
 
-/-- error: no functional cases theorem for 'foo', or function is mutually recursive -/
+/-- error: No functional induction theorem for `foo`, or function is mutually recursive -/
 #guard_msgs in
 example : True := by
   fun_induction foo
@@ -333,7 +346,7 @@ def Tree.size_aux : List (Tree α) → Nat
   | t :: ts => size t + size_aux ts
 end
 
-/-- error: no functional cases theorem for 'Tree.size', or function is mutually recursive -/
+/-- error: No functional induction theorem for `Tree.size`, or function is mutually recursive -/
 #guard_msgs in
 example (t : Tree α) : True := by
   fun_induction Tree.size

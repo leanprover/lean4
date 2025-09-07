@@ -86,11 +86,11 @@ elab "seq" s:tacticSeq : tactic => do
     evalTactic tac
 
 /--
-info: x y : Nat
+trace: x y : Nat
 h : x = y
 ⊢ 0 + x = y
 ---
-info: x y : Nat
+trace: x y : Nat
 h : x = y
 ⊢ 0 + y = y
 -/
@@ -100,11 +100,11 @@ example (h : x = y) : 0 + x = y := by
   done
 
 /--
-info: x y : Nat
+trace: x y : Nat
 h : x = y
 ⊢ 0 + x = y
 ---
-info: x y : Nat
+trace: x y : Nat
 h : x = y
 ⊢ 0 + y = y
 -/
@@ -115,11 +115,11 @@ example (h : x = y) : 0 + x = y := by
   done
 
 /--
-info: x y : Nat
+trace: x y : Nat
 h : x = y
 ⊢ 0 + x = y
 ---
-info: x y : Nat
+trace: x y : Nat
 h : x = y
 ⊢ 0 + y = y
 -/

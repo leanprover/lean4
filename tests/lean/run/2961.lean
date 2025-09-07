@@ -8,12 +8,12 @@ def replace (f : Nat → Option Nat) (t : Nat) : Nat :=
 
 /--
 info: equations:
-theorem replace.eq_1 : ∀ (f : Nat → Option Nat),
+@[defeq] theorem replace.eq_1 : ∀ (f : Nat → Option Nat),
   replace f Nat.zero =
     match f Nat.zero with
     | some u => u
     | none => Nat.zero
-theorem replace.eq_2 : ∀ (f : Nat → Option Nat) (t' : Nat),
+@[defeq] theorem replace.eq_2 : ∀ (f : Nat → Option Nat) (t' : Nat),
   replace f t'.succ =
     match f t'.succ with
     | some u => u
@@ -24,7 +24,7 @@ theorem replace.eq_2 : ∀ (f : Nat → Option Nat) (t' : Nat),
 
 /--
 error: Failed to realize constant replace.eq_def:
-  failed to generate unfold theorem for 'replace'
+  failed to generate unfold theorem for `replace`
   case h_1
   f : Nat → Option Nat
   t : Nat
@@ -34,7 +34,7 @@ error: Failed to realize constant replace.eq_def:
   ⊢ replace f t = u
 ---
 error: Failed to realize constant replace.eq_def:
-  failed to generate unfold theorem for 'replace'
+  failed to generate unfold theorem for `replace`
   case h_1
   f : Nat → Option Nat
   t : Nat
@@ -43,7 +43,7 @@ error: Failed to realize constant replace.eq_def:
   heq✝ : f t = some u
   ⊢ replace f t = u
 ---
-error: unknown identifier 'replace.eq_def'
+error: Unknown identifier `replace.eq_def`
 -/
 #guard_msgs in
 #check replace.eq_def
@@ -58,12 +58,12 @@ def replace2 (f : Nat → Option Nat) (t1 t2 : Nat) : Nat :=
 
 /--
 info: equations:
-theorem replace2.eq_1 : ∀ (f : Nat → Option Nat) (t1 : Nat),
+@[defeq] theorem replace2.eq_1 : ∀ (f : Nat → Option Nat) (t1 : Nat),
   replace2 f t1 Nat.zero =
     match f t1 with
     | some u => u
     | none => Nat.zero
-theorem replace2.eq_2 : ∀ (f : Nat → Option Nat) (t1 t' : Nat),
+@[defeq] theorem replace2.eq_2 : ∀ (f : Nat → Option Nat) (t1 t' : Nat),
   replace2 f t1 t'.succ =
     match f t1 with
     | some u => u
@@ -74,7 +74,7 @@ theorem replace2.eq_2 : ∀ (f : Nat → Option Nat) (t1 t' : Nat),
 
 /--
 error: Failed to realize constant replace2.eq_def:
-  failed to generate unfold theorem for 'replace2'
+  failed to generate unfold theorem for `replace2`
   case h_1
   f : Nat → Option Nat
   t1 t2 : Nat
@@ -84,7 +84,7 @@ error: Failed to realize constant replace2.eq_def:
   ⊢ replace2 f t1 t2 = u
 ---
 error: Failed to realize constant replace2.eq_def:
-  failed to generate unfold theorem for 'replace2'
+  failed to generate unfold theorem for `replace2`
   case h_1
   f : Nat → Option Nat
   t1 t2 : Nat
@@ -93,7 +93,7 @@ error: Failed to realize constant replace2.eq_def:
   heq✝ : f t1 = some u
   ⊢ replace2 f t1 t2 = u
 ---
-error: unknown identifier 'replace2.eq_def'
+error: Unknown identifier `replace2.eq_def`
 -/
 #guard_msgs in
 #check replace2.eq_def

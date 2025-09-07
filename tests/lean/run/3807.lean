@@ -87,18 +87,6 @@ class PartialOrder (α : Type u) extends Preorder α where
 
 end Mathlib.Init.Order.Defs
 
-section Mathlib.Init.ZeroOne
-
-set_option autoImplicit true
-
-class One (α : Type u) where
-  one : α
-
-instance (priority := 300) One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-end Mathlib.Init.ZeroOne
-
 section Mathlib.Init.Function
 
 universe u₁ u₂
@@ -522,9 +510,11 @@ namespace Pi
 variable {ι : Type _} {α' : ι → Type _}
 
 instance instOrderTop [∀ i, LE (α' i)] [∀ i, OrderTop (α' i)] : OrderTop (∀ i, α' i) where
+  top := fun _ => ⊤
   le_top _ := fun _ => le_top
 
 instance instOrderBot [∀ i, LE (α' i)] [∀ i, OrderBot (α' i)] : OrderBot (∀ i, α' i) where
+  bot := fun _ => ⊥
   bot_le _ := fun _ => bot_le
 
 end Pi
@@ -761,25 +751,7 @@ universe u v w
 
 open Function
 
-class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hSMul : α → β → γ
-
-class SMul (M : Type u) (α : Type v) where
-  smul : M → α → α
-
-infixr:73 " • " => HSMul.hSMul
-
-macro_rules | `($x • $y) => `(leftact% HSMul.hSMul $x $y)
-
-instance instHSMul {α β} [SMul α β] : HSMul α β β where
-  hSMul := SMul.smul
-
 variable {G : Type _}
-
-class Inv (α : Type u) where
-  inv : α → α
-
-postfix:max "⁻¹" => Inv.inv
 
 class Semigroup (G : Type u) extends Mul G where
   protected mul_assoc : ∀ a b c : G, a * b * c = a * (b * c)
@@ -805,24 +777,6 @@ class MulOneClass (M : Type u) extends One M, Mul M where
 class AddZeroClass (M : Type u) extends Zero M, Add M where
   protected zero_add : ∀ a : M, 0 + a = a
   protected add_zero : ∀ a : M, a + 0 = a
-
-section
-
-variable {M : Type u}
-
-/-- The fundamental power operation in a monoid. `npowRec n a = a*a*...*a` n times.
-Use instead `a ^ n`, which has better definitional behavior. -/
-def npowRec [One M] [Mul M] : Nat → M → M
-  | 0, _ => 1
-  | n + 1, a => npowRec n a * a
-
-/-- The fundamental scalar multiplication in an additive monoid. `nsmulRec n a = a+a+...+a` n
-times. Use instead `n • a`, which has better definitional behavior. -/
-def nsmulRec [Zero M] [Add M] : Nat → M → M
-  | 0, _ => 0
-  | n + 1, a => nsmulRec n a + a
-
-end
 
 class AddMonoid (M : Type u) extends AddSemigroup M, AddZeroClass M where
   protected nsmul : Nat → M → M
@@ -2519,7 +2473,7 @@ variable {L : Type _} [Field L] [Algebra F L] [Algebra L E] [IsScalarTower F L E
   (f : L →ₐ[F] K)
 
 -- This only required 16,000 heartbeats prior to #3807, and now takes ~210,000.
-set_option maxHeartbeats 20000
+set_option maxHeartbeats 16000
 theorem exists_algHom_adjoin_of_splits''' :
     ∃ φ : adjoin L S →ₐ[F] K, φ.comp (IsScalarTower.toAlgHom F L _) = f := by
   let L' := (IsScalarTower.toAlgHom F L E).fieldRange
@@ -2531,7 +2485,12 @@ theorem exists_algHom_adjoin_of_splits''' :
     · simp only [← SetLike.coe_subset_coe, coe_restrictScalars, adjoin_subset_adjoin_iff]
       exact ⟨subset_adjoin_of_subset_left S (F := L'.toSubfield) le_rfl, subset_adjoin _ _⟩
     · ext x
-      exact (congrFun (congrArg (fun g : L' →ₐ[F] K => (g : L' → K)) hφ) _).trans (congrArg f <| AlgEquiv.symm_apply_apply _ _)
+      exact
+        Eq.trans
+          (congrFun (congrArg (fun g : L' →ₐ[F] K => (g : L' → K)) hφ)
+            (DFunLike.coe (AlgEquiv.ofInjectiveField _) x))
+          (congrArg f
+            (AlgEquiv.symm_apply_apply (AlgEquiv.ofInjectiveField (IsScalarTower.toAlgHom F L E)) x))
 
 end IntermediateField
 

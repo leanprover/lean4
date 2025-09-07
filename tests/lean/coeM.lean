@@ -25,8 +25,7 @@ It used to be responsible for hinting that the LHSs of equalities were defeq, li
 It was checking that `Eq (some true)` and `Eq _` were defeq monads. The defeq check caused `_` to be solved as `some true`.
 -/
 /--
-error: invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant
-  ?_
+error: Invalid dotted identifier notation: The expected type of `.some` could not be determined
 -/
 #guard_msgs in
 example : some true = (some true).map id := by

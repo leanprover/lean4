@@ -3,9 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Elab.App
-import Lean.Elab.BuiltinNotation
+public import Lean.Elab.App
+public import Lean.Elab.BuiltinNotation
+
+public section
 
 /-! # Auxiliary elaboration functions: AKA custom elaborators -/
 
@@ -194,8 +198,8 @@ where
     | `(unop% $f $arg) => processUnOp s f arg
     | `(leftact% $f $lhs $rhs) => processBinOp s .leftact f lhs rhs
     | `(rightact% $f $lhs $rhs) => processBinOp s .rightact f lhs rhs
-    | `(($e)) =>
-      if hasCDot e then
+    | `(($h:hygieneInfo $e)) =>
+      if hasCDot e h.getHygieneInfo then
         processLeaf s
       else
         go e
@@ -209,14 +213,14 @@ where
         | none => processLeaf s
 
   processBinOp (ref : Syntax) (kind : BinOpKind) (f lhs rhs : Syntax) := do
-    let some f ← resolveId? f | throwUnknownConstant f.getId
+    let some f ← resolveId? f | throwUnknownConstantAt f f.getId
     -- treat corresponding argument as leaf for `leftact/rightact`
     let lhs ← if kind == .leftact then processLeaf lhs else go lhs
     let rhs ← if kind == .rightact then processLeaf rhs else go rhs
     return .binop ref kind f lhs rhs
 
   processUnOp (ref : Syntax) (f arg : Syntax) := do
-    let some f ← resolveId? f | throwUnknownConstant f.getId
+    let some f ← resolveId? f | throwUnknownConstantAt f f.getId
     return .unop ref f (← go arg)
 
   processLeaf (s : Syntax) := do
@@ -547,7 +551,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
       let result ← toExprCore (← applyCoe tree maxType (isPred := true))
       trace[Elab.binrel] "result: {result}"
       return result
-  | none   => throwUnknownConstant stx[1].getId
+  | none   => throwUnknownConstantAt stx[1] stx[1].getId
 where
   /-- If `noProp == true` and `e` has type `Prop`, then coerce it to `Bool`. -/
   toBoolIfNecessary (e : Expr) : TermElabM Expr := do

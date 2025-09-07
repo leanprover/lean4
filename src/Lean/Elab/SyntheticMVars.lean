@@ -3,12 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Util
-import Lean.Util.NumObjs
-import Lean.Util.ForEachExpr
-import Lean.Util.OccursCheck
-import Lean.Elab.Tactic.Basic
+public import Lean.Meta.Tactic.Util
+public import Lean.Util.NumObjs
+public import Lean.Util.ForEachExpr
+public import Lean.Util.OccursCheck
+public import Lean.Elab.Tactic.Basic
+public import Lean.Meta.AbstractNestedProofs
+
+public section
 
 namespace Lean.Elab.Term
 open Tactic (TacticM evalTactic getUnsolvedGoals withTacticInfoContext)
@@ -69,14 +74,14 @@ private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Opti
       | _              => unreachable!
 
 /--
-  Try to synthesize `mvarId` by starting using a default instance with the give privority.
+  Try to synthesize `mvarId` by starting using a default instance with the given priority.
   This method succeeds only if the metavariable of fully synthesized.
 
   Remark: In the past, we would return a list of pending TC problems, but this was problematic since
   a default instance may create subproblems that cannot be solved.
 
   Remark: The new approach also has limitations because other pending metavariables are not taken into account
-  while backtraking. That is, we fail to synthesize `mvarId` because we reach subproblems that are stuck,
+  while backtracking. That is, we fail to synthesize `mvarId` because we reach subproblems that are stuck,
   but we could "unstuck" them if we tried to solve other pending metavariables. Considering all pending metavariables
   into a single backtracking search seems to be too expensive, and potentially generate incomprehensible error messages.
   This is particularly true if we consider pending metavariables for "postponed" elaboration steps.
@@ -149,7 +154,7 @@ where
         -- Succeeded. Collect new TC problems
         trace[Elab.defaultInstance] "isDefEq worked {mkMVar mvarId} : {← inferType (mkMVar mvarId)} =?= {candidate} : {← inferType candidate}"
         let mut pending := []
-        for h : i in [:bis.size] do
+        for h : i in *...bis.size do
           if bis[i] == BinderInfo.instImplicit then
             pending := mvars[i]!.mvarId! :: pending
         synthesizePending pending
@@ -215,7 +220,7 @@ def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermEl
     | .typeClass extraErrorMsg? =>
       let extraErrorMsg := extraMsgToMsg extraErrorMsg?
       unless ignoreStuckTC do
-         mvarId.withContext do
+        mvarId.withContext do
           let mvarDecl ← getMVarDecl mvarId
           unless (← MonadLog.hasErrors) do
             throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}{extraErrorMsg}"
@@ -226,6 +231,11 @@ def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermEl
         else
           throwTypeMismatchError header expectedType (← inferType e) e f?
             m!"failed to create type class instance for{indentExpr (← getMVarDecl mvarId).type}"
+    | .tactic (ctx := savedContext) (delayOnMVars := true) .. =>
+      withSavedContext savedContext do
+        mvarId.withContext do
+          let mvarDecl ← getMVarDecl mvarId
+          throwError "tactic execution is stuck, goal contains metavariables{indentExpr mvarDecl.type}"
     | _ => unreachable! -- TODO handle other cases.
 
 /--
@@ -260,7 +270,7 @@ private def throwStuckAtUniverseCnstr : TermElabM Unit := do
     unless found.contains (lhs, rhs) do
       found := found.insert (lhs, rhs)
       uniqueEntries := uniqueEntries.push entry
-  for h : i in [1:uniqueEntries.size] do
+  for h : i in 1...uniqueEntries.size do
     logErrorAt uniqueEntries[i].ref (← mkLevelStuckErrorMessage uniqueEntries[i]!)
   throwErrorAt uniqueEntries[0]!.ref (← mkLevelStuckErrorMessage uniqueEntries[0]!)
 
@@ -282,7 +292,7 @@ private def throwStuckAtUniverseCnstr : TermElabM Unit := do
   of getting a mysterious type mismatch constraint, we get a list of
   universe constraints the system is stuck at.
 -/
-private def processPostponedUniverseContraints : TermElabM Unit := do
+private def processPostponedUniverseConstraints : TermElabM Unit := do
   unless (← processPostponed (mayPostpone := false) (exceptionOnFailure := true)) do
     throwStuckAtUniverseCnstr
 
@@ -308,9 +318,9 @@ inductive PostponeBehavior where
   -/
   | no
   /--
-  Synthectic metavariables associated with type class resolution can be postponed.
+  Synthetic metavariables associated with type class resolution can be postponed.
   Motivation: this kind of metavariable are not synthetic opaque, and can be assigned by `isDefEq`.
-  Unviverse constraints can also be postponed.
+  Universe constraints can also be postponed.
   -/
   | «partial»
   deriving Inhabited, Repr, BEq
@@ -341,7 +351,20 @@ mutual
   If `report := false`, then `runTactic` will not capture exceptions nor will report unsolved goals. Unsolved goals become exceptions.
   -/
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) (kind : TacticMVarKind) (report := true) : TermElabM Unit := withoutAutoBoundImplicit do
+    let wasExporting := (← getEnv).isExporting
+    -- exit exporting context if entering proof
+    let isNoLongerExporting ← pure wasExporting <&&> do
+      mvarId.withContext do
+        isProp (← mvarId.getType)
     instantiateMVarDeclMVars mvarId
+    -- When exiting exporting context, use fresh mvar for running tactics and abstract it into an
+    -- aux theorem in the end so that we cannot leak references to private decls into the exporting
+    -- context.
+    let mut mvarId' := mvarId
+    if isNoLongerExporting then
+      let mvarDecl ← getMVarDecl mvarId
+      mvarId' := (← mkFreshExprMVarAt mvarDecl.lctx mvarDecl.localInstances mvarDecl.type mvarDecl.kind).mvarId!
+    withExporting (isExporting := wasExporting && !isNoLongerExporting) do
     /-
     TODO: consider using `runPendingTacticsAt` at `mvarId` local context and target type.
     Issue #1380 demonstrates that the goal may still contain pending metavariables.
@@ -357,7 +380,7 @@ mutual
     in more complicated scenarios.
     -/
     tryCatchRuntimeEx
-      (do let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId <| kind.maybeWithoutRecovery do
+      (do let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId' <| kind.maybeWithoutRecovery do
             withTacticInfoContext tacticCode do
               -- also put an info node on the `by` keyword specifically -- the token may be `canonical` and thus shown in the info
               -- view even though it is synthetic while a node like `tacticCode` never is (#1990)
@@ -372,12 +395,19 @@ mutual
               kind.logError tacticCode
               reportUnsolvedGoals remainingGoals
             else
-              throwError "unsolved goals\n{goalsToMessageData remainingGoals}")
+              throwError "unsolved goals\n{goalsToMessageData remainingGoals}"
+          if isNoLongerExporting then
+            let mut e ← instantiateExprMVars (.mvar mvarId')
+            if !e.isFVar then
+              e ← mvarId'.withContext do
+                withExporting (isExporting := wasExporting) do
+                  abstractProof e
+            mvarId.assign e)
       fun ex => do
         if report then
           kind.logError tacticCode
         if report && (← read).errToSorry then
-          for mvarId in (← getMVars (mkMVar mvarId)) do
+          for mvarId in (← getMVars (mkMVar mvarId')) do
             mvarId.admit
           logException ex
         else
@@ -403,9 +433,9 @@ mutual
       return false
     -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
     | .postponed savedContext => resumePostponed savedContext mvarSyntheticDecl.stx mvarId postponeOnError
-    | .tactic tacticCode savedContext kind =>
+    | .tactic tacticCode savedContext kind delayOnMVars =>
       withSavedContext savedContext do
-        if runTactics then
+        if runTactics && !(delayOnMVars && (← mvarId.getType >>= instantiateExprMVars).hasExprMVar) then
           runTactic mvarId tacticCode kind
           return true
         else
@@ -485,7 +515,7 @@ mutual
               reportStuckSyntheticMVars ignoreStuckTC
     loop ()
     if postpone == .no then
-     processPostponedUniverseContraints
+     processPostponedUniverseConstraints
 end
 
 def synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := false) : TermElabM Unit :=

@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Data.Lsp.Utf16
-import Lean.Meta.InferType
-import Lean.Util.Recognizers
+public import Lean.Data.Lsp.Utf16
+public import Lean.Meta.InferType
+public import Lean.Util.Recognizers
+
+public section
 
 /-!
 # Utilities for creating and recognizing `sorry`
@@ -34,6 +38,9 @@ Returns `sorryAx type synthetic`. Recall that `synthetic` is true if this sorry 
 See also `Lean.Meta.mkLabeledSorry`, for creating a `sorry` that is labeled or unique.
 -/
 def mkSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
+  if !(← hasConst ``sorryAx) then
+    -- Abort if we are not ready yet to generate `sorry`s in bootstrapping contexts.
+    Elab.throwAbortCommand
   let u ← getLevel type
   return mkApp2 (mkConst ``sorryAx [u]) type (toExpr synthetic)
 
@@ -73,6 +80,9 @@ Constructs a `sorryAx`.
 * If `unique` is true, the `sorry` is unique, in the sense that it is not defeq to any other `sorry` created by `mkLabeledSorry`.
 -/
 def mkLabeledSorry (type : Expr) (synthetic : Bool) (unique : Bool) : MetaM Expr := do
+  if !(← hasConst ``Lean.Name) then
+    -- Abort if we are not ready yet to generate `sorry`s in bootstrapping contexts.
+    Elab.throwAbortCommand
   let tag ←
     if let (some startSPos, some endSPos) := ((← getRef).getPos?, (← getRef).getTailPos?) then
       let fileMap ← getFileMap

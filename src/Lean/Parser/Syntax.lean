@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Parser.Command
+public import Lean.Parser.Command
+
+public section
 
 namespace Lean
 namespace Parser
@@ -83,7 +87,7 @@ def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" decl_name
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
   "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (ppSpace >> syntaxParser argPrec) >> " : " >> ident
 @[builtin_command_parser] def syntaxAbbrev  := leading_parser
-  optional docComment >> "syntax " >> ident >> " := " >> many1 syntaxParser
+  optional docComment >> optional visibility >> "syntax " >> ident >> " := " >> many1 syntaxParser
 def catBehaviorBoth   := leading_parser nonReservedSymbol "both"
 def catBehaviorSymbol := leading_parser nonReservedSymbol "symbol"
 def catBehavior := optional (" (" >> nonReservedSymbol "behavior" >> " := " >> (catBehaviorBoth <|> catBehaviorSymbol) >> ")")

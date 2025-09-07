@@ -3,12 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Siddhartha Gadgil
 -/
+module
+
 prelude
-import Lean.Util.FindMVar
-import Lean.Meta.SynthInstance
-import Lean.Meta.CollectMVars
-import Lean.Meta.Tactic.Util
-import Lean.PrettyPrinter
+public import Lean.Util.FindMVar
+public import Lean.Meta.SynthInstance
+public import Lean.Meta.CollectMVars
+public import Lean.Meta.Tactic.Util
+public import Lean.PrettyPrinter
+import Lean.Meta.AppBuilder
+
+public section
 
 namespace Lean.Meta
 /--
@@ -23,11 +28,16 @@ def getExpectedNumArgs (e : Expr) : MetaM Nat := do
   let (numArgs, _) ← getExpectedNumArgsAux e
   pure numArgs
 
-private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : Expr) : MetaM α := do
-  let explanation := MessageData.ofLazyM (es := #[eType, targetType]) do
-    let (eType, targetType) ← addPPExplicitToExposeDiff eType targetType
-    return m!"{indentExpr eType}\nwith{indentExpr targetType}"
-  throwTacticEx `apply mvarId m!"failed to unify{explanation}"
+private def throwApplyError {α} (mvarId : MVarId)
+    (eType : Expr) (conclusionType? : Option Expr) (targetType : Expr)
+    (term? : Option MessageData) : MetaM α := do
+  throwTacticEx `apply mvarId <| MessageData.ofLazyM (es := #[eType, targetType]) do
+    let conclusionType := conclusionType?.getD eType
+    let note := if conclusionType?.isSome then .note m!"The full type of {term?.getD "the term"} is{indentExpr eType}" else m!""
+    let (conclusionType, targetType) ← addPPExplicitToExposeDiff conclusionType targetType
+    let conclusion := if conclusionType?.isNone then "type" else "conclusion"
+    return m!"could not unify the {conclusion} of {term?.getD "the term"}{indentExpr conclusionType}\n\
+      with the goal{indentExpr targetType}{note}"
 
 def synthAppInstances (tacticName : Name) (mvarId : MVarId) (mvarsNew : Array Expr) (binderInfos : Array BinderInfo)
     (synthAssignedInstances : Bool) (allowSynthFailures : Bool) : MetaM Unit := do
@@ -150,8 +160,8 @@ private def reorderGoals (mvars : Array Expr) : ApplyNewGoals → MetaM (List MV
   | ApplyNewGoals.all => return mvars.toList.map Lean.Expr.mvarId!
 
 /-- Custom `isDefEq` for the `apply` tactic -/
-private def isDefEqApply (cfg : ApplyConfig) (a b : Expr) : MetaM Bool := do
-  if cfg.approx then
+private def isDefEqApply (approx : Bool) (a b : Expr) : MetaM Bool := do
+  if approx then
     approxDefEq <| isDefEqGuarded a b
   else
     isDefEqGuarded a b
@@ -159,7 +169,8 @@ private def isDefEqApply (cfg : ApplyConfig) (a b : Expr) : MetaM Bool := do
 /--
 Close the given goal using `apply e`.
 -/
-def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=
+def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {})
+    (term? : Option MessageData := none) : MetaM (List MVarId) :=
   mvarId.withContext do
     mvarId.checkNotAssigned `apply
     let targetType ← mvarId.getType
@@ -183,28 +194,33 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     ```
     -/
     let rangeNumArgs ← if hasMVarHead then
-      pure [numArgs : numArgs+1]
+      pure numArgs...(numArgs+1)
     else
       let targetTypeNumArgs ← getExpectedNumArgs targetType
-      pure [numArgs - targetTypeNumArgs : numArgs+1]
+      pure (numArgs - targetTypeNumArgs)...(numArgs+1)
     /-
     Auxiliary function for trying to add `n` underscores where `n ∈ [i: rangeNumArgs.stop)`
     See comment above
     -/
     let rec go (i : Nat) : MetaM (Array Expr × Array BinderInfo) := do
-      if i < rangeNumArgs.stop then
+      if i < rangeNumArgs.upper then
         let s ← saveState
         let (newMVars, binderInfos, eType) ← forallMetaTelescopeReducing eType i
-        if (← isDefEqApply cfg eType targetType) then
+        if (← isDefEqApply cfg.approx eType targetType) then
           return (newMVars, binderInfos)
         else
           s.restore
           go (i+1)
       else
-        let (_, _, eType) ← forallMetaTelescopeReducing eType (some rangeNumArgs.start)
-        throwApplyError mvarId eType targetType
-      termination_by rangeNumArgs.stop - i
-    let (newMVars, binderInfos) ← go rangeNumArgs.start
+
+        let conclusionType? ← if rangeNumArgs.lower = 0 then
+          pure none
+        else
+          let (_, _, r) ← forallMetaTelescopeReducing eType (some rangeNumArgs.lower)
+          pure (some r)
+        throwApplyError mvarId eType conclusionType? targetType term?
+      termination_by rangeNumArgs.upper - i
+    let (newMVars, binderInfos) ← go rangeNumArgs.lower
     postprocessAppMVars `apply mvarId newMVars binderInfos cfg.synthAssignedInstances cfg.allowSynthFailures
     let e ← instantiateMVars e
     mvarId.assign (mkAppN e newMVars)
@@ -218,7 +234,22 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
 
 /-- Short-hand for applying a constant to the goal. -/
 def _root_.Lean.MVarId.applyConst (mvar : MVarId) (c : Name) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
-  mvar.apply (← mkConstWithFreshMVarLevels c) cfg
+  mvar.apply (← mkConstWithFreshMVarLevels c) cfg (term? := m!"'{.ofConstName c}'")
+
+/-- Close the given goal using `e`, instantiated with `n` metavariables. -/
+def _root_.Lean.MVarId.applyN (mvarId : MVarId) (e : Expr) (n : Nat) (useApproxDefEq := true) : MetaM (List MVarId) :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `apply
+    let targetType ← mvarId.getType
+    let eType      ← inferType e
+    let (mvarIds, _, eType) ← forallMetaBoundedTelescope eType n
+    unless mvarIds.size == n do
+      throwError "Applied type takes fewer than {n} arguments:\n{indentExpr eType}"
+    unless (← isDefEqApply useApproxDefEq eType targetType) do
+      throwError "Type mismatch: target is{indentExpr targetType}\nbut applied expression has \
+        type{indentExpr eType}\nafter applying {n} arguments."
+    mvarId.assign (e.beta mvarIds)
+    return (mvarIds.map (·.mvarId!)).toList
 
 end Meta
 

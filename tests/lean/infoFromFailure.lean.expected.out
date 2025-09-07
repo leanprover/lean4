@@ -1,9 +1,0 @@
-B.foo "hello" : String × String
-[Meta.synthInstance] ❌️ Add String
-  [Meta.synthInstance] no instances for Add String
-    [Meta.synthInstance.instances] #[]
-  [Meta.synthInstance] result <not-available>
-[Meta.synthInstance] ❌️ Add Bool
-  [Meta.synthInstance] no instances for Add Bool
-    [Meta.synthInstance.instances] #[]
-  [Meta.synthInstance] result <not-available>

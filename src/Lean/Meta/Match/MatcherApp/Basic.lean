@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Match.MatcherInfo
+public import Lean.Meta.Match.MatcherInfo
+
+public section
 
 namespace Lean.Meta
 
@@ -28,6 +32,7 @@ of matcher applications.
 -/
 def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCasesOn := false) :
     m (Option MatcherApp) := do
+  unless e.isApp do return none
   if let .const declName declLevels := e.getAppFn then
     if let some info ← getMatcherInfo? declName then
       let args := e.getAppArgs
@@ -40,10 +45,10 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCases
         discrInfos    := info.discrInfos
         params        := args.extract 0 info.numParams
         motive        := args[info.getMotivePos]!
-        discrs        := args[info.numParams + 1 : info.numParams + 1 + info.numDiscrs]
+        discrs        := args[(info.numParams + 1)...(info.numParams + 1 + info.numDiscrs)]
         altNumParams  := info.altNumParams
-        alts          := args[info.numParams + 1 + info.numDiscrs : info.numParams + 1 + info.numDiscrs + info.numAlts]
-        remaining     := args[info.numParams + 1 + info.numDiscrs + info.numAlts : args.size]
+        alts          := args[(info.numParams + 1 + info.numDiscrs)...(info.numParams + 1 + info.numDiscrs + info.numAlts)]
+        remaining     := args[(info.numParams + 1 + info.numDiscrs + info.numAlts)...args.size]
       }
 
     if alsoCasesOn && isCasesOnRecursor (← getEnv) declName then
@@ -51,12 +56,12 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCases
       let .inductInfo info ← getConstInfo indName | return none
       let args := e.getAppArgs
       unless args.size >= info.numParams + 1 /- motive -/ + info.numIndices + 1 /- major -/ + info.numCtors do return none
-      let params     := args[:info.numParams]
+      let params     := args[*...info.numParams]
       let motive     := args[info.numParams]!
-      let discrs     := args[info.numParams + 1 : info.numParams + 1 + info.numIndices + 1]
-      let discrInfos := Array.mkArray (info.numIndices + 1) {}
-      let alts       := args[info.numParams + 1 + info.numIndices + 1 : info.numParams + 1 + info.numIndices + 1 + info.numCtors]
-      let remaining  := args[info.numParams + 1 + info.numIndices + 1 + info.numCtors :]
+      let discrs     := args[(info.numParams + 1)...(info.numParams + 1 + info.numIndices + 1)]
+      let discrInfos := .replicate (info.numIndices + 1) {}
+      let alts       := args[(info.numParams + 1 + info.numIndices + 1)...(info.numParams + 1 + info.numIndices + 1 + info.numCtors)]
+      let remaining  := args[(info.numParams + 1 + info.numIndices + 1 + info.numCtors)...*]
       let uElimPos?  := if info.levelParams.length == declLevels.length then none else some 0
       let mut altNumParams := #[]
       for ctor in info.ctors do
@@ -69,6 +74,13 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCases
       }
 
   return none
+
+def MatcherApp.toMatcherInfo (matcherApp : MatcherApp) : MatcherInfo where
+  uElimPos?     := matcherApp.uElimPos?
+  discrInfos    := matcherApp.discrInfos
+  numParams     := matcherApp.params.size
+  numDiscrs     := matcherApp.discrs.size
+  altNumParams  := matcherApp.altNumParams
 
 def MatcherApp.toExpr (matcherApp : MatcherApp) : Expr :=
   let result := mkAppN (mkConst matcherApp.matcherName matcherApp.matcherLevels.toList) matcherApp.params

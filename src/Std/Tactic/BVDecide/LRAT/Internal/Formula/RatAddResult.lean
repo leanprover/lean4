@@ -3,8 +3,12 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddSound
+public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddSound
+
+@[expose] public section
 
 /-!
 This module contains the implementation of RAT-based clause adding for the default LRAT checker
@@ -30,9 +34,7 @@ theorem insertRatUnits_postcondition {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n)
     (units : CNF.Clause (PosFin n)) :
     let assignments := (insertRatUnits f units).fst.assignments
-    have hsize : assignments.size = n := by
-      rw [← hf.2]
-      exact size_assignments_insertRatUnits f units
+    have hsize : assignments.size = n := by grind [size_assignments_insertRatUnits]
     let ratUnits := (insertRatUnits f units).1.ratUnits
     InsertUnitInvariant f.assignments hf.2 ratUnits assignments hsize := by
   simp only [insertRatUnits]
@@ -40,7 +42,7 @@ theorem insertRatUnits_postcondition {n : Nat} (f : DefaultFormula n)
   have h0 : InsertUnitInvariant f.assignments hf.2 f.ratUnits f.assignments hsize := by
     intro i
     apply Or.inl
-    simp only [Fin.getElem_fin, ne_eq, true_and, Bool.not_eq_true, exists_and_right]
+    simp only [Fin.getElem_fin, ne_eq, true_and]
     intro j
     simp only [hf.1, List.size_toArray, List.length_nil] at j
     exact Fin.elim0 j
@@ -50,65 +52,15 @@ theorem nodup_insertRatUnits {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (units : CNF.Clause (PosFin n)) :
     ∀ i : Fin (f.insertRatUnits units).1.ratUnits.size, ∀ j : Fin (f.insertRatUnits units).1.ratUnits.size,
       i ≠ j → (f.insertRatUnits units).1.ratUnits[i] ≠ (f.insertRatUnits units).1.ratUnits[j] := by
-  intro i j i_ne_j
+  intro i
   rcases hi : (insertRatUnits f units).fst.ratUnits[i] with ⟨li, bi⟩
-  rcases hj : (insertRatUnits f units).fst.ratUnits[j] with ⟨lj, bj⟩
-  intro heq
-  cases heq
   have h := insertRatUnits_postcondition f hf units ⟨li.1, li.2.2⟩
-  simp only [ne_eq, Bool.not_eq_true, exists_and_right] at h
   rcases h with ⟨_, h2⟩ | ⟨k, b, _, _, _, h4⟩ | ⟨k1, k2, li_gt_zero, h1, h2, h3, h4, h5⟩
-  · specialize h2 j
-    rw [hj] at h2
-    contradiction
-  · by_cases i = k
-    · next i_eq_k =>
-      have j_ne_k : j ≠ k := by rw [← i_eq_k]; exact i_ne_j.symm
-      specialize h4 j j_ne_k
-      simp +decide only [hj] at h4
-    · next i_ne_k =>
-      specialize h4 i i_ne_k
-      simp +decide only [hi] at h4
+  · grind
+  · by_cases i = k <;> grind
   · by_cases bi
-    · next bi_eq_true =>
-      by_cases i = k1
-      · next i_eq_k1 =>
-        have j_ne_k1 : j ≠ k1 := by rw [← i_eq_k1]; exact i_ne_j.symm
-        by_cases j = k2
-        · next j_eq_k2 =>
-          rw [← j_eq_k2, hj, bi_eq_true] at h2
-          simp at h2
-        · next j_ne_k2 =>
-          specialize h5 j j_ne_k1 j_ne_k2
-          simp +decide only [hj] at h5
-      · next i_ne_k1 =>
-        by_cases i = k2
-        · next i_eq_k2 =>
-          rw [← i_eq_k2, hi, bi_eq_true] at h2
-          simp at h2
-        · next i_ne_k2 =>
-          specialize h5 i i_ne_k1 i_ne_k2
-          simp only [hi, not_true] at h5
-    · next bi_eq_false =>
-      simp only [Bool.not_eq_true] at bi_eq_false
-      by_cases i = k2
-      · next i_eq_k2 =>
-        have j_ne_k2 : j ≠ k2 := by rw [← i_eq_k2]; exact i_ne_j.symm
-        by_cases j = k1
-        · next j_eq_k1 =>
-          rw [← j_eq_k1, hj, bi_eq_false] at h1
-          simp at h1
-        · next j_ne_k1 =>
-          specialize h5 j j_ne_k1 j_ne_k2
-          simp +decide only [hj] at h5
-      · next i_ne_k2 =>
-        by_cases i = k1
-        · next i_eq_k1 =>
-          rw [← i_eq_k1, hi, bi_eq_false] at h1
-          simp at h1
-        · next i_ne_k1 =>
-          specialize h5 i i_ne_k1 i_ne_k2
-          simp +decide only [hi] at h5
+    · by_cases i = k1 <;> grind
+    · by_cases i = k2 <;> grind
 
 theorem clear_insertRat_base_case {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (units : CNF.Clause (PosFin n)) :
@@ -128,7 +80,7 @@ theorem clear_insertRat {n : Nat} (f : DefaultFormula n)
   ext : 1
   · simp only [insertRatUnits]
   · simp only [insertRatUnits]
-  · rw [hf.1]
+  · grind
   · simp only
     let motive := ClearInsertInductionMotive f hf.2 (insertRatUnits f units).1.ratUnits
     have h_base : motive 0 (insertRatUnits f units).1.assignments := clear_insertRat_base_case f hf units
@@ -144,8 +96,8 @@ theorem clear_insertRat {n : Nat} (f : DefaultFormula n)
       specialize h ⟨i, i_lt_n⟩
       rcases h with h | h | h
       · exact h.1
-      · omega
-      · omega
+      · omega -- FIXME why can't `grind` do this?
+      · omega -- FIXME why can't `grind` do this?
 
 theorem formula_performRatCheck {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (p : Literal (PosFin n))
@@ -153,7 +105,7 @@ theorem formula_performRatCheck {n : Nat} (f : DefaultFormula n)
     (performRatCheck f p ratHint).1 = f := by
   simp only [performRatCheck, Bool.or_eq_true, Bool.not_eq_true']
   split
-  · next c _ =>
+  next c _ =>
     split
     · rw [clear_insertRat f hf]
     · let fc := (insertRatUnits f (negate (DefaultClause.delete c p))).1
@@ -166,7 +118,7 @@ theorem formula_performRatCheck {n : Nat} (f : DefaultFormula n)
       simp only [clauses_performRupCheck, rupUnits_performRupCheck, ratUnits_performRupCheck]
       rw [restoreAssignments_performRupCheck fc fc_assignments_size ratHint.2, ← insertRatUnits_rw,
         clear_insertRat f hf (negate (DefaultClause.delete c p))]
-      split <;> rfl
+      grind
   · rfl
 
 theorem performRatCheck_fold_formula_eq {n : Nat} (f : DefaultFormula n)
@@ -184,11 +136,7 @@ theorem performRatCheck_fold_formula_eq {n : Nat} (f : DefaultFormula n)
   have h_base : motive 0 (f, true) := rfl
   have h_inductive (idx : Fin ratHints.size) (acc : DefaultFormula n × Bool) :
     motive idx.1 acc → motive (idx.1 + 1) (if acc.2 then performRatCheck acc.1 p ratHints[idx] else (acc.1, false)) := by
-    intro ih
-    rw [ih]
-    split
-    · exact formula_performRatCheck f hf p ratHints[idx]
-    · rfl
+    grind [formula_performRatCheck]
   exact Array.foldl_induction motive h_base h_inductive
 
 theorem ratAdd_result {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (p : Literal (PosFin n))
@@ -199,21 +147,21 @@ theorem ratAdd_result {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (p 
   simp only [Bool.not_eq_true'] at ratAddSuccess
   split at ratAddSuccess
   · split at ratAddSuccess
-    · simp at ratAddSuccess
+    · grind
     · split at ratAddSuccess
-      · simp at ratAddSuccess
+      · grind
       · split at ratAddSuccess
-        · simp at ratAddSuccess
+        · grind
         · split at ratAddSuccess
-          · simp at ratAddSuccess
-          · next performRatCheck_fold_success =>
+          · grind
+          next performRatCheck_fold_success =>
             simp only [Bool.not_eq_false] at performRatCheck_fold_success
             let fc := (insertRupUnits f (negate c)).1
             have fc_assignments_size : (insertRupUnits f (negate c)).1.assignments.size = n := by
               rw [size_assignments_insertRupUnits f (negate c)]
               exact f_readyForRatAdd.2.2.1
-            simp only [clauses_performRupCheck, rupUnits_performRupCheck, ratUnits_performRupCheck,
-              restoreAssignments_performRupCheck fc fc_assignments_size, Prod.mk.injEq, and_true] at ratAddSuccess
+            simp only [
+              Prod.mk.injEq, and_true] at ratAddSuccess
             rw [← ratAddSuccess]
             clear f' ratAddSuccess
             let performRupCheck_res := (performRupCheck (insertRupUnits f (negate c)).1 rupHints).1
@@ -227,8 +175,8 @@ theorem ratAdd_result {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (p 
             simp +zetaDelta only [performRatCheck_fold_formula_eq performRupCheck_res h_performRupCheck_res (Literal.negate p) ratHints,
               clauses_performRupCheck, rupUnits_performRupCheck, ratUnits_performRupCheck,
               restoreAssignments_performRupCheck fc fc_assignments_size, ← insertRupUnits_rw,
-              clear_insertRup f f_readyForRatAdd.2 (negate c), fc, performRupCheck_res]
-  · simp at ratAddSuccess
+              clear_insertRup f f_readyForRatAdd.2 (negate c)]
+  · grind
 
 end DefaultFormula
 

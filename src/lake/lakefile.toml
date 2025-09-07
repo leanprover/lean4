@@ -9,3 +9,4 @@ defaultFacets = ["shared"]
 name = "lake"
 root = "LakeMain"
 supportInterpreter = true
+leanOptions.experimental.module = true

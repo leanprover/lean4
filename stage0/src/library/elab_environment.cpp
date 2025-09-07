@@ -8,7 +8,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "library/elab_environment.h"
-#include "library/compiler/ir_interpreter.h"
 
 namespace lean {
 /* updateBaseAfterKernelAdd (env : Environment) (base : Kernel.Environment) (decl : Declaration) : Environment
@@ -43,11 +42,6 @@ extern "C" LEAN_EXPORT object * lean_elab_add_decl_without_checking(object * env
 extern "C" obj_res lean_elab_environment_to_kernel_env(obj_arg);
 environment elab_environment::to_kernel_env() const {
     return environment(lean_elab_environment_to_kernel_env(to_obj_arg()));
-}
-
-extern "C" obj_res lean_display_stats(obj_arg env, obj_arg w);
-void elab_environment::display_stats() const {
-    dec_ref(lean_display_stats(to_obj_arg(), io_mk_world()));
 }
 
 extern "C" LEAN_EXPORT lean_object * lean_kernel_is_def_eq(lean_object * obj_env, lean_object * lctx, lean_object * a, lean_object * b) {

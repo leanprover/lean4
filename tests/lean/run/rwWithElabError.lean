@@ -12,7 +12,7 @@ error: tactic 'rewrite' failed, equality or iff proof expected
 ```
 -/
 /--
-error: unknown identifier 'not_a_theorem'
+error: Unknown identifier `not_a_theorem`
 ---
 error: unsolved goals
 ⊢ True

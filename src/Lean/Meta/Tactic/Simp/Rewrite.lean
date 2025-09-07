@@ -3,18 +3,22 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.ACLt
-import Lean.Meta.Match.MatchEqsExt
-import Lean.Meta.AppBuilder
-import Lean.Meta.SynthInstance
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.UnifyEq
-import Lean.Meta.Tactic.Simp.Types
-import Lean.Meta.Tactic.Simp.Arith
-import Lean.Meta.Tactic.Simp.Simproc
-import Lean.Meta.Tactic.Simp.Attr
-import Lean.Meta.BinderNameHint
+public import Lean.Meta.ACLt
+public import Lean.Meta.Match.MatchEqsExt
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.SynthInstance
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.UnifyEq
+public import Lean.Meta.Tactic.Simp.Types
+public import Lean.Meta.Tactic.Simp.Arith
+public import Lean.Meta.Tactic.Simp.Simproc
+public import Lean.Meta.Tactic.Simp.Attr
+public import Lean.Meta.BinderNameHint
+
+public section
 
 namespace Lean.Meta.Simp
 
@@ -162,7 +166,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
      This simple approach was good enough for Mathlib 3 -/
   let mut extraArgs := #[]
   let mut e := e
-  for _ in [:numExtraArgs] do
+  for _ in *...numExtraArgs do
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
   extraArgs := extraArgs.reverse
@@ -218,10 +222,19 @@ where
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
       for (thm, numExtraArgs) in candidates do
-        unless inErasedSet thm || (rflOnly && !thm.rfl) do
-          if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then
-            trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
-            return some result
+        if inErasedSet thm then continue
+        if rflOnly then
+          unless thm.rfl do
+            if debug.tactic.simp.checkDefEqAttr.get (← getOptions) &&
+               backward.dsimp.useDefEqAttr.get (← getOptions) then
+              let isRflOld ← withOptions (backward.dsimp.useDefEqAttr.set · false) do
+                isRflProof thm.proof
+              if isRflOld then
+                logWarning m!"theorem {thm.proof} is no longer rfl"
+            continue
+        if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then
+          trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
+          return some result
       return none
 
   /--
@@ -286,29 +299,28 @@ def simpArith (e : Expr) : SimpM Step := do
   if Arith.isLinearCnstr e then
     if let some (e', h) ← Arith.Nat.simpCnstr? e then
       return .visit { expr := e', proof? := h }
-    else if let some (e', h) ← Arith.Int.simpRel? e then
+    if let some (e', h) ← Arith.Int.simpRel? e then
       return .visit { expr := e', proof? := h }
-    else if let some (e', h) ← Arith.Int.simpEq? e then
+    if let some (e', h) ← Arith.Int.simpEq? e then
       return .visit { expr := e', proof? := h }
-    else
-      return .continue
-  else if Arith.isLinearTerm e then
+    return .continue
+  if let some α := Arith.isLinearTerm? e then
     if Arith.parentIsTarget (← getContext).parent? then
       -- We mark `cache := false` to ensure we do not miss simplifications.
       return .continue (some { expr := e, cache := false })
-    else if let some (e', h) ← Arith.Nat.simpExpr? e then
+    match_expr α with
+    | Nat =>
+      let some (e', h) ← Arith.Nat.simpExpr? e | pure ()
       return .visit { expr := e', proof? := h }
-    else if let some (e', h) ← Arith.Int.simpExpr? e then
+    | Int =>
+      let some (e', h) ← Arith.Int.simpExpr? e | pure ()
       return .visit { expr := e', proof? := h }
-    else
+    | _ =>
       return .continue
-  else if Arith.isDvdCnstr e then
-    if let some (e', h) ← Arith.Int.simpDvd? e then
-      return .visit { expr := e', proof? := h }
-    else
-      return .continue
-  else
-    return .continue
+  if Arith.isDvdCnstr e then
+    let some (e', h) ← Arith.Int.simpDvd? e | pure ()
+    return .visit { expr := e', proof? := h }
+  return .continue
 
 /--
 Given a match-application `e` with `MatcherInfo` `info`, return `some result`
@@ -325,7 +337,7 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
   let args  := e.getAppArgsN n
   let mut r : Result := { expr := f }
   let mut modified := false
-  for i in [0 : info.numDiscrs] do
+  for i in *...info.numDiscrs do
     let arg := args[i]!
     if i < infos.size && !infos[i]!.hasFwdDeps then
       let argNew ← simp arg
@@ -341,7 +353,7 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
       r ← mkCongrFun r argNew
   unless modified do
     return none
-  for h : i in [info.numDiscrs : args.size] do
+  for h : i in info.numDiscrs...args.size do
     let arg := args[i]
     r ← mkCongrFun r arg
   return some r
@@ -599,7 +611,7 @@ where
 
 /--
 Discharges assumptions of the form `∀ …, a = b` using `rfl`. This is particularly useful for higher
-order assumptions of the form `∀ …, e = ?g x y` to instaniate  a parameter `g` even if that does not
+order assumptions of the form `∀ …, e = ?g x y` to instantiate a parameter `g` even if that does not
 appear on the lhs of the rule.
 -/
 def dischargeRfl (e : Expr) : SimpM (Option Expr) := do
@@ -622,7 +634,7 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
     if let some r ← dischargeEqnThmHypothesis? e then return some r
   let r ← simp e
   if let some p ← dischargeRfl r.expr then
-    return some (← mkEqMPR (← r.getProof) p)
+    return some (mkApp4 (mkConst ``Eq.mpr [levelZero]) e r.expr (← r.getProof) p)
   else if r.expr.isTrue then
     return some (← mkOfEqTrue (← r.getProof))
   else

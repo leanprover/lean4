@@ -3,96 +3,58 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Combinators
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.SearchM
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Arith
-
+import Lean.Meta.Tactic.Grind.Lookahead
+import Lean.Meta.Tactic.Grind.Intro
+import Lean.Meta.Tactic.Grind.Check
+public section
 namespace Lean.Meta.Grind
-
-namespace Solve
-
-structure State where
-  todo     : List Goal
-  failures : List Goal := []
-  stop     : Bool := false
-
-private abbrev M := StateRefT State GrindM
-
-def getNext? : M (Option Goal) := do
-  let goal::todo := (← get).todo | return none
-  modify fun s => { s with todo }
-  return some goal
-
-def pushGoal (goal : Goal) : M Unit :=
-  modify fun s => { s with todo := goal :: s.todo }
-
-def pushGoals (goals : List Goal) : M Unit :=
-  modify fun s => { s with todo := goals ++ s.todo }
-
-def pushFailure (goal : Goal) : M Unit := do
-  modify fun s => { s with failures := goal :: s.failures }
-  if (← get).failures.length ≥ (← getConfig).failures then
-    modify fun s => { s with stop := true }
-
-@[inline] def stepGuard (x : Goal → M Bool) (goal : Goal) : M Bool := do
-  try
-    x goal
-  catch ex =>
-    if ex.isMaxHeartbeat || ex.isMaxRecDepth then
-      reportIssue! ex.toMessageData
-      pushFailure goal
-      return true
-    else
-      throw ex
-
-def applyTac (x : GrindTactic) (goal : Goal) : M Bool := do
-  let go (goal : Goal) : M Bool := do
-    let some goals ← x goal | return false
-    pushGoals goals
+def tryFallback : GoalM Bool := do
+  (← getMethods).fallback
+  if (← isInconsistent)  then
     return true
-  stepGuard go goal
-
-def tryAssertNext : Goal → M Bool := applyTac assertNext
-
-def tryEmatch : Goal → M Bool := applyTac ematchAndAssert
-
-def trySplit : Goal → M Bool := applyTac splitNext
-
-def tryArith : Goal → M Bool := applyTac Arith.check
-
-def maxNumFailuresReached : M Bool := do
-  return (← get).failures.length ≥ (← getConfig).failures
-
-partial def main (fallback : Fallback) : M Unit := do
-  repeat do
-    if (← get).stop then
-      return ()
-    let some goal ← getNext? |
-      return ()
-    if goal.inconsistent then
-      continue
-    if (← tryAssertNext goal) then
-      continue
-    if (← tryArith goal) then
-      continue
-    if (← tryEmatch goal) then
-      continue
-    if (← trySplit goal) then
-      continue
-    let goal ← GoalM.run' goal fallback
-    if goal.inconsistent || (← goal.mvarId.isAssigned) then
-      continue
-    pushFailure goal
-
-end Solve
+  if (← (← get).mvarId.isAssigned) then
+    -- User-provided fallback may not have properly set `inconsistent` flag.
+    modify fun s => { s with inconsistent := true }
+    return true
+  return false
 
 /--
-Try to solve/close the given goals, and returns the ones that could not be solved.
+Try to solve/close the given goal.
+Returns `some goal` if this subgoal failed to be closed,
+and `none` if all subgoals were closed.
 -/
-def solve (goals : List Goal) (fallback : Fallback) : GrindM (List Goal × List Goal) := do
-  let (_, s) ← Solve.main fallback |>.run { todo := goals }
-  return (s.failures.reverse, s.todo)
+def solve (goal : Goal) : GrindM (Option Goal) := do
+  let (failed?, _) ← main.run goal
+  return failed?
+where
+  main : SearchM (Option Goal) := do
+    tryCatchRuntimeEx loop
+      fun ex => do
+        if ex.isMaxHeartbeat || ex.isMaxRecDepth then
+          reportIssue! ex.toMessageData
+          return some (← getGoal)
+        else
+          throw ex
+
+  loop : SearchM (Option Goal) := do
+    intros 0
+    repeat
+      if (← getGoal).inconsistent then
+        if let some gen ← nextGoal? then
+          intros gen
+        else
+          break
+      if (← assertAll <||> check <||> ematch <||> lookahead <||> splitNext <||> Arith.Cutsat.mbtc
+          <||> Arith.Linear.mbtc <||> tryFallback) then
+        continue
+      return some (← getGoal) -- failed
+    return none -- solved
 
 end Lean.Meta.Grind

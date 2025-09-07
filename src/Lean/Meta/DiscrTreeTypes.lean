@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Expr
-import Lean.ToExpr
+public import Lean.Expr
+public import Lean.ToExpr
+
+public section
 
 namespace Lean.Meta
 
@@ -16,11 +20,11 @@ namespace DiscrTree
 Discrimination tree key. See `DiscrTree`
 -/
 inductive Key where
-  | const : Name → Nat → Key
-  | fvar  : FVarId → Nat → Key
-  | lit   : Literal → Key
   | star  : Key
   | other : Key
+  | lit   : Literal → Key
+  | fvar  : FVarId → Nat → Key
+  | const : Name → Nat → Key
   | arrow : Key
   | proj  : Name → Nat → Nat → Key
   deriving Inhabited, BEq, Repr

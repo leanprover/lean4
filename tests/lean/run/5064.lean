@@ -13,7 +13,7 @@ def thingy : List (Nat ⊕ Nat) → List Bool
   | _ => []
   termination_by l => l.length
 
-/-- info: ⊢ [] = [] -/
+/-- trace: ⊢ [] = [] -/
 #guard_msgs in
 theorem thingy_empty : thingy [] = [] := by
   unfold thingy

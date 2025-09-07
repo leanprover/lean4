@@ -32,6 +32,6 @@ def parts : List (List Nat) := List.insert ([1, 1, 0, 0]) <| List.insert ([0, 0,
   List.insert [1, 2, 3, 4] <| List.insert [5, 6, 7, 8] []
 
 #eval show Lean.Elab.Command.CommandElabM _ from
-  for _ in [0:10] do
+  for _ in *...(10 : Nat) do
     Lean.Elab.Command.elabCommand (←
       `(example : ∀ (x) (_ : x ∈ parts) (y) (_ : y ∈ parts), x ++ y ∉ parts := by decide))

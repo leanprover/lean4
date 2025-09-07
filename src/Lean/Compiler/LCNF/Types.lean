@@ -3,8 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.InferType
+public import Lean.Compiler.BorrowedAnnotation
+public import Lean.Meta.InferType
+
+public section
 
 namespace Lean.Compiler
 
@@ -17,6 +22,9 @@ def anyExpr := mkConst ``lcAny
 
 def _root_.Lean.Expr.isErased (e : Expr) :=
   e.isAppOf ``lcErased
+
+def _root_.Lean.Expr.isAny (e : Expr) :=
+  e.isAppOf ``lcAny
 
 def isPropFormerTypeQuick : Expr → Bool
   | .forallE _ _ b _ => isPropFormerTypeQuick b
@@ -132,7 +140,7 @@ partial def toLCNFType (type : Expr) : MetaM Expr := do
   | .forallE .. => visitForall type #[]
   | .app ..  => type.withApp visitApp
   | .fvar .. => visitApp type #[]
-  | _        => return erasedExpr
+  | _        => return mkConst ``lcAny
 where
   whnfEta (type : Expr) : MetaM Expr := do
     let type ← whnf type
@@ -147,7 +155,10 @@ where
     | .forallE n d b bi =>
       let d := d.instantiateRev xs
       withLocalDecl n bi d fun x => do
-        let d := (← toLCNFType d).abstract xs
+        let isBorrowed := isMarkedBorrowed d
+        let mut d := (← toLCNFType d).abstract xs
+        if isBorrowed then
+          d := markBorrowed d
         return .forallE n d (← visitForall b (xs.push x)) bi
     | _ =>
       let e ← toLCNFType (e.instantiateRev xs)
@@ -156,26 +167,24 @@ where
   visitApp (f : Expr) (args : Array Expr) := do
     let fNew ← match f with
       | .const declName us =>
-        let .inductInfo _ ← getConstInfo declName | return erasedExpr
+        let .inductInfo _ ← getConstInfo declName | return anyExpr
         pure <| .const declName us
       | .fvar .. => pure f
-      | _ => return erasedExpr
+      | _ => return anyExpr
     let mut result := fNew
     for arg in args do
-      if (← isProp arg) then
-        result := mkApp result erasedExpr
-      else if (← isPropFormer arg) then
+      if ← isProp arg <||> isPropFormer arg then
         result := mkApp result erasedExpr
       else if (← isTypeFormer arg) then
         result := mkApp result (← toLCNFType arg)
       else
-        result := mkApp result erasedExpr
+        result := mkApp result (mkConst ``lcAny)
     return result
 
 mutual
 
 partial def joinTypes (a b : Expr) : Expr :=
-  joinTypes? a b |>.getD erasedExpr
+  joinTypes? a b |>.getD (mkConst ``lcAny)
 
 partial def joinTypes? (a b : Expr) : Option Expr := do
   if a.isErased || b.isErased then
@@ -194,16 +203,16 @@ partial def joinTypes? (a b : Expr) : Option Expr := do
       | .app f a, .app g b =>
         (do return .app (← joinTypes? f g) (← joinTypes? a b))
          <|>
-        return erasedExpr
+        return (mkConst ``lcAny)
       | .forallE n d₁ b₁ _, .forallE _ d₂ b₂ _ =>
         (do return .forallE n (← joinTypes? d₁ d₂) (joinTypes b₁ b₂) .default)
         <|>
-        return erasedExpr
+        return (mkConst ``lcAny)
       | .lam n d₁ b₁ _, .lam _ d₂ b₂ _ =>
         (do return .lam n (← joinTypes? d₁ d₂) (joinTypes b₁ b₂) .default)
         <|>
-        return erasedExpr
-      | _, _ => return erasedExpr
+        return (mkConst ``lcAny)
+      | _, _ => return (mkConst ``lcAny)
 
 end
 

@@ -4,13 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
-prelude
-import Lean.Server.FileWorker.InlayHints
-import Lean.Server.FileWorker.SemanticHighlighting
-import Lean.Server.Completion
-import Lean.Server.References
+module
 
-import Lean.Widget.Diff
+prelude
+public import Lean.Server.FileWorker.ExampleHover
+public import Lean.Server.FileWorker.InlayHints
+public import Lean.Server.FileWorker.SemanticHighlighting
+public import Lean.Server.FileWorker.SignatureHelp
+public import Lean.Server.Completion
+public import Lean.Server.References
+public import Lean.Server.Completion.CompletionItemCompression
+meta import Lean.Parser.Module
+
+public import Lean.Widget.Diff
+
+public section
 
 namespace Lean.Server.FileWorker
 open Lsp
@@ -33,7 +41,7 @@ def findCompletionCmdDataAtPos
   findCmdDataAtPos doc pos (includeStop := true)
 
 def handleCompletion (p : CompletionParams)
-    : RequestM (RequestTask CompletionList) := do
+    : RequestM (RequestTask ResolvableCompletionList) := do
   let doc ← readDoc
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
@@ -41,7 +49,7 @@ def handleCompletion (p : CompletionParams)
   mapTaskCostly (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       | return { items := #[], isIncomplete := true }
-    Completion.find? p doc.meta.text pos cmdStx infoTree caps
+    Completion.find? doc.meta.mod p.position doc.meta.text pos cmdStx infoTree caps
 
 /--
 Handles `completionItem/resolve` requests that are sent by the client after the user selects
@@ -58,24 +66,28 @@ def handleCompletionItemResolve (item : CompletionItem)
     | return .pure item
   let some id := data.id?
     | return .pure item
-  let pos := text.lspPosToUtf8Pos data.params.position
+  let some cPos := data.cPos?
+    | return .pure item
+  let pos := text.lspPosToUtf8Pos data.pos
   mapTaskCostly (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       | return item
-    Completion.resolveCompletionItem? text pos cmdStx infoTree item id data.cPos
+    Completion.resolveCompletionItem? text pos cmdStx infoTree item id cPos
 
 open Elab in
 def handleHover (p : HoverParams)
     : RequestM (RequestTask (Option Hover)) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let mkHover (s : String) (r : String.Range) : Hover := {
-    contents := {
-      kind := MarkupKind.markdown
-      value := s
+  let mkHover (s : String) (r : String.Range) : Hover :=
+    let s := Hover.rewriteExamples s
+    {
+      contents := {
+        kind := MarkupKind.markdown
+        value := s
+      }
+      range? := r.toLspRange text
     }
-    range? := r.toLspRange text
-  }
 
   let hoverPos := text.lspPosToUtf8Pos p.position
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
@@ -90,11 +102,13 @@ def handleHover (p : HoverParams)
         | none => pure none
 
       -- now try info tree
-      if let some ictx := snap.infoTree.hoverableInfoAt? hoverPos then
-        if let some range := ictx.info.range? then
+      if let some result := snap.infoTree.hoverableInfoAtM? (m := Id) hoverPos then
+        let ctx := result.ctx
+        let info := result.info
+        if let some range := info.range? then
           -- prefer info tree if at least as specific as parser docstring
           if stxDoc?.all fun (_, stxRange) => stxRange.includes range then
-            if let some hoverFmt ← ictx.info.fmtHover? ictx.ctx then
+            if let some hoverFmt ← info.fmtHover? ctx then
               return mkHover (toString hoverFmt.fmt) range
 
       if let some (doc, range) := stxDoc? then
@@ -103,156 +117,41 @@ def handleHover (p : HoverParams)
       return none
 
 open Elab GoToKind in
-def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
-    (infoTree? : Option InfoTree := none) : RequestM (Array LocationLink) := do
-  let rc ← read
-  let doc ← readDoc
-  let text := doc.meta.text
-
-  let locationLinksFromDecl (i : Elab.Info) (n : Name) :=
-    locationLinksFromDecl rc.srcSearchPath doc.meta.uri n <| (·.toLspRange text) <$> i.range?
-
-  let locationLinksFromBinder (i : Elab.Info) (id : FVarId) := do
-    if let some i' := infoTree? >>= InfoTree.findInfo? fun
-        | Info.ofTermInfo { isBinder := true, expr := Expr.fvar id' .., .. } => id' == id
-        | _ => false then
-      if let some r := i'.range? then
-        let r := r.toLspRange text
-        let ll : LocationLink := {
-          originSelectionRange? := (·.toLspRange text) <$> i.range?
-          targetUri := doc.meta.uri
-          targetRange := r
-          targetSelectionRange := r
-        }
-        return #[ll]
-    return #[]
-
-  let locationLinksFromImport (i : Elab.Info) := do
-    let name := i.stx[2].getId
-    if let some modUri ← documentUriFromModule rc.srcSearchPath name then
-      let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
-      let ll : LocationLink := {
-        originSelectionRange? := (·.toLspRange text) <$> i.stx[2].getRange? (canonicalOnly := true)
-        targetUri := modUri
-        targetRange := range
-        targetSelectionRange := range
-      }
-      return #[ll]
-    return #[]
-
-  let i := ictx.info
-  let ci := ictx.ctx
-  let children := ictx.children
-
-  let locationLinksDefault : RequestM (Array LocationLink) := do
-    -- If other go-tos fail, we try to show the elaborator or parser
-    if let some ei := i.toElabInfo? then
-      if kind == declaration && ci.env.contains ei.stx.getKind then
-        return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.stx.getKind
-      if kind == definition && ci.env.contains ei.elaborator then
-        return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
-    return #[]
-
-  let locationLinksFromTermInfo (ti : TermInfo) : RequestM (Array LocationLink) := do
-    let mut expr := ti.expr
-    if kind == type then
-      expr ← ci.runMetaM i.lctx do
-        return Expr.getAppFn (← instantiateMVars (← Meta.inferType expr))
-    match expr.consumeMData with
-    | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
-    | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder i id
-    | _ => pure ()
-
-    -- Check whether this `TermInfo` node is directly responsible for its `.expr`.
-    -- This is the case iff all of its children represent strictly smaller subexpressions;
-    -- it is sufficient to check this of all direct children of this node (and that its elaborator didn't expand it as a macro)
-    let isExprGenerator := children.all fun
-      | .node (Info.ofTermInfo info) _ => info.expr != expr
-      | .node (Info.ofMacroExpansionInfo _) _ => false
-      | _ => true
-
-    -- don't go-to-instance if this `TermInfo` didn't directly generate its `.expr`
-    if kind != declaration && isExprGenerator then
-      -- go-to-definition on a projection application of a typeclass
-      -- should return all instances generated by TC
-      expr ← ci.runMetaM i.lctx do instantiateMVars expr
-      if let .const n _ := expr.getAppFn.consumeMData then
-        -- also include constant along with instance results
-        let mut results ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
-        if let some info := ci.env.getProjectionFnInfo? n then
-          let mut elaborators := default
-          if let some ei := i.toElabInfo? then do
-            -- also include elaborator along with instance results, as this wouldn't be accessible otherwise
-            if ei.elaborator != `Delab -- prevent an error if this `TermInfo` came from the infoview
-              && ei.elaborator != `Lean.Elab.Term.elabApp && ei.elaborator != `Lean.Elab.Term.elabIdent -- don't include trivial elaborators
-              then do
-              elaborators ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
-          let instIdx := info.numParams
-          let appArgs := expr.getAppArgs
-          let rec extractInstances : Expr → RequestM (Array Name)
-            | .const declName _ => do
-              if ← ci.runMetaM i.lctx do Lean.Meta.isInstance declName then pure #[declName] else pure #[]
-            | .app fn arg => do pure $ (← extractInstances fn).append (← extractInstances arg)
-            | .mdata _ e => extractInstances e
-            | _ => pure #[]
-          if let some instArg := appArgs[instIdx]? then
-            for inst in (← extractInstances instArg) do
-              results := results.append (← ci.runMetaM i.lctx <| locationLinksFromDecl i inst)
-            results := results.append elaborators -- put elaborators at the end of the results
-        return results
-    locationLinksDefault
-
-  match i with
-  | .ofTermInfo ti =>
-    return ← locationLinksFromTermInfo ti
-  | .ofDelabTermInfo { toTermInfo := ti, location?, .. } =>
-    if let some location := location? then
-      if let some targetUri ← documentUriFromModule rc.srcSearchPath location.module then
-        let range := location.range.toLspRange
-        let result : LocationLink := {
-          targetUri, targetRange := range, targetSelectionRange := range,
-          originSelectionRange? := (·.toLspRange text) <$> i.range?
-        }
-        return #[result]
-      -- If we fail to find a DocumentUri, fall through and use the default method to at least try to have something to jump to.
-    return ← locationLinksFromTermInfo ti
-  | .ofFieldInfo fi =>
-    if kind == type then
-      let expr ← ci.runMetaM i.lctx do
-        instantiateMVars (← Meta.inferType fi.val)
-      if let some n := expr.getAppFn.constName? then
-        return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
-    else
-      return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
-  | .ofOptionInfo oi =>
-    return ← ci.runMetaM i.lctx <| locationLinksFromDecl i oi.declName
-  | .ofCommandInfo ⟨`import, _⟩ =>
-    if kind == definition || kind == declaration then
-      return ← ci.runMetaM i.lctx <| locationLinksFromImport i
-  | _ => pure ()
-  locationLinksDefault
-
-open Elab GoToKind in
+-- The `LeanLocationLink`s in this request get converted to `LocationLink` by the Watchdog process.
+-- In doing so, it updates the position information in the location link using the .ilean data
+-- it has available (which includes .ilean update notifications, i.e. position information
+-- for the unsaved & unbuilt state of open files).
 def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
-    : RequestM (RequestTask (Array LocationLink)) := do
+    : RequestM (RequestTask (Array LeanLocationLink)) := do
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
 
   withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
     (notFoundX := pure #[]) fun snap => do
-      if let some infoWithCtx := snap.infoTree.hoverableInfoAt? (omitIdentApps := true) (includeStop := true /- #767 -/) hoverPos then
-        locationLinksOfInfo kind infoWithCtx snap.infoTree
-      else return #[]
+      let filter ctx info _ results := do
+        let .ofTermInfo ti := info
+          | return results
+        ctx.runMetaM info.lctx do
+          results.filterM fun (_, r) => do
+            let .ofTermInfo childTi := r.info
+              | return true
+            return ! (← isInstanceProjectionInfoFor kind ti childTi)
+      let some info ← snap.infoTree.hoverableInfoAtM? (m := IO) hoverPos
+          (includeStop := true) (filter := filter)
+        | return #[]
+      locationLinksOfInfo doc.meta kind info snap.infoTree
 
 open Language in
 def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (Option (List Elab.GoalsAtResult)) :=
   let text := doc.meta.text
   findCmdParsedSnap doc hoverPos |>.bindCostly fun
     | some cmdParsed =>
-      let t := toSnapshotTree cmdParsed |>.foldSnaps [] fun snap oldGoals => Id.run do
-        let some (pos, tailPos, trailingPos) := getPositions snap
+      let t := toSnapshotTree cmdParsed.elabSnap |>.foldSnaps [] fun snap oldGoals => Id.run do
+        let some stx := snap.stx?
           | return .pure (oldGoals, .proceed (foldChildren := false))
+        let some (pos, tailPos, trailingPos) := getPositions stx
+          | return .pure (oldGoals, .proceed (foldChildren := true))
         let snapRange : String.Range := ⟨pos, trailingPos⟩
         -- When there is no trailing whitespace, we also consider snapshots directly before the
         -- cursor.
@@ -280,8 +179,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (
     | none =>
       .pure none
 where
-  getPositions (snap : SnapshotTask SnapshotTree) : Option (String.Pos × String.Pos × String.Pos) := do
-    let stx ← snap.stx?
+  getPositions (stx : Syntax) : Option (String.Pos × String.Pos × String.Pos) := do
     let pos ← stx.getPos? (canonicalOnly := true)
     let tailPos ← stx.getTailPos? (canonicalOnly := true)
     let trailingPos? ← stx.getTrailingTailPos? (canonicalOnly := true)
@@ -342,7 +240,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
     let goal ← ci.runMetaM lctx' do
       Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
     let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
-    return some { goal with range, term := ⟨ti⟩ }
+    return some { goal with range, term := ← WithRpcRef.mk ti }
 
 def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
@@ -434,7 +332,7 @@ where
       | `(namespace $id)  =>
         let entry := { name := id.getId.componentsRev, stx, selection := id, prevSiblings := syms }
         toDocumentSymbols text stxs #[] (entry :: stack)
-      | `(section $(id)?) =>
+      | `($_:sectionHeader section $(id)?) =>
         let name := id.map (·.getId.componentsRev) |>.getD [`«»]
         let entry := { name, stx, selection := id.map (·.raw) |>.getD stx, prevSiblings := syms }
         toDocumentSymbols text stxs #[] (entry :: stack)
@@ -496,7 +394,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
       match stx with
       | `(namespace $id)  =>
         addRanges text ((id.getId.getNumParts, stx.getPos?)::sections) stxs
-      | `(section $(id)?) =>
+      | `($_:sectionHeader section $(id)?) =>
         addRanges text ((id.map (·.getId.getNumParts) |>.getD 1, stx.getPos?)::sections) stxs
       | `(end $(id)?) => do
         let rec popRanges n sections := do
@@ -558,6 +456,15 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
               endLine := endP.line
               kind? := some kind }
 
+def handleSignatureHelp (p : SignatureHelpParams) : RequestM (RequestTask (Option SignatureHelp)) := do
+  let doc ← readDoc
+  let text := doc.meta.text
+  let requestedPos := text.lspPosToUtf8Pos p.position
+  mapTaskCostly (findCmdDataAtPos doc requestedPos (includeStop := false)) fun cmdData? => do
+    let some (cmdStx, tree) := cmdData?
+      | return none
+    SignatureHelp.findSignatureHelp? text p.context? cmdStx tree requestedPos
+
 partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
     : RequestM (RequestTask WaitForDiagnostics) := do
   let rec waitLoop : RequestM EditableDocument := do
@@ -581,8 +488,9 @@ builtin_initialize
   registerLspRequestHandler
     "textDocument/completion"
     CompletionParams
-    CompletionList
+    ResolvableCompletionList
     handleCompletion
+    (serialize? := some (·.compressFast))
   registerLspRequestHandler
     "completionItem/resolve"
     CompletionItem
@@ -596,17 +504,17 @@ builtin_initialize
   registerLspRequestHandler
     "textDocument/declaration"
     TextDocumentPositionParams
-    (Array LocationLink)
+    (Array LeanLocationLink)
     (handleDefinition GoToKind.declaration)
   registerLspRequestHandler
     "textDocument/definition"
     TextDocumentPositionParams
-    (Array LocationLink)
+    (Array LeanLocationLink)
     (handleDefinition GoToKind.definition)
   registerLspRequestHandler
     "textDocument/typeDefinition"
     TextDocumentPositionParams
-    (Array LocationLink)
+    (Array LeanLocationLink)
     (handleDefinition GoToKind.type)
   registerLspRequestHandler
     "textDocument/documentHighlight"
@@ -623,6 +531,11 @@ builtin_initialize
     FoldingRangeParams
     (Array FoldingRange)
     handleFoldingRange
+  registerLspRequestHandler
+    "textDocument/signatureHelp"
+    SignatureHelpParams
+    (Option SignatureHelp)
+    handleSignatureHelp
   registerLspRequestHandler
     "$/lean/plainGoal"
     PlainGoalParams

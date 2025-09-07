@@ -3,27 +3,31 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Util
+public import Lean.Meta.Basic
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Util
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Offset
 
-/-- Construct a model that statisfies all offset constraints -/
+/-- Construct a model that satisfies all offset constraints -/
 def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
   let s := goal.arith.offset
   let dbg := grind.debug.get (← getOptions)
   let nodes := s.nodes
   let isInterpreted (u : Nat) : Bool := isNatNum s.nodes[u]!
-  let mut pre : Array (Option Int) := mkArray nodes.size none
+  let mut pre : Array (Option Int) := .replicate nodes.size none
   /-
   `needAdjust[u]` is true if `u` assignment is not connected to an interpreted value in the graph.
   That is, its assignment may be negative.
   -/
-  let mut needAdjust : Array Bool := mkArray nodes.size true
+  let mut needAdjust : Array Bool := .replicate nodes.size true
   -- Initialize `needAdjust`
-  for u in [: nodes.size] do
+  for u in *...nodes.size do
     if isInterpreted u then
       -- Interpreted values have a fixed value.
       needAdjust := needAdjust.set! u false
@@ -32,12 +36,12 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
     else if s.targets[u]!.any fun v _ => isInterpreted v then
       needAdjust := needAdjust.set! u false
   -- Set interpreted values
-  for h : u in [:nodes.size] do
+  for h : u in *...nodes.size do
     let e := nodes[u]
     if let some v ← getNatValue? e then
       pre := pre.set! u (Int.ofNat v)
   -- Set remaining values
-  for u in [:nodes.size] do
+  for u in *...nodes.size do
     let lower? := s.sources[u]!.foldl (init := none) fun val? v k => Id.run do
       let some va := pre[v]! | return val?
       let val' := va - k
@@ -62,7 +66,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
     let some val := val? | return min
     if val < min then val else min
   let mut r := {}
-  for u in [:nodes.size] do
+  for u in *...nodes.size do
     let some val := pre[u]! | unreachable!
     let val := if needAdjust[u]! then (val - min).toNat else val.toNat
     let e := nodes[u]!
@@ -76,7 +80,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
   r := r.qsort fun (e₁, _) (e₂, _) => e₁.lt e₂
   if (← isTracingEnabledFor `grind.offset.model) then
     for (x, v) in r do
-      trace[grind.offset.model] "{quoteIfNotAtom x} := {v}"
+      trace[grind.offset.model] "{quoteIfArithTerm x} := {v}"
   return r
 
 end Lean.Meta.Grind.Arith.Offset

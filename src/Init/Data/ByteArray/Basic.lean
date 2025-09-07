@@ -3,11 +3,16 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Array.Basic
-import Init.Data.Array.Subarray
-import Init.Data.UInt.Basic
-import Init.Data.Option.Basic
+public import Init.Data.Array.DecidableEq
+public import Init.Data.UInt.Basic
+public import Init.Data.UInt.BasicAux
+import all Init.Data.UInt.BasicAux
+public import Init.Data.Option.Basic
+
+@[expose] public section
 universe u
 
 structure ByteArray where
@@ -17,11 +22,22 @@ attribute [extern "lean_byte_array_mk"] ByteArray.mk
 attribute [extern "lean_byte_array_data"] ByteArray.data
 
 namespace ByteArray
+
+deriving instance BEq for ByteArray
+
+attribute [ext] ByteArray
+
+instance : DecidableEq ByteArray :=
+  fun _ _ => decidable_of_decidable_of_iff ByteArray.ext_iff.symm
+
 @[extern "lean_mk_empty_byte_array"]
-def mkEmpty (c : @& Nat) : ByteArray :=
+def emptyWithCapacity (c : @& Nat) : ByteArray :=
   { data := #[] }
 
-def empty : ByteArray := mkEmpty 0
+@[deprecated emptyWithCapacity (since := "2025-03-12")]
+abbrev mkEmpty := emptyWithCapacity
+
+def empty : ByteArray := emptyWithCapacity 0
 
 instance : Inhabited ByteArray where
   default := empty
@@ -199,7 +215,7 @@ def foldlM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → UInt8 →
 
 @[inline]
 def foldl {β : Type v} (f : β → UInt8 → β) (init : β) (as : ByteArray) (start := 0) (stop := as.size) : β :=
-  Id.run <| as.foldlM f init start stop
+  Id.run <| as.foldlM (pure <| f · ·) init start stop
 
 /-- Iterator over the bytes (`UInt8`) of a `ByteArray`.
 
@@ -334,6 +350,9 @@ def prevn : Iterator → Nat → Iterator
 end Iterator
 end ByteArray
 
+/--
+Converts a list of bytes into a `ByteArray`.
+-/
 def List.toByteArray (bs : List UInt8) : ByteArray :=
   let rec loop
     | [],    r => r

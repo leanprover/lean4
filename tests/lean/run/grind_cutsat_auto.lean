@@ -1,5 +1,4 @@
-set_option grind.warning false
-
+module
 example : ∀ x : Int, x > 7 → 2 * x > 14 := by
   grind
 
@@ -30,13 +29,13 @@ abbrev problem (x y z w v : Int) : Prop :=
   (y ≥ -10)
 
 /--
-info: [grind.cutsat.model] x := 121
+trace: [grind.cutsat.model] x := 121
 [grind.cutsat.model] y := -10
 [grind.cutsat.model] z := -34
 [grind.cutsat.model] w := 0
 [grind.cutsat.model] v := 1
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.cutsat.model true in
 example (x y z w v : Int) : problem x y z w v → False := by
   fail_if_success grind
@@ -79,4 +78,10 @@ example (x y z : Int) :
     2 ≤ 12*x +  5*y +  7*z → 12*x +  5*y +  7*z ≤  5 →
     -5 ≤  3*x - 11*y +  2*z →  3*x - 11*y +  2*z ≤ -1 →
     10 ≤  8*x +  9*y -  4*z →  8*x +  9*y -  4*z ≤ 12 → False := by
+  grind
+
+example (x y : Int) (h : x < y) (z : { z : Int // y ≤ z ∧ z ≤ x }) : False := by
+  grind
+
+example (x y : Int) (h : x < y) (z : { z : Int // y ≤ z ∧ z ≤ x }) : Nat := by
   grind

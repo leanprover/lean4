@@ -454,6 +454,8 @@ end Pairwise
 
 /-! ## Ranges and enumeration -/
 
+example : (List.range 1).sum = 0 := by simp
+
 /-! ### enumFrom -/
 
 /-! ### min? -/
@@ -467,7 +469,7 @@ example (f : Fin 3 → Nat) : List.ofFn f = [f 0, f 1, f 2] := rfl
 example (f : Fin 3 → Nat) : Fin.foldl 3 (fun acc i => f i :: acc) [] = [f 2, f 1, f 0] := rfl
 
 /-! ## Monadic operations -/
-attribute [local simp] Id.run in
+
 #check_simp
   (Id.run do
     let mut s := 0
@@ -475,7 +477,6 @@ attribute [local simp] Id.run in
       s := s + i
     pure s) ~> 10
 
-attribute [local simp] Id.run in
 #check_simp
   (Id.run do
     let mut s := 0
@@ -483,7 +484,6 @@ attribute [local simp] Id.run in
       s := s + i
     pure s) ~> 10
 
-attribute [local simp] Id.run in
 variable (l : List α) (k m : Nat) in
 #check_simp
   (Id.run do
@@ -491,6 +491,15 @@ variable (l : List α) (k m : Nat) in
     for _ in l do
       x := x + k
     pure x) ~> m + k * l.length
+
+-- as above, but for an arbitrary monad
+variable (l : List α) (k m : Nat) {M} [Monad M] [LawfulMonad M] in
+#check_simp
+  (show M _ from do
+    let mut x := m
+    for _ in l do
+      x := x + k
+    pure x) ~> pure (m + k * l.length)
 
 /-! ### mapM -/
 

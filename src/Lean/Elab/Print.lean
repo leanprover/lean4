@@ -3,15 +3,20 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Eqns
-import Lean.Util.CollectAxioms
-import Lean.Elab.Command
+public import Lean.Meta.Eqns
+public import Lean.Util.CollectAxioms
+public import Lean.Elab.Command
+import Lean.PrettyPrinter.Delaborator.Builtins
+
+public section
 
 namespace Lean.Elab.Command
 
 private def throwUnknownId (id : Name) : CommandElabM Unit :=
-  throwError "unknown identifier '{.ofConstName id}'"
+  throwError "Unknown identifier `{.ofConstName id}`"
 
 private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
   match levelParams with
@@ -23,43 +28,64 @@ private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
     return m ++ "}"
 
 private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (safety : DefinitionSafety) (sig : Bool := true) : CommandElabM MessageData := do
-  let m : MessageData :=
-    match (← getReducibilityStatus id) with
-    | ReducibilityStatus.irreducible => "@[irreducible] "
-    | ReducibilityStatus.reducible => "@[reducible] "
-    | ReducibilityStatus.semireducible => ""
-  let m :=
-    m ++
-    match safety with
-    | DefinitionSafety.unsafe  => "unsafe "
-    | DefinitionSafety.partial => "partial "
-    | DefinitionSafety.safe    => ""
-  let m := if isProtected (← getEnv) id then m ++ "protected " else m
-  let (m, id) := match privateToUserName? id with
-    | some id => (m ++ "private ", id)
-    | none    => (m, id)
+  let mut attrs := #[]
+  match (← getReducibilityStatus id) with
+  | ReducibilityStatus.irreducible =>   attrs := attrs.push m!"irreducible"
+  | ReducibilityStatus.reducible =>     attrs := attrs.push m!"reducible"
+  | ReducibilityStatus.semireducible => pure ()
+
+  let env ← getEnv
+  if env.header.isModule && (env.setExporting true |>.find? id |>.any (·.isDefinition)) then
+    attrs := attrs.push m!"expose"
+
+  if defeqAttr.hasTag (← getEnv) id then
+    attrs := attrs.push m!"defeq"
+
+  let mut m : MessageData := m!""
+  unless attrs.isEmpty do
+    m := m ++ "@[" ++ MessageData.joinSep attrs.toList ", " ++ "] "
+
+  match safety with
+  | DefinitionSafety.unsafe  => m := m ++ "unsafe "
+  | DefinitionSafety.partial => m := m ++ "partial "
+  | DefinitionSafety.safe    => pure ()
+
+  let id' ← match privateToUserName? id with
+    | some id' =>
+      m := m ++ "private "
+      pure id'
+    | none =>
+      pure id
+
+  if isProtected (← getEnv) id then
+    m := m ++ "protected "
+
   if sig then
-    return m!"{m}{kind} {id}{levelParamsToMessageData levelParams} : {type}"
+    return m!"{m}{kind} {id'}{levelParamsToMessageData levelParams} : {type}"
   else
     return m!"{m}{kind}"
 
-private def mkHeader' (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe : Bool) (sig : Bool := true) : CommandElabM MessageData :=
-  mkHeader kind id levelParams type (if isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe) (sig := sig)
+private def mkOmittedMsg : Option Expr → MessageData
+  | none   => "<not imported>"
+  | some e => e
 
-private def printDefLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (value : Expr) (safety := DefinitionSafety.safe) : CommandElabM Unit := do
-  let m ← mkHeader kind id levelParams type safety
-  let m := m ++ " :=" ++ Format.line ++ value
-  logInfo m
+private def printAxiomLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (safety : DefinitionSafety) : CommandElabM Unit := do
+  logInfo (← mkHeader kind id levelParams type safety)
 
-private def printAxiomLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe := false) : CommandElabM Unit := do
-  logInfo (← mkHeader' kind id levelParams type isUnsafe)
+private def printDefLike (sigOnly : Bool) (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (value? : Option Expr) (safety := DefinitionSafety.safe) : CommandElabM Unit := do
+  if sigOnly then
+    printAxiomLike kind id levelParams type safety
+  else
+    let m ← mkHeader kind id levelParams type safety
+    let m := m ++ " :=" ++ Format.line ++ mkOmittedMsg value?
+    logInfo m
 
 private def printQuot (id : Name) (levelParams : List Name) (type : Expr) : CommandElabM Unit := do
-  printAxiomLike "Quotient primitive" id levelParams type
+  printAxiomLike "Quotient primitive" id levelParams type (safety := DefinitionSafety.safe)
 
 private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
     (ctors : List Name) (isUnsafe : Bool) : CommandElabM Unit := do
-  let mut m ← mkHeader' "inductive" id levelParams type isUnsafe
+  let mut m ← mkHeader "inductive" id levelParams type (if isUnsafe then .unsafe else .safe)
   m := m ++ Format.line ++ "number of parameters: " ++ toString numParams
   m := m ++ Format.line ++ "constructors:"
   for ctor in ctors do
@@ -68,26 +94,27 @@ private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) 
   logInfo m
 
 /--
-Computes the origin of a field. Returns its projection function at the origin.
+Computes the origin of a field. Returns its `StructureFieldInfo` at the origin.
 Multiple parents could be the origin of a field, but we say the first parent that provides it is the one that determines the origin.
 -/
-private partial def getFieldOrigin (structName field : Name) : MetaM Name := do
+private partial def getFieldOrigin (structName field : Name) : MetaM StructureFieldInfo := do
   let env ← getEnv
   for parent in getStructureParentInfo env structName do
     if (findField? env parent.structName field).isSome then
       return ← getFieldOrigin parent.structName field
   let some fi := getFieldInfo? env structName field
     | throwError "no such field {field} in {structName}"
-  return fi.projFn
+  return fi
 
 open Meta in
-private def printStructure (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
+private partial def printStructure (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr) (ctor : Name)
     (isUnsafe : Bool) : CommandElabM Unit := do
   let env ← getEnv
   let kind := if isClass env id then "class" else "structure"
-  let header ← mkHeader' kind id levelParams type isUnsafe (sig := false)
+  let header ← mkHeader kind id levelParams type (if isUnsafe then .unsafe else .safe) (sig := false)
+  let levels := levelParams.map Level.param
   liftTermElabM <| forallTelescope (← getConstInfo id).type fun params _ =>
-    let s := Expr.const id (levelParams.map .param)
+    let s := Expr.const id levels
     withLocalDeclD `self (mkAppN s params) fun self => do
       let mut m : MessageData := header
       -- Signature
@@ -100,20 +127,46 @@ private def printStructure (id : Name) (levelParams : List Name) (numParams : Na
       unless parents.isEmpty do
         m := m ++ Format.line ++ "parents:"
         for parent in parents do
-          let ptype ← inferType (mkApp (mkAppN (.const parent.projFn (levelParams.map .param)) params) self)
+          let ptype ← inferType (mkApp (mkAppN (.const parent.projFn levels) params) self)
           m := m ++ indentD m!"{.ofConstName parent.projFn (fullNames := true)} : {ptype}"
       -- Fields
+      -- Collect autoParam tactics, which are all on the flat constructor:
+      let flatCtorName := mkFlatCtorOfStructCtorName ctor
+      let flatCtorInfo ← getConstInfo flatCtorName
+      let autoParams : NameMap Syntax ← forallTelescope flatCtorInfo.type fun args _ =>
+        args[numParams...*].foldlM (init := {}) fun set arg => do
+          let decl ← arg.fvarId!.getDecl
+          if let some (.const tacticDecl _) := decl.type.getAutoParamTactic? then
+            let tacticSyntax ← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl
+            pure <| set.insert decl.userName tacticSyntax
+          else
+            pure set
       let fields := getStructureFieldsFlattened env id (includeSubobjectFields := false)
       if fields.isEmpty then
         m := m ++ Format.line ++ "fields: (none)"
       else
         m := m ++ Format.line ++ "fields:"
+        -- Map of fields to projections of `self`
+        let fieldMap : NameMap Expr ← fields.foldlM (init := {}) fun fieldMap field => do
+          pure <| fieldMap.insert field (← mkProjection self field)
         for field in fields do
           let some source := findField? env id field | panic! "missing structure field info"
-          let proj ← getFieldOrigin source field
+          let fi ← getFieldOrigin source field
+          let proj := fi.projFn
           let modifier := if isPrivateName proj then "private " else ""
-          let ftype ← inferType (← mkProjection self field)
-          m := m ++ indentD (m!"{modifier}{.ofConstName proj (fullNames := true)} : {ftype}")
+          let ftype ← inferType (fieldMap.get! field)
+          let value ←
+            if let some stx := autoParams.find? field then
+              let stx : TSyntax ``Parser.Tactic.tacticSeq := ⟨stx⟩
+              pure m!" := by{indentD stx}"
+            else if let some defFn := getEffectiveDefaultFnForField? env id field then
+              if let some (_, val) ← instantiateStructDefaultValueFn? defFn levels params (pure ∘ fieldMap.find?) then
+                pure m!" :={indentExpr val}"
+              else
+                pure m!" := <error>"
+            else
+              pure m!""
+          m := m ++ indentD (m!"{modifier}{.ofConstName proj (fullNames := true)} : {MessageData.nest 2 ftype}{value}")
       -- Constructor
       let cinfo := getStructureCtor (← getEnv) id
       let ctorModifier := if isPrivateName cinfo.name then "private " else ""
@@ -123,21 +176,27 @@ private def printStructure (id : Name) (levelParams : List Name) (numParams : Na
       if resOrder.size > 1 then
         m := m ++ Format.line ++ "field notation resolution order:"
           ++ indentD (MessageData.joinSep (resOrder.map (.ofConstName · (fullNames := true))).toList ", ")
-      logInfo m
+      -- Omit proofs; the delaborator enables `pp.proofs` for non-constant proofs, but we don't want this for default values
+      withOptions (fun opts => opts.set pp.proofs.name false) do
+        logInfo m
 
-private def printIdCore (id : Name) : CommandElabM Unit := do
+private def printIdCore (sigOnly : Bool) (id : Name) : CommandElabM Unit := do
   let env ← getEnv
   match env.find? id with
-  | ConstantInfo.axiomInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "axiom" id us t u
-  | ConstantInfo.defnInfo  { levelParams := us, type := t, value := v, safety := s, .. } => printDefLike "def" id us t v s
-  | ConstantInfo.thmInfo  { levelParams := us, type := t, value := v, .. } => printDefLike "theorem" id us t v
-  | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "opaque" id us t u
+  | ConstantInfo.axiomInfo { levelParams := us, type := t, isUnsafe := u, .. } =>
+    match getOriginalConstKind? env id with
+    | some .defn => printDefLike sigOnly "def" id us t none (if u then .unsafe else .safe)
+    | some .thm => printDefLike sigOnly "theorem" id us t none (if u then .unsafe else .safe)
+    | _  => printAxiomLike "axiom" id us t (if u then .unsafe else .safe)
+  | ConstantInfo.defnInfo  { levelParams := us, type := t, value := v, safety := s, .. } => printDefLike sigOnly "def" id us t v s
+  | ConstantInfo.thmInfo  { levelParams := us, type := t, value := v, .. } => printDefLike sigOnly "theorem" id us t v
+  | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "opaque" id us t (if u then .unsafe else .safe)
   | ConstantInfo.quotInfo  { levelParams := us, type := t, .. } => printQuot id us t
-  | ConstantInfo.ctorInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t u
-  | ConstantInfo.recInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t u
+  | ConstantInfo.ctorInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t (if u then .unsafe else .safe)
+  | ConstantInfo.recInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t (if u then .unsafe else .safe)
   | ConstantInfo.inductInfo { levelParams := us, numParams, type := t, ctors, isUnsafe := u, .. } =>
     if isStructure env id then
-      printStructure id us numParams t u
+      printStructure id us numParams t ctors[0]! u
     else
       printInduct id us numParams t ctors u
   | none => throwUnknownId id
@@ -145,12 +204,22 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
 private def printId (id : Syntax) : CommandElabM Unit := do
   addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} none
   let cs ← liftCoreM <| realizeGlobalConstWithInfos id
-  cs.forM printIdCore
+  cs.forM (printIdCore (sigOnly := false) ·)
 
 @[builtin_command_elab «print»] def elabPrint : CommandElab
   | `(#print%$tk $id:ident) => withRef tk <| printId id
   | `(#print%$tk $s:str)    => logInfoAt tk s.getString
   | _                       => throwError "invalid #print command"
+
+private def printIdSig (id : Syntax) : CommandElabM Unit := do
+  addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} none
+  let cs ← liftCoreM <| realizeGlobalConstWithInfos id
+  cs.forM (printIdCore (sigOnly := true) ·)
+
+@[builtin_command_elab «printSig»] def elabPrintSig : CommandElab := fun stx =>
+  withRef stx[0] do
+    let id := stx[2]
+    printIdSig id
 
 private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
   let axioms ← collectAxioms constName
@@ -161,6 +230,10 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
 
 @[builtin_command_elab «printAxioms»] def elabPrintAxioms : CommandElab
   | `(#print%$tk axioms $id) => withRef tk do
+    if (← getEnv).header.isModule then
+      throwError "cannot use `#print axioms` in a `module`; consider temporarily removing the \
+        `module` header or placing the command in a separate file"
+
     let cs ← liftCoreM <| realizeGlobalConstWithInfos id
     cs.forM printAxiomsOf
   | _ => throwUnsupportedSyntax

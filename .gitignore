@@ -6,7 +6,6 @@
 lake-manifest.json
 /build
 /src/lakefile.toml
-/tests/lakefile.toml
 /lakefile.toml
 GPATH
 GRTAGS
@@ -22,6 +21,7 @@ settings.json
 .gdb_history
 .vscode/*
 !.vscode/settings.json
+script/__pycache__
 *.produced.out
 CMakeSettings.json
 CppProperties.json
@@ -31,3 +31,4 @@ fwOut.txt
 wdErr.txt
 wdIn.txt
 wdOut.txt
+downstream_releases/

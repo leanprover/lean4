@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro, Markus Himmel
 -/
+module
+
 prelude
-import Init.NotationExtra
+public import Init.NotationExtra
+
+public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -21,11 +25,11 @@ File contents: Operations on associative lists
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe w v u
+universe w v u w'
 
 namespace Std.DHashMap.Internal
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w'} [Monad m]
 
 /--
 `AssocList α β` is "the same as" `List (α × β)`, but flattening the structure
@@ -49,7 +53,7 @@ namespace AssocList
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def foldl (f : δ → (α : α) → β α → δ) (init : δ) (as : AssocList α β) : δ :=
-  Id.run (foldlM f init as)
+  Id.run (foldlM (pure <| f · · ·) init as)
 
 /-- Internal implementation detail of the hash map -/
 @[specialize] def foldrM (f : (a : α) → β a → δ → m δ) : (init : δ) → AssocList α β → m δ
@@ -60,7 +64,7 @@ namespace AssocList
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def foldr (f : (a : α) → β a → δ → δ) (init : δ) (as : AssocList α β) : δ :=
-  Id.run (foldrM f init as)
+  Id.run (foldrM (pure <| f · · ·) init as)
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (as : AssocList α β) : m PUnit :=
@@ -221,7 +225,7 @@ def alter [BEq α] {β : Type v} (a : α) (f : Option β → Option β) :
     | some b => AssocList.cons a b nil
   | cons k v l =>
     if k == a then
-      match f v with
+      match f (some v) with
       | none => l
       | some b => cons a b l
     else

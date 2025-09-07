@@ -1,9 +1,9 @@
 theorem all_eq_not_any_not (l : List α) (p : α → Bool) :
     l.all p = !l.any fun x => binderNameHint x p (!p x)
-  := List.all_eq_not_any_not l p
+  := List.all_eq_not_any_not
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 names : List String
 ⊢ (!names.any fun name => !"Waldo".isPrefixOf name) = true
 -/
@@ -14,7 +14,7 @@ example (names : List String) : names.all (fun name => "Waldo".isPrefixOf name) 
 
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 names : List String
 ⊢ (names.any fun name => !"Waldo".isPrefixOf name) = false
 -/
@@ -31,7 +31,7 @@ theorem myAll_eq_not_any_not (l : List α) (p : α → Bool) :
   := rfl
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 names : List String
 ⊢ (!names.any fun name => !"Waldo".isPrefixOf name) = true
 -/
@@ -57,7 +57,7 @@ theorem zipWith_eq_map_idx_zipWith (l1 : List α) (l2 : List β) (f : α → β 
   := by simp [List.zip_eq_zipWith, List.map_zipWith]
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 l1 l2 : List Nat
 ⊢ (List.mapIdx
         (fun i x =>
@@ -84,7 +84,7 @@ error: unsolved goals
 names : List String
 ⊢ (!names.any fun x => !"Waldo".isPrefixOf x) = true
 ---
-info: names : List String
+trace: names : List String
 ⊢ (!names.any fun x => binderNameHint x (fun name => "Waldo".isPrefixOf name) !"Waldo".isPrefixOf x) = true
 -/
 #guard_msgs in

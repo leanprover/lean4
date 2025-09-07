@@ -50,5 +50,4 @@ echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='--sysroot ROOT -L ROOT/lib -Wl,-Bstatic
 # when not using the above flags, link GMP dynamically/as usual. Always link ICU dynamically.
 echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp $(pkg-config --libs libuv) -lucrtbase'"
 # do not set `LEAN_CC` for tests
-echo -n " -DAUTO_THREAD_FINALIZATION=OFF -DSTAGE0_AUTO_THREAD_FINALIZATION=OFF"
 echo -n " -DLEAN_TEST_VARS=''"

@@ -2,7 +2,7 @@
 -- A refexive type, with multiple parameters to make sure
 -- we get the order right
 
-inductive N where
+inductive N : Type where
  | cons : (Nat -> Bool → N) -> N
 
 

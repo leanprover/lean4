@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.Data.String
-import Lean.Data.Lsp.Basic
-import Lean.Data.Position
-import Lean.DeclarationRange
+public import Init.Data.String
+public import Lean.Data.Lsp.BasicAux
+public import Lean.Data.Position
+public import Lean.DeclarationRange
+
+public section
 
 /-! LSP uses UTF-16 for indexing, so we need to provide some primitives
 to interact with Lean strings using UTF-16 indices. -/

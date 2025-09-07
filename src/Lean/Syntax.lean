@@ -3,11 +3,16 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich, Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Range
-import Init.Data.Hashable
-import Lean.Data.Name
-import Lean.Data.Format
+public import Init.Data.Slice
+public import Init.Data.Hashable
+public import Lean.Data.Name
+public import Lean.Data.Format
+public import Init.Data.Option.Coe
+
+public section
 
 /--
 A position range inside a string. This type is mostly in combination with syntax trees,
@@ -21,8 +26,21 @@ protected structure String.Range where
 def String.Range.contains (r : String.Range) (pos : String.Pos) (includeStop := false) : Bool :=
   r.start <= pos && (if includeStop then pos <= r.stop else pos < r.stop)
 
-def String.Range.includes (super sub : String.Range) : Bool :=
-  super.start <= sub.start && super.stop >= sub.stop
+/--
+Checks whether `sub` is contained in `super`.
+`includeSuperStop` and `includeSubStop` control whether `super` and `sub` have
+an inclusive upper bound.
+-/
+def String.Range.includes (super sub : String.Range)
+    (includeSuperStop := false) (includeSubStop := false) : Bool :=
+  super.start <= sub.start && (
+    if includeSuperStop && !includeSubStop then
+      sub.stop.byteIdx <= super.stop.byteIdx + 1
+    else if !includeSuperStop && includeSubStop then
+      sub.stop < super.stop
+    else
+      sub.stop <= super.stop
+  )
 
 def String.Range.overlaps (first second : String.Range)
     (includeFirstStop := false) (includeSecondStop := false) : Bool :=
@@ -61,7 +79,7 @@ deriving instance BEq for SourceInfo
 inductive IsNode : Syntax → Prop where
   | mk (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : IsNode (Syntax.node info kind args)
 
-def SyntaxNode : Type := {s : Syntax // IsNode s }
+@[expose] def SyntaxNode : Type := {s : Syntax // IsNode s }
 
 def unreachIsNodeMissing {β} : IsNode Syntax.missing → β := nofun
 def unreachIsNodeAtom {β} {info val} : IsNode (Syntax.atom info val) → β := nofun
@@ -221,7 +239,7 @@ partial def hasIdent (id : Name) : Syntax → Bool
   | stx => fn stx
 
 @[inline] def rewriteBottomUp (fn : Syntax → Syntax) (stx : Syntax) : Syntax :=
-  Id.run <| stx.rewriteBottomUpM fn
+  Id.run <| stx.rewriteBottomUpM (pure <| fn ·)
 
 private def updateInfo : SourceInfo → String.Pos → String.Pos → SourceInfo
   | SourceInfo.original lead pos trail endPos, leadStart, trailStop =>
@@ -365,7 +383,7 @@ partial def reprint (stx : Syntax) : Option String := do
         -- this visit the first arg twice, but that should hardly be a problem
         -- given that choice nodes are quite rare and small
         let s0 ← reprint args[0]!
-        for arg in args[1:] do
+        for arg in args[1...*] do
           let s' ← reprint arg
           guard (s0 == s')
     | _ => pure ()
@@ -509,7 +527,7 @@ def getCanonicalAntiquot (stx : Syntax) : Syntax :=
     stx
 
 def mkAntiquotNode (kind : Name) (term : Syntax) (nesting := 0) (name : Option String := none) (isPseudoKind := false) : Syntax :=
-  let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
+  let nesting := mkNullNode (.replicate nesting (mkAtom "$"))
   let term :=
     if term.isIdent then term
     else if term.isOfKind `Lean.Parser.Term.hole then term[0]
@@ -572,7 +590,7 @@ def getAntiquotSpliceSuffix (stx : Syntax) : Syntax :=
     stx[1]
 
 def mkAntiquotSpliceNode (kind : SyntaxNodeKind) (contents : Array Syntax) (suffix : String) (nesting := 0) : Syntax :=
-  let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
+  let nesting := mkNullNode (.replicate nesting (mkAtom "$"))
   mkNode (kind ++ `antiquot_splice) #[mkAtom "$", nesting, mkAtom "[", mkNullNode contents, mkAtom "]", mkAtom suffix]
 
 -- `$x,*` etc.
@@ -608,7 +626,7 @@ where
   go (stack : Syntax.Stack) (stx : Syntax) : Option Syntax.Stack := Id.run do
     if accept stx then
       return (stx, 0) :: stack  -- the first index is arbitrary as there is no preceding element
-    for i in [0:stx.getNumArgs] do
+    for i in *...stx.getNumArgs do
       if visit stx[i] then
         if let some stack := go ((stx, i) :: stack) stx[i] then
           return stack

@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Date
-import Std.Time.Time
+public import Std.Time.Date
+public import Std.Time.Time
+
+public section
 
 namespace Std
 namespace Time
@@ -16,6 +20,7 @@ set_option linter.all true
 /--
 Represents a time interval with nanoseconds precision.
 -/
+@[ext]
 structure Duration where
 
   /--
@@ -32,7 +37,7 @@ structure Duration where
   Proof that the duration is valid, ensuring that the `second` and `nano` values are correctly related.
   -/
   proof : (second.val ≥ 0 ∧ nano.val ≥ 0) ∨ (second.val ≤ 0 ∧ nano.val ≤ 0)
-  deriving Repr
+deriving Repr, DecidableEq
 
 instance : ToString Duration where
   toString s :=
@@ -47,9 +52,6 @@ instance : ToString Duration where
 instance : Repr Duration where
   reprPrec s := reprPrec (toString s)
 
-instance : BEq Duration where
-  beq x y := x.second == y.second && y.nano == x.nano
-
 instance : Inhabited Duration where
   default := ⟨0, Bounded.LE.mk 0 (by decide), by decide⟩
 
@@ -57,6 +59,21 @@ instance : OfNat Duration n where
   ofNat := by
     refine ⟨.ofInt n, ⟨0, by decide⟩, ?_⟩
     simp <;> exact Int.le_total n 0 |>.symm
+
+instance : Ord Duration where
+  compare := compareLex (compareOn (·.second)) (compareOn (·.nano))
+
+theorem Duration.compare_def :
+    compare (α := Duration) = compareLex (compareOn (·.second)) (compareOn (·.nano)) := rfl
+
+instance : TransOrd Duration := inferInstanceAs <| TransCmp (compareLex _ _)
+
+instance : LawfulEqOrd Duration where
+  eq_of_compare {a b} h := by
+    simp only [Duration.compare_def, compareLex_eq_eq] at h
+    ext
+    · exact LawfulEqOrd.eq_of_compare h.1
+    · exact LawfulEqOrd.eq_of_compare h.2
 
 namespace Duration
 
@@ -82,7 +99,8 @@ def ofSeconds (s : Second.Offset) : Duration := by
 Creates a new `Duration` out of `Nanosecond.Offset`.
 -/
 def ofNanoseconds (s : Nanosecond.Offset) : Duration := by
-  refine ⟨s.tdiv 1000000000, Bounded.LE.byMod s.val 1000000000 (by decide), ?_⟩
+  -- TODO: we should be using `s.toSeconds` here, but the proof below depends on this form.
+  refine ⟨s.tdiv 1000000000 |>.cast (by decide +kernel), Bounded.LE.byMod s.val 1000000000 (by decide), ?_⟩
 
   cases Int.le_total s.val 0
   next n => exact Or.inr (And.intro (tdiv_neg n (by decide)) (mod_nonpos 1000000000 n (by decide)))
@@ -102,7 +120,7 @@ Creates a new `Duration` out of `Millisecond.Offset`.
 -/
 @[inline]
 def ofMillisecond (s : Millisecond.Offset) : Duration :=
-  ofNanoseconds (s.mul 1000000)
+  ofNanoseconds (s.toNanoseconds)
 
 /--
 Checks if the duration is zero seconds and zero nanoseconds.
@@ -143,19 +161,25 @@ instance : LE Duration where
 instance {x y : Duration} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.toNanoseconds ≤ y.toNanoseconds))
 
+instance : LT Duration where
+  lt d1 d2 := d1.toNanoseconds < d2.toNanoseconds
+
+instance {x y : Duration} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.toNanoseconds < y.toNanoseconds))
+
 /--
 Converts a `Duration` to a `Minute.Offset`
 -/
 @[inline]
 def toMinutes (tm : Duration) : Minute.Offset :=
-  tm.second.tdiv 60
+  tm.second.toMinutes
 
 /--
 Converts a `Duration` to a `Day.Offset`
 -/
 @[inline]
 def toDays (tm : Duration) : Day.Offset :=
-  tm.second.tdiv 86400
+  tm.second.toDays
 
 /--
 Normalizes `Second.Offset` and `NanoSecond.span` in order to build a new `Duration` out of it.
@@ -225,7 +249,7 @@ Adds a `Minute.Offset` to a `Duration`
 -/
 @[inline]
 def addMinutes (t : Duration) (m : Minute.Offset) : Duration :=
-  let seconds := m.mul 60
+  let seconds := m.toSeconds
   t.addSeconds seconds
 
 /--
@@ -233,7 +257,7 @@ Subtracts a `Minute.Offset` from a `Duration`
 -/
 @[inline]
 def subMinutes (t : Duration) (m : Minute.Offset) : Duration :=
-  let seconds := m.mul 60
+  let seconds := m.toSeconds
   t.subSeconds seconds
 
 /--
@@ -241,7 +265,7 @@ Adds an `Hour.Offset` to a `Duration`
 -/
 @[inline]
 def addHours (t : Duration) (h : Hour.Offset) : Duration :=
-  let seconds := h.mul 3600
+  let seconds := h.toSeconds
   t.addSeconds seconds
 
 /--
@@ -249,7 +273,7 @@ Subtracts an `Hour.Offset` from a `Duration`
 -/
 @[inline]
 def subHours (t : Duration) (h : Hour.Offset) : Duration :=
-  let seconds := h.mul 3600
+  let seconds := h.toSeconds
   t.subSeconds seconds
 
 /--
@@ -257,7 +281,7 @@ Adds a `Day.Offset` to a `Duration`
 -/
 @[inline]
 def addDays (t : Duration) (d : Day.Offset) : Duration :=
-  let seconds := d.mul 86400
+  let seconds := d.toSeconds
   t.addSeconds seconds
 
 /--
@@ -265,7 +289,7 @@ Subtracts a `Day.Offset` from a `Duration`
 -/
 @[inline]
 def subDays (t : Duration) (d : Day.Offset) : Duration :=
-  let seconds := d.mul 86400
+  let seconds := d.toSeconds
   t.subSeconds seconds
 
 /--
@@ -273,7 +297,7 @@ Adds a `Week.Offset` to a `Duration`
 -/
 @[inline]
 def addWeeks (t : Duration) (w : Week.Offset) : Duration :=
-  let seconds := w.mul 604800
+  let seconds := w.toSeconds
   t.addSeconds seconds
 
 /--
@@ -281,7 +305,7 @@ Subtracts a `Week.Offset` from a `Duration`
 -/
 @[inline]
 def subWeeks (t : Duration) (w : Week.Offset) : Duration :=
-  let seconds := w.mul 604800
+  let seconds := w.toSeconds
   t.subSeconds seconds
 
 instance : HAdd Duration Day.Offset Duration where

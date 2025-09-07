@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Environment
-import Lean.Exception
-import Lean.Declaration
-import Lean.Log
-import Lean.AuxRecursor
-import Lean.Compiler.Old
+public import Lean.Environment
+public import Lean.Exception
+public import Lean.Declaration
+public import Lean.Log
+public import Lean.AuxRecursor
+public import Lean.Compiler.Old
+
+public section
 
 namespace Lean
 
@@ -25,22 +29,20 @@ def withEnv [Monad m] [MonadFinally m] [MonadEnv m] (env : Environment) (x : m �
     setEnv saved
 
 def isInductiveCore (env : Environment) (declName : Name) : Bool :=
-  env.find? declName matches some (.inductInfo ..)
+  env.findAsync? declName matches some { kind := .induct, .. }
 
 def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   return isInductiveCore (← getEnv) declName
 
 def isRecCore (env : Environment) (declName : Name) : Bool :=
-  match env.find? declName with
-  | some (ConstantInfo.recInfo ..) => true
-  | _ => false
+  env.findAsync? declName matches some { kind := .recursor, .. }
 
 def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   return isRecCore (← getEnv) declName
 
 @[inline] def withoutModifyingEnv [Monad m] [MonadEnv m] [MonadFinally m] {α : Type} (x : m α) : m α := do
   -- Allow `x` to define new declarations even outside the asynchronous prefix (if any) as all
-  -- results will be discarded anway.
+  -- results will be discarded anyway.
   withEnv (← getEnv).unlockAsync x
 
 /-- Similar to `withoutModifyingEnv`, but also returns the updated environment -/
@@ -78,47 +80,55 @@ def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
     | ConstantInfo.recInfo val => k val us
     | _                        => failK ()
 
-def hasConst [Monad m] [MonadEnv m] (constName : Name) : m Bool := do
-  return (← getEnv).contains constName
-
-private partial def mkAuxNameAux (env : Environment) (base : Name) (i : Nat) : Name :=
-  let candidate := base.appendIndexAfter i
-  if env.contains candidate then
-    mkAuxNameAux env base (i+1)
-  else
-    candidate
-
-def mkAuxName [Monad m] [MonadEnv m] (baseName : Name) (idx : Nat) : m Name := do
-  return mkAuxNameAux (← getEnv) baseName idx
+def hasConst [Monad m] [MonadEnv m] (constName : Name) (skipRealize := true) : m Bool := do
+  return (← getEnv).contains (skipRealize := skipRealize) constName
 
 def getConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantInfo := do
   match (← getEnv).find? constName with
   | some info => pure info
-  | none      => throwError "unknown constant '{.ofConstName constName}'"
+  | none      => throwUnknownConstant constName
+
+def getConstVal [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantVal := do
+  match (← getEnv).findConstVal? constName with
+  | some val => pure val
+  | none     => throwUnknownConstant constName
+
+def getAsyncConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) (skipRealize := false) : m AsyncConstantInfo := do
+  match (← getEnv).findAsync? (skipRealize := skipRealize) constName with
+  | some val => pure val
+  | none     => throwUnknownConstant constName
+
+def isInductive? [Monad m] [MonadEnv m] (declName : Name) : m (Option InductiveVal) := do
+  match (← getEnv).findAsync? declName with
+  | some info@{ kind := .induct, .. } =>
+    match info.toConstantInfo with
+    | .inductInfo val => pure (some val)
+    | _ => unreachable!
+  | _ => pure none
 
 def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Expr := do
-  let info ← getConstInfo constName
+  let info ← getConstVal constName
   return mkConst constName (info.levelParams.map mkLevelParam)
 
 def getConstInfoDefn [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m DefinitionVal := do
   match (← getConstInfo constName) with
   | ConstantInfo.defnInfo v => pure v
-  | _                       => throwError "'{.ofConstName constName}' is not a definition"
+  | _                       => throwError "`{.ofConstName constName}` is not a definition"
 
 def getConstInfoInduct [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m InductiveVal := do
   match (← getConstInfo constName) with
   | ConstantInfo.inductInfo v => pure v
-  | _                         => throwError "'{.ofConstName constName}' is not a inductive type"
+  | _                         => throwError "`{.ofConstName constName}` is not a inductive type"
 
 def getConstInfoCtor [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstructorVal := do
   match (← getConstInfo constName) with
   | ConstantInfo.ctorInfo v => pure v
-  | _                       => throwError "'{.ofConstName constName}' is not a constructor"
+  | _                       => throwError "`{.ofConstName constName}` is not a constructor"
 
 def getConstInfoRec [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m RecursorVal := do
   match (← getConstInfo constName) with
   | ConstantInfo.recInfo v => pure v
-  | _                      => throwError "'{.ofConstName constName}' is not a recursor"
+  | _                      => throwError "`{.ofConstName constName}` is not a recursor"
 
 /--
 Matches if `e` is a constant that is an inductive type with one constructor.
@@ -149,8 +159,8 @@ See also `Lean.matchConstStructure` for a less restrictive version.
         | _ => failK ()
       | _ => failK ()
 
-unsafe def evalConst [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (constName : Name) : m α := do
-  ofExcept <| (← getEnv).evalConst α (← getOptions) constName
+unsafe def evalConst [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (constName : Name) (checkMeta := true) : m α := do
+  ofExcept <| (← getEnv).evalConst (checkMeta := checkMeta) α (← getOptions) constName
 
 unsafe def evalConstCheck [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (typeName : Name) (constName : Name) : m α := do
   ofExcept <| (← getEnv).evalConstCheck α (← getOptions) typeName constName

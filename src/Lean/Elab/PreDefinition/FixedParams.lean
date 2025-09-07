@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Basic
+
+public section
 
 /-!
 This module contains the logic for figuring out, given mutually recursive predefinitions,
@@ -20,7 +24,7 @@ The main components of this module are
    (effectively a mask and a permutation)
  * The `FixedParamPerms` data type, with the data for a whole recursive group.
  * The `getFixedParamPerms` function that calculates the fixed parameters
- * Various `MetaM` functions for bringing into scope fixed and varying paramters, assembling
+ * Various `MetaM` functions for bringing into scope fixed and varying parameters, assembling
    argument lists etc.
 
 -/
@@ -52,7 +56,7 @@ We find the largest set and graph that satisfies these rules:
 * For structural recursion: The target and all its indices are `varying`.
   (This is taking into account post-hoc, using `FixedParamPerms.erase`)
 
-Under the assumption that the predefintions indeed are mutually recursive, then the resulting graph,
+Under the assumption that the predefinitions indeed are mutually recursive, then the resulting graph,
 restricted to the non-`varying` nodes, should partition into cliques that have one member from each
 function. Every such clique becomes a fixed parameter.
 
@@ -74,14 +78,14 @@ structure Info where
   graph : Array (Array (Option (Array (Option Nat))))
   /--
   The dependency structure of the function parameter.
-  If `paramIdx₂ ∈ revDeps[funIdx][paraIdx₁]`, then the type of `paramIdx₂` depends on `parmaIdx₁`
+  If `paramIdx₂ ∈ revDeps[funIdx][paraIdx₁]`, then the type of `paramIdx₂` depends on `paramIdx₁`
   -/
   revDeps : Array (Array (Array Nat))
 
 
 def Info.init (revDeps : Array (Array (Array Nat))) : Info where
   graph := revDeps.map fun deps =>
-    mkArray deps.size (some (mkArray revDeps.size none))
+    .replicate deps.size (some (.replicate revDeps.size none))
   revDeps
 
 def Info.addSelfCalls (info : Info) : Info :=
@@ -105,8 +109,8 @@ partial def Info.setVarying (funIdx paramIdx : Nat) (info : Info) : Info := Id.r
     -- Set this as varying
     info := { info with graph := info.graph.modify funIdx (·.set! paramIdx none) }
     -- Propagate along edges for already observed calls
-    for otherFunIdx in [:info.graph.size] do
-      for otherParamIdx in [:info.graph[otherFunIdx]!.size] do
+    for otherFunIdx in *...info.graph.size do
+      for otherParamIdx in *...info.graph[otherFunIdx]!.size do
         if let some otherParamInfo := info.graph[otherFunIdx]![otherParamIdx]! then
           if otherParamInfo[funIdx]! = some paramIdx then
             info := Info.setVarying otherFunIdx otherParamIdx info
@@ -139,12 +143,12 @@ partial def Info.setCallerParam (calleeIdx argIdx callerIdx paramIdx : Nat) (inf
         -- Propagate information about the caller
         let mut info : Info := info
         if let some callerParamInfo := info.graph[callerIdx]![paramIdx]! then
-          for h : otherFunIdx in [:callerParamInfo.size] do
+          for h : otherFunIdx in *...callerParamInfo.size do
             if let some otherParamIdx := callerParamInfo[otherFunIdx] then
               info := info.setCallerParam calleeIdx argIdx otherFunIdx otherParamIdx
         -- Propagate information about the callee
-        for otherFunIdx in [:info.graph.size] do
-          for otherArgIdx in [:info.graph[otherFunIdx]!.size] do
+        for otherFunIdx in *...info.graph.size do
+          for otherArgIdx in *...info.graph[otherFunIdx]!.size do
             if let some otherArgsInfo := info.graph[otherFunIdx]![otherArgIdx]! then
               if let some paramIdx' := otherArgsInfo[calleeIdx]! then
                 if paramIdx' = argIdx then
@@ -172,26 +176,25 @@ end FixedParams
 
 open Lean Meta FixedParams
 
-def getParamRevDeps (preDefs : Array PreDefinition) : MetaM (Array (Array (Array Nat))) := do
-  preDefs.mapM fun preDef =>
-    lambdaTelescope preDef.value (cleanupAnnotations := true) fun xs _ => do
-      let mut revDeps := #[]
-      for h : i in [:xs.size] do
-        let mut deps := #[]
-        for h : j in [i+1:xs.size] do
-          if (← dependsOn (← inferType xs[j]) xs[i].fvarId!) then
-            deps := deps.push j
-        revDeps := revDeps.push deps
-      pure revDeps
+def getParamRevDeps (value : Expr) : MetaM (Array (Array Nat)) := do
+  lambdaTelescope value (cleanupAnnotations := true) fun xs _ => do
+    let mut revDeps := #[]
+    for h : i in *...xs.size do
+      let mut deps := #[]
+      for h : j in (i+1)...xs.size do
+        if (← dependsOn (← inferType xs[j]) xs[i].fvarId!) then
+          deps := deps.push j
+      revDeps := revDeps.push deps
+    pure revDeps
 
 def getFixedParamsInfo (preDefs : Array PreDefinition) : MetaM FixedParams.Info := do
-  let revDeps ← getParamRevDeps preDefs
+  let revDeps ← preDefs.mapM (getParamRevDeps ·.value)
   let arities := revDeps.map (·.size)
   let ref ← IO.mkRef (Info.init revDeps)
 
   ref.modify .addSelfCalls
 
-  for h : callerIdx in [:preDefs.size] do
+  for h : callerIdx in *...preDefs.size do
     let preDef := preDefs[callerIdx]
     lambdaTelescope preDef.value fun params body => do
       assert! params.size = arities[callerIdx]!
@@ -203,7 +206,7 @@ def getFixedParamsInfo (preDefs : Array PreDefinition) : MetaM FixedParams.Info 
           return .continue
         let n := f.constName!
         let some calleeIdx := preDefs.findIdx? (·.declName = n) | return .continue
-        for argIdx in [:arities[calleeIdx]!] do
+        for argIdx in *...arities[calleeIdx]! do
           if (← ref.get).mayBeFixed calleeIdx argIdx then
             if h : argIdx < args.size then
               let arg := args[argIdx]
@@ -216,7 +219,7 @@ def getFixedParamsInfo (preDefs : Array PreDefinition) : MetaM FixedParams.Info 
               else
               -- Try all parameters
               let mut any := false
-              for h : paramIdx in [:params.size] do
+              for h : paramIdx in *...params.size do
                 if (← ref.get).mayBeFixed callerIdx paramIdx then
                   let param := params[paramIdx]
                   if (← withoutProofIrrelevance <| withReducible <| isDefEq param arg) then
@@ -272,7 +275,7 @@ def getFixedParamPerms (preDefs : Array PreDefinition) : MetaM FixedParamPerms :
 
     let mut firstPerm := #[]
     let mut numFixed := 0
-    for paramIdx in [:xs.size], x in xs, paramInfo? in paramInfos do
+    for paramIdx in *...xs.size, x in xs, paramInfo? in paramInfos do
       if let some paramInfo := paramInfo? then
         assert! paramInfo[0]! = some paramIdx
         firstPerm := firstPerm.push (some numFixed)
@@ -281,7 +284,7 @@ def getFixedParamPerms (preDefs : Array PreDefinition) : MetaM FixedParamPerms :
         firstPerm := firstPerm.push none
 
     let mut perms := #[firstPerm]
-    for h : funIdx in [1:info.graph.size] do
+    for h : funIdx in 1...info.graph.size do
       let paramInfos := info.graph[funIdx]
       let mut perm := #[]
       for paramInfo? in paramInfos do
@@ -309,7 +312,7 @@ scope.
 -/
 private partial def FixedParamPerm.forallTelescopeImpl (perm : FixedParamPerm)
     (type : Expr) (k : Array Expr → MetaM α) : MetaM α := do
-  go 0 type (mkArray perm.numFixed (mkSort 0))
+  go 0 type (.replicate perm.numFixed (mkSort 0))
 where
   go i type xs := do
     match perm[i]? with
@@ -333,7 +336,7 @@ def FixedParamPerm.forallTelescope [MonadControlT MetaM n] [Monad n]
 
 
 /--
-If `type` is the type of the `funIdx`'s function, instantiate the fixed paramters.
+If `type` is the type of the `funIdx`'s function, instantiate the fixed parameters.
 -/
 def FixedParamPerm.instantiateForall (perm: FixedParamPerm) (type₀ : Expr) (xs : Array Expr) : MetaM Expr := do
   assert! xs.size = perm.numFixed
@@ -350,7 +353,7 @@ where
           mkForallFVars ys (← go mask type)
 
 /--
-If `value` is the body of the `funIdx`'s function, instantiate the fixed paramters.
+If `value` is the body of the `funIdx`'s function, instantiate the fixed parameters.
 Expects enough manifest lambdas to instantiate all fixed parameters, but can handle
 eta-contracted definitions beyond that.
 -/
@@ -382,7 +385,7 @@ def FixedParamPerm.pickFixed (perm : FixedParamPerm) (xs : Array α) : Array α 
     pure #[]
   else
     let dummy := xs[0]
-    let ys := mkArray perm.numFixed dummy
+    let ys := .replicate perm.numFixed dummy
     go (perm.zip xs).toList ys
 where
   go | [], ys => return ys
@@ -398,15 +401,15 @@ Unlike `pickFixed`, this function can handle over- or under-application.
 -/
 def FixedParamPerm.pickVarying (perm : FixedParamPerm) (xs : Array α) : Array α := Id.run do
   let mut ys := #[]
-  for h : i in [:xs.size] do
+  for h : i in *...xs.size do
     if perm[i]?.join.isNone then ys := ys.push xs[i]
   pure ys
 
 /--
 Intersperses the fixed and varying parameters to be in the original parameter order.
-Can handle over- or und-application (extra or missing varying args), as long
+Can handle over- or under-application (extra or missing varying args), as long
 as there are all varying parameters that go before fixed parameters.
-(We expect to always find all fixed parameters, else they woudn't be fixed parameters.)
+(We expect to always find all fixed parameters, else they wouldn't be fixed parameters.)
 -/
 partial def FixedParamPerm.buildArgs (perm : FixedParamPerm) (fixedArgs varyingArgs : Array α) : Array α :=
   assert! fixedArgs.size = perm.numFixed
@@ -423,12 +426,12 @@ where
         if _ : j < varyingArgs.size then
           go (i + 1) (j + 1) (xs.push varyingArgs[j])
         else
-          if perm[i:].all Option.isNone then
+          if perm[i...*].all Option.isNone then
             xs -- Under-application
           else
             panic! "FixedParams.buildArgs: too few varying args"
     else
-      xs ++ varyingArgs[j:] -- (Possibly) over-application
+      xs ++ varyingArgs[j...*] -- (Possibly) over-application
 
 /--
 Are all fixed parameters a non-reordered prefix?
@@ -437,7 +440,7 @@ def FixedParamPerms.fixedArePrefix (fixedParamPerms : FixedParamPerms) : Bool :=
   fixedParamPerms.perms.all fun paramInfos =>
     paramInfos ==
       (Array.range fixedParamPerms.numFixed).map Option.some ++
-      mkArray (paramInfos.size - fixedParamPerms.numFixed) .none
+      .replicate (paramInfos.size - fixedParamPerms.numFixed) .none
 
 /--
 If `xs` are the fixed parameters that are in scope, and `toErase` are, for each function, the
@@ -453,8 +456,8 @@ def FixedParamPerms.erase  (fixedParamPerms : FixedParamPerms) (xs : Array Expr)
   assert! fixedParamPerms.numFixed  = xs.size
   assert! toErase.size = fixedParamPerms.perms.size
   -- Calculate a mask on the fixed parameters of variables to erase
-  let mut mask := mkArray fixedParamPerms.numFixed false
-  for funIdx in [:toErase.size], paramIdxs in toErase, mapping in fixedParamPerms.perms do
+  let mut mask := Array.replicate fixedParamPerms.numFixed false
+  for funIdx in *...toErase.size, paramIdxs in toErase, mapping in fixedParamPerms.perms do
     for paramIdx in paramIdxs do
       assert! paramIdx < mapping.size
       if let some fixedParamIdx := mapping[paramIdx]! then
@@ -463,8 +466,8 @@ def FixedParamPerms.erase  (fixedParamPerms : FixedParamPerms) (xs : Array Expr)
   let mut changed := true
   while changed do
     changed := false
-    for h : funIdx in [:fixedParamPerms.perms.size] do
-      for h : paramIdx₁ in [:fixedParamPerms.perms[funIdx].size] do
+    for h : funIdx in *...fixedParamPerms.perms.size do
+      for h : paramIdx₁ in *...fixedParamPerms.perms[funIdx].size do
         if let some fixedParamIdx₁ := fixedParamPerms.perms[funIdx][paramIdx₁] then
           if mask[fixedParamIdx₁]! then
             for paramIdx₂ in fixedParamPerms.revDeps[funIdx]![paramIdx₁]! do
@@ -476,7 +479,7 @@ def FixedParamPerms.erase  (fixedParamPerms : FixedParamPerms) (xs : Array Expr)
   let mut reindex := #[]
   let mut fvarsToErase :=#[]
   let mut toKeep :=#[]
-  for i in [:mask.size], erase in mask, x in xs do
+  for i in *...mask.size, erase in mask, x in xs do
     if erase then
       reindex := reindex.push none
       fvarsToErase := fvarsToErase.push x.fvarId!

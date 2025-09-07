@@ -39,7 +39,7 @@ example : Int8.toInt (-8) + 8 = 0 := by simp +ground only
 #check_simp x = - (-2) ~> x = 2
 #check_simp x = -0 ~> x = 0
 #check_simp x = - (-0) ~> x = 0
-#check_simp x = - (-128) ~> x = -128
+#check_simp x = - (-128) ~> x = 128
 #check_simp x = - (-127) ~> x = 127
 #check_simp x = 2 + 3 ~> x = 5
 #check_simp x = -3 + 2 ~> x = -1
@@ -82,7 +82,7 @@ example : Int16.toInt (-16) + 16 = 0 := by simp +ground only
 #check_simp x = - (-2) ~> x = 2
 #check_simp x = -0 ~> x = 0
 #check_simp x = - (-0) ~> x = 0
-#check_simp x = - (-32768) ~> x = -32768
+#check_simp x = - (-32768) ~> x = 32768
 #check_simp x = - (-32767) ~> x = 32767
 #check_simp x = 2 + 3 ~> x = 5
 #check_simp x = -3 + 2 ~> x = -1
@@ -120,7 +120,7 @@ example : Int32.toInt (-32) + 32 = 0 := by simp +ground only
 #check_simp x = - (-2) ~> x = 2
 #check_simp x = -0 ~> x = 0
 #check_simp x = - (-0) ~> x = 0
-#check_simp x = - (-2147483648) ~> x = -2147483648
+#check_simp x = - (-2147483648) ~> x = 2147483648
 #check_simp x = - (-2147483647) ~> x = 2147483647
 #check_simp x = 2 + 3 ~> x = 5
 #check_simp x = -3 + 2 ~> x = -1
@@ -158,7 +158,7 @@ example : Int64.toInt (-64) + 64 = 0 := by simp +ground only
 #check_simp x = - (-2) ~> x = 2
 #check_simp x = -0 ~> x = 0
 #check_simp x = - (-0) ~> x = 0
-#check_simp x = - (-9223372036854775808) ~> x = -9223372036854775808
+#check_simp x = - (-9223372036854775808) ~> x = 9223372036854775808
 #check_simp x = - (-9223372036854775807) ~> x = 9223372036854775807
 #check_simp x = 2 + 3 ~> x = 5
 #check_simp x = -3 + 2 ~> x = -1

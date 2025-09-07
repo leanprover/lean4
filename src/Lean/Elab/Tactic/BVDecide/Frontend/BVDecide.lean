@@ -3,14 +3,18 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.CNF
-import Std.Sat.AIG.RelabelNat
-import Std.Tactic.BVDecide.Bitblast
-import Std.Tactic.BVDecide.Syntax
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.SatAtBVLogical
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
-import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
+public import Std.Sat.AIG.CNF
+public import Std.Sat.AIG.RelabelNat
+public import Std.Tactic.BVDecide.Bitblast
+public import Std.Tactic.BVDecide.Syntax
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.SatAtBVLogical
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
+public import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
+
+public section
 
 /-!
 This module provides the implementation of the `bv_decide` frontend itself.
@@ -37,7 +41,7 @@ expression - pair values.
 def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Array (Bool × Nat))
     (aigSize : Nat) (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
     Array (Expr × BVExpr.PackedBitVec) := Id.run do
-  let mut sparseMap : Std.HashMap Nat (RBMap Nat Bool Ord.compare) := {}
+  let mut sparseMap : Std.HashMap Nat (Std.TreeMap Nat Bool) := {}
   let filter bvBit _ :=
     let (_, _, synthetic) := atomsAssignment[bvBit.var]!
     !synthetic
@@ -79,9 +83,22 @@ def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Ar
   return finalMap
 
 structure ReflectionResult where
+  /--
+  The reflected expression.
+  -/
   bvExpr : BVLogicalExpr
+  /--
+  Function to prove `False` given a satisfiability proof of `bvExpr`
+  -/
   proveFalse : Expr → M Expr
+  /--
+  Set of unused hypotheses for diagnostic purposes.
+  -/
   unusedHypotheses : Std.HashSet FVarId
+  /--
+  A cache for `toExpr bvExpr`.
+  -/
+  expr : Expr
 
 /--
 A counter example generated from the bitblaster.
@@ -212,11 +229,11 @@ where
           throwError m!"Value for Int64 was not 64 bit but {value.w} bit"
       | _ =>
         match var with
-        | .app (.const (.str p s) []) arg =>
+        | .app (.const (.str p s) levels) arg =>
           if s == Normalize.enumToBitVecSuffix then
             let .inductInfo inductiveInfo ← getConstInfo p | unreachable!
             let ctors := inductiveInfo.ctors
-            let enumVal := mkConst ctors[value.bv.toNat]!
+            let enumVal := mkConst ctors[value.bv.toNat]! levels
             return (arg, enumVal)
           else
             return (var, toExpr value.bv)
@@ -257,6 +274,54 @@ def explainCounterExampleQuality (counterExample : CounterExample) : MetaM Messa
   err := diagnosis.derivedEquations.foldl (init := err) folder
   return err
 
+/--
+Turn an `LratCert` into a proof that some `reflectedExpr` is UNSAT.
+-/
+def LratCert.toReflectionProof (cert : LratCert) (cfg : TacticContext)
+    (reflectionResult : ReflectionResult) : MetaM Expr := do
+  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling expr term") do
+    mkAuxDecl cfg.exprDef reflectionResult.expr (mkConst ``BVLogicalExpr)
+
+  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling proof certificate term") do
+    mkAuxDecl cfg.certDef (toExpr cert) (mkConst ``String)
+
+  let reflectedExpr := mkConst cfg.exprDef
+  let certExpr := mkConst cfg.certDef
+
+  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling reflection proof term") do
+    let auxValue := mkApp2 (mkConst ``verifyBVExpr) reflectedExpr certExpr
+    mkAuxDecl cfg.reflectionDef auxValue (mkConst ``Bool)
+
+  let auxType ← mkEq (mkConst cfg.reflectionDef) (toExpr true)
+  let auxProof :=
+    mkApp3
+      (mkConst ``Lean.ofReduceBool)
+      (mkConst cfg.reflectionDef)
+      (toExpr true)
+      (← mkEqRefl (toExpr true))
+  try
+    let auxLemma ←
+      -- disable async TC so we can catch its exceptions
+      withOptions (Elab.async.set · false) do
+        withTraceNode `Meta.Tactic.sat (fun _ => return "Verifying LRAT certificate") do
+          mkAuxLemma [] auxType auxProof
+    return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr (mkConst auxLemma)
+  catch e =>
+    throwError m!"Failed to check the LRAT certificate in the kernel:\n{e.toMessageData}"
+where
+  /--
+  Add an auxiliary declaration. Only used to create constants that appear in our reflection proof.
+  -/
+  mkAuxDecl (name : Name) (value type : Expr) : CoreM Unit :=
+    addAndCompile <| .defnDecl {
+      name := name,
+      levelParams := [],
+      type := type,
+      value := value,
+      hints := .abbrev,
+      safety := .safe
+    }
+
 def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : ReflectionResult)
     (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
     MetaM (Except CounterExample UnsatProver.Result) := do
@@ -287,13 +352,12 @@ def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : Ref
   match res with
   | .ok cert =>
     trace[Meta.Tactic.sat] "SAT solver found a proof."
-    let proof ← cert.toReflectionProof ctx bvExpr ``verifyBVExpr ``unsat_of_verifyBVExpr_eq_true
+    let proof ← cert.toReflectionProof ctx reflectionResult
     return .ok ⟨proof, cert⟩
   | .error assignment =>
     trace[Meta.Tactic.sat] "SAT solver found a counter example."
     let equations := reconstructCounterExample map assignment aigSize atomsAssignment
     return .error { goal, unusedHypotheses := reflectionResult.unusedHypotheses, equations }
-
 
 def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
   let hyps ← getPropHyps
@@ -305,20 +369,21 @@ def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
     else
       unusedHypotheses := unusedHypotheses.insert hyp
   if h : sats.size = 0 then
-    let mut error := "None of the hypotheses are in the supported BitVec fragment.\n"
-    error := error ++ "There are two potential fixes for this:\n"
+    let mut error := "None of the hypotheses are in the supported BitVec fragment after applying preprocessing.\n"
+    error := error ++ "There are three potential reasons for this:\n"
     error := error ++ "1. If you are using custom BitVec constructs simplify them to built-in ones.\n"
     error := error ++ "2. If your problem is using only built-in ones it might currently be out of reach.\n"
-    error := error ++ "   Consider expressing it in terms of different operations that are better supported."
+    error := error ++ "   Consider expressing it in terms of different operations that are better supported.\n"
+    error := error ++ "3. The original goal was reduced to False and is thus invalid."
     throwError error
   else
-    let sat := sats[1:].foldl (init := sats[0]) SatAtBVLogical.and
+    let sat := sats[1...*].foldl (init := sats[0]) SatAtBVLogical.and
     return {
-      bvExpr := sat.bvExpr,
+      bvExpr := ShareCommon.shareCommon sat.bvExpr,
       proveFalse := sat.proveFalse,
-      unusedHypotheses := unusedHypotheses
+      unusedHypotheses := unusedHypotheses,
+      expr := sat.expr
     }
-
 
 def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver) :
     MetaM (Except CounterExample LratCert) := M.run do

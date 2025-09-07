@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.List.Lemmas
-import Init.Data.List.Impl
-import Std.Sat.CNF.Literal
+public import Init.Data.List.Lemmas
+public import Init.Data.List.Impl
+public import Std.Sat.CNF.Literal
+
+@[expose] public section
 
 namespace Std
 namespace Sat
@@ -140,7 +144,7 @@ theorem not_exists_mem : (¬ ∃ v, Mem v f) ↔ ∃ n, f = List.replicate n [] 
     simp only [List.not_mem_nil, List.isEmpty_iff, false_implies, forall_const, true_iff]
     exact ⟨0, rfl⟩
   | cons c f ih =>
-    simp_all [ih, List.isEmpty_iff]
+    simp_all [List.isEmpty_iff]
     constructor
     · rintro ⟨rfl, n, rfl⟩
       exact ⟨n+1, rfl⟩

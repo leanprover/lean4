@@ -3,12 +3,17 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
-import Lean.Meta.Tactic.Cases
-import Lean.Meta.Tactic.Simp
-import Lean.Meta.Injective
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
+public import Lean.Meta.Tactic.Cases
+public import Lean.Meta.Tactic.Simp
+public import Lean.Meta.Injective
+
+public section
 
 /-!
 This module contains the implementation of the pre processing pass for automatically splitting up
@@ -45,11 +50,10 @@ def addStructureSimpLemmas (simprocs : Simprocs) (lemmas : SimpTheoremsArray) :
     let lemmaName := mkInjectiveEqTheoremNameFor ctorName
     if (← getEnv).find? lemmaName |>.isSome then
       trace[Meta.Tactic.bv] m!"Using injEq lemma: {lemmaName}"
-      let statement ← mkConstWithLevelParams lemmaName
-      lemmas ← lemmas.addTheorem (.decl lemmaName) statement
+      lemmas ← lemmas.addTheorem (.decl lemmaName) (mkConst lemmaName)
     let fields := (getStructureInfo env const).fieldNames.size
     let numParams := constInfo.numParams
-    for proj in [0:fields] do
+    for proj in *...fields do
       -- We use the simprocs with pre such that we push in projections eagerly in order to
       -- potentially not have to simplify complex structure expressions that we only project one
       -- element out of.
@@ -70,6 +74,7 @@ partial def structuresPass : Pass where
       else
         let some const := (← instantiateMVars decl.type).getAppFn.constName? | return false
         return interesting.contains const
+
     match goals with
     | [goal] => postprocess goal
     | _ => throwError "structures preprocessor generated more than 1 goal"
@@ -78,11 +83,15 @@ where
     goal.withContext do
       let mut simprocs : Simprocs := {}
       let mut relevantLemmas : SimpTheoremsArray := #[]
-      relevantLemmas ← relevantLemmas.addTheorem (.decl ``ne_eq) (← mkConstWithLevelParams ``ne_eq)
       (simprocs, relevantLemmas) ← addStructureSimpLemmas simprocs relevantLemmas
+      relevantLemmas ← addDefaultTypeAnalysisLemmas relevantLemmas
       let cfg ← PreProcessM.getConfig
       let simpCtx ← Simp.mkContext
-        (config := { failIfUnchanged := false, maxSteps := cfg.maxSteps })
+        (config := {
+          failIfUnchanged := false,
+          implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
+          maxSteps := cfg.maxSteps,
+        })
         (simpTheorems := relevantLemmas)
         (congrTheorems := ← getSimpCongrTheorems)
       let ⟨result?, _⟩ ←

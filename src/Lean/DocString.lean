@@ -3,10 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.DocString.Extension
-import Lean.Parser.Tactic.Doc
-import Lean.Parser.Term.Doc
+public import Lean.DocString.Extension
+public import Lean.DocString.Links
+public import Lean.Parser.Tactic.Doc
+public import Lean.Parser.Term.Doc
+
+public section
 
 set_option linter.missingDocs true
 
@@ -29,4 +34,5 @@ def findDocString? (env : Environment) (declName : Name) (includeBuiltin := true
   let declName := alternativeOfTactic env declName |>.getD declName
   let exts := getTacticExtensionString env declName
   let spellings := getRecommendedSpellingString env declName
-  return (← findSimpleDocString? env declName (includeBuiltin := includeBuiltin)).map (· ++ exts ++ spellings)
+  let str := (← findSimpleDocString? env declName (includeBuiltin := includeBuiltin)).map (· ++ exts ++ spellings)
+  str.mapM (rewriteManualLinks ·)

@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Elab.Tactic.BVDecide.Frontend.Attr
+public import Lean.Meta.Basic
+public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
+
+public section
 
 /-!
 This module contains the basic preprocessing pipeline framework for `bv_normalize`.
@@ -59,6 +63,11 @@ structure PreProcessState where
   -/
   rewriteCache : Std.HashSet FVarId := {}
   /--
+  Contains `FVarId` that we already know have been run through the AC normal form and thus don't
+  don't need to be processed again when we visit the next time.
+  -/
+  acNfCache : Std.HashSet FVarId := {}
+  /--
   Analysis results for the structure and enum pass if required.
   -/
   typeAnalysis : TypeAnalysis := {}
@@ -75,8 +84,16 @@ def checkRewritten (fvar : FVarId) : PreProcessM Bool := do
   return (← get).rewriteCache.contains fvar
 
 @[inline]
+def checkAcNf (fvar : FVarId) : PreProcessM Bool := do
+  return (← get).acNfCache.contains fvar
+
+@[inline]
 def rewriteFinished (fvar : FVarId) : PreProcessM Unit := do
   modify (fun s => { s with rewriteCache := s.rewriteCache.insert fvar })
+
+@[inline]
+def acNfFinished (fvar : FVarId) : PreProcessM Unit := do
+  modify (fun s => { s with acNfCache := s.acNfCache.insert fvar })
 
 @[inline]
 def getTypeAnalysis : PreProcessM TypeAnalysis := do
@@ -116,7 +133,10 @@ def markUninterestingConst (n : Name) : PreProcessM Unit := do
 @[inline]
 def run (cfg : BVDecideConfig) (goal : MVarId) (x : PreProcessM α) : MetaM α := do
   let hyps ← goal.withContext do getPropHyps
-  ReaderT.run x cfg |>.run' { rewriteCache := Std.HashSet.empty hyps.size }
+  ReaderT.run x cfg |>.run' {
+    rewriteCache := Std.HashSet.emptyWithCapacity hyps.size,
+    acNfCache := Std.HashSet.emptyWithCapacity hyps.size,
+  }
 
 end PreProcessM
 

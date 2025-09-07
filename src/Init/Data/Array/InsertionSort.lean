@@ -3,12 +3,22 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Array.Basic
+public import Init.Data.Array.Basic
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
+/--
+Sorts an array using insertion sort.
+
+The optional parameter `lt` specifies an ordering predicate. It defaults to `LT.lt`, which must be
+decidable to be used for sorting.
+-/
 @[inline] def Array.insertionSort (xs : Array α) (lt : α → α → Bool := by exact (· < ·)) : Array α :=
   traverse xs 0 xs.size
 where

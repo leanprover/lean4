@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.TreeSet.Basic
-import Std.Data.TreeSet.Raw.Basic
-import Std.Data.TreeMap.AdditionalOperations
+public import Std.Data.TreeSet.Basic
+public import Std.Data.TreeSet.Raw.Basic
+public import Std.Data.TreeMap.AdditionalOperations
+
+@[expose] public section
 
 /-!
 # Additional tree set operations
@@ -22,7 +26,7 @@ universe u v w
 
 variable {α : Type u} {β : Type v} {cmp : α → α → Ordering}
 
-namespace Std.TreeMap
+namespace Std.TreeSet
 
 /-!
 We do not provide `get*GE`, `get*GT`, `get*LE` and `get*LT` functions for the raw trees.
@@ -60,4 +64,4 @@ less than the given element.
 def getLT [TransCmp cmp] (t : TreeSet α cmp) (k : α) (h : ∃ a ∈ t, cmp a k = .lt) : α :=
   TreeMap.getKeyLT t.inner k h
 
-end Std.TreeMap
+end Std.TreeSet

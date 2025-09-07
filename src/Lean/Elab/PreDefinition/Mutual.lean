@@ -3,8 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Basic
+
+public section
 
 /-!
 This module contains code common to mutual-via-fixedpoint constructions, i.e.
@@ -27,7 +31,7 @@ where
         go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
 
 def addPreDefsFromUnary (preDefs : Array PreDefinition) (preDefsNonrec : Array PreDefinition)
-    (unaryPreDefNonRec : PreDefinition) : TermElabM Unit := do
+    (unaryPreDefNonRec : PreDefinition) (cacheProofs := true) : TermElabM Unit := do
   /-
   We must remove `implemented_by` attributes from the auxiliary application because
   this attribute is only relevant for code that is compiled. Moreover, the `[implemented_by <decl>]`
@@ -41,22 +45,21 @@ def addPreDefsFromUnary (preDefs : Array PreDefinition) (preDefsNonrec : Array P
   -- we recognize that below and then do not set @[irreducible]
   withOptions (allowUnsafeReducibility.set · true) do
     if unaryPreDefNonRec.declName = preDefs[0]!.declName then
-      addNonRec preDefNonRec (applyAttrAfterCompilation := false)
+      addNonRec preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
     else
       withEnableInfoTree false do
-        addNonRec preDefNonRec (applyAttrAfterCompilation := false)
-      preDefsNonrec.forM (addNonRec · (applyAttrAfterCompilation := false) (all := declNames))
+        addNonRec preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
+      preDefsNonrec.forM (addNonRec · (applyAttrAfterCompilation := false) (all := declNames) (cacheProofs := cacheProofs))
 
 /--
 Cleans the right-hand-sides of the predefinitions, to prepare for inclusion in the EqnInfos:
  * Remove RecAppSyntax markers
  * Abstracts nested proofs (and for that, add the `_unsafe_rec` definitions)
 -/
-def cleanPreDefs (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) := do
-  addAndCompilePartialRec preDefs
-  let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
-  let preDefs ← preDefs.mapM (abstractNestedProofs ·)
-  return preDefs
+def cleanPreDef (preDef : PreDefinition) (cacheProofs := true) : MetaM PreDefinition := do
+  let preDef ← eraseRecAppSyntax preDef
+  let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
+  return preDef
 
 /--
 Assign final attributes to the definitions. Assumes the EqnInfos to be already present.
@@ -64,8 +67,12 @@ Assign final attributes to the definitions. Assumes the EqnInfos to be already p
 def addPreDefAttributes (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
     markAsRecursive preDef.declName
+  for preDef in preDefs.reverse do
     -- must happen before `generateEagerEqns`
+    -- must happen in reverse order so that constants realized as part of the first decl
+    -- have realizations for the other ones enabled
     enableRealizationsForConst preDef.declName
+  for preDef in preDefs do
     generateEagerEqns preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
     -- Unless the user asks for something else, mark the definition as irreducible

@@ -8,8 +8,8 @@ You should not edit the `stage0` directory except using the commands described i
 
 ## Development Setup
 
-You can use any of the [supported editors](../setup.md) for editing the Lean source code.
-If you set up `elan` as below, opening `src/` as a *workspace folder* should ensure that stage 0 (i.e. the stage that first compiles `src/`) will be used for files in that directory.
+You can use any of the [supported editors](https://lean-lang.org/install/manual/) for editing the Lean source code.
+Please see below for specific instructions for VS Code.
 
 ### Dev setup using elan
 
@@ -68,6 +68,10 @@ code lean.code-workspace
 ```
 on the command line.
 
+You can use the `Refresh File Dependencies` command as in other projects to rebuild modules from inside VS Code but be aware that this does not trigger any non-Lake build targets.
+In particular, after updating `stage0/` (or fetching an update to it), you will want to invoke `make` directly to rebuild `stage0/bin/lean` as described in [building Lean](../make/index.md).
+You should then run the `Restart Server` command to update all open files and the server watchdog process as well.
+
 ### `ccache`
 
 Lean's build process uses [`ccache`](https://ccache.dev/) if it is
@@ -85,5 +89,13 @@ such that changing files in `Init` doesn't force a full rebuild of `Lean`.
 You can test a Lean PR against Mathlib and Batteries by rebasing your PR
 on to `nightly-with-mathlib` branch. (It is fine to force push after rebasing.)
 CI will generate a branch of Mathlib and Batteries called `lean-pr-testing-NNNN`
-that uses the toolchain for your PR, and will report back to the Lean PR with results from Mathlib CI.
+on the `leanprover-community/mathlib4-nightly-testing` fork of Mathlib.
+This branch uses the toolchain for your PR, and will report back to the Lean PR with results from Mathlib CI.
 See https://leanprover-community.github.io/contribute/tags_and_branches.html for more details.
+
+### Testing against the Lean Language Reference
+You can test a Lean PR against the reference manual by rebasing your PR
+on to `nightly-with-manual` branch. (It is fine to force push after rebasing.)
+CI will generate a branch of the reference manual called `lean-pr-testing-NNNN`
+in `leanprover/reference-manual`. This branch uses the toolchain for your PR,
+and will report back to the Lean PR with results from Mathlib CI.

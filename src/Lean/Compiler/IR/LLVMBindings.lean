@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Siddharth Bhat
 -/
+module
+
 prelude
-import Init.System.IO
+public import Init.System.IO
+
+public section
 
 namespace LLVM
 /-!
@@ -41,47 +45,49 @@ def AttributeIndex.AttributeFunctionIndex : AttributeIndex := { val := 184467440
 
 structure BasicBlock (ctx : Context)  where
   private mk :: ptr : USize
-instance : Nonempty (BasicBlock ctx) := ⟨{ ptr := default }⟩
+instance : Nonempty (BasicBlock ctx) := by exact ⟨{ ptr := default }⟩
 
 structure Builder (ctx : Context) where
   private mk :: ptr : USize
-instance : Nonempty (Builder ctx) := ⟨{ ptr := default }⟩
+instance : Nonempty (Builder ctx) := by exact ⟨{ ptr := default }⟩
 
 structure Context where
   private mk :: ptr : USize
-instance : Nonempty Context := ⟨{ ptr := default }⟩
+instance : Nonempty Context := by exact ⟨{ ptr := default }⟩
 
 structure LLVMType (ctx : Context) where
   private mk :: ptr : USize
-instance : Nonempty (LLVMType ctx) := ⟨{ ptr := default }⟩
+instance : Nonempty (LLVMType ctx) := by exact ⟨{ ptr := default }⟩
 
 structure MemoryBuffer (ctx : Context) where
   private mk :: ptr : USize
-instance : Nonempty (MemoryBuffer ctx) := ⟨{ ptr := default }⟩
+instance : Nonempty (MemoryBuffer ctx) := by exact ⟨{ ptr := default }⟩
 
 structure Module (ctx : Context) where
   private mk :: ptr : USize
-instance : Nonempty (Module ctx) := ⟨{ ptr := default }⟩
+instance : Nonempty (Module ctx) := by exact ⟨{ ptr := default }⟩
 
+/-
 structure PassManager (ctx : Context) where
   private mk :: ptr : USize
-instance : Nonempty (PassManager ctx) := ⟨{ ptr := default }⟩
+instance : Nonempty (PassManager ctx) := by exact ⟨{ ptr := default }⟩
 
 structure PassManagerBuilder (ctx : Context) where
   private mk :: ptr : USize
-instance : Nonempty (PassManagerBuilder ctx) := ⟨{ ptr := default }⟩
+instance : Nonempty (PassManagerBuilder ctx) := by exact ⟨{ ptr := default }⟩
+-/
 
 structure Target (ctx : Context) where
   private mk :: ptr : USize
-instance : Nonempty (Target ctx) := ⟨{ ptr := default }⟩
+instance : Nonempty (Target ctx) := by exact ⟨{ ptr := default }⟩
 
 structure TargetMachine (ctx : Context) where
   private mk :: ptr : USize
-instance : Nonempty (TargetMachine ctx) := ⟨{ ptr := default }⟩
+instance : Nonempty (TargetMachine ctx) := by exact ⟨{ ptr := default }⟩
 
 structure Value (ctx : Context) where
   private mk :: ptr : USize
-instance : Nonempty (Value ctx) := ⟨{ ptr := default }⟩
+instance : Nonempty (Value ctx) := by exact ⟨{ ptr := default }⟩
 
 /-- Check if the value is a null pointer. --/
 def Value.isNull (v : Value ctx) : Bool := v.ptr == 0
@@ -91,7 +97,7 @@ opaque Value.getName {ctx : Context} (value : Value ctx) : BaseIO String
 
 structure Attribute (ctx : Context) where
   private mk :: ptr : USize
-instance : Nonempty (Attribute ctx) := ⟨{ ptr := default }⟩
+instance : Nonempty (Attribute ctx) := by exact ⟨{ ptr := default }⟩
 
 @[extern "lean_llvm_initialize_target_info"]
 opaque llvmInitializeTargetInfo : BaseIO (Unit)
@@ -313,6 +319,7 @@ opaque createTargetMachine (target : Target ctx) (tripleStr : @&String) (cpu : @
 @[extern "lean_llvm_target_machine_emit_to_file"]
 opaque targetMachineEmitToFile (targetMachine : TargetMachine ctx) (module : Module ctx) (filepath : @&String) (codegenType : LLVM.CodegenFileType) : BaseIO Unit
 
+/-
 @[extern "lean_llvm_create_pass_manager"]
 opaque createPassManager : BaseIO (PassManager ctx)
 
@@ -333,6 +340,7 @@ opaque PassManagerBuilder.setOptLevel (pmb : PassManagerBuilder ctx) (optLevel :
 
 @[extern "lean_llvm_pass_manager_builder_populate_module_pass_manager"]
 opaque PassManagerBuilder.populateModulePassManager (pmb : PassManagerBuilder ctx) (pm : PassManager ctx): BaseIO Unit
+-/
 
 @[extern "lean_llvm_dispose_target_machine"]
 opaque disposeTargetMachine (tm : TargetMachine ctx) : BaseIO Unit

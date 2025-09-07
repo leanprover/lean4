@@ -3,10 +3,16 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Command
-import Lean.KeyedDeclsAttribute
-import Lean.Elab.Exception
+import Lean.Parser.Extension
+meta import Lean.Parser.Command
+public import Lean.KeyedDeclsAttribute
+public import Lean.Elab.Exception
+import Lean.BuiltinDocAttr
+
+public section
 
 namespace Lean
 
@@ -19,17 +25,17 @@ def MacroScopesView.format (view : MacroScopesView) (mainModule : Name) : Format
   Std.format <|
     if view.scopes.isEmpty then
       view.name
-    else if view.mainModule == mainModule then
+    else if view.ctx == mainModule then
       view.scopes.foldl Name.mkNum (view.name ++ view.imported)
     else
-      view.scopes.foldl Name.mkNum (view.name ++ view.imported ++ view.mainModule)
+      view.scopes.foldl Name.mkNum (view.name ++ view.imported ++ view.ctx)
 
 /--
 Two names are from the same lexical scope if their scoping information modulo `MacroScopesView.name`
 is equal.
 -/
 def MacroScopesView.equalScope (a b : MacroScopesView) : Bool :=
-  a.scopes == b.scopes && a.mainModule == b.mainModule && a.imported == b.imported
+  a.scopes == b.scopes && a.ctx == b.ctx && a.imported == b.imported
 
 namespace Elab
 
@@ -73,8 +79,13 @@ def addMacroStack {m} [Monad m] [MonadOptions m] (msgData : MessageData) (macroS
       msgData
 
 def checkSyntaxNodeKind [Monad m] [MonadEnv m] [MonadError m] (k : Name) : m Name := do
-  if Parser.isValidSyntaxNodeKind (← getEnv) k then pure k
-  else throwError "failed"
+  if Parser.isValidSyntaxNodeKind (← getEnv) k then
+    return k
+  if !(← getEnv).isExporting && !isPrivateName k then
+    let k := mkPrivateName (← getEnv) k
+    if Parser.isValidSyntaxNodeKind (← getEnv) k then
+      return k
+  throwError "failed"
 
 def checkSyntaxNodeKindAtNamespaces [Monad m] [MonadEnv m] [MonadError m] (k : Name) : Name → m Name
   | n@(.str p _) => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespaces k p
@@ -91,7 +102,7 @@ def syntaxNodeKindOfAttrParam (defaultParserNamespace : Name) (stx : Syntax) : A
   <|>
   checkSyntaxNodeKind (defaultParserNamespace ++ k)
   <|>
-  throwError "invalid syntax node kind '{k}'"
+  throwError "invalid syntax node kind `{k}`"
 
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
   env.evalConstCheck Syntax opts `Lean.Syntax constName
@@ -123,6 +134,17 @@ unsafe def mkMacroAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute Macro) 
 @[implemented_by mkMacroAttributeUnsafe]
 opaque mkMacroAttribute (ref : Name) : IO (KeyedDeclsAttribute Macro)
 
+/--
+Registers a macro expander for a given syntax node kind.
+
+A macro expander should have type `Lean.Macro` (which is `Lean.Syntax → Lean.MacroM Lean.Syntax`),
+i.e. should take syntax of the given syntax node kind as a parameter and produce different syntax
+in the same syntax category.
+
+The `macro_rules` and `macro` commands should usually be preferred over using this attribute
+directly.
+-/
+@[builtin_doc]
 builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribute decl_name%
 
 /--
@@ -139,14 +161,12 @@ def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Ex
       | ex                                => return (e.declName, Except.error ex)
   return none
 
-class MonadMacroAdapter (m : Type → Type) where
-  getCurrMacroScope                  : m MacroScope
+class MonadMacroAdapter (m : Type → Type) extends MonadQuotation m where
   getNextMacroScope                  : m MacroScope
   setNextMacroScope                  : MacroScope → m Unit
 
 @[always_inline]
-instance (m n) [MonadLift m n] [MonadMacroAdapter m] : MonadMacroAdapter n := {
-  getCurrMacroScope := liftM (MonadMacroAdapter.getCurrMacroScope : m _)
+instance (m n) [MonadLift m n] [MonadQuotation n] [MonadMacroAdapter m] : MonadMacroAdapter n := {
   getNextMacroScope := liftM (MonadMacroAdapter.getNextMacroScope : m _)
   setNextMacroScope := fun s => liftM (MonadMacroAdapter.setNextMacroScope s : m _)
 }
@@ -168,8 +188,8 @@ def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [M
   }
   match x { methods        := methods
             ref            := ← getRef
-            currMacroScope := ← MonadMacroAdapter.getCurrMacroScope
-            mainModule     := env.mainModule
+            currMacroScope := ← MonadQuotation.getCurrMacroScope
+            quotContext    := ← MonadQuotation.getContext
             currRecDepth   := ← MonadRecDepth.getRecDepth
             maxRecDepth    := ← MonadRecDepth.getMaxRecDepth
           } { macroScope := (← MonadMacroAdapter.getNextMacroScope) } with

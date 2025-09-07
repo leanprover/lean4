@@ -3,16 +3,45 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Omega
-import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Simproc
+public import Init.Omega
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Nat.Simproc
+
+public section
 
 /-!
 # Further lemmas about `Nat.div` and `Nat.mod`, with the convenience of having `omega` available.
 -/
 
 namespace Nat
+
+theorem mod_add_mod_lt (a b : Nat) {c : Nat} (h : 0 < c) : a % c + b % c < 2 * c - 1 := by
+  have := mod_lt a h
+  have := mod_lt b h
+  omega
+
+theorem mod_add_mod_eq {a b c : Nat} : a % c + b % c = (a + b) % c + if a % c + b % c < c then 0 else c := by
+  if h : 0 < c then
+    rw [add_mod]
+    split <;> rename_i h'
+    · simp [mod_eq_of_lt h']
+    · have : (a % c + b % c) % c = a % c + b % c - c := by
+        rw [mod_eq_iff]
+        right
+        have := mod_lt a h
+        have := mod_lt b h
+        exact ⟨by omega, ⟨1, by simp; omega⟩⟩
+      omega
+  else
+    replace h : c = 0 := by omega
+    simp [h]
+
+theorem add_mod_eq_sub : (a + b) % c = a % c + b % c - if a % c + b % c < c then 0 else c := by
+  conv => rhs; congr; rw [mod_add_mod_eq]
+  omega
 
 theorem lt_div_iff_mul_lt (h : 0 < k) : x < y / k ↔ x * k < y - (k - 1) := by
   have t := le_div_iff_mul_le h (x := x + 1) (y := y)
@@ -53,11 +82,15 @@ theorem lt_div_mul_self (h : 0 < k) (w : k ≤ x) : x - k < x / k * k := by
 theorem div_pos (hba : b ≤ a) (hb : 0 < b) : 0 < a / b := by
   cases b
   · contradiction
-  · simp [Nat.pos_iff_ne_zero, div_eq_zero_iff_lt, hba]
+  · simp [Nat.pos_iff_ne_zero, hba]
 
 theorem div_le_div_left (hcb : c ≤ b) (hc : 0 < c) : a / b ≤ a / c :=
   (Nat.le_div_iff_mul_le hc).2 <|
     Nat.le_trans (Nat.mul_le_mul_left _ hcb) (Nat.div_mul_le_self a b)
+
+protected theorem div_le_div {a b c d : Nat} (h1 : a ≤ b) (h2 : d ≤ c) (h3 : d ≠ 0) : a / c ≤ b / d :=
+  calc a / c ≤ b / c := Nat.div_le_div_right h1
+    _ ≤ b / d := Nat.div_le_div_left h2 (Nat.pos_of_ne_zero h3)
 
 theorem div_add_le_right {z : Nat} (h : 0 < z) (x y : Nat) :
     x / (y + z) ≤ x / z :=
@@ -79,7 +112,7 @@ theorem succ_div_of_dvd {a b : Nat} (h : b ∣ a + 1) :
           Nat.add_right_cancel_iff] at h
         subst h
         rw [Nat.add_sub_cancel, ← Nat.add_one_mul, mul_div_right _ (zero_lt_succ _), Nat.add_comm,
-          Nat.add_mul_div_left _ _ (zero_lt_succ _), Nat.self_eq_add_left, div_eq_of_lt le.refl]
+          Nat.add_mul_div_left _ _ (zero_lt_succ _), Nat.right_eq_add, div_eq_of_lt le.refl]
     · simp only [Nat.not_le] at h'
       replace h' : a + 1 < b + 1 := Nat.add_lt_add_right h' 1
       rw [Nat.mod_eq_of_lt h'] at h
@@ -127,5 +160,71 @@ protected theorem add_div {a b c : Nat} (h : 0 < c) :
   · have := mod_lt a h
     have := mod_lt b h
     split <;> · simp; omega
+
+/-- If `(a + b) % c = c - 1`, then `a % c + b % c < c`, because `a % c + b % c` can not reach `2*c - 1`. -/
+theorem mod_add_mod_lt_of_add_mod_eq_sub_one (w : 0 < c) (h : (a + b) % c = c - 1) : a % c + b % c < c := by
+  have := mod_add_mod_lt a b w
+  rw [mod_add_mod_eq, h] at this
+  split at this
+  · assumption
+  · omega
+
+theorem add_div_of_dvd_add_add_one (h : c ∣ a + b + 1) : (a + b) / c = a / c + b / c := by
+  have w : c ≠ 0 := by rintro rfl; simp at h
+  replace w : 0 < c := by omega
+  rw [Nat.add_div w, if_neg, Nat.add_zero]
+  have := mod_add_mod_lt_of_add_mod_eq_sub_one w ((mod_eq_sub_iff Nat.zero_lt_one w).mpr h)
+  omega
+
+theorem div_lt_of_lt {a b c : Nat} (ha : a < c) : a / b < c := by
+  obtain (rfl|hb) := Nat.eq_zero_or_pos b
+  · simp
+    omega
+  · rw [Nat.div_lt_iff_lt_mul hb, ← Nat.mul_one a]
+    apply Nat.mul_lt_mul_of_lt_of_le ha (by omega) (by omega)
+
+theorem div_mod_eq_div {a b c : Nat} (ha : a < c) : (a / b) % c = a / b :=
+  Nat.mod_eq_of_lt (Nat.div_lt_of_lt ha)
+
+theorem div_mod_eq_mod_div_mod {a b c : Nat} (ha : a < c) (hb : b < c) :
+    (a / b) % c = a % c / (b % c) := by
+  rw [Nat.mod_eq_of_lt (Nat.div_lt_of_lt ha), Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb]
+
+theorem mod_mod_eq_mod_of_lt_right {a b c : Nat} (ha : a < c) : (a % b) % c = a % b :=
+  Nat.mod_eq_of_lt (Nat.lt_of_le_of_lt (Nat.mod_le _ _) ha)
+
+theorem mod_mod_eq_mod_mod_mod {a b c : Nat} (ha : a < c) (hb : b < c) :
+    (a % b) % c = (a % c) % (b % c) := by
+  rw [Nat.mod_mod_eq_mod_of_lt_right ha, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb]
+
+theorem mod_mod_eq_mod_mod_of_dvd {a b c : Nat} (h : b ∣ c) : a % b % c = a % c % b := by
+  refine Or.elim (Nat.eq_zero_or_pos b) (by rintro rfl; simp) (fun hb => ?_)
+  refine Or.elim (Nat.eq_zero_or_pos c) (by rintro rfl; simp) (fun hc => ?_)
+  rw [Nat.mod_mod_of_dvd _ h, Nat.mod_eq_of_lt (Nat.lt_of_lt_of_le (Nat.mod_lt a hb) (Nat.le_of_dvd hc h))]
+
+theorem mod_mod_of_dvd' {a b c : Nat} (h : b ∣ c) : a % b % c = a % b := by
+  rw [Nat.mod_mod_eq_mod_mod_of_dvd h, Nat.mod_mod_of_dvd _ h]
+
+theorem mod_mod_eq_mod_mod_mod_of_dvd {a b c : Nat} (hb : b ∣ c) :
+    (a % b) % c = (a % c) % (b % c) := by
+  refine (Decidable.em (b = c)).elim (by rintro rfl; simp) (fun hb' => ?_)
+  refine Or.elim (Nat.eq_zero_or_pos c) (by rintro rfl; simp) (fun hc => ?_)
+  have : b < c := Nat.lt_of_le_of_ne (Nat.le_of_dvd hc hb) hb'
+  rw [Nat.mod_mod_of_dvd' hb, Nat.mod_eq_of_lt this, Nat.mod_mod_of_dvd _ hb]
+
+theorem mod_eq_mod_iff {x y z : Nat} :
+    x % z = y % z ↔ ∃ k₁ k₂, x + k₁ * z = y + k₂ * z := by
+  constructor
+  · rw [Nat.mod_def, Nat.mod_def]
+    rw [Nat.sub_eq_iff_eq_add, Nat.add_comm, ← Nat.add_sub_assoc, eq_comm, Nat.sub_eq_iff_eq_add, eq_comm]
+    · intro h
+      refine ⟨(y / z), (x / z), ?_⟩
+      rwa [Nat.mul_comm z, Nat.add_comm _ y, Nat.mul_comm z] at h
+    · exact le_add_left_of_le (mul_div_le y z)
+    · exact mul_div_le y z
+    · exact mul_div_le x z
+  · rintro ⟨k₁, k₂, h⟩
+    replace h := congrArg (· % z) h
+    simpa using h
 
 end Nat

@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.FunIndInfo
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.FunIndInfo
+
+public section
 
 /-!
 Support for collecting function calls that could be used for `fun_induction` or `fun_cases`.
@@ -34,9 +38,8 @@ instance : EmptyCollection SeenCalls where
 def SeenCalls.isEmpty  (sc : SeenCalls) : Bool :=
   sc.calls.isEmpty
 
-def SeenCalls.push (e : Expr) (declName : Name) (args : Array Expr) (calls : SeenCalls) :
+def SeenCalls.push (e : Expr) (funIndInfo : FunIndInfo) (args : Array Expr) (calls : SeenCalls) :
     MetaM SeenCalls := do
-  let some funIndInfo ← getFunIndInfo? (cases := false) declName | return calls
   if funIndInfo.params.size != args.size then return calls
   let mut keys := #[]
   for arg in args, kind in funIndInfo.params do
@@ -44,7 +47,7 @@ def SeenCalls.push (e : Expr) (declName : Name) (args : Array Expr) (calls : See
       if !arg.isFVar then return calls
     unless kind matches .dropped do
       keys := keys.push arg
-  let key := (declName, keys)
+  let key := (funIndInfo.funName, keys)
   if calls.seen.contains key then return calls
   return { calls := calls.calls.push e, seen := calls.seen.insert key }
 
@@ -65,13 +68,13 @@ def SeenCalls.uniques (calls : SeenCalls) : NameSet := Id.run do
 
 namespace Collector
 
-abbrev M := ReaderT Name <| StateRefT SeenCalls MetaM
+abbrev M := ReaderT FunIndInfo <| StateRefT SeenCalls MetaM
 
-def saveFunInd (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
-  set (← (← get).push e declName args)
+def saveFunInd (e : Expr) (funIndInfo : FunIndInfo) (args : Array Expr) : M Unit := do
+  set (← (← get).push e funIndInfo args)
 
-def visitApp (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
-  saveFunInd e declName args
+def visitApp (e : Expr) (funIndInfo : FunIndInfo) (args : Array Expr) : M Unit := do
+  saveFunInd e funIndInfo args
 
 unsafe abbrev Cache := PtrSet Expr
 
@@ -86,16 +89,16 @@ unsafe def visit (e : Expr) : StateRefT Cache M Unit := do
       | .letE _ t v b _   => visit t; visit v; visit b
       | .app ..           => e.withApp fun f args => do
         if let .const declName _ := f then
-          if declName = (← read) then
+          if declName = (← read).funName then
             unless e.hasLooseBVars do -- TODO: We can allow them in `.dropped` arguments
-              visitApp e declName args
+              visitApp e (← read) args
         else
           visit f
         args.forM visit
       | .proj _ _ b       => visit b
       | _                 => return ()
 
-unsafe def main (needle : Name) (mvarId : MVarId) : MetaM (Array Expr) := mvarId.withContext do
+unsafe def main (needle : FunIndInfo) (mvarId : MVarId) : MetaM (Array Expr) := mvarId.withContext do
   let (_, s) ← go |>.run mkPtrSet |>.run needle |>.run {}
   return s.calls
 where
@@ -103,14 +106,14 @@ where
     for localDecl in (← getLCtx) do
       unless localDecl.isAuxDecl do
         if let some val := localDecl.value? then
-          visit val
+          visit (← instantiateMVars val)
         else
-          visit localDecl.type
-    visit (← mvarId.getType)
+          visit (← instantiateMVars localDecl.type)
+    visit (← instantiateMVars (← mvarId.getType))
 
 end Collector
 
-def collect (needle : Name) (mvarId : MVarId) : MetaM (Array Expr) := do
+def collect (needle : FunIndInfo) (mvarId : MVarId) : MetaM (Array Expr) := do
   unsafe Collector.main needle mvarId
 
 end Lean.Meta.FunInd

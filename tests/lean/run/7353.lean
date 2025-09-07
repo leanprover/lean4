@@ -11,9 +11,10 @@ set_option pp.explicit true
 
 /--
 info: def foo : Foo :=
-Foo.mk (fun x => @Function.const Type (@Eq Unit Unit.unit Unit.unit) Nat foo.proof_1)
-  (@id ((fun x => @Function.const Type (@Eq Unit Unit.unit Unit.unit) Nat foo.proof_1) Unit.unit)
-    (@OfNat.ofNat Nat 0 (instOfNatNat 0)))
+{ obj := fun x => @Function.const Type (@Eq Unit Unit.unit Unit.unit) Nat foo._proof_1,
+  map :=
+    @id (@Function.const Type (@Eq Unit Unit.unit Unit.unit) Nat foo._proof_1)
+      (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0))) }
 -/
 #guard_msgs in
 #print foo

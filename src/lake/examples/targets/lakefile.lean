@@ -10,6 +10,7 @@ lean_lib Foo where
 
 lean_lib Bar where
   defaultFacets := #[LeanLib.sharedFacet]
+  libPrefixOnWindows := true
 
 lean_lib Baz where
   extraDepTargets := #[`caw]

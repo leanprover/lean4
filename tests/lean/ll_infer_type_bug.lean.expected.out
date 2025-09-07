@@ -1,6 +1,0 @@
-unsafe def f._cstage2 : _obj → UInt8 :=
-fun x =>
-  List.casesOn fun head tail =>
-    let _x_1 := Nat.decLt 0 head;
-    Bool.casesOn false (f tail)
-ll_infer_type_bug.lean:8:0-8:5: warning: using 'exit' to interrupt Lean

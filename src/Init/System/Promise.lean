@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
-import Init.System.IO
+public import Init.System.IO
+
+public section
 
 set_option linter.missingDocs true
 
@@ -32,7 +36,7 @@ See `Promise.result!/resultD` for other ways to handle this case.
 def Promise (α : Type) : Type := PromiseImpl α
 
 instance [s : Nonempty α] : Nonempty (Promise α) :=
-  Nonempty.intro { prom := Classical.choice PromisePointed.property, h := s }
+  by exact Nonempty.intro { prom := Classical.choice PromisePointed.property, h := s }
 
 /-- Creates a new `Promise`. -/
 @[extern "lean_io_promise_new"]
@@ -60,8 +64,10 @@ private opaque Option.getOrBlock! [Nonempty α] : Option α → α
 The result task of a `Promise`.
 
 The task blocks until `Promise.resolve` is called. If the promise is dropped without ever being
-resolved, evaluating the task will panic and, when not using fatal panics, block forever. Use
-`Promise.result?` to handle this case explicitly.
+resolved, evaluating the task will panic and, when not using fatal panics, block forever. As
+`Promise.result!` is a pure value and thus the point of evaluation may not be known precisely, this
+means that any promise on which `Promise.result!` *may* be evaluated *must* be resolved eventually.
+When in doubt, always prefer `Promise.result?` to handle dropped promises explicitly.
 -/
 def Promise.result! (promise : @& Promise α) : Task α :=
   let _ : Nonempty α := promise.h
@@ -73,7 +79,7 @@ def Promise.result := @Promise.result!
 /--
 Like `Promise.result`, but resolves to `dflt` if the promise is dropped without ever being resolved.
 -/
-@[macro_inline] def Promise.resultD (promise : Promise α) (dflt : α) : Task α :=
+@[macro_inline, expose] def Promise.resultD (promise : Promise α) (dflt : α) : Task α :=
   promise.result?.map (sync := true) (·.getD dflt)
 
 /--

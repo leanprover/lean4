@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.CachedGatesLemmas
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Sat.AIG.CachedGatesLemmas
+public import Std.Sat.AIG.LawfulVecOperator
+
+@[expose] public section
 
 /-!
 Besides introducing a way to construct an if statement in an `AIG`, this module also demonstrates
@@ -96,7 +100,7 @@ theorem denote_mkIfCached {aig : AIG α} {input : TernaryInput aig} :
   rw [if_as_bool]
   unfold mkIfCached
   dsimp only
-  simp only [TernaryInput.cast, Ref.cast_eq, id_eq, Int.reduceNeg, denote_mkOrCached,
+  simp only [TernaryInput.cast, Ref.cast_eq, denote_mkOrCached,
     denote_projected_entry, denote_mkAndCached, denote_mkNotCached]
   congr 2
   · rw [LawfulOperator.denote_mem_prefix]
@@ -116,7 +120,7 @@ structure IfInput (aig : AIG α) (w : Nat) where
 
 def ite (aig : AIG α) (input : IfInput aig w) : RefVecEntry α w :=
   let ⟨discr, lhs, rhs⟩ := input
-  go aig 0 (by omega) discr lhs rhs .empty
+  go aig 0 (by omega) discr lhs rhs (.emptyWithCapacity w)
 where
   go {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
       (lhs rhs : RefVec aig w) (s : RefVec aig curr) : RefVecEntry α w :=
@@ -202,7 +206,7 @@ theorem go_get_aux {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (d
       · assumption
     · apply go_le_size
   · rw [← hgo]
-    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl, get]
     have : curr = w := by omega
     subst this
     simp
@@ -221,12 +225,12 @@ theorem go_denote_mem_prefix {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr
     (discr : Ref aig) (lhs rhs : RefVec aig w) (s : RefVec aig curr) (start : Nat) (hstart) :
     ⟦
       (go aig curr hcurr discr lhs rhs s).aig,
-      ⟨start, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
       assign
     ⟧
       =
-    ⟦aig, ⟨start, hstart⟩, assign⟧ := by
-  apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
     apply go_decl_eq

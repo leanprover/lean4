@@ -3,11 +3,19 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Load
-import Lake.Build
+public import Lake.Load.Config
+public import Lake.Build.Context
+public import Lake.Util.MainM
+import Lake.Build.Run
+import Lake.Build.Module
+import Lake.Load.Package
+import Lake.Load.Lean.Elab
+import Lake.Load.Workspace
 import Lake.Util.MainM
-import Lean.Util.FileSetupInfo
+import Lake.Util.IO
 
 open Lean
 open System (FilePath)
@@ -15,89 +23,59 @@ open System (FilePath)
 namespace Lake
 
 /-- Exit code to return if `setup-file` cannot find the config file. -/
-def noConfigFileCode : ExitCode := 2
+public def noConfigFileCode : ExitCode := 2
 
 /--
 Environment variable that is set when `lake serve` cannot parse the Lake configuration file
 and falls back to plain `lean --server`.
 -/
-def invalidConfigEnvVar := "LAKE_INVALID_CONFIG"
+public def invalidConfigEnvVar := "LAKE_INVALID_CONFIG"
 
 /--
-Build a list of imports of a file and print the `.olean` and source directories
-of every used package, as well as the server options for the file.
-If no configuration file exists, exit silently with `noConfigFileCode` (i.e, 2).
+Build the dependencies of a Lean file and print the computed module's setup as JSON.
+If `header?` is not not `none`, it will be used to determine imports instead of the
+file's own header.
 
-The `setup-file` command is used internally by the Lean 4 server.
+Requires a configuration file to succeed. If no configuration file exists, it
+will exit silently with `noConfigFileCode` (i.e, 2).
+
+The `setup-file` command is used internally by the Lean server.
 -/
-def setupFile
-  (loadConfig : LoadConfig) (path : FilePath) (imports : List String := [])
-  (buildConfig : BuildConfig := {})
+public def setupFile
+  (loadConfig : LoadConfig) (leanFile : FilePath)
+  (header? : Option ModuleHeader := none) (buildConfig : BuildConfig := {})
 : MainM PUnit := do
+  let path ← resolvePath leanFile
   let configFile ← realConfigFile loadConfig.configFile
-  let isConfig := EIO.catchExceptions (h := fun _ => pure false) do
-    let path ← IO.FS.realPath path
-    return configFile.normalize == path.normalize
   if configFile.toString.isEmpty then
     exit noConfigFileCode
-  else if (← isConfig) then
-    IO.println <| Json.compress <| toJson {
-      paths := {
-        oleanPath := loadConfig.lakeEnv.leanPath
-        srcPath := loadConfig.lakeEnv.leanSrcPath
-        loadDynlibPaths := #[]
-        pluginPaths := #[loadConfig.lakeEnv.lake.sharedLib]
-      }
-      setupOptions := ⟨∅⟩
-      : FileSetupInfo
+  else if configFile == path then do
+    let setup : ModuleSetup := {
+      name := configModuleName
+      plugins :=  #[loadConfig.lakeEnv.lake.sharedLib]
     }
+    IO.println (toJson setup).compress
+  else if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
+    IO.eprint errLog
+    IO.eprintln s!"Failed to configure the Lake workspace. Please restart the server after fixing the error above."
+    exit 1
   else
-    if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
-      IO.eprint errLog
-      IO.eprintln s!"Failed to configure the Lake workspace. Please restart the server after fixing the error above."
-      exit 1
-    let outLv := buildConfig.verbosity.minLogLv
-    let ws ← MainM.runLoggerIO (minLv := outLv) (ansiMode := .noAnsi) do
-      loadWorkspace loadConfig
-    -- Imperfect heuristic for determine when the Lake plugin is needed.
-    let usesLake := imports.any (·.startsWith "Lake")
-    let imports := imports.foldl (init := #[]) fun imps imp =>
-      if let some mod := ws.findModule? imp.toName then imps.push mod else imps
-    let {dynlibs, plugins} ←
-      MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
-        ws.runBuild (buildImportsAndDeps path imports) buildConfig
-    let plugins :=
-      if usesLake then plugins.push ws.lakeEnv.lake.sharedLib else plugins
-    let paths : LeanPaths := {
-      oleanPath := ws.leanPath
-      srcPath := ws.leanSrcPath
-      loadDynlibPaths := dynlibs
-      pluginPaths := plugins
-    }
-    let setupOptions : LeanOptions ← do
-      let some moduleName ← searchModuleNameOfFileName path ws.leanSrcPath
-        | pure ⟨∅⟩
-      let some module := ws.findModule? moduleName
-        | pure ⟨∅⟩
-      let options := module.serverOptions.map fun opt => ⟨opt.name, opt.value⟩
-      pure ⟨Lean.RBMap.fromArray options Lean.Name.cmp⟩
-    IO.println <| Json.compress <| toJson {
-      paths,
-      setupOptions
-      : FileSetupInfo
-    }
+    let some ws ← loadWorkspace loadConfig |>.toBaseIO buildConfig.outLv buildConfig.ansiMode
+      | error "failed to load workspace"
+    let setup ← ws.runBuild (cfg := buildConfig) do
+      setupServerModule leanFile.toString path header?
+    IO.println (toJson setup).compress
 
 /--
 Start the Lean LSP for the `Workspace` loaded from `config`
 with the given additional `args`.
 -/
-def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
+public def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
   let (extraEnv, moreServerArgs) ← do
     let (ws?, log) ← (loadWorkspace config).captureLog
     log.replay (logger := MonadLog.stderr)
     if let some ws := ws? then
-      let ctx := mkLakeContext ws
-      pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreGlobalServerArgs)
+      pure (ws.augmentedEnvVars, ws.root.moreGlobalServerArgs)
     else
       IO.eprintln "warning: package configuration has errors, falling back to plain `lean --server`"
       pure (config.lakeEnv.baseVars.push (invalidConfigEnvVar, log.toString), #[])

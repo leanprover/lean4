@@ -4,7 +4,7 @@ LAKE ?= ./.lake/build/bin/lake
 # Suite Targets
 #-------------------------------------------------------------------------------
 
-TESTS := $(addprefix tests/, $(shell ls tests))
+TESTS := $(addprefix tests/, $(filter-out common.sh, $(shell ls tests)))
 EXAMPLES := $(addprefix examples/, $(filter-out bootstrap, $(shell ls examples)))
 
 default: build
@@ -19,7 +19,7 @@ test-tests: $(addsuffix .test, $(TESTS))
 
 test-examples: $(addsuffix .test, $(EXAMPLES))
 
-test-bootstrapped: test-boostrapped-hello
+test-bootstrapped: test-bootstrapped-hello
 
 clean: clean-tests clean-examples clean-bootstrap
 
@@ -32,7 +32,7 @@ clean-examples:  $(addsuffix .clean, $(EXAMPLES))
 .PHONY:
 	all test test-ci test-tests test-examples test-bootstrap\
 	clean clean-all clean-tests clean-examples clean-build clean-bootstrap\
-	time-bootstrap check-bootstrap test-bootstrapped test-boostrapped-hello\
+	time-bootstrap check-bootstrap test-bootstrapped test-bootstrapped-hello\
 	$(addsuffix .clean, $(TESTS) $(EXAMPLES)) $(addsuffix .test, $(TESTS) $(EXAMPLES))
 
 #-------------------------------------------------------------------------------
@@ -82,5 +82,5 @@ time-bootstrap:
 check-bootstrap:
 	cd examples/bootstrap && ./check.sh
 
-test-boostrapped-hello:
+test-bootstrapped-hello:
 	cd examples/hello && ./bootstrapped-test.sh

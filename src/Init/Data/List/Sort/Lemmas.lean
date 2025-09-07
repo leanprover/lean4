@@ -3,11 +3,16 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison, Eric Wieser, François G. Dorais
 -/
+module
+
 prelude
-import Init.Data.List.Perm
-import Init.Data.List.Sort.Basic
-import Init.Data.List.Nat.Range
-import Init.Data.Bool
+public import Init.Data.List.Perm
+public import Init.Data.List.Sort.Basic
+import all Init.Data.List.Sort.Basic
+public import Init.Data.List.Nat.Range
+public import Init.Data.Bool
+
+public section
 
 /-!
 # Basic properties of `mergeSort`.
@@ -31,11 +36,11 @@ namespace List
 namespace MergeSort.Internal
 
 @[simp] theorem splitInTwo_fst (l : { l : List α // l.length = n }) :
-    (splitInTwo l).1 = ⟨l.1.take ((n+1)/2), by simp [splitInTwo, splitAt_eq, l.2]; omega⟩ := by
+    (splitInTwo l).1 = ⟨l.1.take ((n+1)/2), by simp [l.2]; omega⟩ := by
   simp [splitInTwo, splitAt_eq]
 
 @[simp] theorem splitInTwo_snd (l : { l : List α // l.length = n }) :
-    (splitInTwo l).2 = ⟨l.1.drop ((n+1)/2), by simp [splitInTwo, splitAt_eq, l.2]; omega⟩ := by
+    (splitInTwo l).2 = ⟨l.1.drop ((n+1)/2), by simp [l.2]; omega⟩ := by
   simp [splitInTwo, splitAt_eq]
 
 theorem splitInTwo_fst_append_splitInTwo_snd (l : { l : List α // l.length = n }) : (splitInTwo l).1.1 ++ (splitInTwo l).2.1 = l.1 := by
@@ -164,15 +169,15 @@ The elements of `merge le xs ys` are exactly the elements of `xs` and `ys`.
 -- We subsequently prove that `mergeSort_perm : merge le xs ys ~ xs ++ ys`.
 theorem mem_merge {a : α} {xs ys : List α} : a ∈ merge xs ys le ↔ a ∈ xs ∨ a ∈ ys := by
   induction xs generalizing ys with
-  | nil => simp [merge]
+  | nil => simp
   | cons x xs ih =>
     induction ys with
-    | nil => simp [merge]
+    | nil => simp
     | cons y ys ih =>
       simp only [merge]
       split <;> rename_i h
       · simp_all [or_assoc]
-      · simp only [mem_cons, or_assoc, Bool.not_eq_true, ih, ← or_assoc]
+      · simp only [mem_cons, ih, ← or_assoc]
         apply or_congr_left
         simp only [or_comm (a := a = y), or_assoc]
 
@@ -184,8 +189,8 @@ theorem mem_merge_right (s : α → α → Bool) (h : x ∈ r) : x ∈ merge l r
 
 theorem merge_stable : ∀ (xs ys) (_ : ∀ x y, x ∈ xs → y ∈ ys → x.2 ≤ y.2),
     (merge xs ys (zipIdxLE le)).map (·.1) = merge (xs.map (·.1)) (ys.map (·.1)) le
-  | [], ys, _ => by simp [merge]
-  | xs, [], _ => by simp [merge]
+  | [], ys, _ => by simp
+  | xs, [], _ => by simp
   | (i, x) :: xs, (j, y) :: ys, h => by
     simp only [merge, zipIdxLE, map_cons]
     split <;> rename_i w
@@ -237,18 +242,18 @@ theorem sorted_merge
 theorem merge_of_le : ∀ {xs ys : List α} (_ : ∀ a b, a ∈ xs → b ∈ ys → le a b),
     merge xs ys le = xs ++ ys
   | [], ys, _
-  | xs, [], _ => by simp [merge]
+  | xs, [], _ => by simp
   | x :: xs, y :: ys, h => by
     simp only [merge, cons_append]
     rw [if_pos, merge_of_le]
     · intro a b ma mb
       exact h a b (mem_cons_of_mem _ ma) mb
-    · exact h x y (mem_cons_self _ _) (mem_cons_self _ _)
+    · exact h x y mem_cons_self mem_cons_self
 
 variable (le) in
 theorem merge_perm_append : ∀ {xs ys : List α}, merge xs ys le ~ xs ++ ys
-  | [], ys => by simp [merge]
-  | xs, [] => by simp [merge]
+  | [], ys => by simp
+  | xs, [] => by simp
   | x :: xs, y :: ys => by
     simp only [merge]
     split
@@ -267,8 +272,8 @@ theorem Perm.merge (s₁ s₂ : α → α → Bool) (hl : l₁ ~ l₂) (hr : r�
 @[simp] theorem mergeSort_singleton (a : α) : [a].mergeSort r = [a] := by rw [List.mergeSort]
 
 theorem mergeSort_perm : ∀ (l : List α) (le), mergeSort l le ~ l
-  | [], _ => by simp [mergeSort]
-  | [a], _ => by simp [mergeSort]
+  | [], _ => by simp
+  | [a], _ => by simp
   | a :: b :: xs, le => by
     simp only [mergeSort]
     have : (splitInTwo ⟨a :: b :: xs, rfl⟩).1.1.length < xs.length + 1 + 1 := by simp [splitInTwo_fst]; omega
@@ -295,8 +300,8 @@ theorem sorted_mergeSort
     (trans : ∀ (a b c : α), le a b → le b c → le a c)
     (total : ∀ (a b : α), le a b || le b a) :
     (l : List α) → (mergeSort l le).Pairwise le
-  | [] => by simp [mergeSort]
-  | [a] => by simp [mergeSort]
+  | [] => by simp
+  | [a] => by simp
   | a :: b :: xs => by
     rw [mergeSort]
     apply sorted_merge @trans @total
@@ -304,14 +309,12 @@ theorem sorted_mergeSort
     apply sorted_mergeSort trans total
 termination_by l => l.length
 
-@[deprecated sorted_mergeSort (since := "2024-09-02")] abbrev mergeSort_sorted := @sorted_mergeSort
-
 /--
 If the input list is already sorted, then `mergeSort` does not change the list.
 -/
 theorem mergeSort_of_sorted : ∀ {l : List α} (_ : Pairwise le l), mergeSort l le = l
-  | [], _ => by simp [mergeSort]
-  | [a], _ => by simp [mergeSort]
+  | [], _ => by simp
+  | [a], _ => by simp
   | a :: b :: xs, h => by
     have : (splitInTwo ⟨a :: b :: xs, rfl⟩).1.1.length < xs.length + 1 + 1 := by simp [splitInTwo_fst]; omega
     have : (splitInTwo ⟨a :: b :: xs, rfl⟩).2.1.length < xs.length + 1 + 1 := by simp [splitInTwo_snd]; omega
@@ -340,7 +343,7 @@ theorem mergeSort_zipIdx {l : List α} :
 where go : ∀ (i : Nat) (l : List α),
     (mergeSort (l.zipIdx i) (zipIdxLE le)).map (·.1) = mergeSort l le
   | _, []
-  | _, [a] => by simp [mergeSort]
+  | _, [a] => by simp
   | _, a :: b :: xs => by
     have : (splitInTwo ⟨a :: b :: xs, rfl⟩).1.1.length < xs.length + 1 + 1 := by simp [splitInTwo_fst]; omega
     have : (splitInTwo ⟨a :: b :: xs, rfl⟩).2.1.length < xs.length + 1 + 1 := by simp [splitInTwo_snd]; omega
@@ -350,14 +353,14 @@ where go : ∀ (i : Nat) (l : List α),
     rw [merge_stable]
     · rw [go, go]
     · simp only [mem_mergeSort, Prod.forall]
-      intros j x k y mx my
+      intro j x k y mx my
       have := mem_zipIdx mx
       have := mem_zipIdx my
       simp_all
       omega
 termination_by _ l => l.length
 
-@[deprecated mergeSort_zipIdx (since := "2025-01-21")] abbrev mergeSort_enum := @mergeSort_zipIdx
+
 
 theorem mergeSort_cons {le : α → α → Bool}
     (trans : ∀ (a b c : α), le a b → le b c → le a c)
@@ -367,9 +370,9 @@ theorem mergeSort_cons {le : α → α → Bool}
       ∀ b, b ∈ l₁ → !le a b := by
   rw [← mergeSort_zipIdx]
   rw [zipIdx_cons]
-  have nd : Nodup ((a :: l).zipIdx.map (·.2)) := by rw [zipIdx_map_snd]; exact nodup_range' _ _
+  have nd : Nodup ((a :: l).zipIdx.map (·.2)) := by rw [zipIdx_map_snd]; exact nodup_range' _
   have m₁ : (a, 0) ∈ mergeSort ((a :: l).zipIdx) (zipIdxLE le) :=
-    mem_mergeSort.mpr (mem_cons_self _ _)
+    mem_mergeSort.mpr mem_cons_self
   obtain ⟨l₁, l₂, h⟩ := append_of_mem m₁
   have s := sorted_mergeSort (zipIdxLE_trans trans) (zipIdxLE_total total) ((a :: l).zipIdx)
   rw [h] at s
@@ -408,9 +411,9 @@ theorem mergeSort_cons {le : α → α → Bool}
     have nd' := nd.perm p.symm
     rw [map_append] at nd'
     have j0 := nd'.rel_of_mem_append
-      (mem_map_of_mem (·.2) m) (mem_map_of_mem _ (mem_cons_self _ _))
+      (mem_map_of_mem m) (mem_map_of_mem mem_cons_self)
     simp only [ne_eq] at j0
-    have r := s.rel_of_mem_append m (mem_cons_self _ _)
+    have r := s.rel_of_mem_append m mem_cons_self
     simp_all [zipIdxLE]
 
 /--
@@ -442,9 +445,6 @@ theorem sublist_mergeSort
         ((fun w => Sublist.of_sublist_append_right w h') fun b m₁ m₃ =>
           (Bool.eq_not_self true).mp ((rel_of_pairwise_cons hc m₁).symm.trans (h₃ b m₃))))
 
-@[deprecated sublist_mergeSort (since := "2024-09-02")]
-abbrev mergeSort_stable := @sublist_mergeSort
-
 /--
 Another statement of stability of merge sort.
 If a pair `[a, b]` is a sublist of `l` and `le a b`,
@@ -455,9 +455,6 @@ theorem pair_sublist_mergeSort
     (total : ∀ (a b : α), le a b || le b a)
     (hab : le a b) (h : [a, b] <+ l) : [a, b] <+ mergeSort l le :=
   sublist_mergeSort trans total (pairwise_pair.mpr hab) h
-
-@[deprecated pair_sublist_mergeSort(since := "2024-09-02")]
-abbrev mergeSort_stable_pair := @pair_sublist_mergeSort
 
 theorem map_merge {f : α → β} {r : α → α → Bool} {s : β → β → Bool} {l l' : List α}
     (hl : ∀ a ∈ l, ∀ b ∈ l', r a b = s (f a) (f b)) :

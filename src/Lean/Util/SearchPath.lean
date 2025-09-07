@@ -3,10 +3,15 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.ToExpr
-import Lean.Util.Path
-import Lean.Elab.Term
+public import Lean.ToExpr
+public import Lean.Util.Path
+public import Lean.Elab.Term
+meta import Lean.Elab.Term
+
+public section
 
 open Lean
 

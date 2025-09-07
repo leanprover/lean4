@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BoolExpr
-import Std.Tactic.BVDecide.Bitblast.BVExpr
+public import Std.Tactic.BVDecide.Bitblast.BoolExpr
+public import Std.Tactic.BVDecide.Bitblast.BVExpr
+
+@[expose] public section
 
 /-!
 This directory contains the implementation of the bitblaster itself. It is split up into two parts:

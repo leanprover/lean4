@@ -22,7 +22,7 @@ let t ← mkLambdaFVars ys ys.back!
 trace[Meta.debug] t
 pure ()
 
-/-- info: [Meta.debug] fun x x => x -/
+/-- trace: [Meta.debug] fun x x => x -/
 #guard_msgs in
 #eval tst1
 
@@ -39,7 +39,7 @@ let t ← mkLambdaFVars ys ys.back!
 trace[Meta.debug] t
 pure ()
 
-/-- info: [Meta.debug] fun (x : Nat) (x_1 : Vec Nat x) (x : @Eq.{1} (Vec Nat x) x_1 x_1) => x -/
+/-- trace: [Meta.debug] fun (x : Nat) (x_1 : Vec Nat x) (x : @Eq.{1} (Vec Nat x) x_1 x_1) => x -/
 #guard_msgs in
 #eval tst2
 
@@ -61,6 +61,6 @@ failIfSuccess do
   pure ()
 trace[Meta.debug] "failed as expected"
 
-/-- info: [Meta.debug] failed as expected -/
+/-- trace: [Meta.debug] failed as expected -/
 #guard_msgs in
 #eval tst3

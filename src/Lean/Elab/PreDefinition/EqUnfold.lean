@@ -3,12 +3,17 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Meta.Eqns
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Rfl
-import Lean.Meta.Tactic.Intro
-import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Eqns
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Rfl
+public import Lean.Meta.Tactic.Intro
+public import Lean.Meta.Tactic.Apply
+public import Lean.DefEqAttrib
+
+public section
 
 namespace Lean.Meta
 
@@ -23,8 +28,9 @@ This is not extensible, and always builds on the unfold theorem (`f.eq_def`).
 -/
 def getConstUnfoldEqnFor? (declName : Name) : MetaM (Option Name) := do
   if (← getUnfoldEqnFor? (nonRec := true) declName).isNone then
+    trace[ReservedNameAction] "getConstUnfoldEqnFor? {declName} failed, no unfold theorem available"
     return none
-  let name := .str declName eqUnfoldThmSuffix
+  let name := mkEqLikeNameFor (← getEnv) declName eqUnfoldThmSuffix
   realizeConst declName name do
     -- we have to call `getUnfoldEqnFor?` again to make `unfoldEqnName` available in this context
     let some unfoldEqnName ← getUnfoldEqnFor? (nonRec := true) declName | unreachable!
@@ -52,15 +58,18 @@ def getConstUnfoldEqnFor? (declName : Name) : MetaM (Option Name) := do
       name, type, value
       levelParams := info.levelParams
     }
+    inferDefEqAttr name
   return some name
 
 
 builtin_initialize
   registerReservedNameAction fun name => do
     let .str p s := name | return false
-    unless (← getEnv).isSafeDefinition p do return false
     if s == eqUnfoldThmSuffix then
-      return (← MetaM.run' <| getConstUnfoldEqnFor? p).isSome
+      let env := (← getEnv).setExporting false
+      for p in [p, privateToUserName p] do
+        if env.isSafeDefinition p then
+          return (← MetaM.run' <| getConstUnfoldEqnFor? p).isSome
     return false
 
 end Lean.Meta

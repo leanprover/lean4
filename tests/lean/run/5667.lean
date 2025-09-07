@@ -11,7 +11,7 @@ def optimize : Expr → Expr
 
 /--
 error: Failed to realize constant optimize.eq_def:
-  failed to generate equational theorem for 'optimize'
+  failed to generate equational theorem for `optimize`
   case h_2
   e1 : Expr
   i : BitVec 32
@@ -32,7 +32,7 @@ error: Failed to realize constant optimize.eq_def:
   ⊢ Expr.const 0 = Expr.op bop✝ (Expr.const 0)
 ---
 error: Failed to realize constant optimize.eq_def:
-  failed to generate equational theorem for 'optimize'
+  failed to generate equational theorem for `optimize`
   case h_2
   e1 : Expr
   i : BitVec 32
@@ -52,13 +52,13 @@ error: Failed to realize constant optimize.eq_def:
         False
   ⊢ Expr.const 0 = Expr.op bop✝ (Expr.const 0)
 ---
-error: unknown identifier 'optimize.eq_def'
+error: Unknown identifier `optimize.eq_def`
 -/
 #guard_msgs in
 #check optimize.eq_def
 
 /--
-error: failed to generate equational theorem for 'optimize'
+error: failed to generate equational theorem for `optimize`
 case h_2
 e1 : Expr
 i : BitVec 32
@@ -92,8 +92,8 @@ def optimize2 : Expr → Expr
 
 /--
 info: equations:
-theorem optimize2.eq_1 : ∀ (i : BitVec 32), optimize2 (Expr.const i) = Expr.const i
-theorem optimize2.eq_2 : ∀ (bop : Unit) (e1 : Expr),
+@[defeq] theorem optimize2.eq_1 : ∀ (i : BitVec 32), optimize2 (Expr.const i) = Expr.const i
+@[defeq] theorem optimize2.eq_2 : ∀ (bop : Unit) (e1 : Expr),
   optimize2 (Expr.op bop e1) =
     match optimize2 e1 with
     | Expr.const i => Expr.op bop (Expr.const 0)
@@ -113,8 +113,8 @@ def optimize3 : Expr → Expr
 
 /--
 info: equations:
-theorem optimize3.eq_1 : ∀ (i : BitVec 32), optimize3 (Expr.const i) = Expr.const i
-theorem optimize3.eq_2 : ∀ (bop : Unit) (i : BitVec 32),
+@[defeq] theorem optimize3.eq_1 : ∀ (i : BitVec 32), optimize3 (Expr.const i) = Expr.const i
+@[defeq] theorem optimize3.eq_2 : ∀ (bop : Unit) (i : BitVec 32),
   optimize3 (Expr.op bop (Expr.const i)) = Expr.op bop (optimize3 (Expr.const i))
 theorem optimize3.eq_3 : ∀ (bop : Unit) (e1 : Expr),
   (∀ (i : BitVec 32), e1 = Expr.const i → False) → optimize3 (Expr.op bop e1) = Expr.const 0

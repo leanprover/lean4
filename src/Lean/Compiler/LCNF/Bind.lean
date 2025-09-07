@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.InferType
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -99,7 +103,7 @@ def isEtaExpandCandidateCore (type : Expr) (params : Array Param) : Bool :=
   let valueArity := params.size
   typeArity > valueArity
 
-abbrev FunDeclCore.isEtaExpandCandidate (decl : FunDecl) : Bool :=
+abbrev FunDecl.isEtaExpandCandidate (decl : FunDecl) : Bool :=
   isEtaExpandCandidateCore decl.type decl.params
 
 def etaExpandCore (type : Expr) (params : Array Param) (value : Code) : CompilerM (Array Param × Code) := do
@@ -118,7 +122,7 @@ def etaExpandCore? (type : Expr) (params : Array Param) (value : Code) : Compile
   else
     return none
 
-def FunDeclCore.etaExpand (decl : FunDecl) : CompilerM FunDecl := do
+def FunDecl.etaExpand (decl : FunDecl) : CompilerM FunDecl := do
   let some (params, value) ← etaExpandCore? decl.type decl.params decl.value | return decl
   decl.update decl.type params value
 

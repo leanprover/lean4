@@ -3,10 +3,14 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Attributes
-import Lean.Compiler.InitAttr
-import Lean.ToExpr
+public import Lean.Attributes
+public import Lean.Compiler.InitAttr
+public import Lean.ToExpr
+
+public section
 
 namespace Lean
 namespace ParserCompiler
@@ -47,7 +51,7 @@ def setDeclFor (attr : CombinatorAttribute) (env : Environment) (parserDecl : Na
 unsafe def runDeclFor {α} (attr : CombinatorAttribute) (parserDecl : Name) : CoreM α := do
   match attr.getDeclFor? (← getEnv) parserDecl with
   | some d => evalConst α d
-  | _      => throwError "no declaration of attribute [{attr.impl.name}] found for '{parserDecl}'"
+  | _      => throwError "no declaration of attribute [{attr.impl.name}] found for `{parserDecl}`"
 
 end CombinatorAttribute
 

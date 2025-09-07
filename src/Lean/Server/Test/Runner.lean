@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Sebastian Ullrich, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Lsp
-import Lean.Widget
+public import Lean.Data.Lsp
+public import Lean.Widget
+
+public section
 open Lean
 open Lean.Lsp
 open Lean.JsonRpc
@@ -95,6 +99,9 @@ partial def main (args : List String) : IO Unit := do
           }
         }
       }
+      lean? := some {
+        silentDiagnosticSupport? := some true
+      }
     }
     Ipc.writeRequest ⟨0, "initialize", { capabilities : InitializeParams }⟩
     let _ ← Ipc.readResponseAs 0 InitializeResult
@@ -173,6 +180,9 @@ partial def main (args : List String) : IO Unit := do
             if let some diags ← Ipc.collectDiagnostics requestNo uri (versionNo - 1) then
               IO.eprintln (toJson diags.param)
             synced := true
+            requestNo := requestNo + 1
+          | "waitForILeans" =>
+            let _ ← Ipc.waitForILeans requestNo uri (versionNo - 1)
             requestNo := requestNo + 1
           | "sync" =>  -- wait for processing but do not print diagnostics
             let _ ← Ipc.collectDiagnostics requestNo uri (versionNo - 1)

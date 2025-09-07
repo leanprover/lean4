@@ -3,21 +3,21 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Util.Casing
-import Lake.Build.Facets
-import Lake.Config.InstallPath
-import Lake.Config.LeanConfig
-import Lake.Config.Glob
+public import Lean.Compiler.NameMangling
+public import Lake.Util.Casing
+public import Lake.Build.Facets
+public import Lake.Config.LeanConfig
+public import Lake.Config.Glob
+meta import all Lake.Config.Meta
 
 namespace Lake
 open Lean System
 
 /-- A Lean library's declarative configuration. -/
-structure LeanLibConfig extends LeanConfig where
-  /-- The name of the target. -/
-  name : Name
-
+public configuration LeanLibConfig (name : Name) extends LeanConfig where
   /--
   The subdirectory of the package's source directory containing the library's
   Lean source files. Defaults simply to said `srcDir`.
@@ -45,13 +45,30 @@ structure LeanLibConfig extends LeanConfig where
   globs : Array Glob := roots.map Glob.one
 
   /--
-  The name of the library.
+  The name of the library artifact.
   Used as a base for the file names of its static and dynamic binaries.
-  Defaults to the name of the target.
+  Defaults to the mangled name of the target.
   -/
-  libName := name.toString (escape := false)
+  libName : String := name.mangle ""
 
-  /-- An `Array` of target names to build before the library's modules. -/
+  /--
+  Whether static and shared binaries of this library should be prefixed with `lib` on Windows.
+
+  Unlike Unix, Windows does not require native libraries to start with `lib` and,
+  by convention, they usually do not. However, for consistent naming across all platforms,
+  users may wish to enable this.
+
+  Defaults to `false`.
+  -/
+  libPrefixOnWindows : Bool := false
+
+  /-- An `Array` of targets to build before the executable's modules. -/
+  needs : Array PartialBuildKey := #[]
+
+  /--
+   **Deprecated. Use `needs` instead.**
+  An `Array` of target names to build before the library's modules.
+  -/
   extraDepTargets : Array Name := #[]
 
   /--
@@ -86,12 +103,15 @@ deriving Inhabited
 
 namespace LeanLibConfig
 
+/-- The library's name. -/
+public abbrev name (_ : LeanLibConfig n) := n
+
 /-- Whether the given module is considered local to the library. -/
-def isLocalModule (mod : Name) (self : LeanLibConfig) : Bool :=
+public def isLocalModule (mod : Name) (self : LeanLibConfig n) : Bool :=
   self.roots.any (fun root => root.isPrefixOf mod) ||
   self.globs.any (fun glob => glob.matches mod)
 
 /-- Whether the given module is a buildable part of the library. -/
-def isBuildableModule (mod : Name) (self : LeanLibConfig) : Bool :=
+public def isBuildableModule (mod : Name) (self : LeanLibConfig n) : Bool :=
   self.globs.any (fun glob => glob.matches mod) ||
   self.roots.any (fun root => root.isPrefixOf mod && self.globs.any (·.matches root))

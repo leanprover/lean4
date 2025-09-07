@@ -85,7 +85,7 @@ is not definitionally equal to target
 `change` can create new metavariables and assign them
 -/
 /--
-info: x y z : Nat
+trace: x y z : Nat
 w : Nat := x + y
 ⊢ x + y = z
 -/
@@ -114,7 +114,7 @@ example : let x := 22; let y : Nat := x; let z : Fin (y + 1) := 0; z.1 < y + 1 :
 `change` reorders hypotheses if necessary
 -/
 /--
-info: x y z w : Nat
+trace: x y z w : Nat
 a : Nat := x + y
 h : a = z + w
 ⊢ True
@@ -138,8 +138,7 @@ example (ty : {α : Prop // Nonempty α}) : ty.val := by
 Fails, type hint can't hint enough since `.some _` is postponed.
 -/
 /--
-error: invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant
-  ?_
+error: Invalid dotted identifier notation: The expected type of `.some` could not be determined
 -/
 #guard_msgs in example : some true = (some true).map id := by
   change _ = .some _
@@ -181,7 +180,7 @@ example (m n : Nat) : m + 2 = n := by
 conv `change` unsolved metavariables
 -/
 /--
-error: don't know how to synthesize placeholder for argument 'e'
+error: don't know how to synthesize placeholder for argument `e`
 context:
 case a
 m n : Nat
@@ -199,7 +198,7 @@ example (m n : Nat) : m + 2 = n := by
 conv `change` to create a metavariable
 -/
 /--
-info: a b c d : Nat
+trace: a b c d : Nat
 e : Nat := a + b
 ⊢ a + b + c = d
 -/

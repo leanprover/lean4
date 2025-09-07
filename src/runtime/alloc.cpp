@@ -467,6 +467,15 @@ void finalize_alloc() {
 LEAN_THREAD_VALUE(uint64_t, g_heartbeat, 0);
 #endif
 
+void set_heartbeats(uint64_t count) {
+#ifdef LEAN_SMALL_ALLOCATOR
+    if (g_heap)
+        g_heap->m_heartbeat = count;
+#else
+    g_heartbeat = count;
+#endif
+}
+
 void add_heartbeats(uint64_t count) {
 #ifdef LEAN_SMALL_ALLOCATOR
     if (g_heap)

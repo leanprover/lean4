@@ -4,18 +4,13 @@
  [{"label": "veryLongDefinitionName",
    "kind": 6,
    "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionPrefixIssue.lean"},
-     "position": {"line": 1, "character": 64}},
-    "id": {"fvar": {"id": "_uniq.29"}},
-    "cPos": 0}},
+   ["«external:file:///completionPrefixIssue.lean»", 1, 64, 0, "f_uniq.35"]},
   {"label": "veryLongDefinitionNameVeryLongDefinitionName",
    "kind": 21,
    "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionPrefixIssue.lean"},
-     "position": {"line": 1, "character": 64}},
-    "id":
-    {"const": {"declName": "veryLongDefinitionNameVeryLongDefinitionName"}},
-    "cPos": 0}}],
+   ["«external:file:///completionPrefixIssue.lean»",
+    1,
+    64,
+    0,
+    "cveryLongDefinitionNameVeryLongDefinitionName"]}],
  "isIncomplete": false}

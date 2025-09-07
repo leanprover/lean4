@@ -3,7 +3,7 @@ def f (x : Nat) := x
 def test : (λ x => f x)
            =
            (λ x : Nat =>
-             let foo := λ y => id (id y)
+             have foo := λ y => id (id y)
              foo x) := by
   conv =>
     pattern (id _)

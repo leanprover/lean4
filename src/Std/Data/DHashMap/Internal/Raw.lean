@@ -3,8 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Basic
+public import Std.Data.DHashMap.Basic
+import all Std.Data.DHashMap.Basic
+
+public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -24,9 +29,11 @@ namespace Std.DHashMap.Internal
 
 namespace Raw
 
-theorem empty_eq [BEq α] [Hashable α] {c : Nat} : (Raw.empty c : Raw α β) = (Raw₀.empty c).1 := rfl
+-- TODO: the next two lemmas need to be renamed, but there is a bootstrapping obstacle.
 
-theorem emptyc_eq [BEq α] [Hashable α] : (∅ : Raw α β) = Raw₀.empty.1 := rfl
+theorem empty_eq {c : Nat} : (Raw.emptyWithCapacity c : Raw α β) = (Raw₀.emptyWithCapacity c).1 := (rfl)
+
+theorem emptyc_eq : (∅ : Raw α β) = Raw₀.emptyWithCapacity.1 := (rfl)
 
 theorem insert_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} {b : β a} :
     m.insert a b = (Raw₀.insert ⟨m, h.size_buckets_pos⟩ a b).1 := by
@@ -74,7 +81,7 @@ theorem contains_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} :
 
 theorem get_eq [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {a : α} {h : a ∈ m} :
     m.get a h = Raw₀.get ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
-      (by change dite .. = true at h; split at h <;> simp_all) := rfl
+      (by change dite .. = true at h; split at h <;> simp_all) := (rfl)
 
 theorem getD_eq [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} (h : m.WF) {a : α}
     {fallback : β a} : m.getD a fallback = Raw₀.getD ⟨m, h.size_buckets_pos⟩ a fallback := by
@@ -90,7 +97,7 @@ theorem getKey?_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} :
 
 theorem getKey_eq [BEq α] [Hashable α] {m : Raw α β} {a : α} {h : a ∈ m} :
     m.getKey a h = Raw₀.getKey ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
-      (by change dite .. = true at h; split at h <;> simp_all) := rfl
+      (by change dite .. = true at h; split at h <;> simp_all) := (rfl)
 
 theorem getKeyD_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a fallback : α} :
     m.getKeyD a fallback = Raw₀.getKeyD ⟨m, h.size_buckets_pos⟩ a fallback := by
@@ -122,7 +129,7 @@ theorem insertMany_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {ρ : Ty
   simp [Raw.insertMany, h.size_buckets_pos]
 
 theorem ofList_eq [BEq α] [Hashable α] {l : List ((a : α) × β a)} :
-    Raw.ofList l = Raw₀.insertMany Raw₀.empty l := by
+    Raw.ofList l = Raw₀.insertMany Raw₀.emptyWithCapacity l := by
   simp only [Raw.ofList, Raw.insertMany, (Raw.WF.empty).size_buckets_pos ∅, ↓reduceDIte]
   congr
 
@@ -143,7 +150,7 @@ theorem Const.insertMany_eq [BEq α] [Hashable α] {m : Raw α (fun _ => β)} (h
   simp [Raw.Const.insertMany, h.size_buckets_pos]
 
 theorem Const.ofList_eq [BEq α] [Hashable α] {l : List (α × β)} :
-    Raw.Const.ofList l = Raw₀.Const.insertMany Raw₀.empty l := by
+    Raw.Const.ofList l = Raw₀.Const.insertMany Raw₀.emptyWithCapacity l := by
   simp only [Raw.Const.ofList, Raw.Const.insertMany, (Raw.WF.empty).size_buckets_pos ∅, ↓reduceDIte]
   congr
 
@@ -153,7 +160,7 @@ theorem Const.insertManyIfNewUnit_eq {ρ : Type w} [ForIn Id ρ α] [BEq α] [Ha
   simp [Raw.Const.insertManyIfNewUnit, h.size_buckets_pos]
 
 theorem Const.unitOfList_eq [BEq α] [Hashable α] {l : List α} :
-    Raw.Const.unitOfList l = Raw₀.Const.insertManyIfNewUnit Raw₀.empty l := by
+    Raw.Const.unitOfList l = Raw₀.Const.insertManyIfNewUnit Raw₀.emptyWithCapacity l := by
   simp only [Raw.Const.unitOfList, Raw.Const.insertManyIfNewUnit, (Raw.WF.empty).size_buckets_pos ∅,
     ↓reduceDIte]
   congr
@@ -166,7 +173,7 @@ theorem Const.get_eq [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {a : α} 
     Raw.Const.get m a h = Raw₀.Const.get
       ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
       (by change dite .. = true at h; split at h <;> simp_all) :=
-  rfl
+  (rfl)
 
 theorem Const.getD_eq [BEq α] [Hashable α] {m : Raw α (fun _ => β)} (h : m.WF) {a : α}
     {fallback : β} : Raw.Const.getD m a fallback =

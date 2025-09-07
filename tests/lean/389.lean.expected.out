@@ -1,9 +1,9 @@
-389.lean:7:14-7:17: error: application type mismatch
-  getFoo bar
-argument
+389.lean:7:14-7:17: error: Application type mismatch: The argument
   bar
 has type
-  Bar Nat : Type
+  Bar Nat
 but is expected to have type
-  Foo ?m : Type
+  Foo ?m
+in the application
+  getFoo bar
 getFoo bar.toFoo : Nat

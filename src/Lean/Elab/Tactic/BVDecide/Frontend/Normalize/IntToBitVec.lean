@@ -3,11 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.SInt.Basic
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-import Lean.Elab.Tactic.BVDecide.Frontend.Attr
-import Lean.Elab.Tactic.Simp
+public import Init.Data.SInt.Basic
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
+public import Lean.Elab.Tactic.Simp
+
+public section
 
 /-!
 This module contains the implementation of the pre processing pass for reducing `UIntX`/`IntX` to
@@ -44,11 +48,11 @@ private abbrev M := StateRefT SizeState MetaM
 namespace M
 
 @[inline]
-def addSizeTerm (e : Expr) : M Unit := do
+private def addSizeTerm (e : Expr) : M Unit := do
   modify fun s => { s with relevantTerms := s.relevantTerms.insert e }
 
 @[inline]
-def addSizeHyp (f : FVarId) : M Unit := do
+private def addSizeHyp (f : FVarId) : M Unit := do
   modify fun s => { s with relevantHyps := s.relevantHyps.insert f }
 
 end M
@@ -59,7 +63,12 @@ def intToBitVecPass : Pass where
     let intToBvThms ← intToBitVecExt.getTheorems
     let cfg ← PreProcessM.getConfig
     let simpCtx ← Simp.mkContext
-      (config := { failIfUnchanged := false, zetaDelta := true, maxSteps := cfg.maxSteps })
+      (config := {
+        failIfUnchanged := false,
+        zetaDelta := true,
+        implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
+        maxSteps := cfg.maxSteps,
+      })
       (simpTheorems := #[intToBvThms])
       (congrTheorems := (← getSimpCongrTheorems))
 
@@ -79,7 +88,9 @@ where
       for hyp in ← getPropHyps do
         (← instantiateMVars (← hyp.getType)).forEachWhere
           (stopWhenVisited := true)
-          (fun e => e.isAppOfArity ``USize.toBitVec 1 || e.isAppOfArity ``ISize.toBitVec 1)
+          (fun e =>
+            (e.isAppOfArity ``USize.toBitVec 1 || e.isAppOfArity ``ISize.toBitVec 1) &&
+            !e.hasLooseBVars)
           fun e => do
             M.addSizeTerm e
             M.addSizeHyp hyp
@@ -105,13 +116,13 @@ where
         ```
         Where:
         - all terms from `relevantTerms` in the implication are substituted by `x_1`, ...
-        - all occurences of `numBits` are substituted by `z`
+        - all occurrences of `numBits` are substituted by `z`
 
         Additionally we compute a new metavariable with type:
         ```
         ∀ (x_1 : BitVec const) (x_2 : BitVec const) ..., h1 → h2 → ... → False
         ```
-        with all occurences of `numBits` substituted by const. This meta variable is going to become
+        with all occurrences of `numBits` substituted by const. This meta variable is going to become
         the next goal
         -/
         let (motive, newGoalType) ←
@@ -122,7 +133,7 @@ where
               let argTypes := relevantTerms.map (fun _ => (`x, argType))
               let innerMotiveType ←
                 withLocalDeclsDND argTypes fun args => do
-                  let mut subst : Std.HashMap Expr Expr := Std.HashMap.empty (args.size + 1)
+                  let mut subst : Std.HashMap Expr Expr := Std.HashMap.emptyWithCapacity (args.size + 1)
                   subst := subst.insert (mkConst ``System.Platform.numBits) z
                   for term in relevantTerms, arg in args do
                     subst := subst.insert term arg

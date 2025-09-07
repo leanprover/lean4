@@ -3,10 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Std.Data.HashMap.Basic
-import Lean.Data.HashMap
-import Lean.Data.PersistentHashMap
+public import Std.Data.HashMap.Basic
+public import Lean.Data.PersistentHashMap
+
+public section
 universe u v w w'
 
 namespace Lean
@@ -89,7 +92,7 @@ def switch (m : SMap α β) : SMap α β :=
   m.map₂.foldl f s
 
 /-- Monadic fold over a staged map. -/
-def foldM {m : Type w → Type w} [Monad m]
+def foldM {m : Type w → Type w'} [Monad m]
     (f : σ → α → β → m σ) (init : σ) (map : SMap α β) : m σ := do
   map.map₂.foldlM f (← map.map₁.foldM f init)
 

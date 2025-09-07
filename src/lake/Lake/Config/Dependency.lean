@@ -3,9 +3,12 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+module
+
 prelude
-import Init.System.FilePath
-import Lean.Data.NameMap
+public import Init.Dynamic
+public import Init.System.FilePath
+public import Lean.Data.NameMap.Basic
 
 /- # Package Dependency Configuration
 
@@ -21,20 +24,19 @@ namespace Lake
 The source of a `Dependency`.
 That is, where Lake should look to materialize the dependency.
 -/
-inductive DependencySrc where
+public inductive DependencySrc where
 /- A package located a fixed path relative to the dependent package's directory. -/
 | path (dir : FilePath)
 /- A package cloned from a Git repository available at a fixed Git `url`. -/
 | git (url : String) (rev : Option String) (subDir : Option FilePath)
 deriving Inhabited, Repr
 
-
 /--
 A `Dependency` of a package.
 It specifies a package which another package depends on.
 This encodes the information contained in the `require` DSL syntax.
 -/
-structure Dependency where
+public structure Dependency where
   /--
   The package name of the dependency.
   This name must match the one declared in its configuration file,
@@ -62,8 +64,8 @@ structure Dependency where
   Arguments to pass to the dependency's package configuration.
   -/
   opts : NameMap String
-  deriving Inhabited
+  deriving Inhabited, TypeName
 
 /-- The full name of a dependency (i.e., `<scope>/<name>`)-/
-def Dependency.fullName (dep : Dependency) : String :=
+public def Dependency.fullName (dep : Dependency) : String :=
   s!"{dep.scope}/{dep.name.toString}"

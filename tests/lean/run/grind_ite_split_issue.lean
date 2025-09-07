@@ -1,7 +1,4 @@
-set_option grind.warning false
-
-attribute [grind =] Int.min_def Int.max_def
-
+module
 example (a b : Int) : min a b = 10 → a ≥ 10 := by
   grind
 

@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 
+module
+
 prelude
-import Init.Data.Array.Basic
+public import Init.Data.Array.Basic
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -23,13 +27,15 @@ theorem extLit {n : Nat}
     (xs ys : Array α)
     (hsz₁ : xs.size = n) (hsz₂ : ys.size = n)
     (h : (i : Nat) → (hi : i < n) → xs.getLit i hsz₁ hi = ys.getLit i hsz₂ hi) : xs = ys :=
-  Array.ext xs ys (hsz₁.trans hsz₂.symm) fun i hi₁ _ => h i (hsz₁ ▸ hi₁)
+  Array.ext (hsz₁.trans hsz₂.symm) fun i hi₁ _ => h i (hsz₁ ▸ hi₁)
 
-def toListLitAux (xs : Array α) (n : Nat) (hsz : xs.size = n) : ∀ (i : Nat), i ≤ xs.size → List α → List α
+-- has to be expose for array literal support
+@[expose] def toListLitAux (xs : Array α) (n : Nat) (hsz : xs.size = n) : ∀ (i : Nat), i ≤ xs.size → List α → List α
   | 0,     _,  acc => acc
   | (i+1), hi, acc => toListLitAux xs n hsz i (Nat.le_of_succ_le hi) (xs.getLit i hsz (Nat.lt_of_lt_of_eq (Nat.lt_of_lt_of_le (Nat.lt_succ_self i) hi) hsz) :: acc)
 
-def toArrayLit (xs : Array α) (n : Nat) (hsz : xs.size = n) : Array α :=
+-- has to be expose for array literal support
+@[expose] def toArrayLit (xs : Array α) (n : Nat) (hsz : xs.size = n) : Array α :=
   List.toArray <| toListLitAux xs n hsz n (hsz ▸ Nat.le_refl _) []
 
 theorem toArrayLit_eq (xs : Array α) (n : Nat) (hsz : xs.size = n) : xs = toArrayLit xs n hsz := by

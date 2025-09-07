@@ -1,3 +1,4 @@
+module
 import Lean.Meta.Tactic.Grind
 
 def f (α : Type) [Add α] (a : α) := a + a + a
@@ -22,17 +23,31 @@ detect equalities between array access terms.
 -/
 
 /--
-info: [Meta.debug] [‹i < a.toList.length›, ‹j < a.toList.length›, ‹j < b.toList.length›]
-[Meta.debug] [a[i], b[j], a[j]]
+trace: [Meta.debug] [‹i < a.size›, ‹j < a.size›, ‹j < b.size›]
+[Meta.debug] [a[j], b[j], a[i]]
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example (i j : Nat) (a b : Array Nat) (h1 : j < a.size) (h : j < b.size) (h2 : i ≤ j) : a[i] < a[j] + b[j] → i = j → a = b → False := by
-  grind on_failure fallback
+  grind -mbtc on_failure fallback
 
 /--
-info: [Meta.debug] [‹i < a.toList.length›, ‹j < a.toList.length›, ‹j < b.toList.length›]
-[Meta.debug] [a[i], a[j]]
+trace: [Meta.debug] [‹i < a.size›, ‹j < a.size›, ‹j < b.size›]
+[Meta.debug] [a[j], a[i]]
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example (i j : Nat) (a b : Array Nat) (h1 : j < a.size) (h : j < b.size) (h2 : i ≤ j) : a[i] < a[j] + b[j] → i = j → False := by
-  grind on_failure fallback
+  grind -mbtc on_failure fallback
+
+namespace Test
+
+opaque p : Prop
+axiom hp : p
+opaque h : p → Prop
+
+example : h (@Lean.Grind.nestedProof p hp) → p := by
+  grind
+
+example : h hp → p := by
+  grind
+
+end Test

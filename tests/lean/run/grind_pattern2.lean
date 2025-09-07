@@ -1,3 +1,4 @@
+module
 def Set (α : Type) := α → Bool
 
 def insertElem [DecidableEq α] (s : Set α) (a : α) : Set α :=
@@ -16,17 +17,14 @@ grind_pattern contains_insert => contains (insertElem s a) a
 set_option trace.grind.ematch true
 set_option trace.grind.ematch.pattern true
 
-/-- info: [grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem _ #2 #1 #0) #0] -/
-#guard_msgs (info) in
+/-- trace: [grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem _ #2 #1 #0) #0] -/
+#guard_msgs (trace) in
 example [DecidableEq α] (s₁ s₂ : Set α) (a₁ a₂ : α) :
         s₂ = insertElem s₁ a₁ → a₁ = a₂ → contains s₂ a₂ := by
   grind
 
-/--
-info: [grind.ematch] reinsert `contains_insert`
-[grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem _ #2 #1 #0) #0]
--/
-#guard_msgs (info) in
+/-- trace: [grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem _ #2 #1 #0) #0] -/
+#guard_msgs (trace) in
 example [DecidableEq α] (s₁ s₂ : Set α) (a₁ a₂ : α) :
         ¬ contains s₂ a₂ → s₂ = insertElem s₁ a₁ → a₁ = a₂ → False := by
   grind
@@ -37,25 +35,25 @@ def foo (x : List Nat) (y : List Nat) := x ++ y ++ x
 
 theorem fooThm : foo x [a, b] = x ++ [a, b] ++ x := rfl
 
-/-- info: [grind.ematch.pattern] fooThm: [foo #0 `[[a, b]]] -/
+/-- trace: [grind.ematch.pattern] fooThm: [foo #0 `[[a, b]]] -/
 #guard_msgs in
 grind_pattern fooThm => foo x [a, b]
 
 
 /--
-info: [grind.internalize] foo x y
-[grind.internalize] [a, b]
-[grind.internalize] Nat
-[grind.internalize] a
-[grind.internalize] [b]
-[grind.internalize] b
-[grind.internalize] []
+trace: [grind.internalize] [0] foo x y
+[grind.internalize] [0] [a, b]
+[grind.internalize] [0] Nat
+[grind.internalize] [0] a
+[grind.internalize] [0] [b]
+[grind.internalize] [0] b
+[grind.internalize] [0] []
 [grind.ematch] activated `fooThm`, [foo #0 `[[a, b]]]
-[grind.internalize] x
-[grind.internalize] y
-[grind.internalize] z
+[grind.internalize] [0] x
+[grind.internalize] [0] y
+[grind.internalize] [0] z
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.internalize true in
 example : foo x y = z → False := by
   fail_if_success grind
@@ -65,7 +63,7 @@ theorem arrEx [Add α] (as : Array α) (h₁ : i < as.size) (h₂ : i = j) : as[
 
 
 /--
-info: [grind.ematch.pattern] arrEx: [@HAdd.hAdd #6 _ _ _ (@getElem _ `[Nat] _ _ _ #2 #5 _) (@getElem _ `[Nat] _ _ _ #2 #4 _)]
+trace: [grind.ematch.pattern] arrEx: [@HAdd.hAdd #6 _ _ _ (@getElem (Array _) `[Nat] _ _ _ #2 #5 _) (@getElem (Array _) `[Nat] _ _ _ #2 #4 _)]
 -/
 #guard_msgs in
 grind_pattern arrEx => as[i]+as[j]'(h₂▸h₁)

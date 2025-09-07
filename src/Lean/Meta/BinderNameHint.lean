@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
 
-import Lean.Util.FindExpr
-import Lean.Meta.Basic
-import Init.BinderNameHint
+public import Lean.Util.FindExpr
+public import Lean.Meta.Basic
+public import Init.BinderNameHint
+
+public section
 
 namespace Lean
 
@@ -35,7 +39,7 @@ private def makeFresh (bidx : Nat) (xs : Array Name) : CoreM (Array Name) := do
     return xs.set! (xs.size - bidx - 1) name'
 
 /--
-Resovles occurrences of `binderNameHint` in `e`. See docstring of `binderNameHint` for more
+Resolves occurrences of `binderNameHint` in `e`. See docstring of `binderNameHint` for more
 information.
 -/
 partial def Expr.resolveBinderNameHint (e : Expr) : CoreM Expr :=

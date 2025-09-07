@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euxo pipefail
+source ../common.sh
 
 # Tests that Lake properly exits before normal builds occur
 # when `--no-build` is passed on the command line.
@@ -7,18 +7,24 @@ set -euxo pipefail
 ./clean.sh
 
 NO_BUILD_CODE=3
-LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 # Test `--no-build` for setup-file and module builds (`buildUnlessUpToDate`)
-$LAKE setup-file ./Irrelevant.lean Test --no-build && exit 1 || [ $? = $NO_BUILD_CODE ]
+echo "# TEST: --no-build setup-file & modules"
+test_status $NO_BUILD_CODE setup-file ImportTest.lean --no-build
+test_err "Building Test" setup-file ImportTest.lean --no-build
 test ! -f .lake/build/lib/lean/Test.olean
-$LAKE build Test
+test_run build Test
 test -f .lake/build/lib/lean/Test.olean
-$LAKE setup-file ./Irrelevant.lean Test --no-build
+test_run setup-file ImportTest.lean --no-build
 
 # Test `--no-build` for file builds (`buildFileUnlessUpToDate`)
-$LAKE build +Test:c.o.export --no-build && exit 1 || [ $? = $NO_BUILD_CODE ]
+echo "# TEST: --no-build file"
+test_status $NO_BUILD_CODE build +Test:c.o.export --no-build
+test_err "Building Test:c.o" build +Test:c.o.export --no-build
 test ! -f .lake/build/ir/Test.c.o.export
-$LAKE build +Test:c.o.export
+test_run build +Test:c.o.export
 test -f .lake/build/ir/Test.c.o.export
-$LAKE build +Test:c.o.export --no-build
+test_out "All targets up-to-date" build +Test:c.o.export --no-build
+
+# cleanup
+rm -f produced.out

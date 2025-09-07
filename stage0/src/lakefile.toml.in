@@ -6,8 +6,9 @@
 # them, please consult the instructions in doc/dev/index.md.
 
 name = "lean4"
+bootstrap = true
 
-defaultTargets = ["Init", "Lean", "Lake"]
+defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain", "Leanc"]
 
 # The root of all the compiler output directories
 buildDir = "${CMAKE_BINARY_DIR}"
@@ -24,14 +25,28 @@ leanLibDir = "lib/lean"
 # Destination for static libraries
 nativeLibDir = "lib/lean"
 
+leanOptions = { experimental.module = true }
+
+# Additional options derived from the CMake configuration
+# For example, CI will set `-DwarningAsError=true` through this
+moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
+
+${LEAN_EXTRA_LAKEFILE_TOML}
+
 [[lean_lib]]
 name = "Init"
+libName = "${LAKE_LIB_PREFIX}Init"
+defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "Std"
+libName = "${LAKE_LIB_PREFIX}Std"
+defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "Lean"
+libName = "${LAKE_LIB_PREFIX}Lean"
+defaultFacets = ["static", "static.export"]
 globs = [
   # Library root
   "Lean",
@@ -44,4 +59,25 @@ globs = [
 [[lean_lib]]
 name = "Lake"
 srcDir = "lake"
-moreLeanArgs = ["--plugin=${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}"]
+globs = [
+  # Lake API imported by configuration files
+  "Lake",
+  # API only imported by `LakeMain` and the `lake` CLI
+  "Lake.CLI", "Lake.Load",
+  # Additional utilities which may not be imported
+  "Lake.Util.+",
+]
+libName = "${LAKE_LIB_PREFIX}Lake"
+defaultFacets = ["static", "static.export"]
+
+[[lean_lib]]
+name = "LakeMain"
+srcDir = "lake"
+libName = "${LAKE_LIB_PREFIX}LakeMain"
+defaultFacets = ["static.export"]
+
+[[lean_lib]]
+name = "Leanc"
+srcDir = "${CMAKE_BINARY_DIR}/leanc"
+libName = "${LAKE_LIB_PREFIX}Leanc"
+defaultFacets = ["static"]

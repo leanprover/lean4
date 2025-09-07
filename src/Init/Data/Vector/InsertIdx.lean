@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.Vector.Lemmas
-import Init.Data.Array.InsertIdx
+public import Init.Data.Vector.Lemmas
+public import Init.Data.Array.InsertIdx
+
+public section
 
 /-!
 # insertIdx
@@ -28,15 +32,20 @@ section InsertIdx
 
 variable {a : α}
 
-@[simp]
-theorem insertIdx_zero (xs : Vector α n) (x : α) : xs.insertIdx 0 x = (#v[x] ++ xs).cast (by omega) := by
+@[simp, grind =]
+theorem insertIdx_zero {xs : Vector α n} {x : α} : xs.insertIdx 0 x = (#v[x] ++ xs).cast (by omega) := by
   cases xs
   simp
 
-theorem eraseIdx_insertIdx (i : Nat) (xs : Vector α n) (h : i ≤ n) :
+theorem eraseIdx_insertIdx_self {i : Nat} {xs : Vector α n} {h : i ≤ n} :
     (xs.insertIdx i a).eraseIdx i = xs := by
   rcases xs with ⟨xs, rfl⟩
-  simp_all [Array.eraseIdx_insertIdx]
+  simp_all [Array.eraseIdx_insertIdx_self]
+
+@[deprecated eraseIdx_insertIdx_self (since := "2025-06-15")]
+theorem eraseIdx_insertIdx {i : Nat} {xs : Vector α n} {h : i ≤ n} :
+    (xs.insertIdx i a).eraseIdx i = xs := by
+  simp [eraseIdx_insertIdx_self]
 
 theorem insertIdx_eraseIdx_of_ge {xs : Vector α n}
     (w₁ : i < n) (w₂ : j ≤ n - 1) (h : i ≤ j) :
@@ -52,11 +61,23 @@ theorem insertIdx_eraseIdx_of_le {xs : Vector α n}
   rcases xs with ⟨as, rfl⟩
   simpa using Array.insertIdx_eraseIdx_of_le (by simpa) (by simpa) (by simpa)
 
-theorem insertIdx_comm (a b : α) (i j : Nat) (xs : Vector α n) (_ : i ≤ j) (_ : j ≤ n) :
+@[grind =]
+theorem insertIdx_eraseIdx {as : Vector α n} (h₁ : i < n) (h₂ : j ≤ n - 1) :
+    (as.eraseIdx i).insertIdx j a =
+      if h : i ≤ j then
+        ((as.insertIdx (j + 1) a).eraseIdx i).cast (by omega)
+      else
+        ((as.insertIdx j a).eraseIdx (i + 1) (by simp_all)).cast (by omega) := by
+  split <;> rename_i h'
+  · rw [insertIdx_eraseIdx_of_ge] <;> omega
+  · rw [insertIdx_eraseIdx_of_le] <;> omega
+
+@[grind =]
+theorem insertIdx_comm (a b : α) {i j : Nat} {xs : Vector α n} (_ : i ≤ j) (_ : j ≤ n) :
     (xs.insertIdx i a).insertIdx (j + 1) b =
       (xs.insertIdx j b).insertIdx i a := by
   rcases xs with ⟨as, rfl⟩
-  simpa using Array.insertIdx_comm a b i j _ (by simpa) (by simpa)
+  simpa using Array.insertIdx_comm a b (by simpa) (by simpa)
 
 theorem mem_insertIdx {xs : Vector α n} {h : i ≤ n} : a ∈ xs.insertIdx i b h ↔ a = b ∨ a ∈ xs := by
   rcases xs with ⟨as, rfl⟩
@@ -64,10 +85,11 @@ theorem mem_insertIdx {xs : Vector α n} {h : i ≤ n} : a ∈ xs.insertIdx i b 
 
 set_option linter.indexVariables false in
 @[simp]
-theorem insertIdx_size_self (xs : Vector α n) (x : α) : xs.insertIdx n x = xs.push x := by
+theorem insertIdx_size_self {xs : Vector α n} {x : α} : xs.insertIdx n x = xs.push x := by
   rcases xs with ⟨as, rfl⟩
   simp
 
+@[grind =]
 theorem getElem_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) (h : k < n + 1) :
     (xs.insertIdx i x)[k] =
       if h₁ : k < i then
@@ -78,35 +100,36 @@ theorem getElem_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) 
         else
           xs[k-1] := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem_insertIdx, w]
+  simp [Array.getElem_insertIdx]
 
 theorem getElem_insertIdx_of_lt {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) (h : k < i) :
     (xs.insertIdx i x)[k] = xs[k] := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem_insertIdx, w, h]
+  simp [Array.getElem_insertIdx, h]
 
 theorem getElem_insertIdx_self {xs : Vector α n} {x : α} {i : Nat} (w : i ≤ n) :
     (xs.insertIdx i x)[i] = x := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem_insertIdx, w]
+  simp [Array.getElem_insertIdx]
 
 theorem getElem_insertIdx_of_gt {xs : Vector α n} {x : α} {i k : Nat} (w : k ≤ n) (h : k > i) :
     (xs.insertIdx i x)[k] = xs[k - 1] := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem_insertIdx, w, h]
+  simp [Array.getElem_insertIdx]
   rw [dif_neg (by omega), dif_neg (by omega)]
 
+@[grind =]
 theorem getElem?_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (h : i ≤ n) :
     (xs.insertIdx i x)[k]? =
       if k < i then
         xs[k]?
       else
         if k = i then
-          if k ≤ xs.size then some x else none
+          if k ≤ n then some x else none
         else
           xs[k-1]? := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem?_insertIdx, h]
+  simp [Array.getElem?_insertIdx]
 
 theorem getElem?_insertIdx_of_lt {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) (h : k < i) :
     (xs.insertIdx i x)[k]? = xs[k]? := by

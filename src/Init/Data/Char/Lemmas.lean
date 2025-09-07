@@ -3,9 +3,14 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Char.Basic
-import Init.Data.UInt.Lemmas
+public import Init.Data.Char.Basic
+import all Init.Data.Char.Basic
+public import Init.Data.UInt.Lemmas
+
+public section
 
 namespace Char
 
@@ -57,6 +62,7 @@ instance leTotal : Std.Total (· ≤ · : Char → Char → Prop) where
   total := Char.le_total
 
 -- This instance is useful while setting up instances for `String`.
+@[deprecated ltAsymm (since := "2025-08-01")]
 def notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
   total := fun x y => by simpa using Char.le_total y x
 

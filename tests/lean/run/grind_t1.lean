@@ -1,4 +1,4 @@
-set_option grind.warning false
+module
 example (a b : List Nat) : a = [] → b = [2] → a = b → False := by
   grind
 
@@ -78,9 +78,9 @@ example (a b c : Nat) (f : Nat → Nat) : p.1 ≠ f a → p = { a := f b, c, b :
   grind
 
 /--
-info: [grind.debug.proj] { a := b, b := v₁, c := v₂ }.a
+trace: [grind.debug.proj] { a := b, b := v₁, c := v₂ }.a
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.debug.proj true in
 example (a b d e : Nat) (x y z : Boo Nat) (f : Nat → Boo Nat) : (f d).1 ≠ a → f d = ⟨b, v₁, v₂⟩ → x.1 = e → y.1 = e → z.1 = e → f d = x → f d = y → f d = z → b = a → False := by
   grind
@@ -114,25 +114,32 @@ example (foo : Nat → Nat)
 end dite_propagator_test
 
 /--
-info: [grind.eqc] x = 2 * a
+trace: [grind.eqc] x = 2 * a
 [grind.eqc] y = x
 [grind.eqc] (y = 2 * a) = False
-[grind.eqc] (y = 2 * a) = True
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.eqc true in
 example (a : Nat) : let x := a + a; y = x → y = a + a := by
-  grind
+  grind -zetaDelta
 
 /--
-info: [grind.eqc] x = 2 * a
+trace: [grind.eqc] x = 2 * a
 [grind.eqc] y = x
 [grind.eqc] (y = 2 * a) = False
-[grind.eqc] (y = 2 * a) = True
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.eqc true in
-example (a : Nat) : let_fun x := a + a; y = x → y = a + a := by
+example (a : Nat) : have x := a + a; y = x → y = a + a := by
+  grind -zetaDelta
+
+/--
+trace: [grind.eqc] y = 2 * a
+[grind.eqc] (y = 2 * a) = False
+-/
+#guard_msgs (trace) in
+set_option trace.grind.eqc true in
+example (a : Nat) : have x := a + a; y = x → y = a + a := by
   grind
 
 example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
@@ -140,7 +147,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : cast h₁ a₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
@@ -148,7 +155,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : h₁ ▸ a₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
@@ -156,7 +163,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : Eq.recOn h₁ a₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
@@ -164,7 +171,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : Eq.ndrec (motive := id) a₁ h₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
@@ -172,11 +179,11 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : Eq.rec (motive := fun x _ => x) a₁ h₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 /--
-info: [grind.assert] ∀ (a : α), a ∈ b → p a
+trace: [grind.assert] ∀ (a : α), a ∈ b → p a
 [grind.ematch.pattern] h₁: [@Membership.mem `[α] `[List α] `[List.instMembership] `[b] #1]
 [grind.ematch.pattern] h₁: [p #1]
 [grind.assert] w ∈ b
@@ -184,7 +191,7 @@ info: [grind.assert] ∀ (a : α), a ∈ b → p a
 [grind.ematch.instance] h₁: w ∈ b → p w
 [grind.assert] w ∈ b → p w
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.ematch.pattern true in
 set_option trace.grind.ematch.instance true in
 set_option trace.grind.assert true in
@@ -192,7 +199,7 @@ example (b : List α) (p : α → Prop) (h₁ : ∀ a ∈ b, p a) (h₂ : ∃ a 
   grind
 
 /--
-info: [grind.assert] ∀ (x : α), Q x → P x
+trace: [grind.assert] ∀ (x : α), Q x → P x
 [grind.ematch.pattern] h₁: [Q #1]
 [grind.ematch.pattern] h₁: [P #1]
 [grind.assert] ∀ (x : α), R x → False = P x
@@ -205,7 +212,7 @@ info: [grind.assert] ∀ (x : α), Q x → P x
 [grind.assert] Q a → P a
 [grind.assert] R a → False = P a
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.ematch.pattern true in
 set_option trace.grind.ematch.instance true in
 set_option trace.grind.assert true in
@@ -251,9 +258,9 @@ h_1 : p
     [prop] p = q
     [prop] p
   [eqc] True propositions
-    [prop] p = q
-    [prop] q
     [prop] p
+    [prop] q
+    [prop] p = q
 -/
 #guard_msgs (error) in
 set_option trace.grind.split true in
@@ -285,9 +292,9 @@ h_1 : p
     [prop] p = ¬q
     [prop] p
   [eqc] True propositions
-    [prop] p = ¬q
-    [prop] ¬q
     [prop] p
+    [prop] ¬q
+    [prop] p = ¬q
   [eqc] False propositions
     [prop] q
 -/
@@ -308,25 +315,27 @@ example {α} (f : α → Type) (a : α) (h : ∀ x, Nonempty (f x)) : Nonempty (
 example {α β} (f : α → β) (a : α) : ∃ a', f a' = f a := by
   grind
 
-open List in
-example : (replicate n a).map f = replicate n (f a) := by
-  grind +splitIndPred only [Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+attribute [grind ext] List.ext_getElem?
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
-  grind only [cases Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  grind +splitIndPred only [Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
-  grind only [cases Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  grind only [cases Exists, Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
+
+open List in
+example : (replicate n a).map f = replicate n (f a) := by
+  grind only [cases Exists, Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
   -- Should fail since extensionality is disabled
-  fail_if_success grind -ext only [Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  fail_if_success grind -ext only [Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
   sorry
 
-@[ext] structure S where
+@[ext, grind ext] structure S where
   a : Nat
   b : Bool
 
@@ -334,7 +343,16 @@ example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
   grind
 
 example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
-  fail_if_success grind -ext
+  fail_if_success grind -etaStruct
+  sorry
+
+attribute [grind ext] S.ext -- enable extensionality using S.ext
+
+example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
+  grind -etaStruct -- It is applying the extensionality theorem instead of eta for structures
+
+example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
+  fail_if_success grind -etaStruct -ext
   sorry
 
 example (x : S) : x.a = 10 → false ≠ x.b → x = { a := 10, b := true } := by
@@ -358,15 +376,17 @@ h_1 : b = true
   [eqc] True propositions
     [prop] b = true
   [eqc] Equivalence classes
-    [eqc] {a, if b = true then 10 else 20, 10}
+    [eqc] {a, 10, if b = true then 10 else 20}
     [eqc] {b, true}
+  [cutsat] Assignment satisfying linear constraints
+    [assign] a := 10
 -/
 #guard_msgs (error) in
 example (b : Bool) : (if b then 10 else 20) = a → b = true → False := by
   grind
 
 -- Should not generate a trace message about canonicalization issues
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.issues true in
 example : (if n + 2 < m then a else b) = (if n + 1 < m then c else d) := by
   fail_if_success grind (splits := 0)
@@ -385,4 +405,65 @@ example [Decidable p] : a = true → p → decide p = a := by
   grind
 
 example [Decidable p] : false = a → ¬p → decide p = a := by
+  grind
+
+example (a : Nat) (p q r : Prop) (h₁ : if _ : a < 1 then p else q) (h₂ : r) : (if a < 1 then p else q) ↔ r := by
+  grind (splits := 0)
+
+example [BEq α] [LawfulBEq α] (a b : α) : a == b → a = b := by
+  grind
+
+example [BEq α] [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
+  grind [List.replace]
+
+example [BEq α] [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
+  grind [List.replace_cons]
+
+def foo [BEq α] (a b : α) :=
+  match a == b with
+  | true => 1
+  | false => 0
+
+example [BEq α] [LawfulBEq α] (a b : α) : a = b → foo a b = 1 := by
+  grind (splits := 0) [foo]
+
+example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
+  grind [foo]
+
+example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
+  grind (splits := 0) [foo]
+
+@[simp] theorem getElem_concat_length {l : List α} {a : α} {i : Nat} (h : i = l.length) (w) :
+    (l ++ [a])[i]'w = a := by
+  subst h; grind [List.getElem_append_left, List.getElem_append_right]
+
+example (p q : Prop) : (p → q) → (¬ p → q) → (p → ¬ q) → (¬p → ¬q) → False := by
+  grind (splitImp := true)
+
+
+/-! Pull universal over disjunction -/
+
+opaque p : (i : Nat) → i ≠ 10 → Prop
+
+-- This example does not require pulling quantifiers
+example (h : ∀ i, i > 0 → ∀ h : i ≠ 10, p i h) : p 5 (by decide) := by
+  grind
+
+-- This one is semantically equivalent to the previous example, but can only be proved by `grind` after
+-- we pull universal over disjunctions during normalization.
+example (h : ∀ i, (¬i > 0) ∨ ∀ h : i ≠ 10, p i h) : p 5 (by decide) := by
+  grind
+
+-- Similar to previous test.
+example (h : ∀ i, (∀ h : i ≠ 10, p i h) ∨ (¬i > 0)) : p 5 (by decide) := by
+  grind
+
+-- `grind` performs hash-consing modulo alpha-equivalence
+/--
+trace: [grind.assert] (f fun x => x) = a
+[grind.assert] ¬a = f fun x => x
+-/
+#guard_msgs (trace) in
+example (f : (Nat → Nat) → Nat) : f (fun x => x) = a → a = f (fun y => y) := by
+  set_option trace.grind.assert true in
   grind

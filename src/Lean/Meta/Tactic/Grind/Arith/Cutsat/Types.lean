@@ -3,17 +3,18 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Init.Data.Int.Linear
-import Std.Internal.Rat
+public import Init.Data.Int.Linear
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
-
+public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 export Int.Linear (Var Poly)
-export Std.Internal (Rat)
 
 deriving instance Hashable for Poly
 
@@ -77,12 +78,39 @@ structure EqCnstr where
   h  : EqCnstrProof
 
 inductive EqCnstrProof where
-  | expr (h : Expr)
-  | core (p₁ p₂ : Poly) (h : Expr)
+  | /-- An equality `a = 0` coming from the core. -/
+    core0 (a : Expr) (zero : Expr)
+  | /--
+    An equality `a = b` coming from the core.
+    `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
+    -/
+    core (a b : Expr) (p₁ p₂ : Poly)
+  | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
+  | /-- `e` is `p` -/
+    defn (e : Expr) (p : Poly)
+  | defnNat (h : Expr) (x : Var) (e' : Int.Linear.Expr)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | ofLeGe (c₁ : LeCnstr) (c₂ : LeCnstr)
+  | reorder (c : EqCnstr)
+  | commRingNorm (c : EqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
+  | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | defnNatCommRing (h : Expr) (x : Var) (e' : Int.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | mul (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr))
+  | /--
+    Linearization proof for `/`
+    - If `?y = some y`, then it is a proof for `a / b = y / k` where `c` is a proof that `b = k`
+    - If `?y = none`, then it is a proof for `a / b = a/k` where `c` is a proof that `b = k`. `a` is a numeral in this case.
+    -/
+    div (k : Int) (y? : Option Var) (c : EqCnstr)
+  | /--
+    Linearization proof for `%`
+    - If `?y = some y`, then it is a proof for `a % b = y%k` where `c` is a proof that `b = k`
+    - If `?y = none`, then it is a proof for `a % b = a%k` where `c` is a proof that `b = k`. `a` is a numeral in this case.
+    -/
+    mod (k : Int) (y? : Option Var) (c : EqCnstr)
+  | pow (ka : Int) (ca? : Option EqCnstr) (kb : Nat) (cb? : Option EqCnstr)
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where
@@ -130,7 +158,9 @@ inductive CooperSplitProof where
     last (hs : Array (FVarId × UnsatProof)) (decVars : Array FVarId)
 
 inductive DvdCnstrProof where
-  | expr (h : Expr)
+  | /-- Given `e` of the form `k ∣ p` s.t. `e = True` in the core.  -/
+    core (e : Expr)
+  | coreOfNat (e : Expr) (thm : Expr) (d : Nat) (a : Int.Linear.Expr)
   | norm (c : DvdCnstr)
   | divCoeffs (c : DvdCnstr)
   | solveCombine (c₁ c₂ : DvdCnstr)
@@ -141,15 +171,21 @@ inductive DvdCnstrProof where
   | cooper₁ (c : CooperSplit)
   /-- `c.c₃?` must be `some` -/
   | cooper₂ (c : CooperSplit)
+  | reorder (c : DvdCnstr)
+  | commRingNorm (c : DvdCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
-/-- An inequalirty constraint and its justification/proof. -/
+/-- An inequality constraint and its justification/proof. -/
 structure LeCnstr where
   p  : Poly
   h  : LeCnstrProof
 
 inductive LeCnstrProof where
-  | expr (h : Expr)
-  | notExpr (p : Poly) (h : Expr)
+  | core (e : Expr)
+  | coreNeg (e : Expr) (p : Poly)
+  | coreToInt (e : Expr) (pos : Bool) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
+  | ofNatNonneg (a : Expr)
+  | bound (h : Expr)
+  | dec (h : FVarId)
   | norm (c : LeCnstr)
   | divCoeffs (c : LeCnstr)
   | combine (c₁ c₂ : LeCnstr)
@@ -160,6 +196,8 @@ inductive LeCnstrProof where
   | cooper (c : CooperSplit)
   | dvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
   | negDvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
+  | reorder (c : LeCnstr)
+  | commRingNorm (c : LeCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
 /-- A disequality constraint and its justification/proof. -/
 structure DiseqCnstr where
@@ -167,16 +205,24 @@ structure DiseqCnstr where
   h  : DiseqCnstrProof
 
 inductive DiseqCnstrProof where
-  | expr (h : Expr)
-  | core (p₁ p₂ : Poly) (h : Expr)
+  | /-- An disequality `a != 0` coming from the core. That is, `(a = 0) = False` in the core. -/
+    core0 (a : Expr) (zero : Expr)
+  | /--
+    An disequality `a ≠ b` coming from the core. That is, `(a = b) = False` in the core.
+    `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
+    -/
+    core (a b : Expr) (p₁ p₂ : Poly)
+  | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
   | norm (c : DiseqCnstr)
   | divCoeffs (c : DiseqCnstr)
   | neg (c : DiseqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+  | reorder (c : DiseqCnstr)
+  | commRingNorm (c : DiseqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
 /--
 A proof of `False`.
-Remark: We will later add support for a backtraking search inside of cutsat.
+Remark: We will later add support for a backtracking search inside of cutsat.
 -/
 inductive UnsatProof where
   | dvd (c : DvdCnstr)
@@ -188,10 +234,10 @@ inductive UnsatProof where
 end
 
 instance : Inhabited LeCnstr where
-  default := { p := .num 0, h := .expr default }
+  default := { p := .num 0, h := .core default}
 
 instance : Inhabited DvdCnstr where
-  default := { d := 0, p := .num 0, h := .expr default }
+  default := { d := 0, p := .num 0, h := .core default }
 
 instance : Inhabited CooperSplitPred where
   default := { left := false, c₁ := default, c₂ := default, c₃? := none }
@@ -199,14 +245,35 @@ instance : Inhabited CooperSplitPred where
 instance : Inhabited CooperSplit where
   default := { pred := default, k := 0, h := .dec default }
 
-abbrev VarSet := RBTree Var compare
+abbrev VarSet := Std.TreeSet Var
 
 /-- State of the cutsat procedure. -/
 structure State where
   /-- Mapping from variables to their denotations. -/
   vars : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
-  varMap  : PHashMap ENodeKey Var := {}
+  varMap  : PHashMap ExprPtr Var := {}
+  /--
+  `vars` before they were reordered.
+  This array is empty if the variables were not reordered.
+  We need them to generate the proof term because some
+  justification objects contain terms using variables before the reordering.
+  -/
+  vars' : PArray Expr := {}
+  /-- `varMap` before variables were reordered. -/
+  varMap' : PHashMap ExprPtr Var := {}
+  /--
+  The field `natToIntMap` contains a mapping
+  from a `Nat`-term `e` to the pair `(e', he)`, where
+  `he : NatCast.natCast e = e'`
+  -/
+  natToIntMap : PHashMap ExprPtr (Expr × Expr) := {}
+  /--
+  Some `Nat` variables encode nested terms such as `b+1`.
+  This is a mapping from this kind of variable to the integer variable
+  representing `natCast (b+1)`.
+  -/
+  natDef : PHashMap ExprPtr Var := {}
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/
@@ -235,11 +302,6 @@ structure State where
   Elimination stack. For every variable in `elimStack`. If `x` in `elimStack`, then `elimEqs[x]` is not `none`.
   -/
   elimStack : List Var := []
-  /--
-  Mapping from terms (e.g., `x + 2*y + 2`, `3*x`, `5`) to polynomials representing them.
-  These are terms used to propagate equalities between this module and the congruence closure module.
-  -/
-  terms : PHashMap ENodeKey Poly := {}
   /--
   Mapping from variable to occurrences. For example, an entry `x ↦ {y, z}` means that `x` may occur in `dvdCnstrs`, `lowers`, or `uppers` of
   variables `y` and `z`.
@@ -275,7 +337,31 @@ structure State where
   - `Int.Linear.emod_le`
   -/
   divMod : PHashSet (Expr × Int) := {}
-  /- TODO: Model-based theory combination. -/
+  /--
+  Mapping from a type `α` to its corresponding `ToIntInfo` object idx in `toInfos`, which contains
+  the information needed to embed `α` terms into `Int` terms.
+  -/
+  toIntIds : PHashMap ExprPtr (Option Nat) := {}
+  toIntInfos : PArray ToIntInfo := {}
+  /--
+  For each type `α` in `toIntInfos`, the mapping `toIntVarMap` contains a mapping
+  from a α-term `e` to the pair `(toInt e, α)`.
+  -/
+  toIntTermMap : PHashMap ExprPtr ToIntTermInfo := {}
+  /--
+  `usedCommRing` is `true` if the `CommRing` has been used to normalize expressions.
+  -/
+  usedCommRing : Bool := false
+  /--
+  Mapping from terms to variables representing nonlinear terms.
+  For example, suppose the denotation of variable `x` is the nonlinear term `a*b*c`,
+  and `y` is the nonlinear term `a / d`. Then the mapping contains the entries
+  - `a ↦ [x, y]`
+  - `b ↦ [x]`
+  - `c ↦ [x]`
+  - `d ↦ [y]`
+  -/
+  nonlinearOccs : PHashMap Var (List Var) := {}
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

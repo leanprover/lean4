@@ -7,4 +7,7 @@ add_library(library OBJECT expr_lt.cpp
   aux_recursors.cpp
   profiling.cpp time_task.cpp
   formatter.cpp
-  elab_environment.cpp)
+  elab_environment.cpp
+  init_attribute.cpp
+  llvm.cpp
+  ir_interpreter.cpp)

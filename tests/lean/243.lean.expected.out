@@ -1,16 +1,16 @@
-243.lean:2:10-2:14: error: application type mismatch
-  ⟨Bool, true⟩
-argument
+243.lean:2:10-2:14: error: Application type mismatch: The argument
   true
 has type
-  _root_.Bool : Type
+  _root_.Bool
 but is expected to have type
-  Bool : Type
-243.lean:13:7-13:8: error: application type mismatch
-  ⟨A, a⟩
-argument
+  Bool
+in the application
+  ⟨Bool, true⟩
+243.lean:13:7-13:8: error: Application type mismatch: The argument
   a
 has type
-  Foo.A : Type
+  Foo.A
 but is expected to have type
-  A : Type
+  A
+in the application
+  ⟨A, a⟩

@@ -3,16 +3,20 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.Array
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.WF.Basic
-import Lean.Elab.Tactic.Basic
-import Lean.Meta.ArgsPacker
-import Lean.Meta.ForEachExpr
-import Lean.Meta.Match.MatcherApp.Transform
-import Lean.Meta.Tactic.Cleanup
-import Lean.Util.HasConstCache
+public import Lean.Data.Array
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.WF.Basic
+public import Lean.Elab.Tactic.Basic
+public import Lean.Meta.ArgsPacker
+public import Lean.Meta.ForEachExpr
+public import Lean.Meta.Match.MatcherApp.Transform
+public import Lean.Meta.Tactic.Cleanup
+public import Lean.Util.HasConstCache
+
+public section
 
 namespace Lean.Elab.WF
 open Meta
@@ -50,7 +54,7 @@ where
       let r := mkApp F (← loop F args[fixedPrefixSize]!)
       let decreasingProp := (← whnf (← inferType r)).bindingDomain!
       let r := mkApp r (← mkDecreasingProof decreasingProp)
-      return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
+      return mkAppN r (← args[fixedPrefixSize<...*].toArray.mapM (loop F))
 
   processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if e.isAppOf recFnName then
@@ -84,9 +88,9 @@ where
     | Expr.forallE n d b c =>
       withLocalDecl n c (← loop F d) fun x => do
         mkForallFVars #[x] (← loop F (b.instantiate1 x))
-    | Expr.letE n type val body _ =>
-      withLetDecl n (← loop F type) (← loop F val) fun x => do
-        mkLetFVars #[x] (← loop F (body.instantiate1 x)) (usedLetOnly := false)
+    | Expr.letE n type val body nondep =>
+      mapLetDecl n (← loop F type) (← loop F val) (nondep := nondep) (usedLetOnly := false) fun x => do
+        loop F (body.instantiate1 x)
     | Expr.mdata d b =>
       if let some stx := getRecAppSyntax? e then
         withRef stx <| loop F b
@@ -98,7 +102,7 @@ where
       match (← matchMatcherApp? (alsoCasesOn := true) e) with
       | some matcherApp =>
         if let some matcherApp ← matcherApp.addArg? F then
-          let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
+          let altsNew ← matcherApp.alts.zipWithM (bs := matcherApp.altNumParams) fun alt numParams =>
             lambdaBoundedTelescope alt numParams fun xs altBody => do
               unless xs.size = numParams do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
@@ -150,7 +154,7 @@ private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (v
     let minor ← lambdaTelescope args[4]! fun xs body => do
         let a := xs[0]!
         let xNew := xs[1]!
-        let valNew ← mkLambdaFVars xs[2:] body
+        let valNew ← mkLambdaFVars xs[2...*] body
         let FTypeNew := FDecl.type.replaceFVar x (← mkAppOptM `PSigma.mk #[α, β, a, xNew])
         withLocalDeclD FDecl.userName FTypeNew fun FNew => do
           mkLambdaFVars #[a, xNew, FNew] (← processPSigmaCasesOn xNew FNew valNew k)
@@ -194,7 +198,7 @@ The close coupling with how arguments are packed and termination goals look like
 but it works for now.
 -/
 def groupGoalsByFunction (argsPacker : ArgsPacker) (numFuncs : Nat) (goals : Array MVarId) : MetaM (Array (Array MVarId)) := do
-  let mut r := mkArray numFuncs #[]
+  let mut r := .replicate numFuncs #[]
   for goal in goals do
     let type ← goal.getType
     let (.mdata _ (.app _ param)) := type
@@ -204,7 +208,9 @@ def groupGoalsByFunction (argsPacker : ArgsPacker) (numFuncs : Nat) (goals : Arr
     r := r.modify funidx (·.push goal)
   return r
 
-def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decrTactics : Array (Option DecreasingBy)) (value : Expr) : MetaM Expr := do
+def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decrTactics : Array (Option DecreasingBy)) (value : Expr) : MetaM Expr :=
+  -- entering proof
+  withoutExporting do
   let goals ← getMVarsNoDelayed value
   let goals ← assignSubsumed goals
   let goalss ← groupGoalsByFunction argsPacker decrTactics.size goals
@@ -232,7 +238,8 @@ def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decr
   instantiateMVars value
 
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsPacker)
-    (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy)) : TermElabM Expr := do
+    (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy))
+    (opaqueProof : Bool) : TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]!
@@ -242,6 +249,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsP
     let motive ← mkLambdaFVars #[x] type
     let rel := mkProj ``WellFoundedRelation 0 wfRel
     let wf  := mkProj ``WellFoundedRelation 1 wfRel
+    let wf ← if opaqueProof then mkAppM `Lean.opaqueId #[wf] else pure wf
     let varName ← x.fvarId!.getUserName -- See comment below.
     return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
   forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do

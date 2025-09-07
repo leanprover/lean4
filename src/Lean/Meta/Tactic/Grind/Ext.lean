@@ -3,8 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.SynthInstance
+
+public section
 
 namespace Lean.Meta.Grind
 /-! Extensionality theorems support. -/
@@ -20,7 +25,7 @@ def instantiateExtTheorem (thm : Ext.ExtTheorem) (e : Expr) : GoalM Unit := with
   for mvar in mvars, bi in bis do
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
-      unless (← synthesizeInstanceAndAssign mvar type) do
+      unless (← synthInstanceAndAssign mvar type) do
         reportIssue! "failed to synthesize instance when instantiating extensionality theorem `{thm.declName}` for {indentExpr e}"
         return ()
   -- Remark: `proof c mvars` has type `e`
@@ -28,13 +33,14 @@ def instantiateExtTheorem (thm : Ext.ExtTheorem) (e : Expr) : GoalM Unit := with
   -- `e` is equal to `False`
   let eEqFalse ← mkEqFalseProof e
   -- So, we use `Eq.mp` to build a `proof` of `False`
-  let proof ← mkEqMP eEqFalse proof
+  let proof := mkApp4 (mkConst ``Eq.mp [levelZero]) e (← getFalseExpr) eEqFalse proof
   let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
   let proof' ← instantiateMVars (← mkLambdaFVars mvars proof)
   let prop' ← inferType proof'
   if proof'.hasMVar || prop'.hasMVar then
     reportIssue! "failed to apply extensionality theorem `{thm.declName}` for {indentExpr e}\nresulting terms contain metavariables"
     return ()
-  addNewRawFact proof' prop' ((← getGeneration e) + 1)
+  trace[grind.ext] "{thm.declName}: {prop'}"
+  addNewRawFact proof' prop' ((← getGeneration e) + 1) (.ext thm.declName)
 
 end Lean.Meta.Grind

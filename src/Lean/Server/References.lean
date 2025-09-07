@@ -4,9 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Joscha Mennicken
 -/
+module
+
 prelude
-import Lean.Data.Lsp.Internal
-import Lean.Server.Utils
+public import Lean.Data.Lsp.Internal
+public import Lean.Data.Lsp.Extra
+public import Lean.Server.Utils
+public import Lean.Elab.Import
+public import Std.Data.TreeSet.Basic
+
+public section
 
 /-! # Representing collected and deduplicated definitions and usages -/
 
@@ -14,6 +21,17 @@ set_option linter.missingDocs true
 
 namespace Lean.Server
 open Lsp Lean.Elab Std
+
+/-- Converts an `Import` to its LSP-internal representation. -/
+def ImportInfo.ofImport (i : Import) : ImportInfo where
+  module := i.module.toString
+  isAll := i.importAll
+  isPrivate := ! i.isExported
+  isMeta := i.isMeta
+
+/-- Collects `ImportInfo` for all import statements in `headerStx`. -/
+def collectImports (headerStx : HeaderSyntax) : Array ImportInfo :=
+  headerToImports headerStx (includeInit := false) |>.map ImportInfo.ofImport
 
 /--
 Global reference. Used by the language server to figure out which identifiers refer to which
@@ -72,7 +90,12 @@ def toLspRefInfo (i : RefInfo) : BaseIO Lsp.RefInfo := do
     let .ok parentDeclRanges? ← EIO.toBaseIO <| ref.ci.runCoreM do
         let some parentDeclName := parentDeclName?
           | return none
-        findDeclarationRanges? parentDeclName
+        -- Use `local` as it avoids unnecessary blocking, which is especially important when called
+        -- from the snapshot reporter. Specifically, if `ref` is from a tactic of an async theorem,
+        -- `parentDeclName` will not be available in the current environment and we would block only
+        -- to return `none` in the end anyway. At the end of elaboration, we rerun this function on
+        -- the full info tree with the main environment, so the access will succeed immediately.
+        return declRangeExt.find? (asyncMode := .local) (← getEnv) parentDeclName
       -- we only use `CoreM` to get access to a `MonadEnv`, but these are currently all `IO`
       | unreachable!
     return {
@@ -93,7 +116,7 @@ def toLspRefInfo (i : RefInfo) : BaseIO Lsp.RefInfo := do
 end RefInfo
 
 /-- All references from within a module for all identifiers used in a single module. -/
-def ModuleRefs := Std.HashMap RefIdent RefInfo
+abbrev ModuleRefs := Std.TreeMap RefIdent RefInfo
 
 namespace ModuleRefs
 
@@ -104,9 +127,10 @@ def addRef (self : ModuleRefs) (ref : Reference) : ModuleRefs :=
 
 /-- Converts `refs` to a JSON-serializable `Lsp.ModuleRefs`. -/
 def toLspModuleRefs (refs : ModuleRefs) : BaseIO Lsp.ModuleRefs := do
-  let refs ← refs.toList.mapM fun (k, v) => do
-    return (k, ← v.toLspRefInfo)
-  return Std.HashMap.ofList refs
+  let mut refs' := ∅
+  for (k, v) in refs do
+    refs' := refs'.insert k (← v.toLspRefInfo)
+  return refs'
 
 end ModuleRefs
 
@@ -163,14 +187,14 @@ def findAt
     (includeStop := false)
     : Array RefIdent := Id.run do
   let mut result := #[]
-  for (ident, info) in self.toArray do
+  for (ident, info) in self do
     if info.contains pos includeStop then
       result := result.push ident
   result
 
 /-- Finds the first range in `self` that contains `pos`. -/
 def findRange? (self : ModuleRefs) (pos : Lsp.Position) (includeStop := false) : Option Range := do
-  for (_, info) in self.toList do
+  for (_, info) in self do
     if let some loc := info.findReferenceLocation? pos includeStop then
       return loc.range
   none
@@ -185,11 +209,13 @@ open Elab
 /-- Content of individual `.ilean` files -/
 structure Ilean where
   /-- Version number of the ilean format. -/
-  version    : Nat := 3
+  version       : Nat := 4
   /-- Name of the module that this ilean data has been collected for. -/
-  module     : Name
+  module        : Name
+  /-- Direct imports of the module. -/
+  directImports : Array Lsp.ImportInfo
   /-- All references of this module. -/
-  references : Lsp.ModuleRefs
+  references    : Lsp.ModuleRefs
   deriving FromJson, ToJson
 
 namespace Ilean
@@ -206,9 +232,8 @@ end Ilean
 
 /-- Gets the name of the module that contains `declName`. -/
 def getModuleContainingDecl? (env : Environment) (declName : Name) : Option Name := do
-  if env.constants.map₂.contains declName then
-    return env.header.mainModule
-  let modIdx ← env.getModuleIdxFor? declName
+  let some modIdx := env.getModuleIdxFor? declName
+    | env.header.mainModule
   env.allImportedModuleNames[modIdx]?
 
 /--
@@ -261,7 +286,7 @@ all identifiers that are being collapsed into one.
 -/
 partial def combineIdents (trees : Array InfoTree) (refs : Array Reference) : Array Reference := Id.run do
   -- Deduplicate definitions based on their exact range
-  let mut posMap : Std.HashMap Lsp.Range RefIdent := Std.HashMap.empty
+  let mut posMap : Std.HashMap Lsp.Range RefIdent := ∅
   for ref in refs do
     if let { ident, range, isBinder := true, .. } := ref then
       posMap := posMap.insert range ident
@@ -288,12 +313,12 @@ where
 
     -- collect equivalence classes
     let mut classesById : Std.HashMap RefIdent (Std.HashSet RefIdent) := ∅
-    for ⟨id, baseId⟩ in idMap.toArray do
+    for ⟨id, baseId⟩ in idMap do
       classesById := insertIntoClass classesById id
       classesById := insertIntoClass classesById baseId
 
     let mut r := ∅
-    for ⟨currentRepresentative, «class»⟩ in classesById.toArray do
+    for ⟨currentRepresentative, «class»⟩ in classesById do
       -- find best representative (ideally a const if available)
       let mut bestRepresentative := currentRepresentative
       for id in «class» do
@@ -316,7 +341,7 @@ where
       canonicalRepresentative := idMap[canonicalRepresentative]
     return canonicalRepresentative
 
-  buildIdMap posMap := Id.run <| StateT.run' (s := Std.HashMap.empty) do
+  buildIdMap posMap := Id.run <| StateT.run' (s := ∅) do
     -- map fvar defs to overlapping fvar defs/uses
     for ref in refs do
       let baseId := ref.ident
@@ -346,7 +371,7 @@ are added to the `aliases` of the representative of the group.
 Yields to separate groups for declaration and usages if `allowSimultaneousBinderUse` is set.
 -/
 def dedupReferences (refs : Array Reference) (allowSimultaneousBinderUse := false) : Array Reference := Id.run do
-  let mut refsByIdAndRange : Std.HashMap (RefIdent × Option Bool × Lsp.Range) Reference := Std.HashMap.empty
+  let mut refsByIdAndRange : Std.HashMap (RefIdent × Option Bool × Lsp.Range) Reference := ∅
   for ref in refs do
     let isBinder := if allowSimultaneousBinderUse then some ref.isBinder else none
     let key := (ref.ident, isBinder, ref.range)
@@ -371,162 +396,399 @@ def findModuleRefs (text : FileMap) (trees : Array InfoTree) (localVars : Bool :
     refs := refs.filter fun
       | { ident := RefIdent.fvar .., .. } => false
       | _ => true
-  refs.foldl (init := Std.HashMap.empty) fun m ref => m.addRef ref
+  refs.foldl (init := Std.TreeMap.empty) fun m ref => m.addRef ref
 
 /-! # Collecting and maintaining reference info from different sources -/
+
+/-- Represents a direct import of a module in the references data structure. -/
+structure ModuleImport where
+  /-- Module name of the module that is imported. -/
+  module    : Name
+  /-- URI of the module that is imported. -/
+  uri       : DocumentUri
+  /-- Whether the `all` flag is set on this import. -/
+  isAll     : Bool
+  /-- Whether the `private` flag is set on this import. -/
+  isPrivate : Bool
+  /-- Kind of `meta` annotation on this import. -/
+  metaKind  : LeanImportMetaKind
+  deriving Inhabited
+
+/--
+Reduces `identicalImports` with the same module name by merging their flags.
+Yields `none` if `identicalImports` is empty or `identicalImports` contains an import that
+has a name or uri that is not identical to the others.
+-/
+def ModuleImport.collapseIdenticalImports? (identicalImports : Array ModuleImport) : Option ModuleImport := do
+  let mut acc ← identicalImports[0]?
+  for h:i in 1...identicalImports.size do
+    let «import» := identicalImports[i]
+    guard <| acc.module == «import».module
+    guard <| acc.uri == «import».uri
+    acc := { acc with
+      isAll := acc.isAll || «import».isAll
+      isPrivate := acc.isPrivate && «import».isPrivate
+      metaKind := collapseMetaKinds acc.metaKind «import».metaKind
+    }
+  return acc
+where
+  collapseMetaKinds : LeanImportMetaKind → LeanImportMetaKind → LeanImportMetaKind
+    | .full,    _        => .full
+    | _,        .full    => .full
+    | .nonMeta, .meta    => .full
+    | .meta,    .nonMeta => .full
+    | .meta,    .meta    => .meta
+    | .nonMeta, .nonMeta => .nonMeta
+
+
+/--
+Index that allows efficiently looking up the imports of a module by module name.
+Since the same module can be imported multiple times with different attributes,
+each module name maps to an array of imports.
+-/
+abbrev ModuleImportIndex := Std.TreeMap Name (Array ModuleImport) Name.quickCmp
+
+/--
+Direct imports of a module, containing an ordered representation and an index for fast lookups.
+-/
+structure DirectImports where
+  /-- Imports as they occurred in the module. -/
+  ordered : Array ModuleImport
+  /--
+  Index that allows efficiently looking up the imports of a module by module name.
+  Since the same module can be imported multiple times with different attributes,
+  each module name maps to an array of imports.
+  -/
+  index   : ModuleImportIndex
+
+instance : EmptyCollection DirectImports where
+  emptyCollection := { ordered := #[], index := ∅ }
+
+/--
+Converts a list of LSP module imports to the module imports of the references data structure.
+Removes all imports for which we cannot resolve the corresponding `DocumentUri`.
+-/
+def DirectImports.convertImportInfos (infos : Array Lsp.ImportInfo) : IO DirectImports := do
+  let ordered ← infos.filterMapM fun i => do
+    let module := i.module.toName
+    let some uri ← documentUriFromModule? module
+      | return none
+    return some {
+      uri
+      module
+      isAll := i.isAll
+      isPrivate := i.isPrivate
+      metaKind := if i.isMeta then .meta else .nonMeta
+    }
+  let index := ordered.groupByKey (·.module)
+    |>.toArray
+    |> Std.TreeMap.ofArray (cmp := Name.quickCmp)
+  return { ordered, index }
+
+/-- Reference information from a loaded ILean file. -/
+structure LoadedILean where
+  /-- URI of the module of this ILean. -/
+  moduleUri     : DocumentUri
+  /-- Path to the ILean file. -/
+  ileanPath     : System.FilePath
+  /-- Direct imports of the module of this ILean. -/
+  directImports : DirectImports
+  /-- Reference information from this ILean. -/
+  refs          : Lsp.ModuleRefs
+
+/-- Paths and module references for every module name. Loaded from `.ilean` files. -/
+abbrev ILeanMap := Std.TreeMap Name LoadedILean Name.quickCmp
+
+/--
+Transient reference information from a file worker.
+We track this information so that we have up-to-date reference information before a file has been
+built.
+-/
+structure TransientWorkerILean where
+  /-- URI of the module that the file worker is associated with. -/
+  moduleUri     : DocumentUri
+  /-- Document version for which these references have been collected. -/
+  version       : Nat
+  /-- Direct imports of the module that the file worker is associated with. -/
+  directImports : DirectImports
+  /-- References provided by the worker. -/
+  refs          : Lsp.ModuleRefs
+
+/--
+Document versions and module references for every module name. Loaded from the current state
+in a file worker.
+-/
+abbrev WorkerRefMap := Std.TreeMap Name TransientWorkerILean Name.quickCmp
 
 /-- References from ilean files and current ilean information from file workers. -/
 structure References where
   /-- References loaded from ilean files -/
-  ileans : Std.HashMap Name (System.FilePath × Lsp.ModuleRefs)
+  ileans : ILeanMap
   /-- References from workers, overriding the corresponding ilean files -/
-  workers : Std.HashMap Name (Nat × Lsp.ModuleRefs)
+  workers : WorkerRefMap
+  deriving Inhabited
 
 namespace References
 
 /-- No ilean files, no information from workers. -/
-def empty : References := { ileans := Std.HashMap.empty, workers := Std.HashMap.empty }
+def empty : References := { ileans := ∅, workers := ∅ }
 
 /-- Adds the contents of an ilean file `ilean` at `path` to `self`. -/
-def addIlean (self : References) (path : System.FilePath) (ilean : Ilean) : References :=
-  { self with ileans := self.ileans.insert ilean.module (path, ilean.references) }
+def addIlean
+    (self      : References)
+    (path      : System.FilePath)
+    (ilean     : Ilean)
+    : IO References := do
+  let some moduleUri ← documentUriFromModule? ilean.module
+    | return self
+  let directImports ← DirectImports.convertImportInfos ilean.directImports
+  return { self with
+    ileans := self.ileans.insert ilean.module {
+      moduleUri
+      ileanPath := path
+      directImports
+      refs := ilean.references
+    }
+  }
 
 /-- Removes the ilean file data at `path` from `self`. -/
 def removeIlean (self : References) (path : System.FilePath) : References :=
-  let namesToRemove := self.ileans.toList.filter (fun (_, p, _) => p == path)
-    |>.map (fun (n, _, _) => n)
-  namesToRemove.foldl (init := self) fun self name =>
+  let namesToRemove := self.ileans.filter (fun _ { ileanPath, .. } => ileanPath == path)
+  namesToRemove.foldl (init := self) fun self name _ =>
     { self with ileans := self.ileans.erase name }
+
+/--
+Replaces the direct imports of a worker for the module `name` in `self` with
+a new set of direct imports.
+-/
+def updateWorkerImports
+    (self          : References)
+    (name          : Name)
+    (moduleUri     : DocumentUri)
+    (version       : Nat)
+    (directImports : Array ImportInfo)
+    : IO References := do
+  let directImports ← DirectImports.convertImportInfos directImports
+  let some { version := currVersion, .. } := self.workers[name]?
+    | return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs := ∅} }
+  match compare version currVersion with
+  | .lt => return self
+  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs := ∅} }
+  | .eq =>
+    let refs := self.workers.get? name |>.map (·.refs) |>.getD ∅
+    return { self with
+      workers := self.workers.insert name { moduleUri, version, directImports, refs }
+    }
 
 /--
 Updates the worker references in `self` with the `refs` of the worker managing the module `name`.
 Replaces the current references with `refs` if `version` is newer than the current version managed
 in `refs` and otherwise merges the reference data if `version` is equal to the current version.
 -/
-def updateWorkerRefs (self : References) (name : Name) (version : Nat) (refs : Lsp.ModuleRefs) : References := Id.run do
-  if let some (currVersion, _) := self.workers[name]? then
-    if version > currVersion then
-      return { self with workers := self.workers.insert name (version, refs) }
-    if version == currVersion then
-      let current := self.workers.getD name (version, Std.HashMap.empty)
-      let merged := refs.fold (init := current.snd) fun m ident info =>
-        m.getD ident Lsp.RefInfo.empty |>.merge info |> m.insert ident
-      return { self with workers := self.workers.insert name (version, merged) }
-  return self
+def updateWorkerRefs
+    (self      : References)
+    (name      : Name)
+    (moduleUri : DocumentUri)
+    (version   : Nat)
+    (refs      : Lsp.ModuleRefs)
+    : IO References := do
+  let some { version := currVersion, .. } := self.workers[name]?
+    | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs } }
+  match compare version currVersion with
+  | .lt => return self
+  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs } }
+  | .eq =>
+    let current := self.workers.getD name { moduleUri, version, directImports := ∅, refs := Std.TreeMap.empty }
+    let mergedRefs := refs.foldl (init := current.refs) fun m ident info =>
+      m.getD ident Lsp.RefInfo.empty |>.merge info |> m.insert ident
+    return { self with
+      workers := self.workers.insert name { moduleUri, version, directImports := current.directImports, refs := mergedRefs }
+    }
 
 /--
 Replaces the worker references in `self` with the `refs` of the worker managing the module `name`
 if `version` is newer than the current version managed in `refs`.
 -/
-def finalizeWorkerRefs (self : References) (name : Name) (version : Nat) (refs : Lsp.ModuleRefs) : References := Id.run do
-  if let some (currVersion, _) := self.workers[name]? then
-    if version < currVersion then
-      return self
-  return { self with workers := self.workers.insert name (version, refs) }
+def finalizeWorkerRefs
+    (self      : References)
+    (name      : Name)
+    (moduleUri : DocumentUri)
+    (version   : Nat)
+    (refs      : Lsp.ModuleRefs)
+    : IO References := do
+  let some { version := currVersion, .. } := self.workers[name]?
+    | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs } }
+  match compare version currVersion with
+  | .lt => return self
+  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs} }
+  | .eq =>
+    let directImports := self.workers.get? name |>.map (·.directImports) |>.getD ∅
+    return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs } }
 
 /-- Erases all worker references in `self` for the worker managing `name`. -/
 def removeWorkerRefs (self : References) (name : Name) : References :=
   { self with workers := self.workers.erase name }
 
+/--
+Map from each module to all of its references.
+The current references in a file worker take precedence over those in .ilean files.
+-/
+abbrev AllRefsMap := Std.TreeMap Name (DocumentUri × Lsp.ModuleRefs) Name.quickCmp
+
 /-- Yields a map from all modules to all of their references. -/
-def allRefs (self : References) : Std.HashMap Name Lsp.ModuleRefs :=
-  let ileanRefs := self.ileans.toArray.foldl (init := Std.HashMap.empty) fun m (name, _, refs) => m.insert name refs
-  self.workers.toArray.foldl (init := ileanRefs) fun m (name, _, refs) => m.insert name refs
+def allRefs (self : References) : AllRefsMap :=
+  let ileanRefs := self.ileans.foldl (init := ∅) fun m name { moduleUri, refs, .. } => m.insert name (moduleUri, refs)
+  self.workers.foldl (init := ileanRefs) fun m name { moduleUri, refs, ..} => m.insert name (moduleUri, refs)
+
+/--
+Map from each module to all of its direct imports.
+The current references in a file worker take precedence over those in .ilean files.
+-/
+abbrev AllDirectImportsMap := Std.TreeMap Name (DocumentUri × DirectImports) Name.quickCmp
+
+/-- Yields a map from all modules to all of their direct imports. -/
+def allDirectImports (self : References) : AllDirectImportsMap := Id.run do
+  let mut allDirectImports := ∅
+  for (name, ilean) in self.ileans do
+    allDirectImports := allDirectImports.insert name (ilean.moduleUri, ilean.directImports)
+  for (name, worker) in self.workers do
+    allDirectImports := allDirectImports.insert name (worker.moduleUri, worker.directImports)
+  return allDirectImports
+
+/--
+Gets the references for `mod`.
+The current references in a file worker take precedence over those in .ilean files.
+-/
+def getModuleRefs? (self : References) (mod : Name) : Option (DocumentUri × Lsp.ModuleRefs) := do
+  if let some worker := self.workers[mod]? then
+    return (worker.moduleUri, worker.refs)
+  if let some ilean := self.ileans[mod]? then
+    return (ilean.moduleUri, ilean.refs)
+  none
+
+/--
+Gets the direct imports of `mod`.
+The current imports in a file worker take precedence over those in .ilean files.
+-/
+def getDirectImports? (self : References) (mod : Name) : Option DirectImports := do
+  if let some worker := self.workers[mod]? then
+    return worker.directImports
+  if let some ilean := self.ileans[mod]? then
+    return ilean.directImports
+  none
 
 /--
 Yields all references in `self` for `ident`, as well as the `DocumentUri` that each
 reference occurs in.
 -/
 def allRefsFor
-    (self          : References)
-    (srcSearchPath : SearchPath)
-    (ident         : RefIdent)
-    : IO (Array (DocumentUri × Lsp.RefInfo)) := do
+    (self  : References)
+    (ident : RefIdent)
+    : Array (DocumentUri × Name × Lsp.RefInfo) := Id.run do
   let refsToCheck := match ident with
     | RefIdent.const .. => self.allRefs.toArray
     | RefIdent.fvar identModule .. =>
       let identModuleName := identModule.toName
-      match self.allRefs[identModuleName]? with
+      match self.getModuleRefs? identModuleName with
       | none => #[]
-      | some refs => #[(identModuleName, refs)]
+      | some (moduleUri, refs) => #[(identModuleName, moduleUri, refs)]
   let mut result := #[]
-  for (module, refs) in refsToCheck do
+  for (module, moduleUri, refs) in refsToCheck do
     let some info := refs.get? ident
       | continue
-    let some path ← srcSearchPath.findModuleWithExt "lean" module
-      | continue
-    -- Resolve symlinks (such as `src` in the build dir) so that files are
-    -- opened in the right folder
-    let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
-    result := result.push (uri, info)
+    result := result.push (moduleUri, module, info)
   return result
 
 /-- Yields all references in `module` at `pos`. -/
 def findAt (self : References) (module : Name) (pos : Lsp.Position) (includeStop := false) : Array RefIdent := Id.run do
-  if let some refs := self.allRefs[module]? then
+  if let some (_, refs) := self.getModuleRefs? module then
     return refs.findAt pos includeStop
   #[]
 
 /-- Yields the first reference in `module` at `pos`. -/
 def findRange? (self : References) (module : Name) (pos : Lsp.Position) (includeStop := false) : Option Range := do
-  let refs ← self.allRefs[module]?
+  let (_, refs) ← self.getModuleRefs? module
   refs.findRange? pos includeStop
 
 /-- Location and parent declaration of a reference. -/
 structure DocumentRefInfo where
   /-- Location of the reference. -/
   location    : Location
+  /-- Module name of the reference. -/
+  module      : Name
   /-- Parent declaration of the reference. -/
   parentInfo? : Option RefInfo.ParentDecl
 
 /-- Yields locations and parent declaration for all references referring to `ident`. -/
 def referringTo
     (self              : References)
-    (srcSearchPath     : SearchPath)
     (ident             : RefIdent)
     (includeDefinition : Bool := true)
-    : IO (Array DocumentRefInfo) := do
+    : Array DocumentRefInfo := Id.run do
   let mut result := #[]
-  for (moduleUri, info) in ← self.allRefsFor srcSearchPath ident do
+  for (moduleUri, module, info) in self.allRefsFor ident do
     if includeDefinition then
       if let some ⟨range, parentDeclInfo?⟩ := info.definition? then
-        result := result.push ⟨⟨moduleUri, range⟩, parentDeclInfo?⟩
+        result := result.push ⟨⟨moduleUri, range⟩, module, parentDeclInfo?⟩
     for ⟨range, parentDeclInfo?⟩ in info.usages do
-      result := result.push ⟨⟨moduleUri, range⟩, parentDeclInfo?⟩
+      result := result.push ⟨⟨moduleUri, range⟩, module, parentDeclInfo?⟩
   return result
 
 /-- Yields the definition location of `ident`. -/
 def definitionOf?
-    (self          : References)
-    (ident         : RefIdent)
-    (srcSearchPath : SearchPath)
-    : IO (Option DocumentRefInfo) := do
-  for (moduleUri, info) in ← self.allRefsFor srcSearchPath ident do
+    (self  : References)
+    (ident : RefIdent)
+    : Option DocumentRefInfo := Id.run do
+  for (moduleUri, module, info) in self.allRefsFor ident do
     let some ⟨definitionRange, definitionParentDeclInfo?⟩ := info.definition?
       | continue
-    return some ⟨⟨moduleUri, definitionRange⟩, definitionParentDeclInfo?⟩
+    return some ⟨⟨moduleUri, definitionRange⟩, module, definitionParentDeclInfo?⟩
   return none
+
+/-- A match in `References.definitionsMatching`. -/
+structure MatchedDefinition (α : Type) where
+  /-- Result of `filterMapMod`. -/
+  mod    : Name
+  /-- URI for `mod`. -/
+  modUri : DocumentUri
+  /-- Result of `filterMapIdent`. -/
+  ident  : α
+  /-- Definition range of matched identifier. -/
+  range  : Range
 
 /-- Yields all definitions matching the given `filter`. -/
 def definitionsMatching
-    (self          : References)
-    (srcSearchPath : SearchPath)
-    (filter        : Name → Option α)
-    (maxAmount?    : Option Nat := none) : IO $ Array (α × Location) := do
+    (self           : References)
+    (filterMapIdent : Name → Option α)
+    (cancelTk?      : Option CancelToken := none)
+    : BaseIO (Array (MatchedDefinition α)) := do
   let mut result := #[]
-  for (module, refs) in self.allRefs.toList do
-    let some path ← srcSearchPath.findModuleWithExt "lean" module
-      | continue
-    let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
-    for (ident, info) in refs.toList do
+  for (module, moduleUri, refs) in self.allRefs do
+    if let some cancelTk := cancelTk? then
+      if ← cancelTk.isSet then
+        return result
+    for (ident, info) in refs do
       let (RefIdent.const _ nameString, some ⟨definitionRange, _⟩) := (ident, info.definition?)
         | continue
-      let some a := filter nameString.toName
+      let some v := filterMapIdent nameString.toName
         | continue
-      result := result.push (a, ⟨uri, definitionRange⟩)
-      if let some maxAmount := maxAmount? then
-        if result.size >= maxAmount then
-          return result
+      result := result.push ⟨module, moduleUri, v, definitionRange⟩
+  return result
+
+/-- Yields all imports that import the given `requestedMod`. -/
+def importedBy (self : References) (requestedMod : Name) : Array ModuleImport := Id.run do
+  let mut result := #[]
+  for (importedByModule, importedByModuleUri, directImports) in self.allDirectImports do
+    let some importsOfRequestedMod := directImports.index.get? requestedMod
+      | continue
+    let importOfRequestedMod := ModuleImport.collapseIdenticalImports? importsOfRequestedMod |>.get!
+    result := result.push {
+      module := importedByModule
+      uri := importedByModuleUri
+      isAll := importOfRequestedMod.isAll
+      isPrivate := importOfRequestedMod.isPrivate
+      metaKind := importOfRequestedMod.metaKind
+    }
   return result
 
 end References

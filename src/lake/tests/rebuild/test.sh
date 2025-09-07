@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-set -euxo pipefail
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source ../common.sh
 
 ./clean.sh
 
@@ -11,13 +9,16 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # The exact issue is no longer applicable as Lake now always rebuilds C files
 # with the other `lean` artifacts but the test is still nice to have
 
-mkdir -p Foo
+test_cmd mkdir -p Foo
 echo $'def a := "a"' > Foo/Test.lean
 echo $'import Foo.Test def hello := a' > Foo.lean
-${LAKE} build
-./.lake/build/bin/foo | grep --color a
+test_run build
+test_cmd_eq "Hello, a!" ./.lake/build/bin/foo
 echo $'def b := "b"' > Foo/Test.lean
 echo $'import Foo.Test def hello := b' > Foo.lean
-${LAKE} build Foo
-${LAKE} build
-./.lake/build/bin/foo | grep --color b
+test_run build Foo
+test_run build
+test_cmd_eq "Hello, b!" ./.lake/build/bin/foo
+
+# Cleanuo
+rm -f produced.out

@@ -3,19 +3,24 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.FalseOrByContra
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Simproc
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Rewrite
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AndFlatten
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.EmbeddedConstraint
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AC
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.IntToBitVec
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
+public import Lean.Elab.Tactic.FalseOrByContra
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Simproc
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Rewrite
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AndFlatten
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.EmbeddedConstraint
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AC
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.IntToBitVec
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ShortCircuit
+
+public section
 
 /-!
 This module contains the implementation of `bv_normalize`, the preprocessing tactic for `bv_decide`.
@@ -33,7 +38,7 @@ def passPipeline : PreProcessM (List Pass) := do
   let cfg ← PreProcessM.getConfig
 
   if cfg.acNf then
-    passPipeline := passPipeline ++ [acNormalizePass]
+    passPipeline := passPipeline ++ [bvAcNormalizePass]
 
   if cfg.andFlattening then
     passPipeline := passPipeline ++ [andFlatteningPass]
@@ -55,7 +60,8 @@ where
     let cfg ← PreProcessM.getConfig
 
     if cfg.structures || cfg.enums then
-      g := (← typeAnalysisPass.run g).get!
+      let some g' ← typeAnalysisPass.run g | return none
+      g := g'
 
     /-
     There is a tension between the structures and enums pass at play:
@@ -87,7 +93,15 @@ where
 
     trace[Meta.Tactic.bv] m!"Running fixpoint pipeline on:\n{g}"
     let pipeline ← passPipeline
-    Pass.fixpointPipeline pipeline g
+    let some g' ← Pass.fixpointPipeline pipeline g | return none
+    /-
+    Run short circuiting once post fixpoint, as it increases the size of terms with
+    the aim of exposing potential short-circuit reasoning to the solver.
+    -/
+    if cfg.shortCircuit then
+      shortCircuitPass |>.run g'
+    else
+      return g'
 
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun

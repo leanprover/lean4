@@ -3,11 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Date
-import Std.Time.Time
-import Std.Time.Internal
-import Std.Time.DateTime.Timestamp
+public import Std.Time.Date
+public import Std.Time.Time
+public import Std.Time.Internal
+public import Std.Time.DateTime.Timestamp
+
+public section
 
 namespace Std
 namespace Time
@@ -18,6 +22,7 @@ set_option linter.all true
 /--
 Represents a date and time with components for Year, Month, Day, Hour, Minute, Second, and Nanosecond.
 -/
+@[ext]
 structure PlainDateTime where
 
   /--
@@ -29,7 +34,22 @@ structure PlainDateTime where
   The `Time` component of a `PlainTime`
   -/
   time : PlainTime
-  deriving Inhabited, BEq, Repr
+deriving Inhabited, DecidableEq, Repr
+
+instance : Ord PlainDateTime where
+  compare := compareLex (compareOn (·.date)) (compareOn (·.time))
+
+theorem PlainDateTime.compare_def :
+    compare (α := PlainDateTime) = compareLex (compareOn (·.date)) (compareOn (·.time)) := rfl
+
+instance : TransOrd PlainDateTime := inferInstanceAs <| TransCmp (compareLex _ _)
+
+instance : LawfulEqOrd PlainDateTime where
+  eq_of_compare {a b} h := by
+    simp only [PlainDateTime.compare_def, compareLex_eq_eq] at h
+    apply PlainDateTime.ext
+    · exact LawfulEqOrd.eq_of_compare h.1
+    · exact LawfulEqOrd.eq_of_compare h.2
 
 namespace PlainDateTime
 
@@ -52,8 +72,17 @@ def ofTimestampAssumingUTC (stamp : Timestamp) : PlainDateTime := Id.run do
   let daysPer4Y := 365 * 4 + 1
 
   let nanos := stamp.toNanosecondsSinceUnixEpoch
-  let secs : Second.Offset := nanos.ediv 1000000000
-  let daysSinceEpoch : Day.Offset := secs.tdiv 86400
+
+  let secs : Second.Offset := nanos.toSeconds
+  let remNano := Bounded.LE.byMod nanos.val 1000000000 (by decide)
+
+  let (remNano, secs) :=
+    if h : remNano.val < 0 then
+      (remNano.truncateTop (Int.le_sub_one_of_lt h) |>.add 1000000000 |>.expandBottom (by decide), secs - 1)
+    else
+      (remNano.truncateBottom (Int.not_lt.mp h), secs)
+
+  let daysSinceEpoch : Day.Offset := secs.toDays
   let boundedDaysSinceEpoch := daysSinceEpoch
 
   let mut rawDays := boundedDaysSinceEpoch - leapYearEpoch
@@ -105,7 +134,7 @@ def ofTimestampAssumingUTC (stamp : Timestamp) : PlainDateTime := Id.run do
       break
     remDays := remDays - monLen
 
-  let mday : Fin 31 := Fin.ofNat' _ (Int.toNat remDays)
+  let mday : Fin 31 := Fin.ofNat _ (Int.toNat remDays)
 
   let hmon ←
     if h₁ : mon.val > 10

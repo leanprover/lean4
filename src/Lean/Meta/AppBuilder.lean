@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Structure
-import Lean.Meta.SynthInstance
-import Lean.Meta.Check
-import Lean.Meta.DecLevel
+public import Lean.Structure
+public import Lean.Meta.SynthInstance
+public import Lean.Meta.Check
+public import Lean.Meta.DecLevel
+
+public section
 
 namespace Lean.Meta
 
@@ -17,23 +21,37 @@ def mkId (e : Expr) : MetaM Expr := do
   let u    ← getLevel type
   return mkApp2 (mkConst ``id [u]) type e
 
-/--
-  Given `e` s.t. `inferType e` is definitionally equal to `expectedType`, returns
-  term `@id expectedType e`. -/
-def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
-  let u ← getLevel expectedType
-  return mkApp2 (mkConst ``id [u]) expectedType e
+def mkExpectedTypeHintCore (e : Expr) (expectedType : Expr) (expectedTypeUniv : Level) : Expr :=
+  mkApp2 (mkConst ``id [expectedTypeUniv]) expectedType e
 
 /--
-`mkLetFun x v e` creates the encoding for the `let_fun x := v; e` expression.
+Given `proof` s.t. `inferType proof` is definitionally equal to `expectedProp`, returns
+term `@id expectedProp proof`. -/
+def mkExpectedPropHint (proof : Expr) (expectedProp : Expr) : Expr :=
+  mkExpectedTypeHintCore proof expectedProp levelZero
+
+/--
+Given `e` s.t. `inferType e` is definitionally equal to `expectedType`, returns
+term `@id expectedType e`. -/
+def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
+  let u ← getLevel expectedType
+  return mkExpectedTypeHintCore e expectedType u
+
+/--
+`mkLetFun x v e` creates `letFun v (fun x => e)`.
 The expression `x` can either be a free variable or a metavariable, and the function suitably abstracts `x` in `e`.
-NB: `x` must not be a let-bound free variable.
 -/
+@[deprecated mkLetFVars (since := "2026-06-29")]
 def mkLetFun (x : Expr) (v : Expr) (e : Expr) : MetaM Expr := do
-  let f ← mkLambdaFVars #[x] e
+  -- If `x` is an `ldecl`, then the result of `mkLambdaFVars` is a let expression.
+  let ensureLambda : Expr → Expr
+    | .letE n t _ b _ => .lam n t b .default
+    | e@(.lam ..)     => e
+    | _               => unreachable!
+  let f ← ensureLambda <$> mkLambdaFVars (usedLetOnly := false) #[x] e
   let ety ← inferType e
   let α ← inferType x
-  let β ← mkLambdaFVars #[x] ety
+  let β ← ensureLambda <$> mkLambdaFVars (usedLetOnly := false) #[x] ety
   let u1 ← getLevel α
   let u2 ← getLevel ety
   return mkAppN (.const ``letFun [u1, u2]) #[α, β, v, f]
@@ -44,7 +62,7 @@ def mkEq (a b : Expr) : MetaM Expr := do
   let u ← getLevel aType
   return mkApp3 (mkConst ``Eq [u]) aType a b
 
-/-- Returns `HEq a b`. -/
+/-- Returns `a ≍ b`. -/
 def mkHEq (a b : Expr) : MetaM Expr := do
   let aType ← inferType a
   let bType ← inferType b
@@ -52,7 +70,7 @@ def mkHEq (a b : Expr) : MetaM Expr := do
   return mkApp4 (mkConst ``HEq [u]) aType a bType b
 
 /--
-  If `a` and `b` have definitionally equal types, returns `Eq a b`, otherwise returns `HEq a b`.
+  If `a` and `b` have definitionally equal types, returns `a = b`, otherwise returns `a ≍ b`.
 -/
 def mkEqHEq (a b : Expr) : MetaM Expr := do
   let aType ← inferType a
@@ -69,7 +87,7 @@ def mkEqRefl (a : Expr) : MetaM Expr := do
   let u ← getLevel aType
   return mkApp2 (mkConst ``Eq.refl [u]) aType a
 
-/-- Returns a proof of `HEq a a`. -/
+/-- Returns a proof of `a ≍ a`. -/
 def mkHEqRefl (a : Expr) : MetaM Expr := do
   let aType ← inferType a
   let u ← getLevel aType
@@ -94,7 +112,7 @@ private def hasTypeMsg (e type : Expr) : MessageData :=
   m!"{indentExpr e}\nhas type{indentExpr type}"
 
 private def throwAppBuilderException {α} (op : Name) (msg : MessageData) : MetaM α :=
-  throwError "AppBuilder for '{op}', {msg}"
+  throwError "AppBuilder for `{op}`, {msg}"
 
 /-- Given `h : a = b`, returns a proof of `b = a`. -/
 def mkEqSymm (h : Expr) : MetaM Expr := do
@@ -135,7 +153,7 @@ def mkEqTrans? (h₁? h₂? : Option Expr) : MetaM (Option Expr) :=
   | some h, none     => return h
   | some h₁, some h₂ => mkEqTrans h₁ h₂
 
-/-- Given `h : HEq a b`, returns a proof of `HEq b a`.  -/
+/-- Given `h : a ≍ b`, returns a proof of `b ≍ a`.  -/
 def mkHEqSymm (h : Expr) : MetaM Expr := do
   if h.isAppOf ``HEq.refl then
     return h
@@ -148,7 +166,7 @@ def mkHEqSymm (h : Expr) : MetaM Expr := do
     | none =>
       throwAppBuilderException ``HEq.symm ("heterogeneous equality proof expected" ++ hasTypeMsg h hType)
 
-/-- Given `h₁ : HEq a b`, `h₂ : HEq b c`, returns a proof of `HEq a c`. -/
+/-- Given `h₁ : a ≍ b`, `h₂ : b ≍ c`, returns a proof of `a ≍ c`. -/
 def mkHEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
   if h₁.isAppOf ``HEq.refl then
     return h₂
@@ -164,7 +182,7 @@ def mkHEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
     | none, _ => throwAppBuilderException ``HEq.trans ("heterogeneous equality proof expected" ++ hasTypeMsg h₁ hType₁)
     | _, none => throwAppBuilderException ``HEq.trans ("heterogeneous equality proof expected" ++ hasTypeMsg h₂ hType₂)
 
-/-- Given `h : HEq a b` where `a` and `b` have the same type, returns a proof of `Eq a b`. -/
+/-- Given `h : a ≍ b` where `a` and `b` have the same type, returns a proof of `a = b`. -/
 def mkEqOfHEq (h : Expr) (check := true) : MetaM Expr := do
   let hType ← infer h
   match hType.heq? with
@@ -177,7 +195,7 @@ def mkEqOfHEq (h : Expr) (check := true) : MetaM Expr := do
   | _ =>
     throwAppBuilderException ``eq_of_heq m!"heterogeneous equality proof expected{indentExpr h}"
 
-/-- Given `h : Eq a b`, returns a proof of `HEq a b`. -/
+/-- Given `h : a = b`, returns a proof of `a ≍ b`. -/
 def mkHEqOfEq (h : Expr) : MetaM Expr := do
   let hType ← infer h
   let some (α, a, b) := hType.eq?
@@ -304,7 +322,7 @@ private partial def mkAppMArgs (f : Expr) (fType : Expr) (xs : Array Expr) : Met
         | _ =>
           let x := xs[i]
           let xType ← inferType x
-          if (← isDefEq d xType) then
+          if (← withAtLeastTransparency .default (isDefEq d xType)) then
             loop b (i+1) j (args.push x) instMVars
           else
             throwAppTypeMismatch (mkAppN f args) x
@@ -318,7 +336,7 @@ private partial def mkAppMArgs (f : Expr) (fType : Expr) (xs : Array Expr) : Met
   loop fType 0 0 #[] #[]
 
 private def mkFun (constName : Name) : MetaM (Expr × Expr) := do
-  let cinfo ← getConstInfo constName
+  let cinfo ← getConstVal constName
   let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar
   let f := mkConst constName us
   let fType ← instantiateTypeLevelParams cinfo us
@@ -532,7 +550,7 @@ def mkDecideProof (p : Expr) : MetaM Expr := do
   let decP      ← mkDecide p
   let decEqTrue ← mkEq decP (mkConst ``Bool.true)
   let h         ← mkEqRefl (mkConst ``Bool.true)
-  let h         ← mkExpectedTypeHint h decEqTrue
+  let h         := mkExpectedPropHint h decEqTrue
   mkAppM ``of_decide_eq_true #[h]
 
 /-- Returns `a < b` -/
@@ -697,6 +715,20 @@ def mkIffOfEq (h : Expr) : MetaM Expr := do
     return h.appArg!
   else
     mkAppM ``Iff.of_eq #[h]
+
+/--
+Given proofs `hᵢ : pᵢ`, returns a proof for `p₁ ∧ ... ∧ pₙ`.
+Roughly, `mkAndIntroN hs : mkAndN (← hs.mapM inferType)`.
+-/
+def mkAndIntroN (hs : List Expr) : MetaM Expr := (·.1) <$> go hs
+  where
+    go : List Expr → MetaM (Expr × Expr)
+      | [] => return (mkConst ``True.intro, mkConst ``True)
+      | [h] => return (h, ← inferType h)
+      | h :: hs => do
+        let (h', p') ← go hs
+        let p ← inferType h
+        return (mkApp4 (mkConst ``And.intro) p p' h h', mkApp2 (mkConst ``And) p p')
 
 builtin_initialize do
   registerTraceClass `Meta.appBuilder

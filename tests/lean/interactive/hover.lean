@@ -1,5 +1,5 @@
 import Lean
-
+--^ waitForILeans
 example : True := by
   apply True.intro
       --^ textDocument/hover
@@ -299,3 +299,10 @@ open List renaming zip → zip'
                  --^ textDocument/hover
 
 end Foo
+
+/-!
+`#eval` needs to save info context for this hover to give the inferred type,
+since it needs the environment with the generated `_eval.match_1` matcher.
+-/
+#eval (default : Nat) matches .succ ..
+                      --^ textDocument/hover

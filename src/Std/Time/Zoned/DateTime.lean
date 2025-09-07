@@ -3,9 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.DateTime
-import Std.Time.Zoned.TimeZone
+public import Std.Time.DateTime
+public import Std.Time.Zoned.TimeZone
+import all Std.Time.Date.Unit.Month
+import all Std.Time.Date.Unit.Year
+import all Std.Time.DateTime.PlainDateTime
+
+public section
 
 namespace Std
 namespace Time
@@ -26,15 +33,20 @@ structure DateTime (tz : TimeZone) where
 
   /--
   `Date` is a `Thunk` containing the `PlainDateTime` that represents the local date and time, it's
-  used for accessing data like `day` and `month` without having to recompute the data everytime.
+  used for accessing data like `day` and `month` without having to recompute the data every time.
   -/
   date : Thunk PlainDateTime
 
 instance : BEq (DateTime tz) where
   beq x y := x.timestamp == y.timestamp
 
-instance : Inhabited (DateTime tz) where
-  default := ⟨Inhabited.default, Thunk.mk fun _ => Inhabited.default⟩
+instance : Ord (DateTime tz) where
+  compare := compareOn (·.timestamp)
+
+instance : TransOrd (DateTime tz) := inferInstanceAs <| TransCmp (compareOn _)
+
+instance : LawfulBEqOrd (DateTime tz) where
+  compare_eq_iff_beq := LawfulBEqOrd.compare_eq_iff_beq (α := Timestamp)
 
 namespace DateTime
 
@@ -44,6 +56,9 @@ Creates a new `DateTime` out of a `Timestamp` that is in a `TimeZone`.
 @[inline]
 def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
   DateTime.mk tm (Thunk.mk fun _ => tm.toPlainDateTimeAssumingUTC |>.addSeconds tz.toSeconds)
+
+instance : Inhabited (DateTime tz) where
+  default := ofTimestamp Inhabited.default tz
 
 /--
 Converts a `DateTime` to the number of days since the UNIX epoch.

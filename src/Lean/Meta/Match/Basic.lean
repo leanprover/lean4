@@ -3,11 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Check
-import Lean.Meta.CollectFVars
-import Lean.Meta.Match.MatcherInfo
-import Lean.Meta.Match.CaseArraySizes
+public import Lean.Meta.Check
+public import Lean.Meta.CollectFVars
+public import Lean.Meta.Match.MatcherInfo
+public import Lean.Meta.Match.CaseArraySizes
+
+public section
 
 namespace Lean.Meta.Match
 
@@ -121,6 +125,7 @@ structure AltLHS where
   ref        : Syntax
   fvarDecls  : List LocalDecl -- Free variables used in the patterns.
   patterns   : List Pattern   -- We use `List Pattern` since we have nary match-expressions.
+  deriving Inhabited
 
 def AltLHS.collectFVars (altLHS: AltLHS) : StateRefT CollectFVars.State MetaM Unit := do
   altLHS.fvarDecls.forM fun fvarDecl => fvarDecl.collectFVars
@@ -236,13 +241,13 @@ _, (Vec.cons _ _ (Vec.cons _ _ _)), _
 -/
 def checkAndReplaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : MetaM Alt := do
   match alt.fvarDecls.find? fun (fvarDecl : LocalDecl) => fvarDecl.fvarId == fvarId with
-  | none          => throwErrorAt alt.ref "unknown free pattern variable"
+  | none          => throwErrorAt alt.ref "Unknown free pattern variable"
   | some fvarDecl => do
     let vType ← inferType v
     unless (← isDefEqGuarded fvarDecl.type vType) do
       withExistingLocalDecls alt.fvarDecls do
         let (expectedType, givenType) ← addPPExplicitToExposeDiff vType fvarDecl.type
-        throwErrorAt alt.ref "type mismatch during dependent match-elimination at pattern variable '{mkFVar fvarDecl.fvarId}' with type{indentExpr givenType}\nexpected type{indentExpr expectedType}"
+        throwErrorAt alt.ref "Type mismatch during dependent match-elimination at pattern variable `{mkFVar fvarDecl.fvarId}` with type{indentExpr givenType}\nExpected type{indentExpr expectedType}"
     return replaceFVarId fvarId v alt
 
 end Alt
@@ -342,7 +347,7 @@ partial def toPattern (e : Expr) : MetaM Pattern := do
         let p ← toPattern <| e.getArg! 2
         match e.getArg! 1, e.getArg! 3 with
         | Expr.fvar x, Expr.fvar h => return Pattern.as x p h
-        | _,           _   => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
+        | _,           _   => throwError "Unexpected occurrence of auxiliary declaration 'namedPattern'"
       else if (← isMatchValue e) then
         return Pattern.val e
       else if e.isFVar then
@@ -351,13 +356,24 @@ partial def toPattern (e : Expr) : MetaM Pattern := do
         let newE ← whnf e
         if newE != e then
           toPattern newE
-        else matchConstCtor e.getAppFn (fun _ => throwError "unexpected pattern{indentExpr e}") fun v us => do
+        else matchConstCtor e.getAppFn (fun _ => throwError "Unexpected pattern{indentExpr e}") fun v us => do
           let args := e.getAppArgs
           unless args.size == v.numParams + v.numFields do
-            throwError "unexpected pattern{indentExpr e}"
+            throwError "Unexpected pattern{indentExpr e}"
           let params := args.extract 0 v.numParams
           let fields := args.extract v.numParams args.size
           let fields ← fields.mapM toPattern
           return Pattern.ctor v.name us params.toList fields.toList
+
+/-! Match congruence equational theorem names helper declarations and functions -/
+
+def congrEqnThmSuffixBase := "congr_eq"
+def congrEqnThmSuffixBasePrefix := congrEqnThmSuffixBase ++ "_"
+def congrEqn1ThmSuffix := congrEqnThmSuffixBasePrefix ++ "1"
+example : congrEqn1ThmSuffix = "congr_eq_1" := rfl
+
+/-- Returns `true` if `s` is of the form `congr_eq_<idx>` -/
+def isCongrEqnReservedNameSuffix (s : String) : Bool :=
+  congrEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop congrEqnThmSuffixBasePrefix.length).isNat
 
 end Lean.Meta.Match

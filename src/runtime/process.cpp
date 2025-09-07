@@ -124,6 +124,11 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg c
     return lean_io_result_mk_ok(box(0));
 }
 
+extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg child) {
+    HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
+    return GetProcessId(h);
+}
+
 static FILE * from_win_handle(HANDLE handle, char const * mode) {
     int fd = _open_osfhandle(reinterpret_cast<intptr_t>(handle), _O_APPEND);
     return fdopen(fd, mode);
@@ -167,7 +172,7 @@ static void setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * theirs, object **
 // This code is adapted from: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
                      stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
-                     bool _do_setsid) {
+                     bool inherit_env, bool _do_setsid) {
     HANDLE child_stdin  = GetStdHandle(STD_INPUT_HANDLE);
     HANDLE child_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
     HANDLE child_stderr = GetStdHandle(STD_ERROR_HANDLE);
@@ -224,38 +229,45 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
 
     std::unique_ptr<char[]> new_env(nullptr);
 
-    if (env.size()) {
-        auto * esp = GetEnvironmentStrings();
-
-        std::unordered_map<std::string, std::string> new_env_vars; // C++17 gives us no-copy std::string_view for this, much better!
-        for (auto & entry : env) {
-            new_env_vars[entry.fst().data()] = entry.snd() ? entry.snd().get()->data() : std::string{};
-        }
+    if (env.size() || !inherit_env) {
         static constexpr auto env_buf_size = 0x7fff; // according to MS docs 0x7fff is the max total size of env block
         new_env = std::make_unique<char[]>(env_buf_size);
-        // First copy old evars not in new evars.
-        char *new_envp = new_env.get(), *key_begin = esp;
-        while (*key_begin) {
-            char *key_end = strchr(key_begin, '=');
-            char *entry_end = key_end + strlen(key_end);
-            if (!new_env_vars.count({key_begin, key_end})) {
-                new_envp = std::copy(key_begin, entry_end + 1, new_envp);
-            }
-            key_begin = entry_end + 1;
-        }
-        // Then copy new evars if nonempty
-        for(const auto & ev : new_env_vars) {
-          if (ev.second.empty()) continue;
-          // Check if the destination buffer has enough room.
-          if (new_envp + ev.first.length() + 1 + ev.second.length() + 1 > new_env.get() + env_buf_size - 1) break;
-          new_envp = std::copy(ev.first.cbegin(), ev.first.cend(), new_envp);
-          *new_envp++ = '=';
-          new_envp = std::copy(ev.second.cbegin(), ev.second.cend(), new_envp);
-          *new_envp++ = '\0';
-        }
-        *new_envp = '\0';
+        char *new_envp = new_env.get();
 
-        FreeEnvironmentStrings(esp);
+        if (env.size()) {
+            std::unordered_map<std::string, std::string> new_env_vars; // C++17 gives us no-copy std::string_view for this, much better!
+            for (auto & entry : env) {
+                new_env_vars[entry.fst().data()] = entry.snd() ? entry.snd().get()->data() : std::string{};
+            }
+
+            // First copy old evars not in new evars.
+            if (inherit_env) {
+                auto *esp = GetEnvironmentStrings();
+                char *key_begin = esp;
+                while (*key_begin) {
+                    char *key_end = strchr(key_begin, '=');
+                    char *entry_end = key_end + strlen(key_end);
+                    if (!new_env_vars.count({key_begin, key_end})) {
+                        new_envp = std::copy(key_begin, entry_end + 1, new_envp);
+                    }
+                    key_begin = entry_end + 1;
+                }
+                FreeEnvironmentStrings(esp);
+            }
+
+            // Then copy new evars if nonempty
+            for(const auto & ev : new_env_vars) {
+                if (ev.second.empty()) continue;
+                // Check if the destination buffer has enough room.
+                if (new_envp + ev.first.length() + 1 + ev.second.length() + 1 > new_env.get() + env_buf_size - 1) break;
+                new_envp = std::copy(ev.first.cbegin(), ev.first.cend(), new_envp);
+                *new_envp++ = '=';
+                new_envp = std::copy(ev.second.cbegin(), ev.second.cend(), new_envp);
+                *new_envp++ = '\0';
+            }
+        }
+
+        *new_envp = '\0';
     }
 
     // Create the child process.
@@ -386,6 +398,12 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg c
     return lean_io_result_mk_ok(box(0));
 }
 
+extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg child) {
+    static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
+    pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
+    return pid;
+}
+
 struct pipe { int m_read_fd; int m_write_fd; };
 
 static optional<pipe> setup_stdio(stdio cfg) {
@@ -412,9 +430,13 @@ static optional<pipe> setup_stdio(stdio cfg) {
     lean_unreachable();
 }
 
+#ifdef __APPLE__
+extern "C" char **environ;
+#endif
+
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
   stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
-  bool do_setsid) {
+  bool inherit_env, bool do_setsid) {
     /* Setup stdio based on process configuration. */
     auto stdin_pipe  = setup_stdio(stdin_mode);
     auto stdout_pipe = setup_stdio(stdout_mode);
@@ -423,6 +445,13 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     int pid = fork();
 
     if (pid == 0) {
+        if (!inherit_env) {
+#ifdef __APPLE__
+            environ = NULL;
+#else
+            clearenv();
+#endif
+        }
         for (auto & entry : env) {
             if (entry.snd()) {
                 setenv(entry.fst().data(), entry.snd().get()->data(), true);
@@ -538,7 +567,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_, obj_arg) {
                 stderr_mode,
                 cnstr_get_ref_t<option_ref<string_ref>>(args, 3),
                 cnstr_get_ref_t<array_ref<pair_ref<string_ref, option_ref<string_ref>>>>(args, 4),
-                cnstr_get_uint8(args.raw(), 5 * sizeof(object *)));
+                cnstr_get_uint8(args.raw(), 5 * sizeof(object *)),
+                cnstr_get_uint8(args.raw(), 5 * sizeof(object *) + 1));
     } catch (int err) {
         return lean_io_result_mk_error(decode_io_error(err, nullptr));
     } catch (std::system_error const & err) {

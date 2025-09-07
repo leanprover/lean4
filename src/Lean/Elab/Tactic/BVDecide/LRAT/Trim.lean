@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.Nat.Fold
-import Std.Tactic.BVDecide.LRAT.Actions
-import Std.Data.HashMap
+public import Init.Data.Nat.Fold
+public import Std.Tactic.BVDecide.LRAT.Actions
+public import Std.Data.HashMap
+
+public section
 
 /-!
 This module implements the LRAT trimming algorithm described in section 4 of
@@ -63,13 +67,10 @@ partial def findInitialId (proof : Array IntAction) (curr : Nat := 0) : Except S
   else
     throw "LRAT proof doesn't contain a proper first proof step."
 
-def findEmptyId (proof : Array IntAction) : Except String Nat := do
-  if h : 0 < proof.size then
-    match proof[proof.size - 1] with
-    | .addEmpty id .. => pure id
-    | _ => throw "Last proof step is not the empty clause"
-  else
-    throw "The LRAT proof contains no steps."
+def findEmptyId (proof : Array IntAction) : Except String Nat :=
+  match proof.findSomeRev? (if let .addEmpty id .. := . then some id else none) with
+  | some id => pure id
+  | none => throw "LRAT proof doesn't contain the empty clause."
 
 def run (proof : Array IntAction) (x : M α) : Except String α := do
   let initialId ← findInitialId proof
@@ -79,8 +80,8 @@ def run (proof : Array IntAction) (x : M α) : Except String α := do
     | .addEmpty id .. | .addRup id .. | .addRat id .. => acc.insert id a
     | .del .. => acc
   let proof := proof.foldl (init := {}) folder
-  let used := Nat.fold proof.size (init := ByteArray.mkEmpty proof.size) (fun _ _ acc => acc.push 0)
-  let mapped := Array.mkArray proof.size 0
+  let used := Nat.fold proof.size (init := ByteArray.emptyWithCapacity proof.size) (fun _ _ acc => acc.push 0)
+  let mapped := Array.replicate proof.size 0
   return ReaderT.run x { proof, initialId, addEmptyId } |>.run' { used, mapped }
 
 @[inline]
@@ -199,7 +200,7 @@ def mapping : M (Array IntAction) := do
   let initialId ← M.getInitialId
   let mut nextMapped := initialId
   let mut newProof := #[]
-  for id in [initialId:emptyId+1] do
+  for id in initialId...=emptyId do
     if ← M.isUsed id then
       M.registerIdMap id nextMapped
       -- This should never panic as the use def analysis has already marked this step as being used

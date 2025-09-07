@@ -3,11 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lean.Compiler.LCNF.Basic
-import Lean.Compiler.LCNF.LCtx
-import Lean.Compiler.LCNF.ConfigOptions
+public import Lean.CoreM
+public import Lean.Compiler.LCNF.Basic
+public import Lean.Compiler.LCNF.LCtx
+public import Lean.Compiler.LCNF.ConfigOptions
+
+public section
 
 namespace Lean.Compiler.LCNF
 /--
@@ -19,9 +23,7 @@ inductive Phase where
   | base
   /-- In this phase polymorphism has been eliminated. -/
   | mono
-  /-- In this phase impure stuff such as RC or efficient BaseIO transformations happen. -/
-  | impure
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 /--
 The state managed by the `CompilerM` `Monad`.
@@ -166,7 +168,7 @@ it is a free variable, a type (or type former), or `lcErased`.
 
 `Check.lean` contains a substitution validator.
 -/
-abbrev FVarSubst := Std.HashMap FVarId Expr
+abbrev FVarSubst := Std.HashMap FVarId Arg
 
 /--
 Replace the free variables in `e` using the given substitution.
@@ -191,7 +193,9 @@ where
     if e.hasFVar then
       match e with
       | .fvar fvarId => match s[fvarId]? with
-        | some e => if translator then e else go e
+        | some (.fvar fvarId') => if translator then .fvar fvarId' else go (.fvar fvarId')
+        | some (.type e) => if translator then e else go e
+        | some .erased => erasedExpr
         | none => e
       | .lit .. | .const .. | .sort .. | .mvar .. | .bvar .. => e
       | .app f a => e.updateApp! (goApp f) (go a) |>.headBeta
@@ -211,7 +215,7 @@ inductive NormFVarResult where
     fvar (fvarId : FVarId)
   | /--
     Free variable has been erased. This can happen when instantiating polymorphic code
-    with computationally irrelant stuff. -/
+    with computationally irrelevant stuff. -/
     erased
   deriving Inhabited
 
@@ -223,18 +227,16 @@ This function panics if the substitution is mapping `fvarId` to an expression th
 That is, it is not a type (or type former), nor `lcErased`. Recall that a valid `FVarSubst` contains only
 expressions that are free variables, `lcErased`, or type formers.
 -/
-private partial def normFVarImp (s : FVarSubst) (fvarId : FVarId) (translator : Bool) : NormFVarResult :=
+partial def normFVarImp (s : FVarSubst) (fvarId : FVarId) (translator : Bool) : NormFVarResult :=
   match s[fvarId]? with
   | some (.fvar fvarId') =>
     if translator then
       .fvar fvarId'
     else
       normFVarImp s fvarId' translator
-  | some e =>
-    if e.isErased then
-      .erased
-    else
-      panic! s!"invalid LCNF substitution of free variable with expression {e}"
+  -- Types and type formers are only preserved as hints and
+  -- are erased in computationally relevant contexts.
+  | some .erased | some (.type _) => .erased
   | none => .fvar fvarId
 
 /--
@@ -247,10 +249,9 @@ private partial def normArgImp (s : FVarSubst) (arg : Arg) (translator : Bool) :
   | .erased => arg
   | .fvar fvarId =>
     match s[fvarId]? with
-    | some (.fvar fvarId') =>
-      let arg' := .fvar fvarId'
+    | some (arg'@(.fvar _)) =>
       if translator then arg' else normArgImp s arg' translator
-    | some e => if e.isErased then .erased else .type e
+    | some (arg'@.erased) | some (arg'@(.type _)) => arg'
     | none => arg
   | .type e => arg.updateType! (normExprImp s e translator)
 
@@ -264,7 +265,7 @@ See `normExprImp`
 -/
 private partial def normLetValueImp (s : FVarSubst) (e : LetValue) (translator : Bool) : LetValue :=
   match e with
-  | .erased | .value .. => e
+  | .erased | .lit .. => e
   | .proj _ _ fvarId => match normFVarImp s fvarId translator with
     | .fvar fvarId' => e.updateProj! fvarId'
     | .erased => .erased
@@ -293,19 +294,18 @@ instance (m n) [MonadLift m n] [MonadFVarSubstState m] : MonadFVarSubstState n w
   modifySubst f := liftM (modifySubst f : m _)
 
 /--
+Add the substitution `fvarId ↦ e`, `e` must be a valid LCNF `Arg`.
+
+See `Check.lean` for the free variable substitution checker.
+-/
+@[inline] def addSubst [MonadFVarSubstState m] (fvarId : FVarId) (arg : Arg) : m Unit :=
+  modifySubst fun s => s.insert fvarId arg
+
+/--
 Add the entry `fvarId ↦ fvarId'` to the free variable substitution.
 -/
 @[inline] def addFVarSubst [MonadFVarSubstState m] (fvarId : FVarId) (fvarId' : FVarId) : m Unit :=
   modifySubst fun s => s.insert fvarId (.fvar fvarId')
-
-/--
-Add the substitution `fvarId ↦ e`, `e` must be a valid LCNF argument.
-That is, it must be a free variable, type (or type former), or `lcErased`.
-
-See `Check.lean` for the free variable substitution checker.
--/
-@[inline] def addSubst [MonadFVarSubstState m] (fvarId : FVarId) (e : Expr) : m Unit :=
-  modifySubst fun s => s.insert fvarId e
 
 @[inline, inherit_doc normFVarImp] def normFVar [MonadFVarSubst m t] [Monad m] (fvarId : FVarId) : m NormFVarResult :=
   return normFVarImp (← getSubst) fvarId t
@@ -319,8 +319,8 @@ See `Check.lean` for the free variable substitution checker.
 @[inline, inherit_doc normLetValueImp] def normLetValue [MonadFVarSubst m t] [Monad m] (e : LetValue) : m LetValue :=
   return normLetValueImp (← getSubst) e t
 
-@[inherit_doc normExprImp]
-abbrev normExprCore (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
+@[inherit_doc normExprImp, inline]
+def normExprCore (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
   normExprImp s e translator
 
 /--
@@ -395,7 +395,7 @@ private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : LetV
 def LetDecl.updateValue (decl : LetDecl) (value : LetValue) : CompilerM LetDecl :=
   decl.update decl.type value
 
-private unsafe def updateFunDeclImp (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl := do
+private unsafe def updateFunDeclImp (decl : FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl := do
   if ptrEq type decl.type && ptrEq params decl.params && ptrEq value decl.value then
     return decl
   else
@@ -403,12 +403,12 @@ private unsafe def updateFunDeclImp (decl: FunDecl) (type : Expr) (params : Arra
     modifyLCtx fun lctx => lctx.addFunDecl decl
     return decl
 
-@[implemented_by updateFunDeclImp] opaque FunDeclCore.update (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl
+@[implemented_by updateFunDeclImp] opaque FunDecl.update (decl : FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl
 
-abbrev FunDeclCore.update' (decl : FunDecl) (type : Expr) (value : Code) : CompilerM FunDecl :=
+abbrev FunDecl.update' (decl : FunDecl) (type : Expr) (value : Code) : CompilerM FunDecl :=
   decl.update type decl.params value
 
-abbrev FunDeclCore.updateValue (decl : FunDecl) (value : Code) : CompilerM FunDecl :=
+abbrev FunDecl.updateValue (decl : FunDecl) (value : Code) : CompilerM FunDecl :=
   decl.update decl.type decl.params value
 
 @[inline] def normParam [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m t] (p : Param) : m Param := do
@@ -482,5 +482,27 @@ def getConfig : CompilerM ConfigOptions :=
 
 def CompilerM.run (x : CompilerM α) (s : State := {}) (phase : Phase := .base) : CoreM α := do
   x { phase, config := toConfigOptions (← getOptions) } |>.run' s
+
+/-- Environment extension for local caching of key-value pairs, not persisted in .olean files. -/
+structure CacheExtension (α β : Type) [BEq α] [Hashable α] extends EnvExtension (List α × PHashMap α β)
+deriving Inhabited
+
+namespace CacheExtension
+
+def register [BEq α] [Hashable α] [Inhabited β] :
+    IO (CacheExtension α β) :=
+  CacheExtension.mk <$> registerEnvExtension (pure ([], {})) (asyncMode := .sync)  -- compilation is non-parallel anyway
+    (replay? := some fun oldState newState _ s =>
+      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
+      newEntries.foldl (init := s) fun s e =>
+        (e :: s.1, s.2.insert e (newState.2.find! e)))
+
+def insert [BEq α] [Hashable α] [Inhabited β] (ext : CacheExtension α β) (a : α) (b : β) : CoreM Unit := do
+  modifyEnv (ext.modifyState · fun ⟨as, m⟩ => (a :: as, m.insert a b))
+
+def find? [BEq α] [Hashable α] [Inhabited β] (ext : CacheExtension α β) (a : α) : CoreM (Option β) := do
+  return ext.toEnvExtension.getState (← getEnv) |>.2.find? a
+
+end CacheExtension
 
 end Lean.Compiler.LCNF

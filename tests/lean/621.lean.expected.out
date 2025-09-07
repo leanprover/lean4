@@ -1,6 +1,7 @@
-621.lean:4:45-4:47: error: failed to coerce
+621.lean:4:45-4:47: error: Failed to coerce
   xs
-to a type, after applying `CoeSort.coe`, result is still not a type
+to a type: After applying `CoeSort.coe`, result is still not a type
   xs.val
-this is often due to incorrect `CoeSort` instances, the synthesized instance was
+
+Hint: This is often due to incorrect `CoeSort` instances; the synthesized instance was
   inst621 ϕ

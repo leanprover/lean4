@@ -1,3 +1,5 @@
+module
+@[expose] public section
 -- import Lean.Meta.Tactic.Grind
 universe v v₁ v₂ v₃ u u₁ u₂ u₃
 
@@ -67,6 +69,8 @@ structure NatTrans [Category.{v₁, u₁} C] [Category.{v₂, u₂} D] (F G : Fu
   app : ∀ X : C, F.obj X ⟶ G.obj X
   /-- The naturality square for a given morphism. -/
   naturality : ∀ ⦃X Y : C⦄ (f : X ⟶ Y), F.map f ≫ app Y = app X ≫ G.map f := by grind
+
+attribute [grind ext] NatTrans.ext
 
 attribute [simp, grind =] NatTrans.naturality
 

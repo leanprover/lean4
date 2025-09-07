@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Raw.Basic
+public import Std.Data.DTreeMap.Raw.Basic
+
+@[expose] public section
 
 /-
 # Tree maps with unbundled well-formedness invariant
@@ -88,7 +92,14 @@ instance : EmptyCollection (Raw α β cmp) where
 instance : Inhabited (Raw α β cmp) where
   default := ∅
 
-@[simp]
+@[inherit_doc DTreeMap.Equiv]
+structure Equiv (m₁ m₂ : Raw α β cmp) where
+  /-- Internal implementation detail of the tree map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
+
+@[simp, grind =]
 theorem empty_eq_emptyc : (empty : Raw α β cmp) = ∅ :=
   rfl
 
@@ -103,7 +114,7 @@ instance : Insert (α × β) (Raw α β cmp) where
   insert e s := s.insert e.1 e.2
 
 instance : LawfulSingleton (α × β) (Raw α β cmp) where
-  insert_emptyc_eq _ := rfl
+  insert_empty_eq _ := rfl
 
 @[inline, inherit_doc DTreeMap.Raw.insertIfNew]
 def insertIfNew (t : Raw α β cmp) (a : α) (b : β) : Raw α β cmp :=
@@ -196,37 +207,61 @@ def getKey! [Inhabited α] (t : Raw α β cmp) (a : α) : α :=
 def getKeyD (t : Raw α β cmp) (a : α) (fallback : α) : α :=
   t.inner.getKeyD a fallback
 
-@[inline, inherit_doc DTreeMap.Raw.Const.min?]
+@[inline, inherit_doc DTreeMap.Raw.Const.minEntry?]
+def minEntry? (t : Raw α β cmp) : Option (α × β) :=
+  DTreeMap.Raw.Const.minEntry? t.inner
+
+@[inline, inherit_doc minEntry?, deprecated minEntry? (since := "2025-03-13")]
 def min? (t : Raw α β cmp) : Option (α × β) :=
-  DTreeMap.Raw.Const.min? t.inner
+  t.minEntry?
 
 /-!
-We do not provide `min` for the raw trees.
+We do not provide `minEntry` for the raw trees.
 -/
 
-@[inline, inherit_doc DTreeMap.Raw.Const.min!]
+@[inline, inherit_doc DTreeMap.Raw.Const.minEntry!]
+def minEntry! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
+  DTreeMap.Raw.Const.minEntry! t.inner
+
+@[inline, inherit_doc minEntry!, deprecated minEntry! (since := "2025-03-13")]
 def min! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
-  DTreeMap.Raw.Const.min! t.inner
+  t.minEntry!
 
-@[inline, inherit_doc DTreeMap.Raw.Const.minD]
+@[inline, inherit_doc DTreeMap.Raw.Const.minEntryD]
+def minEntryD (t : Raw α β cmp) (fallback : α × β) : α × β :=
+  DTreeMap.Raw.Const.minEntryD t.inner fallback
+
+@[inline, inherit_doc minEntryD, deprecated minEntryD (since := "2025-03-13")]
 def minD (t : Raw α β cmp) (fallback : α × β) : α × β :=
-  DTreeMap.Raw.Const.minD t.inner fallback
+  t.minEntryD fallback
 
-@[inline, inherit_doc DTreeMap.Raw.Const.max?]
+@[inline, inherit_doc DTreeMap.Raw.Const.maxEntry?]
+def maxEntry? (t : Raw α β cmp) : Option (α × β) :=
+  DTreeMap.Raw.Const.maxEntry? t.inner
+
+@[inline, inherit_doc maxEntry?, deprecated maxEntry? (since := "2025-03-13")]
 def max? (t : Raw α β cmp) : Option (α × β) :=
-  DTreeMap.Raw.Const.max? t.inner
+  t.maxEntry?
 
 /-!
-We do not provide `max` for the raw trees.
+We do not provide `maxEntry` for the raw trees.
 -/
 
-@[inline, inherit_doc DTreeMap.Raw.Const.max!]
-def max! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
-  DTreeMap.Raw.Const.max! t.inner
+@[inline, inherit_doc DTreeMap.Raw.Const.maxEntry!]
+def maxEntry! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
+  DTreeMap.Raw.Const.maxEntry! t.inner
 
-@[inline, inherit_doc DTreeMap.Raw.Const.maxD]
+@[inline, inherit_doc maxEntry!, deprecated maxEntry! (since := "2025-03-13")]
+def max! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
+  t.maxEntry!
+
+@[inline, inherit_doc DTreeMap.Raw.Const.maxEntryD]
+def maxEntryD (t : Raw α β cmp) (fallback : α × β) : α × β :=
+  DTreeMap.Raw.Const.maxEntryD t.inner fallback
+
+@[inline, inherit_doc maxEntryD, deprecated maxEntryD (since := "2025-03-13")]
 def maxD (t : Raw α β cmp) (fallback : α × β) : α × β :=
-  DTreeMap.Raw.Const.maxD t.inner fallback
+  t.maxEntryD fallback
 
 @[inline, inherit_doc DTreeMap.Raw.minKey?]
 def minKey? (t : Raw α β cmp) : Option α :=
@@ -276,21 +311,33 @@ def entryAtIdx! [Inhabited (α × β)] (t : Raw α β cmp) (n : Nat) : α × β 
 def entryAtIdxD (t : Raw α β cmp) (n : Nat) (fallback : α × β) : α × β :=
   DTreeMap.Raw.Const.entryAtIdxD t.inner n fallback
 
-@[inline, inherit_doc DTreeMap.Raw.keyAtIndex?]
+@[inline, inherit_doc DTreeMap.Raw.keyAtIdx?]
+def keyAtIdx? (t : Raw α β cmp) (n : Nat) : Option α :=
+  DTreeMap.Raw.keyAtIdx? t.inner n
+
+@[inline, inherit_doc DTreeMap.Raw.keyAtIdx?, deprecated keyAtIdx? (since := "2025-03-26")]
 def keyAtIndex? (t : Raw α β cmp) (n : Nat) : Option α :=
-  DTreeMap.Raw.keyAtIndex? t.inner n
+  keyAtIdx? t n
 
 /-!
-We do not provide `keyAtIndex` for the raw trees.
+We do not provide `keyAtIdx` for the raw trees.
 -/
 
-@[inline, inherit_doc DTreeMap.Raw.keyAtIndex!]
-def keyAtIndex! [Inhabited α] (t : Raw α β cmp) (n : Nat) : α :=
-  DTreeMap.Raw.keyAtIndex! t.inner n
+@[inline, inherit_doc DTreeMap.Raw.keyAtIdx!]
+def keyAtIdx! [Inhabited α] (t : Raw α β cmp) (n : Nat) : α :=
+  DTreeMap.Raw.keyAtIdx! t.inner n
 
-@[inline, inherit_doc DTreeMap.Raw.keyAtIndexD]
+@[inline, inherit_doc DTreeMap.Raw.keyAtIdx!, deprecated keyAtIdx! (since := "2025-03-26")]
+def keyAtIndex! [Inhabited α] (t : Raw α β cmp) (n : Nat) : α :=
+  keyAtIdx! t n
+
+@[inline, inherit_doc DTreeMap.Raw.keyAtIdxD]
+def keyAtIdxD (t : Raw α β cmp) (n : Nat) (fallback : α) : α :=
+  DTreeMap.Raw.keyAtIdxD t.inner n fallback
+
+@[inline, inherit_doc DTreeMap.Raw.keyAtIdxD, deprecated keyAtIdxD (since := "2025-03-26")]
 def keyAtIndexD (t : Raw α β cmp) (n : Nat) (fallback : α) : α :=
-  DTreeMap.Raw.keyAtIndexD t.inner n fallback
+  keyAtIdxD t n fallback
 
 @[inline, inherit_doc DTreeMap.Raw.Const.getEntryGE?]
 def getEntryGE? (t : Raw α β cmp) (k : α) : Option (α × β) :=
@@ -525,7 +572,7 @@ def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp
   ⟨t.inner.eraseMany l⟩
 
 instance [Repr α] [Repr β] : Repr (Raw α β cmp) where
-  reprPrec m prec := Repr.addAppParen ("TreeMap.Raw.ofList " ++ repr m.toList) prec
+  reprPrec m prec := Repr.addAppParen ("Std.TreeMap.Raw.ofList " ++ repr m.toList) prec
 
 end Raw
 

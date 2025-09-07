@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
-import Init.PropLemmas
+public import Init.PropLemmas
+
+public section
 
 universe u v
 
@@ -43,7 +47,7 @@ theorem em (p : Prop) : p ∨ ¬p :=
     | Or.inr h, _ => Or.inr h
     | _, Or.inr h => Or.inr h
     | Or.inl hut, Or.inl hvf =>
-      have hne : u ≠ v := by simp [hvf, hut, true_ne_false]
+      have hne : u ≠ v := by simp [hvf, hut]
       Or.inl hne
   have p_implies_uv : p → u = v :=
     fun hp =>
@@ -105,8 +109,8 @@ noncomputable def epsilon {α : Sort u} [h : Nonempty α] (p : α → Prop) : α
 theorem epsilon_spec_aux {α : Sort u} (h : Nonempty α) (p : α → Prop) : (∃ y, p y) → p (@epsilon α h p) :=
   (strongIndefiniteDescription p h).property
 
-theorem epsilon_spec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) : p (@epsilon α (nonempty_of_exists hex) p) :=
-  epsilon_spec_aux (nonempty_of_exists hex) p hex
+theorem epsilon_spec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) : p (@epsilon α hex.nonempty p) :=
+  epsilon_spec_aux hex.nonempty p hex
 
 theorem epsilon_singleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (fun y => y = x) = x :=
   @epsilon_spec α (fun y => y = x) ⟨x, rfl⟩
@@ -175,7 +179,10 @@ theorem or_iff_not_imp_right : a ∨ b ↔ (¬b → a) := Decidable.or_iff_not_i
 
 theorem not_imp_iff_and_not : ¬(a → b) ↔ a ∧ ¬b := Decidable.not_imp_iff_and_not
 
-theorem not_and_iff_or_not_not : ¬(a ∧ b) ↔ ¬a ∨ ¬b := Decidable.not_and_iff_or_not_not
+theorem not_and_iff_not_or_not : ¬(a ∧ b) ↔ ¬a ∨ ¬b := Decidable.not_and_iff_not_or_not
+
+@[deprecated not_and_iff_not_or_not (since := "2025-03-18")]
+abbrev not_and_iff_or_not_not := @not_and_iff_not_or_not
 
 theorem not_iff : ¬(a ↔ b) ↔ (¬a ↔ b) := Decidable.not_iff
 

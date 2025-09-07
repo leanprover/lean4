@@ -13,23 +13,24 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__2;
 LEAN_EXPORT lean_object* l_Lean_getRecAppSyntax_x3f(lean_object*);
-lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
-lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
+lean_object* l_Lean_mkMData(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkRecAppWithSyntax(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_hasRecAppSyntax(lean_object*);
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+static lean_object* l_Lean_mkRecAppWithSyntax___closed__0;
 LEAN_EXPORT lean_object* l_Lean_hasRecAppSyntax___boxed(lean_object*);
 static lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey;
-lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
+lean_object* l_Lean_KVMap_insert(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr1(lean_object*);
 extern lean_object* l_Lean_KVMap_empty;
 uint8_t l_Lean_KVMap_contains(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__0;
 LEAN_EXPORT lean_object* l_Lean_getRecAppSyntax_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MData_isRecApp___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_MData_isRecApp(lean_object*);
-static lean_object* _init_l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -37,21 +38,28 @@ x_1 = lean_mk_string_unchecked("_recApp", 7, 7);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__2() {
+static lean_object* _init_l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__0;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__2;
+x_1 = l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__1;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_mkRecAppWithSyntax___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_KVMap_empty;
 return x_1;
 }
 }
@@ -59,12 +67,12 @@ LEAN_EXPORT lean_object* l_Lean_mkRecAppWithSyntax(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = lean_alloc_ctor(5, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-x_4 = l_Lean_KVMap_empty;
-x_5 = l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey;
-x_6 = l_Lean_KVMap_insertCore(x_4, x_5, x_3);
-x_7 = l_Lean_Expr_mdata___override(x_6, x_1);
+x_3 = l_Lean_mkRecAppWithSyntax___closed__0;
+x_4 = l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey;
+x_5 = lean_alloc_ctor(5, 1, 0);
+lean_ctor_set(x_5, 0, x_2);
+x_6 = l_Lean_KVMap_insert(x_3, x_4, x_5);
+x_7 = l_Lean_mkMData(x_6, x_1);
 return x_7;
 }
 }
@@ -76,7 +84,7 @@ if (lean_obj_tag(x_1) == 10)
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey;
-x_4 = l_Lean_KVMap_findCore(x_2, x_3);
+x_4 = l_Lean_KVMap_find(x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; 
@@ -96,7 +104,7 @@ if (lean_obj_tag(x_7) == 5)
 lean_object* x_8; 
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 lean_ctor_set(x_4, 0, x_8);
 return x_4;
 }
@@ -120,7 +128,7 @@ if (lean_obj_tag(x_10) == 5)
 lean_object* x_11; lean_object* x_12; 
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_12 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 return x_12;
@@ -148,7 +156,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_getRecAppSyntax_x3f(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -176,17 +184,16 @@ _start:
 {
 if (lean_obj_tag(x_1) == 10)
 {
-lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+lean_object* x_2; uint8_t x_3; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey;
-x_4 = l_Lean_KVMap_contains(x_2, x_3);
-return x_4;
+x_3 = l_Lean_MData_isRecApp(x_2);
+return x_3;
 }
 else
 {
-uint8_t x_5; 
-x_5 = 0;
-return x_5;
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
 }
 }
 }
@@ -195,7 +202,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_hasRecAppSyntax(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -209,12 +216,14 @@ _G_initialized = true;
 res = initialize_Lean_Expr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__0 = _init_l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__0();
+lean_mark_persistent(l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__0);
 l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__1 = _init_l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__1();
 lean_mark_persistent(l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__1);
-l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__2 = _init_l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__2();
-lean_mark_persistent(l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__2);
 l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey = _init_l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey();
 lean_mark_persistent(l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey);
+l_Lean_mkRecAppWithSyntax___closed__0 = _init_l_Lean_mkRecAppWithSyntax___closed__0();
+lean_mark_persistent(l_Lean_mkRecAppWithSyntax___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

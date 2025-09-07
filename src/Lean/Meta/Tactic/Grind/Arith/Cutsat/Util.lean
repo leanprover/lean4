@@ -3,10 +3,14 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Types
-
+public import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Arith.Util
+import Lean.Meta.Tactic.Simp.Arith.Int.Simp
+public section
 namespace Int.Linear
+
 def Poly.isZero : Poly → Bool
   | .num 0 => true
   | _ => false
@@ -26,17 +30,6 @@ where
 end Int.Linear
 
 namespace Lean.Meta.Grind.Arith.Cutsat
-/--
-`gcdExt a b` returns the triple `(g, α, β)` such that
-- `g = gcd a b` (with `g ≥ 0`), and
-- `g = α * a + β * β`.
--/
-partial def gcdExt (a b : Int) : Int × Int × Int :=
-  if b = 0 then
-    (a.natAbs, if a = 0 then 0 else a / a.natAbs, 0)
-  else
-    let (g, α, β) := gcdExt b (a % b)
-    (g, β, α - (a / b) * β)
 
 def get' : GoalM State := do
   return (← get).arith.cutsat
@@ -49,50 +42,46 @@ def inconsistent : GoalM Bool := do
   if (← isInconsistent) then return true
   return (← get').conflict?.isSome
 
+/-- Creates a new variable in the cutsat module. -/
+@[extern "lean_grind_cutsat_mk_var"] -- forward definition
+opaque mkVar (e : Expr) : GoalM Var
+
 def getVars : GoalM (PArray Expr) :=
   return (← get').vars
 
 def getVar (x : Var) : GoalM Expr :=
   return (← get').vars[x]!
 
+/-- Returns `true` if `e` is already associated with a cutsat variable. -/
+def hasVar (e : Expr) : GoalM Bool :=
+  return (← get').varMap.contains { expr := e }
+
+def isIntTerm (e : Expr) : GoalM Bool :=
+  hasVar e
+
 /-- Returns `true` if `x` has been eliminated using an equality constraint. -/
 def eliminated (x : Var) : GoalM Bool :=
   return (← get').elimEqs[x]!.isSome
 
-def mkCnstrId : GoalM Nat := do
-  let id := (← get').nextCnstrId
-  modify' fun s => { s with nextCnstrId := id + 1 }
-  return id
-
 @[extern "lean_grind_cutsat_assert_eq"] -- forward definition
 opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
 
--- TODO: PArray.shrink and PArray.resize
-partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
-  if a.size > sz then shrink a.pop sz else a
-
-partial def resize (a : PArray Rat) (sz : Nat) : PArray Rat :=
-  if a.size > sz then shrink a sz else go a
-where
-  go (a : PArray Rat) : PArray Rat :=
-    if a.size < sz then go (a.push 0) else a
-
-/-- Resets the assingment of any variable bigger or equal to `x`. -/
+/-- Resets the assignment of any variable bigger or equal to `x`. -/
 def resetAssignmentFrom (x : Var) : GoalM Unit := do
   modify' fun s => { s with assignment := shrink s.assignment x }
 
 def _root_.Int.Linear.Poly.pp (p : Poly) : GoalM MessageData := do
   match p with
   | .num k => return m!"{k}"
-  | .add 1 x p => go (quoteIfNotAtom (← getVar x)) p
-  | .add k x p => go m!"{k}*{quoteIfNotAtom (← getVar x)}" p
+  | .add 1 x p => go (quoteIfArithTerm (← getVar x)) p
+  | .add k x p => go m!"{k}*{quoteIfArithTerm (← getVar x)}" p
 where
   go (r : MessageData)  (p : Int.Linear.Poly) : GoalM MessageData := do
     match p with
     | .num 0 => return r
     | .num k => return m!"{r} + {k}"
-    | .add 1 x p => go m!"{r} + {quoteIfNotAtom (← getVar x)}" p
-    | .add k x p => go m!"{r} + {k}*{quoteIfNotAtom (← getVar x)}" p
+    | .add 1 x p => go m!"{r} + {quoteIfArithTerm (← getVar x)}" p
+    | .add k x p => go m!"{r} + {k}*{quoteIfArithTerm (← getVar x)}" p
 
 def _root_.Int.Linear.Poly.denoteExpr' (p : Poly) : GoalM Expr := do
   let vars ← getVars
@@ -125,6 +114,9 @@ def DiseqCnstr.throwUnexpected (c : DiseqCnstr) : GoalM α := do
 
 def DiseqCnstr.denoteExpr (c : DiseqCnstr) : GoalM Expr := do
   return mkNot (mkIntEq (← c.p.denoteExpr') (mkIntLit 0))
+
+@[extern "lean_grind_cutsat_assert_le"] -- forward definition
+opaque LeCnstr.assert (c : LeCnstr) : GoalM Unit
 
 def LeCnstr.isTrivial (c : LeCnstr) : Bool :=
   match c.p with
@@ -176,13 +168,6 @@ partial def _root_.Int.Linear.Poly.updateOccs (p : Poly) : GoalM Unit := do
     let .add _ x p := p | return ()
     addOcc x y; go p
   go p
-
-def toContextExpr : GoalM Expr := do
-  let vars ← getVars
-  if h : 0 < vars.size then
-    return RArray.toExpr (mkConst ``Int) id (RArray.ofFn (vars[·]) h)
-  else
-    return RArray.toExpr (mkConst ``Int) id (RArray.leaf (mkIntLit 0))
 
 /--
 Tries to evaluate the polynomial `p` using the partial model/assignment built so far.

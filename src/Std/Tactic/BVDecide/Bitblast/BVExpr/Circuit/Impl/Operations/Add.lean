@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Std.Sat.AIG.CachedGatesLemmas
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+public import Std.Sat.AIG.CachedGatesLemmas
+public import Std.Sat.AIG.LawfulVecOperator
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.add`. The implemented
@@ -161,13 +165,17 @@ def mkFullAdder (aig : AIG α) (input : FullAdderInput aig) : FullAdderOutput ai
   ⟨aig, outRef, carryRef, hle⟩
 
 def blastAdd (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry α w :=
-  let res := aig.mkConstCached false
-  let aig := res.aig
-  let cin := res.ref
-  let input := input.cast <| AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
-  let ⟨lhs, rhs⟩ := input
-  go aig lhs rhs 0 (by omega) cin .empty
+  if input.lhs.countKnown < input.rhs.countKnown then
+    blast aig input
+  else
+    let ⟨lhs, rhs⟩ := input
+    blast aig ⟨rhs, lhs⟩
 where
+  blast (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry α w :=
+    let cin := aig.mkConstCached false
+    let ⟨lhs, rhs⟩ := input
+    go aig lhs rhs 0 (by omega) cin (.emptyWithCapacity w)
+
   go (aig : AIG α) (lhs rhs : AIG.RefVec aig w) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.Ref aig)
       (s : AIG.RefVec aig curr) :
       AIG.RefVecEntry α w :=
@@ -197,6 +205,8 @@ theorem go_le_size (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.R
   dsimp only
   split
   · refine Nat.le_trans ?_ (by apply go_le_size)
+    unfold mkFullAdder
+    dsimp only
     apply AIG.LawfulOperator.le_size_of_le_aig_size (f := mkFullAdderCarry)
     apply AIG.LawfulOperator.le_size (f := mkFullAdderOut)
   · simp
@@ -224,23 +234,31 @@ theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.R
   · simp [← hgo]
 termination_by w - curr
 
+instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blast where
+  le_size := by
+    intros
+    unfold blast
+    dsimp only
+    apply go_le_size
+  decl_eq := by
+    intros
+    unfold blast
+    dsimp only
+    rw [go_decl_eq]
+
+end blastAdd
+
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastAdd where
   le_size := by
     intros
     unfold blastAdd
-    dsimp only
-    refine Nat.le_trans ?_ (by apply go_le_size)
-    apply AIG.LawfulOperator.le_size (f := AIG.mkConstCached)
+    split <;> apply AIG.LawfulVecOperator.le_size (f := blastAdd.blast)
   decl_eq := by
     intros
     unfold blastAdd
-    dsimp only
-    rw [go_decl_eq]
-    rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
-    apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkConstCached)
-    assumption
+    split <;> rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd.blast)]
 
-end blastAdd
+
 end bitblast
 end BVExpr
 

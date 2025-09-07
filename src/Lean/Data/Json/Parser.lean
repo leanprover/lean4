@@ -4,26 +4,45 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Data.Json.Basic
-import Lean.Data.RBMap
-import Std.Internal.Parsec
+public import Lean.Data.Json.Basic
+public import Std.Internal.Parsec
+
+public section
 
 open Std.Internal.Parsec
 open Std.Internal.Parsec.String
 
 namespace Lean.Json.Parser
 
-def hexChar : Parser Nat := do
+def hexChar : Parser UInt16 := do
   let c ← any
   if '0' <= c && c <= '9' then
-    pure $ (c.val - '0'.val).toNat
+    pure $ (c.val - '0'.val).toUInt16
   else if 'a' <= c && c <= 'f' then
-    pure $ (c.val - 'a'.val + 10).toNat
+    pure $ (c.val - 'a'.val + 10).toUInt16
   else if 'A' <= c && c <= 'F' then
-    pure $ (c.val - 'A'.val + 10).toNat
+    pure $ (c.val - 'A'.val + 10).toUInt16
   else
     fail "invalid hex character"
+
+def finishSurrogatePair (low : UInt16) : Parser Char := do
+  let c ← any
+  if c != '\\' then fail ""
+  let c ← any
+  if c != 'u' then fail ""
+  let c ← any
+  if c != 'd' && c != 'D' then fail ""
+  let u2 ← hexChar; let u3 ← hexChar; let u4 ← hexChar
+  let val := (u2 <<< 8) ||| (u3 <<< 4) ||| u4
+  if val < 0xC00 then fail "" -- low or not a surrogate
+  let charVal := (((low.toUInt32 &&& 0x3FF) <<< 10) ||| (val.toUInt32 &&& 0x3FF)) + 0x10000
+  if h : charVal.isValidChar then
+    return ⟨charVal, h⟩
+  else
+    fail "" -- should be unreachable
 
 def escapedChar : Parser Char := do
   let c ← any
@@ -38,7 +57,19 @@ def escapedChar : Parser Char := do
   | 't'  => return '\t'
   | 'u'  =>
     let u1 ← hexChar; let u2 ← hexChar; let u3 ← hexChar; let u4 ← hexChar
-    return Char.ofNat $ 4096*u1 + 256*u2 + 16*u3 + u4
+    let val := (u1 <<< 12) ||| (u2 <<< 8) ||| (u3 <<< 4) ||| u4
+    if h : val < 0xD800 then
+      return ⟨val.toUInt32, Or.inl h⟩
+    else if h' : val < 0xE000 then
+      -- low or high surrogate
+      if val < 0xDC00 then
+        -- low surrogate
+        attempt (finishSurrogatePair val) <|> pure '\ufffd'
+      else
+        -- high/lone surrogate
+        return '\ufffd' -- replacement character
+    else
+      return ⟨val.toUInt32, Or.inr ⟨Nat.not_lt.mp h', Nat.lt_trans val.toFin.isLt (by decide)⟩⟩
   | _ => fail "illegal \\u escape"
 
 partial def strCore (acc : String) : Parser String := do
@@ -183,7 +214,8 @@ mutual
     else
       fail "unexpected character in array"
 
-  partial def objectCore (kvs : RBNode String (fun _ => Json)) : Parser (RBNode String (fun _ => Json)) := do
+  partial def objectCore (kvs : Std.TreeMap.Raw String Json) :
+      Parser (Std.TreeMap.Raw String Json) := do
     lookahead (fun c => c == '"') "\""; skip;
     let k ← str; ws
     lookahead (fun c => c == ':') ":"; skip; ws
@@ -191,10 +223,10 @@ mutual
     let c ← any
     if c == '}' then
       ws
-      return kvs.insert compare k v
+      return kvs.insert k v
     else if c == ',' then
       ws
-      objectCore (kvs.insert compare k v)
+      objectCore (kvs.insert k v)
     else
       fail "unexpected character in object"
 
@@ -214,9 +246,9 @@ mutual
       let c ← peek!
       if c == '}' then
         skip; ws
-        return Json.obj (RBNode.leaf)
+        return Json.obj ∅
       else
-        let kvs ← objectCore RBNode.leaf
+        let kvs ← objectCore ∅
         return Json.obj kvs
     else if c == '\"' then
       skip

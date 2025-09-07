@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-set -exo pipefail
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source ../common.sh
 
 ./clean.sh
 
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the `bar1` repository on each test.
+echo "# SETUP"
+set -x
 pushd bar1
 git init
 git checkout -b master
@@ -15,18 +15,30 @@ git config user.email test@example.com
 git add --all
 git commit -m "initial commit"
 popd
+set +x
 
-$LAKE resolve-deps -R
-$LAKE exe bar | grep --color "bar1"
+# Test the functionality of package overrides
 
-$LAKE resolve-deps -R -Kfoo --packages=packages.json
-$LAKE --packages=packages.json exe bar  | grep --color "bar2"
-$LAKE --packages=packages.json exe foo  | grep --color "foo"
+echo "# Tests"
 
-$LAKE resolve-deps -R
-$LAKE exe bar | grep --color "bar1"
+# Test dependency resolution without overrides
+test_run resolve-deps -R
+test_out "bar1" exe bar
 
-cp packages.json .lake/package-overrides.json
-$LAKE resolve-deps -R -Kfoo
-$LAKE exe bar | grep --color "bar2"
-$LAKE exe foo | grep --color "foo"
+# Test the `--packages` option
+test_run resolve-deps -R -Kfoo --packages=packages.json
+test_out "bar2" --packages=packages.json exe bar
+test_out "foo" --packages=packages.json exe foo
+
+# Test overrides are properly removed when reconfigured
+test_run resolve-deps -R
+test_out "bar1" exe bar
+
+# Test the use of `.lake/package-overrides.json`
+test_cmd cp packages.json .lake/package-overrides.json
+test_run resolve-deps -R -Kfoo
+test_out "bar2" exe bar
+test_out "foo" exe foo
+
+# Cleanup
+rm -f produced.out

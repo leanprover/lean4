@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Elab.Command
-import Lean.Server.InfoUtils
+public import Lean.Elab.Command
+public import Lean.Server.InfoUtils
+import Lean.Linter.Basic
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-!
@@ -52,7 +57,7 @@ def numericalIndices (t : InfoTree) : List (Syntax × Name) :=
       | List.take _ i _ => [i]
       | List.drop _ i _ => [i]
       | List.set _ _ i _ => [i]
-      | List.insertIdx _ i _ _ => [i]
+      | List.insertIdx _ _ i _ => [i]
       | List.eraseIdx _ _ i => [i]
       | List.modify _ _ i _ => [i]
       | List.zipIdx _ _ i => [i]
@@ -106,8 +111,8 @@ def numericalWidths (t : InfoTree) : List (Syntax × Name) :=
     if let .ofTermInfo info := info then
       let idxs := match_expr info.expr with
       | List.replicate _ n _ => [n]
-      | Array.mkArray _ n _ => [n]
-      | Vector.mkVector _ n _ => [n]
+      | Array.replicate _ n _ => [n]
+      | Vector.replicate _ n _ => [n]
       | List.range n => [n]
       | List.range' _ n _ => [n]
       | Array.range n => [n]
@@ -210,7 +215,7 @@ def binders (t : InfoTree) (p : Expr → Bool := fun _ => true) : IO (List (Synt
       -- despite passing the local context here.
       -- We fail quietly by returning a `Unit` type.
       let ty ← ctx.runMetaM ti.lctx do instantiateMVars (← (Meta.inferType ti.expr) <|> pure (.const `Unit []))
-      if p ty then
+      if p ty.cleanupAnnotations then
         if let .fvar i := ti.expr then
           match ti.lctx.find? i with
           | some ldecl => return some (ti.stx, ldecl.userName, ty)

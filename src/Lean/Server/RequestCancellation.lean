@@ -3,41 +3,57 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Init.System.Promise
+public import Init.System.Promise
+public import Lean.Server.ServerTask
+
+public section
 
 namespace Lean.Server
 
 structure RequestCancellationToken where
-  cancelledByCancelRequest : IO.Ref Bool
-  cancelledByEdit          : IO.Ref Bool
-  cancellationPromise      : IO.Promise Unit
+  cancelledByCancelRequest   : IO.Ref Bool
+  cancelledByEdit            : IO.Ref Bool
+  requestCancellationPromise : IO.Promise Unit
+  editCancellationPromise    : IO.Promise Unit
 
 namespace RequestCancellationToken
 
 def new : BaseIO RequestCancellationToken := do
   return {
-    cancelledByCancelRequest := ← IO.mkRef false
-    cancelledByEdit          := ← IO.mkRef false
-    cancellationPromise      := ← IO.Promise.new
+    cancelledByCancelRequest   := ← IO.mkRef false
+    cancelledByEdit            := ← IO.mkRef false
+    requestCancellationPromise := ← IO.Promise.new
+    editCancellationPromise    := ← IO.Promise.new
   }
 
 def cancelByCancelRequest (tk : RequestCancellationToken) : BaseIO Unit := do
   tk.cancelledByCancelRequest.set true
-  tk.cancellationPromise.resolve ()
+  tk.requestCancellationPromise.resolve ()
 
 def cancelByEdit (tk : RequestCancellationToken) : BaseIO Unit := do
   tk.cancelledByEdit.set true
-  tk.cancellationPromise.resolve ()
+  tk.editCancellationPromise.resolve ()
 
-def cancellationTask (tk : RequestCancellationToken) : Task Unit :=
-  tk.cancellationPromise.result!
+def requestCancellationTask (tk : RequestCancellationToken): ServerTask Unit :=
+  tk.requestCancellationPromise.resultD ()
+
+def editCancellationTask (tk : RequestCancellationToken) : ServerTask Unit :=
+  tk.editCancellationPromise.resultD ()
+
+def cancellationTasks (tk : RequestCancellationToken) : List (ServerTask Unit) :=
+  [tk.requestCancellationTask, tk.editCancellationTask]
 
 def wasCancelledByCancelRequest (tk : RequestCancellationToken) : BaseIO Bool :=
   tk.cancelledByCancelRequest.get
 
-def wasCancelledByEdit (tk : RequestCancellationToken) : BaseIO Bool := do
+def wasCancelledByEdit (tk : RequestCancellationToken) : BaseIO Bool :=
   tk.cancelledByEdit.get
+
+def wasCancelled (tk : RequestCancellationToken) : BaseIO Bool := do
+  return (← tk.wasCancelledByCancelRequest) || (← tk.wasCancelledByEdit)
 
 end RequestCancellationToken
 

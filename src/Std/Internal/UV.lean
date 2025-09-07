@@ -3,9 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
-prelude
-import Init.System.IO
-import Init.System.Promise
+module
 
-import Std.Internal.UV.Loop
-import Std.Internal.UV.Timer
+prelude
+public import Init.System.IO
+public import Init.System.Promise
+
+public import Std.Internal.UV.Loop
+public import Std.Internal.UV.Timer
+public import Std.Internal.UV.TCP
+public import Std.Internal.UV.UDP
+public import Std.Internal.UV.System
+public import Std.Internal.UV.DNS
+
+@[expose] public section

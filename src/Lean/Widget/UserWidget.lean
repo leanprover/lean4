@@ -4,39 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Elab.Eval
-import Lean.Server.Rpc.RequestHandling
+public import Lean.Elab.Eval
+public import Lean.Server.Rpc.RequestHandling
+public import Lean.Widget.Types
+meta import Lean.Parser.Term
+meta import Lean.Elab.Command
+
+public section
 
 namespace Lean.Widget
 open Meta Elab
-
-/-- A widget module is a unit of source code that can execute in the infoview.
-
-Every module definition must either be annotated with `@[widget_module]`,
-or use a value of `javascript` identical to that of another definition
-annotated with `@[widget_module]`.
-This makes it possible for the infoview to load the module.
-
-See the [manual entry](https://lean-lang.org/lean4/doc/examples/widgets.lean.html)
-for more information on how to use the widgets system. -/
-structure Module where
-  /-- A JS [module](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
-  intended for use in user widgets.
-
-  The JS environment in which modules execute
-  provides a fixed set of libraries accessible via direct `import`,
-  notably [`@leanprover/infoview`](https://www.npmjs.com/package/@leanprover/infoview)
-  and [`react`](https://www.npmjs.com/package/react).
-
-  To initialize this field from an external JS file,
-  you may use `include_str "path"/"to"/"file.js"`.
-  However **beware** that this does not register a dependency with Lake,
-  so your Lean module will not automatically be rebuilt
-  when the `.js` file changes. -/
-  javascript : String
-  /-- The hash is cached to avoid recomputing it whenever the `Module` is used. -/
-  javascriptHash : { x : UInt64 // x = hash javascript } := ⟨hash javascript, rfl⟩
 
 private unsafe def evalModuleUnsafe (e : Expr) : MetaM Module :=
   evalExpr' Module ``Module e
@@ -57,7 +37,7 @@ class ToModule (α : Type u) where
 
 instance : ToModule Module := ⟨id⟩
 
-private builtin_initialize builtinModulesRef : IO.Ref (RBMap UInt64 (Name × Module) compare) ←
+private builtin_initialize builtinModulesRef : IO.Ref (Std.TreeMap UInt64 (Name × Module)) ←
   IO.mkRef ∅
 
 def addBuiltinModule (id : Name) (m : Module) : IO Unit :=
@@ -69,9 +49,9 @@ where `inst : ToModule α` is synthesized during registration time
 and stored thereafter. -/
 private abbrev ModuleRegistry := SimplePersistentEnvExtension
   (UInt64 × Name × Expr)
-  (RBMap UInt64 (Name × Expr) compare)
+  (Std.TreeMap UInt64 (Name × Expr))
 
-builtin_initialize moduleRegistry : ModuleRegistry ←
+private builtin_initialize moduleRegistry : ModuleRegistry ←
   registerSimplePersistentEnvExtension {
     addImportedFn := fun xss => xss.foldl (Array.foldl (fun s n => s.insert n.1 n.2)) ∅
     addEntryFn    := fun s n => s.insert n.1 n.2
@@ -88,14 +68,14 @@ builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
       applicationTime := .afterCompilation
       add             := fun decl stx kind => Prod.fst <$> MetaM.run do
         Attribute.Builtin.ensureNoArgs stx
-        unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
+        unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
         let e ← mkAppM ``ToModule.toModule #[.const decl []]
         let mod ← evalModule e
         let env ← getEnv
         unless builtin do  -- don't warn on collision between previous and current stage
-          if let some _ := (← builtinModulesRef.get).find? mod.javascriptHash then
+          if let some _ := (← builtinModulesRef.get).get? mod.javascriptHash then
             logWarning m!"A builtin widget module with the same hash(JS source code) was already registered."
-        if let some (n, _) := moduleRegistry.getState env |>.find? mod.javascriptHash then
+        if let some (n, _) := moduleRegistry.getState env |>.get? mod.javascriptHash then
           logWarning m!"A widget module with the same hash(JS source code) was already registered at {.ofConstName n true}."
         let env ← getEnv
         if builtin then
@@ -127,7 +107,7 @@ structure WidgetSource where
 
 open Server RequestM in
 def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) := do
-  if let some (_, m) := (← builtinModulesRef.get).find? args.hash then
+  if let some (_, m) := (← builtinModulesRef.get).get? args.hash then
     return .pure { sourcetext := m.javascript }
 
   let doc ← readDoc
@@ -136,7 +116,7 @@ def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask Widge
   withWaitFindSnap doc (notFoundX := notFound)
     (fun s => s.endPos >= pos || (moduleRegistry.getState s.env).contains args.hash)
     fun snap => do
-      if let some (_, e) := moduleRegistry.getState snap.env |>.find? args.hash then
+      if let some (_, e) := moduleRegistry.getState snap.env |>.get? args.hash then
         runTermElabM snap do
           return { sourcetext := (← evalModule e).javascript }
       else
@@ -182,11 +162,11 @@ This is similar to a parametric attribute, except that:
   which we cannot do owing to the closure. -/
 private abbrev PanelWidgetsExt := SimpleScopedEnvExtension
   (UInt64 × Name)
-  (RBMap UInt64 (List PanelWidgetsExtEntry) compare)
+  (Std.TreeMap UInt64 (List PanelWidgetsExtEntry))
 
-builtin_initialize panelWidgetsExt : PanelWidgetsExt ←
+private builtin_initialize panelWidgetsExt : PanelWidgetsExt ←
   registerSimpleScopedEnvExtension {
-    addEntry := fun s (h, n) => s.insert h (.global n :: s.findD h [])
+    addEntry := fun s (h, n) => s.insert h (.global n :: s.getD h [])
     initial  := .empty
   }
 
@@ -209,7 +189,7 @@ def addPanelWidgetScoped [Monad m] [MonadEnv m] [MonadResolveName m] (h : UInt64
 
 def addPanelWidgetLocal [Monad m] [MonadEnv m] (wi : WidgetInstance) : m Unit := do
   modifyEnv fun env => panelWidgetsExt.modifyState env fun s =>
-    s.insert wi.javascriptHash (.local wi :: s.findD wi.javascriptHash [])
+    s.insert wi.javascriptHash (.local wi :: s.getD wi.javascriptHash [])
 
 def erasePanelWidget [Monad m] [MonadEnv m] (h : UInt64) : m Unit := do
   modifyEnv fun env => panelWidgetsExt.modifyState env fun st => st.erase h
@@ -225,13 +205,16 @@ def WidgetInstance.ofHash (hash : UInt64) (props : StateM Server.RpcObjectStore 
   let env ← getEnv
   let builtins ← builtinModulesRef.get
   let some id :=
-    (builtins.find? hash |>.map (·.1)) <|> (moduleRegistry.getState env |>.find? hash |>.map (·.1))
+    (builtins.get? hash |>.map (·.1)) <|> (moduleRegistry.getState env |>.get? hash |>.map (·.1))
     | throwError s!"No widget module with hash {hash} registered"
   return { id, javascriptHash := hash, props }
 
 /-- Save the data of a panel widget which will be displayed whenever the text cursor is on `stx`.
 
-`hash` must be as in `WidgetInstance.ofHash`. -/
+`hash` must be as in `WidgetInstance.ofHash`.
+
+For panel widgets, the Lean infoview appends additional fields to the `props` object:
+see https://github.com/leanprover/vscode-lean4/blob/master/lean4-infoview/src/infoview/userWidget.tsx#L145. -/
 def savePanelWidgetInfo (hash : UInt64) (props : StateM Server.RpcObjectStore Json) (stx : Syntax) :
     CoreM Unit := do
   let wi ← WidgetInstance.ofHash hash props
@@ -281,7 +264,7 @@ Note that persistent erasure is not possible, i.e.,
 syntax (name := showPanelWidgetsCmd) "show_panel_widgets " "[" sepBy1(showWidgetSpec, ", ") "]" : command
 
 open Command in
-@[command_elab showPanelWidgetsCmd] def elabShowPanelWidgetsCmd : CommandElab
+@[command_elab showPanelWidgetsCmd] meta def elabShowPanelWidgetsCmd : CommandElab
   | `(show_panel_widgets [ $ws ,*]) => liftTermElabM do
     for w in ws.getElems do
       match w with
@@ -328,7 +311,7 @@ In particular, `<props> : Json` works. -/
 syntax (name := widgetCmd) "#widget " widgetInstanceSpec : command
 
 open Command in
-@[command_elab widgetCmd] def elabWidgetCmd : CommandElab
+@[command_elab widgetCmd] meta def elabWidgetCmd : CommandElab
   | stx@`(#widget $s) => liftTermElabM do
     let wi : Expr ← elabWidgetInstanceSpec s
     let wi : WidgetInstance ← evalWidgetInstance wi

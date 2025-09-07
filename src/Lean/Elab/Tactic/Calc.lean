@@ -3,9 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Calc
-import Lean.Elab.Tactic.ElabTerm
+public import Lean.Elab.Calc
+public import Lean.Elab.Tactic.ElabTerm
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -38,7 +42,7 @@ def evalCalc : Tactic
             catch _ =>
               pure ()
 
-        -- Calc extension failed, so let's go back and mimick the `calc` expression
+        -- Calc extension failed, so let's go back and mimic the `calc` expression
         Term.ensureHasTypeWithErrorMsgs target val
           (mkImmedErrorMsg := fun _ => Term.throwCalcFailure steps)
           (mkErrorMsg := fun _ => Term.throwCalcFailure steps)

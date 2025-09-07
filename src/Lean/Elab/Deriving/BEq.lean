@@ -3,10 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Elab.Deriving.Basic
-import Lean.Elab.Deriving.Util
+public import Lean.Meta.Transform
+public import Lean.Elab.Deriving.Basic
+public import Lean.Elab.Deriving.Util
+
+public section
 
 namespace Lean.Elab.Deriving.BEq
 open Lean.Parser.Term
@@ -23,7 +27,7 @@ where
   mkElseAlt : TermElabM (TSyntax ``matchAltExpr) := do
     let mut patterns := #[]
     -- add `_` pattern for indices
-    for _ in [:indVal.numIndices] do
+    for _ in *...indVal.numIndices do
       patterns := patterns.push (← `(_))
     patterns := patterns.push (← `(_))
     patterns := patterns.push (← `(_))
@@ -38,13 +42,13 @@ where
         let type ← Core.betaReduce type -- we 'beta-reduce' to eliminate "artificial" dependencies
         let mut patterns := #[]
         -- add `_` pattern for indices
-        for _ in [:indVal.numIndices] do
+        for _ in *...indVal.numIndices do
           patterns := patterns.push (← `(_))
         let mut ctorArgs1 := #[]
         let mut ctorArgs2 := #[]
         let mut rhs ← `(true)
         let mut rhs_empty := true
-        for i in [:ctorInfo.numFields] do
+        for i in *...ctorInfo.numFields do
           let pos := indVal.numParams + ctorInfo.numFields - i - 1
           let x := xs[pos]!
           if type.containsFVar x.fvarId! then
@@ -67,7 +71,7 @@ where
                 rhs ← `($(mkIdent auxFunName):ident $a:ident $b:ident && $rhs)
             /- If `x` appears in the type of another field, use `eq_of_beq` to
                unify the types of the subsequent variables -/
-            else if ← xs[pos+1:].anyM
+            else if ← xs[(pos+1)...*].anyM
                 (fun fvar => (Expr.containsFVar · x.fvarId!) <$> (inferType fvar)) then
               rhs ← `(if h : $a:ident == $b:ident then by
                         cases (eq_of_beq h)
@@ -81,7 +85,7 @@ where
               else
                 rhs ← `($a:ident == $b:ident && $rhs)
           -- add `_` for inductive parameters, they are inaccessible
-        for _ in [:indVal.numParams] do
+        for _ in *...indVal.numParams do
           ctorArgs1 := ctorArgs1.push (← `(_))
           ctorArgs2 := ctorArgs2.push (← `(_))
         patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs1.reverse:term*))
@@ -101,13 +105,13 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
     body ← mkLet letDecls body
   let binders    := header.binders
   if ctx.usePartial then
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
+    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
+    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
-  for i in [:ctx.typeInfos.size] do
+  for i in *...ctx.typeInfos.size do
     auxDefs := auxDefs.push (← mkAuxFunction ctx i)
   `(mutual
      set_option match.ignoreUnusedAlts true
@@ -115,17 +119,17 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
     end)
 
 private def mkBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "beq" declName
+  let ctx ← mkContext ``BEq "beq" declName
   let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `BEq #[declName])
   trace[Elab.Deriving.beq] "\n{cmds}"
   return cmds
 
 private def mkBEqEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
   let auxFunName := ctx.auxFunNames[0]!
-  `(private def $(mkIdent auxFunName):ident  (x y : $(mkIdent name)) : Bool := x.toCtorIdx == y.toCtorIdx)
+  `(def $(mkIdent auxFunName):ident  (x y : $(mkCIdent name)) : Bool := x.ctorIdx == y.ctorIdx)
 
 private def mkBEqEnumCmd (name : Name): TermElabM (Array Syntax) := do
-  let ctx ← mkContext "beq" name
+  let ctx ← mkContext ``BEq "beq" name
   let cmds := #[← mkBEqEnumFun ctx name] ++ (← mkInstanceCmds ctx `BEq #[name])
   trace[Elab.Deriving.beq] "\n{cmds}"
   return cmds
@@ -133,6 +137,7 @@ private def mkBEqEnumCmd (name : Name): TermElabM (Array Syntax) := do
 open Command
 
 def mkBEqInstance (declName : Name) : CommandElabM Unit := do
+  withoutExposeFromCtors declName do
     let cmds ← liftTermElabM <|
       if (← isEnumType declName) then
         mkBEqEnumCmd declName

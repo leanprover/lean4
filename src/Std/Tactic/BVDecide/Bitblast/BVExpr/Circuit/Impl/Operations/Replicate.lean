@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+public import Std.Sat.AIG.LawfulVecOperator
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.replicate`.
@@ -29,7 +33,7 @@ structure ReplicateTarget (aig : AIG α) (combined : Nat) where
 def blastReplicate (aig : AIG α) (target : ReplicateTarget aig newWidth) :
     AIG.RefVecEntry α newWidth :=
   let ⟨n, inner, h⟩ := target
-  let ref := go n inner 0 (by omega) .empty
+  let ref := go n inner 0 (by omega) (.emptyWithCapacity newWidth)
   ⟨aig, h ▸ ref⟩
 where
   go {aig : AIG α} {w : Nat} (n : Nat) (input : AIG.RefVec aig w) (curr : Nat) (hcurr : curr ≤ n)

@@ -338,7 +338,6 @@ end Cat
 def typeToCat : Type u ⥤ Cat where
   obj X := Cat.of (Discrete X)
   map := fun {X} {Y} f => by
-    dsimp
     exact Discrete.functor (Discrete.mk ∘ f)
 
 @[simp] theorem typeToCat_obj (X : Type u) : typeToCat.obj X = Cat.of (Discrete X) := rfl

@@ -4,11 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.JsonRpc
-import Lean.Data.Lsp.TextSync
-import Lean.Data.Lsp.LanguageFeatures
-import Lean.Data.Lsp.CodeActions
+public import Lean.Data.JsonRpc
+public import Lean.Data.Lsp.TextSync
+public import Lean.Data.Lsp.LanguageFeatures
+public import Lean.Data.Lsp.CodeActions
+public import Lean.Data.Lsp.Extra
+
+public section
 
 /-! Minimal LSP servers/clients do not have to implement a lot
 of functionality. Most useful additional behavior is instead
@@ -71,7 +76,7 @@ structure ClientCapabilities where
   textDocument? : Option TextDocumentClientCapabilities := none
   window?       : Option WindowClientCapabilities       := none
   workspace?    : Option WorkspaceClientCapabilities    := none
-  /-- Capabilties for Lean language server extensions. -/
+  /-- Capabilities for Lean language server extensions. -/
   lean?         : Option LeanClientCapabilities         := none
   deriving ToJson, FromJson
 
@@ -81,6 +86,10 @@ def ClientCapabilities.silentDiagnosticSupport (c : ClientCapabilities) : Bool :
   let some silentDiagnosticSupport := lean.silentDiagnosticSupport?
     | return false
   return silentDiagnosticSupport
+
+structure LeanServerCapabilities where
+  moduleHierarchyProvider? : Option ModuleHierarchyOptions
+  deriving FromJson, ToJson
 
 -- TODO largely unimplemented
 structure ServerCapabilities where
@@ -100,6 +109,8 @@ structure ServerCapabilities where
   semanticTokensProvider?   : Option SemanticTokensOptions   := none
   codeActionProvider?       : Option CodeActionOptions       := none
   inlayHintProvider?        : Option InlayHintOptions        := none
+  signatureHelpProvider?    : Option SignatureHelpOptions    := none
+  experimental?             : Option LeanServerCapabilities  := none
   deriving ToJson, FromJson
 
 end Lsp

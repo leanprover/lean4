@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Simp.SimpM
+public import Lean.Compiler.LCNF.Simp.SimpM
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -32,12 +36,15 @@ def simpAppApp? (e : LetValue) : OptionT SimpM LetValue := do
   let some decl ← findLetDecl? g | failure
   match decl.value with
   | .fvar f args' =>
-    /- If `args'` is empty then `g` is an alias that is going to be eliminated by `elimVar?` -/
-    guard (!args'.isEmpty)
+    /- If `args` is empty then `g` is an alias that is going to be eliminated by `elimVar?` -/
+    guard (!args.isEmpty)
     return .fvar f (args' ++ args)
-  | .const declName us args' => return .const declName us (args' ++ args)
+  | .const declName us args' =>
+    /- If `args` is empty then `g` is an alias that is going to be eliminated by `elimVar?` -/
+    guard (!args.isEmpty)
+    return .const declName us (args' ++ args)
   | .erased => return .erased
-  | .proj .. | .value .. => failure
+  | .proj .. | .lit .. => failure
 
 def simpCtorDiscr? (e : LetValue) : OptionT SimpM LetValue := do
   let .const declName _ _ := e | failure

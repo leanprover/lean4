@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Array.BasicAux
-import Init.Data.ToString.Macro
-import Init.Data.UInt.Basic
+public import Init.Data.Array.BasicAux
+public import Init.Data.ToString.Macro
+public import Init.Data.UInt.Basic
+
+public section
 
 namespace Lean
 universe u v w w'
@@ -39,7 +43,7 @@ abbrev maxDepth      : USize  := 7
 abbrev maxCollisions : Nat    := 4
 
 def mkEmptyEntriesArray {α β} : Array (Entry α β (Node α β)) :=
-  (Array.mkArray PersistentHashMap.branching.toNat PersistentHashMap.Entry.null)
+  (Array.replicate PersistentHashMap.branching.toNat PersistentHashMap.Entry.null)
 
 end PersistentHashMap
 
@@ -288,7 +292,7 @@ def forM {_ : BEq α} {_ : Hashable α} (map : PersistentHashMap α β) (f : α 
   map.foldlM (fun _ => f) ⟨⟩
 
 def foldl {_ : BEq α} {_ : Hashable α} (map : PersistentHashMap α β) (f : σ → α → β → σ) (init : σ) : σ :=
-  Id.run <| map.foldlM f init
+  Id.run <| map.foldlM (pure <| f · · ·) init
 
 protected def forIn {_ : BEq α} {_ : Hashable α} [Monad m]
     (map : PersistentHashMap α β) (init : σ) (f : α × β → σ → m (ForInStep σ)) : m σ := do
@@ -322,7 +326,7 @@ def mapM {α : Type u} {β : Type v} {σ : Type u} {m : Type u → Type w} [Mona
   return { root }
 
 def map {α : Type u} {β : Type v} {σ : Type u} {_ : BEq α} {_ : Hashable α} (pm : PersistentHashMap α β) (f : β → σ) : PersistentHashMap α σ :=
-  Id.run <| pm.mapM f
+  Id.run <| pm.mapM (pure <| f ·)
 
 def toList {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) : List (α × β) :=
   m.foldl (init := []) fun ps k v => (k, v) :: ps

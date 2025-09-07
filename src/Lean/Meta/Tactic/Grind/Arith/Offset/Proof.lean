@@ -3,14 +3,18 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Offset
-import Init.Grind.Lemmas
-import Lean.Meta.Tactic.Grind.Types
+public import Init.Grind.Offset
+public import Init.Grind.Lemmas
+public import Lean.Meta.Tactic.Grind.Types
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Offset
 /-!
-Helper functions for constructing proof terms in the offset contraint procedure.
+Helper functions for constructing proof terms in the offset constraint procedure.
 -/
 
 /-- Returns a proof for `true = true` -/
@@ -109,7 +113,7 @@ def mkUnsatProof (u v : Expr) (kuv : Int) (huv : Expr) (kvu : Int) (hvu : Expr) 
 
 /--
 Given a path `u --(kuv)--> v` justified by proof `huv`,
-construct a proof of `e = True` where `e` is a term corresponding to the edgen `u --(k') --> v`
+construct a proof of `e = True` where `e` is a term corresponding to the edge `u --(k') --> v`
 s.t. `k ≤ k'`
 -/
 def mkPropagateEqTrueProof (u v : Expr) (k : Int) (huv : Expr) (k' : Int) : Expr :=
@@ -136,7 +140,7 @@ def mkPropagateEqTrueProof (u v : Expr) (k : Int) (huv : Expr) (k' : Int) : Expr
 
 /--
 Given a path `u --(kuv)--> v` justified by proof `huv`,
-construct a proof of `e = False` where `e` is a term corresponding to the edgen `v --(k') --> u`
+construct a proof of `e = False` where `e` is a term corresponding to the edge `v --(k') --> u`
 s.t. `k+k' < 0`
 -/
 def mkPropagateEqFalseProof (u v : Expr) (k : Int) (huv : Expr) (k' : Int) : Expr :=

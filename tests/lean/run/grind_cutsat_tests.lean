@@ -1,5 +1,4 @@
-set_option grind.warning false
-
+module
 example (w x y z : Int) :
   2*w + 3*x - 4*y + z = 10 →
   w - x + 2*y - 3*z = 5 →
@@ -15,13 +14,13 @@ abbrev test1 (a b c d e : Int) :=
   a ≤ 100
 
 /--
-info: [grind.cutsat.model] a := 101
+trace: [grind.cutsat.model] a := 101
 [grind.cutsat.model] b := 0
 [grind.cutsat.model] c := 5335
 [grind.cutsat.model] d := 0
 [grind.cutsat.model] e := 0
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.cutsat.model true in
 example (a b c d e : Int) : test1 a b c d e  := by
   (fail_if_success grind); sorry
@@ -120,3 +119,10 @@ example : ∀ (x y : Int),
     x ≥ 0 → y ≥ 0 →
     x + y ≤ 5 := by
   grind
+
+example  (x : Int) : x / 1 = x := by grind
+example (x : Int) : x % 1 = 0 := by grind
+example  (x : Nat) : x / 1 = x := by grind
+example (x : Nat) : x % 1 = 0 := by grind
+example  (x : Int) : x / -1 = -x := by grind
+example (x : Int) : x % -1 = 0 := by grind

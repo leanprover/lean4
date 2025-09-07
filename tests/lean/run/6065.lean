@@ -10,7 +10,7 @@ def foo (r : Nat) : Nat :=
       | _ => 0
 
 example {r : Nat} : foo r = 0 := by
-  simp only [foo.eq_def]
+  simp only [foo]
   guard_target =ₛ
     (match r with
         | Nat.zero => 0

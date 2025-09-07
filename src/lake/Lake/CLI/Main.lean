@@ -3,9 +3,23 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Load
-import Lake.Build.Imports
+public import Init.System.IO
+public import Lake.Util.Exit
+public import Lake.Load.Config
+public import Lake.CLI.Error
+import Lake.Version
+import Lake.Build.Run
+import Lake.Build.Targets
+import Lake.Build.Job.Monad
+import Lake.Build.Job.Register
+import Lake.Build.Target.Fetch
+import Lake.Load.Package
+import Lake.Load.Workspace
+import Lake.Util.IO
+import Lake.Util.Git
 import Lake.Util.Error
 import Lake.Util.MainM
 import Lake.Util.Cli
@@ -20,13 +34,13 @@ import Lake.CLI.Serve
 -- # CLI
 
 open System
-open Lean (Json toJson fromJson? LeanPaths NameMap)
+open Lean (Json toJson fromJson? NameMap)
 
 namespace Lake
 
 /-! ## General options for top-level `lake` -/
 
-structure LakeOptions where
+public structure LakeOptions where
   args : List String := []
   rootDir : FilePath := "."
   configFile : FilePath := defaultConfigFile
@@ -49,6 +63,7 @@ structure LakeOptions where
   outLv? : Option LogLevel := .none
   ansiMode : AnsiMode := .auto
   outFormat : OutFormat := .text
+  offline : Bool := false
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -75,11 +90,13 @@ def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
     opts.noCache |>.adaptExcept fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
-def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
+public def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig := do
+  let some wsDir ← resolvePath? opts.rootDir
+    | throw <| .missingRootDir opts.rootDir
   return {
     lakeArgs? := opts.args.toArray
     lakeEnv := ← opts.computeEnv
-    wsDir := opts.rootDir
+    wsDir
     relConfigFile := opts.configFile
     packageOverrides := opts.packageOverrides
     lakeOpts := opts.configOpts
@@ -90,7 +107,9 @@ def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
   }
 
 /-- Make a `BuildConfig` from a `LakeOptions`. -/
-def LakeOptions.mkBuildConfig (opts : LakeOptions) (out := OutStream.stderr) : BuildConfig where
+def LakeOptions.mkBuildConfig
+  (opts : LakeOptions) (out := OutStream.stderr) (showSuccess := false)
+: BuildConfig where
   oldMode := opts.oldMode
   trustHash := opts.trustHash
   noBuild := opts.noBuild
@@ -98,7 +117,7 @@ def LakeOptions.mkBuildConfig (opts : LakeOptions) (out := OutStream.stderr) : B
   failLv := opts.failLv
   outLv := opts.outLv
   ansiMode := opts.ansiMode
-  out := out
+  out; showSuccess
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
 
@@ -194,6 +213,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
 | "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
 | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
+| "--offline"     => modifyThe LakeOptions ({· with offline := true})
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
 | "--log-level"   => do
@@ -339,14 +359,14 @@ protected def new : CliM PUnit := do
   let opts ← getThe LakeOptions
   let name ← takeArg "package name"
   let (tmp, lang) ← parseTemplateLangSpec <| ← takeArgD ""
-  noArgsRem do new name tmp lang (← opts.computeEnv) opts.rootDir
+  noArgsRem do new name tmp lang (← opts.computeEnv) opts.rootDir opts.offline
 
 protected def init : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let name := ← takeArgD "."
   let (tmp, lang) ← parseTemplateLangSpec <| ← takeArgD ""
-  noArgsRem do init name tmp lang (← opts.computeEnv) opts.rootDir
+  noArgsRem do init name tmp lang (← opts.computeEnv) opts.rootDir opts.offline
 
 protected def build : CliM PUnit := do
   processOptions lakeOption
@@ -358,11 +378,8 @@ protected def build : CliM PUnit := do
   specs.forM fun spec =>
     unless spec.buildable do
       throw <| .invalidBuildTarget spec.info.key.toSimpleString
-  let buildConfig := mkBuildConfig opts (out := .stdout)
-  let showProgress := buildConfig.showProgress
+  let buildConfig := mkBuildConfig opts (out := .stdout) (showSuccess := true)
   ws.runBuild (buildSpecs specs) buildConfig
-  if showProgress then
-    IO.println "Build completed successfully."
 
 protected def checkBuild : CliM PUnit := do
   processOptions lakeOption
@@ -380,6 +397,26 @@ protected def query : CliM PUnit := do
   let buildConfig := mkBuildConfig opts
   let results ← ws.runBuild (querySpecs specs fmt) buildConfig
   results.forM (IO.println ·)
+
+protected def queryKind : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts
+  let ws ← loadWorkspace config
+  let targetSpecs ← takeArgs
+  let keys ← targetSpecs.toArray.mapM fun spec =>
+    IO.ofExcept <| PartialBuildKey.parse spec
+  let buildConfig := mkBuildConfig opts
+  let r ← ws.runFetchM (cfg := buildConfig) <| keys.mapM fun key => do
+    let ⟨_, job⟩ ← key.fetchInCore ws.root
+    let kind := job.kind
+    let job ← maybeRegisterJob key.toString job.toOpaque
+    return (kind.name, job)
+  r.forM (IO.println ·.1)
+  r.forM fun (_, job) => do
+    match (← job.wait?) with
+    | some _ => pure ()
+    | none => error "build failed"
 
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption
@@ -424,8 +461,14 @@ protected def setupFile : CliM PUnit := do
   let loadConfig ← mkLoadConfig opts
   let buildConfig := mkBuildConfig opts
   let filePath ← takeArg "file path"
-  let imports ← takeArgs
-  setupFile loadConfig filePath imports buildConfig
+  let header? ← takeArg?
+  noArgsRem do
+  let header ← header?.mapM  fun header => do
+    let header ← if header == "-" then IO.getStdin >>= (·.getLine) else pure header
+    match Json.parse header >>= fromJson? with
+    | .ok header => pure header
+    | .error e => error s!"failed to parse header JSON: {e}"
+  setupFile loadConfig filePath header buildConfig
 
 protected def test : CliM PUnit := do
   processOptions lakeOption
@@ -507,7 +550,7 @@ protected def exe : CliM PUnit := do
   let ws ← loadWorkspace config
   let exe ← parseExeTargetSpec ws exeSpec
   let exeFile ← ws.runBuild exe.fetch (mkBuildConfig opts)
-  exit <| ← (env exeFile.toString args.toArray).run <| mkLakeContext ws
+  exit <| ← (Lake.env exeFile.toString args.toArray).run <| mkLakeContext ws
 
 protected def lean : CliM PUnit := do
   processOptions lakeOption
@@ -515,21 +558,7 @@ protected def lean : CliM PUnit := do
   let opts ← getThe LakeOptions
   noArgsRem do
   let ws ← loadWorkspace (← mkLoadConfig opts)
-  let imports ← Lean.parseImports' (← IO.FS.readFile leanFile) leanFile
-  let imports := imports.filterMap (ws.findModule? ·.module)
-  let {dynlibs, plugins} ←
-    ws.runBuild (buildImportsAndDeps leanFile imports) (mkBuildConfig opts)
-  let spawnArgs := {
-    args :=
-      #[leanFile] ++
-      dynlibs.map (s!"--load-dynlib={·}") ++
-      plugins.map (s!"--plugin={·}") ++
-      ws.root.moreLeanArgs ++ opts.subArgs
-    cmd := ws.lakeEnv.lean.lean.toString
-    env := ws.augmentedEnvVars
-  }
-  logVerbose (mkCmdLog spawnArgs)
-  let rc ← IO.Process.spawn spawnArgs >>= (·.wait)
+  let rc ← ws.evalLeanFile leanFile opts.subArgs.toArray (mkBuildConfig opts)
   exit rc
 
 protected def translateConfig : CliM PUnit := do
@@ -622,6 +651,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "build"               => lake.build
 | "check-build"         => lake.checkBuild
 | "query"               => lake.query
+| "query-kind"          => lake.queryKind
 | "update" | "upgrade"  => lake.update
 | "resolve-deps"        => lake.resolveDeps
 | "pack"                => lake.pack
@@ -669,5 +699,5 @@ def lake : CliM PUnit := do
       else
         throw <| CliError.missingCommand
 
-def cli (args : List String) : BaseIO ExitCode :=
+public def cli (args : List String) : BaseIO ExitCode :=
   inline <| (lake).run args

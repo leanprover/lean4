@@ -3,12 +3,17 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Omega.Core
-import Lean.Elab.Tactic.FalseOrByContra
-import Lean.Elab.Tactic.Config
-import Lean.Elab.MutualDef
-import Lean.Meta.Closure
+public import Lean.Elab.Tactic.Omega.Core
+public import Lean.Elab.Tactic.FalseOrByContra
+public import Lean.Elab.Tactic.Config
+public import Lean.Meta.Closure
+public import Lean.Meta.Tactic.Simp.Attr
+import Lean.Elab.Tactic.BuiltinTactic
+
+public section
 
 /-!
 # Frontend to the `omega` tactic.
@@ -70,9 +75,9 @@ def mkEvalRflProof (e : Expr) (lc : LinearCombo) : OmegaM Expr := do
 def mkCoordinateEvalAtomsEq (e : Expr) (n : Nat) : OmegaM Expr := do
   if n < 10 then
     let atoms ← atoms
-    let tail ← mkListLit (.const ``Int []) atoms[n+1:].toArray.toList
+    let tail ← mkListLit (.const ``Int []) atoms[n<...*].toArray.toList
     let lem := .str ``LinearCombo s!"coordinate_eval_{n}"
-    mkEqSymm (mkAppN (.const lem []) (atoms[:n+1].toArray.push tail))
+    mkEqSymm (mkAppN (.const lem []) (atoms[*...=n].toArray.push tail))
   else
     let atoms ← atomsCoeffs
     let n := toExpr n
@@ -81,7 +86,7 @@ def mkCoordinateEvalAtomsEq (e : Expr) (n : Nat) : OmegaM Expr := do
     mkEqTrans eq (← mkEqSymm (mkApp2 (.const ``LinearCombo.coordinate_eval []) n atoms))
 
 /-- Construct the linear combination (and its associated proof and new facts) for an atom. -/
-def mkAtomLinearCombo (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
+def mkAtomLinearCombo (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × List Expr) := do
   let (n, facts) ← lookup e
   return ⟨LinearCombo.coordinate n, mkCoordinateEvalAtomsEq e n, facts.getD ∅⟩
 
@@ -95,7 +100,7 @@ Gives a small (10%) speedup in testing.
 I tried using a pointer based cache,
 but there was never enough subexpression sharing to make it effective.
 -/
-partial def asLinearCombo (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
+partial def asLinearCombo (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × List Expr) := do
   let cache ← get
   match cache.get? e with
   | some (lc, prf) =>
@@ -121,7 +126,7 @@ We also transform the expression as we descend into it:
 * pushing coercions: `↑(x + y)`, `↑(x * y)`, `↑(x / k)`, `↑(x % k)`, `↑k`
 * unfolding `emod`: `x % k` → `x - x / k`
 -/
-partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
+partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × List Expr) := do
   trace[omega] "processing {e}"
   match groundInt? e with
   | some i =>
@@ -143,7 +148,7 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
       mkEqTrans
         (← mkAppM ``Int.add_congr #[← prf₁, ← prf₂])
         (← mkEqSymm add_eval)
-    pure (l₁ + l₂, prf, facts₁.union facts₂)
+    pure (l₁ + l₂, prf, facts₁ ++ facts₂)
   | (``HSub.hSub, #[_, _, _, _, e₁, e₂]) => do
     let (l₁, prf₁, facts₁) ← asLinearCombo e₁
     let (l₂, prf₂, facts₂) ← asLinearCombo e₂
@@ -153,7 +158,7 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
       mkEqTrans
         (← mkAppM ``Int.sub_congr #[← prf₁, ← prf₂])
         (← mkEqSymm sub_eval)
-    pure (l₁ - l₂, prf, facts₁.union facts₂)
+    pure (l₁ - l₂, prf, facts₁ ++ facts₂)
   | (``Neg.neg, #[_, _, e']) => do
     let (l, prf, facts) ← asLinearCombo e'
     let prf' : OmegaM Expr := do
@@ -179,7 +184,7 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
           mkEqTrans
             (← mkAppM ``Int.mul_congr #[← xprf, ← yprf])
             (← mkEqSymm mul_eval)
-        pure (some (LinearCombo.mul xl yl, prf, xfacts.union yfacts), true)
+        pure (some (LinearCombo.mul xl yl, prf, xfacts ++ yfacts), true)
       else
         pure (none, false)
     match r? with
@@ -237,7 +242,7 @@ where
   Apply a rewrite rule to an expression, and interpret the result as a `LinearCombo`.
   (We're not rewriting any subexpressions here, just the top level, for efficiency.)
   -/
-  rewrite (lhs rw : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
+  rewrite (lhs rw : Expr) : OmegaM (LinearCombo × OmegaM Expr × List Expr) := do
     trace[omega] "rewriting {lhs} via {rw} : {← inferType rw}"
     match (← inferType rw).eq? with
     | some (_, _lhs', rhs) =>
@@ -245,7 +250,7 @@ where
       let prf' : OmegaM Expr := do mkEqTrans rw (← prf)
       pure (lc, prf', facts)
     | none => panic! "Invalid rewrite rule in 'asLinearCombo'"
-  handleNatCast (e i n : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
+  handleNatCast (e i n : Expr) : OmegaM (LinearCombo × OmegaM Expr × List Expr) := do
     match n with
     | .fvar h =>
       if let some v ← h.getValue? then
@@ -255,14 +260,14 @@ where
         mkAtomLinearCombo e
     | _ => match n.getAppFnArgs with
     | (``Nat.succ, #[n]) => rewrite e (.app (.const ``Int.ofNat_succ []) n)
-    | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_add []) a b)
+    | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.natCast_add []) a b)
     | (``HMul.hMul, #[_, _, _, _, a, b]) =>
       let (lc, prf, r) ← rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
       -- Add the fact that the multiplication is non-negative.
       pure (lc, prf, r.insert (mkApp2 (.const ``Int.ofNat_mul_nonneg []) a b))
-    | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_ediv []) a b)
+    | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.natCast_ediv []) a b)
     | (``OfNat.ofNat, #[_, n, _]) => rewrite e (.app (.const ``Int.natCast_ofNat []) n)
-    | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_emod []) a b)
+    | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.natCast_emod []) a b)
     | (``HSub.hSub, #[_, _, _, _, mkApp6 (.const ``HSub.hSub _) _ _ _ _ a b, c]) =>
       rewrite e (mkApp3 (.const ``Int.ofNat_sub_sub []) a b c)
     | (``HPow.hPow, #[_, _, _, _, a, b]) =>
@@ -292,7 +297,7 @@ where
     | (``Fin.val, #[n, x]) =>
       handleFinVal e i n x
     | _ => mkAtomLinearCombo e
-  handleFinVal (e i n x : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
+  handleFinVal (e i n x : Expr) : OmegaM (LinearCombo × OmegaM Expr × List Expr) := do
     match x with
     | .fvar h =>
       if let some v ← h.getValue? then
@@ -338,12 +343,11 @@ We solve equalities as they are discovered, as this often results in an earlier 
 -/
 def addIntEquality (p : MetaProblem) (h x : Expr) : OmegaM MetaProblem := do
   let (lc, prf, facts) ← asLinearCombo x
-  let newFacts : Std.HashSet Expr := facts.fold (init := ∅) fun s e =>
-    if p.processedFacts.contains e then s else s.insert e
+  let newFacts : List Expr := facts.filter (p.processedFacts.contains · = false)
   trace[omega] "Adding proof of {lc} = 0"
   pure <|
   { p with
-    facts := newFacts.toList ++ p.facts
+    facts := newFacts ++ p.facts
     problem := ← (p.problem.addEquality lc.const lc.coeffs
       (some do mkEqTrans (← mkEqSymm (← prf)) h)) |>.solveEqualities }
 
@@ -354,12 +358,11 @@ We solve equalities as they are discovered, as this often results in an earlier 
 -/
 def addIntInequality (p : MetaProblem) (h y : Expr) : OmegaM MetaProblem := do
   let (lc, prf, facts) ← asLinearCombo y
-  let newFacts : Std.HashSet Expr := facts.fold (init := ∅) fun s e =>
-    if p.processedFacts.contains e then s else s.insert e
+  let newFacts : List Expr := facts.filter (p.processedFacts.contains · = false)
   trace[omega] "Adding proof of {lc} ≥ 0"
   pure <|
   { p with
-    facts := newFacts.toList ++ p.facts
+    facts := newFacts ++ p.facts
     problem := ← (p.problem.addInequality lc.const lc.coeffs
       (some do mkAppM ``le_of_le_of_eq #[h, (← prf)])) |>.solveEqualities }
 
@@ -559,7 +562,7 @@ where
   varNames (mask : Array Bool) : MetaM (Array String) := do
     let mut names := #[]
     let mut next := 0
-    for h : i in [:mask.size] do
+    for h : i in *...mask.size do
       if mask[i] then
         while ← inScope (varNameOf next) do next := next + 1
         names := names.push (varNameOf next)
@@ -595,7 +598,7 @@ where
       |> String.join
 
   mentioned (atoms : Array Expr) (constraints : Std.HashMap Coeffs Fact) : MetaM (Array Bool) := do
-    let initMask := Array.mkArray atoms.size false
+    let initMask := .replicate atoms.size false
     return constraints.fold (init := initMask) fun mask coeffs _ =>
       coeffs.zipIdx.foldl (init := mask) fun mask (c, i) =>
         if c = 0 then mask else mask.set! i true
@@ -672,19 +675,20 @@ open Lean Elab Tactic Parser.Tactic
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. -/
 def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
-  let auxName ← Term.mkAuxName `omega
   liftMetaFinishingTactic fun g => do
-    let some g ← g.falseOrByContra | return ()
-    g.withContext do
-      let type ← g.getType
-      let g' ← mkFreshExprSyntheticOpaqueMVar type
-      let hyps := (← getLocalHyps).toList
-      trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"
-      omega hyps g'.mvarId! cfg
-      -- Omega proofs are typically rather large, so hide them in a separate definition
-      let e ← mkAuxTheorem auxName type (← instantiateMVarsProfiling g') (zetaDelta := true)
-      g.assign e
-
+    if debug.terminalTacticsAsSorry.get (← getOptions) then
+      g.admit
+    else
+      let some g ← g.falseOrByContra | return ()
+      g.withContext do
+        let type ← g.getType
+        let g' ← mkFreshExprSyntheticOpaqueMVar type
+        let hyps := (← getLocalHyps).toList
+        trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"
+        omega hyps g'.mvarId! cfg
+        -- Omega proofs are typically rather large, so hide them in a separate definition
+        let e ← mkAuxTheorem type (← instantiateMVarsProfiling g') (zetaDelta := true)
+        g.assign e
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. This
 `TacticM Unit` frontend with default configuration can be used as an Aesop rule, for example via
@@ -693,7 +697,9 @@ def omegaDefault : TacticM Unit := omegaTactic {}
 
 @[builtin_tactic Lean.Parser.Tactic.omega]
 def evalOmega : Tactic
-  | `(tactic| omega $cfg:optConfig) => do
+  | `(tactic| omega%$tk $cfg:optConfig) => do
+    -- Call `assumption` first, to avoid constructing unnecessary proofs.
+    Meta.withReducibleAndInstances (evalAssumption tk) <|> do
     let cfg ← elabOmegaConfig cfg
     omegaTactic cfg
   | _ => throwUnsupportedSyntax

@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Std.Sat.AIG.CachedGatesLemmas
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+public import Std.Sat.AIG.CachedGatesLemmas
+public import Std.Sat.AIG.LawfulVecOperator
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.rotateRight`. Note that only
@@ -25,7 +29,7 @@ variable [Hashable α] [DecidableEq α]
 def blastRotateRight (aig : AIG α) (target : AIG.ShiftTarget aig w) :
     AIG.RefVecEntry α w :=
   let ⟨input, distance⟩ := target
-  ⟨aig, go input distance 0 (by omega) .empty⟩
+  ⟨aig, go input distance 0 (by omega) (.emptyWithCapacity w)⟩
 where
   go {aig : AIG α} (input : AIG.RefVec aig w) (distance : Nat) (curr : Nat) (hcurr : curr ≤ w)
       (s : AIG.RefVec aig curr) :

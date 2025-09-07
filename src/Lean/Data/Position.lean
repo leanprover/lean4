@@ -3,10 +3,14 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Data.Format
-import Lean.Data.Json
-import Lean.ToExpr
+public import Lean.Data.Format
+public import Lean.Data.Json.FromToJson.Basic
+public import Lean.ToExpr
+
+public section
 
 namespace Lean
 

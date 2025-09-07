@@ -23,7 +23,7 @@ instance : HSub String.Pos String.Pos String.Pos where
   hSub p₁ p₂ := { byteIdx :=  p₁.byteIdx - p₂.byteIdx }
 
 @[export lean_string_pos_sub]
-def Pos.Internal.sub : String.Pos → String.Pos → String.Pos :=
+def Pos.Internal.subImpl : String.Pos → String.Pos → String.Pos :=
   (· - ·)
 
 instance : HAdd String.Pos Char String.Pos where

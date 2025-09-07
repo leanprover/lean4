@@ -12,6 +12,7 @@ import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CasesOnSameCtor
+import Lean.Meta.Eqns
 
 
 namespace Lean.Elab.Deriving.BEq
@@ -200,32 +201,63 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
      $auxDefs:command*
     end)
 
-private def mkBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext ``BEq "beq" declName
+def mkBEqInstanceCmds (ctx : Context) (declName : Name) : TermElabM (Array Syntax) := do
   let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `BEq #[declName])
   trace[Elab.Deriving.beq] "\n{cmds}"
   return cmds
 
-private def mkBEqEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
+def mkBEqEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
   let auxFunName := ctx.auxFunNames[0]!
   `(def $(mkIdent auxFunName):ident  (x y : $(mkCIdent name)) : Bool := x.ctorIdx == y.ctorIdx)
 
-private def mkBEqEnumCmd (name : Name): TermElabM (Array Syntax) := do
-  let ctx ← mkContext ``BEq "beq" name
+def mkBEqEnumCmd (ctx : Context) (name : Name): TermElabM (Array Syntax) := do
   let cmds := #[← mkBEqEnumFun ctx name] ++ (← mkInstanceCmds ctx `BEq #[name])
   trace[Elab.Deriving.beq] "\n{cmds}"
   return cmds
+
+def mkBEqSpec (ctx : Context) : TermElabM Unit := do
+  if ctx.usePartial then return
+  if ctx.typeInfos.size > 1 then return
+  withoutExporting (when := isPrivateName ctx.typeInfos[0]!.name) do
+    let instName ← resolveGlobalConstNoOverloadCore ctx.instName
+    let auxFunName ← resolveGlobalConstNoOverloadCore ctx.auxFunNames[0]!
+    unless (← hasConst instName) do
+      throwError "failed to find BEq instance {.ofConstName instName}"
+    unless (← hasConst auxFunName) do
+      throwError "failed to find BEq auxiliary function {.ofConstName auxFunName}"
+    let some unfoldThm ← getUnfoldEqnFor? auxFunName (nonRec := true)
+      | throwError "failed to find equation lemma for BEq auxiliary function {.ofConstName auxFunName}"
+    let instInfo ← getConstVal instName
+    let unfoldInfo ← getConstVal unfoldThm
+    let arity := instInfo.type.getNumHeadForalls
+    let type' ← Meta.transform unfoldInfo.type
+      (post := fun e => e.withApp fun f xs => do
+        if f.isConstOf auxFunName && arity ≤ xs.size then
+          let inst := mkAppN (mkConst instName f.constLevels!) xs[:arity]
+          let type := (← inferType inst).appArg!
+          return .continue <| mkAppN (mkAppN (mkConst ``BEq.beq [← getDecLevel type]) #[type, inst]) xs[arity:]
+        else
+          return .continue
+      )
+    addDecl <| Declaration.thmDecl {
+      name          := instName ++ `spec
+      levelParams   := unfoldInfo.levelParams
+      type          := type'
+      value         := mkConst unfoldThm (unfoldInfo.levelParams.map mkLevelParam)
+    }
 
 open Command
 
 def mkBEqInstance (declName : Name) : CommandElabM Unit := do
   withoutExposeFromCtors declName do
+    let ctx ← liftTermElabM <| mkContext ``BEq "beq" declName
     let cmds ← liftTermElabM <|
       if (← isEnumType declName) then
-        mkBEqEnumCmd declName
+        mkBEqEnumCmd ctx declName
       else
-         mkBEqInstanceCmds declName
+        mkBEqInstanceCmds ctx declName
     cmds.forM elabCommand
+    liftTermElabM <| mkBEqSpec ctx
 
 def mkBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then

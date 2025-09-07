@@ -8,6 +8,10 @@ inductive Foo
   | mk1 | mk2 | mk3
   deriving @[expose] BEq
 
+/-- info: instBEqFoo.spec (x✝ y✝ : Foo) : (x✝ == y✝) = (x✝.ctorIdx == y✝.ctorIdx) -/
+#guard_msgs in
+#check instBEqFoo.spec
+
 namespace Foo
 theorem ex1 : (mk1 == mk2) = false :=
   rfl
@@ -26,22 +30,63 @@ inductive L (α : Type u) : Type u
   | cons : α → L α → L α
   deriving @[expose] BEq
 
+/--
+info: instBEqL.spec.{u_1} {α✝ : Type u_1} [BEq α✝] (x✝ x✝¹ : L α✝) :
+  (x✝ == x✝¹) =
+    match x✝, x✝¹ with
+    | L.nil, L.nil => true
+    | L.cons a a_1, L.cons b b_1 => a == b && a_1 == b_1
+    | x, x_1 => false
+-/
+#guard_msgs in
+#check instBEqL.spec
+
 namespace L
 theorem ex1 : (L.cons 10 L.nil == L.cons 20 L.nil) = false := rfl
 theorem ex2 : (L.cons 10 L.nil == L.nil) = false := rfl
 end L
+
+namespace InNamespace
+inductive L' (α : Type u) : Type u
+  | nil  : L' α
+  | cons : α → L' α → L' α
+  deriving @[expose] BEq
+
+end InNamespace
+/--
+info: @[expose] def InNamespace.instBEqL'.{u_1} : {α : Type u_1} → [BEq α] → BEq (InNamespace.L' α)
+-/
+#guard_msgs in #print sig InNamespace.instBEqL'
+/--
+info: theorem InNamespace.instBEqL'.spec.{u_1} : ∀ {α : Type u_1} [inst : BEq α] (x x_1 : InNamespace.L' α),
+  (x == x_1) =
+    match x, x_1 with
+    | InNamespace.L'.nil, InNamespace.L'.nil => true
+    | InNamespace.L'.cons a a_1, InNamespace.L'.cons b b_1 => a == b && a_1 == b_1
+    | x, x_2 => false
+-/
+#guard_msgs in #print sig InNamespace.instBEqL'.spec
 
 inductive Vec (α : Type u) : Nat → Type u
   | nil  : Vec α 0
   | cons : α → {n : Nat} → Vec α n → Vec α (n+1)
   deriving @[expose] BEq
 
-namespace Vec
-theorem ex1 : (cons 10 Vec.nil == cons 20 Vec.nil) = false :=
-  rfl
+/--
+info: instBEqVec.spec.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq α✝] (x✝ x✝¹ : Vec α✝ a✝) :
+  (x✝ == x✝¹) =
+    match a✝, x✝, x✝¹ with
+    | .(0), Vec.nil, Vec.nil => true
+    | .(n + 1), Vec.cons a a_1, Vec.cons b b_1 => a == b && a_1 == b_1
+    | x, x_1, x_2 => false
+-/
+#guard_msgs in
+#check instBEqVec.spec
 
-theorem ex2 : (cons 10 Vec.nil == cons 10 Vec.nil) = true :=
-  rfl
+namespace Vec
+theorem ex1 : (cons 10 Vec.nil == cons 20 Vec.nil) = false := rfl
+
+theorem ex2 : (cons 10 Vec.nil == cons 10 Vec.nil) = true := rfl
 
 theorem ex3 : (cons 20 (cons 11 Vec.nil) == cons 20 (cons 10 Vec.nil)) = false :=
   rfl
@@ -95,6 +140,24 @@ deriving BEq
 private structure PrivStruct where
   a : Nat
 deriving BEq
+
+-- Instance and spec should be private
+/-- info: private def instBEqPrivStruct : BEq PrivStruct -/
+#guard_msgs in
+#print sig instBEqPrivStruct
+
+/-- info: private def instBEqPrivStruct.beq : PrivStruct → PrivStruct → Bool -/
+#guard_msgs in
+#print sig instBEqPrivStruct.beq
+/--
+info: private theorem instBEqPrivStruct.spec : ∀ (x x_1 : PrivStruct),
+  (x == x_1) =
+    match x, x_1 with
+    | { a := a }, { a := b } => a == b
+    | x, x_2 => false
+-/
+#guard_msgs in
+#print sig instBEqPrivStruct.spec
 
 end
 

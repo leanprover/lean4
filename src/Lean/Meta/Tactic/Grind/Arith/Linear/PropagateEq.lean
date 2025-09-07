@@ -291,15 +291,18 @@ private def processNewIntModuleDiseq (a b : Expr) : LinearM Unit := do
 
 private def processNewNatModuleDiseq (a b : Expr) : OfNatModuleM Unit := do
   let ns ← getNatStruct
-  unless ns.addRightCancelInst?.isSome do return ()
-  let (a', _) ← ofNatModule a
-  let (b', _) ← ofNatModule b
-  LinearM.run ns.structId do
-    let some lhs ← reify? a' (skipVar := false) (← getGeneration a) | return ()
-    let some rhs ← reify? b' (skipVar := false) (← getGeneration b) | return ()
-    let p := (lhs.sub rhs).norm
-    let c : DiseqCnstr := { p, h := .coreOfNat a b ns.id lhs rhs }
-    c.assert
+  if ns.addRightCancelInst?.isSome then
+    let (a', _) ← ofNatModule a
+    let (b', _) ← ofNatModule b
+    LinearM.run ns.structId do
+      let some lhs ← reify? a' (skipVar := false) (← getGeneration a) | return ()
+      let some rhs ← reify? b' (skipVar := false) (← getGeneration b) | return ()
+      let p := (lhs.sub rhs).norm
+      let c : DiseqCnstr := { p, h := .coreOfNat a b ns.id lhs rhs }
+      c.assert
+  else
+    -- If `AddRightCancel` is not available, we just normalize, and try to detect contradiction
+    normNatModuleDiseq a b
 
 @[export lean_process_linarith_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do

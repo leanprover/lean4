@@ -413,8 +413,7 @@ instance : FromDocArg MessageSeverity where
     | other => do
       throwErrorAt other.syntax "Expected a message severity{← severityHint other.syntax}"
 
-
-private def getPositional [FromDocArg α] (name : Name) : StateT (Array (TSyntax `doc_arg)) DocM α := do
+def getPositional [FromDocArg α] (name : Name) : StateT (Array (TSyntax `doc_arg)) DocM α := do
   let args ← get
   for h : i in [0:args.size] do
     if let `(doc_arg|$v:arg_val) := args[i] then
@@ -428,7 +427,7 @@ private def asNamed : Syntax → Option (Ident × TSyntax `arg_val)
   | `(doc_arg|($x:ident := $v:arg_val)) => some (x, v)
   | _ => none
 
-private def getNamed [FromDocArg α] (name : Name) (default : α) : StateT (Array (TSyntax `doc_arg)) DocM α := do
+def getNamed [FromDocArg α] (name : Name) (default : α) : StateT (Array (TSyntax `doc_arg)) DocM α := do
   let name := name.eraseMacroScopes
   let args ← get
   for h : i in [0:args.size] do
@@ -439,7 +438,7 @@ private def getNamed [FromDocArg α] (name : Name) (default : α) : StateT (Arra
         return (← FromDocArg.fromDocArg v)
   return default
 
-private def getMany [FromDocArg α] (name : Name) : StateT (Array (TSyntax `doc_arg)) DocM (Array α) := do
+def getMany [FromDocArg α] (name : Name) : StateT (Array (TSyntax `doc_arg)) DocM (Array α) := do
   let name := name.eraseMacroScopes
   let args ← get
   let mut thisArg := #[]
@@ -454,7 +453,7 @@ private def getMany [FromDocArg α] (name : Name) : StateT (Array (TSyntax `doc_
   set others
   thisArg.mapM (FromDocArg.fromDocArg ·)
 
-private def getFlag (name : Name) (default : Bool) : StateT (Array (TSyntax `doc_arg)) DocM Bool := do
+def getFlag (name : Name) (default : Bool) : StateT (Array (TSyntax `doc_arg)) DocM Bool := do
   let name := name.eraseMacroScopes
   let args ← get
   for h : i in [0:args.size] do
@@ -469,7 +468,7 @@ where
     | `(doc_arg|-$x:ident) => some (x, false)
     | _ => none
 
-private def done : StateT (Array (TSyntax `doc_arg)) DocM Unit := do
+def done : StateT (Array (TSyntax `doc_arg)) DocM Unit := do
   for arg in (← get) do
     logErrorAt arg m!"Extra argument"
   return
@@ -589,10 +588,13 @@ builtin_initialize registerBuiltinAttribute {
           .default) then
         codeSuggestionExt.add decl
       else
-        throwError "Wrong type for {.ofConstName decl} {indentD <| repr d.type}"
+        throwError "Wrong type for {.ofConstName decl}: {indentD <| repr d.type}"
     else
       throwError "{.ofConstName decl} is not defined"
 }
+
+def addBuiltinCodeSuggestion (decl : Name) : IO Unit :=
+  builtinCodeSuggestions.modify (·.insert decl)
 
 builtin_initialize registerBuiltinAttribute {
   name := `builtin_doc_code_suggestions
@@ -600,12 +602,12 @@ builtin_initialize registerBuiltinAttribute {
   applicationTime := .afterCompilation
   add := fun decl stx kind => do
     if let some d := (← getEnv).find? decl then
-      if d.type matches (.forallE _ (.const ``StrLit [])
-          (.app (.const ``DocM []) (.app (.const ``Array [0]) (.const ``CodeSuggestion [0])))
+      if d.type matches (.forallE _ (.const ``StrLit _)
+          (.app (.const ``DocM _) (.app (.const ``Array _) (.const ``CodeSuggestion _)))
           .default) then
-        builtinCodeSuggestions.modify (·.insert decl)
+        declareBuiltin decl <| .app (.const ``addBuiltinCodeSuggestion []) (toExpr decl)
       else
-        throwError "Wrong type for {.ofConstName decl}"
+        throwError "Wrong type for {.ofConstName decl}: {indentD <| repr d.type}"
     else
       throwError "{.ofConstName decl} is not defined"
 }
@@ -628,6 +630,8 @@ builtin_initialize registerBuiltinAttribute {
     docRoleExt.add (roleName, wrapper)
 }
 
+def addBuiltinDocRole (roleName wrapper : Name) : IO Unit :=
+  builtinDocRoles.modify (·.alter roleName fun x? => x?.getD #[] |>.push wrapper)
 
 builtin_initialize registerBuiltinAttribute {
   name := `builtin_doc_role
@@ -644,8 +648,7 @@ builtin_initialize registerBuiltinAttribute {
         (mkApp3 (.const ``List.cons [0]) (.const ``SyntaxNodeKind []) (toExpr `inline) (.app (.const ``List.nil [0]) (.const ``SyntaxNodeKind [])))
     let ret := .app (.const ``Inline [0]) (.const ``ElabInline [])
     let ((wrapper, _), _) ← genWrapper decl (some argTy) ret |>.run {} {} |>.run {} {}
-
-    builtinDocRoles.modify (·.alter roleName fun x? => x?.getD #[] |>.push wrapper)
+    declareBuiltin roleName <| mkApp2 (.const ``addBuiltinDocRole []) (toExpr roleName) (toExpr wrapper)
 }
 
 builtin_initialize registerBuiltinAttribute {
@@ -663,6 +666,9 @@ builtin_initialize registerBuiltinAttribute {
     docCodeBlockExt.add (blockName, wrapper)
 }
 
+def addBuiltinDocCodeBlock (blockName wrapper : Name) : IO Unit :=
+  builtinDocCodeBlocks.modify (·.alter blockName fun x? => x?.getD #[] |>.push wrapper)
+
 builtin_initialize registerBuiltinAttribute {
   name := `builtin_doc_code_block
   descr := "docstring code block expander"
@@ -675,7 +681,7 @@ builtin_initialize registerBuiltinAttribute {
         pure decl
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
     let ((wrapper, _), _) ← genWrapper decl (some (.const ``StrLit [])) ret |>.run {} {} |>.run {} {}
-    builtinDocCodeBlocks.modify (·.alter blockName fun x? => x?.getD #[] |>.push wrapper)
+    declareBuiltin blockName <| mkApp2 (.const ``addBuiltinDocCodeBlock []) (toExpr blockName) (toExpr wrapper)
 }
 
 builtin_initialize registerBuiltinAttribute {
@@ -683,7 +689,7 @@ builtin_initialize registerBuiltinAttribute {
   descr := "docstring directive expander"
   applicationTime := .afterCompilation
   add := fun decl stx kind => do
-    let blockName ←
+    let directiveName ←
       if let `(attr|doc_directive $x) := stx then
         realizeGlobalConstNoOverloadWithInfo x
       else
@@ -693,15 +699,18 @@ builtin_initialize registerBuiltinAttribute {
         (mkApp3 (.const ``List.cons [0]) (.const ``SyntaxNodeKind []) (toExpr `block) (.app (.const ``List.nil [0]) (.const ``SyntaxNodeKind [])))
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
     let ((wrapper, _), _) ← genWrapper decl (some argTy) ret |>.run {} {} |>.run {} {}
-    docCodeBlockExt.add (blockName, wrapper)
+    docCodeBlockExt.add (directiveName, wrapper)
 }
+
+def addBuiltinDocDirective (directiveName wrapper : Name) : IO Unit :=
+  builtinDocCodeBlocks.modify (·.alter directiveName fun x? => x?.getD #[] |>.push wrapper)
 
 builtin_initialize registerBuiltinAttribute {
   name := `builtin_doc_directive
   descr := "docstring directive expander"
   applicationTime := .afterCompilation
   add := fun decl stx kind => do
-    let blockName ←
+    let directiveName ←
       if let `(attr|builtin_doc_directive $x) := stx then
         realizeGlobalConstNoOverloadWithInfo x
       else
@@ -711,7 +720,7 @@ builtin_initialize registerBuiltinAttribute {
         (mkApp3 (.const ``List.cons [0]) (.const ``SyntaxNodeKind []) (toExpr `block) (.app (.const ``List.nil [0]) (.const ``SyntaxNodeKind [])))
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
     let ((wrapper, _), _) ← genWrapper decl (some argTy) ret |>.run {} {} |>.run {} {}
-    builtinDocDirectives.modify (·.alter blockName fun x? => x?.getD #[] |>.push wrapper)
+    declareBuiltin directiveName <| mkApp2 (.const ``addBuiltinDocCodeBlock []) (toExpr directiveName) (toExpr wrapper)
 }
 
 builtin_initialize registerBuiltinAttribute {
@@ -719,7 +728,7 @@ builtin_initialize registerBuiltinAttribute {
   descr := "docstring command expander"
   applicationTime := .afterCompilation
   add := fun decl stx kind => do
-    let blockName ←
+    let commandName ←
       if let `(attr|doc_command $x) := stx then
         realizeGlobalConstNoOverloadWithInfo x
       else
@@ -727,15 +736,18 @@ builtin_initialize registerBuiltinAttribute {
 
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
     let ((wrapper, _), _) ← genWrapper decl none ret |>.run {} {} |>.run {} {}
-    docCommandExt.add (blockName, wrapper)
+    docCommandExt.add (commandName, wrapper)
 }
+
+def addBuiltinDocCommand (commandName wrapper : Name) : IO Unit :=
+  builtinDocCommands.modify (·.alter commandName fun x? => x?.getD #[] |>.push wrapper)
 
 builtin_initialize registerBuiltinAttribute {
   name := `builtin_doc_command
-  descr := "docstring command expander"
+  descr := "builtin docstring command expander"
   applicationTime := .afterCompilation
   add := fun decl stx kind => do
-    let blockName ←
+    let commandName ←
       if let `(attr|builtin_doc_command $x) := stx then
         realizeGlobalConstNoOverloadWithInfo x
       else
@@ -743,7 +755,8 @@ builtin_initialize registerBuiltinAttribute {
 
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
     let ((wrapper, _), _) ← genWrapper decl none ret |>.run {} {} |>.run {} {}
-    builtinDocCommands.modify (·.alter blockName fun x? => x?.getD #[] |>.push wrapper)
+    declareBuiltin commandName <| mkApp2 (.const ``addBuiltinDocCommand []) (toExpr commandName) (toExpr wrapper)
+
 }
 end
 

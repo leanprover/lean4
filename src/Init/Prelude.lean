@@ -1973,9 +1973,9 @@ theorem Nat.not_le_of_not_ble_eq_true (h : Not (Eq (Nat.ble n m) true)) : Not (L
 
 theorem Nat.lt_succ_of_le {n m : Nat} : LE.le n m → LT.lt n (succ m) := succ_le_succ
 
-theorem Nat.lt.base (n : Nat) : LT.lt n (succ n) := Nat.le_refl (succ n)
+protected theorem Nat.lt_add_one (n : Nat) : LT.lt n (HAdd.hAdd n 1) := Nat.le_refl (succ n)
 
-theorem Nat.lt_succ_self (n : Nat) : LT.lt n (succ n) := Nat.lt.base n
+theorem Nat.lt_succ_self (n : Nat) : LT.lt n (succ n) := Nat.lt_add_one _
 
 protected theorem Nat.lt_of_not_le {a b : Nat} (h : Not (LE.le a b)) : LT.lt b a :=
   (Nat.lt_or_ge b a).resolve_right h

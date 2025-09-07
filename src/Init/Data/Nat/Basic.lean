@@ -329,7 +329,9 @@ protected theorem pos_of_ne_zero {n : Nat} : n ≠ 0 → 0 < n := (eq_zero_or_po
 
 theorem pos_of_neZero (n : Nat) [NeZero n] : 0 < n := Nat.pos_of_ne_zero (NeZero.ne _)
 
-@[simp] protected theorem lt_add_one (n : Nat) : n < n + 1 := lt.base n
+attribute [simp] Nat.lt_add_one
+
+theorem Nat.lt.base (n : Nat) : n < succ n := Nat.le_refl (succ n)
 
 protected theorem le_total (m n : Nat) : m ≤ n ∨ n ≤ m :=
   match Nat.lt_or_ge m n with

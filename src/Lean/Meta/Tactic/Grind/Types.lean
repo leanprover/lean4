@@ -1675,24 +1675,46 @@ structure SolverExtension (σ : Type) where private mk ::
 private builtin_initialize solverExtensionsRef : IO.Ref (Array (SolverExtension SolverExtensionState)) ← IO.mkRef #[]
 
 /--
+Registers a new solver extension for `grind`.
 Solver extensions can only be registered during initialization.
 Reason: We do not use any synchronization primitive to access `solverExtensionsRef`.
 -/
-def registerSolverExtension {σ : Type}
-    (mkInitial   : IO σ)
-    (internalize : Expr → (parent? : Option Expr) → GoalM Unit)
-    (newEq       : Expr → Expr → GoalM Unit)
-    (newDiseq    : Expr → Expr → GoalM Unit := fun _ _ => return ())
-    (mbtc        : GoalM Bool := return false)
-    (check       : GoalM Bool := return false)
-    (checkInv    : GoalM Unit := return ()) : IO (SolverExtension σ) := do
+def registerSolverExtension {σ : Type} (mkInitial   : IO σ) : IO (SolverExtension σ) := do
   unless (← initializing) do
     throw (IO.userError "failed to register `grind` solver, extensions can only be registered during initialization")
   let exts ← solverExtensionsRef.get
   let id := exts.size
-  let ext : SolverExtension σ := { id, mkInitial, internalize, newEq, newDiseq, check, checkInv, mbtc }
+  let ext : SolverExtension σ := {
+    id, mkInitial
+    internalize := fun _ _ => return ()
+    newEq := fun _ _ => return ()
+    newDiseq := fun _ _ => return ()
+    check := fun _ _ => return false
+    checkInv := fun _ _ => return ()
+    mbtc := fun _ _ => return false
+  }
   solverExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   return ext
+
+/--
+Sets methods/handlers for solver extension `ext`.
+Solver extension methods can only be registered during initialization.
+Reason: We do not use any synchronization primitive to access `solverExtensionsRef`.
+-/
+def SolverExtension.setMethods (ext : SolverExtension σ)
+    (internalize : Expr → (parent? : Option Expr) → GoalM Unit := fun _ _  => return ())
+    (newEq       : Expr → Expr → GoalM Unit := fun _ _ => return ())
+    (newDiseq    : Expr → Expr → GoalM Unit := fun _ _ => return ())
+    (mbtc        : GoalM Bool := return false)
+    (check       : GoalM Bool := return false)
+    (checkInv    : GoalM Unit := return ()) : IO Unit := do
+  unless (← initializing) do
+    throw (IO.userError "failed to register `grind` solver, extensions can only be registered during initialization")
+  unless ext.id < (← solverExtensionsRef.get).size do
+    throw (IO.userError "failed to register `grind` solver methods, invalid solver id")
+  solverExtensionsRef.modify fun exts => exts.modify ext.id fun s => { s with
+    internalize, newEq, newDiseq, mbtc, check, checkInv
+  }
 
 /-- Returns initial state for registered solvers. -/
 def Solvers.mkInitialStates : IO (Array SolverExtensionState) := do

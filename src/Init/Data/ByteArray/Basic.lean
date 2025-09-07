@@ -23,13 +23,6 @@ attribute [extern "lean_byte_array_data"] ByteArray.data
 
 namespace ByteArray
 
-deriving instance BEq for ByteArray
-
-attribute [ext] ByteArray
-
-instance : DecidableEq ByteArray :=
-  fun _ _ => decidable_of_decidable_of_iff ByteArray.ext_iff.symm
-
 @[extern "lean_mk_empty_byte_array"]
 def emptyWithCapacity (c : @& Nat) : ByteArray :=
   { data := #[] }
@@ -97,10 +90,12 @@ def isEmpty (s : ByteArray) : Bool :=
   s.size == 0
 
 /--
-  Copy the slice at `[srcOff, srcOff + len)` in `src` to `[destOff, destOff + len)` in `dest`, growing `dest` if necessary.
-  If `exact` is `false`, the capacity will be doubled when grown. -/
+Copy the slice at `[srcOff, srcOff + len)` in `src` to `[destOff, destOff + len)` in `dest`,
+growing `dest` if necessary.
+If `exact` is `false`, the capacity will be doubled when grown.
+-/
 @[extern "lean_byte_array_copy_slice"]
-def copySlice (src : @& ByteArray) (srcOff : Nat) (dest : ByteArray) (destOff len : Nat) (exact : Bool := true) : ByteArray :=
+def copySlice (src : @& ByteArray) (srcOff : @& Nat) (dest : ByteArray) (destOff len : @& Nat) (exact : Bool := true) : ByteArray :=
   ⟨dest.data.extract 0 destOff ++ src.data.extract srcOff (srcOff + len) ++ dest.data.extract (destOff + min len (src.data.size - srcOff)) dest.data.size⟩
 
 def extract (a : ByteArray) (b e : Nat) : ByteArray :=
@@ -143,10 +138,10 @@ def toList (bs : ByteArray) : List UInt8 :=
   loop start
 
 /--
-  We claim this unsafe implementation is correct because an array cannot have more than `usizeSz` elements in our runtime.
-  This is similar to the `Array` version.
+We claim this unsafe implementation is correct because an array cannot have more than `usizeSz` elements in our runtime.
+This is similar to the `Array` version.
 
-  TODO: avoid code duplication in the future after we improve the compiler.
+TODO: avoid code duplication in the future after we improve the compiler.
 -/
 @[inline] unsafe def forInUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (as : ByteArray) (b : β) (f : UInt8 → β → m (ForInStep β)) : m β :=
   let sz := as.usize

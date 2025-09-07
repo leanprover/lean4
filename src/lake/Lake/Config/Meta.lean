@@ -16,10 +16,8 @@ open Lean Syntax Parser Command
 
 namespace Lake
 
-public section -- for `syntax .. := ...`
-syntax configField :=
+public syntax configField :=
   atomic(nestedDeclModifiers ident,+) declSig (" := " term)?
-end
 
 /--
 An tailored `structure` command for producing Lake configuration data types.

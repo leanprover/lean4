@@ -139,16 +139,6 @@ This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_uint8_shift_right"]
 protected def UInt8.shiftRight (a b : UInt8) : UInt8 := ⟨a.toBitVec >>> (UInt8.mod b 8).toBitVec⟩
-/--
-Strict inequality of 8-bit unsigned integers, defined as inequality of the corresponding
-natural numbers. Usually accessed via the `<` operator.
--/
-protected def UInt8.lt (a b : UInt8) : Prop := a.toBitVec < b.toBitVec
-/--
-Non-strict inequality of 8-bit unsigned integers, defined as inequality of the corresponding
-natural numbers. Usually accessed via the `≤` operator.
--/
-protected def UInt8.le (a b : UInt8) : Prop := a.toBitVec ≤ b.toBitVec
 
 instance : Add UInt8       := ⟨UInt8.add⟩
 instance : Sub UInt8       := ⟨UInt8.sub⟩
@@ -160,8 +150,6 @@ set_option linter.deprecated false in
 instance : HMod UInt8 Nat UInt8 := ⟨UInt8.modn⟩
 
 instance : Div UInt8       := ⟨UInt8.div⟩
-instance : LT UInt8        := ⟨UInt8.lt⟩
-instance : LE UInt8        := ⟨UInt8.le⟩
 
 /--
 Bitwise complement, also known as bitwise negation, for 8-bit unsigned integers. Usually accessed
@@ -196,39 +184,6 @@ Converts `true` to `1` and `false` to `0`.
 -/
 @[extern "lean_bool_to_uint8"]
 def Bool.toUInt8 (b : Bool) : UInt8 := if b then 1 else 0
-
-/--
-Decides whether one 8-bit unsigned integer is strictly less than another. Usually accessed via the
-`DecidableLT UInt8` instance.
-
-This function is overridden at runtime with an efficient implementation.
-
-Examples:
- * `(if (6 : UInt8) < 7 then "yes" else "no") = "yes"`
- * `(if (5 : UInt8) < 5 then "yes" else "no") = "no"`
- * `show ¬((7 : UInt8) < 7) by decide`
--/
-@[extern "lean_uint8_dec_lt"]
-def UInt8.decLt (a b : UInt8) : Decidable (a < b) :=
-  inferInstanceAs (Decidable (a.toBitVec < b.toBitVec))
-
-/--
-Decides whether one 8-bit unsigned integer is less than or equal to another. Usually accessed via the
-`DecidableLE UInt8` instance.
-
-This function is overridden at runtime with an efficient implementation.
-
-Examples:
- * `(if (15 : UInt8) ≤ 15 then "yes" else "no") = "yes"`
- * `(if (15 : UInt8) ≤ 5 then "yes" else "no") = "no"`
- * `(if (5 : UInt8) ≤ 15 then "yes" else "no") = "yes"`
- * `show (7 : UInt8) ≤ 7 by decide`
--/
-@[extern "lean_uint8_dec_le"]
-def UInt8.decLe (a b : UInt8) : Decidable (a ≤ b) :=
-  inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
-
-attribute [instance] UInt8.decLt UInt8.decLe
 
 instance : Max UInt8 := maxOfLe
 instance : Min UInt8 := minOfLe

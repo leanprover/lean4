@@ -4,13 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Arith.ModelUtil
-
+import Lean.Meta.Tactic.Grind.Arith.ModelUtil
+import Init.Grind.Module.Envelope
 public section
-
 namespace Lean.Meta.Grind.Arith.Linear
 
 def getAssignment? (s : Struct) (e : Expr) : Option Rat := Id.run do
@@ -24,6 +22,11 @@ private def hasType (type : Expr) (n : ENode): MetaM Bool :=
   withDefault do
     let type' ← inferType n.self
     isDefEq type' type
+
+private def toQ? (e : Expr) : Option Expr :=
+  match_expr e with
+  | Grind.IntModule.OfNatModule.toQ _ _ a => some a
+  | _ => none
 
 /--
 Construct a model that satisfies all constraints in the linarith model for the structure with id `structId`.
@@ -39,6 +42,14 @@ def mkModel (goal : Goal) (structId : Nat) : MetaM (Array (Expr × Rat)) := do
     if (← hasType s.type node) then
       if let some v := getAssignment? s node.self then
         model := assignEqc goal node.self v model
+  -- Assign `toQ a` terms
+  for e in goal.exprs do
+    let node ← goal.getENode e
+    let i := node.self
+    let some n := toQ? i | pure ()
+    if model[n]?.isNone then
+      let some v := model[i]? | pure ()
+      model := assignEqc goal n v model
   let r ← finalizeModel goal (hasType s.type) model
   traceModel `grind.linarith.model r
   return r

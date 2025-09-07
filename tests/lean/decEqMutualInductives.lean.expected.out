@@ -73,7 +73,7 @@
                    if h✝³ : @a✝² = @b✝² then by subst h✝³; exact isTrue✝² rfl✝²
                    else isFalse✝¹ (by intro n✝¹; injection n✝¹; apply h✝³ _; assumption)
                else isFalse✝² (by intro n✝²; injection n✝²; apply h✝² _; assumption)
-         else isFalse✝³ (fun h'✝ => h✝¹ (congrArg✝ B.ListTree.ctorIdx✝ h'✝))
+         | .isFalse✝³ h✝¹ => isFalse✝³ (fun h'✝ => h✝¹ (congrArg✝ B.ListTree.ctorIdx✝ h'✝))
        termination_by structural x✝²
      end,
      instance instDecidableEqListTree : DecidableEq✝ (@B.ListTree✝) :=
@@ -87,7 +87,7 @@
                let inst✝ := instDecidableEqFoo₁.decEq_2 @a✝ @b✝;
                if h✝¹ : @a✝ = @b✝ then by subst h✝¹; exact isTrue✝¹ rfl✝¹
                else isFalse✝ (by intro n✝; injection n✝; apply h✝¹ _; assumption)
-         else isFalse✝¹ (fun h'✝ => h✝ (congrArg✝ B.Foo₁.ctorIdx✝ h'✝))
+         | .isFalse✝¹ h✝ => isFalse✝¹ (fun h'✝ => h✝ (congrArg✝ B.Foo₁.ctorIdx✝ h'✝))
        termination_by structural x✝
        def instDecidableEqFoo₁.decEq_2 (x✝² : @B.Foo₂✝) (x✝³ : @B.Foo₂✝) : Decidable✝ (x✝² = x✝³) :=
          B.Foo₂.match_on_same_ctor✝ x✝² x✝³ rfl✝

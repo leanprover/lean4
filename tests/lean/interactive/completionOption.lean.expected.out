@@ -1,9 +1,7 @@
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 1, "character": 17}}
 {"items":
- [{"label": "format.unicode",
-   "kind": 10,
-   "edit":
+ [{"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}},
@@ -11,11 +9,11 @@
     "insert":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}}},
+   "label": "format.unicode",
+   "kind": 10,
    "detail": "(true), unicode characters",
    "data": ["«external:file:///completionOption.lean»", 1, 17, 0]},
-  {"label": "format.width",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}},
@@ -23,11 +21,11 @@
     "insert":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}}},
+   "label": "format.width",
+   "kind": 10,
    "detail": "(120), indentation",
    "data": ["«external:file:///completionOption.lean»", 1, 17, 0]},
-  {"label": "format.inputWidth",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}},
@@ -35,11 +33,11 @@
     "insert":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}}},
+   "label": "format.inputWidth",
+   "kind": 10,
    "detail": "(100), ideal input width",
    "data": ["«external:file:///completionOption.lean»", 1, 17, 0]},
-  {"label": "trace.PrettyPrinter.format.input",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}},
@@ -47,12 +45,12 @@
     "insert":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}}},
+   "label": "trace.PrettyPrinter.format.input",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 1, 17, 0]},
-  {"label": "trace.PrettyPrinter.format",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}},
@@ -60,12 +58,12 @@
     "insert":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}}},
+   "label": "trace.PrettyPrinter.format",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 1, 17, 0]},
-  {"label": "format.indent",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}},
@@ -73,11 +71,11 @@
     "insert":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}}},
+   "label": "format.indent",
+   "kind": 10,
    "detail": "(2), indentation",
    "data": ["«external:file:///completionOption.lean»", 1, 17, 0]},
-  {"label": "trace.PrettyPrinter.format.backtrack",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}},
@@ -85,6 +83,8 @@
     "insert":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}}},
+   "label": "trace.PrettyPrinter.format.backtrack",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 1, 17, 0]}],
@@ -92,9 +92,7 @@
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 4, "character": 20}}
 {"items":
- [{"label": "format.inputWidth",
-   "kind": 10,
-   "edit":
+ [{"textEdit":
    {"replace":
     {"start": {"line": 4, "character": 11},
      "end": {"line": 4, "character": 20}},
@@ -102,11 +100,11 @@
     "insert":
     {"start": {"line": 4, "character": 11},
      "end": {"line": 4, "character": 20}}},
+   "label": "format.inputWidth",
+   "kind": 10,
    "detail": "(100), ideal input width",
    "data": ["«external:file:///completionOption.lean»", 4, 20, 0]},
-  {"label": "trace.PrettyPrinter.format.input",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 4, "character": 11},
      "end": {"line": 4, "character": 20}},
@@ -114,12 +112,12 @@
     "insert":
     {"start": {"line": 4, "character": 11},
      "end": {"line": 4, "character": 20}}},
+   "label": "trace.PrettyPrinter.format.input",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 4, 20, 0]},
-  {"label": "format.indent",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 4, "character": 11},
      "end": {"line": 4, "character": 20}},
@@ -127,15 +125,15 @@
     "insert":
     {"start": {"line": 4, "character": 11},
      "end": {"line": 4, "character": 20}}},
+   "label": "format.indent",
+   "kind": 10,
    "detail": "(2), indentation",
    "data": ["«external:file:///completionOption.lean»", 4, 20, 0]}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 7, "character": 23}}
 {"items":
- [{"label": "trace.Compiler.specialize.candidate",
-   "kind": 10,
-   "edit":
+ [{"textEdit":
    {"replace":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}},
@@ -143,12 +141,12 @@
     "insert":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}}},
+   "label": "trace.Compiler.specialize.candidate",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 7, 23, 0]},
-  {"label": "trace.pp.analyze.error",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}},
@@ -156,12 +154,12 @@
     "insert":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}}},
+   "label": "trace.pp.analyze.error",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 7, 23, 0]},
-  {"label": "trace.pp.analyze",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}},
@@ -169,12 +167,12 @@
     "insert":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}}},
+   "label": "trace.pp.analyze",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 7, 23, 0]},
-  {"label": "trace.pp.analyze.tryUnify",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}},
@@ -182,12 +180,12 @@
     "insert":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}}},
+   "label": "trace.pp.analyze.tryUnify",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 7, 23, 0]},
-  {"label": "trace.pp.analyze.annotate",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}},
@@ -195,6 +193,8 @@
     "insert":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}}},
+   "label": "trace.pp.analyze.annotate",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 7, 23, 0]}],
@@ -202,9 +202,7 @@
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 10, "character": 27}}
 {"items":
- [{"label": "trace.pp.analyze.error",
-   "kind": 10,
-   "edit":
+ [{"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 27}},
@@ -212,12 +210,12 @@
     "insert":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 27}}},
+   "label": "trace.pp.analyze.error",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 10, 27, 0]},
-  {"label": "trace.pp.analyze",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 27}},
@@ -225,12 +223,12 @@
     "insert":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 27}}},
+   "label": "trace.pp.analyze",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 10, 27, 0]},
-  {"label": "trace.pp.analyze.tryUnify",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 27}},
@@ -238,12 +236,12 @@
     "insert":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 27}}},
+   "label": "trace.pp.analyze.tryUnify",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 10, 27, 0]},
-  {"label": "trace.pp.analyze.annotate",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 27}},
@@ -251,6 +249,8 @@
     "insert":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 27}}},
+   "label": "trace.pp.analyze.annotate",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 10, 27, 0]}],
@@ -258,9 +258,7 @@
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 13, "character": 17}}
 {"items":
- [{"label": "format.unicode",
-   "kind": 10,
-   "edit":
+ [{"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}},
@@ -268,11 +266,11 @@
     "insert":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}}},
+   "label": "format.unicode",
+   "kind": 10,
    "detail": "(true), unicode characters",
    "data": ["«external:file:///completionOption.lean»", 13, 17, 0]},
-  {"label": "format.width",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}},
@@ -280,11 +278,11 @@
     "insert":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}}},
+   "label": "format.width",
+   "kind": 10,
    "detail": "(120), indentation",
    "data": ["«external:file:///completionOption.lean»", 13, 17, 0]},
-  {"label": "format.inputWidth",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}},
@@ -292,11 +290,11 @@
     "insert":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}}},
+   "label": "format.inputWidth",
+   "kind": 10,
    "detail": "(100), ideal input width",
    "data": ["«external:file:///completionOption.lean»", 13, 17, 0]},
-  {"label": "trace.PrettyPrinter.format.input",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}},
@@ -304,12 +302,12 @@
     "insert":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}}},
+   "label": "trace.PrettyPrinter.format.input",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 13, 17, 0]},
-  {"label": "trace.PrettyPrinter.format",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}},
@@ -317,12 +315,12 @@
     "insert":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}}},
+   "label": "trace.PrettyPrinter.format",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 13, 17, 0]},
-  {"label": "format.indent",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}},
@@ -330,11 +328,11 @@
     "insert":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}}},
+   "label": "format.indent",
+   "kind": 10,
    "detail": "(2), indentation",
    "data": ["«external:file:///completionOption.lean»", 13, 17, 0]},
-  {"label": "trace.PrettyPrinter.format.backtrack",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}},
@@ -342,6 +340,8 @@
     "insert":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}}},
+   "label": "trace.PrettyPrinter.format.backtrack",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 13, 17, 0]}],
@@ -349,9 +349,7 @@
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 16, "character": 18}}
 {"items":
- [{"label": "format.unicode",
-   "kind": 10,
-   "edit":
+ [{"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}},
@@ -359,11 +357,11 @@
     "insert":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}}},
+   "label": "format.unicode",
+   "kind": 10,
    "detail": "(true), unicode characters",
    "data": ["«external:file:///completionOption.lean»", 16, 18, 0]},
-  {"label": "format.width",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}},
@@ -371,11 +369,11 @@
     "insert":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}}},
+   "label": "format.width",
+   "kind": 10,
    "detail": "(120), indentation",
    "data": ["«external:file:///completionOption.lean»", 16, 18, 0]},
-  {"label": "format.inputWidth",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}},
@@ -383,11 +381,11 @@
     "insert":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}}},
+   "label": "format.inputWidth",
+   "kind": 10,
    "detail": "(100), ideal input width",
    "data": ["«external:file:///completionOption.lean»", 16, 18, 0]},
-  {"label": "trace.PrettyPrinter.format.input",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}},
@@ -395,12 +393,12 @@
     "insert":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}}},
+   "label": "trace.PrettyPrinter.format.input",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 16, 18, 0]},
-  {"label": "format.indent",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}},
@@ -408,11 +406,11 @@
     "insert":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}}},
+   "label": "format.indent",
+   "kind": 10,
    "detail": "(2), indentation",
    "data": ["«external:file:///completionOption.lean»", 16, 18, 0]},
-  {"label": "trace.PrettyPrinter.format.backtrack",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}},
@@ -420,6 +418,8 @@
     "insert":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}}},
+   "label": "trace.PrettyPrinter.format.backtrack",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 16, 18, 0]}],

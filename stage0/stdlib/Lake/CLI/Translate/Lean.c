@@ -994,7 +994,7 @@ static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_PartialBuildKey_
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_InputDirConfig_instMkDeclFields___lam__0(lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_____private_Lake_CLI_Translate_Lean_0__Lake_Dependency_mkRequire_spec__0___closed__4;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_addDeclFieldNotEmpty(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
+uint8_t l___private_Init_Meta_0__Lean_Name_getUtf8Byte_x27(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_Dependency_mkRequire___lam__0___closed__7;
 lean_object* l_Lake_PackageConfig_releaseRepo___proj(lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_PatternDescr_toLean_x3f___redArg___closed__8;
@@ -2910,11 +2910,12 @@ return x_1;
 static lean_object* _init_l___private_Lake_CLI_Translate_Lean_0__Lake_LeanVer_toLean___closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l___private_Lake_CLI_Translate_Lean_0__Lake_LeanVer_toLean___closed__5;
-x_2 = l___private_Lake_CLI_Translate_Lean_0__Lake_addDeclFieldCore___closed__0;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
+x_2 = l___private_Lake_CLI_Translate_Lean_0__Lake_addDeclFieldCore___closed__1;
+x_3 = l___private_Lake_CLI_Translate_Lean_0__Lake_addDeclFieldCore___closed__0;
+x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l___private_Lake_CLI_Translate_Lean_0__Lake_LeanVer_toLean___closed__7() {

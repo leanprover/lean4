@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String
-// Imports: Init.Data.String.Basic Init.Data.String.Extra Init.Data.String.Lemmas
+// Imports: Init.Data.String.Basic Init.Data.String.Bootstrap Init.Data.String.Extra Init.Data.String.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Bootstrap(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_String_Extra(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_String_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -22,6 +23,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Bootstrap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Extra(builtin, lean_io_mk_world());

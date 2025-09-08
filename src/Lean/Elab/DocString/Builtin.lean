@@ -351,6 +351,7 @@ In `` {option}`O` ``, `O` can be either:
  * The name of an option (e.g. `pp.all`)
  * Syntax to set an option to a particular value (e.g. `set_option pp.all true`)
 -/
+--@[builtin_doc_role]
 def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   withRef s do
@@ -778,6 +779,7 @@ where
 /--
 Treats the provided term as Lean syntax in the documentation's scope.
 -/
+--@[builtin_doc_role lean]
 def leanTerm (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let p : ParserFn := whitespace >> termParser.fn

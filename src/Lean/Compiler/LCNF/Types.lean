@@ -123,7 +123,7 @@ open Meta in
 Convert a Lean type into a LCNF type used by the code generator.
 -/
 partial def toLCNFType (type : Expr) : MetaM Expr := do
-  if (← isProp type) then
+  if ← isProp type then
     return erasedExpr
   let type ← whnfEta type
   match type with
@@ -175,7 +175,7 @@ where
     for arg in args do
       if ← isProp arg <||> isPropFormer arg then
         result := mkApp result erasedExpr
-      else if (← isTypeFormer arg) then
+      else if ← isTypeFormer arg then
         result := mkApp result (← toLCNFType arg)
       else
         result := mkApp result (mkConst ``lcAny)

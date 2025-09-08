@@ -48,6 +48,7 @@ public def main (args : List String) : IO UInt32 := do
     addTraceAsMessages
 
   let .ok (_, s) := res? | unreachable!
+  let env := s.env
 
   for msg in s.messages.unreported do
     IO.eprintln (← msg.toString)

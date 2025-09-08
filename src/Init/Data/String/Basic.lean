@@ -159,7 +159,7 @@ Examples:
  * `"abc" ++ "def" = "abcdef"`
  * `"" ++ "" = ""`
 -/
-@[extern "lean_string_append"]
+@[extern "lean_string_append", expose]
 def String.append (s t : String) : String where
   bytes := s.bytes ++ t.bytes
   isValidUtf8 := s.isValidUtf8.append t.isValidUtf8
@@ -185,7 +185,8 @@ theorem String.empty_append {s : String} : String.empty ++ s = s := by
 theorem String.append_empty {s : String} : s ++ String.empty = s := by
   simp [← String.bytes_inj]
 
-@[simp] theorem List.bytes_asString {l : List Char} : l.asString.bytes = l.utf8Encode := rfl
+@[simp] theorem List.bytes_asString {l : List Char} : l.asString.bytes = l.utf8Encode := by
+  simp [List.asString]
 
 @[simp]
 theorem List.asString_nil : List.asString [] = String.empty := by
@@ -232,7 +233,7 @@ theorem String.length_data {b : String} : b.data.length = b.length := (rfl)
 theorem String.exists_eq_asString (s : String) :
     ∃ l : List Char, s = l.asString := by
   rcases s with ⟨_, ⟨l, rfl⟩⟩
-  refine ⟨l, rfl⟩
+  refine ⟨l, by simp [← String.bytes_inj]⟩
 
 private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray} {i : Nat} {hi : i ≤ b.size} {acc : Array Char} :
     utf8Decode?.go b i hi acc = (utf8Decode?.go (b.extract i b.size) 0 (by simp) #[]).map (acc ++ ·) := by
@@ -303,7 +304,7 @@ theorem ByteArray.utf8Encode_get_utf8Decode? {b : ByteArray} {h} :
 
 @[simp]
 theorem List.data_asString {l : List Char} : l.asString.data = l := by
-  simp [asString, String.mk, String.data, String.toCharArray]
+  simp [String.data, String.toCharArray]
 
 @[simp]
 theorem String.asString_data {b : String} : b.data.asString = b := by
@@ -328,8 +329,9 @@ theorem String.data_append {l₁ l₂ : String} : (l₁ ++ l₂).data = l₁.dat
   simp
 
 @[simp]
-theorem String.utf8encode_data {b : String} : b.data.utf8Encode = b.bytes :=
-  congrArg String.bytes (String.asString_data (b := b))
+theorem String.utf8encode_data {b : String} : b.data.utf8Encode = b.bytes := by
+  have := congrArg String.bytes (String.asString_data (b := b))
+  rwa [← List.bytes_asString]
 
 private noncomputable def String.utf8ByteSize' : String → Nat
   | s => go s.data
@@ -2374,6 +2376,10 @@ theorem String.mk_eq_asString (s : List Char) : String.mk s = List.asString s :=
 @[simp]
 theorem _root_.List.length_asString (s : List Char) : (List.asString s).length = s.length := by
   rw [← length_data, List.data_asString]
+
+example : "" = String.mk [] := rfl
+
+example : "abc" ++ "def" = "abcdef" := by simp
 
 @[simp] theorem bytes_empty' : "".bytes = ByteArray.empty := sorry
 

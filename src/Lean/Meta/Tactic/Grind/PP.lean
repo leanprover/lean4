@@ -9,6 +9,7 @@ public import Init.Grind.Util
 public import Init.Grind.PP
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.Model
+public import Lean.Meta.Tactic.Grind.Arith.Offset.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 public import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 public import Lean.Meta.Tactic.Grind.AC.PP
@@ -125,7 +126,7 @@ private def ppOffset : M Unit := do
   unless grind.debug.get (← getOptions) do
     return ()
   let goal ← read
-  let s := goal.arith.offset
+  let s ← Arith.Offset.offsetExt.getStateCore goal
   let nodes := s.nodes
   if nodes.isEmpty then return ()
   let model ← Arith.Offset.mkModel goal

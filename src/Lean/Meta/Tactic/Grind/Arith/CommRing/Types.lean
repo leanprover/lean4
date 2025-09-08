@@ -278,4 +278,12 @@ structure State where
   steps := 0
   deriving Inhabited
 
+builtin_initialize ringExt : SolverExtension State ← registerSolverExtension (return {})
+
+def get' : GoalM State := do
+  ringExt.getState
+
+@[inline] def modify' (f : State → State) : GoalM Unit := do
+  ringExt.modifyState f
+
 end Lean.Meta.Grind.Arith.CommRing

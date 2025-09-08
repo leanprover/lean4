@@ -17,7 +17,7 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
 import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
 import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
-section
+public section
 namespace Lean.Meta.Grind.Arith.Linear
 
 private def _root_.Lean.Grind.Linarith.Poly.substVar (p : Poly) : LinearM (Option (Var × EqCnstr × Poly)) := do
@@ -31,7 +31,7 @@ private def _root_.Lean.Grind.Linarith.Poly.substVar (p : Poly) : LinearM (Optio
 Given an equation `c₁` containing the monomial `a*x`, and a disequality constraint `c₂`
 containing the monomial `b*x`, eliminate `x` by applying substitution.
 -/
-def DiseqCnstr.applyEq? (a : Int) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : DiseqCnstr) : LinearM (Option DiseqCnstr) := do
+private def DiseqCnstr.applyEq? (a : Int) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : DiseqCnstr) : LinearM (Option DiseqCnstr) := do
   trace[grind.linarith.subst] "{← getVar x}, {← c₁.denoteExpr}, {← c₂.denoteExpr}"
   let p := c₁.p
   let q := c₂.p
@@ -46,7 +46,7 @@ def DiseqCnstr.applyEq? (a : Int) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : D
     return none
 
 /-- Returns `some structId` if `a` and `b` are elements of the same structure. -/
-def inSameStruct? (a b : Expr) : GoalM (Option Nat) := do
+private def inSameStruct? (a b : Expr) : GoalM (Option Nat) := do
   let some structId ← getTermStructId? a | return none
   let some structId' ← getTermStructId? b | return none
   unless structId == structId' do return none -- This can happen when we have heterogeneous equalities
@@ -81,7 +81,7 @@ private def processNewIntModuleEq' (a b : Expr) : LinearM Unit := do
   let c₂ : IneqCnstr := { p, strict := false, h := .ofEq b a rhs lhs }
   c₂.assert
 
-def EqCnstr.norm (c : EqCnstr) : LinearM (Nat × Var × EqCnstr) := do
+private def EqCnstr.norm (c : EqCnstr) : LinearM (Nat × Var × EqCnstr) := do
   let mut c := c
   if (← hasNoNatZeroDivisors) then
     let k := c.p.gcdCoeffs
@@ -92,7 +92,7 @@ def EqCnstr.norm (c : EqCnstr) : LinearM (Nat × Var × EqCnstr) := do
     c := { p := c.p.mul (-1), h := .neg c }
   return (k.natAbs, x, c)
 
-partial def EqCnstr.applySubsts (c : EqCnstr) : LinearM EqCnstr := withIncRecDepth do
+private partial def EqCnstr.applySubsts (c : EqCnstr) : LinearM EqCnstr := withIncRecDepth do
   let some (x, c₁, p) ← c.p.substVar | return c
   trace[grind.debug.linarith.subst] "{← getVar x}, {← c.denoteExpr}, {← c₁.denoteExpr}"
   applySubsts { p, h := .subst x c₁ c : EqCnstr }
@@ -101,7 +101,7 @@ partial def EqCnstr.applySubsts (c : EqCnstr) : LinearM EqCnstr := withIncRecDep
 Given an equation `c₁` containing the monomial `a*x`, and an inequality constraint `c₂`
 containing the monomial `b*x`, eliminate `x` by applying substitution.
 -/
-def IneqCnstr.applyEq (a : Nat) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : IneqCnstr) : LinearM IneqCnstr := do
+private def IneqCnstr.applyEq (a : Nat) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : IneqCnstr) : LinearM IneqCnstr := do
   let p := c₁.p
   let q := c₂.p
   let p := q.mul a |>.combine (p.mul (-b))
@@ -139,7 +139,7 @@ private def updateUppers (a : Nat) (x : Var) (c : EqCnstr) (y : Var) : LinearM U
   modifyStruct fun s => { s with uppers := s.uppers.set y uppers' }
   updateLeCnstrs a x c todo
 
-def DiseqCnstr.ignore (c : DiseqCnstr) : LinearM Unit := do
+private def DiseqCnstr.ignore (c : DiseqCnstr) : LinearM Unit := do
   -- Remark: we filter duplicates before displaying diagnostics to users
   trace[grind.linarith.assert.ignored] "{← c.denoteExpr}"
   let diseq ← c.denoteExpr
@@ -155,7 +155,7 @@ partial def DiseqCnstr.applySubsts? (c₂ : DiseqCnstr) : LinearM (Option DiseqC
     c₂.ignore
     return none
 
-def DiseqCnstr.assert (c : DiseqCnstr) : LinearM Unit := do
+private def DiseqCnstr.assert (c : DiseqCnstr) : LinearM Unit := do
   trace[grind.linarith.assert] "{← c.denoteExpr}"
   let some c ← c.applySubsts? | return ()
   match c.p with
@@ -196,7 +196,7 @@ private def updateOccs (a : Nat) (x : Var) (c : EqCnstr) : LinearM Unit := do
   for y in ys do
     updateOccsAt a x c y
 
-def EqCnstr.assert (c : EqCnstr) : LinearM Unit := do
+private def EqCnstr.assert (c : EqCnstr) : LinearM Unit := do
   trace[grind.linarith.assert] "{← c.denoteExpr}"
   let c ← c.applySubsts
   if c.p == .nil then
@@ -250,8 +250,7 @@ private def processNewNatModuleEq (a b : Expr) : OfNatModuleM Unit := do
     let c : EqCnstr := { p, h := .coreOfNat a b ns.id lhs rhs }
     c.assert
 
-@[export lean_process_linarith_eq]
-def processNewEqImpl (a b : Expr) : GoalM Unit := do
+def processNewEq (a b : Expr) : GoalM Unit := do
   if isSameExpr a b then return () -- TODO: check why this is needed
   if let some structId ← inSameStruct? a b then LinearM.run structId do
     if (← isOrderedAdd) then
@@ -304,8 +303,7 @@ private def processNewNatModuleDiseq (a b : Expr) : OfNatModuleM Unit := do
     -- If `AddRightCancel` is not available, we just normalize, and try to detect contradiction
     normNatModuleDiseq a b
 
-@[export lean_process_linarith_diseq]
-def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
+def processNewDiseq (a b : Expr) : GoalM Unit := do
   if let some structId ← inSameStruct? a b then LinearM.run structId do
     if (← isCommRing) then
       processNewCommRingDiseq a b

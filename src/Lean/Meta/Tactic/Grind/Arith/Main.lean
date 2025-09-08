@@ -53,8 +53,7 @@ builtin_grind_propagator propagateLT ↓LT.lt := fun e => do
 
 def check : GoalM Bool := do
   let c₁ ← Cutsat.check
-  let c₃ ← Linear.check
-  if c₁ || c₃ then
+  if c₁ then
     processNewFacts
     return true
   else

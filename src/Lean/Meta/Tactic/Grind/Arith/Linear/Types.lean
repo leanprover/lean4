@@ -7,8 +7,7 @@ module
 prelude
 public import Init.Grind.Ring.Poly
 public import Init.Grind.Ordered.Linarith
-public import Lean.Data.PersistentArray
-public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Lean.Meta.Tactic.Grind.Types
 public import Init.Data.Rat.Basic
 public section
 namespace Lean.Meta.Grind.Arith.Linear
@@ -259,5 +258,7 @@ structure State where
   /- Mapping from expressions/terms to their nat structure ids. -/
   exprToNatStructId : PHashMap ExprPtr Nat := {}
   deriving Inhabited
+
+builtin_initialize linearExt : SolverExtension State ← registerSolverExtension (return {})
 
 end Lean.Meta.Grind.Arith.Linear

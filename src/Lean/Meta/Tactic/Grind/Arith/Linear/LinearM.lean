@@ -5,16 +5,16 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 
 def get' : GoalM State := do
-  return (← get).arith.linear
+  linearExt.getState
 
 @[inline] def modify' (f : State → State) : GoalM Unit := do
-  modify fun s => { s with arith.linear := f s.arith.linear }
+  linearExt.modifyState f
 
 structure LinearM.Context where
   structId : Nat

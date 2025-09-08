@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Types
 import Lean.Meta.Tactic.Grind.Arith.ModelUtil
 import Init.Grind.Module.Envelope
 public section
@@ -34,7 +34,7 @@ It also assigns values to (integer) terms that have not been internalized by the
 -/
 def mkModel (goal : Goal) (structId : Nat) : MetaM (Array (Expr × Rat)) := do
   let mut model := {}
-  let s := goal.arith.linear.structs[structId]!
+  let s := (← linearExt.getStateCore goal).structs[structId]!
   -- Assign on expressions associated with cutsat terms or interpreted terms
   for e in goal.exprs do
     let node ← goal.getENode e

@@ -9,5 +9,6 @@ prelude
 public import Init.Data.ByteArray.Basic
 public import Init.Data.ByteArray.Bootstrap
 public import Init.Data.ByteArray.Extra
+public import Init.Data.ByteArray.Lemmas
 
 public section

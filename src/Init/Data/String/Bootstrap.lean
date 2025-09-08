@@ -12,9 +12,9 @@ public import Init.Data.ByteArray.Bootstrap
 
 public section
 
-theorem List.Internal.utf8Encode_append_eq_internalAppend {l l' : List Char} :
-    List.Internal.utf8Encode (l ++ l') = ByteArray.Internal.append
-      (List.Internal.utf8Encode l) (List.Internal.utf8Encode l') := by
+theorem List.utf8Encode_append_eq_internalAppend {l l' : List Char} :
+    List.utf8Encode (l ++ l') = ByteArray.Internal.append
+      (List.utf8Encode l) (List.utf8Encode l') := by
   simp [utf8Encode, List.toByteArray_append_eq_internalAppend]
 
 namespace String
@@ -38,11 +38,11 @@ Examples:
 -/
 @[extern "lean_string_push", expose]
 def push : String → Char → String
-  | ⟨b, h⟩, c => ⟨ByteArray.Internal.append b (List.Internal.utf8Encode [c]), ?pf⟩
+  | ⟨b, h⟩, c => ⟨ByteArray.Internal.append b (List.utf8Encode [c]), ?pf⟩
 where finally
   have ⟨m, hm⟩ := h
   cases hm
-  exact .intro (m ++ [c]) (by simp [List.Internal.utf8Encode_append_eq_internalAppend])
+  exact .intro (m ++ [c]) (by simp [List.utf8Encode_append_eq_internalAppend])
 
 /--
 Returns a new string that contains only the character `c`.
@@ -127,9 +127,9 @@ opaque dropRight (s : String) (n : Nat) : String
 
 end String.Internal
 
-@[extern "lean_string_mk"]
+@[extern "lean_string_mk", expose]
 def String.mk (s : List Char) : String :=
-  ⟨List.Internal.utf8Encode s, .intro s rfl⟩
+  ⟨List.utf8Encode s, .intro s rfl⟩
 
 /--
 Creates a string that contains the characters in a list, in order.
@@ -139,6 +139,7 @@ Examples:
  * `[].asString = ""`
  * `['a', 'a', 'a'].asString = "aaa"`
 -/
+@[expose]
 def List.asString (s : List Char) : String :=
   String.mk s
 

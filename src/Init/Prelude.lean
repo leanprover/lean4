@@ -3370,7 +3370,7 @@ def String.utf8EncodeChar (c : Char) : List UInt8 :=
 
 /-- Encode a list of characters (Unicode scalar value) in UTF-8. This is an inefficient model
 implementation. Use `List.asString` instead. -/
-def List.Internal.utf8Encode (l : List Char) : ByteArray :=
+def List.utf8Encode (l : List Char) : ByteArray :=
   l.flatMap String.utf8EncodeChar |>.toByteArray
 
 /-- A byte array is valid UTF-8 if it is of the form `List.Internal.utf8Encode m` for some `m`.
@@ -3380,7 +3380,7 @@ is unique. To show this, one defines UTF-8 decoding and shows that encoding and 
 mutually inverse. -/
 inductive ByteArray.IsValidUtf8 (b : ByteArray) : Prop
   /-- Show that a byte -/
-  | intro (m : List Char) (hm : Eq b (List.Internal.utf8Encode m))
+  | intro (m : List Char) (hm : Eq b (List.utf8Encode m))
 
 -- @[simp]
 -- theorem IsValidUtf8.empty : IsValidUtf8 ByteArray.empty where
@@ -3401,6 +3401,7 @@ structure String where ofByteArray ::
   /-- The bytes of the string form valid UTF-8. -/
   isValidUtf8 : ByteArray.IsValidUtf8 bytes
 
+attribute [extern "lean_string_to_utf8"] String.bytes
 -- attribute [extern "lean_string_data"] String.data TODO
 
 /--

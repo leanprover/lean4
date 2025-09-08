@@ -38,10 +38,9 @@ public def main (args : List String) : IO UInt32 := do
       | .defnInfo info =>
         modifyEnv (postponedCompileDeclsExt.modifyState · fun s => info.all.foldl (·.erase) s)
         compileDeclsImpl info.all.toArray
-      | .opaqueInfo _ =>
+      | _ =>
         modifyEnv (postponedCompileDeclsExt.modifyState · fun s => s.erase decl)
         compileDeclsImpl #[decl]
-      | _ => unreachable!
   catch e =>
     unless e.isInterrupt do
       logError e.toMessageData

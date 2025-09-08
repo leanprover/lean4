@@ -118,6 +118,7 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
       | .let decl .. => do
         if let .const c .. := decl.value then
           let c := Compiler.getImplementedBy? (← getEnv) c |>.getD c
+          let c := if (← hasConst (mkUnsafeRecName c)) then mkUnsafeRecName c else c
           if postponedCompileDeclsExt.getState (← getEnv) |>.contains c then
             match (← getConstInfo c) with
             | .defnInfo info =>

@@ -691,20 +691,25 @@ def traceBlock (tag : String) (t : Task α) : CoreM α := do
     profileitM Exception "blocked" (← getOptions) do
       IO.wait t
 
-builtin_initialize postponedCompileDeclsExt : TagDeclarationExtension ←
-  mkTagDeclarationExtension (asyncMode := .sync)
+builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension Name NameSet ←
+  registerSimplePersistentEnvExtension {
+    addImportedFn := fun _ => {}
+    addEntryFn    := fun s n => s.insert n
+    toArrayFn     := fun es => es.toArray
+    asyncMode     := .sync
+  }
 
 -- Forward declaration
 @[extern "lean_lcnf_compile_decls"]
 opaque compileDeclsImpl (declNames : Array Name) : CoreM Unit
 
 -- `ref?` is used for error reporting if available
-partial def compileDecls (decls : Array Name) (logErrors := true) (mayPostpone := true) : CoreM Unit := do
+def compileDecls (decls : Array Name) (logErrors := true) (mayPostpone := true) : CoreM Unit := do
   let env ← getEnv
   if mayPostpone && env.header.isModule && !decls.any (isMeta env) then
     for decl in decls do
       modifyEnv (postponedCompileDeclsExt.addEntry · decl)
-      return
+    return
 
   -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
   -- by the replay code

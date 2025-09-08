@@ -22,26 +22,26 @@ namespace Lean
 
 open Meta
 
-structure InstSpecTheorem where
+structure MethodSpecTheorem where
   /-- Name of the implementation function -/
   name : Name
   levelParams : List Name
   /-- `opImpl = Cls.op instClsT` -/
   type : Expr
 
-structure InstSpecsInfo where
+structure MethodSpecsInfo where
   clsName : Name
   /-- Array mapping field names to implementation functions. -/
   fieldImpls : Array (Name × Name)
   /-- rewrite rules to apply -/
-  thms  : Array InstSpecTheorem
+  thms  : Array MethodSpecTheorem
 
 /--
 This function checks the `instName` for eligibility and collects the information to rewrite.
 It is run twice: when setting the `@[specs]` attribute as a preflight check, and when actually realizing
 the constants.
 -/
-def getInstSpecsInfo (instName : Name) : MetaM InstSpecsInfo := do
+def getMethodSpecsInfo (instName : Name) : MetaM MethodSpecsInfo := do
   let instInfo ← getConstInfoDefn instName
   let some clsName ← isClass? instInfo.type
     | throwError "expected `{.ofConstName instName}` to be a type class instance, but its's \
@@ -80,29 +80,40 @@ def getInstSpecsInfo (instName : Name) : MetaM InstSpecsInfo := do
         throwError "internal error: equation `{eq}` does not hold definitionally"
       fieldImpls := fieldImpls.push (field, f.constName!)
       thms := thms.push { name := f.constName!, levelParams := instInfo.levelParams, type := thm }
-    trace[Meta.InstSpecs] "instSpecs for {instName}:\n{fieldImpls}\nthms: {thms.map (·.type)}"
+    trace[Meta.MethodSpecs] "MethodSpecs for {instName}:\n{fieldImpls}\nthms: {thms.map (·.type)}"
 
     return {clsName, fieldImpls, thms}
 
-public structure InstSpecsAttrData where
+public structure MethodSpecsAttrData where
   clsName : Name
 deriving Inhabited
 
-def getParam (instName : Name) (_stx : Syntax) : AttrM InstSpecsAttrData := do
+def getParam (instName : Name) (_stx : Syntax) : AttrM MethodSpecsAttrData := do
   -- Preflight check
-  let specsInfo ← (getInstSpecsInfo instName).run'
+  let specsInfo ← (getMethodSpecsInfo instName).run'
   return {
     clsName := specsInfo.clsName
   }
 
 /--
-TODO
+Generate method specification theorems for the methods of the given type class instance.
+
+This expects all (non-proof) methods of the instance to be defined via separate helper functions,
+which must take the same arguments as the instance itself, in the same order.
+
+If it is applied to an instance
+```
+instance instClsT : Cls T where op := opImpl
+```
+it produces a theorem `instClsT.op_spec` based on `opImpl.eq_def`, but phrased in terms of the
+overloaded `Cls.op` operation, and similarly `instClsT.op_spec_<n>` based on the equational theorems
+`opImpl.eq_<n>`.
 -/
 @[builtin_doc]
-builtin_initialize instSpecsAttr : ParametricAttribute InstSpecsAttrData ←
+builtin_initialize methodSpecsAttr : ParametricAttribute MethodSpecsAttrData ←
   registerParametricAttribute {
-    name := `specs
-    descr := "generate specialization theorem"
+    name := `method_specs
+    descr := "generate method specification theorems"
     getParam
   }
 
@@ -110,7 +121,7 @@ def rewriteThm (ctx : Simp.Context) (simprocs : Simprocs)
     (eqThmName destThmName : Name) : MetaM Unit := do
   let thmInfo ← getConstVal eqThmName
   let (type', _) ← dsimp thmInfo.type ctx (simprocs := #[simprocs])
-  trace[Meta.InstSpecs] "type for {destThmName}:{indentExpr type'}"
+  trace[Meta.MethodSpecs] "type for {destThmName}:{indentExpr type'}"
   addDecl <| Declaration.thmDecl {
     name          := destThmName
     levelParams   := thmInfo.levelParams
@@ -119,15 +130,15 @@ def rewriteThm (ctx : Simp.Context) (simprocs : Simprocs)
   }
 
 def genSpecs (instName : Name) : MetaM Unit := do
-  let instSpecsInfo ← getInstSpecsInfo instName
-  let key := instName.str s!"{instSpecsInfo.fieldImpls[0]!.1}_spec"
+  let methodSpecsInfo ← getMethodSpecsInfo instName
+  let key := instName.str s!"{methodSpecsInfo.fieldImpls[0]!.1}_spec"
   realizeConst instName key doRealize
 where
   doRealize := do
-    let instSpecsInfo ← getInstSpecsInfo instName
+    let methodSpecsInfo ← getMethodSpecsInfo instName
     let mut s : SimpTheorems := {}
-    for thm in instSpecsInfo.thms do
-      trace[Meta.InstSpecs] "adding simp theorem for {thm.name} : {thm.type}"
+    for thm in methodSpecsInfo.thms do
+      trace[Meta.MethodSpecs] "adding simp theorem for {thm.name} : {thm.type}"
       s := s.addSimpTheorem <| ← mkDSimpTheorem (.other thm.name) thm.levelParams.toArray thm.type
     let ctx ← Simp.mkContext
       (simpTheorems  := #[s])
@@ -135,7 +146,7 @@ where
       (config        := { } ) -- Simp.neutralConfig with dsimp := true, letToHave := false })
     let simprocs ← Simp.getSimprocs
 
-    for (fieldName, implName) in instSpecsInfo.fieldImpls do
+    for (fieldName, implName) in methodSpecsInfo.fieldImpls do
       let some unfoldThm ← getUnfoldEqnFor? implName (nonRec := true)
         | throwError "failed to generate unfolding theorem for {.ofConstName implName}"
       rewriteThm ctx simprocs unfoldThm (instName.str s!"{fieldName}_spec")
@@ -149,7 +160,7 @@ def startsWithFollowedByNumber (s p : String) : Bool :=
 
 def isSpecThmNameFor (env : Environment) (name : Name) : Option Name := do
   let .str p n := name | none
-  let attrData ← instSpecsAttr.getParam? env p
+  let attrData ← methodSpecsAttr.getParam? env p
   for fieldName in getStructureFields env attrData.clsName do
     if n == s!"{fieldName}_spec" || startsWithFollowedByNumber n s!"{fieldName}_spec_" then
       return p
@@ -166,4 +177,4 @@ builtin_initialize
 
 
 builtin_initialize
-   Lean.registerTraceClass `Meta.InstSpecs
+   Lean.registerTraceClass `Meta.MethodSpecs

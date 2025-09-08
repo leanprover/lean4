@@ -7,7 +7,7 @@ def L.beqImpl [BEq α] : L α → L α → Bool
   | cons x xs, cons y ys => x == y && L.beqImpl xs ys
   | _, _               => false
 
-@[specs] instance [BEq α] : BEq (L α) := ⟨L.beqImpl⟩
+@[method_specs] instance [BEq α] : BEq (L α) := ⟨L.beqImpl⟩
 
 /--
 info: theorem instBEqL.beq_spec.{u_1} : ∀ {α : Type u_1} [inst : BEq α] (x x_1 : L α),
@@ -56,25 +56,25 @@ info: theorem instBEqL.beq_spec_3.{u_1} : ∀ {α : Type u_1} [inst : BEq α] (x
 -- Now some error conditions
 
 /-- error: `Foo` is not a definition -/
-#guard_msgs in @[specs] inductive Foo
+#guard_msgs in @[method_specs] inductive Foo
 
 /--
 error: expected `foo` to be a type class instance, but its's type `Nat` does not look like a class.
 -/
-#guard_msgs in @[specs] def foo := 1
+#guard_msgs in @[method_specs] def foo := 1
 
 structure S where field : Nat
 /--
 error: expected `aS` to be a type class instance, but its's type `S` does not look like a class.
 -/
-#guard_msgs in @[specs] def aS : S := ⟨1⟩
+#guard_msgs in @[method_specs] def aS : S := ⟨1⟩
 
 @[class] inductive indClass where | mk
 /-- error: `indClass` is not a structure -/
-#guard_msgs in @[specs] def instIndClass : indClass := .mk
+#guard_msgs in @[method_specs] def instIndClass : indClass := .mk
 
 -- This used to fail until we eta-reduced the field values
-@[specs] instance anotherInstBEqL [BEq α] : BEq (L α) := ⟨fun x y => L.beqImpl x y⟩
+@[method_specs] instance anotherInstBEqL [BEq α] : BEq (L α) := ⟨fun x y => L.beqImpl x y⟩
 
 def L.badBeqImpl : L α → L α → Bool
   | nil, nil           => true
@@ -83,4 +83,4 @@ def L.badBeqImpl : L α → L α → Bool
 
 /-- error: function `@L.badBeqImpl` does not take its arguments in the same order as the instance -/
 #guard_msgs in
-@[specs] instance badInstBEqL [BEq α] : BEq (L α) := ⟨L.badBeqImpl⟩
+@[method_specs] instance badInstBEqL [BEq α] : BEq (L α) := ⟨L.badBeqImpl⟩

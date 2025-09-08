@@ -140,6 +140,8 @@ partial def toLCNFType (type : Expr) : MetaM Expr := do
   | .forallE .. => visitForall type #[]
   | .app ..  => type.withApp visitApp
   | .fvar .. => visitApp type #[]
+  | .proj ``Subtype 0 (.const ``IO.RealWorld.nonemptyType []) =>
+    return mkConst ``lcRealWorld
   | _        => return mkConst ``lcAny
 where
   whnfEta (type : Expr) : MetaM Expr := do

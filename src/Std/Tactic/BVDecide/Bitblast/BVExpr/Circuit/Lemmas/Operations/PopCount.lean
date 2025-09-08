@@ -111,6 +111,7 @@ theorem BitVec.getLsbD_extractAndExtend_of_le_of_lt (w idx currIdx : Nat) (x : B
   ·
     sorry
 
+
 theorem denote_blastExtractAndExtendPopulate
   (assign : α → Bool)
   (aig : AIG α) (currIdx w : Nat) (xc : AIG.RefVec aig w) (x : BitVec w)
@@ -198,6 +199,44 @@ theorem blastAddVec_denote_mem_prefix {w : Nat} (aig : AIG α)
     apply addVec_le_size
 
 
+theorem BitVec.getLsbD_addVecAux_of_lt (w usedNodes validNodes idx : Nat)
+    (hval : validNodes ≤ w)
+    (oldParSumBv : BitVec (validNodes * w))
+    (bvl : BitVec (usedNodes / 2 * w))
+    (bvel : BitVec w)
+    (hbvl : bvl = (let hcastZero : 0 = 0 / 2 * w := by omega
+          (BitVec.addVecAux 0 validNodes oldParSumBv (hcastZero▸0#0) (by omega) (by omega) (by omega))).extractLsb' 0 (usedNodes / 2 * w))
+    (hbvel : bvel = (let hcastZero : 0 = 0 / 2 * w := by omega;
+                      BitVec.addVecAux 0 validNodes oldParSumBv (hcastZero▸0#0) (by omega) (by omega) (by omega)).extractLsb' (usedNodes / 2 * w) w)
+    (hlt : idx < (usedNodes / 2 * w) + w) :
+    let hcastZero : 0 = 0 / 2 * w := by omega
+    (bvel ++ bvl).getLsbD idx = (BitVec.addVecAux 0 validNodes oldParSumBv (hcastZero ▸ 0#0) hval (by omega) (by omega)).getLsbD idx := by sorry
+
+
+theorem BitVec.getLsbD_addVecAux_eq_add (w usedNodes validNodes : Nat)
+  (oldParSumBv : BitVec (validNodes * w))
+  (hval : validNodes ≤ w) (hused : usedNodes < validNodes) :
+  ∀ currIdx (hcurr : currIdx < w),
+    ∀ i (hi : i < w),
+    let rhs := if h : currIdx * 2 + 1 < validNodes then
+                  BitVec.extractLsb' ((currIdx * 2 + 1) * w) w oldParSumBv
+                else 0#w
+    let lhs := BitVec.extractLsb' (currIdx * 2 * w) w oldParSumBv
+    (lhs + rhs).getLsbD i =
+    let hcastZero : 0 = 0 / 2 * w := by omega
+    (BitVec.addVecAux 0 validNodes oldParSumBv (hcastZero ▸ 0#0) hval (by omega) (by omega)).getLsbD (i + currIdx * w) := by sorry
+
+
+
+
+
+
+-- lhsbv : BitVec w := BitVec.extractLsb' (usedNodes * w) w bvRes
+-- rhsbv : BitVec w := if usedNodes + 1 < w then BitVec.extractLsb' ((usedNodes + 1) * w) w bvRes else 0#w
+-- ⊢ (lhsbv + rhsbv)[idx1] =
+--   (BitVec.addVecAux 0 validNodes oldParSumBv (hcastZero ▸ 0#0) hval ⋯ ⋯).getLsbD (usedNodes / 2 * w + idx1)
+
+
 theorem denote_blastAddVec
   (aig : AIG α) (usedNodes validNodes : Nat)
   (oldParSum : AIG.RefVec aig (validNodes * w)) (newParSum : AIG.RefVec aig ((usedNodes / 2) * w))
@@ -258,11 +297,6 @@ theorem denote_blastAddVec
                                   { w := validNodes * w, vec := oldParSum, start := (usedNodes + 1) * w }).vec
                             else blastConst aig 0#w).cast (by apply LawfulVecOperator.le_size (f := blastExtract))})
 
-
-
-
-
-
         have : (h1▸ ((newParSum.cast (by simp [elem]; apply LawfulVecOperator.le_size)).append elem.vec)).get idx hidx =
                       ((newParSum.cast (by simp [elem]; apply LawfulVecOperator.le_size)).append elem.vec).get idx (by simp_all) := by
                 congr 2
@@ -272,17 +306,16 @@ theorem denote_blastAddVec
         have hcastZero : 0 = 0 / 2 * w := by omega
         let bvRes  := (BitVec.addVecAux 0 validNodes oldParSumBv (hcastZero▸0#0) (by omega) (by omega) (by omega))
         let bvl : BitVec (usedNodes / 2 * w) := bvRes.extractLsb' 0 (usedNodes / 2 * w)
-
         let newElemBv : BitVec w := bvRes.extractLsb' (usedNodes / 2 * w) w
-
         rw [this]
         rw [denote_append (assign := assign) (elem := elem.vec) (acc := newParSum.cast (by simp [elem]; apply LawfulVecOperator.le_size))
             (l := bvl) (bv := newElemBv) ]
-        -- rw [AIG.LawfulVecOperator.denote_mem_prefix  (f := blastAdd)]
-        -- rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastExtract)]
         · -- hnew
           simp
-          sorry
+          rw [BitVec.getLsbD_addVecAux_of_lt (bvl := bvl) (bvel := newElemBv) (validNodes := validNodes) (usedNodes := usedNodes)]
+          · simp [bvl, bvRes]
+          · simp [newElemBv, bvRes]
+          · omega
         · -- hnew.l
           intros idx1 hidx1
           specialize hnew idx1 hidx1
@@ -296,7 +329,6 @@ theorem denote_blastAddVec
         · -- hnew.bv
           intros idx1 hidx1
           simp [elem]
-
           let lhsbv := bvRes.extractLsb' (usedNodes * w) w
           let rhsbv := if usedNodes + 1 < w then bvRes.extractLsb' ((usedNodes + 1) * w) w else 0#w
           rw [denote_blastAdd
@@ -304,6 +336,24 @@ theorem denote_blastAddVec
             (lhs := lhsbv) (rhs := rhsbv)
           ]
           · simp [newElemBv, hidx1, bvRes]
+
+            have :=  BitVec.getLsbD_addVecAux_eq_add
+                        (oldParSumBv := oldParSumBv) (validNodes := validNodes) (usedNodes := usedNodes) (w := w)
+                        (hval := hval) (hused := by omega)
+                        (currIdx := usedNodes / 2)
+                        (i := idx1)
+                        (hi :=  hidx1)
+                        (hcurr := by omega)
+            simp [show usedNodes / 2 * 2 * w = usedNodes * w by sorry] at this
+            simp [lhsbv, rhsbv, bvRes]
+
+
+
+
+
+
+
+
             sorry
           · simp
             intros idx1 hidx1

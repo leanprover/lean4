@@ -902,10 +902,20 @@ def extractAndExtendPopulateAux (idx : Nat) (x : BitVec w) (acc : BitVec (w * id
 
 /-- Given a list of `BitVec w`, we recursively construct the parallel prefix sum for each couple of elements in the initial input. -/
 def addVecAux (usedNodes validNodes : Nat)
+    (hw : 1 < w)
     (oldParSum : BitVec (validNodes * w))
     (newParSum : BitVec (usedNodes/2 * w))
+    (hacc :
+      ∀ i (hi : i < (usedNodes/2 * w)),
+        ∀ j (hj : j < w),
+          newParSum.extractLsb' (i * w) w = oldParSum.extractLsb' (i * 2 * w) w + oldParSum.extractLsb' ((i * 2 + 1) * w) w
+      )
     (hval : validNodes ≤ w) (hused : usedNodes ≤ validNodes + 1) (hmod : usedNodes % 2 = 0) :
-    BitVec (((validNodes+1)/2) * w) :=
+    { l : BitVec (((validNodes + 1)/2) * w)  //
+      ∀ i (hi : i < (validNodes + 1)/2),
+        ∀ j (hj : j < w),
+          l.extractLsb' (i * w) w = oldParSum.extractLsb' (i * 2 * w) w + oldParSum.extractLsb' ((i * 2 + 1) * w) w}
+    :=
   match huv : validNodes - usedNodes with
   | 0 =>
     have hor : usedNodes = validNodes ∨ usedNodes = validNodes + 1 := by omega
@@ -914,19 +924,29 @@ def addVecAux (usedNodes validNodes : Nat)
       · simp [hor] at *
         rw [show (validNodes + 1) / 2 = validNodes / 2 by omega]
       · simp [hor] at *
-    hcast▸newParSum
+    ⟨hcast▸newParSum, by
+        intros i hi j hj
+        have hcast_eq : extractLsb' (i * w) w (hcast ▸ newParSum) = extractLsb' (i * w) w (newParSum) := by
+          congr 1
+          · omega
+          · exact eqRec_heq hcast newParSum
+        rw [hcast_eq]
+        have := Nat.mul_lt_mul_left (a := (validNodes + 1) / 2) (b := 1) (c := w) (by omega)
+        specialize hacc i (by omega) i (by omega)
+        apply hacc⟩
   | i + 1 =>
     let rhs := if h : usedNodes + 1 < validNodes then
                   BitVec.extractLsb' ((usedNodes + 1) * w) w oldParSum
                 else 0#w
     let lhs := BitVec.extractLsb' (usedNodes * w) w oldParSum
     let add := rhs + lhs
-    let newParSum := add ++ newParSum
+    let newParSum := add ++ newParSums
     have hcast : w + usedNodes / 2 * w = (usedNodes + 2) / 2 * w := by
       simp [show usedNodes / 2 * w + w = usedNodes / 2 * w + 1 * w by omega,
           show (usedNodes + 2) / 2 = usedNodes/2 + 1 by omega, Nat.add_mul]
       omega
-    addVecAux (usedNodes + 2) validNodes oldParSum (hcast▸newParSum) hval (by omega) (by omega)
+    let res := addVecAux (usedNodes + 2) validNodes oldParSum (hcast▸newParSum) (by sorry) hval (by omega) (by omega)
+
 
 
 /-- Tail-recursive definition of parrallel sum prefix. At each iteration, we construct a new vector containing the results of summing each couple of elements in the initial vector. -/

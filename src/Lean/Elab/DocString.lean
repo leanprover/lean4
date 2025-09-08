@@ -413,7 +413,12 @@ instance : FromDocArg MessageSeverity where
     | other => do
       throwErrorAt other.syntax "Expected a message severity{← severityHint other.syntax}"
 
-def getPositional [FromDocArg α] (name : Name) : StateT (Array (TSyntax `doc_arg)) DocM α := do
+/--
+Retrieves the next positional argument from the arguments to a documentation extension. Throws
+an error if no positional arguments remain.
+-/
+protected def getPositional [FromDocArg α] (name : Name) :
+    StateT (Array (TSyntax `doc_arg)) DocM α := do
   let args ← get
   for h : i in [0:args.size] do
     if let `(doc_arg|$v:arg_val) := args[i] then
@@ -427,7 +432,12 @@ private def asNamed : Syntax → Option (Ident × TSyntax `arg_val)
   | `(doc_arg|($x:ident := $v:arg_val)) => some (x, v)
   | _ => none
 
-def getNamed [FromDocArg α] (name : Name) (default : α) : StateT (Array (TSyntax `doc_arg)) DocM α := do
+/--
+Retrieves a named argument from the arguments to a documentation extension. Returns `default` if no
+such named argument was provided.
+-/
+protected def getNamed [FromDocArg α] (name : Name) (default : α) :
+    StateT (Array (TSyntax `doc_arg)) DocM α := do
   let name := name.eraseMacroScopes
   let args ← get
   for h : i in [0:args.size] do
@@ -438,7 +448,11 @@ def getNamed [FromDocArg α] (name : Name) (default : α) : StateT (Array (TSynt
         return (← FromDocArg.fromDocArg v)
   return default
 
-def getMany [FromDocArg α] (name : Name) : StateT (Array (TSyntax `doc_arg)) DocM (Array α) := do
+/--
+Retrieves a repeated named argument from the arguments to a documentation extension.
+-/
+protected def getMany [FromDocArg α] (name : Name) :
+    StateT (Array (TSyntax `doc_arg)) DocM (Array α) := do
   let name := name.eraseMacroScopes
   let args ← get
   let mut thisArg := #[]
@@ -453,7 +467,11 @@ def getMany [FromDocArg α] (name : Name) : StateT (Array (TSyntax `doc_arg)) Do
   set others
   thisArg.mapM (FromDocArg.fromDocArg ·)
 
-def getFlag (name : Name) (default : Bool) : StateT (Array (TSyntax `doc_arg)) DocM Bool := do
+/--
+Retrieves a flag from the arguments to a documentation extension. Returns `default` if the flag is
+not explicit set.
+-/
+protected def getFlag (name : Name) (default : Bool) : StateT (Array (TSyntax `doc_arg)) DocM Bool := do
   let name := name.eraseMacroScopes
   let args ← get
   for h : i in [0:args.size] do
@@ -468,7 +486,10 @@ where
     | `(doc_arg|-$x:ident) => some (x, false)
     | _ => none
 
-def done : StateT (Array (TSyntax `doc_arg)) DocM Unit := do
+/--
+Asserts that there are no further arguments to a documentation language extension.
+-/
+protected def done : StateT (Array (TSyntax `doc_arg)) DocM Unit := do
   for arg in (← get) do
     logErrorAt arg m!"Extra argument"
   return
@@ -541,27 +562,27 @@ where
     if h : i < argSpec.size then
       match argSpec[i] with
       | .positional name type =>
-        let arg ← mkAppOptM ``getPositional #[type, none, toExpr name]
+        let arg ← mkAppOptM ``Lean.Doc.getPositional #[type, none, toExpr name]
         let k ← withLocalDecl name .default type fun v => do
             mkLambdaFVars #[v] (← build (i + 1) argSpec (args.push v) body)
         mkAppM ``Bind.bind #[arg, k]
       | .named name type default =>
-        let arg ← mkAppOptM ``getNamed #[type, none, toExpr name, default]
+        let arg ← mkAppOptM ``Lean.Doc.getNamed #[type, none, toExpr name, default]
         let k ← withLocalDecl name .default type fun v => do
             mkLambdaFVars #[v] (← build (i + 1) argSpec (args.push v) body)
         mkAppM ``Bind.bind #[arg, k]
       | .many name type =>
-        let arg ← mkAppOptM ``getMany #[type, none, toExpr name]
+        let arg ← mkAppOptM ``Lean.Doc.getMany #[type, none, toExpr name]
         let k ← withLocalDecl name .default (← mkAppM ``Array #[type]) fun v => do
             mkLambdaFVars #[v] (← build (i + 1) argSpec (args.push v) body)
         mkAppM ``Bind.bind #[arg, k]
       | .flag name default =>
-        let arg ← mkAppM ``getFlag #[toExpr name, toExpr default]
+        let arg ← mkAppM ``Lean.Doc.getFlag #[toExpr name, toExpr default]
         let k ← withLocalDecl name .default (.const ``Bool []) fun v => do
             mkLambdaFVars #[v] (← build (i + 1) argSpec (args.push v) body)
         mkAppM ``Bind.bind #[arg, k]
     else
-      let last ← mkAppM ``done #[]
+      let last ← mkAppM ``Lean.Doc.done #[]
       let m ← mkAppM ``StateT #[← mkAppM ``Array #[← mkAppM ``TSyntax #[← mkListLit (.const ``SyntaxNodeKind []) [toExpr `doc_arg]]], ← mkAppM ``DocM #[]]
       let k ← withLocalDecl (← mkFreshBinderName) .default (.const ``Unit []) fun u => do
         let args := body.map (args.push ·) |>.getD args
@@ -593,6 +614,11 @@ builtin_initialize registerBuiltinAttribute {
       throwError "{.ofConstName decl} is not defined"
 }
 
+/--
+Adds a builtin documentation code suggestion provider.
+
+Should be run during initialization.
+-/
 def addBuiltinCodeSuggestion (decl : Name) : IO Unit :=
   builtinCodeSuggestions.modify (·.insert decl)
 
@@ -630,6 +656,11 @@ builtin_initialize registerBuiltinAttribute {
     docRoleExt.add (roleName, wrapper)
 }
 
+/--
+Adds a builtin documentation role.
+
+Should be run during initialization.
+-/
 def addBuiltinDocRole (roleName wrapper : Name) : IO Unit :=
   builtinDocRoles.modify (·.alter roleName fun x? => x?.getD #[] |>.push wrapper)
 
@@ -666,6 +697,11 @@ builtin_initialize registerBuiltinAttribute {
     docCodeBlockExt.add (blockName, wrapper)
 }
 
+/--
+Adds a builtin documentation code block.
+
+Should be run during initialization.
+-/
 def addBuiltinDocCodeBlock (blockName wrapper : Name) : IO Unit :=
   builtinDocCodeBlocks.modify (·.alter blockName fun x? => x?.getD #[] |>.push wrapper)
 
@@ -702,6 +738,11 @@ builtin_initialize registerBuiltinAttribute {
     docCodeBlockExt.add (directiveName, wrapper)
 }
 
+/--
+Adds a builtin documentation directive.
+
+Should be run during initialization.
+-/
 def addBuiltinDocDirective (directiveName wrapper : Name) : IO Unit :=
   builtinDocCodeBlocks.modify (·.alter directiveName fun x? => x?.getD #[] |>.push wrapper)
 
@@ -739,6 +780,11 @@ builtin_initialize registerBuiltinAttribute {
     docCommandExt.add (commandName, wrapper)
 }
 
+/--
+Adds a builtin documentation command.
+
+Should be run during initialization.
+-/
 def addBuiltinDocCommand (commandName wrapper : Name) : IO Unit :=
   builtinDocCommands.modify (·.alter commandName fun x? => x?.getD #[] |>.push wrapper)
 

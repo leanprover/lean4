@@ -99,5 +99,26 @@ section UInt
 example : ((1 : UInt8)...3).toList = [1, 2] := by native_decide
 example : ((-1 : UInt8)...3).toList = [] := by native_decide -- 255 ≤ x < 3 is impossible
 example : ((1 : UInt8)...=3).toList = [1, 2, 3] := by native_decide
+example : ((250 : UInt8)...-1).toList = [250, 251, 252, 253, 254] := by native_decide
+
+example : ((1 : UInt16)...3).toList = [1, 2] := by native_decide
+example : ((-1 : UInt16)...3).toList = [] := by native_decide
+example : ((1 : UInt16)...=3).toList = [1, 2, 3] := by native_decide
+example : ((-4 : UInt16)...-1).toList = [-4, -3, -2] := by native_decide
+
+example : ((1 : UInt32)...3).toList = [1, 2] := by native_decide
+example : ((-1 : UInt32)...3).toList = [] := by native_decide
+example : ((1 : UInt32)...=3).toList = [1, 2, 3] := by native_decide
+example : ((-4 : UInt32)...-1).toList = [-4, -3, -2] := by native_decide
+
+example : ((1 : UInt64)...3).toList = [1, 2] := by native_decide
+example : ((-1 : UInt64)...3).toList = [] := by native_decide
+example : ((1 : UInt64)...=3).toList = [1, 2, 3] := by native_decide
+example : ((-4 : UInt64)...-1).toList = [-4, -3, -2] := by native_decide
+
+example : ((1 : USize)...3).toList = [1, 2] := by native_decide
+example : ((-1 : USize)...3).toList = [] := by native_decide
+example : ((1 : USize)...=3).toList = [1, 2, 3] := by native_decide
+example : ((-4 : USize)...-1).toList = [-4, -3, -2] := by native_decide
 
 end UInt

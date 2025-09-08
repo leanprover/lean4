@@ -14,17 +14,27 @@ import Lean.Meta.CtorRecognizer
 import Lean.Meta.InferType
 import Lean.Meta.AppBuilder
 import Lean.ReservedNameAction
+import Lean.Meta.Tactic.Simp.SimpTheorems
+import Lean.Meta.Tactic.Simp.Types
+import Lean.Meta.Tactic.Simp.Main
 
 namespace Lean
 
 open Meta
+
+structure InstSpecTheorem where
+  /-- Name of the implementation function -/
+  name : Name
+  levelParams : List Name
+  /-- `opImpl = Cls.op instClsT` -/
+  type : Expr
 
 structure InstSpecsInfo where
   clsName : Name
   /-- Array mapping field names to implementation functions. -/
   fieldImpls : Array (Name × Name)
   /-- rewrite rules to apply -/
-  thms  : Array Expr
+  thms  : Array InstSpecTheorem
 
 /--
 This function checks the `instName` for eligibility and collects the information to rewrite.
@@ -69,8 +79,8 @@ def getInstSpecsInfo (instName : Name) : MetaM InstSpecsInfo := do
       unless (← isDefEq lhs rhs) do
         throwError "internal error: equation `{eq}` does not hold definitionally"
       fieldImpls := fieldImpls.push (field, f.constName!)
-      thms := thms.push thm
-    trace[Meta.InstSpecs] "instSpecs for {instName}:\n{fieldImpls}\nthms: {thms}"
+      thms := thms.push { name := f.constName!, levelParams := instInfo.levelParams, type := thm }
+    trace[Meta.InstSpecs] "instSpecs for {instName}:\n{fieldImpls}\nthms: {thms.map (·.type)}"
 
     return {clsName, fieldImpls, thms}
 
@@ -96,6 +106,43 @@ builtin_initialize instSpecsAttr : ParametricAttribute InstSpecsAttrData ←
     getParam
   }
 
+def rewriteThm (ctx : Simp.Context) (simprocs : Simprocs)
+    (eqThmName destThmName : Name) : MetaM Unit := do
+  let thmInfo ← getConstVal eqThmName
+  let (type', _) ← dsimp thmInfo.type ctx (simprocs := #[simprocs])
+  trace[Meta.InstSpecs] "type for {destThmName}:{indentExpr type'}"
+  addDecl <| Declaration.thmDecl {
+    name          := destThmName
+    levelParams   := thmInfo.levelParams
+    type          := type'
+    value         := mkConst eqThmName (thmInfo.levelParams.map mkLevelParam)
+  }
+
+def genSpecs (instName : Name) : MetaM Unit := do
+  let instSpecsInfo ← getInstSpecsInfo instName
+  let key := instName.str s!"{instSpecsInfo.fieldImpls[0]!.1}_spec"
+  realizeConst instName key doRealize
+where
+  doRealize := do
+    let instSpecsInfo ← getInstSpecsInfo instName
+    let mut s : SimpTheorems := {}
+    for thm in instSpecsInfo.thms do
+      trace[Meta.InstSpecs] "adding simp theorem for {thm.name} : {thm.type}"
+      s := s.addSimpTheorem <| ← mkDSimpTheorem (.other thm.name) thm.levelParams.toArray thm.type
+    let ctx ← Simp.mkContext
+      (simpTheorems  := #[s])
+      (congrTheorems := (← getSimpCongrTheorems))
+      (config        := { } ) -- Simp.neutralConfig with dsimp := true, letToHave := false })
+    let simprocs ← Simp.getSimprocs
+
+    for (fieldName, implName) in instSpecsInfo.fieldImpls do
+      let some unfoldThm ← getUnfoldEqnFor? implName (nonRec := true)
+        | throwError "failed to generate unfolding theorem for {.ofConstName implName}"
+      rewriteThm ctx simprocs unfoldThm (instName.str s!"{fieldName}_spec")
+
+      if let some eqnThms ← getEqnsFor? implName then
+        for eqnThm in eqnThms, i in [:eqnThms.size] do
+          rewriteThm ctx simprocs eqnThm (instName.str s!"{fieldName}_spec_{i+1}")
 
 def startsWithFollowedByNumber (s p : String) : Bool :=
   s.startsWith p && (s.drop p.length).isNat
@@ -108,13 +155,13 @@ def isSpecThmNameFor (env : Environment) (name : Name) : Option Name := do
       return p
   none
 
-
 builtin_initialize
   registerReservedNamePredicate fun env name => isSpecThmNameFor env name |>.isSome
 
   registerReservedNameAction fun name => do
-    if let some _instName := isSpecThmNameFor (← getEnv) name then
-      throwError "TODO"
+    if let some instName := isSpecThmNameFor (← getEnv) name then
+      (genSpecs instName).run'
+      return true
     return false
 
 

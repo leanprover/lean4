@@ -10,13 +10,40 @@ def L.beqImpl [BEq α] : L α → L α → Bool
 @[specs] instance [BEq α] : BEq (L α) := ⟨L.beqImpl⟩
 
 /--
-error: Failed to realize constant instBEqL.beq_spec:
-  TODO
----
-error: Unknown constant `instBEqL.beq_spec`
+info: theorem instBEqL.beq_spec.{u_1} : ∀ {α : Type u_1} [inst : BEq α] (x x_1 : L α),
+  (x == x_1) =
+    match x, x_1 with
+    | L.nil, L.nil => true
+    | L.cons x xs, L.cons y ys => x == y && xs == ys
+    | x, x_2 => false
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #print sig instBEqL.beq_spec
+
+/--
+info: theorem instBEqL.beq_spec_1.{u_1} : ∀ {α : Type u_1} [inst : BEq α], (L.nil == L.nil) = true
+-/
+#guard_msgs(pass trace, all) in
+#print sig instBEqL.beq_spec_1
+
+/--
+info: theorem instBEqL.beq_spec_2.{u_1} : ∀ {α : Type u_1} [inst : BEq α] (x_2 : α) (xs : L α) (y : α) (ys : L α),
+  (L.cons x_2 xs == L.cons y ys) = (x_2 == y && xs == ys)
+-/
+#guard_msgs(pass trace, all) in
+#print sig instBEqL.beq_spec_2
+
+/--
+info: theorem instBEqL.beq_spec_3.{u_1} : ∀ {α : Type u_1} [inst : BEq α] (x x_1 : L α),
+  (x = L.nil → x_1 = L.nil → False) →
+    (∀ (x_2 : α) (xs : L α) (y : α) (ys : L α), x = L.cons x_2 xs → x_1 = L.cons y ys → False) → (x == x_1) = false
+-/
+#guard_msgs(pass trace, all) in
+#print sig instBEqL.beq_spec_3
+
+/-- error: Unknown constant `instBEqL.beq_spec_4` -/
+#guard_msgs(pass trace, all) in
+#print sig instBEqL.beq_spec_4
 
 -- Other names are not reserved
 

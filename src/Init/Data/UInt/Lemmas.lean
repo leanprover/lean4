@@ -187,6 +187,9 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
 
   protected theorem toNat_lt_size (a : $typeName) : a.toNat < size := a.toBitVec.isLt
 
+  protected theorem toNat_le_toNat (a b : $typeName) : a.toNat ≤ b.toNat ↔ a ≤ b := Iff.rfl
+  protected theorem toNat_lt_toNat (a b : $typeName) : a.toNat < b.toNat ↔ a < b := Iff.rfl
+
   open $typeName (toNat_mod toNat_lt_size) in
   protected theorem toNat_mod_lt {m : Nat} : ∀ (u : $typeName), 0 < m → toNat (u % ofNat m) < m := by
     intro u h1
@@ -310,6 +313,13 @@ theorem UInt64.ofNat_mod_size : ofNat (x % 2 ^ 64) = ofNat x := by
   simp [ofNat, BitVec.ofNat, Fin.ofNat]
 theorem USize.ofNat_mod_size : ofNat (x % 2 ^ System.Platform.numBits) = ofNat x := by
   simp [ofNat, BitVec.ofNat, Fin.ofNat]
+
+theorem UInt8.ofNat_size : ofNat size = 0 := by decide
+theorem UInt16.ofNat_size : ofNat size = 0 := by decide
+theorem UInt32.ofNat_size : ofNat size = 0 := by decide
+theorem UInt64.ofNat_size : ofNat size = 0 := by decide
+theorem USize.ofNat_size : ofNat size = 0 := by
+  simp [ofNat, BitVec.ofNat, USize.eq_iff_toBitVec_eq]
 
 theorem UInt8.lt_ofNat_iff {n : UInt8} {m : Nat} (h : m < size) : n < ofNat m ↔ n.toNat < m := by
   rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]

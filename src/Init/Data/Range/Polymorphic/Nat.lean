@@ -10,13 +10,11 @@ import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Order
 public import Init.Data.Range.Polymorphic.Instances
 public import Init.Data.Order.Classes
-import Init.Data.Order.Lemmas
+public import Init.Data.Order.Lemmas
 
 public section
 
 open Std PRange
-
-instance : Total (α := Nat) (· ≤ ·) := inferInstance
 
 namespace Std.PRange
 

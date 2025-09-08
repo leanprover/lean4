@@ -1732,11 +1732,14 @@ private unsafe def SolverExtension.modifyStateImpl (ext : SolverExtension σ) (f
 @[implemented_by SolverExtension.modifyStateImpl]
 opaque SolverExtension.modifyState (ext : SolverExtension σ) (f : σ → σ) : GoalM Unit
 
-private unsafe def SolverExtension.getStateImpl (ext : SolverExtension σ) : GoalM σ := do
-  return unsafeCast (← get).sstates[ext.id]!
+private unsafe def SolverExtension.getStateCoreImpl (ext : SolverExtension σ) (goal : Goal) : IO σ :=
+  return unsafeCast goal.sstates[ext.id]!
 
-@[implemented_by SolverExtension.getStateImpl]
-opaque SolverExtension.getState (ext : SolverExtension σ) : GoalM σ
+@[implemented_by SolverExtension.getStateCoreImpl]
+opaque SolverExtension.getStateCore (ext : SolverExtension σ) (goal : Goal) : IO σ
+
+def SolverExtension.getState (ext : SolverExtension σ) : GoalM σ := do
+  ext.getStateCore (← get)
 
 /-- Internalizes given expression in all registered solvers. -/
 def Solvers.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do

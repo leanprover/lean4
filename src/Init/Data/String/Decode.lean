@@ -17,101 +17,7 @@ public section
 
 /-! # `BitVec` lemmas -/
 
-theorem BitVec.and_or_distrib_left {a b c : BitVec w} : a &&& (b ||| c) = (a &&& b) ||| (a &&& c) :=
-  BitVec.eq_of_getElem_eq (by simp [Bool.and_or_distrib_left])
 
-theorem BitVec.and_or_distrib_right {a b c : BitVec w} : (a ||| b) &&& c = (a &&& c) ||| (b &&& c) :=
-  BitVec.eq_of_getElem_eq (by simp [Bool.and_or_distrib_right])
-
-theorem BitVec.extractLsb'_setWidth_of_le {b : BitVec w} {start len w' : Nat} (h : start + len ≤ w') :
-    (b.setWidth w').extractLsb' start len = b.extractLsb' start len := by
-  ext i h_i
-  simp
-  omega
-
-theorem BitVec.extractLsb'_append_eq_left {a : BitVec w} {b : BitVec w'} : (a ++ b).extractLsb' w' w = a := by
-  simp [BitVec.extractLsb'_append_eq_of_le]
-
-theorem BitVec.extractLsb'_append_eq_right {a : BitVec w} {b : BitVec w'} : (a ++ b).extractLsb' 0 w' = b := by
-  simp [BitVec.extractLsb'_append_eq_of_add_le]
-
-theorem BitVec.setWidth_append_eq_right {a : BitVec w} {b : BitVec w'} : (a ++ b).setWidth w' = b := by
-  ext i hi
-  simp [getLsbD_append, hi]
-
-theorem BitVec.setWidth_setWidth_eq_self {a : BitVec w} {w' : Nat} (h : a < BitVec.twoPow w w') : (a.setWidth w').setWidth w = a := by
-  by_cases hw : w' < w
-  · simp only [toNat_eq, toNat_setWidth]
-    rw [Nat.mod_mod_of_dvd' (Nat.pow_dvd_pow _ (Nat.le_of_lt hw)), Nat.mod_eq_of_lt]
-    rwa [BitVec.lt_def, BitVec.toNat_twoPow_of_lt hw] at h
-  · rw [BitVec.lt_def, BitVec.toNat_twoPow_of_le (by omega)] at h
-    simp at h
-
-theorem BitVec.append_left_inj {s₁ s₂ : BitVec w} (t : BitVec w') : s₁ ++ t = s₂ ++ t ↔ s₁ = s₂ := by
-  refine ⟨fun h => ?_, fun h => h ▸ rfl⟩
-  ext i hi
-  simpa [getElem_append, dif_neg] using congrArg (·[i + w']'(by omega)) h
-
-theorem BitVec.append_right_inj (s : BitVec w) {t₁ t₂ : BitVec w'} : s ++ t₁ = s ++ t₂ ↔ t₁ = t₂ := by
-  refine ⟨fun h => ?_, fun h => h ▸ rfl⟩
-  ext i hi
-  simpa [getElem_append, hi] using congrArg (·[i]) h
-
-theorem BitVec.cast_extractLsb' {x : BitVec w} {start len₁ len₂ : Nat} (h : len₁ = len₂) :
-    (x.extractLsb' start len₁).cast h = x.extractLsb' start len₂ := by
-  cases h; simp
-
-theorem extractLsb'_append_extractLsb'_eq_extractLsb'_better {x : BitVec w} (h : start₂ = start₁ + len₁) :
-    ((x.extractLsb' start₂ len₂) ++ (x.extractLsb' start₁ len₁)) =
-    (x.extractLsb' start₁ (len₂ + len₁)) := by
-  rw [BitVec.extractLsb'_append_extractLsb'_eq_extractLsb' h, BitVec.cast_extractLsb']
-
-theorem BitVec.and_setWidth_allOnes (w' w : Nat) (b : BitVec (w' + w)) :
-    b &&& (BitVec.allOnes w).setWidth (w' + w) = 0#w' ++ b.setWidth w := by
-  ext i hi
-  simp only [getElem_and, getElem_setWidth, getLsbD_allOnes]
-  rw [BitVec.getElem_append]
-  split <;> simp_all
-
-theorem BitVec.setWidth_shiftRight {b : BitVec w} : (b >>> w').setWidth w'' = b.extractLsb' w' w'' := by
-  ext i hi
-  simp
-
-theorem BitVec.setWidth_extractLsb'_of_le {c : BitVec w} (h : len₁ ≤ len₂) :
-    (c.extractLsb' start len₂).setWidth len₁ = c.extractLsb' start len₁ := by
-  ext i hi
-  simp [show i < len₂ by omega]
-
-theorem BitVec.length_pos_of_lt {b b' : BitVec w} (h : b < b') : 0 < w :=
-  length_pos_of_ne (BitVec.ne_of_lt h)
-
-theorem BitVec.not_lt_iff {b : BitVec w} : ~~~b < b ↔ 0 < w ∧ b.msb = true := by
-  refine ⟨fun h => ?_, fun ⟨hw, hb⟩ => ?_⟩
-  · have := length_pos_of_lt h
-    exact ⟨this, by rwa [← ult_iff_lt, ult_eq_msb_of_msb_neq (by simp_all)] at h⟩
-  · rwa [← ult_iff_lt, ult_eq_msb_of_msb_neq (by simp_all)]
-
-theorem BitVec.setWidth_append_eq_shiftLeft_setWidth_or {b : BitVec w} {b' : BitVec w'} :
-    (b ++ b').setWidth w'' = (b.setWidth w'' <<< w') ||| b'.setWidth w'' := by
-  ext i hi
-  simp only [getElem_setWidth, getElem_or, getElem_shiftLeft]
-  rw [getLsbD_append]
-  split <;> simp_all
-
-theorem BitVec.setWidth_append_append_eq_shiftLeft_setWidth_or {b : BitVec w} {b' : BitVec w'} {b'' : BitVec w''} :
-    (b ++ b' ++ b'').setWidth w''' = (b.setWidth w''' <<< (w' + w'')) ||| (b'.setWidth w''' <<< w'') ||| b''.setWidth w''' := by
-  rw [BitVec.setWidth_append_eq_shiftLeft_setWidth_or,
-    BitVec.setWidth_append_eq_shiftLeft_setWidth_or,
-    BitVec.shiftLeft_or_distrib, BitVec.shiftLeft_add]
-
-theorem BitVec.setWidth_append_append_append_eq_shiftLeft_setWidth_or {b : BitVec w} {b' : BitVec w'} {b'' : BitVec w''} {b''' : BitVec w'''} :
-    (b ++ b' ++ b'' ++ b''').setWidth w'''' = (b.setWidth w'''' <<< (w' + w'' + w''')) ||| (b'.setWidth w'''' <<< (w'' + w''')) |||
-      (b''.setWidth w'''' <<< w''') ||| b'''.setWidth w'''' := by
-  simp only [BitVec.setWidth_append_eq_shiftLeft_setWidth_or, BitVec.shiftLeft_or_distrib, BitVec.shiftLeft_add]
-
-theorem BitVec.toNat_setWidth_of_le {w w' : Nat} {b : BitVec w} (h : w ≤ w') : (b.setWidth w').toNat = b.toNat := by
-  rw [BitVec.toNat_setWidth, Nat.mod_eq_of_lt]
-  exact BitVec.toNat_lt_twoPow_of_le h
 
 /-! # `UInt8` lemmas -/
 
@@ -216,12 +122,12 @@ theorem parseFirstByte_eq_threeMore_iff : parseFirstByte b = .threeMore ↔ b &&
 
 theorem helper (w : Nat) (b : BitVec (w' + w)) (v : BitVec w') : b &&& (BitVec.allOnes w' ++ 0#w) = v ++ 0#w ↔ b.extractLsb' w w' = v := by
   have h : b = b.extractLsb' w w' ++ b.extractLsb' 0 w := by
-    rw [extractLsb'_append_extractLsb'_eq_extractLsb'_better] <;> simp
+    rw [BitVec.extractLsb'_append_extractLsb'_eq_extractLsb'] <;> simp
   conv => lhs; rw [h]
   rw [BitVec.and_append, BitVec.and_allOnes, BitVec.and_zero, BitVec.append_left_inj]
 
 theorem helper₂ (w : Nat) (b : BitVec (w' + w)) {v : BitVec w'} (h : b.extractLsb' w w' = v) : b = v ++ b.extractLsb' 0 w := by
-  rw [← h, extractLsb'_append_extractLsb'_eq_extractLsb'_better] <;> simp
+  rw [← h, BitVec.extractLsb'_append_extractLsb'_eq_extractLsb'] <;> simp
 
 /-! ### Size one -/
 
@@ -441,7 +347,7 @@ theorem String.utf8EncodeChar_eq_cons_cons_cons_cons {c : Char} : c.utf8Size = 4
 theorem helper₄ (s : Nat) (c : BitVec w₀) (v : BitVec w') (w : Nat) :
     (c >>> s).setWidth (w' + w) &&& (BitVec.allOnes w).setWidth (w' + w) ||| v ++ 0#w = v ++ c.extractLsb' s w := by
   rw [BitVec.and_setWidth_allOnes, BitVec.or_append, BitVec.zero_or, BitVec.or_zero,
-    BitVec.setWidth_shiftRight, BitVec.setWidth_extractLsb'_of_le (by simp)]
+    BitVec.setWidth_ushiftRight_eq_extractLsb, BitVec.setWidth_extractLsb'_of_le (by simp)]
 
 /-! ### Size one -/
 
@@ -725,7 +631,7 @@ theorem assemble₂_eq_some_iff_utf8EncodeChar_eq {x y : UInt8} {c : Char} :
     · rw [String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_two hc,
         String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_two hc,
         BitVec.setWidth_append_eq_right, BitVec.setWidth_append_eq_right,
-        extractLsb'_append_extractLsb'_eq_extractLsb'_better (by simp),
+        BitVec.extractLsb'_append_extractLsb'_eq_extractLsb' (by simp),
         ← BitVec.setWidth_eq_extractLsb' (by simp),
         BitVec.setWidth_setWidth_eq_self]
       simpa [BitVec.lt_def, UInt32.le_iff_toNat_le] using Nat.lt_succ_iff.2 (Char.utf8Size_eq_two_iff.1 hc).2
@@ -869,8 +775,8 @@ theorem assemble₃_eq_some_iff_utf8EncodeChar_eq {w x y : UInt8} {c : Char} :
         String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_three hc,
         String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_three hc,
         BitVec.setWidth_append_eq_right, BitVec.setWidth_append_eq_right, BitVec.setWidth_append_eq_right,
-        extractLsb'_append_extractLsb'_eq_extractLsb'_better (by simp),
-        extractLsb'_append_extractLsb'_eq_extractLsb'_better (by simp),
+        BitVec.extractLsb'_append_extractLsb'_eq_extractLsb' (by simp),
+        BitVec.extractLsb'_append_extractLsb'_eq_extractLsb' (by simp),
         ← BitVec.setWidth_eq_extractLsb' (by simp), BitVec.setWidth_setWidth_eq_self]
       simpa [BitVec.lt_def, UInt32.le_iff_toNat_le] using Nat.lt_succ_iff.2 (Char.utf8Size_eq_three_iff.1 hc).2
 
@@ -1015,9 +921,9 @@ theorem assemble₄_eq_some_iff_utf8EncodeChar_eq {w x y z : UInt8} {c : Char} :
         String.toBitVec_getElem_utf8EncodeChar_three_of_utf8Size_eq_four hc,
         BitVec.setWidth_append_eq_right, BitVec.setWidth_append_eq_right, BitVec.setWidth_append_eq_right,
         BitVec.setWidth_append_eq_right,
-        extractLsb'_append_extractLsb'_eq_extractLsb'_better (by simp),
-        extractLsb'_append_extractLsb'_eq_extractLsb'_better (by simp),
-        extractLsb'_append_extractLsb'_eq_extractLsb'_better (by simp),
+        BitVec.extractLsb'_append_extractLsb'_eq_extractLsb' (by simp),
+        BitVec.extractLsb'_append_extractLsb'_eq_extractLsb' (by simp),
+        BitVec.extractLsb'_append_extractLsb'_eq_extractLsb' (by simp),
         ← BitVec.setWidth_eq_extractLsb' (by simp), BitVec.setWidth_setWidth_eq_self]
       have := c.toNat_val_le
       simp only [Nat.reduceAdd, BitVec.lt_def, UInt32.toNat_toBitVec, BitVec.toNat_twoPow,

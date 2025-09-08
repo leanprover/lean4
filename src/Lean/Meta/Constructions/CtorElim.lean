@@ -224,7 +224,7 @@ public def mkCtorElim (indName : Name) : MetaM Unit := do
   unless recInfo.levelParams.length > indVal.levelParams.length do return
 
   -- Expose if indName is not private
-  withoutExporting (when := isPrivateName indName) do
+  withExporting (isExporting := ! isPrivateName indName) do
     mkCtorElimType indName
     mkIndCtorElim indName
     mkConstructorElim indName

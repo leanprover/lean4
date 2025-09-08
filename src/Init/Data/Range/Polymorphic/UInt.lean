@@ -40,7 +40,7 @@ instance : LawfulUpwardEnumerable UInt8 where
     apply Eq.symm
     split <;> split
     · rename_i h
-      simp only [UInt8.ofNat_add, ← UInt8.toNat_ne_toNat,
+      simp only [UInt8.ofNat_add, ← UInt8.toNat_inj,
         decide_not, Option.bind_some, UInt8.add_assoc, UInt8.ofNat_one,
         Option.guard_eq_some_iff, UInt8.toNat_add, UInt8.toNat_ofNat',
         UInt8.reduceToNat, Bool.not_eq_eq_eq_not, Bool.not_true,
@@ -82,13 +82,13 @@ instance : RangeSize .open UInt8 := RangeSize.openOfClosed
 
 instance : LawfulRangeSize .closed UInt8 where
   size_eq_zero_of_not_isSatisfied bound x := by
-    simp only [SupportsUpperBound.IsSatisfied, UInt8.not_le, RangeSize.size, ← UInt8.toNat_lt_toNat]
+    simp only [SupportsUpperBound.IsSatisfied, UInt8.not_le, RangeSize.size, UInt8.lt_iff_toNat_lt]
     omega
   size_eq_one_of_succ?_eq_none bound x := by
     simp only [SupportsUpperBound.IsSatisfied, succ?, ne_eq, decide_not, Option.guard_eq_none_iff,
       Bool.not_eq_eq_eq_not, Bool.not_false, decide_eq_true_eq, RangeSize.size]
     intro hle hz
-    rw [← UInt8.toNat_le_toNat] at hle
+    rw [UInt8.le_iff_toNat_le] at hle
     replace hz := congrArg UInt8.toNat hz
     simp only [UInt8.toNat_add, UInt8.reduceToNat, Nat.reducePow, UInt8.toNat_zero] at hz
     have := UInt8.toNat_lt bound
@@ -97,7 +97,7 @@ instance : LawfulRangeSize .closed UInt8 where
     simp only [SupportsUpperBound.IsSatisfied, succ?, ne_eq, decide_not, Option.guard_eq_some_iff,
       Bool.not_eq_eq_eq_not, Bool.not_true, decide_eq_false_iff_not, RangeSize.size, and_imp]
     rintro hi rfl  hi'
-    rw [← UInt8.toNat_le_toNat] at hi
+    rw [UInt8.le_iff_toNat_le] at hi
     rw [← UInt8.toNat_inj, UInt8.toNat_add, UInt8.toNat_zero, UInt8.toNat_one] at hi'
     have := UInt8.toNat_lt bound
     have : init.toNat < 2 ^ 8 - 1 := by omega
@@ -133,7 +133,7 @@ instance : LawfulUpwardEnumerable UInt16 where
     apply Eq.symm
     split <;> split
     · rename_i h
-      simp only [UInt16.ofNat_add, ← UInt16.toNat_ne_toNat,
+      simp only [UInt16.ofNat_add, ← UInt16.toNat_inj,
         decide_not, Option.bind_some, UInt16.add_assoc, UInt16.ofNat_one,
         Option.guard_eq_some_iff, UInt16.toNat_add, UInt16.toNat_ofNat',
         UInt16.reduceToNat, Bool.not_eq_eq_eq_not, Bool.not_true,
@@ -175,13 +175,13 @@ instance : RangeSize .open UInt16 := RangeSize.openOfClosed
 
 instance : LawfulRangeSize .closed UInt16 where
   size_eq_zero_of_not_isSatisfied bound x := by
-    simp only [SupportsUpperBound.IsSatisfied, UInt16.not_le, RangeSize.size, ← UInt16.toNat_lt_toNat]
+    simp only [SupportsUpperBound.IsSatisfied, UInt16.not_le, RangeSize.size, UInt16.lt_iff_toNat_lt]
     omega
   size_eq_one_of_succ?_eq_none bound x := by
     simp only [SupportsUpperBound.IsSatisfied, succ?, ne_eq, decide_not, Option.guard_eq_none_iff,
       Bool.not_eq_eq_eq_not, Bool.not_false, decide_eq_true_eq, RangeSize.size]
     intro hle hz
-    rw [← UInt16.toNat_le_toNat] at hle
+    rw [UInt16.le_iff_toNat_le] at hle
     replace hz := congrArg UInt16.toNat hz
     simp only [UInt16.toNat_add, UInt16.reduceToNat, Nat.reducePow, UInt16.toNat_zero] at hz
     have := UInt16.toNat_lt bound
@@ -190,7 +190,7 @@ instance : LawfulRangeSize .closed UInt16 where
     simp only [SupportsUpperBound.IsSatisfied, succ?, ne_eq, decide_not, Option.guard_eq_some_iff,
       Bool.not_eq_eq_eq_not, Bool.not_true, decide_eq_false_iff_not, RangeSize.size, and_imp]
     rintro hi rfl  hi'
-    rw [← UInt16.toNat_le_toNat] at hi
+    rw [UInt16.le_iff_toNat_le] at hi
     rw [← UInt16.toNat_inj, UInt16.toNat_add, UInt16.toNat_zero, UInt16.toNat_one] at hi'
     have := UInt16.toNat_lt bound
     have : init.toNat < 2 ^ 16 - 1 := by omega
@@ -226,7 +226,7 @@ instance : LawfulUpwardEnumerable UInt32 where
     apply Eq.symm
     split <;> split
     · rename_i h
-      simp only [UInt32.ofNat_add, ← UInt32.toNat_ne_toNat,
+      simp only [UInt32.ofNat_add, ← UInt32.toNat_inj,
         decide_not, Option.bind_some, UInt32.add_assoc, UInt32.ofNat_one,
         Option.guard_eq_some_iff, UInt32.toNat_add, UInt32.toNat_ofNat',
         UInt32.reduceToNat, Bool.not_eq_eq_eq_not, Bool.not_true,
@@ -268,13 +268,13 @@ instance : RangeSize .open UInt32 := RangeSize.openOfClosed
 
 instance : LawfulRangeSize .closed UInt32 where
   size_eq_zero_of_not_isSatisfied bound x := by
-    simp only [SupportsUpperBound.IsSatisfied, UInt32.not_le, RangeSize.size, ← UInt32.toNat_lt_toNat]
+    simp only [SupportsUpperBound.IsSatisfied, UInt32.not_le, RangeSize.size, UInt32.lt_iff_toNat_lt]
     omega
   size_eq_one_of_succ?_eq_none bound x := by
     simp only [SupportsUpperBound.IsSatisfied, succ?, ne_eq, decide_not, Option.guard_eq_none_iff,
       Bool.not_eq_eq_eq_not, Bool.not_false, decide_eq_true_eq, RangeSize.size]
     intro hle hz
-    rw [← UInt32.toNat_le_toNat] at hle
+    rw [UInt32.le_iff_toNat_le] at hle
     replace hz := congrArg UInt32.toNat hz
     simp only [UInt32.toNat_add, UInt32.reduceToNat, Nat.reducePow, UInt32.toNat_zero] at hz
     have := UInt32.toNat_lt bound
@@ -283,7 +283,7 @@ instance : LawfulRangeSize .closed UInt32 where
     simp only [SupportsUpperBound.IsSatisfied, succ?, ne_eq, decide_not, Option.guard_eq_some_iff,
       Bool.not_eq_eq_eq_not, Bool.not_true, decide_eq_false_iff_not, RangeSize.size, and_imp]
     rintro hi rfl  hi'
-    rw [← UInt32.toNat_le_toNat] at hi
+    rw [UInt32.le_iff_toNat_le] at hi
     rw [← UInt32.toNat_inj, UInt32.toNat_add, UInt32.toNat_zero, UInt32.toNat_one] at hi'
     have := UInt32.toNat_lt bound
     have : init.toNat < 2 ^ 32 - 1 := by omega
@@ -319,7 +319,7 @@ instance : LawfulUpwardEnumerable UInt64 where
     apply Eq.symm
     split <;> split
     · rename_i h
-      simp only [UInt64.ofNat_add, ← UInt64.toNat_ne_toNat,
+      simp only [UInt64.ofNat_add, ← UInt64.toNat_inj,
         decide_not, Option.bind_some, UInt64.add_assoc, UInt64.ofNat_one,
         Option.guard_eq_some_iff, UInt64.toNat_add, UInt64.toNat_ofNat',
         UInt64.reduceToNat, Bool.not_eq_eq_eq_not, Bool.not_true,
@@ -361,13 +361,13 @@ instance : RangeSize .open UInt64 := RangeSize.openOfClosed
 
 instance : LawfulRangeSize .closed UInt64 where
   size_eq_zero_of_not_isSatisfied bound x := by
-    simp only [SupportsUpperBound.IsSatisfied, UInt64.not_le, RangeSize.size, ← UInt64.toNat_lt_toNat]
+    simp only [SupportsUpperBound.IsSatisfied, UInt64.not_le, RangeSize.size, UInt64.lt_iff_toNat_lt]
     omega
   size_eq_one_of_succ?_eq_none bound x := by
     simp only [SupportsUpperBound.IsSatisfied, succ?, ne_eq, decide_not, Option.guard_eq_none_iff,
       Bool.not_eq_eq_eq_not, Bool.not_false, decide_eq_true_eq, RangeSize.size]
     intro hle hz
-    rw [← UInt64.toNat_le_toNat] at hle
+    rw [UInt64.le_iff_toNat_le] at hle
     replace hz := congrArg UInt64.toNat hz
     simp only [UInt64.toNat_add, UInt64.reduceToNat, Nat.reducePow, UInt64.toNat_zero] at hz
     have := UInt64.toNat_lt bound
@@ -376,7 +376,7 @@ instance : LawfulRangeSize .closed UInt64 where
     simp only [SupportsUpperBound.IsSatisfied, succ?, ne_eq, decide_not, Option.guard_eq_some_iff,
       Bool.not_eq_eq_eq_not, Bool.not_true, decide_eq_false_iff_not, RangeSize.size, and_imp]
     rintro hi rfl  hi'
-    rw [← UInt64.toNat_le_toNat] at hi
+    rw [UInt64.le_iff_toNat_le] at hi
     rw [← UInt64.toNat_inj, UInt64.toNat_add, UInt64.toNat_zero, UInt64.toNat_one] at hi'
     have := UInt64.toNat_lt bound
     have : init.toNat < 2 ^ 64 - 1 := by omega
@@ -417,7 +417,7 @@ instance : LawfulUpwardEnumerable USize where
     apply Eq.symm
     split <;> split
     · rename_i h
-      simp only [USize.ofNat_add, ← USize.toNat_ne_toNat,
+      simp only [USize.ofNat_add, ← USize.toNat_inj,
         decide_not, Option.bind_some, USize.add_assoc, USize.ofNat_one,
         Option.guard_eq_some_iff, USize.toNat_add, USize.toNat_ofNat',
         USize.reduceToNat, Bool.not_eq_eq_eq_not, Bool.not_true,
@@ -461,13 +461,13 @@ instance : RangeSize .open USize := RangeSize.openOfClosed
 
 instance : LawfulRangeSize .closed USize where
   size_eq_zero_of_not_isSatisfied bound x := by
-    simp only [SupportsUpperBound.IsSatisfied, USize.not_le, RangeSize.size, ← USize.toNat_lt_toNat]
+    simp only [SupportsUpperBound.IsSatisfied, USize.not_le, RangeSize.size, USize.lt_iff_toNat_lt]
     omega
   size_eq_one_of_succ?_eq_none bound x := by
     simp only [SupportsUpperBound.IsSatisfied, succ?, ne_eq, decide_not, Option.guard_eq_none_iff,
       Bool.not_eq_eq_eq_not, Bool.not_false, decide_eq_true_eq, RangeSize.size]
     intro hle hz
-    rw [← USize.toNat_le_toNat] at hle
+    rw [USize.le_iff_toNat_le] at hle
     replace hz := congrArg USize.toNat hz
     simp only [USize.toNat_add, USize.reduceToNat, USize.toNat_zero] at hz
     have := USize.toNat_lt_two_pow_numBits bound
@@ -480,7 +480,7 @@ instance : LawfulRangeSize .closed USize where
     simp only [SupportsUpperBound.IsSatisfied, succ?, ne_eq, decide_not, Option.guard_eq_some_iff,
       Bool.not_eq_eq_eq_not, Bool.not_true, decide_eq_false_iff_not, RangeSize.size, and_imp]
     rintro hi rfl  hi'
-    rw [← USize.toNat_le_toNat] at hi
+    rw [USize.le_iff_toNat_le] at hi
     rw [← USize.toNat_inj, USize.toNat_add, USize.toNat_zero, USize.toNat_one] at hi'
     have := USize.toNat_lt_two_pow_numBits bound
     have : ¬ (init.toNat + 1 ≥ 2 ^ System.Platform.numBits) := by

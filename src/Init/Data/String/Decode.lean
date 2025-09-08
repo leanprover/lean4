@@ -15,51 +15,6 @@ import Init.Data.ByteArray.Lemmas
 
 public section
 
-/-! # `BitVec` lemmas -/
-
-
-
-/-! # `UInt8` lemmas -/
-
-instance : Trans (· ≤ · : UInt8 → UInt8 → Prop) (· < · : UInt8 → UInt8 → Prop) (· < ·) where
-  trans := UInt8.lt_of_le_of_lt
-
-theorem UInt8.and_or_distrib_left {a b c : UInt8} : a &&& (b ||| c) = (a &&& b) ||| (a &&& c) :=
-  UInt8.eq_of_toBitVec_eq (by simp [BitVec.and_or_distrib_left])
-
-theorem UInt8.and_or_distrib_right {a b c : UInt8} : (a ||| b) &&& c = (a &&& c) ||| (b &&& c) :=
-  UInt8.eq_of_toBitVec_eq (by simp [BitVec.and_or_distrib_right])
-
-theorem UInt8.le_of_and_not_eq_zero {b c : UInt8} (h : b &&& ~~~c = 0) : b ≤ c :=
-  calc
-    b = b &&& (c ||| ~~~c) := by simp
-    _ = b &&& c := by simp only [UInt8.and_or_distrib_left, h, UInt8.or_zero]
-    _ ≤ c := and_le_right
-
-theorem UInt8.not_lt_iff {b : UInt8} : ~~~b < b ↔ b.toBitVec.msb = true := by
-  simp [UInt8.lt_iff_toBitVec_lt, BitVec.not_lt_iff]
-
-theorem UInt8.lt_of_and_eq_zero {b c : UInt8} (h : b &&& c = 0) (h' : c.toBitVec.msb = true) : b < c :=
-  calc
-    b ≤ ~~~c := UInt8.le_of_and_not_eq_zero (by simp [h])
-    _ < c := UInt8.not_lt_iff.2 h'
-
-theorem UInt8.lt_0x80_of_and_eq_zero {b : UInt8} (h : b &&& 0x80 = 0) : b < 0x80 :=
-  UInt8.lt_of_and_eq_zero h (by decide)
-
-theorem UInt8.lt_add_one {c : UInt8} (h : c ≠ -1) : c < c + 1 := by
-  rw [Ne, ← UInt8.toNat_inj, ← Ne] at h
-  simp only [toNat_neg, UInt8.reduceToNat, Nat.add_one_sub_one, Nat.mod_succ, ne_eq] at h
-  rw [UInt8.lt_iff_toNat_lt, UInt8.toNat_add]
-  simp only [UInt8.reduceToNat, Nat.reducePow]
-  rw [Nat.mod_eq_of_lt (by have := c.toNat_lt; omega)]
-  omega
-
-theorem UInt8.and_lt_add_one {b c : UInt8} (h : c ≠ -1) : b &&& c < c + 1 :=
-  UInt8.lt_of_le_of_lt UInt8.and_le_right (UInt8.lt_add_one h)
-
-section decode
-
 /-! # `parseFirstByte` -/
 
 /-! ## `parseFirstByte` definition -/
@@ -1276,5 +1231,3 @@ theorem utf8DecodeChar?_utf8Encode_cons {l : List Char} {c : Char} :
 theorem utf8DecodeChar_utf8Encode_cons {l : List Char} {c : Char} {h} :
     utf8DecodeChar (c::l).utf8Encode 0 h = c := by
   simp [utf8DecodeChar]
-
-end decode

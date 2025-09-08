@@ -4184,6 +4184,14 @@ theorem lt_of_msb_false_of_msb_true {x y : BitVec w} (hx : x.msb = false) (hy : 
   simp
   omega
 
+theorem lt_add_one {b : BitVec w} (h : b ≠ allOnes w) : b < b + 1 := by
+  simp only [ne_eq, ← toNat_inj, toNat_allOnes] at h
+  simp only [BitVec.lt_def, ofNat_eq_ofNat, toNat_add, toNat_ofNat, Nat.add_mod_mod]
+  rw [Nat.mod_eq_of_lt]
+  · exact Nat.lt_add_one _
+  · have := b.toNat_lt_twoPow_of_le (Nat.le_refl _)
+    omega
+
 /-! ### udiv -/
 
 theorem udiv_def {x y : BitVec n} : x / y = BitVec.ofNat n (x.toNat / y.toNat) := by

@@ -121,26 +121,6 @@ inductive PendingTheoryPropagation where
     diseqs (ps : ParentSet)
 
 /--
-Helper function for combining `ENode.offset?` fields and detecting what needs
-to be propagated to the offset constraint module.
--/
-private def checkOffsetEq (rhsRoot lhsRoot : ENode) : GoalM PendingTheoryPropagation := do
-  match lhsRoot.offset? with
-  | some lhsOffset =>
-    if let some rhsOffset := rhsRoot.offset? then
-      return .eq lhsOffset rhsOffset
-    else
-      -- We have to retrieve the node because other fields have been updated
-      let rhsRoot ← getENode rhsRoot.self
-      setENode rhsRoot.self { rhsRoot with offset? := lhsOffset }
-      return .none
-  | none => return .none
-
-def propagateOffset : PendingTheoryPropagation → GoalM Unit
-  | .eq lhs rhs => Arith.Offset.processNewEq lhs rhs
-  | _ => return ()
-
-/--
 Helper function for combining `ENode.cutsat?` fields and detecting what needs
 to be propagated to the cutsat module.
 -/
@@ -295,7 +275,6 @@ where
     }
     propagateBeta lams₁ fns₁
     propagateBeta lams₂ fns₂
-    let offsetTodo ← checkOffsetEq rhsRoot lhsRoot
     let cutsatTodo ← checkCutsatEq rhsRoot lhsRoot
     let todo ← Solvers.mergeTerms rhsRoot lhsRoot
     resetParentsOf lhsRoot.self
@@ -308,7 +287,6 @@ where
       for e in toPropagateDown do
         propagateDown e
       propagateUnitConstFuns lams₁ lams₂
-      propagateOffset offsetTodo
       propagateCutsat cutsatTodo
       todo.propagate
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do

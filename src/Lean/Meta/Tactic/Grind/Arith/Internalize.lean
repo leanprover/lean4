@@ -5,17 +5,14 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Offset
+public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Internalize
-
 public section
-
 namespace Lean.Meta.Grind.Arith
 
 @[export lean_grind_arith_internalize]
 def internalizeImpl (e : Expr) (parent? : Option Expr) : GoalM Unit := do
-  Offset.internalize e parent?
   Cutsat.internalize e parent?
 
 end Lean.Meta.Grind.Arith

@@ -440,15 +440,8 @@ structure ENode where
   /-- Modification time -/
   mt : Nat := 0
   /--
-  The `offset?` field is used to propagate equalities from the `grind` congruence closure module
-  to the offset constraints module. When `grind` merges two equivalence classes, and both have
-  an associated `offset?` set to `some e`, the equality is propagated. This field is
-  assigned during the internalization of offset terms.
-  -/
-  offset? : Option Expr := none
-  /--
   The `cutsat?` field is used to propagate equalities from the `grind` congruence closure module
-  to the cutsat module. Its implementation is similar to the `offset?` field.
+  to the cutsat module.
   -/
   cutsat? : Option Expr := none
   /-- Solver terms attached to this E-node. -/
@@ -1089,30 +1082,11 @@ def setENode (e : Expr) (n : ENode) : GoalM Unit :=
     congrTable := unsafe unsafeCast s.congrTable
   }
 
-/--
-Notifies the offset constraint module that `a = b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_new_offset_eq"] -- forward definition
-opaque Arith.Offset.processNewEq (a b : Expr) : GoalM Unit
-
 /-- Returns `true` if `e` is a numeral and has type `Nat`. -/
 def isNatNum (e : Expr) : Bool := Id.run do
   let_expr OfNat.ofNat _ _ inst := e | false
   let_expr instOfNatNat _ := inst | false
   true
-
-/--
-Marks `e` as a term of interest to the offset constraint module.
-If the root of `e`s equivalence class has already a term of interest,
-a new equality is propagated to the offset module.
--/
-def markAsOffsetTerm (e : Expr) : GoalM Unit := do
-  let root ← getRootENode e
-  if let some e' := root.offset? then
-    Arith.Offset.processNewEq e e'
-  else
-    setENode root.self { root with offset? := some e }
 
 /--
 Notifies the cutsat module that `a = b` where

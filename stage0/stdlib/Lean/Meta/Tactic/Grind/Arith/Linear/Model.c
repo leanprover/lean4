@@ -4114,7 +4114,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_8 = lean_ctor_get(x_1, 14);
-x_9 = lean_ctor_get(x_8, 3);
+x_9 = lean_ctor_get(x_8, 2);
 x_10 = lean_ctor_get(x_1, 3);
 x_11 = lean_ctor_get(x_9, 0);
 x_12 = l_Lean_Meta_Grind_Arith_Linear_mkModel___closed__0;

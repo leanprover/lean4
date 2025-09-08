@@ -76395,6 +76395,7 @@ goto block_26;
 else
 {
 uint8_t x_30; 
+lean_dec(x_27);
 lean_dec_ref(x_20);
 lean_dec(x_11);
 lean_dec_ref(x_10);

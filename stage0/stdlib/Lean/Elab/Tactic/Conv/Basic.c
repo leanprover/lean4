@@ -1422,6 +1422,7 @@ goto block_15;
 else
 {
 lean_dec_ref(x_18);
+lean_dec(x_16);
 x_12 = x_17;
 goto block_15;
 }

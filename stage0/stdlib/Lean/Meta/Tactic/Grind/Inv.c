@@ -1338,7 +1338,7 @@ return x_80;
 block_104:
 {
 uint8_t x_92; 
-x_92 = lean_ctor_get_uint8(x_2, sizeof(void*)*15 + 4);
+x_92 = lean_ctor_get_uint8(x_2, sizeof(void*)*14 + 4);
 if (x_92 == 0)
 {
 lean_object* x_93; 
@@ -2130,7 +2130,7 @@ return x_80;
 block_104:
 {
 uint8_t x_92; 
-x_92 = lean_ctor_get_uint8(x_2, sizeof(void*)*15 + 4);
+x_92 = lean_ctor_get_uint8(x_2, sizeof(void*)*14 + 4);
 if (x_92 == 0)
 {
 lean_object* x_93; 

@@ -13159,6 +13159,7 @@ goto block_13;
 else
 {
 uint8_t x_17; 
+lean_dec(x_15);
 x_17 = !lean_is_exclusive(x_14);
 if (x_17 == 0)
 {

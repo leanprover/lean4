@@ -600,6 +600,7 @@ return x_12;
 }
 else
 {
+lean_dec(x_8);
 return x_9;
 }
 }

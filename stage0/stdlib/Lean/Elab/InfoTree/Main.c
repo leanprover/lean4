@@ -5348,6 +5348,7 @@ goto block_46;
 }
 else
 {
+lean_dec(x_48);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);

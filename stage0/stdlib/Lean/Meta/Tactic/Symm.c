@@ -6447,6 +6447,7 @@ return x_26;
 }
 else
 {
+lean_dec(x_18);
 lean_dec(x_15);
 lean_dec(x_13);
 lean_dec(x_8);
@@ -7113,6 +7114,7 @@ return x_26;
 }
 else
 {
+lean_dec(x_17);
 lean_dec(x_15);
 lean_dec(x_13);
 lean_dec(x_8);
@@ -9242,6 +9244,7 @@ return x_25;
 }
 else
 {
+lean_dec(x_17);
 lean_dec(x_14);
 lean_dec(x_12);
 lean_dec(x_7);
@@ -10203,6 +10206,7 @@ return x_25;
 }
 else
 {
+lean_dec(x_17);
 lean_dec(x_14);
 lean_dec(x_12);
 lean_dec(x_7);

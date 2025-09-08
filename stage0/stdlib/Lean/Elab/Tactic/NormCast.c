@@ -12093,6 +12093,7 @@ lean_dec_ref(x_16);
 lean_dec(x_15);
 lean_dec(x_14);
 lean_dec_ref(x_13);
+lean_dec(x_11);
 lean_dec(x_10);
 return x_12;
 }

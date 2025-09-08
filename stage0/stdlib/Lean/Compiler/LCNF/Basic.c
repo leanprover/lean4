@@ -9570,6 +9570,7 @@ goto _start;
 }
 else
 {
+lean_dec(x_9);
 lean_dec_ref(x_5);
 return x_7;
 }

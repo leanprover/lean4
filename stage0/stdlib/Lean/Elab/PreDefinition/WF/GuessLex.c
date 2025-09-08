@@ -3365,6 +3365,7 @@ return x_13;
 }
 else
 {
+lean_dec(x_10);
 return x_9;
 }
 }

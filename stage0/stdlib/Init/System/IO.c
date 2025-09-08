@@ -348,6 +348,7 @@ static lean_object* l_IO_FS_Handle_lines___closed__0;
 LEAN_EXPORT lean_object* l_BaseIO_mapTasks___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_getTaskState___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__40;
+LEAN_EXPORT lean_object* l_IO_RealWorld_nonemptyType;
 LEAN_EXPORT lean_object* l_EIO_chainTask___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_instMinTaskState;
@@ -851,6 +852,12 @@ LEAN_EXPORT lean_object* l_IO_FS_instLTSystemTime;
 LEAN_EXPORT lean_object* l_IO_FS_instReprFileType_repr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_TaskState_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Handle_read___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* _init_l_IO_RealWorld_nonemptyType() {
+_start:
+{
+return lean_box(0);
+}
+}
 static lean_object* _init_l_instMonadEIO___closed__0() {
 _start:
 {
@@ -13100,6 +13107,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Extra(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_IO_RealWorld_nonemptyType = _init_l_IO_RealWorld_nonemptyType();
 l_instMonadEIO___closed__0 = _init_l_instMonadEIO___closed__0();
 lean_mark_persistent(l_instMonadEIO___closed__0);
 l_instMonadEIO___closed__1 = _init_l_instMonadEIO___closed__1();

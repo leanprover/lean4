@@ -4717,6 +4717,7 @@ goto _start;
 }
 else
 {
+lean_dec(x_10);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
@@ -4732,6 +4733,7 @@ if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; 
 x_19 = lean_box(x_18);
+lean_inc(x_6);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_6);

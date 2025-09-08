@@ -4861,6 +4861,7 @@ return x_11;
 }
 else
 {
+lean_dec(x_7);
 return x_8;
 }
 }
@@ -32237,6 +32238,7 @@ block_17:
 {
 if (x_14 == 0)
 {
+lean_dec(x_15);
 lean_dec(x_12);
 lean_dec(x_6);
 lean_dec_ref(x_5);
@@ -33771,6 +33773,7 @@ return x_22;
 }
 else
 {
+lean_dec(x_12);
 lean_dec_ref(x_11);
 lean_dec(x_8);
 lean_dec(x_5);

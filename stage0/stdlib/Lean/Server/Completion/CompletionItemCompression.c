@@ -760,7 +760,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_CompletionItemCompr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(",\"edit\":", 8, 8);
+x_1 = lean_mk_string_unchecked(",\"textEdit\":", 12, 12);
 return x_1;
 }
 }

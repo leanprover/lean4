@@ -51,8 +51,8 @@ where
           intros gen
         else
           break
-      if (← assertAll <||> check <||> ematch <||> lookahead <||> splitNext <||> Arith.Cutsat.mbtc
-          <||> Arith.Linear.mbtc <||> tryFallback) then
+      if (← assertAll <||> check <||> Solvers.check <||> ematch <||> lookahead <||> splitNext <||> Arith.Cutsat.mbtc
+          <||> Arith.Linear.mbtc <||> Solvers.mbtc <||> tryFallback) then
         continue
       return some (← getGoal) -- failed
     return none -- solved

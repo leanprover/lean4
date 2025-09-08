@@ -28,6 +28,7 @@ structure EqCnstr where
 inductive EqCnstrProof where
   | core (a b : Expr) (lhs rhs : LinExpr)
   | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | coreOfNat (a b : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
   | neg (c : EqCnstr)
   | coeff (k : Nat) (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
@@ -43,6 +44,8 @@ inductive IneqCnstrProof where
   | notCore (e : Expr) (lhs rhs : LinExpr)
   | coreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
   | notCoreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | coreOfNat (e : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
+  | notCoreOfNat (e : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
   | combine (c₁ : IneqCnstr) (c₂ : IneqCnstr)
   | norm (c₁ : IneqCnstr) (k : Nat)
   | dec (h : FVarId)
@@ -50,6 +53,8 @@ inductive IneqCnstrProof where
   | oneGtZero
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
     ofEq (a b : Expr) (la lb : LinExpr)
+  | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
+    ofEqOfNat (a b : Expr) (natStructId : Nat) (la lb : LinExpr)
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
     ofCommRingEq (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : IneqCnstr)
@@ -220,6 +225,8 @@ structure NatStruct where
   isPreorderInst?     : Option Expr
   /-- `OrderedAdd` instance with `IsPreorder` if available -/
   orderedAddInst?     : Option Expr
+  /-- `IsLinearOrder` instance if available -/
+  isLinearInst?       : Option Expr
   addRightCancelInst? : Option Expr
   rfl_q               : Expr -- `@Eq.Refl (OfNatModule.Q type)`
   zero                : Expr

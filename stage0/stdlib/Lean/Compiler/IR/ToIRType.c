@@ -23,7 +23,6 @@ lean_object* l_List_lengthTR___redArg(lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__3_spec__3___redArg___closed__10;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_object* l_Lean_IR_defaultCtorLayout___closed__0____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_;
 size_t lean_usize_shift_right(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_scalar_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_getCtorLayout___closed__0;
@@ -33,13 +32,12 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCto
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__3_spec__3___redArg___closed__4;
 lean_object* l_Lean_Expr_eqv___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__2;
-lean_object* l_Lean_hashFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_37____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache_spec__3___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_foldl___at___List_foldl___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__9_spec__9___redArg___closed__0;
+lean_object* l_Lean_instHashableLevelMVarId_hash___boxed(lean_object*);
 uint8_t lean_usize_dec_le(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_instInhabitedCtorFieldInfo;
 LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_usize_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_beqLevelMVarId____x40_Lean_Level_3927547624____hygCtx___hyg_20____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2_(lean_object*);
 static lean_object* l_List_foldl___at___List_foldl___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__9_spec__9___redArg___closed__3;
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__11;
@@ -63,31 +61,34 @@ static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_CacheExtension_insert___at___Lean_IR_nameToIRType_spec__1___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtension___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_instHashableSynthInstanceCacheKey_hash___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CacheExtension_find_x3f___at___Lean_IR_nameToIRType_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__26;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__3;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_hashLevelMVarId____x40_Lean_Level_3927547624____hygCtx___hyg_37____boxed(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__20;
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 static lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__1___redArg___closed__0;
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_List_foldl___at___List_foldl___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__9_spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_instBEqSynthInstanceCacheKey_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__14;
 LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_erased_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_hashMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_37____boxed(lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__3_spec__3___redArg___lam__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__25;
+lean_object* l_Lean_Meta_instBEqDefEqCacheKey_beq___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_IR_instInhabitedCtorLayout_default___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__0_spec__0_spec__2(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__3_spec__3___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__0_spec__0___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__3_spec__3___redArg___closed__1;
+extern lean_object* l_Lean_IR_instInhabitedCtorInfo_default;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache_spec__3___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__5_spec__5_spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -97,6 +98,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__3;
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__3_spec__3___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__5___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_instBEqInfoCacheKey_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache_spec__5(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instBEqExprConfigCacheKey___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache___lam__0(lean_object*, lean_object*, lean_object*);
@@ -105,6 +107,7 @@ static lean_object* l_Lean_Compiler_LCNF_CacheExtension_insert___at___Lean_IR_na
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__7;
 LEAN_EXPORT lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_895574536____hygCtx___hyg_2_(lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_instToFormat___closed__0;
+lean_object* l_Lean_instHashableFVarId_hash___boxed(lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__3_spec__3___redArg___closed__5;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -125,18 +128,17 @@ static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__11;
 LEAN_EXPORT lean_object* l_panic___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__8___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__9;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instBEqFVarId_beq___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0___redArg___lam__0___closed__0;
 lean_object* l_Array_empty(lean_object*);
 lean_object* l_Lean_EnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__0_spec__0_spec__2___redArg(size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_defaultCtorFieldInfo____x40_Lean_Compiler_IR_ToIRType_3482978894____hygCtx___hyg_67_;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__3___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_erased_elim___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__2___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_IR_defaultCtorLayout___closed__2____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__5_spec__5___redArg(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__1;
@@ -146,7 +148,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_ctorElim___boxed(lean_object*, 
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__9;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_defaultCtorLayout____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_;
 static lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache_spec__3___redArg___closed__0;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__13;
@@ -156,6 +157,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__24;
 static size_t l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__0_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_IR_ctorLayoutExt;
+static lean_object* l_Lean_IR_instInhabitedCtorLayout_default___closed__0;
 LEAN_EXPORT lean_object* l_Lean_IR_instInhabitedCtorLayout;
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache___closed__0;
 LEAN_EXPORT lean_object* l_Lean_IR_irTypeForEnum___boxed(lean_object*);
@@ -186,16 +188,15 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_Persist
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__5;
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache___closed__1;
 LEAN_EXPORT lean_object* l_panic___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__8(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instHashableMVarId_hash___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__5_spec__5(lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_getCtorLayout(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__0_spec__0___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__7;
-lean_object* l_Lean_beqFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_20____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic_2772554936____hygCtx___hyg_37____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__0_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache_spec__3___redArg___lam__0(lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -214,12 +215,12 @@ lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__0_spec__0___redArg___closed__1;
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__3_spec__3___redArg___lam__0___closed__0;
+lean_object* l_Lean_instBEqLevelMVarId_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__23;
 static lean_object* l_Lean_Compiler_LCNF_CacheExtension_find_x3f___at___Lean_IR_nameToIRType_spec__0___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_instToFormat;
-lean_object* l_Lean_Meta_beqSynthInstanceCacheKey____x40_Lean_Meta_Basic_3837601417____hygCtx___hyg_40____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__3_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
@@ -238,10 +239,12 @@ LEAN_EXPORT lean_object* l_Lean_IR_irTypeForEnum(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__21;
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
+lean_object* l_Lean_instBEqMVarId_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0___redArg___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_irTypeExt;
 lean_object* l_Lean_IR_instToFormatIRType___private__1(lean_object*);
+static lean_object* l_Lean_IR_instInhabitedCtorLayout_default___closed__2;
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__19;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__13;
@@ -249,7 +252,6 @@ static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayo
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CacheExtension_find_x3f___at___Lean_IR_nameToIRType_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_usize_elim___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instHashableExprConfigCacheKey___private__1___boxed(lean_object*);
-static lean_object* l_Lean_IR_defaultCtorLayout___closed__1____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_;
 size_t lean_usize_sub(size_t, size_t);
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__3_spec__3___redArg___closed__6;
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
@@ -287,24 +289,22 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CacheExtension_insert___at___Lean_
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CacheExtension_find_x3f___at___Lean_IR_nameToIRType_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__12;
-extern lean_object* l_Lean_IR_defaultCtorInfo____x40_Lean_Compiler_IR_Basic_3867985991____hygCtx___hyg_46_;
 static lean_object* l_Lean_IR_toIRType___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_CacheExtension_find_x3f___at___Lean_IR_nameToIRType_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_beqDefEqCacheKey____x40_Lean_Meta_Basic_1991964291____hygCtx___hyg_36____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_____private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_hashSynthInstanceCacheKey____x40_Lean_Meta_Basic_3837601417____hygCtx___hyg_29____boxed(lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__0;
+LEAN_EXPORT lean_object* l_Lean_IR_instInhabitedCtorLayout_default;
 static lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameToIRType_fillCache___closed__10;
 lean_object* l_Lean_Name_hash___override___boxed(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_CtorLayout_ctorIdx(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_instInhabitedCtorFieldInfo_default;
 size_t lean_usize_land(size_t, size_t);
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
-lean_object* l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_20____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__5_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_irTypeForEnum(lean_object* x_1) {
 _start:
@@ -1118,7 +1118,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_foldl___at___List_foldl___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__9_spec__9___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(174u);
+x_3 = lean_unsigned_to_nat(175u);
 x_4 = l_List_foldl___at___List_foldl___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__9_spec__9___redArg___closed__1;
 x_5 = l_List_foldl___at___List_foldl___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0_spec__9_spec__9___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3559,7 +3559,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_beqFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_20____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_instBEqFVarId_beq___boxed), 2, 0);
 return x_1;
 }
 }
@@ -3567,7 +3567,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_hashFVarId____x40_Lean_Expr_2479116559____hygCtx___hyg_37____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_instHashableFVarId_hash___boxed), 1, 0);
 return x_1;
 }
 }
@@ -3575,7 +3575,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_beqLevelMVarId____x40_Lean_Level_3927547624____hygCtx___hyg_20____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_instBEqLevelMVarId_beq___boxed), 2, 0);
 return x_1;
 }
 }
@@ -3583,7 +3583,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_hashLevelMVarId____x40_Lean_Level_3927547624____hygCtx___hyg_37____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_instHashableLevelMVarId_hash___boxed), 1, 0);
 return x_1;
 }
 }
@@ -3591,7 +3591,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_20____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_instBEqMVarId_beq___boxed), 2, 0);
 return x_1;
 }
 }
@@ -3599,7 +3599,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_hashMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_37____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_instHashableMVarId_hash___boxed), 1, 0);
 return x_1;
 }
 }
@@ -3639,7 +3639,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic_2772554936____hygCtx___hyg_37____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instBEqInfoCacheKey_beq___boxed), 2, 0);
 return x_1;
 }
 }
@@ -3655,7 +3655,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_beqSynthInstanceCacheKey____x40_Lean_Meta_Basic_3837601417____hygCtx___hyg_40____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instBEqSynthInstanceCacheKey_beq___boxed), 2, 0);
 return x_1;
 }
 }
@@ -3663,7 +3663,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_hashSynthInstanceCacheKey____x40_Lean_Meta_Basic_3837601417____hygCtx___hyg_29____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instHashableSynthInstanceCacheKey_hash___boxed), 1, 0);
 return x_1;
 }
 }
@@ -3671,7 +3671,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_nameT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_beqDefEqCacheKey____x40_Lean_Meta_Basic_1991964291____hygCtx___hyg_36____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instBEqDefEqCacheKey_beq___boxed), 2, 0);
 return x_1;
 }
 }
@@ -5146,7 +5146,7 @@ x_5 = l_Lean_IR_CtorFieldInfo_ctorElim___redArg(x_2, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_IR_defaultCtorFieldInfo____x40_Lean_Compiler_IR_ToIRType_3482978894____hygCtx___hyg_67_() {
+static lean_object* _init_l_Lean_IR_instInhabitedCtorFieldInfo_default() {
 _start:
 {
 lean_object* x_1; 
@@ -5476,15 +5476,15 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_IR_defaultCtorLayout___closed__0____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_() {
+static lean_object* _init_l_Lean_IR_instInhabitedCtorLayout_default___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_IR_defaultCtorInfo____x40_Lean_Compiler_IR_Basic_3867985991____hygCtx___hyg_46_;
+x_1 = l_Lean_IR_instInhabitedCtorInfo_default;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_IR_defaultCtorLayout___closed__1____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_() {
+static lean_object* _init_l_Lean_IR_instInhabitedCtorLayout_default___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5492,23 +5492,23 @@ x_1 = l_Array_empty(lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_IR_defaultCtorLayout___closed__2____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_() {
+static lean_object* _init_l_Lean_IR_instInhabitedCtorLayout_default___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_defaultCtorLayout___closed__1____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_;
-x_2 = l_Lean_IR_defaultCtorLayout___closed__0____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_;
+x_1 = l_Lean_IR_instInhabitedCtorLayout_default___closed__1;
+x_2 = l_Lean_IR_instInhabitedCtorLayout_default___closed__0;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_IR_defaultCtorLayout____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_() {
+static lean_object* _init_l_Lean_IR_instInhabitedCtorLayout_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_IR_defaultCtorLayout___closed__2____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_;
+x_1 = l_Lean_IR_instInhabitedCtorLayout_default___closed__2;
 return x_1;
 }
 }
@@ -5516,7 +5516,7 @@ static lean_object* _init_l_Lean_IR_instInhabitedCtorLayout() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_IR_defaultCtorLayout____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_;
+x_1 = l_Lean_IR_instInhabitedCtorLayout_default;
 return x_1;
 }
 }
@@ -5524,7 +5524,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_89557
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_IR_defaultCtorLayout____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_;
+x_2 = l_Lean_IR_instInhabitedCtorLayout_default;
 x_3 = l_Lean_Compiler_LCNF_CacheExtension_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_3306651989____hygCtx___hyg_2__spec__0___redArg(x_2, x_1);
 return x_3;
 }
@@ -8034,7 +8034,7 @@ return x_6;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ToIRType_0__Lean_IR_getCtorLayout_fillCache___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
 _start:
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_34; uint8_t x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_46; uint8_t x_47; lean_object* x_48; uint8_t x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_112; lean_object* x_113; lean_object* x_114; uint8_t x_117; 
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_34; uint8_t x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_46; uint8_t x_47; uint8_t x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_112; lean_object* x_113; lean_object* x_114; uint8_t x_117; 
 x_59 = lean_mk_empty_array_with_capacity(x_4);
 x_60 = lean_unsigned_to_nat(0u);
 x_112 = lean_nat_add(x_6, x_4);
@@ -8057,8 +8057,8 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21;
 x_19 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_19, 0, x_1);
 lean_ctor_set(x_19, 1, x_2);
-lean_ctor_set(x_19, 2, x_14);
-lean_ctor_set(x_19, 3, x_15);
+lean_ctor_set(x_19, 2, x_15);
+lean_ctor_set(x_19, 3, x_14);
 lean_ctor_set(x_19, 4, x_17);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
@@ -8100,9 +8100,9 @@ goto block_22;
 }
 block_45:
 {
-if (x_35 == 0)
+if (x_34 == 0)
 {
-x_23 = x_34;
+x_23 = x_35;
 x_24 = x_36;
 x_25 = x_37;
 x_26 = x_38;
@@ -8121,7 +8121,7 @@ lean_inc(x_43);
 x_44 = lean_ctor_get(x_42, 1);
 lean_inc(x_44);
 lean_dec_ref(x_42);
-x_23 = x_34;
+x_23 = x_35;
 x_24 = x_36;
 x_25 = x_37;
 x_26 = x_43;
@@ -8132,11 +8132,11 @@ goto block_33;
 }
 block_58:
 {
-if (x_49 == 0)
+if (x_47 == 0)
 {
-x_34 = x_47;
-x_35 = x_46;
-x_36 = x_48;
+x_34 = x_46;
+x_35 = x_48;
+x_36 = x_49;
 x_37 = x_50;
 x_38 = x_51;
 x_39 = x_52;
@@ -8154,9 +8154,9 @@ lean_inc(x_56);
 x_57 = lean_ctor_get(x_55, 1);
 lean_inc(x_57);
 lean_dec_ref(x_55);
-x_34 = x_47;
-x_35 = x_46;
-x_36 = x_48;
+x_34 = x_46;
+x_35 = x_48;
+x_36 = x_49;
 x_37 = x_50;
 x_38 = x_56;
 x_39 = x_57;
@@ -8249,15 +8249,15 @@ if (x_96 == 0)
 uint8_t x_97; uint8_t x_98; uint8_t x_99; 
 x_97 = lean_unbox(x_86);
 lean_dec(x_86);
-x_98 = lean_unbox(x_85);
-lean_dec(x_85);
-x_99 = lean_unbox(x_87);
+x_98 = lean_unbox(x_87);
 lean_dec(x_87);
+x_99 = lean_unbox(x_85);
+lean_dec(x_85);
 x_46 = x_97;
 x_47 = x_98;
-x_48 = x_89;
-x_49 = x_99;
-x_50 = x_95;
+x_48 = x_99;
+x_49 = x_95;
+x_50 = x_89;
 x_51 = x_93;
 x_52 = x_60;
 x_53 = x_83;
@@ -8276,15 +8276,15 @@ lean_inc(x_103);
 lean_dec_ref(x_101);
 x_104 = lean_unbox(x_86);
 lean_dec(x_86);
-x_105 = lean_unbox(x_85);
-lean_dec(x_85);
-x_106 = lean_unbox(x_87);
+x_105 = lean_unbox(x_87);
 lean_dec(x_87);
+x_106 = lean_unbox(x_85);
+lean_dec(x_85);
 x_46 = x_104;
 x_47 = x_105;
-x_48 = x_89;
-x_49 = x_106;
-x_50 = x_95;
+x_48 = x_106;
+x_49 = x_95;
+x_50 = x_89;
 x_51 = x_102;
 x_52 = x_103;
 x_53 = x_83;
@@ -8919,8 +8919,8 @@ l_Lean_IR_toIRType___closed__1 = _init_l_Lean_IR_toIRType___closed__1();
 lean_mark_persistent(l_Lean_IR_toIRType___closed__1);
 l_Lean_IR_toIRType___closed__2 = _init_l_Lean_IR_toIRType___closed__2();
 lean_mark_persistent(l_Lean_IR_toIRType___closed__2);
-l_Lean_IR_defaultCtorFieldInfo____x40_Lean_Compiler_IR_ToIRType_3482978894____hygCtx___hyg_67_ = _init_l_Lean_IR_defaultCtorFieldInfo____x40_Lean_Compiler_IR_ToIRType_3482978894____hygCtx___hyg_67_();
-lean_mark_persistent(l_Lean_IR_defaultCtorFieldInfo____x40_Lean_Compiler_IR_ToIRType_3482978894____hygCtx___hyg_67_);
+l_Lean_IR_instInhabitedCtorFieldInfo_default = _init_l_Lean_IR_instInhabitedCtorFieldInfo_default();
+lean_mark_persistent(l_Lean_IR_instInhabitedCtorFieldInfo_default);
 l_Lean_IR_instInhabitedCtorFieldInfo = _init_l_Lean_IR_instInhabitedCtorFieldInfo();
 lean_mark_persistent(l_Lean_IR_instInhabitedCtorFieldInfo);
 l_Lean_IR_CtorFieldInfo_format___closed__0 = _init_l_Lean_IR_CtorFieldInfo_format___closed__0();
@@ -8955,14 +8955,14 @@ l_Lean_IR_CtorFieldInfo_instToFormat___closed__0 = _init_l_Lean_IR_CtorFieldInfo
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_instToFormat___closed__0);
 l_Lean_IR_CtorFieldInfo_instToFormat = _init_l_Lean_IR_CtorFieldInfo_instToFormat();
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_instToFormat);
-l_Lean_IR_defaultCtorLayout___closed__0____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_ = _init_l_Lean_IR_defaultCtorLayout___closed__0____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_();
-lean_mark_persistent(l_Lean_IR_defaultCtorLayout___closed__0____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_);
-l_Lean_IR_defaultCtorLayout___closed__1____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_ = _init_l_Lean_IR_defaultCtorLayout___closed__1____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_();
-lean_mark_persistent(l_Lean_IR_defaultCtorLayout___closed__1____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_);
-l_Lean_IR_defaultCtorLayout___closed__2____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_ = _init_l_Lean_IR_defaultCtorLayout___closed__2____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_();
-lean_mark_persistent(l_Lean_IR_defaultCtorLayout___closed__2____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_);
-l_Lean_IR_defaultCtorLayout____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_ = _init_l_Lean_IR_defaultCtorLayout____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_();
-lean_mark_persistent(l_Lean_IR_defaultCtorLayout____x40_Lean_Compiler_IR_ToIRType_1220495718____hygCtx___hyg_23_);
+l_Lean_IR_instInhabitedCtorLayout_default___closed__0 = _init_l_Lean_IR_instInhabitedCtorLayout_default___closed__0();
+lean_mark_persistent(l_Lean_IR_instInhabitedCtorLayout_default___closed__0);
+l_Lean_IR_instInhabitedCtorLayout_default___closed__1 = _init_l_Lean_IR_instInhabitedCtorLayout_default___closed__1();
+lean_mark_persistent(l_Lean_IR_instInhabitedCtorLayout_default___closed__1);
+l_Lean_IR_instInhabitedCtorLayout_default___closed__2 = _init_l_Lean_IR_instInhabitedCtorLayout_default___closed__2();
+lean_mark_persistent(l_Lean_IR_instInhabitedCtorLayout_default___closed__2);
+l_Lean_IR_instInhabitedCtorLayout_default = _init_l_Lean_IR_instInhabitedCtorLayout_default();
+lean_mark_persistent(l_Lean_IR_instInhabitedCtorLayout_default);
 l_Lean_IR_instInhabitedCtorLayout = _init_l_Lean_IR_instInhabitedCtorLayout();
 lean_mark_persistent(l_Lean_IR_instInhabitedCtorLayout);
 if (builtin) {res = l_Lean_IR_initFn____x40_Lean_Compiler_IR_ToIRType_895574536____hygCtx___hyg_2_(lean_io_mk_world());

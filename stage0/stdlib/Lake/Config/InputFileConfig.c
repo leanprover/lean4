@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.InputFileConfig
-// Imports: Lean.Data.Name Lake.Config.Pattern Lake.Config.MetaClasses Lake.Config.Meta
+// Imports: Lean.Data.Name Lake.Config.Pattern Lake.Config.MetaClasses Init.Data.ToString.Name Lake.Config.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1357,6 +1357,7 @@ return x_5;
 lean_object* initialize_Lean_Data_Name(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Pattern(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_MetaClasses(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Meta(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_InputFileConfig(uint8_t builtin, lean_object* w) {
@@ -1370,6 +1371,9 @@ res = initialize_Lake_Config_Pattern(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_MetaClasses(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Name(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_Meta(builtin, lean_io_mk_world());

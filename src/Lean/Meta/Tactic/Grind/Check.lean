@@ -7,12 +7,11 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.Main
-import Lean.Meta.Tactic.Grind.AC.Eq
 namespace Lean.Meta.Grind
 /--
 Checks whether satellite solvers can make progress (e.g., detect unsatisfiability, propagate equations, etc)
 -/
 public def check : GoalM Bool := do
-  Arith.check <||> AC.check
+  Arith.check
 
 namespace Lean.Meta.Grind

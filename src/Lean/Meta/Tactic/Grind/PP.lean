@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Util
 public import Init.Grind.PP
@@ -12,8 +11,8 @@ public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.Model
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 public import Lean.Meta.Tactic.Grind.Arith.Linear.PP
+public import Lean.Meta.Tactic.Grind.AC.PP
 import Lean.PrettyPrinter
-
 public section
 
 namespace Lean.Meta.Grind
@@ -158,6 +157,11 @@ private def ppLinarith : M Unit := do
   let some msg ← Arith.Linear.pp? goal | return ()
   pushMsg msg
 
+private def ppAC : M Unit := do
+  let goal ← read
+  let some msg ← AC.pp? goal | return ()
+  pushMsg msg
+
 private def ppThresholds (c : Grind.Config) : M Unit := do
   let goal ← read
   let maxGen := goal.exprs.foldl (init := 0) fun g e =>
@@ -207,6 +211,7 @@ where
     ppCutsat
     ppLinarith
     ppCommRing
+    ppAC
     ppThresholds config
 
 end Lean.Meta.Grind

@@ -122,7 +122,7 @@ structure PrivField where
   private a : Nat
 deriving Repr
 
-/-- info: fun a => reprPrivField✝ a 0 -/
+/-- info: fun a => instReprPrivField.repr a 0 -/
 #guard_msgs in
 #with_exporting
 #reduce fun (a : PrivField) => repr a
@@ -135,7 +135,7 @@ public structure PrivField2 where
   private a : Nat
 deriving Repr
 
-/-- info: fun a => reprPrivField2✝ a 0 -/
+/-- info: fun a => instReprPrivField2.repr a 0 -/
 #guard_msgs in
 #with_exporting
 #reduce fun (a : PrivField2) => repr a
@@ -147,7 +147,7 @@ deriving Repr
 
 /--
 info: @[expose] def instReprPublic : Repr Public :=
-{ reprPrec := reprPublic✝ }
+{ reprPrec := instReprPublic.repr }
 -/
 #guard_msgs in
 #with_exporting

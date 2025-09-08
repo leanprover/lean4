@@ -55,24 +55,24 @@ def inSameStruct? (a b : Expr) : GoalM (Option Nat) := do
 private def processNewCommRingEq' (a b : Expr) : LinearM Unit := do
   let some lhs ← withRingM <| CommRing.reify? a (skipVar := false) | return ()
   let some rhs ← withRingM <| CommRing.reify? b (skipVar := false) | return ()
-  let gen := max (← getGeneration a) (← getGeneration b)
+  let generation := max (← getGeneration a) (← getGeneration b)
   let p' := (lhs.sub rhs).toPoly
-  let lhs' ← p'.toIntModuleExpr gen
-  let some lhs' ← reify? lhs' (skipVar := false) | return ()
+  let lhs' ← p'.toIntModuleExpr generation
+  let some lhs' ← reify? lhs' (skipVar := false) generation | return ()
   let p := lhs'.norm
   if p == .nil then return ()
   let c₁ : IneqCnstr := { p, strict := false, h := .ofCommRingEq a b lhs rhs p' lhs' }
   c₁.assert
   let p := p.mul (-1)
   let p' := p'.mulConst (-1)
-  let lhs' ← p'.toIntModuleExpr gen
-  let some lhs' ← reify? lhs' (skipVar := false) | return ()
+  let lhs' ← p'.toIntModuleExpr generation
+  let some lhs' ← reify? lhs' (skipVar := false) generation | return ()
   let c₂ : IneqCnstr := { p, strict := false, h := .ofCommRingEq b a rhs lhs p' lhs' }
   c₂.assert
 
 private def processNewIntModuleEq' (a b : Expr) : LinearM Unit := do
-  let some lhs ← reify? a (skipVar := false) | return ()
-  let some rhs ← reify? b (skipVar := false) | return ()
+  let some lhs ← reify? a (skipVar := false) (← getGeneration a) | return ()
+  let some rhs ← reify? b (skipVar := false) (← getGeneration b) | return ()
   let p := (lhs.sub rhs).norm
   if p == .nil then return ()
   let c₁ : IneqCnstr := { p, strict := false, h := .ofEq a b lhs rhs }
@@ -216,20 +216,45 @@ private def processNewCommRingEq (a b : Expr) : LinearM Unit := do
   -- TODO
 
 private def processNewIntModuleEq (a b : Expr) : LinearM Unit := do
-  let some lhs ← reify? a (skipVar := false) | return ()
-  let some rhs ← reify? b (skipVar := false) | return ()
+  let some lhs ← reify? a (skipVar := false) (← getGeneration a) | return ()
+  let some rhs ← reify? b (skipVar := false) (← getGeneration b) | return ()
   let p := (lhs.sub rhs).norm
   if p == .nil then return ()
   let c : EqCnstr := { p, h := .core a b lhs rhs }
   c.assert
 
+private def processNewNatModuleEq' (a b : Expr) : OfNatModuleM Unit := do
+  let ns ← getNatStruct
+  let (a', _) ← ofNatModule a
+  let (b', _) ← ofNatModule b
+  LinearM.run ns.structId do
+    let some lhs ← reify? a' (skipVar := false) (← getGeneration a) | return ()
+    let some rhs ← reify? b' (skipVar := false) (← getGeneration b) | return ()
+    let p := (lhs.sub rhs).norm
+    if p == .nil then return ()
+    let c₁ : IneqCnstr := { p, strict := false, h := .ofEqOfNat a b ns.id lhs rhs }
+    c₁.assert
+    let p := p.mul (-1)
+    let c₂ : IneqCnstr := { p, strict := false, h := .ofEqOfNat b a ns.id rhs lhs }
+    c₂.assert
+
+private def processNewNatModuleEq (a b : Expr) : OfNatModuleM Unit := do
+  let ns ← getNatStruct
+  let (a', _) ← ofNatModule a
+  let (b', _) ← ofNatModule b
+  LinearM.run ns.structId do
+    let some lhs ← reify? a' (skipVar := false) (← getGeneration a) | return ()
+    let some rhs ← reify? b' (skipVar := false) (← getGeneration b) | return ()
+    let p := (lhs.sub rhs).norm
+    if p == .nil then return ()
+    let c : EqCnstr := { p, h := .coreOfNat a b ns.id lhs rhs }
+    c.assert
+
 @[export lean_process_linarith_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
   if isSameExpr a b then return () -- TODO: check why this is needed
-  let some structId ← inSameStruct? a b | return ()
-  LinearM.run structId do
+  if let some structId ← inSameStruct? a b then LinearM.run structId do
     if (← isOrderedAdd) then
-      trace_goal[grind.linarith.assert] "{← mkEq a b}"
       if (← isCommRing) then
         processNewCommRingEq' a b
       else
@@ -239,38 +264,45 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
         processNewCommRingEq a b
       else
         processNewIntModuleEq a b
+  else if let some natStructId ← inSameNatStruct? a b then OfNatModuleM.run natStructId do
+    let ns ← getNatStruct
+    if ns.orderedAddInst?.isSome then
+      processNewNatModuleEq' a b
+    else
+      processNewNatModuleEq a b
 
 private def processNewCommRingDiseq (a b : Expr) : LinearM Unit := do
   let some lhs ← withRingM <| CommRing.reify? a (skipVar := false) | return ()
   let some rhs ← withRingM <| CommRing.reify? b (skipVar := false) | return ()
-  let gen := max (← getGeneration a) (← getGeneration b)
+  let generation := max (← getGeneration a) (← getGeneration b)
   let p' := (lhs.sub rhs).toPoly
-  let lhs' ← p'.toIntModuleExpr gen
-  let some lhs' ← reify? lhs' (skipVar := false) | return ()
+  let lhs' ← p'.toIntModuleExpr generation
+  let some lhs' ← reify? lhs' (skipVar := false) generation | return ()
   let p := lhs'.norm
   let c : DiseqCnstr := { p, h := .coreCommRing a b lhs rhs p' lhs' }
   c.assert
 
 private def processNewIntModuleDiseq (a b : Expr) : LinearM Unit := do
-  let some lhs ← reify? a (skipVar := false) | return ()
-  let some rhs ← reify? b (skipVar := false) | return ()
+  let some lhs ← reify? a (skipVar := false) (← getGeneration a) | return ()
+  let some rhs ← reify? b (skipVar := false) (← getGeneration b) | return ()
   let p := (lhs.sub rhs).norm
   let c : DiseqCnstr := { p, h := .core a b lhs rhs }
   c.assert
 
 private def processNewNatModuleDiseq (a b : Expr) : OfNatModuleM Unit := do
   let ns ← getNatStruct
-  trace[Meta.debug] "{a}, {b}"
-  unless ns.addRightCancelInst?.isSome do return ()
-  let (a', _) ← ofNatModule a
-  let (b', _) ← ofNatModule b
-  trace[Meta.debug] "{a'}, {b'}"
-  LinearM.run ns.structId do
-    let some lhs ← reify? a' (skipVar := false) | return ()
-    let some rhs ← reify? b' (skipVar := false) | return ()
-    let p := (lhs.sub rhs).norm
-    let c : DiseqCnstr := { p, h := .coreOfNat a b ns.id lhs rhs }
-    c.assert
+  if ns.addRightCancelInst?.isSome then
+    let (a', _) ← ofNatModule a
+    let (b', _) ← ofNatModule b
+    LinearM.run ns.structId do
+      let some lhs ← reify? a' (skipVar := false) (← getGeneration a) | return ()
+      let some rhs ← reify? b' (skipVar := false) (← getGeneration b) | return ()
+      let p := (lhs.sub rhs).norm
+      let c : DiseqCnstr := { p, h := .coreOfNat a b ns.id lhs rhs }
+      c.assert
+  else
+    -- If `AddRightCancel` is not available, we just normalize, and try to detect contradiction
+    normNatModuleDiseq a b
 
 @[export lean_process_linarith_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do

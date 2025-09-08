@@ -1,9 +1,7 @@
 {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
  "position": {"line": 28, "character": 30}}
 {"items":
- [{"label": "testPkg.foo2",
-   "kind": 10,
-   "edit":
+ [{"textEdit":
    {"replace":
     {"start": {"line": 28, "character": 23},
      "end": {"line": 28, "character": 30}},
@@ -11,12 +9,12 @@
     "insert":
     {"start": {"line": 28, "character": 23},
      "end": {"line": 28, "character": 30}}},
+   "label": "testPkg.foo2",
+   "kind": 10,
    "documentation": {"value": "(error) Error 2", "kind": "markdown"},
    "detail": "error name",
    "data": ["«external:file:///errorExplanationInteractive.lean»", 28, 30, 0]},
-  {"label": "testPkg.bar",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 28, "character": 23},
      "end": {"line": 28, "character": 30}},
@@ -24,12 +22,12 @@
     "insert":
     {"start": {"line": 28, "character": 23},
      "end": {"line": 28, "character": 30}}},
+   "label": "testPkg.bar",
+   "kind": 10,
    "documentation": {"value": "(error) Error 0", "kind": "markdown"},
    "detail": "error name",
    "data": ["«external:file:///errorExplanationInteractive.lean»", 28, 30, 0]},
-  {"label": "testPkg.foo1",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 28, "character": 23},
      "end": {"line": 28, "character": 30}},
@@ -37,6 +35,8 @@
     "insert":
     {"start": {"line": 28, "character": 23},
      "end": {"line": 28, "character": 30}}},
+   "label": "testPkg.foo1",
+   "kind": 10,
    "documentation": {"value": "(error) Error 1", "kind": "markdown"},
    "detail": "error name",
    "data": ["«external:file:///errorExplanationInteractive.lean»", 28, 30, 0]}],
@@ -44,9 +44,7 @@
 {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
  "position": {"line": 30, "character": 31}}
 {"items":
- [{"label": "testPkg.foo2",
-   "kind": 10,
-   "edit":
+ [{"textEdit":
    {"replace":
     {"start": {"line": 30, "character": 23},
      "end": {"line": 30, "character": 31}},
@@ -54,12 +52,12 @@
     "insert":
     {"start": {"line": 30, "character": 23},
      "end": {"line": 30, "character": 31}}},
+   "label": "testPkg.foo2",
+   "kind": 10,
    "documentation": {"value": "(error) Error 2", "kind": "markdown"},
    "detail": "error name",
    "data": ["«external:file:///errorExplanationInteractive.lean»", 30, 31, 0]},
-  {"label": "testPkg.bar",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 30, "character": 23},
      "end": {"line": 30, "character": 31}},
@@ -67,12 +65,12 @@
     "insert":
     {"start": {"line": 30, "character": 23},
      "end": {"line": 30, "character": 31}}},
+   "label": "testPkg.bar",
+   "kind": 10,
    "documentation": {"value": "(error) Error 0", "kind": "markdown"},
    "detail": "error name",
    "data": ["«external:file:///errorExplanationInteractive.lean»", 30, 31, 0]},
-  {"label": "testPkg.foo1",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 30, "character": 23},
      "end": {"line": 30, "character": 31}},
@@ -80,6 +78,8 @@
     "insert":
     {"start": {"line": 30, "character": 23},
      "end": {"line": 30, "character": 31}}},
+   "label": "testPkg.foo1",
+   "kind": 10,
    "documentation": {"value": "(error) Error 1", "kind": "markdown"},
    "detail": "error name",
    "data": ["«external:file:///errorExplanationInteractive.lean»", 30, 31, 0]}],
@@ -87,9 +87,7 @@
 {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
  "position": {"line": 32, "character": 32}}
 {"items":
- [{"label": "testPkg.foo2",
-   "kind": 10,
-   "edit":
+ [{"textEdit":
    {"replace":
     {"start": {"line": 32, "character": 23},
      "end": {"line": 32, "character": 32}},
@@ -97,12 +95,12 @@
     "insert":
     {"start": {"line": 32, "character": 23},
      "end": {"line": 32, "character": 32}}},
+   "label": "testPkg.foo2",
+   "kind": 10,
    "documentation": {"value": "(error) Error 2", "kind": "markdown"},
    "detail": "error name",
    "data": ["«external:file:///errorExplanationInteractive.lean»", 32, 32, 0]},
-  {"label": "testPkg.foo1",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 32, "character": 23},
      "end": {"line": 32, "character": 32}},
@@ -110,6 +108,8 @@
     "insert":
     {"start": {"line": 32, "character": 23},
      "end": {"line": 32, "character": 32}}},
+   "label": "testPkg.foo1",
+   "kind": 10,
    "documentation": {"value": "(error) Error 1", "kind": "markdown"},
    "detail": "error name",
    "data": ["«external:file:///errorExplanationInteractive.lean»", 32, 32, 0]}],
@@ -117,9 +117,7 @@
 {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
  "position": {"line": 34, "character": 32}}
 {"items":
- [{"label": "testPkg.foo2",
-   "kind": 10,
-   "edit":
+ [{"textEdit":
    {"replace":
     {"start": {"line": 34, "character": 23},
      "end": {"line": 34, "character": 32}},
@@ -127,12 +125,12 @@
     "insert":
     {"start": {"line": 34, "character": 23},
      "end": {"line": 34, "character": 32}}},
+   "label": "testPkg.foo2",
+   "kind": 10,
    "documentation": {"value": "(error) Error 2", "kind": "markdown"},
    "detail": "error name",
    "data": ["«external:file:///errorExplanationInteractive.lean»", 34, 32, 0]},
-  {"label": "testPkg.foo1",
-   "kind": 10,
-   "edit":
+  {"textEdit":
    {"replace":
     {"start": {"line": 34, "character": 23},
      "end": {"line": 34, "character": 32}},
@@ -140,6 +138,8 @@
     "insert":
     {"start": {"line": 34, "character": 23},
      "end": {"line": 34, "character": 32}}},
+   "label": "testPkg.foo1",
+   "kind": 10,
    "documentation": {"value": "(error) Error 1", "kind": "markdown"},
    "detail": "error name",
    "data": ["«external:file:///errorExplanationInteractive.lean»", 34, 32, 0]}],

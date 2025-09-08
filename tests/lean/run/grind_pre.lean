@@ -31,6 +31,15 @@ h_1 : (b && a) = false
   [eqc] Equivalence classes
     [eqc] {a, c, true}
     [eqc] {b, false, b && a}
+  [assoc] Operator `and`
+    [basis] Basis
+      [_] a = true
+    [diseqs] Disequalities
+      [_] b ≠ true
+    [properties] Properties
+      [_] commutative
+      [_] idempotent
+      [_] identity: `true`
 -/
 #guard_msgs (error) in
 theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
@@ -63,6 +72,13 @@ h_2 : (b && a) = false
   [eqc] Equivalence classes
     [eqc] {a, c, true}
     [eqc] {b, false, b && a}
+  [assoc] Operator `and`
+    [basis] Basis
+      [_] a = true
+    [properties] Properties
+      [_] commutative
+      [_] idempotent
+      [_] identity: `true`
 [grind] Diagnostics
   [cases] Cases instances
     [cases] Or ↦ 1

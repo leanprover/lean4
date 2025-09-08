@@ -78,13 +78,18 @@ public def compileLeanModule
     error s!"Lean exited with code {out.exitCode}"
   if let some irFile := arts.ir? then
     createParentDirs irFile
-    proc {
-      cmd := leanir.toString
-      args := #[setupFile.toString, setup.name.toString, irFile.toString]
-      env := #[
-        ("LEAN_PATH", leanPath.toString)
-      ]
-    }
+    try
+      proc {
+        cmd := leanir.toString
+        args := #[setupFile.toString, setup.name.toString, irFile.toString]
+        env := #[
+          ("LEAN_PATH", leanPath.toString)
+        ]
+      }
+    catch e =>
+      if let some oleanFile := arts.olean? then
+        removeFileIfExists oleanFile
+      throw e
 
 public def compileO
   (oFile srcFile : FilePath)

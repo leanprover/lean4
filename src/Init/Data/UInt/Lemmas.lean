@@ -187,9 +187,6 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
 
   protected theorem toNat_lt_size (a : $typeName) : a.toNat < size := a.toBitVec.isLt
 
-  protected theorem toNat_le_toNat (a b : $typeName) : a.toNat ≤ b.toNat ↔ a ≤ b := Iff.rfl
-  protected theorem toNat_lt_toNat (a b : $typeName) : a.toNat < b.toNat ↔ a < b := Iff.rfl
-
   open $typeName (toNat_mod toNat_lt_size) in
   protected theorem toNat_mod_lt {m : Nat} : ∀ (u : $typeName), 0 < m → toNat (u % ofNat m) < m := by
     intro u h1
@@ -209,6 +206,11 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
 
   protected theorem toNat_inj : ∀ {a b : $typeName}, a.toNat = b.toNat ↔ a = b :=
     Iff.intro toNat.inj (congrArg toNat)
+
+  protected theorem toNat_ne_toNat (a b : $typeName) : a.toNat ≠ b.toNat ↔ a ≠ b := by
+    simp [a.toNat_inj]
+  protected theorem toNat_le_toNat (a b : $typeName) : a.toNat ≤ b.toNat ↔ a ≤ b := Iff.rfl
+  protected theorem toNat_lt_toNat (a b : $typeName) : a.toNat < b.toNat ↔ a < b := Iff.rfl
 
   open $typeName (toNat_inj) in
   protected theorem le_antisymm_iff {a b : $typeName} : a = b ↔ a ≤ b ∧ b ≤ a :=

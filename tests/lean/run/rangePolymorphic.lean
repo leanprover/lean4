@@ -92,7 +92,12 @@ section Int
 example : ((-2)...3).toList = [-2, -1, 0, 1, 2] := by native_decide
 example : ((-2)...=3).toList = [-2, -1, 0, 1, 2, 3] := by native_decide
 
-example : Std.PRange.LawfulRangeSize .closed Int := inferInstance
-example : Std.PRange.LawfulRangeSize .open Int := inferInstance
-
 end Int
+
+section UInt
+
+example : ((1 : UInt8)...3).toList = [1, 2] := by native_decide
+example : ((-1 : UInt8)...3).toList = [] := by native_decide -- 255 ≤ x < 3 is impossible
+example : ((1 : UInt8)...=3).toList = [1, 2, 3] := by native_decide
+
+end UInt

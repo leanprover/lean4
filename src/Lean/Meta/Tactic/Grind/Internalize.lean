@@ -21,8 +21,6 @@ import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 public section
 namespace Lean.Meta.Grind
 
-@[extern "lean_grind_ac_internalize"] -- forward definition
-opaque AC.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit
 @[extern "lean_grind_arith_internalize"] -- forward definition
 opaque Arith.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit
 
@@ -366,7 +364,6 @@ private def tryEta (e : Expr) (generation : Nat) : GoalM Unit := do
 
 private def internalizeTheories (e : Expr) (parent? : Option Expr := none) : GoalM Unit := do
   Arith.internalize e parent?
-  AC.internalize e parent?
 
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do

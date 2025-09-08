@@ -1029,7 +1029,8 @@ private def elabCoinductive (declNames : Array Name) (sectionVars : Array Expr) 
     withLocalDecls localDecls fun indFVars => do
       for indFVar in indFVars, view in views do
         discard <| Term.addTermInfo view.ref indFVar
-
+      let levelParams := infos[0]!.levelParams.map mkLevelParam;
+      let consts := namesAndTypes.map fun (name, _) => (mkConst name levelParams)
 
       forallBoundedTelescope infos[0]!.type originalNumParams fun params _ => do
         trace[Elab.inductive] "params: {params}"
@@ -1037,7 +1038,7 @@ private def elabCoinductive (declNames : Array Name) (sectionVars : Array Expr) 
           let functor ← mkConstWithLevelParams info.name
           trace[Elab.inductive] "functor: {functor}"
           let functor := mkAppN functor (params.take originalNumParams)
-          let indFVars := indFVars.map (mkAppN · <| params.take originalNumParams)
+          let indFVars := consts.map (mkAppN · <| params.take originalNumParams)
           let res := mkAppN functor indFVars
           mkLambdaFVars (params.take originalNumParams) res
         trace[Elab.inductive] "defs: {defs}"
@@ -1063,7 +1064,7 @@ private def elabCoinductive (declNames : Array Name) (sectionVars : Array Expr) 
               extraParams := 0
             }
           }
-        partialFixpoint preDefs (.some indFVars)
+        partialFixpoint preDefs
 
 
 

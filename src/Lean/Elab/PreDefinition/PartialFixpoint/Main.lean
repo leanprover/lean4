@@ -23,17 +23,6 @@ open Monotonicity
 
 open Lean.Order
 
-private def replaceRecFVarApps (indFVars : Array Expr) (fixedParamPerms : FixedParamPerms) (f : Expr) (e : Expr) : MetaM Expr := do
-  assert! indFVars.size = fixedParamPerms.perms.size
-  let t ← inferType f
-  return e.replace fun e => do
-    let fn := e.getAppFn
-    guard (indFVars.contains fn)
-    let idx ← indFVars.idxOf? fn
-    let args := e.getAppArgs
-    let varying := fixedParamPerms.perms[idx]!.pickVarying args
-    return mkAppN (PProdN.proj indFVars.size idx t f) varying
-
 private def replaceRecApps (recFnNames : Array Name) (fixedParamPerms : FixedParamPerms) (f : Expr) (e : Expr) : MetaM Expr := do
   assert! recFnNames.size = fixedParamPerms.perms.size
   let t ← inferType f
@@ -89,7 +78,7 @@ private def mkMonoPProd : (hmono₁ hmono₂ : Expr × Expr) → MetaM (Expr × 
   let hmonoProof ← mkAppOptM ``PProd.monotone_mk #[none, none, none, inst₁, inst₂, inst, none, none, hmono1Proof, hmono2Proof]
   return (← inferType hmonoProof, hmonoProof)
 
-def partialFixpoint (preDefs : Array PreDefinition) (indFVars : Option (Array Expr) := .none) : TermElabM Unit := do
+def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   -- We expect all functions in the clique to have `partial_fixpoint`, `inductive_fixpoint` or `coinductive_fixpoint` syntax
   let hints := preDefs.filterMap (·.termination.partialFixpoint?)
   assert! preDefs.size = hints.size
@@ -173,12 +162,9 @@ def partialFixpoint (preDefs : Array PreDefinition) (indFVars : Option (Array Ex
         let body' ← withoutModifyingEnv do
           -- replaceRecApps needs the constants in the env to typecheck things
           preDefs.forM (addAsAxiom ·)
-          if let .some indFVars := indFVars then
-            replaceRecFVarApps indFVars fixedParamPerms f body
-          else
-            replaceRecApps declNames fixedParamPerms f body
+          replaceRecApps declNames fixedParamPerms f body
         mkLambdaFVars #[f] body'
-
+    trace[Elab.definition.partialFixpoint] "Fs are: {Fs}"
     -- Construct and solve monotonicity goals for each function separately
     -- This way we preserve the user's parameter names as much as possible
     -- and can (later) use the user-specified per-function tactic
@@ -231,7 +217,10 @@ def partialFixpoint (preDefs : Array PreDefinition) (indFVars : Option (Array Ex
         let value := PProdN.proj preDefs.size fidx packedType value
         let value := mkAppN value varying
         let value ← mkLambdaFVars (etaReduce := true) params value
+        trace[Elab.definition.partialFixpoint] "preDef.val: {value}, fixed: {fixed}, varying: {varying}"
         pure { preDef with value }
+    trace[Elab.definition.partialFixpoint] "HAS FVARS: {preDefs[0]!.value}"
+
 
     Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
     addAndCompilePartialRec preDefs

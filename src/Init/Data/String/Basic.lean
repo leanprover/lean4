@@ -9,6 +9,8 @@ prelude
 public import Init.Data.List.Basic
 public import Init.Data.Char.Basic
 public import Init.Data.String.Bootstrap
+import Init.Data.Array.Lemmas
+import Init.Data.UInt.Lemmas
 
 public section
 

@@ -27,17 +27,11 @@ instance : DecidableEq ByteArray :=
 @[deprecated emptyWithCapacity (since := "2025-03-12")]
 abbrev mkEmpty := emptyWithCapacity
 
-def empty : ByteArray := emptyWithCapacity 0
-
 instance : Inhabited ByteArray where
   default := empty
 
 instance : EmptyCollection ByteArray where
   emptyCollection := ByteArray.empty
-
-@[extern "lean_byte_array_push"]
-def push : ByteArray → UInt8 → ByteArray
-  | ⟨bs⟩, b => ⟨bs.push b⟩
 
 @[extern "lean_sarray_size", simp]
 def usize (a : @& ByteArray) : USize :=
@@ -335,14 +329,5 @@ def prevn : Iterator → Nat → Iterator
 
 end Iterator
 end ByteArray
-
-/--
-Converts a list of bytes into a `ByteArray`.
--/
-def List.toByteArray (bs : List UInt8) : ByteArray :=
-  let rec loop
-    | [],    r => r
-    | b::bs, r => loop bs (r.push b)
-  loop bs ByteArray.empty
 
 instance : ToString ByteArray := ⟨fun bs => bs.toList.toString⟩

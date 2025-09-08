@@ -2454,43 +2454,39 @@ def addVecAux (usedNodes validNodes : Nat)
       simp [show usedNodes / 2 * w + w = usedNodes / 2 * w + 1 * w by omega,
           show (usedNodes + 2) / 2 = usedNodes/2 + 1 by omega, Nat.add_mul]
       omega
-    let ⟨res, proof⟩ := addVecAux (usedNodes + 2) validNodes hw oldParSum (hcast▸newParSum')
-                        (by sorry
-                          -- intros i1 hi1 j1 hj1
-                          -- have hcast_eq : extractLsb' (i1 * w) w (hcast ▸ newParSum') = extractLsb' (i1 * w) w (newParSum') := by
-                          --   sorry
-                          -- rw [hcast_eq]
-                          -- simp [newParSum']
-                          -- by_cases hsplit : i1 < usedNodes / 2
-                          -- · rw [extractLsb'_append_eq_of_add_le]
-                          --   · specialize hacc i1 hsplit j1 hj1
-                          --     simp [hacc]
-                          --   · rw [show i1 * w + w = i1 * w + 1 * w by omega]
-                          --     rw [← Nat.add_mul]
-                          --     simp_all
-                          --     exact Nat.mul_le_mul_right w hsplit
-                          -- · rw [extractLsb'_append_eq_of_le]
-                          --   have : i1 = usedNodes/2 := by omega
-                          --   simp [this]
-                          --   simp_all
-                          --   simp [add, rhs, lhs]
-                          --   split
-                          --   · case _ hsplit' =>
-                          --     simp [show usedNodes / 2 * 2 + 1 < validNodes by omega]
-                          --     rw [extractLsb'_eq_self]
-                          --     rw [show usedNodes / 2 * 2 * w = usedNodes * w by
-                          --       refine (Nat.mul_right_cancel_iff ?_).mpr (by omega); omega]
-                          --     rw [show (usedNodes / 2 * 2 + 1) * w = (usedNodes + 1) * w by
-                          --       refine (Nat.mul_right_cancel_iff ?_).mpr (by omega); omega]
-                          --     rw [add_comm]
-                          --   · case _ hsplit' =>
-                          --     rw [extractLsb'_eq_self, add_comm, add_zero]
-                          --     rw [show usedNodes / 2 * 2 * w = usedNodes * w by
-                          --       refine (Nat.mul_right_cancel_iff ?_).mpr (by omega); omega]
-                          --     simp [show ¬ usedNodes / 2 * 2 + 1 < validNodes by omega]
-                          --     rw [add_zero]
-                          --   · simp_all
-                          --     exact Nat.mul_le_mul_right w hsplit
+    let ⟨res, proof⟩ := addVecAux (usedNodes + 2) validNodes hw oldParSum (BitVec.cast hcast newParSum')
+                        (by
+                          intros i1 hi1 j1 hj1
+                          have hcast_eq : extractLsb' (i1 * w) w (BitVec.cast hcast newParSum') = (extractLsb' (i1 * w) w (newParSum')) := by simp [extractLsb']
+                          rw [hcast_eq]
+                          simp [newParSum']
+                          by_cases hsplit : i1 < usedNodes / 2
+                          · rw [extractLsb'_append_eq_of_add_le]
+                            · specialize hacc i1 hsplit j1 hj1
+                              simp [hacc]
+                            · rw [show i1 * w + w = i1 * w + 1 * w by omega]
+                              rw [← Nat.add_mul]
+                              simp_all
+                              exact Nat.mul_le_mul_right w hsplit
+                          · rw [extractLsb'_append_eq_of_le]
+                            have : i1 = usedNodes/2 := by omega
+                            simp [this]
+                            simp_all
+                            simp [add, rhs, lhs]
+                            split
+                            · case _ hsplit' =>
+                              simp [show usedNodes / 2 * 2 + 1 < validNodes by omega]
+                              simp [show usedNodes / 2 * 2 * w = usedNodes * w by
+                                refine (Nat.mul_right_cancel_iff ?_).mpr (by omega); omega]
+                              simp [show (usedNodes / 2 * 2 + 1) * w = (usedNodes + 1) * w by
+                                refine (Nat.mul_right_cancel_iff ?_).mpr (by omega); omega]
+                              simp [BitVec.add_comm]
+                            · case _ hsplit' =>
+                              rw [show usedNodes / 2 * 2 * w = usedNodes * w by
+                                refine (Nat.mul_right_cancel_iff ?_).mpr (by omega); omega]
+                              simp [show ¬ usedNodes / 2 * 2 + 1 < validNodes by omega]
+                            · simp_all
+                              exact Nat.mul_le_mul_right w hsplit
                               ) hval (by omega) (by omega)
     ⟨res, proof⟩
 
@@ -2502,7 +2498,8 @@ def parPrefixSum
   if hlt : 1 < validNodes then
     let initAcc := 0#0
     have hcastZero : 0 = 0 / 2 * w := by omega
-    let ⟨res, proof⟩ := addVecAux 0 validNodes (by sorry) parSum  (hcastZero▸initAcc) (by sorry) (by omega) (by omega) (by omega)
+    let ⟨res, proof⟩ := addVecAux 0 validNodes (by omega) parSum (hcastZero▸initAcc)
+                        (by intros; omega) (by omega) (by omega) (by omega)
     parPrefixSum ((validNodes+1)/2) res hin (by omega) (by omega)
   else
     have hcast : validNodes * w = w := by

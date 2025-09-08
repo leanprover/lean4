@@ -15,20 +15,6 @@ import Init.Data.ByteArray.Lemmas
 
 public section
 
-/-! # `List` lemmas -/
-
-theorem List.eq_getElem_of_length_eq_one : (l : List α) → (hl : l.length = 1) → l = [l[0]]
-  | [_], _ => rfl
-
-theorem List.eq_getElem_of_length_eq_two : (l : List α) → (hl : l.length = 2) → l = [l[0], l[1]]
-  | [_, _], _ => rfl
-
-theorem List.eq_getElem_of_length_eq_three : (l : List α) → (hl : l.length = 3) → l = [l[0], l[1], l[2]]
-  | [_, _, _], _ => rfl
-
-theorem List.eq_getElem_of_length_eq_four : (l : List α) → (hl : l.length = 4) → l = [l[0], l[1], l[2], l[3]]
-  | [_, _, _, _], _ => rfl
-
 /-! # `BitVec` lemmas -/
 
 theorem BitVec.and_or_distrib_left {a b c : BitVec w} : a &&& (b ||| c) = (a &&& b) ||| (a &&& c) :=

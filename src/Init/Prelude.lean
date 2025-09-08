@@ -3368,11 +3368,19 @@ def String.utf8EncodeChar (c : Char) : List UInt8 :=
                 (UInt8.ofNat (HAdd.hAdd (HMod.hMod v 0x40) 0x80))
                 List.nil))))))
 
-def List.utf8Encode (l : List Char) : ByteArray :=
+/-- Encode a list of characters (Unicode scalar value) in UTF-8. This is an inefficient model
+implementation. Use `List.asString` instead. -/
+def List.Internal.utf8Encode (l : List Char) : ByteArray :=
   l.flatMap String.utf8EncodeChar |>.toByteArray
 
-inductive IsValidUtf8 (b : ByteArray) : Prop
-  | intro (m : List Char) (hm : Eq b (List.utf8Encode m))
+/-- A byte array is valid UTF-8 if it is of the form `List.Internal.utf8Encode m` for some `m`.
+
+Note that in order for this definition to be well-behaved it is necessary to know that this `m`
+is unique. To show this, one defines UTF-8 decoding and shows that encoding and decoding are
+mutually inverse. -/
+inductive ByteArray.IsValidUtf8 (b : ByteArray) : Prop
+  /-- Show that a byte -/
+  | intro (m : List Char) (hm : Eq b (List.Internal.utf8Encode m))
 
 -- @[simp]
 -- theorem IsValidUtf8.empty : IsValidUtf8 ByteArray.empty where
@@ -3387,13 +3395,12 @@ of bytes using the UTF-8 encoding. Both the size in bytes (`String.utf8ByteSize`
 (`String.length`) are cached and take constant time. Many operations on strings perform in-place
 modifications when the reference to the string is unique.
 -/
-structure String where
+structure String where ofByteArray ::
   /-- The bytes of the UTF-8 encoding of the string. -/
   bytes : ByteArray
   /-- The bytes of the string form valid UTF-8. -/
-  isValidUtf8 : IsValidUtf8 bytes
+  isValidUtf8 : ByteArray.IsValidUtf8 bytes
 
--- attribute [extern "lean_string_mk"] String.mk TODO
 -- attribute [extern "lean_string_data"] String.data TODO
 
 /--

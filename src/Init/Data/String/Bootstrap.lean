@@ -19,6 +19,12 @@ instance : OfNat String.Pos (nat_lit 0) where
 instance : Inhabited String where
   default := ""
 
+-- @[simp]
+-- theorem List.Internal.utf8Encode_append {l l' : List Char} :
+--     List.Internal.utf8Encode (l ++ l') = List.Internal.utf8Encode l ++ List.Internal.utf8Encode l' := by
+--   simp [utf8Encode]
+
+
 /--
 Adds a character to the end of a string.
 
@@ -31,7 +37,17 @@ Examples:
 -/
 @[extern "lean_string_push", expose]
 def push : String → Char → String
-  | ⟨s⟩, c => ⟨s ++ [c]⟩
+  | ⟨b, h⟩, c => ⟨app b (String.utf8EncodeChar c), ?pf⟩
+where
+  app : ByteArray → List UInt8 → ByteArray
+  | b, [] => b
+  | b, c::cs => app (b.push c) cs
+finally
+  have ⟨m, hm⟩ := h
+  cases hm
+  refine .intro (m ++ [c]) ?_
+  sorry
+
 
 /--
 Returns a new string that contains only the character `c`.
@@ -116,6 +132,10 @@ opaque dropRight (s : String) (n : Nat) : String
 
 end String.Internal
 
+@[extern "lean_string_mk"]
+def String.mk (s : List Char) : String :=
+  ⟨List.Internal.utf8Encode s, .intro s rfl⟩
+
 /--
 Creates a string that contains the characters in a list, in order.
 
@@ -125,7 +145,7 @@ Examples:
  * `['a', 'a', 'a'].asString = "aaa"`
 -/
 def List.asString (s : List Char) : String :=
-  ⟨s⟩
+  String.mk s
 
 namespace Substring.Internal
 

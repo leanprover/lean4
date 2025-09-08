@@ -14,6 +14,10 @@ import Init.Data.Order.Lemmas
 
 public section
 
+open Std PRange
+
+instance : Total (α := Nat) (· ≤ ·) := inferInstance
+
 namespace Std.PRange
 
 instance : UpwardEnumerable Nat where
@@ -76,8 +80,7 @@ instance : LawfulRangeSize .closed Nat where
 instance : LawfulRangeSize .open Nat := inferInstance
 instance : HasFiniteRanges .closed Nat := inferInstance
 instance : HasFiniteRanges .open Nat := inferInstance
-instance : LinearlyUpwardEnumerable Nat := by
-  exact instLinearlyUpwardEnumerableOfTotalLeOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLE
+instance : LinearlyUpwardEnumerable Nat := inferInstance
 
 /-!
 The following instances are used for the implementation of array slices a.k.a. `Subarray`.

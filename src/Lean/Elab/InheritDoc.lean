@@ -41,4 +41,5 @@ public builtin_initialize
         | .inr verso =>
           addVersoDocStringCore decl verso
       | _  => throwError "Invalid `[inherit_doc]` attribute syntax"
+    applicationTime := AttributeApplicationTime.afterCompilation
   }

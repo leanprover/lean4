@@ -358,12 +358,13 @@ def stxDoc := ()
 -/
 declare_syntax_cat thing
 
--- Parsing in docstrings should be in a context just after the decl is elaborated
+
+syntax (name := here) "here " "{" num "}" : thing
+
 /--
 This is a thing: {syntax thing}`here{$n}` where {name}`n` is a numeral
 -/
-syntax "here " "{" num "}" : thing
-
+add_decl_doc «here»
 
 /--
 {syntax thing}`here{$n}`

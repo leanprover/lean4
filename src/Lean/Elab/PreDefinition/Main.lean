@@ -141,7 +141,8 @@ private def betaReduceLetRecApps (preDefs : Array PreDefinition) : MetaM (Array 
     else
       return preDef
 
-private def addSorried (preDefs : Array PreDefinition) : TermElabM Unit := do
+private def addSorried (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition) :
+    TermElabM Unit := do
   for preDef in preDefs do
     unless (← hasConst preDef.declName) do
       let value ← mkSorry (synthetic := true) preDef.type
@@ -163,7 +164,9 @@ private def addSorried (preDefs : Array PreDefinition) : TermElabM Unit := do
         }
       addDecl decl
       applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
+      addPreDefDocs docCtx preDef
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
+      addPreDefInfo preDef
 
 def ensureFunIndReservedNamesAvailable (preDefs : Array PreDefinition) : MetaM Unit := do
   preDefs.forM fun preDef =>
@@ -375,9 +378,9 @@ def addPreDefinitions (docCtx : LocalContext × LocalInstances) (preDefs : Array
                   catch _ =>
                     -- Compilation failed try again just as axiom
                     s.restore
-                    addSorried preDefs
+                    addSorried docCtx preDefs
               else if preDefs.all fun preDef => preDef.kind == DefKind.theorem then
-                addSorried preDefs
+                addSorried docCtx preDefs
             catch _ => s.restore
 
 builtin_initialize

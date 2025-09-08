@@ -175,16 +175,22 @@ private def checkMeta (preDef : PreDefinition) : TermElabM Unit := do
     return true
 
 /--
-Adds the docstring, if relevant, and saves constant info for the predefinition.
+Adds the docstring, if relevant.
 
 This should be done just after compilation so the predefinition can be executed in examples in its
 docstring. If code generation will not occur, then it should be done after adding the declaration
 to the environment.
 -/
-private def addDocsAndInfo (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) : TermElabM Unit := do
+def addPreDefDocs (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) : TermElabM Unit := do
   if let some (doc, isVerso) := preDef.modifiers.docString? then
     withLCtx docCtx.1 docCtx.2 do
       addDocStringOf isVerso preDef.declName preDef.binders doc
+
+/--
+Adds constant info to the definition name. This should occur after executing post-compilation
+attributes, in case they have an effect on hovers.
+-/
+def addPreDefInfo (preDef : PreDefinition) : TermElabM Unit := do
   withSaveInfoContext do  -- save new env that includes docstring and constant
     addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
 
@@ -234,8 +240,11 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     if applyAttrAfterCompilation then
       enableRealizationsForConst preDef.declName
       generateEagerEqns preDef.declName
+    addPreDefDocs docCtx preDef
+    if applyAttrAfterCompilation then
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
-    addDocsAndInfo docCtx preDef
+    addPreDefInfo preDef
+
 
 def addAndCompileNonRec (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (all : List Name := [preDef.declName]) (cleanupValue := false) : TermElabM Unit := do
   addNonRecAux docCtx preDef (compile := true) (all := all) (cleanupValue := cleanupValue)
@@ -274,8 +283,10 @@ def addAndCompileUnsafe
     applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking
     compileDecl decl
     for preDef in preDefs do
-      addDocsAndInfo docCtx preDef
+      addPreDefDocs docCtx preDef
     applyAttributesOf preDefs AttributeApplicationTime.afterCompilation
+    for preDef in preDefs do
+      addPreDefInfo preDef
     return ()
 
 def addAndCompilePartialRec

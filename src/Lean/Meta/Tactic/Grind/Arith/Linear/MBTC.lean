@@ -36,7 +36,7 @@ private def getAssignmentExt? (s : Struct) (a : Expr) : Option Rat := do
     toRatValue? a
 
 private def hasTheoryVar (e : Expr) : GoalM Bool := do
-  return (← linearExt.hasTerm e) || (toRatValue? e).isSome
+  return (← linearExt.hasTermAtRoot e) || (toRatValue? e).isSome
 
 private def isInterpreted (e : Expr) : GoalM Bool := do
   if isInterpretedTerm e then return true

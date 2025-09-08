@@ -1608,7 +1608,7 @@ where
 Returns `true` if the root of `e`s equivalence class is already attached to a term
 of the given solver.
 -/
-def SolverExtension.hasTerm (ext : SolverExtension σ) (e : Expr) : GoalM Bool := do
+def SolverExtension.hasTermAtRoot (ext : SolverExtension σ) (e : Expr) : GoalM Bool := do
   return go ext.id (← getRootENode e).sTerms
 where
   go (solverId : Nat) : SolverTerms → Bool

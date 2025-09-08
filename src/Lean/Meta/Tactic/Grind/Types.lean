@@ -1071,30 +1071,6 @@ def setENode (e : Expr) (n : ENode) : GoalM Unit :=
     congrTable := unsafe unsafeCast s.congrTable
   }
 
-/-- Returns `true` if `e` is a numeral and has type `Nat`. -/
-def isNatNum (e : Expr) : Bool := Id.run do
-  let_expr OfNat.ofNat _ _ inst := e | false
-  let_expr instOfNatNat _ := inst | false
-  true
-
-/-- Returns `true` if `e` is a nonnegative numeral and has type `Int`. -/
-def isNonnegIntNum (e : Expr) : Bool := Id.run do
-  let_expr OfNat.ofNat _ _ inst := e | false
-  let_expr instOfNat _ := inst | false
-  true
-
-/-- Returns `true` if `e` is a numeral and has type `Int`. -/
-def isIntNum (e : Expr) : Bool :=
-  match_expr e with
-  | Neg.neg _ inst e => Id.run do
-    let_expr Int.instNegInt := inst | false
-    isNonnegIntNum e
-  | _ => isNonnegIntNum e
-
-/-- Returns `true` if `e` is a numeral supported by cutsat. -/
-def isNum (e : Expr) : Bool :=
-  isNatNum e || isIntNum e
-
 /--
 Returns `true` if type of `t` is definitionally equal to `α`
 -/

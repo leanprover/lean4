@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
+import Init.Data.Int.Gcd
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 

@@ -9,10 +9,8 @@ public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.SearchM
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.EMatch
-import Lean.Meta.Tactic.Grind.Arith
 import Lean.Meta.Tactic.Grind.Lookahead
 import Lean.Meta.Tactic.Grind.Intro
-import Lean.Meta.Tactic.Grind.Check
 public section
 namespace Lean.Meta.Grind
 def tryFallback : GoalM Bool := do
@@ -51,8 +49,8 @@ where
           intros gen
         else
           break
-      if (← assertAll <||> check <||> Solvers.check <||> ematch <||> lookahead <||> splitNext <||> Arith.Cutsat.mbtc
-          <||> Arith.Linear.mbtc <||> Solvers.mbtc <||> tryFallback) then
+      if (← assertAll <||> Solvers.check <||> ematch <||> lookahead <||> splitNext
+           <||> Solvers.mbtc <||> tryFallback) then
         continue
       return some (← getGoal) -- failed
     return none -- solved

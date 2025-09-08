@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Simp.Arith.Int.Simp
 public section
@@ -32,10 +32,10 @@ end Int.Linear
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 def get' : GoalM State := do
-  return (← get).arith.cutsat
+  cutsatExt.getState
 
 @[inline] def modify' (f : State → State) : GoalM Unit := do
-  modify fun s => { s with arith.cutsat := f s.arith.cutsat }
+  cutsatExt.modifyState f
 
 /-- Returns `true` if the cutsat state is inconsistent. -/
 def inconsistent : GoalM Bool := do

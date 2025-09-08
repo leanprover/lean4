@@ -320,21 +320,22 @@ Recover from errors in `p` using `recover` to consume input until a known-good s
 If `recover` fails itself, then no recovery is performed.
 
 `recover` is provided with information about the failing parser's effects , and it is run in the
-state immediately after the failure. -/
+state immediately after the failure.
+-/
 def recoverFn (p : ParserFn) (recover : RecoveryContext → ParserFn) : ParserFn := fun c s =>
   let iniPos := s.pos
   let iniSz := s.stxStack.size
-  let s' := p c s
-  if let some msg := s'.errorMsg then
-    let s' := recover ⟨iniPos, iniSz⟩ c {s' with errorMsg := none}
-    if s'.hasError then s'
-    else {s' with
-            pos := s'.pos,
-            lhsPrec := s'.lhsPrec,
-            cache := s'.cache,
-            errorMsg := none,
-            recoveredErrors := s'.recoveredErrors.push (s'.pos, s'.stxStack, msg) }
-  else s'
+  let s := p c s
+  if let some msg := s.errorMsg then
+    let s' := recover ⟨iniPos, iniSz⟩ c {s with errorMsg := none}
+    if s'.hasError then s
+    else {s with
+      pos := s'.pos,
+      errorMsg := none,
+      stxStack := s'.stxStack,
+      recoveredErrors := s.recoveredErrors.push (s'.pos, s'.stxStack, msg) }
+  else s
+
 
 /--
 Recover from errors in `parser` using `handler` to consume input until a known-good state has appeared.

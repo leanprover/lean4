@@ -35,20 +35,18 @@ for direct use with the Lean parser, because the concrete syntax of Verso docume
 what can be implemented with Lean's parsing framework. Thus, Verso has a separate parser, written
 using the lower-level parts of Lean's parser. These syntax declarations are, however, a
 specification for the syntax trees produced by said parser. The Verso parser is in the module
-`Verso.Parser`.
-
-Specifying the Verso document syntax as is done here also allows quasiquotation patterns that match
-against the output of the Verso parser. Parsed Verso documents are transformed into Lean syntax that
-represents Verso document ASTs (see module `Verso.Doc`). This process potentially invokes
-user-written metaprograms - while Verso's concrete syntax is not extensible, roles, directives and
-code blocks all contain explicit hooks for extensibility. These metaprograms can use quasiquotations
-to match against Verso syntax, which is much more convenient than working at a very low level. This
-translation step is defined in the module `Verso.Doc.Elab`, and its output is an ordinary Lean
-program.
+`Lean.DocString.Parser`. Specifying the Verso document syntax as is done here also allows
+quasiquotation patterns that match against the output of the Verso parser.
 
 Importantly, Lean quasiquotation patterns do not match the string contents of atoms. This means that
-the Verso parser may produce a node of kind `` `Verso.Syntax.li `` in which the first atom is `"1."`
-rather than `"*'` when parsing an ordered list.
+the Verso parser may produce a node of kind `` `Lean.Doc.Syntax.li `` in which the first atom is
+`"1."` rather than `"*'` when parsing an ordered list.
+
+Parsed Verso documents are transformed into Lean syntax that represents Verso document ASTs (see
+module `Lean.DocString.Types`). This process potentially invokes user-written metaprograms - while
+Verso's concrete syntax is not extensible, roles, directives and code blocks all contain explicit
+hooks for extensibility. This translation step is defined in the module `Lean.DocString.Elab`.
+
 -/
 
 open Lean.Parser (rawIdent)

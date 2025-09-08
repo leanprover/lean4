@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2023-2024 Lean FRO LLC. All rights reserved.
+Copyright (c) 2023-2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: David Thrane Christiansen
 -/
@@ -396,21 +396,6 @@ where
       chFn '\n' >>
       takeWhileFn (fun c => c.isWhitespace && c != '\n') >>
       satisfyFn (!·.isWhitespace) "non-whitespace" >> skipToNewline
-
--- TODO: upstream
-def recoverFn (p : ParserFn) (recover : RecoveryContext → ParserFn) : ParserFn := fun c s =>
-  let iniPos := s.pos
-  let iniSz := s.stxStack.size
-  let s := p c s
-  if let some msg := s.errorMsg then
-    let s' := recover ⟨iniPos, iniSz⟩ c {s with errorMsg := none}
-    if s'.hasError then s
-    else {s with
-      pos := s'.pos,
-      errorMsg := none,
-      stxStack := s'.stxStack,
-      recoveredErrors := s.recoveredErrors.push (s'.pos, s'.stxStack, msg) }
-  else s
 
 def recoverBlock (p : ParserFn) (final : ParserFn := skipFn) : ParserFn :=
   recoverFn p fun _ =>

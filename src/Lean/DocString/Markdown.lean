@@ -8,34 +8,47 @@ module
 
 prelude
 
-public import Init.Data.Repr
-public import Init.Data.Ord
+import Init.Data.Repr
+import Init.Data.Ord
 public import Lean.DocString.Types
+
+set_option linter.missingDocs true
 
 namespace Lean.Doc
 
 namespace MarkdownM
 
+/--
+The surrounding context of Markdown that's being generated, in order to prevent nestings that
+Markdown doesn't allow.
+-/
 public structure Context where
+  /-- The current code is inside emphasis. -/
   inEmph : Bool := false
+  /-- The current code is inside strong emphasis. -/
   inBold : Bool := false
+  /-- The current code is inside a link. -/
   inLink : Bool := false
+  /-- The prefix that should be added to each line (typically for indentation). -/
   linePrefix : String := ""
 
+/-- The state of a Markdown generation task. -/
 public structure State where
+  /-- The blocks prior to the one being generated. -/
   priorBlocks : String := ""
+  /-- The block being generated. -/
   currentBlock : String := ""
   /-- Footnotes -/
   footnotes : Array (String × String) := #[]
 
-def combineBlocks (prior current : String) :=
+private def combineBlocks (prior current : String) :=
   if prior.isEmpty then current
   else if current.isEmpty then prior
   else if prior.endsWith "\n\n" then prior ++ current
   else if prior.endsWith "\n" then prior ++ "\n" ++ current
   else prior ++ "\n\n" ++ current
 
-def State.endBlock (state : State) : State :=
+private def State.endBlock (state : State) : State :=
   { state with
     priorBlocks :=
       combineBlocks state.priorBlocks state.currentBlock ++
@@ -45,48 +58,77 @@ def State.endBlock (state : State) : State :=
     footnotes := #[]
   }
 
-def State.render (state : State) : String :=
+private def State.render (state : State) : String :=
   state.endBlock.priorBlocks
 
-def State.push (state : State) (txt : String) : State :=
+private def State.push (state : State) (txt : String) : State :=
   { state with currentBlock := state.currentBlock ++ txt }
 
 end MarkdownM
 
 open MarkdownM in
+/--
+The monad for generating Markdown output.
+-/
 public abbrev MarkdownM := ReaderT Context (StateM State)
 
+/--
+Generates Markdown, rendering the result from the final state.
+-/
 public def MarkdownM.run (act : MarkdownM α) (context : Context := {}) (state : State := {}) : (α × String) :=
   let (val, state) := act context state
   (val, state.render)
 
+/--
+Generates Markdown, rendering the result from the final state, without producing a value.
+-/
 public def MarkdownM.run' (act : MarkdownM Unit) (context : Context := {}) (state : State := {}) : String :=
   act.run context state |>.2
 
-def MarkdownM.push (txt : String) : MarkdownM Unit := modify (·.push txt)
+private def MarkdownM.push (txt : String) : MarkdownM Unit := modify (·.push txt)
 
-def MarkdownM.endBlock : MarkdownM Unit := modify (·.endBlock)
+private def MarkdownM.endBlock : MarkdownM Unit := modify (·.endBlock)
 
-def MarkdownM.indent: MarkdownM α → MarkdownM α :=
+private def MarkdownM.indent: MarkdownM α → MarkdownM α :=
   withReader fun st => { st with linePrefix := st.linePrefix ++ "  " }
 
+/--
+A means of transforming values to Markdown representations.
+-/
 public class ToMarkdown (α : Type u) where
+  /--
+  A function that transforms an `α` into a Markdown representation.
+  -/
   toMarkdown : α → MarkdownM Unit
 
+/--
+A way to transform inline elements extended with `i` into Markdown.
+-/
 public class MarkdownInline (i : Type u) where
+  /--
+  A function that transforms an `i` and its contents into Markdown, given a way to transform the
+  contents.
+  -/
   toMarkdown : (Inline i → MarkdownM Unit) → i → Array (Inline i) → MarkdownM Unit
 
 public instance : MarkdownInline Empty where
   toMarkdown := nofun
 
+/--
+A way to transform block elements extended with `b` that contain inline elements extended with `i`
+into Markdown.
+-/
 public class MarkdownBlock (i : Type u) (b : Type v) where
+  /--
+  A function that transforms a `b` and its contents into Markdown, given a way to transform the
+  contents.
+  -/
   toMarkdown :
     (Inline i → MarkdownM Unit) → (Block i b → MarkdownM Unit) →
     b → Array (Block i b) → MarkdownM Unit
 
 public instance : MarkdownBlock i Empty where
   toMarkdown := nofun
-
 
 private def escape (s : String) : String := Id.run do
   let mut s' := ""

@@ -697,6 +697,8 @@ builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension Name 
     addEntryFn    := fun s n => s.insert n
     toArrayFn     := fun es => es.toArray
     asyncMode     := .sync
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
+      (!·.contains ·) (·.insert)
   }
 
 -- Forward declaration
@@ -746,8 +748,8 @@ where doCompile := do
       if logErrors then
         throw e
 
-def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
-  compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors
+def compileDecl (decl : Declaration) (logErrors mayPostpone := true) : CoreM Unit := do
+  compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors mayPostpone
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

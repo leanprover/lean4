@@ -284,7 +284,8 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   liftMetaTactic fun mvarId => do mvarId.contradiction; pure []
 
 @[builtin_tactic Lean.Parser.Tactic.eqRefl] def evalRefl : Tactic := fun _ =>
-  liftMetaTactic fun mvarId => do mvarId.refl; pure []
+  -- Allow assigning synthetic opaque so that it is as capable as `exact rfl`.
+  liftMetaTactic fun mvarId => do withAssignableSyntheticOpaque mvarId.refl; pure []
 
 @[builtin_tactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx => do
   match stx with

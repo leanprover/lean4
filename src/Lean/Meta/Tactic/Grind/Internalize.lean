@@ -378,6 +378,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     Otherwise, it will not be able to propagate that `a + 1 = 1` when `a = 0`
     -/
     internalizeTheories e parent?
+    Solvers.internalize e parent?
   else
     go
     propagateEtaStruct e generation

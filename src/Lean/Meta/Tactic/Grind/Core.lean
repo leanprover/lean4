@@ -166,31 +166,6 @@ def propagateCutsat : PendingTheoryPropagation → GoalM Unit
   | .none => return ()
 
 /--
-Helper function for combining `ENode.ring?` fields and detecting what needs to be
-propagated to the commutative ring module.
--/
-private def checkCommRingEq (rhsRoot lhsRoot : ENode) : GoalM PendingTheoryPropagation := do
-  match lhsRoot.ring? with
-  | some lhsRing =>
-    if let some rhsRing := rhsRoot.ring? then
-      return .eq lhsRing rhsRing
-    else
-      -- We have to retrieve the node because other fields have been updated
-      let rhsRoot ← getENode rhsRoot.self
-      setENode rhsRoot.self { rhsRoot with ring? := lhsRing }
-      return .diseqs (← getParents rhsRoot.self)
-  | none =>
-    if rhsRoot.ring?.isSome then
-      return .diseqs (← getParents lhsRoot.self)
-    else
-      return .none
-
-def propagateCommRing : PendingTheoryPropagation → GoalM Unit
-  | .eq lhs rhs => Arith.CommRing.processNewEq lhs rhs
-  | .diseqs ps => propagateCommRingDiseqs ps
-  | _ => return ()
-
-/--
 Helper function for combining `ENode.linarith?` fields and detecting what needs to be
 propagated to the linarith module.
 -/
@@ -347,7 +322,6 @@ where
     propagateBeta lams₂ fns₂
     let offsetTodo ← checkOffsetEq rhsRoot lhsRoot
     let cutsatTodo ← checkCutsatEq rhsRoot lhsRoot
-    let ringTodo ← checkCommRingEq rhsRoot lhsRoot
     let linarithTodo ← checkLinarithEq rhsRoot lhsRoot
     let todo ← Solvers.mergeTerms rhsRoot lhsRoot
     resetParentsOf lhsRoot.self
@@ -362,7 +336,6 @@ where
       propagateUnitConstFuns lams₁ lams₂
       propagateOffset offsetTodo
       propagateCutsat cutsatTodo
-      propagateCommRing ringTodo
       propagateLinarith linarithTodo
       todo.propagate
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do

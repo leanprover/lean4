@@ -124,7 +124,7 @@ def mkSVar (e : Expr) : SemiringM Var := do
     varMap     := s.varMap.insert { expr := e } var
   }
   setTermSemiringId e
-  markAsCommRingTerm e
+  ringExt.markTerm e
   return var
 
 def _root_.Lean.Grind.Ring.OfSemiring.Expr.denoteAsRingExpr (e : SemiringExpr) : SemiringM Expr := do

@@ -133,7 +133,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     let some re ← reify? e | return ()
     trace_goal[grind.ring.internalize] "[{ringId}]: {e}"
     setTermRingId e
-    markAsCommRingTerm e
+    ringExt.markTerm e
     modifyRing fun s => { s with
       denote := s.denote.insert { expr := e } re
       denoteEntries := s.denoteEntries.push (e, re)
@@ -142,7 +142,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     let some re ← sreify? e | return ()
     trace_goal[grind.ring.internalize] "semiring [{semiringId}]: {e}"
     setTermSemiringId e
-    markAsCommRingTerm e
+    ringExt.markTerm e
     modifySemiring fun s => { s with denote := s.denote.insert { expr := e } re }
 
 end Lean.Meta.Grind.Arith.CommRing

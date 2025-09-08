@@ -428,6 +428,7 @@ where
         -- We do not want to internalize the components of a literal value.
         mkENode e generation
         internalizeTheories e parent?
+        Solvers.internalize e parent?
       else if e.isAppOfArity ``Grind.MatchCond 1 then
         internalizeMatchCond e generation
       else e.withApp fun f args => do

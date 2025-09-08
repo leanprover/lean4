@@ -10,7 +10,6 @@ public import Lean.Meta.Tactic.Grind.PropagatorAttr
 public import Lean.Meta.Tactic.Grind.Arith.Offset
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 public import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Search
 
@@ -54,9 +53,8 @@ builtin_grind_propagator propagateLT ↓LT.lt := fun e => do
 
 def check : GoalM Bool := do
   let c₁ ← Cutsat.check
-  let c₂ ← CommRing.check
   let c₃ ← Linear.check
-  if c₁ || c₂ || c₃ then
+  if c₁ || c₃ then
     processNewFacts
     return true
   else

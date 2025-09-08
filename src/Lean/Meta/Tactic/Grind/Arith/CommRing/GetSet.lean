@@ -8,9 +8,13 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
+
+builtin_initialize ringExt : SolverExtension State ← registerSolverExtension (return {})
+
 def get' : GoalM State := do
-  return (← get).arith.ring
+  ringExt.getState
 
 @[inline] def modify' (f : State → State) : GoalM Unit := do
-  modify fun s => { s with arith.ring := f s.arith.ring }
+  ringExt.modifyState f
+
 end Lean.Meta.Grind.Arith.CommRing

@@ -139,7 +139,7 @@ def mkVar (e : Expr) : RingM Var := do
     varMap     := s.varMap.insert { expr := e } var
   }
   setTermRingId e
-  markAsCommRingTerm e
+  ringExt.markTerm e
   return var
 
 end Lean.Meta.Grind.Arith.CommRing

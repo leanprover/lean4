@@ -28,8 +28,9 @@ theorem ClosedOpen.toList_succ_succ {m n : Nat} :
 @[simp]
 theorem Nat.size_Rco {a b : Nat} :
     (a...b).size = b - a := by
-  simp [Std.PRange.size, Std.Iterators.Iter.size, Std.Iterators.IteratorSize.size,
-    Std.PRange.Internal.iter, Std.Iterators.Iter.toIterM, Std.PRange.RangeSize.size]
+  simp only [size, Iterators.Iter.size, Iterators.IteratorSize.size, Iterators.Iter.toIterM,
+    Internal.iter, init?, RangeSize.size, Id.run_pure]
+  omega
 
 @[simp]
 theorem Nat.size_Rcc {a b : Nat} :

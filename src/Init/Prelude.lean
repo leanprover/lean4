@@ -141,6 +141,9 @@ unsafe axiom lcErased : Type
 /-- Marker for type dependency that has been erased by the code generator. -/
 unsafe axiom lcAny : Type
 
+/-- Internal representation of `IO.RealWorld` in the compiler. -/
+unsafe axiom lcRealWorld : Type
+
 /--
 Auxiliary unsafe constant used by the Compiler when erasing proofs from code.
 

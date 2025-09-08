@@ -16,15 +16,16 @@ public section
 
 open System
 
+opaque IO.RealWorld.nonemptyType : NonemptyType.{0}
+
 /--
 A representation of “the real world” that's used in `IO` monads to ensure that `IO` actions are not
 reordered.
 -/
-/- Like <https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld>.
-   Makes sure we never reorder `IO` operations.
+@[expose] def IO.RealWorld : Type := IO.RealWorld.nonemptyType.type
 
-   TODO: mark opaque -/
-@[expose] def IO.RealWorld : Type := Unit
+instance IO.RealWorld.instNonempty : Nonempty IO.RealWorld :=
+  by exact IO.RealWorld.nonemptyType.property
 
 /--
 A monad that can have side effects on the external world or throw exceptions of type `ε`.
@@ -152,7 +153,7 @@ duplicate, or delete calls to this function. The side effect may even be hoisted
 causing the side effect to occur at initialization time, even if it would otherwise never be called.
 -/
 @[noinline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
-  match fn.run () with
+  match fn.run (unsafeCast Unit.unit) with
   | EStateM.Result.ok a _ => a
 
 /--

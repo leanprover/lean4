@@ -21,8 +21,6 @@ import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 public section
 namespace Lean.Meta.Grind
 
-@[extern "lean_grind_ac_internalize"] -- forward definition
-opaque AC.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit
 @[extern "lean_grind_arith_internalize"] -- forward definition
 opaque Arith.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit
 
@@ -366,7 +364,6 @@ private def tryEta (e : Expr) (generation : Nat) : GoalM Unit := do
 
 private def internalizeTheories (e : Expr) (parent? : Option Expr := none) : GoalM Unit := do
   Arith.internalize e parent?
-  AC.internalize e parent?
 
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
@@ -381,6 +378,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     Otherwise, it will not be able to propagate that `a + 1 = 1` when `a = 0`
     -/
     internalizeTheories e parent?
+    Solvers.internalize e parent?
   else
     go
     propagateEtaStruct e generation
@@ -467,6 +465,7 @@ where
             registerParent e arg
         addCongrTable e
         internalizeTheories e parent?
+        Solvers.internalize e parent?
         propagateUp e
         propagateBetaForNewApp e
 

@@ -16,7 +16,6 @@ public import Lean.Meta.Tactic.Grind.AlphaShareCommon
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.ExtAttr
 public import Lean.Meta.Tactic.Grind.Arith.Types
-public import Lean.Meta.Tactic.Grind.AC.Types
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
 meta import Lean.Parser.Do
 import Lean.Meta.Match.MatchEqsExt
@@ -380,6 +379,23 @@ macro "reportIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
   expandReportIssueMacro s.raw
 
 /--
+Each E-node may have "solver terms" attached to them.
+Each term is an element of the equivalence class that the
+solver cares about. Each solver is responsible for marking the terms they care about.
+The `grind` core propagates equalities and disequalities to the theory solvers
+using these "marked" terms. The root of the equivalence class
+contains a list of representatives sorted by solver id. Note that many E-nodes
+do not have any solver terms attached to them.
+
+"Solver terms" are referenced as "theory variables" in the SMT literature.
+The SMT solver Z3 uses a similar representation.
+-/
+inductive SolverTerms where
+  | nil
+  | next (solverId : Nat) (e : Expr) (rest : SolverTerms)
+  deriving Inhabited, Repr
+
+/--
 Stores information for a node in the E-graph.
 Each internalized expression `e` has an `ENode` associated with it.
 -/
@@ -445,13 +461,8 @@ structure ENode where
   to the linarith module. Its implementation is similar to the `offset?` field.
   -/
   linarith? : Option Expr := none
-  /--
-  The `ac?` field is used to propagate equalities from the `grind` congruence closure module
-  to the ac module. Its implementation is similar to the `offset?` field.
-  -/
-  ac? : Option Expr := none
-  -- Remark: we expect to have builtin support for offset constraints, cutsat, comm ring, linarith, and ac.
-  -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
+  /-- Solver terms attached to this E-node. -/
+  sTerms : SolverTerms := .nil
   deriving Inhabited, Repr
 
 def ENode.isRoot (n : ENode) :=
@@ -773,8 +784,6 @@ structure Goal where
   split        : Split.State := {}
   /-- State of arithmetic procedures. -/
   arith        : Arith.State := {}
-  /-- State of the ac solver. -/
-  ac           : AC.State := {}
   /-- State of the clean name generator. -/
   clean        : Clean.State := {}
   /-- Solver states. -/
@@ -1171,14 +1180,10 @@ and invokes process `Arith.Cutsat.processNewDiseq e₁ e₂`
 def propagateCutsatDiseq (lhs rhs : Expr) : GoalM Unit := do
   let some lhs ← get? lhs | return ()
   let some rhs ← get? rhs | return ()
-  -- Recall that core can take care of disequalities of the form `1≠2`.
-  unless isNum lhs && isNum rhs do
-    Arith.Cutsat.processNewDiseq lhs rhs
+  Arith.Cutsat.processNewDiseq lhs rhs
 where
   get? (a : Expr) : GoalM (Option Expr) := do
     let root ← getRootENode a
-    if isNum root.self then
-      return some root.self
     return root.cutsat?
 
 /--
@@ -1294,53 +1299,6 @@ def markAsLinarithTerm (e : Expr) : GoalM Unit := do
   else
     setENode root.self { root with linarith? := some e }
     propagateLinarithDiseqs (← getParents root.self)
-
-/--
-Notifies the ac module that `a = b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_ac_eq"] -- forward definition
-opaque AC.processNewEq (a b : Expr) : GoalM Unit
-
-/--
-Notifies the ac module that `a ≠ b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_ac_diseq"] -- forward definition
-opaque AC.processNewDiseq (a b : Expr) : GoalM Unit
-
-/--
-Given `lhs` and `rhs` that are known to be disequal, checks whether
-`lhs` and `rhs` have ac terms `e₁` and `e₂` attached to them,
-and invokes process `AC.processNewDiseq e₁ e₂`
--/
-def propagateACDiseq (lhs rhs : Expr) : GoalM Unit := do
-  let some lhs ← get? lhs | return ()
-  let some rhs ← get? rhs | return ()
-  AC.processNewDiseq lhs rhs
-where
-  get? (a : Expr) : GoalM (Option Expr) := do
-    return (← getRootENode a).ac?
-
-/--
-Traverses disequalities in `parents`, and propagate the ones relevant to the
-ac module.
--/
-def propagateACDiseqs (parents : ParentSet) : GoalM Unit := do
-  forEachDiseq parents propagateACDiseq
-
-/--
-Marks `e` as a term of interest to the ac module.
-If the root of `e`s equivalence class has already a term of interest,
-a new equality is propagated to the ac module.
--/
-def markAsACTerm (e : Expr) : GoalM Unit := do
-  let root ← getRootENode e
-  if let some e' := root.ac? then
-    AC.processNewEq e e'
-  else
-    setENode root.self { root with ac? := some e }
-    propagateACDiseqs (← getParents root.self)
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do
@@ -1659,29 +1617,52 @@ structure SolverExtension (σ : Type) where private mk ::
   checkInv    : GoalM Unit
   deriving Inhabited
 
-private builtin_initialize solverExtensionsRef : IO.Ref (Array (SolverExtension EnvExtensionState)) ← IO.mkRef #[]
+private builtin_initialize solverExtensionsRef : IO.Ref (Array (SolverExtension SolverExtensionState)) ← IO.mkRef #[]
 
 /--
+Registers a new solver extension for `grind`.
 Solver extensions can only be registered during initialization.
 Reason: We do not use any synchronization primitive to access `solverExtensionsRef`.
 -/
-def registerSolverExtension {σ : Type}
-    (mkInitial   : IO σ)
-    (internalize : Expr → (parent? : Option Expr) → GoalM Unit)
-    (newEq       : Expr → Expr → GoalM Unit)
-    (newDiseq    : Expr → Expr → GoalM Unit := fun _ _ => return ())
-    (mbtc        : GoalM Bool := return false)
-    (check       : GoalM Bool := return false)
-    (checkInv    : GoalM Unit := return ()) : IO (SolverExtension σ) := do
+def registerSolverExtension {σ : Type} (mkInitial   : IO σ) : IO (SolverExtension σ) := do
   unless (← initializing) do
     throw (IO.userError "failed to register `grind` solver, extensions can only be registered during initialization")
   let exts ← solverExtensionsRef.get
   let id := exts.size
-  let ext : SolverExtension σ := { id, mkInitial, internalize, newEq, newDiseq, check, checkInv, mbtc }
+  let ext : SolverExtension σ := {
+    id, mkInitial
+    internalize := fun _ _ => return ()
+    newEq := fun _ _ => return ()
+    newDiseq := fun _ _ => return ()
+    check := fun _ _ => return false
+    checkInv := fun _ _ => return ()
+    mbtc := fun _ _ => return false
+  }
   solverExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   return ext
 
-def mkInitialExtStates : IO (Array EnvExtensionState) := do
+/--
+Sets methods/handlers for solver extension `ext`.
+Solver extension methods can only be registered during initialization.
+Reason: We do not use any synchronization primitive to access `solverExtensionsRef`.
+-/
+def SolverExtension.setMethods (ext : SolverExtension σ)
+    (internalize : Expr → (parent? : Option Expr) → GoalM Unit := fun _ _  => return ())
+    (newEq       : Expr → Expr → GoalM Unit := fun _ _ => return ())
+    (newDiseq    : Expr → Expr → GoalM Unit := fun _ _ => return ())
+    (mbtc        : GoalM Bool := return false)
+    (check       : GoalM Bool := return false)
+    (checkInv    : GoalM Unit := return ()) : IO Unit := do
+  unless (← initializing) do
+    throw (IO.userError "failed to register `grind` solver, extensions can only be registered during initialization")
+  unless ext.id < (← solverExtensionsRef.get).size do
+    throw (IO.userError "failed to register `grind` solver methods, invalid solver id")
+  solverExtensionsRef.modify fun exts => exts.modify ext.id fun s => { s with
+    internalize, newEq, newDiseq, mbtc, check, checkInv
+  }
+
+/-- Returns initial state for registered solvers. -/
+def Solvers.mkInitialStates : IO (Array SolverExtensionState) := do
   let exts ← solverExtensionsRef.get
   exts.mapM fun ext => ext.mkInitial
 
@@ -1696,11 +1677,14 @@ private unsafe def SolverExtension.modifyStateImpl (ext : SolverExtension σ) (f
 @[implemented_by SolverExtension.modifyStateImpl]
 opaque SolverExtension.modifyState (ext : SolverExtension σ) (f : σ → σ) : GoalM Unit
 
-private unsafe def SolverExtension.getStateImpl (ext : SolverExtension σ) : GoalM σ := do
-  return unsafeCast (← get).sstates[ext.id]!
+private unsafe def SolverExtension.getStateCoreImpl (ext : SolverExtension σ) (goal : Goal) : IO σ :=
+  return unsafeCast goal.sstates[ext.id]!
 
-@[implemented_by SolverExtension.getStateImpl]
-opaque SolverExtension.getState (ext : SolverExtension σ) : GoalM σ
+@[implemented_by SolverExtension.getStateCoreImpl]
+opaque SolverExtension.getStateCore (ext : SolverExtension σ) (goal : Goal) : IO σ
+
+def SolverExtension.getState (ext : SolverExtension σ) : GoalM σ := do
+  ext.getStateCore (← get)
 
 /-- Internalizes given expression in all registered solvers. -/
 def Solvers.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
@@ -1725,5 +1709,126 @@ def Solvers.mbtc : GoalM Bool := do
     if (← ext.mbtc) then
       result := true
   return result
+
+/--
+Given a new disequality `lhs ≠ rhs`, propagates it to relevant theories.
+-/
+def Solvers.propagateDiseqs (lhs rhs : Expr) : GoalM Unit := do
+  go (← getRootENode lhs).sTerms (← getRootENode rhs).sTerms
+where
+  go (lhsTerms rhsTerms : SolverTerms) : GoalM Unit := do
+    match lhsTerms, rhsTerms with
+    | .nil, _ => return ()
+    | _, .nil => return ()
+    | .next id₁ lhs lhsTerms, .next id₂ rhs rhsTerms =>
+      if id₁ == id₂ then
+        (← solverExtensionsRef.get)[id₁]!.newDiseq lhs rhs
+        go lhsTerms rhsTerms
+      else if id₁ < id₂ then
+        go lhsTerms (.next id₂ rhs rhsTerms)
+      else
+        go (.next id₁ lhs lhsTerms) rhsTerms
+
+private def propagateDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit := do
+  visitLhs (← getRootENode lhs).sTerms
+where
+  visitLhs (sTerms : SolverTerms) : GoalM Unit := do
+    match sTerms with
+    | .nil => return ()
+    | .next id' e sTerms =>
+      if id == id' then
+        visitRhs e (← getRootENode rhs).sTerms
+      else if id < id' then
+        return ()
+      else
+        visitLhs sTerms
+
+  visitRhs (lhsTerm : Expr) (sTerms : SolverTerms) : GoalM Unit := do
+    match sTerms with
+    | .nil => return ()
+    | .next id' e sTerms =>
+      if id == id' then
+        let rhsTerm := e
+        (← solverExtensionsRef.get)[id]!.newDiseq lhsTerm rhsTerm
+      else if id < id' then
+        return ()
+      else
+        visitRhs lhsTerm sTerms
+
+def isSameSolverTerms (a b : SolverTerms) : Bool :=
+  unsafe ptrEq a b
+
+def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit := do
+  let root ← getRootENode e
+  let id := ext.id
+  let rec go (sTerms : SolverTerms) : GoalM SolverTerms := do
+    match sTerms with
+    | .nil => return .next id e .nil
+    | .next id' e' sTerms' =>
+      if id == id' then
+        (← solverExtensionsRef.get)[id]!.newEq e e'
+        return sTerms
+      else if id < id' then
+        return .next id e sTerms
+      else
+        let sTermsNew ← go sTerms'
+        if isSameSolverTerms sTermsNew sTerms' then
+          return sTerms
+        else
+          return .next id' e' sTermsNew
+  let sTermsNew ← go root.sTerms
+  unless isSameSolverTerms sTermsNew root.sTerms do
+    setENode root.self { root with sTerms := sTermsNew }
+    forEachDiseq (← getParents root.self) (propagateDiseqOf id)
+
+private inductive PendingSolverPropagationsData where
+  | nil
+  | eq (solverId : Nat) (lhs rhs : Expr) (rest : PendingSolverPropagationsData)
+  | diseqs (solverId : Nat) (ps : ParentSet) (rest : PendingSolverPropagationsData)
+
+structure PendingSolverPropagations where private mk ::
+  private data : PendingSolverPropagationsData
+
+def Solvers.mergeTerms (rhsRoot lhsRoot : ENode) : GoalM PendingSolverPropagations := do
+  let (sTerms, data) ← go rhsRoot.sTerms lhsRoot.sTerms
+  unless sTerms matches .nil do
+    -- We have to retrieve the node because other fields have been updated
+    let rhsRoot ← getENode rhsRoot.self
+    setENode rhsRoot.self { rhsRoot with sTerms }
+  return { data }
+where
+  toPendingDiseqs (sTerms : SolverTerms) (ps : ParentSet) : PendingSolverPropagationsData :=
+    match sTerms with
+    | .nil => .nil
+    | .next id _ sTerms => .diseqs id ps (toPendingDiseqs sTerms ps)
+
+  go (rhsTerms : SolverTerms) (lhsTerms : SolverTerms) : GoalM (SolverTerms × PendingSolverPropagationsData) := do
+    match rhsTerms, lhsTerms with
+    | .nil,     .nil     => return (.nil, .nil)
+    | .nil,     .next .. => return (lhsTerms, toPendingDiseqs lhsTerms (← getParents rhsRoot.self))
+    | .next .., .nil     => return (rhsTerms, toPendingDiseqs rhsTerms (← getParents lhsRoot.self))
+    | .next id₁ rhs rhsTerms, .next id₂ lhs lhsTerms =>
+      if id₁ == id₂ then
+        let (s, p) ← go rhsTerms lhsTerms
+        return (.next id₁ rhs s, .eq id₁ lhs rhs p)
+      else if id₁ < id₂ then
+        let (s, p) ← go rhsTerms (.next id₂ lhs lhsTerms)
+        return (.next id₁ rhs s, .diseqs id₁ (← getParents lhsRoot.self) p)
+      else
+        let (s, p) ← go (.next id₁ rhs rhsTerms) lhsTerms
+        return (.next id₂ lhs s, .diseqs id₂ (← getParents rhsRoot.self) p)
+
+def PendingSolverPropagations.propagate (p : PendingSolverPropagations) : GoalM Unit := do
+  go p.data
+where
+  go (p : PendingSolverPropagationsData) : GoalM Unit := do
+    match p with
+    | .nil => return ()
+    | .eq solverId lhs rhs rest =>
+      (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
+      go rest
+    | .diseqs solverId parentSet rest =>
+      forEachDiseq parentSet (propagateDiseqOf solverId)
+      go rest
 
 end Lean.Meta.Grind

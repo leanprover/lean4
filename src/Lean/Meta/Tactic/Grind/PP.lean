@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Util
 public import Init.Grind.PP
@@ -14,7 +13,6 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 public import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 public import Lean.Meta.Tactic.Grind.AC.PP
 import Lean.PrettyPrinter
-
 public section
 
 namespace Lean.Meta.Grind

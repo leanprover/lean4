@@ -216,31 +216,6 @@ def propagateLinarith : PendingTheoryPropagation → GoalM Unit
   | _ => return ()
 
 /--
-Helper function for combining `ENode.ac?` fields and detecting what needs to be
-propagated to the ac module.
--/
-private def checkACEq (rhsRoot lhsRoot : ENode) : GoalM PendingTheoryPropagation := do
-  match lhsRoot.ac? with
-  | some lhs =>
-    if let some rhs := rhsRoot.ac? then
-      return .eq lhs rhs
-    else
-      -- We have to retrieve the node because other fields have been updated
-      let rhsRoot ← getENode rhsRoot.self
-      setENode rhsRoot.self { rhsRoot with ac? := lhs }
-      return .diseqs (← getParents rhsRoot.self)
-  | none =>
-    if rhsRoot.ac?.isSome then
-      return .diseqs (← getParents lhsRoot.self)
-    else
-      return .none
-
-def propagateAC : PendingTheoryPropagation → GoalM Unit
-  | .eq lhs rhs => AC.processNewEq lhs rhs
-  | .diseqs ps => propagateACDiseqs ps
-  | _ => return ()
-
-/--
 Tries to apply beta-reduction using the parent applications of the functions in `fns` with
 the lambda expressions in `lams`.
 -/
@@ -374,7 +349,7 @@ where
     let cutsatTodo ← checkCutsatEq rhsRoot lhsRoot
     let ringTodo ← checkCommRingEq rhsRoot lhsRoot
     let linarithTodo ← checkLinarithEq rhsRoot lhsRoot
-    let ACTodo ← checkACEq rhsRoot lhsRoot
+    let todo ← Solvers.mergeTerms rhsRoot lhsRoot
     resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
@@ -389,7 +364,7 @@ where
       propagateCutsat cutsatTodo
       propagateCommRing ringTodo
       propagateLinarith linarithTodo
-      propagateAC ACTodo
+      todo.propagate
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     let isFalseRoot ← isFalseExpr rootNew
     traverseEqc lhs fun n => do

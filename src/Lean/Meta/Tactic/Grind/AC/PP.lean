@@ -53,7 +53,7 @@ private def ppStruct? : M (Option MessageData) := do
 
 def pp? (goal : Goal) : MetaM (Option MessageData) := do
   let mut msgs := #[]
-  for struct in goal.ac.structs do
+  for struct in (← acExt.getStateCore goal).structs do
     let some msg ← ppStruct? |>.run' struct | pure ()
     msgs := msgs.push msg
   if msgs.isEmpty then

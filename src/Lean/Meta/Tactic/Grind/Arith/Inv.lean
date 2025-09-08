@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Offset
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Inv
 
 public section
 
@@ -17,6 +16,5 @@ namespace Lean.Meta.Grind.Arith
 def checkInvariants : GoalM Unit := do
   Offset.checkInvariants
   Cutsat.checkInvariants
-  Linear.checkInvariants
 
 end Lean.Meta.Grind.Arith

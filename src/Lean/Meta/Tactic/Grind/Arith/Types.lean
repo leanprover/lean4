@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Offset.Types
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Types
 public section
 namespace Lean.Meta.Grind.Arith
 
@@ -15,7 +14,6 @@ namespace Lean.Meta.Grind.Arith
 structure State where
   offset : Offset.State := {}
   cutsat : Cutsat.State := {}
-  linear : Linear.State := {}
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith

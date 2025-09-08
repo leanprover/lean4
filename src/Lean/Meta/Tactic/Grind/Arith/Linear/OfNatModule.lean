@@ -73,7 +73,7 @@ private def mkOfNatModuleVar (e : Expr) : OfNatModuleM (Expr × Expr) := do
     let r := (toQe, h)
     modifyNatStruct fun s => { s with termMap := s.termMap.insert { expr := e } r }
     setTermNatStructId e
-    markAsLinarithTerm e
+    linearExt.markTerm e
     return r
 
 private def isAddInst (natStruct : NatStruct) (inst : Expr) : Bool :=

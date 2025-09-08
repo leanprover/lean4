@@ -92,11 +92,11 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   if isForbiddenParent parent? then return ()
   if let some structId ← getStructId? type then LinearM.run structId do
     setTermStructId e
-    markAsLinarithTerm e
+    linearExt.markTerm e
     markVars e
   else if let some natStructId ← getNatStructId? type then OfNatModuleM.run natStructId do
     let (e', _) ← ofNatModule e
     trace[grind.linarith.internalize] "{e} ==> {e'}"
-    markAsLinarithTerm e
+    linearExt.markTerm e
 
 end Lean.Meta.Grind.Arith.Linear

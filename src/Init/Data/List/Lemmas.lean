@@ -2136,10 +2136,6 @@ theorem flatMap_singleton (f : α → List β) (x : α) : [x].flatMap f = f x :=
     simp only [findSome?_cons]
     split <;> simp_all
 
-@[simp, grind _=_] theorem flatMap_append {xs ys : List α} {f : α → List β} :
-    (xs ++ ys).flatMap f = xs.flatMap f ++ ys.flatMap f := by
-  induction xs; {rfl}; simp_all [flatMap_cons, append_assoc]
-
 theorem flatMap_assoc {l : List α} {f : α → List β} {g : β → List γ} :
     (l.flatMap f).flatMap g = l.flatMap fun x => (f x).flatMap g := by
   induction l <;> simp [*]

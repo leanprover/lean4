@@ -184,7 +184,6 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
     if α.isConstOf ``Bool then
       propagateBoolDiseq e lhs rhs
     propagateCutsatDiseq lhs rhs
-    propagateCommRingDiseq lhs rhs
     propagateLinarithDiseq lhs rhs
     Solvers.propagateDiseqs lhs rhs
     let thms ← getExtTheorems α

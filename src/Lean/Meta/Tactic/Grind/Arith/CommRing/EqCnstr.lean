@@ -331,8 +331,7 @@ def addNewDiseq (c : DiseqCnstr) : RingM Unit := do
   trace[grind.ring.assert.store] "{← c.denoteExpr}"
   saveDiseq c
 
-@[export lean_process_ring_eq]
-def processNewEqImpl (a b : Expr) : GoalM Unit := do
+def processNewEq (a b : Expr) : GoalM Unit := do
   if isSameExpr a b then return () -- TODO: check why this is needed
   if let some ringId ← inSameRing? a b then RingM.run ringId do
     trace_goal[grind.ring.assert] "{← mkEq a b}"
@@ -382,8 +381,7 @@ private def diseqZeroToEq (a b : Expr) : RingM Unit := do
   trace[grind.debug.ring.rabinowitsch] "{lhs}"
   pushEq lhs (← getOne) <| mkApp4 (mkConst ``Grind.CommRing.diseq0_to_eq [ring.u]) ring.type fieldInst a (← mkDiseqProof a b)
 
-@[export lean_process_ring_diseq]
-def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
+def processNewDiseq (a b : Expr) : GoalM Unit := do
   if let some ringId ← inSameRing? a b then RingM.run ringId do
     trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
     let some ra ← toRingExpr? a | return ()

@@ -4,22 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Offset.Types
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Types
-
 public section
-
 namespace Lean.Meta.Grind.Arith
 
 /-- State for the arithmetic procedures. -/
 structure State where
   offset : Offset.State := {}
   cutsat : Cutsat.State := {}
-  ring   : CommRing.State := {}
   linear : Linear.State := {}
   deriving Inhabited
 

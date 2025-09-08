@@ -452,11 +452,6 @@ structure ENode where
   -/
   cutsat? : Option Expr := none
   /--
-  The `ring?` field is used to propagate equalities from the `grind` congruence closure module
-  to the comm ring module. Its implementation is similar to the `offset?` field.
-  -/
-  ring? : Option Expr := none
-  /--
   The `linarith?` field is used to propagate equalities from the `grind` congruence closure module
   to the linarith module. Its implementation is similar to the `offset?` field.
   -/
@@ -1207,53 +1202,6 @@ def markAsCutsatTerm (e : Expr) : GoalM Unit := do
     propagateCutsatDiseqs (← getParents root.self)
 
 /--
-Notifies the comm ring module that `a = b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_ring_eq"] -- forward definition
-opaque Arith.CommRing.processNewEq (a b : Expr) : GoalM Unit
-
-/--
-Notifies the comm ring module that `a ≠ b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_ring_diseq"] -- forward definition
-opaque Arith.CommRing.processNewDiseq (a b : Expr) : GoalM Unit
-
-/--
-Given `lhs` and `rhs` that are known to be disequal, checks whether
-`lhs` and `rhs` have ring terms `e₁` and `e₂` attached to them,
-and invokes process `Arith.CommRing.processNewDiseq e₁ e₂`
--/
-def propagateCommRingDiseq (lhs rhs : Expr) : GoalM Unit := do
-  let some lhs ← get? lhs | return ()
-  let some rhs ← get? rhs | return ()
-  Arith.CommRing.processNewDiseq lhs rhs
-where
-  get? (a : Expr) : GoalM (Option Expr) := do
-    return (← getRootENode a).ring?
-
-/--
-Traverses disequalities in `parents`, and propagate the ones relevant to the
-comm ring module.
--/
-def propagateCommRingDiseqs (parents : ParentSet) : GoalM Unit := do
-  forEachDiseq parents propagateCommRingDiseq
-
-/--
-Marks `e` as a term of interest to the ring module.
-If the root of `e`s equivalence class has already a term of interest,
-a new equality is propagated to the ring module.
--/
-def markAsCommRingTerm (e : Expr) : GoalM Unit := do
-  let root ← getRootENode e
-  if let some e' := root.ring? then
-    Arith.CommRing.processNewEq e e'
-  else
-    setENode root.self { root with ring? := some e }
-    propagateCommRingDiseqs (← getParents root.self)
-
-/--
 Notifies the linarith module that `a = b` where
 `a` and `b` are terms that have been internalized by this module.
 -/
@@ -1700,6 +1648,8 @@ def Solvers.check : GoalM Bool := do
   for ext in (← solverExtensionsRef.get) do
     if (← ext.check) then
       result := true
+  if result then
+    processNewFacts
   return result
 
 /-- Invokes model-based theory combination extensions in all registered solvers. -/

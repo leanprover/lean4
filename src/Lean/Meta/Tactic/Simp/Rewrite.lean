@@ -122,7 +122,7 @@ private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
 private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
   recordTriedSimpTheorem thm.origin
   let rec go (e : Expr) : SimpM (Option Result) := do
-    trace[Meta.Tactic.simp.rewrite] "trying {← ppSimpTheorem thm} to rewrite{indentExpr e}"
+    trace[Debug.Meta.Tactic.simp] "trying {← ppSimpTheorem thm} to rewrite{indentExpr e}"
     if (← withSimpMetaConfig <| isDefEq lhs e) then
       unless (← synthesizeArgs thm.origin bis xs) do
         return none
@@ -143,7 +143,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
       we seldom have assigned metavariables in goals.
       -/
       if (← instantiateMVars e) == rhs then
-        trace[Meta.Tactic.simp.rewrite] "Not applying {← ppSimpTheorem thm} with type\
+        trace[Debug.Meta.Tactic.simp] "Not applying {← ppSimpTheorem thm} with type\
           {indentExpr type}\nto{indentExpr e}\nas the result is structurally equal \
           to the original expression"
         return none

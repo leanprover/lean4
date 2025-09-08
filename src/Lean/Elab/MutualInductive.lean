@@ -1058,41 +1058,6 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (numPara
     let name := removeFunctorPostfixInCtor ctor.name
     let decl := Declaration.defnDecl { name := name,levelParams := ctor.levelParams, type := type, value := res, hints := .opaque, safety := .safe }
     addDecl decl
-    --trace[Elab.inductive] "after: {res}, {res.hasFVar}, type: {←inferType res}, name: {name}"
-      --let res ← mkForallFVars bodyArgs mVar
-      --mkForallFVars params res
-
-
-
-
-    -- let constructor := mkAppN constructor params
-    -- let constructor := mkAppN constructor predicates
-    -- trace[Elab.inductive] "constructor: {constructor}"
-    -- let res ← forallTelescope (←inferType constructor) fun ctorArgs ctorBody => do
-    --   trace[Elab.inductive] "ctorBody: {ctorBody}, ctorArgs: {ctorArgs}"
-    --   let bodyRhs := mkConst (removeFunctorPostfix name) levelParams
-    --   let some fixEq ← PartialFixpoint.getUnfoldFor? (removeFunctorPostfix name) | throwError "No unfold lemma"
-    --   let bodyArgs := ctorBody.getAppArgs.extract (numParams + infos.size)
-    --   trace[Elab.inductive] "bodyArgs: {bodyArgs}"
-    --   let mut fixEq := mkConst fixEq levelParams
-    --   let bodyRhs := mkAppN bodyRhs params
-    --   let bodyRhs := mkAppN bodyRhs bodyArgs
-    --   let mVar ← mkFreshExprMVar (.some bodyRhs)
-    --   trace[Elab.inductive] "mVar: {mVar}"
-    --   fixEq := mkAppN fixEq params
-    --   for arg in bodyArgs do
-    --     fixEq ← mkAppM ``congrFun #[fixEq, arg]
-    --   fixEq ←  mkAppM ``Eq.symm #[fixEq]
-    --   let hint := mkExpectedPropHint fixEq ctorBody
-
-
-
-
-      -- trace[Elab.inductive] "hint: {hint}"
-
-
-    trace[Elab.inductive] "ctor: {constructor}"
-  pure ()
 
 private def generateCoinductiveConstructors (numParams : Nat) (infos : Array InductiveVal) : MetaM Unit := do
   for indType in infos do

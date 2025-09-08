@@ -155,7 +155,8 @@ def blastAddVec (aig : AIG α) (usedNodes validNodes : Nat)
       · simp [hor] at *
         rw [show (validNodes + 1) / 2 = validNodes / 2 by omega]
       · simp [hor] at *
-    ⟨aig, hcast▸newParSum⟩
+    let newParSum := hcast▸newParSum
+    ⟨aig, newParSum⟩
 
 theorem addVec_le_size (aig : AIG α) (usedNodes validNodes: Nat)
       (oldParSum : AIG.RefVec aig (validNodes * w)) (newParSum : AIG.RefVec aig ((usedNodes / 2) * w))

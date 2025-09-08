@@ -889,43 +889,44 @@ def auxAdd (vecIn : List (BitVec w)) (currSum : List (BitVec w)) (addedNodes inp
       auxAdd vecIn currSum (addedNodes + 1) inputNodes
   termination_by (w - addedNodes)
 /-- Recursively extract one bit at a time and extend it to width `w`. `hlen` emulates the behaviour of Vector to simplify proving the correctness of the circuit. -/
-def extractAndExtendPopulateAux (idx : Nat) (x : BitVec w) (acc : BitVec (w * idx)) (hlt : idx ≤ w) :
-  BitVec (w * w) :=
-  if hidx : idx < w then
+def extractAndExtendPopulateAux (idx : Nat) (x : BitVec w) (acc : BitVec (w * idx)) (hlt : idx ≤ w) :=
+  match hwi : w - idx with
+  | 0 =>
+    have hcast : w * idx = w * w := by rw [show idx = w by omega]
+    hcast▸acc
+  | i + 1 =>
     have hcast : w + w * idx = w * (idx + 1) := by simp [Nat.mul_add]; omega
     let bv := BitVec.zeroExtend w (BitVec.extractLsb' idx 1 x)
     extractAndExtendPopulateAux (idx + 1) x (hcast▸(bv ++ acc)) (by omega)
-  else
-    have hcast : w * idx = w * w := by rw [show idx = w by omega]
-    hcast▸acc
+
 
 /-- Given a list of `BitVec w`, we recursively construct the parallel prefix sum for each couple of elements in the initial input. -/
 def addVecAux (usedNodes validNodes : Nat)
     (oldParSum : BitVec (validNodes * w))
     (newParSum : BitVec (usedNodes/2 * w))
-    (hval : validNodes ≤ w) (hused : usedNodes ≤ validNodes + 1) (hmod : usedNodes % 2 = 0):
-      BitVec (((validNodes+1)/2) * w) :=
-    if hc1 : usedNodes < validNodes then
-      let rhs := if h : usedNodes + 1 < validNodes then
-                    BitVec.extractLsb' ((usedNodes + 1) * w) w oldParSum
-                 else 0#w
-      let lhs := BitVec.extractLsb' (usedNodes * w) w oldParSum
-      let add := rhs + lhs
-      let newParSum := add ++ newParSum
-      have hcast : w + usedNodes / 2 * w = (usedNodes + 2) / 2 * w := by
-        simp [show usedNodes / 2 * w + w = usedNodes / 2 * w + 1 * w by omega,
-            show (usedNodes + 2) / 2 = usedNodes/2 + 1 by omega, Nat.add_mul]
-        omega
-      addVecAux (usedNodes + 2) validNodes oldParSum (hcast▸newParSum) hval (by omega) (by omega)
-    else
-      have hor : usedNodes = validNodes ∨ usedNodes = validNodes + 1 := by omega
-      have hcast : usedNodes / 2 * w = (validNodes + 1) / 2 * w := by
-        simp_all
-        rcases hor with hor|hor
-        · simp [hor] at *
-          rw [show (validNodes + 1) / 2 = validNodes / 2 by omega]
-        · simp [hor] at *
-      hcast▸newParSum
+    (hval : validNodes ≤ w) (hused : usedNodes ≤ validNodes + 1) (hmod : usedNodes % 2 = 0) :
+    BitVec (((validNodes+1)/2) * w) :=
+  match huv : validNodes - usedNodes with
+  | 0 =>
+    have hor : usedNodes = validNodes ∨ usedNodes = validNodes + 1 := by omega
+    have hcast : usedNodes / 2 * w = (validNodes + 1) / 2 * w := by
+      rcases hor with hor|hor
+      · simp [hor] at *
+        rw [show (validNodes + 1) / 2 = validNodes / 2 by omega]
+      · simp [hor] at *
+    hcast▸newParSum
+  | i + 1 =>
+    let rhs := if h : usedNodes + 1 < validNodes then
+                  BitVec.extractLsb' ((usedNodes + 1) * w) w oldParSum
+                else 0#w
+    let lhs := BitVec.extractLsb' (usedNodes * w) w oldParSum
+    let add := rhs + lhs
+    let newParSum := add ++ newParSum
+    have hcast : w + usedNodes / 2 * w = (usedNodes + 2) / 2 * w := by
+      simp [show usedNodes / 2 * w + w = usedNodes / 2 * w + 1 * w by omega,
+          show (usedNodes + 2) / 2 = usedNodes/2 + 1 by omega, Nat.add_mul]
+      omega
+    addVecAux (usedNodes + 2) validNodes oldParSum (hcast▸newParSum) hval (by omega) (by omega)
 
 
 /-- Tail-recursive definition of parrallel sum prefix. At each iteration, we construct a new vector containing the results of summing each couple of elements in the initial vector. -/

@@ -1005,6 +1005,11 @@ def removeFunctorPostfix : Name → Name
   | Name.str p s => Name.str p (s.stripSuffix "_functor")
   | Name.num p n => Name.num (removeFunctorPostfix p) n
 
+def removeFunctorPostfixInCtor : Name → Name
+  | Name.anonymous => Name.anonymous
+  | Name.str p s => Name.str (removeFunctorPostfix p) s
+  | Name.num p n => Name.num (removeFunctorPostfixInCtor p) n
+
 private partial def withLocalDecls {α} (headers : Array (Name × Name × Expr)) (k : Array Expr → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array Expr) := do
     if h : i < headers.size then
@@ -1013,6 +1018,86 @@ private partial def withLocalDecls {α} (headers : Array (Name × Name × Expr))
     else
       k fvars
   loop 0 #[]
+
+private def generateCoinductiveConstructor (infos : Array InductiveVal) (numParams : Nat) (name : Name) (ctor : ConstructorVal) : MetaM Unit := do
+  let numPreds := infos.size
+  let predNames := infos.map (fun val => removeFunctorPostfix val.name)
+  forallBoundedTelescope ctor.type (numParams + numPreds) fun args body => do
+    trace[Elab.inductive] "Ctor.type: args: {args}, body: {body}"
+    let levelParams := ctor.levelParams.map mkLevelParam;
+    let constructor := mkConst (ctor.name) levelParams
+    let params := args.take numParams
+    let predFVars := args.extract numParams
+    let predicates : Array Expr := predNames.map (mkConst · levelParams)
+    let predicates := predicates.map (mkAppN · params)
+    let body := body.replaceFVars predFVars predicates
+    let res ← forallTelescope body fun bodyArgs bodyExpr => do
+      trace[Elab.inductive] "bodyArgs: {bodyArgs}"
+      let goalType := mkConst (removeFunctorPostfix name) levelParams
+      let bodyAppArgs := bodyExpr.getAppArgs.extract (numParams + infos.size)
+      let goalType := mkAppN goalType params
+      let goalType := mkAppN goalType bodyAppArgs
+      trace[Elab.inductive] "new goal is now: {goalType}"
+      let mVar ← mkFreshExprMVar (.some goalType)
+      let id := Expr.mvarId! mVar
+      let some fixEq ← PartialFixpoint.getUnfoldFor? (removeFunctorPostfix name) | throwError "No unfold lemma"
+      let mut fixEq := mkConst fixEq levelParams
+      fixEq := mkAppN fixEq params
+      for arg in bodyAppArgs do
+        fixEq ← mkAppM ``congrFun #[fixEq, arg]
+      let hole ← Lean.MVarId.replaceTargetEq id bodyExpr fixEq
+      let constructor := mkAppN constructor params
+      let constructor := mkAppN constructor predicates
+      let constructor := mkAppN constructor bodyArgs
+      trace[Elab.inductive] "constructor: {constructor}"
+      hole.assign constructor
+      let res ← instantiateMVars mVar
+      let res ← mkLambdaFVars bodyArgs res
+      mkLambdaFVars params res
+    let type ← inferType res
+    let name := removeFunctorPostfixInCtor ctor.name
+    let decl := Declaration.defnDecl { name := name,levelParams := ctor.levelParams, type := type, value := res, hints := .opaque, safety := .safe }
+    addDecl decl
+    --trace[Elab.inductive] "after: {res}, {res.hasFVar}, type: {←inferType res}, name: {name}"
+      --let res ← mkForallFVars bodyArgs mVar
+      --mkForallFVars params res
+
+
+
+
+    -- let constructor := mkAppN constructor params
+    -- let constructor := mkAppN constructor predicates
+    -- trace[Elab.inductive] "constructor: {constructor}"
+    -- let res ← forallTelescope (←inferType constructor) fun ctorArgs ctorBody => do
+    --   trace[Elab.inductive] "ctorBody: {ctorBody}, ctorArgs: {ctorArgs}"
+    --   let bodyRhs := mkConst (removeFunctorPostfix name) levelParams
+    --   let some fixEq ← PartialFixpoint.getUnfoldFor? (removeFunctorPostfix name) | throwError "No unfold lemma"
+    --   let bodyArgs := ctorBody.getAppArgs.extract (numParams + infos.size)
+    --   trace[Elab.inductive] "bodyArgs: {bodyArgs}"
+    --   let mut fixEq := mkConst fixEq levelParams
+    --   let bodyRhs := mkAppN bodyRhs params
+    --   let bodyRhs := mkAppN bodyRhs bodyArgs
+    --   let mVar ← mkFreshExprMVar (.some bodyRhs)
+    --   trace[Elab.inductive] "mVar: {mVar}"
+    --   fixEq := mkAppN fixEq params
+    --   for arg in bodyArgs do
+    --     fixEq ← mkAppM ``congrFun #[fixEq, arg]
+    --   fixEq ←  mkAppM ``Eq.symm #[fixEq]
+    --   let hint := mkExpectedPropHint fixEq ctorBody
+
+
+
+
+      -- trace[Elab.inductive] "hint: {hint}"
+
+
+    trace[Elab.inductive] "ctor: {constructor}"
+  pure ()
+
+private def generateCoinductiveConstructors (numParams : Nat) (infos : Array InductiveVal) : MetaM Unit := do
+  for indType in infos do
+    for ctor in indType.ctors do
+      generateCoinductiveConstructor infos numParams indType.name <| ←getConstInfoCtor ctor
 
 private def elabCoinductive (declNames : Array Name) (sectionVars : Array Expr) (views : Array InductiveView): TermElabM Unit := do
   trace[Elab.inductive] "declNames: {declNames}"
@@ -1065,6 +1150,8 @@ private def elabCoinductive (declNames : Array Name) (sectionVars : Array Expr) 
             }
           }
         partialFixpoint preDefs
+  generateCoinductiveConstructors originalNumParams infos
+
 
 
 

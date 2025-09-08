@@ -8,8 +8,14 @@ module
 prelude
 public import Init.Data.List.Basic
 public import Init.Data.Char.Basic
+public import Init.Data.ByteArray.Bootstrap
 
 public section
+
+theorem List.Internal.utf8Encode_append_eq_internalAppend {l l' : List Char} :
+    List.Internal.utf8Encode (l ++ l') = ByteArray.Internal.append
+      (List.Internal.utf8Encode l) (List.Internal.utf8Encode l') := by
+  simp [utf8Encode, List.toByteArray_append_eq_internalAppend]
 
 namespace String
 
@@ -18,11 +24,6 @@ instance : OfNat String.Pos (nat_lit 0) where
 
 instance : Inhabited String where
   default := ""
-
--- @[simp]
--- theorem List.Internal.utf8Encode_append {l l' : List Char} :
---     List.Internal.utf8Encode (l ++ l') = List.Internal.utf8Encode l ++ List.Internal.utf8Encode l' := by
---   simp [utf8Encode]
 
 
 /--
@@ -37,17 +38,11 @@ Examples:
 -/
 @[extern "lean_string_push", expose]
 def push : String → Char → String
-  | ⟨b, h⟩, c => ⟨app b (String.utf8EncodeChar c), ?pf⟩
-where
-  app : ByteArray → List UInt8 → ByteArray
-  | b, [] => b
-  | b, c::cs => app (b.push c) cs
-finally
+  | ⟨b, h⟩, c => ⟨ByteArray.Internal.append b (List.Internal.utf8Encode [c]), ?pf⟩
+where finally
   have ⟨m, hm⟩ := h
   cases hm
-  refine .intro (m ++ [c]) ?_
-  sorry
-
+  exact .intro (m ++ [c]) (by simp [List.Internal.utf8Encode_append_eq_internalAppend])
 
 /--
 Returns a new string that contains only the character `c`.

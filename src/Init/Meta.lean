@@ -1524,7 +1524,7 @@ def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → S
     let elem ← match elem.isInterpolatedStrLit? with
       | none     => withRef elem <| mkElem elem
       | some str =>
-        if str.isEmpty then continue
+        if String.Internal.isEmpty str then continue
         else withRef elem <| mkElem (Syntax.mkStrLit str)
     if result.isMissing then
       result := elem

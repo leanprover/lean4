@@ -1,0 +1,18 @@
+Failure @35 (⟨2, 15⟩): unexpected end of input; expected %%% (at line beginning), '![', '$$', '$', '[', '[^', beginning of line at ⟨2, 15⟩ or beginning of line or sequence of nestable block openers at ⟨2, 15⟩
+Final stack:
+  [(Lean.Doc.Syntax.dl
+    "dl{"
+    [(Lean.Doc.Syntax.desc
+      ":"
+      [(Lean.Doc.Syntax.text
+        (str "\" an excellent idea\""))
+       (Lean.Doc.Syntax.linebreak
+        "line!"
+        (str "\"\\n\""))
+       (Lean.Doc.Syntax.text
+        (str "\"Let's say more!\""))]
+      "=>"
+      [(Lean.Doc.Syntax.metadata_block <missing>)
+       <missing>])]
+    "}")]
+Remaining: ""

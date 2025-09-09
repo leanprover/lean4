@@ -1,0 +1,13 @@
+Failure @28 (⟨1, 28⟩): expected no space before
+Final stack:
+ • `scheme
+ • [(Lean.Doc.Syntax.named_no_paren
+      `dialect
+      ":="
+      (Lean.Doc.Syntax.arg_str
+       (str "\"chicken\"")))
+     (Lean.Doc.Syntax.flag_on "+" `x)
+     (Lean.Doc.Syntax.anon
+      (Lean.Doc.Syntax.arg_num (num "99")))]
+
+Remaining: "x 99"

@@ -12,10 +12,9 @@ public import Lean.Meta.CompletionName
 public import Lean.Meta.Constructions.NoConfusionLinear
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Injective
+import Lean.Meta.SameCtorUtils
 
 public section
-
-
 
 namespace Lean
 
@@ -23,37 +22,6 @@ namespace Lean
 @[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except Kernel.Exception Declaration
 
 open Meta
-
-/--
-Given a constructor (applied to the parameters already), brings its fields into scope twice,
-but uses the same variable for fields that appear in the result type, so that the resulting
-constructor applications have the same type.
-
-Passes to `k`
-* the new variables
-* the indices to the type class
-* and the full constructor application.
--/
-def withSharedIndices (ctor : Expr) (k : Array Expr → Array Expr → Expr → Expr → MetaM α) : MetaM α := do
-  let ctorType ← inferType ctor
-  forallTelescopeReducing ctorType fun zs ctorRet => do
-    let ctorRet ← whnf ctorRet
-    let ctorRet ← Core.betaReduce ctorRet -- we 'beta-reduce' to eliminate "artificial" dependencies
-    let indInfo ← getConstInfoInduct ctorRet.getAppFn.constName!
-    let indices := ctorRet.getAppArgsN indInfo.numIndices
-    let ctor1 := mkAppN ctor zs
-    let rec go ctor2 todo acc := do
-      match todo with
-      | [] => k acc indices ctor1 ctor2
-      | z::todo' =>
-        if occursOrInType (← getLCtx) z ctorRet then
-          go (mkApp ctor2 z) todo' acc
-        else
-          let t ← whnfForall (← inferType ctor2)
-          assert! t.isForall
-          withLocalDeclD (t.bindingName!.appendAfter "'") t.bindingDomain! fun z' => do
-            go (mkApp ctor2 z') todo' (acc.push z')
-    go ctor zs.toList zs
 
 def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
   -- Do not do anything unless can_elim_to_type.
@@ -72,7 +40,7 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
     let e ← withLocalDeclD `P (.sort v) fun P =>
       forallBoundedTelescope ctorInfo.type ctorInfo.numParams fun xs _ => do
         let ctorApp := mkAppN (mkConst ctor us) xs
-        withSharedIndices ctorApp fun ys indices ctor1 ctor2 => do
+        withSharedCtorIndices ctorApp fun ys indices ctor1 ctor2 => do
           let heqType ← mkEq ctor1 ctor2
           withLocalDeclD `h heqType fun h => do
             let noConfusionApp :=

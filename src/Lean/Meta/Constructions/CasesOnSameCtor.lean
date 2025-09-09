@@ -14,6 +14,7 @@ import Lean.Meta.CompletionName
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
 import Lean.Elab.App
+import Lean.Meta.SameCtorUtils
 
 /-!
 See `mkCasesOnSameCtor` below.
@@ -109,23 +110,6 @@ public def mkCasesOnSameCtorHet (declName : Name) (indName : Name) : MetaM Unit 
   Elab.Term.elabAsElim.setTag declName
   setReducibleAttribute declName
 
-def withSharedIndices (ctor : Expr) (k : Array Expr → Expr → Expr → MetaM α) : MetaM α := do
-  let ctorType ← inferType ctor
-  forallTelescopeReducing ctorType fun zs ctorRet => do
-    let ctor1 := mkAppN ctor zs
-    let rec go ctor2 todo acc := do
-      match todo with
-      | [] => k acc ctor1 ctor2
-      | z::todo' =>
-        if ctorRet.containsFVar z.fvarId! then
-          go (mkApp ctor2 z) todo' acc
-        else
-          let t ← whnfForall (← inferType ctor2)
-          assert! t.isForall
-          withLocalDeclD t.bindingName! t.bindingDomain! fun z' => do
-            go (mkApp ctor2 z') todo' (acc.push z')
-    go ctor zs.toList zs
-
 /--
 This constructs a matcher for a match statement that matches on the constructors of
 a data type in parallel. So if `h : x1.ctorIdx = x2.ctorIdx`, then it implements
@@ -173,9 +157,7 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
 
       let altTypes ← info.ctors.toArray.mapIdxM fun i ctorName => do
         let ctor := mkAppN (mkConst ctorName us) params
-        withSharedIndices ctor fun zs12 ctorApp1 ctorApp2 => do
-          let ctorRet1 ← whnf (← inferType ctorApp1)
-          let is : Array Expr := ctorRet1.getAppArgs[info.numParams:]
+        withSharedCtorIndices ctor fun zs12 is ctorApp1 ctorApp2 => do
           let e := mkAppN motive (is ++ #[ctorApp1, ctorApp2, (← mkEqRefl (mkNatLit i))])
           let e ← mkForallFVars zs12 e
           let name := match ctorName with

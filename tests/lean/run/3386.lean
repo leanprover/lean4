@@ -5,6 +5,7 @@
 inductive Tyₛ : Type (u+1)
 | SPi : (T : Type u) -> (T -> Tyₛ) -> Tyₛ
 
+set_option deriving.decEq.linear_construction_threshold 0
 inductive Tmₛ.{u} :  Tyₛ.{u} -> Type (u+1)
 | app : Tmₛ (.SPi T A) -> (arg : T) -> Tmₛ (A arg)
 

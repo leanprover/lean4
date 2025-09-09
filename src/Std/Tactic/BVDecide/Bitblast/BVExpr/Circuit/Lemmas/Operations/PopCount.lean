@@ -455,10 +455,11 @@ theorem denote_blastPopCount (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (
       ∀ (idx : Nat) (hidx : idx < w),
         ⟦(blastPopCount aig xc).aig, (blastPopCount aig xc).vec.get idx hidx, assign⟧
           =
-        (BitVec.popCountParSum (x := x)).getLsbD idx := by
+        (BitVec.popCount x).getLsbD idx := by
   intros idx hidx
   generalize hgen : blastPopCount aig xc = res
   unfold blastPopCount at hgen
+  rw [BitVec.popCount_eq_popCountParSum]
   split at hgen
   · rw [← hgen]
     let initAcc := blastConst (w := 0) aig 0
@@ -490,8 +491,6 @@ theorem denote_blastPopCount (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (
         rhs
         simp [hw0]
       omega
-
-
 
 end blastPopCount
 end bitblast

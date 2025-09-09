@@ -1047,6 +1047,6 @@ def popCountAuxRec (x r : BitVec w) (n : Nat) :=
 termination_by (w - n)
 
 /-- Count the number of bits with value `1` in a bitvec -/
-def popCount {w : Nat} (x : BitVec w) : BitVec w := popCountAuxRec x 0 0
+def popCount {w : Nat} (x : BitVec w) : BitVec w := BitVec.popCountAuxRec x 0#w 0
 
 end BitVec

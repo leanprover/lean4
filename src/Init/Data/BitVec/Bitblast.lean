@@ -2585,4 +2585,10 @@ def popCountParSum {x : BitVec w} : BitVec w :=
     if hw' : 0 < w then x
       else 0#w
 
+
+theorem popCount_eq_popCountParSum {x : BitVec w} :
+    x.popCount = x.popCountParSum := by
+  sorry
+
+
 end BitVec

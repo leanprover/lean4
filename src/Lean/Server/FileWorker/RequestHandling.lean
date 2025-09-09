@@ -94,6 +94,17 @@ def handleHover (p : HoverParams)
     (notFoundX := pure none) fun snap => do
       -- try to find parser docstring from syntax tree
       let stack? := snap.stx.findStack? (·.getRange?.any (·.contains hoverPos))
+      dbg_trace stack?
+      if let some stack := stack? then
+        dbg_trace "STACK:"
+        for (s, n) in stack do
+          dbg_trace s!"{s}@{n}"
+          if let .node _ kind _ := s then
+            let doc ← findDocString? snap.env kind
+            dbg_trace "{kind} with docs {doc}"
+            if doc.isSome then break
+          else dbg_trace "non-node {repr s}"
+      else dbg_trace "NO STACK"
       let stxDoc? ← match stack? with
         | some stack => stack.findSomeM? fun (stx, _) => do
           let .node _ kind _ := stx | pure none
@@ -101,16 +112,25 @@ def handleHover (p : HoverParams)
           return docStr.map (·, stx.getRange?.get!)
         | none => pure none
       -- now try info tree
+      dbg_trace "trying the tree"
       if let some result := snap.infoTree.hoverableInfoAtM? (m := Id) hoverPos then
+        dbg_trace "tree result {← result.info.format result.ctx}"
+        dbg_trace "tree result range {result.info.range?.map (fun x => (x.start, x.stop))}"
         let ctx := result.ctx
         let info := result.info
         if let some range := info.range? then
           -- prefer info tree if at least as specific as parser docstring
           if stxDoc?.all fun (_, stxRange) => stxRange.includes range then
+            dbg_trace "Using info hover because it's most specific"
             if let some hoverFmt ← info.fmtHover? ctx then
+              dbg_trace "info docstring be {hoverFmt.fmt} and range be {repr range}"
               return mkHover (toString hoverFmt.fmt) range
+            else dbg_trace "no formatting of the info"
+        else dbg_trace "no info hover range"
+      else dbg_trace "no info hover"
 
       if let some (doc, range) := stxDoc? then
+        dbg_trace "it's thus from syntax"
         return mkHover doc range
 
       return none

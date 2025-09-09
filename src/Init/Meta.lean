@@ -1713,8 +1713,8 @@ macro (name := declareSimpLikeTactic) doc?:(docComment)?
       return s)
 
 /-- `simp!` is shorthand for `simp` with `autoUnfold := true`.
-This will rewrite with all equation lemmas, which can be used to
-partially evaluate many definitions. -/
+This will unfold applications of functions defined by pattern matching, when one of the patterns applies.
+This can be used to partially evaluate many definitions. -/
 declare_simp_like_tactic simpAutoUnfold "simp! " (autoUnfold := true)
 
 /--
@@ -1730,8 +1730,8 @@ Note that `+decide` is not needed for reducing arithmetic terms since simprocs h
 syntax (name := simpArithBang) "simp_arith! " optConfig (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
 /-- `simp_all!` is shorthand for `simp_all` with `autoUnfold := true`.
-This will rewrite with all equation lemmas, which can be used to
-partially evaluate many definitions. -/
+This will unfold applications of functions defined by pattern matching, when one of the patterns applies.
+This can be used to partially evaluate many definitions. -/
 declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " (autoUnfold := true)
 
 /--
@@ -1748,8 +1748,8 @@ syntax (name := simpAllArithBang) "simp_all_arith!" optConfig (discharger)? (&" 
 
 
 /-- `dsimp!` is shorthand for `dsimp` with `autoUnfold := true`.
-This will rewrite with all equation lemmas, which can be used to
-partially evaluate many definitions. -/
+This will unfold applications of functions defined by pattern matching, when one of the patterns applies.
+This can be used to partially evaluate many definitions. -/
 declare_simp_like_tactic (dsimp := true) dsimpAutoUnfold "dsimp! " (autoUnfold := true)
 
 end Tactic

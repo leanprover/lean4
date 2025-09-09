@@ -63,7 +63,8 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
       (hints       := ReducibilityHints.abbrev)
     ))
     setReducibleAttribute name
-    modifyEnv fun env => markNoConfusion env name
+    -- NB: Do not `markNoConfusion`, it is not the no-confusion principle that
+    -- the compiler expects
 
 where
   -- Given the type
@@ -72,29 +73,30 @@ where
   -- `k' : a1 = a2 → x1 = x2 → … → P` into scope and constructs
   -- `k := fun _ h1 h2 => k' (eq_of_heq h1) h2` : t`
   simpNoConfusionAlt {α} (t : Expr) (cont : Expr → Expr → MetaM α) : MetaM α :=
-    forallTelescopeReducing t fun hyps P => do
-      let mut args := #[]
-      let mut kType' := P
-      for hyp in hyps.reverse do
-        let hypType ← inferType hyp
-        if let some (α1, x1, α2, x2) := hypType.heq? then
-          if (← isDefEq α1 α2) then
-            if (← isDefEq x1 x2) then
-              continue
-            args := args.push (← mkEqOfHEq hyp)
-          else
-            args := args.push hyp
-        else if let some (_, x1, x2) := hypType.eq? then
-          if (← isDefEq x1 x2) then
-            continue
-          else
-            args := args.push hyp
-        let hypType ← inferType args.back!
-        kType' := mkForall (← hyp.fvarId!.getUserName) .default hypType kType'
-      args := args.reverse
-      withLocalDeclD `k kType' fun k' => do
-        let k ← mkLambdaFVars hyps (mkAppN k' args)
-        cont k' k
+    withLocalDeclD `k t fun k => cont k k
+    -- forallTelescopeReducing t fun hyps P => do
+    --   let mut args := #[]
+    --   let mut kType' := P
+    --   for hyp in hyps.reverse do
+    --     let hypType ← inferType hyp
+    --     if let some (α1, x1, α2, x2) := hypType.heq? then
+    --       if (← isDefEq α1 α2) then
+    --         if (← isDefEq x1 x2) then
+    --           continue
+    --         args := args.push (← mkEqOfHEq hyp)
+    --       else
+    --         args := args.push hyp
+    --     else if let some (_, x1, x2) := hypType.eq? then
+    --       if (← isDefEq x1 x2) then
+    --         continue
+    --       else
+    --         args := args.push hyp
+    --     let hypType ← inferType args.back!
+    --     kType' := mkForall (← hyp.fvarId!.getUserName) .default hypType kType'
+    --   args := args.reverse
+    --   withLocalDeclD `k kType' fun k' => do
+    --     let k ← mkLambdaFVars hyps (mkAppN k' args)
+    --     cont k' k
 
 def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   -- Do not do anything unless can_elim_to_type. TODO: Extract to util

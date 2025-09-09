@@ -51,6 +51,20 @@ where
     return s == e || e.occurs decl.type
 
 /--
+Given a constructor, returns a maks of its fields, where `true` means that this field
+occurs in the result type of the constructor.
+-/
+
+public def occursInCtorTypeMask (ctorName : Name) : MetaM (Array Bool) := do
+  let ctorInfo ← getConstInfoCtor ctorName
+  forallBoundedTelescope ctorInfo.type (some ctorInfo.numParams) fun _ ctorRet => do
+    forallBoundedTelescope ctorRet (some ctorInfo.numFields) fun ys ctorRet => do
+      let ctorRet ← whnf ctorRet
+      let ctorRet ← Core.betaReduce ctorRet -- we 'beta-reduce' to eliminate "artificial" dependencies
+      let lctx ← getLCtx
+      return ys.map (occursOrInType lctx · ctorRet)
+
+/--
 Given a constructor (applied to the parameters already), brings its fields into scope twice,
 but uses the same variable for fields that appear in the result type, so that the resulting
 constructor applications have the same type.

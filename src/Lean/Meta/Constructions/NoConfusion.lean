@@ -23,6 +23,27 @@ namespace Lean
 
 open Meta
 
+/--
+Creates per-constructor no-confusion definitions. These specialize the general noConfusion
+declaration to equalities between two applications of the same constructor, to effectively cache
+the computation of `noConfusionType` for that constructor:
+
+```
+def L.cons.noConfusion.{u_1, u} : {α : Type u} → (P : Sort u_1) →
+  (x : α) → (xs : L α) → (x' : α) → (xs' : L α) →
+  L.cons x xs = L.cons x' xs' →
+  (x = x' → xs = xs' → P) →
+  P
+```
+
+These definitions are less expressive than the general `noConfusion` principle when there are
+complicated indices. In particular they assume that all fields of the constructor that appear
+in its type are equal already. The `mkNoConfusion` app builder falls back to the general principle
+if the per-constructor one does not apply.
+
+At some point I tried to be clever and remove hypotheses that are trivial (`n = n →`), but that
+made it harder for, say, `injection` to know how often to `intro`. So we just keep them.
+-/
 def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
   -- Do not do anything unless can_elim_to_type.
   let .inductInfo indVal ← getConstInfo declName | return
@@ -51,9 +72,9 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
             -- noConfusionType := (n1 = n2 → x1 → x2 → … → P) → P
             assert! noConfusionType.isForall
             let kType := noConfusionType.bindingDomain!
-            simpNoConfusionAlt kType fun k' k => do
+            withLocalDeclD `k kType fun k =>
               let noConfusionApp := mkApp noConfusionApp k
-              mkLambdaFVars (xs ++ #[P] ++ ys ++ #[h, k']) noConfusionApp
+              mkLambdaFVars (xs ++ #[P] ++ ys ++ #[h, k]) noConfusionApp
     let name := ctor.str "noConfusion"
     addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
       (name        := name)
@@ -63,38 +84,8 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
       (hints       := ReducibilityHints.abbrev)
     ))
     setReducibleAttribute name
-    modifyEnv fun env => markNoConfusion env name
-
-where
-  -- Given the type
-  --   t := n1 = n1 → a1 ≍ a2 → x1 = x2 → … → P
-  -- of a noConfusion principle, brings a free variable
-  -- `k' : a1 = a2 → x1 = x2 → … → P` into scope and constructs
-  -- `k := fun _ h1 h2 => k' (eq_of_heq h1) h2` : t`
-  simpNoConfusionAlt {α} (t : Expr) (cont : Expr → Expr → MetaM α) : MetaM α :=
-    forallTelescopeReducing t fun hyps P => do
-      let mut args := #[]
-      let mut kType' := P
-      for hyp in hyps.reverse do
-        let hypType ← inferType hyp
-        if let some (α1, x1, α2, x2) := hypType.heq? then
-          if (← isDefEq α1 α2) then
-            if (← isDefEq x1 x2) then
-              continue
-            args := args.push (← mkEqOfHEq hyp)
-          else
-            args := args.push hyp
-        else if let some (_, x1, x2) := hypType.eq? then
-          if (← isDefEq x1 x2) then
-            continue
-          else
-            args := args.push hyp
-        let hypType ← inferType args.back!
-        kType' := mkForall (← hyp.fvarId!.getUserName) .default hypType kType'
-      args := args.reverse
-      withLocalDeclD `k kType' fun k' => do
-        let k ← mkLambdaFVars hyps (mkAppN k' args)
-        cont k' k
+    -- NB: Do not `markNoConfusion`, it is not the no-confusion principle that
+    -- the compiler expects
 
 def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   -- Do not do anything unless can_elim_to_type. TODO: Extract to util

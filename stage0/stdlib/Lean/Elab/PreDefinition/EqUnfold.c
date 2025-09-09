@@ -496,7 +496,6 @@ return x_11;
 }
 else
 {
-lean_dec(x_8);
 return x_7;
 }
 }

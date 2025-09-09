@@ -17865,7 +17865,6 @@ x_63 = l___private_Lean_Elab_Tactic_Basic_0__Lean_Elab_Tactic_evalTactic_handleE
 x_64 = l_Lean_instBEqInternalExceptionId_beq(x_59, x_63);
 if (x_64 == 0)
 {
-lean_dec(x_48);
 lean_dec_ref(x_46);
 lean_dec(x_16);
 lean_dec(x_12);
@@ -18078,7 +18077,6 @@ return x_93;
 }
 else
 {
-lean_dec(x_48);
 lean_dec_ref(x_46);
 lean_dec(x_16);
 lean_dec(x_12);
@@ -20756,7 +20754,6 @@ x_65 = l_Lean_instBEqInternalExceptionId_beq(x_60, x_64);
 if (x_65 == 0)
 {
 lean_dec_ref(x_49);
-lean_dec(x_48);
 lean_dec(x_17);
 lean_dec(x_13);
 lean_dec_ref(x_12);
@@ -20974,7 +20971,6 @@ return x_94;
 else
 {
 lean_dec_ref(x_49);
-lean_dec(x_48);
 lean_dec(x_17);
 lean_dec(x_13);
 lean_dec_ref(x_12);

@@ -7054,7 +7054,6 @@ else
 lean_dec_ref(x_25);
 lean_dec(x_24);
 lean_dec(x_22);
-lean_dec(x_21);
 lean_dec_ref(x_20);
 lean_dec_ref(x_19);
 lean_dec(x_1);
@@ -7064,7 +7063,6 @@ return x_23;
 block_49:
 {
 lean_object* x_46; uint8_t x_47; 
-lean_inc(x_45);
 lean_inc_ref(x_44);
 x_46 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_46, 0, x_44);

@@ -10193,7 +10193,6 @@ if (lean_obj_tag(x_12) == 0)
 {
 lean_dec_ref(x_12);
 lean_dec(x_11);
-lean_dec(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -10214,7 +10213,6 @@ lean_dec(x_14);
 lean_dec(x_11);
 if (x_15 == 0)
 {
-lean_dec(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -10258,7 +10256,6 @@ else
 {
 lean_dec_ref(x_12);
 lean_dec(x_11);
-lean_dec(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);

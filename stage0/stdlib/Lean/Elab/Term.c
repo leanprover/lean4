@@ -34155,7 +34155,6 @@ block_25:
 {
 if (lean_obj_tag(x_22) == 0)
 {
-lean_dec(x_23);
 lean_dec_ref(x_1);
 return x_21;
 }
@@ -51749,7 +51748,6 @@ return x_25;
 }
 else
 {
-lean_dec(x_12);
 lean_dec(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);

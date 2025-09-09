@@ -6800,7 +6800,6 @@ return x_149;
 }
 else
 {
-lean_dec(x_82);
 lean_dec_ref(x_81);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -7516,7 +7515,6 @@ return x_67;
 }
 else
 {
-lean_dec(x_39);
 lean_dec(x_36);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -7711,7 +7709,6 @@ return x_33;
 else
 {
 lean_dec_ref(x_9);
-lean_dec(x_7);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
@@ -11544,7 +11541,6 @@ goto block_89;
 else
 {
 lean_dec_ref(x_152);
-lean_dec(x_150);
 lean_dec_ref(x_90);
 lean_dec_ref(x_4);
 x_58 = x_151;
@@ -18020,7 +18016,6 @@ goto block_72;
 }
 else
 {
-lean_dec(x_135);
 lean_dec_ref(x_134);
 lean_dec_ref(x_73);
 x_41 = x_133;
@@ -22154,7 +22149,6 @@ return x_10;
 }
 else
 {
-lean_dec(x_7);
 lean_dec_ref(x_6);
 return x_5;
 }

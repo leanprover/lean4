@@ -2565,7 +2565,6 @@ x_21 = lean_unbox(x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; 
-lean_inc(x_8);
 lean_inc_ref(x_3);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_3);
@@ -2616,7 +2615,6 @@ x_14 = lean_nat_dec_lt(x_13, x_1);
 lean_dec(x_13);
 if (x_14 == 0)
 {
-lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);

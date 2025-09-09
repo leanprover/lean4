@@ -19948,7 +19948,6 @@ else
 {
 lean_dec_ref(x_83);
 lean_dec_ref(x_82);
-lean_dec(x_81);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);

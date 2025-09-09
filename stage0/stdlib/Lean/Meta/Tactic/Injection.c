@@ -4600,7 +4600,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_24);
 lean_dec(x_22);
 lean_dec(x_19);
 lean_dec(x_9);

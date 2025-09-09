@@ -6161,7 +6161,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_9);

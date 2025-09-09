@@ -20278,7 +20278,6 @@ if (x_26 == 0)
 {
 if (lean_obj_tag(x_24) == 0)
 {
-lean_dec(x_25);
 lean_dec_ref(x_24);
 lean_dec(x_19);
 lean_dec(x_5);
@@ -20297,7 +20296,6 @@ x_28 = l_Lean_instBEqInternalExceptionId_beq(x_22, x_27);
 lean_dec(x_27);
 if (x_28 == 0)
 {
-lean_dec(x_25);
 lean_dec(x_19);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -20322,7 +20320,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_25);
 lean_dec_ref(x_24);
 lean_dec(x_19);
 lean_dec(x_5);

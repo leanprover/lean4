@@ -3744,7 +3744,6 @@ x_19 = lean_apply_2(x_18, x_10, x_17);
 x_20 = lean_unbox(x_19);
 if (x_20 == 0)
 {
-lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_10);
 lean_dec_ref(x_1);
@@ -3842,7 +3841,6 @@ return x_43;
 }
 else
 {
-lean_dec(x_30);
 lean_dec(x_29);
 lean_dec_ref(x_27);
 lean_dec_ref(x_26);

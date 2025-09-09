@@ -11352,7 +11352,6 @@ goto block_44;
 }
 else
 {
-lean_dec(x_47);
 lean_dec_ref(x_45);
 lean_dec_ref(x_28);
 lean_dec(x_22);

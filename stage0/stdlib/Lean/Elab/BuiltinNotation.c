@@ -20634,7 +20634,6 @@ return x_13;
 }
 else
 {
-lean_dec(x_10);
 return x_9;
 }
 }
@@ -20652,7 +20651,6 @@ return x_19;
 }
 else
 {
-lean_dec(x_15);
 return x_16;
 }
 }
@@ -20670,7 +20668,6 @@ return x_25;
 }
 else
 {
-lean_dec(x_22);
 return x_21;
 }
 }
@@ -20688,7 +20685,6 @@ return x_31;
 }
 else
 {
-lean_dec(x_28);
 return x_27;
 }
 }
@@ -20706,7 +20702,6 @@ return x_37;
 }
 else
 {
-lean_dec(x_33);
 return x_34;
 }
 }
@@ -20724,7 +20719,6 @@ return x_43;
 }
 else
 {
-lean_dec(x_39);
 return x_40;
 }
 }
@@ -20742,7 +20736,6 @@ return x_49;
 }
 else
 {
-lean_dec(x_45);
 return x_46;
 }
 }

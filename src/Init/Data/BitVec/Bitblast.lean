@@ -2588,7 +2588,29 @@ def popCountParSum {x : BitVec w} : BitVec w :=
 
 theorem popCount_eq_popCountParSum {x : BitVec w} :
     x.popCount = x.popCountParSum := by
-  sorry
+  rcases w with _|_|w
+  · simp [popCount, popCountParSum, popCountAuxRec]
+  · simp [popCount, popCountParSum, popCountAuxRec]
+    by_cases h0 :x[0]
+    · simp [h0]
+      ext j hj
+      by_cases hj0 : j = 0
+      · simp [hj0, h0]
+      · omega
+    · simp [h0]
+      ext j hj
+      by_cases hj0 : j = 0
+      · simp [hj0, h0]
+      · omega
+  · unfold popCount popCountParSum popCountAuxRec
+    simp
+    split
+    · case _ h0 =>
+
+      sorry
+    · case _ h0 =>
+
+      sorry
 
 
 end BitVec

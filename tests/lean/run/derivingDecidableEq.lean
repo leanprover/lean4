@@ -56,6 +56,29 @@ def ex1 [DecidableEq α] : DecidableEq (Tree α) :=
 def ex2 [DecidableEq α] : DecidableEq (TreeList α) :=
   inferInstance
 
+-- The tricky inductive from issue #3386
+
+inductive Tyₛ : Type (u+1)
+| SPi : (T : Type u) -> (T -> Tyₛ) -> Tyₛ
+
+/--
+error: Tactic `cases` failed with a nested error:
+Dependent elimination failed: Failed to solve equation
+  A✝¹ arg✝¹ = A✝ arg✝
+at case `Tmₛ.app` after processing
+  _, (Tmₛ.app _ _ _ _), _
+the dependent pattern matcher can solve the following kinds of equations
+- <var> = <term> and <term> = <var>
+- <term> = <term> where the terms are definitionally equal
+- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
+---
+warning: unused `termination_by`, function is not recursive
+-/
+#guard_msgs(pass trace, all) in
+inductive Tmₛ.{u} :  Tyₛ.{u} -> Type (u+1)
+| app : Tmₛ (.SPi T A) -> (arg : T) -> Tmₛ (A arg)
+deriving DecidableEq
+
 /-! Private fields should yield public, no-expose instances. -/
 
 structure PrivField where

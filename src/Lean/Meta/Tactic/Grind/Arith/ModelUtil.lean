@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 public import Init.Data.Rat.Basic
+import Lean.Meta.Tactic.Grind.Arith.Util
 import Init.Grind.Module.Envelope
 public section
 

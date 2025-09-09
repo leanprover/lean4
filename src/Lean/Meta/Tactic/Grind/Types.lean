@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Tactics
 public import Init.Data.Queue
@@ -15,14 +14,11 @@ public import Lean.Meta.Tactic.Grind.ExprPtr
 public import Lean.Meta.Tactic.Grind.AlphaShareCommon
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.ExtAttr
-public import Lean.Meta.Tactic.Grind.Arith.Types
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
 meta import Lean.Parser.Do
 import Lean.Meta.Match.MatchEqsExt
 import Lean.PrettyPrinter
-
 public section
-
 namespace Lean.Meta.Grind
 
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
@@ -439,28 +435,6 @@ structure ENode where
   generation : Nat := 0
   /-- Modification time -/
   mt : Nat := 0
-  /--
-  The `offset?` field is used to propagate equalities from the `grind` congruence closure module
-  to the offset constraints module. When `grind` merges two equivalence classes, and both have
-  an associated `offset?` set to `some e`, the equality is propagated. This field is
-  assigned during the internalization of offset terms.
-  -/
-  offset? : Option Expr := none
-  /--
-  The `cutsat?` field is used to propagate equalities from the `grind` congruence closure module
-  to the cutsat module. Its implementation is similar to the `offset?` field.
-  -/
-  cutsat? : Option Expr := none
-  /--
-  The `ring?` field is used to propagate equalities from the `grind` congruence closure module
-  to the comm ring module. Its implementation is similar to the `offset?` field.
-  -/
-  ring? : Option Expr := none
-  /--
-  The `linarith?` field is used to propagate equalities from the `grind` congruence closure module
-  to the linarith module. Its implementation is similar to the `offset?` field.
-  -/
-  linarith? : Option Expr := none
   /-- Solver terms attached to this E-node. -/
   sTerms : SolverTerms := .nil
   deriving Inhabited, Repr
@@ -782,8 +756,6 @@ structure Goal where
   ematch       : EMatch.State
   /-- State of the case-splitting module. -/
   split        : Split.State := {}
-  /-- State of arithmetic procedures. -/
-  arith        : Arith.State := {}
   /-- State of the clean name generator. -/
   clean        : Clean.State := {}
   /-- Solver states. -/
@@ -1100,63 +1072,6 @@ def setENode (e : Expr) (n : ENode) : GoalM Unit :=
   }
 
 /--
-Notifies the offset constraint module that `a = b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_new_offset_eq"] -- forward definition
-opaque Arith.Offset.processNewEq (a b : Expr) : GoalM Unit
-
-/-- Returns `true` if `e` is a numeral and has type `Nat`. -/
-def isNatNum (e : Expr) : Bool := Id.run do
-  let_expr OfNat.ofNat _ _ inst := e | false
-  let_expr instOfNatNat _ := inst | false
-  true
-
-/--
-Marks `e` as a term of interest to the offset constraint module.
-If the root of `e`s equivalence class has already a term of interest,
-a new equality is propagated to the offset module.
--/
-def markAsOffsetTerm (e : Expr) : GoalM Unit := do
-  let root ← getRootENode e
-  if let some e' := root.offset? then
-    Arith.Offset.processNewEq e e'
-  else
-    setENode root.self { root with offset? := some e }
-
-/--
-Notifies the cutsat module that `a = b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_cutsat_eq"] -- forward definition
-opaque Arith.Cutsat.processNewEq (a b : Expr) : GoalM Unit
-
-/--
-Notifies the cutsat module that `a ≠ b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_cutsat_diseq"] -- forward definition
-opaque Arith.Cutsat.processNewDiseq (a b : Expr) : GoalM Unit
-
-/-- Returns `true` if `e` is a nonnegative numeral and has type `Int`. -/
-def isNonnegIntNum (e : Expr) : Bool := Id.run do
-  let_expr OfNat.ofNat _ _ inst := e | false
-  let_expr instOfNat _ := inst | false
-  true
-
-/-- Returns `true` if `e` is a numeral and has type `Int`. -/
-def isIntNum (e : Expr) : Bool :=
-  match_expr e with
-  | Neg.neg _ inst e => Id.run do
-    let_expr Int.instNegInt := inst | false
-    isNonnegIntNum e
-  | _ => isNonnegIntNum e
-
-/-- Returns `true` if `e` is a numeral supported by cutsat. -/
-def isNum (e : Expr) : Bool :=
-  isNatNum e || isIntNum e
-
-/--
 Returns `true` if type of `t` is definitionally equal to `α`
 -/
 def hasType (t α : Expr) : MetaM Bool := do
@@ -1171,134 +1086,6 @@ For each equality `b = c` in `parents`, executes `k b c` IF
     let_expr Eq _ b c := parent | continue
     if (← isEqFalse parent) then
       k b c
-
-/--
-Given `lhs` and `rhs` that are known to be disequal, checks whether
-`lhs` and `rhs` have cutsat terms `e₁` and `e₂` attached to them,
-and invokes process `Arith.Cutsat.processNewDiseq e₁ e₂`
--/
-def propagateCutsatDiseq (lhs rhs : Expr) : GoalM Unit := do
-  let some lhs ← get? lhs | return ()
-  let some rhs ← get? rhs | return ()
-  Arith.Cutsat.processNewDiseq lhs rhs
-where
-  get? (a : Expr) : GoalM (Option Expr) := do
-    let root ← getRootENode a
-    return root.cutsat?
-
-/--
-Traverses disequalities in `parents`, and propagate the ones relevant to the
-cutsat module.
--/
-def propagateCutsatDiseqs (parents : ParentSet) : GoalM Unit := do
-  forEachDiseq parents propagateCutsatDiseq
-
-/--
-Marks `e` as a term of interest to the cutsat module.
-If the root of `e`s equivalence class has already a term of interest,
-a new equality is propagated to the cutsat module.
--/
-def markAsCutsatTerm (e : Expr) : GoalM Unit := do
-  let root ← getRootENode e
-  if let some e' := root.cutsat? then
-    Arith.Cutsat.processNewEq e e'
-  else
-    setENode root.self { root with cutsat? := some e }
-    propagateCutsatDiseqs (← getParents root.self)
-
-/--
-Notifies the comm ring module that `a = b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_ring_eq"] -- forward definition
-opaque Arith.CommRing.processNewEq (a b : Expr) : GoalM Unit
-
-/--
-Notifies the comm ring module that `a ≠ b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_ring_diseq"] -- forward definition
-opaque Arith.CommRing.processNewDiseq (a b : Expr) : GoalM Unit
-
-/--
-Given `lhs` and `rhs` that are known to be disequal, checks whether
-`lhs` and `rhs` have ring terms `e₁` and `e₂` attached to them,
-and invokes process `Arith.CommRing.processNewDiseq e₁ e₂`
--/
-def propagateCommRingDiseq (lhs rhs : Expr) : GoalM Unit := do
-  let some lhs ← get? lhs | return ()
-  let some rhs ← get? rhs | return ()
-  Arith.CommRing.processNewDiseq lhs rhs
-where
-  get? (a : Expr) : GoalM (Option Expr) := do
-    return (← getRootENode a).ring?
-
-/--
-Traverses disequalities in `parents`, and propagate the ones relevant to the
-comm ring module.
--/
-def propagateCommRingDiseqs (parents : ParentSet) : GoalM Unit := do
-  forEachDiseq parents propagateCommRingDiseq
-
-/--
-Marks `e` as a term of interest to the ring module.
-If the root of `e`s equivalence class has already a term of interest,
-a new equality is propagated to the ring module.
--/
-def markAsCommRingTerm (e : Expr) : GoalM Unit := do
-  let root ← getRootENode e
-  if let some e' := root.ring? then
-    Arith.CommRing.processNewEq e e'
-  else
-    setENode root.self { root with ring? := some e }
-    propagateCommRingDiseqs (← getParents root.self)
-
-/--
-Notifies the linarith module that `a = b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_linarith_eq"] -- forward definition
-opaque Arith.Linear.processNewEq (a b : Expr) : GoalM Unit
-
-/--
-Notifies the linarith module that `a ≠ b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_linarith_diseq"] -- forward definition
-opaque Arith.Linear.processNewDiseq (a b : Expr) : GoalM Unit
-
-/--
-Given `lhs` and `rhs` that are known to be disequal, checks whether
-`lhs` and `rhs` have linarith terms `e₁` and `e₂` attached to them,
-and invokes process `Arith.Linear.processNewDiseq e₁ e₂`
--/
-def propagateLinarithDiseq (lhs rhs : Expr) : GoalM Unit := do
-  let some lhs ← get? lhs | return ()
-  let some rhs ← get? rhs | return ()
-  Arith.Linear.processNewDiseq lhs rhs
-where
-  get? (a : Expr) : GoalM (Option Expr) := do
-    return (← getRootENode a).linarith?
-
-/--
-Traverses disequalities in `parents`, and propagate the ones relevant to the
-linarith module.
--/
-def propagateLinarithDiseqs (parents : ParentSet) : GoalM Unit := do
-  forEachDiseq parents propagateLinarithDiseq
-
-/--
-Marks `e` as a term of interest to the linarith module.
-If the root of `e`s equivalence class has already a term of interest,
-a new equality is propagated to the linarith module.
--/
-def markAsLinarithTerm (e : Expr) : GoalM Unit := do
-  let root ← getRootENode e
-  if let some e' := root.linarith? then
-    Arith.Linear.processNewEq e e'
-  else
-    setENode root.self { root with linarith? := some e }
-    propagateLinarithDiseqs (← getParents root.self)
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do
@@ -1700,6 +1487,8 @@ def Solvers.check : GoalM Bool := do
   for ext in (← solverExtensionsRef.get) do
     if (← ext.check) then
       result := true
+  if result then
+    processNewFacts
   return result
 
 /-- Invokes model-based theory combination extensions in all registered solvers. -/
@@ -1780,6 +1569,27 @@ def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit 
   unless isSameSolverTerms sTermsNew root.sTerms do
     setENode root.self { root with sTerms := sTermsNew }
     forEachDiseq (← getParents root.self) (propagateDiseqOf id)
+
+/--
+Returns `some t` if `t` is the solver term for `ext` associated with `e`.
+-/
+def SolverExtension.getTerm (ext : SolverExtension σ) (e : ENode) : Option Expr :=
+  go ext.id e.sTerms
+where
+  go (solverId : Nat) : SolverTerms → Option Expr
+    | .nil => none
+    | .next id t rest => if id == solverId then some t else go solverId rest
+
+/--
+Returns `true` if the root of `e`s equivalence class is already attached to a term
+of the given solver.
+-/
+def SolverExtension.hasTermAtRoot (ext : SolverExtension σ) (e : Expr) : GoalM Bool := do
+  return go ext.id (← getRootENode e).sTerms
+where
+  go (solverId : Nat) : SolverTerms → Bool
+    | .nil => false
+    | .next id _ rest => id == solverId || go solverId rest
 
 private inductive PendingSolverPropagationsData where
   | nil

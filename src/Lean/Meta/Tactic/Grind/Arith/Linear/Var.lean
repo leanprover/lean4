@@ -26,7 +26,7 @@ def mkVar (e : Expr) (mark := true) : LinearM Var := do
   }
   setTermStructId e
   if mark then
-    markAsLinarithTerm e
+    linearExt.markTerm e
   return var
 
 end Lean.Meta.Grind.Arith.Linear

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Init.Grind.ToIntLemmas
 import Lean.Meta.Tactic.Grind.SynthInstance
@@ -299,7 +299,7 @@ def mkToIntVar (e : Expr) : ToIntM (Expr × Expr) := do
   modify' fun s => { s with
     toIntTermMap := s.toIntTermMap.insert { expr := e } { eToInt, he, α }
   }
-  markAsCutsatTerm e
+  cutsatExt.markTerm e
   return (eToInt, he)
 
 def getToIntTermType? (e : Expr) : GoalM (Option Expr) := do

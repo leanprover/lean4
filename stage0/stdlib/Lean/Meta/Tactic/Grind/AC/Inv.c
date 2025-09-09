@@ -18,7 +18,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_AC_checkInvariants_spec__1___boxed(lean_object**);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkVars___lam__0___closed__0;
 uint8_t l_instDecidableEqOrdering(uint8_t, uint8_t);
-lean_object* l_Lean_Meta_Grind_AC_get_x27___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_AC_get_x27___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_____private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkBasis_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkQueue_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4322,7 +4322,7 @@ return x_14;
 else
 {
 lean_object* x_15; 
-x_15 = l_Lean_Meta_Grind_AC_get_x27___redArg(x_1, x_9);
+x_15 = l_Lean_Meta_Grind_AC_get_x27___redArg(x_1, x_7, x_9);
 if (lean_obj_tag(x_15) == 0)
 {
 uint8_t x_16; 

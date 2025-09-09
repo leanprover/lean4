@@ -141,6 +141,9 @@ unsafe axiom lcErased : Type
 /-- Marker for type dependency that has been erased by the code generator. -/
 unsafe axiom lcAny : Type
 
+/-- Internal representation of `IO.RealWorld` in the compiler. -/
+unsafe axiom lcRealWorld : Type
+
 /--
 Auxiliary unsafe constant used by the Compiler when erasing proofs from code.
 
@@ -1777,6 +1780,20 @@ theorem Nat.ne_of_beq_eq_false : {n m : Nat} → Eq (beq n m) false → Not (Eq 
   | succ n, succ m, h₁, h₂ =>
     have : Eq (beq n m) false := h₁
     Nat.noConfusion h₂ (fun h₂ => absurd h₂ (ne_of_beq_eq_false this))
+
+
+private theorem noConfusion_of_Nat.aux : (a : Nat) → (Nat.beq a a).rec False True
+  | Nat.zero   => True.intro
+  | Nat.succ n => noConfusion_of_Nat.aux n
+
+/--
+A helper theorem to deduce `False` from `a = b` when `f a ≠ f b` for some function `f : α → Nat`
+(typically `.ctorIdx`). Used as a simpler alternative to the no-confusion theorems.
+-/
+theorem noConfusion_of_Nat {α : Sort u} (f : α → Nat) {a b : α} (h : Eq a b) :
+    (Nat.beq (f a) (f b)).rec False True :=
+  congrArg f h ▸ noConfusion_of_Nat.aux (f a)
+
 
 /--
 A decision procedure for equality of natural numbers, usually accessed via the `DecidableEq Nat`

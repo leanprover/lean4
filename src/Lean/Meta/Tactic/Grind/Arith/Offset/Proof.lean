@@ -4,14 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Offset
-public import Init.Grind.Lemmas
-public import Lean.Meta.Tactic.Grind.Types
-
+public import Lean.Meta.Tactic.Grind.Arith.Offset.Types
+import Init.Grind.Offset
+import Init.Grind.Lemmas
 public section
-
 namespace Lean.Meta.Grind.Arith.Offset
 /-!
 Helper functions for constructing proof terms in the offset constraint procedure.

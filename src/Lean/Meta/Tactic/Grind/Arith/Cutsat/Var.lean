@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.IntInstTesters
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
@@ -76,7 +76,7 @@ def mkVarImpl (expr : Expr) : GoalM Var := do
     occurs    := s.occurs.push {}
     elimEqs   := s.elimEqs.push none
   }
-  markAsCutsatTerm expr
+  cutsatExt.markTerm expr
   assertNatCast expr var
   assertNonneg expr var
   assertToIntBounds expr var

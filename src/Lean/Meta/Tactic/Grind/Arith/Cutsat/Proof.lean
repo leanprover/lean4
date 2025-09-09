@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Ring.Poly
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Init.Data.Int.OfNat
 import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Diseq
@@ -21,9 +21,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
 public section
-
 namespace Lean.Meta.Grind.Arith.Cutsat
-
 deriving instance Hashable for Int.Linear.Expr
 
 /--

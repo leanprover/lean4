@@ -476,9 +476,21 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
   | none           => throwAppBuilderException `noConfusion ("equality expected" ++ hasTypeMsg h type)
   | some (α, a, b) =>
     let α ← whnfD α
-    matchConstInduct α.getAppFn (fun _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)) fun v us => do
+    matchConstInduct α.getAppFn (fun _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)) fun indVal us => do
       let u ← getLevel target
-      return mkAppN (mkConst (Name.mkStr v.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
+      -- Special case for different manifest constructors, where we can use `ctorIdx`
+      let ctorIdxName := Name.mkStr indVal.name "ctorIdx"
+      if (← hasConst ctorIdxName) && (← hasConst `noConfusion_of_Nat) then
+        if let some ctorA ← isConstructorApp? a then
+          if let some ctorB ← isConstructorApp? b then
+            if ctorA.cidx ≠ ctorB.cidx then
+              let ctorIdx := mkAppN (mkConst ctorIdxName us) α.getAppArgs
+              let v ← getLevel α
+              return mkApp2 (mkConst ``False.elim [u]) target <|
+                mkAppN (mkConst `noConfusion_of_Nat [v]) #[α, ctorIdx, a, b, h]
+
+      return mkAppN (mkConst (Name.mkStr indVal.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
+
 
 /-- Given a `monad` and `e : α`, makes `pure e`.-/
 def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=

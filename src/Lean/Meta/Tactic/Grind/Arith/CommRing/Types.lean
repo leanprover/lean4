@@ -6,8 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Ring.OfSemiring
-public import Lean.Meta.Tactic.Grind.ExprPtr
-public import Lean.Meta.Tactic.Grind.Arith.Util
+public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 import Lean.Data.PersistentArray
 public section
@@ -278,5 +277,13 @@ structure State where
   exprToSemiringId : PHashMap ExprPtr Nat := {}
   steps := 0
   deriving Inhabited
+
+builtin_initialize ringExt : SolverExtension State ← registerSolverExtension (return {})
+
+def get' : GoalM State := do
+  ringExt.getState
+
+@[inline] def modify' (f : State → State) : GoalM Unit := do
+  ringExt.modifyState f
 
 end Lean.Meta.Grind.Arith.CommRing

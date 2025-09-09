@@ -668,8 +668,8 @@ where
       let args := e.getAppArgs
       let lhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 1]!
       let rhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 2]!
-      let lhs := lhs.toCtorIfLit
-      let rhs := rhs.toCtorIfLit
+      let lhs ← liftMetaM lhs.toCtorIfLit
+      let rhs ← liftMetaM rhs.toCtorIfLit
       match (← liftMetaM <| Meta.isConstructorApp? lhs), (← liftMetaM <| Meta.isConstructorApp? rhs) with
       | some lhsCtorVal, some rhsCtorVal =>
         if lhsCtorVal.name == rhsCtorVal.name then

@@ -138,7 +138,7 @@ private def ppOffset : M Unit := do
 
 private def ppCutsat : M Unit := do
   let goal ← read
-  let s := goal.arith.cutsat
+  let s ← Arith.Cutsat.cutsatExt.getStateCore goal
   let nodes := s.varMap
   if nodes.isEmpty then return ()
   let model ← Arith.Cutsat.mkModel goal

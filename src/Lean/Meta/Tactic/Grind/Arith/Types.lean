@@ -5,13 +5,12 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+public import Init.Core
 public section
 namespace Lean.Meta.Grind.Arith
 
 /-- State for the arithmetic procedures. -/
 structure State where
-  cutsat : Cutsat.State := {}
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith

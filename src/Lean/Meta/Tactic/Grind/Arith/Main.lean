@@ -48,12 +48,4 @@ builtin_grind_propagator propagateLT ↓LT.lt := fun e => do
     Linear.propagateIneq e (eqTrue := false)
     Cutsat.propagateLt e (eqTrue := false)
 
-def check : GoalM Bool := do
-  let c₁ ← Cutsat.check
-  if c₁ then
-    processNewFacts
-    return true
-  else
-    return false
-
 end Lean.Meta.Grind.Arith

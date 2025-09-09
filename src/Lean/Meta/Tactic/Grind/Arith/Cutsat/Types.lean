@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Data.Int.Linear
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
+public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
 import Lean.Data.PersistentArray
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
@@ -363,5 +364,7 @@ structure State where
   -/
   nonlinearOccs : PHashMap Var (List Var) := {}
   deriving Inhabited
+
+builtin_initialize cutsatExt : SolverExtension State ← registerSolverExtension (return {})
 
 end Lean.Meta.Grind.Arith.Cutsat

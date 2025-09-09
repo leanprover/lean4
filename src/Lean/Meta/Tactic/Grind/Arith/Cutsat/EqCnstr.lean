@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Init.Data.Int.OfNat
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
@@ -428,8 +428,7 @@ private def processNewToIntEq (a b : Expr) : ToIntM Unit := do
   let c := { p, h := .coreToInt a b thm lhs rhs : EqCnstr }
   c.assertCore
 
-@[export lean_process_cutsat_eq]
-def processNewEqImpl (a b : Expr) : GoalM Unit := do
+def processNewEq (a b : Expr) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
   if (← isNatTerm a <&&> isNatTerm b) then
     processNewNatEq a b
@@ -484,8 +483,7 @@ private def processNewToIntDiseq (a b : Expr) : ToIntM Unit := do
   let c := { p, h := .coreToInt a b thm lhs rhs : DiseqCnstr }
   c.assertCore
 
-@[export lean_process_cutsat_diseq]
-def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
+def processNewDiseq (a b : Expr) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
   if (← isNatTerm a <&&> isNatTerm b) then
     processNewNatDiseq a b
@@ -659,7 +657,7 @@ private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : Supp
   modify' fun s => { s with
     natToIntMap := s.natToIntMap.insert { expr := e } e'h
   }
-  markAsCutsatTerm e
+  cutsatExt.markTerm e
   /-
   If `e'.h` is of the form `NatCast.natCast e`, then it is wasteful to
   assert an equality
@@ -690,7 +688,7 @@ private def internalizeToIntTerm (e type : Expr) : GoalM Unit := do
     modify' fun s => { s with
       toIntTermMap := s.toIntTermMap.insert { expr := e } { eToInt, he, α }
     }
-    markAsCutsatTerm e
+    cutsatExt.markTerm e
 
 /--
 Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.

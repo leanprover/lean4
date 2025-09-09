@@ -100,52 +100,6 @@ private partial def updateMT (root : Expr) : GoalM Unit := do
       updateMT parent
 
 /--
-Equalities or disequalities to be propagated to a theory solver **after**
-two equivalence classes have been merged.
-
-Some solvers (e.g. `cutsat`) require the core data structures to satisfy
-their invariants.  During the merge operations some of these invariants do not hold.
-Thus, we first *record* the facts that must be propagated in a `PendingTheoryPropagation` value,
-complete the merge, and only then perform the propagation.
-
-We now use this workflow for *all* theory solvers, even when a particular
-solver does not rely on these invariants.  This keeps the core
-solver-agnostic and lets us modify solvers without further adjustments.
--/
-inductive PendingTheoryPropagation where
-  | /-- Nothing to propagate. -/
-    none
-  | /-- Propagate the equality `lhs = rhs`. -/
-    eq (lhs rhs : Expr)
-  | /-- Propagate the disequalities in `ps`. -/
-    diseqs (ps : ParentSet)
-
-/--
-Helper function for combining `ENode.cutsat?` fields and detecting what needs
-to be propagated to the cutsat module.
--/
-private def checkCutsatEq (rhsRoot lhsRoot : ENode) : GoalM PendingTheoryPropagation := do
-  match lhsRoot.cutsat? with
-  | some lhsCutsat =>
-    if let some rhsCutsat := rhsRoot.cutsat? then
-      return .eq lhsCutsat rhsCutsat
-    else
-      -- We have to retrieve the node because other fields have been updated
-      let rhsRoot ← getENode rhsRoot.self
-      setENode rhsRoot.self { rhsRoot with cutsat? := lhsCutsat }
-      return .diseqs (← getParents rhsRoot.self)
-  | none =>
-    if rhsRoot.cutsat?.isSome then
-      return .diseqs (← getParents lhsRoot.self)
-    else
-      return .none
-
-def propagateCutsat : PendingTheoryPropagation → GoalM Unit
-  | .eq lhs rhs => Arith.Cutsat.processNewEq lhs rhs
-  | .diseqs ps => propagateCutsatDiseqs ps
-  | .none => return ()
-
-/--
 Tries to apply beta-reduction using the parent applications of the functions in `fns` with
 the lambda expressions in `lams`.
 -/
@@ -275,7 +229,6 @@ where
     }
     propagateBeta lams₁ fns₁
     propagateBeta lams₂ fns₂
-    let cutsatTodo ← checkCutsatEq rhsRoot lhsRoot
     let todo ← Solvers.mergeTerms rhsRoot lhsRoot
     resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
@@ -287,7 +240,6 @@ where
       for e in toPropagateDown do
         propagateDown e
       propagateUnitConstFuns lams₁ lams₂
-      propagateCutsat cutsatTodo
       todo.propagate
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     let isFalseRoot ← isFalseExpr rootNew

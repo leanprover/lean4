@@ -24,7 +24,7 @@ instance : LawfulUpwardEnumerable Int where
     simp only [UpwardEnumerable.LT, UpwardEnumerable.succMany?, Option.some.injEq]
     omega
   succMany?_zero := by simp [UpwardEnumerable.succMany?]
-  succMany?_succ := by
+  succMany?_succ? := by
     simp only [UpwardEnumerable.succMany?, UpwardEnumerable.succ?,
       Option.bind_some, Option.some.injEq]
     omega

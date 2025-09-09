@@ -29,7 +29,7 @@ theorem succ?_eq_succ?_toBitVec {x : UInt8} :
 
 theorem succMany?_eq_succMany?_toBitVec {k : Nat} {x : UInt8} :
     UpwardEnumerable.succMany? k x = UInt8.ofBitVec <$> UpwardEnumerable.succMany? k x.toBitVec := by
-  simp
+  simp [succMany?]
 
 theorem ofBitVec_eq_iff {x : BitVec 8} {a : UInt8} :
     ofBitVec x = a ↔ x = a.toBitVec := by
@@ -37,19 +37,19 @@ theorem ofBitVec_eq_iff {x : BitVec 8} {a : UInt8} :
 
 theorem upwardEnumerableLE_iff_bitVec {x y : UInt8} :
     UpwardEnumerable.LE x y ↔ UpwardEnumerable.LE x.toBitVec y.toBitVec := by
-  simp [UpwardEnumerable.LE, -succMany?, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
+  simp [UpwardEnumerable.LE, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
 
 theorem upwardEnumerableLT_iff_bitVec {x y : UInt8} :
     UpwardEnumerable.LT x y ↔ UpwardEnumerable.LT x.toBitVec y.toBitVec := by
-  simp [UpwardEnumerable.LT, -succMany?, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
+  simp [UpwardEnumerable.LT, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
 
 instance : LawfulUpwardEnumerable UInt8 where
   ne_of_lt x y:= by
     simpa [upwardEnumerableLT_iff_bitVec, ← UInt8.toBitVec_inj] using
       LawfulUpwardEnumerable.ne_of_lt _ _
-  succMany?_zero x := by simp [-succMany?, succMany?_eq_succMany?_toBitVec, succMany?_zero]
-  succMany?_succ a b := by
-    simp [-succMany?, -succ?, succMany?_eq_succMany?_toBitVec, succMany?_succ?, Option.bind_map,
+  succMany?_zero x := by simp [succMany?_eq_succMany?_toBitVec, succMany?_zero]
+  succMany?_succ? a b := by
+    simp [succMany?_eq_succMany?_toBitVec, succMany?_succ?, Option.bind_map,
       Function.comp_def, succ?_eq_succ?_toBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt8 where
@@ -77,10 +77,10 @@ instance : LawfulRangeSize .closed UInt8 where
     simpa [rangeSizeSize_eq_bitVec, UInt8.lt_iff_toBitVec_lt] using
       LawfulRangeSize.size_eq_zero_of_not_isSatisfied (su := .closed) (α := BitVec 8) _ _
   size_eq_one_of_succ?_eq_none bound x := by
-    simpa [rangeSizeSize_eq_bitVec, UInt8.le_iff_toBitVec_le, -succ?, succ?_eq_succ?_toBitVec] using
+    simpa [rangeSizeSize_eq_bitVec, UInt8.le_iff_toBitVec_le, succ?_eq_succ?_toBitVec] using
       LawfulRangeSize.size_eq_one_of_succ?_eq_none (su := .closed) (α := BitVec 8) _ _
   size_eq_succ_of_succ?_eq_some bound init x := by
-    simpa [rangeSizeSize_eq_bitVec, UInt8.le_iff_toBitVec_le, ← UInt8.toBitVec_inj] using
+    simpa [rangeSizeSize_eq_bitVec, UInt8.le_iff_toBitVec_le, ← UInt8.toBitVec_inj, succ?] using
       LawfulRangeSize.size_eq_succ_of_succ?_eq_some (su := .closed) (α := BitVec 8) _ _ _
 
 instance : RangeSize .open UInt8 := RangeSize.openOfClosed
@@ -101,7 +101,7 @@ theorem succ?_eq_succ?_toBitVec {x : UInt16} :
 
 theorem succMany?_eq_succMany?_toBitVec {k : Nat} {x : UInt16} :
     UpwardEnumerable.succMany? k x = UInt16.ofBitVec <$> UpwardEnumerable.succMany? k x.toBitVec := by
-  simp
+  simp [succMany?]
 
 theorem ofBitVec_eq_iff {x : BitVec 16} {a : UInt16} :
     ofBitVec x = a ↔ x = a.toBitVec := by
@@ -109,19 +109,19 @@ theorem ofBitVec_eq_iff {x : BitVec 16} {a : UInt16} :
 
 theorem upwardEnumerableLE_iff_bitVec {x y : UInt16} :
     UpwardEnumerable.LE x y ↔ UpwardEnumerable.LE x.toBitVec y.toBitVec := by
-  simp [UpwardEnumerable.LE, -succMany?, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
+  simp [UpwardEnumerable.LE, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
 
 theorem upwardEnumerableLT_iff_bitVec {x y : UInt16} :
     UpwardEnumerable.LT x y ↔ UpwardEnumerable.LT x.toBitVec y.toBitVec := by
-  simp [UpwardEnumerable.LT, -succMany?, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
+  simp [UpwardEnumerable.LT, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
 
 instance : LawfulUpwardEnumerable UInt16 where
   ne_of_lt x y:= by
     simpa [upwardEnumerableLT_iff_bitVec, ← UInt16.toBitVec_inj] using
       LawfulUpwardEnumerable.ne_of_lt _ _
-  succMany?_zero x := by simp [-succMany?, succMany?_eq_succMany?_toBitVec, succMany?_zero]
-  succMany?_succ a b := by
-    simp [-succMany?, -succ?, succMany?_eq_succMany?_toBitVec, succMany?_succ?, Option.bind_map,
+  succMany?_zero x := by simp [succMany?_eq_succMany?_toBitVec, succMany?_zero]
+  succMany?_succ? a b := by
+    simp [succMany?_eq_succMany?_toBitVec, succMany?_succ?, Option.bind_map,
       Function.comp_def, succ?_eq_succ?_toBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt16 where
@@ -149,10 +149,10 @@ instance : LawfulRangeSize .closed UInt16 where
     simpa [rangeSizeSize_eq_bitVec, UInt16.lt_iff_toBitVec_lt] using
       LawfulRangeSize.size_eq_zero_of_not_isSatisfied (su := .closed) (α := BitVec 16) _ _
   size_eq_one_of_succ?_eq_none bound x := by
-    simpa [rangeSizeSize_eq_bitVec, UInt16.le_iff_toBitVec_le, -succ?, succ?_eq_succ?_toBitVec] using
+    simpa [rangeSizeSize_eq_bitVec, UInt16.le_iff_toBitVec_le, succ?_eq_succ?_toBitVec] using
       LawfulRangeSize.size_eq_one_of_succ?_eq_none (su := .closed) (α := BitVec 16) _ _
   size_eq_succ_of_succ?_eq_some bound init x := by
-    simpa [rangeSizeSize_eq_bitVec, UInt16.le_iff_toBitVec_le, ← UInt16.toBitVec_inj] using
+    simpa [rangeSizeSize_eq_bitVec, UInt16.le_iff_toBitVec_le, ← UInt16.toBitVec_inj, succ?] using
       LawfulRangeSize.size_eq_succ_of_succ?_eq_some (su := .closed) (α := BitVec 16) _ _ _
 
 instance : RangeSize .open UInt16 := RangeSize.openOfClosed
@@ -173,7 +173,7 @@ theorem succ?_eq_succ?_toBitVec {x : UInt32} :
 
 theorem succMany?_eq_succMany?_toBitVec {k : Nat} {x : UInt32} :
     UpwardEnumerable.succMany? k x = UInt32.ofBitVec <$> UpwardEnumerable.succMany? k x.toBitVec := by
-  simp
+  simp [succMany?]
 
 theorem ofBitVec_eq_iff {x : BitVec 32} {a : UInt32} :
     ofBitVec x = a ↔ x = a.toBitVec := by
@@ -181,19 +181,19 @@ theorem ofBitVec_eq_iff {x : BitVec 32} {a : UInt32} :
 
 theorem upwardEnumerableLE_iff_bitVec {x y : UInt32} :
     UpwardEnumerable.LE x y ↔ UpwardEnumerable.LE x.toBitVec y.toBitVec := by
-  simp [UpwardEnumerable.LE, -succMany?, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
+  simp [UpwardEnumerable.LE, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
 
 theorem upwardEnumerableLT_iff_bitVec {x y : UInt32} :
     UpwardEnumerable.LT x y ↔ UpwardEnumerable.LT x.toBitVec y.toBitVec := by
-  simp [UpwardEnumerable.LT, -succMany?, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
+  simp [UpwardEnumerable.LT, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
 
 instance : LawfulUpwardEnumerable UInt32 where
   ne_of_lt x y:= by
     simpa [upwardEnumerableLT_iff_bitVec, ← UInt32.toBitVec_inj] using
       LawfulUpwardEnumerable.ne_of_lt _ _
-  succMany?_zero x := by simp [-succMany?, succMany?_eq_succMany?_toBitVec, succMany?_zero]
-  succMany?_succ a b := by
-    simp [-succMany?, -succ?, succMany?_eq_succMany?_toBitVec, succMany?_succ?, Option.bind_map,
+  succMany?_zero x := by simp [succMany?_eq_succMany?_toBitVec, succMany?_zero]
+  succMany?_succ? a b := by
+    simp [succMany?_eq_succMany?_toBitVec, succMany?_succ?, Option.bind_map,
       Function.comp_def, succ?_eq_succ?_toBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt32 where
@@ -221,10 +221,10 @@ instance : LawfulRangeSize .closed UInt32 where
     simpa [rangeSizeSize_eq_bitVec, UInt32.lt_iff_toBitVec_lt] using
       LawfulRangeSize.size_eq_zero_of_not_isSatisfied (su := .closed) (α := BitVec 32) _ _
   size_eq_one_of_succ?_eq_none bound x := by
-    simpa [rangeSizeSize_eq_bitVec, UInt32.le_iff_toBitVec_le, -succ?, succ?_eq_succ?_toBitVec] using
+    simpa [rangeSizeSize_eq_bitVec, UInt32.le_iff_toBitVec_le, succ?_eq_succ?_toBitVec] using
       LawfulRangeSize.size_eq_one_of_succ?_eq_none (su := .closed) (α := BitVec 32) _ _
   size_eq_succ_of_succ?_eq_some bound init x := by
-    simpa [rangeSizeSize_eq_bitVec, UInt32.le_iff_toBitVec_le, ← UInt32.toBitVec_inj] using
+    simpa [rangeSizeSize_eq_bitVec, UInt32.le_iff_toBitVec_le, ← UInt32.toBitVec_inj, succ?] using
       LawfulRangeSize.size_eq_succ_of_succ?_eq_some (su := .closed) (α := BitVec 32) _ _ _
 
 instance : RangeSize .open UInt32 := RangeSize.openOfClosed
@@ -245,7 +245,7 @@ theorem succ?_eq_succ?_toBitVec {x : UInt64} :
 
 theorem succMany?_eq_succMany?_toBitVec {k : Nat} {x : UInt64} :
     UpwardEnumerable.succMany? k x = UInt64.ofBitVec <$> UpwardEnumerable.succMany? k x.toBitVec := by
-  simp
+  simp [succMany?]
 
 theorem ofBitVec_eq_iff {x : BitVec 64} {a : UInt64} :
     ofBitVec x = a ↔ x = a.toBitVec := by
@@ -253,19 +253,19 @@ theorem ofBitVec_eq_iff {x : BitVec 64} {a : UInt64} :
 
 theorem upwardEnumerableLE_iff_bitVec {x y : UInt64} :
     UpwardEnumerable.LE x y ↔ UpwardEnumerable.LE x.toBitVec y.toBitVec := by
-  simp [UpwardEnumerable.LE, -succMany?, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
+  simp [UpwardEnumerable.LE, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
 
 theorem upwardEnumerableLT_iff_bitVec {x y : UInt64} :
     UpwardEnumerable.LT x y ↔ UpwardEnumerable.LT x.toBitVec y.toBitVec := by
-  simp [UpwardEnumerable.LT, -succMany?, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
+  simp [UpwardEnumerable.LT, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
 
 instance : LawfulUpwardEnumerable UInt64 where
   ne_of_lt x y:= by
     simpa [upwardEnumerableLT_iff_bitVec, ← UInt64.toBitVec_inj] using
       LawfulUpwardEnumerable.ne_of_lt _ _
-  succMany?_zero x := by simp [-succMany?, succMany?_eq_succMany?_toBitVec, succMany?_zero]
-  succMany?_succ a b := by
-    simp [-succMany?, -succ?, succMany?_eq_succMany?_toBitVec, succMany?_succ?, Option.bind_map,
+  succMany?_zero x := by simp [succMany?_eq_succMany?_toBitVec, succMany?_zero]
+  succMany?_succ? a b := by
+    simp [succMany?_eq_succMany?_toBitVec, succMany?_succ?, Option.bind_map,
       Function.comp_def, succ?_eq_succ?_toBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt64 where
@@ -293,10 +293,10 @@ instance : LawfulRangeSize .closed UInt64 where
     simpa [rangeSizeSize_eq_bitVec, UInt64.lt_iff_toBitVec_lt] using
       LawfulRangeSize.size_eq_zero_of_not_isSatisfied (su := .closed) (α := BitVec 64) _ _
   size_eq_one_of_succ?_eq_none bound x := by
-    simpa [rangeSizeSize_eq_bitVec, UInt64.le_iff_toBitVec_le, -succ?, succ?_eq_succ?_toBitVec] using
+    simpa [rangeSizeSize_eq_bitVec, UInt64.le_iff_toBitVec_le, succ?_eq_succ?_toBitVec] using
       LawfulRangeSize.size_eq_one_of_succ?_eq_none (su := .closed) (α := BitVec 64) _ _
   size_eq_succ_of_succ?_eq_some bound init x := by
-    simpa [rangeSizeSize_eq_bitVec, UInt64.le_iff_toBitVec_le, ← UInt64.toBitVec_inj] using
+    simpa [rangeSizeSize_eq_bitVec, UInt64.le_iff_toBitVec_le, ← UInt64.toBitVec_inj, succ?] using
       LawfulRangeSize.size_eq_succ_of_succ?_eq_some (su := .closed) (α := BitVec 64) _ _ _
 
 instance : RangeSize .open UInt64 := RangeSize.openOfClosed
@@ -317,7 +317,7 @@ theorem succ?_eq_succ?_toBitVec {x : USize} :
 
 theorem succMany?_eq_succMany?_toBitVec {k : Nat} {x : USize} :
     UpwardEnumerable.succMany? k x = USize.ofBitVec <$> UpwardEnumerable.succMany? k x.toBitVec := by
-  simp
+  simp [succMany?]
 
 theorem ofBitVec_eq_iff {x : BitVec System.Platform.numBits} {a : USize} :
     ofBitVec x = a ↔ x = a.toBitVec := by
@@ -325,19 +325,19 @@ theorem ofBitVec_eq_iff {x : BitVec System.Platform.numBits} {a : USize} :
 
 theorem upwardEnumerableLE_iff_bitVec {x y : USize} :
     UpwardEnumerable.LE x y ↔ UpwardEnumerable.LE x.toBitVec y.toBitVec := by
-  simp [UpwardEnumerable.LE, -succMany?, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
+  simp [UpwardEnumerable.LE, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
 
 theorem upwardEnumerableLT_iff_bitVec {x y : USize} :
     UpwardEnumerable.LT x y ↔ UpwardEnumerable.LT x.toBitVec y.toBitVec := by
-  simp [UpwardEnumerable.LT, -succMany?, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
+  simp [UpwardEnumerable.LT, succMany?_eq_succMany?_toBitVec, ofBitVec_eq_iff]
 
 instance : LawfulUpwardEnumerable USize where
   ne_of_lt x y:= by
     simpa [upwardEnumerableLT_iff_bitVec, ← USize.toBitVec_inj] using
       LawfulUpwardEnumerable.ne_of_lt _ _
-  succMany?_zero x := by simp [-succMany?, succMany?_eq_succMany?_toBitVec, succMany?_zero]
-  succMany?_succ a b := by
-    simp [-succMany?, -succ?, succMany?_eq_succMany?_toBitVec, succMany?_succ?, Option.bind_map,
+  succMany?_zero x := by simp [succMany?_eq_succMany?_toBitVec, succMany?_zero]
+  succMany?_succ? a b := by
+    simp [succMany?_eq_succMany?_toBitVec, succMany?_succ?, Option.bind_map,
       Function.comp_def, succ?_eq_succ?_toBitVec]
 
 instance : LawfulUpwardEnumerableLE USize where
@@ -365,10 +365,10 @@ instance : LawfulRangeSize .closed USize where
     simpa [rangeSizeSize_eq_bitVec, USize.lt_iff_toBitVec_lt] using
       LawfulRangeSize.size_eq_zero_of_not_isSatisfied (su := .closed) (α := BitVec System.Platform.numBits) _ _
   size_eq_one_of_succ?_eq_none bound x := by
-    simpa [rangeSizeSize_eq_bitVec, USize.le_iff_toBitVec_le, -succ?, succ?_eq_succ?_toBitVec] using
+    simpa [rangeSizeSize_eq_bitVec, USize.le_iff_toBitVec_le, succ?_eq_succ?_toBitVec] using
       LawfulRangeSize.size_eq_one_of_succ?_eq_none (su := .closed) (α := BitVec System.Platform.numBits) _ _
   size_eq_succ_of_succ?_eq_some bound init x := by
-    simpa [rangeSizeSize_eq_bitVec, USize.le_iff_toBitVec_le, ← USize.toBitVec_inj] using
+    simpa [rangeSizeSize_eq_bitVec, USize.le_iff_toBitVec_le, ← USize.toBitVec_inj, succ?] using
       LawfulRangeSize.size_eq_succ_of_succ?_eq_some (su := .closed) (α := BitVec System.Platform.numBits) _ _ _
 
 instance : RangeSize .open USize := RangeSize.openOfClosed

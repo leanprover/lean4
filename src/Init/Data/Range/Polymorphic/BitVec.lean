@@ -25,11 +25,11 @@ instance : UpwardEnumerable (BitVec n) where
 
 instance : LawfulUpwardEnumerable (BitVec n) where
   ne_of_lt := by
-    simp +contextual [UpwardEnumerable.LT, ← BitVec.toNat_inj] at ⊢
+    simp +contextual [UpwardEnumerable.LT, ← BitVec.toNat_inj, succMany?] at ⊢
     omega
   succMany?_zero := by simp [UpwardEnumerable.succMany?, BitVec.toNat_lt_twoPow_of_le]
-  succMany?_succ a b := by
-    simp +contextual [← BitVec.toNat_inj]
+  succMany?_succ? a b := by
+    simp +contextual [← BitVec.toNat_inj, succMany?, succ?]
     split <;> split
     · rename_i h
       simp [← BitVec.toNat_inj, Nat.mod_eq_of_lt (a := b.toNat + a + 1) ‹_›]
@@ -64,7 +64,7 @@ instance : RangeSize .open (BitVec n) := RangeSize.openOfClosed
 
 instance : LawfulRangeSize .closed (BitVec n) where
   size_eq_zero_of_not_isSatisfied bound x := by
-    simp only [SupportsUpperBound.IsSatisfied, BitVec.not_le, RangeSize.size, BitVec.lt_def]
+    simp [SupportsUpperBound.IsSatisfied, BitVec.not_le, RangeSize.size, BitVec.lt_def]
     omega
   size_eq_one_of_succ?_eq_none bound x := by
     have := BitVec.toNat_lt_twoPow_of_le (Nat.le_refl _) (x := bound)
@@ -72,7 +72,7 @@ instance : LawfulRangeSize .closed (BitVec n) where
       apply Classical.not_not.mp
       intro _
       simp [Nat.mod_eq_of_lt (a := x.toNat + 1) (b := 2 ^ n) (by omega)] at h
-    simp [RangeSize.size, BitVec.le_def, ← BitVec.toNat_inj]
+    simp [RangeSize.size, BitVec.le_def, ← BitVec.toNat_inj, succ?]
     omega
   size_eq_succ_of_succ?_eq_some bound init x := by
     have (h : ¬ (init.toNat + 1) % 2 ^ n = 0) : ¬ (init.toNat + 1 ≥ 2 ^ n) := by
@@ -80,7 +80,7 @@ instance : LawfulRangeSize .closed (BitVec n) where
       have : init.toNat + 1 = 2 ^ n := by omega
       simp_all
     simp_all +contextual [RangeSize.size, BitVec.le_def, ← BitVec.toNat_inj,
-      Nat.mod_eq_of_lt (a := init.toNat + 1) (b := 2 ^ n)]
+      Nat.mod_eq_of_lt (a := init.toNat + 1) (b := 2 ^ n), succ?]
     omega
 
 instance : LawfulRangeSize .open (BitVec n) := inferInstance

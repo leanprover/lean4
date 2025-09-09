@@ -41,7 +41,7 @@ instance : LawfulUpwardEnumerableLE Nat where
 
 instance : LawfulUpwardEnumerable Nat where
   succMany?_zero := by simp [UpwardEnumerable.succMany?]
-  succMany?_succ := by simp [UpwardEnumerable.succMany?, UpwardEnumerable.succ?, Nat.add_assoc]
+  succMany?_succ? := by simp [UpwardEnumerable.succMany?, UpwardEnumerable.succ?, Nat.add_assoc]
   ne_of_lt a b hlt := by
     have hn := hlt.choose_spec
     simp only [UpwardEnumerable.succMany?, Option.some.injEq] at hn

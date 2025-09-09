@@ -11,6 +11,7 @@ public import Lean.Meta.AppBuilder
 public import Lean.Meta.CompletionName
 public import Lean.Meta.Constructions.NoConfusionLinear
 import Lean.Meta.Constructions.CtorIdx
+import Lean.Meta.Injective
 
 public section
 
@@ -22,6 +23,110 @@ namespace Lean
 @[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except Kernel.Exception Declaration
 
 open Meta
+
+/--
+Given a constructor (applied to the parameters already), brings its fields into scope twice,
+but uses the same variable for fields that appear in the result type, so that the resulting
+constructor applications have the same type.
+
+Passes to `k`
+* the new variables
+* the indices to the type class
+* and the full constructor application.
+-/
+def withSharedIndices (ctor : Expr) (k : Array Expr → Array Expr → Expr → Expr → MetaM α) : MetaM α := do
+  let ctorType ← inferType ctor
+  forallTelescopeReducing ctorType fun zs ctorRet => do
+    let ctorRet ← whnf ctorRet
+    let ctorRet ← Core.betaReduce ctorRet -- we 'beta-reduce' to eliminate "artificial" dependencies
+    let indInfo ← getConstInfoInduct ctorRet.getAppFn.constName!
+    let indices := ctorRet.getAppArgsN indInfo.numIndices
+    let ctor1 := mkAppN ctor zs
+    let rec go ctor2 todo acc := do
+      match todo with
+      | [] => k acc indices ctor1 ctor2
+      | z::todo' =>
+        if occursOrInType (← getLCtx) z ctorRet then
+          go (mkApp ctor2 z) todo' acc
+        else
+          let t ← whnfForall (← inferType ctor2)
+          assert! t.isForall
+          withLocalDeclD (t.bindingName!.appendAfter "'") t.bindingDomain! fun z' => do
+            go (mkApp ctor2 z') todo' (acc.push z')
+    go ctor zs.toList zs
+
+def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
+  -- Do not do anything unless can_elim_to_type.
+  let .inductInfo indVal ← getConstInfo declName | return
+  let recInfo ← getConstInfo (mkRecName declName)
+  unless recInfo.levelParams.length > indVal.levelParams.length do return
+  if (← isPropFormerType indVal.type) then return
+  let noConfusionName := Name.mkStr declName "noConfusion"
+
+  -- We take the level names from `.rec`, as that conveniently has an extra level parameter that
+  -- is distinct from the ones from the inductive
+  let (v::us) := recInfo.levelParams.map mkLevelParam | throwError "unexpected number of level parameters in {recInfo.name}"
+
+  for ctor in indVal.ctors do
+    let ctorInfo ← getConstInfoCtor ctor
+    let e ← withLocalDeclD `P (.sort v) fun P =>
+      forallBoundedTelescope ctorInfo.type ctorInfo.numParams fun xs _ => do
+        let ctorApp := mkAppN (mkConst ctor us) xs
+        withSharedIndices ctorApp fun ys indices ctor1 ctor2 => do
+          let heqType ← mkEq ctor1 ctor2
+          withLocalDeclD `h heqType fun h => do
+            let noConfusionApp :=
+              mkAppN (mkConst noConfusionName (v :: us)) (xs ++ indices ++ #[P, ctor1, ctor2, h])
+            let noConfusionType ← inferType noConfusionApp
+            -- Here we do the possible expensive reduction that we want to share
+            let noConfusionType ← whnfForall noConfusionType
+            -- noConfusionType := (n1 = n2 → x1 → x2 → … → P) → P
+            assert! noConfusionType.isForall
+            let kType := noConfusionType.bindingDomain!
+            simpNoConfusionAlt kType fun k' k => do
+              let noConfusionApp := mkApp noConfusionApp k
+              mkLambdaFVars (xs ++ #[P] ++ ys ++ #[h, k']) noConfusionApp
+    let name := ctor.str "noConfusion"
+    addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+      (name        := name)
+      (levelParams := recInfo.levelParams)
+      (type        := (← inferType e))
+      (value       := e)
+      (hints       := ReducibilityHints.abbrev)
+    ))
+    setReducibleAttribute name
+    modifyEnv fun env => markNoConfusion env name
+
+where
+  -- Given the type
+  --   t := n1 = n1 → a1 ≍ a2 → x1 = x2 → … → P
+  -- of a noConfusion principle, brings a free variable
+  -- `k' : a1 = a2 → x1 = x2 → … → P` into scope and constructs
+  -- `k := fun _ h1 h2 => k' (eq_of_heq h1) h2` : t`
+  simpNoConfusionAlt {α} (t : Expr) (cont : Expr → Expr → MetaM α) : MetaM α :=
+    forallTelescopeReducing t fun hyps P => do
+      let mut args := #[]
+      let mut kType' := P
+      for hyp in hyps.reverse do
+        let hypType ← inferType hyp
+        if let some (α1, x1, α2, x2) := hypType.heq? then
+          if (← isDefEq α1 α2) then
+            if (← isDefEq x1 x2) then
+              continue
+            args := args.push (← mkEqOfHEq hyp)
+          else
+            args := args.push hyp
+        else if let some (_, x1, x2) := hypType.eq? then
+          if (← isDefEq x1 x2) then
+            continue
+          else
+            args := args.push hyp
+        let hypType ← inferType args.back!
+        kType' := mkForall (← hyp.fvarId!.getUserName) .default hypType kType'
+      args := args.reverse
+      withLocalDeclD `k kType' fun k' => do
+        let k ← mkLambdaFVars hyps (mkAppN k' args)
+        cont k' k
 
 def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   -- Do not do anything unless can_elim_to_type. TODO: Extract to util
@@ -48,6 +153,9 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   setReducibleAttribute name
   modifyEnv fun env => markNoConfusion env name
   modifyEnv fun env => addProtected env name
+
+  mkNoConfusionCtors declName
+
 
 def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do
   if (← getEnv).contains ``noConfusionEnum then
@@ -120,6 +228,7 @@ def mkNoConfusion (declName : Name) : MetaM Unit := do
     mkNoConfusionEnum declName
   else
     mkNoConfusionCore declName
+
 
 builtin_initialize
   registerTraceClass `Meta.mkNoConfusion

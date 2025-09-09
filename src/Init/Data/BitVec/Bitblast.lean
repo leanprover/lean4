@@ -2585,32 +2585,28 @@ def popCountParSum {x : BitVec w} : BitVec w :=
     if hw' : 0 < w then x
       else 0#w
 
+theorem BitVec.popCount_eq_parPrefixSum (hw : 1 < w) {x : BitVec w} :
+  x.popCount = let res := extractAndExtendPopulateAux 0 x 0#0 (by omega) (by omega);
+    res.val.parPrefixSum w hw  (by omega) (by omega) := by
+  let res := extractAndExtendPopulateAux 0 x 0#0 (by omega) (by omega)
+  simp [popCount]
+  sorry
 
 theorem popCount_eq_popCountParSum {x : BitVec w} :
     x.popCount = x.popCountParSum := by
   rcases w with _|_|w
   · simp [popCount, popCountParSum, popCountAuxRec]
   · simp [popCount, popCountParSum, popCountAuxRec]
-    by_cases h0 :x[0]
-    · simp [h0]
-      ext j hj
-      by_cases hj0 : j = 0
-      · simp [hj0, h0]
-      · omega
-    · simp [h0]
-      ext j hj
-      by_cases hj0 : j = 0
-      · simp [hj0, h0]
-      · omega
-  · unfold popCount popCountParSum popCountAuxRec
-    simp
-    split
-    · case _ h0 =>
-
-      sorry
-    · case _ h0 =>
-
-      sorry
+    ext k hk
+    by_cases hk' : 0 < k <;> by_cases hx0 : x[0]
+    · omega
+    · omega
+    · simp [hx0, show k = 0 by omega]
+    · simp [hx0, show k = 0 by omega]
+  · let res := extractAndExtendPopulateAux 0 x 0#0 (by omega) (by omega)
+    rw [BitVec.popCount_eq_parPrefixSum]
+    · simp [popCountParSum]
+    · omega
 
 
 end BitVec

@@ -1992,7 +1992,7 @@ following levels:
 * public: import public information into public scope
 * privateAll: import public and private information into private scope
 * private: import public information into private scope
-* none: do not import
+* none: do not import any .olean
 
 These levels form a lattice in the following way:
 
@@ -2003,13 +2003,17 @@ The level at which a module then is to be imported based on the given `import` r
 determined by the least fixed point of the following rules:
 
 * Root ≥ all
-* A ≥ privateAll ∧ A `(private)? import all` B → B ≥ privateAll
-* A ≥ private ∧ A `import (all)?` B → B ≥ private
-* A ≥ public ∧ A `import (all)?` B → B ≥ public
-* A ≥ privateAll ∧ A `private import` B → B ≥ private
+* A ≥ privateAll ∧ A `(public)? (meta)? import all` B → B ≥ privateAll
+* A ≥ private ∧ A `public (meta)? import (all)?` B → B ≥ private
+* A ≥ public ∧ A `public (meta)? import (all)?` B → B ≥ public
+* A ≥ privateAll ∧ A `(meta)? import` B → B ≥ private
 
 As imports are a DAG, we may need to visit the same module multiple times until its minimum
 necessary level is established.
+
+* Root `meta import` B → needsIR(B)
+* A ≥ private && A `public meta import` B → needsIR(B)
+* needsIR(A) ∧ A `(public)? import (all)?` B → needsIR(B)
 
 For implementation purposes, we represent elements in the lattice using two flags as follows:
 
@@ -2023,15 +2027,16 @@ For implementation purposes, we represent elements in the lattice using two flag
 where go (imports : Array Import) (importAll isExported isMeta : Bool) := do
   for i in imports do
     -- `B = none`?
-    if !(i.isExported || importAll) then
+    if !(i.isExported || importAll || isMeta) then
       continue
     -- `B ≥ privateAll`?
     let importAll := globalLevel == .private || (importAll && i.importAll)
     -- `B ≥ public`?
     let isExported := isExported && i.isExported
+    let isMeta := isMeta || i.isMeta
     let irPhases :=
       if importAll then .all
-      else if isMeta || i.isMeta then .comptime
+      else if isMeta then .comptime
       else .runtime
     let goRec imports := do
       go (importAll := importAll) (isExported := isExported) (isMeta := isMeta || i.isMeta) imports
@@ -2039,10 +2044,11 @@ where go (imports : Array Import) (importAll isExported isMeta : Bool) := do
       -- when module is already imported, bump flags
       let importAll := importAll || mod.importAll
       let isExported := isExported || mod.isExported
+      let isMeta := isMeta || mod.isMeta
       let irPhases := if irPhases == mod.irPhases then irPhases else .all
-      if importAll != mod.importAll || isExported != mod.isExported || irPhases != mod.irPhases then
+      if importAll != mod.importAll || isExported != mod.isExported || isMeta != mod.isMeta || irPhases != mod.irPhases then
         modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
-          importAll, isExported, irPhases }}
+          importAll, isExported, irPhases, isMeta }}
         -- bump entire closure
         if let some mod := mod.mainModule? then
           goRec mod.imports

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Joachim Breitner
 module
 
 prelude
+public import Init.Data.Iterators.Consumers.Stream
 public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.InferType
 public import Lean.AuxRecursor

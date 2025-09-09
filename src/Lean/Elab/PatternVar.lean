@@ -220,7 +220,7 @@ private def processVar (idStx : Syntax) : M Syntax := do
 private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool := Id.run do
   if h₁ : s₁.vars.size = s₂.vars.size then
     for h₂ : i in startingAt...s₁.vars.size do
-      if s₁.vars[i] != s₂.vars[i]'(by have y := Std.PRange.lt_upper_of_mem h₂; simp_all +zetaDelta) then
+      if s₁.vars[i] != s₂.vars[i] then
         return false
     true
   else

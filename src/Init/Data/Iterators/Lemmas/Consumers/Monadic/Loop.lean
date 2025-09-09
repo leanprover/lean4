@@ -60,19 +60,33 @@ theorem IterM.forIn_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m 
         IteratorLoop.wellFounded_of_finite it init _ (fun _ => id) (fun out _ acc => (⟨·, .intro⟩) <$> f out acc) := by
   simp only [ForIn.forIn, forIn'_eq]
 
-@[congr] theorem IterM.forIn'_congr {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Finite α m] [IteratorLoop α m m]
+@[congr] theorem IterM.forIn'_congr {α β : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Monad n] [Monad m]
+    [Iterator α m β] [Finite α m] [IteratorLoop α m n] [MonadLiftT m n]
     {ita itb : IterM (α := α) m β} (w : ita = itb)
     {b b' : γ} (hb : b = b')
-    {f : (a' : β) → _ → γ → m (ForInStep γ)}
-    {g : (a' : β) → _ → γ → m (ForInStep γ)}
+    {f : (a' : β) → _ → γ → n (ForInStep γ)}
+    {g : (a' : β) → _ → γ → n (ForInStep γ)}
     (h : ∀ a m b, f a (by simpa [w] using m) b = g a m b) :
-    letI : ForIn' m (IterM (α := α) m β) β _ := IterM.instForIn'
+    letI : ForIn' n (IterM (α := α) m β) β _ := IterM.instForIn'
     forIn' ita b f = forIn' itb b' g := by
   subst_eqs
   simp only [← funext_iff] at h
   rw [← h]
   rfl
+
+@[congr] theorem IterM.forIn_congr {α β : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Monad n] [Monad m]
+    [Iterator α m β] [Finite α m] [IteratorLoop α m n] [MonadLiftT m n]
+    {ita itb : IterM (α := α) m β} (w : ita = itb)
+    {b b' : γ} (hb : b = b')
+    {f : (a' : β) → γ → n (ForInStep γ)}
+    {g : (a' : β) → γ → n (ForInStep γ)}
+    (h : ∀ a b, f a b = g a b) :
+    forIn ita b f = forIn itb b' g := by
+  subst_eqs
+  simp only [← funext_iff] at h
+  rw [← h]
 
 theorem IterM.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n]

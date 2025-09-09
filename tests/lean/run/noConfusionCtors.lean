@@ -25,7 +25,8 @@ info: @[reducible] def Vec.cons.noConfusion.{u_1, u} : {α : Type u} →
   (P : Sort u_1) →
     {n : Nat} →
       (x : α) →
-        (xs : Vec α n) → (x' : α) → (xs' : Vec α n) → Vec.cons x xs = Vec.cons x' xs' → (x = x' → xs = xs' → P) → P
+        (xs : Vec α n) →
+          (x' : α) → (xs' : Vec α n) → Vec.cons x xs = Vec.cons x' xs' → (n = n → x = x' → xs ≍ xs' → P) → P
 -/
 #guard_msgs in
 #print sig Vec.cons.noConfusion
@@ -35,7 +36,7 @@ inductive I : (n : Nat) → Type where
 
 /--
 info: @[reducible] def I.mk.noConfusion.{u} : (P : Sort u) →
-  (n : Nat) → (b b' : Bool) → I.mk n b = I.mk n b' → (b = b' → P) → P
+  (n : Nat) → (b b' : Bool) → I.mk n b = I.mk n b' → (n = n → b = b' → P) → P
 -/
 #guard_msgs in #print sig I.mk.noConfusion
 
@@ -81,8 +82,9 @@ info: constructor Tmₛ.app.{u} : {T : Type u} → {A : T → Tyₛ} → Tmₛ (
 info: @[reducible] def Tmₛ.app.noConfusion.{u_1, u} : (P : Sort u_1) →
   {T : Type u} →
     {A : T → Tyₛ} →
-      (a : Tmₛ (Tyₛ.SPi T A)) → (arg : T) → (a' : Tmₛ (Tyₛ.SPi T A)) → a.app arg = a'.app arg → (a = a' → P) → P :=
-fun P {T} {A} a arg a' h k => Tmₛ.noConfusion h fun T_eq A_eq a_eq arg_eq => k ⋯
+      (a : Tmₛ (Tyₛ.SPi T A)) →
+        (arg : T) → (a' : Tmₛ (Tyₛ.SPi T A)) → a.app arg = a'.app arg → (T = T → A ≍ A → a ≍ a' → arg ≍ arg → P) → P :=
+fun P {T} {A} a arg a' h k => Tmₛ.noConfusion h k
 -/
 #guard_msgs in #print Tmₛ.app.noConfusion
 
@@ -113,7 +115,8 @@ info: @[reducible] def Matrix.row.noConfusion.{u_1, u} : {α : Type u} →
       (v : Vector α n) →
         (rest : Matrix α m n) →
           (v' : Vector α n) →
-            (rest' : Matrix α m n) → Matrix.row n m v rest = Matrix.row n m v' rest' → (v = v' → rest = rest' → P) → P
+            (rest' : Matrix α m n) →
+              Matrix.row n m v rest = Matrix.row n m v' rest' → (n = n → m = m → v ≍ v' → rest ≍ rest' → P) → P
 -/
 #guard_msgs in #print sig Matrix.row.noConfusion
 
@@ -246,6 +249,6 @@ info: @[reducible] def ComplexVec.extend.noConfusion.{u_1, u} : {α : Type u} �
             (h' : n > 0) →
               (x' : α) →
                 (rest' : ComplexVec α n h') →
-                  ComplexVec.extend x rest = ComplexVec.extend x' rest' → (x = x' → rest = rest' → P) → P
+                  ComplexVec.extend x rest = ComplexVec.extend x' rest' → (n = n → x = x' → rest ≍ rest' → P) → P
 -/
 #guard_msgs in #print sig ComplexVec.extend.noConfusion

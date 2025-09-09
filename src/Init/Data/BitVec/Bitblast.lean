@@ -2387,15 +2387,84 @@ theorem fastUmulOverflow (x y : BitVec w) :
 
 /-! ## Auxilliary lemmas for popcount -/
 /-- Recursively extract one bit at a time and extend it to width `w`. `hlen` emulates the behaviour of Vector to simplify proving the correctness of the circuit. -/
-def extractAndExtendPopulateAux (idx : Nat) (x : BitVec w) (acc : BitVec (w * idx)) (hlt : idx ≤ w) :=
+def extractAndExtendPopulateAux (idx : Nat) (x : BitVec w) (acc : BitVec (w * idx)) (hlt : idx ≤ w)
+  (hacc : ∀ i (_ : i < idx),
+        ∀ j (_ : j < w),
+          acc.getLsbD (w * i + j) = (BitVec.zeroExtend w (BitVec.extractLsb' i 1 x)).getLsbD j)
+  : { l : BitVec (w * w) //
+      ∀ i (_ : i < w), ∀ j (_ : j < w),
+        l.getLsbD (w * i + j) = (BitVec.zeroExtend w (BitVec.extractLsb' i 1 x)).getLsbD j} :=
   match hwi : w - idx with
   | 0 =>
     have hcast : w * idx = w * w := by rw [show idx = w by omega]
-    hcast▸acc
+    ⟨BitVec.cast hcast acc, by
+      intros i hi j hj
+      specialize hacc i (by omega) j hj
+      have heqcast : (BitVec.cast hcast acc).getLsbD (w * i + j) = (acc).getLsbD (w * i + j) := by simp
+      rw [heqcast]
+      simp [hacc]
+      ⟩
   | i + 1 =>
     have hcast : w + w * idx = w * (idx + 1) := by simp [Nat.mul_add]; omega
     let bv := BitVec.zeroExtend w (BitVec.extractLsb' idx 1 x)
-    extractAndExtendPopulateAux (idx + 1) x (hcast▸(bv ++ acc)) (by omega)
+    let ⟨res,proof⟩ := extractAndExtendPopulateAux (idx + 1) x (BitVec.cast hcast (bv ++ acc)) (by omega)
+                        (by
+                          intros i hi j hj
+                          simp [hj]
+                          by_cases hj0 : j = 0
+                          · simp [hj0, getLsbD_append]
+                            have := Nat.mul_lt_mul_left (a := w) (b := i) (c := idx) (by omega)
+                            by_cases hlt : w * i < w * idx
+                            · simp [hlt] at this
+                              simp [hlt]
+                              specialize hacc i (by omega) 0 (by omega)
+                              simp at hacc
+                              rw [getLsbD_eq_getElem (by omega)] at hacc
+                              simp [hacc]
+                              intros
+                              omega
+                            · simp [hlt]
+                              simp only [bv]
+                              simp [hlt] at this
+                              have : i = idx := by omega
+                              rw [this]
+                              simp
+                              intros
+                              omega
+                          · rw [getLsbD_append]
+                            have := Nat.mul_lt_mul_left (a := w) (b := i) (c := idx) (by omega)
+                            by_cases hlt : w * i + j < w * idx
+                            · simp [hlt]
+                              specialize hacc i (by omega) j hj
+                              rw [getLsbD_eq_getElem (by omega)] at hacc
+                              simp [hacc]
+                              intros hj hj0
+                              omega
+                            · simp [hlt]
+                              simp only [bv]
+                              simp only [zeroExtend, getLsbD_setWidth]
+                              by_cases hc : w * i + j - w * idx < w
+                              · simp only [hj0, decide_false,
+                                Bool.false_and, and_eq_false_imp, decide_eq_true_eq]
+                                intros hp
+                                simp [getLsbD_extractLsb']
+                                intros hz
+                                simp at *
+                                simp_all
+                                have : j = w * idx - w * i := by omega
+                                have : j = w * (idx - i) := by simp [Nat.mul_sub]; omega
+                                have hdiv : j / w = (idx - i) := by exact Nat.div_eq_of_eq_mul_right hc this
+                                have hzero := Nat.div_eq_zero_iff_lt (k := w) (x := j) (by omega)
+                                simp only [hj] at hzero
+                                simp [show j / w = 0 by simp [hzero]] at hdiv
+                                have : idx = i := by omega
+                                simp [this] at *
+                                omega
+                              · simp [hc]
+                                intros
+                                omega
+                            )
+    ⟨res,proof⟩
 
 /-- Given a list of `BitVec w`, we recursively construct the parallel prefix sum for each couple of elements in the initial input. -/
 def addVecAux (usedNodes validNodes : Nat)
@@ -2403,25 +2472,25 @@ def addVecAux (usedNodes validNodes : Nat)
     (oldParSum : BitVec (validNodes * w))
     (newParSum : BitVec (usedNodes/2 * w))
     (hacc :
-      ∀ i (_ : i < usedNodes/2),
+      ∀ i (_ : i < (usedNodes/2)),
         ∀ j (_ : j < w),
-          newParSum.getLsbD (i * w + j) =
+          newParSum.extractLsb' (i * w) w =
             let rhs := if h : i * 2 + 1 < validNodes then
                   BitVec.extractLsb' ((i * 2 + 1) * w) w oldParSum
                 else 0#w
             let lhs := BitVec.extractLsb' (i * 2 * w) w oldParSum
-            (lhs + rhs).getLsbD j
+            lhs + rhs
       )
     (hval : validNodes ≤ w) (hused : usedNodes ≤ validNodes + 1) (hmod : usedNodes % 2 = 0) :
     {l : BitVec (((validNodes + 1)/2) * w)  //
       ∀ i (_ : i < (validNodes + 1)/2),
         ∀ j (_ : j < w),
-          l.getLsbD (i * w + j) =
+          l.extractLsb' (i * w) w =
             let rhs := if h : i * 2 + 1 < validNodes then
                   BitVec.extractLsb' ((i * 2 + 1) * w) w oldParSum
                 else 0#w
             let lhs := BitVec.extractLsb' (i * 2 * w) w oldParSum
-            (lhs + rhs).getLsbD j}
+            lhs + rhs}
     :=
   match huv : validNodes - usedNodes with
   | 0 =>
@@ -2433,18 +2502,15 @@ def addVecAux (usedNodes validNodes : Nat)
       · simp [hor] at *
     ⟨hcast▸newParSum, by
         intros i hi j hj
-        have hcast_eq : (hcast ▸ newParSum).getLsbD (i * w + j) = (newParSum).getLsbD (i * w + j) := by
+        have hcast_eq : extractLsb' (i * w) w (hcast ▸ newParSum) = extractLsb' (i * w) w (newParSum) := by
           congr 1
           · omega
           · exact eqRec_heq hcast newParSum
         rw [hcast_eq]
-        rcases hor with hor|hor
-        · specialize hacc i (by omega) j (by omega)
-          simp at hacc
-          simp [hacc]
-        · specialize hacc i (by omega) j (by omega)
-          simp at hacc
-          simp [hacc]
+        have := Nat.mul_lt_mul_left (a := (validNodes + 1) / 2) (b := 1) (c := w) (by omega)
+        specialize hacc i (by omega) i (by omega)
+        simp at hacc
+        simp [hacc]
         ⟩
   | i + 1 =>
     let rhs := if h : usedNodes + 1 < validNodes then
@@ -2457,103 +2523,41 @@ def addVecAux (usedNodes validNodes : Nat)
       simp [show usedNodes / 2 * w + w = usedNodes / 2 * w + 1 * w by omega,
           show (usedNodes + 2) / 2 = usedNodes/2 + 1 by omega, Nat.add_mul]
       omega
-    have hproof :  ∀ i (hi : i < (usedNodes + 2) / 2),
-                    ∀ j (hj : j < w),
-                      (BitVec.cast hcast newParSum').getLsbD (i * w + j) =
-                        let rhs := if h : i * 2 + 1 < validNodes then extractLsb' ((i * 2 + 1) * w) w oldParSum else 0#w;
-                        let lhs := extractLsb' (i * 2 * w) w oldParSum;
-                        (lhs + rhs).getLsbD j  := by
-              intros i hi j hj
-              simp [getLsbD_append, newParSum']
-              by_cases hilt :  i * w + j < usedNodes / 2 * w
-              · simp [hilt]
-                specialize hacc i (by
-                  apply Classical.byContradiction
-                  intro hcontra
-                  have : usedNodes/2 = i := by sorry
-                  simp [show usedNodes/2 = i by omega] at *
-                  omega
-                  ) j hj
-                simp [show i * w + j < usedNodes/2 * w by omega] at hacc
-                simp [hacc]
-              · simp [hilt, add, lhs, rhs]
-                have h1 : i * w < usedNodes/2 * w := by refine Nat.mul_lt_mul_of_pos_right (by sorry) (by omega)
-                simp at hi hilt
-                have h2 : usedNodes / 2 * w ≤ w * (i + 1) := by
-                  simp [Nat.mul_add]
-                  rw [Nat.mul_comm w i]
-                  omega
-                have h3 : usedNodes / 2 * w - w ≤ w * i := by exact sub_le_of_le_add h2
-                have h4 : (usedNodes / 2 - 1) * w ≤ w * i := by
-                  rw [show usedNodes / 2 * w - w = usedNodes / 2 * w - 1 * w by omega] at h3
-                  rw [← Nat.sub_mul] at h3
-                  exact h3
-                have h5 := Nat.mul_le_mul_right_iff (k := w) (n := usedNodes / 2 - 1) (m := i) (by omega)
-                rw [Nat.mul_comm i w] at h5
-                simp [h4] at h5
-                have heq : i = usedNodes/2 - 1 := by sorry
-                rw [heq] at *
-                split
-                · case _ hsplit =>
-
-                  sorry
-                · case _ hsplit =>
-
-                  sorry
-                  -- -- · simp [hilt]
-                  --   rw [show i * w + j - usedNodes / 2 * w = j + i * w - usedNodes / 2 * w by omega]
-                  --   have hu1 : i < usedNodes/2 ∨ i = usedNodes/2 := by omega
-                  --   rcases hu1 with hu1|hu1
-                  --   · simp [add, rhs, lhs]
-                  --     simp at hilt
-                  --     have h1 := Nat.mul_lt_mul_right (a := w) (b := i) (c := usedNodes/2) (by omega)
-                  --     have h2 : usedNodes / 2 * w ≤ i * w + w := by omega
-                  --     have h3 : usedNodes / 2 * w ≤ (i + 1) * w := by
-                  --       rw [Nat.add_mul]
-                  --       omega
-                  --     have h4 := Nat.mul_lt_mul_right (a := w) (b := usedNodes/2) (c := i) (by omega)
-                  --     simp [hu1] at h1
-                  --     have h5 : i * w + w < usedNodes / 2 * w + w := by omega
-                  --     have h6 : w * (i + 1) < usedNodes / 2 * w + w := by rw [Nat.mul_add, Nat.mul_comm]; omega
-                  --     have h6 : w * (i + 1) < w * (usedNodes / 2 + 1) := by
-                  --         simp [Nat.mul_add]
-                  --         simp [Nat.mul_comm] at h1
-                  --         exact h1
-
-                  --     have : i * w + j < usedNodes / 2 * w := by
-                  --       have : i * w + j < w * (i + 1) := by simp [Nat.mul_add, Nat.mul_comm]; omega
-                  --       suffices i * w + w ≤ usedNodes / 2 * w by omega
-
-
-                  --       sorry
-                  --     omega
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                      -- sorry
-                    -- · simp [add, rhs, lhs]
-                    --   rw [hu1] at *
-                    --   simp [show usedNodes/2*2 = usedNodes by omega]
-                    --   rw [BitVec.add_comm]
     let ⟨res, proof⟩ := addVecAux (usedNodes + 2) validNodes hw oldParSum (BitVec.cast hcast newParSum')
-                        (hproof) hval (by omega) (by omega)
-    ⟨res, by
-            intros i hi j hj
-            specialize proof i (by omega) j hj
-            exact proof⟩
+                        (by
+                          intros i1 hi1 j1 hj1
+                          have hcast_eq : extractLsb' (i1 * w) w (BitVec.cast hcast newParSum') = (extractLsb' (i1 * w) w (newParSum')) := by simp [extractLsb']
+                          rw [hcast_eq]
+                          simp [newParSum']
+                          by_cases hsplit : i1 < usedNodes / 2
+                          · rw [extractLsb'_append_eq_of_add_le]
+                            · specialize hacc i1 hsplit j1 hj1
+                              simp [hacc]
+                            · rw [show i1 * w + w = i1 * w + 1 * w by omega]
+                              rw [← Nat.add_mul]
+                              simp_all
+                              exact Nat.mul_le_mul_right w hsplit
+                          · rw [extractLsb'_append_eq_of_le]
+                            have : i1 = usedNodes/2 := by omega
+                            simp [this]
+                            simp_all
+                            simp [add, rhs, lhs]
+                            split
+                            · case _ hsplit' =>
+                              simp [show usedNodes / 2 * 2 + 1 < validNodes by omega]
+                              simp [show usedNodes / 2 * 2 * w = usedNodes * w by
+                                refine (Nat.mul_right_cancel_iff ?_).mpr (by omega); omega]
+                              simp [show (usedNodes / 2 * 2 + 1) * w = (usedNodes + 1) * w by
+                                refine (Nat.mul_right_cancel_iff ?_).mpr (by omega); omega]
+                              simp [BitVec.add_comm]
+                            · case _ hsplit' =>
+                              rw [show usedNodes / 2 * 2 * w = usedNodes * w by
+                                refine (Nat.mul_right_cancel_iff ?_).mpr (by omega); omega]
+                              simp [show ¬ usedNodes / 2 * 2 + 1 < validNodes by omega]
+                            · simp_all
+                              exact Nat.mul_le_mul_right w hsplit
+                              ) hval (by omega) (by omega)
+    ⟨res, proof⟩
 
 
 /-- Tail-recursive definition of parrallel sum prefix. At each iteration, we construct a new vector containing the results of summing each couple of elements in the initial vector. -/
@@ -2569,13 +2573,13 @@ def parPrefixSum
   else
     have hcast : validNodes * w = w := by
       simp [show validNodes = 1 by omega]
-    hcast▸parSum
+    BitVec.cast hcast parSum
 
 /-- We express `popCount` as the result of parallel prefix sum. -/
 def popCountParSum {x : BitVec w} : BitVec w :=
   if hw : 1 < w then
     let initAcc := 0#0
-    let res := extractAndExtendPopulateAux 0 x initAcc (by omega)
+    let res := extractAndExtendPopulateAux 0 x initAcc (by omega) (by intros; omega)
     parPrefixSum w res hw (by omega) (by omega)
   else
     if hw' : 0 < w then x

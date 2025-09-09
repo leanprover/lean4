@@ -6,8 +6,14 @@ open Lean.Order
 coinductive infSeq(r : α → α → Prop): α → Prop where
   | step : r a b → infSeq r b → infSeq r a
 
-#check infSeq.coinduct
+/--
+info: infSeq.step.{u_1} {α : Sort u_1} (r : α → α → Prop) {a b : α} : r a b → infSeq r b → infSeq r a
+-/
+#guard_msgs in
+#check infSeq.step
 
+#check infSeq.coinduct
+#check infSeq.eq_def
 
 #check infSeq_functor.step
 
@@ -46,10 +52,7 @@ info: infSeq_functor.{u_1} {α : Sort u_1} (r : α → α → Prop) (infSeq_func
 #check infSeq_functor
 
 
-def infSeq.step (r : α → α → Prop) {a b : α} : r a b → infSeq r b → infSeq r a := by
-  intro h1 h2
-  rw [infSeq]
-  apply infSeq_functor.step
+
 
 /--
 info: infSeq_functor.{u_1} {α : Sort u_1} (r : α → α → Prop) (infSeq_functor.call : α → Prop) : α → Prop
@@ -71,8 +74,14 @@ mutual
   | mk : tick → tock
 end
 
+/-- info: tick.mk : tock → tick -/
+#guard_msgs in
+#check tick.mk
+
 /-- info: tock_functor (tick_functor.call tock_functor.call : Prop) : Prop -/
 #guard_msgs in
 #check tock_functor
 
 #check tock.coinduct
+
+#check tick.mutual_induct

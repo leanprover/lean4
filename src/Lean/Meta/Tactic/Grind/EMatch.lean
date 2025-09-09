@@ -560,10 +560,26 @@ private def applyAssignment (mvars : Array Expr) : OptionT (StateT Choice M) Uni
   go 0
 
 /--
+Use a fresh name generator for creating internal metavariables for theorem instantiation.
+This is technique to ensure the metavariables ids do not depend on operations performed before invoking `grind`.
+Without this trick, we experience counterintuitive behavior where small changes affect the metavariable ids, and
+consequently the hash code for expressions, and operations such as `qsort` using `Expr.quickLt` in
+`assignUnassignedLevelMVars`.
+This code is correct because the auxiliary metavariables created during theorem instantiation cannot escape.
+-/
+private abbrev withFreshNGen (x : M α) : M α := do
+  let ngen ← getNGen
+  try
+    setNGen { namePrefix := `_uniq.grind.ematch, idx := 1 }
+    x
+  finally
+    setNGen ngen
+
+/--
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
 Missing parameters are synthesized using type inference and type class synthesis."
 -/
-private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do withNewMCtxDepth do
+private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do withNewMCtxDepth do withFreshNGen do
   let thm := (← read).thm
   unless (← markTheoremInstance thm.proof c.assignment) do
     return ()

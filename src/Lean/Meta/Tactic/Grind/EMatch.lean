@@ -395,21 +395,21 @@ private def assignUnassignedLevelMVars (us : Array LMVarId) (proof : Expr) (prop
       for c' in cs do
         let saved ← getMCtx
         try
-          unless (← isDefEq c c') do return ()
-          -- update pending universe metavariables
-          let us ← us.filterMapM fun u => do
-            let u ← instantiateLevelMVars u
-            if (← hasAssignableLevelMVar u) then
-              return some u
-            else
-              return none
-          if us.isEmpty then
-            -- all universe metavariables have been assigned
-            let prop ← instantiateMVars prop
-            let proof ← instantiateMVars proof
-            modify (·.push (proof, prop))
-            return () -- Found instantiation
-          search us (i+1)
+          if (← isDefEq c c') then
+            -- update pending universe metavariables
+            let us ← us.filterMapM fun u => do
+              let u ← instantiateLevelMVars u
+              if (← hasAssignableLevelMVar u) then
+                return some u
+              else
+                return none
+            if us.isEmpty then
+              -- all universe metavariables have been assigned
+              let prop ← instantiateMVars prop
+              let proof ← instantiateMVars proof
+              modify (·.push (proof, prop))
+              return () -- Found instantiation
+            search us (i+1)
         finally
           setMCtx saved
     else

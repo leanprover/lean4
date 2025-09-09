@@ -205,5 +205,13 @@ init_grind_norm
   Field.inv_zero Field.inv_inv Field.inv_one Field.inv_neg
   -- SMul normalizer
   smul_int_eq_mul smul_nat_eq_mul
+  -- NatCast & IntCast for algebraic structures
+  Semiring.natCast_add
+  Semiring.natCast_pow
+  Semiring.natCast_mul
+  Ring.intCast_add
+  Ring.intCast_mul
+  Ring.intCast_pow
+  Ring.intCast_sub
 
 end Lean.Grind

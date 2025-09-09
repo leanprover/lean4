@@ -87,7 +87,7 @@ def normInst (instPos : Nat) (inst : Expr) (e : Expr) : SimpM Simp.DStep := do
   unless instPos < e.getAppNumArgs do return .continue
   let instCurr := e.getArg! instPos
   if inst == instCurr then return .continue
-  unless (← isDefEq inst instCurr) do return .continue
+  unless (← withReducibleAndInstances <| isDefEq inst instCurr) do return .continue
   e.withApp fun f args => do
     let args := args.set! instPos inst
     return .visit (mkAppN f args)
@@ -122,6 +122,7 @@ builtin_dsimproc_decl normIntSubInst ((_ - _ : Int)) := normInst 3 Int.mkInstHSu
 builtin_dsimproc_decl normIntDivInst ((_ / _ : Int)) := normInst 3 Int.mkInstHDiv
 builtin_dsimproc_decl normIntModInst ((_ % _ : Int)) := normInst 3 Int.mkInstMod
 builtin_dsimproc_decl normIntPowInst ((_ ^ _ : Int)) := normInst 3 Int.mkInstHPow
+builtin_dsimproc_decl normNatCastInst ((NatCast.natCast _ : Int)) := normInst 1 Int.mkInstNatCast
 
 /--
 Returns `true`, if `@OfNat.ofNat α n inst` is the standard way we represent `Int` numerals in Lean.
@@ -186,6 +187,7 @@ def addSimproc (s : Simprocs) : CoreM Simprocs := do
   let s ← s.add ``normIntDivInst (post := false)
   let s ← s.add ``normIntModInst (post := false)
   let s ← s.add ``normIntPowInst (post := false)
+  let s ← s.add ``normNatCastInst (post := false)
   let s ← s.add ``normIntOfNatInst (post := false)
   let s ← s.add ``normNatCastNum (post := false)
   let s ← s.add ``normIntCastNum (post := false)

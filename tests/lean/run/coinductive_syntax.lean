@@ -1,10 +1,14 @@
-set_option trace.Elab.inductive true
-set_option trace.Elab.definition true
-set_option trace.Elab.definition.partialFixpoint true
+set_option trace.Elab.inductive false
+set_option trace.Elab.definition false
+set_option trace.Elab.definition.partialFixpoint false
+set_option trace.Meta.SumOfProducts true
 open Lean.Order
 
 coinductive infSeq(r : α → α → Prop): α → Prop where
   | step : r a b → infSeq r b → infSeq r a
+
+
+#check infSeq_functor.sop
 
 /--
 info: infSeq.step.{u_1} {α : Sort u_1} (r : α → α → Prop) {a b : α} : r a b → infSeq r b → infSeq r a
@@ -12,11 +16,20 @@ info: infSeq.step.{u_1} {α : Sort u_1} (r : α → α → Prop) {a b : α} : r 
 #guard_msgs in
 #check infSeq.step
 
+
 #check infSeq.coinduct
 #check infSeq.eq_def
 
 #check infSeq_functor.step
 
+theorem mythm (r : α → α → Prop) (call : α → Prop) :
+  infSeq_functor r call = fun a => (∃ b, r a b ∧ call b) := by
+    apply funext
+    intro a
+    apply eq_iff_iff.mpr
+    apply infSeq_functor.sop
+
+#print mythm
 
 def infSeq2 (r : α → α → Prop) : α → Prop := infSeq_functor r (infSeq2 r)
   coinductive_fixpoint monotonicity by

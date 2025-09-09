@@ -14,6 +14,7 @@ public import Lean.Meta.Constructions
 public import Lean.Meta.CollectFVars
 public import Lean.Meta.SizeOf
 public import Lean.Meta.Injective
+public import Lean.Meta.SumOfProducts
 public import Lean.Elab.Command
 public import Lean.Elab.DefView
 public import Lean.Elab.DeclUtil
@@ -1232,6 +1233,8 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
         IndPredBelow.mkBelow view0.declName
         for e in elabs do
           mkInjectiveTheorems e.view.declName
+          if elabs.any (·.isCoinductive) then
+            mkSumOfProducts e.view.declName
     for e in elabs do
       enableRealizationsForConst e.view.declName
     return res

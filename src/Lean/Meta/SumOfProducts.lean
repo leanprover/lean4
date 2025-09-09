@@ -368,17 +368,19 @@ private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) (re
   /- we use these names for our universe parameters, maybe we should construct a copy of them
   using `uniq_name` -/
 
-  let (thmTy, shape, rhs) ← Meta.forallTelescope type fun fvars ty ↦ do
+  let (thmTy, shape, rhs, numArgs) ← Meta.forallTelescope type fun fvars ty ↦ do
     if !ty.isProp then throwError "mk_iff only applies to prop-valued declarations"
     let lhs := mkAppN (mkConst inductVal.name univs) fvars
     let fvars' := fvars.toList
     let shape_rhss ← constrs.mapM (constrToProp univs (fvars'.take params) (fvars'.drop params))
     let (shape, rhss) := shape_rhss.unzip
     let rhs := mkOrList rhss
-    let rhs ← mkLambdaFVars (fvars.extract params) rhs
+    let rhs ← mkLambdaFVars fvars rhs
+
+
 
     trace[Meta.SumOfProducts] "rhs: {rhs}"
-    pure (← mkForallFVars fvars (mkApp2 (mkConst `Iff) lhs (mkOrList rhss)), shape, rhs)
+    pure (← mkForallFVars fvars (mkApp2 (mkConst `Iff) lhs (mkOrList rhss)), shape, rhs, fvars.size - params)
 
   let mvar ← mkFreshExprMVar (some thmTy)
   let mvarId := mvar.mvarId!
@@ -391,15 +393,20 @@ private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) (re
   toInductive mpr' constrs ((fvars.toList.take params).map .fvar) shape mprFvar
 
   let proof ← instantiateMVars mvar
-  let test ← forallBoundedTelescope thmTy params fun args body => do
-    trace[Meta.SumOfProducts] "thmTy: {args}, {body}"
-    -- let res ← mkAppM ``funext #[body]
-    -- trace[Meta.SumOfProducts] "res: {res}"
   addDecl <| .thmDecl {
     name := rel
     levelParams := univNames
     type := thmTy
     value := proof
+  }
+
+  addDecl <| .defnDecl {
+    name := inductVal.name ++ `existential
+    levelParams := inductVal.levelParams
+    type := ←inferType rhs
+    value := rhs
+    hints := .opaque
+    safety := .safe
   }
   if let some relStx := relStx then
     addDeclarationRangesFromSyntax rel (← getRef) relStx

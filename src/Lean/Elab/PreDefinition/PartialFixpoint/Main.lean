@@ -183,12 +183,12 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
           discard <| Term.logUnassignedUsingErrorInfos mvars
           pure (goal, ← mkSorry goal (synthetic := true))
       else
-        -- let hmono ← mkFreshExprSyntheticOpaqueMVar goal
-        -- prependError m!"Could not prove '{preDef.declName}' to be monotone in its recursive calls:" do
-        --   solveMono failK hmono.mvarId!
-        --trace[Elab.definition.partialFixpoint] "monotonicity proof for {preDef.declName}: {hmono}"
-        --pure (goal, ← instantiateMVars hmono)
-        pure (goal, ← mkSorry goal (synthetic := true))
+        let hmono ← mkFreshExprSyntheticOpaqueMVar goal
+        prependError m!"Could not prove '{preDef.declName}' to be monotone in its recursive calls:" do
+          solveMono failK hmono.mvarId!
+        trace[Elab.definition.partialFixpoint] "monotonicity proof for {preDef.declName}: {hmono}"
+        pure (goal, ← instantiateMVars hmono)
+        --pure (goal, ← mkSorry goal (synthetic := true))
     let (_, hmono) ← PProdN.genMk mkMonoPProd hmonos
 
     let packedValue ← mkFixOfMonFun packedType packedInst hmono

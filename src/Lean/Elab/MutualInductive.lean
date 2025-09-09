@@ -1043,17 +1043,33 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (numPara
       let id := Expr.mvarId! mVar
       let some fixEq ← PartialFixpoint.getUnfoldFor? (removeFunctorPostfix name) | throwError "No unfold lemma"
       let mut fixEq := mkConst fixEq levelParams
+      let mut unfolded := mkConst (name ++ `existential) levelParams
+      unfolded ← unfoldDefinition unfolded
       fixEq := mkAppN fixEq params
+      unfolded := mkAppN unfolded bodyExpr.getAppArgs
+      unfolded ← whnf unfolded
+
+      trace[Elab.inductive] "unfolded: {unfolded}"
       for arg in bodyAppArgs do
         fixEq ← mkAppM ``congrFun #[fixEq, arg]
-      let hole ← Lean.MVarId.replaceTargetEq id bodyExpr fixEq
+      let hole ← Lean.MVarId.replaceTargetEq id unfolded fixEq
+
+      let mut equivLemma := mkConst (name ++ `sop) levelParams
+      equivLemma := mkAppN equivLemma bodyExpr.getAppArgs
+
+      equivLemma ← mkAppM ``Iff.mp #[equivLemma]
+
+      let [hole] ← hole.apply equivLemma | throwError "sorry"
+
+
       let constructor := mkAppN constructor params
       let constructor := mkAppN constructor predicates
       let constructor := mkAppN constructor bodyArgs
-      trace[Elab.inductive] "constructor: {constructor}"
+
       hole.assign constructor
       let res ← instantiateMVars mVar
       let res ← mkLambdaFVars bodyArgs res
+      trace[Elab.inductive] "res: {res}"
       mkLambdaFVars params res
     let type ← inferType res
     let name := removeFunctorPostfixInCtor ctor.name
@@ -1082,11 +1098,12 @@ private def elabCoinductive (declNames : Array Name) (sectionVars : Array Expr) 
         discard <| Term.addTermInfo view.ref indFVar
       let levelParams := infos[0]!.levelParams.map mkLevelParam;
       let consts := namesAndTypes.map fun (name, _) => (mkConst name levelParams)
-
+      trace[Elab.inductive] "consts: {consts}"
       forallBoundedTelescope infos[0]!.type originalNumParams fun params _ => do
         trace[Elab.inductive] "params: {params}"
         let defs ← infos.mapM fun info => do
-          let functor ← mkConstWithLevelParams info.name
+          let functor ← mkConstWithLevelParams (info.name ++ `existential)
+          let functor ← unfoldDefinition functor
           trace[Elab.inductive] "functor: {functor}"
           let functor := mkAppN functor (params.take originalNumParams)
           let indFVars := consts.map (mkAppN · <| params.take originalNumParams)

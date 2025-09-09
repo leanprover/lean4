@@ -11,6 +11,7 @@ public import Lean.Meta.SynthInstance
 public import Lean.Meta.Check
 public import Lean.Meta.DecLevel
 import Lean.Meta.SameCtorUtils
+import Lean.Data.Array
 
 public section
 
@@ -489,6 +490,7 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
               let v ← getLevel α
               return mkApp2 (mkConst ``False.elim [u]) target <|
                 mkAppN (mkConst `noConfusion_of_Nat [v]) #[α, ctorIdx, a, b, h]
+
       -- Special case for same manifest constructors, where we can maybe use
       -- the per-constructor noConfusion definition with its type already manifest
           if ctorA.cidx = ctorB.cidx then
@@ -506,18 +508,11 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
                   unless (← isDefEq fields1[i]! fields2[i]!) do
                     ok := false
               if ok then
-                let fields2' := maskArray (mask.map (!·)) fields2
+                let fields2' := Array.mask (mask.map (!·)) fields2
                 return mkAppN noConfusion (#[target] ++ fields1 ++ fields2' ++ #[h])
 
+      -- Fall back: Use generic theorem
       return mkAppN (mkConst (Name.mkStr indVal.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
-  where
-    -- TODO: Deduplicate with FunInd
-    /-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
-    maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
-      let mut ys := #[]
-      for b in mask, x in xs do
-        if b then ys := ys.push x
-      return ys
 
 /-- Given a `monad` and `e : α`, makes `pure e`.-/
 def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=

@@ -3612,6 +3612,10 @@ theorem sub_add_cancel (x y : BitVec w) : x - y + y = x := by
   rw [sub_eq_add_neg, BitVec.add_assoc, BitVec.add_comm _ y,
       ← BitVec.add_assoc, ← sub_eq_add_neg, add_sub_cancel]
 
+theorem ofNat_sub {n a b : Nat} (hab : b ≤ a) :
+    BitVec.ofNat n (a - b) = BitVec.ofNat n a - BitVec.ofNat n b := by
+  rw [(Nat.sub_add_cancel hab ▸ BitVec.ofNat_add (a - b) b :), BitVec.add_sub_cancel]
+
 theorem eq_sub_iff_add_eq {x y z : BitVec w} : x = z - y ↔ x + y = z := by
   apply Iff.intro <;> intro h
   · simp [h, sub_add_cancel]

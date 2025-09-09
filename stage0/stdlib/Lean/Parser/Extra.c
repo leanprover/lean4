@@ -587,7 +587,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_optional_formatter(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_Parser_unicodeSymbol_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Extra_0__Lean_Parser_ppDedent___regBuiltin_Lean_Parser_ppDedent_docString__1___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_scientificLitNoAntiquot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_21_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_many1Indent(lean_object*);
 static lean_object* l_Lean_Parser_mkAntiquotSplice_formatter___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_sepBy1_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -716,6 +715,7 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_withAntiquotSuffixSplice_parenth
 LEAN_EXPORT lean_object* l_Lean_Parser_ppAllowUngrouped_parenthesizer___redArg(lean_object*);
 static lean_object* l___private_Lean_Parser_Extra_0__Lean_Parser_patternIgnore___regBuiltin_Lean_Parser_patternIgnore_docString__5___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_many1Indent_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_instBEqInternalExceptionId_beq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Extra_0__Lean_Parser_numLit___regBuiltin_Lean_Parser_numLit_docString__5___closed__0;
 static lean_object* l_Lean_Parser_identWithPartialTrailingDot___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser_mkAntiquotSplice_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5150,7 +5150,7 @@ lean_object* x_34; uint8_t x_35;
 x_34 = lean_ctor_get(x_30, 0);
 lean_inc(x_34);
 lean_dec_ref(x_30);
-x_35 = l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_21_(x_32, x_34);
+x_35 = l_Lean_instBEqInternalExceptionId_beq(x_32, x_34);
 lean_dec(x_34);
 if (x_35 == 0)
 {

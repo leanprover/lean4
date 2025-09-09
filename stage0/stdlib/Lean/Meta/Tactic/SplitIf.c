@@ -45,7 +45,6 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_____private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_discharge_x3f_spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_reduceDIte_x27___closed__1;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_addTrace___at_____private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_findSplit_x3f_find_x3f_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_20_(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isDIte(lean_object*);
 static lean_object* l_Lean_Meta_SplitIf_getSimpContext___closed__8;
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_Meta_FindSplitImpl_visit_spec__0_spec__0___redArg(lean_object*, lean_object*);
@@ -75,6 +74,7 @@ static lean_object* l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_initFn___c
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Option_get___at___Lean_Meta_simpIfTarget_spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_simpIfLocalDecl___closed__1;
+uint8_t l_Lean_instBEqMVarId_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_contains___at_____private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_FindSplitImpl_isCandidate_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isApp(lean_object*);
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
@@ -14559,7 +14559,7 @@ if (lean_is_exclusive(x_36)) {
  lean_dec_ref(x_36);
  x_39 = lean_box(0);
 }
-x_46 = l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_20_(x_26, x_31);
+x_46 = l_Lean_instBEqMVarId_beq(x_26, x_31);
 lean_dec(x_26);
 if (x_46 == 0)
 {
@@ -14574,7 +14574,7 @@ goto block_45;
 else
 {
 uint8_t x_47; 
-x_47 = l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_20_(x_33, x_37);
+x_47 = l_Lean_instBEqMVarId_beq(x_33, x_37);
 lean_dec(x_33);
 if (x_47 == 0)
 {
@@ -14883,7 +14883,7 @@ if (lean_is_exclusive(x_97)) {
  lean_dec_ref(x_97);
  x_100 = lean_box(0);
 }
-x_107 = l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_20_(x_87, x_92);
+x_107 = l_Lean_instBEqMVarId_beq(x_87, x_92);
 lean_dec(x_87);
 if (x_107 == 0)
 {
@@ -14897,7 +14897,7 @@ goto block_106;
 else
 {
 uint8_t x_108; 
-x_108 = l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_20_(x_94, x_98);
+x_108 = l_Lean_instBEqMVarId_beq(x_94, x_98);
 lean_dec(x_94);
 if (x_108 == 0)
 {
@@ -15318,7 +15318,7 @@ if (lean_is_exclusive(x_41)) {
  lean_dec_ref(x_41);
  x_44 = lean_box(0);
 }
-x_49 = l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_20_(x_32, x_36);
+x_49 = l_Lean_instBEqMVarId_beq(x_32, x_36);
 lean_dec(x_32);
 if (x_49 == 0)
 {
@@ -15334,7 +15334,7 @@ goto block_48;
 else
 {
 uint8_t x_50; 
-x_50 = l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_20_(x_39, x_42);
+x_50 = l_Lean_instBEqMVarId_beq(x_39, x_42);
 lean_dec(x_39);
 if (x_50 == 0)
 {
@@ -15541,7 +15541,7 @@ if (lean_is_exclusive(x_82)) {
  lean_dec_ref(x_82);
  x_85 = lean_box(0);
 }
-x_90 = l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_20_(x_32, x_36);
+x_90 = l_Lean_instBEqMVarId_beq(x_32, x_36);
 lean_dec(x_32);
 if (x_90 == 0)
 {
@@ -15556,7 +15556,7 @@ goto block_89;
 else
 {
 uint8_t x_91; 
-x_91 = l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_20_(x_81, x_83);
+x_91 = l_Lean_instBEqMVarId_beq(x_81, x_83);
 lean_dec(x_81);
 if (x_91 == 0)
 {
@@ -15793,7 +15793,7 @@ if (lean_is_exclusive(x_124)) {
  lean_dec_ref(x_124);
  x_127 = lean_box(0);
 }
-x_132 = l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_20_(x_117, x_120);
+x_132 = l_Lean_instBEqMVarId_beq(x_117, x_120);
 lean_dec(x_117);
 if (x_132 == 0)
 {
@@ -15808,7 +15808,7 @@ goto block_131;
 else
 {
 uint8_t x_133; 
-x_133 = l_Lean_beqMVarId____x40_Lean_Expr_4051099792____hygCtx___hyg_20_(x_122, x_125);
+x_133 = l_Lean_instBEqMVarId_beq(x_122, x_125);
 lean_dec(x_122);
 if (x_133 == 0)
 {

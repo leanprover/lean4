@@ -5,8 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Types
 import Lean.Meta.Tactic.Grind.Arith.ModelUtil
+import Init.Grind.Module.Envelope
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -22,13 +23,18 @@ private def hasType (type : Expr) (n : ENode): MetaM Bool :=
     let type' ← inferType n.self
     isDefEq type' type
 
+private def toQ? (e : Expr) : Option Expr :=
+  match_expr e with
+  | Grind.IntModule.OfNatModule.toQ _ _ a => some a
+  | _ => none
+
 /--
 Construct a model that satisfies all constraints in the linarith model for the structure with id `structId`.
 It also assigns values to (integer) terms that have not been internalized by the linarith model.
 -/
 def mkModel (goal : Goal) (structId : Nat) : MetaM (Array (Expr × Rat)) := do
   let mut model := {}
-  let s := goal.arith.linear.structs[structId]!
+  let s := (← linearExt.getStateCore goal).structs[structId]!
   -- Assign on expressions associated with cutsat terms or interpreted terms
   for e in goal.exprs do
     let node ← goal.getENode e
@@ -36,6 +42,14 @@ def mkModel (goal : Goal) (structId : Nat) : MetaM (Array (Expr × Rat)) := do
     if (← hasType s.type node) then
       if let some v := getAssignment? s node.self then
         model := assignEqc goal node.self v model
+  -- Assign `toQ a` terms
+  for e in goal.exprs do
+    let node ← goal.getENode e
+    let i := node.self
+    let some n := toQ? i | pure ()
+    if model[n]?.isNone then
+      let some v := model[i]? | pure ()
+      model := assignEqc goal n v model
   let r ← finalizeModel goal (hasType s.type) model
   traceModel `grind.linarith.model r
   return r

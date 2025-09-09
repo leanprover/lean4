@@ -32,6 +32,7 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__0;
+extern lean_object* l_Lean_instInhabitedImport_default;
 LEAN_EXPORT lean_object* l_Lean_Elab_headerToImports(lean_object*, uint8_t);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, lean_object*, lean_object*, uint32_t, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -85,7 +86,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2_spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___Lean_Elab_HeaderSyntax_imports_spec__1(lean_object*);
-extern lean_object* l_Lean_defaultImport____x40_Lean_Setup_2279959588____hygCtx___hyg_49_;
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__14;
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Elab_processHeaderCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -194,7 +194,7 @@ static lean_object* _init_l_panic___at___Lean_Elab_HeaderSyntax_imports_spec__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_defaultImport____x40_Lean_Setup_2279959588____hygCtx___hyg_49_;
+x_1 = l_Lean_instInhabitedImport_default;
 return x_1;
 }
 }

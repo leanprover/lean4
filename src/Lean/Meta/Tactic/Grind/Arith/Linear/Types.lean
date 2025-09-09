@@ -7,8 +7,7 @@ module
 prelude
 public import Init.Grind.Ring.Poly
 public import Init.Grind.Ordered.Linarith
-public import Lean.Data.PersistentArray
-public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Lean.Meta.Tactic.Grind.Types
 public import Init.Data.Rat.Basic
 public section
 namespace Lean.Meta.Grind.Arith.Linear
@@ -28,6 +27,7 @@ structure EqCnstr where
 inductive EqCnstrProof where
   | core (a b : Expr) (lhs rhs : LinExpr)
   | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | coreOfNat (a b : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
   | neg (c : EqCnstr)
   | coeff (k : Nat) (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
@@ -43,6 +43,8 @@ inductive IneqCnstrProof where
   | notCore (e : Expr) (lhs rhs : LinExpr)
   | coreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
   | notCoreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | coreOfNat (e : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
+  | notCoreOfNat (e : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
   | combine (c₁ : IneqCnstr) (c₂ : IneqCnstr)
   | norm (c₁ : IneqCnstr) (k : Nat)
   | dec (h : FVarId)
@@ -50,6 +52,8 @@ inductive IneqCnstrProof where
   | oneGtZero
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
     ofEq (a b : Expr) (la lb : LinExpr)
+  | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
+    ofEqOfNat (a b : Expr) (natStructId : Nat) (la lb : LinExpr)
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
     ofCommRingEq (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : IneqCnstr)
@@ -220,6 +224,8 @@ structure NatStruct where
   isPreorderInst?     : Option Expr
   /-- `OrderedAdd` instance with `IsPreorder` if available -/
   orderedAddInst?     : Option Expr
+  /-- `IsLinearOrder` instance if available -/
+  isLinearInst?       : Option Expr
   addRightCancelInst? : Option Expr
   rfl_q               : Expr -- `@Eq.Refl (OfNatModule.Q type)`
   zero                : Expr
@@ -252,5 +258,7 @@ structure State where
   /- Mapping from expressions/terms to their nat structure ids. -/
   exprToNatStructId : PHashMap ExprPtr Nat := {}
   deriving Inhabited
+
+builtin_initialize linearExt : SolverExtension State ← registerSolverExtension (return {})
 
 end Lean.Meta.Grind.Arith.Linear

@@ -8,6 +8,10 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
 import Lean.Meta.Tactic.Grind.Simp
 import Init.Grind.Module.OfNatModule
+import Init.Grind.Module.NatModuleNorm
+import Lean.Meta.Tactic.Grind.Diseq
+import Lean.Meta.Tactic.Grind.Proof
+import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -60,12 +64,17 @@ def setTermNatStructId (e : Expr) : OfNatModuleM Unit := do
   modify' fun s => { s with exprToNatStructId := s.exprToNatStructId.insert { expr := e } id }
 
 private def mkOfNatModuleVar (e : Expr) : OfNatModuleM (Expr × Expr) := do
-  let s ← getNatStruct
-  let toQe := mkApp s.toQFn e
-  let h    := mkApp s.rfl_q toQe
-  setTermNatStructId e
-  markAsLinarithTerm e
-  return (toQe, h)
+  if let some r := (← getNatStruct).termMap.find? { expr := e } then
+    return r
+  else
+    let s ← getNatStruct
+    let toQe ← shareCommon (mkApp s.toQFn e)
+    let h    := mkApp s.rfl_q toQe
+    let r := (toQe, h)
+    modifyNatStruct fun s => { s with termMap := s.termMap.insert { expr := e } r }
+    setTermNatStructId e
+    linearExt.markTerm e
+    return r
 
 private def isAddInst (natStruct : NatStruct) (inst : Expr) : Bool :=
   isSameExpr natStruct.addFn.appArg! inst
@@ -102,6 +111,13 @@ private partial def ofNatModule' (e : Expr) : OfNatModuleM (Expr × Expr) := do
       pure (e', h)
     else
       mkOfNatModuleVar e
+  | OfNat.ofNat _ _ _ =>
+    if (← isDefEqD e ns.zero) then
+      let e' := s.zero
+      let h := mkApp2 (mkConst ``Grind.IntModule.OfNatModule.toQ_zero [ns.u]) ns.type ns.natModuleInst
+      pure (e', h)
+    else
+      mkOfNatModuleVar e
   | _ => mkOfNatModuleVar e
 
 def ofNatModule (e : Expr) : OfNatModuleM (Expr × Expr) := do
@@ -115,8 +131,66 @@ def ofNatModule (e : Expr) : OfNatModuleM (Expr × Expr) := do
     else
       pure (r.expr, h)
     setTermNatStructId e
-    internalize e' (← getGeneration e)
     modifyNatStruct fun s => { s with termMap := s.termMap.insert { expr := e } (e', h) }
     return (e', h)
+
+private structure ReifyM.State where
+  varMap : Std.HashMap ExprPtr Var := {}
+  vars : Array Expr := #[]
+
+private abbrev ReifyM := StateRefT ReifyM.State OfNatModuleM
+
+private abbrev ReifyM.run (x : ReifyM α) : OfNatModuleM α := do
+  StateRefT'.run' x {}
+
+private def reifyVar (e : Expr) : ReifyM Grind.Linarith.Expr := do
+  if let some x := (← get).varMap[{ expr := e : ExprPtr}]? then
+    return .var x
+  else
+    let x := (← get).vars.size
+    modify fun s => { s with vars := s.vars.push e, varMap := s.varMap.insert { expr := e } x }
+    return .var x
+
+private partial def reify (e : Expr) : ReifyM Grind.Linarith.Expr := do
+  let ns ← getNatStruct
+  match_expr e with
+  | HAdd.hAdd _ _ _ i a b =>
+    if isAddInst ns i then
+      return .add (← reify a) (← reify b)
+    else
+      reifyVar e
+  | HSMul.hSMul _ _ _ i a b =>
+    if isSMulInst ns i then
+      let some a ← getNatValue? a | reifyVar e
+      return .natMul a (← reify b)
+    else
+      reifyVar e
+  | Zero.zero _ i =>
+    if isZeroInst ns i then
+      return .zero
+    else
+      reifyVar e
+  | OfNat.ofNat _ _ _ =>
+    if (← isDefEqD e ns.zero) then
+      return .zero
+    else
+      reifyVar e
+  | _ => reifyVar e
+
+def normNatModuleDiseq (a b : Expr) : OfNatModuleM Unit := ReifyM.run do
+  let ea ← reify a
+  let eb ← reify b
+  let pa := ea.toPolyN
+  let pb := eb.toPolyN
+  if pa == pb then
+    let ns ← getNatStruct
+    -- contradiction detected
+    let vars := (← get).vars
+    let ctx ← if h : 0 < vars.size then
+      RArray.toExpr ns.type id (RArray.ofFn (vars[·]) h)
+    else
+      RArray.toExpr ns.type id (RArray.leaf ns.zero)
+    let heq := mkApp6 (mkConst ``Grind.Linarith.eq_normN [ns.u]) ns.type ns.natModuleInst ctx (toExpr ea) (toExpr eb) eagerReflBoolTrue
+    closeGoal <| mkApp (← mkDiseqProof a b) heq
 
 end Lean.Meta.Grind.Arith.Linear

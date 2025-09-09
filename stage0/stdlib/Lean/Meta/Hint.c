@@ -112,7 +112,6 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 LEAN_EXPORT lean_object* l_Lean_Diff_matchSuffix___at___Lean_Diff_lcs___at___Lean_Diff_diff___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_mkWhitespaceDiff_spec__1_spec__1_spec__3(lean_object*, lean_object*);
 uint64_t lean_string_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Diff_lcs___at___Lean_Diff_diff___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_wordDiff_spec__2_spec__2_spec__20___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Diff_beqAction____x40_Lean_Util_Diff_2880791090____hygCtx___hyg_15_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_addLeft___at___Lean_Diff_lcs___at___Lean_Diff_diff___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_wordDiff_spec__2_spec__2_spec__6___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_splitWordsAux_spec__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -268,6 +267,7 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_l
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_Hint_mkSuggestionsMessage_spec__3_spec__3___lam__1___closed__9;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_Diff_Histogram_addLeft___at___Lean_Diff_lcs___at___Lean_Diff_diff___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_wordDiff_spec__2_spec__2_spec__6_spec__6___redArg(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
+uint8_t l_Lean_Diff_instBEqAction_beq(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_wordDiff_spec__31_spec__31___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Hint_DiffGranularity_auto_elim(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -280,7 +280,6 @@ LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashM
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Diff_lcs___at___Lean_Diff_diff___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_mkWhitespaceDiff_spec__1_spec__1_spec__15___redArg(lean_object*, lean_object*);
 lean_object* l_String_toList(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Hint_mkSuggestionsMessage___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_BasicAux_2413389941____hygCtx___hyg_57_(lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_joinEdits_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Diff_lcs___at___Lean_Diff_diff___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_wordDiff_spec__2_spec__2_spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_addLeft___at___Lean_Diff_lcs___at___Lean_Diff_diff___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_wordDiff_spec__2_spec__2_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -342,6 +341,7 @@ lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_mkDiffJson_spec__0___closed__9;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_Diff_Histogram_addLeft___at___Lean_Diff_lcs___at___Lean_Diff_diff___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_mkWhitespaceDiff_spec__1_spec__1_spec__5_spec__5___redArg___boxed(lean_object*, lean_object*);
 lean_object* l_Subarray_size___redArg(lean_object*);
+lean_object* l_Lean_Lsp_instToJsonRange_toJson(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Lean_Diff_diff___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_wordDiff_spec__2_spec__22___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_mkDiffString_spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_Hint_mkSuggestionsMessage_spec__3_spec__3___lam__1___boxed(lean_object**);
@@ -1571,7 +1571,7 @@ x_22 = lean_ctor_get(x_19, 1);
 x_23 = lean_unbox(x_13);
 x_24 = lean_unbox(x_21);
 lean_dec(x_21);
-x_25 = l_Lean_Diff_beqAction____x40_Lean_Util_Diff_2880791090____hygCtx___hyg_15_(x_23, x_24);
+x_25 = l_Lean_Diff_instBEqAction_beq(x_23, x_24);
 if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; 
@@ -1608,7 +1608,7 @@ lean_dec(x_19);
 x_33 = lean_unbox(x_13);
 x_34 = lean_unbox(x_31);
 lean_dec(x_31);
-x_35 = l_Lean_Diff_beqAction____x40_Lean_Util_Diff_2880791090____hygCtx___hyg_15_(x_33, x_34);
+x_35 = l_Lean_Diff_instBEqAction_beq(x_33, x_34);
 if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
@@ -1681,7 +1681,7 @@ if (lean_is_exclusive(x_52)) {
 x_56 = lean_unbox(x_46);
 x_57 = lean_unbox(x_53);
 lean_dec(x_53);
-x_58 = l_Lean_Diff_beqAction____x40_Lean_Util_Diff_2880791090____hygCtx___hyg_15_(x_56, x_57);
+x_58 = l_Lean_Diff_instBEqAction_beq(x_56, x_57);
 if (x_58 == 0)
 {
 lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
@@ -10909,7 +10909,7 @@ lean_inc(x_12);
 x_13 = 2;
 x_14 = lean_unbox(x_12);
 lean_dec(x_12);
-x_15 = l_Lean_Diff_beqAction____x40_Lean_Util_Diff_2880791090____hygCtx___hyg_15_(x_14, x_13);
+x_15 = l_Lean_Diff_instBEqAction_beq(x_14, x_13);
 if (x_15 == 0)
 {
 lean_object* x_16; 
@@ -11636,7 +11636,7 @@ x_44 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_44, 0, x_42);
 lean_ctor_set(x_44, 1, x_43);
 x_45 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_Hint_mkSuggestionsMessage_spec__3_spec__3___lam__1___closed__6;
-x_46 = l_Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_BasicAux_2413389941____hygCtx___hyg_57_(x_3);
+x_46 = l_Lean_Lsp_instToJsonRange_toJson(x_3);
 x_47 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_47, 0, x_45);
 lean_ctor_set(x_47, 1, x_46);
@@ -12581,7 +12581,7 @@ x_44 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_44, 0, x_42);
 lean_ctor_set(x_44, 1, x_43);
 x_45 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_Hint_mkSuggestionsMessage_spec__3_spec__3___lam__1___closed__6;
-x_46 = l_Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_BasicAux_2413389941____hygCtx___hyg_57_(x_3);
+x_46 = l_Lean_Lsp_instToJsonRange_toJson(x_3);
 x_47 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_47, 0, x_45);
 lean_ctor_set(x_47, 1, x_46);

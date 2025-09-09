@@ -145,7 +145,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_SynthInstance_0__Lean_Met
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_SynthInstance_0__Lean_Meta_Grind_builtinInsts___closed__2;
 extern lean_object* l_Lean_Nat_mkInstHMul;
-uint8_t l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_21_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_synthInstance_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_SynthInstance_0__Lean_Meta_Grind_builtinInsts___closed__82;
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
@@ -179,6 +178,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_D
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_Grind_synthInstance_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_SynthInstance_0__Lean_Meta_Grind_builtinInsts___closed__0;
 extern lean_object* l_Lean_Int_mkInstHAdd;
+uint8_t l_Lean_instBEqInternalExceptionId_beq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_SynthInstance_0__Lean_Meta_Grind_builtinInsts___closed__78;
 size_t lean_usize_sub(size_t, size_t);
 extern lean_object* l_Lean_Nat_mkInstHMod;
@@ -1880,7 +1880,7 @@ lean_object* x_14; uint8_t x_15;
 x_14 = lean_ctor_get(x_10, 0);
 lean_inc(x_14);
 lean_dec_ref(x_10);
-x_15 = l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_21_(x_12, x_14);
+x_15 = l_Lean_instBEqInternalExceptionId_beq(x_12, x_14);
 lean_dec(x_14);
 if (x_15 == 0)
 {

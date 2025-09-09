@@ -10,7 +10,6 @@ import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.SearchM
-import Lean.Meta.Tactic.Grind.Check
 public section
 namespace Lean.Meta.Grind
 
@@ -19,7 +18,7 @@ private partial def solve (generation : Nat) : SearchM Bool := withIncRecDepth d
     return false -- `splitNext` should have been configured to not create choice points
   if (← getGoal).inconsistent then
     return true
-  if (← intros' generation <||> assertAll <||> check <||> splitNext <||> ematch) then
+  if (← intros' generation <||> assertAll <||> Solvers.check <||> splitNext <||> ematch) then
     solve generation
   else
     return false

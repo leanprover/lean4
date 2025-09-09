@@ -9,6 +9,7 @@ prelude
 public import Lean.Data.Name
 public import Lake.Config.Pattern
 public import Lake.Config.MetaClasses
+public import Init.Data.ToString.Name
 meta import all Lake.Config.Meta
 
 open Lean System

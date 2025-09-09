@@ -141,6 +141,9 @@ unsafe axiom lcErased : Type
 /-- Marker for type dependency that has been erased by the code generator. -/
 unsafe axiom lcAny : Type
 
+/-- Internal representation of `IO.RealWorld` in the compiler. -/
+unsafe axiom lcRealWorld : Type
+
 /--
 Auxiliary unsafe constant used by the Compiler when erasing proofs from code.
 
@@ -1778,6 +1781,20 @@ theorem Nat.ne_of_beq_eq_false : {n m : Nat} → Eq (beq n m) false → Not (Eq 
     have : Eq (beq n m) false := h₁
     Nat.noConfusion h₂ (fun h₂ => absurd h₂ (ne_of_beq_eq_false this))
 
+
+private theorem noConfusion_of_Nat.aux : (a : Nat) → (Nat.beq a a).rec False True
+  | Nat.zero   => True.intro
+  | Nat.succ n => noConfusion_of_Nat.aux n
+
+/--
+A helper theorem to deduce `False` from `a = b` when `f a ≠ f b` for some function `f : α → Nat`
+(typically `.ctorIdx`). Used as a simpler alternative to the no-confusion theorems.
+-/
+theorem noConfusion_of_Nat {α : Sort u} (f : α → Nat) {a b : α} (h : Eq a b) :
+    (Nat.beq (f a) (f b)).rec False True :=
+  congrArg f h ▸ noConfusion_of_Nat.aux (f a)
+
+
 /--
 A decision procedure for equality of natural numbers, usually accessed via the `DecidableEq Nat`
 instance.
@@ -1864,6 +1881,9 @@ theorem Nat.le_step (h : LE.le n m) : LE.le n (succ m) :=
 protected theorem Nat.le_trans {n m k : Nat} : LE.le n m → LE.le m k → LE.le n k
   | h,  Nat.le.refl    => h
   | h₁, Nat.le.step h₂ => Nat.le.step (Nat.le_trans h₁ h₂)
+
+protected theorem Nat.lt_of_lt_of_le {n m k : Nat} : LT.lt n m → LE.le m k → LT.lt n k :=
+  Nat.le_trans
 
 protected theorem Nat.lt_trans {n m k : Nat} (h₁ : LT.lt n m) : LT.lt m k → LT.lt n k :=
   Nat.le_trans (le_step h₁)
@@ -1968,6 +1988,27 @@ theorem Nat.ble_eq_true_of_le (h : LE.le n m) : Eq (Nat.ble n m) true :=
 theorem Nat.not_le_of_not_ble_eq_true (h : Not (Eq (Nat.ble n m) true)) : Not (LE.le n m) :=
   fun h' => absurd (Nat.ble_eq_true_of_le h') h
 
+theorem Nat.lt_succ_of_le {n m : Nat} : LE.le n m → LT.lt n (succ m) := succ_le_succ
+
+protected theorem Nat.lt_add_one (n : Nat) : LT.lt n (HAdd.hAdd n 1) := Nat.le_refl (succ n)
+
+theorem Nat.lt_succ_self (n : Nat) : LT.lt n (succ n) := Nat.lt_add_one _
+
+protected theorem Nat.lt_of_not_le {a b : Nat} (h : Not (LE.le a b)) : LT.lt b a :=
+  (Nat.lt_or_ge b a).resolve_right h
+
+protected theorem Nat.add_pos_right :
+    {b : Nat} → (a : Nat) → (hb : LT.lt 0 b) → LT.lt 0 (HAdd.hAdd a b)
+  | succ _, _, _ => Nat.zero_lt_succ _
+
+protected theorem Nat.mul_pos :
+    {n m : Nat} → (hn : LT.lt 0 n) → (hm : LT.lt 0 m) → LT.lt 0 (HMul.hMul n m)
+  | _, succ _, ha, _ => Nat.add_pos_right _ ha
+
+protected theorem Nat.pow_pos {a : Nat} : {n : Nat} → (h : LT.lt 0 a) → LT.lt 0 (HPow.hPow a n)
+  | zero, _ => Nat.zero_lt_succ _
+  | succ _, h => Nat.mul_pos (Nat.pow_pos h) h
+
 /--
 A decision procedure for non-strict inequality of natural numbers, usually accessed via the
 `DecidableLE Nat` instance.
@@ -2020,6 +2061,160 @@ protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
 
 instance instSubNat : Sub Nat where
   sub := Nat.sub
+
+theorem Nat.succ_sub_succ_eq_sub (n m : Nat) : Eq (HSub.hSub (succ n) (succ m)) (HSub.hSub n m) :=
+  m.rec rfl (fun _ ih => congrArg pred ih)
+
+theorem Nat.pred_le : ∀ (n : Nat), LE.le (Nat.pred n) n
+  | zero   => Nat.le.refl
+  | succ _ => le_succ _
+
+theorem Nat.sub_le (n m : Nat) : LE.le (HSub.hSub n m) n :=
+  m.rec (Nat.le_refl _) (fun _ ih => Nat.le_trans (pred_le _) ih)
+
+theorem Nat.sub_lt : ∀ {n m : Nat}, LT.lt 0 n → LT.lt 0 m → LT.lt (HSub.hSub n m) n
+  | 0,   _,   h1, _  => absurd h1 (Nat.lt_irrefl 0)
+  | Nat.succ _, 0,   _, h2  => absurd h2 (Nat.lt_irrefl 0)
+  | Nat.succ n, Nat.succ m, _,  _  =>
+    Eq.symm (succ_sub_succ_eq_sub n m) ▸
+      show LT.lt (HSub.hSub n m) (succ n) from
+      lt_succ_of_le (sub_le n m)
+
+theorem Nat.div_rec_lemma {x y : Nat} :
+    (And (LT.lt 0 y) (LE.le y x)) → LT.lt (HSub.hSub x y) x :=
+  fun ⟨ypos, ylex⟩ => sub_lt (Nat.lt_of_lt_of_le ypos ylex) ypos
+
+theorem Nat.div_rec_fuel_lemma {x y fuel : Nat} (hy : LT.lt 0 y) (hle : LE.le y x)
+    (hfuel : LT.lt x (HAdd.hAdd fuel 1)) : LT.lt (HSub.hSub x y) fuel :=
+  Nat.lt_of_lt_of_le (div_rec_lemma ⟨hy, hle⟩) (Nat.le_of_lt_succ hfuel)
+
+set_option bootstrap.genMatcherCode false in
+/--
+Division of natural numbers, discarding the remainder. Division by `0` returns `0`. Usually accessed
+via the `/` operator.
+
+This operation is sometimes called “floor division.”
+
+This function is overridden at runtime with an efficient implementation. This definition is
+the logical model.
+
+Examples:
+ * `21 / 3 = 7`
+ * `21 / 5 = 4`
+ * `0 / 22 = 0`
+ * `5 / 0 = 0`
+-/
+@[extern "lean_nat_div", irreducible]
+protected def Nat.div (x y : @& Nat) : Nat :=
+  dite (LT.lt 0 y) (fun hy =>
+    let rec
+      go (fuel : Nat) (x : Nat) (hfuel : LT.lt x fuel) : Nat :=
+      match fuel with
+      | succ fuel =>
+        dite (LE.le y x)
+          (fun h => HAdd.hAdd (go fuel (HSub.hSub x y) (div_rec_fuel_lemma hy h hfuel)) 1)
+          (fun _ => 0)
+      termination_by structural fuel
+    go (succ x) x (Nat.lt_succ_self _))
+    (fun _ => 0)
+
+instance Nat.instDiv : Div Nat := ⟨Nat.div⟩
+
+set_option bootstrap.genMatcherCode false in
+/--
+The modulo operator, which computes the remainder when dividing one natural number by another.
+Usually accessed via the `%` operator. When the divisor is `0`, the result is the dividend rather
+than an error.
+
+This is the core implementation of `Nat.mod`. It computes the correct result for any two closed
+natural numbers, but it does not have some convenient [definitional
+reductions](lean-manual://section/type-system) when the `Nat`s contain free variables. The wrapper
+`Nat.mod` handles those cases specially and then calls `Nat.modCore`.
+
+This function is overridden at runtime with an efficient implementation. This definition is the
+logical model.
+-/
+@[extern "lean_nat_mod"]
+protected noncomputable def Nat.modCore (x y : Nat) : Nat :=
+  dite (LT.lt 0 y)
+    (fun hy =>
+      let rec
+        go (fuel : Nat) (x : Nat) (hfuel : LT.lt x fuel) : Nat :=
+        match fuel with
+        | succ fuel =>
+          dite (LE.le y x)
+            (fun h => go fuel (HSub.hSub x y) (div_rec_fuel_lemma hy h hfuel))
+            (fun _ => x)
+        termination_by structural fuel
+      go (succ x) x (Nat.lt_succ_self _))
+    (fun _ => x)
+
+theorem Nat.modCoreGo_lt {fuel y : Nat} (hy : LT.lt 0 y) : (x : Nat) → (hfuel : LT.lt x fuel) →
+    LT.lt (Nat.modCore.go y hy fuel x hfuel) y :=
+  fuel.rec (fun _ h => absurd h (Nat.not_lt_zero _))
+    (fun _ ih x _ =>
+      show LT.lt (dite _ _ _) _ from
+        match Nat.decLe y x with
+        | .isTrue _ => ih _ _
+        | .isFalse h => Nat.lt_of_not_le h)
+
+theorem Nat.modCore_lt {x y : Nat} (hy : LT.lt 0 y) : LT.lt (Nat.modCore x y) y :=
+  show LT.lt (dite _ _ _) y from
+    match Nat.decLt 0 y with
+    | .isTrue _ => Nat.modCoreGo_lt hy x (Nat.lt_succ_self _)
+    | .isFalse h => absurd hy h
+
+attribute [irreducible] Nat.modCore
+
+set_option bootstrap.genMatcherCode false in
+/--
+The modulo operator, which computes the remainder when dividing one natural number by another.
+Usually accessed via the `%` operator. When the divisor is `0`, the result is the dividend rather
+than an error.
+
+`Nat.mod` is a wrapper around `Nat.modCore` that special-cases two situations, giving better
+definitional reductions:
+ * `Nat.mod 0 m` should reduce to `m`, for all terms `m : Nat`.
+ * `Nat.mod n (m + n + 1)` should reduce to `n` for concrete `Nat` literals `n`.
+
+These reductions help `Fin n` literals work well, because the `OfNat` instance for `Fin` uses
+`Nat.mod`. In particular, `(0 : Fin (n + 1)).val` should reduce definitionally to `0`. `Nat.modCore`
+can handle all numbers, but its definitional reductions are not as convenient.
+
+This function is overridden at runtime with an efficient implementation. This definition is the
+logical model.
+
+Examples:
+ * `7 % 2 = 1`
+ * `9 % 3 = 0`
+ * `5 % 7 = 5`
+ * `5 % 0 = 5`
+ * `show ∀ (n : Nat), 0 % n = 0 from fun _ => rfl`
+ * `show ∀ (m : Nat), 5 % (m + 6) = 5 from fun _ => rfl`
+-/
+@[extern "lean_nat_mod"]
+protected def Nat.mod : @& Nat → @& Nat → Nat
+  /-
+  Nat.modCore is defined with fuel and thus does not reduce with open terms very well.
+  Nevertheless it is desirable for trivial `Nat.mod` calculations, namely
+  * `Nat.mod 0 m` for all `m`
+  * `Nat.mod n (m + n + 1)` for concrete literals `n`,
+  to reduce definitionally.
+  This property is desirable for `Fin n` literals, as it means `(ofNat 0 : Fin n).val = 0` by
+  definition.
+   -/
+  | 0, _ => 0
+  | n@(succ _), m => ite (LE.le m n) (Nat.modCore n m) n
+
+instance Nat.instMod : Mod Nat := ⟨Nat.mod⟩
+
+theorem Nat.mod_lt : (x : Nat) →  {y : Nat} → (hy : LT.lt 0 y) → LT.lt (HMod.hMod x y) y
+  | 0, succ _, _ => Nat.zero_lt_succ _
+  | succ n, m, hm =>
+    show LT.lt (ite (LE.le m (succ n)) (Nat.modCore (succ n) m) (succ n)) _ from
+      match Nat.decLe m (succ n) with
+      | .isTrue _ => Nat.modCore_lt hm
+      | .isFalse h => Nat.lt_of_not_le h
 
 attribute [gen_constructor_elims] Nat
 
@@ -2091,6 +2286,14 @@ instance Fin.decLt {n} (a b : Fin n) : Decidable (LT.lt a b) := Nat.decLt ..
 instance Fin.decLe {n} (a b : Fin n) : Decidable (LE.le a b) := Nat.decLe ..
 
 /--
+Returns `a` modulo `n` as a `Fin n`.
+
+This function exists for bootstrapping purposes. Use `Fin.ofNat` instead.
+-/
+@[expose] protected def Fin.Internal.ofNat (n : Nat) (hn : LT.lt 0 n) (a : Nat) : Fin n :=
+  ⟨HMod.hMod a n, Nat.mod_lt _ hn⟩
+
+/--
 A bitvector of the specified width.
 
 This is represented as the underlying `Nat` number in both the runtime
@@ -2125,6 +2328,13 @@ instance : DecidableEq (BitVec w) := BitVec.decEq
 @[match_pattern]
 protected def BitVec.ofNatLT {w : Nat} (i : Nat) (p : LT.lt i (hPow 2 w)) : BitVec w where
   toFin := ⟨i, p⟩
+
+/--
+The bitvector with value `i mod 2^n`.
+-/
+@[expose, match_pattern]
+protected def BitVec.ofNat (n : Nat) (i : Nat) : BitVec n where
+  toFin := Fin.Internal.ofNat (HPow.hPow 2 n) (Nat.pow_pos (Nat.zero_lt_succ _)) i
 
 /--
 Return the underlying `Nat` that represents a bitvector.
@@ -2173,6 +2383,21 @@ This function is overridden at runtime with an efficient implementation.
 @[extern "lean_uint8_of_nat"]
 def UInt8.ofNatLT (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
   toBitVec := BitVec.ofNatLT n h
+
+/--
+Converts a natural number to an 8-bit unsigned integer, wrapping on overflow.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `UInt8.ofNat 5 = 5`
+ * `UInt8.ofNat 255 = 255`
+ * `UInt8.ofNat 256 = 0`
+ * `UInt8.ofNat 259 = 3`
+ * `UInt8.ofNat 32770 = 2`
+-/
+@[extern "lean_uint8_of_nat"]
+def UInt8.ofNat (n : @& Nat) : UInt8 := ⟨BitVec.ofNat 8 n⟩
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2783,6 +3008,37 @@ Examples:
 def List.concat {α : Type u} : List α → α → List α
   | nil,       b => cons b nil
   | cons a as, b => cons a (concat as b)
+
+/--
+Returns the sequence of bytes in a character's UTF-8 encoding.
+-/
+def String.utf8EncodeChar (c : Char) : List UInt8 :=
+  let v := c.val.toNat
+  ite (LE.le v 0x7f)
+    (List.cons (UInt8.ofNat v) List.nil)
+    (ite (LE.le v 0x7ff)
+      (List.cons
+        (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 64) 0x20) 0xc0))
+        (List.cons
+          (UInt8.ofNat (HAdd.hAdd (HMod.hMod v 0x40) 0x80))
+          List.nil))
+      (ite (LE.le v 0xffff)
+        (List.cons
+          (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 4096) 0x10) 0xe0))
+          (List.cons
+            (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 64) 0x40) 0x80))
+            (List.cons
+              (UInt8.ofNat (HAdd.hAdd (HMod.hMod v 0x40) 0x80))
+              List.nil)))
+        (List.cons
+          (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 262144) 0x08) 0xf0))
+          (List.cons
+            (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 4096) 0x40) 0x80))
+            (List.cons
+              (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 64) 0x40) 0x80))
+              (List.cons
+                (UInt8.ofNat (HAdd.hAdd (HMod.hMod v 0x40) 0x80))
+                List.nil))))))
 
 /--
 A string is a sequence of Unicode code points.

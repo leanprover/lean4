@@ -15,7 +15,6 @@ public import Init.Data.List.Monadic
 public import Init.Data.List.OfFn
 public import Init.Data.Array.Mem
 public import Init.Data.Array.DecidableEq
-public import Init.Data.Array.Lex.Basic
 public import Init.Data.Range.Lemmas
 public import Init.TacticsExtra
 public import Init.Data.List.ToArray

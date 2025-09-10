@@ -78,7 +78,7 @@ private def mkMonoPProd : (hmono₁ hmono₂ : Expr × Expr) → MetaM (Expr × 
   let hmonoProof ← mkAppOptM ``PProd.monotone_mk #[none, none, none, inst₁, inst₂, inst, none, none, hmono1Proof, hmono2Proof]
   return (← inferType hmonoProof, hmonoProof)
 
-def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
+def partialFixpoint (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition) : TermElabM Unit := do
   -- We expect all functions in the clique to have `partial_fixpoint`, `inductive_fixpoint` or `coinductive_fixpoint` syntax
   let hints := preDefs.filterMap (·.termination.partialFixpoint?)
   assert! preDefs.size = hints.size
@@ -217,8 +217,8 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         let value ← mkLambdaFVars (etaReduce := true) params value
         pure { preDef with value }
 
-    Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
-    addAndCompilePartialRec preDefs
+    Mutual.addPreDefsFromUnary docCtx preDefs preDefsNonrec preDefNonRec
+    addAndCompilePartialRec docCtx preDefs
     let preDefs ← preDefs.mapM (Mutual.cleanPreDef ·)
     PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms (hints.map (·.fixpointType))
     Mutual.addPreDefAttributes preDefs

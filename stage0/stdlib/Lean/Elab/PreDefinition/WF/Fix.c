@@ -21487,9 +21487,9 @@ _start:
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_15 = lean_ctor_get(x_1, 3);
 lean_inc(x_15);
-x_16 = lean_ctor_get(x_1, 4);
+x_16 = lean_ctor_get(x_1, 5);
 lean_inc_ref(x_16);
-x_17 = lean_ctor_get(x_1, 5);
+x_17 = lean_ctor_get(x_1, 6);
 lean_inc_ref(x_17);
 lean_dec_ref(x_1);
 lean_inc(x_13);

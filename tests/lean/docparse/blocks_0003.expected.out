@@ -1,0 +1,23 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.text
+      (str
+       "\"I can describe lists like this one:\""))]
+    "}")
+   (Lean.Doc.Syntax.ul
+    "ul{"
+    [(Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text (str "\"a\""))]
+        "}")])
+     (Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text (str "\"b\""))]
+        "}")])]
+    "}")]
+All input consumed.

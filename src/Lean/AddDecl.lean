@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.CoreM
+public import Lean.Meta.Sorry
 public import Lean.Namespace
 public import Lean.Util.CollectAxioms
 
@@ -74,6 +75,28 @@ register_builtin_option warn.sorry : Bool := {
   defValue := true
   descr    := "warn about uses of `sorry` in declarations added to the environment"
 }
+
+/--
+If the `warn.sorry` option is set to true and there are no errors in the log already,
+logs a warning if the declaration uses `sorry`.
+-/
+def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
+  if warn.sorry.get (← getOptions) then
+    if !(← MonadLog.hasErrors) && decl.hasSorry then
+      -- Find an actual sorry expression to use for 'sorry'.
+      -- That way the user can hover over it to see its type and use "go to definition" if it is a labeled sorry.
+      let findSorry : StateRefT (Array (Bool × MessageData)) MetaM Unit := decl.forEachSorryM fun s => do
+        let s' ← addMessageContext s
+        modify fun arr => arr.push (s.isSyntheticSorry, s')
+      let (_, sorries) ← findSorry |>.run #[] |>.run'
+      -- Prefer reporting a synthetic sorry.
+      -- These can appear without logged errors if `decl` is referring to declarations with elaboration errors;
+      -- that's where a user should direct their focus.
+      if let some (_, s) := sorries.find? (·.1) <|> sorries[0]? then
+        logWarning <| .tagged `hasSorry m!"declaration uses '{s}'"
+      else
+        -- This case should not happen, but it ensures a warning will get logged no matter what.
+        logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
 
 def addDecl (decl : Declaration) : CoreM Unit := do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
@@ -143,9 +166,7 @@ where
   doAdd := do
     profileitM Exception "type checking" (← getOptions) do
       withTraceNode `Kernel (return m!"{exceptEmoji ·} typechecking declarations {decl.getTopLevelNames}") do
-        if warn.sorry.get (← getOptions) then
-          if !(← MonadLog.hasErrors) && decl.hasSorry then
-            logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
+        warnIfUsesSorry decl
         try
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
             |> ofExceptKernelException

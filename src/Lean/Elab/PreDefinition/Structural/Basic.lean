@@ -71,16 +71,6 @@ def Positions.numIndices (positions : Positions) : Nat :=
     positions.foldl (fun s poss => s + poss.size) 0
 
 /--
-`positions.inverse[k] = i` means that function `i` has type k
--/
-def Positions.inverse (positions : Positions) : Array Nat := Id.run do
-  let mut r := .replicate positions.numIndices 0
-  for _h : i in *...positions.size do
-    for k in positions[i] do
-      r := r.set! k i
-  return r
-
-/--
 Groups the `xs` by their `f` value, and puts these groups into the order given by `ys`.
 -/
 def Positions.groupAndSort {α β} [Inhabited α] [DecidableEq β]

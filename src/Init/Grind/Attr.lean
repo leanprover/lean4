@@ -95,7 +95,7 @@ Ordinarily, the grind attribute does not consider the `=` symbol when generating
 -/
 syntax grindEqBwd  := patternIgnore(atomic("←" "=") <|> atomic("<-" "="))
 /--
-The `→` modifier instructs `grind` to select a multi-pattern from the conclusion of theorem.
+The `←` modifier instructs `grind` to select a multi-pattern from the conclusion of theorem.
 In other words, `grind` will use the theorem for backwards reasoning.
 This may fail if not all of the arguments to the theorem appear in the conclusion.
 -/

@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__23;
+extern lean_object* l_System_instInhabitedFilePath_default;
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__60;
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__47;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -34,7 +35,6 @@ LEAN_EXPORT lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabDirConst(le
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__20;
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__10;
 static lean_object* l___private_Lake_DSL_Config_0__Lake_DSL_elabDirConst___closed__0;
-extern lean_object* l_System_defaultFilePath____x40_Init_System_FilePath_3398306____hygCtx___hyg_14_;
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 extern lean_object* l_Lake_optsExt;
@@ -156,7 +156,7 @@ static lean_object* _init_l_Lake_DSL_dummyDir___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_System_defaultFilePath____x40_Init_System_FilePath_3398306____hygCtx___hyg_14_;
+x_1 = l_System_instInhabitedFilePath_default;
 return x_1;
 }
 }
@@ -332,7 +332,6 @@ lean_dec_ref(x_25);
 x_35 = 0;
 x_36 = l_Lean_SourceInfo_fromRef(x_1, x_35);
 x_37 = l_Lean_Syntax_mkStrLit(x_34, x_36);
-lean_dec(x_34);
 x_38 = l___private_Lake_DSL_Config_0__Lake_DSL_elabDirConst___closed__11;
 x_39 = l_Lean_mkCIdentFrom(x_1, x_38, x_35);
 x_40 = l___private_Lake_DSL_Config_0__Lake_DSL_elabDirConst___closed__7;
@@ -1391,7 +1390,6 @@ lean_ctor_set(x_27, 0, x_94);
 x_100 = l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__39;
 lean_inc(x_94);
 x_101 = l_Lean_Syntax_mkStrLit(x_89, x_94);
-lean_dec(x_89);
 lean_inc(x_94);
 x_102 = l_Lean_Syntax_node1(x_94, x_100, x_101);
 x_103 = l_Lean_Syntax_node2(x_94, x_95, x_27, x_102);
@@ -1550,7 +1548,6 @@ lean_ctor_set(x_166, 3, x_165);
 x_167 = l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__39;
 lean_inc(x_160);
 x_168 = l_Lean_Syntax_mkStrLit(x_155, x_160);
-lean_dec(x_155);
 lean_inc(x_160);
 x_169 = l_Lean_Syntax_node1(x_160, x_167, x_168);
 x_170 = l_Lean_Syntax_node2(x_160, x_161, x_166, x_169);
@@ -1746,7 +1743,6 @@ lean_ctor_set(x_245, 3, x_244);
 x_246 = l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__39;
 lean_inc(x_239);
 x_247 = l_Lean_Syntax_mkStrLit(x_234, x_239);
-lean_dec(x_234);
 lean_inc(x_239);
 x_248 = l_Lean_Syntax_node1(x_239, x_246, x_247);
 x_249 = l_Lean_Syntax_node2(x_239, x_240, x_245, x_248);

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.AC.Types
 public import Lean.Meta.Tactic.Grind.ProveEq
 public import Lean.Meta.Tactic.Grind.SynthInstance
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
@@ -15,10 +15,10 @@ namespace Lean.Meta.Grind.AC
 open Lean.Grind
 
 def get' : GoalM State := do
-  return (← get).ac
+  acExt.getState
 
 @[inline] def modify' (f : State → State) : GoalM Unit := do
-  modify fun s => { s with ac := f s.ac }
+  acExt.modifyState f
 
 def checkMaxSteps : GoalM Bool := do
   return (← get').steps >= (← getConfig).acSteps
@@ -115,7 +115,7 @@ def mkVar (e : Expr) : ACM AC.Var := do
     varMap     := s.varMap.insert { expr := e } var
   }
   addTermOpId e
-  markAsACTerm e
+  acExt.markTerm e
   return var
 
 def getOpId? (op : Expr) : GoalM (Option Nat) := do

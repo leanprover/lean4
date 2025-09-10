@@ -1496,7 +1496,7 @@ end Const
 
 section monadic
 
-variable {m : Raw α β} {δ : Type w} {m' : Type w → Type w}
+variable {m : Raw α β} {δ : Type w} {m' : Type w → Type w'}
 
 theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : δ → (a : α) → β a → m' δ} {init : δ} :

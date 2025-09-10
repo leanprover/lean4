@@ -30,10 +30,10 @@ static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertTZifV1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Std_Time_TimeZone_Offset_toIsoString(lean_object*, uint8_t);
-extern lean_object* l_Std_Time_TimeZone_defaultLocalTimeType____x40_Std_Time_Zoned_ZoneRules_3730225678____hygCtx___hyg_62_;
 LEAN_EXPORT lean_object* l_Std_Time_Database_ctorIdx___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+extern lean_object* l_Std_Time_TimeZone_instInhabitedLocalTimeType_default;
 static lean_object* l_Std_Time_TimeZone_convertTZifV1___closed__2;
 static lean_object* l_Std_Time_TimeZone_convertTZifV1___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertTZifV2(lean_object*, lean_object*);
@@ -277,7 +277,7 @@ static lean_object* _init_l_Std_Time_TimeZone_convertTransition___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Time_TimeZone_defaultLocalTimeType____x40_Std_Time_Zoned_ZoneRules_3730225678____hygCtx___hyg_62_;
+x_1 = l_Std_Time_TimeZone_instInhabitedLocalTimeType_default;
 return x_1;
 }
 }

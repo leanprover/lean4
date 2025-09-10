@@ -153,6 +153,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_forEachDecl___lam__0___boxed(lean_
 static lean_object* l___auto___closed__28____x40_Lean_Compiler_LCNF_PhaseExt_154191395____hygCtx___hyg_3_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_PersistentHashMap_foldlMAux___at___Lean_PersistentHashMap_foldlM___at___Lean_PersistentHashMap_forM___at___Lean_Compiler_LCNF_forEachDecl_spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_instInhabitedDeclExt___closed__3;
+extern lean_object* l_Lean_Compiler_LCNF_instInhabitedDecl_default;
 static lean_object* l___private_Lean_Compiler_LCNF_PhaseExt_0__Lean_Compiler_LCNF_mkDeclSetExt___closed__1;
 lean_object* l_Array_empty(lean_object*);
 lean_object* l_Lean_EnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -275,7 +276,6 @@ static lean_object* l___auto___closed__16____x40_Lean_Compiler_LCNF_PhaseExt_154
 lean_object* l_Array_binSearchAux___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_monoExt;
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__1____x40_Lean_Compiler_LCNF_PhaseExt_3963586030____hygCtx___hyg_2_;
-extern lean_object* l_Lean_Compiler_LCNF_defaultDecl____x40_Lean_Compiler_LCNF_Basic_1021782049____hygCtx___hyg_75_;
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_isDeclPublic___closed__2;
 uint64_t l_Lean_Name_hash___override(lean_object*);
@@ -1485,7 +1485,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_PhaseExt_0__Lean_Compil
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_defaultDecl____x40_Lean_Compiler_LCNF_Basic_1021782049____hygCtx___hyg_75_;
+x_1 = l_Lean_Compiler_LCNF_instInhabitedDecl_default;
 return x_1;
 }
 }

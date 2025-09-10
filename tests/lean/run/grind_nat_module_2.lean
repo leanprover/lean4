@@ -1,6 +1,5 @@
 open Std Lean.Grind
 
--- We could solve these problems by embedding the NatModule in its Grothendieck completion.
 section NatModule
 
 variable (M : Type) [NatModule M] [AddRightCancel M]

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.String.Basic
 public import Init.Data.ToString.Basic
 
 public section
@@ -35,13 +34,41 @@ def dbgStackTrace {α : Type u} (f : Unit → α) : α := f ()
 def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α := f ()
 
 @[noinline] def mkPanicMessage (modName : String) (line col : Nat) (msg : String) : String :=
-  "PANIC at " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
+  String.Internal.append
+    (String.Internal.append
+      (String.Internal.append
+        (String.Internal.append
+          (String.Internal.append
+            (String.Internal.append
+              (String.Internal.append "PANIC at " modName)
+              ":")
+            (toString line))
+          ":")
+        (toString col))
+      ": ")
+    msg
 
 @[never_extract, inline, expose] def panicWithPos {α : Sort u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
   panic (mkPanicMessage modName line col msg)
 
 @[noinline, expose] def mkPanicMessageWithDecl (modName : String) (declName : String) (line col : Nat) (msg : String) : String :=
-  "PANIC at " ++ declName ++ " " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
+  String.Internal.append
+    (String.Internal.append
+      (String.Internal.append
+        (String.Internal.append
+          (String.Internal.append
+            (String.Internal.append
+              (String.Internal.append
+                (String.Internal.append
+                  (String.Internal.append "PANIC at " declName)
+                  " ")
+                modName)
+              ":")
+            (toString line))
+          ":")
+        (toString col))
+      ": ")
+    msg
 
 @[never_extract, inline, expose] def panicWithPosWithDecl {α : Sort u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=
   panic (mkPanicMessageWithDecl modName declName line col msg)

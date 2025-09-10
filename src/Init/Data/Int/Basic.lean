@@ -31,7 +31,7 @@ This file defines the `Int` type as well as
 Division and modulus operations are defined in `Init.Data.Int.DivMod.Basic`.
 -/
 
-set_option genInjectivity false in
+set_option genCtorIdx false in
 /--
 The integers.
 
@@ -321,7 +321,7 @@ def natAbs (m : @& Int) : Nat :=
   | ofNat m => m
   | -[m +1] => m.succ
 
-gen_injective_theorems% Int
+attribute [gen_constructor_elims] Int
 
 /-! ## sign -/
 

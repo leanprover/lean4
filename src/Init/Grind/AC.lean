@@ -376,7 +376,7 @@ theorem diseq_simp_rhs_middle {α} (ctx : Context α) {_ : Std.Associative ctx.o
     : simp_middle_cert lhs₁ rhs₁ head tail rhs₂ rhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx ≠ rhs₂.denote ctx → lhs₂.denote ctx ≠ rhs₂'.denote ctx := by
   simp [simp_middle_cert]; intros; subst rhs₂ rhs₂'; simp_all
 
-noncomputable def superpose_prefix_suffix_cert (p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq) : Bool :=
+noncomputable def superpose_cert (p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq) : Bool :=
   lhs₁.beq' (p.concat_k c) |>.and'
   (lhs₂.beq' (c.concat_k s)) |>.and'
   (lhs.beq' (rhs₁.concat_k s)) |>.and'
@@ -386,10 +386,10 @@ noncomputable def superpose_prefix_suffix_cert (p c s lhs₁ rhs₁ lhs₂ rhs�
 Given `lhs₁ = rhs₁` and `lhs₂ = rhs₂` where `lhs₁ := p * c` and `lhs₂ := c * s`,
 `lhs = rhs` where `lhs := rhs₁ * s` and `rhs := p * rhs₂`
 -/
-theorem superpose_prefix_suffix {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} (p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq)
-    : superpose_prefix_suffix_cert p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx
+theorem superpose {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} (p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq)
+    : superpose_cert p c s lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx
       → lhs.denote ctx = rhs.denote ctx := by
-  simp [superpose_prefix_suffix_cert]; intro _ _ _ _; subst lhs₁ lhs₂ lhs rhs; simp
+  simp [superpose_cert]; intro _ _ _ _; subst lhs₁ lhs₂ lhs rhs; simp
   intro h₁ h₂; simp [← h₁, ← h₂, Std.Associative.assoc (self := inst₁)]
 
 def Seq.unionFuel (fuel : Nat) (s₁ s₂ : Seq) : Seq :=
@@ -485,26 +485,127 @@ theorem diseq_simp_rhs_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx
     : simp_ac_cert c lhs₁ rhs₁ rhs₂ rhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx ≠ rhs₂.denote ctx → lhs₂.denote ctx ≠ rhs₂'.denote ctx := by
   simp [simp_ac_cert]; intros; subst rhs₂ rhs₂'; simp_all
 
-noncomputable def superpose_ac_cert (a b c lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq) : Bool :=
-  lhs₁.beq' (c.union_k a) |>.and'
-  (lhs₂.beq' (c.union_k b)) |>.and'
-  (lhs.beq' (b.union_k rhs₁)) |>.and'
-  (rhs.beq' (a.union_k rhs₂))
+noncomputable def superpose_ac_cert (r₁ c r₂ lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq) : Bool :=
+  lhs₁.beq' (c.union_k r₁) |>.and'
+  (lhs₂.beq' (c.union_k r₂)) |>.and'
+  (lhs.beq' (r₂.union_k rhs₁)) |>.and'
+  (rhs.beq' (r₁.union_k rhs₂))
 
 /--
-Given `lhs₁ = rhs₁` and `lhs₂ = rhs₂` where `lhs₁ := union c a` and `lhs₂ := union c b`,
-`lhs = rhs` where `lhs := union b rhs₁` and `rhs := union a rhs₂`
+Given `lhs₁ = rhs₁` and `lhs₂ = rhs₂` where `lhs₁ := union c r₁` and `lhs₂ := union c r₂`,
+`lhs = rhs` where `lhs := union r₂ rhs₁` and `rhs := union r₁ rhs₂`
 -/
-theorem superpose_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op}  (a b c lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq)
-    : superpose_ac_cert a b c lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx
+theorem superpose_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} (r₁ c r₂ lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs : Seq)
+    : superpose_ac_cert r₁ c r₂ lhs₁ rhs₁ lhs₂ rhs₂ lhs rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx
       → lhs.denote ctx = rhs.denote ctx := by
   simp [superpose_ac_cert]; intro _ _ _ _; subst lhs₁ lhs₂ lhs rhs; simp
   intro h₁ h₂; simp [← h₁, ← h₂]
-  rw [← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (b.denote ctx)]
-  rw [← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (a.denote ctx)]
+  rw [← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (r₂.denote ctx)]
+  rw [← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (r₁.denote ctx)]
   simp [Std.Associative.assoc (self := inst₁)]
   apply congrArg (ctx.op (c.denote ctx))
-  rw [Std.Commutative.comm (self := inst₂) (b.denote ctx)]
+  rw [Std.Commutative.comm (self := inst₂) (r₂.denote ctx)]
+
+noncomputable def Seq.contains_k (s : Seq) (x : Var) : Bool :=
+  Seq.rec (fun y => Nat.beq x y) (fun y _ ih => Bool.or' (Nat.beq x y) ih) s
+
+theorem Seq.contains_k_var (y x : Var) : Seq.contains_k (.var y) x = (x == y) := by
+  simp [Seq.contains_k]; rw [Bool.eq_iff_iff]; simp
+
+theorem Seq.contains_k_cons (y x : Var) (s : Seq) : Seq.contains_k (.cons y s) x = (x == y || s.contains_k x)  := by
+  show (Nat.beq x y |>.or' (s.contains_k x)) = (x == y || s.contains_k x)
+  simp; rw [Bool.eq_iff_iff]; simp
+
+attribute [local simp] Seq.contains_k_var Seq.contains_k_cons
+
+theorem Seq.denote_insert_of_contains {α} (ctx : Context α) [inst₁ : Std.Associative ctx.op] [inst₂ : Std.Commutative ctx.op] [inst₃ : Std.IdempotentOp ctx.op]
+    (s : Seq) (x : Var) : s.contains_k x → (s.insert x).denote ctx = s.denote ctx := by
+  induction s
+  next => simp; intro; subst x; rw [Std.IdempotentOp.idempotent (self := inst₃)]
+  next y s ih =>
+    simp; intro h; cases h
+    next => subst x; rw [← Std.Associative.assoc (self := inst₁), Std.IdempotentOp.idempotent (self := inst₃)]
+    next h =>
+      replace ih := ih h
+      simp at ih
+      rw [← Std.Associative.assoc (self := inst₁), Std.Commutative.comm (self := inst₂) (x.denote ctx)]
+      rw [Std.Associative.assoc (self := inst₁), ih]
+
+noncomputable def superpose_ac_idempotent_cert (x : Var) (lhs₁ rhs₁ rhs : Seq) : Bool :=
+  lhs₁.contains_k x |>.and' (rhs.beq' (rhs₁.insert x))
+
+/-!
+Remark: see Section 4.1 of the paper "MODULARITY, COMBINATION, AC CONGRUENCE CLOSURE" to understand why
+`superpose_ac_idempotent` is needed.
+-/
+
+theorem superpose_ac_idempotent {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} {inst₃ : Std.IdempotentOp ctx.op}
+    (x : Var) (lhs₁ rhs₁ rhs : Seq) : superpose_ac_idempotent_cert x lhs₁ rhs₁ rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₁.denote ctx = rhs.denote ctx := by
+  simp [superpose_ac_idempotent_cert]; intro h₁ _ h₂; subst rhs
+  replace h₂ : Seq.denote ctx (lhs₁.insert x) = Seq.denote ctx (rhs₁.insert x) := by
+    simp [h₂]
+  rw [← h₂, Seq.denote_insert_of_contains ctx lhs₁ x h₁]
+
+noncomputable def Seq.startsWithVar_k (s : Seq) (x : Var) : Bool :=
+  Seq.rec (fun y => Nat.beq x y) (fun y _ _ => Nat.beq x y) s
+
+theorem Seq.startsWithVar_k_var (y x : Var) : Seq.startsWithVar_k (.var y) x = (x == y) := by
+  simp [startsWithVar_k]; rw [Bool.eq_iff_iff]; simp
+
+theorem Seq.startsWithVar_k_cons (y x : Var) (s : Seq) : Seq.startsWithVar_k (.cons y s) x = (x == y) := by
+  simp [startsWithVar_k]; rw [Bool.eq_iff_iff]; simp
+
+attribute [local simp] Seq.startsWithVar_k_var Seq.startsWithVar_k_cons
+
+theorem Seq.denote_concat_of_startsWithVar {α} (ctx : Context α) [inst₁ : Std.Associative ctx.op] [inst₂ : Std.IdempotentOp ctx.op]
+    (s : Seq) (x : Var) : s.startsWithVar_k x → (concat_k (.var x) s).denote ctx = s.denote ctx := by
+  cases s <;> simp <;> intro <;> subst x
+  next => rw [Std.IdempotentOp.idempotent (self := inst₂)]
+  next => rw [← Std.Associative.assoc (self := inst₁), Std.IdempotentOp.idempotent (self := inst₂)]
+
+noncomputable def superpose_head_idempotent_cert (x : Var) (lhs₁ rhs₁ rhs : Seq) : Bool :=
+  lhs₁.startsWithVar_k x |>.and' (rhs.beq' (Seq.concat (.var x) rhs₁))
+
+/--
+`superpose_ac_idempotent` for the non-commutative case. This is the "head"-case
+-/
+theorem superpose_head_idempotent {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.IdempotentOp ctx.op}
+    (x : Var) (lhs₁ rhs₁ rhs : Seq) : superpose_head_idempotent_cert x lhs₁ rhs₁ rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₁.denote ctx = rhs.denote ctx := by
+  simp [superpose_head_idempotent_cert]; intro h₁ _ h₂; subst rhs
+  replace h₂ : Seq.denote ctx (Seq.concat (.var x) lhs₁) = Seq.denote ctx (Seq.concat (.var x) rhs₁) := by
+    simp [h₂]
+  rw [← h₂, ← Seq.concat_k_eq_concat, Seq.denote_concat_of_startsWithVar ctx lhs₁ x h₁]
+
+noncomputable def Seq.endsWithVar_k (s : Seq) (x : Var) : Bool :=
+  Seq.rec (fun y => Nat.beq x y) (fun _ _ ih => ih) s
+
+theorem Seq.endsWithVar_k_var (y x : Var) : Seq.endsWithVar_k (.var y) x = (x == y) := by
+  simp [Seq.endsWithVar_k]; rw [Bool.eq_iff_iff]; simp
+
+theorem Seq.endsWithVar_k_cons (y x : Var) (s : Seq) : Seq.endsWithVar_k (.cons y s) x = s.endsWithVar_k x := rfl
+
+attribute [local simp] Seq.endsWithVar_k_var Seq.endsWithVar_k_cons
+
+theorem Seq.denote_concat_of_endsWithVar {α} (ctx : Context α) [inst₁ : Std.Associative ctx.op] [inst₂ : Std.IdempotentOp ctx.op]
+    (s : Seq) (x : Var) : s.endsWithVar_k x → (s.concat_k (.var x)).denote ctx = s.denote ctx := by
+  induction s
+  next => simp; intro; subst x; rw [Std.IdempotentOp.idempotent (self := inst₂)]
+  next ih =>
+    simp; intro h; replace ih := ih h
+    simp at ih; rw [Std.Associative.assoc (self := inst₁), ih]
+
+noncomputable def superpose_tail_idempotent_cert (x : Var) (lhs₁ rhs₁ rhs : Seq) : Bool :=
+  lhs₁.endsWithVar_k x |>.and' (rhs.beq' (Seq.concat rhs₁ (.var x)))
+
+/--
+`superpose_ac_idempotent` for the non-commutative case. It is similar to `superpose_head_idempotent` but for the "tail"-case
+-/
+theorem superpose_tail_idempotent {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.IdempotentOp ctx.op}
+    (x : Var) (lhs₁ rhs₁ rhs : Seq) : superpose_tail_idempotent_cert x lhs₁ rhs₁ rhs → lhs₁.denote ctx = rhs₁.denote ctx → lhs₁.denote ctx = rhs.denote ctx := by
+  simp [superpose_tail_idempotent_cert]; intro h₁ _ h₂; subst rhs
+  replace h₂ : Seq.denote ctx (Seq.concat lhs₁ (.var x) ) = Seq.denote ctx (Seq.concat rhs₁ (.var x) ) := by
+    simp [h₂]
+  rw [← h₂, ← Seq.concat_k_eq_concat, Seq.denote_concat_of_endsWithVar ctx lhs₁ x h₁]
 
 noncomputable def eq_norm_a_cert (lhs rhs : Expr) (lhs' rhs' : Seq) : Bool :=
   lhs.toSeq.beq' lhs' |>.and' (rhs.toSeq.beq' rhs')
@@ -577,5 +678,38 @@ noncomputable def diseq_unsat_cert (lhs rhs : Seq) : Bool :=
 
 theorem diseq_unsat {α} (ctx : Context α) (lhs rhs : Seq) : diseq_unsat_cert lhs rhs → lhs.denote ctx ≠ rhs.denote ctx → False := by
   simp [diseq_unsat_cert]; intro; subst lhs; simp
+
+theorem norm_a {α} (ctx : Context α) {_ : Std.Associative ctx.op} (e : Expr) (s : Seq)
+    : e.toSeq.beq' s → e.denote ctx = s.denote ctx := by
+  simp; intro _; subst s; simp
+
+theorem norm_ac {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.Commutative ctx.op} (e : Expr) (s : Seq)
+    : e.toSeq.sort.beq' s → e.denote ctx = s.denote ctx := by
+  simp; intro _; subst s; simp
+
+theorem norm_ai {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.LawfulIdentity ctx.op (Var.denote ctx 0)}
+      (e : Expr) (s : Seq) : e.toSeq.erase0.beq' s → e.denote ctx = s.denote ctx := by
+  simp; intro _; subst s; simp
+
+theorem norm_aci {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.Commutative ctx.op} {_ : Std.LawfulIdentity ctx.op (Var.denote ctx 0)}
+      (e : Expr) (s : Seq) : e.toSeq.erase0.sort.beq' s → e.denote ctx = s.denote ctx := by
+  simp; intro _ ; subst s; simp
+
+theorem eq_erase0_rhs {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.LawfulIdentity ctx.op (Var.denote ctx 0)}
+      (lhs rhs rhs' : Seq) : rhs.erase0.beq' rhs' → lhs.denote ctx = rhs.denote ctx → lhs.denote ctx = rhs'.denote ctx := by
+  simp; intro _ _; subst rhs'; simp [*]
+
+theorem eq_erase_dup_rhs {α} (ctx : Context α) {_ : Std.Associative ctx.op} {_ : Std.IdempotentOp ctx.op}
+      (lhs rhs rhs' : Seq) : rhs.eraseDup.beq' rhs' → lhs.denote ctx = rhs.denote ctx → lhs.denote ctx = rhs'.denote ctx := by
+  simp; intro _ _; subst rhs'; simp [*]
+
+theorem eq_expr_seq_seq {α} (ctx : Context α) (e : Expr) (s₁ s₂ : Seq) : e.denote ctx = s₁.denote ctx → s₁.denote ctx = s₂.denote ctx → e.denote ctx = s₂.denote ctx := by
+  apply Eq.trans
+
+theorem imp_eq {α} (ctx : Context α) (lhs rhs : Expr) (s : Seq)
+    : lhs.denote ctx = s.denote ctx → rhs.denote ctx = s.denote ctx → lhs.denote ctx = rhs.denote ctx := by
+  simp_all
+
+theorem refl {α} (ctx : Context α) (s : Seq) : s.denote ctx = s.denote ctx := (rfl)
 
 end Lean.Grind.AC

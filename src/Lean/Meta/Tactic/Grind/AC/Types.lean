@@ -8,9 +8,7 @@ prelude
 public import Init.Core
 public import Init.Grind.AC
 public import Std.Data.HashMap
-public import Lean.Expr
-public import Lean.Data.PersistentArray
-public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.AC.Seq
 public section
 namespace Lean.Meta.Grind.AC
@@ -35,8 +33,15 @@ inductive EqCnstrProof where
   | simp_suffix (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | simp_prefix (lhs : Bool) (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | simp_middle (lhs : Bool) (s₁ s₂ : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
-  | superpose_ac (s : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
-  | superpose_prefix (s₁ s₂ : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
+  | superpose_ac (r₁ c r₂ : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
+  | superpose (p s c : AC.Seq) (c₁ : EqCnstr) (c₂ : EqCnstr)
+  | superpose_ac_idempotent (x : AC.Var) (c₁ : EqCnstr)
+  | superpose_head_idempotent (x : AC.Var) (c₁ : EqCnstr)
+  | superpose_tail_idempotent (x : AC.Var) (c₁ : EqCnstr)
+  -- The following constructors are for equality propagation
+  | refl (s : AC.Seq)
+  | erase_dup_rhs (c : EqCnstr)
+  | erase0_rhs (c : EqCnstr)
 end
 
 instance : Inhabited EqCnstrProof where
@@ -90,6 +95,8 @@ structure Struct where
   varMap           : PHashMap ExprPtr AC.Var := {}
   /-- Mapping from Lean expressions to their representations as `AC.Expr` -/
   denote           : PHashMap ExprPtr AC.Expr := {}
+  /-- `denoteEntries` is `denote` as a `PArray` for deterministic traversal. -/
+  denoteEntries    : PArray (Expr × AC.Expr) := {}
   /-- Equations to process. -/
   queue            : Queue := {}
   /-- Processed equations. -/
@@ -120,5 +127,7 @@ structure State where
   exprToOpIds : PHashMap ExprPtr (List Nat) := {}
   steps := 0
   deriving Inhabited
+
+builtin_initialize acExt : SolverExtension State ← registerSolverExtension (return {})
 
 end Lean.Meta.Grind.AC

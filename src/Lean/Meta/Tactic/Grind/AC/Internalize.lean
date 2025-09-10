@@ -22,8 +22,7 @@ partial def reify (e : Expr) : ACM Grind.AC.Expr := do
   else
     return .var (← mkVar e)
 
-@[export lean_grind_ac_internalize]
-def internalizeImpl (e : Expr) (parent? : Option Expr) : GoalM Unit := do
+def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).ac do return ()
   unless e.isApp && e.appFn!.isApp do return ()
   let op := e.appFn!.appFn!
@@ -32,9 +31,13 @@ def internalizeImpl (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   ACM.run id do
     if (← getStruct).denote.contains { expr := e } then return ()
     let e' ← reify e
-    modifyStruct fun s => { s with denote := s.denote.insert { expr := e } e' }
+    modifyStruct fun s => { s with
+      denote := s.denote.insert { expr := e } e'
+      denoteEntries := s.denoteEntries.push (e, e')
+      recheck := true -- new equalities may be found by normalization
+    }
     trace[grind.ac.internalize] "[{id}] {← e'.denoteExpr}"
     addTermOpId e
-    markAsACTerm e
+    acExt.markTerm e
 
 end Lean.Meta.Grind.AC

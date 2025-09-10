@@ -66,11 +66,6 @@ instance leTotal : Std.Total (· ≤ · : Char → Char → Prop) where
 def notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
   total := fun x y => by simpa using Char.le_total y x
 
-theorem utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 ∨ c.utf8Size = 3 ∨ c.utf8Size = 4 := by
-  have := c.utf8Size_pos
-  have := c.utf8Size_le_four
-  omega
-
 @[simp] theorem ofNat_toNat (c : Char) : Char.ofNat c.toNat = c := by
   rw [Char.ofNat, dif_pos]
   rfl

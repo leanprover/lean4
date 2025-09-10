@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Util.Trace
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
@@ -22,11 +21,8 @@ public import Lean.Meta.Tactic.Grind.Arith.Cutsat.MBTC
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.VarRename
-
 public section
-
-namespace Lean
-
+namespace Lean.Meta.Grind.Arith.Cutsat
 builtin_initialize registerTraceClass `grind.cutsat
 builtin_initialize registerTraceClass `grind.cutsat.nonlinear
 builtin_initialize registerTraceClass `grind.cutsat.model
@@ -48,4 +44,13 @@ builtin_initialize registerTraceClass `grind.debug.cutsat.search.cnstrs
 builtin_initialize registerTraceClass `grind.debug.cutsat.search.reorder
 builtin_initialize registerTraceClass `grind.debug.cutsat.elimEq
 
-end Lean
+builtin_initialize
+  cutsatExt.setMethods
+    (internalize := Cutsat.internalize)
+    (newEq       := Cutsat.processNewEq)
+    (newDiseq    := Cutsat.processNewDiseq)
+    (check       := Cutsat.check)
+    (checkInv    := Cutsat.checkInvariants)
+    (mbtc        := Cutsat.mbtc)
+
+end Lean.Meta.Grind.Arith.Cutsat

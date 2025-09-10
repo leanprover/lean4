@@ -29,6 +29,7 @@ LEAN_EXPORT lean_object* l_Std_Time_DateTime_addMonthsClip___boxed(lean_object*,
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_quarter___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_addYearsClip___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_toTimestamp___boxed(lean_object*, lean_object*);
+uint8_t l_Std_Time_instDecidableEqDuration_decEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_withMonthRollOver(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_addMinutes___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Time_Internal_UnitVal_instNeg___lam__0(lean_object*);
@@ -90,7 +91,6 @@ LEAN_EXPORT lean_object* l_Std_Time_DateTime_withDaysClip(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_subSeconds(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_subMonthsClip___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_minute___redArg(lean_object*);
-extern lean_object* l_Std_Time_defaultTimestamp____x40_Std_Time_DateTime_Timestamp_1067989854____hygCtx___hyg_201_;
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_ofPlainDateTimeAssumingUTC___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Time_PlainDateTime_weekOfMonth(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_minute___redArg___boxed(lean_object*);
@@ -166,6 +166,7 @@ LEAN_EXPORT lean_object* l_Std_Time_DateTime_instHAddOffset__3(lean_object*);
 lean_object* l_Std_Time_PlainDate_weekOfYear(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_withWeekday(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_day___redArg(lean_object*);
+extern lean_object* l_Std_Time_instInhabitedTimestamp_default;
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_addWeeks___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_withNanoseconds___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_toDaysSinceUNIXEpoch___boxed(lean_object*, lean_object*);
@@ -223,7 +224,6 @@ LEAN_EXPORT lean_object* l_Std_Time_DateTime_withDaysClip___boxed(lean_object*, 
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_year___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_dayOfYear___boxed(lean_object*, lean_object*);
-uint8_t l_Std_Time_decEqDuration____x40_Std_Time_Duration_4137264884____hygCtx___hyg_297_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_withYearClip(lean_object*, lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_convertTimeZone___redArg(lean_object*, lean_object*);
@@ -289,7 +289,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_2, 0);
-x_5 = l_Std_Time_decEqDuration____x40_Std_Time_Duration_4137264884____hygCtx___hyg_297_(x_3, x_4);
+x_5 = l_Std_Time_instDecidableEqDuration_decEq(x_3, x_4);
 return x_5;
 }
 }
@@ -481,7 +481,7 @@ static lean_object* _init_l_Std_Time_DateTime_instInhabited___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Time_defaultTimestamp____x40_Std_Time_DateTime_Timestamp_1067989854____hygCtx___hyg_201_;
+x_1 = l_Std_Time_instInhabitedTimestamp_default;
 return x_1;
 }
 }

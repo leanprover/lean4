@@ -67,7 +67,6 @@ LEAN_EXPORT uint8_t l_Lean_Elab_isAbortTacticException(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortTactic___redArg(lean_object*);
 static lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___redArg___closed__2;
 static lean_object* l_Lean_Elab_throwAutoBoundImplicitLocal___redArg___closed__2;
-uint8_t l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_21_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkMessageCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortCommand(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwPostpone(lean_object*, lean_object*, lean_object*);
@@ -76,6 +75,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax(lean_object*, lean_o
 lean_object* l_Lean_KVMap_insert(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwAutoBoundImplicitLocal___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_postponeExceptionId;
+uint8_t l_Lean_instBEqInternalExceptionId_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_autoBoundImplicitExceptionId;
 static lean_object* l_Lean_Elab_initFn___closed__1____x40_Lean_Elab_Exception_2911972506____hygCtx___hyg_2_;
 static lean_object* l_Lean_Elab_initFn___closed__0____x40_Lean_Elab_Exception_3863513224____hygCtx___hyg_2_;
@@ -480,7 +480,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = l_Lean_Elab_throwAutoBoundImplicitLocal___redArg___closed__0;
-x_6 = l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_21_(x_3, x_5);
+x_6 = l_Lean_instBEqInternalExceptionId_beq(x_3, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; 
@@ -702,7 +702,7 @@ else
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = l_Lean_Elab_throwAbortTactic___redArg___closed__0;
-x_5 = l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_21_(x_3, x_4);
+x_5 = l_Lean_instBEqInternalExceptionId_beq(x_3, x_4);
 return x_5;
 }
 }
@@ -722,12 +722,12 @@ _start:
 {
 uint8_t x_2; lean_object* x_6; uint8_t x_7; 
 x_6 = l_Lean_Elab_throwAbortCommand___redArg___closed__0;
-x_7 = l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_21_(x_1, x_6);
+x_7 = l_Lean_instBEqInternalExceptionId_beq(x_1, x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; uint8_t x_9; 
 x_8 = l_Lean_Elab_throwAbortTerm___redArg___closed__0;
-x_9 = l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_21_(x_1, x_8);
+x_9 = l_Lean_instBEqInternalExceptionId_beq(x_1, x_8);
 x_2 = x_9;
 goto block_5;
 }
@@ -742,7 +742,7 @@ if (x_2 == 0)
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = l_Lean_Elab_throwAbortTactic___redArg___closed__0;
-x_4 = l_Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId_1935416772____hygCtx___hyg_21_(x_1, x_3);
+x_4 = l_Lean_instBEqInternalExceptionId_beq(x_1, x_3);
 return x_4;
 }
 else

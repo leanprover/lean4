@@ -108,13 +108,12 @@ LEAN_EXPORT lean_object* l_Lake_Toml_recNodeWithAntiquot_formatter___boxed(lean_
 static lean_object* l_Lake_Toml_sepBy1Linebreak_formatter___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_getCur___at___Lake_Toml_dynamicNode_parenthesizer_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_sepBy1Linebreak_parenthesizer___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Parser_instBEqError_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Parser_beqError____x40_Lean_Parser_Types_2111619821____hygCtx___hyg_42_(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_lit___closed__2;
 lean_object* l_Lean_Parser_mkAntiquot_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_pushAtom(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_skipInsideQuot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Option_beqOption___redArg____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3_(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_recNode_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_atom___lam__1___boxed(lean_object*);
 lean_object* l_Lean_Parser_ParserState_popSyntax(lean_object*);
@@ -145,8 +144,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_skipInsideQuot(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_getCur___at___Lake_Toml_dynamicNode_parenthesizer_spec__0___redArg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_digitFn(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Parser_beqError____x40_Lean_Parser_Types_2111619821____hygCtx___hyg_42____boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3____at___Lake_Toml_optFn_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_getCur___at___Lake_Toml_dynamicNode_parenthesizer_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_visitAtom(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_recNodeWithAntiquot_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -173,6 +170,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_recNodeWithAntiquot(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Lake_Toml_mkUnexpectedCharError___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_lit_parenthesizer___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_atomFn(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___Lake_Toml_optFn_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_skipInsideQuot_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mkLit(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_symbol_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -198,11 +196,13 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_goLeft___at___Lake_Toml_at
 LEAN_EXPORT lean_object* l_Lake_Toml_litWithAntiquot_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_sepByLinebreak_parenthesizer___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Lake_Toml_strAtom_spec__1(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Parser_instBEqError_beq(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_andthen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_usePosFn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_sepByLinebreak___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Toml_skipFn___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_addTrace___at___Lake_Toml_atom_formatter_spec__3_spec__3___closed__0;
+LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___Lake_Toml_optFn_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Toml_ParserUtil_0__Lake_Toml_modifyTailInfo___at___Lake_Toml_extendTrailingFn_spec__0___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_epsilon_formatter___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_strAuxFn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -286,6 +286,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_sepByLinebreak_parenthesizer___redArg(lean_
 LEAN_EXPORT lean_object* l_Lake_Toml_strAtom(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_goLeft___at___Lake_Toml_atom_formatter_spec__1___redArg___boxed(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+uint8_t l_Option_instBEq_beq___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_addTrace___at___Lake_Toml_atom_formatter_spec__3_spec__3___closed__2;
 static lean_object* l_Lake_Toml_instAndThenParserFn__lake___lam__0___closed__0;
@@ -314,7 +315,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_lit(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l___private_Lake_Toml_ParserUtil_0__Lake_Toml_modifyTailInfo___at___Lake_Toml_extendTrailingFn_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_sepBy1Linebreak_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_addTrace___at___Lake_Toml_atom_formatter_spec__3_spec__3___closed__5;
-LEAN_EXPORT lean_object* l_Option_beqOption____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3____at___Lake_Toml_optFn_spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_mkUnexpectedCharError___closed__2;
 lean_object* l_Lean_Parser_SyntaxStack_back(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___Lake_Toml_atom_formatter_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -504,7 +504,7 @@ static lean_object* _init_l_Lake_Toml_instAndThenParserFn__lake___lam__0___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parser_beqError____x40_Lean_Parser_Types_2111619821____hygCtx___hyg_42____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parser_instBEqError_beq___boxed), 2, 0);
 return x_1;
 }
 }
@@ -518,7 +518,7 @@ x_6 = lean_ctor_get(x_5, 4);
 lean_inc(x_6);
 x_7 = l_Lake_Toml_instAndThenParserFn__lake___lam__0___closed__0;
 x_8 = lean_box(0);
-x_9 = l_Option_beqOption___redArg____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3_(x_7, x_6, x_8);
+x_9 = l_Option_instBEq_beq___redArg(x_7, x_6, x_8);
 if (x_9 == 0)
 {
 lean_dec_ref(x_3);
@@ -552,7 +552,7 @@ x_5 = lean_apply_3(x_1, x_4, x_2, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3____at___Lake_Toml_optFn_spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___Lake_Toml_optFn_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -589,7 +589,7 @@ lean_dec_ref(x_1);
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
 lean_dec_ref(x_2);
-x_8 = l_Lean_Parser_beqError____x40_Lean_Parser_Types_2111619821____hygCtx___hyg_42_(x_6, x_7);
+x_8 = l_Lean_Parser_instBEqError_beq(x_6, x_7);
 return x_8;
 }
 }
@@ -606,7 +606,7 @@ lean_inc(x_5);
 x_6 = lean_ctor_get(x_4, 4);
 lean_inc(x_6);
 x_7 = lean_box(0);
-x_8 = l_Option_beqOption____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3____at___Lake_Toml_optFn_spec__0(x_6, x_7);
+x_8 = l_Option_instBEq_beq___at___Lake_Toml_optFn_spec__0(x_6, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; uint8_t x_10; 
@@ -638,11 +638,11 @@ return x_4;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_beqOption____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3____at___Lake_Toml_optFn_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___Lake_Toml_optFn_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Option_beqOption____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3____at___Lake_Toml_optFn_spec__0(x_1, x_2);
+x_3 = l_Option_instBEq_beq___at___Lake_Toml_optFn_spec__0(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -670,7 +670,7 @@ x_8 = lean_ctor_get(x_7, 4);
 lean_inc(x_8);
 x_9 = l_Lake_Toml_instAndThenParserFn__lake___lam__0___closed__0;
 x_10 = lean_box(0);
-x_11 = l_Option_beqOption___redArg____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3_(x_9, x_8, x_10);
+x_11 = l_Option_instBEq_beq___redArg(x_9, x_8, x_10);
 if (x_11 == 0)
 {
 lean_dec(x_3);
@@ -847,7 +847,7 @@ lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_6 = lean_ctor_get(x_5, 4);
 x_7 = lean_box(0);
 lean_inc(x_6);
-x_8 = l_Option_beqOption____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3____at___Lake_Toml_optFn_spec__0(x_6, x_7);
+x_8 = l_Option_instBEq_beq___at___Lake_Toml_optFn_spec__0(x_6, x_7);
 if (x_8 == 0)
 {
 lean_dec_ref(x_1);
@@ -944,7 +944,7 @@ x_4 = l_Lake_Toml_digitFn(x_1, x_2, x_3);
 x_5 = lean_ctor_get(x_4, 4);
 lean_inc(x_5);
 x_6 = lean_box(0);
-x_7 = l_Option_beqOption____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3____at___Lake_Toml_optFn_spec__0(x_5, x_6);
+x_7 = l_Option_instBEq_beq___at___Lake_Toml_optFn_spec__0(x_5, x_6);
 if (x_7 == 0)
 {
 lean_dec(x_1);
@@ -1030,7 +1030,7 @@ x_8 = l_Lake_Toml_chFn(x_7, x_2, x_4, x_5);
 x_9 = lean_ctor_get(x_8, 4);
 lean_inc(x_9);
 x_10 = lean_box(0);
-x_11 = l_Option_beqOption____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3____at___Lake_Toml_optFn_spec__0(x_9, x_10);
+x_11 = l_Option_instBEq_beq___at___Lake_Toml_optFn_spec__0(x_9, x_10);
 if (x_11 == 0)
 {
 lean_dec(x_3);
@@ -1317,7 +1317,7 @@ x_5 = lean_apply_2(x_1, x_3, x_4);
 x_6 = lean_ctor_get(x_5, 4);
 lean_inc(x_6);
 x_7 = lean_box(0);
-x_8 = l_Option_beqOption____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3____at___Lake_Toml_optFn_spec__0(x_6, x_7);
+x_8 = l_Option_instBEq_beq___at___Lake_Toml_optFn_spec__0(x_6, x_7);
 if (x_8 == 0)
 {
 lean_dec_ref(x_4);
@@ -2916,7 +2916,7 @@ x_6 = lean_apply_2(x_2, x_4, x_5);
 x_7 = lean_ctor_get(x_6, 4);
 lean_inc(x_7);
 x_8 = lean_box(0);
-x_9 = l_Option_beqOption____x40_Init_Data_Option_Basic_3000094388____hygCtx___hyg_3____at___Lake_Toml_optFn_spec__0(x_7, x_8);
+x_9 = l_Option_instBEq_beq___at___Lake_Toml_optFn_spec__0(x_7, x_8);
 if (x_9 == 0)
 {
 lean_dec_ref(x_5);

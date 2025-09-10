@@ -4320,7 +4320,7 @@ theorem mergeWith [TransCmp cmp] [LawfulEqCmp cmp]
 
 section Const
 
-variable {β : Type v} {t₁ t₂ t₃ t₄ : Raw α β cmp} (δ : Type w) (m : Type w → Type w)
+variable {β : Type v} {t₁ t₂ t₃ t₄ : Raw α β cmp} (δ : Type w) (m : Type w → Type w')
 
 theorem constGet?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     Const.get? t₁ k = Const.get? t₂ k :=

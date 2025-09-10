@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Simproc
-// Imports: Init.Grind.Ring.Basic Init.Simproc Lean.Meta.Tactic.Simp.Simproc Lean.Meta.Tactic.Grind.SynthInstance
+// Imports: Init.Grind.Ring.Basic Init.Simproc Lean.Meta.Tactic.Simp.Simproc Lean.Meta.Tactic.Grind.SynthInstance Init.Grind.Ring.Field
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -122,7 +122,7 @@ lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_o
 static lean_object* l_Lean_Meta_Grind_Arith_normInst___closed__1;
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0__Lean_Meta_Grind_Arith_mkSemiringThm___closed__3;
-static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0__Lean_Meta_Grind_Arith_notField;
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0__Lean_Meta_Grind_Arith_notField;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandPowAdd_declare__8___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1685476361____hygCtx___hyg_13_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntCastNum_declare__114____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_1083665832____hygCtx___hyg_10_(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_normIntOfNatInst_declare__104___closed__1____x40_Lean_Meta_Tactic_Grind_Arith_Simproc_906398933____hygCtx___hyg_13_;
@@ -12142,6 +12142,7 @@ lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Simproc(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_Simproc(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_SynthInstance(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Ring_Field(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Simproc(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -12157,6 +12158,9 @@ res = initialize_Lean_Meta_Tactic_Simp_Simproc(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_SynthInstance(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Ring_Field(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0__Lean_Meta_Grind_Arith_mkSemiringThm___closed__0 = _init_l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0__Lean_Meta_Grind_Arith_mkSemiringThm___closed__0();

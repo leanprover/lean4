@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
-// Imports: Init.Notation Init.Data.Bool
+// Imports: Init.Notation Init.Data.Bool Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1116,6 +1116,7 @@ return x_8;
 }
 lean_object* initialize_Init_Notation(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Bool(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1125,6 +1126,9 @@ res = initialize_Init_Notation(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Bool(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Tactic_BVDecide_Gate_toString___closed__0 = _init_l_Std_Tactic_BVDecide_Gate_toString___closed__0();

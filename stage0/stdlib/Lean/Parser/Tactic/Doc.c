@@ -53,7 +53,6 @@ static lean_object* l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc
 static lean_object* l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn___lam__1___closed__2____x40_Lean_Parser_Tactic_Doc_237674892____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn___lam__0___closed__3____x40_Lean_Parser_Tactic_Doc_237674892____hygCtx___hyg_2_;
 lean_object* l_Lean_PersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_ParserExtension_defaultState____x40_Lean_Parser_Extension_4043877091____hygCtx___hyg_51_;
 LEAN_EXPORT uint8_t l_Lean_Parser_Tactic_Doc_tagInfo___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_isTactic___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_indentLine___closed__1;
@@ -117,8 +116,10 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc_1804727373____hygCtx___hyg_2__spec__9(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn___closed__14____x40_Lean_Parser_Tactic_Doc_237674892____hygCtx___hyg_2_;
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
+extern lean_object* l_Lean_Parser_ParserExtension_instInhabitedState_default;
 static lean_object* l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn___closed__27____x40_Lean_Parser_Tactic_Doc_237674892____hygCtx___hyg_2_;
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
+uint8_t l_Lean_instBEqMessageSeverity_beq(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Parser_Tactic_Doc_isTactic_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_logAt___at___Lean_logWarningAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc_237674892____hygCtx___hyg_2__spec__2_spec__2___lam__0(uint8_t, uint8_t, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_Doc_isTactic___closed__3;
@@ -305,7 +306,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_allTags___redArg___lam__1___bo
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_PersistentHashMap_foldlMAux___at___Lean_PersistentHashMap_foldlM___at___Lean_PersistentHashMap_forIn___at___Lean_Parser_Tactic_Doc_isTactic_spec__3_spec__3_spec__3_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_aliases___redArg___lam__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes_2010129559____hygCtx___hyg_7_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_allTags___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at___Lean_logWarningAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc_237674892____hygCtx___hyg_2__spec__2_spec__2___lam__0___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc_291731992____hygCtx___hyg_2__spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -362,6 +362,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lean_Parser_Tactic_D
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_initFn___lam__3____x40_Lean_Parser_Tactic_Doc_44007290____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc_291731992____hygCtx___hyg_2__spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn___closed__2____x40_Lean_Parser_Tactic_Doc_1804727373____hygCtx___hyg_2_;
+uint8_t l_Lean_instBEqAttributeKind_beq(uint8_t, uint8_t);
 static lean_object* l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn___closed__6____x40_Lean_Parser_Tactic_Doc_237674892____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_allTagsWithInfo___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_allTagsWithInfo___redArg(lean_object*, lean_object*);
@@ -400,7 +401,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_aliases___redArg___lam__11(lea
 lean_object* l_List_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwAttrDeclInImportedModule___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc_237674892____hygCtx___hyg_2__spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(uint8_t, uint8_t);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn___closed__2____x40_Lean_Parser_Tactic_Doc_2845012366____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn___lam__1___closed__9____x40_Lean_Parser_Tactic_Doc_237674892____hygCtx___hyg_2_;
@@ -1167,7 +1167,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_Doc_isTactic___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_ParserExtension_defaultState____x40_Lean_Parser_Extension_4043877091____hygCtx___hyg_51_;
+x_1 = l_Lean_Parser_ParserExtension_instInhabitedState_default;
 return x_1;
 }
 }
@@ -2749,7 +2749,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_79; uint8_t x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; uint8_t x_84; uint8_t x_85; lean_object* x_86; lean_object* x_108; lean_object* x_109; lean_object* x_110; uint8_t x_111; lean_object* x_112; uint8_t x_113; uint8_t x_114; lean_object* x_115; lean_object* x_119; lean_object* x_120; lean_object* x_121; uint8_t x_122; lean_object* x_123; uint8_t x_124; uint8_t x_125; uint8_t x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; uint8_t x_136; uint8_t x_137; uint8_t x_138; uint8_t x_140; uint8_t x_156; 
 x_131 = 2;
-x_156 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_3, x_131);
+x_156 = l_Lean_instBEqMessageSeverity_beq(x_3, x_131);
 if (x_156 == 0)
 {
 x_140 = x_156;
@@ -3239,7 +3239,7 @@ x_148 = lean_alloc_closure((void*)(l_Lean_logAt___at___Lean_logWarningAt___at___
 lean_closure_set(x_148, 0, x_146);
 lean_closure_set(x_148, 1, x_147);
 x_149 = 1;
-x_150 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_3, x_149);
+x_150 = l_Lean_instBEqMessageSeverity_beq(x_3, x_149);
 if (x_150 == 0)
 {
 lean_inc(x_144);
@@ -3796,7 +3796,7 @@ _start:
 {
 lean_object* x_12; lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_279; uint8_t x_280; lean_object* x_281; lean_object* x_282; lean_object* x_283; uint8_t x_328; uint8_t x_329; 
 x_328 = 0;
-x_329 = l_Lean_beqAttributeKind____x40_Lean_Attributes_2010129559____hygCtx___hyg_7_(x_8, x_328);
+x_329 = l_Lean_instBEqAttributeKind_beq(x_8, x_328);
 if (x_329 == 0)
 {
 lean_object* x_330; 
@@ -8747,7 +8747,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_63; uint8_t x_64; 
 x_63 = 0;
-x_64 = l_Lean_beqAttributeKind____x40_Lean_Attributes_2010129559____hygCtx___hyg_7_(x_9, x_63);
+x_64 = l_Lean_instBEqAttributeKind_beq(x_9, x_63);
 if (x_64 == 0)
 {
 lean_object* x_65; 

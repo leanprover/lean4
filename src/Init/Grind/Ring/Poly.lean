@@ -1534,7 +1534,7 @@ theorem diseq0_to_eq {α} [Field α] (a : α) : a ≠ 0 → a*a⁻¹ = 1 := by
 
 private theorem of_mod_eq_0 {α} [CommRing α] {a : Int} {c : Nat} : Int.cast c = (0 : α) → a % c = 0 → (a : α) = 0 := by
   intro h h'
-  have := Int.ediv_add_emod a ↑c
+  have := Int.mul_ediv_add_emod a ↑c
   rw [h', Int.add_zero] at this
   replace this := congrArg (Int.cast (R := α)) this
   rw [Ring.intCast_mul] at this

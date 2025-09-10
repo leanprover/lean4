@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.List.Impl
 public import Init.Data.Format.Syntax
+public import Init.Data.ToString.Name
 
 public section
 

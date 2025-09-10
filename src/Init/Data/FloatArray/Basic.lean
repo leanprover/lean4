@@ -15,14 +15,11 @@ public import Init.Data.Array.DecidableEq
 public section
 universe u
 
-set_option genInjectivity false in
 structure FloatArray where
   data : Array Float
 
 attribute [extern "lean_float_array_mk"] FloatArray.mk
 attribute [extern "lean_float_array_data"] FloatArray.data
-
-gen_injective_theorems% FloatArray
 
 namespace FloatArray
 

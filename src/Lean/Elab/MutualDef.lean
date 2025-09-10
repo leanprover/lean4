@@ -1276,7 +1276,7 @@ where
     }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
+  finishElab headers := withFunLocalDecls headers fun funFVars => do
     let env ← getEnv
     if warn.exposeOnPrivate.get (← getOptions) then
       if env.header.isModule && !env.isExporting then
@@ -1286,13 +1286,19 @@ where
               logWarningAt attr.stx m!"Redundant `[expose]` attribute, it is meaningful on public \
                 definitions only"
 
+    -- Export body if...
     withExporting (isExporting :=
+      -- ...there is a public declaration without `@[no_expose]` AND
       headers.any (fun header =>
         header.modifiers.isInferredPublic env &&
         !header.modifiers.attrs.any (·.name == `no_expose)) &&
-      (isExporting ||
-       headers.all (fun header => (header.kind matches .abbrev | .instance)) ||
-       (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||
+      -- ...either there is an `abbrev` or `instance` OR
+      (headers.any (fun header => (header.kind matches .abbrev | .instance)) ||
+       -- ...there is a non-meta `def` in `@[expose] section` (we don't want that to infect too
+       -- many likely unintended decls) OR
+       (headers.any (fun header => header.kind == .def && !header.modifiers.isMeta) &&
+        sc.attrs.any (· matches `(attrInstance| expose))) ||
+       -- there is a decl with `@[expose]`
        headers.any (·.modifiers.attrs.any (·.name == `expose)))) do
     let headers := headers.map fun header =>
       { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }

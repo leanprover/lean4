@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHas
 static lean_object* l_Lean_Expr_collectLooseBVars___closed__6;
 lean_object* l_Lean_Expr_looseBVarRange(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_Expr_CollectLooseBVars_main_spec__6_spec__7(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_CollectLooseBVars_State_ctorIdx(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 size_t lean_uint64_to_usize(uint64_t);
@@ -65,6 +66,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_D
 static lean_object* l_Lean_Expr_collectLooseBVars___closed__1;
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 size_t lean_usize_sub(size_t, size_t);
+LEAN_EXPORT lean_object* l_Lean_Expr_CollectLooseBVars_State_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_Expr_CollectLooseBVars_main_spec__6___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_array_get_size(lean_object*);
@@ -77,6 +79,23 @@ LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHas
 static lean_object* l_Lean_Expr_collectLooseBVars___closed__5;
 size_t lean_usize_land(size_t, size_t);
 static lean_object* l_Lean_Expr_collectLooseBVars___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Expr_CollectLooseBVars_State_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Expr_CollectLooseBVars_State_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Expr_CollectLooseBVars_State_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_contains___at___Lean_Expr_CollectLooseBVars_main_spec__0_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

@@ -70,7 +70,7 @@ jobs:
         if: runner.os == 'macOS'
       - name: Checkout
         if: (!endsWith(matrix.os, '-with-cache'))
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # the default is to use a virtual merge commit between the PR and master: just use the PR
           ref: ${{ github.event.pull_request.head.sha }}
@@ -229,7 +229,7 @@ jobs:
         id: test
         run: |
           ulimit -c unlimited  # coredumps
-          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/$TARGET_STAGE -j$NPROC --output-junit test-results.xml
+          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/$TARGET_STAGE -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: (matrix.wasm || !matrix.cross) && (inputs.check-level >= 1 || matrix.test)
       - name: Test Summary
         uses: test-summary/action@v2

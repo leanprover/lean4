@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Util.Trace
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
@@ -22,11 +21,8 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
-
 public section
-
-namespace Lean
-
+namespace Lean.Meta.Grind.Arith.CommRing
 builtin_initialize registerTraceClass `grind.ring
 builtin_initialize registerTraceClass `grind.ring.internalize
 builtin_initialize registerTraceClass `grind.ring.assert
@@ -47,4 +43,12 @@ builtin_initialize registerTraceClass `grind.debug.ring.simpBasis
 builtin_initialize registerTraceClass `grind.debug.ring.basis
 builtin_initialize registerTraceClass `grind.debug.ring.rabinowitsch
 
-end Lean
+builtin_initialize
+  ringExt.setMethods
+    (internalize := CommRing.internalize)
+    (newEq       := CommRing.processNewEq)
+    (newDiseq    := CommRing.processNewDiseq)
+    (check       := CommRing.check)
+    (checkInv    := CommRing.checkInvariants)
+
+end Lean.Meta.Grind.Arith.CommRing

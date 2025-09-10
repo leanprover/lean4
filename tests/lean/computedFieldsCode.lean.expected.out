@@ -27,6 +27,82 @@
       dec x_1;
       ret x_2
 [Compiler.IR] [result]
+    def Exp.ctorElim._redArg (x_1 : tobj) (x_2 : tobj) : tobj :=
+      case x_1 : tobj of
+      Exp.var →
+        let x_3 : u32 := sproj[0, 0] x_1;
+        dec x_1;
+        let x_4 : tobj := box x_3;
+        let x_5 : tobj := app x_2 x_4;
+        ret x_5
+      Exp.app →
+        let x_6 : tobj := proj[0] x_1;
+        inc x_6;
+        let x_7 : tobj := proj[1] x_1;
+        inc x_7;
+        dec x_1;
+        let x_8 : tobj := app x_2 x_6 x_7;
+        ret x_8
+      default →
+        dec x_1;
+        ret x_2
+    def Exp.ctorElim (x_1 : ◾) (x_2 : @& tobj) (x_3 : tobj) (x_4 : ◾) (x_5 : tobj) : tobj :=
+      let x_6 : tobj := Exp.ctorElim._redArg x_3 x_5;
+      ret x_6
+    def Exp.ctorElim._boxed (x_1 : tobj) (x_2 : tobj) (x_3 : tobj) (x_4 : tobj) (x_5 : tobj) : tobj :=
+      let x_6 : tobj := Exp.ctorElim x_1 x_2 x_3 x_4 x_5;
+      dec x_2;
+      ret x_6
+[Compiler.IR] [result]
+    def Exp.var.elim._redArg (x_1 : tobj) (x_2 : tobj) : tobj :=
+      let x_3 : tobj := Exp.ctorElim._redArg x_1 x_2;
+      ret x_3
+    def Exp.var.elim (x_1 : ◾) (x_2 : tobj) (x_3 : ◾) (x_4 : tobj) : tobj :=
+      let x_5 : tobj := Exp.ctorElim._redArg x_2 x_4;
+      ret x_5
+[Compiler.IR] [result]
+    def Exp.app.elim._redArg (x_1 : tobj) (x_2 : tobj) : tobj :=
+      let x_3 : tobj := Exp.ctorElim._redArg x_1 x_2;
+      ret x_3
+    def Exp.app.elim (x_1 : ◾) (x_2 : tobj) (x_3 : ◾) (x_4 : tobj) : tobj :=
+      let x_5 : tobj := Exp.ctorElim._redArg x_2 x_4;
+      ret x_5
+[Compiler.IR] [result]
+    def Exp.a1.elim._redArg (x_1 : tobj) (x_2 : tobj) : tobj :=
+      let x_3 : tobj := Exp.ctorElim._redArg x_1 x_2;
+      ret x_3
+    def Exp.a1.elim (x_1 : ◾) (x_2 : tobj) (x_3 : ◾) (x_4 : tobj) : tobj :=
+      let x_5 : tobj := Exp.ctorElim._redArg x_2 x_4;
+      ret x_5
+[Compiler.IR] [result]
+    def Exp.a2.elim._redArg (x_1 : tobj) (x_2 : tobj) : tobj :=
+      let x_3 : tobj := Exp.ctorElim._redArg x_1 x_2;
+      ret x_3
+    def Exp.a2.elim (x_1 : ◾) (x_2 : tobj) (x_3 : ◾) (x_4 : tobj) : tobj :=
+      let x_5 : tobj := Exp.ctorElim._redArg x_2 x_4;
+      ret x_5
+[Compiler.IR] [result]
+    def Exp.a3.elim._redArg (x_1 : tobj) (x_2 : tobj) : tobj :=
+      let x_3 : tobj := Exp.ctorElim._redArg x_1 x_2;
+      ret x_3
+    def Exp.a3.elim (x_1 : ◾) (x_2 : tobj) (x_3 : ◾) (x_4 : tobj) : tobj :=
+      let x_5 : tobj := Exp.ctorElim._redArg x_2 x_4;
+      ret x_5
+[Compiler.IR] [result]
+    def Exp.a4.elim._redArg (x_1 : tobj) (x_2 : tobj) : tobj :=
+      let x_3 : tobj := Exp.ctorElim._redArg x_1 x_2;
+      ret x_3
+    def Exp.a4.elim (x_1 : ◾) (x_2 : tobj) (x_3 : ◾) (x_4 : tobj) : tobj :=
+      let x_5 : tobj := Exp.ctorElim._redArg x_2 x_4;
+      ret x_5
+[Compiler.IR] [result]
+    def Exp.a5.elim._redArg (x_1 : tobj) (x_2 : tobj) : tobj :=
+      let x_3 : tobj := Exp.ctorElim._redArg x_1 x_2;
+      ret x_3
+    def Exp.a5.elim (x_1 : ◾) (x_2 : tobj) (x_3 : ◾) (x_4 : tobj) : tobj :=
+      let x_5 : tobj := Exp.ctorElim._redArg x_2 x_4;
+      ret x_5
+[Compiler.IR] [result]
     def Exp.casesOn._override._redArg (x_1 : tobj) (x_2 : tobj) (x_3 : tobj) (x_4 : @& tobj) (x_5 : @& tobj) (x_6 : @& tobj) (x_7 : @& tobj) (x_8 : @& tobj) : tobj :=
       case x_1 : tobj of
       Exp.var._impl →

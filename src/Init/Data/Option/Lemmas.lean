@@ -797,7 +797,7 @@ theorem get_merge {o o' : Option α} {f : α → α → α} {i : α} [Std.Lawful
     (o.merge f o').get h = f (o.getD i) (o'.getD i) := by
   cases o <;> cases o' <;> simp [Std.LawfulLeftIdentity.left_id, Std.LawfulRightIdentity.right_id]
 
-@[simp, grind =] theorem elim_none (x : β) (f : α → β) : none.elim x f = x := rfl
+@[simp, grind =] theorem elim_none (x : β) (f : α → β) : Option.elim none x f = x := rfl
 
 @[simp, grind =] theorem elim_some (x : β) (f : α → β) (a : α) : (some a).elim x f = f a := rfl
 

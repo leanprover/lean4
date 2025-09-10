@@ -1,0 +1,16 @@
+Failure @43 (⟨2, 12⟩): expected ')'
+Final stack:
+  (Lean.Doc.Syntax.codeblock
+   "```"
+   [`scheme
+    [(Lean.Doc.Syntax.named
+      "("
+      `dialect
+      ":="
+      (Lean.Doc.Syntax.arg_str
+       (str "\"chicken\""))
+      <missing>)]]
+   "\n"
+   (str "\"x\\n\"")
+   "```")
+Remaining: "\nx\n```"

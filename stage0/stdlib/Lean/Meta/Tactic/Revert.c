@@ -40,7 +40,7 @@ lean_object* l_Lean_MVarId_getTag(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_MVarId_revert_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
-lean_object* l_Lean_instInhabitedPersistentArrayNode(lean_object*);
+lean_object* l_Lean_instInhabitedPersistentArrayNode_default(lean_object*);
 static lean_object* l_Lean_MVarId_revert___lam__0___closed__7;
 lean_object* l_Lean_LocalDecl_index(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -3087,7 +3087,7 @@ static lean_object* _init_l___private_Lean_Data_PersistentArray_0__Lean_Persiste
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instInhabitedPersistentArrayNode(lean_box(0));
+x_1 = l_Lean_instInhabitedPersistentArrayNode_default(lean_box(0));
 return x_1;
 }
 }

@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_restGoal(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_recombineGoal(lean_object*, lean_object*);
@@ -30,6 +29,7 @@ lean_object* l_Lean_Elab_Tactic_Do_ProofMode_SPred_mkAnd(lean_object*, lean_obje
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_parseHyp_x3f(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_focusHyp___closed__2;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at___Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__3;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_focusHyp___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo___closed__3;
@@ -39,22 +39,24 @@ static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_focusHyp___closed__7;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_refl___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_focusHyp___closed__1;
-static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__0;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_focusHyp___closed__9;
 lean_object* l_Lean_mkApp6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo___closed__5;
+static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__1;
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo___closed__1;
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_parseAnd_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_restGoal___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_focusHyp___closed__11;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo___closed__4;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__2;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_focusHyp___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHyp___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__3;
+static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__0;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_refl___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -72,6 +74,7 @@ static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo___clo
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo___closed__0;
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_addHypInfo(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default;
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_rewriteHyps___closed__0;
@@ -79,12 +82,29 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_focusHyp___closed__13;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_rewriteHyps___closed__1;
 lean_object* lean_expr_dbg_to_string(lean_object*);
-static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_focusHyp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_emptyHyp(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_focusHyp(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__0() {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -92,30 +112,30 @@ x_1 = lean_mk_string_unchecked("_inhabitedExprDummy", 19, 19);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__0;
+x_1 = l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__0;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__1;
+x_2 = l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__1;
 x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__2;
+x_1 = l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__2;
 x_2 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -123,11 +143,19 @@ lean_ctor_set(x_2, 2, x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__3;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__3;
+x_1 = l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default;
 return x_1;
 }
 }
@@ -1270,7 +1298,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown hypothesis '", 20, 20);
+x_1 = lean_mk_string_unchecked("unknown hypothesis `", 20, 20);
 return x_1;
 }
 }
@@ -1287,7 +1315,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -1475,14 +1503,16 @@ _G_initialized = true;
 res = initialize_Lean_Elab_Tactic_Do_ProofMode_MGoal(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__0 = _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__0();
-lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__0);
-l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__1 = _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__1();
-lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__1);
-l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__2 = _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__2();
-lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__2);
-l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__3 = _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__3();
-lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult___closed__3);
+l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__0 = _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__0();
+lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__0);
+l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__1 = _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__1();
+lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__1);
+l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__2 = _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__2();
+lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__2);
+l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__3 = _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__3();
+lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default___closed__3);
+l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default = _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default();
+lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult_default);
 l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult = _init_l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult();
 lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedFocusResult);
 l_Lean_Elab_Tactic_Do_ProofMode_focusHyp___closed__0 = _init_l_Lean_Elab_Tactic_Do_ProofMode_focusHyp___closed__0();

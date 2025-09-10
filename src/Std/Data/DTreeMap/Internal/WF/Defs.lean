@@ -22,9 +22,9 @@ A central consequence of well-formedness, balancedness, is shown for all well-fo
 set_option autoImplicit false
 set_option linter.all true
 
-universe u v w
+universe u v w w'
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w}
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w'}
 
 namespace Std.DTreeMap.Internal
 local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ

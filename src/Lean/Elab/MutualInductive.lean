@@ -14,14 +14,17 @@ public import Lean.Meta.Constructions
 public import Lean.Meta.CollectFVars
 public import Lean.Meta.SizeOf
 public import Lean.Meta.Injective
-public import Lean.Meta.IndPredBelow
 public import Lean.Elab.Command
 public import Lean.Elab.DefView
 public import Lean.Elab.DeclUtil
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.DeclarationRange
+public import Lean.Parser.Command
 import Lean.Elab.ComputedFields
+import Lean.DocString.Extension
 import Lean.Meta.Constructions.CtorIdx
+import Lean.Meta.Constructions.CtorElim
+import Lean.Meta.IndPredBelow
 
 public section
 
@@ -109,6 +112,8 @@ structure InductiveView where
   ctors           : Array CtorView
   computedFields  : Array ComputedFieldView
   derivingClasses : Array DerivingClassView
+  /-- The declaration docstring, and whether it's Verso -/
+  docString?      : Option (TSyntax ``Lean.Parser.Command.docComment × Bool)
   deriving Inhabited
 
 /-- Elaborated header for an inductive type before fvars for each inductive are added to the local context. -/
@@ -977,6 +982,7 @@ private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
     mkRecOn n
     if hasUnit then mkCasesOn n
     if hasNat then mkCtorIdx n
+    if hasNat then mkCtorElim n
     if hasUnit && hasEq && hasHEq then mkNoConfusion n
     if hasUnit && hasProd then mkBelow n
   for n in declNames do
@@ -1069,6 +1075,18 @@ private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res 
     for view in views do withRef view.declId <| Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
     for elab' in finalizers do elab'.finalize
   applyDerivingHandlers views
+  -- Docstrings are added during postprocessing to allow them to have checked references to
+  -- the type and its constructors, but before attributes to enable e.g. `@[inherit_doc X]`
+  runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
+    for view in views do
+      withRef view.declId do
+        if let some (doc, verso) := view.docString? then
+          addDocStringOf verso view.declName view.binders doc
+      for ctor in view.ctors do
+        withRef ctor.declId do
+          if let some (doc, verso) := ctor.modifiers.docString? then
+            addDocStringOf verso ctor.declName ctor.binders doc
+
   runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
     for view in views do withRef view.declId <| Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
 

@@ -33,6 +33,7 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__0_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___closed__5;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__2___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_GeneralizeTelescope_Entry_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_generalizeTelescope_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
@@ -82,8 +83,26 @@ LEAN_EXPORT lean_object* l_Lean_Meta_GeneralizeTelescope_updateTypes___boxed(lea
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_GeneralizeTelescope_Entry_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__4___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___closed__4;
+LEAN_EXPORT lean_object* l_Lean_Meta_GeneralizeTelescope_Entry_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_GeneralizeTelescope_Entry_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_GeneralizeTelescope_Entry_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_GeneralizeTelescope_updateTypes(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -904,17 +923,17 @@ block_26:
 {
 lean_object* x_24; lean_object* x_25; 
 x_24 = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___closed__1;
-x_25 = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___lam__1(x_3, x_2, x_4, x_1, x_24, x_18, x_17, x_19, x_20, x_21, x_22, x_23);
+x_25 = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___lam__1(x_3, x_2, x_4, x_1, x_24, x_17, x_18, x_19, x_20, x_21, x_22, x_23);
 return x_25;
 }
 block_57:
 {
 if (x_16 == 0)
 {
-lean_inc_ref(x_14);
 lean_inc_ref(x_15);
-x_17 = x_15;
-x_18 = x_14;
+lean_inc_ref(x_14);
+x_17 = x_14;
+x_18 = x_15;
 x_19 = x_27;
 x_20 = x_28;
 x_21 = x_29;
@@ -992,10 +1011,10 @@ lean_object* x_52;
 x_52 = lean_ctor_get(x_32, 1);
 lean_inc(x_52);
 lean_dec_ref(x_32);
-lean_inc_ref(x_14);
 lean_inc_ref(x_15);
-x_17 = x_15;
-x_18 = x_14;
+lean_inc_ref(x_14);
+x_17 = x_14;
+x_18 = x_15;
 x_19 = x_27;
 x_20 = x_28;
 x_21 = x_29;

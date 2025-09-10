@@ -255,9 +255,17 @@ theorem isSome_getElem?_iff_mem [TransCmp cmp] {a : α} :
     t[a]?.isSome ↔ a ∈ t :=
   mem_iff_isSome_getElem?.symm
 
+theorem getElem?_eq_some_iff [TransCmp cmp] {k : α} {v : β} :
+    t[k]? = some v ↔ ∃ h, t[k] = v :=
+  DTreeMap.Const.get?_eq_some_iff
+
 theorem mem_of_getKey?_eq_some [TransCmp cmp] {k k' : α}
     (h : t.getKey? k = some k') : k' ∈ t :=
   DTreeMap.mem_of_getKey?_eq_some h
+
+theorem getKey?_eq_some_iff [TransCmp cmp] {k k' : α} :
+    getKey? t k = some k' ↔ ∃ h, getKey t k h = k' :=
+  DTreeMap.getKey?_eq_some_iff
 
 theorem getElem?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t[a]? = none :=
@@ -789,10 +797,6 @@ instance [TransCmp cmp] : LawfulGetElem (TreeMap α β cmp) α β (fun m a => a 
     rw [getElem!_eq_get!_getElem?]
     split <;> simp_all
 
-theorem getElem?_eq_some_iff [TransCmp cmp] {k : α} {v : β} :
-    t[k]? = some v ↔ ∃ h : k ∈ t, t[k] = v :=
-  _root_.getElem?_eq_some_iff
-
 @[simp, grind =]
 theorem length_keys [TransCmp cmp] :
     t.keys.length = t.size :=
@@ -819,6 +823,10 @@ theorem mem_of_mem_keys [TransCmp cmp] {k : α} (h : k ∈ t.keys) : k ∈ t :=
 theorem distinct_keys [TransCmp cmp] :
     t.keys.Pairwise (fun a b => ¬ cmp a b = .eq) :=
   DTreeMap.distinct_keys
+
+theorem nodup_keys [TransCmp cmp] :
+    t.keys.Nodup :=
+  t.distinct_keys.imp Std.ReflCmp.ne_of_cmp_ne_eq
 
 theorem ordered_keys [TransCmp cmp] :
     t.keys.Pairwise (fun a b => cmp a b = .lt) :=

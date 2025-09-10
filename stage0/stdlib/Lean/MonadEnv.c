@@ -1651,7 +1651,7 @@ static lean_object* _init_l_Lean_getConstInfoDefn___redArg___lam__0___closed__0(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -1668,7 +1668,7 @@ static lean_object* _init_l_Lean_getConstInfoDefn___redArg___lam__0___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is not a definition", 21, 21);
+x_1 = lean_mk_string_unchecked("` is not a definition", 21, 21);
 return x_1;
 }
 }
@@ -1750,7 +1750,7 @@ static lean_object* _init_l_Lean_getConstInfoInduct___redArg___lam__0___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is not a inductive type", 25, 25);
+x_1 = lean_mk_string_unchecked("` is not a inductive type", 25, 25);
 return x_1;
 }
 }
@@ -1832,7 +1832,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___redArg___lam__0___closed__0(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is not a constructor", 22, 22);
+x_1 = lean_mk_string_unchecked("` is not a constructor", 22, 22);
 return x_1;
 }
 }
@@ -1914,7 +1914,7 @@ static lean_object* _init_l_Lean_getConstInfoRec___redArg___lam__0___closed__0()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is not a recursor", 19, 19);
+x_1 = lean_mk_string_unchecked("` is not a recursor", 19, 19);
 return x_1;
 }
 }

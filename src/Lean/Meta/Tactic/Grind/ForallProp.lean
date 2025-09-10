@@ -4,17 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Lemmas
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Internalize
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.EqResolution
+public import Init.Grind.Propagator
+import Init.Grind.Lemmas
+import Init.Grind.Norm
+import Lean.Meta.Tactic.Grind.Propagate
+import Lean.Meta.Tactic.Grind.Internalize
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.EqResolution
 import Lean.Meta.Tactic.Grind.SynthInstance
-
 public section
-
 namespace Lean.Meta.Grind
 /--
 If `parent` is a projection-application `proj_i c`,

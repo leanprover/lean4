@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.LOption
-// Imports: Init.Data.ToString.Basic
+// Imports: Init.Data.ToString.Basic Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,30 +13,40 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT uint8_t l_Lean_instBEqLOption_beq(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_toLOptionM(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedLOption(lean_object*);
 static lean_object* l_Lean_instToStringLOption___redArg___lam__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Option_toLOption___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_some_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_beqLOption____x40_Lean_Data_LOption_3089415665____hygCtx___hyg_34_(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_ctorElim___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_instToStringLOption___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_toLOptionM___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_beqLOption____x40_Lean_Data_LOption_3089415665____hygCtx___hyg_34____boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instBEqLOption_beq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instToStringLOption___redArg___lam__0___closed__1;
+LEAN_EXPORT lean_object* l_Lean_LOption_undef_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToStringLOption___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_beqLOption___redArg____x40_Lean_Data_LOption_3089415665____hygCtx___hyg_34____boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instToStringLOption___redArg___lam__0___closed__3;
-LEAN_EXPORT uint8_t l_Lean_beqLOption___redArg____x40_Lean_Data_LOption_3089415665____hygCtx___hyg_34_(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_undef_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqLOption(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instBEqLOption_beq___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_some_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_toLOptionM___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instInhabitedLOption_default(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToStringLOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_none_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_toOption___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_none_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToStringLOption___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_toOption(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_instBEqLOption_beq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_toLOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqLOption___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx___redArg(lean_object* x_1) {
@@ -90,6 +100,98 @@ lean_dec(x_2);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_LOption_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 1)
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec_ref(x_1);
+x_4 = lean_apply_1(x_2, x_3);
+return x_4;
+}
+else
+{
+lean_dec(x_1);
+return x_2;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_LOption_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_LOption_ctorElim___redArg(x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_LOption_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_LOption_ctorElim(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_3);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_LOption_none_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_LOption_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_LOption_none_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_LOption_ctorElim___redArg(x_3, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_LOption_some_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_LOption_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_LOption_some_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_LOption_ctorElim___redArg(x_3, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_LOption_undef_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_LOption_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_LOption_undef_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_LOption_ctorElim___redArg(x_3, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instInhabitedLOption_default(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_box(0);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_instInhabitedLOption(lean_object* x_1) {
 _start:
 {
@@ -98,7 +200,7 @@ x_2 = lean_box(0);
 return x_2;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_beqLOption___redArg____x40_Lean_Data_LOption_3089415665____hygCtx___hyg_34_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_Lean_instBEqLOption_beq___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 switch (lean_obj_tag(x_2)) {
@@ -164,28 +266,28 @@ return x_12;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Lean_beqLOption____x40_Lean_Data_LOption_3089415665____hygCtx___hyg_34_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT uint8_t l_Lean_instBEqLOption_beq(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
-x_5 = l_Lean_beqLOption___redArg____x40_Lean_Data_LOption_3089415665____hygCtx___hyg_34_(x_2, x_3, x_4);
+x_5 = l_Lean_instBEqLOption_beq___redArg(x_2, x_3, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_beqLOption___redArg____x40_Lean_Data_LOption_3089415665____hygCtx___hyg_34____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_instBEqLOption_beq___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; lean_object* x_5; 
-x_4 = l_Lean_beqLOption___redArg____x40_Lean_Data_LOption_3089415665____hygCtx___hyg_34_(x_1, x_2, x_3);
+x_4 = l_Lean_instBEqLOption_beq___redArg(x_1, x_2, x_3);
 x_5 = lean_box(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_beqLOption____x40_Lean_Data_LOption_3089415665____hygCtx___hyg_34____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_instBEqLOption_beq___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; lean_object* x_6; 
-x_5 = l_Lean_beqLOption____x40_Lean_Data_LOption_3089415665____hygCtx___hyg_34_(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_instBEqLOption_beq(x_1, x_2, x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -194,7 +296,7 @@ LEAN_EXPORT lean_object* l_Lean_instBEqLOption___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_beqLOption____x40_Lean_Data_LOption_3089415665____hygCtx___hyg_34____boxed), 4, 2);
+x_2 = lean_alloc_closure((void*)(l_Lean_instBEqLOption_beq___boxed), 4, 2);
 lean_closure_set(x_2, 0, lean_box(0));
 lean_closure_set(x_2, 1, x_1);
 return x_2;
@@ -204,7 +306,7 @@ LEAN_EXPORT lean_object* l_Lean_instBEqLOption(lean_object* x_1, lean_object* x_
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_beqLOption____x40_Lean_Data_LOption_3089415665____hygCtx___hyg_34____boxed), 4, 2);
+x_3 = lean_alloc_closure((void*)(l_Lean_instBEqLOption_beq___boxed), 4, 2);
 lean_closure_set(x_3, 0, lean_box(0));
 lean_closure_set(x_3, 1, x_2);
 return x_3;
@@ -417,12 +519,16 @@ return x_9;
 }
 }
 lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_LOption(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_ToString_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instToStringLOption___redArg___lam__0___closed__0 = _init_l_Lean_instToStringLOption___redArg___lam__0___closed__0();

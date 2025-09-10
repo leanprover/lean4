@@ -4,14 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
-
-public section
-
+public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
+import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 namespace Lean.Meta.Grind.Arith.Linear
-
 /--
 Returns `true` if the variables in the given polynomial are sorted
 in decreasing order.
@@ -100,7 +96,7 @@ def checkStructInvs : LinearM Unit := do
   checkUppers
   checkDiseqCnstrs
 
-def checkInvariants : GoalM Unit := do
+public def checkInvariants : GoalM Unit := do
   unless grind.debug.get (← getOptions) do return ()
   for structId in *...(← get').structs.size do
     LinearM.run structId do

@@ -22,6 +22,7 @@ uint64_t lean_uint64_of_nat(lean_object*);
 static lean_object* l_Float_ofScientific___closed__0;
 LEAN_EXPORT float l_Float32_ofBinaryScientific(lean_object*, lean_object*);
 LEAN_EXPORT float l_instOfNatFloat32(lean_object*);
+LEAN_EXPORT lean_object* l_OfScientific_ctorIdx(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 double lean_float_negate(double);
 LEAN_EXPORT lean_object* l_Float_ofBinaryScientific___boxed(lean_object*, lean_object*);
@@ -65,8 +66,26 @@ LEAN_EXPORT lean_object* l_instOfNatFloat___boxed(lean_object*);
 LEAN_EXPORT float l_Float32_ofInt(lean_object*);
 LEAN_EXPORT lean_object* l_Float_ofInt___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_OfScientific_ctorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_instOfScientificFloat32___closed__0;
 LEAN_EXPORT lean_object* l_Nat_toFloat___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_OfScientific_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_OfScientific_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_OfScientific_ctorIdx(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Nat_cast___at___Float_ofBinaryScientific_spec__0(lean_object* x_1) {
 _start:
 {

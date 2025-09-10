@@ -12,6 +12,7 @@ public import Lean.Elab.DefView
 public import Lean.Elab.MutualDef
 public import Lean.Elab.MutualInductive
 public import Lean.Elab.DeclarationRange
+public import Lean.Parser.Command
 import Lean.Parser.Command
 
 public section
@@ -108,7 +109,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   let (binders, typeStx) := expandDeclSig stx[2]
   runTermElabM fun vars => do
     let scopeLevelNames ← Term.getLevelNames
-    let ⟨shortName, declName, allUserLevelNames⟩ ← Term.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
+    let ⟨shortName, declName, allUserLevelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
     addDeclarationRangesForBuiltin declName modifiers.stx stx
     Term.withAutoBoundImplicit do
     Term.withAutoBoundImplicitForbiddenPred (fun n => shortName == n) do
@@ -135,13 +136,16 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
         trace[Elab.axiom] "{declName} : {type}"
         Term.ensureNoUnassignedMVars decl
         addDecl decl
-        withSaveInfoContext do  -- save new env
-          Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)
+
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking
         if isExtern (← getEnv) declName then
           compileDecl decl
+        if let some (doc, isVerso) := docString? then
+          addDocStringOf isVerso declName binders doc
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
-
+        withSaveInfoContext do  -- save new env with docstring and decl
+          Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)
+open Lean.Parser.Command.InternalSyntax in
 /--
 Macro that expands a declaration with a complex name into an explicit `namespace` block.
 Implementing this step as a macro means that reuse checking is handled by `elabCommand`.
@@ -153,7 +157,7 @@ def expandNamespacedDeclaration : Macro := fun stx => do
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
     let declTk := stx[1][0]
     let ns := mkIdentFrom declTk ns
-    withRef declTk `(namespace $ns $(⟨newStx⟩) end $ns)
+    withRef declTk `(namespace $ns $endLocalScopeSyntax:command $(⟨newStx⟩) end $ns)
   | none => Macro.throwUnsupported
 
 @[builtin_command_elab declaration, builtin_incremental]

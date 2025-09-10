@@ -4,16 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.Simp
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Arith.Util
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
+import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
-
 public section
-
 namespace Lean.Meta.Grind.Arith.CommRing
 
 /-- If `e` is a function application supported by the `CommRing` module, return its type. -/
@@ -86,7 +84,15 @@ private def processInv (e inst a : Expr) : RingM Unit := do
   if (← getRing).invSet.contains a then return ()
   modifyRing fun s => { s with invSet := s.invSet.insert a }
   if let some k ← toInt? a then
-    assert! k != 0 -- We have the normalization rule `Field.inv_zero`
+    if k == 0 then
+      /-
+      **Remark:** We have a normalization rule for `0⁻¹ = 0`, but we may still encounter `0⁻¹` for one of the following reasons:
+      - `0⁻¹` appears in a subterm that cannot be rewritten by `simp` without introducing a type error.
+      - `preprocessLight`, which does not apply `simp`, was used to preprocess the term. Even if we extended `preprocessLight` to
+        apply `rfl` theorems, it would not be enough since `0⁻¹ = 0` is not a `rfl` theorem.
+      -/
+      pushEq e a <| mkApp2 (mkConst ``Grind.Field.inv_zero [ring.u]) ring.type fieldInst
+      return ()
     if (← hasChar) then
       let (charInst, c) ← getCharInst
       if c == 0 then
@@ -128,7 +134,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     let some re ← reify? e | return ()
     trace_goal[grind.ring.internalize] "[{ringId}]: {e}"
     setTermRingId e
-    markAsCommRingTerm e
+    ringExt.markTerm e
     modifyRing fun s => { s with
       denote := s.denote.insert { expr := e } re
       denoteEntries := s.denoteEntries.push (e, re)
@@ -137,7 +143,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     let some re ← sreify? e | return ()
     trace_goal[grind.ring.internalize] "semiring [{semiringId}]: {e}"
     setTermSemiringId e
-    markAsCommRingTerm e
+    ringExt.markTerm e
     modifySemiring fun s => { s with denote := s.denote.insert { expr := e } re }
 
 end Lean.Meta.Grind.Arith.CommRing

@@ -87,7 +87,7 @@ def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" decl_name
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
   "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (ppSpace >> syntaxParser argPrec) >> " : " >> ident
 @[builtin_command_parser] def syntaxAbbrev  := leading_parser
-  optional docComment >> "syntax " >> ident >> " := " >> many1 syntaxParser
+  optional docComment >> optional visibility >> "syntax " >> ident >> " := " >> many1 syntaxParser
 def catBehaviorBoth   := leading_parser nonReservedSymbol "both"
 def catBehaviorSymbol := leading_parser nonReservedSymbol "symbol"
 def catBehavior := optional (" (" >> nonReservedSymbol "behavior" >> " := " >> (catBehaviorBoth <|> catBehaviorSymbol) >> ")")

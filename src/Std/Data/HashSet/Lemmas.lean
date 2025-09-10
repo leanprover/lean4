@@ -22,7 +22,7 @@ is to provide an instance of `LawfulBEq α`.
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v
+universe u v w
 
 variable {α : Type u} {_ : BEq α} {_ : Hashable α}
 
@@ -256,6 +256,10 @@ theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} :
 theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
     (m.get? a).isSome ↔ a ∈ m :=
   mem_iff_isSome_get?.symm
+
+theorem get?_eq_some_iff [EquivBEq α] [LawfulHashable α] {k k' : α} :
+    m.get? k = some k' ↔ ∃ h : k ∈ m, m.get k h = k' :=
+  HashMap.getKey?_eq_some_iff
 
 theorem mem_of_get?_eq_some [EquivBEq α] [LawfulHashable α] {k k' : α}
     (h : m.get? k = some k') : k' ∈ m :=
@@ -532,7 +536,7 @@ theorem contains_of_mem_toArray [EquivBEq α] [LawfulHashable α] {k : α}
 
 section monadic
 
-variable {δ : Type v} {m' : Type v → Type v}
+variable {δ : Type v} {m' : Type v → Type w}
 
 theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
     {f : δ → α → m' δ} {init : δ} :

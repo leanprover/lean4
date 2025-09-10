@@ -27,14 +27,14 @@ trace: [Compiler.result] size: 1
 ---
 trace: [Compiler.result] size: 5
     def _eval._lam_0 (_x.1 : Array
-       Lean.Name) (_x.2 : PUnit) (_y.3 : Lean.Elab.Term.Context) (_y.4 : lcAny) (_y.5 : Lean.Meta.Context) (_y.6 : lcAny) (_y.7 : Lean.Core.Context) (_y.8 : lcAny) (_y.9 : PUnit) : EStateM.Result
-      Lean.Exception PUnit PUnit :=
-      let _x.10 : EStateM.Result Lean.Exception PUnit PUnit := compile _x.1 _y.7 _y.8 _y.9;
-      cases _x.10 : EStateM.Result Lean.Exception PUnit PUnit
-      | EStateM.Result.ok (a.11 : PUnit) (a.12 : PUnit) =>
-        let _x.13 : EStateM.Result Lean.Exception PUnit PUnit := EStateM.Result.ok ◾ ◾ ◾ _x.2 a.12;
+       Lean.Name) (_x.2 : PUnit) (_y.3 : Lean.Elab.Term.Context) (_y.4 : lcAny) (_y.5 : Lean.Meta.Context) (_y.6 : lcAny) (_y.7 : Lean.Core.Context) (_y.8 : lcAny) (_y.9 : lcRealWorld) : EStateM.Result
+      Lean.Exception lcRealWorld PUnit :=
+      let _x.10 : EStateM.Result Lean.Exception lcRealWorld PUnit := compile _x.1 _y.7 _y.8 _y.9;
+      cases _x.10 : EStateM.Result Lean.Exception lcRealWorld PUnit
+      | EStateM.Result.ok (a.11 : PUnit) (a.12 : lcRealWorld) =>
+        let _x.13 : EStateM.Result Lean.Exception lcRealWorld PUnit := EStateM.Result.ok ◾ ◾ ◾ _x.2 a.12;
         return _x.13
-      | EStateM.Result.error (a.14 : Lean.Exception) (a.15 : PUnit) =>
+      | EStateM.Result.error (a.14 : Lean.Exception) (a.15 : lcRealWorld) =>
         return _x.10
 [Compiler.result] size: 1
     def _eval._closed_0 : String :=
@@ -62,8 +62,8 @@ trace: [Compiler.result] size: 5
       let _x.3 : Array Lean.Name := Array.push ◾ _x.2 _x.1;
       return _x.3
 [Compiler.result] size: 9
-    def _eval (a.1 : Lean.Elab.Command.Context) (a.2 : lcAny) (a.3 : PUnit) : EStateM.Result Lean.Exception PUnit
-      PUnit :=
+    def _eval (a.1 : Lean.Elab.Command.Context) (a.2 : lcAny) (a.3 : lcRealWorld) : EStateM.Result Lean.Exception
+      lcRealWorld PUnit :=
       let _x.4 : String := _eval._closed_0;
       let _x.5 : String := _eval._closed_1;
       let _x.6 : Lean.Name := _eval._closed_2;
@@ -75,8 +75,9 @@ trace: [Compiler.result] size: 5
         lcAny →
           Lean.Meta.Context →
             lcAny →
-              Lean.Core.Context → lcAny → PUnit → EStateM.Result Lean.Exception PUnit PUnit := _eval._lam_0 _x.9 _x.10;
-      let _x.12 : EStateM.Result Lean.Exception PUnit
+              Lean.Core.Context →
+                lcAny → lcRealWorld → EStateM.Result Lean.Exception lcRealWorld PUnit := _eval._lam_0 _x.9 _x.10;
+      let _x.12 : EStateM.Result Lean.Exception lcRealWorld
         PUnit := Lean.Elab.Command.liftTermElabM._redArg _f.11 a.1 a.2 a.3;
       return _x.12
 -/

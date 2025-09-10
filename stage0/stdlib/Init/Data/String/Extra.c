@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Extra
-// Imports: Init.Data.ByteArray.Basic Init.Data.ByteArray.Basic Init.Data.String.Basic Init.Data.String.Basic Init.Data.UInt.Lemmas
+// Imports: Init.Data.ByteArray.Basic Init.Data.ByteArray.Basic Init.Data.String.Basic Init.Data.String.Basic Init.Data.UInt.Lemmas Init.Data.UInt.Bitwise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -56,7 +56,6 @@ uint8_t lean_string_validate_utf8(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__String_fromUTF8_loop(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_crlfToLf(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_utf8EncodeChar___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__String_validateUTF8_loop___boxed(lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__17;
 static lean_object* l_String_fromUTF8_x21___closed__1;
@@ -77,6 +76,7 @@ uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_String_utf8DecodeChar_x3f___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__2___closed__1;
 LEAN_EXPORT lean_object* l_String_Iterator_foldUntil___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_utf8EncodeCharFast(uint32_t);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__18;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__13;
@@ -85,7 +85,6 @@ LEAN_EXPORT lean_object* l_String_utf8DecodeChar_x3f___boxed(lean_object*, lean_
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__ByteArray_size_match__1_splitter___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_String_Extra_0__String_validateUTF8_loop___closed__0;
-LEAN_EXPORT lean_object* l_String_utf8EncodeChar(uint32_t);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1(lean_object*, lean_object*, lean_object*);
@@ -153,6 +152,7 @@ uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__11;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__2;
+LEAN_EXPORT lean_object* l_String_utf8EncodeCharFast___boxed(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__16;
 LEAN_EXPORT lean_object* l_String_fromUTF8_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___String_toNat_x21_spec__0(lean_object* x_1) {
@@ -194,7 +194,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_toNat_x21___closed__2;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(38u);
+x_3 = lean_unsigned_to_nat(39u);
 x_4 = l_String_toNat_x21___closed__1;
 x_5 = l_String_toNat_x21___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -894,7 +894,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_fromUTF8_x21___closed__2;
 x_2 = lean_unsigned_to_nat(47u);
-x_3 = lean_unsigned_to_nat(133u);
+x_3 = lean_unsigned_to_nat(134u);
 x_4 = l_String_fromUTF8_x21___closed__1;
 x_5 = l_String_toNat_x21___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -931,7 +931,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_String_utf8EncodeChar(uint32_t x_1) {
+LEAN_EXPORT lean_object* l_String_utf8EncodeCharFast(uint32_t x_1) {
 _start:
 {
 uint32_t x_2; uint8_t x_3; 
@@ -1067,13 +1067,13 @@ return x_83;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_utf8EncodeChar___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_String_utf8EncodeCharFast___boxed(lean_object* x_1) {
 _start:
 {
 uint32_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
-x_3 = l_String_utf8EncodeChar(x_2);
+x_3 = l_String_utf8EncodeCharFast(x_2);
 return x_3;
 }
 }
@@ -2505,6 +2505,7 @@ lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin, lean_object*)
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_Bitwise(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Extra(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -2523,6 +2524,9 @@ res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Bitwise(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_String_toNat_x21___closed__0 = _init_l_String_toNat_x21___closed__0();

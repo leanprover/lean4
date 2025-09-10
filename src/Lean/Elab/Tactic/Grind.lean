@@ -22,6 +22,8 @@ namespace Lean.Elab.Tactic
 open Meta
 
 declare_config_elab elabGrindConfig Grind.Config
+declare_config_elab elabCutsatConfig Grind.CutsatConfig
+declare_config_elab elabGrobnerConfig Grind.GrobnerConfig
 
 open Command Term in
 @[builtin_command_elab Lean.Parser.Command.grindPattern]
@@ -57,6 +59,7 @@ def elabResetGrindAttrs : CommandElab := fun _ => liftTermElabM do
 open Command Term in
 @[builtin_command_elab Lean.Parser.Command.initGrindNorm]
 def elabInitGrindNorm : CommandElab := fun stx =>
+  withExporting do  -- should generate public aux decls
   match stx with
   | `(init_grind_norm $pre:ident* | $post*) =>
     Command.liftTermElabM do
@@ -91,7 +94,13 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
       else
         params := { params with ematch := (← params.ematch.eraseDecl declName) }
     | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) =>
-      let declName ← realizeGlobalConstNoOverloadWithInfo id
+      let declName ← try
+        realizeGlobalConstNoOverloadWithInfo id
+      catch err =>
+        if (← resolveLocalName id.getId).isSome then
+          throwErrorAt id "redundant parameter `{id}`, `grind` uses local hypotheses automatically"
+        else
+          throw err
       let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
       match kind with
       | .ematch .user =>
@@ -309,6 +318,20 @@ def mkGrindOnly
     let trace ← evalGrindCore stx config only params fallback?
     let stx ← mkGrindOnly configStx fallback? trace
     Tactic.TryThis.addSuggestion tk stx (origSpan? := ← getRef)
+  | _ => throwUnsupportedSyntax
+
+@[builtin_tactic Lean.Parser.Tactic.cutsat] def evalCutsat : Tactic := fun stx => do
+  match stx with
+  | `(tactic| cutsat $config:optConfig) =>
+    let config ← elabCutsatConfig config
+    discard <| evalGrindCore stx { config with } none none none
+  | _ => throwUnsupportedSyntax
+
+@[builtin_tactic Lean.Parser.Tactic.grobner] def evalGrobner : Tactic := fun stx => do
+  match stx with
+  | `(tactic| grobner $config:optConfig) =>
+    let config ← elabGrobnerConfig config
+    discard <| evalGrindCore stx { config with } none none none
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

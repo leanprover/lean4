@@ -69,19 +69,126 @@ syntax (name := resetGrindAttrs) "reset_grind_attrs%" : command
 
 namespace Attr
 syntax grindGen    := ppSpace &"gen"
+/--
+The `=` modifier instructs `grind` to check that the conclusion of the theorem is an equality,
+and then uses the left-hand side of the equality as a pattern. This may fail if not all of the arguments appear
+in the left-hand side.
+-/
 syntax grindEq     := "=" (grindGen)?
-syntax grindEqBoth := atomic("_" "=" "_") (grindGen)?
+/--
+The `=_` modifier instructs `grind` to check that the conclusion of the theorem is an equality,
+and then uses the right-hand side of the equality as a pattern. This may fail if not all of the arguments appear
+in the right-hand side.
+-/
 syntax grindEqRhs  := atomic("=" "_") (grindGen)?
+/--
+The `_=_` modifier acts like a macro which expands to `=` and `=_`.  It adds two patterns,
+allowing the equality theorem to trigger in either direction.
+-/
+syntax grindEqBoth := atomic("_" "=" "_") (grindGen)?
+/--
+The `←=` modifier is unlike the other `grind` modifiers, and it used specifically for
+backwards reasoning on equality. When a theorem's conclusion is an equality proposition and it
+is annotated with `@[grind ←=]`, grind `will` instantiate it whenever the corresponding disequality
+is assumed—this is a consequence of the fact that grind performs all proofs by contradiction.
+Ordinarily, the grind attribute does not consider the `=` symbol when generating patterns.
+-/
 syntax grindEqBwd  := patternIgnore(atomic("←" "=") <|> atomic("<-" "="))
+/--
+The `←` modifier instructs `grind` to select a multi-pattern from the conclusion of theorem.
+In other words, `grind` will use the theorem for backwards reasoning.
+This may fail if not all of the arguments to the theorem appear in the conclusion.
+-/
 syntax grindBwd    := patternIgnore("←" <|> "<-") (grindGen)?
+/--
+The `→` modifier instructs `grind` to select a multi-pattern from the hypotheses of the theorem.
+In other words, `grind` will use the theorem for forwards reasoning.
+To generate a pattern, it traverses the hypotheses of the theorem from left to right.
+Each time it encounters a minimal indexable subexpression which covers an argument which was not
+previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
+-/
 syntax grindFwd    := patternIgnore("→" <|> "->")
+/--
+The `⇐` modifier instructs `grind` to select a multi-pattern by traversing the conclusion, and then
+all the hypotheses from right to left.
+Each time it encounters a minimal indexable subexpression which covers an argument which was not
+previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
+-/
 syntax grindRL     := patternIgnore("⇐" <|> "<=")
+/--
+The `⇒` modifier instructs `grind` to select a multi-pattern by traversing all the hypotheses from
+left to right, followed by the conclusion.
+Each time it encounters a minimal indexable subexpression which covers an argument which was not
+previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
+-/
 syntax grindLR     := patternIgnore("⇒" <|> "=>")
+/--
+The `usr` modifier indicates that this theorem was applied using a
+**user-defined instantiation pattern**. Such patterns are declared with
+the `grind_pattern` command, which lets you specify how `grind` should
+match and use particular theorems.
+
+Example:
+- `grind [usr myThm]` means `grind` is using `myThm`, but with the
+  the custom pattern you defined with `grind_pattern`.
+-/
 syntax grindUsr    := &"usr"
+/--
+The `cases` modifier marks inductively-defined predicates as suitable for case splitting.
+-/
 syntax grindCases  := &"cases"
+/--
+The `cases eager` modifier marks inductively-defined predicates as suitable for case splitting,
+and instructs `grind` to perform it eagerly while preprocessing hypotheses.
+-/
 syntax grindCasesEager := atomic(&"cases" &"eager")
+/--
+The `intro` modifier instructs `grind` to use the constructors (introduction rules)
+of an inductive predicate as E-matching theorems.Example:
+```
+inductive Even : Nat → Prop where
+| zero : Even 0
+| add2 : Even x → Even (x + 2)
+
+attribute [grind intro] Even
+example (h : Even x) : Even (x + 6) := by grind
+example : Even 0 := by grind
+```
+Here `attribute [grind intro] Even` acts like a macro that expands to
+`attribute [grind] Even.zero` and `attribute [grind] Even.add2`.
+This is especially convenient for inductive predicates with many constructors.
+-/
 syntax grindIntro  := &"intro"
+/--
+The `ext` modifier marks extensionality theorems for use by `grind`.
+For example, the standard library marks `funext` with this attribute.
+
+Whenever `grind` encounters a disequality `a ≠ b`, it attempts to apply any
+available extensionality theorems whose matches the type of `a` and `b`.
+-/
 syntax grindExt    := &"ext"
+/--
+`symbol <prio>` sets the priority of a constant for `grind`’s pattern-selection
+procedure. `grind` prefers patterns that contain higher-priority symbols.
+Example:
+```
+opaque p : Nat → Nat → Prop
+opaque q : Nat → Nat → Prop
+opaque r : Nat → Nat → Prop
+
+attribute [grind symbol low] p
+attribute [grind symbol high] q
+
+axiom bar {x y} : p x y → q x x → r x y → r y x
+attribute [grind →] bar
+```
+Here `p` is low priority, `q` is high priority, and `r` is default. `grind` first
+tries to find a multi-pattern covering `x` and `y` using only high-priority
+symbols while scanning hypotheses left to right. This fails because `q x x` does
+not cover `y`. It then allows both high and default symbols and succeeds with
+the multi-pattern `q x x, r x y`. The term `p x y` is ignored due to `p`’s low
+priority. Symbols with priority `0` are never used in patterns.
+-/
 syntax grindSym    := &"symbol" ppSpace prio
 syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd

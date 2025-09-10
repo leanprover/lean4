@@ -122,13 +122,10 @@ structure PrivField where
   private a : Nat
 deriving Repr
 
-/--
-info: def instReprPrivField : Repr PrivField :=
-<not imported>
--/
+/-- info: fun a => instReprPrivField.repr a 0 -/
 #guard_msgs in
 #with_exporting
-#print instReprPrivField
+#reduce fun (a : PrivField) => repr a
 
 end
 
@@ -138,13 +135,10 @@ public structure PrivField2 where
   private a : Nat
 deriving Repr
 
-/--
-info: def instReprPrivField2 : Repr PrivField2 :=
-<not imported>
--/
+/-- info: fun a => instReprPrivField2.repr a 0 -/
 #guard_msgs in
 #with_exporting
-#print instReprPrivField2
+#reduce fun (a : PrivField2) => repr a
 
 /-! Public structures should yield public instances independent of `public section`. -/
 
@@ -153,7 +147,7 @@ deriving Repr
 
 /--
 info: @[expose] def instReprPublic : Repr Public :=
-{ reprPrec := reprPublic✝ }
+{ reprPrec := instReprPublic.repr }
 -/
 #guard_msgs in
 #with_exporting

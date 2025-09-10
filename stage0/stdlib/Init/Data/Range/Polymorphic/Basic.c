@@ -21,6 +21,7 @@ static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic___
 LEAN_EXPORT lean_object* l_Std_PRange_isEmpty___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__0;
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__52;
+LEAN_EXPORT lean_object* l_Std_PRange_RangeSize_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__57;
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__13;
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__6;
@@ -60,6 +61,7 @@ static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic___
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__24;
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__16;
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__17;
+LEAN_EXPORT lean_object* l_Std_PRange_RangeSize_ctorIdx(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__18;
@@ -86,6 +88,24 @@ static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic___
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__27;
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__8;
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__40;
+LEAN_EXPORT lean_object* l_Std_PRange_RangeSize_ctorIdx(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(0u);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_PRange_RangeSize_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+x_5 = l_Std_PRange_RangeSize_ctorIdx(x_4, x_2, x_3);
+lean_dec_ref(x_3);
+return x_5;
+}
+}
 LEAN_EXPORT uint8_t l_Std_PRange_isEmpty___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

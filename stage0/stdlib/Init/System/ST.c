@@ -15,9 +15,11 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_instSTWorldEST(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadLiftSTEST___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_STWorld_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_modifyUnsafe___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instMonad___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_instMonadEST___closed__4;
+LEAN_EXPORT lean_object* l_ST_Ref_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instMonad___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_instMonadEST___closed__9;
 lean_object* lean_st_ref_ptr_eq(lean_object*, lean_object*, lean_object*);
@@ -65,6 +67,7 @@ static lean_object* l_instMonadExceptOfEST___closed__0;
 LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_runST___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_ST_Ref_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_modifyGetUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_ptrEq___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instMonadEST___closed__6;
@@ -261,6 +264,14 @@ x_2 = l_instMonadST___closed__0;
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_STWorld_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(0u);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_instSTWorldOfMonadLift(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -379,6 +390,23 @@ static lean_object* _init_l_ST_RefPointed() {
 _start:
 {
 return lean_box(0);
+}
+}
+LEAN_EXPORT lean_object* l_ST_Ref_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(0u);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_ST_Ref_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_ST_Ref_ctorIdx(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_ST_Prim_mkRef___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

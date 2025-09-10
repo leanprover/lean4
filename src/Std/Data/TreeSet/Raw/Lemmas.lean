@@ -236,6 +236,10 @@ theorem mem_of_get?_eq_some [TransCmp cmp] (h : t.WF) {a a' : α} :
     t.get? a = some a' → a' ∈ t :=
   TreeMap.Raw.mem_of_getKey?_eq_some h
 
+theorem get?_eq_some_iff [TransCmp cmp] (h : t.WF) {k k' : α} :
+    t.get? k = some k' ↔ ∃ h, t.get k h = k' :=
+  TreeMap.Raw.getKey?_eq_some_iff h
+
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = false → t.get? a = none :=
   TreeMap.Raw.getKey?_eq_none_of_contains_eq_false h

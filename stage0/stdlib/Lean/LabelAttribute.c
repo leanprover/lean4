@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.LabelAttribute
-// Imports: Lean.ScopedEnvExtension Lean.DocString Init.Data.String.Extra
+// Imports: Lean.ScopedEnvExtension Lean.DocString Init.Data.String.Extra Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2768,7 +2768,6 @@ lean_inc(x_12);
 x_74 = l_Lean_Syntax_node1(x_12, x_7, x_73);
 x_75 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__40;
 x_76 = l_Lean_Syntax_mkStrLit(x_10, x_13);
-lean_dec_ref(x_10);
 lean_inc(x_12);
 x_77 = l_Lean_Syntax_node1(x_12, x_75, x_76);
 lean_inc(x_7);
@@ -2820,7 +2819,6 @@ lean_dec_ref(x_2);
 x_107 = l_String_removeLeadingSpaces(x_103);
 x_108 = lean_box(2);
 x_109 = l_Lean_Syntax_mkStrLit(x_107, x_108);
-lean_dec_ref(x_107);
 x_110 = l_Lean_SourceInfo_fromRef(x_106, x_102);
 lean_dec(x_106);
 x_111 = l___auto___closed__9____x40_Lean_LabelAttribute_104523388____hygCtx___hyg_2_;
@@ -3407,6 +3405,7 @@ return x_5;
 lean_object* initialize_Lean_ScopedEnvExtension(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_DocString(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_String_Extra(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_LabelAttribute(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -3419,6 +3418,9 @@ res = initialize_Lean_DocString(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Extra(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Name(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_initFn___closed__0____x40_Lean_LabelAttribute_897315755____hygCtx___hyg_2_ = _init_l_Lean_initFn___closed__0____x40_Lean_LabelAttribute_897315755____hygCtx___hyg_2_();

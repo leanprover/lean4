@@ -37,10 +37,11 @@ builtin_initialize ext : SimpleScopedEnvExtension Entry State ←
   }
 
 private def isConstantReplacement? (declName : Name) : CoreM (Option Entry) := do
-  let info ← getConstInfo declName
+  let info ← getConstVal declName
   match info.type.eq? with
-  | some (_, Expr.const fromDeclName us .., Expr.const toDeclName vs ..) =>
-    if us == vs then
+  | some (_, Expr.const fromDeclName us, Expr.const toDeclName vs) =>
+    let set := Std.HashSet.ofList us
+    if set.size == us.length && set.all Level.isParam && us == vs then
       return some { fromDeclName, toDeclName, thmName := declName }
     else
       return none

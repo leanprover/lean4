@@ -5779,6 +5779,7 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
   simp only [BitVec.msb, getMsbD_replicate, Nat.zero_mod]
   cases n <;> cases w <;> simp
 
+@[simp]
 theorem reverse_eq_zero_iff {x : BitVec w} :
     x.reverse = 0#w ↔ x = 0#w := by
   constructor

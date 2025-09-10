@@ -1011,15 +1011,6 @@ def removeFunctorPostfixInCtor : Name → Name
   | Name.str p s => Name.str (removeFunctorPostfix p) s
   | Name.num p n => Name.num (removeFunctorPostfixInCtor p) n
 
-private partial def withLocalDecls {α} (headers : Array (Name × Name × Expr)) (k : Array Expr → TermElabM α) : TermElabM α :=
-  let rec loop (i : Nat) (fvars : Array Expr) := do
-    if h : i < headers.size then
-      let header := headers[i]
-      withAuxDecl header.1 header.2.2 header.2.1 fun fvar => loop (i+1) (fvars.push fvar)
-    else
-      k fvars
-  loop 0 #[]
-
 private def generateCoinductiveConstructor (infos : Array InductiveVal) (numParams : Nat) (name : Name) (ctor : ConstructorVal) : MetaM Unit := do
   let numPreds := infos.size
   let predNames := infos.map (fun val => removeFunctorPostfix val.name)
@@ -1081,62 +1072,63 @@ private def generateCoinductiveConstructors (numParams : Nat) (infos : Array Ind
     for ctor in indType.ctors do
       generateCoinductiveConstructor infos numParams indType.name <| ←getConstInfoCtor ctor
 
-private def elabCoinductive (declNames : Array Name) (views : Array InductiveView): TermElabM Unit := do
-  trace[Elab.inductive] "declNames: {declNames}"
+private def elabCoinductive (declNames : Array Name) (views : Array InductiveView) (predKinds : Array Bool) : TermElabM Unit := do
   let infos ← declNames.mapM getConstInfoInduct
+  let levelParams := infos[0]!.levelParams.map mkLevelParam
+  /-
+    We infer original names and types of the predicates.
+    To get such names, we need to remove `_functor` postfix, while
+    to get original types, we need to forget about the parameters for recursive calls
+  -/
   let originalNumParams := infos[0]!.numParams - infos.size
-  Term.withLevelNames infos[0]!.levelParams do
-    -- We get original names and types of the predicates
-    let namesAndTypes : Array (Name × Expr) ← infos.mapM fun info => do
-      let type ← forallTelescope info.type fun args body => do
-        mkForallFVars (args.take originalNumParams ++ args.extract info.numParams) body
-      return (removeFunctorPostfix (info.name), type)
-    trace[Elab.inductive] "namesAndTypes: {namesAndTypes}"
-    let localDecls := views.map (·.shortDeclName) |>.zip namesAndTypes
-    withLocalDecls localDecls fun indFVars => do
-      for indFVar in indFVars, view in views do
-        discard <| Term.addTermInfo view.ref indFVar
-      let levelParams := infos[0]!.levelParams.map mkLevelParam;
-      let consts := namesAndTypes.map fun (name, _) => (mkConst name levelParams)
-      trace[Elab.inductive] "consts: {consts}"
-      forallBoundedTelescope infos[0]!.type originalNumParams fun params _ => do
-        trace[Elab.inductive] "params: {params}"
-        let defs ← infos.mapM fun info => do
-          let functor ← mkConstWithLevelParams (info.name ++ `existential)
-          let functor ← unfoldDefinition functor
-          trace[Elab.inductive] "functor: {functor}"
-          let functor := mkAppN functor (params.take originalNumParams)
-          let indFVars := consts.map (mkAppN · <| params.take originalNumParams)
-          let res := mkAppN functor indFVars
-          mkLambdaFVars (params.take originalNumParams) res
-        trace[Elab.inductive] "defs: {defs}"
+  let namesAndTypes : Array (Name × Expr) ← infos.mapM fun info => do
+    let type ← forallTelescope info.type fun args body => do
+      mkForallFVars (args.take originalNumParams ++ args.extract info.numParams) body
+    return (removeFunctorPostfix (info.name), type)
 
-        let preDefs : Array PreDefinition := defs.mapIdx fun idx defn =>
-          { ref := views[idx]!.ref
-            kind := .def
-            levelParams := infos[0]!.levelParams
-            modifiers := views[idx]!.modifiers
-            declName := namesAndTypes[idx]!.1
-            type := namesAndTypes[idx]!.2
-            value := defn
-            termination := {
-              ref := views[idx]!.ref
-              terminationBy?? := .none
-              terminationBy? := .none
-              partialFixpoint? := .some {
-                  ref := views[idx]!.ref
-                  term? := .none
-                  fixpointType := .coinductiveFixpoint -- todo support mixed definitions
-              }
-              decreasingBy? := .none
-              extraParams := 0
-            }
-          }
-        partialFixpoint preDefs
+  /-
+    We make dummy constants, that are used in populating PreDefinitions
+  -/
+  let consts := namesAndTypes.map fun (name, _) => (mkConst name levelParams)
+  for const in consts, view in views do
+    discard <| Term.addTermInfo view.ref const
+  /-
+    We create values of each of PreDefinitions, by taking existential (see `Meta.SumOfProducts`) form
+    of the associated functors and applying paramaters, as well as recursive calls (with their parameters passed).
+  -/
+  let preDefVals ← forallBoundedTelescope infos[0]!.type originalNumParams fun params _ => do
+    infos.mapM fun info => do
+      let mut functor := mkConst (info.name ++ `existential) levelParams
+      functor ← unfoldDefinition functor
+      functor := mkAppN functor <| params ++ consts.map (mkAppN · <| params)
+      mkLambdaFVars params functor
+
+  /-
+    Finally, we populate the PreDefinitions
+  -/
+  let preDefs : Array PreDefinition := preDefVals.mapIdx fun idx defn =>
+    { ref := views[idx]!.ref
+      kind := .def
+      levelParams := infos[0]!.levelParams
+      modifiers := views[idx]!.modifiers
+      declName := namesAndTypes[idx]!.1
+      type := namesAndTypes[idx]!.2
+      value := defn
+      termination := {
+        ref := views[idx]!.ref
+        terminationBy?? := .none
+        terminationBy? := .none
+        partialFixpoint? := .some {
+            ref := views[idx]!.ref
+            term? := .none
+            fixpointType := if predKinds[idx]! then .coinductiveFixpoint else .inductiveFixpoint
+        }
+        decreasingBy? := .none
+        extraParams := 0
+      }
+    }
+  partialFixpoint preDefs
   generateCoinductiveConstructors originalNumParams infos
-
-
-
 
 
 private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext :=
@@ -1250,8 +1242,6 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
         IndPredBelow.mkBelow view0.declName
         for e in elabs do
           mkInjectiveTheorems e.view.declName
-          -- if elabs.any (·.isCoinductive) then
-          --   mkSumOfProducts e.view.declName
     for e in elabs do
       enableRealizationsForConst e.view.declName
     return res
@@ -1340,8 +1330,9 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
   elabInductiveViewsPostprocessing (elabs.map (·.view)) res
   if elabs.any (·.isCoinductive) then
     let views := elabs.map (·.view)
+    let predKinds := elabs.map (·.isCoinductive)
     discard <| views.mapM fun view => Command.liftCoreM <| MetaM.run' do mkSumOfProducts view.declName
-    runTermElabM fun _ => elabCoinductive (elabs.map (·.view.declName)) views
+    runTermElabM fun _ => elabCoinductive (elabs.map (·.view.declName)) views predKinds
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   elabInductives #[(modifiers, stx)]

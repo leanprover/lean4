@@ -6,14 +6,13 @@ public import Lean.Elab.DeclarationRange
 public import Lean.Meta.Tactic.Cases
 public import Lean.Elab.Term
 public import Lean.Elab.Tactic
+public import Lean.Meta.Tactic.Apply
 
 
 public section
 namespace Lean.Meta
 
 open Lean Meta Elab
-
-
 
 /-- Has the effect of `refine ⟨e₁,e₂,⋯, ?_⟩`.
 -/
@@ -25,54 +24,6 @@ private def MVarId.existsi (mvar : MVarId) (es : List Expr) : MetaM MVarId := do
       sg1.assign e
       pure sg2)
     mvar
-
-
-private def throwApplyError {α} (mvarId : MVarId)
-    (eType : Expr) (conclusionType? : Option Expr) (targetType : Expr)
-    (term? : Option MessageData) : MetaM α := do
-  throwTacticEx `apply mvarId <| MessageData.ofLazyM (es := #[eType, targetType]) do
-    let conclusionType := conclusionType?.getD eType
-    let note := if conclusionType?.isSome then .note m!"The full type of {term?.getD "the term"} is{indentExpr eType}" else m!""
-    let (conclusionType, targetType) ← addPPExplicitToExposeDiff conclusionType targetType
-    let conclusion := if conclusionType?.isNone then "type" else "conclusion"
-    return m!"could not unify the {conclusion} of {term?.getD "the term"}{indentExpr conclusionType}\n\
-      with the goal{indentExpr targetType}{note}"
-
-
-
-private def dependsOnOthers (mvar : Expr) (otherMVars : Array Expr) : MetaM Bool :=
-  otherMVars.anyM fun otherMVar => do
-    if mvar == otherMVar then
-      return false
-    else
-      let otherMVarType ← inferType otherMVar
-      return (otherMVarType.findMVar? fun mvarId => mvarId == mvar.mvarId!).isSome
-
-/-- Partitions the given mvars in to two arrays (non-deps, deps)
-according to whether the given mvar depends on other mvars in the array.-/
-private def partitionDependentMVars (mvars : Array Expr) : MetaM (Array MVarId × Array MVarId) :=
-  mvars.foldlM (init := (#[], #[])) fun (nonDeps, deps) mvar => do
-    let currMVarId := mvar.mvarId!
-    if (← dependsOnOthers mvar mvars) then
-      return (nonDeps, deps.push currMVarId)
-    else
-      return (nonDeps.push currMVarId, deps)
-
-private def reorderGoals (mvars : Array Expr) : ApplyNewGoals → MetaM (List MVarId)
-  | ApplyNewGoals.nonDependentFirst => do
-      let (nonDeps, deps) ← partitionDependentMVars mvars
-      return nonDeps.toList ++ deps.toList
-  | ApplyNewGoals.nonDependentOnly => do
-      let (nonDeps, _) ← partitionDependentMVars mvars
-      return nonDeps.toList
-  | ApplyNewGoals.all => return mvars.toList.map Lean.Expr.mvarId!
-
-/-- Custom `isDefEq` for the `apply` tactic -/
-private def isDefEqApply (approx : Bool) (a b : Expr) : MetaM Bool := do
-  if approx then
-    approxDefEq <| isDefEqGuarded a b
-  else
-    isDefEqGuarded a b
 
 /--
 Apply the `n`-th constructor of the target type,
@@ -358,10 +309,9 @@ private def toInductive (mvar : MVarId) (cs : List Name)
 
 /-- Implementation for both `mk_iff` and `mk_iff_of_inductive_prop`.
 -/
-private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) (relStx : Option Syntax) : MetaM Unit := do
+private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name): MetaM Unit := do
   let constrs := inductVal.ctors
   let params := inductVal.numParams
-  trace[Meta.SumOfProducts] "params: {params}"
   let type := inductVal.type
 
   let univNames := inductVal.levelParams
@@ -369,33 +319,29 @@ private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) (re
   /- we use these names for our universe parameters, maybe we should construct a copy of them
   using `uniq_name` -/
 
-  let (thmTy, shape, rhs) ← Meta.forallTelescope type fun fvars ty ↦ do
+  let (thmTy, shape, existential) ← Meta.forallTelescope type fun fvars ty ↦ do
     if !ty.isProp then throwError "mk_iff only applies to prop-valued declarations"
     let lhs := mkAppN (mkConst inductVal.name univs) fvars
     let fvars' := fvars.toList
     let shape_rhss ← constrs.mapM (constrToProp univs (fvars'.take params) (fvars'.drop params))
     let (shape, rhss) := shape_rhss.unzip
-    let rhs := mkOrList rhss
-    let rhs ← mkLambdaFVars fvars rhs
+    let existential := mkOrList rhss
+    let existential ← mkLambdaFVars fvars existential
+    pure (← mkForallFVars fvars (mkApp2 (mkConst `Iff) lhs (mkOrList rhss)), shape, existential)
 
-
-
-    trace[Meta.SumOfProducts] "rhs: {rhs}"
-    pure (← mkForallFVars fvars (mkApp2 (mkConst `Iff) lhs (mkOrList rhss)), shape, rhs)
+  trace[Meta.SumOfProducts] "Existential form is: {existential}"
+  trace[Meta.SumOfProducts] "The type of proof of equivalence: {thmTy}"
 
   let mvar ← mkFreshExprMVar (some thmTy)
   let mvarId := mvar.mvarId!
   let (fvars, mvarId') ← mvarId.intros
   let [mp, mpr] ← mvarId'.apply (mkConst `Iff.intro) | throwError "failed to split goal"
-  --trace[Meta.SumOfProducts] "mp: {mp}, mpr: {mpr}"
 
   toCases mp shape
-  trace[Meta.SumOfProducts] "mp: {mp}"
   let ⟨mprFvar, mpr'⟩ ← mpr.intro1
   toInductive mpr' constrs ((fvars.toList.take params).map .fvar) shape mprFvar
 
   let proof ← instantiateMVars mvar
-  trace[Meta.SumOfProducts] "proof: {proof}"
   addDecl <| .thmDecl {
     name := rel
     levelParams := univNames
@@ -406,19 +352,16 @@ private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) (re
   addDecl <| .defnDecl {
     name := inductVal.name ++ `existential
     levelParams := inductVal.levelParams
-    type := ←inferType rhs
-    value := rhs
+    type := ←inferType existential
+    value := existential
     hints := .opaque
     safety := .safe
   }
-  if let some relStx := relStx then
-    addDeclarationRangesFromSyntax rel (← getRef) relStx
-    addConstInfo relStx rel
-
 
 def mkSumOfProducts (declName : Name) : MetaM Unit := do
+    trace[Meta.mkSumOfProducts] "Generating existential form of {declName}"
     let .inductInfo infos ← getConstInfo declName | throwError "Needs to be a definition"
-    mkIffOfInductivePropImpl infos (declName ++ `sop) .none
+    mkIffOfInductivePropImpl infos (declName ++ `sop)
 
 builtin_initialize
   registerTraceClass `Meta.SumOfProducts

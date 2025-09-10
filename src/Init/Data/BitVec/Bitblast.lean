@@ -2563,7 +2563,8 @@ def addVecAux (usedNodes validNodes : Nat)
 /-- Tail-recursive definition of parrallel sum prefix. At each iteration, we construct a new vector containing the results of summing each couple of elements in the initial vector. -/
 def parPrefixSum
       (validNodes : Nat) (parSum : BitVec (validNodes * w))
-      (hin : 1 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) : BitVec w :=
+      (hin : 1 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) :
+      BitVec w :=
   if hlt : 1 < validNodes then
     let initAcc := 0#0
     have hcastZero : 0 = 0 / 2 * w := by omega
@@ -2589,8 +2590,14 @@ theorem BitVec.popCount_eq_parPrefixSum (hw : 1 < w) {x : BitVec w} :
   x.popCount = let res := extractAndExtendPopulateAux 0 x 0#0 (by omega) (by omega);
     res.val.parPrefixSum w hw  (by omega) (by omega) := by
   let res := extractAndExtendPopulateAux 0 x 0#0 (by omega) (by omega)
-  simp [popCount]
-  sorry
+  unfold popCount popCountAuxRec
+  rcases (w - 0)
+  · unfold parPrefixSum
+    simp [hw]
+    sorry
+
+  ·
+    sorry
 
 theorem popCount_eq_popCountParSum {x : BitVec w} :
     x.popCount = x.popCountParSum := by

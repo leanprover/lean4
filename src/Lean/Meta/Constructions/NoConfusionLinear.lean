@@ -53,12 +53,14 @@ public def mkNoConfusionCtorArg (ctorName : Name) (P : Expr) : MetaM Expr := do
   forallBoundedTelescope ctorInfo.type ctorInfo.numParams fun xs t => do
     forallTelescopeReducing t fun fields1 _ => do
     forallTelescopeReducing t fun fields2 _ => do
-    let mut eqs := #[]
-    for f1 in fields1, f2 in fields2 do
+    let mut t := P
+    for f1 in fields1.reverse, f2 in fields2.reverse do
       if (← isProof f1) then
         continue
-      eqs := eqs.push (← mkEqHEq f1 f2)
-    mkLambdaFVars (xs ++ fields1 ++ fields2) (← mkArrowN eqs P)
+      let name := (← f1.fvarId!.getUserName).appendAfter "_eq"
+      let eq ← mkEqHEq f1 f2
+      t := mkForall name .default eq t
+    mkLambdaFVars (xs ++ fields1 ++ fields2) t
 
 namespace NoConfusionLinear
 

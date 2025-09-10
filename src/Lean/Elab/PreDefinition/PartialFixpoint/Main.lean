@@ -158,13 +158,11 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     let Fs ← withoutExporting do preDefs.mapIdxM fun funIdx preDef => do
       let body ← fixedParamPerms.perms[funIdx]!.instantiateLambda preDef.value fixedArgs
       withLocalDeclD (← mkFreshUserName `f) packedType fun f => do
-        trace[Elab.definition.partialFixpoint] "f: {f}"
         let body' ← withoutModifyingEnv do
           -- replaceRecApps needs the constants in the env to typecheck things
           preDefs.forM (addAsAxiom ·)
           replaceRecApps declNames fixedParamPerms f body
         mkLambdaFVars #[f] body'
-    trace[Elab.definition.partialFixpoint] "Fs are: {Fs}"
     -- Construct and solve monotonicity goals for each function separately
     -- This way we preserve the user's parameter names as much as possible
     -- and can (later) use the user-specified per-function tactic
@@ -188,7 +186,6 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
           solveMono failK hmono.mvarId!
         trace[Elab.definition.partialFixpoint] "monotonicity proof for {preDef.declName}: {hmono}"
         pure (goal, ← instantiateMVars hmono)
-        --pure (goal, ← mkSorry goal (synthetic := true))
     let (_, hmono) ← PProdN.genMk mkMonoPProd hmonos
 
     let packedValue ← mkFixOfMonFun packedType packedInst hmono
@@ -217,10 +214,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         let value := PProdN.proj preDefs.size fidx packedType value
         let value := mkAppN value varying
         let value ← mkLambdaFVars (etaReduce := true) params value
-        trace[Elab.definition.partialFixpoint] "preDef.val: {value}, fixed: {fixed}, varying: {varying}"
         pure { preDef with value }
-    trace[Elab.definition.partialFixpoint] "HAS FVARS: {preDefs[0]!.value}"
-
 
     Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
     addAndCompilePartialRec preDefs

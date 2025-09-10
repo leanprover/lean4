@@ -108,15 +108,15 @@ syntax:max (term "<...=" term) : term
 
 macro_rules
   | `($a...=$b) => ``(Rcc.mk $a $b)
-  | `(*...=$b) => ``(Ric.mk PUnit.unit $b)
-  | `($a...*) => ``(Rci.mk $a PUnit.unit)
-  | `(*...*) => ``(Rii.mk PUnit.unit PUnit.unit)
+  | `(*...=$b) => ``(Ric.mk $b)
+  | `($a...*) => ``(Rci.mk $a)
+  | `(*...*) => ``(Rii.mk)
   | `($a<...=$b) => ``(Roc.mk $a $b)
-  | `($a<...*) => ``(Roi.mk $a PUnit.unit)
+  | `($a<...*) => ``(Roi.mk $a)
   | `($a...<$b) => ``(Rco.mk $a $b)
   | `($a...$b) => ``(Rco.mk $a $b)
-  | `(*...<$b) => ``(Rio.mk PUnit.unit $b)
-  | `(*...$b) => ``(Rio.mk PUnit.unit $b)
+  | `(*...<$b) => ``(Rio.mk $b)
+  | `(*...$b) => ``(Rio.mk $b)
   | `($a<...<$b) => ``(Roo.mk $a $b)
   | `($a<...$b) => ``(Roo.mk $a $b)
 

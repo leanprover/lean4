@@ -60,7 +60,7 @@ def size [UpwardEnumerable α] [LE α] [DecidableLE α] (r : Rcc α)
 section Iterator
 
 theorem Internal.isPlausibleIndirectOutput_iter_iff
-    [UpwardEnumerable α] [LE α] [DecidableLE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
+    [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {r : Rcc α} {a : α} :
     (Internal.iter r).IsPlausibleIndirectOutput a ↔ a ∈ r := by
@@ -82,7 +82,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 open Std.Rxc.Iterator in
 theorem _root_.Std.Rxc.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
     [UpwardEnumerable α] [LE α] [DecidableLE α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {it : Iter (α := Rxc.Iterator α) α} {out : α}
     (hout : it.IsPlausibleIndirectOutput out) :
     ∃ a, it.internalState.next = some a ∧ UpwardEnumerable.LE a out := by
@@ -94,7 +94,6 @@ theorem _root_.Std.Rxc.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
 @[no_expose]
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
     [Monad m] [Finite (Rxc.Iterator α) Id] :
     ForIn' m (Rcc α) α inferInstance where
   forIn' r init f := by
@@ -151,8 +150,7 @@ section Iterator
 
 theorem Internal.isPlausibleIndirectOutput_iter_iff
     [UpwardEnumerable α] [LE α] [DecidableLE α] [LT α] [DecidableLT α]
-    [Trans (α := α) (· < ·) (· < ·) (· < ·)] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α]
     {r : Rco α} {a : α} :
     (Internal.iter r).IsPlausibleIndirectOutput a ↔ a ∈ r := by
   rw [Rxo.Iterator.isPlausibleIndirectOutput_iff]
@@ -173,7 +171,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 open Std.Rxo.Iterator in
 theorem _root_.Std.Rxo.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
     [UpwardEnumerable α] [LT α] [DecidableLT α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Trans (α := α) (· < ·) (· < ·) (· < ·)]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {it : Iter (α := Rxo.Iterator α) α} {out : α}
     (hout : it.IsPlausibleIndirectOutput out) :
     ∃ a, it.internalState.next = some a ∧ UpwardEnumerable.LE a out := by
@@ -186,7 +184,6 @@ theorem _root_.Std.Rxo.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
-    [Trans (α := α) (· < ·) (· < ·) (· < ·)]
     [Monad m] [Finite (Rxo.Iterator α) Id] :
     ForIn' m (Rco α) α inferInstance where
   forIn' r init f := by
@@ -330,7 +327,7 @@ section Iterator
 
 theorem Internal.isPlausibleIndirectOutput_iter_iff
     [UpwardEnumerable α] [LE α] [DecidableLE α] [LT α] [DecidableLT α]
-    [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [LawfulUpwardEnumerableLT α]
     {r : Roc α} {a : α} :
     (Internal.iter r).IsPlausibleIndirectOutput a ↔ a ∈ r := by
@@ -356,7 +353,6 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [LT α] [DecidableLT α] [LawfulUpwardEnumerableLT α]
-    [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
     [Monad m] [Finite (Rxc.Iterator α) Id] :
     ForIn' m (Roc α) α inferInstance where
   forIn' r init f := by
@@ -413,8 +409,7 @@ section Iterator
 
 theorem Internal.isPlausibleIndirectOutput_iter_iff
     [UpwardEnumerable α] [LT α] [DecidableLT α] [LT α] [DecidableLT α]
-    [Trans (α := α) (· < ·) (· < ·) (· < ·)] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLT α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLT α]
     {r : Roo α} {a : α} :
     (Internal.iter r).IsPlausibleIndirectOutput a ↔ a ∈ r := by
   rw [Rxo.Iterator.isPlausibleIndirectOutput_iff]
@@ -439,7 +434,6 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 instance {m} [UpwardEnumerable α]
     [LT α] [DecidableLT α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLT α]
-    [Trans (α := α) (· < ·) (· < ·) (· < ·)]
     [Monad m] [Finite (Rxo.Iterator α) Id] :
     ForIn' m (Roo α) α inferInstance where
   forIn' r init f := by
@@ -572,8 +566,9 @@ def size [UpwardEnumerable α] [Least? α] [LE α] [DecidableLE α] (r : Ric α)
 section Iterator
 
 theorem Internal.isPlausibleIndirectOutput_iter_iff
-    [UpwardEnumerable α] [Least? α] [LE α] [DecidableLE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
+    [UpwardEnumerable α] [Least? α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [LawfulUpwardEnumerableLeast? α]
     {r : Ric α} {a : α} :
     (Internal.iter r).IsPlausibleIndirectOutput a ↔ a ∈ r := by
   rw [Rxc.Iterator.isPlausibleIndirectOutput_iff]
@@ -584,27 +579,14 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     · simp [hr] at hn
     · simpa [LawfulUpwardEnumerableLE.le_iff] using hu
   · intro hu
-    simp only [Membership.mem, LawfulUpwardEnumerableLE.le_iff] at hu
-    simp [iter]
-    obtain ⟨n, hn⟩ := hu
-    exact ⟨n, by simp [Internal.iter, hn], hu⟩
-
-open Std.Rxc.Iterator in
-theorem _root_.Std.Rxc.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
-    [UpwardEnumerable α] [LE α] [DecidableLE α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
-    {it : Iter (α := Rxc.Iterator α) α} {out : α}
-    (hout : it.IsPlausibleIndirectOutput out) :
-    ∃ a, it.internalState.next = some a ∧ UpwardEnumerable.LE a out := by
-  have ⟨a, ha⟩ := Option.isSome_iff_exists.mp (isSome_next_of_isPlausibleIndirectOutput hout)
-  refine ⟨a, ha, ?_⟩
-  simp only [isPlausibleIndirectOutput_iff, ha, Option.bind_some, exists_and_right] at hout
-  exact hout.1
+    obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
+    simpa [iter, hi] using ⟨hia, hu⟩
 
 @[no_expose]
 instance {m} [UpwardEnumerable α]
-    [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
+    [LE α] [DecidableLE α] [Least? α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [LawfulUpwardEnumerableLeast? α]
     [Monad m] [Finite (Rxc.Iterator α) Id] :
     ForIn' m (Ric α) α inferInstance where
   forIn' r init f := by
@@ -616,5 +598,145 @@ instance {m} [UpwardEnumerable α]
 end Iterator
 
 end Ric
+
+namespace Rio
+
+variable {α : Type u}
+
+/--
+Internal function that constructs an iterator for a `PRange`. This is an internal function.
+Use `PRange.iter` instead, which requires importing `Std.Data.Iterators`.
+-/
+@[always_inline, inline]
+def Internal.iter [UpwardEnumerable α] [Least? α] (r : Rio α) : Iter (α := Rxo.Iterator α) α :=
+  ⟨⟨Least?.least?, r.upper⟩⟩
+
+/--
+Returns the elements of the given range as a list in ascending order, given that ranges of the given
+type and shape support this function and the range is finite.
+-/
+@[always_inline, inline, expose]
+def toList [UpwardEnumerable α] (r : Rio α) [Least? α]
+    [Iterator (Rxo.Iterator α) Id α] [Finite (Rxo.Iterator α) Id]
+    [IteratorCollect (Rxo.Iterator α) Id Id] : List α :=
+  Internal.iter r |>.toList
+
+/--
+Iterators for ranges implementing `RangeSize` support the `size` function.
+-/
+instance [Rxo.HasSize α] [UpwardEnumerable α] [LT α] [DecidableLT α] :
+    IteratorSize (Rxo.Iterator α) Id where
+  size it := match it.internalState.next with
+    | none => pure (.up 0)
+    | some next => pure (.up (Rxo.HasSize.size next it.internalState.upperBound))
+
+/--
+Returns the number of elements contained in the given range, given that ranges of the given
+type and shape support this function.
+-/
+@[always_inline, inline]
+def size [UpwardEnumerable α] [Least? α] [LT α] [DecidableLT α] (r : Rio α)
+    [IteratorSize (Rxo.Iterator α) Id] : Nat :=
+  Internal.iter r |>.size
+
+section Iterator
+
+theorem Internal.isPlausibleIndirectOutput_iter_iff
+    [UpwardEnumerable α] [LE α] [DecidableLE α] [LT α] [DecidableLT α] [Least? α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α]
+    [LawfulUpwardEnumerableLeast? α] {r : Rio α} {a : α} :
+    (Internal.iter r).IsPlausibleIndirectOutput a ↔ a ∈ r := by
+  rw [Rxo.Iterator.isPlausibleIndirectOutput_iff]
+  constructor
+  · rintro ⟨n, hn, hu⟩
+    simp only [Membership.mem, LawfulUpwardEnumerableLT.lt_iff]
+    cases hr : (Internal.iter r).internalState.next
+    · simp [hr] at hn
+    · simpa [LawfulUpwardEnumerableLT.lt_iff] using hu
+  · intro hu
+    obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
+    simpa [iter, hi] using ⟨hia, hu⟩
+
+@[no_expose]
+instance {m} [UpwardEnumerable α]
+    [LE α] [DecidableLE α] [LT α] [DecidableLT α] [Least? α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
+    [LawfulUpwardEnumerableLeast? α]
+    [Monad m] [Finite (Rxo.Iterator α) Id] :
+    ForIn' m (Rio α) α inferInstance where
+  forIn' r init f := by
+    haveI := Iter.instForIn' (α := Rxo.Iterator α) (β := α) (n := m)
+    refine ForIn'.forIn' (α := α) (Internal.iter r) init (fun a ha acc => f a ?_ acc)
+    simp only [Membership.mem] at ha
+    rwa [Internal.isPlausibleIndirectOutput_iter_iff] at ha
+
+end Iterator
+
+end Rio
+
+namespace Rii
+
+variable {α : Type u}
+
+/--
+Internal function that constructs an iterator for a `PRange`. This is an internal function.
+Use `PRange.iter` instead, which requires importing `Std.Data.Iterators`.
+-/
+@[always_inline, inline]
+def Internal.iter [UpwardEnumerable α] [Least? α] (_ : Rii α) : Iter (α := Rxi.Iterator α) α :=
+  ⟨⟨Least?.least?⟩⟩
+
+/--
+Returns the elements of the given range as a list in ascending order, given that ranges of the given
+type and shape support this function and the range is finite.
+-/
+@[always_inline, inline, expose]
+def toList [UpwardEnumerable α] [Least? α] (r : Rii α)
+    [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id]
+    [IteratorCollect (Rxi.Iterator α) Id Id] : List α :=
+  Internal.iter r |>.toList
+
+/--
+Iterators for ranges implementing `RangeSize` support the `size` function.
+-/
+instance [Rxi.HasSize α] [UpwardEnumerable α] :
+    IteratorSize (Rxi.Iterator α) Id where
+  size it := match it.internalState.next with
+    | none => pure (.up 0)
+    | some next => pure (.up (Rxi.HasSize.size next))
+
+/--
+Returns the number of elements contained in the given range, given that ranges of the given
+type and shape support this function.
+-/
+@[always_inline, inline]
+def size [UpwardEnumerable α] [Least? α] (r : Rii α) [IteratorSize (Rxi.Iterator α) Id] : Nat :=
+  Internal.iter r |>.size
+
+section Iterator
+
+theorem Internal.isPlausibleIndirectOutput_iter_iff
+    [UpwardEnumerable α] [Least? α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
+    {r : Rii α} {a : α} : (Internal.iter r).IsPlausibleIndirectOutput a ↔ a ∈ r := by
+  rw [Rxi.Iterator.isPlausibleIndirectOutput_iff]
+  constructor
+  · simp [Membership.mem]
+  · obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
+    simpa [Membership.mem, iter, hi] using hia
+
+@[no_expose]
+instance {m} [UpwardEnumerable α] [Least? α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
+    [Monad m] [Finite (Rxi.Iterator α) Id] :
+    ForIn' m (Rii α) α inferInstance where
+  forIn' r init f := by
+    haveI := Iter.instForIn' (α := Rxi.Iterator α) (β := α) (n := m)
+    refine ForIn'.forIn' (α := α) (Internal.iter r) init (fun a ha acc => f a ?_ acc)
+    simp only [Membership.mem] at ha
+    rwa [Internal.isPlausibleIndirectOutput_iter_iff] at ha
+
+end Iterator
+
+end Rii
 
 end Std

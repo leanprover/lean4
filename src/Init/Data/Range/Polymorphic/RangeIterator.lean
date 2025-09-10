@@ -307,7 +307,7 @@ instance Iterator.instProductive [UpwardEnumerable α] [LE α] [DecidableLE α]
   .of_productivenessRelation instProductivenessRelation
 
 instance Iterator.instIteratorAccess [UpwardEnumerable α] [LE α] [DecidableLE α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] :
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] :
     IteratorAccess (Rxc.Iterator α) Id where
   nextAtIdx? it n := ⟨match it.internalState.next.bind (UpwardEnumerable.succMany? n) with
     | none => .done
@@ -367,6 +367,7 @@ instance Iterator.instIteratorAccess [UpwardEnumerable α] [LE α] [DecidableLE 
               exact ⟨rfl, rfl⟩
             · apply ih
           · rename_i next
+            haveI := UpwardEnumerable.instLETransOfLawfulUpwardEnumerableLE (α := α)
             have := hout.imp (fun h : next ≤ it.internalState.upperBound => by
               rw [← UpwardEnumerable.le_iff] at hle
               exact Trans.trans hle h)
@@ -381,7 +382,7 @@ instance Iterator.instLawfulDeterministicIterator [UpwardEnumerable α] [LE α] 
 
 theorem Iterator.Monadic.isPlausibleIndirectOutput_iff
     [UpwardEnumerable α] [LE α] [DecidableLE α] [LawfulUpwardEnumerableLE α]
-    [LawfulUpwardEnumerable α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
+    [LawfulUpwardEnumerable α]
     {it : IterM (α := Rxc.Iterator α) Id α} {out : α} :
     it.IsPlausibleIndirectOutput out ↔
       ∃ n, it.internalState.next.bind (succMany? n ·) = some out ∧
@@ -419,10 +420,11 @@ theorem Iterator.Monadic.isPlausibleIndirectOutput_iff
       refine IterM.IsPlausibleIndirectOutput.indirect ?_ ih
       rw [Monadic.isPlausibleSuccessorOf_iff]
       refine ⟨a, ‹_›, ?_, hn', rfl⟩
+      haveI := UpwardEnumerable.instLETransOfLawfulUpwardEnumerableLE (α := α)
       exact Trans.trans (α := α) (r := (· ≤ ·)) (UpwardEnumerable.le_iff.mpr hle) hu
 
 theorem Iterator.isPlausibleIndirectOutput_iff
-    [UpwardEnumerable α] [LE α] [DecidableLE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
+    [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {it : Iter (α := Rxc.Iterator α) α} {out : α} :
     it.IsPlausibleIndirectOutput out ↔
@@ -441,7 +443,7 @@ loop implementation.
 
 @[always_inline, inline]
 instance Iterator.instIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} [Monad n] :
     IteratorLoop (Rxc.Iterator α) Id n where
   forIn _ γ Pl wf it init f :=
@@ -483,7 +485,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α
       simp [succMany?_one, hs]
 
 partial instance Iterator.instIteratorLoopPartial [UpwardEnumerable α] [LE α] [DecidableLE α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} [Monad n] : IteratorLoopPartial (Rxc.Iterator α) Id n where
   forInPartial _ γ it init f :=
     match it with
@@ -520,7 +522,7 @@ partial instance Iterator.instIteratorLoopPartial [UpwardEnumerable α] [LE α] 
       simp [succMany?_one, hs]
 
 theorem Iterator.instIteratorLoop.loop_eq [UpwardEnumerable α] [LE α] [DecidableLE α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] {γ : Type u}
     {lift} [Internal.LawfulMonadLiftBindFunction lift]
     {PlausibleForInStep} {upperBound} {next} {hl} {hu} {f} {acc} {wf} :
@@ -571,7 +573,7 @@ decreasing_by
       simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
 instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] :
     LawfulIteratorLoop (Rxc.Iterator α) Id n where
   lawful := by
@@ -878,7 +880,7 @@ instance Iterator.instProductive [UpwardEnumerable α] [LT α] [DecidableLT α]
   .of_productivenessRelation instProductivenessRelation
 
 instance Iterator.instIteratorAccess [UpwardEnumerable α] [LT α] [DecidableLT α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Trans (α := α) (· < ·) (· < ·) (· < ·)] :
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] :
     IteratorAccess (Rxo.Iterator α) Id where
   nextAtIdx? it n := ⟨match it.internalState.next.bind (UpwardEnumerable.succMany? n) with
     | none => .done
@@ -938,6 +940,7 @@ instance Iterator.instIteratorAccess [UpwardEnumerable α] [LT α] [DecidableLT 
               exact ⟨rfl, rfl⟩
             · apply ih
           · rename_i next
+            haveI := UpwardEnumerable.instLTTransOfLawfulUpwardEnumerableLT (α := α)
             have := hout.imp (fun h : next < it.internalState.upperBound => by
               rw [← UpwardEnumerable.lt_iff] at hlt
               exact Trans.trans hlt h)
@@ -952,7 +955,7 @@ instance Iterator.instLawfulDeterministicIterator [UpwardEnumerable α] [LT α] 
 
 theorem Iterator.Monadic.isPlausibleIndirectOutput_iff
     [UpwardEnumerable α] [LT α] [DecidableLT α] [LawfulUpwardEnumerableLT α]
-    [LawfulUpwardEnumerable α] [Trans (α := α) (· < ·) (· < ·) (· < ·)]
+    [LawfulUpwardEnumerable α]
     {it : IterM (α := Rxo.Iterator α) Id α} {out : α} :
     it.IsPlausibleIndirectOutput out ↔
       ∃ n, it.internalState.next.bind (succMany? n ·) = some out ∧
@@ -990,10 +993,11 @@ theorem Iterator.Monadic.isPlausibleIndirectOutput_iff
       refine IterM.IsPlausibleIndirectOutput.indirect ?_ ih
       rw [Monadic.isPlausibleSuccessorOf_iff]
       refine ⟨a, ‹_›, ?_, hn', rfl⟩
+      haveI := UpwardEnumerable.instLTTransOfLawfulUpwardEnumerableLT (α := α)
       exact Trans.trans (α := α) (UpwardEnumerable.lt_iff.mpr hlt) hu
 
 theorem Iterator.isPlausibleIndirectOutput_iff
-    [UpwardEnumerable α] [LT α] [DecidableLT α] [Trans (α := α) (· < ·) (· < ·) (· < ·)]
+    [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {it : Iter (α := Rxo.Iterator α) α} {out : α} :
     it.IsPlausibleIndirectOutput out ↔
@@ -1012,7 +1016,7 @@ loop implementation.
 
 @[always_inline, inline]
 instance Iterator.instIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Trans (α := α) (· < ·) (· < ·) (· < ·)]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {n : Type u → Type w} [Monad n] :
     IteratorLoop (Rxo.Iterator α) Id n where
   forIn _ γ Pl wf it init f :=
@@ -1054,7 +1058,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α
       simp [succMany?_one, hs]
 
 partial instance Iterator.instIteratorLoopPartial [UpwardEnumerable α] [LT α] [DecidableLT α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Trans (α := α) (· < ·) (· < ·) (· < ·)]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {n : Type u → Type w} [Monad n] : IteratorLoopPartial (Rxo.Iterator α) Id n where
   forInPartial _ γ it init f :=
     match it with
@@ -1091,7 +1095,7 @@ partial instance Iterator.instIteratorLoopPartial [UpwardEnumerable α] [LT α] 
       simp [succMany?_one, hs]
 
 theorem Iterator.instIteratorLoop.loop_eq [UpwardEnumerable α] [LT α] [DecidableLT α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Trans (α := α) (· < ·) (· < ·) (· < ·)]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] {γ : Type u}
     {lift} [Internal.LawfulMonadLiftBindFunction lift]
     {PlausibleForInStep} {upperBound} {next} {hl} {hu} {f} {acc} {wf} :
@@ -1142,7 +1146,7 @@ decreasing_by
       simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
 instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Trans (α := α) (· < ·) (· < ·) (· < ·)]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] :
     LawfulIteratorLoop (Rxo.Iterator α) Id n where
   lawful := by

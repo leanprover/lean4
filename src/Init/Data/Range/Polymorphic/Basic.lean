@@ -168,7 +168,7 @@ class HasSize (α : Type u) where
 /--
 This typeclass ensures that a `RangeSize` instance returns the correct size for all ranges.
 -/
-class LawfulHasSize (α : Type u) [LT α] [UpwardEnumerable α] [HasSize α] where
+class LawfulHasSize (α : Type u) [UpwardEnumerable α] [HasSize α] where
   /--
   If the smallest value in the range satisfies the upper bound and has no successor, the size is
   one.
@@ -210,7 +210,7 @@ and for all range types that satisfy the properties encoded in the `LawfulUpward
 @[inline]
 def isEmpty [LE α] [DecidableLE α] [UpwardEnumerable α]
     (r : Rcc α) : Bool :=
-  r.lower ≤ r.upper
+  ¬ r.lower ≤ r.upper
 
 theorem mem_iff [LE α] {r : Rcc α} {a : α} :
     a ∈ r ↔ r.lower ≤ a ∧ a ≤ r.upper :=
@@ -237,7 +237,7 @@ and for all range types that satisfy the properties encoded in the `LawfulUpward
 -/
 @[inline]
 def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α] (r : Rco α) : Bool :=
-  r.lower < r.upper
+  ¬ r.lower < r.upper
 
 theorem mem_iff [LE α] [LT α] :
     a ∈ r ↔ r.lower ≤ a ∧ a < r.upper :=
@@ -267,8 +267,8 @@ and for all range types that satisfy the properties encoded in the `LawfulUpward
 `LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
 -/
 @[inline]
-def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α] (_ : Rci α) : Bool :=
-  true
+def isEmpty [UpwardEnumerable α] (_ : Rci α) : Bool :=
+  false
 
 theorem mem_iff [LE α] :
     a ∈ r ↔ r.lower ≤ a :=
@@ -293,7 +293,7 @@ and for all range types that satisfy the properties encoded in the `LawfulUpward
 @[inline]
 def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α]
     (r : Roc α) : Bool :=
-  r.lower < r.upper
+  ¬ r.lower < r.upper
 
 theorem mem_iff [LE α] [LT α] {r : Roc α} {a : α} :
     a ∈ r ↔ r.lower < a ∧ a ≤ r.upper :=
@@ -320,7 +320,7 @@ and for all range types that satisfy the properties encoded in the `LawfulUpward
 -/
 @[inline]
 def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α] (r : Roc α) : Bool :=
-  ∃ a, UpwardEnumerable.succ? r.lower = some a ∧ a < r.upper
+  ∀ a, UpwardEnumerable.succ? r.lower = some a → ¬ a < r.upper
 
 theorem mem_iff [LT α] :
     a ∈ r ↔ r.lower < a ∧ a < r.upper :=
@@ -351,7 +351,7 @@ and for all range types that satisfy the properties encoded in the `LawfulUpward
 -/
 @[inline]
 def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α] (_ : Roi α) : Bool :=
-  true
+  UpwardEnumerable.succ? r.lower |>.isNone
 
 theorem mem_iff [LT α] :
     a ∈ r ↔ r.lower < a :=
@@ -375,7 +375,7 @@ and for all range types that satisfy the properties encoded in the `LawfulUpward
 -/
 @[inline]
 def isEmpty [UpwardEnumerable α] (_ : Ric α) : Bool :=
-  true
+  false
 
 theorem mem_iff [LE α] : a ∈ r ↔ a ≤ r.upper :=
   Iff.rfl
@@ -398,7 +398,7 @@ and for all range types that satisfy the properties encoded in the `LawfulUpward
 -/
 @[inline]
 def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α] [Least? α] (_ : Ric α) : Bool :=
-  ∃ a, Least?.least? (α := α) = some a ∧ a < r.upper
+  ∀ a, Least?.least? (α := α) = some a → ¬ a < r.upper
 
 theorem mem_iff [LT α] : a ∈ r ↔ a < r.upper :=
   Iff.rfl
@@ -425,7 +425,7 @@ and for all range types that satisfy the properties encoded in the `LawfulUpward
 -/
 @[inline]
 def isEmpty [UpwardEnumerable α] [Least? α] (_ : Rii α) : Bool :=
-  (Least?.least? (α := α)).isSome
+  (Least?.least? (α := α)).isNone
 
 theorem mem : a ∈ r :=
   True.intro

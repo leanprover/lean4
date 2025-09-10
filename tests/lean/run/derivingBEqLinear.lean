@@ -1,6 +1,6 @@
 module
 
-set_option deriving.beq.linear_construction_threshold 1000
+set_option deriving.beq.linear_construction_threshold 0
 
 public section
 
@@ -33,10 +33,12 @@ inductive L (α : Type u) : Type u
 /--
 info: instBEqL.spec.{u_1} {α✝ : Type u_1} [BEq α✝] (x✝ x✝¹ : L α✝) :
   (x✝ == x✝¹) =
-    match x✝, x✝¹ with
-    | L.nil, L.nil => true
-    | L.cons a a_1, L.cons b b_1 => a == b && a_1 == b_1
-    | x, x_1 => false
+    match decEq x✝.ctorIdx x✝¹.ctorIdx with
+    | isTrue h =>
+      match x✝, x✝¹, h with
+      | L.nil, L.nil, ⋯ => true
+      | L.cons a a_1, L.cons a' a'_1, ⋯ => a == a' && a_1 == a'_1
+    | isFalse h => false
 -/
 #guard_msgs in
 #check instBEqL.spec
@@ -60,10 +62,12 @@ info: @[expose] def InNamespace.instBEqL'.{u_1} : {α : Type u_1} → [BEq α] �
 /--
 info: theorem InNamespace.instBEqL'.spec.{u_1} : ∀ {α : Type u_1} [inst : BEq α] (x x_1 : InNamespace.L' α),
   (x == x_1) =
-    match x, x_1 with
-    | InNamespace.L'.nil, InNamespace.L'.nil => true
-    | InNamespace.L'.cons a a_1, InNamespace.L'.cons b b_1 => a == b && a_1 == b_1
-    | x, x_2 => false
+    match decEq x.ctorIdx x_1.ctorIdx with
+    | isTrue h =>
+      match x, x_1, h with
+      | InNamespace.L'.nil, InNamespace.L'.nil, ⋯ => true
+      | InNamespace.L'.cons a a_1, InNamespace.L'.cons a' a'_1, ⋯ => a == a' && a_1 == a'_1
+    | isFalse h => false
 -/
 #guard_msgs in #print sig InNamespace.instBEqL'.spec
 
@@ -75,10 +79,12 @@ inductive Vec (α : Type u) : Nat → Type u
 /--
 info: instBEqVec.spec.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq α✝] (x✝ x✝¹ : Vec α✝ a✝) :
   (x✝ == x✝¹) =
-    match a✝, x✝, x✝¹ with
-    | .(0), Vec.nil, Vec.nil => true
-    | .(n + 1), Vec.cons a a_1, Vec.cons b b_1 => a == b && a_1 == b_1
-    | x, x_1, x_2 => false
+    match decEq x✝.ctorIdx x✝¹.ctorIdx with
+    | isTrue h =>
+      match a✝, x✝, x✝¹ with
+      | 0, Vec.nil, Vec.nil, ⋯ => true
+      | x + 1, Vec.cons a a_1, Vec.cons a' a'_1, ⋯ => a == a' && a_1 == a'_1
+    | isFalse h => false
 -/
 #guard_msgs in
 #check instBEqVec.spec
@@ -152,9 +158,8 @@ deriving BEq
 /--
 info: private theorem instBEqPrivStruct.spec : ∀ (x x_1 : PrivStruct),
   (x == x_1) =
-    match x, x_1 with
-    | { a := a }, { a := b } => a == b
-    | x, x_2 => false
+    match x, x_1, ⋯ with
+    | { a := a }, { a := a' }, ⋯ => a == a'
 -/
 #guard_msgs in
 #print sig instBEqPrivStruct.spec

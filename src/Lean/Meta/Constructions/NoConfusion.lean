@@ -58,33 +58,34 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
 
   for ctor in indVal.ctors do
     let ctorInfo ← getConstInfoCtor ctor
-    let e ← withLocalDeclD `P (.sort v) fun P =>
-      forallBoundedTelescope ctorInfo.type ctorInfo.numParams fun xs _ => do
-        let ctorApp := mkAppN (mkConst ctor us) xs
-        withSharedCtorIndices ctorApp fun ys indices fields1 fields2 => do
-          let ctor1 := mkAppN ctorApp fields1
-          let ctor2 := mkAppN ctorApp fields2
-          let heqType ← mkEq ctor1 ctor2
-          withLocalDeclD `h heqType fun h => do
-            -- When the kernel checks this definitios, it will perform the potentially expensive
-            -- computation that `noConfusionType h` is equal to `$kType → P`
-            let kType ← mkNoConfusionCtorArg ctor P
-            let kType := kType.beta (xs ++ fields1 ++ fields2)
-            withLocalDeclD `k kType fun k =>
-              let e := mkConst noConfusionName (v :: us)
-              let e := mkAppN e (xs ++ indices ++ #[P, ctor1, ctor2, h, k])
-              mkLambdaFVars (xs ++ #[P] ++ ys ++ #[h, k]) e
-    let name := ctor.str "noConfusion"
-    addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
-      (name        := name)
-      (levelParams := recInfo.levelParams)
-      (type        := (← inferType e))
-      (value       := e)
-      (hints       := ReducibilityHints.abbrev)
-    ))
-    setReducibleAttribute name
-    -- NB: Do not `markNoConfusion`, it is not the no-confusion principle that
-    -- the compiler expects
+    if ctorInfo.numFields > 0 then
+      let e ← withLocalDeclD `P (.sort v) fun P =>
+        forallBoundedTelescope ctorInfo.type ctorInfo.numParams fun xs _ => do
+          let ctorApp := mkAppN (mkConst ctor us) xs
+          withSharedCtorIndices ctorApp fun ys indices fields1 fields2 => do
+            let ctor1 := mkAppN ctorApp fields1
+            let ctor2 := mkAppN ctorApp fields2
+            let heqType ← mkEq ctor1 ctor2
+            withLocalDeclD `h heqType fun h => do
+              -- When the kernel checks this definitios, it will perform the potentially expensive
+              -- computation that `noConfusionType h` is equal to `$kType → P`
+              let kType ← mkNoConfusionCtorArg ctor P
+              let kType := kType.beta (xs ++ fields1 ++ fields2)
+              withLocalDeclD `k kType fun k =>
+                let e := mkConst noConfusionName (v :: us)
+                let e := mkAppN e (xs ++ indices ++ #[P, ctor1, ctor2, h, k])
+                mkLambdaFVars (xs ++ #[P] ++ ys ++ #[h, k]) e
+      let name := ctor.str "noConfusion"
+      addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+        (name        := name)
+        (levelParams := recInfo.levelParams)
+        (type        := (← inferType e))
+        (value       := e)
+        (hints       := ReducibilityHints.abbrev)
+      ))
+      setReducibleAttribute name
+      -- NB: Do not `markNoConfusion`, it is not the no-confusion principle that
+      -- the compiler expects
 
 def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   -- Do not do anything unless can_elim_to_type. TODO: Extract to util

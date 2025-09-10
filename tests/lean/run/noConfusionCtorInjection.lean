@@ -31,6 +31,8 @@ theorem ex2 (h : L.cons x xs = L.cons y ys) : Unit → x = y ∧ xs = ys := by
   intro u
   repeat constructor <;> assumption
 
+-- Check that grind uses `L.cons.noConfusion`
+
 theorem ex3 (h : L.cons x xs = L.cons y ys) : x = y ∧ xs = ys := by
   grind
 /--
@@ -49,3 +51,24 @@ fun {α} {x} {xs} {y} {ys} h =>
           True.intro)
 -/
 #guard_msgs in #print ex3._proof_1_1
+
+
+-- Check that for numary constructors, we get a trivial inlined “no confusion” principle
+
+inductive AlmostEnum where | a | b | mk (b : Bool)
+
+-- No explicit noConfusion principle for `AlmostEnum.a`:
+/-- error: Unknown constant `AlmostEnum.a.noConfusion` -/
+#guard_msgs in #print sig AlmostEnum.a.noConfusion
+
+
+set_option linter.unusedVariables false in
+theorem ex4 (h : AlmostEnum.a = AlmostEnum.a) : True := by
+  injection h
+  trivial
+
+/--
+info: theorem ex4 : AlmostEnum.a = AlmostEnum.a → True :=
+fun h => (fun P => P) True.intro
+-/
+#guard_msgs in #print ex4

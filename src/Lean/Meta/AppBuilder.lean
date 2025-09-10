@@ -494,6 +494,10 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
         -- Special case for same constructors, where we can maybe use the per-constructor
         -- noConfusion definition with its type already manifest
         if ctorA.cidx = ctorB.cidx then
+          -- Nullary constructors, the construction is trivial
+          if ctorA.numFields = 0 then
+            return ← withLocalDeclD `P target fun P => mkLambdaFVars #[P] P
+
           let noConfusionName := ctorA.name.str "noConfusion"
           if (← hasConst noConfusionName) then
             let xs := α.getAppArgs[:ctorA.numParams]

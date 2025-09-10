@@ -13,139 +13,6 @@ import Init.Data.Char.Lemmas
 public import Init.Data.ByteArray.Basic
 import Init.Data.ByteArray.Lemmas
 
-/-! # `parseFirstByte` -/
-
-/-! ## `parseFirstByte` definition -/
-
-inductive FirstByte where
-  | invalid : FirstByte
-  | done : FirstByte
-  | oneMore : FirstByte
-  | twoMore : FirstByte
-  | threeMore : FirstByte
-
-@[inline]
-def parseFirstByte (b : UInt8) : FirstByte :=
-  if b &&& 0x80 == 0 then
-    .done
-  else if b &&& 0xe0 == 0xc0 then
-    .oneMore
-  else if b &&& 0xf0 == 0xe0 then
-    .twoMore
-  else if b &&& 0xf8 == 0xf0 then
-    .threeMore
-  else .invalid
-
-/-! ## `parseFirstByte` low-level API -/
-
-theorem parseFirstByte_eq_done_iff : parseFirstByte b = .done ↔ b &&& 0x80 = 0 := by
-  fun_cases parseFirstByte with simp_all
-
-theorem parseFirstByte_eq_oneMore_iff : parseFirstByte b = .oneMore ↔ b &&& 0xe0 = 0xc0 := by
-  suffices b &&& 0xe0 = 0xc0 → b &&& 0x80 ≠ 0 by fun_cases parseFirstByte with simp_all
-  intro h
-  calc b &&& 0x80 = b &&& (0xe0 &&& 0x80) := rfl
-    _ = 0xc0 &&& 0x80 := by rw [← UInt8.and_assoc, h]
-    _ ≠ 0 := by decide
-
-theorem parseFirstByte_eq_twoMore_iff : parseFirstByte b = .twoMore ↔ b &&& 0xf0 = 0xe0 := by
-  suffices b &&& 0xf0 = 0xe0 → b &&& 0xe0 ≠ 0xc0 ∧ b &&& 0x80 ≠ 0 by fun_cases parseFirstByte with simp_all
-  refine fun h => ⟨?_, ?_⟩
-  · calc b &&& 0xe0 = b &&& (0xf0 &&& 0xe0) := rfl
-      _ = 0xe0 &&& 0xe0 := by rw [← UInt8.and_assoc, h]
-      _ ≠ 0xc0 := by decide
-  · calc b &&& 0x80 = b &&& (0xf0 &&& 0x80) := rfl
-      _ = 0xe0 &&& 0x80 := by rw [← UInt8.and_assoc, h]
-      _ ≠ 0 := by decide
-
-theorem parseFirstByte_eq_threeMore_iff : parseFirstByte b = .threeMore ↔ b &&& 0xf8 = 0xf0 := by
-  suffices b &&& 0xf8 = 0xf0 → b &&& 0xf0 ≠ 0xe0 ∧ b &&& 0xe0 ≠ 0xc0 ∧ b &&& 0x80 ≠ 0 by fun_cases parseFirstByte with simp_all
-  refine fun h => ⟨?_, ?_, ?_⟩
-  · calc b &&& 0xf0 = b &&& (0xf8 &&& 0xf0) := rfl
-      _ = 0xf0 &&& 0xf0 := by rw [← UInt8.and_assoc, h]
-      _ ≠ 0xe0 := by decide
-  · calc b &&& 0xe0 = b &&& (0xf8 &&& 0xe0) := rfl
-      _ = 0xf0 &&& 0xe0 := by rw [← UInt8.and_assoc, h]
-      _ ≠ 0xc0 := by decide
-  · calc b &&& 0x80 = b &&& (0xf8 &&& 0x80) := rfl
-      _ = 0xf0 &&& 0x80 := by rw [← UInt8.and_assoc, h]
-      _ ≠ 0 := by decide
-
-/-! ## `parseFirstByte` BitVec API -/
-
-theorem helper (w : Nat) (b : BitVec (w' + w)) (v : BitVec w') : b &&& (BitVec.allOnes w' ++ 0#w) = v ++ 0#w ↔ b.extractLsb' w w' = v := by
-  have h : b = b.extractLsb' w w' ++ b.extractLsb' 0 w := by
-    rw [BitVec.extractLsb'_append_extractLsb'_eq_extractLsb'] <;> simp
-  conv => lhs; rw [h]
-  rw [BitVec.and_append, BitVec.and_allOnes, BitVec.and_zero, BitVec.append_left_inj]
-
-theorem helper₂ (w : Nat) (b : BitVec (w' + w)) {v : BitVec w'} (h : b.extractLsb' w w' = v) : b = v ++ b.extractLsb' 0 w := by
-  rw [← h, BitVec.extractLsb'_append_extractLsb'_eq_extractLsb'] <;> simp
-
-/-! ### Size one -/
-
-theorem parseFirstByte_eq_done_iff_toBitVec : parseFirstByte b = .done ↔ b.toBitVec.extractLsb' 7 1 = 0#1 := by
-  simp only [parseFirstByte_eq_done_iff, ← UInt8.toBitVec_inj, UInt8.toBitVec_and,
-    UInt8.toBitVec_ofNat]
-  exact helper 7 b.toBitVec 0#1
-
-theorem toBitVec_eq_of_parseFirstByte_eq_done {b : UInt8} (h : parseFirstByte b = .done) :
-    b.toBitVec = 0#1 ++ b.toBitVec.setWidth 7 := by
-  exact helper₂ 7 b.toBitVec (parseFirstByte_eq_done_iff_toBitVec.1 h)
-
-/-! ### Size two -/
-
-theorem parseFirstByte_eq_oneMore_iff_toBitVec : parseFirstByte b = .oneMore ↔ b.toBitVec.extractLsb' 5 3 = 0b110#3 := by
-  simp only [parseFirstByte_eq_oneMore_iff, ← UInt8.toBitVec_inj, UInt8.toBitVec_and,
-    UInt8.toBitVec_ofNat]
-  exact helper 5 b.toBitVec 0b110#3
-
-theorem toBitVec_eq_of_parseFirstByte_eq_oneMore {b : UInt8} (h : parseFirstByte b = .oneMore) :
-    b.toBitVec = 0b110#3 ++ b.toBitVec.setWidth 5 := by
-  exact helper₂ 5 b.toBitVec (parseFirstByte_eq_oneMore_iff_toBitVec.1 h)
-
-/-! ### Size three -/
-
-theorem parseFirstByte_eq_twoMore_iff_toBitVec : parseFirstByte b = .twoMore ↔ b.toBitVec.extractLsb' 4 4 = 0b1110#4 := by
-  simp only [parseFirstByte_eq_twoMore_iff, ← UInt8.toBitVec_inj, UInt8.toBitVec_and,
-    UInt8.toBitVec_ofNat]
-  exact helper 4 b.toBitVec 0b1110#4
-
-theorem toBitVec_eq_of_parseFirstByte_eq_twoMore {b : UInt8} (h : parseFirstByte b = .twoMore) :
-    b.toBitVec = 0b1110#4 ++ b.toBitVec.setWidth 4 := by
-  exact helper₂ 4 b.toBitVec (parseFirstByte_eq_twoMore_iff_toBitVec.1 h)
-
-/-! ### Size four -/
-
-theorem parseFirstByte_eq_threeMore_iff_toBitVec : parseFirstByte b = .threeMore ↔ b.toBitVec.extractLsb' 3 5 = 0b11110#5 := by
-  simp only [parseFirstByte_eq_threeMore_iff, ← UInt8.toBitVec_inj, UInt8.toBitVec_and,
-    UInt8.toBitVec_ofNat]
-  exact helper 3 b.toBitVec 0b11110#5
-
-theorem toBitVec_eq_of_parseFirstByte_eq_threeMore {b : UInt8} (h : parseFirstByte b = .threeMore) :
-    b.toBitVec = 0b11110#5 ++ b.toBitVec.setWidth 3 := by
-  exact helper₂ 3 b.toBitVec (parseFirstByte_eq_threeMore_iff_toBitVec.1 h)
-
-/-! # `isInvalidContinuationByte` definiton & API -/
-
-@[inline]
-def isInvalidContinuationByte (b : UInt8) : Bool :=
-  b &&& 0xc0 != 0x80
-
-theorem isInvalidContinutationByte_eq_false_iff {b : UInt8} :
-    isInvalidContinuationByte b = false ↔ b &&& 0xc0 = 0x80 := by
-  simp [isInvalidContinuationByte]
-
-theorem isInvalidContinuationByte_eq_false_iff_toBitVec {b : UInt8} :
-    isInvalidContinuationByte b = false ↔ b.toBitVec.extractLsb' 6 2 = 0b10#2 := by
-  simp only [isInvalidContinuationByte, bne_eq_false_iff_eq, ← UInt8.toBitVec_inj,
-    UInt8.toBitVec_and, UInt8.toBitVec_ofNat]
-  exact helper 6 b.toBitVec 0b10#2
-
-theorem toBitVec_eq_of_isInvalidContinuationByte_eq_false {b : UInt8} (hb : isInvalidContinuationByte b = false) :
-    b.toBitVec = 0b10#2 ++ b.toBitVec.setWidth 6 := by
-  exact helper₂ 6 b.toBitVec (isInvalidContinuationByte_eq_false_iff_toBitVec.1 hb)
-
 /-! # `Char.utf8Size` -/
 
 public theorem Char.utf8Size_eq_one_iff {c : Char} : c.utf8Size = 1 ↔ c.val ≤ 127 := by
@@ -182,6 +49,11 @@ public theorem Char.utf8Size_le_four (c : Char) : c.utf8Size ≤ 4 := by
 public theorem Char.utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 ∨ c.utf8Size = 3 ∨ c.utf8Size = 4 := by
   match c.utf8Size, c.utf8Size_pos, c.utf8Size_le_four with
   | 1, _, _ | 2, _, _ | 3, _, _ | 4, _, _ => simp
+
+theorem Char.toNat_val_le {c : Char} : c.val.toNat ≤ 0x10ffff := by
+  have := c.valid
+  simp [UInt32.isValidChar, Nat.isValidChar] at this
+  omega
 
 /-! # `utf8EncodeChar` -/
 
@@ -314,11 +186,6 @@ theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_one {c : Char
   rw [← BitVec.toNat_inj, BitVec.toNat_append]
   simp [utf8EncodeChar_eq_singleton h, Nat.mod_eq_of_lt h₀, Nat.mod_eq_of_lt h₁]
 
-theorem parseFirstByte_utf8EncodeChar_eq_done {c : Char} (hc : c.utf8Size = 1) :
-    parseFirstByte ((String.utf8EncodeChar c)[0]'(by simp [Char.utf8Size_pos])) = .done := by
-  rw [parseFirstByte_eq_done_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_one hc,
-    BitVec.extractLsb'_append_eq_left]
-
 /-! ### Size two -/
 
 theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_two {c : Char} (h : c.utf8Size = 2) :
@@ -328,16 +195,6 @@ theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_two {c : Char
 theorem String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_two {c : Char} (h : c.utf8Size = 2) :
     ((String.utf8EncodeChar c)[1]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
   simpa [String.utf8EncodeChar_eq_cons_cons h] using helper₄ 0 c.val.toBitVec 2#2 6
-
-theorem parseFirstByte_utf8EncodeChar_eq_oneMore {c : Char} (hc : c.utf8Size = 2) :
-    parseFirstByte ((String.utf8EncodeChar c)[0]'(by simp [Char.utf8Size_pos])) = .oneMore := by
-  rw [parseFirstByte_eq_oneMore_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_two hc,
-    BitVec.extractLsb'_append_eq_left]
-
-theorem isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_two {c : Char} (hc : c.utf8Size = 2) :
-    isInvalidContinuationByte ((String.utf8EncodeChar c)[1]'(by simp [String.length_utf8EncodeChar, hc])) = false := by
-  rw [isInvalidContinuationByte_eq_false_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_two hc,
-    BitVec.extractLsb'_append_eq_left]
 
 /-! ### Size three -/
 
@@ -352,21 +209,6 @@ theorem String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_three {c : Cha
 theorem String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_three {c : Char} (h : c.utf8Size = 3) :
     ((String.utf8EncodeChar c)[2]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
   simpa [String.utf8EncodeChar_eq_cons_cons_cons h] using helper₄ 0 c.val.toBitVec 0b10#2 6
-
-theorem parseFirstByte_utf8EncodeChar_eq_twoMore {c : Char} (hc : c.utf8Size = 3) :
-    parseFirstByte ((String.utf8EncodeChar c)[0]'(by simp [Char.utf8Size_pos])) = .twoMore := by
-  rw [parseFirstByte_eq_twoMore_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_three hc,
-    BitVec.extractLsb'_append_eq_left]
-
-theorem isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_three {c : Char} (hc : c.utf8Size = 3) :
-    isInvalidContinuationByte ((String.utf8EncodeChar c)[1]'(by simp [String.length_utf8EncodeChar, hc])) = false := by
-  rw [isInvalidContinuationByte_eq_false_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_three hc,
-    BitVec.extractLsb'_append_eq_left]
-
-theorem isInvalidContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_three {c : Char} (hc : c.utf8Size = 3) :
-    isInvalidContinuationByte ((String.utf8EncodeChar c)[2]'(by simp [String.length_utf8EncodeChar, hc])) = false := by
-  rw [isInvalidContinuationByte_eq_false_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_three hc,
-    BitVec.extractLsb'_append_eq_left]
 
 /-! ### Size four -/
 
@@ -385,6 +227,173 @@ theorem String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_four {c : Char
 theorem String.toBitVec_getElem_utf8EncodeChar_three_of_utf8Size_eq_four {c : Char} (h : c.utf8Size = 4) :
     ((String.utf8EncodeChar c)[3]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
   simpa [String.utf8EncodeChar_eq_cons_cons_cons_cons h] using helper₄ 0 c.val.toBitVec 0b10#2 6
+
+namespace ByteArray.utf8DecodeChar?
+
+/-! # `parseFirstByte` -/
+
+/-! ## `parseFirstByte` definition -/
+
+public inductive FirstByte where
+  | invalid : FirstByte
+  | done : FirstByte
+  | oneMore : FirstByte
+  | twoMore : FirstByte
+  | threeMore : FirstByte
+
+@[inline, expose]
+public def parseFirstByte (b : UInt8) : FirstByte :=
+  if b &&& 0x80 == 0 then
+    .done
+  else if b &&& 0xe0 == 0xc0 then
+    .oneMore
+  else if b &&& 0xf0 == 0xe0 then
+    .twoMore
+  else if b &&& 0xf8 == 0xf0 then
+    .threeMore
+  else .invalid
+
+/-! ## `parseFirstByte` low-level API -/
+
+theorem parseFirstByte_eq_done_iff : parseFirstByte b = .done ↔ b &&& 0x80 = 0 := by
+  fun_cases parseFirstByte with simp_all
+
+theorem parseFirstByte_eq_oneMore_iff : parseFirstByte b = .oneMore ↔ b &&& 0xe0 = 0xc0 := by
+  suffices b &&& 0xe0 = 0xc0 → b &&& 0x80 ≠ 0 by fun_cases parseFirstByte with simp_all
+  intro h
+  calc b &&& 0x80 = b &&& (0xe0 &&& 0x80) := rfl
+    _ = 0xc0 &&& 0x80 := by rw [← UInt8.and_assoc, h]
+    _ ≠ 0 := by decide
+
+theorem parseFirstByte_eq_twoMore_iff : parseFirstByte b = .twoMore ↔ b &&& 0xf0 = 0xe0 := by
+  suffices b &&& 0xf0 = 0xe0 → b &&& 0xe0 ≠ 0xc0 ∧ b &&& 0x80 ≠ 0 by fun_cases parseFirstByte with simp_all
+  refine fun h => ⟨?_, ?_⟩
+  · calc b &&& 0xe0 = b &&& (0xf0 &&& 0xe0) := rfl
+      _ = 0xe0 &&& 0xe0 := by rw [← UInt8.and_assoc, h]
+      _ ≠ 0xc0 := by decide
+  · calc b &&& 0x80 = b &&& (0xf0 &&& 0x80) := rfl
+      _ = 0xe0 &&& 0x80 := by rw [← UInt8.and_assoc, h]
+      _ ≠ 0 := by decide
+
+theorem parseFirstByte_eq_threeMore_iff : parseFirstByte b = .threeMore ↔ b &&& 0xf8 = 0xf0 := by
+  suffices b &&& 0xf8 = 0xf0 → b &&& 0xf0 ≠ 0xe0 ∧ b &&& 0xe0 ≠ 0xc0 ∧ b &&& 0x80 ≠ 0 by fun_cases parseFirstByte with simp_all
+  refine fun h => ⟨?_, ?_, ?_⟩
+  · calc b &&& 0xf0 = b &&& (0xf8 &&& 0xf0) := rfl
+      _ = 0xf0 &&& 0xf0 := by rw [← UInt8.and_assoc, h]
+      _ ≠ 0xe0 := by decide
+  · calc b &&& 0xe0 = b &&& (0xf8 &&& 0xe0) := rfl
+      _ = 0xf0 &&& 0xe0 := by rw [← UInt8.and_assoc, h]
+      _ ≠ 0xc0 := by decide
+  · calc b &&& 0x80 = b &&& (0xf8 &&& 0x80) := rfl
+      _ = 0xf0 &&& 0x80 := by rw [← UInt8.and_assoc, h]
+      _ ≠ 0 := by decide
+
+/-! ## `parseFirstByte` BitVec API -/
+
+theorem helper (w : Nat) (b : BitVec (w' + w)) (v : BitVec w') : b &&& (BitVec.allOnes w' ++ 0#w) = v ++ 0#w ↔ b.extractLsb' w w' = v := by
+  have h : b = b.extractLsb' w w' ++ b.extractLsb' 0 w := by
+    rw [BitVec.extractLsb'_append_extractLsb'_eq_extractLsb'] <;> simp
+  conv => lhs; rw [h]
+  rw [BitVec.and_append, BitVec.and_allOnes, BitVec.and_zero, BitVec.append_left_inj]
+
+theorem helper₂ (w : Nat) (b : BitVec (w' + w)) {v : BitVec w'} (h : b.extractLsb' w w' = v) : b = v ++ b.extractLsb' 0 w := by
+  rw [← h, BitVec.extractLsb'_append_extractLsb'_eq_extractLsb'] <;> simp
+
+/-! ### Size one -/
+
+theorem parseFirstByte_eq_done_iff_toBitVec : parseFirstByte b = .done ↔ b.toBitVec.extractLsb' 7 1 = 0#1 := by
+  simp only [parseFirstByte_eq_done_iff, ← UInt8.toBitVec_inj, UInt8.toBitVec_and,
+    UInt8.toBitVec_ofNat]
+  exact helper 7 b.toBitVec 0#1
+
+theorem toBitVec_eq_of_parseFirstByte_eq_done {b : UInt8} (h : parseFirstByte b = .done) :
+    b.toBitVec = 0#1 ++ b.toBitVec.setWidth 7 := by
+  exact helper₂ 7 b.toBitVec (parseFirstByte_eq_done_iff_toBitVec.1 h)
+
+/-! ### Size two -/
+
+theorem parseFirstByte_eq_oneMore_iff_toBitVec : parseFirstByte b = .oneMore ↔ b.toBitVec.extractLsb' 5 3 = 0b110#3 := by
+  simp only [parseFirstByte_eq_oneMore_iff, ← UInt8.toBitVec_inj, UInt8.toBitVec_and,
+    UInt8.toBitVec_ofNat]
+  exact helper 5 b.toBitVec 0b110#3
+
+theorem toBitVec_eq_of_parseFirstByte_eq_oneMore {b : UInt8} (h : parseFirstByte b = .oneMore) :
+    b.toBitVec = 0b110#3 ++ b.toBitVec.setWidth 5 := by
+  exact helper₂ 5 b.toBitVec (parseFirstByte_eq_oneMore_iff_toBitVec.1 h)
+
+/-! ### Size three -/
+
+theorem parseFirstByte_eq_twoMore_iff_toBitVec : parseFirstByte b = .twoMore ↔ b.toBitVec.extractLsb' 4 4 = 0b1110#4 := by
+  simp only [parseFirstByte_eq_twoMore_iff, ← UInt8.toBitVec_inj, UInt8.toBitVec_and,
+    UInt8.toBitVec_ofNat]
+  exact helper 4 b.toBitVec 0b1110#4
+
+theorem toBitVec_eq_of_parseFirstByte_eq_twoMore {b : UInt8} (h : parseFirstByte b = .twoMore) :
+    b.toBitVec = 0b1110#4 ++ b.toBitVec.setWidth 4 := by
+  exact helper₂ 4 b.toBitVec (parseFirstByte_eq_twoMore_iff_toBitVec.1 h)
+
+/-! ### Size four -/
+
+theorem parseFirstByte_eq_threeMore_iff_toBitVec : parseFirstByte b = .threeMore ↔ b.toBitVec.extractLsb' 3 5 = 0b11110#5 := by
+  simp only [parseFirstByte_eq_threeMore_iff, ← UInt8.toBitVec_inj, UInt8.toBitVec_and,
+    UInt8.toBitVec_ofNat]
+  exact helper 3 b.toBitVec 0b11110#5
+
+theorem toBitVec_eq_of_parseFirstByte_eq_threeMore {b : UInt8} (h : parseFirstByte b = .threeMore) :
+    b.toBitVec = 0b11110#5 ++ b.toBitVec.setWidth 3 := by
+  exact helper₂ 3 b.toBitVec (parseFirstByte_eq_threeMore_iff_toBitVec.1 h)
+
+/-! # `isInvalidContinuationByte` definiton & API -/
+
+@[inline, expose]
+public def isInvalidContinuationByte (b : UInt8) : Bool :=
+  b &&& 0xc0 != 0x80
+
+theorem isInvalidContinutationByte_eq_false_iff {b : UInt8} :
+    isInvalidContinuationByte b = false ↔ b &&& 0xc0 = 0x80 := by
+  simp [isInvalidContinuationByte]
+
+theorem isInvalidContinuationByte_eq_false_iff_toBitVec {b : UInt8} :
+    isInvalidContinuationByte b = false ↔ b.toBitVec.extractLsb' 6 2 = 0b10#2 := by
+  simp only [isInvalidContinuationByte, bne_eq_false_iff_eq, ← UInt8.toBitVec_inj,
+    UInt8.toBitVec_and, UInt8.toBitVec_ofNat]
+  exact helper 6 b.toBitVec 0b10#2
+
+theorem toBitVec_eq_of_isInvalidContinuationByte_eq_false {b : UInt8} (hb : isInvalidContinuationByte b = false) :
+    b.toBitVec = 0b10#2 ++ b.toBitVec.setWidth 6 := by
+  exact helper₂ 6 b.toBitVec (isInvalidContinuationByte_eq_false_iff_toBitVec.1 hb)
+
+/-! # `parseFirstByte`, `isInvalidContinuationByte` and `utf8EncodeChar` -/
+
+theorem parseFirstByte_utf8EncodeChar_eq_done {c : Char} (hc : c.utf8Size = 1) :
+    parseFirstByte ((String.utf8EncodeChar c)[0]'(by simp [Char.utf8Size_pos])) = .done := by
+  rw [parseFirstByte_eq_done_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_one hc,
+    BitVec.extractLsb'_append_eq_left]
+
+theorem parseFirstByte_utf8EncodeChar_eq_oneMore {c : Char} (hc : c.utf8Size = 2) :
+    parseFirstByte ((String.utf8EncodeChar c)[0]'(by simp [Char.utf8Size_pos])) = .oneMore := by
+  rw [parseFirstByte_eq_oneMore_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_two hc,
+    BitVec.extractLsb'_append_eq_left]
+
+theorem isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_two {c : Char} (hc : c.utf8Size = 2) :
+    isInvalidContinuationByte ((String.utf8EncodeChar c)[1]'(by simp [String.length_utf8EncodeChar, hc])) = false := by
+  rw [isInvalidContinuationByte_eq_false_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_two hc,
+    BitVec.extractLsb'_append_eq_left]
+
+theorem parseFirstByte_utf8EncodeChar_eq_twoMore {c : Char} (hc : c.utf8Size = 3) :
+    parseFirstByte ((String.utf8EncodeChar c)[0]'(by simp [Char.utf8Size_pos])) = .twoMore := by
+  rw [parseFirstByte_eq_twoMore_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_three hc,
+    BitVec.extractLsb'_append_eq_left]
+
+theorem isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_three {c : Char} (hc : c.utf8Size = 3) :
+    isInvalidContinuationByte ((String.utf8EncodeChar c)[1]'(by simp [String.length_utf8EncodeChar, hc])) = false := by
+  rw [isInvalidContinuationByte_eq_false_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_three hc,
+    BitVec.extractLsb'_append_eq_left]
+
+theorem isInvalidContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_three {c : Char} (hc : c.utf8Size = 3) :
+    isInvalidContinuationByte ((String.utf8EncodeChar c)[2]'(by simp [String.length_utf8EncodeChar, hc])) = false := by
+  rw [isInvalidContinuationByte_eq_false_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_three hc,
+    BitVec.extractLsb'_append_eq_left]
 
 theorem parseFirstByte_utf8EncodeChar_eq_threeMore {c : Char} (hc : c.utf8Size = 4) :
     parseFirstByte ((String.utf8EncodeChar c)[0]'(by simp [Char.utf8Size_pos])) = .threeMore := by
@@ -415,8 +424,8 @@ theorem helper₅ {w : UInt8} (h : parseFirstByte w = .done) : w < 128 := by
   rw [BitVec.toNat_append]
   simpa using Nat.mod_lt _ (by decide)
 
-@[inline]
-def assemble₁ (w : UInt8) (h : parseFirstByte w = .done) : Option Char :=
+@[inline, expose]
+public def assemble₁ (w : UInt8) (h : parseFirstByte w = .done) : Option Char :=
   some ⟨w.toUInt32, ?done⟩
 where finally
   case done =>
@@ -462,14 +471,14 @@ theorem assemble₁_eq_some_iff_utf8EncodeChar_eq {w : UInt8} {c : Char} :
 
 /-! # `assemble₂` -/
 
-@[inline]
-def assemble₂Unchecked (w x : UInt8) : UInt32 :=
+@[inline, expose]
+public def assemble₂Unchecked (w x : UInt8) : UInt32 :=
   let b₀ : UInt8 := w &&& 0x1f
   let b₁ := x &&& 0x3f
   (b₀.toUInt32 <<< 6) ||| b₁.toUInt32
 
-@[inline]
-def assemble₂ (w x : UInt8) : Option Char :=
+@[inline, expose]
+public def assemble₂ (w x : UInt8) : Option Char :=
   if isInvalidContinuationByte x then
     none
   else
@@ -591,15 +600,15 @@ theorem assemble₂_eq_some_iff_utf8EncodeChar_eq {x y : UInt8} {c : Char} :
 
 /-! # `assemble₃` -/
 
-@[inline]
-def assemble₃Unchecked (w x y : UInt8) : UInt32 :=
+@[inline, expose]
+public def assemble₃Unchecked (w x y : UInt8) : UInt32 :=
   let b₀ : UInt8 := w &&& 0x0f
   let b₁ := x &&& 0x3f
   let b₂ := y &&& 0x3f
   (b₀.toUInt32 <<< 12) ||| (b₁.toUInt32 <<< 6) ||| b₂.toUInt32
 
-@[inline]
-def assemble₃ (w x y : UInt8) : Option Char :=
+@[inline, expose]
+public def assemble₃ (w x y : UInt8) : Option Char :=
   if isInvalidContinuationByte x || isInvalidContinuationByte y then
     none
   else
@@ -735,16 +744,16 @@ theorem assemble₃_eq_some_iff_utf8EncodeChar_eq {w x y : UInt8} {c : Char} :
 
 /-! # `assemble₄` -/
 
-@[inline]
-def assemble₄Unchecked (w x y z : UInt8) : UInt32 :=
+@[inline, expose]
+public def assemble₄Unchecked (w x y z : UInt8) : UInt32 :=
   let b₀ : UInt8 := w &&& 0x07
   let b₁ := x &&& 0x3f
   let b₂ := y &&& 0x3f
   let b₃ := z &&& 0x3f
   (b₀.toUInt32 <<< 18) ||| (b₁.toUInt32 <<< 12) ||| (b₂.toUInt32 <<< 6) ||| b₃.toUInt32
 
-@[inline]
-def assemble₄ (w x y z : UInt8) : Option Char :=
+@[inline, expose]
+public def assemble₄ (w x y z : UInt8) : Option Char :=
   if isInvalidContinuationByte x || isInvalidContinuationByte y || isInvalidContinuationByte z then
     none
   else
@@ -825,11 +834,6 @@ theorem isInvalidContinuationByte_eq_false_of_assemble₄_eq_some_middle {w x y 
 theorem isInvalidContinuationByte_eq_false_of_assemble₄_eq_some_right {w x y z : UInt8} {c : Char} : assemble₄ w x y z = some c → isInvalidContinuationByte z = false := by
   fun_cases assemble₄ with simp_all
 
-theorem Char.toNat_val_le {c : Char} : c.val.toNat ≤ 0x10ffff := by
-  have := c.valid
-  simp [UInt32.isValidChar, Nat.isValidChar] at this
-  omega
-
 theorem assemble₄_eq_some_iff_utf8EncodeChar_eq {w x y z : UInt8} {c : Char} :
     parseFirstByte w = .threeMore ∧ assemble₄ w x y z = some c ↔ String.utf8EncodeChar c = [w, x, y, z] := by
   refine ⟨fun ⟨h₁, h₂⟩ => ?_, ?_⟩
@@ -883,9 +887,13 @@ theorem assemble₄_eq_some_iff_utf8EncodeChar_eq {w x y z : UInt8} {c : Char} :
         Nat.reducePow, Nat.reduceMod, gt_iff_lt]
       omega
 
+end ByteArray.utf8DecodeChar?
+
+open ByteArray.utf8DecodeChar?
+
 /- # `utf8DecodeChar?` -/
 
-@[inline]
+@[inline, expose]
 public def ByteArray.utf8DecodeChar? (bytes : ByteArray) (i : Nat) : Option Char :=
   if h₀ : i < bytes.size then
     match h : parseFirstByte bytes[i] with

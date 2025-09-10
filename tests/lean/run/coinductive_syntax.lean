@@ -1,4 +1,4 @@
--- set_option trace.Elab.inductive true
+set_option trace.Elab.coinductive true
 set_option trace.Meta.SumOfProducts true
 
 section
@@ -34,10 +34,10 @@ end
 section
 mutual
   coinductive tick : Prop where
-  | mk : ¬ tock → tick
+  | mk : ¬tock → tick
 
   inductive tock : Prop where
-  | mk : ¬ tick → tock
+  | mk : ¬tick → tock
 end
 
 /-- info: tick.mk : ¬tock → tick -/

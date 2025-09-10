@@ -55,6 +55,7 @@ open Meta
 
 builtin_initialize
   registerTraceClass `Elab.inductive
+  registerTraceClass `Elab.coinductive
 
 register_builtin_option inductive.autoPromoteIndices : Bool := {
   defValue := true
@@ -1012,60 +1013,105 @@ def removeFunctorPostfixInCtor : Name → Name
   | Name.num p n => Name.num (removeFunctorPostfixInCtor p) n
 
 private def generateCoinductiveConstructor (infos : Array InductiveVal) (numParams : Nat) (name : Name) (ctor : ConstructorVal) : MetaM Unit := do
+  trace[Elab.coinductive] "Generating constructor: {removeFunctorPostfixInCtor ctor.name}"
   let numPreds := infos.size
-  let predNames := infos.map (fun val => removeFunctorPostfix val.name)
+  let predNames := infos.map fun val => removeFunctorPostfix val.name
+  let levelParams := infos[0]!.levelParams.map mkLevelParam
+  /-
+    We start by looking at the type of the constructor and introducing all its parameters to the scope
+  -/
   forallBoundedTelescope ctor.type (numParams + numPreds) fun args body => do
-    trace[Elab.inductive] "Ctor.type: args: {args}, body: {body}"
-    let levelParams := ctor.levelParams.map mkLevelParam;
-    let constructor := mkConst (ctor.name) levelParams
+
+    /-
+      The first `numParams` many items of `args` are parameters from the original definition, while the remaining ones
+      are free variables that correspond to recursive calls
+    -/
     let params := args.take numParams
     let predFVars := args.extract numParams
-    let predicates : Array Expr := predNames.map (mkConst · levelParams)
-    let predicates := predicates.map (mkAppN · params)
+    /-
+      We will fill recursive calls in the body with the just defined (co)inductive predicates.
+    -/
+    let mut predicates : Array Expr := predNames.map (mkConst · levelParams)
+    predicates := predicates.map (mkAppN · params)
     let body := body.replaceFVars predFVars predicates
+    /-
+      Now, we look at the rest of the constructor.
+      We start by collecting its non-parameter premises, as well as inspecting its conclusion.
+    -/
     let res ← forallTelescope body fun bodyArgs bodyExpr => do
-      trace[Elab.inductive] "bodyArgs: {bodyArgs}"
-      let goalType := mkConst (removeFunctorPostfix name) levelParams
+      /-
+        First, we look at conclusion and pick out all arguments that are non-parameters.
+      -/
       let bodyAppArgs := bodyExpr.getAppArgs.extract (numParams + infos.size)
-      let goalType := mkAppN goalType params
-      let goalType := mkAppN goalType bodyAppArgs
-      trace[Elab.inductive] "new goal is now: {goalType}"
-      let mVar ← mkFreshExprMVar (.some goalType)
-      let id := Expr.mvarId! mVar
+      /-
+        The goal (i.e. right hands side of a constructor) that we are trying to make is just
+        the coinductive predicate with parameters and non-parameter arguments applied.
+      -/
+      let goalType := mkConst (removeFunctorPostfix name) levelParams
+      let mut goalType := mkAppN goalType params
+      goalType := mkAppN goalType bodyAppArgs
+      trace[Elab.coinductive] "The conclusion of the constructor {ctor.name} is {goalType}"
+
+      -- We start by making the metavariable for it, that we will fill
+      let goal ← mkFreshExprMVar <| .some goalType
+      let hole := Expr.mvarId! goal
+
+      -- First, we will reply on the unrolling rule that is registered by `PartialFixpoint` machinery
       let some fixEq ← PartialFixpoint.getUnfoldFor? (removeFunctorPostfix name) | throwError "No unfold lemma"
       let mut fixEq := mkConst fixEq levelParams
+      fixEq := mkAppN fixEq params
+      /-
+        The right hands side of the unrolling rule is existential form of the functor defining the predicate
+        with all its arguments applied
+      -/
       let mut unfolded := mkConst (name ++ `existential) levelParams
       unfolded ← unfoldDefinition unfolded
-      fixEq := mkAppN fixEq params
       unfolded := mkAppN unfolded bodyExpr.getAppArgs
       unfolded ← whnf unfolded
-
-      trace[Elab.inductive] "unfolded: {unfolded}"
+      /-
+        Before we apply the unrolling lemma, we need to bring it to the appropriate form,
+        in which all arguments are applied
+      -/
       for arg in bodyAppArgs do
         fixEq ← mkAppM ``congrFun #[fixEq, arg]
-      let hole ← Lean.MVarId.replaceTargetEq id unfolded fixEq
-
-      let mut equivLemma := mkConst (name ++ `sop) levelParams
+      /-
+        We rewrite by the unrolling rule, the goal is now in the existential form
+      -/
+      let hole ← Lean.MVarId.replaceTargetEq hole unfolded fixEq
+      /-
+        To bring it to the inductive type form (of the original functor), we need to apply
+        the lemma that connects both. We instantiate it, and get an appropriate implication.
+      -/
+      let equivLemmaName := name ++ `sop
+      let mut equivLemma := mkConst equivLemmaName levelParams
       equivLemma := mkAppN equivLemma bodyExpr.getAppArgs
-
       equivLemma ← mkAppM ``Iff.mp #[equivLemma]
-
-      let [hole] ← hole.apply equivLemma | throwError "sorry"
-
-
+      let [hole] ← hole.apply equivLemma | throwError "Could not apply {equivLemmaName}"
+      /-
+        Now, all it suffices is to call an approprate constructor of the functor in the inductive type form.
+      -/
+      let constructor := mkConst ctor.name levelParams
       let constructor := mkAppN constructor params
       let constructor := mkAppN constructor predicates
       let constructor := mkAppN constructor bodyArgs
-
       hole.assign constructor
-      let res ← instantiateMVars mVar
-      let res ← mkLambdaFVars bodyArgs res
-      trace[Elab.inductive] "res: {res}"
-      mkLambdaFVars params res
+      let conclusion ← instantiateMVars goal
+      let conclusion ← mkLambdaFVars bodyArgs conclusion
+      mkLambdaFVars params conclusion
     let type ← inferType res
-    let name := removeFunctorPostfixInCtor ctor.name
-    let decl := Declaration.defnDecl { name := name,levelParams := ctor.levelParams, type := type, value := res, hints := .opaque, safety := .safe }
-    addDecl decl
+    trace[Elab.coinductive] "The elaborated constructor is of the type: {type}"
+    /-
+      We finish by registering the appropriate declaration
+    -/
+    addDecl <| .defnDecl {
+      name := removeFunctorPostfixInCtor ctor.name
+      levelParams := ctor.levelParams
+      type := type
+      value := res
+      hints := .opaque
+      safety := .safe
+    }
+
 
 private def generateCoinductiveConstructors (numParams : Nat) (infos : Array InductiveVal) : MetaM Unit := do
   for indType in infos do
@@ -1073,6 +1119,7 @@ private def generateCoinductiveConstructors (numParams : Nat) (infos : Array Ind
       generateCoinductiveConstructor infos numParams indType.name <| ←getConstInfoCtor ctor
 
 private def elabCoinductive (declNames : Array Name) (views : Array InductiveView) (predKinds : Array Bool) : TermElabM Unit := do
+  trace[Elab.coinductive] "Elaborating: {declNames}"
   let infos ← declNames.mapM getConstInfoInduct
   let levelParams := infos[0]!.levelParams.map mkLevelParam
   /-
@@ -1085,9 +1132,8 @@ private def elabCoinductive (declNames : Array Name) (views : Array InductiveVie
     let type ← forallTelescope info.type fun args body => do
       mkForallFVars (args.take originalNumParams ++ args.extract info.numParams) body
     return (removeFunctorPostfix (info.name), type)
-
   /-
-    We make dummy constants, that are used in populating PreDefinitions
+    We make dummy constants that are used in populating PreDefinitions
   -/
   let consts := namesAndTypes.map fun (name, _) => (mkConst name levelParams)
   for const in consts, view in views do
@@ -1102,7 +1148,6 @@ private def elabCoinductive (declNames : Array Name) (views : Array InductiveVie
       functor ← unfoldDefinition functor
       functor := mkAppN functor <| params ++ consts.map (mkAppN · <| params)
       mkLambdaFVars params functor
-
   /-
     Finally, we populate the PreDefinitions
   -/

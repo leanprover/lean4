@@ -13,8 +13,6 @@ import Init.Data.Char.Lemmas
 public import Init.Data.ByteArray.Basic
 import Init.Data.ByteArray.Lemmas
 
-public section
-
 /-! # `parseFirstByte` -/
 
 /-! ## `parseFirstByte` definition -/
@@ -150,39 +148,38 @@ theorem toBitVec_eq_of_isInvalidContinuationByte_eq_false {b : UInt8} (hb : isIn
 
 /-! # `Char.utf8Size` -/
 
-theorem Char.utf8Size_eq_one_iff {c : Char} : c.utf8Size = 1 ↔ c.val ≤ 127 := by
+public theorem Char.utf8Size_eq_one_iff {c : Char} : c.utf8Size = 1 ↔ c.val ≤ 127 := by
   fun_cases utf8Size
   all_goals simp_all; assumption
 
-theorem Char.utf8Size_eq_two_iff {c : Char} : c.utf8Size = 2 ↔ 127 < c.val ∧ c.val ≤ 0x7ff := by
+public theorem Char.utf8Size_eq_two_iff {c : Char} : c.utf8Size = 2 ↔ 127 < c.val ∧ c.val ≤ 0x7ff := by
   fun_cases utf8Size with
   | case1 v _ => subst v; simp_all [← UInt32.not_le]
   | case2 v _ _ => subst v; simp_all
   | case3 v _ _ _ => subst v; simp_all [← UInt32.not_le]
   | case4 v _ _ _ => subst v; simp_all [← UInt32.not_le]
 
-
-theorem Char.utf8Size_eq_three_iff {c : Char} : c.utf8Size = 3 ↔ 0x7ff < c.val ∧ c.val ≤ 0xffff := by
+public theorem Char.utf8Size_eq_three_iff {c : Char} : c.utf8Size = 3 ↔ 0x7ff < c.val ∧ c.val ≤ 0xffff := by
   fun_cases utf8Size with
   | case1 v _ => subst v; simp_all [UInt32.lt_iff_toNat_lt, UInt32.le_iff_toNat_le]; omega
   | case2 v _ _ => subst v; simp_all [UInt32.lt_iff_toNat_lt, UInt32.le_iff_toNat_le]; omega
   | case3 v _ _ _ => subst v; simp_all [← UInt32.not_le]
   | case4 v _ _ _ => subst v; simp_all [← UInt32.not_le]
 
-theorem Char.utf8Size_eq_four_iff {c : Char} : c.utf8Size = 4 ↔ 0xffff < c.val := by
+public theorem Char.utf8Size_eq_four_iff {c : Char} : c.utf8Size = 4 ↔ 0xffff < c.val := by
   fun_cases utf8Size with
   | case1 v _ => subst v; simp_all [UInt32.lt_iff_toNat_lt, UInt32.le_iff_toNat_le]; omega
   | case2 v _ _ => subst v; simp_all [UInt32.lt_iff_toNat_lt, UInt32.le_iff_toNat_le]; omega
   | case3 v _ _ _ => subst v; simp_all [← UInt32.not_le]
   | case4 v _ _ _ => subst v; simp_all [← UInt32.not_le]
 
-theorem Char.utf8Size_pos (c : Char) : 0 < c.utf8Size := by
+public theorem Char.utf8Size_pos (c : Char) : 0 < c.utf8Size := by
   repeat first | apply iteInduction (motive := (0 < ·)) <;> intros | decide
 
-theorem Char.utf8Size_le_four (c : Char) : c.utf8Size ≤ 4 := by
+public theorem Char.utf8Size_le_four (c : Char) : c.utf8Size ≤ 4 := by
   repeat first | apply iteInduction (motive := (· ≤ 4)) <;> intros | decide
 
-theorem Char.utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 ∨ c.utf8Size = 3 ∨ c.utf8Size = 4 := by
+public theorem Char.utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 ∨ c.utf8Size = 3 ∨ c.utf8Size = 4 := by
   match c.utf8Size, c.utf8Size_pos, c.utf8Size_le_four with
   | 1, _, _ | 2, _, _ | 3, _, _ | 4, _, _ => simp
 
@@ -194,7 +191,7 @@ theorem Char.utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 ∨ c.ut
 Returns the sequence of bytes in a character's UTF-8 encoding.
 -/
 @[expose]
-def String.utf8EncodeCharFast (c : Char) : List UInt8 :=
+public def String.utf8EncodeCharFast (c : Char) : List UInt8 :=
   let v := c.val
   if v ≤ 0x7f then
     [v.toUInt8]
@@ -216,7 +213,7 @@ private theorem Nat.add_two_pow_eq_or_of_lt {b : Nat} (i : Nat) (b_lt : b < 2 ^ 
   rw [Nat.add_comm, Nat.or_comm, Nat.two_pow_add_eq_or_of_lt b_lt]
 
 @[csimp]
-theorem String.utf8EncodeChar_eq_utf8EncodeCharFast : @utf8EncodeChar = @utf8EncodeCharFast := by
+public theorem String.utf8EncodeChar_eq_utf8EncodeCharFast : @utf8EncodeChar = @utf8EncodeCharFast := by
   funext c
   simp only [utf8EncodeChar, utf8EncodeCharFast, UInt8.ofNat_uInt32ToNat, UInt8.ofNat_add,
     UInt8.reduceOfNat, UInt32.le_iff_toNat_le, UInt32.reduceToNat]
@@ -261,7 +258,7 @@ theorem String.utf8EncodeChar_eq_utf8EncodeCharFast : @utf8EncodeChar = @utf8Enc
         · rw [Nat.mod_eq_of_lt (by omega), Nat.add_two_pow_eq_or_of_lt 6 (by omega) 2,
             Nat.and_two_pow_sub_one_eq_mod _ 6, Nat.mod_mod_of_dvd c.val.toNat (by decide)]
 
-@[simp] theorem String.length_utf8EncodeChar (c : Char) : (utf8EncodeChar c).length = c.utf8Size := by
+@[simp] public theorem String.length_utf8EncodeChar (c : Char) : (utf8EncodeChar c).length = c.utf8Size := by
   simp [Char.utf8Size, utf8EncodeChar_eq_utf8EncodeCharFast, utf8EncodeCharFast]
   cases Decidable.em (c.val ≤ 0x7f) <;> simp [*]
   cases Decidable.em (c.val ≤ 0x7ff) <;> simp [*]
@@ -889,7 +886,7 @@ theorem assemble₄_eq_some_iff_utf8EncodeChar_eq {w x y z : UInt8} {c : Char} :
 /- # `utf8DecodeChar?` -/
 
 @[inline]
-def utf8DecodeChar? (bytes : ByteArray) (i : Nat) : Option Char :=
+public def ByteArray.utf8DecodeChar? (bytes : ByteArray) (i : Nat) : Option Char :=
   if h₀ : i < bytes.size then
     match h : parseFirstByte bytes[i] with
     | .invalid => none -- invalid first byte
@@ -912,10 +909,10 @@ def utf8DecodeChar? (bytes : ByteArray) (i : Nat) : Option Char :=
 /-! # `utf8DecodeChar?` low-level API -/
 
 theorem parseFirstByte_eq_done_of_utf8DecodeChar?_eq_some {b : ByteArray} {i : Nat} {c : Char}
-    (h : utf8DecodeChar? b i = some c) (hc : c.utf8Size = 1) (h') :
+    (h : b.utf8DecodeChar? i = some c) (hc : c.utf8Size = 1) (h') :
     parseFirstByte (b[i]'h') = .done := by
   revert h
-  fun_cases utf8DecodeChar? with
+  fun_cases ByteArray.utf8DecodeChar? with
   | case1 => simp
   | case2 => simp_all
   | case3 => exact (by omega) ∘ utf8Size_assemble₂
@@ -927,10 +924,10 @@ theorem parseFirstByte_eq_done_of_utf8DecodeChar?_eq_some {b : ByteArray} {i : N
   | case9 => simp
 
 theorem parseFirstByte_eq_oneMore_of_utf8DecodeChar?_eq_some {b : ByteArray} {i : Nat} {c : Char}
-    (h : utf8DecodeChar? b i = some c) (hc : c.utf8Size = 2) (h') :
+    (h : b.utf8DecodeChar? i = some c) (hc : c.utf8Size = 2) (h') :
     parseFirstByte (b[i]'h') = .oneMore := by
   revert h
-  fun_cases utf8DecodeChar? with
+  fun_cases ByteArray.utf8DecodeChar? with
   | case1 => simp
   | case2 => exact (by omega) ∘ utf8Size_assemble₁
   | case3 => simp_all
@@ -942,10 +939,10 @@ theorem parseFirstByte_eq_oneMore_of_utf8DecodeChar?_eq_some {b : ByteArray} {i 
   | case9 => simp
 
 theorem parseFirstByte_eq_twoMore_of_utf8DecodeChar?_eq_some {b : ByteArray} {i : Nat} {c : Char}
-    (h : utf8DecodeChar? b i = some c) (hc : c.utf8Size = 3) (h') :
+    (h : b.utf8DecodeChar? i = some c) (hc : c.utf8Size = 3) (h') :
     parseFirstByte (b[i]'h') = .twoMore := by
   revert h
-  fun_cases utf8DecodeChar? with
+  fun_cases ByteArray.utf8DecodeChar? with
   | case1 => simp
   | case2 => exact (by omega) ∘ utf8Size_assemble₁
   | case3 => exact (by omega) ∘ utf8Size_assemble₂
@@ -957,10 +954,10 @@ theorem parseFirstByte_eq_twoMore_of_utf8DecodeChar?_eq_some {b : ByteArray} {i 
   | case9 => simp
 
 theorem parseFirstByte_eq_threeMore_of_utf8DecodeChar?_eq_some {b : ByteArray} {i : Nat} {c : Char}
-    (h : utf8DecodeChar? b i = some c) (hc : c.utf8Size = 4) (h') :
+    (h : b.utf8DecodeChar? i = some c) (hc : c.utf8Size = 4) (h') :
     parseFirstByte (b[i]'h') = .threeMore := by
   revert h
-  fun_cases utf8DecodeChar? with
+  fun_cases ByteArray.utf8DecodeChar? with
   | case1 => simp
   | case2 => exact (by omega) ∘ utf8Size_assemble₁
   | case3 => exact (by omega) ∘ utf8Size_assemble₂
@@ -972,8 +969,8 @@ theorem parseFirstByte_eq_threeMore_of_utf8DecodeChar?_eq_some {b : ByteArray} {
   | case9 => simp
 
 theorem utf8Size_le_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char} :
-    utf8DecodeChar? b 0 = some c → c.utf8Size ≤ b.size := by
-  fun_cases utf8DecodeChar? with
+    b.utf8DecodeChar? 0 = some c → c.utf8Size ≤ b.size := by
+  fun_cases ByteArray.utf8DecodeChar? with
   | case1 => simp
   | case2 => exact (by omega) ∘ utf8Size_assemble₁
   | case3 => exact (by omega) ∘ utf8Size_assemble₂
@@ -985,51 +982,51 @@ theorem utf8Size_le_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char} :
   | case9 => simp
 
 theorem utf8DecodeChar?_eq_assemble₁ {b : ByteArray} (hb : 1 ≤ b.size) (h : parseFirstByte b[0] = .done) :
-    utf8DecodeChar? b 0 = assemble₁ b[0] h := by
-  fun_cases utf8DecodeChar?
+    b.utf8DecodeChar? 0 = assemble₁ b[0] h := by
+  fun_cases ByteArray.utf8DecodeChar?
   all_goals try (simp_all; done)
   all_goals omega
 
 theorem utf8DecodeChar?_eq_assemble₂ {b : ByteArray} (hb : 2 ≤ b.size) (h : parseFirstByte b[0] = .oneMore) :
-    utf8DecodeChar? b 0 = assemble₂ b[0] b[1] := by
-  fun_cases utf8DecodeChar?
+    b.utf8DecodeChar? 0 = assemble₂ b[0] b[1] := by
+  fun_cases ByteArray.utf8DecodeChar?
   all_goals try (simp_all; done)
   all_goals omega
 
 theorem utf8DecodeChar?_eq_assemble₃ {b : ByteArray} (hb : 3 ≤ b.size) (h : parseFirstByte b[0] = .twoMore) :
-    utf8DecodeChar? b 0 = assemble₃ b[0] b[1] b[2] := by
-  fun_cases utf8DecodeChar?
+    b.utf8DecodeChar? 0 = assemble₃ b[0] b[1] b[2] := by
+  fun_cases ByteArray.utf8DecodeChar?
   all_goals try (simp_all; done)
   all_goals omega
 
 theorem utf8DecodeChar?_eq_assemble₄ {b : ByteArray} (hb : 4 ≤ b.size) (h : parseFirstByte b[0] = .threeMore) :
-    utf8DecodeChar? b 0 = assemble₄ b[0] b[1] b[2] b[3] := by
-  fun_cases utf8DecodeChar?
+    b.utf8DecodeChar? 0 = assemble₄ b[0] b[1] b[2] b[3] := by
+  fun_cases ByteArray.utf8DecodeChar?
   all_goals try (simp_all; done)
   all_goals omega
 
 theorem utf8DecodeChar?_append_eq_assemble₁ {l : List UInt8} {b : ByteArray} (hl : l.length = 1) (h : parseFirstByte l[0] = .done) :
-    utf8DecodeChar? (l.toByteArray ++ b) 0 = assemble₁ l[0] h := by
+    (l.toByteArray ++ b).utf8DecodeChar? 0 = assemble₁ l[0] h := by
   have : (l.toByteArray ++ b)[0]'(by simp [hl]; omega) = l[0] := by
     rw [ByteArray.getElem_append_left (by simp [hl]), List.getElem_toByteArray]
   rw [utf8DecodeChar?_eq_assemble₁ (by simp [hl])] <;> simp [this, h]
 
 theorem utf8DecodeChar?_append_eq_assemble₂ {l : List UInt8} {b : ByteArray} (hl : l.length = 2) (h : parseFirstByte l[0] = .oneMore) :
-    utf8DecodeChar? (l.toByteArray ++ b) 0 = assemble₂ l[0] l[1] := by
+    (l.toByteArray ++ b).utf8DecodeChar? 0 = assemble₂ l[0] l[1] := by
   rw [utf8DecodeChar?_eq_assemble₂ (by simp [hl])]
   all_goals repeat rw [ByteArray.getElem_append_left (by simp [hl])]
   all_goals repeat rw [List.getElem_toByteArray]
   assumption
 
 theorem utf8DecodeChar?_append_eq_assemble₃ {l : List UInt8} {b : ByteArray} (hl : l.length = 3) (h : parseFirstByte l[0] = .twoMore) :
-    utf8DecodeChar? (l.toByteArray ++ b) 0 = assemble₃ l[0] l[1] l[2] := by
+    (l.toByteArray ++ b).utf8DecodeChar? 0 = assemble₃ l[0] l[1] l[2] := by
   rw [utf8DecodeChar?_eq_assemble₃ (by simp [hl])]
   all_goals repeat rw [ByteArray.getElem_append_left (by simp [hl])]
   all_goals repeat rw [List.getElem_toByteArray]
   assumption
 
 theorem utf8DecodeChar?_append_eq_assemble₄ {l : List UInt8} {b : ByteArray} (hl : l.length = 4) (h : parseFirstByte l[0] = .threeMore) :
-    utf8DecodeChar? (l.toByteArray ++ b) 0 = assemble₄ l[0] l[1] l[2] l[3] := by
+    (l.toByteArray ++ b).utf8DecodeChar? 0 = assemble₄ l[0] l[1] l[2] l[3] := by
   rw [utf8DecodeChar?_eq_assemble₄ (by simp [hl])]
   all_goals repeat rw [ByteArray.getElem_append_left (by simp [hl])]
   all_goals repeat rw [List.getElem_toByteArray]
@@ -1042,7 +1039,7 @@ theorem utf8DecodeChar?_append_eq_assemble₄ {l : List UInt8} {b : ByteArray} (
 imply that UTF-8 encoding and decoding are inverse.
 -/
 
-theorem utf8DecodeChar?_utf8EncodeChar_append {b : ByteArray} {c : Char} :
+public theorem ByteArray.utf8DecodeChar?_utf8EncodeChar_append {b : ByteArray} {c : Char} :
     utf8DecodeChar? ((String.utf8EncodeChar c).toByteArray ++ b) 0 = some c := by
   match hc : c.utf8Size, c.utf8Size_pos, c.utf8Size_le_four with
   | 1, _, _ =>
@@ -1062,7 +1059,7 @@ theorem utf8DecodeChar?_utf8EncodeChar_append {b : ByteArray} {c : Char} :
     rw [utf8DecodeChar?_append_eq_assemble₄ hc' (parseFirstByte_utf8EncodeChar_eq_threeMore hc)]
     exact (assemble₄_eq_some_iff_utf8EncodeChar_eq.2 (List.eq_getElem_of_length_eq_four _ hc')).2
 
-theorem toByteArray_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char} (h : utf8DecodeChar? b 0 = some c) :
+public theorem String.toByteArray_utf8EncodeChar_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char} (h : b.utf8DecodeChar? 0 = some c) :
     (String.utf8EncodeChar c).toByteArray = b.extract 0 c.utf8Size := by
   have := utf8Size_le_of_utf8DecodeChar?_eq_some h
   match hc : c.utf8Size, c.utf8Size_pos, c.utf8Size_le_four with
@@ -1097,17 +1094,17 @@ theorem toByteArray_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char} (h : u
 
 /-! # Corollaries -/
 
-theorem eq_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char} (h : utf8DecodeChar? b 0 = some c) :
+public theorem ByteArray.eq_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char} (h : utf8DecodeChar? b 0 = some c) :
     b = (String.utf8EncodeChar c).toByteArray ++ b.extract c.utf8Size b.size := by
-  rw [toByteArray_of_utf8DecodeChar?_eq_some h,
+  rw [String.toByteArray_utf8EncodeChar_of_utf8DecodeChar?_eq_some h,
     ByteArray.extract_append_extract, Nat.zero_min, Nat.max_eq_right (utf8Size_le_of_utf8DecodeChar?_eq_some h),
     ByteArray.extract_zero_size]
 
-theorem exists_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char} (h : utf8DecodeChar? b 0 = some c) :
+public theorem ByteArray.exists_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char} (h : utf8DecodeChar? b 0 = some c) :
     ∃ l, b = (String.utf8EncodeChar c).toByteArray ++ l :=
   ⟨b.extract c.utf8Size b.size, eq_of_utf8DecodeChar?_eq_some h⟩
 
-theorem utf8DecodeChar?_eq_utf8DecodeChar?_extract {b : ByteArray} {i : Nat} :
+public theorem ByteArray.utf8DecodeChar?_eq_utf8DecodeChar?_extract {b : ByteArray} {i : Nat} :
     utf8DecodeChar? b i = utf8DecodeChar? (b.extract i b.size) 0 := by
   simp [utf8DecodeChar?]
   have h₁ : i < b.size ↔ 0 < b.size - i := by omega
@@ -1141,7 +1138,7 @@ theorem utf8DecodeChar?_eq_utf8DecodeChar?_extract {b : ByteArray} {i : Nat} :
       simp [h₄, h₅, h₆, h₇, h₈]
   · rfl
 
-theorem le_size_of_utf8DecodeChar?_eq_some {b : ByteArray} {i : Nat} {c : Char}
+public theorem ByteArray.le_size_of_utf8DecodeChar?_eq_some {b : ByteArray} {i : Nat} {c : Char}
     (h : utf8DecodeChar? b i = some c) : i + c.utf8Size ≤ b.size := by
   rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h
   obtain ⟨l, hl⟩ := exists_of_utf8DecodeChar?_eq_some h
@@ -1153,34 +1150,34 @@ theorem le_size_of_utf8DecodeChar?_eq_some {b : ByteArray} {i : Nat} {c : Char}
     omega
   omega
 
-theorem lt_size_of_isSome_utf8DecodeChar? {b : ByteArray} {i : Nat} (h : (utf8DecodeChar? b i).isSome) :
+public theorem ByteArray.lt_size_of_isSome_utf8DecodeChar? {b : ByteArray} {i : Nat} (h : (utf8DecodeChar? b i).isSome) :
     i < b.size := by
   obtain ⟨c, hc⟩ := Option.isSome_iff_exists.1 h
   have := le_size_of_utf8DecodeChar?_eq_some hc
   have := c.utf8Size_pos
   omega
 
-theorem utf8DecodeChar?_append_eq_some {b : ByteArray} {i : Nat} {c : Char} (h : utf8DecodeChar? b i = some c)
+public theorem ByteArray.utf8DecodeChar?_append_eq_some {b : ByteArray} {i : Nat} {c : Char} (h : utf8DecodeChar? b i = some c)
     (b' : ByteArray) : utf8DecodeChar? (b ++ b') i = some c := by
   have := le_size_of_utf8DecodeChar?_eq_some h
   rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at ⊢ h
   rw [ByteArray.extract_eq_extract_append_extract b.size (by omega) (by simp), ByteArray.extract_append_size_left,
     eq_of_utf8DecodeChar?_eq_some h, ByteArray.append_assoc, utf8DecodeChar?_utf8EncodeChar_append]
 
-theorem isSome_utf8DecodeChar?_append {b : ByteArray} {i : Nat} (h : (utf8DecodeChar? b i).isSome)
+public theorem ByteArray.isSome_utf8DecodeChar?_append {b : ByteArray} {i : Nat} (h : (utf8DecodeChar? b i).isSome)
     (b' : ByteArray) : (utf8DecodeChar? (b ++ b') i).isSome := by
   obtain ⟨c, hc⟩ := Option.isSome_iff_exists.1 h
   rw [utf8DecodeChar?_append_eq_some hc, Option.isSome_some]
 
-def utf8DecodeChar (bytes : ByteArray) (i : Nat) (h : (utf8DecodeChar? bytes i).isSome) : Char :=
+public def ByteArray.utf8DecodeChar (bytes : ByteArray) (i : Nat) (h : (utf8DecodeChar? bytes i).isSome) : Char :=
   (utf8DecodeChar? bytes i).get h
 
-theorem utf8DecodeChar_eq_utf8DecodeChar_extract {b : ByteArray} {i : Nat} {h} :
+public theorem ByteArray.utf8DecodeChar_eq_utf8DecodeChar_extract {b : ByteArray} {i : Nat} {h} :
     utf8DecodeChar b i h =
       utf8DecodeChar (b.extract i b.size) 0 (by rwa [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h) := by
   simp [utf8DecodeChar, ← utf8DecodeChar?_eq_utf8DecodeChar?_extract]
 
-theorem utf8DecodeChar_extract_congr_of_le {bytes : ByteArray} (i j j' : Nat) {h h'} (hj : j ≤ j') :
+theorem ByteArray.utf8DecodeChar_extract_congr_of_le {bytes : ByteArray} (i j j' : Nat) {h h'} (hj : j ≤ j') :
     utf8DecodeChar (bytes.extract i j) 0 h = utf8DecodeChar (bytes.extract i j') 0 h' := by
   obtain ⟨c, hc⟩ := Option.isSome_iff_exists.1 h
   obtain ⟨c', hc'⟩ := Option.isSome_iff_exists.1 h'
@@ -1194,41 +1191,40 @@ theorem utf8DecodeChar_extract_congr_of_le {bytes : ByteArray} (i j j' : Nat) {h
   rw [← ByteArray.extract_eq_extract_append_extract j hij hj] at this
   rw [← this, hc']
 
-theorem utf8DecodeChar_extract_congr {bytes : ByteArray} (i j j' : Nat) {h h'} :
+public theorem ByteArray.utf8DecodeChar_extract_congr {bytes : ByteArray} (i j j' : Nat) {h h'} :
     utf8DecodeChar (bytes.extract i j) 0 h = utf8DecodeChar (bytes.extract i j') 0 h' := by
   obtain (hj|hj) := Nat.le_or_le j j'
   · exact utf8DecodeChar_extract_congr_of_le _ _ _ hj
   · exact (utf8DecodeChar_extract_congr_of_le _ _ _ hj).symm
 
-theorem utf8EncodeChar_utf8DecodeChar {b : ByteArray} {i : Nat} {h} :
+public theorem ByteArray.utf8EncodeChar_utf8DecodeChar {b : ByteArray} {i : Nat} {h} :
     (String.utf8EncodeChar (utf8DecodeChar b i h)).toByteArray = b.extract i (i + (utf8DecodeChar b i h).utf8Size) := by
   rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h
   obtain ⟨c, hc⟩ := Option.isSome_iff_exists.1 h
   rw [utf8DecodeChar_eq_utf8DecodeChar_extract, utf8DecodeChar,
-    toByteArray_of_utf8DecodeChar?_eq_some (b := b.extract i b.size) (by simp),
+    String.toByteArray_utf8EncodeChar_of_utf8DecodeChar?_eq_some (b := b.extract i b.size) (by simp),
     ByteArray.extract_extract, Nat.add_zero, Nat.min_eq_left]
   exact le_size_of_utf8DecodeChar?_eq_some (by simp [← utf8DecodeChar?_eq_utf8DecodeChar?_extract])
 
-
 @[simp]
-theorem utf8DecodeChar?_utf8Encode_singleton_append {b : ByteArray} {c : Char} :
-    utf8DecodeChar? ([c].utf8Encode ++ b) 0 = some c := by
+public theorem List.utf8DecodeChar?_utf8Encode_singleton_append {b : ByteArray} {c : Char} :
+    ByteArray.utf8DecodeChar? ([c].utf8Encode ++ b) 0 = some c := by
   rw [List.utf8Encode, List.flatMap_cons, List.toByteArray_append,
     List.flatMap_nil, List.toByteArray_nil, ByteArray.append_empty,
-    utf8DecodeChar?_utf8EncodeChar_append]
+    ByteArray.utf8DecodeChar?_utf8EncodeChar_append]
 
 @[simp]
-theorem utf8DecodeChar?_utf8Encode_singleton {c : Char} :
-    utf8DecodeChar? [c].utf8Encode 0 = some c := by
+public theorem List.utf8DecodeChar?_utf8Encode_singleton {c : Char} :
+    [c].utf8Encode.utf8DecodeChar? 0 = some c := by
   simpa using utf8DecodeChar?_utf8Encode_singleton_append (b := ByteArray.empty)
 
 @[simp]
-theorem utf8DecodeChar?_utf8Encode_cons {l : List Char} {c : Char} :
-    utf8DecodeChar? (c::l).utf8Encode 0 = some c := by
+public theorem List.utf8DecodeChar?_utf8Encode_cons {l : List Char} {c : Char} :
+    ByteArray.utf8DecodeChar? (c::l).utf8Encode 0 = some c := by
   rw [List.utf8Encode, List.flatMap_cons, List.toByteArray_append,
-    utf8DecodeChar?_utf8EncodeChar_append]
+    ByteArray.utf8DecodeChar?_utf8EncodeChar_append]
 
 @[simp]
-theorem utf8DecodeChar_utf8Encode_cons {l : List Char} {c : Char} {h} :
-    utf8DecodeChar (c::l).utf8Encode 0 h = c := by
-  simp [utf8DecodeChar]
+public theorem List.utf8DecodeChar_utf8Encode_cons {l : List Char} {c : Char} {h} :
+    ByteArray.utf8DecodeChar (c::l).utf8Encode 0 h = c := by
+  simp [ByteArray.utf8DecodeChar]

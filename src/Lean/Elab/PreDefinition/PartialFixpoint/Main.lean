@@ -163,6 +163,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
           preDefs.forM (addAsAxiom ·)
           replaceRecApps declNames fixedParamPerms f body
         mkLambdaFVars #[f] body'
+
     -- Construct and solve monotonicity goals for each function separately
     -- This way we preserve the user's parameter names as much as possible
     -- and can (later) use the user-specified per-function tactic

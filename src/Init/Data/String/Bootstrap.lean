@@ -127,15 +127,6 @@ opaque dropRight (s : String) (n : Nat) : String
 
 end String.Internal
 
--- axiom String.mk (data : List Char) : String
-
--- @[extern "lean_string_mk"]
--- def String.mk (data : List Char) : String :=
---   ⟨List.utf8Encode data,.intro data rfl⟩
-
-opaque String.opaqueFoo (data : List Char) : { s : String // s.bytes = List.utf8Encode data } :=
-  ⟨⟨List.utf8Encode data, .intro data rfl⟩, rfl⟩
-
 /--
 Creates a string that contains the characters in a list, in order.
 
@@ -144,13 +135,9 @@ Examples:
  * `[].asString = ""`
  * `['a', 'a', 'a'].asString = "aaa"`
 -/
-@[extern "lean_string_mk"]
+@[extern "lean_string_mk", expose]
 def String.mk (data : List Char) : String :=
-  String.opaqueFoo data
-
-@[simp]
-theorem String.bytes_mk {data : List Char} : (String.mk data).bytes = List.utf8Encode data :=
-  (String.opaqueFoo data).2
+  ⟨List.utf8Encode data,.intro data rfl⟩
 
 /--
 Creates a string that contains the characters in a list, in order.

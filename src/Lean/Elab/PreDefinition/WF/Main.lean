@@ -50,6 +50,7 @@ def wfRecursion (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDe
 
   let wf : TerminationMeasures ← do
     if let some tms := termMeasures? then pure tms else
+    withoutExporting do  -- generating proof
     -- No termination_by here, so use GuessLex to infer one
     guessLex preDefs unaryPreDefProcessed fixedParamPerms argsPacker
 

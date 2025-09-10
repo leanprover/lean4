@@ -1124,8 +1124,8 @@ private def elabCoinductive (declNames : Array Name) (views : Array InductiveVie
   let levelParams := infos[0]!.levelParams.map mkLevelParam
   /-
     We infer original names and types of the predicates.
-    To get such names, we need to remove `_functor` postfix, while
-    to get original types, we need to forget about the parameters for recursive calls
+    To get such names, we need to remove `_functor` postfix. At the same time,
+    we need to forget about the parameters for recursive calls, to get the original types.
   -/
   let originalNumParams := infos[0]!.numParams - infos.size
   let namesAndTypes : Array (Name × Expr) ← infos.mapM fun info => do

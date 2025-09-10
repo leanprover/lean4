@@ -108,6 +108,10 @@ def addDocStringCore' [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m
 def addInheritedDocString [Monad m] [MonadError m] [MonadEnv m] (declName target : Name) : m Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError "invalid `[inherit_doc]` attribute, declaration `{.ofConstName declName}` is in an imported module"
+  if inheritDocStringExt.find? (level := .server) (← getEnv) declName |>.isSome then
+    throwError "invalid `[inherit_doc]` attribute, declaration `{.ofConstName declName}` already has an `[inherit_doc]` attribute"
+  if inheritDocStringExt.find? (level := .server) (← getEnv) target == some declName then
+    throwError "invalid `[inherit_doc]` attribute, cycle detected"
   modifyEnv fun env => inheritDocStringExt.insert env declName target
 
 /--

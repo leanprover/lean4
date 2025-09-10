@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async.Select
-// Imports: Init.Data.Array.Basic Init.Data.Random Std.Internal.Async.Basic
+// Imports: Init.Data.Array.Basic Init.Data.Random Std.Internal.Async.Basic Init.Data.ByteArray.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1872,6 +1872,7 @@ return x_15;
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Random(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_Async_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ByteArray_Extra(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Async_Select(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1884,6 +1885,9 @@ res = initialize_Init_Data_Random(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_Async_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ByteArray_Extra(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_randNat___at_____private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt_go_spec__0___closed__0 = _init_l_randNat___at_____private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt_go_spec__0___closed__0();

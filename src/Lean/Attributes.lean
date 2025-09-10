@@ -165,8 +165,10 @@ def registerTagAttribute (name : Name) (descr : String)
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameSet) n => s.insert n
-    exportEntriesFn := fun es =>
+    exportEntriesFnEx := fun env es _ =>
       let r : Array Name := es.foldl (fun a e => a.push e) #[]
+      -- Do not export info for private defs
+      let r := r.filter (env.contains (skipRealize := false))
       r.qsort Name.quickLt
     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
     asyncMode       := asyncMode
@@ -232,8 +234,10 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
     mkInitial       := pure {}
     addImportedFn   := fun s => impl.afterImport s *> pure {}
     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2
-    exportEntriesFn := fun m =>
+    exportEntriesFnEx := fun env m _ =>
       let r : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[]
+      -- Do not export info for private defs
+      let r := r.filter (env.contains (skipRealize := false) ·.1)
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
   }
@@ -289,8 +293,10 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2
-    exportEntriesFn := fun m =>
+    exportEntriesFnEx := fun env m _ =>
       let r : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[]
+      -- Do not export info for private defs
+      let r := r.filter (env.contains (skipRealize := false) ·.1)
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- We assume (and check in `modifyState`) that, if used asynchronously, enum attributes are set

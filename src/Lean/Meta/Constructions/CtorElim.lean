@@ -223,9 +223,11 @@ public def mkCtorElim (indName : Name) : MetaM Unit := do
   let recInfo ← getConstInfo (mkRecName indName)
   unless recInfo.levelParams.length > indVal.levelParams.length do return
 
-  mkCtorElimType indName
-  mkIndCtorElim indName
-  mkConstructorElim indName
+  -- Expose if indName is not private
+  withExporting (isExporting := ! isPrivateName indName) do
+    mkCtorElimType indName
+    mkIndCtorElim indName
+    mkConstructorElim indName
 
 
 /--

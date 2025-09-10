@@ -24,7 +24,7 @@ instance : Least? Nat where
   least? := some 0
 
 instance : LawfulUpwardEnumerableLeast? Nat where
-  eq_succMany?_least? a := by
+  least?_le a := by
     simpa [Least?.least?] using ⟨a, by simp [UpwardEnumerable.succMany?]⟩
 
 instance : LawfulUpwardEnumerableLE Nat where

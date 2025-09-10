@@ -151,7 +151,7 @@ public abbrev foldlUtf8 (c : Char) (f : σ → UInt8 → σ) (init : σ) : σ :=
   Id.run <| foldlUtf8M c (pure <| f · ·) init
 
 example : foldlUtf8 c (fun l b => b::l) List.nil = (String.utf8EncodeChar c).reverse := by
-  simp only [foldlUtf8, foldlUtf8M, String.utf8EncodeChar]
+  simp only [foldlUtf8, foldlUtf8M, String.utf8EncodeChar_eq_utf8EncodeCharFast, String.utf8EncodeCharFast]
   if h1 : c.val ≤ 0x7f then simp [h1]
   else if h2 : c.val ≤ 0x7ff then simp [h1, h2]
   else if h3 : c.val ≤ 0xffff then simp [h1, h2, h3]

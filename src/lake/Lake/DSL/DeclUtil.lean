@@ -34,9 +34,7 @@ public def expandAttrs (attrs? : Option Attributes) : Array AttrInstance :=
   else
     #[]
 
-public section -- for `syntax ... := ...`
-
-syntax identOrStr :=
+public syntax identOrStr :=
   ident <|> str
 
 public abbrev IdentOrStr := TSyntax ``identOrStr
@@ -48,41 +46,39 @@ public def expandIdentOrStrAsIdent (stx : IdentOrStr) : Ident :=
   | _ => ⟨.missing⟩
 
 /-- A field assignment in a declarative configuration. -/
-syntax declField :=
+public syntax declField :=
   ident " := " term
 
 @[inherit_doc declField]
 public abbrev DeclField := TSyntax ``declField
 
-syntax structVal :=
+public syntax structVal :=
   "{" structInstFields(sepByIndentSemicolon(declField)) "}"
 
-syntax declValDo :=
+public syntax declValDo :=
   ppSpace Term.do (Term.whereDecls)?
 
-syntax declValStruct :=
+public syntax declValStruct :=
   ppSpace structVal (Term.whereDecls)?
 
-syntax declValWhere :=
+public syntax declValWhere :=
   " where " structInstFields(sepByIndentSemicolon(declField)) (Term.whereDecls)?
 
-syntax simpleDeclSig :=
+public syntax simpleDeclSig :=
   ident Term.typeSpec declValSimple
 
-syntax optConfig :=
+public syntax optConfig :=
   (declValWhere <|> declValStruct)?
 
 public abbrev OptConfig := TSyntax ``optConfig
 
-syntax bracketedSimpleBinder :=
+public syntax bracketedSimpleBinder :=
   "(" ident (" : " term)? ")"
 
-syntax simpleBinder :=
+public syntax simpleBinder :=
   ident <|> bracketedSimpleBinder
 
 public abbrev SimpleBinder := TSyntax ``simpleBinder
-
-end
 
 open Lean.Parser.Term in
 public def expandOptSimpleBinder (stx? : Option SimpleBinder) : MacroM FunBinder := do

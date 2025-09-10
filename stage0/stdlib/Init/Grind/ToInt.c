@@ -27,6 +27,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_hi_x3f(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_int_emod(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
+static lean_object* l_Lean_Grind_instInhabitedIntInterval_default___closed__1;
 static lean_object* l_Lean_Grind_toIntUnexpander___closed__5;
 LEAN_EXPORT uint8_t l_Lean_Grind_instDecidableEqIntInterval(lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
@@ -34,7 +35,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_sint(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_nonEmpty___boxed(lean_object*);
 static lean_object* l_Lean_Grind_toIntUnexpander___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_ci_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_defaultIntInterval___closed__0____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_;
+static lean_object* l_Lean_Grind_instInhabitedIntInterval_default___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_isFinite___boxed(lean_object*);
 static lean_object* l_Lean_Grind_toIntUnexpander___closed__6;
 LEAN_EXPORT lean_object* l___private_Init_Grind_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -48,7 +49,6 @@ LEAN_EXPORT lean_object* l_Lean_Grind_instInhabitedIntInterval;
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_co_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_wrap___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_ii_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_beqIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_48____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_toIntUnexpander___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Grind_toIntUnexpander___closed__2;
@@ -57,9 +57,8 @@ lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_instBEqIntInterval___closed__0;
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Grind_beqIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_48_(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Grind_decEqIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_71_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_toIntUnexpander___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Grind_instDecidableEqIntInterval_decEq(lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_toIntUnexpander___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_ci_elim___redArg(lean_object*, lean_object*);
@@ -67,12 +66,14 @@ LEAN_EXPORT uint8_t l_Lean_Grind_IntInterval_nonEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_ii_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Grind_instBEqIntInterval_beq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_ToInt_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_defaultIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_;
 static lean_object* l_Lean_Grind_toIntUnexpander___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Grind_instBEqIntInterval_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_instDecidableEqIntInterval_decEq___boxed(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -82,10 +83,9 @@ LEAN_EXPORT lean_object* l_Lean_Grind_toIntUnexpander(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lean_Grind_instBEqIntInterval;
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_io_elim___redArg(lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
-static lean_object* l_Lean_Grind_defaultIntInterval___closed__1____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_;
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_ctorElim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_decEqIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_71____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instDecidableEqIntInterval___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_instInhabitedIntInterval_default;
 LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -238,7 +238,7 @@ x_5 = l_Lean_Grind_IntInterval_ctorElim___redArg(x_2, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Grind_beqIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_48_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_Grind_instBEqIntInterval_beq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -322,11 +322,11 @@ return x_19;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_beqIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_48____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Grind_instBEqIntInterval_beq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Grind_beqIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_48_(x_1, x_2);
+x_3 = l_Lean_Grind_instBEqIntInterval_beq(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -337,7 +337,7 @@ static lean_object* _init_l_Lean_Grind_instBEqIntInterval___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_beqIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_48____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instBEqIntInterval_beq___boxed), 2, 0);
 return x_1;
 }
 }
@@ -349,7 +349,7 @@ x_1 = l_Lean_Grind_instBEqIntInterval___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Grind_decEqIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_71_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_Grind_instDecidableEqIntInterval_decEq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -472,11 +472,11 @@ return x_19;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_decEqIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_71____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Grind_instDecidableEqIntInterval_decEq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Grind_decEqIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_71_(x_1, x_2);
+x_3 = l_Lean_Grind_instDecidableEqIntInterval_decEq(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -487,7 +487,7 @@ LEAN_EXPORT uint8_t l_Lean_Grind_instDecidableEqIntInterval(lean_object* x_1, le
 _start:
 {
 uint8_t x_3; 
-x_3 = l_Lean_Grind_decEqIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_71_(x_1, x_2);
+x_3 = l_Lean_Grind_instDecidableEqIntInterval_decEq(x_1, x_2);
 return x_3;
 }
 }
@@ -502,7 +502,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Grind_defaultIntInterval___closed__0____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_() {
+static lean_object* _init_l_Lean_Grind_instInhabitedIntInterval_default___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -511,22 +511,22 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_defaultIntInterval___closed__1____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_() {
+static lean_object* _init_l_Lean_Grind_instInhabitedIntInterval_default___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Grind_defaultIntInterval___closed__0____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_;
+x_1 = l_Lean_Grind_instInhabitedIntInterval_default___closed__0;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_defaultIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_() {
+static lean_object* _init_l_Lean_Grind_instInhabitedIntInterval_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Grind_defaultIntInterval___closed__1____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_;
+x_1 = l_Lean_Grind_instInhabitedIntInterval_default___closed__1;
 return x_1;
 }
 }
@@ -534,7 +534,7 @@ static lean_object* _init_l_Lean_Grind_instInhabitedIntInterval() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Grind_defaultIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_;
+x_1 = l_Lean_Grind_instInhabitedIntInterval_default;
 return x_1;
 }
 }
@@ -551,7 +551,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_IntInterval_uint(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_Grind_defaultIntInterval___closed__0____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_;
+x_2 = l_Lean_Grind_instInhabitedIntInterval_default___closed__0;
 x_3 = l_Lean_Grind_IntInterval_uint___closed__0;
 x_4 = l_Int_pow(x_3, x_1);
 x_5 = lean_alloc_ctor(0, 2, 0);
@@ -1083,12 +1083,12 @@ l_Lean_Grind_instBEqIntInterval___closed__0 = _init_l_Lean_Grind_instBEqIntInter
 lean_mark_persistent(l_Lean_Grind_instBEqIntInterval___closed__0);
 l_Lean_Grind_instBEqIntInterval = _init_l_Lean_Grind_instBEqIntInterval();
 lean_mark_persistent(l_Lean_Grind_instBEqIntInterval);
-l_Lean_Grind_defaultIntInterval___closed__0____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_ = _init_l_Lean_Grind_defaultIntInterval___closed__0____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_();
-lean_mark_persistent(l_Lean_Grind_defaultIntInterval___closed__0____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_);
-l_Lean_Grind_defaultIntInterval___closed__1____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_ = _init_l_Lean_Grind_defaultIntInterval___closed__1____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_();
-lean_mark_persistent(l_Lean_Grind_defaultIntInterval___closed__1____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_);
-l_Lean_Grind_defaultIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_ = _init_l_Lean_Grind_defaultIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_();
-lean_mark_persistent(l_Lean_Grind_defaultIntInterval____x40_Init_Grind_ToInt_3920380712____hygCtx___hyg_93_);
+l_Lean_Grind_instInhabitedIntInterval_default___closed__0 = _init_l_Lean_Grind_instInhabitedIntInterval_default___closed__0();
+lean_mark_persistent(l_Lean_Grind_instInhabitedIntInterval_default___closed__0);
+l_Lean_Grind_instInhabitedIntInterval_default___closed__1 = _init_l_Lean_Grind_instInhabitedIntInterval_default___closed__1();
+lean_mark_persistent(l_Lean_Grind_instInhabitedIntInterval_default___closed__1);
+l_Lean_Grind_instInhabitedIntInterval_default = _init_l_Lean_Grind_instInhabitedIntInterval_default();
+lean_mark_persistent(l_Lean_Grind_instInhabitedIntInterval_default);
 l_Lean_Grind_instInhabitedIntInterval = _init_l_Lean_Grind_instInhabitedIntInterval();
 lean_mark_persistent(l_Lean_Grind_instInhabitedIntInterval);
 l_Lean_Grind_IntInterval_uint___closed__0 = _init_l_Lean_Grind_IntInterval_uint___closed__0();

@@ -344,6 +344,7 @@ static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_initFn___closed
 static lean_object* l_Lean_Meta_initFn___closed__4____x40_Lean_Meta_Injective_4151801446____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_Meta_elimOptParam___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_instBEqBinderInfo_beq(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at___Lean_Meta_mkInjectiveTheorems_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at___Lean_Meta_mkInjectiveTheorems_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__12;
@@ -428,7 +429,6 @@ lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_obje
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at___Lean_Meta_mkInjectiveTheorems_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__2;
 lean_object* lean_find_expr(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_initFn___closed__5____x40_Lean_Meta_Injective_4151801446____hygCtx___hyg_4_;
 static lean_object* l_Lean_Meta_mkInjectiveTheorems___lam__2___closed__1;
 static double l_Lean_withTraceNode___at___Lean_Meta_mkInjectiveTheorems_spec__10___redArg___closed__5;
@@ -3114,7 +3114,7 @@ return x_34;
 else
 {
 uint8_t x_35; 
-x_35 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(x_28, x_28);
+x_35 = l_Lean_instBEqBinderInfo_beq(x_28, x_28);
 if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; 
@@ -3147,7 +3147,7 @@ return x_48;
 else
 {
 uint8_t x_49; 
-x_49 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(x_43, x_43);
+x_49 = l_Lean_instBEqBinderInfo_beq(x_43, x_43);
 if (x_49 == 0)
 {
 lean_object* x_50; lean_object* x_51; 

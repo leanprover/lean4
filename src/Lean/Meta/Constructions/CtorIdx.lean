@@ -33,7 +33,8 @@ returns the constructor index of the given value.
 Does nothing if `T` does not eliminate into `Type` or if `T` is unsafe.
 Assumes `T.casesOn` to be defined already.
 -/
-public def mkCtorIdx (indName : Name) : MetaM Unit := do
+public def mkCtorIdx (indName : Name) : MetaM Unit :=
+  withExporting (isExporting := ! isPrivateName indName) do
   prependError m!"failed to construct `T.ctorIdx` for `{.ofConstName indName}`:" do
     unless genCtorIdx.get (← getOptions) do return
     let declName := mkCtorIdxName indName

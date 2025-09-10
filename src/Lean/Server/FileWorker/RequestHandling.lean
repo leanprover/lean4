@@ -13,6 +13,7 @@ public import Lean.Server.FileWorker.SemanticHighlighting
 public import Lean.Server.FileWorker.SignatureHelp
 public import Lean.Server.Completion
 public import Lean.Server.References
+public import Lean.Server.Completion.CompletionItemCompression
 meta import Lean.Parser.Module
 
 public import Lean.Widget.Diff
@@ -40,7 +41,7 @@ def findCompletionCmdDataAtPos
   findCmdDataAtPos doc pos (includeStop := true)
 
 def handleCompletion (p : CompletionParams)
-    : RequestM (RequestTask CompletionList) := do
+    : RequestM (RequestTask ResolvableCompletionList) := do
   let doc ← readDoc
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
@@ -48,7 +49,7 @@ def handleCompletion (p : CompletionParams)
   mapTaskCostly (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       | return { items := #[], isIncomplete := true }
-    Completion.find? p doc.meta.text pos cmdStx infoTree caps
+    Completion.find? doc.meta.mod p.position doc.meta.text pos cmdStx infoTree caps
 
 /--
 Handles `completionItem/resolve` requests that are sent by the client after the user selects
@@ -65,11 +66,13 @@ def handleCompletionItemResolve (item : CompletionItem)
     | return .pure item
   let some id := data.id?
     | return .pure item
-  let pos := text.lspPosToUtf8Pos data.params.position
+  let some cPos := data.cPos?
+    | return .pure item
+  let pos := text.lspPosToUtf8Pos data.pos
   mapTaskCostly (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       | return item
-    Completion.resolveCompletionItem? text pos cmdStx infoTree item id data.cPos
+    Completion.resolveCompletionItem? text pos cmdStx infoTree item id cPos
 
 open Elab in
 def handleHover (p : HoverParams)
@@ -485,8 +488,9 @@ builtin_initialize
   registerLspRequestHandler
     "textDocument/completion"
     CompletionParams
-    CompletionList
+    ResolvableCompletionList
     handleCompletion
+    (serialize? := some (·.compressFast))
   registerLspRequestHandler
     "completionItem/resolve"
     CompletionItem

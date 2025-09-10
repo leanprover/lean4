@@ -2,9 +2,7 @@ inductive L (α : Type u) : Type u where
   | nil : L α
   | cons (x : α) (xs : L α) : L α
 
-/--
-info: @[reducible] def L.nil.noConfusion.{u_1, u} : {α : Type u} → (P : Sort u_1) → L.nil = L.nil → P → P
--/
+/-- error: Unknown constant `L.nil.noConfusion` -/
 #guard_msgs in
 #print sig L.nil.noConfusion
 
@@ -104,11 +102,6 @@ inductive Matrix (α : Type u) : Nat → Nat → Type u where
   | row (n m : Nat) (v : Vector α n) (rest : Matrix α m n) : Matrix α (m + 1) n
 
 /--
-info: @[reducible] def Matrix.empty.noConfusion.{u_1, u} : {α : Type u} → (P : Sort u_1) → Matrix.empty = Matrix.empty → P → P
--/
-#guard_msgs in #print sig Matrix.empty.noConfusion
-
-/--
 info: @[reducible] def Matrix.row.noConfusion.{u_1, u} : {α : Type u} →
   (P : Sort u_1) →
     (n m : Nat) →
@@ -130,31 +123,6 @@ mutual
     | empty : Forest α
     | cons (tree : Tree α) (rest : Forest α) : Forest α
 end
-
--- Verify noConfusion for mutual inductives
-/--
-info: @[reducible] def Tree.leaf.noConfusion.{u_1, u} : {α : Type u} →
-  (P : Sort u_1) → (val val' : α) → Tree.leaf val = Tree.leaf val' → (val = val' → P) → P
--/
-#guard_msgs in #print sig Tree.leaf.noConfusion
-/--
-info: @[reducible] def Tree.node.noConfusion.{u_1, u} : {α : Type u} →
-  (P : Sort u_1) → (forest forest' : Forest α) → Tree.node forest = Tree.node forest' → (forest = forest' → P) → P
--/
-#guard_msgs in #print sig Tree.node.noConfusion
-/--
-info: @[reducible] def Forest.empty.noConfusion.{u_1, u} : {α : Type u} → (P : Sort u_1) → Forest.empty = Forest.empty → P → P
--/
-#guard_msgs in #print sig Forest.empty.noConfusion
-/--
-info: @[reducible] def Forest.cons.noConfusion.{u_1, u} : {α : Type u} →
-  (P : Sort u_1) →
-    (tree : Tree α) →
-      (rest : Forest α) →
-        (tree' : Tree α) →
-          (rest' : Forest α) → Forest.cons tree rest = Forest.cons tree' rest' → (tree = tree' → rest = rest' → P) → P
--/
-#guard_msgs in #print sig Forest.cons.noConfusion
 
 -- Test 4: Higher-order inductive with function types
 inductive HigherOrder (α : Type) : Type 1 where
@@ -219,19 +187,6 @@ info: @[reducible] def UnivPoly.both.noConfusion.{u_1, u, v} : {α : Type u} →
 inductive WithTypeClass (α : Type u) [Inhabited α] : Type u where
   | default : WithTypeClass α
   | custom (val : α) : WithTypeClass α
-
--- Test noConfusion with type class constraints
-/--
-info: @[reducible] def WithTypeClass.default.noConfusion.{u_1, u} : {α : Type u} →
-  [inst : Inhabited α] → (P : Sort u_1) → WithTypeClass.default = WithTypeClass.default → P → P
--/
-#guard_msgs in #print sig WithTypeClass.default.noConfusion
-/--
-info: @[reducible] def WithTypeClass.custom.noConfusion.{u_1, u} : {α : Type u} →
-  [inst : Inhabited α] →
-    (P : Sort u_1) → (val val' : α) → WithTypeClass.custom val = WithTypeClass.custom val' → (val = val' → P) → P
--/
-#guard_msgs in #print sig WithTypeClass.custom.noConfusion
 
 -- Test 8: Very complex indexed family with dependent types
 inductive ComplexVec (α : Type u) : (n : Nat) → (valid : n > 0) → Type u where

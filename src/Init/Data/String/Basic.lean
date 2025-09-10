@@ -73,8 +73,8 @@ theorem ByteArray.isValidUtf8_utf8Encode_singleton_append_iff {b : ByteArray} {c
   | d::l =>
     obtain rfl : c = d := by
       replace hl := congrArg (fun l => utf8DecodeChar? l 0) hl
-      simpa [utf8DecodeChar?_utf8Encode_singleton_append,
-        utf8DecodeChar?_utf8Encode_cons] using hl
+      simpa [List.utf8DecodeChar?_utf8Encode_singleton_append,
+        List.utf8DecodeChar?_utf8Encode_cons] using hl
     rw [← List.singleton_append (l := l), List.utf8Encode_append,
       ByteArray.append_right_inj] at hl
     exact hl ▸ isValidUtf8_utf8Encode
@@ -110,7 +110,7 @@ private theorem ByteArray.isSome_utf8Decode?go_iff {b : ByteArray} {i : Nat} {hi
       simp at hl
       omega
     rw [← l.head_cons_tail this] at hl
-    rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract, hl, utf8DecodeChar?_utf8Encode_cons] at h₂
+    rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract, hl, List.utf8DecodeChar?_utf8Encode_cons] at h₂
     simp at h₂
   | case3 i hi acc h₁ c h₂ ih =>
     rw [ih]
@@ -272,9 +272,9 @@ theorem ByteArray.utf8Decode?_utf8Encode_singleton_append {l : ByteArray} {c : C
   rw [utf8Decode?, utf8Decode?.go,
     if_neg (by simp [List.utf8Encode_singleton]; have := c.utf8Size_pos; omega)]
   split
-  · simp_all [utf8DecodeChar?_utf8Encode_singleton_append]
+  · simp_all [List.utf8DecodeChar?_utf8Encode_singleton_append]
   · rename_i d h
-    obtain rfl : c = d := by simpa [utf8DecodeChar?_utf8Encode_singleton_append] using h
+    obtain rfl : c = d := by simpa [List.utf8DecodeChar?_utf8Encode_singleton_append] using h
     rw [utf8Decode?go_eq_utf8Decode?go_extract, utf8Decode?, Nat.zero_add]
     simp only [List.push_toArray, List.nil_append]
     congr

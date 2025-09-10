@@ -361,6 +361,7 @@ private def toInductive (mvar : MVarId) (cs : List Name)
 private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) (relStx : Option Syntax) : MetaM Unit := do
   let constrs := inductVal.ctors
   let params := inductVal.numParams
+  trace[Meta.SumOfProducts] "params: {params}"
   let type := inductVal.type
 
   let univNames := inductVal.levelParams
@@ -368,7 +369,7 @@ private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) (re
   /- we use these names for our universe parameters, maybe we should construct a copy of them
   using `uniq_name` -/
 
-  let (thmTy, shape, rhs, numArgs) ← Meta.forallTelescope type fun fvars ty ↦ do
+  let (thmTy, shape, rhs) ← Meta.forallTelescope type fun fvars ty ↦ do
     if !ty.isProp then throwError "mk_iff only applies to prop-valued declarations"
     let lhs := mkAppN (mkConst inductVal.name univs) fvars
     let fvars' := fvars.toList
@@ -380,19 +381,21 @@ private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) (re
 
 
     trace[Meta.SumOfProducts] "rhs: {rhs}"
-    pure (← mkForallFVars fvars (mkApp2 (mkConst `Iff) lhs (mkOrList rhss)), shape, rhs, fvars.size - params)
+    pure (← mkForallFVars fvars (mkApp2 (mkConst `Iff) lhs (mkOrList rhss)), shape, rhs)
 
   let mvar ← mkFreshExprMVar (some thmTy)
   let mvarId := mvar.mvarId!
   let (fvars, mvarId') ← mvarId.intros
   let [mp, mpr] ← mvarId'.apply (mkConst `Iff.intro) | throwError "failed to split goal"
+  --trace[Meta.SumOfProducts] "mp: {mp}, mpr: {mpr}"
 
   toCases mp shape
-
+  trace[Meta.SumOfProducts] "mp: {mp}"
   let ⟨mprFvar, mpr'⟩ ← mpr.intro1
   toInductive mpr' constrs ((fvars.toList.take params).map .fvar) shape mprFvar
 
   let proof ← instantiateMVars mvar
+  trace[Meta.SumOfProducts] "proof: {proof}"
   addDecl <| .thmDecl {
     name := rel
     levelParams := univNames

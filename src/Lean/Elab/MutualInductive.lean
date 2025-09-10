@@ -1081,7 +1081,7 @@ private def generateCoinductiveConstructors (numParams : Nat) (infos : Array Ind
     for ctor in indType.ctors do
       generateCoinductiveConstructor infos numParams indType.name <| ←getConstInfoCtor ctor
 
-private def elabCoinductive (declNames : Array Name) (sectionVars : Array Expr) (views : Array InductiveView): TermElabM Unit := do
+private def elabCoinductive (declNames : Array Name) (views : Array InductiveView): TermElabM Unit := do
   trace[Elab.inductive] "declNames: {declNames}"
   let infos ← declNames.mapM getConstInfoInduct
   let originalNumParams := infos[0]!.numParams - infos.size
@@ -1250,8 +1250,8 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
         IndPredBelow.mkBelow view0.declName
         for e in elabs do
           mkInjectiveTheorems e.view.declName
-          if elabs.any (·.isCoinductive) then
-            mkSumOfProducts e.view.declName
+          -- if elabs.any (·.isCoinductive) then
+          --   mkSumOfProducts e.view.declName
     for e in elabs do
       enableRealizationsForConst e.view.declName
     return res
@@ -1340,7 +1340,8 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
   elabInductiveViewsPostprocessing (elabs.map (·.view)) res
   if elabs.any (·.isCoinductive) then
     let views := elabs.map (·.view)
-    runTermElabM fun vars => elabCoinductive (elabs.map (·.view.declName)) vars views
+    discard <| views.mapM fun view => Command.liftCoreM <| MetaM.run' do mkSumOfProducts view.declName
+    runTermElabM fun _ => elabCoinductive (elabs.map (·.view.declName)) views
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   elabInductives #[(modifiers, stx)]

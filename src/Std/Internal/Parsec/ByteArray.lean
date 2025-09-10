@@ -185,14 +185,13 @@ def ws : Parser Unit := fun it =>
   .success (skipWs it) ()
 
 /--
-Parse `n` bytes from the input into a `ByteArray`, errors if not enough bytes.
+Parse `n` bytes from the input into a `ByteSlice`, errors if not enough bytes.
 -/
-def take (n : Nat) : Parser ByteArray := fun it =>
-  let subarr := it.array.extract it.idx (it.idx + n)
-  if subarr.size != n then
+def take (n : Nat) : Parser ByteSlice := fun it =>
+  if it.remainingBytes < n then
     .error it .eof
   else
-    .success (it.forward n) subarr
+    .success (it.forward n) (it.array[it.idx...(it.idx+n)])
 
 /--
 Parses while a predicate is satisfied.
@@ -234,6 +233,67 @@ Skips until a predicate is satisfied.
 @[inline]
 def skipUntil (pred : UInt8 → Bool) : Parser Unit :=
   skipWhile (fun b => ¬pred b)
+
+/--
+Parses while a predicate is satisfied, up to a given limit.
+-/
+@[inline]
+partial def takeWhileUpTo (pred : UInt8 → Bool) (limit : Nat) : Parser ByteSlice :=
+  fun it =>
+    let rec findEnd (count : Nat) (iter : ByteArray.Iterator) : Nat × ByteArray.Iterator :=
+      if count ≥ limit then (count, iter)
+      else if ¬iter.hasNext then (count, iter)
+      else if pred iter.curr then findEnd (count + 1) iter.next
+      else (count, iter)
+
+    let (length, newIt) := findEnd 0 it
+    .success newIt (it.array[it.idx...(it.idx + length)])
+
+/--
+Parses while a predicate is satisfied, up to a given limit, requiring at least one byte.
+-/
+@[inline]
+def takeWhileUpTo1 (pred : UInt8 → Bool) (limit : Nat) : Parser ByteSlice :=
+  fun it =>
+    let rec findEnd (count : Nat) (iter : ByteArray.Iterator) : Nat × ByteArray.Iterator :=
+      if count ≥ limit then (count, iter)
+      else if ¬iter.hasNext then (count, iter)
+      else if pred iter.curr then findEnd (count + 1) iter.next
+      else (count, iter)
+
+    let (length, newIt) := findEnd 0 it
+    if length = 0 then
+      .error it (if newIt.atEnd then .eof else .other "expected at least one char")
+    else
+      .success newIt (it.array[it.idx...(it.idx + length)])
+
+/--
+Parses until a predicate is satisfied (exclusive), up to a given limit.
+-/
+@[inline]
+def takeUntilUpTo (pred : UInt8 → Bool) (limit : Nat) : Parser ByteSlice :=
+  takeWhileUpTo (fun b => ¬pred b) limit
+
+/--
+Skips while a predicate is satisfied, up to a given limit.
+-/
+@[inline]
+partial def skipWhileUpTo (pred : UInt8 → Bool) (limit : Nat) : Parser Unit :=
+  fun it =>
+    let rec findEnd (count : Nat) (iter : ByteArray.Iterator) : ByteArray.Iterator :=
+      if count ≥ limit then iter
+      else if ¬iter.hasNext then iter
+      else if pred iter.curr then findEnd (count + 1) iter.next
+      else iter
+
+    .success (findEnd 0 it) ()
+
+/--
+Skips until a predicate is satisfied, up to a given limit.
+-/
+@[inline]
+def skipUntilUpTo (pred : UInt8 → Bool) (limit : Nat) : Parser Unit :=
+  skipWhileUpTo (fun b => ¬pred b) limit
 
 end ByteArray
 end Parsec

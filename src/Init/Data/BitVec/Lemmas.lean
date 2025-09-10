@@ -6241,12 +6241,8 @@ theorem getLsbD_true_ctz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w)
 /-- A nonzero bitvector is lower-bounded by its leading zeroes. -/
 theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
     2 ^ (ctz x).toNat ≤ x.toNat := by
-  have hne := ctz_lt_iff_ne_zero (x := x)
   have hclz := getLsbD_true_ctz_of_ne_zero (x := x) hw hx
-  rw [getLsbD_eq_getElem (by simp [BitVec.lt_def] at hne; simp [hne, hx])] at hclz
-  have hge := Nat.ge_two_pow_of_testBit hclz
-  push_cast at hge
-  exact hge
+  exact Nat.ge_two_pow_of_testBit hclz
 
 /-! ### Deprecations -/
 

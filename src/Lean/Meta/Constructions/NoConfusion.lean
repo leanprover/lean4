@@ -68,9 +68,13 @@ def mkIfNatEq (P : Expr) (e1 e2 : Expr) («then» : Expr → MetaM Expr) («else
   let e := mkApp e (← withLocalDeclD `h (mkNot heq) (fun h => do mkLambdaFVars #[h] (← «else» h)))
   pure e
 
-public def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
+public def mkNoConfusionType (indName : Name) : MetaM Unit := do
   let declName := mkNoConfusionTypeName indName
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
+  let useLinearConstruction :=
+    (info.numCtors > 2) &&
+    backwards.linearNoConfusionType.get (← getOptions) &&
+    (← hasConst (mkCtorElimName indName))
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstVal casesOnName
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
@@ -94,75 +98,37 @@ public def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
           let e := mkApp e x1
           let alts ← altTypes.mapIdxM fun i altType => do
             forallTelescope altType fun zs1 _ => do
-              let ctorIdxApp := mkAppN (mkConst (mkCtorIdxName indName) us) (xs ++ ys ++ #[x2])
-              let alt ← mkIfNatEq PType (ctorIdxApp) (mkRawNatLit i)
-                («else» := fun _ => pure P) fun h => do
+              if useLinearConstruction then
+                let ctorIdxApp := mkAppN (mkConst (mkCtorIdxName indName) us) (xs ++ ys ++ #[x2])
+                let alt ← mkIfNatEq PType (ctorIdxApp) (mkRawNatLit i)
+                  («else» := fun _ => pure P) fun h => do
+                  let conName := info.ctors[i]!
+                  let withName := mkConstructorElimName indName conName
+                  let e := mkConst withName (v.succ :: us)
+                  let e := mkAppN e (xs ++ #[motive] ++ ys ++ #[x2, h])
+                  let e := mkApp e <|
+                    ← forallTelescopeReducing ((← whnf (← inferType e)).bindingDomain!) fun zs2 _ => do
+                      let k := (← mkNoConfusionCtorArg conName P).beta (xs ++ zs1 ++ zs2)
+                      let t ← mkArrow k P
+                      mkLambdaFVars zs2 t
+                  pure e
+                mkLambdaFVars zs1 alt
+              else
                 let conName := info.ctors[i]!
-                let withName := mkConstructorElimName indName conName
-                let e := mkConst withName (v.succ :: us)
-                let e := mkAppN e (xs ++ #[motive] ++ ys ++ #[x2, h])
-                let e := mkApp e <|
-                  ← forallTelescopeReducing ((← whnf (← inferType e)).bindingDomain!) fun zs2 _ => do
-                    let k := (← mkNoConfusionCtorArg conName P).beta (xs ++ zs1 ++ zs2)
-                    let t ← mkArrow k P
-                    mkLambdaFVars zs2 t
-                pure e
-              mkLambdaFVars zs1 alt
-          let e := mkAppN e alts
-          mkLambdaFVars (xs ++ ys ++ #[P, x1, x2]) e
-
-  addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
-    (name        := declName)
-    (levelParams := casesOnInfo.levelParams)
-    (type        := (← inferType e))
-    (value       := e)
-    (hints       := ReducibilityHints.abbrev)
-  ))
-  modifyEnv fun env => addToCompletionBlackList env declName
-  modifyEnv fun env => addProtected env declName
-  setReducibleAttribute declName
-
-def mkNoConfusionType (indName : Name) : MetaM Unit := do
-  let declName := mkNoConfusionTypeName indName
-  let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
-  let casesOnName := mkCasesOnName indName
-  let casesOnInfo ← getConstVal casesOnName
-  let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
-  let e := mkConst casesOnName (v.succ::us)
-  let t ← inferType e
-  let e ← forallBoundedTelescope t info.numParams fun xs t => do
-    let e := mkAppN e xs
-    let PType := mkSort v
-    withLocalDeclD `P PType fun P => do
-      let motive ← forallTelescope (← whnfD t).bindingDomain! fun ys _ =>
-        mkLambdaFVars ys PType
-      let t ← instantiateForall t #[motive]
-      let e := mkApp e motive
-      forallBoundedTelescope t info.numIndices fun ys t => do
-        let e := mkAppN e ys
-        let xType := mkAppN (mkConst indName us) (xs ++ ys)
-        withLocalDeclD `x1 xType fun x1 => do
-        withLocalDeclD `x2 xType fun x2 => do
-          let t ← instantiateForall t #[x1]
-          let altTypes ← arrowDomainsN info.numCtors t
-          let e := mkApp e x1
-          let alts ← altTypes.mapIdxM fun i altType => do
-            forallTelescope altType fun zs1 _ => do
-              let conName := info.ctors[i]!
-              let alt := mkConst casesOnName (v.succ :: us)
-              let alt := mkAppN alt (xs ++ #[motive] ++ ys ++ #[x2])
-              let t2 ← inferType alt
-              let altTypes2 ← arrowDomainsN info.numCtors t2
-              let alts2 ← altTypes2.mapIdxM fun j altType2 => do
-                forallTelescope altType2 fun zs2 _ => do
-                  if i = j then
-                    let k := (← mkNoConfusionCtorArg conName P).beta (xs ++ zs1 ++ zs2)
-                    let t ← mkArrow k P
-                    mkLambdaFVars zs2 t
-                  else
-                    mkLambdaFVars zs2 P
-              let alt := mkAppN alt alts2
-              mkLambdaFVars zs1 alt
+                let alt := mkConst casesOnName (v.succ :: us)
+                let alt := mkAppN alt (xs ++ #[motive] ++ ys ++ #[x2])
+                let t2 ← inferType alt
+                let altTypes2 ← arrowDomainsN info.numCtors t2
+                let alts2 ← altTypes2.mapIdxM fun j altType2 => do
+                  forallTelescope altType2 fun zs2 _ => do
+                    if i = j then
+                      let k := (← mkNoConfusionCtorArg conName P).beta (xs ++ zs1 ++ zs2)
+                      let t ← mkArrow k P
+                      mkLambdaFVars zs2 t
+                    else
+                      mkLambdaFVars zs2 P
+                let alt := mkAppN alt alts2
+                mkLambdaFVars zs1 alt
           let e := mkAppN e alts
           mkLambdaFVars (xs ++ ys ++ #[P, x1, x2]) e
 
@@ -236,13 +202,7 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   unless recInfo.levelParams.length > indVal.levelParams.length do return
   if (← isPropFormerType indVal.type) then return
 
-  let useLinear ← canUseLinear declName
-
-  if useLinear then
-    mkNoConfusionTypeLinear declName
-  else
-    mkNoConfusionType declName
-
+  mkNoConfusionType declName
   mkNoConfusionCoreImp declName
 
 

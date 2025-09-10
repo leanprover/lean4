@@ -11,7 +11,6 @@ public import Lean.Meta.AppBuilder
 public import Lean.Meta.CompletionName
 public import Lean.Meta.Constructions.NoConfusionLinear
 import Lean.Meta.Constructions.CtorIdx
-import Lean.Meta.Injective
 import Lean.Meta.SameCtorUtils
 
 public section
@@ -157,10 +156,7 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
     modifyEnv fun env => addProtected env name
 
   mkNoConfusionCoreImp declName
-
-
   mkNoConfusionCtors declName
-
 
 def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do
   if (← getEnv).contains ``noConfusionEnum then

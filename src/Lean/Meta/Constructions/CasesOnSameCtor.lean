@@ -157,7 +157,9 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
 
       let altTypes ← info.ctors.toArray.mapIdxM fun i ctorName => do
         let ctor := mkAppN (mkConst ctorName us) params
-        withSharedCtorIndices ctor fun zs12 is ctorApp1 ctorApp2 => do
+        withSharedCtorIndices ctor fun zs12 is fields1 fields2 => do
+          let ctorApp1 := mkAppN ctor fields1
+          let ctorApp2 := mkAppN ctor fields2
           let e := mkAppN motive (is ++ #[ctorApp1, ctorApp2, (← mkEqRefl (mkNatLit i))])
           let e ← mkForallFVars zs12 e
           let name := match ctorName with

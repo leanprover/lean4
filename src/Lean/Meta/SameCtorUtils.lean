@@ -72,25 +72,26 @@ constructor applications have the same type.
 Passes to `k`
 * the new variables
 * the indices to the type class
-* and the full constructor application.
+* the fields of the first constructor application
+* the fields of the second constructor application
 -/
-public def withSharedCtorIndices (ctor : Expr) (k : Array Expr → Array Expr → Expr → Expr → MetaM α) : MetaM α := do
+public def withSharedCtorIndices (ctor : Expr)
+    (k : Array Expr → Array Expr → Array Expr → Array Expr → MetaM α) : MetaM α := do
   let ctorType ← inferType ctor
   forallTelescopeReducing ctorType fun zs ctorRet => do
     let ctorRet ← whnf ctorRet
     let ctorRet ← Core.betaReduce ctorRet -- we 'beta-reduce' to eliminate "artificial" dependencies
     let indInfo ← getConstInfoInduct ctorRet.getAppFn.constName!
     let indices := ctorRet.getAppArgsN indInfo.numIndices
-    let ctor1 := mkAppN ctor zs
-    let rec go ctor2 todo acc := do
+    let rec go zs2 todo acc := do
       match todo with
-      | [] => k acc indices ctor1 ctor2
+      | [] => k acc indices zs zs2
       | z::todo' =>
         if occursOrInType (← getLCtx) z ctorRet then
-          go (mkApp ctor2 z) todo' acc
+          go (zs2.push z) todo' acc
         else
-          let t ← whnfForall (← inferType ctor2)
+          let t ← whnfForall (← inferType (mkAppN ctor zs2))
           assert! t.isForall
           withLocalDeclD (t.bindingName!.appendAfter "'") t.bindingDomain! fun z' => do
-            go (mkApp ctor2 z') todo' (acc.push z')
-    go ctor zs.toList zs
+            go (zs2.push z') todo' (acc.push z')
+    go #[] zs.toList zs

@@ -61,20 +61,19 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
     let e ← withLocalDeclD `P (.sort v) fun P =>
       forallBoundedTelescope ctorInfo.type ctorInfo.numParams fun xs _ => do
         let ctorApp := mkAppN (mkConst ctor us) xs
-        withSharedCtorIndices ctorApp fun ys indices ctor1 ctor2 => do
+        withSharedCtorIndices ctorApp fun ys indices fields1 fields2 => do
+          let ctor1 := mkAppN ctorApp fields1
+          let ctor2 := mkAppN ctorApp fields2
           let heqType ← mkEq ctor1 ctor2
           withLocalDeclD `h heqType fun h => do
-            let noConfusionApp :=
-              mkAppN (mkConst noConfusionName (v :: us)) (xs ++ indices ++ #[P, ctor1, ctor2, h])
-            let noConfusionType ← inferType noConfusionApp
-            -- Here we do the possible expensive reduction that we want to share
-            let noConfusionType ← whnfForall noConfusionType
-            -- noConfusionType := (n1 = n2 → x1 → x2 → … → P) → P
-            assert! noConfusionType.isForall
-            let kType := noConfusionType.bindingDomain!
+            -- When the kernel checks this definitios, it will perform the potentially expensive
+            -- computation that `noConfusionType h` is equal to `$kType → P`
+            let kType ← mkNoConfusionCtorArg ctor P
+            let kType := kType.beta (xs ++ fields1 ++ fields2)
             withLocalDeclD `k kType fun k =>
-              let noConfusionApp := mkApp noConfusionApp k
-              mkLambdaFVars (xs ++ #[P] ++ ys ++ #[h, k]) noConfusionApp
+              let e := mkConst noConfusionName (v :: us)
+              let e := mkAppN e (xs ++ indices ++ #[P, ctor1, ctor2, h, k])
+              mkLambdaFVars (xs ++ #[P] ++ ys ++ #[h, k]) e
     let name := ctor.str "noConfusion"
     addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
       (name        := name)

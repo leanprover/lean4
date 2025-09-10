@@ -193,6 +193,7 @@ theorem Char.utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 ∨ c.ut
 /--
 Returns the sequence of bytes in a character's UTF-8 encoding.
 -/
+@[expose]
 def String.utf8EncodeCharFast (c : Char) : List UInt8 :=
   let v := c.val
   if v ≤ 0x7f then

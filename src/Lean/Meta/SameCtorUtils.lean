@@ -19,7 +19,6 @@ construction and deriving type classes lik `BEq`, `DecidableEq` or `Ord`.
 
 namespace Lean.Meta
 
-
 /--
 Returns true if `e` occurs either in `t`, or in the type of a sub-expression of `t`.
 
@@ -51,6 +50,19 @@ where
     return s == e || e.occurs decl.type
 
 /--
+Given a constructor, returns a mask of its fields, where `true` means that this field
+occurs in the result type of the constructor.
+-/
+public def occursInCtorTypeMask (ctorName : Name) : MetaM (Array Bool) := do
+  let ctorInfo ← getConstInfoCtor ctorName
+  forallBoundedTelescope ctorInfo.type (some ctorInfo.numParams) fun _ ctorRet => do
+    forallBoundedTelescope ctorRet (some ctorInfo.numFields) fun ys ctorRet => do
+      let ctorRet ← whnf ctorRet
+      let ctorRet ← Core.betaReduce ctorRet -- we 'beta-reduce' to eliminate "artificial" dependencies
+      let lctx ← getLCtx
+      return ys.map (occursOrInType lctx · ctorRet)
+
+/--
 Given a constructor (applied to the parameters already), brings its fields into scope twice,
 but uses the same variable for fields that appear in the result type, so that the resulting
 constructor applications have the same type.
@@ -58,25 +70,29 @@ constructor applications have the same type.
 Passes to `k`
 * the new variables
 * the indices to the type class
-* and the full constructor application.
+* the fields of the first constructor application
+* the fields of the second constructor application
 -/
-public def withSharedCtorIndices (ctor : Expr) (k : Array Expr → Array Expr → Expr → Expr → MetaM α) : MetaM α := do
+public def withSharedCtorIndices (ctor : Expr)
+    (k : Array Expr → Array Expr → Array Expr → Array Expr → MetaM α) : MetaM α := do
   let ctorType ← inferType ctor
   forallTelescopeReducing ctorType fun zs ctorRet => do
     let ctorRet ← whnf ctorRet
     let ctorRet ← Core.betaReduce ctorRet -- we 'beta-reduce' to eliminate "artificial" dependencies
     let indInfo ← getConstInfoInduct ctorRet.getAppFn.constName!
     let indices := ctorRet.getAppArgsN indInfo.numIndices
-    let ctor1 := mkAppN ctor zs
-    let rec go ctor2 todo acc := do
-      match todo with
-      | [] => k acc indices ctor1 ctor2
-      | z::todo' =>
-        if occursOrInType (← getLCtx) z ctorRet then
-          go (mkApp ctor2 z) todo' acc
-        else
-          let t ← whnfForall (← inferType ctor2)
-          assert! t.isForall
-          withLocalDeclD (t.bindingName!.appendAfter "'") t.bindingDomain! fun z' => do
-            go (mkApp ctor2 z') todo' (acc.push z')
-    go ctor zs.toList zs
+
+    let rec go zs2 mask todo acc := do
+      match mask, todo with
+      | true::mask', z::todo' =>
+        go (zs2.push z) mask' todo' acc
+      | false::mask', _::todo' =>
+        let t ← whnfForall (← inferType (mkAppN ctor zs2))
+        assert! t.isForall
+        withLocalDeclD (t.bindingName!.appendAfter "'") t.bindingDomain! fun z' => do
+          go (zs2.push z') mask' todo' (acc.push z')
+      | _, _ =>
+        k acc indices zs zs2
+
+    let mask ← occursInCtorTypeMask ctor.getAppFn.constName!
+    go #[] mask.toList zs.toList zs

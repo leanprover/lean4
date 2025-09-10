@@ -124,10 +124,6 @@ unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespa
         addConstInfo stx[1] kind none
       return kind
     onAdded       := fun builtin declName kind => do
-      -- If there's no docstring for the elaborator, copy the docstring for the syntax node kind
-      if (← findSimpleDocString? (← getEnv) declName).isNone then
-        if let some doc ← findSimpleDocString? (← getEnv) kind then
-          addDocStringCore declName doc
       if builtin then
         declareBuiltinDocStringAndRanges declName
   } attrDeclName

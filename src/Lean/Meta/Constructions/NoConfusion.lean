@@ -91,7 +91,7 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
     modifyEnv fun env => addToCompletionBlackList env name
     modifyEnv fun env => addProtected env name
 
-  mkNoConfusionCtors declName
+  mkNoConfusionCoreImp declName
 
 
 def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do

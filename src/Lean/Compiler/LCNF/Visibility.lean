@@ -56,6 +56,26 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl) : CompilerM Unit := 
             trace[Compiler.inferVisibility] m!"Marking {ref} as opaque because it is used by transparent {decl.name}"
             markDeclPublicRec phase refDecl
 
+/-- Checks whether references in the given declaration adhere to phase distinction. -/
+partial def checkMeta (isMeta : Bool) (decl : Decl) : CompilerM Unit := go decl |>.run' {}
+where go (decl : Decl) : StateT NameSet CompilerM Unit := do
+  decl.value.forCodeM fun code =>
+    for ref in collectUsedDecls code do
+      if (← get).contains ref then
+        continue
+      modify (·.insert decl.name)
+      match getIRPhases (← getEnv) ref, isMeta with
+      | .runtime, true =>
+        throwError "Invalid `meta` definition, may not access declaration `{.ofConstName ref}` not marked or imported as `meta`"
+      | .comptime, false =>
+        throwError "Invalid definition, may not access declaration `{.ofConstName ref}` marked or imported as `meta`"
+      | .all, _ =>
+        -- We allow auxiliary defs to be used in either phase but we need to recursively check
+        -- *their* references in this case.
+        if let some refDecl ← getLocalDecl? ref then
+          go refDecl
+      | _, _ => pure ()
+
 def inferVisibility (phase : Phase) : Pass where
   occurrence := 0
   phase

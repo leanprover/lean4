@@ -160,20 +160,6 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
       -- let info
       logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
 
--- TODO: should become part of the compiler to deal with erasure
-private def checkMeta (preDef : PreDefinition) : TermElabM Unit := do
-  preDef.value.forEach' fun e => do
-    if e.isAutoParam then
-      return false
-    if let .const c .. := e then
-      match getIRPhases (← getEnv) c, preDef.modifiers.isMeta with
-      | .runtime, true =>
-        throwError "Invalid meta definition, `{.ofConstName c}` must be `meta` to access"
-      | .comptime, false =>
-        throwError "Invalid definition, may not access `meta` declaration `{.ofConstName c}`"
-      | _, _ => pure ()
-    return true
-
 /--
 Adds the docstring, if relevant.
 
@@ -233,8 +219,9 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     match preDef.modifiers.computeKind with
     | .meta          => modifyEnv (addMeta · preDef.declName)
     | .noncomputable => modifyEnv (addNoncomputable · preDef.declName)
-    | _              => pure ()
-    checkMeta preDef
+    | _              =>
+      if !preDef.kind.isTheorem then
+        modifyEnv (addNotMeta · preDef.declName)
     if compile && shouldGenCodeFor preDef then
       compileDecl decl
     if applyAttrAfterCompilation then

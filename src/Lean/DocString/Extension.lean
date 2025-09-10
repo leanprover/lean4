@@ -7,9 +7,12 @@ module
 
 prelude
 public import Lean.DeclarationRange
+public import Lean.Data.Options
 public import Lean.DocString.Links
 public import Lean.MonadEnv
 public import Init.Data.String.Extra
+public import Lean.DocString.Types
+import Lean.DocString.Markdown
 
 public section
 
@@ -20,8 +23,48 @@ public section
 
 namespace Lean
 
+
+/--
+Saved data that describes the contents. The `name` should determine both the type of the value and
+its interpretation; if in doubt, use the name of the elaborator that produces the data.
+-/
+structure ElabInline where
+  name : Name
+  val : Dynamic
+
+private instance : Doc.MarkdownInline ElabInline where
+  -- TODO extensibility
+  toMarkdown go _i content := content.forM go
+
+
+/--
+Saved data that describes the contents. The `name` should determine both the type of the value and
+its interpretation; if in doubt, use the name of the elaborator that produces the data.
+-/
+structure ElabBlock where
+  name : Name
+  value : Dynamic
+
+-- TODO extensible toMarkdown
+private instance : Doc.MarkdownBlock ElabInline ElabBlock where
+  toMarkdown _goI goB _b content := content.forM goB
+
+structure VersoDocString where
+  text : Array (Doc.Block ElabInline ElabBlock)
+  subsections : Array (Doc.Part ElabInline ElabBlock Empty)
+deriving Inhabited
+
+register_builtin_option doc.verso : Bool := {
+  defValue := false,
+  descr := "whether to use Verso syntax in docstrings"
+  group := "doc"
+}
+
 private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mkRef {}
-builtin_initialize docStringExt : MapDeclarationExtension String ← mkMapDeclarationExtension
+builtin_initialize docStringExt : MapDeclarationExtension String ← mkMapDeclarationExtension (asyncMode := .async .asyncEnv)
+
+private builtin_initialize builtinVersoDocStrings : IO.Ref (NameMap VersoDocString) ← IO.mkRef {}
+builtin_initialize versoDocStringExt : MapDeclarationExtension VersoDocString ← mkMapDeclarationExtension (asyncMode := .async .asyncEnv)
 
 /--
 Adds a builtin docstring to the compiler.
@@ -32,28 +75,56 @@ Links to the Lean manual aren't validated.
 def addBuiltinDocString (declName : Name) (docString : String) : IO Unit := do
   builtinDocStrings.modify (·.insert declName docString.removeLeadingSpaces)
 
-def addDocStringCore [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString : String) : m Unit := do
+def addDocStringCore [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) (docString : String) : m Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
-    throwError "invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
+    throwError m!"invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
   modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
 
-def addDocStringCore' [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString? : Option String) : m Unit :=
+def addDocStringCore' [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) (docString? : Option String) : m Unit :=
   match docString? with
   | some docString => addDocStringCore declName docString
   | none => return ()
 
 /--
 Finds a docstring without performing any alias resolution or enrichment with extra metadata.
+For Markdown docstrings, the result is a string; for Verso docstrings, it's a `VersoDocString`.
 
 Docstrings to be shown to a user should be looked up with `Lean.findDocString?` instead.
 -/
-def findSimpleDocString? (env : Environment) (declName : Name) (includeBuiltin := true) : IO (Option String) :=
-  if let some docStr := docStringExt.find? env declName then
-    return some docStr
-  else if includeBuiltin then
-    return (← builtinDocStrings.get).find? declName
-  else
-    return none
+def findInternalDocString? (env : Environment) (declName : Name) (includeBuiltin := true) : IO (Option (String ⊕ VersoDocString)) := do
+  match docStringExt.find? env declName with
+  | some md => return some (.inl md)
+  | none => pure ()
+  match versoDocStringExt.find? env declName with
+  | some v => return some (.inr v)
+  | none => pure ()
+  if includeBuiltin then
+    if let some docStr := (← builtinDocStrings.get).find? declName then
+      return some (.inl docStr)
+    else if let some doc := (← builtinVersoDocStrings.get).find? declName then
+      return some (.inr doc)
+  return none
+
+/--
+Finds a docstring without performing any alias resolution or enrichment with extra metadata. The
+result is rendered as Markdown.
+
+Docstrings to be shown to a user should be looked up with `Lean.findDocString?` instead.
+-/
+def findSimpleDocString? (env : Environment) (declName : Name) (includeBuiltin := true) : IO (Option String) := do
+  match (← findInternalDocString? env declName (includeBuiltin := includeBuiltin)) with
+  | some (.inl str) => return some str
+  | some (.inr verso) => return some (toMarkdown verso)
+  | none => return none
+
+where
+  toMarkdown : VersoDocString → String
+  | .mk bs ps => Doc.MarkdownM.run' do
+      for b in bs do
+        Doc.ToMarkdown.toMarkdown b
+      for p in ps do
+        Doc.ToMarkdown.toMarkdown p
+
 
 structure ModuleDoc where
   doc : String

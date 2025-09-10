@@ -23,7 +23,7 @@ namespace Lean.Elab
 open WF
 open Meta
 
-def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) : TermElabM Unit := do
+def wfRecursion (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) : TermElabM Unit := do
   let termMeasures? := termMeasure?s.mapM id -- Either all or none, checked by `elabTerminationByHints`
   let preDefs ← preDefs.mapM fun preDef =>
     return { preDef with value := (← floatRecApp preDef.value) }
@@ -75,8 +75,8 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
 
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefsNonrec ← preDefsFromUnaryNonRec fixedParamPerms argsPacker preDefs preDefNonRec
-  Mutual.addPreDefsFromUnary (cacheProofs := false) preDefs preDefsNonrec preDefNonRec
-  addAndCompilePartialRec preDefs
+  Mutual.addPreDefsFromUnary (cacheProofs := false) docCtx preDefs preDefsNonrec preDefNonRec
+  addAndCompilePartialRec docCtx preDefs
   let unaryPreDef ← Mutual.cleanPreDef (cacheProofs := false) unaryPreDef
   let preDefs ← preDefs.mapM (Mutual.cleanPreDef (cacheProofs := false) ·)
   registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms argsPacker

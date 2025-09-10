@@ -112,7 +112,8 @@
 {"range":
  {"start": {"line": 73, "character": 18}, "end": {"line": 73, "character": 25}},
  "contents":
- {"value": "```lean\nmyInfix : Lean.TrailingParserDescr\n```",
+ {"value":
+  "```lean\nmyInfix : Lean.TrailingParserDescr\n```\n***\nAddition of natural numbers, typically used via the `+` operator.\n\nThis function is overridden in both the kernel and the compiler to efficiently evaluate using the\narbitrary-precision arithmetic library. The definition provided here is the logical model.\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 73, "character": 39}}

@@ -1,0 +1,4 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.command "{" `test [] "}")
+Remaining:
+"> Here's a blockquote\n\n with multiple paras\n\nthat ends"

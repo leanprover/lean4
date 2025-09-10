@@ -273,6 +273,11 @@ def Info.updateContext? : Option ContextInfo → Info → Option ContextInfo
   | some ctx, ofTacticInfo i => some { ctx with mctx := i.mctxAfter }
   | ctx?, _ => ctx?
 
+def PartialContextInfo.format (ctx : PartialContextInfo) : Format :=
+  match ctx with
+  | .commandCtx _ => "command"
+  | .parentDeclCtx n => s!"parent[{n}]"
+
 partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none) : IO Format := do
   match tree with
   | hole id     => return .nestD f!"• ?{toString id.name}"

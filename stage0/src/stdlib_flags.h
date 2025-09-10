@@ -1,5 +1,7 @@
 #include "util/options.h"
-// Please update stage0
+
+// Dear CI, won't you please update stage0?
+
 namespace lean {
 options get_default_options() {
     options opts;
@@ -11,12 +13,12 @@ options get_default_options() {
     opts = opts.update({"debug", "terminalTacticsAsSorry"}, false);
     // switch to `true` for ABI-breaking changes affecting meta code;
     // see also next option!
-    opts = opts.update({"interpreter", "prefer_native"}, false);
+    opts = opts.update({"interpreter", "prefer_native"}, true);
     // switch to `false` when enabling `prefer_native` should also affect use
     // of built-in parsers in quotations; this is usually the case, but setting
     // both to `true` may be necessary for handling non-builtin parsers with
     // builtin elaborators
-    opts = opts.update({"internal", "parseQuotWithCurrentStage"}, true);
+    opts = opts.update({"internal", "parseQuotWithCurrentStage"}, false);
     // changes to builtin parsers may also require toggling the following option if macros/syntax
     // with custom precheck hooks were affected
     opts = opts.update({"quotPrecheck"}, true);

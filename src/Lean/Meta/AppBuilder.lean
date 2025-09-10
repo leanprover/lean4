@@ -480,36 +480,39 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
     let α ← whnfD α
     matchConstInduct α.getAppFn (fun _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)) fun indVal us => do
       let u ← getLevel target
-        if let some ctorA ← isConstructorApp? a then
-        if let some ctorB ← isConstructorApp? b then
-          -- Special case for different manifest constructors, where we can use `ctorIdx`
-          if ctorA.cidx ≠ ctorB.cidx then
-            let ctorIdxName := Name.mkStr indVal.name "ctorIdx"
-            if (← hasConst ctorIdxName) && (← hasConst `noConfusion_of_Nat) then
-              let ctorIdx := mkAppN (mkConst ctorIdxName us) α.getAppArgs
-              let v ← getLevel α
-              return mkApp2 (mkConst ``False.elim [u]) target <|
-                mkAppN (mkConst `noConfusion_of_Nat [v]) #[α, ctorIdx, a, b, h]
+      if let some (ctorA, ys1) ← constructorApp? a then
+       if let some (ctorB, ys2) ← constructorApp? b then
+        -- Special case for different manifest constructors, where we can use `ctorIdx`
+        if ctorA.cidx ≠ ctorB.cidx then
+          let ctorIdxName := Name.mkStr indVal.name "ctorIdx"
+          if (← hasConst ctorIdxName) && (← hasConst `noConfusion_of_Nat) then
+            let ctorIdx := mkAppN (mkConst ctorIdxName us) α.getAppArgs
+            let v ← getLevel α
+            return mkApp2 (mkConst ``False.elim [u]) target <|
+              mkAppN (mkConst `noConfusion_of_Nat [v]) #[α, ctorIdx, a, b, h]
 
-      -- Special case for same manifest constructors, where we can maybe use
-      -- the per-constructor noConfusion definition with its type already manifest
-          if ctorA.cidx = ctorB.cidx then
-            let noConfusionName := ctorA.name.str "noConfusion"
-            if (← hasConst noConfusionName) then
-              let xs := α.getAppArgs[:ctorA.numParams]
-              let noConfusion := mkAppN (mkConst noConfusionName (u :: us)) xs
-              let fields1 := a.getAppArgsN ctorA.numFields
-              let fields2 := b.getAppArgsN ctorA.numFields
-              let mask ← occursInCtorTypeMask ctorA.name
-              assert! mask.size = ctorA.numFields
-              let mut ok := true
-              for i in [:ctorA.numFields] do
-                if mask[i]! then
-                  unless (← isDefEq fields1[i]! fields2[i]!) do
-                    ok := false
-              if ok then
-                let fields2' := Array.mask (mask.map (!·)) fields2
-                return mkAppN noConfusion (#[target] ++ fields1 ++ fields2' ++ #[h])
+        -- Special case for same constructors, where we can maybe use the per-constructor
+        -- noConfusion definition with its type already manifest
+        if ctorA.cidx = ctorB.cidx then
+          let noConfusionName := ctorA.name.str "noConfusion"
+          if (← hasConst noConfusionName) then
+            let xs := α.getAppArgs[:ctorA.numParams]
+            let noConfusion := mkAppN (mkConst noConfusionName (u :: us)) xs
+            let fields1 : Array Expr := ys1[ctorA.numParams:]
+            let fields2 : Array Expr := ys2[ctorA.numParams:]
+            let mask ← occursInCtorTypeMask ctorA.name
+            assert! mask.size = ctorA.numFields
+            let mut ok := true
+            let mut fields2' := #[]
+            for m in mask, f1 in fields1, f2 in fields2 do
+              if m then
+                unless (← isDefEq f1 f2) do
+                  ok := false
+                  break
+              else
+                fields2' := fields2'.push f2
+            if ok then
+              return mkAppN noConfusion (#[target] ++ fields1 ++ fields2' ++ #[h])
 
       -- Fall back: Use generic theorem
       return mkAppN (mkConst (Name.mkStr indVal.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])

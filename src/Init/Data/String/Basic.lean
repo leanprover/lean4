@@ -126,12 +126,8 @@ theorem ByteArray.isSome_utf8Decode?_iff {b : ByteArray} :
     b.utf8Decode?.isSome ↔ IsValidUtf8 b := by
   rw [utf8Decode?, isSome_utf8Decode?go_iff, extract_zero_size]
 
-def String.empty : String where
-  bytes := ByteArray.empty
-  isValidUtf8 := ByteArray.isValidUtf8_empty
-
 @[simp]
-theorem String.bytes_empty : String.empty.bytes = ByteArray.empty := (rfl)
+theorem String.bytes_empty : "".bytes = ByteArray.empty := (rfl)
 
 -- instance : Add String.ByteOffset where
 --   add a b := ⟨a.numBytes + b.numBytes⟩
@@ -178,18 +174,18 @@ theorem String.bytes_inj {s t : String} : s.bytes = t.bytes ↔ s = t := by
   rfl
 
 @[simp]
-theorem String.empty_append {s : String} : String.empty ++ s = s := by
+theorem String.empty_append {s : String} : "" ++ s = s := by
   simp [← String.bytes_inj]
 
 @[simp]
-theorem String.append_empty {s : String} : s ++ String.empty = s := by
+theorem String.append_empty {s : String} : s ++ "" = s := by
   simp [← String.bytes_inj]
 
 @[simp] theorem List.bytes_asString {l : List Char} : l.asString.bytes = l.utf8Encode := by
-  simp [List.asString]
+  simp [List.asString, String.mk]
 
 @[simp]
-theorem List.asString_nil : List.asString [] = String.empty := by
+theorem List.asString_nil : List.asString [] = "" := by
   simp [← String.bytes_inj]
 
 @[simp]
@@ -200,7 +196,7 @@ def String.toCharArray (b : String) : Array Char :=
   b.bytes.utf8Decode?.get (b.bytes.isSome_utf8Decode?_iff.2 b.isValidUtf8)
 
 @[simp]
-theorem String.toCharArray_empty : String.empty.toCharArray = #[] := by
+theorem String.toCharArray_empty : "".toCharArray = #[] := by
   simp [toCharArray]
 
 @[extern "lean_string_data"]
@@ -208,7 +204,7 @@ def String.data (b : String) : List Char :=
   b.toCharArray.toList
 
 @[simp]
-theorem String.data_empty : String.empty.data = [] := by
+theorem String.data_empty : "".data = [] := by
   simp [data]
 
 /--
@@ -341,7 +337,7 @@ where
   | c::cs => go cs + c.utf8Size
 
 @[simp]
-theorem String.utf8ByteSize_empty : String.empty.utf8ByteSize = 0 := (rfl)
+theorem String.utf8ByteSize_empty : "".utf8ByteSize = 0 := (rfl)
 
 @[simp]
 theorem String.utf8ByteSize_append {s t : String} :
@@ -2377,13 +2373,7 @@ theorem String.mk_eq_asString (s : List Char) : String.mk s = List.asString s :=
 theorem _root_.List.length_asString (s : List Char) : (List.asString s).length = s.length := by
   rw [← length_data, List.data_asString]
 
-example : "" = String.mk [] := rfl
-
-example : "abc" ++ "def" = "abcdef" := by simp
-
-@[simp] theorem bytes_empty' : "".bytes = ByteArray.empty := sorry
-
-@[simp] theorem length_empty : "".length = 0 := sorry
+@[simp] theorem length_empty : "".length = 0 := by simp [← length_data, data_empty]
 
 @[simp]
 theorem bytes_singleton {c : Char} : (String.singleton c).bytes = [c].utf8Encode := by

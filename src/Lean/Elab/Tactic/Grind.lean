@@ -22,6 +22,8 @@ namespace Lean.Elab.Tactic
 open Meta
 
 declare_config_elab elabGrindConfig Grind.Config
+declare_config_elab elabCutsatConfig Grind.CutsatConfig
+declare_config_elab elabGrobnerConfig Grind.GrobnerConfig
 
 open Command Term in
 @[builtin_command_elab Lean.Parser.Command.grindPattern]
@@ -315,6 +317,20 @@ def mkGrindOnly
     let trace ← evalGrindCore stx config only params fallback?
     let stx ← mkGrindOnly configStx fallback? trace
     Tactic.TryThis.addSuggestion tk stx (origSpan? := ← getRef)
+  | _ => throwUnsupportedSyntax
+
+@[builtin_tactic Lean.Parser.Tactic.cutsat] def evalCutsat : Tactic := fun stx => do
+  match stx with
+  | `(tactic| cutsat $config:optConfig) =>
+    let config ← elabCutsatConfig config
+    discard <| evalGrindCore stx { config with } none none none
+  | _ => throwUnsupportedSyntax
+
+@[builtin_tactic Lean.Parser.Tactic.grobner] def evalGrobner : Tactic := fun stx => do
+  match stx with
+  | `(tactic| grobner $config:optConfig) =>
+    let config ← elabGrobnerConfig config
+    discard <| evalGrindCore stx { config with } none none none
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

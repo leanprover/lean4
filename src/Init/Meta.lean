@@ -8,8 +8,8 @@ Additional goodies for writing macros
 module
 
 prelude
-public import Init.Prelude  -- for unfolding `Name.beq`
-import all Init.Prelude  -- for unfolding `Name.beq`
+public import Init.Prelude
+import all Init.Prelude -- for unfolding `Name.beq`
 public import Init.MetaTypes
 public import Init.Syntax
 public import Init.Data.Array.GetLit
@@ -1518,23 +1518,33 @@ end Syntax
 
 namespace TSyntax
 
-def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → Syntax → MacroM Syntax) (mkElem : Syntax → MacroM Syntax) : MacroM Syntax := do
-  let mut i := 0
+def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → Syntax → MacroM Syntax)
+  (mkElem : Syntax → MacroM Syntax) (mkLit : String → MacroM Syntax) : MacroM Syntax := do
   let mut result := Syntax.missing
   for elem in chunks do
-    let elem ← withRef elem <| match elem.isInterpolatedStrLit? with
-      | none     => mkElem elem
-      | some str => mkElem (Syntax.mkStrLit str)
-    if i == 0 then
+    let elem ← match elem.isInterpolatedStrLit? with
+      | none     => withRef elem <| mkElem elem
+      | some str =>
+        if String.Internal.isEmpty str then continue
+        else withRef elem <| mkLit str
+    if result.isMissing then
       result := elem
     else
       result ← mkAppend result elem
-    i := i+1
-  return result
+  if result.isMissing then
+    mkLit ""
+  else
+    return result
 
 open TSyntax.Compat in
-def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : Term) (toTypeFn : Term) : MacroM Term := do
-  let r ← expandInterpolatedStrChunks interpStr.raw.getArgs (fun a b => `($a ++ $b)) (fun a => `($toTypeFn $a))
+/-- Expand `interpStr` into a term of type `type` (which supports ` ++ `),
+calling `ofInterpFn` on terms within `{}`,
+and `ofLitFn` on the literals between the interpolations. -/
+def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : Term) (ofInterpFn : Term) (ofLitFn : Term := ofInterpFn) : MacroM Term := do
+  let r ← expandInterpolatedStrChunks interpStr.raw.getArgs
+    (fun a b => `($a ++ $b))
+    (fun a => `($ofInterpFn $a))
+    (fun s => `($ofLitFn $(Syntax.mkStrLit s)))
   `(($r : $type))
 
 def getDocString (stx : TSyntax `Lean.Parser.Command.docComment) : String :=
@@ -1713,8 +1723,8 @@ macro (name := declareSimpLikeTactic) doc?:(docComment)?
       return s)
 
 /-- `simp!` is shorthand for `simp` with `autoUnfold := true`.
-This will rewrite with all equation lemmas, which can be used to
-partially evaluate many definitions. -/
+This will unfold applications of functions defined by pattern matching, when one of the patterns applies.
+This can be used to partially evaluate many definitions. -/
 declare_simp_like_tactic simpAutoUnfold "simp! " (autoUnfold := true)
 
 /--
@@ -1730,8 +1740,8 @@ Note that `+decide` is not needed for reducing arithmetic terms since simprocs h
 syntax (name := simpArithBang) "simp_arith! " optConfig (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
 /-- `simp_all!` is shorthand for `simp_all` with `autoUnfold := true`.
-This will rewrite with all equation lemmas, which can be used to
-partially evaluate many definitions. -/
+This will unfold applications of functions defined by pattern matching, when one of the patterns applies.
+This can be used to partially evaluate many definitions. -/
 declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " (autoUnfold := true)
 
 /--
@@ -1748,8 +1758,8 @@ syntax (name := simpAllArithBang) "simp_all_arith!" optConfig (discharger)? (&" 
 
 
 /-- `dsimp!` is shorthand for `dsimp` with `autoUnfold := true`.
-This will rewrite with all equation lemmas, which can be used to
-partially evaluate many definitions. -/
+This will unfold applications of functions defined by pattern matching, when one of the patterns applies.
+This can be used to partially evaluate many definitions. -/
 declare_simp_like_tactic (dsimp := true) dsimpAutoUnfold "dsimp! " (autoUnfold := true)
 
 end Tactic

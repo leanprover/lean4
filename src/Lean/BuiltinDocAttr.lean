@@ -34,6 +34,7 @@ builtin_initialize
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
       declareBuiltinDocStringAndRanges decl
+    applicationTime := AttributeApplicationTime.afterCompilation
   }
 
 end Lean

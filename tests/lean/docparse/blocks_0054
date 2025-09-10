@@ -1,0 +1,26 @@
+
+Error recovery tests:
+
+* [busted link
+
+* [busted
+   link
+
+* [busted
+   _italics
+   link
+
+
+* [busted destination](hey
+
+* ![busted image alt text
+
+* ![busted image link](image.png
+
+* a *bold choice
+
+* very _italic *and bold, onto many
+   lines is OK* but don't forget...
+
+a paragraph with [a bad link syntax](http://example.com
+is OK. The rest *works*.

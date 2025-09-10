@@ -13351,9 +13351,9 @@ goto block_146;
 block_13:
 {
 lean_object* x_11; lean_object* x_12; 
-x_11 = lean_array_get(x_7, x_9, x_8);
-lean_dec(x_8);
-lean_dec_ref(x_9);
+x_11 = lean_array_get(x_7, x_8, x_9);
+lean_dec(x_9);
+lean_dec_ref(x_8);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_10);
@@ -13362,8 +13362,8 @@ return x_12;
 block_51:
 {
 lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-lean_inc(x_14);
-x_22 = l_Lean_isTracingEnabledFor___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0___redArg(x_14, x_17, x_21);
+lean_inc(x_17);
+x_22 = l_Lean_isTracingEnabledFor___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0___redArg(x_17, x_14, x_21);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
 x_24 = lean_unbox(x_23);
@@ -13371,12 +13371,12 @@ lean_dec(x_23);
 if (x_24 == 0)
 {
 lean_object* x_25; 
-lean_dec(x_14);
+lean_dec(x_17);
 x_25 = lean_ctor_get(x_22, 1);
 lean_inc(x_25);
 lean_dec_ref(x_22);
-x_8 = x_20;
-x_9 = x_19;
+x_8 = x_15;
+x_9 = x_20;
 x_10 = x_25;
 goto block_13;
 }
@@ -13390,7 +13390,7 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean
 x_27 = lean_ctor_get(x_22, 1);
 x_28 = lean_ctor_get(x_22, 0);
 lean_dec(x_28);
-x_29 = lean_array_get_borrowed(x_7, x_19, x_20);
+x_29 = lean_array_get_borrowed(x_7, x_15, x_20);
 x_30 = lean_ctor_get(x_29, 0);
 x_31 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__2_spec__2___redArg___closed__1;
 lean_inc(x_30);
@@ -13405,12 +13405,12 @@ x_35 = l_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect___closed__1;
 x_36 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_36, 0, x_22);
 lean_ctor_set(x_36, 1, x_35);
-x_37 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__1(x_14, x_36, x_18, x_15, x_17, x_16, x_27);
+x_37 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__1(x_17, x_36, x_16, x_19, x_14, x_18, x_27);
 x_38 = lean_ctor_get(x_37, 1);
 lean_inc(x_38);
 lean_dec_ref(x_37);
-x_8 = x_20;
-x_9 = x_19;
+x_8 = x_15;
+x_9 = x_20;
 x_10 = x_38;
 goto block_13;
 }
@@ -13420,7 +13420,7 @@ lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean
 x_39 = lean_ctor_get(x_22, 1);
 lean_inc(x_39);
 lean_dec(x_22);
-x_40 = lean_array_get_borrowed(x_7, x_19, x_20);
+x_40 = lean_array_get_borrowed(x_7, x_15, x_20);
 x_41 = lean_ctor_get(x_40, 0);
 x_42 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__2_spec__2___redArg___closed__1;
 lean_inc(x_41);
@@ -13435,12 +13435,12 @@ x_47 = l_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect___closed__1;
 x_48 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_48, 0, x_46);
 lean_ctor_set(x_48, 1, x_47);
-x_49 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__1(x_14, x_48, x_18, x_15, x_17, x_16, x_39);
+x_49 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__1(x_17, x_48, x_16, x_19, x_14, x_18, x_39);
 x_50 = lean_ctor_get(x_49, 1);
 lean_inc(x_50);
 lean_dec_ref(x_49);
-x_8 = x_20;
-x_9 = x_19;
+x_8 = x_15;
+x_9 = x_20;
 x_10 = x_50;
 goto block_13;
 }
@@ -13449,7 +13449,7 @@ goto block_13;
 block_110:
 {
 lean_object* x_60; lean_object* x_61; uint8_t x_62; 
-x_60 = lean_array_get_borrowed(x_7, x_54, x_52);
+x_60 = lean_array_get_borrowed(x_7, x_53, x_52);
 x_61 = l_Lean_Elab_Tactic_Omega_Problem_FourierMotzkinData_size(x_60);
 x_62 = lean_nat_dec_eq(x_61, x_52);
 if (x_62 == 0)
@@ -13457,7 +13457,7 @@ if (x_62 == 0)
 lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; uint8_t x_68; 
 x_63 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinData_spec__0___redArg___closed__0;
 x_64 = lean_unsigned_to_nat(1u);
-x_65 = lean_array_get_size(x_54);
+x_65 = lean_array_get_size(x_53);
 x_66 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_63);
 lean_inc(x_65);
 x_67 = lean_apply_2(x_66, x_65, x_64);
@@ -13466,12 +13466,12 @@ if (x_68 == 0)
 {
 lean_dec(x_65);
 lean_dec(x_61);
-x_14 = x_53;
-x_15 = x_56;
-x_16 = x_58;
-x_17 = x_57;
-x_18 = x_55;
-x_19 = x_54;
+x_14 = x_57;
+x_15 = x_53;
+x_16 = x_55;
+x_17 = x_54;
+x_18 = x_58;
+x_19 = x_56;
 x_20 = x_52;
 x_21 = x_59;
 goto block_51;
@@ -13492,8 +13492,8 @@ x_74 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_74, 0, x_70);
 lean_ctor_set(x_74, 1, x_73);
 x_75 = 0;
-lean_inc(x_53);
-x_76 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__2___redArg(x_54, x_52, x_70, x_53, x_75, x_65, x_64, x_74, x_64, x_55, x_56, x_57, x_58, x_59);
+lean_inc(x_54);
+x_76 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__2___redArg(x_53, x_52, x_70, x_54, x_75, x_65, x_64, x_74, x_64, x_55, x_56, x_57, x_58, x_59);
 x_77 = lean_ctor_get(x_76, 0);
 lean_inc(x_77);
 x_78 = lean_ctor_get(x_77, 1);
@@ -13511,12 +13511,12 @@ lean_dec_ref(x_76);
 x_82 = lean_ctor_get(x_79, 0);
 lean_inc(x_82);
 lean_dec(x_79);
-x_14 = x_53;
-x_15 = x_56;
-x_16 = x_58;
-x_17 = x_57;
-x_18 = x_55;
-x_19 = x_54;
+x_14 = x_57;
+x_15 = x_53;
+x_16 = x_55;
+x_17 = x_54;
+x_18 = x_58;
+x_19 = x_56;
 x_20 = x_82;
 x_21 = x_81;
 goto block_51;
@@ -13525,8 +13525,8 @@ else
 {
 uint8_t x_83; 
 lean_dec(x_79);
-lean_dec_ref(x_54);
-lean_dec(x_53);
+lean_dec(x_54);
+lean_dec_ref(x_53);
 x_83 = !lean_is_exclusive(x_76);
 if (x_83 == 0)
 {
@@ -13561,9 +13561,9 @@ else
 lean_object* x_89; lean_object* x_90; uint8_t x_91; 
 lean_dec(x_61);
 lean_inc_ref(x_60);
-lean_dec_ref(x_54);
-lean_inc(x_53);
-x_89 = l_Lean_isTracingEnabledFor___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0___redArg(x_53, x_57, x_59);
+lean_dec_ref(x_53);
+lean_inc(x_54);
+x_89 = l_Lean_isTracingEnabledFor___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0___redArg(x_54, x_57, x_59);
 x_90 = lean_ctor_get(x_89, 0);
 lean_inc(x_90);
 x_91 = lean_unbox(x_90);
@@ -13571,7 +13571,7 @@ lean_dec(x_90);
 if (x_91 == 0)
 {
 uint8_t x_92; 
-lean_dec(x_53);
+lean_dec(x_54);
 x_92 = !lean_is_exclusive(x_89);
 if (x_92 == 0)
 {
@@ -13613,7 +13613,7 @@ x_103 = l_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect___closed__1;
 x_104 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_104, 0, x_102);
 lean_ctor_set(x_104, 1, x_103);
-x_105 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__1(x_53, x_104, x_55, x_56, x_57, x_58, x_96);
+x_105 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__1(x_54, x_104, x_55, x_56, x_57, x_58, x_96);
 x_106 = !lean_is_exclusive(x_105);
 if (x_106 == 0)
 {
@@ -13652,8 +13652,8 @@ lean_object* x_116;
 x_116 = lean_ctor_get(x_113, 1);
 lean_inc(x_116);
 lean_dec_ref(x_113);
-x_53 = x_112;
-x_54 = x_111;
+x_53 = x_111;
+x_54 = x_112;
 x_55 = x_2;
 x_56 = x_3;
 x_57 = x_4;
@@ -13691,8 +13691,8 @@ x_130 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSele
 x_131 = lean_ctor_get(x_130, 1);
 lean_inc(x_131);
 lean_dec_ref(x_130);
-x_53 = x_112;
-x_54 = x_111;
+x_53 = x_111;
+x_54 = x_112;
 x_55 = x_2;
 x_56 = x_3;
 x_57 = x_4;
@@ -13726,8 +13726,8 @@ x_144 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSele
 x_145 = lean_ctor_get(x_144, 1);
 lean_inc(x_145);
 lean_dec_ref(x_144);
-x_53 = x_112;
-x_54 = x_111;
+x_53 = x_111;
+x_54 = x_112;
 x_55 = x_2;
 x_56 = x_3;
 x_57 = x_4;

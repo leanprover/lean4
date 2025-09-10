@@ -31,10 +31,38 @@ This module is written in a rather manual style, constructing the `Expr` directl
 read with the expected output to the side.
 -/
 
-namespace Lean.NoConfusionLinear
+namespace Lean
 
 open Meta
 
+/--
+Constructs a lambda expression that returns the argument to the `noConfusion` principle for a given
+constructor. In particular, returns
+```
+fun params x1 x2 x3 x1' x2' x3' => (x1 = x1' → x2 = x2' → x3 = x3' → P)
+```
+where `x1 x2 x3` and `x1' x2' x3'` are the fields of a constructor application of `ctorName`,
+omitting equalities between propositions and using `HEq` where needed.
+
+(Exported from here because we also need it in `mkNoConfusionCtors`.)
+-/
+public def mkNoConfusionCtorArg (ctorName : Name) (P : Expr) : MetaM Expr := do
+  let ctorInfo ← getConstInfoCtor ctorName
+  -- We bring the constructor's parameters into scope abstractly, this way
+  -- we can check if we need to use HEq. (The concrete fields could allow Eq)
+  forallBoundedTelescope ctorInfo.type ctorInfo.numParams fun xs t => do
+    forallTelescopeReducing t fun fields1 _ => do
+    forallTelescopeReducing t fun fields2 _ => do
+    let mut t := P
+    for f1 in fields1.reverse, f2 in fields2.reverse do
+      if (← isProof f1) then
+        continue
+      let name := (← f1.fvarId!.getUserName).appendAfter "_eq"
+      let eq ← mkEqHEq f1 f2
+      t := mkForall name .default eq t
+    mkLambdaFVars (xs ++ fields1 ++ fields2) t
+
+namespace NoConfusionLinear
 
 register_builtin_option backwards.linearNoConfusionType : Bool := {
   defValue := true
@@ -93,28 +121,16 @@ public def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
                   let conName := info.ctors[i]!
                   let withName := mkConstructorElimName indName conName
                   let e := mkConst withName (v.succ :: us)
-                  let e := mkAppN e xs
-                  let e := mkApp e motive
-                  let e := mkAppN e ys
-                  let e := mkApp e x2
-                  let e := mkApp e h
+                  let e := mkAppN e (xs ++ #[motive] ++ ys ++ #[x2, h])
                   let e := mkApp e <|
                     ← forallTelescopeReducing ((← whnf (← inferType e)).bindingDomain!) fun zs2 _ => do
-                      let eqs ← (Array.zip zs1 zs2).filterMapM fun (z1,z2) => do
-                        if (← isProof z1) then
-                          return none
-                        else
-                          return some (← mkEqHEq z1 z2)
-                      let k ← mkArrowN eqs P
-                      let k ← mkArrow k P
-                      mkLambdaFVars zs2 k
+                      let k := (← mkNoConfusionCtorArg conName P).beta (xs ++ zs1 ++ zs2)
+                      let t ← mkArrow k P
+                      mkLambdaFVars zs2 t
                   pure e
                 mkLambdaFVars zs1 alt
             let e := mkAppN e alts'
-            let e ← mkLambdaFVars #[x1, x2] e
-            let e ← mkLambdaFVars #[P] e
-            let e ← mkLambdaFVars ys e
-            let e ← mkLambdaFVars xs e
+            let e ← mkLambdaFVars (xs ++ ys ++ #[P, x1, x2]) e
             pure e
 
   addDecl (.defnDecl (← mkDefinitionValInferringUnsafe

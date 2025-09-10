@@ -2326,7 +2326,8 @@ as `meta` or otherwise fails with an error. It should only be set to `false` in 
 acceptable for code to work only in the language server, where more IR is loaded, such as in
 `#eval`.
 -/
-unsafe def evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) (checkMeta := true) : Except String α :=
+-- `[noinline]` helps with `prefer_native` so as to avoid trying to interpret the extern function
+@[noinline] unsafe def evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) (checkMeta := true) : Except String α :=
   if checkMeta && getIRPhases env constName == .runtime then
     throw ("cannot evaluate non-`meta` constant '" ++ toString constName ++ "'")
   else
@@ -2606,7 +2607,6 @@ instance (m n) [MonadLift m n] [MonadEnv m] : MonadEnv n where
 Sets `Environment.isExporting` to the given value while executing `x`. No-op if
 `EnvironmentHeader.isModule` is false.
 -/
-@[inline]
 def withExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
     (isExporting := true) : m α := do
   let old := (← getEnv).isExporting

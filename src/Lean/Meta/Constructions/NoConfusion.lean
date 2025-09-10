@@ -14,14 +14,63 @@ import Lean.Meta.Constructions.CtorIdx
 
 public section
 
-
-
 namespace Lean
 
 @[extern "lean_mk_no_confusion_type"] opaque mkNoConfusionTypeCoreImp (env : Environment) (declName : @& Name) : Except Kernel.Exception Declaration
-@[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except Kernel.Exception Declaration
 
 open Meta
+
+def mkNoConfusionCoreImp (indName : Name) : MetaM Unit := do
+  let declName := Name.mkStr indName "noConfusion"
+  let noConfusionTypeName := Name.mkStr indName "noConfusionType"
+  let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
+  let casesOnName := mkCasesOnName indName
+  let casesOnInfo ← getConstVal casesOnName
+  let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
+  let e ← forallBoundedTelescope (← inferType (mkConst noConfusionTypeName (v::us))) (info.numParams + info.numIndices) fun xs _ => do
+    let params : Array Expr := xs[:info.numParams]
+    let is : Array Expr := xs[info.numParams:]
+    let PType := mkSort v
+    withLocalDecl `P .implicit PType fun P =>
+    withLocalDecl `x1 .implicit (mkAppN (mkConst indName us) xs) fun x1 =>
+    withLocalDecl `x2 .implicit (mkAppN (mkConst indName us) xs) fun x2 => do
+    withLocalDeclD `h12 (← mkEq x1 x2) fun h12 => do
+      let target1 := mkAppN (mkConst noConfusionTypeName (v :: us)) (xs ++ #[P, x1, x1])
+      let motive1 ← mkLambdaFVars (is ++ #[x1]) target1
+      let e ← withLocalDeclD `h11 (← mkEq x1 x1) fun h11 => do
+        let alts ← info.ctors.mapM fun ctor => do
+          let ctorType ← inferType (mkAppN (mkConst ctor us) params)
+          forallTelescopeReducing ctorType fun fs _ => do
+            let kType := (← mkNoConfusionCtorArg ctor P).beta (params ++ fs ++ fs)
+            withLocalDeclD `k kType fun k => do
+              let mut e := k
+              let eqns ← arrowDomainsN kType.getNumHeadForalls kType
+              for eqn in eqns do
+                if let some (_, x, _) := eqn.eq? then
+                  e := mkApp e (← mkEqRefl x)
+                else if let some (_, x, _, _) := eqn.heq? then
+                  e := mkApp e (← mkHEqRefl x)
+                else
+                  throwError "unexpected equation {eqn} in `mkNoConfusionCtorArg` for {ctor}"
+              mkLambdaFVars (fs ++ #[k]) e
+        let e := mkAppN (mkConst casesOnName (v :: us)) (params ++ #[motive1] ++ is ++ #[x1] ++ alts)
+        mkLambdaFVars #[h11] e
+      let target2 := mkAppN (mkConst noConfusionTypeName (v :: us)) (xs ++ #[P, x1, x2])
+      let motive2 ← mkLambdaFVars #[x2] (← mkArrow (← mkEq x1 x2) target2)
+      let e ← mkEqNDRec motive2 e h12
+      let e := mkApp e h12
+      mkLambdaFVars (xs ++ #[P, x1, x2, h12]) e
+
+  addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
+    (name        := declName)
+    (levelParams := casesOnInfo.levelParams)
+    (type        := (← inferType e))
+    (value       := e)
+    (hints       := ReducibilityHints.abbrev)))
+  setReducibleAttribute declName
+  modifyEnv fun env => markNoConfusion env declName
+  modifyEnv fun env => addProtected env declName
+
 
 def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   -- Do not do anything unless can_elim_to_type. TODO: Extract to util
@@ -42,12 +91,8 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
     modifyEnv fun env => addToCompletionBlackList env name
     modifyEnv fun env => addProtected env name
 
-  let name := Name.mkStr declName "noConfusion"
-  let decl ← ofExceptKernelException (mkNoConfusionCoreImp (← getEnv) declName)
-  addDecl decl
-  setReducibleAttribute name
-  modifyEnv fun env => markNoConfusion env name
-  modifyEnv fun env => addProtected env name
+  mkNoConfusionCtors declName
+
 
 def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do
   if (← getEnv).contains ``noConfusionEnum then

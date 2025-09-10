@@ -80,6 +80,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Elab_sortDeclLevelParams_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_instBEqBinderInfo_beq(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___redArg___closed__15;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 static lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___redArg___closed__17;
@@ -103,7 +104,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_sortDeclLevelParams_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_sortDeclLevelParams_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_forallTelescopeCompatibleAux_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -588,7 +588,7 @@ lean_closure_set(x_37, 1, x_33);
 lean_closure_set(x_37, 2, x_5);
 lean_closure_set(x_37, 3, x_1);
 lean_closure_set(x_37, 4, x_36);
-x_130 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(x_30, x_34);
+x_130 = l_Lean_instBEqBinderInfo_beq(x_30, x_34);
 if (x_130 == 0)
 {
 lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; uint8_t x_138; 
@@ -1625,8 +1625,8 @@ return x_11;
 block_18:
 {
 lean_object* x_17; 
-lean_dec(x_14);
-x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_sortDeclLevelParams_spec__4___redArg(x_15, x_13, x_16);
+lean_dec(x_15);
+x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_sortDeclLevelParams_spec__4___redArg(x_14, x_13, x_16);
 lean_dec(x_16);
 x_8 = x_17;
 goto block_12;
@@ -1669,16 +1669,16 @@ if (x_31 == 0)
 {
 lean_inc(x_30);
 x_19 = x_30;
-x_20 = x_27;
-x_21 = x_26;
+x_20 = x_26;
+x_21 = x_27;
 x_22 = x_30;
 goto block_24;
 }
 else
 {
 x_19 = x_30;
-x_20 = x_27;
-x_21 = x_26;
+x_20 = x_26;
+x_21 = x_27;
 x_22 = x_25;
 goto block_24;
 }

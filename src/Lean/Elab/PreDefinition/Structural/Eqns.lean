@@ -95,7 +95,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   return thmNames
 where
   doRealize name type := withOptions (tactic.hygienic.set · false) do
-    let value ← mkProof info.declName type
+    let value ← withoutExporting do mkProof info.declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
     let type ← letToHave type
     addDecl <| Declaration.thmDecl {
@@ -104,7 +104,10 @@ where
     }
     inferDefEqAttr name
 
-builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
+builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
+  mkMapDeclarationExtension (exportEntriesFn := fun env s _ =>
+    -- Do not export for non-exposed defs
+    s.filter (fun n _ => env.find? n |>.any (·.hasValue)) |>.toArray)
 
 def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPos : Nat)
     (fixedParamPerms : FixedParamPerms) : CoreM Unit := do

@@ -728,7 +728,7 @@ theorem isNone_findFinIdx? {xs : Array α} {p : α → Bool} :
   cases xs
   simp only [List.findFinIdx?_toArray, hf, List.findFinIdx?_subtype]
   rw [findFinIdx?_congr List.unattach_toArray]
-  simp only [Option.map_map, Function.comp_def, Fin.cast_trans]
+  simp only [Option.map_map, Function.comp_def, Fin.cast_cast]
   simp [Array.size]
 
 /-! ### idxOf

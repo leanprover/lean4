@@ -36,7 +36,7 @@ lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_obj
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
 LEAN_EXPORT size_t l_Lean_Expr_ReplaceLevelImpl_cacheSize;
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-static lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr;
+LEAN_EXPORT lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr;
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3;
 size_t lean_usize_mod(size_t, size_t);
 lean_object* lean_usize_to_nat(size_t);
@@ -45,6 +45,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_Replace
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 static size_t l_Lean_Expr_ReplaceLevelImpl_cacheSize___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_cache(size_t, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_instBEqBinderInfo_beq(uint8_t, uint8_t);
 lean_object* l_List_reverse___redArg(lean_object*);
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5;
 lean_object* l_Lean_mkLevelIMax_x27(lean_object*, lean_object*);
@@ -52,7 +53,6 @@ size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__6;
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(uint8_t, uint8_t);
 static lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -439,7 +439,7 @@ return x_59;
 else
 {
 uint8_t x_60; 
-x_60 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(x_50, x_50);
+x_60 = l_Lean_instBEqBinderInfo_beq(x_50, x_50);
 if (x_60 == 0)
 {
 lean_object* x_61; lean_object* x_62; 
@@ -512,7 +512,7 @@ return x_83;
 else
 {
 uint8_t x_84; 
-x_84 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(x_74, x_74);
+x_84 = l_Lean_instBEqBinderInfo_beq(x_74, x_74);
 if (x_84 == 0)
 {
 lean_object* x_85; lean_object* x_86; 
@@ -979,7 +979,7 @@ return x_35;
 else
 {
 uint8_t x_36; 
-x_36 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(x_31, x_31);
+x_36 = l_Lean_instBEqBinderInfo_beq(x_31, x_31);
 if (x_36 == 0)
 {
 lean_object* x_37; 
@@ -1039,7 +1039,7 @@ return x_52;
 else
 {
 uint8_t x_53; 
-x_53 = l_Lean_beqBinderInfo____x40_Lean_Expr_2616605480____hygCtx___hyg_14_(x_48, x_48);
+x_53 = l_Lean_instBEqBinderInfo_beq(x_48, x_48);
 if (x_53 == 0)
 {
 lean_object* x_54; 

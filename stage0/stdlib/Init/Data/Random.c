@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Random
-// Imports: Init.System.IO
+// Imports: Init.System.IO Init.Data.ByteArray.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -26,9 +26,11 @@ LEAN_EXPORT lean_object* l_IO_rand(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instInhabitedStdGen___closed__0;
 LEAN_EXPORT lean_object* l_StdGen_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_RandomGen_ctorIdx(lean_object*, lean_object*);
+lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_IO_rand___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_stdNext___closed__3;
 LEAN_EXPORT lean_object* l_StdGen_ctorIdx(lean_object*);
+static lean_object* l_instReprStdGen___lam__0___closed__7;
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_IO_stdGenRef;
@@ -232,12 +234,21 @@ static lean_object* _init_l_instReprStdGen___lam__0___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_1 = l_instReprStdGen___lam__0___closed__0;
+x_2 = lean_string_length(x_1);
 return x_2;
 }
 }
 static lean_object* _init_l_instReprStdGen___lam__0___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_instReprStdGen___lam__0___closed__4;
+x_2 = l_instNatCastInt___lam__0(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_instReprStdGen___lam__0___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -247,7 +258,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_instReprStdGen___lam__0___closed__6() {
+static lean_object* _init_l_instReprStdGen___lam__0___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -280,12 +291,12 @@ lean_ctor_set(x_10, 0, x_9);
 x_11 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_11, 0, x_1);
 lean_ctor_set(x_11, 1, x_10);
-x_12 = l_instReprStdGen___lam__0___closed__4;
-x_13 = l_instReprStdGen___lam__0___closed__5;
+x_12 = l_instReprStdGen___lam__0___closed__5;
+x_13 = l_instReprStdGen___lam__0___closed__6;
 x_14 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_11);
-x_15 = l_instReprStdGen___lam__0___closed__6;
+x_15 = l_instReprStdGen___lam__0___closed__7;
 x_16 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
@@ -319,12 +330,12 @@ lean_ctor_set(x_27, 0, x_26);
 x_28 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_28, 0, x_25);
 lean_ctor_set(x_28, 1, x_27);
-x_29 = l_instReprStdGen___lam__0___closed__4;
-x_30 = l_instReprStdGen___lam__0___closed__5;
+x_29 = l_instReprStdGen___lam__0___closed__5;
+x_30 = l_instReprStdGen___lam__0___closed__6;
 x_31 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_28);
-x_32 = l_instReprStdGen___lam__0___closed__6;
+x_32 = l_instReprStdGen___lam__0___closed__7;
 x_33 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
@@ -1465,12 +1476,16 @@ return x_4;
 }
 }
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ByteArray_Extra(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Random(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_System_IO(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ByteArray_Extra(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instInhabitedStdGen___closed__0 = _init_l_instInhabitedStdGen___closed__0();
@@ -1495,6 +1510,8 @@ l_instReprStdGen___lam__0___closed__5 = _init_l_instReprStdGen___lam__0___closed
 lean_mark_persistent(l_instReprStdGen___lam__0___closed__5);
 l_instReprStdGen___lam__0___closed__6 = _init_l_instReprStdGen___lam__0___closed__6();
 lean_mark_persistent(l_instReprStdGen___lam__0___closed__6);
+l_instReprStdGen___lam__0___closed__7 = _init_l_instReprStdGen___lam__0___closed__7();
+lean_mark_persistent(l_instReprStdGen___lam__0___closed__7);
 l_instReprStdGen = _init_l_instReprStdGen();
 lean_mark_persistent(l_instReprStdGen);
 l_stdNext___closed__0 = _init_l_stdNext___closed__0();

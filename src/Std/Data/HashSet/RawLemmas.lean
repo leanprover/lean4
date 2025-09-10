@@ -22,7 +22,7 @@ is to provide an instance of `LawfulBEq α`.
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v
+universe u v w
 
 variable {α : Type u}
 
@@ -268,6 +268,10 @@ theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α
 theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     (m.get? a).isSome ↔ a ∈ m :=
   (mem_iff_isSome_get? h).symm
+
+theorem get?_eq_some_iff [EquivBEq α] [LawfulHashable α] (h : m.WF) {k k' : α} :
+    m.get? k = some k' ↔ ∃ h : k ∈ m, m.get k h = k' :=
+  HashMap.Raw.getKey?_eq_some_iff h.out
 
 theorem mem_of_get?_eq_some [EquivBEq α] [LawfulHashable α] (h : m.WF) {a a' : α} :
     m.get? a = some a' → a' ∈ m :=
@@ -556,7 +560,7 @@ theorem contains_of_mem_toArray [EquivBEq α] [LawfulHashable α] (h : m.WF) {k 
 
 section monadic
 
-variable {m : Raw α} {δ : Type v} {m' : Type v → Type v}
+variable {m : Raw α} {δ : Type v} {m' : Type v → Type w}
 
 theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : δ → α → m' δ} {init : δ} :
@@ -783,6 +787,12 @@ theorem ofList_singleton {k : α} :
 theorem ofList_cons {hd : α} {tl : List α} :
     ofList (hd :: tl) = insertMany ((∅ : Raw α).insert hd) tl :=
   ext HashMap.Raw.unitOfList_cons
+
+theorem ofList_eq_insertMany_empty {l : List α} :
+    ofList l = insertMany (∅ : Raw α) l :=
+  match l with
+  | [] => by simp [insertMany_nil .empty]
+  | hd :: tl => by simp [ofList_cons, insertMany_cons .empty]
 
 @[simp, grind =]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]

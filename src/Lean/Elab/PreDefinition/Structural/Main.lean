@@ -80,44 +80,56 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParamPerms
     (xs : Array Expr) (recArgInfos : Array RecArgInfo) : M (Array PreDefinition) := do
   let values ← preDefs.mapIdxM (fixedParamPerms.perms[·]!.instantiateLambda ·.value xs)
   let indInfo ← getConstInfoInduct recArgInfos[0]!.indGroupInst.all[0]!
-  if ← isInductivePredicate indInfo.name then
-    -- Here we branch off to the IndPred construction, but only for non-mutual functions
-    unless preDefs.size = 1 do
-      throwError "structural mutual recursion over inductive predicates is not supported"
-    trace[Elab.definition.structural] "Using mkIndPred construction"
-    let preDef := preDefs[0]!
-    let recArgInfo := recArgInfos[0]!
-    let value := values[0]!
-    let valueNew ← mkIndPredBRecOn recArgInfo value
-    let valueNew ← lambdaTelescope value fun ys _ => do
-      mkLambdaFVars (etaReduce := true) (fixedParamPerms.perms[0]!.buildArgs xs ys) (mkAppN valueNew ys)
-    trace[Elab.definition.structural] "Nonrecursive value:{indentExpr valueNew}"
-    check valueNew
-    return #[{ preDef with value := valueNew }]
 
   -- Groups the (indices of the) definitions by their position in indInfo.all
   let positions : Positions := .groupAndSort (·.indIdx) recArgInfos (Array.range indInfo.numTypeFormers)
   trace[Elab.definition.structural] "assignments of type formers of {indInfo.name} to functions: {positions}"
 
-  -- Construct the common `.brecOn` arguments
-  let motives ← recArgInfos.zipWithM (bs := values) fun r v => mkBRecOnMotive r v
-  trace[Elab.definition.structural] "motives: {motives}"
-  let brecOnConst ← mkBRecOnConst recArgInfos positions motives
+  let isIndPred ← isInductivePredicate indInfo.name
+
+  let withFunTypesAndMotives (k : Array Expr → Array Expr → M (Array PreDefinition)) :
+      M (Array PreDefinition) := do
+    if isIndPred then
+      withFunTypes values fun funTypes => do
+        let motives ← recArgInfos.mapIdxM fun idx r =>
+          mkIndPredBRecOnMotive r values[idx]! funTypes[idx]!
+        k funTypes motives
+    else
+      let motives ← recArgInfos.zipWithM (bs := values) fun r v => mkBRecOnMotive r v
+      k #[] motives
+  withFunTypesAndMotives fun funTypes motives => do
+  trace[Elab.definition.structural] "funTypes: {funTypes}, motives: {motives}"
+
+  let brecOnConst ← mkBRecOnConst recArgInfos positions motives isIndPred
   let FTypes ← inferBRecOnFTypes recArgInfos positions brecOnConst
   trace[Elab.definition.structural] "FTypes: {FTypes}"
-  let FArgs ← recArgInfos.zipWithM (bs := values.zip FTypes) fun r (v, t) =>
-    mkBRecOnF recArgInfos positions r v t
+
+  let FArgs ← recArgInfos.mapIdxM fun idx r =>
+    let v := values[idx]!
+    let t := FTypes[idx]!
+    if isIndPred then
+      mkIndPredBRecOnF recArgInfos positions r v t (brecOnConst 0).getAppArgs
+    else
+      mkBRecOnF recArgInfos positions r v t
   trace[Elab.definition.structural] "FArgs: {FArgs}"
+  let brecOn := brecOnConst 0
+  -- the indices and the major premise are not mentioned in the minor premises
+  -- so using `default` is fine here
+  let brecOn := mkAppN brecOn (.replicate (indInfo.numIndices + 1) default)
+  let packedFTypes ← inferArgumentTypesN positions.size brecOn
+  let packedFArgs ← positions.mapMwith (PProdN.mkLambdas · ·) packedFTypes FArgs
+  trace[Elab.definition.structural] "packedFArgs: {packedFArgs}"
+
   -- Assemble the individual `.brecOn` applications
-  let valuesNew ← (Array.zip recArgInfos values).mapIdxM fun i (r, v) =>
-    mkBrecOnApp positions i brecOnConst FArgs r v
+  let valuesNew ← (Array.zip recArgInfos values).mapIdxM fun i (r, v) => do
+    mkBRecOnApp positions i brecOnConst packedFArgs funTypes r v
   -- Abstract over the fixed prefixed, preserving the original parameter order
   let valuesNew ← (values.zip valuesNew).mapIdxM fun i ⟨value, valueNew⟩ =>
     lambdaTelescope value fun ys _ => do
       -- NB: Do not eta-contract here, other code (e.g. FunInd) expects this to have the
       -- same number of head lambdas as the original definition
       mkLambdaFVars (fixedParamPerms.perms[i]!.buildArgs xs ys) (valueNew.beta ys)
-  return (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }
+  return preDefs.zipWith (bs := valuesNew) fun preDef valueNew => { preDef with value := valueNew }
 
 private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) :
     M (Array Nat × (Array PreDefinition) × FixedParamPerms) := do
@@ -171,7 +183,10 @@ def reportTermMeasure (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit :=
     Tactic.TryThis.addSuggestion ref stx
 
 
-def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) : TermElabM Unit := do
+def structuralRecursion
+    (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition)
+    (termMeasure?s : Array (Option TerminationMeasure)) :
+    TermElabM Unit := do
   let names := preDefs.map (·.declName)
   let ((recArgPoss, preDefsNonRec, fixedParamPerms), state) ← run <| inferRecArgPos preDefs termMeasure?s
   for recArgPos in recArgPoss, preDef in preDefs do
@@ -182,9 +197,9 @@ def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (
     prependError m!"structural recursion failed, produced type incorrect term" do
       -- We create the `_unsafe_rec` before we abstract nested proofs.
       -- Reason: the nested proofs may be referring to the _unsafe_rec.
-      addNonRec preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList)
+      addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList)
   let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
-  addAndCompilePartialRec preDefs
+  addAndCompilePartialRec docCtx preDefs
   for preDef in preDefs, recArgPos in recArgPoss do
     let mut preDef := preDef
     unless preDef.kind.isTheorem do
@@ -196,7 +211,7 @@ def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (
         See issue #2327
         -/
         registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos fixedParamPerms
-    addSmartUnfoldingDef preDef recArgPos
+    addSmartUnfoldingDef docCtx preDef recArgPos
     markAsRecursive preDef.declName
   for preDef in preDefs do
     -- must happen in separate loop so realizations can see eqnInfos of all other preDefs

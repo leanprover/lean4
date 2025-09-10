@@ -25,11 +25,11 @@ File contents: Operations on associative lists
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe w v u
+universe w v u w'
 
 namespace Std.DHashMap.Internal
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w'} [Monad m]
 
 /--
 `AssocList α β` is "the same as" `List (α × β)`, but flattening the structure

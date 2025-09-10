@@ -15,7 +15,6 @@ public import Init.Data.List.Monadic
 public import Init.Data.List.OfFn
 public import Init.Data.Array.Mem
 public import Init.Data.Array.DecidableEq
-public import Init.Data.Array.Lex.Basic
 public import Init.Data.Range.Lemmas
 public import Init.TacticsExtra
 public import Init.Data.List.ToArray
@@ -1951,7 +1950,6 @@ theorem append_left_inj {xs₁ xs₂ : Array α} (ys) : xs₁ ++ ys = xs₂ ++ y
 @[simp] theorem append_eq_empty_iff {xs ys : Array α} : xs ++ ys = #[] ↔ xs = #[] ∧ ys = #[] := by
   cases xs <;> simp
 
-@[grind →]
 theorem eq_empty_of_append_eq_empty {xs ys : Array α} (h : xs ++ ys = #[]) : xs = #[] ∧ ys = #[] :=
   append_eq_empty_iff.mp h
 

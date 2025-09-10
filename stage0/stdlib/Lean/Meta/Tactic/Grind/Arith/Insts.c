@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Insts
-// Imports: Lean.Meta.Tactic.Grind.Arith.EvalNum Lean.Meta.Tactic.Grind.SynthInstance
+// Imports: Lean.Meta.Tactic.Grind.Arith.EvalNum Lean.Meta.Tactic.Grind.SynthInstance Init.Grind.Ring
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -863,6 +863,7 @@ return x_12;
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_EvalNum(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_SynthInstance(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Ring(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Insts(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -872,6 +873,9 @@ res = initialize_Lean_Meta_Tactic_Grind_Arith_EvalNum(builtin, lean_io_mk_world(
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_SynthInstance(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Ring(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__0 = _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__0();

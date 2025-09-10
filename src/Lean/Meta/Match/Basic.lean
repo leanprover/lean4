@@ -125,6 +125,7 @@ structure AltLHS where
   ref        : Syntax
   fvarDecls  : List LocalDecl -- Free variables used in the patterns.
   patterns   : List Pattern   -- We use `List Pattern` since we have nary match-expressions.
+  deriving Inhabited
 
 def AltLHS.collectFVars (altLHS: AltLHS) : StateRefT CollectFVars.State MetaM Unit := do
   altLHS.fvarDecls.forM fun fvarDecl => fvarDecl.collectFVars

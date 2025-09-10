@@ -44,8 +44,11 @@ deriving BEq, DecidableEq, Repr
 
 namespace Constraint
 
+private local instance : Append String where
+  append := String.Internal.append
+
 instance : ToString Constraint where
-  toString := fun
+  toString := private fun
   | ⟨none, none⟩ => "(-∞, ∞)"
   | ⟨none, some y⟩ => s!"(-∞, {y}]"
   | ⟨some x, none⟩ => s!"[{x}, ∞)"

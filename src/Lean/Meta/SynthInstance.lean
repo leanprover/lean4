@@ -216,9 +216,13 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
       -- Most instances have default priority.
       let result := result.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
       let erasedInstances ← getErasedInstances
+      let env ← getEnv
       let mut result ← result.filterMapM fun e => match e.val with
         | .const constName us =>
           if erasedInstances.contains constName then
+            return none
+          else if env.isExporting && !env.contains constName then
+            -- private instances must not leak into public scope
             return none
           else
             return some {

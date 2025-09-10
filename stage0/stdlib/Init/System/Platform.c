@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.Platform
-// Imports: Init.Data.Nat.Basic Init.Data.String.Basic
+// Imports: Init.Data.Nat.Basic Init.Data.String.Bootstrap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -133,7 +133,7 @@ return x_1;
 }
 }
 lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Bootstrap(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_System_Platform(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -142,7 +142,7 @@ _G_initialized = true;
 res = initialize_Init_Data_Nat_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_String_Bootstrap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_System_Platform_isWindows___closed__0 = _init_l_System_Platform_isWindows___closed__0();

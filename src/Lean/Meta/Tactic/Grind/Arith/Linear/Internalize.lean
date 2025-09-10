@@ -4,19 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-public import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
-
+public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
+public import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Arith.Util
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
+import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
+import Lean.Meta.Tactic.Grind.Arith.Linear.Var
+import Lean.Meta.Tactic.Grind.Arith.Linear.Util
+import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
 public section
-
-namespace Lean.Meta.Grind.Arith
-
-
-namespace Linear
+namespace Lean.Meta.Grind.Arith.Linear
 
 /-- If `e` is a function application supported by the linarith module, return its type. -/
 private def getType? (e : Expr) : Option Expr :=
@@ -92,11 +91,13 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     return ()
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
-  let some structId ← getStructId? type | return ()
-  LinearM.run structId do
-    trace[grind.linarith.internalize] "{e}"
+  if let some structId ← getStructId? type then LinearM.run structId do
     setTermStructId e
-    markAsLinarithTerm e
+    linearExt.markTerm e
     markVars e
+  else if let some natStructId ← getNatStructId? type then OfNatModuleM.run natStructId do
+    let (e', _) ← ofNatModule e
+    trace[grind.linarith.internalize] "{e} ==> {e'}"
+    linearExt.markTerm e
 
 end Lean.Meta.Grind.Arith.Linear

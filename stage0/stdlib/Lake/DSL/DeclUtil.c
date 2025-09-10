@@ -78,6 +78,7 @@ lean_object* l_Lean_Elab_Command_elabCommand(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
 static lean_object* l_Lake_DSL_declValDo___closed__3;
 static lean_object* l_Lake_DSL_identOrStr___closed__5;
+uint8_t l_Lean_instBEqMessageSeverity_beq(uint8_t, uint8_t);
 static lean_object* l_Lake_DSL_expandAttrs___closed__3;
 static lean_object* l_Lake_DSL_structVal___closed__4;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lake_DSL_DeclUtil_0__Lake_DSL_mkConfigFields_spec__11_spec__11___closed__16;
@@ -134,6 +135,7 @@ LEAN_EXPORT lean_object* l_Lake_DSL_bracketedSimpleBinder;
 static lean_object* l_Lake_DSL_elabConfig___closed__0;
 static lean_object* l_Lake_DSL_expandOptSimpleBinder___closed__28;
 LEAN_EXPORT lean_object* l_Lake_DSL_declValWhere;
+extern lean_object* l_Lean_Elab_Command_instInhabitedScope_default;
 extern lean_object* l_Lean_Elab_Command_instMonadEnvCommandElabM;
 static lean_object* l_Lake_DSL_identOrStr___closed__8;
 static lean_object* l_Lake_DSL_declValStruct___closed__1;
@@ -199,7 +201,6 @@ static lean_object* l_Lake_DSL_elabConfig___lam__0___closed__6;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoTree___at___Lean_Elab_pushInfoLeaf___at___Lean_Elab_addCompletionInfo___at_____private_Lake_DSL_DeclUtil_0__Lake_DSL_mkConfigFields_spec__6_spec__6_spec__6___redArg___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_152_;
 static lean_object* l_Lake_DSL_expandOptSimpleBinder___closed__3;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_simpleDeclSig___closed__11;
@@ -295,7 +296,6 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_l
 extern lean_object* l_Lean_Elab_Command_instAddErrorMessageContextCommandElabM;
 static lean_object* l_Lake_DSL_declValWhere___closed__1;
 static lean_object* l_Lake_DSL_bracketedSimpleBinder___closed__1;
-uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(uint8_t, uint8_t);
 static lean_object* l_Lean_logAt___at___Lean_logWarningAt___at_____private_Lake_DSL_DeclUtil_0__Lake_DSL_mkConfigFields_spec__9_spec__9___closed__0;
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
@@ -2306,7 +2306,7 @@ static lean_object* _init_l_Lean_addMessageContextPartial___at___Lean_throwError
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_152_;
+x_1 = l_Lean_Elab_Command_instInhabitedScope_default;
 return x_1;
 }
 }
@@ -3538,7 +3538,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_96; lean_object* x_97; uint8_t x_98; uint8_t x_99; lean_object* x_100; lean_object* x_101; uint8_t x_132; lean_object* x_133; lean_object* x_134; uint8_t x_135; uint8_t x_136; lean_object* x_137; uint8_t x_141; lean_object* x_142; uint8_t x_143; uint8_t x_144; uint8_t x_157; uint8_t x_158; lean_object* x_159; uint8_t x_160; uint8_t x_161; uint8_t x_163; uint8_t x_178; 
 x_157 = 2;
-x_178 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_3, x_157);
+x_178 = l_Lean_instBEqMessageSeverity_beq(x_3, x_157);
 if (x_178 == 0)
 {
 x_163 = x_178;
@@ -4152,7 +4152,7 @@ x_170 = lean_ctor_get(x_169, 1);
 lean_inc(x_170);
 lean_dec_ref(x_169);
 x_171 = 1;
-x_172 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_3, x_171);
+x_172 = l_Lean_instBEqMessageSeverity_beq(x_3, x_171);
 if (x_172 == 0)
 {
 lean_dec(x_170);

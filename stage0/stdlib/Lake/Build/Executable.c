@@ -87,7 +87,7 @@ LEAN_EXPORT lean_object* l___private_Lake_Build_Executable_0__Lake_LeanExe_recBu
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe_spec__8(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_Target_fetchIn___at_____private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe_spec__10___closed__0;
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
-static lean_object* l___private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe___boxed__const__1;
+LEAN_EXPORT lean_object* l___private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe___boxed__const__1;
 extern lean_object* l_ByteArray_empty;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
@@ -122,7 +122,7 @@ static lean_object* l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____p
 LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_LeanExe_exeFacetConfig_spec__0(uint8_t, lean_object*);
 static lean_object* l_Lake_ensureJob___at_____private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe_spec__24___closed__0;
 lean_object* l_System_FilePath_addExtension(lean_object*, lean_object*);
-static lean_object* l_Lake_OrdHashSet_empty___at_____private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe_spec__21;
+LEAN_EXPORT lean_object* l_Lake_OrdHashSet_empty___at_____private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe_spec__21;
 static lean_object* l_Lake_OrdHashSet_empty___at_____private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe_spec__21___closed__6;
 static lean_object* l___private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe___lam__0___closed__3;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -3553,7 +3553,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe_spec__24_spec__24___redArg___closed__3;
 x_2 = lean_unsigned_to_nat(47u);
-x_3 = lean_unsigned_to_nat(133u);
+x_3 = lean_unsigned_to_nat(134u);
 x_4 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe_spec__24_spec__24___redArg___closed__2;
 x_5 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe_spec__24_spec__24___redArg___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

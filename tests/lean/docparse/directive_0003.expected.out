@@ -1,0 +1,15 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.directive
+   ":::"
+   `multiPara
+   [(Lean.Doc.Syntax.named_no_paren
+     `greatness
+     ":="
+     (Lean.Doc.Syntax.arg_str
+      (str "\"amazing!\"")))
+    (Lean.Doc.Syntax.anon
+     (Lean.Doc.Syntax.arg_ident `foo))]
+   "\n"
+   []
+   ":::")
+All input consumed.

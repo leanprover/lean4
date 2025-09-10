@@ -887,11 +887,8 @@ The number of patterns must be the same in each `AltLHS`.
 The generated matcher has the structure described at `MatcherInfo`. The motive argument is of the form
 `(motive : (a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> Sort v)`
 where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition.
-
-If `exceptionIfContainsSorry := true`, then `mkMatcher` throws an exception if the auxiliary
-declarations contains a `sorry`. We use this argument to workaround a bug at `IndPredBelow.mkBelowMatcher`.
 -/
-def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : MetaM MatcherResult := withCleanLCtxFor input do
+def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor input do
   let ⟨matcherName, matchType, discrInfos, lhss⟩ := input
   let numDiscrs := discrInfos.size
   let numEqs := getNumEqsFromDiscrInfos discrInfos
@@ -904,11 +901,6 @@ def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : Met
   let uElim ← getLevel matchTypeBody
   let uElimGen ← if uElim == levelZero then pure levelZero else mkFreshLevelMVar
   let mkMatcher (type val : Expr) (minors : Array (Expr × Nat)) (s : State) : MetaM MatcherResult := do
-    let val ← instantiateMVars val
-    let type ← instantiateMVars type
-    if exceptionIfContainsSorry then
-      if type.hasSorry || val.hasSorry then
-        throwError "Failed to create auxiliary match declaration `{matcherName}` because it contains `sorry`"
     trace[Meta.Match.debug] "matcher value: {val}\ntype: {type}"
     trace[Meta.Match.debug] "minors num params: {minors.map (·.2)}"
     /- The option `bootstrap.gen_matcher_code` is a helper hack. It is useful, for example,
@@ -994,8 +986,9 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
   let matcherName := matcherApp.matcherName
   let some matcherInfo ← getMatcherInfo? matcherName
     | throwError "Internal error during match expression elaboration: Could not find a matcher named `{matcherName}`"
-  let matcherConst ← getConstInfo matcherName
-  let matcherType ← instantiateForall matcherConst.type <| matcherApp.params ++ #[matcherApp.motive]
+  let matcherConst ← getConstVal matcherName
+  let matcherType ← instantiateTypeLevelParams matcherConst matcherApp.matcherLevels.toList
+  let matcherType ← instantiateForall matcherType <| matcherApp.params ++ #[matcherApp.motive]
   let matchType ← do
     let u :=
       if let some idx := matcherInfo.uElimPos?

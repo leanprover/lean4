@@ -24,14 +24,14 @@ namespace Std.PRange
 instance [LE α] [LT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] [LawfulOrderLT α] : LawfulUpwardEnumerableLT α where
   lt_iff a b := by
-    simp only [LawfulOrderLT.lt_iff, LawfulUpwardEnumerableLE.le_iff]
+    simp only [LawfulOrderLT.lt_iff, UpwardEnumerable.le_iff]
     constructor
     · intro h
       obtain ⟨n, hn⟩ := h.1
       cases n
       · apply h.2.elim
         refine ⟨0, ?_⟩
-        simpa [UpwardEnumerable.succMany?_zero] using hn.symm
+        simpa [succMany?_zero] using hn.symm
       exact ⟨_, hn⟩
     · intro h
       constructor
@@ -41,63 +41,60 @@ instance [LE α] [LT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
 instance [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] :
     LawfulUpwardEnumerableLowerBound .closed α where
   isSatisfied_iff a l := by
-    simp [SupportsLowerBound.IsSatisfied, BoundedUpwardEnumerable.init?,
-      LawfulUpwardEnumerableLE.le_iff]
+    simp [SupportsLowerBound.IsSatisfied, init?, UpwardEnumerable.le_iff]
 
 instance [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]:
     LawfulUpwardEnumerableUpperBound .closed α where
   isSatisfied_of_le u a b hub hab := by
-    simp only [SupportsUpperBound.IsSatisfied, ← LawfulUpwardEnumerableLE.le_iff] at hub hab ⊢
+    simp only [SupportsUpperBound.IsSatisfied, ← UpwardEnumerable.le_iff] at hub hab ⊢
     exact Trans.trans hab hub
 
 instance [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLT α] :
     LawfulUpwardEnumerableLowerBound .open α where
   isSatisfied_iff a l := by
-    simp only [SupportsLowerBound.IsSatisfied, BoundedUpwardEnumerable.init?,
-      LawfulUpwardEnumerableLT.lt_iff]
+    simp only [SupportsLowerBound.IsSatisfied, init?, UpwardEnumerable.lt_iff]
     constructor
     · rintro ⟨n, hn⟩
-      simp only [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at hn
-      cases h : UpwardEnumerable.succ? l
+      simp only [succMany?_succ?_eq_succ?_bind_succMany?] at hn
+      cases h : succ? l
       · simp [h] at hn
       · exact ⟨_, rfl, n, by simpa [h] using hn⟩
     · rintro ⟨init, hi, n, hn⟩
-      exact ⟨n, by simpa [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, hi] using hn⟩
+      exact ⟨n, by simpa [succMany?_succ?_eq_succ?_bind_succMany?, hi] using hn⟩
 
 instance [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLT α] :
     LawfulUpwardEnumerableUpperBound .open α where
   isSatisfied_of_le u a b hub hab := by
-    simp only [SupportsUpperBound.IsSatisfied, LawfulUpwardEnumerableLT.lt_iff] at hub ⊢
+    simp only [SupportsUpperBound.IsSatisfied, UpwardEnumerable.lt_iff] at hub ⊢
     exact UpwardEnumerable.lt_of_le_of_lt hab hub
 
 instance [UpwardEnumerable α] [Least? α] [LawfulUpwardEnumerableLeast? α] :
     LawfulUpwardEnumerableLowerBound .unbounded α where
   isSatisfied_iff a l := by
-    simpa [SupportsLowerBound.IsSatisfied, BoundedUpwardEnumerable.init?] using
-      LawfulUpwardEnumerableLeast?.eq_succMany?_least? a
+    simpa [SupportsLowerBound.IsSatisfied, init?] using UpwardEnumerable.least?_le
 
 instance [LE α] [Total (α := α) (· ≤ ·)] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] :
     LinearlyUpwardEnumerable α where
   eq_of_succ?_eq a b hab := by
     cases Total.total (α := α) (r := (· ≤ ·)) a b <;> rename_i h <;>
-      simp only [LawfulUpwardEnumerableLE.le_iff] at h
+      simp only [UpwardEnumerable.le_iff] at h
     · obtain ⟨n, hn⟩ := h
       cases n
-      · simpa [UpwardEnumerable.succMany?_zero] using hn
+      · simpa [succMany?_zero] using hn
       · exfalso
-        rw [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, hab,
-          ← LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at hn
+        rw [succMany?_succ?_eq_succ?_bind_succMany?, hab,
+          ← succMany?_succ?_eq_succ?_bind_succMany?] at hn
         exact UpwardEnumerable.lt_irrefl ⟨_, hn⟩
     · obtain ⟨n, hn⟩ := h
       cases n
-      · simpa [UpwardEnumerable.succMany?_zero] using hn.symm
+      · simpa [succMany?_zero] using hn.symm
       · exfalso
-        rw [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, hab.symm,
-          ← LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at hn
+        rw [succMany?_succ?_eq_succ?_bind_succMany?, hab.symm,
+          ← succMany?_succ?_eq_succ?_bind_succMany?] at hn
         exact UpwardEnumerable.lt_irrefl ⟨_, hn⟩
 
 instance [UpwardEnumerable α] : LawfulUpwardEnumerableUpperBound .unbounded α where
@@ -122,24 +119,24 @@ instance LawfulRangeSize.open_of_closed [UpwardEnumerable α] [LE α] [Decidable
     simp only [SupportsUpperBound.IsSatisfied] at h
     simp only [RangeSize.size]
     by_cases h' : a ≤ bound
-    · match hs : UpwardEnumerable.succ? a with
+    · match hs : succ? a with
       | none => rw [LawfulRangeSize.size_eq_one_of_succ?_eq_none (h := h') (h' := by omega)]
       | some b =>
         rw [LawfulRangeSize.size_eq_succ_of_succ?_eq_some (h := h') (h' := hs)]
         have : ¬ b ≤ bound := by
           intro hb
           have : a < b := by
-            rw [LawfulUpwardEnumerableLT.lt_iff]
-            exact ⟨0, by simpa [UpwardEnumerable.succMany?_one] using hs⟩
+            rw [UpwardEnumerable.lt_iff]
+            exact ⟨0, by simpa [succMany?_one] using hs⟩
           exact h (lt_of_lt_of_le this hb)
         rw [LawfulRangeSize.size_eq_zero_of_not_isSatisfied (h := this)]
     · suffices RangeSize.size (shape := .closed) bound a = 0 by omega
       exact LawfulRangeSize.size_eq_zero_of_not_isSatisfied _ _ h'
   size_eq_one_of_succ?_eq_none bound a h h' := by
     exfalso
-    simp only [SupportsUpperBound.IsSatisfied, LawfulUpwardEnumerableLT.lt_iff] at h
+    simp only [SupportsUpperBound.IsSatisfied, UpwardEnumerable.lt_iff] at h
     obtain ⟨n, hn⟩ := h
-    simp [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, h'] at hn
+    simp [succMany?_succ?_eq_succ?_bind_succMany?, h'] at hn
   size_eq_succ_of_succ?_eq_some bound a a' h h' := by
     simp only [SupportsUpperBound.IsSatisfied] at h
     simp only [RangeSize.size, Nat.pred_eq_succ_iff]
@@ -148,10 +145,10 @@ instance LawfulRangeSize.open_of_closed [UpwardEnumerable α] [LE α] [Decidable
     · omega
     · simp only [Nat.succ_le_iff, LawfulRangeSize.size_pos_iff_isSatisfied,
         SupportsUpperBound.IsSatisfied]
-      rw [LawfulUpwardEnumerableLE.le_iff]
-      rw [LawfulUpwardEnumerableLT.lt_iff] at h
+      rw [UpwardEnumerable.le_iff]
+      rw [UpwardEnumerable.lt_iff] at h
       refine ⟨h.choose, ?_⟩
-      simpa [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, h'] using h.choose_spec
+      simpa [succMany?_succ?_eq_succ?_bind_succMany?, h'] using h.choose_spec
 
 instance LawfulRangeSize.instHasFiniteRanges [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [RangeSize su α] [SupportsUpperBound su α] [LawfulRangeSize su α] : HasFiniteRanges su α where
@@ -161,11 +158,11 @@ instance LawfulRangeSize.instHasFiniteRanges [UpwardEnumerable α] [LawfulUpward
     induction n generalizing init with
     | zero =>
       simp only [LawfulRangeSize.size_eq_zero_iff_not_isSatisfied] at hn
-      simp [UpwardEnumerable.succMany?_zero, hn]
+      simp [succMany?_zero, hn]
     | succ =>
       rename_i n ih
-      rw [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?]
-      match hs : UpwardEnumerable.succ? init with
+      rw [succMany?_succ?_eq_succ?_bind_succMany?]
+      match hs : succ? init with
       | none => simp
       | some a =>
         simp only [Option.bind_some]

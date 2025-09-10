@@ -243,6 +243,10 @@ theorem isSome_getElem?_iff_mem [TransCmp cmp] {a : α} :
     t[a]?.isSome ↔ a ∈ t :=
   mem_iff_isSome_getElem?.symm
 
+theorem getElem?_eq_some_iff [TransCmp cmp] {k : α} {v : β} :
+    t[k]? = some v ↔ ∃ h, t[k] = v :=
+  ExtDTreeMap.Const.get?_eq_some_iff
+
 theorem getElem?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t[a]? = none :=
   ExtDTreeMap.Const.get?_eq_none_of_contains_eq_false
@@ -444,6 +448,10 @@ theorem isSome_getKey?_iff_mem [TransCmp cmp] {a : α} :
 theorem mem_of_getKey?_eq_some [TransCmp cmp] {k k' : α} :
     t.getKey? k = some k' → k' ∈ t :=
   ExtDTreeMap.mem_of_getKey?_eq_some
+
+theorem getKey?_eq_some_iff [TransCmp cmp] {k k' : α} :
+    getKey? t k = some k' ↔ ∃ h, getKey t k h = k' :=
+  ExtDTreeMap.getKey?_eq_some_iff
 
 theorem getKey?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t.getKey? a = none :=
@@ -756,10 +764,6 @@ instance [TransCmp cmp] : LawfulGetElem (ExtTreeMap α β cmp) α β (fun m a =>
   getElem!_def m a := by
     rw [getElem!_eq_get!_getElem?]
     split <;> simp_all
-
-theorem getElem?_eq_some_iff [TransCmp cmp] {k : α} {v : β} :
-    t[k]? = some v ↔ ∃ h : k ∈ t, t[k] = v :=
-  _root_.getElem?_eq_some_iff
 
 @[simp, grind =]
 theorem length_keys [TransCmp cmp] :

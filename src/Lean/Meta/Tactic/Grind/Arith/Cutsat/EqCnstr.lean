@@ -602,7 +602,10 @@ private def propagateMod (e : Expr) : GoalM Unit := do
 
 private def propagateToInt (e : Expr) : GoalM Unit := do
   let_expr Grind.ToInt.toInt α _ _ a := e | return ()
-  if (← isToIntTerm a) then return ()
+  if (← isToIntTerm a) then
+    -- Save the mapping `a ==> e` for model construction
+    modify' fun s => { s with toIntVarMap := s.toIntVarMap.insert { expr := a } e }
+    return ()
   let some (eToInt, he) ← toInt? a α | return ()
   discard <| mkVar e
   if isSameExpr e eToInt then return ()

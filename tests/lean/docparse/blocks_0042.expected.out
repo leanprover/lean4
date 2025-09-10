@@ -1,0 +1,41 @@
+2 failures:
+  @71 (⟨8, 0⟩): expected closing '::::' for directive from line 3
+    ":::: a\n\nx\n"
+  @81 (⟨11, 0⟩): expected closing '::::' for directive from line 8
+    ""
+
+Final stack:
+  [(Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.text
+      (str
+       "\"Here's some error recovery for directives.\""))]
+    "}")
+   (Lean.Doc.Syntax.directive
+    "::::"
+    `foo
+    [(Lean.Doc.Syntax.anon
+      (Lean.Doc.Syntax.arg_num (num "5")))]
+    "\n"
+    [(Lean.Doc.Syntax.para
+      "para{"
+      [(Lean.Doc.Syntax.text (str "\"Indeed.\""))]
+      "}")
+     (Lean.Doc.Syntax.para
+      "para{"
+      [(Lean.Doc.Syntax.text (str "\"It is.\""))]
+      "}")]
+    <missing>)
+   (Lean.Doc.Syntax.directive
+    "::::"
+    `a
+    []
+    "\n"
+    [(Lean.Doc.Syntax.para
+      "para{"
+      [(Lean.Doc.Syntax.text (str "\"x\""))
+       (Lean.Doc.Syntax.linebreak
+        "line!"
+        (str "\"\\n\""))]
+      "}")]
+    <missing>)]

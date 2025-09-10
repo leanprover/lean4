@@ -1625,8 +1625,8 @@ return x_11;
 block_18:
 {
 lean_object* x_17; 
-lean_dec(x_14);
-x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_sortDeclLevelParams_spec__4___redArg(x_15, x_13, x_16);
+lean_dec(x_15);
+x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_sortDeclLevelParams_spec__4___redArg(x_14, x_13, x_16);
 lean_dec(x_16);
 x_8 = x_17;
 goto block_12;
@@ -1669,16 +1669,16 @@ if (x_31 == 0)
 {
 lean_inc(x_30);
 x_19 = x_30;
-x_20 = x_27;
-x_21 = x_26;
+x_20 = x_26;
+x_21 = x_27;
 x_22 = x_30;
 goto block_24;
 }
 else
 {
 x_19 = x_30;
-x_20 = x_27;
-x_21 = x_26;
+x_20 = x_26;
+x_21 = x_27;
 x_22 = x_25;
 goto block_24;
 }

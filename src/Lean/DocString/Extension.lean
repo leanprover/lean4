@@ -61,10 +61,30 @@ register_builtin_option doc.verso : Bool := {
 }
 
 private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mkRef {}
-builtin_initialize docStringExt : MapDeclarationExtension String ← mkMapDeclarationExtension (asyncMode := .async .asyncEnv)
+builtin_initialize docStringExt : MapDeclarationExtension String ←
+  mkMapDeclarationExtension
+    (asyncMode := .async .asyncEnv)
+    (exportEntriesFn := fun _ s level =>
+      if level < .server then
+        {}
+      else
+        s.toArray)
+private builtin_initialize inheritDocStringExt : MapDeclarationExtension Name ←
+  mkMapDeclarationExtension (exportEntriesFn := fun _ s level =>
+    if level < .server then
+      {}
+    else
+      s.toArray)
 
 private builtin_initialize builtinVersoDocStrings : IO.Ref (NameMap VersoDocString) ← IO.mkRef {}
-builtin_initialize versoDocStringExt : MapDeclarationExtension VersoDocString ← mkMapDeclarationExtension (asyncMode := .async .asyncEnv)
+builtin_initialize versoDocStringExt : MapDeclarationExtension VersoDocString ←
+  mkMapDeclarationExtension
+    (asyncMode := .async .asyncEnv)
+    (exportEntriesFn := fun _ s level =>
+      if level < .server then
+        {}
+      else
+        s.toArray)
 
 /--
 Adds a builtin docstring to the compiler.
@@ -85,17 +105,28 @@ def addDocStringCore' [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m
   | some docString => addDocStringCore declName docString
   | none => return ()
 
+def addInheritedDocString [Monad m] [MonadError m] [MonadEnv m] (declName target : Name) : m Unit := do
+  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
+    throwError "invalid `[inherit_doc]` attribute, declaration `{.ofConstName declName}` is in an imported module"
+  if inheritDocStringExt.find? (level := .server) (← getEnv) declName |>.isSome then
+    throwError "invalid `[inherit_doc]` attribute, declaration `{.ofConstName declName}` already has an `[inherit_doc]` attribute"
+  if inheritDocStringExt.find? (level := .server) (← getEnv) target == some declName then
+    throwError "invalid `[inherit_doc]` attribute, cycle detected"
+  modifyEnv fun env => inheritDocStringExt.insert env declName target
+
 /--
 Finds a docstring without performing any alias resolution or enrichment with extra metadata.
 For Markdown docstrings, the result is a string; for Verso docstrings, it's a `VersoDocString`.
 
 Docstrings to be shown to a user should be looked up with `Lean.findDocString?` instead.
 -/
-def findInternalDocString? (env : Environment) (declName : Name) (includeBuiltin := true) : IO (Option (String ⊕ VersoDocString)) := do
-  match docStringExt.find? env declName with
+partial def findInternalDocString? (env : Environment) (declName : Name) (includeBuiltin := true) : IO (Option (String ⊕ VersoDocString)) := do
+  if let some target := inheritDocStringExt.find? (level := .server) env declName then
+    return (← findInternalDocString? env target includeBuiltin)
+  match docStringExt.find? (level := .server) env declName with
   | some md => return some (.inl md)
   | none => pure ()
-  match versoDocStringExt.find? env declName with
+  match versoDocStringExt.find? (level := .server) env declName with
   | some v => return some (.inr v)
   | none => pure ()
   if includeBuiltin then

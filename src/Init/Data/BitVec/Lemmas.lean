@@ -6210,7 +6210,7 @@ theorem ctz_lt_iff_ne_zero {x : BitVec w} :
   apply clz_lt_iff_ne_zero (x := x.reverse)
 
 /-- If a bitvec is different than zero the bits at indexes lower than `ctz x` are false. -/
-theorem getLsbD_false_ctz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hi : i < x.ctz.toNat) (hi' : i < w):
+theorem getLsbD_false_of_lt_ctz {x : BitVec w} (hi : i < x.ctz.toNat) (hi' : i < w) :
     x.getLsbD i = false := by
   simp only [ctz_eq_reverse_clz, clz] at hi
   rw [getLsbD_eq_getMsbD, ← getLsbD_reverse]
@@ -6226,7 +6226,7 @@ theorem getLsbD_false_ctz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hi : i < x.ctz
 
 /-- If a bitvec is different than zero, the bit at index `ctz x`, i.e., the first bit after the
   trailing zeros is true. -/
-theorem getLsbD_true_ctz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
+theorem getLsbD_true_ctz_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
     x.getLsbD (ctz x).toNat = true := by
   simp only [ctz_eq_reverse_clz, clz]
   rw [getLsbD_eq_getMsbD, ← getLsbD_reverse]
@@ -6239,9 +6239,9 @@ theorem getLsbD_true_ctz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w)
   simp [show w ≤ i by omega]
 
 /-- A nonzero bitvector is lower-bounded by its leading zeroes. -/
-theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
+theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
     2 ^ (ctz x).toNat ≤ x.toNat := by
-  have hclz := getLsbD_true_ctz_of_ne_zero (x := x) hw hx
+  have hclz := getLsbD_true_ctz_of_ne_zero (x := x) hx
   exact Nat.ge_two_pow_of_testBit hclz
 
 /-! ### Deprecations -/

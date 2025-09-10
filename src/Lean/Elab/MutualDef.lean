@@ -1282,7 +1282,7 @@ where
       if env.header.isModule && !env.isExporting then
         for header in headers do
           for attr in header.modifiers.attrs do
-            if attr.name == `expose then
+            if attr.name == `expose && attr.stx.getHeadInfo matches .original .. then
               logWarningAt attr.stx m!"Redundant `[expose]` attribute, it is meaningful on public \
                 definitions only"
 

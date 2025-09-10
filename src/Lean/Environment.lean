@@ -2326,7 +2326,8 @@ as `meta` or otherwise fails with an error. It should only be set to `false` in 
 acceptable for code to work only in the language server, where more IR is loaded, such as in
 `#eval`.
 -/
-unsafe def evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) (checkMeta := true) : Except String α :=
+-- `[noinline]` helps with `prefer_native` so as to avoid trying to interpret the extern function
+@[noinline] unsafe def evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) (checkMeta := true) : Except String α :=
   if checkMeta && getIRPhases env constName == .runtime then
     throw ("cannot evaluate non-`meta` constant '" ++ toString constName ++ "'")
   else

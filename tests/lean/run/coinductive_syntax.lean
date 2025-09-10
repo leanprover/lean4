@@ -1,6 +1,3 @@
-set_option trace.Elab.coinductive true
-set_option trace.Meta.SumOfProducts true
-
 section
 variable (α : Type)
 coinductive infSeq (r : α → α → Prop): α → Prop where

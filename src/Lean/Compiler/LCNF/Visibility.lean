@@ -57,23 +57,29 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl) : CompilerM Unit := 
             markDeclPublicRec phase refDecl
 
 /-- Checks whether references in the given declaration adhere to phase distinction. -/
-partial def checkMeta (isMeta : Bool) (decl : Decl) : CompilerM Unit := go decl |>.run' {}
-where go (decl : Decl) : StateT NameSet CompilerM Unit := do
+partial def checkMeta (isMeta : Bool) (origDecl : Decl) : CompilerM Unit :=
+  let isPublic := !isPrivateName origDecl.name
+  go isPublic origDecl |>.run' {}
+where go (isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit := do
   decl.value.forCodeM fun code =>
     for ref in collectUsedDecls code do
       if (← get).contains ref then
         continue
       modify (·.insert decl.name)
+      if isMeta && isPublic then
+        if let some modIdx := (← getEnv).getModuleIdxFor? ref then
+          if (← getEnv).header.modules[modIdx]?.any (!·.isExported) then
+            throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, `{.ofConstName ref}` not publicly marked or imported as `meta`"
       match getIRPhases (← getEnv) ref, isMeta with
       | .runtime, true =>
-        throwError "Invalid `meta` definition, may not access declaration `{.ofConstName ref}` not marked or imported as `meta`"
+        throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, may not access declaration `{.ofConstName ref}` not marked or imported as `meta`"
       | .comptime, false =>
-        throwError "Invalid definition, may not access declaration `{.ofConstName ref}` marked or imported as `meta`"
+        throwError "Invalid definition `{.ofConstName origDecl.name}`, may not access declaration `{.ofConstName ref}` marked or imported as `meta`"
       | .all, _ =>
         -- We allow auxiliary defs to be used in either phase but we need to recursively check
         -- *their* references in this case.
         if let some refDecl ← getLocalDecl? ref then
-          go refDecl
+          go isPublic refDecl
       | _, _ => pure ()
 
 @[export lean_eval_check_meta]

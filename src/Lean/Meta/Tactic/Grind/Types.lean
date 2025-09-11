@@ -1485,6 +1485,8 @@ def Solvers.checkInvariants : GoalM Unit := do
 def Solvers.check : GoalM Bool := do
   let mut result := false
   for ext in (← solverExtensionsRef.get) do
+    if (← isInconsistent) then
+      return true
     if (← ext.check) then
       result := true
   if result then

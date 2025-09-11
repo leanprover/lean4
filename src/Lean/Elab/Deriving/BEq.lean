@@ -6,11 +6,14 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
-public import Lean.Elab.Deriving.Basic
-public import Lean.Elab.Deriving.Util
+public import Lean.Data.Options
+import Lean.Meta.Transform
+import Lean.Elab.Deriving.Basic
+import Lean.Elab.Deriving.Util
+import Lean.Meta.Constructions.CtorIdx
+import Lean.Meta.Constructions.CasesOnSameCtor
+import Lean.Meta.Eqns
 
-public section
 
 namespace Lean.Elab.Deriving.BEq
 open Lean.Parser.Term
@@ -143,6 +146,8 @@ def mkBEqInstance (declName : Name) : CommandElabM Unit := do
       else
         mkBEqInstanceCmds ctx declName
     cmds.forM elabCommand
+    unless ctx.usePartial do
+      elabCommand (← `(attribute [method_specs] $(mkIdent ctx.instName):ident))
 
 def mkBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then

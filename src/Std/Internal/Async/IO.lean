@@ -22,6 +22,18 @@ namespace IO
 open Std.Internal.IO.Async
 
 /--
+Interface for asynchronous reading operations
+-/
+class AsyncRead (α : Type) (β : outParam Type) where
+  read : α → Async β
+
+/--
+Interface for asynchronous writing operations
+-/
+class AsyncWrite (α : Type) (β : outParam Type) where
+  write : α → β → Async Unit
+
+/--
 Interface for asynchronous streaming with selector-based iteration
 -/
 class AsyncStream (α : Type) (β : outParam Type) where

@@ -1009,27 +1009,61 @@ where
     | .bvar idx   => modify fun s => if s.contains idx then s else idx :: s
     | _           => return ()
 
-private def diff (s : List Nat) (found : Std.HashSet Nat) : List Nat :=
-  if found.isEmpty then s else s.filter fun x => !found.contains x
+private def sizeOfDiff (s₁ s₂ : Std.HashSet Nat) : Nat :=
+  s₂.fold (init := s₁.size) fun num idx =>
+    if s₁.contains idx then num - 1 else num
 
 /--
-Returns `true` if pattern `p` contains a child `c` such that
-1- `p` and `c` have the same new pattern variables. We say a pattern variable is new if it is not in `alreadyFound`.
-2- `c` is not a support argument. See `NormalizePattern.getPatternSupportMask` for definition.
-3- `c` is not an offset pattern.
-4- `c` is not a bound variable.
+Normalizes `e` if it qualifies as a candidate pattern, and returns
+`some p` where `p` is the normalized pattern.
+
+`argKinds == NormalizePattern.getPatternArgKinds e.getAppFn e.getAppNumArgs`
 -/
-private def hasChildWithSameNewBVars (p : Expr)
-    (argKinds : Array NormalizePattern.PatternArgKind) (alreadyFound : Std.HashSet Nat) : CoreM Bool := do
-  let s := diff (collectPatternBVars p) alreadyFound
-  for arg in p.getAppArgs, argKind in argKinds do
-    unless argKind.isSupport do
-    unless arg.isBVar do
-    unless isOffsetPattern? arg |>.isSome do
-      let sArg := diff (collectPatternBVars arg) alreadyFound
-      if s ⊆ sArg then
-        return true
-  return false
+private def normalizePattern? (e : Expr) (argKinds : Array NormalizePattern.PatternArgKind) : CollectorM (Option Expr) := do
+  let p := e.abstract (← read).xs
+  unless p.hasLooseBVars do
+    trace[grind.debug.ematch.pattern] "skip, does not contain pattern variables"
+    return none
+  -- Normalization state before normalizing `e`
+  let stateBefore ← getThe NormalizePattern.State
+  let failed : CollectorM (Option Expr) := do
+    set stateBefore
+    return none
+  -- Returns the number of new variables with respect to `saved`
+  let getNumNewBVars : NormalizePattern.M Nat := do
+    return sizeOfDiff (← get).bvarsFound stateBefore.bvarsFound
+  try
+    let p ← NormalizePattern.normalizePattern p
+    let stateAfter ← getThe NormalizePattern.State
+    let numNewBVars ← getNumNewBVars
+    if numNewBVars == 0 then
+      trace[grind.debug.ematch.pattern] "skip, no new variables covered"
+      return (← failed)
+    /-
+    Checks whether one of `e`s children subsumes it. We say a child `c` subsumes `e`
+    1- `e` and `c` have the same new pattern variables. We say a pattern variable is new if it is not in `stateOld.bvarsFound`.
+    2- `c` is not a support argument. See `NormalizePattern.getPatternSupportMask` for definition.
+    3- `c` is not an offset pattern.
+    4- `c` is not a bound variable.
+    5- `c` is also a candidate.
+    -/
+    for arg in e.getAppArgs, argKind in argKinds do
+      unless argKind.isSupport do
+      unless arg.isFVar do
+      unless isOffsetPattern? arg |>.isSome do
+      if (← isPatternFnCandidate arg.getAppFn) then
+        let pArg := arg.abstract (← read).xs
+        set stateBefore
+        discard <|  NormalizePattern.normalizePattern pArg
+        let numArgNewBVars ← getNumNewBVars
+        if numArgNewBVars == numNewBVars then
+          trace[grind.debug.ematch.pattern] "skip, subsumed by argument"
+          return (← failed)
+    set stateAfter
+    return some p
+  catch ex =>
+    trace[grind.debug.ematch.pattern] "skip, exception during normalization{indentD ex.toMessageData}"
+    failed
 
 private partial def collect (e : Expr) : CollectorM Unit := do
   if (← get).done then return ()
@@ -1039,27 +1073,13 @@ private partial def collect (e : Expr) : CollectorM Unit := do
     let f := e.getAppFn
     let argKinds ← NormalizePattern.getPatternArgKinds f e.getAppNumArgs
     if (← isPatternFnCandidate f) then
-      let saved ← getThe NormalizePattern.State
-      try
-        trace[grind.debug.ematch.pattern] "candidate: {e}"
-        let p := e.abstract (← read).xs
-        unless p.hasLooseBVars do
-          trace[grind.debug.ematch.pattern] "skip, does not contain pattern variables"
-          return ()
-        let p ← NormalizePattern.normalizePattern p
-        if saved.bvarsFound.size < (← getThe NormalizePattern.State).bvarsFound.size then
-          unless (← hasChildWithSameNewBVars p argKinds saved.bvarsFound) do
-            addNewPattern p
-            return ()
-        trace[grind.debug.ematch.pattern] "skip, no new variables covered"
-        -- restore state and continue search
-        set saved
-      catch ex =>
-        trace[grind.debug.ematch.pattern] "skip, exception during normalization{indentD ex.toMessageData}"
-        -- restore state and continue search
-        set saved
+      trace[grind.debug.ematch.pattern] "candidate: {e}"
+      if let some p ← normalizePattern? e argKinds then
+        addNewPattern p
+        return ()
     let args := e.getAppArgs
     for arg in args, argKind in argKinds do
+      unless isOffsetPattern? arg |>.isSome do
       trace[grind.debug.ematch.pattern] "arg: {arg}, support: {argKind.isSupport}"
       unless argKind.isSupport do
         collect arg

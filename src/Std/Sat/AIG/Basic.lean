@@ -396,7 +396,7 @@ structure Entrypoint (α : Type) [DecidableEq α] [Hashable α] where
 /--
 Transform an `Entrypoint` into a graphviz string. Useful for debugging purposes.
 -/
-def toGraphviz {α : Type} [DecidableEq α] [ToString α] [Hashable α] (entry : Entrypoint α) :
+partial def toGraphviz {α : Type} [DecidableEq α] [ToString α] [Hashable α] (entry : Entrypoint α) :
     String :=
   let ⟨⟨decls, _, hinv, _, _⟩, ⟨idx, invert, h⟩⟩ := entry
   let (dag, s) := go "" decls hinv idx h |>.run ∅

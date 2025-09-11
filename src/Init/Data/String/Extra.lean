@@ -104,8 +104,7 @@ where
 
 /--
 Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
-the corresponding string. Invalid UTF-8 characters in the byte array result in `(default : Char)`,
-or `'A'`, in the string.
+the corresponding string.
 -/
 @[extern "lean_string_from_utf8_unchecked"]
 def fromUTF8 (a : @& ByteArray) (h : validateUTF8 a) : String :=

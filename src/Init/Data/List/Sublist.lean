@@ -651,7 +651,7 @@ theorem infix_append (l₁ l₂ l₃ : List α) : l₂ <:+: l₁ ++ l₂ ++ l₃
 @[simp] theorem infix_append' (l₁ l₂ l₃ : List α) : l₂ <:+: l₁ ++ (l₂ ++ l₃) := by
   rw [← List.append_assoc]; apply infix_append
 
-grind_pattern infix_append' => l₁ <:+: l₁ ++ (l₂ ++ l₃)
+grind_pattern infix_append' => l₂ <:+: l₁ ++ (l₂ ++ l₃)
 
 theorem infix_append_left : l₁ <:+: l₁ ++ l₂ := ⟨[], l₂, rfl⟩
 theorem infix_append_right : l₂ <:+: l₁ ++ l₂ := ⟨l₁, [], by simp⟩

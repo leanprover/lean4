@@ -120,23 +120,6 @@ theorem ByteArray.utf8Decode?.go.congr {b b' : ByteArray} {fuel fuel' i i' : Nat
         obtain rfl : c₁ = c₂ := by rw [← Option.some_inj, ← hc₁, ← hc₂]
         apply ih
 
--- def ByteArray.utf8Decode? (b : Byte)
-
--- def ByteArray.utf8Decode? (b : ByteArray) : Option (Array Char) :=
---   go 0 (by simp) #[]
--- where
---   go (i : Nat) (hi : i ≤ b.size) (acc : Array Char) : Option (Array Char) :=
---     if i = b.size then
---       some acc
---     else
---       match h : utf8DecodeChar? b i with
---       | none => none
---       | some c => go (i + c.utf8Size) (le_size_of_utf8DecodeChar?_eq_some h) (acc.push c)
---   termination_by b.size - i
---   decreasing_by
---     have := c.utf8Size_pos
---     omega
-
 @[simp]
 theorem ByteArray.utf8Decode?_empty : ByteArray.empty.utf8Decode? = some #[] := by
   simp [utf8Decode?, utf8Decode?.go]
@@ -171,22 +154,6 @@ theorem ByteArray.isSome_utf8Decode?_iff {b : ByteArray} :
 
 @[simp]
 theorem String.bytes_empty : "".bytes = ByteArray.empty := (rfl)
-
--- instance : Add String.ByteOffset where
---   add a b := ⟨a.numBytes + b.numBytes⟩
-
--- instance : Sub String.ByteOffset where
---   sub a b := ⟨a.numBytes - b.numBytes⟩
-
--- instance : LT String.ByteOffset where
---   lt a b := a.numBytes < b.numBytes
-
--- instance : DecidableLT String.ByteOffset :=
---   inferInstanceAs (∀ a b : String.ByteOffset, Decidable (a.numBytes < b.numBytes))
-
--- @[inline]
--- def String.Slice.utf8Size (s : String.Slice) : String.ByteOffset :=
---   s.endExclusive.offset - s.startInclusive.offset
 
 /--
 Appends two strings. Usually accessed via the `++` operator.
@@ -236,16 +203,16 @@ theorem List.asString_append {l₁ l₂ : List Char} : (l₁ ++ l₂).asString =
   simp [← String.bytes_inj]
 
 @[expose]
-def String.toCharArray (b : String) : Array Char :=
+def String.Internal.toArray (b : String) : Array Char :=
   b.bytes.utf8Decode?.get (b.bytes.isSome_utf8Decode?_iff.2 b.isValidUtf8)
 
 @[simp]
-theorem String.toCharArray_empty : "".toCharArray = #[] := by
-  simp [toCharArray]
+theorem String.Internal.toArray_empty : String.Internal.toArray "" = #[] := by
+  simp [toArray]
 
 @[extern "lean_string_data", expose]
 def String.data (b : String) : List Char :=
-  b.toCharArray.toList
+  (String.Internal.toArray b).toList
 
 @[simp]
 theorem String.data_empty : "".data = [] := by
@@ -261,11 +228,11 @@ Examples:
 -/
 @[extern "lean_string_length"]
 def String.length (b : String) : Nat :=
-  b.toCharArray.size
+  b.data.length
 
 @[simp]
-theorem String.size_toCharArray {b : String} :
-    b.toCharArray.size = b.length := (rfl)
+theorem String.Internal.size_toArray {b : String} : (String.Internal.toArray b).size = b.length :=
+  (rfl)
 
 @[simp]
 theorem String.length_data {b : String} : b.data.length = b.length := (rfl)
@@ -345,7 +312,7 @@ theorem ByteArray.utf8Encode_get_utf8Decode? {b : ByteArray} {h} :
 
 @[simp]
 theorem List.data_asString {l : List Char} : l.asString.data = l := by
-  simp [String.data, String.toCharArray]
+  simp [String.data, String.Internal.toArray]
 
 @[simp]
 theorem String.asString_data {b : String} : b.data.asString = b := by

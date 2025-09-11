@@ -200,7 +200,7 @@ theorem mem_attach (xs : Vector α n) : ∀ x, x ∈ xs.attach
     rcases this with ⟨⟨_, _⟩, m, rfl⟩
     exact m
 
-@[simp, grind]
+@[simp, grind =]
 theorem mem_attachWith {xs : Vector α n} {q : α → Prop} (H) (x : {x // q x}) :
     x ∈ xs.attachWith q H ↔ x.1 ∈ xs := by
   rcases xs with ⟨xs, rfl⟩

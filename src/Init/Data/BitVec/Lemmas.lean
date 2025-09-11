@@ -37,7 +37,7 @@ namespace BitVec
 @[simp] theorem getElem_ofFin (x : Fin (2^n)) (i : Nat) (h : i < n) :
     (BitVec.ofFin x)[i] = x.val.testBit i := rfl
 
-@[simp, grind] theorem getMsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsbD x i = false := by
+@[simp, grind =] theorem getMsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsbD x i = false := by
   rw [getMsbD]
   simp only [Bool.and_eq_false_imp, decide_eq_true_eq]
   omega

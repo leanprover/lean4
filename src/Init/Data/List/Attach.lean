@@ -174,7 +174,7 @@ theorem mem_attach (l : List α) : ∀ x, x ∈ l.attach
     rcases this with ⟨⟨_, _⟩, m, rfl⟩
     exact m
 
-@[simp, grind]
+@[simp, grind =]
 theorem mem_attachWith {l : List α} {q : α → Prop} (H) (x : {x // q x}) :
     x ∈ l.attachWith q H ↔ x.1 ∈ l := by
   induction l with

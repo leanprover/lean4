@@ -396,7 +396,7 @@ structure Entrypoint (α : Type) [DecidableEq α] [Hashable α] where
 /--
 Transform an `Entrypoint` into a graphviz string. Useful for debugging purposes.
 -/
-partial def toGraphviz {α : Type} [DecidableEq α] [ToString α] [Hashable α] (entry : Entrypoint α) :
+def toGraphviz {α : Type} [DecidableEq α] [ToString α] [Hashable α] (entry : Entrypoint α) :
     String :=
   let ⟨⟨decls, _, hinv, _, _⟩, ⟨idx, invert, h⟩⟩ := entry
   let (dag, s) := go "" decls hinv idx h |>.run ∅
@@ -422,6 +422,7 @@ where
       let hlr := hinv hidx elem
       let laig ← go (acc ++ curr) decls hinv lidx (by omega)
       go laig decls hinv ridx (by omega)
+  termination_by idx
   invEdgeStyle (isInv : Bool) : String :=
     if isInv then " [color=red]" else " [color=blue]"
   toGraphvizString {α : Type} [DecidableEq α] [ToString α] [Hashable α] (decls : Array (Decl α))

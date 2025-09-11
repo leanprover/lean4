@@ -1159,7 +1159,7 @@ register_builtin_option backward.grind.inferPattern : Bool := {
 }
 
 register_builtin_option backward.grind.checkInferPatternDiscrepancy : Bool := {
-  defValue := true
+  defValue := false
   group    := "backward compatibility"
   descr    := "check whether old and new pattern inference procedures infer the same pattern"
 }
@@ -1184,8 +1184,11 @@ private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Ar
   if backward.grind.checkInferPatternDiscrepancy.get (← getOptions) then
     let oldResult? ← collect? (useOld := true)
     let newResult? ← collect? (useOld := false)
+    let toPattern (result? : Option (List Expr × List HeadIndex)) : List MessageData :=
+      let pat := result?.map (·.1) |>.getD []
+      pat.map ppPattern
     if oldResult? != newResult? then
-      logWarning m!"found discrepancy between old and new `grind` pattern inference procedures, old:{indentD (toMessageData $ oldResult?.map (·.1))}\nnew:{indentD (toMessageData $ newResult?.map (·.1))}\nuse `set_option backward.grind.inferPattern true` to force old procedure"
+      logWarning m!"found discrepancy between old and new `grind` pattern inference procedures, old:{indentD (toPattern oldResult?)}\nnew:{indentD (toPattern newResult?)}\nuse `set_option backward.grind.inferPattern true` to force old procedure"
     return newResult?
   else
     let useOld := backward.grind.inferPattern.get (← getOptions)

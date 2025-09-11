@@ -26,9 +26,9 @@ def wrapper (f : Nat → Nat → List α → List α) (h : ∀ n m xs, xs.length
 
 /--
 warning: found discrepancy between old and new `grind` pattern inference procedures, old:
-  some ([(toList #0).length])
+  [@List.length #2 (@toList _ #1 #0)]
 new:
-  some ([toList #0])
+  [@toList #2 #1 #0]
 use `set_option backward.grind.inferPattern true` to force old procedure
 -/
 #guard_msgs in

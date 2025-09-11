@@ -122,7 +122,7 @@ builtin_initialize methodSpecsAttr : ParametricAttribute MethodSpecsAttrData ←
   }
 
 builtin_initialize methodSpecsSimpExtension : SimpExtension ←
-  registerSimpAttr `method_specs_norm
+  registerSimpAttr `method_specs_simp
     "simp lemma used to post-process the theorem created by `@[method_specs]`."
 
 def rewriteThm (ctx : Simp.Context) (simprocs : Simprocs)

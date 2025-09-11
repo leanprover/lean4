@@ -55,7 +55,7 @@ info: theorem instBEqL.beq_spec_3.{u_1} : ∀ {α : Type u_1} [inst : BEq α] (x
 
 -- Test rewriting all the way to HAppend
 
-@[method_specs_norm] theorem Append.append_eq_happend :
+@[method_specs_simp] theorem Append.append_eq_happend :
   @Append.append α inst = @HAppend.hAppend α α α (@instHAppendOfAppend α inst) := rfl
 
 def L.append {α : Type u} : L α → L α → L α
@@ -77,7 +77,7 @@ class Cls α where op : α → α
 class HCls α where hOp : α → α
 instance instHClsOfCls [Cls α] : HCls α where hOp := Cls.op
 -- NB: Not a rfl theorem
-@[method_specs_norm] theorem Cls.op_eq_hOp : @Cls.op α inst = @HCls.hOp α (@instHClsOfCls α inst) := (rfl)
+@[method_specs_simp] theorem Cls.op_eq_hOp : @Cls.op α inst = @HCls.hOp α (@instHClsOfCls α inst) := (rfl)
 
 def L.op {α : Type u} : L α → L α
   | nil        => nil

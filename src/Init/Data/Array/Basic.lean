@@ -40,11 +40,11 @@ namespace Array
 
 /-! ### Preliminary theorems -/
 
-@[simp, grind] theorem size_set {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
+@[simp, grind =] theorem size_set {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
     (set xs i v h).size = xs.size :=
   List.length_set ..
 
-@[simp, grind] theorem size_push {xs : Array α} (v : α) : (push xs v).size = xs.size + 1 :=
+@[simp, grind =] theorem size_push {xs : Array α} (v : α) : (push xs v).size = xs.size + 1 :=
   List.length_concat ..
 
 theorem ext {xs ys : Array α}
@@ -132,7 +132,7 @@ theorem toList_toArray {as : List α} : as.toArray.toList = as := rfl
 @[deprecated toList_toArray (since := "2025-02-17")]
 abbrev _root_.Array.toList_toArray := @List.toList_toArray
 
-@[simp, grind] theorem size_toArray {as : List α} : as.toArray.size = as.length := by simp [Array.size]
+@[simp, grind =] theorem size_toArray {as : List α} : as.toArray.size = as.length := by simp [Array.size]
 
 @[deprecated size_toArray (since := "2025-02-17")]
 abbrev _root_.Array.size_toArray := @List.size_toArray

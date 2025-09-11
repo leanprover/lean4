@@ -36,7 +36,7 @@ open Nat
 @[simp, grind =] theorem findSome?_push {xs : Vector α n} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
   cases xs; simp
 
-@[grind]
+@[grind =]
 theorem findSome?_singleton {a : α} {f : α → Option β} : #v[a].findSome? f = f a := by
   simp
 
@@ -228,10 +228,11 @@ theorem mem_of_find?_eq_some {xs : Vector α n} (h : find? p xs = some a) : a �
   simp at h
   simpa using Array.mem_of_find?_eq_some h
 
-@[grind]
 theorem get_find?_mem {xs : Vector α n} (h) : (xs.find? p).get h ∈ xs := by
   cases xs
   simp [Array.get_find?_mem]
+
+grind_pattern get_find?_mem => (xs.find? p).get h
 
 @[simp, grind =] theorem find?_map {f : β → α} {xs : Vector β n} :
     find? p (xs.map f) = (xs.find? (p ∘ f)).map f := by

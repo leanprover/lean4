@@ -3243,7 +3243,7 @@ theorem contains_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpt
     t.contains t.minKey! :=
   Impl.contains_minKey! h he
 
-@[grind]
+@[grind ←]
 theorem minKey!_mem [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
     t.minKey! ∈ t :=
   Impl.minKey!_mem h he
@@ -3740,7 +3740,7 @@ theorem contains_maxKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpt
     t.contains t.maxKey! :=
   Impl.contains_maxKey! h he
 
-@[grind]
+@[grind ←]
 theorem maxKey!_mem [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
     t.maxKey! ∈ t :=
   Impl.maxKey!_mem h he
@@ -3887,7 +3887,7 @@ theorem contains_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fal
     t.contains (t.maxKeyD fallback) :=
   Impl.contains_maxKeyD h he
 
-@[grind]
+@[grind ←]
 theorem maxKeyD_mem [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
     t.maxKeyD fallback ∈ t :=
   Impl.maxKeyD_mem h he

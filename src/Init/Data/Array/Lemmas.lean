@@ -380,6 +380,12 @@ theorem not_mem_empty (a : α) : ¬ a ∈ #[] := by simp
 theorem mem_or_eq_of_mem_push {a b : α} {xs : Array α} :
     a ∈ xs.push b → a ∈ xs ∨ a = b := Array.mem_push.mp
 
+-- This pattern may be excessively general:
+-- it fires anytime we ae thinking about membership of arrays,
+-- and constructing a list via `push`, even if the elements are unrelated.
+-- Nevertheless in practice it is quite helpful!
+grind_pattern mem_or_eq_of_mem_push => xs.push b, a ∈ xs
+
 theorem mem_push_self {xs : Array α} {x : α} : x ∈ xs.push x :=
   mem_push.2 (Or.inr rfl)
 
@@ -3770,6 +3776,10 @@ theorem contains_iff_exists_mem_beq [BEq α] {xs : Array α} {a : α} :
     xs.contains a ↔ ∃ a' ∈ xs, a == a' := by
   rcases xs with ⟨xs⟩
   simp [List.contains_iff_exists_mem_beq]
+
+-- We add this as a `grind` lemma because it is useful without `LawfulBEq α`.
+-- With `LawfulBEq α`, it would be better to use `contains_iff_mem` directly.
+grind_pattern contains_iff_exists_mem_beq => xs.contains a
 
 @[grind _=_]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :

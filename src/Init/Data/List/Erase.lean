@@ -508,7 +508,7 @@ theorem Nodup.not_mem_erase [LawfulBEq α] {a : α} (h : Nodup l) : a ∉ l.eras
 -- Only activate `not_mem_erase` when `l.Nodup` is already available.
 grind_pattern List.Nodup.not_mem_erase => a ∈ l.erase a, l.Nodup
 
-@[grind]
+@[grind ←]
 theorem Nodup.erase [LawfulBEq α] (a : α) : Nodup l → Nodup (l.erase a) :=
   Pairwise.erase a
 
@@ -578,20 +578,20 @@ theorem eraseIdx_ne_nil_iff {l : List α} {i : Nat} : eraseIdx l i ≠ [] ↔ 2 
   | [a]
   | a::b::l => simp
 
-
-
-@[grind]
 theorem eraseIdx_sublist : ∀ (l : List α) (k : Nat), eraseIdx l k <+ l
   | [], _ => by simp
   | a::l, 0 => by simp
   | a::l, k + 1 => by simp [eraseIdx_sublist]
 
+grind_pattern eraseIdx_sublist => l.eraseIdx k, _ <+ l
+
 theorem mem_of_mem_eraseIdx {l : List α} {i : Nat} {a : α} (h : a ∈ l.eraseIdx i) : a ∈ l :=
   (eraseIdx_sublist _ _).mem h
 
-@[grind]
 theorem eraseIdx_subset {l : List α} {k : Nat} : eraseIdx l k ⊆ l :=
   (eraseIdx_sublist _ _).subset
+
+grind_pattern eraseIdx_sublist => l.eraseIdx k, _ ⊆ l
 
 @[simp]
 theorem eraseIdx_eq_self : ∀ {l : List α} {k : Nat}, eraseIdx l k = l ↔ length l ≤ k

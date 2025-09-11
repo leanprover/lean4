@@ -339,7 +339,7 @@ theorem getD_empty [EquivBEq α] [LawfulHashable α] {a fallback : α} :
     (∅ : ExtHashSet α).getD a fallback = fallback :=
   ExtHashMap.getKeyD_empty
 
-@[grind] theorem getD_insert [EquivBEq α] [LawfulHashable α] {k a fallback : α} :
+@[grind =] theorem getD_insert [EquivBEq α] [LawfulHashable α] {k a fallback : α} :
     (m.insert k).getD a fallback = if k == a ∧ ¬k ∈ m then k else m.getD a fallback :=
   ExtHashMap.getKeyD_insertIfNew
 

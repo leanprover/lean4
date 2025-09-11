@@ -228,10 +228,11 @@ theorem mem_of_find?_eq_some {xs : Array α} (h : find? p xs = some a) : a ∈ x
   simp at h
   simpa using List.mem_of_find?_eq_some h
 
-@[grind]
 theorem get_find?_mem {xs : Array α} (h) : (xs.find? p).get h ∈ xs := by
   cases xs
   simp [List.get_find?_mem]
+
+grind_pattern get_find?_mem => (xs.find? p).get h
 
 @[simp, grind =] theorem find?_filter {xs : Array α} (p q : α → Bool) :
     (xs.filter p).find? q = xs.find? (fun a => p a ∧ q a) := by

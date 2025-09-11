@@ -1085,7 +1085,15 @@ For each equality `b = c` in `parents`, executes `k b c` IF
   for parent in parents do
     let_expr Eq _ b c := parent | continue
     if (← isEqFalse parent) then
-      k b c
+      if (← isEqv b c) then
+        /-
+        Remark: if `b` and `c` are already in the same equivalence class,
+        there is an inconsistency in the TODO queue already, and we can interrupt
+        propagation
+        -/
+        return ()
+      else
+        k b c
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do

@@ -585,17 +585,11 @@ private structure Context where
 
 private abbrev M := ReaderT Context StateRefT State MetaM
 
-/-- Helper declaration for finding bootstrapping issues. See `isCandidateSymbol`. -/
-private abbrev badForPatterns := [``Eq, ``HEq, ``Iff, ``And, ``Or, ``Not]
-
 private def isCandidateSymbol (declName : Name) (root : Bool) : M Bool := do
   let ctx ← read
   let prio := ctx.symPrios.getPrio declName
   -- Priority 0 are never considered, they are treated as forbidden
   if prio == 0 then return false
-  -- Remark: uncomment the following code to fix bootstrapping issues
-  -- if declName ∈ badForPatterns then
-  --  throwError "INSERT `import Init.Grind.Tactics`, otherwise a pattern containing `{.ofConstName declName}` will be used, prio: {prio}"
   -- If it is the root symbol, then we check whether `prio ≥ minPrio`
   if root then
     return prio ≥ ctx.minPrio

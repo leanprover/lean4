@@ -3474,7 +3474,7 @@ theorem eq_or_mem_of_mem_insert {l : List α} (h : a ∈ l.insert b) : a = b ∨
 @[simp] theorem length_insert_of_not_mem {l : List α} (h : a ∉ l) :
     length (l.insert a) = length l + 1 := by rw [insert_of_not_mem h]; rfl
 
-@[grind] theorem length_insert {l : List α} :
+@[grind =] theorem length_insert {l : List α} :
     (l.insert a).length = l.length + if a ∈ l then 0 else 1 := by
   split <;> simp_all
 
@@ -3509,13 +3509,13 @@ theorem getElem?_insert_succ {l : List α} {a : α} {i : Nat} :
   simp only [insert_eq]
   split <;> simp
 
-@[grind] theorem getElem?_insert {l : List α} {a : α} {i : Nat} :
+@[grind =] theorem getElem?_insert {l : List α} {a : α} {i : Nat} :
     (l.insert a)[i]? = if a ∈ l then l[i]? else if i = 0 then some a else l[i-1]? := by
   cases i
   · simp [getElem?_insert_zero]
   · simp [getElem?_insert_succ]
 
-@[grind] theorem getElem_insert {l : List α} {a : α} {i : Nat} (h : i < l.length) :
+@[grind =] theorem getElem_insert {l : List α} {a : α} {i : Nat} (h : i < l.length) :
     (l.insert a)[i]'(Nat.lt_of_lt_of_le h length_le_length_insert) =
       if a ∈ l then l[i] else if i = 0 then a else l[i-1]'(Nat.lt_of_le_of_lt (Nat.pred_le _) h) := by
   apply Option.some.inj
@@ -3539,7 +3539,7 @@ theorem head_insert {l : List α} {a : α} (w) :
   apply Option.some.inj
   rw [← head?_eq_head, head?_insert]
 
-@[grind] theorem insert_append {l₁ l₂ : List α} {a : α} :
+@[grind =] theorem insert_append {l₁ l₂ : List α} {a : α} :
     (l₁ ++ l₂).insert a = if a ∈ l₂ then l₁ ++ l₂ else l₁.insert a ++ l₂ := by
   simp only [insert_eq, mem_append]
   (repeat split) <;> simp_all

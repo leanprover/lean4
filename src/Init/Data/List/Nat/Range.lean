@@ -248,11 +248,10 @@ theorem pairwise_le_range {n : Nat} : Pairwise (· ≤ ·) (range n) :=
 theorem nodup_range {n : Nat} : Nodup (range n) := by
   simp +decide only [range_eq_range', nodup_range']
 
-@[simp, grind =] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
+@[simp] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (range n).find? p = some i ↔ p i ∧ i ∈ range n ∧ ∀ j, j < i → !p j := by
   simp [range_eq_range']
 
-@[grind]
 theorem find?_range_eq_none {n : Nat} {p : Nat → Bool} :
     (range n).find? p = none ↔ ∀ i, i < n → !p i := by
   simp

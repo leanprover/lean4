@@ -171,6 +171,16 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     size_t array_len = lean_array_size(data_array);
 
+    if (array_len == 0) {
+        lean_dec(data_array);
+
+        lean_object* promise = lean_promise_new();
+        mark_mt(promise);
+        lean_promise_resolve_with_code(0, promise);
+
+        return lean_io_result_mk_ok(promise);
+    }
+
     // Allocate buffer array for uv_write
     uv_buf_t* bufs = (uv_buf_t*)malloc(array_len * sizeof(uv_buf_t));
 

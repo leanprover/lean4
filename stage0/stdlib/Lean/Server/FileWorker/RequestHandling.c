@@ -10304,8 +10304,8 @@ x_14 = l_String_Range_toLspRange(x_1, x_13);
 x_15 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_15, 0, x_2);
 x_16 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_16, 0, x_9);
-lean_ctor_set(x_16, 1, x_12);
+lean_ctor_set(x_16, 0, x_12);
+lean_ctor_set(x_16, 1, x_9);
 lean_ctor_set(x_16, 2, x_11);
 lean_ctor_set(x_16, 3, x_14);
 lean_ctor_set(x_16, 4, x_15);
@@ -10328,10 +10328,10 @@ x_26 = l_Lean_Syntax_getRange_x3f(x_7, x_25);
 lean_dec(x_7);
 if (lean_obj_tag(x_26) == 0)
 {
-x_9 = x_21;
+x_9 = x_22;
 x_10 = x_23;
 x_11 = x_24;
-x_12 = x_22;
+x_12 = x_21;
 x_13 = x_20;
 goto block_19;
 }
@@ -10342,10 +10342,10 @@ lean_dec_ref(x_20);
 x_27 = lean_ctor_get(x_26, 0);
 lean_inc(x_27);
 lean_dec_ref(x_26);
-x_9 = x_21;
+x_9 = x_22;
 x_10 = x_23;
 x_11 = x_24;
-x_12 = x_22;
+x_12 = x_21;
 x_13 = x_27;
 goto block_19;
 }

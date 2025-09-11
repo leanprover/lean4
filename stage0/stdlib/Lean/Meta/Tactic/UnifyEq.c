@@ -1488,7 +1488,7 @@ lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
-x_17 = l_Lean_Meta_mkEq(x_16, x_14, x_9, x_10, x_11, x_12, x_15);
+x_17 = l_Lean_Meta_mkEq(x_16, x_15, x_9, x_10, x_11, x_12, x_14);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -1685,8 +1685,8 @@ if (x_60 == 0)
 lean_dec(x_51);
 lean_dec_ref(x_8);
 lean_dec(x_4);
-x_14 = x_58;
-x_15 = x_59;
+x_14 = x_59;
+x_15 = x_58;
 x_16 = x_55;
 goto block_49;
 }
@@ -1699,8 +1699,8 @@ if (x_61 == 0)
 {
 lean_dec(x_51);
 lean_dec(x_4);
-x_14 = x_58;
-x_15 = x_59;
+x_14 = x_59;
+x_15 = x_58;
 x_16 = x_55;
 goto block_49;
 }

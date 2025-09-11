@@ -5264,10 +5264,10 @@ x_14 = lean_ctor_get(x_1, 1);
 lean_dec(x_14);
 x_15 = lean_ctor_get(x_1, 0);
 lean_dec(x_15);
-lean_ctor_set(x_1, 1, x_11);
+lean_ctor_set(x_1, 1, x_10);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_1);
-lean_ctor_set(x_16, 1, x_10);
+lean_ctor_set(x_16, 1, x_11);
 return x_16;
 }
 else
@@ -5276,20 +5276,20 @@ lean_object* x_17; lean_object* x_18;
 lean_dec(x_1);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_8);
-lean_ctor_set(x_17, 1, x_11);
+lean_ctor_set(x_17, 1, x_10);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set(x_18, 1, x_10);
+lean_ctor_set(x_18, 1, x_11);
 return x_18;
 }
 }
 else
 {
 lean_object* x_19; 
-lean_dec_ref(x_11);
+lean_dec_ref(x_10);
 x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_1);
-lean_ctor_set(x_19, 1, x_10);
+lean_ctor_set(x_19, 1, x_11);
 return x_19;
 }
 }
@@ -5311,8 +5311,8 @@ x_31 = lean_ptr_addr(x_28);
 x_32 = lean_usize_dec_eq(x_30, x_31);
 if (x_32 == 0)
 {
-x_10 = x_29;
-x_11 = x_28;
+x_10 = x_28;
+x_11 = x_29;
 x_12 = x_32;
 goto block_20;
 }
@@ -5321,8 +5321,8 @@ else
 size_t x_33; uint8_t x_34; 
 x_33 = lean_ptr_addr(x_8);
 x_34 = lean_usize_dec_eq(x_33, x_33);
-x_10 = x_29;
-x_11 = x_28;
+x_10 = x_28;
+x_11 = x_29;
 x_12 = x_34;
 goto block_20;
 }
@@ -15887,8 +15887,8 @@ lean_inc(x_139);
 x_140 = lean_ctor_get(x_138, 1);
 lean_inc(x_140);
 lean_dec_ref(x_138);
-x_72 = x_131;
-x_73 = x_124;
+x_72 = x_124;
+x_73 = x_131;
 x_74 = x_139;
 x_75 = x_2;
 x_76 = x_3;
@@ -15963,8 +15963,8 @@ return x_148;
 else
 {
 lean_inc_ref(x_100);
-x_72 = x_131;
-x_73 = x_124;
+x_72 = x_124;
+x_73 = x_131;
 x_74 = x_100;
 x_75 = x_2;
 x_76 = x_3;
@@ -16018,7 +16018,7 @@ x_83 = lean_ctor_get(x_81, 1);
 lean_inc(x_83);
 lean_dec_ref(x_81);
 lean_inc_ref(x_70);
-x_84 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp___redArg(x_70, x_74, x_73, x_72, x_77, x_83);
+x_84 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp___redArg(x_70, x_74, x_72, x_73, x_77, x_83);
 lean_dec(x_77);
 if (lean_obj_tag(x_84) == 0)
 {

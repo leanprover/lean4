@@ -9835,12 +9835,12 @@ lean_dec(x_33);
 x_15 = x_10;
 x_16 = x_5;
 x_17 = x_4;
-x_18 = x_3;
-x_19 = x_7;
-x_20 = x_2;
-x_21 = x_6;
+x_18 = x_9;
+x_19 = x_3;
+x_20 = x_7;
+x_21 = x_2;
 x_22 = x_8;
-x_23 = x_9;
+x_23 = x_6;
 x_24 = x_34;
 goto block_27;
 }
@@ -9856,12 +9856,12 @@ lean_ctor_set_uint8(x_36, sizeof(void*)*1, x_12);
 x_15 = x_10;
 x_16 = x_5;
 x_17 = x_4;
-x_18 = x_3;
-x_19 = x_7;
-x_20 = x_2;
-x_21 = x_6;
+x_18 = x_9;
+x_19 = x_3;
+x_20 = x_7;
+x_21 = x_2;
 x_22 = x_8;
-x_23 = x_9;
+x_23 = x_6;
 x_24 = x_36;
 goto block_27;
 }
@@ -9871,7 +9871,7 @@ lean_object* x_25; lean_object* x_26;
 x_25 = lean_alloc_closure((void*)(l_Lean_Meta_AC_evalNf0___lam__0___boxed), 11, 2);
 lean_closure_set(x_25, 0, x_24);
 lean_closure_set(x_25, 1, x_14);
-x_26 = l_Lean_Elab_Tactic_withMainContext___redArg(x_25, x_20, x_18, x_17, x_16, x_21, x_19, x_22, x_23, x_15);
+x_26 = l_Lean_Elab_Tactic_withMainContext___redArg(x_25, x_21, x_19, x_17, x_16, x_23, x_20, x_22, x_18, x_15);
 return x_26;
 }
 }

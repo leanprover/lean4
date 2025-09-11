@@ -1723,18 +1723,18 @@ if (x_25 == 0)
 {
 lean_object* x_26; 
 x_26 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_IR_Checker_markIndex_spec__1___redArg(x_1, x_24, x_22);
-x_7 = x_24;
-x_8 = x_3;
-x_9 = x_23;
+x_7 = x_3;
+x_8 = x_23;
+x_9 = x_24;
 x_10 = x_26;
 goto block_16;
 }
 else
 {
 lean_dec(x_1);
-x_7 = x_24;
-x_8 = x_3;
-x_9 = x_23;
+x_7 = x_3;
+x_8 = x_23;
+x_9 = x_24;
 x_10 = x_22;
 goto block_16;
 }
@@ -1755,14 +1755,14 @@ return x_32;
 block_16:
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = lean_st_ref_set(x_8, x_10, x_9);
+x_11 = lean_st_ref_set(x_7, x_10, x_8);
 x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; 
 x_13 = lean_ctor_get(x_11, 0);
 lean_dec(x_13);
-lean_ctor_set(x_11, 0, x_7);
+lean_ctor_set(x_11, 0, x_9);
 return x_11;
 }
 else
@@ -1772,7 +1772,7 @@ x_14 = lean_ctor_get(x_11, 1);
 lean_inc(x_14);
 lean_dec(x_11);
 x_15 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_15, 0, x_7);
+lean_ctor_set(x_15, 0, x_9);
 lean_ctor_set(x_15, 1, x_14);
 return x_15;
 }

@@ -2894,8 +2894,8 @@ goto _start;
 block_44:
 {
 uint16_t x_43; 
-x_43 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_map___at_____private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__2(x_10, x_13, x_40, x_42);
-x_20 = x_39;
+x_43 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_map___at_____private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__2(x_10, x_13, x_39, x_42);
+x_20 = x_40;
 x_21 = x_43;
 x_22 = x_41;
 goto block_38;
@@ -3008,16 +3008,16 @@ x_101 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_map___at
 x_102 = lean_int16_dec_le(x_95, x_101);
 if (x_102 == 0)
 {
-x_39 = x_45;
-x_40 = x_81;
+x_39 = x_81;
+x_40 = x_45;
 x_41 = x_86;
 x_42 = x_95;
 goto block_44;
 }
 else
 {
-x_39 = x_45;
-x_40 = x_81;
+x_39 = x_81;
+x_40 = x_45;
 x_41 = x_86;
 x_42 = x_101;
 goto block_44;

@@ -3317,7 +3317,7 @@ theorem minKey_insert_le_self [TransCmp cmp] {k v} :
     t.contains (t.minKey he) :=
   t.inductionOn (fun _ _ => DTreeMap.contains_minKey) he
 
-@[grind] theorem minKey_mem [TransCmp cmp] {he} :
+@[grind ←] theorem minKey_mem [TransCmp cmp] {he} :
     t.minKey he ∈ t :=
   t.inductionOn (fun _ _ => DTreeMap.minKey_mem) he
 
@@ -3952,7 +3952,7 @@ theorem self_le_maxKey_insert [TransCmp cmp] {k v} :
     t.contains (t.maxKey he) :=
   t.inductionOn (fun _ _ => DTreeMap.contains_maxKey) he
 
-@[grind] theorem maxKey_mem [TransCmp cmp] {he} :
+@[grind ←] theorem maxKey_mem [TransCmp cmp] {he} :
     t.maxKey he ∈ t :=
   t.inductionOn (fun _ _ => DTreeMap.maxKey_mem) he
 

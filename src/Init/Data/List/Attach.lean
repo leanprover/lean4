@@ -174,7 +174,7 @@ theorem mem_attach (l : List α) : ∀ x, x ∈ l.attach
     rcases this with ⟨⟨_, _⟩, m, rfl⟩
     exact m
 
-@[simp, grind]
+@[simp, grind =]
 theorem mem_attachWith {l : List α} {q : α → Prop} (H) (x : {x // q x}) :
     x ∈ l.attachWith q H ↔ x.1 ∈ l := by
   induction l with
@@ -192,11 +192,12 @@ theorem mem_pmap {p : α → Prop} {f : ∀ a, p a → β} {l H b} :
     b ∈ pmap f l H ↔ ∃ (a : _) (h : a ∈ l), f a (H a h) = b := by
   simp only [pmap_eq_map_attach, mem_map, mem_attach, true_and, Subtype.exists, eq_comm]
 
-@[grind]
 theorem mem_pmap_of_mem {p : α → Prop} {f : ∀ a, p a → β} {l H} {a} (h : a ∈ l) :
     f a (H a h) ∈ pmap f l H := by
   rw [mem_pmap]
   exact ⟨a, h, rfl⟩
+
+grind_pattern mem_pmap_of_mem => _ ∈ pmap f l H, a ∈ l
 
 @[simp, grind =]
 theorem length_pmap {p : α → Prop} {f : ∀ a, p a → β} {l H} : (pmap f l H).length = l.length := by
@@ -370,13 +371,13 @@ theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
     xs.attach.tail = xs.tail.attach.map (fun ⟨x, h⟩ => ⟨x, mem_of_mem_tail h⟩) := by
   cases xs <;> simp
 
-@[grind]
+@[grind =]
 theorem foldl_pmap {l : List α} {P : α → Prop} {f : (a : α) → P a → β}
     (H : ∀ (a : α), a ∈ l → P a) (g : γ → β → γ) (x : γ) :
     (l.pmap f H).foldl g x = l.attach.foldl (fun acc a => g acc (f a.1 (H _ a.2))) x := by
   rw [pmap_eq_map_attach, foldl_map]
 
-@[grind]
+@[grind =]
 theorem foldr_pmap {l : List α} {P : α → Prop} {f : (a : α) → P a → β}
     (H : ∀ (a : α), a ∈ l → P a) (g : β → γ → γ) (x : γ) :
     (l.pmap f H).foldr g x = l.attach.foldr (fun a acc => g (f a.1 (H _ a.2)) acc) x := by

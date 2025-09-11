@@ -43,7 +43,6 @@ lean_object* l_Lean_Meta_Grind_registerSolverExtension___redArg(lean_object*, le
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn___lam__0____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedState_default;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ToPropagate_eqFalse_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__3;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedToPropagate_default___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo_default;
@@ -66,7 +65,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo;
 lean_object* l_Lean_Meta_Grind_Arith_Offset_toMessageData___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn___closed__1____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedState_default___closed__3;
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedToPropagate_default;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId;
 static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__0() {
@@ -86,27 +84,10 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("", 0, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__2;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__1;
 x_3 = l_Nat_reprFast(x_1);
 x_4 = lean_alloc_ctor(3, 1, 0);
@@ -115,11 +96,7 @@ x_5 = l_Lean_MessageData_ofFormat(x_4);
 x_6 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_6, 0, x_2);
 lean_ctor_set(x_6, 1, x_5);
-x_7 = l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__3;
-x_8 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_8, 0, x_6);
-lean_ctor_set(x_8, 1, x_7);
-return x_8;
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__1(lean_object* x_1, lean_object* x_2) {
@@ -566,10 +543,6 @@ l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__0
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__0);
 l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__1 = _init_l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__1();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__1);
-l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__2 = _init_l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__2);
-l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__3 = _init_l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__3();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__3);
 l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId = _init_l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId);
 l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo_default___closed__0 = _init_l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo_default___closed__0();

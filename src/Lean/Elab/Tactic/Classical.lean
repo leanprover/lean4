@@ -6,6 +6,7 @@ Authors: Mario Carneiro, Kim Morrison
 module
 
 prelude
+import Lean.Elab.InfoTree.Main
 public import Lean.Elab.Tactic.Basic
 
 public section

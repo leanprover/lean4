@@ -192,11 +192,12 @@ theorem mem_pmap {p : α → Prop} {f : ∀ a, p a → β} {l H b} :
     b ∈ pmap f l H ↔ ∃ (a : _) (h : a ∈ l), f a (H a h) = b := by
   simp only [pmap_eq_map_attach, mem_map, mem_attach, true_and, Subtype.exists, eq_comm]
 
-@[grind]
 theorem mem_pmap_of_mem {p : α → Prop} {f : ∀ a, p a → β} {l H} {a} (h : a ∈ l) :
     f a (H a h) ∈ pmap f l H := by
   rw [mem_pmap]
   exact ⟨a, h, rfl⟩
+
+grind_pattern mem_pmap_of_mem => _ ∈ pmap f l H, a ∈ l
 
 @[simp, grind =]
 theorem length_pmap {p : α → Prop} {f : ∀ a, p a → β} {l H} : (pmap f l H).length = l.length := by

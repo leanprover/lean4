@@ -538,7 +538,7 @@ Example:
     | some b => b :: filterMap f as
 
 @[simp, grind] theorem filterMap_nil {f : α → Option β} : filterMap f [] = [] := rfl
-@[grind] theorem filterMap_cons {f : α → Option β} {a : α} {l : List α} :
+@[grind =] theorem filterMap_cons {f : α → Option β} {a : α} {l : List α} :
     filterMap f (a :: l) =
       match f a with
       | none => filterMap f l
@@ -749,7 +749,7 @@ def replicate : (n : Nat) → (a : α) → List α
   | n+1, a => a :: replicate n a
 
 @[simp, grind] theorem replicate_zero {a : α} : replicate 0 a = [] := rfl
-@[grind] theorem replicate_succ {a : α} {n : Nat} : replicate (n+1) a = a :: replicate n a := rfl
+@[grind =] theorem replicate_succ {a : α} {n : Nat} : replicate (n+1) a = a :: replicate n a := rfl
 
 @[simp, grind] theorem length_replicate {n : Nat} {a : α} : (replicate n a).length = n := by
   induction n with
@@ -1440,7 +1440,7 @@ def replace [BEq α] : (l : List α) → (a : α) → (b : α) → List α
     | false => a :: replace as b c
 
 @[simp, grind] theorem replace_nil [BEq α] : ([] : List α).replace a b = [] := rfl
-@[grind] theorem replace_cons [BEq α] {a : α} :
+@[grind =] theorem replace_cons [BEq α] {a : α} :
     (a::as).replace b c = match b == a with | true => c::as | false => a :: replace as b c :=
   rfl
 
@@ -1649,7 +1649,7 @@ def findSome? (f : α → Option β) : List α → Option β
     | none   => findSome? f as
 
 @[simp, grind] theorem findSome?_nil : ([] : List α).findSome? f = none := rfl
-@[grind] theorem findSome?_cons {f : α → Option β} :
+@[grind =] theorem findSome?_cons {f : α → Option β} :
     (a::as).findSome? f = match f a with | some b => some b | none => as.findSome? f :=
   rfl
 

@@ -123,7 +123,7 @@ def connect (s : Client) (addr : SocketAddress) : Async Unit :=
 Sends data through the client socket.
 -/
 @[inline]
-def send (s : Client) (data : ByteArray) : Async Unit :=
+def send (s : Client) (data : Array ByteArray) : Async Unit :=
   Async.ofPromise <| s.native.send data
 
 /--

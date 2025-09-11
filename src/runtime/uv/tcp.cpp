@@ -22,6 +22,7 @@ typedef struct {
     lean_object* promise;
     lean_object* data;
     lean_object* socket;
+    uv_buf_t* bufs;
 } tcp_send_data;
 
 // =======================================
@@ -164,14 +165,25 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
     return lean_io_result_mk_ok(promise);
 }
 
-/* Std.Internal.UV.TCP.Socket.send (socket : @& Socket) (data : ByteArray) : IO (IO.Promise (Except IO.Error Unit)) */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg data, obj_arg /* w */) {
+/* Std.Internal.UV.TCP.Socket.send (socket : @& Socket) (data : @& Array ByteArray) : IO (IO.Promise (Except IO.Error Unit)) */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg data_array, obj_arg /* w */) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    size_t data_len = lean_sarray_size(data);
-    char* data_str = (char*)lean_sarray_cptr(data);
+    size_t array_len = lean_array_size(data_array);
 
-    uv_buf_t buf = uv_buf_init(data_str, data_len);
+    // Allocate buffer array for uv_write
+    uv_buf_t* bufs = (uv_buf_t*)malloc(array_len * sizeof(uv_buf_t));
+
+    if (!bufs) {
+        return lean_io_result_mk_error(lean_mk_string("Failed to allocate buffer array"));
+    }
+
+    for (size_t i = 0; i < array_len; i++) {
+        lean_object* byte_array = lean_array_get_core(data_array, i);
+        size_t data_len = lean_sarray_size(byte_array);
+        char* data_str = (char*)lean_sarray_cptr(byte_array);
+        bufs[i] = uv_buf_init(data_str, data_len);
+    }
 
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
@@ -181,8 +193,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     tcp_send_data* send_data = (tcp_send_data*)write_uv->data;
     send_data->promise = promise;
-    send_data->data = data;
+    send_data->data = data_array;
     send_data->socket = socket;
+    send_data->bufs = bufs;
 
     // These objects are going to enter the loop and be owned by it
     lean_inc(promise);
@@ -190,7 +203,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     event_loop_lock(&global_ev);
 
-    int result = uv_write(write_uv, (uv_stream_t*)tcp_socket->m_uv_tcp, &buf, 1, [](uv_write_t* req, int status) {
+    int result = uv_write(write_uv, (uv_stream_t*)tcp_socket->m_uv_tcp, bufs, array_len, [](uv_write_t* req, int status) {
         tcp_send_data* tup = (tcp_send_data*) req->data;
 
         lean_promise_resolve_with_code(status, tup->promise);
@@ -199,6 +212,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
         lean_dec(tup->data);
         lean_dec(tup->socket);
 
+        free(req->bufs);
         free(req->data);
         free(req);
     });
@@ -209,8 +223,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
         lean_dec(promise); // The structure does not own it.
         lean_dec(promise); // We are not going to return it.
         lean_dec(socket);
-        lean_dec(data);
+        lean_dec(data_array);
 
+        free(bufs);
         free(write_uv->data);
         free(write_uv);
 

@@ -143,7 +143,10 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (
       let mut val      := mkIdent auxFunName
       if useAnonCtor then
         val ← `(⟨$val⟩)
-      let instCmd ← `(instance $binders:implicitBinder* : $type := $val)
+      let instCmd ← if ctx.usePartial then
+        `(command| instance $binders:implicitBinder* : $type := $val)
+      else
+        `(command| @[method_specs] instance $binders:implicitBinder* : $type := $val)
       instances := instances.push instCmd
   return instances
 

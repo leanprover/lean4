@@ -1011,19 +1011,20 @@ def removeFunctorPostfixInCtor : Name → Name
   | Name.str p s => Name.str (removeFunctorPostfix p) s
   | Name.num p n => Name.num (removeFunctorPostfixInCtor p) n
 
-private def generateCoinductiveConstructor (infos : Array InductiveVal) (view : CtorView) (numParams : Nat) (name : Name) (ctor : ConstructorVal) : TermElabM Unit := do
+private def generateCoinductiveConstructor (infos : Array InductiveVal) (view : CtorView)
+    (numParams : Nat) (name : Name) (ctor : ConstructorVal) : TermElabM Unit := do
   trace[Elab.coinductive] "Generating constructor: {removeFunctorPostfixInCtor ctor.name}"
   let numPreds := infos.size
   let predNames := infos.map fun val => removeFunctorPostfix val.name
   let levelParams := infos[0]!.levelParams.map mkLevelParam
   /-
-    We start by looking at the type of the constructor and introducing all its parameters to the scope
+    We start by looking at the type of the constructor and introducing
+    all its parameters to the scope
   -/
   forallBoundedTelescope ctor.type (numParams + numPreds) fun args body => do
-
     /-
-      The first `numParams` many items of `args` are parameters from the original definition, while the remaining ones
-      are free variables that correspond to recursive calls
+      The first `numParams` many items of `args` are parameters from the original definition,
+      while the remaining ones are free variables that correspond to recursive calls
     -/
     let params := args.take numParams
     let predFVars := args.extract numParams
@@ -1055,13 +1056,16 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (view : 
       let goal ← mkFreshExprMVar <| .some goalType
       let hole := Expr.mvarId! goal
 
-      -- First, we will reply on the unrolling rule that is registered by `PartialFixpoint` machinery
-      let some fixEq ← PartialFixpoint.getUnfoldFor? (removeFunctorPostfix name) | throwError "No unfold lemma"
+      /-
+        First, we will reply on the unrolling rule that is registered by `PartialFixpoint` machinery
+      -/
+      let some fixEq
+        ← PartialFixpoint.getUnfoldFor? (removeFunctorPostfix name) | throwError "No unfold lemma"
       let mut fixEq := mkConst fixEq levelParams
       fixEq := mkAppN fixEq params
       /-
-        The right hands side of the unrolling rule is existential form of the functor defining the predicate
-        with all its arguments applied
+        The right hands side of the unrolling rule is existential form of the functor defining
+        the predicate with all its arguments applied
       -/
       let mut unfolded := mkConst (name ++ `existential) levelParams
       unfolded ← unfoldDefinition unfolded
@@ -1358,17 +1362,22 @@ private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM U
             declNames := declNames.push view.declName
         classView.applyHandlers declNames
 
-private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res : FinalizeContext) : CommandElabM Unit := do
+private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res : FinalizeContext)
+    (isCoinductive : Bool := true) : CommandElabM Unit := do
   let view0 := views[0]!
   let ref := view0.ref
   applyComputedFields views -- NOTE: any generated code before this line is invalid
   liftTermElabM <| withMCtx res.mctx <| withLCtx res.lctx res.localInsts do
     let finalizers ← res.elabs.mapM fun elab' => elab'.prefinalize res.levelParams res.params res.replaceIndFVars
-    for view in views do withRef view.declId <| Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
+    for view in views do withRef view.declId <|
+      unless isCoinductive do
+        Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
     for elab' in finalizers do elab'.finalize
   applyDerivingHandlers views
   runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
-    for view in views do withRef view.declId <| Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
+    for view in views do withRef view.declId <|
+      unless isCoinductive do
+        Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
 
 def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Unit := do
   let (elabs, res) ← runTermElabM fun vars => do
@@ -1378,8 +1387,9 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
     checkNoInductiveNameConflicts elabs
     let res ← elabInductiveViews vars elabs
     pure (elabs, res)
-  elabInductiveViewsPostprocessing (elabs.map (·.view)) res
-  if elabs.any (·.isCoinductive) then
+  let isCoinductive := elabs.any (·.isCoinductive)
+  elabInductiveViewsPostprocessing (elabs.map (·.view)) res (isCoinductive := true)
+  if isCoinductive then
     let views := elabs.map (·.view)
     let predKinds := elabs.map (·.isCoinductive)
     discard <| views.mapM fun view => Command.liftCoreM <| MetaM.run' do mkSumOfProducts view.declName

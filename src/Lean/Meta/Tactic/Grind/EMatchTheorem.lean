@@ -1158,22 +1158,38 @@ register_builtin_option backward.grind.inferPattern : Bool := {
   descr    := "use old E-matching pattern inference"
 }
 
+register_builtin_option backward.grind.checkInferPatternDiscrepancy : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr    := "check whether old and new pattern inference procedures infer the same pattern"
+}
+
 private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Array Expr) (symPrios : SymbolPriorities) (minPrio : Nat)
     : MetaM (Option (List Expr × List HeadIndex)) := do
-  let go : CollectorM (Option (List Expr)) := do
+  let go (useOld : Bool): CollectorM (Option (List Expr)) := do
     for place in searchPlaces do
       trace[grind.debug.ematch.pattern] "place: {place}"
       let place ← preprocessPattern place
-      if backward.grind.inferPattern.get (← getOptions) then
+      if useOld then
         OldCollector.collect place
       else
         collect place
       if (← get).done then
         return some ((← get).patterns.toList)
     return none
-  let (some ps, s) ← go { proof, xs } |>.run' {} { symPrios, minPrio } |>.run {}
-    | return none
-  return some (ps, s.symbols.toList)
+  let collect? (useOld : Bool) : MetaM (Option (List Expr × List HeadIndex)) := do
+    let (some ps, s) ← go useOld { proof, xs } |>.run' {} { symPrios, minPrio } |>.run {}
+      | return none
+    return some (ps, s.symbols.toList)
+  if backward.grind.checkInferPatternDiscrepancy.get (← getOptions) then
+    let oldResult? ← collect? (useOld := true)
+    let newResult? ← collect? (useOld := false)
+    if oldResult? != newResult? then
+      logWarning m!"found discrepancy between old and new `grind` pattern inference procedures, old:{indentD (toMessageData $ oldResult?.map (·.1))}\nnew:{indentD (toMessageData $ newResult?.map (·.1))}\nuse `set_option backward.grind.inferPattern true` to force old procedure"
+    return newResult?
+  else
+    let useOld := backward.grind.inferPattern.get (← getOptions)
+    collect? useOld
 
 /--
 Tries to find a ground pattern to activate the theorem.

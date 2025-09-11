@@ -1,3 +1,4 @@
+set_option warn.sorry false
 namespace Test
 set_option backward.grind.inferPattern false -- Force new pattern inference procedure
 
@@ -22,3 +23,14 @@ def Vector.toList (xs : Vector α n) : List α :=
 def wrapper (f : Nat → Nat → List α → List α) (h : ∀ n m xs, xs.length = n → (f n m xs).length = m) :
     (n m : Nat) → Vector α n → Vector α m :=
   fun n m xs => Vector.ofList (f n m xs.toList) (by grind) -- apply h; apply Vector.length_toList) -- fails here: (by grind)
+
+/--
+warning: found discrepancy between old and new `grind` pattern inference procedures, old:
+  some ([(toList #0).length])
+new:
+  some ([toList #0])
+use `set_option backward.grind.inferPattern true` to force old procedure
+-/
+#guard_msgs in
+set_option backward.grind.checkInferPatternDiscrepancy true in
+@[grind] theorem Vector.length_toList' (xs : Vector α n) : xs.toList.length = n := by sorry

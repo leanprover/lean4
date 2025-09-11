@@ -10,7 +10,7 @@ public import Lean.PrettyPrinter.Delaborator.Attributes
 public import Lean.PrettyPrinter.Delaborator.Basic
 public import Lean.PrettyPrinter.Delaborator.SubExpr
 public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
-public import Lean.Parser.Term
+meta import Lean.Parser.Do
 meta import Lean.Parser.Command
 public import Lean.Meta.CoeAttr
 public import Lean.Meta.Structure
@@ -1440,7 +1440,6 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
     withOverApp 2 `(sorry)
 
 open Parser Command Term in
-@[run_builtin_parser_attribute_hooks]
 -- use `termParser` instead of `declId` so we can reuse `delabConst`
 meta def declSigWithId := leading_parser termParser maxPrec >> declSig
 

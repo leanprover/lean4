@@ -317,7 +317,7 @@ def registerTraceClass (traceClassName : Name) (inherited := false) (ref : Name 
   if inherited then
     inheritedTraceOptions.modify (·.insert optionName)
 
-def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM (TSyntax `doElem) := do
+private meta def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM (TSyntax `doElem) := do
   let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
   `(doElem| do
     let cls := $(quote id.getId.eraseMacroScopes)

@@ -889,9 +889,11 @@ theorem min_insert_le_self [TransCmp cmp] {k} :
     t.contains (t.min he) :=
   ExtTreeMap.contains_minKey
 
-@[grind ←] theorem min_mem [TransCmp cmp] {he} :
+theorem min_mem [TransCmp cmp] {he} :
     t.min he ∈ t :=
   ExtTreeMap.minKey_mem
+
+grind_pattern min_mem => t.min he ∈ t
 
 theorem min_le_of_contains [TransCmp cmp] {k} (hc : t.contains k) :
     cmp (t.min (ne_empty_of_mem hc)) k |>.isLE :=
@@ -986,9 +988,11 @@ theorem min!_insert_le_self [TransCmp cmp] [Inhabited α] {k} :
     t.contains t.min! :=
   ExtTreeMap.contains_minKey! (mt ext he)
 
-@[grind ←] theorem min!_mem [TransCmp cmp] [Inhabited α] (he : t ≠ ∅) :
+theorem min!_mem [TransCmp cmp] [Inhabited α] (he : t ≠ ∅) :
     t.min! ∈ t :=
   ExtTreeMap.minKey!_mem (mt ext he)
+
+grind_pattern min!_mem => t.min! ∈ t
 
 theorem min!_le_of_contains [TransCmp cmp] [Inhabited α] {k} (hc : t.contains k) :
     cmp t.min! k |>.isLE :=
@@ -1077,9 +1081,11 @@ theorem minD_insert_le_self [TransCmp cmp] {k fallback} :
     t.contains (t.minD fallback) :=
   ExtTreeMap.contains_minKeyD (mt ext he)
 
-@[grind ←] theorem minD_mem [TransCmp cmp] (he : t ≠ ∅) {fallback} :
+theorem minD_mem [TransCmp cmp] (he : t ≠ ∅) {fallback} :
     t.minD fallback ∈ t :=
   ExtTreeMap.minKeyD_mem (mt ext he)
+
+grind_pattern minD_mem => t.minD fallback ∈ t
 
 theorem minD_le_of_contains [TransCmp cmp] {k} (hc : t.contains k) {fallback} :
     cmp (t.minD fallback) k |>.isLE :=
@@ -1290,9 +1296,11 @@ theorem self_le_max_insert [TransCmp cmp] {k} :
     t.contains (t.max he) :=
   ExtTreeMap.contains_maxKey
 
-@[grind ←] theorem max_mem [TransCmp cmp] {he} :
+theorem max_mem [TransCmp cmp] {he} :
     t.max he ∈ t :=
   ExtTreeMap.maxKey_mem
+
+grind_pattern max_mem => t.max he ∈ t
 
 theorem le_max_of_contains [TransCmp cmp] {k} (hc : t.contains k) :
     cmp k (t.max (ne_empty_of_mem hc)) |>.isLE :=
@@ -1388,9 +1396,11 @@ theorem self_le_max!_insert [TransCmp cmp] [Inhabited α] {k} :
     t.contains t.max! :=
   ExtTreeMap.contains_maxKey! (mt ext he)
 
-@[grind ←] theorem max!_mem [TransCmp cmp] [Inhabited α] (he : t ≠ ∅) :
+theorem max!_mem [TransCmp cmp] [Inhabited α] (he : t ≠ ∅) :
     t.max! ∈ t :=
   ExtTreeMap.maxKey!_mem (mt ext he)
+
+grind_pattern max!_mem => t.max! ∈ t
 
 theorem le_max!_of_contains [TransCmp cmp] [Inhabited α] {k} (hc : t.contains k) :
     cmp k t.max! |>.isLE :=
@@ -1480,9 +1490,11 @@ theorem self_le_maxD_insert [TransCmp cmp] {k fallback} :
     t.contains (t.maxD fallback) :=
   ExtTreeMap.contains_maxKeyD (mt ext he)
 
-@[grind ←] theorem maxD_mem [TransCmp cmp] (he : t ≠ ∅) {fallback} :
+theorem maxD_mem [TransCmp cmp] (he : t ≠ ∅) {fallback} :
     t.maxD fallback ∈ t :=
   ExtTreeMap.maxKeyD_mem (mt ext he)
+
+grind_pattern maxD_mem => t.maxD fallback ∈ t
 
 theorem le_maxD_of_contains [TransCmp cmp] {k} (hc : t.contains k) {fallback} :
     cmp k (t.maxD fallback) |>.isLE :=

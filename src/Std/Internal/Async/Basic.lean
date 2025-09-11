@@ -584,8 +584,7 @@ protected def asTask (x : EAsync ε α) (prio := Task.Priority.default) : EIO ε
   x |> BaseAsync.asTask (prio := prio)
 
 /--
-Block until the `EIO` finishes and returns its value. Propagates any error encountered during execution.
-
+Block until the `EAsync` finishes and returns its value. Propagates any error encountered during execution.
 -/
 @[inline]
 protected def block (x : EAsync ε α) (prio := Task.Priority.default) : EIO ε α :=
@@ -730,14 +729,21 @@ abbrev Async (α : Type) := EAsync IO.Error α
 namespace Async
 
 /--
-Converts a `Async` to `AsyncTask`.
+Block until the `Async` finishes and returns its value. Propagates any error encountered during execution.
+-/
+@[inline]
+protected def block (x : Async α) (prio := Task.Priority.default) : IO α :=
+  x.asTask (prio := prio) >>= ETask.block
+
+/--
+Converts `Async` to `AsyncTask`.
 -/
 @[inline]
 protected def toIO (x : Async α) : IO (AsyncTask α) :=
   MaybeTask.toTask <$> x.toRawBaseIO
 
 /--
-Converts a `Promise` into a `Async`.
+Converts `Promise` into `Async`.
 -/
 @[inline]
 protected def ofPromise (task : IO (IO.Promise (Except IO.Error α))) : Async α := do
@@ -746,14 +752,14 @@ protected def ofPromise (task : IO (IO.Promise (Except IO.Error α))) : Async α
   | .error err => pure (f := BaseIO) (MaybeTask.pure (.error err))
 
 /--
-Converts a `AsyncTask` into a `Async`.
+Converts `AsyncTask` into `Async`.
 -/
 @[inline]
 protected def ofAsyncTask (task : AsyncTask α) : Async α := do
   pure (f := BaseIO) (MaybeTask.ofTask task)
 
 /--
-Converts a `IO (Task α)` into a `Async`.
+Converts `IO (Task α)` into `Async`.
 -/
 @[inline]
 protected def ofIOTask (task : IO (Task α)) : Async α := do
@@ -762,21 +768,21 @@ protected def ofIOTask (task : IO (Task α)) : Async α := do
   | .error err => pure (f := BaseIO) (MaybeTask.pure (.error err))
 
 /--
-Converts an `Except` to `Async`.
+Converts `Except` to `Async`.
 -/
 @[inline]
 protected def ofExcept (except : Except IO.Error α) : Async α :=
   pure (f := BaseIO) (MaybeTask.pure except)
 
 /--
-Converts a `Task` to `Async`.
+Converts `Task` to `Async`.
 -/
 @[inline]
 protected def ofTask (task : Task α) : Async α := do
   .ofAsyncTask (task.map Except.ok)
 
 /--
-Converts a `IO (IO.Promise α)` to `Async`.
+Converts `IO (IO.Promise α)` to `Async`.
 -/
 @[inline]
 protected def ofPurePromise (task : IO (IO.Promise α)) : Async α := do

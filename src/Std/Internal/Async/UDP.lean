@@ -92,9 +92,8 @@ def recvSelector (s : Socket) (size : UInt64) :
   return {
     tryFn := do
       if ← readableWaiter.isResolved then
-        -- We know that this read should not block
-        let res ← (s.recv size).asTask
-        return some (← res.block)
+        let res ← s.recv size
+        return some res
       else
         return none
     registerFn waiter := do

@@ -18,10 +18,12 @@ public section
 open Std.Internal.Async.IO
 
 /-!
-This module contains the implementation of `Std.Broadcast`. `Std.Broadcast` provides a
-broadcasting primitive for sending values to multiple consumers. It maintains a queue of
-values and supports both synchronous and asynchronous waiting. It's heavily inspired in the `Std.Sync.Channel` module and by
-https://github.com/tokio-rs/tokio/blob/master/tokio/src/sync/broadcast.rs
+The `Std.Sync.Broadcast` module implements a broadcasting primitive for sending values
+to multiple consumers. It maintains a queue of values and supports both synchronous
+and asynchronous waiting.
+
+This module is heavily inspired by `Std.Sync.Channel` as well as
+[tokio’s broadcast implementation](https://github.com/tokio-rs/tokio/blob/master/tokio/src/sync/broadcast.rs).
 -/
 
 namespace Std
@@ -29,7 +31,6 @@ namespace Std
 /--
 Errors that may be thrown while interacting with the broadcast channel API.
 -/
-
 inductive Broadcast.Error where
 
   /--
@@ -64,31 +65,19 @@ instance instToStringBroadcastError : ToString Broadcast.Error where
 instance instMonadLiftBroadcastIO : MonadLift (EIO Broadcast.Error) IO where
   monadLift x := EIO.toIO (.userError <| toString ·) x
 
-/--
-A consumer waiting to receive a broadcast message.
--/
 private structure Broadcast.Consumer (α : Type) where
   promise : IO.Promise Bool
   waiter : Option (Internal.IO.Async.Waiter (Option α))
 
-/--
-Resolves a consumer's promise with the given boolean result.
--/
 private def Broadcast.Consumer.resolve (c : Broadcast.Consumer α) (b : Bool) : BaseIO Unit :=
   c.promise.resolve b
 
-/--
-A slot in the circular buffer containing a broadcast message and metadata.
--/
 private structure Slot (α : Type) where
   value : Option α
   pos : Nat
   remaining : Nat
 deriving Inhabited, Repr
 
-/--
-State of the channel.
--/
 private structure Bounded.State (α : Type) where
 
   /--
@@ -561,6 +550,7 @@ def recvSelector [Inhabited α] (ch : Broadcast.Receiver α) : Selector α :=
 
     unregisterFn := sel.unregisterFn
   }
+
 /--
 Unsubscribes a `Receiver` from the `Broadcast` channel.
 -/

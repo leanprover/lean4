@@ -69,7 +69,7 @@ def stop (s : Sleep) : IO Unit :=
   s.native.stop
 
 /--
-Create a `Selector` that completes once `s` has finished. Note that calling this function starts `s`
+Create a `Selector` that resolves once `s` has finished. Note that calling this function starts `s`
 if it hasn't already started.
 -/
 def selector (s : Sleep) : Async (Selector Unit) := do

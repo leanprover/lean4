@@ -10,6 +10,7 @@ public import Init.Classical
 public import Init.Core
 public import Init.Data.Nat.Basic
 public import Init.Data.Option.Lemmas
+public import Init.Data.Order.Classes
 
 public section
 
@@ -50,6 +51,10 @@ successor of `a`.
 protected def UpwardEnumerable.LE {α : Type u} [UpwardEnumerable α] (a b : α) : Prop :=
   ∃ n, succMany? n a = some b
 
+protected theorem UpwardEnumerable.le_iff_exists {α : Type u} [UpwardEnumerable α] {a b : α} :
+    UpwardEnumerable.LE a b ↔ ∃ n, succMany? n a = some b :=
+  Iff.rfl
+
 /--
 According to `UpwardEnumerable.LT`, `a` is less than `b` if `b` is a proper transitive successor of
 `a`. 'Proper' means that `b` is the `n`-th successor of `a`, where `n > 0`.
@@ -59,6 +64,10 @@ Given `LawfulUpwardEnumerable α`, no element of `α` is less than itself.
 @[expose]
 protected def UpwardEnumerable.LT {α : Type u} [UpwardEnumerable α] (a b : α) : Prop :=
   ∃ n, succMany? (n + 1) a = some b
+
+protected theorem UpwardEnumerable.lt_iff_exists {α : Type u} [UpwardEnumerable α] {a b : α} :
+    UpwardEnumerable.LT a b ↔ ∃ n, succMany? (n + 1) a = some b :=
+  Iff.rfl
 
 protected theorem UpwardEnumerable.le_of_lt {α : Type u} [UpwardEnumerable α] {a b : α}
     (h : UpwardEnumerable.LT a b) : UpwardEnumerable.LE a b :=
@@ -180,6 +189,14 @@ protected theorem UpwardEnumerable.lt_trans {α : Type u} [UpwardEnumerable α]
     (hbc : UpwardEnumerable.LT b c) : UpwardEnumerable.LT a c := by
   refine ⟨(hab.choose + 1) + hbc.choose, ?_⟩
   rw [Nat.add_assoc, succMany?_add, hab.choose_spec, Option.bind_some, hbc.choose_spec]
+
+protected theorem UpwardEnumerable.lt_of_le_of_ne {α : Type u} [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] {a b : α} (hle : UpwardEnumerable.LE a b) (hne : a ≠ b) :
+    UpwardEnumerable.LT a b := by
+  obtain ⟨n, hn⟩ := hle
+  match n with
+  | 0 => simp [succMany?_zero, hne] at hn
+  | n + 1 => exact ⟨n, hn⟩
 
 protected theorem UpwardEnumerable.not_gt_of_le {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] {a b : α} :
@@ -415,6 +432,18 @@ def UpwardEnumerable.instLTTransOfLawfulUpwardEnumerableLT {α : Type u} [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] :
     Trans (α := α) (· < ·) (· < ·) (· < ·) where
   trans := by simpa [UpwardEnumerable.lt_iff] using @UpwardEnumerable.lt_trans
+
+def UpwardEnumerable.instLawfulOrderLTOfLawfulUpwardEnumerableLT {α : Type u} [LT α] [LE α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [LawfulUpwardEnumerableLE α] :
+    LawfulOrderLT α where
+  lt_iff a b := by
+    simp [UpwardEnumerable.lt_iff, UpwardEnumerable.le_iff]
+    constructor
+    · intro h
+      exact ⟨UpwardEnumerable.le_of_lt h, UpwardEnumerable.not_ge_of_lt h⟩
+    · intro h
+      exact UpwardEnumerable.lt_of_le_of_ne h.1 (h.2.imp (· ▸ UpwardEnumerable.le_refl b))
 
 /--
 This typeclass ensures that an `UpwardEnumerable α` instance is compatible with a `Least? α`

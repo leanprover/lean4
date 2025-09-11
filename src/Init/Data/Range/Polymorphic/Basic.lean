@@ -319,7 +319,7 @@ and for all range types that satisfy the properties encoded in the `LawfulUpward
 `LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
 -/
 @[inline]
-def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α] (r : Roc α) : Bool :=
+def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α] (r : Roo α) : Bool :=
   ∀ a, UpwardEnumerable.succ? r.lower = some a → ¬ a < r.upper
 
 theorem mem_iff [LT α] :
@@ -350,7 +350,7 @@ and for all range types that satisfy the properties encoded in the `LawfulUpward
 `LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
 -/
 @[inline]
-def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α] (_ : Roi α) : Bool :=
+def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α] (r : Roi α) : Bool :=
   UpwardEnumerable.succ? r.lower |>.isNone
 
 theorem mem_iff [LT α] :

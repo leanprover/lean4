@@ -8,6 +8,23 @@ coinductive infSeq (r : α → α → Prop) : α → Prop where
 #check infSeq
 
 /--
+info: inductive infSeq_functor : (α : Type) → (α → α → Prop) → (α → Prop) → α → Prop
+number of parameters: 3
+constructors:
+infSeq_functor.step : ∀ (α : Type) (r : α → α → Prop) (infSeq_functor.call : α → Prop) {a b : α},
+  r a b → infSeq_functor.call b → infSeq_functor α r infSeq_functor.call a
+-/
+#guard_msgs in
+#print infSeq_functor
+
+/--
+info: def infSeq_functor.existential : (α : Type) → (α → α → Prop) → (α → Prop) → α → Prop :=
+fun α r infSeq_functor.call a => ∃ b, r a b ∧ infSeq_functor.call b
+-/
+#guard_msgs in
+#print infSeq_functor.existential
+
+/--
 info: infSeq_functor.sop (α : Type) (r : α → α → Prop) (infSeq_functor.call : α → Prop) (a✝ : α) :
   infSeq_functor α r infSeq_functor.call a✝ ↔ ∃ b, r a✝ b ∧ infSeq_functor.call b
 -/
@@ -80,3 +97,9 @@ info: tick.mutual_induct (pred_1 pred_2 : Prop) (hyp_1 : pred_1 → pred_2 → F
 #guard_msgs in
 #check tick.mutual_induct
 end
+
+/-- error: `coinductive` keyword can only be used to define predicates -/
+#guard_msgs in
+coinductive my_nat  where
+  | zero : my_nat
+  | succ : my_nat → my_nat

@@ -1118,7 +1118,6 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (view : 
 
     Term.addTermInfo' view.ref res (isBinder := true)
 
-
 private def generateCoinductiveConstructors (numParams : Nat) (infos : Array InductiveVal)
     (views: Array InductiveView) : TermElabM Unit := do
   for indType in infos, view in views do
@@ -1199,6 +1198,9 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
     let rs ← elabHeaders views
     Term.synthesizeSyntheticMVarsNoPostponing
     ElabHeaderResult.checkLevelNames rs
+    if isCoinductive then
+      unless (←rs.allM (forallTelescopeReducing ·.type fun args body => pure body.isProp)) do
+        throwErrorAt view0.declId "`coinductive` keyword can only be used to define predicates"
     let allUserLevelNames := rs[0]!.levelNames
     trace[Elab.inductive] "level names: {allUserLevelNames}"
     let res ← withInductiveLocalDecls rs fun params indFVars => do

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <deque>
 #include <cmath>
+#include <format>
 #include <lean/lean.h>
 #include "runtime/object.h"
 #include "runtime/thread.h"
@@ -1756,7 +1757,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_float_to_string(double a) {
         // because the sign bit / payload bits can be architecture-dependent
         return mk_ascii_string_unchecked("NaN");
     else
-        return mk_ascii_string_unchecked(std::to_string(a));
+        return mk_ascii_string_unchecked(std::format("{}",a));
 }
 
 extern "C" LEAN_EXPORT double lean_float_scaleb(double a, b_lean_obj_arg b) {

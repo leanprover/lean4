@@ -1441,7 +1441,7 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
 
 open Parser Command Term in
 -- use `termParser` instead of `declId` so we can reuse `delabConst`
-meta def declSigWithId := leading_parser termParser maxPrec >> declSig
+private meta def declSigWithId := leading_parser termParser maxPrec >> declSig
 
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
   env.evalConstCheck Syntax opts ``Syntax constName

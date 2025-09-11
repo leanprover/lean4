@@ -14,7 +14,6 @@ meta import Lean.Hygiene
 import all Lean.Parser.Types
 import all Lean.Parser.Basic
 import all Lean.Parser.Extension
-meta import Lean.Parser.Basic
 
 public section
 

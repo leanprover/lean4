@@ -23,9 +23,17 @@ attribute [extern "lean_byte_array_data"] ByteArray.data
 
 namespace ByteArray
 
-deriving instance BEq for ByteArray
-
 attribute [ext] ByteArray
+
+/--
+Checks whether two `ByteArray` instances have the same length and identical content. Normally used
+via the `==` operator.
+-/
+@[extern "lean_byte_array_beq"]
+protected def beq (a b : @& ByteArray) : Bool :=
+  BEq.beq a.data b.data
+
+instance : BEq ByteArray := ⟨ByteArray.beq⟩
 
 instance : DecidableEq ByteArray :=
   fun _ _ => decidable_of_decidable_of_iff ByteArray.ext_iff.symm

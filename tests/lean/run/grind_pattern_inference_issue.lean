@@ -29,7 +29,6 @@ warning: found discrepancy between old and new `grind` pattern inference procedu
   [@List.length #2 (@toList _ #1 #0)]
 new:
   [@toList #2 #1 #0]
-use `set_option backward.grind.inferPattern true` to force old procedure
 -/
 #guard_msgs in
 set_option backward.grind.checkInferPatternDiscrepancy true in

@@ -1181,6 +1181,7 @@ private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Ar
     let (some ps, s) ← go useOld { proof, xs } |>.run' {} { symPrios, minPrio } |>.run {}
       | return none
     return some (ps, s.symbols.toList)
+  let useOld := backward.grind.inferPattern.get (← getOptions)
   if backward.grind.checkInferPatternDiscrepancy.get (← getOptions) then
     let oldResult? ← collect? (useOld := true)
     let newResult? ← collect? (useOld := false)
@@ -1188,10 +1189,9 @@ private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Ar
       let pat := result?.map (·.1) |>.getD []
       pat.map ppPattern
     if oldResult? != newResult? then
-      logWarning m!"found discrepancy between old and new `grind` pattern inference procedures, old:{indentD (toPattern oldResult?)}\nnew:{indentD (toPattern newResult?)}\nuse `set_option backward.grind.inferPattern true` to force old procedure"
-    return newResult?
+      logWarning m!"found discrepancy between old and new `grind` pattern inference procedures, old:{indentD (toPattern oldResult?)}\nnew:{indentD (toPattern newResult?)}"
+    return if useOld then oldResult? else newResult?
   else
-    let useOld := backward.grind.inferPattern.get (← getOptions)
     collect? useOld
 
 /--

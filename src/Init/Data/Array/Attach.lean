@@ -201,7 +201,7 @@ theorem mem_attach (xs : Array α) : ∀ x, x ∈ xs.attach
     rcases this with ⟨⟨_, _⟩, m, rfl⟩
     exact m
 
-@[simp, grind]
+@[simp, grind =]
 theorem mem_attachWith {xs : Array α} {q : α → Prop} (H) (x : {x // q x}) :
     x ∈ xs.attachWith q H ↔ x.1 ∈ xs := by
   cases xs
@@ -706,7 +706,7 @@ and simplifies these to the function directly taking the value.
     {f : { x // p x } → Array β} {g : α → Array β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (xs.flatMap f) = xs.unattach.flatMap g := by
   cases xs
-  simp only [List.flatMap_toArray, List.unattach_toArray, 
+  simp only [List.flatMap_toArray, List.unattach_toArray,
     mk.injEq]
   rw [List.flatMap_subtype]
   simp [hf]

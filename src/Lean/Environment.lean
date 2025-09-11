@@ -2313,25 +2313,24 @@ def displayStats (env : Environment) : IO Unit := do
 @[extern "lean_eval_const"]
 private unsafe opaque evalConstCore (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α
 
-@[extern "lean_get_ir_phases"]
-private opaque getIRPhases (env : Environment) (constName : Name) : IRPhases
+@[extern "lean_eval_check_meta"]
+private opaque evalCheckMeta (env : Environment) (constName : Name) : Except String Unit
 
 /--
 Evaluates the given declaration under the given environment to a value of the given type.
 This function is only safe to use if the type matches the declaration's type in the environment
 and if `enableInitializersExecution` has been used before importing any modules.
 
-If `checkMeta` is true (the default), the function checks that the constant is declared or imported
-as `meta` or otherwise fails with an error. It should only be set to `false` in cases where it is
-acceptable for code to work only in the language server, where more IR is loaded, such as in
-`#eval`.
+If `checkMeta` is true (the default), the function checks that all referenced imported contants are
+marked or imported as `meta` or otherwise fails with an error. It should only be set to `false` in
+cases where it is acceptable for code to work only in the language server, where more IR is loaded,
+such as in `#eval`.
 -/
 -- `[noinline]` helps with `prefer_native` so as to avoid trying to interpret the extern function
-@[noinline] unsafe def evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) (checkMeta := true) : Except String α :=
-  if checkMeta && getIRPhases env constName == .runtime then
-    throw ("cannot evaluate non-`meta` constant '" ++ toString constName ++ "'")
-  else
-    evalConstCore α env opts constName
+@[noinline] unsafe def evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) (checkMeta := true) : Except String α := do
+  if checkMeta then
+    evalCheckMeta env constName
+  evalConstCore α env opts constName
 
 private def throwUnexpectedType {α} (typeName : Name) (constName : Name) : ExceptT String Id α :=
   throw ("unexpected type at '" ++ toString constName ++ "', `" ++ toString typeName ++ "` expected")

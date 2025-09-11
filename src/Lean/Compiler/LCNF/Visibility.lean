@@ -76,6 +76,23 @@ where go (decl : Decl) : StateT NameSet CompilerM Unit := do
           go refDecl
       | _, _ => pure ()
 
+@[export lean_eval_check_meta]
+private partial def evalCheckMeta (env : Environment) (declName : Name) : Except String Unit := do
+  let some decl := getDeclCore? env baseExt declName
+    | throw s!"Lean.Environment.evalConst: unknown declaration `{declName}`"
+  go decl |>.run' {}
+where go (decl : Decl) : StateT NameSet (Except String) Unit :=
+  decl.value.forCodeM fun code =>
+    for ref in collectUsedDecls code do
+      if (← get).contains ref then
+        continue
+      modify (·.insert decl.name)
+      if let some localDecl := baseExt.getState env |>.find? ref then
+        go localDecl
+      else
+        if getIRPhases env ref == .runtime then
+          throw s!"Cannot evaluate constant `{declName}` as it uses `{ref}` which is neither marked nor imported as `meta`"
+
 def inferVisibility (phase : Phase) : Pass where
   occurrence := 0
   phase

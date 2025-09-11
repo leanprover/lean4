@@ -103,34 +103,6 @@
       let x_5 : tobj := Exp.ctorElim._redArg x_2 x_4;
       ret x_5
 [Compiler.IR] [result]
-    def Exp.var.noConfusion._redArg (x_1 : tobj) : tobj :=
-      let x_2 : tobj := app x_1 ◾;
-      ret x_2
-    def Exp.var.noConfusion (x_1 : ◾) (x_2 : u32) (x_3 : u32) (x_4 : ◾) (x_5 : tobj) : tobj :=
-      let x_6 : tobj := app x_5 ◾;
-      ret x_6
-    def Exp.var.noConfusion._boxed (x_1 : tobj) (x_2 : tobj) (x_3 : tobj) (x_4 : tobj) (x_5 : tobj) : tobj :=
-      let x_6 : u32 := unbox x_2;
-      dec x_2;
-      let x_7 : u32 := unbox x_3;
-      dec x_3;
-      let x_8 : tobj := Exp.var.noConfusion x_1 x_6 x_7 x_4 x_5;
-      ret x_8
-[Compiler.IR] [result]
-    def Exp.app.noConfusion._redArg (x_1 : tobj) : tobj :=
-      let x_2 : tobj := app x_1 ◾ ◾;
-      ret x_2
-    def Exp.app.noConfusion (x_1 : ◾) (x_2 : @& tobj) (x_3 : @& tobj) (x_4 : @& tobj) (x_5 : @& tobj) (x_6 : ◾) (x_7 : tobj) : tobj :=
-      let x_8 : tobj := app x_7 ◾ ◾;
-      ret x_8
-    def Exp.app.noConfusion._boxed (x_1 : tobj) (x_2 : tobj) (x_3 : tobj) (x_4 : tobj) (x_5 : tobj) (x_6 : tobj) (x_7 : tobj) : tobj :=
-      let x_8 : tobj := Exp.app.noConfusion x_1 x_2 x_3 x_4 x_5 x_6 x_7;
-      dec x_5;
-      dec x_4;
-      dec x_3;
-      dec x_2;
-      ret x_8
-[Compiler.IR] [result]
     def Exp.casesOn._override._redArg (x_1 : tobj) (x_2 : tobj) (x_3 : tobj) (x_4 : @& tobj) (x_5 : @& tobj) (x_6 : @& tobj) (x_7 : @& tobj) (x_8 : @& tobj) : tobj :=
       case x_1 : tobj of
       Exp.var._impl →

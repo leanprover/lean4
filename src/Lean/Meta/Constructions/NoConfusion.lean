@@ -29,7 +29,7 @@ fun params x1 x2 x3 x1' x2' x3' => (x1 = x1' → x2 = x2' → x3 = x3' → P)
 where `x1 x2 x3` and `x1' x2' x3'` are the fields of a constructor application of `ctorName`,
 omitting equalities between propositions and using `HEq` where needed.
 -/
-public def mkNoConfusionCtorArg (ctorName : Name) (P : Expr) : MetaM Expr := do
+def mkNoConfusionCtorArg (ctorName : Name) (P : Expr) : MetaM Expr := do
   let ctorInfo ← getConstInfoCtor ctorName
   -- We bring the constructor's parameters into scope abstractly, this way
   -- we can check if we need to use HEq. (The concrete fields could allow Eq)
@@ -69,7 +69,7 @@ def mkIfNatEq (P : Expr) (e1 e2 : Expr) («then» : Expr → MetaM Expr) («else
   let e := mkApp e (← withLocalDeclD `h (mkNot heq) (fun h => do mkLambdaFVars #[h] (← «else» h)))
   pure e
 
-public def mkNoConfusionType (indName : Name) : MetaM Unit := do
+def mkNoConfusionType (indName : Name) : MetaM Unit := do
   let declName := mkNoConfusionTypeName indName
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
   let useLinearConstruction :=
@@ -248,7 +248,7 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
                 let e := mkAppN e (xs ++ indices ++ #[P, ctor1, ctor2, h, k])
                 mkLambdaFVars (xs ++ #[P] ++ ys ++ #[h, k]) e
       let name := ctor.str "noConfusion"
-      addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+      addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
         (name        := name)
         (levelParams := recInfo.levelParams)
         (type        := (← inferType e))
@@ -256,8 +256,10 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
         (hints       := ReducibilityHints.abbrev)
       ))
       setReducibleAttribute name
-      -- NB: Do not `markNoConfusion`, it is not the no-confusion principle that
-      -- the compiler expects
+      -- The compiler has special support for `noConfusion`. So lets mark this as
+      -- macroInline to not generate code for all these extra definitions, and instead
+      -- let the compiler unfold this to then put the custom code there
+      setInlineAttribute name (kind := .macroInline)
 
 
 def mkNoConfusionCore (declName : Name) : MetaM Unit := do

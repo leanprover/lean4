@@ -175,6 +175,28 @@ def isSpecThmNameFor (env : Environment) (name : Name) : Option Name := do
       return p
   none
 
+public partial def getMethodSpecTheorem (instName : Name) (op : String) : MetaM (Option Name) := do
+  let env ← getEnv
+  let some _ := methodSpecsAttr.getParam? env instName | return none
+  realizeGlobalConstNoOverloadCore (instName.str s!"{op}_spec")
+
+public partial def getMethodSpecTheorems (instName : Name) (op : String) : MetaM (Option (Array Name)) := do
+  let env ← getEnv
+  let some _ := methodSpecsAttr.getParam? env instName | return none
+  -- Realize spec theorems
+  let _ ← realizeGlobalConstNoOverloadCore (instName.str s!"{op}_spec")
+  -- Now collect the generated ones
+  let mut i := 0
+  let mut thms := #[]
+  while true do
+    let thmName := instName.str s!"{op}_spec_{i+1}"
+    if env.containsOnBranch thmName then
+      thms := thms.push thmName
+      i := i + 1
+    else
+      break
+  return some thms
+
 builtin_initialize
   registerReservedNamePredicate fun env name => isSpecThmNameFor env name |>.isSome
 

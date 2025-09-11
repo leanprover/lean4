@@ -4,7 +4,6 @@ namespace lean {
 options get_default_options() {
     options opts;
     // see https://github.com/leanprover/lean4/blob/master/doc/dev/bootstrap.md#further-bootstrapping-complications
-    opts = opts.update({"backward", "grind", "checkInferPatternDiscrepancy"}, true); // <<<<< ADDED THIS
 #if LEAN_IS_STAGE0 == 1
     // set to true to generally avoid bootstrapping issues limited to proofs
     opts = opts.update({"debug", "proofAsSorry"}, false);

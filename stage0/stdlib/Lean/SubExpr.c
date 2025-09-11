@@ -29,7 +29,6 @@ lean_object* l_Lean_Name_fromJson_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushAppFn(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_traverseAppWithPos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SubExpr_instFromJsonGoalLocation___closed__0;
-static lean_object* l_Lean_SubExpr_Pos_instRepr___lam__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_fromString_x21(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringCoord___boxed(lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
@@ -1990,20 +1989,10 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_SubExpr_Pos_instRepr___lam__0___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_SubExpr_Pos_fromString_x3f___closed__1;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_instRepr___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = l_Lean_SubExpr_Pos_instRepr___lam__0___closed__1;
 x_4 = l_Lean_SubExpr_Pos_toString(x_1);
 x_5 = l_String_quote(x_4);
@@ -2012,11 +2001,7 @@ lean_ctor_set(x_6, 0, x_5);
 x_7 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_7, 0, x_3);
 lean_ctor_set(x_7, 1, x_6);
-x_8 = l_Lean_SubExpr_Pos_instRepr___lam__0___closed__2;
-x_9 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_9, 0, x_7);
-lean_ctor_set(x_9, 1, x_8);
-return x_9;
+return x_7;
 }
 }
 static lean_object* _init_l_Lean_SubExpr_Pos_instRepr() {
@@ -4316,8 +4301,6 @@ l_Lean_SubExpr_Pos_instRepr___lam__0___closed__0 = _init_l_Lean_SubExpr_Pos_inst
 lean_mark_persistent(l_Lean_SubExpr_Pos_instRepr___lam__0___closed__0);
 l_Lean_SubExpr_Pos_instRepr___lam__0___closed__1 = _init_l_Lean_SubExpr_Pos_instRepr___lam__0___closed__1();
 lean_mark_persistent(l_Lean_SubExpr_Pos_instRepr___lam__0___closed__1);
-l_Lean_SubExpr_Pos_instRepr___lam__0___closed__2 = _init_l_Lean_SubExpr_Pos_instRepr___lam__0___closed__2();
-lean_mark_persistent(l_Lean_SubExpr_Pos_instRepr___lam__0___closed__2);
 l_Lean_SubExpr_Pos_instRepr = _init_l_Lean_SubExpr_Pos_instRepr();
 lean_mark_persistent(l_Lean_SubExpr_Pos_instRepr);
 l_Lean_SubExpr_Pos_instToJson = _init_l_Lean_SubExpr_Pos_instToJson();

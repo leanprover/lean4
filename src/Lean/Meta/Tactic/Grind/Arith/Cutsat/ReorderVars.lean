@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr

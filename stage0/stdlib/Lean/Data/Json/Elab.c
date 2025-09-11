@@ -1668,7 +1668,6 @@ lean_dec(x_32);
 x_39 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_38, x_34);
 x_40 = lean_box(2);
 x_41 = l_Lean_Syntax_mkStrLit(x_39, x_40);
-lean_dec_ref(x_39);
 x_13 = x_41;
 x_14 = x_7;
 goto block_19;

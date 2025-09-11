@@ -18,7 +18,6 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_ctorElim___boxed(lean_obje
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_leaf_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_toListModel___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_size(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_defaultImpl____x40_Std_Data_DTreeMap_Internal_Def_2236813287____hygCtx___hyg_75_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_ctorIdx___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_size___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_delta;
@@ -33,6 +32,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_inner_elim(lean_object*, l
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_toListModel(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_ctorIdx(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instInhabitedImpl_default(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_leaf_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_ctorElim___redArg(lean_object*, lean_object*);
@@ -155,7 +155,7 @@ x_7 = l_Std_DTreeMap_Internal_Impl_ctorElim___redArg(x_4, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_defaultImpl____x40_Std_Data_DTreeMap_Internal_Def_2236813287____hygCtx___hyg_75_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instInhabitedImpl_default(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 

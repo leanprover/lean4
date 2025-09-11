@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Simproc
-// Imports: Init.NotationExtra
+// Imports: Init.NotationExtra Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7220,12 +7220,16 @@ return x_4;
 }
 }
 lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Simproc(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_NotationExtra(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Name(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Parser_command____Simproc_____x5b___x5d___x28___x29_x3a_x3d_____closed__0 = _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28___x29_x3a_x3d_____closed__0();

@@ -209,7 +209,6 @@ static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownId
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
-extern lean_object* l_Lean_Elab_Structural_defaultRecArgInfo____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_55_;
 static lean_object* l_panic___at___Lean_Meta_matchMatcherApp_x3f___at_____private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop_spec__6_spec__14___closed__2;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_andProj___closed__0;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_____private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApp_spec__4___boxed(lean_object*, lean_object*, lean_object*);
@@ -337,6 +336,7 @@ static lean_object* l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Le
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Meta_matchMatcherApp_x3f___at_____private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop_spec__6_spec__7_spec__7_spec__7___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_____private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop_spec__21___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
+extern lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo_default;
 lean_object* l_Lean_Meta_instantiateForall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_mkIndPredBRecOnF___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at_____private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApp_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5601,7 +5601,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Structural_defaultRecArgInfo____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo_3651255277____hygCtx___hyg_55_;
+x_1 = l_Lean_Elab_Structural_instInhabitedRecArgInfo_default;
 return x_1;
 }
 }

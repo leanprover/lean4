@@ -11192,7 +11192,7 @@ static lean_object* _init_l___private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("instConfigMeta", 14, 14);
+x_1 = lean_mk_string_unchecked("instConfigInfo", 14, 14);
 return x_1;
 }
 }

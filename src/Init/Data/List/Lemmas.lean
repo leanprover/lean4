@@ -1709,7 +1709,6 @@ theorem getLast_concat {a : α} : ∀ {l : List α}, getLast (l ++ [a]) (by simp
 theorem nil_eq_append_iff : [] = a ++ b ↔ a = [] ∧ b = [] := by
   simp
 
-@[grind →]
 theorem eq_nil_of_append_eq_nil {l₁ l₂ : List α} (h : l₁ ++ l₂ = []) : l₁ = [] ∧ l₂ = [] :=
   append_eq_nil_iff.mp h
 

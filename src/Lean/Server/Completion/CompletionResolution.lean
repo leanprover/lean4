@@ -6,33 +6,13 @@ Authors: Leonardo de Moura, Marc Huisinga
 module
 
 prelude
-public import Lean.Server.Completion.CompletionItemData
+public import Lean.Data.Lsp
 public import Lean.Server.Completion.CompletionInfoSelection
 public import Lean.Linter.Deprecated
 
 public section
 
 namespace Lean.Lsp
-
-/--
-Identifier that is sent from the server to the client as part of the `CompletionItem.data?` field.
-Needed to resolve the `CompletionItem` when the client sends a `completionItem/resolve` request
-for that item, again containing the `data?` field provided by the server.
--/
-inductive CompletionIdentifier where
-  | const (declName : Name)
-  | fvar  (id       : FVarId)
-  deriving FromJson, ToJson
-
-/--
-`CompletionItemData` that contains additional information to identify the item
-in order to resolve it.
--/
-structure ResolvableCompletionItemData extends CompletionItemData where
-  /-- Position of the completion info that this completion item was created from. -/
-  cPos : Nat
-  id?  : Option CompletionIdentifier
-  deriving FromJson, ToJson
 
 private partial def consumeImplicitPrefix (e : Expr) (k : Expr → MetaM α) : MetaM α := do
   match e with

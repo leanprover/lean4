@@ -8,6 +8,7 @@ module
 prelude
 public import Init.System.IO
 public import Lean.Attributes
+public import Lean.Meta.Tactic.Simp.SimpTheorems
 import Lean.Meta.Basic
 import Lean.Structure
 import Lean.Meta.CtorRecognizer
@@ -66,6 +67,9 @@ def getMethodSpecsInfo (instName : Name) : MetaM MethodSpecsInfo := do
       let ys := arg.getAppArgs
       unless f.isConst do
         throwError "field `{field}` of the instance is not an application of a constant"
+      unless f.constLevels! == instInfo.levelParams.map mkLevelParam do
+        throwError "function `{f}` gets universe parameters\n  {f.constLevels!}\nwhich differs from \
+          the instances' universe parameters\n  {instInfo.levelParams.map mkLevelParam}"
       unless xs == ys do
         throwError "function `{f}` does not take its arguments in the same order as the instance"
       -- Construct the replacement theorems
@@ -117,16 +121,21 @@ builtin_initialize methodSpecsAttr : ParametricAttribute MethodSpecsAttrData ←
     getParam
   }
 
+builtin_initialize methodSpecsSimpExtension : SimpExtension ←
+  registerSimpAttr `method_specs_norm
+    "simp lemma used to post-process the theorem created by `@[method_specs]`."
+
 def rewriteThm (ctx : Simp.Context) (simprocs : Simprocs)
     (eqThmName destThmName : Name) : MetaM Unit := do
   let thmInfo ← getConstVal eqThmName
-  let (type', _) ← dsimp thmInfo.type ctx (simprocs := #[simprocs])
-  trace[Meta.MethodSpecs] "type for {destThmName}:{indentExpr type'}"
+  let (result, _) ← simp thmInfo.type ctx (simprocs := #[simprocs])
+  trace[Meta.MethodSpecs] "type for {destThmName}:{indentExpr result.expr}"
+  let value ← result.mkEqMPR <| mkConst eqThmName (thmInfo.levelParams.map mkLevelParam)
   addDecl <| Declaration.thmDecl {
     name          := destThmName
     levelParams   := thmInfo.levelParams
-    type          := type'
-    value         := mkConst eqThmName (thmInfo.levelParams.map mkLevelParam)
+    type          := result.expr
+    value         := value
   }
 
 def genSpecs (instName : Name) : MetaM Unit := do
@@ -136,7 +145,7 @@ def genSpecs (instName : Name) : MetaM Unit := do
 where
   doRealize := do
     let methodSpecsInfo ← getMethodSpecsInfo instName
-    let mut s : SimpTheorems := {}
+    let mut s ← methodSpecsSimpExtension.getTheorems
     for thm in methodSpecsInfo.thms do
       trace[Meta.MethodSpecs] "adding simp theorem for {thm.name} : {thm.type}"
       s := s.addSimpTheorem <| ← mkDSimpTheorem (.other thm.name) thm.levelParams.toArray thm.type

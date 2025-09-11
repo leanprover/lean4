@@ -53,7 +53,47 @@ info: theorem instBEqL.beq_spec_3.{u_1} : ∀ {α : Type u_1} [inst : BEq α] (x
 /-- error: Unknown constant `instBEqL.beq_spec_` -/
 #guard_msgs in #print sig instBEqL.beq_spec_
 
--- Now some error conditions
+-- Test rewriting all the way to HAppend
+
+@[method_specs_norm] theorem Append.append_eq_happend :
+  @Append.append α inst = @HAppend.hAppend α α α (@instHAppendOfAppend α inst) := rfl
+
+def L.append {α : Type u} : L α → L α → L α
+  | nil, ys       => ys
+  | cons x xs, ys => cons x (L.append xs ys)
+
+@[method_specs] instance (α : Type u) : Append (L α) where
+  append := L.append
+
+/--
+info: theorem instAppendL.append_spec_2.{u} : ∀ {α : Type u} (x : L α) (x_2 : α) (xs : L α),
+  L.cons x_2 xs ++ x = L.cons x_2 (xs ++ x)
+-/
+#guard_msgs in #print sig instAppendL.append_spec_2
+
+-- Test that rewriting works with non-rfl theorem too
+
+class Cls α where op : α → α
+class HCls α where hOp : α → α
+instance instHClsOfCls [Cls α] : HCls α where hOp := Cls.op
+-- NB: Not a rfl theorem
+@[method_specs_norm] theorem Cls.op_eq_hOp : @Cls.op α inst = @HCls.hOp α (@instHClsOfCls α inst) := (rfl)
+
+def L.op {α : Type u} : L α → L α
+  | nil        => nil
+  | cons x xs  => cons x (L.op xs)
+@[method_specs] instance : Cls (L α) where op := L.op
+
+/--
+info: theorem instClsL.op_spec_2.{u} : ∀ {α : Type u} (x_1 : α) (xs : L α),
+  HCls.hOp (L.cons x_1 xs) = L.cons x_1 (HCls.hOp xs)
+-/
+#guard_msgs in
+#print sig instClsL.op_spec_2
+
+/-!
+Now some error conditions
+-/
 
 /-- error: `Foo` is not a definition -/
 #guard_msgs in @[method_specs] inductive Foo
@@ -76,7 +116,7 @@ error: expected `aS` to be a type class instance, but its's type `S` does not lo
 -- This used to fail until we eta-reduced the field values
 @[method_specs] instance anotherInstBEqL [BEq α] : BEq (L α) := ⟨fun x y => L.beqImpl x y⟩
 
-def L.badBeqImpl : L α → L α → Bool
+def L.badBeqImpl {α : Type u} : L α → L α → Bool
   | nil, nil           => true
   | cons _ xs, cons _ ys => L.badBeqImpl xs ys
   | _, _               => false
@@ -84,3 +124,21 @@ def L.badBeqImpl : L α → L α → Bool
 /-- error: function `@L.badBeqImpl` does not take its arguments in the same order as the instance -/
 #guard_msgs in
 @[method_specs] instance badInstBEqL [BEq α] : BEq (L α) := ⟨L.badBeqImpl⟩
+
+-- L.append has a more general type (in terms of universes)
+-- than the instance below.
+-- This should be caught and warned about.
+
+def L.badAppend : L α → L α → L α
+  | nil, ys       => ys
+  | cons x xs, ys => cons x (L.badAppend xs ys)
+
+/--
+error: function `@L.badAppend` gets universe parameters
+  [u+1]
+which differs from the instances' universe parameters
+  [u]
+-/
+#guard_msgs in
+@[method_specs] instance badInstAppendL (α : Type u) : Append (L α) where
+  append := L.badAppend

@@ -6,7 +6,7 @@ open Lean Meta Elab Tactic Try
 
 -- Install a `TryTactic` handler for `assumption`
 @[try_tactic assumption]
-def evalTryApply : TryTactic := fun tac => do
+meta def evalTryApply : TryTactic := fun tac => do
   -- We just use the default implementation, but return a different tactic.
   evalAssumption tac
   `(tactic| (trace "worked"; assumption))

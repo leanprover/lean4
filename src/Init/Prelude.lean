@@ -751,18 +751,18 @@ class inductive Nonempty (α : Sort u) : Prop where
   | intro (val : α) : Nonempty α
 
 /--
-**The axiom of choice**. `Nonempty α` is a proof that `α` has an element,
+**The Axiom of Choice**. `Nonempty α` is a proof that `α` has an element,
 but the element itself is erased. The axiom `choice` supplies a particular
 element of `α` given only this proof.
 
-The textbook axiom of choice normally makes a family of choices all at once,
+The textbook Axiom of Choice normally makes a family of choices all at once,
 but that is implied from this formulation, because if `α : ι → Type` is a
 family of types and `h : ∀ i, Nonempty (α i)` is a proof that they are all
 nonempty, then `fun i => Classical.choice (h i) : ∀ i, α i` is a family of
 chosen elements. This is actually a bit stronger than the ZFC choice axiom;
 this is sometimes called "[global choice](https://en.wikipedia.org/wiki/Axiom_of_global_choice)".
 
-In Lean, we use the axiom of choice to derive the law of excluded middle
+In Lean, we use the Axiom of Choice to derive the Law of Excluded Middle
 (see `Classical.em`), so it will often show up in axiom listings where you
 may not expect. You can use `#print axioms my_thm` to find out if a given
 theorem depends on this or other axioms.

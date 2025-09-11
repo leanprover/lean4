@@ -389,6 +389,12 @@ theorem get!_eq_getElem! [Inhabited α] (l : List α) (i) : l.get! i = l[i]! := 
 theorem eq_or_mem_of_mem_cons {a b : α} {l : List α} :
     a ∈ b :: l → a = b ∨ a ∈ l := List.mem_cons.mp
 
+-- This pattern may be excessively general:
+-- it fires anytime we ae thinking about membership of lists,
+-- and constructing a list via `cons`, even if the elements are unrelated.
+-- Nevertheless in practice it is quite helpful!
+grind_pattern eq_or_mem_of_mem_cons => b :: l, a ∈ l
+
 theorem mem_cons_self {a : α} {l : List α} : a ∈ a :: l := .head ..
 
 theorem mem_concat_self {xs : List α} {a : α} : a ∈ xs ++ [a] :=
@@ -2978,6 +2984,10 @@ theorem contains_eq_any_beq [BEq α] {l : List α} {a : α} : l.contains a = l.a
 theorem contains_iff_exists_mem_beq [BEq α] {l : List α} {a : α} :
     l.contains a ↔ ∃ a' ∈ l, a == a' := by
   induction l <;> simp_all
+
+-- We add this as a `grind` lemma because it is useful without `LawfulBEq α`.
+-- With `LawfulBEq α`, it would be better to use `contains_iff_mem` directly.
+grind_pattern contains_iff_exists_mem_beq => l.contains a
 
 @[grind _=_]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {l : List α} {a : α} :

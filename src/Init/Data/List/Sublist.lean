@@ -206,11 +206,13 @@ theorem Sublist.head_mem (s : ys <+ xs) (h) : ys.head h ∈ xs :=
   s.mem (List.head_mem h)
 
 grind_pattern Sublist.head_mem => ys <+ xs, ys.head h
+grind_pattern Sublist.head_mem => ys.head h ∈ xs -- This is somewhat aggressive, as it initiates sublist based reasoning.
 
 theorem Sublist.getLast_mem (s : ys <+ xs) (h) : ys.getLast h ∈ xs :=
   s.mem (List.getLast_mem h)
 
 grind_pattern Sublist.getLast_mem => ys <+ xs, ys.getLast h
+grind_pattern Sublist.getLast_mem => ys.getLast h ∈ xs -- This is somewhat aggressive, as it initiates sublist based reasoning.
 
 instance : Trans (@Sublist α) Subset Subset :=
   ⟨fun h₁ h₂ => trans h₁.subset h₂⟩

@@ -22,11 +22,10 @@ def test2 : Async Nat := do
 
 /-- info: 1 -/
 #guard_msgs in
-#eval show IO _ from do
-  let task ← test2
-  IO.ofExcept task.get
+#eval EAsync.block <| show Async _ from do
+  test2
 
 /-- error: Selectable.one requires at least one Selectable -/
 #guard_msgs in
-#eval show IO _ from do
+#eval EAsync.block <| show Async _ from do
   let foo ← Selectable.one (α := Unit) #[]

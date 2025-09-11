@@ -2942,9 +2942,9 @@ block_12:
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
-x_8 = lean_string_utf8_extract(x_6, x_4, x_5);
-lean_dec(x_5);
+x_8 = lean_string_utf8_extract(x_6, x_5, x_4);
 lean_dec(x_4);
+lean_dec(x_5);
 lean_dec_ref(x_6);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_3);
@@ -2983,16 +2983,16 @@ if (x_18 == 0)
 {
 uint8_t x_19; 
 x_19 = lean_nat_dec_lt(x_16, x_14);
-x_4 = x_14;
-x_5 = x_16;
+x_4 = x_16;
+x_5 = x_14;
 x_6 = x_13;
 x_7 = x_19;
 goto block_12;
 }
 else
 {
-x_4 = x_14;
-x_5 = x_16;
+x_4 = x_16;
+x_5 = x_14;
 x_6 = x_13;
 x_7 = x_18;
 goto block_12;
@@ -8442,11 +8442,11 @@ return x_19;
 block_26:
 {
 lean_object* x_25; 
-x_25 = lean_string_append(x_23, x_24);
+x_25 = lean_string_append(x_21, x_24);
 lean_dec_ref(x_24);
-x_4 = x_21;
+x_4 = x_22;
 x_5 = x_25;
-x_6 = x_22;
+x_6 = x_23;
 goto block_20;
 }
 block_33:
@@ -8457,9 +8457,9 @@ if (x_28 == 0)
 {
 lean_object* x_31; 
 x_31 = l_Lean_ErrorExplanation_instToStringKind___lam__0___closed__0;
-x_21 = x_27;
-x_22 = x_29;
-x_23 = x_30;
+x_21 = x_30;
+x_22 = x_27;
+x_23 = x_29;
 x_24 = x_31;
 goto block_26;
 }
@@ -8467,9 +8467,9 @@ else
 {
 lean_object* x_32; 
 x_32 = l_Lean_ErrorExplanation_instToStringKind___lam__0___closed__1;
-x_21 = x_27;
-x_22 = x_29;
-x_23 = x_30;
+x_21 = x_30;
+x_22 = x_27;
+x_23 = x_29;
 x_24 = x_32;
 goto block_26;
 }
@@ -8479,22 +8479,22 @@ block_48:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_36; 
-lean_dec(x_35);
+lean_dec(x_34);
 x_36 = l_Std_Internal_Parsec_manyCore___at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_CodeInfo_parse_stringContents_spec__0___closed__2;
-x_4 = x_34;
+x_4 = x_35;
 x_5 = x_36;
 x_6 = x_36;
 goto block_20;
 }
 else
 {
-if (lean_obj_tag(x_35) == 0)
+if (lean_obj_tag(x_34) == 0)
 {
 lean_object* x_37; lean_object* x_38; uint8_t x_39; 
 x_37 = lean_ctor_get(x_2, 0);
 x_38 = l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock___closed__5;
 x_39 = lean_unbox(x_37);
-x_27 = x_34;
+x_27 = x_35;
 x_28 = x_39;
 x_29 = x_38;
 goto block_33;
@@ -8502,9 +8502,9 @@ goto block_33;
 else
 {
 lean_object* x_40; uint8_t x_41; 
-x_40 = lean_ctor_get(x_35, 0);
+x_40 = lean_ctor_get(x_34, 0);
 lean_inc(x_40);
-lean_dec_ref(x_35);
+lean_dec_ref(x_34);
 x_41 = lean_unbox(x_40);
 lean_dec(x_40);
 if (x_41 == 0)
@@ -8513,7 +8513,7 @@ lean_object* x_42; lean_object* x_43; uint8_t x_44;
 x_42 = lean_ctor_get(x_2, 0);
 x_43 = l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock___closed__6;
 x_44 = lean_unbox(x_42);
-x_27 = x_34;
+x_27 = x_35;
 x_28 = x_44;
 x_29 = x_43;
 goto block_33;
@@ -8524,7 +8524,7 @@ lean_object* x_45; lean_object* x_46; uint8_t x_47;
 x_45 = lean_ctor_get(x_2, 0);
 x_46 = l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock___closed__7;
 x_47 = lean_unbox(x_45);
-x_27 = x_34;
+x_27 = x_35;
 x_28 = x_47;
 x_29 = x_46;
 goto block_33;
@@ -8536,29 +8536,29 @@ block_56:
 {
 if (x_49 == 0)
 {
-lean_dec_ref(x_52);
+lean_dec_ref(x_51);
 x_34 = x_50;
-x_35 = x_51;
+x_35 = x_52;
 goto block_48;
 }
 else
 {
 if (x_53 == 0)
 {
-lean_dec_ref(x_52);
+lean_dec_ref(x_51);
 x_34 = x_50;
-x_35 = x_51;
+x_35 = x_52;
 goto block_48;
 }
 else
 {
 lean_object* x_54; lean_object* x_55; 
-lean_dec(x_51);
-lean_dec_ref(x_50);
+lean_dec_ref(x_52);
+lean_dec(x_50);
 lean_dec_ref(x_3);
 x_54 = lean_box(0);
 x_55 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_55, 0, x_52);
+lean_ctor_set(x_55, 0, x_51);
 lean_ctor_set(x_55, 1, x_54);
 return x_55;
 }
@@ -8637,9 +8637,9 @@ x_79 = lean_string_dec_eq(x_77, x_1);
 if (lean_obj_tag(x_2) == 0)
 {
 x_49 = x_79;
-x_50 = x_77;
-x_51 = x_78;
-x_52 = x_61;
+x_50 = x_78;
+x_51 = x_61;
+x_52 = x_77;
 x_53 = x_69;
 goto block_56;
 }
@@ -8648,9 +8648,9 @@ else
 uint8_t x_80; 
 x_80 = l_Option_instBEq_beq___at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0(x_2, x_78);
 x_49 = x_79;
-x_50 = x_77;
-x_51 = x_78;
-x_52 = x_61;
+x_50 = x_78;
+x_51 = x_61;
+x_52 = x_77;
 x_53 = x_80;
 goto block_56;
 }
@@ -8726,9 +8726,9 @@ x_102 = lean_string_dec_eq(x_100, x_1);
 if (lean_obj_tag(x_2) == 0)
 {
 x_49 = x_102;
-x_50 = x_100;
-x_51 = x_101;
-x_52 = x_82;
+x_50 = x_101;
+x_51 = x_82;
+x_52 = x_100;
 x_53 = x_90;
 goto block_56;
 }
@@ -8737,9 +8737,9 @@ else
 uint8_t x_103; 
 x_103 = l_Option_instBEq_beq___at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0(x_2, x_101);
 x_49 = x_102;
-x_50 = x_100;
-x_51 = x_101;
-x_52 = x_82;
+x_50 = x_101;
+x_51 = x_82;
+x_52 = x_100;
 x_53 = x_103;
 goto block_56;
 }

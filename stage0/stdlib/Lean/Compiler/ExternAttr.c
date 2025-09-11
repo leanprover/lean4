@@ -1555,18 +1555,20 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr_4197872175____hygCtx___hyg_2_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = lean_alloc_closure((void*)(l_Lean_initFn___lam__0____x40_Lean_Compiler_ExternAttr_4197872175____hygCtx___hyg_2____boxed), 5, 0);
 x_3 = lean_alloc_closure((void*)(l_Lean_initFn___lam__1____x40_Lean_Compiler_ExternAttr_4197872175____hygCtx___hyg_2_), 5, 0);
 x_4 = lean_alloc_closure((void*)(l_Lean_initFn___lam__2____x40_Lean_Compiler_ExternAttr_4197872175____hygCtx___hyg_2____boxed), 3, 0);
 x_5 = l_Lean_initFn___closed__6____x40_Lean_Compiler_ExternAttr_4197872175____hygCtx___hyg_2_;
-x_6 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_6, 0, x_5);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set(x_6, 2, x_3);
-lean_ctor_set(x_6, 3, x_4);
-x_7 = l_Lean_registerParametricAttribute___redArg(x_6, x_1);
-return x_7;
+x_6 = 0;
+x_7 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_7, 0, x_5);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_3);
+lean_ctor_set(x_7, 3, x_4);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4, x_6);
+x_8 = l_Lean_registerParametricAttribute___redArg(x_7, x_1);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_Compiler_ExternAttr_4197872175____hygCtx___hyg_2____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

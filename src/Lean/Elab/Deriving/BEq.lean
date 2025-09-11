@@ -10,10 +10,8 @@ public import Lean.Data.Options
 import Lean.Meta.Transform
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
-import Lean.Meta.Constructions.CtorIdx
-import Lean.Meta.Constructions.CasesOnSameCtor
 import Lean.Meta.Eqns
-
+import Lean.Meta.SameCtorUtils
 
 namespace Lean.Elab.Deriving.BEq
 open Lean.Parser.Term
@@ -47,17 +45,20 @@ where
         -- add `_` pattern for indices
         for _ in *...indVal.numIndices do
           patterns := patterns.push (← `(_))
-        let mut ctorArgs1 := #[]
-        let mut ctorArgs2 := #[]
+        let mut ctorArgs1 : Array Term := #[]
+        let mut ctorArgs2 : Array Term := #[]
         let mut rhs ← `(true)
         let mut rhs_empty := true
         for i in *...ctorInfo.numFields do
           let pos := indVal.numParams + ctorInfo.numFields - i - 1
           let x := xs[pos]!
-          if type.containsFVar x.fvarId! then
+          if occursOrInType (← getLCtx) x type then
             -- If resulting type depends on this field, we don't need to compare
-            ctorArgs1 := ctorArgs1.push (← `(_))
-            ctorArgs2 := ctorArgs2.push (← `(_))
+            -- but use inaccessible patterns fail during pattern match compilation if their
+            -- equality does not actually follow from the equality between their types
+            let a := mkIdent (← mkFreshUserName `a)
+            ctorArgs1 := ctorArgs1.push a
+            ctorArgs2 := ctorArgs2.push (← `(term|.( $a:ident )))
           else
             let a := mkIdent (← mkFreshUserName `a)
             let b := mkIdent (← mkFreshUserName `b)

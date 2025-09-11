@@ -56,6 +56,20 @@ def ex1 [DecidableEq α] : DecidableEq (Tree α) :=
 def ex2 [DecidableEq α] : DecidableEq (TreeList α) :=
   inferInstance
 
+
+inductive Tyₛ : Type (u+1)
+| SPi : (T : Type u) -> (T -> Tyₛ) -> Tyₛ
+
+/--
+error: Dependent elimination failed: Failed to solve equation
+  A✝ arg✝ = A arg
+-/
+#guard_msgs in
+inductive Tmₛ.{u} :  Tyₛ.{u} -> Type (u+1)
+| app : Tmₛ (.SPi T A) -> (arg : T) -> Tmₛ (A arg)
+deriving DecidableEq
+
+
 /-! Private fields should yield public, no-expose instances. -/
 
 structure PrivField where

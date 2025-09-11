@@ -3185,7 +3185,7 @@ theorem minKey_insert_le_self [TransCmp cmp] {k v} :
     t.contains (t.minKey he) :=
   Impl.contains_minKey t.wf
 
-@[grind] theorem minKey_mem [TransCmp cmp] {he} :
+@[grind ←] theorem minKey_mem [TransCmp cmp] {he} :
     t.minKey he ∈ t :=
   Impl.minKey_mem t.wf
 
@@ -3827,7 +3827,7 @@ theorem self_le_maxKey_insert [TransCmp cmp] {k v} :
     t.contains (t.maxKey he) :=
   Impl.contains_maxKey t.wf
 
-@[grind] theorem maxKey_mem [TransCmp cmp] {he} :
+@[grind ←] theorem maxKey_mem [TransCmp cmp] {he} :
     t.maxKey he ∈ t :=
   Impl.maxKey_mem t.wf
 

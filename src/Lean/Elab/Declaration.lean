@@ -109,7 +109,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   let (binders, typeStx) := expandDeclSig stx[2]
   runTermElabM fun vars => do
     let scopeLevelNames ← Term.getLevelNames
-    let ⟨shortName, declName, allUserLevelNames⟩ ← Term.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
+    let ⟨shortName, declName, allUserLevelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
     addDeclarationRangesForBuiltin declName modifiers.stx stx
     Term.withAutoBoundImplicit do
     Term.withAutoBoundImplicitForbiddenPred (fun n => shortName == n) do
@@ -136,12 +136,15 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
         trace[Elab.axiom] "{declName} : {type}"
         Term.ensureNoUnassignedMVars decl
         addDecl decl
-        withSaveInfoContext do  -- save new env
-          Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)
+
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking
         if isExtern (← getEnv) declName then
           compileDecl decl
+        if let some (doc, isVerso) := docString? then
+          addDocStringOf isVerso declName binders doc
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
+        withSaveInfoContext do  -- save new env with docstring and decl
+          Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)
 open Lean.Parser.Command.InternalSyntax in
 /--
 Macro that expands a declaration with a complex name into an explicit `namespace` block.

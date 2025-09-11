@@ -172,7 +172,6 @@ static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__13;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Passes_0__Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Passes_304272854____hygCtx___hyg_2_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_Pass_saveMono_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Compiler_LCNF_findJoinPoints;
-static lean_object* l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__11;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_LCNF_addPass_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___Lean_Compiler_LCNF_addPass_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -251,7 +250,6 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__66;
 lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
-static lean_object* l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getPassManager___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__5;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__17;
@@ -3306,27 +3304,10 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__10() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("", 0, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__11() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__10;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_8 = l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__1;
 x_9 = l_Lean_MessageData_ofName(x_1);
 lean_inc_ref(x_9);
@@ -3365,12 +3346,8 @@ x_25 = l_Lean_indentExpr(x_4);
 x_26 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_26, 0, x_24);
 lean_ctor_set(x_26, 1, x_25);
-x_27 = l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__11;
-x_28 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_28, 0, x_26);
-lean_ctor_set(x_28, 1, x_27);
-x_29 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_LCNF_addPass_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1___redArg(x_28, x_5, x_6, x_7);
-return x_29;
+x_27 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_LCNF_addPass_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1___redArg(x_26, x_5, x_6, x_7);
+return x_27;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -5072,10 +5049,6 @@ l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8_
 lean_mark_persistent(l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__8);
 l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__9 = _init_l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__9();
 lean_mark_persistent(l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__9);
-l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__10 = _init_l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__10();
-lean_mark_persistent(l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__10);
-l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__11 = _init_l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__11();
-lean_mark_persistent(l_Lean_throwAttrDeclNotOfExpectedType___at___Lean_Compiler_LCNF_addPass_spec__8___redArg___closed__11);
 l_Lean_Compiler_LCNF_addPass___closed__0 = _init_l_Lean_Compiler_LCNF_addPass___closed__0();
 lean_mark_persistent(l_Lean_Compiler_LCNF_addPass___closed__0);
 l_Lean_Compiler_LCNF_addPass___closed__1 = _init_l_Lean_Compiler_LCNF_addPass___closed__1();

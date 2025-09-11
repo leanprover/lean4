@@ -14,11 +14,24 @@ public section
 namespace Lean.Elab.Command
 open Lean Meta Elab
 
+builtin_initialize
+  registerTraceClass `Elab.coinductive
+
+/-- This structure contains the data carried in `InductiveElabStep1` that are solely used in
+mutual coinductive predicate elaboration. -/
 structure CoinductiveElabData where
+  /-- Declaration name of the predicate-/
   declName : Name
+  /-- Ref from the original `InductiveView`-/
   ref : Syntax
+  /-- Modifiers from the original `InductiveView`-/
   modifiers : Modifiers
+  /-- Constructor refs from the original `InductiveView`-/
   ctorSyntax : Array Syntax
+  /-- The flag that is `true` if the predicate was defined via `coinductive` keyword and `false`
+  otherwise. When we elaborate a mutual definition, we allow mixing `coinductive` and `inductive`
+  keywords, and hence we need to record this information.
+  -/
   isGreatest : Bool
   deriving Inhabited
 
@@ -37,6 +50,17 @@ public def removeFunctorPostfixInCtor : Name → Name
   | Name.str p s => Name.str (removeFunctorPostfix p) s
   | Name.num p n => Name.num (removeFunctorPostfixInCtor p) n
 
+/--
+  Defines a constructor for a coinductive predicate that precisely correspond to the constructors
+  given in the original `InductiveView`. First, we take all the parameters and arguments
+  of the constructor, look at flat inductive (see `mkFlatInductive`) associated with our definition,
+  and then we populate the parameters corresponding to recursive calls with the just defined
+  coinductive predicates. Once we have this, we rewrite the obtained flat inductive to equivalent
+  existential form (see `Meta.MkIffOfInductivePRop`), and then we use the unrolling rule registered
+  by `PartialFixpoint` machinery to bring the goal to the form corresponding to the conclusion of
+  the constructor.
+
+-/
 private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyntax : Syntax)
     (numParams : Nat) (name : Name) (ctor : ConstructorVal) : TermElabM Unit := do
   trace[Elab.coinductive] "Generating constructor: {removeFunctorPostfixInCtor ctor.name}"
@@ -44,13 +68,13 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
   let predNames := infos.map fun val => removeFunctorPostfix val.name
   let levelParams := infos[0]!.levelParams.map mkLevelParam
   /-
-    We start by looking at the type of the constructor and introducing
-    all its parameters to the scope
+    We start by looking at the type of the constructor of the flat inductive and then by introducing
+    all its parameters to the scope.
   -/
   forallBoundedTelescope ctor.type (numParams + numPreds) fun args body => do
     /-
       The first `numParams` many items of `args` are parameters from the original definition,
-      while the remaining ones are free variables that correspond to recursive calls
+      while the remaining ones are free variables that correspond to recursive calls.
     -/
     let params := args.take numParams
     let predFVars := args.extract numParams
@@ -90,8 +114,8 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
       let mut fixEq := mkConst fixEq levelParams
       fixEq := mkAppN fixEq params
       /-
-        The right hands side of the unrolling rule is existential form of the functor defining
-        the predicate with all its arguments applied
+        The right hands side of the unrolling rule is existential form of the flat inductive
+        defining the predicate with all its arguments applied
       -/
       let mut unfolded := mkConst (name ++ `existential) levelParams
       unfolded ← unfoldDefinition unfolded
@@ -108,7 +132,7 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
       -/
       let hole ← Lean.MVarId.replaceTargetEq hole unfolded fixEq
       /-
-        To bring it to the inductive type form (of the original functor), we need to apply
+        To bring it to the flat inductive type form, we need to apply
         the lemma that connects both. We instantiate it, and get an appropriate implication.
       -/
       let equivLemmaName := name ++ `sop
@@ -117,8 +141,7 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
       equivLemma ← mkAppM ``Iff.mp #[equivLemma]
       let [hole] ← hole.apply equivLemma | throwError "Could not apply {equivLemmaName}"
       /-
-        Now, all it suffices is to call an approprate constructor of the functor
-        in the inductive type form.
+        Now, all it suffices is to call an approprate constructor of the flat inductive.
       -/
       let constructor := mkConst ctor.name levelParams
       let constructor := mkAppN constructor params
@@ -141,9 +164,14 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
       hints := .opaque
       safety := .safe
     }
-
     Term.addTermInfo' ctorSyntax res (isBinder := true)
 
+/--
+  Given the number of parameters and the `InductiveVal` containing flat inductives
+  (see `mkFlatInductive`) and `CoinductiveElabData` associated with the mutual coinductive
+  predicates, generates their constructors that correspond to the
+  constructors given in the original syntax.
+-/
 private def generateCoinductiveConstructors (numParams : Nat) (infos : Array InductiveVal)
     (coinductiveElabData : Array CoinductiveElabData) : TermElabM Unit := do
   for indType in infos, e in coinductiveElabData do
@@ -151,6 +179,17 @@ private def generateCoinductiveConstructors (numParams : Nat) (infos : Array Ind
       generateCoinductiveConstructor infos ctorSyntax numParams indType.name
         <| ←getConstInfoCtor ctor
 
+/--
+  Main entry point for elaborating mutual coinductive predicates. This function is called after
+  generating a flat inductive and adding it to the environment.
+
+  We look at corresponding existential form of the flat inductive (see `Meta.MkIffOfInductiveProp`),
+  use it to populate `PreDefinition`s that correspond to the predicates, and then we call
+  the `PartialFixpoint` machinery to register them as (co)inductive predicates.
+
+  Finally, we generate constructors for each of the predicates, that correspond to the constructors
+  that were given by the user.
+-/
 def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : TermElabM Unit := do
   trace[Elab.coinductive] "Elaborating: {coinductiveElabData.map (·.declName)}"
   let infos ← coinductiveElabData.mapM (getConstInfoInduct ·.declName)
@@ -173,7 +212,7 @@ def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : TermElab
     Term.addTermInfo' e.ref const (isBinder := true)
   /-
     We create values of each of PreDefinitions, by taking existential (see `Meta.SumOfProducts`)
-    form of the associated functors and applying paramaters, as well as recursive calls
+    form of the associated flat inductives and applying paramaters, as well as recursive calls
     (with their parameters passed).
   -/
   let preDefVals ← forallBoundedTelescope infos[0]!.type originalNumParams fun params _ => do

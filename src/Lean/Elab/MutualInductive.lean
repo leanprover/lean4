@@ -55,7 +55,6 @@ open Meta
 
 builtin_initialize
   registerTraceClass `Elab.inductive
-  registerTraceClass `Elab.coinductive
 
 register_builtin_option inductive.autoPromoteIndices : Bool := {
   defValue := true
@@ -942,7 +941,21 @@ def replaceIndFVars (numParams : Nat) (oldFVars : Array Expr) (calls : Array Exp
       .none
     )
 
-private def mkFlatFunctor (views : Array InductiveView) (elabs' : Array InductiveElabStep2)
+/--
+  Given a list of `InductiveType` structures and some local variables of `mkInductiveDecl`,
+  rewrites the inductive types and their constructors in a way that signature contains parameters
+  representing the types being defined, and all the recursive occurrences of the inductive types
+  in constructor are replaced by applications of these parameters.
+
+  This function is used to implement coinductive predicates. For more details, see the comment in
+  `Elab.Coinductive`
+
+  Upon rewriting the inductive types, it adds the new inductive declaration to the environment,
+  following the same pattern as `mkInductiveDecl`.
+
+  We assume that numVars <= numParams, where numVars is the number of local variables.
+-/
+private def mkFlatInductive (views : Array InductiveView) (elabs' : Array InductiveElabStep2)
   (indFVars : Array Expr) (vars : Array Expr) (levelParams : List Name) (numVars : Nat)
   (numParams : Nat) (indTypes : List InductiveType) : TermElabM FinalizeContext := do
 
@@ -1051,7 +1064,7 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
         | .error msg      => throwErrorAt view0.declId msg
         | .ok levelParams => do
           if isCoinductive then
-            mkFlatFunctor views elabs' indFVars vars levelParams numVars numParams indTypes
+            mkFlatInductive views elabs' indFVars vars levelParams numVars numParams indTypes
           else
             let indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes
             let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
@@ -1068,10 +1081,19 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
     withSaveInfoContext do -- save new env
       for view in views do
         unless isCoinductive do
+          /-
+            If we are elaborating a coinductive predicate, we do not want to register the term info
+            as the inductive we have just obtained is just an auxillary one, used to define the
+            coinductive predicate.
+          -/
           Term.addTermInfo' view.declId (← mkConstWithLevelParams view.declName) (isBinder := true)
         for ctor in view.ctors do
           if (ctor.declId.getPos? (canonicalOnly := true)).isSome then
             unless isCoinductive do
+              /-
+                Same applies to constructors. The constructors here are constructors of the auxillary
+                inductive type, not the coinductive predicate itself.
+              -/
               Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
             enableRealizationsForConst ctor.declName
     return res

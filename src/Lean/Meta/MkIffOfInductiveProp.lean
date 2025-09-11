@@ -371,7 +371,7 @@ private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) : M
 def mkSumOfProducts (declName : Name) : MetaM Unit := do
     trace[Meta.MkIffOfInductiveProp] "Generating existential form of {declName}"
     let .inductInfo infos ← getConstInfo declName | throwError "Needs to be a definition"
-    mkIffOfInductivePropImpl infos (declName ++ `sop)
+    mkIffOfInductivePropImpl infos (declName ++ `existential_equiv)
 
 builtin_initialize
   registerTraceClass `Meta.MkIffOfInductiveProp

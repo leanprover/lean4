@@ -25,11 +25,11 @@ fun α r infSeq_functor.call a => ∃ b, r a b ∧ infSeq_functor.call b
 #print infSeq_functor.existential
 
 /--
-info: infSeq_functor.sop (α : Type) (r : α → α → Prop) (infSeq_functor.call : α → Prop) (a✝ : α) :
+info: infSeq_functor.existential_equiv (α : Type) (r : α → α → Prop) (infSeq_functor.call : α → Prop) (a✝ : α) :
   infSeq_functor α r infSeq_functor.call a✝ ↔ ∃ b, r a✝ b ∧ infSeq_functor.call b
 -/
 #guard_msgs in
-#check infSeq_functor.sop
+#check infSeq_functor.existential_equiv
 
 /--
 info: infSeq.coinduct (α : Type) (r : α → α → Prop) (pred : α → Prop) (hyp : ∀ (x : α), pred x → ∃ b, r x b ∧ pred b)

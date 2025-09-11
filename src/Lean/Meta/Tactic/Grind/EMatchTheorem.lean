@@ -1009,6 +1009,69 @@ where
     | .bvar idx   => modify fun s => if s.contains idx then s else idx :: s
     | _           => return ()
 
+namespace OldCollector
+private def diff (s : List Nat) (found : Std.HashSet Nat) : List Nat :=
+  if found.isEmpty then s else s.filter fun x => !found.contains x
+
+/--
+Returns `true` if pattern `p` contains a child `c` such that
+1- `p` and `c` have the same new pattern variables. We say a pattern variable is new if it is not in `alreadyFound`.
+2- `c` is not a support argument. See `NormalizePattern.getPatternSupportMask` for definition.
+3- `c` is not an offset pattern.
+4- `c` is not a bound variable.
+-/
+private def hasChildWithSameNewBVars (p : Expr)
+    (argKinds : Array NormalizePattern.PatternArgKind) (alreadyFound : Std.HashSet Nat) : CoreM Bool := do
+  let s := diff (collectPatternBVars p) alreadyFound
+  for arg in p.getAppArgs, argKind in argKinds do
+    unless argKind.isSupport do
+    unless arg.isBVar do
+    unless isOffsetPattern? arg |>.isSome do
+      let sArg := diff (collectPatternBVars arg) alreadyFound
+      if s ⊆ sArg then
+        return true
+  return false
+
+private partial def collect (e : Expr) : CollectorM Unit := do
+  if (← get).done then return ()
+  match e with
+  | .app .. =>
+    trace[grind.debug.ematch.pattern] "collect: {e}"
+    let f := e.getAppFn
+    let argKinds ← NormalizePattern.getPatternArgKinds f e.getAppNumArgs
+    if (← isPatternFnCandidate f) then
+      let saved ← getThe NormalizePattern.State
+      try
+        trace[grind.debug.ematch.pattern] "candidate: {e}"
+        let p := e.abstract (← read).xs
+        unless p.hasLooseBVars do
+          trace[grind.debug.ematch.pattern] "skip, does not contain pattern variables"
+          return ()
+        let p ← NormalizePattern.normalizePattern p
+        if saved.bvarsFound.size < (← getThe NormalizePattern.State).bvarsFound.size then
+          unless (← hasChildWithSameNewBVars p argKinds saved.bvarsFound) do
+            addNewPattern p
+            return ()
+        trace[grind.debug.ematch.pattern] "skip, no new variables covered"
+        -- restore state and continue search
+        set saved
+      catch ex =>
+        trace[grind.debug.ematch.pattern] "skip, exception during normalization{indentD ex.toMessageData}"
+        -- restore state and continue search
+        set saved
+    let args := e.getAppArgs
+    for arg in args, argKind in argKinds do
+      trace[grind.debug.ematch.pattern] "arg: {arg}, support: {argKind.isSupport}"
+      unless argKind.isSupport do
+        collect arg
+  | .forallE _ d b _ =>
+    if (← pure e.isArrow <&&> isProp d <&&> isProp b) then
+      collect d
+      collect b
+  | _ => return ()
+
+end OldCollector
+
 private def sizeOfDiff (s₁ s₂ : Std.HashSet Nat) : Nat :=
   s₂.fold (init := s₁.size) fun num idx =>
     if s₁.contains idx then num - 1 else num
@@ -1089,13 +1152,22 @@ private partial def collect (e : Expr) : CollectorM Unit := do
       collect b
   | _ => return ()
 
+register_builtin_option backward.grind.inferPattern : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr    := "use old E-matching pattern inference"
+}
+
 private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Array Expr) (symPrios : SymbolPriorities) (minPrio : Nat)
     : MetaM (Option (List Expr × List HeadIndex)) := do
   let go : CollectorM (Option (List Expr)) := do
     for place in searchPlaces do
       trace[grind.debug.ematch.pattern] "place: {place}"
       let place ← preprocessPattern place
-      collect place
+      if backward.grind.inferPattern.get (← getOptions) then
+        OldCollector.collect place
+      else
+        collect place
       if (← get).done then
         return some ((← get).patterns.toList)
     return none

@@ -390,9 +390,9 @@ or superfluously, however. Examples to avoid include:
   instance, and it has additional observable structure such as bucket
   sizes). Without this precision, it’s unclear to readers when a
   precise specification is being provided.
-* “It's a theorem that cats are better than dogs.” Here, “theorem” is
+* “It’s a theorem that cats are better than dogs.” Here, “theorem” is
   used ironically to express that the speaker believes the statement,
-  but it doesn’t express that there's an axiomatic pet system within
+  but it doesn’t express that there’s an axiomatic pet system within
   which the statement has been derived.
 
 
@@ -554,7 +554,7 @@ ordinary comments.
 
 * Docstrings should not refer to the surrounding context of the module
   in which they’re defined. Avoid phrases like “`This can be seen in
-  `otherFunction`, defined above`” and “`this module's other
+  `otherFunction`, defined above`” and “`this module’s other
   functions`”.
 * Docstrings may assume that parameter names in the corresponding
   signature are in scope. They may be referred to by
@@ -846,7 +846,7 @@ and don’t fit the format.
   and the output should be marked as `output`. Each input should
   contain one or more Lean commands. There may be zero or more outputs
   for each input, and they should be compared as with the default
-  settings for `#guard_msgs` (though this isn't yet automatically
+  settings for `#guard_msgs` (though this isn’t yet automatically
   checked).
 
 
@@ -868,9 +868,9 @@ Examples:
   | a::as => f a :: map f as
 
 /--
-Returns the current thread's standard input stream.
+Returns the current thread’s standard input stream.
 
-Use `IO.setStdin` to replace the current thread's standard input stream.
+Use `IO.setStdin` to replace the current thread’s standard input stream.
 -/
 @[extern "lean_get_stdin"] opaque getStdin  : BaseIO FS.Stream
 
@@ -1033,7 +1033,7 @@ overloads and that it uses accessible language.
 
 ```
 /--
-Addition of two terms that don't necessarily have the same type. Instances are used to assign
+Addition of two terms that don’t necessarily have the same type. Instances are used to assign
 meaning to the `+` operator.
 
 `HAdd` is short for "heterogeneous addition."
@@ -1142,5 +1142,5 @@ Use the following terminology:
 
 Some of the other terms are suitable as more specific terms than the
 preferred terms. For example, while “induction principle” should not
-be used for generated recursors in general, it's a great description
+be used for generated recursors in general, it’s a great description
 of a special-purpose reasoning tool provided by a library.

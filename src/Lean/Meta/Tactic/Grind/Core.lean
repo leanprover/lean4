@@ -229,7 +229,7 @@ where
     }
     propagateBeta lams₁ fns₁
     propagateBeta lams₂ fns₂
-    let todo ← Solvers.mergeTerms rhsRoot lhsRoot
+    let toPropagateSolvers ← Solvers.mergeTerms rhsRoot lhsRoot
     resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
@@ -240,7 +240,7 @@ where
       for e in toPropagateDown do
         propagateDown e
       propagateUnitConstFuns lams₁ lams₂
-      todo.propagate
+      toPropagateSolvers.propagate
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     let isFalseRoot ← isFalseExpr rootNew
     traverseEqc lhs fun n => do

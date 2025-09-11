@@ -7490,7 +7490,7 @@ return x_1;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_decimalNumberFn_parseOptExp(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; uint8_t x_18; lean_object* x_19; lean_object* x_26; uint8_t x_27; lean_object* x_28; uint8_t x_29; uint8_t x_32; uint32_t x_40; uint32_t x_41; uint8_t x_42; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; uint8_t x_18; lean_object* x_19; lean_object* x_26; lean_object* x_27; uint8_t x_28; uint8_t x_29; uint8_t x_32; uint32_t x_40; uint32_t x_41; uint8_t x_42; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_2, 2);
 x_5 = lean_ctor_get(x_3, 0);
@@ -7561,16 +7561,16 @@ block_31:
 {
 if (x_29 == 0)
 {
-x_18 = x_27;
+x_18 = x_28;
 x_19 = x_26;
 goto block_25;
 }
 else
 {
 lean_object* x_30; 
-x_30 = lean_string_utf8_next(x_28, x_26);
+x_30 = lean_string_utf8_next(x_27, x_26);
 lean_dec(x_26);
-x_18 = x_27;
+x_18 = x_28;
 x_19 = x_30;
 goto block_25;
 }
@@ -7595,16 +7595,16 @@ uint32_t x_37; uint8_t x_38;
 x_37 = 43;
 x_38 = lean_uint32_dec_eq(x_34, x_37);
 x_26 = x_33;
-x_27 = x_32;
-x_28 = x_5;
+x_27 = x_5;
+x_28 = x_32;
 x_29 = x_38;
 goto block_31;
 }
 else
 {
 x_26 = x_33;
-x_27 = x_32;
-x_28 = x_5;
+x_27 = x_5;
+x_28 = x_32;
 x_29 = x_36;
 goto block_31;
 }
@@ -8777,9 +8777,9 @@ x_26 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_26, 0, x_19);
 lean_ctor_set(x_26, 1, x_7);
 lean_ctor_set(x_26, 2, x_20);
-x_8 = x_22;
+x_8 = x_21;
 x_9 = x_24;
-x_10 = x_21;
+x_10 = x_22;
 x_11 = x_26;
 goto block_16;
 }
@@ -8792,9 +8792,9 @@ x_27 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_27, 0, x_19);
 lean_ctor_set(x_27, 1, x_7);
 lean_ctor_set(x_27, 2, x_23);
-x_8 = x_22;
+x_8 = x_21;
 x_9 = x_24;
-x_10 = x_21;
+x_10 = x_22;
 x_11 = x_27;
 goto block_16;
 }
@@ -8841,10 +8841,10 @@ lean_ctor_set(x_12, 3, x_7);
 x_13 = lean_box(0);
 x_14 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_10);
+lean_ctor_set(x_14, 1, x_8);
 lean_ctor_set(x_14, 2, x_3);
 lean_ctor_set(x_14, 3, x_13);
-x_15 = l_Lean_Parser_ParserState_pushSyntax(x_8, x_14);
+x_15 = l_Lean_Parser_ParserState_pushSyntax(x_10, x_14);
 return x_15;
 }
 }
@@ -12273,8 +12273,8 @@ goto block_35;
 block_11:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_8 = l_Lean_Parser_ParserState_shrinkStack(x_6, x_7);
-lean_dec(x_7);
+x_8 = l_Lean_Parser_ParserState_shrinkStack(x_7, x_6);
+lean_dec(x_6);
 x_9 = lean_box(0);
 x_10 = l_Lean_Parser_ParserState_pushSyntax(x_8, x_9);
 return x_10;
@@ -12298,8 +12298,8 @@ x_20 = lean_box(0);
 x_21 = l_Option_instBEq_beq___at___Lean_Parser_andthenFn_spec__0(x_19, x_20);
 if (x_21 == 0)
 {
-x_6 = x_14;
-x_7 = x_12;
+x_6 = x_12;
+x_7 = x_14;
 goto block_11;
 }
 else
@@ -12313,8 +12313,8 @@ return x_22;
 }
 else
 {
-x_6 = x_14;
-x_7 = x_12;
+x_6 = x_12;
+x_7 = x_14;
 goto block_11;
 }
 }

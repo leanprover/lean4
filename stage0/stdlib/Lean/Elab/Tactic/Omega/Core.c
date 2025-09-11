@@ -6762,8 +6762,8 @@ return x_31;
 block_50:
 {
 lean_object* x_48; lean_object* x_49; 
-x_48 = l_Lean_mkAppB(x_45, x_23, x_47);
-x_49 = l_Lean_Expr_app___override(x_46, x_48);
+x_48 = l_Lean_mkAppB(x_46, x_23, x_47);
+x_49 = l_Lean_Expr_app___override(x_45, x_48);
 x_27 = x_49;
 goto block_44;
 }
@@ -6796,8 +6796,8 @@ x_63 = l_Int_toNat(x_62);
 lean_dec(x_62);
 x_64 = l_Lean_instToExprInt_mkNat(x_63);
 x_65 = l_Lean_mkApp3(x_60, x_23, x_61, x_64);
-x_45 = x_57;
-x_46 = x_53;
+x_45 = x_53;
+x_46 = x_57;
 x_47 = x_65;
 goto block_50;
 }
@@ -6806,8 +6806,8 @@ else
 lean_object* x_66; lean_object* x_67; 
 x_66 = l_Int_toNat(x_56);
 x_67 = l_Lean_instToExprInt_mkNat(x_66);
-x_45 = x_57;
-x_46 = x_53;
+x_45 = x_53;
+x_46 = x_57;
 x_47 = x_67;
 goto block_50;
 }
@@ -13336,8 +13336,8 @@ return x_12;
 block_51:
 {
 lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-lean_inc(x_19);
-x_22 = l_Lean_isTracingEnabledFor___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0___redArg(x_19, x_17, x_21);
+lean_inc(x_15);
+x_22 = l_Lean_isTracingEnabledFor___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0___redArg(x_15, x_16, x_21);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
 x_24 = lean_unbox(x_23);
@@ -13345,12 +13345,12 @@ lean_dec(x_23);
 if (x_24 == 0)
 {
 lean_object* x_25; 
-lean_dec(x_19);
+lean_dec(x_15);
 x_25 = lean_ctor_get(x_22, 1);
 lean_inc(x_25);
 lean_dec_ref(x_22);
 x_8 = x_20;
-x_9 = x_16;
+x_9 = x_14;
 x_10 = x_25;
 goto block_13;
 }
@@ -13364,7 +13364,7 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean
 x_27 = lean_ctor_get(x_22, 1);
 x_28 = lean_ctor_get(x_22, 0);
 lean_dec(x_28);
-x_29 = lean_array_get_borrowed(x_7, x_16, x_20);
+x_29 = lean_array_get_borrowed(x_7, x_14, x_20);
 x_30 = lean_ctor_get(x_29, 0);
 x_31 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__2_spec__2___redArg___closed__1;
 lean_inc(x_30);
@@ -13379,12 +13379,12 @@ x_35 = l_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect___closed__1;
 x_36 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_36, 0, x_22);
 lean_ctor_set(x_36, 1, x_35);
-x_37 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__1(x_19, x_36, x_15, x_18, x_17, x_14, x_27);
+x_37 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__1(x_15, x_36, x_19, x_17, x_16, x_18, x_27);
 x_38 = lean_ctor_get(x_37, 1);
 lean_inc(x_38);
 lean_dec_ref(x_37);
 x_8 = x_20;
-x_9 = x_16;
+x_9 = x_14;
 x_10 = x_38;
 goto block_13;
 }
@@ -13394,7 +13394,7 @@ lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean
 x_39 = lean_ctor_get(x_22, 1);
 lean_inc(x_39);
 lean_dec(x_22);
-x_40 = lean_array_get_borrowed(x_7, x_16, x_20);
+x_40 = lean_array_get_borrowed(x_7, x_14, x_20);
 x_41 = lean_ctor_get(x_40, 0);
 x_42 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__2_spec__2___redArg___closed__1;
 lean_inc(x_41);
@@ -13409,12 +13409,12 @@ x_47 = l_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect___closed__1;
 x_48 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_48, 0, x_46);
 lean_ctor_set(x_48, 1, x_47);
-x_49 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__1(x_19, x_48, x_15, x_18, x_17, x_14, x_39);
+x_49 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__1(x_15, x_48, x_19, x_17, x_16, x_18, x_39);
 x_50 = lean_ctor_get(x_49, 1);
 lean_inc(x_50);
 lean_dec_ref(x_49);
 x_8 = x_20;
-x_9 = x_16;
+x_9 = x_14;
 x_10 = x_50;
 goto block_13;
 }
@@ -13440,12 +13440,12 @@ if (x_68 == 0)
 {
 lean_dec(x_65);
 lean_dec(x_61);
-x_14 = x_58;
-x_15 = x_55;
-x_16 = x_53;
-x_17 = x_57;
-x_18 = x_56;
-x_19 = x_54;
+x_14 = x_53;
+x_15 = x_54;
+x_16 = x_57;
+x_17 = x_56;
+x_18 = x_58;
+x_19 = x_55;
 x_20 = x_52;
 x_21 = x_59;
 goto block_51;
@@ -13485,12 +13485,12 @@ lean_dec_ref(x_76);
 x_82 = lean_ctor_get(x_79, 0);
 lean_inc(x_82);
 lean_dec(x_79);
-x_14 = x_58;
-x_15 = x_55;
-x_16 = x_53;
-x_17 = x_57;
-x_18 = x_56;
-x_19 = x_54;
+x_14 = x_53;
+x_15 = x_54;
+x_16 = x_57;
+x_17 = x_56;
+x_18 = x_58;
+x_19 = x_55;
 x_20 = x_82;
 x_21 = x_81;
 goto block_51;

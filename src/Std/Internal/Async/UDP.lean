@@ -66,7 +66,7 @@ Sends data through an UDP socket. The `addr` parameter specifies the destination
 is `none`, the data is sent to the default peer address set by `connect`.
 -/
 @[inline]
-def send (s : Socket) (data : ByteArray) (addr : Option SocketAddress := none) : Async Unit :=
+def send (s : Socket) (data : Array ByteArray) (addr : Option SocketAddress := none) : Async Unit :=
   Async.ofPromise <| s.native.send data addr
 
 /--

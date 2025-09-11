@@ -16,7 +16,7 @@ def runJoe (addr: SocketAddress) : Async Unit := do
   let client ← TCP.Socket.Client.mk
 
   client.connect addr
-  client.send (String.toUTF8 "hello robert!")
+  client.send #[(String.toUTF8 "hello robert!")]
   client.shutdown
 
 def listenClose : IO Unit := do

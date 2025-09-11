@@ -17,14 +17,14 @@ def assertBEq [BEq α] [ToString α] (actual expected : α) : IO Unit := do
 def runMike (client: TCP.Socket.Client) : Async Unit := do
   let mes ← client.recv? 1024
   assertBEq (String.fromUTF8? =<< mes) (some "hi mike!! :)")
-  client.send (String.toUTF8 "hello robert!!")
+  client.send #[(String.toUTF8 "hello robert!!")]
   client.shutdown
 
 /-- Joe is another client. -/
 def runJoe (client: TCP.Socket.Client) : Async Unit := do
   let mes ← client.recv? 1024
   assertBEq (String.fromUTF8? =<< mes) (some "hi joe! :)")
-  client.send (String.toUTF8 "hello robert!")
+  client.send #[(String.toUTF8 "hello robert!")]
   client.shutdown
 
 /-- Robert is the server. -/
@@ -32,11 +32,11 @@ def runRobert (server: TCP.Socket.Server) : Async Unit := do
   let joe ← server.accept
   let mike ← server.accept
 
-  joe.send (String.toUTF8 "hi joe! :)")
+  joe.send #[(String.toUTF8 "hi joe! :)")]
   let mes ← joe.recv? 1024
   assertBEq (String.fromUTF8? =<< mes) (some "hello robert!")
 
-  mike.send (String.toUTF8 "hi mike!! :)")
+  mike.send #[(String.toUTF8 "hi mike!! :)")]
   let mes ← mike.recv? 1024
   assertBEq (String.fromUTF8? =<< mes) (some "hello robert!!")
 

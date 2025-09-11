@@ -165,7 +165,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
     return lean_io_result_mk_ok(promise);
 }
 
-/* Std.Internal.UV.TCP.Socket.send (socket : @& Socket) (data : @& Array ByteArray) : IO (IO.Promise (Except IO.Error Unit)) */
+/* Std.Internal.UV.TCP.Socket.send (socket : @& Socket) (data : Array ByteArray) : IO (IO.Promise (Except IO.Error Unit)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg data_array, obj_arg /* w */) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
@@ -183,10 +183,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     // Allocate buffer array for uv_write
     uv_buf_t* bufs = (uv_buf_t*)malloc(array_len * sizeof(uv_buf_t));
-
-    if (!bufs) {
-        return lean_io_result_mk_error(lean_mk_string("Failed to allocate buffer array"));
-    }
 
     for (size_t i = 0; i < array_len; i++) {
         lean_object* byte_array = lean_array_get_core(data_array, i);
@@ -234,8 +230,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
         lean_dec(promise); // We are not going to return it.
         lean_dec(socket);
         lean_dec(data_array);
-
         free(bufs);
+        
         free(write_uv->data);
         free(write_uv);
 

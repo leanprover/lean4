@@ -30,7 +30,7 @@ def test (serverFn : TCP.Socket.Server → Async Unit) (addr : Net.SocketAddress
 
 def testServerSend (server : TCP.Socket.Server) : Async Unit := do
   let client ← server.accept
-  client.send (String.toUTF8 "Success")
+  client.send #[(String.toUTF8 "Success")]
 
 def testServerTimeout (server : TCP.Socket.Server) : Async Unit := do
   let client ← server.accept
@@ -58,10 +58,10 @@ end TCP
 namespace UDP
 
 def testClient (addr : Net.SocketAddress) : Async String := do
-  IO.println "sending cvlient"
+  IO.println "sending client"
   let client ← UDP.Socket.mk
   client.connect addr
-  client.send "ping".toUTF8
+  client.send #["ping".toUTF8]
 
   Selectable.one #[
     .case (← Selector.sleep 1000) fun _ => return "Timeout",
@@ -80,14 +80,14 @@ def test (serverFn : UDP.Socket → Async Unit) (addr : Net.SocketAddress) : Asy
 def testServerSend (server : UDP.Socket) : Async Unit := do
   let (_, client?) ← server.recv 4096
   let client := client?.get!
-  server.send (String.toUTF8 "Success") client
+  server.send #[(String.toUTF8 "Success")] client
 
 def testServerTimeout (server : UDP.Socket) : Async Unit := do
   IO.println "sending server"
   let (_, client?) ← server.recv 4096
   let client := client?.get!
   Async.sleep 1500
-  server.send (String.toUTF8 "Success") client
+  server.send #[String.toUTF8 "Success"] client
 
 /--
 info: "Success"

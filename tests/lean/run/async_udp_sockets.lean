@@ -18,7 +18,7 @@ def runJoe (addr : UInt16 → SocketAddress) (first second : UInt16) : Async Uni
   client.bind (addr second)
   client.connect (addr first)
 
-  client.send (String.toUTF8 "hello robert!")
+  client.send #[(String.toUTF8 "hello robert!")]
 
 
 def acceptClose (addr : UInt16 → SocketAddress) (first second : UInt16) : IO Unit := do

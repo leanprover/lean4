@@ -78,11 +78,11 @@ info: tick.coinduct (pred_1 pred_2 : Prop) (hyp_1 : pred_1 → pred_2 → False)
 #check tick.coinduct
 
 /--
-info: tock_functor.sop (tick_functor.call tock_functor.call : Prop) :
+info: tock_functor.existential_equiv (tick_functor.call tock_functor.call : Prop) :
   tock_functor tick_functor.call tock_functor.call ↔ ¬tick_functor.call
 -/
 #guard_msgs in
-#check tock_functor.sop
+#check tock_functor.existential_equiv
 
 /--
 info: tock.induct (pred_1 pred_2 : Prop) (hyp_1 : pred_1 → pred_2 → False) (hyp_2 : (pred_1 → False) → pred_2) : tock → pred_2

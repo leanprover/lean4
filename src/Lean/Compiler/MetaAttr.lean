@@ -58,7 +58,7 @@ def getIRPhases (env : Environment) (declName : Name) : IRPhases := Id.run do
     if isMeta env declName then
       .comptime
     else
-      env.header.modules[idx.toNat]?.map (·.irPhases) |>.get!
+      env.header.modules[idx]?.map (·.irPhases) |>.get!
   | none =>
     if isMeta env declName then
       .comptime

@@ -1766,7 +1766,7 @@ private def looksLikeOldCodegenName : Name → Bool
   | _        => false
 
 @[extern "lean_get_ir_extra_const_names"]
-private opaque getIRExtraConstNames : Environment → OLeanLevel → Array Name
+private opaque getIRExtraConstNames (env : Environment) (level : OLeanLevel) (includeDecls := false) : Array Name
 
 def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO ModuleData := do
   let env := env.setExporting (level != .private)
@@ -1807,9 +1807,8 @@ private def mkIRData (env : Environment) : ModuleData :=
     entries := exportIREntries env
     constants := default
     constNames := default
-    -- make sure to add names of private constants as well as they may not be visible in all
-    -- importers.
-    extraConstNames := getIRExtraConstNames (env.setExporting true) .private
+    -- make sure to include all names in case only `.ir` is loaded
+    extraConstNames := getIRExtraConstNames env .private (includeDecls := true)
   }
 
 def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
@@ -1902,13 +1901,21 @@ where
       return env
 
 private structure ImportedModule extends EffectiveImport where
-  /-- All loaded incremental compacted regions. -/
+  /-- All loaded incremental compacted regions from `.olean*`. -/
   parts     : Array (ModuleData × CompactedRegion)
+  /-- `.ir` data, if loaded. -/
+  irData?   : Option (ModuleData × CompactedRegion)
+  /-- If true, `.olean*` data should be imported. -/
+  needsData : Bool
+  /-- If true, IR is loaded transitively. -/
+  needsIRTrans : Bool
 
 /-- The main module data that will eventually be used to construct the publicly accessible constants. -/
 private def ImportedModule.publicModule? (self : ImportedModule) : Option ModuleData := do
-  let (baseMod, _) ← self.parts[0]?
-  return baseMod
+  if self.needsData then
+    self.parts[0]?.map (·.1)
+  else
+    self.irData?.map (·.1)
 
 private def ImportedModule.getData? (self : ImportedModule) (level : OLeanLevel) : Option ModuleData := do
   -- Without the module system, we only have the exported level.
@@ -1917,7 +1924,10 @@ private def ImportedModule.getData? (self : ImportedModule) (level : OLeanLevel)
 
 /-- The main module data that will eventually be used to construct the kernel environment. -/
 private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleData :=
-  self.getData? (if self.importAll then .private else .exported)
+  if self.needsData then
+    self.getData? (if self.importAll then .private else .exported)
+  else
+    self.irData?.map (·.1)
 
 /-- The module data that should be used for server purposes. -/
 private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLevel) :
@@ -1926,21 +1936,12 @@ private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLev
   self.getData? (if level ≥ .server then level else .exported)
 
 /-- The module data that should be used for accessing IR for interpretation. -/
-private def ImportedModule.loadIRData? (self : ImportedModule) (arts : NameMap ImportArtifacts)
-    (level : OLeanLevel):
-    IO (Option (ModuleData × Option CompactedRegion)) := do
+private def ImportedModule.interpData? (self : ImportedModule) (level : OLeanLevel) :
+    Option ModuleData :=
   if (level < .server && self.irPhases == .runtime) || !self.mainModule?.any (·.isModule) then
-    return self.mainModule?.map (·, none)
-  let fname ← do
-    if let some arts := arts.find? self.module then
-      let some ir := arts.ir?
-        | return none -- If Lake tells us we don't need IR, we should not look for it ourselves
-      pure ir
-    else
-      let mFile ← findOLean self.module
-      pure <| mFile.withExtension "ir"
-  let (data, region) ← readModuleData fname
-  return some (data, some region)
+    self.mainModule?
+  else
+    self.irData?.map (·.1)
 
 structure ImportState where
   private moduleNameMap : Std.HashMap Name ImportedModule := {}
@@ -1975,7 +1976,7 @@ private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
 partial def importModulesCore
     (imports : Array Import) (globalLevel : OLeanLevel := .private) (arts : NameMap ImportArtifacts := {}) :
     ImportStateM Unit := do
-  go imports (importAll := true) (isExported := globalLevel < .private) (isMeta := false)
+  go imports (importAll := true) (isExported := globalLevel < .private) (needsData := true) (needsIRTrans := false)
   if globalLevel < .private then
     for i in imports do
       if let some mod := (← get).moduleNameMap[i.module]?.bind (·.mainModule?) then
@@ -2003,17 +2004,29 @@ The level at which a module then is to be imported based on the given `import` r
 determined by the least fixed point of the following rules:
 
 * Root ≥ all
-* A ≥ privateAll ∧ A `(public)? (meta)? import all` B → B ≥ privateAll
-* A ≥ private ∧ A `public (meta)? import (all)?` B → B ≥ private
-* A ≥ public ∧ A `public (meta)? import (all)?` B → B ≥ public
+* A ≥ privateAll ∧ A `import all` B → B ≥ privateAll
+* A ≥ private ∧ A `public (meta)? import` B → B ≥ private
+* A ≥ public ∧ A `public (meta)? import` B → B ≥ public
 * A ≥ privateAll ∧ A `(meta)? import` B → B ≥ private
 
 As imports are a DAG, we may need to visit the same module multiple times until its minimum
 necessary level is established.
 
-* Root `meta import` B → needsIR(B)
-* A ≥ private && A `public meta import` B → needsIR(B)
-* needsIR(A) ∧ A `(public)? import (all)?` B → needsIR(B)
+The `meta` flag is special in that it only affects whether IR is needed. The rules for determining
+this are as follows:
+
+* A ≥ privateAll ∧ `meta import` B → needsIRTrans(B)
+* A ≥ private ∧ A `public meta import` B → needsIRTrans(B)
+* needsIRTrans(A) ∧ A `(public)? (meta)? import (all)?` B → needsIRTrans(B)
+
+Note that in particular, A `meta import` B `import` C implies A `meta import` C, but
+A `import` B `meta import` C does not.
+
+As a final special case, we also load IR for `import all`, but non-transitively, to provide the same
+information as for the current module.
+
+* A ≥ privateAll → needsIR(A)
+* needsIRTrans(A) → needsIR(A)
 
 For implementation purposes, we represent elements in the lattice using two flags as follows:
 
@@ -2022,50 +2035,63 @@ For implementation purposes, we represent elements in the lattice using two flag
 * private = !isExported && !importAll
 * public = isExported && !importAll
 
-`none` then is represented by not visiting a module at all.
+When neither `needsIR(A)` nor `A != none` is true, the module is not visited at all and missing from
+the module map.
 -/
-where go (imports : Array Import) (importAll isExported isMeta : Bool) := do
+where go (imports : Array Import) (importAll isExported needsData needsIRTrans : Bool) := do
   for i in imports do
-    -- `B = none`?
-    if !(i.isExported || importAll || isMeta) then
-      continue
+    -- `B > none`?
+    let needsData := needsData && (i.isExported || importAll)
     -- `B ≥ privateAll`?
-    let importAll := globalLevel == .private || (importAll && i.importAll)
+    let importAll := globalLevel == .private || importAll && i.importAll
     -- `B ≥ public`?
     let isExported := isExported && i.isExported
-    let isMeta := isMeta || i.isMeta
+    let needsIRTrans := needsIRTrans || needsData && i.isMeta
+    let needsIR := needsIRTrans || importAll
+    if !needsData && !needsIR then
+      continue
+
     let irPhases :=
       if importAll then .all
-      else if isMeta then .comptime
+      else if needsIR then .comptime
       else .runtime
-    let goRec imports := do
-      go (importAll := importAll) (isExported := isExported) (isMeta := isMeta || i.isMeta) imports
+
+    let goRec mod := do
+      if let some mod := mod.mainModule? then
+        go (importAll := importAll) (isExported := isExported) (needsData := needsData) (needsIRTrans := needsIRTrans) mod.imports
+
     if let some mod := (← get).moduleNameMap[i.module]? then
       -- when module is already imported, bump flags
       let importAll := importAll || mod.importAll
       let isExported := isExported || mod.isExported
-      let isMeta := isMeta || mod.isMeta
+      let needsIRTrans := needsIRTrans || mod.needsIRTrans
+      let needsData := needsData || mod.needsData
       let irPhases := if irPhases == mod.irPhases then irPhases else .all
-      if importAll != mod.importAll || isExported != mod.isExported || isMeta != mod.isMeta || irPhases != mod.irPhases then
+      if importAll != mod.importAll || isExported != mod.isExported ||
+          needsIRTrans != mod.needsIRTrans || needsData != mod.needsData || irPhases != mod.irPhases then
         modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
-          importAll, isExported, irPhases, isMeta }}
+          importAll, isExported, irPhases, needsData, needsIRTrans }}
         -- bump entire closure
-        if let some mod := mod.mainModule? then
-          goRec mod.imports
+        goRec mod
       continue
-    let fnames ←
+
+    -- newly discovered module
+    let (fnames, irFile?) ← do
       if let some arts := arts.find? i.module then
         -- Opportunistically load all available parts.
         -- Producer (e.g., Lake) should limit parts to the proper import level.
-        pure <| arts.oleanParts (inServer := globalLevel ≥ .server)
+        let fnames := arts.oleanParts (inServer := globalLevel ≥ .server)
+        pure (fnames, arts.ir?)
       else
-        findOLeanParts i.module
+        let fnames ← findOLeanParts i.module
+        let irFile := (← findOLean i.module).withExtension "ir"
+        pure (fnames, guard (← irFile.pathExists) *> irFile)
     let parts ← readModuleDataParts fnames
-    -- `imports` is identical for each part
-    let some (baseMod, _) := parts[0]? | unreachable!
-    goRec baseMod.imports
+    let irData? ← irFile?.mapM (readModuleData ·)
+    let mod := { i with importAll, isExported, irPhases, parts, irData?, needsIRTrans, needsData }
+    goRec mod
     modify fun s => { s with
-      moduleNameMap := s.moduleNameMap.insert i.module { i with importAll, isExported, irPhases, parts }
+      moduleNameMap := s.moduleNameMap.insert i.module mod
       moduleNames := s.moduleNames.push i.module
     }
 
@@ -2105,7 +2131,7 @@ Constructs environment from `importModulesCore` results.
 See also `importModules` for parameter documentation.
 -/
 def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv loadExts : Bool) (level := OLeanLevel.private) (arts : NameMap ImportArtifacts := {}) :
+    (leakEnv loadExts : Bool) (level := OLeanLevel.private) :
     IO Environment := do
   let isModule := level != .private
   let modules := s.moduleNames.filterMap (s.moduleNameMap[·]?)
@@ -2114,10 +2140,9 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       throw <| IO.userError s!"missing data file for module {mod.module}"
     return data
   let irData ← modules.mapM fun mod => do
-    let some data ← mod.loadIRData? arts level |
+    let some data := mod.interpData? level |
       throw <| IO.userError s!"missing IR data file for module {mod.module}"
     return data
-  let (irData, irRegions) := irData.unzip
   let numPrivateConsts := moduleData.foldl (init := 0) fun numPrivateConsts data =>
     numPrivateConsts + data.constants.size
   let numPrivateConsts := irData.foldl (init := numPrivateConsts) fun numPrivateConsts data =>
@@ -2168,7 +2193,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     header     := {
       trustLevel, imports, moduleData, isModule
       modules      := modules.map (·.toEffectiveImport)
-      regions      := modules.flatMap (·.parts.map (·.2))
+      regions      := modules.flatMap (·.parts.map (·.2)) ++ modules.filterMap (·.irData?.map (·.2))
     }
   }
   let publicConstants : ConstMap := SMap.fromHashMap publicConstantMap false
@@ -2179,7 +2204,6 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let privateBase := { privateBase with
     extensions
     irBaseExts := (← setImportedEntries privateBase.extensions irData)
-    header.regions := privateBase.header.regions ++ irRegions.filterMap id
   }
   let mut env : Environment := {
     base.private := privateBase
@@ -2246,7 +2270,7 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
   withImporting do
     plugins.forM Lean.loadPlugin
     let (_, s) ← importModulesCore (globalLevel := level) imports arts |>.run
-    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level) (arts := arts)
+    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
       s imports opts trustLevel
 
 /--

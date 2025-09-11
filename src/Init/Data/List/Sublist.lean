@@ -679,7 +679,9 @@ theorem suffix_refl (l : List α) : l <:+ l := ⟨[], rfl⟩
 theorem infix_refl (l : List α) : l <:+: l := prefix_rfl.isInfix
 @[simp, grind] theorem infix_rfl {l : List α} : l <:+: l := infix_refl l
 
-@[simp, grind] theorem suffix_cons (a : α) : ∀ l, l <:+ a :: l := suffix_append [a]
+@[simp] theorem suffix_cons (a : α) : ∀ l, l <:+ a :: l := suffix_append [a]
+
+grind_pattern suffix_cons => _ <:+ a :: l
 
 theorem infix_cons : l₁ <:+: l₂ → l₁ <:+: a :: l₂ := fun ⟨l₁', l₂', h⟩ => ⟨a :: l₁', l₂', h ▸ rfl⟩
 

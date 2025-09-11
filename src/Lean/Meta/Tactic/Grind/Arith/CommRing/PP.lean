@@ -49,7 +49,7 @@ private def ppRing? : M (Option MessageData) := do
 
 def pp? (goal : Goal) : MetaM (Option MessageData) := do
   let mut msgs := #[]
-  for ring in goal.arith.ring.rings do
+  for ring in (← ringExt.getStateCore goal).rings do
     let some msg ← ppRing? |>.run' ring | pure ()
     msgs := msgs.push msg
   if msgs.isEmpty then
@@ -58,5 +58,12 @@ def pp? (goal : Goal) : MetaM (Option MessageData) := do
     return some msgs[0]
   else
     return some (.trace { cls := `ring } "Rings" msgs)
+
+def addThresholdMessage (goal : Goal) (c : Grind.Config) (msgs : Array MessageData) : IO (Array MessageData) := do
+  let s ← ringExt.getStateCore goal
+  if s.steps ≥ c.ringSteps then
+    return msgs.push <| .trace { cls := `limit } m!"maximum number of ring steps has been reached, threshold: `(ringSteps := {c.ringSteps})`" #[]
+  else
+    return msgs
 
 end Lean.Meta.Grind.Arith.CommRing

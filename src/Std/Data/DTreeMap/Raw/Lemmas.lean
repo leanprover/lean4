@@ -255,6 +255,10 @@ theorem isSome_get?_iff_mem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α}
     (t.get? a).isSome ↔ a ∈ t :=
   (mem_iff_isSome_get? h).symm
 
+theorem get?_eq_some_iff [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    t.get? k = some v ↔ ∃ h, t.get k h = v :=
+  Impl.get?_eq_some_iff h
+
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
     t.contains a = false → t.get? a = none :=
   Impl.get?_eq_none_of_contains_eq_false h
@@ -307,6 +311,10 @@ theorem isSome_get?_eq_contains [TransCmp cmp] (h : t.WF) {a : α} :
 theorem mem_iff_isSome_get? [TransCmp cmp] (h : t.WF) {a : α} :
     a ∈ t ↔ (get? t a).isSome :=
   Impl.Const.mem_iff_isSome_get? h
+
+theorem get?_eq_some_iff [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    get? t k = some v ↔ ∃ h, get t k h = v :=
+  Impl.Const.get?_eq_some_iff h
 
 @[simp]
 theorem isSome_get?_iff_mem [TransCmp cmp] (h : t.WF) {a : α} :
@@ -696,6 +704,10 @@ theorem isSome_getKey?_iff_mem [TransCmp cmp] (h : t.WF) {a : α} :
 theorem mem_of_getKey?_eq_some [TransCmp cmp] (h : t.WF) {k k' : α} :
     t.getKey? k = some k' → k' ∈ t :=
   Impl.mem_of_getKey?_eq_some h
+
+theorem getKey?_eq_some_iff [TransCmp cmp] (h : t.WF) {k k' : α} :
+    getKey? t k = some k' ↔ ∃ h, getKey t k h = k' :=
+  Impl.getKey?_eq_some_iff h
 
 theorem getKey?_eq_none_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = false → t.getKey? a = none :=

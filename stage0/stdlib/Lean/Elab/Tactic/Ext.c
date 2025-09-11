@@ -193,6 +193,7 @@ static lean_object* l_Lean_Elab_Tactic_Ext_withExtHyps___redArg___lam__1___close
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at___Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_Elab_Tactic_Ext_applyExtTheoremAt_spec__3_spec__3_spec__3___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_Ext_ExtTheorems_erase___at_____private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext_1707651249____hygCtx___hyg_2__spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_instBEqMessageSeverity_beq(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Elab_liftMacroM___at_____private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext_1707651249____hygCtx___hyg_2__spec__3_spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_logLint___at___Lean_Elab_Tactic_Ext_evalExt_spec__4___closed__2;
 static lean_object* l_Lean_Meta_Ext_ExtTheorems_erase___at_____private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext_1707651249____hygCtx___hyg_2__spec__0___closed__2;
@@ -295,6 +296,7 @@ static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___closed__2;
 lean_object* l_Lean_liftCommandElabM___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_Tactic_Ext_withExtHyps_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___lam__0___closed__33;
+extern lean_object* l_Lean_Meta_Ext_instInhabitedExtTheorems_default;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_Tactic_Ext_evalExt_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lam__0___closed__36;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExtN___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -328,6 +330,7 @@ static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_ini
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Elab_liftMacroM___at_____private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext_1707651249____hygCtx___hyg_2__spec__3_spec__7___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_getExtTheorems(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Command_instInhabitedScope_default;
 static lean_object* l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Elab_Tactic_Ext_realizeExtIffTheorem_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -481,7 +484,6 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierA
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0_spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_withExtHyps___redArg___lam__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_Ext_defaultExtTheorems____x40_Lean_Meta_Tactic_Ext_2602240386____hygCtx___hyg_38_;
 LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__16_spec__17(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Elab_Tactic_Ext_mkExtIffType_spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at___Lean_Elab_Tactic_Ext_mkExtIffType_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -520,7 +522,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_initFn___lam__5___closed__7____x40_Lean_Elab_Tactic_Ext_1707651249____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___Lean_Elab_Tactic_Ext_applyExtTheoremAt_spec__9___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_152_;
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___lam__0___closed__64;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_Meta_Ext_ExtTheorems_erase___at_____private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext_1707651249____hygCtx___hyg_2__spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_initFn___closed__21____x40_Lean_Elab_Tactic_Ext_1707651249____hygCtx___hyg_2_;
@@ -773,7 +774,6 @@ lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_o
 static lean_object* l_Lean_Elab_Tactic_Ext_mkExtIffType___lam__2___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExt1___redArg___lam__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_initFn___closed__2____x40_Lean_Elab_Tactic_Ext_1707651249____hygCtx___hyg_2_;
-uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(uint8_t, uint8_t);
 lean_object* l_Lean_FVarId_getBinderInfo___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isStructure(lean_object*, lean_object*);
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_Tactic_Ext_withExtHyps_spec__0_spec__0_spec__0_spec__0___redArg___closed__3;
@@ -7435,7 +7435,7 @@ static lean_object* _init_l_Lean_addMessageContextPartial___at___Lean_throwError
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Command_defaultScope____x40_Lean_Elab_Command_4067104226____hygCtx___hyg_152_;
+x_1 = l_Lean_Elab_Command_instInhabitedScope_default;
 return x_1;
 }
 }
@@ -12773,7 +12773,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_getExtTheorems___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Ext_defaultExtTheorems____x40_Lean_Meta_Tactic_Ext_2602240386____hygCtx___hyg_38_;
+x_1 = l_Lean_Meta_Ext_instInhabitedExtTheorems_default;
 return x_1;
 }
 }
@@ -24004,7 +24004,7 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_81; uint8_t x_82; lean_object* x_83; uint8_t x_84; lean_object* x_85; uint8_t x_86; lean_object* x_87; lean_object* x_88; lean_object* x_110; lean_object* x_111; uint8_t x_112; uint8_t x_113; lean_object* x_114; lean_object* x_115; uint8_t x_116; lean_object* x_117; lean_object* x_121; lean_object* x_122; uint8_t x_123; lean_object* x_124; lean_object* x_125; uint8_t x_126; uint8_t x_127; uint8_t x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; uint8_t x_137; lean_object* x_138; uint8_t x_139; uint8_t x_140; uint8_t x_142; uint8_t x_158; 
 x_133 = 2;
-x_158 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_3, x_133);
+x_158 = l_Lean_instBEqMessageSeverity_beq(x_3, x_133);
 if (x_158 == 0)
 {
 x_142 = x_158;
@@ -24494,7 +24494,7 @@ x_150 = lean_alloc_closure((void*)(l_Lean_logAt___at___Lean_logWarningAt___at___
 lean_closure_set(x_150, 0, x_148);
 lean_closure_set(x_150, 1, x_149);
 x_151 = 1;
-x_152 = l_Lean_beqMessageSeverity____x40_Lean_Message_3631932226____hygCtx___hyg_14_(x_3, x_151);
+x_152 = l_Lean_instBEqMessageSeverity_beq(x_3, x_151);
 if (x_152 == 0)
 {
 lean_inc_ref(x_143);

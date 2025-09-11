@@ -322,6 +322,11 @@ theorem mem_iff_isSome_get? [LawfulBEq α] (h : m.WF) {a : α} :
 theorem isSome_get?_iff_mem [LawfulBEq α] (h : m.WF) {a : α} : (m.get? a).isSome ↔ a ∈ m :=
   (mem_iff_isSome_get? h).symm
 
+theorem get?_eq_some_iff [LawfulBEq α] (h : m.WF) {k : α} {v : β k} :
+    m.get? k = some v ↔ ∃ h : k ∈ m, m.get k h = v := by
+  simp only [mem_iff_contains]
+  simp_to_raw using Raw₀.get?_eq_some_iff
+
 theorem get?_eq_none_of_contains_eq_false [LawfulBEq α] (h : m.WF) {a : α} :
     m.contains a = false → m.get? a = none := by
   simp_to_raw using Raw₀.get?_eq_none
@@ -384,6 +389,11 @@ theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α
 theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     (get? m a).isSome ↔ a ∈ m :=
   (mem_iff_isSome_get? h).symm
+
+theorem get?_eq_some_iff [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β} :
+    get? m k = some v ↔ ∃ h : k ∈ m, get m k h = v := by
+  simp only [mem_iff_contains]
+  simp_to_raw using Raw₀.Const.get?_eq_some_iff
 
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.contains a = false → get? m a = none := by
@@ -800,11 +810,15 @@ theorem isSome_getKey?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a :
     (m.getKey? a).isSome ↔ a ∈ m :=
   (mem_iff_isSome_getKey? h).symm
 
-theorem mem_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
-    {a a' : α} (h : m.WF) :
+theorem mem_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] {a a' : α} (h : m.WF) :
     m.getKey? a = some a' → a' ∈ m := by
   simp [← contains_iff_mem]
   simp_to_raw using Raw₀.contains_of_getKey?_eq_some
+
+theorem getKey?_eq_some_iff [EquivBEq α] [LawfulHashable α] {k k' : α} (h : m.WF) :
+    m.getKey? k = some k' ↔ ∃ h : k ∈ m, m.getKey k h = k' := by
+  simp [← contains_iff_mem]
+  simp_to_raw using Raw₀.getKey?_eq_some_iff
 
 theorem getKey?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.contains a = false → m.getKey? a = none := by

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Init.Grind.ToInt
 import Lean.Meta.Tactic.Grind.Arith.ModelUtil
 public section
@@ -18,12 +18,13 @@ private def isIntNatENode (n : ENode) : MetaM Bool :=
     <||>
     isDefEq type Nat.mkType
 
-private def getCutsatAssignment? (goal : Goal) (node : ENode) : Option Rat := Id.run do
+private def getCutsatAssignment? (goal : Goal) (node : ENode) : IO (Option Rat) := do
   assert! isSameExpr node.self node.root
-  let some e := node.cutsat? | return none
-  let some x := goal.arith.cutsat.varMap.find? { expr := e } | return none
-  if h : x < goal.arith.cutsat.assignment.size then
-    return goal.arith.cutsat.assignment[x]
+  let some e := cutsatExt.getTerm node | return none
+  let s ← cutsatExt.getStateCore goal
+  let some x := s.varMap.find? { expr := e } | return none
+  if h : x < s.assignment.size then
+    return s.assignment[x]
   else
     return none
 
@@ -37,7 +38,7 @@ private def natCastToInt? (e : Expr) : Option Expr :=
 
 def getAssignment? (goal : Goal) (e : Expr) : MetaM (Option Rat) := do
   let node ← goal.getENode (← goal.getRoot e)
-  if let some v := getCutsatAssignment? goal node then
+  if let some v ← getCutsatAssignment? goal node then
     return some v
   else if let some v ← getIntValue? node.self then
     return some v

@@ -45,7 +45,6 @@ LEAN_EXPORT uint32_t l_Nat_toUInt32(lean_object*);
 LEAN_EXPORT lean_object* l_UInt16_ofNatTruncate___boxed(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static size_t l_USize_ofNatTruncate___closed__2;
-LEAN_EXPORT lean_object* l_UInt8_ofNat___boxed(lean_object*);
 static uint32_t l_UInt32_ofNatTruncate___closed__0;
 LEAN_EXPORT lean_object* l_UInt16_val(uint16_t);
 LEAN_EXPORT lean_object* l_USize_decLe___boxed(lean_object*, lean_object*);
@@ -177,16 +176,6 @@ _start:
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
 x_3 = l_UInt8_val(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_UInt8_ofNat___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = lean_uint8_of_nat(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
 return x_3;
 }
 }

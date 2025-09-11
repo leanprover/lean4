@@ -547,6 +547,12 @@ theorem getValue?_eq_some_getValue [BEq α] {l : List ((_ : α) × β)} {a : α}
     getValue? a l = some (getValue a l h) := by
   simp [getValue]
 
+theorem getValue?_eq_some_iff [BEq α] {l : List ((_ : α) × β)} {k : α} {v : β} :
+    getValue? k l = some v ↔ ∃ h : containsKey k l, getValue k l h = v := by
+  by_cases h : containsKey k l
+  · simp [h, getValue?_eq_some_getValue]
+  · simp [getValue?_eq_none.mpr (Bool.not_eq_true _ ▸ h), h]
+
 theorem getValue_cons_of_beq [BEq α] {l : List ((_ : α) × β)} {k a : α} {v : β} (h : k == a) :
     getValue a (⟨k, v⟩ :: l) (containsKey_cons_of_beq h) = v := by
   simp [getValue, getValue?_cons_of_true h]
@@ -602,6 +608,12 @@ def getValueCast [BEq α] [LawfulBEq α] (a : α) (l : List ((a : α) × β a)) 
 theorem getValueCast?_eq_some_getValueCast [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {a : α}
     (h : containsKey a l) : getValueCast? a l = some (getValueCast a l h) := by
   simp [getValueCast]
+
+theorem getValueCast?_eq_some_iff [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k : α} {v : β k} :
+    getValueCast? k l = some v ↔ ∃ h : containsKey k l, getValueCast k l h = v := by
+  by_cases h : containsKey k l
+  · simp [h, getValueCast?_eq_some_getValueCast]
+  · simp [getValueCast?_eq_none (Bool.not_eq_true _ ▸ h), h]
 
 theorem getValueCast_cons [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k}
     (h : containsKey a (⟨k, v⟩ :: l)) :
@@ -883,6 +895,15 @@ theorem getKey_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k}
   split
   · rfl
   · exact getKey?_eq_some_getKey _
+
+theorem getKey?_eq_some_iff' [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {k k'} :
+    getKey? k l = some k' ↔ ∃ h, getKey k l h = k' := by
+  by_cases h : containsKey k l
+  · simp [h, getKey?_eq_some_getKey]
+  · simp only [h]
+    simp only [containsKey_eq_isSome_getKey?, Bool.not_eq_true, Option.isSome_eq_false_iff,
+      Option.isNone_iff_eq_none] at h
+    simp [h]
 
 theorem getKey_beq [BEq α] {l : List ((a : α) × β a)} {a : α} (h : containsKey a l) :
     getKey a l h == a := by

@@ -403,28 +403,47 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 
 open Meta
 
-def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
-  | `(#check%$tk $term) => withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_check do
+/--
+Elaborates the `#check` command.
+
+If `logExceptions` is true (the default, used by `#check` itself),
+then exceptions are caught and logged;
+in this mode, we make a best-effort attempt to print somthing.
+-/
+def elabCheckCore (tk term : Syntax) (logExceptions : Bool) : CommandElabM Unit :=
+  withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_check <| withRef tk do
     -- show signature for `#check id`/`#check @id`
     if let `($id:ident) := term then
       try
         for c in (← realizeGlobalConstWithInfos term) do
           addCompletionInfo <| .id term id.getId (danglingDot := false) {} none
-          logInfoAt tk <| .signature c
+          logInfo <| .signature c
           return
       catch _ => pure ()  -- identifier might not be a constant but constant + projection
     let e ← Term.elabTerm term none
-    Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := ignoreStuckTC)
+    maybeWithLogging Term.synthesizeSyntheticMVarsNoPostponing
     -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
-    withRef tk <| Meta.check e
+    maybeWithLogging do Meta.check e
     let e ← Term.levelMVarToParam (← instantiateMVars e)
     if e.isSyntheticSorry then
       return
-    let type ← inferType e
-    logInfoAt tk m!"{e} : {type}"
-  | _ => throwUnsupportedSyntax
+    try
+      let type ← inferType e
+      logInfo m!"{e} : {type}"
+    catch _ =>
+      -- We don't report the `inferType` exception since `Meta.check` should have
+      -- already found any possible errors.
+      logInfo m!"{e} : [error inferring type]"
+where
+  maybeWithLogging (m : TermElabM Unit) : TermElabM Unit :=
+    if logExceptions then
+      withLogging m
+    else
+      m
 
-@[builtin_command_elab Lean.Parser.Command.check] def elabCheck : CommandElab := elabCheckCore (ignoreStuckTC := true)
+@[builtin_command_elab Lean.Parser.Command.check] def elabCheck : CommandElab
+  | `(#check%$tk $term) => elabCheckCore tk term (logExceptions := true)
+  | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab Lean.reduceCmd] def elabReduce : CommandElab
   | `(#reduce%$tk $term) => go tk term
@@ -469,8 +488,8 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     throwError "unexpected success"
 
 @[builtin_command_elab «check_failure»] def elabCheckFailure : CommandElab
-  | `(#check_failure $term) => do
-    failIfSucceeds <| elabCheckCore (ignoreStuckTC := false) (← `(#check $term))
+  | `(#check_failure%$tk $term) => do
+    failIfSucceeds <| elabCheckCore tk term (logExceptions := false)
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab «synth»] def elabSynth : CommandElab := fun stx => do

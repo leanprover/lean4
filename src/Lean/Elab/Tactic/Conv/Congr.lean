@@ -329,7 +329,7 @@ private def ext (userName? : Option Name) : TacticM Unit := do
       withRef id <| ext userName?
 
 -- syntax (name := enter) "enter" " [" enterArg,+ "]" : conv
-@[builtin_tactic Lean.Parser.Tactic.Conv.enter] def evalEnter : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.enter] def evalEnter : Tactic := fun stx => focus do
   let token := stx[0]
   let lbrak := stx[1]
   let enterArgsAndSeps := stx[2].getArgs
@@ -341,9 +341,24 @@ private def ext (userName? : Option Name) : TacticM Unit := do
     let sep := enterArgsAndSeps.getD (2 * i + 1) .missing
     -- show state up to (incl.) next `,` and show errors on `enterArg`
     withTacticInfoContext (mkNullNode #[enterArg, sep]) <| withRef enterArg do
+      /- `in` patterns can create multiple goals, so we need to evaluate the tactic on all of them. -/
+      let evalTacticOnAll (stx : Syntax) : TacticM Unit := do
+        let goals ← getUnsolvedGoals
+        let mut newGoalsRev := []
+        for goal in goals do
+          setGoals [goal]
+          try
+            evalTactic stx
+          catch ex =>
+            -- Reset goal list for the infoview.
+            setGoals goals
+            throw ex
+          newGoalsRev := (← getUnsolvedGoals).reverse ++ newGoalsRev
+        setGoals <| newGoalsRev.reverse
       match enterArg with
-      | `(Parser.Tactic.Conv.enterArg| $arg:argArg)     => evalTactic (← `(conv| arg $arg))
-      | `(Parser.Tactic.Conv.enterArg| $id:binderIdent) => evalTactic (← `(conv| ext $id))
+      | `(Parser.Tactic.Conv.enterArg| $arg:argArg)       => evalTacticOnAll (← `(conv| arg $arg))
+      | `(Parser.Tactic.Conv.enterArg| $id:binderIdent)   => evalTacticOnAll (← `(conv| ext $id))
+      | `(Parser.Tactic.Conv.enterArg| in $(occs)? $patt) => evalTacticOnAll (← `(conv| pattern $(occs)? $patt))
       | _ => pure ()
 
 end Lean.Elab.Tactic.Conv

@@ -80,9 +80,6 @@ instance : ToString PUnit.{u+1} :=
 instance {α : Type u} [ToString α] : ToString (ULift.{v} α) :=
   ⟨fun v => toString v.1⟩
 
-instance : ToString Unit :=
-  ⟨fun _ => "()"⟩
-
 instance : ToString Nat :=
   ⟨fun n => Nat.repr n⟩
 

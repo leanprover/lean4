@@ -806,10 +806,6 @@ class LawfulBEq (α : Type u) [BEq α] : Prop extends ReflBEq α where
 
 export LawfulBEq (eq_of_beq)
 
-instance : LawfulBEq Bool where
-  eq_of_beq {a b} h := by cases a <;> cases b <;> first | rfl | contradiction
-  rfl {a} := by cases a <;> decide
-
 instance [DecidableEq α] : LawfulBEq α where
   eq_of_beq := of_decide_eq_true
   rfl := of_decide_eq_self_eq_true _
@@ -822,10 +818,6 @@ def instDecidableEqOfLawfulBEq [BEq α] [LawfulBEq α] : DecidableEq α := fun x
   match h : x == y with
   | false => .isFalse (not_eq_of_beq_eq_false h)
   | true => .isTrue (eq_of_beq h)
-
-instance : LawfulBEq Char := inferInstance
-
-instance : LawfulBEq String := inferInstance
 
 /-! # Logical connectives and equality -/
 

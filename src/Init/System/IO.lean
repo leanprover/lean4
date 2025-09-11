@@ -45,16 +45,12 @@ A monad that can have side effects on the external world or throw exceptions of 
 instance : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
 instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EStateM ε IO.RealWorld))
 instance : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EStateM ε IO.RealWorld))
-instance : OrElse (EIO ε α) := ⟨MonadExcept.orElse⟩
 instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
 
 /--
 An `IO` monad that cannot throw exceptions.
 -/
-@[expose] def BaseIO := EIO Empty
-
-instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
-instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (EIO Empty))
+abbrev BaseIO := EIO Empty
 
 /--
 Runs a `BaseIO` action, which cannot throw an exception, in any other `EIO` monad.

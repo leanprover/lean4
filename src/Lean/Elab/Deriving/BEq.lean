@@ -118,18 +118,16 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
      $auxDefs:command*
     end)
 
-private def mkBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "beq" declName
+def mkBEqInstanceCmds (ctx : Context) (declName : Name) : TermElabM (Array Syntax) := do
   let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `BEq #[declName])
   trace[Elab.Deriving.beq] "\n{cmds}"
   return cmds
 
-private def mkBEqEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
+def mkBEqEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
   let auxFunName := ctx.auxFunNames[0]!
   `(def $(mkIdent auxFunName):ident  (x y : $(mkCIdent name)) : Bool := x.ctorIdx == y.ctorIdx)
 
-private def mkBEqEnumCmd (name : Name): TermElabM (Array Syntax) := do
-  let ctx ← mkContext "beq" name
+def mkBEqEnumCmd (ctx : Context) (name : Name): TermElabM (Array Syntax) := do
   let cmds := #[← mkBEqEnumFun ctx name] ++ (← mkInstanceCmds ctx `BEq #[name])
   trace[Elab.Deriving.beq] "\n{cmds}"
   return cmds
@@ -138,11 +136,12 @@ open Command
 
 def mkBEqInstance (declName : Name) : CommandElabM Unit := do
   withoutExposeFromCtors declName do
+    let ctx ← liftTermElabM <| mkContext ``BEq "beq" declName
     let cmds ← liftTermElabM <|
       if (← isEnumType declName) then
-        mkBEqEnumCmd declName
+        mkBEqEnumCmd ctx declName
       else
-         mkBEqInstanceCmds declName
+        mkBEqInstanceCmds ctx declName
     cmds.forM elabCommand
 
 def mkBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do

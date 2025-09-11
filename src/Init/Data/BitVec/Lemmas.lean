@@ -5069,12 +5069,29 @@ theorem twoPow_and (x : BitVec w) (i : Nat) :
     (twoPow w i) &&& x = if x.getLsbD i then twoPow w i else 0#w := by
   rw [BitVec.and_comm, and_twoPow]
 
+/-!
+NOTE(confluence of multiplication by twoPow):
+The three rewrite rules:
+- mul_twoPow_eq_shiftLeft: x * twoPow w i = x << i
+- twoPow_mul_eq_shiftLeft: twoPow w i * x = x << i
+- twoPow_shiftLeft_eq_twoPow_add: `twoPow w i << j = twoPow w (i + j)`
+
+ensure confluence in the case of `twoPow w i * twoPow w j`, which can get rewritten into:
+- `twoPow w i * twoPow w j → twoPow w i << j → twoPow w (i + j)
+- `twoPow w i * twoPow w j → twoPow w j << i → twoPow w (j + i)
+- `twoPow w i * twoPow w j → twoPow w (i + j)
+
+which produce the same right hand side, upto a commutation of `i + j`,
+which is acceptable for constant folding.
+-/
+
 @[simp]
 theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
     x * (twoPow w i) = x <<< i := by
   apply eq_of_toNat_eq
   simp only [toNat_mul, toNat_twoPow, Nat.mul_mod_mod, Nat.shiftLeft_eq, toNat_shiftLeft]
 
+@[simp]
 theorem twoPow_mul_eq_shiftLeft (x : BitVec w) (i : Nat) :
     (twoPow w i) * x = x <<< i := by
   rw [BitVec.mul_comm, mul_twoPow_eq_shiftLeft]
@@ -5094,6 +5111,10 @@ theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = t
   apply BitVec.eq_of_toNat_eq
   simp only [toNat_mul, toNat_twoPow]
   rw [← Nat.mul_mod, Nat.pow_add]
+
+@[simp]
+theorem twoPow_shiftLeft_eq_twoPow_add {w i j : Nat} : twoPow w i <<< j = twoPow w (i + j) := by
+  rw [shiftLeft_eq_mul_twoPow, twoPow_mul_twoPow_eq]
 
 /--
 The unsigned division of `x` by `2^k` equals shifting `x` right by `k`,

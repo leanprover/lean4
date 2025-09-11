@@ -37,7 +37,10 @@ Marks the given declaration as not being annotated with `meta` even if it could 
 user.
 -/
 def addNotMeta (env : Environment) (declName : Name) : Environment :=
-  notMetaExt.modifyState (asyncDecl := declName) env (·.insert declName)
+  if declName.isAnonymous then  -- avoid panic from `modifyState` on partial input
+    env
+  else
+    notMetaExt.modifyState (asyncDecl := declName) env (·.insert declName)
 
 /-- Returns true iff the user has declared the given declaration as `meta`. -/
 def isMeta (env : Environment) (declName : Name) : Bool :=

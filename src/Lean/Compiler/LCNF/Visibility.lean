@@ -57,7 +57,9 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl) : CompilerM Unit := 
             markDeclPublicRec phase refDecl
 
 /-- Checks whether references in the given declaration adhere to phase distinction. -/
-partial def checkMeta (isMeta : Bool) (origDecl : Decl) : CompilerM Unit :=
+partial def checkMeta (isMeta : Bool) (origDecl : Decl) : CompilerM Unit := do
+  if !(← getEnv).header.isModule then
+    return
   let isPublic := !isPrivateName origDecl.name
   go isPublic origDecl |>.run' {}
 where go (isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit := do
@@ -84,8 +86,10 @@ where go (isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit := do
 
 @[export lean_eval_check_meta]
 private partial def evalCheckMeta (env : Environment) (declName : Name) : Except String Unit := do
+  if !env.header.isModule then
+    return
   let some decl := getDeclCore? env baseExt declName
-    | throw s!"Lean.Environment.evalConst: unknown declaration `{declName}`"
+    | return  -- We might not have the LCNF available, in which case there's nothing we can do
   go decl |>.run' {}
 where go (decl : Decl) : StateT NameSet (Except String) Unit :=
   decl.value.forCodeM fun code =>

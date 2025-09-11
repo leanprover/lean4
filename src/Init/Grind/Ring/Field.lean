@@ -169,7 +169,8 @@ theorem zpow_add {a : α} (h : a ≠ 0) (m n : Int) : a ^ (m + n) = a ^ m * a ^ 
     | zero => simp [Int.add_neg_one, zpow_sub_one h, zpow_neg_one]
     | succ n ih => rw [Int.natCast_add_one, Int.neg_add, Int.add_neg_one, ← Int.add_sub_assoc, zpow_sub_one h, zpow_sub_one h, ih, Semiring.mul_assoc]
 
-instance [IsCharP α 0] : NoNatZeroDivisors α := NoNatZeroDivisors.mk' <| by
+-- This is expensive as an instance. Let's see what breaks without it.
+def noNatZeroDivisors.ofIsCharPZero [IsCharP α 0] : NoNatZeroDivisors α := NoNatZeroDivisors.mk' <| by
   intro a b h w
   have := IsCharP.natCast_eq_zero_iff (α := α) 0 a
   simp only [Nat.mod_zero, h, iff_false] at this

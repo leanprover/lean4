@@ -73,6 +73,7 @@ structure Scope where
   so all sections and namespaces nested within a `noncomputable` section also have this flag set.
   -/
   isNoncomputable : Bool := false
+  /-- True if a `public section` is in scope. -/
   isPublic : Bool := false
   /--
   Attributes that should be applied to all matching declaration in the section. Inherited from

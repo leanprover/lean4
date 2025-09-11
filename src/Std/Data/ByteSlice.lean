@@ -71,9 +71,9 @@ Byte slices can be used to avoid copying or allocating space, while being more c
 tracking the bounds by hand. The region of interest consists of every index that is both greater
 than or equal to `start` and strictly less than `stop`.
 -/
-abbrev ByteSlice := Std.Slice (Internal.ByteSliceData)
+abbrev ByteSlice := Std.Slice Internal.ByteSliceData
 
-instance : Self (Std.Slice (Internal.ByteSliceData)) (ByteSlice) where
+instance : Self (Std.Slice Internal.ByteSliceData) ByteSlice where
 
 namespace ByteSlice
 
@@ -100,7 +100,7 @@ theorem stop_le_size_byteArray (xs : ByteSlice) : xs.stop ≤ xs.byteArray.size 
 /--
 Computes the size of the byte slice.
 -/
-def size (s : @& ByteSlice) : Nat :=
+def size (s : ByteSlice) : Nat :=
   s.stop - s.start
 
 theorem size_le_size_byteArray {s : ByteSlice} : s.size ≤ s.byteArray.size := by
@@ -114,7 +114,7 @@ Extracts a byte from the byte slice.
 
 The index is relative to the start of the byte slice, rather than the underlying byte array.
 -/
-def get (s : @& ByteSlice) (i : Fin s.size) : UInt8 :=
+def get (s : ByteSlice) (i : Fin s.size) : UInt8 :=
   have : s.start + i.val < s.byteArray.size := by
    apply Nat.lt_of_lt_of_le _ s.stop_le_size_byteArray
    have := i.isLt
@@ -123,7 +123,7 @@ def get (s : @& ByteSlice) (i : Fin s.size) : UInt8 :=
    exact Nat.add_lt_of_lt_sub this
   s.byteArray[s.start + i.val]
 
-instance : GetElem (ByteSlice) Nat UInt8 fun xs i => i < xs.size where
+instance : GetElem ByteSlice Nat UInt8 fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 
 /--

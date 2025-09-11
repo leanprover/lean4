@@ -140,7 +140,8 @@ builtin_initialize registerBuiltinAttribute {
     The function must have type `α → RequestM (RequestTask β)` with
     `[RpcEncodable α]` and `[RpcEncodable β]`."
   applicationTime := AttributeApplicationTime.afterCompilation
-  add := fun decl _ _ =>
+  add := fun decl _ _ => do
+    ensureAttrDeclIsMeta `server_rpc_method decl
     registerRpcProcedure decl
 }
 

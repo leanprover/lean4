@@ -152,6 +152,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
       let s ← s.erase df.name declName
       modifyEnv fun env => ext.modifyState env fun _ => s
     add             := fun declName stx attrKind => do
+      ensureAttrDeclIsMeta attrDeclName declName
       let key ← df.evalKey false stx
       match IR.getSorryDep (← getEnv) declName with
       | none =>

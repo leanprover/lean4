@@ -149,6 +149,7 @@ builtin_initialize
     add   := fun declName stx kind => do
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do throwAttrMustBeGlobal `cpass kind
+      ensureAttrDeclIsMeta `cpass declName
       discard <| addPass declName
     applicationTime := .afterCompilation
   }

@@ -1,3 +1,13 @@
+/-
+Copyright (c) 2018 Johannes Hölzl, David Renshaw. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Authors: Johannes Hölzl, David Renshaw, Wojciech Różowski
+-/
+
 module
 
 prelude
@@ -7,7 +17,6 @@ public import Lean.Meta.Tactic.Cases
 public import Lean.Elab.Term
 public import Lean.Elab.Tactic
 public import Lean.Meta.Tactic.Apply
-
 
 public section
 namespace Lean.Meta
@@ -307,9 +316,10 @@ private def toInductive (mvar : MVarId) (cs : List Name)
           let _ ← isDefEq t mt -- infer values for those mvars we just made
           mvar'.assign e
 
-/-- Implementation for both `mk_iff` and `mk_iff_of_inductive_prop`.
+/--
+  Generates existential form of a prop-valued inductive type and proves the equivalence.
 -/
-private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name): MetaM Unit := do
+private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) : MetaM Unit := do
   let constrs := inductVal.ctors
   let params := inductVal.numParams
   let type := inductVal.type
@@ -329,8 +339,8 @@ private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name): Me
     let existential ← mkLambdaFVars fvars existential
     pure (← mkForallFVars fvars (mkApp2 (mkConst `Iff) lhs (mkOrList rhss)), shape, existential)
 
-  trace[Meta.SumOfProducts] "Existential form is: {existential}"
-  trace[Meta.SumOfProducts] "The type of proof of equivalence: {thmTy}"
+  trace[Meta.MkIffOfInductiveProp] "Existential form is: {existential}"
+  trace[Meta.MkIffOfInductiveProp] "The type of proof of equivalence: {thmTy}"
 
   let mvar ← mkFreshExprMVar (some thmTy)
   let mvarId := mvar.mvarId!
@@ -359,11 +369,11 @@ private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name): Me
   }
 
 def mkSumOfProducts (declName : Name) : MetaM Unit := do
-    trace[Meta.mkSumOfProducts] "Generating existential form of {declName}"
+    trace[Meta.MkIffOfInductiveProp] "Generating existential form of {declName}"
     let .inductInfo infos ← getConstInfo declName | throwError "Needs to be a definition"
     mkIffOfInductivePropImpl infos (declName ++ `sop)
 
 builtin_initialize
-  registerTraceClass `Meta.SumOfProducts
+  registerTraceClass `Meta.MkIffOfInductiveProp
 
 end Lean.Meta

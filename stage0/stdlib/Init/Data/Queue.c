@@ -24,8 +24,10 @@ LEAN_EXPORT lean_object* l_Std_Queue_isEmpty___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_filterM___redArg___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_instEmptyCollection(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_ctorIdx(lean_object*, lean_object*);
 static lean_object* l_Std_Queue_empty___closed__0;
 LEAN_EXPORT uint8_t l_Std_Queue_isEmpty(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_ctorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Queue_instEmptyCollection___closed__0;
 lean_object* l_List_appendTR___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_enqueue(lean_object*, lean_object*, lean_object*);
@@ -42,6 +44,23 @@ lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Queue_isEmpty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_dequeue_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Queue_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Queue_ctorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_Std_Queue_empty___closed__0() {
 _start:
 {

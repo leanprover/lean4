@@ -234,6 +234,10 @@ theorem isSome_get?_iff_mem [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     (t.get? a).isSome ↔ a ∈ t :=
   t.inductionOn fun _ => DTreeMap.isSome_get?_iff_mem
 
+theorem get?_eq_some_iff [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β k} :
+    t.get? k = some v ↔ ∃ h, t.get k h = v :=
+  t.inductionOn fun _ => DTreeMap.get?_eq_some_iff
+
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     t.contains a = false → t.get? a = none :=
   t.inductionOn fun _ => DTreeMap.get?_eq_none_of_contains_eq_false
@@ -282,6 +286,10 @@ theorem isSome_get?_eq_contains [TransCmp cmp] {a : α} :
 theorem mem_iff_isSome_get? [TransCmp cmp] {a : α} :
     a ∈ t ↔ (get? t a).isSome :=
   t.inductionOn fun _ => DTreeMap.Const.mem_iff_isSome_get?
+
+theorem get?_eq_some_iff [TransCmp cmp] {k : α} {v : β} :
+    get? t k = some v ↔ ∃ h, get t k h = v :=
+  t.inductionOn fun _ => DTreeMap.Const.get?_eq_some_iff
 
 @[simp]
 theorem isSome_get?_iff_mem [TransCmp cmp] {a : α} :
@@ -649,6 +657,10 @@ theorem isSome_getKey?_iff_mem [TransCmp cmp] {a : α} :
 theorem mem_of_getKey?_eq_some [TransCmp cmp] {k k' : α} :
     t.getKey? k = some k' → k' ∈ t :=
   t.inductionOn fun _ => DTreeMap.mem_of_getKey?_eq_some
+
+theorem getKey?_eq_some_iff [TransCmp cmp] {k k' : α} :
+    getKey? t k = some k' ↔ ∃ h, getKey t k h = k' :=
+  t.inductionOn fun _ => DTreeMap.getKey?_eq_some_iff
 
 theorem getKey?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t.getKey? a = none :=
@@ -1039,6 +1051,10 @@ theorem mem_of_mem_keys [TransCmp cmp] {k : α} (h : k ∈ t.keys) : k ∈ t :=
 theorem distinct_keys [TransCmp cmp] :
     t.keys.Pairwise (fun a b => ¬ cmp a b = .eq) :=
   t.inductionOn fun _ => DTreeMap.distinct_keys
+
+theorem nodup_keys [TransCmp cmp] :
+    t.keys.Nodup :=
+  t.distinct_keys.imp Std.ReflCmp.ne_of_cmp_ne_eq
 
 theorem ordered_keys [TransCmp cmp] :
     t.keys.Pairwise (fun a b => cmp a b = .lt) :=

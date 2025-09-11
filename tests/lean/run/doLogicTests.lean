@@ -292,53 +292,6 @@ theorem fib_correct {n} : (fib_impl n).run = fib_spec n := by
 
 end fib
 
-section KimsBabySteps
-
-/-- Add `n` random even numbers to `k`. -/
-def addRandomEvens (n : Nat) (k : Nat) : IO Nat := do
-  let mut r := k
-  for _ in List.range n do
-    r := r + 2 * (← IO.rand 0 37)
-  pure r
-
-def program (n : Nat) (k : Nat) : IO Nat := do
-  let r₁ ← addRandomEvens n k
-  let r₂ ← addRandomEvens n k
-  return r₁ + r₂
-
-open scoped Std.Do.IO.Bare
-
-axiom IO.rand_spec {n : Nat} : ⦃⌜True⌝⦄ (IO.rand 0 n : IO Nat) ⦃⇓r => ⌜r < n⌝⦄
-
-/-- The result has the same parity as the input. -/
-theorem addRandomEvens_spec (n k) : ⦃⌜True⌝⦄ (addRandomEvens n k) ⦃⇓r => ⌜r % 2 = k % 2⌝⦄ := by
-  unfold addRandomEvens
-  mintro -
-  mspec Spec.forIn_list_const_inv
-  intro n r
-  mintro ⌜h⌝
-  mspec IO.rand_spec
-  simp_all
-
-attribute [local spec] addRandomEvens_spec
-
-/-- Since we're adding even numbers to our number twice, and summing,
-the entire result is even. -/
-theorem program_spec (n k) : ⦃⌜True⌝⦄ program n k ⦃⇓r => ⌜r % 2 = 0⌝⦄ := by
-  unfold program
-  mintro -
-  mspec (addRandomEvens_spec n k)
-  mrename_i h
-  mpure h
-  mspec /- registered spec is taken -/
-  mrename_i h
-  mpure h
-  mspec
-  mpure_intro
-  grind
-
-end KimsBabySteps
-
 section WeNeedAProofMode
 
 abbrev M := StateT Nat (StateT Char (StateT Bool (StateT String Id)))

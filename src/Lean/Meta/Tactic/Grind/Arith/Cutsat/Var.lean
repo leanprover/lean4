@@ -4,16 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.IntInstTesters
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
-
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+import Lean.Meta.IntInstTesters
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 public section
-
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 @[extern "lean_cutsat_propagate_nonlinear"]
@@ -78,7 +76,7 @@ def mkVarImpl (expr : Expr) : GoalM Var := do
     occurs    := s.occurs.push {}
     elimEqs   := s.elimEqs.push none
   }
-  markAsCutsatTerm expr
+  cutsatExt.markTerm expr
   assertNatCast expr var
   assertNonneg expr var
   assertToIntBounds expr var

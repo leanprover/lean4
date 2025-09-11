@@ -22,4 +22,11 @@ def test2 : Async Nat := do
 
 /-- info: 1 -/
 #guard_msgs in
-#eval test2 |>.block
+#eval show IO _ from do
+  let task ← test2
+  IO.ofExcept task.get
+
+/-- error: Selectable.one requires at least one Selectable -/
+#guard_msgs in
+#eval show IO _ from do
+  let foo ← Selectable.one (α := Unit) #[]

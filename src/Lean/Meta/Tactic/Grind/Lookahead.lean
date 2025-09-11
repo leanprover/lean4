@@ -4,17 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Intro
-public import Lean.Meta.Tactic.Grind.Arith
-public import Lean.Meta.Tactic.Grind.Split
-public import Lean.Meta.Tactic.Grind.EMatch
-public import Lean.Meta.Tactic.Grind.SearchM
-
+import Lean.Meta.Tactic.Grind.Intro
+import Lean.Meta.Tactic.Grind.Split
+import Lean.Meta.Tactic.Grind.EMatch
+import Lean.Meta.Tactic.Grind.SearchM
 public section
-
 namespace Lean.Meta.Grind
 
 private partial def solve (generation : Nat) : SearchM Bool := withIncRecDepth do
@@ -22,7 +18,7 @@ private partial def solve (generation : Nat) : SearchM Bool := withIncRecDepth d
     return false -- `splitNext` should have been configured to not create choice points
   if (← getGoal).inconsistent then
     return true
-  if (← intros' generation <||> assertAll <||> Arith.check <||> splitNext <||> ematch) then
+  if (← intros' generation <||> assertAll <||> Solvers.check <||> splitNext <||> ematch) then
     solve generation
   else
     return false

@@ -51,6 +51,11 @@ The assumption `NeZero n` ensures that `Fin n` is nonempty.
 @[expose] protected def ofNat (n : Nat) [NeZero n] (a : Nat) : Fin n :=
   ⟨a % n, Nat.mod_lt _ (pos_of_neZero n)⟩
 
+@[simp]
+theorem Internal.ofNat_eq_ofNat {n : Nat} {hn} {a : Nat} :
+  letI : NeZero n := ⟨Nat.pos_iff_ne_zero.1 hn⟩
+  Fin.Internal.ofNat n hn a = Fin.ofNat n a := rfl
+
 @[deprecated Fin.ofNat (since := "2025-05-28")]
 protected def ofNat' (n : Nat) [NeZero n] (a : Nat) : Fin n :=
   Fin.ofNat n a

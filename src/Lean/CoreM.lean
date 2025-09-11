@@ -353,7 +353,7 @@ def instantiateValueLevelParams (c : ConstantInfo) (us : List Level) : CoreM Exp
     if us == us' then
       return r
   unless c.hasValue do
-    throwError "Not a definition or theorem: {c.name}"
+    throwError "Not a definition or theorem: {.ofConstName c.name}"
   let r := c.instantiateValueLevelParams! us
   modifyInstLevelValueCache fun s => s.insert c.name (us, r)
   return r

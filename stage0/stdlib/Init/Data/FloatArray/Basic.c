@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe___boxed(lean_object*, lean_ob
 static lean_object* l___auto___closed__4____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_get_x3f___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3__spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instInhabited;
 static lean_object* l___auto___closed__2____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
 static lean_object* l___auto___closed__11____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
@@ -39,7 +38,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l___auto___closed__18____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
 static lean_object* l___auto___closed__13____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
-LEAN_EXPORT uint8_t l_FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3_(lean_object*, lean_object*);
 lean_object* lean_float_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___lam__0(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 static lean_object* l___auto___closed__5____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
@@ -60,6 +58,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_fo
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_toList_loop(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__17____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
 size_t lean_sarray_size(lean_object*);
+LEAN_EXPORT uint8_t l_Array_isEqvAux___at___FloatArray_instBEq_beq_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__19____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
 static lean_object* l___auto___closed__16____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
 size_t lean_usize_of_nat(lean_object*);
@@ -72,6 +71,8 @@ LEAN_EXPORT lean_object* l_FloatArray_mkEmpty___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_get_x3f(lean_object*, lean_object*);
 static lean_object* l_FloatArray_foldl___redArg___closed__8;
 LEAN_EXPORT lean_object* l_FloatArray_instForInFloat(lean_object*);
+LEAN_EXPORT lean_object* l_FloatArray_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_FloatArray_instBEq_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemNatFloatLtSize;
 LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__6____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
@@ -80,7 +81,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_fo
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 double lean_float_array_fget(lean_object*, lean_object*);
 static lean_object* l___auto___closed__14____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
-LEAN_EXPORT lean_object* l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3__spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT double l_FloatArray_instGetElemNatFloatLtSize___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_size___boxed(lean_object*);
@@ -88,10 +88,8 @@ LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_fo
 LEAN_EXPORT lean_object* l_FloatArray_data___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_float_array_uset(lean_object*, size_t, double);
-LEAN_EXPORT lean_object* l_FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_mkEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemNatFloatLtSize___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_mk___boxed(lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -111,7 +109,7 @@ lean_object* lean_float_array_set(lean_object*, lean_object*, double);
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemUSizeFloatLtNatToNatSize___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_toList___boxed(lean_object*);
 static lean_object* l___auto___closed__20____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
-LEAN_EXPORT uint8_t l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3__spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Array_isEqvAux___at___FloatArray_instBEq_beq_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -128,6 +126,7 @@ lean_object* lean_mk_empty_float_array(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemUSizeFloatLtNatToNatSize;
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__9____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
+LEAN_EXPORT uint8_t l_FloatArray_instBEq_beq(lean_object*, lean_object*);
 static lean_object* l___auto___closed__1____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
 LEAN_EXPORT lean_object* l_FloatArray_foldl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_float_beq(double, double);
@@ -152,6 +151,7 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_toList(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_set_x21___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_FloatArray_ctorIdx(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instForInFloat___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -165,6 +165,8 @@ static lean_object* l_FloatArray_foldl___redArg___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_isEqvAux___at___FloatArray_instBEq_beq_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_isEqvAux___at___FloatArray_instBEq_beq_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__15____x40_Init_Data_FloatArray_Basic_1017806716____hygCtx___hyg_9_;
 LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_instToStringFloatArray___closed__0;
@@ -173,6 +175,23 @@ LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe___redArg___boxed(lean_object*
 LEAN_EXPORT lean_object* l_FloatArray_instEmptyCollection;
 LEAN_EXPORT lean_object* l_FloatArray_uget___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_FloatArray_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_FloatArray_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_FloatArray_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_FloatArray_mk___boxed(lean_object* x_1) {
 _start:
 {
@@ -189,7 +208,7 @@ x_2 = lean_float_array_data(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT uint8_t l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3__spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_Array_isEqvAux___at___FloatArray_instBEq_beq_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -224,15 +243,15 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3__spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT uint8_t l_Array_isEqvAux___at___FloatArray_instBEq_beq_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
-x_6 = l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3__spec__0___redArg(x_1, x_2, x_4);
+x_6 = l_Array_isEqvAux___at___FloatArray_instBEq_beq_spec__0___redArg(x_1, x_2, x_4);
 return x_6;
 }
 }
-LEAN_EXPORT uint8_t l_FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_FloatArray_instBEq_beq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
@@ -252,40 +271,40 @@ return x_7;
 else
 {
 uint8_t x_8; 
-x_8 = l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3__spec__0___redArg(x_3, x_4, x_5);
+x_8 = l_Array_isEqvAux___at___FloatArray_instBEq_beq_spec__0___redArg(x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3__spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Array_isEqvAux___at___FloatArray_instBEq_beq_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; lean_object* x_5; 
-x_4 = l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3__spec__0___redArg(x_1, x_2, x_3);
+x_4 = l_Array_isEqvAux___at___FloatArray_instBEq_beq_spec__0___redArg(x_1, x_2, x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_5 = lean_box(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3__spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Array_isEqvAux___at___FloatArray_instBEq_beq_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; lean_object* x_7; 
-x_6 = l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3__spec__0(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_Array_isEqvAux___at___FloatArray_instBEq_beq_spec__0(x_1, x_2, x_3, x_4, x_5);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_7 = lean_box(x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_FloatArray_instBEq_beq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3_(x_1, x_2);
+x_3 = l_FloatArray_instBEq_beq(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -294,7 +313,7 @@ static lean_object* _init_l_FloatArray_instBEq___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic_3044334420____hygCtx___hyg_3____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_FloatArray_instBEq_beq___boxed), 2, 0);
 return x_1;
 }
 }

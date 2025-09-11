@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Range
 public import Init.Data.Array.Subarray
+public import Init.Data.String.Basic
 
 import Init.Data.Slice.Array.Basic
 

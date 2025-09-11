@@ -70,7 +70,6 @@ public def orPreferLeft : Backend → Backend → Backend
 
 end Backend
 
-public section -- for `Ord`
 /--
 Lake equivalent of CMake's
 [`CMAKE_BUILD_TYPE`](https://stackoverflow.com/a/59314670).
@@ -99,7 +98,6 @@ public inductive BuildType
   -/
   | release
 deriving Inhabited, Repr, DecidableEq, Ord
-end
 
 namespace BuildType
 

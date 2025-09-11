@@ -5,19 +5,26 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.AC.Types
 public import Lean.Meta.Tactic.Grind.ProveEq
 public import Lean.Meta.Tactic.Grind.SynthInstance
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
+import Lean.Meta.Tactic.Grind.Simp
 public section
-
 namespace Lean.Meta.Grind.AC
+open Lean.Grind
 
 def get' : GoalM State := do
-  return (← get).ac
+  acExt.getState
 
 @[inline] def modify' (f : State → State) : GoalM Unit := do
-  modify fun s => { s with ac := f s.ac }
+  acExt.modifyState f
+
+def checkMaxSteps : GoalM Bool := do
+  return (← get').steps >= (← getConfig).acSteps
+
+def incSteps : GoalM Unit := do
+  modify' fun s => { s with steps := s.steps + 1 }
 
 structure ACM.Context where
   opId : Nat
@@ -50,6 +57,10 @@ protected def ACM.getStruct : ACM Struct := do
 instance : MonadGetStruct ACM where
   getStruct := ACM.getStruct
 
+def modifyStruct (f : Struct → Struct) : ACM Unit := do
+  let opId ← getOpId
+  modify' fun s => { s with structs := s.structs.modify opId f }
+
 def getOp : ACM Expr :=
   return (← getStruct).op
 
@@ -70,6 +81,42 @@ private def isArithOpInOtherModules (op : Expr) (f : Expr) : GoalM Bool := do
       if (← Arith.CommRing.getRingId? α).isSome then return true
       if (← Arith.CommRing.getSemiringId? α).isSome then return true
   return false
+
+def getTermOpIds (e : Expr) : GoalM (List Nat) := do
+  return (← get').exprToOpIds.find? { expr := e } |>.getD []
+
+private def insertOpId (m : PHashMap ExprPtr (List Nat)) (e : Expr) (opId : Nat) : PHashMap ExprPtr (List Nat) :=
+  let ids := if let some ids := m.find? { expr := e } then
+    go ids
+  else
+    [opId]
+  m.insert { expr := e } ids
+where
+  go : List Nat → List Nat
+  | [] => [opId]
+  | id::ids => if opId < id then
+    opId :: id :: ids
+  else if opId == id then
+    opId :: ids
+  else
+    id :: go ids
+
+def addTermOpId (e : Expr) : ACM Unit := do
+  let opId ← getOpId
+  modify' fun s => { s with exprToOpIds := insertOpId s.exprToOpIds e opId }
+
+def mkVar (e : Expr) : ACM AC.Var := do
+  let s ← getStruct
+  if let some var := s.varMap.find? { expr := e } then
+    return var
+  let var : AC.Var := s.vars.size
+  modifyStruct fun s => { s with
+    vars       := s.vars.push e
+    varMap     := s.varMap.insert { expr := e } var
+  }
+  addTermOpId e
+  acExt.markTerm e
+  return var
 
 def getOpId? (op : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').opIdOf.find? { expr := op } then
@@ -98,7 +145,7 @@ where
     let idempotentInst? ← synthInstance? idempotentType
     let (neutralInst?, neutral?) ← do
       let neutral ← mkFreshExprMVar α
-      let identityType := mkApp3 (mkConst ``Std.Identity [u]) α op neutral
+      let identityType := mkApp3 (mkConst ``Std.LawfulIdentity [u]) α op neutral
       if let some identityInst ← synthInstance? identityType then
         let neutral ← instantiateExprMVars neutral
         let neutral ← preprocessLight neutral
@@ -112,8 +159,24 @@ where
         id, type := α, u, op, neutral?, assocInst, commInst?,
         idempotentInst?, neutralInst?
     }}
-    -- TODO: neutral element must be variable 0
     trace[grind.debug.ac.op] "{op}, comm: {commInst?.isSome}, idempotent: {idempotentInst?.isSome}, neutral?: {neutral?}"
+    if let some neutral := neutral? then ACM.run id do
+      -- Create neutral variable to ensure it is variable 0
+      discard <| mkVar neutral
     return some id
+
+def isOp? (e : Expr) : ACM (Option (Expr × Expr)) := do
+  unless e.isApp && e.appFn!.isApp do return none
+  unless isSameExpr e.appFn!.appFn! (← getOp) do return none
+  return some (e.appFn!.appArg!, e.appArg!)
+
+def isCommutative : ACM Bool :=
+  return (← getStruct).commInst?.isSome
+
+def hasNeutral : ACM Bool :=
+  return (← getStruct).neutralInst?.isSome
+
+def isIdempotent : ACM Bool :=
+  return (← getStruct).idempotentInst?.isSome
 
 end Lean.Meta.Grind.AC

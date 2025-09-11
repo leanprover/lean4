@@ -186,11 +186,20 @@ representations for `(0 : Nat)` and `(0 : Int)`, complicating reasoning.
 -- `OfNat.ofNat` and other constants with built-in support in `grind`.
 private def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := do
   if h : args.size = 3 then
+    let mut args : Vector Expr 3 := h ▸ args.toVector
+    let mut modified := false
+    if args[1].isAppOf ``OfNat.ofNat then
+      -- If nested `OfNat.ofNat`, convert to raw nat literal
+      let some val ← getNatValue? args[1] | pure ()
+      args := args.set 1 (mkRawNatLit val)
+      modified := true
     let inst := args[2]
     if (← isInstOfNatNat inst) && !args[0].isConstOf ``Nat then
-      return some <| args.set 0 Nat.mkType
+      return some (args.set 0 Nat.mkType |>.toArray)
     else if (← isInstOfNatInt inst) && !args[0].isConstOf ``Int then
-      return some <| args.set 0 Int.mkType
+      return some (args.set 0 Int.mkType |>.toArray)
+    else if modified then
+      return some args.toArray
   return none
 
 @[export lean_grind_canon]
@@ -233,7 +242,12 @@ where
             let arg := args[i]
             trace_goal[grind.debug.canon] "[{repr (← shouldCanon pinfos i arg)}]: {arg} : {← inferType arg}"
             let arg' ← match (← shouldCanon pinfos i arg) with
-              | .canonType => canonType e f i arg
+              | .canonType =>
+                /-
+                The type may have nested propositions and terms that may need to be canonicalized too.
+                So, we must recurse over it. See issue #10232
+                -/
+                canonType e f i (← visit arg)
               | .canonImplicit => canonImplicit e f i (← visit arg)
               | .visit => visit arg
               | .canonInst =>

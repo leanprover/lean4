@@ -63,6 +63,7 @@ static lean_object* l___auto___closed__2____x40_Std_Time_Date_Unit_Week_19763620
 static lean_object* l_Std_Time_Week_Offset_toSeconds___closed__0;
 static lean_object* l_Std_Time_Week_instInhabitedOrdinal___closed__6;
 static lean_object* l___auto___closed__13____x40_Std_Time_Date_Unit_Week_197636206____hygCtx___hyg_3_;
+lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default(lean_object*);
 static lean_object* l___auto___closed__11____x40_Std_Time_Date_Unit_Week_197636206____hygCtx___hyg_3_;
 LEAN_EXPORT lean_object* l_Std_Time_Week_Ordinal_ofNat(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Week_instAddOffset___closed__0;
@@ -91,7 +92,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Week_instReprOrdinal;
 static lean_object* l___auto___closed__22____x40_Std_Time_Date_Unit_Week_197636206____hygCtx___hyg_3_;
 lean_object* l_Std_Time_Internal_Bounded_LE_instOfNatHAddIntCast(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__3____x40_Std_Time_Date_Unit_Week_197636206____hygCtx___hyg_3_;
-lean_object* l_Std_Time_Internal_instInhabitedUnitVal(lean_object*);
 lean_object* l_Rat_mul(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Week_Offset_toMinutes___closed__0;
 static lean_object* l_Std_Time_Week_Ordinal_instInhabitedOfMonth___closed__5;
@@ -519,7 +519,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Time_Week_instInhabitedOffset___closed__2;
-x_2 = l_Std_Time_Internal_instInhabitedUnitVal(x_1);
+x_2 = l_Std_Time_Internal_instInhabitedUnitVal_default(x_1);
 return x_2;
 }
 }

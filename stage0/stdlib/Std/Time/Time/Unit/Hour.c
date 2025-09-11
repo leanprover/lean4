@@ -41,6 +41,7 @@ static lean_object* l_Std_Time_Hour_instAddOffset___closed__0;
 lean_object* l_compareOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Std_Time_Hour_Ordinal_shiftTo1BasedHour___closed__2;
+lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default(lean_object*);
 static lean_object* l_Std_Time_Hour_instOrdOrdinal___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Hour_instReprOffset;
 lean_object* lean_nat_to_int(lean_object*);
@@ -58,7 +59,6 @@ static lean_object* l_Std_Time_Hour_instOrdOrdinal___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Hour_Ordinal_ofInt___redArg(lean_object*);
 static lean_object* l_Std_Time_Hour_instInhabitedOrdinal___closed__7;
 lean_object* l_Std_Time_Internal_Bounded_LE_instOfNatHAddIntCast(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Time_Internal_instInhabitedUnitVal(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Hour_Ordinal_shiftTo1BasedHour(lean_object*);
 static lean_object* l_Std_Time_Hour_instSubOffset___closed__0;
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Hour_instReprOffset_spec__0(lean_object*);
@@ -440,7 +440,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Time_Hour_instInhabitedOffset___closed__0;
-x_2 = l_Std_Time_Internal_instInhabitedUnitVal(x_1);
+x_2 = l_Std_Time_Internal_instInhabitedUnitVal_default(x_1);
 return x_2;
 }
 }

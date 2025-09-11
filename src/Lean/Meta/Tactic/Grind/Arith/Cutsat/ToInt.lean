@@ -4,16 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.ToIntLemmas
-public import Lean.Meta.Tactic.Grind.SynthInstance
-public import Lean.Meta.Tactic.Grind.Simp
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-public import Lean.Meta.Tactic.Grind.Arith.EvalNum
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
+import Init.Grind.ToIntLemmas
+import Lean.Meta.Tactic.Grind.SynthInstance
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Arith.EvalNum
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 public section
-
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 private def reportMissingToIntAdapter (type : Expr) (instType : Expr) : MetaM Unit := do
@@ -300,7 +299,7 @@ def mkToIntVar (e : Expr) : ToIntM (Expr × Expr) := do
   modify' fun s => { s with
     toIntTermMap := s.toIntTermMap.insert { expr := e } { eToInt, he, α }
   }
-  markAsCutsatTerm e
+  cutsatExt.markTerm e
   return (eToInt, he)
 
 def getToIntTermType? (e : Expr) : GoalM (Option Expr) := do

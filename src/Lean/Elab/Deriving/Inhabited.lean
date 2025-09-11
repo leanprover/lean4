@@ -12,14 +12,11 @@ import Lean.Elab.Deriving.Util
 
 public section
 
-namespace Lean.Elab
+namespace Lean.Elab.Deriving
 open Command Meta Parser Term
 
 private abbrev IndexSet := Std.TreeSet Nat
 private abbrev LocalInst2Index := FVarIdMap Nat
-
-private def implicitBinderF := Parser.Term.implicitBinder
-private def instBinderF     := Parser.Term.instBinder
 
 private def mkInhabitedInstanceUsing (inductiveTypeName : Name) (ctorName : Name) (addHypotheses : Bool) : CommandElabM Bool := do
   match (← liftTermElabM mkInstanceCmd?) with
@@ -64,7 +61,7 @@ where
   /-- Create an `instance` command using the constructor `ctorName` with a hypothesis `Inhabited α` when `α` is one of the inductive type parameters
      at position `i` and `i ∈ assumingParamIdxs`. -/
   mkInstanceCmdWith (assumingParamIdxs : IndexSet) : TermElabM Syntax := do
-    let ctx ← Deriving.mkContext "inhabited" inductiveTypeName
+    let ctx ← Deriving.mkContext ``Inhabited "inhabited" inductiveTypeName
     let indVal ← getConstInfoInduct inductiveTypeName
     let ctorVal ← getConstInfoCtor ctorName
     let mut indArgs := #[]
@@ -77,16 +74,18 @@ where
       if assumingParamIdxs.contains i then
         let binder ← `(bracketedBinderF| [Inhabited $arg:ident ])
         binders := binders.push binder
-    let type ← `(Inhabited (@$(mkCIdent inductiveTypeName):ident $indArgs:ident*))
+    let type ← `(@$(mkCIdent inductiveTypeName):ident $indArgs:ident*)
     let mut ctorArgs := #[]
     for _ in *...ctorVal.numParams do
       ctorArgs := ctorArgs.push (← `(_))
     for _ in *...ctorVal.numFields do
       ctorArgs := ctorArgs.push (← ``(Inhabited.default))
-    let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
-    let vis := ctx.mkVisibilityFromTypes
-    let expAttr := ctx.mkNoExposeAttrFromCtors
-    `(@[$[$expAttr],*] $vis:visibility instance $binders:bracketedBinder* : $type := $val)
+    let val ← `(@$(mkIdent ctorName):ident $ctorArgs*)
+    let ctx ← mkContext ``Inhabited "default" inductiveTypeName
+    let auxFunName := ctx.auxFunNames[0]!
+    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type := $val
+      instance $binders:bracketedBinder* : Inhabited $type := ⟨$(mkIdent auxFunName)⟩)
+
 
   mkInstanceCmd? : TermElabM (Option Syntax) := do
     let ctorVal ← getConstInfoCtor ctorName
@@ -114,6 +113,7 @@ where
           return some cmd
 
 private def mkInhabitedInstance (declName : Name) : CommandElabM Unit := do
+  withoutExposeFromCtors declName do
   let indVal ← getConstInfoInduct declName
   let doIt (addHypotheses : Bool) : CommandElabM Bool := do
     for ctorName in indVal.ctors do
@@ -133,5 +133,3 @@ def mkInhabitedInstanceHandler (declNames : Array Name) : CommandElabM Bool := d
 builtin_initialize
   registerDerivingHandler `Inhabited mkInhabitedInstanceHandler
   registerTraceClass `Elab.Deriving.inhabited
-
-end Lean.Elab

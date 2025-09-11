@@ -70,7 +70,7 @@ with non async code that uses them.
 Typeclass for monads that can "await" a computation of type `t α` in a monad `m` until the result is
 available.
 -/
-class MonadAwait (t : Type → Type) (m : Type → Type) extends Monad m where
+class MonadAwait (t : Type → Type) (m : Type → Type) where
   /--
   Awaits the result of `t α` and returns it inside the `m` monad.
   -/
@@ -79,7 +79,7 @@ class MonadAwait (t : Type → Type) (m : Type → Type) extends Monad m where
 /--
 Represents monads that can launch computations asynchronously of type `t` in a monad `m`.
 -/
-class MonadAsync (t : Type → Type) (m : Type → Type) extends Monad m where
+class MonadAsync (t : Type → Type) (m : Type → Type) where
   /--
   Starts an asynchronous computation in another monad.
   -/
@@ -107,7 +107,7 @@ instance [MonadAwait t m] : MonadAwait t (StateRefT' s n m) where
   await := liftM (m := m) ∘ MonadAwait.await
 
 @[default_instance]
-instance [MonadAwait t m] : MonadAwait t (StateT s m) where
+instance [Monad m] [MonadAwait t m] : MonadAwait t (StateT s m) where
   await := liftM (m := m) ∘ MonadAwait.await
 
 @[default_instance]
@@ -119,7 +119,7 @@ instance [MonadAsync t m] : MonadAsync t (StateRefT' s n m) where
   async p prio := MonadAsync.async (prio := prio) ∘ p
 
 @[default_instance]
-instance [Functor t] [inst : MonadAsync t m] : MonadAsync t (StateT s m) where
+instance [Monad m] [Functor t] [inst : MonadAsync t m] : MonadAsync t (StateT s m) where
   async p prio := fun s => do
     let t ← inst.async (prio := prio) (p s)
     pure (t <&> Prod.fst, s)

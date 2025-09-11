@@ -88,6 +88,8 @@ The parameters are:
     message (only)
   * `postInfo?`: an optional string shown immediately after the replacement text in the widget
     message (only)
+  * `messageData?`: an optional `MessageData` displayed instead of `suggestion`.
+    If set, implies `diffGranularity = .none`.
   * `toCodeActionTitle?`: an optional function `String → String` describing how to transform the
     pretty-printed suggestion text into the code action text which appears in the lightbulb menu.
     If `none`, we simply prepend `"Try This: "` to the suggestion text.
@@ -125,6 +127,8 @@ The parameters are:
     message (only)
   * `postInfo?`: an optional string shown immediately after the replacement text in the widget
     message (only)
+  * `messageData?`: an optional `MessageData` displayed instead of `suggestion`.
+    If set, implies `diffGranularity = .none`.
   * `toCodeActionTitle?`: an optional function `String → String` describing how to transform the
     pretty-printed suggestion text into the code action text which appears in the lightbulb menu.
     If `none`, we simply prepend `"Try this: "` to the suggestion text.

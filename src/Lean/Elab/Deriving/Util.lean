@@ -7,12 +7,14 @@ module
 
 prelude
 public import Lean.Elab.Term
+public import Lean.Elab.Command
 meta import Lean.Parser.Command
+import Lean.Elab.DeclNameGen
 
 public section
 
 namespace Lean.Elab.Deriving
-open Meta
+open Meta Command
 
 meta def implicitBinderF := Parser.Term.implicitBinder
 meta def instBinderF     := Parser.Term.instBinder
@@ -65,43 +67,51 @@ def mkInstImplicitBinders (className : Name) (indVal : InductiveVal) (argNames :
         pure ()
     return binders
 
-structure Context where
-  typeInfos   : Array InductiveVal
-  auxFunNames : Array Name
-  usePartial  : Bool
-
-open Parser.Command in
 /--
-Returns `private` or `public` depending on whether any private types are referenced in the
-`deriving` clause.
+Removes any `[expose]` section attributes when running `cont` if `typeName` has private ctors.
 -/
-def Context.mkVisibilityFromTypes (ctx : Context) : TSyntax ``visibility :=
-  Unhygienic.run <|
-    if ctx.typeInfos.any (isPrivateName ·.name) then `(visibility| private) else `(visibility| public)
-
-open Parser.Term in
-/--
-Returns `no_expose` if any types with private constructors are referenced in the `deriving` clause.
-`expose` is assumed to be specified explicitly by the user.
--/
-def Context.mkNoExposeAttrFromCtors (ctx : Context) : Array (TSyntax ``attrInstance) :=
-  if ctx.typeInfos.any (·.ctors.any isPrivateName) then
-    #[Unhygienic.run <| `(attrInstance| no_expose)]
-  else #[]
-
-def mkContext (fnPrefix : String) (typeName : Name) : TermElabM Context := do
+def withoutExposeFromCtors (typeName : Name) (cont : CommandElabM α) : CommandElabM α := do
+  -- TODO: some duplication with `mkContext` but it is in `TermElabM`; should it be?
   let indVal ← getConstInfoInduct typeName
   let mut typeInfos := #[]
   for typeName in indVal.all do
     typeInfos := typeInfos.push (← getConstInfoInduct typeName)
-  let mut auxFunNames := #[]
+  if typeInfos.any (·.ctors.any isPrivateName) then
+    -- The topmost scope should be the one form
+    if (← getScope).attrs.any (· matches `(Parser.Term.attrInstance| expose)) then
+      throwError "cannot use `deriving ... @[expose]` with `{.ofConstName typeName}` as it has one or more private constructors"
+    withScope (fun sc => { sc with
+        attrs := sc.attrs.filter (!· matches `(Parser.Term.attrInstance| expose)) }) cont
+  else cont
+
+structure Context where
+  instName    : Name
+  typeInfos   : Array InductiveVal
+  auxFunNames : Array Name
+  usePartial  : Bool
+
+
+def mkContext (className : Name) (fnPrefix : String) (typeName : Name) : TermElabM Context := do
+  let indVal ← getConstInfoInduct typeName
+  let mut typeInfos := #[]
   for typeName in indVal.all do
-    match typeName.eraseMacroScopes with
-    | .str _ t => auxFunNames := auxFunNames.push (← mkFreshUserName <| Name.mkSimple <| fnPrefix ++ t)
-    | _        => auxFunNames := auxFunNames.push (← mkFreshUserName `instFn)
-  trace[Elab.Deriving.beq] "{auxFunNames}"
+    typeInfos := typeInfos.push (← getConstInfoInduct typeName)
+  let instName ← do -- anticipate the instance name
+    let argNames     ← mkInductArgNames indVal
+    let binders      ← mkImplicitBinders argNames
+    let indType      ← mkInductiveApp indVal argNames
+    let type         ← `($(mkCIdent className) $indType)
+    NameGen.mkBaseNameWithSuffix' "inst" (binders.map (·.raw)) type
+  let mut auxFunNames := #[]
+  if indVal.all.length = 1 then
+    auxFunNames := auxFunNames.push (instName ++ .mkSimple fnPrefix)
+  else
+    for i in [:indVal.all.length] do
+      auxFunNames := auxFunNames.push (instName ++ .mkSimple s!"{fnPrefix}_{i+1}")
+  trace[Elab.Deriving] "instName: {instName} auxFunNames: {auxFunNames}"
   let usePartial := indVal.isNested || typeInfos.size > 1
   return {
+    instName    := instName
     typeInfos   := typeInfos
     auxFunNames := auxFunNames
     usePartial  := usePartial
@@ -144,9 +154,7 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (
       let mut val      := mkIdent auxFunName
       if useAnonCtor then
         val ← `(⟨$val⟩)
-      let vis := ctx.mkVisibilityFromTypes
-      let expAttr := ctx.mkNoExposeAttrFromCtors
-      let instCmd ← `(@[$[$expAttr],*] $vis:visibility instance $binders:implicitBinder* : $type := $val)
+      let instCmd ← `(instance $(mkIdent ctx.instName):ident $binders:implicitBinder* : $type := $val)
       instances := instances.push instCmd
   return instances
 

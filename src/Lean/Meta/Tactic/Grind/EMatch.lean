@@ -6,7 +6,11 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
+import Lean.Util.CollectLevelMVars
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.MatchDiscrOnly
+import Lean.Meta.Tactic.Grind.ProveEq
+import Lean.Meta.Tactic.Grind.SynthInstance
 public section
 namespace Lean.Meta.Grind
 namespace EMatch
@@ -330,6 +334,95 @@ private def annotateMatchEqnType (prop : Expr) (initApp : Expr) : M Expr := do
     return mkApp4 (mkConst ``Grind.EqMatch f.constLevels!) α lhs rhs initApp
 
 /--
+Helper function for collecting constants containing unassigned universe levels.
+This functions is used by `assignUnassignedLevelMVars`
+-/
+private def collectConstsWithLevelMVars (e : Expr) : CoreM (Array Expr) := do
+  let (_, s) ← go |>.run {}
+  return s.toArray
+where
+  go : StateRefT (Std.HashSet Expr) CoreM Unit := do
+    e.forEach fun e => do
+      if e.isConst && e.hasLevelMVar then
+        modify (·.insert e)
+
+/--
+Helper function for E-match theorems containing universe metavariables that do not occur
+in any of their parameters. This is a very rare case, but it does occur in practice.
+Example:
+```lean
+@[simp, grind =] theorem down_pure {φ : Prop} : (⌜φ⌝ : SPred []).down = φ := rfl
+```
+
+The parameter `us` contains the unassigned universe metavariables.
+
+Recall that when we collect patterns for a theorem, we check coverage only for regular
+parameters, not universe parameters. This function attempts to instantiate the universe
+parameters using the following heuristic:
+
+* Collect all constants `C` in `prop` that contain universe metavariables.
+* Create a collection `P` of pairs `(c, cs)` where `c ∈ C` and `cs` are instances of `c` in the current goal.
+* Sort `P` by the size of `cs`, prioritizing constants with fewer occurrences.
+* Perform a backtracking search to unify each `c` with its occurrences. Stop as soon as all universe parameters are instantiated.
+
+We expect this function not to be a performance bottleneck in practice because:
+
+1. Very few theorems contain universe metavariables not covered by any parameters.
+2. These theorems usually involve only a small number of universe levels and universe polymorphic constants.
+3. Goals rarely contain constants instantiated with many different universe variables.
+
+If this does become a performance issue, we will need to add support for assigning universe levels
+during E-matching and check for universe-level coverage when collecting patterns.
+
+The result is a collection of pairs `(proof', prop')` where `proof'` and `prop'` are `proof` and `prop`
+with all universe metavariables instantiated.
+-/
+private def assignUnassignedLevelMVars (us : Array LMVarId) (proof : Expr) (prop : Expr) : GoalM (Array (Expr × Expr)) := do
+  let us := us.map mkLevelMVar
+  let cs ← collectConstsWithLevelMVars prop
+  let mut candidates : Array (Expr × Array Expr) := #[]
+  for c in cs do
+    let declName := c.constName!
+    if let some apps := (← getThe Goal).appMap.find? (.const declName) then
+      let consts : Std.HashSet Expr := Std.HashSet.ofList <| apps.map Expr.getAppFn
+      candidates := candidates.push (c, consts.toArray)
+  candidates := candidates.qsort fun (c₁, cs₁) (c₂, cs₂) =>
+    if cs₁.size == cs₂.size then c₁.quickLt c₂ else cs₁.size < cs₂.size
+  let rec search (us : Array Level) (i : Nat) : StateRefT (Array (Expr × Expr)) MetaM Unit := do
+    checkSystem "grind"
+    if h : i < candidates.size then
+      let (c, cs) := candidates[i]
+      for c' in cs do
+        let saved ← getMCtx
+        try
+          if (← isDefEq c c') then
+            -- update pending universe metavariables
+            let us ← us.filterMapM fun u => do
+              let u ← instantiateLevelMVars u
+              if (← hasAssignableLevelMVar u) then
+                return some u
+              else
+                return none
+            if us.isEmpty then
+              -- all universe metavariables have been assigned
+              let prop ← instantiateMVars prop
+              let proof ← instantiateMVars proof
+              modify (·.push (proof, prop))
+              return () -- Found instantiation
+            search us (i+1)
+        finally
+          setMCtx saved
+    else
+      return ()
+  let (_ , s) ← search us 0 |>.run #[]
+  return s
+
+private def getUnassignedLevelMVars (e : Expr) : MetaM (Array LMVarId) := do
+  unless e.hasLevelMVar do return #[]
+  let us := collectLevelMVars {} e |>.result
+  us.filterM fun u => isLevelMVarAssignable u
+
+/--
 Stores new theorem instance in the state.
 Recall that new instances are internalized later, after a full round of ematching.
 -/
@@ -337,20 +430,33 @@ private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Na
   let proof ← instantiateMVars proof
   if grind.debug.proofs.get (← getOptions) then
     check proof
-  let mut prop ← inferType proof
-  let mut proof := proof
-  if (← isMatchEqLikeDeclName thm.origin.key) then
-    prop ← annotateMatchEqnType prop (← read).initApp
-    -- We must add a hint here because `annotateMatchEqnType` introduces `simpMatchDiscrsOnly` and
-    -- `Grind.PreMatchCond` which are not reducible.
-    proof := mkExpectedPropHint proof prop
-  else if (← isEqnThm thm.origin.key) then
-    prop ← annotateEqnTypeConds prop
-    -- We must add a hint because `annotateEqnTypeConds` introduces `Grind.PreMatchCond`
-    -- which is not reducible.
-    proof := mkExpectedPropHint proof prop
-  trace_goal[grind.ematch.instance] "{thm.origin.pp}: {prop}"
-  addTheoremInstance thm proof prop (generation+1)
+  let prop ← inferType proof
+  let us ← getUnassignedLevelMVars prop
+  if !us.isEmpty then
+    let pps ← assignUnassignedLevelMVars us proof prop
+    if pps.isEmpty then
+      reportIssue! "failed to instantiate `{thm.origin.pp}`, proposition contains universe metavariables{indentExpr prop}"
+      return ()
+    for (proof, prop) in pps do
+      go proof prop
+  else
+    go proof prop
+where
+  go (proof prop : Expr) : M Unit := do
+    let mut proof := proof
+    let mut prop := prop
+    if (← isMatchEqLikeDeclName thm.origin.key) then
+      prop ← annotateMatchEqnType prop (← read).initApp
+      -- We must add a hint here because `annotateMatchEqnType` introduces `simpMatchDiscrsOnly` and
+      -- `Grind.PreMatchCond` which are not reducible.
+      proof := mkExpectedPropHint proof prop
+    else if (← isEqnThm thm.origin.key) then
+      prop ← annotateEqnTypeConds prop
+      -- We must add a hint because `annotateEqnTypeConds` introduces `Grind.PreMatchCond`
+      -- which is not reducible.
+      proof := mkExpectedPropHint proof prop
+    trace_goal[grind.ematch.instance] "{thm.origin.pp}: {prop}"
+    addTheoremInstance thm proof prop (generation+1)
 
 private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : OptionT M Unit := do
   let thm := (← read).thm
@@ -454,10 +560,26 @@ private def applyAssignment (mvars : Array Expr) : OptionT (StateT Choice M) Uni
   go 0
 
 /--
+Use a fresh name generator for creating internal metavariables for theorem instantiation.
+This is technique to ensure the metavariables ids do not depend on operations performed before invoking `grind`.
+Without this trick, we experience counterintuitive behavior where small changes affect the metavariable ids, and
+consequently the hash code for expressions, and operations such as `qsort` using `Expr.quickLt` in
+`assignUnassignedLevelMVars`.
+This code is correct because the auxiliary metavariables created during theorem instantiation cannot escape.
+-/
+private abbrev withFreshNGen (x : M α) : M α := do
+  let ngen ← getNGen
+  try
+    setNGen { namePrefix := `_uniq.grind.ematch, idx := 1 }
+    x
+  finally
+    setNGen ngen
+
+/--
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
 Missing parameters are synthesized using type inference and type class synthesis."
 -/
-private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do withNewMCtxDepth do
+private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do withNewMCtxDepth do withFreshNGen do
   let thm := (← read).thm
   unless (← markTheoremInstance thm.proof c.assignment) do
     return ()

@@ -26,6 +26,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_cmdCodeActionProvider(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_CodeAction_findInfoTree_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_CodeAction_cmdCodeActionProvider_spec__2_spec__2___closed__2;
 lean_object* l_Lean_PersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_InfoTree_foldInfo___redArg(lean_object*, lean_object*, lean_object*);
@@ -39,6 +40,7 @@ LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider(lean_object*, 
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_tactic_elim___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_CodeAction_cmdCodeActionProvider_spec__2_spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_readDoc___at___Lean_CodeAction_holeCodeActionProvider_spec__0(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_CodeAction_cmdCodeActionProvider_spec__2_spec__2___closed__0;
@@ -54,7 +56,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___Lean_PersistentA
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_go_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-extern lean_object* l_Lean_Server_instInhabitedRequestError;
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lam__0___closed__3;
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_CodeAction_findInfoTree_x3f_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -72,10 +73,13 @@ LEAN_EXPORT uint8_t l_List_elem___at___Lean_CodeAction_holeCodeActionProvider_sp
 lean_object* l_Lean_Elab_PartialContextInfo_mergeIntoOuter_x3f(lean_object*, lean_object*);
 extern lean_object* l_Lean_CodeAction_cmdCodeActionExt;
 lean_object* l_Lean_Syntax_getKind(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_tactic_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_env(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_visit(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_cmdCodeActionProvider___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_readDoc___at___Lean_CodeAction_holeCodeActionProvider_spec__0___boxed(lean_object*, lean_object*);
+uint8_t l_String_instBEqRange_beq(lean_object*, lean_object*);
+static lean_object* l_Lean_CodeAction_cmdCodeActionProvider___closed__3;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_go_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -83,11 +87,16 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_CodeAction_fin
 static lean_object* l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_go___closed__7;
 static lean_object* l_Lean_CodeAction_cmdCodeActionProvider___closed__0;
 lean_object* l_EStateM_instInhabited___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_tacticSeq_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_CodeAction_instInhabitedCommandCodeActions_default;
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___closed__0;
+LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_tacticSeq_elim___redArg(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_CodeAction_findInfoTree_x3f_spec__0_spec__0_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_go___closed__0;
 uint8_t lean_name_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_CodeAction_findInfoTree_x3f_spec__0_spec__0_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Syntax_getTailInfo(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -105,10 +114,10 @@ static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lam__0___closed__
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_CodeAction_holeCodeActionProvider_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1;
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lam__0___closed__2;
+extern lean_object* l_Lean_Server_instInhabitedRequestError_default;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_CodeAction_cmdCodeActionProvider_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_CodeAction_findInfoTree_x3f_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lam__0___closed__9;
-uint8_t l_String_beqRange____x40_Lean_Syntax_2413389941____hygCtx___hyg_35_(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_go_spec__1___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -154,7 +163,6 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_go___closed__5;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Info_stx(lean_object*);
-extern lean_object* l_Lean_CodeAction_instInhabitedCommandCodeActions;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_cmdCodeActionProvider___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at___Lean_CodeAction_cmdCodeActionProvider_spec__0___closed__0;
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lam__0___closed__11;
@@ -871,6 +879,82 @@ lean_object* x_2;
 x_2 = l_Lean_CodeAction_FindTacticResult_ctorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec_ref(x_1);
+x_4 = lean_apply_1(x_2, x_3);
+return x_4;
+}
+else
+{
+uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_5 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_1, 1);
+lean_inc(x_7);
+lean_dec_ref(x_1);
+x_8 = lean_box(x_5);
+x_9 = lean_apply_3(x_2, x_8, x_6, x_7);
+return x_9;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_CodeAction_FindTacticResult_ctorElim___redArg(x_3, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_CodeAction_FindTacticResult_ctorElim(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_2);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_tactic_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_CodeAction_FindTacticResult_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_tactic_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_CodeAction_FindTacticResult_ctorElim___redArg(x_2, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_tacticSeq_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_CodeAction_FindTacticResult_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_tacticSeq_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_CodeAction_FindTacticResult_ctorElim___redArg(x_2, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_visit(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2207,11 +2291,11 @@ goto block_19;
 block_15:
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_merge(x_1, x_11);
-lean_dec_ref(x_11);
+x_12 = l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_merge(x_1, x_10);
+lean_dec_ref(x_10);
 x_13 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
-x_8 = x_10;
+x_8 = x_11;
 x_9 = x_13;
 goto _start;
 }
@@ -2219,8 +2303,8 @@ block_19:
 {
 if (lean_obj_tag(x_9) == 0)
 {
-x_10 = x_16;
-x_11 = x_17;
+x_10 = x_17;
+x_11 = x_16;
 goto block_15;
 }
 else
@@ -2228,8 +2312,8 @@ else
 lean_dec_ref(x_9);
 if (x_2 == 0)
 {
-x_10 = x_16;
-x_11 = x_17;
+x_10 = x_17;
+x_11 = x_16;
 goto block_15;
 }
 else
@@ -2641,17 +2725,17 @@ lean_inc(x_45);
 x_47 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_47, 0, x_45);
 lean_ctor_set(x_47, 1, x_27);
-lean_inc(x_43);
+lean_inc(x_44);
 x_48 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_48, 0, x_47);
-lean_ctor_set(x_48, 1, x_43);
+lean_ctor_set(x_48, 1, x_44);
 x_49 = lean_alloc_ctor(1, 2, 1);
-lean_ctor_set(x_49, 0, x_44);
+lean_ctor_set(x_49, 0, x_43);
 lean_ctor_set(x_49, 1, x_48);
 lean_ctor_set_uint8(x_49, sizeof(void*)*2, x_46);
 x_50 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_50, 0, x_49);
-x_28 = x_43;
+x_28 = x_44;
 x_29 = x_45;
 x_30 = x_50;
 goto block_42;
@@ -2664,8 +2748,8 @@ lean_object* x_60; uint8_t x_61;
 lean_inc_ref(x_1);
 x_60 = lean_apply_1(x_1, x_56);
 x_61 = lean_unbox(x_60);
-x_43 = x_57;
-x_44 = x_59;
+x_43 = x_59;
+x_44 = x_57;
 x_45 = x_58;
 x_46 = x_61;
 goto block_51;
@@ -2673,8 +2757,8 @@ goto block_51;
 else
 {
 lean_dec(x_56);
-x_43 = x_57;
-x_44 = x_59;
+x_43 = x_59;
+x_44 = x_57;
 x_45 = x_58;
 x_46 = x_9;
 goto block_51;
@@ -2684,13 +2768,13 @@ block_70:
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; 
 x_67 = lean_unsigned_to_nat(1u);
-x_68 = lean_nat_add(x_66, x_67);
-lean_dec(x_66);
+x_68 = lean_nat_add(x_65, x_67);
+lean_dec(x_65);
 x_69 = lean_nat_shiftr(x_68, x_67);
 lean_dec(x_68);
 x_56 = x_63;
 x_57 = x_64;
-x_58 = x_65;
+x_58 = x_66;
 x_59 = x_69;
 goto block_62;
 }
@@ -2743,8 +2827,8 @@ if (x_86 == 0)
 {
 x_63 = x_81;
 x_64 = x_75;
-x_65 = x_76;
-x_66 = x_83;
+x_65 = x_83;
+x_66 = x_76;
 goto block_70;
 }
 else
@@ -2762,8 +2846,8 @@ if (lean_obj_tag(x_90) == 0)
 {
 x_63 = x_81;
 x_64 = x_75;
-x_65 = x_76;
-x_66 = x_83;
+x_65 = x_83;
+x_66 = x_76;
 goto block_70;
 }
 else
@@ -4185,7 +4269,7 @@ goto block_29;
 else
 {
 uint8_t x_35; 
-x_35 = l_String_beqRange____x40_Lean_Syntax_2413389941____hygCtx___hyg_35_(x_32, x_2);
+x_35 = l_String_instBEqRange_beq(x_32, x_2);
 lean_dec(x_32);
 x_21 = x_35;
 goto block_29;
@@ -4416,22 +4500,22 @@ return x_8;
 static lean_object* _init_l_panic___at___Lean_CodeAction_cmdCodeActionProvider_spec__0___closed__0() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Server_instInhabitedRequestError;
-x_2 = l_EStateM_instInhabited___redArg(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = l_Lean_Server_instInhabitedRequestError_default;
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_panic___at___Lean_CodeAction_cmdCodeActionProvider_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = l_panic___at___Lean_CodeAction_cmdCodeActionProvider_spec__0___closed__0;
-x_5 = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
-lean_closure_set(x_5, 0, x_4);
-x_6 = lean_panic_fn(x_5, x_1);
-x_7 = lean_apply_2(x_6, x_2, x_3);
-return x_7;
+x_5 = l_EStateM_instInhabited___redArg(x_4);
+x_6 = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
+lean_closure_set(x_6, 0, x_5);
+x_7 = lean_panic_fn(x_6, x_1);
+x_8 = lean_apply_2(x_7, x_2, x_3);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_CodeAction_cmdCodeActionProvider_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, size_t x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -4970,8 +5054,16 @@ return x_1;
 static lean_object* _init_l_Lean_CodeAction_cmdCodeActionProvider___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = l_Lean_CodeAction_instInhabitedCommandCodeActions_default;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_CodeAction_cmdCodeActionProvider___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_CodeAction_instInhabitedCommandCodeActions;
+x_1 = l_Lean_CodeAction_cmdCodeActionProvider___closed__1;
 x_2 = l_Lean_CodeAction_holeCodeActionProvider___closed__2;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -4979,7 +5071,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_CodeAction_cmdCodeActionProvider___closed__2() {
+static lean_object* _init_l_Lean_CodeAction_cmdCodeActionProvider___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5016,7 +5108,7 @@ lean_inc_ref(x_15);
 x_16 = lean_ctor_get(x_15, 2);
 lean_inc(x_16);
 lean_dec_ref(x_15);
-x_17 = l_Lean_CodeAction_cmdCodeActionProvider___closed__1;
+x_17 = l_Lean_CodeAction_cmdCodeActionProvider___closed__2;
 x_18 = l_Lean_Server_Snapshots_Snapshot_env(x_2);
 x_19 = lean_box(0);
 x_20 = l_Lean_PersistentEnvExtension_getState___redArg(x_17, x_14, x_18, x_16, x_19);
@@ -5032,7 +5124,7 @@ lean_dec_ref(x_11);
 x_24 = lean_alloc_closure((void*)(l_Lean_CodeAction_cmdCodeActionProvider___lam__0___boxed), 5, 2);
 lean_closure_set(x_24, 0, x_23);
 lean_closure_set(x_24, 1, x_22);
-x_25 = l_Lean_CodeAction_cmdCodeActionProvider___closed__2;
+x_25 = l_Lean_CodeAction_cmdCodeActionProvider___closed__3;
 lean_inc_ref(x_2);
 x_26 = l_Lean_Server_Snapshots_Snapshot_infoTree(x_2);
 x_27 = l_Lean_Elab_InfoTree_foldInfoTree___redArg(x_25, x_24, x_26);
@@ -5232,6 +5324,8 @@ l_Lean_CodeAction_cmdCodeActionProvider___closed__1 = _init_l_Lean_CodeAction_cm
 lean_mark_persistent(l_Lean_CodeAction_cmdCodeActionProvider___closed__1);
 l_Lean_CodeAction_cmdCodeActionProvider___closed__2 = _init_l_Lean_CodeAction_cmdCodeActionProvider___closed__2();
 lean_mark_persistent(l_Lean_CodeAction_cmdCodeActionProvider___closed__2);
+l_Lean_CodeAction_cmdCodeActionProvider___closed__3 = _init_l_Lean_CodeAction_cmdCodeActionProvider___closed__3();
+lean_mark_persistent(l_Lean_CodeAction_cmdCodeActionProvider___closed__3);
 l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__0 = _init_l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__0();
 lean_mark_persistent(l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__0);
 l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1 = _init_l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1();

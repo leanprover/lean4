@@ -23,16 +23,16 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkGateCached(lean_object*, lean_object*, 
 lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkGateCached___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic_1021782049____hygCtx___hyg_49____boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached___redArg(uint8_t);
 static lean_object* l_Std_Sat_AIG_mkGateCached_go___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkGateCached_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-uint8_t l_Std_Sat_AIG_decEqDecl___redArg____x40_Std_Sat_AIG_Basic_1021782049____hygCtx___hyg_75_(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Sat_AIG_instHashableDecl_hash___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached___redArg___boxed(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+uint8_t l_Std_Sat_AIG_instDecidableEqDecl_decEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkAtomCached(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Sat_AIG_mkAtomCached___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -43,7 +43,7 @@ LEAN_EXPORT uint8_t l_Std_Sat_AIG_mkAtomCached___redArg___lam__0(lean_object* x_
 _start:
 {
 uint8_t x_4; 
-x_4 = l_Std_Sat_AIG_decEqDecl___redArg____x40_Std_Sat_AIG_Basic_1021782049____hygCtx___hyg_75_(x_1, x_2, x_3);
+x_4 = l_Std_Sat_AIG_instDecidableEqDecl_decEq___redArg(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -61,7 +61,7 @@ x_8 = lean_alloc_closure((void*)(l_Std_Sat_AIG_mkAtomCached___redArg___lam__0___
 lean_closure_set(x_8, 0, x_2);
 x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_4);
-x_10 = lean_alloc_closure((void*)(l_Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic_1021782049____hygCtx___hyg_49____boxed), 3, 2);
+x_10 = lean_alloc_closure((void*)(l_Std_Sat_AIG_instHashableDecl_hash___boxed), 3, 2);
 lean_closure_set(x_10, 0, lean_box(0));
 lean_closure_set(x_10, 1, x_1);
 x_11 = l_instBEqOfDecidableEq___redArg(x_8);
@@ -119,7 +119,7 @@ x_25 = lean_alloc_closure((void*)(l_Std_Sat_AIG_mkAtomCached___redArg___lam__0__
 lean_closure_set(x_25, 0, x_2);
 x_26 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_26, 0, x_4);
-x_27 = lean_alloc_closure((void*)(l_Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic_1021782049____hygCtx___hyg_49____boxed), 3, 2);
+x_27 = lean_alloc_closure((void*)(l_Std_Sat_AIG_instHashableDecl_hash___boxed), 3, 2);
 lean_closure_set(x_27, 0, lean_box(0));
 lean_closure_set(x_27, 1, x_1);
 x_28 = l_instBEqOfDecidableEq___redArg(x_25);
@@ -280,7 +280,7 @@ lean_dec(x_20);
 lean_ctor_set_tag(x_4, 2);
 lean_ctor_set(x_4, 1, x_22);
 lean_ctor_set(x_4, 0, x_19);
-x_23 = lean_alloc_closure((void*)(l_Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic_1021782049____hygCtx___hyg_49____boxed), 3, 2);
+x_23 = lean_alloc_closure((void*)(l_Std_Sat_AIG_instHashableDecl_hash___boxed), 3, 2);
 lean_closure_set(x_23, 0, lean_box(0));
 lean_closure_set(x_23, 1, x_1);
 x_24 = l_instBEqOfDecidableEq___redArg(x_15);
@@ -704,7 +704,7 @@ lean_dec(x_95);
 lean_ctor_set_tag(x_4, 2);
 lean_ctor_set(x_4, 1, x_97);
 lean_ctor_set(x_4, 0, x_94);
-x_98 = lean_alloc_closure((void*)(l_Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic_1021782049____hygCtx___hyg_49____boxed), 3, 2);
+x_98 = lean_alloc_closure((void*)(l_Std_Sat_AIG_instHashableDecl_hash___boxed), 3, 2);
 lean_closure_set(x_98, 0, lean_box(0));
 lean_closure_set(x_98, 1, x_1);
 x_99 = l_instBEqOfDecidableEq___redArg(x_90);
@@ -1006,7 +1006,7 @@ lean_dec(x_155);
 x_158 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_158, 0, x_154);
 lean_ctor_set(x_158, 1, x_157);
-x_159 = lean_alloc_closure((void*)(l_Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic_1021782049____hygCtx___hyg_49____boxed), 3, 2);
+x_159 = lean_alloc_closure((void*)(l_Std_Sat_AIG_instHashableDecl_hash___boxed), 3, 2);
 lean_closure_set(x_159, 0, lean_box(0));
 lean_closure_set(x_159, 1, x_1);
 x_160 = l_instBEqOfDecidableEq___redArg(x_150);

@@ -272,6 +272,10 @@ theorem mem_iff_isSome_get? [LawfulBEq α] {a : α} : a ∈ m ↔ (m.get? a).isS
 theorem isSome_get?_iff_mem [LawfulBEq α] {a : α} : (m.get? a).isSome ↔ a ∈ m :=
   mem_iff_isSome_get?.symm
 
+theorem get?_eq_some_iff [LawfulBEq α] {k : α} {v : β k} :
+    m.get? k = some v ↔ ∃ h : k ∈ m, m.get k h = v :=
+  Raw₀.get?_eq_some_iff ⟨m.1, _⟩ m.2
+
 theorem get?_eq_none_of_contains_eq_false [LawfulBEq α] {a : α} :
     m.contains a = false → m.get? a = none :=
   Raw₀.get?_eq_none ⟨m.1, _⟩ m.2
@@ -331,6 +335,10 @@ theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} : a ∈ m
 @[simp]
 theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} : (get? m a).isSome ↔ a ∈ m :=
   mem_iff_isSome_get?.symm
+
+theorem get?_eq_some_iff [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
+    get? m k = some v ↔ ∃ h : k ∈ m, get m k h = v :=
+  Raw₀.Const.get?_eq_some_iff ⟨m.1, _⟩ m.2
 
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = false → get? m a = none :=
@@ -747,6 +755,10 @@ theorem isSome_getKey?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
 theorem mem_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] {k k' : α}
     (h : m.getKey? k = some k') : k' ∈ m :=
   Raw₀.contains_of_getKey?_eq_some ⟨m.1, _⟩ m.2 h
+
+theorem getKey?_eq_some_iff [EquivBEq α] [LawfulHashable α] {k k' : α} :
+    m.getKey? k = some k' ↔ ∃ h : k ∈ m, m.getKey k h = k' :=
+  Raw₀.getKey?_eq_some_iff ⟨m.1, _⟩ m.2
 
 theorem getKey?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = false → m.getKey? a = none :=
@@ -1167,6 +1179,10 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.Pairwise (fun a b => (a == b) = false) :=
   Raw₀.distinct_keys ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
+theorem nodup_keys [EquivBEq α] [LawfulHashable α] :
+    m.keys.Nodup :=
+  m.distinct_keys.imp ne_of_beq_false
+
 @[simp]
 theorem toArray_keys :
     m.keys.toArray = m.keysArray :=
@@ -1419,7 +1435,7 @@ end Const
 
 section monadic
 
-variable {m : DHashMap α β} {δ : Type w} {m' : Type w → Type w}
+variable {m : DHashMap α β} {δ : Type w} {m' : Type w → Type w'}
 
 theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
     {f : δ → (a : α) → β a → m' δ} {init : δ} :

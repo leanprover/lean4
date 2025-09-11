@@ -11,11 +11,10 @@ import Lean.Elab.Deriving.Util
 
 public section
 
-namespace Lean.Elab
+namespace Lean.Elab.Deriving
 open Command Meta Parser Term
 
 private def mkNonemptyInstance (declName : Name) : TermElabM Syntax.Command := do
-  let ctx ← Deriving.mkContext "nonempty" declName
   let indVal ← getConstInfoInduct declName
   forallTelescopeReducing indVal.type fun paramsIndices _ => do
   let mut indArgs := #[]
@@ -29,21 +28,18 @@ private def mkNonemptyInstance (declName : Name) : TermElabM Syntax.Command := d
         binders := binders.push (← `(bracketedBinderF| [Nonempty $arg]))
   let ctorTacs ← indVal.ctors.toArray.mapM fun ctor =>
     `(tactic| apply @$(mkCIdent ctor) <;> exact Classical.ofNonempty)
-  let vis := ctx.mkVisibilityFromTypes
-  let expAttr := ctx.mkNoExposeAttrFromCtors
   `(command| variable $binders* in
-    @[$[$expAttr],*] $vis:visibility instance : Nonempty (@$(mkCIdent declName) $indArgs*) :=
+    instance : Nonempty (@$(mkCIdent declName) $indArgs*) :=
       by constructor; first $[| $ctorTacs:tactic]*)
 
 def mkNonemptyInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then
     for declName in declNames do
-      elabCommand (← liftTermElabM do mkNonemptyInstance declName)
+      withoutExposeFromCtors declName do
+        elabCommand (← liftTermElabM do mkNonemptyInstance declName)
     return true
   else
     return false
 
 builtin_initialize
   registerDerivingHandler `Nonempty mkNonemptyInstanceHandler
-
-end Lean.Elab

@@ -466,6 +466,7 @@ LEAN_EXPORT lean_object* l_Std_TreeMap_getKeyLE_x3f(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Std_TreeMap_getKeyLED___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_keyAtIdxD___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_getKeyD___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_TreeMap_foldr___redArg___closed__6;
 static lean_object* l_Std_TreeMap_foldr___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Std_TreeMap_maxEntry(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -561,6 +562,7 @@ LEAN_EXPORT lean_object* l_Std_TreeMap_toList(lean_object*, lean_object*, lean_o
 lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_maxEntryD___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_foldrM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_fromList___redArg(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_foldl___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Std_Data_TreeMap_Basic_2281081681____hygCtx___hyg_18_;
@@ -873,6 +875,24 @@ _start:
 lean_object* x_1; 
 x_1 = l___auto___closed__26____x40_Std_Data_TreeMap_Basic_650080009____hygCtx___hyg_11_;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_unsigned_to_nat(0u);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_TreeMap_ctorIdx(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+lean_dec_ref(x_3);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_TreeMap_empty(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -18,7 +18,6 @@ open Lean
 
 namespace Lake.Toml
 
-public section -- for `BEq`
 /-- A TOML value with optional source info. -/
 public inductive Value
 | string (ref : Syntax) (s : String)
@@ -29,7 +28,6 @@ public inductive Value
 | array (ref : Syntax) (xs : Array Value)
 | table' (ref : Syntax) (xs : RBDict Name Value Name.quickCmp)
 deriving Inhabited, BEq
-end
 
 /-- A TOML table, an ordered key-value map of TOML values (`Lake.Toml.Value`). -/
 public abbrev Table := NameDict Value

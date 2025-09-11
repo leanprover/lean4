@@ -206,7 +206,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
     -- Can we reuse the result for a body? For starters, all headers (even those below the body)
     -- must be reusable
     let mut reuseBody := views.all (·.headerSnap?.any (·.old?.isSome))
-    for view in views, ⟨shortDeclName, declName, levelNames⟩ in expandedDeclIds,
+    for view in views, ⟨shortDeclName, declName, levelNames, docString?⟩ in expandedDeclIds,
         tacPromise in tacPromises, bodyPromise in bodyPromises do
       let mut reusableResult? := none
       let mut oldBodySnap? := none
@@ -656,20 +656,44 @@ private def ExprWithHoles.getHoles (e : ExprWithHoles) : TermElabM (Array MVarId
 private def fillHolesFromWhereFinally (name : Name) (es : Array ExprWithHoles) (whereFinally : WhereFinallyView) : TermElabM PUnit := do
   if whereFinally.isNone then return
   let goals := (← es.mapM fun e => e.getHoles).flatten
+
+  -- Exit exporting context if entering proof(s), analogous to `Term.runTactic`.
+  -- NOTE: when entering a proof/data mix, we must conservatively default to not changing the
+  -- context.
+  let wasExporting := (← getEnv).isExporting
+  let isNoLongerExporting ← pure wasExporting <&&> goals.allM fun mvarId => do
+    mvarId.withContext do
+      isProp (← mvarId.getType)
+
+  let mut goals' := goals
+  if isNoLongerExporting then
+    goals' ← goals.mapM fun mvarId => do
+      let mvarDecl ← getMVarDecl mvarId
+      return (← mkFreshExprMVarAt mvarDecl.lctx mvarDecl.localInstances mvarDecl.type mvarDecl.kind mvarDecl.userName).mvarId!
+
+  withExporting (isExporting := wasExporting && !isNoLongerExporting) do
   Lean.Elab.Term.TermElabM.run' do
   Term.withDeclName name do
   withRef whereFinally.ref do
     unless goals.isEmpty do
       -- make info from `runTactic` available
-      goals.forM fun goal => pushInfoTree (.hole goal)
+      goals'.forM fun goal => pushInfoTree (.hole goal)
       -- assign goals
-      let remainingGoals ← Tactic.run goals[0]! do
-        Tactic.setGoals goals.toList
+      let remainingGoals ← Tactic.run goals'[0]! do
+        Tactic.setGoals goals'.toList
         Tactic.withTacticInfoContext whereFinally.ref do
           Tactic.evalTactic whereFinally.tactic
       -- complain if any goals remain
       unless remainingGoals.isEmpty do
         Term.reportUnsolvedGoals remainingGoals
+      if isNoLongerExporting then
+        for mvarId in goals, mvarId' in goals' do
+          let mut e ← instantiateExprMVars (.mvar mvarId')
+          if !e.isFVar then
+            e ← mvarId'.withContext do
+              withExporting (isExporting := wasExporting) do
+                abstractProof e
+          mvarId.assign e
 
 namespace MutualClosure
 
@@ -1024,6 +1048,7 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
       ref         := getDeclarationSelectionRef header.ref
       kind        := header.kind
       declName    := header.declName
+      binders     := header.binders
       levelParams := [], -- we set it later
       modifiers   := header.modifiers
       type, value, termination
@@ -1047,6 +1072,7 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
       ref         := c.ref
       declName    := c.toLift.declName
       levelParams := [] -- we set it later
+      binders     := mkNullNode -- No docstrings, so we don't need these
       modifiers   := { modifiers with attrs := c.toLift.attrs }
       kind, type, value,
       termination := c.toLift.termination
@@ -1273,8 +1299,6 @@ where
        headers.any (·.modifiers.attrs.any (·.name == `expose)))) do
     let headers := headers.map fun header =>
       { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
-    for view in views, funFVar in funFVars do
-      addLocalVarInfo view.declId funFVar
     let values ← try
       let values ← elabFunValues headers vars sc
       Term.synthesizeSyntheticMVarsNoPostponing
@@ -1299,6 +1323,9 @@ where
       let whereFinally ← declValToWhereFinally header.value
       let exprsWithHoles := (exprsWithHoles.getD header.declName #[]).push { ref := header.ref, expr := value }
       fillHolesFromWhereFinally header.declName exprsWithHoles whereFinally
+    -- Compilation should take place without unused section vars, but all section vars should be
+    -- present when elaborating documentation.
+    let docCtx := (← getLCtx, ← getLocalInstances)
     (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then
        -- do not repeat checks already done in `elabFunValues`
        withHeaderSecVars (check := false) vars sc headers
@@ -1319,7 +1346,10 @@ where
       let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
       for preDef in preDefs do
         trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
-      addPreDefinitions preDefs
+      addPreDefinitions docCtx preDefs
+    for view in views, funFVar in funFVars do
+      addLocalVarInfo view.declId funFVar
+
   processDeriving (headers : Array DefViewElabHeader) := do
     for header in headers, view in views do
       if let some classStxs := view.deriving? then

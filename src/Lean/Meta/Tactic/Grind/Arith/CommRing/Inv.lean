@@ -4,13 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
-
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 public section
-
 namespace Lean.Meta.Grind.Arith.CommRing
 
 private def checkVars : RingM Unit := do

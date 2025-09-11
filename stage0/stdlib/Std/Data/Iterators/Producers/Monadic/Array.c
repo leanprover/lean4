@@ -40,6 +40,8 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorSizeArrayIterator___redArg(
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorCollectArrayIteratorOfMonad___redArg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_ArrayIterator_ctorIdx___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_ArrayIterator_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_iterM___redArg(lean_object*);
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorSizeArrayIterator(lean_object*, lean_object*, lean_object*);
@@ -51,6 +53,23 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_iterM___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorSizePartialArrayIterator___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorArrayIteratorOfPure___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_ArrayIterator_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_ArrayIterator_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Iterators_ArrayIterator_ctorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Array_iterFromIdxM___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

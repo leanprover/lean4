@@ -206,10 +206,13 @@ Converts a bitvector into a fixed-width hexadecimal number with enough digits to
 
 If `n` is `0`, then one digit is returned. Otherwise, `⌊(n + 3) / 4⌋` digits are returned.
 -/
+-- If we ever want to prove something about this, we can avoid having to use the opaque
+-- `Internal` string functions by moving this definition out to a separate file that can live
+-- downstream of `Init.Data.String.Basic`.
 protected def toHex {n : Nat} (x : BitVec n) : String :=
   let s := (Nat.toDigits 16 x.toNat).asString
-  let t := (List.replicate ((n+3) / 4 - s.length) '0').asString
-  t ++ s
+  let t := (List.replicate ((n+3) / 4 - String.Internal.length s) '0').asString
+  String.Internal.append t s
 
 /-- `BitVec` representation. -/
 protected def BitVec.repr (a : BitVec n) : Std.Format :=

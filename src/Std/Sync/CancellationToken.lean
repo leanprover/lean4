@@ -15,37 +15,54 @@ public import Std.Internal.Async.Select
 public section
 
 /-!
-This module contains the implementation of `Std.Terminator` with bottom-up cancellation.
+This module contains the implementation of `Std.CancellationToken` with bottom-up cancellation.
 -/
 
 namespace Std
+namespace Sync
 
 /--
-Errors that may be thrown while interacting with the terminator API.
+Errors that may be thrown while interacting with the cancellationtoken API.
 -/
-inductive Terminator.Error where
+inductive CancellationToken.Error where
+
+  /--
+  The operation was cancelled.
+  -/
   | cancelled
+
+  /--
+  The token is already cancelled.
+  -/
   | alreadyCancelled
+
+  /--
+  The token has been disposed.
+  -/
   | disposed
+
+  /--
+  The token ID was not found.
+  -/
   | tokenNotFound
 
 deriving Repr, DecidableEq, Hashable
 
-instance instToStringTerminatorError : ToString Terminator.Error where
+instance instToStringCancellationTokenError : ToString CancellationToken.Error where
   toString
     | .cancelled => "operation was cancelled"
     | .alreadyCancelled => "token is already cancelled"
     | .disposed => "token has been disposed"
     | .tokenNotFound => "token ID not found"
 
-instance instMonadLiftTerminatorIO : MonadLift (EIO Terminator.Error) IO where
+instance instMonadLiftCancellationTokenIO : MonadLift (EIO CancellationToken.Error) IO where
   monadLift x := EIO.toIO (.userError <| toString ·) x
 
 /--
 A consumer waiting to receive a cancellation notification.
 Enhanced to support awaiting cancellation response.
 -/
-private structure Terminator.Consumer where
+private structure CancellationToken.Consumer where
   promise : IO.Promise Bool
   waiter : Option (Internal.IO.Async.Waiter Bool)
   responsePromise : IO.Promise Bool
@@ -53,58 +70,58 @@ private structure Terminator.Consumer where
 /--
 Resolves a consumer's promise and waits for response.
 -/
-private def Terminator.Consumer.resolve (c : Terminator.Consumer) (b : Bool) : BaseIO (Task Bool) := do
+private def CancellationToken.Consumer.resolve (c : CancellationToken.Consumer) (b : Bool) : BaseIO (Task Bool) := do
   c.promise.resolve b
   return c.responsePromise.result!
 
 /--
 Consumer acknowledges the cancellation request.
 -/
-private def Terminator.Consumer.acknowledge (c : Terminator.Consumer) (accepted : Bool) : BaseIO Unit :=
+private def CancellationToken.Consumer.acknowledge (c : CancellationToken.Consumer) (accepted : Bool) : BaseIO Unit :=
   c.responsePromise.resolve accepted
 
 /--
-Information about a terminator token in the tree.
+Information about a cancellationtoken token in the tree.
 -/
 private structure TokenInfo where
   cancelled : Bool
   parent : Option Nat
   children : Std.TreeSet Nat
-  consumers : Std.Queue Terminator.Consumer
+  consumers : Std.Queue CancellationToken.Consumer
   cancellationInProgress : Bool
   cancellationInitiator : Option Nat
 deriving Inhabited
 
 /--
-State of the terminator system.
+State of the cancellationtoken system.
 -/
-private structure Terminator.State where
+private structure CancellationToken.State where
   tokens : Std.TreeMap Nat TokenInfo
   nextId : Nat
   disposed : Bool
 
 /--
-A terminator that can be checked for cancellation and register callbacks.
+A cancellationtoken that can be checked for cancellation and can register callbacks.
 -/
-structure Terminator where
+structure CancellationToken where
   private mk ::
-  private state : Mutex Terminator.State
+  private state : Mutex CancellationToken.State
   private id : Nat
 
 /--
-A terminator source that can create child tokens and trigger cancellation.
+A cancellationtoken source that can create child tokens and trigger cancellation.
 -/
-structure Terminator.Source where
+structure CancellationToken.Source where
   private mk ::
-  private state : Mutex Terminator.State
+  private state : Mutex CancellationToken.State
   private id : Nat
 
-namespace Terminator.Source
+namespace CancellationToken.Source
 
 /--
-Creates a new root terminator source.
+Creates a new root cancellationtoken source.
 -/
-def new : BaseIO Terminator.Source := do
+def new : BaseIO CancellationToken.Source := do
   let state ← Mutex.new {
     tokens := .empty |>.insert 0 {
       cancelled := false,
@@ -120,9 +137,9 @@ def new : BaseIO Terminator.Source := do
   return ⟨state, 0⟩
 
 /--
-Creates a child terminator source.
+Creates a child cancellationtoken source from this parent source.
 -/
-def fork (parent : Terminator.Source) : IO Terminator.Source := do
+def fork (parent : CancellationToken.Source) : IO CancellationToken.Source := do
   let childId ← parent.state.atomically do
     let st ← get
     if st.disposed then
@@ -153,19 +170,19 @@ def fork (parent : Terminator.Source) : IO Terminator.Source := do
   return ⟨parent.state, childId⟩
 
 /--
-Gets the terminator token for this source.
+Gets the cancellationtoken token for this source.
 -/
-def token (source : Terminator.Source) : Terminator :=
+def token (source : CancellationToken.Source) : CancellationToken :=
   ⟨source.state, source.id⟩
 
 /--
 Initiates bottom-up cancellation starting from this token.
 First cancels all children, waits for their responses, then propagates up to parent.
 -/
-partial def cancel (source : Terminator.Source) : EIO Terminator.Error Unit := do
+partial def cancel (source : CancellationToken.Source) : EIO CancellationToken.Error Unit := do
   cancelBottomUp source.state source.id none
 where
-  cancelBottomUp (state : Mutex Terminator.State) (tokenId : Nat) (initiatorId : Option Nat) : EIO Terminator.Error Unit := do
+  cancelBottomUp (state : Mutex CancellationToken.State) (tokenId : Nat) (initiatorId : Option Nat) : EIO CancellationToken.Error Unit := do
     let (tokenInfo, children) ← state.atomically do
       let st ← get
       if st.disposed then
@@ -224,7 +241,7 @@ where
 /--
 Checks if this token source exists and is cancelled.
 -/
-def isCancelled (source : Terminator.Source) : BaseIO Bool :=
+def isCancelled (source : CancellationToken.Source) : BaseIO Bool :=
   source.state.atomically do
     let st ← get
     match st.tokens.get? source.id with
@@ -234,43 +251,43 @@ def isCancelled (source : Terminator.Source) : BaseIO Bool :=
 /--
 Disposes the token source and all its children.
 -/
-def dispose (source : Terminator.Source) : BaseIO Unit := do
+def dispose (source : CancellationToken.Source) : BaseIO Unit := do
   source.state.atomically do
     modify fun st => { st with disposed := true }
 
-end Terminator.Source
+end CancellationToken.Source
 
-namespace Terminator
+namespace CancellationToken
 
 /--
-Creates a new root terminator.
+Creates a new root cancellationtoken.
 -/
-def new : BaseIO Terminator := do
-  let source ← Terminator.Source.new
+def new : BaseIO CancellationToken := do
+  let source ← CancellationToken.Source.new
   return source.token
 
 /--
-Creates a child terminator.
+Creates a child cancellationtoken from this parent cancellationtoken.
 -/
-def fork (parent : Terminator) : IO Terminator := do
-  let parentSource : Terminator.Source := ⟨parent.state, parent.id⟩
+def fork (parent : CancellationToken) : IO CancellationToken := do
+  let parentSource : CancellationToken.Source := ⟨parent.state, parent.id⟩
   let childSource ← parentSource.fork
   return childSource.token
 
 /--
 Checks if this token is cancelled.
 -/
-def isCancelled (token : Terminator) : BaseIO Bool :=
+def isCancelled (token : CancellationToken) : BaseIO Bool :=
   token.state.atomically do
     let st ← get
     match st.tokens.get? token.id with
-    | none => return true  -- Token was removed
+    | none => return true
     | some tokenInfo => return tokenInfo.cancelled
 
 /--
-Throws if cancelled.
+Throws a cancellation error if this token is cancelled.
 -/
-def throwIfCancelled (token : Terminator) : EIO Terminator.Error Unit := do
+def throwIfCancelled (token : CancellationToken) : EIO CancellationToken.Error Unit := do
   if ← token.isCancelled then
     throw .cancelled
 
@@ -278,21 +295,22 @@ def throwIfCancelled (token : Terminator) : EIO Terminator.Error Unit := do
 Enhanced cancellation waiting that allows responding to cancellation requests.
 Returns a task and a function to respond to cancellation.
 -/
-def waitForCancellationWithResponse (token : Terminator) : BaseIO (Task Bool × (Bool → BaseIO Unit)) := do
+def waitForCancellationWithResponse (token : CancellationToken) : BaseIO (Task Bool × (Bool → BaseIO Unit)) := do
   token.state.atomically do
     let st ← get
     if st.disposed then
       return (.pure false, fun _ => pure ())
 
     match st.tokens.get? token.id with
-    | none => return (.pure true, fun _ => pure ())  -- Already cancelled
+    | none =>
+      return (.pure true, fun _ => pure ())
     | some tokenInfo =>
       if tokenInfo.cancelled then
         return (.pure true, fun _ => pure ())
       else
         let promise ← IO.Promise.new
         let responsePromise ← IO.Promise.new
-        let consumer : Terminator.Consumer := { promise, waiter := none, responsePromise }
+        let consumer : CancellationToken.Consumer := { promise, waiter := none, responsePromise }
         let updatedInfo := { tokenInfo with consumers := tokenInfo.consumers.enqueue consumer }
         set { st with tokens := st.tokens.insert token.id updatedInfo }
 
@@ -300,12 +318,12 @@ def waitForCancellationWithResponse (token : Terminator) : BaseIO (Task Bool × 
         return (promise.result!, responseFunc)
 
 /--
-Original wait function for backward compatibility.
+Waits for cancellation notification. Provided for backward compatibility.
 -/
-def waitForCancellation (token : Terminator) : BaseIO (Task Bool) := do
+def waitForCancellation (token : CancellationToken) : BaseIO (Task Bool) := do
   let (task, _) ← token.waitForCancellationWithResponse
   return task
 
-end Terminator
-
+end CancellationToken
+end Sync
 end Std

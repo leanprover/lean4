@@ -1,6 +1,6 @@
 section
 variable (α : Type)
-coinductive infSeq (r : α → α → Prop): α → Prop where
+coinductive infSeq (r : α → α → Prop) : α → Prop where
   | step : r a b → infSeq r b → infSeq r a
 
 /-- info: infSeq (α : Type) (r : α → α → Prop) : α → Prop -/

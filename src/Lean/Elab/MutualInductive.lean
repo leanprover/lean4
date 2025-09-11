@@ -1011,7 +1011,7 @@ def removeFunctorPostfixInCtor : Name → Name
   | Name.str p s => Name.str (removeFunctorPostfix p) s
   | Name.num p n => Name.num (removeFunctorPostfixInCtor p) n
 
-private def generateCoinductiveConstructor (infos : Array InductiveVal) (numParams : Nat) (name : Name) (ctor : ConstructorVal) : MetaM Unit := do
+private def generateCoinductiveConstructor (infos : Array InductiveVal) (view : CtorView) (numParams : Nat) (name : Name) (ctor : ConstructorVal) : TermElabM Unit := do
   trace[Elab.coinductive] "Generating constructor: {removeFunctorPostfixInCtor ctor.name}"
   let numPreds := infos.size
   let predNames := infos.map fun val => removeFunctorPostfix val.name
@@ -1087,7 +1087,8 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (numPara
       equivLemma ← mkAppM ``Iff.mp #[equivLemma]
       let [hole] ← hole.apply equivLemma | throwError "Could not apply {equivLemmaName}"
       /-
-        Now, all it suffices is to call an approprate constructor of the functor in the inductive type form.
+        Now, all it suffices is to call an approprate constructor of the functor
+        in the inductive type form.
       -/
       let constructor := mkConst ctor.name levelParams
       let constructor := mkAppN constructor params
@@ -1111,13 +1112,18 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (numPara
       safety := .safe
     }
 
+    Term.addTermInfo' view.ref res (isBinder := true)
 
-private def generateCoinductiveConstructors (numParams : Nat) (infos : Array InductiveVal) : MetaM Unit := do
-  for indType in infos do
-    for ctor in indType.ctors do
-      generateCoinductiveConstructor infos numParams indType.name <| ←getConstInfoCtor ctor
 
-private def elabCoinductive (declNames : Array Name) (views : Array InductiveView) (predKinds : Array Bool) : TermElabM Unit := do
+private def generateCoinductiveConstructors (numParams : Nat) (infos : Array InductiveVal)
+    (views: Array InductiveView) : TermElabM Unit := do
+  for indType in infos, view in views do
+    for ctor in indType.ctors, ctorView in view.ctors do
+      generateCoinductiveConstructor infos ctorView numParams indType.name
+        <| ←getConstInfoCtor ctor
+
+private def elabCoinductive (declNames : Array Name) (views : Array InductiveView)
+    (predKinds : Array Bool) : TermElabM Unit := do
   trace[Elab.coinductive] "Elaborating: {declNames}"
   let infos ← declNames.mapM getConstInfoInduct
   let levelParams := infos[0]!.levelParams.map mkLevelParam
@@ -1136,10 +1142,11 @@ private def elabCoinductive (declNames : Array Name) (views : Array InductiveVie
   -/
   let consts := namesAndTypes.map fun (name, _) => (mkConst name levelParams)
   for const in consts, view in views do
-    discard <| Term.addTermInfo view.ref const
+    Term.addTermInfo' view.ref const (isBinder := true)
   /-
-    We create values of each of PreDefinitions, by taking existential (see `Meta.SumOfProducts`) form
-    of the associated functors and applying paramaters, as well as recursive calls (with their parameters passed).
+    We create values of each of PreDefinitions, by taking existential (see `Meta.SumOfProducts`)
+    form of the associated functors and applying paramaters, as well as recursive calls
+    (with their parameters passed).
   -/
   let preDefVals ← forallBoundedTelescope infos[0]!.type originalNumParams fun params _ => do
     infos.mapM fun info => do
@@ -1172,7 +1179,7 @@ private def elabCoinductive (declNames : Array Name) (views : Array InductiveVie
       }
     }
   partialFixpoint preDefs
-  generateCoinductiveConstructors originalNumParams infos
+  generateCoinductiveConstructors originalNumParams infos views
 
 
 private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext :=
@@ -1243,10 +1250,12 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
             buildFinalizeContext elabs' levelParams vars params views indFVars rs
     withSaveInfoContext do -- save new env
       for view in views do
-        Term.addTermInfo' view.declId (← mkConstWithLevelParams view.declName) (isBinder := true)
+        unless isCoinductive do
+          Term.addTermInfo' view.declId (← mkConstWithLevelParams view.declName) (isBinder := true)
         for ctor in view.ctors do
           if (ctor.declId.getPos? (canonicalOnly := true)).isSome then
-            Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
+            unless isCoinductive do
+              Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
             enableRealizationsForConst ctor.declName
     return res
 

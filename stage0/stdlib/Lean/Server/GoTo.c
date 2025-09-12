@@ -7777,8 +7777,8 @@ x_38 = l_Lean_Server_instBEqGoToKind_beq(x_15, x_37);
 if (x_38 == 0)
 {
 lean_dec_ref(x_34);
-x_24 = x_35;
-x_25 = x_36;
+x_24 = x_36;
+x_25 = x_35;
 x_26 = x_38;
 goto block_31;
 }
@@ -7788,8 +7788,8 @@ lean_object* x_39; uint8_t x_40;
 lean_inc(x_22);
 x_39 = l_Lean_Syntax_getKind(x_22);
 x_40 = l_Lean_Environment_contains(x_34, x_39, x_38);
-x_24 = x_35;
-x_25 = x_36;
+x_24 = x_36;
+x_25 = x_35;
 x_26 = x_40;
 goto block_31;
 }
@@ -7868,22 +7868,22 @@ if (lean_is_scalar(x_14)) {
 } else {
  x_27 = x_14;
 }
-lean_ctor_set(x_27, 0, x_24);
-lean_ctor_set(x_27, 1, x_25);
+lean_ctor_set(x_27, 0, x_25);
+lean_ctor_set(x_27, 1, x_24);
 return x_27;
 }
 else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_28 = l_Lean_Syntax_getKind(x_22);
-x_29 = lean_array_push(x_24, x_28);
+x_29 = lean_array_push(x_25, x_28);
 if (lean_is_scalar(x_14)) {
  x_30 = lean_alloc_ctor(0, 2, 0);
 } else {
  x_30 = x_14;
 }
 lean_ctor_set(x_30, 0, x_29);
-lean_ctor_set(x_30, 1, x_25);
+lean_ctor_set(x_30, 1, x_24);
 return x_30;
 }
 }

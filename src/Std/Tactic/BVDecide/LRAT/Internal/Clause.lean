@@ -59,7 +59,9 @@ class Clause (α : outParam (Type u)) (β : Type v) where
 
 namespace Clause
 
-attribute [grind] empty_eq unit_eq isUnit_iff negate_eq delete_iff contains_iff
+grind_pattern empty_eq => toList (empty : β)
+grind_pattern unit_eq => @toList _ _ self (unit l)
+attribute [grind] isUnit_iff negate_eq delete_iff contains_iff
 
 instance : Entails α (Literal α) where
   eval := fun p l => p l.1 = l.2

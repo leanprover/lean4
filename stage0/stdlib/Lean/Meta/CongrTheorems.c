@@ -13912,7 +13912,7 @@ block_22:
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; 
-lean_dec_ref(x_16);
+lean_dec_ref(x_17);
 x_19 = lean_box(x_15);
 if (lean_is_scalar(x_10)) {
  x_20 = lean_alloc_ctor(0, 2, 0);
@@ -13920,7 +13920,7 @@ if (lean_is_scalar(x_10)) {
  x_20 = x_10;
 }
 lean_ctor_set(x_20, 0, x_19);
-lean_ctor_set(x_20, 1, x_17);
+lean_ctor_set(x_20, 1, x_16);
 return x_20;
 }
 else
@@ -13932,8 +13932,8 @@ if (lean_is_scalar(x_10)) {
  x_21 = x_10;
  lean_ctor_set_tag(x_21, 1);
 }
-lean_ctor_set(x_21, 0, x_16);
-lean_ctor_set(x_21, 1, x_17);
+lean_ctor_set(x_21, 0, x_17);
+lean_ctor_set(x_21, 1, x_16);
 return x_21;
 }
 }
@@ -13945,15 +13945,15 @@ if (x_25 == 0)
 {
 uint8_t x_26; 
 x_26 = l_Lean_Exception_isRuntime(x_23);
-x_16 = x_23;
-x_17 = x_24;
+x_16 = x_24;
+x_17 = x_23;
 x_18 = x_26;
 goto block_22;
 }
 else
 {
-x_16 = x_23;
-x_17 = x_24;
+x_16 = x_24;
+x_17 = x_23;
 x_18 = x_25;
 goto block_22;
 }

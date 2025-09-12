@@ -139,7 +139,7 @@ def Iter.Partial.fold {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id 
     (init : γ) (it : Iter.Partial (α := α) β) : γ :=
   ForIn.forIn (m := Id) it init (fun x acc => ForInStep.yield (f acc x))
 
-@[always_inline, inline, inherit_doc IterM.size]
+@[always_inline, inline, expose, inherit_doc IterM.size]
 def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSize α Id]
     (it : Iter (α := α) β) : Nat :=
   (IteratorSize.size it.toIterM).run.down

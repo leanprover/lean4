@@ -217,6 +217,11 @@ optional<name> get_regular_init_fn_name_for(elab_environment const & env, name c
     return to_optional<name>(lean_get_regular_init_fn_name_for(env.to_obj_arg(), n.to_obj_arg()));
 }
 
+extern "C" object* lean_get_export_name_for(object* env, object* fn);
+optional<name> get_export_name_for(elab_environment const & env, name const & n) {
+    return to_optional<name>(lean_get_export_name_for(env.to_obj_arg(), n.to_obj_arg()));
+}
+
 /** \brief Value stored in an interpreter variable slot */
 union value {
     // NOTE: the IR type system guarantees that we always access the active union member
@@ -820,9 +825,15 @@ private:
             if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
                 e_new.m_native.m_addr = p_boxed;
                 e_new.m_native.m_boxed = true;
-            } else if (void *p = lookup_symbol_in_cur_exe(mangled.data())) {
-                // if there is no boxed version, there are no unboxed parameters, so use default version
-                e_new.m_native.m_addr = p;
+            } else {
+                // `@[export]` affects only the unboxed symbol name
+                if (optional<name> n = get_export_name_for(m_env, fn)) {
+                    mangled = n->get_string();
+                }
+                if (void *p = lookup_symbol_in_cur_exe(mangled.data())) {
+                    // if there is no boxed version, there are no unboxed parameters, so use default version
+                    e_new.m_native.m_addr = p;
+                }
             }
         }
         g_native_symbol_cache->insert(fn, e_new.m_native);

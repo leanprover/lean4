@@ -88,7 +88,7 @@ theorem eq_empty_iff_size_eq_zero : xs = #[] ↔ xs.size = 0 :=
 
 theorem size_pos_of_mem {a : α} {xs : Array α} (h : a ∈ xs) : 0 < xs.size := by
   cases xs
-  simp only [mem_toArray] at h
+  simp only [List.mem_toArray] at h
   simpa using List.length_pos_of_mem h
 
 grind_pattern size_pos_of_mem => a ∈ xs, xs.size
@@ -465,7 +465,7 @@ theorem mem_singleton_self (a : α) : a ∈ #[a] := by simp
 
 theorem mem_of_mem_push_of_mem {a b : α} {xs : Array α} : a ∈ xs.push b → b ∈ xs → a ∈ xs := by
   cases xs
-  simp only [List.push_toArray, mem_toArray, List.mem_append, List.mem_singleton]
+  simp only [List.push_toArray, List.mem_toArray, List.mem_append, List.mem_singleton]
   rintro (h | rfl)
   · intro _
     exact h
@@ -2423,7 +2423,7 @@ abbrev mkArray_succ' := @replicate_succ'
 
 @[simp, grind =] theorem mem_replicate {a b : α} {n} : b ∈ replicate n a ↔ n ≠ 0 ∧ b = a := by
   unfold replicate
-  simp only [mem_toArray, List.mem_replicate]
+  simp only [List.mem_toArray, List.mem_replicate]
 
 @[deprecated mem_replicate (since := "2025-03-18")]
 abbrev mem_mkArray := @mem_replicate
@@ -4214,7 +4214,7 @@ variable [LawfulBEq α]
     (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
   rcases xs with ⟨xs⟩
   simp only [List.replace_toArray, List.getElem?_toArray, List.getElem?_replace, take_eq_extract,
-    List.extract_toArray, List.extract_eq_drop_take, Nat.sub_zero, List.drop_zero, mem_toArray]
+    List.extract_toArray, List.extract_eq_drop_take, Nat.sub_zero, List.drop_zero, List.mem_toArray]
 
 theorem getElem?_replace_of_ne {xs : Array α} {i : Nat} (h : xs[i]? ≠ some a) :
     (xs.replace a b)[i]? = xs[i]? := by
@@ -4235,7 +4235,7 @@ theorem getElem_replace_of_ne {xs : Array α} {i : Nat} {h : i < xs.size} (h' : 
     (xs ++ ys).replace a b = if a ∈ xs then xs.replace a b ++ ys else xs ++ ys.replace a b := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
-  simp only [List.append_toArray, List.replace_toArray, List.replace_append, mem_toArray]
+  simp only [List.append_toArray, List.replace_toArray, List.replace_append, List.mem_toArray]
   split <;> simp
 
 @[grind =] theorem replace_push {xs : Array α} {a b c : α} :

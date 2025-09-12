@@ -79,7 +79,11 @@ jobs:
       run: cmake --preset release -DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true
       shell: 'nix develop -c bash -euxo pipefail {0}'
     - if: env.should_update_stage0 == 'yes'
-      run: make -j$NPROC -C build/release  update-stage0-commit
+      run: |
+        ccache --zero-stats
+        make -j$NPROC -C build/release  update-stage0-commit
+        cat build/release/stage1/lib/lean/Init/Prelude.setup.json
+        ccache -s
       shell: 'nix develop -c bash -euxo pipefail {0}'
     - if: env.should_update_stage0 == 'yes'
       run: git show --stat

@@ -8,8 +8,14 @@ module
 prelude
 public import Init.Data.List.Basic
 public import Init.Data.Char.Basic
+public import Init.Data.ByteArray.Bootstrap
 
 public section
+
+theorem List.utf8Encode_append_eq_internalAppend {l l' : List Char} :
+    List.utf8Encode (l ++ l') = ByteArray.Internal.append
+      (List.utf8Encode l) (List.utf8Encode l') := by
+  simp [utf8Encode, List.toByteArray_append_eq_internalAppend]
 
 namespace String
 
@@ -18,6 +24,7 @@ instance : OfNat String.Pos (nat_lit 0) where
 
 instance : Inhabited String where
   default := ""
+
 
 /--
 Adds a character to the end of a string.
@@ -31,7 +38,11 @@ Examples:
 -/
 @[extern "lean_string_push", expose]
 def push : String → Char → String
-  | ⟨s⟩, c => ⟨s ++ [c]⟩
+  | ⟨b, h⟩, c => ⟨ByteArray.Internal.append b (List.utf8Encode [c]), ?pf⟩
+where finally
+  have ⟨m, hm⟩ := h
+  cases hm
+  exact .intro (m ++ [c]) (by simp [List.utf8Encode_append_eq_internalAppend])
 
 /--
 Returns a new string that contains only the character `c`.
@@ -124,8 +135,21 @@ Examples:
  * `[].asString = ""`
  * `['a', 'a', 'a'].asString = "aaa"`
 -/
+@[extern "lean_string_mk", expose]
+def String.mk (data : List Char) : String :=
+  ⟨List.utf8Encode data,.intro data rfl⟩
+
+/--
+Creates a string that contains the characters in a list, in order.
+
+Examples:
+ * `['L', '∃', '∀', 'N'].asString = "L∃∀N"`
+ * `[].asString = ""`
+ * `['a', 'a', 'a'].asString = "aaa"`
+-/
+@[expose]
 def List.asString (s : List Char) : String :=
-  ⟨s⟩
+  String.mk s
 
 namespace Substring.Internal
 

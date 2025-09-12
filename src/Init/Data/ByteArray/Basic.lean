@@ -15,12 +15,6 @@ public import Init.Data.Option.Basic
 @[expose] public section
 universe u
 
-structure ByteArray where
-  data : Array UInt8
-
-attribute [extern "lean_byte_array_mk"] ByteArray.mk
-attribute [extern "lean_byte_array_data"] ByteArray.data
-
 namespace ByteArray
 
 deriving instance BEq for ByteArray
@@ -30,28 +24,14 @@ attribute [ext] ByteArray
 instance : DecidableEq ByteArray :=
   fun _ _ => decidable_of_decidable_of_iff ByteArray.ext_iff.symm
 
-@[extern "lean_mk_empty_byte_array"]
-def emptyWithCapacity (c : @& Nat) : ByteArray :=
-  { data := #[] }
-
 @[deprecated emptyWithCapacity (since := "2025-03-12")]
 abbrev mkEmpty := emptyWithCapacity
-
-def empty : ByteArray := emptyWithCapacity 0
 
 instance : Inhabited ByteArray where
   default := empty
 
 instance : EmptyCollection ByteArray where
   emptyCollection := ByteArray.empty
-
-@[extern "lean_byte_array_push"]
-def push : ByteArray → UInt8 → ByteArray
-  | ⟨bs⟩, b => ⟨bs.push b⟩
-
-@[extern "lean_byte_array_size"]
-def size : (@& ByteArray) → Nat
-  | ⟨bs⟩ => bs.size
 
 @[extern "lean_sarray_size", simp]
 def usize (a : @& ByteArray) : USize :=
@@ -349,14 +329,5 @@ def prevn : Iterator → Nat → Iterator
 
 end Iterator
 end ByteArray
-
-/--
-Converts a list of bytes into a `ByteArray`.
--/
-def List.toByteArray (bs : List UInt8) : ByteArray :=
-  let rec loop
-    | [],    r => r
-    | b::bs, r => loop bs (r.push b)
-  loop bs ByteArray.empty
 
 instance : ToString ByteArray := ⟨fun bs => bs.toList.toString⟩

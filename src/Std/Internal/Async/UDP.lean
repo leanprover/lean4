@@ -62,12 +62,20 @@ def connect (s : Socket) (addr : SocketAddress) : IO Unit :=
   s.native.connect addr
 
 /--
+Sends multiple data buffers through an UDP socket. The `addr` parameter specifies the destination
+address. If `addr` is `none`, the data is sent to the default peer address set by `connect`.
+-/
+@[inline]
+def sendAll (s : Socket) (data : Array ByteArray) (addr : Option SocketAddress := none) : Async Unit :=
+  Async.ofPromise <| s.native.send data addr
+
+/--
 Sends data through an UDP socket. The `addr` parameter specifies the destination address. If `addr`
 is `none`, the data is sent to the default peer address set by `connect`.
 -/
 @[inline]
 def send (s : Socket) (data : ByteArray) (addr : Option SocketAddress := none) : Async Unit :=
-  Async.ofPromise <| s.native.send data addr
+  Async.ofPromise <| s.native.send #[data] addr
 
 /--
 Receives data from an UDP socket. `size` is for the maximum bytes to receive.

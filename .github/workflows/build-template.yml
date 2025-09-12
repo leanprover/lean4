@@ -56,7 +56,7 @@ jobs:
     steps:
       - name: Install Apt Packages
         run: |
-          apt install ccache tree zstd coreutils gmp libuv
+          sudo apt install ccache tree zstd coreutils gmp libuv
         if: matrix.name == 'Linux Lake'
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main

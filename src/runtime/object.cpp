@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include <iostream>
+#include <sstream>
 #include <algorithm>
 #include <vector>
 #include <deque>
@@ -1755,8 +1757,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_float_to_string(double a) {
         // override NaN because we don't want NaNs to be distinguishable
         // because the sign bit / payload bits can be architecture-dependent
         return mk_ascii_string_unchecked("NaN");
-    else
-        return mk_ascii_string_unchecked(std::to_string(a));
+    else {
+        std::ostringstream oss;
+        oss << a;
+        return mk_ascii_string_unchecked(oss.str());
+    }
 }
 
 extern "C" LEAN_EXPORT double lean_float_scaleb(double a, b_lean_obj_arg b) {

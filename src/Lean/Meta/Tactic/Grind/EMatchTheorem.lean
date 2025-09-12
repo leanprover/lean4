@@ -149,9 +149,13 @@ def isGenPattern? (pat : Expr) : Option (GenPatternInfo × Expr) :=
 
 /-- Returns `true` if `declName` is the name of a `match`-expression congruence equation. -/
 def isMatchCongrEqDeclName (declName : Name) : CoreM Bool := do
-  let declName := privateToUserName declName
   match declName with
-  | .str p s => return (← isMatcher p) && Match.isCongrEqnReservedNameSuffix s
+  | .str p s =>
+    pure (Match.isCongrEqnReservedNameSuffix s) <&&>
+      -- `declName` was formed by `mkPrivateName _ matcherName` but as `matcherName` may or may not
+      -- have already been private, there is no direct way to invert this function; so we try both
+      -- possibilities (at most one of them can exist).
+      (isMatcher p <||> isMatcher (privateToUserName p))
   | _ => return false
 
 /-- Returns `true` if `e` is a constant for a `match`-expression congruence equation. -/

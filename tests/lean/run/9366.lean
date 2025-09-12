@@ -49,6 +49,10 @@ def exclusions : Std.HashMap Lean.Name (Std.HashSet ExclusionKind) := .ofList [
   (``SizeOf, { .singleton, .struct, .sum })
 ]
 
+def dependencies : Std.HashMap Lean.Name (Array Lean.Name) := .ofList [
+  (``ReflBEq, #[``BEq])
+]
+
 open Lean Meta Elab Command in
 set_option hygiene false in
 #eval show CommandElabM Unit from do
@@ -59,12 +63,13 @@ set_option hygiene false in
       withoutModifyingEnv do
         let hasExcl (kind : ExclusionKind) := (·.contains kind) <$> exclusions[cls]? |>.getD false
         let s ← getThe Command.State
+        let classes := ((dependencies[cls]? |>.getD #[]).push cls).map mkIdent
         unless hasExcl .singleton do
-          Command.elabCommand (← `(structure B where deriving $(mkIdent cls):ident))
+          Command.elabCommand (← `(structure B where deriving $[$classes:ident],*))
         unless hasExcl .struct do
-          Command.elabCommand (← `(structure C where x : Nat deriving $(mkIdent cls):ident))
+          Command.elabCommand (← `(structure C where x : Nat deriving $[$classes:ident],*))
         unless hasExcl .sum do
-          Command.elabCommand (← `(inductive D where | mk₁ : Bool → D | mk₂ : Bool → D deriving $(mkIdent cls):ident))
+          Command.elabCommand (← `(inductive D where | mk₁ : Bool → D | mk₂ : Bool → D deriving $[$classes:ident],*))
         let msgs := (← getThe Command.State).messages.unreported
         set s
         if msgs.any (·.severity == .error) then

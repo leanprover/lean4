@@ -2,6 +2,10 @@ inductive L (α : Type u) : Type u where
   | nil : L α
   | cons (x : α) (xs : L α) : L α
 
+/-- error: Unknown constant `L.nil.noConfusion` -/
+#guard_msgs in
+#print sig L.nil.noConfusion
+
 /--
 info: @[reducible] def L.cons.noConfusion.{u_1, u} : {α : Type u} →
   (P : Sort u_1) →

@@ -13,9 +13,7 @@ on:
   pull_request:
   workflow_dispatch:
 
-concurrency:
-  group: stage0
-  cancel-in-progress: true
+
 
 jobs:
   update-stage0:

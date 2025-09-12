@@ -494,6 +494,11 @@ instance : MonadAsync Task BaseAsync where
 instance [Inhabited α] : Inhabited (BaseAsync α) where
   default := .mk <| pure (MaybeTask.pure default)
 
+instance : MonadFinally BaseAsync where
+  tryFinally' x f := do
+    let res ← x
+    Prod.mk res <$> f (some res)
+
 end BaseAsync
 
 /--
@@ -577,6 +582,13 @@ Lifts an `EAsync` computation into an `ETask` that can be awaited and joined.
 @[inline]
 protected def asTask (x : EAsync ε α) (prio := Task.Priority.default) : EIO ε (ETask ε α) :=
   x |> BaseAsync.asTask (prio := prio)
+
+/--
+Block until the `EAsync` finishes and returns its value. Propagates any error encountered during execution.
+-/
+@[inline]
+protected def block (x : EAsync ε α) (prio := Task.Priority.default) : EIO ε α :=
+  x.asTask (prio := prio) >>= ETask.block
 
 /--
 Raises an error of type `ε` within the `EAsync` monad.
@@ -717,11 +729,66 @@ abbrev Async (α : Type) := EAsync IO.Error α
 namespace Async
 
 /--
-Converts a `Async` to a `AsyncTask`.
+Block until the `Async` finishes and returns its value. Propagates any error encountered during execution.
+-/
+@[inline]
+protected def block (x : Async α) (prio := Task.Priority.default) : IO α :=
+  x.asTask (prio := prio) >>= ETask.block
+
+/--
+Converts `Async` to `AsyncTask`.
 -/
 @[inline]
 protected def toIO (x : Async α) : IO (AsyncTask α) :=
   MaybeTask.toTask <$> x.toRawBaseIO
+
+/--
+Converts `Promise` into `Async`.
+-/
+@[inline]
+protected def ofPromise (task : IO (IO.Promise (Except IO.Error α))) : Async α := do
+  match ← task.toBaseIO with
+  | .ok data => pure (f := BaseIO) (MaybeTask.ofTask data.result!)
+  | .error err => pure (f := BaseIO) (MaybeTask.pure (.error err))
+
+/--
+Converts `AsyncTask` into `Async`.
+-/
+@[inline]
+protected def ofAsyncTask (task : AsyncTask α) : Async α := do
+  pure (f := BaseIO) (MaybeTask.ofTask task)
+
+/--
+Converts `IO (Task α)` into `Async`.
+-/
+@[inline]
+protected def ofIOTask (task : IO (Task α)) : Async α := do
+  match ← task.toBaseIO with
+  | .ok data => .ofAsyncTask (data.map Except.ok)
+  | .error err => pure (f := BaseIO) (MaybeTask.pure (.error err))
+
+/--
+Converts `Except` to `Async`.
+-/
+@[inline]
+protected def ofExcept (except : Except IO.Error α) : Async α :=
+  pure (f := BaseIO) (MaybeTask.pure except)
+
+/--
+Converts `Task` to `Async`.
+-/
+@[inline]
+protected def ofTask (task : Task α) : Async α := do
+  .ofAsyncTask (task.map Except.ok)
+
+/--
+Converts `IO (IO.Promise α)` to `Async`.
+-/
+@[inline]
+protected def ofPurePromise (task : IO (IO.Promise α)) : Async α := do
+  match ← task.toBaseIO with
+  | .ok data => pure (f := BaseIO) (MaybeTask.ofTask <| data.result!.map (.ok))
+  | .error err => pure (f := BaseIO) (MaybeTask.pure (.error err))
 
 @[default_instance]
 instance : MonadAsync AsyncTask Async :=
@@ -767,16 +834,20 @@ until the end.
 -/
 @[inline, specialize]
 def race
-    [MonadLiftT BaseIO m] [MonadAwait Task m] [MonadAsync t m] [MonadAwait t m]
+    [MonadLiftT BaseIO m] [MonadAwait Task m] [MonadAsync (ETask ε) m] [MonadExcept ε m]
     [Monad m] [Inhabited α] (x : m α) (y : m α)
     (prio := Task.Priority.default) :
     m α := do
   let promise ← IO.Promise.new
 
-  discard (async (t := t) (prio := prio) <| Bind.bind x (liftM ∘ promise.resolve))
-  discard (async (t := t) (prio := prio) <| Bind.bind y (liftM ∘ promise.resolve))
+  let x1 ← async (prio := prio) (t := ETask ε) x
+  let x2 ← async (prio := prio) (t := ETask ε) y
 
-  await promise.result!
+  discard <| BaseIO.chainTask x1 promise.resolve
+  discard <| BaseIO.chainTask x2 promise.resolve
+
+  let result ← await promise.result!
+  MonadExcept.ofExcept result
 
 /--
 Runs all computations in an `Array` concurrently and returns all results as an array.

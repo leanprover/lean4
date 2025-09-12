@@ -2039,62 +2039,71 @@ For implementation purposes, we represent elements in the lattice using two flag
 When neither `needsIR(A)` nor `A != none` is true, the module is not visited at all and missing from
 the module map.
 -/
-where go (imports : Array Import) (importAll isExported needsData needsIRTrans : Bool) := do
-  for i in imports do
-    -- `B > none`?
-    let needsData := needsData && (i.isExported || importAll)
-    -- `B ≥ privateAll`?
-    let importAll := globalLevel == .private || importAll && i.importAll
-    -- `B ≥ public`?
-    let isExported := isExported && i.isExported
-    let needsIRTrans := needsIRTrans || needsData && i.isMeta
-    let needsIR := needsIRTrans || importAll
-    if !needsData && !needsIR then
-      continue
+where
+  go (imports : Array Import) (importAll isExported needsData needsIRTrans : Bool) := do
+    for i in imports do
+      -- `B > none`?
+      let needsData := needsData && (i.isExported || importAll)
+      -- `B ≥ privateAll`?
+      let importAll := globalLevel == .private || importAll && i.importAll
+      -- `B ≥ public`?
+      let isExported := isExported && i.isExported
+      let needsIRTrans := needsIRTrans || needsData && i.isMeta
+      let needsIR := needsIRTrans || importAll
+      if !needsData && !needsIR then
+        continue
 
-    let irPhases :=
-      if importAll then .all
-      else if needsIR then .comptime
-      else .runtime
+      let irPhases :=
+        if importAll then .all
+        else if needsIR then .comptime
+        else .runtime
 
-    let goRec mod := do
-      if let some mod := mod.mainModule? then
-        go (importAll := importAll) (isExported := isExported) (needsData := needsData) (needsIRTrans := needsIRTrans) mod.imports
+      let goRec mod := do
+        if let some mod := mod.mainModule? then
+          go (importAll := importAll) (isExported := isExported) (needsData := needsData) (needsIRTrans := needsIRTrans) mod.imports
 
-    if let some mod := (← get).moduleNameMap[i.module]? then
-      -- when module is already imported, bump flags
-      let importAll := importAll || mod.importAll
-      let isExported := isExported || mod.isExported
-      let needsIRTrans := needsIRTrans || mod.needsIRTrans
-      let needsData := needsData || mod.needsData
-      let irPhases := if irPhases == mod.irPhases then irPhases else .all
-      if importAll != mod.importAll || isExported != mod.isExported ||
-          needsIRTrans != mod.needsIRTrans || needsData != mod.needsData || irPhases != mod.irPhases then
-        modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
-          importAll, isExported, irPhases, needsData, needsIRTrans }}
-        -- bump entire closure
-        goRec mod
-      continue
+      if let some mod := (← get).moduleNameMap[i.module]? then
+        -- when module is already imported, bump flags
+        let importAll := importAll || mod.importAll
+        let isExported := isExported || mod.isExported
+        let needsData := needsData || mod.needsData
+        let needsIRTrans := needsIRTrans || mod.needsIRTrans
+        let needsIR := needsIRTrans || importAll
+        let irPhases := if irPhases == mod.irPhases then irPhases else .all
+        let parts ← if needsData && mod.parts.isEmpty then loadData i else pure mod.parts
+        let irData? ← if needsIR && mod.irData?.isNone then loadIR? i else pure mod.irData?
+        if importAll != mod.importAll || isExported != mod.isExported ||
+            needsIRTrans != mod.needsIRTrans || needsData != mod.needsData || irPhases != mod.irPhases then
+          modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
+            importAll, isExported, irPhases, parts, irData?, needsData, needsIRTrans }}
+          -- bump entire closure
+          goRec mod
+        continue
 
-    -- newly discovered module
-    let (fnames, irFile?) ← do
-      if let some arts := arts.find? i.module then
-        -- Opportunistically load all available parts.
-        -- Producer (e.g., Lake) should limit parts to the proper import level.
-        let fnames := arts.oleanParts (inServer := globalLevel ≥ .server)
-        pure (fnames, arts.ir?)
-      else
-        let fnames ← findOLeanParts i.module
-        let irFile := (← findOLean i.module).withExtension "ir"
-        pure (fnames, guard (← irFile.pathExists) *> irFile)
-    let parts ← readModuleDataParts fnames
-    let irData? ← irFile?.mapM (readModuleData ·)
-    let mod := { i with importAll, isExported, irPhases, parts, irData?, needsIRTrans, needsData }
-    goRec mod
-    modify fun s => { s with
-      moduleNameMap := s.moduleNameMap.insert i.module mod
-      moduleNames := s.moduleNames.push i.module
-    }
+      -- newly discovered module
+      let parts ← if needsData then loadData i else pure #[]
+      let irData? ← if needsIR then loadIR? i else pure none
+      let mod := { i with importAll, isExported, irPhases, parts, irData?, needsIRTrans, needsData }
+      goRec mod
+      modify fun s => { s with
+        moduleNameMap := s.moduleNameMap.insert i.module mod
+        moduleNames := s.moduleNames.push i.module
+      }
+  loadData i := do
+    let fnames ← if let some arts := arts.find? i.module then
+      -- Opportunistically load all available parts.
+      -- Producer (e.g., Lake) should limit parts to the proper import level.
+      pure (arts.oleanParts (inServer := globalLevel ≥ .server))
+    else
+      findOLeanParts i.module
+    readModuleDataParts fnames
+  loadIR? i := do
+    let irFile? ← if let some arts := arts.find? i.module then
+      pure arts.ir?
+    else
+      let irFile := (← findOLean i.module).withExtension "ir"
+      pure (guard (← irFile.pathExists) *> irFile)
+    irFile?.mapM (readModuleData ·)
 
 /--
 Returns `true` if `cinfo₁` and `cinfo₂` represent the same theorem/axiom, with `cinfo₁` potentially

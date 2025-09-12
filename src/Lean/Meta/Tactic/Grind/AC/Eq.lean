@@ -497,8 +497,6 @@ def check : GoalM Bool := do profileitM Exception "grind ac" (← getOptions) do
       let r ← ACM.run opId checkStruct
       progress := progress || r
       if (← isInconsistent) then return true
-    if progress then
-      processNewFacts
     return progress
   finally
     checkInvariants

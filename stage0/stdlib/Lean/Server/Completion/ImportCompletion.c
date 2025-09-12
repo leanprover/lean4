@@ -2443,17 +2443,17 @@ x_26 = lean_nat_dec_le(x_20, x_25);
 if (x_26 == 0)
 {
 lean_inc(x_25);
-x_6 = x_22;
-x_7 = x_25;
-x_8 = x_23;
+x_6 = x_23;
+x_7 = x_22;
+x_8 = x_25;
 x_9 = x_25;
 goto block_13;
 }
 else
 {
-x_6 = x_22;
-x_7 = x_25;
-x_8 = x_23;
+x_6 = x_23;
+x_7 = x_22;
+x_8 = x_25;
 x_9 = x_20;
 goto block_13;
 }
@@ -2653,22 +2653,22 @@ return x_4;
 block_13:
 {
 uint8_t x_10; 
-lean_dec(x_8);
-x_10 = lean_nat_dec_le(x_9, x_7);
+lean_dec(x_6);
+x_10 = lean_nat_dec_le(x_9, x_8);
 if (x_10 == 0)
 {
 lean_object* x_11; 
-lean_dec(x_7);
+lean_dec(x_8);
 lean_inc(x_9);
-x_11 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_6, x_9, x_9);
+x_11 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_7, x_9, x_9);
 lean_dec(x_9);
 return x_11;
 }
 else
 {
 lean_object* x_12; 
-x_12 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_6, x_9, x_7);
-lean_dec(x_7);
+x_12 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_7, x_9, x_8);
+lean_dec(x_8);
 return x_12;
 }
 }

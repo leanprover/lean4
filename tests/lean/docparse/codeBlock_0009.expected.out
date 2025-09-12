@@ -1,0 +1,9 @@
+Failure @32 (⟨4, 3⟩): expected column 1
+Final stack:
+  (Lean.Doc.Syntax.codeblock
+   "```"
+   [`scheme []]
+   "\n"
+   (str "\"(define x 4)\\nx\\n\"")
+   <missing>)
+Remaining: ""

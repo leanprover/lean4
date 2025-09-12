@@ -11,6 +11,7 @@ cat <<EOF > Rebuild/Basic.lean
 
 module
 
+/-- Hello world! -/
 public def hello := "world"
 
 -- Changes to non-exposed bodies should not leak via equation infos
@@ -41,8 +42,8 @@ function test_unchanged() {
 echo "-- test" >> Rebuild/Basic.lean
 test_unchanged
 
-# Closed terms do not matter.
-sed_i 's/"world"/"wodd"/' Rebuild/Basic.lean
+# Closed terms and doc comments do not matter.
+sed_i 's/world/wodd/' Rebuild/Basic.lean
 test_unchanged
 
 # Private declarations do not matter.

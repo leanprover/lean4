@@ -505,7 +505,7 @@ open Lean.Parser.Command.InternalSyntax in
       -- this is only relevant for declarations added without a declaration range
       -- in particular `Quot.mk` et al which are added by `init_quot`
       addDeclarationRangesFromSyntax declName stx id
-    addDocString declName doc
+    runTermElabM fun _ => addDocString declName (mkNullNode #[]) doc
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab Lean.Parser.Command.include] def elabInclude : CommandElab

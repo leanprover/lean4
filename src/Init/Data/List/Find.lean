@@ -293,7 +293,6 @@ theorem mem_of_find?_eq_some : ∀ {l}, find? p l = some a → a ∈ l
     · exact H ▸ .head _
     · exact .tail _ (mem_of_find?_eq_some H)
 
-@[grind]
 theorem get_find?_mem {xs : List α} {p : α → Bool} (h) : (xs.find? p).get h ∈ xs := by
   induction xs with
   | nil => simp at h
@@ -304,6 +303,8 @@ theorem get_find?_mem {xs : List α} {p : α → Bool} (h) : (xs.find? p).get h 
     · simp only [h]
       right
       apply ih
+
+grind_pattern get_find?_mem => (xs.find? p).get h
 
 @[simp, grind =] theorem find?_filter {xs : List α} {p : α → Bool} {q : α → Bool} :
     (xs.filter p).find? q = xs.find? (fun a => p a ∧ q a) := by

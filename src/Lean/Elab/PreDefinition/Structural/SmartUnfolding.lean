@@ -64,12 +64,14 @@ where
       | _ => processApp e
     | _ => return e
 
-partial def addSmartUnfoldingDef (preDef : PreDefinition) (recArgPos : Nat) : TermElabM Unit := do
+partial def addSmartUnfoldingDef
+    (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (recArgPos : Nat) :
+    TermElabM Unit := do
   if (← isProp preDef.type) then
     return ()
   else
     withEnableInfoTree false do
       let preDefSUnfold ← addSmartUnfoldingDefAux preDef recArgPos
-      addNonRec preDefSUnfold (cleanupValue := true)
+      addNonRec docCtx preDefSUnfold (cleanupValue := true)
 
 end Lean.Elab.Structural

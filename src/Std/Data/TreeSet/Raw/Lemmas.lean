@@ -906,7 +906,7 @@ theorem min!_insert_le_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k} :
     t.contains t.min! :=
   TreeMap.Raw.contains_minKey! h he
 
-@[grind] theorem min!_mem [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
+@[grind ←] theorem min!_mem [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
     t.min! ∈ t :=
   TreeMap.Raw.minKey!_mem h he
 
@@ -993,7 +993,7 @@ theorem minD_insert_le_self [TransCmp cmp] (h : t.WF) {k fallback} :
     t.contains (t.minD fallback) :=
   TreeMap.Raw.contains_minKeyD h he
 
-@[grind] theorem minD_mem [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
+@[grind ←] theorem minD_mem [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
     t.minD fallback ∈ t :=
   TreeMap.Raw.minKeyD_mem h he
 
@@ -1216,7 +1216,7 @@ theorem self_le_max!_insert [TransCmp cmp] [Inhabited α] (h : t.WF) {k} :
     t.contains t.max! :=
   TreeMap.Raw.contains_maxKey! h he
 
-@[grind] theorem max!_mem [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
+@[grind ←] theorem max!_mem [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
     t.max! ∈ t :=
   TreeMap.Raw.maxKey!_mem h he
 
@@ -1303,7 +1303,7 @@ theorem self_le_maxD_insert [TransCmp cmp] (h : t.WF) {k fallback} :
     t.contains (t.maxD fallback) :=
   TreeMap.Raw.contains_maxKeyD h he
 
-@[grind] theorem maxD_mem [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
+@[grind ←] theorem maxD_mem [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
     t.maxD fallback ∈ t :=
   TreeMap.Raw.maxKeyD_mem h he
 

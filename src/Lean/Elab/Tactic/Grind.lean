@@ -59,6 +59,7 @@ def elabResetGrindAttrs : CommandElab := fun _ => liftTermElabM do
 open Command Term in
 @[builtin_command_elab Lean.Parser.Command.initGrindNorm]
 def elabInitGrindNorm : CommandElab := fun stx =>
+  withExporting do  -- should generate public aux decls
   match stx with
   | `(init_grind_norm $pre:ident* | $post*) =>
     Command.liftTermElabM do

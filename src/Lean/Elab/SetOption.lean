@@ -14,6 +14,35 @@ namespace Lean.Elab
 
 variable [Monad m] [MonadOptions m] [MonadError m] [MonadLiftT (EIO Exception) m] [MonadInfoTree m]
 
+private def throwUnconfigurable {α} (optionName : Name) : m α :=
+  throwError "Invalid `set_option` command: The option `{optionName}` cannot be configured using \
+    `set_option`"
+
+/--
+Returns the type corresponding to the given `DataValue`, or `none` if the corresponding type
+cannot be specified using `set_option` notation.
+-/
+private def ctorType? : DataValue → Option Expr
+  | .ofString .. => mkConst ``String
+  | .ofNat .. => mkConst ``Nat
+  | .ofBool .. => mkConst ``Bool
+  | .ofInt .. => none
+  | .ofName .. => none
+  | .ofSyntax .. => none
+
+def validateOptionValue (optionName : Name) (decl : OptionDecl) (val : DataValue) : m Unit := do
+  unless decl.defValue.sameCtor val do
+    throwMistypedOptionValue val decl.defValue
+where
+  throwMistypedOptionValue (found defVal : DataValue) := do
+    match ctorType? defVal with
+    | some defValType =>
+      let foundType := ctorType? found |>.get!
+      throwError "set_option value type mismatch: The value{indentD (toMessageData found)}\nhas type\
+        {indentD (toMessageData foundType)}\nbut the option `{optionName}` expects a value of type\
+        {indentExpr defValType}"
+    | _ => throwUnconfigurable optionName
+
 def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
   let ref ← getRef
   -- For completion purposes, we discard `val` and any later arguments.
@@ -23,7 +52,7 @@ def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
   let decl ← IO.toEIO (fun (ex : IO.Error) => Exception.error ref ex.toString) (getOptionDecl optionName)
   pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }
   let rec setOption (val : DataValue) : m Options := do
-    unless decl.defValue.sameCtor val do throwMistypedOptionValue optionName val decl.defValue
+    validateOptionValue optionName decl val
     return (← getOptions).insert optionName val
   match val.isStrLit? with
   | some str => setOption (DataValue.ofString str)
@@ -39,30 +68,5 @@ def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
       throwError "Unexpected set_option value `{val}`; expected a literal of type `{ctorType}`"
     else
       throwUnconfigurable optionName
-where
-  throwMistypedOptionValue (optionName : Name) (found defVal : DataValue) := do
-    match ctorType? defVal with
-    | some defValType =>
-      let foundType := ctorType? found |>.get!
-      throwError "set_option value type mismatch: The value{indentD (toMessageData found)}\nhas type\
-        {indentD (toMessageData foundType)}\nbut the option `{optionName}` expects a value of type\
-        {indentExpr defValType}"
-    | _ => throwUnconfigurable optionName
-
-  throwUnconfigurable {α} (optionName : Name) : m α :=
-    throwError "Invalid `set_option` command: The option `{optionName}` cannot be configured using \
-      `set_option`"
-
-  /--
-  Returns the type corresponding to the given `DataValue`, or `none` if the corresponding type
-  cannot be specified using `set_option` notation.
-  -/
-  ctorType? : DataValue → Option Expr
-  | .ofString .. => mkConst ``String
-  | .ofNat .. => mkConst ``Nat
-  | .ofBool .. => mkConst ``Bool
-  | .ofInt .. => none
-  | .ofName .. => none
-  | .ofSyntax .. => none
 
 end Lean.Elab

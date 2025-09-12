@@ -1,0 +1,180 @@
+10 failures:
+  @38 (⟨4, 14⟩): expected ']'
+    "\n\n* [busted\n   link\n\n* [busted\n   _italics\n   link\n\n\n* [busted destination](hey\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
+  @57 (⟨7, 7⟩): expected ']'
+    "\n\n* [busted\n   _italics\n   link\n\n\n* [busted destination](hey\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
+  @88 (⟨11, 7⟩): '_'
+    "\n\n\n* [busted destination](hey\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
+  @88 (⟨11, 7⟩): expected ']'
+    "\n\n\n* [busted destination](hey\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
+  @117 (⟨14, 26⟩): expected ')'
+    "\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
+  @144 (⟨16, 25⟩): expected ']'
+    "\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
+  @178 (⟨18, 32⟩): expected ')'
+    "\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
+  @196 (⟨20, 16⟩): '*'
+    "\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
+  @269 (⟨23, 35⟩): '_'
+    "\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
+  @326 (⟨25, 55⟩): expected ')'
+    "\nis OK. The rest *works*.\n"
+
+Final stack:
+  [(Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.linebreak
+      "line!"
+      (str "\"\\n\""))
+     (Lean.Doc.Syntax.text
+      (str "\"Error recovery tests:\""))]
+    "}")
+   (Lean.Doc.Syntax.ul
+    "ul{"
+    [(Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.link
+          "["
+          [(Lean.Doc.Syntax.text
+            (str "\"busted link\""))]
+          <missing>)]
+        "}")])
+     (Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.link
+          "["
+          [(Lean.Doc.Syntax.text
+            (str "\"busted\""))
+           (Lean.Doc.Syntax.linebreak
+            "line!"
+            (str "\"\\n\""))
+           (Lean.Doc.Syntax.text
+            (str "\"   link\""))]
+          <missing>)]
+        "}")])
+     (Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.link
+          "["
+          [(Lean.Doc.Syntax.text
+            (str "\"busted\""))
+           (Lean.Doc.Syntax.linebreak
+            "line!"
+            (str "\"\\n\""))
+           (Lean.Doc.Syntax.text (str "\"   \""))
+           (Lean.Doc.Syntax.emph
+            "_"
+            [(Lean.Doc.Syntax.text
+              (str "\"italics\""))
+             (Lean.Doc.Syntax.linebreak
+              "line!"
+              (str "\"\\n\""))
+             (Lean.Doc.Syntax.text
+              (str "\"   link\""))]
+            <missing>)]
+          <missing>)]
+        "}")])
+     (Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.link
+          "["
+          [(Lean.Doc.Syntax.text
+            (str "\"busted destination\""))]
+          "]"
+          (Lean.Doc.Syntax.url
+           "("
+           (str "\"hey\"")
+           <missing>))]
+        "}")])
+     (Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.image
+          "!["
+          (str "\"busted image alt text\"")
+          <missing>)]
+        "}")])
+     (Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.image
+          "!["
+          (str "\"busted image link\"")
+          "]"
+          (Lean.Doc.Syntax.url
+           "("
+           (str "\"image.png\"")
+           <missing>))]
+        "}")])
+     (Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text (str "\"a \""))
+         (Lean.Doc.Syntax.bold
+          "*"
+          [(Lean.Doc.Syntax.text
+            (str "\"bold choice\""))]
+          <missing>)]
+        "}")])
+     (Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text (str "\"very \""))
+         (Lean.Doc.Syntax.emph
+          "_"
+          [(Lean.Doc.Syntax.text
+            (str "\"italic \""))
+           (Lean.Doc.Syntax.bold
+            "*"
+            [(Lean.Doc.Syntax.text
+              (str "\"and bold, onto many\""))
+             (Lean.Doc.Syntax.linebreak
+              "line!"
+              (str "\"\\n\""))
+             (Lean.Doc.Syntax.text
+              (str "\"   lines is OK\""))]
+            "*")
+           (Lean.Doc.Syntax.text
+            (str "\" but don't forget...\""))]
+          <missing>)]
+        "}")])]
+    "}")
+   (Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.text
+      (str "\"a paragraph with \""))
+     (Lean.Doc.Syntax.link
+      "["
+      [(Lean.Doc.Syntax.text
+        (str "\"a bad link syntax\""))]
+      "]"
+      (Lean.Doc.Syntax.url
+       "("
+       (str "\"http://example.com\"")
+       <missing>))
+     (Lean.Doc.Syntax.linebreak
+      "line!"
+      (str "\"\\n\""))
+     (Lean.Doc.Syntax.text
+      (str "\"is OK. The rest \""))
+     (Lean.Doc.Syntax.bold
+      "*"
+      [(Lean.Doc.Syntax.text (str "\"works\""))]
+      "*")
+     (Lean.Doc.Syntax.text (str "\".\""))
+     (Lean.Doc.Syntax.linebreak
+      "line!"
+      (str "\"\\n\""))]
+    "}")]

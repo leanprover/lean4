@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.Syntax
-// Imports: Init.NotationExtra Lean.Elab.BuiltinNotation Std.Do.PostCond Std.Do.Triple.Basic
+// Imports: Init.NotationExtra Lean.Elab.BuiltinNotation Std.Do.PostCond Std.Do.Triple.Basic Std.Do.SPred.Notation.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6742,6 +6742,7 @@ lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_BuiltinNotation(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Do_PostCond(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Do_Triple_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Do_SPred_Notation_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Do_Syntax(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -6757,6 +6758,9 @@ res = initialize_Std_Do_PostCond(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Do_Triple_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Do_SPred_Notation_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Do_SPred_Notation_unpack___at_____private_Lean_Elab_Tactic_Do_Syntax_0__Std_Do_unexpandPostCondNoThrow_spec__3___redArg___closed__0 = _init_l_Std_Do_SPred_Notation_unpack___at_____private_Lean_Elab_Tactic_Do_Syntax_0__Std_Do_unexpandPostCondNoThrow_spec__3___redArg___closed__0();

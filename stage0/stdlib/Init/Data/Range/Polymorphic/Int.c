@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.Int
-// Imports: Init.Data.Range.Polymorphic.Instances Init.Data.Order.Classes Init.Omega
+// Imports: Init.Data.Range.Polymorphic.Instances Init.Data.Order.Classes Init.Data.Int.Order Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -160,6 +160,7 @@ return x_3;
 }
 lean_object* initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Order_Classes(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_Int(uint8_t builtin, lean_object* w) {
@@ -170,6 +171,9 @@ res = initialize_Init_Data_Range_Polymorphic_Instances(builtin, lean_io_mk_world
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Order_Classes(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Order(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin, lean_io_mk_world());

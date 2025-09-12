@@ -79,11 +79,11 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let indVal     := ctx.typeInfos[i]!
   let header     ← mkOrdHeader indVal
   let mut body   ← mkMatch header indVal
-  if ctx.usePartial || indVal.isRec then
+  if ctx.usePartial then
     let letDecls ← mkLocalInstanceLetDecls ctx `Ord header.argNames
     body ← mkLet letDecls body
   let binders    := header.binders
-  if ctx.usePartial || indVal.isRec then
+  if ctx.usePartial then
     `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
   else
     `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
@@ -98,8 +98,10 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
     end)
 
 private def mkOrdInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext ``Ord "ord" declName
-  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Ord #[declName])
+  let ctx ← mkContext ``Ord "ord" declName (supportsRec := false)
+  let mut cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Ord #[declName])
+  unless ctx.usePartial do
+    cmds := cmds.push (← `(command| attribute [method_specs] $(mkIdent ctx.instName):ident))
   trace[Elab.Deriving.ord] "\n{cmds}"
   return cmds
 

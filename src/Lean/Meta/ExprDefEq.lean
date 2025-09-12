@@ -807,7 +807,7 @@ mutual
     let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx toEraseFVar =>
       lctx.erase toEraseFVar
     /- Compute new set of local instances. -/
-    let localInsts := mvarDecl.localInstances.filter fun localInst => !toErase.contains localInst.fvar.fvarId!
+    let localInsts := mvarDecl.localInstances.filter fun localInst => !toErase.contains localInst.fvarId
     let mvarType ← check mvarDecl.type
     let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
     mvarId.assign newMVar

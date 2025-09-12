@@ -437,6 +437,51 @@ protected theorem UpwardEnumerable.lt_iff {α : Type u} [LT α] [UpwardEnumerabl
     [LawfulUpwardEnumerableLT α] {a b : α} : a < b ↔ UpwardEnumerable.LT a b :=
   LawfulUpwardEnumerableLT.lt_iff a b
 
+protected theorem UpwardEnumerable.le_iff_lt_or_eq {α : Type u} [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] {a b : α} :
+    UpwardEnumerable.LE a b ↔ UpwardEnumerable.LT a b ∨ a = b := by
+  apply Iff.intro
+  · rintro ⟨n, hn⟩
+    match n with
+    | 0 => exact Or.inr (by simpa [UpwardEnumerable.succMany?_zero] using hn)
+    | n + 1 => exact Or.inl ⟨_, hn⟩
+  · intro h
+    open Classical in
+    match heq : decide (a = b) with
+    | true =>
+      simp only [decide_eq_true_eq] at heq
+      exact heq ▸ UpwardEnumerable.le_refl _
+    | false =>
+      simp only [decide_eq_false_iff_not] at heq
+      simp only [heq, or_false] at h
+      exact UpwardEnumerable.le_of_lt h
+
+protected theorem UpwardEnumerable.succ_le_iff {α : Type u} [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {a b : α} :
+    UpwardEnumerable.LE (succ a) b ↔ UpwardEnumerable.LT a b := by
+  constructor
+  · rintro ⟨n, hn⟩
+    rw [succMany?_eq_some_iff_succMany, ← succMany_add_one_eq_succMany_succ,
+      ← succMany?_eq_some_iff_succMany] at hn
+    exact ⟨n, hn⟩
+  · rintro ⟨n, hn⟩
+    rw [succMany?_eq_some_iff_succMany, succMany_add_one_eq_succMany_succ,
+      ← succMany?_eq_some_iff_succMany] at hn
+    exact ⟨n, hn⟩
+
+protected theorem UpwardEnumerable.lt_succ_iff {α : Type u} [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] [LinearlyUpwardEnumerable α] {a b : α} :
+    UpwardEnumerable.LT a (succ b) ↔ UpwardEnumerable.LE a b := by
+  constructor
+  · rintro ⟨n, hn⟩
+    rw [succMany?_eq_some_iff_succMany, succMany_succ, succ_inj,
+      ← succMany?_eq_some_iff_succMany] at hn
+    exact ⟨n, hn⟩
+  · rintro ⟨n, hn⟩
+    rw [succMany?_eq_some_iff_succMany, ← succ_inj, ← succMany_succ,
+      ← succMany?_eq_some_iff_succMany] at hn
+    exact ⟨n, hn⟩
+
 def UpwardEnumerable.instLTTransOfLawfulUpwardEnumerableLT {α : Type u} [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] :
     Trans (α := α) (· < ·) (· < ·) (· < ·) where
@@ -487,5 +532,21 @@ theorem UpwardEnumerable.least?_eq_some {α : Type u} [UpwardEnumerable α] [Lea
     [LawfulUpwardEnumerableLeast? α] [hn : Nonempty α] :
     least? (α := α) = some least := by
   simp [least]
+
+theorem UpwardEnumerable.isSome_least?_iff {α : Type u} [UpwardEnumerable α] [Least? α]
+    [LawfulUpwardEnumerableLeast? α] :
+    (least? (α := α)).isSome ↔ Nonempty α := by
+  constructor
+  · simp only [Option.isSome_iff_exists]
+    rintro ⟨a, _⟩
+    exact ⟨a⟩
+  · rintro ⟨a⟩
+    obtain ⟨_, h, _⟩ := LawfulUpwardEnumerableLeast?.least?_le (a := a)
+    simp [h]
+
+theorem UpwardEnumerable.least?_eq_none_iff {α : Type u} [UpwardEnumerable α] [Least? α]
+    [LawfulUpwardEnumerableLeast? α] :
+    least? (α := α) = none ↔ ¬ Nonempty α := by
+  simp [← isSome_least?_iff]
 
 end Std.PRange

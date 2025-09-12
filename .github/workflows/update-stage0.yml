@@ -10,10 +10,11 @@ on:
   push:
     branches:
       - 'master'
-  pull_request:
   workflow_dispatch:
 
-
+concurrency:
+  group: stage0
+  cancel-in-progress: true
 
 jobs:
   update-stage0:
@@ -29,16 +30,15 @@ jobs:
     - uses: actions/checkout@v5
       with:
         ssh-key: ${{secrets.STAGE0_SSH_KEY}}
-        ref: ${{ github.event.pull_request.head.sha }}
     - run: echo "should_update_stage0=yes" >> "$GITHUB_ENV"
-    #- name: Check if automatic update is needed
-    #  if: github.event_name == 'push'
-    #  run: |
-    #    if diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h
-    #    then
-    #      echo "src/stdlib_flags.h and stage0/src/stdlib_flags.h agree, nothing to do"
-    #      echo "should_update_stage0=no" >> "$GITHUB_ENV"
-    #    fi
+    - name: Check if automatic update is needed
+      if: github.event_name == 'push'
+      run: |
+        if diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h
+        then
+          echo "src/stdlib_flags.h and stage0/src/stdlib_flags.h agree, nothing to do"
+          echo "should_update_stage0=no" >> "$GITHUB_ENV"
+        fi
     - name: Setup git user
       if: env.should_update_stage0 == 'yes'
       run: |
@@ -81,10 +81,7 @@ jobs:
       shell: 'nix develop -c bash -euxo pipefail {0}'
     - if: env.should_update_stage0 == 'yes'
       run: |
-        ccache --zero-stats
-        make -j$NPROC -C build update-stage0-commit || true
-        cat build/stage1/lib/lean/Init/Prelude.trace
-        ccache -s
+        make -j$NPROC -C build update-stage0-commit
       shell: 'nix develop -c bash -euxo pipefail {0}'
     - if: env.should_update_stage0 == 'yes'
       run: git show --stat
@@ -92,5 +89,5 @@ jobs:
       name: Sanity check # to avoid loops
       run: |
         diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h || exit 1
-    #- if: env.should_update_stage0 == 'yes'
-    #  run: git push origin
+    - if: env.should_update_stage0 == 'yes'
+      run: git push origin

@@ -87,7 +87,7 @@ automatically bound to `0.0.0.0` (all interfaces) with a random port.
 Calling this function starts the data wait, so it must not be called in parallel with `recv`.
 -/
 def recvSelector (s : Socket) (size : UInt64) :
-    IO (Selector (ByteArray × Option SocketAddress)) := do
+    Async (Selector (ByteArray × Option SocketAddress)) := do
   let readableWaiter ← s.native.waitReadable
   return {
     tryFn := do

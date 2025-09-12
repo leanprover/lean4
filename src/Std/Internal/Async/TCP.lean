@@ -140,7 +140,7 @@ Creates a `Selector` that resolves once `s` has data available, up to at most `s
 and provides that data. Calling this function starts the data wait, so it must not be called
 in parallel with `recv?`.
 -/
-def recvSelector (s : TCP.Socket.Client) (size : UInt64) : IO (Selector (Option ByteArray)) := do
+def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Async (Selector (Option ByteArray)) := do
   let readableWaiter ← s.native.waitReadable
   return {
     tryFn := do

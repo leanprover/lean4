@@ -77,12 +77,12 @@ where go (isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit := do
         throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, may not access declaration `{.ofConstName ref}` not marked or imported as `meta`"
       | .comptime, false =>
         throwError "Invalid definition `{.ofConstName origDecl.name}`, may not access declaration `{.ofConstName ref}` marked or imported as `meta`"
-      | .all, _ =>
+      | _, _ =>
         -- We allow auxiliary defs to be used in either phase but we need to recursively check
-        -- *their* references in this case.
+        -- *their* references in this case. We also need to do this for non-auxiliary defs in case a
+        -- public meta def tries to use a private meta import via a local private meta def :/ .
         if let some refDecl ← getLocalDecl? ref then
           go isPublic refDecl
-      | _, _ => pure ()
 
 @[export lean_eval_check_meta]
 private partial def evalCheckMeta (env : Environment) (declName : Name) : Except String Unit := do

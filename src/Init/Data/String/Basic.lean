@@ -20,7 +20,7 @@ universe u
 section
 
 @[simp]
-theorem List.Internal.utf8Encode_nil : List.utf8Encode [] = ByteArray.empty := by simp [utf8Encode]
+theorem List.utf8Encode_nil : List.utf8Encode [] = ByteArray.empty := by simp [utf8Encode]
 
 theorem List.utf8Encode_singleton {c : Char} : [c].utf8Encode = (String.utf8EncodeChar c).toByteArray := by
   simp [utf8Encode]
@@ -57,12 +57,6 @@ theorem ByteArray.IsValidUtf8.append {b b' : ByteArray} (h : IsValidUtf8 b) (h' 
   rcases h with ⟨m, rfl⟩
   rcases h' with ⟨m', rfl⟩
   exact .intro (m ++ m') (by simp)
-
-@[simp]
-theorem List.head_cons_tail {l : List α} (h : l ≠ []) : l.head h :: l.tail = l := by
-  cases l
-  · simp at h
-  · simp
 
 theorem ByteArray.isValidUtf8_utf8Encode_singleton_append_iff {b : ByteArray} {c : Char} :
     IsValidUtf8 ([c].utf8Encode ++ b) ↔ IsValidUtf8 b := by
@@ -135,7 +129,7 @@ private theorem ByteArray.isSome_utf8Decode?go_iff {b : ByteArray} {fuel i : Nat
       rintro rfl
       simp at hl
       omega
-    rw [← l.head_cons_tail this] at hl
+    rw [← l.cons_head_tail this] at hl
     rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract, hl, List.utf8DecodeChar?_utf8Encode_cons] at h₂
     simp at h₂
   | case3 i acc hi fuel hf h₁ c h₂ ih =>

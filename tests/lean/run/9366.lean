@@ -50,7 +50,8 @@ def exclusions : Std.HashMap Lean.Name (Std.HashSet ExclusionKind) := .ofList [
 ]
 
 def dependencies : Std.HashMap Lean.Name (Array Lean.Name) := .ofList [
-  (``ReflBEq, #[``BEq])
+  (``ReflBEq, #[``BEq]),
+  (``LawfulBEq, #[``BEq, ``ReflBEq])
 ]
 
 open Lean Meta Elab Command in

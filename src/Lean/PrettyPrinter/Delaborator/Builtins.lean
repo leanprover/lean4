@@ -10,10 +10,11 @@ public import Lean.PrettyPrinter.Delaborator.Attributes
 public import Lean.PrettyPrinter.Delaborator.Basic
 public import Lean.PrettyPrinter.Delaborator.SubExpr
 public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
-meta import Lean.Parser.Do
-meta import Lean.Parser.Command
 public import Lean.Meta.CoeAttr
 public import Lean.Meta.Structure
+import Lean.Parser.Command
+meta import Lean.Parser.Do
+meta import Lean.Parser.Command
 
 public section
 
@@ -1440,8 +1441,9 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
     withOverApp 2 `(sorry)
 
 open Parser Command Term in
+@[run_builtin_parser_attribute_hooks]
 -- use `termParser` instead of `declId` so we can reuse `delabConst`
-private meta def declSigWithId := leading_parser termParser maxPrec >> declSig
+def declSigWithId := leading_parser termParser maxPrec >> declSig
 
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
   env.evalConstCheck Syntax opts ``Syntax constName

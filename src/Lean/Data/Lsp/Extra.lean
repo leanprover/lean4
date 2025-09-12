@@ -128,6 +128,13 @@ structure PlainTermGoal where
 structure ModuleHierarchyOptions where
   deriving FromJson, ToJson
 
+structure HighlightMatchesOptions where
+  deriving FromJson, ToJson
+
+structure RpcOptions where
+  highlightMatchesProvider? : Option HighlightMatchesOptions := none
+  deriving FromJson, ToJson
+
 structure LeanModule where
   name  : String
   uri   : DocumentUri

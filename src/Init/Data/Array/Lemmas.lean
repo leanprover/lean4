@@ -1277,7 +1277,9 @@ theorem forall_mem_map {f : α → β} {xs : Array α} {P : β → Prop} :
   cases xs
   simp
 
-@[grind →]
+-- This would be helpful as a `grind` lemma if
+-- we could have it fire only once `map f l` and `#[]` are the same equivalence class.
+-- Otherwise it is too aggressive.
 theorem eq_empty_of_map_eq_empty {f : α → β} {xs : Array α} (h : map f xs = #[]) : xs = #[] :=
   map_eq_empty_iff.mp h
 

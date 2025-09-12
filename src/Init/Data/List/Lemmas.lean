@@ -1162,7 +1162,9 @@ theorem forall_mem_map {f : α → β} {l : List α} {P : β → Prop} :
 @[simp] theorem map_eq_nil_iff {f : α → β} {l : List α} : map f l = [] ↔ l = [] := by
   constructor <;> exact fun _ => match l with | [] => rfl
 
-@[grind →]
+-- This would be helpful as a `grind` lemma if
+-- we could have it fire only once `map f l` and `[]` are the same equivalence class.
+-- Otherwise it is too aggressive.
 theorem eq_nil_of_map_eq_nil {f : α → β} {l : List α} (h : map f l = []) : l = [] :=
   map_eq_nil_iff.mp h
 

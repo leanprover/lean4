@@ -171,8 +171,9 @@ jobs:
           fi
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
+          rm stage1/lib/lean/Init/Prelude.olean
           time make $TARGET_STAGE -j$NPROC || true
-          cat build/stage1/lib/lean/Init/Prelude.trace
+          cat stage1/lib/lean/Init/Prelude.trace
       - name: CCache stats
         if: always()
         run: ccache -s

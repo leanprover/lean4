@@ -82,7 +82,7 @@ jobs:
       run: |
         ccache --zero-stats
         make -j$NPROC -C build update-stage0-commit || true
-        cat build/stage1/lib/lean/Init/Prelude.setup.json
+        cat build/stage1/lib/lean/Init/Prelude.trace
         ccache -s
       shell: 'nix develop -c bash -euxo pipefail {0}'
     - if: env.should_update_stage0 == 'yes'

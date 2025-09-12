@@ -44,3 +44,4 @@ public import Init.Internal
 public import Init.Try
 public import Init.BinderNameHint
 public import Init.Task
+public import Init.LawfulBEqTactics

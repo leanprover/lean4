@@ -8,51 +8,48 @@ module
 prelude
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
+import Init.LawfulBEqTactics
 
-namespace Lean.Elab.Deriving.ReflBEq
+namespace Lean.Elab.Deriving.LawfulBEq
 open Lean.Parser.Term
 open Meta
 
 open TSyntax.Compat in
 open Parser.Tactic in
-def mkReflBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
+def mkLawfulBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
   let indVal ← getConstInfoInduct declName
 
   let argNames     ← mkInductArgNames indVal
   let binders      ← mkImplicitBinders argNames
   let binders      := binders ++ (← mkInstImplicitBinders ``BEq indVal argNames)
-  let binders      := binders ++ (← mkInstImplicitBinders ``ReflBEq indVal argNames)
+  let binders      := binders ++ (← mkInstImplicitBinders ``LawfulBEq indVal argNames)
   let indType      ← mkInductiveApp indVal argNames
-  let type         ← `($(mkCIdent ``ReflBEq) $indType)
+  let type         ← `($(mkCIdent ``LawfulBEq) $indType)
   let instCmd ← `(
     instance $binders:implicitBinder* : $type where
-      rfl := by
-        intro x
-        induction x
-        all_goals
-          first | simp [ *, reduceBEq ]
-                | fail "Failed to prove ReflBEq instance")
+      eq_of_beq := by deriving_LawfulEq_tactic
+  )
   let cmds := #[instCmd]
-  trace[Elab.Deriving.reflBEq] "\n{cmds}"
+  trace[Elab.Deriving.lawfulBEq] "\n{cmds}"
   return cmds
 
 open Command
 
-def mkReflBEqInstance (declName : Name) : CommandElabM Unit := do
+def mkLawfulBEqInstance (declName : Name) : CommandElabM Unit := do
   withoutExposeFromCtors declName do
-    let cmds ← liftTermElabM <| mkReflBEqInstanceCmds declName
+    let cmds ← liftTermElabM <| mkLawfulBEqInstanceCmds declName
     cmds.forM elabCommand
 
-def mkReflBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
+def mkLawfulBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then
     for declName in declNames do
-      mkReflBEqInstance declName
+      mkLawfulBEqInstance declName
     return true
   else
     return false
 
 builtin_initialize
-  registerDerivingHandler ``ReflBEq mkReflBEqInstanceHandler
-  registerTraceClass `Elab.Deriving.reflBEq
+  registerDerivingHandler ``LawfulBEq mkLawfulBEqInstanceHandler
+  registerTraceClass `Elab.Deriving.lawfulBEq
 
-end Lean.Elab.Deriving.ReflBEq
+end Lean.Elab.Deriving.LawfulBEq

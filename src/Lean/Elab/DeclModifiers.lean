@@ -85,6 +85,9 @@ inductive ComputeKind where
 structure Modifiers where
   /-- Input syntax, used for adjusting declaration range (unless missing) -/
   stx             : TSyntax ``Parser.Command.declModifiers := ⟨.missing⟩
+  /--
+  The docstring, if present, and whether it's Verso.
+  -/
   docString?      : Option (TSyntax ``Parser.Command.docComment × Bool) := none
   visibility      : Visibility := Visibility.regular
   isProtected     : Bool := false

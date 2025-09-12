@@ -158,6 +158,10 @@ protected theorem UpwardEnumerable.lt_irrefl {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] {a : α} : ¬ UpwardEnumerable.LT a a :=
   fun h => LawfulUpwardEnumerable.ne_of_lt a a h rfl
 
+protected theorem UpwardEnumerable.lt_succ? {α : Type u} [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] {a b : α} (h : succ? a = some b) : UpwardEnumerable.LT a b :=
+  ⟨0, by simpa [UpwardEnumerable.succMany?_one] using h⟩
+
 protected theorem UpwardEnumerable.ne_of_lt {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] {a b : α} (h : UpwardEnumerable.LT a b) : a ≠ b :=
   LawfulUpwardEnumerable.ne_of_lt a b h
@@ -358,6 +362,11 @@ export UpwardEnumerable (isSome_succ? succ?_inj succ succ_eq_get succ?_eq_some s
                          succMany?_eq_some succMany?_eq_some_iff_succMany succMany_one succMany_zero
                          succMany_add)
 
+protected theorem UpwardEnumerable.lt_succ {α : Type u} [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {a : α} :
+    UpwardEnumerable.LT a (succ a) := by
+  exact UpwardEnumerable.lt_succ? (by simp)
+
 theorem UpwardEnumerable.succ_le_succ {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α]
     {a b : α} (h : UpwardEnumerable.LE a b) : UpwardEnumerable.LE (succ a) (succ b) := by
@@ -458,5 +467,25 @@ theorem UpwardEnumerable.least?_le {α : Type u} [UpwardEnumerable α] [Least? �
     [LawfulUpwardEnumerableLeast? α] {a : α} :
     ∃ init, least? = some init ∧ UpwardEnumerable.LE init a :=
   LawfulUpwardEnumerableLeast?.least?_le a
+
+theorem UpwardEnumerable.isSome_least? {α : Type u} [UpwardEnumerable α] [Least? α]
+    [LawfulUpwardEnumerableLeast? α] [hn : Nonempty α] :
+    (least? (α := α)).isSome := by
+  obtain ⟨_, h, _⟩ := least?_le (α := α) (a := Classical.ofNonempty)
+  simp [h]
+
+def UpwardEnumerable.least [UpwardEnumerable α] [Least? α] [LawfulUpwardEnumerableLeast? α]
+    [hn : Nonempty α] : α :=
+  least?.get isSome_least?
+
+theorem UpwardEnumerable.least_le [UpwardEnumerable α] [Least? α] [LawfulUpwardEnumerableLeast? α]
+    {a : α} : UpwardEnumerable.LE (least (hn := ⟨a⟩)) a := by
+  obtain ⟨_, h, _⟩ := least?_le (a := a)
+  simp [least, *]
+
+theorem UpwardEnumerable.least?_eq_some {α : Type u} [UpwardEnumerable α] [Least? α]
+    [LawfulUpwardEnumerableLeast? α] [hn : Nonempty α] :
+    least? (α := α) = some least := by
+  simp [least]
 
 end Std.PRange

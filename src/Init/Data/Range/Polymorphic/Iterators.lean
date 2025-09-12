@@ -149,7 +149,7 @@ def size [UpwardEnumerable α] [LT α] [DecidableLT α] (r : Rco α)
 section Iterator
 
 theorem Internal.isPlausibleIndirectOutput_iter_iff
-    [UpwardEnumerable α] [LE α] [DecidableLE α] [LT α] [DecidableLT α]
+    [UpwardEnumerable α] [LE α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α]
     {r : Rco α} {a : α} :
     (Internal.iter r).IsPlausibleIndirectOutput a ↔ a ∈ r := by
@@ -181,8 +181,7 @@ theorem _root_.Std.Rxo.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
   exact hout.1
 
 @[no_expose]
-instance {m} [UpwardEnumerable α]
-    [LE α] [DecidableLE α] [LT α] [DecidableLT α]
+instance {m} [UpwardEnumerable α] [LE α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
     [Monad m] [Finite (Rxo.Iterator α) Id] :
     ForIn' m (Rco α) α inferInstance where
@@ -239,7 +238,7 @@ def size [UpwardEnumerable α] (r : Rci α)
 section Iterator
 
 theorem Internal.isPlausibleIndirectOutput_iter_iff
-    [UpwardEnumerable α] [LE α] [DecidableLE α] [LawfulUpwardEnumerable α]
+    [UpwardEnumerable α] [LE α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] {r : Rci α} {a : α} :
     (Internal.iter r).IsPlausibleIndirectOutput a ↔ a ∈ r := by
   rw [Rxi.Iterator.isPlausibleIndirectOutput_iff]
@@ -269,7 +268,7 @@ theorem _root_.Std.Rxi.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
 
 @[no_expose]
 instance {m} [UpwardEnumerable α]
-    [LE α] [DecidableLE α]
+    [LE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Monad m] [Finite (Rxi.Iterator α) Id] :
     ForIn' m (Rci α) α inferInstance where
@@ -326,7 +325,7 @@ def size [UpwardEnumerable α] [LE α] [DecidableLE α] (r : Roc α)
 section Iterator
 
 theorem Internal.isPlausibleIndirectOutput_iter_iff
-    [UpwardEnumerable α] [LE α] [DecidableLE α] [LT α] [DecidableLT α]
+    [UpwardEnumerable α] [LE α] [DecidableLE α] [LT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [LawfulUpwardEnumerableLT α]
     {r : Roc α} {a : α} :
@@ -352,7 +351,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 @[no_expose]
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [LT α] [DecidableLT α] [LawfulUpwardEnumerableLT α]
+    [LT α] [LawfulUpwardEnumerableLT α]
     [Monad m] [Finite (Rxc.Iterator α) Id] :
     ForIn' m (Roc α) α inferInstance where
   forIn' r init f := by
@@ -432,8 +431,8 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 
 @[no_expose]
 instance {m} [UpwardEnumerable α]
-    [LT α] [DecidableLT α] [LT α] [DecidableLT α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLT α]
+    [LT α] [DecidableLT α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Monad m] [Finite (Rxo.Iterator α) Id] :
     ForIn' m (Roo α) α inferInstance where
   forIn' r init f := by
@@ -489,7 +488,7 @@ def size [UpwardEnumerable α] (r : Roi α)
 section Iterator
 
 theorem Internal.isPlausibleIndirectOutput_iter_iff
-    [UpwardEnumerable α] [LT α] [DecidableLT α] [LawfulUpwardEnumerable α]
+    [UpwardEnumerable α] [LT α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLT α] {r : Roi α} {a : α} :
     (Internal.iter r).IsPlausibleIndirectOutput a ↔ a ∈ r := by
   rw [Rxi.Iterator.isPlausibleIndirectOutput_iff]
@@ -510,7 +509,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 
 @[no_expose]
 instance {m} [UpwardEnumerable α]
-    [LT α] [DecidableLT α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [LT α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Monad m] [Finite (Rxi.Iterator α) Id] :
     ForIn' m (Roi α) α inferInstance where
   forIn' r init f := by
@@ -642,8 +641,8 @@ def size [UpwardEnumerable α] [Least? α] [LT α] [DecidableLT α] (r : Rio α)
 section Iterator
 
 theorem Internal.isPlausibleIndirectOutput_iter_iff
-    [UpwardEnumerable α] [LE α] [DecidableLE α] [LT α] [DecidableLT α] [Least? α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α]
+    [UpwardEnumerable α] [LT α] [DecidableLT α] [Least? α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLeast? α] {r : Rio α} {a : α} :
     (Internal.iter r).IsPlausibleIndirectOutput a ↔ a ∈ r := by
   rw [Rxo.Iterator.isPlausibleIndirectOutput_iff]
@@ -659,8 +658,8 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 
 @[no_expose]
 instance {m} [UpwardEnumerable α]
-    [LE α] [DecidableLE α] [LT α] [DecidableLT α] [Least? α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
+    [LT α] [DecidableLT α] [Least? α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLeast? α]
     [Monad m] [Finite (Rxo.Iterator α) Id] :
     ForIn' m (Rio α) α inferInstance where

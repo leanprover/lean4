@@ -10,6 +10,7 @@ on:
   push:
     branches:
       - 'master'
+  pull_request:
   workflow_dispatch:
 
 concurrency:
@@ -21,6 +22,8 @@ jobs:
     runs-on: nscloud-ubuntu-22.04-amd64-8x16
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_COMPRESS: true
+      CCACHE_MAXSIZE: 400M
     steps:
     # This action should push to an otherwise protected branch, so it
     # uses a deploy key with write permissions, as suggested at
@@ -29,14 +32,14 @@ jobs:
       with:
         ssh-key: ${{secrets.STAGE0_SSH_KEY}}
     - run: echo "should_update_stage0=yes" >> "$GITHUB_ENV"
-    - name: Check if automatic update is needed
-      if: github.event_name == 'push'
-      run: |
-        if diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h
-        then
-          echo "src/stdlib_flags.h and stage0/src/stdlib_flags.h agree, nothing to do"
-          echo "should_update_stage0=no" >> "$GITHUB_ENV"
-        fi
+    #- name: Check if automatic update is needed
+    #  if: github.event_name == 'push'
+    #  run: |
+    #    if diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h
+    #    then
+    #      echo "src/stdlib_flags.h and stage0/src/stdlib_flags.h agree, nothing to do"
+    #      echo "should_update_stage0=no" >> "$GITHUB_ENV"
+    #    fi
     - name: Setup git user
       if: env.should_update_stage0 == 'yes'
       run: |
@@ -72,7 +75,8 @@ jobs:
         restore-keys: |
           Linux Lake-build-v3
     - if: env.should_update_stage0 == 'yes'
-      run: cmake --preset release
+      # sync options with `Linux Lake` to ensure cache reuse
+      run: cmake --preset release -DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true
       shell: 'nix develop -c bash -euxo pipefail {0}'
     - if: env.should_update_stage0 == 'yes'
       run: make -j$NPROC -C build/release  update-stage0-commit
@@ -83,5 +87,5 @@ jobs:
       name: Sanity check # to avoid loops
       run: |
         diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h || exit 1
-    - if: env.should_update_stage0 == 'yes'
-      run: git push origin
+    #- if: env.should_update_stage0 == 'yes'
+    #  run: git push origin

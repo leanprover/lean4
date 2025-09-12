@@ -3382,11 +3382,6 @@ inductive ByteArray.IsValidUtf8 (b : ByteArray) : Prop
   /-- Show that a byte -/
   | intro (m : List Char) (hm : Eq b (List.utf8Encode m))
 
--- @[simp]
--- theorem IsValidUtf8.empty : IsValidUtf8 ByteArray.empty where
---   exists_model := ⟨[], rfl⟩
-
--- @[ext] -- TODO
 /--
 A string is a sequence of Unicode scalar values.
 
@@ -3402,7 +3397,6 @@ structure String where ofByteArray ::
   isValidUtf8 : ByteArray.IsValidUtf8 bytes
 
 attribute [extern "lean_string_to_utf8"] String.bytes
--- attribute [extern "lean_string_data"] String.data TODO
 
 /--
 Decides whether two strings are equal. Normally used via the `DecidableEq String` instance and the

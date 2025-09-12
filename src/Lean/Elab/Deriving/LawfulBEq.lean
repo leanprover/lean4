@@ -26,8 +26,7 @@ def mkLawfulBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
   let indType      ← mkInductiveApp indVal argNames
   let type         ← `($(mkCIdent ``LawfulBEq) $indType)
   let instCmd ← `(
-    instance $binders:implicitBinder* : $type where
-      eq_of_beq := by deriving_LawfulEq_tactic
+    instance $binders:implicitBinder* : $type := LawfulBEq.mk (by deriving_LawfulEq_tactic)
   )
   let cmds := #[instCmd]
   trace[Elab.Deriving.lawfulBEq] "\n{cmds}"

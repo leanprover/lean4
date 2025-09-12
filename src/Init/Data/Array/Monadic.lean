@@ -167,7 +167,7 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] {p : α → Bool} {g : α → β
     (h : ∀ a m b, f a (by simpa [w] using m) b = g a m b) :
     forIn' as b f = forIn' bs b' g := by
   cases as <;> cases bs
-  simp only [mk.injEq, mem_toArray, List.forIn'_toArray] at w h ⊢
+  simp only [mk.injEq, List.mem_toArray, List.forIn'_toArray] at w h ⊢
   exact List.forIn'_congr w hb h
 
 /--

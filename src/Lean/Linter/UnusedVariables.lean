@@ -177,7 +177,7 @@ builtin_initialize
     add             := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
       if !builtin then
-        ensureAttrDeclIsMeta name decl
+        ensureAttrDeclIsMeta name decl kind
       unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
       let declType := (← getConstInfo decl).type
       unless declType.isConstOf ``IgnoreFunction do

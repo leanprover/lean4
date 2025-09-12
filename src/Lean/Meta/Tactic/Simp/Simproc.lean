@@ -372,7 +372,7 @@ def mkSimprocExt (name : Name := by exact decl_name%) (ref? : Option (IO.Ref Sim
   }
 
 def addSimprocAttr (attrName : Name) (ext : SimprocExtension) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
-  ensureAttrDeclIsMeta attrName declName
+  ensureAttrDeclIsMeta attrName declName attrKind
   let go : MetaM Unit := do
     let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
     addSimprocAttrCore ext declName attrKind post

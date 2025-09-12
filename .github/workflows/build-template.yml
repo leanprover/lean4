@@ -54,9 +54,13 @@ jobs:
       CXX: c++
       MACOSX_DEPLOYMENT_TARGET: 10.15
     steps:
+      - name: Install Apt Packages
+        run: |
+          apt install ccache tree zstd coreutils gmp libuv
+        if: matrix.name == 'Linux Lake'
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
-        if: runner.os == 'Linux' && !matrix.cmultilib
+        if: matrix.name != 'Linux Lake' && runner.os == 'Linux' && !matrix.cmultilib
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
@@ -79,9 +83,6 @@ jobs:
         uses: namespacelabs/nscloud-checkout-action@v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-      - name: Open Nix shell once
-        run: true
-        if: runner.os == 'Linux'
       # Do check out some CI-relevant files from virtual merge commit to accommodate CI changes on
       # master (as the workflow files themselves are always taken from the merge)
       # (needs to be after "Install *" to use the right shell)
@@ -124,7 +125,6 @@ jobs:
       - name: Setup
         run: |
           ccache --zero-stats
-        if: runner.os == 'Linux'
       - name: Set up env
         run: |
           echo "NPROC=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)" >> $GITHUB_ENV

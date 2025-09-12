@@ -1915,6 +1915,7 @@ private def ImportedModule.publicModule? (self : ImportedModule) : Option Module
   if self.needsData then
     self.parts[0]?.map (·.1)
   else
+    -- (should not have any constants)
     self.irData?.map (·.1)
 
 private def ImportedModule.getData? (self : ImportedModule) (level : OLeanLevel) : Option ModuleData := do
@@ -1993,7 +1994,7 @@ following levels:
 * public: import public information into public scope
 * privateAll: import public and private information into private scope
 * private: import public information into private scope
-* none: do not import any .olean
+* none: do not import any `.olean*`
 
 These levels form a lattice in the following way:
 

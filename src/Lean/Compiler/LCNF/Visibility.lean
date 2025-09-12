@@ -60,6 +60,9 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl) : CompilerM Unit := 
 partial def checkMeta (isMeta : Bool) (origDecl : Decl) : CompilerM Unit := do
   if !(← getEnv).header.isModule then
     return
+  -- If the meta decl is public, we want to ensure it can only refer to public meta imports so that
+  -- references to private imports cannot escape the current module. In particular, we check that
+  -- decls with relevant global attrs are public (`Lean.ensureAttrDeclIsMeta`).
   let isPublic := !isPrivateName origDecl.name
   go isPublic origDecl |>.run' {}
 where go (isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit := do
@@ -84,6 +87,11 @@ where go (isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit := do
         if let some refDecl ← getLocalDecl? ref then
           go isPublic refDecl
 
+/--
+Checks meta availability just before `evalConst`. This is a "last line of defense" as accesses
+should have been checked at declaration time in case of attributes. We do not solely want to rely on
+errors from the interpreter itself as those depend on whether we are running in the server.
+-/
 @[export lean_eval_check_meta]
 private partial def evalCheckMeta (env : Environment) (declName : Name) : Except String Unit := do
   if !env.header.isModule then

@@ -6,7 +6,6 @@ Authors: Mario Carneiro, Kim Morrison
 module
 
 prelude
-import Lean.Elab.InfoTree.Main
 public import Lean.Elab.Tactic.Basic
 
 public section
@@ -31,7 +30,7 @@ def classical [Monad m] [MonadEnv m] [MonadFinally m] [MonadLiftT MetaM m] (t : 
 
 @[builtin_tactic Lean.Parser.Tactic.classical, builtin_incremental]
 def evalClassical : Tactic := fun stx =>
-  classical <| withSavedInfoContext <|
+  classical <| withSaveInfoContext <|
     Term.withNarrowedArgTacticReuse (argIdx := 1) Elab.Tactic.evalTactic stx
 
 end Lean.Elab.Tactic

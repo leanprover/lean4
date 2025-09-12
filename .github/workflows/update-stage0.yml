@@ -75,7 +75,7 @@ jobs:
     - if: env.should_update_stage0 == 'yes'
       # sync options with `Linux Lake` to ensure cache reuse
       run: |
-        mkdir build
+        mkdir -p build
         cmake --preset release -B build -DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true
       shell: 'nix develop -c bash -euxo pipefail {0}'
     - if: env.should_update_stage0 == 'yes'

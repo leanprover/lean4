@@ -15,29 +15,29 @@ def assertBEq [BEq α] [ToString α] (actual expected : α) : IO Unit := do
 
 /-- Mike is another client. -/
 def runMike (client: TCP.Socket.Client) : Async Unit := do
-  let mes ← await (← client.recv? 1024)
+  let mes ← client.recv? 1024
   assertBEq (String.fromUTF8? =<< mes) (some "hi mike!! :)")
-  await (← client.send (String.toUTF8 "hello robert!!"))
-  await (← client.shutdown)
+  client.send (String.toUTF8 "hello robert!!")
+  client.shutdown
 
 /-- Joe is another client. -/
 def runJoe (client: TCP.Socket.Client) : Async Unit := do
-  let mes ← await (← client.recv? 1024)
+  let mes ← client.recv? 1024
   assertBEq (String.fromUTF8? =<< mes) (some "hi joe! :)")
-  await (← client.send (String.toUTF8 "hello robert!"))
-  await (← client.shutdown)
+  client.send (String.toUTF8 "hello robert!")
+  client.shutdown
 
 /-- Robert is the server. -/
 def runRobert (server: TCP.Socket.Server) : Async Unit := do
-  let joe ← await (← server.accept)
-  let mike ← await (← server.accept)
+  let joe ← server.accept
+  let mike ← server.accept
 
-  await (← joe.send (String.toUTF8 "hi joe! :)"))
-  let mes ← await (← joe.recv? 1024)
+  joe.send (String.toUTF8 "hi joe! :)")
+  let mes ← joe.recv? 1024
   assertBEq (String.fromUTF8? =<< mes) (some "hello robert!")
 
-  await (← mike.send (String.toUTF8 "hi mike!! :)"))
-  let mes ← await (← mike.recv? 1024)
+  mike.send (String.toUTF8 "hi mike!! :)")
+  let mes ← mike.recv? 1024
   assertBEq (String.fromUTF8? =<< mes) (some "hello robert!!")
 
   pure ()
@@ -54,7 +54,7 @@ def clientServer (addr : SocketAddress) : IO Unit := do
   assertBEq (← server.getSockName).port addr.port
 
   let joe ← TCP.Socket.Client.mk
-  let task ← joe.connect addr
+  let task ← joe.connect addr |>.toBaseIO
   task.block
 
   assertBEq (← joe.getPeerName).port addr.port
@@ -62,7 +62,7 @@ def clientServer (addr : SocketAddress) : IO Unit := do
   joe.noDelay
 
   let mike ← TCP.Socket.Client.mk
-  let task ← mike.connect addr
+  let task ← mike.connect addr |>.toBaseIO
   task.block
 
   assertBEq (← mike.getPeerName).port addr.port

@@ -5166,11 +5166,11 @@ x_50 = l_Lean_Syntax_isNatLit_x3f(x_49);
 lean_dec(x_49);
 if (lean_obj_tag(x_50) == 0)
 {
-x_37 = x_13;
-x_38 = x_10;
-x_39 = x_9;
-x_40 = x_11;
-x_41 = x_12;
+x_37 = x_10;
+x_38 = x_12;
+x_39 = x_11;
+x_40 = x_9;
+x_41 = x_13;
 goto block_43;
 }
 else
@@ -5179,11 +5179,11 @@ lean_object* x_51;
 x_51 = lean_ctor_get(x_50, 0);
 lean_inc(x_51);
 lean_dec_ref(x_50);
-x_14 = x_13;
-x_15 = x_10;
-x_16 = x_9;
-x_17 = x_11;
-x_18 = x_12;
+x_14 = x_10;
+x_15 = x_12;
+x_16 = x_11;
+x_17 = x_9;
+x_18 = x_13;
 x_19 = x_51;
 goto block_36;
 }
@@ -5192,11 +5192,11 @@ goto block_36;
 else
 {
 lean_dec(x_44);
-x_37 = x_13;
-x_38 = x_10;
-x_39 = x_9;
-x_40 = x_11;
-x_41 = x_12;
+x_37 = x_10;
+x_38 = x_12;
+x_39 = x_11;
+x_40 = x_9;
+x_41 = x_13;
 goto block_43;
 }
 block_36:
@@ -5204,7 +5204,7 @@ block_36:
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_20; 
-x_20 = l_Lean_Meta_NormCast_addInfer(x_1, x_2, x_19, x_16, x_15, x_17, x_18, x_14);
+x_20 = l_Lean_Meta_NormCast_addInfer(x_1, x_2, x_19, x_17, x_14, x_16, x_15, x_18);
 return x_20;
 }
 else
@@ -5215,7 +5215,7 @@ x_22 = l_Lean_Syntax_isStrLit_x3f(x_21);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; 
-x_23 = l_Lean_Meta_NormCast_addInfer(x_1, x_2, x_19, x_16, x_15, x_17, x_18, x_14);
+x_23 = l_Lean_Meta_NormCast_addInfer(x_1, x_2, x_19, x_17, x_14, x_16, x_15, x_18);
 return x_23;
 }
 else
@@ -5243,13 +5243,13 @@ lean_object* x_31; lean_object* x_32;
 lean_dec(x_19);
 lean_dec(x_1);
 x_31 = l___private_Lean_Meta_Tactic_NormCast_0__Lean_Meta_NormCast_initFn___lam__0___closed__5____x40_Lean_Meta_Tactic_NormCast_1115639401____hygCtx___hyg_2_;
-x_32 = l_panic___at_____private_Lean_Meta_Tactic_NormCast_0__Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast_1115639401____hygCtx___hyg_2__spec__0(x_31, x_16, x_15, x_17, x_18, x_14);
+x_32 = l_panic___at_____private_Lean_Meta_Tactic_NormCast_0__Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast_1115639401____hygCtx___hyg_2__spec__0(x_31, x_17, x_14, x_16, x_15, x_18);
 return x_32;
 }
 else
 {
 lean_object* x_33; 
-x_33 = l_Lean_Meta_NormCast_addSquash(x_1, x_2, x_19, x_16, x_15, x_17, x_18, x_14);
+x_33 = l_Lean_Meta_NormCast_addSquash(x_1, x_2, x_19, x_17, x_14, x_16, x_15, x_18);
 return x_33;
 }
 }
@@ -5257,7 +5257,7 @@ else
 {
 lean_object* x_34; 
 lean_dec(x_24);
-x_34 = l_Lean_Meta_NormCast_addMove(x_1, x_2, x_19, x_16, x_15, x_17, x_18, x_14);
+x_34 = l_Lean_Meta_NormCast_addMove(x_1, x_2, x_19, x_17, x_14, x_16, x_15, x_18);
 return x_34;
 }
 }
@@ -5265,7 +5265,7 @@ else
 {
 lean_object* x_35; 
 lean_dec(x_24);
-x_35 = l_Lean_Meta_NormCast_addElim(x_1, x_2, x_19, x_16, x_15, x_17, x_18, x_14);
+x_35 = l_Lean_Meta_NormCast_addElim(x_1, x_2, x_19, x_17, x_14, x_16, x_15, x_18);
 return x_35;
 }
 }

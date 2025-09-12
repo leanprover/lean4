@@ -5642,9 +5642,9 @@ if (x_159 == 0)
 {
 lean_dec_ref(x_150);
 x_76 = x_155;
-x_77 = x_125;
-x_78 = x_151;
-x_79 = x_128;
+x_77 = x_151;
+x_78 = x_128;
+x_79 = x_125;
 x_80 = x_159;
 x_81 = x_152;
 goto block_86;
@@ -5657,8 +5657,8 @@ lean_inc_ref(x_128);
 x_160 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_128, x_125, x_150, x_152);
 x_87 = x_155;
 x_88 = x_151;
-x_89 = x_125;
-x_90 = x_128;
+x_89 = x_128;
+x_90 = x_125;
 x_91 = x_160;
 goto block_95;
 }
@@ -5671,8 +5671,8 @@ lean_inc_ref(x_128);
 x_161 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_128, x_125, x_150, x_152);
 x_87 = x_155;
 x_88 = x_151;
-x_89 = x_125;
-x_90 = x_128;
+x_89 = x_128;
+x_90 = x_125;
 x_91 = x_161;
 goto block_95;
 }
@@ -5701,9 +5701,9 @@ if (x_168 == 0)
 {
 lean_dec_ref(x_150);
 x_76 = x_163;
-x_77 = x_125;
-x_78 = x_151;
-x_79 = x_128;
+x_77 = x_151;
+x_78 = x_128;
+x_79 = x_125;
 x_80 = x_168;
 x_81 = x_166;
 goto block_86;
@@ -5716,8 +5716,8 @@ lean_inc_ref(x_128);
 x_169 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_128, x_125, x_150, x_166);
 x_87 = x_163;
 x_88 = x_151;
-x_89 = x_125;
-x_90 = x_128;
+x_89 = x_128;
+x_90 = x_125;
 x_91 = x_169;
 goto block_95;
 }
@@ -5730,8 +5730,8 @@ lean_inc_ref(x_128);
 x_170 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_128, x_125, x_150, x_166);
 x_87 = x_163;
 x_88 = x_151;
-x_89 = x_125;
-x_90 = x_128;
+x_89 = x_128;
+x_90 = x_125;
 x_91 = x_170;
 goto block_95;
 }
@@ -6068,11 +6068,11 @@ block_86:
 if (x_80 == 0)
 {
 uint8_t x_82; 
-x_82 = l_Lean_Expr_hasFVar(x_78);
+x_82 = l_Lean_Expr_hasFVar(x_77);
 if (x_82 == 0)
 {
 uint8_t x_83; 
-x_83 = l_Lean_Expr_hasMVar(x_78);
+x_83 = l_Lean_Expr_hasMVar(x_77);
 if (x_83 == 0)
 {
 lean_dec_ref(x_79);
@@ -6086,7 +6086,7 @@ goto block_69;
 else
 {
 lean_object* x_84; 
-x_84 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_79, x_77, x_78, x_81);
+x_84 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_78, x_79, x_77, x_81);
 x_70 = x_76;
 x_71 = x_84;
 goto block_75;
@@ -6095,7 +6095,7 @@ goto block_75;
 else
 {
 lean_object* x_85; 
-x_85 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_79, x_77, x_78, x_81);
+x_85 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_78, x_79, x_77, x_81);
 x_70 = x_76;
 x_71 = x_85;
 goto block_75;
@@ -6123,8 +6123,8 @@ lean_dec_ref(x_91);
 x_94 = lean_unbox(x_92);
 lean_dec(x_92);
 x_76 = x_87;
-x_77 = x_89;
-x_78 = x_88;
+x_77 = x_88;
+x_78 = x_89;
 x_79 = x_90;
 x_80 = x_94;
 x_81 = x_93;

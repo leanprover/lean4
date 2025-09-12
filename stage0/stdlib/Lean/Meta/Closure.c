@@ -2041,8 +2041,8 @@ x_75 = lean_ptr_addr(x_71);
 x_76 = lean_usize_dec_eq(x_74, x_75);
 if (x_76 == 0)
 {
-x_4 = x_71;
-x_5 = x_73;
+x_4 = x_73;
+x_5 = x_71;
 x_6 = x_72;
 x_7 = x_76;
 goto block_12;
@@ -2053,8 +2053,8 @@ size_t x_77; size_t x_78; uint8_t x_79;
 x_77 = lean_ptr_addr(x_70);
 x_78 = lean_ptr_addr(x_72);
 x_79 = lean_usize_dec_eq(x_77, x_78);
-x_4 = x_71;
-x_5 = x_73;
+x_4 = x_73;
+x_5 = x_71;
 x_6 = x_72;
 x_7 = x_79;
 goto block_12;
@@ -2372,7 +2372,7 @@ goto block_21;
 block_205:
 {
 lean_object* x_172; lean_object* x_173; lean_object* x_174; lean_object* x_175; lean_object* x_176; 
-x_172 = lean_st_ref_get(x_2, x_170);
+x_172 = lean_st_ref_get(x_2, x_171);
 x_173 = lean_ctor_get(x_172, 0);
 lean_inc(x_173);
 x_174 = lean_ctor_get(x_172, 1);
@@ -2412,7 +2412,7 @@ x_186 = lean_st_ref_set(x_2, x_181, x_182);
 x_187 = lean_ctor_get(x_186, 1);
 lean_inc(x_187);
 lean_dec_ref(x_186);
-x_160 = x_171;
+x_160 = x_170;
 x_161 = x_178;
 x_162 = x_187;
 goto block_169;
@@ -2465,7 +2465,7 @@ x_202 = lean_st_ref_set(x_2, x_201, x_182);
 x_203 = lean_ctor_get(x_202, 1);
 lean_inc(x_203);
 lean_dec_ref(x_202);
-x_160 = x_171;
+x_160 = x_170;
 x_161 = x_178;
 x_162 = x_203;
 goto block_169;
@@ -2477,7 +2477,7 @@ lean_object* x_204;
 x_204 = lean_ctor_get(x_176, 0);
 lean_inc(x_204);
 lean_dec_ref(x_176);
-x_160 = x_171;
+x_160 = x_170;
 x_161 = x_204;
 x_162 = x_174;
 goto block_169;
@@ -2501,15 +2501,15 @@ goto block_169;
 }
 else
 {
-x_170 = x_207;
-x_171 = x_206;
+x_170 = x_206;
+x_171 = x_207;
 goto block_205;
 }
 }
 else
 {
-x_170 = x_207;
-x_171 = x_206;
+x_170 = x_206;
+x_171 = x_207;
 goto block_205;
 }
 }
@@ -2638,22 +2638,22 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
 lean_dec(x_1);
-x_8 = l_Lean_mkLevelMax_x27(x_4, x_6);
+x_8 = l_Lean_mkLevelMax_x27(x_5, x_6);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_5);
+lean_ctor_set(x_9, 1, x_4);
 return x_9;
 }
 else
 {
 lean_object* x_10; lean_object* x_11; 
-x_10 = l_Lean_simpLevelMax_x27(x_4, x_6, x_1);
+x_10 = l_Lean_simpLevelMax_x27(x_5, x_6, x_1);
 lean_dec(x_1);
 lean_dec(x_6);
-lean_dec(x_4);
+lean_dec(x_5);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
-lean_ctor_set(x_11, 1, x_5);
+lean_ctor_set(x_11, 1, x_4);
 return x_11;
 }
 }

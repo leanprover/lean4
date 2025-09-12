@@ -8,9 +8,9 @@ module
 prelude
 public import Lake.Util.Binder
 public import Lake.Config.MetaClasses
-meta import Lake.Util.Binder
-meta import Lean.Parser.Command
-meta import Lake.Util.Name
+public meta import Lake.Util.Binder
+public meta import Lean.Parser.Command
+public meta import Lake.Util.Name
 
 open Lean Syntax Parser Command
 

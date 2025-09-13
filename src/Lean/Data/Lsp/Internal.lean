@@ -188,7 +188,7 @@ instance : FromJson RefInfo where
 @[expose] def ModuleRefs := Std.TreeMap RefIdent RefInfo
   deriving EmptyCollection
 
-instance : ForIn m ModuleRefs (RefIdent × RefInfo) where
+instance [Monad m] : ForIn m ModuleRefs (RefIdent × RefInfo) where
   forIn map init f :=
     let map : Std.TreeMap RefIdent RefInfo := map
     forIn map init f

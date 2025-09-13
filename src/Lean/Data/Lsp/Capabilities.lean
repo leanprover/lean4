@@ -89,6 +89,7 @@ def ClientCapabilities.silentDiagnosticSupport (c : ClientCapabilities) : Bool :
 
 structure LeanServerCapabilities where
   moduleHierarchyProvider? : Option ModuleHierarchyOptions
+  rpcProvider? : Option RpcOptions
   deriving FromJson, ToJson
 
 -- TODO largely unimplemented

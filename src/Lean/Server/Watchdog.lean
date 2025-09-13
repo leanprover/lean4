@@ -1599,6 +1599,9 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   }
   experimental? := some {
     moduleHierarchyProvider? := some {}
+    rpcProvider? := some {
+      highlightMatchesProvider? := some {}
+    }
   }
 }
 

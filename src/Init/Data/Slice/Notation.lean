@@ -22,12 +22,14 @@ open Std PRange
 namespace Std.Slice
 
 /--
-This typeclass indicates how to obtain slices of `α` of type `γ`, given ranges of shape `shape` in
-the index type `β`.
+This typeclass indicates how to obtain slices of elements of `α`.
+
+Here, `β` is the type of ranges used to index the slices and `γ` is the type of the
+slices. Usually, the range type `β` is one of `Rcc ι`, `Rco ι`, `Rci ι`, `Roc ι`, `Roo ι`, `Roi ι`,
+`Ric ι`, `Rio ι` and `Rii ι`.
 -/
-class Sliceable (shape : RangeShape) (α : Type u) (β : outParam (Type v))
-    (γ : outParam (Type w)) where
-  mkSlice (carrier : α) (range : PRange shape β) : γ
+class Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  mkSlice (carrier : α) (range : β) : γ
 
 macro_rules
   | `($c[*...*]) => `(Sliceable.mkSlice $c *...*)

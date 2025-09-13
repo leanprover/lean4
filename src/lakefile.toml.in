@@ -8,7 +8,7 @@
 name = "lean4"
 bootstrap = true
 
-defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain", "Leanc"]
+defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain", "LeanIR", "Leanc"]
 
 # The root of all the compiler output directories
 buildDir = "${CMAKE_BINARY_DIR}"
@@ -72,6 +72,11 @@ name = "LakeMain"
 srcDir = "lake"
 libName = "${LAKE_LIB_PREFIX}LakeMain"
 defaultFacets = ["static.export"]
+
+[[lean_lib]]
+name = "LeanIR"
+libName = "${LAKE_LIB_PREFIX}LeanIR"
+defaultFacets = ["static"]
 
 [[lean_lib]]
 name = "Leanc"

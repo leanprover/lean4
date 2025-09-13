@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Tactic.Rewrite
 public import Lean.Elab.Tactic.Rewrite
 public import Lean.Elab.Tactic.Conv.Basic
 
@@ -17,11 +16,11 @@ open Meta
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.rewrite] def evalRewrite : Tactic := fun stx => do
   let config ← Tactic.elabRewriteConfig stx[1]
-  withRWRulesSeq stx[0] stx[2] fun symm term => do
-    Term.withSynthesize <| withMainContext do
-      let e ← elabTerm term none true
-      let r ←  (← getMainGoal).rewrite (← getLhs) e symm (config := config)
-      updateLhs r.eNew r.eqProof
-      replaceMainGoal ((← getMainGoal) :: r.mvarIds)
+  withRWRulesSeq stx[0] stx[2] fun symm term => withMainContext do
+    let r ← Term.withSynthesize do
+      elabRewrite (← getMainGoal) (← getLhs) term symm (config := config)
+    let r ← finishElabRewrite r
+    updateLhs r.eNew r.eqProof
+    replaceMainGoal ((← getMainGoal) :: r.mvarIds)
 
 end Lean.Elab.Tactic.Conv

@@ -333,6 +333,11 @@ public def downloadArtifact
     \n  local path: {path}\
     \n  remote URL: {url}"
   download url path
+  let hash ← computeFileHash path
+  if hash != descr.hash then
+    logError s!"{path}: downloaded artifact does not have expect hash"
+    IO.FS.removeFile path
+    failure
 
 public def downloadArtifacts
   (cache : Cache) (descrs : Array ArtifactDescr) (scope : String) (service : CacheService) (force := false)

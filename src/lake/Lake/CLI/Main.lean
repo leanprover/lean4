@@ -347,6 +347,10 @@ protected def get : CliM PUnit := do
       | none, some revisionEndpoint =>
         error (invalidEndpointConfig "" revisionEndpoint)
     if let some remoteScope := scope? then
+      let service := if service.apiEndpoint?.isNone then service else {
+        artifactEndpoint := s!"{ws.lakeEnv.reservoirApiUrl}/artifacts"
+        revisionEndpoint := s!"{ws.lakeEnv.reservoirApiUrl}/outputs"
+      }
       getCache cache service ws.root remoteScope ws.root.cacheScope
     else if service.apiEndpoint?.isSome then -- Reservoir
       -- TODO: Parallelize?

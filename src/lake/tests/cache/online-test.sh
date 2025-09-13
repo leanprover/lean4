@@ -92,5 +92,10 @@ test_err "failed to download artifacts for some dependencies" \
 test_run -f reservoir.toml cache get
 test_run -f reservoir.toml build @Cli --no-build
 
+# Test Reservoir w/ `--scope` uses GitHub scope
+test_cmd rm -rf .lake/cache
+test_run -d .lake/packages/Cli cache get --scope=leanprover/lean4-cli
+test_run -d .lake/packages/Cli build --no-build
+
 # Cleanup
 rm -rf .git produced.out

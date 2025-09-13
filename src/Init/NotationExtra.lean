@@ -25,7 +25,7 @@ syntax bracketedExplicitBinders   := "(" withoutPosition((binderIdent ppSpace)+ 
 syntax explicitBinders            := (ppSpace bracketedExplicitBinders)+ <|> unbracketedExplicitBinders
 
 open TSyntax.Compat in
-def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type? : Option Syntax) (body : Syntax) : MacroM Syntax :=
+meta def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type? : Option Syntax) (body : Syntax) : MacroM Syntax :=
   let rec loop (i : Nat) (h : i ≤ idents.size) (acc : Syntax) := do
     match i with
     | 0   => pure acc
@@ -39,7 +39,7 @@ def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type
       loop i (Nat.le_of_succ_le h) acc
   loop idents.size (by simp) body
 
-def expandBracketedBindersAux (combinator : Syntax) (binders : Array Syntax) (body : Syntax) : MacroM Syntax :=
+meta def expandBracketedBindersAux (combinator : Syntax) (binders : Array Syntax) (body : Syntax) : MacroM Syntax :=
   let rec loop (i : Nat) (h : i ≤ binders.size) (acc : Syntax) := do
     match i with
     | 0   => pure acc
@@ -49,7 +49,7 @@ def expandBracketedBindersAux (combinator : Syntax) (binders : Array Syntax) (bo
       loop i (Nat.le_of_succ_le h) (← expandExplicitBindersAux combinator idents (some type) acc)
   loop binders.size (by simp) body
 
-def expandExplicitBinders (combinatorDeclName : Name) (explicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
+meta def expandExplicitBinders (combinatorDeclName : Name) (explicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
   let combinator := mkCIdentFrom (← getRef) combinatorDeclName
   let explicitBinders := explicitBinders[0]
   if explicitBinders.getKind == ``Lean.unbracketedExplicitBinders then
@@ -61,7 +61,7 @@ def expandExplicitBinders (combinatorDeclName : Name) (explicitBinders : Syntax)
   else
     Macro.throwError "unexpected explicit binder"
 
-def expandBracketedBinders (combinatorDeclName : Name) (bracketedExplicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
+meta def expandBracketedBinders (combinatorDeclName : Name) (bracketedExplicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
   let combinator := mkCIdentFrom (← getRef) combinatorDeclName
   expandBracketedBindersAux combinator #[bracketedExplicitBinders] body
 

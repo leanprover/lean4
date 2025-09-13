@@ -277,7 +277,7 @@ def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do
 
 /-! ## Package & Target Configuration Encoders -/
 
-private def genMkDeclFields
+private meta def genMkDeclFields
   (cmds : Array Command)
   (tyName : Name) [info : ConfigInfo tyName] (takesName : Bool)
   (exclude : Array Name := #[])

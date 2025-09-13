@@ -126,7 +126,7 @@ section
 -- parser.
 set_option internal.parseQuotWithCurrentStage false
 
-private def mkConfigElaborator
+private meta def mkConfigElaborator
     (doc? : Option (TSyntax ``Parser.Command.docComment)) (elabName type monadName : Ident)
     (adapt recover : Term) : MacroM (TSyntax `command) := do
   let empty ← withRef type `({ : $type})

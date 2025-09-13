@@ -85,6 +85,8 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
             continue
           interpretedModInits.modify (·.insert mod)
           for (decl, initDecl) in modEntries do
+            if getIRPhases ctx.env decl == .runtime then
+              continue
             if initDecl.isAnonymous then
               let initFn ← IO.ofExcept <| ctx.env.evalConst (IO Unit) ctx.opts decl
               initFn

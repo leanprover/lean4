@@ -10,7 +10,8 @@ import all Std.Data.Internal.List.Associative
 import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.WF
 import all Std.Data.DHashMap.Raw
-meta import all Std.Data.DHashMap.Basic
+import all Std.Data.DHashMap.Basic
+meta import Std.Data.DHashMap.Basic
 
 public section
 
@@ -113,7 +114,7 @@ scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff]
 
 open Lean
 
-private def modifyMap : Std.DHashMap Name (fun _ => Name) :=
+private meta def modifyMap : Std.DHashMap Name (fun _ => Name) :=
   .ofList
     [⟨`insert, ``toListModel_insert⟩,
      ⟨`erase, ``toListModel_erase⟩,
@@ -137,7 +138,7 @@ private theorem perm_keys_congr_left {α : Type u} {β : α → Type v} {l l' : 
     {l₂ : List α} (h : l.Perm l') : (List.keys l).Perm l₂ ↔ (List.keys l').Perm l₂ := by
   simp [List.keys_eq_map, perm_map_congr_left h]
 
-private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
+private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
   .ofList
     [⟨`isEmpty, (``Raw.isEmpty_eq_isEmpty, #[`(_root_.List.Perm.isEmpty_eq)])⟩,
      ⟨`contains, (``contains_eq_containsKey, #[`(containsKey_of_perm)])⟩,

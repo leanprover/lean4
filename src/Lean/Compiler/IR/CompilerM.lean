@@ -214,9 +214,9 @@ def getSorryDep (env : Environment) (declName : Name) : Option Name :=
 
 /-- Returns additional names that compiler env exts may want to call `getModuleIdxFor?` on. -/
 @[export lean_get_ir_extra_const_names]
-private def getIRExtraConstNames (env : Environment) (level : OLeanLevel) : Array Name :=
+private def getIRExtraConstNames (env : Environment) (level : OLeanLevel) (includeDecls := false) : Array Name :=
   declMapExt.getEntries env |>.toArray.map (·.name)
-    |>.filter fun n => !env.contains n &&
+    |>.filter fun n => (includeDecls || !env.contains n) &&
       (level == .private || Compiler.LCNF.isDeclPublic env n || isDeclMeta env n)
 
 end IR

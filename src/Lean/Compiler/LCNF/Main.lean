@@ -109,6 +109,10 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
         if !(isValidMainType info.type) then
           throwError "`main` function must have type `(List String →)? IO (UInt32 | Unit | PUnit)`"
   let decls ← declNames.mapM toDecl
+  -- Check meta accesses now before optimizations may obscure references. This check should stay in
+  -- `lean` if some compilation is moved out.
+  for decl in decls do
+    checkMeta (isMeta (← getEnv) decl.name) decl
   let decls := markRecDecls decls
   let manager ← getPassManager
   let isCheckEnabled := compiler.check.get (← getOptions)

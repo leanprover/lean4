@@ -56,6 +56,61 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl) : CompilerM Unit := 
             trace[Compiler.inferVisibility] m!"Marking {ref} as opaque because it is used by transparent {decl.name}"
             markDeclPublicRec phase refDecl
 
+/-- Checks whether references in the given declaration adhere to phase distinction. -/
+partial def checkMeta (isMeta : Bool) (origDecl : Decl) : CompilerM Unit := do
+  if !(← getEnv).header.isModule then
+    return
+  -- If the meta decl is public, we want to ensure it can only refer to public meta imports so that
+  -- references to private imports cannot escape the current module. In particular, we check that
+  -- decls with relevant global attrs are public (`Lean.ensureAttrDeclIsMeta`).
+  let isPublic := !isPrivateName origDecl.name
+  go isPublic origDecl |>.run' {}
+where go (isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit := do
+  decl.value.forCodeM fun code =>
+    for ref in collectUsedDecls code do
+      if (← get).contains ref then
+        continue
+      modify (·.insert decl.name)
+      if isMeta && isPublic then
+        if let some modIdx := (← getEnv).getModuleIdxFor? ref then
+          if (← getEnv).header.modules[modIdx]?.any (!·.isExported) then
+            throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, `{.ofConstName ref}` not publicly marked or imported as `meta`"
+      match getIRPhases (← getEnv) ref, isMeta with
+      | .runtime, true =>
+        throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, may not access declaration `{.ofConstName ref}` not marked or imported as `meta`"
+      | .comptime, false =>
+        throwError "Invalid definition `{.ofConstName origDecl.name}`, may not access declaration `{.ofConstName ref}` marked or imported as `meta`"
+      | _, _ =>
+        -- We allow auxiliary defs to be used in either phase but we need to recursively check
+        -- *their* references in this case. We also need to do this for non-auxiliary defs in case a
+        -- public meta def tries to use a private meta import via a local private meta def :/ .
+        if let some refDecl ← getLocalDecl? ref then
+          go isPublic refDecl
+
+/--
+Checks meta availability just before `evalConst`. This is a "last line of defense" as accesses
+should have been checked at declaration time in case of attributes. We do not solely want to rely on
+errors from the interpreter itself as those depend on whether we are running in the server.
+-/
+@[export lean_eval_check_meta]
+private partial def evalCheckMeta (env : Environment) (declName : Name) : Except String Unit := do
+  if !env.header.isModule then
+    return
+  let some decl := getDeclCore? env baseExt declName
+    | return  -- We might not have the LCNF available, in which case there's nothing we can do
+  go decl |>.run' {}
+where go (decl : Decl) : StateT NameSet (Except String) Unit :=
+  decl.value.forCodeM fun code =>
+    for ref in collectUsedDecls code do
+      if (← get).contains ref then
+        continue
+      modify (·.insert decl.name)
+      if let some localDecl := baseExt.getState env |>.find? ref then
+        go localDecl
+      else
+        if getIRPhases env ref == .runtime then
+          throw s!"Cannot evaluate constant `{declName}` as it uses `{ref}` which is neither marked nor imported as `meta`"
+
 def inferVisibility (phase : Phase) : Pass where
   occurrence := 0
   phase

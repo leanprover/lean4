@@ -159,7 +159,6 @@ scoped syntax (name:=footnote_ref) "[^" str "]:" inline* : block
 scoped syntax (name:=directive) ":::" rawIdent doc_arg* "{" block:max* "}" : block
 /-- A header -/
 scoped syntax (name:=header) "header(" num ")" "{" inline+ "}" : block
-open Lean.Parser.Term in
 
 open Lean.Parser Term in
 meta def metadataContents : Parser :=

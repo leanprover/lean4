@@ -178,13 +178,13 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
       let eType := e.appFn!.appArg!
       if ← isDefEq eType (mkConst ``Unit) then
         addAndCompileExprForEval declName e (allowSorry := bang)
-        let mf : m Unit ← evalConst (m Unit) declName
+        let mf : m Unit ← evalConst (m Unit) declName (checkMeta := !Elab.inServer.get (← getOptions))
         return some { eval := do MonadEvalT.monadEval mf; pure "", printVal := none }
       else
         let rf ← withLocalDeclD `x eType fun x => do mkLambdaFVars #[x] (← mkT x)
         let r ← mkAppM ``Functor.map #[rf, e]
         addAndCompileExprForEval declName r (allowSorry := bang)
-        let mf : m t ← evalConst (m t) declName
+        let mf : m t ← evalConst (m t) declName (checkMeta := !Elab.inServer.get (← getOptions))
         return some { eval := toMessageData <$> MonadEvalT.monadEval mf, printVal := some eType }
     if let some act ← mkMAct? ``CommandElabM CommandElabM e
                     -- Fallbacks in case we are in the Lean package but don't have `CommandElabM` yet

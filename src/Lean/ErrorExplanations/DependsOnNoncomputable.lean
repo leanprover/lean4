@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.ErrorExplanation
+meta import Lean.ErrorExplanation
 
 public section
 

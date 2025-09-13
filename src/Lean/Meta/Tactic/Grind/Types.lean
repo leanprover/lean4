@@ -365,7 +365,7 @@ def reportIssue (msg : MessageData) : GrindM Unit := do
   -/
   trace[grind.issues] msg
 
-private def expandReportIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
+private meta def expandReportIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
   let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
   `(doElem| do
     if (← getConfig).verbose then

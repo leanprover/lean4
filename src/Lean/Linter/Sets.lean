@@ -6,20 +6,19 @@ Authors: Anne Baanen
 module
 
 prelude
-public import Lean.Elab.Command
-public import Lean.Linter.Basic
-meta import Lean.Elab.Command
+public meta import Lean.Linter.Basic
+public meta import Lean.Elab.Command
 
 public section
 
 namespace Lean.Linter
 
 /-- Add a new linter set that contains the given linters. -/
-def insertLinterSet [MonadEnv m] (setName : Name) (linterNames : NameSet) : m Unit :=
+meta def insertLinterSet [MonadEnv m] (setName : Name) (linterNames : NameSet) : m Unit :=
   modifyEnv (linterSetsExt.addEntry · (setName, linterNames))
 
 /-- `registerSet` wraps `registerOption` by setting relevant values. -/
-def registerSet (setName : Name) (ref : Name := by exact decl_name%) : IO (Lean.Option Bool) := do
+meta def registerSet (setName : Name) (ref : Name := by exact decl_name%) : IO (Lean.Option Bool) := do
   registerOption setName {
     declName := ref
     defValue := false

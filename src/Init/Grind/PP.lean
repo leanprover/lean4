@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.NotationExtra
-meta import Init.Data.String.Basic
+public meta import Init.Data.String.Basic
 
 public section
 

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.ErrorExplanation
+meta import Lean.ErrorExplanation
 
 /--
 This error means that Lean was unable to find a variable or constant matching the given name. More

@@ -6203,6 +6203,7 @@ theorem ctz_eq_reverse_clz {x : BitVec w} :
   simp [ctz]
 
 /-- The number of trailing zeroes is strictly less than the bitwidth iff the bitvector is nonzero. -/
+@[simp]
 theorem ctz_lt_iff_ne_zero {x : BitVec w} :
     ctz x < w ↔ x ≠ 0#w := by
   simp only [ctz_eq_reverse_clz, natCast_eq_ofNat, ne_eq]

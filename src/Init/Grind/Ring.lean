@@ -9,5 +9,5 @@ public import Init.Grind.Ring.Basic
 public import Init.Grind.Ring.Field
 public import Init.Grind.Ring.Envelope
 public import Init.Grind.Ring.CommSolver
-public import Init.Grind.Ring.OfSemiring
+public import Init.Grind.Ring.CommSemiringAdapter
 public import Init.Grind.Ring.ToInt

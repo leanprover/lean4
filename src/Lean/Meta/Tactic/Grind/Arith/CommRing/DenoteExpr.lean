@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Ring.OfSemiring
+public import Init.Grind.Ring.CommSemiringAdapter
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions

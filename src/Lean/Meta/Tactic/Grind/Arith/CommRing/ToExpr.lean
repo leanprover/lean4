@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Ring.CommSolver
-public import Init.Grind.Ring.OfSemiring
+public import Init.Grind.Ring.CommSemiringAdapter
 public import Lean.ToExpr
 public section
 namespace Lean.Meta.Grind.Arith.CommRing

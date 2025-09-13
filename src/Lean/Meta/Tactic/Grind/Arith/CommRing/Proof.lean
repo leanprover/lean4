@@ -7,7 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
-import Init.Grind.Ring.OfSemiring
+import Init.Grind.Ring.CommSemiringAdapter
 import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.ProofUtil

@@ -130,9 +130,9 @@ test_run -v build +Test
 # Test producing an output mappings file
 test_run build Test -o .lake/outputs.jsonl
 test_exp -f .lake/outputs.jsonl
-test_cmd_eq 2 wc -l < .lake/outputs.jsonl
+test_cmd_eq 3 wc -l < .lake/outputs.jsonl
 test_run build Test:static -o .lake/outputs.jsonl
-test_cmd_eq 5 wc -l < .lake/outputs.jsonl
+test_cmd_eq 6 wc -l < .lake/outputs.jsonl
 
 # Cleanup
 rm -f produced.out Ignored.lean

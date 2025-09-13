@@ -9,8 +9,8 @@ prelude
 public import Lean.Data.Json
 public import Lake.Build.Job.Monad
 public import Lake.Config.Monad
+public import Lake.Util.JsonObject
 import Lake.Util.IO
-import Lake.Util.JsonObject
 import Lake.Build.Target.Fetch
 public import Lake.Build.Actions
 
@@ -63,22 +63,24 @@ public structure BuildMetadata where
   log : Log
   /-- A trace file that was created from fetching an artifact from the cache. -/
   synthetic : Bool
-  deriving ToJson
 
-public protected def BuildMetadata.fromJson? (json : Json) : Except String BuildMetadata := do
-  let obj ← JsonObject.fromJson? json
-  let depHash ← obj.get "depHash"
-  let inputs ← obj.getD "inputs" {}
-  let outputs? ← obj.getD "outputs" none
-  let log ← obj.getD "log" {}
-  let synthetic ← obj.getD "synthetic" false
-  return {depHash, inputs, outputs?, log, synthetic}
+/-- The current version of the trace file format. -/
+def BuildMetadata.schemaVersion : String := "2025-09-10"
 
-public instance : FromJson BuildMetadata := ⟨BuildMetadata.fromJson?⟩
+public protected def BuildMetadata.toJson (self : BuildMetadata) : Json :=
+  ({} : JsonObject)
+  |>.insert "schemaVersion" schemaVersion
+  |>.insert "depHash" self.depHash
+  |>.insert "inputs" self.inputs
+  |>.insert "outputs" self.outputs?
+  |>.insert "log" self.log
+  |>.insert "synthetic" self.synthetic
+
+public instance : ToJson BuildMetadata := ⟨BuildMetadata.toJson⟩
 
 /--
 Construct build metadata from a trace stub.
-That is, the old version of the trace file format that just contained a hash.
+That is, the very old version of the trace file format that just contained a hash.
 -/
 public def BuildMetadata.ofStub (hash : Hash) : BuildMetadata :=
   {depHash := hash,  inputs := #[], outputs? := none, log := {}, synthetic := false}
@@ -86,12 +88,39 @@ public def BuildMetadata.ofStub (hash : Hash) : BuildMetadata :=
 @[deprecated ofStub (since := "2025-06-28")]
 public abbrev BuildMetadata.ofHash := @ofStub
 
+public def BuildMetadata.fromJsonObject? (obj : JsonObject) : Except String BuildMetadata := do
+  let depHash ← obj.get "depHash"
+  let inputs ← obj.getD "inputs" {}
+  let outputs? ← obj.getD "outputs" none
+  let log ← obj.getD "log" {}
+  let synthetic ← obj.getD "synthetic" false
+  return {depHash, inputs, outputs?, log, synthetic}
+
+public protected def BuildMetadata.fromJson? (json : Json) : Except String BuildMetadata := do
+  match json with
+  | .num n =>
+    match Hash.ofJsonNumber? n with
+    | .ok hash =>
+      return .ofStub hash
+    | .error reason =>
+      error s!"invalid trace stub: {reason}"
+  | .obj (o : JsonObject) =>
+    match BuildMetadata.fromJsonObject? o with
+    | .ok data =>
+      return data
+    | .error e =>
+      if let some (.str ver) := o.getJson? "schemaVersion" then
+        if ver == BuildMetadata.schemaVersion then
+          error s!"invalid trace: {e}"
+      error s!"unknown trace format: {e}"
+  | _ =>
+    error s!"unknown trace format: expected JSON number or object"
+
+public instance : FromJson BuildMetadata := ⟨BuildMetadata.fromJson?⟩
+
 /-- Parse build metadata from a trace file's contents. -/
-public def BuildMetadata.parse (contents : String) : Except String BuildMetadata :=
-  if let some hash := Hash.ofDecimal? contents.trim then
-    return .ofStub hash
-  else
-    Json.parse contents >>= fromJson?
+public def BuildMetadata.parse (contents : String) : Except String BuildMetadata := do
+  Json.parse contents >>= fromJson?
 
 /-- Construct build metadata from a cached input-to-output mapping. -/
 public def BuildMetadata.ofFetch (inputHash : Hash) (outputs : Json) : BuildMetadata :=
@@ -133,11 +162,37 @@ Logs if the read failed or the contents where invalid.
 public def readTraceFile (path : FilePath) : LogIO SavedTrace := do
   match (← IO.FS.readFile path |>.toBaseIO) with
   | .ok contents =>
-    match BuildMetadata.parse contents with
-    | .ok data => return .ok data
-    | .error e => logVerbose s!"{path}: invalid trace file: {e}"; return .invalid
-  | .error (.noFileOrDirectory ..) => return .missing
-  | .error e => logWarning s!"{path}: read failed: {e}"; return .invalid
+    match Json.parse contents with
+    | .ok json =>
+      match json with
+      | .num n =>
+        match Hash.ofJsonNumber? n with
+        | .ok hash =>
+          return .ok (.ofStub hash)
+        | .error reason =>
+          logWarning s!"{path}: invalid trace file hash: {reason}"
+          return .invalid
+      | .obj (o : JsonObject) =>
+        match BuildMetadata.fromJsonObject? o with
+        | .ok data =>
+          return .ok data
+        | .error e =>
+          if let some (.str ver) := o.getJson? "schemaVersion" then
+            if ver == BuildMetadata.schemaVersion then
+              logWarning s!"{path}: invalid trace file: {e}"
+              return .invalid
+          logVerbose s!"{path}: unknown trace file: {e}"
+          return .invalid
+      | _ =>
+        logWarning s!"{path}: invalid trace file: expected JSON number or object"
+        return .invalid
+    | .error e =>
+      logWarning s!"{path}: invalid trace file: {e}"
+      return .invalid
+  | .error (.noFileOrDirectory ..) =>
+    return .missing
+  | .error e =>
+    error s!"{path}: read failed: {e}"
 
 /--
 Tries to read data from a trace file. On failure, returns `none`.

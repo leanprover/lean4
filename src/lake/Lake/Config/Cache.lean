@@ -10,8 +10,9 @@ public import Lake.Util.Log
 public import Lake.Config.Artifact
 public import Lake.Build.Trace
 import Lake.Build.Actions
-import Lake.Util.Proc
 import Lake.Util.Url
+import Lake.Util.Proc
+import Lake.Util.Reservoir
 import Lake.Util.IO
 
 open Lean System
@@ -27,11 +28,24 @@ public abbrev CacheMap := Std.HashMap Hash Json
 
 namespace CacheMap
 
+/-- The current version of the input-to-output mappings file format. -/
+public def schemaVersion : String := "2025-09-10"
+
+def checkSchemaVersion (inputName : String) (line : String) : LogIO Unit := do
+  if line.isEmpty then
+    error s!"{inputName}: expected schema version on line 1"
+  match Json.parse line >>= fromJson? with
+  | .ok (ver : String) =>
+      if ver != schemaVersion then
+        logWarning s!"{inputName}: unknown schema version '{ver}'; may not parse correctly"
+  | .error e =>
+    logWarning s!"{inputName}: invalid schema version on line 1: {e}"
+
 /-- Parse a `Cache` from a JSON Lines string. -/
-public partial def parse (contents : String) : LoggerIO CacheMap := do
+public partial def parse (inputName : String) (contents : String) : LoggerIO CacheMap := do
   let rec loop (i : Nat) (cache : CacheMap) (stopPos pos : String.Pos) := do
-    let endPos := contents.posOfAux '\n' stopPos pos
-    let line := contents.extract pos endPos
+    let lfPos := contents.posOfAux '\n' stopPos pos
+    let line := contents.extract pos lfPos
     if line.trim.isEmpty then
       return cache
     let cache ← id do
@@ -39,13 +53,19 @@ public partial def parse (contents : String) : LoggerIO CacheMap := do
       | .ok (inputHash, arts) =>
         return cache.insert inputHash arts
       | .error e =>
-        logWarning s!"invalid JSON on line {i}: {e}"
+        logWarning s!"{inputName}: invalid JSON on line {i}: {e}"
         return cache
-    if h : contents.atEnd endPos then
+    if h : contents.atEnd lfPos then
       return cache
     else
-      loop (i+1) cache stopPos (contents.next' endPos h)
-  loop 1 {} contents.endPos 0
+      loop (i+1) cache stopPos (contents.next' lfPos h)
+  let lfPos := contents.posOfAux '\n' contents.endPos 0
+  let line := contents.extract 0 lfPos
+  checkSchemaVersion inputName line.trim
+  if h : contents.atEnd lfPos then
+    return {}
+  else
+    loop 2 {} contents.endPos (contents.next' lfPos h)
 
 @[inline] private partial def loadCore
   (h : IO.FS.Handle) (fileName : String)
@@ -60,7 +80,9 @@ public partial def parse (contents : String) : LoggerIO CacheMap := do
     | .error e =>
       logWarning s!"{fileName}: invalid JSON on line {i}: {e}"
       loop (i+1) cache
-  loop 1 {}
+  let line ← h.getLine
+  checkSchemaVersion fileName line
+  loop 2 {}
 
 /--
 Loads a `CacheMap` from a JSON Lines file.
@@ -112,6 +134,7 @@ public def writeFile (file : FilePath) (cache : CacheMap) : LogIO Unit := do
   match (← IO.FS.Handle.mk file .write |>.toBaseIO) with
   | .ok h =>
     h.lock (exclusive := true)
+    h.putStrLn (toJson schemaVersion).compress
     cache.forM fun k v =>
        h.putStrLn (toJson (k, v)).compress
   | .error e =>
@@ -140,14 +163,11 @@ where go as o := do
     logError s!"unsupported output: {b}"
     return as
   | .num o =>
-    if o.exponent = 0 && 0 < o.mantissa then
-      if h : o.mantissa.toNat < UInt64.size then
-        return as.push {hash := ⟨.ofNatLT o.mantissa.toNat h⟩}
-      else
-        logError s!"unsupported output; decimal too big: {o}"
-        return as
-    else
-      logError s!"unsupported output; number is not a natural: {o}"
+    match Hash.ofJsonNumber? o with
+    | .ok hash =>
+      return as.push {hash}
+    | .error reason =>
+      logError s!"unsupported output; {reason}: {o}"
       return as
   | .str o =>
     match ArtifactDescr.ofFilePath? o with
@@ -354,21 +374,21 @@ public def downloadRevisionOutputs
   (rev : String) (path : FilePath) (scope : String) (service : CacheService) (force := false)
 : LoggerIO CacheMap := do
   if (← path.pathExists) && !force then
-    let contents ← IO.FS.readFile path
-    return ← CacheMap.parse contents
+    return ← CacheMap.load path
   let url := service.revisionUrl rev scope
   logInfo s!"\
     {scope}: downloading outputs for {rev}\
     \n  local path: {path}\
     \n  remote URL: {url}"
-  let contents? ← try getUrl? url catch e =>
+  let headers := if service.apiEndpoint?.isSome then Reservoir.lakeHeaders else {}
+  let contents? ← try getUrl? url headers catch e =>
     logError s!"{scope}: output lookup failed"
     throw e
   let some contents := contents?
     | error s!"{scope}: outputs not found for revision {rev}"
   createParentDirs path
   IO.FS.writeFile path contents
-  CacheMap.parse contents
+  CacheMap.load path
 
 public def uploadRevisionOutputs
   (rev : String) (outputs : FilePath) (scope : String) (service : CacheService)

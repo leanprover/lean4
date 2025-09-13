@@ -64,7 +64,7 @@ test_out 'hello: skipping non-Reservoir dependency' -f non-reservoir.toml cache 
 # Test cache put/get with a custom endpoint
 test_run build +Test -o .lake/outputs.jsonl
 test_exp -f .lake/outputs.jsonl
-test_cmd_eq 2 wc -l < .lake/outputs.jsonl
+test_cmd_eq 3 wc -l < .lake/outputs.jsonl
 with_upload_endpoints test_run cache put .lake/outputs.jsonl --scope="test"
 test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
 with_cdn_endpoints test_err 'failed to download some artifacts' \

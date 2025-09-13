@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.Data.ToString.Basic
-import all Init.Data.String.Extra
+import Init.Data.String.Extra
+import Init.Data.Nat.Fold
 
 namespace Lake
 
@@ -19,3 +20,17 @@ public def rpad (s : String) (c : Char) (len : Nat) : String :=
 
 public def zpad (n : Nat) (len : Nat) : String :=
   lpad (toString n) '0' len
+
+/-- Returns whether a string is composed of only hexadecimal digits. -/
+public def isHex (s : String) : Bool :=
+  s.utf8ByteSize.all fun i h =>
+    let c := s.getUtf8Byte i h
+    if c ≤ 70 then -- 'F'
+      if c ≤ 57 then -- '9'
+        48 ≤ c -- '0'
+      else
+        65 ≤ c -- 'A'
+    else if c ≤ 102 then -- 'f'
+      97 ≤ c -- 'a'
+    else
+      false

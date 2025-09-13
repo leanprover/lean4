@@ -9,6 +9,7 @@ prelude
 public import Lake.Util.Log
 public import Lake.Util.JsonObject
 public import Lake.Config.Env
+public import Lake.Util.Reservoir
 import Lake.Util.Proc
 import Lake.Util.Url
 
@@ -120,11 +121,6 @@ public instance [FromJson α] : FromJson (ReservoirResp α) := ⟨ReservoirResp.
 
 public def Reservoir.pkgApiUrl (lakeEnv : Lake.Env) (owner pkg : String) :=
    s!"{lakeEnv.reservoirApiUrl}/packages/{uriEncode owner}/{uriEncode pkg}"
-
-public def Reservoir.lakeHeaders := #[
-  "X-Reservoir-Api-Version:1.0.0",
-  "X-Lake-Registry-Api-Version:0.1.0"
-]
 
 public def Reservoir.fetchPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO (Option RegistryPkg) := do
   let url := Reservoir.pkgApiUrl lakeEnv owner pkg

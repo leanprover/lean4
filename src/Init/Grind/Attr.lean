@@ -195,6 +195,7 @@ syntax grindMod :=
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
     <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym
 syntax (name := grind) "grind" (ppSpace grindMod)? : attr
+syntax (name := grind!) "grind!" (ppSpace grindMod)? : attr
 syntax (name := grind?) "grind?" (ppSpace grindMod)? : attr
 end Attr
 end Lean.Parser

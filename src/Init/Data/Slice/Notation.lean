@@ -19,30 +19,92 @@ slice notation.
 
 open Std PRange
 
-namespace Std.Slice
+namespace Std
 
 /--
-This typeclass indicates how to obtain slices of elements of `α`.
+This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`.
 
-Here, `β` is the type of ranges used to index the slices and `γ` is the type of the
-slices. Usually, the range type `β` is one of `Rcc ι`, `Rco ι`, `Rci ι`, `Roc ι`, `Roo ι`, `Roi ι`,
-`Ric ι`, `Rio ι` and `Rii ι`.
+The type of the slices is `γ`.
 -/
-class Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
-  mkSlice (carrier : α) (range : β) : γ
+class Rcc.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  mkSlice (carrier : α) (range : Rcc β) : γ
+
+/--
+This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`.
+
+The type of the slices is `γ`.
+-/
+class Rco.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  mkSlice (carrier : α) (range : Rco β) : γ
+
+/--
+This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`.
+
+The type of the slices is `γ`.
+-/
+class Rci.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  mkSlice (carrier : α) (range : Rci β) : γ
+
+/--
+This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`.
+
+The type of the slices is `γ`.
+-/
+class Roc.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  mkSlice (carrier : α) (range : Roc β) : γ
+
+/--
+This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`.
+
+The type of the slices is `γ`.
+-/
+class Roo.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  mkSlice (carrier : α) (range : Roo β) : γ
+
+/--
+This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`.
+
+The type of the slices is `γ`.
+-/
+class Roi.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  mkSlice (carrier : α) (range : Roi β) : γ
+
+/--
+This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`.
+
+The type of the slices is `γ`.
+-/
+class Ric.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  mkSlice (carrier : α) (range : Ric β) : γ
+
+/--
+This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`.
+
+The type of the slices is `γ`.
+-/
+class Rio.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  mkSlice (carrier : α) (range : Rio β) : γ
+
+/--
+This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`.
+
+The type of the slices is `γ`.
+-/
+class Rii.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
+  mkSlice (carrier : α) (range : Rii β) : γ
 
 macro_rules
-  | `($c[*...*]) => `(Sliceable.mkSlice $c *...*)
-  | `($c[$a...*]) => `(Sliceable.mkSlice $c $a...*)
-  | `($c[$a<...*]) => `(Sliceable.mkSlice $c $a<...*)
-  | `($c[*...<$b]) => `(Sliceable.mkSlice $c *...<$b)
-  | `($c[$a...<$b]) => `(Sliceable.mkSlice $c $a...<$b)
-  | `($c[$a<...<$b]) => `(Sliceable.mkSlice $c $a<...<$b)
-  | `($c[*...$b]) => `(Sliceable.mkSlice $c *...<$b)
-  | `($c[$a...$b]) => `(Sliceable.mkSlice $c $a...<$b)
-  | `($c[$a<...$b]) => `(Sliceable.mkSlice $c $a<...<$b)
-  | `($c[*...=$b]) => `(Sliceable.mkSlice $c *...=$b)
-  | `($c[$a...=$b]) => `(Sliceable.mkSlice $c $a...=$b)
-  | `($c[$a<...=$b]) => `(Sliceable.mkSlice $c $a<...=$b)
+  | `($c[*...*]) => `(Rii.Sliceable.mkSlice $c *...*)
+  | `($c[$a...*]) => `(Rci.Sliceable.mkSlice $c $a...*)
+  | `($c[$a<...*]) => `(Roi.Sliceable.mkSlice $c $a<...*)
+  | `($c[*...<$b]) => `(Rio.Sliceable.mkSlice $c *...<$b)
+  | `($c[$a...<$b]) => `(Rco.Sliceable.mkSlice $c $a...<$b)
+  | `($c[$a<...<$b]) => `(Roo.Sliceable.mkSlice $c $a<...<$b)
+  | `($c[*...$b]) => `(Rio.Sliceable.mkSlice $c *...<$b)
+  | `($c[$a...$b]) => `(Rco.Sliceable.mkSlice $c $a...<$b)
+  | `($c[$a<...$b]) => `(Roo.Sliceable.mkSlice $c $a<...<$b)
+  | `($c[*...=$b]) => `(Ric.Sliceable.mkSlice $c *...=$b)
+  | `($c[$a...=$b]) => `(Rcc.Sliceable.mkSlice $c $a...=$b)
+  | `($c[$a<...=$b]) => `(Roc.Sliceable.mkSlice $c $a<...=$b)
 
-end Std.Slice
+end Std

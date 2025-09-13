@@ -398,4 +398,76 @@ end Rii
 --       {s : PRange ⟨.closed, .open⟩ α} :
 --     a ∈ ClosedOpenIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
 
+class Rcc.HasRcoIntersection (α : Type w) where
+  intersection : Rcc α → Rco α → Rco α
+
+class Rcc.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Rcc α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+class Rco.HasRcoIntersection (α : Type w) where
+  intersection : Rco α → Rco α → Rco α
+
+class Rco.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Rco α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+class Rci.HasRcoIntersection (α : Type w) where
+  intersection : Rci α → Rco α → Rco α
+
+class Rci.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Rci α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+class Roc.HasRcoIntersection (α : Type w) where
+  intersection : Roc α → Rco α → Rco α
+
+class Roc.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Roc α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+class Roo.HasRcoIntersection (α : Type w) where
+  intersection : Roo α → Rco α → Rco α
+
+class Roo.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Roo α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+class Roi.HasRcoIntersection (α : Type w) where
+  intersection : Roi α → Rco α → Rco α
+
+class Roi.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Roi α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+class Ric.HasRcoIntersection (α : Type w) where
+  intersection : Ric α → Rco α → Rco α
+
+class Ric.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Ric α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+class Rio.HasRcoIntersection (α : Type w) where
+  intersection : Rio α → Rco α → Rco α
+
+class Rio.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Rio α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+class Rii.HasRcoIntersection (α : Type w) where
+  intersection : Rii α → Rco α → Rco α
+
+class Rii.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Rii α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
 end Std

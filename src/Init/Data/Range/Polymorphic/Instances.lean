@@ -62,7 +62,7 @@ instance [LE α] [Total (α := α) (· ≤ ·)] [UpwardEnumerable α] [LawfulUpw
 
 namespace Rxc
 
-instance instIsAlwaysFIniteOfLawfulHasSize [LE α] [UpwardEnumerable α]
+instance instIsAlwaysFiniteOfLawfulHasSize [LE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [HasSize α] [LawfulHasSize α] :
     IsAlwaysFinite α where
   finite lo hi := by
@@ -135,7 +135,7 @@ instance LawfulHasSize.of_closed [UpwardEnumerable α] [LE α] [DecidableLE α]
       refine ⟨h.choose, ?_⟩
       simpa [succMany?_succ?_eq_succ?_bind_succMany?, h'] using h.choose_spec
 
-instance instIsAlwaysFIniteOfLawfulHasSize [LT α] [UpwardEnumerable α]
+instance instIsAlwaysFiniteOfLawfulHasSize [LT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [HasSize α] [LawfulHasSize α] :
     IsAlwaysFinite α where
   finite lo hi := by
@@ -161,7 +161,7 @@ end Rxo
 
 namespace Rxi
 
-instance instIsAlwaysFIniteOfLawfulHasSize [LT α] [UpwardEnumerable α]
+instance instIsAlwaysFiniteOfLawfulHasSize [LT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [HasSize α] [LawfulHasSize α] :
     IsAlwaysFinite α where
   finite lo := by

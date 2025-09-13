@@ -42,8 +42,7 @@ protected theorem not_le_iff_gt [LT α] {xs ys : Array α} :
   Classical.not_not
 
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by
-  rw [lex, Std.PRange.forIn'_eq_match]
-  simp [Std.PRange.SupportsUpperBound.IsSatisfied]
+  simp [lex, Std.Rco.forIn'_eq_match_Roo]
 
 private theorem cons_lex_cons.forIn'_congr_aux [Monad m] {as bs : ρ} {_ : Membership α ρ}
     [ForIn' m ρ α inferInstance] (w : as = bs)
@@ -64,13 +63,13 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
      (#[a] ++ xs).lex (#[b] ++ ys) lt =
        (lt a b || a == b && xs.lex ys lt) := by
   simp only [lex, size_append, List.size_toArray, List.length_cons, List.length_nil, Nat.zero_add,
-    Nat.add_min_add_left, Nat.add_lt_add_iff_left, Std.PRange.forIn'_eq_forIn'_toList]
+    Nat.add_min_add_left, Nat.add_lt_add_iff_left, Std.Rco.forIn'_eq_forIn'_toList]
   conv =>
     lhs; congr; congr
-    rw [cons_lex_cons.forIn'_congr_aux Std.PRange.toList_eq_match rfl (fun _ _ _ => rfl)]
-    simp only [Std.PRange.SupportsUpperBound.IsSatisfied, bind_pure_comp, map_pure]
+    rw [cons_lex_cons.forIn'_congr_aux Std.Rco.toList_eq_match rfl (fun _ _ _ => rfl)]
+    simp only [bind_pure_comp, map_pure]
     rw [cons_lex_cons.forIn'_congr_aux (if_pos (by omega)) rfl (fun _ _ _ => rfl)]
-  simp only [Std.PRange.toList_Rox_eq_toList_Rcx_of_isSome_succ? (lo := 0) (h := rfl),
+  simp only [Std.toList_Roo_eq_toList_Rco_of_isSome_succ? (lo := 0) (h := rfl),
     Std.PRange.UpwardEnumerable.succ?, Nat.add_comm 1, Std.PRange.Nat.toList_Rco_succ_succ,
     Option.get_some, List.forIn'_cons, List.size_toArray, List.length_cons, List.length_nil,
     Nat.lt_add_one, getElem_append_left, List.getElem_toArray, List.getElem_cons_zero]
@@ -83,16 +82,10 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
     l₁.toArray.lex l₂.toArray lt = l₁.lex l₂ lt := by
   induction l₁ generalizing l₂ with
   | nil =>
-    cases l₂
-    · rw [lex, Std.PRange.forIn'_eq_match]
-      simp [Std.PRange.SupportsUpperBound.IsSatisfied]
-    · rw [lex, Std.PRange.forIn'_eq_match]
-      simp [Std.PRange.SupportsUpperBound.IsSatisfied]
+    cases l₂ <;> simp [lex, Std.Rco.forIn'_eq_match_Roo]
   | cons x l₁ ih =>
     cases l₂ with
-    | nil =>
-      rw [lex, Std.PRange.forIn'_eq_match]
-      simp [Std.PRange.SupportsUpperBound.IsSatisfied]
+    | nil => simp [lex, Std.Rco.forIn'_eq_match_Roo]
     | cons y l₂ =>
       rw [List.toArray_cons, List.toArray_cons y, cons_lex_cons, List.lex, ih]
 

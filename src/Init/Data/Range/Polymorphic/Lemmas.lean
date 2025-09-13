@@ -1013,7 +1013,7 @@ public theorem toList_eq_nil_iff [LE α] [DecidableLE α] [LT α] [UpwardEnumera
       UpwardEnumerable.le_iff, UpwardEnumerable.le_iff_exists,
       UpwardEnumerable.succMany?_succ?_eq_succ?_bind_succMany?, heq]
 
-public theorem mem_toList_iff_mem [LE α] [DecidableLE α] [LT α] [DecidableLT α] [UpwardEnumerable α]
+public theorem mem_toList_iff_mem [LE α] [DecidableLE α] [LT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
     [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {a : α} : a ∈ r.toList ↔ a ∈ r := by
   rw [Internal.toList_eq_toList_iter, Iter.mem_toList_iff_isPlausibleIndirectOutput,
@@ -1079,7 +1079,7 @@ public theorem toList_succ_succ_eq_map [LE α] [DecidableLE α] [LT α] [Decidab
     · exact pairwise_toList_upwardEnumerableLt
   · simp [List.mem_map, mem_toList_iff_mem, mem_succ_succ_iff, eq_comm, and_comm]
 
-public theorem forIn'_eq_forIn'_toList [LE α] [DecidableLE α] [LT α] [DecidableLT α]
+public theorem forIn'_eq_forIn'_toList [LE α] [DecidableLE α] [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
     [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {γ : Type u} {init : γ} {m : Type u → Type w}
     [Monad m] [LawfulMonad m] {f : (a : α) → a ∈ r → γ → m (ForInStep γ)} :

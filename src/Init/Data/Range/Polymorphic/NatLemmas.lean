@@ -19,7 +19,7 @@ theorem succ_eq {n : Nat} : succ n = n + 1 :=
 theorem toList_Rco_succ_succ {m n : Nat} :
     ((m+1)...(n+1)).toList = (m...n).toList.map (· + 1) := by
   simp only [← succ_eq]
-  rw [Std.PRange.toList_Rco_succ_succ_eq_map]
+  rw [Std.Rco.toList_succ_succ_eq_map]
 
 @[deprecated toList_Rco_succ_succ (since := "2025-08-22")]
 theorem ClosedOpen.toList_succ_succ {m n : Nat} :

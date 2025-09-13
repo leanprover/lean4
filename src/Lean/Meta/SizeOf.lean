@@ -465,7 +465,7 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
         value       := thmValue
       }
       inferDefEqAttr thmName
-      simpAttr.add thmName default AttributeKind.global
+      simpAttr.add thmName default (if isPrivateName thmName then .local else .global)
 
 private def mkSizeOfSpecTheorems (indTypeNames : Array Name) (sizeOfFns : Array Name) (recMap : NameMap Name) : MetaM Unit := do
   for indTypeName in indTypeNames do

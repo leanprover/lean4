@@ -2555,7 +2555,6 @@ theorem flatten_reverse {L : List (List α)} :
     ⟨by rw [length_reverse, length_replicate],
      fun _ h => eq_of_mem_replicate (mem_reverse.1 h)⟩
 
-
 /-! ### foldlM and foldrM -/
 
 @[simp] theorem foldlM_append [Monad m] [LawfulMonad m] {f : β → α → m β} {b : β} {l l' : List α} :

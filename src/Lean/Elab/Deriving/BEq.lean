@@ -6,12 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
-public import Lean.Elab.Deriving.Basic
-public import Lean.Elab.Deriving.Util
+public import Lean.Data.Options
+import Lean.Meta.Transform
+import Lean.Elab.Deriving.Basic
+import Lean.Elab.Deriving.Util
+import Lean.Meta.Eqns
 import Lean.Meta.SameCtorUtils
-
-public section
 
 namespace Lean.Elab.Deriving.BEq
 open Lean.Parser.Term
@@ -122,18 +122,16 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
      $auxDefs:command*
     end)
 
-private def mkBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext ``BEq "beq" declName
+def mkBEqInstanceCmds (ctx : Context) (declName : Name) : TermElabM (Array Syntax) := do
   let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `BEq #[declName])
   trace[Elab.Deriving.beq] "\n{cmds}"
   return cmds
 
-private def mkBEqEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
+def mkBEqEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
   let auxFunName := ctx.auxFunNames[0]!
   `(def $(mkIdent auxFunName):ident  (x y : $(mkCIdent name)) : Bool := x.ctorIdx == y.ctorIdx)
 
-private def mkBEqEnumCmd (name : Name): TermElabM (Array Syntax) := do
-  let ctx ← mkContext ``BEq "beq" name
+def mkBEqEnumCmd (ctx : Context) (name : Name): TermElabM (Array Syntax) := do
   let cmds := #[← mkBEqEnumFun ctx name] ++ (← mkInstanceCmds ctx `BEq #[name])
   trace[Elab.Deriving.beq] "\n{cmds}"
   return cmds
@@ -142,12 +140,15 @@ open Command
 
 def mkBEqInstance (declName : Name) : CommandElabM Unit := do
   withoutExposeFromCtors declName do
+    let ctx ← liftTermElabM <| mkContext ``BEq "beq" declName
     let cmds ← liftTermElabM <|
       if (← isEnumType declName) then
-        mkBEqEnumCmd declName
+        mkBEqEnumCmd ctx declName
       else
-         mkBEqInstanceCmds declName
+        mkBEqInstanceCmds ctx declName
     cmds.forM elabCommand
+    unless ctx.usePartial do
+      elabCommand (← `(attribute [method_specs] $(mkIdent ctx.instName):ident))
 
 def mkBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then

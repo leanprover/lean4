@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+
 module
 
 prelude
@@ -23,10 +24,10 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Udiv
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reverse
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Clz
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.PopCount
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 
 @[expose] public section
-
 /-!
 This module contains the verification of the `BitVec` expressions (`BVExpr`) bitblaster from
 `Impl.Expr`.
@@ -434,6 +435,12 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       simp only [eval_un, BVUnOp.eval_clz, BitVec.clz]
       rw [denote_blastClz]
       intro idx hidx
+      rw [goCache_denote_eq]
+      exact hinv
+    · rw [← hres]
+      simp only [eval_un, BVUnOp.eval_popCount]
+      rw [blastPopCount.denote_blastPopCount]
+      intros idx hidx
       rw [goCache_denote_eq]
       exact hinv
   next h =>

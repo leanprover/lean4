@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Ring.Poly
+public import Init.Grind.Ring.CommSolver
 public section
 namespace Lean.Grind.CommRing
 

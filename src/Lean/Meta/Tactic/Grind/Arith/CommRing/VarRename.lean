@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Ring.Poly
+public import Init.Grind.Ring.CommSolver
 public import Init.Grind.Ring.OfSemiring
 public import Lean.Meta.Tactic.Grind.VarRename
 namespace Lean.Grind.CommRing

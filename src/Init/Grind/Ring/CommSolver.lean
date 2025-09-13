@@ -4,27 +4,29 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Int.LemmasAux
 public import Init.Data.Hashable
 public import Init.Data.Ord.Basic
-import all Init.Data.Ord.Basic
 public import Init.Data.RArray
 public import Init.Grind.Ring.Basic
 public import Init.Grind.Ring.Field
 public import Init.Grind.Ordered.Ring
 public import Init.GrindInstances.Ring.Int
-
+import all Init.Data.Ord.Basic
 @[expose] public section
+namespace Lean.Grind.CommRing
+/-!
+Data-structures, definitions and theorems for implementing the
+`grind` solver and normalizer for commutative rings and its extensions (e.g., fields,
+commutative semirings, etc.)
 
+The solver uses proof-by-reflection.
+-/
 open Std
-
-namespace Lean.Grind
 -- These are no longer global instances, so we need to turn them on here.
 attribute [local instance] Semiring.natCast Ring.intCast
-namespace CommRing
 abbrev Var := Nat
 
 inductive Expr where

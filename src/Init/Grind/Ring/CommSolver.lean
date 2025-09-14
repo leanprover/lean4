@@ -539,15 +539,12 @@ def Poly.mulMon_nc (k : Int) (m : Mon) (p : Poly) : Poly :=
   else bif m == .unit then
     p.mulConst k
   else
-    go p
+    go p (.num 0)
 where
-  go : Poly → Poly
-   | .num k' =>
-     bif k' == 0 then
-       .num 0
-     else
-       .add (k*k') m (.num 0)
-   | .add k' m' p => .add (k*k') (m.mul_nc m') (go p)
+  go (p : Poly) (acc : Poly) : Poly :=
+    match p with
+    | .num k' => acc.insert (k*k') m
+    | .add k' m' p => go p (acc.insert (k*k') (m.mul_nc m'))
 
 def Poly.combine (p₁ p₂ : Poly) : Poly :=
   go hugeFuel p₁ p₂
@@ -1110,6 +1107,16 @@ theorem Poly.denote_mulMon {α} [CommRing α] (ctx : Context α) (k : Int) (m : 
       next => simp [intCast_mul, intCast_zero, add_zero, mul_comm, mul_left_comm, mul_assoc]
       next => simp [Mon.denote_mul, intCast_mul, left_distrib, mul_left_comm, mul_assoc]
 
+theorem Poly.denote_mulMon_nc_go {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) (p acc : Poly)
+    : (mulMon_nc.go k m p acc).denote ctx = k * m.denote ctx * p.denote ctx + acc.denote ctx := by
+  fun_induction mulMon_nc.go <;> simp [denote, denote_insert, zsmul_eq_intCast_mul]
+  next => rw [Ring.intCast_mul, Semiring.mul_assoc, Semiring.mul_assoc, ← Ring.intCast_mul_comm]
+  next ih =>
+    rw [ih, denote_insert, Mon.denote_mul_nc, Semiring.left_distrib, Ring.intCast_mul]
+    rw [Ring.intCast_mul_left_comm]; simp [← Semiring.mul_assoc]
+    conv => enter [1, 2, 1, 1, 1]; rw [Ring.intCast_mul_comm]
+    simp [Semiring.add_assoc, Semiring.add_comm, add_left_comm]
+
 theorem Poly.denote_mulMon_nc {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
     : (mulMon_nc k m p).denote ctx = k * m.denote ctx * p.denote ctx := by
   simp [mulMon_nc, cond_eq_if] <;> split
@@ -1119,14 +1126,7 @@ theorem Poly.denote_mulMon_nc {α} [Ring α] (ctx : Context α) (k : Int) (m : M
     next h =>
       simp at h; simp [*, Mon.denote, mul_one, denote_mulConst]
     next =>
-      fun_induction mulMon_nc.go <;> simp [denote, zsmul_eq_intCast_mul, *]
-      next h => simp +zetaDelta at h; simp [*, intCast_zero, mul_zero]
-      next =>
-        simp [intCast_mul, intCast_zero, add_zero, mul_assoc]
-        rw [← intCast_mul_comm (b := Mon.denote ctx m)]
-      next =>
-        simp [intCast_mul, left_distrib, mul_assoc, Mon.denote_mul_nc]
-        rw [Ring.intCast_mul_left_comm (a := Mon.denote ctx m )]
+      rw [denote_mulMon_nc_go]; simp [denote, Ring.intCast_zero, add_zero]
 
 theorem Poly.denote_combine {α} [Ring α] (ctx : Context α) (p₁ p₂ : Poly)
     : (combine p₁ p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by

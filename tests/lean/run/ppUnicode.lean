@@ -30,6 +30,12 @@ notation:35 x:36 unicode(" ∧' ", " /\\' ") y:35 => And' x y
 #guard_msgs in set_option pp.unicode false in #eval do ppTerm (← `(True /\' False))
 
 /-!
+The generated name only uses the unicode version.
+-/
+/-- info: «term_∧'_» : TrailingParserDescr -/
+#guard_msgs in #check «term_∧'_»
+
+/-!
 Testing a notation with a `unicode` operator with `preserveForPP`.
 
 Respects the current setting of `pp.unicode` *if* the underlying atom is in the unicode form.

@@ -477,7 +477,7 @@ syntax negConfigItem := " -" noWs ident
 
 As a special case, `(config := ...)` sets the entire configuration.
 -/
-syntax valConfigItem := atomic(" (" notFollowedBy(&"discharger" <|> &"disch") (ident <|> &"config")) " := " withoutPosition(term) ")"
+syntax valConfigItem := atomic(" (" notFollowedBy(&"discharger" <|> &"disch") ident " := ") withoutPosition(term) ")"
 /-- A configuration item for a tactic configuration. -/
 syntax configItem := posConfigItem <|> negConfigItem <|> valConfigItem
 

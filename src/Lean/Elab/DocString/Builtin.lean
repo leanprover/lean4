@@ -7,15 +7,20 @@ Author: David Thrane Christiansen
 module
 prelude
 public import Lean.Elab.DocString
+import Lean.Elab.DocString.Builtin.Parsing
+public import Lean.Elab.DocString.Builtin.Scopes
+public import Lean.Elab.DocString.Builtin.Postponed
 import Lean.DocString.Links
 public import Lean.DocString.Syntax
 public import Lean.Elab.InfoTree
-public import Lean.Elab.Term.TermElabM
+public meta import Lean.Elab.Term.TermElabM
 import Lean.Elab.Open
 public import Lean.Parser
 import Lean.Meta.Hint
+import Lean.Meta.Reduce
 import Lean.Elab.Tactic.Doc
 import Lean.Data.EditDistance
+public import Lean.Elab.DocString.Builtin.Keywords
 
 
 namespace Lean.Doc
@@ -62,7 +67,7 @@ structure Data.ConvTactic where
   name : Name
 deriving TypeName
 
-/-- The code represents an attribute application `@[...]`. -/
+/-- The code represents an attribute application `--@[...]`. -/
 structure Data.Attributes where
   /-- The attribute syntax. -/
   stx : Syntax
@@ -86,13 +91,6 @@ structure Data.Option where
   name : Name
 deriving TypeName
 
-/-- The code represents an atom drawn from some syntax. -/
-structure Data.Atom where
-  /-- The syntax kind's name. -/
-  name : Name
-  /-- The syntax category -/
-  category : Name
-deriving TypeName
 
 /-- The code represents a syntax category name. -/
 structure Data.SyntaxCat where
@@ -108,7 +106,7 @@ structure Data.Syntax where
   stx : Lean.Syntax
 deriving TypeName
 
-private def onlyCode (xs : TSyntaxArray `inline) : DocM StrLit := do
+private def onlyCode [Monad m] [MonadError m] (xs : TSyntaxArray `inline) : m StrLit := do
   if h : xs.size = 1 then
     match xs[0] with
     | `(inline|code($s)) => return s
@@ -116,71 +114,78 @@ private def onlyCode (xs : TSyntaxArray `inline) : DocM StrLit := do
   else
     throwError "Expected precisely 1 code argument"
 
+private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m String.Range := do
+  let pos := (s.raw.getPos? (canonicalOnly := true)).get!
+  let endPos := s.raw.getTailPos? true |>.get!
+  return ⟨pos, endPos⟩
+
+/--
+A name that will be checked to exist later.
+-/
+structure PostponedName where
+  /--
+  The name to check for.
+  -/
+  name : Name
+deriving TypeName
+
+/--
+Checks that a name exists when it is expected to.
+-/
+meta def checkNameExists : PostponedCheckHandler := fun _ info => do
+  let some {name} := info.get? PostponedName
+    | throwError "Expected `{.ofConstName ``PostponedName}`, got `{.ofConstName info.typeName}`"
+  discard <| realizeGlobalConstNoOverload (mkIdent name)
+
 /--
 Displays a name, without attempting to elaborate implicit arguments.
 -/
---@[builtin_doc_role]
-def name (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+----@[builtin_doc_role]
+def name (full : Option Ident := none) (scope : DocScope := .local) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let x := s.getString.toName
   let n := mkIdentFrom' s x
-  if let some (e, fields) := (← resolveLocalName n.getId) then
-    let t ← Meta.inferType e
-    if fields.isEmpty then
-      pushInfoLeaf <| .ofTermInfo {
-        elaborator := .anonymous
-        stx := n
-        lctx := ← getLCtx
-        expr := e
-        expectedType? := some t
-      }
-      let data : Data.Local := {name := x, lctx := ← getLCtx, type := t, fvarId := e.fvarId!}
-      return .other {
-        name := ``Data.Local, val := .mk data
-      } #[.code s.getString]
-  let x ← realizeGlobalConstNoOverloadWithInfo n
-  return .other (.mk ``Data.Const (.mk (Data.Const.mk x))) #[.code s.getString]
-
-private def parseStrLit (p : ParserFn) (s : StrLit) : DocM Syntax := do
-  let text ← getFileMap
-  let env ← getEnv
-  let endPos := s.raw.getTailPos? true |>.get!
-  let endPos := if endPos ≤ text.source.endPos then endPos else text.source.endPos
-  let ictx :=
-    mkInputContext text.source (← getFileName)
-      (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])
-  -- TODO fallback for non-original syntax
-  let s := (mkParserState text.source).setPos (s.raw.getPos? (canonicalOnly := true)).get!
-  let s := p.run ictx { env, options := ← getOptions } (getTokenTable env) s
-
-  if !s.allErrors.isEmpty  then
-    throwError (s.toErrorMsg ictx)
-  else if ictx.atEnd s.pos then
-    pure s.stxStack.back
+  if let some r := full then
+    unless x.isSuffixOf r.getId do
+      logErrorAt r "Expected a qualified version of {x}"
+      return .code s.getString
   else
-    throwError ((s.mkError "end of input").toErrorMsg ictx)
-
-private def parseStrLit' (p : ParserFn) (s : StrLit) : DocM (Syntax × Bool) := do
-  let text ← getFileMap
-  let env ← getEnv
-  let endPos := s.raw.getTailPos? true |>.get!
-  let endPos := if endPos ≤ text.source.endPos then endPos else text.source.endPos
-  let ictx :=
-    mkInputContext text.source (← getFileName)
-      (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])
-  -- TODO fallback for non-original syntax
-  let s := (mkParserState text.source).setPos (s.raw.getPos? (canonicalOnly := true)).get!
-  let s := p.run ictx { env, options := ← getOptions } (getTokenTable env) s
-
-  let err ←
-    if !s.allErrors.isEmpty then
-      logError (s.toErrorMsg ictx)
-      pure true
-    else if !ictx.atEnd s.pos then
-      logError ((s.mkError "end of input").toErrorMsg ictx)
-      pure true
-    else pure false
-  pure (s.stxStack.back, err)
+    if let some (e, fields) := (← resolveLocalName n.getId) then
+      let t ← Meta.inferType e
+      if fields.isEmpty then
+        pushInfoLeaf <| .ofTermInfo {
+          elaborator := .anonymous
+          stx := n
+          lctx := ← getLCtx
+          expr := e
+          expectedType? := some t
+        }
+        let data : Data.Local := {name := x, lctx := ← getLCtx, type := t, fvarId := e.fvarId!}
+        return .other {
+          name := ``Data.Local, val := .mk data
+        } #[.code s.getString]
+  match scope with
+  | .local =>
+    let x ←
+      if let some r := full then
+        let x ← realizeGlobalConstNoOverloadWithInfo r
+        addConstInfo n x
+        pure x
+      else
+        realizeGlobalConstNoOverloadWithInfo n
+    return .other (.mk ``Data.Const (.mk (Data.Const.mk x))) #[.code s.getString]
+  | .import xs =>
+    let name :=
+      if let some r := full then r.getId
+      else x
+    -- There should be a reference to the future task saved here, so doc rendering tools can
+    -- create a link.
+    let val : PostponedCheck := {
+      handler := ``checkNameExists
+      imports := xs.map (⟨·⟩)
+      info := .mk { name : PostponedName }
+    }
+    return .other { name := ``PostponedCheck, val := .mk val } #[.code s.getString]
 
 private def introduceAntiquotes (stx : Syntax) : DocM Unit :=
   discard <| stx.rewriteBottomUpM fun stx' =>
@@ -206,40 +211,43 @@ In `` {tactic}`T` ``, `T` can be any of the following:
  * The first token of a tactic (e.g. `induction`)
  * Valid tactic syntax, potentially including antiquotations (e.g. `intro $x*`)
 -/
---@[builtin_doc_role]
-def tactic (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+----@[builtin_doc_role]
+def tactic (checked : flag true) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
-  withRef s do
-    let asString := s.getString
-    let asName := asString.toName
-    let allTactics ← Tactic.Doc.allTacticDocs
-    let found := allTactics.filter fun tac => tac.userName == asString || tac.internalName == asName
-    let mut exns := #[]
-    if h : found.size = 0 then
-      let (s, msg) ← AddErrorMessageContext.add s m!"Tactic `{asString}` not found"
-      exns := exns.push <| Exception.error s msg
-    else if h : found.size > 1 then
-      let found := found.map (MessageData.ofConstName ·.internalName) |>.toList
-      let (s, msg) ←
-        AddErrorMessageContext.add s m!"Tactic name `{asString}` matches {.andList found}"
-      exns := exns.push <| Exception.error s msg
-    else
-      let found := found[0]
-      addConstInfo s found.internalName
-      return .other {
-          name := ``Data.Tactic, val := .mk { name := found.internalName : Data.Tactic}
-        } #[.code s.getString]
-    try
-      let p := whitespace >> categoryParserFn `tactic
-      let stx ← parseStrLit p s
-      introduceAntiquotes stx
-      return .code s.getString
-    catch
-      | e => exns := exns.push e
-    if h : exns.size = 1 then
-      throw exns[0]
-    else
-      throwErrorWithNestedErrors m!"Couldn't resolve tactic" exns
+  if !checked then
+    return .code s.getString
+  else
+    withRef s do
+      let asString := s.getString
+      let asName := asString.toName
+      let allTactics ← Tactic.Doc.allTacticDocs
+      let found := allTactics.filter fun tac => tac.userName == asString || tac.internalName == asName
+      let mut exns := #[]
+      if h : found.size = 0 then
+        let (s, msg) ← AddErrorMessageContext.add s m!"Tactic `{asString}` not found"
+        exns := exns.push <| Exception.error s msg
+      else if h : found.size > 1 then
+        let found := found.map (MessageData.ofConstName ·.internalName) |>.toList
+        let (s, msg) ←
+          AddErrorMessageContext.add s m!"Tactic name `{asString}` matches {.andList found}"
+        exns := exns.push <| Exception.error s msg
+      else
+        let found := found[0]
+        addConstInfo s found.internalName
+        return .other {
+            name := ``Data.Tactic, val := .mk { name := found.internalName : Data.Tactic}
+          } #[.code s.getString]
+      try
+        let p := whitespace >> categoryParserFn `tactic
+        let stx ← parseStrLit p s
+        introduceAntiquotes stx
+        return .code s.getString
+      catch
+        | e => exns := exns.push e
+      if h : exns.size = 1 then
+        throw exns[0]
+      else
+        throwErrorWithNestedErrors m!"Couldn't resolve tactic" exns
 
 private def getConvTactic (name : StrLit) : DocM Name := do
     let p := rawIdentFn
@@ -270,7 +278,7 @@ In `` {conv}`T` ``, `T` can be any of the following:
  * The name of a conv tactic syntax kind (e.g. `Lean.Parser.Tactic.Conv.lhs`)
  * Valid conv tactic syntax, potentially including antiquotations (e.g. `lhs`)
 -/
---@[builtin_doc_role]
+----@[builtin_doc_role]
 def conv (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   withRef s do
@@ -296,7 +304,7 @@ open Lean.Parser.Term in
 /--
 A reference to an attribute or attribute-application syntax.
 -/
---@[builtin_doc_role]
+----@[builtin_doc_role]
 def attr (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   withRef s do
@@ -357,7 +365,7 @@ In `` {option}`O` ``, `O` can be either:
  * The name of an option (e.g. `pp.all`)
  * Syntax to set an option to a particular value (e.g. `set_option pp.all true`)
 -/
---@[builtin_doc_role]
+----@[builtin_doc_role]
 def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   withRef s do
@@ -413,162 +421,6 @@ def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
           logErrorAt ref e.toMessageData
           return .code s.getString
 
-/--
-Checks whether a syntax descriptor's value contains the given atom.
--/
-private partial def containsAtom (e : Expr) (atom : String) : MetaM Bool := do
-  let rec attempt (p : Expr) (tryWhnf : Bool) : MetaM Bool := do
-    match p.getAppFnArgs with
-    | (``ParserDescr.node, #[_, _, p]) => containsAtom p atom
-    | (``ParserDescr.trailingNode, #[_, _, _, p]) => containsAtom p atom
-    | (``ParserDescr.unary, #[.app _ (.lit (.strVal _)), p]) => containsAtom p atom
-    | (``ParserDescr.binary, #[.app _ (.lit (.strVal "andthen")), p, _]) => containsAtom p atom
-    | (``ParserDescr.nonReservedSymbol, #[.lit (.strVal tk), _]) => pure (tk.trim == atom)
-    | (``ParserDescr.unicodeSymbol, #[.lit (.strVal tk), .lit (.strVal asciiTk), _]) =>
-      pure (tk.trim == atom || asciiTk.trim == atom)
-    | (``ParserDescr.symbol, #[.lit (.strVal tk)]) => pure (tk.trim == atom)
-    | (``Parser.withAntiquot, #[_, p]) => containsAtom p atom
-    | (``Parser.leadingNode, #[_, _, p]) => containsAtom p atom
-    | (``HAndThen.hAndThen, #[_, _, _, _, p1, p2]) =>
-      containsAtom p1 atom <||> containsAtom p2 atom
-    | (``Parser.nonReservedSymbol, #[.lit (.strVal tk), _]) => pure (tk.trim == atom)
-    | (``Parser.symbol, #[.lit (.strVal tk)]) => pure (tk.trim == atom)
-    | (``Parser.symbol, #[_nonlit]) => pure false
-    | (``Parser.unicodeSymbol, #[.lit (.strVal tk), .lit (.strVal asciiTk), _]) =>
-      pure (tk.trim == atom || asciiTk.trim == atom)
-    | (``Parser.withCache, #[_, p]) => containsAtom p atom
-    | _ => if tryWhnf then attempt (← Meta.whnf p) false else pure false
-  attempt e true
-
-
-private def withAtom (cat : Name) (atom : String) : DocM (Array Name) := do
-  let env ← getEnv
-  let some catContents := (Lean.Parser.parserExtension.getState env).categories.find? cat
-    | return #[]
-  let kinds := catContents.kinds
-  let mut found := #[]
-  for (k, _) in kinds do
-    if let some d := env.find? k |>.bind (·.value?) then
-      if (← containsAtom d atom) then
-        found := found.push k
-  return found
-
-private def kwImpl (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
-    (suggest : Bool)
-    (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  let s ← onlyCode xs
-  let atom := s.getString
-  let env ← getEnv
-  let parsers := Lean.Parser.parserExtension.getState env
-  let cat' := cat.getId
-  let of' ← do
-    let x := of.getId
-    if x.isAnonymous then pure x else realizeGlobalConstNoOverloadWithInfo of
-  let cats ←
-    if cat'.isAnonymous then
-      pure parsers.categories.toArray
-    else
-      if let some catImpl := parsers.categories.find? cat' then
-        pure #[(cat', catImpl)]
-      else throwError m!"Syntax category `{cat'}` not found"
-
-  let mut candidates := #[]
-  for (catName, category) in cats do
-    if !of'.isAnonymous then
-      if category.kinds.contains of' then
-        if let some d := env.find? of' |>.bind (·.value?) then
-          if (← containsAtom d atom) then
-            candidates := candidates.push (catName, of')
-    else
-      let which ← withAtom catName atom
-      candidates := candidates ++ (which.map (catName, ·))
-
-  if h : candidates.size = 0 then
-    logErrorAt s m!"No syntax found with atom `{atom}`"
-    return .code atom
-  else if h : candidates.size > 1 then
-    let choices := .andList (candidates.map (fun (c, k) => m!"{.ofConstName k} : {c}")).toList
-    let catSuggs := categorySuggestions cat' candidates
-    let ofSuggs ← ofSuggestions of' candidates
-    let hintText :=
-      if catSuggs.isEmpty then
-        if ofSuggs.isEmpty then m!""
-        else m!"Specify the syntax kind:"
-      else
-        if ofSuggs.isEmpty then m!"Specify the category:"
-        else m!"Specify the category or syntax kind:"
-
-    let range? :=
-      match ← getRef with
-      | `(inline|role{$name $args*}[$_]) =>
-        (mkNullNode (#[name] ++ args)).getRange?
-      | _ => none
-
-    let hint ← makeHint hintText (ofSuggs ++ catSuggs)
-
-    logErrorAt s m!"Multiple syntax entries found with atom `{atom}`: {choices}{hint.getD m!""}"
-    return .code atom
-  else
-    let (catName, k) := candidates[0]
-    addConstInfo s k
-    if of'.isAnonymous && suggest then
-      let k' ← unresolveNameGlobalAvoidingLocals k
-      if let some h ← makeHint m!"Specify the syntax kind:" #[s!" (of := {k'})"] then
-        logInfo h
-
-    return .other {name := ``Data.Atom, val := .mk (Data.Atom.mk k catName)} #[.code atom]
-where
-  categorySuggestions (c candidates) := Id.run do
-    if c.isAnonymous then
-      let mut counts : NameMap Nat := {}
-      for (cat, _) in candidates do
-        counts := counts.alter cat (some <| 1 + ·.getD 0)
-      counts := counts.filter fun _ n => n == 1
-      let sorted := counts.keys.toArray.qsort (fun x y => x.toString < y.toString)
-      return sorted.map (s!" (cat := {·})")
-    else return #[]
-  ofSuggestions (o candidates) : DocM (Array String):= do
-    if o.isAnonymous then
-      let sorted := candidates |>.map (·.2) |>.qsort (fun x y => x.toString < y.toString)
-      sorted.mapM fun k => do
-        let k ← unresolveNameGlobalAvoidingLocals k
-        pure s!" (of := {k})"
-    else return #[]
-  makeHint (hintText) (suggestions : Array String) : DocM (Option MessageData) := do
-    let range? :=
-      match ← getRef with
-      | `(inline|role{$name $args*}[$_]) =>
-        (mkNullNode (#[name] ++ args)).getRange?
-      | _ => none
-    if let some ⟨b, e⟩ := range? then
-      let str := (← getFileMap).source.extract b e
-      let str := if str.startsWith "kw?" then "kw" ++ str.drop 3 else str
-      let stx := Syntax.mkStrLit str (info := .synthetic b e (canonical := true))
-      let suggs := suggestions.map (fun (s : String) => {suggestion := str ++ s})
-      some <$> MessageData.hint hintText suggs (ref? := some stx)
-    else pure none
-
-/--
-A reference to a particular syntax kind, via one of its atoms.
-
-It is an error if the syntax kind can't be automatically determined to contain the atom, or if
-multiple syntax kinds contain it. If the parser for the syntax kind is sufficiently complex,
-detection may fail.
-
-Specifying the category or kind using the named arguments `cat` and `of` can narrow down the
-process.
-
-Use `kw?` to receive a suggestion of a specific kind.
--/
---@[builtin_doc_role]
-def kw (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
-    (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) :=
-  kwImpl (cat := cat) (of := of) false xs
-
-@[inherit_doc kw /-, builtin_doc_role -/]
-def kw? (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
-    (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) :=
-  kwImpl (cat := cat) (of := of) true xs
 
 private def validateCat (x : Ident) : DocM Bool := do
   let c := x.getId
@@ -595,6 +447,19 @@ def syntaxCat (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   else
     return .code (toString c)
 
+private partial def onlyIdent : Syntax → Bool
+  | .node _ _ args =>
+    let nonEmpty := args.filter isEmpty
+    if h : nonEmpty.size = 1 then onlyIdent nonEmpty[0]
+    else false
+  | .ident .. => true
+  | _ => false
+where
+  isEmpty : Syntax → Bool
+  | .node _ _ xs =>
+    xs.size = 0 || xs.all isEmpty
+  | _ => false
+
 /--
 A description of syntax in the provided category.
 -/
@@ -609,32 +474,105 @@ def «syntax» (cat : Ident) (xs : TSyntaxArray `inline) : DocM (Inline ElabInli
   else
     return .code s.getString
 
+private def givenContents : ParserFn :=
+  whitespace >>
+  sepBy1Fn false
+    (nodeFn nullKind
+     (identFn >>
+       optionalFn (symbolFn ":=" >> termParser.fn) >>
+       optionalFn (symbolFn ":" >> termParser.fn)))
+    (symbolFn ",")
+
+
 /--
 A metavariable to be discussed in the remainder of the docstring.
 
-There are two syntaxes that can be used:
+There are four syntaxes that can be used:
  * `` {given}`x` `` establishes `x`'s type as a metavariable.
- * `` {given}`x : A`` uses `A` as the type for metavariable `x`.
+ * `` {given (type := "A")}`x` `` uses `A` as the type for metavariable `x`, but does not show that
+   to readers.
+ * `` {given}`x : A` `` uses `A` as the type for metavariable `x`.
+ * `` {given}`x = e` `` establishes `x` as an alias for the term `e`
+
+Additionally, the contents of the code literal can be repeated, with comma separators.
+
+If the `show` flag is `false` (default `true`), then the metavariable is not shown in the docstring.
 -/
 --@[builtin_doc_role]
-def given (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def given (type : Option StrLit := none) (typeIsMeta : flag false) («show» : flag true) (xs : TSyntaxArray `inline) :
+    DocM (Inline ElabInline) := do
   let s ← onlyCode xs
-  let p : ParserFn := whitespace >> nodeFn nullKind (identFn >> optionalFn (symbolFn ":" >> termParser.fn))
-  let stx ← parseStrLit p s
-  let x := stx[0]
-  let ty := stx[1][1]
-  let ty' ←
-    if !ty.isMissing then elabType ty
-    else
-      withoutErrToSorry <| Meta.mkFreshExprMVar none
-  let lctx ← do
-    let lctx ← getLCtx
+
+  let stxs ← parseStrLit givenContents s
+  let stxs := stxs.getArgs.mapIdx Prod.mk |>.filterMap fun (n, s) =>
+    if n % 2 = 0 then some s else none
+  let mut lctx ← getLCtx
+  for stx in stxs do
+    let x := stx[0]
+    let ty ← do
+      let tyStx := stx[2][1]
+      if tyStx.isMissing then
+        if let some typeStr := type then
+          some <$> parseQuotedStrLit (whitespace >> termParser.fn) typeStr
+        else pure none
+      else
+        if let some s' := type then
+          logWarningAt s' m!"Ignoring `type` argument because a type was provided"
+        pure tyStx
+    let ty' : Expr ←
+      if let some stx := ty then
+        if typeIsMeta then
+          if let `(term|$x:ident) := stx then
+            let u ← Meta.mkFreshLevelMVar
+            let fv ← mkFreshFVarId
+            let uni := mkSort u
+            let t : Expr := .fvar fv
+            let mv ← Meta.mkFreshExprMVar (type? := some uni) (userName := x.getId)
+            lctx := lctx.mkLetDecl fv x.getId uni mv
+            addTermInfo' x t (lctx? := some lctx) (isBinder := true) (expectedType? := some uni)
+            pure t
+          else
+            logErrorAt stx m!"Expected identifier because flag `typeIsMeta` is set, but got {stx}"
+            Meta.mkFreshExprMVar none
+        else
+          elabType stx
+      else
+        Meta.mkFreshExprMVar none
+    let val : Option Expr ← do
+      let valStx := stx[1][1]
+      if valStx.isMissing then pure none
+      else some <$> elabTerm valStx (some ty')
     let fv ← mkFreshFVarId
-    let lctx := lctx.mkLocalDecl fv x.getId ty'
+    lctx :=
+      if let some v := val then
+        lctx.mkLetDecl fv x.getId ty' v
+      else
+        lctx.mkLocalDecl fv x.getId ty'
     addTermInfo' x (.fvar fv) (lctx? := some lctx) (isBinder := true) (expectedType? := some ty')
-    pure lctx
   modify (fun st => { st with lctx })
-  pure .empty
+
+  if «show» then
+    let text ← getFileMap
+    let mut outStrs := #[]
+    let mut failed := false
+    for stx in stxs do
+      let thisStr ←
+        if let some ⟨b, e⟩ := stx[0].getRange? then
+          if let some ⟨b', e'⟩ := stx[2][1].getRange? then
+            pure <| s!"{text.source.extract b e} : {text.source.extract b' e'}"
+          else pure <| text.source.extract b e
+        else
+          failed := true
+          break
+      outStrs := outStrs.push thisStr
+    if failed then
+      return .code s.getString
+    else
+      return outStrs.map Inline.code
+        |>.toList |>.intersperse (Inline.text ", ") |>.toArray
+        |> Inline.concat
+  else return .empty
+
 
 private def firstToken? (stx : Syntax) : Option Syntax :=
   stx.find? fun
@@ -662,7 +600,8 @@ elaboration are saved under this name.
 The flags `error` and `warning` indicate that an error or warning is expected in the code.
 -/
 --@[builtin_doc_code_block]
-def lean (name : Option Ident := none) (error warning : flag false) (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
+def lean (name : Option Ident := none) (error warning «show» : flag false) (code : StrLit) :
+    DocM (Block ElabInline ElabBlock) := do
   let text ← getFileMap
   let env ← getEnv
   let p := andthenFn whitespace (categoryParserFnImpl `command)
@@ -710,7 +649,9 @@ def lean (name : Option Ident := none) (error warning : flag false) (code : StrL
         withRef msgStx <| log msg.data (severity := .information) (isSilent := true)
     if let some x := name then
       modifyEnv (leanOutputExt.modifyState · (·.insert x.getId output))
-  pure (Block.code (toString (mkNullNode cmds)))
+  if «show» then
+    pure <| .code code.getString
+  else pure .empty
 where
   runCommand (act : Command.CommandElabM Unit) (stx : Syntax)
       (cctx : Command.Context) (cmdState : Command.State) :
@@ -785,16 +726,100 @@ where
       (x, s, d.getD target.length)
     withDistance.qsort (fun (_, _, d1) (_, _, d2) => d1 < d2) |>.map fun (x, s, _) => (x, s)
 
+private def leanTermContents : ParserFn :=
+  whitespace >>
+  (node nullKind (termParser >> optional (symbol ":" >> termParser))).fn
 
 /--
 Treats the provided term as Lean syntax in the documentation's scope.
 -/
 --@[builtin_doc_role lean]
-def leanTerm (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def leanRole (type : Option StrLit := none) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
-  let p : ParserFn := whitespace >> termParser.fn
-  let stx ← parseStrLit p s
-  discard <| withoutErrToSorry <| elabTerm stx none
+  let stx ← parseStrLit leanTermContents s
+  let ty? ←
+    withoutErrToSorry <| do
+    if stx[1][1].isMissing then -- no colon
+      if let some tyStr := type then
+        let stx ← parseQuotedStrLit (whitespace >> termParser.fn) tyStr
+        some <$> elabType stx
+      else pure none
+    else -- type after colon
+      if let some t := type then
+        logErrorAt t m!"Ignoring `{s.getString}` in favor of type provided after colon"
+      some <$> elabType stx[1][1]
+  withoutErrToSorry <| discard <| elabTerm stx[0] ty?
+  pure (.code s.getString)
+
+/--
+Indicates that a code element is intended as just a literal string, with no further meaning.
+
+This is equivalent to a bare code element, except suggestions will not be provided for it.
+-/
+--@[builtin_doc_role]
+def lit (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+  let s ← onlyCode xs
+  pure (.code s.getString)
+
+/--
+Treats the provided term as Lean syntax in the documentation's scope.
+-/
+--@[builtin_doc_code_block]
+def leanTerm (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
+  let stx ← parseStrLit leanTermContents code
+  let ty? ←
+    withoutErrToSorry <|
+    if stx[1][1].isMissing then -- no colon
+      pure none
+    else -- type after colon
+      some <$> elabType stx[1][1]
+  withoutErrToSorry <| discard <| elabTerm stx[0] ty?
+  pure (.code code.getString)
+
+private def assertContents : ParserFn :=
+  whitespace >>
+  nodeFn nullKind
+    (termParser.fn >>
+     chFn '=' (trailingWs := true) >>
+     termParser.fn >>
+     optionalFn (symbolFn ":" >> termParser.fn))
+
+/--
+Asserts that an equality holds.
+
+This doesn't use the equality type because it is needed in the prelude, before the = notation is
+introduced.
+-/
+--@[builtin_doc_role]
+def assert' (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+  let s ← onlyCode xs
+  let stx ← parseStrLit assertContents s
+  let ty? ←
+    withoutErrToSorry <|
+    if stx[3][1].isMissing then -- no colon
+      pure none
+    else -- type after colon
+      some <$> elabType stx[3][1]
+  let lhs ← elabTerm stx[0] ty?
+  let rhs ← elabTerm stx[2] ty?
+  unless ← Meta.withTransparency .all <| Meta.isDefEq lhs rhs do
+    throwErrorAt stx m!"Expected {lhs} = {rhs}, which is {← Meta.whnf lhs} = {← Meta.whnf rhs}, reducing to {← Meta.reduceAll lhs} = {← Meta.reduceAll rhs} but they are not equal."
+  pure (.code s.getString)
+
+/--
+Asserts that an equality holds.
+-/
+--@[builtin_doc_role]
+def assert (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+  let s ← onlyCode xs
+  let stx ← parseStrLit termParser.fn s
+  let ty ← withoutErrToSorry <| elabType stx
+  match_expr (← Meta.whnf ty) with
+  | Eq _ lhs rhs =>
+    unless (← Meta.isDefEq lhs rhs) do
+      throwErrorAt stx m!"Expected {lhs} = {rhs}, but they are not definitionally equal"
+  | _ => throwErrorAt stx m!"Expected equality type"
+
   pure (.code s.getString)
 
 /--
@@ -856,29 +881,77 @@ def manual (domain : Ident) (name : String) (content : TSyntaxArray `inline) : D
   | .error e => throwError e
 
 /--
-Suggests the `name` role, if applicable.
+Suggests the `name` and `given` roles, if applicable.
 -/
 --@[builtin_doc_code_suggestions]
 def suggestName (code : StrLit) : DocM (Array CodeSuggestion) := do
   let stx ← parseStrLit identFn code
+  let mut suggestions := #[]
   try
     discard <| realizeGlobalConstNoOverload stx
-    return #[.mk ``name none none]
+    suggestions := suggestions.push <| .mk ``name none none
   catch
     | _ =>
     if let some (_, []) := (← resolveLocalName stx.getId) then
-      return #[.mk ``name none none]
-  return #[]
+      suggestions := suggestions.push <| .mk ``name none none
+    else
+      suggestions := suggestions.push <| .mk ``given none none
+  return suggestions
+
+/--
+Suggests `given` for the syntaxes not covered by `suggestName`.
+-/
+--@[builtin_doc_code_suggestions]
+def suggestGiven (code : StrLit) : DocM (Array CodeSuggestion) := do
+  let stx ← parseStrLit givenContents code
+  if stx[1][1].isMissing && stx[2][1].isMissing then
+    return #[]
+  else return #[.mk ``given none none]
 
 /--
 Suggests the `lean` role, if applicable.
 -/
 --@[builtin_doc_code_suggestions]
 def suggestLean (code : StrLit) : DocM (Array CodeSuggestion) := do
-  let p : ParserFn := whitespace >> termParser.fn
   try
-    let stx ← parseStrLit p code
-    discard <| withoutErrToSorry <| elabTerm stx none
+    let stx ← parseStrLit leanTermContents code
+    -- To cut down on false positives, we only suggest identifiers if their
+    -- elaboration succeeds. Other terms are suggested if they parse.
+    if onlyIdent stx then
+      let ty? ←
+        withoutErrToSorry <|
+        if stx[1][1].isMissing then pure none
+        else some <$> elabType stx[1][1]
+      discard <| withoutErrToSorry <| elabTerm stx[0] ty?
+    return #[.mk ``lean none none]
+  catch | _ => return #[]
+
+/--
+Suggests the `leanTerm` code block, if applicable.
+-/
+--@[builtin_doc_code_block_suggestions]
+def suggestLeanTermBlock (code : StrLit) : DocM (Array CodeBlockSuggestion) := do
+  try
+    let stx ← parseStrLit leanTermContents code
+    -- To cut down on false positives, we only suggest identifiers if their
+    -- elaboration succeeds. Other terms are suggested if they parse.
+    if onlyIdent stx then
+      let ty? ←
+        withoutErrToSorry <|
+        if stx[1][1].isMissing then pure none
+        else some <$> elabType stx[1][1]
+      discard <| withoutErrToSorry <| elabTerm stx[0] ty?
+    return #[.mk ``leanTerm none none]
+  catch | _ => return #[]
+
+/--
+Suggests the `lean` code block, if applicable.
+-/
+--@[builtin_doc_code_block_suggestions]
+def suggestLeanBlock (code : StrLit) : DocM (Array CodeBlockSuggestion) := do
+  let p : ParserFn := whitespace >> many1Fn commandParser.fn
+  try
+    discard <| parseStrLit p code
     return #[.mk ``lean none none]
   catch | _ => return #[]
 
@@ -940,24 +1013,6 @@ def suggestOption (code : StrLit) : DocM (Array CodeSuggestion) := do
       return #[]
 
 /--
-Suggests the `kw` role, if applicable.
--/
---@[builtin_doc_code_suggestions]
-def suggestKw (code : StrLit) : DocM (Array CodeSuggestion) := do
-  let atom := code.getString
-  let env ← getEnv
-  let parsers := Lean.Parser.parserExtension.getState env
-  let cats := parsers.categories.toArray
-
-  let mut candidates := #[]
-  for (catName, _) in cats do
-    let which ← withAtom catName atom
-    candidates := candidates ++ (which.map (catName, ·))
-
-  candidates.mapM fun (cat, of) => do
-    return .mk ``kw (some s!"(of := {of})") (some s!"(in `{cat}`)")
-
-/--
 Suggests the `syntaxCat` role, if applicable.
 -/
 --@[builtin_doc_code_suggestions]
@@ -981,8 +1036,10 @@ def suggestSyntax (code : StrLit) : DocM (Array CodeSuggestion) := do
   let mut candidates := #[]
   for (catName, _) in cats do
     try
-      discard <| parseStrLit (whitespace >> (categoryParser catName 0).fn) code
-      candidates := candidates.push catName
+      let stx ← parseStrLit (whitespace >> (categoryParser catName 0).fn) code
+      -- Many syntax categories admit identifers, so the false postitive rate is high
+      unless onlyIdent stx do
+        candidates := candidates.push catName
     catch | _ => pure ()
 
   candidates.mapM fun cat => do

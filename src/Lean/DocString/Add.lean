@@ -109,6 +109,53 @@ def versoDocString
     let stx := stx.getArgs
     Doc.elabBlocks (stx.map (⟨·⟩)) |>.exec declName binders
 
+open Lean.Doc in
+open Parser in
+/--
+Adds a Verso docstring to the specified declaration, which should already be present in the
+environment. The docstring is added from a string value, rather than syntax, which means that the
+interactive features are disabled.
+-/
+def versoDocStringFromString
+    (declName : Name) (docComment : String) :
+    TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) := do
+
+  let env ← getEnv
+  let ictx : InputContext := .mk docComment (← getFileName)
+  let text := ictx.fileMap
+  let pmctx : ParserModuleContext := {
+    env,
+    options := ← getOptions,
+    currNamespace := (← getCurrNamespace),
+    openDecls := (← getOpenDecls)
+  }
+  let s := mkParserState docComment
+  -- TODO parse one block at a time for error recovery purposes
+  let s := (Doc.Parser.document).run ictx pmctx (getTokenTable env) s
+
+  if !s.allErrors.isEmpty then
+    for (pos, _, err) in s.allErrors do
+      logError err.toString
+    return (#[], #[])
+  else
+    let stx := s.stxStack.back
+    let stx := stx.getArgs
+    let msgs ← Core.getAndEmptyMessageLog
+    let (val, msgs') ←
+      try
+        let range? := (← getRef).getRange?
+        let val ←
+          Elab.withEnableInfoTree false <| withTheReader Core.Context ({· with fileMap := text}) <|
+            (Doc.elabBlocks (stx.map (⟨·⟩))).exec declName (mkNullNode #[]) (suggestionMode := .batch)
+        let msgs' ← Core.getAndEmptyMessageLog
+        pure (val, msgs')
+      finally
+        Core.setMessageLog msgs
+    -- Adjust messages to show them at the call site
+    for msg in msgs'.toArray do
+      logAt (← getRef) msg.data (severity := msg.severity)
+    pure val
+
 /--
 Adds a Markdown docstring to the environment, validating documentation links.
 -/
@@ -155,6 +202,18 @@ def addVersoDocString
   addVersoDocStringCore declName ⟨blocks, parts⟩
 
 /--
+Adds a Verso docstring to the environment from a string value, which disables the interactive
+features. This should be used for programs that add documentation when there is no syntax available.
+-/
+def addVersoDocStringFromString (declName : Name) (docComment : String) :
+    TermElabM Unit := do
+  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
+    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
+  let (blocks, parts) ← versoDocStringFromString declName docComment
+  addVersoDocStringCore declName ⟨blocks, parts⟩
+
+
+/--
 Adds a docstring to the environment. If `isVerso` is `false`, then the docstring is interpreted as
 Markdown.
 -/
@@ -166,6 +225,19 @@ def addDocStringOf
     addVersoDocString declName binders docComment
   else
     addMarkdownDocString declName docComment
+
+/--
+Interprets a docstring that has been saved as a Markdown string as Verso, elaborating it. This is
+used during bootstrapping.
+-/
+def makeDocStringVerso (declName : Name) : TermElabM Unit := do
+  let some doc ← findInternalDocString? (← getEnv) declName (includeBuiltin := true)
+    | throwError "No documentation found for `{.ofConstName declName}`"
+  let .inl md := doc
+    | throwError "Documentation for `{.ofConstName declName}` is already in Verso format"
+  removeBuiltinDocString declName
+  removeDocStringCore declName
+  addVersoDocStringFromString declName md
 
 /--
 Adds a docstring to the environment.

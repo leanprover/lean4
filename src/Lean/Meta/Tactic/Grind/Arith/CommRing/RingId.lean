@@ -51,6 +51,32 @@ where
     modify' fun s => { s with rings := s.rings.push ring }
     return some id
 
+/--
+Returns the ring id for the given type if there is a `Ring` instance for it.
+This function is invoked only when `getCommRingId?` returns `none`.
+-/
+def getNonCommRingId? (type : Expr) : GoalM (Option Nat) := do
+  if let some id? := (← get').nctypeIdOf.find? { expr := type } then
+    return id?
+  else
+    let id? ← go?
+    modify' fun s => { s with nctypeIdOf := s.nctypeIdOf.insert { expr := type } id? }
+    return id?
+where
+  go? : GoalM (Option Nat) := do
+    let u ← getDecLevel type
+    let ring := mkApp (mkConst ``Grind.Ring [u]) type
+    let some ringInst ← synthInstance? ring | return none
+    let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
+    trace_goal[grind.ring] "new ring: {type}"
+    let charInst? ← getIsCharInst? u type semiringInst
+    let id := (← get').ncRings.size
+    let ring : Ring := {
+      id, type, u, semiringInst, ringInst, charInst?
+    }
+    modify' fun s => { s with ncRings := s.ncRings.push ring }
+    return some id
+
 private def setCommSemiringId (ringId : Nat) (semiringId : Nat) : GoalM Unit := do
   RingM.run ringId do modifyCommRing fun s => { s with semiringId? := some semiringId }
 

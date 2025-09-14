@@ -279,6 +279,14 @@ structure State where
   If an expression is in this map, it is not in `exprToRingId`.
   -/
   exprToSemiringId : PHashMap ExprPtr Nat := {}
+  /--
+  Non commutative rings.
+  -/
+  ncRings : Array Ring := {}
+  /--
+  Mapping from types to its "ring id". We cache failures using `none`.
+  `nctypeIdOf[type]` is `some id`, then `id < ncRings.size`. -/
+  nctypeIdOf : PHashMap ExprPtr (Option Nat) := {}
   steps := 0
   deriving Inhabited
 

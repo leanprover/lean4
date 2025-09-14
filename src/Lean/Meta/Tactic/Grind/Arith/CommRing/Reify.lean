@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
@@ -119,6 +120,9 @@ partial def reifyCore? (e : Expr) (skipVar : Bool) (gen : Nat) : m (Option RingE
   | _ => toTopVar e
 
 partial def reify? (e : Expr) (skipVar := true) (gen : Nat := 0) : RingM (Option RingExpr) := do
+  reifyCore? e skipVar gen
+
+partial def ncreify? (e : Expr) (skipVar := true) (gen : Nat := 0) : NonCommRingM (Option RingExpr) := do
   reifyCore? e skipVar gen
 
 private def reportSAppIssue (e : Expr) : GoalM Unit := do

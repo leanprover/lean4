@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
 import Init.Grind.Ring.CommSemiringAdapter
 import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Diseq
@@ -23,7 +24,7 @@ namespace Lean.Meta.Grind.Arith.CommRing
 Returns a context of type `RArray α` containing the variables `vars` where
 `α` is the type of the ring.
 -/
-private def toContextExpr (vars : Array Expr) : RingM Expr := do
+private def toContextExpr [Monad m] [MonadLiftT MetaM m] [MonadCanon m] [MonadRing m] (vars : Array Expr) : m Expr := do
   let ring ← getRing
   if h : 0 < vars.size then
     RArray.toExpr ring.type id (RArray.ofFn (vars[·]) h)
@@ -333,6 +334,25 @@ def setSemiringDiseqUnsat (a b : Expr) (sa sb : SemiringExpr) : SemiringM Unit :
   let ctx          ← toSContextExpr' vars
   let h := mkApp3 (mkConst ``Grind.Ring.OfSemiring.eq_normS [semiring.u]) semiring.type semiring.commSemiringInst ctx
   let h := mkApp3 h (toExpr sa) (toExpr sb) eagerReflBoolTrue
+  closeGoal (mkApp hne h)
+
+/--
+Given `a` and `b`, such that `a ≠ b` in the core and `ra` and `rb` their reified ring
+terms s.t. `ra.toPoly_nc == rb.toPoly_nc`, close the goal.
+-/
+def setNonCommRingDiseqUnsat (a b : Expr) (ra rb : RingExpr) : NonCommRingM Unit := do
+  let ring ← getRing
+  let hne ← mkDiseqProof a b
+  let usedVars     := ra.collectVars >> rb.collectVars <| {}
+  let vars'        := usedVars.toArray
+  let varRename    := mkVarRename vars'
+  let vars         := ring.vars
+  let vars         := vars'.map fun x => vars[x]!
+  let ra           := ra.renameVars varRename
+  let rb           := rb.renameVars varRename
+  let ctx          ← toContextExpr vars
+  let h := mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_nc_eq [ring.u]) ring.type ring.ringInst ctx
+  let h := mkApp3 h (toExpr ra) (toExpr rb) eagerReflBoolTrue
   closeGoal (mkApp hne h)
 
 end Lean.Meta.Grind.Arith.CommRing

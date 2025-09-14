@@ -31,6 +31,13 @@ private def inSameSemiring? (a b : Expr) : GoalM (Option Nat) := do
   unless semiringId == semiringId' do return none -- This can happen when we have heterogeneous equalities
   return semiringId
 
+/-- Returns `some ringId` if `a` and `b` are elements of the same (non-commutative) ring. -/
+private def inSameNonCommRing? (a b : Expr) : GoalM (Option Nat) := do
+  let some ringId ← getTermNonCommRingId? a | return none
+  let some ringId' ← getTermNonCommRingId? b | return none
+  unless ringId == ringId' do return none -- This can happen when we have heterogeneous equalities
+  return ringId
+
 def mkEqCnstr (p : Poly) (h : EqCnstrProof) : RingM EqCnstr := do
   let id := (← getCommRing).nextId
   let sugar := p.degree
@@ -41,8 +48,8 @@ def mkEqCnstr (p : Poly) (h : EqCnstrProof) : RingM EqCnstr := do
 Returns the ring expression denoting the given Lean expression.
 Recall that we compute the ring expressions during internalization.
 -/
-private def toRingExpr? (e : Expr) : RingM (Option RingExpr) := do
-  let ring ← getCommRing
+private def toRingExpr? [Monad m] [MonadLiftT GrindM m] [MonadRing m] (e : Expr) : m (Option RingExpr) := do
+  let ring ← getRing
   if let some re := ring.denote.find? { expr := e } then
     return some re
   else if let some x := ring.varMap.find? { expr := e } then
@@ -426,11 +433,19 @@ private def processNewDiseqCommSemiring (a b : Expr) : SemiringM Unit := do
     if sa.toPoly == sb.toPoly then
       setSemiringDiseqUnsat a b sa sb
 
+private def processNewDiseqNonCommRing (a b : Expr) : NonCommRingM Unit := do
+  let some ra ← toRingExpr? a | return ()
+  let some rb ← toRingExpr? b | return ()
+  if ra.toPoly_nc == rb.toPoly_nc then
+    setNonCommRingDiseqUnsat a b ra rb
+
 def processNewDiseq (a b : Expr) : GoalM Unit := do
   if let some ringId ← inSameRing? a b then RingM.run ringId do
     processNewDiseqCommRing a b
   else if let some semiringId ← inSameSemiring? a b then SemiringM.run semiringId do
     processNewDiseqCommSemiring a b
+  else if let some ncRingId ← inSameNonCommRing? a b then NonCommRingM.run ncRingId do
+    processNewDiseqNonCommRing a b
 
 /--
 Returns `true` if the todo queue is not empty or the `recheck` flag is set to `true`

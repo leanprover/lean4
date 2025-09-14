@@ -113,7 +113,7 @@ public instance : NilTrace Hash := ⟨nil⟩
 
 /-- Parse a hash from a JSON number. -/
 public def ofJsonNumber? (n : JsonNumber) : Except String Hash :=
-  if n.exponent = 0 && 0 < n.mantissa then
+  if n.exponent = 0 && 0 ≤ n.mantissa then
     if h : n.mantissa.toNat < UInt64.size then
       return ⟨.ofNatLT n.mantissa.toNat h⟩
     else

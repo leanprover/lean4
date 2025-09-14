@@ -60,14 +60,16 @@ instance : MonadCommRing SemiringM where
 def getAddFn' : SemiringM Expr := do
   let s ← getSemiring
   if let some addFn := s.addFn? then return addFn
-  let addFn ← mkBinHomoFn s.type s.u ``HAdd ``HAdd.hAdd
+  let expectedInst := mkApp2 (mkConst ``instHAdd [s.u]) s.type <| mkApp2 (mkConst ``Grind.Semiring.toAdd [s.u]) s.type s.semiringInst
+  let addFn ← mkBinHomoFn s.type s.u ``HAdd ``HAdd.hAdd expectedInst
   modifySemiring fun s => { s with addFn? := some addFn }
   return addFn
 
 def getMulFn' : SemiringM Expr := do
   let s ← getSemiring
   if let some mulFn := s.mulFn? then return mulFn
-  let mulFn ← mkBinHomoFn s.type s.u ``HMul ``HMul.hMul
+  let expectedInst := mkApp2 (mkConst ``instHMul [s.u]) s.type <| mkApp2 (mkConst ``Grind.Semiring.toMul [s.u]) s.type s.semiringInst
+  let mulFn ← mkBinHomoFn s.type s.u ``HMul ``HMul.hMul expectedInst
   modifySemiring fun s => { s with mulFn? := some mulFn }
   return mulFn
 

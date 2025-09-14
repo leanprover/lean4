@@ -140,31 +140,18 @@ structure DiseqCnstr where
   -/
   ofSemiring? : Option (SemiringExpr × SemiringExpr)
 
-/-- State for each `CommRing` processed by this module. -/
+/-- Shared state for non-commutative and commutative rings. -/
 structure Ring where
   id             : Nat
-  /--
-  If this is a `OfSemiring.Q α` ring, this field contain the
-  `semiringId` for `α`.
-  -/
-  semiringId?    : Option Nat
   type           : Expr
   /-- Cached `getDecLevel type` -/
   u              : Level
-  /-- `Semiring` instance for `type` -/
-  semiringInst   : Expr
   /-- `Ring` instance for `type` -/
   ringInst       : Expr
-  /-- `CommSemiring` instance for `type` -/
-  commSemiringInst   : Expr
-  /-- `CommRing` instance for `type` -/
-  commRingInst   : Expr
+  /-- `Semiring` instance for `type` -/
+  semiringInst   : Expr
   /-- `IsCharP` instance for `type` if available. -/
   charInst?      : Option (Expr × Nat)
-  /-- `NoNatZeroDivisors` instance for `type` if available. -/
-  noZeroDivInst? : Option Expr
-  /-- `Field` instance for `type` if available. -/
-  fieldInst?     : Option Expr
   addFn?         : Option Expr := none
   mulFn?         : Option Expr := none
   subFn?         : Option Expr := none
@@ -172,8 +159,6 @@ structure Ring where
   powFn?         : Option Expr := none
   intCastFn?     : Option Expr := none
   natCastFn?     : Option Expr := none
-  /-- Inverse if `fieldInst?` is `some inst` -/
-  invFn?         : Option Expr := none
   one?           : Option Expr := none
   /--
   Mapping from variables to their denotations.
@@ -182,6 +167,25 @@ structure Ring where
   vars           : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap         : PHashMap ExprPtr Var := {}
+  deriving Inhabited
+
+/-- State for each `CommRing` processed by this module. -/
+structure CommRing extends Ring where
+  /-- Inverse if `fieldInst?` is `some inst` -/
+  invFn?         : Option Expr := none
+  /--
+  If this is a `OfSemiring.Q α` ring, this field contain the
+  `semiringId` for `α`.
+  -/
+  semiringId?    : Option Nat
+  /-- `CommSemiring` instance for `type` -/
+  commSemiringInst   : Expr
+  /-- `CommRing` instance for `type` -/
+  commRingInst   : Expr
+  /-- `NoNatZeroDivisors` instance for `type` if available. -/
+  noZeroDivInst? : Option Expr
+  /-- `Field` instance for `type` if available. -/
+  fieldInst?     : Option Expr
   /-- Mapping from Lean expressions to their representations as `RingExpr` -/
   denote         : PHashMap ExprPtr RingExpr := {}
   /-- `denoteEntries` is `denote` as a `PArray` for deterministic traversal. -/
@@ -255,7 +259,7 @@ structure State where
   Commutative rings.
   We expect to find a small number of rings in a given goal. Thus, using `Array` is fine here.
   -/
-  rings : Array Ring := {}
+  rings : Array CommRing := {}
   /--
   Mapping from types to its "ring id". We cache failures using `none`.
   `typeIdOf[type]` is `some id`, then `id < rings.size`. -/

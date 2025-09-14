@@ -69,7 +69,7 @@ private partial def toInt? (e : Expr) : RingM (Option Int) := do
   | _ => return none
 
 private def isInvInst (inst : Expr) : RingM Bool := do
-  if (← getRing).fieldInst?.isNone then return false
+  if (← getCommRing).fieldInst?.isNone then return false
   return isSameExpr (← getInvFn).appArg! inst
 
 /--
@@ -79,10 +79,10 @@ Otherwise, asserts `if a = 0 then a⁻¹ = 0 else a * a⁻¹ = 1`
 -/
 private def processInv (e inst a : Expr) : RingM Unit := do
   unless (← isInvInst inst) do return ()
-  let ring ← getRing
+  let ring ← getCommRing
   let some fieldInst := ring.fieldInst? | return ()
-  if (← getRing).invSet.contains a then return ()
-  modifyRing fun s => { s with invSet := s.invSet.insert a }
+  if (← getCommRing).invSet.contains a then return ()
+  modifyCommRing fun s => { s with invSet := s.invSet.insert a }
   if let some k ← toInt? a then
     if k == 0 then
       /-
@@ -135,7 +135,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     trace_goal[grind.ring.internalize] "[{ringId}]: {e}"
     setTermRingId e
     ringExt.markTerm e
-    modifyRing fun s => { s with
+    modifyCommRing fun s => { s with
       denote := s.denote.insert { expr := e } re
       denoteEntries := s.denoteEntries.push (e, re)
     }

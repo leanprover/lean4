@@ -33,7 +33,15 @@ def getSemiring : SemiringM Semiring := do
   else
     throwError "`grind` internal error, invalid semiringId"
 
-protected def SemiringM.getRing : SemiringM Ring := do
+@[inline] def modifySemiring (f : Semiring → Semiring) : SemiringM Unit := do
+  let semiringId ← getSemiringId
+  modify' fun s => { s with semirings := s.semirings.modify semiringId f }
+
+instance : MonadCanon SemiringM where
+  canonExpr e := do shareCommon (← canon e)
+  synthInstance? e := Grind.synthInstance? e
+
+protected def SemiringM.getCommRing : SemiringM CommRing := do
   let s ← get'
   let ringId := (← getSemiring).ringId
   if h : ringId < s.rings.size then
@@ -41,17 +49,13 @@ protected def SemiringM.getRing : SemiringM Ring := do
   else
     throwError "`grind` internal error, invalid ringId"
 
-instance : MonadRing SemiringM where
-  getRing := SemiringM.getRing
-  modifyRing f := do
-    let ringId := (← getSemiring).ringId
-    modify' fun s => { s with rings := s.rings.modify ringId f }
-  canonExpr e := do shareCommon (← canon e)
-  synthInstance? e := Grind.synthInstance? e
+protected def SemiringM.modifyCommRing (f : CommRing → CommRing) : SemiringM Unit := do
+  let ringId := (← getSemiring).ringId
+  modify' fun s => { s with rings := s.rings.modify ringId f }
 
-@[inline] def modifySemiring (f : Semiring → Semiring) : SemiringM Unit := do
-  let semiringId ← getSemiringId
-  modify' fun s => { s with semirings := s.semirings.modify semiringId f }
+instance : MonadCommRing SemiringM where
+ getCommRing := SemiringM.getCommRing
+ modifyCommRing := SemiringM.modifyCommRing
 
 def getAddFn' : SemiringM Expr := do
   let s ← getSemiring

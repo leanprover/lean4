@@ -116,19 +116,19 @@ private def mkMonDecl (m : Mon) : ProofM Expr := do
 
 private def mkStepBasicPrefix (declName : Name) : ProofM Expr := do
   let ctx ← getContext
-  let ring ← getRing
+  let ring ← getCommRing
   return mkApp3 (mkConst declName [ring.u]) ring.type ring.commRingInst ctx
 
 private def mkStepPrefix (declName declNameC : Name) : ProofM Expr := do
   if let some (charInst, char) ← nonzeroCharInst? then
     let ctx ← getContext
-    let ring ← getRing
+    let ring ← getCommRing
     return mkApp5 (mkConst declNameC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst ctx
   else
     mkStepBasicPrefix declName
 
 private def getSemiringIdOf : RingM Nat := do
-  let some semiringId := (← getRing).semiringId? | throwError "`grind` internal error, semiring is not available"
+  let some semiringId := (← getCommRing).semiringId? | throwError "`grind` internal error, semiring is not available"
   return semiringId
 
 private def getSemiringOf : RingM Semiring := do
@@ -256,7 +256,7 @@ private def mkContext (h : Expr) : ProofM Expr := do
 
 private def mkSemiringContext (h : Expr) : ProofM Expr := do
   let some sctx := (← read).sctx? | return h
-  let some semiringId := (← getRing).semiringId? | return h
+  let some semiringId := (← getCommRing).semiringId? | return h
   let semiring ← getSemiringOf
   let usedVars     := collectMapVars (← get).sexprDecls (·.collectVars) {}
   let vars'        := usedVars.toArray
@@ -273,7 +273,7 @@ private def mkSemiringContext (h : Expr) : ProofM Expr := do
 
 private abbrev withProofContext (x : ProofM Expr) : RingM Expr := do
   let ctx := mkFVar (← mkFreshFVarId)
-  let sctx? ← if (← getRing).semiringId?.isSome then pure <| some (mkFVar (← mkFreshFVarId)) else pure none
+  let sctx? ← if (← getCommRing).semiringId?.isSome then pure <| some (mkFVar (← mkFreshFVarId)) else pure none
   go { ctx, sctx? } |>.run' {}
 where
   go : ProofM Expr := do
@@ -284,7 +284,7 @@ where
 open Lean.Grind.CommRing in
 def EqCnstr.setUnsat  (c : EqCnstr) : RingM Unit := do
   let h ← withProofContext do
-    let ring ← getRing
+    let ring ← getCommRing
     if let some (charInst, char) := ring.charInst? then
       let mut h ← mkStepPrefix ``Stepwise.unsat_eq ``Stepwise.unsat_eqC
       if char == 0 then

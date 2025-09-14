@@ -63,18 +63,20 @@ def throwNotCommRing : LinearM α :=
 def getRing? : LinearM (Option Ring) := do
   getRingCore? (← getStruct).ringId?
 
-def getRing : LinearM Ring := do
+instance : MonadCanon LinearM where
+  canonExpr e := do shareCommon (← canon e)
+  synthInstance? e := Grind.synthInstance? e
+
+def LinearM.getRing : LinearM Ring := do
   let some ring ← getRing?
     | throwNotCommRing
   return ring
 
 instance : MonadRing LinearM where
-  getRing := Linear.getRing
+  getRing := LinearM.getRing
   modifyRing f := do
     let some ringId := (← getStruct).ringId? | throwNotCommRing
     RingM.run ringId do modifyRing f
-  canonExpr e := do shareCommon (← canon e)
-  synthInstance? e := Grind.synthInstance? e
 
 def withRingM (x : RingM α) : LinearM α := do
   let some ringId := (← getStruct).ringId?

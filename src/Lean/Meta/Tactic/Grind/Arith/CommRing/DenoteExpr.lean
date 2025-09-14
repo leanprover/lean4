@@ -15,7 +15,7 @@ namespace Lean.Meta.Grind.Arith.CommRing
 Helper functions for converting reified terms back into their denotations.
 -/
 
-variable [Monad M] [MonadError M] [MonadLiftT MetaM M] [MonadRing M]
+variable [Monad M] [MonadError M] [MonadLiftT MetaM M] [MonadCanon M] [MonadRing M]
 
 def denoteNum (k : Int) : M Expr := do
   let ring ← getRing

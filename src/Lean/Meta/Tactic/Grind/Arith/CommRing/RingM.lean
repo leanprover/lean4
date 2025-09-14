@@ -43,7 +43,11 @@ abbrev RingM.run (ringId : Nat) (x : RingM α) : GoalM α :=
 abbrev getRingId : RingM Nat :=
   return (← read).ringId
 
-protected def RingM.getRing : RingM Ring := do
+instance : MonadCanon RingM where
+  canonExpr e := do shareCommon (← canon e)
+  synthInstance? e := Grind.synthInstance? e
+
+protected def RingM.getCommRing : RingM CommRing := do
   let s ← get'
   let ringId ← getRingId
   if h : ringId < s.rings.size then
@@ -51,15 +55,13 @@ protected def RingM.getRing : RingM Ring := do
   else
     throwError "`grind` internal error, invalid ringId"
 
-protected def modifyRing (f : Ring → Ring) : RingM Unit := do
+protected def RingM.modifyCommRing (f : CommRing → CommRing) : RingM Unit := do
   let ringId ← getRingId
   modify' fun s => { s with rings := s.rings.modify ringId f }
 
-instance : MonadRing RingM where
-  getRing := RingM.getRing
-  modifyRing := CommRing.modifyRing
-  canonExpr e := do shareCommon (← canon e)
-  synthInstance? e := Grind.synthInstance? e
+instance : MonadCommRing RingM where
+  getCommRing := RingM.getCommRing
+  modifyCommRing := RingM.modifyCommRing
 
 abbrev withCheckCoeffDvd (x : RingM α) : RingM α :=
   withReader (fun ctx => { ctx with checkCoeffDvd := true }) x
@@ -93,7 +95,7 @@ def nonzeroCharInst? [Monad m] [MonadRing m] : m (Option (Expr × Nat)) := do
   return none
 
 def noZeroDivisorsInst? : RingM (Option Expr) := do
-  return (← getRing).noZeroDivInst?
+  return (← getCommRing).noZeroDivInst?
 
 /--
 Returns `true` if the current ring satisfies the property
@@ -102,7 +104,7 @@ Returns `true` if the current ring satisfies the property
 ```
 -/
 def noZeroDivisors : RingM Bool := do
-  return (← getRing).noZeroDivInst?.isSome
+  return (← getCommRing).noZeroDivInst?.isSome
 
 /-- Returns `true` if the current ring has a `IsCharP` instance. -/
 def hasChar  : RingM Bool := do
@@ -117,14 +119,14 @@ def getCharInst : RingM (Expr × Nat) := do
   return c
 
 def isField : RingM Bool :=
-  return (← getRing).fieldInst?.isSome
+  return (← getCommRing).fieldInst?.isSome
 
 def isQueueEmpty : RingM Bool :=
-  return (← getRing).queue.isEmpty
+  return (← getCommRing).queue.isEmpty
 
 def getNext? : RingM (Option EqCnstr) := do
-  let some c := (← getRing).queue.min? | return none
-  modifyRing fun s => { s with queue := s.queue.erase c }
+  let some c := (← getCommRing).queue.min? | return none
+  modifyCommRing fun s => { s with queue := s.queue.erase c }
   incSteps
   return some c
 

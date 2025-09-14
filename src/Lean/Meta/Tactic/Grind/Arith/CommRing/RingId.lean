@@ -44,7 +44,7 @@ where
     let fieldInst? ← synthInstance? <| mkApp (mkConst ``Grind.Field [u]) type
     let semiringId? := none
     let id := (← get').rings.size
-    let ring : Ring := {
+    let ring : CommRing := {
       id, semiringId?, type, u, semiringInst, ringInst, commSemiringInst,
       commRingInst, charInst?, noZeroDivInst?, fieldInst?,
     }
@@ -52,7 +52,7 @@ where
     return some id
 
 private def setCommSemiringId (ringId : Nat) (semiringId : Nat) : GoalM Unit := do
-  RingM.run ringId do modifyRing fun s => { s with semiringId? := some semiringId }
+  RingM.run ringId do modifyCommRing fun s => { s with semiringId? := some semiringId }
 
 def getCommSemiringId? (type : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').stypeIdOf.find? { expr := type } then

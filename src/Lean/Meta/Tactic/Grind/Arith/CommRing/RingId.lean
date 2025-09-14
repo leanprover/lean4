@@ -22,7 +22,7 @@ This function will also perform sanity-checks
 
 It also caches the functions representing `+`, `*`, `-`, `^`, and `intCast`.
 -/
-def getRingId? (type : Expr) : GoalM (Option Nat) := do
+def getCommRingId? (type : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').typeIdOf.find? { expr := type } then
     return id?
   else
@@ -51,10 +51,10 @@ where
     modify' fun s => { s with rings := s.rings.push ring }
     return some id
 
-private def setSemiringId (ringId : Nat) (semiringId : Nat) : GoalM Unit := do
+private def setCommSemiringId (ringId : Nat) (semiringId : Nat) : GoalM Unit := do
   RingM.run ringId do modifyRing fun s => { s with semiringId? := some semiringId }
 
-def getSemiringId? (type : Expr) : GoalM (Option Nat) := do
+def getCommSemiringId? (type : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').stypeIdOf.find? { expr := type } then
     return id?
   else
@@ -68,14 +68,14 @@ where
     let some commSemiringInst ← synthInstance? commSemiring | return none
     let semiringInst := mkApp2 (mkConst ``Grind.CommSemiring.toSemiring [u]) type commSemiringInst
     let q ← shareCommon (← canon (mkApp2 (mkConst ``Grind.Ring.OfSemiring.Q [u]) type semiringInst))
-    let some ringId ← getRingId? q
+    let some ringId ← getCommRingId? q
       | throwError "`grind` unexpected failure, failure to initialize ring{indentExpr q}"
     let id := (← get').semirings.size
     let semiring : Semiring := {
       id, type, ringId, u, semiringInst, commSemiringInst
     }
     modify' fun s => { s with semirings := s.semirings.push semiring }
-    setSemiringId ringId id
+    setCommSemiringId ringId id
     return some id
 
 end Lean.Meta.Grind.Arith.CommRing

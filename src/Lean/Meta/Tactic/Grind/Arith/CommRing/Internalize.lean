@@ -117,7 +117,7 @@ private def processInv (e inst a : Expr) : RingM Unit := do
 private def internalizeInv (e : Expr) : GoalM Bool := do
   match_expr e with
   | Inv.inv α inst a =>
-    let some ringId ← getRingId? α | return true
+    let some ringId ← getCommRingId? α | return true
     RingM.run ringId do processInv e inst a
     return true
   | _ => return false
@@ -130,7 +130,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   if (← internalizeInv e) then return ()
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
-  if let some ringId ← getRingId? type then RingM.run ringId do
+  if let some ringId ← getCommRingId? type then RingM.run ringId do
     let some re ← reify? e | return ()
     trace_goal[grind.ring.internalize] "[{ringId}]: {e}"
     setTermRingId e
@@ -139,7 +139,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
       denote := s.denote.insert { expr := e } re
       denoteEntries := s.denoteEntries.push (e, re)
     }
-  else if let some semiringId ← getSemiringId? type then SemiringM.run semiringId do
+  else if let some semiringId ← getCommSemiringId? type then SemiringM.run semiringId do
     let some re ← sreify? e | return ()
     trace_goal[grind.ring.internalize] "semiring [{semiringId}]: {e}"
     setTermSemiringId e

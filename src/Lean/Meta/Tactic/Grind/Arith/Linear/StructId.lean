@@ -70,7 +70,7 @@ private def isCutsatType (type : Expr) : GoalM Bool := do
 
 private def getCommRingInst? (ringId? : Option Nat) : GoalM (Option Expr) := do
   let some ringId := ringId? | return none
-  return some (← CommRing.RingM.run ringId do return (← CommRing.getRing).commRingInst)
+  return some (← CommRing.RingM.run ringId do return (← CommRing.getCommRing).commRingInst)
 
 private def mkRingInst? (u : Level) (type : Expr) (commRingInst? : Option Expr) : GoalM (Option Expr) := do
   if let some commRingInst := commRingInst? then
@@ -206,7 +206,7 @@ def getStructId? (type : Expr) : GoalM (Option Nat) := do
 where
   go? : GoalM (Option Nat) := do
     let u ← getDecLevel type
-    let ringId? ← CommRing.getRingId? type
+    let ringId? ← CommRing.getCommRingId? type
     let leInst? ← getInst? ``LE u type
     let ltInst? ← getInst? ``LT u type
     let lawfulOrderLTInst? ← mkLawfulOrderLTInst? u type ltInst? leInst?

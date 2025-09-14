@@ -42,14 +42,14 @@ We use `skipVar := false` when processing inequalities, and `skipVar := true` fo
 partial def reify? (e : Expr) (skipVar : Bool) (generation : Nat := 0) : LinearM (Option LinExpr) := do
   match_expr e with
   | HAdd.hAdd _ _ _ i a b =>
-    if isAddInst (← getStruct  ) i then return some (.add (← go a) (← go b)) else asTopVar e
+    if isAddInst (← getStruct) i then return some (.add (← go a) (← go b)) else asTopVar e
   | HSub.hSub _ _ _ i a b =>
-    if isSubInst (← getStruct  ) i then return some (.sub (← go a) (← go b)) else asTopVar e
+    if isSubInst (← getStruct) i then return some (.sub (← go a) (← go b)) else asTopVar e
   | HSMul.hSMul _ _ _ i a b =>
     let some r ← processSMul i a b | asTopVar e
     return some r
   | Neg.neg _ i a =>
-    if isNegInst (← getStruct  ) i then return some (.neg (← go a)) else asTopVar e
+    if isNegInst (← getStruct) i then return some (.neg (← go a)) else asTopVar e
   | Zero.zero _ i =>
     if isZeroInst (← getStruct) i then return some .zero else asTopVar e
   | OfNat.ofNat _ _ _ =>

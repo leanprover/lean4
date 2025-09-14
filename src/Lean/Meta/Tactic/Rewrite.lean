@@ -24,7 +24,8 @@ structure RewriteResult where
   mvarIds  : List MVarId -- new goals
 
 /--
-Rewrite goal `mvarId`
+Rewrite `e` using `heq` in the context of `mvarId`.
+Returns the result of the rewrite, the metavariable `mvarId` is not assigned.
 -/
 def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
     (symm : Bool := false) (config := { : Rewrite.Config }) : MetaM RewriteResult :=

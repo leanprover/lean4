@@ -939,8 +939,8 @@ theorem getLast!_eq_getElem! [Inhabited α] {l : List α} : l.getLast! = l[l.len
   | nil => simp
   | cons _ _ =>
     apply getLast!_of_getLast?
-    rw [getElem!_pos, getElem_cons_length (h := by simp)]
-    rfl
+    rw [getLast?_eq_getElem?]
+    simp
 
 /-! ## Head and tail -/
 
@@ -1344,7 +1344,7 @@ grind_pattern getElem_filter => (xs.filter p)[i]
 
 theorem getElem?_filter {xs : List α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).length)
     (w : (xs.filter p)[i]? = some a) : p a := by
-  rw [getElem?_eq_getElem] at w
+  rw [getElem?_eq_getElem h] at w
   simp only [Option.some.injEq] at w
   rw [← w]
   apply getElem_filter h

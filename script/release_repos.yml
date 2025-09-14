@@ -1,10 +1,24 @@
 repositories:
+  - name: lean4-cli
+    url: https://github.com/leanprover/lean4-cli
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies: []
+
   - name: batteries
     url: https://github.com/leanprover-community/batteries
     toolchain-tag: true
     stable-branch: true
     branch: main
     bump-branch: true
+    dependencies: []
+
+  - name: verso
+    url: https://github.com/leanprover/verso
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
     dependencies: []
 
   - name: lean4checker
@@ -19,20 +33,6 @@ repositories:
     toolchain-tag: true
     stable-branch: true
     branch: master
-    dependencies: []
-
-  - name: lean4-cli
-    url: https://github.com/leanprover/lean4-cli
-    toolchain-tag: true
-    stable-branch: false
-    branch: main
-    dependencies: []
-
-  - name: verso
-    url: https://github.com/leanprover/verso
-    toolchain-tag: true
-    stable-branch: false
-    branch: main
     dependencies: []
 
   - name: plausible
@@ -95,6 +95,15 @@ repositories:
       - doc-gen4
       - import-graph
       - plausible
+
+  - name: cslib
+    url: https://github.com/leanprover/cslib
+    toolchain-tag: true
+    stable-branch: true
+    branch: main
+    bump-branch: true
+    dependencies:
+      - mathlib4
 
   - name: repl
     url: https://github.com/leanprover-community/repl

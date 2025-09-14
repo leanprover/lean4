@@ -67,7 +67,7 @@ def namedName := leading_parser
 def optNamedName := optional namedName
 
 def identPrec  := leading_parser ident >> optPrecedence
-def notationItem := withAntiquot (mkAntiquot "notationItem" decl_name%) (strLit <|> Syntax.unicodeAtom <|> identPrec)
+def notationItem := withAntiquot (mkAntiquot "notationItem" decl_name% (isPseudoKind := true)) (strLit <|> Syntax.unicodeAtom <|> identPrec)
 /--
 `prefix:prec "op" => f` is equivalent to `notation:prec "op" x:prec => f x`.
 -/

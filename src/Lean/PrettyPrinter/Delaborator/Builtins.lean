@@ -954,8 +954,6 @@ def delabLam : Delab :=
 
 /-- Don't do any renaming for forall binders, but do add fresh macro scopes when there is shadowing. -/
 private def ppPiPreserveNames := `pp.piPreserveNames
-/-- Causes non-dependent foralls to print with binder names. -/
-private def ppPiBinderNames := `pp.piBinderNames
 
 /--
 Similar to `delabBinders`, but tracking whether `forallE` is dependent or not.
@@ -964,7 +962,11 @@ See issue #1571
 -/
 private partial def delabForallBinders (prop : Bool) (delabGroup : Array Syntax → Bool → Syntax → Delab) (curNames : Array Syntax := #[]) (curDep := false) : Delab := do
   -- Logic note: wanting to print with binder names is equivalent to pretending the forall is dependent.
-  let mut dep := !(← getExpr).isArrow || (← getOptionsAtCurrPos).get ppPiBinderNames false
+  let opts ← getOptionsAtCurrPos
+  let mut dep :=
+    !(← getExpr).isArrow
+    || (getPPPiBinderNames opts
+        && (!(← getExpr).bindingName!.hasMacroScopes || getPPPiBinderNamesHygienic opts))
   if !dep && prop && (← getExpr).binderInfo.isExplicit then
     -- RFC #1834: If `∀` notation is enabled, avoid using `→` for propositions if the domain is not a proposition.
     -- We can pretend the type is dependent in this case.
@@ -975,7 +977,7 @@ private partial def delabForallBinders (prop : Bool) (delabGroup : Array Syntax 
     -- don't group
     delabGroup curNames curDep (← delab)
   else
-    let preserve := (← getOptionsAtCurrPos).get ppPiPreserveNames false
+    let preserve := opts.get ppPiPreserveNames false
     let curDep := dep
     if ← shouldGroupWithNext then
       -- group with nested binder => recurse immediately
@@ -1554,7 +1556,7 @@ where
         if n.hasMacroScopes then
           return (opts, .forallE n t b' bi)
         else if !used then
-          let opts := opts.insertAt subExpr.pos ppPiBinderNames true
+          let opts := opts.insertAt subExpr.pos pp.piBinderNames.name true
           return (opts, .forallE n t b' bi)
         else
           let n' ← withFreshMacroScope <| MonadQuotation.addMacroScope n

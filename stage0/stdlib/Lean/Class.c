@@ -3333,7 +3333,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Class_0__Lean_mkOutParamArgsImplicit_go___closed__2;
 x_2 = lean_unsigned_to_nat(24u);
-x_3 = lean_unsigned_to_nat(1861u);
+x_3 = lean_unsigned_to_nat(1876u);
 x_4 = l___private_Lean_Class_0__Lean_mkOutParamArgsImplicit_go___closed__1;
 x_5 = l___private_Lean_Class_0__Lean_mkOutParamArgsImplicit_go___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3354,7 +3354,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Class_0__Lean_mkOutParamArgsImplicit_go___closed__2;
 x_2 = lean_unsigned_to_nat(23u);
-x_3 = lean_unsigned_to_nat(1850u);
+x_3 = lean_unsigned_to_nat(1865u);
 x_4 = l___private_Lean_Class_0__Lean_mkOutParamArgsImplicit_go___closed__4;
 x_5 = l___private_Lean_Class_0__Lean_mkOutParamArgsImplicit_go___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

@@ -25,12 +25,11 @@ public def zpad (n : Nat) (len : Nat) : String :=
 public def isHex (s : String) : Bool :=
   s.utf8ByteSize.all fun i h =>
     let c := s.getUtf8Byte i h
-    if c ≤ 70 then -- 'F'
-      if c ≤ 57 then -- '9'
-        48 ≤ c -- '0'
-      else
-        65 ≤ c -- 'A'
+    if c ≤ 57 then -- '9'
+      48 ≤ c -- '0'
     else if c ≤ 102 then -- 'f'
       97 ≤ c -- 'a'
+    else if c ≤ 70 then -- 'F'
+      65 ≤ c -- 'A'
     else
       false

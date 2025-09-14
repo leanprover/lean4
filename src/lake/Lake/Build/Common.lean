@@ -89,7 +89,12 @@ public def BuildMetadata.ofStub (hash : Hash) : BuildMetadata :=
 public abbrev BuildMetadata.ofHash := @ofStub
 
 public def BuildMetadata.fromJsonObject? (obj : JsonObject) : Except String BuildMetadata := do
-  let depHash ← obj.get "depHash"
+  let depHash ←
+    if obj.getJson? "schemaVersion" |>.isNone then
+      Hash.ofDecimal? (← obj.get "depHash") |>.getDM do
+        error "invalid trace: expected string 'depHash' of decimal digits"
+    else
+      obj.get "depHash"
   let inputs ← obj.getD "inputs" {}
   let outputs? ← obj.getD "outputs" none
   let log ← obj.getD "log" {}
@@ -170,7 +175,7 @@ public def readTraceFile (path : FilePath) : LogIO SavedTrace := do
         | .ok hash =>
           return .ok (.ofStub hash)
         | .error reason =>
-          logWarning s!"{path}: invalid trace file hash: {reason}"
+          logWarning s!"{path}: invalid hash trace: {reason}"
           return .invalid
       | .obj (o : JsonObject) =>
         match BuildMetadata.fromJsonObject? o with
@@ -179,15 +184,15 @@ public def readTraceFile (path : FilePath) : LogIO SavedTrace := do
         | .error e =>
           if let some (.str ver) := o.getJson? "schemaVersion" then
             if ver == BuildMetadata.schemaVersion then
-              logWarning s!"{path}: invalid trace file: {e}"
+              logWarning s!"{path}: invalid trace: {e}"
               return .invalid
-          logVerbose s!"{path}: unknown trace file: {e}"
+          logVerbose s!"{path}: unknown trace format: {e}"
           return .invalid
       | _ =>
-        logWarning s!"{path}: invalid trace file: expected JSON number or object"
+        logWarning s!"{path}: invalid trace: expected JSON number or object"
         return .invalid
     | .error e =>
-      logWarning s!"{path}: invalid trace file: {e}"
+      logWarning s!"{path}: invalid trace: {e}"
       return .invalid
   | .error (.noFileOrDirectory ..) =>
     return .missing
@@ -304,7 +309,7 @@ and log are saved to `traceFile`, if the build completes without a fatal error
 : JobM α := do
   if (← getNoBuild) then
     updateAction .build
-    error "target is out-of-date and needs to be rebuilt"
+    error s!"target is out-of-date and needs to be rebuilt"
   else
     updateAction action
     let startTime ← IO.monoMsNow
@@ -686,7 +691,7 @@ public def inputDir
     let ps := ps.qsort (toString · < toString ·)
     return ps
   job.bindM fun ps =>
-    Job.collectArray <$> ps.mapM (inputFile · text)
+    Job.collectArray (traceCaption := path.toString) <$> ps.mapM (inputFile · text)
 
 /--
 Build an object file from a source file job using `compiler`. The invocation is:

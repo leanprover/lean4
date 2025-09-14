@@ -122,7 +122,7 @@ private theorem foldlM_loop [Monad m] (f : α → Fin (n+1) → m α) (x) (h : i
     rw [foldlM_loop_lt _ _ h', foldlM_loop]; rfl
   else
     cases Nat.le_antisymm (Nat.le_of_lt_succ h) (Nat.not_lt.1 h')
-    rw [foldlM_loop_lt]
+    rw [foldlM_loop_lt _ _ h]
     congr; funext
     rw [foldlM_loop_eq, foldlM_loop_eq]
 termination_by n - i

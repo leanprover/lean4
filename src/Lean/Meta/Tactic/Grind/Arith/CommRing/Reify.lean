@@ -33,7 +33,7 @@ def isNatCastInst (inst : Expr) : m Bool :=
 private def reportAppIssue (e : Expr) : GoalM Unit := do
   reportIssue! "comm ring term with unexpected instance{indentExpr e}"
 
-variable [MonadLiftT GoalM m] [MonadMarkTerm m]
+variable [MonadLiftT GoalM m] [MonadSetTermId m]
 
 /--
 Converts a Lean expression `e` in the `CommRing` into a `CommRing.Expr` object.

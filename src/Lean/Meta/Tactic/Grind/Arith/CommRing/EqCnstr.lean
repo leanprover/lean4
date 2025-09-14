@@ -382,49 +382,55 @@ private def diseqZeroToEq (a b : Expr) : RingM Unit := do
   trace[grind.debug.ring.rabinowitsch] "{lhs}"
   pushEq lhs (← getOne) <| mkApp4 (mkConst ``Grind.CommRing.diseq0_to_eq [ring.u]) ring.type fieldInst a (← mkDiseqProof a b)
 
+private def processNewDiseqCommRing (a b : Expr) : RingM Unit := do
+  trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
+  let some ra ← toRingExpr? a | return ()
+  let some rb ← toRingExpr? b | return ()
+  let p ← (ra.sub rb).toPolyM
+  if (← isField) then
+    if !(p matches .num _) || !(← hasChar) then
+      if rb matches .num 0 then
+        diseqZeroToEq a b
+      else
+        diseqToEq a b
+      return ()
+  addNewDiseq {
+    lhs := a, rhs := b
+    rlhs := ra, rrhs := rb
+    d := .input p
+    ofSemiring? := none
+  }
+
+private def processNewDiseqCommSemiring (a b : Expr) : SemiringM Unit := do
+  if (← getAddRightCancelInst?).isSome then
+    trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
+    let some sa ← toSemiringExpr? a | return ()
+    let some sb ← toSemiringExpr? b | return ()
+    let lhs ← sa.denoteAsRingExpr
+    let rhs ← sb.denoteAsRingExpr
+    RingM.run (← getSemiring).ringId do
+      let some ra ← reify? lhs (skipVar := false) (gen := (← getGeneration a)) | return ()
+      let some rb ← reify? rhs (skipVar := false) (gen := (← getGeneration b)) | return ()
+      let p ← (ra.sub rb).toPolyM
+      addNewDiseq {
+        lhs := a, rhs := b
+        rlhs := ra, rrhs := rb
+        d := .input p
+        ofSemiring? := some (sa, sb)
+      }
+  else
+    -- If semiring does not have `AddRightCancel`,
+    -- we may still normalize and check whether lhs and rhs are equal
+    let some sa ← toSemiringExpr? a | return ()
+    let some sb ← toSemiringExpr? b | return ()
+    if sa.toPoly == sb.toPoly then
+      setSemiringDiseqUnsat a b sa sb
+
 def processNewDiseq (a b : Expr) : GoalM Unit := do
   if let some ringId ← inSameRing? a b then RingM.run ringId do
-    trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
-    let some ra ← toRingExpr? a | return ()
-    let some rb ← toRingExpr? b | return ()
-    let p ← (ra.sub rb).toPolyM
-    if (← isField) then
-      if !(p matches .num _) || !(← hasChar) then
-        if rb matches .num 0 then
-          diseqZeroToEq a b
-        else
-          diseqToEq a b
-        return ()
-    addNewDiseq {
-      lhs := a, rhs := b
-      rlhs := ra, rrhs := rb
-      d := .input p
-      ofSemiring? := none
-    }
+    processNewDiseqCommRing a b
   else if let some semiringId ← inSameSemiring? a b then SemiringM.run semiringId do
-    if (← getAddRightCancelInst?).isSome then
-      trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
-      let some sa ← toSemiringExpr? a | return ()
-      let some sb ← toSemiringExpr? b | return ()
-      let lhs ← sa.denoteAsRingExpr
-      let rhs ← sb.denoteAsRingExpr
-      RingM.run (← getSemiring).ringId do
-        let some ra ← reify? lhs (skipVar := false) (gen := (← getGeneration a)) | return ()
-        let some rb ← reify? rhs (skipVar := false) (gen := (← getGeneration b)) | return ()
-        let p ← (ra.sub rb).toPolyM
-        addNewDiseq {
-          lhs := a, rhs := b
-          rlhs := ra, rrhs := rb
-          d := .input p
-          ofSemiring? := some (sa, sb)
-        }
-    else
-      -- If semiring does not have `AddRightCancel`,
-      -- we may still normalize and check whether lhs and rhs are equal
-      let some sa ← toSemiringExpr? a | return ()
-      let some sb ← toSemiringExpr? b | return ()
-      if sa.toPoly == sb.toPoly then
-        setSemiringDiseqUnsat a b sa sb
+    processNewDiseqCommSemiring a b
 
 /--
 Returns `true` if the todo queue is not empty or the `recheck` flag is set to `true`

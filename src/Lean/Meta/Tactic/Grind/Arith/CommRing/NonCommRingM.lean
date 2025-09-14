@@ -38,8 +38,18 @@ instance : MonadRing NonCommRingM where
   getRing := NonCommRingM.getRing
   modifyRing := NonCommRingM.modifyRing
 
-instance : MonadMarkTerm NonCommRingM where
-  -- **Note**: We only normalize non commutative ring terms. So, we don't need the mark terms
-  markTerm _ := return ()
+def getTermNonCommRingId? (e : Expr) : GoalM (Option Nat) := do
+    return (← get').exprToNCRingId.find? { expr := e }
+
+def setTermNonCommRingId (e : Expr) : NonCommRingM Unit := do
+  let ringId := (← read).ringId
+  if let some ringId' ← getTermNonCommRingId? e then
+    unless ringId' == ringId do
+      reportIssue! "expression in two different rings{indentExpr e}"
+    return ()
+  modify' fun s => { s with exprToNCRingId := s.exprToNCRingId.insert { expr := e } ringId }
+
+instance : MonadSetTermId NonCommRingM where
+  setTermId e := setTermNonCommRingId e
 
 end Lean.Meta.Grind.Arith.CommRing

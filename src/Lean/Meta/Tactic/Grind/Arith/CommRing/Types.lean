@@ -167,6 +167,8 @@ structure Ring where
   vars           : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap         : PHashMap ExprPtr Var := {}
+  /-- Mapping from Lean expressions to their representations as `RingExpr` -/
+  denote         : PHashMap ExprPtr RingExpr := {}
   deriving Inhabited
 
 /-- State for each `CommRing` processed by this module. -/
@@ -186,8 +188,6 @@ structure CommRing extends Ring where
   noZeroDivInst? : Option Expr
   /-- `Field` instance for `type` if available. -/
   fieldInst?     : Option Expr
-  /-- Mapping from Lean expressions to their representations as `RingExpr` -/
-  denote         : PHashMap ExprPtr RingExpr := {}
   /-- `denoteEntries` is `denote` as a `PArray` for deterministic traversal. -/
   denoteEntries  : PArray (Expr × RingExpr) := {}
   /-- Next unique id for `EqCnstr`s. -/
@@ -283,6 +283,8 @@ structure State where
   Non commutative rings.
   -/
   ncRings : Array Ring := {}
+  /- Mapping from expressions/terms to their (non-commutative) ring ids. -/
+  exprToNCRingId : PHashMap ExprPtr Nat := {}
   /--
   Mapping from types to its "ring id". We cache failures using `none`.
   `nctypeIdOf[type]` is `some id`, then `id < ncRings.size`. -/

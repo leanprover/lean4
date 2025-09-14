@@ -122,8 +122,8 @@ def getNext? : RingM (Option EqCnstr) := do
   incSteps
   return some c
 
-class MonadMarkTerm (m : Type → Type) where
-  markTerm : Expr → m Unit
+class MonadSetTermId (m : Type → Type) where
+  setTermId : Expr → m Unit
 
 def setTermRingId (e : Expr) : RingM Unit := do
   let ringId ← getRingId
@@ -133,7 +133,7 @@ def setTermRingId (e : Expr) : RingM Unit := do
     return ()
   modify' fun s => { s with exprToRingId := s.exprToRingId.insert { expr := e } ringId }
 
-def mkVarCore [Monad m] [MonadRing m] [MonadMarkTerm m] (e : Expr) : m Var := do
+def mkVarCore [MonadLiftT GoalM m] [Monad m] [MonadRing m] [MonadSetTermId m] (e : Expr) : m Var := do
   let s ← getRing
   if let some var := s.varMap.find? { expr := e } then
     return var
@@ -142,13 +142,12 @@ def mkVarCore [Monad m] [MonadRing m] [MonadMarkTerm m] (e : Expr) : m Var := do
     vars       := s.vars.push e
     varMap     := s.varMap.insert { expr := e } var
   }
-  MonadMarkTerm.markTerm e
+  MonadSetTermId.setTermId e
+  ringExt.markTerm e
   return var
 
-instance : MonadMarkTerm RingM where
-  markTerm e := do
-    setTermRingId e
-    ringExt.markTerm e
+instance : MonadSetTermId RingM where
+  setTermId e := setTermRingId e
 
 def mkVar (e : Expr) : RingM Var :=
   mkVarCore e

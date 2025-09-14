@@ -179,6 +179,13 @@ theorem ofNat_mul (a b : Nat) : OfNat.ofNat (α := α) (a * b) = OfNat.ofNat a *
 theorem natCast_mul (a b : Nat) : ((a * b : Nat) : α) = ((a : α) * (b : α)) := by
   rw [← ofNat_eq_natCast, ofNat_mul, ofNat_eq_natCast, ofNat_eq_natCast]
 
+theorem natCast_mul_comm (a : Nat) (b : α) : a * b = b * a := by
+  induction a
+  next => simp [Semiring.natCast_zero, mul_zero, zero_mul]
+  next ih =>
+    rw [Semiring.natCast_succ, Semiring.left_distrib, Semiring.right_distrib, ih]
+    simp [Semiring.mul_one, Semiring.one_mul]
+
 theorem pow_one (a : α) : a ^ 1 = a := by
   rw [pow_succ, pow_zero, one_mul]
 
@@ -330,6 +337,12 @@ theorem intCast_mul (x y : Int) : ((x * y : Int) : α) = ((x : α) * (y : α)) :
   | (-(x + 1 : Nat)), (-(y + 1 : Nat)) => by
     rw [Int.neg_mul_neg, intCast_neg, intCast_neg, neg_mul, mul_neg, neg_neg, intCast_mul_aux,
       intCast_natCast, intCast_natCast]
+
+theorem intCast_mul_comm (a : Int) (b : α) : a * b = b * a := by
+  have : a = a.natAbs ∨ a = -a.natAbs := by exact Int.natAbs_eq a
+  cases this
+  next h => rw [h, Ring.intCast_natCast, Semiring.natCast_mul_comm]
+  next h => rw [h, Ring.intCast_neg, Ring.intCast_natCast, Ring.mul_neg, Ring.neg_mul, Semiring.natCast_mul_comm]
 
 theorem intCast_pow (x : Int) (k : Nat) : ((x ^ k : Int) : α) = (x : α) ^ k := by
   induction k

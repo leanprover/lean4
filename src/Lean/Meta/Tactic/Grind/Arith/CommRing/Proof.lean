@@ -351,7 +351,10 @@ def setNonCommRingDiseqUnsat (a b : Expr) (ra rb : RingExpr) : NonCommRingM Unit
   let ra           := ra.renameVars varRename
   let rb           := rb.renameVars varRename
   let ctx          ← toContextExpr vars
-  let h := mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_nc_eq [ring.u]) ring.type ring.ringInst ctx
+  let h := if let some (charInst, c) := ring.charInst? then
+    mkApp5 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyC_nc_eq [ring.u]) ring.type (toExpr c) ring.ringInst charInst ctx
+  else
+    mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_nc_eq [ring.u]) ring.type ring.ringInst ctx
   let h := mkApp3 h (toExpr ra) (toExpr rb) eagerReflBoolTrue
   closeGoal (mkApp hne h)
 

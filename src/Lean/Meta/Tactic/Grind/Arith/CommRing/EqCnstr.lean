@@ -436,8 +436,12 @@ private def processNewDiseqCommSemiring (a b : Expr) : SemiringM Unit := do
 private def processNewDiseqNonCommRing (a b : Expr) : NonCommRingM Unit := do
   let some ra ← toRingExpr? a | return ()
   let some rb ← toRingExpr? b | return ()
-  if ra.toPoly_nc == rb.toPoly_nc then
-    setNonCommRingDiseqUnsat a b ra rb
+  if let some (_, c) := (← getRing).charInst? then
+    if ra.toPolyC_nc c == rb.toPolyC_nc c then
+      setNonCommRingDiseqUnsat a b ra rb
+  else
+    if ra.toPoly_nc == rb.toPoly_nc then
+      setNonCommRingDiseqUnsat a b ra rb
 
 def processNewDiseq (a b : Expr) : GoalM Unit := do
   if let some ringId ← inSameRing? a b then RingM.run ringId do

@@ -33,10 +33,15 @@ register_builtin_option pp.parens : Bool := {
   group    := "pp"
   descr    := "(pretty printer) if set to true, notation is wrapped in parentheses regardless of precedence"
 }
+register_builtin_option pp.unicode : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) if set to false, avoid using non-unicode symbols when formatting"
+}
 register_builtin_option pp.unicode.fun : Bool := {
   defValue := false
   group    := "pp"
-  descr    := "(pretty printer) disable/enable unicode ↦ notation for functions"
+  descr    := "(pretty printer) if set to true, use unicode `↦` notation for functions"
 }
 register_builtin_option pp.match : Bool := {
   defValue := true
@@ -280,7 +285,8 @@ def getPPExplicit (o : Options) : Bool := o.get pp.explicit.name (getPPAll o)
 def getPPForalls (o : Options) : Bool := o.get pp.foralls.name pp.foralls.defValue
 def getPPNotation (o : Options) : Bool := o.get pp.notation.name (!getPPAll o)
 def getPPParens (o : Options) : Bool := o.get pp.parens.name pp.parens.defValue
-def getPPUnicodeFun (o : Options) : Bool := o.get pp.unicode.fun.name false
+def getPPUnicode (o : Options) : Bool := o.get pp.unicode.name pp.unicode.defValue
+def getPPUnicodeFun (o : Options) : Bool := o.get pp.unicode.fun.name pp.unicode.fun.defValue
 def getPPMatch (o : Options) : Bool := o.get pp.match.name (!getPPAll o)
 def getPPSorrySource (o : Options) : Bool := o.get pp.sorrySource.name pp.sorrySource.defValue
 def getPPFieldNotation (o : Options) : Bool := o.get pp.fieldNotation.name (!getPPAll o)

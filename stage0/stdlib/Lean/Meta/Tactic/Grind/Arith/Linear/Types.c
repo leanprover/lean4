@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Linear.Types
-// Imports: Init.Grind.Ring.Poly Init.Grind.Ordered.Linarith Lean.Meta.Tactic.Grind.Types Init.Data.Rat.Basic
+// Imports: Init.Grind.Ring.CommSolver Init.Grind.Ordered.Linarith Lean.Meta.Tactic.Grind.Types Init.Data.Rat.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2003,7 +2003,7 @@ x_4 = l_Lean_Meta_Grind_registerSolverExtension___redArg(x_3, x_1);
 return x_4;
 }
 }
-lean_object* initialize_Init_Grind_Ring_Poly(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Ring_CommSolver(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ordered_Linarith(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Rat_Basic(uint8_t builtin, lean_object*);
@@ -2012,7 +2012,7 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Linear_Types(ui
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Ring_Poly(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ring_CommSolver(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Ordered_Linarith(builtin, lean_io_mk_world());

@@ -15,19 +15,19 @@ namespace Lean.Elab.Command
 @[builtin_macro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
   withAttrKindGlobal stx fun stx => do
     match stx with
-    | `($[$doc?:docComment]? $[@[$attrs?,*]]? infixl:$prec $[(name := $name)]? $[(priority := $prio)]? $op:str => $f) =>
+    | `($[$doc?:docComment]? $[@[$attrs?,*]]? infixl:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
       let prec1 := quote <| (← evalPrec prec) + 1
-      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec $op:str rhs:$prec1 => $f lhs rhs)
-    | `($[$doc?:docComment]? $[@[$attrs?,*]]? infix:$prec $[(name := $name)]? $[(priority := $prio)]? $op:str => $f) =>
+      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec $op rhs:$prec1 => $f lhs rhs)
+    | `($[$doc?:docComment]? $[@[$attrs?,*]]? infix:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
       let prec1 := quote <| (← evalPrec prec) + 1
-      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op:str rhs:$prec1 => $f lhs rhs)
-    | `($[$doc?:docComment]? $[@[$attrs?,*]]? infixr:$prec $[(name := $name)]? $[(priority := $prio)]? $op:str => $f) =>
+      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op rhs:$prec1 => $f lhs rhs)
+    | `($[$doc?:docComment]? $[@[$attrs?,*]]? infixr:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
       let prec1 := quote <| (← evalPrec prec) + 1
-      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op:str rhs:$prec => $f lhs rhs)
-    | `($[$doc?:docComment]? $[@[$attrs?,*]]? prefix:$prec $[(name := $name)]? $[(priority := $prio)]? $op:str => $f) =>
-      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? $op:str arg:$prec => $f arg)
-    | `($[$doc?:docComment]? $[@[$attrs?,*]]? postfix:$prec $[(name := $name)]? $[(priority := $prio)]? $op:str => $f) =>
-      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? arg:$prec $op:str => $f arg)
+      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op rhs:$prec => $f lhs rhs)
+    | `($[$doc?:docComment]? $[@[$attrs?,*]]? prefix:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
+      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? $op arg:$prec => $f arg)
+    | `($[$doc?:docComment]? $[@[$attrs?,*]]? postfix:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
+      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? arg:$prec $op => $f arg)
     | _ => Macro.throwUnsupported
 where
   -- set "global" `attrKind`, apply `f`, and restore `attrKind` to result

@@ -136,6 +136,8 @@ where
       processAtom stx
     else if kind == ``Lean.Parser.Syntax.nonReserved then
       processNonReserved stx
+    else if kind == ``Lean.Parser.Syntax.unicodeAtom then
+      processUnicode stx
     else
       let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
       match stxNew? with
@@ -248,23 +250,30 @@ where
     !s.front.isDigit &&
     !(s.any Char.isWhitespace)
 
+  validAtom (stx : Syntax) : ToParserDescrM String := do
+    let some atom := stx.isStrLit? | throwUnsupportedSyntax
+    unless isValidAtom atom do
+      throwErrorAt stx "invalid atom"
+    return atom
+
   processAtom (stx : Syntax) := do
-    match stx[0].isStrLit? with
-    | some atom =>
-      unless isValidAtom atom do
-        throwErrorAt stx "invalid atom"
-      /- For syntax categories where initialized with `LeadingIdentBehavior` different from default (e.g., `tactic`), we automatically mark
-         the first symbol as nonReserved. -/
-      if (← read).behavior != Parser.LeadingIdentBehavior.default && (← read).first then
-        return (← `(ParserDescr.nonReservedSymbol $(quote atom) false), 1)
-      else
-        return (← `(ParserDescr.symbol $(quote atom)), 1)
-    | none => throwUnsupportedSyntax
+    let atom ← validAtom stx[0]
+    /- For syntax categories where initialized with `LeadingIdentBehavior` different from default (e.g., `tactic`), we automatically mark
+       the first symbol as nonReserved. -/
+    if (← read).behavior != Parser.LeadingIdentBehavior.default && (← read).first then
+      return (← `(ParserDescr.nonReservedSymbol $(quote atom) false), 1)
+    else
+      return (← `(ParserDescr.symbol $(quote atom)), 1)
 
   processNonReserved (stx : Syntax) := do
-    let some atom := stx[1].isStrLit? | throwUnsupportedSyntax
+    let atom ← validAtom stx[1]
     return (← `((with_annotate_term $(stx[0]) @ParserDescr.nonReservedSymbol) $(quote atom) false), 1)
 
+  processUnicode (stx : Syntax) := do
+    let atom ← validAtom stx[1]
+    let asciiAtom ← validAtom stx[3]
+    let preserveForPP := !stx[4].isNone
+    return (← `((with_annotate_term $(stx[0]) @ParserDescr.unicodeSymbol) $(quote atom) $(quote asciiAtom) $(quote preserveForPP)), 1)
 
 end Term
 

@@ -424,6 +424,8 @@ private partial def containsAtom (e : Expr) (atom : String) : MetaM Bool := do
     | (``ParserDescr.unary, #[.app _ (.lit (.strVal _)), p]) => containsAtom p atom
     | (``ParserDescr.binary, #[.app _ (.lit (.strVal "andthen")), p, _]) => containsAtom p atom
     | (``ParserDescr.nonReservedSymbol, #[.lit (.strVal tk), _]) => pure (tk.trim == atom)
+    | (``ParserDescr.unicodeSymbol, #[.lit (.strVal tk), .lit (.strVal asciiTk), _]) =>
+      pure (tk.trim == atom || asciiTk.trim == atom)
     | (``ParserDescr.symbol, #[.lit (.strVal tk)]) => pure (tk.trim == atom)
     | (``Parser.withAntiquot, #[_, p]) => containsAtom p atom
     | (``Parser.leadingNode, #[_, _, p]) => containsAtom p atom
@@ -432,6 +434,8 @@ private partial def containsAtom (e : Expr) (atom : String) : MetaM Bool := do
     | (``Parser.nonReservedSymbol, #[.lit (.strVal tk), _]) => pure (tk.trim == atom)
     | (``Parser.symbol, #[.lit (.strVal tk)]) => pure (tk.trim == atom)
     | (``Parser.symbol, #[_nonlit]) => pure false
+    | (``Parser.unicodeSymbol, #[.lit (.strVal tk), .lit (.strVal asciiTk), _]) =>
+      pure (tk.trim == atom || asciiTk.trim == atom)
     | (``Parser.withCache, #[_, p]) => containsAtom p atom
     | _ => if tryWhnf then attempt (← Meta.whnf p) false else pure false
   attempt e true

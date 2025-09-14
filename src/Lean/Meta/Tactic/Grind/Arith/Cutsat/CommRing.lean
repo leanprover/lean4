@@ -34,7 +34,7 @@ where
   | .add _ x p, gen => do go p (max (← Grind.getGeneration (← getVar x)) gen)
 
 def getIntRingId? : GoalM (Option Nat) := do
-  CommRing.getRingId? (← getIntExpr)
+  CommRing.getCommRingId? (← getIntExpr)
 
 /-- Normalize the polynomial using `CommRing`-/
 def _root_.Int.Linear.Poly.normCommRing? (p : Poly) : GoalM (Option (CommRing.RingExpr × CommRing.Poly × Poly)) := do

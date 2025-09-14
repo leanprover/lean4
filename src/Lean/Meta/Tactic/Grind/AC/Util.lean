@@ -78,8 +78,8 @@ private def isArithOpInOtherModules (op : Expr) (f : Expr) : GoalM Bool := do
   if declName == ``HAdd.hAdd || declName == ``HMul.hMul || declName == ``HSub.hSub || declName == ``HDiv.hDiv || declName == ``HPow.hPow then
     if op.getAppNumArgs == 4 then
       let α := op.appFn!.appFn!.appArg!
-      if (← Arith.CommRing.getRingId? α).isSome then return true
-      if (← Arith.CommRing.getSemiringId? α).isSome then return true
+      if (← Arith.CommRing.getCommRingId? α).isSome then return true
+      if (← Arith.CommRing.getCommSemiringId? α).isSome then return true
   return false
 
 def getTermOpIds (e : Expr) : GoalM (List Nat) := do

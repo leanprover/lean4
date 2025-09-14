@@ -9,18 +9,20 @@ public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
-variable [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadRing m]
+variable [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadCanon m]
 
+section
+variable [MonadRing m]
 def mkUnaryFn (type : Expr) (u : Level) (instDeclName : Name) (declName : Name) : m Expr := do
-  let inst ← MonadRing.synthInstance <| mkApp (mkConst instDeclName [u]) type
+  let inst ← MonadCanon.synthInstance <| mkApp (mkConst instDeclName [u]) type
   canonExpr <| mkApp2 (mkConst declName [u]) type inst
 
 def mkBinHomoFn (type : Expr) (u : Level) (instDeclName : Name) (declName : Name) : m Expr := do
-  let inst ← MonadRing.synthInstance <| mkApp3 (mkConst instDeclName [u, u, u]) type type type
+  let inst ← MonadCanon.synthInstance <| mkApp3 (mkConst instDeclName [u, u, u]) type type type
   canonExpr <| mkApp4 (mkConst declName [u, u, u]) type type type inst
 
 def mkPowFn (u : Level) (type : Expr) (semiringInst : Expr) : m Expr := do
-  let inst ← MonadRing.synthInstance <| mkApp3 (mkConst ``HPow [u, 0, u]) type Nat.mkType type
+  let inst ← MonadCanon.synthInstance <| mkApp3 (mkConst ``HPow [u, 0, u]) type Nat.mkType type
   let inst' := mkApp2 (mkConst ``Grind.Semiring.npow [u]) type semiringInst
   checkInst inst inst'
   canonExpr <| mkApp4 (mkConst ``HPow.hPow [u, 0, u]) type Nat.mkType type inst
@@ -38,7 +40,7 @@ def mkNatCastFn (u : Level) (type : Expr) (semiringInst : Expr) : m Expr := do
   -- does not guarantee that an `NatCast α` will be available.
   -- When both are present we verify that they are defeq,
   -- and otherwise fall back to the field of the `Semiring α` instance that we already have.
-  let inst ← match (← MonadRing.synthInstance? instType) with
+  let inst ← match (← MonadCanon.synthInstance? instType) with
   | none => pure inst'
   | some inst => checkInst inst inst'; pure inst
   canonExpr <| mkApp2 (mkConst ``NatCast.natCast [u]) type inst
@@ -46,8 +48,6 @@ where
   checkInst (inst inst' : Expr) : MetaM Unit := do
     unless (← isDefEqD inst inst') do
       throwError "instance for natCast{indentExpr inst}\nis not definitionally equal to the `Grind.Semiring` one{indentExpr inst'}"
-
-variable [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadRing m]
 
 def getAddFn : m Expr := do
   let ring ← getRing
@@ -77,15 +77,6 @@ def getNegFn : m Expr := do
   modifyRing fun s => { s with negFn? := some negFn }
   return negFn
 
-def getInvFn : m Expr := do
-  let ring ← getRing
-  if ring.fieldInst?.isNone then
-    throwError "`grind` internal error, type is not a field{indentExpr ring.type}"
-  if let some invFn := ring.invFn? then return invFn
-  let invFn ← mkUnaryFn ring.type ring.u ``Inv ``Inv.inv
-  modifyRing fun s => { s with invFn? := some invFn }
-  return invFn
-
 def getPowFn : m Expr := do
   let ring ← getRing
   if let some powFn := ring.powFn? then return powFn
@@ -104,7 +95,7 @@ def getIntCastFn : m Expr := do
   -- does not guarantee that an `IntCast α` will be available.
   -- When both are present we verify that they are defeq,
   -- and otherwise fall back to the field of the `Ring α` instance that we already have.
-  let inst ← match (← MonadRing.synthInstance? instType) with
+  let inst ← match (← MonadCanon.synthInstance? instType) with
     | none => pure inst'
     | some inst => checkInst inst inst'; pure inst
   let intCastFn ← canonExpr <| mkApp2 (mkConst ``IntCast.intCast [ring.u]) ring.type inst
@@ -134,5 +125,19 @@ def getOne [MonadLiftT GoalM m] : m Expr := do
   modifyRing fun s => { s with one? := some one }
   internalize one 0
   return one
+end
+
+section
+variable [MonadCommRing m]
+
+def getInvFn : m Expr := do
+  let ring ← getCommRing
+  if ring.fieldInst?.isNone then
+    throwError "`grind` internal error, type is not a field{indentExpr ring.type}"
+  if let some invFn := ring.invFn? then return invFn
+  let invFn ← mkUnaryFn ring.type ring.u ``Inv ``Inv.inv
+  modifyCommRing fun s => { s with invFn? := some invFn }
+  return invFn
+end
 
 end Lean.Meta.Grind.Arith.CommRing

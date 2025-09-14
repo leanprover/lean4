@@ -72,14 +72,6 @@ def checkCoeffDvd : RingM Bool :=
 def getTermRingId? (e : Expr) : GoalM (Option Nat) := do
   return (← get').exprToRingId.find? { expr := e }
 
-def setTermRingId (e : Expr) : RingM Unit := do
-  let ringId ← getRingId
-  if let some ringId' ← getTermRingId? e then
-    unless ringId' == ringId do
-      reportIssue! "expression in two different rings{indentExpr e}"
-    return ()
-  modify' fun s => { s with exprToRingId := s.exprToRingId.insert { expr := e } ringId }
-
 /-- Returns `some c` if the current ring has a nonzero characteristic `c`. -/
 def nonzeroChar? [Monad m] [MonadRing m] : m (Option Nat) := do
   if let some (_, c) := (← getRing).charInst? then
@@ -130,7 +122,18 @@ def getNext? : RingM (Option EqCnstr) := do
   incSteps
   return some c
 
-def mkVar (e : Expr) : RingM Var := do
+class MonadMarkTerm (m : Type → Type) where
+  markTerm : Expr → m Unit
+
+def setTermRingId (e : Expr) : RingM Unit := do
+  let ringId ← getRingId
+  if let some ringId' ← getTermRingId? e then
+    unless ringId' == ringId do
+      reportIssue! "expression in two different rings{indentExpr e}"
+    return ()
+  modify' fun s => { s with exprToRingId := s.exprToRingId.insert { expr := e } ringId }
+
+def mkVarCore [Monad m] [MonadRing m] [MonadMarkTerm m] (e : Expr) : m Var := do
   let s ← getRing
   if let some var := s.varMap.find? { expr := e } then
     return var
@@ -139,8 +142,15 @@ def mkVar (e : Expr) : RingM Var := do
     vars       := s.vars.push e
     varMap     := s.varMap.insert { expr := e } var
   }
-  setTermRingId e
-  ringExt.markTerm e
+  MonadMarkTerm.markTerm e
   return var
+
+instance : MonadMarkTerm RingM where
+  markTerm e := do
+    setTermRingId e
+    ringExt.markTerm e
+
+def mkVar (e : Expr) : RingM Var :=
+  mkVarCore e
 
 end Lean.Meta.Grind.Arith.CommRing

@@ -49,8 +49,6 @@ where
     unless (← isDefEqD inst inst') do
       throwError "instance for natCast{indentExpr inst}\nis not definitionally equal to the `Grind.Semiring` one{indentExpr inst'}"
 
-variable [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadRing m]
-
 def getAddFn : m Expr := do
   let ring ← getRing
   if let some addFn := ring.addFn? then return addFn
@@ -140,7 +138,6 @@ def getInvFn : m Expr := do
   let invFn ← mkUnaryFn ring.type ring.u ``Inv ``Inv.inv
   modifyCommRing fun s => { s with invFn? := some invFn }
   return invFn
-
 end
 
 end Lean.Meta.Grind.Arith.CommRing

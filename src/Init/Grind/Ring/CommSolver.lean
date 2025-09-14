@@ -858,11 +858,25 @@ where
     | .num k => acc.combineC (p₂.mulConstC k c) c
     | .add k m p₁ => go p₁ (acc.combineC (p₂.mulMonC k m c) c)
 
+def Poly.mulC_nc (p₁ : Poly) (p₂ : Poly) (c : Nat) : Poly :=
+  go p₁ (.num 0)
+where
+  go (p₁ : Poly) (acc : Poly) : Poly :=
+    match p₁ with
+    | .num k => acc.combineC (p₂.mulConstC k c) c
+    | .add k m p₁ => go p₁ (acc.combineC (p₂.mulMonC_nc k m c) c)
+
 def Poly.powC (p : Poly) (k : Nat) (c : Nat) : Poly :=
   match k with
   | 0 => .num 1
   | 1 => p
   | k+1 => p.mulC (powC p k c) c
+
+def Poly.powC_nc (p : Poly) (k : Nat) (c : Nat) : Poly :=
+  match k with
+  | 0 => .num 1
+  | 1 => p
+  | k+1 => (powC_nc p k c).mulC_nc p c
 
 def Expr.toPolyC (e : Expr) (c : Nat) : Poly :=
   go e
@@ -883,6 +897,26 @@ where
       | .num n => .num ((n^k) % c)
       | .var x => Poly.ofMon (.mult {x, k} .unit)
       | _ => (go a).powC k c
+
+def Expr.toPolyC_nc (e : Expr) (c : Nat) : Poly :=
+  go e
+where
+  go : Expr → Poly
+    | .num k     => .num (k % c)
+    | .natCast k => .num (k % c)
+    | .intCast k => .num (k % c)
+    | .var x     => Poly.ofVar x
+    | .add a b   => (go a).combineC (go b) c
+    | .mul a b   => (go a).mulC_nc (go b) c
+    | .neg a     => (go a).mulConstC (-1) c
+    | .sub a b   => (go a).combineC ((go b).mulConstC (-1) c) c
+    | .pow a k   =>
+      bif k == 0 then
+        .num 1
+      else match a with
+      | .num n => .num ((n^k) % c)
+      | .var x => Poly.ofMon (.mult {x, k} .unit)
+      | _ => (go a).powC_nc k c
 
 /-!
 Theorems for justifying the procedure for commutative rings in `grind`.
@@ -1299,12 +1333,28 @@ theorem Poly.denote_mulC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) 
     : (mulC p₁ p₂ c).denote ctx = p₁.denote ctx * p₂.denote ctx := by
   simp [mulC, denote_mulC_go, denote, intCast_zero, zero_add]
 
+theorem Poly.denote_mulC_nc_go {α c} [Ring α] [IsCharP α c] (ctx : Context α) (p₁ p₂ acc : Poly)
+    : (mulC_nc.go p₂ c p₁ acc).denote ctx = acc.denote ctx + p₁.denote ctx * p₂.denote ctx := by
+  fun_induction mulC_nc.go
+    <;> simp [denote_combineC, denote_mulConstC, denote, *, right_distrib, denote_mulMonC_nc, add_assoc, zsmul_eq_intCast_mul]
+
+theorem Poly.denote_mulC_nc {α c} [Ring α] [IsCharP α c] (ctx : Context α) (p₁ p₂ : Poly)
+    : (mulC_nc p₁ p₂ c).denote ctx = p₁.denote ctx * p₂.denote ctx := by
+  simp [mulC_nc, denote_mulC_nc_go, denote, intCast_zero, zero_add]
+
 theorem Poly.denote_powC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p : Poly) (k : Nat)
    : (powC p k c).denote ctx = p.denote ctx ^ k := by
  fun_induction powC
  next => simp [denote, intCast_one, pow_zero]
  next => simp [pow_succ, pow_zero, one_mul]
  next => simp [denote_mulC, *, pow_succ, mul_comm]
+
+theorem Poly.denote_powC_nc {α c} [Ring α] [IsCharP α c] (ctx : Context α) (p : Poly) (k : Nat)
+   : (powC_nc p k c).denote ctx = p.denote ctx ^ k := by
+ fun_induction powC_nc
+ next => simp [denote, intCast_one, pow_zero]
+ next => simp [pow_succ, pow_zero, one_mul]
+ next => simp [denote_mulC_nc, *, pow_succ]
 
 theorem Expr.denote_toPolyC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (e : Expr)
    : (e.toPolyC c).denote ctx = e.denote ctx := by
@@ -1321,10 +1371,31 @@ theorem Expr.denote_toPolyC {α c} [CommRing α] [IsCharP α c] (ctx : Context �
   next => rw [IsCharP.intCast_emod, intCast_pow]
   next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
 
+theorem Expr.denote_toPolyC_nc {α c} [Ring α] [IsCharP α c] (ctx : Context α) (e : Expr)
+   : (e.toPolyC_nc c).denote ctx = e.denote ctx := by
+  unfold toPolyC_nc
+  fun_induction toPolyC_nc.go
+    <;> simp [denote, Poly.denote, Poly.denote_ofVar, Poly.denote_combineC,
+          Poly.denote_mulC_nc, Poly.denote_mulConstC, Poly.denote_powC_nc, denoteInt_eq, *]
+  next => rw [IsCharP.intCast_emod]
+  next => rw [IsCharP.intCast_emod, Ring.intCast_natCast]
+  next => rw [IsCharP.intCast_emod]
+  next => rw [intCast_neg, neg_mul, intCast_one, one_mul]
+  next => rw [intCast_neg, neg_mul, intCast_one, one_mul, sub_eq_add_neg]
+  next a k h => simp at h; simp [h, Semiring.pow_zero, Ring.intCast_one]
+  next => rw [IsCharP.intCast_emod, intCast_pow]
+  next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
+
 theorem Expr.eq_of_toPolyC_eq {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (a b : Expr)
     (h : a.toPolyC c == b.toPolyC c) : a.denote ctx = b.denote ctx := by
   have h := congrArg (Poly.denote ctx) (eq_of_beq h)
   simp [denote_toPolyC] at h
+  assumption
+
+theorem Expr.eq_of_toPolyC_nc_eq {α c} [Ring α] [IsCharP α c] (ctx : Context α) (a b : Expr)
+    (h : a.toPolyC_nc c == b.toPolyC_nc c) : a.denote ctx = b.denote ctx := by
+  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+  simp [denote_toPolyC_nc] at h
   assumption
 
 namespace Stepwise

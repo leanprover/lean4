@@ -45,7 +45,7 @@ local instance : CoeFun F (fun _ => Bool → Nat → Nat) where
   coe x := fun _ _ => 0
 
 /--
-error: Invalid field notation: `fun x x => 0` (coerced from `Nat.foo`) has a parameter with expected type
+error: Invalid field notation: `fun x x_1 => 0` (coerced from `Nat.foo`) has a parameter with expected type
   Nat
 but it cannot be used
 
@@ -53,7 +53,7 @@ Hint: Consider rewriting this application without field notation (e.g., `C.f x` 
 -/
 #guard_msgs in #check Nat.zero.foo
 
-/-- info: (fun x x => 0) true Nat.zero : Nat -/
+/-- info: (fun x x_1 => 0) true Nat.zero : Nat -/
 #guard_msgs in #check Nat.zero.foo true
 
 end

@@ -169,9 +169,11 @@ structure State where
     -- fun x => f x 5
     ```
     `etaArgs` stores the fresh free variables for implementing the eta-expansion.
+    Each pair records the name to use for the binding and the fvar for the argument.
+
     When `..` is used, eta-expansion is disabled, and missing arguments are treated as `_`.
   -/
-  etaArgs              : Array Expr   := #[]
+  etaArgs              : Array (Name × Expr)   := #[]
   /-- Metavariables that we need to set the error context using the application being built. -/
   toSetErrorCtx        : Array MVarId := #[]
   /-- Metavariables for the instance implicit arguments that have already been processed. -/
@@ -420,7 +422,8 @@ private def finalize : M Expr := do
   for mvarId in s.toSetErrorCtx do
     registerMVarErrorImplicitArgInfo mvarId ref e
   if !s.etaArgs.isEmpty then
-    e ← mkLambdaFVars s.etaArgs e
+    e ← mkLambdaFVars (s.etaArgs.map (·.2)) e
+    e := e.updateBinderNames (s.etaArgs.map (some <| ·.1)).toList
   /-
     Remark: we should not use `s.fType` as `eType` even when
     `s.etaArgs.isEmpty`. Reason: it may have been unfolded.
@@ -562,8 +565,9 @@ mutual
   private partial def addEtaArg (argName : Name) : M Expr := do
     let n    ← getBindingName
     let type ← getArgExpectedType
-    withLocalDeclD n type fun x => do
-      modify fun s => { s with etaArgs := s.etaArgs.push x }
+    -- Use a fresh name to ensure that the remaining arguments can't capture this parameter's name.
+    withLocalDeclD (← Core.mkFreshUserName n) type fun x => do
+      modify fun s => { s with etaArgs := s.etaArgs.push (n, x) }
       addNewArg argName x
       main
 

@@ -334,6 +334,9 @@ where
       | Syntax.node _ k args =>
         if k == ``Lean.Parser.Syntax.cat then
           acc ++ "_"
+        else if k == ``Lean.Parser.Syntax.unicodeAtom && args.size > 1 then
+          -- in `unicode(" ≥ ", " >= ")` only visit `" ≥ "`.
+          visit args[1]! acc
         else
           args.foldl (init := acc) fun acc arg => visit arg acc
       | Syntax.ident ..    => acc

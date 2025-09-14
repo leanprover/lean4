@@ -620,11 +620,25 @@ where
     | .num k => acc.combine (p₂.mulConst k)
     | .add k m p₁ => go p₁ (acc.combine (p₂.mulMon k m))
 
+def Poly.mul_nc (p₁ : Poly) (p₂ : Poly) : Poly :=
+  go p₁ (.num 0)
+where
+  go (p₁ : Poly) (acc : Poly) : Poly :=
+    match p₁ with
+    | .num k => acc.combine (p₂.mulConst k)
+    | .add k m p₁ => go p₁ (acc.combine (p₂.mulMon_nc k m))
+
 def Poly.pow (p : Poly) (k : Nat) : Poly :=
   match k with
   | 0 => .num 1
   | 1 => p
   | k+1 => p.mul (pow p k)
+
+def Poly.pow_nc (p : Poly) (k : Nat) : Poly :=
+  match k with
+  | 0 => .num 1
+  | 1 => p
+  | k+1 => (pow_nc p k).mul_nc p
 
 def Expr.toPoly : Expr → Poly
   | .num k     => .num k
@@ -690,6 +704,25 @@ noncomputable def Expr.toPoly_k (e : Expr) : Poly :=
             | var x => Poly.ofMon (Mon.mult { x := x, k := k } Mon.unit)
             | x => a.toPoly.pow k
       cases a <;> try simp [*]
+
+def Expr.toPoly_nc : Expr → Poly
+  | .num k     => .num k
+  | .intCast k => .num k
+  | .natCast k => .num k
+  | .var x     => Poly.ofVar x
+  | .add a b   => a.toPoly_nc.combine b.toPoly_nc
+  | .mul a b   => a.toPoly_nc.mul_nc b.toPoly_nc
+  | .neg a     => a.toPoly_nc.mulConst (-1)
+  | .sub a b   => a.toPoly_nc.combine (b.toPoly_nc.mulConst (-1))
+  | .pow a k   =>
+    bif k == 0 then
+      .num 1
+    else  match a with
+    | .num n => .num (n^k)
+    | .intCast n => .num (n^k)
+    | .natCast n => .num (n^k)
+    | .var x => Poly.ofMon (.mult {x, k} .unit)
+    | _ => a.toPoly_nc.pow_nc k
 
 def Poly.normEq0 (p : Poly) (c : Nat) : Poly :=
   match p with
@@ -1082,12 +1115,28 @@ theorem Poly.denote_mul {α} [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
     : (mul p₁ p₂).denote ctx = p₁.denote ctx * p₂.denote ctx := by
   simp [mul, denote_mul_go, denote, intCast_zero, zero_add]
 
+theorem Poly.denote_mul_nc_go {α} [Ring α] (ctx : Context α) (p₁ p₂ acc : Poly)
+    : (mul_nc.go p₂ p₁ acc).denote ctx = acc.denote ctx + p₁.denote ctx * p₂.denote ctx := by
+  fun_induction mul_nc.go
+    <;> simp [denote_combine, denote_mulConst, denote, *, right_distrib, denote_mulMon_nc, add_assoc, zsmul_eq_intCast_mul]
+
+theorem Poly.denote_mul_nc {α} [Ring α] (ctx : Context α) (p₁ p₂ : Poly)
+    : (mul_nc p₁ p₂).denote ctx = p₁.denote ctx * p₂.denote ctx := by
+  simp [mul_nc, denote_mul_nc_go, denote, intCast_zero, zero_add]
+
 theorem Poly.denote_pow {α} [CommRing α] (ctx : Context α) (p : Poly) (k : Nat)
    : (pow p k).denote ctx = p.denote ctx ^ k := by
  fun_induction pow
  next => simp [denote, intCast_one, pow_zero]
  next => simp [pow_succ, pow_zero, one_mul]
  next => simp [denote_mul, *, pow_succ, mul_comm]
+
+theorem Poly.denote_pow_nc {α} [Ring α] (ctx : Context α) (p : Poly) (k : Nat)
+   : (pow_nc p k).denote ctx = p.denote ctx ^ k := by
+ fun_induction pow_nc
+ next => simp [denote, intCast_one, pow_zero]
+ next => simp [pow_succ, pow_zero, one_mul]
+ next => simp [denote_mul_nc, *, pow_succ]
 
 theorem Expr.denote_toPoly {α} [CommRing α] (ctx : Context α) (e : Expr)
    : e.toPoly.denote ctx = e.denote ctx := by
@@ -1100,9 +1149,25 @@ theorem Expr.denote_toPoly {α} [CommRing α] (ctx : Context α) (e : Expr)
   next => rw [Ring.intCast_natCast]
   next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
 
+theorem Expr.denote_toPoly_nc {α} [Ring α] (ctx : Context α) (e : Expr)
+   : e.toPoly_nc.denote ctx = e.denote ctx := by
+  fun_induction toPoly_nc
+    <;> simp [denote, Poly.denote, Poly.denote_ofVar, Poly.denote_combine,
+          Poly.denote_mul_nc, Poly.denote_mulConst, Poly.denote_pow_nc, intCast_pow, intCast_neg, intCast_one,
+          neg_mul, one_mul, sub_eq_add_neg, denoteInt_eq, *]
+  next => rw [Ring.intCast_natCast]
+  next a k h => simp at h; simp [h, Semiring.pow_zero]
+  next => rw [Ring.intCast_natCast]
+  next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
+
 theorem Expr.eq_of_toPoly_eq {α} [CommRing α] (ctx : Context α) (a b : Expr) (h : a.toPoly == b.toPoly) : a.denote ctx = b.denote ctx := by
   have h := congrArg (Poly.denote ctx) (eq_of_beq h)
   simp [denote_toPoly] at h
+  assumption
+
+theorem Expr.eq_of_toPoly_nc_eq {α} [Ring α] (ctx : Context α) (a b : Expr) (h : a.toPoly_nc == b.toPoly_nc) : a.denote ctx = b.denote ctx := by
+  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+  simp [denote_toPoly_nc] at h
   assumption
 
 /-!

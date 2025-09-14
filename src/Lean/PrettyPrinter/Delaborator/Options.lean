@@ -83,6 +83,17 @@ register_builtin_option pp.piBinderTypes : Bool := {
   group    := "pp"
   descr    := "(pretty printer) display types of pi parameters"
 }
+register_builtin_option pp.piBinderNames : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display names for pi parameters, even if they are unused; \
+    when `pp.piBinderNames.hygienic` is false then unused hygienic parameters are not displayed."
+}
+register_builtin_option pp.piBinderNames.hygienic : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) if false, disables displaying names for unused pi parameters with hygienic names."
+}
 register_builtin_option pp.foralls : Bool := {
   defValue := true
   group    := "pp"
@@ -271,6 +282,8 @@ def getPPMaxSteps (o : Options) : Nat := o.get pp.maxSteps.name pp.maxSteps.defV
 def getPPAll (o : Options) : Bool := o.get pp.all.name false
 def getPPFunBinderTypes (o : Options) : Bool := o.get pp.funBinderTypes.name (getPPAll o)
 def getPPPiBinderTypes (o : Options) : Bool := o.get pp.piBinderTypes.name pp.piBinderTypes.defValue
+def getPPPiBinderNames (o : Options) : Bool := o.get pp.piBinderNames.name (getPPAll o)
+def getPPPiBinderNamesHygienic (o : Options) : Bool := o.get pp.piBinderNames.hygienic.name pp.piBinderNames.hygienic.defValue
 def getPPLetVarTypes (o : Options) : Bool := o.get pp.letVarTypes.name (getPPAll o)
 def getPPNumericTypes (o : Options) : Bool := o.get pp.numericTypes.name pp.numericTypes.defValue
 def getPPNatLit (o : Options) : Bool := o.get pp.natLit.name (getPPNumericTypes o && !getPPAll o)

@@ -1,4 +1,3 @@
-module
 -- Note that `grind_list.lean` uses `reset_grind_attrs%` to clear the grind attributes.
 -- This file does not: it is testing the grind attributes in the library.
 
@@ -456,7 +455,7 @@ theorem map_eq_cons_iff' {f : α → β} {l : List α} :
 
 theorem map_eq_singleton_iff {f : α → β} {l : List α} {b : β} :
     map f l = [b] ↔ ∃ a, l = [a] ∧ f a = b := by
-  grind [map_eq_cons_iff]
+  grind [cases List]
 
 -- FIXME
 attribute [local grind] List.map_inj_left in

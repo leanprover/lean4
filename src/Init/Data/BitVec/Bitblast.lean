@@ -2581,6 +2581,10 @@ def addVec (validNodes : Nat) (parSum : BitVec (validNodes * w)) (hw : 1 < w) (h
     addVecAux 0 validNodes hw parSum (hcastZero▸0#0)
     (by intros i hi j hj; simp [show i = 0 by omega]; omega) hval (by omega) (by omega)
 
+/-- TODO: addVec adds adjacent vectors together.  -/
+theorem addVec_eq (validNodes : Nat) (nodes : BitVec (validNodes * w)) (hw : 1 < w) (hval : validNodes ≤ w) :
+    (addVec validNodes nodes hw hval).extractLsb' i w  =
+    (validNodes.extractLsb' (i * 2 * w) w ) + (validNodes.extractLsb' (i * 2 * w + 1)) := by sorry
 
 
 /-- Tail-recursive definition of parrallel sum prefix. At each iteration, we construct a new vector containing the results of summing each couple of elements in the initial vector. -/
@@ -2593,6 +2597,7 @@ def parPrefixSum
   if hlt : 1 < validNodes then
     let initAcc := 0#0
     have hcastZero : 0 = 0 / 2 * w := by omega
+    -- | TODO: replace this with 'addVecAux'.
     let addRes := addVecAux 0 validNodes (by omega) parSum (hcastZero▸initAcc)
                         (by intros i hi j hj; simp [initAcc, show i = 0 by omega]; omega) (by omega) (by omega) (by omega)
     parPrefixSum ((validNodes+1)/2) addRes.val hin (by omega) (by omega)
@@ -2602,7 +2607,33 @@ def parPrefixSum
     BitVec.cast hcast parSum
 
 
+/--
+extract bitvectors from an `n * w` bitvector into a set of bitvectors.
+This will be used to explain at the logical level what `parPrefixSum` and `addVec` does.
+-/
+def scatter (xs : BitVec (n * w)) : List (BitVec w) :
+  List.map (fun i => xs.extractLsb' (i * w) w) (List.range n)
 
+
+/--
+Add a collection of bitvectors into a single bitvectors.
+-/
+def sumVecs (xs : List (BitVec w)) : BitVec w :=
+  xs.foldl (fun acc x => acc + x) 0#w
+
+/--
+Sums a collection of packed bitvectors, resulting into a single bitvectors.
+-/
+def sumPackedVec (xs : BitVec (n * w)) : BitVec w :=
+  sumVecs (scatter xs)
+
+
+theorem parPrefixSum_eq
+    (validNodes : Nat) (parSum : BitVec (validNodes * w))
+    (hin : 0 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) : BitVec w :
+  parPrefixSum validNodes parSum hin hval hval' =
+  sumPackedVec parSum := by
+  sorry
 -- theorem addVecAux_eq_foldAdd
 
 -- theorem exists_of_parPrefixSum (validNodes : Nat)

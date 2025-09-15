@@ -6,14 +6,16 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
-public import Lean.Meta.Tactic.Injection
-public import Lean.Meta.Tactic.Apply
-public import Lean.Meta.Tactic.Refl
-public import Lean.Meta.Tactic.Cases
-public import Lean.Meta.Tactic.Subst
-public import Lean.Meta.Tactic.Assumption
+public import Lean.Meta.Basic
+import Lean.Meta.Transform
+import Lean.Meta.Tactic.Injection
+import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Refl
+import Lean.Meta.Tactic.Cases
+import Lean.Meta.Tactic.Subst
+import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Simp.Main
+import Lean.Meta.SameCtorUtils
 
 public section
 
@@ -34,35 +36,6 @@ def elimOptParam (type : Expr) : CoreM Expr := do
       return TransformStep.visit (e.getArg! 0)
     else
       return .continue
-
-
-/-- Returns true if `e` occurs either in `t`, or in the type of a sub-expression of `t`.
-  Consider the following example:
-  ```lean
-  inductive Tyₛ : Type (u+1)
-  | SPi : (T : Type u) -> (T -> Tyₛ) -> Tyₛ
-
-  inductive Tmₛ.{u} :  Tyₛ.{u} -> Type (u+1)
-  | app : Tmₛ (.SPi T A) -> (arg : T) -> Tmₛ (A arg)```
-  ```
-  When looking for fixed arguments in `Tmₛ.app`, if we only consider occurrences in the term `Tmₛ (A arg)`,
-  `T` is considered non-fixed despite the fact that `A : T -> Tyₛ`.
-  This leads to an ill-typed injectivity theorem signature:
-  ```lean
-  theorem Tmₛ.app.inj {T : Type u} {A : T → Tyₛ} {a : Tmₛ (Tyₛ.SPi T A)} {arg : T} {T_1 : Type u} {a_1 : Tmₛ (Tyₛ.SPi T_1 A)} :
-  Tmₛ.app a arg = Tmₛ.app a_1 arg →
-    T = T_1 ∧ a ≍ a_1 := fun x => Tmₛ.noConfusion x fun T_eq A_eq a_eq arg_eq => eq_of_heq a_eq
-  ```
-  Instead of checking the type of every subterm, we only need to check the type of free variables, since free variables introduced in
-  the constructor may only appear in the type of other free variables introduced after them.
--/
-def occursOrInType (lctx : LocalContext) (e : Expr) (t : Expr) : Bool :=
-  t.find? go |>.isSome
-where
-  go s := Id.run do
-    let .fvar fvarId := s | s == e
-    let some decl := lctx.find? fvarId | s == e
-    return s == e || e.occurs decl.type
 
 private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool) : MetaM (Option Expr) := do
   let us := ctorVal.levelParams.map mkLevelParam
@@ -96,7 +69,7 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
           else
             withLocalDecl n (if useEq then BinderInfo.default else BinderInfo.implicit) d fun arg2 =>
               mkArgs2 (i + 1) (b.instantiate1 arg2) (args2.push arg2) (args2New.push arg2)
-        | _ => throwError "unexpected constructor type for '{ctorVal.name}'"
+        | _ => throwError "unexpected constructor type for `{ctorVal.name}`"
       else
         jp args2 args2New
     if useEq then
@@ -110,7 +83,7 @@ private def mkInjectiveTheoremType? (ctorVal : ConstructorVal) : MetaM (Option E
   mkInjectiveTheoremTypeCore? ctorVal false
 
 private def injTheoremFailureHeader (ctorName : Name) : MessageData :=
-  m!"failed to prove injectivity theorem for constructor '{ctorName}', use 'set_option genInjectivity false' to disable the generation"
+  m!"failed to prove injectivity theorem for constructor `{ctorName}`, use 'set_option genInjectivity false' to disable the generation"
 
 private def throwInjectiveTheoremFailure {α} (ctorName : Name) (mvarId : MVarId) : MetaM α :=
   throwError "{injTheoremFailureHeader ctorName}{indentD <| MessageData.ofGoal mvarId}"
@@ -154,7 +127,7 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
   forallTelescopeReducing targetType fun xs type => do
     let mvar ← mkFreshExprSyntheticOpaqueMVar type
     let [mvarId₁, mvarId₂] ← mvar.mvarId!.apply (mkConst ``Eq.propIntro)
-      | throwError "unexpected number of subgoals when proving injective theorem for constructor '{ctorName}'"
+      | throwError "unexpected number of subgoals when proving injective theorem for constructor `{ctorName}`"
     let (h, mvarId₁) ← mvarId₁.intro1
     let (_, mvarId₂) ← mvarId₂.intro1
     solveEqOfCtorEq ctorName mvarId₁ h

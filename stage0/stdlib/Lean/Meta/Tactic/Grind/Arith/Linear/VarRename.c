@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
-// Imports: Init.Grind.Ordered.Linarith Lean.Meta.Tactic.Grind.Arith.VarRename
+// Imports: Init.Grind.Ordered.Linarith Lean.Meta.Tactic.Grind.VarRename
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -27,7 +27,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DH
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_Grind_Linarith_Poly_renameVars_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_Grind_Linarith_Poly_renameVars_spec__0_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_renameVars___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_Arith_collectVar(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_collectVar(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_Grind_Linarith_Poly_renameVars_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_Grind_Linarith_Poly_renameVars_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -459,7 +459,7 @@ lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
 lean_dec_ref(x_1);
-x_5 = l_Lean_Meta_Grind_Arith_collectVar(x_3, x_2);
+x_5 = l_Lean_Meta_Grind_collectVar(x_3, x_2);
 x_1 = x_4;
 x_2 = x_5;
 goto _start;
@@ -481,7 +481,7 @@ lean_object* x_9; lean_object* x_10;
 x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 lean_dec_ref(x_1);
-x_10 = l_Lean_Meta_Grind_Arith_collectVar(x_9, x_2);
+x_10 = l_Lean_Meta_Grind_collectVar(x_9, x_2);
 return x_10;
 }
 case 4:
@@ -536,7 +536,7 @@ goto _start;
 }
 }
 lean_object* initialize_Init_Grind_Ordered_Linarith(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_VarRename(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_VarRename(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Linear_VarRename(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -545,7 +545,7 @@ _G_initialized = true;
 res = initialize_Init_Grind_Ordered_Linarith(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Arith_VarRename(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Grind_VarRename(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_Linarith_Expr_renameVars___closed__0 = _init_l_Lean_Grind_Linarith_Expr_renameVars___closed__0();

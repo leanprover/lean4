@@ -477,7 +477,7 @@ syntax negConfigItem := " -" noWs ident
 
 As a special case, `(config := ...)` sets the entire configuration.
 -/
-syntax valConfigItem := atomic(" (" notFollowedBy(&"discharger" <|> &"disch") (ident <|> &"config")) " := " withoutPosition(term) ")"
+syntax valConfigItem := atomic(" (" notFollowedBy(&"discharger" <|> &"disch") ident " := ") withoutPosition(term) ")"
 /-- A configuration item for a tactic configuration. -/
 syntax configItem := posConfigItem <|> negConfigItem <|> valConfigItem
 
@@ -2261,6 +2261,18 @@ such as replacing `if c then _ else _` with `if h : c then _ else _` or `xs.map`
 `xs.attach.map`. Also see `wfParam`.
 -/
 syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+
+/--
+Theorems tagged with the `method_specs_simp` attribute are used by `@[method_specs]` to further
+rewrite the theorem statement. This is primarily used to rewrite type class methods further to
+the desired user-visible form, e.g. from `Append.append` to `HAppend.hAppend`, which has the familiar
+notation associated.
+
+The `method_specs` theorems are created on demand (using the realizable constant feature). Thus,
+this simp set should behave the same in all modules. Do not add theorems to it except in the module
+defining the thing you are rewriting.
+-/
+syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
 syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"

@@ -30,7 +30,6 @@ LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_curry_matc
 LEAN_EXPORT lean_object* l_Std_Do_SVal_uncurry___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg___lam__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_GetTy_toCtorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_uncurry_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg___lam__0___boxed(lean_object*, lean_object*);
@@ -47,7 +46,6 @@ LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_uncurry_ma
 LEAN_EXPORT lean_object* l_Std_Do_SVal_GetTy_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabited___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_GetTy_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_uncurry_match__1_splitter___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabited(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_curry_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -331,24 +329,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Do_SVal_GetTy_ctorIdx(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_SVal_GetTy_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_SVal_GetTy_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Do_SVal_GetTy_toCtorIdx(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_4;

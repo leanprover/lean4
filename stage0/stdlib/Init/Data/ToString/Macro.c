@@ -17,7 +17,7 @@ static lean_object* l_termS_x21_____closed__6;
 static lean_object* l_termS_x21_____closed__1;
 static lean_object* l_termS_x21_____closed__13;
 static lean_object* l_termS_x21_____closed__4;
-lean_object* l_Lean_TSyntax_expandInterpolatedStr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_TSyntax_expandInterpolatedStr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_termS_x21_____closed__0;
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__7;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -389,7 +389,8 @@ lean_ctor_set(x_24, 0, x_14);
 lean_ctor_set(x_24, 1, x_20);
 lean_ctor_set(x_24, 2, x_22);
 lean_ctor_set(x_24, 3, x_23);
-x_25 = l_Lean_TSyntax_expandInterpolatedStr(x_12, x_19, x_24, x_2, x_3);
+lean_inc_ref(x_24);
+x_25 = l_Lean_TSyntax_expandInterpolatedStr(x_12, x_19, x_24, x_24, x_2, x_3);
 lean_dec(x_12);
 if (lean_obj_tag(x_25) == 0)
 {

@@ -900,7 +900,7 @@ Throw an exception if `mvarId` is not declared in the current metavariable conte
 def _root_.Lean.MVarId.getDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   match (← mvarId.findDecl?) with
   | some d => pure d
-  | none   => throwError "unknown metavariable '?{mvarId.name}'"
+  | none   => throwError "unknown metavariable `?{mvarId.name}`"
 
 /--
 Return `mvarId` kind. Throw an exception if `mvarId` is not declared in the current metavariable context.
@@ -953,7 +953,7 @@ Return the level of the given universe level metavariable.
 def _root_.Lean.LMVarId.getLevel (mvarId : LMVarId) : MetaM Nat := do
   match (← getMCtx).findLevelDepth? mvarId with
   | some depth => return depth
-  | _          => throwError "unknown universe metavariable '?{mvarId.name}'"
+  | _          => throwError "unknown universe metavariable `?{mvarId.name}`"
 
 /--
 Return true if the given universe metavariable is "read-only".
@@ -972,7 +972,7 @@ def _root_.Lean.MVarId.setUserName (mvarId : MVarId) (newUserName : Name) : Meta
 Throw an exception saying `fvarId` is not declared in the current local context.
 -/
 def _root_.Lean.FVarId.throwUnknown (fvarId : FVarId) : CoreM α :=
-  throwError "unknown free variable '{mkFVar fvarId}'"
+  throwError "unknown free variable `{mkFVar fvarId}`"
 
 /--
 Return `some decl` if `fvarId` is declared in the current local context.
@@ -1042,7 +1042,7 @@ Throw an exception if free variable is not declared.
 def getLocalDeclFromUserName (userName : Name) : MetaM LocalDecl := do
   match (← getLCtx).findFromUserName? userName with
   | some d => pure d
-  | none   => throwError "unknown local declaration '{userName}'"
+  | none   => throwError "unknown local declaration `{userName}`"
 
 /-- Given a user-facing name for a free variable, return the free variable or throw if not declared. -/
 def getFVarFromUserName (userName : Name) : MetaM Expr := do

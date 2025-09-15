@@ -81,7 +81,7 @@ def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   addCategoryInfo stx cat
   let prec? ← liftMacroM <| expandOptPrecedence stx[1]
   unless ctx.leftRec do
-    throwErrorAt stx[3] "invalid occurrence of '{cat}', parser algorithm does not allow this form of left recursion"
+    throwErrorAt stx[3] "invalid occurrence of `{cat}`, parser algorithm does not allow this form of left recursion"
   markAsTrailingParser (prec?.getD 0)
   return true
 
@@ -136,6 +136,8 @@ where
       processAtom stx
     else if kind == ``Lean.Parser.Syntax.nonReserved then
       processNonReserved stx
+    else if kind == ``Lean.Parser.Syntax.unicodeAtom then
+      processUnicode stx
     else
       let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
       match stxNew? with
@@ -221,7 +223,7 @@ where
     | some (.alias _) =>
       ensureNoPrec stx
       processAlias ident #[]
-    | none => throwError "unknown parser declaration/category/alias '{id}'"
+    | none => throwError "unknown parser declaration/category/alias `{id}`"
 
   processSepBy (stx : Syntax) := do
     let p ← ensureUnaryOutput <$> withNestedParser do process stx[1]
@@ -248,23 +250,30 @@ where
     !s.front.isDigit &&
     !(s.any Char.isWhitespace)
 
+  validAtom (stx : Syntax) : ToParserDescrM String := do
+    let some atom := stx.isStrLit? | throwUnsupportedSyntax
+    unless isValidAtom atom do
+      throwErrorAt stx "invalid atom"
+    return atom
+
   processAtom (stx : Syntax) := do
-    match stx[0].isStrLit? with
-    | some atom =>
-      unless isValidAtom atom do
-        throwErrorAt stx "invalid atom"
-      /- For syntax categories where initialized with `LeadingIdentBehavior` different from default (e.g., `tactic`), we automatically mark
-         the first symbol as nonReserved. -/
-      if (← read).behavior != Parser.LeadingIdentBehavior.default && (← read).first then
-        return (← `(ParserDescr.nonReservedSymbol $(quote atom) false), 1)
-      else
-        return (← `(ParserDescr.symbol $(quote atom)), 1)
-    | none => throwUnsupportedSyntax
+    let atom ← validAtom stx[0]
+    /- For syntax categories where initialized with `LeadingIdentBehavior` different from default (e.g., `tactic`), we automatically mark
+       the first symbol as nonReserved. -/
+    if (← read).behavior != Parser.LeadingIdentBehavior.default && (← read).first then
+      return (← `(ParserDescr.nonReservedSymbol $(quote atom) false), 1)
+    else
+      return (← `(ParserDescr.symbol $(quote atom)), 1)
 
   processNonReserved (stx : Syntax) := do
-    let some atom := stx[1].isStrLit? | throwUnsupportedSyntax
+    let atom ← validAtom stx[1]
     return (← `((with_annotate_term $(stx[0]) @ParserDescr.nonReservedSymbol) $(quote atom) false), 1)
 
+  processUnicode (stx : Syntax) := do
+    let atom ← validAtom stx[1]
+    let asciiAtom ← validAtom stx[3]
+    let preserveForPP := !stx[4].isNone
+    return (← `((with_annotate_term $(stx[0]) @ParserDescr.unicodeSymbol) $(quote atom) $(quote asciiAtom) $(quote preserveForPP)), 1)
 
 end Term
 
@@ -325,6 +334,9 @@ where
       | Syntax.node _ k args =>
         if k == ``Lean.Parser.Syntax.cat then
           acc ++ "_"
+        else if k == ``Lean.Parser.Syntax.unicodeAtom && args.size > 1 then
+          -- in `unicode(" ≥ ", " >= ")` only visit `" ≥ "`.
+          visit args[1]! acc
         else
           args.foldl (init := acc) fun acc arg => visit arg acc
       | Syntax.ident ..    => acc
@@ -358,7 +370,7 @@ private partial def isAtomLikeSyntax (stx : Syntax) : Bool :=
 def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   checkSyntaxNodeKindAtNamespaces k (← getCurrNamespace)
   <|>
-  throwError "invalid syntax node kind '{k}'"
+  throwError "invalid syntax node kind `{k}`"
 
 def isLocalAttrKind (attrKind : Syntax) : Bool :=
   match attrKind with
@@ -381,7 +393,7 @@ def elabSyntax (stx : Syntax) : CommandElabM Name := do
     | throwUnsupportedSyntax
   let cat := catStx.getId.eraseMacroScopes
   unless (Parser.isParserCategory (← getEnv) cat) do
-    throwErrorAt catStx "unknown category '{cat}'"
+    throwErrorAt catStx "unknown category `{cat}`"
   liftTermElabM <| Term.addCategoryInfo catStx cat
   let syntaxParser := mkNullNode ps
   -- If the user did not provide an explicit precedence, we assign `maxPrec` to atom-like syntax and `leadPrec` otherwise.
@@ -429,11 +441,11 @@ def elabSyntax (stx : Syntax) : CommandElabM Name := do
   discard <| elabSyntax stx
 
 @[builtin_command_elab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab := fun stx => do
-  let `($[$doc?:docComment]? syntax $declName:ident := $[$ps:stx]*) ← pure stx | throwUnsupportedSyntax
+  let `($[$doc?:docComment]? $[$vis?:visibility]? syntax $declName:ident := $[$ps:stx]*) ← pure stx | throwUnsupportedSyntax
   -- TODO: nonatomic names
   let (val, _) ← runTermElabM fun _ => Term.toParserDescr (mkNullNode ps) Name.anonymous
   let stxNodeKind := (← getCurrNamespace) ++ declName.getId
-  let stx' ← `($[$doc?:docComment]? meta def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
+  let stx' ← `($[$doc?:docComment]? $[$vis?:visibility]? meta def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
   withMacroExpansion stx stx' <| elabCommand stx'
 
 def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=

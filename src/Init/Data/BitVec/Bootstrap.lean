@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.BitVec.Basic
 import all Init.Data.BitVec.Basic
+import Init.Data.Int.Bitwise.Lemmas
 
 public section
 
@@ -18,7 +19,7 @@ theorem testBit_toNat (x : BitVec w) : x.toNat.testBit i = x.getLsbD i := rfl
 @[simp, grind =] theorem getLsbD_ofFin (x : Fin (2^n)) (i : Nat) :
     getLsbD (BitVec.ofFin x) i = x.val.testBit i := rfl
 
-@[simp, grind] theorem getLsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getLsbD x i = false := by
+@[simp, grind =] theorem getLsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getLsbD x i = false := by
   let ⟨x, x_lt⟩ := x
   simp only [getLsbD_ofFin]
   apply Nat.testBit_lt_two_pow

@@ -1645,8 +1645,8 @@ def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
 
 /-- Modify the state of the given extension in the given environment by applying the given function. -/
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ)
-    (asyncMode := ext.toEnvExtension.asyncMode) : Environment :=
-  ext.toEnvExtension.modifyState (asyncMode := asyncMode) env fun ps => { ps with state := f (ps.state) }
+    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := Name.anonymous) : Environment :=
+  ext.toEnvExtension.modifyState (asyncMode := asyncMode) (asyncDecl := asyncDecl) env fun ps => { ps with state := f (ps.state) }
 
 end PersistentEnvExtension
 
@@ -1769,6 +1769,7 @@ private def looksLikeOldCodegenName : Name → Bool
 private opaque getIRExtraConstNames : Environment → OLeanLevel → Array Name
 
 def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO ModuleData := do
+  let env := env.setExporting (level != .private)
   let pExts ← persistentEnvExtensionsRef.get
   let entries := pExts.map fun pExt => Id.run do
     -- get state from `checked` at the end if `async`; it would otherwise panic
@@ -1778,7 +1779,6 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     let state := pExt.getState (asyncMode := asyncMode) env
     (pExt.name, pExt.exportEntriesFn env state level)
   let kenv := env.toKernelEnv
-  let env := env.setExporting (level != .private)
   let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
   -- not all kernel constants may be exported at `level < .private`
   let constants := if level == .private then
@@ -2326,7 +2326,8 @@ as `meta` or otherwise fails with an error. It should only be set to `false` in 
 acceptable for code to work only in the language server, where more IR is loaded, such as in
 `#eval`.
 -/
-unsafe def evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) (checkMeta := true) : Except String α :=
+-- `[noinline]` helps with `prefer_native` so as to avoid trying to interpret the extern function
+@[noinline] unsafe def evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) (checkMeta := true) : Except String α :=
   if checkMeta && getIRPhases env constName == .runtime then
     throw ("cannot evaluate non-`meta` constant '" ++ toString constName ++ "'")
   else
@@ -2362,6 +2363,9 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
           consts.add c
     }
     checked := dest.checked.map fun kenv => replayKernel exts newPrivateConsts kenv |>.toOption.getD kenv
+    allRealizations := dest.allRealizations.map (sync := true) fun allRealizations =>
+      newPrivateConsts.foldl (init := allRealizations) fun allRealizations c =>
+        allRealizations.insert c.constInfo.name c
   }
 where
   replayKernel (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
@@ -2603,7 +2607,6 @@ instance (m n) [MonadLift m n] [MonadEnv m] : MonadEnv n where
 Sets `Environment.isExporting` to the given value while executing `x`. No-op if
 `EnvironmentHeader.isModule` is false.
 -/
-@[inline]
 def withExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
     (isExporting := true) : m α := do
   let old := (← getEnv).isExporting

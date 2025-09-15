@@ -20,13 +20,10 @@ LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfMonadStore1Of(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lake_MonadDStore_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadStore1_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadDStore_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadDStore_toCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfMonadStore1Of___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_fetchOrCreate(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadStore1_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadStore1_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfOfMonadDStore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -37,10 +34,7 @@ LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift___redArg(lean_object*
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfMonadStore1Of___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfOfMonadDStore___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadStore1Of_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadStore1Of_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfOfMonadDStore___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadStore1Of_toCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadStore1_toCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadStore1Of_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -59,24 +53,6 @@ lean_dec(x_2);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_MonadStore1Of_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = lean_unsigned_to_nat(0u);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MonadStore1Of_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Lake_MonadStore1Of_toCtorIdx(x_1, x_2, x_3, x_4, x_5);
-lean_dec_ref(x_5);
-lean_dec(x_2);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_MonadStore1_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -90,24 +66,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lake_MonadStore1_ctorIdx(x_1, x_2, x_3, x_4, x_5);
-lean_dec_ref(x_5);
-lean_dec(x_2);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MonadStore1_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = lean_unsigned_to_nat(0u);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MonadStore1_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Lake_MonadStore1_toCtorIdx(x_1, x_2, x_3, x_4, x_5);
 lean_dec_ref(x_5);
 lean_dec(x_2);
 return x_6;
@@ -167,23 +125,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lake_MonadDStore_ctorIdx(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MonadDStore_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_unsigned_to_nat(0u);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MonadDStore_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_MonadDStore_toCtorIdx(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_4);
 return x_5;
 }

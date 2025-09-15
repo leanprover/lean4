@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.Int
-// Imports: Init.Data.Range.Polymorphic.Instances Init.Data.Order.Classes Init.Omega
+// Imports: Init.Data.Range.Polymorphic.Instances Init.Data.Order.Classes Init.Data.Int.Order Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_instRangeSizeOpenInt;
 LEAN_EXPORT lean_object* l_Std_PRange_instRangeSizeClosedInt___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt;
 LEAN_EXPORT lean_object* l_Std_PRange_instRangeSizeOpenInt___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instRangeSizeClosedInt;
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0;
@@ -54,7 +55,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__1(lean_obje
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_nat_to_int(x_1);
+x_3 = l_instNatCastInt___lam__0(x_1);
 x_4 = lean_int_add(x_2, x_3);
 lean_dec(x_3);
 x_5 = lean_alloc_ctor(1, 1, 0);
@@ -159,6 +160,7 @@ return x_3;
 }
 lean_object* initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Order_Classes(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_Int(uint8_t builtin, lean_object* w) {
@@ -169,6 +171,9 @@ res = initialize_Init_Data_Range_Polymorphic_Instances(builtin, lean_io_mk_world
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Order_Classes(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Order(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin, lean_io_mk_world());

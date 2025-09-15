@@ -170,7 +170,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
         let s ← get
         let ctx ← read
         unless s.targetPos < ctx.targets.size do
-          throwError "Insufficient number of targets for '{elimInfo.elimExpr}'"
+          throwError "Insufficient number of targets for `{elimInfo.elimExpr}`"
         let target := ctx.targets[s.targetPos]!
         let expectedType ← getArgExpectedType
         let target ← withAssignableSyntheticOpaque <| Term.ensureHasType expectedType target
@@ -199,7 +199,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       let s ← get
       let ctx ← read
       unless s.targetPos = ctx.targets.size do
-        throwError "Unexpected number of targets for '{elimInfo.elimExpr}'"
+        throwError "Unexpected number of targets for `{elimInfo.elimExpr}`"
       pure ()
   let (_, s) ← (loop).run { elimInfo := elimInfo, targets := targets }
     |>.run { f := elimInfo.elimExpr, fType := elimInfo.elimType, motive := none }
@@ -272,7 +272,7 @@ private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM N
   for altInfo in elimInfo.altsInfo do
     if altInfo.name == altName then
       return altInfo.numFields
-  throwError "Unknown alternative name '{altName}'"
+  throwError "Unknown alternative name `{altName}`"
 
 private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : TacticM Unit := do
   let mut seenNames : Array Name := #[]
@@ -284,7 +284,7 @@ private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : Tacti
     if let some altName := getAltName? altStx then
       if altName != `_ then
         if seenNames.contains altName then
-          throwOrLogErrorAt altStx m!"Duplicate alternative name '{altName}'"
+          throwOrLogErrorAt altStx m!"Duplicate alternative name `{altName}`"
         else
           seenNames := seenNames.push altName
           unless alts.any (·.name == altName) do
@@ -293,7 +293,7 @@ private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : Tacti
       invalidNames := invalidNames.push (altStx, .anonymous)
   unless invalidNames.isEmpty do
     let unhandledAlts := alts.filter fun alt => !seenNames.contains alt.name
-    let unhandledAltsMessages := unhandledAlts.map (m!"'{·.name}'")
+    let unhandledAltsMessages := unhandledAlts.map (m!"`{·.name}`")
     let msg :=
       if unhandledAlts.isEmpty then
         m!"There are no unhandled alternatives"
@@ -303,7 +303,7 @@ private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : Tacti
       if altName.isAnonymous then
         throwOrLogErrorAt altStx m!"Missing alternative name: {msg}"
       else
-        throwOrLogErrorAt altStx m!"Invalid alternative name '{altName}': {msg}"
+        throwOrLogErrorAt altStx m!"Invalid alternative name `{altName}`: {msg}"
 
 /-- Given the goal `altMVarId` for a given alternative that introduces `numFields` new variables,
     return the number of explicit variables. Recall that when the `@` is not used, only the explicit variables can
@@ -470,7 +470,7 @@ where
         | continue
       appendGoals altMVarIds
       if hasAlts && !altMVarIds.isEmpty then
-        throwOrLogErrorAt tacStx m!"Alternative '{altName}' has not been provided"
+        throwOrLogErrorAt tacStx m!"Alternative `{altName}` has not been provided"
         toAdmit := altMVarIds ++ toAdmit
     return toAdmit
 
@@ -482,7 +482,7 @@ where
     let altVars := getAltVars altStx
     let numFieldsToName ← if altHasExplicitModifier altStx then pure numFields else getNumExplicitFields altMVarId numFields
     if altVars.size > numFieldsToName then
-      throwOrLogError m!"Too many variable names provided at alternative '{altName}': {altVars.size} provided, but {numFieldsToName} expected"
+      throwOrLogError m!"Too many variable names provided at alternative `{altName}`: {altVars.size} provided, but {numFieldsToName} expected"
     let mut (fvarIds, altMVarId) ← altMVarId.introN numFields (altVars.toList.map getNameOfIdent') (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
     -- Delay adding the infos for the pattern LHS because we want them to nest
     -- inside tacticInfo for the current alternative (in `evalAlt`)
@@ -494,7 +494,7 @@ where
     let unusedAlt := do
       addInfo
       if !isAltWildcard altStx then
-        throwOrLogError m!"Alternative '{altName}' is not needed"
+        throwOrLogError m!"Alternative `{altName}` is not needed"
     let some (altMVarId', subst) ← Cases.unifyEqs? numEqs altMVarId {}
       | unusedAlt
     altMVarId.withContext do
@@ -588,9 +588,9 @@ private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Exp
     let mut s ← getFVarSetToGeneralize targets forbidden
     for userFVarId in userFVarIds do
       if forbidden.contains userFVarId then
-        throwError "Variable '{mkFVar userFVarId}' cannot be generalized because the induction target depends on it"
+        throwError "Variable `{mkFVar userFVarId}` cannot be generalized because the induction target depends on it"
       if s.contains userFVarId then
-        throwOrLogError m!"Unnecessary 'generalizing' argument: Variable '{mkFVar userFVarId}' is generalized automatically"
+        throwOrLogError m!"Unnecessary `generalizing` argument: Variable `{mkFVar userFVarId}` is generalized automatically"
       s := s.insert userFVarId
     let fvarIds ← sortFVarIds s.toArray
     let (fvarIds, mvarId') ← mvarId.revert fvarIds
@@ -730,7 +730,7 @@ def getInductiveValFromMajor (induction : Bool) (major : Expr) : TacticM Inducti
     matchConstInduct majorType.getAppFn
       (fun _ => do
         let tacticName := if induction then `induction else `cases
-        let mut hint := m!"\n\nExplanation: the '{tacticName}' tactic is for constructor-based reasoning \
+        let mut hint := m!"\n\nExplanation: the `{tacticName}` tactic is for constructor-based reasoning \
           as well as for applying custom {tacticName} principles with a 'using' clause or a registered '@[{tacticName}_eliminator]' theorem. \
           The above type neither is an inductive type nor has a registered theorem."
         if majorType.isProp then
@@ -990,12 +990,12 @@ def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
     let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
     let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
       let theoremKind := if cases then "cases" else "induction"
-      throwError "No functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
+      throwError "No functional {theoremKind} theorem for `{.ofConstName fnName}`, or function is mutually recursive "
     let candidates ← FunInd.collect funIndInfo (← getMainGoal)
     if candidates.isEmpty then
-      throwError "Could not find suitable call of '{.ofConstName fnName}' in the goal"
+      throwError "Could not find suitable call of `{.ofConstName fnName}` in the goal"
     if candidates.size > 1 then
-      throwError "Found more than one suitable call of '{.ofConstName fnName}' in the goal. \
+      throwError "Found more than one suitable call of `{.ofConstName fnName}` in the goal. \
         Please include the desired arguments."
     pure candidates[0]!
   | _ =>
@@ -1013,9 +1013,9 @@ private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × A
     let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
     let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
       let theoremKind := if cases then "cases" else "induction"
-      throwError "No functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
+      throwError "No functional {theoremKind} theorem for `{.ofConstName fnName}`, or function is mutually recursive "
     if funArgs.size != funIndInfo.params.size then
-      throwError "Expected fully applied application of '{.ofConstName fnName}' with \
+      throwError "Expected fully applied application of `{.ofConstName fnName}` with \
         {funIndInfo.params.size} arguments, but found {funArgs.size} arguments"
     let mut params := #[]
     let mut targets := #[]
@@ -1038,7 +1038,7 @@ private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × A
     unless targets.size = elimInfo.targetsPos.size do
       let tacName := if cases then "fun_cases" else "fun_induction"
       throwError "{tacName} got confused trying to use \
-        '{.ofConstName funIndInfo.funIndName}'. Does it take {targets.size} or \
+        `{.ofConstName funIndInfo.funIndName}`. Does it take {targets.size} or \
         {elimInfo.targetsPos.size} targets?"
     return (elimInfo, targets)
 

@@ -16,13 +16,11 @@ extern "C" {
 LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Dimacs_0__Std_Sat_CNF_DimacsM_incrementClauses(lean_object*);
 static lean_object* l_Std_Sat_CNF_dimacs___closed__1;
 lean_object* lean_string_push(lean_object*, uint32_t);
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Dimacs_0__Std_Sat_CNF_DimacsState_toCtorIdx___boxed(lean_object*);
 static lean_object* l_List_foldlM___at_____private_Std_Sat_CNF_Dimacs_0__Std_Sat_CNF_dimacs_go_spec__0___closed__0;
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Dimacs_0__Std_Sat_CNF_dimacs_go(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_dimacs___boxed(lean_object*);
 static lean_object* l_Std_Sat_CNF_dimacs___closed__2;
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Dimacs_0__Std_Sat_CNF_DimacsState_toCtorIdx(lean_object*);
 static lean_object* l___private_Std_Sat_CNF_Dimacs_0__Std_Sat_CNF_dimacs_go___closed__0;
 static lean_object* l_Std_Sat_CNF_dimacs___closed__3;
 LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Dimacs_0__Std_Sat_CNF_dimacs_go___boxed(lean_object*, lean_object*);
@@ -51,23 +49,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Std_Sat_CNF_Dimacs_0__Std_Sat_CNF_DimacsState_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Dimacs_0__Std_Sat_CNF_DimacsState_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Dimacs_0__Std_Sat_CNF_DimacsState_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Std_Sat_CNF_Dimacs_0__Std_Sat_CNF_DimacsState_toCtorIdx(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

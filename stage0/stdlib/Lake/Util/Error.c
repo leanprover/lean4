@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_MonadError_runIO___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadError_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorOfMonadLift(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorIO;
 LEAN_EXPORT lean_object* l_Lake_MonadError_runEIO(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -24,7 +23,7 @@ LEAN_EXPORT lean_object* l_Lake_MonadError_runEIO___redArg___lam__0(lean_object*
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorEIOString___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorExceptString;
 LEAN_EXPORT lean_object* l_Lake_instMonadErrorExceptString___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadError_toCtorIdx(lean_object*, lean_object*);
+lean_object* lean_mk_io_user_error(lean_object*);
 lean_object* l_EIO_toBaseIO(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadError_runIO___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadError_ctorIdx(lean_object*, lean_object*);
@@ -47,23 +46,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_MonadError_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MonadError_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MonadError_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_MonadError_toCtorIdx(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -99,8 +81,7 @@ LEAN_EXPORT lean_object* l_Lake_instMonadErrorIO___lam__0(lean_object* x_1, lean
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_4, 0, x_2);
+x_4 = lean_mk_io_user_error(x_2);
 x_5 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);

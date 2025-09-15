@@ -40,7 +40,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt8) = OfNat.of
     rw [Int.toNat_emod (Int.zero_le_ofNat x) (by decide)]
     erw [Int.toNat_natCast]
     rw [Int.toNat_pow_of_nonneg (by decide)]
-    simp only [ofNat, BitVec.ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
+    simp only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
 
 end UInt8
@@ -70,7 +70,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt16) = OfNat.o
     rw [Int.toNat_emod (Int.zero_le_ofNat x) (by decide)]
     erw [Int.toNat_natCast]
     rw [Int.toNat_pow_of_nonneg (by decide)]
-    simp only [ofNat, BitVec.ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
+    simp only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
 
 end UInt16
@@ -100,7 +100,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt32) = OfNat.o
     rw [Int.toNat_emod (Int.zero_le_ofNat x) (by decide)]
     erw [Int.toNat_natCast]
     rw [Int.toNat_pow_of_nonneg (by decide)]
-    simp only [ofNat, BitVec.ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
+    simp only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
 
 end UInt32
@@ -130,7 +130,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt64) = OfNat.o
     rw [Int.toNat_emod (Int.zero_le_ofNat x) (by decide)]
     erw [Int.toNat_natCast]
     rw [Int.toNat_pow_of_nonneg (by decide)]
-    simp only [ofNat, BitVec.ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
+    simp only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
 
 end UInt64
@@ -157,7 +157,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : USize) = OfNat.of
     rw [Int.toNat_emod (Int.zero_le_ofNat x)]
     · erw [Int.toNat_natCast]
       rw [Int.toNat_pow_of_nonneg (by decide)]
-      simp only [ofNat, BitVec.ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
+      simp only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
         Nat.mod_mod_of_dvd, instOfNat]
     · obtain _ | _ := System.Platform.numBits_eq <;> simp_all
 
@@ -186,7 +186,9 @@ instance : CommRing UInt8 where
   ofNat_succ x := UInt8.ofNat_add x 1
   intCast_neg := UInt8.ofInt_neg
   intCast_ofNat := UInt8.intCast_ofNat
-  neg_zsmul i a := by simp [UInt8.intCast_neg, UInt8.neg_mul]
+  neg_zsmul i a := by
+    change (-i : Int) * a = - (i * a)
+    simp [UInt8.intCast_neg, UInt8.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (UInt8.intCast_ofNat _)
 
 instance : IsCharP UInt8 256 := IsCharP.mk' _ _
@@ -223,7 +225,9 @@ instance : CommRing UInt16 where
   ofNat_succ x := UInt16.ofNat_add x 1
   intCast_neg := UInt16.ofInt_neg
   intCast_ofNat := UInt16.intCast_ofNat
-  neg_zsmul i a := by simp [UInt16.intCast_neg, UInt16.neg_mul]
+  neg_zsmul i a := by
+    change (-i : Int) * a = - (i * a)
+    simp [UInt16.intCast_neg, UInt16.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (UInt16.intCast_ofNat _)
 
 instance : IsCharP UInt16 65536 := IsCharP.mk' _ _
@@ -260,7 +264,9 @@ instance : CommRing UInt32 where
   ofNat_succ x := UInt32.ofNat_add x 1
   intCast_neg := UInt32.ofInt_neg
   intCast_ofNat := UInt32.intCast_ofNat
-  neg_zsmul i a := by simp [UInt32.intCast_neg, UInt32.neg_mul]
+  neg_zsmul i a := by
+    change (-i : Int) * a = - (i * a)
+    simp [UInt32.intCast_neg, UInt32.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (UInt32.intCast_ofNat _)
 
 instance : IsCharP UInt32 4294967296 := IsCharP.mk' _ _
@@ -297,7 +303,9 @@ instance : CommRing UInt64 where
   ofNat_succ x := UInt64.ofNat_add x 1
   intCast_neg := UInt64.ofInt_neg
   intCast_ofNat := UInt64.intCast_ofNat
-  neg_zsmul i a := by simp [UInt64.intCast_neg, UInt64.neg_mul]
+  neg_zsmul i a := by
+    change (-i : Int) * a = - (i * a)
+    simp [UInt64.intCast_neg, UInt64.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (UInt64.intCast_ofNat _)
 
 instance : IsCharP UInt64 18446744073709551616 := IsCharP.mk' _ _
@@ -334,7 +342,9 @@ instance : CommRing USize where
   ofNat_succ x := USize.ofNat_add x 1
   intCast_neg := USize.ofInt_neg
   intCast_ofNat := USize.intCast_ofNat
-  neg_zsmul i a := by simp [USize.intCast_neg, USize.neg_mul]
+  neg_zsmul i a := by
+    change (-i : Int) * a = - (i * a)
+    simp [USize.intCast_neg, USize.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (USize.intCast_ofNat _)
 
 open System.Platform

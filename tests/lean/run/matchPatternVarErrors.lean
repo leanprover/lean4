@@ -9,20 +9,20 @@ inductive T where
   | imp {a b c : Nat}
   | mix {a b : Nat} (c : Nat)
 
-/-- error: Invalid pattern: Too many arguments to 'exp'; expected 3 explicit arguments -/
+/-- error: Invalid pattern: Too many arguments to `exp`; expected 3 explicit arguments -/
 #guard_msgs in
 def T.mixNamedPositional₁ : T → Unit
   | exp (b := x) y z w => ()
   | _ => ()
 
-/-- error: Invalid pattern: Too many arguments to 'imp'; expected 0 explicit arguments -/
+/-- error: Invalid pattern: Too many arguments to `imp`; expected 0 explicit arguments -/
 #guard_msgs in
 def T.mixNamedPositional₂ : T → Unit
   | imp (a := x) y => ()
   | _ => ()
 
 /--
-error: Invalid pattern: Not enough arguments to 'imp'; expected 3 arguments
+error: Invalid pattern: Not enough arguments to `imp`; expected 3 arguments
 
 Hint: To ignore all remaining arguments, use the ellipsis notation `..`
 -/
@@ -31,7 +31,7 @@ def T.mixNamedPositional₃ : T → Unit
   | @imp (a := x) y => ()
   | _ => ()
 
-/-- error: Invalid pattern: Too many arguments to 'mix'; expected 1 explicit argument -/
+/-- error: Invalid pattern: Too many arguments to `mix`; expected 1 explicit argument -/
 #guard_msgs in
 def T.mixNamedPositional₄ : T → Unit
   | mix (b := x) y z => ()
@@ -42,7 +42,7 @@ def matchExplicitValid (n : Nat) :=
   | @Nat.zero => ()
   | _ => ()
 
-/-- error: Invalid pattern variable: Variable name 'xs' was already used -/
+/-- error: Invalid pattern variable: Variable name `xs` was already used -/
 #guard_msgs in
 def dupVar (xs : List Nat) : List Nat :=
   match xs with
@@ -50,7 +50,7 @@ def dupVar (xs : List Nat) : List Nat :=
   | _ => false
 
 /--
-error: Invalid pattern variable: Variable name must be atomic, but 'x.y' has multiple components
+error: Invalid pattern variable: Variable name must be atomic, but `x.y` has multiple components
 -/
 #guard_msgs in
 def compVarName : Unit × Unit → Unit

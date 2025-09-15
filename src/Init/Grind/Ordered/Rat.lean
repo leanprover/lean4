@@ -16,14 +16,18 @@ public section
 # `grind` instances for `Rat` as an ordered module.
 -/
 
+open Std
+
 namespace Lean.Grind
 
-instance : LinearOrder Rat where
+instance : IsLinearOrder Rat where
   le_refl _ := Rat.le_refl
-  le_trans := Rat.le_trans
-  lt_iff_le_not_le {a b} := by rw [← Rat.not_le, iff_and_self]; exact Rat.le_total.resolve_left
-  le_antisymm := Rat.le_antisymm
+  le_trans _ _ _ := Rat.le_trans
+  le_antisymm _ _ := Rat.le_antisymm
   le_total _ _ := Rat.le_total
+
+instance : LawfulOrderLT Rat where
+  lt_iff _ _ := by rw [← Rat.not_le, iff_and_self]; exact Rat.le_total.resolve_left
 
 instance : OrderedAdd Rat where
   add_le_left_iff {a b} c := by simp [Rat.add_comm _ c, Rat.add_le_add_left]

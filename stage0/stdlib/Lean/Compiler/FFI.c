@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.FFI
-// Imports: Init.Data.Array.Basic Init.System.FilePath
+// Imports: Init.Data.Array.Basic Init.System.FilePath Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -557,6 +557,7 @@ return x_2;
 }
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_FilePath(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_FFI(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -566,6 +567,9 @@ res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_System_FilePath(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_FFI_0__Lean_Compiler_FFI_flagsStringToArray_spec__0___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_FFI_0__Lean_Compiler_FFI_flagsStringToArray_spec__0___closed__0();

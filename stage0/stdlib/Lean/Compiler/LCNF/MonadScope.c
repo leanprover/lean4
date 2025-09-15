@@ -21,14 +21,12 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_withNewScope___boxed(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_withNewScope___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_inScope___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_MonadScope_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_withNewScope___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instMonadScopeOfMonadLiftOfMonadFunctor___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_withFVar___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_withFVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_withParams___redArg___lam__1___closed__9;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_MonadScope_toCtorIdx(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_withParams___redArg___lam__1___closed__6;
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
@@ -82,23 +80,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Compiler_LCNF_MonadScope_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_MonadScope_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_MonadScope_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Compiler_LCNF_MonadScope_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

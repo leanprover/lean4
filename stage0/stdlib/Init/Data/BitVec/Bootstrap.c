@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.BitVec.Bootstrap
-// Imports: Init.Data.BitVec.Basic Init.Data.BitVec.Basic
+// Imports: Init.Data.BitVec.Basic Init.Data.BitVec.Basic Init.Data.Int.Bitwise.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_Bitwise_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -24,6 +25,9 @@ res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Bitwise_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Util
-// Imports: Init.Data.String.Basic Init.Data.ToString.Basic
+// Imports: Init.Data.ToString.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -54,11 +54,11 @@ static lean_object* l_mkPanicMessage___closed__0;
 LEAN_EXPORT lean_object* l_withPtrEqDecEq___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_withPtrEqDecEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_withPtrEqUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panicWithPosWithDecl___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_dbgTraceIfShared___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrAddrUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrEqUnsafe___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrAddrUnsafe___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_mkPanicMessage___closed__1;
@@ -627,16 +627,12 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Util(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

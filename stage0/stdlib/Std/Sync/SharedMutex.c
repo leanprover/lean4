@@ -25,7 +25,6 @@ LEAN_EXPORT lean_object* l_Std_SharedMutex_atomicallyRead___redArg___lam__2___bo
 lean_object* lean_io_basesharedmutex_try_read(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomicallyRead___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically___redArg___lam__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_read___boxed(lean_object*, lean_object*);
@@ -59,7 +58,6 @@ LEAN_EXPORT lean_object* l_Std_instCoeOutSharedMutexBaseSharedMutex___lam__0(lea
 LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_SharedMutex_atomicallyRead___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically___redArg___lam__2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_toCtorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_new___boxed(lean_object*);
 lean_object* lean_io_basesharedmutex_try_write(lean_object*, lean_object*);
 static lean_object* l_Std_SharedMutex_atomicallyRead___redArg___closed__0;
@@ -150,23 +148,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_SharedMutex_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_SharedMutex_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_SharedMutex_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_SharedMutex_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

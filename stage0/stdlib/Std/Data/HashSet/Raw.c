@@ -129,7 +129,6 @@ static lean_object* l_Std_HashSet_Raw_term___x7em_____closed__11;
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_get_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_repr___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_foldM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_HashSet_Raw_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_HashSet_Raw_instSingletonOfBEqOfHashable___redArg___lam__0___closed__0;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_ofArray(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -180,6 +179,7 @@ LEAN_EXPORT lean_object* l_Std_HashSet_Raw_erase___redArg(lean_object*, lean_obj
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_forIn___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_instForM___lam__2(lean_object*, lean_object*, lean_object*);
+lean_object* l_instForInOfForIn_x27___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_fold___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_HashSet_Raw___aux__Std__Data__HashSet__Raw______macroRules__Std__HashSet__Raw__term___x7em____1___closed__13;
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_empty(lean_object*, lean_object*);
@@ -187,7 +187,6 @@ LEAN_EXPORT lean_object* l_Std_HashSet_Raw_toList___redArg___lam__1(lean_object*
 static lean_object* l_Std_HashSet_Raw___aux__Std__Data__HashSet__Raw______unexpand__Std__HashSet__Raw__Equiv__1___closed__1;
 static lean_object* l_Std_HashSet_Raw___aux__Std__Data__HashSet__Raw______macroRules__Std__HashSet__Raw__term___x7em____1___closed__9;
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
-lean_object* l_instForInOfForIn_x27___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l_Std_HashSet_Raw_toList___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw___aux__Std__Data__HashSet__Raw______unexpand__Std__HashSet__Raw__Equiv__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -242,7 +241,6 @@ static lean_object* l_Std_HashSet_Raw___aux__Std__Data__HashSet__Raw______macroR
 static lean_object* l_Std_HashSet_Raw_term___x7em_____closed__2;
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_getKeyD___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_filter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_HashSet_Raw_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_term___x7em__;
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_instInsertOfBEqOfHashable___redArg(lean_object*, lean_object*);
 lean_object* l_String_toSubstring_x27(lean_object*);
@@ -276,23 +274,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_HashSet_Raw_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_HashSet_Raw_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_HashSet_Raw_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_HashSet_Raw_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
@@ -2106,8 +2087,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_HashSet_Raw_ofList___redArg___closed__0;
-x_2 = lean_alloc_closure((void*)(l_instForInOfForIn_x27___redArg___lam__1), 6, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instForInOfForIn_x27___redArg(x_1);
 return x_2;
 }
 }
@@ -3258,8 +3238,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_HashSet_Raw_ofArray___redArg___closed__0;
-x_2 = lean_alloc_closure((void*)(l_instForInOfForIn_x27___redArg___lam__1), 6, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instForInOfForIn_x27___redArg(x_1);
 return x_2;
 }
 }

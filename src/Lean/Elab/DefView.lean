@@ -118,6 +118,8 @@ structure DefView where
   binders       : Syntax
   type?         : Option Syntax
   value         : Syntax
+  /-- The docstring, if present, and whether it's Verso -/
+  docString?    : Option (TSyntax ``Parser.Command.docComment × Bool)
   /--
   Snapshot for incremental processing of this definition.
 
@@ -145,20 +147,22 @@ def mkDefViewOfAbbrev (modifiers : Modifiers) (stx : Syntax) : DefView :=
   let modifiers       := modifiers.addAttr { name := `inline }
   let modifiers       := modifiers.addAttr { name := `reducible }
   { ref := stx, headerRef := mkNullNode stx.getArgs[*...3], kind := DefKind.abbrev, modifiers,
-    declId := stx[1], binders, type? := type, value := stx[3] }
+    declId := stx[1], binders, type? := type, value := stx[3], docString? := modifiers.docString? }
 
 def mkDefViewOfDef (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "def " >> declId >> optDeclSig >> declVal >> optDefDeriving
   let (binders, type) := expandOptDeclSig stx[2]
   let deriving? := if stx[4].isNone then none else some stx[4][1].getSepArgs
   { ref := stx, headerRef := mkNullNode stx.getArgs[*...3], kind := DefKind.def, modifiers,
-    declId := stx[1], binders, type? := type, value := stx[3], deriving? }
+    declId := stx[1], binders, type? := type, value := stx[3], deriving?,
+    docString? := modifiers.docString? }
 
 def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "theorem " >> declId >> declSig >> declVal
   let (binders, type) := expandDeclSig stx[2]
   { ref := stx, headerRef := mkNullNode stx.getArgs[*...3], kind := DefKind.theorem, modifiers,
-    declId := stx[1], binders, type? := some type, value := stx[3] }
+    declId := stx[1], binders, type? := some type, value := stx[3],
+    docString? := modifiers.docString? }
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
@@ -179,7 +183,8 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
       pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx[1] id (canonical := true), mkNullNode]
   return {
     ref := stx, headerRef := mkNullNode stx.getArgs[*...5], kind := DefKind.instance, modifiers := modifiers,
-    declId := declId, binders := binders, type? := type, value := stx[5]
+    declId := declId, binders := binders, type? := type, value := stx[5],
+    docString? := modifiers.docString?
   }
 
 def mkDefViewOfOpaque (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
@@ -192,7 +197,8 @@ def mkDefViewOfOpaque (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefV
       `(Parser.Command.declValSimple| := $val)
   return {
     ref := stx, headerRef := mkNullNode stx.getArgs[*...3], kind := DefKind.opaque, modifiers := modifiers,
-    declId := stx[1], binders := binders, type? := some type, value := val
+    declId := stx[1], binders := binders, type? := some type, value := val,
+    docString? := modifiers.docString?
   }
 
 def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=
@@ -201,7 +207,8 @@ def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=
   let id              := mkIdentFrom stx[0] `_example (canonical := true)
   let declId          := mkNode ``Parser.Command.declId #[id, mkNullNode]
   { ref := stx, headerRef := mkNullNode stx.getArgs[*...2], kind := DefKind.example, modifiers := modifiers,
-    declId := declId, binders := binders, type? := type, value := stx[2] }
+    declId := declId, binders := binders, type? := type, value := stx[2],
+     docString? := modifiers.docString? }
 
 def isDefLike (stx : Syntax) : Bool :=
   let declKind := stx.getKind

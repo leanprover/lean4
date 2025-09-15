@@ -4,21 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Ring.OfSemiring
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Var
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-
+public import Init.Grind.Ring.CommSemiringAdapter
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
-
 namespace Lean.Meta.Grind.Arith.CommRing
 /-!
 Helper functions for converting reified terms back into their denotations.
 -/
 
-variable [Monad M] [MonadError M] [MonadLiftT MetaM M] [MonadRing M]
+variable [Monad M] [MonadError M] [MonadLiftT MetaM M] [MonadCanon M] [MonadRing M]
 
 def denoteNum (k : Int) : M Expr := do
   let ring ← getRing
@@ -90,15 +87,5 @@ def PolyDerivation.denoteExpr (d : PolyDerivation) : M Expr := do
 
 def DiseqCnstr.denoteExpr (c : DiseqCnstr) : M Expr := do
   return mkNot (← mkEq (← c.d.denoteExpr) (← denoteNum 0))
-
-def _root_.Lean.Grind.Ring.OfSemiring.Expr.denoteAsRingExpr (e : SemiringExpr) : SemiringM Expr := do
-  shareCommon (← go e)
-where
-  go : SemiringExpr → SemiringM Expr
-  | .num k => denoteNum k
-  | .var x => return mkApp (← getToQFn) (← getSemiring).vars[x]!
-  | .add a b => return mkApp2 (← getAddFn) (← go a) (← go b)
-  | .mul a b => return mkApp2 (← getMulFn) (← go a) (← go b)
-  | .pow a k => return mkApp2 (← getPowFn) (← go a) (toExpr k)
 
 end Lean.Meta.Grind.Arith.CommRing

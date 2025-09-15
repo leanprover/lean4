@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Cycle
-// Imports: Init.Control.Except Init.Data.ToString
+// Imports: Init.Control.Except Init.Data.ToString Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,11 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lake_MonadCallStackOf_toCtorIdx(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_read(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadCycle_toCtorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadCallStack_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadCallStackOf_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadCycleOfOfMonadLiftOfMonadFunctor___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadCallStackOfOfMonadLiftOfMonadFunctor___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonad___redArg___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -34,7 +31,6 @@ LEAN_EXPORT lean_object* l_Lake_MonadCycleOf_ctorIdx___boxed(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lake_instMonadCallStackOfMonadCallStackOf(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_inhabitedOfMonadCycle___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadCallStackOf_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadCallStack_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadCallStackOfOfMonadLiftOfMonadFunctor___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_formatCycle___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instMonadCallStackOfCallStackTOfMonad___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -51,10 +47,8 @@ lean_object* l_List_appendTR___redArg(lean_object*, lean_object*);
 lean_object* l_ExceptT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadCycleOfCycleTOfMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadCallStackOfOfMonadLiftOfMonadFunctor___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadCycleOf_toCtorIdx(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonad___redArg___lam__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_guardCycle___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadCycleOf_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadCallStackOfCallStackTOfMonad(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_guardCycle___redArg___lam__1___closed__0;
 LEAN_EXPORT lean_object* l_Lake_guardCycle___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -65,13 +59,11 @@ LEAN_EXPORT lean_object* l_Lake_MonadCallStack_ctorIdx(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lake_guardCycle___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_elem___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadCallStack_toCtorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_guardCycle(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 lean_object* l_ExceptT_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_partition_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadCallStackOfMonadCallStackOf___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonadCycle_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadCycle_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_formatCycle___redArg(lean_object*, lean_object*);
@@ -142,23 +134,6 @@ lean_dec_ref(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_MonadCallStackOf_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MonadCallStackOf_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_MonadCallStackOf_toCtorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_MonadCallStack_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -172,23 +147,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_MonadCallStack_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MonadCallStack_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MonadCallStack_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_MonadCallStack_toCtorIdx(x_1, x_2, x_3);
 lean_dec_ref(x_3);
 return x_4;
 }
@@ -321,23 +279,6 @@ lean_dec_ref(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_MonadCycleOf_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MonadCycleOf_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_MonadCycleOf_toCtorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_MonadCycle_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -351,23 +292,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_MonadCycle_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MonadCycle_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_MonadCycle_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_MonadCycle_toCtorIdx(x_1, x_2, x_3);
 lean_dec_ref(x_3);
 return x_4;
 }
@@ -790,6 +714,7 @@ return x_7;
 }
 lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ToString(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_Cycle(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -799,6 +724,9 @@ res = initialize_Init_Control_Except(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ToString(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_formatCycle___redArg___lam__0___closed__0 = _init_l_Lake_formatCycle___redArg___lam__0___closed__0();

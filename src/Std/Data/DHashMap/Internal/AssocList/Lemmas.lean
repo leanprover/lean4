@@ -25,9 +25,9 @@ set_option autoImplicit false
 open Std.DHashMap.Internal
 open List (Perm perm_middle)
 
-universe w v u
+universe w v u w'
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w'} [Monad m]
 
 namespace Std.DHashMap.Internal.AssocList
 

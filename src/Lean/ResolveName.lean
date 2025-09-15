@@ -25,7 +25,7 @@ For example, give a definition `foo`, we flag `foo.def` as reserved symbol.
 -/
 
 def throwReservedNameNotAvailable [Monad m] [MonadError m] (declName : Name) (reservedName : Name) : m Unit := do
-  throwError "failed to declare `{declName}` because `{.ofConstName reservedName true}` has already been declared"
+  throwError "failed to declare `{.ofConstName declName}` because `{.ofConstName reservedName true}` has already been declared"
 
 def ensureReservedNameAvailable [Monad m] [MonadEnv m] [MonadError m] (declName : Name) (suffix : String) : m Unit := do
   let reservedName := .str declName suffix
@@ -121,15 +121,16 @@ private partial def resolvePrivateName (env : Environment) (declName : Name) : O
     return n
 
 /-- Check whether `ns ++ id` is a valid namespace name and/or there are aliases names `ns ++ id`. -/
-private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
+private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name := Id.run do
   let resolvedId    := ns ++ id
   -- We ignore protected aliases if `id` is atomic.
   let resolvedIds   := getAliases env resolvedId (skipProtected := id.isAtomic)
-  if (containsDeclOrReserved env resolvedId && (!id.isAtomic || !isProtected env resolvedId)) then
-    resolvedId :: resolvedIds
-  else
-    if let some resolvedIdPrv := resolvePrivateName env resolvedId then resolvedIdPrv :: resolvedIds
-    else resolvedIds
+  if !id.isAtomic || !isProtected env resolvedId then
+    if containsDeclOrReserved env resolvedId then
+      return resolvedId :: resolvedIds
+    else if let some resolvedIdPrv := resolvePrivateName env resolvedId then
+      return resolvedIdPrv :: resolvedIds
+  return resolvedIds
 
 /-- Check surrounding namespaces -/
 private def resolveUsingNamespace (env : Environment) (id : Name) : Name → List Name
@@ -288,7 +289,7 @@ Names extracted from syntax should be passed to `resolveNamespace` instead.
 def resolveNamespaceCore [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) (allowEmpty := false) : m (List Name) := do
   let nss := ResolveName.resolveNamespace (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
   if !allowEmpty && nss.isEmpty then
-    throwError s!"unknown namespace '{id}'"
+    throwError s!"unknown namespace `{id}`"
   return nss
 
 /-- Given a namespace identifier, return a list of possible interpretations. -/
@@ -307,7 +308,7 @@ def resolveNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] 
 def resolveUniqueNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Ident) : m Name := do
   match (← resolveNamespace id) with
   | [ns] => return ns
-  | nss => throwError s!"ambiguous namespace '{id.getId}', possible interpretations: '{nss}'"
+  | nss => throwError s!"ambiguous namespace `{id.getId}`, possible interpretations: `{nss}`"
 
 /-- Helper function for `resolveGlobalConstCore`. -/
 def filterFieldList [Monad m] [MonadEnv m] [MonadError m] (n : Name) (cs : List (Name × List String)) : m (List Name) := do
@@ -382,7 +383,7 @@ def ensureNonAmbiguous [Monad m] [MonadError m] (id : Syntax) (cs : List Name) :
   match cs with
   | []  => unreachable!
   | [c] => pure c
-  | _   => throwErrorAt id s!"ambiguous identifier '{id}', possible interpretations: {cs.map mkConst}"
+  | _   => throwErrorAt id s!"ambiguous identifier `{id}`, possible interpretations: {cs.map mkConst}"
 
 /-- Interprets the syntax `n` as an identifier for a global constant, and return a resolved
 constant name. If there are multiple possible interpretations it will throw.

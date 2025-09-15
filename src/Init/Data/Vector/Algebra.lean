@@ -145,19 +145,19 @@ instance [AddCommGroup α] : AddCommGroup (Vector α n) where
   sub_eq_add_neg x y := sub_eq_add_neg AddCommGroup.sub_eq_add_neg x y
 
 instance [NatModule α] : NatModule (Vector α n) where
-  zero_nsmul x := zero_hmul NatModule.zero_nsmul x
+  zero_nsmul x := zero_smul NatModule.zero_nsmul x
   add_one_nsmul x xs := by
     ext i h
-    simpa [NatModule.one_nsmul] using congrArg (·[i]) (add_hmul NatModule.add_nsmul x 1 xs)
+    simpa [NatModule.one_nsmul] using congrArg (·[i]) (add_smul NatModule.add_nsmul x 1 xs)
 
 instance [IntModule α] : IntModule (Vector α n) where
-  zero_zsmul x := zero_hmul IntModule.zero_zsmul x
+  zero_zsmul x := zero_smul IntModule.zero_zsmul x
   one_zsmul x := by
     ext i h
     simp [IntModule.one_zsmul]
   add_zsmul x xs ys := by
     ext i h
-    simpa using congrArg (·[i]) (add_hmul IntModule.add_zsmul x xs ys)
+    simpa using congrArg (·[i]) (add_smul IntModule.add_zsmul x xs ys)
   zsmul_natCast_eq_nsmul n xs := by
     ext i h
     simp [IntModule.zsmul_natCast_eq_nsmul]

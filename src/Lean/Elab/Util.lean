@@ -102,7 +102,7 @@ def syntaxNodeKindOfAttrParam (defaultParserNamespace : Name) (stx : Syntax) : A
   <|>
   checkSyntaxNodeKind (defaultParserNamespace ++ k)
   <|>
-  throwError "invalid syntax node kind '{k}'"
+  throwError "invalid syntax node kind `{k}`"
 
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
   env.evalConstCheck Syntax opts `Lean.Syntax constName
@@ -123,7 +123,7 @@ unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespa
       if (← getEnv).contains kind && (← getInfoState).enabled then
         addConstInfo stx[1] kind none
       return kind
-    onAdded       := fun builtin declName => do
+    onAdded       := fun builtin declName kind => do
       if builtin then
         declareBuiltinDocStringAndRanges declName
   } attrDeclName

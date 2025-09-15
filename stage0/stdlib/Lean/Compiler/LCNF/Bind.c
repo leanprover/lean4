@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Compiler_LCNF_mkAuxLetDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_eraseParam___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_MonadCodeBind_toCtorIdx___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_etaExpandCore___lam__0___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_etaExpandCore_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -71,7 +70,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lean_Compiler_LCNF_B
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_CompilerM_codeBind_go___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_isEtaExpandCandidate___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_MonadCodeBind_toCtorIdx(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate_rev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_mkNewParams_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -82,6 +80,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindReaderT___redArg_
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
 size_t lean_array_size(lean_object*);
+lean_object* l_Lean_mkFVar(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getArrowArity(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at_____private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_CompilerM_codeBind_go_spec__0___redArg___boxed(lean_object*, lean_object*);
@@ -113,23 +112,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Compiler_LCNF_MonadCodeBind_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_MonadCodeBind_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_MonadCodeBind_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Compiler_LCNF_MonadCodeBind_toCtorIdx(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -2289,7 +2271,7 @@ lean_inc(x_6);
 lean_dec(x_5);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
-x_9 = l_Lean_Expr_fvar___override(x_6);
+x_9 = l_Lean_mkFVar(x_6);
 x_10 = 1;
 x_11 = lean_usize_add(x_2, x_10);
 x_12 = lean_array_uset(x_8, x_2, x_9);

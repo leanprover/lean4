@@ -4,13 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Canon
-
 public section
-
 namespace Lean.Meta.Grind
 
 /--
@@ -51,6 +47,11 @@ private def mkCandidate (a b : ArgInfo) (i : Nat) : GoalM SplitInfo := do
   let eq ← shareCommon (← canon eq)
   return .arg a.app b.app i eq (.mbtc a.app b.app i)
 
+/-- Returns `true` if `f` is a type class instance -/
+private def isFnInstance (f : Expr) : CoreM Bool := do
+  let .const declName _ := f | return false
+  isInstance declName
+
 /-- Model-based theory combination. -/
 def mbtc (ctx : MBTC.Context) : GoalM Bool := do
   unless (← getConfig).mbtc do return false
@@ -63,22 +64,27 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
     if (← isCongrRoot e) then
     unless (← ctx.isInterpreted e) do
       let f := e.getAppFn
-      let mut i := 0
-      for arg in e.getAppArgs do
-        let some arg ← getRoot? arg | pure ()
-        if (← ctx.hasTheoryVar arg) then
-          trace[grind.debug.mbtc] "{arg} @ {f}:{i}"
-          let argInfo : ArgInfo := { arg, app := e }
-          if let some otherInfos := map[(f, i)]? then
-            unless otherInfos.any fun info => isSameExpr arg info.arg do
-              for otherInfo in otherInfos do
-                if (← ctx.eqAssignment arg otherInfo.arg) then
-                  if (← hasSameType arg otherInfo.arg) then
-                    candidates := candidates.insert (← mkCandidate argInfo otherInfo i)
-              map := map.insert (f, i) (argInfo :: otherInfos)
-          else
-            map := map.insert (f, i) [argInfo]
-        i := i + 1
+      /-
+      Remark: we ignore type class instances in model-based theory combination.
+      `grind` treats instances as support elements, and they are handled by the canonicalizer.
+      -/
+      unless (← isFnInstance f) do
+        let mut i := 0
+        for arg in e.getAppArgs do
+          let some arg ← getRoot? arg | pure ()
+          if (← ctx.hasTheoryVar arg) then
+            trace[grind.debug.mbtc] "{arg} @ {f}:{i}"
+            let argInfo : ArgInfo := { arg, app := e }
+            if let some otherInfos := map[(f, i)]? then
+              unless otherInfos.any fun info => isSameExpr arg info.arg do
+                for otherInfo in otherInfos do
+                  if (← ctx.eqAssignment arg otherInfo.arg) then
+                    if (← hasSameType arg otherInfo.arg) then
+                      candidates := candidates.insert (← mkCandidate argInfo otherInfo i)
+                map := map.insert (f, i) (argInfo :: otherInfos)
+            else
+              map := map.insert (f, i) [argInfo]
+          i := i + 1
   if candidates.isEmpty then
     return false
   if (← get).split.num > (← getConfig).splits then

@@ -119,7 +119,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   match stx with
   | `(let_mvar% ? $n := $e; $b) =>
      match (← getMCtx).findUserName? n.getId with
-     | some _ => throwError "invalid 'let_mvar%', metavariable '?{n.getId}' has already been used"
+     | some _ => throwError "invalid `let_mvar%`, metavariable `?{n.getId}` has already been used"
      | none =>
        let e ← elabTerm e none
        let mvar ← mkFreshExprMVar (← inferType e) MetavarKind.syntheticOpaque n.getId
@@ -130,7 +130,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
 
 private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
   match (← getMCtx).findUserName? ident.getId with
-  | none => throwError "unknown metavariable '?{ident.getId}'"
+  | none => throwError "unknown metavariable `?{ident.getId}`"
   | some mvarId => instantiateMVars (mkMVar mvarId)
 
 
@@ -366,7 +366,7 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
     let ctx ← readThe Lean.Core.Context
     let srcPath := System.FilePath.mk ctx.fileName
     let some srcDir := srcPath.parent
-      | throwError "cannot compute parent directory of '{srcPath}'"
+      | throwError "cannot compute parent directory of `{srcPath}`"
     let path := srcDir / path
     mkStrLit <$> IO.FS.readFile path
   | _, _ => throwUnsupportedSyntax

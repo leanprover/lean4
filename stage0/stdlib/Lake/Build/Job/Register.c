@@ -42,6 +42,7 @@ LEAN_EXPORT lean_object* l_Lake_registerJob___redArg___boxed(lean_object*, lean_
 lean_object* lean_task_pure(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lake_EStateT_instFunctor___redArg(lean_object*);
+lean_object* l_Lake_EquipT_instMonadFinallyOfMonad___redArg(lean_object*);
 lean_object* l_IO_FS_withIsolatedStreams___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_shrink___redArg(lean_object*, lean_object*);
 lean_object* l_instMonadEIO(lean_object*);
@@ -74,7 +75,7 @@ static lean_object* l_Lake_ensureJob___redArg___closed__4;
 static lean_object* l_Lake_ensureJob___redArg___closed__11;
 static lean_object* l_Lake_ensureJob___redArg___closed__16;
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l_Lake_instMonadLiftTOfMonadLift__lake___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lake_instMonadLiftTOfMonadLift__lake___redArg(lean_object*);
 lean_object* l_Lake_Job_toOpaque___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_registerJob___redArg___lam__0(lean_object*, lean_object*);
 lean_object* l_Lake_EStateT_instMonad___redArg___lam__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -84,12 +85,10 @@ LEAN_EXPORT lean_object* l_Lake_Job_renew___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withRegisterJob___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_maybeRegisterJob___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lake_EStateT_instMonadLiftOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_maybeRegisterJob___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_EStateT_instMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lake_ensureJob___redArg___closed__13;
-lean_object* l_Lake_EquipT_instMonadFinallyOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lake_ensureJob___redArg___closed__14;
 static lean_object* l_Lake_ensureJob___redArg___closed__18;
@@ -100,6 +99,7 @@ lean_object* l_ReaderT_tryFinally___redArg___lam__1(lean_object*, lean_object*, 
 lean_object* l_ReaderT_instMonadLift___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_ensureJob___redArg___closed__20;
 LEAN_EXPORT lean_object* l_Lake_registerJob___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lake_EStateT_instMonadLiftOfMonad___redArg(lean_object*);
 static lean_object* _init_l_Lake_JobState_renew___closed__0() {
 _start:
 {
@@ -831,8 +831,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_ensureJob___redArg___closed__0;
-x_2 = lean_alloc_closure((void*)(l_Lake_EStateT_instMonadLiftOfMonad___redArg___lam__1), 4, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_Lake_EStateT_instMonadLiftOfMonad___redArg(x_1);
 return x_2;
 }
 }
@@ -841,8 +840,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_ensureJob___redArg___closed__4;
-x_2 = lean_alloc_closure((void*)(l_Lake_instMonadLiftTOfMonadLift__lake___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_Lake_instMonadLiftTOfMonadLift__lake___redArg(x_1);
 return x_2;
 }
 }
@@ -961,8 +959,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_ensureJob___redArg___closed__15;
-x_2 = lean_alloc_closure((void*)(l_Lake_EquipT_instMonadFinallyOfMonad___redArg___lam__1), 6, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_Lake_EquipT_instMonadFinallyOfMonad___redArg(x_1);
 return x_2;
 }
 }

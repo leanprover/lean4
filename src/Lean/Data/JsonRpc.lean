@@ -296,6 +296,105 @@ instance [FromJson α] : FromJson (Notification α) where
       pure $ ⟨method, param⟩
     else throw "not a notification"
 
+/--
+A variant of `Message` that has been parsed *partially*, without the payload.
+This is useful when we want to process the metadata of a `Message` without parsing and converting
+the whole thing.
+-/
+inductive MessageMetaData where
+  | request (id : RequestID) (method : String)
+  | notification (method : String)
+  | response (id : RequestID)
+  | responseError (id : RequestID) (code : ErrorCode) (message : String) (data? : Option Json)
+  deriving Inhabited
+
+def MessageMetaData.toMessage : MessageMetaData → Message
+  | .request id method => .request id method none
+  | .notification method => .notification method none
+  | .response id => .response id .null
+  | .responseError id code message data? => .responseError id code message data?
+
+open Std.Internal.Parsec in
+open Std.Internal.Parsec.String in
+open Json.Parser in
+private def messageMetaDataParser (input : String) : Parser MessageMetaData := do
+  skip
+  let k ← parseStr
+  skip
+  match k with
+  | "id" =>
+    -- Request or response
+    let id ← parseRequestID
+    skip
+    -- Skip `jsonrpc` field
+    let _ ← parseStr
+    skip
+    let _ ← parseStr
+    skip
+    let k' ← parseStr
+    match k' with
+    | "method" =>
+      skip
+      let method ← parseStr
+      return .request id method
+    | "result" =>
+      -- Response
+      return .response id
+    | _ =>
+      fail "expected `method` or `result` field"
+  | "jsonrpc" =>
+    -- Notification
+    -- Skip `jsonrpc` version
+    let _ ← parseStr
+    skip
+    -- Skip `method` field name
+    let _ ← parseStr
+    skip
+    let method ← parseStr
+    return .notification method
+  | "error" =>
+    -- Response error
+    -- Response errors are usually small, so we just parse them normally.
+    match Json.parse input with
+    | .ok parsed =>
+      match fromJson? parsed with
+      | .ok (.responseError id code message data? : Message) =>
+        return .responseError id code message data?
+      | .ok _ =>
+        fail "expected response error message kind"
+      | .error err =>
+        fail err
+    | .error err =>
+      fail err
+  | _ =>
+    fail "expected `id`, `jsonrpc` or `error` field"
+where
+  parseStr : Parser String := do
+    let c ← peek!
+    if  c != '"' then
+      fail "expected \""
+    skip
+    str
+  parseRequestID : Parser RequestID := do
+    (do
+      let num ← Parser.num
+      return .num num) <|>
+    (do
+      let str ← parseStr
+      return .str str) <|>
+    (do
+      skipString "null"
+      return .null)
+
+/--
+Danger: For performance reasons, this function makes a number of fragile assumptions about `input`.
+Namely:
+- `input` is the output of `(toJson (v : Message)).compress`
+- `compress` yields a lexicographic ordering of JSON object keys
+-/
+def parseMessageMetaData (input : String) : Except String MessageMetaData :=
+  messageMetaDataParser input |>.run input
+
 end Lean.JsonRpc
 
 namespace IO.FS.Stream

@@ -27,7 +27,7 @@ def Internal.iter {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl �
 
 /--
 Returns the elements of the given range as a list in ascending order, given that ranges of the given
-type and shape support this function and the range is finite.
+type and shape are finite and support this function.
 -/
 @[always_inline, inline, expose]
 def toList {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
@@ -36,6 +36,18 @@ def toList {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [Iterator (RangeIterator su α) Id α] [Finite (RangeIterator su α) Id]
     [IteratorCollect (RangeIterator su α) Id Id] : List α :=
   PRange.Internal.iter r |>.toList
+
+/--
+Returns the elements of the given range as an array in ascending order, given that ranges of the
+given type and shape are finite and support this function.
+-/
+@[always_inline, inline, expose]
+def toArray {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
+    [SupportsUpperBound su α]
+    (r : PRange ⟨sl, su⟩ α)
+    [Iterator (RangeIterator su α) Id α] [Finite (RangeIterator su α) Id]
+    [IteratorCollect (RangeIterator su α) Id Id] : Array α :=
+  PRange.Internal.iter r |>.toArray
 
 /--
 Iterators for ranges implementing `RangeSize` support the `size` function.

@@ -11,7 +11,10 @@ def evalTryApply : TryTactic := fun tac => do
   evalAssumption tac
   `(tactic| (trace "worked"; assumption))
 
-/-- info: Try this: · trace "worked"; assumption -/
+/--
+info: Try this:
+  · trace "worked"; assumption
+-/
 #guard_msgs (info) in
 example (h : False) : False := by
   try? (max := 1) -- at most one solution
@@ -25,8 +28,8 @@ elab stx:"my_try?" : tactic => do
 
 /--
 info: Try these:
-• · trace "worked"; assumption
-• rfl
+  • · trace "worked"; assumption
+  • rfl
 -/
 #guard_msgs (info) in
 example (a : Nat) (h : a = a) : a = a := by

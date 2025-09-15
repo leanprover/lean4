@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 static lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide_ReifiedBVPred_0__Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_mkBinPred_congrThmOfBinPred___closed__2;
-lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_mkBinPred___redArg___closed__2;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___closed__6;
 lean_object* l_Lean_mkNatLit(lean_object*);
@@ -50,6 +49,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_mkBinPred
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_mkBinPred___redArg___closed__8;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_mkBinPred___redArg___closed__5;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___closed__14;
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_mkBinPred(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkAtom(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -153,7 +153,7 @@ lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean
 x_24 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___lam__0___closed__0;
 x_25 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___lam__0___closed__1;
 x_26 = l_Lean_Name_mkStr6(x_4, x_5, x_6, x_24, x_7, x_25);
-x_27 = l_Lean_Expr_const___override(x_26, x_8);
+x_27 = l_Lean_mkConst(x_26, x_8);
 x_28 = l_Lean_mkApp3(x_27, x_9, x_17, x_23);
 x_29 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_29, 0, x_28);
@@ -266,7 +266,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___closed__4;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -329,7 +329,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___closed__11;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -951,7 +951,7 @@ lean_inc(x_34);
 x_35 = lean_ctor_get(x_33, 1);
 lean_inc(x_35);
 lean_dec(x_33);
-x_36 = l_Lean_Expr_const___override(x_7, x_8);
+x_36 = l_Lean_mkConst(x_7, x_8);
 x_37 = l_Lean_mkApp7(x_36, x_9, x_10, x_11, x_19, x_22, x_34, x_35);
 lean_ctor_set(x_30, 0, x_37);
 lean_ctor_set(x_27, 0, x_30);
@@ -968,7 +968,7 @@ lean_inc(x_39);
 x_40 = lean_ctor_get(x_38, 1);
 lean_inc(x_40);
 lean_dec(x_38);
-x_41 = l_Lean_Expr_const___override(x_7, x_8);
+x_41 = l_Lean_mkConst(x_7, x_8);
 x_42 = l_Lean_mkApp7(x_41, x_9, x_10, x_11, x_19, x_22, x_39, x_40);
 x_43 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_43, 0, x_42);
@@ -1021,7 +1021,7 @@ lean_inc(x_51);
 x_52 = lean_ctor_get(x_49, 1);
 lean_inc(x_52);
 lean_dec(x_49);
-x_53 = l_Lean_Expr_const___override(x_7, x_8);
+x_53 = l_Lean_mkConst(x_7, x_8);
 x_54 = l_Lean_mkApp7(x_53, x_9, x_10, x_11, x_19, x_22, x_51, x_52);
 if (lean_is_scalar(x_50)) {
  x_55 = lean_alloc_ctor(1, 1, 0);
@@ -1172,7 +1172,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_mkBinPred___redArg___closed__1;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -1211,7 +1211,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_mkBinPred___redArg___closed__5;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -1242,7 +1242,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_mkBinPred___redArg___closed__8;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -1465,7 +1465,7 @@ x_25 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___lam__0___cl
 x_26 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___closed__2;
 x_27 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_mkGetLsbD___redArg___lam__0___closed__0;
 x_28 = l_Lean_Name_mkStr6(x_4, x_5, x_6, x_25, x_26, x_27);
-x_29 = l_Lean_Expr_const___override(x_28, x_7);
+x_29 = l_Lean_mkConst(x_28, x_7);
 x_30 = l_Lean_mkApp5(x_29, x_8, x_9, x_10, x_24, x_21);
 lean_ctor_set(x_18, 0, x_30);
 lean_ctor_set(x_22, 0, x_18);
@@ -1483,7 +1483,7 @@ x_33 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___lam__0___cl
 x_34 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___closed__2;
 x_35 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_mkGetLsbD___redArg___lam__0___closed__0;
 x_36 = l_Lean_Name_mkStr6(x_4, x_5, x_6, x_33, x_34, x_35);
-x_37 = l_Lean_Expr_const___override(x_36, x_7);
+x_37 = l_Lean_mkConst(x_36, x_7);
 x_38 = l_Lean_mkApp5(x_37, x_8, x_9, x_10, x_31, x_21);
 lean_ctor_set(x_18, 0, x_38);
 x_39 = lean_alloc_ctor(0, 2, 0);
@@ -1551,7 +1551,7 @@ x_49 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___lam__0___cl
 x_50 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___closed__2;
 x_51 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_mkGetLsbD___redArg___lam__0___closed__0;
 x_52 = l_Lean_Name_mkStr6(x_4, x_5, x_6, x_49, x_50, x_51);
-x_53 = l_Lean_Expr_const___override(x_52, x_7);
+x_53 = l_Lean_mkConst(x_52, x_7);
 x_54 = l_Lean_mkApp5(x_53, x_8, x_9, x_10, x_46, x_44);
 x_55 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_55, 0, x_54);

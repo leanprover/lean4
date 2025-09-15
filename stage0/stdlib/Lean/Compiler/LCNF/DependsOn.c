@@ -30,6 +30,7 @@ LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_FunDecl_dependsOn(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at_____private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_argDepOn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CodeDecl_dependsOn___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_Alt_getCode(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at_____private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_dependsOn___boxed(lean_object*, lean_object*);
@@ -640,52 +641,30 @@ uint8_t x_5;
 x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
-uint8_t x_6; uint8_t x_7; lean_object* x_12; 
-x_6 = 1;
-x_12 = lean_array_uget(x_1, x_2);
-if (lean_obj_tag(x_12) == 0)
+lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_6 = lean_array_uget(x_1, x_2);
+x_7 = l_Lean_Compiler_LCNF_Alt_getCode(x_6);
+lean_dec_ref(x_6);
+x_8 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_depOn(x_7, x_4);
+lean_dec_ref(x_7);
+if (x_8 == 0)
 {
-lean_object* x_13; uint8_t x_14; 
-x_13 = lean_ctor_get(x_12, 2);
-lean_inc_ref(x_13);
-lean_dec_ref(x_12);
-x_14 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_depOn(x_13, x_4);
-lean_dec_ref(x_13);
-x_7 = x_14;
-goto block_11;
-}
-else
-{
-lean_object* x_15; uint8_t x_16; 
-x_15 = lean_ctor_get(x_12, 0);
-lean_inc_ref(x_15);
-lean_dec_ref(x_12);
-x_16 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_depOn(x_15, x_4);
-lean_dec_ref(x_15);
-x_7 = x_16;
-goto block_11;
-}
-block_11:
-{
-if (x_7 == 0)
-{
-size_t x_8; size_t x_9; 
-x_8 = 1;
-x_9 = lean_usize_add(x_2, x_8);
-x_2 = x_9;
+size_t x_9; size_t x_10; 
+x_9 = 1;
+x_10 = lean_usize_add(x_2, x_9);
+x_2 = x_10;
 goto _start;
 }
 else
 {
-return x_6;
-}
+return x_8;
 }
 }
 else
 {
-uint8_t x_17; 
-x_17 = 0;
-return x_17;
+uint8_t x_12; 
+x_12 = 0;
+return x_12;
 }
 }
 }

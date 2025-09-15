@@ -10,8 +10,6 @@ public import Lake.DSL.DeclUtil
 
 open Lean Parser Elab Command
 
-public section -- for `syntax ... := ...`
-
 /-!
 This module defines the syntax of the Lake DSL. The syntax is defined separately from the elaborator
 and/or macro definitions to allow clients to import it without crashing Lean. In particular, this
@@ -95,13 +93,13 @@ scoped syntax (name := postUpdateDecl)
 This is the `require` DSL syntax used to specify package dependencies.
 -/
 
-syntax fromPath :=
+public syntax fromPath :=
   term
 
-syntax fromGit :=
+public syntax fromGit :=
   &"git " term:max ("@" term:max)? ("/" term)?
 
-syntax fromSource :=
+public syntax fromSource :=
   fromGit <|> fromPath
 
 /--
@@ -130,30 +128,30 @@ branch, or tag. If none is provided, Lake defaults to `master`. After checkout,
 Lake loads the package located in `subDir` (or the repository root if no
 subdirectory is specified).
 -/
-syntax fromClause :=
+public syntax fromClause :=
   " from " fromSource
 
 /-
 A `NameMap String` of Lake options used to configure the dependency.
 This is equivalent to passing `-K` options to the dependency on the command line.
 -/
-syntax withClause :=
+public syntax withClause :=
   " with " term
 
-syntax verSpec :=
+public syntax verSpec :=
   &"git "? term:max
 
 /--
 The version of the package to require.
 To specify a Git revision, use the syntax `@ git <rev>`.
 -/
-syntax verClause :=
+public syntax verClause :=
   " @ " verSpec
 
-syntax depName :=
+public syntax depName :=
   atomic(str " / ")? identOrStr
 
-syntax depSpec :=
+public syntax depSpec :=
   depName (verClause)? (fromClause)? (withClause)?
 
 /--
@@ -193,7 +191,7 @@ public instance : Coe RequireDecl Command where
 Syntax for declaring Lake targets and facets.
 -/
 
-syntax buildDeclSig :=
+public syntax buildDeclSig :=
   identOrStr (ppSpace simpleBinder)? Term.typeSpec declValSimple
 
 /-!
@@ -343,7 +341,7 @@ public instance : Coe InputDirCommand Command where
 ## External Library Target Declaration
 -/
 
-syntax externLibDeclSpec :=
+public syntax externLibDeclSpec :=
   identOrStr (ppSpace simpleBinder)? declValSimple
 
 /--
@@ -370,7 +368,7 @@ scoped syntax (name := externLibCommand)
 DSL definitions to define a Lake script for a package.
 -/
 
-syntax scriptDeclSpec :=
+public syntax scriptDeclSpec :=
   identOrStr (ppSpace simpleBinder)? (declValSimple <|> declValDo)
 
 /--
@@ -392,8 +390,6 @@ scoped syntax (name := scriptDecl)
   (docComment)? optional(Term.attributes) "script " scriptDeclSpec
 : command
 
-end DSL
-
 /-!
 # Version Literals
 
@@ -405,16 +401,14 @@ scoped syntax:max (name := verLit)
   "v!" noWs interpolatedStr(term)
 : term
 
-namespace DSL
-
 /-!
 # DSL for Build Key
 
 Notation for specifying build keys in a package.
 -/
 
-syntax facetSuffix := atomic(":" noWs) ident
-syntax packageTargetLit := atomic("+" noWs)? ident
+public syntax facetSuffix := atomic(":" noWs) ident
+public syntax packageTargetLit := atomic("+" noWs)? ident
 
 /-- A module target key literal (with optional facet). -/
 scoped syntax:max (name := moduleTargetKeyLit)
@@ -437,7 +431,7 @@ The `do` command syntax groups multiple similarly indented commands together.
 The group can then be passed to another command that usually only accepts a
 single command (e.g., `meta if`).
 -/
-syntax cmdDo := ("do" many1Indent(command)) <|> command
+public syntax cmdDo := ("do" many1Indent(command)) <|> command
 
 /--
 The `meta if` command has two forms:

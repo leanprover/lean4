@@ -126,7 +126,9 @@ instance (n : Nat) [NeZero n] : CommRing (Fin n) where
   ofNat_succ := Fin.ofNat_succ
   sub_eq_add_neg := Fin.sub_eq_add_neg
   intCast_neg := Fin.intCast_neg
-  neg_zsmul i a := by simp [intCast_neg, neg_mul]
+  neg_zsmul i a := by
+    change (((-i) : Int) : Fin n)* a = - ((i : Fin n) * a)
+    simp [intCast_neg, neg_mul]
   zsmul_natCast_eq_nsmul _ _ := rfl
 
 instance (n : Nat) [NeZero n] : IsCharP (Fin n) n := IsCharP.mk' _ _

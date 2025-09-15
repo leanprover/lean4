@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Cli
-// Imports: Init.Control.State Init.Data.Array.Basic
+// Imports: Init.Control.State Init.Data.Array.Basic Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -46,9 +46,7 @@ LEAN_EXPORT lean_object* l_Lake_processLeadingOptions(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lake_shortOptionWithArg___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_longOption___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_processOptions___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_OptionHandlers_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_OptionHandlers_toCtorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ArgsT_run_x27___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_option___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_shortOption(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -210,23 +208,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_OptionHandlers_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_OptionHandlers_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_OptionHandlers_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_OptionHandlers_toCtorIdx(x_1, x_2, x_3);
 lean_dec_ref(x_3);
 return x_4;
 }
@@ -3190,6 +3171,7 @@ return x_9;
 }
 lean_object* initialize_Init_Control_State(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_Cli(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -3199,6 +3181,9 @@ res = initialize_Init_Control_State(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_shortOptionWithSpace___redArg___closed__0 = _init_l_Lake_shortOptionWithSpace___redArg___closed__0();

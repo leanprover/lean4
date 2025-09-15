@@ -39,14 +39,14 @@ fun x => x + 1
 
 
 /--
-error: type of theorem 'ugly' is not a proposition
+error: type of theorem `ugly` is not a proposition
   Nat
 -/
 #guard_msgs (error) in
 theorem ugly : Nat := 10
 
 /--
-error: type of theorem 'g' is not a proposition
+error: type of theorem `g` is not a proposition
   Nat → Nat
 -/
 #guard_msgs (error) in

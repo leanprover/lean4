@@ -353,7 +353,7 @@ def instantiateValueLevelParams (c : ConstantInfo) (us : List Level) : CoreM Exp
     if us == us' then
       return r
   unless c.hasValue do
-    throwError "Not a definition or theorem: {c.name}"
+    throwError "Not a definition or theorem: {.ofConstName c.name}"
   let r := c.instantiateValueLevelParams! us
   modifyInstLevelValueCache fun s => s.insert c.name (us, r)
   return r
@@ -674,7 +674,7 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
         && !supportedRecursors.contains declName
       | _ => false
     match unsupportedRecursor? with
-    | some (Expr.const declName ..) => throwError "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
+    | some (Expr.const declName ..) => throwError "code generator does not support recursor `{.ofConstName declName}` yet, consider using `match ... with` and/or structural recursion"
     | _ => pure ()
 
 /--

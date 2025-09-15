@@ -54,7 +54,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         # don't schedule nightlies on forks
         if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly'
       - name: Set Nightly
@@ -185,7 +185,7 @@ jobs:
               },
               {
                 "name": "Linux Lake",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "check-level": 0,
                 "test": true,
                 "check-rebootstrap": level >= 1,
@@ -200,8 +200,6 @@ jobs:
                 "os": "ubuntu-latest",
                 "check-level": 2,
                 "CMAKE_PRESET": "reldebug",
-                // exclude seriously slow/stackoverflowing tests
-                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest|bv_bitblast_stress|3807'"
               },
               // TODO: suddenly started failing in CI
               /*{
@@ -223,6 +221,7 @@ jobs:
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
+                "CTEST_OPTIONS": "-E 'leanlaketest_hello'", // started failing from unpack
               },
               {
                 "name": "macOS aarch64",
@@ -246,8 +245,6 @@ jobs:
                 "check-level": 2,
                 "shell": "msys2 {0}",
                 "CMAKE_OPTIONS": "-G \"Unix Makefiles\"",
-                // for reasons unknown, interactivetests are flaky on Windows
-                "CTEST_OPTIONS": "--repeat until-pass:2",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
                 "binary-check": "ldd",
@@ -366,7 +363,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           path: artifacts
       - name: Release
@@ -391,12 +388,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # needed for tagging
           fetch-depth: 0
           token: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           path: artifacts
       - name: Prepare Nightly Release

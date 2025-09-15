@@ -41,10 +41,24 @@ public theorem t : f = 1 := testSorry
 /-- A private definition. -/
 def fpriv := 1
 
+public section
+/-- Examples are always private. -/
+example : fpriv = 1 := rfl
+
 /--
 error: Unknown identifier `fpriv`
 
-Note: A private declaration `fpriv` (from this module) exists but is not accessible in the current context.
+Note: A private declaration `fpriv` (from the current module) exists but would need to be public to access here.
+-/
+#guard_msgs in
+/-- ...unless explicitly marked `public`. -/
+public example : fpriv = 1 := rfl
+end
+
+/--
+error: Unknown identifier `fpriv`
+
+Note: A private declaration `fpriv` (from the current module) exists but would need to be public to access here.
 -/
 #guard_msgs in
 public theorem tpriv : fpriv = 1 := rfl
@@ -53,6 +67,7 @@ public class X
 
 /-- A local instance of a public class. -/
 instance : X := ⟨⟩
+
 
 -- Check that the theorem types are checked in exported context, where `f` is not defeq to `1`
 -- (but `fexp` is)
@@ -144,7 +159,7 @@ def priv := 2
 /--
 error: Unknown identifier `priv`
 
-Note: A private declaration `priv` (from this module) exists but is not accessible in the current context.
+Note: A private declaration `priv` (from the current module) exists but would need to be public to access here.
 -/
 #guard_msgs in
 public abbrev h := priv
@@ -172,11 +187,11 @@ termination_by n => n
   | none   => none
 
 
-/-- error: 'f.eq_def' is a reserved name -/
+/-- error: `f.eq_def` is a reserved name -/
 #guard_msgs in
 public def f.eq_def := 1
 
-/-- error: 'fexp.eq_def' is a reserved name -/
+/-- error: `fexp.eq_def` is a reserved name -/
 #guard_msgs in
 public def fexp.eq_def := 1
 
@@ -272,7 +287,7 @@ constructor:
 
 #check { x := 1 : StructWithPrivateField }
 
-/-- error: invalid {...} notation, constructor for 'StructWithPrivateField' is marked as private -/
+/-- error: invalid {...} notation, constructor for `StructWithPrivateField` is marked as private -/
 #guard_msgs in
 #with_exporting
 #check { x := 1 : StructWithPrivateField }
@@ -300,7 +315,7 @@ constructor:
 #guard_msgs in
 #print StructWithPrivateCtor
 
-/-- error: invalid {...} notation, constructor for 'StructWithPrivateCtor' is marked as private -/
+/-- error: invalid {...} notation, constructor for `StructWithPrivateCtor` is marked as private -/
 #guard_msgs in
 #with_exporting
 #check { x := 1 : StructWithPrivateCtor }
@@ -320,7 +335,7 @@ constructor:
 public section
 
 private def foo : Nat := 0
-/-- error: private declaration 'foo' has already been declared -/
+/-- error: private declaration `foo` has already been declared -/
 #guard_msgs in
 private def foo : Nat := 0
 

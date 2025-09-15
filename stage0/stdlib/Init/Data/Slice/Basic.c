@@ -31,10 +31,8 @@ static lean_object* l_Std_Slice_Self_eq___autoParam___closed__17;
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__20;
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__11;
 LEAN_EXPORT lean_object* l_Std_Slice_Self_eq___autoParam;
-LEAN_EXPORT lean_object* l_Std_Slice_toCtorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__16;
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__3;
-LEAN_EXPORT lean_object* l_Std_Slice_toCtorIdx(lean_object*, lean_object*);
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__7;
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__0;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -58,23 +56,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Slice_ctorIdx(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Slice_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Slice_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Slice_toCtorIdx(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }

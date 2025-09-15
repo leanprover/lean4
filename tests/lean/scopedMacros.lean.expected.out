@@ -2,13 +2,13 @@
 scopedMacros.lean:11:7-11:11: error(lean.unknownIdentifier): Unknown identifier `foo!`
 10 + 1 : Nat
 scopedMacros.lean:19:7-19:50: error: Scoped attributes must be used inside namespaces
-scopedMacros.lean:19:7-19:50: error: invalid syntax node kind 'termBla!_'
+scopedMacros.lean:19:7-19:50: error: invalid syntax node kind `termBla!_`
 scopedMacros.lean:29:7-29:11: error(lean.unknownIdentifier): Unknown identifier `bla!`
 scopedMacros.lean:36:7-36:45: error: Scoped attributes must be used inside namespaces
 10 + 20 : Nat
-scopedMacros.lean:47:7-47:14: error: elaboration function for 'termBar!_' has not been implemented
+scopedMacros.lean:47:7-47:14: error: elaboration function for `termBar!_` has not been implemented
   bar! 10
 10 + 10 : Nat
-scopedMacros.lean:58:7-58:14: error: elaboration function for 'termBar!_' has not been implemented
+scopedMacros.lean:58:7-58:14: error: elaboration function for `termBar!_` has not been implemented
   bar! 10
 10 + 10 : Nat

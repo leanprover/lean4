@@ -87,6 +87,9 @@ builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
     addEntryFn    := State.addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries State.addEntry {} es).switch
     asyncMode     := .async .mainEnv
+    exportEntriesFnEx? := some fun env _ entries _ =>
+      -- Do not export info for private defs
+      entries.filter (env.contains (skipRealize := false) ·.name) |>.toArray
   }
 
 def addMatcherInfo (env : Environment) (matcherName : Name) (info : MatcherInfo) : Environment :=

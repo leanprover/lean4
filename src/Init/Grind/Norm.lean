@@ -148,11 +148,9 @@ theorem zero_sub (a : Nat) : 0 - a = 0 := by
 
 attribute [local instance] Semiring.natCast Ring.intCast
 theorem smul_nat_eq_mul {α} [Semiring α] (n : Nat) (a : α) : n • a = NatCast.natCast n * a := by
-  show HMul.hMul (α := Nat) (β := α) n a = Nat.cast n * a
   rw [Semiring.nsmul_eq_natCast_mul]
 
 theorem smul_int_eq_mul {α} [Ring α] (i : Int) (a : α) : i • a = Int.cast i * a := by
-  show HMul.hMul (α := Int) (β := α) i a = IntCast.intCast i * a
   rw [Ring.zsmul_eq_intCast_mul]
 
 -- Remark: for additional `grind` simprocs, check `Lean/Meta/Tactic/Grind`
@@ -207,5 +205,13 @@ init_grind_norm
   Field.inv_zero Field.inv_inv Field.inv_one Field.inv_neg
   -- SMul normalizer
   smul_int_eq_mul smul_nat_eq_mul
+  -- NatCast & IntCast for algebraic structures
+  Semiring.natCast_add
+  Semiring.natCast_pow
+  Semiring.natCast_mul
+  Ring.intCast_add
+  Ring.intCast_mul
+  Ring.intCast_pow
+  Ring.intCast_sub
 
 end Lean.Grind

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isPrefixOf___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_instDecidableIsPrefixOfDecidableEq(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sublist_0__List_filterMap_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -27,6 +26,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_Sublist_0__List_filterMap_ma
 LEAN_EXPORT uint8_t l_List_instDecidableIsPrefixOfDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sublist_0__List_isSublist_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sublist_0__List_filterMap_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 uint8_t l_List_isSublist___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_instDecidableSublistOfDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instDecidableIsSuffixOfDecidableEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -176,8 +176,7 @@ LEAN_EXPORT uint8_t l_List_instDecidableSublistOfDecidableEq___redArg(lean_objec
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_4, 0, x_1);
+x_4 = l_instBEqOfDecidableEq___redArg(x_1);
 x_5 = l_List_isSublist___redArg(x_4, x_2, x_3);
 return x_5;
 }
@@ -212,8 +211,7 @@ LEAN_EXPORT uint8_t l_List_instDecidableIsPrefixOfDecidableEq___redArg(lean_obje
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_4, 0, x_1);
+x_4 = l_instBEqOfDecidableEq___redArg(x_1);
 x_5 = l_List_isPrefixOf___redArg(x_4, x_2, x_3);
 return x_5;
 }
@@ -248,8 +246,7 @@ LEAN_EXPORT uint8_t l_List_instDecidableIsSuffixOfDecidableEq___redArg(lean_obje
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_4, 0, x_1);
+x_4 = l_instBEqOfDecidableEq___redArg(x_1);
 x_5 = l_List_isSuffixOf___redArg(x_4, x_2, x_3);
 return x_5;
 }

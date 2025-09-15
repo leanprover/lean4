@@ -200,7 +200,7 @@ theorem mem_attach (xs : Vector α n) : ∀ x, x ∈ xs.attach
     rcases this with ⟨⟨_, _⟩, m, rfl⟩
     exact m
 
-@[simp, grind]
+@[simp, grind =]
 theorem mem_attachWith {xs : Vector α n} {q : α → Prop} (H) (x : {x // q x}) :
     x ∈ xs.attachWith q H ↔ x.1 ∈ xs := by
   rcases xs with ⟨xs, rfl⟩
@@ -211,11 +211,12 @@ theorem mem_pmap {p : α → Prop} {f : ∀ a, p a → β} {xs : Vector α n} {H
     b ∈ pmap f xs H ↔ ∃ (a : _) (h : a ∈ xs), f a (H a h) = b := by
   simp only [pmap_eq_map_attach, mem_map, mem_attach, true_and, Subtype.exists, eq_comm]
 
-@[grind]
 theorem mem_pmap_of_mem {p : α → Prop} {f : ∀ a, p a → β} {xs : Vector α n} {H} {a} (h : a ∈ xs) :
     f a (H a h) ∈ pmap f xs H := by
   rw [mem_pmap]
   exact ⟨a, h, rfl⟩
+
+grind_pattern mem_pmap_of_mem => _ ∈ pmap f xs H, a ∈ xs
 
 theorem pmap_eq_self {xs : Vector α n} {p : α → Prop} {hp : ∀ (a : α), a ∈ xs → p a}
     {f : (a : α) → p a → α} : xs.pmap f hp = xs ↔ ∀ a (h : a ∈ xs), f a (hp a h) = a := by

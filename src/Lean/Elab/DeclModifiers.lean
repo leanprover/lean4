@@ -35,19 +35,19 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadFina
   if env.contains declName then
     addInfo declName
     match privateToUserName? declName with
-    | none          => throwError "'{.ofConstName declName true}' has already been declared"
-    | some declName => throwError "private declaration '{.ofConstName declName true}' has already been declared"
+    | none          => throwError "`{.ofConstName declName true}` has already been declared"
+    | some declName => throwError "private declaration `{.ofConstName declName true}` has already been declared"
   if isReservedName env (privateToUserName declName) || isReservedName env (mkPrivateName (← getEnv) declName) then
-    throwError "'{declName}' is a reserved name"
+    throwError "`{.ofConstName declName}` is a reserved name"
   if env.contains (mkPrivateName env declName) then
     addInfo (mkPrivateName env declName)
-    throwError "a private declaration '{.ofConstName declName true}' has already been declared"
+    throwError "a private declaration `{.ofConstName declName true}` has already been declared"
   match privateToUserName? declName with
   | none => pure ()
   | some declName =>
     if env.contains declName then
       addInfo declName
-      throwError "a non-private declaration '{.ofConstName declName true}' has already been declared"
+      throwError "a non-private declaration `{.ofConstName declName true}` has already been declared"
 
 /-- Declaration visibility modifier. That is, whether a declaration is public or private or inherits its visibility from the outer scope. -/
 inductive Visibility where
@@ -85,7 +85,10 @@ inductive ComputeKind where
 structure Modifiers where
   /-- Input syntax, used for adjusting declaration range (unless missing) -/
   stx             : TSyntax ``Parser.Command.declModifiers := ⟨.missing⟩
-  docString?      : Option (TSyntax ``Parser.Command.docComment) := none
+  /--
+  The docstring, if present, and whether it's Verso.
+  -/
+  docString?      : Option (TSyntax ``Parser.Command.docComment × Bool) := none
   visibility      : Visibility := Visibility.regular
   isProtected     : Bool := false
   computeKind     : ComputeKind := .regular
@@ -187,7 +190,7 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
       RecKind.partial
     else
       RecKind.nonrec
-  let docString? := docCommentStx.getOptional?.map TSyntax.mk
+  let docString? := docCommentStx.getOptional?.map (TSyntax.mk ·, doc.verso.get (← getOptions))
   let visibility ← match visibilityStx.getOptional? with
     | none   => pure .regular
     | some v =>
@@ -225,7 +228,7 @@ def checkIfShadowingStructureField (declName : Name) : m Unit := do
       let fieldNames := getStructureFieldsFlattened (← getEnv) pre
       for fieldName in fieldNames do
         if pre ++ fieldName == declName then
-          throwError "invalid declaration name '{declName}', structure '{pre}' has field '{fieldName}'"
+          throwError "invalid declaration name `{.ofConstName declName}`, structure `{pre}` has field `{fieldName}`"
   | _ => pure ()
 
 def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name) : m (Name × Name) := do
@@ -238,7 +241,7 @@ def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name)
     throwError "invalid declaration name `_root_`, `_root_` is a prefix used to refer to the 'root' namespace"
   let declName := if isRootName then { view with name := name.replacePrefix `_root_ Name.anonymous }.review else currNamespace ++ shortName
   if isRootName then
-    let .str p s := name | throwError "invalid declaration name '{name}'"
+    let .str p s := name | throwError "invalid declaration name `{name}`"
     shortName := Name.mkSimple s
     currNamespace := p.replacePrefix `_root_ Name.anonymous
   checkIfShadowingStructureField declName
@@ -276,6 +279,10 @@ structure ExpandDeclIdResult where
   declName   : Name
   /-- Universe parameter names provided using the `universe` command and `.{...}` notation. -/
   levelNames : List Name
+  /-- The docstring, and whether it's Verso -/
+  docString? : Option (TSyntax ``Parser.Command.docComment × Bool)
+
+open Lean.Elab.Term (TermElabM)
 
 /--
 Given a declaration identifier (e.g., `ident (".{" ident,+ "}")?`) that may contain explicit universe parameters
@@ -287,7 +294,7 @@ The result also contains the universe parameters provided using `universe` comma
 
 This commands also stores the doc string stored in `modifiers`.
 -/
-def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : m ExpandDeclIdResult := do
+def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : TermElabM ExpandDeclIdResult := do
   -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
   let (shortName, optUnivDeclStx) := expandDeclIdCore declId
   let levelNames ← if optUnivDeclStx.isNone then
@@ -303,8 +310,8 @@ def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : S
           pure (id :: levelNames))
       currLevelNames
   let (declName, shortName) ← withRef declId <| mkDeclName currNamespace modifiers shortName
-  addDocString' declName modifiers.docString?
-  return { shortName := shortName, declName := declName, levelNames := levelNames }
+  let docString? := modifiers.docString?
+  return { shortName, declName, levelNames, docString? }
 
 end Methods
 

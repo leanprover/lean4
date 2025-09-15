@@ -67,7 +67,7 @@ error: unsolved goals
 #guard_msgs in example : True := by my_tactic +w
 
 /--
-error: Field `x` of structure 'MyTacticConfig' is not a structure
+error: Field `x` of structure `MyTacticConfig` is not a structure
 ---
 info: config is { x := 0, y := false }
 ---

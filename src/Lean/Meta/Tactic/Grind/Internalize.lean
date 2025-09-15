@@ -4,26 +4,23 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Util
 public import Init.Grind.Lemmas
-public import Lean.Meta.LitValues
-public import Lean.Meta.Match.MatcherInfo
-public import Lean.Meta.Match.MatchEqsExt
-public import Lean.Meta.Match.MatchEqs
-public import Lean.Util.CollectLevelParams
-public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Util
-public import Lean.Meta.Tactic.Grind.Canon
-public import Lean.Meta.Tactic.Grind.Beta
-public import Lean.Meta.Tactic.Grind.MatchCond
-public import Lean.Meta.Tactic.Grind.Arith.Internalize
-public import Lean.Meta.Tactic.Grind.AC.Internalize
-
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+import Lean.Meta.LitValues
+import Lean.Meta.Match.MatcherInfo
+import Lean.Meta.Match.MatchEqsExt
+import Lean.Meta.Match.MatchEqs
+import Lean.Util.CollectLevelParams
+import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.Beta
+import Lean.Meta.Tactic.Grind.MatchCond
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 public section
-
 namespace Lean.Meta.Grind
+
 /-- Adds `e` to congruence table. -/
 def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then
@@ -220,7 +217,7 @@ def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
   -- We don't want to use structural equality when comparing keys.
   let proof ← shareCommon thm.proof
   let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation thm.origin)) }
-  trace_goal[grind.ematch] "activated `{← thm.origin.pp}`, {thm.patterns.map ppPattern}"
+  trace_goal[grind.ematch] "activated `{thm.origin.pp}`, {thm.patterns.map ppPattern}"
   modify fun s => { s with ematch.newThms := s.ematch.newThms.push thm }
 
 /--
@@ -332,7 +329,7 @@ where
     trace_goal[grind.debug.ext] "{f}, {i}, {arg}"
     let others := (← get).split.argsAt.find? (f, i) |>.getD []
     for other in others do
-      if (← withDefault <| isDefEq type other.type) then
+      if (← isDefEqD type other.type) then
         let eq := mkApp3 (mkConst ``Eq [← getLevel type]) type arg other.arg
         let eq ← shareCommon eq
         internalize eq generation
@@ -362,10 +359,6 @@ private def tryEta (e : Expr) (generation : Nat) : GoalM Unit := do
     internalize e' generation
     pushEq e e' (← mkEqRefl e)
 
-private def internalizeTheories (e : Expr) (parent? : Option Expr := none) : GoalM Unit := do
-  Arith.internalize e parent?
-  AC.internalize e parent?
-
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
@@ -378,7 +371,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     Later, if we try to internalize `f 1`, the arithmetic module must create a node for `1`.
     Otherwise, it will not be able to propagate that `a + 1 = 1` when `a = 0`
     -/
-    internalizeTheories e parent?
+    Solvers.internalize e parent?
   else
     go
     propagateEtaStruct e generation
@@ -427,7 +420,7 @@ where
       if (← isLitValue e) then
         -- We do not want to internalize the components of a literal value.
         mkENode e generation
-        internalizeTheories e parent?
+        Solvers.internalize e parent?
       else if e.isAppOfArity ``Grind.MatchCond 1 then
         internalizeMatchCond e generation
       else e.withApp fun f args => do
@@ -464,7 +457,7 @@ where
             internalize arg generation e
             registerParent e arg
         addCongrTable e
-        internalizeTheories e parent?
+        Solvers.internalize e parent?
         propagateUp e
         propagateBetaForNewApp e
 

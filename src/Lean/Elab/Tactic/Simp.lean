@@ -178,9 +178,9 @@ private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin
       return .addEntries <| thms.map (SimpEntry.thm ·)
     else
       if inv then
-        throwError m!"Invalid `←` modifier: `{declName}` is a declaration name to be unfolded"
+        throwError m!"Invalid `←` modifier: `{.ofConstName declName}` is a declaration name to be unfolded"
           ++ .hint' m!"The simplifier cannot \"refold\" definitions by name. Use `rw` for this instead,
-                      or use the `←` simp modifier with an equational lemma for `{declName}`."
+                      or use the `←` simp modifier with an equational lemma for `{.ofConstName declName}`."
       if kind == .dsimp then
         return .addEntries #[.toUnfold declName]
       else

@@ -78,7 +78,7 @@ private def mkMonoPProd : (hmono₁ hmono₂ : Expr × Expr) → MetaM (Expr × 
   let hmonoProof ← mkAppOptM ``PProd.monotone_mk #[none, none, none, inst₁, inst₂, inst, none, none, hmono1Proof, hmono2Proof]
   return (← inferType hmonoProof, hmonoProof)
 
-def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
+def partialFixpoint (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition) : TermElabM Unit := do
   -- We expect all functions in the clique to have `partial_fixpoint`, `inductive_fixpoint` or `coinductive_fixpoint` syntax
   let hints := preDefs.filterMap (·.termination.partialFixpoint?)
   assert! preDefs.size = hints.size
@@ -91,17 +91,20 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   -- ∀ x y, CCPO (r x y), but crucially constructed using `instCCPOPi`
   let insts ← preDefs.mapIdxM fun i preDef => withRef hints[i]!.ref do
     lambdaTelescope preDef.value fun xs _body => do
+      trace[Elab.definition.partialFixpoint] "preDef.value: {preDef.value}, xs: {xs}, _body: {_body}"
       let type ← instantiateForall preDef.type xs
       let inst ←
         match hints[i]!.fixpointType with
         | .coinductiveFixpoint =>
-          unless type.isProp do
-            throwError "`coinductive_fixpoint` can be only used to define predicates"
-          pure (mkConst ``ReverseImplicationOrder.instCompleteLattice)
+          forallTelescopeReducing type fun xs e => do
+            unless e.isProp do
+              throwError "`coinductive_fixpoint` can be only used to define predicates"
+            mkInstPiOfInstsForall xs (mkConst ``ReverseImplicationOrder.instCompleteLattice)
         | .inductiveFixpoint =>
-          unless type.isProp do
-            throwError "`inductive_fixpoint` can be only used to define predicates"
-          pure (mkConst ``ImplicationOrder.instCompleteLattice)
+          forallTelescopeReducing type fun xs e => do
+            unless e.isProp do
+              throwError "`inductive_fixpoint` can be only used to define predicates"
+            mkInstPiOfInstsForall xs (mkConst ``ImplicationOrder.instCompleteLattice)
         | .partialFixpoint => try
             synthInstance (← mkAppM ``CCPO #[type])
           catch _ =>
@@ -128,10 +131,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     -- Or:     CompleteLattice (∀ x y, rᵢ x y)
     let insts' ← insts.mapM fun inst =>
       lambdaTelescope inst fun xs inst => do
-        let mut inst := inst
-        for x in xs.reverse do
-          inst ← mkInstPiOfInstForall x inst
-        pure inst
+        mkInstPiOfInstsForall xs inst
 
     -- Either: CCPO ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
     -- Or:     CompleteLattice ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
@@ -217,8 +217,8 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         let value ← mkLambdaFVars (etaReduce := true) params value
         pure { preDef with value }
 
-    Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
-    addAndCompilePartialRec preDefs
+    Mutual.addPreDefsFromUnary docCtx preDefs preDefsNonrec preDefNonRec
+    addAndCompilePartialRec docCtx preDefs
     let preDefs ← preDefs.mapM (Mutual.cleanPreDef ·)
     PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms (hints.map (·.fixpointType))
     Mutual.addPreDefAttributes preDefs

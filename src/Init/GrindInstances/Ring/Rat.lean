@@ -35,7 +35,9 @@ instance : Field Rat where
     simp only [Int.natCast_add, Int.cast_ofNat_Int, Rat.intCast_add]
     rfl
   sub_eq_add_neg := Rat.sub_eq_add_neg
-  neg_zsmul i a := by simp [Rat.intCast_neg, Rat.neg_mul]
+  neg_zsmul i a := by
+    change ((-i : Int) : Rat) * a = -(i * a)
+    simp [Rat.intCast_neg, Rat.neg_mul]
   div_eq_mul_inv := Rat.div_def
   zero_ne_one := by decide
   inv_zero := Rat.inv_zero
@@ -51,8 +53,7 @@ instance : IsCharP Rat 0 := IsCharP.mk' _ _
 
 instance : NoNatZeroDivisors Rat where
   no_nat_zero_divisors k a b h₁ h₂ := by
-    replace h₁ : (k : Rat) ≠ 0 := by change ((k : Int) : Rat) ≠ ((0 : Int) : Rat); simp [h₁]
-    replace h₂ : (k : Rat)⁻¹ * (k * a) = (k : Rat)⁻¹ * (k * b) := congrArg (_ * ·) h₂
-    simpa only [← Rat.mul_assoc, Rat.inv_mul_cancel _ h₁, Rat.one_mul] using h₂
+    change k * a = k * b at h₂
+    simpa [← Rat.mul_assoc, Rat.inv_mul_cancel, h₁] using congrArg ((k : Rat)⁻¹ * ·) h₂
 
 end Lean.Grind

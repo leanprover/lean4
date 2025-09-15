@@ -255,6 +255,10 @@ theorem isSome_getElem?_iff_mem [TransCmp cmp] (h : t.WF) {a : α} :
     t[a]?.isSome ↔ a ∈ t :=
   (mem_iff_isSome_getElem? h).symm
 
+theorem getElem?_eq_some_iff [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    t[k]? = some v ↔ ∃ h, t[k] = v :=
+  DTreeMap.Raw.Const.get?_eq_some_iff h
+
 theorem getElem?_eq_none_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = false → t[a]? = none :=
   DTreeMap.Raw.Const.get?_eq_none_of_contains_eq_false h
@@ -465,9 +469,13 @@ theorem isSome_getKey?_iff_mem [TransCmp cmp] (h : t.WF) {a : α} :
     (t.getKey? a).isSome ↔ a ∈ t :=
   (mem_iff_isSome_getKey? h).symm
 
-theorem mem_of_getKey?_eq_some [TransCmp cmp] {a a' : α} (h : t.WF) :
+theorem mem_of_getKey?_eq_some [TransCmp cmp] (h : t.WF) {a a' : α} :
     t.getKey? a = some a' → a' ∈ t :=
   DTreeMap.Raw.mem_of_getKey?_eq_some h
+
+theorem getKey?_eq_some_iff [TransCmp cmp] (h : t.WF) {k k' : α} :
+    getKey? t k = some k' ↔ ∃ h, getKey t k h = k' :=
+  DTreeMap.Raw.getKey?_eq_some_iff h
 
 theorem getKey?_eq_none_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = false → t.getKey? a = none :=
@@ -814,6 +822,10 @@ theorem mem_of_mem_keys [TransCmp cmp] (h : t.WF) {k : α} :
 theorem distinct_keys [TransCmp cmp] (h : t.WF) :
     t.keys.Pairwise (fun a b => ¬ cmp a b = .eq) :=
   DTreeMap.Raw.distinct_keys h
+
+theorem nodup_keys [TransCmp cmp] (h : t.WF) :
+    t.keys.Nodup :=
+  (t.distinct_keys h).imp Std.ReflCmp.ne_of_cmp_ne_eq
 
 theorem ordered_keys [TransCmp cmp] (h : t.WF) :
     t.keys.Pairwise (fun a b => cmp a b = .lt) :=
@@ -1783,7 +1795,7 @@ theorem getElem?_modify_self [TransCmp cmp] (h : t.WF) {k : α} {f : β → β} 
     (modify t k f)[k]? = t[k]?.map f :=
   DTreeMap.Raw.Const.get?_modify_self h
 
-@[grind]
+@[grind =]
 theorem getElem_modify [TransCmp cmp] (h : t.WF) {k k' : α} {f : β → β} {hc : k' ∈ modify t k f} :
     (modify t k f)[k']'hc =
       if heq : cmp k k' = .eq then

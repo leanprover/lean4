@@ -220,17 +220,19 @@ theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.R
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  · rw [← hgo]
-    intros
-    rw [go_decl_eq]
+  next h =>
+    rw [← hgo]
+    intro idx h1 h2
+    have h3 : idx < (mkFullAdderOut aig { lhs := lhs.get curr h, rhs := rhs.get curr h, cin := cin }).aig.decls.size := by
+      apply AIG.LawfulOperator.lt_size_of_lt_aig_size
+      exact h1
+    have h4 : idx < (mkFullAdder aig { lhs := lhs.get curr h, rhs := rhs.get curr h, cin := cin }).aig.decls.size := by
+      apply AIG.LawfulOperator.lt_size_of_lt_aig_size
+      exact h3
+    rw [go_decl_eq (w := w) (curr := curr + 1) (h1 := h4)]
     unfold mkFullAdder
-    rw [AIG.LawfulOperator.decl_eq (f := mkFullAdderCarry)]
+    rw [AIG.LawfulOperator.decl_eq (f := mkFullAdderCarry) (h1 := h3)]
     rw [AIG.LawfulOperator.decl_eq (f := mkFullAdderOut)]
-    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := mkFullAdderOut)
-      assumption
-    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := mkFullAdderCarry)
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := mkFullAdderOut)
-      assumption
   · simp [← hgo]
 termination_by w - curr
 

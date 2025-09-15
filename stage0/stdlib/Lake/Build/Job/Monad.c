@@ -93,6 +93,7 @@ LEAN_EXPORT lean_object* l_List_foldrTR___at___Lake_Job_collectList_spec__0___re
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Job_collectArray_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_SpawnM_toFn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_EStateT_instFunctor___redArg(lean_object*);
+lean_object* l_Lake_EquipT_instMonadFinallyOfMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Job_mixArray_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_mixArray(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___List_foldrTR___at___Lake_Job_collectList_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -205,7 +206,7 @@ LEAN_EXPORT lean_object* l_List_foldrTR___at___Lake_Job_mixList_spec__0(lean_obj
 lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_async___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* l_Lake_instMonadLiftTOfMonadLift__lake___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lake_instMonadLiftTOfMonadLift__lake___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLogJobM;
 LEAN_EXPORT lean_object* l_Lake_Job_mixArray___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_pushLogEntry(lean_object*, lean_object*, lean_object*);
@@ -229,14 +230,12 @@ LEAN_EXPORT lean_object* l_Lake_takeTrace(lean_object*, lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lake_Job_zipResultWith___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_mapM___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadStateOfLogJobM___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lake_EStateT_instMonadLiftOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_EStateT_instMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_SpawnM_ofFn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_updateAction___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_io_wait(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Job_mixArray_spec__0___redArg(lean_object*, size_t, size_t, lean_object*);
-lean_object* l_Lake_EquipT_instMonadFinallyOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_SpawnM_ofFn___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_collectArray___redArg___boxed(lean_object*, lean_object*);
@@ -258,6 +257,7 @@ static lean_object* l_Lake_Job_zipResultWith___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_modifyTrace___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadStateOfJobStateJobM;
 LEAN_EXPORT lean_object* l_Lake_newTrace___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lake_EStateT_instMonadLiftOfMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobM_ofFn___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -4174,8 +4174,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_instAlternativeJobM___closed__0;
-x_2 = lean_alloc_closure((void*)(l_Lake_EStateT_instMonadLiftOfMonad___redArg___lam__1), 4, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_Lake_EStateT_instMonadLiftOfMonad___redArg(x_1);
 return x_2;
 }
 }
@@ -4184,8 +4183,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_Job_async___redArg___closed__0;
-x_2 = lean_alloc_closure((void*)(l_Lake_instMonadLiftTOfMonadLift__lake___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_Lake_instMonadLiftTOfMonadLift__lake___redArg(x_1);
 return x_2;
 }
 }
@@ -4316,8 +4314,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_Job_async___redArg___closed__12;
-x_2 = lean_alloc_closure((void*)(l_Lake_EquipT_instMonadFinallyOfMonad___redArg___lam__1), 6, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_Lake_EquipT_instMonadFinallyOfMonad___redArg(x_1);
 return x_2;
 }
 }
@@ -7746,7 +7743,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -8715,7 +8712,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);

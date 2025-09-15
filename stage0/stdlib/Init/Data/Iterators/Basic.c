@@ -19,15 +19,12 @@ LEAN_EXPORT lean_object* l_Std_Iterators_toIterM___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_Step_toMonadic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instWellFoundedRelationProductiveOfProductive___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toIter___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_TerminationMeasures_Productive_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__8;
 LEAN_EXPORT lean_object* l_Std_Iterators_Iterator_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_toIterM(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_finitelyManySteps___redArg___boxed(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__3;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__7;
-LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__22;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__29;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_finitelyManySkips___redArg(lean_object*);
@@ -43,20 +40,16 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Iter_toIterM___redArg___boxed(lean_obje
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__24;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__4___closed__0;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__0;
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__4___closed__2;
 LEAN_EXPORT lean_object* l_Std_Iterators_PlausibleIterStep_done(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_PlausibleIterStep_skip(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_toIterM___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__4___closed__1;
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_TerminationMeasures_Finite_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_toCtorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_PlausibleIterStep_yield(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__42;
 lean_object* l_Array_mkArray0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_TerminationMeasures_Productive_toCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__30;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__7;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_finitelyManySteps___redArg(lean_object*);
@@ -89,7 +82,6 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Iter_step___redArg(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toIter___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__15;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__35;
-LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_toCtorIdx___redArg___boxed(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__21;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__3___closed__0;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__38;
@@ -97,10 +89,10 @@ lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__20;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__6;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__4___closed__5;
-LEAN_EXPORT lean_object* l_Std_Iterators_Iter_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__9;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__3___closed__2;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Step_toPure___redArg(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__14;
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -110,13 +102,13 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Iter_Step_toMonadic___boxed(lean_object
 LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Iterators_IterStep_successor_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__34;
 LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Iterators_IterStep_successor_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Iterator_toCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_finitelyManySkips(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_finitelyManySteps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_step(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__13;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__33;
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_finitelyManySkips___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__1;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__3___closed__3;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__31;
@@ -124,15 +116,15 @@ static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______mac
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__6;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Step_toPure___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_finitelyManySteps___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_yield_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_finitelyManySkips___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_toIterM(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__2;
 lean_object* l_Lean_Name_mkStr6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Iter_toCtorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_toIterM___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__4;
-LEAN_EXPORT lean_object* l_Std_Iterators_Iterator_toCtorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__3___closed__4;
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_done_elim___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__17;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toIter(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__39;
@@ -155,6 +147,7 @@ static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______mac
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__10;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__3___closed__6;
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_finitelyManySteps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_skip_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_toIterM___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_PlausibleIterStep_skip___redArg(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__49;
@@ -163,13 +156,12 @@ static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______mac
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Basic_0__Std_Iterators_IterStep_successor_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_ctorIdx(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_toCtorIdx___redArg(lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__36;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__48;
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_yield_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Step_toPure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__5;
 LEAN_EXPORT lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_TerminationMeasures_Finite_toCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__4;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__12;
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__19;
@@ -179,8 +171,10 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterM_finitelyManySkips___boxed(lean_ob
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2___closed__11;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_mapIterator(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_toSubstring_x27(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_done_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__3___closed__5;
 LEAN_EXPORT lean_object* l_Std_Iterators_PlausibleIterStep_casesOn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_skip_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instWellFoundedRelationFiniteOfFinite___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -189,6 +183,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterM_TerminationMeasures_Productive_ct
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_toIterM___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_TerminationMeasures_Productive_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators___aux__Init__Data__Iterators__Basic______macroRules__tacticDecreasing__trivial__1___closed__47;
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -206,23 +201,6 @@ lean_dec(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_unsigned_to_nat(0u);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Iterators_IterM_toCtorIdx(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -236,23 +214,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Iterators_Iter_ctorIdx(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_Iter_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_Iter_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Iterators_Iter_toCtorIdx(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
 }
@@ -372,38 +333,100 @@ lean_dec(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_toCtorIdx___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iterators_IterStep_ctorIdx___redArg(x_1);
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec_ref(x_1);
+x_5 = lean_apply_2(x_2, x_3, x_4);
+return x_5;
+}
+case 1:
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec_ref(x_1);
+x_7 = lean_apply_1(x_2, x_6);
+return x_7;
+}
+default: 
+{
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Std_Iterators_IterStep_ctorIdx___redArg(x_3);
-return x_4;
+lean_object* x_8; 
+x_8 = l_Std_Iterators_IterStep_ctorElim___redArg(x_5, x_7);
+return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_toCtorIdx___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iterators_IterStep_toCtorIdx___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_object* x_8; 
+x_8 = l_Std_Iterators_IterStep_ctorElim(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_4);
+return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_yield_elim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Std_Iterators_IterStep_toCtorIdx(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
+lean_object* x_3; 
+x_3 = l_Std_Iterators_IterStep_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_yield_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Std_Iterators_IterStep_ctorElim___redArg(x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_skip_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Iterators_IterStep_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_skip_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Std_Iterators_IterStep_ctorElim___redArg(x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_done_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Iterators_IterStep_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_done_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Std_Iterators_IterStep_ctorElim___redArg(x_4, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterStep_successor___redArg(lean_object* x_1) {
@@ -723,23 +746,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_Iterators_Iterator_ctorIdx(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_Iterator_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_unsigned_to_nat(0u);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_Iterator_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Iterators_Iterator_toCtorIdx(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 return x_5;
 }
@@ -1215,24 +1221,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_Iterators_IterM_TerminationMeasures_Finite_ctorIdx(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-lean_dec(x_4);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_TerminationMeasures_Finite_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = lean_unsigned_to_nat(0u);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_TerminationMeasures_Finite_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Std_Iterators_IterM_TerminationMeasures_Finite_toCtorIdx(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_6;
@@ -2258,24 +2246,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_Iterators_IterM_TerminationMeasures_Productive_ctorIdx(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-lean_dec(x_4);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_TerminationMeasures_Productive_toCtorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = lean_unsigned_to_nat(0u);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_IterM_TerminationMeasures_Productive_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Std_Iterators_IterM_TerminationMeasures_Productive_toCtorIdx(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_6;

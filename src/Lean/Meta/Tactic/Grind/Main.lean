@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Lemmas
 public import Lean.Meta.Tactic.Util
-public import Lean.Meta.Tactic.ExposeNames
-public import Lean.Meta.Tactic.Simp.Diagnostics
-public import Lean.Meta.Tactic.Grind.Split  -- TODO: not minimal yet
+public import Lean.Meta.Tactic.Grind.Types
+import Init.Grind.Lemmas
+import Lean.Meta.Tactic.ExposeNames
+import Lean.Meta.Tactic.Simp.Diagnostics
+import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Proj
@@ -24,9 +24,8 @@ import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
 import Lean.Meta.Tactic.Grind.ReflCmp
-
+import Lean.Meta.Tactic.Grind.PP
 public section
-
 namespace Lean.Meta.Grind
 
 structure Params where
@@ -110,7 +109,8 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let thmMap := params.ematch
   let casesTypes := params.casesTypes
   let clean ← mkCleanState mvarId params
-  GoalM.run' { mvarId, ematch.thmMap := thmMap, split.casesTypes := casesTypes, clean } do
+  let sstates ← Solvers.mkInitialStates
+  GoalM.run' { mvarId, ematch.thmMap := thmMap, split.casesTypes := casesTypes, clean, sstates } do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0)
@@ -143,7 +143,7 @@ private def splitDiagInfoToMessageData (ss : Array SplitDiagInfo) : MetaM Messag
   let data ← ss.mapM fun { c, lctx, numCases, gen, splitSource } => do
     let header := m!"{c}"
     return MessageData.withContext { env, mctx, lctx, opts } <| .trace { cls } header #[
-      .trace { cls } m!"source: {← splitSource.toMessageData}" #[],
+      .trace { cls } m!"source: {splitSource.toMessageData}" #[],
       .trace { cls } m!"generation: {gen}" #[],
       .trace { cls } m!"# cases: {numCases}" #[]
     ]

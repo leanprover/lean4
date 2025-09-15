@@ -125,7 +125,8 @@ deriving Inhabited
 def mkMapDeclarationExtension (name : Name := by exact decl_name%)
     (asyncMode : EnvExtension.AsyncMode := .async .mainEnv)
     (exportEntriesFn : Environment → NameMap α → OLeanLevel → Array (Name × α) :=
-      fun _ s _ => s.toArray) :
+      -- Do not export info for private defs by default
+      fun env s _ => s.toArray.filter (fun (n, _) => env.contains (skipRealize := false) n)) :
     IO (MapDeclarationExtension α) :=
   .mk <$> registerPersistentEnvExtension {
     name            := name,

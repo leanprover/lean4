@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_Toml_mergeErrors(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Toml_Decode_0__Lake_Toml_Value_instDecodeTomlTable;
+LEAN_EXPORT lean_object* l___private_Lake_Toml_Decode_0__Lake_Toml_Value_instDecodeTomlTable;
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_tryDecodeD___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_decodeKeyval___redArg___lam__0___closed__0;
 static lean_object* l_Lake_Toml_Value_instDecodeTomlInt___closed__0;
@@ -37,7 +37,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_throwDecodeErrorAt___redArg(lean_object*, l
 uint8_t l_Array_isEmpty___redArg(lean_object*);
 lean_object* l_Lake_Toml_ppKey(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_instDecodeTomlFilePath;
-LEAN_EXPORT lean_object* l_Lake_DecodeToml_toCtorIdx___boxed(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_decodeArray___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_instDecodeTomlNameMap(lean_object*, lean_object*);
@@ -71,7 +70,6 @@ lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_decodeDateTime(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_instDecodeTomlInt;
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_instDecodeTomlNameMap___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_DecodeToml_toCtorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_instDecodeTomlNat;
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_instDecodeTomlNameMap___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DecodeToml_ctorIdx___boxed(lean_object*, lean_object*);
@@ -80,8 +78,6 @@ static lean_object* l_Lake_Toml_Value_decodeDateTime___closed__0;
 static lean_object* l_Lake_Toml_Value_decodeNat___closed__1;
 static lean_object* l_Lake_Toml_Value_decodeNat___closed__0;
 static lean_object* l_Lake_Toml_Value_decodeValueArray___closed__0;
-LEAN_EXPORT lean_object* l_Lake_Toml_DecodeError_toCtorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_DecodeError_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_instDecodeTomlFloat;
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_decodeArray___redArg___closed__5;
@@ -110,7 +106,7 @@ lean_object* lean_nat_abs(lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_decodeKeyval___redArg___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeToml(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Toml_Decode_0__Lake_Toml_instDecodeTomlValue;
+LEAN_EXPORT lean_object* l___private_Lake_Toml_Decode_0__Lake_Toml_instDecodeTomlValue;
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_instDecodeTomlDateTime;
 static lean_object* l_Lake_Toml_Value_instDecodeTomlName___closed__0;
 static lean_object* l_Lake_Toml_Table_decodeValue___closed__1;
@@ -174,23 +170,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Toml_DecodeError_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Toml_DecodeError_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Toml_DecodeError_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_DecodeToml_ctorIdx(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -204,23 +183,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_DecodeToml_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_DecodeToml_toCtorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_DecodeToml_toCtorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_DecodeToml_toCtorIdx(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }

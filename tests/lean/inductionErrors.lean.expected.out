@@ -23,10 +23,10 @@ inductionErrors.lean:41:14-41:18: error: unsolved goals
 case succ
 y : Nat
 ⊢ 0 + (y + 1) = y + 1
-inductionErrors.lean:50:2-50:16: error: Alternative 'cons' is not needed
-inductionErrors.lean:55:2-55:16: error: Alternative 'cons' is not needed
-inductionErrors.lean:60:2-60:40: error: Invalid alternative name 'upper2': Expected 'upper'
-inductionErrors.lean:58:2-58:7: error: Alternative 'upper' has not been provided
+inductionErrors.lean:50:2-50:16: error: Alternative `cons` is not needed
+inductionErrors.lean:55:2-55:16: error: Alternative `cons` is not needed
+inductionErrors.lean:60:2-60:40: error: Invalid alternative name `upper2`: Expected `upper`
+inductionErrors.lean:58:2-58:7: error: Alternative `upper` has not been provided
 inductionErrors.lean:66:2-66:28: error: Invalid occurrence of the wildcard alternative `| _ => ...`: It must be the last alternative
 inductionErrors.lean:74:2-74:34: error: Wildcard alternative is not needed
-inductionErrors.lean:80:2-80:56: error: Duplicate alternative name 'lower'
+inductionErrors.lean:80:2-80:56: error: Duplicate alternative name `lower`

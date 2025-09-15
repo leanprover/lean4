@@ -8,7 +8,10 @@ module
 prelude
 public import Lake.Toml.Encode
 public import Lake.Config.Package
-meta import Lake.Config.Package
+meta import Lake.Config.LeanLibConfig
+meta import Lake.Config.LeanExeConfig
+meta import Lake.Config.InputFileConfig
+meta import Lake.Config.PackageConfig
 
 /-! # TOML Translation
 

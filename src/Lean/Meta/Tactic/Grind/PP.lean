@@ -4,16 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Util
 public import Init.Grind.PP
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.Model
+public import Lean.Meta.Tactic.Grind.Arith.Offset.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 public import Lean.Meta.Tactic.Grind.Arith.Linear.PP
+public import Lean.Meta.Tactic.Grind.AC.PP
 import Lean.PrettyPrinter
-
 public section
 
 namespace Lean.Meta.Grind
@@ -112,7 +112,7 @@ private def ppEqcs : M Unit := do
      pushMsg <| .trace { cls := `eqc } "Equivalence classes" otherEqcs
 
 private def ppEMatchTheorem (thm : EMatchTheorem) : MetaM MessageData := do
-  let m := m!"{← thm.origin.pp}: {thm.patterns.map ppPattern}"
+  let m := m!"{thm.origin.pp}: {thm.patterns.map ppPattern}"
   return .trace { cls := `thm } m #[]
 
 private def ppActiveTheoremPatterns : M Unit := do
@@ -126,7 +126,7 @@ private def ppOffset : M Unit := do
   unless grind.debug.get (← getOptions) do
     return ()
   let goal ← read
-  let s := goal.arith.offset
+  let s ← Arith.Offset.offsetExt.getStateCore goal
   let nodes := s.nodes
   if nodes.isEmpty then return ()
   let model ← Arith.Offset.mkModel goal
@@ -138,7 +138,7 @@ private def ppOffset : M Unit := do
 
 private def ppCutsat : M Unit := do
   let goal ← read
-  let s := goal.arith.cutsat
+  let s ← Arith.Cutsat.cutsatExt.getStateCore goal
   let nodes := s.varMap
   if nodes.isEmpty then return ()
   let model ← Arith.Cutsat.mkModel goal
@@ -158,6 +158,11 @@ private def ppLinarith : M Unit := do
   let some msg ← Arith.Linear.pp? goal | return ()
   pushMsg msg
 
+private def ppAC : M Unit := do
+  let goal ← read
+  let some msg ← AC.pp? goal | return ()
+  pushMsg msg
+
 private def ppThresholds (c : Grind.Config) : M Unit := do
   let goal ← read
   let maxGen := goal.exprs.foldl (init := 0) fun g e =>
@@ -174,8 +179,7 @@ private def ppThresholds (c : Grind.Config) : M Unit := do
     msgs := msgs.push <| .trace { cls := `limit } m!"maximum number of case-splits has been reached, threshold: `(splits := {c.splits})`" #[]
   if maxGen ≥ c.gen then
     msgs := msgs.push <| .trace { cls := `limit } m!"maximum term generation has been reached, threshold: `(gen := {c.gen})`" #[]
-  if goal.arith.ring.steps ≥ c.ringSteps then
-    msgs := msgs.push <| .trace { cls := `limit } m!"maximum number of ring steps has been reached, threshold: `(ringSteps := {c.ringSteps})`" #[]
+  msgs ← Arith.CommRing.addThresholdMessage goal c msgs
   unless msgs.isEmpty do
     pushMsg <| .trace { cls := `limits } "Thresholds reached" msgs
 
@@ -185,7 +189,7 @@ private def ppCasesTrace : M Unit := do
     let mut msgs := #[]
     for { expr, i , num, source } in goal.split.trace.reverse do
       msgs := msgs.push <| .trace { cls := `cases } m!"[{i+1}/{num}]: {expr}" #[
-        .trace { cls := `cases } m!"source: {← source.toMessageData}" #[]
+        .trace { cls := `cases } m!"source: {source.toMessageData}" #[]
       ]
     pushMsg <| .trace { cls := `cases } "Case analyses" msgs
 
@@ -207,6 +211,7 @@ where
     ppCutsat
     ppLinarith
     ppCommRing
+    ppAC
     ppThresholds config
 
 end Lean.Meta.Grind

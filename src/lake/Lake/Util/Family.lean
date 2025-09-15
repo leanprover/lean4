@@ -9,6 +9,8 @@ prelude
 public import Init.Prelude
 import Init.Data.ToString
 meta import Init.Meta
+meta import Init.Data.String.Basic
+meta import Init.Data.ToString.Name
 
 /-!
 # Open Type Families in Lean
@@ -196,4 +198,4 @@ scoped macro (name := familyDef)
     `($[$doc?]? @[simp] public axiom $axm : $app = $val
     public instance : FamilyDef $fam $idx $val := ⟨$axm⟩)
   else
-    Macro.throwErrorAt fam s!"unknown family '{tid}'"
+    Macro.throwErrorAt fam s!"unknown family `{tid}`"

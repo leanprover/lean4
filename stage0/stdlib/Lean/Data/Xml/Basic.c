@@ -17,11 +17,11 @@ LEAN_EXPORT lean_object* l_Lean_Xml_instToStringAttributes___lam__0(lean_object*
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringElement___private__1(lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___closed__0;
 static lean_object* l_Lean_Xml_instToStringAttributes___lam__1___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Xml_Content_toCtorIdx(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_Element_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Xml_Content_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringContent___private__1(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Xml_Content_toCtorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringAttributes___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Xml_instToStringContent___closed__0;
@@ -33,35 +33,41 @@ static lean_object* l_Lean_Xml_instToStringAttributes___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__3(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__0___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Xml_instInhabitedContent___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Xml_instInhabitedContent_default__1;
 static lean_object* l_Lean_Xml_instToStringAttributes___lam__0___closed__1;
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringAttributes;
 static lean_object* l_Lean_Xml_instToStringAttributes___lam__0___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Xml_Element_toCtorIdx(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Element_ctorIdx___boxed(lean_object*);
+static lean_object* l_Lean_Xml_instInhabitedContent_default__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringContent;
 LEAN_EXPORT lean_object* l_Lean_Xml_instInhabitedContent;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__0_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_Character_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringAttributes___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Content_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Xml_instToStringElement___closed__0;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Xml_Element_toCtorIdx___boxed(lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_Comment_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_Element_elim___redArg(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Element_ctorIdx(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_ctorElim___redArg(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_Comment_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringElement;
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_Character_elim___redArg(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_foldl___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Xml_instToStringAttributes___lam__0___closed__0() {
@@ -158,23 +164,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Xml_Element_toCtorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Xml_Element_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Xml_Element_toCtorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Xml_Content_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -209,24 +198,83 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Xml_Content_toCtorIdx(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lean_Xml_Content_ctorIdx(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Xml_Content_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Xml_Content_toCtorIdx(x_1);
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_3);
 lean_dec_ref(x_1);
-return x_2;
+x_4 = lean_apply_1(x_2, x_3);
+return x_4;
 }
 }
-static lean_object* _init_l_Lean_Xml_instInhabitedContent___closed__0() {
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Xml_Content_ctorElim___redArg(x_3, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Xml_Content_ctorElim(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_2);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_Element_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Xml_Content_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_Element_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Xml_Content_ctorElim___redArg(x_2, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_Comment_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Xml_Content_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_Comment_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Xml_Content_ctorElim___redArg(x_2, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_Character_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Xml_Content_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Xml_Content_Character_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Xml_Content_ctorElim___redArg(x_2, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_Xml_instInhabitedContent_default__1___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -236,11 +284,19 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Xml_instInhabitedContent_default__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Xml_instInhabitedContent_default__1___closed__0;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Xml_instInhabitedContent() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Xml_instInhabitedContent___closed__0;
+x_1 = l_Lean_Xml_instInhabitedContent_default__1;
 return x_1;
 }
 }
@@ -590,8 +646,10 @@ l_Lean_Xml_instToStringAttributes___lam__1___closed__0 = _init_l_Lean_Xml_instTo
 lean_mark_persistent(l_Lean_Xml_instToStringAttributes___lam__1___closed__0);
 l_Lean_Xml_instToStringAttributes = _init_l_Lean_Xml_instToStringAttributes();
 lean_mark_persistent(l_Lean_Xml_instToStringAttributes);
-l_Lean_Xml_instInhabitedContent___closed__0 = _init_l_Lean_Xml_instInhabitedContent___closed__0();
-lean_mark_persistent(l_Lean_Xml_instInhabitedContent___closed__0);
+l_Lean_Xml_instInhabitedContent_default__1___closed__0 = _init_l_Lean_Xml_instInhabitedContent_default__1___closed__0();
+lean_mark_persistent(l_Lean_Xml_instInhabitedContent_default__1___closed__0);
+l_Lean_Xml_instInhabitedContent_default__1 = _init_l_Lean_Xml_instInhabitedContent_default__1();
+lean_mark_persistent(l_Lean_Xml_instInhabitedContent_default__1);
 l_Lean_Xml_instInhabitedContent = _init_l_Lean_Xml_instInhabitedContent();
 lean_mark_persistent(l_Lean_Xml_instInhabitedContent);
 l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__0 = _init_l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__0();

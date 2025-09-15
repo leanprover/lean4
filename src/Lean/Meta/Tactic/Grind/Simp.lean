@@ -4,19 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Lemmas
-public import Lean.Meta.Tactic.Assert
 public import Lean.Meta.Tactic.Simp.Main
-public import Lean.Meta.Tactic.Grind.Util
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.MatchDiscrOnly
-public import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
-public import Lean.Meta.Tactic.Grind.Canon
-
+import Lean.Meta.Tactic.Assert
+import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.MatchDiscrOnly
+import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 public section
-
 namespace Lean.Meta.Grind
 
 /-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/
@@ -54,6 +50,9 @@ def preprocess (e : Expr) : GoalM Simp.Result := do
   let e ← instantiateMVars e
   let r ← simpCore e
   let e' := r.expr
+  -- Remark: `simpCore` unfolds reducible constants, but it does not consistently visit all possible subterms.
+  -- So, we must use the following `unfoldReducible` step. It is non-op in most cases
+  let e' ← unfoldReducible e'
   let e' ← abstractNestedProofs e'
   let e' ← markNestedSubsingletons e'
   let e' ← eraseIrrelevantMData e'
@@ -86,5 +85,12 @@ def pushNewFact (proof : Expr) (generation : Nat := 0) : GoalM Unit := do
   let prop ← inferType proof
   trace[grind.debug.pushNewFact] "{prop}"
   pushNewFact' prop proof generation
+
+/--
+A lighter version of `preprocess` which produces a definitionally equal term,
+but ensures assumptions made by `grind` are satisfied.
+-/
+def preprocessLight (e : Expr) : GoalM Expr := do
+  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← unfoldReducible e))))))
 
 end Lean.Meta.Grind

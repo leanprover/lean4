@@ -6,10 +6,11 @@ Success! Final stack:
      `greatness
      ":="
      (Lean.Doc.Syntax.arg_str
-      (str "\"amazing!\"")))
-    (Lean.Doc.Syntax.anon
-     (Lean.Doc.Syntax.arg_ident `foo))]
+      (str "\"amazing!\"")))]
    "\n"
-   []
+   [(Lean.Doc.Syntax.para
+     "para{"
+     [(Lean.Doc.Syntax.text (str "\"foo\""))]
+     "}")]
    ":::")
 All input consumed.

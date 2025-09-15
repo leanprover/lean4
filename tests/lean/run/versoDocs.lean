@@ -21,7 +21,7 @@ attribute [doc_code_block] Lean.Doc.output
 attribute [doc_command] Lean.Doc.«open»
 attribute [doc_command] Lean.Doc.«set_option»
 attribute [doc_role] Lean.Doc.given
-attribute [doc_role lean] Lean.Doc.leanTerm
+attribute [doc_role lean] Lean.Doc.leanRole
 attribute [doc_role] Lean.Doc.manual
 attribute [doc_role] Lean.Doc.syntax
 attribute [doc_code_suggestions] Lean.Doc.suggestName
@@ -42,6 +42,11 @@ def c (s : StrLit) : DocM (Block ElabInline ElabBlock) := pure (Block.code (s.ge
 def d (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
   .concat <$> s.reverse.mapM elabBlock
 
+ /--
+ one line, with a blank one
+
+ -/
+def oneLine := "one line"
 
 /--
 x

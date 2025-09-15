@@ -22,7 +22,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCpp
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___boxed(lean_object*);
 static lean_object* l_Lean_initFn___closed__0____x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2_;
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppName(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_getExportNameFor_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lean_get_export_name_for(lean_object*, lean_object*);
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_initFn____x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1007,7 +1007,7 @@ x_1 = l_Lean_exportAttr;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_getExportNameFor_x3f(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* lean_get_export_name_for(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -1039,7 +1039,7 @@ _start:
 {
 lean_object* x_3; 
 lean_inc(x_2);
-x_3 = l_Lean_getExportNameFor_x3f(x_1, x_2);
+x_3 = lean_get_export_name_for(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; uint8_t x_5; 

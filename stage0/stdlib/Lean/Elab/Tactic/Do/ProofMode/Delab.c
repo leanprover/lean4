@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.ProofMode.Delab
-// Imports: Lean.Elab.Tactic.Do.ProofMode.MGoal Lean.PrettyPrinter.Delaborator.Basic
+// Imports: Lean.Elab.Tactic.Do.ProofMode.MGoal Lean.PrettyPrinter.Delaborator.Basic Std.Do.SPred.Notation.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3352,6 +3352,7 @@ return x_6;
 }
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_MGoal(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Delaborator_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Do_SPred_Notation_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Delab(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -3361,6 +3362,9 @@ res = initialize_Lean_Elab_Tactic_Do_ProofMode_MGoal(builtin, lean_io_mk_world()
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_PrettyPrinter_Delaborator_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Do_SPred_Notation_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_panic___at___Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___at_____private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses_spec__4_spec__4___redArg___closed__0 = _init_l_panic___at___Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___at_____private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses_spec__4_spec__4___redArg___closed__0();

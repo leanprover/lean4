@@ -54,7 +54,7 @@ theorem curry_apply {α β γ} (f : α × β → γ) (x : α) (y : β) : curry f
 def Injective (f : α → β) : Prop :=
   ∀ ⦃a₁ a₂⦄, f a₁ = f a₂ → a₁ = a₂
 
-theorem Injective.comp {g : β → φ} {f : α → β} (hg : Injective g) (hf : Injective f) :
+theorem Injective.comp {α β γ} {g : β → γ} {f : α → β} (hg : Injective g) (hf : Injective f) :
     Injective (g ∘ f) := fun _a₁ _a₂ => fun h => hf (hg h)
 
 /-- A function `f : α → β` is called surjective if every `b : β` is equal to `f a`
@@ -62,48 +62,48 @@ for some `a : α`. -/
 def Surjective (f : α → β) : Prop :=
   ∀ b, Exists fun a => f a = b
 
-theorem Surjective.comp {g : β → φ} {f : α → β} (hg : Surjective g) (hf : Surjective f) :
-    Surjective (g ∘ f) := fun c : φ =>
+theorem Surjective.comp {α β γ} {g : β → γ} {f : α → β} (hg : Surjective g) (hf : Surjective f) :
+    Surjective (g ∘ f) := fun c : γ =>
   Exists.elim (hg c) fun b hb =>
     Exists.elim (hf b) fun a ha =>
       Exists.intro a (show g (f a) = c from Eq.trans (congrArg g ha) hb)
 
 /-- `LeftInverse g f` means that `g` is a left inverse to `f`. That is, `g ∘ f = id`. -/
 @[grind]
-def LeftInverse (g : β → α) (f : α → β) : Prop :=
+def LeftInverse {α β} (g : β → α) (f : α → β) : Prop :=
   ∀ x, g (f x) = x
 
 /-- `HasLeftInverse f` means that `f` has an unspecified left inverse. -/
-def HasLeftInverse (f : α → β) : Prop :=
+def HasLeftInverse {α β} (f : α → β) : Prop :=
   Exists fun finv : β → α => LeftInverse finv f
 
 /-- `RightInverse g f` means that `g` is a right inverse to `f`. That is, `f ∘ g = id`. -/
 @[grind]
-def RightInverse (g : β → α) (f : α → β) : Prop :=
+def RightInverse {α β} (g : β → α) (f : α → β) : Prop :=
   LeftInverse f g
 
 /-- `HasRightInverse f` means that `f` has an unspecified right inverse. -/
-def HasRightInverse (f : α → β) : Prop :=
+def HasRightInverse {α β} (f : α → β) : Prop :=
   Exists fun finv : β → α => RightInverse finv f
 
-theorem LeftInverse.injective {g : β → α} {f : α → β} : LeftInverse g f → Injective f :=
+theorem LeftInverse.injective {α β} {g : β → α} {f : α → β} : LeftInverse g f → Injective f :=
   fun h a b faeqfb => ((h a).symm.trans (congrArg g faeqfb)).trans (h b)
 
-theorem HasLeftInverse.injective {f : α → β} : HasLeftInverse f → Injective f := fun h =>
+theorem HasLeftInverse.injective {α β} {f : α → β} : HasLeftInverse f → Injective f := fun h =>
   Exists.elim h fun _finv inv => inv.injective
 
-theorem rightInverse_of_injective_of_leftInverse {f : α → β} {g : β → α} (injf : Injective f)
+theorem rightInverse_of_injective_of_leftInverse {α β} {f : α → β} {g : β → α} (injf : Injective f)
     (lfg : LeftInverse f g) : RightInverse f g := fun x =>
   have h : f (g (f x)) = f x := lfg (f x)
   injf h
 
-theorem RightInverse.surjective {f : α → β} {g : β → α} (h : RightInverse g f) : Surjective f :=
+theorem RightInverse.surjective {α β} {f : α → β} {g : β → α} (h : RightInverse g f) : Surjective f :=
   fun y => ⟨g y, h y⟩
 
-theorem HasRightInverse.surjective {f : α → β} : HasRightInverse f → Surjective f
+theorem HasRightInverse.surjective {α β} {f : α → β} : HasRightInverse f → Surjective f
   | ⟨_finv, inv⟩ => inv.surjective
 
-theorem leftInverse_of_surjective_of_rightInverse {f : α → β} {g : β → α} (surjf : Surjective f)
+theorem leftInverse_of_surjective_of_rightInverse {α β} {f : α → β} {g : β → α} (surjf : Surjective f)
     (rfg : RightInverse f g) : LeftInverse f g := fun y =>
   Exists.elim (surjf y) fun x hx => ((hx ▸ rfl : f (g y) = f (g (f x))).trans (Eq.symm (rfg x) ▸ rfl)).trans hx
 
@@ -128,10 +128,10 @@ theorem Injective.ne_iff (hf : Injective f) {x y : α} : f x ≠ f y ↔ x ≠ y
 theorem Injective.ne_iff' (hf : Injective f) {x y : α} {z : β} (h : f y = z) : f x ≠ z ↔ x ≠ y :=
   h ▸ hf.ne_iff
 
-protected theorem LeftInverse.id {g : β → α} {f : α → β} (h : LeftInverse g f) : g ∘ f = id :=
+protected theorem LeftInverse.id {α β} {g : β → α} {f : α → β} (h : LeftInverse g f) : g ∘ f = id :=
   funext h
 
-protected theorem RightInverse.id {g : β → α} {f : α → β} (h : RightInverse g f) : f ∘ g = id :=
+protected theorem RightInverse.id {α β} {g : β → α} {f : α → β} (h : RightInverse g f) : f ∘ g = id :=
   funext h
 
 end Function

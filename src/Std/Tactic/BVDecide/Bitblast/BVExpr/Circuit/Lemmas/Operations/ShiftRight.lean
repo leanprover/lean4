@@ -43,11 +43,11 @@ theorem go_get_aux (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
     split at hgo
     · rw [← hgo]
       intros
-      rw [go_get_aux]
+      rw [go_get_aux (hidx := Nat.lt_succ_of_lt hidx) (hfoo := ‹_›)]
       rw [AIG.RefVec.get_push_ref_lt]
     · rw [← hgo]
       intros
-      rw [go_get_aux]
+      rw [go_get_aux (hidx := Nat.lt_succ_of_lt hidx) (hfoo := ‹_›)]
       rw [AIG.RefVec.get_push_ref_lt]
   · dsimp only at hgo
     rw [← hgo]
@@ -107,7 +107,7 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
       split at hgo
       · split
         · rw [← hgo]
-          rw [go_get]
+          rw [go_get]; case hidx => omega
           rw [AIG.RefVec.get_push_ref_eq']
           · rw [go_denote_mem_prefix]
             · simp [heq]
@@ -117,7 +117,7 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
       · split
         · omega
         · rw [← hgo]
-          rw [go_get]
+          rw [go_get]; case hidx => omega
           rw [AIG.RefVec.get_push_ref_eq']
           · rw [go_denote_mem_prefix]
             · simp only [Ref.cast_eq]
@@ -178,7 +178,7 @@ theorem go_get (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
   split
   · split
     all_goals
-      rw [go_get]
+      rw [go_get]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_lt]
   · simp only
     have : curr = w := by omega
@@ -213,7 +213,7 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
         simp only [hlt, ↓reduceDIte]
         dsimp only at hgo
         rw [← hgo]
-        rw [go_get]
+        rw [go_get]; case hidx => omega
         rw [AIG.RefVec.get_push_ref_eq']
         · simp [heq]
         · omega
@@ -222,7 +222,7 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
         simp only [hlt, ↓reduceDIte]
         dsimp only at hgo
         rw [← hgo]
-        rw [go_get]
+        rw [go_get]; case hidx => omega
         rw [AIG.RefVec.get_push_ref_eq']
         · simp [heq]
     | inr =>
@@ -285,7 +285,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
         denote_blastShiftRightConst]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRightConst)]
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRightConst) (h := Ref.hgate _)]
       rw [hright]
       simp only [hif1, ↓reduceIte]
       have hmod : 2 ^ pow % 2 ^ n = 2 ^ pow := by
@@ -303,10 +303,10 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
         denote_blastShiftRightConst]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRightConst)]
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRightConst) (h := Ref.hgate _)]
       rw [hright]
       simp only [hif1, Bool.false_eq_true, ↓reduceIte]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRightConst)]
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRightConst) (h := Ref.hgate _)]
       rw [hleft]
       simp
   · have : rhs.getLsbD pow = false := by
@@ -418,7 +418,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
         denote_blastArithShiftRightConst]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastArithShiftRightConst)]
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastArithShiftRightConst) (h := Ref.hgate _)]
       rw [hright]
       simp only [hif1, ↓reduceIte]
       have hmod : 2 ^ pow % 2 ^ n = 2 ^ pow := by
@@ -436,10 +436,10 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
         denote_blastArithShiftRightConst]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastArithShiftRightConst)]
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastArithShiftRightConst) (h := Ref.hgate _)]
       rw [hright]
       simp only [hif1, Bool.false_eq_true, ↓reduceIte]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastArithShiftRightConst)]
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastArithShiftRightConst) (h := Ref.hgate _)]
       rw [hleft]
       simp
   · have : rhs.getLsbD pow = false := by

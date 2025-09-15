@@ -252,7 +252,6 @@ static lean_object* l_Lean_Doc_Syntax_arg__val_quot___closed__7;
 static lean_object* l_Lean_Doc_Syntax_codeblock___closed__3;
 static lean_object* l_Lean_Doc_Syntax_arg__str___closed__1;
 static lean_object* l_Lean_Doc_Syntax_flag__off___closed__5;
-lean_object* l_Lean_Parser_symbol_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_code;
 static lean_object* l_Lean_Doc_Syntax_list__item_quot___closed__4;
 static lean_object* l_Lean_Doc_Syntax_ol___closed__0;
@@ -292,6 +291,7 @@ static lean_object* l_Lean_Doc_Syntax_named___closed__5;
 static lean_object* l_Lean_Doc_Syntax_ol___closed__6;
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__8;
 lean_object* l_Lean_Parser_andthen(lean_object*, lean_object*);
+lean_object* l_Lean_Parser_symbol_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_Syntax_doc__arg_quot___closed__2;
 static lean_object* l_Lean_Doc_Syntax_inline_quot___closed__2;
 static lean_object* l_Lean_Doc_Syntax_arg__str___closed__6;
@@ -5058,7 +5058,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Doc_Syntax_metadataContents___closed__1;
-x_2 = lean_alloc_closure((void*)(l_Lean_Parser_symbol_parenthesizer___boxed), 6, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_Parser_symbol_parenthesizer), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

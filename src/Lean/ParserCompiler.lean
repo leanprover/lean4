@@ -141,6 +141,7 @@ def compileEmbeddedParsers : ParserDescr → MetaM Unit
   | ParserDescr.trailingNode _ _ _ d   => compileEmbeddedParsers d
   | ParserDescr.symbol _               => pure ()
   | ParserDescr.nonReservedSymbol _ _  => pure ()
+  | ParserDescr.unicodeSymbol _ _ _    => pure ()
   | ParserDescr.cat _ _                => pure ()
 
 /-- Precondition: `α` must match `ctx.tyName`. -/

@@ -1346,7 +1346,7 @@ def inferImplicit (e : Expr) (numParams : Nat) (considerRange : Bool) : Expr :=
   | e, _ => e
 
 /--
-Uses `newBinderInfos` to update the binder infos of the first `numParams` foralls.
+Uses `binderInfos?` to update the binder infos of the corresponding forall expressions.
 -/
 def updateForallBinderInfos (e : Expr) (binderInfos? : List (Option BinderInfo)) : Expr :=
   match e, binderInfos? with
@@ -1354,6 +1354,21 @@ def updateForallBinderInfos (e : Expr) (binderInfos? : List (Option BinderInfo))
     let b  := updateForallBinderInfos b binderInfos?
     let bi := newBi?.getD bi
     Expr.forallE n d b bi
+  | e, _ => e
+
+/--
+Uses `binderNames?` to update the binder names of the corresponding lambda and forall expressions.
+-/
+def updateBinderNames (e : Expr) (binderNames? : List (Option Name)) : Expr :=
+  match e, binderNames? with
+  | Expr.forallE n d b bi, newN? :: binderNames? =>
+    let b := updateBinderNames b binderNames?
+    let n := newN?.getD n
+    Expr.forallE n d b bi
+  | Expr.lam n d b bi, newN? :: binderNames? =>
+    let b := updateBinderNames b binderNames?
+    let n := newN?.getD n
+    Expr.lam n d b bi
   | e, _ => e
 
 /--

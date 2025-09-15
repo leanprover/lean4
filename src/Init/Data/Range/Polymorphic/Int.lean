@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Range.Polymorphic.Instances
 public import Init.Data.Order.Classes
+public import Init.Data.Int.Order
 import Init.Omega
 
 public section
@@ -23,7 +24,7 @@ instance : LawfulUpwardEnumerable Int where
     simp only [UpwardEnumerable.LT, UpwardEnumerable.succMany?, Option.some.injEq]
     omega
   succMany?_zero := by simp [UpwardEnumerable.succMany?]
-  succMany?_succ := by
+  succMany?_succ? := by
     simp only [UpwardEnumerable.succMany?, UpwardEnumerable.succ?,
       Option.bind_some, Option.some.injEq]
     omega
@@ -35,6 +36,14 @@ instance : LawfulUpwardEnumerableLE Int where
   le_iff x y := by
     simp [UpwardEnumerable.LE, UpwardEnumerable.succMany?, Int.le_def, Int.nonneg_def,
       Int.sub_eq_iff_eq_add', eq_comm (a := y)]
+
+instance : LawfulOrderLT Int := inferInstance
+instance : LawfulUpwardEnumerableLT Int := inferInstance
+instance : LawfulUpwardEnumerableLT Int := inferInstance
+instance : LawfulUpwardEnumerableLowerBound .closed Int := inferInstance
+instance : LawfulUpwardEnumerableUpperBound .closed Int := inferInstance
+instance : LawfulUpwardEnumerableLowerBound .open Int := inferInstance
+instance : LawfulUpwardEnumerableUpperBound .open Int := inferInstance
 
 instance : RangeSize .closed Int where
   size bound a := (bound + 1 - a).toNat

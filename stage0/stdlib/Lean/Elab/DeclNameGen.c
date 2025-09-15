@@ -7737,41 +7737,41 @@ goto block_32;
 block_46:
 {
 uint8_t x_42; 
-x_42 = lean_nat_dec_lt(x_8, x_40);
+x_42 = lean_nat_dec_lt(x_8, x_41);
 if (x_42 == 0)
 {
-lean_dec(x_40);
+lean_dec(x_41);
 lean_dec_ref(x_39);
-x_35 = x_41;
+x_35 = x_40;
 goto block_38;
 }
 else
 {
 if (x_42 == 0)
 {
-lean_dec(x_40);
+lean_dec(x_41);
 lean_dec_ref(x_39);
-x_35 = x_41;
+x_35 = x_40;
 goto block_38;
 }
 else
 {
 size_t x_43; size_t x_44; uint8_t x_45; 
 x_43 = 0;
-x_44 = lean_usize_of_nat(x_40);
-lean_dec(x_40);
+x_44 = lean_usize_of_nat(x_41);
+lean_dec(x_41);
 lean_inc(x_34);
 x_45 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__10(x_34, x_39, x_43, x_44);
 lean_dec_ref(x_39);
 if (x_45 == 0)
 {
-x_35 = x_41;
+x_35 = x_40;
 goto block_38;
 }
 else
 {
 lean_dec(x_34);
-x_25 = x_41;
+x_25 = x_40;
 x_26 = x_33;
 goto block_32;
 }
@@ -7800,8 +7800,8 @@ x_53 = lean_nat_dec_lt(x_8, x_52);
 if (x_53 == 0)
 {
 x_39 = x_50;
-x_40 = x_52;
-x_41 = x_51;
+x_40 = x_51;
+x_41 = x_52;
 goto block_46;
 }
 else
@@ -7809,8 +7809,8 @@ else
 if (x_53 == 0)
 {
 x_39 = x_50;
-x_40 = x_52;
-x_41 = x_51;
+x_40 = x_51;
+x_41 = x_52;
 goto block_46;
 }
 else
@@ -7822,8 +7822,8 @@ x_56 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Ela
 if (x_56 == 0)
 {
 x_39 = x_50;
-x_40 = x_52;
-x_41 = x_51;
+x_40 = x_51;
+x_41 = x_52;
 goto block_46;
 }
 else

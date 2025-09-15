@@ -32,7 +32,7 @@ leanOptions = { experimental.module = true }
 moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
 
 # Uncomment to limit number of reported errors further in case of overwhelming cmdline output
-#weakLeanArgs = ["-DmaxErrors=1"]
+weakLeanArgs = ["-DmaxErrors=1"]
 
 ${LEAN_EXTRA_LAKEFILE_TOML}
 

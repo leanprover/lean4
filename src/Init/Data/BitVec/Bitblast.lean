@@ -2386,6 +2386,7 @@ theorem fastUmulOverflow (x y : BitVec w) :
 
 
 /-! ## Auxilliary lemmas for popcount -/
+
 /-- Recursively extract one bit at a time and extend it to width `w`. `hlen` emulates the behaviour of Vector to simplify proving the correctness of the circuit. -/
 def extractAndExtendPopulateAux (idx : Nat) (x : BitVec w) (acc : BitVec (w * idx)) (hlt : idx ≤ w)
   (hacc : ∀ i (_ : i < idx),
@@ -2466,6 +2467,37 @@ def extractAndExtendPopulateAux (idx : Nat) (x : BitVec w) (acc : BitVec (w * id
                             )
     ⟨res,proof⟩
 
+
+/-- zero extend each of the bits `x[i]`, and produce a packed bitvector. -/
+def extractAndExtendPopulate (x : BitVec w) : BitVec (w * w) :=
+  let res := extractAndExtendPopulateAux 0 x 0#0 (by omega) (by intros; omega)
+  res
+
+/-- The bitvector at index `i*w` of length `w` is the bit at `x[i]`, zero-extended. -/
+theorem extractLsb'_extractAndExtendPopulate_eq (x : BitVec w) (i : Nat) :
+    (extractAndExtendPopulate x).extractLsb' (i * w) w = BitVec.zeroExtend w (BitVec.extractLsb' i 1 x) := by
+  unfold extractAndExtendPopulate
+  let ⟨res, proof⟩ := extractAndExtendPopulateAux 0 x 0#0 (by omega) (by intros; omega)
+  simp
+  specialize proof i
+  by_cases hilt : i < w
+  · specialize proof hilt
+    ext j hj
+    specialize proof j hj
+    rw [Nat.mul_comm i w]
+    simp [proof]
+    intros
+    exact hj
+  · ext k hk
+    have : w * w ≤ i * w := by refine mul_le_mul_right w (by omega)
+    have : w * w ≤ i * w + k := by omega
+    simp
+    rw [getLsbD_of_ge]
+    · rw [getLsbD_of_ge]
+      · simp
+      · omega
+    · omega
+
 /-- Recursively add `len`-long portions of the bitvector -/
 def foldAdd (x : BitVec (validNodes * w)) (validNodes currNode : Nat) (r : BitVec w) : BitVec w :=
   if _ : currNode < validNodes then
@@ -2492,7 +2524,6 @@ def addVecAux (usedNodes validNodes : Nat)
     (hval : validNodes ≤ w) (hused : usedNodes ≤ validNodes + 1) (hmod : usedNodes % 2 = 0) :
     {l : BitVec (((validNodes + 1)/2) * w)  //
       (∀ i (_ : i < (validNodes + 1)/2),
-        ∀ j (_ : j < w),
           l.extractLsb' (i * w) w =
             let rhs := if h : i * 2 + 1 < validNodes then
                   BitVec.extractLsb' ((i * 2 + 1) * w) w oldParSum
@@ -2555,7 +2586,7 @@ def addVecAux (usedNodes validNodes : Nat)
         rw [show (validNodes + 1) / 2 = validNodes / 2 by omega]
       · simp [hor] at *
     ⟨BitVec.cast hcast newParSum, by
-        intros i hi j hj
+        intros i hi
         have hcast_eq : extractLsb' (i * w) w (hcast ▸ newParSum) = extractLsb' (i * w) w (newParSum) := by
           congr 1
           · omega
@@ -2573,18 +2604,49 @@ def addVecAux (usedNodes validNodes : Nat)
         simp [hacc]
         ⟩
 
-
 -- hw is redundant, since we should be able to add BVs of width 0/1.
 -- hval is redundant, since we should be able to add as many BVs as we want.
-def addVec (validNodes : Nat) (parSum : BitVec (validNodes * w)) (hw : 1 < w) (hval : validNodes ≤ w):=
+def addVec (validNodes : Nat) (parSum : BitVec (validNodes * w)) (hw : 1 < w) (hval : validNodes ≤ w) :
+  BitVec (((validNodes + 1)/2) * w) :=
     have hcastZero : 0 = 0 / 2 * w := by omega
-    addVecAux 0 validNodes hw parSum (hcastZero▸0#0)
-    (by intros i hi j hj; simp [show i = 0 by omega]; omega) hval (by omega) (by omega)
+    (addVecAux 0 validNodes hw parSum ((0#0).cast hcastZero)
+      (by intros i hi j hj; simp [show i = 0 by omega]; omega) hval (by omega) (by omega)).val
+
+/-- If the base extraction index is out of bounds (`n ≥ w`), then the result of extraction is zero,
+regardless of length. -/
+theorem extractLsb'_zero_of_le (x : BitVec w) (n : Nat) (len : Nat) (hn : w ≤ n) :
+    x.extractLsb' n len = 0#len := by
+  ext k hk
+  simp
+  apply getLsbD_of_ge
+  omega
+
 
 /-- TODO: addVec adds adjacent vectors together.  -/
 theorem addVec_eq (validNodes : Nat) (nodes : BitVec (validNodes * w)) (hw : 1 < w) (hval : validNodes ≤ w) :
-    (addVec validNodes nodes hw hval).extractLsb' i w  =
-    (validNodes.extractLsb' (i * 2 * w) w ) + (validNodes.extractLsb' (i * 2 * w + 1)) := by sorry
+      (addVec validNodes nodes hw hval).extractLsb' (i*w) w  =
+      (nodes.extractLsb' (i * 2 * w) w) + (nodes.extractLsb' ((i * 2 + 1) * w) w) := by
+  simp [addVec]
+  have hcastZero : 0 = 0 / 2 * w := by omega
+  let ⟨res, proof⟩ := addVecAux 0 validNodes hw nodes ((0#0).cast hcastZero)
+                        (by intros i hi j hj; simp [show i = 0 by omega]; omega) hval (by omega) (by omega)
+  simp
+  by_cases hilt : i < (validNodes + 1) / 2
+  · specialize proof i hilt
+    simp [proof]
+    intros
+    ext k hk
+    simp
+    have : validNodes * w ≤ (i * 2 + 1) * w := by exact mul_le_mul_right w (by omega)
+    have : validNodes * w ≤ (i * 2 + 1) * w + k := by omega
+    simp [this]
+  · rw [extractLsb'_zero_of_le]
+    · rw [extractLsb'_zero_of_le]
+      · rw [extractLsb'_zero_of_le]
+        · simp
+        · exact mul_le_mul_right w (by omega)
+      · exact mul_le_mul_right w (by omega)
+    · exact mul_le_mul_right w (by omega)
 
 
 /-- Tail-recursive definition of parrallel sum prefix. At each iteration, we construct a new vector containing the results of summing each couple of elements in the initial vector. -/
@@ -2597,10 +2659,8 @@ def parPrefixSum
   if hlt : 1 < validNodes then
     let initAcc := 0#0
     have hcastZero : 0 = 0 / 2 * w := by omega
-    -- | TODO: replace this with 'addVecAux'.
-    let addRes := addVecAux 0 validNodes (by omega) parSum (hcastZero▸initAcc)
-                        (by intros i hi j hj; simp [initAcc, show i = 0 by omega]; omega) (by omega) (by omega) (by omega)
-    parPrefixSum ((validNodes+1)/2) addRes.val hin (by omega) (by omega)
+    let addRes := addVec validNodes parSum (by omega) (by omega)
+    parPrefixSum ((validNodes+1)/2) addRes hin (by omega) (by omega)
   else
     have hcast : validNodes * w = w := by
       simp [show validNodes = 1 by omega]
@@ -2611,7 +2671,7 @@ def parPrefixSum
 extract bitvectors from an `n * w` bitvector into a set of bitvectors.
 This will be used to explain at the logical level what `parPrefixSum` and `addVec` does.
 -/
-def scatter (xs : BitVec (n * w)) : List (BitVec w) :
+def scatter (xs : BitVec (n * w)) : List (BitVec w) :=
   List.map (fun i => xs.extractLsb' (i * w) w) (List.range n)
 
 
@@ -2621,16 +2681,24 @@ Add a collection of bitvectors into a single bitvectors.
 def sumVecs (xs : List (BitVec w)) : BitVec w :=
   xs.foldl (fun acc x => acc + x) 0#w
 
+theorem popCount_eq_sumVec (x : BitVec w) :
+  x.popCount = sumVecs (scatter (extractAndExtendPopulate x)) := by
+  sorry
 /--
 Sums a collection of packed bitvectors, resulting into a single bitvectors.
 -/
 def sumPackedVec (xs : BitVec (n * w)) : BitVec w :=
   sumVecs (scatter xs)
 
+/-- the popcount equals the result of summing the packed vector. -/
+theorem popCount_eq_sumPackedVec (x : BitVec w) :
+  x.popCount = sumPackedVec (extractAndExtendPopulate x) := by
+  unfold sumPackedVec
+  rw [popCount_eq_sumVec]
 
 theorem parPrefixSum_eq
     (validNodes : Nat) (parSum : BitVec (validNodes * w))
-    (hin : 0 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) : BitVec w :
+    (hin : 0 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) :
   parPrefixSum validNodes parSum hin hval hval' =
   sumPackedVec parSum := by
   sorry
@@ -2651,7 +2719,8 @@ theorem parPrefixSum_eq
 def popCountParSum {x : BitVec w} : BitVec w :=
   if hw : 1 < w then
     let initAcc := 0#0
-    let res := extractAndExtendPopulateAux 0 x initAcc (by omega) (by intros; omega)
+    -- let res := extractAndExtendPopulateAux 0 x initAcc (by omega) (by intros; omega)
+    let res := extractAndExtendPopulate x
     parPrefixSum w res (by omega) (by omega) (by omega)
   else
     if hw' : 0 < w then x

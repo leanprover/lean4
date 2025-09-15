@@ -46,16 +46,18 @@ LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'both environment variables must be 
 # Test `cache put` command errors for bad configurations
 test_err 'the `--scope` option must be set' cache put bogus.jsonl
 test_err 'these environment variables must be set' \
-  cache put bogus.jsonl --scope=bogus
+  cache put bogus.jsonl --scope='!/bogus'
 LAKE_CACHE_KEY= test_err 'these environment variables must be set' \
-  cache put bogus.jsonl --scope=bogus
+  cache put bogus.jsonl --scope='!/bogus'
 LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
-  cache put bogus.jsonl --scope=bogus
+  cache put bogus.jsonl --scope='!/bogus'
 LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
-  cache put bogus.jsonl --scope=bogus
+  cache put bogus.jsonl --scope='!/bogus'
 
-# Test lookup failure
-with_cdn_endpoints test_err "outputs not found for revision" cache get --scope="bogus"
+# Test revision failure
+REV=$(git rev-parse HEAD)
+test_err "revision not found" cache get --scope='!/bogus' --rev='bogus'
+test_err "outputs not found for revision" cache get --scope='!/bogus' --rev=$REV
 
 # Test `cache get` skipping non-Reservoir dependencies
 test_run -f  non-reservoir.toml update
@@ -65,17 +67,34 @@ test_out 'hello: skipping non-Reservoir dependency' -f non-reservoir.toml cache 
 test_run build +Test -o .lake/outputs.jsonl
 test_exp -f .lake/outputs.jsonl
 test_cmd_eq 3 wc -l < .lake/outputs.jsonl
-with_upload_endpoints test_run cache put .lake/outputs.jsonl --scope="test"
+with_upload_endpoints test_run cache put .lake/outputs.jsonl --scope='!/test'
 test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
 with_cdn_endpoints test_err 'failed to download some artifacts' \
-  cache get .lake/outputs.jsonl --scope="bogus"
-with_cdn_endpoints test_run cache get .lake/outputs.jsonl --scope="test"
+  cache get .lake/outputs.jsonl --scope='!/bogus'
+with_cdn_endpoints test_run cache get .lake/outputs.jsonl --scope='!/test'
 test_run build +Test --no-build
 
 # Test that outputs and artifacts are not re-downloaded
-with_cdn_endpoints test_not_out "downloading" cache get .lake/outputs.jsonl --scope="test"
-with_cdn_endpoints test_not_out "downloading artifact" cache get --scope="test"
-with_cdn_endpoints test_not_out "downloading" cache get --scope="test"
+with_cdn_endpoints test_not_out "downloading" cache get .lake/outputs.jsonl --scope='!/test'
+with_cdn_endpoints test_not_out "downloading artifact" cache get --scope='!/test'
+with_cdn_endpoints test_not_out "downloading" cache get --scope='!/test'
+
+# Test `--force-download`
+with_cdn_endpoints test_out "downloading" cache get --scope='!/test' --force-download
+
+# Test dirty work tree warnings
+test_cmd touch Ignored.lean
+test_cmd git add -f Ignored.lean
+with_upload_endpoints test_err "package has changes" --wfail \
+  cache put .lake/outputs.jsonl  --scope='!/test'
+test_err "package has changes" --wfail cache get --scope='!/test'
+test_cmd git commit -m "v2"
+
+# Test revision search
+test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
+with_cdn_endpoints test_err "no outputs found" --wfail cache get --scope='!/test' --max-revs=1
+with_cdn_endpoints test_run cache get --scope='!/test'
+test_run build +Test --no-build
 
 # Test Reservoir download
 test_run -f reservoir2.toml update --keep-toolchain
@@ -92,9 +111,9 @@ test_err "failed to download artifacts for some dependencies" \
 test_run -f reservoir.toml cache get
 test_run -f reservoir.toml build @Cli --no-build
 
-# Test Reservoir w/ `--scope` uses GitHub scope
+# Test Reservoir with `--scope`/`--repo` uses GitHub scope
 test_cmd rm -rf .lake/cache
-test_run -d .lake/packages/Cli cache get --scope=leanprover/lean4-cli
+test_run -d .lake/packages/Cli cache get --repo=leanprover/lean4-cli
 test_run -d .lake/packages/Cli build --no-build
 
 # Cleanup

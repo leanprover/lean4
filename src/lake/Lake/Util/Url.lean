@@ -75,9 +75,18 @@ example : foldlUtf8 c (fun l b => b::l) List.nil = (String.utf8EncodeChar c).rev
 public def uriEscapeChar (c : Char) (s := "") : String :=
   foldlUtf8 c (init := s) fun s b => uriEscapeByte b s
 
-/-- A URI unreserved mark as specified in [RFC2396](https://datatracker.ietf.org/doc/html/rfc2396#section-2.3). -/
+/--
+A URI unreserved mark as specified in [RFC3986][2].
+Unlike the older [RFC2396][1], RFC2396 also reserves `!`, `*`, `'`, `(`, and `)`.
+
+Lake uses RFC3986 here because the `curl` implementation of AWS Sigv4
+that Lake uses to upload artifacts requires these additional characters to be escaped.
+
+[1]: https://datatracker.ietf.org/doc/html/rfc2396#section-2.3
+[2]: https://datatracker.ietf.org/doc/html/rfc3986#section-2.3
+-/
 public def isUriUnreservedMark (c : Char)  : Bool :=
-  c matches '-' | '_' | '.' | '!' | '~' | '*' | '\'' | '(' | ')'
+  c matches '-' | '_' | '.' | '~'
 
 /-- Encodes anything but a URI unreserved character as a URI escape sequences. -/
 public def uriEncodeChar (c : Char) (s := "") : String :=

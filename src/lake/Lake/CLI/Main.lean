@@ -65,7 +65,10 @@ public structure LakeOptions where
   outFormat : OutFormat := .text
   offline : Bool := false
   outputsFile? : Option FilePath := none
+  forceDownload : Bool := false
   scope? : Option String := none
+  rev? : Option String := none
+  maxRevs : Nat := 100
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -220,9 +223,20 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--offline"     => modifyThe LakeOptions ({· with offline := true})
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
-| "--scope"       => do
+| "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
+| "--scope" => do
   let scope ← takeOptArg "--scope" "cache scope"
   modifyThe LakeOptions ({· with scope? := some scope})
+| "--repo" => do
+  let repo ← takeOptArg "--repo" "repository"
+  modifyThe LakeOptions ({· with scope? := some repo})
+| "--rev" => do
+  let rev ← takeOptArg "--rev" "Git revision"
+  modifyThe LakeOptions ({· with rev? := some rev})
+| "--max-revs" => do
+  let some n ← (·.toNat?) <$> takeOptArg "--max-revs" "number of revisions"
+    | error "argument to `--max-revs` should be a natural number"
+  modifyThe LakeOptions ({· with maxRevs := n})
 | "--log-level"   => do
   let outLv ← takeOptArg' "--log-level" "log level" LogLevel.ofString?
   modifyThe LakeOptions ({· with outLv? := outLv})
@@ -317,14 +331,13 @@ namespace cache
 protected def get : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let scope? := opts.scope?
   let mappings? ← takeArg?
-  let cfg ← mkLoadConfig opts
   noArgsRem  do
+  let cfg ← mkLoadConfig opts
   let ws ← loadWorkspace cfg
   let cache := ws.lakeCache
   if let some file := mappings? then
-    let some remoteScope := scope?
+    let some remoteScope := opts.scope?
       | error "to use `cache get` with a mappings file, `--scope` must be set"
     let service : CacheService :=
       if let some artifactEndpoint := ws.lakeEnv.cacheArtifactEndpoint? then
@@ -332,9 +345,7 @@ protected def get : CliM PUnit := do
       else
         {apiEndpoint? := some ws.lakeEnv.reservoirApiUrl}
     let map ← CacheMap.load file
-    cache.writeMap ws.root.cacheScope map
-    let descrs ← map.collectOutputDescrs
-    service.downloadArtifacts cache descrs remoteScope
+    service.downloadOutputArtifacts map cache remoteScope ws.root.cacheScope opts.forceDownload
   else
     let service : CacheService ← id do
       match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
@@ -346,12 +357,13 @@ protected def get : CliM PUnit := do
         error (invalidEndpointConfig artifactEndpoint "")
       | none, some revisionEndpoint =>
         error (invalidEndpointConfig "" revisionEndpoint)
-    if let some remoteScope := scope? then
+    if let some remoteScope := opts.scope? then
       let service := if service.apiEndpoint?.isNone then service else {
         artifactEndpoint := s!"{ws.lakeEnv.reservoirApiUrl}/artifacts"
         revisionEndpoint := s!"{ws.lakeEnv.reservoirApiUrl}/outputs"
       }
-      getCache cache service ws.root remoteScope ws.root.cacheScope
+      let map ← getOutputs cache service ws.root remoteScope opts
+      service.downloadOutputArtifacts map cache remoteScope ws.root.cacheScope opts.forceDownload
     else if service.apiEndpoint?.isSome then -- Reservoir
       -- TODO: Parallelize?
       let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
@@ -360,7 +372,8 @@ protected def get : CliM PUnit := do
             logInfo s!"{pkg.name}: skipping non-Reservoir dependency`"
           else
             let remoteScope := s!"{pkg.scope}/{pkg.name.toString (escape := false)}"
-            getCache cache service pkg remoteScope pkg.cacheScope
+            let map ← getOutputs cache service pkg remoteScope opts
+            service.downloadOutputArtifacts map cache remoteScope pkg.cacheScope opts.forceDownload
           return ok
         catch _ =>
           return false
@@ -375,16 +388,27 @@ where
     \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint}\n\
     To use `cache get` with a custom endpoint, both environment variables \
     must be set to non-empty strings. To use Reservoir, neither should be set."
-  getCache cache service pkg remoteScope localScope : LoggerIO Unit := do
+  getOutputs cache service pkg remoteScope opts : LoggerIO CacheMap := do
     let repo := GitRepo.mk pkg.dir
-    if (← repo.hasDiff) then
-      logWarning s!"{pkg.name}: package has changes; only artifacts for committed code will be downloaded"
-    let rev ← repo.getHeadRevision
-    let path := cache.revisionPath remoteScope rev
-    let map ← service.downloadRevisionOutputs rev path remoteScope
-    cache.writeMap localScope map
-    let descrs ← map.collectOutputDescrs
-    service.downloadArtifacts cache descrs remoteScope
+    if let some rev := opts.rev? then
+      let rev ← repo.resolveRevision rev
+      let some map ← service.downloadRevisionOutputs? rev cache remoteScope
+        | error s!"{remoteScope}: outputs not found for revision {rev}"
+      return map
+    else
+      if (← repo.hasDiff) then
+        logWarning s!"{pkg.name}: package has changes; \
+          only artifacts for committed code will be downloaded"
+        if .warning ≤ opts.failLv then
+          failure
+      let n := opts.maxRevs
+      let revs ← repo.getHeadRevisions n
+      let map? ← revs.findSomeM? fun rev =>
+        service.downloadRevisionOutputs? rev cache remoteScope
+      let some map := map?
+        | let revisions := if n = 0 then "for any revision" else s!"in {n} revisions from HEAD"
+          error s!"{remoteScope}: no outputs found {revisions}"
+      return map
 
 protected def put : CliM PUnit := do
   processOptions lakeOption
@@ -401,9 +425,13 @@ protected def put : CliM PUnit := do
       return {key, artifactEndpoint, revisionEndpoint}
     | key?, artifactEndpoint?, revisionEndpoint? =>
       error (invalidEndpointConfig key? artifactEndpoint? revisionEndpoint?)
-  let repo := GitRepo.mk ws.root.dir
+  let pkg := ws.root
+  let repo := GitRepo.mk pkg.dir
   if (← repo.hasDiff) then
-    error "package has changes; commit code before uploading a build"
+    logWarning s!"{pkg.name}: package has changes; \
+      artifacts will be uploaded for the most recent commit"
+    if .warning ≤ opts.failLv then
+      exit 1
   let rev ← repo.getHeadRevision
   let map ← CacheMap.load file
   let descrs ← map.collectOutputDescrs

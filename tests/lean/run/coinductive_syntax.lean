@@ -121,3 +121,15 @@ info: Bar.coinduct (pred : Set) (hyp : ∀ (a : Nat), pred a → a = 42) (a✝ :
 -/
 #guard_msgs in
 #check Bar.coinduct
+
+
+coinductive dependentTest : (n : Nat) → (Vector α n) → Prop  where
+  | mk (x : α) : dependentTest m v → dependentTest (m+1) (v.push x)
+
+/--
+info: dependentTest.coinduct.{u_1} {α : Type u_1} (pred : (n : Nat) → Vector α n → Prop)
+  (hyp : ∀ (n : Nat) (a : Vector α n), pred n a → ∃ m v x, pred m v ∧ n = m + 1 ∧ a ≍ v.push x) (n : Nat)
+  (a✝ : Vector α n) : pred n a✝ → dependentTest n a✝
+-/
+#guard_msgs in
+#check dependentTest.coinduct

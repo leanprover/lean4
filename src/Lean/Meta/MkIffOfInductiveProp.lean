@@ -329,7 +329,7 @@ private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) : M
   /- we use these names for our universe parameters, maybe we should construct a copy of them
   using `uniq_name` -/
 
-  let (thmTy, shape, existential) ← Meta.forallTelescope type fun fvars ty ↦ do
+  let (thmTy, shape, existential) ← Meta.forallTelescopeReducing type fun fvars ty ↦ do
     if !ty.isProp then throwError "mk_iff only applies to prop-valued declarations"
     let lhs := mkAppN (mkConst inductVal.name univs) fvars
     let fvars' := fvars.toList

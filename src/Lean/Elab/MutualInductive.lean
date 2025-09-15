@@ -1214,14 +1214,13 @@ private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res 
       unless isCoinductive do
         Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
 
-def InductiveViewToCoinductiveElab (e : InductiveElabStep1) : CoinductiveElabData :=
-  {
-    declName := e.view.declName
-    ref := e.view.ref
-    modifiers := e.view.modifiers
-    ctorSyntax := e.view.ctors.map (·.ref)
-    isGreatest := e.isCoinductive
-  }
+def InductiveViewToCoinductiveElab (e : InductiveElabStep1) : CoinductiveElabData where
+  declName := e.view.declName
+  ref := e.view.ref
+  modifiers := e.view.modifiers
+  ctorSyntax := e.view.ctors.map (·.ref)
+  isGreatest := e.isCoinductive
+
 
 def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Unit := do
   let (elabs, res, isCoinductive) ← runTermElabM fun vars => do

@@ -103,3 +103,7 @@ end
 coinductive my_nat  where
   | zero : my_nat
   | succ : my_nat → my_nat
+
+def Set := Nat → Prop
+
+coinductive Foo : Set where

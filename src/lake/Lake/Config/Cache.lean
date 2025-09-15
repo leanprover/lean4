@@ -318,11 +318,11 @@ public def artifactUrl (contentHash : Hash) (scope : String) (service : CacheSer
   if let some apiEndpoint := service.apiEndpoint? then
     s!"{apiEndpoint}/packages/{scope}/artifacts/{contentHash.hex}.art"
   else
-    let scope := "/".intercalate <| scope.split (· == '/') |>.map uriEncode
     s!"{service.artifactEndpoint}/{scope}/{contentHash.hex}.art"
 
 public def downloadArtifact
-  (cache : Cache) (descr : ArtifactDescr) (scope : String) (service : CacheService) (force := false)
+  (descr : ArtifactDescr) (cache : Cache) (scope : String)
+  (service : CacheService) (force := false)
 : LoggerIO Unit := do
   let url := service.artifactUrl descr.hash scope
   let path := cache.artifactDir / descr.toFilePath
@@ -340,16 +340,25 @@ public def downloadArtifact
     failure
 
 public def downloadArtifacts
-  (cache : Cache) (descrs : Array ArtifactDescr) (scope : String) (service : CacheService) (force := false)
+   (descrs : Array ArtifactDescr) (cache : Cache) (scope : String)
+   (service : CacheService) (force := false)
 : LoggerIO Unit := do
   let ok ← descrs.foldlM (init := true) fun ok descr =>
     try
-      downloadArtifact cache descr scope service force
+      service.downloadArtifact descr cache scope force
       return ok
     catch _ =>
       return false
   unless ok do
     error s!"{scope}: failed to download some artifacts"
+
+public def downloadOutputArtifacts
+  (map : CacheMap) (cache : Cache) (remoteScope localScope : String)
+  (service : CacheService) (force := false)
+: LoggerIO Unit := do
+  cache.writeMap localScope map
+  let descrs ← map.collectOutputDescrs
+  service.downloadArtifacts descrs cache remoteScope force
 
 public def uploadArtifact
   (contentHash : Hash) (art : FilePath) (scope : String) (service : CacheService)
@@ -375,14 +384,16 @@ public def revisionUrl (rev : String) (scope : String) (service : CacheService) 
   else
     s!"{service.revisionEndpoint}/{scope}/{rev}.jsonl"
 
-public def downloadRevisionOutputs
-  (rev : String) (path : FilePath) (scope : String) (service : CacheService) (force := false)
-: LoggerIO CacheMap := do
+public def downloadRevisionOutputs?
+  (rev : String) (cache : Cache) (scope : String)
+  (service : CacheService) (force := false)
+: LoggerIO (Option CacheMap) := do
+  let path := cache.revisionPath rev scope
   if (← path.pathExists) && !force then
     return ← CacheMap.load path
   let url := service.revisionUrl rev scope
   logInfo s!"\
-    {scope}: downloading outputs for {rev}\
+    {scope}: downloading build outputs for revision {rev}\
     \n  local path: {path}\
     \n  remote URL: {url}"
   let headers := if service.apiEndpoint?.isSome then Reservoir.lakeHeaders else {}
@@ -390,7 +401,7 @@ public def downloadRevisionOutputs
     logError s!"{scope}: output lookup failed"
     throw e
   let some contents := contents?
-    | error s!"{scope}: outputs not found for revision {rev}"
+    | return none
   createParentDirs path
   IO.FS.writeFile path contents
   CacheMap.load path
@@ -400,7 +411,7 @@ public def uploadRevisionOutputs
 : LoggerIO Unit := do
   let url := service.revisionUrl rev scope
   logInfo s!"\
-    {scope}: uploading outputs for {rev}\
+    {scope}: uploading build outputs for revision {rev}\
     \n  local path: {outputs}\
     \n  remote URL: {url}"
   uploadS3 outputs mapContentType url service.key

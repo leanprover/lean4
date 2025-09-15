@@ -326,7 +326,7 @@ def helpCacheGet :=
 "Download artifacts from a remote service into the Lake cache
 
 USAGE:
-  lake cache get [<mappings>] [--scope=<remote-scope>]
+  lake cache get [<mappings>] [--scope=<remote-scope>] [--max-revs=<n>]
 
 Downloads artifacts for packages in the workspace from a remote cache service.
 The cache service used can be configured via the environment variables:
@@ -341,7 +341,13 @@ download artifacts for the root package. Otherwise, it will download artifacts
 for each package in the root's dependency tree in order (using Reservoir).
 Non-Reservoir dependencies will be skipped.
 
-Lake will continue downloading further files if a download for an artifact
+To determine the artifacts to download, Lake uses the package's Git revision
+(commit hash) to lookup its input-to-outputs mappings on the cache service.
+Lake will download the artifacts for the most recent commit with available
+mappings. It will backtrack up to `--max-revs`, which defaults to 100.
+If set to 0, Lake will search the repository's whole history.
+
+While downloading, Lake will continue on when a download for an artifact
 fails or if the download process for a whole package fails. However, it will
 report this and exit with a nonzero status code in such cases."
 

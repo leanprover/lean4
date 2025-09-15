@@ -2838,6 +2838,102 @@ theorem foldr_rel {l : List α} {f : α → β → β} {g : α → γ → γ} {a
     · simp
     · exact ih h fun a m c c' h => h' _ (by simp_all) _ _ h
 
+/-- If a predicate remains true at each step of a fold,
+and it is true at the beginning, then it is true at the end. -/
+theorem foldr_induction {xs : List α} {f : α → δ → δ} {init : δ} (p : δ → Prop)
+    (w : ∀ (a : α) (_ : a ∈ xs) (r : δ), p r → p (f a r))
+    (h : p init) : p (xs.foldr f init) := by
+  induction xs with
+  | nil => simp_all
+  | cons x xs ih =>
+    rw [foldr_cons]
+    exact w x mem_cons_self (foldr f init xs) (ih fun a m r => w a (mem_cons_of_mem x m) r)
+
+/-- If a predicate has the same value at each step of a fold,
+then it has the same value at the beginning and end. -/
+theorem foldr_iff {xs : List α} {f : α → δ → δ} {init : δ} (p : δ → Prop)
+    (w : ∀ (a : α) (_ : a ∈ xs) (r : δ), p (f a r) ↔ p r) :
+    p (xs.foldr f init) ↔ p init := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    rw [foldr_cons, w _ (mem_cons_self), ih]
+    intro a m r
+    exact w a (mem_cons_of_mem x m) r
+
+/--
+If a predicate remains true at each step of a fold,
+and there is some step of the fold at which it becomes true,
+then the predicate is true at the end.
+-/
+theorem foldr_of_exists {xs : List α} {f : α → δ → δ} {init : δ} (p : δ → Prop)
+    (w : ∀ (a : α) (_ : a ∈ xs) (r : δ), p r → p (f a r))
+    (h : ∃ (a : α) (_ : a ∈ xs), ∀ (r : δ), p (f a r)) :
+    p (xs.foldr f init) := by
+  induction xs with
+  | nil => simp at h
+  | cons x xs ih =>
+    simp only [foldr_cons]
+    obtain ⟨a, h₁, h₂⟩ := h
+    simp only [mem_cons] at h₁
+    rcases h₁ with (rfl | h₁)
+    · apply h₂
+    · apply w
+      simp only [mem_cons, true_or]
+      apply ih
+      · intro a m r
+        exact w a (mem_cons_of_mem x m) r
+      · exact ⟨a, h₁, h₂⟩
+
+/-- If a predicate remains true at each step of a fold,
+and it is true at the beginning, then it is true at the end. -/
+theorem foldl_induction {xs : List α} {f : δ → α → δ} {init : δ} (p : δ → Prop)
+    (w : ∀ (a : α) (_ : a ∈ xs) (r : δ), p r → p (f r a))
+    (h : p init) : p (xs.foldl f init) := by
+  induction xs generalizing init with
+  | nil => simp_all
+  | cons x xs ih =>
+    rw [foldl_cons]
+    exact ih (fun a m r => w a (mem_cons_of_mem x m) r) (w x mem_cons_self init h)
+
+/-- If a predicate has the same value at each step of a fold,
+then it has the same value at the beginning and end. -/
+theorem foldl_iff {xs : List α} {f : δ → α → δ} {init : δ} (p : δ → Prop)
+    (w : ∀ (a : α) (_ : a ∈ xs) (r : δ), p (f r a) ↔ p r) :
+    p (xs.foldl f init) ↔ p init := by
+  induction xs generalizing init with
+  | nil => simp
+  | cons x xs ih =>
+    rw [foldl_cons, ih, w]
+    · exact mem_cons_self
+    · intro a m r
+      exact w a (mem_cons_of_mem x m) r
+
+/--
+If a predicate remains true at each step of a fold,
+and there is some step of the fold at which it becomes true,
+then the predicate is true at the end.
+-/
+theorem foldl_of_exists {xs : List α} {f : δ → α → δ} {init : δ} (p : δ → Prop)
+    (w : ∀ (a : α) (_ : a ∈ xs) (r : δ), p r → p (f r a))
+    (h : ∃ (a : α) (_ : a ∈ xs), ∀ (r : δ), p (f r a)) :
+    p (xs.foldl f init) := by
+  induction xs generalizing init with
+  | nil => simp at h
+  | cons x xs ih =>
+    simp only [foldl_cons]
+    obtain ⟨b, h₁, h₂⟩ := h
+    simp only [mem_cons] at h₁
+    obtain rfl | h₁ := h₁
+    · apply foldl_induction
+      · intro a m r
+        exact w a (mem_cons_of_mem b m) r
+      · exact h₂ init
+    · apply ih
+      · intro a m r
+        exact w a (mem_cons_of_mem x m) r
+      · exact ⟨b, h₁, h₂⟩
+
 @[simp] theorem foldl_add_const {l : List α} {a b : Nat} :
     l.foldl (fun x _ => x + a) b = b + a * l.length := by
   induction l generalizing b with
@@ -3748,9 +3844,5 @@ set_option linter.deprecated false in
 @[deprecated mem_iff_getElem? (since := "2025-02-12")]
 theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a := by
   simp [getElem?_eq_some_iff, Fin.exists_iff, mem_iff_get]
-
-/-! ### Deprecations -/
-
-
 
 end List

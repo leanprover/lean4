@@ -12,13 +12,8 @@ module
 
 prelude
 
-public import Lean.Elab.DeclarationRange
-public import Lean.Meta.Tactic.Cases
-public import Lean.Elab.Term
 public import Lean.Elab.Tactic
-public import Lean.Meta.Tactic.Apply
 
-public section
 namespace Lean.Meta
 
 open Lean Meta Elab
@@ -368,7 +363,7 @@ private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) : M
     safety := .safe
   }
 
-def mkSumOfProducts (declName : Name) : MetaM Unit := do
+public def mkSumOfProducts (declName : Name) : MetaM Unit := do
     trace[Meta.MkIffOfInductiveProp] "Generating existential form of {declName}"
     let .inductInfo infos ← getConstInfo declName | throwError "Needs to be a definition"
     mkIffOfInductivePropImpl infos (declName ++ `existential_equiv)

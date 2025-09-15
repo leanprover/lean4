@@ -8,9 +8,7 @@ module
 
 prelude
 
-public import Lean.Elab.Term
 public import Lean.Elab.PreDefinition.PartialFixpoint
-public section
 namespace Lean.Elab.Command
 open Lean Meta Elab
 
@@ -84,7 +82,7 @@ builtin_initialize
 
 /-- This structure contains the data carried in `InductiveElabStep1` that are solely used in
 mutual coinductive predicate elaboration. -/
-structure CoinductiveElabData where
+public structure CoinductiveElabData where
   /-- Declaration name of the predicate-/
   declName : Name
   /-- Ref from the original `InductiveView`-/
@@ -255,7 +253,7 @@ private def generateCoinductiveConstructors (numParams : Nat) (infos : Array Ind
   Finally, we generate constructors for each of the predicates, that correspond to the constructors
   that were given by the user.
 -/
-def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : TermElabM Unit := do
+public def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : TermElabM Unit := do
   trace[Elab.coinductive] "Elaborating: {coinductiveElabData.map (·.declName)}"
   let infos ← coinductiveElabData.mapM (getConstInfoInduct ·.declName)
   let levelParams := infos[0]!.levelParams.map mkLevelParam

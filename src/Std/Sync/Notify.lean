@@ -106,13 +106,13 @@ def notifyOne (x : Notify) : BaseIO Bool := do
 Wait to be notified. Returns a task that completes when notify is called.
 Note: if notify was called before wait, this will wait for the next notify call.
 -/
-def wait (x : Notify) : Async Unit :=
+def wait (x : Notify) : IO (AsyncTask Unit) :=
   x.state.atomically do
     let promise ← IO.Promise.new
     modify fun st => { st with consumers := st.consumers.enqueue (.normal promise) }
-    match ← await promise.result? with
-    | some res => pure res
-    | none => throw (IO.userError "notify dropped")
+    IO.bindTask promise.result? fun
+      | some res => pure <| Task.pure (.ok res)
+      | none => throw (IO.userError "notify dropped")
 
 /--
 Creates a selector that waits for notifications

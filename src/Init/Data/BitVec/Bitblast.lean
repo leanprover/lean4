@@ -2564,32 +2564,51 @@ def addVecAux (usedNodes validNodes : Nat)
         ⟩
 
 
-
-
-/-- Tail-recursive definition of parrallel sum prefix. At each iteration, we construct a new vector containing the results of summing each couple of elements in the initial vector. -/
-def parPrefixSum
-      (validNodes : Nat) (parSum : BitVec (validNodes * w))
-      (hin : 0 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) :
-      BitVec w :=
-  if hlt : 1 < validNodes then
-    let initAcc := 0#0
-    have hcastZero : 0 = 0 / 2 * w := by omega
-    let ⟨res, proof⟩ := addVecAux 0 validNodes (by omega) parSum (hcastZero▸initAcc)
-                        (by intros i hi j hj; simp [initAcc, show i = 0 by omega]; omega) (by omega) (by omega) (by omega)
-    parPrefixSum ((validNodes+1)/2) res hin (by omega) (by omega)
-  else
-    have hcast : validNodes * w = w := by
-      simp [show validNodes = 1 by omega]
-    BitVec.cast hcast parSum
-
-
-
 /-- Recursively add `len`-long portions of the bitvector -/
 def foldAdd (x r : BitVec (validNodes * w)) (n : Nat) : BitVec (validNodes * w) :=
   if h : n < w then
     foldAdd x (r + (x.extractLsb' n w).zeroExtend (validNodes * w)) (n + 1)
   else
     r
+
+
+/-- Tail-recursive definition of parrallel sum prefix. At each iteration, we construct a new vector containing the results of summing each couple of elements in the initial vector. -/
+def parPrefixSum
+      (validNodes k : Nat) (parSum : BitVec (validNodes * w))
+      (hin : 0 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes)
+      (hacc : k = foldAdd parSum 0#(validNodes * w) 0)
+      :
+      {
+        l : BitVec w //
+        l.toNat = k
+      } :=
+  if hlt : 1 < validNodes then
+    let initAcc := 0#0
+    have hcastZero : 0 = 0 / 2 * w := by omega
+    let ⟨res, proof⟩ := addVecAux 0 validNodes (by omega) parSum (hcastZero▸initAcc)
+                        (by intros i hi j hj; simp [initAcc, show i = 0 by omega]; omega) (by omega) (by omega) (by omega)
+    ⟨parPrefixSum ((validNodes+1)/2) k res hin (by omega) (by omega)
+    (by
+      simp
+      unfold foldAdd
+      induction validNodes
+      · omega
+      · case succ val ihval =>
+        simp [hin]
+
+
+        sorry), by
+
+      sorry⟩
+  else
+    have hcast : validNodes * w = w := by
+      simp [show validNodes = 1 by omega]
+    ⟨BitVec.cast hcast parSum, by
+      sorry⟩
+
+
+
+-- theorem addVecAux_eq_foldAdd
 
 -- theorem exists_of_parPrefixSum (validNodes : Nat)
 --     (hin : 1 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes)

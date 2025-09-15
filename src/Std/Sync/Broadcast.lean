@@ -342,6 +342,7 @@ private def unsubscribe (bd : Bounded.Receiver α) : IO Unit := do
   match id with
   | .error res => throw (.userError (toString res))
   | .ok _ => pure ()
+
 private def tryRecv'
     [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m]
     (receiverId : Nat) : AtomicT (Bounded.State α) m (Option α) := do
@@ -574,18 +575,6 @@ instance [Inhabited α] : AsyncWrite (Broadcast α) α where
   write receiver x := do
     let task ← receiver.send x
     discard <| Async.ofTask <| task
-
-instance [Inhabited α] : AsyncStream (Broadcast.Receiver α) α where
-  next channel := channel.recvSelector
-  stop channel := channel.unsubscribe
-
-instance [Inhabited α] : AsyncRead (Broadcast.Receiver α) (Option α) where
-  read receiver := Internal.IO.Async.Async.ofIOTask receiver.recv
-
-instance [Inhabited α] : AsyncWrite (Broadcast α) α where
-  write receiver x := do
-    let task ← receiver.send x
-    discard <| Async.ofETask <| task
 
 end Receiver
 

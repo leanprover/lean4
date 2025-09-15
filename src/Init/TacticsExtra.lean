@@ -19,7 +19,7 @@ namespace Lean.Parser.Tactic
 private def expandIfThenElse
     (ifTk thenTk elseTk pos neg : Syntax)
     (mkIf : Term → Term → MacroM Term) : MacroM (TSyntax `tactic) := do
-  let mkCase tk holeOrTacticSeq mkName : MacroM (Term × Array (TSyntax `tactic)) := withRef tk do
+  let mkCase tk holeOrTacticSeq mkName : MacroM (Term × Array (TSyntax `tactic)) := do
     if holeOrTacticSeq.isOfKind `Lean.Parser.Term.syntheticHole then
       pure (⟨holeOrTacticSeq⟩, #[])
     else if holeOrTacticSeq.isOfKind `Lean.Parser.Term.hole then
@@ -34,7 +34,7 @@ private def expandIfThenElse
       let tacticSeq : TSyntax `Lean.Parser.Tactic.tacticSeq ← MonadRef.withRef .missing `(tacticSeq|
         with_annotate_state $tk skip
         ($tacticSeq))
-      let case ← `(tactic| case $holeId:ident =>%$tk $tacticSeq:tacticSeq)
+      let case ← withRef tk <| `(tactic| case $holeId:ident =>%$tk $tacticSeq:tacticSeq)
       pure (hole, #[case])
   let (posHole, posCase) ← mkCase thenTk pos `(?pos)
   let (negHole, negCase) ← mkCase elseTk neg `(?neg)

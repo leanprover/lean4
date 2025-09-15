@@ -19,19 +19,22 @@ namespace Lean.Parser.Tactic
 private def expandIfThenElse
     (ifTk thenTk elseTk pos neg : Syntax)
     (mkIf : Term → Term → MacroM Term) : MacroM (TSyntax `tactic) := do
-  let mkCase tk holeOrTacticSeq mkName : MacroM (Term × Array (TSyntax `tactic)) := do
+  let mkCase tk holeOrTacticSeq mkName : MacroM (Term × Array (TSyntax `tactic)) := withRef tk do
     if holeOrTacticSeq.isOfKind `Lean.Parser.Term.syntheticHole then
       pure (⟨holeOrTacticSeq⟩, #[])
     else if holeOrTacticSeq.isOfKind `Lean.Parser.Term.hole then
       pure (← mkName, #[])
+    else if tk.isMissing then
+      pure (← `(sorry), #[])
     else
       let hole ← withFreshMacroScope mkName
-      let holeId := hole.raw[1]
-      let case ← (open TSyntax.Compat in `(tactic|
-          case $holeId:ident =>%$tk
-            -- annotate `then/else` with state after `case`
-            with_annotate_state $tk skip
-            $holeOrTacticSeq))
+      let holeId : Ident := ⟨hole.raw[1]⟩
+      let tacticSeq : TSyntax `Lean.Parser.Tactic.tacticSeq := ⟨holeOrTacticSeq⟩
+      -- Use `missing` for ref to ensure that the source range is the same as `holeOrTacticSeq`'s.
+      let tacticSeq : TSyntax `Lean.Parser.Tactic.tacticSeq ← MonadRef.withRef .missing `(tacticSeq|
+        with_annotate_state $tk skip
+        ($tacticSeq))
+      let case ← `(tactic| case $holeId:ident =>%$tk $tacticSeq:tacticSeq)
       pure (hole, #[case])
   let (posHole, posCase) ← mkCase thenTk pos `(?pos)
   let (negHole, negCase) ← mkCase elseTk neg `(?neg)

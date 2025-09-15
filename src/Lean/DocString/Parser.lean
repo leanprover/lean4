@@ -313,6 +313,9 @@ private def orderedListIndicator (type : OrderedListType) : ParserFn :=
 private def blankLine : ParserFn :=
   nodeFn `blankLine <| atomicFn <| asStringFn <| takeWhileFn (· == ' ') >> nl
 
+private def endLine : ParserFn :=
+  ignoreFn <| atomicFn <| asStringFn <| takeWhileFn (· == ' ') >> eoiFn
+
 private def bullet := atomicFn (go UnorderedListType.all)
 where
   go
@@ -902,6 +905,8 @@ private def recoverUnindent (indent : Nat) (p : ParserFn) (finish : ParserFn := 
     ParserFn :=
   recoverFn p (fun _ => ignoreFn (skipUntilDedent indent) >> finish)
 
+private def blockSep := ignoreFn (manyFn blankLine >> optionalFn endLine)
+
 mutual
   /-- Parses a list item according to the current nesting context. -/
   public partial def listItem (ctxt : BlockCtxt) : ParserFn :=
@@ -1153,12 +1158,12 @@ mutual
   /--
   Parses zero or more blocks.
   -/
-  public partial def blocks (c : BlockCtxt) : ParserFn := sepByFn true (block c) (ignoreFn (manyFn blankLine))
+  public partial def blocks (c : BlockCtxt) : ParserFn := sepByFn true (block c) blockSep
 
   /--
   Parses one or more blocks.
   -/
-  public partial def blocks1 (c : BlockCtxt) : ParserFn := sepBy1Fn true (block c) (ignoreFn (manyFn blankLine))
+  public partial def blocks1 (c : BlockCtxt) : ParserFn := sepBy1Fn true (block c) blockSep
 
   /--
   Parses some number of blank lines followed by zero or more blocks.

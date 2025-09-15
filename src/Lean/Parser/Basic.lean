@@ -1229,7 +1229,8 @@ def unicodeSymbolInfo (sym asciiSym : String) : ParserInfo := {
 def unicodeSymbolFn (sym asciiSym : String) : ParserFn :=
   unicodeSymbolFnAux sym asciiSym ["'" ++ sym ++ "', '" ++ asciiSym ++ "'"]
 
-def unicodeSymbolNoAntiquot (sym asciiSym : String) : Parser :=
+set_option linter.unusedVariables false in
+def unicodeSymbolNoAntiquot (sym asciiSym : String) (preserveForPP : Bool) : Parser :=
   let sym := sym.trim
   let asciiSym := asciiSym.trim
   { info := unicodeSymbolInfo sym asciiSym
@@ -1786,8 +1787,19 @@ instance : Coe String Parser where
 def nonReservedSymbol (sym : String) (includeIdent := false) : Parser :=
   tokenWithAntiquot (nonReservedSymbolNoAntiquot sym includeIdent)
 
-def unicodeSymbol (sym asciiSym : String) : Parser :=
-  tokenWithAntiquot (unicodeSymbolNoAntiquot sym asciiSym)
+/--
+`unicodeSymbol sym asciiSym` parses either `sym` or `asciiSym` as a reserved symbol.
+The `asciiSym` argument should be an ASCII alternative for `sym`.
+
+- If the `pp.unicode` option is false, then pretty prints using `asciiSym`.
+- If the `pp.unicode` option is true, then pretty prints as `sym`,
+  unless the `preserveForPP` argument is true, in which case the underlying atom
+  is used to decide whether to print using the unicode or ASCII form.
+  We take the ASCII form to be the preferred form in this case.
+  For example, `pp.unicode.fun` causes the delaborator to use `↦` instead of `=>` for the `fun` arrow.
+-/
+def unicodeSymbol (sym asciiSym : String) (preserveForPP : Bool := false) : Parser :=
+  tokenWithAntiquot (unicodeSymbolNoAntiquot sym asciiSym preserveForPP)
 
 /--
   Define parser for `$e` (if `anonymous == true`) and `$e:name`.

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Ring.OfSemiring
+public import Init.Grind.Ring.CommSemiringAdapter
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
@@ -15,7 +15,7 @@ namespace Lean.Meta.Grind.Arith.CommRing
 Helper functions for converting reified terms back into their denotations.
 -/
 
-variable [Monad M] [MonadError M] [MonadLiftT MetaM M] [MonadRing M]
+variable [Monad M] [MonadError M] [MonadLiftT MetaM M] [MonadCanon M] [MonadRing M]
 
 def denoteNum (k : Int) : M Expr := do
   let ring ← getRing

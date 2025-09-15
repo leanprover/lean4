@@ -394,7 +394,7 @@ theorem containsThenInsert_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
 
 theorem containsThenInsert!_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsert! k v).1 = t.contains k := by
-  rw [containsThenInsert!_fst_eq_containsThenInsert_fst, containsThenInsert_fst h]
+  rw [containsThenInsert!_fst_eq_containsThenInsert_fst _ h.balanced, containsThenInsert_fst h]
 
 theorem containsThenInsert_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsert k v h.balanced).2.impl = (t.insert k v h.balanced).impl := by
@@ -411,7 +411,7 @@ theorem containsThenInsertIfNew_fst [TransOrd α] (h : t.WF) {k : α} {v : β k}
 
 theorem containsThenInsertIfNew!_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsertIfNew! k v).1 = t.contains k := by
-  rw [containsThenInsertIfNew!_fst_eq_containsThenInsertIfNew_fst, containsThenInsertIfNew_fst h]
+  rw [containsThenInsertIfNew!_fst_eq_containsThenInsertIfNew_fst _ h.balanced, containsThenInsertIfNew_fst h]
 
 theorem containsThenInsertIfNew_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsertIfNew k v h.balanced).2.impl = (t.insertIfNew k v h.balanced).impl := by

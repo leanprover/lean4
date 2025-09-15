@@ -1277,7 +1277,9 @@ theorem forall_mem_map {f : α → β} {xs : Array α} {P : β → Prop} :
   cases xs
   simp
 
-@[grind →]
+-- This would be helpful as a `grind` lemma if
+-- we could have it fire only once `map f l` and `#[]` are the same equivalence class.
+-- Otherwise it is too aggressive.
 theorem eq_empty_of_map_eq_empty {f : α → β} {xs : Array α} (h : map f xs = #[]) : xs = #[] :=
   map_eq_empty_iff.mp h
 
@@ -1478,7 +1480,7 @@ theorem forall_mem_filter {p : α → Bool} {xs : Array α} {P : α → Prop} :
 
 theorem getElem?_filter {xs : Array α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).size)
     (w : (xs.filter p)[i]? = some a) : p a := by
-  rw [getElem?_eq_getElem] at w
+  rw [getElem?_eq_getElem h] at w
   simp only [Option.some.injEq] at w
   rw [← w]
   apply getElem_filter h
@@ -4470,10 +4472,10 @@ theorem back!_eq_back? [Inhabited α] {xs : Array α} : xs.back! = xs.back?.getD
 
 theorem getElem?_push_lt {xs : Array α} {x : α} {i : Nat} (h : i < xs.size) :
     (xs.push x)[i]? = some xs[i] := by
-  rw [getElem?_pos, getElem_push_lt]
+  rw [getElem?_pos (xs.push x) i (size_push _ ▸ Nat.lt_succ_of_lt h), getElem_push_lt]
 
 theorem getElem?_push_eq {xs : Array α} {x : α} : (xs.push x)[xs.size]? = some x := by
-  rw [getElem?_pos, getElem_push_eq]
+  rw [getElem?_pos (xs.push x) xs.size (size_push _ ▸ Nat.lt_succ_self xs.size), getElem_push_eq]
 
 @[simp] theorem getElem?_size {xs : Array α} : xs[xs.size]? = none := by
   simp only [getElem?_def, Nat.lt_irrefl, dite_false]

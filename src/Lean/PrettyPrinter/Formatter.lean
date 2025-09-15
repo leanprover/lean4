@@ -12,6 +12,7 @@ public import Lean.Parser.StrInterpolation
 public import Lean.KeyedDeclsAttribute
 public import Lean.ParserCompiler.Attribute
 public import Lean.PrettyPrinter.Basic
+public import Lean.PrettyPrinter.Delaborator.Options
 
 public section
 
@@ -437,11 +438,11 @@ def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit
 @[combinator_formatter symbolNoAntiquot, expose]
 def symbolNoAntiquot.formatter (sym : String) : Formatter := do
   let stx ← getCur
-  if stx.isToken sym then do
-    let (Syntax.atom info _) ← pure stx | unreachable!
-    withMaybeTag (getExprPos? stx) (pushToken info sym false)
+  if stx.isToken sym then
+    let (Syntax.atom info _) := stx | unreachable!
+    withMaybeTag (getExprPos? stx) <| pushToken info sym false
     goLeft
-  else do
+  else
     trace[PrettyPrinter.format.backtrack] "unexpected syntax '{format stx}', expected symbol '{sym}'"
     throwBacktrack
 
@@ -453,14 +454,21 @@ def symbolNoAntiquot.formatter (sym : String) : Formatter := do
   symbolNoAntiquot.formatter ch.toString
 
 @[combinator_formatter unicodeSymbolNoAntiquot, expose]
-def unicodeSymbolNoAntiquot.formatter (sym asciiSym : String) : Formatter := do
-  let Syntax.atom info val ← getCur
-    | throwError m!"not an atom: {← getCur}"
-  if val == sym.trim then
-    pushToken info sym false
+def unicodeSymbolNoAntiquot.formatter (sym asciiSym : String) (preserveForPP : Bool) : Formatter := do
+  let stx ← getCur
+  let usesUnicode := stx.isToken sym
+  let usesAscii := stx.isToken asciiSym
+  if usesUnicode || usesAscii then
+    let (Syntax.atom info _) := stx | unreachable!
+    -- Use unicode version if pp.unicode is enabled and either preserveForPP is false or the syntax contains the unicode version
+    if getPPUnicode (← getOptions) && (!preserveForPP || usesUnicode) then
+      withMaybeTag (getExprPos? stx) <| pushToken info sym false
+    else
+      withMaybeTag (getExprPos? stx) <| pushToken info asciiSym false
+    goLeft
   else
-    pushToken info asciiSym false
-  goLeft
+    trace[PrettyPrinter.format.backtrack] "unexpected syntax '{format stx}', expected symbol '{sym}' or '{asciiSym}'"
+    throwBacktrack
 
 @[combinator_formatter identNoAntiquot, expose]
 def identNoAntiquot.formatter : Formatter := do

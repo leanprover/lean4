@@ -173,11 +173,11 @@ private partial def inlineMarkdown [MarkdownInline i] : Inline i → MarkdownM U
     unless (← read).inEmph do
       push "*"
   | .bold xs => do
-    unless (← read).inEmph do
+    unless (← read).inBold do
       push "**"
     withReader (fun ρ => { ρ with inEmph := true }) do
       for i in xs do inlineMarkdown i
-    unless (← read).inEmph do
+    unless (← read).inBold do
       push "**"
   | .concat xs =>
     for i in xs do inlineMarkdown i

@@ -175,7 +175,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
           refine ⟨⟨j.1, j_lt_updatedUnits_size⟩, mostRecentUnitIdx, i_gt_zero, ?_⟩
           simp only [insertUnit, h5, ite_false, reduceCtorEq]
           constructor
-          · rw [Array.getElem_push_lt, h1]
+          · rw [Array.getElem_push_lt j.2, h1]
           · constructor
             · simp +zetaDelta [i_eq_l, ← hl]
               rfl
@@ -215,7 +215,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
           · simp +zetaDelta [i_eq_l, ← hl]
             rfl
           · constructor
-            · rw [Array.getElem_push_lt, h1]
+            · rw [Array.getElem_push_lt j.2, h1]
             · constructor
               · simp only [i_eq_l]
                 rw [Array.getElem_modify_self]
@@ -258,7 +258,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
         refine ⟨⟨j.1, j_lt_updatedUnits_size⟩, b,i_gt_zero, ?_⟩
         simp only [insertUnit, h5, ite_false, reduceCtorEq]
         constructor
-        · rw [Array.getElem_push_lt, h1]
+        · rw [Array.getElem_push_lt j.2, h1]
         · constructor
           · grind
           · constructor

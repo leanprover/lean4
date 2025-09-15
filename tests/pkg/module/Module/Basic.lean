@@ -1,5 +1,7 @@
 module
 
+meta import Init.Dynamic
+
 public axiom testSorry : α
 
 /-! Module docstring -/
@@ -361,3 +363,14 @@ Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
 #guard_msgs in
 #print OptParamStruct.auto._autoParam
 end
+
+/-! `deriving` should derive `meta` defs on `meta` structures. -/
+meta structure Foo where
+deriving TypeName
+
+/--
+info: private meta def instTypeNameFoo : TypeName Foo :=
+inst✝
+-/
+#guard_msgs in
+#print instTypeNameFoo

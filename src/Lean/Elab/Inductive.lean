@@ -29,6 +29,8 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
   let (binders, type?) := expandOptDeclSig decl[2]
   let declId           := decl[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
+  if modifiers.isMeta then
+    modifyEnv (addMeta · declName)
   addDeclarationRangesForBuiltin declName modifiers.stx decl
   let ctors      ← decl[4].getArgs.mapM fun ctor => withRef ctor do
     /-

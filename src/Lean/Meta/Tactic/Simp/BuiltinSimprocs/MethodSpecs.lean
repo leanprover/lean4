@@ -24,11 +24,13 @@ def reduceMethod (opName : String) (e : Expr) : SimpM Simp.Step := do
   unless inst.getAppFn.isConst do return .continue
   let some _ ← isConstructorApp? lhs | return .continue
   let some _ ← isConstructorApp? rhs | return .continue
-  let some thm ← getMethodSpecTheorem inst.getAppFn.constName! opName | return .continue
-  let simpThms ← mkSimpTheoremFromConst thm
-  assert! simpThms.size = 1
-  let some r ← Simp.tryTheorem? e simpThms[0]! | return .continue
-  return .visit r
+  let some thms ← getMethodSpecTheorems inst.getAppFn.constName! opName | return .continue
+  for thm in thms do
+    let simpThms ← mkSimpTheoremFromConst thm
+    assert! simpThms.size = 1
+    if let some r ← Simp.tryTheorem? e simpThms[0]! then
+      return .visit r
+  return .continue
 
 public section
 

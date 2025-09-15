@@ -181,13 +181,13 @@ public partial def getMethodSpecTheorem (instName : Name) (op : String) : MetaM 
   realizeGlobalConstNoOverloadCore (instName.str s!"{op}_spec")
 
 public partial def getMethodSpecTheorems (instName : Name) (op : String) : MetaM (Option (Array Name)) := do
-  let env ← getEnv
-  let some _ := methodSpecsAttr.getParam? env instName | return none
+  let some _ := methodSpecsAttr.getParam? (← getEnv) instName | return none
   -- Realize spec theorems
   let _ ← realizeGlobalConstNoOverloadCore (instName.str s!"{op}_spec")
   -- Now collect the generated ones
   let mut i := 0
   let mut thms := #[]
+  let env ← getEnv
   while true do
     let thmName := instName.str s!"{op}_spec_{i+1}"
     if env.containsOnBranch thmName then

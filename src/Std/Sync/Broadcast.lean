@@ -333,18 +333,24 @@ private def unsubscribe (bd : Bounded.Receiver α) : IO Unit := do
     let st ← get
 
     let some next := st.receivers.get? bd.id
-      | return Except.error Broadcast.Error.noSubscribers
+      | return Except.error Broadcast.Error.notSubscribed
 
-    discard <| getValueByPosition next
+    let mut currentSt := st
+    let mut currentNext := next
 
-    set { st with receivers := st.receivers.erase bd.id }
+    while currentNext < currentSt.pos ∧ currentSt.size > 0 do
+      let some _val ← getValueByPosition currentNext | break
+
+      currentSt ← get
+      currentNext := currentNext + 1
+
+    set { currentSt with receivers := currentSt.receivers.erase bd.id }
 
     pure <| .ok ()
 
   match id with
   | .error res => throw (.userError (toString res))
   | .ok _ => pure ()
-
 private def tryRecv'
   [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m]
   (receiverId : Nat) : AtomicT (Bounded.State α) m (Option α) := do
@@ -352,21 +358,24 @@ private def tryRecv'
     let next := st.receivers.get! receiverId
 
     if let some val ← getValueByPosition next then
-      set { st with receivers := st.receivers.modify receiverId (· + 1) }
+      modify ({ · with receivers := st.receivers.modify receiverId (· + 1) })
       return some val
     else
       return none
 
 private def tryRecv (ch : Bounded.Receiver α) : BaseIO (Option α) :=
   ch.state.atomically do
+    if (← get).closed ∨ ¬(← get).receivers.contains ch.id then
+      return none
+
     tryRecv' ch.id
 
 private partial def recv (ch : Bounded.Receiver α) : BaseIO (Task (Option α)) := do
   ch.state.atomically do
-    if let some val ← tryRecv' ch.id then
+    if (← get).closed ∨ ¬(← get).receivers.contains ch.id then
+      return .pure none
+    else if let some val ← tryRecv' ch.id then
       return .pure <| some val
-    else if (← get).closed then
-      return .pure <| none
     else
       let promise ← IO.Promise.new
       modify fun st => { st with waiters := st.waiters.enqueue ⟨promise, none⟩ }
@@ -498,6 +507,13 @@ def subscribe (ch : Broadcast α) : IO (Broadcast.Receiver α) := do
   Broadcast.Receiver.mk <$> ch.inner.subscribe
 
 /--
+Closes a `Broadcast` channel.
+-/
+@[inline]
+def close (ch : Broadcast α) : IO Unit := do
+  ch.inner.close
+
+/--
 Send a value through the broadcast channel, returning a task that will resolve once the transmission
 could be completed.
 -/
@@ -522,11 +538,8 @@ def tryRecv (ch : Broadcast.Receiver α) : BaseIO (Option α) :=
 Receive a value from the broadcast receiver, returning a task that will resolve with
 the next available message. This will block until a message is available.
 -/
-def recv [Inhabited α] (ch : Broadcast.Receiver α) : BaseIO (Task α) := do
-  BaseIO.bindTask (sync := true) (← Std.Bounded.Receiver.recv ch.inner)
-    fun
-      | some val => return .pure val
-      | none => unreachable!
+def recv [Inhabited α] (ch : Broadcast.Receiver α) : BaseIO (Task (Option α)) := do
+  Std.Bounded.Receiver.recv ch.inner
 
 open Internal.IO.Async in
 
@@ -572,7 +585,7 @@ instance [Inhabited α] : AsyncStream (Broadcast.Receiver α) α where
   next channel := channel.recvSelector
   stop channel := channel.unsubscribe
 
-instance [Inhabited α] : AsyncRead (Broadcast.Receiver α) α where
+instance [Inhabited α] : AsyncRead (Broadcast.Receiver α) (Option α) where
   read receiver := Internal.IO.Async.Async.ofIOTask receiver.recv
 
 instance [Inhabited α] : AsyncWrite (Broadcast α) α where
@@ -625,15 +638,18 @@ def tryRecv (ch : Sync.Receiver α) : BaseIO (Option α) := Broadcast.Receiver.t
 /--
 Receive a value from the channel, blocking until the transmission could be completed.
 -/
-def recv [Inhabited α] (ch : Sync.Receiver α) : BaseIO α := do
+def recv [Inhabited α] (ch : Sync.Receiver α) : BaseIO (Option α) := do
   IO.wait (← Broadcast.Receiver.recv ch)
 
 partial def forIn [Inhabited α] [Monad m] [MonadLiftT BaseIO m]
     (ch : Sync.Receiver α) (f : α → β → m (ForInStep β)) : β → m β := fun b => do
   let a ← ch.recv
-  match ← f a b with
-  | .done b => pure b
-  | .yield b => ch.forIn f b
+  match a with
+  | none => pure b
+  | some a =>
+    match ← f a b with
+    | .done b => pure b
+    | .yield b => ch.forIn f b
 
 /-- `for msg in ch.sync do ...` receives all messages in the channel until it is closed. -/
 instance [Inhabited α] [MonadLiftT BaseIO m] : ForIn m (Sync.Receiver α) α where

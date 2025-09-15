@@ -763,9 +763,16 @@ if(PREV_STAGE)
     DEPENDS update-stage0)
 endif()
 
+if(${STAGE} GREATER 0 AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  add_custom_target(leanir ALL
+    DEPENDS leanshared
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanir
+    VERBATIM)
+endif()
+
 # use Bash version for building, use Lean version in bin/ for tests & distribution
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/leanc.sh" @ONLY)
-if(${STAGE} GREATER 0 AND EXISTS ${LEAN_SOURCE_DIR}/Leanc.lean AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+if(${STAGE} GREATER 0 AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   configure_file("${LEAN_SOURCE_DIR}/Leanc.lean" "${CMAKE_BINARY_DIR}/leanc/Leanc.lean" @ONLY)
   add_custom_target(leanc ALL
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/leanc

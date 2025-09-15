@@ -236,6 +236,10 @@ public def getArtifact? [Bind m] [MonadLiftT BaseIO m] (contentHash : Hash) (ext
 @[inline] public def getLean : m FilePath :=
   (·.lean) <$> getLeanInstall
 
+/-- Get the path of the `leanir` binary in the detected Lean installation. -/
+@[inline] public def getLeanir : m FilePath :=
+  (·.leanir) <$> getLeanInstall
+
 /-- Get the path of the `leanc` binary in the detected Lean installation. -/
 @[inline] public def getLeanc : m FilePath :=
   (·.leanc) <$> getLeanInstall

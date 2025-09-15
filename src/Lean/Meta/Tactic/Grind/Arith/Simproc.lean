@@ -147,6 +147,7 @@ builtin_simproc_decl normNatCastNum (NatCast.natCast _) := fun e => do
   let semiring := mkApp (mkConst ``Grind.Semiring us) α
   let some semiringInst ← synthInstanceMeta? semiring | return .continue
   let n ← mkNumeral α k
+  -- **Note**: TODO missing sanity check on instances
   let h := mkApp3 (mkConst ``Grind.Semiring.natCast_eq_ofNat us) α semiringInst a
   return .done { expr := n, proof? := some h }
 
@@ -157,6 +158,7 @@ builtin_simproc_decl normIntCastNum (IntCast.intCast _) := fun e => do
   let ring := mkApp (mkConst ``Grind.Ring us) α
   let some ringInst ← synthInstanceMeta? ring | return .continue
   let n ← mkNumeral α k.natAbs
+  -- **Note**: TODO missing sanity check on instances
   if k < 0 then
     let some negInst ← synthInstanceMeta? (mkApp (mkConst ``Neg us) α) | return .continue
     let n := mkApp3 (mkConst ``Neg.neg us) α negInst n

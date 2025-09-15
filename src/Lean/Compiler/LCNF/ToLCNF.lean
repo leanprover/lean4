@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.ProjFns
+public import Lean.Meta.AppBuilder
 public import Lean.Meta.CtorRecognizer
 public import Lean.Compiler.BorrowedAnnotation
 public import Lean.Compiler.CSimpAttr
@@ -787,9 +788,14 @@ where
     visit e
 
   visitProj (s : Name) (i : Nat) (e : Expr) : M Arg := do
-    match (← visit e) with
-    | .erased | .type .. => return .erased
-    | .fvar fvarId => letValueToArg <| .proj s i fvarId
+    if isRuntimeBuiltinType s then
+      let structInfo := getStructureInfo (← getEnv) s
+      let projExpr ← liftMetaM <| Meta.mkProjection e structInfo.fieldNames[i]!
+      visitApp projExpr
+    else
+      match (← visit e) with
+      | .erased | .type .. => return .erased
+      | .fvar fvarId => letValueToArg <| .proj s i fvarId
 
   visitLet (e : Expr) (xs : Array Expr) : M Arg := do
     match e with

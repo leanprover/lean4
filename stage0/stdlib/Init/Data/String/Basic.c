@@ -5559,10 +5559,10 @@ lean_object* x_18;
 x_18 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_6);
-lean_inc(x_15);
-x_3 = x_15;
-x_4 = x_15;
-x_5 = x_16;
+lean_inc(x_16);
+x_3 = x_16;
+x_4 = x_16;
+x_5 = x_15;
 x_6 = x_18;
 goto _start;
 }
@@ -5628,9 +5628,9 @@ lean_dec(x_3);
 x_41 = lean_nat_dec_le(x_23, x_40);
 if (x_41 == 0)
 {
-x_24 = x_33;
+x_24 = x_37;
 x_25 = x_38;
-x_26 = x_37;
+x_26 = x_33;
 x_27 = x_40;
 goto block_32;
 }
@@ -5638,9 +5638,9 @@ else
 {
 lean_dec(x_40);
 lean_inc(x_23);
-x_24 = x_33;
+x_24 = x_37;
 x_25 = x_38;
-x_26 = x_37;
+x_26 = x_33;
 x_27 = x_23;
 goto block_32;
 }
@@ -5651,8 +5651,8 @@ lean_object* x_42;
 lean_dec(x_38);
 lean_dec(x_3);
 x_42 = l_Substring_extract___closed__0;
-x_15 = x_33;
-x_16 = x_37;
+x_15 = x_37;
+x_16 = x_33;
 x_17 = x_42;
 goto block_20;
 }

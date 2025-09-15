@@ -337,9 +337,9 @@ def elabMutual : CommandElab := fun stx => do
   | stx@`($declModifiers:declModifiers $kw:initializeKeyword $[$id? : $type? ←]? $doSeq) => do
     let attrId := mkIdentFrom stx <| if kw.raw[0].isToken "initialize" then `init else `builtin_init
     if let (some id, some type) := (id?, type?) then
-      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(vis?)? $[unsafe%$unsafe?]?) := stx[0]
+      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(vis?)? $[meta%$meta?]? $[unsafe%$unsafe?]?) := stx[0]
         | throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
-      let defStx ← `($[$doc?:docComment]? @[$attrId:ident initFn, $(attrs?.getD ∅),*] $(vis?)? opaque $id : $type)
+      let defStx ← `($[$doc?:docComment]? @[$attrId:ident initFn, $(attrs?.getD ∅),*] $(vis?)? $[meta%$meta?]? opaque $id : $type)
       let mut fullId := (← getCurrNamespace) ++ id.getId
       if vis?.any (·.raw.isOfKind ``Parser.Command.private) then
         fullId := mkPrivateName (← getEnv) fullId
@@ -349,17 +349,17 @@ def elabMutual : CommandElab := fun stx => do
       addDeclarationRangesForBuiltin fullId ⟨defStx.raw[0]⟩ defStx.raw[1]
       let vis := Parser.Command.visibility.ofBool (!isPrivateName fullId)
       elabCommand (← `(
-        $vis:visibility $[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% $(mkIdent fullId) do $doSeq
+        $vis:visibility $[meta%$meta?]? $[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% $(mkIdent fullId) do $doSeq
         $defStx:command))
     else
-      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(_)? $[unsafe%$unsafe?]?) := declModifiers
+      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(_)? $[meta%$meta?]? $[unsafe%$unsafe?]?) := declModifiers
         | throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
       let attrs := (attrs?.map (·.getElems)).getD #[]
       let attrs := attrs.push (← `(Lean.Parser.Term.attrInstance| $attrId:ident))
       -- `[builtin_init]` can be private as it is used for local codegen only but `[init]` must be
       -- available for the interpreter.
       let vis := Parser.Command.visibility.ofBool (attrId.getId == `init)
-      elabCommand (← `($[$doc?:docComment]? @[$[$attrs],*] $vis:visibility $[unsafe%$unsafe?]? def initFn : IO Unit := do $doSeq))
+      elabCommand (← `($[$doc?:docComment]? @[$[$attrs],*] $vis:visibility $[meta%$meta?]? $[unsafe%$unsafe?]? def initFn : IO Unit := do $doSeq))
   | _ => throwUnsupportedSyntax
 
 builtin_initialize

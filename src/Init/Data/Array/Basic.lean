@@ -108,12 +108,18 @@ instance : Membership α (Array α) where
 theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
   ⟨fun | .mk h => h, Array.Mem.mk⟩
 
-@[simp, grind =] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
+@[simp, grind =] theorem _root_.List.mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
   simp [mem_def]
 
-@[simp, grind] theorem getElem_mem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] ∈ xs := by
+@[deprecated List.mem_toArray (since := "2025-09-04")]
+theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l :=
+  List.mem_toArray
+
+@[simp] theorem getElem_mem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] ∈ xs := by
   rw [Array.mem_def, ← getElem_toList]
   apply List.getElem_mem
+
+grind_pattern getElem_mem => xs[i] ∈ xs
 
 @[simp, grind =] theorem emptyWithCapacity_eq {α n} : @emptyWithCapacity α n = #[] := rfl
 

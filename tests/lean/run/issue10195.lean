@@ -61,7 +61,7 @@ error: Failed to realize constant decEqVecPlain.eq_def:
           (a : Nat) →
             (x x_1 : Vec α a) →
               x.ctorIdx = x_1.ctorIdx →
-                Vec.rec PUnit (fun a {n} a a_ih => ((x_1 : Vec α n) → Decidable (a = x_1)) ×' a_ih) x →
+                Vec.rec PUnit (fun a {n} a_1 a_ih => ((x_1 : Vec α n) → Decidable (a_1 = x_1)) ×' a_ih) x →
                   Decidable (x = x_1))
           0, Vec.nil, x_1, ⋯ with
         | .(0), Vec.nil, Vec.nil, x => fun x => isTrue ⋯
@@ -101,7 +101,7 @@ trace: [split.failure] `split` tactic failed to generalize discriminant(s) at
         (a : Nat) →
           (x x_1 : Vec α a) →
             x.ctorIdx = x_1.ctorIdx →
-              Vec.rec PUnit (fun a {n} a a_ih => ((x_1 : Vec α n) → Decidable (a = x_1)) ×' a_ih) x →
+              Vec.rec PUnit (fun a {n} a_1 a_ih => ((x_1 : Vec α n) → Decidable (a_1 = x_1)) ×' a_ih) x →
                 Decidable (x = x_1))
         0, Vec.nil, x_1, ⋯ with
       | .(0), Vec.nil, Vec.nil, x => fun x => isTrue ⋯

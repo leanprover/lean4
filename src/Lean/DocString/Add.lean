@@ -34,8 +34,9 @@ This is intended to be used before saving a docstring that is later subject to r
 `rewriteManualLinks`.
 -/
 def validateDocComment
+    [Monad m] [MonadLiftT IO m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (docstring : TSyntax `Lean.Parser.Command.docComment) :
-    TermElabM Unit := do
+    m Unit := do
   let str := docstring.getDocString
   let pos? := docstring.raw[1].getHeadInfo? >>= (·.getPos?)
 
@@ -55,6 +56,12 @@ open Parser in
 /--
 Adds a Verso docstring to the specified declaration, which should already be present in the
 environment.
+
+`binders` should be the syntax of the parameters to the constant that is being documented, as a null
+node that contains a sequence of bracketed binders. It is used to allow interactive features such as
+document highlights and “find references” to work for documented parameters. If no parameter binders
+are available, pass `Syntax.missing` or an empty null node.
+
 -/
 def versoDocString
     (declName : Name) (binders : Syntax) (docComment : TSyntax `Lean.Parser.Command.docComment) :
@@ -102,17 +109,66 @@ def versoDocString
     let stx := stx.getArgs
     Doc.elabBlocks (stx.map (⟨·⟩)) |>.exec declName binders
 
+open Lean.Doc in
+open Parser in
+/--
+Adds a Verso docstring to the specified declaration, which should already be present in the
+environment. The docstring is added from a string value, rather than syntax, which means that the
+interactive features are disabled.
+-/
+def versoDocStringFromString
+    (declName : Name) (docComment : String) :
+    TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) := do
+
+  let env ← getEnv
+  let ictx : InputContext := .mk docComment (← getFileName)
+  let text := ictx.fileMap
+  let pmctx : ParserModuleContext := {
+    env,
+    options := ← getOptions,
+    currNamespace := (← getCurrNamespace),
+    openDecls := (← getOpenDecls)
+  }
+  let s := mkParserState docComment
+  -- TODO parse one block at a time for error recovery purposes
+  let s := (Doc.Parser.document).run ictx pmctx (getTokenTable env) s
+
+  if !s.allErrors.isEmpty then
+    for (pos, _, err) in s.allErrors do
+      logError err.toString
+    return (#[], #[])
+  else
+    let stx := s.stxStack.back
+    let stx := stx.getArgs
+    let msgs ← Core.getAndEmptyMessageLog
+    let (val, msgs') ←
+      try
+        let range? := (← getRef).getRange?
+        let val ←
+          Elab.withEnableInfoTree false <| withTheReader Core.Context ({· with fileMap := text}) <|
+            (Doc.elabBlocks (stx.map (⟨·⟩))).exec declName (mkNullNode #[]) (suggestionMode := .batch)
+        let msgs' ← Core.getAndEmptyMessageLog
+        pure (val, msgs')
+      finally
+        Core.setMessageLog msgs
+    -- Adjust messages to show them at the call site
+    for msg in msgs'.toArray do
+      logAt (← getRef) msg.data (severity := msg.severity)
+    pure val
+
 /--
 Adds a Markdown docstring to the environment, validating documentation links.
 -/
-def addMarkdownDocString (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) : TermElabM Unit := do
+def addMarkdownDocString
+    [Monad m] [MonadLiftT IO m] [MonadOptions m] [MonadEnv m]
+    [MonadError m] [MonadLog m] [AddMessageContext m]
+    (declName : Name) (docComment : TSyntax `Lean.Parser.Command.docComment) :
+    m Unit := do
   if declName.isAnonymous then
     -- This case might happen on partial elaboration; ignore instead of triggering any panics below
     return
-  let throwImported {α} : TermElabM α :=
-    throwError m!"invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
-    throwImported
+    throwError m!"invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
   validateDocComment docComment
   let docString : String ← getDocStringText docComment
   modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
@@ -127,24 +183,43 @@ def addVersoDocStringCore [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] [MonadErr
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwImported
   modifyEnv fun env =>
-    versoDocStringExt.insert env declName docs --addEntry (asyncMode := .async .asyncEnv)
-      --env (declName, p) -- Using .insert env declName ⟨blocks, parts⟩ leads to panics
+    versoDocStringExt.insert env declName docs
 
 /--
 Adds a Verso docstring to the environment.
+
+`binders` should be the syntax of the parameters to the constant that is being documented, as a null
+node that contains a sequence of bracketed binders. It is used to allow interactive features such as
+document highlights and “find references” to work for documented parameters. If no parameter binders
+are available, pass `Syntax.missing` or an empty null node.
 -/
-def addVersoDocString (declName : Name) (binders : Syntax) (docComment : TSyntax `Lean.Parser.Command.docComment) : TermElabM Unit := do
+def addVersoDocString
+    (declName : Name) (binders : Syntax) (docComment : TSyntax `Lean.Parser.Command.docComment) :
+    TermElabM Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
   let (blocks, parts) ← versoDocString declName binders docComment
   addVersoDocStringCore declName ⟨blocks, parts⟩
 
 /--
+Adds a Verso docstring to the environment from a string value, which disables the interactive
+features. This should be used for programs that add documentation when there is no syntax available.
+-/
+def addVersoDocStringFromString (declName : Name) (docComment : String) :
+    TermElabM Unit := do
+  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
+    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
+  let (blocks, parts) ← versoDocStringFromString declName docComment
+  addVersoDocStringCore declName ⟨blocks, parts⟩
+
+
+/--
 Adds a docstring to the environment. If `isVerso` is `false`, then the docstring is interpreted as
 Markdown.
 -/
 def addDocStringOf
-    (isVerso : Bool) (declName : Name) (binders : Syntax) (docComment : TSyntax `Lean.Parser.Command.docComment) :
+    (isVerso : Bool) (declName : Name) (binders : Syntax)
+    (docComment : TSyntax `Lean.Parser.Command.docComment) :
     TermElabM Unit := do
   if isVerso then
     addVersoDocString declName binders docComment
@@ -152,11 +227,30 @@ def addDocStringOf
     addMarkdownDocString declName docComment
 
 /--
+Interprets a docstring that has been saved as a Markdown string as Verso, elaborating it. This is
+used during bootstrapping.
+-/
+def makeDocStringVerso (declName : Name) : TermElabM Unit := do
+  let some doc ← findInternalDocString? (← getEnv) declName (includeBuiltin := true)
+    | throwError "No documentation found for `{.ofConstName declName}`"
+  let .inl md := doc
+    | throwError "Documentation for `{.ofConstName declName}` is already in Verso format"
+  removeBuiltinDocString declName
+  removeDocStringCore declName
+  addVersoDocStringFromString declName md
+
+/--
 Adds a docstring to the environment.
 
-If the option `doc.verso` is `true`, the docstring is processed as a Verso docstring.
+If the option `doc.verso` is `true`, the docstring is processed as a Verso docstring. Otherwise, it
+is considered a Markdown docstring, and documentation links are validated. To explicitly control
+whether the docstring is in Verso format, use `addDocStringOf` instead.
 
-Otherwise, it is considered a Markdown docstring, and documentation links are validated.
+For Verso docstrings, `binders` should be the syntax of the parameters to the constant that is being
+documented, as a null node that contains a sequence of bracketed binders. It is used to allow
+interactive features such as document highlights and “find references” to work for documented
+parameters. If no parameter binders are available, pass `Syntax.missing` or an empty null node.
+`binders` is not used for Markdown docstrings.
 -/
 def addDocString
     (declName : Name) (binders : Syntax) (docComment : TSyntax `Lean.Parser.Command.docComment) :
@@ -167,9 +261,16 @@ def addDocString
 Adds a docstring to the environment, if it is provided. If no docstring is provided, nothing
 happens.
 
-If the option `doc.verso` is `true`, the docstring is processed as a Verso docstring.
+If the option `doc.verso` is `true`, the docstring is processed as a Verso docstring. Otherwise, it
+is considered a Markdown docstring, and documentation links are validated. To explicitly control
+whether the docstring is in Verso format, use `addDocStringOf` instead.
 
-Otherwise, it is considered a Markdown docstring, and documentation links are validated.
+For Verso docstrings, `binders` should be the syntax of the parameters to the constant that is being
+documented, as a null node that contains a sequence of bracketed binders. It is used to allow
+interactive features such as document highlights and “find references” to work for documented
+parameters. If no parameter binders are available, pass `Syntax.missing` or an empty null node.
+`binders` is not used for Markdown docstrings.
+
 -/
 def addDocString'
     (declName : Name) (binders : Syntax) (docString? : Option (TSyntax `Lean.Parser.Command.docComment)) :

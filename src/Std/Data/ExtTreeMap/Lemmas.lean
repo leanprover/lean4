@@ -2077,9 +2077,11 @@ theorem minKey_insert_le_self [TransCmp cmp] {k v} :
     t.contains (t.minKey he) :=
   ExtDTreeMap.contains_minKey
 
-@[grind ←] theorem minKey_mem [TransCmp cmp] {he} :
+theorem minKey_mem [TransCmp cmp] {he} :
     t.minKey he ∈ t :=
   ExtDTreeMap.minKey_mem
+
+grind_pattern minKey_mem => t.minKey he ∈ t
 
 theorem minKey_le_of_contains [TransCmp cmp] {k} (hc : t.contains k) :
     cmp (t.minKey (ne_empty_of_mem hc)) k |>.isLE :=
@@ -2652,9 +2654,11 @@ theorem self_le_maxKey_insert [TransCmp cmp] {k v} :
     t.contains (t.maxKey he) :=
   ExtDTreeMap.contains_maxKey
 
-@[grind ←] theorem maxKey_mem [TransCmp cmp] {he} :
+theorem maxKey_mem [TransCmp cmp] {he} :
     t.maxKey he ∈ t :=
   ExtDTreeMap.maxKey_mem
+
+grind_pattern maxKey_mem => t.maxKey he ∈ t
 
 theorem le_maxKey_of_contains [TransCmp cmp] {k} (hc : t.contains k) :
     cmp k (t.maxKey (ne_empty_of_mem hc)) |>.isLE :=

@@ -40,7 +40,6 @@ class UpwardEnumerable (α : Type u) where
   -/
   succMany? (n : Nat) (a : α) : Option α := Nat.repeat (· >>= succ?) n (some a)
 
-attribute [simp] UpwardEnumerable.succ? UpwardEnumerable.succMany?
 export UpwardEnumerable (succ? succMany?)
 
 /--
@@ -80,7 +79,6 @@ class Least? (α : Type u) where
   -/
   least? : Option α
 
-attribute [simp] Least?.least?
 export Least? (least?)
 
 /--
@@ -95,7 +93,7 @@ class LawfulUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
   The `n + 1`-th successor of `a` is the successor of the `n`-th successor, given that said
   successors actually exist.
   -/
-  succMany?_succ (n : Nat) (a : α) :
+  succMany?_succ? (n : Nat) (a : α) :
     succMany? (n + 1) a = (succMany? n a).bind succ?
 
 theorem UpwardEnumerable.succMany?_zero [UpwardEnumerable α] [LawfulUpwardEnumerable α] {a : α} :
@@ -105,7 +103,7 @@ theorem UpwardEnumerable.succMany?_zero [UpwardEnumerable α] [LawfulUpwardEnume
 theorem UpwardEnumerable.succMany?_succ? [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {n : Nat} {a : α} :
     succMany? (n + 1) a = (succMany? n a).bind succ? :=
-  LawfulUpwardEnumerable.succMany?_succ n a
+  LawfulUpwardEnumerable.succMany?_succ? n a
 
 @[deprecated succMany?_succ? (since := "2025-09-03")]
 theorem UpwardEnumerable.succMany?_succ [UpwardEnumerable α] [LawfulUpwardEnumerable α]

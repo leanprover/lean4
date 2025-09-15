@@ -145,7 +145,7 @@ lean_object* l_Lean_instInhabitedEnvExtension_default(lean_object*);
 static lean_object* l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___closed__21;
 static lean_object* l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___closed__2;
 static lean_object* l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___closed__25;
-lean_object* l_Lean_PersistentEnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentEnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_replayOfFilter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_getEntries(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1410,15 +1410,16 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_setState___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_4, 2);
 lean_inc(x_5);
 x_6 = lean_alloc_closure((void*)(l_Lean_SimplePersistentEnvExtension_setState___redArg___lam__0), 2, 1);
 lean_closure_set(x_6, 0, x_3);
-x_7 = l_Lean_PersistentEnvExtension_modifyState___redArg(x_1, x_2, x_6, x_5);
+x_7 = lean_box(0);
+x_8 = l_Lean_PersistentEnvExtension_modifyState___redArg(x_1, x_2, x_6, x_5, x_7);
 lean_dec(x_5);
-return x_7;
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_setState(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1461,15 +1462,16 @@ return x_9;
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_modifyState___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_4, 2);
 lean_inc(x_5);
 x_6 = lean_alloc_closure((void*)(l_Lean_SimplePersistentEnvExtension_modifyState___redArg___lam__0), 2, 1);
 lean_closure_set(x_6, 0, x_3);
-x_7 = l_Lean_PersistentEnvExtension_modifyState___redArg(x_1, x_2, x_6, x_5);
+x_7 = lean_box(0);
+x_8 = l_Lean_PersistentEnvExtension_modifyState___redArg(x_1, x_2, x_6, x_5, x_7);
 lean_dec(x_5);
-return x_7;
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_modifyState(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

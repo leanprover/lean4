@@ -93,7 +93,7 @@ LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentH
 extern lean_object* l_Lean_instInhabitedExternAttrData_default;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM_827378437____hygCtx___hyg_2__spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at___Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM_827378437____hygCtx___hyg_2__spec__4(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_getExportNameFor_x3f(lean_object*, lean_object*);
+lean_object* lean_get_export_name_for(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_log___closed__1;
 static lean_object* l_Lean_IR_tracePrefixOptionName___closed__3;
@@ -2307,7 +2307,7 @@ lean_inc(x_18);
 lean_dec_ref(x_12);
 lean_inc(x_16);
 lean_inc_ref(x_1);
-x_25 = l_Lean_getExportNameFor_x3f(x_1, x_16);
+x_25 = lean_get_export_name_for(x_1, x_16);
 if (lean_obj_tag(x_25) == 0)
 {
 goto block_24;

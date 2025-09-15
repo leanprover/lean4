@@ -568,7 +568,7 @@ Being borrowed only affects the ABI and runtime behavior of the function when co
 
 When a function argument is borrowed, the function does not consume the value. This means that the function will not decrement the value's reference count or deallocate it, and the caller is responsible for doing so.
 
-Please see https://lean-lang.org/lean4/doc/dev/ffi.html#borrowing for a complete description.
+Please see https://github.com/leanprover/lean4/blob/master/doc/dev/ffi.md#borrowing for a complete description.
 -/
 @[builtin_term_parser] def borrowed   := leading_parser
   "@& " >> termParser leadPrec

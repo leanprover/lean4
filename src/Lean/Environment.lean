@@ -2049,13 +2049,13 @@ where
       -- `B ≥ public`?
       let isExported := isExported && i.isExported
       let needsIRTrans := needsIRTrans || needsData && i.isMeta
-      let needsIR := needsIRTrans || importAll
+      let needsIR := needsIRTrans || importAll || globalLevel > .exported
       if !needsData && !needsIR then
         continue
 
       let irPhases :=
         if importAll then .all
-        else if needsIR then .comptime
+        else if needsIRTrans then .comptime  -- `globalLevel` should *not* be considered here
         else .runtime
 
       let goRec mod := do

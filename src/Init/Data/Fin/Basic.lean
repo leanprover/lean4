@@ -140,7 +140,7 @@ Modulus of bounded numbers, usually invoked via the `%` operator.
 The resulting value is that computed by the `%` operator on `Nat`.
 -/
 protected def mod : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨a % b,  Nat.lt_of_le_of_lt (Nat.mod_le _ _) h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨a % b, by exact Nat.lt_of_le_of_lt (Nat.mod_le _ _) h⟩
 
 /--
 Division of bounded numbers, usually invoked via the `/` operator.
@@ -154,7 +154,7 @@ Examples:
  * `(5 : Fin 10) / (7 : Fin 10) = (0 : Fin 10)`
 -/
 protected def div : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨a / b, Nat.lt_of_le_of_lt (Nat.div_le_self _ _) h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨a / b, by exact Nat.lt_of_le_of_lt (Nat.div_le_self _ _) h⟩
 
 /--
 Modulus of bounded numbers with respect to a `Nat`.
@@ -162,7 +162,7 @@ Modulus of bounded numbers with respect to a `Nat`.
 The resulting value is that computed by the `%` operator on `Nat`.
 -/
 def modn : Fin n → Nat → Fin n
-  | ⟨a, h⟩, m => ⟨a % m, Nat.lt_of_le_of_lt (Nat.mod_le _ _) h⟩
+  | ⟨a, h⟩, m => ⟨a % m, by exact Nat.lt_of_le_of_lt (Nat.mod_le _ _) h⟩
 
 /--
 Bitwise and.

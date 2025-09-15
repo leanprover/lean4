@@ -65,7 +65,7 @@ def unfoldPredRel (predType : Expr) (lhs rhs : Expr) (fixpointType : PartialFixp
   | .partialFixpoint => throwError "Trying to apply lattice induction to a non-lattice fixpoint. Please report this issue."
   | .inductiveFixpoint | .coinductiveFixpoint =>
     let predType ← lambdaTelescope predType fun _ res => pure res
-    forallTelescope predType fun ts _ => do
+    forallTelescopeReducing predType fun ts _ => do
       let lhsTypes ← ts.mapM inferType
       let names ← lhsTypes.mapM fun _ => mkFreshUserName `x
       withLocalDeclsDND (names.zip lhsTypes) fun exprs => do

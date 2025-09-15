@@ -107,3 +107,9 @@ coinductive my_nat  where
 def Set := Nat → Prop
 
 coinductive Foo : Set where
+
+/--
+info: Foo.coinduct (pred : Set) (hyp : ∀ (x : Nat), pred x → False) (x✝ : Nat) : pred x✝ → Foo x✝
+-/
+#guard_msgs in
+#check Foo.coinduct

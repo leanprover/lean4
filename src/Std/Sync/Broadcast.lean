@@ -576,18 +576,6 @@ instance [Inhabited α] : AsyncWrite (Broadcast α) α where
     let task ← receiver.send x
     discard <| Async.ofTask <| task
 
-instance [Inhabited α] : AsyncStream (Broadcast.Receiver α) α where
-  next channel := channel.recvSelector
-  stop channel := channel.unsubscribe
-
-instance [Inhabited α] : AsyncRead (Broadcast.Receiver α) α where
-  read receiver := Internal.IO.Async.Async.ofIOTask receiver.recv
-
-instance [Inhabited α] : AsyncWrite (Broadcast α) α where
-  write receiver x := do
-    let task ← receiver.send x
-    discard <| Async.ofETask <| task
-
 end Receiver
 
 /--

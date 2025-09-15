@@ -298,6 +298,10 @@ theorem isSome_getElem?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a 
     (m[a]?).isSome ↔ a ∈ m :=
   (mem_iff_isSome_getElem? h).symm
 
+theorem getElem?_eq_some_iff [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β} :
+    m[k]? = some v ↔ ∃ h : k ∈ m, m[k] = v :=
+  DHashMap.Raw.Const.get?_eq_some_iff h.out
+
 theorem getElem?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.contains a = false → m[a]? = none :=
   DHashMap.Raw.Const.get?_eq_none_of_contains_eq_false h.out
@@ -563,10 +567,13 @@ theorem isSome_getKey?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a :
     (m.getKey? a).isSome ↔ a ∈ m :=
   (mem_iff_isSome_getKey? h).symm
 
-theorem mem_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
-    {a a' : α} (h : m.WF) :
+theorem mem_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] {a a' : α} (h : m.WF) :
     m.getKey? a = some a' → a' ∈ m :=
   DHashMap.Raw.mem_of_getKey?_eq_some h.out
+
+theorem getKey?_eq_some_iff [EquivBEq α] [LawfulHashable α] {k k' : α} (h : m.WF) :
+    m.getKey? k = some k' ↔ ∃ h : k ∈ m, m.getKey k h = k' :=
+  DHashMap.Raw.getKey?_eq_some_iff h.out
 
 @[simp, grind =]
 theorem getKey_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {h'} :
@@ -1034,7 +1041,7 @@ theorem mem_toArray_iff_getKey?_eq_some_and_getElem?_eq_some [EquivBEq α] [Lawf
 
 section monadic
 
-variable {m : Raw α β} {δ : Type w} {m' : Type w → Type w}
+variable {m : Raw α β} {δ : Type w} {m' : Type w → Type w'}
 
 theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : δ → (a : α) → β → m' δ} {init : δ} :

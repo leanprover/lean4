@@ -150,6 +150,9 @@ instance : LE Rat := ⟨fun a b => b.blt a = false⟩
 instance (a b : Rat) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (_ = false))
 
+instance : Min Rat := minOfLe
+instance : Max Rat := maxOfLe
+
 /-- Multiplication of rational numbers. (This definition is `@[irreducible]` because you don't
 want to unfold it. Use `Rat.mul_def` instead.) -/
 @[irreducible] protected def mul (a b : Rat) : Rat :=

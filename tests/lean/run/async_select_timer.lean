@@ -27,3 +27,8 @@ def test2 : IO (AsyncTask Nat) := do
 #eval show IO _ from do
   let task ← test2
   IO.ofExcept task.get
+
+/-- error: Selectable.one requires at least one Selectable -/
+#guard_msgs in
+#eval show IO _ from do
+  let foo ← Selectable.one (α := Unit) #[]

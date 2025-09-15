@@ -5,9 +5,8 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Ring.OfSemiring
-public import Lean.Meta.Tactic.Grind.ExprPtr
-public import Lean.Meta.Tactic.Grind.Arith.Util
+public import Init.Grind.Ring.CommSemiringAdapter
+public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 import Lean.Data.PersistentArray
 public section
@@ -141,31 +140,18 @@ structure DiseqCnstr where
   -/
   ofSemiring? : Option (SemiringExpr × SemiringExpr)
 
-/-- State for each `CommRing` processed by this module. -/
+/-- Shared state for non-commutative and commutative rings. -/
 structure Ring where
   id             : Nat
-  /--
-  If this is a `OfSemiring.Q α` ring, this field contain the
-  `semiringId` for `α`.
-  -/
-  semiringId?    : Option Nat
   type           : Expr
   /-- Cached `getDecLevel type` -/
   u              : Level
-  /-- `Semiring` instance for `type` -/
-  semiringInst   : Expr
   /-- `Ring` instance for `type` -/
   ringInst       : Expr
-  /-- `CommSemiring` instance for `type` -/
-  commSemiringInst   : Expr
-  /-- `CommRing` instance for `type` -/
-  commRingInst   : Expr
+  /-- `Semiring` instance for `type` -/
+  semiringInst   : Expr
   /-- `IsCharP` instance for `type` if available. -/
   charInst?      : Option (Expr × Nat)
-  /-- `NoNatZeroDivisors` instance for `type` if available. -/
-  noZeroDivInst? : Option Expr
-  /-- `Field` instance for `type` if available. -/
-  fieldInst?     : Option Expr
   addFn?         : Option Expr := none
   mulFn?         : Option Expr := none
   subFn?         : Option Expr := none
@@ -173,8 +159,6 @@ structure Ring where
   powFn?         : Option Expr := none
   intCastFn?     : Option Expr := none
   natCastFn?     : Option Expr := none
-  /-- Inverse if `fieldInst?` is `some inst` -/
-  invFn?         : Option Expr := none
   one?           : Option Expr := none
   /--
   Mapping from variables to their denotations.
@@ -185,6 +169,25 @@ structure Ring where
   varMap         : PHashMap ExprPtr Var := {}
   /-- Mapping from Lean expressions to their representations as `RingExpr` -/
   denote         : PHashMap ExprPtr RingExpr := {}
+  deriving Inhabited
+
+/-- State for each `CommRing` processed by this module. -/
+structure CommRing extends Ring where
+  /-- Inverse if `fieldInst?` is `some inst` -/
+  invFn?         : Option Expr := none
+  /--
+  If this is a `OfSemiring.Q α` ring, this field contain the
+  `semiringId` for `α`.
+  -/
+  semiringId?    : Option Nat
+  /-- `CommSemiring` instance for `type` -/
+  commSemiringInst   : Expr
+  /-- `CommRing` instance for `type` -/
+  commRingInst   : Expr
+  /-- `NoNatZeroDivisors` instance for `type` if available. -/
+  noZeroDivInst? : Option Expr
+  /-- `Field` instance for `type` if available. -/
+  fieldInst?     : Option Expr
   /-- `denoteEntries` is `denote` as a `PArray` for deterministic traversal. -/
   denoteEntries  : PArray (Expr × RingExpr) := {}
   /-- Next unique id for `EqCnstr`s. -/
@@ -256,7 +259,7 @@ structure State where
   Commutative rings.
   We expect to find a small number of rings in a given goal. Thus, using `Array` is fine here.
   -/
-  rings : Array Ring := {}
+  rings : Array CommRing := {}
   /--
   Mapping from types to its "ring id". We cache failures using `none`.
   `typeIdOf[type]` is `some id`, then `id < rings.size`. -/
@@ -276,7 +279,25 @@ structure State where
   If an expression is in this map, it is not in `exprToRingId`.
   -/
   exprToSemiringId : PHashMap ExprPtr Nat := {}
+  /--
+  Non commutative rings.
+  -/
+  ncRings : Array Ring := {}
+  /- Mapping from expressions/terms to their (non-commutative) ring ids. -/
+  exprToNCRingId : PHashMap ExprPtr Nat := {}
+  /--
+  Mapping from types to its "ring id". We cache failures using `none`.
+  `nctypeIdOf[type]` is `some id`, then `id < ncRings.size`. -/
+  nctypeIdOf : PHashMap ExprPtr (Option Nat) := {}
   steps := 0
   deriving Inhabited
+
+builtin_initialize ringExt : SolverExtension State ← registerSolverExtension (return {})
+
+def get' : GoalM State := do
+  ringExt.getState
+
+@[inline] def modify' (f : State → State) : GoalM Unit := do
+  ringExt.modifyState f
 
 end Lean.Meta.Grind.Arith.CommRing

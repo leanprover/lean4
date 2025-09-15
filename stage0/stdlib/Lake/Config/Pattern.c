@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT uint8_t l_Lake_Pattern_not___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_defaultStrPatDescr___closed__0____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_;
 LEAN_EXPORT lean_object* l_Lake_instCoePatternDescrPatternOfIsPattern___redArg___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_ctorIdx___redArg___boxed(lean_object*);
 static lean_object* l_Lake_instIsPatternPathPatDescrFilePath___closed__0;
@@ -41,6 +40,7 @@ LEAN_EXPORT lean_object* l_Lake_PatternDescr_ctorElim___boxed(lean_object*, lean
 static lean_object* l_Lake_Pattern_empty___closed__3;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Pattern_ofFn___redArg(lean_object*, lean_object*);
+static lean_object* l_Lake_instInhabitedPatternDescr_default__1___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Array_contains___at___Lake_StrPatDescr_matches_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Pattern_not___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StrPatDescr_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -60,10 +60,10 @@ static lean_object* l_Lake_instCoeStringStrPat___closed__0;
 static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__4;
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_IsPattern_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instInhabitedPathPatDescr_default;
 static lean_object* l_Lake_PatternDescr_matches___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_matches___redArg___lam__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_PatternDescr_matches(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lake_defaultPattern___lam__0____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_132_(lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_Lake_Pattern_empty___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Pattern_matches___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -81,6 +81,8 @@ static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__t
 static lean_object* l_Lake_term___x3d_x7e_____closed__6;
 static lean_object* l_Lake_Pattern_empty___closed__2;
 static lean_object* l_Lake_defaultVersionTags___closed__2;
+LEAN_EXPORT lean_object* l_Lake_instInhabitedPattern_default__1___lam__0___boxed(lean_object*);
+static lean_object* l_Lake_instInhabitedPathPatDescr_default___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instCoeArrayStringStrPatDescr;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StrPat_mem___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -97,6 +99,7 @@ static lean_object* l_Lake_term___x3d_x7e_____closed__4;
 LEAN_EXPORT lean_object* l_Lake_instCoePatternDescr(lean_object*, lean_object*);
 static lean_object* l_Lake_PatternDescr_matches___redArg___closed__7;
 lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
+LEAN_EXPORT lean_object* l_Lake_instInhabitedPatternDescr_default__1(lean_object*, lean_object*);
 static lean_object* l_Lake_term___x3d_x7e_____closed__5;
 LEAN_EXPORT lean_object* l_Lake_StrPat_verLike;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
@@ -107,14 +110,12 @@ lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StrPatDescr_beq(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PathPatDescr_path_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_defaultStrPatDescr____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_;
 static lean_object* l_Lake_Pattern_star___closed__3;
 static lean_object* l_Lake_PatternDescr_matches___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Lake_term___x3d_x7e__;
 static lean_object* l_Lake_StrPat_beq___closed__0;
 static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__8;
 static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__6;
-LEAN_EXPORT lean_object* l_Lake_defaultPattern____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_143_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_any_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_not_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StrPat_beq(lean_object*);
@@ -154,11 +155,13 @@ static lean_object* l_Lake_StrPatDescr_beq___closed__0;
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Pattern_matches___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instInhabitedStrPatDescr_default;
 static lean_object* l_Lake_PatternDescr_star___closed__0;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Pattern_star___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Pattern_all(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
+static lean_object* l_Lake_instInhabitedStrPatDescr_default___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instEmptyCollectionPatternDescr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StrPat_none;
 static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__0;
@@ -184,8 +187,8 @@ static lean_object* l_Lake_instIsPatternStrPatDescrString___closed__1;
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_coe_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_term___x3d_x7e_____closed__2;
 LEAN_EXPORT lean_object* l_Lake_PathPatDescr_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_defaultPattern___closed__0____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_143_;
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_matches___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_instInhabitedStrPatDescr_default___closed__1;
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_ctorIdx___redArg(lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PathPatDescr_eq___lam__0___boxed(lean_object*, lean_object*);
@@ -206,18 +209,16 @@ LEAN_EXPORT lean_object* l_Lake_PatternDescr_any_elim___redArg(lean_object*, lea
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lake_versionTagPresets_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PathPat_extension(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_StrPat_mem___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_defaultPattern____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_132_(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_isVerLike(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoePatternDescrPatternOfIsPattern___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instIsPatternPathPatDescrFilePath;
 LEAN_EXPORT lean_object* l_Lake_Pattern_not(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_prevn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PathPat_fileName(lean_object*);
-static lean_object* l_Lake_defaultStrPatDescr___closed__1____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_;
+LEAN_EXPORT lean_object* l_Lake_instInhabitedPattern_default__1(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 static lean_object* l_Lake_instCoeStringStrPatDescr___closed__0;
 LEAN_EXPORT uint8_t l_Lake_PatternDescr_matches___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_defaultPattern___lam__0____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_132____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StrPatDescr_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PathPatDescr_path_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_defaultVersionTags;
@@ -231,7 +232,6 @@ static lean_object* l_Lake___aux__Lake__Config__Pattern______unexpand__Lake__IsP
 static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__10;
 static lean_object* l_Lake_term___x3d_x7e_____closed__0;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
-static lean_object* l_Lake_defaultPathPatDescr___closed__1____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_;
 uint8_t l_Substring_beq(lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__Config__Pattern______unexpand__Lake__IsPattern__satisfies__1___closed__0;
 size_t lean_usize_add(size_t, size_t);
@@ -257,9 +257,9 @@ LEAN_EXPORT lean_object* l_Lake_PatternDescr_matches___redArg___lam__0___boxed(l
 static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__5;
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeStringStrPat;
-LEAN_EXPORT lean_object* l_Lake_defaultPathPatDescr____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Pattern_ofFn(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lake_instInhabitedPattern_default__1___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_all_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedPattern(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_all_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -275,7 +275,6 @@ static lean_object* l_Lake_defaultVersionTags___closed__1;
 static lean_object* l_Lake_Pattern_empty___closed__1;
 static lean_object* l_Lake_Pattern_star___closed__1;
 lean_object* l_String_toSubstring_x27(lean_object*);
-static lean_object* l_Lake_defaultPathPatDescr___closed__0____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_;
 LEAN_EXPORT uint8_t l_Lake_Pattern_matches___redArg(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_instCoePatternDescrPatternOfIsPattern___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -283,6 +282,7 @@ LEAN_EXPORT lean_object* l_Lake_instIsPatternStrPatDescrString;
 static lean_object* l_Lake_term___x3d_x7e_____closed__1;
 LEAN_EXPORT uint8_t l_Array_contains___at___Lake_StrPatDescr_matches_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_coe_elim___redArg(lean_object*, lean_object*);
+static lean_object* l_Lake_instInhabitedPathPatDescr_default___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Pattern_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_IsPattern_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -913,7 +913,7 @@ x_7 = l_Lake_PatternDescr_ctorElim___redArg(x_4, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT uint8_t l_Lake_defaultPattern___lam__0____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_132_(lean_object* x_1) {
+LEAN_EXPORT uint8_t l_Lake_instInhabitedPattern_default__1___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
@@ -921,11 +921,11 @@ x_2 = 0;
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_defaultPattern____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_132_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_instInhabitedPattern_default__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_alloc_closure((void*)(l_Lake_defaultPattern___lam__0____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_132____boxed), 1, 0);
+x_3 = lean_alloc_closure((void*)(l_Lake_instInhabitedPattern_default__1___lam__0___boxed), 1, 0);
 x_4 = lean_box(0);
 x_5 = lean_box(0);
 x_6 = lean_alloc_ctor(0, 3, 0);
@@ -935,11 +935,11 @@ lean_ctor_set(x_6, 2, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_defaultPattern___lam__0____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_132____boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_instInhabitedPattern_default__1___lam__0___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lake_defaultPattern___lam__0____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_132_(x_1);
+x_2 = l_Lake_instInhabitedPattern_default__1___lam__0(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
@@ -949,7 +949,7 @@ static lean_object* _init_l_Lake_instInhabitedPattern___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_defaultPattern____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_132_(lean_box(0), lean_box(0));
+x_1 = l_Lake_instInhabitedPattern_default__1(lean_box(0), lean_box(0));
 return x_1;
 }
 }
@@ -961,7 +961,7 @@ x_3 = l_Lake_instInhabitedPattern___closed__0;
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_defaultPattern___closed__0____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_143_() {
+static lean_object* _init_l_Lake_instInhabitedPatternDescr_default__1___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -971,11 +971,11 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_defaultPattern____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_143_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_instInhabitedPatternDescr_default__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lake_defaultPattern___closed__0____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_143_;
+x_3 = l_Lake_instInhabitedPatternDescr_default__1___closed__0;
 return x_3;
 }
 }
@@ -983,7 +983,7 @@ static lean_object* _init_l_Lake_instInhabitedPatternDescr___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_defaultPattern____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_143_(lean_box(0), lean_box(0));
+x_1 = l_Lake_instInhabitedPatternDescr_default__1(lean_box(0), lean_box(0));
 return x_1;
 }
 }
@@ -1736,7 +1736,7 @@ static lean_object* _init_l_Lake_Pattern_empty___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_defaultPattern___lam__0____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_132____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_instInhabitedPattern_default__1___lam__0___boxed), 1, 0);
 return x_1;
 }
 }
@@ -2016,7 +2016,7 @@ x_5 = l_Lake_StrPatDescr_ctorElim___redArg(x_2, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lake_defaultStrPatDescr___closed__0____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_() {
+static lean_object* _init_l_Lake_instInhabitedStrPatDescr_default___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -2024,21 +2024,21 @@ x_1 = l_Array_empty(lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_defaultStrPatDescr___closed__1____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_() {
+static lean_object* _init_l_Lake_instInhabitedStrPatDescr_default___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lake_defaultStrPatDescr___closed__0____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_;
+x_1 = l_Lake_instInhabitedStrPatDescr_default___closed__0;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_defaultStrPatDescr____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_() {
+static lean_object* _init_l_Lake_instInhabitedStrPatDescr_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_defaultStrPatDescr___closed__1____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_;
+x_1 = l_Lake_instInhabitedStrPatDescr_default___closed__1;
 return x_1;
 }
 }
@@ -2046,7 +2046,7 @@ static lean_object* _init_l_Lake_instInhabitedStrPatDescr() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_defaultStrPatDescr____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_;
+x_1 = l_Lake_instInhabitedStrPatDescr_default;
 return x_1;
 }
 }
@@ -2614,29 +2614,29 @@ x_5 = l_Lake_PathPatDescr_ctorElim___redArg(x_2, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lake_defaultPathPatDescr___closed__0____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_() {
+static lean_object* _init_l_Lake_instInhabitedPathPatDescr_default___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_defaultPattern____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_132_(lean_box(0), lean_box(0));
+x_1 = l_Lake_instInhabitedPattern_default__1(lean_box(0), lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_defaultPathPatDescr___closed__1____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_() {
+static lean_object* _init_l_Lake_instInhabitedPathPatDescr_default___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lake_defaultPathPatDescr___closed__0____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_;
+x_1 = l_Lake_instInhabitedPathPatDescr_default___closed__0;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_defaultPathPatDescr____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_() {
+static lean_object* _init_l_Lake_instInhabitedPathPatDescr_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_defaultPathPatDescr___closed__1____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_;
+x_1 = l_Lake_instInhabitedPathPatDescr_default___closed__1;
 return x_1;
 }
 }
@@ -2644,7 +2644,7 @@ static lean_object* _init_l_Lake_instInhabitedPathPatDescr() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_defaultPathPatDescr____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_;
+x_1 = l_Lake_instInhabitedPathPatDescr_default;
 return x_1;
 }
 }
@@ -3172,9 +3172,9 @@ goto block_52;
 block_44:
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
-x_41 = lean_nat_add(x_39, x_40);
+x_41 = lean_nat_add(x_38, x_40);
 lean_dec(x_40);
-lean_dec(x_39);
+lean_dec(x_38);
 if (lean_is_scalar(x_35)) {
  x_42 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -3193,7 +3193,7 @@ if (lean_is_scalar(x_25)) {
 lean_ctor_set(x_43, 0, x_37);
 lean_ctor_set(x_43, 1, x_28);
 lean_ctor_set(x_43, 2, x_29);
-lean_ctor_set(x_43, 3, x_38);
+lean_ctor_set(x_43, 3, x_39);
 lean_ctor_set(x_43, 4, x_42);
 return x_43;
 }
@@ -3219,8 +3219,8 @@ if (lean_obj_tag(x_31) == 0)
 lean_object* x_50; 
 x_50 = lean_ctor_get(x_31, 0);
 lean_inc(x_50);
-x_38 = x_48;
-x_39 = x_49;
+x_38 = x_49;
+x_39 = x_48;
 x_40 = x_50;
 goto block_44;
 }
@@ -3228,8 +3228,8 @@ else
 {
 lean_object* x_51; 
 x_51 = lean_unsigned_to_nat(0u);
-x_38 = x_48;
-x_39 = x_49;
+x_38 = x_49;
+x_39 = x_48;
 x_40 = x_51;
 goto block_44;
 }
@@ -3646,9 +3646,9 @@ goto block_154;
 block_147:
 {
 lean_object* x_144; lean_object* x_145; lean_object* x_146; 
-x_144 = lean_nat_add(x_142, x_143);
+x_144 = lean_nat_add(x_141, x_143);
 lean_dec(x_143);
-lean_dec(x_142);
+lean_dec(x_141);
 if (lean_is_scalar(x_138)) {
  x_145 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -3667,7 +3667,7 @@ if (lean_is_scalar(x_128)) {
 lean_ctor_set(x_146, 0, x_140);
 lean_ctor_set(x_146, 1, x_130);
 lean_ctor_set(x_146, 2, x_131);
-lean_ctor_set(x_146, 3, x_141);
+lean_ctor_set(x_146, 3, x_142);
 lean_ctor_set(x_146, 4, x_145);
 return x_146;
 }
@@ -3693,8 +3693,8 @@ if (lean_obj_tag(x_133) == 0)
 lean_object* x_152; 
 x_152 = lean_ctor_get(x_133, 0);
 lean_inc(x_152);
-x_141 = x_150;
-x_142 = x_151;
+x_141 = x_151;
+x_142 = x_150;
 x_143 = x_152;
 goto block_147;
 }
@@ -3702,8 +3702,8 @@ else
 {
 lean_object* x_153; 
 x_153 = lean_unsigned_to_nat(0u);
-x_141 = x_150;
-x_142 = x_151;
+x_141 = x_151;
+x_142 = x_150;
 x_143 = x_153;
 goto block_147;
 }
@@ -4114,8 +4114,8 @@ l_Lake___aux__Lake__Config__Pattern______unexpand__Lake__IsPattern__satisfies__1
 lean_mark_persistent(l_Lake___aux__Lake__Config__Pattern______unexpand__Lake__IsPattern__satisfies__1___closed__1);
 l_Lake_instInhabitedPattern___closed__0 = _init_l_Lake_instInhabitedPattern___closed__0();
 lean_mark_persistent(l_Lake_instInhabitedPattern___closed__0);
-l_Lake_defaultPattern___closed__0____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_143_ = _init_l_Lake_defaultPattern___closed__0____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_143_();
-lean_mark_persistent(l_Lake_defaultPattern___closed__0____x40_Lake_Config_Pattern_1762509085____hygCtx___hyg_143_);
+l_Lake_instInhabitedPatternDescr_default__1___closed__0 = _init_l_Lake_instInhabitedPatternDescr_default__1___closed__0();
+lean_mark_persistent(l_Lake_instInhabitedPatternDescr_default__1___closed__0);
 l_Lake_instInhabitedPatternDescr___closed__0 = _init_l_Lake_instInhabitedPatternDescr___closed__0();
 lean_mark_persistent(l_Lake_instInhabitedPatternDescr___closed__0);
 l_Lake_PatternDescr_matches___redArg___closed__0 = _init_l_Lake_PatternDescr_matches___redArg___closed__0();
@@ -4166,12 +4166,12 @@ l_Lake_Pattern_star___closed__2 = _init_l_Lake_Pattern_star___closed__2();
 lean_mark_persistent(l_Lake_Pattern_star___closed__2);
 l_Lake_Pattern_star___closed__3 = _init_l_Lake_Pattern_star___closed__3();
 lean_mark_persistent(l_Lake_Pattern_star___closed__3);
-l_Lake_defaultStrPatDescr___closed__0____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_ = _init_l_Lake_defaultStrPatDescr___closed__0____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_();
-lean_mark_persistent(l_Lake_defaultStrPatDescr___closed__0____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_);
-l_Lake_defaultStrPatDescr___closed__1____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_ = _init_l_Lake_defaultStrPatDescr___closed__1____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_();
-lean_mark_persistent(l_Lake_defaultStrPatDescr___closed__1____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_);
-l_Lake_defaultStrPatDescr____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_ = _init_l_Lake_defaultStrPatDescr____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_();
-lean_mark_persistent(l_Lake_defaultStrPatDescr____x40_Lake_Config_Pattern_4225308119____hygCtx___hyg_40_);
+l_Lake_instInhabitedStrPatDescr_default___closed__0 = _init_l_Lake_instInhabitedStrPatDescr_default___closed__0();
+lean_mark_persistent(l_Lake_instInhabitedStrPatDescr_default___closed__0);
+l_Lake_instInhabitedStrPatDescr_default___closed__1 = _init_l_Lake_instInhabitedStrPatDescr_default___closed__1();
+lean_mark_persistent(l_Lake_instInhabitedStrPatDescr_default___closed__1);
+l_Lake_instInhabitedStrPatDescr_default = _init_l_Lake_instInhabitedStrPatDescr_default();
+lean_mark_persistent(l_Lake_instInhabitedStrPatDescr_default);
 l_Lake_instInhabitedStrPatDescr = _init_l_Lake_instInhabitedStrPatDescr();
 lean_mark_persistent(l_Lake_instInhabitedStrPatDescr);
 l_Lake_instIsPatternStrPatDescrString___closed__0 = _init_l_Lake_instIsPatternStrPatDescrString___closed__0();
@@ -4204,12 +4204,12 @@ l_Lake_instCoeStringStrPat___closed__0 = _init_l_Lake_instCoeStringStrPat___clos
 lean_mark_persistent(l_Lake_instCoeStringStrPat___closed__0);
 l_Lake_instCoeStringStrPat = _init_l_Lake_instCoeStringStrPat();
 lean_mark_persistent(l_Lake_instCoeStringStrPat);
-l_Lake_defaultPathPatDescr___closed__0____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_ = _init_l_Lake_defaultPathPatDescr___closed__0____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_();
-lean_mark_persistent(l_Lake_defaultPathPatDescr___closed__0____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_);
-l_Lake_defaultPathPatDescr___closed__1____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_ = _init_l_Lake_defaultPathPatDescr___closed__1____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_();
-lean_mark_persistent(l_Lake_defaultPathPatDescr___closed__1____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_);
-l_Lake_defaultPathPatDescr____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_ = _init_l_Lake_defaultPathPatDescr____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_();
-lean_mark_persistent(l_Lake_defaultPathPatDescr____x40_Lake_Config_Pattern_3210368009____hygCtx___hyg_39_);
+l_Lake_instInhabitedPathPatDescr_default___closed__0 = _init_l_Lake_instInhabitedPathPatDescr_default___closed__0();
+lean_mark_persistent(l_Lake_instInhabitedPathPatDescr_default___closed__0);
+l_Lake_instInhabitedPathPatDescr_default___closed__1 = _init_l_Lake_instInhabitedPathPatDescr_default___closed__1();
+lean_mark_persistent(l_Lake_instInhabitedPathPatDescr_default___closed__1);
+l_Lake_instInhabitedPathPatDescr_default = _init_l_Lake_instInhabitedPathPatDescr_default();
+lean_mark_persistent(l_Lake_instInhabitedPathPatDescr_default);
 l_Lake_instInhabitedPathPatDescr = _init_l_Lake_instInhabitedPathPatDescr();
 lean_mark_persistent(l_Lake_instInhabitedPathPatDescr);
 l_Lake_instIsPatternPathPatDescrFilePath___closed__0 = _init_l_Lake_instIsPatternPathPatDescrFilePath___closed__0();

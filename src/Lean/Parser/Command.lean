@@ -558,6 +558,12 @@ declaration signatures.
   "#dump_async_env_state"
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
+/--
+An internal bootstrapping command that reinterprets a Markdown docstring as Verso.
+-/
+@[builtin_command_parser] def «docs_to_verso»    := leading_parser
+  "docs_to_verso " >> sepBy1 ident ", "
+
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
 /--
 `set_option <id> <value>` sets the option `<id>` to `<value>`. Depending on the type of the option,

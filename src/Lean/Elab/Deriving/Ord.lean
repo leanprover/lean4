@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Transform
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.Deriving.Util
+import Lean.Meta.SameCtorUtils
 
 public section
 
@@ -44,10 +45,17 @@ where
           ctorArgs2 := ctorArgs2.push (← `(_))
         for i in *...ctorInfo.numFields do
           let x := xs[indVal.numParams + i]!
-          if type.containsFVar x.fvarId! || (←isProp (←inferType x)) then
+          if (← isProof x) then
             -- If resulting type depends on this field or is a proof, we don't need to compare
             ctorArgs1 := ctorArgs1.push (← `(_))
             ctorArgs2 := ctorArgs2.push (← `(_))
+          else if occursOrInType (← getLCtx) x type then
+            -- If resulting type depends on this field, we don't need to compare
+            -- but use inaccessible patterns fail during pattern match compilation if their
+            -- equality does not actually follow from the equality between their types
+            let a := mkIdent (← mkFreshUserName `a)
+            ctorArgs1 := ctorArgs1.push a
+            ctorArgs2 := ctorArgs2.push (← `(term|.( $a:ident )))
           else
             let a := mkIdent (← mkFreshUserName `a)
             let b := mkIdent (← mkFreshUserName `b)
@@ -90,7 +98,7 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
     end)
 
 private def mkOrdInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "ord" declName
+  let ctx ← mkContext ``Ord "ord" declName
   let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Ord #[declName])
   trace[Elab.Deriving.ord] "\n{cmds}"
   return cmds

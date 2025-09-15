@@ -21,7 +21,7 @@ inductive AssocList (α : Type u) (β : Type v) where
   deriving Inhabited
 
 namespace AssocList
-variable {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w'} [Monad m]
 
 abbrev empty : AssocList α β :=
   nil

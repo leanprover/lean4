@@ -1,0 +1,8 @@
+Success! Final stack:
+ • `leanExample
+ • [(Lean.Doc.Syntax.named_no_paren
+      `context
+      ":="
+      (Lean.Doc.Syntax.arg_num (num "2")))]
+
+All input consumed.

@@ -5,11 +5,10 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.SynthInstance
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.GetSet
-import Init.Grind.Ring.OfSemiring
+import Init.Grind.Ring.CommSemiringAdapter
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
@@ -34,7 +33,15 @@ def getSemiring : SemiringM Semiring := do
   else
     throwError "`grind` internal error, invalid semiringId"
 
-protected def SemiringM.getRing : SemiringM Ring := do
+@[inline] def modifySemiring (f : Semiring → Semiring) : SemiringM Unit := do
+  let semiringId ← getSemiringId
+  modify' fun s => { s with semirings := s.semirings.modify semiringId f }
+
+instance : MonadCanon SemiringM where
+  canonExpr e := do shareCommon (← canon e)
+  synthInstance? e := Grind.synthInstance? e
+
+protected def SemiringM.getCommRing : SemiringM CommRing := do
   let s ← get'
   let ringId := (← getSemiring).ringId
   if h : ringId < s.rings.size then
@@ -42,29 +49,27 @@ protected def SemiringM.getRing : SemiringM Ring := do
   else
     throwError "`grind` internal error, invalid ringId"
 
-instance : MonadRing SemiringM where
-  getRing := SemiringM.getRing
-  modifyRing f := do
-    let ringId := (← getSemiring).ringId
-    modify' fun s => { s with rings := s.rings.modify ringId f }
-  canonExpr e := do shareCommon (← canon e)
-  synthInstance? e := Grind.synthInstance? e
+protected def SemiringM.modifyCommRing (f : CommRing → CommRing) : SemiringM Unit := do
+  let ringId := (← getSemiring).ringId
+  modify' fun s => { s with rings := s.rings.modify ringId f }
 
-@[inline] def modifySemiring (f : Semiring → Semiring) : SemiringM Unit := do
-  let semiringId ← getSemiringId
-  modify' fun s => { s with semirings := s.semirings.modify semiringId f }
+instance : MonadCommRing SemiringM where
+ getCommRing := SemiringM.getCommRing
+ modifyCommRing := SemiringM.modifyCommRing
 
 def getAddFn' : SemiringM Expr := do
   let s ← getSemiring
   if let some addFn := s.addFn? then return addFn
-  let addFn ← mkBinHomoFn s.type s.u ``HAdd ``HAdd.hAdd
+  let expectedInst := mkApp2 (mkConst ``instHAdd [s.u]) s.type <| mkApp2 (mkConst ``Grind.Semiring.toAdd [s.u]) s.type s.semiringInst
+  let addFn ← mkBinHomoFn s.type s.u ``HAdd ``HAdd.hAdd expectedInst
   modifySemiring fun s => { s with addFn? := some addFn }
   return addFn
 
 def getMulFn' : SemiringM Expr := do
   let s ← getSemiring
   if let some mulFn := s.mulFn? then return mulFn
-  let mulFn ← mkBinHomoFn s.type s.u ``HMul ``HMul.hMul
+  let expectedInst := mkApp2 (mkConst ``instHMul [s.u]) s.type <| mkApp2 (mkConst ``Grind.Semiring.toMul [s.u]) s.type s.semiringInst
+  let mulFn ← mkBinHomoFn s.type s.u ``HMul ``HMul.hMul expectedInst
   modifySemiring fun s => { s with mulFn? := some mulFn }
   return mulFn
 
@@ -124,7 +129,7 @@ def mkSVar (e : Expr) : SemiringM Var := do
     varMap     := s.varMap.insert { expr := e } var
   }
   setTermSemiringId e
-  markAsCommRingTerm e
+  ringExt.markTerm e
   return var
 
 def _root_.Lean.Grind.Ring.OfSemiring.Expr.denoteAsRingExpr (e : SemiringExpr) : SemiringM Expr := do

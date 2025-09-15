@@ -69,13 +69,34 @@ def ex1 [BEq α] : BEq (Tree α) :=
 def ex2 [BEq α] : BEq (TreeList α) :=
   inferInstance
 
+-- The tricky inductive from issue #3386
+
+inductive Tyₛ : Type (u+1)
+| SPi : (T : Type u) -> (T -> Tyₛ) -> Tyₛ
+
+/--
+error: Tactic `cases` failed with a nested error:
+Dependent elimination failed: Failed to solve equation
+  A✝¹ arg✝¹ = A✝ arg✝
+at case `Tmₛ.app` after processing
+  _, (Tmₛ.app _ _ _ _), _
+the dependent pattern matcher can solve the following kinds of equations
+- <var> = <term> and <term> = <var>
+- <term> = <term> where the terms are definitionally equal
+- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
+-/
+#guard_msgs(pass trace, all) in
+inductive Tmₛ.{u} :  Tyₛ.{u} -> Type (u+1)
+| app : Tmₛ (.SPi T A) -> (arg : T) -> Tmₛ (A arg)
+deriving BEq
+
 /-! Private fields should yield public, no-expose instances. -/
 
 structure PrivField where
   private a : Nat
 deriving BEq
 
-/-- info: fun a => beqPrivField✝ a a -/
+/-- info: fun a => instBEqPrivField.beq a a -/
 #guard_msgs in
 #with_exporting
 #reduce fun (a : PrivField) => a == a
@@ -88,7 +109,7 @@ public structure PrivField2 where
   private a : Nat
 deriving BEq
 
-/-- info: fun a => beqPrivField2✝ a a -/
+/-- info: fun a => instBEqPrivField2.beq a a -/
 #guard_msgs in
 #with_exporting
 #reduce fun (a : PrivField2) => a == a

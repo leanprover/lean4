@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.Lemmas
-// Imports: Init.Data.Iterators Init.Data.Iterators.Lemmas.Consumers.Collect Init.Data.Range.Polymorphic.Basic Init.Data.Range.Polymorphic.Basic Init.Data.Range.Polymorphic.RangeIterator Init.Data.Range.Polymorphic.RangeIterator Init.Data.Range.Polymorphic.Iterators Init.Data.Range.Polymorphic.Iterators Init.Data.Iterators.Consumers.Loop Init.Data.Iterators.Consumers.Loop
+// Imports: Init.Data.Iterators Init.Data.Iterators.Lemmas.Consumers.Collect Init.Data.Range.Polymorphic.Basic Init.Data.Range.Polymorphic.Basic Init.Data.Range.Polymorphic.RangeIterator Init.Data.Range.Polymorphic.RangeIterator Init.Data.Range.Polymorphic.Iterators Init.Data.Range.Polymorphic.Iterators Init.Data.Iterators.Consumers.Loop Init.Data.Iterators.Consumers.Loop Init.Data.Array.Monadic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -401,6 +401,7 @@ lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin, l
 lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Monadic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -434,6 +435,9 @@ res = initialize_Init_Data_Iterators_Consumers_Loop(builtin, lean_io_mk_world())
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Loop(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Monadic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

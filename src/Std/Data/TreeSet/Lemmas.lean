@@ -238,6 +238,10 @@ theorem mem_of_get?_eq_some [TransCmp cmp] {k k' : α}
     (h : t.get? k = some k') : k' ∈ t :=
   TreeMap.mem_of_getKey?_eq_some h
 
+theorem get?_eq_some_iff [TransCmp cmp] {k k' : α} :
+    t.get? k = some k' ↔ ∃ h, t.get k h = k' :=
+  TreeMap.getKey?_eq_some_iff
+
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t.get? a = none :=
   TreeMap.getKey?_eq_none_of_contains_eq_false
@@ -902,9 +906,11 @@ theorem min_insert_le_self [TransCmp cmp] {k} :
     t.contains (t.min he) :=
   TreeMap.contains_minKey
 
-@[grind] theorem min_mem [TransCmp cmp] {he} :
+theorem min_mem [TransCmp cmp] {he} :
     t.min he ∈ t :=
   TreeMap.minKey_mem
+
+grind_pattern min_mem => t.min he ∈ t
 
 theorem min_le_of_contains [TransCmp cmp] {k} (hc : t.contains k) :
     cmp (t.min <| isEmpty_eq_false_iff_exists_contains_eq_true.mpr ⟨k, hc⟩) k |>.isLE :=
@@ -999,9 +1005,11 @@ theorem min!_insert_le_self [TransCmp cmp] [Inhabited α] {k} :
     t.contains t.min! :=
   TreeMap.contains_minKey! he
 
-@[grind] theorem min!_mem [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
+theorem min!_mem [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
     t.min! ∈ t :=
   TreeMap.minKey!_mem he
+
+grind_pattern min!_mem => t.min! ∈ t
 
 theorem min!_le_of_contains [TransCmp cmp] [Inhabited α] {k} (hc : t.contains k) :
     cmp t.min! k |>.isLE :=
@@ -1090,9 +1098,11 @@ theorem minD_insert_le_self [TransCmp cmp] {k fallback} :
     t.contains (t.minD fallback) :=
   TreeMap.contains_minKeyD he
 
-@[grind] theorem minD_mem [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
+theorem minD_mem [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
     t.minD fallback ∈ t :=
   TreeMap.minKeyD_mem he
+
+grind_pattern minD_mem => t.minD fallback ∈ t
 
 theorem minD_le_of_contains [TransCmp cmp] {k} (hc : t.contains k) {fallback} :
     cmp (t.minD fallback) k |>.isLE :=
@@ -1304,9 +1314,11 @@ theorem self_le_max_insert [TransCmp cmp] {k} :
     t.contains (t.max he) :=
   TreeMap.contains_maxKey
 
-@[grind] theorem max_mem [TransCmp cmp] {he} :
+theorem max_mem [TransCmp cmp] {he} :
     t.max he ∈ t :=
   TreeMap.maxKey_mem
+
+grind_pattern max_mem => t.max he ∈ t
 
 theorem le_max_of_contains [TransCmp cmp] {k} (hc : t.contains k) :
     cmp k (t.max <| isEmpty_eq_false_iff_exists_contains_eq_true.mpr ⟨k, hc⟩) |>.isLE :=
@@ -1402,9 +1414,11 @@ theorem self_le_max!_insert [TransCmp cmp] [Inhabited α] {k} :
     t.contains t.max! :=
   TreeMap.contains_maxKey! he
 
-@[grind] theorem max!_mem [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
+theorem max!_mem [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
     t.max! ∈ t :=
   TreeMap.maxKey!_mem he
+
+grind_pattern max!_mem => t.max! ∈ t
 
 theorem le_max!_of_contains [TransCmp cmp] [Inhabited α] {k} (hc : t.contains k) :
     cmp k t.max! |>.isLE :=
@@ -1494,9 +1508,11 @@ theorem self_le_maxD_insert [TransCmp cmp] {k fallback} :
     t.contains (t.maxD fallback) :=
   TreeMap.contains_maxKeyD he
 
-@[grind] theorem maxD_mem [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
+theorem maxD_mem [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
     t.maxD fallback ∈ t :=
   TreeMap.maxKeyD_mem he
+
+grind_pattern maxD_mem => t.maxD fallback ∈ t
 
 theorem le_maxD_of_contains [TransCmp cmp] {k} (hc : t.contains k) {fallback} :
     cmp k (t.maxD fallback) |>.isLE :=

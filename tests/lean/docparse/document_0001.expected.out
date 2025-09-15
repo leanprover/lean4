@@ -1,0 +1,19 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.image
+      "!["
+      (str "\"Lean logo\"")
+      "]"
+      (Lean.Doc.Syntax.url
+       "("
+       (str "\"/static/lean_logo.svg\"")
+       ")"))]
+    "}")
+   (Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.text
+      (str
+       "\"This is an example website/blog, for testing purposes.\""))]
+    "}")]
+All input consumed.

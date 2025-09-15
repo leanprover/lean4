@@ -18,27 +18,27 @@ namespace Option
 deriving instance DecidableEq for Option
 deriving instance BEq for Option
 
-@[simp, grind] theorem getD_none : getD none a = a := rfl
-@[simp, grind] theorem getD_some : getD (some a) b = a := rfl
+@[simp, grind =] theorem getD_none : getD none a = a := rfl
+@[simp, grind =] theorem getD_some : getD (some a) b = a := rfl
 
-@[simp, grind] theorem map_none (f : α → β) : none.map f = none := rfl
-@[simp, grind] theorem map_some (a) (f : α → β) : (some a).map f = some (f a) := rfl
+@[simp, grind =] theorem map_none (f : α → β) : none.map f = none := rfl
+@[simp, grind =] theorem map_some (a) (f : α → β) : (some a).map f = some (f a) := rfl
 
 /-- Lifts an optional value to any `Alternative`, sending `none` to `failure`. -/
 def getM [Alternative m] : Option α → m α
   | none     => failure
   | some a   => pure a
 
-@[simp, grind] theorem getM_none [Alternative m] : getM none = (failure : m α) := rfl
-@[simp, grind] theorem getM_some [Alternative m] {a : α} : getM (some a) = (pure a : m α) := rfl
+@[simp, grind =] theorem getM_none [Alternative m] : getM none = (failure : m α) := rfl
+@[simp, grind =] theorem getM_some [Alternative m] {a : α} : getM (some a) = (pure a : m α) := rfl
 
 /-- Returns `true` on `some x` and `false` on `none`. -/
 @[inline] def isSome : Option α → Bool
   | some _ => true
   | none   => false
 
-@[simp, grind] theorem isSome_none : @isSome α none = false := rfl
-@[simp, grind] theorem isSome_some : isSome (some a) = true := rfl
+@[simp, grind =] theorem isSome_none : @isSome α none = false := rfl
+@[simp, grind =] theorem isSome_some : isSome (some a) = true := rfl
 
 /--
 Returns `true` on `none` and `false` on `some x`.
@@ -53,8 +53,8 @@ Examples:
   | some _ => false
   | none   => true
 
-@[simp, grind] theorem isNone_none : @isNone α none = true := rfl
-@[simp, grind] theorem isNone_some : isNone (some a) = false := rfl
+@[simp, grind =] theorem isNone_none : @isNone α none = true := rfl
+@[simp, grind =] theorem isNone_some : isNone (some a) = false := rfl
 
 /--
 Checks whether an optional value is both present and equal to some other value.
@@ -89,8 +89,8 @@ Examples:
   | none,   _ => none
   | some a, f => f a
 
-@[simp, grind] theorem bind_none (f : α → Option β) : none.bind f = none := rfl
-@[simp, grind] theorem bind_some (a) (f : α → Option β) : (some a).bind f = f a := rfl
+@[simp, grind =] theorem bind_none (f : α → Option β) : none.bind f = none := rfl
+@[simp, grind =] theorem bind_some (a) (f : α → Option β) : (some a).bind f = f a := rfl
 
 @[deprecated bind_none (since := "2025-05-03")]
 abbrev none_bind := @bind_none
@@ -125,8 +125,8 @@ This function only requires `m` to be an applicative functor. An alias `Option.m
   | none => pure none
   | some x => some <$> f x
 
-@[simp, grind] theorem mapM_none [Applicative m] (f : α → m β) : none.mapM f = pure none := rfl
-@[simp, grind] theorem mapM_some [Applicative m] (x) (f : α → m β) : (some x).mapM f = some <$> f x := rfl
+@[simp, grind =] theorem mapM_none [Applicative m] (f : α → m β) : none.mapM f = pure none := rfl
+@[simp, grind =] theorem mapM_some [Applicative m] (x) (f : α → m β) : (some x).mapM f = some <$> f x := rfl
 
 /--
 Applies a function in some applicative functor to an optional value, returning `none` with no
@@ -138,9 +138,9 @@ This is an alias for `Option.mapM`, which already works for applicative functors
   Option.mapM f
 
 /-- For verification purposes, we replace `mapA` with `mapM`. -/
-@[simp, grind] theorem mapA_eq_mapM [Applicative m] {f : α → m β} : Option.mapA f o = Option.mapM f o := rfl
+@[simp, grind =] theorem mapA_eq_mapM [Applicative m] {f : α → m β} : Option.mapA f o = Option.mapM f o := rfl
 
-@[simp, grind]
+@[simp, grind =]
 theorem map_id : (Option.map id : Option α → Option α) = id :=
   funext (fun o => match o with | none => rfl | some _ => rfl)
 
@@ -182,8 +182,8 @@ Examples:
   | some a => p a
   | none   => true
 
-@[simp, grind] theorem all_none : Option.all p none = true := rfl
-@[simp, grind] theorem all_some : Option.all p (some x) = p x := rfl
+@[simp, grind =] theorem all_none : Option.all p none = true := rfl
+@[simp, grind =] theorem all_some : Option.all p (some x) = p x := rfl
 
 /--
 Checks whether an optional value is not `none` and satisfies a Boolean predicate.
@@ -197,8 +197,8 @@ Examples:
   | some a => p a
   | none   => false
 
-@[simp, grind] theorem any_none : Option.any p none = false := rfl
-@[simp, grind] theorem any_some : Option.any p (some x) = p x := rfl
+@[simp, grind =] theorem any_none : Option.any p none = false := rfl
+@[simp, grind =] theorem any_some : Option.any p (some x) = p x := rfl
 
 /--
 Implementation of `OrElse`'s `<|>` syntax for `Option`. If the first argument is `some a`, returns
@@ -210,8 +210,8 @@ See also `or` for a version that is strict in the second argument.
   | some a, _ => some a
   | none,   b => b ()
 
-@[simp, grind] theorem orElse_some : (some a).orElse b = some a := rfl
-@[simp, grind] theorem orElse_none : none.orElse b = b () := rfl
+@[simp, grind =] theorem orElse_some : (some a).orElse b = some a := rfl
+@[simp, grind =] theorem orElse_none : none.orElse b = b () := rfl
 
 instance : OrElse (Option α) where
   orElse := Option.orElse
@@ -351,9 +351,9 @@ Extracts the value from an option that can be proven to be `some`.
 @[inline] def get {α : Type u} : (o : Option α) → isSome o → α
   | some x, _ => x
 
-@[simp, grind] theorem some_get : ∀ {x : Option α} (h : isSome x), some (x.get h) = x
+@[simp, grind =] theorem some_get : ∀ {x : Option α} (h : isSome x), some (x.get h) = x
 | some _, _ => rfl
-@[simp, grind] theorem get_some (x : α) (h : isSome (some x)) : (some x).get h = x := rfl
+@[simp, grind =] theorem get_some (x : α) (h : isSome (some x)) : (some x).get h = x := rfl
 
 /--
 Returns `none` if a value doesn't satisfy a Boolean predicate, or the value itself otherwise.
@@ -431,8 +431,8 @@ Examples:
 -/
 @[inline] def join (x : Option (Option α)) : Option α := x.bind id
 
-@[simp, grind] theorem join_none : (none : Option (Option α)).join = none := rfl
-@[simp, grind] theorem join_some : (some o).join = o := rfl
+@[simp, grind =] theorem join_none : (none : Option (Option α)).join = none := rfl
+@[simp, grind =] theorem join_some : (some o).join = o := rfl
 
 /--
 Converts an optional monadic computation into a monadic computation of an optional value.
@@ -457,8 +457,8 @@ some "world"
   | none => pure none
   | some f => some <$> f
 
-@[simp, grind] theorem sequence_none [Applicative m] : (none : Option (m α)).sequence = pure none := rfl
-@[simp, grind] theorem sequence_some [Applicative m] (f : m α) : (some f).sequence = some <$> f := rfl
+@[simp, grind =] theorem sequence_none [Applicative m] : (none : Option (m α)).sequence = pure none := rfl
+@[simp, grind =] theorem sequence_some [Applicative m] (f : m α) : (some f).sequence = some <$> f := rfl
 
 /--
 A monadic case analysis function for `Option`.
@@ -483,8 +483,8 @@ This is the monadic analogue of `Option.getD`.
   | some a => pure a
   | none => y
 
-@[simp, grind] theorem getDM_none [Pure m] (y : m α) : (none : Option α).getDM y = y := rfl
-@[simp, grind] theorem getDM_some [Pure m] (a : α) (y : m α) : (some a).getDM y = pure a := rfl
+@[simp, grind =] theorem getDM_none [Pure m] (y : m α) : (none : Option α).getDM y = y := rfl
+@[simp, grind =] theorem getDM_some [Pure m] (a : α) (y : m α) : (some a).getDM y = pure a := rfl
 
 instance (α) [BEq α] [ReflBEq α] : ReflBEq (Option α) where
   rfl {x} := private
@@ -520,10 +520,10 @@ protected def min [Min α] : Option α → Option α → Option α
 
 instance [Min α] : Min (Option α) where min := Option.min
 
-@[simp, grind] theorem min_some_some [Min α] {a b : α} : min (some a) (some b) = some (min a b) := rfl
-@[simp, grind] theorem min_none_left [Min α] {o : Option α} : min none o = none := by
+@[simp, grind =] theorem min_some_some [Min α] {a b : α} : min (some a) (some b) = some (min a b) := rfl
+@[simp, grind =] theorem min_none_left [Min α] {o : Option α} : min none o = none := by
   cases o <;> rfl
-@[simp, grind] theorem min_none_right [Min α] {o : Option α} : min o none = none := by
+@[simp, grind =] theorem min_none_right [Min α] {o : Option α} : min o none = none := by
   cases o <;> rfl
 
 @[deprecated min_none_right (since := "2025-05-12")]
@@ -553,10 +553,10 @@ protected def max [Max α] : Option α → Option α → Option α
 
 instance [Max α] : Max (Option α) where max := Option.max
 
-@[simp, grind] theorem max_some_some [Max α] {a b : α} : max (some a) (some b) = some (max a b) := rfl
-@[simp, grind] theorem max_none_left [Max α] {o : Option α} : max none o = o := by
+@[simp, grind =] theorem max_some_some [Max α] {a b : α} : max (some a) (some b) = some (max a b) := rfl
+@[simp, grind =] theorem max_none_left [Max α] {o : Option α} : max none o = o := by
   cases o <;> rfl
-@[simp, grind] theorem max_none_right [Max α] {o : Option α} : max o none = o := by
+@[simp, grind =] theorem max_none_right [Max α] {o : Option α} : max o none = o := by
   cases o <;> rfl
 
 @[deprecated max_none_right (since := "2025-05-12")]

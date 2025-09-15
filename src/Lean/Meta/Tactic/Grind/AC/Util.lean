@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.AC.Types
 public import Lean.Meta.Tactic.Grind.ProveEq
 public import Lean.Meta.Tactic.Grind.SynthInstance
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
@@ -15,10 +15,10 @@ namespace Lean.Meta.Grind.AC
 open Lean.Grind
 
 def get' : GoalM State := do
-  return (← get).ac
+  acExt.getState
 
 @[inline] def modify' (f : State → State) : GoalM Unit := do
-  modify fun s => { s with ac := f s.ac }
+  acExt.modifyState f
 
 def checkMaxSteps : GoalM Bool := do
   return (← get').steps >= (← getConfig).acSteps
@@ -78,8 +78,8 @@ private def isArithOpInOtherModules (op : Expr) (f : Expr) : GoalM Bool := do
   if declName == ``HAdd.hAdd || declName == ``HMul.hMul || declName == ``HSub.hSub || declName == ``HDiv.hDiv || declName == ``HPow.hPow then
     if op.getAppNumArgs == 4 then
       let α := op.appFn!.appFn!.appArg!
-      if (← Arith.CommRing.getRingId? α).isSome then return true
-      if (← Arith.CommRing.getSemiringId? α).isSome then return true
+      if (← Arith.CommRing.getCommRingId? α).isSome then return true
+      if (← Arith.CommRing.getCommSemiringId? α).isSome then return true
   return false
 
 def getTermOpIds (e : Expr) : GoalM (List Nat) := do
@@ -115,7 +115,7 @@ def mkVar (e : Expr) : ACM AC.Var := do
     varMap     := s.varMap.insert { expr := e } var
   }
   addTermOpId e
-  markAsACTerm e
+  acExt.markTerm e
   return var
 
 def getOpId? (op : Expr) : GoalM (Option Nat) := do

@@ -46,15 +46,30 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
 def expandNotationItemIntoSyntaxItem : TSyntax ``notationItem → MacroM (TSyntax `stx)
   | `(notationItem| $_:ident$[:$prec?]?) => `(stx| term $[:$prec?]?)
   | `(notationItem| $s:str)              => `(stx| $s:str)
-  | _                                    => Macro.throwUnsupported
+  -- TODO(kmill): use after stage0 update
+  -- | `(notationItem| $u:unicodeAtom)      => `(stx| $u:unicodeAtom)
+  -- | _                                    => Macro.throwUnsupported
+  | stx =>
+    if stx.raw.isOfKind ``Parser.Syntax.unicodeAtom then
+      return ⟨stx.raw⟩
+    else
+      Macro.throwUnsupported
 
 /-- Convert `notation` command lhs item into a pattern element -/
 def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=
   let k := stx.getKind
-  if k == `Lean.Parser.Command.identPrec then
+  if k == ``Lean.Parser.Command.identPrec then
     return mkAntiquotNode stx[0] (kind := `term) (isPseudoKind := true)
   else if k == strLitKind then
     strLitToPattern stx
+  else if k == ``Parser.Syntax.unicodeAtom then
+    let preserveForPP := !stx[4].isNone
+    if preserveForPP then
+      -- Use the ascii atom for the pattern; that way delaboration gives the ASCII version,
+      -- which is the preferred form according to `ParserDescr.unicodeSymbol`.
+      strLitToPattern stx[3]
+    else
+      strLitToPattern stx[1]
   else
     Macro.throwUnsupported
 

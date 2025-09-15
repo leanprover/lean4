@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.OpenDecl
-// Imports: Init.Meta
+// Imports: Init.Meta Init.Data.String.Basic Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,10 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT uint8_t l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_46__spec__0(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_List_beq___at___Lean_instBEqOpenDecl_beq_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_OpenDecl_instInhabited___closed__0;
 LEAN_EXPORT lean_object* l_Lean_OpenDecl_explicit_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_46__spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_rootNamespace___closed__0;
 LEAN_EXPORT lean_object* l_Lean_OpenDecl_instToString;
 LEAN_EXPORT lean_object* l_Lean_OpenDecl_simple_elim(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -25,9 +24,7 @@ LEAN_EXPORT lean_object* l_Lean_OpenDecl_ctorElim___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_OpenDecl_simple_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_OpenDecl_ctorElim___redArg(lean_object*, lean_object*);
 uint8_t l_List_beq___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_46_(lean_object*, lean_object*);
 static lean_object* l_Lean_OpenDecl_instToString___closed__0;
-LEAN_EXPORT lean_object* l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_46____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_OpenDecl_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_removeRoot(lean_object*);
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
@@ -45,10 +42,13 @@ lean_object* l_Lean_Name_instToString___lam__0(lean_object*);
 static lean_object* l_Lean_OpenDecl_instToString___lam__0___closed__1;
 lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_OpenDecl_instToString___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_instBEqOpenDecl_beq(lean_object*, lean_object*);
 lean_object* l_List_toString___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instBEqOpenDecl_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqOpenDecl;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_beq___at___Lean_instBEqOpenDecl_beq_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_OpenDecl_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -137,7 +137,7 @@ x_5 = l_Lean_OpenDecl_ctorElim___redArg(x_2, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT uint8_t l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_46__spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_List_beq___at___Lean_instBEqOpenDecl_beq_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -185,7 +185,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_46_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_instBEqOpenDecl_beq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -205,7 +205,7 @@ return x_7;
 else
 {
 uint8_t x_8; 
-x_8 = l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_46__spec__0(x_4, x_6);
+x_8 = l_List_beq___at___Lean_instBEqOpenDecl_beq_spec__0(x_4, x_6);
 return x_8;
 }
 }
@@ -246,22 +246,22 @@ return x_16;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_46__spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_beq___at___Lean_instBEqOpenDecl_beq_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_46__spec__0(x_1, x_2);
+x_3 = l_List_beq___at___Lean_instBEqOpenDecl_beq_spec__0(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_46____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instBEqOpenDecl_beq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_46_(x_1, x_2);
+x_3 = l_Lean_instBEqOpenDecl_beq(x_1, x_2);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
@@ -272,7 +272,7 @@ static lean_object* _init_l_Lean_instBEqOpenDecl___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl_3475076167____hygCtx___hyg_46____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_instBEqOpenDecl_beq___boxed), 2, 0);
 return x_1;
 }
 }
@@ -439,12 +439,20 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Meta(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_OpenDecl(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Meta(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Name(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instBEqOpenDecl___closed__0 = _init_l_Lean_instBEqOpenDecl___closed__0();

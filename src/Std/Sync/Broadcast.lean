@@ -11,8 +11,14 @@ public import Init.System.Promise
 public import Init.Data.Queue
 public import Std.Sync.Mutex
 public import Std.Internal.Async.Select
+public import Std.Internal.Async.IO
 
 public section
+
+namespace Std
+
+open Std.Internal.Async.IO
+open Std.Internal.IO.Async
 
 /-!
 The `Std.Sync.Broadcast` module implements a broadcasting primitive for sending values
@@ -22,8 +28,6 @@ and asynchronous waiting.
 This module is heavily inspired by `Std.Sync.Channel` as well as
 [tokio’s broadcast implementation](https://github.com/tokio-rs/tokio/blob/master/tokio/src/sync/broadcast.rs).
 -/
-
-namespace Std
 
 /--
 Errors that may be thrown while interacting with the broadcast channel API.
@@ -563,6 +567,18 @@ Note that if this function is called twice, each message will only arrive at exa
 partial def forAsync (f : α → BaseIO Unit) (ch : Broadcast.Receiver α)
   (prio : Task.Priority := .default) : BaseIO (Task Unit) := do
     ch.inner.forAsync f prio
+
+instance [Inhabited α] : AsyncStream (Broadcast.Receiver α) α where
+  next channel := channel.recvSelector
+  stop channel := channel.unsubscribe
+
+instance [Inhabited α] : AsyncRead (Broadcast.Receiver α) α where
+  read receiver := Internal.IO.Async.Async.ofIOTask receiver.recv
+
+instance [Inhabited α] : AsyncWrite (Broadcast α) α where
+  write receiver x := do
+    let task ← receiver.send x
+    discard <| Async.ofETask <| task
 
 end Receiver
 

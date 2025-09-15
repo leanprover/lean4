@@ -575,7 +575,7 @@ If `thm` is a theorem `a = b`, then as a rewrite rule,
 * `thm` means to replace `a` with `b`, and
 * `← thm` means to replace `b` with `a`.
 -/
-syntax rwRule    := patternIgnore("← " <|> "<- ")? term
+syntax rwRule    := unicode("← ", "<- ")? term
 /-- A `rwRuleSeq` is a list of `rwRule` in brackets. -/
 syntax rwRuleSeq := " [" withoutPosition(rwRule,*,?) "]"
 
@@ -651,7 +651,7 @@ A simp lemma specification is:
 * optional `←` to use the lemma backward
 * `thm` for the theorem to rewrite with
 -/
-syntax simpLemma := ppGroup((simpPre <|> simpPost)? patternIgnore("← " <|> "<- ")? term)
+syntax simpLemma := ppGroup((simpPre <|> simpPost)? unicode("← ", "<- ")? term)
 /-- An erasure specification `-thm` says to remove `thm` from the simp set -/
 syntax simpErase := "-" term:max
 /-- The simp lemma specification `*` means to rewrite with all hypotheses -/
@@ -2252,7 +2252,7 @@ If there are several with the same priority, it is uses the "most recent one". E
   cases d <;> rfl
 ```
 -/
-syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
 
 /--
 Theorems tagged with the `wf_preprocess` attribute are used during the processing of functions defined
@@ -2260,7 +2260,7 @@ by well-founded recursion. They are applied to the function's body to add additi
 such as replacing `if c then _ else _` with `if h : c then _ else _` or `xs.map` with
 `xs.attach.map`. Also see `wfParam`.
 -/
-syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
 
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
 syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"

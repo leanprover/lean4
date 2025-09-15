@@ -45,7 +45,7 @@ the constants.
 def getMethodSpecsInfo (instName : Name) : MetaM MethodSpecsInfo := do
   let instInfo ← getConstInfoDefn instName
   let some clsName ← isClass? instInfo.type
-    | throwError "expected `{.ofConstName instName}` to be a type class instance, but its's \
+    | throwError "expected `{.ofConstName instName}` to be a type class instance, but its \
          type{inlineExpr instInfo.type}does not look like a class."
   let instArity ← forallTelescopeReducing instInfo.type fun xs _ => pure xs.size
   let some structInfo := getStructureInfo? (← getEnv) clsName
@@ -68,7 +68,7 @@ def getMethodSpecsInfo (instName : Name) : MetaM MethodSpecsInfo := do
       unless f.isConst do
         throwError "field `{field}` of the instance is not an application of a constant"
       unless f.constLevels! == instInfo.levelParams.map mkLevelParam do
-        throwError "function `{f}` gets universe parameters\n  {f.constLevels!}\nwhich differs from \
+        throwError "function `{f}` is called with universe parameters\n  {f.constLevels!}\nwhich differs from \
           the instances' universe parameters\n  {instInfo.levelParams.map mkLevelParam}"
       unless xs == ys do
         throwError "function `{f}` does not take its arguments in the same order as the instance"

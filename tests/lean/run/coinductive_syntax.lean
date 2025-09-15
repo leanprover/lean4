@@ -32,8 +32,8 @@ info: infSeq_functor.existential_equiv (α : Type) (r : α → α → Prop) (inf
 #check infSeq_functor.existential_equiv
 
 /--
-info: infSeq.coinduct (α : Type) (r : α → α → Prop) (pred : α → Prop) (hyp : ∀ (x : α), pred x → ∃ b, r x b ∧ pred b)
-  (x✝ : α) : pred x✝ → infSeq α r x✝
+info: infSeq.coinduct (α : Type) (r : α → α → Prop) (pred : α → Prop) (hyp : ∀ (a : α), pred a → ∃ b, r a b ∧ pred b)
+  (a✝ : α) : pred a✝ → infSeq α r a✝
 -/
 #guard_msgs in
 #check infSeq.coinduct
@@ -109,7 +109,7 @@ def Set := Nat → Prop
 coinductive Foo : Set where
 
 /--
-info: Foo.coinduct (pred : Set) (hyp : ∀ (x : Nat), pred x → False) (x✝ : Nat) : pred x✝ → Foo x✝
+info: Foo.coinduct (pred : Set) (hyp : ∀ (a : Nat), pred a → False) (a✝ : Nat) : pred a✝ → Foo a✝
 -/
 #guard_msgs in
 #check Foo.coinduct

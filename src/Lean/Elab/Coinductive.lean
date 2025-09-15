@@ -283,6 +283,7 @@ public def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : T
   -/
   let preDefs : Array PreDefinition := preDefVals.mapIdx fun idx defn =>
     { ref := coinductiveElabData[idx]!.ref
+      binders := coinductiveElabData[idx]!.ref
       kind := .def
       levelParams := infos[0]!.levelParams
       modifiers := coinductiveElabData[idx]!.modifiers
@@ -303,7 +304,7 @@ public def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : T
         extraParams := 0
       }
     }
-  partialFixpoint preDefs
+  partialFixpoint (← getLCtx, ← getLocalInstances) preDefs
   generateCoinductiveConstructors originalNumParams infos coinductiveElabData
 
 end Lean.Elab.Command

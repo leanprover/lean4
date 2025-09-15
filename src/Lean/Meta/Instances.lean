@@ -104,7 +104,8 @@ private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
     let (_, _, type) ← forallMetaTelescopeReducing type
     if let some cls ← isClass? type then
       if isClassAbbrev (← getEnv) cls then
-        throwError "invalid `instance` attribute: '{cls}' is a `class_abbrev`"
+        if (getStructureCtor (← getEnv) cls).name != e.constName? then
+          throwError "invalid `instance` attribute: '{cls}' is a `class_abbrev`"
     DiscrTree.mkPath type
 
 /--

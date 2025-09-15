@@ -327,7 +327,7 @@ theorem denote_blastAddVec
             · case _ hsplit =>
               simp [hidx1]
               have proof := bvRes.property
-              specialize proof (usedNodes/2) (by omega) idx1 hidx1
+              specialize proof (usedNodes/2) (by omega) idx1 (by omega)
               have hlsb := BitVec.getLsbD_extractLsb'_eq_getLsbD (x := bvRes.val) (start := usedNodes/2 * w) (len := w) (i := idx1) (by omega)
               rw [← hlsb]
               simp [proof, hsplit, show usedNodes/2 * 2 = usedNodes by omega]
@@ -410,7 +410,7 @@ theorem denote_go
         (go aig validNodes parSum hw hval hval').vec.get idx hidx,
         assign
       ⟧ =
-      (BitVec.parPrefixSum validNodes parSumBv hw hval hval').getLsbD idx := by
+      (BitVec.parPrefixSum validNodes parSumBv (by omega) hval hval').getLsbD idx := by
   intros idx hidx
   generalize hgen : go aig validNodes parSum hw hval hval' = res
   unfold go at hgen

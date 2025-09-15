@@ -67,7 +67,7 @@ structure Data.ConvTactic where
   name : Name
 deriving TypeName
 
-/-- The code represents an attribute application `--@[...]`. -/
+/-- The code represents an attribute application `@[...]`. -/
 structure Data.Attributes where
   /-- The attribute syntax. -/
   stx : Syntax
@@ -140,7 +140,7 @@ meta def checkNameExists : PostponedCheckHandler := fun _ info => do
 /--
 Displays a name, without attempting to elaborate implicit arguments.
 -/
-----@[builtin_doc_role]
+@[builtin_doc_role]
 def name (full : Option Ident := none) (scope : DocScope := .local) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let x := s.getString.toName
@@ -211,7 +211,7 @@ In `` {tactic}`T` ``, `T` can be any of the following:
  * The first token of a tactic (e.g. `induction`)
  * Valid tactic syntax, potentially including antiquotations (e.g. `intro $x*`)
 -/
-----@[builtin_doc_role]
+@[builtin_doc_role]
 def tactic (checked : flag true) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   if !checked then
@@ -278,7 +278,7 @@ In `` {conv}`T` ``, `T` can be any of the following:
  * The name of a conv tactic syntax kind (e.g. `Lean.Parser.Tactic.Conv.lhs`)
  * Valid conv tactic syntax, potentially including antiquotations (e.g. `lhs`)
 -/
-----@[builtin_doc_role]
+@[builtin_doc_role]
 def conv (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   withRef s do
@@ -304,7 +304,7 @@ open Lean.Parser.Term in
 /--
 A reference to an attribute or attribute-application syntax.
 -/
-----@[builtin_doc_role]
+@[builtin_doc_role]
 def attr (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   withRef s do
@@ -365,7 +365,7 @@ In `` {option}`O` ``, `O` can be either:
  * The name of an option (e.g. `pp.all`)
  * Syntax to set an option to a particular value (e.g. `set_option pp.all true`)
 -/
-----@[builtin_doc_role]
+@[builtin_doc_role]
 def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   withRef s do
@@ -437,7 +437,7 @@ private def validateCat (x : Ident) : DocM Bool := do
 /--
 A reference to a syntax category.
 -/
---@[builtin_doc_role]
+@[builtin_doc_role]
 def syntaxCat (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let x ← parseStrLit rawIdentFn s
@@ -463,7 +463,7 @@ where
 /--
 A description of syntax in the provided category.
 -/
---@[builtin_doc_role]
+@[builtin_doc_role]
 def «syntax» (cat : Ident) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   if (← validateCat cat) then
@@ -498,7 +498,7 @@ Additionally, the contents of the code literal can be repeated, with comma separ
 
 If the `show` flag is `false` (default `true`), then the metavariable is not shown in the docstring.
 -/
---@[builtin_doc_role]
+@[builtin_doc_role]
 def given (type : Option StrLit := none) (typeIsMeta : flag false) («show» : flag true) (xs : TSyntaxArray `inline) :
     DocM (Inline ElabInline) := do
   let s ← onlyCode xs
@@ -599,7 +599,7 @@ elaboration are saved under this name.
 
 The flags `error` and `warning` indicate that an error or warning is expected in the code.
 -/
---@[builtin_doc_code_block]
+@[builtin_doc_code_block]
 def lean (name : Option Ident := none) (error warning «show» : flag false) (code : StrLit) :
     DocM (Block ElabInline ElabBlock) := do
   let text ← getFileMap
@@ -690,7 +690,7 @@ where
 /--
 Displays output from a named Lean code block.
 -/
---@[builtin_doc_code_block]
+@[builtin_doc_code_block]
 def output (name : Ident) (severity : Option (WithSyntax MessageSeverity) := none) (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
   let allOut := leanOutputExt.getState (← getEnv)
   let some outs := allOut.find? name.getId
@@ -733,7 +733,7 @@ private def leanTermContents : ParserFn :=
 /--
 Treats the provided term as Lean syntax in the documentation's scope.
 -/
---@[builtin_doc_role lean]
+@[builtin_doc_role lean]
 def leanRole (type : Option StrLit := none) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let stx ← parseStrLit leanTermContents s
@@ -756,7 +756,7 @@ Indicates that a code element is intended as just a literal string, with no furt
 
 This is equivalent to a bare code element, except suggestions will not be provided for it.
 -/
---@[builtin_doc_role]
+@[builtin_doc_role]
 def lit (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   pure (.code s.getString)
@@ -764,7 +764,7 @@ def lit (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
 /--
 Treats the provided term as Lean syntax in the documentation's scope.
 -/
---@[builtin_doc_code_block]
+@[builtin_doc_code_block]
 def leanTerm (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
   let stx ← parseStrLit leanTermContents code
   let ty? ←
@@ -790,7 +790,7 @@ Asserts that an equality holds.
 This doesn't use the equality type because it is needed in the prelude, before the = notation is
 introduced.
 -/
---@[builtin_doc_role]
+@[builtin_doc_role]
 def assert' (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let stx ← parseStrLit assertContents s
@@ -809,7 +809,7 @@ def assert' (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
 /--
 Asserts that an equality holds.
 -/
---@[builtin_doc_role]
+@[builtin_doc_role]
 def assert (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let stx ← parseStrLit termParser.fn s
@@ -829,7 +829,7 @@ The `+scoped` flag causes scoped instances and attributes to be activated, but n
 brought into scope. The named argument `only`, which can be repeated, specifies a subset of names to
 bring into scope from the namespace.
 -/
---@[builtin_doc_command]
+@[builtin_doc_command]
 def «open» (n : Ident) («scoped» : flag false) («only» : many Ident) : DocM (Block ElabInline ElabBlock) := do
   let nss ← resolveNamespace n
   if only.isEmpty then
@@ -852,7 +852,7 @@ def «open» (n : Ident) («scoped» : flag false) («only» : many Ident) : Doc
 /--
 Sets the specified option to the specified value for the remainder of the comment.
 -/
---@[builtin_doc_command]
+@[builtin_doc_command]
 def «set_option» (option : Ident) (value : DataValue) : DocM (Block ElabInline ElabBlock) := do
   addCompletionInfo <| CompletionInfo.option option
   let optionName := option.getId
@@ -868,7 +868,7 @@ Constructs a link to the Lean langauge reference. Two positional arguments are e
  * `domain` should be one of the valid domains, such as `section`.
  * `name` should be the content's canonical name in the domain.
 -/
---@[builtin_doc_role]
+@[builtin_doc_role]
 def manual (domain : Ident) (name : String) (content : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let domStr := domain.getId.toString
   if domStr ∉ manualDomains then
@@ -883,7 +883,7 @@ def manual (domain : Ident) (name : String) (content : TSyntaxArray `inline) : D
 /--
 Suggests the `name` and `given` roles, if applicable.
 -/
---@[builtin_doc_code_suggestions]
+@[builtin_doc_code_suggestions]
 def suggestName (code : StrLit) : DocM (Array CodeSuggestion) := do
   let stx ← parseStrLit identFn code
   let mut suggestions := #[]
@@ -901,7 +901,7 @@ def suggestName (code : StrLit) : DocM (Array CodeSuggestion) := do
 /--
 Suggests `given` for the syntaxes not covered by `suggestName`.
 -/
---@[builtin_doc_code_suggestions]
+@[builtin_doc_code_suggestions]
 def suggestGiven (code : StrLit) : DocM (Array CodeSuggestion) := do
   let stx ← parseStrLit givenContents code
   if stx[1][1].isMissing && stx[2][1].isMissing then
@@ -911,7 +911,7 @@ def suggestGiven (code : StrLit) : DocM (Array CodeSuggestion) := do
 /--
 Suggests the `lean` role, if applicable.
 -/
---@[builtin_doc_code_suggestions]
+@[builtin_doc_code_suggestions]
 def suggestLean (code : StrLit) : DocM (Array CodeSuggestion) := do
   try
     let stx ← parseStrLit leanTermContents code
@@ -929,7 +929,7 @@ def suggestLean (code : StrLit) : DocM (Array CodeSuggestion) := do
 /--
 Suggests the `leanTerm` code block, if applicable.
 -/
---@[builtin_doc_code_block_suggestions]
+@[builtin_doc_code_block_suggestions]
 def suggestLeanTermBlock (code : StrLit) : DocM (Array CodeBlockSuggestion) := do
   try
     let stx ← parseStrLit leanTermContents code
@@ -947,7 +947,7 @@ def suggestLeanTermBlock (code : StrLit) : DocM (Array CodeBlockSuggestion) := d
 /--
 Suggests the `lean` code block, if applicable.
 -/
---@[builtin_doc_code_block_suggestions]
+@[builtin_doc_code_block_suggestions]
 def suggestLeanBlock (code : StrLit) : DocM (Array CodeBlockSuggestion) := do
   let p : ParserFn := whitespace >> many1Fn commandParser.fn
   try
@@ -958,7 +958,7 @@ def suggestLeanBlock (code : StrLit) : DocM (Array CodeBlockSuggestion) := do
 /--
 Suggests the `tactic` role, if applicable.
 -/
---@[builtin_doc_code_suggestions]
+@[builtin_doc_code_suggestions]
 def suggestTactic (code : StrLit) : DocM (Array CodeSuggestion) := do
   let asString := code.getString
   let asName := asString.toName
@@ -976,7 +976,7 @@ open Lean.Parser.Term in
 /--
 Suggests the `attr` role, if applicable.
 -/
---@[builtin_doc_code_suggestions]
+@[builtin_doc_code_suggestions]
 def suggestAttr (code : StrLit) : DocM (Array CodeSuggestion) := do
   try
     let stx ← parseStrLit attributes.fn code
@@ -996,7 +996,7 @@ open Lean.Parser.Command in
 /--
 Suggests the `option` role, if applicable.
 -/
---@[builtin_doc_code_suggestions]
+@[builtin_doc_code_suggestions]
 def suggestOption (code : StrLit) : DocM (Array CodeSuggestion) := do
   try
     discard <| parseStrLit Command.«set_option».fn code
@@ -1015,7 +1015,7 @@ def suggestOption (code : StrLit) : DocM (Array CodeSuggestion) := do
 /--
 Suggests the `syntaxCat` role, if applicable.
 -/
---@[builtin_doc_code_suggestions]
+@[builtin_doc_code_suggestions]
 def suggestCat (code : StrLit) : DocM (Array CodeSuggestion) := do
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env
@@ -1027,7 +1027,7 @@ def suggestCat (code : StrLit) : DocM (Array CodeSuggestion) := do
 /--
 Suggests the `syntax` role, if applicable.
 -/
---@[builtin_doc_code_suggestions]
+@[builtin_doc_code_suggestions]
 def suggestSyntax (code : StrLit) : DocM (Array CodeSuggestion) := do
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env

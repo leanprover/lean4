@@ -8,6 +8,7 @@ module
 prelude
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
+import Init.LawfulBEqTactics
 
 namespace Lean.Elab.Deriving.ReflBEq
 open Lean.Parser.Term
@@ -17,6 +18,10 @@ open TSyntax.Compat in
 open Parser.Tactic in
 def mkReflBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
   let indVal ← getConstInfoInduct declName
+  if indVal.all.length > 1 then
+    throwError "Deriving `ReflBEq` for mutual inductives is not supported"
+  if indVal.isNested then
+    throwError "Deriving `ReflBEq` for nested inductives is not supported"
 
   let argNames     ← mkInductArgNames indVal
   let binders      ← mkImplicitBinders argNames
@@ -24,14 +29,8 @@ def mkReflBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
   let binders      := binders ++ (← mkInstImplicitBinders ``ReflBEq indVal argNames)
   let indType      ← mkInductiveApp indVal argNames
   let type         ← `($(mkCIdent ``ReflBEq) $indType)
-  let instCmd ← `(
-    instance $binders:implicitBinder* : $type where
-      rfl := by
-        intro x
-        induction x
-        all_goals
-          first | simp [ *, reduceBEq ]
-                | fail "Failed to prove ReflBEq instance")
+  let instCmd ← `( instance $binders:implicitBinder* : $type where
+    rfl := by deriving_ReflEq_tactic)
   let cmds := #[instCmd]
   trace[Elab.Deriving.reflBEq] "\n{cmds}"
   return cmds

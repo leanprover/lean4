@@ -18,6 +18,10 @@ open TSyntax.Compat in
 open Parser.Tactic in
 def mkLawfulBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
   let indVal ← getConstInfoInduct declName
+  if indVal.all.length > 1 then
+    throwError "Deriving `LawfulBEq` for mutual inductives is not supported"
+  if indVal.isNested then
+    throwError "Deriving `LawfulBEq` for nested inductives is not supported"
 
   let argNames     ← mkInductArgNames indVal
   let binders      ← mkImplicitBinders argNames

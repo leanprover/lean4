@@ -50,7 +50,7 @@ info: instLawfulBEqWithHEq.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq α✝] [La
 #check instLawfulBEqWithHEq
 
 
--- No `BEq` derived? Not a great error message yet.
+-- No `BEq` derived? Not a great error message yet, but the error location helps, so good enough.
 
 /--
 error: failed to synthesize
@@ -65,27 +65,26 @@ structure Foo where
 -- No `ReflBEq` but `LawfulBEq`? ot a great error message yet.
 
 /--
+@ +2:16...25
 error: failed to synthesize
   ReflBEq Bar
 
 Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
-#guard_msgs in
+#guard_msgs (positions := true) in
 structure Bar where
   deriving BEq, LawfulBEq
 
 /--
 @ +5:16...23
-error: The `induction` tactic does not support the type `Tree` because it is mutually inductive
-
-Hint: Consider using the `cases` tactic instead
+error: Deriving `ReflBEq` for mutual inductives is not supported
 -/
 #guard_msgs (positions := true) in
 mutual
 inductive Tree (α : Type u) where
   | node : TreeList α → Tree α
   | leaf : α → Tree α
-  deriving BEq, ReflBEq
+  deriving BEq, ReflBEq, LawfulBEq
 
 inductive TreeList (α : Type u) where
   | nil : TreeList α

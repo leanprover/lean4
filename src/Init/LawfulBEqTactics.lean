@@ -17,6 +17,13 @@ public section
 
 namespace DerivingHelpers
 
+macro "deriving_ReflEq_tactic" : tactic => `(tactic|(
+  intro x
+  induction x
+  all_goals
+    simp only [ BEq.refl, ↓reduceDIte, Bool.and_true, *, reduceBEq ]
+))
+
 theorem and_true_curry {a b : Bool} {P : Prop}
     (h : a → b → P) : (a && b) → P := by
   rw [Bool.and_eq_true_iff]
@@ -85,12 +92,12 @@ macro_rules
   `(tactic| intro _; trivial)
 
 macro "deriving_LawfulEq_tactic" : tactic => `(tactic|(
-    intro x
-    induction x
+  intro x
+  induction x
+  all_goals
+    intro y
+    cases y
     all_goals
-      intro y
-      cases y
-      all_goals
-        simp only [reduceBEq]
-        repeat deriving_LawfulEq_tactic_step
+      simp only [reduceBEq]
+      repeat deriving_LawfulEq_tactic_step
 ))

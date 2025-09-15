@@ -105,7 +105,6 @@ coinductive my_nat  where
   | succ : my_nat → my_nat
 
 def Set := Nat → Prop
-
 coinductive Foo : Set where
 
 /--
@@ -113,3 +112,12 @@ info: Foo.coinduct (pred : Set) (hyp : ∀ (a : Nat), pred a → False) (a✝ : 
 -/
 #guard_msgs in
 #check Foo.coinduct
+
+coinductive Bar : Set where
+  | make : Bar 42
+
+/--
+info: Bar.coinduct (pred : Set) (hyp : ∀ (a : Nat), pred a → a = 42) (a✝ : Nat) : pred a✝ → Bar a✝
+-/
+#guard_msgs in
+#check Bar.coinduct

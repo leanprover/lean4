@@ -45,7 +45,7 @@ the constants.
 def getMethodSpecsInfo (instName : Name) : MetaM MethodSpecsInfo := do
   let instInfo ← getConstInfoDefn instName
   let some clsName ← isClass? instInfo.type
-    | throwError "expected `{.ofConstName instName}` to be a type class instance, but its's \
+    | throwError "expected `{.ofConstName instName}` to be a type class instance, but its \
          type{inlineExpr instInfo.type}does not look like a class."
   let instArity ← forallTelescopeReducing instInfo.type fun xs _ => pure xs.size
   let some structInfo := getStructureInfo? (← getEnv) clsName
@@ -68,7 +68,7 @@ def getMethodSpecsInfo (instName : Name) : MetaM MethodSpecsInfo := do
       unless f.isConst do
         throwError "field `{field}` of the instance is not an application of a constant"
       unless f.constLevels! == instInfo.levelParams.map mkLevelParam do
-        throwError "function `{f}` gets universe parameters\n  {f.constLevels!}\nwhich differs from \
+        throwError "function `{f}` is called with universe parameters\n  {f.constLevels!}\nwhich differs from \
           the instances' universe parameters\n  {instInfo.levelParams.map mkLevelParam}"
       unless xs == ys do
         throwError "function `{f}` does not take its arguments in the same order as the instance"
@@ -174,6 +174,28 @@ def isSpecThmNameFor (env : Environment) (name : Name) : Option Name := do
     if n == s!"{fieldName}_spec" || startsWithFollowedByNumber n s!"{fieldName}_spec_" then
       return p
   none
+
+public partial def getMethodSpecTheorem (instName : Name) (op : String) : MetaM (Option Name) := do
+  let env ← getEnv
+  let some _ := methodSpecsAttr.getParam? env instName | return none
+  realizeGlobalConstNoOverloadCore (instName.str s!"{op}_spec")
+
+public partial def getMethodSpecTheorems (instName : Name) (op : String) : MetaM (Option (Array Name)) := do
+  let some _ := methodSpecsAttr.getParam? (← getEnv) instName | return none
+  -- Realize spec theorems
+  let _ ← realizeGlobalConstNoOverloadCore (instName.str s!"{op}_spec")
+  -- Now collect the generated ones
+  let mut i := 0
+  let mut thms := #[]
+  let env ← getEnv
+  while true do
+    let thmName := instName.str s!"{op}_spec_{i+1}"
+    if env.containsOnBranch thmName then
+      thms := thms.push thmName
+      i := i + 1
+    else
+      break
+  return some thms
 
 builtin_initialize
   registerReservedNamePredicate fun env name => isSpecThmNameFor env name |>.isSome

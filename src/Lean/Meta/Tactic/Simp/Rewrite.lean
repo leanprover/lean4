@@ -160,8 +160,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
       recordSimpTheorem thm.origin
       return some { expr := rhs, proof? }
     else
-      -- unless lhs.isMVar do
-      id do
+      unless lhs.isMVar do
         -- We do not report unification failures when `lhs` is a metavariable
         -- Example: `x = ()`
         -- TODO: reconsider if we want thms such as `(x : Unit) → x = ()`

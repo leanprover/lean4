@@ -132,7 +132,7 @@ private def getSemiringIdOf : RingM Nat := do
   let some semiringId := (← getCommRing).semiringId? | throwError "`grind` internal error, semiring is not available"
   return semiringId
 
-private def getSemiringOf : RingM Semiring := do
+private def getSemiringOf : RingM CommSemiring := do
   SemiringM.run (← getSemiringIdOf) do getSemiring
 
 private def mkSemiringPrefix (declName : Name) : ProofM Expr := do

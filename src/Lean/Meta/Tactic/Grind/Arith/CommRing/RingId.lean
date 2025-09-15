@@ -97,7 +97,7 @@ where
     let some ringId ← getCommRingId? q
       | throwError "`grind` unexpected failure, failure to initialize ring{indentExpr q}"
     let id := (← get').semirings.size
-    let semiring : Semiring := {
+    let semiring : CommSemiring := {
       id, type, ringId, u, semiringInst, commSemiringInst
     }
     modify' fun s => { s with semirings := s.semirings.push semiring }

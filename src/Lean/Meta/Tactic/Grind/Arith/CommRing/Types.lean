@@ -220,24 +220,14 @@ structure CommRing extends Ring where
   numEq0Updated  : Bool := false
   deriving Inhabited
 
-/--
-State for each `CommSemiring` processed by this module.
-Recall that `CommSemiring` are processed using the envelop `OfCommSemiring.Q`
--/
+/-- Shared state for non-commutative and commutative semirings. -/
 structure Semiring where
   id             : Nat
-  /-- Id for `OfCommSemiring.Q` -/
-  ringId         : Nat
   type           : Expr
   /-- Cached `getDecLevel type` -/
   u              : Level
   /-- `Semiring` instance for `type` -/
   semiringInst   : Expr
-  /-- `CommSemiring` instance for `type` -/
-  commSemiringInst   : Expr
-  /-- `AddRightCancel` instance for `type` if available. -/
-  addRightCancelInst? : Option (Option Expr) := none
-  toQFn?         : Option Expr := none
   addFn?         : Option Expr := none
   mulFn?         : Option Expr := none
   powFn?         : Option Expr := none
@@ -251,6 +241,20 @@ structure Semiring where
   vars           : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap         : PHashMap ExprPtr Var := {}
+  deriving Inhabited
+
+/--
+State for each `CommSemiring` processed by this module.
+Recall that `CommSemiring` are processed using the envelop `OfCommSemiring.Q`
+-/
+structure CommSemiring extends Semiring where
+  /-- Id for `OfCommSemiring.Q` -/
+  ringId         : Nat
+  /-- `CommSemiring` instance for `type` -/
+  commSemiringInst   : Expr
+  /-- `AddRightCancel` instance for `type` if available. -/
+  addRightCancelInst? : Option (Option Expr) := none
+  toQFn?         : Option Expr := none
   deriving Inhabited
 
 /-- State for all `CommRing` types detected by `grind`. -/
@@ -267,7 +271,7 @@ structure State where
   /- Mapping from expressions/terms to their ring ids. -/
   exprToRingId : PHashMap ExprPtr Nat := {}
   /-- Commutative semirings. We support them using the envelope `OfCommRing.Q` -/
-  semirings : Array Semiring := {}
+  semirings : Array CommSemiring := {}
   /--
   Mapping from types to its "semiring id". We cache failures using `none`.
   `stypeIdOf[type]` is `some id`, then `id < semirings.size`.

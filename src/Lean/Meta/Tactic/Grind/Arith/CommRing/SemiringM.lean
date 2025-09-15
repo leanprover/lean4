@@ -25,7 +25,7 @@ abbrev SemiringM.run (semiringId : Nat) (x : SemiringM α) : GoalM α :=
 abbrev getSemiringId : SemiringM Nat :=
   return (← read).semiringId
 
-def getSemiring : SemiringM Semiring := do
+def getSemiring : SemiringM CommSemiring := do
   let s ← get'
   let semiringId ← getSemiringId
   if h : semiringId < s.semirings.size then
@@ -33,7 +33,7 @@ def getSemiring : SemiringM Semiring := do
   else
     throwError "`grind` internal error, invalid semiringId"
 
-@[inline] def modifySemiring (f : Semiring → Semiring) : SemiringM Unit := do
+@[inline] def modifySemiring (f : CommSemiring → CommSemiring) : SemiringM Unit := do
   let semiringId ← getSemiringId
   modify' fun s => { s with semirings := s.semirings.modify semiringId f }
 

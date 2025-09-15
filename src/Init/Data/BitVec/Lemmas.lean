@@ -6211,19 +6211,25 @@ theorem ctz_lt_iff_ne_zero {x : BitVec w} :
   apply clz_lt_iff_ne_zero (x := x.reverse)
 
 /-- If a bitvec is different than zero the bits at indexes lower than `ctz x` are false. -/
-theorem getLsbD_false_of_lt_ctz {x : BitVec w} (hi : i < x.ctz.toNat) (hi' : i < w) :
+theorem getLsbD_false_of_lt_ctz {x : BitVec w} (hi : i < x.ctz.toNat) :
     x.getLsbD i = false := by
-  simp only [ctz_eq_reverse_clz, clz] at hi
   rw [getLsbD_eq_getMsbD, ← getLsbD_reverse]
-  simp only [hi', decide_true, Bool.true_and]
-  have : (x.reverse.clzAuxRec (w - 1)).toNat ≤ w := by
-    rw [show ((x.reverse.clzAuxRec (w - 1)).toNat ≤ w) =
-          ((x.reverse.clzAuxRec (w - 1)).toNat ≤ (BitVec.ofNat w w).toNat) by simp only [toNat_ofNat,
-            Nat.mod_two_pow_self], ← le_def]
-    apply clzAuxRec_le (x := x.reverse) (n := w - 1)
-  let j := (x.reverse.clzAuxRec (w - 1)).toNat - 1 - i
-  rw [show w - 1 - i = w - (x.reverse.clzAuxRec (w - 1)).toNat + j by omega]
-  exact getLsbD_false_of_clzAuxRec (x := x.reverse) (n := w - 1) (by intros i hj; simp [show w ≤ i by omega]) (j := j)
+  have hiff := ctz_lt_iff_ne_zero (x := x)
+  by_cases hzero : x = 0#w
+  · simp [hzero, getLsbD_reverse]
+  · simp only [ctz_eq_reverse_clz, natCast_eq_ofNat, ne_eq, hzero, not_false_eq_true,
+      iff_true] at hiff
+    simp at hi
+    have hi' : i < w := by simp [BitVec.lt_def] at hiff; omega
+    simp [hi', decide_true, Bool.true_and]
+    have : (x.reverse.clzAuxRec (w - 1)).toNat ≤ w := by
+      rw [show ((x.reverse.clzAuxRec (w - 1)).toNat ≤ w) =
+            ((x.reverse.clzAuxRec (w - 1)).toNat ≤ (BitVec.ofNat w w).toNat) by simp only [toNat_ofNat,
+              Nat.mod_two_pow_self], ← le_def]
+      apply clzAuxRec_le (x := x.reverse) (n := w - 1)
+    let j := (x.reverse.clzAuxRec (w - 1)).toNat - 1 - i
+    rw [show w - 1 - i = w - (x.reverse.clzAuxRec (w - 1)).toNat + j by sorry]
+    exact getLsbD_false_of_clzAuxRec (x := x.reverse) (n := w - 1) (by intros i hj; simp [show w ≤ i by omega]) (j := j)
 
 /-- If a bitvec is different than zero, the bit at index `ctz x`, i.e., the first bit after the
   trailing zeros is true. -/

@@ -71,7 +71,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
     int signum = (int)(int32_t)signum_obj;
 
     lean_uv_signal_object * signal = (lean_uv_signal_object*)malloc(sizeof(lean_uv_signal_object));
-    signal->m_signum = (int32_t) signum;
+    signal->m_signum = signum;
     signal->m_repeating = repeating;
     signal->m_state = SIGNAL_STATE_INITIAL;
     signal->m_promise = NULL;

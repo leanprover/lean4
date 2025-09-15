@@ -69,7 +69,7 @@ private partial def toInt? (e : Expr) : RingM (Option Int) := do
   | _ => return none
 
 private def isInvInst (inst : Expr) : RingM Bool := do
-  if (← getRing).fieldInst?.isNone then return false
+  if (← getCommRing).fieldInst?.isNone then return false
   return isSameExpr (← getInvFn).appArg! inst
 
 /--
@@ -79,10 +79,10 @@ Otherwise, asserts `if a = 0 then a⁻¹ = 0 else a * a⁻¹ = 1`
 -/
 private def processInv (e inst a : Expr) : RingM Unit := do
   unless (← isInvInst inst) do return ()
-  let ring ← getRing
+  let ring ← getCommRing
   let some fieldInst := ring.fieldInst? | return ()
-  if (← getRing).invSet.contains a then return ()
-  modifyRing fun s => { s with invSet := s.invSet.insert a }
+  if (← getCommRing).invSet.contains a then return ()
+  modifyCommRing fun s => { s with invSet := s.invSet.insert a }
   if let some k ← toInt? a then
     if k == 0 then
       /-
@@ -117,7 +117,7 @@ private def processInv (e inst a : Expr) : RingM Unit := do
 private def internalizeInv (e : Expr) : GoalM Bool := do
   match_expr e with
   | Inv.inv α inst a =>
-    let some ringId ← getRingId? α | return true
+    let some ringId ← getCommRingId? α | return true
     RingM.run ringId do processInv e inst a
     return true
   | _ => return false
@@ -130,20 +130,26 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   if (← internalizeInv e) then return ()
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
-  if let some ringId ← getRingId? type then RingM.run ringId do
+  if let some ringId ← getCommRingId? type then RingM.run ringId do
     let some re ← reify? e | return ()
     trace_goal[grind.ring.internalize] "[{ringId}]: {e}"
     setTermRingId e
     ringExt.markTerm e
-    modifyRing fun s => { s with
+    modifyCommRing fun s => { s with
       denote := s.denote.insert { expr := e } re
       denoteEntries := s.denoteEntries.push (e, re)
     }
-  else if let some semiringId ← getSemiringId? type then SemiringM.run semiringId do
+  else if let some semiringId ← getCommSemiringId? type then SemiringM.run semiringId do
     let some re ← sreify? e | return ()
     trace_goal[grind.ring.internalize] "semiring [{semiringId}]: {e}"
     setTermSemiringId e
     ringExt.markTerm e
     modifySemiring fun s => { s with denote := s.denote.insert { expr := e } re }
+  else if let some ncRingId ← getNonCommRingId? type then NonCommRingM.run ncRingId do
+    let some re ← ncreify? e | return ()
+    trace_goal[grind.ring.internalize] "(non-comm) ring [ncRingId}]: {e}"
+    setTermNonCommRingId e
+    ringExt.markTerm e
+    modifyRing fun s => { s with denote := s.denote.insert { expr := e } re }
 
 end Lean.Meta.Grind.Arith.CommRing

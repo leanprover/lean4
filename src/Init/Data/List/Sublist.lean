@@ -638,14 +638,20 @@ protected theorem Sublist.drop : ∀ {l₁ l₂ : List α}, l₁ <+ l₂ → ∀
 
 /-! ### IsPrefix / IsSuffix / IsInfix -/
 
-@[simp, grind] theorem prefix_append (l₁ l₂ : List α) : l₁ <+: l₁ ++ l₂ := ⟨l₂, rfl⟩
+@[simp] theorem prefix_append (l₁ l₂ : List α) : l₁ <+: l₁ ++ l₂ := ⟨l₂, rfl⟩
 
-@[simp, grind] theorem suffix_append (l₁ l₂ : List α) : l₂ <:+ l₁ ++ l₂ := ⟨l₁, rfl⟩
+grind_pattern prefix_append => l₁ <+: l₁ ++ l₂
+
+@[simp] theorem suffix_append (l₁ l₂ : List α) : l₂ <:+ l₁ ++ l₂ := ⟨l₁, rfl⟩
+
+grind_pattern suffix_append => l₂ <:+ l₁ ++ l₂
 
 theorem infix_append (l₁ l₂ l₃ : List α) : l₂ <:+: l₁ ++ l₂ ++ l₃ := ⟨l₁, l₃, rfl⟩
 
-@[simp, grind] theorem infix_append' (l₁ l₂ l₃ : List α) : l₂ <:+: l₁ ++ (l₂ ++ l₃) := by
+@[simp] theorem infix_append' (l₁ l₂ l₃ : List α) : l₂ <:+: l₁ ++ (l₂ ++ l₃) := by
   rw [← List.append_assoc]; apply infix_append
+
+grind_pattern infix_append' => l₂ <:+: l₁ ++ (l₂ ++ l₃)
 
 theorem infix_append_left : l₁ <:+: l₁ ++ l₂ := ⟨[], l₂, rfl⟩
 theorem infix_append_right : l₂ <:+: l₁ ++ l₂ := ⟨l₁, [], by simp⟩
@@ -673,7 +679,9 @@ theorem suffix_refl (l : List α) : l <:+ l := ⟨[], rfl⟩
 theorem infix_refl (l : List α) : l <:+: l := prefix_rfl.isInfix
 @[simp, grind] theorem infix_rfl {l : List α} : l <:+: l := infix_refl l
 
-@[simp, grind] theorem suffix_cons (a : α) : ∀ l, l <:+ a :: l := suffix_append [a]
+@[simp] theorem suffix_cons (a : α) : ∀ l, l <:+ a :: l := suffix_append [a]
+
+grind_pattern suffix_cons => _ <:+ a :: l
 
 theorem infix_cons : l₁ <:+: l₂ → l₁ <:+: a :: l₂ := fun ⟨l₁', l₂', h⟩ => ⟨a :: l₁', l₂', h ▸ rfl⟩
 

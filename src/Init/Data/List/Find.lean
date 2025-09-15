@@ -559,7 +559,6 @@ where
 @[simp] theorem findIdx_singleton {a : α} {p : α → Bool} : [a].findIdx p = if p a then 0 else 1 := by
   simp [findIdx_cons, findIdx_nil]
 
-@[grind →]
 theorem findIdx_of_getElem?_eq_some {xs : List α} (w : xs[xs.findIdx p]? = some y) : p y := by
   induction xs with
   | nil => simp_all

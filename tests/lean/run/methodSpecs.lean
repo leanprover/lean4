@@ -99,13 +99,13 @@ Now some error conditions
 #guard_msgs in @[method_specs] inductive Foo
 
 /--
-error: expected `foo` to be a type class instance, but its's type `Nat` does not look like a class.
+error: expected `foo` to be a type class instance, but its type `Nat` does not look like a class.
 -/
 #guard_msgs in @[method_specs] def foo := 1
 
 structure S where field : Nat
 /--
-error: expected `aS` to be a type class instance, but its's type `S` does not look like a class.
+error: expected `aS` to be a type class instance, but its type `S` does not look like a class.
 -/
 #guard_msgs in @[method_specs] def aS : S := ⟨1⟩
 
@@ -134,7 +134,7 @@ def L.badAppend : L α → L α → L α
   | cons x xs, ys => cons x (L.badAppend xs ys)
 
 /--
-error: function `@L.badAppend` gets universe parameters
+error: function `@L.badAppend` is called with universe parameters
   [u+1]
 which differs from the instances' universe parameters
   [u]

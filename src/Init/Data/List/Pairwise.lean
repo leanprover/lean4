@@ -277,9 +277,11 @@ theorem pairwise_of_forall_mem_list {l : List α} {r : α → α → Prop} (h : 
 
 @[grind =] theorem nodup_iff_pairwise_ne : List.Nodup l ↔ List.Pairwise (· ≠ ·) l := Iff.rfl
 
-@[simp, grind]
+@[simp]
 theorem nodup_nil : @Nodup α [] :=
   Pairwise.nil
+
+grind_pattern nodup_nil => @Nodup α []
 
 @[simp, grind =]
 theorem nodup_cons {a : α} {l : List α} : Nodup (a :: l) ↔ a ∉ l ∧ Nodup l := by

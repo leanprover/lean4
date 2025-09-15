@@ -32,6 +32,12 @@ structure ElabInline where
   name : Name
   val : Dynamic
 
+instance : Repr ElabInline where
+  reprPrec v _ :=
+    .group <| .nestD <|
+      .group (.nestD ("{ name :=" ++ .line ++ repr v.name)) ++ .line ++
+      .group (.nestD ("val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
+
 private instance : Doc.MarkdownInline ElabInline where
   -- TODO extensibility
   toMarkdown go _i content := content.forM go
@@ -43,7 +49,14 @@ its interpretation; if in doubt, use the name of the elaborator that produces th
 -/
 structure ElabBlock where
   name : Name
-  value : Dynamic
+  val : Dynamic
+
+instance : Repr ElabBlock where
+  reprPrec v _ :=
+    .group <| .nestD <|
+      .group (.nestD ("{ name :=" ++ .line ++ repr v.name)) ++ .line ++
+      .group (.nestD ("val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
+
 
 -- TODO extensible toMarkdown
 private instance : Doc.MarkdownBlock ElabInline ElabBlock where
@@ -95,10 +108,27 @@ Links to the Lean manual aren't validated.
 def addBuiltinDocString (declName : Name) (docString : String) : IO Unit := do
   builtinDocStrings.modify (·.insert declName docString.removeLeadingSpaces)
 
+/--
+Removes a builtin docstring from the compiler. This is used when translating between formats.
+-/
+def removeBuiltinDocString (declName : Name) : IO Unit := do
+  builtinDocStrings.modify (·.erase declName)
+
+/--
+Retrieves all builtin Verso docstrings.
+-/
+def getBuiltinVersoDocStrings : IO (NameMap VersoDocString) :=
+  builtinVersoDocStrings.get
+
 def addDocStringCore [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) (docString : String) : m Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError m!"invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
   modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
+
+def removeDocStringCore [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) : m Unit := do
+  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
+    throwError m!"invalid doc string removal, declaration `{.ofConstName declName}` is in an imported module"
+  modifyEnv fun env => docStringExt.modifyState env (·.erase declName) (asyncMode := .mainOnly)
 
 def addDocStringCore' [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) (docString? : Option String) : m Unit :=
   match docString? with
@@ -161,7 +191,8 @@ structure ModuleDoc where
   doc : String
   declarationRange : DeclarationRange
 
-private builtin_initialize moduleDocExt : SimplePersistentEnvExtension ModuleDoc (PersistentArray ModuleDoc) ← registerSimplePersistentEnvExtension {
+private builtin_initialize moduleDocExt :
+    SimplePersistentEnvExtension ModuleDoc (PersistentArray ModuleDoc) ← registerSimplePersistentEnvExtension {
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.push e
   exportEntriesFnEx? := some fun _ _ es level =>

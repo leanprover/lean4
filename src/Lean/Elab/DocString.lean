@@ -23,82 +23,6 @@ open scoped Lean.Doc.Syntax
 
 
 
-/-- Environment extension for code suggestions -/
-builtin_initialize codeSuggestionExt : SimpleScopedEnvExtension Name NameSet ←
-  registerSimpleScopedEnvExtension {
-    addEntry := fun xs suggester => xs.insert suggester
-    initial := {}
-  }
-
-/--
-Built-in code suggestions, for bootstrapping
--/
-builtin_initialize builtinCodeSuggestions : IO.Ref NameSet ← IO.mkRef {}
-
-/-- Environment extension for code block suggestions -/
-builtin_initialize codeBlockSuggestionExt : SimpleScopedEnvExtension Name NameSet ←
-  registerSimpleScopedEnvExtension {
-    addEntry := fun xs suggester => xs.insert suggester
-    initial := {}
-  }
-
-/--
-Built-in code block suggestions, for bootstrapping
--/
-builtin_initialize builtinCodeBlockSuggestions : IO.Ref NameSet ← IO.mkRef {}
-
-/-- Environment extension for docstring roles -/
-builtin_initialize docRoleExt : SimpleScopedEnvExtension (Name × Name) (NameMap (Array Name)) ←
-  registerSimpleScopedEnvExtension {
-    addEntry := fun xs (roleName, expander) => xs.alter roleName fun v? =>
-      v?.getD #[] |>.push expander
-    initial := {}
-  }
-
-/--
-Built-in docstring roles, for bootstrapping.
--/
-builtin_initialize builtinDocRoles : IO.Ref (NameMap (Array Name)) ← IO.mkRef {}
-
-/-- Environment extension for docstring roles -/
-builtin_initialize docCodeBlockExt : SimpleScopedEnvExtension (Name × Name) (NameMap (Array Name)) ←
-  registerSimpleScopedEnvExtension {
-    addEntry := fun xs (roleName, expander) => xs.alter roleName fun v? =>
-      v?.getD #[] |>.push expander
-    initial := {}
-  }
-
-/--
-Built-in docstring code blocks, for bootstrapping.
--/
-builtin_initialize builtinDocCodeBlocks : IO.Ref (NameMap (Array Name)) ← IO.mkRef {}
-
-/-- Environment extension for docstring directives -/
-builtin_initialize docDirectiveExt : SimpleScopedEnvExtension (Name × Name) (NameMap (Array Name)) ←
-  registerSimpleScopedEnvExtension {
-    addEntry := fun xs (roleName, expander) => xs.alter roleName fun v? =>
-      v?.getD #[] |>.push expander
-    initial := {}
-  }
-
-/--
-Built-in docstring directives, for bootstrapping.
--/
-builtin_initialize builtinDocDirectives : IO.Ref (NameMap (Array Name)) ← IO.mkRef {}
-
-/-- Environment extension for docstring commands -/
-builtin_initialize docCommandExt : SimpleScopedEnvExtension (Name × Name) (NameMap (Array Name)) ←
-  registerSimpleScopedEnvExtension {
-    addEntry := fun xs (roleName, expander) => xs.alter roleName fun v? =>
-      v?.getD #[] |>.push expander
-    initial := {}
-  }
-
-/--
-Built-in docstring commands, for bootstrapping.
--/
-builtin_initialize builtinDocCommands : IO.Ref (NameMap (Array Name)) ← IO.mkRef {}
-
 public section
 
 private structure ElabLink where
@@ -172,21 +96,43 @@ structure State where
   options : Options
 
 /--
+Determines whether docstring suggestions are to be provided as part of editing the string or in a
+later report.
+-/
+inductive SuggestionMode where
+  /--
+  The user is currently editing the doc comment and can react to suggestions as code actions.
+  -/
+  | interactive
+  /--
+  The user is not editing the doc comment, and should receive suggestions as summaries.
+  -/
+  | batch
+deriving BEq, Repr
+
+/-- Context used as a reader in `DocM`. -/
+structure Context where
+  /-- The declaration for which documentation is being elaborated. -/
+  declName : Name
+  /-- Whether suggestions should be provided interactively. -/
+  suggestionMode : SuggestionMode
+
+/--
 The monad in which documentation is elaborated.
 -/
-abbrev DocM := StateRefT InternalState (StateRefT Lean.Doc.State TermElabM)
+abbrev DocM := ReaderT Context (StateRefT InternalState (StateRefT Lean.Doc.State TermElabM))
 
-private def DocM.mk (act : IO.Ref InternalState → IO.Ref State → TermElabM α) : DocM α := act
+private def DocM.mk (act : Context → IO.Ref InternalState → IO.Ref State → TermElabM α) : DocM α := act
 
 instance : MonadStateOf InternalState DocM :=
-  inferInstanceAs <| MonadStateOf InternalState (StateRefT InternalState (StateRefT Lean.Doc.State TermElabM))
+  inferInstanceAs <| MonadStateOf InternalState (ReaderT Context (StateRefT InternalState (StateRefT Lean.Doc.State TermElabM)))
 
 instance : MonadStateOf State DocM :=
-  inferInstanceAs <| MonadStateOf State (StateRefT InternalState (StateRefT Lean.Doc.State TermElabM))
+  inferInstanceAs <| MonadStateOf State (ReaderT Context (StateRefT InternalState (StateRefT Lean.Doc.State TermElabM)))
 
 
 instance : MonadLift TermElabM DocM where
-  monadLift act := private DocM.mk fun _ st' => do
+  monadLift act := private DocM.mk fun _ _ st' => do
     let {openDecls, lctx, options, ..} := (← st'.get)
     let v ←
       withTheReader Core.Context (fun ρ => { ρ with openDecls, options }) <|
@@ -198,7 +144,8 @@ open Lean.Parser.Term in
 /--
 Runs a documentation elaborator, discarding changes made to the environment.
 -/
-def DocM.exec (declName : Name) (binders : Syntax) (act : DocM α) :
+def DocM.exec (declName : Name) (binders : Syntax) (act : DocM α)
+    (suggestionMode : SuggestionMode := .interactive) :
     TermElabM α := withoutModifyingEnv do
   let some ci := (← getEnv).constants.find? declName
     | throwError "Unknown constant {declName} when building docstring"
@@ -207,9 +154,9 @@ def DocM.exec (declName : Name) (binders : Syntax) (act : DocM α) :
   try
     let openDecls ← getOpenDecls
     let options ← getOptions
-    let scopes := [{header := ""}]
+    let scopes := [{header := "", isPublic := true}]
     let ((v, _), _) ← withTheReader Meta.Context (fun ρ => { ρ with localInstances }) <|
-      act.run {} |>.run { scopes, openDecls, lctx, options }
+      act.run { declName, suggestionMode } |>.run {} |>.run { scopes, openDecls, lctx, options }
     pure v
   finally
     scopedEnvExtensionsRef.set sc
@@ -219,31 +166,39 @@ where
     let mut type := type
     let mut localInstances := (← readThe Meta.Context).localInstances
     let mut lctx := ← getLCtx
-    for b in binders.getArgs do
-      for x in (← binderNames b) do
-        -- Consume parameters until we find one that matches or run out
-        repeat
-          type ← Meta.whnf type
-          match type with
-          | .forallE y ty body bi =>
-            let fv ← mkFreshFVarId
-            if let some c := ← Meta.isClass? ty then
-              localInstances := localInstances.push {className := c, fvar := .fvar fv}
-            if let some x' := x then
-              if x'.getId == y then
-                lctx := lctx.mkLocalDecl fv y ty
-                addTermInfo' x' (.fvar fv) (lctx? := some lctx) (expectedType? := ty)
-                type := body.instantiate1 (.fvar fv)
-                break
-            else
-              if bi == .instImplicit then
-                lctx := lctx.mkLocalDecl fv y ty
-                type := body.instantiate1 (.fvar fv)
-                break
+    let names ← binders.getArgs.flatMapM binderNames
+    let mut i := 0
+    let mut x := none
+    repeat -- Consume parameters until we find one that matches or run out
+      if x.isNone then
+        x := names[i]?
+        i := i + 1
+      type ← Meta.withLCtx lctx localInstances <| Meta.whnf type
+      match type with
+      | .forallE y ty body bi =>
+        let fv ← mkFreshFVarId
+        if let some c := ← Meta.withLCtx lctx localInstances (Meta.isClass? ty) then
+          localInstances := localInstances.push {className := c, fvar := .fvar fv}
+
+        if let some (some x') := x then
+          if x'.getId == y then
+            lctx := lctx.mkLocalDecl fv y ty
+            Meta.withLCtx lctx localInstances <|
+              addTermInfo' x' (.fvar fv) (lctx? := some lctx) (expectedType? := ty)
+            type := body.instantiate1 (.fvar fv)
+            x := none
+            continue
+        else if let some none := x then
+          if bi == .instImplicit then
             lctx := lctx.mkLocalDecl fv y ty
             type := body.instantiate1 (.fvar fv)
-          | .mdata _ t => type := t
-          | _ => break
+            x := none
+            continue
+
+        lctx := lctx.mkLocalDecl fv y ty
+        type := body.instantiate1 (.fvar fv)
+      | .mdata _ t => type := t
+      | _ => break
     return (lctx, localInstances)
 
   binderNames (binderStx : Syntax) : TermElabM (Array (Option Syntax)) :=
@@ -491,7 +446,16 @@ Asserts that there are no further arguments to a documentation language extensio
 -/
 protected def done : StateT (Array (TSyntax `doc_arg)) DocM Unit := do
   for arg in (← get) do
-    logErrorAt arg m!"Extra argument"
+    match arg with
+    | `(doc_arg|+$x:ident)
+    | `(doc_arg|-$x:ident) =>
+      logErrorAt arg m!"Unexpected flag `{x.getId}`"
+    | `(doc_arg| ($x := $_)) | `(doc_arg| $x:ident := $_) =>
+      logErrorAt arg m!"Unexpected named argument `{x.getId}`"
+    | `(doc_arg| $_:arg_val) =>
+      logErrorAt arg m!"Unexpected positional argument"
+    | _ =>
+      logErrorAt arg m!"Unexpected argument"
   return
 
 private inductive ArgSpec where
@@ -589,6 +553,100 @@ where
         mkLambdaFVars #[u] (← mkAppOptM ``liftM #[none, some m, none, none, (← mkAppM declName args)])
       mkAppM ``Bind.bind #[last, k]
 
+/-- Environment extension for code suggestions -/
+builtin_initialize codeSuggestionExt : SimpleScopedEnvExtension Name NameSet ←
+  registerSimpleScopedEnvExtension {
+    addEntry := fun xs suggester => xs.insert suggester
+    initial := {}
+  }
+
+/-- Environment extension for code block suggestions -/
+builtin_initialize codeBlockSuggestionExt : SimpleScopedEnvExtension Name NameSet ←
+  registerSimpleScopedEnvExtension {
+    addEntry := fun xs suggester => xs.insert suggester
+    initial := {}
+  }
+
+
+/-- Environment extension for docstring roles -/
+builtin_initialize docRoleExt : SimpleScopedEnvExtension (Name × Name) (NameMap (Array Name)) ←
+  registerSimpleScopedEnvExtension {
+    addEntry := fun xs (roleName, expander) => xs.alter roleName fun v? =>
+      v?.getD #[] |>.push expander
+    initial := {}
+  }
+
+/--
+An expander for roles in docstrings.
+-/
+abbrev DocRoleExpander :=
+  TSyntaxArray `inline → StateT (Array (TSyntax `doc_arg)) DocM (Inline ElabInline)
+
+/--
+An expander for commands in docstrings.
+-/
+abbrev DocCommandExpander :=
+  StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)
+
+/--
+An expander for directives in docstrings.
+-/
+abbrev DocDirectiveExpander :=
+  TSyntaxArray `block → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)
+
+/--
+An expander for code blocks in docstrings.
+-/
+abbrev DocCodeBlockExpander :=
+  StrLit → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)
+
+/--
+Built-in docstring roles, for bootstrapping.
+-/
+builtin_initialize builtinDocRoles : IO.Ref (NameMap (Array (Name × DocRoleExpander))) ← IO.mkRef {}
+
+/-- Environment extension for docstring roles -/
+builtin_initialize docCodeBlockExt : SimpleScopedEnvExtension (Name × Name) (NameMap (Array Name)) ←
+  registerSimpleScopedEnvExtension {
+    addEntry := fun xs (roleName, expander) => xs.alter roleName fun v? =>
+      v?.getD #[] |>.push expander
+    initial := {}
+  }
+
+/--
+Built-in docstring code blocks, for bootstrapping.
+-/
+builtin_initialize
+  builtinDocCodeBlocks : IO.Ref (NameMap (Array (Name × DocCodeBlockExpander))) ← IO.mkRef {}
+
+/-- Environment extension for docstring directives -/
+builtin_initialize docDirectiveExt : SimpleScopedEnvExtension (Name × Name) (NameMap (Array Name)) ←
+  registerSimpleScopedEnvExtension {
+    addEntry := fun xs (roleName, expander) => xs.alter roleName fun v? =>
+      v?.getD #[] |>.push expander
+    initial := {}
+  }
+
+/--
+Built-in docstring directives, for bootstrapping.
+-/
+builtin_initialize
+  builtinDocDirectives : IO.Ref (NameMap (Array (Name × DocDirectiveExpander))) ← IO.mkRef {}
+
+/-- Environment extension for docstring commands -/
+builtin_initialize docCommandExt : SimpleScopedEnvExtension (Name × Name) (NameMap (Array Name)) ←
+  registerSimpleScopedEnvExtension {
+    addEntry := fun xs (roleName, expander) => xs.alter roleName fun v? =>
+      v?.getD #[] |>.push expander
+    initial := {}
+  }
+
+/--
+Built-in docstring commands, for bootstrapping.
+-/
+builtin_initialize
+  builtinDocCommands : IO.Ref (NameMap (Array (Name × DocCommandExpander))) ← IO.mkRef {}
+
 /-- A suggestion about an applicable role -/
 structure CodeSuggestion where
   /-- The name of the role to suggest. -/
@@ -615,12 +673,23 @@ builtin_initialize registerBuiltinAttribute {
 }
 
 /--
+A provider of suggestions for code elements.
+-/
+abbrev CodeSuggester := StrLit → DocM (Array CodeSuggestion)
+
+/--
+Built-in code suggestions, for bootstrapping
+-/
+builtin_initialize
+  builtinCodeSuggestions : IO.Ref (Array (Name × CodeSuggester)) ← IO.mkRef #[]
+
+/--
 Adds a builtin documentation code suggestion provider.
 
 Should be run during initialization.
 -/
-def addBuiltinCodeSuggestion (decl : Name) : IO Unit :=
-  builtinCodeSuggestions.modify (·.insert decl)
+def addBuiltinCodeSuggestion (decl : Name) (val : CodeSuggester) : IO Unit :=
+  builtinCodeSuggestions.modify (·.push (decl, val))
 
 builtin_initialize registerBuiltinAttribute {
   name := `builtin_doc_code_suggestions
@@ -631,7 +700,8 @@ builtin_initialize registerBuiltinAttribute {
       if d.type matches (.forallE _ (.const ``StrLit _)
           (.app (.const ``DocM _) (.app (.const ``Array _) (.const ``CodeSuggestion _)))
           .default) then
-        declareBuiltin decl <| .app (.const ``addBuiltinCodeSuggestion []) (toExpr decl)
+        declareBuiltin decl <|
+          mkApp2 (.const ``addBuiltinCodeSuggestion []) (toExpr decl) (.const decl [])
       else
         throwError "Wrong type for {.ofConstName decl}: {indentD <| repr d.type}"
     else
@@ -661,8 +731,8 @@ Adds a builtin documentation role.
 
 Should be run during initialization.
 -/
-def addBuiltinDocRole (roleName wrapper : Name) : IO Unit :=
-  builtinDocRoles.modify (·.alter roleName fun x? => x?.getD #[] |>.push wrapper)
+def addBuiltinDocRole (roleName wrapperName : Name) (impl : DocRoleExpander) : IO Unit :=
+  builtinDocRoles.modify (·.alter roleName fun x? => x?.getD #[] |>.push (wrapperName, impl))
 
 builtin_initialize registerBuiltinAttribute {
   name := `builtin_doc_role
@@ -679,7 +749,8 @@ builtin_initialize registerBuiltinAttribute {
         (mkApp3 (.const ``List.cons [0]) (.const ``SyntaxNodeKind []) (toExpr `inline) (.app (.const ``List.nil [0]) (.const ``SyntaxNodeKind [])))
     let ret := .app (.const ``Inline [0]) (.const ``ElabInline [])
     let ((wrapper, _), _) ← genWrapper decl (some argTy) ret |>.run {} {} |>.run {} {}
-    declareBuiltin roleName <| mkApp2 (.const ``addBuiltinDocRole []) (toExpr roleName) (toExpr wrapper)
+    declareBuiltin roleName <|
+      mkApp3 (.const ``addBuiltinDocRole []) (toExpr roleName) (toExpr wrapper) (.const wrapper [])
 }
 
 builtin_initialize registerBuiltinAttribute {
@@ -702,8 +773,8 @@ Adds a builtin documentation code block.
 
 Should be run during initialization.
 -/
-def addBuiltinDocCodeBlock (blockName wrapper : Name) : IO Unit :=
-  builtinDocCodeBlocks.modify (·.alter blockName fun x? => x?.getD #[] |>.push wrapper)
+def addBuiltinDocCodeBlock (blockName wrapper : Name) (impl : DocCodeBlockExpander) : IO Unit :=
+  builtinDocCodeBlocks.modify (·.alter blockName fun x? => x?.getD #[] |>.push (wrapper, impl))
 
 builtin_initialize registerBuiltinAttribute {
   name := `builtin_doc_code_block
@@ -717,7 +788,72 @@ builtin_initialize registerBuiltinAttribute {
         pure decl
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
     let ((wrapper, _), _) ← genWrapper decl (some (.const ``StrLit [])) ret |>.run {} {} |>.run {} {}
-    declareBuiltin blockName <| mkApp2 (.const ``addBuiltinDocCodeBlock []) (toExpr blockName) (toExpr wrapper)
+    declareBuiltin blockName <|
+      mkApp3 (.const ``addBuiltinDocCodeBlock [])
+        (toExpr blockName) (toExpr wrapper) (.const wrapper [])
+}
+
+/-- A suggestion about an applicable code block -/
+structure CodeBlockSuggestion where
+  /-- The name of the code block to suggest. -/
+  name : Name
+  /-- The arguments it should receive, as a string. -/
+  args : Option String := none
+  /-- More information to show users -/
+  moreInfo : Option String := none
+
+
+builtin_initialize registerBuiltinAttribute {
+  name := `doc_code_block_suggestions
+  descr := "docstring code block suggestion provider"
+  applicationTime := .afterCompilation
+  add := fun decl stx kind => do
+    if let some d := (← getEnv).find? decl then
+      if d.type matches (.forallE _ (.const ``StrLit _)
+          (.app (.const ``DocM _) (.app (.const ``Array _) (.const ``CodeBlockSuggestion _)))
+          .default) then
+        codeBlockSuggestionExt.add decl
+      else
+        throwError "Wrong type for {.ofConstName decl}: {indentD <| repr d.type}"
+    else
+      throwError "{.ofConstName decl} is not defined"
+}
+
+/--
+A provider of suggestions for code elements.
+-/
+abbrev CodeBlockSuggester := StrLit → DocM (Array CodeBlockSuggestion)
+
+
+/--
+Built-in code block suggestions, for bootstrapping
+-/
+builtin_initialize
+  builtinCodeBlockSuggestions : IO.Ref (Array (Name × CodeBlockSuggester)) ← IO.mkRef #[]
+
+/--
+Adds a builtin documentation code suggestion provider.
+
+Should be run during initialization.
+-/
+def addBuiltinCodeBlockSuggestion (decl : Name) (val : CodeBlockSuggester) : IO Unit :=
+  builtinCodeBlockSuggestions.modify (·.push (decl, val))
+
+builtin_initialize registerBuiltinAttribute {
+  name := `builtin_doc_code_block_suggestions
+  descr := "builtin docstring code block suggestion provider"
+  applicationTime := .afterCompilation
+  add := fun decl stx kind => do
+    if let some d := (← getEnv).find? decl then
+      if d.type matches (.forallE _ (.const ``StrLit _)
+          (.app (.const ``DocM _) (.app (.const ``Array _) (.const ``CodeBlockSuggestion _)))
+          .default) then
+        declareBuiltin decl <|
+          mkApp2 (.const ``addBuiltinCodeBlockSuggestion []) (toExpr decl) (.const decl [])
+      else
+        throwError "Wrong type for {.ofConstName decl}: {indentD <| repr d.type}"
+    else
+      throwError "{.ofConstName decl} is not defined"
 }
 
 builtin_initialize registerBuiltinAttribute {
@@ -735,7 +871,7 @@ builtin_initialize registerBuiltinAttribute {
         (mkApp3 (.const ``List.cons [0]) (.const ``SyntaxNodeKind []) (toExpr `block) (.app (.const ``List.nil [0]) (.const ``SyntaxNodeKind [])))
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
     let ((wrapper, _), _) ← genWrapper decl (some argTy) ret |>.run {} {} |>.run {} {}
-    docCodeBlockExt.add (directiveName, wrapper)
+    docDirectiveExt.add (directiveName, wrapper)
 }
 
 /--
@@ -743,8 +879,8 @@ Adds a builtin documentation directive.
 
 Should be run during initialization.
 -/
-def addBuiltinDocDirective (directiveName wrapper : Name) : IO Unit :=
-  builtinDocCodeBlocks.modify (·.alter directiveName fun x? => x?.getD #[] |>.push wrapper)
+def addBuiltinDocDirective (directiveName wrapper : Name) (impl : DocDirectiveExpander) : IO Unit :=
+  builtinDocDirectives.modify (·.alter directiveName fun x? => x?.getD #[] |>.push (wrapper, impl))
 
 builtin_initialize registerBuiltinAttribute {
   name := `builtin_doc_directive
@@ -761,7 +897,9 @@ builtin_initialize registerBuiltinAttribute {
         (mkApp3 (.const ``List.cons [0]) (.const ``SyntaxNodeKind []) (toExpr `block) (.app (.const ``List.nil [0]) (.const ``SyntaxNodeKind [])))
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
     let ((wrapper, _), _) ← genWrapper decl (some argTy) ret |>.run {} {} |>.run {} {}
-    declareBuiltin directiveName <| mkApp2 (.const ``addBuiltinDocCodeBlock []) (toExpr directiveName) (toExpr wrapper)
+    declareBuiltin directiveName <|
+      mkApp3 (.const ``addBuiltinDocDirective [])
+        (toExpr directiveName) (toExpr wrapper) (.const wrapper [])
 }
 
 builtin_initialize registerBuiltinAttribute {
@@ -785,8 +923,8 @@ Adds a builtin documentation command.
 
 Should be run during initialization.
 -/
-def addBuiltinDocCommand (commandName wrapper : Name) : IO Unit :=
-  builtinDocCommands.modify (·.alter commandName fun x? => x?.getD #[] |>.push wrapper)
+def addBuiltinDocCommand (commandName wrapper : Name) (impl : DocCommandExpander) : IO Unit :=
+  builtinDocCommands.modify (·.alter commandName fun x? => x?.getD #[] |>.push (wrapper, impl))
 
 builtin_initialize registerBuiltinAttribute {
   name := `builtin_doc_command
@@ -801,57 +939,96 @@ builtin_initialize registerBuiltinAttribute {
 
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
     let ((wrapper, _), _) ← genWrapper decl none ret |>.run {} {} |>.run {} {}
-    declareBuiltin commandName <| mkApp2 (.const ``addBuiltinDocCommand []) (toExpr commandName) (toExpr wrapper)
-
+    declareBuiltin commandName <|
+      mkApp3 (.const ``addBuiltinDocCommand [])
+        (toExpr commandName) (toExpr wrapper) (.const wrapper [])
 }
 end
 
 private unsafe def codeSuggestionsUnsafe : TermElabM (Array (StrLit → DocM (Array CodeSuggestion))) := do
-  let names := (codeSuggestionExt.getState (← getEnv)) ++ (← builtinCodeSuggestions.get) |>.toArray
-  names.mapM (evalConst _)
+  let names := (codeSuggestionExt.getState (← getEnv)) |>.toArray
+  return (← names.mapM (evalConst _)) ++ (← builtinCodeSuggestions.get).map (·.2)
 
 @[implemented_by codeSuggestionsUnsafe]
 private opaque codeSuggestions : TermElabM (Array (StrLit → DocM (Array CodeSuggestion)))
 
-private unsafe def codeBlockSuggestionsUnsafe : TermElabM (Array (StrLit → DocM (Array CodeSuggestion))) := do
-  let names := (codeBlockSuggestionExt.getState (← getEnv)) ++ (← builtinCodeBlockSuggestions.get) |>.toArray
-  names.mapM (evalConst _)
+private unsafe def codeBlockSuggestionsUnsafe : TermElabM (Array (StrLit → DocM (Array CodeBlockSuggestion))) := do
+  let names := (codeBlockSuggestionExt.getState (← getEnv)) |>.toArray
+  return (← names.mapM (evalConst _)) ++ (← builtinCodeBlockSuggestions.get).map (·.2)
 
-@[implemented_by codeSuggestionsUnsafe]
-private opaque codeBlockSuggestions : TermElabM (Array (StrLit → DocM (Array CodeSuggestion)))
+@[implemented_by codeBlockSuggestionsUnsafe]
+private opaque codeBlockSuggestions : TermElabM (Array (StrLit → DocM (Array CodeBlockSuggestion)))
 
+private unsafe def roleExpandersForUnsafe (roleName : Ident) : TermElabM (Array (TSyntaxArray `inline → StateT (Array (TSyntax `doc_arg)) DocM (Inline ElabInline))) := do
+  let x? ←
+    try some <$> realizeGlobalConstNoOverloadWithInfo roleName
+    catch | _ => pure none
+  if let some x := x? then
+    let names := (docRoleExt.getState (← getEnv)).get? x |>.getD #[]
+    let builtins := (← builtinDocRoles.get).get? x |>.getD #[]
+    return (← names.mapM (evalConst _)) ++ builtins.map (·.2)
+  else
+    let x := roleName.getId
+    let hasBuiltin :=
+      (← builtinDocRoles.get).get? x <|> (← builtinDocRoles.get).get? (`Lean.Doc ++ x)
+    return hasBuiltin.toArray.flatten.map (·.2)
 
-private unsafe def roleExpandersForUnsafe (roleName : Name) : TermElabM (Array (TSyntaxArray `inline → StateT (Array (TSyntax `doc_arg)) DocM (Inline ElabInline))) := do
-  let names := (docRoleExt.getState (← getEnv)).get? roleName |>.getD #[]
-  let names' := (← builtinDocRoles.get).get? roleName |>.getD #[]
-  (names ++ names').mapM (evalConst _)
 
 @[implemented_by roleExpandersForUnsafe]
-private opaque roleExpandersFor (roleName : Name) : TermElabM (Array (TSyntaxArray `inline → StateT (Array (TSyntax `doc_arg)) DocM (Inline ElabInline)))
+private opaque roleExpandersFor (roleName : Ident) :
+  TermElabM (Array (TSyntaxArray `inline → StateT (Array (TSyntax `doc_arg)) DocM (Inline ElabInline)))
 
-private unsafe def codeBlockExpandersForUnsafe (roleName : Name) : TermElabM (Array (StrLit → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock))) := do
-  let names := (docCodeBlockExt.getState (← getEnv)).get? roleName |>.getD #[]
-  let names' := (← builtinDocCodeBlocks.get).get? roleName |>.getD #[]
-  (names ++ names').mapM (evalConst _)
+private unsafe def codeBlockExpandersForUnsafe (codeBlockName : Ident) : TermElabM (Array (StrLit → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock))) := do
+  let x? ←
+    try some <$> realizeGlobalConstNoOverloadWithInfo codeBlockName
+    catch | _ => pure none
+  if let some x := x? then
+    let names := (docCodeBlockExt.getState (← getEnv)).get? x |>.getD #[]
+    let names' := (← builtinDocCodeBlocks.get).get? x |>.getD #[]
+    return (← names.mapM (evalConst _)) ++ names'.map (·.2)
+  else
+    let x := codeBlockName.getId
+    let hasBuiltin :=
+      (← builtinDocCodeBlocks.get).get? x <|> (← builtinDocCodeBlocks.get).get? (`Lean.Doc ++ x)
+    return hasBuiltin.toArray.flatten.map (·.2)
+
 
 @[implemented_by codeBlockExpandersForUnsafe]
-private opaque codeBlockExpandersFor (roleName : Name) : TermElabM (Array (StrLit → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)))
+private opaque codeBlockExpandersFor (codeBlockName : Ident) : TermElabM (Array (StrLit → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)))
 
-private unsafe def directiveExpandersForUnsafe (roleName : Name) : TermElabM (Array (TSyntaxArray `block → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock))) := do
-  let names := (docCodeBlockExt.getState (← getEnv)).get? roleName |>.getD #[]
-  let names' := (← builtinDocCodeBlocks.get).get? roleName |>.getD #[]
-  (names ++ names').mapM (evalConst _)
+private unsafe def directiveExpandersForUnsafe (directiveName : Ident) : TermElabM (Array (TSyntaxArray `block → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock))) := do
+  let x? ←
+    try some <$> realizeGlobalConstNoOverloadWithInfo directiveName
+    catch | _ => pure none
+  if let some x := x? then
+    let names := (docDirectiveExt.getState (← getEnv)).get? x |>.getD #[]
+    let names' := (← builtinDocDirectives.get).get? x |>.getD #[]
+    return (← names.mapM (evalConst _)) ++ names'.map (·.2)
+  else
+    let x := directiveName.getId
+    let hasBuiltin :=
+      (← builtinDocDirectives.get).get? x <|> (← builtinDocDirectives.get).get? (`Lean.Doc ++ x)
+    return hasBuiltin.toArray.flatten.map (·.2)
 
 @[implemented_by directiveExpandersForUnsafe]
-private opaque directiveExpandersFor (roleName : Name) : TermElabM (Array (TSyntaxArray `block → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)))
+private opaque directiveExpandersFor (directiveName : Ident) : TermElabM (Array (TSyntaxArray `block → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)))
 
-private unsafe def commandExpandersForUnsafe (roleName : Name) : TermElabM (Array (StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock))) := do
-  let names := (docCommandExt.getState (← getEnv)).get? roleName |>.getD #[]
-  let names' := (← builtinDocCommands.get).get? roleName |>.getD #[]
-  (names ++ names').mapM (evalConst _)
+private unsafe def commandExpandersForUnsafe (commandName : Ident) : TermElabM (Array (StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock))) := do
+  let x? ←
+    try some <$> realizeGlobalConstNoOverloadWithInfo commandName
+    catch | _ => pure none
+  if let some x := x? then
+    let names := (docCommandExt.getState (← getEnv)).get? x |>.getD #[]
+    let names' := (← builtinDocCommands.get).get? x |>.getD #[]
+    return (← names.mapM (evalConst _)) ++ names'.map (·.2)
+  else
+    let x := commandName.getId
+    let hasBuiltin :=
+      (← builtinDocCommands.get).get? x <|> (← builtinDocCommands.get).get? (`Lean.Doc ++ x)
+    return hasBuiltin.toArray.flatten.map (·.2)
 
 @[implemented_by commandExpandersForUnsafe]
-private opaque commandExpandersFor (roleName : Name) : TermElabM (Array (StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)))
+private opaque commandExpandersFor (commandName : Ident) : TermElabM (Array (StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)))
 
 
 private def mkArgVal (arg : TSyntax `arg_val) : DocM Term :=
@@ -891,6 +1068,56 @@ register_builtin_option doc.verso.suggestions : Bool := {
   group := "doc"
 }
 
+-- Normally, name suggestions should be provided relative to the current scope. But
+-- during bootstrapping, the names in question may not yet be defined, so builtin
+-- names need special handling.
+private def suggestionName (name : Name) : TermElabM Name := do
+  try
+    if (← getEnv).contains name then
+      unresolveNameGlobalAvoidingLocals name
+    else
+      builtinFallback
+  catch
+    | _ => builtinFallback
+where
+  builtinFallback := do
+    let name' ←
+      if (← builtinDocRoles.get).contains name then pure (some name)
+      else if (← builtinDocCodeBlocks.get).contains name then pure (some name)
+      else pure none
+    match name' with
+      | some (.str _ s) => return .str .anonymous s
+      | some n => return n
+      | none => return name
+
+private def sortSuggestions (ss : Array Meta.Hint.Suggestion) : Array Meta.Hint.Suggestion :=
+  let cmp : (x y : Meta.Tactic.TryThis.SuggestionText) → Bool
+    | .string s1, .string s2 => s1 < s2
+    | .string _, _ => true
+    | .tsyntax _, .string _ => false
+    | .tsyntax s1, .tsyntax s2 => toString s1.raw < toString s2.raw
+  ss.qsort (cmp ·.suggestion ·.suggestion)
+
+open Diff in
+private def mkSuggestion  (ref : Syntax) (hintTitle : MessageData) (newStrings : Array (String × Option String × Option String)) : DocM MessageData := do
+  match (← read).suggestionMode with
+  | .interactive =>
+    hintTitle.hint (newStrings.map fun (s, preInfo?, postInfo?) => { suggestion := s, preInfo?, postInfo? }) (ref? := some ref)
+  | .batch =>
+    let some ⟨b, e⟩ := ref.getRange?
+      | pure m!""
+    let text ← getFileMap
+    let pre := text.source.extract 0 b
+    let post := text.source.extract e text.source.endPos
+    let edits := newStrings.map fun (s, _, _) =>
+      let lines := text.source.split (· == '\n') |>.toArray
+      let s' := pre ++ s ++ post
+      let lines' := s'.split (· == '\n') |>.toArray
+      let d := diff lines lines'
+      toMessageData <| Diff.linesToString <| d.filter (·.1 != Action.skip)
+    pure m!"\n\nHint: {hintTitle}\n{indentD <| m!"\n".joinSep edits.toList}"
+
+
 /--
 Elaborates the syntax of an inline document element to an actual inline document element.
 -/
@@ -922,29 +1149,29 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
         let suggesters ← codeSuggestions
         let mut suggestions := #[]
         for suggest in suggesters do
-          try suggestions := suggestions ++ (← suggest s)
+          try suggestions := suggestions ++ (← withEnableInfoTree false <| suggest s)
           catch | _ => pure ()
         unless suggestions.isEmpty do
           let text ← getFileMap
           let str := text.source.extract b e
-          let ss : Array Meta.Hint.Suggestion ← suggestions.mapM fun {role, args, moreInfo} => do
+          let ss : Array (String × Option String × Option String) ← suggestions.mapM fun {role, args, moreInfo} => do
             pure {
-              suggestion :=
-                "{" ++ (← unresolveNameGlobalAvoidingLocals role).toString ++
+              fst :=
+                "{" ++ (← suggestionName role).toString ++
                 (args.map (" " ++ ·)).getD "" ++ "}" ++ str,
-              postInfo? := moreInfo.map withSpace
+              snd.fst := none
+              snd.snd := moreInfo.map withSpace
             }
-          let ss : Array Meta.Hint.Suggestion := sortSuggestions ss
-          let hint ← m!"Insert a role to document it:".hint ss (ref? := some stx)
-          logWarning m!"Code element could be marked up.{hint}"
+          let ss := ss.qsort (fun x y => x.1 < y.1)
+          let hint ← mkSuggestion stx m!"Insert a role to document it:" ss
+          logWarning m!"Code element could be more specific.{hint}"
     return .code s.getString
   | `(inline|\math code($s)) =>
     return .math .inline s.getString
   | `(inline|\displaymath code($s)) =>
     return .math .display s.getString
   | `(inline|role{$name $args*}[$inl*]) =>
-    let x ← realizeGlobalConstNoOverloadWithInfo name
-    let expanders ← roleExpandersFor x
+    let expanders ← roleExpandersFor name
     for ex in expanders do
       try
         let res ← ex inl args <&> (·.1)
@@ -958,18 +1185,9 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
     throwErrorAt name "No expander for `{name}`"
   | other =>
     throwErrorAt other "Unsupported syntax {other}"
-
 where
   withSpace (s : String) : String :=
     if s.startsWith " " then s else " " ++ s
-
-  sortSuggestions (ss : Array Meta.Hint.Suggestion) : Array Meta.Hint.Suggestion :=
-    let cmp : (x y : Meta.Tactic.TryThis.SuggestionText) → Bool
-      | .string s1, .string s2 => s1 < s2
-      | .string _, _ => true
-      | .tsyntax _, .string _ => false
-      | .tsyntax s1, .tsyntax s2 => toString s1.raw < toString s2.raw
-    ss.qsort (cmp ·.suggestion ·.suggestion)
 
 /--
 Elaborates the syntax of an block-level document element to an actual block-level document element.
@@ -1012,8 +1230,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
           urls := st.urls.insert refStr { content := url.getString, location := ref } }
     return .empty
   | `(block| ::: $name $args* { $content*}) =>
-    let x ← realizeGlobalConstNoOverloadWithInfo name
-    let expanders ← directiveExpandersFor x
+    let expanders ← directiveExpandersFor name
     for ex in expanders do
       try
         let res ← ex content args <&> (·.1)
@@ -1025,9 +1242,32 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
           else throw e
         | e => throw e
     throwErrorAt name "No directive expander for `{name}`"
+  | `(block| ```%$opener | $s ```) =>
+    if doc.verso.suggestions.get (← getOptions) then
+      if let some ⟨b, e⟩ := opener.getRange? then
+        let suggesters ← codeBlockSuggestions
+        let mut suggestions := #[]
+        for suggest in suggesters do
+          try suggestions := suggestions ++ (← withEnableInfoTree false <| suggest s)
+          catch | _ => pure ()
+        unless suggestions.isEmpty do
+          let text ← getFileMap
+          let str := text.source.extract b e
+          let ss : Array (String × Option String × Option String) ← suggestions.mapM fun {name, args, moreInfo} => do
+            pure {
+              fst :=
+                str ++ (← suggestionName name).toString ++
+                (args.map (" " ++ ·)).getD "",
+              snd.fst := moreInfo.map withSpace
+              snd.snd := none
+            }
+          let ss := ss.qsort (fun x y => x.1 < y.1)
+          let hint ← mkSuggestion opener m!"Insert a specific kind of code block:" ss
+          logWarning m!"Code block could be more specific.{hint}"
+
+    return .code s.getString
   | `(block| ```$name $args* | $s ```) =>
-    let x ← realizeGlobalConstNoOverloadWithInfo name
-    let expanders ← codeBlockExpandersFor x
+    let expanders ← codeBlockExpandersFor name
     for ex in expanders do
       try
         let res ← ex s args <&> (·.1)
@@ -1040,8 +1280,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
         | e => throw e
     throwErrorAt name "No code block expander for `{name}`"
   | `(block| command{$name $args*}) =>
-    let x ← realizeGlobalConstNoOverloadWithInfo name
-    let expanders ← commandExpandersFor x
+    let expanders ← commandExpandersFor name
     for ex in expanders do
       try
         let res ← ex args <&> (·.1)
@@ -1053,7 +1292,10 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
           else throw e
         | e => throw e
     throwErrorAt name "No document command elaborator for `{name}`"
-  | _ => throwUnsupportedSyntax
+  | other => throwErrorAt other "Unsupported syntax: {other}"
+where
+  withSpace (s : String) : String :=
+    if s.endsWith " " then s else s ++ " "
 
 private def takeFirst? (xs : Array α) : Option (α × Array α) :=
   if h : xs.size > 0 then

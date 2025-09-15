@@ -396,7 +396,6 @@ theorem findIdx_singleton {a : α} {p : α → Bool} :
     #[a].findIdx p = if p a then 0 else 1 := by
   simp
 
-@[grind →]
 theorem findIdx_of_getElem?_eq_some {xs : Array α} (w : xs[xs.findIdx p]? = some y) : p y := by
   rcases xs with ⟨xs⟩
   exact List.findIdx_of_getElem?_eq_some (by simpa using w)

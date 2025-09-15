@@ -354,14 +354,10 @@ private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) : M
     value := proof
   }
 
-  addDecl <| .defnDecl {
-    name := inductVal.name ++ `existential
-    levelParams := inductVal.levelParams
-    type := ←inferType existential
-    value := existential
-    hints := .opaque
-    safety := .safe
-  }
+  addDecl <| .defnDecl (←mkDefinitionValInferringUnsafe
+    (inductVal.name ++ `existential) inductVal.levelParams
+    (←inferType existential) existential .opaque)
+
 
 public def mkSumOfProducts (declName : Name) : MetaM Unit := do
     trace[Meta.MkIffOfInductiveProp] "Generating existential form of {declName}"

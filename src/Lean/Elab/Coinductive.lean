@@ -219,14 +219,8 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
     /-
       We finish by registering the appropriate declaration
     -/
-    addDecl <| .defnDecl {
-      name := removeFunctorPostfixInCtor ctor.name
-      levelParams := ctor.levelParams
-      type := type
-      value := res
-      hints := .opaque
-      safety := .safe
-    }
+    addDecl <| .defnDecl (←mkDefinitionValInferringUnsafe
+      (removeFunctorPostfixInCtor ctor.name) ctor.levelParams type res .opaque)
     Term.addTermInfo' ctorSyntax res (isBinder := true)
 
 /--

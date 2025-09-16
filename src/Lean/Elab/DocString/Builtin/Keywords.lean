@@ -435,14 +435,13 @@ process.
 
 Use `kw?` to receive a suggestion of a specific kind, and `kw!` to disable the check.
 -/
---@[builtin_doc_role]
+@[builtin_doc_role]
 public def kw (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
     (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   kwImpl (cat := cat) (of := of) false s
 
---@[inherit_doc kw, builtin_doc_role]
-@[inherit_doc kw]
+@[inherit_doc kw, builtin_doc_role]
 public def kw? (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
     (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
@@ -469,8 +468,7 @@ public meta def checkKindExists : PostponedCheckHandler := fun _ info => do
     throwError m!"Not a syntax kind: `{.ofConstName k}`"
 
 
---@[inherit_doc kw, builtin_doc_role]
-@[inherit_doc kw]
+@[inherit_doc kw, builtin_doc_role]
 public def kw! (of : Option Ident := none) (scope : DocScope := .local)
     (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
@@ -506,7 +504,7 @@ public def kw! (of : Option Ident := none) (scope : DocScope := .local)
 /--
 Suggests the `kw` role, if applicable.
 -/
---@[builtin_doc_code_suggestions]
+@[builtin_doc_code_suggestions]
 public def suggestKw (code : StrLit) : DocM (Array CodeSuggestion) := do
   let atoms := code.getString |>.split (·.isWhitespace)
   let env ← getEnv

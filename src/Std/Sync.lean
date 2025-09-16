@@ -14,5 +14,6 @@ public import Std.Sync.Barrier
 public import Std.Sync.SharedMutex
 public import Std.Sync.Notify
 public import Std.Sync.Broadcast
+public import Std.Sync.StreamMap
 
 @[expose] public section

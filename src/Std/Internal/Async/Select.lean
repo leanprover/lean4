@@ -170,6 +170,34 @@ partial def Selectable.one (selectables : Array (Selectable α)) : Async α := d
   Async.ofPromise (pure promise)
 
 /--
+Performs fair and data-loss free non-blocking multiplexing on the `Selectable`s in `selectables`.
+
+This function only tries the non-blocking `tryFn` for each `Selectable` without registering
+waiters or blocking. It returns `some result` if any `Selectable` is immediately available,
+or `none` if all would block.
+
+The protocol for this is as follows:
+1. The `selectables` are shuffled randomly for fairness.
+2. Run `Selector.tryFn` for each element in `selectables`. If any succeed, the corresponding
+   `Selectable.cont` is executed and its result is returned as `some result`.
+3. If none succeed, `none` is returned immediately without blocking.
+-/
+def Selectable.tryOne (selectables : Array (Selectable α)) : Async (Option α) := do
+  if selectables.isEmpty then
+    return none
+
+  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
+  let gen := mkStdGen seed
+  let selectables := shuffleIt selectables gen
+
+  for selectable in selectables do
+    if let some val ← selectable.selector.tryFn then
+      let result ← selectable.cont val
+      return some result
+
+  return none
+
+/--
 Creates a `Selector` that performs fair and data-loss free multiplexing on the `Selectable`s. It's
 similar to `Selectable.one` but it creates another selector out of the selector.
 

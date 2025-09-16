@@ -77,6 +77,20 @@ def selector (stream : StreamMap α) : Async (Selector (String × α)) :=
   Selectable.combine selectables
 
 /--
+Wait for the first value inside of the stream map.
+-/
+def recv (stream : StreamMap α) : Async (String × α) :=
+  let selectables := stream.streams.map fun (name, selector) => Selectable.case selector.fst (fun x => pure (name, x))
+  Selectable.one selectables
+
+/--
+Wait for the first value inside of the stream map.
+-/
+def tryRecv (stream : StreamMap α) : Async (Option (String × α)) :=
+  let selectables := stream.streams.map fun (name, selector) => Selectable.case selector.fst (fun x => pure (name, x))
+  Selectable.tryOne selectables
+
+/--
 Remove a stream by name
 -/
 def unregister (sm : StreamMap α) (name : String) : StreamMap α :=

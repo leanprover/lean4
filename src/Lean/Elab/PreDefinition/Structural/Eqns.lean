@@ -65,9 +65,6 @@ where
           trace[Elab.definition.structural.eqns] "simpTargetStar modified the goal"
           go1 mvarId
         | TacticResultCNM.noChange =>
-          -- if let some mvarId ← deltaRHS? mvarId declName then
-          --   trace[Elab.definition.structural.eqns] "deltaRHS? succeeded"
-          --   go1 mvarId
           if let some mvarIds ← casesOnStuckLHS? mvarId then
             trace[Elab.definition.structural.eqns] "casesOnStuckLHS? succeeded"
             mvarIds.forM go1
@@ -102,13 +99,13 @@ where
           trace[Elab.definition.structural.eqns] "simpTargetStar closed the goal"
         | TacticResultCNM.modified mvarId =>
           trace[Elab.definition.structural.eqns] "simpTargetStar modified the goal"
-          go1 mvarId
+          go3 mvarId
         | TacticResultCNM.noChange =>
           if let some mvarIds ← casesOnStuckLHS? mvarId then
             trace[Elab.definition.structural.eqns] "casesOnStuckLHS? succeeded"
             mvarIds.forM go3
           else
-            go3 mvarId
+            throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
 
 def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do

@@ -59,18 +59,24 @@ def throwInvalidUsrModifier : CoreM α :=
   throwError "the modifier `usr` is only relevant in parameters for `grind only`"
 
 /--
-Auxiliary function for registering `grind` and `grind?` attributes.
-The `grind?` is an alias for `grind` which displays patterns using `logInfo`.
+Auxiliary function for registering `grind`, `grind!`, `grind?`, and `grind!?` attributes.
+`grind!` is like `grind` but selects minimal indexable subterms.
+The `grind?` and `grind!?` are aliases for `grind` and `grind!` which displays patterns using `logInfo`.
 It is just a convenience for users.
 -/
-private def registerGrindAttr (showInfo : Bool) : IO Unit :=
+private def registerGrindAttr (minIndexable : Bool) (showInfo : Bool) : IO Unit :=
   registerBuiltinAttribute {
-    name := if showInfo then `grind? else `grind
+    name := match minIndexable, showInfo with
+      | false, false => `grind
+      | false, true  => `grind?
+      | true,  false => `grind!
+      | true,  true  => `grind!?
     descr :=
-      let header := if showInfo then
-        "The `[grind?]` attribute is identical to the `[grind]` attribute, but displays inferred pattern information."
-      else
-        "The `[grind]` attribute is used to annotate declarations."
+      let header := match minIndexable, showInfo with
+        | false, false => "The `[grind]` attribute is used to annotate declarations."
+        | false, true  => "The `[grind?]` attribute is identical to the `[grind]` attribute, but displays inferred pattern information."
+        | true,  false => "The `[grind!]` attribute is used to annotate declarations, but selecting minimal indexable subterms."
+        | true,  true  => "The `[grind!?]` attribute is identical to the `[grind!]` attribute, but displays inferred pattern information."
       header ++ "\
       \
       When applied to an equational theorem, `[grind =]`, `[grind =_]`, or `[grind _=_]`\
@@ -91,12 +97,12 @@ private def registerGrindAttr (showInfo : Bool) : IO Unit :=
     add := fun declName stx attrKind => MetaM.run' do
       match (← getAttrKindFromOpt stx) with
       | .ematch .user => throwInvalidUsrModifier
-      | .ematch k => addEMatchAttr declName attrKind k (← getGlobalSymbolPriorities) (showInfo := showInfo)
+      | .ematch k => addEMatchAttr declName attrKind k (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
       | .cases eager => addCasesAttr declName eager attrKind
       | .intro =>
         if let some info ← isCasesAttrPredicateCandidate? declName false then
           for ctor in info.ctors do
-            addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (showInfo := showInfo)
+            addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
         else
           throwError "invalid `[grind intro]`, `{.ofConstName declName}` is not an inductive predicate"
       | .ext => addExtAttr declName attrKind
@@ -107,9 +113,9 @@ private def registerGrindAttr (showInfo : Bool) : IO Unit :=
             -- If it is an inductive predicate,
             -- we also add the constructors (intro rules) as E-matching rules
             for ctor in info.ctors do
-              addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (showInfo := showInfo)
+              addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
         else
-          addEMatchAttr declName attrKind (.default false) (← getGlobalSymbolPriorities) (showInfo := showInfo)
+          addEMatchAttr declName attrKind (.default false) (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
       | .symbol prio => addSymbolPriorityAttr declName attrKind prio
     erase := fun declName => MetaM.run' do
       if showInfo then
@@ -123,7 +129,9 @@ private def registerGrindAttr (showInfo : Bool) : IO Unit :=
   }
 
 builtin_initialize
-  registerGrindAttr true
-  registerGrindAttr false
+  registerGrindAttr (minIndexable := false) (showInfo := true)
+  registerGrindAttr (minIndexable := false) (showInfo := false)
+  registerGrindAttr (minIndexable := true) (showInfo := true)
+  registerGrindAttr (minIndexable := true) (showInfo := false)
 
 end Lean.Meta.Grind

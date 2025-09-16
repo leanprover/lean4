@@ -53,10 +53,8 @@ info: theorem instBEqL.beq_spec_3.{u_1} : ∀ {α : Type u_1} [inst : BEq α] (x
 /-- error: Unknown constant `instBEqL.beq_spec_` -/
 #guard_msgs in #print sig instBEqL.beq_spec_
 
--- Test rewriting all the way to HAppend
-
-@[method_specs_simp] theorem Append.append_eq_happend :
-  @Append.append α inst = @HAppend.hAppend α α α (@instHAppendOfAppend α inst) := rfl
+-- Test rewriting all the way to HAppend. This tests `@[method_specs_simp]`, and that
+-- `Init` has that set up properly
 
 def L.append {α : Type u} : L α → L α → L α
   | nil, ys       => ys
@@ -90,6 +88,7 @@ info: theorem instClsL.op_spec_2.{u} : ∀ {α : Type u} (x_1 : α) (xs : L α),
 -/
 #guard_msgs in
 #print sig instClsL.op_spec_2
+
 
 /-!
 Now some error conditions

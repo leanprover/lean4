@@ -1032,7 +1032,6 @@ private def addAndFinalizeInductiveDecl (views : Array InductiveView) (elabs' : 
     addAuxRecs indTypes
     buildFinalizeContext elabs' levelParams vars params views indFVars rs
 
-
 private def mkInductiveDeclCore (vars : Array Expr) (elabs : Array InductiveElabStep1) (rs : Array PreElabHeaderResult) (scopeLevelNames : List Name) : TermElabM FinalizeContext := do
 let views := elabs.map (·.view)
 let view0 := views[0]!
@@ -1154,6 +1153,20 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
       enableRealizationsForConst e.view.declName
     return res
 
+private def elabInductiveViewsCoinductive (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext := do
+  let view0 := elabs[0]!.view
+  let ref := view0.ref
+  Term.withDeclName view0.declName do withRef ref do
+  withExporting (isExporting := !isPrivateName view0.declName) do
+    let res ← mkInductiveDecl vars elabs
+    -- This might be too coarse, consider reconsidering on construction-by-construction basis
+    withoutExporting (when := view0.ctors.any (isPrivateName ·.declName)) do
+      mkAuxConstructions (elabs.map (·.view.declName))
+    -- Note that the below applies to the flat inductive
+    for e in elabs do
+      enableRealizationsForConst e.view.declName
+    return res
+
 /-- Ensures that there are no conflicts among or between the type and constructor names defined in `elabs`. -/
 private def checkNoInductiveNameConflicts (elabs : Array InductiveElabStep1) : TermElabM Unit := do
   let throwErrorsAt (init cur : Syntax) (msg : MessageData) : TermElabM Unit := do
@@ -1251,19 +1264,29 @@ def InductiveViewToCoinductiveElab (e : InductiveElabStep1) : CoinductiveElabDat
   isGreatest := e.view.isCoinductive
 
 def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Unit := do
-  let (elabs, res, isCoinductive) ← runTermElabM fun vars => do
-    let elabs ← inductives.mapM fun (modifiers, stx) => mkInductiveView modifiers stx
-    let isCoinductive := elabs.any (·.view.isCoinductive)
-    let elabs := if isCoinductive then elabs.map fun e => {e with view := updateViewWithFunctorName e.view} else elabs
-    elabs.forM fun e => checkValidInductiveModifier e.view.modifiers
-    checkNoInductiveNameConflicts elabs
-    let res ← elabInductiveViews vars elabs
-    pure (elabs, res, isCoinductive)
-  elabInductiveViewsPostprocessing (elabs.map (·.view)) res
+  let elabs ← runTermElabM fun _ =>
+      inductives.mapM fun (modifiers, stx) => mkInductiveView modifiers stx
+
+  let isCoinductive := elabs.any (·.view.isCoinductive)
+
   if isCoinductive then
-    let coinductiveElabData := elabs.map InductiveViewToCoinductiveElab
-    discard <| coinductiveElabData.mapM fun e => Command.liftCoreM <| MetaM.run' do mkSumOfProducts e.declName
-    runTermElabM fun _ => elabCoinductive coinductiveElabData
+    let (elabs, res) ← runTermElabM fun vars => do
+      let elabs := elabs.map fun e => {e with view := updateViewWithFunctorName e.view}
+      elabs.forM fun e => checkValidInductiveModifier e.view.modifiers
+      checkNoInductiveNameConflicts elabs
+      let res ← elabInductiveViewsCoinductive vars elabs
+      let coinductiveElabData := elabs.map InductiveViewToCoinductiveElab
+      discard <| coinductiveElabData.mapM fun e => MetaM.run' do mkSumOfProducts e.declName
+      elabCoinductive coinductiveElabData
+      pure (elabs, res)
+    elabInductiveViewsPostprocessing (elabs.map (·.view)) res
+  else
+    let (elabs, res) ← runTermElabM fun vars => do
+      elabs.forM fun e => checkValidInductiveModifier e.view.modifiers
+      checkNoInductiveNameConflicts elabs
+      let res ← elabInductiveViews vars elabs
+      pure (elabs, res)
+    elabInductiveViewsPostprocessing (elabs.map (·.view)) res
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   elabInductives #[(modifiers, stx)]

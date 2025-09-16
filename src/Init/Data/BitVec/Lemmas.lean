@@ -6197,7 +6197,6 @@ theorem toNat_lt_two_pow_sub_clz {x : BitVec w} :
 
 /-! ### Count trailing zeros -/
 
-@[simp]
 theorem ctz_eq_reverse_clz {x : BitVec w} :
     x.ctz = (x.reverse).clz := by
   simp [ctz]

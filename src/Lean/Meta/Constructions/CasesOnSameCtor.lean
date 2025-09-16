@@ -225,7 +225,7 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
         -- because this makes the elaborator unfold it more eagerily, it seems,
         -- and this works around issues with the structural recursion equation generator
         -- (see #10195).
-        modifyEnv fun env => markAuxRecursor env declName
+        -- modifyEnv fun env => markAuxRecursor env declName
 
         enableRealizationsForConst declName
         compileDecl decl

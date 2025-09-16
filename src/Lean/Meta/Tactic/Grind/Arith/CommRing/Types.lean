@@ -140,6 +140,29 @@ structure DiseqCnstr where
   -/
   ofSemiring? : Option (SemiringExpr × SemiringExpr)
 
+/-- Shared state for non-commutative and commutative semirings. -/
+structure Semiring where
+  id             : Nat
+  type           : Expr
+  /-- Cached `getDecLevel type` -/
+  u              : Level
+  /-- `Semiring` instance for `type` -/
+  semiringInst   : Expr
+  addFn?         : Option Expr := none
+  mulFn?         : Option Expr := none
+  powFn?         : Option Expr := none
+  natCastFn?     : Option Expr := none
+  /-- Mapping from Lean expressions to their representations as `SemiringExpr` -/
+  denote         : PHashMap ExprPtr SemiringExpr := {}
+  /--
+  Mapping from variables to their denotations.
+  Remark each variable can be in only one ring.
+  -/
+  vars           : PArray Expr := {}
+  /-- Mapping from `Expr` to a variable representing it. -/
+  varMap         : PHashMap ExprPtr Var := {}
+  deriving Inhabited
+
 /-- Shared state for non-commutative and commutative rings. -/
 structure Ring where
   id             : Nat
@@ -218,29 +241,6 @@ structure CommRing extends Ring where
   numEq0?        : Option EqCnstr := none
   /-- Flag indicating whether `numEq0?` has been updated. -/
   numEq0Updated  : Bool := false
-  deriving Inhabited
-
-/-- Shared state for non-commutative and commutative semirings. -/
-structure Semiring where
-  id             : Nat
-  type           : Expr
-  /-- Cached `getDecLevel type` -/
-  u              : Level
-  /-- `Semiring` instance for `type` -/
-  semiringInst   : Expr
-  addFn?         : Option Expr := none
-  mulFn?         : Option Expr := none
-  powFn?         : Option Expr := none
-  natCastFn?     : Option Expr := none
-  /-- Mapping from Lean expressions to their representations as `SemiringExpr` -/
-  denote         : PHashMap ExprPtr SemiringExpr := {}
-  /--
-  Mapping from variables to their denotations.
-  Remark each variable can be in only one ring.
-  -/
-  vars           : PArray Expr := {}
-  /-- Mapping from `Expr` to a variable representing it. -/
-  varMap         : PHashMap ExprPtr Var := {}
   deriving Inhabited
 
 /--

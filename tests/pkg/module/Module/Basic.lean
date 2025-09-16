@@ -34,6 +34,21 @@ info: @[reducible, expose] def fabbrev : Nat :=
 #guard_msgs in
 #print fabbrev
 
+/-- A non-exposed function type. -/
+public def Fun := Nat → Nat
+
+/-! The compiler should check it has sufficient information about types available. -/
+
+/--
+error: Compilation failed, locally inferred compilation type
+  (Nat → Nat) → Nat → Nat
+differs from type
+  (Nat → Nat) → lcAny
+that would be inferred in other modules. This usually means that a type `def` involved with the mentioned declarations needs to be `@[expose]`d. This is a current compiler limitation that may be lifted in the future.
+-/
+#guard_msgs in
+public def Fun.mk (f : Nat → Nat) : Fun := f
+
 #guard_msgs(drop warning) in
 /-- A theorem. -/
 public theorem t : f = 1 := testSorry

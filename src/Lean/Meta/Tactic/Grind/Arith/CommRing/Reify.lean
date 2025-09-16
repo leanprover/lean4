@@ -120,9 +120,11 @@ partial def reifyCore? (e : Expr) (skipVar : Bool) (gen : Nat) : m (Option RingE
     return some (.num k)
   | _ => toTopVar e
 
+/-- Reify ring expression. -/
 def reify? (e : Expr) (skipVar := true) (gen : Nat := 0) : RingM (Option RingExpr) := do
   reifyCore? e skipVar gen
 
+/-- Reify non-commutative ring expression. -/
 def ncreify? (e : Expr) (skipVar := true) (gen : Nat := 0) : NonCommRingM (Option RingExpr) := do
   reifyCore? e skipVar gen
 
@@ -186,9 +188,11 @@ partial def sreifyCore? (e : Expr) : m (Option SemiringExpr) := do
 
 end
 
+/-- Reify semiring expression. -/
 def sreify? (e : Expr) : SemiringM (Option SemiringExpr) := do
   sreifyCore? e
 
+/-- Reify non-commutative semiring expression. -/
 def ncsreify? (e : Expr) : NonCommSemiringM (Option SemiringExpr) := do
   sreifyCore? e
 

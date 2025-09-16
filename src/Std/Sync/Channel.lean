@@ -578,7 +578,7 @@ private partial def recvSelector (ch : Bounded α) : Selector (Option α) where
 
       set { st with consumers }
 where
-  registerAux (ch : Bounded α) (waiter : Waiter (Option α)) : IO Unit := do
+  registerAux (ch : Bounded α) (waiter : Waiter (Option α)) : Async Unit := do
     ch.state.atomically do
       -- We did drop the lock between `tryFn` and now so maybe ready?
       if ← recvReady' then
@@ -597,16 +597,17 @@ where
         let promise ← IO.Promise.new
         modify fun st => { st with consumers := st.consumers.enqueue ⟨promise, some waiter⟩ }
 
-        IO.chainTask promise.result? fun res? => do
-          match res? with
-          | none => return ()
-          | some res =>
-            if res then
-              registerAux ch waiter
-            else
-              let lose := return ()
-              let win promise := promise.resolve (.ok none)
-              waiter.race lose win
+        let result ← await promise.result?
+
+        match result with
+        | none => return ()
+        | some res =>
+          if res then
+            registerAux ch waiter
+          else
+            let lose := return ()
+            let win promise := promise.resolve (.ok none)
+            waiter.race lose win
 
 end Bounded
 

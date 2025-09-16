@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.SynthInstance
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadSemiring
 import Init.Grind.Ring.CommSemiringAdapter
@@ -62,36 +63,6 @@ instance : MonadCommRing SemiringM where
  getCommRing := SemiringM.getCommRing
  modifyCommRing := SemiringM.modifyCommRing
 
-def getAddFn' : SemiringM Expr := do
-  let s ← getSemiring
-  if let some addFn := s.addFn? then return addFn
-  let expectedInst := mkApp2 (mkConst ``instHAdd [s.u]) s.type <| mkApp2 (mkConst ``Grind.Semiring.toAdd [s.u]) s.type s.semiringInst
-  let addFn ← mkBinHomoFn s.type s.u ``HAdd ``HAdd.hAdd expectedInst
-  modifySemiring fun s => { s with addFn? := some addFn }
-  return addFn
-
-def getMulFn' : SemiringM Expr := do
-  let s ← getSemiring
-  if let some mulFn := s.mulFn? then return mulFn
-  let expectedInst := mkApp2 (mkConst ``instHMul [s.u]) s.type <| mkApp2 (mkConst ``Grind.Semiring.toMul [s.u]) s.type s.semiringInst
-  let mulFn ← mkBinHomoFn s.type s.u ``HMul ``HMul.hMul expectedInst
-  modifySemiring fun s => { s with mulFn? := some mulFn }
-  return mulFn
-
-def getPowFn' : SemiringM Expr := do
-  let s ← getSemiring
-  if let some powFn := s.powFn? then return powFn
-  let powFn ← mkPowFn s.u s.type s.semiringInst
-  modifySemiring fun s => { s with powFn? := some powFn }
-  return powFn
-
-def getNatCastFn' : SemiringM Expr := do
-  let s ← getSemiring
-  if let some natCastFn := s.natCastFn? then return natCastFn
-  let natCastFn ← mkNatCastFn s.u s.type s.semiringInst
-  modifySemiring fun s => { s with natCastFn? := some natCastFn }
-  return natCastFn
-
 def getToQFn : SemiringM Expr := do
   let s ← getCommSemiring
   if let some toQFn := s.toQFn? then return toQFn
@@ -112,6 +83,41 @@ def getAddRightCancelInst? : SemiringM (Option Expr) := do
   modifyCommSemiring fun s => { s with addRightCancelInst? := some addRightCancelInst? }
   return addRightCancelInst?
 
+section
+variable [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadCanon m] [MonadSemiring m]
+
+def getAddFn' : m Expr := do
+  let s ← getSemiring
+  if let some addFn := s.addFn? then return addFn
+  let expectedInst := mkApp2 (mkConst ``instHAdd [s.u]) s.type <| mkApp2 (mkConst ``Grind.Semiring.toAdd [s.u]) s.type s.semiringInst
+  let addFn ← mkBinHomoFn s.type s.u ``HAdd ``HAdd.hAdd expectedInst
+  modifySemiring fun s => { s with addFn? := some addFn }
+  return addFn
+
+def getMulFn' : m Expr := do
+  let s ← getSemiring
+  if let some mulFn := s.mulFn? then return mulFn
+  let expectedInst := mkApp2 (mkConst ``instHMul [s.u]) s.type <| mkApp2 (mkConst ``Grind.Semiring.toMul [s.u]) s.type s.semiringInst
+  let mulFn ← mkBinHomoFn s.type s.u ``HMul ``HMul.hMul expectedInst
+  modifySemiring fun s => { s with mulFn? := some mulFn }
+  return mulFn
+
+def getPowFn' : m Expr := do
+  let s ← getSemiring
+  if let some powFn := s.powFn? then return powFn
+  let powFn ← mkPowFn s.u s.type s.semiringInst
+  modifySemiring fun s => { s with powFn? := some powFn }
+  return powFn
+
+def getNatCastFn' : m Expr := do
+  let s ← getSemiring
+  if let some natCastFn := s.natCastFn? then return natCastFn
+  let natCastFn ← mkNatCastFn s.u s.type s.semiringInst
+  modifySemiring fun s => { s with natCastFn? := some natCastFn }
+  return natCastFn
+
+end
+
 def getTermSemiringId? (e : Expr) : GoalM (Option Nat) := do
   return (← get').exprToSemiringId.find? { expr := e }
 
@@ -123,8 +129,11 @@ def setTermSemiringId (e : Expr) : SemiringM Unit := do
     return ()
   modify' fun s => { s with exprToSemiringId := s.exprToSemiringId.insert { expr := e } semiringId }
 
-/-- Similar to `mkVar` but for `Semiring`s -/
-def mkSVar (e : Expr) : SemiringM Var := do
+instance : MonadSetTermId SemiringM where
+  setTermId e := setTermSemiringId e
+
+/-- Similar to `mkVarCore` but for `Semiring`s -/
+def mkSVarCore [MonadLiftT GoalM m] [Monad m] [MonadSemiring m] [MonadSetTermId m] (e : Expr) : m Var := do
   let s ← getSemiring
   if let some var := s.varMap.find? { expr := e } then
     return var
@@ -133,9 +142,12 @@ def mkSVar (e : Expr) : SemiringM Var := do
     vars       := s.vars.push e
     varMap     := s.varMap.insert { expr := e } var
   }
-  setTermSemiringId e
+  MonadSetTermId.setTermId e
   ringExt.markTerm e
   return var
+
+def mkSVar (e : Expr) : SemiringM Var := do
+  mkSVarCore e
 
 def _root_.Lean.Grind.CommRing.Expr.denoteAsRingExpr (e : SemiringExpr) : SemiringM Expr := do
   shareCommon (← go e)

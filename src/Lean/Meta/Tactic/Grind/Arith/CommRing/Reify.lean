@@ -31,7 +31,7 @@ def isNatCastInst (inst : Expr) : m Bool :=
   return isSameExpr (← getNatCastFn).appArg! inst
 
 private def reportAppIssue (e : Expr) : GoalM Unit := do
-  reportIssue! "comm ring term with unexpected instance{indentExpr e}"
+  reportIssue! "ring term with unexpected instance{indentExpr e}"
 
 variable [MonadLiftT GoalM m] [MonadSetTermId m]
 
@@ -119,25 +119,28 @@ partial def reifyCore? (e : Expr) (skipVar : Bool) (gen : Nat) : m (Option RingE
     return some (.num k)
   | _ => toTopVar e
 
-partial def reify? (e : Expr) (skipVar := true) (gen : Nat := 0) : RingM (Option RingExpr) := do
+def reify? (e : Expr) (skipVar := true) (gen : Nat := 0) : RingM (Option RingExpr) := do
   reifyCore? e skipVar gen
 
-partial def ncreify? (e : Expr) (skipVar := true) (gen : Nat := 0) : NonCommRingM (Option RingExpr) := do
+def ncreify? (e : Expr) (skipVar := true) (gen : Nat := 0) : NonCommRingM (Option RingExpr) := do
   reifyCore? e skipVar gen
 
 private def reportSAppIssue (e : Expr) : GoalM Unit := do
-  reportIssue! "comm semiring term with unexpected instance{indentExpr e}"
+  reportIssue! "semiring term with unexpected instance{indentExpr e}"
+
+section
+variable [MonadLiftT GoalM m] [MonadError m] [Monad m] [MonadCanon m] [MonadSemiring m] [MonadSetTermId m]
 
 /--
 Similar to `reify?` but for `CommSemiring`
 -/
-partial def sreify? (e : Expr) : SemiringM (Option SemiringExpr) := do
-  let toVar (e : Expr) : SemiringM SemiringExpr := do
-    return .var (← mkSVar e)
-  let asVar (e : Expr) : SemiringM SemiringExpr := do
+partial def sreifyCore? (e : Expr) : m (Option SemiringExpr) := do
+  let toVar (e : Expr) : m SemiringExpr := do
+    return .var (← mkSVarCore e)
+  let asVar (e : Expr) : m SemiringExpr := do
     reportSAppIssue e
-    return .var (← mkSVar e)
-  let rec go (e : Expr) : SemiringM SemiringExpr := do
+    return .var (← mkSVarCore e)
+  let rec go (e : Expr) : m SemiringExpr := do
     match_expr e with
     | HAdd.hAdd _ _ _ i a b =>
       if isSameExpr (← getAddFn').appArg! i then return .add (← go a) (← go b) else asVar e
@@ -156,9 +159,9 @@ partial def sreify? (e : Expr) : SemiringM (Option SemiringExpr) := do
       let some k ← getNatValue? n | toVar e
       return .num k
     | _ => toVar e
-  let toTopVar (e : Expr) : SemiringM (Option SemiringExpr) := do
+  let toTopVar (e : Expr) : m (Option SemiringExpr) := do
     return some (← toVar e)
-  let asTopVar (e : Expr) : SemiringM (Option SemiringExpr) := do
+  let asTopVar (e : Expr) : m (Option SemiringExpr) := do
     reportSAppIssue e
     toTopVar e
   match_expr e with
@@ -179,5 +182,10 @@ partial def sreify? (e : Expr) : SemiringM (Option SemiringExpr) := do
     let some k ← getNatValue? n | asTopVar e
     return some (.num k)
   | _ => toTopVar e
+
+end
+
+def sreify? (e : Expr) : SemiringM (Option SemiringExpr) := do
+  sreifyCore? e
 
 end  Lean.Meta.Grind.Arith.CommRing

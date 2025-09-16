@@ -8,7 +8,11 @@ module
 prelude
 public import Std.Data
 public import Init.Data.Queue
+public import Std.Sync.Mutex
 public import Std.Internal.Async.IO
+
+public import Std.Sync.Channel
+public import Std.Sync.Broadcast
 
 public section
 

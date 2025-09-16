@@ -311,12 +311,12 @@ where
 def mkInductiveElabDescr (isCoinductive := false) : InductiveElabDescr where
 mkInductiveView (modifiers : Modifiers) (stx : Syntax) := do
     let view ← inductiveSyntaxToView modifiers stx
+    let view := { view with isCoinductive := isCoinductive}
     return {
       view
       elabCtors := fun rs r params => do
         let ctors ← elabCtors (rs.map (·.indFVar)) params r
         return { ctors }
-      isCoinductive := isCoinductive
     }
 
 @[builtin_inductive_elab Lean.Parser.Command.inductive, builtin_inductive_elab Lean.Parser.Command.classInductive]

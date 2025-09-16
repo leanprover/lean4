@@ -1,7 +1,11 @@
 section
 variable (α : Type)
+/--
+docstring
+-/
 coinductive infSeq (r : α → α → Prop) : α → Prop where
   | step : r a b → infSeq r b → infSeq r a
+
 
 /-- info: infSeq (α : Type) (r : α → α → Prop) : α → Prop -/
 #guard_msgs in

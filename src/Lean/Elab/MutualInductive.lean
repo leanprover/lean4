@@ -959,8 +959,8 @@ def replaceIndFVars (numParams : Nat) (oldFVars : Array Expr) (calls : Array Exp
 
   We assume that numVars <= numParams, where numVars is the number of local variables.
 -/
-private def mkFlatInductive (views : Array InductiveView) (elabs' : Array InductiveElabStep2)
-  (indFVars : Array Expr) (vars : Array Expr) (levelParams : List Name) (numVars : Nat)
+private def mkFlatInductive (views : Array InductiveView)
+  (indFVars : Array Expr) (levelParams : List Name) (numVars : Nat)
   (numParams : Nat) (indTypes : List InductiveType) : TermElabM Unit := do
 
   let namesAndTypes := indTypes.map fun indType => (indType.name.append `call, indType.type)
@@ -1137,11 +1137,6 @@ Term.withoutSavingRecAppSyntax do
 private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext :=
   withElaboratedHeaders vars elabs <| mkInductiveDeclCore addAndFinalizeInductiveDecl
 
-private def mkCoinductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM Unit :=
-  withElaboratedHeaders vars elabs <| mkInductiveDeclCore (fun context =>
-     mkFlatInductive context.views context.elabs' context.indFVars context.vars context.levelParams context.numVars context.numParams context.indTypes
-  )
-
 private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
   let env ← getEnv
   let hasEq   := env.contains ``Eq
@@ -1161,6 +1156,10 @@ private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
 
 def updateViewWithFunctorName (view : InductiveView) : InductiveView :=
   let newCtors := view.ctors.map (fun ctor => {ctor with declName := ctor.declName.updatePrefix (addFunctorPostfix ctor.declName.getPrefix)})
+  {view with declName := addFunctorPostfix view.declName, ctors := newCtors}
+
+def updateViewRemovingFunctorName (view : InductiveView) : InductiveView :=
+  let newCtors := view.ctors.map (fun ctor => {ctor with declName := ctor.declName.updatePrefix (removeFunctorPostfix ctor.declName.getPrefix)})
   {view with declName := addFunctorPostfix view.declName, ctors := newCtors}
 
 private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext := do
@@ -1187,7 +1186,7 @@ private def elabInductiveViewsCoinductive (vars : Array Expr) (elabs : Array Ind
   Term.withDeclName view0.declName do withRef ref do
   withExporting (isExporting := !isPrivateName view0.declName) do
     withElaboratedHeaders vars elabs <| mkInductiveDeclCore (fun context =>
-     mkFlatInductive context.views context.elabs' context.indFVars context.vars context.levelParams context.numVars context.numParams context.indTypes)
+     mkFlatInductive context.views context.indFVars context.levelParams context.numVars context.numParams context.indTypes)
     -- This might be too coarse, consider reconsidering on construction-by-construction basis
     withoutExporting (when := view0.ctors.any (isPrivateName ·.declName)) do
       mkAuxConstructions (elabs.map (·.view.declName))
@@ -1286,6 +1285,7 @@ private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res 
 
 private def elabInductiveViewsPostprocessingCoinductive (views : Array InductiveView)
      : CommandElabM Unit := do
+  let views := views.map updateViewRemovingFunctorName
   let view0 := views[0]!
   let ref := view0.ref
   applyComputedFields views -- NOTE: any generated code before this line is invalid
@@ -1314,7 +1314,6 @@ def InductiveViewToCoinductiveElab (e : InductiveElabStep1) : CoinductiveElabDat
   modifiers := e.view.modifiers
   ctorSyntax := e.view.ctors.map (·.ref)
   isGreatest := e.view.isCoinductive
-
 
 def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Unit := do
   let elabs ← runTermElabM fun _ =>

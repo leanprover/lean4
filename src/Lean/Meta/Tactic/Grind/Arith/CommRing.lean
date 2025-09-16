@@ -13,6 +13,8 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.Internalize
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr

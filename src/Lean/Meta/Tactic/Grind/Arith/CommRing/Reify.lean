@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
@@ -186,6 +187,9 @@ partial def sreifyCore? (e : Expr) : m (Option SemiringExpr) := do
 end
 
 def sreify? (e : Expr) : SemiringM (Option SemiringExpr) := do
+  sreifyCore? e
+
+def ncsreify? (e : Expr) : NonCommSemiringM (Option SemiringExpr) := do
   sreifyCore? e
 
 end  Lean.Meta.Grind.Arith.CommRing

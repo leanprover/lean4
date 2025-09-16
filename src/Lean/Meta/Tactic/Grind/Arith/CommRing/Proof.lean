@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
 import Init.Grind.Ring.CommSemiringAdapter
 import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Diseq
@@ -31,7 +32,7 @@ private def toContextExpr [Monad m] [MonadLiftT MetaM m] [MonadCanon m] [MonadRi
   else
     RArray.toExpr ring.type id (RArray.leaf (mkApp (← getNatCastFn) (toExpr 0)))
 
-private def toSContextExpr' (vars : Array Expr) : SemiringM Expr := do
+private def toSContextExpr' [Monad m] [MonadLiftT MetaM m] [MonadCanon m] [MonadSemiring m] (vars : Array Expr) : m Expr := do
   let semiring ← getSemiring
   if h : 0 < vars.size then
     RArray.toExpr semiring.type id (RArray.ofFn (vars[·]) h)
@@ -356,6 +357,25 @@ def setNonCommRingDiseqUnsat (a b : Expr) (ra rb : RingExpr) : NonCommRingM Unit
   else
     mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_nc_eq [ring.u]) ring.type ring.ringInst ctx
   let h := mkApp3 h (toExpr ra) (toExpr rb) eagerReflBoolTrue
+  closeGoal (mkApp hne h)
+
+/--
+Given `a` and `b`, such that `a ≠ b` in the core and `sa` and `sb` their reified semiring
+terms s.t. `sa.toPolyS_nc == sb.toPolyS_nc`, close the goal.
+-/
+def setNonCommSemiringDiseqUnsat (a b : Expr) (sa sb : SemiringExpr) : NonCommSemiringM Unit := do
+  let semiring ← getSemiring
+  let hne ← mkDiseqProof a b
+  let usedVars     := sa.collectVars >> sb.collectVars <| {}
+  let vars'        := usedVars.toArray
+  let varRename    := mkVarRename vars'
+  let vars         := semiring.vars
+  let vars         := vars'.map fun x => vars[x]!
+  let sa           := sa.renameVars varRename
+  let sb           := sb.renameVars varRename
+  let ctx          ← toSContextExpr' vars
+  let h := mkApp3 (mkConst ``Grind.CommRing.eq_normS_nc [semiring.u]) semiring.type semiring.semiringInst ctx
+  let h := mkApp3 h (toExpr sa) (toExpr sb) eagerReflBoolTrue
   closeGoal (mkApp hne h)
 
 end Lean.Meta.Grind.Arith.CommRing

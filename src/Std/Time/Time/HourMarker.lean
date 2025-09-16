@@ -15,10 +15,13 @@ namespace Time
 open Internal
 
 set_option linter.all true
+set_option doc.verso true
 
 /--
-`HourMarker` represents the two 12-hour periods of the day: `am` for hours between 12:00 AM and
-11:59 AM, and `pm` for hours between 12:00 PM and 11:59 PM.
+{open HourMarker}
+
+{name}`HourMarker` represents the two 12-hour periods of the day: {lean}`am` for hours between 12:00 AM and
+11:59 AM, and {name}`pm` for hours between 12:00 PM and 11:59 PM.
 -/
 inductive HourMarker
 
@@ -52,7 +55,8 @@ instance : LawfulEqOrd HourMarker where
 namespace HourMarker
 
 /--
-`ofOrdinal` converts an `Hour.Ordinal` value to an `HourMarker`, indicating whether it is AM or PM.
+{name}`ofOrdinal` converts an {name}`Hour.Ordinal` value to an {name}`HourMarker`, indicating
+whether it is AM or PM.
 -/
 def ofOrdinal (time : Hour.Ordinal) : HourMarker :=
   if time.val ≥ 12 then
@@ -61,7 +65,7 @@ def ofOrdinal (time : Hour.Ordinal) : HourMarker :=
     .am
 
 /--
-Converts a 12-hour clock time to a 24-hour clock time based on the `HourMarker`.
+Converts a 12-hour clock time to a 24-hour clock time based on the {name}`HourMarker`.
 -/
 def toAbsolute (marker : HourMarker) (time : Bounded.LE 1 12) : Hour.Ordinal :=
   match marker with
@@ -69,7 +73,7 @@ def toAbsolute (marker : HourMarker) (time : Bounded.LE 1 12) : Hour.Ordinal :=
   | .pm => if time.val = 12 then 12 else time.add 12 |>.emod 24 (by decide)
 
 /--
-Converts a 24-hour clock time to a 12-hour clock time with a `HourMarker`.
+Converts a 24-hour clock time to a 12-hour clock time with a {name}`HourMarker`.
 -/
 def toRelative (hour : Hour.Ordinal) : Bounded.LE 1 12 × HourMarker :=
   if h₀ : hour.val = 0 then

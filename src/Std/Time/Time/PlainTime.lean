@@ -15,6 +15,7 @@ namespace Time
 open Internal
 
 set_option linter.all true
+set_option doc.verso true
 
 /--
 Represents a specific point in a day, including hours, minutes, seconds, and nanoseconds.
@@ -23,22 +24,22 @@ Represents a specific point in a day, including hours, minutes, seconds, and nan
 structure PlainTime where
 
   /--
-  `Hour` component of the `PlainTime`
+  Hour component of the {name}`PlainTime`
   -/
   hour : Hour.Ordinal
 
   /--
-  `Minute` component of the `PlainTime`
+  Minute component of the {name}`PlainTime`
   -/
   minute : Minute.Ordinal
 
   /--
-  `Second` component of the `PlainTime`
+  Second component of the {name}`PlainTime`
   -/
   second : Second.Ordinal true
 
   /--
-  `Nanoseconds` component of the `PlainTime`
+  Nanosecond component of the {name}`PlainTime`
   -/
   nanosecond : Nanosecond.Ordinal
 deriving Repr, DecidableEq
@@ -69,27 +70,28 @@ instance : LawfulEqOrd PlainTime where
 namespace PlainTime
 
 /--
-Creates a `PlainTime` value representing midnight (00:00:00.000000000).
+Creates a {name}`PlainTime` value representing midnight (00:00:00.000000000).
 -/
 def midnight : PlainTime :=
   ⟨0, 0, 0, 0⟩
 
 /--
-Creates a `PlainTime` value from the provided hours, minutes, seconds and nanoseconds components.
+Creates a {name}`PlainTime` value from the provided hours, minutes, seconds and nanoseconds
+components.
 -/
 @[inline]
 def ofHourMinuteSecondsNano (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal true) (nano : Nanosecond.Ordinal) : PlainTime :=
   ⟨hour, minute, second, nano⟩
 
 /--
-Creates a `PlainTime` value from the provided hours, minutes, and seconds.
+Creates a {name}`PlainTime` value from the provided hours, minutes, and seconds.
 -/
 @[inline]
 def ofHourMinuteSeconds (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal true) : PlainTime :=
   ofHourMinuteSecondsNano hour minute second 0
 
 /--
-Converts a `PlainTime` value to the total number of milliseconds.
+Converts a {name}`PlainTime` value to the total number of milliseconds.
 -/
 def toMilliseconds (time : PlainTime) : Millisecond.Offset :=
   time.hour.toOffset.toMilliseconds +
@@ -98,7 +100,7 @@ def toMilliseconds (time : PlainTime) : Millisecond.Offset :=
   time.nanosecond.toOffset.toMilliseconds
 
 /--
-Converts a `PlainTime` value to the total number of nanoseconds.
+Converts a {name}`PlainTime` value to the total number of nanoseconds.
 -/
 def toNanoseconds (time : PlainTime) : Nanosecond.Offset :=
   time.hour.toOffset.toNanoseconds +
@@ -107,7 +109,7 @@ def toNanoseconds (time : PlainTime) : Nanosecond.Offset :=
   time.nanosecond.toOffset
 
 /--
-Converts a `PlainTime` value to the total number of seconds.
+Converts a {name}`PlainTime` value to the total number of seconds.
 -/
 def toSeconds (time : PlainTime) : Second.Offset :=
   time.hour.toOffset.toSeconds +
@@ -115,7 +117,7 @@ def toSeconds (time : PlainTime) : Second.Offset :=
   time.second.toOffset
 
 /--
-Converts a `PlainTime` value to the total number of minutes.
+Converts a {name}`PlainTime` value to the total number of minutes.
 -/
 def toMinutes (time : PlainTime) : Minute.Offset :=
   time.hour.toOffset.toMinutes +
@@ -123,13 +125,13 @@ def toMinutes (time : PlainTime) : Minute.Offset :=
   time.second.toOffset.toMinutes
 
 /--
-Converts a `PlainTime` value to the total number of hours.
+Converts a {name}`PlainTime` value to the total number of hours.
 -/
 def toHours (time : PlainTime) : Hour.Offset :=
   time.hour.toOffset
 
 /--
-Creates a `PlainTime` value from a total number of nanoseconds.
+Creates a {name}`PlainTime` value from a total number of nanoseconds.
 -/
 def ofNanoseconds (nanos : Nanosecond.Offset) : PlainTime :=
   have totalSeconds := nanos.ediv 1000000000
@@ -144,35 +146,35 @@ def ofNanoseconds (nanos : Nanosecond.Offset) : PlainTime :=
   PlainTime.mk hours minutes seconds nanos
 
 /--
-Creates a `PlainTime` value from a total number of millisecond.
+Creates a {name}`PlainTime` value from a total number of millisecond.
 -/
 @[inline]
 def ofMilliseconds (millis : Millisecond.Offset) : PlainTime :=
   ofNanoseconds millis.toNanoseconds
 
 /--
-Creates a `PlainTime` value from a total number of seconds.
+Creates a {name}`PlainTime` value from a total number of seconds.
 -/
 @[inline]
 def ofSeconds (secs : Second.Offset) : PlainTime :=
   ofNanoseconds secs.toNanoseconds
 
 /--
-Creates a `PlainTime` value from a total number of minutes.
+Creates a {name}`PlainTime` value from a total number of minutes.
 -/
 @[inline]
 def ofMinutes (secs : Minute.Offset) : PlainTime :=
   ofNanoseconds secs.toNanoseconds
 
 /--
-Creates a `PlainTime` value from a total number of hours.
+Creates a {name}`PlainTime` value from a total number of hours.
 -/
 @[inline]
 def ofHours (hour : Hour.Offset) : PlainTime :=
   ofNanoseconds hour.toNanoseconds
 
 /--
-Adds seconds to a `PlainTime`.
+Adds seconds to a {name}`PlainTime`.
 -/
 @[inline]
 def addSeconds (time : PlainTime) (secondsToAdd : Second.Offset) : PlainTime :=
@@ -180,14 +182,14 @@ def addSeconds (time : PlainTime) (secondsToAdd : Second.Offset) : PlainTime :=
   ofNanoseconds totalSeconds
 
 /--
-Subtracts seconds from a `PlainTime`.
+Subtracts seconds from a {name}`PlainTime`.
 -/
 @[inline]
 def subSeconds (time : PlainTime) (secondsToSub : Second.Offset) : PlainTime :=
   addSeconds time (-secondsToSub)
 
 /--
-Adds minutes to a `PlainTime`.
+Adds minutes to a {name}`PlainTime`.
 -/
 @[inline]
 def addMinutes (time : PlainTime) (minutesToAdd : Minute.Offset) : PlainTime :=
@@ -195,14 +197,14 @@ def addMinutes (time : PlainTime) (minutesToAdd : Minute.Offset) : PlainTime :=
   ofNanoseconds total
 
 /--
-Subtracts minutes from a `PlainTime`.
+Subtracts minutes from a {name}`PlainTime`.
 -/
 @[inline]
 def subMinutes (time : PlainTime) (minutesToSub : Minute.Offset) : PlainTime :=
   addMinutes time (-minutesToSub)
 
 /--
-Adds hours to a `PlainTime`.
+Adds hours to a {name}`PlainTime`.
 -/
 @[inline]
 def addHours (time : PlainTime) (hoursToAdd : Hour.Offset) : PlainTime :=
@@ -210,54 +212,55 @@ def addHours (time : PlainTime) (hoursToAdd : Hour.Offset) : PlainTime :=
   ofNanoseconds total
 
 /--
-Subtracts hours from a `PlainTime`.
+Subtracts hours from a {name}`PlainTime`.
 -/
 @[inline]
 def subHours (time : PlainTime) (hoursToSub : Hour.Offset) : PlainTime :=
   addHours time (-hoursToSub)
 
 /--
-Adds nanoseconds to a `PlainTime`.
+Adds nanoseconds to a {name}`PlainTime`.
 -/
 def addNanoseconds (time : PlainTime) (nanosToAdd : Nanosecond.Offset) : PlainTime :=
   let total := time.toNanoseconds + nanosToAdd
   ofNanoseconds total
 
 /--
-Subtracts nanoseconds from a `PlainTime`.
+Subtracts nanoseconds from a {name}`PlainTime`.
 -/
 def subNanoseconds (time : PlainTime) (nanosToSub : Nanosecond.Offset) : PlainTime :=
   addNanoseconds time (-nanosToSub)
 
 /--
-Adds milliseconds to a `PlainTime`.
+Adds milliseconds to a {name}`PlainTime`.
 -/
 def addMilliseconds (time : PlainTime) (millisToAdd : Millisecond.Offset) : PlainTime :=
   let total := time.toMilliseconds + millisToAdd
   ofMilliseconds total
 
 /--
-Subtracts milliseconds from a `PlainTime`.
+Subtracts milliseconds from a {name}`PlainTime`.
 -/
 def subMilliseconds (time : PlainTime) (millisToSub : Millisecond.Offset) : PlainTime :=
   addMilliseconds time (-millisToSub)
 
 /--
-Creates a new `PlainTime` by adjusting the `second` component to the given value.
+Creates a new {name}`PlainTime` by adjusting the {name}`second` component to the given value.
 -/
 @[inline]
 def withSeconds (pt : PlainTime) (second : Second.Ordinal true) : PlainTime :=
   { pt with second := second }
 
 /--
-Creates a new `PlainTime` by adjusting the `minute` component to the given value.
+Creates a new {name}`PlainTime` by adjusting the {name}`minute` component to the given value.
 -/
 @[inline]
 def withMinutes (pt : PlainTime) (minute : Minute.Ordinal) : PlainTime :=
   { pt with minute := minute }
 
 /--
-Creates a new `PlainTime` by adjusting the milliseconds component inside the `nano` component of its `time` to the given value.
+Creates a new {name}`PlainTime` by adjusting the {name}`nanosecond` component to the given
+millisecond value.
 -/
 @[inline]
 def withMilliseconds (pt : PlainTime) (millis : Millisecond.Ordinal) : PlainTime :=
@@ -266,21 +269,21 @@ def withMilliseconds (pt : PlainTime) (millis : Millisecond.Ordinal) : PlainTime
   { pt with nanosecond := majorPart |>.expandTop (by decide) }
 
 /--
-Creates a new `PlainTime` by adjusting the `nano` component to the given value.
+Creates a new {name}`PlainTime` by adjusting the {name}`nanosecond` component to the given value.
 -/
 @[inline]
 def withNanoseconds (pt : PlainTime) (nano : Nanosecond.Ordinal) : PlainTime :=
   { pt with nanosecond := nano }
 
 /--
-Creates a new `PlainTime` by adjusting the `hour` component to the given value.
+Creates a new {name}`PlainTime` by adjusting the {name}`hour` component to the given value.
 -/
 @[inline]
 def withHours (pt : PlainTime) (hour : Hour.Ordinal) : PlainTime :=
   { pt with hour := hour }
 
 /--
-`Millisecond` component of the `PlainTime`
+Extracts the number of milliseconds from of the {name}`nanosecond` component of a {name}`PlainTime`.
 -/
 @[inline]
 def millisecond (pt : PlainTime) : Millisecond.Ordinal :=

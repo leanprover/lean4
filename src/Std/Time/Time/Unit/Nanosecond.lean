@@ -17,9 +17,10 @@ open Std.Internal
 open Internal
 
 set_option linter.all true
+set_option doc.verso true
 
 /--
-`Ordinal` represents a nanosecond value that is bounded between 0 and 999,999,999 nanoseconds.
+{name}`Ordinal` represents a nanosecond value that is bounded between 0 and 999,999,999 nanoseconds.
 -/
 @[expose] def Ordinal := Bounded.LE 0 999999999
 deriving Repr, DecidableEq, LE, LT
@@ -43,7 +44,7 @@ instance : TransOrd Ordinal := inferInstanceAs <| TransOrd (Bounded.LE 0 _)
 instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 0 _)
 
 /--
-`Offset` represents a time offset in nanoseconds.
+{name}`Offset` represents a time offset in nanoseconds.
 -/
 @[expose] def Offset : Type := UnitVal (1 / 1000000000)
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
@@ -66,14 +67,14 @@ instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd (UnitVal _)
 namespace Offset
 
 /--
-Creates an `Offset` from a natural number.
+Creates an {name}`Offset` from a natural number.
 -/
 @[inline]
 def ofNat (data : Nat) : Offset :=
   UnitVal.ofInt data
 
 /--
-Creates an `Offset` from an integer.
+Creates an {name}`Offset` from an integer.
 -/
 @[inline]
 def ofInt (data : Int) : Offset :=
@@ -82,7 +83,7 @@ def ofInt (data : Int) : Offset :=
 end Offset
 
 /--
-`Span` represents a bounded value for nanoseconds, ranging between -999999999 and 999999999.
+{name}`Span` represents a bounded value for nanoseconds, ranging between -999999999 and 999999999.
 This can be used for operations that involve differences or adjustments within this range.
 -/
 @[expose] def Span := Bounded.LE (-999999999) 999999999
@@ -105,7 +106,7 @@ instance : LawfulEqOrd Span := inferInstanceAs <| LawfulEqOrd (Bounded.LE _ _)
 namespace Span
 
 /--
-Creates a new `Offset` out of a `Span`.
+Creates a new {name}`Offset` out of a {name}`Span`.
 -/
 def toOffset (span : Span) : Offset :=
   UnitVal.ofInt span.val
@@ -115,7 +116,7 @@ end Span
 namespace Ordinal
 
 /--
-`Ordinal` represents a bounded value for nanoseconds in a day, which ranges between 0 and 86400000000000.
+{name}`Ordinal` represents a bounded value for nanoseconds in a day, which ranges between 0 and 86400000000000.
 -/
 @[expose] def OfDay := Bounded.LE 0 86400000000000
 deriving Repr, DecidableEq, LE, LT
@@ -135,28 +136,28 @@ instance : TransOrd OfDay := inferInstanceAs <| TransOrd (Bounded.LE _ _)
 instance : LawfulEqOrd OfDay := inferInstanceAs <| LawfulEqOrd (Bounded.LE _ _)
 
 /--
-Creates an `Ordinal` from an integer, ensuring the value is within bounds.
+Creates an {name}`Ordinal` from an integer, ensuring the value is within bounds.
 -/
 @[inline]
 def ofInt (data : Int) (h : 0 ≤ data ∧ data ≤ 999999999) : Ordinal :=
   Bounded.LE.mk data h
 
 /--
-Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
+Creates an {name}`Ordinal` from a natural number, ensuring the value is within bounds.
 -/
 @[inline]
 def ofNat (data : Nat) (h : data ≤ 999999999) : Ordinal :=
   Bounded.LE.ofNat data h
 
 /--
-Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds.
+Creates an {name}`Ordinal` from a {name}`Fin`, ensuring the value is within bounds.
 -/
 @[inline]
 def ofFin (data : Fin 1000000000) : Ordinal :=
   Bounded.LE.ofFin data
 
 /--
-Converts an `Ordinal` to an `Offset`.
+Converts an {name}`Ordinal` to an {name}`Offset`.
 -/
 @[inline]
 def toOffset (ordinal : Ordinal) : Offset :=

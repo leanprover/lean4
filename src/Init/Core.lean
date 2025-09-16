@@ -18,9 +18,12 @@ set_option linter.missingDocs true -- keep it documented
 
 universe u v w
 
+set_option doc.verso true
+
 /--
-`inline (f x)` is an indication to the compiler to inline the definition of `f`
-at the application site itself (by comparison to the `@[inline]` attribute,
+{given -show}`f`
+{lean}`inline (f x)` is an indication to the compiler to inline the definition of {lean}`f`
+at the application site itself (by comparison to the {attr}`@[inline]` attribute,
 which applies to all applications of the function).
 -/
 @[simp] def inline {α : Sort u} (a : α) : α := a
@@ -29,34 +32,47 @@ theorem id_def {α : Sort u} (a : α) : id a = a := rfl
 
 attribute [grind] id
 
+set_option linter.unusedVariables false in
 /--
 A helper gadget for instructing the kernel to eagerly reduce terms.
 
 When the gadget wraps the argument of an application, then when checking that
 the expected and inferred type of the argument match, the kernel will evaluate terms more eagerly.
-It is often used to wrap `Eq.refl true` proof terms as `eagerReduce (Eq.refl true)`
+It is often used to wrap {lean}`Eq.refl true` proof terms as {lean}`eagerReduce (Eq.refl true)`
 when using proof by reflection.
 As an example, consider the theorem:
+```lean -show +warning
+axiom Context : Type u
+axiom Poly : Type v
+axiom Poly.norm : Poly → Poly
+instance : BEq Poly := sorry
+axiom Poly.denote : Poly → Context → Nat
+set_option linter.unusedVariables false
 ```
+```lean +warning
 theorem eq_norm (ctx : Context) (p₁ p₂ : Poly) (h : (p₁.norm == p₂) = true) :
-  p₁.denote ctx = 0 → p₂.denote ctx = 0
+  p₁.denote ctx = 0 → p₂.denote ctx = 0 := sorry
 ```
-The argument `h : (p₁.norm == p₂) = true` is a candidate for `eagerReduce`.
+{given -show (type := "Poly")}`p₁, p₂`
+The argument {given}`h : (p₁.norm == p₂) = true` is a candidate for {lean}`eagerReduce`.
 When applying this theorem, we would write:
-
+{given -show}`ctx : Context`
+{given -show (type := "Poly")}`p, q`
+{given}`h'`
+```leanTerm
+eq_norm ctx p q (eagerReduce (Eq.refl true)) h'
 ```
-eq_norm ctx p q (eagerReduce (Eq.refl true)) h
-```
-to instruct the kernel to use eager reduction when establishing that `(p.norm == q) = true` is
-definitionally equal to `true = true`.
+to instruct the kernel to use eager reduction when establishing that {lean}`(p.norm == q) = true` is
+definitionally equal to {lean}`true = true`.
 -/
 @[expose] def eagerReduce {α : Sort u} (a : α) : α := a
 
 /--
-`flip f a b` is `f b a`. It is useful for "point-free" programming,
+{given -show}`a,b`
+{lean}`flip f a b` is {lean}`f b a`. It is useful for "point-free" programming,
 since it can sometimes be used to avoid introducing variables.
-For example, `(·<·)` is the less-than relation,
-and `flip (·<·)` is the greater-than relation.
+For example, {lean}`(·<·)` is the less-than relation,
+and {lean}`flip (·<·)` is the greater-than relation.
 -/
 @[inline] def flip {α : Sort u} {β : Sort v} {φ : Sort w} (f : α → β → φ) : β → α → φ :=
   fun b a => f a b
@@ -84,8 +100,8 @@ theorem Function.comp_def {α β δ} (f : β → δ) (g : α → β) : f ∘ g =
 attribute [simp] namedPattern
 
 /--
-`Empty.elim : Empty → C` says that a value of any type can be constructed from
-`Empty`. This can be thought of as a compiler-checked assertion that a code path is unreachable.
+{lean}`Empty.elim : Empty → C` says that a value of any type can be constructed from
+{lean}`Empty`. This can be thought of as a compiler-checked assertion that a code path is unreachable.
 -/
 @[macro_inline] def Empty.elim {C : Sort u} : Empty → C := Empty.rec
 
@@ -93,33 +109,35 @@ attribute [simp] namedPattern
 instance : DecidableEq Empty := fun a => a.elim
 
 /--
-`PEmpty.elim : Empty → C` says that a value of any type can be constructed from
-`PEmpty`. This can be thought of as a compiler-checked assertion that a code path is unreachable.
+{lean}`PEmpty.elim : Empty → C` says that a value of any type can be constructed from
+{lean}`PEmpty`. This can be thought of as a compiler-checked assertion that a code path is
+unreachable.
 -/
 @[macro_inline] def PEmpty.elim {C : Sort _} : PEmpty → C := fun a => nomatch a
 
 /-- Decidable equality for PEmpty -/
 instance : DecidableEq PEmpty := fun a => a.elim
 
+set_option doc.verso false in -- forward references
 /--
 Delays evaluation. The delayed code is evaluated at most once.
 
-A thunk is code that constructs a value when it is requested via `Thunk.get`, `Thunk.map`, or
-`Thunk.bind`. The resulting value is cached, so the code is executed at most once. This is also
-known as lazy or call-by-need evaluation.
+A thunk is code that constructs a value when it is requested via {lean}`Thunk.get`,
+{lean}`Thunk.map`, or {lean}`Thunk.bind`. The resulting value is cached, so the code is executed at
+most once. This is also known as lazy or call-by-need evaluation.
 
-The Lean runtime has special support for the `Thunk` type in order to implement the caching
+The Lean runtime has special support for the {lean}`Thunk` type in order to implement the caching
 behavior.
 -/
 structure Thunk (α : Type u) : Type u where
   /--
-  Constructs a new thunk from a function `Unit → α` that will be called when the thunk is first
-  forced.
+  Constructs a new thunk from a function {lean}`Unit → α` that will be called when the thunk is
+  first forced.
 
   The result is cached. It is re-used when the thunk is forced again.
   -/
   mk ::
-  /-- Extract the getter function out of a thunk. Use `Thunk.get` instead. -/
+  /-- Extract the getter function out of a thunk. Use {lean}`Thunk.get` instead. -/
   -- The field is public so as to allow computation through it.
   fn : Unit → α
 
@@ -148,14 +166,14 @@ Computed values are cached, so the value is not recomputed.
 @[csimp] private theorem Thunk.fn_eq_fnImpl : @Thunk.fn = @Thunk.fnImpl := rfl
 
 /--
-Constructs a new thunk that forces `x` and then applies `x` to the result. Upon forcing, the result
-of `f` is cached and the reference to the thunk `x` is dropped.
+Constructs a new thunk that forces {lean}`x` and then applies {lean}`x` to the result. Upon forcing, the result
+of {lean}`f` is cached and the reference to the thunk {lean}`x` is dropped.
 -/
 @[inline] protected def Thunk.map (f : α → β) (x : Thunk α) : Thunk β :=
   ⟨fun _ => f x.get⟩
 
 /--
-Constructs a new thunk that applies `f` to the result of `x` when forced.
+Constructs a new thunk that applies {lean}`f` to the result of {lean}`x` when forced.
 -/
 @[inline] protected def Thunk.bind (x : Thunk α) (f : α → Thunk β) : Thunk β :=
   ⟨fun _ => (f x.get).get⟩
@@ -167,23 +185,25 @@ instance thunkCoe : CoeTail α (Thunk α) where
   -- Since coercions are expanded eagerly, `a` is evaluated lazily.
   coe a := ⟨fun _ => a⟩
 
-/-- A variation on `Eq.ndrec` with the equality argument first. -/
+/-- A variation on {name}`Eq.ndrec` with the equality argument first. -/
 abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : a = b) (m : motive a) : motive b :=
   Eq.ndrec m h
 
 /-! # definitions  -/
 
+
+set_option doc.verso false in -- forward refs
 /--
-If and only if, or logical bi-implication. `a ↔ b` means that `a` implies `b` and vice versa.
-By `propext`, this implies that `a` and `b` are equal and hence any expression involving `a`
-is equivalent to the corresponding expression with `b` instead.
+If and only if, or logical bi-implication. {lean}`a ↔ b` means that {lean}`a` implies {lean}`b` and
+vice versa. By {name}`propext`, this implies that {lean}`a` and {lean}`b` are equal and hence any
+expression involving {lean}`a` is equivalent to the corresponding expression with {lean}`b` instead.
 -/
 structure Iff (a b : Prop) : Prop where
-  /-- If `a → b` and `b → a` then `a` and `b` are equivalent. -/
+  /-- If {lean}`a → b` and {lean}`b → a` then {lean}`a` and {lean}`b` are equivalent. -/
   intro ::
-  /-- Modus ponens for if and only if. If `a ↔ b` and `a`, then `b`. -/
+  /-- Modus ponens for if and only if. If {lean}`a ↔ b` and {lean}`a`, then {lean}`b`. -/
   mp : a → b
-  /-- Modus ponens for if and only if, reversed. If `a ↔ b` and `b`, then `a`. -/
+  /-- Modus ponens for if and only if, reversed. If {lean}`a ↔ b` and {lean}`b`, then {lean}`a`. -/
   mpr : b → a
 
 @[inherit_doc] infix:20 " <-> " => Iff
@@ -193,37 +213,47 @@ recommended_spelling "iff" for "↔" in [Iff, «term_↔_»]
 /-- prefer `↔` over `<->` -/
 recommended_spelling "iff" for "<->" in [Iff, «term_<->_»]
 
+set_option doc.verso false in
 /--
-The disjoint union of types `α` and `β`, ordinarily written `α ⊕ β`.
+The disjoint union of types {lean}`α` and {lean}`β`, ordinarily written {lean}`α ⊕ β`.
 
-An element of `α ⊕ β` is either an `a : α` wrapped in `Sum.inl` or a `b : β` wrapped in `Sum.inr`.
-`α ⊕ β` is not equivalent to the set-theoretic union of `α` and `β` because its values include an
+{open Sum}
+
+An element of {lean}`α ⊕ β` is either an {given}`a : α` wrapped in {name}`Sum.inl` or a
+{given}`b : β` wrapped in {name}`Sum.inr`. {lean}`α ⊕ β` is not equivalent to the set-theoretic
+union of {lean}`α` and {lean}`β` because its values include an
 indication of which of the two types was chosen. The union of a singleton set with itself contains
-one element, while `Unit ⊕ Unit` contains distinct values `inl ()` and `inr ()`.
+one element, while {lean}`Unit ⊕ Unit` contains distinct values {lean}`inl ()` and {lean}`inr ()`.
 -/
 inductive Sum (α : Type u) (β : Type v) where
-  /-- Left injection into the sum type `α ⊕ β`. -/
+  /-- Left injection into the sum type {lean}`α ⊕ β`. -/
   | inl (val : α) : Sum α β
-  /-- Right injection into the sum type `α ⊕ β`. -/
+  /-- Right injection into the sum type {lean}`α ⊕ β`. -/
   | inr (val : β) : Sum α β
 
 @[inherit_doc] infixr:30 " ⊕ " => Sum
 
-/--
-The disjoint union of arbitrary sorts `α` `β`, or `α ⊕' β`.
+docs_to_verso Sum, Sum.inl, Sum.inr
 
-It differs from `α ⊕ β` in that it allows `α` and `β` to have arbitrary sorts `Sort u` and `Sort v`,
-instead of restricting them to `Type u` and `Type v`. This means that it can be used in situations
-where one side is a proposition, like `True ⊕' Nat`. However, the resulting universe level
-constraints are often more difficult to solve than those that result from `Sum`.
+set_option doc.verso false in
+/--
+The disjoint union of arbitrary sorts {lean}`α` {lean}`β`, or {lean}`α ⊕' β`.
+
+It differs from {lean}`Sum` in that it allows {lean}`α` and {lean}`β` to have arbitrary sorts
+{lean}`Sort u` and {lean}`Sort v`, instead of restricting them to {lean}`Type u` and {lean}`Type v`.
+This means that it can be used in situations where one side is a proposition, like
+{lean}`True ⊕' Nat`. However, the resulting universe level constraints are often more difficult to
+solve than those that result from {name}`Sum`.
 -/
 inductive PSum (α : Sort u) (β : Sort v) where
-  /-- Left injection into the sum type `α ⊕' β`.-/
+  /-- Left injection into the sum type {lean}`α ⊕' β`.-/
   | inl (val : α) : PSum α β
-  /-- Right injection into the sum type `α ⊕' β`. -/
+  /-- Right injection into the sum type {lean}`α ⊕' β`. -/
   | inr (val : β) : PSum α β
 
 @[inherit_doc] infixr:30 " ⊕' " => PSum
+
+docs_to_verso PSum, PSum.inl, PSum.inr
 
 /--
 If the left type in a sum is inhabited then the sum is inhabited.
@@ -249,10 +279,10 @@ instance PSum.nonemptyRight [h : Nonempty β] : Nonempty (PSum α β) :=
 
 /--
 Dependent pairs, in which the second element's type depends on the value of the first element. The
-type `Sigma β` is typically written `Σ a : α, β a` or `(a : α) × β a`.
+type {lean}`Sigma β` is typically written {lit}`Σ a : α, β a` or {lit}`(a : α) × β a`.
 
-Although its values are pairs, `Sigma` is sometimes known as the *dependent sum type*, since it is
-the type level version of an indexed summation.
+Although its values are pairs, {name}`Sigma` is sometimes known as the _dependent sum type_, since
+it is the type level version of an indexed summation.
 -/
 @[pp_using_anonymous_constructor]
 structure Sigma {α : Type u} (β : α → Type v) where
@@ -260,8 +290,8 @@ structure Sigma {α : Type u} (β : α → Type v) where
   Constructs a dependent pair.
 
   Using this constructor in a context in which the type is not known usually requires a type
-  ascription to determine `β`. This is because the desired relationship between the two values can't
-  generally be determined automatically.
+  ascription to determine {lean}`β`. This is because the desired relationship between the two values
+  can't generally be determined automatically.
   -/
   mk ::
   /--
@@ -277,17 +307,17 @@ attribute [unbox] Sigma
 
 /--
 Fully universe-polymorphic dependent pairs, in which the second element's type depends on the value
-of the first element and both types are allowed to be propositions. The type `PSigma β` is typically
-written `Σ' a : α, β a` or `(a : α) ×' β a`.
+of the first element and both types are allowed to be propositions. The type {lean}`PSigma β` is
+typically written {lit}`Σ' a : α, β a` or {lit}`(a : α) ×' β a`.
 
 In practice, this generality leads to universe level constraints that are difficult to solve, so
-`PSigma` is rarely used in manually-written code. It is usually only used in automation that
+{lean}`PSigma` is rarely used in manually-written code. It is usually only used in automation that
 constructs pairs of arbitrary types.
 
-To pair a value with a proof that a predicate holds for it, use `Subtype`. To demonstrate that a
-value exists that satisfies a predicate, use `Exists`. A dependent pair with a proposition as its
-first component is not typically useful due to proof irrelevance: there's no point in depending on a
-specific proof because all proofs are equal anyway.
+To pair a value with a proof that a predicate holds for it, use {lean}`Subtype`. To demonstrate that
+a value exists that satisfies a predicate, use {name (scope := "Init.Core")}`Exists`. A dependent
+pair with a proposition as its first component is not typically useful due to proof irrelevance:
+there's no point in depending on a specific proof because all proofs are equal anyway.
 -/
 @[pp_using_anonymous_constructor]
 structure PSigma {α : Sort u} (β : α → Sort v) where
@@ -302,13 +332,14 @@ structure PSigma {α : Sort u} (β : α → Sort v) where
   -/
   snd : β fst
 
+set_option doc.verso false in
 /--
 Existential quantification. If `p : α → Prop` is a predicate, then `∃ x : α, p x`
-asserts that there is some `x` of type `α` such that `p x` holds.
+asserts that there is some `x` of type {lean}`α` such that {lean}`p x` holds.
 To create an existential proof, use the `exists` tactic,
 or the anonymous constructor notation `⟨x, h⟩`.
 To unpack an existential, use `cases h` where `h` is a proof of `∃ x : α, p x`,
-or `let ⟨x, hx⟩ := h` where `.
+or {syntax tactic}`let ⟨x, hx⟩ := h`.
 
 Because Lean has proof irrelevance, any two proofs of an existential are
 definitionally equal. One consequence of this is that it is impossible to recover the
@@ -328,29 +359,34 @@ example (h : ∃ x : Nat, x = x) : True :=
 ```
 -/
 inductive Exists {α : Sort u} (p : α → Prop) : Prop where
-  /-- Existential introduction. If `a : α` and `h : p a`,
-  then `⟨a, h⟩` is a proof that `∃ x : α, p x`. -/
+  /--
+  Existential introduction. If {given}`a : α` and {given}`h : p a`, then {lean type:="Exists p"}`⟨a, h⟩` is a proof that
+  `∃ x : α, p x`.
+  -/
   | intro (w : α) (h : p w) : Exists p
 
 /--
-An indication of whether a loop's body terminated early that's used to compile the `for x in xs`
-notation.
+An indication of whether a loop's body terminated early that's used to compile the
+{syntax doElem}`for x in xs do $steps*` notation.
 
-A collection's `ForIn` or `ForIn'` instance describe's how to iterate over its elements. The monadic
-action that represents the body of the loop returns a `ForInStep α`, where `α` is the local state
-used to implement features such as `let mut`.
+A collection's {name (scope:="Init.Core")}`ForIn` or {name (scope := "Init.Core")}`ForIn'` instance
+describe's how to iterate over its elements. The monadic action that represents the body of the loop
+returns a {lean}`ForInStep α`, where {lean}`α` is the local state used to implement features such as
+{kw! (of := Lean.Parser.Term.doLet) (scope := "Lean.Parser.Do")}`let mut`.
 -/
 inductive ForInStep (α : Type u) where
   /--
   The loop should terminate early.
 
-  `ForInStep.done` is produced by uses of `break` or `return` in the loop body.
+  {lean}`ForInStep.done` is produced by uses of {syntax doElem}`break` or {kw! (of:=Lean.Parser.Term.doReturn) (scope := "Lean.Parser.Do")}`return` in the loop
+  body.
   -/
   | done  : α → ForInStep α
   /--
   The loop should continue with the next iteration, using the returned state.
 
-  `ForInStep.yield` is produced by `continue` and by reaching the bottom of the loop body.
+  {lean}`ForInStep.yield` is produced by {syntax doElem}`continue` and by reaching the bottom of the
+  loop body.
   -/
   | yield : α → ForInStep α
   deriving Inhabited
@@ -358,24 +394,24 @@ inductive ForInStep (α : Type u) where
 /--
 Monadic iteration in `do`-blocks, using the `for x in xs` notation.
 
-The parameter `m` is the monad of the `do`-block in which iteration is performed, `ρ` is the type of
-the collection being iterated over, and `α` is the type of elements.
+The parameter {lean}`m` is the monad of the `do`-block in which iteration is performed, {name}`ρ` is
+the type of the collection being iterated over, and {name}`α` is the type of elements.
 -/
 class ForIn (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) where
   /--
-  Monadically iterates over the contents of a collection `xs`, with a local state `b` and the
-  possibility of early termination.
+  Monadically iterates over the contents of a collection {lean}`xs`, with a local state {lean}`b`
+  and the possibility of early termination.
 
-  Because a `do` block supports local mutable bindings along with `return`, and `break`, the monadic
-  action passed to `ForIn.forIn` takes a starting state in addition to the current element of the
-  collection and returns an updated state together with an indication of whether iteration should
-  continue or terminate. If the action returns `ForInStep.done`, then `ForIn.forIn` should stop
-  iteration and return the updated state. If the action returns `ForInStep.yield`, then
-  `ForIn.forIn` should continue iterating if there are further elements, passing the updated state
-  to the action.
+  Because a `do` block supports local mutable bindings along with {syntax doElem}`return`, and
+  {syntax doElem}`break`, the monadic action passed to {name}`ForIn.forIn` takes a starting state in
+  addition to the current element of the collection and returns an updated state together with an
+  indication of whether iteration should continue or terminate. If the action returns
+  {name}`ForInStep.done`, then {name}`ForIn.forIn` should stop iteration and return the updated
+  state. If the action returns {name}`ForInStep.yield`, then {name}`ForIn.forIn` should continue
+  iterating if there are further elements, passing the updated state to the action.
 
-  More information about the translation of `for` loops into `ForIn.forIn` is available in [the Lean
-  reference manual](lean-manual://section/monad-iteration-syntax).
+  More information about the translation of `for` loops into {name}`ForIn.forIn` is available in
+  {manual section "monad-iteration-syntax"}[the Lean reference manual].
   -/
   forIn {β} [Monad m] (xs : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β
 
@@ -384,30 +420,34 @@ export ForIn (forIn)
 /--
 Monadic iteration in `do`-blocks with a membership proof, using the `for h : x in xs` notation.
 
-The parameter `m` is the monad of the `do`-block in which iteration is performed, `ρ` is the type of
-the collection being iterated over, `α` is the type of elements, and `d` is the specific membership
-predicate to provide.
+The parameter {name}`m` is the monad of the `do`-block in which iteration is performed, {name}`ρ` is
+the type of the collection being iterated over, {name}`α` is the type of elements, and {name}`d` is
+the specific membership predicate to provide.
 -/
 class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) (d : outParam (Membership α ρ)) where
   /--
-  Monadically iterates over the contents of a collection `xs`, with a local state `b` and the
-  possibility of early termination. At each iteration, the body of the loop is provided with a proof
-  that the current element is in the collection.
+  Monadically iterates over the contents of a collection {lean}`x`, with a local state {lean}`b` and
+  the possibility of early termination. At each iteration, the body of the loop is provided with a
+  proof that the current element is in the collection.
 
-  Because a `do` block supports local mutable bindings along with `return`, and `break`, the monadic
-  action passed to `ForIn'.forIn'` takes a starting state in addition to the current element of the
-  collection with its membership proof. The action returns an updated state together with an
-  indication of whether iteration should continue or terminate. If the action returns
-  `ForInStep.done`, then `ForIn'.forIn'` should stop iteration and return the updated state. If the
-  action returns `ForInStep.yield`, then `ForIn'.forIn'` should continue iterating if there are
-  further elements, passing the updated state to the action.
+  Because a `do` block supports local mutable bindings along with
+  {kw! (of:=Lean.Parser.Term.doReturn) (scope := "Lean.Parser.Do")}`return`, and
+  {syntax doElem}`break`, the monadic action passed to {name}`ForIn'.forIn'` takes a starting state
+  in addition to the current element of the collection with its membership proof. The action returns
+  an updated state together with an indication of whether iteration should continue or terminate. If
+  the action returns {name}`ForInStep.done`, then {name}`ForIn'.forIn'` should stop iteration and
+  return the updated state. If the action returns {name}`ForInStep.yield`, then
+  {name}`ForIn'.forIn'` should continue iterating if there are further elements, passing the updated
+  state to the action.
 
-  More information about the translation of `for` loops into `ForIn'.forIn'` is available in [the
-  Lean reference manual](lean-manual://section/monad-iteration-syntax).
+  More information about the translation of `for` loops into {name}`ForIn'.forIn'` is available in
+  {manual section "monad-iteration-syntax"}[the Lean reference manual].
   -/
   forIn' {β} [Monad m] (x : ρ) (b : β) (f : (a : α) → a ∈ x → β → m (ForInStep β)) : m β
 
 export ForIn' (forIn')
+
+set_option doc.verso false
 
 /--
 Auxiliary type used to compile `do` notation. It is used when compiling a do block
@@ -2550,3 +2590,6 @@ end Std
 /-- Deprecated alias for `XorOp`. -/
 @[deprecated XorOp (since := "2025-07-30")]
 abbrev Xor := XorOp
+
+docs_to_verso Iff, Iff.intro, Iff.mp, Iff.mpr
+docs_to_verso Thunk, Thunk.mk, Thunk.fn

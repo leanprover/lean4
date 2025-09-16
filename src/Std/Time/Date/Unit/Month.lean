@@ -17,9 +17,10 @@ open Std.Internal
 open Internal
 
 set_option linter.all true
+set_option doc.verso true
 
 /--
-`Ordinal` represents a bounded value for months, which ranges between 1 and 12.
+{name}`Ordinal` represents a bounded value for months, which ranges between 1 and 12.
 -/
 @[expose] def Ordinal := Bounded.LE 1 12
 deriving Repr, DecidableEq, LE, LT
@@ -43,7 +44,7 @@ instance : TransOrd Ordinal := inferInstanceAs <| TransOrd (Bounded.LE 1 _)
 instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _)
 
 /--
-`Offset` represents an offset in months. It is defined as an `Int`.
+{name}`Offset` represents an offset in months. It is defined as an {name}`Int`.
 -/
 @[expose] def Offset : Type := Int
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString, LT, LE
@@ -64,7 +65,8 @@ instance : TransOrd Offset := inferInstanceAs <| TransOrd Int
 instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd Int
 
 /--
-`Quarter` represents a value between 1 and 4, inclusive, corresponding to the four quarters of a year.
+{name}`Quarter` represents a value between 1 and 4, inclusive, corresponding to the four quarters of
+a year.
 -/
 @[expose] def Quarter := Bounded.LE 1 4
 deriving Repr, DecidableEq, LT, LE
@@ -83,7 +85,7 @@ instance : LawfulEqOrd Quarter := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _
 namespace Quarter
 
 /--
-Determine the `Quarter` by the month.
+Determine the {name}`Quarter` by the month.
 -/
 def ofMonth (month : Month.Ordinal) : Quarter :=
   month
@@ -96,14 +98,14 @@ end Quarter
 namespace Offset
 
 /--
-Creates an `Offset` from a natural number.
+Creates an {name}`Offset` from a natural number.
 -/
 @[inline]
 def ofNat (data : Nat) : Offset :=
   Int.ofNat data
 
 /--
-Creates an `Offset` from an integer.
+Creates an {name}`Offset` from an integer.
 -/
 @[inline]
 def ofInt (data : Int) : Offset :=
@@ -174,28 +176,28 @@ The ordinal value representing the month of December.
 @[inline] def december : Ordinal := 12
 
 /--
-Converts a `Ordinal` into a `Offset`.
+Converts a {name}`Ordinal` into a {name}`Offset`.
 -/
 @[inline]
 def toOffset (month : Ordinal) : Offset :=
   month.val
 
 /--
-Creates an `Ordinal` from an integer, ensuring the value is within bounds.
+Creates an {name}`Ordinal` from an integer, ensuring the value is within bounds.
 -/
 @[inline]
 def ofInt (data : Int) (h : 1 ≤ data ∧ data ≤ 12) : Ordinal :=
   Bounded.LE.mk data h
 
 /--
-Creates an `Ordinal` from a `Nat`, ensuring the value is within bounds.
+Creates an {name}`Ordinal` from a {name}`Nat`, ensuring the value is within bounds.
 -/
 @[inline]
 def ofNat (data : Nat) (h : data ≥ 1 ∧ data ≤ 12 := by decide) : Ordinal :=
   Bounded.LE.ofNat' data h
 
 /--
-Converts a `Ordinal` into a `Nat`.
+Converts a {name}`Ordinal` into a {name}`Nat`.
 -/
 @[inline]
 def toNat (month : Ordinal) : Nat := by
@@ -204,7 +206,7 @@ def toNat (month : Ordinal) : Nat := by
   | ⟨.negSucc s, h⟩ => nomatch h.left
 
 /--
-Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds, if its 0 then its converted
+Creates an {name}`Ordinal` from a {name}`Fin`, ensuring the value is within bounds, if its 0 then its converted
 to 1.
 -/
 @[inline]
@@ -212,7 +214,7 @@ def ofFin (data : Fin 13) : Ordinal :=
   Bounded.LE.ofFin' data (by decide)
 
 /--
-Transforms `Month.Ordinal` into `Second.Offset`.
+Transforms {name}`Month.Ordinal` into {name}`Second.Offset`.
 -/
 def toSeconds (leap : Bool) (month : Ordinal) : Second.Offset :=
   let daysAcc := #[0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
@@ -223,21 +225,21 @@ def toSeconds (leap : Bool) (month : Ordinal) : Second.Offset :=
     else time
 
 /--
-Transforms `Month.Ordinal` into `Minute.Offset`.
+Transforms {name}`Month.Ordinal` into {name}`Minute.Offset`.
 -/
 @[inline]
 def toMinutes (leap : Bool) (month : Ordinal) : Minute.Offset :=
   toSeconds leap month |>.toMinutes
 
 /--
-Transforms `Month.Ordinal` into `Hour.Offset`.
+Transforms {name}`Month.Ordinal` into {name}`Hour.Offset`.
 -/
 @[inline]
 def toHours (leap : Bool) (month : Ordinal) : Hour.Offset :=
   toMinutes leap month |>.toHours
 
 /--
-Transforms `Month.Ordinal` into `Day.Offset`.
+Transforms {name}`Month.Ordinal` into {name}`Day.Offset`.
 -/
 @[inline]
 def toDays (leap : Bool) (month : Ordinal) : Day.Offset :=
@@ -280,7 +282,7 @@ theorem days_gt_27 (leap : Bool) (i : Month.Ordinal) : days leap i > 27 := by
     decide +revert
 
 /--
-Returns the number of days until the `month`.
+Returns the number of days until the {name}`month`.
 -/
 def cumulativeDays (leap : Bool) (month : Ordinal) : Day.Offset := by
   let ⟨months, p⟩ := cumulativeSizes
@@ -307,8 +309,8 @@ theorem difference_eq (p : month.val ≤ 11) :
   | ⟨12, _⟩ => contradiction
 
 /--
-Checks if a given day is valid for the specified month and year. For example, `29/02` is valid only
-if the year is a leap year.
+Checks if a given day is valid for the specified month and year. For example, February 29 is valid
+only if the year is a leap year.
 -/
 abbrev Valid (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
   day.val ≤ (days leap month).val

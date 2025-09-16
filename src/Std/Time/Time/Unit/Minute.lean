@@ -18,9 +18,10 @@ open Std.Internal
 open Internal
 
 set_option linter.all true
+set_option doc.verso true
 
 /--
-`Ordinal` represents a bounded value for minutes, ranging from 0 to 59. This is useful for representing the minute component of a time.
+{name}`Ordinal` represents a bounded value for minutes, ranging from 0 to 59. This is useful for representing the minute component of a time.
 -/
 @[expose] def Ordinal := Bounded.LE 0 59
 deriving Repr, DecidableEq, LE, LT
@@ -44,7 +45,7 @@ instance : TransOrd Ordinal := inferInstanceAs <| TransOrd (Bounded.LE 0 _)
 instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 0 _)
 
 /--
-`Offset` represents a duration offset in minutes.
+{name}`Offset` represents a duration offset in minutes.
 -/
 @[expose] def Offset : Type := UnitVal 60
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, ToString, LT, LE
@@ -67,28 +68,28 @@ instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd (UnitVal _)
 namespace Ordinal
 
 /--
-Creates an `Ordinal` from an integer, ensuring the value is within bounds.
+Creates an {name}`Ordinal` from an integer, ensuring the value is within bounds.
 -/
 @[inline]
 def ofInt (data : Int) (h : 0 ≤ data ∧ data ≤ 59) : Ordinal :=
   Bounded.LE.mk data h
 
 /--
-Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
+Creates an {name}`Ordinal` from a natural number, ensuring the value is within bounds.
 -/
 @[inline]
 def ofNat (data : Nat) (h : data ≤ 59) : Ordinal :=
   Bounded.LE.ofNat data h
 
 /--
-Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds.
+Creates an {name}`Ordinal` from a {name}`Fin`, ensuring the value is within bounds.
 -/
 @[inline]
 def ofFin (data : Fin 60) : Ordinal :=
   Bounded.LE.ofFin data
 
 /--
-Converts an `Ordinal` to an `Offset`.
+Converts an {name}`Ordinal` to an {name}`Offset`.
 -/
 @[inline]
 def toOffset (ordinal : Ordinal) : Offset :=
@@ -98,14 +99,14 @@ end Ordinal
 namespace Offset
 
 /--
-Creates an `Offset` from a natural number.
+Creates an {name}`Offset` from a natural number.
 -/
 @[inline]
 def ofNat (data : Nat) : Offset :=
   UnitVal.ofInt data
 
 /--
-Creates an `Offset` from an integer.
+Creates an {name}`Offset` from an integer.
 -/
 @[inline]
 def ofInt (data : Int) : Offset :=

@@ -16,6 +16,7 @@ open Std.Internal
 open Internal
 
 set_option linter.all true
+set_option doc.verso true
 
 /--
 Defines the enumeration for days of the week. Each variant corresponds to a day of the week.
@@ -46,7 +47,7 @@ deriving Repr, Inhabited, DecidableEq
 namespace Weekday
 
 /--
-`Ordinal` represents a bounded value for weekdays, which ranges between 1 and 7.
+{name}`Ordinal` represents a bounded value for weekdays, which ranges between 1 and 7.
 -/
 @[expose] def Ordinal := Bounded.LE 1 7
 deriving Repr, DecidableEq, LT, LE
@@ -70,8 +71,8 @@ instance : TransOrd Ordinal := inferInstanceAs <| TransOrd (Bounded.LE 1 _)
 instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _)
 
 /--
-Converts a `Ordinal` representing a day index into a corresponding `Weekday`. This function is useful
-for mapping numerical representations to days of the week.
+Converts an {name}`Ordinal` representing a day index into a corresponding {name}`Weekday`. This
+function is useful for mapping numerical representations to days of the week.
 -/
 def ofOrdinal : Ordinal → Weekday
   | 1 => .monday
@@ -83,7 +84,7 @@ def ofOrdinal : Ordinal → Weekday
   | 7 => .sunday
 
 /--
-Converts a `Weekday` to a `Ordinal`.
+Converts a {name}`Weekday` to a {name}`Ordinal`.
 -/
 def toOrdinal : Weekday → Ordinal
   | .monday => 1
@@ -106,7 +107,7 @@ instance : LawfulEqOrd Weekday where
   eq_of_compare := toOrdinal.inj ∘ LawfulEqOrd.eq_of_compare (α := Ordinal)
 
 /--
-Converts a `Weekday` to a `Nat`.
+Converts a {name}`Weekday` to a {name}`Nat`.
 -/
 def toNat : Weekday → Nat
   | .monday => 1
@@ -118,7 +119,7 @@ def toNat : Weekday → Nat
   | .sunday => 7
 
 /--
-Converts a `Nat` to an `Option Weekday`.
+Converts a {name}`Nat` to an {lean}`Option Weekday`.
 -/
 def ofNat? : Nat → Option Weekday
   | 1 => some .monday
@@ -131,7 +132,7 @@ def ofNat? : Nat → Option Weekday
   | _ => none
 
 /--
-Converts a `Nat` to a `Weekday`. Panics if the value provided is invalid.
+Converts a {name}`Nat` to a {name}`Weekday`. Panics if the value provided is invalid.
 -/
 @[inline]
 def ofNat! (n : Nat) : Weekday :=
@@ -140,7 +141,7 @@ def ofNat! (n : Nat) : Weekday :=
   | none => panic! "invalid weekday"
 
 /--
-Gets the next `Weekday`.
+Gets the next {name}`Weekday`.
 -/
 def next : Weekday → Weekday
   | .monday => .tuesday

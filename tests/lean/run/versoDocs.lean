@@ -1,14 +1,14 @@
-
 import Lean
 
+/-!
+This test checks that the basic features of Verso docstrings work.
+-/
 
 open Lean Doc Elab Term
 
 set_option doc.verso true
 
-
-
-
+#eval Lean.Doc.checkPostponed [`Init, `Lean]
 
 @[doc_code_block]
 def c (s : StrLit) : DocM (Block ElabInline ElabBlock) := pure (Block.code (s.getString.toList.reverse |> String.mk))
@@ -22,57 +22,54 @@ def d (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
 
  -/
 def oneLine := "one line"
+set_option doc.verso.suggestions false in
+/--
+Here's all the different ways to format inlines:
+* *bold*
+* _emphasis_
+* *_both_*
+* `code`
+* `` `code` ``
+* [a link](https://lean-lang.org)
+* [a *bold* link](https://lean-lang.org)
+* *[a bold link](https://lean-lang.org)*
+* [an _emphasized_ link](https://lean-lang.org)
+* _[an emphasized link](https://lean-lang.org)_
+* [`a code link`](https://lean-lang.org)
+-/
+def formatting := ()
 
 /--
-x
-yz
+info: Here's all the different ways to format inlines:
 
-[W][wikipedia]
+* **bold**
 
-[wikipedia]: https://en.wikipedia.org
+* *emphasis*
 
-{name}`Nat`
+* **both**
 
-{given}`n : Nat`
+* `code`
 
-{given}`k`
+* `` `code` ``
 
-{lean}`k = n`
+* [a link](https://lean-lang.org)
 
-{name}`n`
+* [a **bold** link](https://lean-lang.org)
 
-{open Nat}
+* **[a bold link](https://lean-lang.org)**
 
-{name}`succ`
+* [an *emphasized* link](https://lean-lang.org)
 
-{name}`x`
+* *[an emphasized link](https://lean-lang.org)*
 
-{name}`y`
-
-# foo
-
-blah
-
-# bar
-
-## baz
-
-:::d
-
-```c
-blah
-```
-
-:::
-
-```lean
-#check x
-```
+* [`a code link`](https://lean-lang.org)
 -/
-def x (y : Nat) : Nat := y * 5
-
-#eval show TermElabM Unit from do (← findDocString? (← getEnv) ``x).forM (IO.println ·.quote)
-
+#guard_msgs in
+#eval show TermElabM Unit from do
+  if let some docs ← findDocString? (← getEnv) ``formatting then
+    IO.println docs
+  else
+    IO.println "no docs found"
 
 /--
 {name}`inst`
@@ -134,6 +131,20 @@ This follows the computational behavior of {name}`gcd`.
     n
 
 #check Nat.gcd.induction'
+
+/--
+The constant function that ignores its argument.
+
+{given}`β`If {given}`a : α`, then {lean}`Function.const' β a : β → α` is the “constant function with value {lean}`a`”. For all
+arguments {given}`b : β`, {assert}`Function.const' β a b = a`.
+
+Examples:
+ * `Function.const Bool 10 true = 10`
+ * `Function.const Bool 10 false = 10`
+ * `Function.const String 10 "any string" = 10`
+-/
+@[inline] def Function.const' {α : Sort u} (β : Sort v) (a : α) : β → α :=
+  fun _ => a
 
 
 open MessageSeverity in

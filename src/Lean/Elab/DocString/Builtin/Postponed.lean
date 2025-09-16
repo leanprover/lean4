@@ -144,25 +144,26 @@ private def checkDocStringPostponed (declName : Name) (doc : VersoDocString) : C
 /--
 Runs the postponed checks in all docstrings, reporting on the result.
 -/
-def checkPostponed : TermElabM Unit := do
+def checkPostponed (roots : List Name) : TermElabM Unit := do
   let mut checked : Array (Name × Stats) := #[]
   let st := versoDocStringExt.toEnvExtension.getState (← getEnv)
   for (decl, docs) in ← getBuiltinVersoDocStrings do
     let ((), out) ← checkDocStringPostponed decl docs |>.run {}
     if out.total > 0 then
       checked := checked.push (decl, out)
-  for mod in st.importedEntries do
-    for (decl, docs) in mod do
-      let ((), out) ← checkDocStringPostponed decl docs |>.run {}
-      if out.total > 0 then
-        checked := checked.push (decl, out)
+  for (mod, name) in st.importedEntries.zip (← getEnv).header.moduleNames do
+    if roots.any (·.isPrefixOf name) then
+      for (decl, docs) in mod do
+        let ((), out) ← checkDocStringPostponed decl docs |>.run {}
+        if out.total > 0 then
+          checked := checked.push (decl, out)
   for (decl, docs) in st.state do
     let ((), out) ← checkDocStringPostponed decl docs |>.run {}
     if out.total > 0 then
       checked := checked.push (decl, out)
 
   let msg : MessageData :=
-    .trace { cls := `checks } m!"Postponed checks: {checked.size} declarations, \
+    .trace { cls := `checks } m!"Postponed checks for {.andList <| roots.map toMessageData}: {checked.size} declarations, \
         {checked.map (·.2.passed) |>.sum} passed, \
         {checked.map (·.2.failed.size) |>.sum} failed" <|
       checked.map fun (declName, stats) =>

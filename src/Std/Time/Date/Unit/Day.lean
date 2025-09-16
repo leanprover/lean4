@@ -16,9 +16,10 @@ namespace Day
 open Lean Internal
 
 set_option linter.all true
+set_option doc.verso true
 
 /--
-`Ordinal` represents a bounded value for days, which ranges between 1 and 31.
+{name}`Ordinal` represents a bounded value for days, which ranges between 1 and 31.
 -/
 @[expose] def Ordinal := Bounded.LE 1 31
 deriving Repr, DecidableEq, LE, LT
@@ -41,8 +42,8 @@ instance : TransOrd Ordinal := inferInstanceAs <| TransOrd (Bounded.LE 1 _)
 instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _)
 
 /--
-`Offset` represents an offset in days. It is defined as an `Int` with a base unit of 86400
-(the number of seconds in a day).
+{name}`Offset` represents an offset in days. It is defined as an {name}`Int` with a base unit of
+86400 (the number of seconds in a day).
 -/
 @[expose] def Offset : Type := UnitVal 86400
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
@@ -64,15 +65,15 @@ instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd (UnitVal _)
 namespace Ordinal
 
 /--
-Creates an `Ordinal` from an integer, ensuring the value is within bounds.
+Creates an {name}`Ordinal` from an integer, ensuring the value is within bounds.
 -/
 @[inline]
 def ofInt (data : Int) (h : 1 ≤ data ∧ data ≤ 31) : Ordinal :=
   Bounded.LE.mk data h
 
 /--
-`OfYear` represents the day ordinal within a year, which can be bounded between 1 and 365 or 366,
-depending on whether it's a leap year.
+{name}`OfYear` represents the day ordinal within a year, which can be bounded between 1 and 365 or
+366, depending on whether it's a leap year.
 -/
 @[expose] def OfYear (leap : Bool) := Bounded.LE 1 (.ofNat (if leap then 366 else 365))
 
@@ -93,7 +94,7 @@ instance : LawfulEqOrd (OfYear leap) := inferInstanceAs <| LawfulEqOrd (Bounded.
 namespace OfYear
 
 /--
-Creates an ordinal for a specific day within the year, ensuring that the provided day (`data`)
+Creates an ordinal for a specific day within the year, ensuring that the provided day ({name}`data`)
 is within the valid range for the year, which can be 1 to 365 or 366 for leap years.
 -/
 @[inline]
@@ -121,15 +122,15 @@ def ofNat (data : Nat) (h : data ≥ 1 ∧ data ≤ 31 := by decide) : Ordinal :
   Bounded.LE.ofNat' data h
 
 /--
-Creates an ordinal from a `Fin` value, ensuring it is within the valid range for days of the month (1 to 31).
-If the `Fin` value is 0, it is converted to 1.
+Creates an ordinal from a {name}`Fin` value, ensuring it is within the valid range for days of the
+month (1 to 31). If the {name}`Fin` value is 0, it is converted to 1.
 -/
 @[inline]
 def ofFin (data : Fin 32) : Ordinal :=
   Bounded.LE.ofFin' data (by decide)
 
 /--
-Converts an `Ordinal` to an `Offset`.
+Converts an {name}`Ordinal` to an {name}`Offset`.
 -/
 @[inline]
 def toOffset (ordinal : Ordinal) : Offset :=
@@ -138,7 +139,7 @@ def toOffset (ordinal : Ordinal) : Offset :=
 namespace OfYear
 
 /--
-Converts an `OfYear` ordinal to a `Offset`.
+Converts an {name}`OfYear` ordinal to a {name}`Offset`.
 -/
 def toOffset (ofYear : OfYear leap) : Offset :=
   UnitVal.ofInt ofYear.val
@@ -149,91 +150,91 @@ end Ordinal
 namespace Offset
 
 /--
-Converts an `Offset` to an `Ordinal`.
+Converts an {name}`Offset` to an {name}`Ordinal`.
 -/
 @[inline]
 def toOrdinal (off : Day.Offset) (h : off.val ≥ 1 ∧ off.val ≤ 31) : Ordinal :=
   Bounded.LE.mk off.val h
 
 /--
-Creates an `Offset` from a natural number.
+Creates an {name}`Offset` from a natural number.
 -/
 @[inline]
 def ofNat (data : Nat) : Day.Offset :=
   UnitVal.ofInt data
 
 /--
-Creates an `Offset` from an integer.
+Creates an {name}`Offset` from an integer.
 -/
 @[inline]
 def ofInt (data : Int) : Day.Offset :=
   UnitVal.ofInt data
 
 /--
-Convert `Day.Offset` into `Nanosecond.Offset`.
+Converts {name}`Day.Offset` into {name}`Nanosecond.Offset`.
 -/
 @[inline]
 def toNanoseconds (days : Day.Offset) : Nanosecond.Offset :=
   days.mul 86400000000000 |>.cast (by decide +kernel)
 
 /--
-Convert `Nanosecond.Offset` into `Day.Offset`.
+Converts {name}`Nanosecond.Offset` into {name}`Day.Offset`.
 -/
 @[inline]
 def ofNanoseconds (ns : Nanosecond.Offset) : Day.Offset :=
   ns.ediv 86400000000000 |>.cast (by decide +kernel)
 
 /--
-Convert `Day.Offset` into `Millisecond.Offset`.
+Converts {name}`Day.Offset` into {name}`Millisecond.Offset`.
 -/
 @[inline]
 def toMilliseconds (days : Day.Offset) : Millisecond.Offset :=
   days.mul 86400000 |>.cast (by decide +kernel)
 
 /--
-Convert `Millisecond.Offset` into `Day.Offset`.
+Converts {name}`Millisecond.Offset` into {name}`Day.Offset`.
 -/
 @[inline]
 def ofMilliseconds (ms : Millisecond.Offset) : Day.Offset :=
   ms.ediv 86400000 |>.cast (by decide +kernel)
 
 /--
-Convert `Day.Offset` into `Second.Offset`.
+Converts {name}`Day.Offset` into {name}`Second.Offset`.
 -/
 @[inline]
 def toSeconds (days : Day.Offset) : Second.Offset :=
   days.mul 86400 |>.cast (by decide +kernel)
 
 /--
-Convert `Second.Offset` into `Day.Offset`.
+Converts {name}`Second.Offset` into {name}`Day.Offset`.
 -/
 @[inline]
 def ofSeconds (secs : Second.Offset) : Day.Offset :=
   secs.ediv 86400 |>.cast (by decide +kernel)
 
 /--
-Convert `Day.Offset` into `Minute.Offset`.
+Converts {name}`Day.Offset` into {name}`Minute.Offset`.
 -/
 @[inline]
 def toMinutes (days : Day.Offset) : Minute.Offset :=
   days.mul 1440 |>.cast (by decide +kernel)
 
 /--
-Convert `Minute.Offset` into `Day.Offset`.
+Converts {name}`Minute.Offset` into {name}`Day.Offset`.
 -/
 @[inline]
 def ofMinutes (minutes : Minute.Offset) : Day.Offset :=
   minutes.ediv 1440 |>.cast (by decide +kernel)
 
 /--
-Convert `Day.Offset` into `Hour.Offset`.
+Converts {name}`Day.Offset` into {name}`Hour.Offset`.
 -/
 @[inline]
 def toHours (days : Day.Offset) : Hour.Offset :=
   days.mul 24 |>.cast (by decide +kernel)
 
 /--
-Convert `Hour.Offset` into `Day.Offset`.
+Converts {name}`Hour.Offset` into {name}`Day.Offset`.
 -/
 @[inline]
 def ofHours (hours : Hour.Offset) : Day.Offset :=

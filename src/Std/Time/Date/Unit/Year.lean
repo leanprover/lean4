@@ -19,6 +19,7 @@ open Std.Internal
 open Internal
 
 set_option linter.all true
+set_option doc.verso true
 
 /--
 Defines the different eras.
@@ -37,7 +38,7 @@ instance : ToString Era where
     | .ce => "CE"
 
 /--
-`Offset` represents a year offset, defined as an `Int`.
+{name}`Offset` represents a year offset, defined as an {name}`Int`.
 -/
 @[expose] def Offset : Type := Int
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
@@ -61,28 +62,28 @@ instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd Int
 namespace Offset
 
 /--
-Creates an `Offset` from a natural number.
+Creates an {name}`Offset` from a natural number.
 -/
 @[inline]
 def ofNat (data : Nat) : Offset :=
   Int.ofNat data
 
 /--
-Creates an `Offset` from an integer.
+Creates an {name}`Offset` from an integer.
 -/
 @[inline]
 def ofInt (data : Int) : Offset :=
   data
 
 /--
-Converts the `Year` offset to an `Int`.
+Converts a {name}`Year.Offset` offset to an {name}`Int`.
 -/
 @[inline]
 def toInt (offset : Offset) : Int :=
   offset
 
 /--
-Converts the `Year` offset to a `Month` offset.
+Converts a {name}`Year.Offset` offset to a {name}`Month.Offset`.
 -/
 @[inline]
 def toMonths (val : Offset) : Month.Offset :=
@@ -96,7 +97,7 @@ def isLeap (y : Offset) : Bool :=
   y.toInt.tmod 4 = 0 ∧ (y.toInt.tmod 100 ≠ 0 ∨ y.toInt.tmod 400 = 0)
 
 /--
-Returns the `Era` of the `Year`.
+Returns the {name}`Era` of the {name}`Year.Offset`.
 -/
 def era (year : Offset) : Era :=
   if year.toInt ≥ 1
@@ -104,7 +105,7 @@ def era (year : Offset) : Era :=
     else .bce
 
 /--
-Calculates the number of days in the specified `year`.
+Calculates the number of days in the specified {name}`year`.
 -/
 def days (year : Offset) : Bounded.LE 365 366 :=
   if year.isLeap
@@ -112,7 +113,7 @@ def days (year : Offset) : Bounded.LE 365 366 :=
     else .ofNatWrapping 355 (by decide)
 
 /--
-Calculates the number of weeks in the specified `year`.
+Calculates the number of weeks in the specified {name}`year`.
 -/
 def weeks (year : Offset) : Bounded.LE 52 53 :=
   let p (year : Offset) := Bounded.LE.byEmod (year.toInt + year.toInt/4 - year.toInt/100 + year.toInt/400) 7 (by decide)

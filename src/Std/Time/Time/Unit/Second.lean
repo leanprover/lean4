@@ -17,9 +17,10 @@ open Std.Internal
 open Internal
 
 set_option linter.all true
+set_option doc.verso true
 
 /--
-`Ordinal` represents a bounded value for second, which ranges between 0 and 59 or 60. This accounts
+{name}`Ordinal` represents a bounded value for second, which ranges between 0 and 59 or 60. This accounts
 for potential leap second.
 -/
 @[expose] def Ordinal (leap : Bool) := Bounded.LE 0 (.ofNat (if leap then 60 else 59))
@@ -57,7 +58,7 @@ instance : TransOrd (Ordinal leap) := inferInstanceAs <| TransOrd (Bounded.LE 0 
 instance : LawfulEqOrd (Ordinal leap) := inferInstanceAs <| LawfulEqOrd (Bounded.LE 0 _)
 
 /--
-`Offset` represents an offset in seconds. It is defined as an `Int`.
+{name}`Offset` represents an offset in seconds. It is defined as an {name}`Int`.
 -/
 @[expose] def Offset : Type := UnitVal 1
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
@@ -80,14 +81,14 @@ instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd (UnitVal _)
 namespace Offset
 
 /--
-Creates an `Second.Offset` from a natural number.
+Creates an {name}`Second.Offset` from a natural number.
 -/
 @[inline]
 def ofNat (data : Nat) : Second.Offset :=
   UnitVal.ofInt data
 
 /--
-Creates an `Second.Offset` from an integer.
+Creates an {name}`Second.Offset` from an integer.
 -/
 @[inline]
 def ofInt (data : Int) : Second.Offset :=
@@ -98,21 +99,21 @@ end Offset
 namespace Ordinal
 
 /--
-Creates an `Ordinal` from an integer, ensuring the value is within bounds.
+Creates an {name}`Ordinal` from an integer, ensuring the value is within bounds.
 -/
 @[inline]
 def ofInt (data : Int) (h : 0 ≤ data ∧ data ≤ Int.ofNat (if leap then 60 else 59)) : Ordinal leap :=
   Bounded.LE.mk data h
 
 /--
-Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
+Creates an {name}`Ordinal` from a natural number, ensuring the value is within bounds.
 -/
 @[inline]
 def ofNat (data : Nat) (h : data ≤ (if leap then 60 else 59)) : Ordinal leap :=
   Bounded.LE.ofNat data h
 
 /--
-Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds.
+Creates an {name}`Ordinal` from a {name}`Fin`, ensuring the value is within bounds.
 -/
 @[inline]
 def ofFin (data : Fin (if leap then 61 else 60)) : Ordinal leap :=
@@ -121,7 +122,7 @@ def ofFin (data : Fin (if leap then 61 else 60)) : Ordinal leap :=
   | false => Bounded.LE.ofFin data
 
 /--
-Converts an `Ordinal` to an `Second.Offset`.
+Converts an {name}`Ordinal` to an {name}`Second.Offset`.
 -/
 @[inline]
 def toOffset (ordinal : Ordinal leap) : Second.Offset :=

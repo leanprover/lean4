@@ -14,6 +14,8 @@ public import Std.Time.Date.Unit.Week
 
 public section
 
+set_option doc.verso true
+
 /-!
 This module defines various units used for measuring, counting, and converting between days, months,
 years, weekdays, and weeks of the year.
@@ -29,14 +31,14 @@ open Internal
 namespace Day.Offset
 
 /--
-Convert `Week.Offset` into `Day.Offset`.
+Converts {lean}`Week.Offset` into {lean}`Day.Offset`.
 -/
 @[inline]
 def ofWeeks (week : Week.Offset) : Day.Offset :=
   week.mul 7 |>.cast (by decide +kernel)
 
 /--
-Convert `Day.Offset` into `Week.Offset`.
+Convert {lean}`Day.Offset` into {lean}`Week.Offset`.
 -/
 @[inline]
 def toWeeks (day : Day.Offset) : Week.Offset :=

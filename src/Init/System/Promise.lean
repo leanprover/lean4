@@ -16,10 +16,6 @@ namespace IO
 
 private opaque PromisePointed : NonemptyType.{0}
 
-private structure PromiseImpl (α : Type) : Type where
-  prom : PromisePointed.type
-  h    : Nonempty α
-
 /--
 `Promise α` allows you to create a `Task α` whose value is provided later by calling `resolve`.
 
@@ -33,7 +29,9 @@ Typical usage is as follows:
 If the promise is dropped without ever being resolved, `promise.result?.get` will return `none`.
 See `Promise.result!/resultD` for other ways to handle this case.
 -/
-def Promise (α : Type) : Type := PromiseImpl α
+structure Promise (α : Type) : Type where
+  private prom : PromisePointed.type
+  private h    : Nonempty α
 
 instance [s : Nonempty α] : Nonempty (Promise α) :=
   by exact Nonempty.intro { prom := Classical.choice PromisePointed.property, h := s }

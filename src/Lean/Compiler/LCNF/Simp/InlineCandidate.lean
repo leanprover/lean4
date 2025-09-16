@@ -55,23 +55,8 @@ def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
       We don't inline instances tagged with `[inline]/[always_inline]/[inline_if_reduce]` at the base phase
       We assume that at the base phase these annotations are for the instance methods that have been lambda lifted.
       -/
-      if (← inBasePhase) then
-        if (← Meta.isInstance decl.name) then
-          unless decl.name == ``instDecidableEqBool do
-            /-
-            TODO: remove this hack after we refactor `Decidable` as suggested by Gabriel.
-            Recall that the current `Decidable` class is special case since it is an inductive datatype which is not a
-            structure like all other type classes. This is bad since it prevents us from treating all classes in a uniform
-            way. After we change `Decidable` to a structure as suggested by Gabriel, we should only accept type classes
-            that are structures. Moreover, we should reject instances that have only one exit point producing an explicit structure.
-            -/
-            return false
-        -- This is done to avoid inlining `_override` implementations for computed fields in the
-        -- base phase, since `cases` constructs have not yet been replaced by their underlying
-        -- implementation, and thus inlining `_override` implementations for computed fields will
-        -- expose a constructor/`cases` mismatch.
-        -- TODO: Find a better solution for this problem.
-        if decl.name matches .str _ "_override" then return false
+      if (← inBasePhase <&&> Meta.isInstance decl.name) then
+        return false
       if decl.alwaysInlineAttr then return true
       -- TODO: check inlining quota
       if decl.inlineAttr || decl.inlineIfReduceAttr then return true

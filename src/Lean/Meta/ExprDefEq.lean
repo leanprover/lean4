@@ -2102,7 +2102,7 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
   | .transient numAssignmentsOld =>
     /-
     If the result is `false`, we cache it at `numAssignmentsOld`.
-    If the result is `true`, we only cache it if the number of assignments hasn't increase.
+    If the result is `true`, we only cache it if the number of assignments hasn't increased.
     -/
     if !result then
       modifyDefEqTransientCache numAssignmentsOld fun c => c.insert key result

@@ -37,7 +37,7 @@ inductive Expr where
   | neg  (a : Expr)
   | natMul  (k : Nat) (a : Expr)
   | intMul  (k : Int) (a : Expr)
-  deriving Inhabited, BEq, ReflBEq, LawfulBEq, Repr
+  deriving Inhabited, BEq, Repr
 
 abbrev Context (α : Type u) := RArray α
 
@@ -56,7 +56,7 @@ def Expr.denote {α} [IntModule α] (ctx : Context α) : Expr → α
 inductive Poly where
   | nil
   | add (k : Int) (v : Var) (p : Poly)
-  deriving BEq, Repr
+  deriving BEq, ReflBEq, LawfulBEq, Repr
 
 def Poly.denote {α} [IntModule α] (ctx : Context α) (p : Poly) : α :=
   match p with

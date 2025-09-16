@@ -57,9 +57,9 @@ attribute [local simp] Seq.beq'_eq
 
 instance : LawfulBEq Seq where
   eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp! [BEq.beq]
+    induction a <;> intro b <;> cases b <;> simp [reduceBEq]
     next x₁ s₁ ih x₂ s₂ => intro h₁ h₂; simp [h₁, ih h₂]
-  rfl := by intro a; induction a <;> simp! [BEq.beq]; assumption
+  rfl := by intro a; induction a <;> simp [reduceBEq]; assumption
 
 noncomputable def Seq.denote {α} (ctx : Context α) (s : Seq) : α :=
   Seq.rec (fun x => x.denote ctx) (fun x _ ih => ctx.op (x.denote ctx) ih) s

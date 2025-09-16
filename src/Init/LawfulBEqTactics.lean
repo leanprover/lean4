@@ -66,7 +66,7 @@ macro_rules
   `(tactic| fail "deriving_LawfulEq_tactic_step failed")
 macro_rules
 | `(tactic| deriving_LawfulEq_tactic_step) =>
-  `(tactic| ( change dite (_ == _) _ _ = true → _
+  `(tactic| ( with_reducible change dite (_ == _) _ _ = true → _
               refine DerivingHelpers.deriving_lawful_beq_helper_dep ?_ ?_
               · solve | apply_assumption | simp | fail "could not discharge eq_of_beq assumption"
               intro h
@@ -75,7 +75,7 @@ macro_rules
     ))
 macro_rules
 | `(tactic| deriving_LawfulEq_tactic_step) =>
-  `(tactic| ( change (_ == _) = true → _
+  `(tactic| ( with_reducible change (_ == _) = true → _
               refine DerivingHelpers.deriving_lawful_beq_helper_nd ?_ ?_
               · solve | apply_assumption | simp | fail "could not discharge eq_of_beq assumption"
               intro h
@@ -83,7 +83,8 @@ macro_rules
     ))
 macro_rules
 | `(tactic| deriving_LawfulEq_tactic_step) =>
-  `(tactic| refine DerivingHelpers.and_true_curry ?_)
+  `(tactic| ( with_reducible change (_ == _ && _) = true → _
+              refine DerivingHelpers.and_true_curry ?_))
 macro_rules
 | `(tactic| deriving_LawfulEq_tactic_step) =>
   `(tactic| rfl)

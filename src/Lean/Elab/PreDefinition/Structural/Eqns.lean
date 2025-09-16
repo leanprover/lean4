@@ -38,6 +38,10 @@ private partial def mkProof (type : Expr) : MetaM Expr := do
         go1 mvarId
       instantiateMVars main
 where
+  /--
+  Step 1: Split the function body into its cases, but keeping the LHS intact, because the
+  `.below`-added `match` statements and the `.rec` can quickly confuse `split`.
+  -/
   go1 (mvarId : MVarId) : MetaM Unit := do
     withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} go1:\n{MessageData.ofGoal mvarId}") do
       if (← tryURefl mvarId) then
@@ -72,19 +76,18 @@ where
             mvarIds.forM go1
           else
             go2 (← deltaLHS mvarId)
+  /-- Step 2: Unfold the lhs to expose the recursor. -/
   go2 (mvarId : MVarId) : MetaM Unit := do
     withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} go2:\n{MessageData.ofGoal mvarId}") do
     if let some mvarId ← whnfReducibleLHS? mvarId then
       go2 mvarId
     else
       go3 mvarId
+  /-- Step 3: Simplify the match and if statements on the left hand side, until we have rfl. -/
   go3 (mvarId : MVarId) : MetaM Unit := do
       withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} go3:\n{MessageData.ofGoal mvarId}") do
       if (← tryURefl mvarId) then
         trace[Elab.definition.structural.eqns] "tryURefl succeeded"
-        return ()
-      else if (← tryContradiction mvarId) then
-        trace[Elab.definition.structural.eqns] "tryContadiction succeeded"
         return ()
       else if let some mvarId ← simpMatch? mvarId then
         trace[Elab.definition.structural.eqns] "simpMatch? succeeded"

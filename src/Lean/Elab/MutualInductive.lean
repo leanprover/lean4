@@ -1013,25 +1013,34 @@ private def mkFlatInductive (views : Array InductiveView) (elabs' : Array Induct
     let rs := Array.zipWith (fun r indFVar => { r with indFVar : ElabHeaderResult }) rs newIndFVars
     buildFinalizeContext elabs' levelParams vars newParams views newIndFVars rs
 
-private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext :=
-  Term.withoutSavingRecAppSyntax do
-  let views := elabs.map (·.view)
-  let isCoinductive := elabs.any (·.isCoinductive)
-  let view0 := views[0]!
-  let scopeLevelNames ← Term.getLevelNames
-  InductiveElabStep1.checkLevelNames views
-  let allUserLevelNames := view0.levelNames
-  let isUnsafe          := view0.modifiers.isUnsafe
-  withRef view0.ref <| Term.withLevelNames allUserLevelNames do
-    let rs ← elabHeaders views
-    Term.synthesizeSyntheticMVarsNoPostponing
-    ElabHeaderResult.checkLevelNames rs
-    if isCoinductive then
-      unless (←rs.allM (forallTelescopeReducing ·.type fun args body => pure body.isProp)) do
-        throwErrorAt view0.declId "`coinductive` keyword can only be used to define predicates"
-    let allUserLevelNames := rs[0]!.levelNames
-    trace[Elab.inductive] "level names: {allUserLevelNames}"
-    let res ← withInductiveLocalDecls rs fun params indFVars => do
+private def addAndFinalizeInductiveDecl (views : Array InductiveView) (elabs' : Array InductiveElabStep2)
+  (indFVars : Array Expr) (vars : Array Expr) (levelParams : List Name) (numVars : Nat)
+  (numParams : Nat) (indTypes : List InductiveType) (isUnsafe : Bool) (rs : Array ElabHeaderResult) (params : Array Expr) (isCoinductive : Bool): TermElabM FinalizeContext := do
+ if isCoinductive then
+    mkFlatInductive views elabs' indFVars vars levelParams numVars numParams indTypes
+  else
+    let indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes
+    let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
+    Term.ensureNoUnassignedMVars decl
+    addDecl decl
+
+    -- For nested inductive types, the kernel adds a variable number of auxiliary recursors.
+    -- Let the elaborator know about them as well. (Other auxiliaries have already been
+    -- registered by `addDecl` via `Declaration.getNames`.)
+    -- NOTE: If we want to make inductive elaboration parallel, this should switch to using
+    -- reserved names.
+    addAuxRecs indTypes
+    buildFinalizeContext elabs' levelParams vars params views indFVars rs
+
+
+private def mkInductiveDeclCore (vars : Array Expr) (elabs : Array InductiveElabStep1) (rs : Array PreElabHeaderResult) (views : Array InductiveView) (isCoinductive : Bool)  (scopeLevelNames allUserLevelNames : List Name) : TermElabM FinalizeContext := do
+let view0 := views[0]!
+if isCoinductive then
+  unless (←rs.allM (forallTelescopeReducing ·.type fun args body => pure body.isProp)) do
+    throwErrorAt view0.declId "`coinductive` keyword can only be used to define predicates"
+let allUserLevelNames := rs[0]!.levelNames
+let isUnsafe          := view0.modifiers.isUnsafe
+let res ← withInductiveLocalDecls rs fun params indFVars => do
       trace[Elab.inductive] "indFVars: {indFVars}"
       let rs := Array.zipWith (fun r indFVar => { r with indFVar : ElabHeaderResult }) rs indFVars
       let mut indTypesArray : Array InductiveType := #[]
@@ -1066,41 +1075,44 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
         let usedLevelNames := collectLevelParamsInInductive indTypes
         match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
         | .error msg      => throwErrorAt view0.declId msg
-        | .ok levelParams => do
-          if isCoinductive then
-            mkFlatInductive views elabs' indFVars vars levelParams numVars numParams indTypes
-          else
-            let indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes
-            let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
-            Term.ensureNoUnassignedMVars decl
-            addDecl decl
-
-            -- For nested inductive types, the kernel adds a variable number of auxiliary recursors.
-            -- Let the elaborator know about them as well. (Other auxiliaries have already been
-            -- registered by `addDecl` via `Declaration.getNames`.)
-            -- NOTE: If we want to make inductive elaboration parallel, this should switch to using
-            -- reserved names.
-            addAuxRecs indTypes
-            buildFinalizeContext elabs' levelParams vars params views indFVars rs
-    withSaveInfoContext do -- save new env
-      for view in views do
+        | .ok levelParams => addAndFinalizeInductiveDecl views elabs' indFVars vars levelParams numVars numParams indTypes isUnsafe rs params isCoinductive
+withSaveInfoContext do -- save new env
+  for view in views do
+    unless isCoinductive do
+      /-
+        If we are elaborating a coinductive predicate, we do not want to register the term info
+        as the inductive we have just obtained is just an auxillary one, used to define the
+        coinductive predicate.
+      -/
+      Term.addTermInfo' view.declId (← mkConstWithLevelParams view.declName) (isBinder := true)
+    for ctor in view.ctors do
+      if (ctor.declId.getPos? (canonicalOnly := true)).isSome then
         unless isCoinductive do
           /-
-            If we are elaborating a coinductive predicate, we do not want to register the term info
-            as the inductive we have just obtained is just an auxillary one, used to define the
-            coinductive predicate.
+            Same applies to constructors. The constructors here are constructors of the auxillary
+            inductive type, not the coinductive predicate itself.
           -/
-          Term.addTermInfo' view.declId (← mkConstWithLevelParams view.declName) (isBinder := true)
-        for ctor in view.ctors do
-          if (ctor.declId.getPos? (canonicalOnly := true)).isSome then
-            unless isCoinductive do
-              /-
-                Same applies to constructors. The constructors here are constructors of the auxillary
-                inductive type, not the coinductive predicate itself.
-              -/
-              Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
-            enableRealizationsForConst ctor.declName
-    return res
+          Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
+        enableRealizationsForConst ctor.declName
+return res
+
+private def withElaboratedHeaders (vars : Array Expr) (elabs : Array InductiveElabStep1) (k : Array Expr → Array InductiveElabStep1 → Array PreElabHeaderResult → Array InductiveView → Bool → List Name → List Name → TermElabM α ) : TermElabM α :=
+Term.withoutSavingRecAppSyntax do
+  let views := elabs.map (·.view)
+  let isCoinductive := elabs.any (·.isCoinductive)
+  let view0 := views[0]!
+  let scopeLevelNames ← Term.getLevelNames
+  InductiveElabStep1.checkLevelNames views
+  let allUserLevelNames := view0.levelNames
+  withRef view0.ref <| Term.withLevelNames allUserLevelNames do
+    let rs ← elabHeaders views
+    Term.synthesizeSyntheticMVarsNoPostponing
+    ElabHeaderResult.checkLevelNames rs
+    trace[Elab.inductive] "level names: {allUserLevelNames}"
+    k vars elabs rs views isCoinductive scopeLevelNames allUserLevelNames
+
+private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext :=
+  withElaboratedHeaders vars elabs mkInductiveDeclCore
 
 private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
   let env ← getEnv

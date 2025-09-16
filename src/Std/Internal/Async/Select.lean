@@ -72,18 +72,18 @@ structure Selector (α : Type) where
   Attempts to retrieve a piece of data from the event source in a non-blocking fashion, returning
   `some` if data is available and `none` otherwise.
   -/
-  tryFn : IO (Option α)
+  tryFn : Async (Option α)
   /--
   Registers a `Waiter` with the event source. Once data is available, the event source should
   attempt to call `Waiter.race` and resolve the `Waiter`'s promise if it wins. It is crucial that
   data is never actually consumed from the event source unless `Waiter.race` wins in order to
   prevent data loss.
   -/
-  registerFn : Waiter α → IO Unit
+  registerFn : Waiter α → Async Unit
   /--
   A cleanup function that is called once any `Selector` has won the `Selectable.one` race.
   -/
-  unregisterFn : IO Unit
+  unregisterFn : Async Unit
 
 /--
 An event source together with a continuation to call on data obtained from that event source,

@@ -582,7 +582,7 @@ private partial def recvSelector (ch : Bounded α) : Selector (Option α) where
 
       set { st with consumers }
 where
-  registerAux (ch : Bounded α) (waiter : Waiter (Option α)) : Async Unit := do
+  registerAux (ch : Bounded α) (waiter : Waiter (Option α)) : IO Unit := do
     ch.state.atomically do
       -- We did drop the lock between `tryFn` and now so maybe ready?
       if ← recvReady' then

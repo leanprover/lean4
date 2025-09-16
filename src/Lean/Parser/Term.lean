@@ -1049,6 +1049,8 @@ If present, the identifier `h` is bound to a proof of `x = e`. -/
 /--
 `e |>.x` is a shorthand for `(e).x`.
 It is especially useful for avoiding parentheses with repeated applications.
+
+Compare to `e |> .x`, with a space, a shorthand for .x (e)`.
 -/
 @[builtin_term_parser] def pipeProj   := trailing_parser:minPrec
   " |>." >> checkNoWsBefore >> (fieldIdx <|> rawIdent) >> many argument

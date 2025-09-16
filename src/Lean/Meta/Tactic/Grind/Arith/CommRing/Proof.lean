@@ -133,7 +133,7 @@ private def getSemiringIdOf : RingM Nat := do
   return semiringId
 
 private def getSemiringOf : RingM CommSemiring := do
-  SemiringM.run (← getSemiringIdOf) do getSemiring
+  SemiringM.run (← getSemiringIdOf) do getCommSemiring
 
 private def mkSemiringPrefix (declName : Name) : ProofM Expr := do
   let sctx ← getSContext
@@ -322,7 +322,7 @@ Given `a` and `b`, such that `a ≠ b` in the core and `sa` and `sb` their reifi
 terms s.t. `sa.toPoly == sb.toPoly`, close the goal.
 -/
 def setSemiringDiseqUnsat (a b : Expr) (sa sb : SemiringExpr) : SemiringM Unit := do
-  let semiring ← getSemiring
+  let semiring ← getCommSemiring
   let hne ← mkDiseqProof a b
   let usedVars     := sa.collectVars >> sb.collectVars <| {}
   let vars'        := usedVars.toArray

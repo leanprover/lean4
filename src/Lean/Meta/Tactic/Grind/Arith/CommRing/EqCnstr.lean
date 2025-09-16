@@ -353,7 +353,7 @@ def processNewEq (a b : Expr) : GoalM Unit := do
     let some sb ← toSemiringExpr? b | return ()
     let lhs ← sa.denoteAsRingExpr
     let rhs ← sb.denoteAsRingExpr
-    RingM.run (← getSemiring).ringId do
+    RingM.run (← getCommSemiring).ringId do
       let some ra ← reify? lhs (skipVar := false) (gen := (← getGeneration a)) | return ()
       let some rb ← reify? rhs (skipVar := false) (gen := (← getGeneration b)) | return ()
       let p ← (ra.sub rb).toPolyM
@@ -415,7 +415,7 @@ private def processNewDiseqCommSemiring (a b : Expr) : SemiringM Unit := do
     let some sb ← toSemiringExpr? b | return ()
     let lhs ← sa.denoteAsRingExpr
     let rhs ← sb.denoteAsRingExpr
-    RingM.run (← getSemiring).ringId do
+    RingM.run (← getCommSemiring).ringId do
       let some ra ← reify? lhs (skipVar := false) (gen := (← getGeneration a)) | return ()
       let some rb ← reify? rhs (skipVar := false) (gen := (← getGeneration b)) | return ()
       let p ← (ra.sub rb).toPolyM

@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.SynthInstance
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadSemiring
 import Init.Grind.Ring.CommSemiringAdapter
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
@@ -25,7 +26,11 @@ abbrev SemiringM.run (semiringId : Nat) (x : SemiringM α) : GoalM α :=
 abbrev getSemiringId : SemiringM Nat :=
   return (← read).semiringId
 
-def getSemiring : SemiringM CommSemiring := do
+instance : MonadCanon SemiringM where
+  canonExpr e := do shareCommon (← canon e)
+  synthInstance? e := Grind.synthInstance? e
+
+protected def SemiringM.getCommSemiring : SemiringM CommSemiring := do
   let s ← get'
   let semiringId ← getSemiringId
   if h : semiringId < s.semirings.size then
@@ -33,24 +38,24 @@ def getSemiring : SemiringM CommSemiring := do
   else
     throwError "`grind` internal error, invalid semiringId"
 
-@[inline] def modifySemiring (f : CommSemiring → CommSemiring) : SemiringM Unit := do
+@[inline] protected def SemiringM.modifyCommSemiring (f : CommSemiring → CommSemiring) : SemiringM Unit := do
   let semiringId ← getSemiringId
   modify' fun s => { s with semirings := s.semirings.modify semiringId f }
 
-instance : MonadCanon SemiringM where
-  canonExpr e := do shareCommon (← canon e)
-  synthInstance? e := Grind.synthInstance? e
+instance : MonadCommSemiring SemiringM where
+  getCommSemiring := SemiringM.getCommSemiring
+  modifyCommSemiring := SemiringM.modifyCommSemiring
 
 protected def SemiringM.getCommRing : SemiringM CommRing := do
   let s ← get'
-  let ringId := (← getSemiring).ringId
+  let ringId := (← getCommSemiring).ringId
   if h : ringId < s.rings.size then
     return s.rings[ringId]
   else
     throwError "`grind` internal error, invalid ringId"
 
 protected def SemiringM.modifyCommRing (f : CommRing → CommRing) : SemiringM Unit := do
-  let ringId := (← getSemiring).ringId
+  let ringId := (← getCommSemiring).ringId
   modify' fun s => { s with rings := s.rings.modify ringId f }
 
 instance : MonadCommRing SemiringM where
@@ -88,10 +93,10 @@ def getNatCastFn' : SemiringM Expr := do
   return natCastFn
 
 def getToQFn : SemiringM Expr := do
-  let s ← getSemiring
+  let s ← getCommSemiring
   if let some toQFn := s.toQFn? then return toQFn
   let toQFn ← canonExpr <| mkApp2 (mkConst ``Grind.Ring.OfSemiring.toQ [s.u]) s.type s.semiringInst
-  modifySemiring fun s => { s with toQFn? := some toQFn }
+  modifyCommSemiring fun s => { s with toQFn? := some toQFn }
   return toQFn
 
 private def mkAddRightCancelInst? (u : Level) (type : Expr) : GoalM (Option Expr) := do
@@ -101,10 +106,10 @@ private def mkAddRightCancelInst? (u : Level) (type : Expr) : GoalM (Option Expr
   synthInstance? addRightCancel
 
 def getAddRightCancelInst? : SemiringM (Option Expr) := do
-  let s ← getSemiring
+  let s ← getCommSemiring
   if let some r := s.addRightCancelInst? then return r
   let addRightCancelInst? ← mkAddRightCancelInst? s.u s.type
-  modifySemiring fun s => { s with addRightCancelInst? := some addRightCancelInst? }
+  modifyCommSemiring fun s => { s with addRightCancelInst? := some addRightCancelInst? }
   return addRightCancelInst?
 
 def getTermSemiringId? (e : Expr) : GoalM (Option Nat) := do

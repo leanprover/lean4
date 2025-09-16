@@ -6218,9 +6218,9 @@ theorem getLsbD_false_of_lt_ctz {x : BitVec w} (hi : i < x.ctz.toNat) :
   · simp [hzero, getLsbD_reverse]
   · simp only [ctz_eq_reverse_clz, natCast_eq_ofNat, ne_eq, hzero, not_false_eq_true,
       iff_true] at hiff
-    simp at hi
+    simp only [ctz] at hi
     have hi' : i < w := by simp [BitVec.lt_def] at hiff; omega
-    simp [hi', decide_true, Bool.true_and]
+    simp only [hi', decide_true, Bool.true_and]
     have : (x.reverse.clzAuxRec (w - 1)).toNat ≤ w := by
       rw [show ((x.reverse.clzAuxRec (w - 1)).toNat ≤ w) =
             ((x.reverse.clzAuxRec (w - 1)).toNat ≤ (BitVec.ofNat w w).toNat) by simp only [toNat_ofNat,

@@ -2377,7 +2377,6 @@ theorem getLsbD_shiftConcat (x : BitVec w) (b : Bool) (i : Nat) :
 theorem getElem_shiftConcat {x : BitVec w} {b : Bool} (h : i < w) :
     (x.shiftConcat b)[i] = if i = 0 then b else x[i-1] := by
   rw [← getLsbD_eq_getElem, getLsbD_shiftConcat, getLsbD_eq_getElem, decide_eq_true h, Bool.true_and]
-  omega
 
 theorem getElem_shiftConcat_zero {x : BitVec w} (b : Bool) (h : 0 < w) :
     (x.shiftConcat b)[0] = b := by grind

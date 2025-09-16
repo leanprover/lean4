@@ -377,12 +377,13 @@ We should also investigate the impact on memory consumption.
 abbrev DefEqCache := PersistentHashMap DefEqCacheKey Bool
 
 /--
-A `DefEqTransCache` is a `DefEqCache` that is only valid in the original `MetavarContext`.
-It stores of the `numAssignments` from that original `MetavarContext`.
+A `DefEqTransCache` is a `DefEqCache` that is only valid in the `MetavarContext` in which it was declared.
+To keep track of whether this cache is still valid, it stores the `numAssignments` from the original `MetavarContext`.
 If the `numAssignments` in the `MetavarContext` has increased, we invalidate this cache.
-And when we revert the metavariable context in `checkpointDefEq`, if the `numAssignments`
-in the original `MetavarContext` is smaller than in the cache, we revert the cache to its original.
- -/
+And when reverting the metavariable context in `checkpointDefEq`, if the `numAssignments`
+in the original `MetavarContext` is smaller than in this cache, we also invalidate this cache,
+and revert to the original cache.
+-/
 structure DefEqTransCache where
   cache : DefEqCache := {}
   numAssignments : Nat := 0
@@ -656,6 +657,7 @@ def resetCache : MetaM Unit :=
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
   modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
 
+/-- Modify the defEq transient cache. If it is not valid anymore, reset it before modifying it. -/
 @[inline] def modifyDefEqTransientCache (numAssignments : Nat) (f : DefEqCache → DefEqCache) : MetaM Unit :=
   modifyCache fun c =>
     let ⟨transCache, numAssignmentsOld⟩ := c.defEqTrans

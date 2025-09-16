@@ -1013,14 +1013,26 @@ private def mkFlatInductive (views : Array InductiveView) (elabs' : Array Induct
     let rs := Array.zipWith (fun r indFVar => { r with indFVar : ElabHeaderResult }) rs newIndFVars
     buildFinalizeContext elabs' levelParams vars newParams views newIndFVars rs
 
-private def addAndFinalizeInductiveDecl (views : Array InductiveView) (elabs' : Array InductiveElabStep2)
-  (indFVars : Array Expr) (vars : Array Expr) (levelParams : List Name) (numVars : Nat)
-  (numParams : Nat) (indTypes : List InductiveType) (isUnsafe : Bool) (rs : Array ElabHeaderResult) (params : Array Expr) (isCoinductive : Bool): TermElabM FinalizeContext := do
- if isCoinductive then
-    mkFlatInductive views elabs' indFVars vars levelParams numVars numParams indTypes
+private structure AddAndFinalizeContext where
+  views : Array InductiveView
+  elabs' : Array InductiveElabStep2
+  indFVars : Array Expr
+  vars : Array Expr
+  levelParams : List Name
+  numVars : Nat
+  numParams : Nat
+  indTypes : List InductiveType
+  isUnsafe : Bool
+  rs : Array ElabHeaderResult
+  params : Array Expr
+  isCoinductive : Bool
+
+private def addAndFinalizeInductiveDecl (context : AddAndFinalizeContext) : TermElabM FinalizeContext := do
+ if context.isCoinductive then
+    mkFlatInductive context.views context.elabs' context.indFVars context.vars context.levelParams context.numVars context.numParams context.indTypes
   else
-    let indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes
-    let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
+    let indTypes ← replaceIndFVarsWithConsts context.views context.indFVars context.levelParams context.numVars context.numParams context.indTypes
+    let decl := Declaration.inductDecl context.levelParams context.numParams indTypes context.isUnsafe
     Term.ensureNoUnassignedMVars decl
     addDecl decl
 
@@ -1030,7 +1042,7 @@ private def addAndFinalizeInductiveDecl (views : Array InductiveView) (elabs' : 
     -- NOTE: If we want to make inductive elaboration parallel, this should switch to using
     -- reserved names.
     addAuxRecs indTypes
-    buildFinalizeContext elabs' levelParams vars params views indFVars rs
+    buildFinalizeContext context.elabs' context.levelParams context.vars context.params context.views context.indFVars context.rs
 
 private def mkInductiveDeclCore (vars : Array Expr) (elabs : Array InductiveElabStep1) (rs : Array PreElabHeaderResult) (scopeLevelNames : List Name) : TermElabM FinalizeContext := do
 let views := elabs.map (·.view)
@@ -1076,7 +1088,21 @@ let res ← withInductiveLocalDecls rs fun params indFVars => do
         let usedLevelNames := collectLevelParamsInInductive indTypes
         match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
         | .error msg      => throwErrorAt view0.declId msg
-        | .ok levelParams => addAndFinalizeInductiveDecl views elabs' indFVars vars levelParams numVars numParams indTypes isUnsafe rs params isCoinductive
+        | .ok levelParams =>
+          addAndFinalizeInductiveDecl {
+            views := views
+            elabs' := elabs'
+            indFVars := indFVars
+            vars := vars
+            levelParams := levelParams
+            indTypes := indTypes
+            isUnsafe := isUnsafe
+            rs := rs
+            params := params
+            isCoinductive := isCoinductive
+            numVars := numVars
+            numParams := numParams
+          }
 withSaveInfoContext do -- save new env
   for view in views do
     unless isCoinductive do

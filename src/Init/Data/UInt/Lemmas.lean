@@ -311,6 +311,13 @@ theorem UInt64.ofNat_mod_size : ofNat (x % 2 ^ 64) = ofNat x := by
 theorem USize.ofNat_mod_size : ofNat (x % 2 ^ System.Platform.numBits) = ofNat x := by
   simp [ofNat, BitVec.ofNat, Fin.ofNat]
 
+theorem UInt8.ofNat_size : ofNat size = 0 := by decide
+theorem UInt16.ofNat_size : ofNat size = 0 := by decide
+theorem UInt32.ofNat_size : ofNat size = 0 := by decide
+theorem UInt64.ofNat_size : ofNat size = 0 := by decide
+theorem USize.ofNat_size : ofNat size = 0 := by
+  simp [ofNat, BitVec.ofNat, USize.eq_iff_toBitVec_eq]
+
 theorem UInt8.lt_ofNat_iff {n : UInt8} {m : Nat} (h : m < size) : n < ofNat m ↔ n.toNat < m := by
   rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
 theorem UInt8.ofNat_lt_iff {n : UInt8} {m : Nat} (h : m < size) : ofNat m < n ↔ m < n.toNat := by

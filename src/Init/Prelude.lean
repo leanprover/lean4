@@ -5125,12 +5125,32 @@ inductive ParserDescr where
   The precedence `prec` and `lhsPrec` are used to determine whether the parser
   should apply. -/
   | trailingNode (kind : SyntaxNodeKind) (prec lhsPrec : Nat) (p : ParserDescr)
-  /-- A literal symbol parser: parses `val` as a literal.
-  This parser does not work on identifiers, so `symbol` arguments are declared
-  as "keywords" and cannot be used as identifiers anywhere in the file. -/
+  /--
+  Parses the literal symbol.
+
+  The symbol is automatically included in the set of reserved tokens ("keywords").
+  Keywords cannot be used as identifiers, unless the identifier is otherwise escaped.
+  For example, `"fun"` reserves `fun` as a keyword; to refer an identifier named `fun` one can write `«fun»`.
+  Adding a `&` prefix prevents it from being reserved, for example `&"true"`.
+
+  Whitespace before or after the atom is used as a pretty printing hint.
+  For example, `" + "` parses `+` and pretty prints it with whitespace on both sides.
+  The whitespace has no effect on parsing behavior.
+  -/
   | symbol (val : String)
-  /-- Like `symbol`, but without reserving `val` as a keyword.
-  If `includeIdent` is true then `ident` will be reinterpreted as `atom` if it matches. -/
+  /--
+  Parses a literal symbol. The `&` prefix prevents it from being included in the set of reserved tokens ("keywords").
+  This means that the symbol can still be recognized as an identifier by other parsers.
+
+  Some syntax categories, such as `tactic`, automatically apply `&` to the first symbol.
+
+  Whitespace before or after the atom is used as a pretty printing hint.
+  For example, `" + "` parses `+` and pretty prints it with whitespace on both sides.
+  The whitespace has no effect on parsing behavior.
+
+  (Not exposed by parser description syntax:
+  If the `includeIdent` argument is true, lets `ident` be reinterpreted as `atom` if it matches.)
+  -/
   | nonReservedSymbol (val : String) (includeIdent : Bool)
   /-- Parses using the category parser `catName` with right binding power
   (i.e. precedence) `rbp`. -/
@@ -5150,6 +5170,19 @@ inductive ParserDescr where
   /-- `sepBy1` is just like `sepBy`, except it takes 1 or more instead of
   0 or more occurrences of `p`. -/
   | sepBy1 (p : ParserDescr) (sep : String) (psep : ParserDescr) (allowTrailingSep : Bool := false)
+  /--
+  - `unicode("→", "->")` parses a symbol matching either `→` or `->`. Each symbol is reserved.
+    The second symbol is an ASCII version of the first.
+    The  `pp.unicode` option controls which is used when pretty printing.
+  - `unicode("→", "->", preserveForPP)` is the same except for pretty printing behavior.
+    When the `pp.unicode` option is enabled, then the pretty printer uses whichever symbol
+    matches the underlying atom in the syntax.
+    The intent is that `preserveForPP` means that the ASCII variant is preferred.
+    For example, `fun` notation uses `preserveForPP` for its arrow; the delaborator chooses
+    `↦` or `=>` depending on the value of `pp.unicode.fun`, letting users opt-in to formatting with `↦`.
+    Note that `notation` creates a pretty printer preferring the ASCII version.
+  -/
+  | unicodeSymbol (val asciiVal : String) (preserveForPP : Bool)
 
 instance : Inhabited ParserDescr where
   default := ParserDescr.symbol ""

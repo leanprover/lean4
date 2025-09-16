@@ -939,8 +939,8 @@ theorem getLast!_eq_getElem! [Inhabited α] {l : List α} : l.getLast! = l[l.len
   | nil => simp
   | cons _ _ =>
     apply getLast!_of_getLast?
-    rw [getElem!_pos, getElem_cons_length (h := by simp)]
-    rfl
+    rw [getLast?_eq_getElem?]
+    simp
 
 /-! ## Head and tail -/
 
@@ -1162,7 +1162,9 @@ theorem forall_mem_map {f : α → β} {l : List α} {P : β → Prop} :
 @[simp] theorem map_eq_nil_iff {f : α → β} {l : List α} : map f l = [] ↔ l = [] := by
   constructor <;> exact fun _ => match l with | [] => rfl
 
-@[grind →]
+-- This would be helpful as a `grind` lemma if
+-- we could have it fire only once `map f l` and `[]` are the same equivalence class.
+-- Otherwise it is too aggressive.
 theorem eq_nil_of_map_eq_nil {f : α → β} {l : List α} (h : map f l = []) : l = [] :=
   map_eq_nil_iff.mp h
 
@@ -1344,7 +1346,7 @@ grind_pattern getElem_filter => (xs.filter p)[i]
 
 theorem getElem?_filter {xs : List α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).length)
     (w : (xs.filter p)[i]? = some a) : p a := by
-  rw [getElem?_eq_getElem] at w
+  rw [getElem?_eq_getElem h] at w
   simp only [Option.some.injEq] at w
   rw [← w]
   apply getElem_filter h

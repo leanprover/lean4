@@ -12,6 +12,7 @@ import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
 import Lean.Meta.NatTable
 import Lean.Meta.Constructions.CtorIdx
+import Lean.Meta.SameCtorUtils
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
 
@@ -28,7 +29,7 @@ fun params x1 x2 x3 x1' x2' x3' => (x1 = x1' → x2 = x2' → x3 = x3' → P)
 where `x1 x2 x3` and `x1' x2' x3'` are the fields of a constructor application of `ctorName`,
 omitting equalities between propositions and using `HEq` where needed.
 -/
-public def mkNoConfusionCtorArg (ctorName : Name) (P : Expr) : MetaM Expr := do
+def mkNoConfusionCtorArg (ctorName : Name) (P : Expr) : MetaM Expr := do
   let ctorInfo ← getConstInfoCtor ctorName
   -- We bring the constructor's parameters into scope abstractly, this way
   -- we can check if we need to use HEq. (The concrete fields could allow Eq)
@@ -68,7 +69,7 @@ def mkIfNatEq (P : Expr) (e1 e2 : Expr) («then» : Expr → MetaM Expr) («else
   let e := mkApp e (← withLocalDeclD `h (mkNot heq) (fun h => do mkLambdaFVars #[h] (← «else» h)))
   pure e
 
-public def mkNoConfusionType (indName : Name) : MetaM Unit := do
+def mkNoConfusionType (indName : Name) : MetaM Unit := do
   let declName := mkNoConfusionTypeName indName
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
   let useLinearConstruction :=
@@ -194,6 +195,72 @@ def mkNoConfusionCoreImp (indName : Name) : MetaM Unit := do
   modifyEnv fun env => markNoConfusion env declName
   modifyEnv fun env => addProtected env declName
 
+/--
+Creates per-constructor no-confusion definitions. These specialize the general noConfusion
+declaration to equalities between two applications of the same constructor, to effectively cache
+the computation of `noConfusionType` for that constructor:
+
+```
+def L.cons.noConfusion.{u_1, u} : {α : Type u} → (P : Sort u_1) →
+  (x : α) → (xs : L α) → (x' : α) → (xs' : L α) →
+  L.cons x xs = L.cons x' xs' →
+  (x = x' → xs = xs' → P) →
+  P
+```
+
+These definitions are less expressive than the general `noConfusion` principle when there are
+complicated indices. In particular they assume that all fields of the constructor that appear
+in its type are equal already. The `mkNoConfusion` app builder falls back to the general principle
+if the per-constructor one does not apply.
+
+At some point I tried to be clever and remove hypotheses that are trivial (`n = n →`), but that
+made it harder for, say, `injection` to know how often to `intro`. So we just keep them.
+-/
+def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
+  -- Do not do anything unless can_elim_to_type.
+  let .inductInfo indVal ← getConstInfo declName | return
+  let recInfo ← getConstInfo (mkRecName declName)
+  unless recInfo.levelParams.length > indVal.levelParams.length do return
+  if (← isPropFormerType indVal.type) then return
+  let noConfusionName := Name.mkStr declName "noConfusion"
+
+  -- We take the level names from `.rec`, as that conveniently has an extra level parameter that
+  -- is distinct from the ones from the inductive
+  let (v::us) := recInfo.levelParams.map mkLevelParam | throwError "unexpected number of level parameters in {recInfo.name}"
+
+  for ctor in indVal.ctors do
+    let ctorInfo ← getConstInfoCtor ctor
+    if ctorInfo.numFields > 0 then
+      let e ← withLocalDeclD `P (.sort v) fun P =>
+        forallBoundedTelescope ctorInfo.type ctorInfo.numParams fun xs _ => do
+          let ctorApp := mkAppN (mkConst ctor us) xs
+          withSharedCtorIndices ctorApp fun ys indices fields1 fields2 => do
+            let ctor1 := mkAppN ctorApp fields1
+            let ctor2 := mkAppN ctorApp fields2
+            let heqType ← mkEq ctor1 ctor2
+            withLocalDeclD `h heqType fun h => do
+              -- When the kernel checks this definitios, it will perform the potentially expensive
+              -- computation that `noConfusionType h` is equal to `$kType → P`
+              let kType ← mkNoConfusionCtorArg ctor P
+              let kType := kType.beta (xs ++ fields1 ++ fields2)
+              withLocalDeclD `k kType fun k =>
+                let e := mkConst noConfusionName (v :: us)
+                let e := mkAppN e (xs ++ indices ++ #[P, ctor1, ctor2, h, k])
+                mkLambdaFVars (xs ++ #[P] ++ ys ++ #[h, k]) e
+      let name := ctor.str "noConfusion"
+      addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
+        (name        := name)
+        (levelParams := recInfo.levelParams)
+        (type        := (← inferType e))
+        (value       := e)
+        (hints       := ReducibilityHints.abbrev)
+      ))
+      setReducibleAttribute name
+      -- The compiler has special support for `noConfusion`. So lets mark this as
+      -- macroInline to not generate code for all these extra definitions, and instead
+      -- let the compiler unfold this to then put the custom code there
+      setInlineAttribute name (kind := .macroInline)
+
 
 def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   -- Do not do anything unless can_elim_to_type. TODO: Extract to util
@@ -204,7 +271,7 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
 
   mkNoConfusionType declName
   mkNoConfusionCoreImp declName
-
+  mkNoConfusionCtors declName
 
 def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do
   if (← getEnv).contains ``noConfusionEnum then
@@ -277,6 +344,7 @@ public def mkNoConfusion (declName : Name) : MetaM Unit := do
     mkNoConfusionEnum declName
   else
     mkNoConfusionCore declName
+
 
 builtin_initialize
   registerTraceClass `Meta.mkNoConfusion

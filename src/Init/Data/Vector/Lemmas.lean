@@ -901,9 +901,11 @@ theorem getElem?_singleton {a : α} {i : Nat} : #v[a][i]? = if i = 0 then some a
 
 /-! ### mem -/
 
-@[simp, grind] theorem getElem_mem {xs : Vector α n} {i : Nat} (h : i < n) : xs[i] ∈ xs := by
+@[simp] theorem getElem_mem {xs : Vector α n} {i : Nat} (h : i < n) : xs[i] ∈ xs := by
   rcases xs with ⟨xs, rfl⟩
   simp
+
+grind_pattern getElem_mem => xs[i] ∈ xs
 
 theorem not_mem_empty (a : α) : ¬ a ∈ #v[] := nofun
 

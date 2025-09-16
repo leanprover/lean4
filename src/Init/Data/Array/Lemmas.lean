@@ -88,7 +88,7 @@ theorem eq_empty_iff_size_eq_zero : xs = #[] ↔ xs.size = 0 :=
 
 theorem size_pos_of_mem {a : α} {xs : Array α} (h : a ∈ xs) : 0 < xs.size := by
   cases xs
-  simp only [mem_toArray] at h
+  simp only [List.mem_toArray] at h
   simpa using List.length_pos_of_mem h
 
 grind_pattern size_pos_of_mem => a ∈ xs, xs.size
@@ -465,7 +465,7 @@ theorem mem_singleton_self (a : α) : a ∈ #[a] := by simp
 
 theorem mem_of_mem_push_of_mem {a b : α} {xs : Array α} : a ∈ xs.push b → b ∈ xs → a ∈ xs := by
   cases xs
-  simp only [List.push_toArray, mem_toArray, List.mem_append, List.mem_singleton]
+  simp only [List.push_toArray, List.mem_toArray, List.mem_append, List.mem_singleton]
   rintro (h | rfl)
   · intro _
     exact h
@@ -1277,7 +1277,9 @@ theorem forall_mem_map {f : α → β} {xs : Array α} {P : β → Prop} :
   cases xs
   simp
 
-@[grind →]
+-- This would be helpful as a `grind` lemma if
+-- we could have it fire only once `map f l` and `#[]` are the same equivalence class.
+-- Otherwise it is too aggressive.
 theorem eq_empty_of_map_eq_empty {f : α → β} {xs : Array α} (h : map f xs = #[]) : xs = #[] :=
   map_eq_empty_iff.mp h
 
@@ -1478,7 +1480,7 @@ theorem forall_mem_filter {p : α → Bool} {xs : Array α} {P : α → Prop} :
 
 theorem getElem?_filter {xs : Array α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).size)
     (w : (xs.filter p)[i]? = some a) : p a := by
-  rw [getElem?_eq_getElem] at w
+  rw [getElem?_eq_getElem h] at w
   simp only [Option.some.injEq] at w
   rw [← w]
   apply getElem_filter h
@@ -2423,7 +2425,7 @@ abbrev mkArray_succ' := @replicate_succ'
 
 @[simp, grind =] theorem mem_replicate {a b : α} {n} : b ∈ replicate n a ↔ n ≠ 0 ∧ b = a := by
   unfold replicate
-  simp only [mem_toArray, List.mem_replicate]
+  simp only [List.mem_toArray, List.mem_replicate]
 
 @[deprecated mem_replicate (since := "2025-03-18")]
 abbrev mem_mkArray := @mem_replicate
@@ -4214,7 +4216,7 @@ variable [LawfulBEq α]
     (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
   rcases xs with ⟨xs⟩
   simp only [List.replace_toArray, List.getElem?_toArray, List.getElem?_replace, take_eq_extract,
-    List.extract_toArray, List.extract_eq_drop_take, Nat.sub_zero, List.drop_zero, mem_toArray]
+    List.extract_toArray, List.extract_eq_drop_take, Nat.sub_zero, List.drop_zero, List.mem_toArray]
 
 theorem getElem?_replace_of_ne {xs : Array α} {i : Nat} (h : xs[i]? ≠ some a) :
     (xs.replace a b)[i]? = xs[i]? := by
@@ -4235,7 +4237,7 @@ theorem getElem_replace_of_ne {xs : Array α} {i : Nat} {h : i < xs.size} (h' : 
     (xs ++ ys).replace a b = if a ∈ xs then xs.replace a b ++ ys else xs ++ ys.replace a b := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
-  simp only [List.append_toArray, List.replace_toArray, List.replace_append, mem_toArray]
+  simp only [List.append_toArray, List.replace_toArray, List.replace_append, List.mem_toArray]
   split <;> simp
 
 @[grind =] theorem replace_push {xs : Array α} {a b c : α} :
@@ -4470,10 +4472,10 @@ theorem back!_eq_back? [Inhabited α] {xs : Array α} : xs.back! = xs.back?.getD
 
 theorem getElem?_push_lt {xs : Array α} {x : α} {i : Nat} (h : i < xs.size) :
     (xs.push x)[i]? = some xs[i] := by
-  rw [getElem?_pos, getElem_push_lt]
+  rw [getElem?_pos (xs.push x) i (size_push _ ▸ Nat.lt_succ_of_lt h), getElem_push_lt]
 
 theorem getElem?_push_eq {xs : Array α} {x : α} : (xs.push x)[xs.size]? = some x := by
-  rw [getElem?_pos, getElem_push_eq]
+  rw [getElem?_pos (xs.push x) xs.size (size_push _ ▸ Nat.lt_succ_self xs.size), getElem_push_eq]
 
 @[simp] theorem getElem?_size {xs : Array α} : xs[xs.size]? = none := by
   simp only [getElem?_def, Nat.lt_irrefl, dite_false]

@@ -11,7 +11,8 @@ def optimize : Expr → Expr
 
 /--
 error: Failed to realize constant optimize.eq_def:
-  failed to generate equational theorem for `optimize`
+  Tactic `deltaLHS` failed: failed to delta reduce lhs
+  ⏎
   case h_2
   e1 : Expr
   i : BitVec 32
@@ -32,7 +33,8 @@ error: Failed to realize constant optimize.eq_def:
   ⊢ Expr.const 0 = Expr.op bop✝ (Expr.const 0)
 ---
 error: Failed to realize constant optimize.eq_def:
-  failed to generate equational theorem for `optimize`
+  Tactic `deltaLHS` failed: failed to delta reduce lhs
+  ⏎
   case h_2
   e1 : Expr
   i : BitVec 32
@@ -58,7 +60,8 @@ error: Unknown identifier `optimize.eq_def`
 #check optimize.eq_def
 
 /--
-error: failed to generate equational theorem for `optimize`
+error: Tactic `deltaLHS` failed: failed to delta reduce lhs
+
 case h_2
 e1 : Expr
 i : BitVec 32

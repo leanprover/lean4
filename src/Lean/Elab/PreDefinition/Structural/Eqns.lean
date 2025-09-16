@@ -29,7 +29,7 @@ structure EqnInfo extends EqnInfoCore where
   fixedParamPerms : FixedParamPerms
   deriving Inhabited
 
-private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
+private partial def mkProof (type : Expr) : MetaM Expr := do
   withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
     withNewMCtxDepth do
       let main ← mkFreshExprSyntheticOpaqueMVar type
@@ -61,10 +61,10 @@ where
           trace[Elab.definition.structural.eqns] "simpTargetStar modified the goal"
           go1 mvarId
         | TacticResultCNM.noChange =>
-          if let some mvarId ← deltaRHS? mvarId declName then
-            trace[Elab.definition.structural.eqns] "deltaRHS? succeeded"
-            go1 mvarId
-          else if let some mvarIds ← casesOnStuckLHS? mvarId then
+          -- if let some mvarId ← deltaRHS? mvarId declName then
+          --   trace[Elab.definition.structural.eqns] "deltaRHS? succeeded"
+          --   go1 mvarId
+          if let some mvarIds ← casesOnStuckLHS? mvarId then
             trace[Elab.definition.structural.eqns] "casesOnStuckLHS? succeeded"
             mvarIds.forM go1
           else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
@@ -126,7 +126,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   return thmNames
 where
   doRealize name type := withOptions (tactic.hygienic.set · false) do
-    let value ← withoutExporting do mkProof info.declName type
+    let value ← withoutExporting do mkProof type
     let (type, value) ← removeUnusedEqnHypotheses type value
     let type ← letToHave type
     addDecl <| Declaration.thmDecl {

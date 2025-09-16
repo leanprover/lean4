@@ -42,7 +42,7 @@ inductive Expr where
   | sub  (a b : Expr)
   | mul (a b : Expr)
   | pow (a : Expr) (k : Nat)
-  deriving Inhabited, BEq, ReflBEq, LawfulBEq, Hashable, Repr
+  deriving Inhabited, BEq, Hashable, Repr
 
 abbrev Context (α : Type u) := RArray α
 

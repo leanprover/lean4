@@ -76,7 +76,7 @@ def ofArray {α} (streams : Array (String × AnyAsyncStream α)) : StreamMap α 
 /--
 Get a combined selector that returns the stream name and value
 -/
-def selector (stream : StreamMap α) : Selector (String × α) :=
+def selector (stream : StreamMap α) : Async (Selector (String × α)) :=
   let selectables := stream.streams.map fun (name, selector) => Selectable.case selector.fst (fun x => pure (name, x))
   Selectable.combine selectables
 

@@ -169,6 +169,43 @@ partial def Selectable.one (selectables : Array (Selectable α)) : Async α := d
 
   Async.ofPromise (pure promise)
 
+def Selectable.combine (selectables : Array (Selectable α)) : Selector α := {
+  tryFn := do
+    for selectable in selectables do
+      if let some val ← selectable.selector.tryFn then
+        let result ← selectable.cont val |>.block
+        return some result
+    return none
+
+  registerFn := fun waiter => do
+    for selectable in selectables do
+      let waiterPromise ← IO.Promise.new
+      let derivedWaiter := Waiter.mk waiter.finished waiterPromise
+      selectable.selector.registerFn derivedWaiter
+
+      discard <| IO.bindTask (t := waiterPromise.result?) fun res? => do
+        match res? with
+        | none => return (Task.pure (.ok ()))
+        | some res =>
+          let async : Async _ := do
+            let mainPromise := waiter.promise
+
+            for selectable in selectables do
+              selectable.selector.unregisterFn
+
+            try
+              let val ← IO.ofExcept res
+              let result ← selectable.cont val
+              mainPromise.resolve (.ok result)
+            catch e =>
+              mainPromise.resolve (.error e)
+          async.toBaseIO
+
+  unregisterFn := do
+    for selectable in selectables do
+      selectable.selector.unregisterFn
+}
+
 end Async
 end IO
 end Internal

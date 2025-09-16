@@ -6235,7 +6235,7 @@ theorem getLsbD_false_of_lt_ctz {x : BitVec w} (hi : i < x.ctz.toNat) :
     exact getLsbD_false_of_clzAuxRec (x := x.reverse) (n := w - 1) (by intros i hj; simp [show w ≤ i by omega]) (j := j)
 
 /-- If a bitvec is different than zero, the bit at index `ctz x`, i.e., the first bit after the
-  trailing zeros is true. -/
+  trailing zeros, is true. -/
 theorem getLsbD_true_ctz_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
     x.getLsbD (ctz x).toNat = true := by
   simp only [ctz_eq_reverse_clz, clz]
@@ -6248,7 +6248,7 @@ theorem getLsbD_true_ctz_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
   intro i hi
   simp [show w ≤ i by omega]
 
-/-- A nonzero bitvector is lower-bounded by its leading zeroes. -/
+/-- A nonzero bitvector is lower-bounded by its trailing zeroes. -/
 theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
     2 ^ (ctz x).toNat ≤ x.toNat := by
   have hclz := getLsbD_true_ctz_of_ne_zero (x := x) hx

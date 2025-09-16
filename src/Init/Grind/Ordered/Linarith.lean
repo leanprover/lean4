@@ -13,6 +13,7 @@ import all Init.Data.Ord.Basic
 public import Init.Data.AC
 import all Init.Data.AC
 public import Init.Data.RArray
+import Init.LawfulBEqTactics
 
 @[expose] public section
 
@@ -36,7 +37,7 @@ inductive Expr where
   | neg  (a : Expr)
   | natMul  (k : Nat) (a : Expr)
   | intMul  (k : Int) (a : Expr)
-  deriving Inhabited, BEq, Repr
+  deriving Inhabited, BEq, ReflBEq, LawfulBEq, Repr
 
 abbrev Context (α : Type u) := RArray α
 
@@ -233,18 +234,6 @@ theorem Expr.denote_norm {α} [IntModule α] (ctx : Context α) (e : Expr) : e.n
   simp [norm, toPoly', Expr.denote_toPoly'_go, Poly.denote]
 
 attribute [local simp] Expr.denote_norm
-
-instance : LawfulBEq Poly where
-  eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp_all [reduceBEq]
-    next ih _ _ _ =>
-      intro _ _ h
-      exact ih h
-  rfl := by
-    intro a
-    induction a <;> simp [reduceBEq]
-    assumption
-
 attribute [local simp] Poly.denote'_eq_denote
 
 def Poly.leadCoeff (p : Poly) : Int :=

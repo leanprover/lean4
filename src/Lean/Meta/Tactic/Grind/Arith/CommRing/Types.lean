@@ -297,6 +297,16 @@ structure State where
   Mapping from types to its "ring id". We cache failures using `none`.
   `nctypeIdOf[type]` is `some id`, then `id < ncRings.size`. -/
   nctypeIdOf : PHashMap ExprPtr (Option Nat) := {}
+  /--
+  Non commutative semirings.
+  -/
+  ncSemirings : Array Semiring := {}
+  /- Mapping from expressions/terms to their (non-commutative) semiring ids. -/
+  exprToNCSemiringId : PHashMap ExprPtr Nat := {}
+  /--
+  Mapping from types to its "semiring id". We cache failures using `none`.
+  `ncstypeIdOf[type]` is `some id`, then `id < ncSemirings.size`. -/
+  ncstypeIdOf : PHashMap ExprPtr (Option Nat) := {}
   steps := 0
   deriving Inhabited
 

@@ -382,7 +382,7 @@ def execute_release_steps(repo, version, config):
 
         # Update lean-toolchain in docs
         print(blue("Updating docs/lean-toolchain..."))
-        docs_toolchain = "docs" / "lean-toolchain"
+        docs_toolchain = repo_path / "docs" / "lean-toolchain"
         with open(docs_toolchain, "w") as f:
             f.write(f"leanprover/lean4:{version}\n")
         print(green(f"Updated docs/lean-toolchain to leanprover/lean4:{version}"))

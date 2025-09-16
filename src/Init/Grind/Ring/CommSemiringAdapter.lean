@@ -10,70 +10,46 @@ public import Init.Data.Hashable
 public import Init.Data.RArray
 public import Init.Grind.Ring.CommSolver
 @[expose] public section
-namespace Lean.Grind.Ring.OfSemiring
-/-!
-Helper definitions and theorems for converting `Semiring` expressions into `Ring` ones.
-We use them to implement `grind`
--/
-abbrev Var := Nat
-inductive Expr where
-  | num  (v : Nat)
-  | var  (i : Var)
-  | add  (a b : Expr)
-  | mul (a b : Expr)
-  | pow (a : Expr) (k : Nat)
-  deriving Inhabited, BEq, Hashable
+namespace Lean.Grind
+namespace CommRing
 
-abbrev Context (α : Type u) := RArray α
+def Expr.denoteS {α} [Semiring α] (ctx : Context α) : Expr → α
+  | .num k     => OfNat.ofNat (α := α) k.natAbs
+  | .natCast k => OfNat.ofNat (α := α) k
+  | .var v     => v.denote ctx
+  | .add a b   => denoteS ctx a + denoteS ctx b
+  | .mul a b   => denoteS ctx a * denoteS ctx b
+  | .pow a k   => denoteS ctx a ^ k
+  | .sub .. | .neg .. | .intCast .. => 0
 
-def Var.denote {α} (ctx : Context α) (v : Var) : α :=
-  ctx.get v
+def Expr.denoteSAsRing {α} [Semiring α] (ctx : Context α) : Expr → Ring.OfSemiring.Q α
+  | .num k     => OfNat.ofNat (α := Ring.OfSemiring.Q α) k.natAbs
+  | .natCast k => OfNat.ofNat (α := Ring.OfSemiring.Q α) k
+  | .var v     => Ring.OfSemiring.toQ (v.denote ctx)
+  | .add a b   => denoteSAsRing ctx a + denoteSAsRing ctx b
+  | .mul a b   => denoteSAsRing ctx a * denoteSAsRing ctx b
+  | .pow a k   => denoteSAsRing ctx a ^ k
+  | .sub .. | .neg .. | .intCast .. => 0
 
-def Expr.denote {α} [Semiring α] (ctx : Context α) : Expr → α
-  | .num k    => OfNat.ofNat (α := α) k
-  | .var v    => v.denote ctx
-  | .add a b  => denote ctx a + denote ctx b
-  | .mul a b  => denote ctx a * denote ctx b
-  | .pow a k  => denote ctx a ^ k
+attribute [local simp] Ring.OfSemiring.toQ_add Ring.OfSemiring.toQ_mul Ring.OfSemiring.toQ_ofNat
+  Ring.OfSemiring.toQ_pow Ring.OfSemiring.toQ_zero in
+theorem Expr.denoteAsRing_eq {α} [Semiring α] (ctx : Context α) (e : Expr) : e.denoteSAsRing ctx = Ring.OfSemiring.toQ (e.denoteS ctx) := by
+  induction e <;> simp [denoteS, denoteSAsRing, *]
 
-attribute [local instance] ofSemiring
-
-def Expr.denoteAsRing {α} [Semiring α] (ctx : Context α) : Expr → Q α
-  | .num k    => OfNat.ofNat (α := Q α) k
-  | .var v    => toQ (v.denote ctx)
-  | .add a b  => denoteAsRing ctx a + denoteAsRing ctx b
-  | .mul a b  => denoteAsRing ctx a * denoteAsRing ctx b
-  | .pow a k  => denoteAsRing ctx a ^ k
-
-attribute [local simp] toQ_add toQ_mul toQ_ofNat toQ_pow
-
-theorem Expr.denoteAsRing_eq {α} [Semiring α] (ctx : Context α) (e : Expr) : e.denoteAsRing ctx = toQ (e.denote ctx) := by
-  induction e <;> simp [denote, denoteAsRing, *]
-
-theorem of_eq {α} [Semiring α] (ctx : Context α) (lhs rhs : Expr)
-    : lhs.denote ctx = rhs.denote ctx → lhs.denoteAsRing ctx = rhs.denoteAsRing ctx := by
-  intro h; replace h := congrArg toQ h
-  simpa [← Expr.denoteAsRing_eq] using h
-
-theorem of_diseq {α} [Semiring α] [AddRightCancel α] (ctx : Context α) (lhs rhs : Expr)
-    : lhs.denote ctx ≠ rhs.denote ctx → lhs.denoteAsRing ctx ≠ rhs.denoteAsRing ctx := by
-  intro h₁ h₂
-  simp [Expr.denoteAsRing_eq] at h₂
-  replace h₂ := toQ_inj h₂
-  contradiction
-
-def Expr.toPoly : Expr → CommRing.Poly
-  | .num n   => .num n
+def Expr.toPolyS : Expr → CommRing.Poly
+  | .num n   => .num n.natAbs
   | .var x   => CommRing.Poly.ofVar x
-  | .add a b => a.toPoly.combine b.toPoly
-  | .mul a b => a.toPoly.mul b.toPoly
+  | .add a b => a.toPolyS.combine b.toPolyS
+  | .mul a b => a.toPolyS.mul b.toPolyS
   | .pow a k =>
     match a with
-    | .num n => .num (n^k)
+    | .num n => .num (n.natAbs ^ k)
     | .var x => CommRing.Poly.ofMon (.mult {x, k} .unit)
-    | _ => a.toPoly.pow k
+    | _ => a.toPolyS.pow k
+  | .natCast n => .num n
+  | .sub .. | .neg  .. | .intCast .. => .num 0
 
-end Ring.OfSemiring
+end CommRing
 
 namespace CommRing
 attribute [local instance] Semiring.natCast Ring.intCast
@@ -350,13 +326,8 @@ theorem Poly.denoteS_pow {α} [CommSemiring α] (ctx : Context α) (p : Poly) (k
   assumption
   apply Poly.pow_NonnegCoeffs; assumption
 
-end CommRing
-
-namespace Ring.OfSemiring
-open CommRing
-
-theorem Expr.toPoly_NonnegCoeffs {e : Expr} : e.toPoly.NonnegCoeffs := by
-  fun_induction toPoly
+theorem Expr.toPolyS_NonnegCoeffs {e : Expr} : e.toPolyS.NonnegCoeffs := by
+  fun_induction toPolyS
   next => constructor; apply Int.natCast_nonneg
   next => simp [Poly.ofVar, Poly.ofMon]; constructor; decide; constructor; decide
   next => apply Poly.combine_NonnegCoeffs <;> assumption
@@ -364,29 +335,51 @@ theorem Expr.toPoly_NonnegCoeffs {e : Expr} : e.toPoly.NonnegCoeffs := by
   next => constructor; apply Int.pow_nonneg; apply Int.natCast_nonneg
   next => constructor; decide; constructor; decide
   next => apply Poly.pow_NonnegCoeffs; assumption
+  next => constructor; apply Int.ofNat_zero_le
+  all_goals constructor; apply Int.le_refl
 
-theorem Expr.denoteS_toPoly {α} [CommSemiring α] (ctx : Context α) (e : Expr)
-   : e.toPoly.denoteS ctx = e.denote ctx := by
-  fun_induction toPoly
-    <;> simp [denote, Poly.denoteS, Poly.denoteS_ofVar, denoteSInt_eq, Semiring.ofNat_eq_natCast]
-  next => simp [CommRing.Var.denote, Var.denote]
-  next ih₁ ih₂ => rw [Poly.denoteS_combine, ih₁, ih₂] <;> apply toPoly_NonnegCoeffs
-  next ih₁ ih₂ => rw [Poly.denoteS_mul, ih₁, ih₂] <;> apply toPoly_NonnegCoeffs
-  next => rw [Int.toNat_pow_of_nonneg, Semiring.natCast_pow, Int.toNat_natCast]; apply Int.natCast_nonneg
-  next =>
-    simp [Poly.ofMon, Poly.denoteS, denoteSInt_eq, Power.denote_eq, Mon.denote,
-          Semiring.natCast_zero, Semiring.natCast_one, Semiring.one_mul, Semiring.add_zero,
-          CommRing.Var.denote, Var.denote, Semiring.mul_one]
-  next ih => rw [Poly.denoteS_pow, ih]; apply toPoly_NonnegCoeffs
+attribute [local simp] Expr.toPolyS_NonnegCoeffs
+
+theorem Expr.denoteS_toPolyS {α} [CommSemiring α] (ctx : Context α) (e : Expr)
+   : e.toPolyS.denoteS ctx = e.denoteS ctx := by
+  fun_induction toPolyS <;> simp [denoteS, Poly.denoteS, Poly.denoteS_ofVar, denoteSInt_eq]
+  next => simp [Semiring.ofNat_eq_natCast]
+  next => simp [Poly.denoteS_combine] <;> simp [*]
+  next => simp [Poly.denoteS_mul] <;> simp [*]
+  next => rw [Int.toNat_pow_of_nonneg, Semiring.natCast_pow, Int.toNat_natCast, ← Semiring.ofNat_eq_natCast]
+          apply Int.natCast_nonneg
+  next => simp [Poly.ofMon, Poly.denoteS, denoteSInt_eq, Power.denote_eq, Mon.denote,
+                Semiring.natCast_zero, Semiring.natCast_one, Semiring.one_mul,
+                CommRing.Var.denote, Var.denote, Semiring.mul_one]
+  next ih => rw [Poly.denoteS_pow, ih]; apply toPolyS_NonnegCoeffs
+  next => simp [Semiring.natCast_eq_ofNat]
 
 def eq_normS_cert (lhs rhs : Expr) : Bool :=
-  lhs.toPoly == rhs.toPoly
+  lhs.toPolyS == rhs.toPolyS
 
 theorem eq_normS {α} [CommSemiring α] (ctx : Context α) (lhs rhs : Expr)
-    : eq_normS_cert lhs rhs → lhs.denote ctx = rhs.denote ctx := by
+    : eq_normS_cert lhs rhs → lhs.denoteS ctx = rhs.denoteS ctx := by
   simp [eq_normS_cert]; intro h
   replace h := congrArg (Poly.denoteS ctx) h
-  simp [Expr.denoteS_toPoly, *] at h
+  simp [Expr.denoteS_toPolyS, *] at h
   assumption
 
-end Lean.Grind.Ring.OfSemiring
+end CommRing
+
+namespace Ring.OfSemiring
+open CommRing
+
+theorem of_eq {α} [Semiring α] (ctx : Context α) (lhs rhs : Expr)
+    : lhs.denoteS ctx = rhs.denoteS ctx → lhs.denoteSAsRing ctx = rhs.denoteSAsRing ctx := by
+  intro h; replace h := congrArg toQ h
+  simpa [← Expr.denoteAsRing_eq] using h
+
+theorem of_diseq {α} [Semiring α] [AddRightCancel α] (ctx : Context α) (lhs rhs : Expr)
+    : lhs.denoteS ctx ≠ rhs.denoteS ctx → lhs.denoteSAsRing ctx ≠ rhs.denoteSAsRing ctx := by
+  intro h₁ h₂
+  simp [Expr.denoteAsRing_eq] at h₂
+  replace h₂ := toQ_inj h₂
+  contradiction
+
+end Ring.OfSemiring
+end Lean.Grind

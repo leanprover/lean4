@@ -132,14 +132,16 @@ def mkSVar (e : Expr) : SemiringM Var := do
   ringExt.markTerm e
   return var
 
-def _root_.Lean.Grind.Ring.OfSemiring.Expr.denoteAsRingExpr (e : SemiringExpr) : SemiringM Expr := do
+def _root_.Lean.Grind.CommRing.Expr.denoteAsRingExpr (e : SemiringExpr) : SemiringM Expr := do
   shareCommon (← go e)
 where
   go : SemiringExpr → SemiringM Expr
-  | .num k => denoteNum k
-  | .var x => return mkApp (← getToQFn) (← getSemiring).vars[x]!
+  | .num k     => denoteNum k
+  | .natCast k => denoteNum k
+  | .var x   => return mkApp (← getToQFn) (← getSemiring).vars[x]!
   | .add a b => return mkApp2 (← getAddFn) (← go a) (← go b)
   | .mul a b => return mkApp2 (← getMulFn) (← go a) (← go b)
   | .pow a k => return mkApp2 (← getPowFn) (← go a) (toExpr k)
+  | .neg .. | .sub .. | .intCast .. => unreachable!
 
 end Lean.Meta.Grind.Arith.CommRing

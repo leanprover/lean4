@@ -263,7 +263,7 @@ private def mkSemiringContext (h : Expr) : ProofM Expr := do
   let vars'        := usedVars.toArray
   let varRename    := mkVarRename vars'
   let vars         := vars'.map fun x => semiring.vars[x]!
-  let h := mkLetOfMap (← get).sexprDecls h `s (mkConst ``Grind.Ring.OfSemiring.Expr) fun s => toExpr <| s.renameVars varRename
+  let h := mkLetOfMap (← get).sexprDecls h `s (mkConst ``Grind.CommRing.Expr) fun s => toExpr <| s.renameVars varRename
   let h := h.abstract #[sctx]
   if h.hasLooseBVars then
     let ctxType := mkApp (mkConst ``RArray [semiring.u]) semiring.type
@@ -332,7 +332,7 @@ def setSemiringDiseqUnsat (a b : Expr) (sa sb : SemiringExpr) : SemiringM Unit :
   let sa           := sa.renameVars varRename
   let sb           := sb.renameVars varRename
   let ctx          ← toSContextExpr' vars
-  let h := mkApp3 (mkConst ``Grind.Ring.OfSemiring.eq_normS [semiring.u]) semiring.type semiring.commSemiringInst ctx
+  let h := mkApp3 (mkConst ``Grind.CommRing.eq_normS [semiring.u]) semiring.type semiring.commSemiringInst ctx
   let h := mkApp3 h (toExpr sa) (toExpr sb) eagerReflBoolTrue
   closeGoal (mkApp hne h)
 

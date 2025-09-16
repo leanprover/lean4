@@ -14,7 +14,11 @@ public section
 namespace Lean.Meta.Grind.Arith.CommRing
 export Lean.Grind.CommRing (Var Power Mon Poly)
 abbrev RingExpr := Grind.CommRing.Expr
-abbrev SemiringExpr := Grind.Ring.OfSemiring.Expr
+/-
+**Note**: recall that we use ring expressions to represent semiring expressions,
+and ignore non-applicable constructors.
+-/
+abbrev SemiringExpr := Grind.CommRing.Expr
 
 mutual
 structure EqCnstr where

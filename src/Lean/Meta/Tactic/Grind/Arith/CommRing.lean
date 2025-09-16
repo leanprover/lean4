@@ -21,6 +21,9 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadCanon
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadSemiring
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 builtin_initialize registerTraceClass `grind.ring

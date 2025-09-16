@@ -14,6 +14,7 @@ import Lean.Elab.Deriving.Util
 import Lean.Meta.NatTable
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CasesOnSameCtor
+import Lean.Meta.SameCtorUtils
 
 namespace Lean.Elab.Deriving.DecEq
 open Lean.Parser.Term
@@ -74,10 +75,13 @@ where
             let mut todo := #[]
             for i in *...ctorInfo.numFields do
               let x := xs[indVal.numParams + i]!
-              if type.containsFVar x.fvarId! then
+              if occursOrInType (← getLCtx) x type then
                 -- If resulting type depends on this field, we don't need to compare
-                ctorArgs1 := ctorArgs1.push (← `(_))
-                ctorArgs2 := ctorArgs2.push (← `(_))
+                -- but use inaccessible patterns fail during pattern match compilation if their
+                -- equality does not actually follow from the equality between their types
+                let a := mkIdent (← mkFreshUserName `a)
+                ctorArgs1 := ctorArgs1.push a
+                ctorArgs2 := ctorArgs2.push (← `(term|.( $a:ident )))
               else
                 let a := mkIdent (← mkFreshUserName `a)
                 let b := mkIdent (← mkFreshUserName `b)

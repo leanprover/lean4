@@ -8,9 +8,7 @@ prelude
 public import Init.Core
 public import Init.Grind.AC
 public import Std.Data.HashMap
-public import Lean.Expr
-public import Lean.Data.PersistentArray
-public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.AC.Seq
 public section
 namespace Lean.Meta.Grind.AC
@@ -98,7 +96,7 @@ structure Struct where
   /-- Mapping from Lean expressions to their representations as `AC.Expr` -/
   denote           : PHashMap ExprPtr AC.Expr := {}
   /-- `denoteEntries` is `denote` as a `PArray` for deterministic traversal. -/
-  denoteEntries  : PArray (Expr × AC.Expr) := {}
+  denoteEntries    : PArray (Expr × AC.Expr) := {}
   /-- Equations to process. -/
   queue            : Queue := {}
   /-- Processed equations. -/
@@ -129,5 +127,7 @@ structure State where
   exprToOpIds : PHashMap ExprPtr (List Nat) := {}
   steps := 0
   deriving Inhabited
+
+builtin_initialize acExt : SolverExtension State ← registerSolverExtension (return {})
 
 end Lean.Meta.Grind.AC

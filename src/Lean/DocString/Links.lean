@@ -55,6 +55,38 @@ private def domainMap : Std.HashMap String String :=
     ("errorExplanation", errorExplanationManualDomain)
   ]
 
+/-- The valid domain abbreviations in the manual. -/
+def manualDomains : List String := domainMap.keys
+
+/--
+Constructs a link to the manual.
+-/
+def manualLink (kind name : String) : Except String String :=
+  if let some domain := domainMap.get? kind then
+    return manualRoot ++ s!"find/?domain={domain}&name={name}"
+  else
+    let acceptableKinds := ", ".intercalate <| domainMap.toList.map fun (k, _) => s!"`{k}`"
+    throw s!"Unknown documentation type `{kind}`. Expected one of the following: {acceptableKinds}"
+
+private def rw (path : String) : Except String String := do
+  match path.splitOn "/" with
+  | [] | [""] =>
+    throw "Missing documentation type"
+  | kind :: args =>
+    if let some domain := domainMap.get? kind then
+      if let [s] := args then
+        if s.isEmpty then
+          throw s!"Empty {kind} ID"
+        return s!"find/?domain={domain}&name={s}"
+      else
+        throw s!"Expected one item after `{kind}`, but got {args}"
+    else
+      let acceptableKinds := ", ".intercalate <| domainMap.toList.map fun (k, _) => s!"`{k}`"
+      throw s!"Unknown documentation type `{kind}`. Expected one of the following: {acceptableKinds}"
+
+
+
+
 /--
 Rewrites links from the internal Lean manual syntax to the correct URL. This rewriting is an
 overapproximation: any parentheses containing the internal syntax of a Lean manual URL is rewritten.
@@ -121,23 +153,6 @@ where
   -/
   lookingAt (goal : String) (iter : String.Iterator) : Bool :=
     iter.s.substrEq iter.i goal 0 goal.endPos.byteIdx
-
-  rw (path : String) : Except String String := do
-    match path.splitOn "/" with
-    | [] | [""] =>
-      throw "Missing documentation type"
-    | kind :: args =>
-      if let some domain := domainMap.get? kind then
-        if let [s] := args then
-          if s.isEmpty then
-            throw s!"Empty {kind} ID"
-          return s!"find/?domain={domain}&name={s}"
-        else
-          throw s!"Expected one item after `{kind}`, but got {args}"
-      else
-        let acceptableKinds := ", ".intercalate <| domainMap.toList.map fun (k, _) => s!"`{k}`"
-        throw s!"Unknown documentation type `{kind}`. Expected one of the following: {acceptableKinds}"
-
 
 /--
 Rewrites Lean reference manual links in `docstring` to point at the reference manual.

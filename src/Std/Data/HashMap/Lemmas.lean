@@ -284,6 +284,10 @@ theorem isSome_getElem?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
     m[a]?.isSome ↔ a ∈ m :=
   mem_iff_isSome_getElem?.symm
 
+theorem getElem?_eq_some_iff [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
+    m[k]? = some v ↔ ∃ h : k ∈ m, m[k] = v :=
+  DHashMap.Const.get?_eq_some_iff
+
 theorem getElem?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = false → m[a]? = none :=
   DHashMap.Const.get?_eq_none_of_contains_eq_false
@@ -508,6 +512,10 @@ theorem isSome_getKey?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
 theorem mem_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] {k k' : α}
     (h : m.getKey? k = some k') : k' ∈ m :=
   DHashMap.mem_of_getKey?_eq_some h
+
+theorem getKey?_eq_some_iff [EquivBEq α] [LawfulHashable α] {k k' : α} :
+    m.getKey? k = some k' ↔ ∃ h : k ∈ m, m.getKey k h = k' :=
+  DHashMap.getKey?_eq_some_iff
 
 theorem getKey?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = false → m.getKey? a = none :=
@@ -827,10 +835,6 @@ instance [EquivBEq α] [LawfulHashable α] : LawfulGetElem (HashMap α β) α β
   getElem!_def m a := by
     rw [getElem!_eq_get!_getElem?]
     split <;> simp_all
-
-theorem getElem?_eq_some_iff [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
-    m[k]? = some v ↔ ∃ h : k ∈ m, m[k] = v :=
-  _root_.getElem?_eq_some_iff
 
 @[simp, grind =]
 theorem length_keys [EquivBEq α] [LawfulHashable α] :

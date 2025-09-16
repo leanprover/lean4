@@ -70,7 +70,7 @@ private def isCutsatType (type : Expr) : GoalM Bool := do
 
 private def getCommRingInst? (ringId? : Option Nat) : GoalM (Option Expr) := do
   let some ringId := ringId? | return none
-  return some (← CommRing.RingM.run ringId do return (← CommRing.getRing).commRingInst)
+  return some (← CommRing.RingM.run ringId do return (← CommRing.getCommRing).commRingInst)
 
 private def mkRingInst? (u : Level) (type : Expr) (commRingInst? : Option Expr) : GoalM (Option Expr) := do
   if let some commRingInst := commRingInst? then
@@ -206,7 +206,7 @@ def getStructId? (type : Expr) : GoalM (Option Nat) := do
 where
   go? : GoalM (Option Nat) := do
     let u ← getDecLevel type
-    let ringId? ← CommRing.getRingId? type
+    let ringId? ← CommRing.getCommRingId? type
     let leInst? ← getInst? ``LE u type
     let ltInst? ← getInst? ``LT u type
     let lawfulOrderLTInst? ← mkLawfulOrderLTInst? u type ltInst? leInst?
@@ -214,8 +214,14 @@ where
     let isPartialInst? ← mkIsPartialOrderInst? u type leInst?
     let isLinearInst? ← mkIsLinearOrderInst? u type leInst?
     if (← getConfig).ring && ringId?.isSome && isPreorderInst?.isNone then
-      -- If `type` is a `CommRing`, but it is not even a preorder, there is no point in use this module.
-      -- `ring` module should handle it.
+      /-
+      If the type is a `Ring` **and** is not even a preorder **and** `grind ring` is enabled,
+      we let `grind ring` process the equalities and disequalities. There is no
+      point in using `linarith` in this case.
+      **IMPORTANT** We mark the type as a "forbiddenNatModule". It would be pointless to recheck everything in
+      in `getNatStructId?`
+      -/
+      modify' fun s => { s with forbiddenNatModules := s.forbiddenNatModules.insert { expr := type } }
       return none
     let commRingInst? ← getCommRingInst? ringId?
     let ringInst? ← mkRingInst? u type commRingInst?
@@ -229,6 +235,8 @@ where
     let isPreorderInst? := if orderedAddInst?.isNone then none else isPreorderInst?
     -- preorderInst? may have been reset, check again whether this module is needed.
     if (← getConfig).ring && ringId?.isSome && isPreorderInst?.isNone then
+      -- See comment above
+      modify' fun s => { s with forbiddenNatModules := s.forbiddenNatModules.insert { expr := type } }
       return none
     let isPartialInst? ← checkToFieldDefEq? leInst? isPreorderInst? isPartialInst? ``Std.IsPartialOrder.toIsPreorder u type
     let isLinearInst? ← checkToFieldDefEq? leInst? isPartialInst? isLinearInst? ``Std.IsLinearOrder.toIsPartialOrder u type
@@ -303,6 +311,7 @@ private def mkNatModuleInst? (u : Level) (type : Expr) : GoalM (Option Expr) := 
 
 def getNatStructId? (type : Expr) : GoalM (Option Nat) := do
   unless (← getConfig).linarith do return none
+  if (← get').forbiddenNatModules.contains { expr := type } then return none
   if (← isCutsatType type) then return none
   if let some id? := (← get').natTypeIdOf.find? { expr := type } then
     return id?

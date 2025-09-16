@@ -20,12 +20,12 @@ public import Lean.Meta.Tactic.Grind.Arith.Linear.PropagateEq
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Internalize
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Model
 public import Lean.Meta.Tactic.Grind.Arith.Linear.PP
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Inv
 public import Lean.Meta.Tactic.Grind.Arith.Linear.MBTC
 public import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
 public import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
 public section
-namespace Lean
-
+namespace Lean.Meta.Grind.Arith.Linear
 builtin_initialize registerTraceClass `grind.linarith
 builtin_initialize registerTraceClass `grind.linarith.internalize
 builtin_initialize registerTraceClass `grind.linarith.assert
@@ -42,4 +42,13 @@ builtin_initialize registerTraceClass `grind.debug.linarith.search.split (inheri
 builtin_initialize registerTraceClass `grind.debug.linarith.search.backtrack (inherited := true)
 builtin_initialize registerTraceClass `grind.debug.linarith.subst
 
-end Lean
+builtin_initialize
+  linearExt.setMethods
+    (internalize := Linear.internalize)
+    (newEq       := Linear.processNewEq)
+    (newDiseq    := Linear.processNewDiseq)
+    (check       := Linear.check)
+    (checkInv    := Linear.checkInvariants)
+    (mbtc        := Linear.mbtc)
+
+end Lean.Meta.Grind.Arith.Linear

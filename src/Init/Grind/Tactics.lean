@@ -126,6 +126,52 @@ structure Config where
   abstractProof := true
   deriving Inhabited, BEq
 
+/--
+A minimal configuration, with ematching and splitting disabled, and all solver modules turned off.
+`grind` will not do anything in this configuration,
+which can be used a starting point for minimal configurations.
+-/
+-- This is a `structure` rather than `def` so we can use `declare_config_elab`.
+structure NoopConfig extends Config where
+  -- Disable splitting
+  splits := 0
+  -- We don't override the various `splitMatch` / `splitIte` settings separately.
+
+  -- Disable e-matching
+  ematch := 0
+  -- We don't override `matchEqs` separately.
+
+  -- Disable extensionality
+  ext       := false
+  extAll    := false
+  etaStruct := false
+  funext    := false
+
+  -- Disable all solver modules
+  ring      := false
+  linarith  := false
+  cutsat    := false
+  ac        := false
+
+/--
+A `grind` configuration that only uses `cutsat` and splitting.
+
+Note: `cutsat` benefits from some amount of instantiation, e.g. `Nat.max_def`.
+We don't currently have a mechanism to enable only a small set of lemmas.
+-/
+-- This is a `structure` rather than `def` so we can use `declare_config_elab`.
+structure CutsatConfig extends NoopConfig where
+  cutsat := true
+  -- Allow the default number of splits.
+  splits := ({} : Config).splits
+
+/--
+A `grind` configuration that only uses `ring`.
+-/
+-- This is a `structure` rather than `def` so we can use `declare_config_elab`.
+structure GrobnerConfig extends NoopConfig where
+  ring := true
+
 end Lean.Grind
 
 namespace Lean.Parser.Tactic
@@ -419,6 +465,23 @@ syntax (name := grindTrace)
   "grind?" optConfig (&" only")?
   (" [" withoutPosition(grindParam,*) "]")?
   (&" on_failure " term)? : tactic
+
+/--
+`cutsat` solves linear integer arithmetic goals.
+
+It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `cutsat` solver.
+Please use `grind` instead if you need additional capabilities.
+-/
+syntax (name := cutsat) "cutsat" optConfig : tactic
+
+/--
+`grobner` solves goals that can be phrased as polynomial equations (with further polynomial equations as hypotheses)
+over commutative (semi)rings, using the Grobner basis algorithm.
+
+It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `grobner` solver.
+Please use `grind` instead if you need additional capabilities.
+-/
+syntax (name := grobner) "grobner" optConfig : tactic
 
 /-!
 Sets symbol priorities for the E-matching pattern inference procedure used in `grind`

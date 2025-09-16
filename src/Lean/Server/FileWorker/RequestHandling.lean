@@ -100,7 +100,6 @@ def handleHover (p : HoverParams)
           let docStr ← findDocString? snap.env kind
           return docStr.map (·, stx.getRange?.get!)
         | none => pure none
-
       -- now try info tree
       if let some result := snap.infoTree.hoverableInfoAtM? (m := Id) hoverPos then
         let ctx := result.ctx

@@ -9,25 +9,30 @@ public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
-variable [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadRing m]
+variable [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadCanon m]
 
-def mkUnaryFn (type : Expr) (u : Level) (instDeclName : Name) (declName : Name) : m Expr := do
-  let inst ← MonadRing.synthInstance <| mkApp (mkConst instDeclName [u]) type
+section
+variable [MonadRing m]
+
+def checkInst (declName : Name) (inst inst' : Expr) : MetaM Unit := do
+  unless (← isDefEqI inst inst') do
+    throwError "error while initializing `grind ring` operators:\ninstance for `{declName}` {indentExpr inst}\nis not definitionally equal to the expected one {indentExpr inst'}\nwhen only reducible definitions and instances are reduced"
+
+def mkUnaryFn (type : Expr) (u : Level) (instDeclName : Name) (declName : Name) (expectedInst : Expr) : m Expr := do
+  let inst ← MonadCanon.synthInstance <| mkApp (mkConst instDeclName [u]) type
+  checkInst declName inst expectedInst
   canonExpr <| mkApp2 (mkConst declName [u]) type inst
 
-def mkBinHomoFn (type : Expr) (u : Level) (instDeclName : Name) (declName : Name) : m Expr := do
-  let inst ← MonadRing.synthInstance <| mkApp3 (mkConst instDeclName [u, u, u]) type type type
+def mkBinHomoFn (type : Expr) (u : Level) (instDeclName : Name) (declName : Name) (expectedInst : Expr) : m Expr := do
+  let inst ← MonadCanon.synthInstance <| mkApp3 (mkConst instDeclName [u, u, u]) type type type
+  checkInst declName inst expectedInst
   canonExpr <| mkApp4 (mkConst declName [u, u, u]) type type type inst
 
 def mkPowFn (u : Level) (type : Expr) (semiringInst : Expr) : m Expr := do
-  let inst ← MonadRing.synthInstance <| mkApp3 (mkConst ``HPow [u, 0, u]) type Nat.mkType type
+  let inst ← MonadCanon.synthInstance <| mkApp3 (mkConst ``HPow [u, 0, u]) type Nat.mkType type
   let inst' := mkApp2 (mkConst ``Grind.Semiring.npow [u]) type semiringInst
-  checkInst inst inst'
+  checkInst ``HPow.hPow inst inst'
   canonExpr <| mkApp4 (mkConst ``HPow.hPow [u, 0, u]) type Nat.mkType type inst
-where
-  checkInst (inst inst' : Expr) : MetaM Unit := do
-    unless (← isDefEqD inst inst') do
-      throwError "instance for power operator{indentExpr inst}\nis not definitionally equal to the `Grind.Semiring` one{indentExpr inst'}"
 
 def mkNatCastFn (u : Level) (type : Expr) (semiringInst : Expr) : m Expr := do
   let inst' := mkApp2 (mkConst ``Grind.Semiring.natCast [u]) type semiringInst
@@ -38,53 +43,42 @@ def mkNatCastFn (u : Level) (type : Expr) (semiringInst : Expr) : m Expr := do
   -- does not guarantee that an `NatCast α` will be available.
   -- When both are present we verify that they are defeq,
   -- and otherwise fall back to the field of the `Semiring α` instance that we already have.
-  let inst ← match (← MonadRing.synthInstance? instType) with
+  let inst ← match (← MonadCanon.synthInstance? instType) with
   | none => pure inst'
-  | some inst => checkInst inst inst'; pure inst
+  | some inst => checkInst ``NatCast.natCast inst inst'; pure inst
   canonExpr <| mkApp2 (mkConst ``NatCast.natCast [u]) type inst
-where
-  checkInst (inst inst' : Expr) : MetaM Unit := do
-    unless (← isDefEqD inst inst') do
-      throwError "instance for natCast{indentExpr inst}\nis not definitionally equal to the `Grind.Semiring` one{indentExpr inst'}"
-
-variable [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadRing m]
 
 def getAddFn : m Expr := do
   let ring ← getRing
   if let some addFn := ring.addFn? then return addFn
-  let addFn ← mkBinHomoFn ring.type ring.u ``HAdd ``HAdd.hAdd
+  let expectedInst := mkApp2 (mkConst ``instHAdd [ring.u]) ring.type <| mkApp2 (mkConst ``Grind.Semiring.toAdd [ring.u]) ring.type ring.semiringInst
+  let addFn ← mkBinHomoFn ring.type ring.u ``HAdd ``HAdd.hAdd expectedInst
   modifyRing fun s => { s with addFn? := some addFn }
   return addFn
 
 def getSubFn : m Expr := do
   let ring ← getRing
   if let some subFn := ring.subFn? then return subFn
-  let subFn ← mkBinHomoFn ring.type ring.u ``HSub ``HSub.hSub
+  let expectedInst := mkApp2 (mkConst ``instHSub [ring.u]) ring.type <| mkApp2 (mkConst ``Grind.Ring.toSub [ring.u]) ring.type ring.ringInst
+  let subFn ← mkBinHomoFn ring.type ring.u ``HSub ``HSub.hSub expectedInst
   modifyRing fun s => { s with subFn? := some subFn }
   return subFn
 
 def getMulFn : m Expr := do
   let ring ← getRing
   if let some mulFn := ring.mulFn? then return mulFn
-  let mulFn ← mkBinHomoFn ring.type ring.u ``HMul ``HMul.hMul
+  let expectedInst := mkApp2 (mkConst ``instHMul [ring.u]) ring.type <| mkApp2 (mkConst ``Grind.Semiring.toMul [ring.u]) ring.type ring.semiringInst
+  let mulFn ← mkBinHomoFn ring.type ring.u ``HMul ``HMul.hMul expectedInst
   modifyRing fun s => { s with mulFn? := some mulFn }
   return mulFn
 
 def getNegFn : m Expr := do
   let ring ← getRing
   if let some negFn := ring.negFn? then return negFn
-  let negFn ← mkUnaryFn ring.type ring.u ``Neg ``Neg.neg
+  let expectedInst := mkApp2 (mkConst ``Grind.Ring.toNeg [ring.u]) ring.type ring.ringInst
+  let negFn ← mkUnaryFn ring.type ring.u ``Neg ``Neg.neg expectedInst
   modifyRing fun s => { s with negFn? := some negFn }
   return negFn
-
-def getInvFn : m Expr := do
-  let ring ← getRing
-  if ring.fieldInst?.isNone then
-    throwError "`grind` internal error, type is not a field{indentExpr ring.type}"
-  if let some invFn := ring.invFn? then return invFn
-  let invFn ← mkUnaryFn ring.type ring.u ``Inv ``Inv.inv
-  modifyRing fun s => { s with invFn? := some invFn }
-  return invFn
 
 def getPowFn : m Expr := do
   let ring ← getRing
@@ -104,16 +98,12 @@ def getIntCastFn : m Expr := do
   -- does not guarantee that an `IntCast α` will be available.
   -- When both are present we verify that they are defeq,
   -- and otherwise fall back to the field of the `Ring α` instance that we already have.
-  let inst ← match (← MonadRing.synthInstance? instType) with
+  let inst ← match (← MonadCanon.synthInstance? instType) with
     | none => pure inst'
-    | some inst => checkInst inst inst'; pure inst
+    | some inst => checkInst ``Int.cast inst inst'; pure inst
   let intCastFn ← canonExpr <| mkApp2 (mkConst ``IntCast.intCast [ring.u]) ring.type inst
   modifyRing fun s => { s with intCastFn? := some intCastFn }
   return intCastFn
-where
-  checkInst (inst inst' : Expr) : MetaM Unit := do
-    unless (← isDefEqD inst inst') do
-      throwError "instance for intCast{indentExpr inst}\nis not definitionally equal to the `Grind.Ring` one{indentExpr inst'}"
 
 def getNatCastFn : m Expr := do
   let ring ← getRing
@@ -134,5 +124,20 @@ def getOne [MonadLiftT GoalM m] : m Expr := do
   modifyRing fun s => { s with one? := some one }
   internalize one 0
   return one
+end
+
+section
+variable [MonadCommRing m]
+
+def getInvFn : m Expr := do
+  let ring ← getCommRing
+  let some fieldInst := ring.fieldInst?
+    | throwError "`grind` internal error, type is not a field{indentExpr ring.type}"
+  if let some invFn := ring.invFn? then return invFn
+  let expectedInst := mkApp2 (mkConst ``Grind.Field.toInv [ring.u]) ring.type fieldInst
+  let invFn ← mkUnaryFn ring.type ring.u ``Inv ``Inv.inv expectedInst
+  modifyCommRing fun s => { s with invFn? := some invFn }
+  return invFn
+end
 
 end Lean.Meta.Grind.Arith.CommRing

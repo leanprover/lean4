@@ -18,7 +18,6 @@ htrue : True
 ---
 error: unsolved goals
 htrue : True
-h✝ : False
 ⊢ False
 -/
 #guard_msgs in
@@ -35,7 +34,6 @@ context:
 ⊢ False
 ---
 error: unsolved goals
-h✝ : False
 ⊢ False
 -/
 #guard_msgs in

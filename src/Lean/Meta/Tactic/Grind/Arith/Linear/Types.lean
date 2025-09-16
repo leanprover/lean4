@@ -5,10 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Ring.Poly
+public import Init.Grind.Ring.CommSolver
 public import Init.Grind.Ordered.Linarith
-public import Lean.Data.PersistentArray
-public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Lean.Meta.Tactic.Grind.Types
 public import Init.Data.Rat.Basic
 public section
 namespace Lean.Meta.Grind.Arith.Linear
@@ -248,6 +247,12 @@ structure State where
   typeIdOf : PHashMap ExprPtr (Option Nat) := {}
   /- Mapping from expressions/terms to their structure ids. -/
   exprToStructId : PHashMap ExprPtr Nat := {}
+  /--
+  Some types are unordered rings, so we do not process them in `linarith`.
+  When such types are detected in `getStructId?`, we add them to the set
+  `forbiddenNatModules` to avoid reprocessing them in `getNatStructId?`.
+  -/
+  forbiddenNatModules : PHashSet ExprPtr := {}
   /-- `NatModule`. We support them using the envelope `OfNatModule.Q` -/
   natStructs : Array NatStruct := {}
   /--
@@ -259,5 +264,7 @@ structure State where
   /- Mapping from expressions/terms to their nat structure ids. -/
   exprToNatStructId : PHashMap ExprPtr Nat := {}
   deriving Inhabited
+
+builtin_initialize linearExt : SolverExtension State ← registerSolverExtension (return {})
 
 end Lean.Meta.Grind.Arith.Linear

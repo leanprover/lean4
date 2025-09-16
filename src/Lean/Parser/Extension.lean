@@ -291,6 +291,7 @@ partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr)
     | ParserDescr.trailingNode k prec lhsPrec d       => return trailingNode k prec lhsPrec (← visit d)
     | ParserDescr.symbol tk                           => return symbol tk
     | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol tk includeIdent
+    | ParserDescr.unicodeSymbol tk asciiTk preserve   => return unicodeSymbol tk asciiTk preserve
     | ParserDescr.parser constName                    => do
       let (_, p) ← mkParserOfConstantAux constName visit;
       pure p

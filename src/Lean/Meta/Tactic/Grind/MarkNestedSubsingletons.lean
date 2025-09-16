@@ -26,7 +26,14 @@ def isMarkedSubsingletonConst (e : Expr) : Bool := Id.run do
   return declName == ``Grind.nestedProof || declName == ``Grind.nestedDecidable
 
 def isMarkedSubsingletonApp (e : Expr) : Bool :=
-  isMarkedSubsingletonConst e.getAppFn
+  /-
+  Remark: we must check `e`s arity because we may have over-applied `Grind.nestedProof` applications.
+  These over-applied applications have to be re-marked. Here is an example from test `grind_over_applied_nestedProof.lean`
+  ```
+  ‹∀ (a : Option α), x = some a → ∀ (a_2 : α), a = some a_2 → p a_2› val (join_pmap_eq_pmap_join._proof_1_2 val h_1))
+  ```
+  -/
+  isMarkedSubsingletonConst e.getAppFn && e.getAppNumArgs == 2
 
 /-- Returns `some p` if `e` is of the form `Decidable p` -/
 private def isDecidable (e : Expr) : MetaM (Option Expr) := do

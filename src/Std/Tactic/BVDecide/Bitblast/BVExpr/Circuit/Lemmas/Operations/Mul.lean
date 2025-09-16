@@ -61,7 +61,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤
       · intro idx hidx
         rw [BitVec.mulRec_succ_eq]
         have : rexpr.getLsbD (curr + 1) = false := by
-          rw [← hright]
+          rw [← hright _ ‹curr + 1 < w›]
           exact of_isConstant hconstant
         simp [this, hacc]
     · dsimp only at hgo
@@ -74,12 +74,18 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤
         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastAdd)]
         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
         rw [hleft]
+        all_goals
+          repeat apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size
+          exact Ref.hgate _
       · intro idx hidx
         simp only [RefVec.get_cast, Ref.cast_eq]
         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastAdd)]
         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
         rw [hright]
+        all_goals
+          repeat apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size
+          exact Ref.hgate _
       · intro idx hidx
         rw [BitVec.mulRec_succ_eq]
         simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq, BitVec.ofNat_eq_ofNat]
@@ -90,11 +96,14 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤
             rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)] at hdiscr
             rw [hright] at hdiscr
             exact hdiscr
+            all_goals
+              repeat apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size
+              exact Ref.hgate _
           simp only [this, ↓reduceIte]
           rw [denote_blastAdd]
           · intros
             simp only [RefVec.get_cast, Ref.cast_eq]
-            rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
+            rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst) (h := Ref.hgate _)]
             rw [hacc]
           · intros
             simp only [denote_blastShiftLeftConst, BitVec.getLsbD_shiftLeft]
@@ -109,10 +118,16 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤
             rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)] at hdiscr
             rw [hright] at hdiscr
             simp [hdiscr]
+            all_goals
+              repeat apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size
+              exact Ref.hgate _
           simp only [this, Bool.false_eq_true, ↓reduceIte, BitVec.add_zero]
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastAdd)]
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
           rw [hacc]
+          all_goals
+            repeat apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size
+            exact Ref.hgate _
   · have : curr + 1 = w := by omega
     subst this
     rw [← hgo]

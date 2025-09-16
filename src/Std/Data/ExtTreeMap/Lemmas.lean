@@ -243,6 +243,10 @@ theorem isSome_getElem?_iff_mem [TransCmp cmp] {a : α} :
     t[a]?.isSome ↔ a ∈ t :=
   mem_iff_isSome_getElem?.symm
 
+theorem getElem?_eq_some_iff [TransCmp cmp] {k : α} {v : β} :
+    t[k]? = some v ↔ ∃ h, t[k] = v :=
+  ExtDTreeMap.Const.get?_eq_some_iff
+
 theorem getElem?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t[a]? = none :=
   ExtDTreeMap.Const.get?_eq_none_of_contains_eq_false
@@ -444,6 +448,10 @@ theorem isSome_getKey?_iff_mem [TransCmp cmp] {a : α} :
 theorem mem_of_getKey?_eq_some [TransCmp cmp] {k k' : α} :
     t.getKey? k = some k' → k' ∈ t :=
   ExtDTreeMap.mem_of_getKey?_eq_some
+
+theorem getKey?_eq_some_iff [TransCmp cmp] {k k' : α} :
+    getKey? t k = some k' ↔ ∃ h, getKey t k h = k' :=
+  ExtDTreeMap.getKey?_eq_some_iff
 
 theorem getKey?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t.getKey? a = none :=
@@ -756,10 +764,6 @@ instance [TransCmp cmp] : LawfulGetElem (ExtTreeMap α β cmp) α β (fun m a =>
   getElem!_def m a := by
     rw [getElem!_eq_get!_getElem?]
     split <;> simp_all
-
-theorem getElem?_eq_some_iff [TransCmp cmp] {k : α} {v : β} :
-    t[k]? = some v ↔ ∃ h : k ∈ t, t[k] = v :=
-  _root_.getElem?_eq_some_iff
 
 @[simp, grind =]
 theorem length_keys [TransCmp cmp] :
@@ -2073,9 +2077,11 @@ theorem minKey_insert_le_self [TransCmp cmp] {k v} :
     t.contains (t.minKey he) :=
   ExtDTreeMap.contains_minKey
 
-@[grind] theorem minKey_mem [TransCmp cmp] {he} :
+theorem minKey_mem [TransCmp cmp] {he} :
     t.minKey he ∈ t :=
   ExtDTreeMap.minKey_mem
+
+grind_pattern minKey_mem => t.minKey he ∈ t
 
 theorem minKey_le_of_contains [TransCmp cmp] {k} (hc : t.contains k) :
     cmp (t.minKey (ne_empty_of_mem hc)) k |>.isLE :=
@@ -2648,9 +2654,11 @@ theorem self_le_maxKey_insert [TransCmp cmp] {k v} :
     t.contains (t.maxKey he) :=
   ExtDTreeMap.contains_maxKey
 
-@[grind] theorem maxKey_mem [TransCmp cmp] {he} :
+theorem maxKey_mem [TransCmp cmp] {he} :
     t.maxKey he ∈ t :=
   ExtDTreeMap.maxKey_mem
+
+grind_pattern maxKey_mem => t.maxKey he ∈ t
 
 theorem le_maxKey_of_contains [TransCmp cmp] {k} (hc : t.contains k) :
     cmp k (t.maxKey (ne_empty_of_mem hc)) |>.isLE :=

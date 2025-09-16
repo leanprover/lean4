@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_getTestName___redArg(lean_
 static lean_object* l_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint___lam__0___closed__0;
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Compiler_LCNF_Testing_assert_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__13;
 lean_object* l_Lean_Compiler_LCNF_PassInstaller_replaceEachOccurrence(uint8_t, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_assertSize___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -64,7 +63,6 @@ static lean_object* l_Lean_throwError___at___Lean_Compiler_LCNF_Testing_assert_s
 static lean_object* l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Code_containsConst_goExpr___closed__0;
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_____private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic_1021782049____hygCtx___hyg_81_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_assertReducesSize(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_____private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_TestInstallerContext_ctorIdx(lean_object*);
@@ -118,6 +116,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_TestContext_ctorIdx(lean_o
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_assertReducesOrPreservesSize___lam__0___boxed(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 static lean_object* l_Lean_Compiler_LCNF_Testing_assertSize___lam__1___closed__0;
+uint8_t l_Lean_Compiler_LCNF_instBEqDecl_beq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Compiler_LCNF_Code_containsConst_spec__0(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_SimpleAssertionM_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Compiler_LCNF_Code_containsConst_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1897,15 +1896,6 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__13() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_addTrace___at_____private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest_spec__1___redArg___closed__1;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
@@ -1935,7 +1925,7 @@ uint8_t x_57;
 x_57 = !lean_is_exclusive(x_53);
 if (x_57 == 0)
 {
-lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; 
+lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; 
 x_58 = lean_ctor_get(x_53, 1);
 x_59 = lean_ctor_get(x_53, 0);
 lean_dec(x_59);
@@ -1966,67 +1956,59 @@ x_70 = l_Lean_MessageData_ofFormat(x_69);
 x_71 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_71, 0, x_67);
 lean_ctor_set(x_71, 1, x_70);
-x_72 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__13;
-x_73 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_73, 0, x_71);
-lean_ctor_set(x_73, 1, x_72);
-x_74 = l_Lean_addTrace___at_____private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest_spec__1___redArg(x_12, x_73, x_8, x_9, x_10, x_58);
-x_75 = lean_ctor_get(x_74, 1);
-lean_inc(x_75);
-lean_dec_ref(x_74);
+x_72 = l_Lean_addTrace___at_____private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest_spec__1___redArg(x_12, x_71, x_8, x_9, x_10, x_58);
+x_73 = lean_ctor_get(x_72, 1);
+lean_inc(x_73);
+lean_dec_ref(x_72);
 x_13 = x_7;
 x_14 = x_8;
 x_15 = x_9;
 x_16 = x_10;
-x_17 = x_75;
+x_17 = x_73;
 goto block_52;
 }
 else
 {
-lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; 
-x_76 = lean_ctor_get(x_53, 1);
-lean_inc(x_76);
+lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; 
+x_74 = lean_ctor_get(x_53, 1);
+lean_inc(x_74);
 lean_dec(x_53);
-x_77 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__12;
+x_75 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__12;
 lean_inc(x_3);
-x_78 = l_Lean_MessageData_ofName(x_3);
+x_76 = l_Lean_MessageData_ofName(x_3);
+x_77 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_77, 0, x_75);
+lean_ctor_set(x_77, 1, x_76);
+x_78 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__6;
 x_79 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_79, 0, x_77);
 lean_ctor_set(x_79, 1, x_78);
-x_80 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__6;
+lean_inc(x_4);
+x_80 = l_Lean_MessageData_ofName(x_4);
 x_81 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_81, 0, x_79);
 lean_ctor_set(x_81, 1, x_80);
-lean_inc(x_4);
-x_82 = l_Lean_MessageData_ofName(x_4);
+x_82 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__8;
 x_83 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_83, 0, x_81);
 lean_ctor_set(x_83, 1, x_82);
-x_84 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__8;
-x_85 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_85, 0, x_83);
-lean_ctor_set(x_85, 1, x_84);
 lean_inc(x_5);
-x_86 = l_Nat_reprFast(x_5);
-x_87 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_87, 0, x_86);
-x_88 = l_Lean_MessageData_ofFormat(x_87);
-x_89 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_89, 0, x_85);
-lean_ctor_set(x_89, 1, x_88);
-x_90 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__13;
-x_91 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_91, 0, x_89);
-lean_ctor_set(x_91, 1, x_90);
-x_92 = l_Lean_addTrace___at_____private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest_spec__1___redArg(x_12, x_91, x_8, x_9, x_10, x_76);
-x_93 = lean_ctor_get(x_92, 1);
-lean_inc(x_93);
-lean_dec_ref(x_92);
+x_84 = l_Nat_reprFast(x_5);
+x_85 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_85, 0, x_84);
+x_86 = l_Lean_MessageData_ofFormat(x_85);
+x_87 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_87, 0, x_83);
+lean_ctor_set(x_87, 1, x_86);
+x_88 = l_Lean_addTrace___at_____private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest_spec__1___redArg(x_12, x_87, x_8, x_9, x_10, x_74);
+x_89 = lean_ctor_get(x_88, 1);
+lean_inc(x_89);
+lean_dec_ref(x_88);
 x_13 = x_7;
 x_14 = x_8;
 x_15 = x_9;
 x_16 = x_10;
-x_17 = x_93;
+x_17 = x_89;
 goto block_52;
 }
 }
@@ -2612,7 +2594,7 @@ uint8_t x_95;
 x_95 = !lean_is_exclusive(x_91);
 if (x_95 == 0)
 {
-lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; 
+lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; 
 x_96 = lean_ctor_get(x_91, 1);
 x_97 = lean_ctor_get(x_91, 0);
 lean_dec(x_97);
@@ -2643,67 +2625,59 @@ x_108 = l_Lean_MessageData_ofFormat(x_107);
 x_109 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_109, 0, x_105);
 lean_ctor_set(x_109, 1, x_108);
-x_110 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__13;
-x_111 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_111, 0, x_109);
-lean_ctor_set(x_111, 1, x_110);
-x_112 = l_Lean_addTrace___at_____private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest_spec__1___redArg(x_13, x_111, x_9, x_10, x_11, x_96);
-x_113 = lean_ctor_get(x_112, 1);
-lean_inc(x_113);
-lean_dec_ref(x_112);
+x_110 = l_Lean_addTrace___at_____private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest_spec__1___redArg(x_13, x_109, x_9, x_10, x_11, x_96);
+x_111 = lean_ctor_get(x_110, 1);
+lean_inc(x_111);
+lean_dec_ref(x_110);
 x_14 = x_8;
 x_15 = x_9;
 x_16 = x_10;
 x_17 = x_11;
-x_18 = x_113;
+x_18 = x_111;
 goto block_90;
 }
 else
 {
-lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; 
-x_114 = lean_ctor_get(x_91, 1);
-lean_inc(x_114);
+lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; 
+x_112 = lean_ctor_get(x_91, 1);
+lean_inc(x_112);
 lean_dec(x_91);
-x_115 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAroundTest___lam__0___closed__3;
+x_113 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAroundTest___lam__0___closed__3;
 lean_inc(x_4);
-x_116 = l_Lean_MessageData_ofName(x_4);
+x_114 = l_Lean_MessageData_ofName(x_4);
+x_115 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_115, 0, x_113);
+lean_ctor_set(x_115, 1, x_114);
+x_116 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__6;
 x_117 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_117, 0, x_115);
 lean_ctor_set(x_117, 1, x_116);
-x_118 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__6;
+lean_inc(x_5);
+x_118 = l_Lean_MessageData_ofName(x_5);
 x_119 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_119, 0, x_117);
 lean_ctor_set(x_119, 1, x_118);
-lean_inc(x_5);
-x_120 = l_Lean_MessageData_ofName(x_5);
+x_120 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__8;
 x_121 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_121, 0, x_119);
 lean_ctor_set(x_121, 1, x_120);
-x_122 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__8;
-x_123 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_123, 0, x_121);
-lean_ctor_set(x_123, 1, x_122);
 lean_inc(x_6);
-x_124 = l_Nat_reprFast(x_6);
-x_125 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_125, 0, x_124);
-x_126 = l_Lean_MessageData_ofFormat(x_125);
-x_127 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_127, 0, x_123);
-lean_ctor_set(x_127, 1, x_126);
-x_128 = l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__13;
-x_129 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_129, 0, x_127);
-lean_ctor_set(x_129, 1, x_128);
-x_130 = l_Lean_addTrace___at_____private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest_spec__1___redArg(x_13, x_129, x_9, x_10, x_11, x_114);
-x_131 = lean_ctor_get(x_130, 1);
-lean_inc(x_131);
-lean_dec_ref(x_130);
+x_122 = l_Nat_reprFast(x_6);
+x_123 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_123, 0, x_122);
+x_124 = l_Lean_MessageData_ofFormat(x_123);
+x_125 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_125, 0, x_121);
+lean_ctor_set(x_125, 1, x_124);
+x_126 = l_Lean_addTrace___at_____private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest_spec__1___redArg(x_13, x_125, x_9, x_10, x_11, x_112);
+x_127 = lean_ctor_get(x_126, 1);
+lean_inc(x_127);
+lean_dec_ref(x_126);
 x_14 = x_8;
 x_15 = x_9;
 x_16 = x_10;
 x_17 = x_11;
-x_18 = x_131;
+x_18 = x_127;
 goto block_90;
 }
 }
@@ -3644,7 +3618,7 @@ x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
 x_8 = lean_array_fget_borrowed(x_1, x_7);
 x_9 = lean_array_fget_borrowed(x_2, x_7);
-x_10 = l_Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic_1021782049____hygCtx___hyg_81_(x_8, x_9);
+x_10 = l_Lean_Compiler_LCNF_instBEqDecl_beq(x_8, x_9);
 if (x_10 == 0)
 {
 lean_dec(x_7);
@@ -4925,8 +4899,6 @@ l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfter
 lean_mark_persistent(l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__11);
 l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__12 = _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__12();
 lean_mark_persistent(l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__12);
-l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__13 = _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__13();
-lean_mark_persistent(l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__13);
 l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAroundTest___lam__0___closed__0 = _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAroundTest___lam__0___closed__0();
 lean_mark_persistent(l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAroundTest___lam__0___closed__0);
 l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAroundTest___lam__0___closed__1 = _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAroundTest___lam__0___closed__1();

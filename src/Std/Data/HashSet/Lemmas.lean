@@ -257,6 +257,10 @@ theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
     (m.get? a).isSome ↔ a ∈ m :=
   mem_iff_isSome_get?.symm
 
+theorem get?_eq_some_iff [EquivBEq α] [LawfulHashable α] {k k' : α} :
+    m.get? k = some k' ↔ ∃ h : k ∈ m, m.get k h = k' :=
+  HashMap.getKey?_eq_some_iff
+
 theorem mem_of_get?_eq_some [EquivBEq α] [LawfulHashable α] {k k' : α}
     (h : m.get? k = some k') : k' ∈ m :=
   HashMap.mem_of_getKey?_eq_some h

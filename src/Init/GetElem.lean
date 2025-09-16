@@ -166,25 +166,25 @@ export LawfulGetElem (getElem?_def getElem!_def)
 instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (valid xs i)] :
     LawfulGetElem coll idx elem valid where
 
-@[simp, grind] theorem getElem?_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind =] theorem getElem?_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) (h : dom c i) : c[i]? = some (c[i]'h) := by
   have : Decidable (dom c i) := .isTrue h
   rw [getElem?_def]
   exact dif_pos h
 
-@[simp, grind] theorem getElem?_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind =] theorem getElem?_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) (h : ¬dom c i) : c[i]? = none := by
   have : Decidable (dom c i) := .isFalse h
   rw [getElem?_def]
   exact dif_neg h
 
-@[simp, grind] theorem getElem!_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind =] theorem getElem!_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     [Inhabited elem] (c : cont) (i : idx) (h : dom c i) :
     c[i]! = c[i]'h := by
   have : Decidable (dom c i) := .isTrue h
   simp [getElem!_def, h]
 
-@[simp, grind] theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind =] theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     [Inhabited elem] (c : cont) (i : idx) (h : ¬dom c i) : c[i]! = default := by
   have : Decidable (dom c i) := .isFalse h
   simp [getElem!_def, h]
@@ -291,17 +291,19 @@ namespace List
 instance : GetElem (List α) Nat α fun as i => i < as.length where
   getElem as i h := as.get ⟨i, h⟩
 
-@[simp, grind]
+@[simp, grind =]
 theorem getElem_cons_zero (a : α) (as : List α) (h : 0 < (a :: as).length) :
     getElem (a :: as) 0 h = a := rfl
 
-@[simp, grind]
+@[simp, grind =]
 theorem getElem_cons_succ (a : α) (as : List α) (i : Nat) (h : i + 1 < (a :: as).length) : getElem (a :: as) (i+1) h = getElem as i (Nat.lt_of_succ_lt_succ h) :=
     rfl
 
-@[simp, grind] theorem getElem_mem : ∀ {l : List α} {n} (h : n < l.length), l[n]'h ∈ l
+@[simp] theorem getElem_mem : ∀ {l : List α} {n} (h : n < l.length), l[n]'h ∈ l
   | _ :: _, 0, _ => .head ..
   | _ :: l, _+1, _ => .tail _ (getElem_mem (l := l) ..)
+
+grind_pattern getElem_mem => l[n]'h ∈ l
 
 theorem getElem_cons_drop_succ_eq_drop {as : List α} {i : Nat} (h : i < as.length) :
     as[i] :: as.drop (i+1) = as.drop i :=

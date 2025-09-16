@@ -18,8 +18,8 @@ example : ((o₁.or (o₂.or (some x))).or (o₄.or o₅) == none) = false := by
 
 /--
 info: Try this:
-  grind only [Option.max_none_right,
-    Option.min_some_some, = Nat.min_def]
+  grind only [= Option.min_some_some,
+    = Option.max_none_right, = Nat.min_def]
 -/
 #guard_msgs in
 example : max (some 7) none = min (some 13) (some 7) := by grind?

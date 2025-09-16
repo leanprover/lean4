@@ -21,6 +21,7 @@ LEAN_EXPORT lean_object* l_Bool_toLBool___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_false_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx(uint8_t);
+LEAN_EXPORT uint8_t l_Lean_instInhabitedLBool_default;
 LEAN_EXPORT lean_object* l_Lean_LBool_true_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_true_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx___boxed(lean_object*);
@@ -35,13 +36,12 @@ LEAN_EXPORT lean_object* l_Lean_LBool_undef_elim(lean_object*, uint8_t, lean_obj
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_LBool_and(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_LBool_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_instBEqLBool_beq(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_LBool_false_elim___redArg(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_instInhabitedLBool;
 LEAN_EXPORT uint8_t l_Lean_LBool_neg(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_LBool_toString(uint8_t);
 static lean_object* l_Lean_LBool_toString___closed__2;
-LEAN_EXPORT uint8_t l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_14_(uint8_t, uint8_t);
-LEAN_EXPORT uint8_t l_Lean_defaultLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_8_;
 LEAN_EXPORT lean_object* l_Lean_LBool_and___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_neg___boxed(lean_object*);
@@ -55,13 +55,13 @@ LEAN_EXPORT lean_object* l_Lean_LBool_ctorElim___boxed(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 static lean_object* l_Lean_LBool_toString___closed__1;
 LEAN_EXPORT lean_object* l_Lean_LBool_undef_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_14____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_LBool_toString___closed__0;
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_toLBoolM___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_undef_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_toLBoolM___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instBEqLBool_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqLBool;
 LEAN_EXPORT lean_object* l_Lean_LBool_ctorIdx(uint8_t x_1) {
 _start:
@@ -299,7 +299,7 @@ x_7 = l_Lean_LBool_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
 }
-static uint8_t _init_l_Lean_defaultLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_8_() {
+static uint8_t _init_l_Lean_instInhabitedLBool_default() {
 _start:
 {
 uint8_t x_1; 
@@ -315,7 +315,7 @@ x_1 = 0;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_14_(uint8_t x_1, uint8_t x_2) {
+LEAN_EXPORT uint8_t l_Lean_instBEqLBool_beq(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -327,13 +327,13 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_14____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instBEqLBool_beq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
 x_4 = lean_unbox(x_2);
-x_5 = l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_14_(x_3, x_4);
+x_5 = l_Lean_instBEqLBool_beq(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -342,7 +342,7 @@ static lean_object* _init_l_Lean_instBEqLBool___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_beqLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_14____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_instBEqLBool_beq___boxed), 2, 0);
 return x_1;
 }
 }
@@ -576,7 +576,7 @@ _G_initialized = true;
 res = initialize_Init_Data_ToString_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_defaultLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_8_ = _init_l_Lean_defaultLBool____x40_Lean_Data_LBool_27903016____hygCtx___hyg_8_();
+l_Lean_instInhabitedLBool_default = _init_l_Lean_instInhabitedLBool_default();
 l_Lean_instInhabitedLBool = _init_l_Lean_instInhabitedLBool();
 l_Lean_instBEqLBool___closed__0 = _init_l_Lean_instBEqLBool___closed__0();
 lean_mark_persistent(l_Lean_instBEqLBool___closed__0);

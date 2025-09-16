@@ -267,7 +267,8 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
   let numTypeFormers := positions.size
   let recArgInfo := recArgInfos[0]! -- pick an arbitrary one
   let brecOn := brecOnConst recArgInfo.indIdx
-  check brecOn
+  prependError m!"brecOn is type incorrect" do
+    check brecOn
   let brecOnType ← inferType brecOn
   -- Skip the indices and major argument
   let packedFTypes ← forallBoundedTelescope brecOnType (some (recArgInfo.indicesPos.size + 1)) fun _ brecOnType =>

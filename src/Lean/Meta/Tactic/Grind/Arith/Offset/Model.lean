@@ -4,19 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Basic
-public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Util
-
+public import Lean.Meta.Tactic.Grind.Arith.Offset.Types
+import Lean.Meta.Tactic.Grind.Util
 public section
-
 namespace Lean.Meta.Grind.Arith.Offset
 
 /-- Construct a model that satisfies all offset constraints -/
 def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
-  let s := goal.arith.offset
+  let s ← offsetExt.getStateCore goal
   let dbg := grind.debug.get (← getOptions)
   let nodes := s.nodes
   let isInterpreted (u : Nat) : Bool := isNatNum s.nodes[u]!

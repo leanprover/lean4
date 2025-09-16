@@ -379,8 +379,11 @@ def Poly.mul (p : Poly) (k : Int) : Poly :=
       p₁)
     fuel
 
-@[expose] noncomputable def Poly.combine_mul_k (a b : Int) : Poly → Poly → Poly :=
-  combine_mul_k' hugeFuel a b
+@[expose] noncomputable def Poly.combine_mul_k (a b : Int) (p₁ p₂ : Poly) : Poly :=
+  Bool.rec
+    (Bool.rec (combine_mul_k' hugeFuel a b p₁ p₂) (p₁.mul_k a) (Int.beq' b 0))
+    (p₂.mul_k b)
+    (Int.beq' a 0)
 
 @[simp] theorem Poly.denote_mul (ctx : Context) (p : Poly) (k : Int) : (p.mul k).denote ctx = k * p.denote ctx := by
   simp [mul]
@@ -424,34 +427,36 @@ theorem Poly.denote_combine (ctx : Context) (p₁ p₂ : Poly) : (p₁.combine p
 
 theorem Poly.denote_combine_mul_k (ctx : Context) (a b : Int) (p₁ p₂ : Poly) : (p₁.combine_mul_k a b p₂).denote ctx = a * p₁.denote ctx + b * p₂.denote ctx := by
   unfold combine_mul_k
+  cases h₁ : Int.beq' a 0 <;> simp at h₁ <;> simp [*]
+  cases h₂ : Int.beq' b 0 <;> simp at h₂ <;> simp [*]
   generalize hugeFuel = fuel
   induction fuel generalizing p₁ p₂
   next => show ((p₁.mul a).append (p₂.mul b)).denote ctx = _; simp
   next fuel ih =>
-   cases p₁ <;> cases p₂ <;> simp [combine_mul_k']
-   next k₁ k₂ v₂ p₂ =>
-     show _ + (combine_mul_k' fuel a b (.num k₁) p₂).denote ctx = _
-     simp [ih, Int.mul_assoc]
-   next k₁ v₁ p₁ k₂ =>
-     show _ + (combine_mul_k' fuel a b p₁ (.num k₂)).denote ctx = _
-     simp [ih, Int.mul_assoc]
-   next k₁ v₁ p₁ k₂ v₂ p₂ =>
-     cases h₁ : Nat.beq v₁ v₂ <;> simp
-     next =>
-       cases h₂ : Nat.blt v₂ v₁ <;> simp
-       next =>
-         show _ + (combine_mul_k' fuel a b (add k₁ v₁ p₁) p₂).denote ctx = _
-         simp [ih, Int.mul_assoc]
-       next =>
-         show _ + (combine_mul_k' fuel a b p₁ (add k₂ v₂ p₂)).denote ctx = _
-         simp [ih, Int.mul_assoc]
-     next =>
-       simp at h₁; subst v₂
-       cases h₂ : (a * k₁ + b * k₂).beq' 0 <;> simp
-       next =>
+  cases p₁ <;> cases p₂ <;> simp [combine_mul_k']
+  next k₁ k₂ v₂ p₂ =>
+    show _ + (combine_mul_k' fuel a b (.num k₁) p₂).denote ctx = _
+    simp [ih, Int.mul_assoc]
+  next k₁ v₁ p₁ k₂ =>
+    show _ + (combine_mul_k' fuel a b p₁ (.num k₂)).denote ctx = _
+    simp [ih, Int.mul_assoc]
+  next k₁ v₁ p₁ k₂ v₂ p₂ =>
+    cases h₁ : Nat.beq v₁ v₂ <;> simp
+    next =>
+      cases h₂ : Nat.blt v₂ v₁ <;> simp
+      next =>
+        show _ + (combine_mul_k' fuel a b (add k₁ v₁ p₁) p₂).denote ctx = _
+        simp [ih, Int.mul_assoc]
+      next =>
+        show _ + (combine_mul_k' fuel a b p₁ (add k₂ v₂ p₂)).denote ctx = _
+        simp [ih, Int.mul_assoc]
+    next =>
+      simp at h₁; subst v₂
+      cases h₂ : (a * k₁ + b * k₂).beq' 0 <;> simp
+      next =>
         show a * k₁ * v₁.denote ctx + (b * k₂ * v₁.denote ctx + (combine_mul_k' fuel a b p₁ p₂).denote ctx) = _
         simp [ih, Int.mul_assoc]
-       next =>
+      next =>
         simp at h₂
         show (combine_mul_k' fuel a b p₁ p₂).denote ctx = _
         simp [ih, ← Int.mul_assoc, ← Int.add_mul, h₂]
@@ -523,13 +528,13 @@ attribute [local simp] Expr.denote_norm
 
 instance : LawfulBEq Poly where
   eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
-    next ih =>
+    induction a <;> intro b <;> cases b <;> simp_all [reduceBEq]
+    next ih _ _ _ =>
       intro _ _ h
       exact ih h
   rfl := by
     intro a
-    induction a <;> simp! [BEq.beq]
+    induction a <;> simp [reduceBEq]
     assumption
 
 attribute [local simp] Poly.denote'_eq_denote

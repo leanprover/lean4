@@ -8,8 +8,6 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.MatchCond
-import Lean.Meta.Tactic.Grind.Arith.Inv
-import Lean.Meta.Tactic.Grind.AC.Inv
 namespace Lean.Meta.Grind
 /-!
 Debugging support code for checking basic invariants.
@@ -125,8 +123,7 @@ public def checkInvariants (expensive := false) : GoalM Unit := do
         checkEqc node
     if expensive then
       checkPtrEqImpliesStructEq
-    Arith.checkInvariants
-    AC.checkInvariants
+    Solvers.checkInvariants
   if expensive && grind.debug.proofs.get (← getOptions) then
     checkProofs
 

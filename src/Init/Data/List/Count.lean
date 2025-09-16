@@ -223,7 +223,7 @@ variable [BEq α]
 
 @[simp, grind =] theorem count_nil {a : α} : count a [] = 0 := rfl
 
-@[grind]
+@[grind =]
 theorem count_cons {a b : α} {l : List α} :
     count a (b :: l) = count a l + if b == a then 1 else 0 := by
   simp [count, countP_cons]
@@ -237,7 +237,7 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
 theorem count_eq_length_filter {a : α} {l : List α} : count a l = (filter (· == a) l).length := by
   simp [count, countP_eq_length_filter]
 
-@[grind]
+@[grind =]
 theorem count_tail : ∀ {l : List α} {a : α},
       l.tail.count a = l.count a - if l.head? == some a then 1 else 0
   | [], a => by simp
@@ -380,7 +380,7 @@ theorem count_filterMap {α} [BEq β] {b : β} {f : α → Option β} {l : List 
 theorem count_flatMap {α} [BEq β] {l : List α} {f : α → List β} {x : β} :
     count x (l.flatMap f) = sum (map (count x ∘ f) l) := countP_flatMap
 
-@[grind]
+@[grind =]
 theorem count_erase {a b : α} :
     ∀ {l : List α}, count a (l.erase b) = count a l - if b == a then 1 else 0
   | [] => by simp

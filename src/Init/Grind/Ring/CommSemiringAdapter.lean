@@ -82,15 +82,15 @@ def Poly.denoteS [Semiring α] (ctx : Context α) (p : Poly) : α :=
 
 attribute [local simp] natCast_one natCast_zero zero_mul mul_zero one_mul mul_one add_zero zero_add denoteSInt_eq
 
-theorem Poly.denoteS_ofMon {α} [CommSemiring α] (ctx : Context α) (m : Mon)
+theorem Poly.denoteS_ofMon {α} [Semiring α] (ctx : Context α) (m : Mon)
     : denoteS ctx (ofMon m) = m.denote ctx := by
   simp [ofMon, denoteS]
 
-theorem Poly.denoteS_ofVar {α} [CommSemiring α] (ctx : Context α) (x : Var)
+theorem Poly.denoteS_ofVar {α} [Semiring α] (ctx : Context α) (x : Var)
     : denoteS ctx (ofVar x) = x.denote ctx := by
   simp [ofVar, denoteS_ofMon, Mon.denote_ofVar]
 
-theorem Poly.denoteS_addConst {α} [CommSemiring α] (ctx : Context α) (p : Poly) (k : Int)
+theorem Poly.denoteS_addConst {α} [Semiring α] (ctx : Context α) (p : Poly) (k : Int)
     : k ≥ 0 → p.NonnegCoeffs → (addConst p k).denoteS ctx = p.denoteS ctx + k.toNat := by
   simp [addConst, cond_eq_if]; split
   next => subst k; simp
@@ -103,7 +103,7 @@ theorem Poly.denoteS_addConst {α} [CommSemiring α] (ctx : Context α) (p : Pol
       intro _ h; cases h
       next h₁ h₂ => simp [*, add_assoc]
 
-theorem Poly.denoteS_insert {α} [CommSemiring α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
+theorem Poly.denoteS_insert {α} [Semiring α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
     : k ≥ 0 → p.NonnegCoeffs → (insert k m p).denoteS ctx = k.toNat * m.denote ctx + p.denoteS ctx := by
   simp [insert, cond_eq_if] <;> split
   next => simp [*]
@@ -130,13 +130,13 @@ theorem Poly.denoteS_insert {α} [CommSemiring α] (ctx : Context α) (k : Int) 
         intro hk hn; cases hn; rename_i hn₁ hn₂
         rw [ih hk hn₂, add_left_comm]
 
-theorem Poly.denoteS_concat {α} [CommSemiring α] (ctx : Context α) (p₁ p₂ : Poly)
+theorem Poly.denoteS_concat {α} [Semiring α] (ctx : Context α) (p₁ p₂ : Poly)
     : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (concat p₁ p₂).denoteS ctx = p₁.denoteS ctx + p₂.denoteS ctx := by
   fun_induction concat <;> intro h₁ h₂; simp [*, denoteS]
   next => cases h₁; rw [add_comm, denoteS_addConst] <;> assumption
   next ih => cases h₁; next hn₁ hn₂ => rw [denoteS, denoteS, ih hn₂ h₂, add_assoc]
 
-theorem Poly.denoteS_mulConst {α} [CommSemiring α] (ctx : Context α) (k : Int) (p : Poly)
+theorem Poly.denoteS_mulConst {α} [Semiring α] (ctx : Context α) (k : Int) (p : Poly)
     : k ≥ 0 → p.NonnegCoeffs → (mulConst k p).denoteS ctx = k.toNat * p.denoteS ctx := by
   simp [mulConst, cond_eq_if] <;> split
   next => simp [denoteS, *, zero_mul]
@@ -150,30 +150,7 @@ theorem Poly.denoteS_mulConst {α} [CommSemiring α] (ctx : Context α) (k : Int
       intro h₁ h₂; cases h₂; rename_i h₂ h₃
       rw [Int.toNat_mul, natCast_mul, left_distrib, mul_assoc, ih h₁ h₃] <;> assumption
 
-theorem Poly.denoteS_mulMon {α} [CommSemiring α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
-    : k ≥ 0 → p.NonnegCoeffs → (mulMon k m p).denoteS ctx = k.toNat * m.denote ctx * p.denoteS ctx := by
-  simp [mulMon, cond_eq_if] <;> split
-  next => simp [denoteS, *]
-  next =>
-    split
-    next h =>
-      intro h₁ h₂
-      simp at h; simp [*, Mon.denote, denoteS_mulConst _ _ _ h₁ h₂]
-    next =>
-      fun_induction mulMon.go <;> simp [denoteS, *]
-      next h => simp +zetaDelta at h; simp [*]
-      next =>
-        intro h₁ h₂; cases h₂
-        rw [Int.toNat_mul]
-        simp [natCast_mul, CommSemiring.mul_comm, CommSemiring.mul_left_comm, mul_assoc]
-        assumption; assumption
-      next ih =>
-        intro h₁ h₂; cases h₂; rename_i h₂ h₃
-        rw [Int.toNat_mul]
-        simp [Mon.denote_mul, natCast_mul, left_distrib, CommSemiring.mul_left_comm, mul_assoc, ih h₁ h₃]
-        assumption; assumption
-
-theorem Poly.denoteS_combine {α} [CommSemiring α] (ctx : Context α) (p₁ p₂ : Poly)
+theorem Poly.denoteS_combine {α} [Semiring α] (ctx : Context α) (p₁ p₂ : Poly)
     : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (combine p₁ p₂).denoteS ctx = p₁.denoteS ctx + p₂.denoteS ctx := by
   unfold combine; generalize hugeFuel = fuel
   fun_induction combine.go
@@ -205,6 +182,29 @@ theorem Poly.denoteS_combine {α} [CommSemiring α] (ctx : Context α) (p₁ p�
     intro h₁ h₂; cases h₂
     rename_i h₂
     simp [denoteS, ih h₁ h₂, add_left_comm, add_assoc]
+
+theorem Poly.denoteS_mulMon {α} [CommSemiring α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
+    : k ≥ 0 → p.NonnegCoeffs → (mulMon k m p).denoteS ctx = k.toNat * m.denote ctx * p.denoteS ctx := by
+  simp [mulMon, cond_eq_if] <;> split
+  next => simp [denoteS, *]
+  next =>
+    split
+    next h =>
+      intro h₁ h₂
+      simp at h; simp [*, Mon.denote, denoteS_mulConst _ _ _ h₁ h₂]
+    next =>
+      fun_induction mulMon.go <;> simp [denoteS, *]
+      next h => simp +zetaDelta at h; simp [*]
+      next =>
+        intro h₁ h₂; cases h₂
+        rw [Int.toNat_mul]
+        simp [natCast_mul, CommSemiring.mul_comm, CommSemiring.mul_left_comm, mul_assoc]
+        assumption; assumption
+      next ih =>
+        intro h₁ h₂; cases h₂; rename_i h₂ h₃
+        rw [Int.toNat_mul]
+        simp [Mon.denote_mul, natCast_mul, left_distrib, CommSemiring.mul_left_comm, mul_assoc, ih h₁ h₃]
+        assumption; assumption
 
 theorem Poly.mulConst_NonnegCoeffs {p : Poly} {k : Int} : k ≥ 0 → p.NonnegCoeffs → (p.mulConst k).NonnegCoeffs := by
   simp [mulConst, cond_eq_if]; split

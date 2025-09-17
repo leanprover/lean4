@@ -33,8 +33,7 @@ def elabGrindPattern : CommandElab := fun stx => do
   | _ => throwUnsupportedSyntax
 where
   go (thmName : TSyntax `ident) (terms : Syntax.TSepArray `term ",") (kind : AttributeKind) : CommandElabM Unit := liftTermElabM do
-    let declName ← resolveGlobalConstNoOverload thmName
-    discard <| addTermInfo thmName (← mkConstWithLevelParams declName)
+    let declName ← realizeGlobalConstNoOverloadWithInfo thmName
     let info ← getConstVal declName
     forallTelescope info.type fun xs _ => do
       let patterns ← terms.getElems.mapM fun term => do

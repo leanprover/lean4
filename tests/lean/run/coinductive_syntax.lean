@@ -130,6 +130,9 @@ info: Bar.coinduct (pred : Set) (hyp : ∀ (a : Nat), pred a → a = 42) (a✝ :
 coinductive dependentTest : (n : Nat) → (Vector α n) → Prop  where
   | mk (x : α) : dependentTest m v → dependentTest (m+1) (v.push x)
 
+coinductive dependentTest2 : (n : Nat) → (m : Nat) → (Vector α (m + n))  → Prop  where
+  | mk (x : α) : dependentTest2 0 n v → dependentTest2 0 (n + 1) (v.push x)
+
 /--
 info: dependentTest.coinduct.{u_1} {α : Type u_1} (pred : (n : Nat) → Vector α n → Prop)
   (hyp : ∀ (n : Nat) (a : Vector α n), pred n a → ∃ m v x, pred m v ∧ n = m + 1 ∧ a ≍ v.push x) (n : Nat)
@@ -137,3 +140,12 @@ info: dependentTest.coinduct.{u_1} {α : Type u_1} (pred : (n : Nat) → Vector 
 -/
 #guard_msgs in
 #check dependentTest.coinduct
+
+coinductive test1  (r: α → α → Prop) : α → α → Prop where
+  | mk : r a b → test1 r a b → test1 r a a
+  | mk2 : test1 r a a
+
+coinductive test2  (r: α → α → Prop) : α → α → Prop where
+  | mk : r a b → test2 r b b → test2 r a a
+
+#check test1_functor.casesOn

@@ -279,32 +279,42 @@ private def toInductive (mvar : MVarId) (cs : List Name)
       let subgoals ← nCasesSum n mvar h
       let _ ← (cs.zip (subgoals.zip s)).mapM fun ⟨constr_name, ⟨h, mv⟩, bs, e⟩ ↦ do
         let n := (bs.filter id).length
-        let (mvar', _fvars) ← match e with
-        | none => nCasesProd (n-1) mv h
+        let (mvar', _fvars, numHEqs) ← match e with
+        | none =>
+            let (id, fvarIds) ← nCasesProd (n-1) mv h
+            pure ⟨id, fvarIds, 0⟩
         | some 0 => do let ⟨mvar', fvars⟩ ← nCasesProd n mv h
                           let mvar'' ← mvar'.tryClear fvars.getLast!
-                          pure ⟨mvar'', fvars⟩
+                          pure ⟨mvar'', fvars, 0⟩
         | some (e + 1) => do
            let (mv', fvars) ← nCasesProd n mv h
            let lastfv := fvars.getLast!
            let (mv2, fvars') ← nCasesProd e mv' lastfv
+           let numHEqs ← mv2.withContext do
+            let fvarTypes ← fvars'.mapM (·.getType)
+            let res := fvarTypes.map (·.isAppOf `HEq)
+            let res := res.filter id
+            pure res.length
 
            /- `fvars'.foldlM subst mv2` fails when we have dependent equalities (`HEq`).
            `subst` will change the dependent hypotheses, so that the `uniq` local names
            are wrong afterwards. Instead we revert them and pull them out one-by-one. -/
            let (_, mv3) ← mv2.revert fvars'.toArray
-           let mv4 ← fvars'.foldlM (fun mv _ ↦ do let ⟨fv, mv'⟩ ← mv.intro1; subst mv' fv) mv3
-           pure (mv4, fvars)
+           let mv4 ← fvars'.foldlM (fun mv _ ↦ do
+            let ⟨fv, mv'⟩ ← mv.intro1
+            let #[res] ← mv'.cases fv | throwError "expected one case subgoal"
+            return res.mvarId) mv3
+           pure (mv4, fvars, numHEqs)
         mvar'.withContext do
           let fvarIds := (← getLCtx).getFVarIds.toList
           let gs := fvarIds.take gs.length
-          let hs := (fvarIds.reverse.take n).reverse
+          let hs := fvarIds.extract (fvarIds.length - (n + numHEqs)) (fvarIds.length - numHEqs)
           let m := gs.map some ++ listBoolMerge bs hs
           let args ← m.mapM fun a ↦
             match a with
             | some v => pure (mkFVar v)
             | none => mkFreshExprMVar none
-          let c ← mkConstWithFreshMVarLevels constr_name
+          let c ← mkConstWithLevelParams constr_name
           let e := mkAppN c args.toArray
           let t ← inferType e
           let mt ← mvar'.getType

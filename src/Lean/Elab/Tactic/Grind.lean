@@ -176,6 +176,8 @@ where
           warnRedundantEMatchArg params.ematch declName
         return { params with extra := params.extra.push thm₁ |>.push thm₂ }
       | _ =>
+        if kind matches .eqLhs _ | .eqRhs _ then
+          ensureNoMinIndexable minIndexable
         let thm ← Grind.mkEMatchTheoremForDecl declName kind params.symPrios (minIndexable := minIndexable)
         if params.ematch.containsWithSamePatterns thm.origin thm.patterns then
           warnRedundantEMatchArg params.ematch declName

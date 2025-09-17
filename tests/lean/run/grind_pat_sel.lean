@@ -141,4 +141,22 @@ example : foo x = foo y → x = y := by
   fail_if_success grind [fooInv_foo]
   sorry
 
+opaque bar : Nat → Nat
+axiom bar_eq : bar x = foo x
+
+/-- error: redundant modifier `!` in `grind` parameter -/
+#guard_msgs in
+example : bar x = bar y → x = y := by
+  grind [! = bar_eq]
+
+/-- error: redundant modifier `!` in `grind` parameter -/
+#guard_msgs in
+example : bar x = bar y → x = y := by
+  grind [! =_ bar_eq]
+
+/-- error: redundant modifier `!` in `grind` parameter -/
+#guard_msgs in
+example : bar x = bar y → x = y := by
+  grind [! _=_ bar_eq]
+
 end Foo

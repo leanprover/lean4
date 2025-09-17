@@ -73,14 +73,9 @@ mutual
   partial def pullDecls (code : Code) : PullM Code := do
     match code with
     | .cases c =>
-      -- At the present time, we can't correctly enforce the dependencies required for lifting
-      -- out of a cases expression on Decidable, so we disable this optimization.
-      if c.typeName == ``Decidable then
-        return code
-      else
-        withCheckpoint do
-          let alts ← c.alts.mapMonoM pullAlt
-          return code.updateAlts! alts
+      withCheckpoint do
+        let alts ← c.alts.mapMonoM pullAlt
+        return code.updateAlts! alts
     | .let decl k =>
       if (← shouldPull decl) then
         pullDecls k

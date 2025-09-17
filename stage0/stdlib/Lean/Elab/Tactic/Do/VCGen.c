@@ -47347,10 +47347,6 @@ _start:
 {
 lean_object* x_12; 
 x_12 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___at___Lean_Elab_Tactic_Do_dischargePostEntails___at___Lean_Elab_Tactic_Do_mSpec___at_____private_Lean_Elab_Tactic_Do_VCGen_0__Lean_Elab_Tactic_Do_VCGen_genVCs_onWPApp_spec__0_spec__0_spec__0___lam__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_10);
-lean_dec_ref(x_9);
-lean_dec(x_8);
-lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -47481,10 +47477,6 @@ _start:
 {
 lean_object* x_12; 
 x_12 = l_Lean_Elab_Tactic_Do_dischargePostEntails___at___Lean_Elab_Tactic_Do_mSpec___at_____private_Lean_Elab_Tactic_Do_VCGen_0__Lean_Elab_Tactic_Do_VCGen_genVCs_onWPApp_spec__0_spec__0___lam__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_10);
-lean_dec_ref(x_9);
-lean_dec(x_8);
-lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);

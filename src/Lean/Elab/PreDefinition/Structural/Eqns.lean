@@ -86,6 +86,9 @@ where
       if (← tryURefl mvarId) then
         trace[Elab.definition.structural.eqns] "tryURefl succeeded"
         return ()
+      else if (← tryContradiction mvarId) then
+        trace[Elab.definition.structural.eqns] "tryContadiction succeeded"
+        return ()
       else if let some mvarId ← simpMatch? mvarId then
         trace[Elab.definition.structural.eqns] "simpMatch? succeeded"
         go3 mvarId

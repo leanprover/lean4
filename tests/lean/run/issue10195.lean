@@ -3,6 +3,7 @@ inductive Vec (α : Type u) : Nat → Type u
   | cons : α → {n : Nat} → Vec α n → Vec α (n+1)
 
 -- set_option trace.split.failure true
+-- set_option trace.split.debug true
 -- set_option trace.Elab.definition.structural.eqns true
 
 def decEqVecPlain {α} {a} [DecidableEq α] (x : @Vec α a) (x_1 : @Vec α a) : Decidable (x = x_1) :=
@@ -52,5 +53,32 @@ info: theorem decEqVecPlain.eq_def.{u_1} : ∀ {α : Type u_1} {a : Nat} [inst :
         else isFalse ⋯
     else isFalse ⋯
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #print sig decEqVecPlain.eq_def
+
+
+axiom testSorry : α
+
+inductive I : Nat → Type u | cons : I n → I (n + 1)
+axiom P : I n → Prop
+@[instance] axiom instDecEqI : ∀ (x : I n), Decidable (P x)
+axiom R : I n → Type
+set_option trace.split.failure true in
+noncomputable def foo (x x' : I n) : R x :=
+ if h : P x then
+ match (generalizing := false) x, x', id h with --NB: non-FVar discr
+ | .cons a_2, .cons a_2', _ => (testSorry : _ → _ → _) (foo a_2 a_2') h
+ else testSorry
+termination_by structural x
+
+
+/--
+info: theorem foo.eq_def.{u_1, u_2} : ∀ {n : Nat} (x : I n) (x' : I n),
+  foo x x' =
+    if h : P x then
+      match n, x, x', ⋯ with
+      | .(n_1 + 1), a_2.cons, a_2'.cons, x_1 => testSorry (foo a_2 a_2') h
+    else testSorry
+-/
+#guard_msgs(pass trace, all) in
+#print sig foo.eq_def

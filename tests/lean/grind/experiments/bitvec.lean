@@ -467,7 +467,7 @@ theorem getElem_ofBool {b : Bool} {h : i < 1}: (ofBool b)[i] = b := by
 @[simp] theorem msb_zero : (0#w).msb = false := by simp [BitVec.msb, getMsbD]
 
 @[simp] theorem msb_one : (1#w).msb = decide (w = 1) := by
-  simp [BitVec.msb, getMsbD_one, ← Bool.decide_and]
+  simp only [BitVec.msb, getMsbD_one, ← Bool.decide_and, decide_eq_decide]
   omega
 
 theorem msb_eq_getLsbD_last (x : BitVec w) :

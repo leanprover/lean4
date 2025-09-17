@@ -121,3 +121,24 @@ info: Try this:
 -/
 #guard_msgs in
 @[grind] axiom fg₈ : f x = x
+
+namespace Foo
+
+opaque foo : Nat → Nat
+opaque fooInv : Nat → Nat
+axiom fooInv_foo : fooInv (foo x) = x
+
+/-- trace: [grind.ematch.pattern] fooInv_foo: [foo #0] -/
+#guard_msgs in
+set_option trace.grind.ematch.pattern true in
+example : foo x = foo y → x = y := by
+  grind [!fooInv_foo]
+
+/-- trace: [grind.ematch.pattern] fooInv_foo: [fooInv (foo #0)] -/
+#guard_msgs in
+set_option trace.grind.ematch.pattern true in
+example : foo x = foo y → x = y := by
+  fail_if_success grind [fooInv_foo]
+  sorry
+
+end Foo

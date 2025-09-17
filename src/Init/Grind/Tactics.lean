@@ -180,9 +180,11 @@ namespace Lean.Parser.Tactic
 `grind` tactic and related tactics.
 -/
 
-syntax grindErase := "-" ident
-syntax grindLemma := ppGroup((Attr.grindMod ppSpace)? ident)
-syntax grindParam := grindErase <|> grindLemma
+syntax grindErase    := "-" ident
+syntax grindLemma    := ppGroup((Attr.grindMod ppSpace)? ident)
+-- `!` for enabling minimal indexable subexpression restriction
+syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
+syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin
 
 /--
 `grind` is a tactic inspired by modern SMT solvers. **Picture a virtual whiteboard**:

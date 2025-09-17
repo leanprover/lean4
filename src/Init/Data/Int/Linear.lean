@@ -17,6 +17,7 @@ import all Init.Data.Int.Gcd
 public import Init.Data.RArray
 public import Init.Data.AC
 import all Init.Data.AC
+import Init.LawfulBEqTactics
 
 public section
 
@@ -54,7 +55,7 @@ def Expr.denote (ctx : Context) : Expr → Int
 inductive Poly where
   | num (k : Int)
   | add (k : Int) (v : Var) (p : Poly)
-  deriving @[expose] BEq
+  deriving @[expose] BEq, ReflBEq, LawfulBEq
 
 @[expose]
 protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
@@ -525,18 +526,6 @@ theorem Expr.denote_norm (ctx : Context) (e : Expr) : e.norm.denote ctx = e.deno
   simp [norm, toPoly', Expr.denote_toPoly'_go]
 
 attribute [local simp] Expr.denote_norm
-
-instance : LawfulBEq Poly where
-  eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp_all [reduceBEq]
-    next ih _ _ _ =>
-      intro _ _ h
-      exact ih h
-  rfl := by
-    intro a
-    induction a <;> simp [reduceBEq]
-    assumption
-
 attribute [local simp] Poly.denote'_eq_denote
 
 theorem Expr.eq_of_norm_eq (ctx : Context) (e : Expr) (p : Poly) (h : e.norm.beq' p) : e.denote ctx = p.denote' ctx := by

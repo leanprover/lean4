@@ -45,3 +45,4 @@ public import Init.Try
 public import Init.BinderNameHint
 public import Init.Task
 public import Init.MethodSpecsSimp
+public import Init.LawfulBEqTactics

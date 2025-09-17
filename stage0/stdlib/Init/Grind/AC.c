@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.AC
-// Imports: Init.Core Init.Data.Nat.Lemmas Init.Data.RArray Init.Data.Bool
+// Imports: Init.Core Init.Data.Nat.Lemmas Init.Data.RArray Init.Data.Bool Init.LawfulBEqTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1877,6 +1877,7 @@ lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_RArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Bool(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_AC(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1892,6 +1893,9 @@ res = initialize_Init_Data_RArray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Bool(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_LawfulBEqTactics(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_AC_instInhabitedExpr_default___closed__0 = _init_l_Lean_Grind_AC_instInhabitedExpr_default___closed__0();

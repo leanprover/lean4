@@ -58,16 +58,4 @@ instance : ToExpr CommRing.Expr where
   toExpr := ofRingExpr
   toTypeExpr := mkConst ``CommRing.Expr
 
-def ofSemiringExpr (e : Ring.OfSemiring.Expr) : Expr :=
-  match e with
-  | .num k => mkApp (mkConst ``Ring.OfSemiring.Expr.num) (toExpr k)
-  | .var x => mkApp (mkConst ``Ring.OfSemiring.Expr.var) (toExpr x)
-  | .add a b => mkApp2 (mkConst ``Ring.OfSemiring.Expr.add) (ofSemiringExpr a) (ofSemiringExpr b)
-  | .mul a b => mkApp2 (mkConst ``Ring.OfSemiring.Expr.mul) (ofSemiringExpr a) (ofSemiringExpr b)
-  | .pow a k => mkApp2 (mkConst ``Ring.OfSemiring.Expr.pow) (ofSemiringExpr a) (toExpr k)
-
-instance : ToExpr Ring.OfSemiring.Expr where
-  toExpr := ofSemiringExpr
-  toTypeExpr := mkConst ``Ring.OfSemiring.Expr
-
 end Lean.Meta.Grind.Arith.CommRing

@@ -1794,6 +1794,7 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
       |>.qsort (lt := fun c₁ c₂ => c₁.name.quickCmp c₂.name == .lt)
   let constNames := constants.map (·.name)
   return { env.header with
+    imports := env.header.imports.filter (·.isExported || level == .private)
     extraConstNames := getIRExtraConstNames env level
     constNames, constants, entries
   }
@@ -2055,11 +2056,11 @@ where go (imports : Array Import) (importAll isExported isMeta : Bool) := do
       else
         findOLeanParts i.module
     let parts ← readModuleDataParts fnames
-    -- `imports` is identical for each part
-    let some (baseMod, _) := parts[0]? | unreachable!
-    goRec baseMod.imports
+    let mod := { i with importAll, isExported, irPhases, parts }
+    if let some mod := mod.mainModule? then
+      goRec mod.imports
     modify fun s => { s with
-      moduleNameMap := s.moduleNameMap.insert i.module { i with importAll, isExported, irPhases, parts }
+      moduleNameMap := s.moduleNameMap.insert i.module mod
       moduleNames := s.moduleNames.push i.module
     }
 

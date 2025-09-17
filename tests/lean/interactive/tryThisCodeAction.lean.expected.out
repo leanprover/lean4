@@ -1,0 +1,11 @@
+{"title": "Try this: simp only",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///tryThisCodeAction.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 0, "character": 21},
+       "end": {"line": 0, "character": 26}},
+      "newText": "simp only"}]}]}}

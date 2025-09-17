@@ -91,6 +91,7 @@ builtin_dsimproc ↓ [simp, seval] dreduceDIte (dite _ _ _) := fun e => do
       match_expr (← whnfD i) with
       | Decidable.isTrue _ h => return .visit (mkApp tb h).headBeta
       | Decidable.isFalse _ h => return .visit (mkApp eb h).headBeta
+      | _ => return .continue
   return .continue
 
 builtin_simproc [simp, seval] reduceCtorEq (_ = _) := fun e => withReducibleAndInstances do

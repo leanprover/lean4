@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Parser.Term
 public import Lean.Parser.Do
+import Lean.DocString.Parser
+public import Lean.DocString.Formatter
 meta import Lean.Parser.Basic
 
 public section
@@ -49,6 +51,7 @@ match against a quotation in a command kind's elaborator). -/
 @[builtin_term_parser low] def quot := leading_parser
   "`(" >> withoutPosition (incQuotDepth (many1Unbox commandParser)) >> ")"
 
+
 /--
 `/-! <text> -/` defines a *module docstring* that can be displayed by documentation generation
 tools. The string is associated with the corresponding position in the file. It can be used
@@ -56,7 +59,8 @@ multiple times in the same file.
 -/
 @[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent <|
-  "/-!" >> commentBody >> ppLine
+  "/-!" >> Doc.Parser.ifVerso versoCommentBody commentBody >> ppLine
+
 
 def namedPrio := leading_parser
   atomic (" (" >> nonReservedSymbol "priority") >> " := " >> withoutPosition priorityParser >> ")"
@@ -889,6 +893,7 @@ builtin_initialize
   register_parser_alias                                                 optDeclSig
   register_parser_alias                                                 openDecl
   register_parser_alias                                                 docComment
+  register_parser_alias                                                 plainDocComment
   register_parser_alias                                                 visibility
 
 /--

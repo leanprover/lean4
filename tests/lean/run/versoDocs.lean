@@ -1,10 +1,14 @@
-
 import Lean
 
+set_option doc.verso true
+
+/-!
+This test checks that the basic features of Verso docstrings work.
+-/
 
 open Lean Doc Elab Term
 
-set_option doc.verso true
+
 
 
 
@@ -23,6 +27,7 @@ def d (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
  -/
 def oneLine := "one line"
 
+set_option doc.verso false
 /--
 x
 yz
@@ -73,6 +78,8 @@ def x (y : Nat) : Nat := y * 5
 
 #eval show TermElabM Unit from do (← findDocString? (← getEnv) ``x).forM (IO.println ·.quote)
 
+
+set_option doc.verso true
 
 /--
 {name}`inst`
@@ -197,12 +204,14 @@ def a := "a"
 def b := "b"
 end A
 
+/- Commented out for bootstrapping
 /-- error: Unknown constant `a` -/
 #guard_msgs in
 /--
-{name}`a`
+role {name}`a` here
 -/
 def testDef := 15
+-/
 
 #guard_msgs in
 /--
@@ -220,6 +229,7 @@ def testDef' := 15
 -/
 def testDef'' := 15
 
+/- Commented out for bootstrapping
 /-- error: Unknown constant `b` -/
 #guard_msgs in
 /--
@@ -228,6 +238,7 @@ def testDef'' := 15
 {name}`b`
 -/
 def testDef''' := 15
+-/
 
 #guard_msgs in
 /--
@@ -289,7 +300,7 @@ Examples:
 -/
 def somethingElseAgain := ()
 
-
+/- Commented out for bootstrapping
 /--
 error: Unknown option `pp.alll`
 ---
@@ -308,13 +319,14 @@ Examples:
  * {option}`set_option pp.all "true"` to set it
 -/
 def somethingElseAgain' := ()
-
+-/
 
 /--
 {kw (cat := term)}`Type` {kw (of := termIfLet)}`if`
 -/
 def somethingElseAgain'' := ()
 
+/- Commented out for bootstrapping
 /--
 info:
 
@@ -326,7 +338,7 @@ Hint: Specify the syntax kind:
 {kw?}`Type`
 -/
 def somethingElseAgain''' := ()
-
+-/
 
 /--
 {syntaxCat}`term`

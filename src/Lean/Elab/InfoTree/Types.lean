@@ -207,6 +207,23 @@ the language server provide interactivity even when all overloaded elaborators f
 -/
 structure ChoiceInfo extends ElabInfo where
 
+inductive DocElabKind where
+  | role | codeBlock | directive | command
+deriving Repr
+
+/--
+Indicates that an extensible document elaborator was used here.
+-/
+structure DocElabInfo extends ElabInfo where
+  name : Name
+  kind : DocElabKind
+
+/--
+Indicates that a piece of syntax was elaborated as documentation.
+-/
+structure DocInfo extends ElabInfo where
+
+
 /-- Header information for a node in `InfoTree`. -/
 inductive Info where
   | ofTacticInfo (i : TacticInfo)
@@ -224,6 +241,8 @@ inductive Info where
   | ofFieldRedeclInfo (i : FieldRedeclInfo)
   | ofDelabTermInfo (i : DelabTermInfo)
   | ofChoiceInfo (i : ChoiceInfo)
+  | ofDocInfo (i : DocInfo)
+  | ofDocElabInfo (i : DocElabInfo)
   deriving Inhabited
 
 /-- The InfoTree is a structure that is generated during elaboration and used

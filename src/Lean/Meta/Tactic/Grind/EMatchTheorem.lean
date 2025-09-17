@@ -1502,7 +1502,11 @@ Remark: if `backward.grind.inferPattern` is `true`, then `.default false` is use
 The parameter `showInfo` is only taken into account when `backward.grind.inferPattern` is `true`.
 -/
 def addEMatchAttrAndSuggest (ref : Syntax) (declName : Name) (attrKind : AttributeKind) (prios : SymbolPriorities) (minIndexable : Bool) (showInfo : Bool) : MetaM Unit := do
-  if backward.grind.inferPattern.get (← getOptions) then
+  let info ← getConstInfo declName
+  if !wasOriginallyTheorem (← getEnv) declName && !info.isCtor && !info.isAxiom then
+    ensureNoMinIndexable minIndexable
+    addGrindEqAttr declName attrKind (.default false) (showInfo := showInfo)
+  else if backward.grind.inferPattern.get (← getOptions) then
     addEMatchAttr declName attrKind (.default false) prios (minIndexable := minIndexable) (showInfo := showInfo)
   else
     let tryModifier (thmKind : EMatchTheoremKind) (minIndexable : Bool) : SelectM Unit := do

@@ -17,9 +17,6 @@ public section
 * Attribute `@[hole_code_action]` collects code actions which will be called
   on each occurrence of a hole (`_`, `?_` or `sorry`).
 
-* Attribute `@[tactic_code_action]` collects code actions which will be called
-  on each occurrence of a tactic.
-
 * Attribute `@[command_code_action]` collects code actions which will be called
   on each occurrence of a command.
 -/

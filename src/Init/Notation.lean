@@ -643,7 +643,7 @@ applications of this function as `↑` when printing expressions.
 syntax (name := Attr.coe) "coe" : attr
 
 /--
-This attribute marks a code action, which is used to suggest new tactics or replace existing ones.
+This attribute marks a code action that triggers on specific commands.
 
 * `@[command_code_action kind]`: This is a code action which applies to applications of the command
   `kind` (a command syntax kind), which can replace the command or insert things before or after it.

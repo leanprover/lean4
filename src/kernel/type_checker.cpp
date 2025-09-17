@@ -391,7 +391,7 @@ expr type_checker::whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj) {
 /* Auxiliary method for `reduce_proj` */
 optional<expr> type_checker::reduce_proj_core(expr c, unsigned idx) {
     if (is_string_lit(c))
-        c = string_lit_to_constructor(c);
+        c = whnf(string_lit_to_constructor(c));
     buffer<expr> args;
     expr const & mk = get_app_args(c, args);
     if (!is_constant(mk))
@@ -1053,7 +1053,7 @@ static expr * g_string_mk = nullptr;
 
 lbool type_checker::try_string_lit_expansion_core(expr const & t, expr const & s) {
     if (is_string_lit(t) && is_app(s) && app_fn(s) == *g_string_mk) {
-        return to_lbool(is_def_eq_core(string_lit_to_constructor(t), s));
+        return to_lbool(is_def_eq_core(whnf(string_lit_to_constructor(t)), s));
     }
     return l_undef;
 }

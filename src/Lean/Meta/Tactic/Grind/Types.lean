@@ -140,8 +140,9 @@ instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (hashPtrExpr a.f) (hash a.numArgs)
 
 structure EMatchTheoremTrace where
-  origin : Origin
-  kind   : EMatchTheoremKind
+  origin       : Origin
+  kind         : EMatchTheoremKind
+  minIndexable : Bool
   deriving BEq, Hashable
 
 /--
@@ -293,7 +294,11 @@ private def incCounter [Hashable α] [BEq α] (s : PHashMap α Nat) (k : α) : P
 private def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
   if (← getConfig).trace then
     unless (← isMatchEqLikeDeclName thm.origin.key) do
-      modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
+      modify fun s => { s with trace.thms := s.trace.thms.insert {
+          origin := thm.origin
+          kind := thm.kind
+          minIndexable := thm.minIndexable
+      } }
   modify fun s => { s with counters.thm := incCounter s.counters.thm thm.origin }
 
 def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do

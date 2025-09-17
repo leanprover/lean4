@@ -285,7 +285,7 @@ def mkGrindOnly
     : MetaM (TSyntax `tactic) := do
   let mut params := #[]
   let mut foundFns : NameSet := {}
-  for { origin, kind } in trace.thms.toList do
+  for { origin, kind, minIndexable } in trace.thms.toList do
     if let .decl declName := origin then
       if let some declName ← isEqnThm? declName then
         unless foundFns.contains declName do

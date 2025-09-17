@@ -18,3 +18,14 @@
    "range":
    {"start": {"line": 30, "character": 4}, "end": {"line": 30, "character": 4}},
    "context": {"diagnostics": []}}}}
+resolve: a long-running action
+{"title": "a long-running action",
+ "kind": "refactor",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///codeaction.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 30, "character": 4},
+       "end": {"line": 30, "character": 4}},
+      "newText": "/home/marc/lean4/tests/lean/interactive"}]}]}}

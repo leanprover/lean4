@@ -34,7 +34,7 @@ because its `Decidable` instance
   Classical.propDecidable unknownProp
 did not reduce to `isTrue` or `isFalse`.
 
-After unfolding the instance `Classical.propDecidable`, reduction got stuck at the `Decidable` instance
+After unfolding the instance `Classical.propDecidable`, reduction got stuck at
   Classical.choice ⋯
 
 Hint: Reduction got stuck on `Classical.choice`, which indicates that a `Decidable` instance is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. The `decide` tactic works by evaluating a decision procedure via reduction, and it cannot make progress with such instances. This can occur due to the `open scoped Classical` command, which enables the instance `Classical.propDecidable`.
@@ -66,7 +66,7 @@ because its `Decidable` instance
   instDecidableNice
 did not reduce to `isTrue` or `isFalse`.
 
-After unfolding the instances `baz` and `instDecidableNice`, reduction got stuck at the `Decidable` instance
+After unfolding the instances `baz` and `instDecidableNice`, reduction got stuck at
   ⋯ ▸ inferInstance
 
 Hint: Reduction got stuck on `▸` (Eq.rec), which suggests that one of the `Decidable` instances is defined using tactics such as `rw` or `simp`. To avoid tactics, make use of functions such as `inferInstanceAs` or `decidable_of_decidable_of_iff` to alter a proposition.
@@ -86,7 +86,7 @@ because its `Decidable` instance
   instDecidableNot
 did not reduce to `isTrue` or `isFalse`.
 
-After unfolding the instances `baz`, `instDecidableNice`, and `instDecidableNot`, reduction got stuck at the `Decidable` instance
+After unfolding the instances `baz`, `instDecidableNice`, and `instDecidableNot`, reduction got stuck at
   ⋯ ▸ inferInstance
 
 Hint: Reduction got stuck on `▸` (Eq.rec), which suggests that one of the `Decidable` instances is defined using tactics such as `rw` or `simp`. To avoid tactics, make use of functions such as `inferInstanceAs` or `decidable_of_decidable_of_iff` to alter a proposition.

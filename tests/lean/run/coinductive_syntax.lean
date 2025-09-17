@@ -130,8 +130,16 @@ info: Bar.coinduct (pred : Set) (hyp : ∀ (a : Nat), pred a → a = 42) (a✝ :
 coinductive dependentTest : (n : Nat) → (Vector α n) → Prop  where
   | mk (x : α) : dependentTest m v → dependentTest (m+1) (v.push x)
 
-coinductive dependentTest2 : (n : Nat) → (m : Nat) → (Vector α (m + n))  → Prop  where
-  | mk (x : α) : dependentTest2 0 n v → dependentTest2 0 (n + 1) (v.push x)
+/-
+  Duplicated parameters and dependent types
+-/
+coinductive dependentTest2 : (n : Nat) → (m : Nat) → (Vector α (m + n)) → (Vector α (m + n)) → Prop  where
+  | mk (x : α) : dependentTest2 0 n v v → dependentTest2 0 (n + 1) (v.push x) (v.push x)
+/-
+  Even more complicated dependent test
+-/
+coinductive dependentTest3 : (α : Type) → (ls : List α) → (vec : Vector α ls.length) → (Vector α vec.size) → Prop where
+  | mk : dependentTest3 Nat [a] (Vector.singleton a) (Vector.singleton a)
 
 /--
 info: dependentTest.coinduct.{u_1} {α : Type u_1} (pred : (n : Nat) → Vector α n → Prop)

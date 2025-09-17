@@ -90,7 +90,7 @@ def analyzeEMatchTheorems (c : Config := {}) : MetaM Unit := do
 
 /-- Macro for analyzing E-match theorems with unlimited heartbeats -/
 macro "#analyzeEMatchTheorems" : command => `(
-  set_option maxHeartbeats 0 in
+  -- set_option maxHeartbeats 2_000_000 in
   run_meta analyzeEMatchTheorems
 )
 
@@ -101,32 +101,50 @@ set_option trace.grind.ematch.instance true
 
 -- 1. grind immediately sees `(#[] : Array α) = ([] : List α).toArray` but probably this should be hidden.
 -- 2. `Vector.toArray_empty` keys on `Array.mk []` rather than `#v[].toArray`
--- I guess we could add `(#[].extract _ _).extract _ _` as a stop pattern.
+-- I guess we could add `(#[].extract _ _).extract _ _` as a global stop pattern,
+-- or add `#[].extract _ _` as a forbidden subterm for `Array.extract_extract`.
 run_meta analyzeEMatchTheorem ``Array.extract_empty {}
 
--- Neither `Option.bind_some` nor `Option.bind_fun_some` fire, because the terms appear inside
--- lambdas. So we get crazy things like:
--- `fun x => ((some x).bind some).bind fun x => (some x).bind fun x => (some x).bind some`
--- We could consider replacing `filterMap_some` with
--- `filterMap g (filterMap f xs) = filterMap (f >=> g) xs`
--- to avoid the lambda that `grind` struggles with, but this would require more API around the fish.
+-- * Neither `Option.bind_some` nor `Option.bind_fun_some` fire, because the terms appear inside
+--   lambdas. So we get crazy things like:
+--   `fun x => ((some x).bind some).bind fun x => (some x).bind fun x => (some x).bind some`
+-- * We could consider replacing `filterMap_filterMap` with
+--   `filterMap g (filterMap f xs) = filterMap (f >=> g) xs`
+--   to avoid the lambda that `grind` struggles with, but this would require more API around the fish.
+-- * Alternatively, we could investigating splitting equivalence classes into "active" and "passive"
+--   buckets, and e.g. when instantianting `filterMap_some`,
+--   leave `Array.filterMap some xs` in the "passive" bucket.
+--   We would use this for merging classes, but not instantiating.
 run_meta analyzeEMatchTheorem ``Array.filterMap_some {}
 
--- Not entirely certain what is wrong here, but certainly
--- `eq_empty_of_append_eq_empty` is firing too often.
--- Ideally we could instantiate this is we fine `xs ++ ys` in the same equivalence class,
--- note just as soon as we see `xs ++ ys`.
--- I've tried removing this in https://github.com/leanprover/lean4/pull/10162
+-- * It seems crazy to me that as soon as we have `0 >>> n = 0`, we instantiate based on the
+--   pattern `0 >>> n >>> m` by substituting `0` into `0 >>> n` to produce the `0 >>> n >>> n`.
+-- * We should add `0 >>> n` as a forbidden subterm for `Int.shiftRight_add`.
+run_meta analyzeEMatchTheorem ``Int.zero_shiftRight {}
+
+-- * Perhaps forbidding `List.map (f ∘ g) (List.map (h ∘ k) l)` would prevent the explosion here?
+--   But that also blocks some proofs.
+run_meta analyzeEMatchTheorem ``List.attach_reverse {}
+
+-- * `eq_empty_of_append_eq_empty` was firing too often, before being removed in https://github.com/leanprover/lean4/pull/10162
+--   Ideally we could instantiate this if we find `xs ++ ys` and `[]` in the same equivalence class,
+--   not just as soon as we see `xs ++ ys`.
+-- * `eq_nil_of_map_eq_nil` is similar.
+-- * ban all the variants of `#[] ++ (_ ++ _)` for `Array.append_assoc`?
 run_meta analyzeEMatchTheorem ``Array.range'_succ {}
 
--- Perhaps the same story here.
+-- * also ban `a :: ([] ++ l)` etc for `List.cons_append`
+-- * just ban `[] ++ l` for *everything* except `List.nil_append`?
+--   effectively, just add this as a normalization rule?
 run_meta analyzeEMatchTheorem ``Array.range_succ {}
 
--- `zip_map_left` and `zip_map_right` are bad grind lemmas,
--- checking if they can be removed in https://github.com/leanprover/lean4/pull/10163
-run_meta analyzeEMatchTheorem ``Array.zip_map {}
+-- * forbid `modifyHead f (modifyHead g [])`
+run_meta analyzeEMatchTheorem ``List.eraseIdx_modifyHead_zero {}
 
--- It seems crazy to me that as soon as we have `0 >>> n = 0`, we instantiate based on the
--- pattern `0 >>> n >>> m` by substituting `0` into `0 >>> n` to produce the `0 >>> n >>> n`.
--- I don't think any forbidden subterms can help us here. I don't know what to do. :-(
-run_meta analyzeEMatchTheorem ``Int.zero_shiftRight {}
+-- * forbid `(List.flatMap (List.reverse ∘ f) l).reverse` for `reverse_flatMap`
+-- * forbid `List.flatMap (List.reverse ∘ f) l.reverse` for `flatMap_reverse`
+run_meta analyzeEMatchTheorem ``List.flatMap_reverse {}
+
+-- * forbid `List.countP p (List.filter p l)` for `countP_eq_length_filter`
+-- * this one is just crazy; so over-eager instantiation of unhelpful lemmas
+run_meta analyzeEMatchTheorem ``List.getLast_filter {}

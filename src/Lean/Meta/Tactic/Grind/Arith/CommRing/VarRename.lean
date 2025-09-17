@@ -55,23 +55,3 @@ public def Expr.collectVars (e : Expr) : VarCollector :=
   | .add a b | .sub a b | .mul a b => a.collectVars >> b.collectVars
 
 end Lean.Grind.CommRing
-
-namespace Lean.Grind.Ring.OfSemiring
-open Lean.Meta.Grind
-
-public def Expr.renameVars (e : Expr) (f : VarRename) : Expr :=
-  match e with
-  | .num .. => e
-  | .var x => .var (f x)
-  | .add a b => .add (renameVars a f) (renameVars b f)
-  | .mul a b => .mul (renameVars a f) (renameVars b f)
-  | .pow a k => .pow (renameVars a f) k
-
-public def Expr.collectVars (e : Expr) : VarCollector :=
-  match e with
-  | .num .. => id
-  | .var x => collectVar x
-  | .pow a _ => a.collectVars
-  | .add a b | .mul a b => a.collectVars >> b.collectVars
-
-end Lean.Grind.Ring.OfSemiring

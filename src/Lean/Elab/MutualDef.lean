@@ -1189,7 +1189,10 @@ where
     let tacPromises ← views.mapM fun _ => IO.Promise.new
     let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
       Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
-    withExporting (isExporting := !expandedDeclIds.all (isPrivateName ·.declName)) do
+    withExporting (isExporting :=
+      -- `example`s are always private unless explicitly marked `public`
+      views.any (fun view => view.kind != .example || view.modifiers.isPublic) &&
+      expandedDeclIds.any (!isPrivateName ·.declName)) do
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
@@ -1278,7 +1281,7 @@ where
     }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
+  finishElab headers := withFunLocalDecls headers fun funFVars => do
     let env ← getEnv
     if warn.exposeOnPrivate.get (← getOptions) then
       if env.header.isModule && !env.isExporting then
@@ -1288,15 +1291,13 @@ where
               logWarningAt attr.stx m!"Redundant `[expose]` attribute, it is meaningful on public \
                 definitions only"
 
-    withExporting (isExporting :=
-      headers.any (fun header =>
-        header.modifiers.isInferredPublic env &&
-        !header.modifiers.isMeta &&
-        !header.modifiers.attrs.any (·.name == `no_expose)) &&
-      (isExporting ||
-       headers.all (fun header => (header.kind matches .abbrev | .instance)) ||
-       (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||
-       headers.any (·.modifiers.attrs.any (·.name == `expose)))) do
+    withoutExporting (when :=
+      headers.all (fun header =>
+        header.modifiers.isMeta ||
+        header.modifiers.attrs.any (·.name == `no_expose) ||
+        (!(header.kind == .def && sc.attrs.any (· matches `(attrInstance| expose))) &&
+         !header.modifiers.attrs.any (·.name == `expose) &&
+         !header.kind matches .abbrev | .instance))) do
     let headers := headers.map fun header =>
       { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
     let values ← try

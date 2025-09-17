@@ -90,18 +90,23 @@ structure Context where
   auxFunNames : Array Name
   usePartial  : Bool
 
+/--
+Anticipates the default instance name for a derived instance.
+-/
+def mkInstName (className indName : Name) : TermElabM Name := do
+  let indVal ← getConstInfoInduct indName
+  let argNames     ← mkInductArgNames indVal
+  let binders      ← mkImplicitBinders argNames
+  let indType      ← mkInductiveApp indVal argNames
+  let type         ← `($(mkCIdent className) $indType)
+  NameGen.mkBaseNameWithSuffix' "inst" (binders.map (·.raw)) type
 
-def mkContext (className : Name) (fnPrefix : String) (typeName : Name) : TermElabM Context := do
+def mkContext (className : Name) (fnPrefix : String) (typeName : Name) (supportsRec := true ): TermElabM Context := do
   let indVal ← getConstInfoInduct typeName
   let mut typeInfos := #[]
   for typeName in indVal.all do
     typeInfos := typeInfos.push (← getConstInfoInduct typeName)
-  let instName ← do -- anticipate the instance name
-    let argNames     ← mkInductArgNames indVal
-    let binders      ← mkImplicitBinders argNames
-    let indType      ← mkInductiveApp indVal argNames
-    let type         ← `($(mkCIdent className) $indType)
-    NameGen.mkBaseNameWithSuffix' "inst" (binders.map (·.raw)) type
+  let instName ← mkInstName className typeName
   let mut auxFunNames := #[]
   if indVal.all.length = 1 then
     auxFunNames := auxFunNames.push (instName ++ .mkSimple fnPrefix)
@@ -109,7 +114,7 @@ def mkContext (className : Name) (fnPrefix : String) (typeName : Name) : TermEla
     for i in [:indVal.all.length] do
       auxFunNames := auxFunNames.push (instName ++ .mkSimple s!"{fnPrefix}_{i+1}")
   trace[Elab.Deriving] "instName: {instName} auxFunNames: {auxFunNames}"
-  let usePartial := indVal.isNested || typeInfos.size > 1
+  let usePartial := indVal.isNested || typeInfos.size > 1 || (indVal.isRec && !supportsRec)
   return {
     instName    := instName
     typeInfos   := typeInfos

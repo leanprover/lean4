@@ -43,6 +43,20 @@ public theorem t : f = 1 := testSorry
 /-- A private definition. -/
 def fpriv := 1
 
+public section
+/-- Examples are always private. -/
+example : fpriv = 1 := rfl
+
+/--
+error: Unknown identifier `fpriv`
+
+Note: A private declaration `fpriv` (from the current module) exists but would need to be public to access here.
+-/
+#guard_msgs in
+/-- ...unless explicitly marked `public`. -/
+public example : fpriv = 1 := rfl
+end
+
 /--
 error: Unknown identifier `fpriv`
 
@@ -55,6 +69,7 @@ public class X
 
 /-- A local instance of a public class. -/
 instance : X := ⟨⟩
+
 
 -- Check that the theorem types are checked in exported context, where `f` is not defeq to `1`
 -- (but `fexp` is)

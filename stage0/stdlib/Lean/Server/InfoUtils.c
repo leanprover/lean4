@@ -12206,7 +12206,7 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___Lean_Elab_InfoTree_termGoalAt_x3f_spec__1___lam__1(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-uint8_t x_8; uint8_t x_9; lean_object* x_10; uint8_t x_11; uint8_t x_17; uint8_t x_18; uint8_t x_19; lean_object* x_20; uint8_t x_21; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+uint8_t x_8; uint8_t x_9; lean_object* x_10; uint8_t x_11; uint8_t x_17; uint8_t x_18; lean_object* x_19; uint8_t x_20; uint8_t x_21; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_23 = l_Lean_Elab_InfoTree_hoverableInfoAtM_x3f___redArg___lam__9___closed__0;
 x_24 = l_List_filterMapTR_go___at___Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___Lean_Elab_InfoTree_termGoalAt_x3f_spec__1_spec__1(x_7, x_23);
 lean_inc_ref(x_6);
@@ -12315,29 +12315,29 @@ x_42 = lean_ctor_get(x_5, 0);
 x_43 = lean_ctor_get(x_42, 3);
 if (lean_obj_tag(x_43) == 1)
 {
-x_17 = x_32;
+x_17 = x_33;
 x_18 = x_40;
-x_19 = x_33;
-x_20 = x_41;
+x_19 = x_41;
+x_20 = x_32;
 x_21 = x_33;
 goto block_22;
 }
 else
 {
-x_17 = x_32;
+x_17 = x_33;
 x_18 = x_40;
-x_19 = x_33;
-x_20 = x_41;
+x_19 = x_41;
+x_20 = x_32;
 x_21 = x_32;
 goto block_22;
 }
 }
 else
 {
-x_17 = x_32;
+x_17 = x_33;
 x_18 = x_40;
-x_19 = x_33;
-x_20 = x_41;
+x_19 = x_41;
+x_20 = x_32;
 x_21 = x_32;
 goto block_22;
 }
@@ -12439,16 +12439,16 @@ if (lean_obj_tag(x_5) == 2)
 {
 x_8 = x_21;
 x_9 = x_18;
-x_10 = x_20;
-x_11 = x_19;
+x_10 = x_19;
+x_11 = x_17;
 goto block_16;
 }
 else
 {
 x_8 = x_21;
 x_9 = x_18;
-x_10 = x_20;
-x_11 = x_17;
+x_10 = x_19;
+x_11 = x_20;
 goto block_16;
 }
 }

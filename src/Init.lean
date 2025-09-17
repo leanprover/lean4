@@ -45,3 +45,5 @@ public import Init.Try
 public meta import Init.Try  -- make sure `Try.Config` can be evaluated anywhere
 public import Init.BinderNameHint
 public import Init.Task
+public import Init.MethodSpecsSimp
+public import Init.LawfulBEqTactics

@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l_Lean_Doc_instImpl___closed__0____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_checkPostponed___closed__8;
 LEAN_EXPORT uint8_t l_Lean_Option_get___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_ofExcept___at___Lean_evalConstCheck___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_getHandlerUnsafe_spec__0_spec__0_spec__0_spec__1_spec__1(lean_object*, lean_object*);
@@ -50,6 +51,7 @@ LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_ofExcept___at___Lean_evalConstCheck___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_getHandlerUnsafe_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Doc_instImpl____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_;
 LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_ofExcept___at___Lean_evalConstCheck___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_getHandlerUnsafe_spec__0_spec__0_spec__0_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_checkPostponed___closed__5;
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
@@ -74,6 +76,7 @@ LEAN_EXPORT lean_object* l_Lean_log___at___Lean_logInfo___at___Lean_Doc_checkPos
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logInfo___at___Lean_Doc_checkPostponed_spec__5_spec__5_spec__5___redArg___lam__0___closed__1;
 static lean_object* l_Lean_Doc_instReprPostponedImport_repr___redArg___closed__7;
 lean_object* l_Lean_stringToMessageData(lean_object*);
+static lean_object* l_Lean_Doc_instImpl___closed__1____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Doc_checkPostponed_spec__0_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_Stats_total___boxed(lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Doc_checkPostponed_spec__3_spec__3___closed__3;
@@ -83,6 +86,7 @@ lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_checkPartPostponed___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Exception_toMessageData(lean_object*);
 static lean_object* l_Lean_Doc_checkPostponed___closed__9;
+LEAN_EXPORT lean_object* l_Lean_Doc_PostponedName_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logInfo___at___Lean_Doc_checkPostponed_spec__5_spec__5_spec__5___redArg___lam__0___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_checkInlinePostponed_spec__3___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_ofExcept___at___Lean_evalConstCheck___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_getHandlerUnsafe_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -135,6 +139,7 @@ static lean_object* l_Lean_Doc_checkPostponed___closed__7;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Doc_checkPostponed_spec__3_spec__3___closed__1;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_instReprPostponedImport_repr___redArg___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Doc_instTypeNamePostponedKind;
 lean_object* l_Array_Array_repr___redArg(lean_object*, lean_object*);
 uint8_t l_Lean_MessageData_hasTag(lean_object*, lean_object*);
 static lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_ofExcept___at___Lean_evalConstCheck___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_getHandlerUnsafe_spec__0_spec__0_spec__0_spec__1_spec__2___closed__0;
@@ -142,10 +147,13 @@ LEAN_EXPORT lean_object* l_Lean_Doc_instReprPostponedImport_repr___boxed(lean_ob
 static lean_object* l_Lean_Doc_checkPostponed___closed__10;
 static lean_object* l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_getHandlerUnsafe___closed__0;
 static lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_ofExcept___at___Lean_evalConstCheck___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_getHandlerUnsafe_spec__0_spec__0_spec__0_spec__1___redArg___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Doc_instTypeNamePostponedName;
 lean_object* l_Lean_instToExprName___private__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_PostponedImport_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_contains___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_checkInlinePostponed_spec__1___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Doc_instImpl___closed__1____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_checkInlinePostponed_spec__4___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Doc_instImpl____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Array_contains___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_checkInlinePostponed_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_instReprPostponedImport___closed__0;
 static lean_object* l_Lean_Doc_instReprPostponedImport_repr___redArg___closed__0;
@@ -153,6 +161,7 @@ LEAN_EXPORT lean_object* l_Lean_Doc_instReprPostponedImport_repr(lean_object*, l
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logInfo___at___Lean_Doc_checkPostponed_spec__5_spec__5_spec__5___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_instBEqPostponedImport___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Doc_PostponedKind_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_evalConstCheck___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_getHandlerUnsafe_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_warningAsError;
 extern lean_object* l_Lean_Elab_pp_macroStack;
@@ -180,6 +189,7 @@ LEAN_EXPORT lean_object* l_Lean_Doc_instReprPostponedImport;
 static lean_object* l_Lean_Doc_instImpl___closed__1____x40_Lean_Elab_DocString_Builtin_Postponed_1250074310____hygCtx___hyg_32_;
 static lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_ofExcept___at___Lean_evalConstCheck___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_getHandlerUnsafe_spec__0_spec__0_spec__0_spec__1___redArg___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_checkBlockPostponed_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Doc_instImpl___closed__0____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_;
 LEAN_EXPORT lean_object* l_Lean_Doc_PostponedCheck_ctorIdx___boxed(lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_checkInlinePostponed_spec__4_spec__4___closed__5;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Doc_checkPostponed_spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -190,6 +200,7 @@ static lean_object* l_Lean_Doc_checkPostponed___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_Stats_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Doc_instOrdPostponedImport___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_instHashablePostponedImport___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Doc_PostponedName_ctorIdx(lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 extern lean_object* l_Lean_versoDocStringExt;
 LEAN_EXPORT lean_object* l_Lean_evalConstCheck___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_getHandlerUnsafe_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -220,6 +231,7 @@ static lean_object* l_Lean_Doc_checkPostponed___closed__11;
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logInfo___at___Lean_Doc_checkPostponed_spec__5_spec__5_spec__5___redArg___lam__0___closed__4;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___Lean_Doc_checkPostponed_spec__9(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_ofExcept___at___Lean_evalConstCheck___at_____private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_getHandlerUnsafe_spec__0_spec__0_spec__0_spec__1_spec__2___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Doc_PostponedKind_ctorIdx(lean_object*);
 static lean_object* l_Lean_Doc_instReprPostponedImport_repr___redArg___closed__8;
 static lean_object* l_Lean_Doc_instReprPostponedImport_repr___redArg___closed__1;
 LEAN_EXPORT uint64_t l_Lean_Doc_instHashablePostponedImport_hash(lean_object*);
@@ -7030,6 +7042,110 @@ lean_dec_ref(x_1);
 return x_14;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Doc_PostponedKind_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Doc_PostponedKind_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Doc_PostponedKind_ctorIdx(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Doc_instImpl___closed__0____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("PostponedKind", 13, 13);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Doc_instImpl___closed__1____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Doc_instImpl___closed__0____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_;
+x_2 = l_Lean_Doc_instToExprPostponedImport___lam__0___closed__1;
+x_3 = l_Lean_Doc_instToExprPostponedImport___lam__0___closed__0;
+x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Doc_instImpl____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Doc_instImpl___closed__1____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Doc_instTypeNamePostponedKind() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Doc_instImpl____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_;
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Doc_PostponedName_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Doc_PostponedName_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Doc_PostponedName_ctorIdx(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Doc_instImpl___closed__0____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("PostponedName", 13, 13);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Doc_instImpl___closed__1____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Doc_instImpl___closed__0____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_;
+x_2 = l_Lean_Doc_instToExprPostponedImport___lam__0___closed__1;
+x_3 = l_Lean_Doc_instToExprPostponedImport___lam__0___closed__0;
+x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Doc_instImpl____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Doc_instImpl___closed__1____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Doc_instTypeNamePostponedName() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Doc_instImpl____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_;
+return x_1;
+}
+}
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ToExpr(uint8_t builtin, lean_object*);
@@ -7230,6 +7346,22 @@ l_Lean_Doc_checkPostponed___closed__13 = _init_l_Lean_Doc_checkPostponed___close
 lean_mark_persistent(l_Lean_Doc_checkPostponed___closed__13);
 l_Lean_Doc_checkPostponed___closed__14 = _init_l_Lean_Doc_checkPostponed___closed__14();
 lean_mark_persistent(l_Lean_Doc_checkPostponed___closed__14);
+l_Lean_Doc_instImpl___closed__0____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_ = _init_l_Lean_Doc_instImpl___closed__0____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_();
+lean_mark_persistent(l_Lean_Doc_instImpl___closed__0____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_);
+l_Lean_Doc_instImpl___closed__1____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_ = _init_l_Lean_Doc_instImpl___closed__1____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_();
+lean_mark_persistent(l_Lean_Doc_instImpl___closed__1____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_);
+l_Lean_Doc_instImpl____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_ = _init_l_Lean_Doc_instImpl____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_();
+lean_mark_persistent(l_Lean_Doc_instImpl____x40_Lean_Elab_DocString_Builtin_Postponed_1858815893____hygCtx___hyg_15_);
+l_Lean_Doc_instTypeNamePostponedKind = _init_l_Lean_Doc_instTypeNamePostponedKind();
+lean_mark_persistent(l_Lean_Doc_instTypeNamePostponedKind);
+l_Lean_Doc_instImpl___closed__0____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_ = _init_l_Lean_Doc_instImpl___closed__0____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_();
+lean_mark_persistent(l_Lean_Doc_instImpl___closed__0____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_);
+l_Lean_Doc_instImpl___closed__1____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_ = _init_l_Lean_Doc_instImpl___closed__1____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_();
+lean_mark_persistent(l_Lean_Doc_instImpl___closed__1____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_);
+l_Lean_Doc_instImpl____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_ = _init_l_Lean_Doc_instImpl____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_();
+lean_mark_persistent(l_Lean_Doc_instImpl____x40_Lean_Elab_DocString_Builtin_Postponed_1706582166____hygCtx___hyg_15_);
+l_Lean_Doc_instTypeNamePostponedName = _init_l_Lean_Doc_instTypeNamePostponedName();
+lean_mark_persistent(l_Lean_Doc_instTypeNamePostponedName);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

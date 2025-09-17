@@ -45,7 +45,7 @@ where
         let pattern ← instantiateMVars pattern
         let pattern ← Grind.preprocessPattern pattern
         return pattern.abstract xs
-      Grind.addEMatchTheorem declName xs.size patterns.toList .user kind
+      Grind.addEMatchTheorem declName xs.size patterns.toList .user kind (minIndexable := false)
 
 open Command in
 @[builtin_command_elab Lean.Parser.resetGrindAttrs]

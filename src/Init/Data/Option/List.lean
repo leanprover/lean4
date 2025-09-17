@@ -43,7 +43,7 @@ namespace Option
     o.toList.foldr f a = o.elim a (fun b => f b a) := by
   cases o <;> simp
 
-@[simp, grind]
+@[simp, grind ←]
 theorem pairwise_toList {P : α → α → Prop} {o : Option α} : o.toList.Pairwise P := by
   cases o <;> simp
 

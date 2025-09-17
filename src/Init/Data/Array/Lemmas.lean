@@ -1474,7 +1474,7 @@ theorem forall_mem_filter {p : α → Bool} {xs : Array α} {P : α → Prop} :
     (∀ (i) (_ : i ∈ xs.filter p), P i) ↔ ∀ (j) (_ : j ∈ xs), p j → P j := by
   simp
 
-@[grind] theorem getElem_filter {xs : Array α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).size) :
+@[grind ←] theorem getElem_filter {xs : Array α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).size) :
     p (xs.filter p)[i] :=
   (mem_filter.mp (getElem_mem h)).2
 
@@ -3251,7 +3251,7 @@ rather than `(arr.push a).size` as the argument.
   simp [← foldrM_push, h]
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem _root_.List.foldrM_push_eq_append [Monad m] [LawfulMonad m] {l : List α} {f : α → m β} {xs : Array β} :
+@[simp, grind! ←] theorem _root_.List.foldrM_push_eq_append [Monad m] [LawfulMonad m] {l : List α} {f : α → m β} {xs : Array β} :
     l.foldrM (fun x xs => xs.push <$> f x) xs = do return xs ++ (← l.reverse.mapM f).toArray := by
   induction l with
   | nil => simp
@@ -3264,7 +3264,7 @@ rather than `(arr.push a).size` as the argument.
     simp
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem _root_.List.foldlM_push_eq_append [Monad m] [LawfulMonad m] {l : List α} {f : α → m β} {xs : Array β} :
+@[simp, grind! ←] theorem _root_.List.foldlM_push_eq_append [Monad m] [LawfulMonad m] {l : List α} {f : α → m β} {xs : Array β} :
     l.foldlM (fun xs x => xs.push <$> f x) xs = do return xs ++ (← l.mapM f).toArray := by
   induction l generalizing xs <;> simp [*]
 
@@ -3338,7 +3338,7 @@ rather than `(arr.push a).size` as the argument.
   foldrM_push' h
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem foldl_push_eq_append {as : Array α} {bs : Array β} {f : α → β} (w : stop = as.size) :
+@[simp, grind! ←] theorem foldl_push_eq_append {as : Array α} {bs : Array β} {f : α → β} (w : stop = as.size) :
     as.foldl (fun acc a => acc.push (f a)) bs 0 stop = bs ++ as.map f := by
   subst w
   rcases as with ⟨as⟩
@@ -3347,14 +3347,14 @@ rather than `(arr.push a).size` as the argument.
   induction as generalizing bs <;> simp [*]
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem foldl_cons_eq_append {as : Array α} {bs : List β} {f : α → β} (w : stop = as.size) :
+@[simp, grind! ←] theorem foldl_cons_eq_append {as : Array α} {bs : List β} {f : α → β} (w : stop = as.size) :
     as.foldl (fun acc a => (f a) :: acc) bs 0 stop = (as.map f).reverse.toList ++ bs := by
   subst w
   rcases as with ⟨as⟩
   simp
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem foldr_cons_eq_append {as : Array α} {bs : List β} {f : α → β} (w : start = as.size) :
+@[simp, grind! ←] theorem foldr_cons_eq_append {as : Array α} {bs : List β} {f : α → β} (w : start = as.size) :
     as.foldr (fun a acc => (f a) :: acc) bs start 0 = (as.map f).toList ++ bs := by
   subst w
   rcases as with ⟨as⟩
@@ -3368,7 +3368,7 @@ rather than `(arr.push a).size` as the argument.
   simp
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem _root_.List.foldr_push_eq_append {l : List α} {f : α → β} {xs : Array β} :
+@[simp, grind! ←] theorem _root_.List.foldr_push_eq_append {l : List α} {f : α → β} {xs : Array β} :
     l.foldr (fun x xs => xs.push (f x)) xs = xs ++ (l.reverse.map f).toArray := by
   induction l <;> simp [*]
 
@@ -3378,7 +3378,7 @@ rather than `(arr.push a).size` as the argument.
   induction l <;> simp [*]
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem _root_.List.foldl_push_eq_append {l : List α} {f : α → β} {xs : Array β} :
+@[simp, grind! ←] theorem _root_.List.foldl_push_eq_append {l : List α} {f : α → β} {xs : Array β} :
     l.foldl (fun xs x => xs.push (f x)) xs = xs ++ (l.map f).toArray := by
   induction l generalizing xs <;> simp [*]
 
@@ -3396,28 +3396,28 @@ theorem _root_.List.foldr_push {l : List α} {as : Array α} : l.foldr (fun a bs
   rw [List.foldr_eq_foldl_reverse, List.foldl_push_eq_append']
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem foldr_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
+@[simp, grind! ←] theorem foldr_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
     xs.foldr (f · ++ ·) ys = (xs.map f).flatten ++ ys := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   induction xs <;> simp_all [Function.comp_def, flatten_toArray]
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem foldl_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
+@[simp, grind! ←] theorem foldl_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
     xs.foldl (· ++ f ·) ys = ys ++ (xs.map f).flatten := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   induction xs generalizing ys <;> simp_all [Function.comp_def, flatten_toArray]
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem foldr_flip_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
+@[simp, grind! ←] theorem foldr_flip_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
     xs.foldr (fun x acc => acc ++ f x) ys = ys ++ (xs.map f).reverse.flatten := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   induction xs generalizing ys <;> simp_all [Function.comp_def, flatten_toArray]
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem foldl_flip_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
+@[simp, grind! ←] theorem foldl_flip_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
     xs.foldl (fun acc y => f y ++ acc) ys = (xs.map f).reverse.flatten ++ ys:= by
   rcases xs with ⟨l⟩
   rcases ys with ⟨l'⟩

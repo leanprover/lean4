@@ -167,7 +167,7 @@ theorem attachWith_map_subtype_val {p : α → Prop} {l : List α} (H : ∀ a �
     (l.attachWith p H).map Subtype.val = l :=
   (attachWith_map_val _).trans (List.map_id _)
 
-@[simp, grind]
+@[simp, grind ←]
 theorem mem_attach (l : List α) : ∀ x, x ∈ l.attach
   | ⟨a, h⟩ => by
     have := mem_map.1 (by rw [attach_map_subtype_val]; exact h)

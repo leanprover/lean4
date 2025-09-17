@@ -123,3 +123,65 @@ error: Unknown constant `foo.eq_def`
 -/
 #guard_msgs(pass trace, all) in
 #print sig foo.eq_def
+
+
+noncomputable def nondep (x x' : I n) : Bool :=
+ if h : P x then
+ match (generalizing := false) x, x', id h with --NB: non-FVar discr
+ | .cons a_2, .cons a_2', _ => nondep a_2 a_2'
+ else false
+termination_by structural x
+
+/--
+error: Failed to realize constant nondep.eq_def:
+  failed to generate equational theorem for `nondep`
+  case h_1
+  n_1 : Nat
+  a : I n_1
+  x' : I (n_1 + 1)
+  h✝ x✝ : P a.cons
+  n : Nat
+  x : I n
+  x'_1 : I n
+  x_1 : P x
+  n_2 : Nat
+  a_2 : I n_2
+  a_2' : I n_2
+  x_2 : P a_2.cons
+  heq✝³ : n_1 + 1 = n_2 + 1
+  heq✝² : a.cons ≍ a_2.cons
+  heq✝¹ : x' ≍ a_2'.cons
+  heq✝ : x✝ ≍ x_2
+  ⊢ (match (motive := (n : Nat) → (x : I n) → I n → P x → I.rec (fun {n} a a_ih => (I n → Bool) ×' a_ih) x → Bool)
+          n_1 + 1, a.cons, x', x✝ with
+        | .(n + 1), a_2.cons, a_2'.cons, x => fun x => x.1 a_2')
+        (I.rec
+          (fun {n} a a_ih =>
+            ⟨fun x' =>
+              if h : P a.cons then
+                (match (motive :=
+                    (n : Nat) → (x : I n) → I n → P x → I.rec (fun {n} a a_ih => (I n → Bool) ×' a_ih) x → Bool) n + 1,
+                    a.cons, x', ⋯ with
+                  | .(n + 1), a_2.cons, a_2'.cons, x => fun x => x.1 a_2')
+                  a_ih
+              else false,
+              a_ih⟩)
+          a) =
+      (I.rec
+            (fun {n} a a_ih =>
+              ⟨fun x' =>
+                if h : P a.cons then
+                  (match (motive :=
+                      (n : Nat) → (x : I n) → I n → P x → I.rec (fun {n} a a_ih => (I n → Bool) ×' a_ih) x → Bool)
+                      n + 1, a.cons, x', ⋯ with
+                    | .(n + 1), a_2.cons, a_2'.cons, x => fun x => x.1 a_2')
+                    a_ih
+                else false,
+                a_ih⟩)
+            a_2).1
+        a_2'
+---
+error: Unknown constant `nondep.eq_def`
+-/
+#guard_msgs in
+#print sig nondep.eq_def

@@ -30,6 +30,7 @@ static lean_object* l_tacticDeriving__LawfulEq__tactic__step___closed__2;
 static lean_object* l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__27;
 static lean_object* l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__18;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__4;
+static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__7;
 static lean_object* l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__2;
 static lean_object* l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__60;
 static lean_object* l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__42;
@@ -76,6 +77,7 @@ static lean_object* l_tacticDeriving__LawfulEq__tactic__step___closed__1;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__44;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__66;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__59;
+static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__6;
 static lean_object* l_DerivingHelpers_tacticDeriving__ReflEq__tactic___closed__4;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__1(lean_object*, lean_object*, lean_object*);
@@ -106,6 +108,7 @@ static lean_object* l_tacticDeriving__LawfulEq__tactic___closed__0;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__6;
 LEAN_EXPORT lean_object* l_DerivingHelpers_tacticDeriving__ReflEq__tactic;
+static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__8;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__65;
 static lean_object* l_DerivingHelpers_tacticDeriving__ReflEq__tactic___closed__3;
 static lean_object* l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__58;
@@ -176,6 +179,7 @@ static lean_object* l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRu
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__55;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__26;
+static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__77;
 static lean_object* l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__16;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__10;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__0;
@@ -190,6 +194,7 @@ static lean_object* l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRu
 static lean_object* l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__5;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__14;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__5;
+static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__76;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__75;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__48;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__39;
@@ -200,6 +205,7 @@ static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriv
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__1___closed__2;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__1;
 static lean_object* l_DerivingHelpers_tacticDeriving__ReflEq__tactic___closed__2;
+static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__78;
 static lean_object* l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__25;
 static lean_object* l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__18;
 static lean_object* l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__57;
@@ -1294,7 +1300,7 @@ static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("change", 6, 6);
+x_1 = lean_mk_string_unchecked("withReducible", 13, 13);
 return x_1;
 }
 }
@@ -1314,7 +1320,7 @@ static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Term", 4, 4);
+x_1 = lean_mk_string_unchecked("with_reducible", 14, 14);
 return x_1;
 }
 }
@@ -1322,7 +1328,7 @@ static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("arrow", 5, 5);
+x_1 = lean_mk_string_unchecked("change", 6, 6);
 return x_1;
 }
 }
@@ -1331,7 +1337,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__3;
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__2;
+x_2 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__2;
 x_3 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__1;
 x_4 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
@@ -1342,20 +1348,48 @@ static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("term_=_", 7, 7);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
 static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__6() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("arrow", 5, 5);
+return x_1;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__6;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__5;
+x_3 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__1;
+x_4 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
+x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
+return x_5;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__8() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("term_=_", 7, 7);
+return x_1;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__9() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__5;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__8;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__7() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -1363,19 +1397,19 @@ x_1 = lean_mk_string_unchecked("app", 3, 3);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__8() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__7;
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__2;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__10;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__5;
 x_3 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__1;
 x_4 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__9() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__12() {
 _start:
 {
 lean_object* x_1; 
@@ -1383,61 +1417,61 @@ x_1 = lean_mk_string_unchecked("dite", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__10() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__9;
-x_2 = l_String_toSubstring_x27(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__11() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__9;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__12() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__11;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
 static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__13() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__12;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__12;
+x_2 = l_String_toSubstring_x27(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__14() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__12;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__15() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__14;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__16() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__15;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__17() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__3;
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__2;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__5;
 x_3 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__1;
 x_4 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__15() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__18() {
 _start:
 {
 lean_object* x_1; 
@@ -1445,19 +1479,19 @@ x_1 = lean_mk_string_unchecked("hygienicLParen", 14, 14);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__16() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__15;
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__2;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__18;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__5;
 x_3 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__1;
 x_4 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__17() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__20() {
 _start:
 {
 lean_object* x_1; 
@@ -1465,16 +1499,16 @@ x_1 = lean_mk_string_unchecked("hygieneInfo", 11, 11);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__18() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__21() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__17;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__20;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__19() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__22() {
 _start:
 {
 lean_object* x_1; 
@@ -1482,16 +1516,16 @@ x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__20() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__23() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__19;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__22;
 x_2 = l_String_toSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__21() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__24() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1501,19 +1535,19 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__22() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__25() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__21;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__24;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__23() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__26() {
 _start:
 {
 lean_object* x_1; 
@@ -1521,16 +1555,16 @@ x_1 = lean_mk_string_unchecked("term_==_", 8, 8);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__24() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__27() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__23;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__26;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__25() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__28() {
 _start:
 {
 lean_object* x_1; 
@@ -1538,19 +1572,19 @@ x_1 = lean_mk_string_unchecked("hole", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__26() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__29() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__25;
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__2;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__28;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__5;
 x_3 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__1;
 x_4 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__27() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__30() {
 _start:
 {
 lean_object* x_1; 
@@ -1558,7 +1592,7 @@ x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__28() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__31() {
 _start:
 {
 lean_object* x_1; 
@@ -1566,7 +1600,7 @@ x_1 = lean_mk_string_unchecked("==", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__29() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__32() {
 _start:
 {
 lean_object* x_1; 
@@ -1574,7 +1608,7 @@ x_1 = lean_mk_string_unchecked("=", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__30() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__33() {
 _start:
 {
 lean_object* x_1; 
@@ -1582,59 +1616,59 @@ x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__31() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__30;
-x_2 = l_String_toSubstring_x27(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__32() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__30;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__33() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__30;
-x_2 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__49;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
 static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__34() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__33;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__33;
+x_2 = l_String_toSubstring_x27(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__35() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__33;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__36() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__33;
+x_2 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__49;
+x_3 = l_Lean_Name_mkStr2(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__37() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__34;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__36;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__36() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__38() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__37;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__39() {
 _start:
 {
 lean_object* x_1; 
@@ -1642,7 +1676,7 @@ x_1 = lean_mk_string_unchecked("→", 3, 1);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__37() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__40() {
 _start:
 {
 lean_object* x_1; 
@@ -1650,11 +1684,11 @@ x_1 = lean_mk_string_unchecked("refine", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__38() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__41() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__37;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__40;
 x_2 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__2;
 x_3 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__1;
 x_4 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
@@ -1662,7 +1696,7 @@ x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__39() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__42() {
 _start:
 {
 lean_object* x_1; 
@@ -1670,16 +1704,16 @@ x_1 = lean_mk_string_unchecked("DerivingHelpers.deriving_lawful_beq_helper_dep",
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__40() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__43() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__39;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__42;
 x_2 = l_String_toSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__41() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__44() {
 _start:
 {
 lean_object* x_1; 
@@ -1687,41 +1721,41 @@ x_1 = lean_mk_string_unchecked("deriving_lawful_beq_helper_dep", 30, 30);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__42() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__45() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__41;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__44;
 x_2 = l_DerivingHelpers_tacticDeriving__ReflEq__tactic___closed__0;
 x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__43() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__46() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__42;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__45;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__44() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__47() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__43;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__46;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__45() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__48() {
 _start:
 {
 lean_object* x_1; 
@@ -1729,19 +1763,19 @@ x_1 = lean_mk_string_unchecked("syntheticHole", 13, 13);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__46() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__49() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__45;
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__2;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__48;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__5;
 x_3 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__1;
 x_4 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__47() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__50() {
 _start:
 {
 lean_object* x_1; 
@@ -1749,7 +1783,7 @@ x_1 = lean_mk_string_unchecked("\?", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__48() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__51() {
 _start:
 {
 lean_object* x_1; 
@@ -1757,17 +1791,17 @@ x_1 = lean_mk_string_unchecked("cdot", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__49() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__52() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__48;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__51;
 x_2 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
 x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__50() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__53() {
 _start:
 {
 lean_object* x_1; 
@@ -1775,17 +1809,17 @@ x_1 = lean_mk_string_unchecked("cdotTk", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__51() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__54() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__50;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__53;
 x_2 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
 x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__52() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__55() {
 _start:
 {
 lean_object* x_1; 
@@ -1793,16 +1827,16 @@ x_1 = lean_mk_string_unchecked("patternIgnore", 13, 13);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__53() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__56() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__52;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__55;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__54() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__57() {
 _start:
 {
 lean_object* x_1; 
@@ -1810,37 +1844,11 @@ x_1 = lean_mk_string_unchecked("token", 5, 5);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__55() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("· ", 3, 2);
-return x_1;
-}
-}
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__56() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__55;
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__54;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__57() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("·", 2, 1);
-return x_1;
-}
-}
 static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__58() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("solveTactic", 11, 11);
+x_1 = lean_mk_string_unchecked("· ", 3, 2);
 return x_1;
 }
 }
@@ -1849,7 +1857,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__58;
-x_2 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__57;
 x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
@@ -1858,7 +1866,7 @@ static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("solve", 5, 5);
+x_1 = lean_mk_string_unchecked("·", 2, 1);
 return x_1;
 }
 }
@@ -1866,24 +1874,25 @@ static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("group", 5, 5);
+x_1 = lean_mk_string_unchecked("solveTactic", 11, 11);
 return x_1;
 }
 }
 static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__62() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__61;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
+x_2 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
+x_3 = l_Lean_Name_mkStr2(x_2, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__63() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("|", 1, 1);
+x_1 = lean_mk_string_unchecked("solve", 5, 5);
 return x_1;
 }
 }
@@ -1891,27 +1900,24 @@ static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("applyAssumption", 15, 15);
+x_1 = lean_mk_string_unchecked("group", 5, 5);
 return x_1;
 }
 }
 static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__65() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__64;
-x_2 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__2;
-x_3 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__1;
-x_4 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
-x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
-return x_5;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__66() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("apply_assumption", 16, 16);
+x_1 = lean_mk_string_unchecked("|", 1, 1);
 return x_1;
 }
 }
@@ -1919,11 +1925,39 @@ static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\"could not discharge eq_of_beq assumption\"", 42, 42);
+x_1 = lean_mk_string_unchecked("applyAssumption", 15, 15);
 return x_1;
 }
 }
 static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__68() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__67;
+x_2 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__2;
+x_3 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__1;
+x_4 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
+x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
+return x_5;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__69() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("apply_assumption", 16, 16);
+return x_1;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__70() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("\"could not discharge eq_of_beq assumption\"", 42, 42);
+return x_1;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__71() {
 _start:
 {
 lean_object* x_1; 
@@ -1931,25 +1965,25 @@ x_1 = lean_mk_string_unchecked("h", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__69() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__72() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__68;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__71;
 x_2 = l_String_toSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__70() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__73() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__68;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__71;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__71() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__74() {
 _start:
 {
 lean_object* x_1; 
@@ -1957,11 +1991,11 @@ x_1 = lean_mk_string_unchecked("cases", 5, 5);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__72() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__75() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__71;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__74;
 x_2 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__2;
 x_3 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__1;
 x_4 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
@@ -1969,7 +2003,7 @@ x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__73() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__76() {
 _start:
 {
 lean_object* x_1; 
@@ -1977,11 +2011,11 @@ x_1 = lean_mk_string_unchecked("dsimp", 5, 5);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__74() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__77() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__73;
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__76;
 x_2 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__2;
 x_3 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__1;
 x_4 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__0;
@@ -1989,7 +2023,7 @@ x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__75() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__78() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2016,7 +2050,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; lean_object* x_164; lean_object* x_165; lean_object* x_166; lean_object* x_167; lean_object* x_168; lean_object* x_169; lean_object* x_170; lean_object* x_171; lean_object* x_172; lean_object* x_173; lean_object* x_174; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; lean_object* x_164; lean_object* x_165; lean_object* x_166; lean_object* x_167; lean_object* x_168; lean_object* x_169; lean_object* x_170; lean_object* x_171; lean_object* x_172; lean_object* x_173; lean_object* x_174; lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; lean_object* x_181; 
 x_8 = lean_ctor_get(x_2, 1);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_2, 2);
@@ -2036,335 +2070,349 @@ lean_ctor_set(x_15, 1, x_14);
 x_16 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__7;
 x_17 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__9;
 x_18 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__11;
-x_19 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__0;
-x_20 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__1;
+x_19 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__1;
+x_20 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__2;
 lean_inc(x_12);
 x_21 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_21, 0, x_12);
-lean_ctor_set(x_21, 1, x_19);
-x_22 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__4;
-x_23 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__6;
-x_24 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__8;
-x_25 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__10;
-x_26 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__11;
+lean_ctor_set(x_21, 1, x_20);
+x_22 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__3;
+x_23 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__4;
+lean_inc(x_12);
+x_24 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_24, 0, x_12);
+lean_ctor_set(x_24, 1, x_22);
+x_25 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__7;
+x_26 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__9;
+x_27 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__11;
+x_28 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__13;
+x_29 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__14;
 lean_inc(x_9);
 lean_inc(x_8);
-x_27 = l_Lean_addMacroScope(x_8, x_26, x_9);
-x_28 = lean_box(0);
-x_29 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__13;
-lean_inc(x_12);
-x_30 = lean_alloc_ctor(3, 4, 0);
-lean_ctor_set(x_30, 0, x_12);
-lean_ctor_set(x_30, 1, x_25);
-lean_ctor_set(x_30, 2, x_27);
-lean_ctor_set(x_30, 3, x_29);
-x_31 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__14;
+x_30 = l_Lean_addMacroScope(x_8, x_29, x_9);
+x_31 = lean_box(0);
 x_32 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__16;
-x_33 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__18;
-x_34 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__20;
-x_35 = lean_box(0);
+lean_inc(x_12);
+x_33 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_33, 0, x_12);
+lean_ctor_set(x_33, 1, x_28);
+lean_ctor_set(x_33, 2, x_30);
+lean_ctor_set(x_33, 3, x_32);
+x_34 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__17;
+x_35 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__19;
+x_36 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__21;
+x_37 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__23;
+x_38 = lean_box(0);
 lean_inc(x_9);
 lean_inc(x_8);
-x_36 = l_Lean_addMacroScope(x_8, x_35, x_9);
-x_37 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__22;
+x_39 = l_Lean_addMacroScope(x_8, x_38, x_9);
+x_40 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__25;
 lean_inc(x_12);
-x_38 = lean_alloc_ctor(3, 4, 0);
-lean_ctor_set(x_38, 0, x_12);
-lean_ctor_set(x_38, 1, x_34);
-lean_ctor_set(x_38, 2, x_36);
-lean_ctor_set(x_38, 3, x_37);
+x_41 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_41, 0, x_12);
+lean_ctor_set(x_41, 1, x_37);
+lean_ctor_set(x_41, 2, x_39);
+lean_ctor_set(x_41, 3, x_40);
 lean_inc(x_12);
-x_39 = l_Lean_Syntax_node1(x_12, x_33, x_38);
+x_42 = l_Lean_Syntax_node1(x_12, x_36, x_41);
 lean_inc_ref(x_15);
 lean_inc(x_12);
-x_40 = l_Lean_Syntax_node2(x_12, x_32, x_15, x_39);
-x_41 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__24;
-x_42 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__26;
-x_43 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__27;
-lean_inc(x_12);
-x_44 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_44, 0, x_12);
-lean_ctor_set(x_44, 1, x_43);
-lean_inc_ref(x_44);
-lean_inc(x_12);
-x_45 = l_Lean_Syntax_node1(x_12, x_42, x_44);
-x_46 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__28;
+x_43 = l_Lean_Syntax_node2(x_12, x_35, x_15, x_42);
+x_44 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__27;
+x_45 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__29;
+x_46 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__30;
 lean_inc(x_12);
 x_47 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_47, 0, x_12);
 lean_ctor_set(x_47, 1, x_46);
-lean_inc_n(x_45, 2);
+lean_inc_ref(x_47);
 lean_inc(x_12);
-x_48 = l_Lean_Syntax_node3(x_12, x_41, x_45, x_47, x_45);
-x_49 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__62;
+x_48 = l_Lean_Syntax_node1(x_12, x_45, x_47);
+x_49 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__31;
 lean_inc(x_12);
 x_50 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_50, 0, x_12);
 lean_ctor_set(x_50, 1, x_49);
-lean_inc_ref(x_50);
+lean_inc_n(x_48, 2);
 lean_inc(x_12);
-x_51 = l_Lean_Syntax_node3(x_12, x_31, x_40, x_48, x_50);
-lean_inc_n(x_45, 2);
+x_51 = l_Lean_Syntax_node3(x_12, x_44, x_48, x_50, x_48);
+x_52 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__62;
 lean_inc(x_12);
-x_52 = l_Lean_Syntax_node3(x_12, x_18, x_51, x_45, x_45);
+x_53 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_53, 0, x_12);
+lean_ctor_set(x_53, 1, x_52);
+lean_inc_ref(x_53);
 lean_inc(x_12);
-x_53 = l_Lean_Syntax_node2(x_12, x_24, x_30, x_52);
-x_54 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__29;
+x_54 = l_Lean_Syntax_node3(x_12, x_34, x_43, x_51, x_53);
+lean_inc_n(x_48, 2);
 lean_inc(x_12);
-x_55 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_55, 0, x_12);
-lean_ctor_set(x_55, 1, x_54);
-x_56 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__31;
+x_55 = l_Lean_Syntax_node3(x_12, x_18, x_54, x_48, x_48);
+lean_inc(x_12);
+x_56 = l_Lean_Syntax_node2(x_12, x_27, x_33, x_55);
 x_57 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__32;
+lean_inc(x_12);
+x_58 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_58, 0, x_12);
+lean_ctor_set(x_58, 1, x_57);
+x_59 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__34;
+x_60 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__35;
 lean_inc(x_9);
 lean_inc(x_8);
-x_58 = l_Lean_addMacroScope(x_8, x_57, x_9);
-x_59 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__35;
+x_61 = l_Lean_addMacroScope(x_8, x_60, x_9);
+x_62 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__38;
 lean_inc(x_12);
-x_60 = lean_alloc_ctor(3, 4, 0);
-lean_ctor_set(x_60, 0, x_12);
-lean_ctor_set(x_60, 1, x_56);
-lean_ctor_set(x_60, 2, x_58);
-lean_ctor_set(x_60, 3, x_59);
-lean_inc(x_12);
-x_61 = l_Lean_Syntax_node3(x_12, x_23, x_53, x_55, x_60);
-x_62 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__36;
-lean_inc(x_12);
-x_63 = lean_alloc_ctor(2, 2, 0);
+x_63 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_63, 0, x_12);
-lean_ctor_set(x_63, 1, x_62);
+lean_ctor_set(x_63, 1, x_59);
+lean_ctor_set(x_63, 2, x_61);
+lean_ctor_set(x_63, 3, x_62);
 lean_inc(x_12);
-x_64 = l_Lean_Syntax_node3(x_12, x_22, x_61, x_63, x_45);
-x_65 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__17;
+x_64 = l_Lean_Syntax_node3(x_12, x_26, x_56, x_58, x_63);
+x_65 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__39;
 lean_inc(x_12);
-x_66 = lean_alloc_ctor(1, 3, 0);
+x_66 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_66, 0, x_12);
-lean_ctor_set(x_66, 1, x_18);
-lean_ctor_set(x_66, 2, x_65);
-lean_inc_ref(x_66);
+lean_ctor_set(x_66, 1, x_65);
 lean_inc(x_12);
-x_67 = l_Lean_Syntax_node3(x_12, x_20, x_21, x_64, x_66);
-x_68 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__37;
-x_69 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__38;
+x_67 = l_Lean_Syntax_node3(x_12, x_25, x_64, x_66, x_48);
+x_68 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__17;
 lean_inc(x_12);
-x_70 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_70, 0, x_12);
-lean_ctor_set(x_70, 1, x_68);
-x_71 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__40;
-x_72 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__42;
+x_69 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_69, 0, x_12);
+lean_ctor_set(x_69, 1, x_18);
+lean_ctor_set(x_69, 2, x_68);
+lean_inc_ref(x_69);
+lean_inc(x_12);
+x_70 = l_Lean_Syntax_node3(x_12, x_23, x_24, x_67, x_69);
+lean_inc(x_12);
+x_71 = l_Lean_Syntax_node1(x_12, x_18, x_70);
+lean_inc(x_12);
+x_72 = l_Lean_Syntax_node1(x_12, x_17, x_71);
+lean_inc(x_12);
+x_73 = l_Lean_Syntax_node1(x_12, x_16, x_72);
+lean_inc(x_12);
+x_74 = l_Lean_Syntax_node2(x_12, x_19, x_21, x_73);
+x_75 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__40;
+x_76 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__41;
+lean_inc(x_12);
+x_77 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_77, 0, x_12);
+lean_ctor_set(x_77, 1, x_75);
+x_78 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__43;
+x_79 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__45;
 lean_inc(x_9);
 lean_inc(x_8);
-x_73 = l_Lean_addMacroScope(x_8, x_72, x_9);
-x_74 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__44;
+x_80 = l_Lean_addMacroScope(x_8, x_79, x_9);
+x_81 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__47;
 lean_inc(x_12);
-x_75 = lean_alloc_ctor(3, 4, 0);
-lean_ctor_set(x_75, 0, x_12);
-lean_ctor_set(x_75, 1, x_71);
-lean_ctor_set(x_75, 2, x_73);
-lean_ctor_set(x_75, 3, x_74);
-x_76 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__46;
-x_77 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__47;
-lean_inc(x_12);
-x_78 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_78, 0, x_12);
-lean_ctor_set(x_78, 1, x_77);
-lean_inc(x_12);
-x_79 = l_Lean_Syntax_node2(x_12, x_76, x_78, x_44);
-lean_inc(x_79);
-lean_inc(x_12);
-x_80 = l_Lean_Syntax_node2(x_12, x_18, x_79, x_79);
-lean_inc(x_12);
-x_81 = l_Lean_Syntax_node2(x_12, x_24, x_75, x_80);
-lean_inc(x_12);
-x_82 = l_Lean_Syntax_node2(x_12, x_69, x_70, x_81);
+x_82 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_82, 0, x_12);
+lean_ctor_set(x_82, 1, x_78);
+lean_ctor_set(x_82, 2, x_80);
+lean_ctor_set(x_82, 3, x_81);
 x_83 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__49;
-x_84 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__51;
-x_85 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__53;
-x_86 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__56;
-x_87 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__57;
+x_84 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__50;
 lean_inc(x_12);
-x_88 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_88, 0, x_12);
-lean_ctor_set(x_88, 1, x_87);
+x_85 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_85, 0, x_12);
+lean_ctor_set(x_85, 1, x_84);
 lean_inc(x_12);
-x_89 = l_Lean_Syntax_node1(x_12, x_86, x_88);
+x_86 = l_Lean_Syntax_node2(x_12, x_83, x_85, x_47);
+lean_inc(x_86);
 lean_inc(x_12);
-x_90 = l_Lean_Syntax_node1(x_12, x_85, x_89);
+x_87 = l_Lean_Syntax_node2(x_12, x_18, x_86, x_86);
 lean_inc(x_12);
-x_91 = l_Lean_Syntax_node1(x_12, x_84, x_90);
-x_92 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__59;
-x_93 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__60;
+x_88 = l_Lean_Syntax_node2(x_12, x_27, x_82, x_87);
 lean_inc(x_12);
-x_94 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_94, 0, x_12);
-lean_ctor_set(x_94, 1, x_93);
-x_95 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__62;
-x_96 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__63;
+x_89 = l_Lean_Syntax_node2(x_12, x_76, x_77, x_88);
+x_90 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__52;
+x_91 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__54;
+x_92 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__56;
+x_93 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__59;
+x_94 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__60;
 lean_inc(x_12);
-x_97 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_97, 0, x_12);
-lean_ctor_set(x_97, 1, x_96);
-x_98 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__65;
-x_99 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__66;
+x_95 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_95, 0, x_12);
+lean_ctor_set(x_95, 1, x_94);
 lean_inc(x_12);
-x_100 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_100, 0, x_12);
-lean_ctor_set(x_100, 1, x_99);
-x_101 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__28;
-lean_inc_ref(x_66);
+x_96 = l_Lean_Syntax_node1(x_12, x_93, x_95);
 lean_inc(x_12);
-x_102 = l_Lean_Syntax_node1(x_12, x_101, x_66);
-lean_inc_ref_n(x_66, 3);
-lean_inc(x_102);
+x_97 = l_Lean_Syntax_node1(x_12, x_92, x_96);
 lean_inc(x_12);
-x_103 = l_Lean_Syntax_node5(x_12, x_98, x_100, x_102, x_66, x_66, x_66);
+x_98 = l_Lean_Syntax_node1(x_12, x_91, x_97);
+x_99 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__62;
+x_100 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__63;
 lean_inc(x_12);
-x_104 = l_Lean_Syntax_node1(x_12, x_18, x_103);
+x_101 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_101, 0, x_12);
+lean_ctor_set(x_101, 1, x_100);
+x_102 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__65;
+x_103 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__66;
 lean_inc(x_12);
-x_105 = l_Lean_Syntax_node1(x_12, x_17, x_104);
+x_104 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_104, 0, x_12);
+lean_ctor_set(x_104, 1, x_103);
+x_105 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__68;
+x_106 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__69;
 lean_inc(x_12);
-x_106 = l_Lean_Syntax_node1(x_12, x_16, x_105);
-lean_inc_ref(x_97);
+x_107 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_107, 0, x_12);
+lean_ctor_set(x_107, 1, x_106);
+x_108 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__28;
+lean_inc_ref(x_69);
 lean_inc(x_12);
-x_107 = l_Lean_Syntax_node2(x_12, x_95, x_97, x_106);
-x_108 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__25;
-x_109 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__26;
+x_109 = l_Lean_Syntax_node1(x_12, x_108, x_69);
+lean_inc_ref_n(x_69, 3);
+lean_inc(x_109);
 lean_inc(x_12);
-x_110 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_110, 0, x_12);
-lean_ctor_set(x_110, 1, x_108);
-lean_inc_ref_n(x_66, 4);
-lean_inc(x_102);
+x_110 = l_Lean_Syntax_node5(x_12, x_105, x_107, x_109, x_69, x_69, x_69);
 lean_inc(x_12);
-x_111 = l_Lean_Syntax_node6(x_12, x_109, x_110, x_102, x_66, x_66, x_66, x_66);
+x_111 = l_Lean_Syntax_node1(x_12, x_18, x_110);
 lean_inc(x_12);
-x_112 = l_Lean_Syntax_node1(x_12, x_18, x_111);
+x_112 = l_Lean_Syntax_node1(x_12, x_17, x_111);
 lean_inc(x_12);
-x_113 = l_Lean_Syntax_node1(x_12, x_17, x_112);
+x_113 = l_Lean_Syntax_node1(x_12, x_16, x_112);
+lean_inc_ref(x_104);
 lean_inc(x_12);
-x_114 = l_Lean_Syntax_node1(x_12, x_16, x_113);
-lean_inc_ref(x_97);
+x_114 = l_Lean_Syntax_node2(x_12, x_102, x_104, x_113);
+x_115 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__25;
+x_116 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__26;
 lean_inc(x_12);
-x_115 = l_Lean_Syntax_node2(x_12, x_95, x_97, x_114);
-x_116 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__1___closed__0;
-x_117 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__1___closed__1;
+x_117 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_117, 0, x_12);
+lean_ctor_set(x_117, 1, x_115);
+lean_inc_ref_n(x_69, 4);
+lean_inc(x_109);
 lean_inc(x_12);
-x_118 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_118, 0, x_12);
-lean_ctor_set(x_118, 1, x_116);
-x_119 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__1___closed__3;
-x_120 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__67;
+x_118 = l_Lean_Syntax_node6(x_12, x_116, x_117, x_109, x_69, x_69, x_69, x_69);
 lean_inc(x_12);
-x_121 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_121, 0, x_12);
-lean_ctor_set(x_121, 1, x_120);
+x_119 = l_Lean_Syntax_node1(x_12, x_18, x_118);
 lean_inc(x_12);
-x_122 = l_Lean_Syntax_node1(x_12, x_119, x_121);
+x_120 = l_Lean_Syntax_node1(x_12, x_17, x_119);
 lean_inc(x_12);
-x_123 = l_Lean_Syntax_node1(x_12, x_18, x_122);
+x_121 = l_Lean_Syntax_node1(x_12, x_16, x_120);
+lean_inc_ref(x_104);
 lean_inc(x_12);
-x_124 = l_Lean_Syntax_node2(x_12, x_117, x_118, x_123);
+x_122 = l_Lean_Syntax_node2(x_12, x_102, x_104, x_121);
+x_123 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__1___closed__0;
+x_124 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__1___closed__1;
 lean_inc(x_12);
-x_125 = l_Lean_Syntax_node1(x_12, x_18, x_124);
+x_125 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_125, 0, x_12);
+lean_ctor_set(x_125, 1, x_123);
+x_126 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__1___closed__3;
+x_127 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__70;
 lean_inc(x_12);
-x_126 = l_Lean_Syntax_node1(x_12, x_17, x_125);
+x_128 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_128, 0, x_12);
+lean_ctor_set(x_128, 1, x_127);
 lean_inc(x_12);
-x_127 = l_Lean_Syntax_node1(x_12, x_16, x_126);
+x_129 = l_Lean_Syntax_node1(x_12, x_126, x_128);
 lean_inc(x_12);
-x_128 = l_Lean_Syntax_node2(x_12, x_95, x_97, x_127);
+x_130 = l_Lean_Syntax_node1(x_12, x_18, x_129);
 lean_inc(x_12);
-x_129 = l_Lean_Syntax_node3(x_12, x_18, x_107, x_115, x_128);
+x_131 = l_Lean_Syntax_node2(x_12, x_124, x_125, x_130);
 lean_inc(x_12);
-x_130 = l_Lean_Syntax_node2(x_12, x_92, x_94, x_129);
+x_132 = l_Lean_Syntax_node1(x_12, x_18, x_131);
 lean_inc(x_12);
-x_131 = l_Lean_Syntax_node1(x_12, x_18, x_130);
+x_133 = l_Lean_Syntax_node1(x_12, x_17, x_132);
 lean_inc(x_12);
-x_132 = l_Lean_Syntax_node1(x_12, x_17, x_131);
+x_134 = l_Lean_Syntax_node1(x_12, x_16, x_133);
 lean_inc(x_12);
-x_133 = l_Lean_Syntax_node1(x_12, x_16, x_132);
+x_135 = l_Lean_Syntax_node2(x_12, x_102, x_104, x_134);
 lean_inc(x_12);
-x_134 = l_Lean_Syntax_node2(x_12, x_83, x_91, x_133);
-x_135 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__12;
-x_136 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__13;
+x_136 = l_Lean_Syntax_node3(x_12, x_18, x_114, x_122, x_135);
 lean_inc(x_12);
-x_137 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_137, 0, x_12);
-lean_ctor_set(x_137, 1, x_135);
-x_138 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__69;
-x_139 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__70;
-x_140 = l_Lean_addMacroScope(x_8, x_139, x_9);
+x_137 = l_Lean_Syntax_node2(x_12, x_99, x_101, x_136);
 lean_inc(x_12);
-x_141 = lean_alloc_ctor(3, 4, 0);
-lean_ctor_set(x_141, 0, x_12);
-lean_ctor_set(x_141, 1, x_138);
-lean_ctor_set(x_141, 2, x_140);
-lean_ctor_set(x_141, 3, x_28);
-lean_inc_ref(x_141);
+x_138 = l_Lean_Syntax_node1(x_12, x_18, x_137);
 lean_inc(x_12);
-x_142 = l_Lean_Syntax_node1(x_12, x_18, x_141);
+x_139 = l_Lean_Syntax_node1(x_12, x_17, x_138);
 lean_inc(x_12);
-x_143 = l_Lean_Syntax_node2(x_12, x_136, x_137, x_142);
-x_144 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__71;
+x_140 = l_Lean_Syntax_node1(x_12, x_16, x_139);
+lean_inc(x_12);
+x_141 = l_Lean_Syntax_node2(x_12, x_90, x_98, x_140);
+x_142 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__12;
+x_143 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__13;
+lean_inc(x_12);
+x_144 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_144, 0, x_12);
+lean_ctor_set(x_144, 1, x_142);
 x_145 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__72;
+x_146 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__73;
+x_147 = l_Lean_addMacroScope(x_8, x_146, x_9);
 lean_inc(x_12);
-x_146 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_146, 0, x_12);
-lean_ctor_set(x_146, 1, x_144);
-x_147 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__21;
-lean_inc_ref(x_66);
-lean_inc(x_12);
-x_148 = l_Lean_Syntax_node2(x_12, x_147, x_66, x_141);
+x_148 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_148, 0, x_12);
+lean_ctor_set(x_148, 1, x_145);
+lean_ctor_set(x_148, 2, x_147);
+lean_ctor_set(x_148, 3, x_31);
+lean_inc_ref(x_148);
 lean_inc(x_12);
 x_149 = l_Lean_Syntax_node1(x_12, x_18, x_148);
-lean_inc_ref_n(x_66, 2);
 lean_inc(x_12);
-x_150 = l_Lean_Syntax_node4(x_12, x_145, x_146, x_149, x_66, x_66);
-x_151 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__73;
-x_152 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__74;
+x_150 = l_Lean_Syntax_node2(x_12, x_143, x_144, x_149);
+x_151 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__74;
+x_152 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__75;
 lean_inc(x_12);
 x_153 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_153, 0, x_12);
 lean_ctor_set(x_153, 1, x_151);
-x_154 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__29;
+x_154 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__21;
+lean_inc_ref(x_69);
 lean_inc(x_12);
-x_155 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_155, 0, x_12);
-lean_ctor_set(x_155, 1, x_154);
+x_155 = l_Lean_Syntax_node2(x_12, x_154, x_69, x_148);
 lean_inc(x_12);
 x_156 = l_Lean_Syntax_node1(x_12, x_18, x_155);
-lean_inc_ref_n(x_66, 3);
+lean_inc_ref_n(x_69, 2);
 lean_inc(x_12);
-x_157 = l_Lean_Syntax_node6(x_12, x_152, x_153, x_102, x_66, x_156, x_66, x_66);
-x_158 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__75;
-x_159 = lean_array_push(x_158, x_67);
-lean_inc_ref(x_66);
-x_160 = lean_array_push(x_159, x_66);
-x_161 = lean_array_push(x_160, x_82);
-lean_inc_ref(x_66);
-x_162 = lean_array_push(x_161, x_66);
-x_163 = lean_array_push(x_162, x_134);
-lean_inc_ref(x_66);
-x_164 = lean_array_push(x_163, x_66);
-x_165 = lean_array_push(x_164, x_143);
-lean_inc_ref(x_66);
-x_166 = lean_array_push(x_165, x_66);
-x_167 = lean_array_push(x_166, x_150);
-x_168 = lean_array_push(x_167, x_66);
-x_169 = lean_array_push(x_168, x_157);
+x_157 = l_Lean_Syntax_node4(x_12, x_152, x_153, x_156, x_69, x_69);
+x_158 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__76;
+x_159 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__77;
 lean_inc(x_12);
-x_170 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_170, 0, x_12);
-lean_ctor_set(x_170, 1, x_18);
-lean_ctor_set(x_170, 2, x_169);
+x_160 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_160, 0, x_12);
+lean_ctor_set(x_160, 1, x_158);
+x_161 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__29;
 lean_inc(x_12);
-x_171 = l_Lean_Syntax_node1(x_12, x_17, x_170);
+x_162 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_162, 0, x_12);
+lean_ctor_set(x_162, 1, x_161);
 lean_inc(x_12);
-x_172 = l_Lean_Syntax_node1(x_12, x_16, x_171);
-x_173 = l_Lean_Syntax_node3(x_12, x_13, x_15, x_172, x_50);
-x_174 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_174, 0, x_173);
-lean_ctor_set(x_174, 1, x_3);
-return x_174;
+x_163 = l_Lean_Syntax_node1(x_12, x_18, x_162);
+lean_inc_ref_n(x_69, 3);
+lean_inc(x_12);
+x_164 = l_Lean_Syntax_node6(x_12, x_159, x_160, x_109, x_69, x_163, x_69, x_69);
+x_165 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__78;
+x_166 = lean_array_push(x_165, x_74);
+lean_inc_ref(x_69);
+x_167 = lean_array_push(x_166, x_69);
+x_168 = lean_array_push(x_167, x_89);
+lean_inc_ref(x_69);
+x_169 = lean_array_push(x_168, x_69);
+x_170 = lean_array_push(x_169, x_141);
+lean_inc_ref(x_69);
+x_171 = lean_array_push(x_170, x_69);
+x_172 = lean_array_push(x_171, x_150);
+lean_inc_ref(x_69);
+x_173 = lean_array_push(x_172, x_69);
+x_174 = lean_array_push(x_173, x_157);
+x_175 = lean_array_push(x_174, x_69);
+x_176 = lean_array_push(x_175, x_164);
+lean_inc(x_12);
+x_177 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_177, 0, x_12);
+lean_ctor_set(x_177, 1, x_18);
+lean_ctor_set(x_177, 2, x_176);
+lean_inc(x_12);
+x_178 = l_Lean_Syntax_node1(x_12, x_17, x_177);
+lean_inc(x_12);
+x_179 = l_Lean_Syntax_node1(x_12, x_16, x_178);
+x_180 = l_Lean_Syntax_node3(x_12, x_13, x_15, x_179, x_53);
+x_181 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_181, 0, x_180);
+lean_ctor_set(x_181, 1, x_3);
+return x_181;
 }
 }
 }
@@ -2373,7 +2421,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__21;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__24;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -2385,7 +2433,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__33;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__36;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -2501,7 +2549,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; lean_object* x_162; 
 x_8 = lean_ctor_get(x_2, 1);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_2, 2);
@@ -2521,291 +2569,305 @@ lean_ctor_set(x_15, 1, x_14);
 x_16 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__7;
 x_17 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__9;
 x_18 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__11;
-x_19 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__0;
-x_20 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__1;
+x_19 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__1;
+x_20 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__2;
 lean_inc(x_12);
 x_21 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_21, 0, x_12);
-lean_ctor_set(x_21, 1, x_19);
-x_22 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__4;
-x_23 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__6;
-x_24 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__14;
-x_25 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__16;
-x_26 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__18;
-x_27 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__20;
-x_28 = lean_box(0);
+lean_ctor_set(x_21, 1, x_20);
+x_22 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__3;
+x_23 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__4;
+lean_inc(x_12);
+x_24 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_24, 0, x_12);
+lean_ctor_set(x_24, 1, x_22);
+x_25 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__7;
+x_26 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__9;
+x_27 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__17;
+x_28 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__19;
+x_29 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__21;
+x_30 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__23;
+x_31 = lean_box(0);
 lean_inc(x_9);
 lean_inc(x_8);
-x_29 = l_Lean_addMacroScope(x_8, x_28, x_9);
-x_30 = lean_box(0);
-x_31 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__0;
+x_32 = l_Lean_addMacroScope(x_8, x_31, x_9);
+x_33 = lean_box(0);
+x_34 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__0;
 lean_inc(x_12);
-x_32 = lean_alloc_ctor(3, 4, 0);
-lean_ctor_set(x_32, 0, x_12);
-lean_ctor_set(x_32, 1, x_27);
-lean_ctor_set(x_32, 2, x_29);
-lean_ctor_set(x_32, 3, x_31);
+x_35 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_35, 0, x_12);
+lean_ctor_set(x_35, 1, x_30);
+lean_ctor_set(x_35, 2, x_32);
+lean_ctor_set(x_35, 3, x_34);
 lean_inc(x_12);
-x_33 = l_Lean_Syntax_node1(x_12, x_26, x_32);
+x_36 = l_Lean_Syntax_node1(x_12, x_29, x_35);
 lean_inc_ref(x_15);
 lean_inc(x_12);
-x_34 = l_Lean_Syntax_node2(x_12, x_25, x_15, x_33);
-x_35 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__24;
-x_36 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__26;
-x_37 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__27;
-lean_inc(x_12);
-x_38 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_38, 0, x_12);
-lean_ctor_set(x_38, 1, x_37);
-lean_inc_ref(x_38);
-lean_inc(x_12);
-x_39 = l_Lean_Syntax_node1(x_12, x_36, x_38);
-x_40 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__28;
+x_37 = l_Lean_Syntax_node2(x_12, x_28, x_15, x_36);
+x_38 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__27;
+x_39 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__29;
+x_40 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__30;
 lean_inc(x_12);
 x_41 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_41, 0, x_12);
 lean_ctor_set(x_41, 1, x_40);
-lean_inc_n(x_39, 2);
+lean_inc_ref(x_41);
 lean_inc(x_12);
-x_42 = l_Lean_Syntax_node3(x_12, x_35, x_39, x_41, x_39);
-x_43 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__62;
+x_42 = l_Lean_Syntax_node1(x_12, x_39, x_41);
+x_43 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__31;
 lean_inc(x_12);
 x_44 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_44, 0, x_12);
 lean_ctor_set(x_44, 1, x_43);
-lean_inc_ref(x_44);
+lean_inc_n(x_42, 2);
 lean_inc(x_12);
-x_45 = l_Lean_Syntax_node3(x_12, x_24, x_34, x_42, x_44);
-x_46 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__29;
+x_45 = l_Lean_Syntax_node3(x_12, x_38, x_42, x_44, x_42);
+x_46 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__62;
 lean_inc(x_12);
 x_47 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_47, 0, x_12);
 lean_ctor_set(x_47, 1, x_46);
-x_48 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__31;
+lean_inc_ref(x_47);
+lean_inc(x_12);
+x_48 = l_Lean_Syntax_node3(x_12, x_27, x_37, x_45, x_47);
 x_49 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__32;
+lean_inc(x_12);
+x_50 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_50, 0, x_12);
+lean_ctor_set(x_50, 1, x_49);
+x_51 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__34;
+x_52 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__35;
 lean_inc(x_9);
 lean_inc(x_8);
-x_50 = l_Lean_addMacroScope(x_8, x_49, x_9);
-x_51 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__2;
+x_53 = l_Lean_addMacroScope(x_8, x_52, x_9);
+x_54 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__2;
 lean_inc(x_12);
-x_52 = lean_alloc_ctor(3, 4, 0);
-lean_ctor_set(x_52, 0, x_12);
-lean_ctor_set(x_52, 1, x_48);
-lean_ctor_set(x_52, 2, x_50);
-lean_ctor_set(x_52, 3, x_51);
-lean_inc(x_12);
-x_53 = l_Lean_Syntax_node3(x_12, x_23, x_45, x_47, x_52);
-x_54 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__36;
-lean_inc(x_12);
-x_55 = lean_alloc_ctor(2, 2, 0);
+x_55 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_55, 0, x_12);
-lean_ctor_set(x_55, 1, x_54);
+lean_ctor_set(x_55, 1, x_51);
+lean_ctor_set(x_55, 2, x_53);
+lean_ctor_set(x_55, 3, x_54);
 lean_inc(x_12);
-x_56 = l_Lean_Syntax_node3(x_12, x_22, x_53, x_55, x_39);
-x_57 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__17;
+x_56 = l_Lean_Syntax_node3(x_12, x_26, x_48, x_50, x_55);
+x_57 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__39;
 lean_inc(x_12);
-x_58 = lean_alloc_ctor(1, 3, 0);
+x_58 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_58, 0, x_12);
-lean_ctor_set(x_58, 1, x_18);
-lean_ctor_set(x_58, 2, x_57);
-lean_inc_ref(x_58);
+lean_ctor_set(x_58, 1, x_57);
 lean_inc(x_12);
-x_59 = l_Lean_Syntax_node3(x_12, x_20, x_21, x_56, x_58);
-x_60 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__37;
-x_61 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__38;
+x_59 = l_Lean_Syntax_node3(x_12, x_25, x_56, x_58, x_42);
+x_60 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__17;
 lean_inc(x_12);
-x_62 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_62, 0, x_12);
-lean_ctor_set(x_62, 1, x_60);
-x_63 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__8;
-x_64 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__4;
-x_65 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__6;
+x_61 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_61, 0, x_12);
+lean_ctor_set(x_61, 1, x_18);
+lean_ctor_set(x_61, 2, x_60);
+lean_inc_ref(x_61);
+lean_inc(x_12);
+x_62 = l_Lean_Syntax_node3(x_12, x_23, x_24, x_59, x_61);
+lean_inc(x_12);
+x_63 = l_Lean_Syntax_node1(x_12, x_18, x_62);
+lean_inc(x_12);
+x_64 = l_Lean_Syntax_node1(x_12, x_17, x_63);
+lean_inc(x_12);
+x_65 = l_Lean_Syntax_node1(x_12, x_16, x_64);
+lean_inc(x_12);
+x_66 = l_Lean_Syntax_node2(x_12, x_19, x_21, x_65);
+x_67 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__40;
+x_68 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__41;
+lean_inc(x_12);
+x_69 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_69, 0, x_12);
+lean_ctor_set(x_69, 1, x_67);
+x_70 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__11;
+x_71 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__4;
+x_72 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__6;
 lean_inc(x_9);
 lean_inc(x_8);
-x_66 = l_Lean_addMacroScope(x_8, x_65, x_9);
-x_67 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__8;
+x_73 = l_Lean_addMacroScope(x_8, x_72, x_9);
+x_74 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__8;
 lean_inc(x_12);
-x_68 = lean_alloc_ctor(3, 4, 0);
-lean_ctor_set(x_68, 0, x_12);
-lean_ctor_set(x_68, 1, x_64);
-lean_ctor_set(x_68, 2, x_66);
-lean_ctor_set(x_68, 3, x_67);
-x_69 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__46;
-x_70 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__47;
-lean_inc(x_12);
-x_71 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_71, 0, x_12);
-lean_ctor_set(x_71, 1, x_70);
-lean_inc(x_12);
-x_72 = l_Lean_Syntax_node2(x_12, x_69, x_71, x_38);
-lean_inc(x_72);
-lean_inc(x_12);
-x_73 = l_Lean_Syntax_node2(x_12, x_18, x_72, x_72);
-lean_inc(x_12);
-x_74 = l_Lean_Syntax_node2(x_12, x_63, x_68, x_73);
-lean_inc(x_12);
-x_75 = l_Lean_Syntax_node2(x_12, x_61, x_62, x_74);
+x_75 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_75, 0, x_12);
+lean_ctor_set(x_75, 1, x_71);
+lean_ctor_set(x_75, 2, x_73);
+lean_ctor_set(x_75, 3, x_74);
 x_76 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__49;
-x_77 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__51;
-x_78 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__53;
-x_79 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__56;
-x_80 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__57;
+x_77 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__50;
 lean_inc(x_12);
-x_81 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_81, 0, x_12);
-lean_ctor_set(x_81, 1, x_80);
+x_78 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_78, 0, x_12);
+lean_ctor_set(x_78, 1, x_77);
 lean_inc(x_12);
-x_82 = l_Lean_Syntax_node1(x_12, x_79, x_81);
+x_79 = l_Lean_Syntax_node2(x_12, x_76, x_78, x_41);
+lean_inc(x_79);
 lean_inc(x_12);
-x_83 = l_Lean_Syntax_node1(x_12, x_78, x_82);
+x_80 = l_Lean_Syntax_node2(x_12, x_18, x_79, x_79);
 lean_inc(x_12);
-x_84 = l_Lean_Syntax_node1(x_12, x_77, x_83);
-x_85 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__59;
-x_86 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__60;
+x_81 = l_Lean_Syntax_node2(x_12, x_70, x_75, x_80);
 lean_inc(x_12);
-x_87 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_87, 0, x_12);
-lean_ctor_set(x_87, 1, x_86);
-x_88 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__62;
-x_89 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__63;
+x_82 = l_Lean_Syntax_node2(x_12, x_68, x_69, x_81);
+x_83 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__52;
+x_84 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__54;
+x_85 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__56;
+x_86 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__59;
+x_87 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__60;
 lean_inc(x_12);
-x_90 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_90, 0, x_12);
-lean_ctor_set(x_90, 1, x_89);
-x_91 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__65;
-x_92 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__66;
+x_88 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_88, 0, x_12);
+lean_ctor_set(x_88, 1, x_87);
 lean_inc(x_12);
-x_93 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_93, 0, x_12);
-lean_ctor_set(x_93, 1, x_92);
-x_94 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__28;
-lean_inc_ref(x_58);
+x_89 = l_Lean_Syntax_node1(x_12, x_86, x_88);
 lean_inc(x_12);
-x_95 = l_Lean_Syntax_node1(x_12, x_94, x_58);
-lean_inc_ref_n(x_58, 3);
-lean_inc(x_95);
+x_90 = l_Lean_Syntax_node1(x_12, x_85, x_89);
 lean_inc(x_12);
-x_96 = l_Lean_Syntax_node5(x_12, x_91, x_93, x_95, x_58, x_58, x_58);
+x_91 = l_Lean_Syntax_node1(x_12, x_84, x_90);
+x_92 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__62;
+x_93 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__63;
 lean_inc(x_12);
-x_97 = l_Lean_Syntax_node1(x_12, x_18, x_96);
+x_94 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_94, 0, x_12);
+lean_ctor_set(x_94, 1, x_93);
+x_95 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__65;
+x_96 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__66;
 lean_inc(x_12);
-x_98 = l_Lean_Syntax_node1(x_12, x_17, x_97);
+x_97 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_97, 0, x_12);
+lean_ctor_set(x_97, 1, x_96);
+x_98 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__68;
+x_99 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__69;
 lean_inc(x_12);
-x_99 = l_Lean_Syntax_node1(x_12, x_16, x_98);
-lean_inc_ref(x_90);
+x_100 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_100, 0, x_12);
+lean_ctor_set(x_100, 1, x_99);
+x_101 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__28;
+lean_inc_ref(x_61);
 lean_inc(x_12);
-x_100 = l_Lean_Syntax_node2(x_12, x_88, x_90, x_99);
-x_101 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__25;
-x_102 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__26;
+x_102 = l_Lean_Syntax_node1(x_12, x_101, x_61);
+lean_inc_ref_n(x_61, 3);
+lean_inc(x_102);
 lean_inc(x_12);
-x_103 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_103, 0, x_12);
-lean_ctor_set(x_103, 1, x_101);
-lean_inc_ref_n(x_58, 4);
+x_103 = l_Lean_Syntax_node5(x_12, x_98, x_100, x_102, x_61, x_61, x_61);
 lean_inc(x_12);
-x_104 = l_Lean_Syntax_node6(x_12, x_102, x_103, x_95, x_58, x_58, x_58, x_58);
+x_104 = l_Lean_Syntax_node1(x_12, x_18, x_103);
 lean_inc(x_12);
-x_105 = l_Lean_Syntax_node1(x_12, x_18, x_104);
+x_105 = l_Lean_Syntax_node1(x_12, x_17, x_104);
 lean_inc(x_12);
-x_106 = l_Lean_Syntax_node1(x_12, x_17, x_105);
+x_106 = l_Lean_Syntax_node1(x_12, x_16, x_105);
+lean_inc_ref(x_97);
 lean_inc(x_12);
-x_107 = l_Lean_Syntax_node1(x_12, x_16, x_106);
-lean_inc_ref(x_90);
+x_107 = l_Lean_Syntax_node2(x_12, x_95, x_97, x_106);
+x_108 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__25;
+x_109 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__26;
 lean_inc(x_12);
-x_108 = l_Lean_Syntax_node2(x_12, x_88, x_90, x_107);
-x_109 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__1___closed__0;
-x_110 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__1___closed__1;
+x_110 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_110, 0, x_12);
+lean_ctor_set(x_110, 1, x_108);
+lean_inc_ref_n(x_61, 4);
 lean_inc(x_12);
-x_111 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_111, 0, x_12);
-lean_ctor_set(x_111, 1, x_109);
-x_112 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__1___closed__3;
-x_113 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__67;
+x_111 = l_Lean_Syntax_node6(x_12, x_109, x_110, x_102, x_61, x_61, x_61, x_61);
 lean_inc(x_12);
-x_114 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_114, 0, x_12);
-lean_ctor_set(x_114, 1, x_113);
+x_112 = l_Lean_Syntax_node1(x_12, x_18, x_111);
 lean_inc(x_12);
-x_115 = l_Lean_Syntax_node1(x_12, x_112, x_114);
+x_113 = l_Lean_Syntax_node1(x_12, x_17, x_112);
 lean_inc(x_12);
-x_116 = l_Lean_Syntax_node1(x_12, x_18, x_115);
+x_114 = l_Lean_Syntax_node1(x_12, x_16, x_113);
+lean_inc_ref(x_97);
 lean_inc(x_12);
-x_117 = l_Lean_Syntax_node2(x_12, x_110, x_111, x_116);
+x_115 = l_Lean_Syntax_node2(x_12, x_95, x_97, x_114);
+x_116 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__1___closed__0;
+x_117 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__1___closed__1;
 lean_inc(x_12);
-x_118 = l_Lean_Syntax_node1(x_12, x_18, x_117);
+x_118 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_118, 0, x_12);
+lean_ctor_set(x_118, 1, x_116);
+x_119 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__1___closed__3;
+x_120 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__70;
 lean_inc(x_12);
-x_119 = l_Lean_Syntax_node1(x_12, x_17, x_118);
+x_121 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_121, 0, x_12);
+lean_ctor_set(x_121, 1, x_120);
 lean_inc(x_12);
-x_120 = l_Lean_Syntax_node1(x_12, x_16, x_119);
+x_122 = l_Lean_Syntax_node1(x_12, x_119, x_121);
 lean_inc(x_12);
-x_121 = l_Lean_Syntax_node2(x_12, x_88, x_90, x_120);
+x_123 = l_Lean_Syntax_node1(x_12, x_18, x_122);
 lean_inc(x_12);
-x_122 = l_Lean_Syntax_node3(x_12, x_18, x_100, x_108, x_121);
+x_124 = l_Lean_Syntax_node2(x_12, x_117, x_118, x_123);
 lean_inc(x_12);
-x_123 = l_Lean_Syntax_node2(x_12, x_85, x_87, x_122);
+x_125 = l_Lean_Syntax_node1(x_12, x_18, x_124);
 lean_inc(x_12);
-x_124 = l_Lean_Syntax_node1(x_12, x_18, x_123);
+x_126 = l_Lean_Syntax_node1(x_12, x_17, x_125);
 lean_inc(x_12);
-x_125 = l_Lean_Syntax_node1(x_12, x_17, x_124);
+x_127 = l_Lean_Syntax_node1(x_12, x_16, x_126);
 lean_inc(x_12);
-x_126 = l_Lean_Syntax_node1(x_12, x_16, x_125);
+x_128 = l_Lean_Syntax_node2(x_12, x_95, x_97, x_127);
 lean_inc(x_12);
-x_127 = l_Lean_Syntax_node2(x_12, x_76, x_84, x_126);
-x_128 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__12;
-x_129 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__13;
+x_129 = l_Lean_Syntax_node3(x_12, x_18, x_107, x_115, x_128);
 lean_inc(x_12);
-x_130 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_130, 0, x_12);
-lean_ctor_set(x_130, 1, x_128);
-x_131 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__69;
-x_132 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__70;
-x_133 = l_Lean_addMacroScope(x_8, x_132, x_9);
+x_130 = l_Lean_Syntax_node2(x_12, x_92, x_94, x_129);
 lean_inc(x_12);
-x_134 = lean_alloc_ctor(3, 4, 0);
-lean_ctor_set(x_134, 0, x_12);
-lean_ctor_set(x_134, 1, x_131);
-lean_ctor_set(x_134, 2, x_133);
-lean_ctor_set(x_134, 3, x_30);
+x_131 = l_Lean_Syntax_node1(x_12, x_18, x_130);
 lean_inc(x_12);
-x_135 = l_Lean_Syntax_node1(x_12, x_18, x_134);
-lean_inc(x_135);
+x_132 = l_Lean_Syntax_node1(x_12, x_17, x_131);
 lean_inc(x_12);
-x_136 = l_Lean_Syntax_node2(x_12, x_129, x_130, x_135);
-x_137 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__9;
-x_138 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__10;
+x_133 = l_Lean_Syntax_node1(x_12, x_16, x_132);
 lean_inc(x_12);
-x_139 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_139, 0, x_12);
-lean_ctor_set(x_139, 1, x_137);
+x_134 = l_Lean_Syntax_node2(x_12, x_83, x_91, x_133);
+x_135 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__12;
+x_136 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__13;
 lean_inc(x_12);
-x_140 = l_Lean_Syntax_node2(x_12, x_138, x_139, x_135);
-x_141 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__60;
-x_142 = lean_array_push(x_141, x_59);
-lean_inc_ref(x_58);
-x_143 = lean_array_push(x_142, x_58);
-x_144 = lean_array_push(x_143, x_75);
-lean_inc_ref(x_58);
-x_145 = lean_array_push(x_144, x_58);
-x_146 = lean_array_push(x_145, x_127);
-lean_inc_ref(x_58);
-x_147 = lean_array_push(x_146, x_58);
-x_148 = lean_array_push(x_147, x_136);
-x_149 = lean_array_push(x_148, x_58);
-x_150 = lean_array_push(x_149, x_140);
+x_137 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_137, 0, x_12);
+lean_ctor_set(x_137, 1, x_135);
+x_138 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__72;
+x_139 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__73;
+x_140 = l_Lean_addMacroScope(x_8, x_139, x_9);
 lean_inc(x_12);
-x_151 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_151, 0, x_12);
-lean_ctor_set(x_151, 1, x_18);
-lean_ctor_set(x_151, 2, x_150);
+x_141 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_141, 0, x_12);
+lean_ctor_set(x_141, 1, x_138);
+lean_ctor_set(x_141, 2, x_140);
+lean_ctor_set(x_141, 3, x_33);
 lean_inc(x_12);
-x_152 = l_Lean_Syntax_node1(x_12, x_17, x_151);
+x_142 = l_Lean_Syntax_node1(x_12, x_18, x_141);
+lean_inc(x_142);
 lean_inc(x_12);
-x_153 = l_Lean_Syntax_node1(x_12, x_16, x_152);
-x_154 = l_Lean_Syntax_node3(x_12, x_13, x_15, x_153, x_44);
-x_155 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_155, 0, x_154);
-lean_ctor_set(x_155, 1, x_3);
-return x_155;
+x_143 = l_Lean_Syntax_node2(x_12, x_136, x_137, x_142);
+x_144 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__9;
+x_145 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__10;
+lean_inc(x_12);
+x_146 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_146, 0, x_12);
+lean_ctor_set(x_146, 1, x_144);
+lean_inc(x_12);
+x_147 = l_Lean_Syntax_node2(x_12, x_145, x_146, x_142);
+x_148 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__60;
+x_149 = lean_array_push(x_148, x_66);
+lean_inc_ref(x_61);
+x_150 = lean_array_push(x_149, x_61);
+x_151 = lean_array_push(x_150, x_82);
+lean_inc_ref(x_61);
+x_152 = lean_array_push(x_151, x_61);
+x_153 = lean_array_push(x_152, x_134);
+lean_inc_ref(x_61);
+x_154 = lean_array_push(x_153, x_61);
+x_155 = lean_array_push(x_154, x_143);
+x_156 = lean_array_push(x_155, x_61);
+x_157 = lean_array_push(x_156, x_147);
+lean_inc(x_12);
+x_158 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_158, 0, x_12);
+lean_ctor_set(x_158, 1, x_18);
+lean_ctor_set(x_158, 2, x_157);
+lean_inc(x_12);
+x_159 = l_Lean_Syntax_node1(x_12, x_17, x_158);
+lean_inc(x_12);
+x_160 = l_Lean_Syntax_node1(x_12, x_16, x_159);
+x_161 = l_Lean_Syntax_node3(x_12, x_13, x_15, x_160, x_47);
+x_162 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_162, 0, x_161);
+lean_ctor_set(x_162, 1, x_3);
+return x_162;
 }
 }
 }
@@ -2813,7 +2875,7 @@ static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("DerivingHelpers.and_true_curry", 30, 30);
+x_1 = lean_mk_string_unchecked("term_&&_", 8, 8);
 return x_1;
 }
 }
@@ -2822,7 +2884,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__0;
-x_2 = l_String_toSubstring_x27(x_1);
+x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
@@ -2830,38 +2892,63 @@ static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("and_true_curry", 14, 14);
+x_1 = lean_mk_string_unchecked("&&", 2, 2);
 return x_1;
 }
 }
 static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__2;
-x_2 = l_DerivingHelpers_tacticDeriving__ReflEq__tactic___closed__0;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("DerivingHelpers.and_true_curry", 30, 30);
+return x_1;
 }
 }
 static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__4() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__3;
+x_2 = l_String_toSubstring_x27(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("and_true_curry", 14, 14);
+return x_1;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__5;
+x_2 = l_DerivingHelpers_tacticDeriving__ReflEq__tactic___closed__0;
+x_3 = l_Lean_Name_mkStr2(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__7() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__3;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__6;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__5() {
+static lean_object* _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__4;
+x_2 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__7;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -2886,7 +2973,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; 
 x_8 = lean_ctor_get(x_2, 1);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_2, 2);
@@ -2897,46 +2984,169 @@ lean_dec_ref(x_2);
 x_11 = 0;
 x_12 = l_Lean_SourceInfo_fromRef(x_10, x_11);
 lean_dec(x_10);
-x_13 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__37;
-x_14 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__38;
+x_13 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__4;
+x_14 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__5;
 lean_inc(x_12);
 x_15 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_15, 0, x_12);
-lean_ctor_set(x_15, 1, x_13);
-x_16 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__8;
-x_17 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__1;
-x_18 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__3;
-x_19 = l_Lean_addMacroScope(x_8, x_18, x_9);
-x_20 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__5;
+lean_ctor_set(x_15, 1, x_14);
+x_16 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__7;
+x_17 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__9;
+x_18 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__11;
+x_19 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__1;
+x_20 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__2;
 lean_inc(x_12);
-x_21 = lean_alloc_ctor(3, 4, 0);
+x_21 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_21, 0, x_12);
-lean_ctor_set(x_21, 1, x_17);
-lean_ctor_set(x_21, 2, x_19);
-lean_ctor_set(x_21, 3, x_20);
-x_22 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__11;
-x_23 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__46;
-x_24 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__47;
+lean_ctor_set(x_21, 1, x_20);
+x_22 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__3;
+x_23 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__4;
 lean_inc(x_12);
-x_25 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_25, 0, x_12);
-lean_ctor_set(x_25, 1, x_24);
-x_26 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__27;
+x_24 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_24, 0, x_12);
+lean_ctor_set(x_24, 1, x_22);
+x_25 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__7;
+x_26 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__9;
+x_27 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__17;
+x_28 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__19;
+x_29 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__21;
+x_30 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__23;
+x_31 = lean_box(0);
+lean_inc(x_9);
+lean_inc(x_8);
+x_32 = l_Lean_addMacroScope(x_8, x_31, x_9);
+x_33 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__0;
 lean_inc(x_12);
-x_27 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_27, 0, x_12);
-lean_ctor_set(x_27, 1, x_26);
+x_34 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_34, 0, x_12);
+lean_ctor_set(x_34, 1, x_30);
+lean_ctor_set(x_34, 2, x_32);
+lean_ctor_set(x_34, 3, x_33);
 lean_inc(x_12);
-x_28 = l_Lean_Syntax_node2(x_12, x_23, x_25, x_27);
+x_35 = l_Lean_Syntax_node1(x_12, x_29, x_34);
+lean_inc_ref(x_15);
 lean_inc(x_12);
-x_29 = l_Lean_Syntax_node1(x_12, x_22, x_28);
+x_36 = l_Lean_Syntax_node2(x_12, x_28, x_15, x_35);
+x_37 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__1;
+x_38 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__27;
+x_39 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__29;
+x_40 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__30;
 lean_inc(x_12);
-x_30 = l_Lean_Syntax_node2(x_12, x_16, x_21, x_29);
-x_31 = l_Lean_Syntax_node2(x_12, x_14, x_15, x_30);
-x_32 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_32, 0, x_31);
-lean_ctor_set(x_32, 1, x_3);
-return x_32;
+x_41 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_41, 0, x_12);
+lean_ctor_set(x_41, 1, x_40);
+lean_inc_ref(x_41);
+lean_inc(x_12);
+x_42 = l_Lean_Syntax_node1(x_12, x_39, x_41);
+x_43 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__31;
+lean_inc(x_12);
+x_44 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_44, 0, x_12);
+lean_ctor_set(x_44, 1, x_43);
+lean_inc_n(x_42, 2);
+lean_inc(x_12);
+x_45 = l_Lean_Syntax_node3(x_12, x_38, x_42, x_44, x_42);
+x_46 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__2;
+lean_inc(x_12);
+x_47 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_47, 0, x_12);
+lean_ctor_set(x_47, 1, x_46);
+lean_inc(x_42);
+lean_inc(x_12);
+x_48 = l_Lean_Syntax_node3(x_12, x_37, x_45, x_47, x_42);
+x_49 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__62;
+lean_inc(x_12);
+x_50 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_50, 0, x_12);
+lean_ctor_set(x_50, 1, x_49);
+lean_inc_ref(x_50);
+lean_inc(x_12);
+x_51 = l_Lean_Syntax_node3(x_12, x_27, x_36, x_48, x_50);
+x_52 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__32;
+lean_inc(x_12);
+x_53 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_53, 0, x_12);
+lean_ctor_set(x_53, 1, x_52);
+x_54 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__34;
+x_55 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__35;
+lean_inc(x_9);
+lean_inc(x_8);
+x_56 = l_Lean_addMacroScope(x_8, x_55, x_9);
+x_57 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__2;
+lean_inc(x_12);
+x_58 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_58, 0, x_12);
+lean_ctor_set(x_58, 1, x_54);
+lean_ctor_set(x_58, 2, x_56);
+lean_ctor_set(x_58, 3, x_57);
+lean_inc(x_12);
+x_59 = l_Lean_Syntax_node3(x_12, x_26, x_51, x_53, x_58);
+x_60 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__39;
+lean_inc(x_12);
+x_61 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_61, 0, x_12);
+lean_ctor_set(x_61, 1, x_60);
+lean_inc(x_12);
+x_62 = l_Lean_Syntax_node3(x_12, x_25, x_59, x_61, x_42);
+x_63 = l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__17;
+lean_inc(x_12);
+x_64 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_64, 0, x_12);
+lean_ctor_set(x_64, 1, x_18);
+lean_ctor_set(x_64, 2, x_63);
+lean_inc_ref(x_64);
+lean_inc(x_12);
+x_65 = l_Lean_Syntax_node3(x_12, x_23, x_24, x_62, x_64);
+lean_inc(x_12);
+x_66 = l_Lean_Syntax_node1(x_12, x_18, x_65);
+lean_inc(x_12);
+x_67 = l_Lean_Syntax_node1(x_12, x_17, x_66);
+lean_inc(x_12);
+x_68 = l_Lean_Syntax_node1(x_12, x_16, x_67);
+lean_inc(x_12);
+x_69 = l_Lean_Syntax_node2(x_12, x_19, x_21, x_68);
+x_70 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__40;
+x_71 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__41;
+lean_inc(x_12);
+x_72 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_72, 0, x_12);
+lean_ctor_set(x_72, 1, x_70);
+x_73 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__11;
+x_74 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__4;
+x_75 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__6;
+x_76 = l_Lean_addMacroScope(x_8, x_75, x_9);
+x_77 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__8;
+lean_inc(x_12);
+x_78 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_78, 0, x_12);
+lean_ctor_set(x_78, 1, x_74);
+lean_ctor_set(x_78, 2, x_76);
+lean_ctor_set(x_78, 3, x_77);
+x_79 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__49;
+x_80 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__50;
+lean_inc(x_12);
+x_81 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_81, 0, x_12);
+lean_ctor_set(x_81, 1, x_80);
+lean_inc(x_12);
+x_82 = l_Lean_Syntax_node2(x_12, x_79, x_81, x_41);
+lean_inc(x_12);
+x_83 = l_Lean_Syntax_node1(x_12, x_18, x_82);
+lean_inc(x_12);
+x_84 = l_Lean_Syntax_node2(x_12, x_73, x_78, x_83);
+lean_inc(x_12);
+x_85 = l_Lean_Syntax_node2(x_12, x_71, x_72, x_84);
+lean_inc(x_12);
+x_86 = l_Lean_Syntax_node3(x_12, x_18, x_69, x_64, x_85);
+lean_inc(x_12);
+x_87 = l_Lean_Syntax_node1(x_12, x_17, x_86);
+lean_inc(x_12);
+x_88 = l_Lean_Syntax_node1(x_12, x_16, x_87);
+x_89 = l_Lean_Syntax_node3(x_12, x_13, x_15, x_88, x_50);
+x_90 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_90, 0, x_89);
+lean_ctor_set(x_90, 1, x_3);
+return x_90;
 }
 }
 }
@@ -3097,8 +3307,8 @@ lean_inc(x_10);
 x_15 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_15, 0, x_10);
 lean_ctor_set(x_15, 1, x_13);
-x_16 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__26;
-x_17 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__27;
+x_16 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__29;
+x_17 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__30;
 lean_inc(x_10);
 x_18 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_18, 0, x_10);
@@ -3359,8 +3569,8 @@ lean_inc(x_12);
 x_45 = l_Lean_Syntax_node1(x_12, x_18, x_44);
 lean_inc(x_12);
 x_46 = l_Lean_Syntax_node2(x_12, x_20, x_21, x_45);
-x_47 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__71;
-x_48 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__72;
+x_47 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__74;
+x_48 = l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__75;
 lean_inc(x_12);
 x_49 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_49, 0, x_12);
@@ -3824,6 +4034,12 @@ l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tacti
 lean_mark_persistent(l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__74);
 l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__75 = _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__75();
 lean_mark_persistent(l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__75);
+l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__76 = _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__76();
+lean_mark_persistent(l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__76);
+l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__77 = _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__77();
+lean_mark_persistent(l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__77);
+l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__78 = _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__78();
+lean_mark_persistent(l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__2___closed__78);
 l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__0 = _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__0();
 lean_mark_persistent(l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__0);
 l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__1 = _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__3___closed__1();
@@ -3858,6 +4074,12 @@ l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tacti
 lean_mark_persistent(l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__4);
 l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__5 = _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__5();
 lean_mark_persistent(l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__5);
+l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__6 = _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__6();
+lean_mark_persistent(l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__6);
+l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__7 = _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__7();
+lean_mark_persistent(l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__7);
+l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__8 = _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__8();
+lean_mark_persistent(l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__4___closed__8);
 l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__5___closed__0 = _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__5___closed__0();
 lean_mark_persistent(l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__5___closed__0);
 l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__5___closed__1 = _init_l___aux__Init__LawfulBEqTactics______macroRules__tacticDeriving__LawfulEq__tactic__step__5___closed__1();

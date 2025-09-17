@@ -416,6 +416,8 @@ def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM Str
   let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers
   let declId    := stx[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
+  if modifiers.isMeta then
+    modifyEnv (addMeta · declName)
   addDeclarationRangesForBuiltin declName modifiers.stx stx
   let (binders, type?) := expandOptDeclSig stx[2]
   let exts := stx[3]

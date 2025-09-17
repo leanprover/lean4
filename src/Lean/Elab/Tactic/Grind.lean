@@ -238,6 +238,7 @@ private def elabFallback (fallback? : Option Term) : TermElabM (Grind.GoalM Unit
       levelParams := []
       type, value, hints := .opaque, safety := .safe
     }
+    modifyEnv (addMeta · auxDeclName)
     addAndCompile decl
     pure auxDeclName
   unsafe evalConst (Grind.GoalM Unit) auxDeclName

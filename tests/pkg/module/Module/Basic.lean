@@ -1,5 +1,7 @@
 module
 
+meta import Init.Dynamic
+
 public axiom testSorry : α
 
 /-! Module docstring -/
@@ -364,15 +366,26 @@ constructor:
 section
 set_option pp.oneline true
 /--
-info: private def OptParamStruct.pauto._autoParam : Lean.Syntax :=
+info: private meta def OptParamStruct.pauto._autoParam : Lean.Syntax :=
 Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
 -/
 #guard_msgs in
 #print OptParamStruct.pauto._autoParam
 /--
-info: @[expose] def OptParamStruct.auto._autoParam : Lean.Syntax :=
+info: @[expose] meta def OptParamStruct.auto._autoParam : Lean.Syntax :=
 Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
 -/
 #guard_msgs in
 #print OptParamStruct.auto._autoParam
 end
+
+/-! `deriving` should derive `meta` defs on `meta` structures. -/
+meta structure Foo where
+deriving TypeName
+
+/--
+info: private meta def instTypeNameFoo : TypeName Foo :=
+inst✝
+-/
+#guard_msgs in
+#print instTypeNameFoo

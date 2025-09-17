@@ -358,7 +358,7 @@ section
 -- we can't use `in` as it is parsed as a single command and so the option would not influence the
 -- parser.
 set_option internal.parseQuotWithCurrentStage false
-private def genDecodeToml
+private meta def genDecodeToml
   (cmds : Array Command)
   (tyName : Name) [info : ConfigInfo tyName]  (takesName : Bool)
   (exclude : Array Name := {})

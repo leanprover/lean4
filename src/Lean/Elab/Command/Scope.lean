@@ -76,6 +76,11 @@ structure Scope where
   /-- True if a `public section` is in scope. -/
   isPublic : Bool := false
   /--
+  True if (applicable) declarations should automatically be marked as `meta`. No surface syntax
+  currently.
+  -/
+  isMeta : Bool := false
+  /--
   Attributes that should be applied to all matching declaration in the section. Inherited from
   parent scopes.
   -/

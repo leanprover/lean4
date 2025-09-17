@@ -172,3 +172,21 @@ def checkPostponed : TermElabM Unit := do
           stats.failed.map (·.toMessageData)
 
   logInfo msg
+
+/--
+A postponed check that a syntax kind name exists.
+-/
+structure PostponedKind where
+  /-- The kind's name. -/
+  name : Name
+deriving TypeName
+
+/--
+A name that will be checked to exist later.
+-/
+structure PostponedName where
+  /--
+  The name to check for.
+  -/
+  name : Name
+deriving TypeName

@@ -5,6 +5,11 @@
    "kind": 22,
    "data": ["«external:file:///completion7.lean»", 6, 10, 0, "cAnd"]}],
  "isIncomplete": false}
+resolve: And
+{"label": "And",
+ "kind": 22,
+ "detail": "Type 1",
+ "data": ["«external:file:///completion7.lean»", 6, 10, 0, "cAnd"]}
 {"textDocument": {"uri": "file:///completion7.lean"},
  "position": {"line": 8, "character": 11}}
 {"items":
@@ -18,3 +23,18 @@
    "kind": 4,
    "data": ["«external:file:///completion7.lean»", 8, 11, 0, "cAnd.mk"]}],
  "isIncomplete": false}
+resolve: left
+{"label": "left",
+ "kind": 5,
+ "detail": "And → Type",
+ "data": ["«external:file:///completion7.lean»", 8, 11, 0, "cAnd.left"]}
+resolve: right
+{"label": "right",
+ "kind": 5,
+ "detail": "And → Type",
+ "data": ["«external:file:///completion7.lean»", 8, 11, 0, "cAnd.right"]}
+resolve: mk
+{"label": "mk",
+ "kind": 4,
+ "detail": "Type → Type → And",
+ "data": ["«external:file:///completion7.lean»", 8, 11, 0, "cAnd.mk"]}

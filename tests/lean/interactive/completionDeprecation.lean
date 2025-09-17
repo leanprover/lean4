@@ -24,4 +24,4 @@ def SomeStructure.foo7 (s : SomeStructure) : Nat := s.n
 def SomeStructure.foo8 (s : SomeStructure) : Nat := s.n
 
 example := SomeStructure.foo  -- Completion items with a deprecation tag and a deprecation message
-                          --^ textDocument/completion
+                          --^ completion

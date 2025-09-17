@@ -10,10 +10,10 @@ inductive MyNat
   | zero | succ (n : MyNat)
 
 example : MyNat := .ze
-                    --^ textDocument/completion
+                    --^ completion
 
 example : MyNat → MyNat := .su
-                            --^ textDocument/completion
+                            --^ completion
 
 /-!
 Unfolding a type
@@ -22,22 +22,22 @@ Unfolding a type
 def MyNat' := MyNat
 
 example : MyNat' := .ze
-                     --^ textDocument/completion
+                     --^ completion
 
 example : MyNat' → MyNat' := .su
-                              --^ textDocument/completion
+                              --^ completion
 
 /-!
 Seeing through type annotations
 -/
 
 example : outParam MyNat := .ze
-                             --^ textDocument/completion
+                             --^ completion
 
 -- Definitions that are in the annotation's namespace are *not* reported
 def outParam.baz : MyNat := .zero
 example : outParam MyNat := .ba
-                             --^ textDocument/completion
+                             --^ completion
 
 /-!
 Aliases are currently not supported
@@ -50,7 +50,7 @@ export MyLib.MyNat (zero')
 end MyNat
 
 example : MyNat := .zero
-                      --^ textDocument/completion
+                      --^ completion
 example : MyNat := .zero' -- it successfully elaborates
 
 /-!
@@ -63,6 +63,6 @@ end MyLib
 
 open MyLib in
 example : MyNat → MyNat := .succ
-                              --^ textDocument/completion
+                              --^ completion
 open MyLib in
 example : MyNat → MyNat := .succ' -- it successfully elaborates

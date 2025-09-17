@@ -8,3 +8,13 @@
    "kind": 6,
    "data": ["«external:file:///533.lean»", 4, 10, 0, "f_uniq.7"]}],
  "isIncomplete": false}
+resolve: Foo
+{"label": "Foo",
+ "kind": 6,
+ "detail": "Sort ?u",
+ "data": ["«external:file:///533.lean»", 4, 10, 0, "f_uniq.3"]}
+resolve: F
+{"label": "F",
+ "kind": 6,
+ "detail": "Sort ?u",
+ "data": ["«external:file:///533.lean»", 4, 10, 0, "f_uniq.7"]}

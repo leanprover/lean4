@@ -251,6 +251,22 @@ partial def main (args : List String) : IO Unit := do
               let resp ← Ipc.readResponseAs requestNo Lean.Widget.WidgetSource
               IO.eprintln (toJson resp.result)
               requestNo := requestNo + 1
+          | "completion" =>
+            let p : CompletionParams := {
+              textDocument := { uri }
+              position := pos
+            }
+            IO.eprintln (toJson p)
+            Ipc.writeRequest ⟨requestNo, "textDocument/completion", p⟩
+            let r ← Ipc.readResponseAs requestNo CompletionList
+            IO.eprintln (toJson r.result)
+            requestNo := requestNo + 1
+            for i in r.result.items do
+              IO.eprintln s!"resolve: {i.label}"
+              Ipc.writeRequest ⟨requestNo, "completionItem/resolve", i⟩
+              let r ← Ipc.readResponseAs requestNo CompletionItem
+              IO.eprintln (toJson r.result)
+              requestNo := requestNo + 1
           | _ =>
             let Except.ok params ← pure <| Json.parse params
               | throw <| IO.userError s!"failed to parse {params}"

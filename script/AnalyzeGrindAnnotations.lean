@@ -90,7 +90,7 @@ def analyzeEMatchTheorems (c : Config := {}) : MetaM Unit := do
 
 /-- Macro for analyzing E-match theorems with unlimited heartbeats -/
 macro "#analyzeEMatchTheorems" : command => `(
-  -- set_option maxHeartbeats 2_000_000 in
+  set_option maxHeartbeats 2_000_000 in
   run_meta analyzeEMatchTheorems
 )
 
@@ -112,7 +112,7 @@ run_meta analyzeEMatchTheorem ``Array.extract_empty {}
 --   `filterMap g (filterMap f xs) = filterMap (f >=> g) xs`
 --   to avoid the lambda that `grind` struggles with, but this would require more API around the fish.
 -- * Alternatively, we could investigating splitting equivalence classes into "active" and "passive"
---   buckets, and e.g. when instantianting `filterMap_some`,
+--   buckets, and e.g. when instantianting `filterMap_some : Array.filterMap some xs = xs`,
 --   leave `Array.filterMap some xs` in the "passive" bucket.
 --   We would use this for merging classes, but not instantiating.
 run_meta analyzeEMatchTheorem ``Array.filterMap_some {}
@@ -148,3 +148,6 @@ run_meta analyzeEMatchTheorem ``List.flatMap_reverse {}
 -- * forbid `List.countP p (List.filter p l)` for `countP_eq_length_filter`
 -- * this one is just crazy; so over-eager instantiation of unhelpful lemmas
 run_meta analyzeEMatchTheorem ``List.getLast_filter {}
+
+-- * ick!
+run_meta analyzeEMatchTheorem ``Option.attachWith_map_subtype_val {}

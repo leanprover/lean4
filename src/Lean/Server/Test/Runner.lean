@@ -197,10 +197,18 @@ partial def main (args : List String) : IO Unit := do
               range := ⟨pos, pos⟩
             }
             Ipc.writeRequest ⟨requestNo, "textDocument/codeAction", params⟩
-            let r ← Ipc.readResponseAs requestNo (Array Json)
+            let r ← Ipc.readResponseAs requestNo (Array CodeAction)
             for x in r.result do
-              IO.eprintln x
+              IO.eprintln (toJson x)
             requestNo := requestNo + 1
+            for x in r.result do
+              if x.data?.isNone then
+                continue
+              IO.eprintln s!"resolve: {x.title}"
+              Ipc.writeRequest ⟨requestNo, "codeAction/resolve", x⟩
+              let r ← Ipc.readResponseAs requestNo CodeAction
+              IO.eprintln (toJson r.result)
+              requestNo := requestNo + 1
           | "goals" =>
             if rpcSessionId.isNone then
               Ipc.writeRequest ⟨requestNo, "$/lean/rpc/connect",  RpcConnectParams.mk uri⟩
@@ -262,6 +270,8 @@ partial def main (args : List String) : IO Unit := do
             IO.eprintln (toJson r.result)
             requestNo := requestNo + 1
             for i in r.result.items do
+              if i.data?.isNone then
+                continue
               IO.eprintln s!"resolve: {i.label}"
               Ipc.writeRequest ⟨requestNo, "completionItem/resolve", i⟩
               let r ← Ipc.readResponseAs requestNo CompletionItem

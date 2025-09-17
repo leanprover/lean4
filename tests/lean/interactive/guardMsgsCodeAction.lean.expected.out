@@ -1,0 +1,11 @@
+{"title": "Update #guard_msgs with generated message",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "Lean.CodeAction.cmdCodeActionProvider",
+  "params":
+  {"textDocument": {"uri": "file:///guardMsgsCodeAction.lean"},
+   "range":
+   {"start": {"line": 0, "character": 2}, "end": {"line": 0, "character": 2}},
+   "context": {"diagnostics": []}}}}

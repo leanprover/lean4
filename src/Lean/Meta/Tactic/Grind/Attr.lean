@@ -115,7 +115,7 @@ private def registerGrindAttr (minIndexable : Bool) (showInfo : Bool) : IO Unit 
             for ctor in info.ctors do
               addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
         else
-          addEMatchAttrAndSuggest declName attrKind (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
+          addEMatchAttrAndSuggest stx declName attrKind (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
       | .symbol prio => addSymbolPriorityAttr declName attrKind prio
     erase := fun declName => MetaM.run' do
       if showInfo then

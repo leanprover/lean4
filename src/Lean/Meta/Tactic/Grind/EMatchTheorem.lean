@@ -18,6 +18,7 @@ public import Lean.Meta.Tactic.Grind.Util
 import Lean.Message
 import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Match.Basic
+import Lean.Meta.Tactic.TryThis
 
 public section
 
@@ -348,22 +349,25 @@ def EMatchTheoremKind.isDefault : EMatchTheoremKind → Bool
   | .default _ => true
   | _ => false
 
-def EMatchTheoremKind.toAttribute : EMatchTheoremKind → String
-  | .eqLhs true     => "[grind = gen]"
-  | .eqLhs false    => "[grind =]"
-  | .eqRhs true     => "[grind =_ gen]"
-  | .eqRhs false    => "[grind =_]"
-  | .eqBoth false   => "[grind _=_]"
-  | .eqBoth true    => "[grind _=_ gen]"
-  | .eqBwd          => "[grind ←=]"
-  | .fwd            => "[grind →]"
-  | .bwd false      => "[grind ←]"
-  | .bwd true       => "[grind ← gen]"
-  | .leftRight      => "[grind =>]"
-  | .rightLeft      => "[grind <=]"
-  | .default false  => "[grind]"
-  | .default true   => "[grind gen]"
-  | .user           => "[grind]"
+def EMatchTheoremKind.toAttributeCore : EMatchTheoremKind → String
+  | .eqLhs true     => " = gen"
+  | .eqLhs false    => " ="
+  | .eqRhs true     => " =_ gen"
+  | .eqRhs false    => " =_"
+  | .eqBoth false   => " _=_"
+  | .eqBoth true    => " _=_ gen"
+  | .eqBwd          => " ←="
+  | .fwd            => " →"
+  | .bwd false      => " ←"
+  | .bwd true       => " ← gen"
+  | .leftRight      => " =>"
+  | .rightLeft      => " <="
+  | .default false  => ""
+  | .default true   => " gen"
+  | .user           => ""
+
+def EMatchTheoremKind.toAttribute (k : EMatchTheoremKind) : String :=
+  s!"[grind{toAttributeCore k}]"
 
 private def EMatchTheoremKind.explainFailure : EMatchTheoremKind → String
   | .eqLhs _   => "failed to find pattern in the left-hand side of the theorem's conclusion"
@@ -1468,18 +1472,28 @@ def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatch
       let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := showInfo) (minIndexable := minIndexable)
       ematchTheoremsExt.add thm attrKind
 
-structure SelectM.State where
-  thm?    : Option EMatchTheorem := none
-  several : Bool := false
+private structure SelectM.State where
+  -- **Note**: hack, an attribute is not a tactic.
+  suggestions : Array Tactic.TryThis.Suggestion := #[]
+  thms : Array EMatchTheorem := #[]
 
 private abbrev SelectM := StateT SelectM.State MetaM
 
-private def save (thm : EMatchTheorem) : SelectM Unit := do
-  logInfo m!"modifier `{thm.kind.toAttribute}` produces the following pattern{indentD (thm.patterns.map ppPattern)}"
-  if (← get).thm?.isNone then
-    modify fun s => { s with thm? := some thm }
-  else
-    modify fun s => { s with several := true }
+private def save (thm : EMatchTheorem) (minIndexable : Bool) : SelectM Unit := do
+  -- We only save `thm` if the pattern is different from the ones that were already found.
+  if (← get).thms.all fun thm' => thm.patterns != thm'.patterns then
+    let baseAttr := if minIndexable then "grind!" else "grind"
+    let msg := s!"] for pattern: {← thm.patterns.mapM fun p => (ppPattern p).toString}"
+    modify fun s => { s with
+      thms := s.thms.push thm
+      suggestions := s.suggestions.push {
+        suggestion := .string s!"{baseAttr}{thm.kind.toAttributeCore}"
+        -- **Note**: small hack to include brackets in the suggestion
+        preInfo?   := some "["
+        -- **Note**: appears only on the info view.
+        postInfo?  := some msg
+      }
+    }
 
 /--
 Tries different modifiers, logs info messages with modifiers that worked, but stores just the first one that worked.
@@ -1487,27 +1501,36 @@ Tries different modifiers, logs info messages with modifiers that worked, but st
 Remark: if `backward.grind.inferPattern` is `true`, then `.default false` is used.
 The parameter `showInfo` is only taken into account when `backward.grind.inferPattern` is `true`.
 -/
-def addEMatchAttrAndSuggest (declName : Name) (attrKind : AttributeKind) (prios : SymbolPriorities) (minIndexable : Bool) (showInfo : Bool) : MetaM Unit := do
+def addEMatchAttrAndSuggest (ref : Syntax) (declName : Name) (attrKind : AttributeKind) (prios : SymbolPriorities) (minIndexable : Bool) (showInfo : Bool) : MetaM Unit := do
   if backward.grind.inferPattern.get (← getOptions) then
     addEMatchAttr declName attrKind (.default false) prios (minIndexable := minIndexable) (showInfo := showInfo)
   else
-    let tryModifier (thmKind : EMatchTheoremKind) : SelectM Unit := do
+    let tryModifier (thmKind : EMatchTheoremKind) (minIndexable : Bool) : SelectM Unit := do
       try
         let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := false) (minIndexable := minIndexable)
-        save thm
-      catch ex =>
-        logInfo m!"failed to use `{thmKind.toAttribute}`, with error{indentD ex.toMessageData}"
+        save thm minIndexable
+      catch _ =>
+        return ()
+    let searchCore (minIndexable : Bool) : SelectM Unit := do
+      tryModifier (.bwd false) minIndexable
+      tryModifier .fwd minIndexable
+      tryModifier .rightLeft minIndexable
+      tryModifier .leftRight minIndexable
     let search : SelectM Unit := do
-      tryModifier (.eqLhs false)
-      tryModifier (.bwd false)
-      tryModifier .fwd
-      tryModifier .rightLeft
-      tryModifier .leftRight
+      if minIndexable then
+        searchCore true
+      else
+        tryModifier (.eqLhs false) false
+        tryModifier (.eqRhs false) false
+        searchCore false
+        searchCore true
     let (_, s) ← search.run {}
-    if let some thm := s.thm? then
-      if s.several then
-        logWarning m!"more than one `[grind]` is applicable, but only the first one is applied"
-      ematchTheoremsExt.add thm attrKind
+    if h₁ : 0 < s.thms.size then
+      if s.suggestions.size == 1 then
+        Tactic.TryThis.addSuggestion ref s.suggestions[0]!
+      else
+        Tactic.TryThis.addSuggestions ref s.suggestions
+      ematchTheoremsExt.add s.thms[0] attrKind
     else
       throwError "invalid `grind` theorem, failed to find an usable pattern using different modifiers"
 

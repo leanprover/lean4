@@ -1468,6 +1468,49 @@ def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatch
       let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := showInfo) (minIndexable := minIndexable)
       ematchTheoremsExt.add thm attrKind
 
+structure SelectM.State where
+  thm?    : Option EMatchTheorem := none
+  several : Bool := false
+
+private abbrev SelectM := StateT SelectM.State MetaM
+
+private def save (thm : EMatchTheorem) : SelectM Unit := do
+  logInfo m!"modifier `{thm.kind.toAttribute}` produces the following pattern{indentD (thm.patterns.map ppPattern)}"
+  if (← get).thm?.isNone then
+    modify fun s => { s with thm? := some thm }
+  else
+    modify fun s => { s with several := true }
+
+/--
+Tries different modifiers, logs info messages with modifiers that worked, but stores just the first one that worked.
+
+Remark: if `backward.grind.inferPattern` is `true`, then `.default false` is used.
+The parameter `showInfo` is only taken into account when `backward.grind.inferPattern` is `true`.
+-/
+def addEMatchAttrAndSuggest (declName : Name) (attrKind : AttributeKind) (prios : SymbolPriorities) (minIndexable : Bool) (showInfo : Bool) : MetaM Unit := do
+  if backward.grind.inferPattern.get (← getOptions) then
+    addEMatchAttr declName attrKind (.default false) prios (minIndexable := minIndexable) (showInfo := showInfo)
+  else
+    let tryModifier (thmKind : EMatchTheoremKind) : SelectM Unit := do
+      try
+        let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := false) (minIndexable := minIndexable)
+        save thm
+      catch ex =>
+        logInfo m!"failed to use `{thmKind.toAttribute}`, with error{indentD ex.toMessageData}"
+    let search : SelectM Unit := do
+      tryModifier (.eqLhs false)
+      tryModifier (.bwd false)
+      tryModifier .fwd
+      tryModifier .rightLeft
+      tryModifier .leftRight
+    let (_, s) ← search.run {}
+    if let some thm := s.thm? then
+      if s.several then
+        logWarning m!"more than one `[grind]` is applicable, but only the first one is applied"
+      ematchTheoremsExt.add thm attrKind
+    else
+      throwError "invalid `grind` theorem, failed to find an usable pattern using different modifiers"
+
 def eraseEMatchAttr (declName : Name) : MetaM Unit := do
   /-
   Remark: consider the following example

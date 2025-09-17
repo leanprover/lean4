@@ -18,6 +18,7 @@ public import Lean.Meta.Tactic.Grind.Util
 import Lean.Message
 import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Match.Basic
+import Lean.Meta.Tactic.TryThis
 
 public section
 
@@ -348,22 +349,25 @@ def EMatchTheoremKind.isDefault : EMatchTheoremKind → Bool
   | .default _ => true
   | _ => false
 
-def EMatchTheoremKind.toAttribute : EMatchTheoremKind → String
-  | .eqLhs true     => "[grind = gen]"
-  | .eqLhs false    => "[grind =]"
-  | .eqRhs true     => "[grind =_ gen]"
-  | .eqRhs false    => "[grind =_]"
-  | .eqBoth false   => "[grind _=_]"
-  | .eqBoth true    => "[grind _=_ gen]"
-  | .eqBwd          => "[grind ←=]"
-  | .fwd            => "[grind →]"
-  | .bwd false      => "[grind ←]"
-  | .bwd true       => "[grind ← gen]"
-  | .leftRight      => "[grind =>]"
-  | .rightLeft      => "[grind <=]"
-  | .default false  => "[grind]"
-  | .default true   => "[grind gen]"
-  | .user           => "[grind]"
+def EMatchTheoremKind.toAttributeCore : EMatchTheoremKind → String
+  | .eqLhs true     => " = gen"
+  | .eqLhs false    => " ="
+  | .eqRhs true     => " =_ gen"
+  | .eqRhs false    => " =_"
+  | .eqBoth false   => " _=_"
+  | .eqBoth true    => " _=_ gen"
+  | .eqBwd          => " ←="
+  | .fwd            => " →"
+  | .bwd false      => " ←"
+  | .bwd true       => " ← gen"
+  | .leftRight      => " =>"
+  | .rightLeft      => " <="
+  | .default false  => ""
+  | .default true   => " gen"
+  | .user           => ""
+
+def EMatchTheoremKind.toAttribute (k : EMatchTheoremKind) : String :=
+  s!"[grind{toAttributeCore k}]"
 
 private def EMatchTheoremKind.explainFailure : EMatchTheoremKind → String
   | .eqLhs _   => "failed to find pattern in the left-hand side of the theorem's conclusion"
@@ -1085,8 +1089,13 @@ Normalizes `e` if it qualifies as a candidate pattern, and returns
 `some p` where `p` is the normalized pattern.
 
 `argKinds == NormalizePattern.getPatternArgKinds e.getAppFn e.getAppNumArgs`
+
+If `minIndexable == true`, then enforces the minimal indexable subexpression condition.
+That is, an indexable subexpression is minimal if there is no smaller indexable subexpression
+whose head constant has at least as high priority.
 -/
-private def normalizePattern? (e : Expr) (argKinds : Array NormalizePattern.PatternArgKind) : CollectorM (Option Expr) := do
+private def normalizePattern? (e : Expr) (argKinds : Array NormalizePattern.PatternArgKind)
+    (minIndexable : Bool) : CollectorM (Option Expr) := do
   let p := e.abstract (← read).xs
   unless p.hasLooseBVars do
     trace[grind.debug.ematch.pattern] "skip, does not contain pattern variables"
@@ -1101,60 +1110,64 @@ private def normalizePattern? (e : Expr) (argKinds : Array NormalizePattern.Patt
     return sizeOfDiff (← get).bvarsFound stateBefore.bvarsFound
   try
     let p ← NormalizePattern.normalizePattern p
-    let stateAfter ← getThe NormalizePattern.State
     let numNewBVars ← getNumNewBVars
     if numNewBVars == 0 then
       trace[grind.debug.ematch.pattern] "skip, no new variables covered"
       return (← failed)
-    /-
-    Checks whether one of `e`s children subsumes it. We say a child `c` subsumes `e`
-    1- `e` and `c` have the same new pattern variables. We say a pattern variable is new if it is not in `stateOld.bvarsFound`.
-    2- `c` is not a support argument. See `NormalizePattern.getPatternSupportMask` for definition.
-    3- `c` is not an offset pattern.
-    4- `c` is not a bound variable.
-    5- `c` is also a candidate.
-    -/
-    for arg in e.getAppArgs, argKind in argKinds do
-      unless argKind.isSupport do
-      unless arg.isFVar do
-      unless isOffsetPattern? arg |>.isSome do
-      if (← isPatternFnCandidate arg.getAppFn) then
-        let pArg := arg.abstract (← read).xs
-        set stateBefore
-        discard <|  NormalizePattern.normalizePattern pArg
-        let numArgNewBVars ← getNumNewBVars
-        if numArgNewBVars == numNewBVars then
-          trace[grind.debug.ematch.pattern] "skip, subsumed by argument"
-          return (← failed)
-    set stateAfter
+    if minIndexable then
+      let stateAfter ← getThe NormalizePattern.State
+      /-
+      Checks whether one of `e`s children subsumes it. We say a child `c` subsumes `e`
+      1- `e` and `c` have the same new pattern variables. We say a pattern variable is new if it is not in `stateOld.bvarsFound`.
+      2- `c` is not a support argument. See `NormalizePattern.getPatternSupportMask` for definition.
+      3- `c` is not an offset pattern.
+      4- `c` is not a bound variable.
+      5- `c` is also a candidate.
+      -/
+      for arg in e.getAppArgs, argKind in argKinds do
+        unless argKind.isSupport do
+        unless arg.isFVar do
+        unless isOffsetPattern? arg |>.isSome do
+        if (← isPatternFnCandidate arg.getAppFn) then
+          let pArg := arg.abstract (← read).xs
+          set stateBefore
+          discard <|  NormalizePattern.normalizePattern pArg
+          let numArgNewBVars ← getNumNewBVars
+          if numArgNewBVars == numNewBVars then
+            trace[grind.debug.ematch.pattern] "skip, subsumed by argument"
+            return (← failed)
+      set stateAfter
     return some p
   catch ex =>
     trace[grind.debug.ematch.pattern] "skip, exception during normalization{indentD ex.toMessageData}"
     failed
 
-private partial def collect (e : Expr) : CollectorM Unit := do
-  if (← get).done then return ()
-  match e with
-  | .app .. =>
-    trace[grind.debug.ematch.pattern] "collect: {e}"
-    let f := e.getAppFn
-    let argKinds ← NormalizePattern.getPatternArgKinds f e.getAppNumArgs
-    if (← isPatternFnCandidate f) then
-      trace[grind.debug.ematch.pattern] "candidate: {e}"
-      if let some p ← normalizePattern? e argKinds then
-        addNewPattern p
-        return ()
-    let args := e.getAppArgs
-    for arg in args, argKind in argKinds do
-      unless isOffsetPattern? arg |>.isSome do
-      trace[grind.debug.ematch.pattern] "arg: {arg}, support: {argKind.isSupport}"
-      unless argKind.isSupport do
-        collect arg
-  | .forallE _ d b _ =>
-    if (← pure e.isArrow <&&> isProp d <&&> isProp b) then
-      collect d
-      collect b
-  | _ => return ()
+private partial def collect (e : Expr) (minIndexable : Bool) : CollectorM Unit := do
+  go e
+where
+  go (e : Expr) : CollectorM Unit := do
+    if (← get).done then return ()
+    match e with
+    | .app .. =>
+      trace[grind.debug.ematch.pattern] "collect: {e}"
+      let f := e.getAppFn
+      let argKinds ← NormalizePattern.getPatternArgKinds f e.getAppNumArgs
+      if (← isPatternFnCandidate f) then
+        trace[grind.debug.ematch.pattern] "candidate: {e}"
+        if let some p ← normalizePattern? e argKinds minIndexable then
+          addNewPattern p
+          return ()
+      let args := e.getAppArgs
+      for arg in args, argKind in argKinds do
+        unless isOffsetPattern? arg |>.isSome do
+        trace[grind.debug.ematch.pattern] "arg: {arg}, support: {argKind.isSupport}"
+        unless argKind.isSupport do
+          go arg
+    | .forallE _ d b _ =>
+      if (← pure e.isArrow <&&> isProp d <&&> isProp b) then
+        go d
+        go b
+    | _ => return ()
 
 register_builtin_option backward.grind.inferPattern : Bool := {
   defValue := true
@@ -1169,7 +1182,7 @@ register_builtin_option backward.grind.checkInferPatternDiscrepancy : Bool := {
 }
 
 private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Array Expr) (symPrios : SymbolPriorities) (minPrio : Nat)
-    : MetaM (Option (List Expr × List HeadIndex)) := do
+    (minIndexable : Bool) : MetaM (Option (List Expr × List HeadIndex)) := do
   let go (useOld : Bool): CollectorM (Option (List Expr)) := do
     for place in searchPlaces do
       trace[grind.debug.ematch.pattern] "place: {place}"
@@ -1177,7 +1190,7 @@ private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Ar
       if useOld then
         OldCollector.collect place
       else
-        collect place
+        collect place minIndexable
       if (← get).done then
         return some ((← get).patterns.toList)
     return none
@@ -1279,6 +1292,7 @@ private partial def collectSingletons (e : Expr) : StateT (Array (Expr × List H
         unless p.hasLooseBVars do
           trace[grind.debug.ematch.pattern] "skip, does not contain pattern variables"
           return ()
+        -- **TODO**: `minIndexable` support
         let p ← NormalizePattern.normalizePattern p
         addNewPattern p
         if (← getThe Collector.State).done then
@@ -1333,7 +1347,7 @@ since the theorem is already in the `grind` state and there is nothing to be ins
 -/
 def mkEMatchTheoremWithKind?
       (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : EMatchTheoremKind) (symPrios : SymbolPriorities)
-      (groundPatterns := true) (showInfo := false) : MetaM (Option EMatchTheorem) := do
+      (groundPatterns := true) (showInfo := false) (minIndexable := false) : MetaM (Option EMatchTheorem) := do
   match kind with
   | .eqLhs gen =>
     return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := true) (gen := gen) (showInfo := showInfo))
@@ -1378,7 +1392,7 @@ where
   collect (xs : Array Expr) (searchPlaces : Array Expr) : MetaM (Option (List Expr × List HeadIndex)) := do
     let prios := collectUsedPriorities symPrios searchPlaces
     for minPrio in prios do
-      if let some r ← collectPatterns? proof xs searchPlaces symPrios minPrio then
+      if let some r ← collectPatterns? proof xs searchPlaces symPrios minPrio (minIndexable := minIndexable) then
         return some r
       else if groundPatterns then
         if let some (pattern, symbols) ← collectGroundPattern? proof xs searchPlaces symPrios minPrio then
@@ -1395,8 +1409,9 @@ where
       levelParams, origin, kind
     }
 
-def mkEMatchTheoremForDecl (declName : Name) (thmKind : EMatchTheoremKind) (prios : SymbolPriorities) (showInfo := false) : MetaM EMatchTheorem := do
-  let some thm ← mkEMatchTheoremWithKind? (.decl declName) #[] (← getProofFor declName) thmKind prios (showInfo := showInfo)
+def mkEMatchTheoremForDecl (declName : Name) (thmKind : EMatchTheoremKind) (prios : SymbolPriorities)
+    (showInfo := false) (minIndexable := false) : MetaM EMatchTheorem := do
+  let some thm ← mkEMatchTheoremWithKind? (.decl declName) #[] (← getProofFor declName) thmKind prios (showInfo := showInfo) (minIndexable := minIndexable)
     | throwError "`@{thmKind.toAttribute} theorem {.ofConstName declName}` {thmKind.explainFailure}, consider using different options or the `grind_pattern` command"
   return thm
 
@@ -1431,22 +1446,93 @@ def EMatchTheorems.eraseDecl (s : EMatchTheorems) (declName : Name) : MetaM EMat
       throwErr
     return s.erase <| .decl declName
 
-def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (prios : SymbolPriorities) (showInfo := false) : MetaM Unit := do
+private def ensureNoMinIndexable (minIndexable : Bool) : MetaM Unit := do
+  if minIndexable then
+    throwError "redundant modifier `!` in `grind` attribute"
+
+def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (prios : SymbolPriorities)
+    (showInfo := false) (minIndexable := false) : MetaM Unit := do
   match thmKind with
   | .eqLhs _ =>
+    ensureNoMinIndexable minIndexable
     addGrindEqAttr declName attrKind thmKind (useLhs := true) (showInfo := showInfo)
   | .eqRhs _ =>
+    ensureNoMinIndexable minIndexable
     addGrindEqAttr declName attrKind thmKind (useLhs := false) (showInfo := showInfo)
   | .eqBoth _ =>
+    ensureNoMinIndexable minIndexable
     addGrindEqAttr declName attrKind thmKind (useLhs := true) (showInfo := showInfo)
     addGrindEqAttr declName attrKind thmKind (useLhs := false) (showInfo := showInfo)
   | _ =>
     let info ← getConstInfo declName
     if !wasOriginallyTheorem (← getEnv) declName && !info.isCtor && !info.isAxiom then
+      ensureNoMinIndexable minIndexable
       addGrindEqAttr declName attrKind thmKind (showInfo := showInfo)
     else
-      let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := showInfo)
+      let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := showInfo) (minIndexable := minIndexable)
       ematchTheoremsExt.add thm attrKind
+
+private structure SelectM.State where
+  -- **Note**: hack, an attribute is not a tactic.
+  suggestions : Array Tactic.TryThis.Suggestion := #[]
+  thms : Array EMatchTheorem := #[]
+
+private abbrev SelectM := StateT SelectM.State MetaM
+
+private def save (thm : EMatchTheorem) (minIndexable : Bool) : SelectM Unit := do
+  -- We only save `thm` if the pattern is different from the ones that were already found.
+  if (← get).thms.all fun thm' => thm.patterns != thm'.patterns then
+    let baseAttr := if minIndexable then "grind!" else "grind"
+    let msg := s!"] for pattern: {← thm.patterns.mapM fun p => (ppPattern p).toString}"
+    modify fun s => { s with
+      thms := s.thms.push thm
+      suggestions := s.suggestions.push {
+        suggestion := .string s!"{baseAttr}{thm.kind.toAttributeCore}"
+        -- **Note**: small hack to include brackets in the suggestion
+        preInfo?   := some "["
+        -- **Note**: appears only on the info view.
+        postInfo?  := some msg
+      }
+    }
+
+/--
+Tries different modifiers, logs info messages with modifiers that worked, but stores just the first one that worked.
+
+Remark: if `backward.grind.inferPattern` is `true`, then `.default false` is used.
+The parameter `showInfo` is only taken into account when `backward.grind.inferPattern` is `true`.
+-/
+def addEMatchAttrAndSuggest (ref : Syntax) (declName : Name) (attrKind : AttributeKind) (prios : SymbolPriorities) (minIndexable : Bool) (showInfo : Bool) : MetaM Unit := do
+  if backward.grind.inferPattern.get (← getOptions) then
+    addEMatchAttr declName attrKind (.default false) prios (minIndexable := minIndexable) (showInfo := showInfo)
+  else
+    let tryModifier (thmKind : EMatchTheoremKind) (minIndexable : Bool) : SelectM Unit := do
+      try
+        let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := false) (minIndexable := minIndexable)
+        save thm minIndexable
+      catch _ =>
+        return ()
+    let searchCore (minIndexable : Bool) : SelectM Unit := do
+      tryModifier (.bwd false) minIndexable
+      tryModifier .fwd minIndexable
+      tryModifier .rightLeft minIndexable
+      tryModifier .leftRight minIndexable
+    let search : SelectM Unit := do
+      if minIndexable then
+        searchCore true
+      else
+        tryModifier (.eqLhs false) false
+        tryModifier (.eqRhs false) false
+        searchCore false
+        searchCore true
+    let (_, s) ← search.run {}
+    if h₁ : 0 < s.thms.size then
+      if s.suggestions.size == 1 then
+        Tactic.TryThis.addSuggestion ref s.suggestions[0]!
+      else
+        Tactic.TryThis.addSuggestions ref s.suggestions
+      ematchTheoremsExt.add s.thms[0] attrKind
+    else
+      throwError "invalid `grind` theorem, failed to find an usable pattern using different modifiers"
 
 def eraseEMatchAttr (declName : Name) : MetaM Unit := do
   /-

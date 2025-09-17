@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.DocString
 public import Lean.Elab.DocString.Builtin.Scopes
 public import Lean.Elab.DocString.Builtin.Postponed
+public meta import Lean.Elab.DocString.Builtin.Postponed
 import Lean.DocString.Links
 public import Lean.DocString.Syntax
 public import Lean.Elab.InfoTree
@@ -446,14 +447,6 @@ public def kw? (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anony
     (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   kwImpl (cat := cat) (of := of) true s
-
-/--
-A postponed check that a syntax kind name exists.
--/
-structure PostponedKind where
-  /-- The kind's name. -/
-  name : Name
-deriving TypeName
 
 /--
 Checks that a syntax kind name exists.

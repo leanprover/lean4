@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Deriving
-// Imports: Lean.Elab.Deriving.Basic Lean.Elab.Deriving.Util Lean.Elab.Deriving.Inhabited Lean.Elab.Deriving.Nonempty Lean.Elab.Deriving.TypeName Lean.Elab.Deriving.BEq Lean.Elab.Deriving.DecEq Lean.Elab.Deriving.Repr Lean.Elab.Deriving.FromToJson Lean.Elab.Deriving.SizeOf Lean.Elab.Deriving.Hashable Lean.Elab.Deriving.Ord Lean.Elab.Deriving.ToExpr
+// Imports: Lean.Elab.Deriving.Basic Lean.Elab.Deriving.Util Lean.Elab.Deriving.Inhabited Lean.Elab.Deriving.Nonempty Lean.Elab.Deriving.TypeName Lean.Elab.Deriving.BEq Lean.Elab.Deriving.DecEq Lean.Elab.Deriving.Repr Lean.Elab.Deriving.FromToJson Lean.Elab.Deriving.SizeOf Lean.Elab.Deriving.Hashable Lean.Elab.Deriving.Ord Lean.Elab.Deriving.ToExpr Lean.Elab.Deriving.ReflBEq Lean.Elab.Deriving.LawfulBEq
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -26,6 +26,8 @@ lean_object* initialize_Lean_Elab_Deriving_SizeOf(uint8_t builtin, lean_object*)
 lean_object* initialize_Lean_Elab_Deriving_Hashable(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Deriving_Ord(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Deriving_ToExpr(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Deriving_ReflBEq(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Deriving_LawfulBEq(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Deriving(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -68,6 +70,12 @@ res = initialize_Lean_Elab_Deriving_Ord(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Deriving_ToExpr(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Deriving_ReflBEq(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Deriving_LawfulBEq(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

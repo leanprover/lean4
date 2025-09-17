@@ -147,9 +147,15 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     modifySemiring fun s => { s with denote := s.denote.insert { expr := e } re }
   else if let some ncRingId ← getNonCommRingId? type then NonCommRingM.run ncRingId do
     let some re ← ncreify? e | return ()
-    trace_goal[grind.ring.internalize] "(non-comm) ring [ncRingId}]: {e}"
+    trace_goal[grind.ring.internalize] "(non-comm) ring [{ncRingId}]: {e}"
     setTermNonCommRingId e
     ringExt.markTerm e
     modifyRing fun s => { s with denote := s.denote.insert { expr := e } re }
+  else if let some ncSemiringId ← getNonCommSemiringId? type then NonCommSemiringM.run ncSemiringId do
+    let some re ← ncsreify? e | return ()
+    trace_goal[grind.ring.internalize] "(non-comm) semiring [{ncSemiringId}]: {e}"
+    setTermNonCommSemiringId e
+    ringExt.markTerm e
+    modifySemiring fun s => { s with denote := s.denote.insert { expr := e } re }
 
 end Lean.Meta.Grind.Arith.CommRing

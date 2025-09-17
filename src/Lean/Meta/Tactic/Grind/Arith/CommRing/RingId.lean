@@ -97,11 +97,28 @@ where
     let some ringId ← getCommRingId? q
       | throwError "`grind` unexpected failure, failure to initialize ring{indentExpr q}"
     let id := (← get').semirings.size
-    let semiring : Semiring := {
+    let semiring : CommSemiring := {
       id, type, ringId, u, semiringInst, commSemiringInst
     }
     modify' fun s => { s with semirings := s.semirings.push semiring }
     setCommSemiringId ringId id
+    return some id
+
+def getNonCommSemiringId? (type : Expr) : GoalM (Option Nat) := do
+  if let some id? := (← get').ncstypeIdOf.find? { expr := type } then
+    return id?
+  else
+    let id? ← go?
+    modify' fun s => { s with ncstypeIdOf := s.ncstypeIdOf.insert { expr := type } id? }
+    return id?
+where
+  go? : GoalM (Option Nat) := do
+    let u ← getDecLevel type
+    let semiring := mkApp (mkConst ``Grind.Semiring [u]) type
+    let some semiringInst ← synthInstance? semiring | return none
+    let id := (← get').ncSemirings.size
+    let semiring : Semiring := { id, type, u, semiringInst }
+    modify' fun s => { s with ncSemirings := s.ncSemirings.push semiring }
     return some id
 
 end Lean.Meta.Grind.Arith.CommRing

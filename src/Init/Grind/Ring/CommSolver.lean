@@ -15,7 +15,10 @@ public import Init.Grind.Ring.Field
 public import Init.Grind.Ordered.Ring
 public import Init.GrindInstances.Ring.Int
 import all Init.Data.Ord.Basic
+import Init.LawfulBEqTactics
+
 @[expose] public section
+
 namespace Lean.Grind.CommRing
 /-!
 Data-structures, definitions and theorems for implementing the
@@ -68,11 +71,7 @@ noncomputable def Expr.denote {α} [Ring α] (ctx : Context α) (e : Expr) : α 
 structure Power where
   x : Var
   k : Nat
-  deriving BEq, Repr, Inhabited, Hashable
-
-instance : LawfulBEq Power where
-  eq_of_beq {a} := by cases a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
-  rfl := by intro a; cases a <;> simp! [BEq.beq]
+  deriving BEq, ReflBEq, LawfulBEq, Repr, Inhabited, Hashable
 
 protected noncomputable def Power.beq' (pw₁ pw₂ : Power) : Bool :=
   Power.rec (fun x₁ k₁ => Power.rec (fun x₂ k₂ => Nat.beq x₁ x₂ && Nat.beq k₁ k₂) pw₂) pw₁
@@ -93,18 +92,7 @@ def Power.denote {α} [Semiring α] (ctx : Context α) : Power → α
 inductive Mon where
   | unit
   | mult (p : Power) (m : Mon)
-  deriving BEq, Repr, Inhabited, Hashable
-
-instance : LawfulBEq Mon where
-  eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
-    next p₁ m₁ p₂ m₂ ih =>
-      cases p₁ <;> cases p₂ <;> simp <;> intros <;> simp [*]
-      next h => exact ih h
-  rfl := by
-    intro a
-    induction a <;> simp! [BEq.beq]
-    assumption
+  deriving BEq, ReflBEq, LawfulBEq, Repr, Inhabited, Hashable
 
 protected noncomputable def Mon.beq' (m₁ : Mon) : Mon → Bool :=
   Mon.rec
@@ -326,7 +314,7 @@ theorem Mon.grevlex_k_eq_grevlex (m₁ m₂ : Mon) : m₁.grevlex_k m₂ = m₁.
 inductive Poly where
   | num (k : Int)
   | add (k : Int) (v : Mon) (p : Poly)
-  deriving BEq, Repr, Inhabited, Hashable
+  deriving BEq, ReflBEq, LawfulBEq, Repr, Inhabited, Hashable
 
 protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
   Poly.rec
@@ -343,20 +331,6 @@ protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
   rw [← eq_iff_iff]
   intro _ _; subst k₁ m₁
   simp [← ih p₂, ← Bool.and'_eq_and]; rfl
-
-instance : LawfulBEq Poly where
-  eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
-    intro h₁ h₂ h₃
-    rename_i m₁ p₁ _ m₂ p₂ ih
-    replace h₂ : m₁ == m₂ := h₂
-    simp [ih h₃, eq_of_beq h₂]
-  rfl := by
-    intro a
-    induction a <;> simp! [BEq.beq]
-    rename_i k m p ih
-    change m == m ∧ p == p
-    simp [ih]
 
 def Poly.denote [Ring α] (ctx : Context α) (p : Poly) : α :=
   match p with

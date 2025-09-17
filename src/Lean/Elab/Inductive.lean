@@ -193,6 +193,7 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
   let indFVar := r.indFVar
   let indFamily ← isInductiveFamily params.size indFVar
   r.view.ctors.toList.mapM fun ctorView =>
+    withoutExporting (when := isPrivateName ctorView.declName) do
     Term.withAutoBoundImplicit <| Term.elabBinders ctorView.binders.getArgs fun ctorParams =>
       withRef ctorView.ref do
         let elabCtorType : TermElabM Expr := do

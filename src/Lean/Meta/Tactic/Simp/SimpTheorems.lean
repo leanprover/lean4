@@ -364,17 +364,19 @@ private def checkTypeIsProp (type : Expr) : MetaM Unit :=
   unless (← isProp type) do
     throwError "Invalid simp theorem: Expected a proposition, but found{indentExpr type}"
 
-private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array Name) (proof : Expr) (post : Bool) (prio : Nat) (noIndexAtArgs : Bool) : MetaM SimpTheorem := do
-  assert! origin != .fvar ⟨.anonymous⟩
-  let type ← instantiateMVars (← inferType e)
+private def mkSimpTheoremKeys (type : Expr) (noIndexAtArgs : Bool) : MetaM (Array SimpTheoremKey × Bool) := do
   withNewMCtxDepth do
     let (_, _, type) ← forallMetaTelescopeReducing type
     let type ← whnfR type
-    let (keys, perm) ←
-      match type.eq? with
-      | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs noIndexAtArgs, ← isPerm lhs rhs)
-      | none => throwError "Unexpected kind of simp theorem{indentExpr type}"
-    return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
+    match type.eq? with
+    | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs noIndexAtArgs, ← isPerm lhs rhs)
+    | none => throwError "Unexpected kind of simp theorem{indentExpr type}"
+
+private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array Name) (proof : Expr) (post : Bool) (prio : Nat) (noIndexAtArgs : Bool) : MetaM SimpTheorem := do
+  assert! origin != .fvar ⟨.anonymous⟩
+  let type ← instantiateMVars (← inferType e)
+  let (keys, perm) ← mkSimpTheoremKeys type noIndexAtArgs
+  return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
 
 /--
 Creates a `SimpTheorem` from a global theorem.
@@ -426,6 +428,19 @@ def mkSimpTheoremFromExpr (id : Origin) (levelParams : Array Name) (proof : Expr
       withReducible do
         (← preprocessProof proof inv).mapM fun val =>
           mkSimpTheoremCore id val levelParams val post prio (noIndexAtArgs := true)
+
+/-- Creates a `SimpTheorem` from a definitional equality.  -/
+def mkDSimpTheorem (id : Origin) (levelParams : Array Name) (type : Expr)
+    (post := true) (prio : Nat := eval_prio default) (config : ConfigWithKey := simpGlobalConfig) :
+    MetaM SimpTheorem := do
+  withConfigWithKey config do
+    let (keys, perm) ← mkSimpTheoremKeys type (noIndexAtArgs := true)
+    let proof ← forallTelescopeReducing type fun xs r => do
+      let some (_, lhs, _rhs) := r.eq?
+        | throwError "Unexpected kind of dsimp theorem{indentExpr type}"
+      -- We need to wrap the proof in a type hint, else the type is lost
+      mkExpectedTypeHint (← mkLambdaFVars xs (← mkEqRefl lhs)) type
+    return { origin := id, keys, perm, post, levelParams, proof, priority := prio, rfl := true }
 
 /--
 A simp theorem or information about a declaration to unfold by simp.

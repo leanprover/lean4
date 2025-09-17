@@ -418,7 +418,7 @@ uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabGrobnerConfig___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_elabGrindParams_spec__15_spec__15___closed__22;
 LEAN_EXPORT lean_object* l_Lean_logWarning___at_____private_Lean_Elab_Tactic_Grind_0__Lean_Elab_Tactic_warnRedundantEMatchArg_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_mkEMatchTheoremForDecl(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_mkEMatchTheoremForDecl(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at___Lean_PersistentHashMap_foldl___at___Lean_PersistentHashMap_toList___at___Lean_PersistentHashSet_toList___at___Lean_Elab_Tactic_mkGrindOnly_spec__6_spec__6_spec__6_spec__6___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_elabGrindPattern___closed__1;
@@ -12132,7 +12132,7 @@ lean_inc(x_89);
 lean_inc_ref(x_88);
 lean_inc_ref(x_97);
 lean_inc(x_2);
-x_102 = l_Lean_Meta_Grind_mkEMatchTheoremForDecl(x_2, x_3, x_97, x_37, x_88, x_89, x_90, x_91, x_92);
+x_102 = l_Lean_Meta_Grind_mkEMatchTheoremForDecl(x_2, x_3, x_97, x_37, x_37, x_88, x_89, x_90, x_91, x_92);
 if (lean_obj_tag(x_102) == 0)
 {
 lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; 
@@ -12149,7 +12149,7 @@ lean_inc(x_89);
 lean_inc_ref(x_88);
 lean_inc_ref(x_97);
 lean_inc(x_2);
-x_106 = l_Lean_Meta_Grind_mkEMatchTheoremForDecl(x_2, x_105, x_97, x_37, x_88, x_89, x_90, x_91, x_104);
+x_106 = l_Lean_Meta_Grind_mkEMatchTheoremForDecl(x_2, x_105, x_97, x_37, x_37, x_88, x_89, x_90, x_91, x_104);
 if (lean_obj_tag(x_106) == 0)
 {
 lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; uint8_t x_111; 
@@ -12333,7 +12333,7 @@ lean_inc(x_89);
 lean_inc_ref(x_88);
 lean_inc_ref(x_128);
 lean_inc(x_2);
-x_134 = l_Lean_Meta_Grind_mkEMatchTheoremForDecl(x_2, x_133, x_128, x_37, x_88, x_89, x_90, x_91, x_92);
+x_134 = l_Lean_Meta_Grind_mkEMatchTheoremForDecl(x_2, x_133, x_128, x_37, x_37, x_88, x_89, x_90, x_91, x_92);
 if (lean_obj_tag(x_134) == 0)
 {
 lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; 
@@ -12350,7 +12350,7 @@ lean_inc(x_89);
 lean_inc_ref(x_88);
 lean_inc_ref(x_128);
 lean_inc(x_2);
-x_138 = l_Lean_Meta_Grind_mkEMatchTheoremForDecl(x_2, x_137, x_128, x_37, x_88, x_89, x_90, x_91, x_136);
+x_138 = l_Lean_Meta_Grind_mkEMatchTheoremForDecl(x_2, x_137, x_128, x_37, x_37, x_88, x_89, x_90, x_91, x_136);
 if (lean_obj_tag(x_138) == 0)
 {
 lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; uint8_t x_143; 
@@ -12535,7 +12535,7 @@ lean_inc(x_89);
 lean_inc_ref(x_88);
 lean_inc_ref(x_159);
 lean_inc(x_2);
-x_164 = l_Lean_Meta_Grind_mkEMatchTheoremForDecl(x_2, x_3, x_159, x_37, x_88, x_89, x_90, x_91, x_92);
+x_164 = l_Lean_Meta_Grind_mkEMatchTheoremForDecl(x_2, x_3, x_159, x_37, x_37, x_88, x_89, x_90, x_91, x_92);
 if (lean_obj_tag(x_164) == 0)
 {
 lean_object* x_165; lean_object* x_166; lean_object* x_167; lean_object* x_168; uint8_t x_169; 

@@ -14,7 +14,11 @@ public section
 namespace Lean.Meta.Grind.Arith.CommRing
 export Lean.Grind.CommRing (Var Power Mon Poly)
 abbrev RingExpr := Grind.CommRing.Expr
-abbrev SemiringExpr := Grind.Ring.OfSemiring.Expr
+/-
+**Note**: recall that we use ring expressions to represent semiring expressions,
+and ignore non-applicable constructors.
+-/
+abbrev SemiringExpr := Grind.CommRing.Expr
 
 mutual
 structure EqCnstr where
@@ -140,6 +144,29 @@ structure DiseqCnstr where
   -/
   ofSemiring? : Option (SemiringExpr × SemiringExpr)
 
+/-- Shared state for non-commutative and commutative semirings. -/
+structure Semiring where
+  id             : Nat
+  type           : Expr
+  /-- Cached `getDecLevel type` -/
+  u              : Level
+  /-- `Semiring` instance for `type` -/
+  semiringInst   : Expr
+  addFn?         : Option Expr := none
+  mulFn?         : Option Expr := none
+  powFn?         : Option Expr := none
+  natCastFn?     : Option Expr := none
+  /-- Mapping from Lean expressions to their representations as `SemiringExpr` -/
+  denote         : PHashMap ExprPtr SemiringExpr := {}
+  /--
+  Mapping from variables to their denotations.
+  Remark each variable can be in only one ring.
+  -/
+  vars           : PArray Expr := {}
+  /-- Mapping from `Expr` to a variable representing it. -/
+  varMap         : PHashMap ExprPtr Var := {}
+  deriving Inhabited
+
 /-- Shared state for non-commutative and commutative rings. -/
 structure Ring where
   id             : Nat
@@ -224,33 +251,14 @@ structure CommRing extends Ring where
 State for each `CommSemiring` processed by this module.
 Recall that `CommSemiring` are processed using the envelop `OfCommSemiring.Q`
 -/
-structure Semiring where
-  id             : Nat
+structure CommSemiring extends Semiring where
   /-- Id for `OfCommSemiring.Q` -/
   ringId         : Nat
-  type           : Expr
-  /-- Cached `getDecLevel type` -/
-  u              : Level
-  /-- `Semiring` instance for `type` -/
-  semiringInst   : Expr
   /-- `CommSemiring` instance for `type` -/
   commSemiringInst   : Expr
   /-- `AddRightCancel` instance for `type` if available. -/
   addRightCancelInst? : Option (Option Expr) := none
   toQFn?         : Option Expr := none
-  addFn?         : Option Expr := none
-  mulFn?         : Option Expr := none
-  powFn?         : Option Expr := none
-  natCastFn?     : Option Expr := none
-  /-- Mapping from Lean expressions to their representations as `SemiringExpr` -/
-  denote         : PHashMap ExprPtr SemiringExpr := {}
-  /--
-  Mapping from variables to their denotations.
-  Remark each variable can be in only one ring.
-  -/
-  vars           : PArray Expr := {}
-  /-- Mapping from `Expr` to a variable representing it. -/
-  varMap         : PHashMap ExprPtr Var := {}
   deriving Inhabited
 
 /-- State for all `CommRing` types detected by `grind`. -/
@@ -267,7 +275,7 @@ structure State where
   /- Mapping from expressions/terms to their ring ids. -/
   exprToRingId : PHashMap ExprPtr Nat := {}
   /-- Commutative semirings. We support them using the envelope `OfCommRing.Q` -/
-  semirings : Array Semiring := {}
+  semirings : Array CommSemiring := {}
   /--
   Mapping from types to its "semiring id". We cache failures using `none`.
   `stypeIdOf[type]` is `some id`, then `id < semirings.size`.
@@ -289,6 +297,16 @@ structure State where
   Mapping from types to its "ring id". We cache failures using `none`.
   `nctypeIdOf[type]` is `some id`, then `id < ncRings.size`. -/
   nctypeIdOf : PHashMap ExprPtr (Option Nat) := {}
+  /--
+  Non commutative semirings.
+  -/
+  ncSemirings : Array Semiring := {}
+  /- Mapping from expressions/terms to their (non-commutative) semiring ids. -/
+  exprToNCSemiringId : PHashMap ExprPtr Nat := {}
+  /--
+  Mapping from types to its "semiring id". We cache failures using `none`.
+  `ncstypeIdOf[type]` is `some id`, then `id < ncSemirings.size`. -/
+  ncstypeIdOf : PHashMap ExprPtr (Option Nat) := {}
   steps := 0
   deriving Inhabited
 

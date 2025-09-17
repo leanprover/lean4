@@ -4013,8 +4013,8 @@ x_39 = lean_array_get_size(x_36);
 x_40 = lean_nat_dec_le(x_38, x_12);
 if (x_40 == 0)
 {
-x_13 = x_37;
-x_14 = x_36;
+x_13 = x_36;
+x_14 = x_37;
 x_15 = x_38;
 x_16 = x_39;
 goto block_22;
@@ -4022,8 +4022,8 @@ goto block_22;
 else
 {
 lean_dec(x_38);
-x_13 = x_37;
-x_14 = x_36;
+x_13 = x_36;
+x_14 = x_37;
 x_15 = x_12;
 x_16 = x_39;
 goto block_22;
@@ -4108,12 +4108,12 @@ return x_72;
 block_22:
 {
 lean_object* x_17; lean_object* x_18; size_t x_19; size_t x_20; lean_object* x_21; 
-x_17 = l_Array_toSubarray___redArg(x_14, x_15, x_16);
+x_17 = l_Array_toSubarray___redArg(x_13, x_15, x_16);
 x_18 = l_Array_ofSubarray___redArg(x_17);
 lean_dec_ref(x_17);
 x_19 = lean_array_size(x_18);
 x_20 = 0;
-x_21 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__11(x_12, x_19, x_20, x_18, x_2, x_3, x_4, x_5, x_13);
+x_21 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__11(x_12, x_19, x_20, x_18, x_2, x_3, x_4, x_5, x_14);
 return x_21;
 }
 }

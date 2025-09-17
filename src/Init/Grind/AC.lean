@@ -10,6 +10,8 @@ public import Init.Core
 public import Init.Data.Nat.Lemmas
 public import Init.Data.RArray
 public import Init.Data.Bool
+import Init.LawfulBEqTactics
+
 @[expose] public section
 
 namespace Lean.Grind.AC
@@ -38,7 +40,7 @@ attribute [local simp] Expr.denote_var Expr.denote_op
 inductive Seq where
   | var (x : Var)
   | cons (x : Var) (s : Seq)
-  deriving Inhabited, Repr, BEq
+  deriving Inhabited, Repr, BEq, ReflBEq, LawfulBEq
 
 -- Kernel version for Seq.beq
 noncomputable def Seq.beq' (s₁ : Seq) : Seq → Bool :=
@@ -54,12 +56,6 @@ theorem Seq.beq'_eq (s₁ s₂ : Seq) : s₁.beq' s₂ = (s₁ = s₂) := by
   simp [← ih s₂, ← Bool.and'_eq_and]; rfl
 
 attribute [local simp] Seq.beq'_eq
-
-instance : LawfulBEq Seq where
-  eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp! [BEq.beq]
-    next x₁ s₁ ih x₂ s₂ => intro h₁ h₂; simp [h₁, ih h₂]
-  rfl := by intro a; induction a <;> simp! [BEq.beq]; assumption
 
 noncomputable def Seq.denote {α} (ctx : Context α) (s : Seq) : α :=
   Seq.rec (fun x => x.denote ctx) (fun x _ ih => ctx.op (x.denote ctx) ih) s

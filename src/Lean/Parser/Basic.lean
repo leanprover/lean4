@@ -716,14 +716,14 @@ def charLitFnAux (startPos : String.Pos) : ParserFn := fun c s =>
       if curr == '\'' then mkNodeToken charLitKind startPos true c s
       else s.mkUnexpectedError "missing end of character literal"
 
-partial def strLitFnAux (startPos : String.Pos) (includeWhitespace := false) : ParserFn := fun c s =>
+partial def strLitFnAux (startPos : String.Pos) (includeWhitespace := true) : ParserFn := fun c s =>
   let i := s.pos
   if h : c.atEnd i then s.mkUnexpectedErrorAt "unterminated string literal" startPos
   else
     let curr := c.get' i h
     let s    := s.setPos (c.next' i h)
     if curr == '\"' then
-      mkNodeToken strLitKind startPos true c s
+      mkNodeToken strLitKind startPos includeWhitespace c s
     else if curr == '\\' then andthenFn quotedStringFn (strLitFnAux startPos) c s
     else strLitFnAux startPos includeWhitespace c s
 

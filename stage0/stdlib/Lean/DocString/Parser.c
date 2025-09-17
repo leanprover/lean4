@@ -166,7 +166,6 @@ static lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_no
 static lean_object* l_Lean_Doc_Parser_emph___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_para___lam__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_quote(lean_object*);
-lean_object* l_Lean_Parser_strLitFnAux___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_arg_flag___lam__5___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_arg_mkNamed___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_bol___closed__1;
@@ -554,6 +553,7 @@ LEAN_EXPORT lean_object* l_Lean_Doc_Parser_OrderedListType_ctorIdx___boxed(lean_
 lean_object* l_Lean_Parser_SyntaxStack_get_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_instReprBlockCtxt;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_blankLine___lam__2(lean_object*, lean_object*);
+lean_object* l_Lean_Parser_strLitFnAux(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_header___lam__5(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_para___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_Parser_codeBlock___closed__0;
@@ -6080,7 +6080,7 @@ else
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
 lean_inc(x_4);
 x_46 = l_Lean_Parser_ParserState_next_x27___redArg(x_2, x_1, x_4);
-x_47 = l_Lean_Parser_strLitFnAux___redArg(x_4, x_1, x_46);
+x_47 = l_Lean_Parser_strLitFnAux(x_4, x_5, x_1, x_46);
 x_48 = l_Lean_Doc_Parser_val___closed__9;
 x_49 = l_Lean_Parser_ParserState_mkNode(x_47, x_48, x_8);
 lean_dec(x_8);

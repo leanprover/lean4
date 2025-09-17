@@ -11,6 +11,21 @@
    "kind": 5,
    "data": ["«external:file:///completion3.lean»", 7, 9, 1, "cS.y"]}],
  "isIncomplete": false}
+resolve: x
+{"label": "x",
+ "kind": 5,
+ "detail": "S → Nat",
+ "data": ["«external:file:///completion3.lean»", 7, 9, 1, "cS.x"]}
+resolve: b
+{"label": "b",
+ "kind": 5,
+ "detail": "S → Bool",
+ "data": ["«external:file:///completion3.lean»", 7, 9, 1, "cS.b"]}
+resolve: y
+{"label": "y",
+ "kind": 5,
+ "detail": "S → String",
+ "data": ["«external:file:///completion3.lean»", 7, 9, 1, "cS.y"]}
 {"textDocument": {"uri": "file:///completion3.lean"},
  "position": {"line": 12, "character": 5}}
 {"items":
@@ -24,6 +39,21 @@
    "kind": 5,
    "data": ["«external:file:///completion3.lean»", 12, 5, 1, "cS.y"]}],
  "isIncomplete": false}
+resolve: x
+{"label": "x",
+ "kind": 5,
+ "detail": "S → Nat",
+ "data": ["«external:file:///completion3.lean»", 12, 5, 1, "cS.x"]}
+resolve: b
+{"label": "b",
+ "kind": 5,
+ "detail": "S → Bool",
+ "data": ["«external:file:///completion3.lean»", 12, 5, 1, "cS.b"]}
+resolve: y
+{"label": "y",
+ "kind": 5,
+ "detail": "S → String",
+ "data": ["«external:file:///completion3.lean»", 12, 5, 1, "cS.y"]}
 {"textDocument": {"uri": "file:///completion3.lean"},
  "position": {"line": 16, "character": 5}}
 {"items":
@@ -37,6 +67,21 @@
    "kind": 5,
    "data": ["«external:file:///completion3.lean»", 16, 5, 1, "cS.y"]}],
  "isIncomplete": false}
+resolve: x
+{"label": "x",
+ "kind": 5,
+ "detail": "S → Nat",
+ "data": ["«external:file:///completion3.lean»", 16, 5, 1, "cS.x"]}
+resolve: b
+{"label": "b",
+ "kind": 5,
+ "detail": "S → Bool",
+ "data": ["«external:file:///completion3.lean»", 16, 5, 1, "cS.b"]}
+resolve: y
+{"label": "y",
+ "kind": 5,
+ "detail": "S → String",
+ "data": ["«external:file:///completion3.lean»", 16, 5, 1, "cS.y"]}
 {"textDocument": {"uri": "file:///completion3.lean"},
  "position": {"line": 20, "character": 5}}
 {"items":
@@ -50,3 +95,18 @@
    "kind": 5,
    "data": ["«external:file:///completion3.lean»", 20, 5, 1, "cS.y"]}],
  "isIncomplete": false}
+resolve: x
+{"label": "x",
+ "kind": 5,
+ "detail": "S → Nat",
+ "data": ["«external:file:///completion3.lean»", 20, 5, 1, "cS.x"]}
+resolve: b
+{"label": "b",
+ "kind": 5,
+ "detail": "S → Bool",
+ "data": ["«external:file:///completion3.lean»", 20, 5, 1, "cS.b"]}
+resolve: y
+{"label": "y",
+ "kind": 5,
+ "detail": "S → String",
+ "data": ["«external:file:///completion3.lean»", 20, 5, 1, "cS.y"]}

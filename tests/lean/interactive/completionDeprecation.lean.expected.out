@@ -72,3 +72,112 @@
     0,
     "cSomeStructure.foo2"]}],
  "isIncomplete": false}
+resolve: foo4
+{"tags": [1],
+ "label": "foo4",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "(some (`SomeStructure.foo4` has been deprecated.))\n\nA docstring. ",
+  "kind": "markdown"},
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["«external:file:///completionDeprecation.lean»",
+  25,
+  28,
+  0,
+  "cSomeStructure.foo4"]}
+resolve: foo8
+{"tags": [1],
+ "label": "foo8",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "(some (`SomeStructure.foo8` has been deprecated; please use `SomeStructure.foo1` instead.))\n\nA docstring. ",
+  "kind": "markdown"},
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["«external:file:///completionDeprecation.lean»",
+  25,
+  28,
+  0,
+  "cSomeStructure.foo8"]}
+resolve: foo5
+{"tags": [1],
+ "label": "foo5",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "`SomeStructure.foo5` has been deprecated, use `SomeStructure.foo1` instead.",
+  "kind": "markdown"},
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["«external:file:///completionDeprecation.lean»",
+  25,
+  28,
+  0,
+  "cSomeStructure.foo5"]}
+resolve: foo7
+{"tags": [1],
+ "label": "foo7",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "`SomeStructure.foo7` has been deprecated; please use `SomeStructure.foo1` instead.",
+  "kind": "markdown"},
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["«external:file:///completionDeprecation.lean»",
+  25,
+  28,
+  0,
+  "cSomeStructure.foo7"]}
+resolve: foo1
+{"label": "foo1",
+ "kind": 3,
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["«external:file:///completionDeprecation.lean»",
+  25,
+  28,
+  0,
+  "cSomeStructure.foo1"]}
+resolve: foo6
+{"tags": [1],
+ "label": "foo6",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "(some (`SomeStructure.foo6` has been deprecated, use `SomeStructure.foo1` instead.))\n\nA docstring. ",
+  "kind": "markdown"},
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["«external:file:///completionDeprecation.lean»",
+  25,
+  28,
+  0,
+  "cSomeStructure.foo6"]}
+resolve: foo3
+{"tags": [1],
+ "label": "foo3",
+ "kind": 3,
+ "documentation":
+ {"value": "`SomeStructure.foo3` has been deprecated.", "kind": "markdown"},
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["«external:file:///completionDeprecation.lean»",
+  25,
+  28,
+  0,
+  "cSomeStructure.foo3"]}
+resolve: foo2
+{"label": "foo2",
+ "kind": 3,
+ "documentation": {"value": "A docstring. ", "kind": "markdown"},
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["«external:file:///completionDeprecation.lean»",
+  25,
+  28,
+  0,
+  "cSomeStructure.foo2"]}

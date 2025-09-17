@@ -38,6 +38,40 @@
     0,
     "cDirection.right"]}],
  "isIncomplete": true}
+resolve: up
+{"label": "up",
+ "kind": 4,
+ "detail": "Direction",
+ "data":
+ ["«external:file:///completionFallback.lean»", 14, 14, 0, "cDirection.up"]}
+resolve: noConfusionType
+{"label": "noConfusionType",
+ "kind": 3,
+ "detail": "Sort v✝ → Direction → Direction → Sort v✝",
+ "data":
+ ["«external:file:///completionFallback.lean»",
+  14,
+  14,
+  0,
+  "cDirection.noConfusionType"]}
+resolve: left
+{"label": "left",
+ "kind": 4,
+ "detail": "Direction",
+ "data":
+ ["«external:file:///completionFallback.lean»", 14, 14, 0, "cDirection.left"]}
+resolve: down
+{"label": "down",
+ "kind": 4,
+ "detail": "Direction",
+ "data":
+ ["«external:file:///completionFallback.lean»", 14, 14, 0, "cDirection.down"]}
+resolve: right
+{"label": "right",
+ "kind": 4,
+ "detail": "Direction",
+ "data":
+ ["«external:file:///completionFallback.lean»", 14, 14, 0, "cDirection.right"]}
 {"textDocument": {"uri": "file:///completionFallback.lean"},
  "position": {"line": 28, "character": 30}}
 {"items":
@@ -54,3 +88,21 @@
    "data":
    ["«external:file:///completionFallback.lean»", 28, 30, 0, "cCustomAnd.hb"]}],
  "isIncomplete": false}
+resolve: mk
+{"label": "mk",
+ "kind": 4,
+ "detail": "a → b → CustomAnd a b",
+ "data":
+ ["«external:file:///completionFallback.lean»", 28, 30, 0, "cCustomAnd.mk"]}
+resolve: ha
+{"label": "ha",
+ "kind": 23,
+ "detail": "CustomAnd a b → a",
+ "data":
+ ["«external:file:///completionFallback.lean»", 28, 30, 0, "cCustomAnd.ha"]}
+resolve: hb
+{"label": "hb",
+ "kind": 23,
+ "detail": "CustomAnd a b → b",
+ "data":
+ ["«external:file:///completionFallback.lean»", 28, 30, 0, "cCustomAnd.hb"]}
